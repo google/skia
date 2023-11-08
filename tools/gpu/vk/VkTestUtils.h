@@ -48,8 +48,11 @@ namespace sk_gpu_test {
                                 bool isProtected = false);
 
     void FreeVulkanFeaturesStructs(const VkPhysicalDeviceFeatures2*);
+
+    void ConvertBackendContext(const skgpu::VulkanBackendContext& newStyle,
+                               GrVkBackendContext* oldStyle);
+
 }  // namespace sk_gpu_test
 
 #endif
 #endif
-

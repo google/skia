@@ -13,6 +13,8 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/vk/GrVkDirectContext.h"
+#include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 #define ACQUIRE_INST_VK_PROC(name)                                                               \
@@ -72,7 +74,9 @@ bool VkTestHelper::init() {
     ACQUIRE_DEVICE_VK_PROC(FlushMappedMemoryRanges)
     ACQUIRE_DEVICE_VK_PROC(GetImageSubresourceLayout)
 
-    fDirectContext = GrDirectContexts::MakeVulkan(fBackendContext);
+    GrVkBackendContext gr;
+    sk_gpu_test::ConvertBackendContext(fBackendContext, &gr);
+    fDirectContext = GrDirectContexts::MakeVulkan(gr);
     if (!fDirectContext) {
         return false;
     }

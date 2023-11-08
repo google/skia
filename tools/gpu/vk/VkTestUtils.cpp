@@ -456,6 +456,24 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc, VkInstance inst,
     // If we want to disable any extension features do so here.
 }
 
+// TODO: remove once GrVkBackendContext is deprecated (skbug.com/309785258)
+void ConvertBackendContext(const skgpu::VulkanBackendContext& newStyle,
+                           GrVkBackendContext* oldStyle) {
+    oldStyle->fInstance = newStyle.fInstance;
+    oldStyle->fPhysicalDevice = newStyle.fPhysicalDevice;
+    oldStyle->fDevice = newStyle.fDevice;
+    oldStyle->fQueue = newStyle.fQueue;
+    oldStyle->fGraphicsQueueIndex = newStyle.fGraphicsQueueIndex;
+    oldStyle->fMaxAPIVersion = newStyle.fMaxAPIVersion;
+    oldStyle->fVkExtensions = newStyle.fVkExtensions;
+    oldStyle->fDeviceFeatures = newStyle.fDeviceFeatures;
+    oldStyle->fDeviceFeatures2 = newStyle.fDeviceFeatures2;
+    oldStyle->fMemoryAllocator = newStyle.fMemoryAllocator;
+    oldStyle->fGetProc = newStyle.fGetProc;
+    oldStyle->fProtectedContext = newStyle.fProtectedContext;
+}
+
+// TODO: remove once GrVkBackendContext is deprecated (skbug.com/309785258)
 bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
                             GrVkBackendContext* ctx,
                             skgpu::VulkanExtensions* extensions,
@@ -477,17 +495,8 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     }
 
     SkASSERT(skgpuCtx.fProtectedContext == skgpu::Protected(isProtected));
-    ctx->fInstance = skgpuCtx.fInstance;
-    ctx->fPhysicalDevice = skgpuCtx.fPhysicalDevice;
-    ctx->fDevice = skgpuCtx.fDevice;
-    ctx->fQueue = skgpuCtx.fQueue;
-    ctx->fGraphicsQueueIndex = skgpuCtx.fGraphicsQueueIndex;
-    ctx->fMaxAPIVersion = skgpuCtx.fMaxAPIVersion;
-    ctx->fVkExtensions = skgpuCtx.fVkExtensions;
-    ctx->fDeviceFeatures2 = skgpuCtx.fDeviceFeatures2;
-    ctx->fGetProc = skgpuCtx.fGetProc;
-    ctx->fOwnsInstanceAndDevice = false;
-    ctx->fProtectedContext = skgpuCtx.fProtectedContext;
+
+    ConvertBackendContext(skgpuCtx, ctx);
     return true;
 }
 
