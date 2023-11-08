@@ -17,7 +17,6 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "skcms.cc",
-        "skcms_internal.h",
         "src/skcms_Transform.h",
         "src/skcms_TransformBaseline.cc",
         "src/skcms_TransformHsw.cc",
@@ -42,7 +41,6 @@ skia_cc_library(
     name = "skcms",
     srcs = [
         "skcms.cc",
-        "skcms_internal.h",
         "src/skcms_Transform.h",
         "src/skcms_TransformBaseline.cc",
         "src/skcms_TransformHsw.cc",
