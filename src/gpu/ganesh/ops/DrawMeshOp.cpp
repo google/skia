@@ -181,7 +181,8 @@ private:
                 });
                 SkASSERT(it != uniforms.end());
 
-                UniformHandle* handle = &fSelf->fSpecUniformHandles[it - uniforms.begin()];
+                size_t handleIdx = std::distance(uniforms.begin(), it);
+                UniformHandle* handle = &fSelf->fSpecUniformHandles[handleIdx];
                 if (handle->isValid()) {
                     const GrShaderVar& uniformVar = fUniformHandler->getUniformVariable(*handle);
                     return std::string(uniformVar.getName().c_str());
@@ -305,7 +306,8 @@ private:
             }
 
             SkASSERT(fSpecUniformHandles.empty());
-            fSpecUniformHandles.resize(mgp.fSpec->uniforms().size());
+            fSpecUniformHandles.reserve_exact(mgp.fSpec->uniforms().size());
+            fSpecUniformHandles.push_back_n(mgp.fSpec->uniforms().size());
 
             SkMeshSpecificationPriv::ColorType meshColorType =
                     SkMeshSpecificationPriv::GetColorType(*mgp.fSpec);
@@ -517,10 +519,10 @@ private:
     private:
         SkMatrix fViewMatrix = SkMatrix::InvalidMatrix();
 
-        TArray<std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fChildImpls;
-        UniformHandle                                             fViewMatrixUniform;
-        UniformHandle                                             fColorUniform;
-        std::vector<UniformHandle>                                fSpecUniformHandles;
+        STArray<2, std::unique_ptr<GrFragmentProcessor::ProgramImpl>> fChildImpls;
+        UniformHandle                                                 fViewMatrixUniform;
+        UniformHandle                                                 fColorUniform;
+        STArray<8, UniformHandle>                                     fSpecUniformHandles;
 
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
     };
