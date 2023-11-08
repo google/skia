@@ -15,7 +15,6 @@
 #include <cinttypes>
 
 class GrVkSamplerYcbcrConversion;
-struct GrVkYcbcrConversionInfo;
 
 class GrVkImageView : public GrVkManagedResource {
 public:

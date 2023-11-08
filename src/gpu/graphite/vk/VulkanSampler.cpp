@@ -83,9 +83,9 @@ sk_sp<VulkanSampler> VulkanSampler::Make(const VulkanSharedContext* sharedContex
     samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
-    // TODO: add VkSamplerYcbcrConversion support
-    // When we add YCbCr support, we'll have to figure out how to key it, as currently
-    // the ResourceProvider only generates a key based on the samplingOptions and tileModes.
+    // TODO: Add VkSamplerYcbcrConversion support by adding YCbCr conversion information to the
+    // graphite-level sampler key. Currently, the ResourceProvider only generates a key based on
+    // samplingOptions and tileModes.
 
     VkSampler sampler;
     VkResult result;

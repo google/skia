@@ -2204,6 +2204,7 @@ VULKAN_SRCS = [
     "src/gpu/vk/VulkanInterface.h",
     "src/gpu/vk/VulkanMemory.cpp",
     "src/gpu/vk/VulkanMemory.h",
+    "src/gpu/vk/VulkanUtilsPriv.cpp",
     "src/gpu/vk/VulkanUtilsPriv.h",
 ]
 

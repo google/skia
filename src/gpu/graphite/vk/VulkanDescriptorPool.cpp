@@ -63,6 +63,8 @@ sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext
                        /*const VkAllocationCallbacks*=*/nullptr,
                        &pool));
     if (result != VK_SUCCESS) {
+        VULKAN_CALL(context->interface(),
+                    DestroyDescriptorSetLayout(context->device(), layout, nullptr));
         return nullptr;
     }
     return sk_sp<VulkanDescriptorPool>(new VulkanDescriptorPool(context, pool, layout));

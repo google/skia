@@ -21,6 +21,7 @@ public:
     VulkanCaps(const skgpu::VulkanInterface*,
                VkPhysicalDevice device,
                uint32_t physicalDeviceVersion,
+               const VkPhysicalDeviceFeatures2*,
                const skgpu::VulkanExtensions*,
                const ContextOptions&);
     ~VulkanCaps() override;
@@ -74,6 +75,8 @@ public:
         return fShouldPersistentlyMapCpuToGpuBuffers;
     }
 
+    bool supportsYcbcrConversion() const { return fSupportsYcbcrConversion; }
+
     uint32_t maxVertexAttributes() const {
         return fMaxVertexAttributes;
     }
@@ -94,6 +97,7 @@ private:
     void init(const skgpu::VulkanInterface*,
               VkPhysicalDevice,
               uint32_t physicalDeviceVersion,
+              const VkPhysicalDeviceFeatures2*,
               const skgpu::VulkanExtensions*,
               const ContextOptions&);
 
@@ -210,7 +214,7 @@ private:
 
     // Various bools to define whether certain Vulkan features are supported.
     bool fSupportsMemorylessAttachments = false;
-    bool fSupportsYcbcrConversion = false; // TODO: Determine & assign real value.
+    bool fSupportsYcbcrConversion = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
     bool fGpuOnlyBuffersMorePerformant = false;
     bool fShouldPersistentlyMapCpuToGpuBuffers = true;

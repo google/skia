@@ -22,6 +22,7 @@ namespace skgpu::graphite {
 
 class VulkanSharedContext;
 class VulkanCommandBuffer;
+class VulkanResourceProvider;
 
 class VulkanTexture : public Texture {
 public:
@@ -37,11 +38,13 @@ public:
                             CreatedImageInfo* outInfo);
 
     static sk_sp<Texture> Make(const VulkanSharedContext*,
+                               const VulkanResourceProvider*,
                                SkISize dimensions,
                                const TextureInfo&,
                                skgpu::Budgeted);
 
     static sk_sp<Texture> MakeWrapped(const VulkanSharedContext*,
+                                      const VulkanResourceProvider*,
                                       SkISize dimensions,
                                       const TextureInfo&,
                                       sk_sp<MutableTextureStateRef>,
@@ -85,12 +88,14 @@ private:
                   VkImage,
                   const VulkanAlloc&,
                   Ownership,
-                  skgpu::Budgeted);
+                  skgpu::Budgeted,
+                  sk_sp<VulkanSamplerYcbcrConversion>);
 
     void freeGpuData() override;
 
     VkImage fImage;
     VulkanAlloc fMemoryAlloc;
+    sk_sp<VulkanSamplerYcbcrConversion> fSamplerYcbcrConversion;
 
     mutable skia_private::STArray<2, std::unique_ptr<const VulkanImageView>> fImageViews;
 };

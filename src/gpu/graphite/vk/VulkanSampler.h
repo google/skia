@@ -9,6 +9,7 @@
 #define skgpu_graphite_VulkanSampler_DEFINED
 
 #include "src/gpu/graphite/Sampler.h"
+#include "src/gpu/graphite/vk/VulkanSamplerYcbcrConversion.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 
 #include "include/core/SkRefCnt.h"
@@ -18,7 +19,7 @@ struct SkSamplingOptions;
 
 namespace skgpu::graphite {
 
-    class VulkanSampler : public Sampler {
+class VulkanSampler : public Sampler {
 public:
     static sk_sp<VulkanSampler> Make(const VulkanSharedContext*,
                                      const SkSamplingOptions& samplingOptions,
@@ -30,12 +31,13 @@ public:
     VkSampler vkSampler() const { return fSampler; }
 
 private:
-    VulkanSampler(const VulkanSharedContext*,
-                  VkSampler);
+    VulkanSampler(const VulkanSharedContext*, VkSampler);
 
     void freeGpuData() override;
 
     VkSampler fSampler;
+    // TODO: Add YCbCr conversion information to this class.
+    //sk_sp<VulkanSamplerYcbcrConversion> fYcbcrConversion;
 };
 
 } // namepsace skgpu::graphite

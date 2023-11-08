@@ -14,50 +14,7 @@
 
 using GrVkBackendMemory = skgpu::VulkanBackendMemory;
 using GrVkAlloc = skgpu::VulkanAlloc;
-
-// This struct is used to pass in the necessary information to create a VkSamplerYcbcrConversion
-// object for an VkExternalFormatANDROID.
-struct GrVkYcbcrConversionInfo {
-    bool operator==(const GrVkYcbcrConversionInfo& that) const {
-        // Invalid objects are not required to have all other fields initialized or matching.
-        if (!this->isValid() && !that.isValid()) {
-            return true;
-        }
-        return this->fFormat == that.fFormat &&
-               this->fExternalFormat == that.fExternalFormat &&
-               this->fYcbcrModel == that.fYcbcrModel &&
-               this->fYcbcrRange == that.fYcbcrRange &&
-               this->fXChromaOffset == that.fXChromaOffset &&
-               this->fYChromaOffset == that.fYChromaOffset &&
-               this->fChromaFilter == that.fChromaFilter &&
-               this->fForceExplicitReconstruction == that.fForceExplicitReconstruction;
-    }
-    bool operator!=(const GrVkYcbcrConversionInfo& that) const { return !(*this == that); }
-
-    bool isValid() const {
-        return fYcbcrModel != VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY ||
-               fExternalFormat != 0;
-    }
-
-    // Format of the source image. Must be set to VK_FORMAT_UNDEFINED for external images or
-    // a valid image format otherwise.
-    VkFormat fFormat = VK_FORMAT_UNDEFINED;
-
-    // The external format. Must be non-zero for external images, zero otherwise.
-    // Should be compatible to be used in a VkExternalFormatANDROID struct.
-    uint64_t fExternalFormat = 0;
-
-    VkSamplerYcbcrModelConversion fYcbcrModel = VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY;
-    VkSamplerYcbcrRange fYcbcrRange = VK_SAMPLER_YCBCR_RANGE_ITU_FULL;
-    VkChromaLocation fXChromaOffset = VK_CHROMA_LOCATION_COSITED_EVEN;
-    VkChromaLocation fYChromaOffset = VK_CHROMA_LOCATION_COSITED_EVEN;
-    VkFilter fChromaFilter = VK_FILTER_NEAREST;
-    VkBool32 fForceExplicitReconstruction = false;
-
-    // For external images format features here should be those returned by a call to
-    // vkAndroidHardwareBufferFormatPropertiesANDROID
-    VkFormatFeatureFlags fFormatFeatures = 0;
-};
+using GrVkYcbcrConversionInfo = skgpu::VulkanYcbcrConversionInfo;
 
 /*
  * When wrapping a GrBackendTexture or GrBackendRendenderTarget, the fCurrentQueueFamily should

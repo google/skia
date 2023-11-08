@@ -208,7 +208,8 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureMutableStateTest, repor
                            VK_IMAGE_TILING_OPTIMAL,
                            VK_IMAGE_USAGE_SAMPLED_BIT,
                            VK_SHARING_MODE_EXCLUSIVE,
-                           VK_IMAGE_ASPECT_COLOR_BIT);
+                           VK_IMAGE_ASPECT_COLOR_BIT,
+                           /*ycbcrConversionInfo*/{});
 
     BackendTexture texture({16, 16},
                            info,

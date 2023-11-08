@@ -12,6 +12,7 @@ VK_FILES = [
     "VulkanInterface.h",
     "VulkanMemory.cpp",
     "VulkanMemory.h",
+    "VulkanUtilsPriv.cpp",
     "VulkanUtilsPriv.h",
 ]
 

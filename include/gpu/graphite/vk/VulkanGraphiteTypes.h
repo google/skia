@@ -33,10 +33,8 @@ struct VulkanTextureInfo {
     // However, if the VkImage is a Ycbcr format, the client can pass a specific plan here to have
     // Skia directly sample a plane. In that case the client should also pass in a VkFormat that is
     // compatible with the plane as described by the Vulkan spec.
-    VkImageAspectFlags fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    // TODO: Either Make the ycbcr conversion info shareable with Ganesh or add a version for
-    // Graphite.
-    // GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
+    VkImageAspectFlags         fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VulkanYcbcrConversionInfo  fYcbcrConversionInfo;
 
     VulkanTextureInfo() = default;
     VulkanTextureInfo(uint32_t sampleCount,
@@ -46,7 +44,8 @@ struct VulkanTextureInfo {
                       VkImageTiling imageTiling,
                       VkImageUsageFlags imageUsageFlags,
                       VkSharingMode sharingMode,
-                      VkImageAspectFlags aspectMask)
+                      VkImageAspectFlags aspectMask,
+                      VulkanYcbcrConversionInfo ycbcrConversionInfo)
             : fSampleCount(sampleCount)
             , fMipmapped(mipmapped)
             , fFlags(flags)
@@ -54,7 +53,8 @@ struct VulkanTextureInfo {
             , fImageTiling(imageTiling)
             , fImageUsageFlags(imageUsageFlags)
             , fSharingMode(sharingMode)
-            , fAspectMask(aspectMask) {}
+            , fAspectMask(aspectMask)
+            , fYcbcrConversionInfo(ycbcrConversionInfo) {}
 };
 
 } // namespace skgpu::graphite

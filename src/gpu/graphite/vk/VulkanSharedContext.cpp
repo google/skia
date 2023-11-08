@@ -81,9 +81,22 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
         return nullptr;
     }
 
+    VkPhysicalDeviceFeatures2 features;
+    const VkPhysicalDeviceFeatures2* featuresPtr;
+    // If fDeviceFeatures2 is not null, then we ignore fDeviceFeatures. If both are null, we assume
+    // no features are enabled.
+    if (!context.fDeviceFeatures2 && context.fDeviceFeatures) {
+        features.pNext = nullptr;
+        features.features = *context.fDeviceFeatures;
+        featuresPtr = &features;
+    } else {
+        featuresPtr = context.fDeviceFeatures2;
+    }
+
     std::unique_ptr<const VulkanCaps> caps(new VulkanCaps(interface.get(),
                                                           context.fPhysicalDevice,
                                                           physDevVersion,
+                                                          featuresPtr,
                                                           context.fVkExtensions,
                                                           options));
 

@@ -20,6 +20,7 @@ class VulkanDescriptorSet;
 class VulkanFramebuffer;
 class VulkanRenderPass;
 class VulkanSharedContext;
+class VulkanSamplerYcbcrConversion;
 
 class VulkanResourceProvider final : public ResourceProvider {
 public:
@@ -37,8 +38,11 @@ public:
 
     sk_sp<Buffer> refIntrinsicConstantBuffer() const;
 
+    sk_sp<VulkanSamplerYcbcrConversion> findOrCreateCompatibleSamplerYcbcrConversion(
+            const VulkanYcbcrConversionInfo& ycbcrInfo) const;
+
 private:
-    const VulkanSharedContext* vulkanSharedContext();
+    const VulkanSharedContext* vulkanSharedContext() const;
 
     sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
                                                    const GraphicsPipelineDesc&,
@@ -66,6 +70,7 @@ private:
     // full (needed when beginning a render pass from the command buffer) RenderPass.
     sk_sp<VulkanRenderPass> findOrCreateRenderPass(const RenderPassDesc&,
                                                    bool compatibleOnly);
+
     VkPipelineCache pipelineCache();
 
     friend class VulkanCommandBuffer;

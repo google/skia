@@ -19,7 +19,8 @@ VulkanTextureInfo VulkanTextureSpecToTextureInfo(const VulkanTextureSpec& vkSpec
                              vkSpec.fImageTiling,
                              vkSpec.fImageUsageFlags,
                              vkSpec.fSharingMode,
-                             vkSpec.fAspectMask);
+                             vkSpec.fAspectMask,
+                             vkSpec.fYcbcrConversionInfo);
 }
 
 } // namespace skgpu::graphite

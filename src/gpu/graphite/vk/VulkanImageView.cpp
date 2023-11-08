@@ -8,17 +8,28 @@
 #include "src/gpu/graphite/vk/VulkanImageView.h"
 
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
+#include "src/gpu/graphite/vk/VulkanResourceProvider.h"
+#include "src/gpu/graphite/vk/VulkanSamplerYcbcrConversion.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 
 namespace skgpu::graphite {
 
-std::unique_ptr<const VulkanImageView> VulkanImageView::Make(const VulkanSharedContext* sharedCtx,
-                                                             VkImage image,
-                                                             VkFormat format,
-                                                             Usage usage,
-                                                             uint32_t miplevels) {
+std::unique_ptr<const VulkanImageView> VulkanImageView::Make(
+        const VulkanSharedContext* sharedCtx,
+        VkImage image,
+        VkFormat format,
+        Usage usage,
+        uint32_t miplevels,
+        sk_sp<VulkanSamplerYcbcrConversion> ycbcrConversion) {
+
     void* pNext = nullptr;
-    // TODO: add SamplerYcbcrConversion setup
+    VkSamplerYcbcrConversionInfo conversionInfo;
+    if (ycbcrConversion) {
+        conversionInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO;
+        conversionInfo.pNext = nullptr;
+        conversionInfo.conversion = ycbcrConversion->ycbcrConversion();
+        pNext = &conversionInfo;
+    }
 
     VkImageView imageView;
     // Create the VkImageView
@@ -62,21 +73,22 @@ std::unique_ptr<const VulkanImageView> VulkanImageView::Make(const VulkanSharedC
         return nullptr;
     }
 
-    return std::unique_ptr<VulkanImageView>(new VulkanImageView(sharedCtx, imageView, usage));
+    return std::unique_ptr<VulkanImageView>(new VulkanImageView(sharedCtx, imageView, usage,
+                                                                ycbcrConversion));
 }
 
 VulkanImageView::VulkanImageView(const VulkanSharedContext* sharedContext,
                                  VkImageView imageView,
-                                 Usage usage)
+                                 Usage usage,
+                                 sk_sp<VulkanSamplerYcbcrConversion> samplerConversion)
     : fSharedContext(sharedContext)
     , fImageView(imageView)
-    , fUsage(usage) {}
+    , fUsage(usage)
+    , fYcbcrConversion(std::move(samplerConversion)) {}
 
 VulkanImageView::~VulkanImageView() {
     VULKAN_CALL(fSharedContext->interface(),
                 DestroyImageView(fSharedContext->device(), fImageView, nullptr));
-
-    // TODO: unref SamplerYcbcrConversion
 }
 
 }  // namespace skgpu::graphite

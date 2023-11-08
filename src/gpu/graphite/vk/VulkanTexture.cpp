@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/vk/VulkanCaps.h"
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
+#include "src/gpu/graphite/vk/VulkanResourceProvider.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/vk/VulkanMemory.h"
 
@@ -138,6 +139,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
 }
 
 sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
+                                   const VulkanResourceProvider* resourceProvider,
                                    SkISize dimensions,
                                    const TextureInfo& info,
                                    skgpu::Budgeted budgeted) {
@@ -145,6 +147,9 @@ sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
     if (!MakeVkImage(sharedContext, dimensions, info, &imageInfo)) {
         return nullptr;
     }
+    auto ycbcrConversion = resourceProvider->findOrCreateCompatibleSamplerYcbcrConversion(
+            info.vulkanTextureSpec().fYcbcrConversionInfo);
+
     return sk_sp<Texture>(new VulkanTexture(sharedContext,
                                             dimensions,
                                             info,
@@ -152,15 +157,20 @@ sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
                                             imageInfo.fImage,
                                             imageInfo.fMemoryAlloc,
                                             Ownership::kOwned,
-                                            budgeted));
+                                            budgeted,
+                                            std::move(ycbcrConversion)));
 }
 
 sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedContext,
+                                          const VulkanResourceProvider* resourceProvider,
                                           SkISize dimensions,
                                           const TextureInfo& info,
                                           sk_sp<MutableTextureStateRef> mutableState,
                                           VkImage image,
                                           const VulkanAlloc& alloc) {
+    auto ycbcrConversion = resourceProvider->findOrCreateCompatibleSamplerYcbcrConversion(
+            info.vulkanTextureSpec().fYcbcrConversionInfo);
+
     return sk_sp<Texture>(new VulkanTexture(sharedContext,
                                             dimensions,
                                             info,
@@ -168,7 +178,8 @@ sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedConte
                                             image,
                                             alloc,
                                             Ownership::kWrapped,
-                                            skgpu::Budgeted::kNo));
+                                            skgpu::Budgeted::kNo,
+                                            std::move(ycbcrConversion)));
 }
 
 VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
@@ -293,10 +304,12 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
                              VkImage image,
                              const VulkanAlloc& alloc,
                              Ownership ownership,
-                             skgpu::Budgeted budgeted)
+                             skgpu::Budgeted budgeted,
+                             sk_sp<VulkanSamplerYcbcrConversion> ycbcrConversion)
         : Texture(sharedContext, dimensions, info, std::move(mutableState), ownership, budgeted)
         , fImage(image)
-        , fMemoryAlloc(alloc) {}
+        , fMemoryAlloc(alloc)
+        , fSamplerYcbcrConversion(std::move(ycbcrConversion)) {}
 
 void VulkanTexture::freeGpuData() {
     // Need to delete any ImageViews first
@@ -392,7 +405,8 @@ const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage)
                                            fImage,
                                            vkTexInfo.fFormat,
                                            usage,
-                                           miplevels);
+                                           miplevels,
+                                           fSamplerYcbcrConversion);
     return fImageViews.push_back(std::move(imageView)).get();
 }
 

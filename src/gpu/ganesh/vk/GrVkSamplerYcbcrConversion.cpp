@@ -7,7 +7,9 @@
 
 #include "src/gpu/ganesh/vk/GrVkSamplerYcbcrConversion.h"
 
+#include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
         GrVkGpu* gpu, const GrVkYcbcrConversionInfo& info) {
@@ -15,60 +17,8 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
         return nullptr;
     }
 
-#ifdef SK_DEBUG
-    const VkFormatFeatureFlags& featureFlags = info.fFormatFeatures;
-    if (info.fXChromaOffset == VK_CHROMA_LOCATION_MIDPOINT ||
-        info.fYChromaOffset == VK_CHROMA_LOCATION_MIDPOINT) {
-        SkASSERT(featureFlags & VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT);
-    }
-    if (info.fXChromaOffset == VK_CHROMA_LOCATION_COSITED_EVEN ||
-        info.fYChromaOffset == VK_CHROMA_LOCATION_COSITED_EVEN) {
-        SkASSERT(featureFlags & VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT);
-    }
-    if (info.fChromaFilter == VK_FILTER_LINEAR) {
-        SkASSERT(featureFlags & VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT);
-    }
-    if (info.fForceExplicitReconstruction) {
-        SkASSERT(featureFlags &
-                 VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT);
-    }
-#endif
-
-
     VkSamplerYcbcrConversionCreateInfo ycbcrCreateInfo;
-    ycbcrCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO;
-    ycbcrCreateInfo.pNext = nullptr;
-    ycbcrCreateInfo.format = info.fFormat;
-    ycbcrCreateInfo.ycbcrModel = info.fYcbcrModel;
-    ycbcrCreateInfo.ycbcrRange = info.fYcbcrRange;
-
-    // Components is ignored for external format conversions. For all other formats identity swizzle
-    // is used. It can be added to GrVkYcbcrConversionInfo if necessary.
-    ycbcrCreateInfo.components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
-                                  VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
-    ycbcrCreateInfo.xChromaOffset = info.fXChromaOffset;
-    ycbcrCreateInfo.yChromaOffset = info.fYChromaOffset;
-    ycbcrCreateInfo.chromaFilter = info.fChromaFilter;
-    ycbcrCreateInfo.forceExplicitReconstruction = info.fForceExplicitReconstruction;
-
-#ifdef SK_BUILD_FOR_ANDROID
-    VkExternalFormatANDROID externalFormat;
-    if (info.fExternalFormat) {
-        // Format must not be specified for external images.
-        SkASSERT(info.fFormat == VK_FORMAT_UNDEFINED);
-        externalFormat.sType = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
-        externalFormat.pNext = nullptr;
-        externalFormat.externalFormat = info.fExternalFormat;
-        ycbcrCreateInfo.pNext = &externalFormat;
-    }
-#else
-    // External images are supported only on Android;
-    SkASSERT(!info.fExternalFormat);
-#endif
-
-    if (!info.fExternalFormat) {
-        SkASSERT(info.fFormat != VK_FORMAT_UNDEFINED);
-    }
+    skgpu::SetupSamplerYcbcrConversionInfo(&ycbcrCreateInfo, info);
 
     VkSamplerYcbcrConversion conversion;
     VkResult result;

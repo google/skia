@@ -30,10 +30,11 @@ namespace skgpu::graphite {
 VulkanCaps::VulkanCaps(const skgpu::VulkanInterface* vkInterface,
                        VkPhysicalDevice physDev,
                        uint32_t physicalDeviceVersion,
+                       const VkPhysicalDeviceFeatures2* features,
                        const skgpu::VulkanExtensions* extensions,
                        const ContextOptions& contextOptions)
         : Caps() {
-    this->init(vkInterface, physDev, physicalDeviceVersion, extensions, contextOptions);
+    this->init(vkInterface, physDev, physicalDeviceVersion, features, extensions, contextOptions);
 }
 
 VulkanCaps::~VulkanCaps() {}
@@ -41,6 +42,7 @@ VulkanCaps::~VulkanCaps() {}
 void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
                       VkPhysicalDevice physDev,
                       uint32_t physicalDeviceVersion,
+                      const VkPhysicalDeviceFeatures2* features,
                       const skgpu::VulkanExtensions* extensions,
                       const ContextOptions& contextOptions) {
     VkPhysicalDeviceProperties physDevProperties;
@@ -109,6 +111,17 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
         fMaxVertexAttributes = physDevProperties.limits.maxVertexInputAttributes;
     }
     fMaxUniformBufferRange = physDevProperties.limits.maxUniformBufferRange;
+
+    // Determine whether the client enabled certain physical device features.
+    if (features) {
+        auto ycbcrFeatures =
+                skgpu::GetExtensionFeatureStruct<VkPhysicalDeviceSamplerYcbcrConversionFeatures>(
+                        *features,
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES);
+        if (ycbcrFeatures && ycbcrFeatures->samplerYcbcrConversion) {
+            fSupportsYcbcrConversion = true;
+        }
+    }
 
     this->finishInitialization(contextOptions);
 }
