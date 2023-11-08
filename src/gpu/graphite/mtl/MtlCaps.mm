@@ -187,6 +187,13 @@ bool MtlCaps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* grou
 #endif
 
         // Older Macs
+#if GR_METAL_SDK_VERSION >= 300
+        // TODO: replace with Metal 3 definitions
+        SkASSERT([device supportsFamily:MTLGPUFamilyMac2]);
+        *gpuFamily = GPUFamily::kMac;
+        *group = 2;
+        return true;
+#else
         // At the moment MacCatalyst families have the same features as Mac,
         // so we treat them the same
         if ([device supportsFamily:MTLGPUFamilyMac2] ||
@@ -201,6 +208,7 @@ bool MtlCaps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* grou
             *group = 1;
             return true;
         }
+#endif
     }
 #endif
 
