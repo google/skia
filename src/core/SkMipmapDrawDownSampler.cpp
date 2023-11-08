@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+
+#ifdef SK_USE_DRAWING_MIPMAP_DOWNSAMPLER
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkMatrix.h"
@@ -60,7 +64,8 @@ void DrawDownSampler::buildLevel(const SkPixmap& dst, const SkPixmap& src) {
 
 } // namespace
 
-std::unique_ptr<SkMipmapDownSampler> SkMakeDrawDownSampler(const SkPixmap& root) {
+std::unique_ptr<SkMipmapDownSampler> SkMipmap::MakeDownSampler(const SkPixmap& root) {
     return std::make_unique<DrawDownSampler>();
 }
 
+#endif

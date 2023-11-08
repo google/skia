@@ -94,6 +94,9 @@
 //#define SK_HISTOGRAM_EXACT_LINEAR(name, sample, value_max)
 //#define SK_HISTOGRAM_MEMORY_KB(name, sample)
 
+// To use smaller but slower mipmap builder
+//#define SK_USE_DRAWING_MIPMAP_DOWNSAMPLER
+
 /* Skia tries to make use of some non-standard C++ language extensions.
    By default, Skia provides msvc and clang/gcc versions of these macros.
    Skia consumers can provide their own definitions of these macros to

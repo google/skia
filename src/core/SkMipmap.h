@@ -23,6 +23,12 @@ class SkMipmapBuilder;
 
 typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
 
+struct SkMipmapDownSampler {
+    virtual ~SkMipmapDownSampler() {}
+
+    virtual void buildLevel(const SkPixmap& dst, const SkPixmap& src) = 0;
+};
+
 /*
  * SkMipmap will generate mipmap levels when given a base mipmap level image.
  *
@@ -75,6 +81,8 @@ public:
 
     bool validForRootLevel(const SkImageInfo&) const;
 
+    static std::unique_ptr<SkMipmapDownSampler> MakeDownSampler(const SkPixmap&);
+
 protected:
     void onDataChange(void* oldData, void* newData) override {
         fLevels = (Level*)newData; // could be nullptr
@@ -90,14 +98,5 @@ private:
 
     static size_t AllocLevelsSize(int levelCount, size_t pixelSize);
 };
-
-struct SkMipmapDownSampler {
-    virtual ~SkMipmapDownSampler() {}
-
-    virtual void buildLevel(const SkPixmap& dst, const SkPixmap& src) = 0;
-};
-
-std::unique_ptr<SkMipmapDownSampler> SkMakeHQDownSampler(const SkPixmap&);
-std::unique_ptr<SkMipmapDownSampler> SkMakeDrawDownSampler(const SkPixmap&);
 
 #endif
