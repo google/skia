@@ -30,45 +30,6 @@
 
 namespace skgpu::graphite {
 
-GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDescriptors,
-                                       const uint32_t uniqueId) {
-    // TODO(nicolettep): Finalize & optimize key structure. Refactor to have the order of the
-    // requested descriptors be irrelevant.
-    // For now, to place some kind of upper limit on key size, limit a key to only containing
-    // information for up to 9 descriptors. This number was selected due to having a maximum of 3
-    // uniform buffer descriptors and observationally only encountering up to 6 texture/samplers for
-    // our testing use cases. The 10th uint32 is reserved for housing a unique descriptor set ID.
-    static const int kMaxDescriptorQuantity = 9;
-    static const int kNum32DataCnt = kMaxDescriptorQuantity + 1;
-    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
-
-    GraphiteResourceKey key;
-    GraphiteResourceKey::Builder builder(&key, kType, kNum32DataCnt, Shareable::kNo);
-
-    if (requestedDescriptors.size() > kMaxDescriptorQuantity) {
-        SKGPU_LOG_E("%d descriptors requested, but graphite currently only supports creating"
-                    "descriptor set keys for up to %d. The key will only take the first %d into"
-                    " account.", static_cast<int>(requestedDescriptors.size()),
-                    kMaxDescriptorQuantity, kMaxDescriptorQuantity);
-    }
-
-    for (size_t i = 0; i < kNum32DataCnt; i++) {
-        if (i < requestedDescriptors.size()) {
-            // TODO: Consider making the DescriptorData struct itself just use uint16_t.
-            uint16_t smallerCount = static_cast<uint16_t>(requestedDescriptors[i].count);
-            builder[i] =  static_cast<uint8_t>(requestedDescriptors[i].type) << 24
-                          | requestedDescriptors[i].bindingIndex << 16
-                          | smallerCount;
-        } else {
-            // Populate reminaing key components with 0.
-            builder[i] = 0;
-        }
-    }
-    builder[kNum32DataCnt - 1] = uniqueId;
-    builder.finish();
-    return key;
-}
-
 VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
                                                SingleOwner* singleOwner,
                                                uint32_t recorderID,
@@ -162,6 +123,61 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(SkISize dimensions
     }
 }
 
+namespace {
+GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDescriptors,
+                                       const uint32_t uniqueId) {
+    // TODO(nicolettep): Finalize & optimize key structure. Refactor to have the order of the
+    // requested descriptors be irrelevant.
+    // For now, to place some kind of upper limit on key size, limit a key to only containing
+    // information for up to 9 descriptors. This number was selected due to having a maximum of 3
+    // uniform buffer descriptors and observationally only encountering up to 6 texture/samplers for
+    // our testing use cases. The 10th uint32 is reserved for housing a unique descriptor set ID.
+    static const int kMaxDescriptorQuantity = 9;
+    static const int kNum32DataCnt = kMaxDescriptorQuantity + 1;
+    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
+
+    GraphiteResourceKey key;
+    GraphiteResourceKey::Builder builder(&key, kType, kNum32DataCnt, Shareable::kNo);
+
+    if (requestedDescriptors.size() > kMaxDescriptorQuantity) {
+        SKGPU_LOG_E("%d descriptors requested, but graphite currently only supports creating"
+                    "descriptor set keys for up to %d. The key will only take the first %d into"
+                    " account.", static_cast<int>(requestedDescriptors.size()),
+                    kMaxDescriptorQuantity, kMaxDescriptorQuantity);
+    }
+
+    for (size_t i = 0; i < kNum32DataCnt; i++) {
+        if (i < requestedDescriptors.size()) {
+            // TODO: Consider making the DescriptorData struct itself just use uint16_t.
+            uint16_t smallerCount = static_cast<uint16_t>(requestedDescriptors[i].count);
+            builder[i] =  static_cast<uint8_t>(requestedDescriptors[i].type) << 24
+                          | requestedDescriptors[i].bindingIndex << 16
+                          | smallerCount;
+        } else {
+            // Populate reminaing key components with 0.
+            builder[i] = 0;
+        }
+    }
+    builder[kNum32DataCnt - 1] = uniqueId;
+    builder.finish();
+    return key;
+}
+
+sk_sp<VulkanDescriptorSet> add_new_desc_set_to_cache(const VulkanSharedContext* context,
+                                                     const sk_sp<VulkanDescriptorPool>& pool,
+                                                     const GraphiteResourceKey& descSetKey,
+                                                     ResourceCache* resourceCache) {
+    sk_sp<VulkanDescriptorSet> descSet = VulkanDescriptorSet::Make(context, pool);
+    if (!descSet) {
+        return nullptr;
+    }
+    descSet->setKey(descSetKey);
+    resourceCache->insertResource(descSet.get());
+
+    return descSet;
+}
+} // anonymous namespace
+
 sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
         SkSpan<DescriptorData> requestedDescriptors) {
     if (requestedDescriptors.empty()) {
@@ -174,7 +190,7 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
     GraphiteResourceKey descSetKeys [VulkanDescriptorPool::kMaxNumSets];
     for (uint32_t i = 0; i < VulkanDescriptorPool::kMaxNumSets; i++) {
         GraphiteResourceKey key = build_desc_set_key(requestedDescriptors, i);
-        if (auto descSet = fResourceCache->findAndRefResource(key, skgpu::Budgeted::kNo)) {
+        if (auto descSet = fResourceCache->findAndRefResource(key, skgpu::Budgeted::kYes)) {
             // A non-null resource pointer indicates we have found an available descriptor set.
             return sk_sp<VulkanDescriptorSet>(static_cast<VulkanDescriptorSet*>(descSet));
         }
@@ -184,46 +200,62 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
     // If we did not find an existing avilable desc set, allocate sets with the appropriate layout
     // and add them to the cache.
     VkDescriptorSetLayout layout;
-    DescriptorDataToVkDescSetLayout(this->vulkanSharedContext(), requestedDescriptors, &layout);
+    const VulkanSharedContext* context = this->vulkanSharedContext();
+    DescriptorDataToVkDescSetLayout(context, requestedDescriptors, &layout);
     if (!layout) {
         return nullptr;
     }
-    auto pool = VulkanDescriptorPool::Make(this->vulkanSharedContext(),
-                                           requestedDescriptors,
-                                           layout);
-    SkASSERT(pool);
-
-    // Allocate the maximum number of sets so they can be easily accessed as needed from the cache.
-    for (int i = 0; i < VulkanDescriptorPool::kMaxNumSets ; i++) {
-        auto descSet = VulkanDescriptorSet::Make(this->vulkanSharedContext(), pool, layout);
-        SkASSERT(descSet);
-        descSet->setKey(descSetKeys[i]);
-        fResourceCache->insertResource(descSet.get());
+    auto pool = VulkanDescriptorPool::Make(context, requestedDescriptors, layout);
+    if (!pool) {
+        VULKAN_CALL(context->interface(), DestroyDescriptorSetLayout(context->device(),
+                                                                     layout,
+                                                                     nullptr));
+        return nullptr;
     }
-    auto descSet = fResourceCache->findAndRefResource(descSetKeys[0], skgpu::Budgeted::kNo);
-    return descSet ? sk_sp<VulkanDescriptorSet>(static_cast<VulkanDescriptorSet*>(descSet))
-                   : nullptr;
+
+    // Start with allocating one descriptor set. If one cannot be successfully created, then we can
+    // return early before attempting to allocate more. Storing a ptr to the first set also
+    // allows us to return that later without having to perform a find operation on the cache once
+    // all the sets are added.
+    auto firstDescSet =
+            add_new_desc_set_to_cache(context, pool, descSetKeys[0], fResourceCache.get());
+    if (!firstDescSet) {
+        return nullptr;
+    }
+
+    // Continue to allocate & cache the maximum number of sets so they can be easily accessed as
+    // they're needed.
+    for (int i = 1; i < VulkanDescriptorPool::kMaxNumSets ; i++) {
+        auto descSet =
+                add_new_desc_set_to_cache(context, pool, descSetKeys[i], fResourceCache.get());
+        if (!descSet) {
+            SKGPU_LOG_W("Descriptor set allocation %d of %d was unsuccessful; no more sets will be"
+                        "allocated from this pool.", i, VulkanDescriptorPool::kMaxNumSets);
+            break;
+        }
+    }
+
+    return firstDescSet;
 }
 
 sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPass(
         const RenderPassDesc& renderPassDesc, bool compatibleOnly) {
     auto renderPassKey = VulkanRenderPass::MakeRenderPassKey(renderPassDesc, compatibleOnly);
-    Resource* existingRenderPass =
-            fResourceCache->findAndRefResource(renderPassKey, skgpu::Budgeted::kYes);
-
-    if (existingRenderPass) {
-        return sk_sp<VulkanRenderPass>(static_cast<VulkanRenderPass*>(existingRenderPass));
-    } else {
-        auto newRenderPass = VulkanRenderPass::MakeRenderPass(
-                this->vulkanSharedContext(), renderPassDesc, compatibleOnly);
-        SkASSERT(newRenderPass);
-        newRenderPass->setKey(renderPassKey);
-        fResourceCache->insertResource(newRenderPass.get());
+    if (Resource* resource =
+            fResourceCache->findAndRefResource(renderPassKey, skgpu::Budgeted::kYes)) {
+        return sk_sp<VulkanRenderPass>(static_cast<VulkanRenderPass*>(resource));
     }
 
-    auto renderPass = fResourceCache->findAndRefResource(renderPassKey, skgpu::Budgeted::kYes);
-    return renderPass ? sk_sp<VulkanRenderPass>(static_cast<VulkanRenderPass*>(renderPass))
-                      : nullptr;
+    auto renderPass = VulkanRenderPass::MakeRenderPass(this->vulkanSharedContext(), renderPassDesc,
+                                                       compatibleOnly);
+    if (!renderPass) {
+        return nullptr;
+    }
+
+    renderPass->setKey(renderPassKey);
+    fResourceCache->insertResource(renderPass.get());
+
+    return renderPass;
 }
 
 VkPipelineCache VulkanResourceProvider::pipelineCache() {

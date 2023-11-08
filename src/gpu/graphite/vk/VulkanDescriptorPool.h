@@ -33,6 +33,11 @@ public:
 
     VkDescriptorPool descPool() { return fDescPool; }
 
+    const VkDescriptorSetLayout* descSetLayout() {
+        SkASSERT(fDescSetLayout != VK_NULL_HANDLE);
+        return &fDescSetLayout;
+    }
+
 private:
     // Conservative overestimation of a maximum number of descriptors of any given type that can be
     // requested.
@@ -45,8 +50,8 @@ private:
 
     const VulkanSharedContext*       fSharedContext;
     VkDescriptorPool                 fDescPool;
-    // Hang on to the VkDescSetLayout handle used to allocate sets from this pool. Pools are only
-    // deleted once sets no longer need them, so we can safely destoy the layout alongside the pool.
+    // The VulkanDescriptorPool has ownership of the VkDescSetLayout used to allocate sets from this
+    // pool.
     VkDescriptorSetLayout            fDescSetLayout;
 };
 } // namespace skgpu::graphite
