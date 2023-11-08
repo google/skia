@@ -26,9 +26,14 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
+#include "include/gpu/GrContextOptions.h"
 #include "src/core/SkFontPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/ContextOptions.h"
+#endif
 
 #include <string.h>
 #include <initializer_list>
@@ -85,6 +90,20 @@ protected:
 
     SkISize getISize() override { return SkISize::Make(650, 1200); }
 
+    void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
+        // This will force multitexturing to verify that color text works with this,
+        // as well as with any additional color transformations.
+        ctxOptions->fGlyphCacheTextureMaximumBytes = 256 * 256 * 4;
+    }
+
+#if defined(SK_GRAPHITE)
+    void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* ctxOptions) const override {
+        // This will force multitexturing to verify that color text works with this,
+        // as well as with any additional color transformations.
+        ctxOptions->fGlyphCacheTextureMaximumBytes = 256 * 256 * 4;
+    }
+#endif
+
     void onDraw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorGRAY);
@@ -94,7 +113,7 @@ protected:
         size_t textLen = strlen(text);
 
         // draw text at different point sizes
-        constexpr SkScalar textSizes[] = { 10, 30, 50, };
+        constexpr SkScalar textSizes[] = { 10, 30, 50 };
         SkFontMetrics metrics;
         SkScalar y = 0;
         for (const bool& fakeBold : { false, true }) {
@@ -108,6 +127,12 @@ protected:
                 y += metrics.fDescent + metrics.fLeading;
             }
         }
+
+        // draw one more big one to max out one Plot
+        font.setSize(256);
+        font.getMetrics(&metrics);
+        canvas->drawSimpleText(text, textLen, SkTextEncoding::kUTF8,
+                               190, -metrics.fAscent, font, SkPaint());
 
         y += 20;
         SkScalar savedY = y;
