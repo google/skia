@@ -92,6 +92,7 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86_64-Release-Direct3D',
   'Build-Win-Clang-x86_64-Release-Shared',
   'Build-Win-Clang-x86_64-Release-Vulkan',
+  'Build-Debian10-Clang-x86_64-Release-SK_USE_PADDED_BLUR_UPSCALE',
 ]
 
 # Default properties used for TEST_BUILDERS.
