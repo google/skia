@@ -74,25 +74,25 @@ private:
     }
 
     bool generateColorV1PaintBounds(SkMatrix*, SkRect*, IDWritePaintReader&, DWRITE_PAINT_ELEMENT const &);
-    bool generateColorV1Metrics(const SkGlyph&, SkIRect*);
+    bool generateColorV1Metrics(const SkGlyph&, SkRect*);
     bool generateColorV1Image(const SkGlyph&, void* dst);
     bool drawColorV1Paint(SkCanvas&, IDWritePaintReader&, DWRITE_PAINT_ELEMENT const &);
     bool drawColorV1Image(const SkGlyph&, SkCanvas&);
 
     bool getColorGlyphRun(const SkGlyph&, IDWriteColorGlyphRunEnumerator**);
-    bool generateColorMetrics(const SkGlyph&, SkIRect*);
+    bool generateColorMetrics(const SkGlyph&, SkRect*);
     bool generateColorImage(const SkGlyph&, void* dst);
     bool drawColorImage(const SkGlyph&, SkCanvas&);
 
-    bool generateSVGMetrics(const SkGlyph&, SkIRect*);
+    bool generateSVGMetrics(const SkGlyph&, SkRect*);
     bool generateSVGImage(const SkGlyph&, void* dst);
     bool drawSVGImage(const SkGlyph&, SkCanvas&);
 
-    bool generatePngMetrics(const SkGlyph&, SkIRect*);
+    bool generatePngMetrics(const SkGlyph&, SkRect*);
     bool generatePngImage(const SkGlyph&, void* dst);
     bool drawPngImage(const SkGlyph&, SkCanvas&);
 
-    bool generateDWMetrics(const SkGlyph&, DWRITE_RENDERING_MODE, DWRITE_TEXTURE_TYPE, SkIRect*);
+    bool generateDWMetrics(const SkGlyph&, DWRITE_RENDERING_MODE, DWRITE_TEXTURE_TYPE, SkRect*);
     const void* getDWMaskBits(const SkGlyph&, DWRITE_RENDERING_MODE, DWRITE_TEXTURE_TYPE);
     bool generateDWImage(const SkGlyph&, void* dst);
 

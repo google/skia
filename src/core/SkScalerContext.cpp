@@ -183,7 +183,28 @@ SkGlyph SkScalerContext::makeGlyph(SkPackedGlyphID packedID, SkArenaAlloc* alloc
     return internalMakeGlyph(packedID, fRec.fMaskFormat, alloc);
 }
 
-bool SkScalerContext::GenerateMetricsFromPath(
+/** Return the closest D for the given S. Returns std::numeric_limits<D>::max() for NaN. */
+template <typename D, typename S> static constexpr D sk_saturate_cast(S s) {
+    static_assert(std::is_integral_v<D>);
+    s = s < std::numeric_limits<D>::max() ? s : std::numeric_limits<D>::max();
+    s = s > std::numeric_limits<D>::min() ? s : std::numeric_limits<D>::min();
+    return (D)s;
+}
+void SkScalerContext::SaturateGlyphBounds(SkGlyph* glyph, SkRect&& r) {
+    r.roundOut(&r);
+    glyph->fLeft    = sk_saturate_cast<int16_t>(r.fLeft);
+    glyph->fTop     = sk_saturate_cast<int16_t>(r.fTop);
+    glyph->fWidth   = sk_saturate_cast<uint16_t>(r.width());
+    glyph->fHeight  = sk_saturate_cast<uint16_t>(r.height());
+}
+void SkScalerContext::SaturateGlyphBounds(SkGlyph* glyph, SkIRect const & r) {
+    glyph->fLeft    = sk_saturate_cast<int16_t>(r.fLeft);
+    glyph->fTop     = sk_saturate_cast<int16_t>(r.fTop);
+    glyph->fWidth   = sk_saturate_cast<uint16_t>(r.width64());
+    glyph->fHeight  = sk_saturate_cast<uint16_t>(r.height64());
+}
+
+void SkScalerContext::GenerateMetricsFromPath(
     SkGlyph* glyph, const SkPath& devPath, SkMask::Format format,
     const bool verticalLCD, const bool a8FromLCD, const bool hairline)
 {
@@ -195,33 +216,23 @@ bool SkScalerContext::GenerateMetricsFromPath(
         glyph->fMaskFormat = SkMask::kA8_Format;
     }
 
-    const SkRect bounds = devPath.getBounds();
-    const SkIRect ir = bounds.roundOut();
-    if (!SkRectPriv::Is16Bit(ir)) {
-        return false;
-    }
-    glyph->fLeft    = ir.fLeft;
-    glyph->fTop     = ir.fTop;
-    glyph->fWidth   = SkToU16(ir.width());
-    glyph->fHeight  = SkToU16(ir.height());
-
-    if (!ir.isEmpty()) {
+    SkRect bounds = devPath.getBounds();
+    if (!bounds.isEmpty()) {
         const bool fromLCD = (glyph->fMaskFormat == SkMask::kLCD16_Format) ||
                              (glyph->fMaskFormat == SkMask::kA8_Format && a8FromLCD);
-        const bool notEmptyAndFromLCD = 0 < glyph->fWidth && fromLCD;
 
-        const bool needExtraWidth  = (notEmptyAndFromLCD && !verticalLCD) || hairline;
-        const bool needExtraHeight = (notEmptyAndFromLCD &&  verticalLCD) || hairline;
+        const bool needExtraWidth  = (fromLCD && !verticalLCD) || hairline;
+        const bool needExtraHeight = (fromLCD &&  verticalLCD) || hairline;
         if (needExtraWidth) {
-            glyph->fWidth += 2;
-            glyph->fLeft -= 1;
+            bounds.roundOut(&bounds);
+            bounds.outset(1, 0);
         }
         if (needExtraHeight) {
-            glyph->fHeight += 2;
-            glyph->fTop -= 1;
+            bounds.roundOut(&bounds);
+            bounds.outset(0, 1);
         }
     }
-    return true;
+    SaturateGlyphBounds(glyph, std::move(bounds));
 }
 
 SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::Format format, SkArenaAlloc* alloc) {
@@ -234,7 +245,7 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
 
     SkGlyph glyph{packedID};
     glyph.fMaskFormat = format; // subclass may return a different value
-    const auto mx = this->generateMetrics(glyph, alloc);
+    GlyphMetrics mx = this->generateMetrics(glyph, alloc);
     SkASSERT(!mx.neverRequestPath || !mx.computeFromPath);
 
     glyph.fAdvanceX = mx.advance.fX;
@@ -250,19 +261,10 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
             const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
             const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
             const bool hairline = glyph.pathIsHairline();
-            if (!GenerateMetricsFromPath(&glyph, *devPath, format, doVert, a8LCD, hairline)) {
-                zeroBounds(glyph);
-            }
+            GenerateMetricsFromPath(&glyph, *devPath, format, doVert, a8LCD, hairline);
         }
     } else {
-        if (!SkRectPriv::Is16Bit(mx.bounds)) {
-            zeroBounds(glyph);
-        } else {
-            glyph.fLeft   = SkTo<int16_t>( mx.bounds.fLeft);
-            glyph.fTop    = SkTo<int16_t>( mx.bounds.fTop);
-            glyph.fWidth  = SkTo<uint16_t>(mx.bounds.width());
-            glyph.fHeight = SkTo<uint16_t>(mx.bounds.height());
-        }
+        SaturateGlyphBounds(&glyph, std::move(mx.bounds));
         if (mx.neverRequestPath) {
             glyph.setPath(alloc, nullptr, false);
         }
@@ -284,15 +286,12 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
         fRec.getMatrixFrom2x2(&matrix);
 
         if (as_MFB(fMaskFilter)->filterMask(&dst, src, matrix, nullptr)) {
-            if (dst.fBounds.isEmpty() || !SkRectPriv::Is16Bit(dst.fBounds)) {
+            if (dst.fBounds.isEmpty()) {
                 zeroBounds(glyph);
                 return glyph;
             }
             SkASSERT(dst.fImage == nullptr);
-            glyph.fLeft    = dst.fBounds.fLeft;
-            glyph.fTop     = dst.fBounds.fTop;
-            glyph.fWidth   = SkToU16(dst.fBounds.width());
-            glyph.fHeight  = SkToU16(dst.fBounds.height());
+            SaturateGlyphBounds(&glyph, dst.fBounds);
             glyph.fMaskFormat = dst.fFormat;
         }
     }

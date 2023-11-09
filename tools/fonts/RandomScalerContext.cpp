@@ -69,7 +69,7 @@ SkScalerContext::GlyphMetrics RandomScalerContext::generateMetrics(const SkGlyph
 
     GlyphMetrics mx(SkMask::kA8_Format);
     mx.advance = glyph.advanceVector();
-    mx.bounds = glyph.iRect();
+    mx.bounds = glyph.rect();
     mx.maskFormat = glyph.maskFormat();
     mx.extraBits = glyph.extraBits();
 

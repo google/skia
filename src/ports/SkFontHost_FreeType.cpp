@@ -473,10 +473,11 @@ private:
     bool      fLCDIsVert;
 
     FT_Error setupSize();
-    static bool getBoundsOfCurrentOutlineGlyph(FT_GlyphSlot glyph, SkRect* bounds);
-    static SkIRect computeGlyphBounds(const SkGlyph&, SkRect* bounds, bool subpixel);
-    bool getCBoxForLetter(char letter, FT_BBox* bbox);
     // Caller must lock f_t_mutex() before calling this function.
+    static bool getBoundsOfCurrentOutlineGlyph(FT_GlyphSlot glyph, SkRect* bounds);
+    // Caller must lock f_t_mutex() before calling this function.
+    bool getCBoxForLetter(char letter, FT_BBox* bbox);
+    static void updateGlyphBoundsIfSubpixel(const SkGlyph&, SkRect* bounds, bool subpixel);
     void updateGlyphBoundsIfLCD(GlyphMetrics* mx);
     // Caller must lock f_t_mutex() before calling this function.
     // update FreeType2 glyph slot with glyph emboldened
@@ -1107,25 +1108,17 @@ bool SkScalerContext_FreeType::getCBoxForLetter(char letter, FT_BBox* bbox) {
     return true;
 }
 
-SkIRect SkScalerContext_FreeType::computeGlyphBounds(const SkGlyph& glyph, SkRect* bounds,
-                                                     bool subpixel) {
-    SkIRect irect;
-    if (bounds->isEmpty()) {
-        irect = SkIRect::MakeEmpty();
-    } else {
-        if (subpixel) {
-            bounds->offset(SkFixedToScalar(glyph.getSubXFixed()),
-                           SkFixedToScalar(glyph.getSubYFixed()));
-        }
-        irect = bounds->roundOut();
+void SkScalerContext_FreeType::updateGlyphBoundsIfSubpixel(const SkGlyph& glyph, SkRect* bounds,
+                                                           bool subpixel) {
+    if (subpixel && !bounds->isEmpty()) {
+        bounds->offset(SkFixedToScalar(glyph.getSubXFixed()),
+                       SkFixedToScalar(glyph.getSubYFixed()));
     }
-    return irect;
 }
 
 void SkScalerContext_FreeType::updateGlyphBoundsIfLCD(GlyphMetrics* mx) {
-    if (mx->maskFormat == SkMask::kLCD16_Format &&
-        mx->bounds.width() > 0 && mx->bounds.height() > 0)
-    {
+    if (mx->maskFormat == SkMask::kLCD16_Format && !mx->bounds.isEmpty()) {
+        mx->bounds.roundOut(&mx->bounds);
         if (fLCDIsVert) {
             mx->bounds.fBottom += 1;
             mx->bounds.fTop -= 1;
@@ -1234,7 +1227,8 @@ SkScalerContext::GlyphMetrics SkScalerContext_FreeType::generateMetrics(const Sk
         if (haveLayers) {
             mx.maskFormat = SkMask::kARGB32_Format;
             mx.neverRequestPath = true;
-            mx.bounds = computeGlyphBounds(glyph, &bounds, this->isSubpixel());
+            updateGlyphBoundsIfSubpixel(glyph, &bounds, this->isSubpixel());
+            mx.bounds = bounds;
         }
     }
 #endif  //FT_COLOR_H
@@ -1248,11 +1242,8 @@ SkScalerContext::GlyphMetrics SkScalerContext_FreeType::generateMetrics(const Sk
         emboldenIfNeeded(fFace, fFace->glyph, glyph.getGlyphID());
 
         if (fFace->glyph->format == FT_GLYPH_FORMAT_OUTLINE) {
-            SkRect bounds;
-            if (!getBoundsOfCurrentOutlineGlyph(fFace->glyph, &bounds)) {
-                bounds = SkRect::MakeEmpty();
-            }
-            mx.bounds = computeGlyphBounds(glyph, &bounds, this->isSubpixel());
+            getBoundsOfCurrentOutlineGlyph(fFace->glyph, &mx.bounds);
+            updateGlyphBoundsIfSubpixel(glyph, &mx.bounds, this->isSubpixel());
             updateGlyphBoundsIfLCD(&mx);
 
         } else if (fFace->glyph->format == FT_GLYPH_FORMAT_BITMAP) {
@@ -1271,13 +1262,13 @@ SkScalerContext::GlyphMetrics SkScalerContext_FreeType::generateMetrics(const Sk
                 mx.maskFormat = SkMask::kARGB32_Format;
             }
 
-            SkRect bounds = SkRect::MakeXYWH(SkIntToScalar(fFace->glyph->bitmap_left ),
-                                            -SkIntToScalar(fFace->glyph->bitmap_top  ),
-                                             SkIntToScalar(fFace->glyph->bitmap.width),
-                                             SkIntToScalar(fFace->glyph->bitmap.rows ));
-            fMatrix22Scalar.mapRect(&bounds);
-            mx.bounds = computeGlyphBounds(glyph, &bounds,
-                                           this->shouldSubpixelBitmap(glyph, fMatrix22Scalar));
+            mx.bounds = SkRect::MakeXYWH(SkIntToScalar(fFace->glyph->bitmap_left ),
+                                        -SkIntToScalar(fFace->glyph->bitmap_top  ),
+                                         SkIntToScalar(fFace->glyph->bitmap.width),
+                                         SkIntToScalar(fFace->glyph->bitmap.rows ));
+            fMatrix22Scalar.mapRect(&mx.bounds);
+            updateGlyphBoundsIfSubpixel(glyph, &mx.bounds,
+                                        this->shouldSubpixelBitmap(glyph, fMatrix22Scalar));
 
 #if defined(FT_CONFIG_OPTION_SVG)
         } else if (fFace->glyph->format == FT_GLYPH_FORMAT_SVG) {
@@ -1295,11 +1286,9 @@ SkScalerContext::GlyphMetrics SkScalerContext_FreeType::generateMetrics(const Sk
                 return mx;
             }
             sk_sp<SkPicture> pic = recorder.finishRecordingAsPicture();
-            SkRect bounds = pic->cullRect();
-            SkASSERT(bounds.isFinite());
-
+            mx.bounds = pic->cullRect();
+            SkASSERT(mx.bounds.isFinite());
             // drawSVGGlyph already applied the subpixel positioning.
-            mx.bounds = computeGlyphBounds(glyph, &bounds, false);
 #endif  // FT_CONFIG_OPTION_SVG
 
         } else {

@@ -829,7 +829,7 @@ SkScalerContext::GlyphMetrics SkScalerContext_GDI::generateMetrics(const SkGlyph
         int left = 0;
         int top = -fTM.tmAscent;
 
-        mx.bounds = SkIRect::MakeXYWH(left, top, width, height);
+        mx.bounds = SkRect::MakeXYWH(left, top, width, height);
         mx.advance = SkVector{(float)width, 0};
 
         // Vector FON will transform nicely, but bitmap FON do not.
@@ -884,7 +884,7 @@ SkScalerContext::GlyphMetrics SkScalerContext_GDI::generateMetrics(const SkGlyph
         // For embedded bitmaps the black box should be exact.
         // For outlines we need to outset by 1 in all directions for bleed.
         // For ClearType we need to outset by 2 for bleed.
-        mx.bounds = SkIRect::MakeXYWH(x, y, gm.gmBlackBoxX, gm.gmBlackBoxY).makeOutset(2, 2);
+        mx.bounds = SkRect::MakeXYWH(x, y, gm.gmBlackBoxX, gm.gmBlackBoxY).makeOutset(2, 2);
     }
     // TODO(benjaminwagner): What is the type of gm.gmCellInc[XY]?
     mx.advance.fX = (float)((int)gm.gmCellIncX);

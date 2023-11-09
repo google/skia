@@ -365,7 +365,7 @@ protected:
 
     struct GlyphMetrics {
         SkVector       advance;
-        SkIRect        bounds;
+        SkRect         bounds;
         SkMask::Format maskFormat;
         uint16_t       extraBits;
         bool           neverRequestPath;
@@ -383,9 +383,12 @@ protected:
 
     virtual GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) = 0;
 
-    static bool GenerateMetricsFromPath(
+    static void GenerateMetricsFromPath(
         SkGlyph* glyph, const SkPath& path, SkMask::Format format,
         bool verticalLCD, bool a8FromLCD, bool hairline);
+
+    static void SaturateGlyphBounds(SkGlyph* glyph, SkRect&&);
+    static void SaturateGlyphBounds(SkGlyph* glyph, SkIRect const &);
 
     /** Generates the contents of glyph.fImage.
      *  When called, glyph.fImage will be pointing to a pre-allocated,

@@ -1913,24 +1913,18 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                         strikeSpec.findOrCreateScopedStrike(strikeCache);
                 const SkScalar maxDimension =
                         find_maximum_glyph_dimension(gaugingStrike.get(), glyphs);
-                if (maxDimension == 0) {
-                    // Text Scalers don't create glyphs with a dimension larger than 65535. For very
-                    // large sizes, this will cause all the dimensions to go to zero. Use 65535 as
-                    // the dimension.
-                    // TODO: There is a problem where a small character (say .) and a large
-                    //  character (say M) are in the same run. If the run is scaled to be very
-                    //  large, then the M may return 0 because its dimensions are > 65535, but
-                    //  the small character produces regular result because its largest dimension
-                    //  is < 65535. This will create an improper scale factor causing the M to be
-                    //  too large to fit in the atlas. Tracked by skia:13714.
-                    return 65535.0f;
-                }
+                // TODO: There is a problem where a small character (say .) and a large
+                //  character (say M) are in the same run. If the run is scaled to be very
+                //  large, then the M may return 0 because its dimensions are > 65535, but
+                //  the small character produces regular result because its largest dimension
+                //  is < 65535. This will create an improper scale factor causing the M to be
+                //  too large to fit in the atlas. Tracked by skia:13714.
                 return maxDimension;
             };
 
             // Condition the creationMatrix so that glyphs fit in the atlas.
             for (SkScalar maxDimension = maxGlyphDimension(creationMatrix);
-                 maxDimension <= 0 || kMaxBilerpAtlasDimension < maxDimension;
+                 kMaxBilerpAtlasDimension < maxDimension;
                  maxDimension = maxGlyphDimension(creationMatrix))
             {
                 // The SkScalerContext has a limit of 65536 maximum dimension.

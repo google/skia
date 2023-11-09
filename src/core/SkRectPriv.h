@@ -57,11 +57,6 @@ public:
                SkFitsInFixed(r.fRight) && SkFitsInFixed(r.fBottom);
     }
 
-    static bool Is16Bit(const SkIRect& r) {
-        return  SkTFitsIn<int16_t>(r.fLeft)  && SkTFitsIn<int16_t>(r.fTop) &&
-                SkTFitsIn<int16_t>(r.fRight) && SkTFitsIn<int16_t>(r.fBottom);
-    }
-
     // Returns r.width()/2 but divides first to avoid width() overflowing.
     static constexpr float HalfWidth(const SkRect& r) {
         return sk_float_midpoint(-r.fLeft, r.fRight);
