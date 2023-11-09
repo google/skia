@@ -151,11 +151,6 @@ namespace SK_OPTS_NS {
         ptr[0] = r;
         ptr[1] = g;
     }
-    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
-        *r = ptr[0];
-        *g = ptr[1];
-        *b = ptr[2];
-    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         *r = ptr[0];
         *g = ptr[1];
@@ -169,14 +164,6 @@ namespace SK_OPTS_NS {
         ptr[3] = a;
     }
 
-    SI void load2(const float* ptr, size_t tail, F* r, F* g) {
-        *r = ptr[0];
-        *g = ptr[1];
-    }
-    SI void store2(float* ptr, size_t tail, F r, F g) {
-        ptr[0] = r;
-        ptr[1] = g;
-    }
     SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
         *r = ptr[0];
         *g = ptr[1];
@@ -294,19 +281,6 @@ namespace SK_OPTS_NS {
             vst2_u16(ptr, (uint16x4x2_t{{r,g}}));
         }
     }
-    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
-        uint16x4x3_t rgb;
-        if (__builtin_expect(tail,0)) {
-            if (  true  ) { rgb = vld3_lane_u16(ptr + 0, rgb, 0); }
-            if (tail > 1) { rgb = vld3_lane_u16(ptr + 3, rgb, 1); }
-            if (tail > 2) { rgb = vld3_lane_u16(ptr + 6, rgb, 2); }
-        } else {
-            rgb = vld3_u16(ptr);
-        }
-        *r = rgb.val[0];
-        *g = rgb.val[1];
-        *b = rgb.val[2];
-    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         uint16x4x4_t rgba;
         if (__builtin_expect(tail,0)) {
@@ -329,27 +303,6 @@ namespace SK_OPTS_NS {
             if (tail > 2) { vst4_lane_u16(ptr + 8, (uint16x4x4_t{{r,g,b,a}}), 2); }
         } else {
             vst4_u16(ptr, (uint16x4x4_t{{r,g,b,a}}));
-        }
-    }
-    SI void load2(const float* ptr, size_t tail, F* r, F* g) {
-        float32x4x2_t rg;
-        if (__builtin_expect(tail,0)) {
-            if (  true  ) { rg = vld2q_lane_f32(ptr + 0, rg, 0); }
-            if (tail > 1) { rg = vld2q_lane_f32(ptr + 2, rg, 1); }
-            if (tail > 2) { rg = vld2q_lane_f32(ptr + 4, rg, 2); }
-        } else {
-            rg = vld2q_f32(ptr);
-        }
-        *r = rg.val[0];
-        *g = rg.val[1];
-    }
-    SI void store2(float* ptr, size_t tail, F r, F g) {
-        if (__builtin_expect(tail,0)) {
-            if (  true  ) { vst2q_lane_f32(ptr + 0, (float32x4x2_t{{r,g}}), 0); }
-            if (tail > 1) { vst2q_lane_f32(ptr + 2, (float32x4x2_t{{r,g}}), 1); }
-            if (tail > 2) { vst2q_lane_f32(ptr + 4, (float32x4x2_t{{r,g}}), 2); }
-        } else {
-            vst2q_f32(ptr, (float32x4x2_t{{r,g}}));
         }
     }
     SI void load4(const float* ptr, size_t tail, F* r, F* g, F* b, F* a) {
@@ -513,47 +466,6 @@ namespace SK_OPTS_NS {
         }
     }
 
-    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
-        __m128i _0,_1,_2,_3,_4,_5,_6,_7;
-        if (__builtin_expect(tail,0)) {
-            auto load_rgb = [](const uint16_t* src) {
-                auto v = _mm_cvtsi32_si128(*(const uint32_t*)src);
-                return _mm_insert_epi16(v, src[2], 2);
-            };
-            _1 = _2 = _3 = _4 = _5 = _6 = _7 = _mm_setzero_si128();
-            if (  true  ) { _0 = load_rgb(ptr +  0); }
-            if (tail > 1) { _1 = load_rgb(ptr +  3); }
-            if (tail > 2) { _2 = load_rgb(ptr +  6); }
-            if (tail > 3) { _3 = load_rgb(ptr +  9); }
-            if (tail > 4) { _4 = load_rgb(ptr + 12); }
-            if (tail > 5) { _5 = load_rgb(ptr + 15); }
-            if (tail > 6) { _6 = load_rgb(ptr + 18); }
-        } else {
-            // Load 0+1, 2+3, 4+5 normally, and 6+7 backed up 4 bytes so we don't run over.
-            auto _01 =                _mm_loadu_si128((const __m128i*)(ptr +  0))    ;
-            auto _23 =                _mm_loadu_si128((const __m128i*)(ptr +  6))    ;
-            auto _45 =                _mm_loadu_si128((const __m128i*)(ptr + 12))    ;
-            auto _67 = _mm_srli_si128(_mm_loadu_si128((const __m128i*)(ptr + 16)), 4);
-            _0 = _01; _1 = _mm_srli_si128(_01, 6);
-            _2 = _23; _3 = _mm_srli_si128(_23, 6);
-            _4 = _45; _5 = _mm_srli_si128(_45, 6);
-            _6 = _67; _7 = _mm_srli_si128(_67, 6);
-        }
-
-        auto _02 = _mm_unpacklo_epi16(_0, _2),  // r0 r2 g0 g2 b0 b2 xx xx
-             _13 = _mm_unpacklo_epi16(_1, _3),
-             _46 = _mm_unpacklo_epi16(_4, _6),
-             _57 = _mm_unpacklo_epi16(_5, _7);
-
-        auto rg0123 = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
-             bx0123 = _mm_unpackhi_epi16(_02, _13),  // b0 b1 b2 b3 xx xx xx xx
-             rg4567 = _mm_unpacklo_epi16(_46, _57),
-             bx4567 = _mm_unpackhi_epi16(_46, _57);
-
-        *r = _mm_unpacklo_epi64(rg0123, rg4567);
-        *g = _mm_unpackhi_epi64(rg0123, rg4567);
-        *b = _mm_unpacklo_epi64(bx0123, bx4567);
-    }
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         __m128i _01, _23, _45, _67;
         if (__builtin_expect(tail,0)) {
@@ -613,70 +525,6 @@ namespace SK_OPTS_NS {
             _mm_storeu_si128((__m128i*)ptr + 1, _23);
             _mm_storeu_si128((__m128i*)ptr + 2, _45);
             _mm_storeu_si128((__m128i*)ptr + 3, _67);
-        }
-    }
-
-    SI void load2(const float* ptr, size_t tail, F* r, F* g) {
-        F _0123, _4567;
-        if (__builtin_expect(tail, 0)) {
-            _0123 = _4567 = _mm256_setzero_ps();
-            F* d = &_0123;
-            if (tail > 3) {
-                *d = _mm256_loadu_ps(ptr);
-                ptr += 8;
-                tail -= 4;
-                d = &_4567;
-            }
-            bool high = false;
-            if (tail > 1) {
-                *d = _mm256_castps128_ps256(_mm_loadu_ps(ptr));
-                ptr += 4;
-                tail -= 2;
-                high = true;
-            }
-            if (tail > 0) {
-                *d = high ? _mm256_insertf128_ps(*d, _mm_loadu_si64(ptr), 1)
-                          : _mm256_insertf128_ps(*d, _mm_loadu_si64(ptr), 0);
-            }
-        } else {
-            _0123 = _mm256_loadu_ps(ptr + 0);
-            _4567 = _mm256_loadu_ps(ptr + 8);
-        }
-
-        F _0145 = _mm256_permute2f128_pd(_0123, _4567, 0x20),
-          _2367 = _mm256_permute2f128_pd(_0123, _4567, 0x31);
-
-        *r = _mm256_shuffle_ps(_0145, _2367, 0x88);
-        *g = _mm256_shuffle_ps(_0145, _2367, 0xDD);
-    }
-    SI void store2(float* ptr, size_t tail, F r, F g) {
-        F _0145 = _mm256_unpacklo_ps(r, g),
-          _2367 = _mm256_unpackhi_ps(r, g);
-        F _0123 = _mm256_permute2f128_pd(_0145, _2367, 0x20),
-          _4567 = _mm256_permute2f128_pd(_0145, _2367, 0x31);
-
-        if (__builtin_expect(tail, 0)) {
-            const __m256* s = &_0123;
-            if (tail > 3) {
-                _mm256_storeu_ps(ptr, *s);
-                s = &_4567;
-                tail -= 4;
-                ptr += 8;
-            }
-            bool high = false;
-            if (tail > 1) {
-                _mm_storeu_ps(ptr, _mm256_extractf128_ps(*s, 0));
-                ptr += 4;
-                tail -= 2;
-                high = true;
-            }
-            if (tail > 0) {
-                *(ptr + 0) = (*s)[ high ? 4 : 0];
-                *(ptr + 1) = (*s)[ high ? 5 : 1];
-            }
-        } else {
-            _mm256_storeu_ps(ptr + 0, _0123);
-            _mm256_storeu_ps(ptr + 8, _4567);
         }
     }
 
@@ -878,42 +726,6 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
         }
     }
 
-    SI void load3(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
-        __m128i _0, _1, _2, _3;
-        if (__builtin_expect(tail,0)) {
-            _1 = _2 = _3 = _mm_setzero_si128();
-            auto load_rgb = [](const uint16_t* src) {
-                auto v = _mm_cvtsi32_si128(*(const uint32_t*)src);
-                return _mm_insert_epi16(v, src[2], 2);
-            };
-            if (  true  ) { _0 = load_rgb(ptr + 0); }
-            if (tail > 1) { _1 = load_rgb(ptr + 3); }
-            if (tail > 2) { _2 = load_rgb(ptr + 6); }
-        } else {
-            // Load slightly weirdly to make sure we don't load past the end of 4x48 bits.
-            auto _01 =                _mm_loadu_si128((const __m128i*)(ptr + 0))    ,
-                 _23 = _mm_srli_si128(_mm_loadu_si128((const __m128i*)(ptr + 4)), 4);
-
-            // Each _N holds R,G,B for pixel N in its lower 3 lanes (upper 5 are ignored).
-            _0 = _01;
-            _1 = _mm_srli_si128(_01, 6);
-            _2 = _23;
-            _3 = _mm_srli_si128(_23, 6);
-        }
-
-        // De-interlace to R,G,B.
-        auto _02 = _mm_unpacklo_epi16(_0, _2),  // r0 r2 g0 g2 b0 b2 xx xx
-             _13 = _mm_unpacklo_epi16(_1, _3);  // r1 r3 g1 g3 b1 b3 xx xx
-
-        auto R = _mm_unpacklo_epi16(_02, _13),  // r0 r1 r2 r3 g0 g1 g2 g3
-             G = _mm_srli_si128(R, 8),
-             B = _mm_unpackhi_epi16(_02, _13);  // b0 b1 b2 b3 xx xx xx xx
-
-        *r = sk_unaligned_load<U16>(&R);
-        *g = sk_unaligned_load<U16>(&G);
-        *b = sk_unaligned_load<U16>(&B);
-    }
-
     SI void load4(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
         __m128i _01, _23;
         if (__builtin_expect(tail,0)) {
@@ -951,33 +763,6 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
         } else {
             _mm_storeu_si128((__m128i*)ptr + 0, _mm_unpacklo_epi32(rg, ba));
             _mm_storeu_si128((__m128i*)ptr + 1, _mm_unpackhi_epi32(rg, ba));
-        }
-    }
-
-    SI void load2(const float* ptr, size_t tail, F* r, F* g) {
-        F _01, _23;
-        if (__builtin_expect(tail, 0)) {
-            _01 = _23 = _mm_setzero_si128();
-            if (  true  ) { _01 = _mm_loadl_pi(_01, (__m64 const*)(ptr + 0)); }
-            if (tail > 1) { _01 = _mm_loadh_pi(_01, (__m64 const*)(ptr + 2)); }
-            if (tail > 2) { _23 = _mm_loadl_pi(_23, (__m64 const*)(ptr + 4)); }
-        } else {
-            _01 = _mm_loadu_ps(ptr + 0);
-            _23 = _mm_loadu_ps(ptr + 4);
-        }
-        *r = _mm_shuffle_ps(_01, _23, 0x88);
-        *g = _mm_shuffle_ps(_01, _23, 0xDD);
-    }
-    SI void store2(float* ptr, size_t tail, F r, F g) {
-        F _01 = _mm_unpacklo_ps(r, g),
-          _23 = _mm_unpackhi_ps(r, g);
-        if (__builtin_expect(tail, 0)) {
-            if (  true  ) { _mm_storel_pi((__m64*)(ptr + 0), _01); }
-            if (tail > 1) { _mm_storeh_pi((__m64*)(ptr + 2), _01); }
-            if (tail > 2) { _mm_storel_pi((__m64*)(ptr + 4), _23); }
-        } else {
-            _mm_storeu_ps(ptr + 0, _01);
-            _mm_storeu_ps(ptr + 4, _23);
         }
     }
 
