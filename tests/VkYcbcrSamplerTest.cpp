@@ -51,13 +51,13 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
                                    reporter,
                                    context_info,
                                    CtsEnforcement::kApiLevel_T) {
-    VkTestHelper testHelper(false);
-    if (!testHelper.init()) {
-        ERRORF(reporter, "VkTestHelper initialization failed.");
+    std::unique_ptr<VkTestHelper> testHelper = VkTestHelper::Make(/* isProtected= */ false);
+    if (!testHelper) {
+        ERRORF(reporter, "Could not create VkTestHelper.");
         return;
     }
 
-    VkYcbcrSamplerHelper ycbcrHelper(testHelper.directContext());
+    VkYcbcrSamplerHelper ycbcrHelper(testHelper->directContext());
     if (!ycbcrHelper.isYCbCrSupported()) {
         return;
     }
@@ -67,7 +67,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
         return;
     }
 
-    sk_sp<SkImage> srcImage = SkImages::BorrowTextureFrom(testHelper.directContext(),
+    sk_sp<SkImage> srcImage = SkImages::BorrowTextureFrom(testHelper->directContext(),
                                                           ycbcrHelper.backendTexture(),
                                                           kTopLeft_GrSurfaceOrigin,
                                                           kRGB_888x_SkColorType,
@@ -78,7 +78,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_DrawImageWithYcbcrSampler,
         return;
     }
 
-    auto dContext = testHelper.directContext();
+    auto dContext = testHelper->directContext();
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(
             dContext,
             skgpu::Budgeted::kNo,
@@ -145,18 +145,18 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkYCbcrSampler_NoYcbcrSurface,
                                    reporter,
                                    context_info,
                                    CtsEnforcement::kApiLevel_T) {
-    VkTestHelper testHelper(false);
-    if (!testHelper.init()) {
-        ERRORF(reporter, "VkTestHelper initialization failed.");
+    std::unique_ptr<VkTestHelper> testHelper = VkTestHelper::Make(/* isProtected= */ false);
+    if (!testHelper) {
+        ERRORF(reporter, "Could not create VkTestHelper.");
         return;
     }
 
-    VkYcbcrSamplerHelper ycbcrHelper(testHelper.directContext());
+    VkYcbcrSamplerHelper ycbcrHelper(testHelper->directContext());
     if (!ycbcrHelper.isYCbCrSupported()) {
         return;
     }
 
-    GrBackendTexture texture = testHelper.directContext()->createBackendTexture(
+    GrBackendTexture texture = testHelper->directContext()->createBackendTexture(
             kImageWidth,
             kImageHeight,
             GrBackendFormats::MakeVk(VK_FORMAT_G8_B8R8_2PLANE_420_UNORM),

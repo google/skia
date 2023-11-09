@@ -23,17 +23,21 @@ class SkSurface;
 
 class VkTestHelper {
 public:
-    VkTestHelper(bool isProtected) : fIsProtected(isProtected) {}
+    static std::unique_ptr<VkTestHelper> Make(bool isProtected);
 
     ~VkTestHelper() {
         this->cleanup();
     }
 
-    bool init();
+    bool isValid() const { return fDirectContext != nullptr; }
 
     GrDirectContext* directContext() { return fDirectContext.get(); }
 
+
 private:
+    VkTestHelper(bool isProtected) : fIsProtected(isProtected) {}
+
+    bool init();
     void cleanup();
 
     DECLARE_VK_PROC(DestroyInstance);

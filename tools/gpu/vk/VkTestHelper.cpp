@@ -31,6 +31,17 @@
         return false;                                                                         \
     }
 
+std::unique_ptr<VkTestHelper> VkTestHelper::Make(bool isProtected) {
+    std::unique_ptr<VkTestHelper> helper;
+
+    helper.reset(new VkTestHelper(isProtected));
+    if (!helper->init()) {
+        return nullptr;
+    }
+
+    return helper;
+}
+
 bool VkTestHelper::init() {
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
