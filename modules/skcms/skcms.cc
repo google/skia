@@ -2295,26 +2295,6 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
 
 // ~~~~ Impl. of skcms_Transform() ~~~~
 
-// If this isn't Clang, GCC, or Emscripten with SIMD support, we are in SKCMS_PORTABLE mode.
-#if !defined(SKCMS_PORTABLE) && !(defined(__clang__) || \
-                                  defined(__GNUC__) || \
-                                  (defined(__EMSCRIPTEN_major__) && !defined(__wasm_simd128__)))
-    #define SKCMS_PORTABLE 1
-#endif
-
-// If we are in SKCMS_PORTABLE mode or running on a non-x86-64 platform, we can't enable HSW or SKX.
-#if defined(SKCMS_PORTABLE) || !defined(__x86_64__)
-    #undef SKCMS_FORCE_HSW
-    #if !defined(SKCMS_DISABLE_HSW)
-        #define SKCMS_DISABLE_HSW 1
-    #endif
-
-    #undef SKCMS_FORCE_SKX
-    #if !defined(SKCMS_DISABLE_SKX)
-        #define SKCMS_DISABLE_SKX 1
-    #endif
-#endif
-
 namespace baseline {
 #if defined(SKCMS_PORTABLE)
     // Build skcms in a portable scalar configuration.
