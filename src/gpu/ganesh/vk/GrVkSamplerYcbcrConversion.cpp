@@ -20,6 +20,26 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
     VkSamplerYcbcrConversionCreateInfo ycbcrCreateInfo;
     skgpu::SetupSamplerYcbcrConversionInfo(&ycbcrCreateInfo, info);
 
+#ifdef SK_BUILD_FOR_ANDROID
+    VkExternalFormatANDROID externalFormat;
+    if (info.fExternalFormat) {
+        // Format must not be specified for external images.
+        SkASSERT(info.fFormat == VK_FORMAT_UNDEFINED);
+        externalFormat.sType = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
+        externalFormat.pNext = nullptr;
+        externalFormat.externalFormat = info.fExternalFormat;
+        SkASSERT(ycbcrCreateInfo.pNext == nullptr);
+        ycbcrCreateInfo.pNext = &externalFormat;
+    }
+#else
+    // External images are supported only on Android.
+    SkASSERT(!info.fExternalFormat);
+#endif
+
+    if (!info.fExternalFormat) {
+        SkASSERT(info.fFormat != VK_FORMAT_UNDEFINED);
+    }
+
     VkSamplerYcbcrConversion conversion;
     VkResult result;
     GR_VK_CALL_RESULT(gpu, result, CreateSamplerYcbcrConversion(gpu->device(), &ycbcrCreateInfo,

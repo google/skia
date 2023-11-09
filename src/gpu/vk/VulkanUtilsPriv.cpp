@@ -46,25 +46,6 @@ void SetupSamplerYcbcrConversionInfo(VkSamplerYcbcrConversionCreateInfo* outInfo
     outInfo->yChromaOffset = conversionInfo.fYChromaOffset;
     outInfo->chromaFilter = conversionInfo.fChromaFilter;
     outInfo->forceExplicitReconstruction = conversionInfo.fForceExplicitReconstruction;
-
-#ifdef SK_BUILD_FOR_ANDROID
-    VkExternalFormatANDROID externalFormat;
-    if (conversionInfo.fExternalFormat) {
-        // Format must not be specified for external images.
-        SkASSERT(conversionInfo.fFormat == VK_FORMAT_UNDEFINED);
-        externalFormat.sType = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
-        externalFormat.pNext = nullptr;
-        externalFormat.externalFormat = conversionInfo.fExternalFormat;
-        outInfo->pNext = &externalFormat;
-    }
-#else
-    // External images are supported only on Android.
-    SkASSERT(!conversionInfo.fExternalFormat);
-#endif
-
-    if (!conversionInfo.fExternalFormat) {
-        SkASSERT(conversionInfo.fFormat != VK_FORMAT_UNDEFINED);
-    }
 }
 
 } // namespace skgpu

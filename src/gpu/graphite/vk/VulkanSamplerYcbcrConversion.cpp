@@ -24,6 +24,26 @@ sk_sp<VulkanSamplerYcbcrConversion> VulkanSamplerYcbcrConversion::Make(
     VkSamplerYcbcrConversionCreateInfo ycbcrCreateInfo;
     skgpu::SetupSamplerYcbcrConversionInfo(&ycbcrCreateInfo, conversionInfo);
 
+#ifdef SK_BUILD_FOR_ANDROID
+    VkExternalFormatANDROID externalFormat;
+    if (conversionInfo.fExternalFormat) {
+        // Format must not be specified for external images.
+        SkASSERT(conversionInfo.fFormat == VK_FORMAT_UNDEFINED);
+        externalFormat.sType = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
+        externalFormat.pNext = nullptr;
+        externalFormat.externalFormat = conversionInfo.fExternalFormat;
+        SkASSERT(ycbcrCreateInfo.pNext == nullptr);
+        ycbcrCreateInfo.pNext = &externalFormat;
+    }
+#else
+    // External images are supported only on Android.
+    SkASSERT(!conversionInfo.fExternalFormat);
+#endif
+
+    if (!conversionInfo.fExternalFormat) {
+        SkASSERT(conversionInfo.fFormat != VK_FORMAT_UNDEFINED);
+    }
+
     VkSamplerYcbcrConversion conversion;
     VkResult result;
     VULKAN_CALL_RESULT(context->interface(), result,
