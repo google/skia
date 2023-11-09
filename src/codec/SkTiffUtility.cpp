@@ -247,13 +247,27 @@ bool SkTiffImageFileDirectory::getEntryValuesGeneric(uint16_t entryIndex,
             case kTypeSignedRational: {
                 uint32_t numerator = get_endian_int(data, fLittleEndian);
                 uint32_t denominator = get_endian_int(data + kSizeLong, fLittleEndian);
-                reinterpret_cast<float*>(values)[i] = numerator / static_cast<float>(denominator);
+                if (denominator == 0) {
+                    // The TIFF specification does not indicate a behavior when the denominator is
+                    // zero.  The behavior of returning zero for a denominator of zero is a
+                    // preservation of the behavior introduced in https://crrev.com/767874.
+                    reinterpret_cast<float*>(values)[i] = 0;
+                } else {
+                    reinterpret_cast<float*>(values)[i] =
+                            numerator / static_cast<float>(denominator);
+                }
                 break;
             }
             case kTypeUnsignedRational: {
                 uint32_t numerator = get_endian_int(data, fLittleEndian);
                 uint32_t denominator = get_endian_int(data + kSizeLong, fLittleEndian);
-                reinterpret_cast<float*>(values)[i] = numerator / static_cast<float>(denominator);
+                if (denominator == 0) {
+                    // See comments in kTypeSignedRational.
+                    reinterpret_cast<float*>(values)[i] = 0.f;
+                } else {
+                    reinterpret_cast<float*>(values)[i] =
+                            numerator / static_cast<float>(denominator);
+                }
                 break;
             }
             default:

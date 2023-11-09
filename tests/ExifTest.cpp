@@ -154,4 +154,31 @@ DEF_TEST(ExifParse, r) {
         REPORTER_ASSERT(r, !exif.getPixelXDimension(&pixelXDimension));
         REPORTER_ASSERT(r, !exif.getPixelYDimension(&pixelYDimension));
     }
+
+    {
+        sk_sp<SkData> data = GetResourceAsData("images/test0-hdr.exif");
+
+        // Zero out the denominators of signed and unsigned rationals, to verify that we do not
+        // divide by zero.
+        data = SkData::MakeWithCopy(data->bytes(), data->size());
+        memset(static_cast<uint8_t*>(data->writable_data()) + 186, 0, 4);
+        memset(static_cast<uint8_t*>(data->writable_data()) + 2171, 0, 4);
+        memset(static_cast<uint8_t*>(data->writable_data()) + 2240, 0, 4);
+
+        // Parse the corrupted Exif.
+        SkExifMetadata exif(data);
+
+        // HDR headroom signed denominators are destroyed.
+        float hdrHeadroom = 0.f;
+        REPORTER_ASSERT(r, exif.getHdrHeadroom(&hdrHeadroom));
+        REPORTER_ASSERT(r, approx_eq(hdrHeadroom, 3.482202f, kEpsilon));
+
+        // The X resolution should be zero.
+        float xResolution = 0.f;
+        float yResolution = 0.f;
+        REPORTER_ASSERT(r, exif.getXResolution(&xResolution));
+        REPORTER_ASSERT(r, 0.f == xResolution);
+        REPORTER_ASSERT(r, exif.getYResolution(&yResolution));
+        REPORTER_ASSERT(r, 72.f == yResolution);
+    }
 }
