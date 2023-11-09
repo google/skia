@@ -56,14 +56,23 @@ template <typename T, int StartingItems = 1>
 class SkTBlockList {
 public:
     /**
-     * Create an allocator that defaults to using StartingItems as heap increment.
+     * Create an list that defaults to using StartingItems as heap increment and the
+     * kFixed growth policy (e.g. all allocations will match StartingItems).
      */
-    SkTBlockList() : SkTBlockList(StartingItems) {}
+    SkTBlockList() : SkTBlockList(SkBlockAllocator::GrowthPolicy::kFixed) {}
 
     /**
-     * Create an allocator
+     * Create an list that defaults to using StartingItems as the heap increment, but with
+     * the defined growth policy.
+    */
+    explicit SkTBlockList(SkBlockAllocator::GrowthPolicy policy)
+            : SkTBlockList(StartingItems, policy) {}
+
+    /**
+     * Create an list.
      *
      * @param   itemsPerBlock   the number of items to allocate at once
+     * @param   policy          the growth policy for subsequent blocks of items
      */
     explicit SkTBlockList(int itemsPerBlock,
                           SkBlockAllocator::GrowthPolicy policy =

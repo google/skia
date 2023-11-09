@@ -103,11 +103,11 @@ private:
     // The returned Transform reference remains valid for the lifetime of the DrawList.
     const Transform& deduplicateTransform(const Transform&);
 
-    SkTBlockList<Transform, 16> fTransforms;
-    SkTBlockList<Draw, 16>      fDraws;
+    SkTBlockList<Transform, 16> fTransforms{SkBlockAllocator::GrowthPolicy::kFibonacci};
+    SkTBlockList<Draw, 16>      fDraws{SkBlockAllocator::GrowthPolicy::kFibonacci};
 
     // Running total of RenderSteps for all draws, assuming nothing is culled
-    int fRenderStepCount;
+    int fRenderStepCount = 0;
 
 #if defined(SK_DEBUG)
     // The number of CoverageMask draws that have been recorded. Used in debugging.

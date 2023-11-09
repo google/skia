@@ -113,8 +113,8 @@ public:
 private:
     // fRects and fOrders are parallel, but kept separate to avoid wasting padding since Rect is
     // an over-aligned type.
-    SkTBlockList<Rect> fRects{16, SkBlockAllocator::GrowthPolicy::kFibonacci};
-    SkTBlockList<CompressedPaintersOrder> fOrders{16, SkBlockAllocator::GrowthPolicy::kFibonacci};
+    SkTBlockList<Rect, 16> fRects{SkBlockAllocator::GrowthPolicy::kFibonacci};
+    SkTBlockList<CompressedPaintersOrder, 16> fOrders{SkBlockAllocator::GrowthPolicy::kFibonacci};
 };
 
 // A BoundsManager that tracks highest CompressedPaintersOrder over a uniform spatial grid.
