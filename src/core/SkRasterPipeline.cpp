@@ -12,11 +12,9 @@
 #include "include/core/SkMatrix.h"
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
-#include "src/base/SkAutoMalloc.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkOpts.h"
-#include "src/core/SkRasterPipelineOpContexts.h"
 
 #include <algorithm>
 #include <cstring>
@@ -34,7 +32,6 @@ void SkRasterPipeline::reset() {
     fRewindCtx = nullptr;
     fStages    = nullptr;
     fNumStages = 0;
-    fMemoryCtxInfos.clear();
 }
 
 void SkRasterPipeline::append(SkRasterPipelineOp op, void* ctx) {
@@ -54,85 +51,6 @@ void SkRasterPipeline::append(SkRasterPipelineOp op, void* ctx) {
 void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
     fStages = fAlloc->make<StageList>(StageList{fStages, op, ctx});
     fNumStages += 1;
-
-    bool isLoad = false, isStore = false;
-    SkColorType ct = kUnknown_SkColorType;
-
-#define COLOR_TYPE_CASE(stage_ct, sk_ct) \
-    case Op::load_##stage_ct:            \
-    case Op::load_##stage_ct##_dst:      \
-        ct = sk_ct;                      \
-        isLoad = true;                   \
-        break;                           \
-    case Op::store_##stage_ct:           \
-        ct = sk_ct;                      \
-        isStore = true;                  \
-        break;
-
-    switch (op) {
-        COLOR_TYPE_CASE(a8, kAlpha_8_SkColorType)
-        COLOR_TYPE_CASE(565, kRGB_565_SkColorType)
-        COLOR_TYPE_CASE(4444, kARGB_4444_SkColorType)
-        COLOR_TYPE_CASE(8888, kRGBA_8888_SkColorType)
-        COLOR_TYPE_CASE(rg88, kR8G8_unorm_SkColorType)
-        COLOR_TYPE_CASE(16161616, kR16G16B16A16_unorm_SkColorType)
-        COLOR_TYPE_CASE(a16, kA16_unorm_SkColorType)
-        COLOR_TYPE_CASE(rg1616, kR16G16_unorm_SkColorType)
-        COLOR_TYPE_CASE(f16, kRGBA_F16_SkColorType)
-        COLOR_TYPE_CASE(af16, kA16_float_SkColorType)
-        COLOR_TYPE_CASE(rgf16, kR16G16_float_SkColorType)
-        COLOR_TYPE_CASE(f32, kRGBA_F32_SkColorType)
-        COLOR_TYPE_CASE(1010102, kRGBA_1010102_SkColorType)
-        COLOR_TYPE_CASE(1010102_xr, kBGR_101010x_XR_SkColorType)
-        COLOR_TYPE_CASE(10x6, kRGBA_10x6_SkColorType)
-
-#undef COLOR_TYPE_CASE
-
-        // Odd stage that doesn't have a load variant (appendLoad uses load_a8 + alpha_to_red)
-        case Op::store_r8:
-            ct = kR8_unorm_SkColorType;
-            isStore = true;
-            break;
-
-        case Op::srcover_rgba_8888:
-            ct = kRGBA_8888_SkColorType;
-            isLoad = true;
-            isStore = true;
-            break;
-
-        case Op::scale_u8:
-        case Op::lerp_u8:
-            ct = kAlpha_8_SkColorType;
-            isLoad = true;
-            break;
-
-        case Op::scale_565:
-        case Op::lerp_565:
-            ct = kRGB_565_SkColorType;
-            isLoad = true;
-            break;
-
-        case Op::emboss: {
-            // Special-case, this op uses a context that holds *two* MemoryCtxs
-            SkRasterPipeline_EmbossCtx* embossCtx = (SkRasterPipeline_EmbossCtx*)ctx;
-            this->addMemoryContext(&embossCtx->add,
-                                    SkColorTypeBytesPerPixel(kAlpha_8_SkColorType),
-                                    /*load=*/true, /*store=*/false);
-            this->addMemoryContext(&embossCtx->mul,
-                                    SkColorTypeBytesPerPixel(kAlpha_8_SkColorType),
-                                    /*load=*/true, /*store=*/false);
-            break;
-        }
-
-        default:
-            break;
-    }
-
-    if (isLoad || isStore) {
-        SkASSERT(ct != kUnknown_SkColorType);
-        this->addMemoryContext(
-                (SkRasterPipeline_MemoryCtx*)ctx, SkColorTypeBytesPerPixel(ct), isLoad, isStore);
-    }
 }
 void SkRasterPipeline::append(SkRasterPipelineOp op, uintptr_t ctx) {
     void* ptrCtx;
@@ -170,9 +88,6 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 
     fStages = &stages[src.fNumStages - 1];
     fNumStages += src.fNumStages;
-    for (const SkRasterPipeline_MemoryCtxInfo& info : src.fMemoryCtxInfos) {
-        this->addMemoryContext(info.context, info.bytesPerPixel, info.load, info.store);
-    }
 }
 
 const char* SkRasterPipeline::GetOpName(SkRasterPipelineOp op) {
@@ -566,15 +481,8 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
     // Best to not use fAlloc here... we can't bound how often run() will be called.
     AutoSTMalloc<32, SkRasterPipelineStage> program(stagesNeeded);
 
-    int numMemoryCtxs = fMemoryCtxInfos.size();
-    AutoSTMalloc<2, SkRasterPipeline_MemoryCtxPatch> patches(numMemoryCtxs);
-    for (int i = 0; i < numMemoryCtxs; ++i) {
-        patches[i].info = fMemoryCtxInfos[i];
-        patches[i].backup = nullptr;
-    }
-
     auto start_pipeline = this->buildPipeline(program.get() + stagesNeeded);
-    start_pipeline(x, y, x + w, y + h, program.get(), SkSpan{patches.data(), numMemoryCtxs});
+    start_pipeline(x,y,x+w,y+h, program.get());
 }
 
 std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() const {
@@ -586,32 +494,8 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
 
     SkRasterPipelineStage* program = fAlloc->makeArray<SkRasterPipelineStage>(stagesNeeded);
 
-    int numMemoryCtxs = fMemoryCtxInfos.size();
-    SkRasterPipeline_MemoryCtxPatch* patches =
-            fAlloc->makeArray<SkRasterPipeline_MemoryCtxPatch>(numMemoryCtxs);
-    for (int i = 0; i < numMemoryCtxs; ++i) {
-        patches[i].info = fMemoryCtxInfos[i];
-        patches[i].backup = nullptr;
-    }
-
     auto start_pipeline = this->buildPipeline(program + stagesNeeded);
     return [=](size_t x, size_t y, size_t w, size_t h) {
-        start_pipeline(x, y, x + w, y + h, program, SkSpan{patches, numMemoryCtxs});
+        start_pipeline(x,y,x+w,y+h, program);
     };
-}
-
-void SkRasterPipeline::addMemoryContext(SkRasterPipeline_MemoryCtx* ctx,
-                                        int bytesPerPixel,
-                                        bool load,
-                                        bool store) {
-    SkRasterPipeline_MemoryCtxInfo* info =
-            std::find_if(fMemoryCtxInfos.begin(), fMemoryCtxInfos.end(),
-                         [=](const SkRasterPipeline_MemoryCtxInfo& i) { return i.context == ctx; });
-    if (info != fMemoryCtxInfos.end()) {
-        SkASSERT(bytesPerPixel == info->bytesPerPixel);
-        info->load = info->load || load;
-        info->store = info->store || store;
-    } else {
-        fMemoryCtxInfos.push_back(SkRasterPipeline_MemoryCtxInfo{ctx, bytesPerPixel, load, store});
-    }
 }
