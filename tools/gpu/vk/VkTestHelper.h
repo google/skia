@@ -18,6 +18,7 @@
 
 class GrDirectContext;
 class SkSurface;
+struct SkISize;
 
 #define DECLARE_VK_PROC(name) PFN_vk##name fVk##name
 
@@ -31,8 +32,10 @@ public:
 
     bool isValid() const { return fDirectContext != nullptr; }
 
-    GrDirectContext* directContext() { return fDirectContext.get(); }
+    sk_sp<SkSurface> createSurface(SkISize, bool textureable, bool isProtected);
+    void submitAndWaitForCompletion(bool* completionMarker);
 
+    GrDirectContext* directContext() { return fDirectContext.get(); }
 
 private:
     VkTestHelper(bool isProtected) : fIsProtected(isProtected) {}

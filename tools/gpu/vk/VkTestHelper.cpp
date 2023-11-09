@@ -15,6 +15,7 @@
 #include "include/gpu/ganesh/vk/GrVkDirectContext.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
+#include "tools/gpu/ProtectedUtils.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 #define ACQUIRE_INST_VK_PROC(name)                                                               \
@@ -40,6 +41,18 @@ std::unique_ptr<VkTestHelper> VkTestHelper::Make(bool isProtected) {
     }
 
     return helper;
+}
+
+sk_sp<SkSurface> VkTestHelper::createSurface(SkISize size, bool textureable, bool isProtected) {
+    return ProtectedUtils::CreateProtectedSkSurface(fDirectContext.get(), size,
+                                                    textureable, isProtected);
+}
+
+void VkTestHelper::submitAndWaitForCompletion(bool* completionMarker) {
+    fDirectContext->submit();
+    while (!*completionMarker) {
+        fDirectContext->checkAsyncWorkCompletion();
+    }
 }
 
 bool VkTestHelper::init() {

@@ -35,8 +35,8 @@ namespace ProtectedUtils {
 
 sk_sp<SkSurface> CreateProtectedSkSurface(GrDirectContext*,
                                           SkISize size,
-                                          bool textureable = true,
-                                          bool isProtected = true);
+                                          bool textureable,
+                                          bool isProtected);
 
 void CheckImageBEProtection(SkImage*, bool expectingProtected);
 
