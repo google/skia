@@ -73,9 +73,9 @@ sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
 #endif
     desc.usage = usage;
     desc.size  = size;
-    // For wgpu::Buffer can be mapped at creation time for the initial data uploading. we should use
-    // it for better performance?
-    desc.mappedAtCreation = false;
+    // Specifying mappedAtCreation avoids clearing the buffer on the GPU which can cause MapAsync to
+    // be very slow as it waits for GPU execution to complete.
+    desc.mappedAtCreation = SkToBool(usage & wgpu::BufferUsage::MapWrite);
 
     auto buffer = sharedContext->device().CreateBuffer(&desc);
     if (!buffer) {
@@ -87,11 +87,15 @@ sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
                                         std::move(buffer)));
 }
 
-DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
-                       size_t size,
-                       wgpu::Buffer buffer)
-        : Buffer(sharedContext, size)
-        , fBuffer(std::move(buffer)) {}
+DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext, size_t size, wgpu::Buffer buffer)
+        : Buffer(sharedContext, size), fBuffer(std::move(buffer)) {
+    // Mapped at creation.
+    if (fBuffer && fBuffer.GetMapState() == wgpu::BufferMapState::Mapped) {
+        SkASSERT(fBuffer.GetUsage() & wgpu::BufferUsage::MapWrite);
+        fMapPtr = fBuffer.GetMappedRange();
+        SkASSERT(fMapPtr);
+    }
+}
 
 void DawnBuffer::onMap() {
     SkASSERT(fBuffer);
@@ -122,7 +126,7 @@ void DawnBuffer::onMap() {
 void DawnBuffer::onUnmap() {
     SkASSERT(fBuffer);
     SkASSERT(this->isMapped());
-    SkASSERT(fBuffer.GetUsage() & (wgpu::BufferUsage::MapRead | wgpu::BufferUsage::MapWrite));
+    SkASSERT(fBuffer.GetMapState() == wgpu::BufferMapState::Mapped);
 
     fBuffer.Unmap();
     fMapPtr = nullptr;
