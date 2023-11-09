@@ -32,11 +32,6 @@ public:
                                       const TextureInfo&,
                                       wgpu::Texture);
 
-    static sk_sp<Texture> MakeWrapped(const DawnSharedContext*,
-                                      SkISize dimensions,
-                                      const TextureInfo&,
-                                      const wgpu::TextureView&);
-
     ~DawnTexture() override {}
 
     const wgpu::Texture& dawnTexture() const { return fTexture; }

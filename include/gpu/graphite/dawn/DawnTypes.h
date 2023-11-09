@@ -18,6 +18,7 @@ struct DawnTextureInfo {
     Mipmapped fMipmapped = Mipmapped::kNo;
 
     // wgpu::TextureDescriptor properties
+    // `fFormat` for multiplanar formats corresponds to the plane TextureView's format.
     wgpu::TextureFormat fFormat = wgpu::TextureFormat::Undefined;
     wgpu::TextureUsage fUsage = wgpu::TextureUsage::None;
     // TODO(b/308944094): Migrate aspect information to BackendTextureViews.
@@ -27,12 +28,12 @@ struct DawnTextureInfo {
     DawnTextureInfo(const wgpu::Texture& texture);
     DawnTextureInfo(uint32_t sampleCount,
                     Mipmapped mipmapped,
-                    wgpu::TextureFormat format,
+                    wgpu::TextureFormat viewFormat,
                     wgpu::TextureUsage usage,
                     wgpu::TextureAspect aspect)
             : fSampleCount(sampleCount)
             , fMipmapped(mipmapped)
-            , fFormat(format)
+            , fFormat(viewFormat)
             , fUsage(usage)
             , fAspect(aspect) {}
 };

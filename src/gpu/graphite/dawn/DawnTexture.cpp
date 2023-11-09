@@ -182,24 +182,6 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                           skgpu::Budgeted::kNo));
 }
 
-sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
-                                        SkISize dimensions,
-                                        const TextureInfo& info,
-                                        const wgpu::TextureView& textureView) {
-    if (!textureView) {
-        SKGPU_LOG_E("No valid texture passed into MakeWrapped\n");
-        return {};
-    }
-    return sk_sp<Texture>(new DawnTexture(sharedContext,
-                                          dimensions,
-                                          info,
-                                          nullptr,
-                                          /*sampleTextureView=*/textureView,
-                                          /*renderTextureView=*/textureView,
-                                          Ownership::kWrapped,
-                                          skgpu::Budgeted::kNo));
-}
-
 void DawnTexture::freeGpuData() {
     fTexture = nullptr;
     fSampleTextureView = nullptr;
