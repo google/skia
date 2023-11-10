@@ -23,7 +23,7 @@ void draw_color_wheel(SkCanvas* canvas, float scale) {
         sweep.setAntiAlias(true);
         canvas->drawCircle({0, 0}, (scale - stroke) * 0.5f, sweep);
     }
-    sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+
     SkFont font(fontMgr->legacyMakeTypeface(nullptr, SkFontStyle::Bold()), size);
     const struct { const char* str; float radius; float angle; SkColor4f color;} kLetters[] = {
         {"K", 0,   0, SkColors::kBlack},

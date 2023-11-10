@@ -34,6 +34,7 @@
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkRectPriv.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cstddef>
 #include <memory>
@@ -509,7 +510,7 @@ static void test_gen_id(skiatest::Reporter* reporter) {
 static void test_typeface(skiatest::Reporter* reporter) {
     SkPictureRecorder recorder;
     SkCanvas* canvas = recorder.beginRecording(10, 10);
-    SkFont font(SkTypeface::MakeFromName("Arial", SkFontStyle::Italic()));
+    SkFont font(ToolUtils::CreateTestTypeface("Arial", SkFontStyle::Italic()));
     canvas->drawString("Q", 0, 10, font, SkPaint());
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
     SkDynamicMemoryWStream stream;

@@ -29,6 +29,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <algorithm>
 #include <cstring>
@@ -211,8 +212,8 @@ static sk_sp<SkPicture> make_picture(const sk_sp<SkTypeface>& tf0, const sk_sp<S
 }
 
 DEF_TEST(serial_typeface, reporter) {
-    auto tf0 = MakeResourceAsTypeface("fonts/hintgasp.ttf");
-    auto tf1 = MakeResourceAsTypeface("fonts/Roboto2-Regular_NoEmbed.ttf");
+    auto tf0 = ToolUtils::CreateTypefaceFromResource("fonts/hintgasp.ttf");
+    auto tf1 = ToolUtils::CreateTypefaceFromResource("fonts/Roboto2-Regular_NoEmbed.ttf");
     if (!tf0 || !tf1 || tf0.get() == tf1.get()) {
         return; // need two different typefaces for this test to make sense.
     }

@@ -10,6 +10,7 @@
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cfloat>
 #include "include/core/SkPictureRecorder.h"
@@ -35,7 +36,7 @@ struct ParagraphBench : public Benchmark {
         const char* text = (const char*)fData->data();
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);

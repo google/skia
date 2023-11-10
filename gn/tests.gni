@@ -96,7 +96,6 @@ tests_sources = [
   "$_tests/GainmapShaderTest.cpp",
   "$_tests/GeometryTest.cpp",
   "$_tests/GifTest.cpp",
-  "$_tests/GlyphRunTest.cpp",
   "$_tests/GpuDrawPathTest.cpp",
   "$_tests/GpuRectanizerTest.cpp",
   "$_tests/GrAHardwareBufferTest.cpp",

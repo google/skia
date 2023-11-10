@@ -9,7 +9,6 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
-#include "include/core/SkTypeface.h"
 #include "include/private/base/SkDebug.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
@@ -51,8 +50,4 @@ sk_sp<SkData> GetResourceAsData(const char* resource) {
     SK_ABORT("missing resource");
     #endif
     return nullptr;
-}
-
-sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource, int ttcIndex) {
-    return SkTypeface::MakeFromStream(GetResourceAsStream(resource), ttcIndex);
 }

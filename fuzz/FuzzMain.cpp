@@ -10,6 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkPaint.h"
@@ -18,13 +19,12 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/encode/SkPngEncoder.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/fonts/TestFontMgr.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <iostream>
 #include <map>
@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
             "--help lists the valid types. If type is not specified,\n"
             "fuzz will make a guess based on the name of the file.\n");
     CommandLineFlags::Parse(argc, argv);
-    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+    ToolUtils::UsePortableFontMgr();
 
     SkString path = SkString(FLAGS_bytes.isEmpty() ? argv[0] : FLAGS_bytes[0]);
     SkString type = SkString(FLAGS_type.isEmpty() ? "" : FLAGS_type[0]);

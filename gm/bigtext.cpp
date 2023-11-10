@@ -64,7 +64,7 @@ DEF_GM(return new BigTextGM;)
 // but the DirectWrite scaler context failed to calculate the bounds and reported empty bounds.
 // With empty bounds the glyph was discarded instead of rendered from path. See crbug.com/1370488
 DEF_SIMPLE_GM(bigtext_crbug_1370488, canvas, 512, 512) {
-    auto typeface = MakeResourceAsTypeface("fonts/SpiderSymbol.ttf");
+    auto typeface = ToolUtils::CreateTypefaceFromResource("fonts/SpiderSymbol.ttf");
     const char* text = "\xEF\x80\xA1";
     if (!typeface) {
         typeface = ToolUtils::DefaultPortableTypeface();

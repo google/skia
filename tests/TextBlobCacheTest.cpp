@@ -42,6 +42,7 @@
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/fonts/RandomScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN
@@ -110,7 +111,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
 
     SkCanvas* canvas = surface->getCanvas();
 
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
+    sk_sp<SkFontMgr> fm(ToolUtils::TestFontMgr());
 
     int count = std::min(fm->countFamilies(), maxFamilies);
 
@@ -245,7 +246,7 @@ static bool compare_bitmaps(const SkBitmap& expected, const SkBitmap& actual) {
 }
 
 static sk_sp<SkTextBlob> make_blob() {
-    auto tf = SkTypeface::MakeFromName("Roboto2-Regular", SkFontStyle());
+    auto tf = ToolUtils::CreateTestTypeface("Roboto2-Regular", SkFontStyle());
     SkFont font;
     font.setTypeface(tf);
     font.setSubpixel(false);
@@ -269,7 +270,7 @@ static sk_sp<SkTextBlob> make_blob() {
 // Turned off to pass on android and ios devices, which were running out of memory..
 #if 0
 static sk_sp<SkTextBlob> make_large_blob() {
-    auto tf = SkTypeface::MakeFromName("Roboto2-Regular", SkFontStyle());
+    auto tf = ToolUtils::CreateTestTypeface("Roboto2-Regular", SkFontStyle());
     SkFont font;
     font.setTypeface(tf);
     font.setSubpixel(false);

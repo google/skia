@@ -21,6 +21,7 @@
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/TextBlob.h"
 #include "src/utils/SkTestCanvas.h"
+#include "tools/fonts/FontToolUtils.h"
 
 // From Project Guttenberg. This is UTF-8 text.
 static const char* gText =
@@ -44,7 +45,7 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
     }
 
     void onPerCanvasPreDraw(SkCanvas* canvas) override {
-        auto typeface = SkTypeface::MakeFromName("monospace", SkFontStyle());
+        auto typeface = ToolUtils::CreateTestTypeface("monospace", SkFontStyle());
         SkFont font(typeface);
 
         SkMatrix view = SkMatrix::I();

@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     kUnpremul_SkAlphaType
                                };
     SkPaint paint;
-    SkFont font(SkTypeface::MakeFromName("monospace", SkFontStyle()), 10);
+    SkFont font(fontMgr->matchFamilyStyle("monospace", SkFontStyle()), 10);
     int y = 15;
     canvas->drawString("   colorType   alphaType  canonical", 10, y, font, paint);
     for (SkColorType colorType : {

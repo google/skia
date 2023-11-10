@@ -53,7 +53,7 @@ build:for_android_arm64 --platforms=//bazel/platform:android_arm64 --cc_output_d
 build:for_android_arm64_with_rbe --config=for_android_arm64 --config=linux_rbe
 
 # Android device-specific configurations.
-build:pixel_5 --platforms=//bazel/platform:pixel_5 --cc_output_directory_tag=pixel_5
+build:pixel_5 --platforms=//bazel/platform:pixel_5 --cc_output_directory_tag=pixel_5 --fontmgr_factory=android_fontmgr_factory
 build:pixel_5_with_rbe --config=pixel_5 --config=linux_rbe
 build:pixel_7 --platforms=//bazel/platform:pixel_7 --cc_output_directory_tag=pixel_7
 build:pixel_7_with_rbe --config=pixel_7 --config=linux_rbe

@@ -15,21 +15,23 @@ void draw(SkCanvas* canvas) {
     float x = 10, y = 10;
     float textScale = 24;
 
-    sk_sp<SkFontMgr> mgr(SkFontMgr::RefDefault());
-    for (int i = 0; i < mgr->countFamilies(); ++i) {
+    for (int i = 0; i < fontMgr->countFamilies(); ++i) {
         SkString familyName;
-        mgr->getFamilyName(i, &familyName);
-        sk_sp<SkFontStyleSet> styleSet(mgr->createStyleSet(i));
+        fontMgr->getFamilyName(i, &familyName);
+        sk_sp<SkFontStyleSet> styleSet(fontMgr->createStyleSet(i));
         for (int j = 0; j < styleSet->count(); ++j) {
             SkFontStyle fontStyle;
             SkString style;
             styleSet->getStyle(j, &fontStyle, &style);
             auto s = SkStringPrintf(
-                    "SkFont font(mgr->legacyMakeTypeface(\"%s\", SkFontStyle(%3d, %1d, %-27s), "
+                    "SkFont font(fontMgr->legacyMakeTypeface(\"%s\", SkFontStyle(%3d, %1d, %-27s), "
                     "%g);",
-                    familyName.c_str(), fontStyle.weight(), fontStyle.width(),
-                    tostr(fontStyle.slant()), textScale);
-            SkFont font(mgr->legacyMakeTypeface(familyName.c_str(), fontStyle), textScale);
+                    familyName.c_str(),
+                    fontStyle.weight(),
+                    fontStyle.width(),
+                    tostr(fontStyle.slant()),
+                    textScale);
+            SkFont font(fontMgr->legacyMakeTypeface(familyName.c_str(), fontStyle), textScale);
             y += font.getSpacing() * 1.5;
             canvas->drawString(s, x, y, font, SkPaint());
         }

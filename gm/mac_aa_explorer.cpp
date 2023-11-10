@@ -148,7 +148,7 @@ DEF_SIMPLE_GM(macaa_colors, canvas, 800, 500) {
     const char str[] = "Hamburgefons";
     const size_t len = strlen(str);
 
-    sk_sp<SkTypeface> face = SkTypeface::MakeFromName("Times", SkFontStyle());
+    sk_sp<SkTypeface> face = ToolUtils::CreateTestTypeface("Times", SkFontStyle());
     if (!face) {
         face = ToolUtils::DefaultPortableTypeface();
     }

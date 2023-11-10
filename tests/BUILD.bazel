@@ -1,11 +1,11 @@
 load("//bazel:skia_rules.bzl", "skia_cc_library")
 load("//tools/testrunners/unit:android_unit_test.bzl", "android_unit_test")
+load("//tools/testrunners/unit:unit_tests.bzl", "unit_tests")
 load(
     ":testgroups.bzl",
     "CORE_TESTS",
     "RECORD_TESTS",
 )
-load("//tools/testrunners/unit:unit_tests.bzl", "unit_tests")
 
 skia_cc_library(
     name = "test_harness",
@@ -54,7 +54,12 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/base",
-    ],
+    ] + select({
+        "@platforms//os:android": ["//:fontmgr_android"],
+        "@platforms//os:linux": ["//:fontmgr_fontconfig"],
+        # TODO(kjlubick) mac, windows
+        "//conditions:default": ["//:fontmgr_empty"],
+    }),
 )
 
 unit_tests(

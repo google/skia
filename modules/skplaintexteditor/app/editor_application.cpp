@@ -5,6 +5,7 @@
 // https://bugs.skia.org/9020
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkSurface.h"
 #include "src/base/SkTime.h"
 
@@ -15,6 +16,18 @@
 #include "modules/skplaintexteditor/include/editor.h"
 
 #include "third_party/icu/SkLoadICU.h"
+
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+#include "include/ports/SkFontMgr_fontconfig.h"
+#endif
+
+#if defined(SK_FONTMGR_CORETEXT_AVAILABLE)
+#include "include/ports/SkFontMgr_mac_ct.h"
+#endif
+
+#if defined(SK_FONTMGR_DIRECTWRITE_AVAILABLE)
+#include "include/ports/SkTypeface_win.h"
+#endif
 
 #include <cfloat>
 #include <fstream>
@@ -87,6 +100,23 @@ static constexpr SkFontStyle::Weight kFontWeight = SkFontStyle::kNormal_Weight;
 static constexpr SkFontStyle::Width  kFontWidth  = SkFontStyle::kNormal_Width;
 static constexpr SkFontStyle::Slant  kFontSlant  = SkFontStyle::kUpright_Slant;
 
+// Note: initialization is not thread safe
+sk_sp<SkFontMgr> fontMgr() {
+    static bool init = false;
+    static sk_sp<SkFontMgr> fontMgr = nullptr;
+    if (!init) {
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+        fontMgr = SkFontMgr_New_FontConfig(nullptr);
+#elif defined(SK_FONTMGR_CORETEXT_AVAILABLE)
+        fontMgr = SkFontMgr_New_CoreText(nullptr);
+#elif defined(SK_FONTMGR_DIRECTWRITE_AVAILABLE)
+        fontMgr = SkFontMgr_New_DirectWrite();
+#endif
+        init = true;
+    }
+    return fontMgr;
+}
+
 struct EditorLayer : public sk_app::Window::Layer {
     SkString fPath;
     sk_app::Window* fParent = nullptr;
@@ -106,7 +136,7 @@ struct EditorLayer : public sk_app::Window::Layer {
     bool fMouseDown = false;
 
     void setFont() {
-        fEditor.setFont(SkFont(SkTypeface::MakeFromName(kTypefaces[fTypefaceIndex],
+        fEditor.setFont(SkFont(fontMgr()->matchFamilyStyle(kTypefaces[fTypefaceIndex],
                                SkFontStyle(kFontWeight, kFontWidth, kFontSlant)), fFontSize));
     }
 

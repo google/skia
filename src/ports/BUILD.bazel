@@ -4,6 +4,7 @@ load(
     "exports_files_legacy",
     "select_multi",
     "skia_cc_deps",
+    "skia_cc_library",
     "skia_filegroup",
 )
 
@@ -26,6 +27,13 @@ skia_filegroup(
     srcs = [
         "SkFontHost_FreeType.cpp",
         "SkFontHost_FreeType_common.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "typeface_freetype_hdrs",
+    srcs = [
+        "SkFontHost_FreeType_common.h",
     ],
 )
 
@@ -172,7 +180,7 @@ skia_filegroup(
 # Any setting that causes this skia_filegroup to be included also needs to have a dependency on
 # fontconfig. See "deps" and "uses_fontconfig" at the bottom of this file.
 skia_filegroup(
-    name = "fontmgr_fontconfig",
+    name = "legacy_fontmgr_fontconfig",
     srcs = [
         "SkFontMgr_fontconfig.cpp",
         ":typeface_freetype",
@@ -183,7 +191,7 @@ skia_filegroup(
     name = "fontmgr_fontconfig_factory",
     srcs = [
         "SkFontMgr_fontconfig_factory.cpp",
-        ":fontmgr_fontconfig",
+        ":legacy_fontmgr_fontconfig",
     ],
 )
 
@@ -367,4 +375,25 @@ skia_filegroup(
         ":osfile",
     ],
     visibility = ["//src/core:__pkg__"],
+)
+
+skia_cc_library(
+    name = "fontmgr_fontconfig",
+    srcs = [
+        "SkFontMgr_fontconfig.cpp",
+        ":typeface_freetype",
+        ":typeface_freetype_hdrs",
+        "//src/utils:char_to_glyphcache",
+    ],
+    hdrs = [
+        "//include/ports:fontconfig_fontmgr_hdrs",
+    ],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//:pathops",
+        "//bazel/external/fontconfig",
+        "//src/core:core_priv",
+        "@freetype",
+    ],
 )

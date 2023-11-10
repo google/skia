@@ -5,8 +5,8 @@ REG_FIDDLE(text_rendering, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     const char* fontFamily = nullptr;  // Default system family, if it exists.
     SkFontStyle fontStyle;  // Default is normal weight, normal width,  upright slant.
-    sk_sp<SkFontMgr> fontManager = SkFontMgr::RefDefault();
-    sk_sp<SkTypeface> typeface = fontManager->legacyMakeTypeface(fontFamily, fontStyle);
+
+    sk_sp<SkTypeface> typeface = fontMgr->legacyMakeTypeface(fontFamily, fontStyle);
 
     SkFont font1(typeface, 64.0f, 1.0f, 0.0f);
     SkFont font2(typeface, 64.0f, 1.5f, 0.0f);
