@@ -265,7 +265,7 @@ DEF_SIMPLE_GM(blob_rsxform_distortable, canvas, 500, 100) {
     sk_sp<SkTypeface> typeface;
     std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
     if (distortable) {
-        sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+        sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
         const SkFontArguments::VariationPosition::Coordinate position[] = {
             { SkSetFourByteTag('w','g','h','t'), 1.618033988749895f }
         };

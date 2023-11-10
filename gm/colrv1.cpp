@@ -19,6 +19,7 @@
 #include "include/core/SkTypeface.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
 #include <initializer_list>
@@ -58,9 +59,9 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         if (fVariationPosition.coordinateCount) {
-            fTypeface = MakeResourceAsTypeface(kTestFontNameVariable);
+            fTypeface = ToolUtils::CreateTypefaceFromResource(kTestFontNameVariable);
         } else {
-            fTypeface = MakeResourceAsTypeface(kTestFontName);
+            fTypeface = ToolUtils::CreateTypefaceFromResource(kTestFontName);
         }
         fVariationSliders = ToolUtils::VariationSliders(fTypeface.get(), fVariationPosition);
     }

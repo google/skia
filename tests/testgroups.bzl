@@ -50,7 +50,6 @@ CORE_TESTS = [
     "FontTest.cpp",
     "FrontBufferedStreamTest.cpp",
     "GeometryTest.cpp",
-    "GlyphRunTest.cpp",
     "HSVRoundTripTest.cpp",
     "HashTest.cpp",
     "HighContrastFilterTest.cpp",

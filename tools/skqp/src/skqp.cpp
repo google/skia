@@ -13,13 +13,12 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
 #include "tools/Resources.h"
-#include "tools/fonts/TestFontMgr.h"
+#include "tools/fonts/FontToolUtils.h"
 #ifdef SK_GL
 #include "tools/gpu/gl/GLTestContext.h"
 #endif
@@ -123,7 +122,7 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     fReportDirectory = reportDirectory;
 
     SkGraphics::Init();
-    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+    ToolUtils::UsePortableFontMgr();
 
 #ifdef SK_BUILD_FOR_ANDROID
     // ro.vendor.api_level contains the minAPI level based on the order defined in

@@ -37,6 +37,7 @@ extern SkBitmap source;
 extern sk_sp<SkImage> image;
 extern double duration; // The total duration of the animation in seconds.
 extern double frame;    // A value in [0, 1] of where we are in the animation.
+extern sk_sp<SkFontMgr> fontMgr;  // Can load some system fonts
 
 #define REGISTER_FIDDLE(NAME, WIDTH, HEIGHT, TEXT, IMG_INDEX, DURATION, SRGB, F16,   \
                         OFSCR, OFSCR_WIDTH, OFSCR_HEIGHT, OFSCR_SAMPLECOUNT,         \

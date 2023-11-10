@@ -50,7 +50,7 @@ protected:
     void onOnceBeforeDraw() override {
         for (auto&& [i, test] : SkMakeEnumerate(tests)) {
             if (test.fontSource == Test::Source::Resource) {
-                typefaces[i] = MakeResourceAsTypeface(test.fontName);
+                typefaces[i] = ToolUtils::CreateTypefaceFromResource(test.fontName);
                 if (!typefaces[i]) {
                     typefaces[i] = ToolUtils::DefaultTypeface();
                 }

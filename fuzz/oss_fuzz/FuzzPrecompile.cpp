@@ -6,8 +6,7 @@
  */
 
 #include "fuzz/Fuzz.h"
-#include "src/core/SkFontMgrPriv.h"
-#include "tools/fonts/TestFontMgr.h"
+#include "tools/fonts/FontToolUtils.h"
 
 void fuzz_Precompile(Fuzz* f);
 
@@ -23,7 +22,7 @@ extern "C" {
         if (size > 4000) {
             return 0;
         }
-        gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+        ToolUtils::UsePortableFontMgr();
         auto fuzz = Fuzz(data, size);
         fuzz_Precompile(&fuzz);
         return 0;

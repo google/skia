@@ -156,6 +156,7 @@ skia_filegroup(
     name = "core_priv_hdrs",
     srcs = [
         "SkBitSet.h",
+        "SkCallableTraits.h",
         "SkCanvasStack.h",
         "SkDashPathPriv.h",
         "SkMatrix22.h",
@@ -187,4 +188,13 @@ skia_filegroup(
         "SkShadowUtils.cpp",
     ],
     visibility = ["//src/core:__pkg__"],
+)
+
+skia_filegroup(
+    name = "char_to_glyphcache",
+    srcs = [
+        "SkCharToGlyphCache.cpp",
+        "SkCharToGlyphCache.h",
+    ],
+    visibility = ["//src/ports:__pkg__"],
 )

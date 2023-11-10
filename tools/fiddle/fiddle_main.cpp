@@ -33,6 +33,10 @@ static DEFINE_double(frame, 1.0,
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+#include "include/ports/SkFontMgr_fontconfig.h"
+#endif
+
 using namespace skia_private;
 
 // Globals externed in fiddle_main.h
@@ -43,6 +47,7 @@ SkBitmap source;
 sk_sp<SkImage> image;
 double duration; // The total duration of the animation in seconds.
 double frame;    // A value in [0, 1] of where we are in the animation.
+sk_sp<SkFontMgr> fontMgr;
 
 // Global used by the local impl of SkDebugf.
 std::ostringstream gTextOutput;
@@ -244,6 +249,11 @@ int main(int argc, char** argv) {
         options.pdf = false;
         options.skp = false;
     }
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+    fontMgr = SkFontMgr_New_FontConfig(nullptr);
+#else
+    fontMgr = SkFontMgr::RefEmpty();
+#endif
     if (options.source) {
         sk_sp<SkData> data(SkData::MakeFromFileName(options.source));
         if (!data) {

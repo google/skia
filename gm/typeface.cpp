@@ -366,7 +366,7 @@ static void draw_typeface_rendering_gm(SkCanvas* canvas, sk_sp<SkTypeface> face,
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(typefacerendering, canvas, errMsg, 640, 840) {
-    sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/hintgasp.ttf");
+    sk_sp<SkTypeface> face = ToolUtils::CreateTypefaceFromResource("fonts/hintgasp.ttf");
     if (!face) {
         return skiagm::DrawResult::kSkip;
     }
@@ -381,7 +381,7 @@ DEF_SIMPLE_GM_CAN_FAIL(typefacerendering, canvas, errMsg, 640, 840) {
 #ifndef SK_BUILD_FOR_WIN
 
 DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfa, canvas, errMsg, 640, 840) {
-    sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfa");
+    sk_sp<SkTypeface> face = ToolUtils::CreateTypefaceFromResource("fonts/Roboto2-Regular.pfa");
     if (!face) {
        return skiagm::DrawResult::kSkip;
     }
@@ -390,7 +390,7 @@ DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfa, canvas, errMsg, 640, 840) {
 }
 
 DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfb, canvas, errMsg, 640, 840) {
-    sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto2-Regular.pfb");
+    sk_sp<SkTypeface> face = ToolUtils::CreateTypefaceFromResource("fonts/Roboto2-Regular.pfb");
     if (!face) {
         return skiagm::DrawResult::kSkip;
     }
@@ -404,7 +404,7 @@ DEF_SIMPLE_GM_CAN_FAIL(typefacerendering_pfb, canvas, errMsg, 640, 840) {
 
 // Exercise different paint styles and embolden, and compare with strokeandfill patheffect
 DEF_SIMPLE_GM(typeface_styling, canvas, 710, 360) {
-    sk_sp<SkTypeface> face = MakeResourceAsTypeface("fonts/Roboto-Regular.ttf");
+    sk_sp<SkTypeface> face = ToolUtils::CreateTypefaceFromResource("fonts/Roboto-Regular.ttf");
     if (!face) {
         face = ToolUtils::DefaultPortableTypeface();
     }

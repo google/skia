@@ -29,7 +29,7 @@ static void count_verbs(const SkPath& path, int counts[6]) {
 }
 
 void draw(SkCanvas* canvas) {
-    SkFont font(SkTypeface::MakeFromName("DejaVu Sans Mono", SkFontStyle()), 30);
+    SkFont font(fontMgr->matchFamilyStyle("DejaVu Sans Mono", SkFontStyle()), 30);
     SkPath path = make_path(font);
     int counts[6];
     count_verbs(path, counts);

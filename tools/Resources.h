@@ -16,7 +16,6 @@
 #include <string>
 
 class SkStreamAsset;
-class SkTypeface;
 
 SkString GetResourcePath(const char* resource = "");
 
@@ -30,7 +29,5 @@ inline sk_sp<SkData> GetResourceAsData(const std::string& resource) {
 
 std::unique_ptr<SkStreamAsset> GetResourceAsStream(const char* resource,
                                                    bool useFileStream = false);
-
-sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource, int ttcIndex = 0);
 
 #endif  // Resources_DEFINED

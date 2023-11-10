@@ -24,6 +24,7 @@
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
 static DEFINE_bool(verboseParagraph, false, "paragraph samples very verbose.");
@@ -120,7 +121,7 @@ protected:
         ParagraphStyle paraStyle;
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         for (auto i = 1; i < 5; ++i) {
             defaultStyle.setFontSize(24 * i);
             paraStyle.setTextStyle(defaultStyle);
@@ -284,7 +285,7 @@ private:
         paraStyle.setTextStyle(defaultStyle);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         ParagraphBuilderImpl builder(paraStyle, fontCollection);
 
         const char* text1 = "RaisedButton";
@@ -413,7 +414,7 @@ private:
         paraStyle.setTextAlign(align);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         ParagraphBuilderImpl builder(paraStyle, fontCollection);
         builder.addText(text.c_str(), text.length());
 
@@ -498,7 +499,7 @@ private:
         paraStyle.setTextDirection(RTL ? TextDirection::kRtl : TextDirection::kLtr);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         ParagraphBuilderImpl builder(paraStyle, fontCollection);
         if (RTL) {
             builder.addText(mirror(text));
@@ -1006,7 +1007,7 @@ public:
         canvas->drawColor(background);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         const char* text =
@@ -1084,7 +1085,7 @@ public:
         const char* text = "English English 字典 字典 😀😃😄 😀😃😄";
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -1317,7 +1318,7 @@ public:
         paragraph_style.setEllipsis(u"\u2026");
         //auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
 
@@ -1343,7 +1344,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         auto navy = SkColorSetRGB(0, 0, 139);
         auto ltgray = SkColorSetRGB(211, 211, 211);
@@ -1438,7 +1439,7 @@ public:
 
         auto multiplier = 5.67;
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -1779,7 +1780,7 @@ public:
 
     void draw(SkCanvas* canvas) override {
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         //fontCollection->enableFontFallback();
 
         canvas->clear(SK_ColorWHITE);
@@ -1819,7 +1820,7 @@ public:
 
     void draw(SkCanvas* canvas) override {
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         fontCollection->getParagraphCache()->turnOn(false);
 
@@ -2054,7 +2055,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2118,7 +2119,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2145,7 +2146,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2181,7 +2182,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2214,7 +2215,7 @@ public:
         //auto text = "ى،😗😃😄😍بب";
         //auto text1 = "World domination is such an ugly phrase - I prefer to call it world optimisation";
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2271,7 +2272,7 @@ public:
 
         auto text = u"hzbzzj sjsjjs sjkkahgafa\u09A4\u09A1\u09A4\u09A0\u09A4\u09A0 jsjzjgvsh sjsjsksbsbsjs sjjajajahhav jssjbxx jsisudg \u09AF\u09A0\u09AF\u09A0\u09A4\u09A0\u09A4\u09A0\u09A5 \u062A\u0624\u062A\u064A\u0646\u0646\u064A\u0621\u0646\u0627\u0644\u0631\u0631\u064A\u0644\u0627 \u062A\u062A\u0644\u0649 \u062A\u0627\u0631\u064A\u062E \u062A\u0633\u0628\u0628 \u0624\u062A\u064A\u062A\u0624\u062A\u0624\u062A\u0624\u062A\u0624 dhishsbs \u7238\u7238\u4E0D\u5BF9\u52B2\u5927\u5BB6\u90FD\u597D\u8BB0\u5F97\u8BB0\u5F97hshs\u099B\u09A1\u099B\u09A1\u099A jdjdj jdjdjd dbbdbdbdbddbnd\u09A2\u099B\u09A1\u09A2\u09A3\u099B\u09B0\u099A\u0998\u09A0\u09A0\u09B8\u09AB\u0997\u09A3\u09A4\u099C\u09B0\u09A5\u099B\u099B\u09A5\u09A6\u099D\u09A6\u09B2\u09A5\u09A4\u09A3\u09A2\u0997\u0996\u09A0\u0998\u0999\u09A3\u099A\u09A5\u09A4\u09A3\u062A\u0628\u0646\u064A\u0646 \u09A5\u09A3\u09A3 \u09A4\u0998\u0998\u0998\u099B\u09A4 \u09A4\u09A3 \u09A3\u0998\u09A2\u09A3\u0999\u0648\u064A\u0648\u0621\u062A\u064A\u0632\u0633\u0646\u0632\u0624\u0624\u0645\u0645\u0624\u0648\u0624\u0648\u0648\u064A\u0646\u0624\u0646\u0624\u0646\u0624\u0624 \u09A4\u09A4\u09A2\u09A2\u09A4\u09A4 \u0999\u0998\u0997\u09C1\u099B\u09A5 \u09A4\u0997\u0998\u09A3\u099A\u099C\u09A6\u09A5\u0632\u0624\u0648\u0624\u0648\u0624 \u09A4\u09A4\u09A3\u0998\u09A2\u09A4\u099B\u09A6\u09A5\u09A4\u0999\u0998\u09A3 \u0648\u0624\u0648\u0624\u0648\u0624\u0632\u0624\u0646\u0633\u0643\u0633\u0643\u0628\u0646\u09A4\u09AD\u0996\u0996\u099F\u09C0\u09C1\u099B\u09A6\u09C0\u09C1\u09C2\u09C7\u0648\u0624\u0646\u0621\u0646\u0624\u0646 \u09C7\u09C2\u09C0\u09C2\u099A\u09A3\u09A2\u09A4\u09A5\u09A5\u0632\u064A\u09C7\u09C2\u09C0\u09C2\u099A\u09A3\u09A2\u09AE\u09A4\u09A5\u09A5 \U0001f34d\U0001f955\U0001f4a7\U0001f4a7\U0001f4a6\U0001f32a";
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2325,7 +2326,7 @@ public:
         //"四的 ذخص  ৢঙ";
         //"ذخص  ৢঙ";
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2354,7 +2355,7 @@ public:
          canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2403,7 +2404,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2462,7 +2463,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2495,7 +2496,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         SkPaint line;
@@ -2585,7 +2586,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2617,7 +2618,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2659,7 +2660,8 @@ public:
         path += pair.second;
 
         auto data = SkData::MakeFromFileName(path.c_str());
-        font_provider->registerTypeface(SkTypeface::MakeFromData(std::move(data)), family_name);
+        font_provider->registerTypeface(ToolUtils::TestFontMgr()->makeFromData(std::move(data)),
+                                        family_name);
       }
 
       sk_sp<FontCollection> font_collection = sk_make_sp<FontCollection>();
@@ -2699,7 +2701,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2736,7 +2738,7 @@ public:
     paint.setColor(SK_ColorRED);
 
     auto fontCollection = sk_make_sp<FontCollection>();
-    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
 
     TextStyle defaultStyle;
     defaultStyle.setForegroundColor(paint);
@@ -2788,7 +2790,7 @@ public:
         paint.setColor(SK_ColorRED);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
 
         TextStyle defaultStyle;
         defaultStyle.setForegroundColor(paint);
@@ -2862,7 +2864,7 @@ public:
         canvas->clear(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
 
         ParagraphStyle paragraph_style;
         TextStyle text_style;
@@ -2891,7 +2893,7 @@ public:
         canvas->clear(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -2918,7 +2920,7 @@ public:
         //const char* text = "😀😃😄 ABC 😀😃😄 DEF GHI";
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
 
@@ -2978,7 +2980,7 @@ public:
         //const char* text3 = "אאא בבב גגג דדד הההששש תתת";
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -3032,7 +3034,7 @@ public:
 
         //auto fontCollection = sk_make_sp<FontCollection>();
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         //fontCollection->disableFontFallback();
 
@@ -3061,9 +3063,9 @@ public:
         canvas->drawColor(SK_ColorWHITE);
         std::string text("يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ");
 
-        //auto fontCollection = sk_make_sp<FontCollection>();
-        //fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        //fontCollection->enableFontFallback();
+        // auto fontCollection = sk_make_sp<FontCollection>();
+        // fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+        // fontCollection->enableFontFallback();
         auto fontCollection = getFontCollection();
         fontCollection->disableFontFallback();
 
@@ -3129,7 +3131,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -3164,7 +3166,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -3190,8 +3192,8 @@ public:
     void draw(SkCanvas* canvas) override {
 
         auto fontCollection = getFontCollection();
-        //fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        //fontCollection->enableFontFallback();
+        // fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
+        // fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
         TextStyle text_style;
@@ -3293,7 +3295,7 @@ public:
         SkString text("");
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
 
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
@@ -3380,7 +3382,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Google Sans"), SkString("Noto Naskh Arabic")});
@@ -3418,7 +3420,7 @@ public:
         paragraph_style.setMaxLines(1);
         paragraph_style.setEllipsis(u"\u2026");
         paragraph_style.setTextStyle(text_style);
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
 
         auto draw = [&](bool fallback, const SkString& font) {
             if(fallback) {
@@ -3449,7 +3451,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         ParagraphStyle paragraph_style;
         paragraph_style.setTextDirection(TextDirection::kLtr);
@@ -3541,7 +3543,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         ParagraphStyle paragraph_style;
         paragraph_style.setTextDirection(TextDirection::kLtr);
@@ -3748,7 +3750,7 @@ public:
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -3832,7 +3834,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
@@ -3913,7 +3915,7 @@ public:
         auto P = text.find(u"P");
         auto h = text.find(u"h");
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         ParagraphStyle paragraph_style;
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
@@ -3989,7 +3991,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
@@ -4017,7 +4019,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
@@ -4052,7 +4054,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto")});
@@ -4093,7 +4095,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->disableFontFallback();
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto")});
@@ -4195,7 +4197,7 @@ public:
         const char* text3 = "من أسر وإعلان الخاصّة وهولندا،, عل def    قائمة الضغوط بالمabcطالبة تلك. الصفحة "
             "بمباركة التقليدية قام عن. تصفح";
         auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
@@ -4230,7 +4232,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
@@ -4263,7 +4265,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto")});

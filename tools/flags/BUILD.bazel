@@ -28,7 +28,6 @@ skia_filegroup(
     testonly = True,
     srcs = [
         "CommonFlags.h",
-        "CommonFlagsFontMgr.cpp",
         "CommonFlagsImages.cpp",
     ] + select({
         "//src/gpu:has_ganesh_backend": ["CommonFlagsGpu.cpp"],

@@ -35,8 +35,8 @@ DEF_TEST(Skottie_Shaper_Clusters, r) {
             flags,
             nullptr,
         };
-        const auto result = Shaper::Shape(text, desc, SkRect::MakeWH(1000, 1000),
-                                          SkFontMgr::RefDefault());
+        const auto result =
+                Shaper::Shape(text, desc, SkRect::MakeWH(1000, 1000), ToolUtils::TestFontMgr());
         REPORTER_ASSERT(r, !result.fFragments.empty());
 
         size_t i = 0;
@@ -113,8 +113,8 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
                 nullptr
             };
 
-            const auto shape_result = Shaper::Shape(text, desc, text_point,
-                                                    SkFontMgr::RefDefault());
+            const auto shape_result =
+                    Shaper::Shape(text, desc, text_point, ToolUtils::TestFontMgr());
             REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
             REPORTER_ASSERT(reporter, !shape_result.fFragments[0].fGlyphs.fRuns.empty());
 
@@ -186,7 +186,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                 nullptr
             };
 
-            const auto shape_result = Shaper::Shape(text, desc, text_box, SkFontMgr::RefDefault());
+            const auto shape_result = Shaper::Shape(text, desc, text_box, ToolUtils::TestFontMgr());
             REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
             REPORTER_ASSERT(reporter, !shape_result.fFragments[0].fGlyphs.fRuns.empty());
 
@@ -233,7 +233,7 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
     const auto text_box = SkRect::MakeWH(100, 100);
 
     {
-        const auto shape_result = Shaper::Shape(text, desc, text_box, SkFontMgr::RefDefault());
+        const auto shape_result = Shaper::Shape(text, desc, text_box, ToolUtils::TestFontMgr());
         // Default/consolidated mode => single blob result.
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == 1ul);
         REPORTER_ASSERT(reporter, !shape_result.fFragments[0].fGlyphs.fRuns.empty());
@@ -241,8 +241,8 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
 
     {
         desc.fFlags = Shaper::Flags::kFragmentGlyphs;
-        const auto shape_result = skottie::Shaper::Shape(text, desc, text_box,
-                                                         SkFontMgr::RefDefault());
+        const auto shape_result =
+                skottie::Shaper::Shape(text, desc, text_box, ToolUtils::TestFontMgr());
         // Fragmented mode => one blob per glyph.
         const size_t expectedSize = text.size();
         REPORTER_ASSERT(reporter, shape_result.fFragments.size() == expectedSize);
