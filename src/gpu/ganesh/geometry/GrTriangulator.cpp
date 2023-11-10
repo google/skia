@@ -776,46 +776,50 @@ static bool rewind_if_necessary(Edge* edge, EdgeList* activeEdges, Vertex** curr
     if (edge->fLeft) {
         Vertex* leftTop = edge->fLeft->fTop;
         Vertex* leftBottom = edge->fLeft->fBottom;
-        if (c.sweep_lt(leftTop->fPoint, top->fPoint) && !edge->fLeft->isLeftOf(*top)) {
-            if (!rewind(activeEdges, current, leftTop, c)) {
-                return false;
-            }
-        } else if (c.sweep_lt(top->fPoint, leftTop->fPoint) && !edge->isRightOf(*leftTop)) {
-            if (!rewind(activeEdges, current, top, c)) {
-                return false;
-            }
-        } else if (c.sweep_lt(bottom->fPoint, leftBottom->fPoint) &&
-                   !edge->fLeft->isLeftOf(*bottom)) {
-            if (!rewind(activeEdges, current, leftTop, c)) {
-                return false;
-            }
-        } else if (c.sweep_lt(leftBottom->fPoint, bottom->fPoint) &&
-                   !edge->isRightOf(*leftBottom)) {
-            if (!rewind(activeEdges, current, top, c)) {
-                return false;
+        if (leftTop && leftBottom) {
+            if (c.sweep_lt(leftTop->fPoint, top->fPoint) && !edge->fLeft->isLeftOf(*top)) {
+                if (!rewind(activeEdges, current, leftTop, c)) {
+                    return false;
+                }
+            } else if (c.sweep_lt(top->fPoint, leftTop->fPoint) && !edge->isRightOf(*leftTop)) {
+                if (!rewind(activeEdges, current, top, c)) {
+                    return false;
+                }
+            } else if (c.sweep_lt(bottom->fPoint, leftBottom->fPoint) &&
+                       !edge->fLeft->isLeftOf(*bottom)) {
+                if (!rewind(activeEdges, current, leftTop, c)) {
+                    return false;
+                }
+            } else if (c.sweep_lt(leftBottom->fPoint, bottom->fPoint) &&
+                       !edge->isRightOf(*leftBottom)) {
+                if (!rewind(activeEdges, current, top, c)) {
+                    return false;
+                }
             }
         }
     }
     if (edge->fRight) {
         Vertex* rightTop = edge->fRight->fTop;
         Vertex* rightBottom = edge->fRight->fBottom;
-        if (c.sweep_lt(rightTop->fPoint, top->fPoint) && !edge->fRight->isRightOf(*top)) {
-            if (!rewind(activeEdges, current, rightTop, c)) {
-                return false;
-            }
-        } else if (c.sweep_lt(top->fPoint, rightTop->fPoint) && !edge->isLeftOf(*rightTop)) {
-            if (!rewind(activeEdges, current, top, c)) {
-                return false;
-            }
-        } else if (c.sweep_lt(bottom->fPoint, rightBottom->fPoint) &&
-                   !edge->fRight->isRightOf(*bottom)) {
-            if (!rewind(activeEdges, current, rightTop, c)) {
-                return false;
-            }
-        } else if (c.sweep_lt(rightBottom->fPoint, bottom->fPoint) &&
-                   !edge->isLeftOf(*rightBottom)) {
-            if (!rewind(activeEdges, current, top, c)) {
-                return false;
+        if (rightTop && rightBottom) {
+            if (c.sweep_lt(rightTop->fPoint, top->fPoint) && !edge->fRight->isRightOf(*top)) {
+                if (!rewind(activeEdges, current, rightTop, c)) {
+                    return false;
+                }
+            } else if (c.sweep_lt(top->fPoint, rightTop->fPoint) && !edge->isLeftOf(*rightTop)) {
+                if (!rewind(activeEdges, current, top, c)) {
+                    return false;
+                }
+            } else if (c.sweep_lt(bottom->fPoint, rightBottom->fPoint) &&
+                       !edge->fRight->isRightOf(*bottom)) {
+                if (!rewind(activeEdges, current, rightTop, c)) {
+                    return false;
+                }
+            } else if (c.sweep_lt(rightBottom->fPoint, bottom->fPoint) &&
+                       !edge->isLeftOf(*rightBottom)) {
+                if (!rewind(activeEdges, current, top, c)) {
+                    return false;
+                }
             }
         }
     }
