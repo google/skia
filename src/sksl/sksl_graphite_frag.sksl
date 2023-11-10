@@ -78,7 +78,8 @@ $pure float $apply_xfer_fn(int kind, float x, half4 cs[2]) {
                         : pow(A * x + B, G) + E;
             break;
         case $kTFTypePQ:
-            x = pow(max(A + B * pow(x, C), 0) / (D + E * pow(x, C)), F);
+            float x_C = pow(x, C);
+            x = pow(max(A + B * x_C, 0) / (D + E * x_C), F);
             break;
         case $kTFTypeHLG:
             x = (x * A <= 1) ? pow(x * A, B)
@@ -356,21 +357,22 @@ $pure half4 sk_yuv_image_shader(float2 coords,
                                 sampler2D sU,
                                 sampler2D sV,
                                 sampler2D sA) {
-    half4 sampleColorY = (useCubic != 0)
-        ? $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY, cubicCoeffs,
-                              $kReadSwizzleNormalRGBA, sY)
-        : $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
-                               $kReadSwizzleNormalRGBA, sY);
-    half4 sampleColorU = (useCubic != 0)
-        ? $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY, cubicCoeffs,
-                              $kReadSwizzleNormalRGBA, sU)
-        : $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
-                               $kReadSwizzleNormalRGBA, sU);
-    half4 sampleColorV = (useCubic != 0)
-        ? $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY, cubicCoeffs,
-                              $kReadSwizzleNormalRGBA, sY)
-        : $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY, filterMode,
-                               $kReadSwizzleNormalRGBA, sV);
+    half4 sampleColorY, sampleColorU, sampleColorV;
+    if (useCubic != 0) {
+        sampleColorY = $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY,
+                                           cubicCoeffs, $kReadSwizzleNormalRGBA, sY);
+        sampleColorU = $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY,
+                                           cubicCoeffs, $kReadSwizzleNormalRGBA, sU);
+        sampleColorV = $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY,
+                                           cubicCoeffs, $kReadSwizzleNormalRGBA, sY);
+    } else {
+        sampleColorY = $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY,
+                                            filterMode, $kReadSwizzleNormalRGBA, sY);
+        sampleColorU = $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY,
+                                            filterMode, $kReadSwizzleNormalRGBA, sU);
+        sampleColorV = $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY,
+                                            filterMode, $kReadSwizzleNormalRGBA, sV);
+    }
     float Y = dot(channelSelectY, sampleColorY);
     float U = dot(channelSelectU, sampleColorU);
     float V = dot(channelSelectV, sampleColorV);
@@ -1266,17 +1268,15 @@ void $corner_distance(inout float2 dist,
     float2 uv = radii - cornerEdgeDist;
     // NOTE: For mitered corners uv > 0 only if it's stroked, and in that case the
     // subsequent conditions skip calculating anything.
-    if (uv.x > 0.0 && uv.y > 0.0) {
-        if ((radii.x > 0.0 && radii.y > 0.0) ||
+    if (all(greaterThan(uv, float2(0.0)))) {
+        if (all(greaterThan(radii, float2(0.0))) ||
             (strokeParams.x > 0.0 && strokeParams.y < 0.0 /* round-join */)) {
             // A rounded corner so incorporate outer elliptical distance if we're within the
             // quarter circle.
             float2 d = $elliptical_distance(uv * xyFlip, radii, strokeParams.x, jacobian);
-            if (radii.x - strokeParams.x <= 0.0) {
-                d.y = 1.0; // disregard inner curve since it's collapsed into an inner miter.
-            } else {
-                d.y *= -1.0; // Negate so that "min" accumulates the maximum value instead
-            }
+            d.y = (radii.x - strokeParams.x <= 0.0)
+                      ? 1.0    // Disregard inner curve since it's collapsed into an inner miter.
+                      : -d.y;  // Negate so that "min" accumulates the maximum value instead.
             dist = min(dist, d);
         } else if (strokeParams.y == 0.0 /* bevel-join */) {
             // Bevels are--by construction--interior mitered, so inner distance is based
