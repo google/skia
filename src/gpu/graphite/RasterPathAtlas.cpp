@@ -161,7 +161,7 @@ skgpu::UniqueKey generate_key(const Shape& shape,
         // stroke-and-fill of hairlines is turned into pure fill by SkStrokeRec, so this covers
         // all cases we might see.
         uint32_t styleBits = strokeRec.isHairlineStyle() ? ((strokeRec.getCap() << 1) | 1) : 0;
-        builder[6] = fracBits | (styleBits << 16);
+        builder[5] = fracBits | (styleBits << 16);
         shape.writeKey(&builder[6], /*includeInverted=*/false);
     }
     return maskKey;
