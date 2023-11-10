@@ -24,6 +24,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 
 #include <cmath>
@@ -515,12 +516,13 @@ void SkottieSlide::init() {
     }
     skottie::Animation::Builder builder(flags);
 
+    auto predecode = skresources::ImageDecodeStrategy::kPreDecode;
     auto resource_provider =
-        sk_make_sp<AudioProviderProxy>(
-            skresources::DataURIResourceProviderProxy::Make(
-                skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
-                                                        /*predecode=*/true),
-                /*predecode=*/true));
+            sk_make_sp<AudioProviderProxy>(skresources::DataURIResourceProviderProxy::Make(
+                    skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
+                                                            predecode),
+                    predecode,
+                    ToolUtils::TestFontMgr()));
 
     static constexpr char kInterceptPrefix[] = "__";
     auto precomp_interceptor =
