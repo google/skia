@@ -438,6 +438,7 @@ sksl_wgsl_tests = [
   "wgsl/MainHasVoidReturn.sksl",
   "wgsl/MatrixConstructorDiagonal.sksl",
   "wgsl/OutParams.sksl",
+  "wgsl/PixelLocalStorage.sksl",
   "wgsl/Sample.sksl",
   "wgsl/SubpassInput.sksl",
   "wgsl/TextureIntrinsics.compute",

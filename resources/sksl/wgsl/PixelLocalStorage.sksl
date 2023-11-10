@@ -1,0 +1,11 @@
+struct PixelLocalData {
+    int i;
+    float f;
+};
+
+pixel_local PixelLocalData pls;
+
+void main() {
+    pls.i++;
+    pls.f *= 2.0;
+}
