@@ -168,6 +168,8 @@ skia_cc_deps(
         "//src/sksl:enable_skslc_true": [
             "//tools:get_executable_path",
             "@dawn//:tint",
+            "@dawn//src/tint/lang/wgsl",
+            "@dawn//src/tint/lang/wgsl/reader",
             "@spirv_tools",
         ],
         "//conditions:default": [],

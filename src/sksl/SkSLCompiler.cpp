@@ -60,6 +60,8 @@
 
 #ifdef SK_ENABLE_WGSL_VALIDATION
 #include "tint/tint.h"
+#include "src/tint/lang/wgsl/reader/options.h"
+#include "src/tint/lang/wgsl/extension.h"
 #endif
 
 namespace SkSL {
@@ -594,9 +596,16 @@ bool Compiler::toMetal(Program& program, std::string* out) {
 
 #if defined(SK_ENABLE_WGSL_VALIDATION)
 static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl, std::string* warnings) {
+    // Enable the WGSL optional features that Skia might rely on.
+    tint::wgsl::reader::Options options;
+    for (auto extension : {tint::wgsl::Extension::kChromiumExperimentalPixelLocal,
+                           tint::wgsl::Extension::kChromiumInternalDualSourceBlending}) {
+        options.allowed_features.extensions.insert(extension);
+    }
+
     // Verify that the WGSL we produced is valid.
     tint::Source::File srcFile("", wgsl);
-    tint::Program program(tint::wgsl::reader::Parse(&srcFile));
+    tint::Program program(tint::wgsl::reader::Parse(&srcFile, options));
 
     if (program.Diagnostics().contains_errors()) {
         // The program isn't valid WGSL. In debug, report the error via SkDEBUGFAIL. We also append
