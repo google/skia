@@ -348,6 +348,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				skip(ALL, "test", ALL, "SkRuntimeEffectSimple_Graphite")
 				skip(ALL, "test", ALL, "VolatileGraphiteYUVAPromiseImageTest")
 				skip(ALL, "test", ALL, "VolatileGraphitePromiseImageTest")
+				if b.matchOs("Android") {
+					// Currently broken on Android Vulkan (skbug.com/310180104)
+					skip(ALL, "test", ALL, "ImageAsyncReadPixelsGraphite")
+					skip(ALL, "test", ALL, "SurfaceAsyncReadPixelsGraphite")
+				}
 			}
 		}
 
