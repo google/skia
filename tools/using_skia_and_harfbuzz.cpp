@@ -21,7 +21,6 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/ports/SkFontMgr_fontconfig.h"
 #include "modules/skshaper/include/SkShaper.h"
 
 // Options /////////////////////////////////////////////////////////////////////
@@ -209,10 +208,7 @@ int main(int argc, char **argv) {
     const std::string &font_file = config.font_file.value;
     sk_sp<SkTypeface> typeface;
     if (font_file.size() > 0) {
-        // There are different font managers for different platforms. See include/ports
-        sk_sp<SkFontMgr> mgr = SkFontMgr_New_FontConfig(nullptr);
-        assert(mgr);
-        typeface = mgr->makeFromFile(font_file.c_str(), 0 /* index */);
+        typeface = SkTypeface::MakeFromFile(font_file.c_str(), 0 /* index */);
     }
     std::unique_ptr<SkShaper> shaper = SkShaper::Make();
     assert(shaper);

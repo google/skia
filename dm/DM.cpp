@@ -43,7 +43,6 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsConfig.h"
-#include "tools/fonts/FontToolUtils.h"
 #include "tools/ios_utils.h"
 #include "tools/trace/ChromeTracingTracer.h"
 #include "tools/trace/EventTracingPriv.h"
@@ -1573,9 +1572,7 @@ int main(int argc, char** argv) {
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
-    ToolUtils::SetDefaultFontMgr();
-#endif
+    CommonFlags::SetDefaultFontMgr();
     CommonFlags::SetAnalyticAA();
     skiatest::SetFontTestDataDirectory();
 

@@ -10,7 +10,6 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkFontMgr.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
@@ -243,7 +242,7 @@ class DiffCanvasBench : public Benchmark {
         auto stream = fDataProvider();
         fDiscardableManager = sk_make_sp<DiscardableManager>();
         fServer.init(fDiscardableManager.get());
-        fTrace = SkTextBlobTrace::CreateBlobTrace(stream.get(), nullptr);
+        fTrace = SkTextBlobTrace::CreateBlobTrace(stream.get());
     }
 
 public:

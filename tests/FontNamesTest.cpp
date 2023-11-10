@@ -17,7 +17,6 @@
 #include "src/sfnt/SkOTTable_name.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/fonts/FontToolUtils.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -158,7 +157,7 @@ static void test_synthetic(skiatest::Reporter* reporter, bool verbose) {
 static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
     static const SkFontTableTag nameTag = SkSetFourByteTag('n','a','m','e');
 
-    sk_sp<SkFontMgr> fm(ToolUtils::TestFontMgr());
+    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
     SkASSERT_RELEASE(fm);
     int count = std::min(fm->countFamilies(), MAX_FAMILIES);
     for (int i = 0; i < count; ++i) {

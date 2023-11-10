@@ -51,7 +51,7 @@ protected:
     void onOnceBeforeDraw() override {
         fEmojiTypeface      = ToolUtils::PlanetTypeface();
         fEmojiText = "♁♃";
-        fReallyBigATypeface = ToolUtils::CreateTypefaceFromResource("fonts/ReallyBigA.ttf");
+        fReallyBigATypeface = MakeResourceAsTypeface("fonts/ReallyBigA.ttf");
         if (!fReallyBigATypeface) {
             fReallyBigATypeface = ToolUtils::DefaultPortableTypeface();
         }

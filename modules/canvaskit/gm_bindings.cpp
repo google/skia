@@ -25,13 +25,14 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "modules/canvaskit/WasmCommon.h"
+#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkMD5.h"
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
 #include "tools/HashAndEncode.h"
 #include "tools/ResourceFactory.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/fonts/FontToolUtils.h"
+#include "tools/fonts/TestFontMgr.h"
 #include "tools/gpu/ContextType.h"
 
 using namespace emscripten;
@@ -343,7 +344,10 @@ GLTestContext *CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,
 }
 } // namespace sk_gpu_test
 
-void Init() { ToolUtils::UsePortableFontMgr(); }
+void Init() {
+    // Use the portable fonts.
+    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+}
 
 TestHarness CurrentTestHarness() {
     return TestHarness::kWasmGMTests;

@@ -76,7 +76,7 @@ class FontMgrGM : public skiagm::GM {
 
     void onOnceBeforeDraw() override {
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
-        fFM = ToolUtils::TestFontMgr();
+        fFM = SkFontMgr::RefDefault();
     }
 
     SkString getName() const override { return SkString("fontmgr_iter"); }
@@ -126,7 +126,7 @@ class FontMgrMatchGM : public skiagm::GM {
     sk_sp<SkFontMgr> fFM;
 
     void onOnceBeforeDraw() override {
-        fFM = ToolUtils::TestFontMgr();
+        fFM = SkFontMgr::RefDefault();
         SkGraphics::SetFontCacheLimit(16 * 1024 * 1024);
     }
 
@@ -212,7 +212,9 @@ private:
         return SkString("fontmgr_bounds");
     }
 
-    void onOnceBeforeDraw() override { fFM = ToolUtils::TestFontMgr(); }
+    void onOnceBeforeDraw() override {
+        fFM = SkFontMgr::RefDefault();
+    }
 
     bool onGetControls(SkMetaData* controls) override {
         controls->setBool("Label Bounds", fLabelBounds);

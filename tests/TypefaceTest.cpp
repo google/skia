@@ -42,6 +42,11 @@
 #include <memory>
 #include <utility>
 
+#if defined(SK_BUILD_FOR_WIN)
+#include "include/ports/SkTypeface_win.h"
+#include "src/core/SkFontMgrPriv.h"
+#endif
+
 static void TypefaceStyle_test(skiatest::Reporter* reporter,
                                uint16_t weight, uint16_t width, SkData* data)
 {
@@ -70,7 +75,7 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
     using WidthType = SkOTTableOS2_V0::WidthClass::Value;
     os2Table->usWidthClass.value = static_cast<WidthType>(SkEndian_SwapBE16(width));
 
-    sk_sp<SkTypeface> newTypeface(ToolUtils::TestFontMgr()->makeFromData(sk_ref_sp(data)));
+    sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromData(sk_ref_sp(data)));
     if (!newTypeface) {
         // Not all SkFontMgr can MakeFromStream().
         return;
@@ -116,7 +121,7 @@ DEF_TEST(TypefaceStyle, reporter) {
 }
 
 DEF_TEST(TypefacePostScriptName, reporter) {
-    sk_sp<SkTypeface> typeface(ToolUtils::CreateTypefaceFromResource("fonts/Em.ttf"));
+    sk_sp<SkTypeface> typeface(MakeResourceAsTypeface("fonts/Em.ttf"));
     if (!typeface) {
         // Not all SkFontMgr can MakeFromStream().
         return;
@@ -132,7 +137,7 @@ DEF_TEST(TypefacePostScriptName, reporter) {
 }
 
 DEF_TEST(TypefaceRoundTrip, reporter) {
-    sk_sp<SkTypeface> typeface(ToolUtils::CreateTypefaceFromResource("fonts/7630.otf"));
+    sk_sp<SkTypeface> typeface(MakeResourceAsTypeface("fonts/7630.otf"));
     if (!typeface) {
         // Not all SkFontMgr can MakeFromStream().
         return;
@@ -141,8 +146,7 @@ DEF_TEST(TypefaceRoundTrip, reporter) {
     int fontIndex;
     std::unique_ptr<SkStreamAsset> stream = typeface->openStream(&fontIndex);
 
-    sk_sp<SkTypeface> typeface2 =
-            ToolUtils::TestFontMgr()->makeFromStream(std::move(stream), fontIndex);
+    sk_sp<SkTypeface> typeface2 = SkTypeface::MakeFromStream(std::move(stream), fontIndex);
     REPORTER_ASSERT(reporter, typeface2);
 }
 
@@ -236,7 +240,7 @@ DEF_TEST(TypefaceAxes, reporter) {
         }
     };
 
-    sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
 
     // Not specifying a position should produce the default.
     {
@@ -308,7 +312,7 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
         return;
     }
 
-    sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
     SkFontArguments params;
     // The first named variation position in Distortable is 'Thin'.
     params.setCollectionIndex(0x00010000);
@@ -441,7 +445,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
         }
     };
 
-    sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
 
     // Two axis OpenType variable font.
     {
@@ -549,8 +553,8 @@ static void check_serialize_behaviors(sk_sp<SkTypeface> tf, skiatest::Reporter* 
 DEF_TEST(Typeface_serialize, reporter) {
     check_serialize_behaviors(ToolUtils::DefaultTypeface(), reporter);
     check_serialize_behaviors(
-            ToolUtils::TestFontMgr()->makeFromStream(GetResourceAsStream("fonts/Distortable.ttf")),
-            reporter);
+        SkTypeface::MakeFromStream(GetResourceAsStream("fonts/Distortable.ttf")), reporter);
+
 }
 
 DEF_TEST(Typeface_glyph_to_char, reporter) {
@@ -579,10 +583,14 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
     SkFontPriv::GlyphsToUnichars(font, glyphs.get(), codepointCount, newCodepoints.get());
 
     for (size_t i = 0; i < codepointCount; ++i) {
+#if defined(SK_BUILD_FOR_WIN)
         // GDI does not support character to glyph mapping outside BMP.
-        if (ToolUtils::FontMgrIsGDI() && 0xFFFF < originalCodepoints[i] && newCodepoints[i] == 0) {
+        if (gSkFontMgr_DefaultFactory == &SkFontMgr_New_GDI &&
+            0xFFFF < originalCodepoints[i] && newCodepoints[i] == 0)
+        {
             continue;
         }
+#endif
         // If two codepoints map to the same glyph then this assert is not valid.
         // However, the emoji test font should never have multiple characters map to the same glyph.
         REPORTER_ASSERT(reporter, originalCodepoints[i] == newCodepoints[i],
@@ -595,7 +603,7 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
 // style. See https://bugs.chromium.org/p/skia/issues/detail?id=8447 for more
 // context.
 DEF_TEST(LegacyMakeTypeface, reporter) {
-    sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
     sk_sp<SkTypeface> typeface1 = fm->legacyMakeTypeface(nullptr, SkFontStyle::Italic());
     sk_sp<SkTypeface> typeface2 = fm->legacyMakeTypeface(nullptr, SkFontStyle::Bold());
     sk_sp<SkTypeface> typeface3 = fm->legacyMakeTypeface(nullptr, SkFontStyle::BoldItalic());

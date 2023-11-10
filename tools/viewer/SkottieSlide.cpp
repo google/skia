@@ -342,8 +342,8 @@ public:
         for(const auto& s : fTextStringSlots) {
             auto t = fSlotManager->getTextSlot(s.first);
             t->fText = SkString(s.second.source.data());
-            t->fTypeface = ToolUtils::TestFontMgr()->matchFamilyStyle(s.second.font.c_str(),
-                                                                      SkFontStyle());
+            t->fTypeface = SkFontMgr::RefDefault()->matchFamilyStyle(s.second.font.c_str(),
+                                                                     SkFontStyle());
             fSlotManager->setTextSlot(s.first, *t);
         }
         for(const auto& s : fImageSlots) {

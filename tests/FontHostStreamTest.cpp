@@ -9,7 +9,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
-#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPaint.h"
@@ -22,7 +21,6 @@
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
 #include "tests/Test.h"
-#include "tools/fonts/FontToolUtils.h"
 
 #include <memory>
 #include <utility>
@@ -74,7 +72,7 @@ DEF_TEST(FontHostStream, reporter) {
         SkPaint paint;
         paint.setColor(SK_ColorGRAY);
 
-        SkFont font(ToolUtils::CreateTestTypeface("Georgia", SkFontStyle()), 30);
+        SkFont font(SkTypeface::MakeFromName("Georgia", SkFontStyle()), 30);
         font.setEdging(SkFont::Edging::kAlias);
 
         const SkIRect origRect = SkIRect::MakeWH(64, 64);
@@ -88,15 +86,13 @@ DEF_TEST(FontHostStream, reporter) {
         drawBG(&origCanvas);
         origCanvas.drawString("A", point.fX, point.fY, font, paint);
 
-        sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
-        sk_sp<SkTypeface> typeface = font.refTypeface();
-        SkASSERT_RELEASE(typeface);
+        sk_sp<SkTypeface> typeface = SkFontPriv::RefTypefaceOrDefault(font);
 
         {
             SkDynamicMemoryWStream wstream;
             typeface->serialize(&wstream, SkTypeface::SerializeBehavior::kDoIncludeData);
             std::unique_ptr<SkStreamAsset> stream = wstream.detachAsStream();
-            sk_sp<SkTypeface> deserializedTypeface = SkTypeface::MakeDeserialize(&*stream, mgr);
+            sk_sp<SkTypeface> deserializedTypeface = SkTypeface::MakeDeserialize(&*stream);
             if (!deserializedTypeface) {
                 REPORTER_ASSERT(reporter, deserializedTypeface);
                 return;
@@ -126,7 +122,7 @@ DEF_TEST(FontHostStream, reporter) {
                 return;
             }
 
-            sk_sp<SkTypeface> streamTypeface(mgr->makeFromStream(std::move(fontData), 0));
+            sk_sp<SkTypeface> streamTypeface(SkTypeface::MakeFromStream(std::move(fontData)));
             if (!streamTypeface) {
                 // TODO: enable assert after SkTypeface::MakeFromStream uses factories
                 //REPORTER_ASSERT(reporter, streamTypeface);

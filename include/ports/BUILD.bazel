@@ -28,7 +28,6 @@ skia_filegroup(
 skia_filegroup(
     name = "fontconfig_fontmgr_hdrs",
     srcs = ["SkFontMgr_fontconfig.h"],
-    visibility = ["//src/ports:__pkg__"],
 )
 
 skia_filegroup(

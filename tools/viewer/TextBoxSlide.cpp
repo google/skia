@@ -21,7 +21,6 @@
 #include "src/base/SkTime.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkOSFile.h"
-#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
 typedef std::unique_ptr<SkShaper> (*ShaperFactory)();
@@ -100,7 +99,7 @@ private:
                     SkShaper::MakeFontMgrRunIterator(utf8,
                                                      utf8Bytes,
                                                      srcFont,
-                                                     ToolUtils::TestFontMgr(),
+                                                     SkFontMgr::RefDefault(),
                                                      "Arial",
                                                      SkFontStyle::Bold(),
                                                      &*language));
@@ -176,13 +175,8 @@ private:
         }
 
         std::unique_ptr<SkShaper::FontRunIterator> font(
-                SkShaper::MakeFontMgrRunIterator(str,
-                                                 len,
-                                                 srcFont,
-                                                 ToolUtils::TestFontMgr(),
-                                                 "Arial",
-                                                 SkFontStyle::Bold(),
-                                                 &*language));
+                SkShaper::MakeFontMgrRunIterator(str, len, srcFont, SkFontMgr::RefDefault(),
+                                                 "Arial", SkFontStyle::Bold(), &*language));
         if (!font) {
             return;
         }

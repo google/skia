@@ -25,7 +25,6 @@ static DEFINE_double(frame, 1.0,
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/ports/SkFontMgr_fontconfig.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
@@ -44,7 +43,6 @@ SkBitmap source;
 sk_sp<SkImage> image;
 double duration; // The total duration of the animation in seconds.
 double frame;    // A value in [0, 1] of where we are in the animation.
-sk_sp<SkFontMgr> fontMgr;
 
 // Global used by the local impl of SkDebugf.
 std::ostringstream gTextOutput;
@@ -246,7 +244,6 @@ int main(int argc, char** argv) {
         options.pdf = false;
         options.skp = false;
     }
-    fontMgr = SkFontMgr_New_FontConfig(nullptr);
     if (options.source) {
         sk_sp<SkData> data(SkData::MakeFromFileName(options.source));
         if (!data) {

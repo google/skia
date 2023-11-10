@@ -12,24 +12,22 @@ const char* tostr(SkFontStyle::Slant s) {
 }
 
 void draw(SkCanvas* canvas) {
-    SkDebugf("Using a platform specific fontMgr;\n\n");
+    SkDebugf("sk_sp<SkFontMgr> mgr(SkFontMgr::RefDefault());\n\n");
 
-    for (int i = 0; i < fontMgr->countFamilies(); ++i) {
+    sk_sp<SkFontMgr> mgr(SkFontMgr::RefDefault());
+    for (int i = 0; i < mgr->countFamilies(); ++i) {
         SkString familyName;
-        fontMgr->getFamilyName(i, &familyName);
-        sk_sp<SkFontStyleSet> styleSet(fontMgr->createStyleSet(i));
+        mgr->getFamilyName(i, &familyName);
+        sk_sp<SkFontStyleSet> styleSet(mgr->createStyleSet(i));
         int N = styleSet->count();
         for (int j = 0; j < N; ++j) {
             SkFontStyle fontStyle;
             SkString style;
             styleSet->getStyle(j, &fontStyle, &style);
-            SkDebugf(
-                    "SkFont font(fontMgr->legacyMakeTypeface(\"%s\",\n"
-                    "                                        SkFontStyle(%3d, %1d, %-27s));\n",
-                    familyName.c_str(),
-                    fontStyle.weight(),
-                    fontStyle.width(),
-                    tostr(fontStyle.slant()));
+            SkDebugf("SkFont font(mgr->legacyMakeTypeface(\"%s\",\n"
+                     "                                    SkFontStyle(%3d, %1d, %-27s));\n",
+                     familyName.c_str(), fontStyle.weight(), fontStyle.width(),
+                     tostr(fontStyle.slant()));
         }
         SkDebugf("\n");
     }

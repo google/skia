@@ -142,7 +142,7 @@ class BadAppleGM : public skiagm::GM {
 
     void onOnceBeforeDraw() override {
         this->setBGColor(SK_ColorWHITE);
-        auto fm = ToolUtils::TestFontMgr();
+        auto fm = SkFontMgr::RefDefault();
 
         static const SkString kTexts[] = {
                 SkString("Meet"),

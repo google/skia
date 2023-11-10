@@ -308,7 +308,6 @@ optional("fontmgr_android") {
     ":typeface_freetype",
     "//third_party/expat",
   ]
-  public_defines = [ "SK_FONTMGR_ANDROID_AVAILABLE" ]
   public = [ "include/ports/SkFontMgr_android.h" ]
   sources = [
     "src/ports/SkFontMgr_android.cpp",
@@ -335,7 +334,7 @@ optional("fontmgr_custom") {
 
 optional("fontmgr_custom_directory") {
   enabled = skia_enable_fontmgr_custom_directory
-  public_defines = [ "SK_FONTMGR_FREETYPE_DIRECTORY_AVAILABLE" ]
+
   deps = [
     ":fontmgr_custom",
     ":typeface_freetype",
@@ -351,7 +350,7 @@ optional("fontmgr_custom_directory_factory") {
 
 optional("fontmgr_custom_embedded") {
   enabled = skia_enable_fontmgr_custom_embedded
-  public_defines = [ "SK_FONTMGR_FREETYPE_EMBEDDED_AVAILABLE" ]
+
   deps = [
     ":fontmgr_custom",
     ":typeface_freetype",
@@ -366,7 +365,7 @@ optional("fontmgr_custom_embedded_factory") {
 
 optional("fontmgr_custom_empty") {
   enabled = skia_enable_fontmgr_custom_empty
-  public_defines = [ "SK_FONTMGR_FREETYPE_EMPTY_AVAILABLE" ]
+
   deps = [
     ":fontmgr_custom",
     ":typeface_freetype",
@@ -382,7 +381,6 @@ optional("fontmgr_custom_empty_factory") {
 
 optional("fontmgr_fontconfig") {
   enabled = skia_enable_fontmgr_fontconfig
-  public_defines = [ "SK_FONTMGR_FONTCONFIG_AVAILABLE" ]
 
   # The public header includes fontconfig.h and uses FcConfig*
   public_deps = [ "//third_party:fontconfig" ]
@@ -440,10 +438,7 @@ optional("fontmgr_fuchsia") {
 optional("fontmgr_mac_ct") {
   enabled = skia_use_fonthost_mac
 
-  public_defines = [
-    "SK_TYPEFACE_FACTORY_CORETEXT",
-    "SK_FONTMGR_CORETEXT_AVAILABLE",
-  ]
+  public_defines = [ "SK_TYPEFACE_FACTORY_CORETEXT" ]
   public = [
     "include/ports/SkFontMgr_mac_ct.h",
     "include/ports/SkTypeface_mac.h",
@@ -485,10 +480,7 @@ optional("fontmgr_mac_ct_factory") {
 optional("fontmgr_win") {
   enabled = skia_enable_fontmgr_win
 
-  public_defines = [
-    "SK_TYPEFACE_FACTORY_DIRECTWRITE",
-    "SK_FONTMGR_DIRECTWRITE_AVAILABLE",
-  ]
+  public_defines = [ "SK_TYPEFACE_FACTORY_DIRECTWRITE" ]
   public = [ "include/ports/SkTypeface_win.h" ]
   sources = [
     "include/ports/SkFontMgr_indirect.h",
@@ -525,7 +517,7 @@ optional("fontmgr_win_factory") {
 
 optional("fontmgr_win_gdi") {
   enabled = skia_enable_fontmgr_win_gdi
-  public_defines = [ "SK_FONTMGR_GDI_AVAILABLE" ]
+
   public = [ "include/ports/SkTypeface_win.h" ]
   sources = [ "src/ports/SkFontHost_win.cpp" ]
   libs = [ "Gdi32.lib" ]
@@ -1802,7 +1794,7 @@ if (skia_enable_tools) {
     outputs = [ skia_h ]
   }
 
-  if (is_linux && target_cpu == "x64") {
+  if (target_cpu == "x64") {
     skia_executable("fiddle") {
       check_includes = false
       libs = []
@@ -2107,6 +2099,10 @@ if (skia_enable_tools) {
   }
   test_lib("common_flags_images") {
     sources = [ "tools/flags/CommonFlagsImages.cpp" ]
+    deps = [ ":flags" ]
+  }
+  test_lib("common_flags_fontmgr") {
+    sources = [ "tools/flags/CommonFlagsFontMgr.cpp" ]
     deps = [ ":flags" ]
   }
   test_lib("common_flags_aa") {
@@ -2419,6 +2415,7 @@ if (skia_enable_tools) {
       deps = [
         ":common_flags_aa",
         ":common_flags_config",
+        ":common_flags_fontmgr",
         ":common_flags_gpu",
         ":common_flags_images",
         ":flags",
@@ -2524,25 +2521,21 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (is_linux) {
-    test_app("sktexttopdf") {
-      sources = [ "tools/using_skia_and_harfbuzz.cpp" ]
-      deps = [
-        ":skia",
-        "modules/skshaper",
-      ]
-    }
+  test_app("sktexttopdf") {
+    sources = [ "tools/using_skia_and_harfbuzz.cpp" ]
+    deps = [
+      ":skia",
+      "modules/skshaper",
+    ]
   }
 
-  if (is_linux || is_mac) {
-    test_app("create_test_font") {
-      sources = [ "tools/fonts/create_test_font.cpp" ]
-      deps = [ ":skia" ]
-      assert_no_deps = [
-        # tool_utils requires the output of this app.
-        ":tool_utils",
-      ]
-    }
+  test_app("create_test_font") {
+    sources = [ "tools/fonts/create_test_font.cpp" ]
+    deps = [ ":skia" ]
+    assert_no_deps = [
+      # tool_utils requires the output of this app.
+      ":tool_utils",
+    ]
   }
 
   if (skia_use_expat) {
@@ -2989,6 +2982,7 @@ if (skia_enable_tools) {
       libs = []
 
       deps = [
+        ":common_flags_fontmgr",
         ":common_flags_gpu",
         ":flags",
         ":gm",
@@ -3053,11 +3047,9 @@ if (skia_enable_tools) {
     }
   }
 
-  if (is_linux || is_win || is_mac) {
-    test_app("editor") {
-      is_shared_library = is_android
-      deps = [ "modules/skplaintexteditor:editor_app" ]
-    }
+  test_app("editor") {
+    is_shared_library = is_android
+    deps = [ "modules/skplaintexteditor:editor_app" ]
   }
 
   skia_executable("image_diff_metric") {

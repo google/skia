@@ -24,8 +24,7 @@ struct Record {
     sk_sp<SkTextBlob> blob;
 };
 
-std::vector<SkTextBlobTrace::Record> CreateBlobTrace(SkStream* stream,
-                                                     sk_sp<SkFontMgr> lastResortMgr);
+std::vector<SkTextBlobTrace::Record> CreateBlobTrace(SkStream* stream);
 
 void DumpTrace(const std::vector<SkTextBlobTrace::Record>&);
 

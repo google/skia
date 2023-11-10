@@ -19,7 +19,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "tools/ToolUtils.h"
-#include "tools/fonts/FontToolUtils.h"
 
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
@@ -58,7 +57,7 @@ public:
         paraStyle.setTextStyle(style);
 
         auto collection = sk_make_sp<skia::textlayout::FontCollection>();
-        collection->setDefaultFontManager(ToolUtils::TestFontMgr());
+        collection->setDefaultFontManager(SkFontMgr::RefDefault());
         auto builder = skia::textlayout::ParagraphBuilderImpl::make(
                 paraStyle, collection, SkUnicode::Make());
         if (nullptr == builder) {
