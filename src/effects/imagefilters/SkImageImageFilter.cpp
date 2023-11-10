@@ -95,8 +95,12 @@ sk_sp<SkImageFilter> SkImageFilters::Image(sk_sp<SkImage> image,
             }
 
             // Adjust dstRect to match the updated src (which is stored in imageBounds)
+            SkRect mappedBounds = srcToDst.mapRect(imageBounds);
+            if (mappedBounds.isEmpty()) {
+                return SkImageFilters::Empty();
+            }
             return sk_sp<SkImageFilter>(new SkImageImageFilter(
-                    std::move(image), imageBounds, srcToDst.mapRect(imageBounds), sampling));
+                    std::move(image), imageBounds, mappedBounds, sampling));
         }
     }
 }
