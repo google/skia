@@ -27,24 +27,27 @@
 
 namespace skgpu::graphite {
 
-VulkanCaps::VulkanCaps(const skgpu::VulkanInterface* vkInterface,
+VulkanCaps::VulkanCaps(const ContextOptions& contextOptions,
+                       const skgpu::VulkanInterface* vkInterface,
                        VkPhysicalDevice physDev,
                        uint32_t physicalDeviceVersion,
                        const VkPhysicalDeviceFeatures2* features,
                        const skgpu::VulkanExtensions* extensions,
-                       const ContextOptions& contextOptions)
+                       Protected isProtected)
         : Caps() {
-    this->init(vkInterface, physDev, physicalDeviceVersion, features, extensions, contextOptions);
+    this->init(contextOptions, vkInterface, physDev, physicalDeviceVersion, features, extensions,
+               isProtected);
 }
 
 VulkanCaps::~VulkanCaps() {}
 
-void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
+void VulkanCaps::init(const ContextOptions& contextOptions,
+                      const skgpu::VulkanInterface* vkInterface,
                       VkPhysicalDevice physDev,
                       uint32_t physicalDeviceVersion,
                       const VkPhysicalDeviceFeatures2* features,
                       const skgpu::VulkanExtensions* extensions,
-                      const ContextOptions& contextOptions) {
+                      Protected isProtected) {
     VkPhysicalDeviceProperties physDevProperties;
     VULKAN_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &physDevProperties));
 
@@ -53,7 +56,7 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
 #endif
 
     // Graphite requires Vulkan version 1.1 or later, which has protected support.
-    fProtectedSupport = true;
+    fProtectedSupport = (isProtected == Protected::kYes);
 
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.

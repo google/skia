@@ -18,12 +18,13 @@ struct ContextOptions;
 
 class VulkanCaps final : public Caps {
 public:
-    VulkanCaps(const skgpu::VulkanInterface*,
-               VkPhysicalDevice device,
+    VulkanCaps(const ContextOptions&,
+               const skgpu::VulkanInterface*,
+               VkPhysicalDevice,
                uint32_t physicalDeviceVersion,
                const VkPhysicalDeviceFeatures2*,
                const skgpu::VulkanExtensions*,
-               const ContextOptions&);
+               Protected);
     ~VulkanCaps() override;
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
@@ -94,12 +95,13 @@ private:
         kQualcomm_VkVendor        = 20803,
     };
 
-    void init(const skgpu::VulkanInterface*,
+    void init(const ContextOptions&,
+              const skgpu::VulkanInterface*,
               VkPhysicalDevice,
               uint32_t physicalDeviceVersion,
               const VkPhysicalDeviceFeatures2*,
               const skgpu::VulkanExtensions*,
-              const ContextOptions&);
+              Protected);
 
     void applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties&);
 
