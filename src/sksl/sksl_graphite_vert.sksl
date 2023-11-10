@@ -634,7 +634,7 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
     }
 
     float2 cornerAspectRatio = float2(1.0);
-    if (cornerRadii.x > 0 && cornerRadii.y > 0) {
+    if (all(greaterThan(cornerRadii, float2(0.0)))) {
         // Position vertices for an elliptical corner; overriding any previous join style since
         // that only applies when radii are 0.
         joinScale = kRoundScale;
@@ -702,7 +702,7 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
             float2 insetRadii =
                     cornerRadii + (bidirectionalCoverage ? -strokeRadius : strokeRadius);
             if (joinScale == kMiterScale ||
-                insetRadii.x <= localAARadius || insetRadii.y <= localAARadius) {
+                any(lessThanEqual(insetRadii, float2(localAARadius)))) {
                 // Miter the inset position
                 localPos = (insetRadii - localAARadius);
             } else {
@@ -818,14 +818,12 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
         perPixelControl.y = 0.0;
     }
 
-    if (centerWeight != 0.0) {
-        // A positive value signals that a pixel is trivially full coverage.
-        perPixelControl.x = 1.0;
-    } else {
-        // A negative value signals bidirectional coverage, and a zero value signals a solid
-        // interior with per-pixel coverage.
-        perPixelControl.x = bidirectionalCoverage ? -1.0 : 0.0;
-    }
+    perPixelControl.x = (centerWeight != 0.0)
+            // A positive value signals that a pixel is trivially full coverage.
+            ? 1.0
+            // A negative value signals bidirectional coverage, and a zero value signals a solid
+            // interior with per-pixel coverage.
+            : bidirectionalCoverage ? -1.0 : 0.0;
 
     // The fragment shader operates in a canonical basis (x-axis = (1,0), y-axis = (0,1)). For
     // stroked lines, incorporate their local orientation into the Jacobian to preserve this.
@@ -928,7 +926,7 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
 
     // Only outset for a vertex that is in front of the w=0 plane to avoid dealing with outset
     // triangles rasterizing differently from the main triangles as w crosses 0.
-    if ((normal.x != 0.0 || normal.y != 0.0) && devPos.z > 0.0) {
+    if (any(notEqual(normal, float2(0.0))) && devPos.z > 0.0) {
         // Note that when there's no perspective, the jacobian is equivalent to the normal
         // matrix (inverse transpose), but produces correct results when there's perspective
         // because it accounts for the position's influence on a line's projected direction.
