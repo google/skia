@@ -485,7 +485,9 @@ public:
         return fTypeKind == TypeKind::kSampler;
     }
 
-    bool isAtomic() const { return this->typeKind() == TypeKind::kAtomic; }
+    bool isAtomic() const {
+        return this->typeKind() == TypeKind::kAtomic;
+    }
 
     virtual bool isScalar() const {
         return false;
@@ -553,9 +555,17 @@ public:
         return 0;
     }
 
-    bool isOrContainsArray() const;
-    bool isOrContainsUnsizedArray() const;
-    bool isOrContainsAtomic() const;
+    virtual bool isOrContainsArray() const {
+        return false;
+    }
+
+    virtual bool isOrContainsUnsizedArray() const {
+        return false;
+    }
+
+    virtual bool isOrContainsAtomic() const {
+        return false;
+    }
 
     /**
      * Returns the corresponding vector or matrix type with the specified number of columns and

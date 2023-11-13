@@ -164,8 +164,20 @@ public:
         return true;
     }
 
+    bool isOrContainsArray() const override {
+        return true;
+    }
+
+    bool isOrContainsAtomic() const override {
+        return this->componentType().isOrContainsAtomic();
+    }
+
     bool isUnsizedArray() const override {
         return fCount == kUnsizedArray;
+    }
+
+    bool isOrContainsUnsizedArray() const override {
+        return this->isUnsizedArray() || this->componentType().isOrContainsUnsizedArray();
     }
 
     const Type& componentType() const override {
@@ -399,6 +411,8 @@ public:
 
     bool isAllowedInES2() const override { return false; }
 
+    bool isOrContainsAtomic() const override { return true; }
+
     const Type& slotType(size_t n) const override {
         SkASSERT(n == 0);
         return *this;
@@ -566,7 +580,18 @@ public:
     StructType(Position pos, std::string_view name, TArray<Field> fields, bool interfaceBlock)
             : INHERITED(std::move(name), "S", kTypeKind, pos)
             , fFields(std::move(fields))
-            , fInterfaceBlock(interfaceBlock) {}
+            , fInterfaceBlock(interfaceBlock) {
+        for (const Field& f : fFields) {
+            fContainsArray        = fContainsArray        || f.fType->isOrContainsArray();
+            fContainsUnsizedArray = fContainsUnsizedArray || f.fType->isOrContainsUnsizedArray();
+            fContainsAtomic       = fContainsAtomic       || f.fType->isOrContainsAtomic();
+        }
+        if (!fContainsUnsizedArray) {
+            for (const Field& f : fFields) {
+                fSlotCount += f.fType->slotCount();
+            }
+        }
+    }
 
     SkSpan<const Field> fields() const override {
         return fFields;
@@ -586,12 +611,21 @@ public:
         });
     }
 
+    bool isOrContainsArray() const override {
+        return fContainsArray;
+    }
+
+    bool isOrContainsUnsizedArray() const override {
+        return fContainsUnsizedArray;
+    }
+
+    bool isOrContainsAtomic() const override {
+        return fContainsAtomic;
+    }
+
     size_t slotCount() const override {
-        size_t slots = 0;
-        for (const Field& field : fFields) {
-            slots += field.fType->slotCount();
-        }
-        return slots;
+        SkASSERT(!fContainsUnsizedArray);
+        return fSlotCount;
     }
 
     const Type& slotType(size_t n) const override {
@@ -611,7 +645,11 @@ private:
     using INHERITED = Type;
 
     TArray<Field> fFields;
-    bool fInterfaceBlock;
+    size_t fSlotCount = 0;
+    bool fInterfaceBlock = false;
+    bool fContainsArray = false;
+    bool fContainsUnsizedArray = false;
+    bool fContainsAtomic = false;
 };
 
 class VectorType final : public Type {
@@ -1169,53 +1207,6 @@ std::unique_ptr<Expression> Type::coerceExpression(std::unique_ptr<Expression> e
     }
     context.fErrors->error(pos, "cannot construct '" + this->displayName() + "'");
     return nullptr;
-}
-
-static bool is_or_contains_array(const Type* type, bool onlyMatchUnsizedArrays) {
-    if (type->isStruct()) {
-        for (const Field& f : type->fields()) {
-            if (is_or_contains_array(f.fType, onlyMatchUnsizedArrays)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    if (type->isArray()) {
-        return onlyMatchUnsizedArrays
-                    ? (type->isUnsizedArray() || is_or_contains_array(&type->componentType(), true))
-                    : true;
-    }
-
-    return false;
-}
-
-bool Type::isOrContainsArray() const {
-    return is_or_contains_array(this, /*onlyMatchUnsizedArrays=*/false);
-}
-
-bool Type::isOrContainsUnsizedArray() const {
-    return is_or_contains_array(this, /*onlyMatchUnsizedArrays=*/true);
-}
-
-bool Type::isOrContainsAtomic() const {
-    if (this->isAtomic()) {
-        return true;
-    }
-
-    if (this->isArray() && this->componentType().isOrContainsAtomic()) {
-        return true;
-    }
-
-    if (this->isStruct()) {
-        for (const Field& f : this->fields()) {
-            if (f.fType->isOrContainsAtomic()) {
-                return true;
-            }
-        }
-    }
-
-    return false;
 }
 
 bool Type::isAllowedInES2(const Context& context) const {
