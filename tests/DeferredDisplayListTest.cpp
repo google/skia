@@ -744,7 +744,8 @@ DEF_GANESH_TEST(VkProtectedContext_DDLSurfaceCharacterizationTest,
                 reporter,
                 ctxInfo,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -884,7 +885,8 @@ DEF_GANESH_TEST(VkProtectedContext_DDLMakeRenderTargetTest,
                 reporter,
                 ctxInfo,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }

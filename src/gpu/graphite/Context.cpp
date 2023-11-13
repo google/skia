@@ -779,6 +779,10 @@ void Context::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     // used bytes here (see Ganesh implementation).
 }
 
+bool Context::supportsProtectedContent() const {
+    return fSharedContext->isProtected() == Protected::kYes;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 #if defined(GRAPHITE_TEST_UTILS)

@@ -20,11 +20,15 @@ class GrDirectContext;
 class SkSurface;
 struct SkISize;
 
+namespace skiatest {
+    enum class TestType : uint8_t;
+}
+
 #define DECLARE_VK_PROC(name) PFN_vk##name fVk##name
 
 class VkTestHelper {
 public:
-    static std::unique_ptr<VkTestHelper> Make(bool isProtected);
+    static std::unique_ptr<VkTestHelper> Make(skiatest::TestType, bool isProtected);
 
     virtual ~VkTestHelper();
 

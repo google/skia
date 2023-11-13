@@ -46,7 +46,8 @@ DEF_GANESH_TEST(VkProtectedContext_CreateNonprotectedContext,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ false);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ false);
     REPORTER_ASSERT(reporter, helper);
 }
 
@@ -54,14 +55,16 @@ DEF_GANESH_TEST(VkProtectedContext_CreateProtectedContext,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
 }
 
 DEF_GANESH_TEST(VkProtectedContext_CreateProtectedSkSurface,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -83,7 +86,8 @@ DEF_GANESH_TEST(VkProtectedContext_CreateNonprotectedTextureInProtectedContext,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -104,7 +108,8 @@ DEF_GANESH_TEST(VkProtectedContext_CreateProtectedTextureInNonprotectedContext,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ false);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ false);
     if (!helper) {
         return;
     }
@@ -125,7 +130,8 @@ DEF_GANESH_TEST(VkProtectedContext_ReadFromProtectedSurface,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -158,7 +164,8 @@ DEF_GANESH_TEST(VkProtectedContext_AsyncReadFromProtectedSurface,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -183,7 +190,8 @@ DEF_GANESH_TEST(VkProtectedContext_AsyncReadFromProtectedSurface,
 }
 
 DEF_GANESH_TEST(VkProtectedContext_DrawRectangle, reporter, options, CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -205,7 +213,8 @@ DEF_GANESH_TEST(VkProtectedContext_DrawRectangleWithAntiAlias,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -228,7 +237,8 @@ DEF_GANESH_TEST(VkProtectedContext_DrawRectangleWithBlendMode,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -251,7 +261,8 @@ DEF_GANESH_TEST(VkProtectedContext_DrawRectangleWithFilter,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -273,7 +284,8 @@ DEF_GANESH_TEST(VkProtectedContext_DrawRectangleWithFilter,
 }
 
 DEF_GANESH_TEST(VkProtectedContext_DrawThinPath, reporter, options, CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -295,7 +307,8 @@ DEF_GANESH_TEST(VkProtectedContext_DrawThinPath, reporter, options, CtsEnforceme
 }
 
 DEF_GANESH_TEST(VkProtectedContext_SaveLayer, reporter, options, CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
@@ -319,7 +332,8 @@ DEF_GANESH_TEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(/* isProtected= */ true);
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              /* isProtected= */ true);
     if (!helper) {
         return;
     }
