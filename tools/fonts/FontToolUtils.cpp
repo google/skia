@@ -279,7 +279,7 @@ void SetDefaultFontMgr() {
     if (!FLAGS_nativeFonts) {
         gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
     }
-#if defined(SK_BUILD_FOR_WIN)
+#if defined(SK_BUILD_FOR_WIN) && defined(SK_FONTMGR_GDI_AVAILABLE)
     if (FLAGS_gdi) {
         gSkFontMgr_DefaultFactory = &SkFontMgr_New_GDI;
     }
