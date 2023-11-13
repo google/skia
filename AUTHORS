@@ -54,6 +54,7 @@ Kaloyan Donev <kdonev@gmail.com>
 LG Electronics <*@lge.com>
 Lee Salzman <lsalzman@mozilla.com>
 Linaro <*@linaro.org>
+Luis Grimaldo <luisgrimaldo@me.com>
 MIPS <*@imgtec.com>
 Mainframe North <*@mainframe.co.uk>
 Marcin Kazmierczak <mar.kazmierczak@gmail.com>
@@ -79,9 +80,11 @@ Scene Group Ltd. <*@scenegroup.co>
 Sergey Melnikov <Melnikov.Sergey.V@gmail.com>
 Shachar Langbeheim <nihohit@gmail.com>
 Shekhar Dutta <sherlockdoyle1904@gmail.com>
+Sida Zhu <zhusida@bytedance.com>
 Skia <*@skia.org>
 Skia Buildbots <skia.buildbots@gmail.com>
 Sony Mobile Communications Inc. <*@sonymobile.com>
+Soso Tsertsvadze <sosotsertsvadze2@gmail.com>
 Stan I <stililiev@gmail.com>
 Stepan Mikhailiuk <istepancar@gmail.com>
 Stephan Hartmann <stha09@googlemail.com>
@@ -96,9 +99,7 @@ Yandex LLC <*@yandex-team.ru>
 Yang Guang <yangguang@jwzg.com>
 Yong-Hwan Baek <meisterdevhwan@gmail.com>
 Zhuo Qingliang <zhuo.dev@gmail.com>
-Luis Grimaldo <luisgrimaldo@me.com>
 Zoho Corporation Private Limited <*@zohocorp.com>
-Soso Tsertsvadze <sosotsertsvadze2@gmail.com>
 
 # Trusted service accounts.
 GitHub Dependabot <(\d+)\+dependabot\[bot\]@users.noreply.github.com>

@@ -133,7 +133,8 @@ std::pair<wgpu::TextureView, wgpu::TextureView> create_texture_views(
     }
 
     SkASSERT(aspect == wgpu::TextureAspect::Plane0Only ||
-             aspect == wgpu::TextureAspect::Plane1Only);
+             aspect == wgpu::TextureAspect::Plane1Only ||
+             aspect == wgpu::TextureAspect::Plane2Only);
     wgpu::TextureView planeTextureView;
     wgpu::TextureViewDescriptor planeViewDesc = {};
     planeViewDesc.aspect = aspect;

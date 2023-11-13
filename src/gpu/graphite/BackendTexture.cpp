@@ -111,7 +111,8 @@ BackendTexture::BackendTexture(SkISize planeDimensions,
         : fDimensions(planeDimensions), fInfo(info), fDawnTexture(texture) {
     SkASSERT(info.fAspect == wgpu::TextureAspect::All ||
              info.fAspect == wgpu::TextureAspect::Plane0Only ||
-             info.fAspect == wgpu::TextureAspect::Plane1Only);
+             info.fAspect == wgpu::TextureAspect::Plane1Only ||
+             info.fAspect == wgpu::TextureAspect::Plane2Only);
 }
 
 WGPUTexture BackendTexture::getDawnTexturePtr() const {
