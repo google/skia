@@ -301,15 +301,26 @@ static void init_stop_evenly(SkRasterPipeline_GradientCtx* ctx,
 static void init_stop_pos(SkRasterPipeline_GradientCtx* ctx,
                           size_t stop,
                           float t_l,
-                          float t_r,
+#if defined(SK_USE_LEGACY_INIT_STOP_POS)
+                          float t_delta,
+#else
+                          float c_scale,
+#endif
                           SkPMColor4f c_l,
                           SkPMColor4f c_r) {
     // See note about Clankium's old compiler in init_stop_evenly().
     SkPMColor4f Fs = {
-            (c_r.fR - c_l.fR) / (t_r - t_l),
-            (c_r.fG - c_l.fG) / (t_r - t_l),
-            (c_r.fB - c_l.fB) / (t_r - t_l),
-            (c_r.fA - c_l.fA) / (t_r - t_l),
+#if defined(SK_USE_LEGACY_INIT_STOP_POS)
+            (c_r.fR - c_l.fR) / t_delta,
+            (c_r.fG - c_l.fG) / t_delta,
+            (c_r.fB - c_l.fB) / t_delta,
+            (c_r.fA - c_l.fA) / t_delta,
+#else
+            (c_r.fR - c_l.fR) * c_scale,
+            (c_r.fG - c_l.fG) * c_scale,
+            (c_r.fB - c_l.fB) * c_scale,
+            (c_r.fA - c_l.fA) * c_scale,
+#endif
     };
     SkPMColor4f Bs = {
             c_l.fR - Fs.fR * t_l,
@@ -390,8 +401,19 @@ void SkGradientBaseShader::AppendGradientFillStages(SkRasterPipeline* p,
                 SkPMColor4f c_r = pmColors[i + 1];
                 SkASSERT(t_l <= t_r);
                 if (t_l < t_r) {
-                    init_stop_pos(ctx, stopCount, t_l, t_r, c_l, c_r);
-                    stopCount += 1;
+#if defined(SK_USE_LEGACY_INIT_STOP_POS)
+                    float t_delta = t_r - t_l;
+                    if (!SkScalarNearlyZero(t_delta)) {
+                        init_stop_pos(ctx, stopCount, t_l, t_delta, c_l, c_r);
+                        stopCount += 1;
+                    }
+#else
+                    float c_scale = sk_ieee_float_divide(1, t_r - t_l);
+                    if (sk_float_isfinite(c_scale)) {
+                        init_stop_pos(ctx, stopCount, t_l, c_scale, c_l, c_r);
+                        stopCount += 1;
+                    }
+#endif
                 }
                 t_l = t_r;
                 c_l = c_r;
