@@ -253,7 +253,7 @@ void* GrBufferAllocPool::makeSpaceAtLeast(size_t minSize,
     size_t usedBytes = (fBlocks.empty()) ? 0 : fBlocks.back().fBuffer->size() -
                                                fBlocks.back().fBytesFree;
     size_t pad = align_up_pad(usedBytes, alignment);
-    if (fBlocks.empty() || (minSize + pad) > fBlocks.back().fBytesFree) {
+    if (!fBufferPtr || fBlocks.empty() || (minSize + pad) > fBlocks.back().fBytesFree) {
         // We either don't have a block yet or the current block doesn't have enough free space.
         // Create a new one.
         if (!this->createBlock(fallbackSize)) {
@@ -283,28 +283,32 @@ void* GrBufferAllocPool::makeSpaceAtLeast(size_t minSize,
 
 void GrBufferAllocPool::putBack(size_t bytes) {
     VALIDATE();
+    if (!bytes) {
+        return;
+    }
+    SkASSERT(!fBlocks.empty());
+    BufferBlock& block = fBlocks.back();
+    // Caller shouldn't try to put back more than they've taken and all those bytes should fit into
+    // one block. All the uses of this call are sequential with a single makeSpaceAtLeast call. So
+    // we should not have a case where someone is putting back bytes that are greater than the
+    // current block.
+    // It is possible the caller returns all their allocated bytes thus the <= and not just <.
+    SkASSERT(bytes <= (block.fBuffer->size() - block.fBytesFree));
+    block.fBytesFree += bytes;
+    fBytesInUse -= bytes;
 
-    while (bytes) {
-        // caller shouldn't try to put back more than they've taken
-        SkASSERT(!fBlocks.empty());
-        BufferBlock& block = fBlocks.back();
-        size_t bytesUsed = block.fBuffer->size() - block.fBytesFree;
-        if (bytes >= bytesUsed) {
-            bytes -= bytesUsed;
-            fBytesInUse -= bytesUsed;
-            // if we locked a vb to satisfy the make space and we're releasing
-            // beyond it, then unmap it.
-            GrBuffer* buffer = block.fBuffer.get();
-            if (!buffer->isCpuBuffer() && static_cast<GrGpuBuffer*>(buffer)->isMapped()) {
-                UNMAP_BUFFER(block);
-            }
-            this->destroyBlock();
-        } else {
-            block.fBytesFree += bytes;
-            fBytesInUse -= bytes;
-            bytes = 0;
-            break;
+    // We don't allow blocks without any used bytes. So if we end up in that case after putting
+    // back the bytes then destroy the block. This scenario shouldn't occur often, but even if we
+    // end up allocating a new block immediately after destroying this one, the GPU and CPU buffers
+    // will usually be cached so the new block shouldn't be too expensive to make.
+    // TODO: This was true in older versions and uses of this class but is it still needed to
+    // have this restriction?
+    if (block.fBytesFree == block.fBuffer->size()) {
+        GrBuffer* buffer = block.fBuffer.get();
+        if (!buffer->isCpuBuffer() && static_cast<GrGpuBuffer*>(buffer)->isMapped()) {
+            UNMAP_BUFFER(block);
         }
+        this->destroyBlock();
     }
 
     VALIDATE();
