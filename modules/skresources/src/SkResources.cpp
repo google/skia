@@ -10,6 +10,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
 #include "include/private/base/SkTPin.h"
 #include "include/utils/SkAnimCodecPlayer.h"
@@ -106,20 +107,18 @@ ImageAsset::FrameData ImageAsset::getFrameData(float t) {
     };
 }
 
-sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data, bool predecode) {
+sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data, ImageDecodeStrategy strat) {
     if (auto codec = SkCodec::MakeFromData(std::move(data))) {
-        return sk_sp<MultiFrameImageAsset>(
-              new MultiFrameImageAsset(std::make_unique<SkAnimCodecPlayer>(std::move(codec)),
-                                                                             predecode));
+        return sk_sp<MultiFrameImageAsset>(new MultiFrameImageAsset(
+                std::make_unique<SkAnimCodecPlayer>(std::move(codec)), strat));
     }
 
     return nullptr;
 }
 
 MultiFrameImageAsset::MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer> player,
-                                           bool predecode)
-    : fPlayer(std::move(player))
-    , fPreDecode(predecode) {
+                                           ImageDecodeStrategy strat)
+        : fPlayer(std::move(player)), fStrategy(strat) {
     SkASSERT(fPlayer);
 }
 
@@ -158,7 +157,7 @@ sk_sp<SkImage> MultiFrameImageAsset::generateFrame(float t) {
     fPlayer->seek(static_cast<uint32_t>(t * 1000));
     auto frame = fPlayer->getFrame();
 
-    if (fPreDecode && frame && frame->isLazyGenerated()) {
+    if (fStrategy == ImageDecodeStrategy::kPreDecode && frame && frame->isLazyGenerated()) {
         // The multi-frame decoder should never return lazy images.
         SkASSERT(!this->isMultiFrame());
         frame = decode(std::move(frame));
@@ -177,15 +176,14 @@ sk_sp<SkImage> MultiFrameImageAsset::getFrame(float t) {
     return fCachedFrame;
 }
 
-sk_sp<FileResourceProvider> FileResourceProvider::Make(SkString base_dir, bool predecode) {
-    return sk_isdir(base_dir.c_str())
-        ? sk_sp<FileResourceProvider>(new FileResourceProvider(std::move(base_dir), predecode))
-        : nullptr;
+sk_sp<FileResourceProvider> FileResourceProvider::Make(SkString base_dir, ImageDecodeStrategy strat) {
+    return sk_isdir(base_dir.c_str()) ? sk_sp<FileResourceProvider>(new FileResourceProvider(
+                                                std::move(base_dir), strat))
+                                      : nullptr;
 }
 
-FileResourceProvider::FileResourceProvider(SkString base_dir, bool predecode)
-    : fDir(std::move(base_dir))
-    , fPredecode(predecode) {}
+FileResourceProvider::FileResourceProvider(SkString base_dir, ImageDecodeStrategy strat)
+        : fDir(std::move(base_dir)), fStrategy(strat) {}
 
 sk_sp<SkData> FileResourceProvider::load(const char resource_path[],
                                          const char resource_name[]) const {
@@ -199,7 +197,7 @@ sk_sp<ImageAsset> FileResourceProvider::loadImageAsset(const char resource_path[
                                                        const char[]) const {
     auto data = this->load(resource_path, resource_name);
 
-    if (auto image = MultiFrameImageAsset::Make(data, fPredecode)) {
+    if (auto image = MultiFrameImageAsset::Make(data, fStrategy)) {
         return std::move(image);
     }
 
@@ -266,15 +264,16 @@ sk_sp<ImageAsset> CachingResourceProvider::loadImageAsset(const char resource_pa
 }
 
 sk_sp<DataURIResourceProviderProxy> DataURIResourceProviderProxy::Make(sk_sp<ResourceProvider> rp,
-                                                                       bool predecode) {
+                                                                       ImageDecodeStrategy strat,
+                                                                       sk_sp<const SkFontMgr> mgr) {
     return sk_sp<DataURIResourceProviderProxy>(
-            new DataURIResourceProviderProxy(std::move(rp), predecode));
+            new DataURIResourceProviderProxy(std::move(rp), strat, std::move(mgr)));
 }
 
 DataURIResourceProviderProxy::DataURIResourceProviderProxy(sk_sp<ResourceProvider> rp,
-                                                           bool predecode)
-    : INHERITED(std::move(rp))
-    , fPredecode(predecode) {}
+                                                           ImageDecodeStrategy strat,
+                                                           sk_sp<const SkFontMgr> mgr)
+        : INHERITED(std::move(rp)), fStrategy(strat), fFontMgr(std::move(mgr)) {}
 
 static sk_sp<SkData> decode_datauri(const char prefix[], const char uri[]) {
     // We only handle B64 encoded image dataURIs: data:image/<type>;base64,<data>
@@ -311,7 +310,7 @@ sk_sp<ImageAsset> DataURIResourceProviderProxy::loadImageAsset(const char rpath[
                                                                const char rname[],
                                                                const char rid[]) const {
     if (auto data = decode_datauri("data:image/", rname)) {
-        return MultiFrameImageAsset::Make(std::move(data), fPredecode);
+        return MultiFrameImageAsset::Make(std::move(data), fStrategy);
     }
 
     return this->INHERITED::loadImageAsset(rpath, rname, rid);
@@ -319,9 +318,16 @@ sk_sp<ImageAsset> DataURIResourceProviderProxy::loadImageAsset(const char rpath[
 
 sk_sp<SkTypeface> DataURIResourceProviderProxy::loadTypeface(const char name[],
                                                              const char url[]) const {
+    if (fFontMgr) {
+        if (auto data = decode_datauri("data:font/", url)) {
+            return fFontMgr->makeFromData(std::move(data));
+        }
+    }
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
     if (auto data = decode_datauri("data:font/", url)) {
         return SkTypeface::MakeFromData(std::move(data));
     }
+#endif
 
     return this->INHERITED::loadTypeface(name, url);
 }
