@@ -28,9 +28,10 @@ import("gn/ios.gni")
 config("skia_public") {
   include_dirs = [ "." ]
 
-  # TODO(kjlubick) Put this back after fixing Flutter.
-  # defines = [ "SK_DEFAULT_TYPEFACE_IS_EMPTY" ]
-  defines = []
+  defines = [
+    "SK_DEFAULT_TYPEFACE_IS_EMPTY",
+    "SK_DISABLE_LEGACY_DEFAULT_TYPEFACE",
+  ]
   cflags_objcc = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
