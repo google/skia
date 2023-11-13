@@ -467,8 +467,11 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                 if (found != nullptr) {
                     typeface = *found;
                 } else {
-                    typeface = fParagraph->fFontCollection->defaultFallback(
-                            unicode, textStyle.getFontStyle(), textStyle.getLocale());
+                  typeface = fParagraph->fFontCollection->defaultFallback(
+                                              unicode,
+                                              textStyle.getFontStyle(),
+                                              textStyle.getLocale(),
+                                              fParagraph->getUnicode()->isEmoji(unicode));
 
                     if (typeface == nullptr) {
                         // There is no fallback font for this character, so move on to the next character.
