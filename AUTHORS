@@ -1,5 +1,9 @@
 # This is the official list of Skia authors for copyright purposes.
 #
+# Before adding your name to this file make sure you have signed the CLA.
+# Follow the instructions at https://skia.org/docs/dev/contrib on how to
+# sign the CLA.
+#
 # Names should be added to this file with one of the following patterns:
 #
 # For individual contributors:
