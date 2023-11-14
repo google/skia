@@ -27,8 +27,9 @@ struct DawnTextureSpec {
 
     bool isCompatible(const DawnTextureSpec& that) const {
         // The usages may match or the usage passed in may be a superset of the usage stored within.
+        // The aspect should either match the plane aspect or should be All.
         return fFormat == that.fFormat && (fUsage & that.fUsage) == fUsage &&
-               fAspect == that.fAspect;
+               (fAspect == that.fAspect || fAspect == wgpu::TextureAspect::All);
     }
 
     SkString toString() const {
@@ -38,6 +39,7 @@ struct DawnTextureSpec {
                               static_cast<unsigned int>(fAspect));
     }
 
+    // `fFormat` is always single plane format or plane view format for a multiplanar wgpu::Texture.
     wgpu::TextureFormat fFormat;
     wgpu::TextureUsage fUsage;
     wgpu::TextureAspect fAspect;
