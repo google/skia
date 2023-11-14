@@ -367,7 +367,6 @@
   {"name": "Housekeeper-PerCommit-CheckGeneratedFiles",
    "cq_config": {}
    },
-  {"name": "Housekeeper-PerCommit-CreateDockerImage_Skia_Release"},
   {"name": "Housekeeper-PerCommit-InfraTests_Linux",
    "cq_config": {}
    },
@@ -375,7 +374,6 @@
   {"name": "Housekeeper-PerCommit-IsolateSKP"},
   {"name": "Housekeeper-PerCommit-IsolateSVG"},
   {"name": "Housekeeper-PerCommit-IsolateSkImage"},
-  {"name": "Housekeeper-PerCommit-PushAppsFromSkiaDockerImage"},
   {"name": "Housekeeper-PerCommit-RunGnToBp",
    "cq_config": {}
    },
