@@ -12,5 +12,6 @@ static_library("skcms") {
   }
 
   public = skcms_public_headers
-  sources = skcms_sources
+  sources = skcms_public + skcms_TransformBaseline + skcms_TransformHsw +
+            skcms_TransformSkx
 }
