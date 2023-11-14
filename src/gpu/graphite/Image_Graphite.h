@@ -31,8 +31,9 @@ public:
         return fTextureProxyView.proxy()->mipmapped() == skgpu::Mipmapped::kYes;
     }
 
-    // TODO: add protected content support
-    bool onIsProtected() const override { return false; }
+    bool onIsProtected() const override {
+        return fTextureProxyView.proxy()->isProtected();
+    }
 
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphite; }
 

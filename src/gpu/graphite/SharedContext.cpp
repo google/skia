@@ -20,7 +20,6 @@ namespace skgpu::graphite {
 SharedContext::SharedContext(std::unique_ptr<const Caps> caps, BackendApi backend)
     : fCaps(std::move(caps))
     , fBackend(backend)
-    , fProtected(Protected::kNo)
     , fGlobalCache()
     , fShaderDictionary() {}
 
@@ -29,6 +28,8 @@ SharedContext::~SharedContext() {
 
     // TODO: destroyResources instead?
 }
+
+Protected SharedContext::isProtected() const { return Protected(fCaps->protectedSupport()); }
 
 void SharedContext::setRendererProvider(std::unique_ptr<RendererProvider> rendererProvider) {
     // Should only be called once and be non-null

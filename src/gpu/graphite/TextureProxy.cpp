@@ -67,6 +67,10 @@ bool TextureProxy::isVolatile() const {
     return fVolatile == Volatile::kYes;
 }
 
+bool TextureProxy::isProtected() const {
+    return fInfo.isProtected() == Protected::kYes;
+}
+
 size_t TextureProxy::uninstantiatedGpuMemorySize() const {
     return ComputeSize(fDimensions, fInfo);
 }
