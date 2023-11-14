@@ -299,14 +299,13 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fTextureDataRowBytesAlignment = 256;
 
     fResourceBindingReqs.fUniformBufferLayout = Layout::kStd140;
-    // TODO(skia:14639): We cannot use std430 layout for SSBOs until SkSL gracefully handles
-    // implicit array stride.
-    fResourceBindingReqs.fStorageBufferLayout = Layout::kStd140;
+    // The WGSL generator assumes tightly packed std430 layout for SSBOs which is also the default
+    // for all types outside the uniform address space in WGSL.
+    fResourceBindingReqs.fStorageBufferLayout = Layout::kStd430;
     fResourceBindingReqs.fSeparateTextureAndSamplerBinding = true;
 
-    // TODO: support storage buffer
-    fStorageBufferSupport = false;
-    fStorageBufferPreferred = false;
+    fStorageBufferSupport = true;
+    fStorageBufferPreferred = true;
 
     fDrawBufferCanBeMapped = false;
     fBufferMapsAreAsync = true;
