@@ -1,3 +1,4 @@
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
 load("//bazel:gen_compile_flags_txt_linux_amd64.bzl", "gen_compile_flags_txt_linux_amd64")
@@ -121,6 +122,27 @@ alias(
     name = "gazelle",
     actual = "//infra:gazelle",
     visibility = ["//visibility:public"],
+)
+
+# Sample usage: "bazel run //:buildifier".
+buildifier(
+    name = "buildifier",
+    exclude_patterns = [
+        "./bazel/rbe/gce_linux/*",
+        "./modules/*",
+        "./node_modules/*",
+        "./**/node_modules/*",
+        "./third_party/externals/*",
+    ],
+    lint_mode = "fix",
+    lint_warnings = [
+        # Prevents https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md#native-android.
+        "-native-android",
+        # Prevents https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md#native-cc.
+        "-native-cc",
+        # Prevents https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md#native-py.
+        "-native-py",
+    ],
 )
 
 test_suite(

@@ -427,7 +427,7 @@ func GenTasks(cfg *Config) {
 	b.MustAddCasSpec(CAS_BAZEL, &specs.CasSpec{
 		Root: "..",
 		Paths: []string{
-			// source code
+			// Source code.
 			"skia/example",
 			"skia/experimental/bazel_test",
 			"skia/include",
@@ -436,16 +436,18 @@ func GenTasks(cfg *Config) {
 			"skia/tests",
 			"skia/third_party",
 			"skia/tools",
-			// needed for tests
+			// Needed for tests.
 			"skia/bench", // Needed to run benchmark tests with Bazel.
 			"skia/gm",    // Needed to run GMs with Bazel.
-			"skia/gn",    // some Python scripts still live here
+			"skia/gn",    // Some Python scripts still live here.
 			"skia/resources",
 			"skia/package.json",
 			"skia/package-lock.json",
-			"skia/DEPS",       // needed to check generation
-			"skia/infra/bots", // Many Go tests live here.
-			// Needed to run bazel
+			"skia/DEPS",   // Needed to check generation.
+			"skia/infra",  // Many Go tests and Bazel tools live here.
+			"skia/go.mod", // Needed by Gazelle.
+			"skia/go.sum", // Needed by Gazelle.
+			// Needed to run Bazel.
 			"skia/.bazelignore",
 			"skia/.bazelrc",
 			"skia/.bazelversion",
