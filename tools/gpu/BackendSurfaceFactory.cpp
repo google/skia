@@ -131,7 +131,9 @@ sk_sp<SkSurface> MakeBackendTextureSurface(skgpu::graphite::Recorder* recorder,
                                           mbet->texture(),
                                           ii.colorType(),
                                           ii.refColorSpace(),
-                                          props);
+                                          props,
+                                          ManagedGraphiteTexture::ReleaseProc,
+                                          mbet->releaseContext());
 }
 #endif  // SK_GRAPHITE
 

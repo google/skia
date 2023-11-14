@@ -165,6 +165,7 @@ public:
 
     /** finished and image/surface release procs */
     static void FinishedProc(void* context, skgpu::CallbackResult);
+    static void ReleaseProc(void* context);
     static void ImageReleaseProc(void* context);
 
     ~ManagedGraphiteTexture();

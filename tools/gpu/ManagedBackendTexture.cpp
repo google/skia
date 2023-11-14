@@ -146,6 +146,10 @@ struct MBETContext {
 
 namespace sk_gpu_test {
 
+void ManagedGraphiteTexture::ReleaseProc(void* ctx) {
+    std::unique_ptr<MBETContext> context(static_cast<MBETContext*>(ctx));
+}
+
 void ManagedGraphiteTexture::FinishedProc(void* ctx, skgpu::CallbackResult) {
     std::unique_ptr<MBETContext> context(static_cast<MBETContext*>(ctx));
 }
