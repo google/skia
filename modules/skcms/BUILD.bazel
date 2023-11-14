@@ -1,4 +1,5 @@
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
+load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 
 licenses(["notice"])
 
@@ -55,7 +56,6 @@ skia_cc_library(
     name = "skcms_public",
     srcs = [
         "skcms.cc",
-        "src/skcms_Transform.h",
         "src/skcms_internals.h",
         "src/skcms_public.h",
     ],
@@ -64,10 +64,14 @@ skia_cc_library(
     ],
     # The following comment will be replaced with G3-specific settings
     # SKCMS_REPLACE_IN_GOOGLE3_COMPATIBLE_WITH
-    # This header does not compile on its own and is meant to be included from skcms.cc
-    textual_hdrs = [
-        "src/Transform_inl.h",
-    ],
+    deps = [":skcms_TransformBaseline"] +
+           select({
+               "@platforms//cpu:x86_64": [
+                   ":skcms_TransformHsw",
+                   ":skcms_TransformSkx",
+               ],
+               "//conditions:default": [],
+           }),
 )
 
 skia_cc_library(
@@ -96,6 +100,10 @@ skia_cc_library(
     ],
     # The following comment will be replaced with G3-specific settings
     # SKCMS_REPLACE_IN_GOOGLE3_COMPATIBLE_WITH
+    copts = DEFAULT_COPTS + select({
+        "@platforms//cpu:x86_64": ["-march=haswell"],
+        "//conditions:default": [],
+    }),
     # This header does not compile on its own and is meant to be included from skcms_Transform*.cc
     textual_hdrs = [
         "src/Transform_inl.h",
@@ -112,6 +120,10 @@ skia_cc_library(
     ],
     # The following comment will be replaced with G3-specific settings
     # SKCMS_REPLACE_IN_GOOGLE3_COMPATIBLE_WITH
+    copts = DEFAULT_COPTS + select({
+        "@platforms//cpu:x86_64": ["-march=skylake-avx512"],
+        "//conditions:default": [],
+    }),
     # This header does not compile on its own and is meant to be included from skcms_Transform*.cc
     textual_hdrs = [
         "src/Transform_inl.h",
