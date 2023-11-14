@@ -2163,8 +2163,9 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"cpu_8888_benchmark_test":        {"//bench:cpu_8888_test", ""},
 
 	// Note: these paths are relative to the WORKSPACE in //example/external_client
-	"path_combiner": {"//:path_combiner", ""},
-	"png_decoder":   {"//:png_decoder", ""},
+	"path_combiner":     {"//:path_combiner", ""},
+	"png_decoder":       {"//:png_decoder", ""},
+	"write_text_to_png": {"//:write_text_to_png", ""},
 
 	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them
 	// under a test_suite.

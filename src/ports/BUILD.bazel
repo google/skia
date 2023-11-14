@@ -378,22 +378,31 @@ skia_filegroup(
 )
 
 skia_cc_library(
-    name = "fontmgr_fontconfig",
+    name = "freetype_support",
     srcs = [
-        "SkFontMgr_fontconfig.cpp",
         ":typeface_freetype",
         ":typeface_freetype_hdrs",
         "//src/utils:char_to_glyphcache",
+    ],
+    deps = [
+        "//:core",
+        "//:pathops",
+        "@freetype",
+    ],
+)
+
+skia_cc_library(
+    name = "fontmgr_fontconfig_freetype",
+    srcs = [
+        "SkFontMgr_fontconfig.cpp",
     ],
     hdrs = [
         "//include/ports:fontconfig_fontmgr_hdrs",
     ],
     visibility = ["//:__pkg__"],
     deps = [
+        ":freetype_support",
         "//:core",
-        "//:pathops",
         "//bazel/external/fontconfig",
-        "//src/core:core_priv",
-        "@freetype",
     ],
 )

@@ -30,6 +30,7 @@ var (
 )
 
 const (
+	// Made from //skia/infra/gcc/Debian11/Dockerfile
 	dockerImage = "gcr.io/skia-public/gcc-debian11@sha256:1117ea368f43e45e0f543f74c8e3bf7ff6932df54ddaa4ba1fe6131209110d3d"
 	// pathToScript is the path inside the mounted docker container for the script
 	pathToScript = "/SRC/infra/bots/task_drivers/external_client/bazel_build_with_docker.sh"

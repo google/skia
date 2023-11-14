@@ -28,10 +28,11 @@ local_repository(
 
 # These two workspace functions will add dependencies for Skia's Bazel rules
 # (e.g. @bazel_skylib) and the C++ dependencies (e.g. @libpng)
-load("@skia//bazel:deps.bzl", "bazel_deps", "c_plus_plus_deps")
+load("@skia//bazel:deps.bzl", "bazel_deps", "c_plus_plus_deps", "header_based_configs")
 # Be sure to call the functions.
 bazel_deps()
 c_plus_plus_deps()
+header_based_configs()
 
 ##############################################################################
 # Everything below here is not required for Skia, but is required for the sample

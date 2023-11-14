@@ -311,7 +311,6 @@ skia_filegroup(
         "SkFrameHolder.h",
         "SkPngCodec.cpp",
         "SkPngCodec.h",
-        "SkPngPriv.h",
         "SkSampler.cpp",
         "SkSampler.h",
         "SkSwizzler.cpp",
@@ -319,11 +318,20 @@ skia_filegroup(
     ],
 )
 
+skia_filegroup(
+    name = "common_png_srcs",
+    srcs = [
+        "SkPngPriv.h",
+    ],
+    visibility = ["//src/encode:__pkg__"],
+)
+
 skia_cc_library(
     name = "png_decode",
     srcs = [
         ":any_decoder_srcs",
         ":buffet_png_srcs",
+        ":common_png_srcs",
         "//include/private:decode_srcs",
     ],
     hdrs = [

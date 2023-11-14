@@ -100,8 +100,14 @@ alias(
 )
 
 alias(
-    name = "fontmgr_fontconfig",
-    actual = "//src/ports:fontmgr_fontconfig",
+    name = "png_encode_codec",
+    actual = "//src/encode:png_encode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "fontmgr_fontconfig_freetype",
+    actual = "//src/ports:fontmgr_fontconfig_freetype",
     visibility = ["//visibility:public"],
 )
 

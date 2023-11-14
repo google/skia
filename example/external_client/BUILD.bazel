@@ -35,3 +35,18 @@ cc_binary(
         "@skia//:png_decode_codec",
     ],
 )
+
+cc_binary(
+    name = "write_text_to_png",
+    srcs = ["src/write_text_to_png.cpp"],
+    copts = ["-std=c++17"],
+    linkopts = [
+        "-fuse-ld=lld",
+        "-lpthread",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:fontmgr_fontconfig_freetype",
+        "@skia//:png_encode_codec",
+    ],
+)

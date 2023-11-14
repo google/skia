@@ -1,5 +1,5 @@
 load("//bazel:flags.bzl", "string_flag_with_values")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_cc_library", "skia_filegroup")
 
 licenses(["notice"])
 
@@ -108,4 +108,34 @@ skia_cc_deps(
             ":webp_encode_codec": ["@libwebp"],
         },
     ),
+)
+
+skia_filegroup(
+    name = "any_encoder_srcs",
+    srcs = [
+        "SkEncoder.cpp",
+        "SkICC.cpp",
+        "SkICCPriv.h",
+        "SkImageEncoderFns.h",
+        "SkImageEncoderPriv.h",
+    ],
+)
+
+skia_cc_library(
+    name = "png_encode",
+    srcs = [
+        ":any_encoder_srcs",
+        ":png_encode_hdrs",
+        ":png_encode_srcs",
+        "//src/codec:common_png_srcs",
+    ],
+    hdrs = [
+        "//include/encode:encode_hdrs",
+        "//include/encode:png_hdrs",
+    ],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "@libpng",
+    ],
 )
