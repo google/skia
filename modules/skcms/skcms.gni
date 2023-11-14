@@ -16,8 +16,6 @@ skcms_public_headers = [ "$_modules/skcms/skcms.h" ]
 skcms_sources = [
   "$_modules/skcms/skcms.cc",
   "$_modules/skcms/src/Transform_inl.h",
-  "$_modules/skcms/src/skcms_RestoreTarget.h",
-  "$_modules/skcms/src/skcms_SetTarget.h",
   "$_modules/skcms/src/skcms_Transform.h",
   "$_modules/skcms/src/skcms_TransformBaseline.cc",
   "$_modules/skcms/src/skcms_TransformHsw.cc",
