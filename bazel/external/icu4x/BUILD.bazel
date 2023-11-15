@@ -2,8 +2,6 @@ load("@rules_rust//rust:defs.bzl", "rust_static_library")
 load(
     "//bazel:skia_rules.bzl",
     "exports_files_legacy",
-    "select_multi",
-    "skia_cc_library",
 )
 
 exports_files_legacy()

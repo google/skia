@@ -179,3 +179,14 @@ alias(
     actual = "@go_sdk//:bin/go",
     visibility = ["//visibility:public"],
 )
+
+##############
+# buildifier #
+##############
+
+# Sample usage: "bazel run //:buildifier".
+alias(
+    name = "buildifier",
+    actual = "//bazel:buildifier",
+    visibility = ["//visibility:public"],
+)
