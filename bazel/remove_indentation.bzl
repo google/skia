@@ -45,6 +45,9 @@ def remove_indentation(string):
                 indentation += char
             else:
                 break
+
+        # For some reason Buildifier thinks the below variable is uninitialized.
+        # buildifier: disable=uninitialized
         return indentation
 
     lines = string.split("\n")

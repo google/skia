@@ -1,5 +1,28 @@
+load("@com_github_bazelbuild_buildtools//buildifier:def.bzl", "buildifier")
 load("//bazel:skia_rules.bzl", "exports_files_legacy")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+# Sample usage: "bazel run //bazel:buildifier".
+buildifier(
+    name = "buildifier",
+    exclude_patterns = [
+        "./bazel/rbe/gce_linux/*",
+        "./modules/*",
+        "./node_modules/*",
+        "./**/node_modules/*",
+        "./third_party/externals/*",
+    ],
+    lint_mode = "fix",
+    lint_warnings = [
+        # Prevents https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md#native-android.
+        "-native-android",
+        # Prevents https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md#native-cc.
+        "-native-cc",
+        # Prevents https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md#native-py.
+        "-native-py",
+    ],
+    visibility = ["//visibility:public"],
+)
