@@ -1124,8 +1124,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
     // relevant. Filtering is automatically chosen in internalDrawDeviceWithFilter based on the
     // device's coordinate space.
     SkPaint restorePaint(rec.fPaint ? *rec.fPaint : SkPaint());
-    restorePaint.setMaskFilter(nullptr);  // mask filters are ignored for saved layers
-    restorePaint.setImageFilter(nullptr); // the image filter is held separately
+    restorePaint.setStyle(SkPaint::kFill_Style); // a layer is filled out "infinitely"
+    restorePaint.setPathEffect(nullptr);         // path effects are ignored for saved layers
+    restorePaint.setMaskFilter(nullptr);         // mask filters are ignored for saved layers
+    restorePaint.setImageFilter(nullptr);        // the image filter is held separately
     // Smooth non-axis-aligned layer edges; this automatically downgrades to non-AA for aligned
     // layer restores. This is done to match legacy behavior where the post-applied MatrixTransform
     // bilerp also smoothed cropped edges. See skbug.com/11252
