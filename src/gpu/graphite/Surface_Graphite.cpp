@@ -121,7 +121,7 @@ sk_sp<const SkCapabilities> Surface::onCapabilities() {
     return fDevice->recorder()->priv().caps()->capabilities();
 }
 
-TextureProxy* Surface::backingTextureProxy() { return fDevice->target(); }
+TextureProxy* Surface::backingTextureProxy() const { return fDevice->target(); }
 
 sk_sp<SkSurface> Surface::MakeGraphite(Recorder* recorder,
                                        const SkImageInfo& info,

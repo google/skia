@@ -62,7 +62,7 @@ public:
     TextureProxyView readSurfaceView() const;
     sk_sp<SkImage> asImage() const;
     sk_sp<SkImage> makeImageCopy(const SkIRect* subset, Mipmapped) const;
-    TextureProxy* backingTextureProxy();
+    TextureProxy* backingTextureProxy() const;
 
 private:
     sk_sp<Device> fDevice;

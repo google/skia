@@ -275,10 +275,7 @@ static bool submit_to_queue(const VulkanInterface* interface,
     submitInfo.pSignalSemaphores = signalSemaphores;
     VkResult result;
     VULKAN_CALL_RESULT(interface, result, QueueSubmit(queue, 1, &submitInfo, fence));
-    if (result != VK_SUCCESS) {
-        return false;
-    }
-    return true;
+    return result == VK_SUCCESS;
 }
 
 bool VulkanCommandBuffer::submit(VkQueue queue) {

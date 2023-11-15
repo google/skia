@@ -25,7 +25,7 @@ using ReleaseContext = void*;
 using TextureReleaseProc = void (*)(ReleaseContext);
 
 /**
- * The 'asImage' and 'makeImageCopy' API/entry points are currently only available for
+ * The 'AsImage' and 'AsImageCopy' API/entry points are currently only available for
  * Graphite.
  *
  * In this API, SkSurface no longer supports copy-on-write behavior. Instead, when creating
