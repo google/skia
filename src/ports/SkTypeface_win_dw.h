@@ -10,6 +10,7 @@
 
 #include "include/core/SkFontArguments.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/base/SkAPI.h"
 #include "src/base/SkLeanWindows.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkTypefaceCache.h"
@@ -47,7 +48,7 @@ static SkFontStyle get_style(IDWriteFont* font) {
     return SkFontStyle(weight, width, slant);
 }
 
-class DWriteFontTypeface : public SkTypeface {
+class SK_SPI DWriteFontTypeface : public SkTypeface {
 public:
     struct Loaders : public SkNVRefCnt<Loaders> {
         Loaders(IDWriteFactory* factory,
