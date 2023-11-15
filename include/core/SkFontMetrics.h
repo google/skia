@@ -16,7 +16,7 @@
     The metric values are consistent with the Skia y-down coordinate system.
  */
 struct SK_API SkFontMetrics {
-    bool operator==(const SkFontMetrics& that) {
+    bool operator==(const SkFontMetrics& that) const {
         return
         this->fFlags == that.fFlags &&
         this->fTop == that.fTop &&
