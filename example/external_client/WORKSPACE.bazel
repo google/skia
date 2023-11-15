@@ -1,11 +1,13 @@
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
-
 # A real client should download a pinned version of Skia such as:
-# git_repository(
-#     name = "skia",
-#     commit = "8b051126be8ae6c3e718bd3817eebb867b2fd612",
-#     remote = "https://skia.googlesource.com/skia",
-# )
+#
+#     load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+#
+#     git_repository(
+#         name = "skia",
+#         commit = "8b051126be8ae6c3e718bd3817eebb867b2fd612",
+#         remote = "https://skia.googlesource.com/skia",
+#     )
+#
 # We use local_repository to allow us to test Skia at head as if it were checked
 # out via git_repository.
 local_repository(
@@ -29,9 +31,12 @@ local_repository(
 # These two workspace functions will add dependencies for Skia's Bazel rules
 # (e.g. @bazel_skylib) and the C++ dependencies (e.g. @libpng)
 load("@skia//bazel:deps.bzl", "bazel_deps", "c_plus_plus_deps", "header_based_configs")
+
 # Be sure to call the functions.
 bazel_deps()
+
 c_plus_plus_deps()
+
 header_based_configs()
 
 ##############################################################################
@@ -42,7 +47,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # https://github.com/bazelbuild/rules_cc
 http_archive(
     name = "rules_cc",
-    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.8/rules_cc-0.0.8.tar.gz"],
     sha256 = "ae46b722a8b8e9b62170f83bfb040cbf12adb732144e689985a66b26410a7d6f",
     strip_prefix = "rules_cc-0.0.8",
+    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.8/rules_cc-0.0.8.tar.gz"],
 )

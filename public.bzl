@@ -1,5 +1,7 @@
-# This file contains lists of files and defines used in the legacy G3 build, that is, the G3 build
-# that is not derived from our Bazel rules.
+"""
+This module contains lists of files and defines used in the legacy G3 build, that is, the G3 build
+that is not derived from our Bazel rules.
+"""
 
 SKIA_PUBLIC_HDRS = [
     "include/android/SkAndroidFrameworkUtils.h",
