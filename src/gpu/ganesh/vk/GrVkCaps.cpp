@@ -402,8 +402,8 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     fMaxSamplerAnisotropy = properties.limits.maxSamplerAnisotropy;
 
     // On desktop GPUs we have found that this does not provide much benefit. The perf results show
-    // a mix of regressions, some improvements, and lots of no changes. Thus it is no worth enabling
-    // this (especially with the rendering artifacts) on desktop.
+    // a mix of regressions, some improvements, and lots of no changes. Thus it is not worth
+    // enabling this (especially with the rendering artifacts) on desktop.
     //
     // On Adreno devices we were expecting to see perf gains. But instead there were actually a lot
     // of perf regressions and only a few perf wins. This needs some follow up with qualcomm since
@@ -411,8 +411,13 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     //
     // On ARM devices we are seeing an average perf win of around 50%-60% across the board.
     if (kARM_VkVendor == properties.vendorID) {
-        fPreferDiscardableMSAAAttachment = true;
-        fSupportsMemorylessAttachments = true;
+        // We currently don't see any Vulkan devices that expose a memory type that supports
+        // both lazy allocated and protected memory. So for simplicity we just disable the
+        // use of memoryless attachments when using protected memory. In the future, if we ever
+        // do see devices that support both, we can look through the device's memory types here
+        // and see if any support both flags.
+        fPreferDiscardableMSAAAttachment = !fSupportsProtectedContent;
+        fSupportsMemorylessAttachments = !fSupportsProtectedContent;
     }
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
