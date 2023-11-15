@@ -368,7 +368,7 @@ $pure half4 sk_yuv_image_shader(float2 coords,
         sampleColorU = $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY,
                                            cubicCoeffs, $kReadSwizzleNormalRGBA, sU);
         sampleColorV = $cubic_filter_image(coords, imgSize, subset, tileModeX, tileModeY,
-                                           cubicCoeffs, $kReadSwizzleNormalRGBA, sY);
+                                           cubicCoeffs, $kReadSwizzleNormalRGBA, sV);
     } else {
         sampleColorY = $sample_image_subset(coords, imgSize, subset, tileModeX, tileModeY,
                                             filterMode, $kReadSwizzleNormalRGBA, sY);

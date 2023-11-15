@@ -96,7 +96,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 "(coords,imgSize,subset,tileModeX,tileModeY,cubicCoeffs,$kReadSwizzleNormalRGBA"
 ",sY);sampleColorU=$cubic_filter_image(coords,imgSize,subset,tileModeX,tileModeY"
 ",cubicCoeffs,$kReadSwizzleNormalRGBA,sU);sampleColorV=$cubic_filter_image(coords"
-",imgSize,subset,tileModeX,tileModeY,cubicCoeffs,$kReadSwizzleNormalRGBA,sY)"
+",imgSize,subset,tileModeX,tileModeY,cubicCoeffs,$kReadSwizzleNormalRGBA,sV)"
 ";}else{sampleColorY=$sample_image_subset(coords,imgSize,subset,tileModeX,tileModeY"
 ",filterMode,$kReadSwizzleNormalRGBA,sY);sampleColorU=$sample_image_subset(coords"
 ",imgSize,subset,tileModeX,tileModeY,filterMode,$kReadSwizzleNormalRGBA,sU);"

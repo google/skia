@@ -49,7 +49,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 " d,int e,int f,int g,half4x4 h,half4 i,half4 j,half4 k,half4 l,half3x3 m,float3"
 " n,int o,int p,half3x3 q,int r,half4x4 s,sampler2D t,sampler2D u,sampler2D v"
 ",sampler2D w){half4 x;half4 y;half4 z;if(g!=0){x=$p(a,b,c,d,e,h,0,t);y=$p(a"
-",b,c,d,e,h,0,u);z=$p(a,b,c,d,e,h,0,t);}else{x=$o(a,b,c,d,e,f,0,t);y=$o(a,b,"
+",b,c,d,e,h,0,u);z=$p(a,b,c,d,e,h,0,v);}else{x=$o(a,b,c,d,e,f,0,t);y=$o(a,b,"
 "c,d,e,f,0,u);z=$o(a,b,c,d,e,f,0,v);}float A=float(dot(i,x));float B=float(dot"
 "(j,y));float C=float(dot(k,z));half3 D=half3(half(A),half(B),half(C));half4"
 " E;E.xyz=saturate(m*D+half3(n));if(l==half4(0.)){E.w=1.;}else{half4 F=g!=0?"
