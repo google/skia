@@ -1,0 +1,16 @@
+_fuzz = get_path_info("../fuzz", "abspath")
+_tools = get_path_info("../tools", "abspath")
+
+skia_base_fuzzer_srcs = [
+  "$_fuzz/Fuzz.cpp",
+  "$_fuzz/FuzzCommon.cpp",
+]
+
+skia_font_tools = [
+  "$_tools/fonts/FontToolUtils.cpp",
+  "$_tools/fonts/TestFontMgr.cpp",
+  "$_tools/fonts/TestSVGTypeface.cpp",
+  "$_tools/fonts/TestTypeface.cpp",
+  "$_tools/Resources.cpp",
+  "$_tools/flags/CommandLineFlags.cpp",
+]
