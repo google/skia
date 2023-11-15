@@ -15,7 +15,7 @@ const int $kReadSwizzle000R = 5;
 const int $kFilterModeNearest = 0;
 const int $kFilterModeLinear  = 1;
 
-const int $kTFTypeSRGB  = 1;
+const int $kTFTypeSRGB = 1;
 const int $kTFTypePQ = 2;
 const int $kTFTypeHLG = 3;
 const int $kTFTypeHLGinv = 4;
@@ -25,6 +25,10 @@ const int $kColorSpaceXformFlagLinearize = 0x2;
 const int $kColorSpaceXformFlagGamutTransform = 0x4;
 const int $kColorSpaceXformFlagEncode = 0x8;
 const int $kColorSpaceXformFlagPremul = 0x10;
+
+const int $kMaskFormatA8   = 0;
+const int $kMaskFormatA565 = 1;
+const int $kMaskFormatARGB = 2;
 
 // Matches GrTextureEffect::kLinearInset, to make sure we don't touch an outer
 // row or column with a weight of 0 when linear filtering.
@@ -1161,12 +1165,8 @@ $pure half4 sample_indexed_atlas(float2 textureCoords,
 }
 
 $pure half4 bitmap_text_coverage_fn(half4 texColor, int maskFormat) {
-    switch (maskFormat) {
-        case 0:  // A8
-            return texColor.rrrr;
-        default:
-            return texColor;
-    }
+    return (maskFormat == $kMaskFormatA8) ? texColor.rrrr
+                                          : texColor;
 }
 
 $pure half4 sdf_text_coverage_fn(half texColor,
