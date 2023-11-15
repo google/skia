@@ -11,7 +11,7 @@
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "tools/fonts/TestFontMgr.h"
+#include "tools/fonts/FontToolUtils.h"
 
 void FuzzTextBlobDeserialize(const uint8_t *data, size_t size) {
     SkReadBuffer buf(data, size);
@@ -28,13 +28,12 @@ void FuzzTextBlobDeserialize(const uint8_t *data, size_t size) {
     s->getCanvas()->drawTextBlob(tb, 200, 200, SkPaint());
 }
 
-// TODO(kjlubick): remove IS_FUZZING... after https://crrev.com/c/2410304 lands
-#if defined(SK_BUILD_FOR_LIBFUZZER) || defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 1024) {
         return 0;
     }
-    gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
+    ToolUtils::UsePortableFontMgr();
     FuzzTextBlobDeserialize(data, size);
     return 0;
 }

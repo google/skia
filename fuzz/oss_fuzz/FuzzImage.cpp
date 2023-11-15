@@ -27,8 +27,7 @@ bool FuzzImageDecode(const uint8_t *data, size_t size) {
     return true;
 }
 
-// TODO(kjlubick): remove IS_FUZZING... after https://crrev.com/c/2410304 lands
-#if defined(SK_BUILD_FOR_LIBFUZZER) || defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 10240) {
         return 0;
