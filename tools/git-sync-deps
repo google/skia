@@ -19,6 +19,12 @@ Environment Variables:
 
   GIT_SYNC_DEPS_QUIET: if set to non-empty string, suppress messages.
 
+  GIT_SYNC_DEPS_NO_FETCH_GN: if set to non-empty string, bin/fetch-gn
+  will not be called.
+
+  GIT_SYNC_DEPS_NO_ACTIVATE_EMSDK: if set to non-empty string,
+  bin/activate-emsdk will not be called.
+
 Git Config:
   To disable syncing of a single repository:
       cd path/to/repository
@@ -258,18 +264,22 @@ def multithread(function, list_of_arg_lists):
 def main(argv):
   deps_file_path = os.environ.get('GIT_SYNC_DEPS_PATH', DEFAULT_DEPS_PATH)
   verbose = not bool(os.environ.get('GIT_SYNC_DEPS_QUIET', False))
+  fetch_gn = not bool(os.environ.get('GIT_SYNC_DEPS_NO_FETCH_GN', False))
+  activate_emsdk = not bool(os.environ.get('GIT_SYNC_DEPS_NO_ACTIVATE_EMSDK', False))
 
   if '--help' in argv or '-h' in argv:
     usage(deps_file_path)
     return 1
 
   git_sync_deps(deps_file_path, argv, verbose)
-  subprocess.check_call(
-      [sys.executable,
-       os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')])
-  subprocess.check_call(
-      [sys.executable,
-       os.path.join(os.path.dirname(deps_file_path), 'bin', 'activate-emsdk')])
+  if fetch_gn:
+    subprocess.check_call(
+        [sys.executable,
+        os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')])
+  if activate_emsdk:
+    subprocess.check_call(
+        [sys.executable,
+        os.path.join(os.path.dirname(deps_file_path), 'bin', 'activate-emsdk')])
   return 0
 
 
