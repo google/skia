@@ -1395,7 +1395,7 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
 
     // TODO: All tilemodes are applied right now in resolve() so query with just kDecal
     const SkBlurEngine::Algorithm* algorithm = blurEngine->findAlgorithm(
-            SkSize(sigma), SkTileMode::kDecal, fContext.backend()->colorType());
+            SkSize(sigma), fContext.backend()->colorType());
     if (!algorithm) {
         return {};
     }

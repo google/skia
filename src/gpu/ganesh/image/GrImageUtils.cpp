@@ -794,7 +794,6 @@ public:
 
     // SkBlurEngine
     const SkBlurEngine::Algorithm* findAlgorithm(SkSize sigma,
-                                                 SkTileMode tileMode,
                                                  SkColorType colorType) const override {
         // GrBlurUtils supports all tile modes and color types
         return this;
@@ -805,6 +804,8 @@ public:
         // GrBlurUtils handles resizing at the moment
         return SK_ScalarInfinity;
     }
+
+    bool supportsOnlyDecalTiling() const override { return false; }
 
     sk_sp<SkSpecialImage> blur(SkSize sigma,
                                sk_sp<SkSpecialImage> input,

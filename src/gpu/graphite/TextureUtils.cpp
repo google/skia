@@ -772,7 +772,6 @@ public:
 
     // SkBlurEngine
     const SkBlurEngine::Algorithm* findAlgorithm(SkSize sigma,
-                                                 SkTileMode tileMode,
                                                  SkColorType colorType) const override {
         // The runtime effect blurs handle all tilemodes and color types
         return this;
@@ -784,6 +783,8 @@ public:
         // skgpu::kMaxLinearBlurSigma.
         return SK_ScalarInfinity;
     }
+
+    bool supportsOnlyDecalTiling() const override { return false; }
 
     sk_sp<SkSpecialImage> blur(SkSize sigma,
                                sk_sp<SkSpecialImage> src,

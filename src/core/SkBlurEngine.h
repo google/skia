@@ -37,12 +37,11 @@ public:
 
     virtual ~SkBlurEngine() = default;
 
-    // Returns an Algorithm ideal for the requested 'sigma' that will support sampling the input
-    // with 'tileMode' and the given 'colorType'. If the engine does not support the requested
-    // configuration, it returns null. The engine maintains the lifetime of its algorithms, so the
-    // returned non-null Algorithms live as long as the engine does.
+    // Returns an Algorithm ideal for the requested 'sigma' that will support sampling an image of
+    // the given 'colorType'. If the engine does not support the requested configuration, it returns
+    // null. The engine maintains the lifetime of its algorithms, so the returned non-null
+    // Algorithms live as long as the engine does.
     virtual const Algorithm* findAlgorithm(SkSize sigma,
-                                           SkTileMode tileMode,
                                            SkColorType colorType) const = 0;
 
     // TODO: Consolidate common utility functions from SkBlurMask.h, skgpu::BlurUtils, and
@@ -57,6 +56,13 @@ public:
     // The maximum sigma that can be passed to blur() in the X and/or Y sigma values. Larger
     // requested sigmas must manually downscale the input image and upscale the output image.
     virtual float maxSigma() const = 0;
+
+    // Whether or not the SkTileMode can be passed to blur() must be SkTileMode::kDecal, or if any
+    // tile mode is supported. If only kDecal is supported, then callers must manually apply the
+    // tilemode and account for that in the src and dst bounds passed into blur(). If this returns
+    // false, then the algorithm supports all SkTileModes.
+    // TODO: Once CPU blurs support all tile modes, this API can go away.
+    virtual bool supportsOnlyDecalTiling() const = 0;
 
     // Produce a blurred image that fills 'dstRect' (their dimensions will match). 'dstRect's top
     // left corner defines the output's location relative to the 'src' image. 'srcRect' restricts
