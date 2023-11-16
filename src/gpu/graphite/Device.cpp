@@ -222,13 +222,13 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            const SkImageInfo& ii,
                            skgpu::Budgeted budgeted,
                            Mipmapped mipmapped,
-                           Protected isProtected,
                            const SkSurfaceProps& props,
                            bool addInitialClear) {
     if (!recorder) {
         return nullptr;
     }
 
+    Protected isProtected = Protected(recorder->priv().caps()->protectedSupport());
     sk_sp<TextureProxy> target = TextureProxy::Make(recorder->priv().caps(),
                                                     ii.dimensions(),
                                                     ii.colorType(),
@@ -343,7 +343,6 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {
                 info.fInfo,
                 skgpu::Budgeted::kYes,
                 Mipmapped::kNo,
-                Protected(this->target()->isProtected()),
                 props,
                 addInitialClear);
 }

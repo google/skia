@@ -26,7 +26,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
                                          info,
                                          skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
-                                         skgpu::Protected::kNo,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
 
@@ -42,21 +41,18 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
                            info,
                            skgpu::Budgeted::kYes,
                            Mipmapped::kNo,
-                           skgpu::Protected::kNo,
                            SkSurfaceProps(),
                            /* addInitialClear= */ true);
     sk_sp<Device> device2 = Device::Make(recorder.get(),
                                          info,
                                          skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
-                                         skgpu::Protected::kNo,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
     sk_sp<Device> device3 = Device::Make(recorder.get(),
                                          info,
                                          skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
-                                         skgpu::Protected::kNo,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
     REPORTER_ASSERT(reporter, device1->recorder() == recorder.get());
