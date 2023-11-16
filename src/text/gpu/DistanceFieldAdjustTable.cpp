@@ -60,12 +60,7 @@ SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma)
 
     int width, height;
     size_t size;
-
-#ifdef SK_GAMMA_CONTRAST
     SkScalar contrast = SK_GAMMA_CONTRAST;
-#else
-    SkScalar contrast = 0.5f;
-#endif
 
     size = SkScalerContext::GetGammaLUTSize(contrast, paintGamma, deviceGamma,
         &width, &height);

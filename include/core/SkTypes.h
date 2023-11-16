@@ -86,6 +86,14 @@
     #define SK_GAMMA_EXPONENT (0.0f)  // SRGB
 #endif
 
+#if !defined(SK_GAMMA_CONTRAST)
+    // A value of 0.5 for SK_GAMMA_CONTRAST appears to be a good compromise.
+    // With lower values small text appears washed out (though correctly so).
+    // With higher values lcd fringing is worse and the smoothing effect of
+    // partial coverage is diminished.
+    #define SK_GAMMA_CONTRAST (0.5f)
+#endif
+
 #if defined(SK_HISTOGRAM_ENUMERATION)  || \
     defined(SK_HISTOGRAM_BOOLEAN)      || \
     defined(SK_HISTOGRAM_EXACT_LINEAR) || \
