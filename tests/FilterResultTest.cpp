@@ -102,7 +102,7 @@ namespace {
 
 static constexpr float kRGBTolerance = 8.f / 255.f;
 static constexpr float kAATolerance  = 2.f / 255.f;
-static constexpr float kMaxAllowedPercentImageDiff = 1.f;
+static constexpr float kDefaultMaxAllowedPercentImageDiff = 1.f;
 static const float kFuzzyKernel[3][3] = {{0.9f, 0.9f, 0.9f},
                                          {0.9f, 1.0f, 0.9f},
                                          {0.9f, 0.9f, 0.9f}};
@@ -457,33 +457,42 @@ public:
     bool compareImages(const skif::Context& ctx,
                        SkSpecialImage* expectedImage,
                        SkIPoint expectedOrigin,
-                       const FilterResult& actual) {
+                       const FilterResult& actual,
+                       float allowedPercentImageDiff,
+                       int transparentCheckBorderTolerance) {
         SkASSERT(expectedImage);
 
         SkBitmap expectedBM = this->readPixels(expectedImage);
 
-        // Resolve actual using all 3 methods to ensure they are approximately equal to the expected
+        // Resolve actual using all 4 methods to ensure they are approximately equal to the expected
         // (which is used as a proxy for being approximately equal to each other).
         return this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-                                   FilterResultImageResolver::Method::kImageAndOffset) &&
-            this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-            FilterResultImageResolver::Method::kShader) &&
-            this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-            FilterResultImageResolver::Method::kClippedShader) &&
-            this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-            FilterResultImageResolver::Method::kDrawToCanvas);
+                                   FilterResultImageResolver::Method::kImageAndOffset,
+                                   allowedPercentImageDiff, transparentCheckBorderTolerance) &&
+               this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+                                   FilterResultImageResolver::Method::kShader,
+                                   allowedPercentImageDiff, transparentCheckBorderTolerance) &&
+               this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+                                   FilterResultImageResolver::Method::kClippedShader,
+                                   allowedPercentImageDiff, transparentCheckBorderTolerance) &&
+               this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+                                   FilterResultImageResolver::Method::kDrawToCanvas,
+                                   allowedPercentImageDiff, transparentCheckBorderTolerance);
     }
 
 private:
 
     bool compareImages(const skif::Context& ctx, const SkBitmap& expected, SkIPoint expectedOrigin,
-                       const FilterResult& actual, FilterResultImageResolver::Method method) {
+                       const FilterResult& actual, FilterResultImageResolver::Method method,
+                       float allowedPercentImageDiff, int transparentCheckBorderTolerance) {
         FilterResultImageResolver resolver{method};
         auto [actualImage, actualOrigin] = resolver.resolve(ctx, actual);
 
         SkBitmap actualBM = this->readPixels(actualImage.get()); // empty if actualImage is null
         TArray<SkIPoint> badPixels;
-        if (!this->compareBitmaps(expected, expectedOrigin, actualBM, actualOrigin, &badPixels)) {
+        if (!this->compareBitmaps(expected, expectedOrigin, actualBM, actualOrigin,
+                                  allowedPercentImageDiff, transparentCheckBorderTolerance,
+                                  &badPixels)) {
             SkDebugf("FilterResult comparison failed for method %s\n", resolver.methodName());
             this->logBitmaps(expected, actualBM, badPixels);
             return false;
@@ -496,6 +505,8 @@ private:
                         SkIPoint expectedOrigin,
                         const SkBitmap& actual,
                         SkIPoint actualOrigin,
+                        float allowedPercentImageDiff,
+                        int transparentCheckBorderTolerance,
                         TArray<SkIPoint>* badPixels) {
         SkIRect excludeTransparentCheck; // region in expectedBM that can be non-transparent
         if (actual.empty()) {
@@ -539,10 +550,10 @@ private:
 
             const int totalCount = expected.width() * expected.height();
             const float percentError = 100.f * errorCount / (float) totalCount;
-            const bool approxMatch = percentError <= kMaxAllowedPercentImageDiff;
+            const bool approxMatch = percentError <= allowedPercentImageDiff;
             REPORTER_ASSERT(fReporter, approxMatch,
-                            "%d pixels were too different from %d total (%f %%)",
-                            errorCount, totalCount, percentError);
+                            "%d pixels were too different from %d total (%f %% vs. %f %%)",
+                            errorCount, totalCount, percentError, allowedPercentImageDiff);
             if (!approxMatch) {
                 return false;
             }
@@ -550,6 +561,11 @@ private:
             // The expected pixels outside of the actual bounds should be transparent, otherwise
             // the actual image is not returning enough data.
             excludeTransparentCheck = actualBounds.makeOffset(-expectedOrigin);
+            // Add per-test padding to the exclusion, which is used when there is upscaling in the
+            // expected image that bleeds beyond the layer bounds, but is hard to enforce in the
+            // simplified expectation rendering.
+            excludeTransparentCheck.outset(transparentCheckBorderTolerance,
+                                           transparentCheckBorderTolerance);
         }
 
         int badTransparencyCount = 0;
@@ -704,9 +720,14 @@ private:
 
 class TestCase {
 public:
-    TestCase(TestRunner& runner, std::string name)
+    TestCase(TestRunner& runner,
+             std::string name,
+             float allowedPercentImageDiff=kDefaultMaxAllowedPercentImageDiff,
+             int transparentCheckBorderTolerance=0)
             : fRunner(runner)
             , fName(name)
+            , fAllowedPercentImageDiff(allowedPercentImageDiff)
+            , fTransparentCheckBorderTolerance(transparentCheckBorderTolerance)
             , fSourceBounds(LayerSpace<SkIRect>::Empty())
             , fDesiredOutput(LayerSpace<SkIRect>::Empty()) {}
 
@@ -817,7 +838,6 @@ public:
                 desiredOutputs[i] = fActions[i+1].requiredInput(desiredOutputs[i+1]);
             }
         }
-
 
         // Create the source image
         sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeSRGB();
@@ -937,7 +957,9 @@ public:
             if (!fRunner.compareImages(ctx,
                                        expectedImage.get(),
                                        SkIPoint(expectedOrigin),
-                                       output)) {
+                                       output,
+                                       fAllowedPercentImageDiff,
+                                       fTransparentCheckBorderTolerance)) {
                 // If one iteration is incorrect, its failures will likely cascade to further
                 // actions so end now as the test has failed.
                 break;
@@ -979,6 +1001,8 @@ private:
 
     TestRunner& fRunner;
     std::string fName;
+    float fAllowedPercentImageDiff;
+    int   fTransparentCheckBorderTolerance;
 
     // Used to construct an SkSpecialImage of the given size/location filled with the known pattern.
     LayerSpace<SkIRect> fSourceBounds;
