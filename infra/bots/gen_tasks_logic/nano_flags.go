@@ -267,7 +267,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 		args = append(args, "--dontReduceOpsTaskSplitting", "true")
 	}
-	if (!b.isLinux() && b.extraConfig("Vulkan") && b.gpu("QuadroP400")) {
+	if !b.isLinux() && b.extraConfig("Vulkan") && b.gpu("QuadroP400") {
 		// skia:14302 (desk_carsvg.skp hangs indefinitely on Windows QuadroP400 vkdmsaa configs)
 		match = append(match, "~desk_carsvg.skp")
 	}

@@ -180,6 +180,17 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+#########
+# gofmt #
+#########
+
+# Sample usage: "bazel run //:gofmt -- -s -w .".
+alias(
+    name = "gofmt",
+    actual = "@go_sdk//:bin/gofmt",
+    visibility = ["//visibility:public"],
+)
+
 ##############
 # buildifier #
 ##############
@@ -188,5 +199,4 @@ alias(
 alias(
     name = "buildifier",
     actual = "//bazel:buildifier",
-    visibility = ["//visibility:public"],
 )

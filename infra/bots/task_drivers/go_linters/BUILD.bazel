@@ -1,0 +1,21 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "go_linters_lib",
+    srcs = ["go_linters.go"],
+    importpath = "go.skia.org/skia/infra/bots/task_drivers/go_linters",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//infra/bots/task_drivers/common",
+        "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//task_driver/go/lib/bazel",
+        "@org_skia_go_infra//task_driver/go/lib/os_steps",
+        "@org_skia_go_infra//task_driver/go/td",
+    ],
+)
+
+go_binary(
+    name = "go_linters",
+    embed = [":go_linters_lib"],
+    visibility = ["//visibility:public"],
+)

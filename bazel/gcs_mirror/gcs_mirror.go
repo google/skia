@@ -7,6 +7,7 @@
 // There are two modes of use:
 //   - Specify a single file via --url and --sha256.
 //   - Copy a JSON array of objects (or Starlark list of dictionaries) via standard in.
+//
 // This should only need to be called when we add new dependencies or update existing ones. Calling
 // it with already archived files should be fine - the mirror is a CAS, so the update should be a
 // no-op. The files will be uploaded to the mirror with some metadata about where they came from.

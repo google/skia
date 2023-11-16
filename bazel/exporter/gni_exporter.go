@@ -261,7 +261,7 @@ func writeGNFileHeader(writer interfaces.Writer, gniFile *gniFileContents, pathT
 	if len(gniFile.bazelFiles) > 1 {
 		keys := make([]string, 0, len(gniFile.bazelFiles))
 		fmt.Fprintln(writer, "# The sources of truth are:")
-		for bazelPath, _ := range gniFile.bazelFiles {
+		for bazelPath := range gniFile.bazelFiles {
 			keys = append(keys, bazelPath)
 		}
 		sort.Strings(keys)
@@ -269,7 +269,7 @@ func writeGNFileHeader(writer interfaces.Writer, gniFile *gniFileContents, pathT
 			fmt.Fprintf(writer, "#   //%s\n", wsPath)
 		}
 	} else {
-		for bazelPath, _ := range gniFile.bazelFiles {
+		for bazelPath := range gniFile.bazelFiles {
 			fmt.Fprintf(writer, "# The source of truth is //%s\n", bazelPath)
 		}
 	}
@@ -427,7 +427,7 @@ func (c *gniFileContents) merge(other gniFileContents) {
 	if other.hasSrcs {
 		c.hasSrcs = true
 	}
-	for path, _ := range other.bazelFiles {
+	for path := range other.bazelFiles {
 		c.bazelFiles[path] = true
 	}
 	c.data = append(c.data, other.data...)

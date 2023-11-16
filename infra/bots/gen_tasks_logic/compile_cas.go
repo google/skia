@@ -176,11 +176,11 @@ func (n *node) add(entry []string) {
 
 // entries returns the entries represented by this node and its children.
 // Will not return children in the following cases:
-// - This Node is a leaf, ie. it represents an entry which was explicitly
-//   inserted into the Tree, as opposed to only part of a path to other
-//   entries.
-// - This Node has immediate children exceeding combinePathsThreshold and
-//   thus has been upgraded to a leaf node.
+//   - This Node is a leaf, ie. it represents an entry which was explicitly
+//     inserted into the Tree, as opposed to only part of a path to other
+//     entries.
+//   - This Node has immediate children exceeding combinePathsThreshold and
+//     thus has been upgraded to a leaf node.
 func (n *node) entries() [][]string {
 	if n.isLeaf {
 		return [][]string{{n.name}}

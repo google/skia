@@ -1422,13 +1422,36 @@ func (b *jobBuilder) recreateSKPs() {
 	})
 }
 
-// checkGeneratedFiles verifies that no generated SKSL files have been edited
-// by hand.
+// checkGeneratedFiles verifies that no generated SKSL files have been edited by hand, and that
+// we do not get any diffs after regenerating all files (go generate, Gazelle, etc.).
 func (b *jobBuilder) checkGeneratedFiles() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.cas(CAS_BAZEL)
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.cmd("./check_generated_files",
+			"--local=false",
+			"--git_path=cipd_bin_packages/git",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--bazel_cache_dir", bazelCacheDirOnGCELinux,
+			"--bazel_arg=--config=for_linux_x64_with_rbe",
+			"--bazel_arg=--jobs=100",
+		)
+		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
+		b.usesBazel("linux_x64")
+		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
+	})
+}
+
+// goLinters runs various Go linters (gofmt, errcheck, etc.) and fails if there are any errors or
+// diffs.
+func (b *jobBuilder) goLinters() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.cas(CAS_BAZEL)
+		b.dep(b.buildTaskDrivers("linux", "amd64"))
+		b.cmd("./go_linters",
 			"--local=false",
 			"--git_path=cipd_bin_packages/git",
 			"--project_id", "skia-swarming-bots",

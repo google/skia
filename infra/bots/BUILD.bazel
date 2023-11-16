@@ -27,6 +27,7 @@ genrule(
         "//infra/bots/task_drivers/compile_wasm_gm_tests",
         "//infra/bots/task_drivers/cpu_tests",
         "//infra/bots/task_drivers/g3_canary",
+        "//infra/bots/task_drivers/go_linters",
         "//infra/bots/task_drivers/perf_puppeteer_canvas",
         "//infra/bots/task_drivers/perf_puppeteer_render_skps",
         "//infra/bots/task_drivers/perf_puppeteer_skottie_frames",

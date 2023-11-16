@@ -214,11 +214,11 @@ func (b *taskBuilder) asset(assets ...string) {
 func (b *taskBuilder) usesBazel(hostOSArch string) {
 	archToPkg := map[string]string{
 		"linux_x64": "bazelisk_linux_amd64",
-		"mac_x64": "bazelisk_mac_amd64",
+		"mac_x64":   "bazelisk_mac_amd64",
 	}
 	pkg, ok := archToPkg[hostOSArch]
-	if (!ok) {
-		panic("Unsupported osAndArch for bazelisk: "+hostOSArch)
+	if !ok {
+		panic("Unsupported osAndArch for bazelisk: " + hostOSArch)
 	}
 	b.cipd(b.MustGetCipdPackageFromAsset(pkg))
 	b.addToPATH(pkg)
