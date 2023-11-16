@@ -113,7 +113,7 @@ def status(directory, commithash, change):
   sys.stdout.write('%-*s %s %s\n' % (dlen, directory, symbol, commithash))
 
 
-def git_checkout_to_directory(git, repo, commithash, directory, verbose):
+def git_checkout_to_directory(git, repo, commithash, directory, shallow, verbose):
   """Checkout (and clone if needed) a Git repository.
 
   Args:
@@ -133,12 +133,8 @@ def git_checkout_to_directory(git, repo, commithash, directory, verbose):
   """
   if not os.path.isdir(directory):
     subprocess.check_call(
-      [git, 'clone', '--quiet', '--no-checkout', repo, directory])
-    subprocess.check_call([git, 'checkout', '--quiet', commithash],
-                          cwd=directory)
-    if verbose:
-      status(directory, commithash, True)
-    return
+      [git, 'clone', '--quiet', *(['--depth=1'] if shallow else []),
+       '--no-checkout', repo, directory])
 
   if not is_git_toplevel(git, directory):
     # if the directory exists, but isn't a git repo, you will modify
@@ -166,7 +162,10 @@ def git_checkout_to_directory(git, repo, commithash, directory, verbose):
   subprocess.check_call(
       [git, 'remote', 'set-url', 'origin', repo], cwd=directory)
 
-  subprocess.check_call([git, 'fetch', '--quiet'], cwd=directory)
+  subprocess.check_call(
+    [git, 'fetch', '--quiet',
+     *(['--depth=1', repo, commithash] if shallow else [])],
+    cwd=directory)
 
   subprocess.check_call([git, 'checkout', '--quiet', commithash], cwd=directory)
 
@@ -186,7 +185,7 @@ def is_sha1_sum(s):
   return len(s) == 40 and all(c in '0123456789abcdef' for c in s)
 
 
-def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
+def git_sync_deps(deps_file_path, command_line_os_requests, shallow, verbose):
   """Grab dependencies, with optional platform support.
 
   Args:
@@ -233,7 +232,7 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
     relative_directory = os.path.join(deps_file_directory, directory)
 
     list_of_arg_lists.append(
-      (git, repo, commithash, relative_directory, verbose))
+      (git, repo, commithash, relative_directory, shallow, verbose))
 
   multithread(git_checkout_to_directory, list_of_arg_lists)
 
@@ -259,12 +258,13 @@ def main(argv):
   deps_file_path = os.environ.get('GIT_SYNC_DEPS_PATH', DEFAULT_DEPS_PATH)
   verbose = not bool(os.environ.get('GIT_SYNC_DEPS_QUIET', False))
   skip_emsdk = bool(os.environ.get('GIT_SYNC_DEPS_SKIP_EMSDK', False))
+  shallow = bool(os.environ.get('GIT_SYNC_DEPS_SHALLOW_CLONE', False))
 
   if '--help' in argv or '-h' in argv:
     usage(deps_file_path)
     return 1
 
-  git_sync_deps(deps_file_path, argv, verbose)
+  git_sync_deps(deps_file_path, argv, shallow, verbose)
   subprocess.check_call(
       [sys.executable,
        os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')])
