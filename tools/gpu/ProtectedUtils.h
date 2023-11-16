@@ -14,6 +14,7 @@
 class GrDirectContext;
 class SkImage;
 class SkSurface;
+class SkSurfaceProps;
 struct SkISize;
 
 #ifdef SK_GRAPHITE
@@ -36,7 +37,8 @@ namespace ProtectedUtils {
 sk_sp<SkSurface> CreateProtectedSkSurface(GrDirectContext*,
                                           SkISize size,
                                           bool textureable,
-                                          bool isProtected);
+                                          bool isProtected,
+                                          const SkSurfaceProps* = nullptr);
 
 void CheckImageBEProtection(SkImage*, bool expectingProtected);
 
