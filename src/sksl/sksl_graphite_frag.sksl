@@ -105,6 +105,9 @@ $pure half4 sk_color_space_transform(half4 halfColor,
                                      half3x3 gamutTransform,
                                      int dstKind,
                                      half4x4 coeffs) {
+    if (flags == 0) {
+        return halfColor;
+    }
     float4 color = float4(halfColor);
 
     if (bool(flags & $kColorSpaceXformFlagUnpremul)) {
