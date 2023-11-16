@@ -258,6 +258,7 @@ def multithread(function, list_of_arg_lists):
 def main(argv):
   deps_file_path = os.environ.get('GIT_SYNC_DEPS_PATH', DEFAULT_DEPS_PATH)
   verbose = not bool(os.environ.get('GIT_SYNC_DEPS_QUIET', False))
+  skip_emsdk = bool(os.environ.get('GIT_SYNC_DEPS_SKIP_EMSDK', False))
 
   if '--help' in argv or '-h' in argv:
     usage(deps_file_path)
@@ -267,9 +268,10 @@ def main(argv):
   subprocess.check_call(
       [sys.executable,
        os.path.join(os.path.dirname(deps_file_path), 'bin', 'fetch-gn')])
-  subprocess.check_call(
-      [sys.executable,
-       os.path.join(os.path.dirname(deps_file_path), 'bin', 'activate-emsdk')])
+  if not skip_emsdk:
+    subprocess.check_call(
+        [sys.executable,
+         os.path.join(os.path.dirname(deps_file_path), 'bin', 'activate-emsdk')])
   return 0
 
 
