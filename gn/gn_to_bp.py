@@ -77,6 +77,7 @@ license {
 
 cc_defaults {
     name: "skia_arch_defaults",
+    cpp_std: "gnu++17",
     arch: {
         arm: {
             srcs: [],
@@ -352,6 +353,7 @@ cc_defaults {
 
 cc_test {
     name: "skia_dm",
+    cpp_std: "gnu++17",
 
     defaults: [
         "skia_gm_srcs",
@@ -375,6 +377,7 @@ cc_test {
 
 cc_test {
     name: "skia_nanobench",
+    cpp_std: "gnu++17",
 
     defaults: [
         "skia_gm_srcs",
