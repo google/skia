@@ -36,8 +36,10 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
         return false;
     }
 
-    if (info.isProtected() == Protected::kYes && !caps.protectedSupport()) {
-        SKGPU_LOG_E("Tried to create protected VkImage when protected not supported.");
+    if ((info.isProtected() == Protected::kYes) != caps.protectedSupport()) {
+        SKGPU_LOG_E("Tried to create %s VkImage in %s Context.",
+                    info.isProtected() == Protected::kYes ? "protected" : "unprotected",
+                    caps.protectedSupport() ? "protected" : "unprotected");
         return false;
     }
 

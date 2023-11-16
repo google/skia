@@ -46,6 +46,7 @@ public:
                               const SkImageInfo&,
                               skgpu::Budgeted,
                               Mipmapped,
+                              skgpu::Protected,
                               const SkSurfaceProps&,
                               bool addInitialClear);
     static sk_sp<Device> Make(Recorder*,

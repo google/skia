@@ -222,6 +222,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            const SkImageInfo& ii,
                            skgpu::Budgeted budgeted,
                            Mipmapped mipmapped,
+                           Protected isProtected,
                            const SkSurfaceProps& props,
                            bool addInitialClear) {
     if (!recorder) {
@@ -232,7 +233,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                                                     ii.dimensions(),
                                                     ii.colorType(),
                                                     mipmapped,
-                                                    Protected::kNo,
+                                                    isProtected,
                                                     Renderable::kYes,
                                                     budgeted);
     if (!target) {
@@ -342,6 +343,7 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {
                 info.fInfo,
                 skgpu::Budgeted::kYes,
                 Mipmapped::kNo,
+                Protected(this->target()->isProtected()),
                 props,
                 addInitialClear);
 }
