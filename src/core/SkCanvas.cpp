@@ -49,7 +49,6 @@
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
-#include "src/core/SkRectPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTraceEvent.h"
@@ -777,16 +776,8 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
             return;
         }
 
-        auto availSrc = srcSubset;
-        if (!availSrc.intersect(skif::LayerSpace<SkIRect>(SkIRect::MakeSize(src->size())))) {
-            // We apply clamp tiling for unavailable pixels for backdrop filters. For forward
-            // filters, this should have been detected as an unnecessary layer or a filter that
-            // could be invoked on an empty input and never reached internalDrawDeviceWithFilter.
-            SkASSERT(compat == DeviceCompatibleWithFilter::kUnknown);
-            availSrc = skif::LayerSpace<SkIRect>(SkRectPriv::ClosestDisjointEdge(
-                    SkIRect::MakeSize(src->size()),
-                    SkIRect(availSrc)));
-        }
+        auto availSrc = skif::LayerSpace<SkIRect>(src->size()).relevantSubset(
+                srcSubset, SkTileMode::kClamp);
 
         if (SkMatrix(srcToLayer).isScaleTranslate()) {
             // Apply the srcToLayer transformation directly while snapping an image from the src

@@ -82,13 +82,10 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> extract_subset(
         bool clampSrcIfDisjoint=false) {
     LayerSpace<SkIRect> imageBounds(SkIRect::MakeXYWH(origin.x(), origin.y(),
                                                       image->width(), image->height()));
-    if (!imageBounds.intersect(dstBounds)) {
-        if (clampSrcIfDisjoint) {
-            auto edge = SkRectPriv::ClosestDisjointEdge(SkIRect(imageBounds), SkIRect(dstBounds));
-            imageBounds = LayerSpace<SkIRect>(edge);
-        } else {
-            return {nullptr, {}};
-        }
+    imageBounds = imageBounds.relevantSubset(dstBounds, clampSrcIfDisjoint ? SkTileMode::kClamp
+                                                                           : SkTileMode::kDecal);
+    if (imageBounds.isEmpty()) {
+        return {nullptr, {}};
     }
 
     // Offset the image subset directly to avoid issues negating (origin). With the prior
@@ -557,6 +554,27 @@ SkMatrix Mapping::map<SkMatrix>(const SkMatrix& m, const SkMatrix& matrix) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // LayerSpace<T>
 
+LayerSpace<SkIRect> LayerSpace<SkIRect>::relevantSubset(const LayerSpace<SkIRect> dstRect,
+                                                        SkTileMode tileMode) const {
+    LayerSpace<SkIRect> fittedSrc = *this;
+    if (tileMode == SkTileMode::kDecal || tileMode == SkTileMode::kClamp) {
+        // For both decal/clamp, we only care about the region that is in dstRect, unless we are
+        // clamping and have to preserve edge pixels when there's no overlap.
+        if (!fittedSrc.intersect(dstRect)) {
+            if (tileMode == SkTileMode::kDecal) {
+                // The dstRect would be filled with transparent black.
+                fittedSrc = LayerSpace<SkIRect>::Empty();
+            } else {
+                // We just need the closest row/column/corner of this rect to dstRect.
+                auto edge = SkRectPriv::ClosestDisjointEdge(SkIRect(fittedSrc),  SkIRect(dstRect));
+                fittedSrc = LayerSpace<SkIRect>(edge);
+            }
+        }
+    } // else assume the entire source is needed for periodic tile modes, so leave fittedSrc alone
+
+    return fittedSrc;
+}
+
 // Match rounding tolerances of SkRects to SkIRects
 LayerSpace<SkISize> LayerSpace<SkSize>::round() const {
     return LayerSpace<SkISize>(fData.toRound());
@@ -744,22 +762,7 @@ FilterResult FilterResult::applyCrop(const Context& ctx,
     }
 
     // Second, determine the subset of 'crop' that is relevant to ctx.desiredOutput().
-    LayerSpace<SkIRect> fittedCrop = crop;
-    if (tileMode == SkTileMode::kDecal || tileMode == SkTileMode::kClamp) {
-        // For both decal/clamp, we only care about the pixels within crop that are in the desired
-        // output, unless we are clamping and have to preserve edge pixels when there's no overlap.
-        if (!fittedCrop.intersect(ctx.desiredOutput())) {
-            if (tileMode == SkTileMode::kDecal) {
-                // The desired output would be filled with transparent black.
-                fittedCrop = LayerSpace<SkIRect>::Empty();
-            } else {
-                // We just need the closest row/column/corner of 'crop' to the desired output.
-                auto edge = SkRectPriv::ClosestDisjointEdge(SkIRect(crop),
-                                                            SkIRect(ctx.desiredOutput()));
-                fittedCrop = LayerSpace<SkIRect>(edge);
-            }
-        }
-    }
+    LayerSpace<SkIRect> fittedCrop = crop.relevantSubset(ctx.desiredOutput(), tileMode);
 
     // Third, check if there's overlap with the known non-transparent cropped content and what's
     // used to tile the desired output. If not, the image is known to be empty. This modifies

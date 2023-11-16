@@ -394,6 +394,10 @@ public:
         return output;
     }
 
+    // Utility function to calculate the smallest relevant subset of this rect to fill `dstRect`
+    // given the provided tile mode.
+    LayerSpace<SkIRect> relevantSubset(const LayerSpace<SkIRect> dstRect, SkTileMode) const;
+
     // Parrot the SkIRect API while preserving coord space
     bool isEmpty() const { return fData.isEmpty64(); }
     bool contains(const LayerSpace<SkIRect>& r) const { return fData.contains(r.fData); }
