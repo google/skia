@@ -72,16 +72,16 @@ func getLinuxPlatformRuleCopts() []string {
 // variables for all platforms.
 func writePlatformCompileFlags(writer interfaces.Writer) {
 	val := strings.Join(getMacPlatformRuleCopts(), " ")
-	fmt.Fprintf(writer, "set(DEFAULT_COMPILE_FLAGS_MACOS %q)\n", val)
+	_, _ = fmt.Fprintf(writer, "set(DEFAULT_COMPILE_FLAGS_MACOS %q)\n", val)
 
 	val = strings.Join(getLinuxPlatformRuleCopts(), " ")
-	fmt.Fprintf(writer, "set(DEFAULT_COMPILE_FLAGS_LINUX %q)\n", val)
-	writer.WriteString("\n")
-	fmt.Fprintln(writer, `if (APPLE)`)
-	fmt.Fprintln(writer, `  set(DEFAULT_COMPILE_FLAGS "${DEFAULT_COMPILE_FLAGS_MACOS}")`)
-	fmt.Fprintln(writer, `else()`)
-	fmt.Fprintln(writer, `  set(DEFAULT_COMPILE_FLAGS "${DEFAULT_COMPILE_FLAGS_LINUX}")`)
-	fmt.Fprintln(writer, `endif()`)
+	_, _ = fmt.Fprintf(writer, "set(DEFAULT_COMPILE_FLAGS_LINUX %q)\n", val)
+	_, _ = writer.WriteString("\n")
+	_, _ = fmt.Fprintln(writer, `if (APPLE)`)
+	_, _ = fmt.Fprintln(writer, `  set(DEFAULT_COMPILE_FLAGS "${DEFAULT_COMPILE_FLAGS_MACOS}")`)
+	_, _ = fmt.Fprintln(writer, `else()`)
+	_, _ = fmt.Fprintln(writer, `  set(DEFAULT_COMPILE_FLAGS "${DEFAULT_COMPILE_FLAGS_LINUX}")`)
+	_, _ = fmt.Fprintln(writer, `endif()`)
 }
 
 // Return the copts rule attribute for the given rule.
@@ -176,13 +176,13 @@ func (e *CMakeExporter) writeItems(r *cmakeRule, projectDir string, items []stri
 				return skerr.Wrap(err)
 			}
 			absPath := filepath.Join(projectDir, target)
-			fmt.Fprintf(buffer, "    %q\n", e.absToWorkspaceRelativePath(absPath))
+			_, _ = fmt.Fprintf(buffer, "    %q\n", e.absToWorkspaceRelativePath(absPath))
 		} else {
 			cmakeName, err := getRuleSimpleName(item)
 			if err != nil {
 				return skerr.Wrap(err)
 			}
-			fmt.Fprintf(buffer, "    ${%s}\n", cmakeName)
+			_, _ = fmt.Fprintf(buffer, "    ${%s}\n", cmakeName)
 			err = r.addDependency(item)
 			if err != nil {
 				return skerr.Wrap(err)
@@ -333,8 +333,8 @@ func (e *CMakeExporter) convertFilegroupRule(r *build.Rule) error {
 	if err != nil {
 		return skerr.Wrap(err)
 	}
-	fmt.Fprintf(&contents, "# %s\n", targetName)
-	fmt.Fprintf(&contents, "list(APPEND %s\n", variableName)
+	_, _ = fmt.Fprintf(&contents, "# %s\n", targetName)
+	_, _ = fmt.Fprintf(&contents, "list(APPEND %s\n", variableName)
 
 	err = e.writeSrcsAndHdrs(rule, &contents, r)
 	if err != nil {
@@ -353,13 +353,13 @@ func (e *CMakeExporter) convertCCBinaryRule(r *build.Rule, qr *analysis_v2.Cquer
 
 	targetName := r.GetName()
 	var contents bytes.Buffer
-	fmt.Fprintf(&contents, "# %s\n", targetName)
+	_, _ = fmt.Fprintf(&contents, "# %s\n", targetName)
 	cmakeName, err := getRuleSimpleName(r.GetName())
 	if err != nil {
 		return skerr.Wrap(err)
 	}
-	fmt.Fprintf(&contents, "add_executable(%s \"\")\n", cmakeName)
-	fmt.Fprintf(&contents, "target_sources(%s\n", cmakeName)
+	_, _ = fmt.Fprintf(&contents, "add_executable(%s \"\")\n", cmakeName)
+	_, _ = fmt.Fprintf(&contents, "target_sources(%s\n", cmakeName)
 	fmt.Fprintln(&contents, "  PRIVATE")
 
 	err = e.writeSrcsAndHdrs(rule, &contents, r)
@@ -388,9 +388,9 @@ func (e *CMakeExporter) convertCCLibraryRule(r *build.Rule, qr *analysis_v2.Cque
 		return skerr.Wrap(err)
 	}
 	var contents bytes.Buffer
-	fmt.Fprintf(&contents, "# %s\n", targetName)
-	fmt.Fprintf(&contents, "add_library(%s \"\")\n", cmakeName)
-	fmt.Fprintf(&contents, "target_sources(%s\n", cmakeName)
+	_, _ = fmt.Fprintf(&contents, "# %s\n", targetName)
+	_, _ = fmt.Fprintf(&contents, "add_library(%s \"\")\n", cmakeName)
+	_, _ = fmt.Fprintf(&contents, "target_sources(%s\n", cmakeName)
 	fmt.Fprintln(&contents, "  PRIVATE")
 
 	err = e.writeSrcsAndHdrs(rule, &contents, r)
@@ -427,14 +427,14 @@ func (e *CMakeExporter) Export(qcmd interfaces.QueryCommand) error {
 	if err != nil {
 		return skerr.Wrap(err)
 	}
-	fmt.Fprintln(writer, "# DO NOT EDIT: This file is auto-generated.")
-	fmt.Fprintln(writer, "cmake_minimum_required(VERSION 3.13)")
-	writer.WriteString("\n")
-	fmt.Fprintf(writer, "project(%s LANGUAGES C CXX)\n", e.projName)
-	writer.WriteString("\n")
+	_, _ = fmt.Fprintln(writer, "# DO NOT EDIT: This file is auto-generated.")
+	_, _ = fmt.Fprintln(writer, "cmake_minimum_required(VERSION 3.13)")
+	_, _ = writer.WriteString("\n")
+	_, _ = fmt.Fprintf(writer, "project(%s LANGUAGES C CXX)\n", e.projName)
+	_, _ = writer.WriteString("\n")
 
 	writePlatformCompileFlags(writer)
-	writer.WriteString("\n")
+	_, _ = writer.WriteString("\n")
 
 	for _, result := range qr.GetResults() {
 		t := result.GetTarget()

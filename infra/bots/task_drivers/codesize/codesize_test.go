@@ -132,9 +132,9 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
 			// This argument indicates it's a binary diff invocation, see
 			// https://github.com/google/bloaty/blob/f01ea59bdda11708d74a3826c23d6e2db6c996f0/doc/using.md#size-diffs.
 			if util.In("--", cmd.Args) {
-				cmd.CombinedOutput.Write([]byte(expectedBloatyDiffFileContents))
+				_, _ = cmd.CombinedOutput.Write([]byte(expectedBloatyDiffFileContents))
 			} else {
-				cmd.CombinedOutput.Write([]byte(expectedBloatyFileContents))
+				_, _ = cmd.CombinedOutput.Write([]byte(expectedBloatyFileContents))
 			}
 			return nil
 		}
@@ -177,7 +177,7 @@ func TestRunSteps_PostSubmit_Success(t *testing.T) {
 		// or directory".
 		origWd, err := os.Getwd()
 		require.NoError(t, err)
-		defer os.Chdir(origWd)
+		defer func() { _ = os.Chdir(origWd) }()
 		require.NoError(t, os.Chdir(t.TempDir()))
 
 		// Create a file to simulate the result of copying and stripping the binary
@@ -307,9 +307,9 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 			// This argument indicates it's a binary diff invocation, see
 			// https://github.com/google/bloaty/blob/f01ea59bdda11708d74a3826c23d6e2db6c996f0/doc/using.md#size-diffs.
 			if util.In("--", cmd.Args) {
-				cmd.CombinedOutput.Write([]byte(expectedBloatyDiffFileContents))
+				_, _ = cmd.CombinedOutput.Write([]byte(expectedBloatyDiffFileContents))
 			} else {
-				cmd.CombinedOutput.Write([]byte(expectedBloatyFileContents))
+				_, _ = cmd.CombinedOutput.Write([]byte(expectedBloatyFileContents))
 			}
 			return nil
 		}
@@ -348,7 +348,7 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 		// or directory".
 		origWd, err := os.Getwd()
 		require.NoError(t, err)
-		defer os.Chdir(origWd)
+		defer func() { _ = os.Chdir(origWd) }()
 		require.NoError(t, os.Chdir(t.TempDir()))
 
 		// Create a file to simulate the result of copying and stripping the binary

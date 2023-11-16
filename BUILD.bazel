@@ -191,6 +191,17 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+############
+# Errcheck #
+############
+
+# Sample usage: "bazel run //:errcheck -- go.skia.org/skia/...".
+alias(
+    name = "errcheck",
+    actual = "//infra:errcheck",
+    visibility = ["//visibility:public"],
+)
+
 ##############
 # buildifier #
 ##############

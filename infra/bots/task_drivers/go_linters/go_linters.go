@@ -81,6 +81,10 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
+	if err := bazelRun(ctx, skiaPath, "//:errcheck", append(*bazelFlags.AdditionalArgs, "--", "-ignore", ":Close", "go.skia.org/skia/...")...); err != nil {
+		td.Fatal(ctx, err)
+	}
+
 	if err := checkGitDiff(ctx, absGit, skiaPath); err != nil {
 		td.Fatal(ctx, err)
 	}

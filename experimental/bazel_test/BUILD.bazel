@@ -1,6 +1,6 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
-load("//bazel:macros.bzl", "exports_files_legacy", "go_binary", "go_library")
+load("//bazel:macros.bzl", "exports_files_legacy")
 
 licenses(["notice"])
 
@@ -18,19 +18,6 @@ cc_binary_with_flags(
         "//:skia_public",
         "@libpng",
     ],
-)
-
-go_binary(
-    name = "hello_world",
-    embed = [":bazel_test_lib"],
-    visibility = ["//visibility:public"],
-)
-
-go_library(
-    name = "bazel_test_lib",
-    srcs = ["hello_world.go"],
-    importpath = "go.skia.org/skia/experimental/bazel_test",
-    visibility = ["//visibility:private"],
 )
 
 py_binary(

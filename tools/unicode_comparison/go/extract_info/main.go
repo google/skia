@@ -10,12 +10,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"go.skia.org/skia/tools/unicode_comparison/go/bridge"
-	"go.skia.org/skia/tools/unicode_comparison/go/helpers"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"go.skia.org/skia/tools/unicode_comparison/go/bridge"
+	"go.skia.org/skia/tools/unicode_comparison/go/helpers"
 )
 
 func createEmptyFile(name string) error {
@@ -37,7 +38,10 @@ func walkRecursively(input string, output string) error {
 				helpers.Check(err)
 			} else {
 				outputPath := strings.Replace(inputPath, input, output, 1)
-				writeInfo(inputPath, outputPath)
+				if err := writeInfo(inputPath, outputPath); err != nil {
+					fmt.Println(err)
+					return err
+				}
 			}
 			return nil
 		})

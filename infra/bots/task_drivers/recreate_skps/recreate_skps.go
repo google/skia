@@ -262,11 +262,11 @@ func main() {
 			return nil
 		}); err != nil {
 			// Report that the build failed.
-			pg.Push(ctx, buildFailureMetricName, metricValue_Failure)
+			_ = pg.Push(ctx, buildFailureMetricName, metricValue_Failure)
 			td.Fatal(ctx, err)
 		}
 		// Report that the build was successful.
-		pg.Push(ctx, buildFailureMetricName, metricValue_NoFailure)
+		_ = pg.Push(ctx, buildFailureMetricName, metricValue_NoFailure)
 	}
 
 	// Capture and upload the SKPs.
@@ -297,11 +297,11 @@ func main() {
 	sklog.Infof("Running command: %s %s", command.Name, strings.Join(command.Args, " "))
 	if err := exec.Run(ctx, command); err != nil {
 		// Creating SKP asset in RecreateSKPs failed.
-		pg.Push(ctx, creatingSKPsFailureMetricName, metricValue_Failure)
+		_ = pg.Push(ctx, creatingSKPsFailureMetricName, metricValue_Failure)
 		td.Fatal(ctx, err)
 	}
 	// Report that the asset creation was successful.
-	pg.Push(ctx, creatingSKPsFailureMetricName, metricValue_NoFailure)
+	_ = pg.Push(ctx, creatingSKPsFailureMetricName, metricValue_NoFailure)
 	if *dryRun {
 		return
 	}
@@ -342,5 +342,7 @@ func main() {
 
 Automatic commit by the RecreateSKPs bot.
 `
-	gerrit_steps.UploadCL(ctx, g, co, "skia", "main", baseRev, "", commitMsg, []string{"rmistry@google.com"}, false)
+	if err := gerrit_steps.UploadCL(ctx, g, co, "skia", "main", baseRev, "", commitMsg, []string{"rmistry@google.com"}, false); err != nil {
+		td.Fatal(ctx, err)
+	}
 }

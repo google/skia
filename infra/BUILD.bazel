@@ -14,3 +14,53 @@ alias(
     actual = "@com_github_vektra_mockery_v2//:v2",
     visibility = ["//visibility:public"],
 )
+
+# Non-predefined variables must be escaped with "$$" (e.g. "$$FOO"); see
+# https://bazel.build/reference/be/make-variables#predefined_label_variables.
+#
+# Based on
+# https://skia.googlesource.com/buildbot/+/c397c94283b79a792a76812cd43a6ac5d5282ddf/bazel/tools/errcheck/BUILD.bazel#1.
+_ERRCHECK_SCRIPT = """
+# Add the "go" binary to PATH.
+GO_PATH=$$(realpath $$(dirname $(rootpath @go_sdk//:bin/go)))
+export PATH=$$GO_PATH:$$PATH
+
+# Path to the "errcheck" binary.
+ERRCHECK=$$(realpath $(rootpath @com_github_kisielk_errcheck//:errcheck))
+
+# Change into the directory where Bazel was invoked.
+cd $$BUILD_WORKING_DIRECTORY
+
+$$ERRCHECK $$@
+"""
+
+# Based on
+# https://skia.googlesource.com/buildbot/+/c397c94283b79a792a76812cd43a6ac5d5282ddf/bazel/tools/errcheck/BUILD.bazel#17.
+genrule(
+    name = "gen_errcheck",
+    outs = ["errcheck.sh"],
+    cmd = "echo '%s' > $@" % _ERRCHECK_SCRIPT,
+    exec_tools = [
+        "@com_github_kisielk_errcheck//:errcheck",
+        "@go_sdk//:bin/go",
+    ],
+)
+
+# Wrapper script around the "errcheck" binary.
+#
+# Errcheck requires the "go" binary to be in PATH. This scripts adds the Bazel-downloaded "go"
+# binary to PATH, then forwards all command-line arguments to the "errcheck" binary.
+#
+# Reference: https://bazel.build/reference/be/shell#sh_binary.
+#
+# Based on
+# https://skia.googlesource.com/buildbot/+/c397c94283b79a792a76812cd43a6ac5d5282ddf/bazel/tools/errcheck/BUILD.bazel#27
+sh_binary(
+    name = "errcheck",
+    srcs = ["errcheck.sh"],
+    data = [
+        "@com_github_kisielk_errcheck//:errcheck",
+        "@go_sdk//:bin/go",
+    ],
+    visibility = ["//visibility:public"],
+)

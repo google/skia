@@ -210,21 +210,21 @@ func waitForCanaryRoll(parentCtx context.Context, taskFileName, taskStoragePath 
 			if task.Error != "" {
 				sklog.Errorf("Run failed with: %s", task.Error)
 			}
-			pg.Push(ctx, metricName, metricValue_InfraFailure)
+			_ = pg.Push(ctx, metricName, metricValue_InfraFailure)
 			// Use a general purpose error message.
 			return td.FailStep(ctx, errors.New(InfraFailureErrorMsg))
 		case MissingApprovalStatus:
-			pg.Push(ctx, metricName, metricValue_NoInfraFailure)
+			_ = pg.Push(ctx, metricName, metricValue_NoInfraFailure)
 			return td.FailStep(ctx, errors.New(MissingApprovalErrorMsg))
 		case MergeConflictStatus:
-			pg.Push(ctx, metricName, metricValue_NoInfraFailure)
+			_ = pg.Push(ctx, metricName, metricValue_NoInfraFailure)
 			return td.FailStep(ctx, errors.New(MergeConflictErrorMsg))
 		case FailureStatus:
-			pg.Push(ctx, metricName, metricValue_NoInfraFailure)
+			_ = pg.Push(ctx, metricName, metricValue_NoInfraFailure)
 			return td.FailStep(ctx, fmt.Errorf("Run failed G3 TAP.\n%s", PatchingInformation))
 		case SuccessStatus:
 			// Run passed G3 TAP.
-			pg.Push(ctx, metricName, metricValue_NoInfraFailure)
+			_ = pg.Push(ctx, metricName, metricValue_NoInfraFailure)
 			return nil
 		}
 	}
