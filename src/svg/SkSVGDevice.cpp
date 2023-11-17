@@ -369,10 +369,9 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
         static constexpr char kDefaultFill[] = "black";
         if (!resources.fPaintServer.equals(kDefaultFill)) {
             this->addAttribute("fill", resources.fPaintServer);
-
-            if (SK_AlphaOPAQUE != SkColorGetA(paint.getColor())) {
-                this->addAttribute("fill-opacity", svg_opacity(paint.getColor()));
-            }
+        }
+        if (SK_AlphaOPAQUE != SkColorGetA(paint.getColor())) {
+            this->addAttribute("fill-opacity", svg_opacity(paint.getColor()));
         }
     } else {
         SkASSERT(style == SkPaint::kStroke_Style);
