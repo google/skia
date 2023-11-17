@@ -243,7 +243,7 @@ bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     if (colorTexture) {
         // TODO: check Texture matches RenderPassDesc
         auto colorAttachment = (*descriptor).colorAttachments[0];
-        colorAttachment.texture = ((MtlTexture*)colorTexture)->mtlTexture();
+        colorAttachment.texture = ((const MtlTexture*)colorTexture)->mtlTexture();
         const std::array<float, 4>& clearColor = renderPassDesc.fClearColor;
         colorAttachment.clearColor =
                 MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
@@ -253,7 +253,7 @@ bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         if (resolveTexture) {
             SkASSERT(renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore);
             // TODO: check Texture matches RenderPassDesc
-            colorAttachment.resolveTexture = ((MtlTexture*)resolveTexture)->mtlTexture();
+            colorAttachment.resolveTexture = ((const MtlTexture*)resolveTexture)->mtlTexture();
             // Inclusion of a resolve texture implies the client wants to finish the
             // renderpass with a resolve.
             if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
@@ -276,7 +276,7 @@ bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     auto& depthStencilInfo = renderPassDesc.fDepthStencilAttachment;
     if (depthStencilTexture) {
         // TODO: check Texture matches RenderPassDesc
-        id<MTLTexture> mtlTexture = ((MtlTexture*)depthStencilTexture)->mtlTexture();
+        id<MTLTexture> mtlTexture = ((const MtlTexture*)depthStencilTexture)->mtlTexture();
         if (MtlFormatIsDepth(mtlTexture.pixelFormat)) {
             auto depthAttachment = (*descriptor).depthAttachment;
             depthAttachment.texture = mtlTexture;
@@ -317,7 +317,7 @@ bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         // The load msaa pipeline takes no uniforms, no vertex/instance attributes and only uses
         // one texture that does not require a sampler.
         fActiveRenderCommandEncoder->setFragmentTexture(
-                ((MtlTexture*) resolveTexture)->mtlTexture(), 0);
+                ((const MtlTexture*) resolveTexture)->mtlTexture(), 0);
         this->draw(PrimitiveType::kTriangleStrip, 0, 4);
     }
 

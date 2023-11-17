@@ -305,7 +305,7 @@ void GLXGLTestContext::destroyGLContext() {
 GLXContext GLXGLTestContext::CreateBestContext(bool isES, Display* display, GLXFBConfig bestFbc,
                                                GLXContext glxShareContext) {
     auto glXCreateContextAttribsARB = (PFNGLXCREATECONTEXTATTRIBSARBPROC)
-        glXGetProcAddressARB((GrGLubyte*)"glXCreateContextAttribsARB");
+        glXGetProcAddressARB((const GrGLubyte*)"glXCreateContextAttribsARB");
     if (!glXCreateContextAttribsARB) {
         SkDebugf("Failed to get address of glXCreateContextAttribsARB");
         return nullptr;

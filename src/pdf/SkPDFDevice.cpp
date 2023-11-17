@@ -127,7 +127,7 @@ sk_sp<SkImage> mask_to_greyscale_image(SkMaskBuilder* mask) {
     }
     if (!img) {
         img = SkImages::RasterFromPixmap(
-                pm, [](const void* p, void*) { SkMaskBuilder::FreeImage((void*)p); }, nullptr);
+                pm, [](const void* p, void*) { SkMaskBuilder::FreeImage(const_cast<void*>(p)); }, nullptr);
     }
     *mask = SkMaskBuilder();  // destructive;
     return img;

@@ -342,7 +342,7 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkPngCodec::IsPng(const void* buf, size_t bytesRead) {
-    return !png_sig_cmp((png_bytep) buf, (png_size_t)0, bytesRead);
+    return !png_sig_cmp((png_const_bytep) buf, (png_size_t)0, bytesRead);
 }
 
 #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 6)
@@ -826,7 +826,7 @@ static SkCodec::Result read_header(SkStream* stream, SkPngChunkReader* chunkRead
     // This needs to be installed before we read the png header.  Android may store ninepatch
     // chunks in the header.
     if (chunkReader) {
-        png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"", 0);
+        png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (png_const_bytep)"", 0);
         png_set_read_user_chunk_fn(png_ptr, (png_voidp) chunkReader, sk_read_user_chunk);
     }
 #endif

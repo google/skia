@@ -368,8 +368,8 @@ namespace SK_OPTS_NS {
     }
 
     SI void load2(const uint16_t* ptr, U16* r, U16* g) {
-        U16 _0123 = _mm_loadu_si128(((__m128i*)ptr) + 0),
-            _4567 = _mm_loadu_si128(((__m128i*)ptr) + 1);
+        U16 _0123 = _mm_loadu_si128(((const __m128i*)ptr) + 0),
+            _4567 = _mm_loadu_si128(((const __m128i*)ptr) + 1);
         *r = _mm_packs_epi32(_mm_srai_epi32(_mm_slli_epi32(_0123, 16), 16),
                              _mm_srai_epi32(_mm_slli_epi32(_4567, 16), 16));
         *g = _mm_packs_epi32(_mm_srai_epi32(_0123, 16),
@@ -383,10 +383,10 @@ namespace SK_OPTS_NS {
     }
 
     SI void load4(const uint16_t* ptr, U16* r, U16* g, U16* b, U16* a) {
-        __m128i _01 = _mm_loadu_si128(((__m128i*)ptr) + 0),
-                _23 = _mm_loadu_si128(((__m128i*)ptr) + 1),
-                _45 = _mm_loadu_si128(((__m128i*)ptr) + 2),
-                _67 = _mm_loadu_si128(((__m128i*)ptr) + 3);
+        __m128i _01 = _mm_loadu_si128(((const __m128i*)ptr) + 0),
+                _23 = _mm_loadu_si128(((const __m128i*)ptr) + 1),
+                _45 = _mm_loadu_si128(((const __m128i*)ptr) + 2),
+                _67 = _mm_loadu_si128(((const __m128i*)ptr) + 3);
 
         auto _02 = _mm_unpacklo_epi16(_01, _23),  // r0 r2 g0 g2 b0 b2 a0 a2
              _13 = _mm_unpackhi_epi16(_01, _23),  // r1 r3 g1 g3 b1 b3 a1 a3
@@ -563,9 +563,9 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
         dst[ix[3]] = after[3];
     }
     SI void load2(const uint16_t* ptr, U16* r, U16* g) {
-        __m128i _01 = _mm_loadu_si128(((__m128i*)ptr) + 0); // r0 g0 r1 g1 r2 g2 r3 g3
-        auto rg01_23 = _mm_shufflelo_epi16(_01, 0xD8);      // r0 r1 g0 g1 r2 g2 r3 g3
-        auto rg      = _mm_shufflehi_epi16(rg01_23, 0xD8);  // r0 r1 g0 g1 r2 r3 g2 g3
+        __m128i _01 = _mm_loadu_si128(((const __m128i*)ptr) + 0); // r0 g0 r1 g1 r2 g2 r3 g3
+        auto rg01_23 = _mm_shufflelo_epi16(_01, 0xD8);            // r0 r1 g0 g1 r2 g2 r3 g3
+        auto rg      = _mm_shufflehi_epi16(rg01_23, 0xD8);        // r0 r1 g0 g1 r2 r3 g2 g3
 
         auto R = _mm_shuffle_epi32(rg, 0x88);  // r0 r1 r2 r3 r0 r1 r2 r3
         auto G = _mm_shuffle_epi32(rg, 0xDD);  // g0 g1 g2 g3 g0 g1 g2 g3
@@ -578,8 +578,8 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     }
 
     SI void load4(const uint16_t* ptr, U16* r, U16* g, U16* b, U16* a) {
-        __m128i _01 = _mm_loadu_si128(((__m128i*)ptr) + 0), // r0 g0 b0 a0 r1 g1 b1 a1
-                _23 = _mm_loadu_si128(((__m128i*)ptr) + 1); // r2 g2 b2 a2 r3 g3 b3 a3
+        __m128i _01 = _mm_loadu_si128(((const __m128i*)ptr) + 0), // r0 g0 b0 a0 r1 g1 b1 a1
+                _23 = _mm_loadu_si128(((const __m128i*)ptr) + 1); // r2 g2 b2 a2 r3 g3 b3 a3
 
         auto _02 = _mm_unpacklo_epi16(_01, _23),  // r0 r2 g0 g2 b0 b2 a0 a2
              _13 = _mm_unpackhi_epi16(_01, _23);  // r1 r3 g1 g3 b1 b3 a1 a3
@@ -3088,7 +3088,7 @@ STAGE_BRANCH(jump, SkRasterPipeline_BranchCtx* ctx) {
 
 STAGE_BRANCH(branch_if_no_active_lanes_eq, SkRasterPipeline_BranchIfEqualCtx* ctx) {
     // Compare each lane against the expected value...
-    I32 match = cond_to_mask(*(I32*)ctx->ptr == ctx->value);
+    I32 match = cond_to_mask(*(const I32*)ctx->ptr == ctx->value);
     // ... but mask off lanes that aren't executing.
     match &= execution_mask();
     // If any lanes matched, don't take the branch.
@@ -3096,21 +3096,21 @@ STAGE_BRANCH(branch_if_no_active_lanes_eq, SkRasterPipeline_BranchIfEqualCtx* ct
 }
 
 STAGE_TAIL(trace_line, SkRasterPipeline_TraceLineCtx* ctx) {
-    I32* traceMask = (I32*)ctx->traceMask;
+    const I32* traceMask = (const I32*)ctx->traceMask;
     if (any(execution_mask() & *traceMask)) {
         ctx->traceHook->line(ctx->lineNumber);
     }
 }
 
 STAGE_TAIL(trace_enter, SkRasterPipeline_TraceFuncCtx* ctx) {
-    I32* traceMask = (I32*)ctx->traceMask;
+    const I32* traceMask = (const I32*)ctx->traceMask;
     if (any(execution_mask() & *traceMask)) {
         ctx->traceHook->enter(ctx->funcIdx);
     }
 }
 
 STAGE_TAIL(trace_exit, SkRasterPipeline_TraceFuncCtx* ctx) {
-    I32* traceMask = (I32*)ctx->traceMask;
+    const I32* traceMask = (const I32*)ctx->traceMask;
     if (any(execution_mask() & *traceMask)) {
         ctx->traceHook->exit(ctx->funcIdx);
     }
@@ -3120,23 +3120,23 @@ STAGE_TAIL(trace_scope, SkRasterPipeline_TraceScopeCtx* ctx) {
     // Note that trace_scope intentionally does not incorporate the execution mask. Otherwise, the
     // scopes would become unbalanced if the execution mask changed in the middle of a block. The
     // caller is responsible for providing a combined trace- and execution-mask.
-    I32* traceMask = (I32*)ctx->traceMask;
+    const I32* traceMask = (const I32*)ctx->traceMask;
     if (any(*traceMask)) {
         ctx->traceHook->scope(ctx->delta);
     }
 }
 
 STAGE_TAIL(trace_var, SkRasterPipeline_TraceVarCtx* ctx) {
-    I32* traceMask = (I32*)ctx->traceMask;
+    const I32* traceMask = (const I32*)ctx->traceMask;
     I32 mask = execution_mask() & *traceMask;
     if (any(mask)) {
         for (size_t lane = 0; lane < N; ++lane) {
             if (select_lane(mask, lane)) {
-                I32* data = (I32*)ctx->data;
+                const I32* data = (const I32*)ctx->data;
                 int slotIdx = ctx->slotIdx, numSlots = ctx->numSlots;
                 if (ctx->indirectOffset) {
                     // If this was an indirect store, apply the indirect-offset to the data pointer.
-                    uint32_t indirectOffset = select_lane(*(U32*)ctx->indirectOffset, lane);
+                    uint32_t indirectOffset = select_lane(*(const U32*)ctx->indirectOffset, lane);
                     indirectOffset = std::min<uint32_t>(indirectOffset, ctx->indirectLimit);
                     data += indirectOffset;
                     slotIdx += indirectOffset;
@@ -3361,7 +3361,7 @@ STAGE_TAIL(swizzle_copy_4_slots_masked, SkRasterPipeline_SwizzleCopyCtx* ctx) {
 
 STAGE_TAIL(copy_from_indirect_unmasked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     // Clamp the indirect offsets to stay within the limit.
-    U32 offsets = *(U32*)ctx->indirectOffset;
+    U32 offsets = *(const U32*)ctx->indirectOffset;
     offsets = min(offsets, ctx->indirectLimit);
 
     // Scale up the offsets to account for the N lanes per value.
@@ -3384,7 +3384,7 @@ STAGE_TAIL(copy_from_indirect_unmasked, SkRasterPipeline_CopyIndirectCtx* ctx) {
 
 STAGE_TAIL(copy_from_indirect_uniform_unmasked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     // Clamp the indirect offsets to stay within the limit.
-    U32 offsets = *(U32*)ctx->indirectOffset;
+    U32 offsets = *(const U32*)ctx->indirectOffset;
     offsets = min(offsets, ctx->indirectLimit);
 
     // Use gather to perform indirect lookups; write the results into `dst`.
@@ -3400,7 +3400,7 @@ STAGE_TAIL(copy_from_indirect_uniform_unmasked, SkRasterPipeline_CopyIndirectCtx
 
 STAGE_TAIL(copy_to_indirect_masked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     // Clamp the indirect offsets to stay within the limit.
-    U32 offsets = *(U32*)ctx->indirectOffset;
+    U32 offsets = *(const U32*)ctx->indirectOffset;
     offsets = min(offsets, ctx->indirectLimit);
 
     // Scale up the offsets to account for the N lanes per value.
@@ -3411,7 +3411,7 @@ STAGE_TAIL(copy_to_indirect_masked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     offsets += sk_unaligned_load<I32>(iota);
 
     // Perform indirect, masked writes into `dst`.
-    const F* src = (F*)ctx->src;
+    const F* src = (const F*)ctx->src;
     const F* end = src + ctx->slots;
     float*   dst = ctx->dst;
     I32      mask = execution_mask();
@@ -3424,7 +3424,7 @@ STAGE_TAIL(copy_to_indirect_masked, SkRasterPipeline_CopyIndirectCtx* ctx) {
 
 STAGE_TAIL(swizzle_copy_to_indirect_masked, SkRasterPipeline_SwizzleCopyIndirectCtx* ctx) {
     // Clamp the indirect offsets to stay within the limit.
-    U32 offsets = *(U32*)ctx->indirectOffset;
+    U32 offsets = *(const U32*)ctx->indirectOffset;
     offsets = min(offsets, ctx->indirectLimit);
 
     // Scale up the offsets to account for the N lanes per value.
@@ -3435,7 +3435,7 @@ STAGE_TAIL(swizzle_copy_to_indirect_masked, SkRasterPipeline_SwizzleCopyIndirect
     offsets += sk_unaligned_load<I32>(iota);
 
     // Perform indirect, masked, swizzled writes into `dst`.
-    const F*        src     = (F*)ctx->src;
+    const F*        src     = (const F*)ctx->src;
     const F*        end     = src + ctx->slots;
     std::byte*      dstB    = (std::byte*)ctx->dst;
     const uint16_t* swizzle = ctx->offsets;

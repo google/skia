@@ -789,7 +789,7 @@ protected:
         FCLocker lock;
 
         SkAutoFcPattern pattern;
-        FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
+        FcPatternAddString(pattern, FC_FAMILY, (const FcChar8*)familyName);
         FcConfigSubstitute(fFC, pattern, FcMatchPattern);
         FcDefaultSubstitute(pattern);
 
@@ -833,7 +833,7 @@ protected:
             FCLocker lock;
 
             SkAutoFcPattern pattern;
-            FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
+            FcPatternAddString(pattern, FC_FAMILY, (const FcChar8*)familyName);
             fcpattern_from_skfontstyle(style, pattern);
             FcConfigSubstitute(fFC, pattern, FcMatchPattern);
             FcDefaultSubstitute(pattern);

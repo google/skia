@@ -342,7 +342,7 @@ static HRESULT subset_typeface(const SkXPSDevice::TypefaceUse& current) {
     unsigned long fontPackageBufferSize;
     unsigned long bytesWritten;
     unsigned long result = CreateFontPackage(
-        (unsigned char *) current.fontData->getMemoryBase(),
+        (const unsigned char *) current.fontData->getMemoryBase(),
         (unsigned long) current.fontData->getLength(),
         &fontPackageBufferRaw,
         &fontPackageBufferSize,
@@ -1765,10 +1765,10 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkFont& font,
         "Could not create font resource.");
 
     //TODO: change openStream to return -1 for non-ttc, get rid of this.
-    uint8_t* data = (uint8_t*)fontData->getMemoryBase();
+    const uint8_t* data = (const uint8_t*)fontData->getMemoryBase();
     bool isTTC = (data &&
                   fontData->getLength() >= sizeof(SkTTCFHeader) &&
-                  ((SkTTCFHeader*)data)->ttcTag == SkTTCFHeader::TAG);
+                  ((const SkTTCFHeader*)data)->ttcTag == SkTTCFHeader::TAG);
 
     int glyphCount = typeface->countGlyphs();
 

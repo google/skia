@@ -140,8 +140,8 @@ static void get_packed_glyph_image(
                                      (masks.getBlue(color565) << 16) |
                                      (0xFF << 24);
                 memcpy(dst, &colorRGBA, argbBpp);
-                src = (char*)src + a565Bpp;
-                dst = (char*)dst + argbBpp;
+                src = (const char*)src + a565Bpp;
+                dst = (      char*)dst + argbBpp;
             }
             dstRow += dstRB;
         }

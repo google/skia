@@ -62,14 +62,14 @@ std::unique_ptr<SkStreamAsset> stream_inflate(skiatest::Reporter* reporter, SkSt
         ERRORF(reporter, "Zlib: inflateInit failed");
         return nullptr;
     }
-    uint8_t* input = (uint8_t*)src->getMemoryBase();
+    const uint8_t* input = (const uint8_t*)src->getMemoryBase();
     size_t inputLength = src->getLength();
     if (input == nullptr || inputLength == 0) {
         input = nullptr;
         flateData.next_in = inputBuffer;
         flateData.avail_in = 0;
     } else {
-        flateData.next_in = input;
+        flateData.next_in = const_cast<uint8_t*>(input);
         flateData.avail_in = SkToUInt(inputLength);
     }
 

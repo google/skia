@@ -333,9 +333,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkBlendMode blend = reader->read32LE(SkBlendMode::kLastMode);
             BREAK_ON_READ_ERROR(reader);
             bool hasClip = reader->readInt();
-            SkPoint* clip = nullptr;
+            const SkPoint* clip = nullptr;
             if (hasClip) {
-                clip = (SkPoint*) reader->skip(4, sizeof(SkPoint));
+                clip = (const SkPoint*) reader->skip(4, sizeof(SkPoint));
             }
             BREAK_ON_READ_ERROR(reader);
             canvas->experimental_DrawEdgeAAQuad(rect, clip, aaFlags, color, blend);
@@ -388,13 +388,13 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             }
 
             int dstClipCount = reader->readInt();
-            SkPoint* dstClips = nullptr;
+            const SkPoint* dstClips = nullptr;
             if (!reader->validate(dstClipCount >= 0) ||
                 !reader->validate(expectedClips <= dstClipCount)) {
                 // A bad dstClipCount (either negative, or not enough to satisfy entries).
                 break;
             } else if (dstClipCount > 0) {
-                dstClips = (SkPoint*) reader->skip(dstClipCount, sizeof(SkPoint));
+                dstClips = (const SkPoint*) reader->skip(dstClipCount, sizeof(SkPoint));
                 if (dstClips == nullptr) {
                     // Not enough bytes remaining so the reader has been invalidated
                     break;

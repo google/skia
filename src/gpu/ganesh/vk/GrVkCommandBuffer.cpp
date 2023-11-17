@@ -50,7 +50,7 @@ void GrVkCommandBuffer::freeGPUData(const GrGpu* gpu, VkCommandPool cmdPool) con
     SkASSERT(cmdPool != VK_NULL_HANDLE);
     SkASSERT(!this->isWrapped());
 
-    GrVkGpu* vkGpu = (GrVkGpu*)gpu;
+    const GrVkGpu* vkGpu = (const GrVkGpu*)gpu;
     GR_VK_CALL(vkGpu->vkInterface(), FreeCommandBuffers(vkGpu->device(), cmdPool, 1, &fCmdBuffer));
 
     this->onFreeGPUData(vkGpu);

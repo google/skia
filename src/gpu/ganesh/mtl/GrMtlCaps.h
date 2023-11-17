@@ -84,7 +84,7 @@ public:
     GrProgramDesc makeDesc(GrRenderTarget*,
                            const GrProgramInfo&,
                            ProgramDescOverrideFlags) const override;
-    MTLPixelFormat getStencilPixelFormat(const GrProgramDesc& desc);
+    MTLPixelFormat getStencilPixelFormat(const GrProgramDesc& desc) const;
 
     bool isMac() const { return fGPUFamily == GPUFamily::kMac; }
     bool isApple() const { return fGPUFamily == GPUFamily::kApple; }

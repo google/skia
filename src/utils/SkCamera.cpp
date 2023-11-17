@@ -33,7 +33,7 @@ void SkPatch3D::reset() {
 
 void SkPatch3D::transform(const SkM44& m, SkPatch3D* dst) const {
     if (dst == nullptr) {
-        dst = (SkPatch3D*)this;
+        dst = const_cast<SkPatch3D*>(this);
     }
     dst->fU = m * fU;
     dst->fV = m * fV;

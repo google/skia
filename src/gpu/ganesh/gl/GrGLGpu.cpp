@@ -1278,7 +1278,7 @@ bool GrGLGpu::uploadCompressedTexData(SkTextureCompressionType compressionType,
                                                           dimensions.height(),
                                                           internalFormat,
                                                           SkToInt(levelDataSize),
-                                                          &((char*)data)[offset]));
+                                                          &((const char*)data)[offset]));
 
             if (error != GR_GL_NO_ERROR) {
                 return false;
@@ -1294,7 +1294,7 @@ bool GrGLGpu::uploadCompressedTexData(SkTextureCompressionType compressionType,
             size_t levelDataSize = SkCompressedDataSize(compressionType, dimensions,
                                                         nullptr, false);
 
-            const char* rawLevelData = &((char*)data)[offset];
+            const char* rawLevelData = &((const char*)data)[offset];
             GrGLenum error = GL_ALLOC_CALL(CompressedTexImage2D(target,
                                                                 level,
                                                                 internalFormat,

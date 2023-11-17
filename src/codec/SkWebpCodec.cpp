@@ -340,8 +340,8 @@ static void blend_line(SkColorType dstCT, void* dst,
                        SkAlphaType dstAt,
                        bool srcHasAlpha,
                        int width) {
-    SkRasterPipeline_MemoryCtx dst_ctx = { (void*)dst, 0 },
-                               src_ctx = { (void*)src, 0 };
+    SkRasterPipeline_MemoryCtx dst_ctx = {                   dst,  0 },
+                               src_ctx = { const_cast<void*>(src), 0 };
 
     SkRasterPipeline_<256> p;
 

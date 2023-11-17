@@ -149,7 +149,7 @@ static void fontconfiginterface_unittest() {
 
 // Returns the string from the pattern, or nullptr
 static const char* get_string(FcPattern* pattern, const char field[], int index = 0) {
-    const char* name;
+    char* name;
     if (FcPatternGetString(pattern, field, index, (FcChar8**)&name) != FcResultMatch) {
         name = nullptr;
     }
@@ -606,7 +606,7 @@ bool SkFontConfigInterfaceDirect::matchFamilyName(const char familyName[],
     FcPattern* pattern = FcPatternCreate();
 
     if (familyName) {
-        FcPatternAddString(pattern, FC_FAMILY, (FcChar8*)familyName);
+        FcPatternAddString(pattern, FC_FAMILY, (const FcChar8*)familyName);
     }
     fcpattern_from_skfontstyle(style, pattern);
 

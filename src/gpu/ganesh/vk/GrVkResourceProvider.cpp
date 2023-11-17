@@ -50,7 +50,7 @@ VkPipelineCache GrVkResourceProvider::pipelineCache() {
         }
         bool usedCached = false;
         if (cached) {
-            uint32_t* cacheHeader = (uint32_t*)cached->data();
+            const uint32_t* cacheHeader = (const uint32_t*)cached->data();
             if (cacheHeader[1] == VK_PIPELINE_CACHE_HEADER_VERSION_ONE) {
                 // For version one of the header, the total header size is 16 bytes plus
                 // VK_UUID_SIZE bytes. See Section 9.6 (Pipeline Cache) in the vulkan spec to see

@@ -789,14 +789,16 @@ DEF_TEST(Codec_pngChunkReader, r) {
                  PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
+#define PNG_BYTES(str) reinterpret_cast<png_byte*>(const_cast<char*>(str))
+
     // Create some chunks that match the Android framework's use.
     static png_unknown_chunk gUnknowns[] = {
-        { "npOl", (png_byte*)"outline", sizeof("outline"), PNG_HAVE_IHDR },
-        { "npLb", (png_byte*)"layoutBounds", sizeof("layoutBounds"), PNG_HAVE_IHDR },
-        { "npTc", (png_byte*)"ninePatchData", sizeof("ninePatchData"), PNG_HAVE_IHDR },
+        { "npOl", PNG_BYTES("outline"), sizeof("outline"), PNG_HAVE_IHDR },
+        { "npLb", PNG_BYTES("layoutBounds"), sizeof("layoutBounds"), PNG_HAVE_IHDR },
+        { "npTc", PNG_BYTES("ninePatchData"), sizeof("ninePatchData"), PNG_HAVE_IHDR },
     };
 
-    png_set_keep_unknown_chunks(png, PNG_HANDLE_CHUNK_ALWAYS, (png_byte*)"npOl\0npLb\0npTc\0", 3);
+    png_set_keep_unknown_chunks(png, PNG_HANDLE_CHUNK_ALWAYS, PNG_BYTES("npOl\0npLb\0npTc\0"), 3);
     png_set_unknown_chunks(png, info, gUnknowns, std::size(gUnknowns));
 #if PNG_LIBPNG_VER < 10600
     /* Deal with unknown chunk location bug in 1.5.x and earlier */

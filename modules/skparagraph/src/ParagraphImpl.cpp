@@ -354,7 +354,7 @@ Cluster::Cluster(ParagraphImpl* owner,
     size_t intraWordBreakLen = 0;
 
     const char* ch = text.begin();
-    if (text.end() - ch == 1 && *(unsigned char*)ch <= 0x7F) {
+    if (text.end() - ch == 1 && *(const unsigned char*)ch <= 0x7F) {
         // I am not even sure it's worth it if we do not save a unicode call
         if (is_ascii_7bit_space(*ch)) {
             ++whiteSpacesBreakLen;

@@ -311,8 +311,8 @@ public:
             if (fIntersections->hasOppT(lineT)) {
                 continue;
             }
-            double cubicT = ((SkDCurve*) &fCubic)->nearPoint(SkPath::kCubic_Verb,
-                fLine[lIndex], fLine[!lIndex]);
+            double cubicT = ((const SkDCurve*)&fCubic)
+                                    ->nearPoint(SkPath::kCubic_Verb, fLine[lIndex], fLine[!lIndex]);
             if (cubicT < 0) {
                 continue;
             }

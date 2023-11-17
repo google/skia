@@ -92,7 +92,7 @@ struct SkMask {
         SkASSERT(kLCD16_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != nullptr);
-        uint16_t* row = (uint16_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
+        const uint16_t* row = (const uint16_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
         return row + (x - fBounds.fLeft);
     }
 
@@ -105,7 +105,7 @@ struct SkMask {
         SkASSERT(kARGB32_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != nullptr);
-        uint32_t* row = (uint32_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
+        const uint32_t* row = (const uint32_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
         return row + (x - fBounds.fLeft);
     }
 

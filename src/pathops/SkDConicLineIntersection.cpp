@@ -219,7 +219,7 @@ protected:
             if (fIntersections->hasOppT(lineT)) {
                 continue;
             }
-            double conicT = ((SkDCurve*) &fConic)->nearPoint(SkPath::kConic_Verb,
+            double conicT = ((const SkDCurve*) &fConic)->nearPoint(SkPath::kConic_Verb,
                 (*fLine)[lIndex], (*fLine)[!lIndex]);
             if (conicT < 0) {
                 continue;

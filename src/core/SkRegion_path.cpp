@@ -70,7 +70,7 @@ public:
 #ifdef SK_DEBUG
     void dump() const {
         SkDebugf("SkRgnBuilder: Top = %d\n", fTop);
-        const Scanline* line = (Scanline*)fStorage;
+        Scanline* line = (Scanline*)fStorage;
         while (line < fCurrScanline) {
             SkDebugf("SkRgnBuilder::Scanline: LastY=%d, fXCount=%d", line->fLastY, line->fXCount);
             for (int i = 0; i < line->fXCount; i++) {
@@ -99,8 +99,8 @@ private:
         SkRegion::RunType fLastY;
         SkRegion::RunType fXCount;
 
-        SkRegion::RunType* firstX() const { return (SkRegion::RunType*)(this + 1); }
-        Scanline* nextScanline() const {
+        SkRegion::RunType* firstX() { return (SkRegion::RunType*)(this + 1); }
+        Scanline* nextScanline() {
             // add final +1 for the x-sentinel
             return (Scanline*)((SkRegion::RunType*)(this + 1) + fXCount + 1);
         }
@@ -230,7 +230,7 @@ void SkRgnBuilder::copyToRect(SkIRect* r) const {
     // A rect's scanline is [bottom intervals left right sentinel] == 5
     SkASSERT((const SkRegion::RunType*)fCurrScanline - fStorage == 5);
 
-    const Scanline* line = (const Scanline*)fStorage;
+    Scanline* line = (Scanline*)fStorage;
     SkASSERT(line->fXCount == 2);
 
     r->setLTRB(line->firstX()[0], fTop, line->firstX()[1], line->fLastY + 1);
@@ -240,7 +240,7 @@ void SkRgnBuilder::copyToRgn(SkRegion::RunType runs[]) const {
     SkASSERT(fCurrScanline != nullptr);
     SkASSERT((const SkRegion::RunType*)fCurrScanline - fStorage > 4);
 
-    const Scanline* line = (const Scanline*)fStorage;
+    Scanline* line = (Scanline*)fStorage;
     const Scanline* stop = fCurrScanline;
 
     *runs++ = fTop;

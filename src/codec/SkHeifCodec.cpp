@@ -26,7 +26,7 @@ bool SkHeifCodec::IsSupported(const void* buffer, size_t bytesRead,
         return false;
     }
 
-    uint32_t* ptr = (uint32_t*)buffer;
+    const uint32_t* ptr = (const uint32_t*)buffer;
     uint64_t chunkSize = SkEndian_SwapBE32(ptr[0]);
     uint32_t chunkType = SkEndian_SwapBE32(ptr[1]);
 

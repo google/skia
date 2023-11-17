@@ -91,16 +91,16 @@ struct RunRecordStorageEquivalent {
 
 void SkTextBlob::RunRecord::validate(const uint8_t* storageTop) const {
     SkASSERT(kRunRecordMagic == fMagic);
-    SkASSERT((uint8_t*)NextUnchecked(this) <= storageTop);
+    SkASSERT((const uint8_t*)NextUnchecked(this) <= storageTop);
 
     SkASSERT(glyphBuffer() + fCount <= (uint16_t*)posBuffer());
     SkASSERT(posBuffer() + fCount * ScalarsPerGlyph(positioning())
-             <= (SkScalar*)NextUnchecked(this));
+             <= (const SkScalar*)NextUnchecked(this));
     if (isExtended()) {
         SkASSERT(textSize() > 0);
-        SkASSERT(textSizePtr() < (uint32_t*)NextUnchecked(this));
-        SkASSERT(clusterBuffer() < (uint32_t*)NextUnchecked(this));
-        SkASSERT(textBuffer() + textSize() <= (char*)NextUnchecked(this));
+        SkASSERT(textSizePtr() < (const uint32_t*)NextUnchecked(this));
+        SkASSERT(clusterBuffer() < (const uint32_t*)NextUnchecked(this));
+        SkASSERT(textBuffer() + textSize() <= (const char*)NextUnchecked(this));
     }
     static_assert(sizeof(SkTextBlob::RunRecord) == sizeof(RunRecordStorageEquivalent),
                   "runrecord_should_stay_packed");
@@ -137,7 +137,7 @@ void SkTextBlob::RunRecord::grow(uint32_t count) {
 
     // Move the initial pos scalars to their new location.
     size_t copySize = initialCount * sizeof(SkScalar) * ScalarsPerGlyph(positioning());
-    SkASSERT((uint8_t*)posBuffer() + copySize <= (uint8_t*)NextUnchecked(this));
+    SkASSERT((uint8_t*)posBuffer() + copySize <= (const uint8_t*)NextUnchecked(this));
 
     // memmove, as the buffers may overlap
     memmove(posBuffer(), initialPosBuffer, copySize);
@@ -221,7 +221,7 @@ void* SkTextBlob::operator new(size_t, void* p) {
 
 SkTextBlobRunIterator::SkTextBlobRunIterator(const SkTextBlob* blob)
     : fCurrentRun(SkTextBlob::RunRecord::First(blob)) {
-    SkDEBUGCODE(fStorageTop = (uint8_t*)blob + blob->fStorageSize;)
+    SkDEBUGCODE(fStorageTop = (const uint8_t*)blob + blob->fStorageSize;)
 }
 
 void SkTextBlobRunIterator::next() {

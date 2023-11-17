@@ -430,8 +430,8 @@ void HQDownSampler::buildLevel(const SkPixmap& dst, const SkPixmap& src) {
 
     for (int y = 0; y < dst.height(); y++) {
         proc(dstBasePtr, srcBasePtr, srcRB, dst.width());
-        srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
-        dstBasePtr = (char*)dstBasePtr + dst.rowBytes();
+        srcBasePtr = (const char*)srcBasePtr + srcRB * 2; // jump two rows
+        dstBasePtr = (      char*)dstBasePtr + dst.rowBytes();
     }
 }
 

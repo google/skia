@@ -1630,7 +1630,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveCl
 
     SkDEBUGCODE(this->validate();)
     if (dst == nullptr) {
-        dst = (SkPath*)this;
+        dst = const_cast<SkPath*>(this);
     }
 
     if (matrix.hasPerspective()) {

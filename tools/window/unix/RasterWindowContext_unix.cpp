@@ -69,7 +69,7 @@ void RasterWindowContext_xlib::onSwapBuffers() {
     image.width = pm.width();
     image.height = pm.height();
     image.format = ZPixmap;
-    image.data = (char*) pm.addr();
+    image.data = (char*) pm.writable_addr();
     image.byte_order = LSBFirst;
     image.bitmap_unit = bitsPerPixel;
     image.bitmap_bit_order = LSBFirst;

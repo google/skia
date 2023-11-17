@@ -1235,7 +1235,7 @@ GrProgramDesc GrMtlCaps::makeDesc(GrRenderTarget*, const GrProgramInfo& programI
     return desc;
 }
 
-MTLPixelFormat GrMtlCaps::getStencilPixelFormat(const GrProgramDesc& desc) {
+MTLPixelFormat GrMtlCaps::getStencilPixelFormat(const GrProgramDesc& desc) const {
     // Set up read buffer to point to platform-dependent part of the key
     SkReadBuffer readBuffer(desc.asKey() + desc.initialKeyLength()/sizeof(uint32_t),
                             desc.keyLength() - desc.initialKeyLength());

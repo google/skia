@@ -246,7 +246,7 @@ public:
 private:
     const SkTextBlob::RunRecord* fCurrentRun;
 
-    SkDEBUGCODE(uint8_t* fStorageTop;)
+    SkDEBUGCODE(const uint8_t* fStorageTop;)
 };
 
 #endif // SkTextBlobPriv_DEFINED

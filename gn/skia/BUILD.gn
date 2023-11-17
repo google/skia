@@ -489,7 +489,6 @@ config("warnings") {
     # TODO: These would all be really great warnings to turn on.
     cflags += [
       "-Wno-cast-align",
-      "-Wno-cast-qual",
       "-Wno-conversion",  # -Wsign-conversion and -Wshorten-64-to-32,
                           # are re-enabled for header sources
       "-Wno-disabled-macro-expansion",

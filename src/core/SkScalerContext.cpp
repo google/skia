@@ -298,8 +298,8 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
     return glyph;
 }
 
-static void applyLUTToA8Mask(const SkMask& mask, const uint8_t* lut) {
-    uint8_t* SK_RESTRICT dst = (uint8_t*)mask.fImage;
+static void applyLUTToA8Mask(SkMaskBuilder& mask, const uint8_t* lut) {
+    uint8_t* SK_RESTRICT dst = mask.image();
     unsigned rowBytes = mask.fRowBytes;
 
     for (int y = mask.fBounds.height() - 1; y >= 0; --y) {

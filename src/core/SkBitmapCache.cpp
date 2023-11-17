@@ -158,7 +158,7 @@ public:
     }
 
     static bool Finder(const SkResourceCache::Rec& baseRec, void* contextBitmap) {
-        Rec* rec = (Rec*)&baseRec;
+        Rec* rec = const_cast<Rec*>(static_cast<const Rec*>(&baseRec));
         SkBitmap* result = (SkBitmap*)contextBitmap;
         return rec->install(result);
     }

@@ -246,7 +246,7 @@ HBBlob stream_to_blob(std::unique_ptr<SkStreamAsset> asset) {
     size_t size = asset->getLength();
     HBBlob blob;
     if (const void* base = asset->getMemoryBase()) {
-        blob.reset(hb_blob_create((char*)base, SkToUInt(size),
+        blob.reset(hb_blob_create((const char*)base, SkToUInt(size),
                                   HB_MEMORY_MODE_READONLY, asset.release(),
                                   [](void* p) { delete (SkStreamAsset*)p; }));
     } else {

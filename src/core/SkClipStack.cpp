@@ -617,7 +617,7 @@ void SkClipStack::getBounds(SkRect* canvFiniteBound,
                             bool* isIntersectionOfRects) const {
     SkASSERT(canvFiniteBound && boundType);
 
-    Element* element = (Element*)fDeque.back();
+    const Element* element = (const Element*)fDeque.back();
 
     if (nullptr == element) {
         // the clip is wide open - the infinite plane w/ no pixels un-writeable

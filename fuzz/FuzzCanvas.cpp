@@ -806,7 +806,7 @@ static sk_sp<SkImage> make_fuzz_image(Fuzz* fuzz) {
     }
     (void)data.release();
     return SkImages::RasterFromPixmap(
-            pixmap, [](const void* p, void*) { sk_free((void*)p); }, nullptr);
+            pixmap, [](const void* p, void*) { sk_free(const_cast<void*>(p)); }, nullptr);
 }
 
 template <typename T>

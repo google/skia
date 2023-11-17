@@ -1114,7 +1114,7 @@ static void test_duplicate_unique_key(skiatest::Reporter* reporter) {
     skgpu::UniqueKey key3;
     make_unique_key<0>(&key3, 0);
     sk_sp<GrGpuResource> d2(cache->findAndRefUniqueResource(key3));
-    REPORTER_ASSERT(reporter, *(int*) d2->getUniqueKey().getCustomData()->data() == 4132);
+    REPORTER_ASSERT(reporter, *(const int*) d2->getUniqueKey().getCustomData()->data() == 4132);
 }
 
 static void test_purge_invalidated(skiatest::Reporter* reporter) {
@@ -1533,12 +1533,12 @@ static void test_custom_data(skiatest::Reporter* reporter) {
     make_unique_key<0>(&key2, 2);
     int foo = 4132;
     key1.setCustomData(SkData::MakeWithCopy(&foo, sizeof(foo)));
-    REPORTER_ASSERT(reporter, *(int*) key1.getCustomData()->data() == 4132);
+    REPORTER_ASSERT(reporter, *(const int*) key1.getCustomData()->data() == 4132);
     REPORTER_ASSERT(reporter, key2.getCustomData() == nullptr);
 
     // Test that copying a key also takes a ref on its custom data.
     skgpu::UniqueKey key3 = key1;
-    REPORTER_ASSERT(reporter, *(int*) key3.getCustomData()->data() == 4132);
+    REPORTER_ASSERT(reporter, *(const int*) key3.getCustomData()->data() == 4132);
 }
 
 static void test_abandoned(skiatest::Reporter* reporter) {

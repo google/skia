@@ -246,8 +246,8 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
             // and we don't have to provide text_length and other fields as we're providing
             // 0-terminated c_str with PNG_TEXT_COMPRESSION_NONE (no compression, no itxt).
             png_texts[i].compression = PNG_TEXT_COMPRESSION_NONE;
-            png_texts[i].key = (png_charp)keyword;
-            png_texts[i].text = (png_charp)text;
+            png_texts[i].key = const_cast<png_charp>(keyword);
+            png_texts[i].text = const_cast<png_charp>(text);
         }
         png_set_text(fPngPtr, fInfoPtr, png_texts.data(), png_texts.size());
     }

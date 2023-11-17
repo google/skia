@@ -119,7 +119,7 @@ DEF_TEST(DataTable, reporter) {
 static void* gGlobal;
 
 static void delete_int_proc(const void* ptr, void* context) {
-    int* data = (int*)ptr;
+    const int* data = (const int*)ptr;
     SkASSERT(context == gGlobal);
     delete[] data;
 }

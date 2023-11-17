@@ -114,7 +114,7 @@ const void* SkMask::getAddr(int x, int y) const {
     SkASSERT(fBounds.contains(x, y));
     SkASSERT(fImage);
 
-    char* addr = (char*)fImage;
+    const char* addr = (const char*)fImage;
     addr += (y - fBounds.fTop) * fRowBytes;
     addr += (x - fBounds.fLeft) << maskFormatToShift(fFormat);
     return addr;

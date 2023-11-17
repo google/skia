@@ -519,7 +519,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
                                                                      writer.get());
     pipelineDescriptor.rasterSampleCount = programInfo.numSamples();
 
-    GrMtlCaps* mtlCaps = (GrMtlCaps*)this->caps();
+    const GrMtlCaps* mtlCaps = (const GrMtlCaps*)this->caps();
     pipelineDescriptor.stencilAttachmentPixelFormat = mtlCaps->getStencilPixelFormat(desc);
     if (writer) {
         writer->writeInt(pipelineDescriptor.stencilAttachmentPixelFormat);

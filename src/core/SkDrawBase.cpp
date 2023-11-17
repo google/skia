@@ -390,7 +390,7 @@ void SkDrawBase::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         return;
     }
 
-    SkPath*         pathPtr = (SkPath*)&origSrcPath;
+    SkPath*         pathPtr = const_cast<SkPath*>(&origSrcPath);
     bool            doFill = true;
     SkPath          tmpPathStorage;
     SkPath*         tmpPath = &tmpPathStorage;

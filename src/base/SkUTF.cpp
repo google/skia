@@ -147,7 +147,7 @@ SkUnichar SkUTF::NextUTF8(const char** ptr, const char* end) {
         } while ((hic = left_shift(hic, 1)) < 0);
         c &= ~mask;
     }
-    *ptr = (char*)p + 1;
+    *ptr = (const char*)p + 1;
     return c;
 }
 

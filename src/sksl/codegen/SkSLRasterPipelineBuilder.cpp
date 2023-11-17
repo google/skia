@@ -1788,7 +1788,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
 
     auto* const basePtr = (std::byte*)slots.values.data();
     auto OffsetFromBase = [&](const void* ptr) -> SkRPOffset {
-        return (SkRPOffset)((std::byte*)ptr - basePtr);
+        return (SkRPOffset)((const std::byte*)ptr - basePtr);
     };
 
     // Copy all immutable values into the immutable slots.

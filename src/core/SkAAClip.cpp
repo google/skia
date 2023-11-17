@@ -1874,7 +1874,7 @@ static void upscaleBW2A8(SkMask* dstMask, const SkMask& srcMask) {
 
     const uint8_t* SK_RESTRICT src = (const uint8_t*)srcMask.fImage;
     const size_t srcRB = srcMask.fRowBytes;
-    uint8_t* SK_RESTRICT dst = (uint8_t*)dstMask->fImage;
+    uint8_t* SK_RESTRICT dst = const_cast<uint8_t*>(dstMask->fImage);
     const size_t dstRB = dstMask->fRowBytes;
 
     const int wholeBytes = width >> 3;

@@ -138,7 +138,7 @@ static void fillrectop_creation_test(skiatest::Reporter* reporter, GrDirectConte
         const GrOp* tmp = opsTask->getChain(i);
         REPORTER_ASSERT(reporter, tmp->classID() == skgpu::ganesh::FillRectOp::ClassID());
         REPORTER_ASSERT(reporter, tmp->isChainTail());
-        actualTotNumQuads += ((GrDrawOp*) tmp)->numQuads();
+        actualTotNumQuads += ((const GrDrawOp*) tmp)->numQuads();
     }
 
     REPORTER_ASSERT(reporter, expectedNumOps == actualNumOps);
@@ -253,7 +253,7 @@ static void textureop_creation_test(skiatest::Reporter* reporter, GrDirectContex
         REPORTER_ASSERT(reporter, allUniqueProxies || tmp->isChainTail());
         while (tmp) {
             REPORTER_ASSERT(reporter, tmp->classID() == expectedOpID);
-            actualTotNumQuads += ((GrDrawOp*) tmp)->numQuads();
+            actualTotNumQuads += ((const GrDrawOp*) tmp)->numQuads();
             tmp = tmp->nextInChain();
         }
     }

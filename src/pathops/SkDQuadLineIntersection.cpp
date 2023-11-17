@@ -315,7 +315,7 @@ protected:
             if (fIntersections->hasOppT(lineT)) {
                 continue;
             }
-            double quadT = ((SkDCurve*) &fQuad)->nearPoint(SkPath::kQuad_Verb,
+            double quadT = ((const SkDCurve*) &fQuad)->nearPoint(SkPath::kQuad_Verb,
                     (*fLine)[lIndex], (*fLine)[!lIndex]);
             if (quadT < 0) {
                 continue;
