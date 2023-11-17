@@ -90,6 +90,15 @@ public:
         return image.asShader(ctx, FilterResult::kDefaultSampling,
                               FilterResult::ShaderFlags::kNone, sampleBounds);
     }
+
+    static skif::FilterResult Rescale(const skif::Context& ctx,
+                                      const skif::FilterResult& image,
+                                      const skif::LayerSpace<SkSize> scale) {
+        (void) ctx;
+        (void) scale;
+        // TODO: Call FilterResult::rescale()
+        return image;
+    }
 };
 
 namespace {
@@ -149,6 +158,9 @@ class ApplyAction {
         // simple test code.
         std::optional<LayerSpace<SkIRect>> fExpectedBounds;
     };
+    struct RescaleParams {
+        LayerSpace<SkSize> fScale;
+    };
 
 public:
     ApplyAction(const SkMatrix& transform,
@@ -187,6 +199,17 @@ public:
             , fExpectedTileMode(expectedTileMode)
             , fExpectedColorFilter(std::move(expectedColorFilter)) {}
 
+    ApplyAction(LayerSpace<SkSize> scale,
+                Expect expectation,
+                const SkSamplingOptions& expectedSampling,
+                SkTileMode expectedTileMode,
+                sk_sp<SkColorFilter> expectedColorFilter)
+            : fAction(RescaleParams{scale})
+            , fExpectation(expectation)
+            , fExpectedSampling(expectedSampling)
+            , fExpectedTileMode(expectedTileMode)
+            , fExpectedColorFilter(std::move(expectedColorFilter)) {}
+
     // Test-simplified logic for bounds propagation similar to how image filters calculate bounds
     // while evaluating a filter DAG, which is outside of skif::FilterResult's responsibilities.
     LayerSpace<SkIRect> requiredInput(const LayerSpace<SkIRect>& desiredOutput) const {
@@ -200,7 +223,8 @@ public:
                 intersection = LayerSpace<SkIRect>::Empty();
             }
             return intersection;
-        } else if (std::holds_alternative<sk_sp<SkColorFilter>>(fAction)) {
+        } else if (std::holds_alternative<sk_sp<SkColorFilter>>(fAction) ||
+                   std::holds_alternative<RescaleParams>(fAction)) {
             return desiredOutput;
         }
         SkUNREACHABLE;
@@ -214,6 +238,8 @@ public:
             return in.applyCrop(ctx, c->fRect, c->fTileMode);
         } else if (auto* cf = std::get_if<sk_sp<SkColorFilter>>(&fAction)) {
             return in.applyColorFilter(ctx, *cf);
+        } else if (auto* s = std::get_if<RescaleParams>(&fAction)) {
+            return FilterResultTestAccess::Rescale(ctx, in, s->fScale);
         }
         SkUNREACHABLE;
     }
@@ -248,6 +274,8 @@ public:
             } else {
                 return inputBounds;
             }
+        } else if (std::holds_alternative<RescaleParams>(fAction)) {
+            return inputBounds;
         }
         SkUNREACHABLE;
     }
@@ -322,7 +350,32 @@ public:
                 tileMode = c->fTileMode;
             } else if (auto* cf = std::get_if<sk_sp<SkColorFilter>>(&fAction)) {
                 paint.setColorFilter(*cf);
+            } else if (auto* s = std::get_if<RescaleParams>(&fAction)) {
+                SkISize lowResSize = {sk_float_ceil2int(source->width() * s->fScale.width()),
+                                      sk_float_ceil2int(source->height() * s->fScale.height())};
+                while (source->width() != lowResSize.width() ||
+                       source->height() != lowResSize.height()) {
+                    float sx = std::max(0.5f, lowResSize.width() / (float) source->width());
+                    float sy = std::max(0.5f, lowResSize.height() / (float) source->height());
+                    SkISize stepSize = {sk_float_ceil2int(source->width() * sx),
+                                        sk_float_ceil2int(source->height() * sy)};
+                    auto stepDevice = ctx.backend()->makeDevice(stepSize, ctx.refColorSpace());
+                    clear_device(stepDevice.get());
+                    stepDevice->drawSpecial(source.get(),
+                                            SkMatrix::Scale(sx, sy),
+                                            SkFilterMode::kLinear,
+                                            /*paint=*/{});
+                    source = stepDevice->snapSpecial(SkIRect::MakeSize(stepSize));
+                }
+
+                // Adjust to draw the low-res image upscaled to fill the original image bounds
+                sampling = SkFilterMode::kLinear;
+                tileMode = SkTileMode::kClamp;
+                canvas.translate(origin.x(), origin.y());
+                canvas.scale(1.f / s->fScale.width(), 1.f / s->fScale.height());
+                origin = LayerSpace<SkIPoint>({0, 0});
             }
+            // else it's a rescale action, but for the expected image leave it unmodified.
             paint.setShader(source->asShader(tileMode,
                                              sampling,
                                              SkMatrix::Translate(origin.x(), origin.y())));
@@ -335,7 +388,8 @@ private:
     // Action
     std::variant<TransformParams,     // for applyTransform()
                  CropParams,          // for applyCrop()
-                 sk_sp<SkColorFilter> // for applyColorFilter()
+                 sk_sp<SkColorFilter>,// for applyColorFilter()
+                 RescaleParams        // for rescale()
                 > fAction;
 
     // Expectation
@@ -496,7 +550,7 @@ private:
             SkDebugf("FilterResult comparison failed for method %s\n", resolver.methodName());
             this->logBitmaps(expected, actualBM, badPixels);
             return false;
-                }
+        }
         return true;
     }
 
@@ -796,6 +850,21 @@ public:
                               this->getDefaultExpectedSampling(expectation),
                               this->getDefaultExpectedTileMode(expectation, affectsTransparent),
                               std::move(*expectedColorFilter));
+        return *this;
+    }
+
+    TestCase& rescale(SkSize scale,
+                      Expect expectation,
+                      std::optional<SkTileMode> expectedTileMode = {}) {
+        SkASSERT(!fActions.empty());
+        if (!expectedTileMode) {
+            expectedTileMode = this->getDefaultExpectedTileMode(expectation,
+                                                                /*cfAffectsTransparency=*/false);
+        }
+        fActions.emplace_back(skif::LayerSpace<SkSize>(scale), expectation,
+                              this->getDefaultExpectedSampling(expectation),
+                              *expectedTileMode,
+                              this->getDefaultExpectedColorFilter(expectation));
         return *this;
     }
 
