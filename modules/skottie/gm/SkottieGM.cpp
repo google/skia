@@ -51,6 +51,7 @@ protected:
     void onOnceBeforeDraw() override {
         if (auto stream = GetResourceAsStream(kSkottieResource)) {
             fAnimation = skottie::Animation::Builder()
+                            .setFontManager(ToolUtils::TestFontMgr())
                             .setResourceProvider(sk_make_sp<FakeWebFontProvider>())
                             .make(stream.get());
         }
@@ -103,6 +104,7 @@ protected:
         if (auto stream = GetResourceAsStream(fResource)) {
             fPropManager = std::make_unique<skottie_utils::CustomPropertyManager>();
             fAnimation   = skottie::Animation::Builder()
+                              .setFontManager(ToolUtils::TestFontMgr())
                               .setPropertyObserver(fPropManager->getPropertyObserver())
                               .make(stream.get());
             fColorProps  = fPropManager->getColorProps();

@@ -52,6 +52,7 @@ protected:
         if (auto stream = GetResourceAsStream(kSkottieResource)) {
             fPropManager = std::make_unique<skottie_utils::CustomPropertyManager>();
             fAnimation = skottie::Animation::Builder()
+                            .setFontManager(ToolUtils::TestFontMgr())
                             .setResourceProvider(sk_make_sp<FakeWebFontProvider>())
                             .setPropertyObserver(fPropManager->getPropertyObserver())
                             .make(stream.get());

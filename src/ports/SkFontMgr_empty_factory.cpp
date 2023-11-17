@@ -7,7 +7,7 @@
 
 #include "include/core/SkFontMgr.h"
 
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
     // Always return nullptr, an empty SkFontMgr will be used.
     return nullptr;
