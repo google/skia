@@ -71,7 +71,8 @@ extern "C" {
 #endif
 
 // If we are in SKCMS_PORTABLE mode or running on a non-x86-64 platform, we can't enable HSW or SKX.
-#if defined(SKCMS_PORTABLE) || !defined(__x86_64__)
+// We also disable HSW/SKX on Android, even if it's Android on x64, since it's unlikely to benefit.
+#if defined(SKCMS_PORTABLE) || !defined(__x86_64__) || defined(ANDROID) || defined(__ANDROID__)
     #undef SKCMS_FORCE_HSW
     #if !defined(SKCMS_DISABLE_HSW)
         #define SKCMS_DISABLE_HSW 1
