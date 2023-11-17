@@ -433,8 +433,23 @@ class SkUnicode_icu : public SkUnicode {
     }
 
     bool isEmoji(SkUnichar unichar) override {
-        return sk_u_hasBinaryProperty(unichar, UCHAR_EMOJI) ||
-               sk_u_hasBinaryProperty(unichar, UCHAR_EMOJI_COMPONENT);
+        return sk_u_hasBinaryProperty(unichar, UCHAR_EMOJI);
+    }
+
+    bool isEmojiComponent(SkUnichar unichar) override {
+        return sk_u_hasBinaryProperty(unichar, UCHAR_EMOJI_COMPONENT);
+    }
+
+    bool isEmojiModifierBase(SkUnichar unichar) override {
+        return sk_u_hasBinaryProperty(unichar, UCHAR_EMOJI_MODIFIER_BASE);
+    }
+
+    bool isEmojiModifier(SkUnichar unichar) override {
+        return sk_u_hasBinaryProperty(unichar, UCHAR_EMOJI_MODIFIER);
+    }
+
+    bool isRegionalIndicator(SkUnichar unichar) override {
+        return sk_u_hasBinaryProperty(unichar, UCHAR_REGIONAL_INDICATOR);
     }
 
     bool isIdeographic(SkUnichar unichar) override {

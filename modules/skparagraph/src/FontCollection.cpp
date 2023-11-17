@@ -5,6 +5,13 @@
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skshaper/include/SkShaper.h"
 
+namespace {
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+    const char* kColorEmojiFontMac = "Apple Color Emoji";
+#else
+    const char* kColorEmojiLocale = "und-Zsye";
+#endif
+}
 namespace skia {
 namespace textlayout {
 
@@ -142,7 +149,9 @@ sk_sp<SkTypeface> FontCollection::matchTypeface(const SkString& familyName, SkFo
 }
 
 // Find ANY font in available font managers that resolves the unicode codepoint
-sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const SkString& locale) {
+sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode,
+                                                  SkFontStyle fontStyle,
+                                                  const SkString& locale) {
 
     for (const auto& manager : this->getFontManagerOrder()) {
         std::vector<const char*> bcp47;
@@ -150,8 +159,41 @@ sk_sp<SkTypeface> FontCollection::defaultFallback(SkUnichar unicode, SkFontStyle
             bcp47.push_back(locale.c_str());
         }
         sk_sp<SkTypeface> typeface(manager->matchFamilyStyleCharacter(
-                nullptr, fontStyle, bcp47.data(), bcp47.size(), unicode));
+            nullptr, fontStyle, bcp47.data(), bcp47.size(), unicode));
+
         if (typeface != nullptr) {
+            return typeface;
+        }
+    }
+    return nullptr;
+}
+
+// Find ANY font in available font managers that resolves this emojiStart
+sk_sp<SkTypeface> FontCollection::defaultEmojiFallback(SkUnichar emojiStart,
+                                                       SkFontStyle fontStyle,
+                                                       const SkString& locale) {
+
+    for (const auto& manager : this->getFontManagerOrder()) {
+        std::vector<const char*> bcp47;
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+        sk_sp<SkTypeface> typeface =
+            fDefaultFontManager->matchFamilyStyle(kColorEmojiFontMac, SkFontStyle());
+        if (typeface != nullptr) {
+            return typeface;
+        }
+#else
+          bcp47.push_back(kColorEmojiLocale);
+#endif
+        if (!locale.isEmpty()) {
+            bcp47.push_back(locale.c_str());
+        }
+
+        // Not really ideal since the first codepoint may not be the best one
+        // but we start from a good colored emoji at least
+        sk_sp<SkTypeface> typeface(manager->matchFamilyStyleCharacter(
+            nullptr, fontStyle, bcp47.data(), bcp47.size(), emojiStart));
+        if (typeface != nullptr) {
+            // ... and stop as soon as we find something in hope it will work for all of them
             return typeface;
         }
     }
@@ -171,7 +213,6 @@ sk_sp<SkTypeface> FontCollection::defaultFallback() {
     }
     return nullptr;
 }
-
 
 void FontCollection::disableFontFallback() { fEnableFontFallback = false; }
 void FontCollection::enableFontFallback() { fEnableFontFallback = true; }

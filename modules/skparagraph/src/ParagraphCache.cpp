@@ -103,7 +103,7 @@ uint32_t ParagraphCacheKey::mix(uint32_t hash, uint32_t data) {
 }
 
 uint32_t ParagraphCacheKey::computeHash() const {
-uint32_t hash = 0;
+    uint32_t hash = 0;
     for (auto& ph : fPlaceholders) {
         if (ph.fRange.width() == 0) {
             continue;

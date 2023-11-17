@@ -86,7 +86,27 @@ bool SkUnicodeHardCodedCharProperties::isHardBreak(SkUnichar utf8) {
 }
 
 bool SkUnicodeHardCodedCharProperties::isEmoji(SkUnichar unichar) {
-    SkDEBUGFAIL("Not implemented");
+    SkDEBUGFAIL("isEmoji Not implemented");
+    return false;
+}
+
+bool SkUnicodeHardCodedCharProperties::isEmojiComponent(SkUnichar utf8)  {
+    SkDEBUGFAIL("isEmojiComponent Not implemented");
+    return false;
+}
+
+bool SkUnicodeHardCodedCharProperties::isEmojiModifier(SkUnichar utf8)  {
+    SkDEBUGFAIL("isEmojiModifier Not implemented");
+    return false;
+}
+
+bool SkUnicodeHardCodedCharProperties::isEmojiModifierBase(SkUnichar utf8) {
+    SkDEBUGFAIL("isEmojiModifierBase Not implemented");
+    return false;
+}
+
+bool SkUnicodeHardCodedCharProperties::isRegionalIndicator(SkUnichar unichar) {
+    SkDEBUGFAIL("isRegionalIndicator Not implemented");
     return false;
 }
 

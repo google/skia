@@ -35,6 +35,13 @@ SK_SPI int CountUTF32(const int32_t* utf32, size_t byteLength);
 */
 SK_SPI SkUnichar NextUTF8(const char** ptr, const char* end);
 
+/** Given a sequence of UTF-8 bytes, return the first unicode codepoint.
+    The pointer will be incremented to point at the next codepoint's start.  If
+    invalid UTF-8 is encountered, set *ptr to end and
+    return the replacement character (0xFFFD)
+*/
+SK_SPI SkUnichar NextUTF8WithReplacement(const char** ptr, const char* end);
+
 /** Given a sequence of aligned UTF-16 characters in machine-endian form,
     return the first unicode codepoint.  The pointer will be incremented to
     point at the next codepoint's start.  If invalid UTF-16 is encountered,

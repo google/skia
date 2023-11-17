@@ -624,11 +624,6 @@ void TextLine::createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool)
     }
 }
 
-static inline SkUnichar nextUtf8Unit(const char** ptr, const char* end) {
-    SkUnichar val = SkUTF::NextUTF8(ptr, end);
-    return val < 0 ? 0xFFFD : val;
-}
-
 std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Cluster* cluster) {
 
     class ShapeHandler final : public SkShaper::RunHandler {
@@ -720,10 +715,15 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
     // Try the fallback
     if (fOwner->fontCollection()->fontFallbackEnabled()) {
         const char* ch = ellipsis.c_str();
-        SkUnichar unicode = nextUtf8Unit(&ch, ellipsis.c_str() + ellipsis.size());
-
-       auto typeface = fOwner->fontCollection()->defaultFallback(
-                    unicode, textStyle.getFontStyle(), textStyle.getLocale());
+      SkUnichar unicode = SkUTF::NextUTF8WithReplacement(&ch,
+                                                         ellipsis.c_str()
+                                                             + ellipsis.size());
+        // We do not expect emojis in ellipsis so if they appeat there
+        // they will not be resolved with the pretiest color emoji font
+        auto typeface = fOwner->fontCollection()->defaultFallback(
+                                            unicode,
+                                            textStyle.getFontStyle(),
+                                            textStyle.getLocale());
         if (typeface) {
             ellipsisRun = shaped(typeface, fOwner->fontCollection()->getFallbackManager());
             if (ellipsisRun->isResolved()) {
