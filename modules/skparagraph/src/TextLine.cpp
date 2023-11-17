@@ -722,11 +722,8 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
         const char* ch = ellipsis.c_str();
         SkUnichar unicode = nextUtf8Unit(&ch, ellipsis.c_str() + ellipsis.size());
 
-      auto typeface = fOwner->fontCollection()->defaultFallback(
-                                          unicode,
-                                          textStyle.getFontStyle(),
-                                          textStyle.getLocale(),
-                                          fOwner->getUnicode()->isEmoji(unicode));
+       auto typeface = fOwner->fontCollection()->defaultFallback(
+                    unicode, textStyle.getFontStyle(), textStyle.getLocale());
         if (typeface) {
             ellipsisRun = shaped(typeface, true);
             if (ellipsisRun->isResolved()) {

@@ -4264,47 +4264,22 @@ public:
     ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr(), std::vector<SkString>());
+        auto fontCollection = getFontCollection();
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
         TextStyle text_style;
-        text_style.setFontFamilies({SkString("")});
+        text_style.setFontFamilies({SkString("Roboto")});
         text_style.setFontSize(20);
         text_style.setColor(SK_ColorBLACK);
         ParagraphStyle paragraph_style;
         paragraph_style.setTextStyle(text_style);
-
-        auto test = [&](const char* text) {
-            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-            builder.pushStyle(text_style);
-            builder.addText(text);
-            auto paragraph = builder.Build();
-            paragraph->layout(this->size().width());
-            paragraph->paint(canvas, 0, 0);
-            if ((false)) {
-                SkDebugf("Paragraph '%s'\n", text);
-                auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-                for (auto& run: impl->runs()) {
-                    SkString ff;
-                    run.font().getTypeface()->getFamilyName(&ff);
-                    SkDebugf("'%s': [%zu:%zu)\n", ff.c_str(), run.textRange().start, run.textRange().end);
-                }
-            }
-        };
-
-        test("🆗0️⃣");
-        canvas->translate(0, 50);
-        test("🆗a0️⃣");
-        canvas->translate(0, 50);
-        test("0️⃣🆗");
-        canvas->translate(0, 50);
-        test("0️⃣a🆗");
-        canvas->translate(0, 50);
-        test("🆗");
-        canvas->translate(0, 50);
-        test("0️⃣");
-        canvas->translate(0, 50);
-        test("a0️⃣");
+        paragraph_style.setTextAlign(TextAlign::kJustify);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText(u"\u3000\u3000哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈");
+        auto paragraph = builder.Build();
+        paragraph->layout(this->size().width());
+        paragraph->paint(canvas, 0, 0);
     }
 };
 

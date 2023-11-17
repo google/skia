@@ -7874,6 +7874,7 @@ UNIX_ONLY_TEST(SkParagraph_SingleDummyPlaceholder, reporter) {
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
     REPORTER_ASSERT(reporter, impl->placeholders().size() == 1);
 
+
     size_t index = 0;
     for (auto& line : impl->lines()) {
         line.scanStyles(StyleType::kDecorations,
@@ -7912,42 +7913,4 @@ UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
         }
     });
     REPORTER_ASSERT(reporter, visitedCount == 3);
-}
-
-UNIX_ONLY_TEST(SkParagraph_EmojiFontResolution, reporter) {
-    auto fontCollection = sk_make_sp<FontCollection>();
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr(), std::vector<SkString>());
-    fontCollection->enableFontFallback();
-
-    const char* text = "♻️🏴󠁧󠁢󠁳󠁣󠁴󠁿";
-    const char* text1 = "♻️";
-    const size_t len = strlen(text);
-    const size_t len1 = strlen(text1);
-
-    ParagraphStyle paragraph_style;
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-    TextStyle text_style;
-    text_style.setFontFamilies({SkString("")});
-    builder.pushStyle(text_style);
-    builder.addText(text, len);
-    auto paragraph = builder.Build();
-    paragraph->layout(SK_ScalarMax);
-
-    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-
-    ParagraphBuilderImpl builder1(paragraph_style, fontCollection);
-    builder1.pushStyle(text_style);
-    builder1.addText(text1, len1);
-    auto paragraph1 = builder1.Build();
-    paragraph1->layout(SK_ScalarMax);
-
-    auto impl1 = static_cast<ParagraphImpl*>(paragraph1.get());
-    REPORTER_ASSERT(reporter, impl1->runs().size() == 1);
-    if (impl1->runs().size() == 1) {
-        SkString ff;
-        impl->run(0).font().getTypeface()->getFamilyName(&ff);
-        SkString ff1;
-        impl1->run(0).font().getTypeface()->getFamilyName(&ff1);
-        REPORTER_ASSERT(reporter, ff.equals(ff1));
-    }
 }
