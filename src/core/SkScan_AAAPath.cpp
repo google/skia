@@ -754,7 +754,7 @@ static void blit_aaa_trapezoid_row(AdditiveBlitter* blitter,
     }
 
     const int kQuickLen = 31;
-    char      quickMemory[(sizeof(SkAlpha) * 2 + sizeof(int16_t)) * (kQuickLen + 1)];
+    alignas(2) char quickMemory[(sizeof(SkAlpha) * 2 + sizeof(int16_t)) * (kQuickLen + 1)];
     SkAlpha*  alphas;
 
     if (len <= kQuickLen) {
