@@ -1449,9 +1449,10 @@ static void exec_ops(const Op* ops, const void** contexts,
     }
 }
 
-static void run_program(const Op* program, const void** contexts, ptrdiff_t /*programSize*/,
-                        const char* src, char* dst, int n,
-                        const size_t src_bpp, const size_t dst_bpp) {
+// NOLINTNEXTLINE(misc-definitions-in-headers)
+void run_program(const Op* program, const void** contexts, ptrdiff_t /*programSize*/,
+                 const char* src, char* dst, int n,
+                 const size_t src_bpp, const size_t dst_bpp) {
     int i = 0;
     while (n >= N) {
         exec_ops(program, contexts, src, dst, i);

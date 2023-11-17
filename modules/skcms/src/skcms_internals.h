@@ -66,7 +66,7 @@ extern "C" {
 // If this isn't Clang, GCC, or Emscripten with SIMD support, we are in SKCMS_PORTABLE mode.
 #if !defined(SKCMS_PORTABLE) && !(defined(__clang__) || \
                                   defined(__GNUC__) || \
-                                  (defined(__EMSCRIPTEN_major__) && !defined(__wasm_simd128__)))
+                                  (defined(__EMSCRIPTEN_major__) && defined(__wasm_simd128__)))
     #define SKCMS_PORTABLE 1
 #endif
 
