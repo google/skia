@@ -837,6 +837,19 @@ private:
                                    /*blendAffectsTransparentBlack=*/false);
     }
 
+    // Return an equivalent FilterResult such that its backing image dimensions have been reduced
+    // by the X and Y scale factors in 'scale' (assumed to be in [0, 1]). The returned FilterResult
+    // will have a transform that aligns it with the original FilterResult (i.e. a deferred upscale)
+    // and may also have a deferred tilemode. If 'enforceDecal' is true, the returned
+    // FilterResult will be kDecal sampled and any tiling will already be applied.
+    //
+    // All deferred effects, other than potentially tile mode, will be applied. The FilterResult
+    // will also be converted to the color type and color space of 'ctx' so the result is suitable
+    // to pass to the blur engine.
+    FilterResult rescale(const Context& ctx,
+                         const LayerSpace<SkSize>& scale,
+                         bool enforceDecal) const;
+
     // Draw directly to the device, which draws the same image as produced by resolve() but can be
     // useful if multiple operations need to be performed on the canvas.
     //

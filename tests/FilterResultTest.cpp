@@ -94,10 +94,7 @@ public:
     static skif::FilterResult Rescale(const skif::Context& ctx,
                                       const skif::FilterResult& image,
                                       const skif::LayerSpace<SkSize> scale) {
-        (void) ctx;
-        (void) scale;
-        // TODO: Call FilterResult::rescale()
-        return image;
+        return image.rescale(ctx, scale, /*enforceDecal=*/false);
     }
 };
 
@@ -2083,6 +2080,261 @@ DEF_TEST_SUITE(BackdropFilterRotated, r,
                             Expect::kDeferredImage)
             .applyCrop({0, 0, 100, 200}, SkTileMode::kClamp, Expect::kNewImage)
             .run(/*requestedOutput=*/{-15, -15, 115, 215});
+}
+
+// Nearly identity rescales are treated as the identity
+static constexpr SkSize kNearlyIdentity = {0.999f, 0.999f};
+
+DEF_TEST_SUITE(RescaleWithTileMode, r,
+               CtsEnforcement::kNextRelease, CtsEnforcement::kNextRelease) {
+    for (SkTileMode tm : kTileModes) {
+        TestCase(r, "Identity rescale is a no-op")
+                .source({0, 0, 50, 50})
+                .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
+                .rescale({1.f, 1.f}, Expect::kDeferredImage)
+                .run(/*requestedOutput=*/{-5, -5, 55, 55});
+
+        TestCase(r, "Near identity rescale is a no-op",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({0, 0, 50, 50})
+                .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
+                .rescale(kNearlyIdentity, Expect::kDeferredImage)
+                .run(/*requestedOutput=*/{-5, -5, 55, 55});
+
+        // NOTE: As the scale factor decreases and more decimation steps are required, the testing
+        // allowed tolerances increase greatly. These were chosen as "acceptable" after reviewing
+        // the expected vs. actual images. The results diverge due to differences in the simple
+        // expected decimation and the actual rescale() implementation, as well as how small the
+        // final images become.
+        //
+        // Similarly, the allowed transparent border tolerance must be increased for kDecal tests
+        // because the expected image's content is expanded by a larger and larger factor during its
+        // upscale.
+
+        // kDecal tiling is applied during the downsample by writing a transparent buffer, so the
+        // tile mode can simplify to kClamp (which is more efficient for shader-based tiling).
+        const SkTileMode expectedTileMode = tm == SkTileMode::kDecal ? SkTileMode::kClamp : tm;
+        TestCase(r, "1-step rescale preserves tile mode",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        const bool periodic = tm == SkTileMode::kRepeat || tm == SkTileMode::kMirror;
+        TestCase(r, "2-step rescale preserves tile mode",
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 5.7f
+                                                                      : periodic ? 2.5f : 1.f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 2 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({0.25f, 0.25f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        TestCase(r, "2-step rescale with near-identity elision",
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 37.3f
+                                                                      : periodic ? 73.2f : 52.f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 6 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({0.22f, 0.22f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        TestCase(r, "3-step rescale preserves tile mode",
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 49.f
+                                                                      : periodic ? 90.5f : 71.f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 10 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({0.155f, 0.155f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        // Non-uniform scales
+        TestCase(r, "Identity X axis, near-identity Y axis is a no-op",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({1.f, kNearlyIdentity.height()}, Expect::kDeferredImage)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+        TestCase(r, "Near-identity X axis, identity Y axis is a no-op",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({kNearlyIdentity.width(), 1.f}, Expect::kDeferredImage)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        TestCase(r, "Identity X axis, 1-step Y axis preserves tile mode",
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kMirror ? 1.2f : 1.f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({1.f, 0.5f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+        TestCase(r, "Near-identity X axis, 1-step Y axis preserves tile mode",
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kMirror ? 1.7f : 1.f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({kNearlyIdentity.width(), 0.5f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+        TestCase(r, "Identity X axis, 2-step Y axis preserves tile mode",
+                 /*allowedPercentImageDiff=*/2.75f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 2 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({1.f, 0.25f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+        TestCase(r, "1-step X axis, 2-step Y axis preserves tile mode",
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 22.f
+                                                                      : periodic ? 55.f : 29.5f,
+                /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({.55f, 0.27f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        TestCase(r, "1-step X axis, identity Y axis preserves tile mode",
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kMirror ? 1.2f : 1.f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({0.5f, 1.f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+        TestCase(r, "1-step X axis, near-identity Y axis preserves tile mode",
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kMirror ? 1.7f : 1.f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({0.5f, kNearlyIdentity.height()}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+        TestCase(r, "2-step X axis, identity Y axis preserves tile mode",
+                 /*allowedPercentImageDiff=*/2.75f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 2 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({0.25f, 1.f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+        TestCase(r, "2-step X axis, 1-step Y axis preserves tile mode",
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 22.f
+                                                                      : periodic ? 55.f : 29.5f,
+                /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .rescale({.27f, 0.55f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        // Chained decal tile modes don't create the circumstances of interest.
+        if (tm == SkTileMode::kDecal) {
+            continue;
+        }
+        TestCase(r, "Rescale applies layer bounds",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/1)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .applyCrop({4, 4, 76, 76}, SkTileMode::kDecal, Expect::kDeferredImage,
+                           /*expectedTileMode=*/tm)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, /*expectedTileMode=*/SkTileMode::kClamp)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+    }
+}
+
+DEF_TEST_SUITE(RescaleWithTransform, r,
+               CtsEnforcement::kNextRelease, CtsEnforcement::kNextRelease) {
+    for (SkTileMode tm : kTileModes) {
+        TestCase(r, "Identity rescale defers integer translation")
+                .source({0, 0, 50, 50})
+                .applyCrop({0, 0, 50, 50}, SkTileMode::kMirror, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::Translate(-10.f, -10.f), Expect::kDeferredImage)
+                .rescale({1.f, 1.f}, Expect::kDeferredImage)
+                .run(/*requestedOutput=*/{-15, -15, 45, 45});
+
+        TestCase(r, "Identity rescale applies complex transform")
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::RotateDeg(45.f, {16.f, 16.f}), Expect::kDeferredImage)
+                .rescale({1.f, 1.f}, Expect::kNewImage, SkTileMode::kClamp)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        TestCase(r, "Near-identity rescale defers integer translation")
+                .source({0, 0, 50, 50})
+                .applyCrop({0, 0, 50, 50}, SkTileMode::kMirror, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::Translate(-10.f, -10.f), Expect::kDeferredImage)
+                .rescale(kNearlyIdentity, Expect::kDeferredImage)
+                .run(/*requestedOutput=*/{-15, -15, 45, 45});
+
+        TestCase(r, "Near-identity rescale applies complex transform")
+                .source({0, 0, 50, 50})
+                .applyCrop({0, 0, 50, 50}, SkTileMode::kClamp, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::RotateDeg(15.f, {25.f, 25.f}), Expect::kDeferredImage)
+                .rescale(kNearlyIdentity, Expect::kNewImage, SkTileMode::kClamp)
+                .run(/*requestedOutput=*/{-5, -5, 55, 55});
+
+        TestCase(r, "1-step rescale applies complex transform in first step",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::RotateDeg(45.f, {16.f, 16.f}), Expect::kDeferredImage)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, SkTileMode::kClamp)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        const bool periodic = tm == SkTileMode::kRepeat || tm == SkTileMode::kMirror;
+        TestCase(r, "2-step rescale applies complex transform",
+                 /*allowedPercentImageDiff=*/periodic ? 6.5f : 1.52f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 4 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::RotateDeg(45.f, {16.f, 16.f}), Expect::kDeferredImage)
+                .rescale({0.25f, 0.25f}, Expect::kNewImage, /*expectedTileMode=*/SkTileMode::kClamp)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+    }
+}
+
+DEF_TEST_SUITE(RescaleWithColorFilter, r,
+               CtsEnforcement::kNextRelease, CtsEnforcement::kNextRelease) {
+    for (SkTileMode tm : kTileModes) {
+        // The color filter (simple and transparency-affecting) should be applied with a 1px
+        // boundary around the rest of the image being rescaled when decal-tiled, so its result is
+        // clamped tiled instead (vs. having to prepare and scale a larger, flood-filled image).
+        SkTileMode expectedTileMode = tm == SkTileMode::kDecal ? SkTileMode::kClamp : tm;
+
+        TestCase(r, "Identity rescale applies color filter but defers tile mode")
+                .source({0, 0, 50, 50})
+                .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
+                .applyColorFilter(alpha_modulate(0.5f), Expect::kDeferredImage)
+                .rescale({1.f, 1.f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{-5, -5, 55, 55});
+
+        TestCase(r, "Near-identity rescale applies color filter but defers tile mode",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({0, 0, 50, 50})
+                .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
+                .applyColorFilter(alpha_modulate(0.5f), Expect::kDeferredImage)
+                .rescale(kNearlyIdentity, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{-5, -5, 55, 55});
+
+        TestCase(r, "Rescale applies color filter but defers tile mode",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .applyColorFilter(alpha_modulate(0.75f), Expect::kDeferredImage)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        TestCase(r, "Rescale applies transparency-affecting color filter but defers tile mode")
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .applyColorFilter(affect_transparent(SkColors::kGreen), Expect::kDeferredImage)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, expectedTileMode)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+    }
 }
 
 } // anonymous namespace
