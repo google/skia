@@ -18,4 +18,4 @@ again.
 ## Code reviews
 
 All submissions, including submissions by project members, require review.
-Please see the guidelines for contributing code at https://skia.org/dev/contrib/
+Please see the guidelines for contributing code at https://skia.org/docs/dev/contrib/
