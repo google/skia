@@ -17,6 +17,8 @@
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Resource.h"
@@ -215,7 +217,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     resourceCache->forceProcessReturnedResources();
 
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 4);
-    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 4);
+    // Remapping async buffers before returning them to the cache can extend buffer lifetime.
+    if (!context->priv().caps()->bufferMapsAreAsync()) {
+        REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 4);
+    }
     REPORTER_ASSERT(reporter, imageResourcePtr->budgeted() == skgpu::Budgeted::kYes);
 
     // Now try an SkSurface. This is simpler since we can directly create Graphite SkSurface's.
@@ -239,7 +244,10 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     const Resource* surfaceResourcePtr = surfaceProxy->texture();
 
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 5);
-    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 4);
+    // Remapping async buffers before returning them to the cache can extend buffer lifetime.
+    if (!context->priv().caps()->bufferMapsAreAsync()) {
+        REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 4);
+    }
     REPORTER_ASSERT(reporter, surfaceResourcePtr->budgeted() == skgpu::Budgeted::kNo);
 
     // The creation of the surface may have added an initial clear to it. Thus if we just reset the

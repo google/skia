@@ -166,4 +166,6 @@ std::unique_ptr<skgpu::graphite::Context> DawnTestContext::makeContext(
     return skgpu::graphite::ContextFactory::MakeDawn(fBackendContext, revisedOptions);
 }
 
+void DawnTestContext::tick() { fBackendContext.fDevice.Tick(); }
+
 }  // namespace skiatest::graphite

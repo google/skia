@@ -16,6 +16,8 @@ size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format);
 
 uint32_t DawnFormatChannels(wgpu::TextureFormat format);
 
+void DawnTickDevice(wgpu::Device);
+
 } // namespace skgpu
 
 #endif // skgpu_DawnUtilsPriv_DEFINED

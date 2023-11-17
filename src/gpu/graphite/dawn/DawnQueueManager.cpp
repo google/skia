@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/dawn/DawnQueueManager.h"
 
+#include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnCommandBuffer.h"
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
@@ -34,16 +35,18 @@ public:
     }
     ~DawnWorkSubmission() override {}
 
-    bool isFinished() override { return fAsyncWait.yieldAndCheck(); }
-    void waitUntilFinished() override { fAsyncWait.busyWait(); }
-
 private:
+    bool onIsFinished() override { return fAsyncWait.yieldAndCheck(); }
+    void onWaitUntilFinished() override { fAsyncWait.busyWait(); }
+
     DawnAsyncWait fAsyncWait;
 };
 } // namespace
 
 DawnQueueManager::DawnQueueManager(wgpu::Queue queue, const SharedContext* sharedContext)
         : QueueManager(sharedContext), fQueue(std::move(queue)) {}
+
+void DawnQueueManager::tick() const { DawnTickDevice(this->dawnSharedContext()->device()); }
 
 const DawnSharedContext* DawnQueueManager::dawnSharedContext() const {
     return static_cast<const DawnSharedContext*>(fSharedContext);

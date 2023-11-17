@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #include <atomic>
+#include <functional>
 
 class SkMutex;
 class SkTraceMemoryDump;
@@ -65,12 +66,18 @@ public:
 
     // Adds a command buffer ref to the resource
     void refCommandBuffer() const {
+        if (fCommandBufferRefsAsUsageRefs) {
+            return this->ref();
+        }
         // No barrier required.
         (void)fCommandBufferRefCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
     // Removes a command buffer ref from the resource
     void unrefCommandBuffer() const {
+        if (fCommandBufferRefsAsUsageRefs) {
+            return this->unref();
+        }
         bool shouldFree = false;
         {
             SkAutoMutexExclusive locked(fUnrefMutex);
@@ -151,6 +158,15 @@ public:
     // Dumps memory usage information for this Resource to traceMemoryDump.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
+    /**
+     * If the resource has a non-shareable key then this gives the resource subclass an opportunity
+     * to prepare itself to re-enter the cache. The ResourceCache extends its privilege to take the
+     * first UsageRef to this function via takeRef. If takeRef is called this resource will not
+     * immediately enter the cache but will be re-reprocessed with the Usage Ref count again reaches
+     * zero.
+     */
+    virtual void prepareForReturnToCache(const std::function<void()>& takeRef) {}
+
 #if defined(GRAPHITE_TEST_UTILS)
     bool testingShouldDeleteASAP() const { return fDeleteASAP == DeleteASAP::kYes; }
 
@@ -162,7 +178,8 @@ protected:
              Ownership,
              skgpu::Budgeted,
              size_t gpuMemorySize,
-             std::string_view label);
+             std::string_view label,
+             bool commandBufferRefsAsUsageRefs = false);
     virtual ~Resource();
 
     const SharedContext* sharedContext() const { return fSharedContext; }
@@ -179,6 +196,8 @@ protected:
     }
 #endif
 
+    void setDeleteASAP() { fDeleteASAP = DeleteASAP::kYes; }
+
 private:
     friend class ProxyCache; // for setDeleteASAP and updateAccessTime
 
@@ -188,7 +207,6 @@ private:
     };
 
     DeleteASAP shouldDeleteASAP() const { return fDeleteASAP; }
-    void setDeleteASAP() { fDeleteASAP = DeleteASAP::kYes; }
 
     // In the ResourceCache this is called whenever a Resource is moved into the purgeableQueue. It
     // may also be called by the ProxyCache to track the time on Resources it is holding on to.
@@ -272,12 +290,15 @@ private:
     }
 
     bool hasCommandBufferRef() const {
+        // Note that we don't check here for fCommandBufferRefsAsUsageRefs. This should always
+        // report zero if that value is true.
         if (0 == fCommandBufferRefCnt.load(std::memory_order_acquire)) {
             // The acquire barrier is only really needed if we return true.  It
             // prevents code conditioned on the result of hasCommandBufferRef() from running
             // until previous owners are all totally done calling unrefCommandBuffer().
             return false;
         }
+        SkASSERT(!fCommandBufferRefsAsUsageRefs);
         return true;
     }
 
@@ -314,6 +335,8 @@ private:
     mutable std::atomic<int32_t> fUsageRefCnt;
     mutable std::atomic<int32_t> fCommandBufferRefCnt;
     mutable std::atomic<int32_t> fCacheRefCnt;
+    // Indicates that CommandBufferRefs should be rerouted to UsageRefs.
+    const bool fCommandBufferRefsAsUsageRefs = false;
 
     GraphiteResourceKey fKey;
 

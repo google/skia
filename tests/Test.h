@@ -372,13 +372,13 @@ using skiatest::Test;
     DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, skiatest::IsVulkanContextType, reporter,              \
                                    graphite_context, /*anonymous test_ctx*/, ctsEnforcement)
 
-#define DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(name, reporter, graphite_context)                      \
+#define DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(name, reporter, graphite_context, test_context)        \
     DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, skiatest::IsMetalContextType, reporter, graphite_context, \
-                                   /*anonymous test_ctx*/, CtsEnforcement::kNever)
+                                   test_context, CtsEnforcement::kNever)
 
-#define DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(name, reporter, graphite_context) \
+#define DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(name, reporter, graphite_context, test_context) \
     DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, skiatest::IsDawnContextType, reporter, graphite_context, \
-                                   /*anonymous test_ctx*/, CtsEnforcement::kNever)
+                                   test_context, CtsEnforcement::kNever)
 
 #define DEF_GANESH_TEST(name, reporter, options, ctsEnforcement)            \
     static void test_##name(skiatest::Reporter*, const GrContextOptions&);  \

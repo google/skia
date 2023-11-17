@@ -11,6 +11,8 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/GpuTypesPriv.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Texture.h"
@@ -352,7 +354,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8, r, context, CtsEnforcement::
 
 // Verify that the ProxyCache's purgeProxiesNotUsedSince behavior is working when triggered from
 // ResourceCache.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest9, r, context, CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(
+        ProxyCacheTest9, r, context, testContext, true, CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ResourceCache* resourceCache = recorder->priv().resourceCache();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
@@ -375,8 +378,14 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest9, r, context, CtsEnforcement::
     resourceCache->setMaxBudget(256 * (1 << 20));
 
     REPORTER_ASSERT(r, proxyCache->numCached() == 2);
-    REPORTER_ASSERT(r, resourceCache->getResourceCount() == 2);
-
+    int baselineResourceCount = resourceCache->getResourceCount();
+    // When buffer maps are async it can take extra time for buffers to be returned to the cache.
+    if (context->priv().caps()->bufferMapsAreAsync()) {
+        // We expect at least 2 textures (and possibly buffers).
+        REPORTER_ASSERT(r, baselineResourceCount >= 2);
+    } else {
+        REPORTER_ASSERT(r, baselineResourceCount == 2);
+    }
     // Force a command buffer ref on the second proxy in the cache so it can't be purged immediately
     setup.fProxy2->texture()->refCommandBuffer();
 
@@ -395,7 +404,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest9, r, context, CtsEnforcement::
     resourceCache->purgeResourcesNotUsedSince(timeAfterProxyCreation);
 
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
-    REPORTER_ASSERT(r, resourceCache->getResourceCount() == 1);
+    REPORTER_ASSERT(r, resourceCache->getResourceCount() == baselineResourceCount - 1);
     REPORTER_ASSERT(r, resourceCache->topOfPurgeableQueue() == nullptr);
     REPORTER_ASSERT(r, proxy2ResourcePtr->testingShouldDeleteASAP());
 
@@ -405,7 +414,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest9, r, context, CtsEnforcement::
     resourceCache->forceProcessReturnedResources();
 
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
-    REPORTER_ASSERT(r, resourceCache->getResourceCount() == 0);
+    REPORTER_ASSERT(r, resourceCache->getResourceCount() == baselineResourceCount - 2);
     REPORTER_ASSERT(r, resourceCache->topOfPurgeableQueue() == nullptr);
 }
 

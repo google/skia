@@ -27,11 +27,13 @@ Resource::Resource(const SharedContext* sharedContext,
                    Ownership ownership,
                    skgpu::Budgeted budgeted,
                    size_t gpuMemorySize,
-                   std::string_view label)
+                   std::string_view label,
+                   bool commandBufferRefsAsUsageRefs)
         : fSharedContext(sharedContext)
         , fUsageRefCnt(1)
         , fCommandBufferRefCnt(0)
         , fCacheRefCnt(0)
+        , fCommandBufferRefsAsUsageRefs(commandBufferRefsAsUsageRefs)
         , fOwnership(ownership)
         , fGpuMemorySize(gpuMemorySize)
         , fBudgeted(budgeted)

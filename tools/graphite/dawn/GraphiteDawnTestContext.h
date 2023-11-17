@@ -36,6 +36,8 @@ public:
         return fBackendContext;
     }
 
+    void tick() override;
+
 protected:
     DawnTestContext(const skgpu::graphite::DawnBackendContext& backendContext)
             : fBackendContext(backendContext) {}

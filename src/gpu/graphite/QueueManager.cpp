@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/Recording.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -179,7 +180,8 @@ bool QueueManager::addTask(Task* task,
 }
 
 bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
-                                 ResourceProvider* resourceProvider) {
+                                 ResourceProvider* resourceProvider,
+                                 SkSpan<const sk_sp<Buffer>> buffersToAsyncMap) {
     sk_sp<RefCntedCallback> callback;
     if (info.fFinishedProc) {
         callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
@@ -196,6 +198,7 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
     if (callback) {
         fCurrentCommandBuffer->addFinishedProc(std::move(callback));
     }
+    fCurrentCommandBuffer->addBuffersToAsyncMapOnSubmit(buffersToAsyncMap);
 
     return true;
 }

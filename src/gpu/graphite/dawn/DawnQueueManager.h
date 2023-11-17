@@ -24,6 +24,8 @@ public:
 
     const wgpu::Queue& dawnQueue() const { return fQueue; }
 
+    void tick() const override;
+
 private:
     const DawnSharedContext* dawnSharedContext() const;
 

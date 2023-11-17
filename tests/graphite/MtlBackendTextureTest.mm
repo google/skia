@@ -20,7 +20,7 @@ namespace {
     const SkISize kSize = {16, 16};
 }
 
-DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(MtlBackendTextureTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(MtlBackendTextureTest, reporter, context, testContext) {
     auto recorder = context->makeRecorder();
 
     MtlTextureInfo textureInfo;

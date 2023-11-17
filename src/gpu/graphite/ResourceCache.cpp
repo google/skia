@@ -178,6 +178,19 @@ bool ResourceCache::returnResource(Resource* resource, LastRemovedRef removedRef
 
     SkASSERT(resource);
 
+    // When a non-shareable resource's CB and Usage refs are both zero, give it a chance prepare
+    // itself to be reused. On Dawn/WebGPU we use this to remap kXferCpuToGpu buffers asynchronously
+    // so that they are already mapped before they come out of the cache again.
+    if (resource->shouldDeleteASAP() == Resource::DeleteASAP::kNo &&
+        resource->key().shareable() == Shareable::kNo &&
+        removedRef == LastRemovedRef::kUsage) {
+        resource->prepareForReturnToCache([resource] { resource->initialUsageRef(); });
+        // Check if resource was re-ref'ed. In that case exit without adding to the queue.
+        if (resource->hasUsageRef()) {
+            return true;
+        }
+    }
+
     // We only allow one instance of a Resource to be in the return queue at a time. We do this so
     // that the ReturnQueue stays small and quick to process.
     //
@@ -199,6 +212,7 @@ bool ResourceCache::returnResource(Resource* resource, LastRemovedRef removedRef
         SkASSERT(nextResource.first != resource);
     }
 #endif
+
     fReturnQueue.push_back(std::make_pair(resource, removedRef));
     *resource->accessReturnIndex() = fReturnQueue.size() - 1;
     resource->refCache();

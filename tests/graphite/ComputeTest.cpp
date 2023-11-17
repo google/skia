@@ -25,13 +25,23 @@
 #include "src/gpu/graphite/UploadTask.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
+#include "tools/graphite/GraphiteTestContext.h"
 
 using namespace skgpu::graphite;
 
 namespace {
 
-void* map_buffer(Buffer* buffer, size_t offset) {
+void* map_buffer(Context* context,
+                 skiatest::graphite::GraphiteTestContext* testContext,
+                 Buffer* buffer,
+                 size_t offset) {
     SkASSERT(buffer);
+    if (context->priv().caps()->bufferMapsAreAsync()) {
+        buffer->asyncMap();
+        while (!buffer->isMapped()) {
+            testContext->tick();
+        }
+    }
     std::byte* ptr = static_cast<std::byte*>(buffer->map());
     SkASSERT(ptr);
 
@@ -62,13 +72,21 @@ bool is_dawn_or_metal_context_type(skiatest::GpuContextType ctxType) {
 
 }  // namespace
 
-#define DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(name, reporter, graphite_context) \
-    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name, is_dawn_or_metal_context_type, reporter,       \
-                                   graphite_context, testCtx, CtsEnforcement::kNever)
+#define DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(            \
+        name, reporter, graphite_context, test_context)           \
+    DEF_GRAPHITE_TEST_FOR_CONTEXTS(name,                          \
+                                   is_dawn_or_metal_context_type, \
+                                   reporter,                      \
+                                   graphite_context,              \
+                                   test_context,                  \
+                                   CtsEnforcement::kNever)
 
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest,
+                                              reporter,
+                                              context,
+                                              testContext) {
     constexpr uint32_t kProblemSize = 512;
     constexpr float kFactor = 4.f;
 
@@ -187,7 +205,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest, report
     context->submit(SyncToCpu::kYes);
 
     // Verify the contents of the output buffer.
-    float* outData = static_cast<float*>(map_buffer(outputBuffer.get(), outputInfo.fOffset));
+    float* outData = static_cast<float*>(
+            map_buffer(context, testContext, outputBuffer.get(), outputInfo.fOffset));
     SkASSERT(outputBuffer->isMapped() && outData != nullptr);
     for (unsigned int i = 0; i < kProblemSize; ++i) {
         const float expected = (i + 1) * kFactor;
@@ -198,7 +217,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest, report
 
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
+                                              reporter,
+                                              context,
+                                              testContext) {
     constexpr uint32_t kProblemSize = 512;
     constexpr float kFactor1 = 4.f;
     constexpr float kFactor2 = 3.f;
@@ -414,7 +436,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
     context->submit(SyncToCpu::kYes);
 
     // Verify the contents of the output buffer from step 2
-    float* outData = static_cast<float*>(map_buffer(outputBuffer.get(), outputInfo.fOffset));
+    float* outData = static_cast<float*>(
+            map_buffer(context, testContext, outputBuffer.get(), outputInfo.fOffset));
     SkASSERT(outputBuffer->isMapped() && outData != nullptr);
     for (unsigned int i = 0; i < kProblemSize; ++i) {
         const float expected = (i + 1) * kFactor1 * kFactor2;
@@ -423,8 +446,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
     }
 
     // Verify the contents of the extra output buffer from step 1
-    float* extraOutData =
-            static_cast<float*>(map_buffer(extraOutputBuffer.get(), extraOutputInfo.fOffset));
+    float* extraOutData = static_cast<float*>(
+            map_buffer(context, testContext, extraOutputBuffer.get(), extraOutputInfo.fOffset));
     SkASSERT(extraOutputBuffer->isMapped() && extraOutData != nullptr);
     REPORTER_ASSERT(reporter,
                     kFactor1 == extraOutData[0],
@@ -440,7 +463,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest, reporte
 
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest,
+                                              reporter,
+                                              context,
+                                              testContext) {
     constexpr uint32_t kProblemSize = 512;
     constexpr float kFactor = 4.f;
 
@@ -573,7 +599,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest, reporte
     context->submit(SyncToCpu::kYes);
 
     // Verify the contents of the output buffer.
-    float* outData = static_cast<float*>(map_buffer(outputBuffer.get(), outputInfo.fOffset));
+    float* outData = static_cast<float*>(
+            map_buffer(context, testContext, outputBuffer.get(), outputInfo.fOffset));
     SkASSERT(outputBuffer->isMapped() && outData != nullptr);
     for (unsigned int i = 0; i < kProblemSize; ++i) {
         const float expected = (i + 1) * kFactor;
@@ -584,7 +611,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest, reporte
 
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer,
+                                              reporter,
+                                              context,
+                                              testContext) {
     constexpr uint32_t kProblemSize = 512;
     constexpr float kFactor = 4.f;
 
@@ -690,7 +720,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer, 
     context->submit(SyncToCpu::kYes);
 
     // Verify the contents of the output buffer.
-    float* outData = static_cast<float*>(map_buffer(outputBuffer.get(), outputInfo.fOffset));
+    float* outData = static_cast<float*>(
+            map_buffer(context, testContext, outputBuffer.get(), outputInfo.fOffset));
     SkASSERT(outputBuffer->isMapped() && outData != nullptr);
     for (unsigned int i = 0; i < kProblemSize; ++i) {
         const float expected = (i + 1) * kFactor;
@@ -701,7 +732,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer, 
 
 // Tests the storage texture binding for a compute dispatch that writes the same color to every
 // pixel of a storage texture.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTexture, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTexture,
+                                              reporter,
+                                              context,
+                                              testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
@@ -802,7 +836,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTexture, reporter, 
 // CPU-populated texture and copies it to a storage texture.
 DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite,
                                               reporter,
-                                              context) {
+                                              context,
+                                              testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
@@ -955,7 +990,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
 // Tests that a texture written by one compute step can be sampled by a subsequent step.
 DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComputeSteps,
                                               reporter,
-                                              context) {
+                                              context,
+                                              testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
@@ -1099,7 +1135,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
 // Tests that a texture can be sampled by a compute step using a sampler.
 // TODO(armansito): Once the previous TODO is done, add additional tests that exercise mixed use of
 // texture, buffer, and sampler bindings.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture,
+                                              reporter,
+                                              context,
+                                              testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     // The first ComputeStep initializes a 16x16 texture with a checkerboard pattern of alternating
@@ -1263,7 +1302,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture, reporter, 
 // features like this as part of SkSLTest.cpp instead of as a graphite test.
 // TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
 // compute programs.
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
+                                              reporter,
+                                              context,
+                                              testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     constexpr uint32_t kWorkgroupCount = 32;
@@ -1371,7 +1413,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest, repo
 
     // Verify the contents of the output buffer.
     constexpr uint32_t kExpectedCount = kWorkgroupCount * kWorkgroupSize;
-    const uint32_t result = static_cast<const uint32_t*>(map_buffer(buffer.get(), info.fOffset))[0];
+    const uint32_t result = static_cast<const uint32_t*>(
+            map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
     REPORTER_ASSERT(reporter,
                     result == kExpectedCount,
                     "expected '%d', found '%d'",
@@ -1386,7 +1429,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest, repo
 // compute programs.
 DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayAndStructTest,
                                               reporter,
-                                              context) {
+                                              context,
+                                              testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     constexpr uint32_t kWorkgroupCount = 32;
@@ -1506,7 +1550,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
     // Verify the contents of the output buffer.
     constexpr uint32_t kExpectedCount = kWorkgroupCount * kWorkgroupSize / 2;
 
-    const uint32_t* ssboData = static_cast<const uint32_t*>(map_buffer(buffer.get(), info.fOffset));
+    const uint32_t* ssboData = static_cast<const uint32_t*>(
+            map_buffer(context, testContext, buffer.get(), info.fOffset));
     const uint32_t firstHalfCount = ssboData[0];
     const uint32_t secondHalfCount = ssboData[1];
     REPORTER_ASSERT(reporter,
@@ -1521,7 +1566,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
                     secondHalfCount);
 }
 
-DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer,
+                                              reporter,
+                                              context,
+                                              testContext) {
     constexpr uint32_t kProblemSize = 512;
 
     // The ComputeStep packs kProblemSize floats into kProblemSize / 4 vectors and each thread
@@ -1617,7 +1665,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer, reporter, c
     context->submit(SyncToCpu::kYes);
 
     // Verify the contents of the output buffer.
-    uint32_t* outData = static_cast<uint32_t*>(map_buffer(outputBuffer.get(), outputInfo.fOffset));
+    uint32_t* outData = static_cast<uint32_t*>(
+            map_buffer(context, testContext, outputBuffer.get(), outputInfo.fOffset));
     SkASSERT(outputBuffer->isMapped() && outData != nullptr);
     for (unsigned int i = 0; i < kProblemSize; ++i) {
         const uint32_t found = outData[i];
@@ -1625,7 +1674,10 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer, reporter, c
     }
 }
 
-DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal,
+                                    reporter,
+                                    context,
+                                    testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     constexpr uint32_t kWorkgroupCount = 32;
@@ -1736,7 +1788,8 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal, reporter, c
 
     // Verify the contents of the output buffer.
     constexpr uint32_t kExpectedCount = kWorkgroupCount * kWorkgroupSize;
-    const uint32_t result = static_cast<const uint32_t*>(map_buffer(buffer.get(), info.fOffset))[0];
+    const uint32_t result = static_cast<const uint32_t*>(
+            map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
     REPORTER_ASSERT(reporter,
                     result == kExpectedCount,
                     "expected '%d', found '%d'",
@@ -1744,7 +1797,10 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal, reporter, c
                     result);
 }
 
-DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_WorkgroupBufferDescMetal, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_WorkgroupBufferDescMetal,
+                                    reporter,
+                                    context,
+                                    testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     constexpr uint32_t kWorkgroupCount = 32;
@@ -1862,7 +1918,8 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_WorkgroupBufferDescMetal, reporter, 
 
     // Verify the contents of the output buffer.
     constexpr uint32_t kExpectedCount = kWorkgroupCount * kWorkgroupSize;
-    const uint32_t result = static_cast<const uint32_t*>(map_buffer(buffer.get(), info.fOffset))[0];
+    const uint32_t result = static_cast<const uint32_t*>(
+            map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
     REPORTER_ASSERT(reporter,
                     result == kExpectedCount,
                     "expected '%d', found '%d'",
@@ -1870,7 +1927,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_WorkgroupBufferDescMetal, reporter, 
                     result);
 }
 
-DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(Compute_NativeShaderSourceWGSL, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(Compute_NativeShaderSourceWGSL, reporter, context, testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     constexpr uint32_t kWorkgroupCount = 32;
@@ -1979,7 +2036,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(Compute_NativeShaderSourceWGSL, reporter, con
 
     // Verify the contents of the output buffer.
     constexpr uint32_t kExpectedCount = kWorkgroupCount * kWorkgroupSize;
-    const uint32_t result = static_cast<const uint32_t*>(map_buffer(buffer.get(), info.fOffset))[0];
+    const uint32_t result = static_cast<const uint32_t*>(
+            map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
     REPORTER_ASSERT(reporter,
                     result == kExpectedCount,
                     "expected '%d', found '%d'",

@@ -56,6 +56,12 @@ public:
      */
     void submitRecordingAndWaitOnSync(skgpu::graphite::Context*, skgpu::graphite::Recording*);
 
+    /**
+     * Allow the GPU API to make or detect forward progress on submitted work. For most APIs this is
+     * a no-op as the API can do this on another thread.
+     */
+    virtual void tick() {}
+
 protected:
     static constexpr int kMaxFrameLag = 3;
 

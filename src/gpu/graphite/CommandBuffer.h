@@ -62,6 +62,9 @@ public:
     virtual void prepareSurfaceForStateUpdate(SkSurface* targetSurface,
                                               const MutableTextureState* newState) {}
 
+    void addBuffersToAsyncMapOnSubmit(SkSpan<const sk_sp<Buffer>>);
+    SkSpan<const sk_sp<Buffer>> buffersToAsyncMapOnSubmit() const;
+
     bool addRenderPass(const RenderPassDesc&,
                        sk_sp<Texture> colorTexture,
                        sk_sp<Texture> resolveTexture,
@@ -151,6 +154,7 @@ private:
     inline static constexpr int kInitialTrackedResourcesCount = 32;
     skia_private::STArray<kInitialTrackedResourcesCount, sk_sp<Resource>> fTrackedResources;
     skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
+    skia_private::TArray<sk_sp<Buffer>> fBuffersToAsyncMap;
 };
 
 } // namespace skgpu::graphite

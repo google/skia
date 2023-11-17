@@ -40,10 +40,11 @@ public:
         : GpuWorkSubmission(std::move(cmdBuffer), queueManager) {}
     ~MtlWorkSubmission() override {}
 
-    bool isFinished() override {
+private:
+    bool onIsFinished() override {
         return static_cast<MtlCommandBuffer*>(this->commandBuffer())->isFinished();
     }
-    void waitUntilFinished() override {
+    void onWaitUntilFinished() override {
         return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
     }
 };
