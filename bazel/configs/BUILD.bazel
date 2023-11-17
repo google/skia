@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("//bazel:skia_rules.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+go_library(
+    name = "configs",
+    srcs = ["device_specific_configs.go"],
+    importpath = "go.skia.org/skia/bazel/configs",
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "configs_test",
+    srcs = ["device_specific_configs_test.go"],
+    embed = [":configs"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)

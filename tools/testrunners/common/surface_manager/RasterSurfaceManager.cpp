@@ -17,7 +17,7 @@
 class RasterSurfaceManager : public SurfaceManager {
 public:
     RasterSurfaceManager(sk_sp<SkSurface> surface, std::string config, SkColorInfo colorInfo)
-            : SurfaceManager(config, colorInfo), fSurface(surface) {}
+            : SurfaceManager(config, colorInfo, CpuOrGpu::kCPU), fSurface(surface) {}
 
     sk_sp<SkSurface> getSurface() override { return fSurface; }
 

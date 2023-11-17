@@ -24,6 +24,7 @@
 #include "tools/Stats.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/testrunners/benchmark/target/BenchmarkTarget.h"
+#include "tools/testrunners/common/surface_manager/SurfaceManager.h"
 #include "tools/timer/Timer.h"
 
 #include <cinttypes>
@@ -79,6 +80,16 @@ static DEFINE_string(surfaceConfig,
                      "how we construct the SkSurface from which we get the SkCanvas that "
                      "benchmarks will draw on. See file "
                      "//tools/testrunners/common/surface_manager/SurfaceManager.h for details.");
+
+static DEFINE_string(
+        cpuName,
+        "",
+        "Contents of the \"cpu_or_gpu_value\" dimension for CPU-bound traces (e.g. \"AVX512\").");
+
+static DEFINE_string(
+        gpuName,
+        "",
+        "Contents of the \"cpu_or_gpu_value\" dimension for GPU-bound traces (e.g. \"RTX3060\").");
 
 static DEFINE_bool(
         writePNGs,
@@ -196,6 +207,9 @@ static void validate_flags(bool isBazelTest) {
 
     validate_string_flag_nonempty("--surfaceConfig", FLAGS_surfaceConfig);
     validate_string_flag_single_value("--surfaceConfig", FLAGS_surfaceConfig);
+
+    validate_string_flag_single_value("--cpuName", FLAGS_cpuName);
+    validate_string_flag_single_value("--gpuName", FLAGS_gpuName);
 
     validate_flags_exactly_one(
             {{"--loops", FLAGS_loops != 0}, {"--autoTuneLoops", FLAGS_autoTuneLoops}});
@@ -587,6 +601,9 @@ int main(int argc, char** argv) {
     std::string outputDir =
             FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
 
+    std::string cpuName = FLAGS_cpuName.isEmpty() ? "" : FLAGS_cpuName[0];
+    std::string gpuName = FLAGS_gpuName.isEmpty() ? "" : FLAGS_gpuName[0];
+
     // Output JSON file.
     //
     // TODO(lovisolo): Define a constant with the file name, use it here and in flag descriptions.
@@ -633,6 +650,18 @@ int main(int argc, char** argv) {
 
         std::unique_ptr<BenchmarkTarget> target =
                 BenchmarkTarget::FromConfig(surfaceConfig, benchmark.get());
+
+        // Print warning about missing cpu_or_gpu key if necessary.
+        if (target->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kCPU && cpuName == "") {
+            SkDebugf(
+                    "Warning: The surface is CPU-bound, but flag --cpuName was not provided. "
+                    "Perf traces will omit keys \"cpu_or_gpu\" and \"cpu_or_gpu_value\".\n");
+        }
+        if (target->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kGPU && gpuName == "") {
+            SkDebugf(
+                    "Warning: The surface is GPU-bound, but flag --gpuName was not provided. "
+                    "Perf traces will omit keys \"cpu_or_gpu\" and \"cpu_or_gpu_value\".\n");
+        }
 
         if (benchmark->isSuitableFor(target->getBackend())) {
             // Run benchmark and collect samples.
@@ -706,6 +735,7 @@ int main(int argc, char** argv) {
                     {"width", SkStringPrintf("%d", benchmark->getSize().width()).c_str()},
                     {"height", SkStringPrintf("%d", benchmark->getSize().height()).c_str()},
             };
+            result.key.merge(target->getKeyValuePairs(cpuName, gpuName));
             result.measurements["ms"] = {
                     // Based on
                     // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#1571.

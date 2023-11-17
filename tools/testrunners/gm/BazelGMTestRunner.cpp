@@ -51,14 +51,27 @@ static DEFINE_string(outputDir,
                      "(e.g. \"bazel test //path/to:test\") as it defaults to "
                      "$TEST_UNDECLARED_OUTPUTS_DIR.");
 
+static DEFINE_string(key, "", "Space-separated key/value pairs common to all traces.");
+
 // We named this flag --surfaceConfig rather than --config to avoid confusion with the --config
 // Bazel flag.
-static DEFINE_string(surfaceConfig,
-                     "",
-                     "Name of the Surface configuration to use (e.g. \"8888\"). This determines "
-                     "how we construct the SkSurface from which we get the SkCanvas that GMs will "
-                     "draw on. See file //tools/testrunners/common/surface_manager/SurfaceManager.h for "
-                     "details.");
+static DEFINE_string(
+        surfaceConfig,
+        "",
+        "Name of the Surface configuration to use (e.g. \"8888\"). This determines "
+        "how we construct the SkSurface from which we get the SkCanvas that GMs will "
+        "draw on. See file //tools/testrunners/common/surface_manager/SurfaceManager.h for "
+        "details.");
+
+static DEFINE_string(
+        cpuName,
+        "",
+        "Contents of the \"cpu_or_gpu_value\" dimension for CPU-bound traces (e.g. \"AVX512\").");
+
+static DEFINE_string(
+        gpuName,
+        "",
+        "Contents of the \"cpu_or_gpu_value\" dimension for GPU-bound traces (e.g. \"RTX3060\").");
 
 static DEFINE_string(via,
                      "direct",  // Equivalent to running DM without a via.
@@ -67,6 +80,7 @@ static DEFINE_string(via,
 // Takes a SkBitmap and writes the resulting PNG and MD5 hash into the given files. Returns an
 // empty string on success, or an error message in the case of failures.
 static std::string write_png_and_json_files(std::string name,
+                                            std::map<std::string, std::string> commonKeys,
                                             std::map<std::string, std::string> gmGoldKeys,
                                             std::map<std::string, std::string> surfaceGoldKeys,
                                             const SkBitmap& bitmap,
@@ -107,6 +121,7 @@ static std::string write_png_and_json_files(std::string name,
     std::map<std::string, std::string> keys = {
             {"build_system", "bazel"},
     };
+    keys.merge(commonKeys);
     keys.merge(surfaceGoldKeys);
     keys.merge(gmGoldKeys);
 
@@ -153,7 +168,12 @@ static int gNumSkippedGMs = 0;
 
 // Runs a GM under the given surface config, and saves its output PNG file (and accompanying JSON
 // file with metadata) to the given output directory.
-void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outputDir) {
+void run_gm(std::unique_ptr<skiagm::GM> gm,
+            std::string config,
+            std::map<std::string, std::string> keyValuePairs,
+            std::string cpuName,
+            std::string gpuName,
+            std::string outputDir) {
     SkDebugf("[%s] GM: %s\n", now().c_str(), gm->getName().c_str());
 
     // Create surface and canvas.
@@ -161,6 +181,20 @@ void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outp
             config, SurfaceOptions{gm->getISize().width(), gm->getISize().height()});
     if (surfaceManager == nullptr) {
         SK_ABORT("Unknown --surfaceConfig flag value: %s.", config.c_str());
+    }
+
+    // Print warning about missing cpu_or_gpu key if necessary.
+    if ((surfaceManager->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kCPU && cpuName == "")) {
+        SkDebugf(
+                "[%s]     Warning: The surface is CPU-bound, but flag --cpuName was not provided. "
+                "Gold traces will omit keys \"cpu_or_gpu\" and \"cpu_or_gpu_value\".\n",
+                now().c_str());
+    }
+    if ((surfaceManager->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kGPU && gpuName == "")) {
+        SkDebugf(
+                "[%s]     Warning: The surface is GPU-bound, but flag --gpuName was not provided. "
+                "Gold traces will omit keys \"cpu_or_gpu\" and \"cpu_or_gpu_value\".\n",
+                now().c_str());
     }
 
     // Set up GPU.
@@ -210,12 +244,14 @@ void run_gm(std::unique_ptr<skiagm::GM> gm, std::string config, std::string outp
         SkString pngPath = SkOSPath::Join(outputDir.c_str(), (name + ".png").c_str());
         SkString jsonPath = SkOSPath::Join(outputDir.c_str(), (name + ".json").c_str());
 
-        std::string pngAndJSONResult = write_png_and_json_files(gm->getName().c_str(),
-                                                                gm->getGoldKeys(),
-                                                                surfaceManager->getGoldKeys(),
-                                                                bitmap,
-                                                                pngPath.c_str(),
-                                                                jsonPath.c_str());
+        std::string pngAndJSONResult =
+                write_png_and_json_files(gm->getName().c_str(),
+                                         keyValuePairs,
+                                         gm->getGoldKeys(),
+                                         surfaceManager->getGoldKeyValuePairs(cpuName, gpuName),
+                                         bitmap,
+                                         pngPath.c_str(),
+                                         jsonPath.c_str());
         if (pngAndJSONResult != "") {
             SkDebugf("[%s] %s\n", now().c_str(), pngAndJSONResult.c_str());
             gNumFailedGMs++;
@@ -262,6 +298,9 @@ int main(int argc, char** argv) {
     if (FLAGS_outputDir.size() > 1) {
         SK_ABORT("Flag --outputDir takes one single value, got %d.", FLAGS_outputDir.size());
     }
+    if (FLAGS_key.size() % 2 == 1) {
+        SK_ABORT("Flag --key takes an even number of arguments, got: %d.\n", FLAGS_key.size());
+    }
     if (FLAGS_surfaceConfig.isEmpty()) {
         SK_ABORT("Flag --surfaceConfig cannot be empty.");
     }
@@ -269,13 +308,25 @@ int main(int argc, char** argv) {
         SK_ABORT("Flag --surfaceConfig takes one single value, got %d.",
                  FLAGS_surfaceConfig.size());
     }
+    if (FLAGS_cpuName.size() > 1) {
+        SK_ABORT("Flag --cpuName takes at most one value, got %d.", FLAGS_cpuName.size());
+    }
+    if (FLAGS_gpuName.size() > 1) {
+        SK_ABORT("Flag --gpuName takes at most one value, got %d.", FLAGS_gpuName.size());
+    }
     if (FLAGS_via.size() > 1) {
         SK_ABORT("Flag --via takes at most one value, got %d.", FLAGS_via.size());
     }
 
     std::string outputDir =
             FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
+    std::map<std::string, std::string> keyValuePairs;
+    for (int i = 1; i < FLAGS_key.size(); i += 2) {
+        keyValuePairs[FLAGS_key[i - 1]] = FLAGS_key[i];
+    }
     std::string config = FLAGS_surfaceConfig[0];
+    std::string cpuName = FLAGS_cpuName.isEmpty() ? "" : FLAGS_cpuName[0];
+    std::string gpuName = FLAGS_gpuName.isEmpty() ? "" : FLAGS_gpuName[0];
 
     // Execute all GM registerer functions, then run all registered GMs.
     for (const skiagm::GMRegistererFn& f : skiagm::GMRegistererFnRegistry::Range()) {
@@ -285,7 +336,7 @@ int main(int argc, char** argv) {
         }
     }
     for (const skiagm::GMFactory& f : skiagm::GMRegistry::Range()) {
-        run_gm(f(), config, outputDir);
+        run_gm(f(), config, keyValuePairs, cpuName, gpuName, outputDir);
     }
 
     // TODO(lovisolo): If running under Bazel, print command to display output files.

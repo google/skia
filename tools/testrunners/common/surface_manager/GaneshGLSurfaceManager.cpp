@@ -25,7 +25,7 @@ public:
                            sk_sp<SkSurface> surface,
                            std::string config,
                            SkColorInfo colorInfo)
-            : SurfaceManager(config, colorInfo)
+            : SurfaceManager(config, colorInfo, CpuOrGpu::kGPU)
             , fContextFactory(std::move(contextFactory))
             , fContextInfo(contextInfo)
             , fContext(context)

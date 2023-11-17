@@ -122,8 +122,9 @@ static std::string identify_transfer_fn(SkColorSpace* cs) {
     return "non-numeric";
 }
 
-std::map<std::string, std::string> SurfaceManager::getGoldKeys() const {
-    return std::map<std::string, std::string>{
+std::map<std::string, std::string> SurfaceManager::getGoldKeyValuePairs(std::string cpuName,
+                                                                        std::string gpuName) const {
+    std::map<std::string, std::string> kvPairs = {
             {"surface_config", fConfig},
             {"gamut", identify_gamut(fColorInfo.colorSpace())},
             {"transfer_fn", identify_transfer_fn(fColorInfo.colorSpace())},
@@ -131,4 +132,29 @@ std::map<std::string, std::string> SurfaceManager::getGoldKeys() const {
             {"alpha_type", std::string(ToolUtils::alphatype_name(fColorInfo.alphaType()))},
             {"color_depth", std::string(ToolUtils::colortype_depth(fColorInfo.colorType()))},
     };
+    kvPairs.merge(getCpuOrGpuKeyValuePairs(cpuName, gpuName));
+    return kvPairs;
 }
+
+std::map<std::string, std::string> SurfaceManager::getPerfKeyValuePairs(std::string cpuName,
+                                                                        std::string gpuName) const {
+    return getCpuOrGpuKeyValuePairs(cpuName, gpuName);
+}
+
+std::map<std::string, std::string> SurfaceManager::getCpuOrGpuKeyValuePairs(
+        std::string cpuName, std::string gpuName) const {
+    // Leave these keys unset if the CPU or GPU name is not provided and the config is CPU or GPU
+    // bound, respectively. It is up to each test runner to print a warning informing the user of
+    // this behavior.
+    if ((fCpuOrGpu == CpuOrGpu::kCPU && cpuName == "") ||
+        (fCpuOrGpu == CpuOrGpu::kGPU && gpuName == "")) {
+        return std::map<std::string, std::string>();
+    }
+
+    return std::map<std::string, std::string>{
+            {"cpu_or_gpu", fCpuOrGpu == CpuOrGpu::kCPU ? "CPU" : "GPU"},
+            {"cpu_or_gpu_value", fCpuOrGpu == CpuOrGpu::kCPU ? cpuName : gpuName},
+    };
+}
+
+SurfaceManager::CpuOrGpu SurfaceManager::isCpuOrGpuBound() const { return fCpuOrGpu; }

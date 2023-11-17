@@ -127,6 +127,7 @@ test_suite(
     name = "all_go_tests",
     tests = [
         # Go tests in this list will be tested in CI. Please add any new Go tests to this suite.
+        "//bazel/configs:configs_test",
         "//bazel/exporter:exporter_test",
         "//infra/bots/task_drivers/bazel_test_benchmark:bazel_test_benchmark_test",
         "//infra/bots/task_drivers/bazel_test_gm:bazel_test_gm_test",

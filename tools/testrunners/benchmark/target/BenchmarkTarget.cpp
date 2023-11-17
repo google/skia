@@ -42,4 +42,13 @@ SkCanvas* BenchmarkTarget::getCanvas() const {
 
 Benchmark* BenchmarkTarget::getBenchmark() const { return fBenchmark; }
 
+std::map<std::string, std::string> BenchmarkTarget::getKeyValuePairs(std::string cpuName,
+                                                                     std::string gpuName) const {
+    return fSurfaceManager->getPerfKeyValuePairs(cpuName, gpuName);
+}
+
+SurfaceManager::CpuOrGpu BenchmarkTarget::isCpuOrGpuBound() const {
+    return fSurfaceManager->isCpuOrGpuBound();
+}
+
 double BenchmarkTarget::nowMs() const { return SkTime::GetNSecs() * 1e-6; }

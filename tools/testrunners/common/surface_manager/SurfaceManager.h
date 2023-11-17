@@ -38,6 +38,8 @@ struct SurfaceOptions {
 // etc.).
 class SurfaceManager {
 public:
+    enum class CpuOrGpu { kCPU, kGPU };
+
     // Constructs a SurfaceManager for the given config name (e.g. "8888", "565", "gles"). It
     // returns nullptr if the config is unknown, and it aborts execution if the config is known but
     // we weren't able to construct the surface for any reason.
@@ -52,9 +54,22 @@ public:
     // Failing to do so may lead to blank pixmaps.
     virtual void flush() {}
 
-    // Returns the subset of Gold keys that are determined by the surface config. These keys
-    // pertain to color and are generated from the SkColorInfo passed to this class' constructor.
-    std::map<std::string, std::string> getGoldKeys() const;
+    // Returns the subset of Gold key/value pairs that are determined by the surface config. The
+    // returned map includes keys "cpu_or_gpu" and "cpu_or_gpu_value", which are populated based
+    // on the cpuName and gpuName arguments, and whether the surface config is CPU or GPU bound.
+    // The returned map also includes various keys pertaining to color, which are generated from
+    // the SkColorInfo passed to this class' constructor.
+    std::map<std::string, std::string> getGoldKeyValuePairs(std::string cpuName,
+                                                            std::string gpuName) const;
+
+    // Returns the subset of Perf key/value pairs that are determined by the surface config. The
+    // returned map includes keys "cpu_or_gpu" and "cpu_or_gpu_value", which are populated based
+    // on the cpuName and gpuName arguments, and whether the surface config is CPU or GPU bound.
+    std::map<std::string, std::string> getPerfKeyValuePairs(std::string cpuName,
+                                                            std::string gpuName) const;
+
+    // Returns an enum indicating whether the surface is CPU or GPU bound.
+    CpuOrGpu isCpuOrGpuBound() const;
 
     // Returns the Ganesh ContextInfo on SurfaceManager implementations that support it.
     virtual sk_gpu_test::ContextInfo* getGaneshContextInfo() {
@@ -66,12 +81,16 @@ public:
 protected:
     // Takes the config name passed to FromConfig(), and the SkColorInfo used by FromConfig() to
     // create the surface.
-    SurfaceManager(std::string config, SkColorInfo colorInfo)
-            : fConfig(config), fColorInfo(colorInfo) {}
+    SurfaceManager(std::string config, SkColorInfo colorInfo, CpuOrGpu cpuOrGpu)
+            : fConfig(config), fColorInfo(colorInfo), fCpuOrGpu(cpuOrGpu) {}
 
 private:
     std::string fConfig;
     SkColorInfo fColorInfo;
+    CpuOrGpu fCpuOrGpu;
+
+    std::map<std::string, std::string> getCpuOrGpuKeyValuePairs(std::string cpuName,
+                                                                std::string gpuName) const;
 };
 
 #endif  // SurfaceManager_DEFINED

@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+go_library(
+    name = "generate_lib",
+    srcs = ["generate.go"],
+    importpath = "go.skia.org/skia/bazel/configs/generate",
+    visibility = ["//visibility:private"],
+    deps = ["//bazel/configs"],
+)
+
+go_binary(
+    name = "generate",
+    embed = [":generate_lib"],
+    visibility = ["//visibility:public"],
+)
