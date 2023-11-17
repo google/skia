@@ -31,7 +31,6 @@ config("skia_public") {
   defines = [
     "SK_DEFAULT_TYPEFACE_IS_EMPTY",
     "SK_DISABLE_LEGACY_DEFAULT_TYPEFACE",
-    "SK_DISABLE_LEGACY_FONTMGR_FACTORY",
   ]
   cflags_objcc = []
   if (is_component_build) {

@@ -171,7 +171,7 @@ sk_sp<SkFontMgr> SkFontMgr::RefDefault() {
                                                         : SkFontMgr::Factory();
         singleton = fm ? std::move(fm) : RefEmpty();
 #else
-        singleton = RefEmpty();
+        singleton = nullptr;
 #endif
     });
     return singleton;

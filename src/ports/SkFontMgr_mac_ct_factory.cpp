@@ -11,7 +11,7 @@
 #include "include/core/SkFontMgr.h"
 #include "include/ports/SkFontMgr_mac_ct.h"
 
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
 sk_sp<SkFontMgr> SkFontMgr::Factory() {
     return SkFontMgr_New_CoreText(nullptr);
 }
