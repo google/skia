@@ -7,6 +7,9 @@
 
 #pragma once
 
+#include <stddef.h>
+#include <stdint.h>
+
 // skcms_Transform.h contains skcms implementation details.
 // Please don't use this header from outside the skcms repo.
 
