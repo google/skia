@@ -65,6 +65,7 @@ public:
     PrimitiveType primitiveType() const { return fPrimitiveType; }
     bool hasStepUniforms() const { return fHasStepUniforms; }
     bool hasPaintUniforms() const { return fHasPaintUniforms; }
+    int numTexturesAndSamplers() const { return fNumFragmentTexturesAndSamplers; }
     const wgpu::RenderPipeline& dawnRenderPipeline() const;
 
     using BindGroupLayouts = std::array<wgpu::BindGroupLayout, kBindGroupCount>;
@@ -80,7 +81,8 @@ private:
                          PrimitiveType primitiveType,
                          uint32_t refValue,
                          bool hasStepUniforms,
-                         bool hasPaintUniforms);
+                         bool hasPaintUniforms,
+                         int numFragmentTexturesAndSamplers);
 
     void freeGpuData() override;
 
@@ -90,6 +92,7 @@ private:
     const uint32_t fStencilReferenceValue;
     const bool fHasStepUniforms;
     const bool fHasPaintUniforms;
+    const int fNumFragmentTexturesAndSamplers;
 };
 
 } // namespace skgpu::graphite

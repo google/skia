@@ -284,6 +284,8 @@ bool DawnCommandBuffer::loadMSAAFromResolveAndBeginRenderPassEncoder(
         return false;
     }
 
+    this->trackResource(msaaLoadTexture);
+
     // Creating intermediate render pass (copy from resolve texture -> MSAA load texture)
     RenderPassDesc intermediateRenderPassDesc = {};
     intermediateRenderPassDesc.fColorAttachment.fLoadOp = LoadOp::kDiscard;
@@ -529,36 +531,48 @@ void DawnCommandBuffer::bindTextureAndSamplers(
     SkASSERT(fActiveRenderPassEncoder);
     SkASSERT(fActiveGraphicsPipeline);
 
-    // TODO: optimize for single texture.
-    std::vector<wgpu::BindGroupEntry> entries(2 * command.fNumTexSamplers);
+    wgpu::BindGroup bindGroup;
+    if (command.fNumTexSamplers == 1) {
+        // Optimize for single texture.
+        SkASSERT(fActiveGraphicsPipeline->numTexturesAndSamplers() == 2);
 
-    for (int i = 0; i < command.fNumTexSamplers; ++i) {
         const auto* texture =
-                static_cast<const DawnTexture*>(drawPass.getTexture(command.fTextureIndices[i]));
+                static_cast<const DawnTexture*>(drawPass.getTexture(command.fTextureIndices[0]));
         const auto* sampler =
-                static_cast<const DawnSampler*>(drawPass.getSampler(command.fSamplerIndices[i]));
-        auto& wgpuTextureView = texture->sampleTextureView();
-        auto& wgpuSampler = sampler->dawnSampler();
+                static_cast<const DawnSampler*>(drawPass.getSampler(command.fSamplerIndices[0]));
 
-        // Assuming shader generator assigns binding slot to sampler then texture,
-        // then the next sampler and texture, and so on, we need to use
-        // 2 * i as base binding index of the sampler and texture.
-        // TODO: https://b.corp.google.com/issues/259457090:
-        // Better configurable way of assigning samplers and textures' bindings.
-        entries[2 * i].binding = 2 * i;
-        entries[2 * i].sampler = wgpuSampler;
+        bindGroup = fResourceProvider->findOrCreateSingleTextureSamplerBindGroup(sampler, texture);
+    } else {
+        std::vector<wgpu::BindGroupEntry> entries(2 * command.fNumTexSamplers);
 
-        entries[2 * i + 1].binding = 2 * i + 1;
-        entries[2 * i + 1].textureView = wgpuTextureView;
+        for (int i = 0; i < command.fNumTexSamplers; ++i) {
+            const auto* texture = static_cast<const DawnTexture*>(
+                    drawPass.getTexture(command.fTextureIndices[i]));
+            const auto* sampler = static_cast<const DawnSampler*>(
+                    drawPass.getSampler(command.fSamplerIndices[i]));
+            auto& wgpuTextureView = texture->sampleTextureView();
+            auto& wgpuSampler = sampler->dawnSampler();
+
+            // Assuming shader generator assigns binding slot to sampler then texture,
+            // then the next sampler and texture, and so on, we need to use
+            // 2 * i as base binding index of the sampler and texture.
+            // TODO: https://b.corp.google.com/issues/259457090:
+            // Better configurable way of assigning samplers and textures' bindings.
+            entries[2 * i].binding = 2 * i;
+            entries[2 * i].sampler = wgpuSampler;
+
+            entries[2 * i + 1].binding = 2 * i + 1;
+            entries[2 * i + 1].textureView = wgpuTextureView;
+        }
+
+        wgpu::BindGroupDescriptor desc;
+        const auto& groupLayouts = fActiveGraphicsPipeline->dawnGroupLayouts();
+        desc.layout = groupLayouts[DawnGraphicsPipeline::kTextureBindGroupIndex];
+        desc.entryCount = entries.size();
+        desc.entries = entries.data();
+
+        bindGroup = fSharedContext->device().CreateBindGroup(&desc);
     }
-
-    wgpu::BindGroupDescriptor desc;
-    const auto& groupLayouts = fActiveGraphicsPipeline->dawnGroupLayouts();
-    desc.layout = groupLayouts[DawnGraphicsPipeline::kTextureBindGroupIndex];
-    desc.entryCount = entries.size();
-    desc.entries = entries.data();
-
-    auto bindGroup = fSharedContext->device().CreateBindGroup(&desc);
 
     fActiveRenderPassEncoder.SetBindGroup(DawnGraphicsPipeline::kTextureBindGroupIndex, bindGroup);
 }

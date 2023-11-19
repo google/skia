@@ -184,6 +184,12 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
 }
 
 void DawnTexture::freeGpuData() {
+    if (this->ownership() != Ownership::kWrapped && fTexture) {
+        // Destroy the texture even if it is still referenced by other BindGroup or views.
+        // Graphite should already guarantee that all command buffers using this texture (indirectly
+        // via BindGroup or views) are already completed.
+        fTexture.Destroy();
+    }
     fTexture = nullptr;
     fSampleTextureView = nullptr;
     fRenderTextureView = nullptr;

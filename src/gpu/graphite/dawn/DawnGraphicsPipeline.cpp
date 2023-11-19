@@ -386,27 +386,33 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
         bool hasFragmentSamplers = hasFragmentSkSL && numTexturesAndSamplers > 0;
         if (hasFragmentSamplers) {
-            std::vector<wgpu::BindGroupLayoutEntry> entries(numTexturesAndSamplers);
-            for (int i = 0; i < numTexturesAndSamplers;) {
-                entries[i].binding = static_cast<uint32_t>(i);
-                entries[i].visibility = wgpu::ShaderStage::Fragment;
-                entries[i].sampler.type = wgpu::SamplerBindingType::Filtering;
-                ++i;
-                entries[i].binding = i;
-                entries[i].visibility = wgpu::ShaderStage::Fragment;
-                entries[i].texture.sampleType = wgpu::TextureSampleType::Float;
-                entries[i].texture.viewDimension = wgpu::TextureViewDimension::e2D;
-                entries[i].texture.multisampled = false;
-                ++i;
-            }
+            if (numTexturesAndSamplers == 2) {
+                // Common case: single texture + sampler.
+                groupLayouts[1] =
+                        resourceProvider->getOrCreateSingleTextureSamplerBindGroupLayout();
+            } else {
+                std::vector<wgpu::BindGroupLayoutEntry> entries(numTexturesAndSamplers);
+                for (int i = 0; i < numTexturesAndSamplers;) {
+                    entries[i].binding = static_cast<uint32_t>(i);
+                    entries[i].visibility = wgpu::ShaderStage::Fragment;
+                    entries[i].sampler.type = wgpu::SamplerBindingType::Filtering;
+                    ++i;
+                    entries[i].binding = i;
+                    entries[i].visibility = wgpu::ShaderStage::Fragment;
+                    entries[i].texture.sampleType = wgpu::TextureSampleType::Float;
+                    entries[i].texture.viewDimension = wgpu::TextureViewDimension::e2D;
+                    entries[i].texture.multisampled = false;
+                    ++i;
+                }
 
-            wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
+                wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
 #if defined(SK_DEBUG)
-            groupLayoutDesc.label = step->name();
+                groupLayoutDesc.label = step->name();
 #endif
-            groupLayoutDesc.entryCount = entries.size();
-            groupLayoutDesc.entries = entries.data();
-            groupLayouts[1] = device.CreateBindGroupLayout(&groupLayoutDesc);
+                groupLayoutDesc.entryCount = entries.size();
+                groupLayoutDesc.entries = entries.data();
+                groupLayouts[1] = device.CreateBindGroupLayout(&groupLayoutDesc);
+            }
             if (!groupLayouts[1]) {
                 return {};
             }
@@ -554,7 +560,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                      step->primitiveType(),
                                      depthStencilSettings.fStencilReferenceValue,
                                      /*hasStepUniforms=*/!step->uniforms().empty(),
-                                     /*hasPaintUniforms=*/fsSkSLInfo.fNumPaintUniforms > 0));
+                                     /*hasPaintUniforms=*/fsSkSLInfo.fNumPaintUniforms > 0,
+                                     numTexturesAndSamplers));
 }
 
 DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
@@ -564,14 +571,16 @@ DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext*
                                            PrimitiveType primitiveType,
                                            uint32_t refValue,
                                            bool hasStepUniforms,
-                                           bool hasPaintUniforms)
+                                           bool hasPaintUniforms,
+                                           int numFragmentTexturesAndSamplers)
         : GraphicsPipeline(sharedContext, pipelineInfo)
         , fAsyncPipelineCreation(std::move(asyncCreationInfo))
         , fGroupLayouts(std::move(groupLayouts))
         , fPrimitiveType(primitiveType)
         , fStencilReferenceValue(refValue)
         , fHasStepUniforms(hasStepUniforms)
-        , fHasPaintUniforms(hasPaintUniforms) {}
+        , fHasPaintUniforms(hasPaintUniforms)
+        , fNumFragmentTexturesAndSamplers(numFragmentTexturesAndSamplers) {}
 
 void DawnGraphicsPipeline::freeGpuData() {
     fAsyncPipelineCreation = nullptr;

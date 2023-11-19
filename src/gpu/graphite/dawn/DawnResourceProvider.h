@@ -15,6 +15,7 @@
 namespace skgpu::graphite {
 
 class DawnGraphicsPipeline;
+class DawnSampler;
 class DawnSharedContext;
 class DawnTexture;
 class DawnBuffer;
@@ -37,6 +38,7 @@ public:
     sk_sp<DawnBuffer> findOrCreateDawnBuffer(size_t size, BufferType type, AccessPattern);
 
     const wgpu::BindGroupLayout& getOrCreateUniformBuffersBindGroupLayout();
+    const wgpu::BindGroupLayout& getOrCreateSingleTextureSamplerBindGroupLayout();
 
     // Find the cached bind group or create a new one based on the bound buffers and their
     // binding sizes (boundBuffersAndSizes) for these uniforms (in order):
@@ -45,6 +47,10 @@ public:
     // - Paint uniforms.
     const wgpu::BindGroup& findOrCreateUniformBuffersBindGroup(
             const std::array<std::pair<const DawnBuffer*, uint32_t>, 3>& boundBuffersAndSizes);
+
+    // Find or create a bind group containing the given sampler & texture.
+    const wgpu::BindGroup& findOrCreateSingleTextureSamplerBindGroup(const DawnSampler* sampler,
+                                                                     const DawnTexture* texture);
 
 private:
     sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
@@ -69,6 +75,7 @@ private:
     skia_private::THashMap<uint64_t, wgpu::RenderPipeline> fBlitWithDrawPipelines;
 
     wgpu::BindGroupLayout fUniformBuffersBindGroupLayout;
+    wgpu::BindGroupLayout fSingleTextureSamplerBindGroupLayout;
 
     wgpu::Buffer fNullBuffer;
 
@@ -76,8 +83,10 @@ private:
         uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
     };
 
-    using BufferBindGroupCache = SkLRUCache<UniqueKey, wgpu::BindGroup, UniqueKeyHash>;
-    BufferBindGroupCache fUniformBufferBindGroupCache;
+    using BindGroupCache = SkLRUCache<UniqueKey, wgpu::BindGroup, UniqueKeyHash>;
+
+    BindGroupCache fUniformBufferBindGroupCache;
+    BindGroupCache fSingleTextureSamplerBindGroups;
 };
 
 } // namespace skgpu::graphite
