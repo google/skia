@@ -631,6 +631,11 @@ protected:
                                       ModifierFlags* modifierFlags,
                                       Position pos) const;
 
+    /** If the type is a struct, returns the depth of the struct's most deeply-nested field. */
+    virtual int structNestingDepth() const {
+        return 0;
+    }
+
 private:
     using INHERITED = Symbol;
 

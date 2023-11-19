@@ -577,9 +577,11 @@ class StructType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kStruct;
 
-    StructType(Position pos, std::string_view name, TArray<Field> fields, bool interfaceBlock)
+    StructType(Position pos, std::string_view name, TArray<Field> fields, int nestingDepth,
+               bool interfaceBlock)
             : INHERITED(std::move(name), "S", kTypeKind, pos)
             , fFields(std::move(fields))
+            , fNestingDepth(nestingDepth)
             , fInterfaceBlock(interfaceBlock) {
         for (const Field& f : fFields) {
             fContainsArray        = fContainsArray        || f.fType->isOrContainsArray();
@@ -628,6 +630,10 @@ public:
         return fSlotCount;
     }
 
+    int structNestingDepth() const override {
+        return fNestingDepth;
+    }
+
     const Type& slotType(size_t n) const override {
         for (const Field& field : fFields) {
             size_t fieldSlots = field.fType->slotCount();
@@ -646,6 +652,7 @@ private:
 
     TArray<Field> fFields;
     size_t fSlotCount = 0;
+    int fNestingDepth = 0;
     bool fInterfaceBlock = false;
     bool fContainsArray = false;
     bool fContainsUnsizedArray = false;
@@ -757,22 +764,6 @@ std::unique_ptr<Type> Type::MakeAtomicType(std::string_view name, const char* ab
     return std::make_unique<AtomicType>(name, abbrev);
 }
 
-static bool is_too_deeply_nested(const Type* t, int limit) {
-    if (limit <= 0) {
-        return true;
-    }
-
-    if (t->isStruct()) {
-        for (const Field& f : t->fields()) {
-            if (is_too_deeply_nested(f.fType, limit - 1)) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 std::unique_ptr<Type> Type::MakeStructType(const Context& context,
                                            Position pos,
                                            std::string_view name,
@@ -837,14 +828,16 @@ std::unique_ptr<Type> Type::MakeStructType(const Context& context,
             }
         }
     }
+    int nestingDepth = 0;
     for (const Field& field : fields) {
-        if (is_too_deeply_nested(field.fType, kMaxStructDepth)) {
-            context.fErrors->error(pos, std::string(structOrIB) + " '" + std::string(name) +
-                                        "' is too deeply nested");
-            break;
-        }
+        nestingDepth = std::max(nestingDepth, field.fType->structNestingDepth());
     }
-    return std::make_unique<StructType>(pos, name, std::move(fields), interfaceBlock);
+    if (nestingDepth >= kMaxStructDepth) {
+        context.fErrors->error(pos, std::string(structOrIB) + " '" + std::string(name) +
+                                    "' is too deeply nested");
+    }
+    return std::make_unique<StructType>(pos, name, std::move(fields), nestingDepth + 1,
+                                        interfaceBlock);
 }
 
 std::unique_ptr<Type> Type::MakeTextureType(const char* name, SpvDim_ dimensions, bool isDepth,
@@ -1171,6 +1164,7 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
                     std::make_unique<StructType>(this->fPosition,
                                                  *name,
                                                  TArray<Field>(fieldSpan.data(), fieldSpan.size()),
+                                                 this->structNestingDepth(),
                                                  this->isInterfaceBlock()));
         }
         default:
