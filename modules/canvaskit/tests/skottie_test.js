@@ -32,6 +32,8 @@ describe('Skottie behavior', () => {
         .then((response) => response.text());
     const editPromise = fetch('/assets/text_edit.json')
         .then((response) => response.text());
+    const notoSerifPromise = fetch('/assets/NotoSerif-Regular.ttf').then(
+        (response) => response.arrayBuffer());
 
     gm('skottie_animgif', (canvas, promises) => {
         if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
@@ -89,8 +91,10 @@ describe('Skottie behavior', () => {
         expect(promises[0]).not.toBe('NOT FOUND');
         const bounds = CanvasKit.LTRBRect(0, 0, 500, 500);
 
-        const animation = CanvasKit.MakeManagedAnimation(promises[0],
-                                                         {'flightAnim.gif': promises[1]});
+        const animation = CanvasKit.MakeManagedAnimation(promises[0], {
+            'flightAnim.gif': promises[1],
+            'NotoSerif': promises[2],
+        });
         expect(animation).toBeTruthy();
 
         const slotInfo = animation.getSlotInfo();
@@ -131,7 +135,7 @@ describe('Skottie behavior', () => {
         animation.seek(0.5);
         animation.render(canvas, bounds);
         animation.delete();
-    }, slotPromise, imgPromise);
+    }, slotPromise, imgPromise, notoSerifPromise);
 
     gm('skottie_textedit', (canvas, promises) => {
         if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
@@ -141,7 +145,11 @@ describe('Skottie behavior', () => {
         expect(promises[0]).not.toBe('NOT FOUND');
         const bounds = CanvasKit.LTRBRect(0, 0, 600, 600);
 
-        const animation = CanvasKit.MakeManagedAnimation(promises[0]);
+        const animation = CanvasKit.MakeManagedAnimation(promises[0], {
+            // The animation is looking for a font called ArialMT, but we just
+            // provide it the data for an arbitrary typeface.
+            "ArialMT": promises[1],
+        });
         expect(animation).toBeTruthy();
 
         // The animation contains two text layers grouped under the "text_layer" ID, and one
@@ -193,7 +201,7 @@ describe('Skottie behavior', () => {
         animation.seek(0);
         animation.render(canvas, bounds);
         animation.delete();
-    }, editPromise);
+    }, editPromise, notoSerifPromise);
 
     it('can load audio assets', (done) => {
         if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
