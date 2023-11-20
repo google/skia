@@ -37,7 +37,8 @@ arch("skcms_TransformHsw") {
     cflags = [ "/arch:AVX2" ]
   } else {
     cflags = [
-      "-march=haswell",
+      "-mavx2",
+      "-mf16c",
       "-std=c11",
     ]
   }
@@ -50,7 +51,11 @@ arch("skcms_TransformSkx") {
     cflags = [ "/arch:AVX512" ]
   } else {
     cflags = [
-      "-march=skylake-avx512",
+      "-mavx512f",
+      "-mavx512dq",
+      "-mavx512cd",
+      "-mavx512bw",
+      "-mavx512vl",
       "-std=c11",
     ]
   }
