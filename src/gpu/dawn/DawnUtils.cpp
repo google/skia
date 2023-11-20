@@ -10,6 +10,10 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#endif  // __EMSCRIPTEN__
+
 namespace skgpu {
 
 // TODO: A lot of these values are not correct
