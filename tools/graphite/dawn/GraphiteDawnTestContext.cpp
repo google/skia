@@ -95,6 +95,9 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(std::optional<wgpu::B
     if (adapter.HasFeature(wgpu::FeatureName::DualSourceBlending)) {
         features.push_back(wgpu::FeatureName::DualSourceBlending);
     }
+    if (adapter.HasFeature(wgpu::FeatureName::FramebufferFetch)) {
+        features.push_back(wgpu::FeatureName::FramebufferFetch);
+    }
 
     wgpu::DeviceDescriptor desc;
     desc.requiredFeatureCount  = features.size();

@@ -497,30 +497,32 @@ std::string_view wgsl_builtin_name(WGSLCodeGenerator::Builtin builtin) {
     using Builtin = WGSLCodeGenerator::Builtin;
     switch (builtin) {
         case Builtin::kVertexIndex:
-            return "vertex_index";
+            return "@builtin(vertex_index)";
         case Builtin::kInstanceIndex:
-            return "instance_index";
+            return "@builtin(instance_index)";
         case Builtin::kPosition:
-            return "position";
+            return "@builtin(position)";
+        case Builtin::kLastFragColor:
+            return "@color(0)";
         case Builtin::kFrontFacing:
-            return "front_facing";
+            return "@builtin(front_facing)";
         case Builtin::kSampleIndex:
-            return "sample_index";
+            return "@builtin(sample_index)";
         case Builtin::kFragDepth:
-            return "frag_depth";
+            return "@builtin(frag_depth)";
         case Builtin::kSampleMask:
         case Builtin::kSampleMaskIn:
-            return "sample_mask";
+            return "@builtin(sample_mask)";
         case Builtin::kLocalInvocationId:
-            return "local_invocation_id";
+            return "@builtin(local_invocation_id)";
         case Builtin::kLocalInvocationIndex:
-            return "local_invocation_index";
+            return "@builtin(local_invocation_index)";
         case Builtin::kGlobalInvocationId:
-            return "global_invocation_id";
+            return "@builtin(global_invocation_id)";
         case Builtin::kWorkgroupId:
-            return "workgroup_id";
+            return "@builtin(workgroup_id)";
         case Builtin::kNumWorkgroups:
-            return "num_workgroups";
+            return "@builtin(num_workgroups)";
         default:
             break;
     }
@@ -537,6 +539,8 @@ std::string_view wgsl_builtin_type(WGSLCodeGenerator::Builtin builtin) {
         case Builtin::kInstanceIndex:
             return "u32";
         case Builtin::kPosition:
+            return "vec4<f32>";
+        case Builtin::kLastFragColor:
             return "vec4<f32>";
         case Builtin::kFrontFacing:
             return "bool";
@@ -596,6 +600,8 @@ std::optional<WGSLCodeGenerator::Builtin> builtin_from_sksl_name(int builtin) {
             return Builtin::kVertexIndex;
         case SK_INSTANCEID_BUILTIN:
             return Builtin::kInstanceIndex;
+        case SK_LASTFRAGCOLOR_BUILTIN:
+            return Builtin::kLastFragColor;
         case SK_CLOCKWISE_BUILTIN:
             // TODO(skia:13092): While `front_facing` is the corresponding built-in, it does not
             // imply a particular winding order. We correctly compute the face orientation based
@@ -1264,8 +1270,7 @@ void WGSLCodeGenerator::writeUserDefinedIODecl(const Layout& layout,
     this->write("@location(" + std::to_string(layout.fLocation) + ") ");
 
     // Indices are only allowed when doing dual-source blending, and only on color attachment 0.
-    if (layout.fLocation == 0 && layout.fIndex >= 0 && fContext.fCaps->fDualSourceBlendingSupport &&
-        fProgram.fInterface.fOutputSecondaryColor) {
+    if (layout.fLocation == 0 && layout.fIndex >= 0 && fProgram.fInterface.fOutputSecondaryColor) {
         this->write("@index(" + std::to_string(layout.fIndex) + ") ");
     }
 
@@ -1282,10 +1287,8 @@ void WGSLCodeGenerator::writeBuiltinIODecl(const Type& type,
                                            std::string_view name,
                                            Builtin builtin,
                                            Delimiter delimiter) {
-    this->write("@builtin(");
     this->write(wgsl_builtin_name(builtin));
-    this->write(") ");
-
+    this->write(" ");
     this->write(this->assembleName(name));
     this->write(": ");
     this->write(wgsl_builtin_type(builtin));
@@ -3833,6 +3836,9 @@ void WGSLCodeGenerator::writeEnables() {
     this->writeLine("diagnostic(off, derivative_uniformity);");
     if (fRequirements.fPixelLocalExtension) {
         this->writeLine("enable chromium_experimental_pixel_local;");
+    }
+    if (fProgram.fInterface.fUseLastFragColor) {
+        this->writeLine("enable chromium_experimental_framebuffer_fetch;");
     }
     if (fProgram.fInterface.fOutputSecondaryColor) {
         this->writeLine("enable chromium_internal_dual_source_blending;");

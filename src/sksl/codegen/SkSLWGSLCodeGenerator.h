@@ -96,11 +96,12 @@ public:
         kPosition,       // output, fragment stage input
 
         // Fragment stage:
-        kFrontFacing,  // input
-        kSampleIndex,  // input
-        kFragDepth,    // output
-        kSampleMaskIn, // input
-        kSampleMask,   // output
+        kLastFragColor,  // input
+        kFrontFacing,    // input
+        kSampleIndex,    // input
+        kFragDepth,      // output
+        kSampleMaskIn,   // input
+        kSampleMask,     // output
 
         // Compute stage:
         kLocalInvocationId,     // input
@@ -109,7 +110,6 @@ public:
         kWorkgroupId,           // input
         kNumWorkgroups,         // input
     };
-
 
     // Variable declarations can be terminated by:
     //   - comma (","), e.g. in struct member declarations or function parameters

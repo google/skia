@@ -327,6 +327,9 @@ void DawnCaps::initShaderCaps(const wgpu::Device& device) {
     if (device.HasFeature(wgpu::FeatureName::DualSourceBlending)) {
         shaderCaps->fDualSourceBlendingSupport = true;
     }
+    if (device.HasFeature(wgpu::FeatureName::FramebufferFetch)) {
+        shaderCaps->fFBFetchSupport = true;
+    }
 #endif
 }
 

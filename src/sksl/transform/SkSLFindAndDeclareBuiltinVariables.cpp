@@ -162,7 +162,7 @@ void FindAndDeclareBuiltinVariables(Program& program) {
                     break;
 
                 // Set the UseLastFragColor program input if we find sk_LastFragColor.
-                // Metal defines this as a program input, rather than a global variable.
+                // Metal and Dawn define this as a program input, rather than a global variable.
                 case SK_LASTFRAGCOLOR_BUILTIN:
                     if (context.fCaps->fFBFetchSupport) {
                         program.fInterface.fUseLastFragColor = true;
