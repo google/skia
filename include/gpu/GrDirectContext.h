@@ -42,7 +42,6 @@ class SkTraceMemoryDump;
 enum SkColorType : int;
 enum class SkTextureCompressionType;
 struct GrMockOptions;
-struct GrVkBackendContext; // IWYU pragma: keep
 struct GrD3DBackendContext; // IWYU pragma: keep
 struct GrMtlBackendContext; // IWYU pragma: keep
 
@@ -61,17 +60,6 @@ enum class BackendSurfaceAccess;
 
 class SK_API GrDirectContext : public GrRecordingContext {
 public:
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_GRDIRECTCONTEXT_FACTORIES)
-    /**
-     * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive until the returned
-     * GrDirectContext is destroyed. This also means that any objects created with this
-     * GrDirectContext (e.g. SkSurfaces, SkImages, etc.) must also be released as they may hold
-     * refs on the GrDirectContext. Once all these objects and the GrDirectContext are released,
-     * then it is safe to delete the vulkan objects.
-     */
-    static sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
-    static sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext&);
-#endif
 
 #ifdef SK_METAL
     /**
