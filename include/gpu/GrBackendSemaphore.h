@@ -16,7 +16,7 @@
 #include "include/gpu/mtl/GrMtlTypes.h"
 #endif
 
-#ifdef SK_VULKAN
+#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VULKAN_BACKENDSEMAPHORE)
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #endif
 
@@ -40,20 +40,9 @@ public:
     GrBackendSemaphore(const GrBackendSemaphore&);
     GrBackendSemaphore& operator=(const GrBackendSemaphore&);
 
-#ifdef SK_VULKAN
-    void initVulkan(VkSemaphore semaphore) {
-        fBackend = GrBackendApi::kVulkan;
-        fVkSemaphore = semaphore;
-
-        fIsInitialized = true;
-    }
-
-    VkSemaphore vkSemaphore() const {
-        if (!fIsInitialized || GrBackendApi::kVulkan != fBackend) {
-            return VK_NULL_HANDLE;
-        }
-        return fVkSemaphore;
-    }
+#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VULKAN_BACKENDSEMAPHORE)
+    void initVulkan(VkSemaphore semaphore);
+    VkSemaphore vkSemaphore() const;
 #endif
 
 #ifdef SK_METAL
@@ -121,9 +110,6 @@ private:
 
     union {
         void* fPlaceholder;  // TODO(293490566)
-#ifdef SK_VULKAN
-        VkSemaphore fVkSemaphore;
-#endif
 #ifdef SK_METAL
         GrMTLHandle fMtlEvent;    // Expected to be an id<MTLEvent>
 #endif

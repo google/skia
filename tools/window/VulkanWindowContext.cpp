@@ -12,6 +12,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSemaphore.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/ganesh/vk/GrVkDirectContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
@@ -537,8 +538,7 @@ sk_sp<SkSurface> VulkanWindowContext::getBackbufferSurface() {
 
     SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();
 
-    GrBackendSemaphore beSemaphore;
-    beSemaphore.initVulkan(semaphore);
+    GrBackendSemaphore beSemaphore = GrBackendSemaphores::MakeVk(semaphore);
 
     surface->wait(1, &beSemaphore);
 
@@ -550,8 +550,7 @@ void VulkanWindowContext::onSwapBuffers() {
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
     SkSurface* surface = fSurfaces[backbuffer->fImageIndex].get();
 
-    GrBackendSemaphore beSemaphore;
-    beSemaphore.initVulkan(backbuffer->fRenderSemaphore);
+    GrBackendSemaphore beSemaphore = GrBackendSemaphores::MakeVk(backbuffer->fRenderSemaphore);
 
     GrFlushInfo info;
     info.fNumSemaphores = 1;

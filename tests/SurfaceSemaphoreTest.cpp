@@ -47,6 +47,7 @@
 #endif
 
 #ifdef SK_VULKAN
+#include "include/gpu/ganesh/vk/GrVkBackendSemaphore.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "src/gpu/ganesh/vk/GrVkCommandPool.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
@@ -177,7 +178,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
         createInfo.flags = 0;
         GR_VK_CALL_ERRCHECK(gpu, CreateSemaphore(device, &createInfo, nullptr, &vkSem));
 
-        semaphores[1].initVulkan(vkSem);
+        semaphores[1] = GrBackendSemaphores::MakeVk(vkSem);
     }
 #endif
 
@@ -333,7 +334,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(EmptySurfaceSemaphoreTest,
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.pNext = nullptr;
         submitInfo.waitSemaphoreCount = 1;
-        VkSemaphore vkSem = semaphore.vkSemaphore();
+        VkSemaphore vkSem = GrBackendSemaphores::GetVkSemaphore(semaphore);
         submitInfo.pWaitSemaphores = &vkSem;
         submitInfo.pWaitDstStageMask = &waitStages;
         submitInfo.commandBufferCount = 1;

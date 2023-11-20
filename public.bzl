@@ -150,6 +150,7 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/ganesh/gl/GrGLBackendSurface.h",
     "include/gpu/ganesh/gl/GrGLDirectContext.h",
     "include/gpu/ganesh/mtl/SkSurfaceMetal.h",
+    "include/gpu/ganesh/vk/GrVkBackendSemaphore.h",
     "include/gpu/ganesh/vk/GrVkBackendSurface.h",
     "include/gpu/ganesh/vk/GrVkDirectContext.h",
     "include/gpu/gl/egl/GrGLMakeEGLInterface.h",
@@ -2137,6 +2138,7 @@ MTL_SRCS = [
 ]
 
 VULKAN_SRCS = [
+    "src/gpu/ganesh/vk/GrVkBackendSemaphore.cpp",
     "src/gpu/ganesh/vk/GrVkBackendSurface.cpp",
     "src/gpu/ganesh/vk/GrVkBackendSurfacePriv.h",
     "src/gpu/ganesh/vk/GrVkBuffer.cpp",
