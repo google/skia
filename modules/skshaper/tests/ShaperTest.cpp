@@ -117,7 +117,7 @@ struct RunHandler final : public SkShaper::RunHandler {
 };
 
 void shaper_test(skiatest::Reporter* reporter, const char* name, SkData* data) {
-    auto shaper = SkShaper::Make();
+    auto shaper = SkShaper::Make(SkFontMgr::RefEmpty());  // no fallback
     if (!shaper) {
         ERRORF(reporter, "Could not create shaper.");
         return;
