@@ -12,6 +12,12 @@
 
 #include "include/core/SkColor.h"
 
+#ifdef SK_BUILD_FOR_ANDROID
+#include <android/hardware_buffer.h>
+#include "include/gpu/vk/VulkanTypes.h"
+#include "src/gpu/vk/VulkanInterface.h"
+#endif
+
 namespace skgpu {
 
 static constexpr uint32_t VkFormatChannels(VkFormat vkFormat) {
@@ -218,6 +224,31 @@ static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
     }
 }
 #endif // defined(SK_DEBUG) || defined(GR_TEST_UTILS)
+
+#ifdef SK_BUILD_FOR_ANDROID
+/**
+ * Vulkan AHardwareBuffer utility functions shared between graphite and ganesh
+*/
+void GetYcbcrConversionInfoFromFormatProps(
+        VulkanYcbcrConversionInfo* outConversionInfo,
+        const VkAndroidHardwareBufferFormatPropertiesANDROID& formatProps);
+
+bool GetAHardwareBufferProperties(
+        VkAndroidHardwareBufferFormatPropertiesANDROID* outHwbFormatProps,
+        VkAndroidHardwareBufferPropertiesANDROID* outHwbProps,
+        const skgpu::VulkanInterface*,
+        const AHardwareBuffer*,
+        VkDevice);
+
+bool AllocateAndBindImageMemory(skgpu::VulkanAlloc* outVulkanAlloc,
+                                VkImage,
+                                const VkPhysicalDeviceMemoryProperties2&,
+                                const VkAndroidHardwareBufferPropertiesANDROID&,
+                                AHardwareBuffer*,
+                                const skgpu::VulkanInterface*,
+                                VkDevice);
+
+#endif // SK_BUILD_FOR_ANDROID
 
 }  // namespace skgpu
 
