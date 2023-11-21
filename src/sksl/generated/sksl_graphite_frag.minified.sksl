@@ -20,7 +20,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 " b,float c,float d){switch(a){case 0:return clamp(b,c,d);case 1:{float e=d-"
 "c;return mod(b-c,e)+c;}case 2:{float e=d-c;float g=2.*e;float h=mod(b-c,g);"
 "return mix(h,g-h,step(e,h))+c;}default:return b;}}$pure half4 $n(float2 a,float2"
-" b,int c,sampler2D d){half4 e=sample(d,a/b);return $k(c,e);}$pure half4 $o("
+" b,int c,sampler2D d){half4 e=sample(d,a*b);return $k(c,e);}$pure half4 $o("
 "float2 a,float2 b,float4 c,int d,int e,int f,int g,sampler2D h){if(d==3&&f=="
 "0){float i=floor(a.x)+.5;if(i<c.x||i>c.z){return half4(0.);}}if(e==3&&f==0)"
 "{float i=floor(a.y)+.5;if(i<c.y||i>c.w){return half4(0.);}}a.x=$m(d,a.x,c.x"

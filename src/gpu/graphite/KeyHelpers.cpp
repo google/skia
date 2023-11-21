@@ -469,7 +469,7 @@ void add_image_uniform_data(const ShaderCodeDictionary* dict,
     SkASSERT(!imgData.fSampling.useCubic);
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kImageShader)
 
-    gatherer->write(SkSize::Make(imgData.fImgSize));
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(imgData.fSubset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
@@ -485,7 +485,7 @@ void add_cubic_image_uniform_data(const ShaderCodeDictionary* dict,
     SkASSERT(imgData.fSampling.useCubic);
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCubicImageShader)
 
-    gatherer->write(SkSize::Make(imgData.fImgSize));
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(imgData.fSubset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
@@ -502,7 +502,7 @@ void add_hw_image_uniform_data(const ShaderCodeDictionary* dict,
     SkASSERT(!imgData.fSampling.useCubic);
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWImageShader)
 
-    gatherer->write(SkSize::Make(imgData.fImgSize));
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(SkTo<int>(imgData.fReadSwizzle));
 
     add_color_space_uniforms(imgData.fSteps, gatherer);
@@ -572,7 +572,7 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
                                 PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kYUVImageShader)
 
-    gatherer->write(SkSize::Make(imgData.fImgSize));
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(imgData.fSubset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
