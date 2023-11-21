@@ -15,7 +15,6 @@ namespace skgpu::graphite {
 enum class ReadSwizzle {
     kRGBA, // Default
     kRGB1,
-    kRRRR,
     kRRR1,
     kBGRA,
     k000R,

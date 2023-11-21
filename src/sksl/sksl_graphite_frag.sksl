@@ -7,10 +7,9 @@ const int $kTileModeDecal  = 3;
 
 const int $kReadSwizzleNormalRGBA = 0;
 const int $kReadSwizzleRGB1 = 1;
-const int $kReadSwizzleRRRR = 2;
-const int $kReadSwizzleRRR1 = 3;
-const int $kReadSwizzleBGRA = 4;
-const int $kReadSwizzle000R = 5;
+const int $kReadSwizzleRRR1 = 2;
+const int $kReadSwizzleBGRA = 3;
+const int $kReadSwizzle000R = 4;
 
 const int $kFilterModeNearest = 0;
 const int $kFilterModeLinear  = 1;
@@ -58,8 +57,6 @@ $pure half4 $apply_swizzle(int swizzleType, half4 color) {
     switch (swizzleType) {
         case $kReadSwizzleRGB1:
             return color.rgb1;
-        case $kReadSwizzleRRRR:
-            return color.rrrr;
         case $kReadSwizzleRRR1:
             return color.rrr1;
         case $kReadSwizzleBGRA:
