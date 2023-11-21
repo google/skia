@@ -635,7 +635,7 @@ protected:
                     const FontRunIterator&,
                     const Feature*, size_t featuresSize) const;
 private:
-    const sk_sp<SkFontMgr> fFontMgr; // for fallback
+    const sk_sp<SkFontMgr> fFontMgr;
     HBBuffer               fBuffer;
     hb_language_t          fUndefinedLanguage;
 
@@ -718,7 +718,7 @@ private:
               RunHandler*) const override;
 };
 
-static std::unique_ptr<SkShaper> MakeHarfBuzz(sk_sp<SkFontMgr> fallback, bool correct) {
+static std::unique_ptr<SkShaper> MakeHarfBuzz(sk_sp<SkFontMgr> fontmgr, bool correct) {
     HBBuffer buffer(hb_buffer_create());
     if (!buffer) {
         SkDEBUGF("Could not create hb_buffer");
@@ -733,21 +733,22 @@ static std::unique_ptr<SkShaper> MakeHarfBuzz(sk_sp<SkFontMgr> fallback, bool co
     if (correct) {
         return std::make_unique<ShaperDrivenWrapper>(std::move(unicode),
                                                      std::move(buffer),
-                                                     std::move(fallback));
+                                                     std::move(fontmgr));
+    } else {
+        return std::make_unique<ShapeThenWrap>(std::move(unicode),
+                                               std::move(buffer),
+                                               std::move(fontmgr));
     }
-    return std::make_unique<ShapeThenWrap>(std::move(unicode),
-                                           std::move(buffer),
-                                           std::move(fallback));
 }
 
 ShaperHarfBuzz::ShaperHarfBuzz(std::unique_ptr<SkUnicode> unicode,
                                HBBuffer buffer,
-                               sk_sp<SkFontMgr> fallback)
+                               sk_sp<SkFontMgr> fontmgr)
     : fUnicode(std::move(unicode))
-    , fFontMgr(fallback ? std::move(fallback) : SkFontMgr::RefEmpty())
+    , fFontMgr(std::move(fontmgr))
     , fBuffer(std::move(buffer))
-    , fUndefinedLanguage(hb_language_from_string("und", -1)) {
-}
+    , fUndefinedLanguage(hb_language_from_string("und", -1))
+{ }
 
 void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
                            const SkFont& srcFont,
@@ -776,7 +777,8 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
     }
 
     std::unique_ptr<FontRunIterator> font(
-                MakeFontMgrRunIterator(utf8, utf8Bytes, srcFont, fFontMgr));
+                MakeFontMgrRunIterator(utf8, utf8Bytes, srcFont,
+                                       fFontMgr ? fFontMgr : SkFontMgr::RefDefault()));
     if (!font) {
         return;
     }

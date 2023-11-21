@@ -45,17 +45,17 @@ class SKSHAPER_API SkShaper {
 public:
     static std::unique_ptr<SkShaper> MakePrimitive();
     #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
-    static std::unique_ptr<SkShaper> MakeShaperDrivenWrapper(sk_sp<SkFontMgr> fallback);
-    static std::unique_ptr<SkShaper> MakeShapeThenWrap(sk_sp<SkFontMgr> fallback);
+    static std::unique_ptr<SkShaper> MakeShaperDrivenWrapper(sk_sp<SkFontMgr> = nullptr);
+    static std::unique_ptr<SkShaper> MakeShapeThenWrap(sk_sp<SkFontMgr> = nullptr);
     static std::unique_ptr<SkShaper> MakeShapeDontWrapOrReorder(std::unique_ptr<SkUnicode> unicode,
-                                                                sk_sp<SkFontMgr> fallback);
+                                                                sk_sp<SkFontMgr> = nullptr);
     static void PurgeHarfBuzzCache();
     #endif
     #ifdef SK_SHAPER_CORETEXT_AVAILABLE
     static std::unique_ptr<SkShaper> MakeCoreText();
     #endif
 
-    static std::unique_ptr<SkShaper> Make(sk_sp<SkFontMgr> fallback = nullptr);
+    static std::unique_ptr<SkShaper> Make(sk_sp<SkFontMgr> = nullptr);
     static void PurgeCaches();
 
     SkShaper();

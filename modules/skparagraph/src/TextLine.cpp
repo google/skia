@@ -679,7 +679,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
         }
     }
 
-    auto shaped = [&](sk_sp<SkTypeface> typeface, sk_sp<SkFontMgr> fallback) -> std::unique_ptr<Run> {
+    auto shaped = [&](sk_sp<SkTypeface> typeface, bool fallback) -> std::unique_ptr<Run> {
         ShapeHandler handler(run.heightMultiplier(), run.useHalfLeading(), run.baselineShift(), ellipsis);
         SkFont font(std::move(typeface), textStyle.getFontSize());
         font.setEdging(SkFont::Edging::kAntiAlias);
@@ -688,7 +688,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
 
         std::unique_ptr<SkShaper> shaper = SkShaper::MakeShapeDontWrapOrReorder(
                             fOwner->getUnicode()->copy(),
-                            fallback ? fallback : SkFontMgr::RefEmpty());
+                            fallback ? SkFontMgr::RefDefault() : SkFontMgr::RefEmpty());
         shaper->shape(ellipsis.c_str(),
                       ellipsis.size(),
                       font,
@@ -702,7 +702,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
     };
 
     // Check the current font
-    auto ellipsisRun = shaped(run.fFont.refTypeface(), nullptr);
+    auto ellipsisRun = shaped(run.fFont.refTypeface(), false);
     if (ellipsisRun->isResolved()) {
         return ellipsisRun;
     }
@@ -711,7 +711,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
     std::vector<sk_sp<SkTypeface>> typefaces = fOwner->fontCollection()->findTypefaces(
             textStyle.getFontFamilies(), textStyle.getFontStyle(), textStyle.getFontArguments());
     for (const auto& typeface : typefaces) {
-        ellipsisRun = shaped(typeface, nullptr);
+        ellipsisRun = shaped(typeface, false);
         if (ellipsisRun->isResolved()) {
             return ellipsisRun;
         }
@@ -725,7 +725,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
        auto typeface = fOwner->fontCollection()->defaultFallback(
                     unicode, textStyle.getFontStyle(), textStyle.getLocale());
         if (typeface) {
-            ellipsisRun = shaped(typeface, fOwner->fontCollection()->getFallbackManager());
+            ellipsisRun = shaped(typeface, true);
             if (ellipsisRun->isResolved()) {
                 return ellipsisRun;
             }

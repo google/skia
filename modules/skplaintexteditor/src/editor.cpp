@@ -59,12 +59,6 @@ void Editor::setFont(SkFont font) {
     }
 }
 
-void Editor::setFontMgr(sk_sp<SkFontMgr> fontMgr) {
-    fFontMgr = fontMgr;
-    fNeedsReshape = true;
-    for (auto& l : fLines) { this->markDirty(&l); }
-}
-
 void Editor::setWidth(int w) {
     if (fWidth != w) {
         fWidth = w;
@@ -495,7 +489,7 @@ void Editor::reshapeAll() {
         for (TextLine& line : fLines) {
             if (!line.fShaped) {
                 ShapeResult result = Shape(line.fText.begin(), line.fText.size(),
-                                           fFont, fFontMgr, fLocale, shape_width);
+                                           fFont, fLocale, shape_width);
                 line.fBlob           = std::move(result.blob);
                 line.fLineEndOffsets = std::move(result.lineBreakOffsets);
                 line.fCursorPos      = std::move(result.glyphBounds);
