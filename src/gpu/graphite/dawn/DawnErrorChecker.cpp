@@ -10,7 +10,6 @@
 #include "include/private/base/SkAssert.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
-#include "src/gpu/graphite/dawn/DawnSharedContext.h"
 
 namespace skgpu::graphite {
 namespace {
@@ -23,11 +22,10 @@ constexpr int kScopeCount = std::size(kErrorScopeTypes);
 
 }  // namespace
 
-DawnErrorChecker::DawnErrorChecker(const DawnSharedContext* sharedContext)
-        : fArmed(true), fSharedContext(sharedContext) {
-    fSharedContext->device().PushErrorScope(wgpu::ErrorFilter::Validation);
-    fSharedContext->device().PushErrorScope(wgpu::ErrorFilter::OutOfMemory);
-    fSharedContext->device().PushErrorScope(wgpu::ErrorFilter::Internal);
+DawnErrorChecker::DawnErrorChecker(const wgpu::Device& device) : fArmed(true), fDevice(device) {
+    fDevice.PushErrorScope(wgpu::ErrorFilter::Validation);
+    fDevice.PushErrorScope(wgpu::ErrorFilter::OutOfMemory);
+    fDevice.PushErrorScope(wgpu::ErrorFilter::Internal);
 }
 
 DawnErrorChecker::~DawnErrorChecker() {
@@ -46,11 +44,9 @@ SkEnumBitMask<DawnErrorType> DawnErrorChecker::popErrorScopes() {
         int fScopeIdx;
         DawnAsyncWait fWait;
 
-        ErrorState(const DawnSharedContext* sharedContext)
-                : fError(DawnErrorType::kNoError)
-                , fScopeIdx(kScopeCount - 1)
-                , fWait(sharedContext) {}
-    } errorState(fSharedContext);
+        ErrorState(const wgpu::Device& device)
+                : fError(DawnErrorType::kNoError), fScopeIdx(kScopeCount - 1), fWait(device) {}
+    } errorState(fDevice);
 
     wgpu::ErrorCallback errorCallback = [](WGPUErrorType status, const char* msg, void* userData) {
         ErrorState* errorState = static_cast<ErrorState*>(userData);
@@ -66,17 +62,17 @@ SkEnumBitMask<DawnErrorType> DawnErrorChecker::popErrorScopes() {
 
     // Pop all three error scopes:
     // Internal
-    fSharedContext->device().PopErrorScope(errorCallback, &errorState);
+    fDevice.PopErrorScope(errorCallback, &errorState);
     errorState.fWait.busyWait();
     errorState.fWait.reset();
 
     // OutOfMemory
-    fSharedContext->device().PopErrorScope(errorCallback, &errorState);
+    fDevice.PopErrorScope(errorCallback, &errorState);
     errorState.fWait.busyWait();
     errorState.fWait.reset();
 
     // Validation
-    fSharedContext->device().PopErrorScope(errorCallback, &errorState);
+    fDevice.PopErrorScope(errorCallback, &errorState);
     errorState.fWait.busyWait();
 
     fArmed = false;

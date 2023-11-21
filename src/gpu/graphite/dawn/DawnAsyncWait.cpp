@@ -7,31 +7,23 @@
 
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 
-#include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/dawn/DawnSharedContext.h"
-#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
+#include "src/gpu/dawn/DawnUtilsPriv.h"
 
 namespace skgpu::graphite {
 
-DawnAsyncWait::DawnAsyncWait(const DawnSharedContext* sharedContext)
-        : fSharedContext(sharedContext)
-        , fSignaled(false) {}
+DawnAsyncWait::DawnAsyncWait(const wgpu::Device& device) : fDevice(device), fSignaled(false) {}
 
 bool DawnAsyncWait::yieldAndCheck() const {
-    if (fSharedContext->caps()->allowCpuSync()) {
-        if (fSignaled.load(std::memory_order_acquire)) {
-            return true;
-        }
-
-        DawnTickDevice(fSharedContext);
+    if (fSignaled.load(std::memory_order_acquire)) {
+        return true;
     }
+
+    DawnTickDevice(fDevice);
+
     return fSignaled.load(std::memory_order_acquire);
 }
 
-bool DawnAsyncWait::mayBusyWait() const { return fSharedContext->caps()->allowCpuSync(); }
-
 void DawnAsyncWait::busyWait() const {
-    SkASSERT(fSharedContext->caps()->allowCpuSync());
     while (!this->yieldAndCheck()) {}
 }
 

@@ -35,7 +35,7 @@ wgpu::ShaderModule create_shader_module(const wgpu::Device& device, const char* 
     return device.CreateShaderModule(&descriptor);
 }
 
-wgpu::RenderPipeline create_blit_render_pipeline(const DawnSharedContext* sharedContext,
+wgpu::RenderPipeline create_blit_render_pipeline(const wgpu::Device& device,
                                                  const char* label,
                                                  wgpu::ShaderModule vsModule,
                                                  wgpu::ShaderModule fsModule,
@@ -85,12 +85,9 @@ wgpu::RenderPipeline create_blit_render_pipeline(const DawnSharedContext* shared
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
 
-    std::optional<DawnErrorChecker> errorChecker;
-    if (sharedContext->dawnCaps()->allowScopedErrorChecks()) {
-        errorChecker.emplace(sharedContext);
-    }
-    auto pipeline = sharedContext->device().CreateRenderPipeline(&descriptor);
-    if (errorChecker.has_value() && errorChecker->popErrorScopes() != DawnErrorType::kNoError) {
+    DawnErrorChecker errorChecker(device);
+    auto pipeline = device.CreateRenderPipeline(&descriptor);
+    if (errorChecker.popErrorScopes() != DawnErrorType::kNoError) {
         return nullptr;
     }
 
@@ -189,7 +186,7 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
         auto fsModule = create_shader_module(dawnSharedContext()->device(), kFragmentShaderText);
 
         pipeline = create_blit_render_pipeline(
-                dawnSharedContext(),
+                dawnSharedContext()->device(),
                 /*label=*/"BlitWithDraw",
                 std::move(vsModule),
                 std::move(fsModule),

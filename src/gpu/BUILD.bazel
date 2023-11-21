@@ -148,6 +148,7 @@ skia_filegroup(
         "//src/gpu/tessellate:srcs",
     ] + select_multi(
         {
+            ":has_dawn": ["//src/gpu/dawn:srcs"],
             ":has_vulkan": ["//src/gpu/vk:srcs"],
         },
     ),
@@ -172,6 +173,7 @@ skia_filegroup(
         "//src/gpu/tessellate:private_hdrs",
     ] + select_multi(
         {
+            ":has_dawn": ["//src/gpu/dawn:private_hdrs"],
             ":has_vulkan": ["//src/gpu/vk:private_hdrs"],
             ":has_metal": ["//src/gpu/mtl:private_hdrs"],
         },

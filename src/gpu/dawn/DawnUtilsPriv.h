@@ -10,16 +10,14 @@
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
-namespace skgpu::graphite {
-
-class DawnSharedContext;
+namespace skgpu {
 
 size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format);
 
 uint32_t DawnFormatChannels(wgpu::TextureFormat format);
 
-void DawnTickDevice(const DawnSharedContext*);
+void DawnTickDevice(wgpu::Device);
 
-} // namespace skgpu::graphite
+} // namespace skgpu
 
 #endif // skgpu_DawnUtilsPriv_DEFINED

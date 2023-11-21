@@ -5,17 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
+#include "src/gpu/dawn/DawnUtilsPriv.h"
 
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
-#include "src/gpu/graphite/dawn/DawnSharedContext.h"
 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
 #endif  // __EMSCRIPTEN__
 
-namespace skgpu::graphite {
+namespace skgpu {
 
 // TODO: A lot of these values are not correct
 size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format) {
@@ -83,15 +82,13 @@ EM_ASYNC_JS(void, asyncSleep, (), {
 }
 #endif  // __EMSCRIPTEN__
 
-void DawnTickDevice(const DawnSharedContext* sc) {
-    SkASSERT(sc);
-    SkASSERT(sc->dawnCaps()->allowCpuSync());
+void DawnTickDevice(wgpu::Device device) {
 #ifdef __EMSCRIPTEN__
     asyncSleep();
 #else
-    sc->device().Tick();
+    device.Tick();
 #endif  // __EMSCRIPTEN__
 }
 
-} // namespace skgpu::graphite
+} // namespace skgpu
 

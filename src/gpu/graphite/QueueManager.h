@@ -44,7 +44,6 @@ public:
                                      SkSpan<const sk_sp<Buffer>> buffersToAsyncMap = {});
 
     [[nodiscard]] bool submitToGpu();
-    [[nodiscard]] bool hasUnfinishedGpuWork();
     void checkForFinishedWork(SyncToCpu);
 
 #if defined(GRAPHITE_TEST_UTILS)
