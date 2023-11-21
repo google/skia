@@ -2399,42 +2399,47 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
 }
 
 static int select_curve_ops(const skcms_Curve* curves, int numChannels, OpAndArg* ops) {
-    int position = 0;
-    for (int index = 0; index < numChannels; ++index) {
-        ops[position] = select_curve_op(&curves[index], index);
-        if (ops[position].arg) {
-            ++position;
+    // We process the channels in reverse order, yielding ops in ABGR order.
+    // (Working backwards allows us to fuse trailing B+G+R ops into a single RGB op.)
+    int cursor = 0;
+    for (int index = numChannels; index-- > 0; ) {
+        ops[cursor] = select_curve_op(&curves[index], index);
+        if (ops[cursor].arg) {
+            ++cursor;
         }
+    }
 
-        // Identify separate R/G/B functions which can be fused into a single op.
-        // (We do this check inside the loop in order to allow R+G+B+A to be fused into RGB+A.)
-        if (index == 2 && position == 3) {
-            struct FusableOps {
-                Op r, g, b, rgb;
-            };
-            static constexpr FusableOps kFusableOps[] = {
-                {Op::gamma_r,  Op::gamma_g,  Op::gamma_b,  Op::gamma_rgb},
-                {Op::tf_r,     Op::tf_g,     Op::tf_b,     Op::tf_rgb},
-                {Op::pq_r,     Op::pq_g,     Op::pq_b,     Op::pq_rgb},
-                {Op::hlg_r,    Op::hlg_g,    Op::hlg_b,    Op::hlg_rgb},
-                {Op::hlginv_r, Op::hlginv_g, Op::hlginv_b, Op::hlginv_rgb},
-            };
-            for (const FusableOps& fusableOp : kFusableOps) {
-                if (ops[0].op == fusableOp.r &&
-                    ops[1].op == fusableOp.g &&
-                    ops[2].op == fusableOp.b &&
-                    (0 == memcmp(ops[0].arg, ops[1].arg, sizeof(skcms_TransferFunction))) &&
-                    (0 == memcmp(ops[0].arg, ops[2].arg, sizeof(skcms_TransferFunction)))) {
+    // Identify separate B+G+R ops and fuse them into a single RGB op.
+    if (cursor >= 3) {
+        struct FusableOps {
+            Op r, g, b, rgb;
+        };
+        static constexpr FusableOps kFusableOps[] = {
+            {Op::gamma_r,  Op::gamma_g,  Op::gamma_b,  Op::gamma_rgb},
+            {Op::tf_r,     Op::tf_g,     Op::tf_b,     Op::tf_rgb},
+            {Op::pq_r,     Op::pq_g,     Op::pq_b,     Op::pq_rgb},
+            {Op::hlg_r,    Op::hlg_g,    Op::hlg_b,    Op::hlg_rgb},
+            {Op::hlginv_r, Op::hlginv_g, Op::hlginv_b, Op::hlginv_rgb},
+        };
 
-                    ops[0].op = fusableOp.rgb;
-                    position = 1;
-                    break;
-                }
+        int posR = cursor - 1;
+        int posG = cursor - 2;
+        int posB = cursor - 3;
+        for (const FusableOps& fusableOp : kFusableOps) {
+            if (ops[posR].op == fusableOp.r &&
+                ops[posG].op == fusableOp.g &&
+                ops[posB].op == fusableOp.b &&
+                (0 == memcmp(ops[posR].arg, ops[posG].arg, sizeof(skcms_TransferFunction))) &&
+                (0 == memcmp(ops[posR].arg, ops[posB].arg, sizeof(skcms_TransferFunction)))) {
+                // Fuse the three matching ops into one.
+                ops[posB].op = fusableOp.rgb;
+                cursor -= 2;
+                break;
             }
         }
     }
 
-    return position;
+    return cursor;
 }
 
 static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
