@@ -8,7 +8,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 
 #ifdef SK_DAWN
-#include "src/gpu/dawn/DawnUtilsPriv.h"
+#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
 #endif
 
 #ifdef SK_METAL

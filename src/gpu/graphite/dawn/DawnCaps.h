@@ -22,6 +22,9 @@ public:
     DawnCaps(const wgpu::Device&, const ContextOptions&);
     ~DawnCaps() override;
 
+    bool useAsyncPipelineCreation() const { return fUseAsyncPipelineCreation; }
+    bool allowScopedErrorChecks() const { return fAllowScopedErrorChecks; }
+
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                              Mipmapped mipmapped,
                                              Protected,
@@ -112,6 +115,8 @@ private:
     void setColorType(SkColorType, std::initializer_list<wgpu::TextureFormat> formats);
 
     bool fTransientAttachmentSupport = false;
+    bool fUseAsyncPipelineCreation = true;
+    bool fAllowScopedErrorChecks = true;
 };
 
 } // namespace skgpu::graphite

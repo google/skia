@@ -188,6 +188,9 @@ public:
     // Supports BackendSemaphores
     bool semaphoreSupport() const { return fSemaphoreSupport; }
 
+    // If false then calling Context::submit with SyncToCpu::kYes is an error.
+    bool allowCpuSync() const { return fAllowCpuSync; }
+
     // Returns whether storage buffers are supported.
     bool storageBufferSupport() const { return fStorageBufferSupport; }
 
@@ -297,6 +300,7 @@ protected:
     bool fClampToBorderSupport = true;
     bool fProtectedSupport = false;
     bool fSemaphoreSupport = false;
+    bool fAllowCpuSync = true;
     bool fStorageBufferSupport = false;
     bool fStorageBufferPreferred = false;
     bool fDrawBufferCanBeMapped = true;

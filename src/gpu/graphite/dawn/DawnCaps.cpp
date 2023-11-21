@@ -11,13 +11,13 @@
 
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
-#include "src/gpu/dawn/DawnUtilsPriv.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
+#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
 #include "src/sksl/SkSLUtil.h"
 
 namespace {
@@ -62,7 +62,7 @@ DawnCaps::DawnCaps(const wgpu::Device& device, const ContextOptions& options)
 DawnCaps::~DawnCaps() = default;
 
 uint32_t DawnCaps::channelMask(const TextureInfo& info) const {
-    return skgpu::DawnFormatChannels(info.dawnTextureSpec().fFormat);
+    return DawnFormatChannels(info.dawnTextureSpec().fFormat);
 }
 
 bool DawnCaps::onIsTexturable(const TextureInfo& info) const {
@@ -312,6 +312,18 @@ void DawnCaps::initCaps(const wgpu::Device& device, const ContextOptions& option
 
     fTransientAttachmentSupport = device.HasFeature(wgpu::FeatureName::TransientAttachments);
 #endif
+    if (options.fNeverYieldToWebGPU) {
+        fAllowCpuSync = false;
+        // This seems paradoxical. However, if we use the async pipeline creation methods (e.g
+        // Device::CreateRenderPipelineAsync) then we may have to synchronize before a submit that
+        // uses the pipeline. If we use the methods that look synchronous (e.g.
+        // Device::CreateRenderPipeline) they actually operate asynchronously on WebGPU but the
+        // browser becomes responsible for synchronizing when we call submit.
+        fUseAsyncPipelineCreation = false;
+
+        // The implementation busy waits after popping.
+        fAllowScopedErrorChecks = false;
+    }
 }
 
 void DawnCaps::initShaderCaps(const wgpu::Device& device) {

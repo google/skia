@@ -172,10 +172,13 @@ sk_sp<DawnComputePipeline> DawnComputePipeline::Make(const DawnSharedContext* sh
     descriptor.compute.entryPoint = entryPointName.c_str();
     descriptor.layout = std::move(layout);
 
-    DawnErrorChecker errorChecker(device);
+    std::optional<DawnErrorChecker> errorChecker;
+    if (sharedContext->dawnCaps()->allowScopedErrorChecks()) {
+        errorChecker.emplace(sharedContext);
+    }
     wgpu::ComputePipeline pipeline = device.CreateComputePipeline(&descriptor);
     SkASSERT(pipeline);
-    if (errorChecker.popErrorScopes() != DawnErrorType::kNoError) {
+    if (errorChecker.has_value() && errorChecker->popErrorScopes() != DawnErrorType::kNoError) {
         return nullptr;
     }
 

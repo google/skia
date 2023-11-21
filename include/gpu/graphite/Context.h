@@ -56,6 +56,9 @@ public:
     bool insertRecording(const InsertRecordingInfo&);
     bool submit(SyncToCpu = SyncToCpu::kNo);
 
+    /** Returns true if there is work that was submitted to the GPU that has not finished. */
+    bool hasUnfinishedGpuWork() const;
+
     void asyncRescaleAndReadPixels(const SkImage* image,
                                    const SkImageInfo& dstImageInfo,
                                    const SkIRect& srcRect,

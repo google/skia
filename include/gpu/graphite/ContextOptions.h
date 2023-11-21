@@ -49,6 +49,22 @@ struct SK_API ContextOptions {
     bool fClientWillExternallySynchronizeAllThreads = false;
 
     /**
+     * This option is only legal with the Dawn backend. It makes it so that the Context will never
+     * call Device::Tick() in native or rely on Asyncify to yield in Emscripten. Note that disables
+     * any CPU/GPU synchronization or any ability for Context to wait for GPU work to complete.
+     * This means SyncToCpu::kYes is disallowed as a parameter to Context::submit.
+     *
+     * In native the client can use wgpu::Device::Tick to allow the GPU to make forward progress
+     * that Context can detect. In Emscripten the client must allow the main thread loop to run
+     * in order for Context to detect GPU progress.
+     *
+     * The client must guarantee that GPU work has compeleted before destroying Context as Context
+     * cannot await the work completion in its destructor. Context reports whether it is awaiting
+     * GPU work completion via Context::hasUnfinishedGpuWork().
+     */
+    bool fNeverYieldToWebGPU = false;
+
+    /**
      * The maximum size of cache textures used for Skia's Glyph cache.
      */
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;

@@ -52,6 +52,10 @@
 
 #if defined(GRAPHITE_TEST_UTILS)
 #include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#if defined(SK_DAWN)
+#include "src/gpu/graphite/dawn/DawnSharedContext.h"
+#include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
+#endif
 #endif
 
 namespace skgpu::graphite {
@@ -142,10 +146,17 @@ bool Context::insertRecording(const InsertRecordingInfo& info) {
 bool Context::submit(SyncToCpu syncToCpu) {
     ASSERT_SINGLE_OWNER
 
+    if (syncToCpu == SyncToCpu::kYes && !fSharedContext->caps()->allowCpuSync()) {
+        SKGPU_LOG_E("SyncToCpu::kYes not supported with ContextOptions::fNeverYieldToWebGPU. "
+                    "The parameter is ignored and no synchronization will occur.");
+        syncToCpu = SyncToCpu::kNo;
+    }
     bool success = fQueueManager->submitToGpu();
     fQueueManager->checkForFinishedWork(syncToCpu);
     return success;
 }
+
+bool Context::hasUnfinishedGpuWork() const { return fQueueManager->hasUnfinishedGpuWork(); }
 
 void Context::asyncRescaleAndReadPixels(const SkImage* image,
                                         const SkImageInfo& dstImageInfo,
@@ -773,8 +784,21 @@ bool ContextPriv::readPixels(const SkPixmap& pm,
                               },
                               &asyncContext);
 
-    if (!asyncContext.fCalled) {
+    if (fContext->fSharedContext->caps()->allowCpuSync()) {
         fContext->submit(SyncToCpu::kYes);
+    } else {
+        fContext->submit(SyncToCpu::kNo);
+        if (fContext->fSharedContext->backend() == BackendApi::kDawn) {
+            while (!asyncContext.fCalled) {
+#if defined(SK_DAWN)
+                auto dawnContext = static_cast<DawnSharedContext*>(fContext->fSharedContext.get());
+                dawnContext->device().Tick();
+                fContext->checkAsyncWorkCompletion();
+#endif
+            }
+        } else {
+            SK_ABORT("Only Dawn supports non-synching contexts.");
+        }
     }
     SkASSERT(asyncContext.fCalled);
     if (!asyncContext.fResult) {
