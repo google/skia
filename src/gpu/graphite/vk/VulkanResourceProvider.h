@@ -13,6 +13,12 @@
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/DescriptorTypes.h"
 
+#ifdef  SK_BUILD_FOR_ANDROID
+extern "C" {
+    typedef struct AHardwareBuffer AHardwareBuffer;
+}
+#endif
+
 namespace skgpu::graphite {
 
 class VulkanCommandBuffer;
@@ -63,6 +69,13 @@ private:
             const int height);
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
+#ifdef SK_BUILD_FOR_ANDROID
+    BackendTexture onCreateBackendTexture(AHardwareBuffer*,
+                                          bool isRenderable,
+                                          bool isProtectedContent,
+                                          SkISize dimensions,
+                                          bool fromAndroidWindow) const override;
+#endif
     void onDeleteBackendTexture(const BackendTexture&) override;
 
     sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<DescriptorData>);

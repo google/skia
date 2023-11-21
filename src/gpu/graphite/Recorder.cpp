@@ -252,6 +252,27 @@ BackendTexture Recorder::createBackendTexture(SkISize dimensions, const TextureI
     return fResourceProvider->createBackendTexture(dimensions, info);
 }
 
+#ifdef SK_BUILD_FOR_ANDROID
+
+BackendTexture Recorder::createBackendTexture(AHardwareBuffer* hardwareBuffer,
+                                              bool isRenderable,
+                                              bool isProtectedContent,
+                                              SkISize dimensions,
+                                              bool fromAndroidWindow) const {
+    if (fSharedContext->backend() != BackendApi::kVulkan) {
+        SKGPU_LOG_W("Creating an AHardwareBuffer-backed BackendTexture is only supported with the"
+                    "Vulkan backend.");
+        return {};
+    }
+    return fResourceProvider->createBackendTexture(hardwareBuffer,
+                                                   isRenderable,
+                                                   isProtectedContent,
+                                                   dimensions,
+                                                   fromAndroidWindow);
+}
+
+#endif // SK_BUILD_FOR_ANDROID
+
 bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
                                     const SkPixmap srcData[],
                                     int numLevels) {
