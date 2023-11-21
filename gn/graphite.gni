@@ -245,6 +245,8 @@ skia_graphite_dawn_sources = [
   "$_src/dawn/DawnTexture.cpp",
   "$_src/dawn/DawnTexture.h",
   "$_src/dawn/DawnTypesPriv.cpp",
+  "$_src/dawn/DawnUtils.cpp",
+  "$_src/dawn/DawnUtilsPriv.h",
 ]
 
 skia_graphite_mtl_public = [

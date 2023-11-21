@@ -408,11 +408,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/text/gpu:gpu_hdrs",
 				"//src/text/gpu:gpu_srcs",
 			}},
-		{Var: "skia_shared_dawn_sources",
-			Rules: []string{
-				"//src/gpu/dawn:dawn_hdrs",
-				"//src/gpu/dawn:dawn_srcs",
-			}},
 		{Var: "skia_shared_vk_sources",
 			Rules: []string{
 				"//include/gpu/vk:shared_public_hdrs",

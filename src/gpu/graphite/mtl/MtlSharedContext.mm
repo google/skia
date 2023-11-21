@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 
 #include "include/gpu/graphite/BackendTexture.h"
+#include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/GlobalCache.h"
@@ -21,6 +22,10 @@ namespace skgpu::graphite {
 
 sk_sp<skgpu::graphite::SharedContext> MtlSharedContext::Make(const MtlBackendContext& context,
                                                              const ContextOptions& options) {
+    if (options.fNeverYieldToWebGPU) {
+        SKGPU_LOG_W("fNeverYieldToWebGPU is not supported with Metal.");
+        return nullptr;
+    }
     // TODO: This was taken from GrMtlGpu.mm's Make, does graphite deserve a higher version?
     if (@available(macOS 10.14, iOS 11.0, tvOS 11.0, *)) {
         // no warning needed

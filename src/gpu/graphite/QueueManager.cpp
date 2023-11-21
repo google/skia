@@ -34,7 +34,12 @@ QueueManager::QueueManager(const SharedContext* sharedContext)
 }
 
 QueueManager::~QueueManager() {
-    this->checkForFinishedWork(SyncToCpu::kYes);
+    if (fSharedContext->caps()->allowCpuSync()) {
+        this->checkForFinishedWork(SyncToCpu::kYes);
+    } else if (!fOutstandingSubmissions.empty()) {
+        SKGPU_LOG_F("When ContextOptions::fNeverYieldToWebGPU is specified all GPU work must be "
+                    "finished before destroying Context.");
+    }
 }
 
 bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider) {
@@ -229,10 +234,13 @@ bool QueueManager::submitToGpu() {
     return true;
 }
 
+bool QueueManager::hasUnfinishedGpuWork() { return !fOutstandingSubmissions.empty(); }
+
 void QueueManager::checkForFinishedWork(SyncToCpu sync) {
     TRACE_EVENT1("skia.gpu", TRACE_FUNC, "sync", sync == SyncToCpu::kYes);
 
     if (sync == SyncToCpu::kYes) {
+        SkASSERT(fSharedContext->caps()->allowCpuSync());
         // wait for the last submission to finish
         OutstandingSubmission* back = (OutstandingSubmission*)fOutstandingSubmissions.back();
         if (back) {
