@@ -2293,68 +2293,6 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     return isfinitef_(*max_error);
 }
 
-// ~~~~ Impl. of skcms_Transform() ~~~~
-
-// Instantiate specialized versions of run_program().
-// TODO(b/310927123): move these into separate translation units
-#if !defined(SKCMS_DISABLE_HSW)
-    #if defined(__clang__)
-        #pragma clang attribute push(__attribute__((target("avx2,f16c"))), apply_to=function)
-    #elif defined(__GNUC__)
-        #pragma GCC push_options
-        #pragma GCC target("avx2,f16c")
-    #endif
-
-    namespace skcms_private {
-    namespace hsw {
-        #define USING_AVX
-        #define USING_AVX_F16C
-        #define USING_AVX2
-        #define N 8
-        template <typename T> using V = skcms_private::Vec<N,T>;
-
-        #include "src/Transform_inl.h"
-
-        // src/Transform_inl.h will undefine USING_* for us.
-        #undef N
-    }
-    }
-
-    #if defined(__clang__)
-        #pragma clang attribute pop
-    #elif defined(__GNUC__)
-        #pragma GCC pop_options
-    #endif
-#endif
-
-#if !defined(SKCMS_DISABLE_SKX)
-    #if defined(__clang__)
-        #pragma clang attribute push(__attribute__((target("avx512f,avx512dq,avx512cd,avx512bw,avx512vl"))), apply_to=function)
-    #elif defined(__GNUC__)
-        #pragma GCC push_options
-        #pragma GCC target("avx512f,avx512dq,avx512cd,avx512bw,avx512vl")
-    #endif
-
-    namespace skcms_private {
-    namespace skx {
-        #define USING_AVX512F
-        #define N 16
-        template <typename T> using V = skcms_private::Vec<N,T>;
-
-        #include "src/Transform_inl.h"
-
-        // src/Transform_inl.h will undefine USING_* for us.
-        #undef N
-    }
-    }
-
-    #if defined(__clang__)
-        #pragma clang attribute pop
-    #elif defined(__GNUC__)
-        #pragma GCC pop_options
-    #endif
-#endif
-
 enum class CpuType { Baseline, HSW, SKX };
 
 static CpuType cpu_type() {
