@@ -869,6 +869,7 @@ static constexpr Uniform kImageShaderUniforms[] = {
         { "tilemodeX",             SkSLType::kInt },
         { "tilemodeY",             SkSLType::kInt },
         { "filterMode",            SkSLType::kInt },
+        { "readSwizzle",           SkSLType::kInt },
         // The next 5 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
         { "csXformSrcKind",        SkSLType::kInt },
@@ -883,6 +884,7 @@ static constexpr Uniform kCubicImageShaderUniforms[] = {
         { "tilemodeX",             SkSLType::kInt },
         { "tilemodeY",             SkSLType::kInt },
         { "cubicCoeffs",           SkSLType::kHalf4x4 },
+        { "readSwizzle",           SkSLType::kInt },
         // The next 5 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
         { "csXformSrcKind",        SkSLType::kInt },
@@ -893,6 +895,7 @@ static constexpr Uniform kCubicImageShaderUniforms[] = {
 
 static constexpr Uniform kHWImageShaderUniforms[] = {
         { "imgSize",               SkSLType::kFloat2 },
+        { "readSwizzle",           SkSLType::kInt },
         // The next 5 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
         { "csXformSrcKind",        SkSLType::kInt },
