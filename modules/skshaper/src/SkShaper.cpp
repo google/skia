@@ -100,6 +100,8 @@ public:
         , fRequestStyle(requestStyle)
         , fLanguage(lang)
     {
+        // If fallback is not wanted, clients should use TrivialFontRunIterator.
+        SkASSERT(fFallbackMgr);
         fFont.setTypeface(SkFontPriv::RefTypefaceOrDefault(font));
         fFallbackFont.setTypeface(nullptr);
     }
