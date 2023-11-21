@@ -9,9 +9,9 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/MutableTextureState.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/private/base/SkAssert.h"
-#include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/vk/GrVkBackendSurfacePriv.h"
@@ -132,7 +132,7 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
         SkISize dimensions,
         int sampleCnt,
         const GrVkImageInfo& info,
-        sk_sp<skgpu::MutableTextureStateRef> mutableState) {
+        sk_sp<skgpu::MutableTextureState> mutableState) {
     SkASSERT(VK_NULL_HANDLE != info.fImage);
     SkASSERT(1 == info.fLevelCount);
     SkASSERT(sampleCnt >= 1 && info.fSampleCount >= 1);
@@ -191,7 +191,7 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
     info.fImageUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
                             VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
-    sk_sp<skgpu::MutableTextureStateRef> mutableState(new skgpu::MutableTextureStateRef(
+    sk_sp<skgpu::MutableTextureState> mutableState(new skgpu::MutableTextureState(
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_QUEUE_FAMILY_IGNORED));
 
     sk_sp<GrVkImage> colorAttachment =

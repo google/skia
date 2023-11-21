@@ -7,11 +7,13 @@
 
 #include "src/gpu/ganesh/vk/GrVkImage.h"
 
+#include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkImageView.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanMemory.h"
+#include "src/gpu/vk/VulkanMutableTextureStatePriv.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
@@ -161,8 +163,8 @@ sk_sp<GrVkImage> GrVkImage::Make(GrVkGpu* gpu,
         return nullptr;
     }
 
-    sk_sp<skgpu::MutableTextureStateRef> mutableState(
-            new skgpu::MutableTextureStateRef(info.fImageLayout, info.fCurrentQueueFamily));
+    sk_sp<skgpu::MutableTextureState> mutableState(
+            new skgpu::MutableTextureState(info.fImageLayout, info.fCurrentQueueFamily));
     return sk_sp<GrVkImage>(new GrVkImage(gpu,
                                           dimensions,
                                           attachmentUsages,
@@ -177,7 +179,7 @@ sk_sp<GrVkImage> GrVkImage::Make(GrVkGpu* gpu,
 sk_sp<GrVkImage> GrVkImage::MakeWrapped(GrVkGpu* gpu,
                                         SkISize dimensions,
                                         const GrVkImageInfo& info,
-                                        sk_sp<skgpu::MutableTextureStateRef> mutableState,
+                                        sk_sp<skgpu::MutableTextureState> mutableState,
                                         UsageFlags attachmentUsages,
                                         GrWrapOwnership ownership,
                                         GrWrapCacheable cacheable,
@@ -212,7 +214,7 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                      SkISize dimensions,
                      UsageFlags supportedUsages,
                      const GrVkImageInfo& info,
-                     sk_sp<skgpu::MutableTextureStateRef> mutableState,
+                     sk_sp<skgpu::MutableTextureState> mutableState,
                      sk_sp<const GrVkImageView> framebufferView,
                      sk_sp<const GrVkImageView> textureView,
                      skgpu::Budgeted budgeted,
@@ -241,7 +243,7 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                      SkISize dimensions,
                      UsageFlags supportedUsages,
                      const GrVkImageInfo& info,
-                     sk_sp<skgpu::MutableTextureStateRef> mutableState,
+                     sk_sp<skgpu::MutableTextureState> mutableState,
                      sk_sp<const GrVkImageView> framebufferView,
                      sk_sp<const GrVkImageView> textureView,
                      GrBackendObjectOwnership ownership,
@@ -266,8 +268,8 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
 }
 
 void GrVkImage::init(GrVkGpu* gpu, bool forSecondaryCB) {
-    SkASSERT(fMutableState->getImageLayout() == fInfo.fImageLayout);
-    SkASSERT(fMutableState->getQueueFamilyIndex() == fInfo.fCurrentQueueFamily);
+    SkASSERT(skgpu::MutableTextureStates::GetVkImageLayout(fMutableState.get()) == fInfo.fImageLayout);
+    SkASSERT(skgpu::MutableTextureStates::GetVkQueueFamilyIndex(fMutableState.get()) == fInfo.fCurrentQueueFamily);
 #ifdef SK_DEBUG
     if (fInfo.fImageUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
         SkASSERT(SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT));
@@ -714,6 +716,6 @@ GrVkGpu* GrVkImage::getVkGpu() const {
 
 #if defined(GR_TEST_UTILS)
 void GrVkImage::setCurrentQueueFamilyToGraphicsQueue(GrVkGpu* gpu) {
-    fMutableState->setQueueFamilyIndex(gpu->queueIndex());
+    skgpu::MutableTextureStates::SetVkQueueFamilyIndex(fMutableState.get(), gpu->queueIndex());
 }
 #endif

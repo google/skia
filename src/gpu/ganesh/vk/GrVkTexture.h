@@ -37,7 +37,7 @@ public:
                                                  GrWrapCacheable,
                                                  GrIOType,
                                                  const GrVkImageInfo&,
-                                                 sk_sp<skgpu::MutableTextureStateRef>);
+                                                 sk_sp<skgpu::MutableTextureState>);
 
     ~GrVkTexture() override;
 

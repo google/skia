@@ -16,7 +16,7 @@
 
 #include <utility>
 
-namespace skgpu { class MutableTextureStateRef; }
+namespace skgpu { class MutableTextureState; }
 
 namespace skgpu::graphite {
 
@@ -29,7 +29,7 @@ public:
     struct CreatedImageInfo {
         VkImage fImage = VK_NULL_HANDLE;
         VulkanAlloc fMemoryAlloc;
-        sk_sp<MutableTextureStateRef> fMutableState;
+        sk_sp<MutableTextureState> fMutableState;
     };
 
     static bool MakeVkImage(const VulkanSharedContext*,
@@ -47,7 +47,7 @@ public:
                                       const VulkanResourceProvider*,
                                       SkISize dimensions,
                                       const TextureInfo&,
-                                      sk_sp<MutableTextureStateRef>,
+                                      sk_sp<MutableTextureState>,
                                       VkImage,
                                       const VulkanAlloc&);
 
@@ -84,7 +84,7 @@ private:
     VulkanTexture(const VulkanSharedContext* sharedContext,
                   SkISize dimensions,
                   const TextureInfo& info,
-                  sk_sp<MutableTextureStateRef>,
+                  sk_sp<MutableTextureState>,
                   VkImage,
                   const VulkanAlloc&,
                   Ownership,

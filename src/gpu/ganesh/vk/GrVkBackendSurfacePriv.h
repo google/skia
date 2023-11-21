@@ -16,7 +16,7 @@ class GrBackendTexture;
 class GrBackendRenderTarget;
 
 namespace skgpu {
-class MutableTextureStateRef;
+class MutableTextureState;
 }
 
 namespace GrBackendTextures {
@@ -24,7 +24,7 @@ namespace GrBackendTextures {
 SK_API GrBackendTexture MakeVk(int width,
                                int height,
                                const GrVkImageInfo&,
-                               sk_sp<skgpu::MutableTextureStateRef>);
+                               sk_sp<skgpu::MutableTextureState>);
 
 }  // namespace GrBackendTextures
 
@@ -34,7 +34,7 @@ namespace GrBackendRenderTargets {
 SK_API GrBackendRenderTarget MakeVk(int width,
                                     int height,
                                     const GrVkImageInfo&,
-                                    sk_sp<skgpu::MutableTextureStateRef>);
+                                    sk_sp<skgpu::MutableTextureState>);
 
 }  // namespace GrBackendRenderTargets
 

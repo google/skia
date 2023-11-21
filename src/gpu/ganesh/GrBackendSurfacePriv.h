@@ -10,9 +10,9 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/MutableTextureState.h"  // IWYU pragma: keep
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/MutableTextureStateRef.h"  // IWYU pragma: keep
 
 #include <cstddef>
 #include <cstdint>
@@ -24,7 +24,6 @@ enum class SkTextureCompressionType;
 
 namespace skgpu {
 enum class Mipmapped : bool;
-class MutableTextureState;
 }
 
 class GrBackendFormatData {
@@ -75,7 +74,7 @@ private:
     virtual void copyTo(AnyTextureData&) const = 0;
 
     // Vulkan-only API:
-    virtual sk_sp<skgpu::MutableTextureStateRef> getMutableState() const { return nullptr; }
+    virtual sk_sp<skgpu::MutableTextureState> getMutableState() const { return nullptr; }
     virtual void setMutableState(const skgpu::MutableTextureState&) {}
 };
 
@@ -99,7 +98,7 @@ private:
     virtual void copyTo(AnyRenderTargetData&) const = 0;
 
     // Vulkan-only API:
-    virtual sk_sp<skgpu::MutableTextureStateRef> getMutableState() const { return nullptr; }
+    virtual sk_sp<skgpu::MutableTextureState> getMutableState() const { return nullptr; }
     virtual void setMutableState(const skgpu::MutableTextureState&) {}
 };
 

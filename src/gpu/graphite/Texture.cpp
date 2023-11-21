@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/Texture.h"
 
-#include "src/gpu/MutableTextureStateRef.h"
+#include "include/gpu/MutableTextureState.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/SharedContext.h"
@@ -19,7 +19,7 @@ namespace skgpu::graphite {
 Texture::Texture(const SharedContext* sharedContext,
                  SkISize dimensions,
                  const TextureInfo& info,
-                 sk_sp<MutableTextureStateRef> mutableState,
+                 sk_sp<MutableTextureState> mutableState,
                  Ownership ownership,
                  skgpu::Budgeted budgeted)
         : Resource(sharedContext,
@@ -45,6 +45,6 @@ void Texture::invokeReleaseProc() {
     }
 }
 
-MutableTextureStateRef* Texture::mutableState() const { return fMutableState.get(); }
+MutableTextureState* Texture::mutableState() const { return fMutableState.get(); }
 
 } // namespace skgpu::graphite

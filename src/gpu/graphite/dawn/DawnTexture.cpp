@@ -7,10 +7,10 @@
 
 #include "src/gpu/graphite/dawn/DawnTexture.h"
 
+#include "include/gpu/MutableTextureState.h"
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 #include "include/private/gpu/graphite/DawnTypesPriv.h"
 #include "src/core/SkMipmap.h"
-#include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"

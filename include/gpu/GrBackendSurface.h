@@ -25,7 +25,6 @@ class GrBackendRenderTargetData;
 
 namespace skgpu {
 class MutableTextureState;
-class MutableTextureStateRef;
 }
 
 #ifdef SK_METAL
@@ -290,7 +289,7 @@ private:
     }
 
     friend class GrVkGpu;  // for getMutableState
-    sk_sp<skgpu::MutableTextureStateRef> getMutableState() const;
+    sk_sp<skgpu::MutableTextureState> getMutableState() const;
 
 #ifdef SK_DIRECT3D
     friend class GrD3DTexture;
@@ -433,7 +432,7 @@ private:
     }
 
     friend class GrVkGpu; // for getMutableState
-    sk_sp<skgpu::MutableTextureStateRef> getMutableState() const;
+    sk_sp<skgpu::MutableTextureState> getMutableState() const;
 
 #ifdef SK_DIRECT3D
     friend class GrD3DGpu;

@@ -12,11 +12,11 @@
 #include "include/gpu/vk/GrVkTypes.h"
 
 namespace skgpu {
-class MutableTextureStateRef;
+class MutableTextureState;
 }
 
 GrVkImageInfo GrVkImageInfoWithMutableState(const GrVkImageInfo&,
-                                            const skgpu::MutableTextureStateRef*);
+                                            const skgpu::MutableTextureState*);
 
 struct GrVkImageSpec {
     GrVkImageSpec()

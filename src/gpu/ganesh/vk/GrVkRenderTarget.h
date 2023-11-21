@@ -29,7 +29,7 @@ public:
                                                            SkISize,
                                                            int sampleCnt,
                                                            const GrVkImageInfo&,
-                                                           sk_sp<skgpu::MutableTextureStateRef>);
+                                                           sk_sp<skgpu::MutableTextureState>);
 
     static sk_sp<GrVkRenderTarget> MakeSecondaryCBRenderTarget(GrVkGpu*,
                                                                SkISize,

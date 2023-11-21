@@ -28,7 +28,6 @@
 
 namespace skgpu {
 class MutableTextureState;
-class MutableTextureStateRef;
 }
 
 namespace skgpu::graphite {
@@ -113,12 +112,12 @@ public:
 
 private:
     friend class VulkanResourceProvider;    // for getMutableState
-    sk_sp<MutableTextureStateRef> getMutableState() const;
+    sk_sp<MutableTextureState> getMutableState() const;
 
     SkISize fDimensions;
     TextureInfo fInfo;
 
-    sk_sp<MutableTextureStateRef> fMutableState;
+    sk_sp<MutableTextureState> fMutableState;
 
 #ifdef SK_VULKAN
     // fMemoryAlloc == VulkanAlloc() if the client has already created their own VkImage and

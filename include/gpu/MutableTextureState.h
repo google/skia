@@ -8,6 +8,7 @@
 #ifndef skgpu_MutableTextureState_DEFINED
 #define skgpu_MutableTextureState_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 
@@ -17,10 +18,6 @@
 
 #include <cstdint>
 #endif
-
-#include <new>
-
-class GrVkGpu;
 
 namespace skgpu {
 
@@ -34,44 +31,21 @@ namespace skgpu {
  *
  * Vulkan: VkImageLayout and QueueFamilyIndex
  */
-class SK_API MutableTextureState {
+class SK_API MutableTextureState : public SkRefCnt {
 public:
     MutableTextureState() {}
 
-#ifdef SK_VULKAN
-    MutableTextureState(VkImageLayout layout, uint32_t queueFamilyIndex)
-            : fVkState(layout, queueFamilyIndex)
-            , fBackend(BackendApi::kVulkan)
-            , fIsValid(true) {}
+#if defined(SK_VULKAN)
+    MutableTextureState(VkImageLayout layout, uint32_t queueFamilyIndex);
 #endif
 
-    MutableTextureState(const MutableTextureState& that)
-            : fBackend(that.fBackend), fIsValid(that.fIsValid) {
-        if (!fIsValid) {
-            return;
-        }
-        switch (fBackend) {
-            case BackendApi::kVulkan:
-    #ifdef SK_VULKAN
-                SkASSERT(that.fBackend == BackendApi::kVulkan);
-                fVkState = that.fVkState;
-    #endif
-                break;
-            default:
-                (void)that;
-                SkUNREACHABLE;
-        }
-    }
+    MutableTextureState(const MutableTextureState& that);
 
-    MutableTextureState& operator=(const MutableTextureState& that) {
-        if (this != &that) {
-            this->~MutableTextureState();
-            new (this) MutableTextureState(that);
-        }
-        return *this;
-    }
+    MutableTextureState& operator=(const MutableTextureState& that);
 
-#ifdef SK_VULKAN
+    void set(const MutableTextureState& that);
+
+#if defined(SK_VULKAN)
     // If this class is not Vulkan backed it will return value of VK_IMAGE_LAYOUT_UNDEFINED.
     // Otherwise it will return the VkImageLayout.
     VkImageLayout getVkImageLayout() const {
@@ -97,19 +71,7 @@ public:
     bool isValid() const { return fIsValid; }
 
 private:
-    friend class MutableTextureStateRef;
-    friend class ::GrVkGpu;
-
-#ifdef SK_VULKAN
-    void setVulkanState(VkImageLayout layout, uint32_t queueFamilyIndex) {
-        SkASSERT(!this->isValid() || fBackend == BackendApi::kVulkan);
-        fVkState.setImageLayout(layout);
-        fVkState.setQueueFamilyIndex(queueFamilyIndex);
-        fBackend = BackendApi::kVulkan;
-        fIsValid = true;
-    }
-#endif
-
+    friend class MTSVKPriv;
     union {
         char fPlaceholder;
 #ifdef SK_VULKAN

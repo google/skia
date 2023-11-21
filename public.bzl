@@ -187,6 +187,7 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/vk/GrVkTypes.h",
     "include/gpu/vk/VulkanExtensions.h",
     "include/gpu/vk/VulkanMemoryAllocator.h",
+    "include/gpu/vk/VulkanMutableTextureState.h",
     "include/gpu/vk/VulkanTypes.h",
     "include/pathops/SkPathOps.h",
     "include/ports/SkCFObject.h",
@@ -785,7 +786,7 @@ BASE_SRCS_ALL = [
     "src/gpu/DitherUtils.h",
     "src/gpu/GpuTypesPriv.h",
     "src/gpu/KeyBuilder.h",
-    "src/gpu/MutableTextureStateRef.h",
+    "src/gpu/MutableTextureState.cpp",
     "src/gpu/PipelineUtils.cpp",
     "src/gpu/PipelineUtils.h",
     "src/gpu/Rectanizer.h",
@@ -2138,6 +2139,8 @@ MTL_SRCS = [
 ]
 
 VULKAN_SRCS = [
+    "src/gpu/vk/VulkanMutableTextureState.cpp",
+    "src/gpu/vk/VulkanMutableTextureStatePriv.h",
     "src/gpu/ganesh/vk/GrVkBackendSemaphore.cpp",
     "src/gpu/ganesh/vk/GrVkBackendSurface.cpp",
     "src/gpu/ganesh/vk/GrVkBackendSurfacePriv.h",

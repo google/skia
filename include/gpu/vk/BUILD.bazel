@@ -11,6 +11,7 @@ skia_filegroup(
         "VulkanBackendContext.h",
         "VulkanExtensions.h",
         "VulkanMemoryAllocator.h",
+        "VulkanMutableTextureState.h",
         "VulkanTypes.h",
     ],
 )

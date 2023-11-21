@@ -242,7 +242,7 @@ private:
                                           size_t length) override;
 
     bool setBackendSurfaceState(GrVkImageInfo info,
-                                sk_sp<skgpu::MutableTextureStateRef> currentState,
+                                sk_sp<skgpu::MutableTextureState> currentState,
                                 SkISize dimensions,
                                 const skgpu::VulkanMutableTextureState& newState,
                                 skgpu::MutableTextureState* previousState,

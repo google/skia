@@ -9,6 +9,7 @@
 
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/graphite/BackendSemaphore.h"
+#include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/DescriptorTypes.h"
 #include "src/gpu/graphite/Log.h"
@@ -215,7 +216,7 @@ void VulkanCommandBuffer::prepareSurfaceForStateUpdate(SkSurface* targetSurface,
     // Even though internally we use this helper for getting src access flags and stages they
     // can also be used for general dst flags since we don't know exactly what the client
     // plans on using the image for.
-    VkImageLayout newLayout = newState->getVkImageLayout();
+    VkImageLayout newLayout = skgpu::MutableTextureStates::GetVkImageLayout(newState);
     if (newLayout == VK_IMAGE_LAYOUT_UNDEFINED) {
         newLayout = texture->currentLayout();
     }
@@ -223,7 +224,7 @@ void VulkanCommandBuffer::prepareSurfaceForStateUpdate(SkSurface* targetSurface,
     VkAccessFlags dstAccess = VulkanTexture::LayoutToSrcAccessMask(newLayout);
 
     uint32_t currentQueueFamilyIndex = texture->currentQueueFamilyIndex();
-    uint32_t newQueueFamilyIndex = newState->getQueueFamilyIndex();
+    uint32_t newQueueFamilyIndex = skgpu::MutableTextureStates::GetVkQueueFamilyIndex(newState);
     auto isSpecialQueue = [](uint32_t queueFamilyIndex) {
         return queueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
                queueFamilyIndex == VK_QUEUE_FAMILY_FOREIGN_EXT;
