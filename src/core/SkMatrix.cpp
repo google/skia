@@ -547,8 +547,8 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit al
         fMat[kMPersp2] = 1;
         this->setTypeMask(kScale_Mask);
     } else {
-        SkScalar    tx, sx = dst.width() / src.width();
-        SkScalar    ty, sy = dst.height() / src.height();
+        SkScalar    tx, sx = sk_ieee_float_divide(dst.width(), src.width());
+        SkScalar    ty, sy = sk_ieee_float_divide(dst.height(), src.height());
         bool        xLarger = false;
 
         if (align != kFill_ScaleToFit) {
