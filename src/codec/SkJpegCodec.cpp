@@ -250,10 +250,11 @@ static SkEncodedOrigin get_exif_orientation(sk_sp<SkData> exifData) {
     return kDefault_SkEncodedOrigin;
 }
 
-SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
+SkCodec::Result SkJpegCodec::ReadHeader(
+        SkStream* stream,
+        SkCodec** codecOut,
         JpegDecoderMgr** decoderMgrOut,
         std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile) {
-
     // Create a JpegDecoderMgr to own all of the decompress information
     std::unique_ptr<JpegDecoderMgr> decoderMgr(new JpegDecoderMgr(stream));
 

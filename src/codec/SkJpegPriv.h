@@ -19,7 +19,7 @@
 
 extern "C" {
     #include "jpeglib.h"  // NO_G3_REWRITE
-    #include "jerror.h"  // NO_G3_REWRITE
+    #include "jerror.h"   // NO_G3_REWRITE
 }
 
 /*
@@ -28,21 +28,32 @@ extern "C" {
 struct skjpeg_error_mgr : jpeg_error_mgr {
     class AutoPushJmpBuf {
     public:
-        AutoPushJmpBuf(skjpeg_error_mgr* mgr) : fMgr(mgr) {
-            fMgr->fJmpBufStack.push_back(&fJmpBuf);
-        }
-        ~AutoPushJmpBuf() {
-            SkASSERT(fMgr->fJmpBufStack.back() == &fJmpBuf);
-            fMgr->fJmpBufStack.pop_back();
-        }
-        operator jmp_buf&() { return fJmpBuf; }
+        AutoPushJmpBuf(skjpeg_error_mgr* mgr) : fMgr(mgr) { fMgr->push(&fJmpBuf); }
+        ~AutoPushJmpBuf()                                 { fMgr->pop(&fJmpBuf); }
+        operator jmp_buf&()                               { return fJmpBuf; }
 
     private:
         skjpeg_error_mgr* const fMgr;
         jmp_buf fJmpBuf;
     };
 
-    skia_private::STArray<4, jmp_buf*> fJmpBufStack;
+    void push(jmp_buf* j) {
+        SkASSERT(fStack[3] == nullptr);  // if we assert here, the stack has overflowed
+        fStack[3] = fStack[2];
+        fStack[2] = fStack[1];
+        fStack[1] = fStack[0];
+        fStack[0] = j;
+    }
+
+    void pop(jmp_buf* j) {
+        SkASSERT(fStack[0] == j);  // if we assert here, the pushes and pops were unbalanced
+        fStack[0] = fStack[1];
+        fStack[1] = fStack[2];
+        fStack[2] = fStack[3];
+        fStack[3] = nullptr;
+    }
+
+    jmp_buf* fStack[4] = {};
 };
 
 namespace SkJpegPriv {

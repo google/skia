@@ -9,7 +9,6 @@
 
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTArray.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegPriv.h"
 
@@ -18,7 +17,7 @@
 
 extern "C" {
     #include "jmorecfg.h"  // NO_G3_REWRITE
-    #include "jpeglib.h"  // NO_G3_REWRITE
+    #include "jpeglib.h"   // NO_G3_REWRITE
 }
 
 /*
@@ -29,10 +28,10 @@ void skjpeg_err_exit(j_common_ptr dinfo) {
     // JpegDecoderMgr will take care of freeing memory
     skjpeg_error_mgr* error = (skjpeg_error_mgr*) dinfo->err;
     (*error->output_message) (dinfo);
-    if (error->fJmpBufStack.empty()) {
+    if (error->fStack[0] == nullptr) {
         SK_ABORT("JPEG error with no jmp_buf set.");
     }
-    longjmp(*error->fJmpBufStack.back(), 1);
+    longjmp(*error->fStack[0], 1);
 }
 
 // Functions for buffered sources //
