@@ -39,6 +39,7 @@ arch("skcms_TransformHsw") {
         "/clang:-mavx2",
         "/clang:-mf16c",
         "/clang:-ffp-contract=off",
+        "/DSKCMS_MUSTTAIL=",
       ]
     } else {
       cflags = [ "/arch:AVX2" ]
@@ -64,6 +65,7 @@ arch("skcms_TransformSkx") {
         "/clang:-mavx512bw",
         "/clang:-mavx512vl",
         "/clang:-ffp-contract=off",
+        "/DSKCMS_MUSTTAIL=",
       ]
     } else {
       cflags = [ "/arch:AVX512" ]
