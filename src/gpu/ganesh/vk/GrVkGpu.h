@@ -244,7 +244,8 @@ private:
     bool setBackendSurfaceState(GrVkImageInfo info,
                                 sk_sp<skgpu::MutableTextureState> currentState,
                                 SkISize dimensions,
-                                const skgpu::VulkanMutableTextureState& newState,
+                                VkImageLayout newLayout,
+                                uint32_t newQueueFamilyIndex,
                                 skgpu::MutableTextureState* previousState,
                                 sk_sp<skgpu::RefCntedCallback> finishedCallback);
 

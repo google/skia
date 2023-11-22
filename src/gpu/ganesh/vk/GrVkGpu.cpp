@@ -1910,11 +1910,11 @@ bool GrVkGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
 }
 
 void set_layout_and_queue_from_mutable_state(GrVkGpu* gpu, GrVkImage* image,
-                                             const skgpu::VulkanMutableTextureState& newState) {
+                                             VkImageLayout newLayout,
+                                             uint32_t newQueueFamilyIndex) {
     // Even though internally we use this helper for getting src access flags and stages they
     // can also be used for general dst flags since we don't know exactly what the client
     // plans on using the image for.
-    VkImageLayout newLayout = newState.getImageLayout();
     if (newLayout == VK_IMAGE_LAYOUT_UNDEFINED) {
         newLayout = image->currentLayout();
     }
@@ -1922,7 +1922,6 @@ void set_layout_and_queue_from_mutable_state(GrVkGpu* gpu, GrVkImage* image,
     VkAccessFlags dstAccess = GrVkImage::LayoutToSrcAccessMask(newLayout);
 
     uint32_t currentQueueFamilyIndex = image->currentQueueFamilyIndex();
-    uint32_t newQueueFamilyIndex = newState.getQueueFamilyIndex();
     auto isSpecialQueue = [](uint32_t queueFamilyIndex) {
         return queueFamilyIndex == VK_QUEUE_FAMILY_EXTERNAL ||
                queueFamilyIndex == VK_QUEUE_FAMILY_FOREIGN_EXT;
@@ -1940,7 +1939,8 @@ void set_layout_and_queue_from_mutable_state(GrVkGpu* gpu, GrVkImage* image,
 bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
                                      sk_sp<skgpu::MutableTextureState> currentState,
                                      SkISize dimensions,
-                                     const skgpu::VulkanMutableTextureState& newState,
+                                     VkImageLayout newLayout,
+                                     uint32_t newQueueFamilyIndex,
                                      skgpu::MutableTextureState* previousState,
                                      sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     sk_sp<GrVkImage> texture = GrVkImage::MakeWrapped(this,
@@ -1959,7 +1959,7 @@ bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
     if (previousState) {
         previousState->set(*texture->getMutableState());
     }
-    set_layout_and_queue_from_mutable_state(this, texture.get(), newState);
+    set_layout_and_queue_from_mutable_state(this, texture.get(), newLayout, newQueueFamilyIndex);
     if (finishedCallback) {
         this->addFinishedCallback(std::move(finishedCallback));
     }
@@ -1976,7 +1976,8 @@ bool GrVkGpu::setBackendTextureState(const GrBackendTexture& backendTeture,
     SkASSERT(currentState);
     SkASSERT(newState.isValid() && newState.backend() == skgpu::BackendApi::kVulkan);
     return this->setBackendSurfaceState(info, std::move(currentState), backendTeture.dimensions(),
-                                        skgpu::MutableTextureStates::GetVulkanState(newState),
+                                        skgpu::MutableTextureStates::GetVkImageLayout(newState),
+                                        skgpu::MutableTextureStates::GetVkQueueFamilyIndex(newState),
                                         previousState,
                                         std::move(finishedCallback));
 }
@@ -1992,7 +1993,8 @@ bool GrVkGpu::setBackendRenderTargetState(const GrBackendRenderTarget& backendRe
     SkASSERT(newState.backend() == skgpu::BackendApi::kVulkan);
     return this->setBackendSurfaceState(info, std::move(currentState),
                                         backendRenderTarget.dimensions(),
-                                        skgpu::MutableTextureStates::GetVulkanState(newState),
+                                        skgpu::MutableTextureStates::GetVkImageLayout(newState),
+                                        skgpu::MutableTextureStates::GetVkQueueFamilyIndex(newState),
                                         previousState, std::move(finishedCallback));
 }
 
@@ -2219,9 +2221,11 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndStateUpdates(
                 image = vkRT->externalAttachment();
             }
             if (newState) {
-                const skgpu::VulkanMutableTextureState& newInfo =
-                    skgpu::MutableTextureStates::GetVulkanState(newState);
-                set_layout_and_queue_from_mutable_state(this, image, newInfo);
+                VkImageLayout newLayout =
+                    skgpu::MutableTextureStates::GetVkImageLayout(newState);
+                uint32_t newIndex =
+                    skgpu::MutableTextureStates::GetVkQueueFamilyIndex(newState);
+                set_layout_and_queue_from_mutable_state(this, image, newLayout, newIndex);
             } else {
                 SkASSERT(access == SkSurfaces::BackendSurfaceAccess::kPresent);
                 image->prepareForPresent(this);

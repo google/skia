@@ -8,7 +8,6 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "SkiaVulkan.h",
-        "VulkanTypesPriv.h",
     ],
     visibility = ["//include/private/gpu:__pkg__"],
 )

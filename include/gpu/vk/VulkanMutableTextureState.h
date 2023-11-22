@@ -15,6 +15,7 @@
 
 namespace skgpu::MutableTextureStates {
     MutableTextureState MakeVulkan(VkImageLayout layout, uint32_t queueFamilyIndex);
+
     VkImageLayout GetVkImageLayout(const MutableTextureState& state);
     VkImageLayout GetVkImageLayout(const MutableTextureState* state);
     uint32_t GetVkQueueFamilyIndex(const MutableTextureState& state);

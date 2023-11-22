@@ -10,16 +10,19 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkAnySubclass.h"
 
-#ifdef SK_VULKAN
+#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE)
 #include "include/private/gpu/vk/SkiaVulkan.h"
-#include "include/private/gpu/vk/VulkanTypesPriv.h"
 
 #include <cstdint>
 #endif
 
+#include <cstddef>
+
 namespace skgpu {
+enum class BackendApi : unsigned int;
+class MutableTextureStateData;
 
 /**
  * Since Skia and clients can both modify gpu textures and their connected state, Skia needs a way
@@ -27,17 +30,13 @@ namespace skgpu {
  * for every single API and state, we use this class to be a generic wrapper around all the mutable
  * state. This class is used for calls that inform Skia of these texture/image state changes by the
  * client as well as for requesting state changes to be done by Skia. The backend specific state
- * that is wrapped by this class are:
- *
- * Vulkan: VkImageLayout and QueueFamilyIndex
+ * that is wrapped by this class are located in files like:
+ *   - include/gpu/vk/VulkanMutableTextureState.h
  */
 class SK_API MutableTextureState : public SkRefCnt {
 public:
-    MutableTextureState() {}
-
-#if defined(SK_VULKAN)
-    MutableTextureState(VkImageLayout layout, uint32_t queueFamilyIndex);
-#endif
+    MutableTextureState();
+    ~MutableTextureState() override;
 
     MutableTextureState(const MutableTextureState& that);
 
@@ -45,42 +44,36 @@ public:
 
     void set(const MutableTextureState& that);
 
-#if defined(SK_VULKAN)
-    // If this class is not Vulkan backed it will return value of VK_IMAGE_LAYOUT_UNDEFINED.
-    // Otherwise it will return the VkImageLayout.
-    VkImageLayout getVkImageLayout() const {
-        if (this->isValid() && fBackend != BackendApi::kVulkan) {
-            return VK_IMAGE_LAYOUT_UNDEFINED;
-        }
-        return fVkState.getImageLayout();
-    }
-
-    // If this class is not Vulkan backed it will return value of VK_QUEUE_FAMILY_IGNORED.
-    // Otherwise it will return the VkImageLayout.
-    uint32_t getQueueFamilyIndex() const {
-        if (this->isValid() && fBackend != BackendApi::kVulkan) {
-            return VK_QUEUE_FAMILY_IGNORED;
-        }
-        return fVkState.getQueueFamilyIndex();
-    }
-#endif
-
     BackendApi backend() const { return fBackend; }
 
     // Returns true if the backend mutable state has been initialized.
     bool isValid() const { return fIsValid; }
 
-private:
-    friend class MTSVKPriv;
-    union {
-        char fPlaceholder;
-#ifdef SK_VULKAN
-        VulkanMutableTextureState fVkState;
-#endif
-    };
+#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE)
+    MutableTextureState(VkImageLayout layout, uint32_t queueFamilyIndex);
 
-    BackendApi fBackend = BackendApi::kMock;
-    bool fIsValid = false;
+    VkImageLayout getVkImageLayout() const;
+    uint32_t getQueueFamilyIndex() const;
+#endif
+
+private:
+    friend class MutableTextureStateData;
+    friend class MutableTextureStatePriv;
+    // Size determined by looking at the MutableTextureStateData subclasses, then
+    // guessing-and-checking. Compiler will complain if this is too small - in that case,
+    // just increase the number.
+    inline constexpr static size_t kMaxSubclassSize = 16;
+    using AnyStateData = SkAnySubclass<MutableTextureStateData, kMaxSubclassSize>;
+
+    template <typename StateData>
+    MutableTextureState(BackendApi api, const StateData& data) : fBackend(api), fIsValid(true) {
+        fStateData.emplace<StateData>(data);
+    }
+
+    AnyStateData fStateData;
+
+    BackendApi fBackend;
+    bool fIsValid;
 };
 
 } // namespace skgpu
