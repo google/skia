@@ -15,7 +15,6 @@
 
 namespace skgpu::graphite {
 struct ContextOptions;
-struct VulkanTextureInfo;
 
 class VulkanCaps final : public Caps {
 public:
@@ -85,13 +84,6 @@ public:
     uint64_t maxUniformBufferRange() const { return fMaxUniformBufferRange; }
 
     uint64_t getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const;
-
-    const VkPhysicalDeviceMemoryProperties2& physicalDeviceMemoryProperties2() const {
-        return fPhysicalDeviceMemoryProperties2;
-    }
-
-    bool isTransferSrc(const VulkanTextureInfo&) const;
-    bool isTransferDst(const VulkanTextureInfo&) const;
 
 private:
     enum VkVendor {
@@ -167,8 +159,6 @@ private:
         bool isTexturable(VkImageTiling) const;
         bool isRenderable(VkImageTiling, uint32_t sampleCount) const;
         bool isStorage(VkImageTiling) const;
-        bool isTransferSrc(VkImageTiling) const;
-        bool isTransferDst(VkImageTiling) const;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
@@ -183,8 +173,6 @@ private:
         bool isTexturable(VkFormatFeatureFlags) const;
         bool isRenderable(VkFormatFeatureFlags) const;
         bool isStorage(VkFormatFeatureFlags) const;
-        bool isTransferSrc(VkFormatFeatureFlags) const;
-        bool isTransferDst(VkFormatFeatureFlags) const;
     };
 
     // Map SkColorType to VkFormat.
@@ -225,7 +213,6 @@ private:
 
     uint32_t fMaxVertexAttributes;
     uint64_t fMaxUniformBufferRange;
-    VkPhysicalDeviceMemoryProperties2 fPhysicalDeviceMemoryProperties2;
 
     // Various bools to define whether certain Vulkan features are supported.
     bool fSupportsMemorylessAttachments = false;
