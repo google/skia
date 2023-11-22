@@ -8,14 +8,22 @@
 #ifndef SkShaper_DEFINED
 #define SkShaper_DEFINED
 
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <type_traits>
+
+class SkFontStyle;
+class SkUnicode;
 
 #if !defined(SKSHAPER_IMPLEMENTATION)
     #define SKSHAPER_IMPLEMENTATION 0
@@ -36,10 +44,6 @@
         #define SKSHAPER_API
     #endif
 #endif
-
-class SkFont;
-class SkFontMgr;
-class SkUnicode;
 
 class SKSHAPER_API SkShaper {
 public:

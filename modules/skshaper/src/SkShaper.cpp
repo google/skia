@@ -9,23 +9,22 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
-#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
+
+#include <limits.h>
+#include <algorithm>
+#include <cstring>
+#include <locale>
+#include <string>
+#include <utility>
 
 #ifdef SK_SHAPER_UNICODE_AVAILABLE
 #include "modules/skunicode/include/SkUnicode.h"
 #endif
-#include "src/base/SkUTF.h"
-#include "src/core/SkTextBlobPriv.h"
-
-#include <limits.h>
-#include <string.h>
-#include <locale>
-#include <string>
-#include <utility>
 
 std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fallback) {
 #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE

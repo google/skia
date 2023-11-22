@@ -27,6 +27,7 @@ supported_files_or_dirs=(
   "gm/"
   "include/private/base/"
   "modules/bentleyottmann/"
+  "modules/skshaper/"
   "modules/skunicode/"
   "src/base/"
   "src/codec/"

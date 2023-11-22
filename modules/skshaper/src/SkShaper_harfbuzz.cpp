@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMetrics.h"
@@ -17,25 +18,27 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/base/SkTypeTraits.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkTDPQueue.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkLRUCache.h"
 
-#include <hb.h>
 #include <hb-ot.h>
+#include <hb.h>
+
+#include <cstdint>
 #include <cstring>
-#include <locale>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -50,10 +53,6 @@ using namespace skia_private;
 #if !defined(HB_FEATURE_GLOBAL_END)
 # define HB_FEATURE_GLOBAL_END ((unsigned int) -1)
 #endif
-
-namespace sknonstd {
-template <> struct is_bitmask_enum<hb_buffer_flags_t> : std::true_type {};
-}  // namespace sknonstd
 
 namespace {
 using HBBlob   = std::unique_ptr<hb_blob_t  , SkFunctionObject<hb_blob_destroy>  >;
