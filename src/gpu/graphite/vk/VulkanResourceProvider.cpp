@@ -31,6 +31,11 @@
 #include "src/gpu/vk/VulkanMemory.h"
 #include "src/sksl/SkSLCompiler.h"
 
+#ifdef  SK_BUILD_FOR_ANDROID
+#include "src/gpu/vk/VulkanUtilsPriv.h"
+#include <android/hardware_buffer.h>
+#endif
+
 namespace skgpu::graphite {
 
 VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
@@ -310,12 +315,26 @@ void VulkanResourceProvider::onDeleteBackendTexture(const BackendTexture& textur
     SkASSERT(texture.isValid());
     SkASSERT(texture.backend() == BackendApi::kVulkan);
 
-    skgpu::VulkanMemory::FreeImageMemory(
-            this->vulkanSharedContext()->memoryAllocator(), *(texture.getMemoryAlloc()));
-
     VULKAN_CALL(this->vulkanSharedContext()->interface(),
                 DestroyImage(this->vulkanSharedContext()->device(), texture.getVkImage(),
                              /*VkAllocationCallbacks=*/nullptr));
+
+    // Free the image memory used for the BackendTexture's VkImage.
+    //
+    // How we do this is dependent upon on how the image was allocated (via the memory allocator or
+    // with a direct call to the Vulkan driver) . If the VulkanAlloc's fBackendMemory is != 0, then
+    // that means the allocator was used. Otherwise, a direct driver call was used and we should
+    // free the VkDeviceMemory (fMemory).
+    if (texture.getMemoryAlloc()->fBackendMemory) {
+        skgpu::VulkanMemory::FreeImageMemory(this->vulkanSharedContext()->memoryAllocator(),
+                                             *(texture.getMemoryAlloc()));
+    } else {
+        SkASSERT(texture.getMemoryAlloc()->fMemory != VK_NULL_HANDLE);
+        VULKAN_CALL(this->vulkanSharedContext()->interface(),
+                    FreeMemory(this->vulkanSharedContext()->device(),
+                               texture.getMemoryAlloc()->fMemory,
+                               nullptr));
+    }
 }
 
 sk_sp<VulkanSamplerYcbcrConversion>
@@ -352,8 +371,125 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
                                                               bool isProtectedContent,
                                                               SkISize dimensions,
                                                               bool fromAndroidWindow) const {
-    // TODO(b/299475636): Implement.
-    return {};
+
+    const VulkanSharedContext* vkContext = this->vulkanSharedContext();
+    VkDevice device = vkContext->device();
+    const VulkanCaps& vkCaps = vkContext->vulkanCaps();
+
+    VkAndroidHardwareBufferFormatPropertiesANDROID hwbFormatProps;
+    VkAndroidHardwareBufferPropertiesANDROID hwbProps;
+    if (!skgpu::GetAHardwareBufferProperties(
+                &hwbFormatProps, &hwbProps, vkContext->interface(), hardwareBuffer, device)) {
+        return {};
+    }
+
+    bool importAsExternalFormat = hwbFormatProps.format == VK_FORMAT_UNDEFINED;
+
+    // Start to assemble VulkanTextureInfo which is needed later on to create the VkImage but can
+    // sooner help us query VulkanCaps for certain format feature support.
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL; // TODO: Query for tiling mode.
+    VkImageCreateFlags imgCreateflags = isProtectedContent ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
+    // When importing as an external format the image usage can only be VK_IMAGE_USAGE_SAMPLED_BIT.
+    if (!importAsExternalFormat) {
+        usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        if (isRenderable) {
+            usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        }
+    }
+    VulkanTextureInfo vkTexInfo { VK_SAMPLE_COUNT_1_BIT,
+                                  Mipmapped::kNo,
+                                  imgCreateflags,
+                                  hwbFormatProps.format,
+                                  tiling,
+                                  usageFlags,
+                                  VK_SHARING_MODE_EXCLUSIVE,
+                                  VK_IMAGE_ASPECT_COLOR_BIT,
+                                  VulkanYcbcrConversionInfo() };
+
+    if (isRenderable && (importAsExternalFormat || !vkCaps.isRenderable(vkTexInfo))) {
+        SKGPU_LOG_W("Renderable texture requested from an AHardwareBuffer which uses a VkFormat "
+                    "that Skia cannot render to (VkFormat: %d).\n",  hwbFormatProps.format);
+        return {};
+    }
+
+    if (!importAsExternalFormat && (!vkCaps.isTransferSrc(vkTexInfo) ||
+                                    !vkCaps.isTransferDst(vkTexInfo) ||
+                                    !vkCaps.isTexturable(vkTexInfo))) {
+        if (isRenderable) {
+            SKGPU_LOG_W("VkFormat %d is either unfamiliar to Skia or doesn't support the necessary"
+                        " format features. Because a renerable texture was requested, we cannot "
+                        "fall back to importing with an external format.\n", hwbFormatProps.format);
+            return {};
+        }
+        // If the VkFormat does not support the features we need, then import as an external format.
+        importAsExternalFormat = true;
+        // If we use VkExternalFormatANDROID with an externalFormat != 0, then format must =
+        // VK_FORMAT_UNDEFINED.
+        vkTexInfo.fFormat = VK_FORMAT_UNDEFINED;
+        vkTexInfo.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
+    }
+
+    VulkanYcbcrConversionInfo ycbcrInfo;
+    VkExternalFormatANDROID externalFormat;
+    externalFormat.sType = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
+    externalFormat.pNext = nullptr;
+    externalFormat.externalFormat = 0;  // If this is zero it is as if we aren't using this struct.
+    if (importAsExternalFormat) {
+        GetYcbcrConversionInfoFromFormatProps(&ycbcrInfo, hwbFormatProps);
+        if (!ycbcrInfo.isValid()) {
+            SKGPU_LOG_W("Failed to create valid YCbCr conversion information from hardware buffer"
+                        "format properties.\n");
+            return {};
+        }
+        externalFormat.externalFormat = hwbFormatProps.externalFormat;
+    }
+    const VkExternalMemoryImageCreateInfo externalMemoryImageInfo{
+            VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO,                 // sType
+            &externalFormat,                                                     // pNext
+            VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID,  // handleTypes
+    };
+
+    SkASSERT(!(vkTexInfo.fFlags & VK_IMAGE_CREATE_PROTECTED_BIT) ||
+             fSharedContext->isProtected() == Protected::kYes);
+
+    const VkImageCreateInfo imageCreateInfo = {
+        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,                                 // sType
+        &externalMemoryImageInfo,                                            // pNext
+        vkTexInfo.fFlags,                                                    // VkImageCreateFlags
+        VK_IMAGE_TYPE_2D,                                                    // VkImageType
+        vkTexInfo.fFormat,                                                   // VkFormat
+        { (uint32_t)dimensions.fWidth, (uint32_t)dimensions.fHeight, 1 },    // VkExtent3D
+        1,                                                                   // mipLevels
+        1,                                                                   // arrayLayers
+        VK_SAMPLE_COUNT_1_BIT,                                               // samples
+        vkTexInfo.fImageTiling,                                              // VkImageTiling
+        vkTexInfo.fImageUsageFlags,                                          // VkImageUsageFlags
+        vkTexInfo.fSharingMode,                                              // VkSharingMode
+        0,                                                                   // queueFamilyCount
+        nullptr,                                                             // pQueueFamilyIndices
+        VK_IMAGE_LAYOUT_UNDEFINED,                                           // initialLayout
+    };
+
+    VkResult result;
+    VkImage image;
+    result = VULKAN_CALL(vkContext->interface(),
+                         CreateImage(device, &imageCreateInfo, nullptr, &image));
+    if (result != VK_SUCCESS) {
+        return {};
+    }
+
+    const VkPhysicalDeviceMemoryProperties2& phyDevMemProps =
+            vkContext->vulkanCaps().physicalDeviceMemoryProperties2();
+    VulkanAlloc alloc;
+    if (!AllocateAndBindImageMemory(&alloc, image, phyDevMemProps, hwbProps, hardwareBuffer,
+                                    vkContext->interface(), device)) {
+        VULKAN_CALL(vkContext->interface(), DestroyImage(device, image, nullptr));
+        return {};
+    }
+
+    return { dimensions, vkTexInfo, VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_FOREIGN_EXT,
+             image, alloc};
 }
 
 #endif // SK_BUILD_FOR_ANDROID

@@ -16,6 +16,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #include <android/hardware_buffer.h>
 
@@ -26,7 +27,6 @@ namespace GrAHardwareBufferUtils {
 GrBackendFormat GetVulkanBackendFormat(GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,
                                        uint32_t bufferFormat, bool requireKnownFormat) {
     GrBackendApi backend = dContext->backend();
-
     if (backend != GrBackendApi::kVulkan) {
         return GrBackendFormat();
     }
@@ -50,51 +50,27 @@ GrBackendFormat GetVulkanBackendFormat(GrDirectContext* dContext, AHardwareBuffe
         default: {
             if (requireKnownFormat) {
                 return GrBackendFormat();
-            } else {
-                GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
-                SkASSERT(gpu);
-                VkDevice device = gpu->device();
-
-                if (!gpu->vkCaps().supportsAndroidHWBExternalMemory()) {
-                    return GrBackendFormat();
-                }
-                VkAndroidHardwareBufferFormatPropertiesANDROID hwbFormatProps;
-                hwbFormatProps.sType =
-                        VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID;
-                hwbFormatProps.pNext = nullptr;
-
-                VkAndroidHardwareBufferPropertiesANDROID hwbProps;
-                hwbProps.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
-                hwbProps.pNext = &hwbFormatProps;
-
-                VkResult err = VK_CALL(GetAndroidHardwareBufferProperties(device,
-                                                                          hardwareBuffer,
-                                                                          &hwbProps));
-                if (VK_SUCCESS != err) {
-                    return GrBackendFormat();
-                }
-
-                if (hwbFormatProps.format != VK_FORMAT_UNDEFINED) {
-                    return GrBackendFormat();
-                }
-
-                GrVkYcbcrConversionInfo ycbcrConversion;
-                ycbcrConversion.fYcbcrModel = hwbFormatProps.suggestedYcbcrModel;
-                ycbcrConversion.fYcbcrRange = hwbFormatProps.suggestedYcbcrRange;
-                ycbcrConversion.fXChromaOffset = hwbFormatProps.suggestedXChromaOffset;
-                ycbcrConversion.fYChromaOffset = hwbFormatProps.suggestedYChromaOffset;
-                ycbcrConversion.fForceExplicitReconstruction = VK_FALSE;
-                ycbcrConversion.fExternalFormat = hwbFormatProps.externalFormat;
-                ycbcrConversion.fFormatFeatures = hwbFormatProps.formatFeatures;
-                if (VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT &
-                    hwbFormatProps.formatFeatures) {
-                    ycbcrConversion.fChromaFilter = VK_FILTER_LINEAR;
-                } else {
-                    ycbcrConversion.fChromaFilter = VK_FILTER_NEAREST;
-                }
-
-                return GrBackendFormats::MakeVk(ycbcrConversion);
             }
+            GrVkGpu* gpu = static_cast<GrVkGpu*>(dContext->priv().getGpu());
+            SkASSERT(gpu);
+            VkDevice device = gpu->device();
+
+            if (!gpu->vkCaps().supportsAndroidHWBExternalMemory()) {
+                return GrBackendFormat();
+            }
+
+            VkAndroidHardwareBufferFormatPropertiesANDROID hwbFormatProps;
+            VkAndroidHardwareBufferPropertiesANDROID hwbProps;
+            if (!GetAHardwareBufferProperties(
+                        &hwbFormatProps, &hwbProps, gpu->vkInterface(), hardwareBuffer, device) ||
+                hwbFormatProps.format != VK_FORMAT_UNDEFINED) {
+                return GrBackendFormat();
+            }
+
+            GrVkYcbcrConversionInfo ycbcrConversion;
+            GetYcbcrConversionInfoFromFormatProps(&ycbcrConversion, hwbFormatProps);
+
+            return GrBackendFormats::MakeVk(ycbcrConversion);
         }
     }
 }
@@ -160,18 +136,10 @@ static GrBackendTexture make_vk_backend_texture(
         return GrBackendTexture();
     }
 
-    VkResult err;
-
     VkAndroidHardwareBufferFormatPropertiesANDROID hwbFormatProps;
-    hwbFormatProps.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID;
-    hwbFormatProps.pNext = nullptr;
-
     VkAndroidHardwareBufferPropertiesANDROID hwbProps;
-    hwbProps.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
-    hwbProps.pNext = &hwbFormatProps;
-
-    err = VK_CALL(GetAndroidHardwareBufferProperties(device, hardwareBuffer, &hwbProps));
-    if (VK_SUCCESS != err) {
+    if (!skgpu::GetAHardwareBufferProperties(
+                &hwbFormatProps, &hwbProps, gpu->vkInterface(), hardwareBuffer, device)) {
         return GrBackendTexture();
     }
 
@@ -249,6 +217,7 @@ static GrBackendTexture make_vk_backend_texture(
     };
 
     VkImage image;
+    VkResult err;
     err = VK_CALL(CreateImage(device, &imageCreateInfo, nullptr, &image));
     if (VK_SUCCESS != err) {
         return GrBackendTexture();
@@ -257,84 +226,15 @@ static GrBackendTexture make_vk_backend_texture(
     VkPhysicalDeviceMemoryProperties2 phyDevMemProps;
     phyDevMemProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
     phyDevMemProps.pNext = nullptr;
-
-    uint32_t typeIndex = 0;
-    bool foundHeap = false;
     VK_CALL(GetPhysicalDeviceMemoryProperties2(physicalDevice, &phyDevMemProps));
-    uint32_t memTypeCnt = phyDevMemProps.memoryProperties.memoryTypeCount;
-    for (uint32_t i = 0; i < memTypeCnt && !foundHeap; ++i) {
-        if (hwbProps.memoryTypeBits & (1 << i)) {
-            const VkPhysicalDeviceMemoryProperties& pdmp = phyDevMemProps.memoryProperties;
-            uint32_t supportedFlags = pdmp.memoryTypes[i].propertyFlags &
-                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-            if (supportedFlags == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
-                typeIndex = i;
-                foundHeap = true;
-            }
-        }
-    }
 
-    // Fallback to use any available memory type for AHB
-    //
-    // For external memory import, compatible memory types are decided by the Vulkan driver since
-    // the memory has been allocated externally. There are usually special requirements against
-    // external memory. e.g. AHB allocated with CPU R/W often usage bits is only importable for
-    // non-device-local heap on some AMD systems.
-    if (!foundHeap && hwbProps.memoryTypeBits) {
-        typeIndex = ffs(hwbProps.memoryTypeBits) - 1;
-        foundHeap = true;
-    }
-
-    if (!foundHeap) {
-        VK_CALL(DestroyImage(device, image, nullptr));
-        return GrBackendTexture();
-    }
-
-    VkImportAndroidHardwareBufferInfoANDROID hwbImportInfo;
-    hwbImportInfo.sType = VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
-    hwbImportInfo.pNext = nullptr;
-    hwbImportInfo.buffer = hardwareBuffer;
-
-    VkMemoryDedicatedAllocateInfo dedicatedAllocInfo;
-    dedicatedAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO;
-    dedicatedAllocInfo.pNext = &hwbImportInfo;
-    dedicatedAllocInfo.image = image;
-    dedicatedAllocInfo.buffer = VK_NULL_HANDLE;
-
-    VkMemoryAllocateInfo allocInfo = {
-        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,      // sType
-        &dedicatedAllocInfo,                         // pNext
-        hwbProps.allocationSize,                     // allocationSize
-        typeIndex,                                   // memoryTypeIndex
-    };
-
-    VkDeviceMemory memory;
-
-    err = VK_CALL(AllocateMemory(device, &allocInfo, nullptr, &memory));
-    if (VK_SUCCESS != err) {
-        VK_CALL(DestroyImage(device, image, nullptr));
-        return GrBackendTexture();
-    }
-
-    VkBindImageMemoryInfo bindImageInfo;
-    bindImageInfo.sType = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO;
-    bindImageInfo.pNext = nullptr;
-    bindImageInfo.image = image;
-    bindImageInfo.memory = memory;
-    bindImageInfo.memoryOffset = 0;
-
-    err = VK_CALL(BindImageMemory2(device, 1, &bindImageInfo));
-    if (VK_SUCCESS != err) {
-        VK_CALL(DestroyImage(device, image, nullptr));
-        VK_CALL(FreeMemory(device, memory, nullptr));
-        return GrBackendTexture();
-    }
 
     skgpu::VulkanAlloc alloc;
-    alloc.fMemory = memory;
-    alloc.fOffset = 0;
-    alloc.fSize = hwbProps.allocationSize;
-    alloc.fFlags = 0;
+    if (!skgpu::AllocateAndBindImageMemory(&alloc, image, phyDevMemProps, hwbProps, hardwareBuffer,
+                                           gpu->vkInterface(), device)) {
+        VK_CALL(DestroyImage(device, image, nullptr));
+        return GrBackendTexture();
+    }
 
     GrVkImageInfo imageInfo;
     imageInfo.fImage = image;
@@ -356,7 +256,7 @@ static GrBackendTexture make_vk_backend_texture(
 
     *deleteProc = delete_vk_image;
     *updateProc = update_vk_image;
-    *imageCtx = new VulkanCleanupHelper(gpu, image, memory);
+    *imageCtx = new VulkanCleanupHelper(gpu, image, alloc.fMemory);
 
     return GrBackendTextures::MakeVk(width, height, imageInfo);
 }

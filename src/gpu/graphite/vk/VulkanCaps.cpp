@@ -61,6 +61,11 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
+    fPhysicalDeviceMemoryProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+    fPhysicalDeviceMemoryProperties2.pNext = nullptr;
+    VULKAN_CALL(vkInterface,
+                GetPhysicalDeviceMemoryProperties2(physDev, &fPhysicalDeviceMemoryProperties2));
+
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.
     fMaxTextureSize = std::min(physDevProperties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
@@ -971,6 +976,30 @@ bool VulkanCaps::FormatInfo::isStorage(VkImageTiling imageTiling) const {
     SkUNREACHABLE;
 }
 
+bool VulkanCaps::FormatInfo::isTransferSrc(VkImageTiling imageTiling) const {
+    switch (imageTiling) {
+        case VK_IMAGE_TILING_OPTIMAL:
+            return this->isTransferSrc(fFormatProperties.optimalTilingFeatures);
+        case VK_IMAGE_TILING_LINEAR:
+            return this->isTransferSrc(fFormatProperties.linearTilingFeatures);
+        default:
+            return false;
+    }
+    SkUNREACHABLE;
+}
+
+bool VulkanCaps::FormatInfo::isTransferDst(VkImageTiling imageTiling) const {
+    switch (imageTiling) {
+        case VK_IMAGE_TILING_OPTIMAL:
+            return this->isTransferDst(fFormatProperties.optimalTilingFeatures);
+        case VK_IMAGE_TILING_LINEAR:
+            return this->isTransferDst(fFormatProperties.linearTilingFeatures);
+        default:
+            return false;
+    }
+    SkUNREACHABLE;
+}
+
 bool VulkanCaps::FormatInfo::isTexturable(VkFormatFeatureFlags flags) const {
     return SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT & flags) &&
            SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT & flags);
@@ -982,6 +1011,14 @@ bool VulkanCaps::FormatInfo::isRenderable(VkFormatFeatureFlags flags) const {
 
 bool VulkanCaps::FormatInfo::isStorage(VkFormatFeatureFlags flags) const {
     return SkToBool(VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT & flags);
+}
+
+bool VulkanCaps::FormatInfo::isTransferSrc(VkFormatFeatureFlags flags) const {
+    return SkToBool(VK_FORMAT_FEATURE_TRANSFER_SRC_BIT & flags);
+}
+
+bool VulkanCaps::FormatInfo::isTransferDst(VkFormatFeatureFlags flags) const {
+    return SkToBool(VK_FORMAT_FEATURE_TRANSFER_DST_BIT & flags);
 }
 
 void VulkanCaps::setColorType(SkColorType colorType, std::initializer_list<VkFormat> formats) {
@@ -1129,6 +1166,16 @@ bool VulkanCaps::isStorage(const TextureInfo& texInfo) const {
 
     const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
     return info.isStorage(vkInfo.fImageTiling);
+}
+
+bool VulkanCaps::isTransferSrc(const VulkanTextureInfo& vkInfo) const {
+    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
+    return info.isTransferSrc(vkInfo.fImageTiling);
+}
+
+bool VulkanCaps::isTransferDst(const VulkanTextureInfo& vkInfo) const {
+    const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
+    return info.isTransferDst(vkInfo.fImageTiling);
 }
 
 bool VulkanCaps::supportsWritePixels(const TextureInfo& texInfo) const {
