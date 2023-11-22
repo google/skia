@@ -118,6 +118,10 @@ sk_sp<SkFontMgr> fontMgr() {
 }
 
 struct EditorLayer : public sk_app::Window::Layer {
+    EditorLayer() {
+        fEditor.setFontMgr(fontMgr());
+    }
+
     SkString fPath;
     sk_app::Window* fParent = nullptr;
     // TODO(halcanary): implement a cross-platform clipboard interface.

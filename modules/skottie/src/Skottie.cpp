@@ -132,7 +132,7 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
                                    const SkSize& comp_size, float duration, float framerate,
                                    uint32_t flags)
     : fResourceProvider(std::move(rp))
-    , fLazyFontMgr(std::move(fontmgr))
+    , fFontMgr(std::move(fontmgr))
     , fPropertyObserver(std::move(pobserver))
     , fLogger(std::move(logger))
     , fMarkerObserver(std::move(mobserver))

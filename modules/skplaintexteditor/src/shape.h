@@ -20,6 +20,7 @@ struct ShapeResult {
 ShapeResult Shape(const char* ut8text,
                   size_t textByteLen,
                   const SkFont& font,
+                  sk_sp<SkFontMgr> fontMgr,
                   const char* locale,
                   float width);
 
