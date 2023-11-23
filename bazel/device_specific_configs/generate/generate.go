@@ -3,9 +3,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// This program generates file //bazel/configs/devicesrc.
+// This program generates file //bazel/devicesrc.
 
-//go:generate bazelisk run //bazel/configs/generate -- --output-file ${PWD}/../devicesrc
+//go:generate bazelisk run //bazel/device_specific_configs/generate -- --output-file ${PWD}/../../devicesrc
 
 package main
 
@@ -16,7 +16,7 @@ import (
 	"sort"
 	"strings"
 
-	"go.skia.org/skia/bazel/configs"
+	"go.skia.org/skia/bazel/device_specific_configs"
 )
 
 const header = "# GENERATED FILE - Please do not edit.\n\n"
@@ -32,7 +32,7 @@ func writeTestArgFlag(sb *strings.Builder, configName, testArgFlag string) {
 func writeDeviceFlagsFile(outputFile string) error {
 	// Sort for determinism.
 	var configNames []string
-	for configName := range configs.DeviceSpecificBazelConfigs {
+	for configName := range device_specific_configs.Configs {
 		configNames = append(configNames, configName)
 	}
 	sort.Strings(configNames)
@@ -52,7 +52,7 @@ func writeDeviceFlagsFile(outputFile string) error {
 		// See https://bazel.build/docs/user-manual#strategy.
 		writeFlag(&sb, configName, "--strategy", "TestRunner=local")
 
-		config := configs.DeviceSpecificBazelConfigs[configName]
+		config := device_specific_configs.Configs[configName]
 
 		// Sort keys for determinism.
 		var keys []string

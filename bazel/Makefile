@@ -6,7 +6,7 @@ generate:
 
 generate_go:
 	cd .. && bazelisk run //infra:gazelle -- update infra/bots/task_drivers modules/canvaskit/go \
-       bazel/configs bazel/exporter bazel/deps_parser tools/gpu/gl/interface \
+       bazel/device_specific_configs bazel/exporter bazel/deps_parser tools/gpu/gl/interface \
 			 tools/testrunners/common/make_tarball tools/testrunners/common/android/adb_test_runner \
 			 experimental/bazel_test/go
 

@@ -8,9 +8,9 @@ exports_files_legacy()
 go_library(
     name = "generate_lib",
     srcs = ["generate.go"],
-    importpath = "go.skia.org/skia/bazel/configs/generate",
+    importpath = "go.skia.org/skia/bazel/device_specific_configs/generate",
     visibility = ["//visibility:private"],
-    deps = ["//bazel/configs"],
+    deps = ["//bazel/device_specific_configs"],
 )
 
 go_binary(

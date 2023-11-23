@@ -6,15 +6,15 @@ licenses(["notice"])
 exports_files_legacy()
 
 go_library(
-    name = "configs",
+    name = "device_specific_configs",
     srcs = ["device_specific_configs.go"],
-    importpath = "go.skia.org/skia/bazel/configs",
+    importpath = "go.skia.org/skia/bazel/device_specific_configs",
     visibility = ["//visibility:public"],
 )
 
 go_test(
-    name = "configs_test",
+    name = "device_specific_configs_test",
     srcs = ["device_specific_configs_test.go"],
-    embed = [":configs"],
+    embed = [":device_specific_configs"],
     deps = ["@com_github_stretchr_testify//assert"],
 )

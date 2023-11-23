@@ -3,7 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package configs
+package device_specific_configs
 
 import (
 	"testing"
@@ -11,16 +11,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDeviceSpecificConfigs_MapKeyMatchesConfigName(t *testing.T) {
-	for key, config := range DeviceSpecificBazelConfigs {
+func TestConfigs_MapKeyMatchesConfigName(t *testing.T) {
+	for key, config := range Configs {
 		t.Run(config.Name, func(t *testing.T) {
 			assert.Equal(t, config.Name, key)
 		})
 	}
 }
 
-func TestDeviceSpecificConfigs_ConfigsHaveExpectedKeyValuePairs(t *testing.T) {
-	for _, config := range DeviceSpecificBazelConfigs {
+func TestConfigs_ConfigsHaveExpectedKeyValuePairs(t *testing.T) {
+	for _, config := range Configs {
 		t.Run(config.Name, func(t *testing.T) {
 			var keys []string
 			for key := range config.Keys {

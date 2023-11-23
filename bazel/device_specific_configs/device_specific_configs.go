@@ -3,18 +3,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-package configs
+package device_specific_configs
 
-// DeviceSpecificBazelConfig represents a Bazel config that communicates information about the
-// device under test to GM and benchmark tests.
+// Config represents a Bazel config that communicates information about the device under test.
 //
-// This struct is used to generate file //bazel/configs/devicesrc.
+// This struct is used to generate file //bazel/devicesrc.
 //
 // Configurations of this kind should not be used to set build time settings, such as the target
 // Bazel platform (e.g. Linux, Android), optimization level (e.g. Debug, Release) or local vs. RBE.
 // For that kind of information, please pass a second --config flag using one of the configurations
 // defined in //bazel/buildrc.
-type DeviceSpecificBazelConfig struct {
+type Config struct {
 	// Name of the config (the <foo> that gets passed to Bazel via --config=<foo>).
 	Name string
 
@@ -40,12 +39,12 @@ type DeviceSpecificBazelConfig struct {
 	SwarmingDimensions map[string]string
 }
 
-// DeviceSpecificBazelConfigs contains all known device-specific Bazel configs.
+// Configs contains all known device-specific Bazel configs.
 //
-// The contents of this map are used to generate file //bazel/configs/devicesrc.
+// The contents of this map are used to generate file //bazel/devicesrc.
 //
 // TODO(lovisolo): Populate field SwarmingDimensions for all configs.
-var DeviceSpecificBazelConfigs = map[string]DeviceSpecificBazelConfig{
+var Configs = map[string]Config{
 	"AlphaR2": {
 		Name: "AlphaR2",
 		Keys: map[string]string{

@@ -166,8 +166,8 @@ build:linux_rbe --extra_execution_platforms=//bazel/platform:linux_x64_hermetic
 # because we anticipate that file growing large.
 import %workspace%/bazel/buildrc
 
-# Generated test configurations.
-import %workspace%/bazel/configs/devicesrc
+# Device-specific configurations.
+import %workspace%/bazel/devicesrc
 
 # Import User's custom builds if they have defined any
 try-import %workspace%/bazel/user/buildrc
