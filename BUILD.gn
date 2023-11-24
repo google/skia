@@ -3542,7 +3542,7 @@ if (skia_enable_tools) {
 if (is_ios && skia_use_metal && skia_enable_ganesh &&
     !skia_enable_flutter_defines) {
   group("minimal_ios_mtl_skia_app") {
-    deps = [ "experimental/minimal_ios_mtl_skia_app" ]
+    #deps = [ "experimental/minimal_ios_mtl_skia_app" ]
   }
 }
 
