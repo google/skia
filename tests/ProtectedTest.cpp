@@ -53,8 +53,18 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_SmokeTest, reporter, ctxInfo, CtsEnfo
     }
 
     for (bool isProtected : { true, false }) {
-        ProtectedUtils::CreateProtectedSkImage(dContext, { kSize, kSize }, SkColors::kBlue,
-                                               isProtected);
+        sk_sp<SkImage> image = ProtectedUtils::CreateProtectedSkImage(dContext,
+                                                                      { kSize, kSize },
+                                                                      SkColors::kBlue,
+                                                                      isProtected);
+        if (!image) {
+            continue;
+        }
+
+        dContext->submit(GrSyncCpu::kYes);
+
+        REPORTER_ASSERT(reporter, image->isProtected() == isProtected);
+        ProtectedUtils::CheckImageBEProtection(image.get(), isProtected);
     }
 
     for (bool renderable : { true, false }) {
