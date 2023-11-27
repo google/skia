@@ -8,11 +8,8 @@
 #ifndef GrContextThreadSafeProxy_DEFINED
 #define GrContextThreadSafeProxy_DEFINED
 
-#include "include/core/SkRefCnt.h"
-
-#if defined(SK_GANESH)
-
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrTypes.h"
@@ -34,9 +31,9 @@ namespace sktext::gpu { class TextBlobRedrawCoordinator; }
  * Can be used to perform actions related to the generating GrContext in a thread safe manner. The
  * proxy does not access the 3D API (e.g. OpenGL) that backs the generating GrContext.
  */
-class SK_API GrContextThreadSafeProxy final : public SkNVRefCnt<GrContextThreadSafeProxy> {
+class SK_API GrContextThreadSafeProxy : public SkNVRefCnt<GrContextThreadSafeProxy> {
 public:
-    ~GrContextThreadSafeProxy();
+    virtual ~GrContextThreadSafeProxy();
 
     /**
      *  Create a surface characterization for a DDL that will be replayed into the GrContext
@@ -85,7 +82,7 @@ public:
      *                                         willUseGLFBO0 = false
      *                                         vkRTSupportsInputAttachment = false
      */
-    GrSurfaceCharacterization createCharacterization(
+    virtual GrSurfaceCharacterization createCharacterization(
                                   size_t cacheMaxResourceBytes,
                                   const SkImageInfo& ii,
                                   const GrBackendFormat& backendFormat,
@@ -161,9 +158,5 @@ private:
     sk_sp<GrThreadSafePipelineBuilder>                      fPipelineBuilder;
     std::atomic<bool>                                       fAbandoned{false};
 };
-
-#else // !defined(SK_GANESH)
-class SK_API GrContextThreadSafeProxy final : public SkNVRefCnt<GrContextThreadSafeProxy> {};
-#endif
 
 #endif
