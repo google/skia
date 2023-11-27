@@ -84,7 +84,7 @@ skia_filegroup(
             "//bazel/common_config_settings:custom_directory_fontmgr": [":fontmgr_custom_directory"],
             "//bazel/common_config_settings:custom_embedded_fontmgr": [":fontmgr_custom_embedded"],
             "//bazel/common_config_settings:custom_empty_fontmgr": [":fontmgr_custom_empty"],
-            "//bazel/common_config_settings:fontconfig_fontmgr": [":fontmgr_fontconfig"],
+            "//bazel/common_config_settings:fontconfig_fontmgr": [":legacy_fontmgr_fontconfig"],
             "//bazel/common_config_settings:fci_fontmgr": [":fontmgr_fci"],
         },
     ),
