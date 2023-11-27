@@ -36,6 +36,12 @@
 #include "include/gpu/GrDirectContext.h"
 #endif
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/BackendTexture.h"
+#include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/TextureInfo.h"
+#endif
+
 #include <memory>
 #include <utility>
 
@@ -121,49 +127,98 @@ DEF_GRAPHITE_TEST(VkProtectedContext_CreateProtectedSkSurface_Graphite,
     create_protected_surface(reporter, skiatest::TestType::kGraphite);
 }
 
-DEF_GANESH_TEST(VkProtectedContext_CreateNonprotectedTextureInProtectedContext,
+namespace {
+
+void create_backend_texture_ganesh(skiatest::Reporter* reporter,
+                                   bool contextIsProtected,
+                                   bool beTexIsProtected) {
+
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
+                                                              contextIsProtected);
+    if (!helper) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, helper->isValid());
+    GrDirectContext* dContext = helper->directContext();
+
+    GrBackendTexture backendTex = dContext->createBackendTexture(kSize,
+                                                                 kSize,
+                                                                 kRGBA_8888_SkColorType,
+                                                                 skgpu::Mipmapped::kNo,
+                                                                 GrRenderable::kNo,
+                                                                 GrProtected(beTexIsProtected));
+
+    REPORTER_ASSERT(reporter, backendTex.isValid() == (contextIsProtected == beTexIsProtected));
+    if (backendTex.isValid()) {
+        REPORTER_ASSERT(reporter, backendTex.isProtected() == beTexIsProtected);
+    }
+
+    dContext->deleteBackendTexture(backendTex);
+}
+
+} // anonymous namespace
+
+DEF_GANESH_TEST(VkProtectedContext_CreateBackendTextures,
                 reporter,
                 options,
                 CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
-                                                              /* isProtected= */ true);
+    for (bool contextIsProtected : { true, false }) {
+        for (bool beTexIsProtected : { true, false }) {
+            create_backend_texture_ganesh(reporter, contextIsProtected, beTexIsProtected);
+        }
+    }
+}
+
+#if defined(SK_GRAPHITE)
+
+namespace {
+
+void create_backend_texture_graphite(skiatest::Reporter* reporter,
+                                     bool contextIsProtected,
+                                     bool beTexIsProtected) {
+    using namespace skgpu::graphite;
+
+    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGraphite,
+                                                              contextIsProtected);
     if (!helper) {
         return;
     }
 
     REPORTER_ASSERT(reporter, helper->isValid());
 
-    GrBackendTexture backendTex =
-            helper->directContext()->createBackendTexture(kSize,
-                                                          kSize,
-                                                          kRGBA_8888_SkColorType,
-                                                          skgpu::Mipmapped::kNo,
-                                                          GrRenderable::kNo,
-                                                          GrProtected::kNo);
-    REPORTER_ASSERT(reporter, !backendTex.isValid());
-}
+    VulkanTextureInfo vkTextureInfo;
+    vkTextureInfo.fFlags = beTexIsProtected ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+    vkTextureInfo.fFormat = VK_FORMAT_R8G8B8A8_UNORM;
+    vkTextureInfo.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
+                                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                     VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    TextureInfo textureInfo(vkTextureInfo);
 
-DEF_GANESH_TEST(VkProtectedContext_CreateProtectedTextureInNonprotectedContext,
-                reporter,
-                options,
-                CtsEnforcement::kNever) {
-    std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(skiatest::TestType::kGanesh,
-                                                              /* isProtected= */ false);
-    if (!helper) {
-        return;
+    BackendTexture backendTex = helper->recorder()->createBackendTexture({ kSize, kSize },
+                                                                         textureInfo);
+    REPORTER_ASSERT(reporter, backendTex.isValid() == (contextIsProtected == beTexIsProtected));
+    if (backendTex.isValid()) {
+        REPORTER_ASSERT(reporter,
+                        backendTex.info().isProtected() == skgpu::Protected(beTexIsProtected));
     }
 
-    REPORTER_ASSERT(reporter, helper->isValid());
-
-    GrBackendTexture backendTex =
-            helper->directContext()->createBackendTexture(kSize,
-                                                          kSize,
-                                                          kRGBA_8888_SkColorType,
-                                                          skgpu::Mipmapped::kNo,
-                                                          GrRenderable::kNo,
-                                                          GrProtected::kYes);
-    REPORTER_ASSERT(reporter, !backendTex.isValid());
+    helper->recorder()->deleteBackendTexture(backendTex);
 }
+
+} // anonymous namespace
+
+DEF_GRAPHITE_TEST(VkProtectedContext_CreateBackendTextures_Graphite,
+                  reporter,
+                  CtsEnforcement::kNextRelease) {
+    for (bool contextIsProtected : { true, false }) {
+        for (bool beTexIsProtected : { true, false }) {
+            create_backend_texture_graphite(reporter, contextIsProtected, beTexIsProtected);
+        }
+    }
+}
+
+#endif // SK_GRAPHITE
 
 DEF_GANESH_TEST(VkProtectedContext_ReadFromProtectedSurface,
                 reporter,

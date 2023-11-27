@@ -24,6 +24,10 @@ namespace skiatest {
     enum class TestType : uint8_t;
 }
 
+namespace skgpu::graphite {
+    class Recorder;
+};
+
 #define DECLARE_VK_PROC(name) PFN_vk##name fVk##name
 
 class VkTestHelper {
@@ -38,6 +42,7 @@ public:
     virtual void submitAndWaitForCompletion(bool* completionMarker) = 0;
 
     virtual GrDirectContext* directContext() { return nullptr; }
+    virtual skgpu::graphite::Recorder* recorder() { return nullptr; }
 
 protected:
     VkTestHelper(bool isProtected) : fIsProtected(isProtected) {}

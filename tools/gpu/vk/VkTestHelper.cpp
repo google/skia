@@ -141,6 +141,8 @@ public:
         }
     }
 
+    skgpu::graphite::Recorder* recorder() override { return fRecorder.get(); }
+
 protected:
     bool init() override {
         if (!this->setupBackendContext()) {
