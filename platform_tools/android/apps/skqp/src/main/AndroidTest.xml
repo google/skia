@@ -16,6 +16,6 @@ found in the LICENSE file.
 </target_preparer>
 <test class="com.android.tradefed.testtype.AndroidJUnitTest" >
 <option name="package" value="org.skia.skqp" />
-<option name="runtime-hint" value="7m" />
+<option name="runtime-hint" value="20m" />
 </test>
 </configuration>
