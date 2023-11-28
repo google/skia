@@ -754,7 +754,7 @@ public:
                                              imageInfo,
                                              SkBackingFit::kApprox,
                                              1,
-                                             GrMipmapped::kNo,
+                                             skgpu::Mipmapped::kNo,
                                              GrProtected::kNo,
                                              fOrigin,
                                              props ? *props : this->surfaceProps(),

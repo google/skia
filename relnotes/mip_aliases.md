@@ -1,0 +1,1 @@
+Deprecated `GrMipmapped` and `GrMipMapped` alias have been removed in favor of `skgpu::Mipmapped`.

@@ -16,7 +16,6 @@
 class GrBackendSemaphore;
 
 namespace skgpu {
-enum class Mipmapped : bool;
 enum class Protected : bool;
 enum class Renderable : bool;
 }
@@ -128,14 +127,6 @@ static constexpr GrBackendApi kVulkan_GrBackend = GrBackendApi::kVulkan;
 static constexpr GrBackendApi kMock_GrBackend = GrBackendApi::kMock;
 
 ///////////////////////////////////////////////////////////////////////////////
-
-/**
- * Used to say whether a texture has mip levels allocated or not.
- */
-/** Deprecated legacy alias of skgpu::Mipmapped. */
-using GrMipmapped = skgpu::Mipmapped;
-/** Deprecated legacy alias of skgpu::Mipmapped. */
-using GrMipMapped = skgpu::Mipmapped;
 
 /*
  * Can a GrBackendObject be rendered to?
