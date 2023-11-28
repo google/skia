@@ -9,6 +9,8 @@
 
 #include "src/base/SkMathPriv.h"
 
+#include <algorithm>
+
 namespace skgpu {
 
 SkISize GetApproxSize(SkISize size) {
