@@ -194,7 +194,10 @@ SkPath PreChopPathCurves(float tessellationPrecision,
                 break;
         }
     }
-    return chopper.path();
+    // Must preserve the input path's fill type (see crbug.com/1472747)
+    SkPath chopped = chopper.path();
+    chopped.setFillType(path.getFillType());
+    return chopped;
 }
 
 int FindCubicConvex180Chops(const SkPoint pts[], float T[2], bool* areCusps) {
