@@ -32,6 +32,7 @@ SHARED_FILES = [
     "RefCntedCallback.h",
     "ResourceKey.cpp",
     "ResourceKey.h",
+    "SkBackingFit.cpp",
     "SkBackingFit.h",
     "Swizzle.cpp",
     "Swizzle.h",

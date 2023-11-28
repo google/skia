@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 
@@ -26,6 +27,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
                                          info,
                                          skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
+                                         SkBackingFit::kExact,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
 
@@ -41,18 +43,21 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
                            info,
                            skgpu::Budgeted::kYes,
                            Mipmapped::kNo,
+                           SkBackingFit::kExact,
                            SkSurfaceProps(),
                            /* addInitialClear= */ true);
     sk_sp<Device> device2 = Device::Make(recorder.get(),
                                          info,
                                          skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
+                                         SkBackingFit::kExact,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
     sk_sp<Device> device3 = Device::Make(recorder.get(),
                                          info,
                                          skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
+                                         SkBackingFit::kExact,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
     REPORTER_ASSERT(reporter, device1->recorder() == recorder.get());

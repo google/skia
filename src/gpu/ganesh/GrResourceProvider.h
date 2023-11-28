@@ -9,7 +9,6 @@
 #define GrResourceProvider_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTemplates.h"
@@ -42,6 +41,7 @@ class SkData;
 enum class SkBackingFit;
 struct GrVkDrawableInfo;
 struct SkImageInfo;
+struct SkISize;
 
 namespace skgpu {
 class ScratchKey;
@@ -206,8 +206,6 @@ public:
     sk_sp<GrRenderTarget> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                               const GrVkDrawableInfo&);
 
-    static const int kMinScratchTextureSize;
-
     /**
      * Either finds and refs a buffer with the given unique key, or creates a new new, fills its
      * contents with the InitializeBufferDataFn() callback, and assigns it the unique key.
@@ -364,8 +362,6 @@ public:
     uint32_t contextUniqueID() const { return fCache->contextUniqueID(); }
     const GrCaps* caps() const { return fCaps.get(); }
     bool overBudget() const { return fCache->overBudget(); }
-
-    static SkISize MakeApprox(SkISize);
 
     inline GrResourceProviderPriv priv();
     inline const GrResourceProviderPriv priv() const;  // NOLINT(readability-const-return-type)

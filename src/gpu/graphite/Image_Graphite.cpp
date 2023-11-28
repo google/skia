@@ -16,6 +16,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -78,8 +79,8 @@ sk_sp<SkImage> Image::copyImage(const SkIRect& subset,
     }
 
     auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-    TextureProxyView copiedView =
-            TextureProxyView::Copy(recorder, this->imageInfo().colorInfo(), srcView, subset, mm);
+    TextureProxyView copiedView = TextureProxyView::Copy(
+            recorder, this->imageInfo().colorInfo(), srcView, subset, mm, SkBackingFit::kExact);
     if (!copiedView) {
         return nullptr;
     }

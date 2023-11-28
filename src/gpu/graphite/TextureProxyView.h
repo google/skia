@@ -14,6 +14,8 @@
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/TextureProxy.h"
 
+enum class SkBackingFit;
+
 namespace skgpu::graphite {
 
 class Recorder;
@@ -91,7 +93,8 @@ public:
                                  const SkColorInfo& srcColorInfo,
                                  const TextureProxyView& srcView,
                                  SkIRect srcRect,
-                                 Mipmapped);
+                                 Mipmapped,
+                                 SkBackingFit);
 
 private:
     sk_sp<TextureProxy> fProxy;

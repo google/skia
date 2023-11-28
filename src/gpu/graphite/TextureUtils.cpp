@@ -29,6 +29,7 @@
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/BlurUtils.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -98,6 +99,7 @@ sk_sp<SkSpecialImage> eval_blur(skgpu::graphite::Recorder* recorder,
                                                 outII,
                                                 skgpu::Budgeted::kYes,
                                                 skgpu::Mipmapped::kNo,
+                                                SkBackingFit::kApprox,
                                                 outProps,
                                                 /*addInitialClear=*/false);
     if (!device) {
@@ -743,6 +745,7 @@ public:
                                              imageInfo,
                                              skgpu::Budgeted::kYes,
                                              skgpu::Mipmapped::kNo,
+                                             SkBackingFit::kApprox,
                                              props ? *props : this->surfaceProps(),
                                              /*addInitialClear=*/false);
     }

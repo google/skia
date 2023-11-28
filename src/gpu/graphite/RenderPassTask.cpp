@@ -122,6 +122,9 @@ bool RenderPassTask::addCommands(Context* context,
     // single sample resolve as an input attachment in that subpass, and then do a draw. The big
     // thing with Vulkan is that this input attachment and subpass means we also need to update
     // the fRenderPassDesc here.
+    // TODO(b/313629288) we always pass in the render target's dimensions as the viewport here.
+    // Using the dimensions of the logical device that we're drawing to could reduce flakiness in
+    // rendering.
     return commandBuffer->addRenderPass(fRenderPassDesc,
                                         std::move(colorAttachment),
                                         std::move(resolveAttachment),

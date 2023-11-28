@@ -258,13 +258,13 @@ SkISize GrSurfaceProxy::backingStoreDimensions() const {
     if (SkBackingFit::kExact == fFit) {
         return fDimensions;
     }
-    return GrResourceProvider::MakeApprox(fDimensions);
+    return skgpu::GetApproxSize(fDimensions);
 }
 
 bool GrSurfaceProxy::isFunctionallyExact() const {
     SkASSERT(!this->isFullyLazy());
     return fFit == SkBackingFit::kExact ||
-           fDimensions == GrResourceProvider::MakeApprox(fDimensions);
+           fDimensions == skgpu::GetApproxSize(fDimensions);
 }
 
 bool GrSurfaceProxy::isFormatCompressed(const GrCaps* caps) const {

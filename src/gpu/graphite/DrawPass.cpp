@@ -589,7 +589,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     GraphicsPipelineCache::Index lastPipeline = GraphicsPipelineCache::kInvalidIndex;
     SkIRect lastScissor = SkIRect::MakeSize(targetInfo.dimensions());
 
-    SkASSERT(!drawPass->fTarget->isInstantiated() ||
+    SkASSERT(drawPass->fTarget->isFullyLazy() ||
              SkIRect::MakeSize(drawPass->fTarget->dimensions()).contains(lastScissor));
     drawPass->fCommandList.setScissor(lastScissor);
 

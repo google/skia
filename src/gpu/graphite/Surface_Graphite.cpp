@@ -14,6 +14,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/Image_Graphite.h"
@@ -78,7 +79,7 @@ sk_sp<SkImage> Surface::makeImageCopy(const SkIRect* subset, Mipmapped mipmapped
                 "Intermingling makeImageSnapshot and asImage calls may produce "
                 "unexpected results. Please use either the old _or_ new API.");
     }
-    TextureProxyView srcView = fDevice->createCopy(subset, mipmapped);
+    TextureProxyView srcView = fDevice->createCopy(subset, mipmapped, SkBackingFit::kExact);
     if (!srcView) {
         return nullptr;
     }
@@ -128,7 +129,11 @@ sk_sp<SkSurface> Surface::MakeGraphite(Recorder* recorder,
                                        skgpu::Budgeted budgeted,
                                        Mipmapped mipmapped,
                                        const SkSurfaceProps* props) {
-    sk_sp<Device> device = Device::Make(recorder, info, budgeted, mipmapped,
+    sk_sp<Device> device = Device::Make(recorder,
+                                        info,
+                                        budgeted,
+                                        mipmapped,
+                                        SkBackingFit::kExact,
                                         SkSurfacePropsCopyOrDefault(props),
                                         /* addInitialClear= */ true);
     if (!device) {

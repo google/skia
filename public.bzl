@@ -798,6 +798,7 @@ BASE_SRCS_ALL = [
     "src/gpu/ResourceKey.cpp",
     "src/gpu/ResourceKey.h",
     "src/gpu/ShaderErrorHandler.cpp",
+    "src/gpu/SkBackingFit.cpp",
     "src/gpu/SkBackingFit.h",
     "src/gpu/SkRenderEngineAbortf.h",
     "src/gpu/Swizzle.cpp",

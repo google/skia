@@ -46,8 +46,11 @@ sk_sp<DrawContext> DrawContext::Make(sk_sp<TextureProxy> target,
         return nullptr;
     }
 
+    // Accept an approximate-fit texture, but make sure it's at least as large as the device's
+    // logical size.
     // TODO: validate that the color type and alpha type are compatible with the target's info
-    SkASSERT(!target->isInstantiated() || target->dimensions() == deviceSize);
+    SkASSERT(target->isFullyLazy() || (target->dimensions().width() >= deviceSize.width() &&
+                                       target->dimensions().height() >= deviceSize.height()));
     SkImageInfo imageInfo = SkImageInfo::Make(deviceSize, colorInfo);
     return sk_sp<DrawContext>(new DrawContext(std::move(target), imageInfo, props));
 }
