@@ -26,12 +26,7 @@ import (
 func TestComputeBenchmarkTestRunnerCLIFlags_Success(t *testing.T) {
 	test := func(name string, benchmarkInfo BenchmarkInfo, expectedFlags []string) {
 		t.Run(name, func(t *testing.T) {
-			ctx := WithGoldAndPerfKeyValuePairsContext(context.Background(), map[string]string{
-				"os":   "linux",
-				"arch": "x86_64",
-			})
-
-			actualFlags := ComputeBenchmarkTestRunnerCLIFlags(ctx, benchmarkInfo)
+			actualFlags := ComputeBenchmarkTestRunnerCLIFlags(benchmarkInfo)
 			assert.Equal(t, expectedFlags, actualFlags)
 		})
 	}
@@ -41,9 +36,6 @@ func TestComputeBenchmarkTestRunnerCLIFlags_Success(t *testing.T) {
 		TaskName:  "BazelTest-Foo-Bar",
 		TaskID:    "1234567890",
 	}, []string{
-		"--key",
-		"arch", "x86_64",
-		"os", "linux",
 		"--gitHash", "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 		"--links",
 		"task", "https://task-scheduler.skia.org/task/1234567890",
@@ -56,9 +48,6 @@ func TestComputeBenchmarkTestRunnerCLIFlags_Success(t *testing.T) {
 		ChangelistID:  "12345",
 		PatchsetOrder: "3",
 	}, []string{
-		"--key",
-		"arch", "x86_64",
-		"os", "linux",
 		"--gitHash", "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 		"--issue", "12345",
 		"--patchset", "3",

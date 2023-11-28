@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 
 	"go.skia.org/infra/go/gcs"
 	"go.skia.org/infra/go/now"
@@ -37,11 +36,8 @@ type BenchmarkInfo struct {
 
 // ComputeBenchmarkTestRunnerCLIFlags returns the command-line flags that should be passed to the
 // benchmark test runner.
-func ComputeBenchmarkTestRunnerCLIFlags(ctx context.Context, benchmarkInfo BenchmarkInfo) []string {
-	flags := computeBenchmarkTestRunnerKeyFlag(ctx)
-
-	flags = append(flags,
-		"--gitHash", benchmarkInfo.GitCommit)
+func ComputeBenchmarkTestRunnerCLIFlags(benchmarkInfo BenchmarkInfo) []string {
+	flags := []string{"--gitHash", benchmarkInfo.GitCommit}
 
 	if benchmarkInfo.ChangelistID != "" && benchmarkInfo.PatchsetOrder != "" {
 		flags = append(flags,
@@ -62,24 +58,6 @@ func ComputeBenchmarkTestRunnerCLIFlags(ctx context.Context, benchmarkInfo Bench
 	}
 
 	return flags
-}
-
-func computeBenchmarkTestRunnerKeyFlag(ctx context.Context) []string {
-	keyValuePairs := ComputeGoldAndPerfKeyValuePairs(ctx)
-
-	// Sort keys for determinism.
-	var keys []string
-	for key := range keyValuePairs {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-
-	flag := []string{"--key"}
-	for _, key := range keys {
-		flag = append(flag, key, keyValuePairs[key])
-	}
-
-	return flag
 }
 
 func UploadToPerf(ctx context.Context, gcsClient gcs.GCSClient, benchmarkInfo BenchmarkInfo, outputsZIPOrDir string) error {

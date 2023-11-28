@@ -64,12 +64,6 @@ func TestRun_Success(t *testing.T) {
 				// we convert from UTC+1 to UTC.
 				fakeNow := time.Date(2022, time.January, 31, 2, 2, 3, 0, time.FixedZone("UTC+1", 60*60))
 				ctx = now.TimeTravelingContext(fakeNow).WithContext(ctx)
-
-				ctx = common.WithGoldAndPerfKeyValuePairsContext(ctx, map[string]string{
-					"os":   "linux",
-					"arch": "x86_64",
-				})
-
 				ctx = td.WithExecRunFn(ctx, commandCollector.Run)
 				var bazelCacheDirPath string
 				ctx, bazelCacheDirPath = common.WithEnoughSpaceOnBazelCachePartitionTestOnlyContext(ctx)
@@ -121,23 +115,19 @@ func TestRun_Success(t *testing.T) {
 				TaskName:  "BazelTest-Foo-Bar",
 				TaskID:    "1234567890",
 			},
-			checkoutDir: checkoutDir,
-			bazelLabel:  "//some/test:target",
-			bazelConfig: "linux_rbe",
+			checkoutDir:               checkoutDir,
+			bazelLabel:                "//some/test:target",
+			bazelConfig:               "linux_rbe",
+			deviceSpecificBazelConfig: "GCE_Debian10_AVX512",
 		},
 		[]string{
 			"bazelisk",
 			"test",
 			"//some/test:target",
 			"--config=linux_rbe",
+			"--config=GCE_Debian10_AVX512",
 			"--test_output=errors",
 			"--jobs=100",
-			"--strategy=TestRunner=local",
-			"--test_arg=--key",
-			"--test_arg=arch",
-			"--test_arg=x86_64",
-			"--test_arg=os",
-			"--test_arg=linux",
 			"--test_arg=--gitHash",
 			"--test_arg=ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 			"--test_arg=--links",
@@ -155,23 +145,19 @@ func TestRun_Success(t *testing.T) {
 				ChangelistID:  "12345",
 				PatchsetOrder: "3",
 			},
-			checkoutDir: checkoutDir,
-			bazelLabel:  "//some/test:target",
-			bazelConfig: "linux_rbe",
+			checkoutDir:               checkoutDir,
+			bazelLabel:                "//some/test:target",
+			bazelConfig:               "linux_rbe",
+			deviceSpecificBazelConfig: "GCE_Debian10_AVX512",
 		},
 		[]string{
 			"bazelisk",
 			"test",
 			"//some/test:target",
 			"--config=linux_rbe",
+			"--config=GCE_Debian10_AVX512",
 			"--test_output=errors",
 			"--jobs=100",
-			"--strategy=TestRunner=local",
-			"--test_arg=--key",
-			"--test_arg=arch",
-			"--test_arg=x86_64",
-			"--test_arg=os",
-			"--test_arg=linux",
 			"--test_arg=--gitHash",
 			"--test_arg=ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 			"--test_arg=--issue",

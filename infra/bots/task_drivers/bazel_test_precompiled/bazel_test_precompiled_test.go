@@ -80,11 +80,6 @@ func TestRun_GMTest_Success(t *testing.T) {
 
 			commandCollector := exec.CommandCollector{}
 			res := td.RunTestSteps(t, false, func(ctx context.Context) error {
-				ctx = common.WithGoldAndPerfKeyValuePairsContext(ctx, map[string]string{
-					"os":   "linux",
-					"arch": "x86_64",
-				})
-
 				ctx = td.WithExecRunFn(ctx, commandCollector.Run)
 
 				// We don't need to assert the exact number of times that os_steps.TempDir() is called
@@ -102,7 +97,7 @@ func TestRun_GMTest_Success(t *testing.T) {
 			require.Empty(t, res.Exceptions)
 
 			testutils.AssertStepNames(t, res,
-				"/path/to/command",
+				"/path/to/command --device-specific-bazel-config Pixel5 --key arch arm64 model Pixel5 os Android --gpuName Adreno620",
 				"Gather JSON and PNG files produced by GMs",
 				"Gather \"alfa.png\"",
 				"Gather \"beta.png\"",
@@ -119,6 +114,12 @@ func TestRun_GMTest_Success(t *testing.T) {
 			exec_testutils.AssertCommandsMatch(t, [][]string{
 				{
 					"/path/to/command",
+					"--device-specific-bazel-config", "Pixel5",
+					"--key",
+					"arch", "arm64",
+					"model", "Pixel5",
+					"os", "Android",
+					"--gpuName", "Adreno620",
 				},
 				{
 					"/path/to/goldctl",
@@ -168,16 +169,18 @@ func TestRun_GMTest_Success(t *testing.T) {
 			UploadToGoldArgs: common.UploadToGoldArgs{
 				TestOnlyAllowAnyBazelLabel: true,
 				BazelLabel:                 "//some/test:target",
+				DeviceSpecificBazelConfig:  "Pixel5",
 				GoldctlPath:                "/path/to/goldctl",
 				GitCommit:                  "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 			},
-			commandPath:          "/path/to/command",
-			commandWorkDir:       "/path/to/workdir",
-			testKind:             gmTest,
-			undeclaredOutputsDir: t.TempDir(),
+			commandPath:                   "/path/to/command",
+			commandWorkDir:                "/path/to/workdir",
+			testKind:                      gmTest,
+			deviceSpecificBazelConfigName: "Pixel5",
+			undeclaredOutputsDir:          t.TempDir(),
 		},
 		goldctlWorkDir,
-		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --key arch:x86_64 --key os:linux",
+		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --key arch:arm64 --key model:Pixel5 --key os:Android",
 		[]string{
 			"imgtest",
 			"init",
@@ -186,8 +189,9 @@ func TestRun_GMTest_Success(t *testing.T) {
 			"--url", "https://gold.skia.org",
 			"--bucket", "skia-infra-gm",
 			"--git_hash", "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
-			"--key", "arch:x86_64",
-			"--key", "os:linux",
+			"--key", "arch:arm64",
+			"--key", "model:Pixel5",
+			"--key", "os:Android",
 		},
 	)
 
@@ -198,19 +202,21 @@ func TestRun_GMTest_Success(t *testing.T) {
 			UploadToGoldArgs: common.UploadToGoldArgs{
 				TestOnlyAllowAnyBazelLabel: true,
 				BazelLabel:                 "//some/test:target",
+				DeviceSpecificBazelConfig:  "Pixel5",
 				GoldctlPath:                "/path/to/goldctl",
 				GitCommit:                  "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 				ChangelistID:               "changelist-id",
 				PatchsetOrder:              "1",
 				TryjobID:                   "tryjob-id",
 			},
-			commandPath:          "/path/to/command",
-			commandWorkDir:       "/path/to/workdir",
-			testKind:             gmTest,
-			undeclaredOutputsDir: t.TempDir(),
+			commandPath:                   "/path/to/command",
+			commandWorkDir:                "/path/to/workdir",
+			testKind:                      gmTest,
+			deviceSpecificBazelConfigName: "Pixel5",
+			undeclaredOutputsDir:          t.TempDir(),
 		},
 		goldctlWorkDir,
-		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --crs gerrit --cis buildbucket --changelist changelist-id --patchset 1 --jobid tryjob-id --key arch:x86_64 --key os:linux",
+		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --crs gerrit --cis buildbucket --changelist changelist-id --patchset 1 --jobid tryjob-id --key arch:arm64 --key model:Pixel5 --key os:Android",
 		[]string{
 			"imgtest",
 			"init",
@@ -224,8 +230,9 @@ func TestRun_GMTest_Success(t *testing.T) {
 			"--changelist", "changelist-id",
 			"--patchset", "1",
 			"--jobid", "tryjob-id",
-			"--key", "arch:x86_64",
-			"--key", "os:linux",
+			"--key", "arch:arm64",
+			"--key", "model:Pixel5",
+			"--key", "os:Android",
 		},
 	)
 }
@@ -262,11 +269,6 @@ func TestRun_BenchmarkTest_Success(t *testing.T) {
 				// we convert from UTC+1 to UTC.
 				fakeNow := time.Date(2022, time.January, 31, 2, 2, 3, 0, time.FixedZone("UTC+1", 60*60))
 				ctx = now.TimeTravelingContext(fakeNow).WithContext(ctx)
-
-				ctx = common.WithGoldAndPerfKeyValuePairsContext(ctx, map[string]string{
-					"os":   "android",
-					"arch": "arm64",
-				})
 				ctx = td.WithExecRunFn(ctx, commandCollector.Run)
 
 				err := run(ctx, tdArgs)
@@ -298,19 +300,23 @@ func TestRun_BenchmarkTest_Success(t *testing.T) {
 				TaskName:  "BazelTest-Foo-Bar",
 				TaskID:    "1234567890",
 			},
-			commandPath:          "/path/to/command",
-			commandWorkDir:       "/path/to/workdir",
-			testKind:             benchmarkTest,
-			undeclaredOutputsDir: t.TempDir(),
+			commandPath:                   "/path/to/command",
+			commandWorkDir:                "/path/to/workdir",
+			testKind:                      benchmarkTest,
+			deviceSpecificBazelConfigName: "Pixel5",
+			undeclaredOutputsDir:          t.TempDir(),
 		},
 		[]string{
 			"/path/to/command",
-			"--key",
-			"arch", "arm64",
-			"os", "android",
 			"--gitHash", "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 			"--links",
 			"task", "https://task-scheduler.skia.org/task/1234567890",
+			"--device-specific-bazel-config", "Pixel5",
+			"--key",
+			"arch", "arm64",
+			"model", "Pixel5",
+			"os", "Android",
+			"--gpuName", "Adreno620",
 		},
 	)
 
@@ -324,22 +330,26 @@ func TestRun_BenchmarkTest_Success(t *testing.T) {
 				ChangelistID:  "12345",
 				PatchsetOrder: "3",
 			},
-			commandPath:          "/path/to/command",
-			commandWorkDir:       "/path/to/workdir",
-			testKind:             benchmarkTest,
-			undeclaredOutputsDir: t.TempDir(),
+			commandPath:                   "/path/to/command",
+			commandWorkDir:                "/path/to/workdir",
+			testKind:                      benchmarkTest,
+			deviceSpecificBazelConfigName: "Pixel5",
+			undeclaredOutputsDir:          t.TempDir(),
 		},
 		[]string{
 			"/path/to/command",
-			"--key",
-			"arch", "arm64",
-			"os", "android",
 			"--gitHash", "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 			"--issue", "12345",
 			"--patchset", "3",
 			"--links",
 			"task", "https://task-scheduler.skia.org/task/1234567890",
 			"changelist", "https://skia-review.googlesource.com/c/skia/+/12345/3",
+			"--device-specific-bazel-config", "Pixel5",
+			"--key",
+			"arch", "arm64",
+			"model", "Pixel5",
+			"os", "Android",
+			"--gpuName", "Adreno620",
 		},
 	)
 }

@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 load("//bazel:flags.bzl", "string_flag_with_values")
 load("//bazel:skia_rules.bzl", "exports_files_legacy")
 
@@ -11,6 +11,7 @@ go_library(
     srcs = ["adb_test_runner.go"],
     importpath = "go.skia.org/skia/tools/testrunners/common/android/adb_test_runner",
     visibility = ["//visibility:private"],
+    deps = ["//bazel/device_specific_configs"],
 )
 
 go_binary(
@@ -42,4 +43,11 @@ string_flag_with_values(
         "windows_x86",
         "windows_arm64",
     ],
+)
+
+go_test(
+    name = "adb_test_runner_test",
+    srcs = ["adb_test_runner_test.go"],
+    embed = [":adb_test_runner_lib"],
+    deps = ["@com_github_stretchr_testify//assert"],
 )

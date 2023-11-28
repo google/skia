@@ -1,6 +1,5 @@
 # https://github.com/bazelbuild/bazel-toolchains/blob/master/rules/exec_properties/exec_properties.bzl
 load("@bazel_toolchains//rules/exec_properties:exec_properties.bzl", "create_rbe_exec_properties_dict")
-load("//bazel/devices:android_devices.bzl", "ANDROID_DEVICES")
 
 # https://bazel.build/concepts/platforms-intro
 # https://bazel.build/docs/platforms
@@ -69,17 +68,6 @@ platform(
         "@platforms//cpu:arm64",
     ],
 )
-
-[
-    platform(
-        name = device_name,
-        constraint_values = [
-            "@platforms//os:android",
-            "//bazel/devices:%s" % device_name,
-        ] + constraints,
-    )
-    for device_name, constraints in ANDROID_DEVICES.items()
-]
 
 # This constraint allows us to force Bazel to resolve our hermetic toolchain to build
 # the target and not a default one (e.g. on the Linux RBE instance). We do this by

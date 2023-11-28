@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	sk_exec "go.skia.org/infra/go/exec"
+	"go.skia.org/skia/bazel/device_specific_configs"
 
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/go/util"
@@ -35,12 +36,13 @@ var goldctlBazelLabelAllowList = map[string]bool{
 
 // UploadToGoldArgs gathers the inputs to the UploadToGold function.
 type UploadToGoldArgs struct {
-	BazelLabel    string
-	GoldctlPath   string
-	GitCommit     string
-	ChangelistID  string
-	PatchsetOrder string // 1, 2, 3, etc.
-	TryjobID      string
+	BazelLabel                string
+	DeviceSpecificBazelConfig string
+	GoldctlPath               string
+	GitCommit                 string
+	ChangelistID              string
+	PatchsetOrder             string // 1, 2, 3, etc.
+	TryjobID                  string
 
 	// TestOnlyAllowAnyBazelLabel should only be used from tests. If true, the
 	// goldctlBazelLabelAllowList will be ignored.
@@ -110,8 +112,15 @@ func UploadToGold(ctx context.Context, utgArgs UploadToGoldArgs, outputsZIPOrDir
 		}
 
 		// Prepare task-specific key:value pairs.
+		if utgArgs.DeviceSpecificBazelConfig == "" {
+			return skerr.Fmt("DeviceSpecificBazelConfig cannot be empty")
+		}
+		deviceSpecificBazelConfig, ok := device_specific_configs.Configs[utgArgs.DeviceSpecificBazelConfig]
+		if !ok {
+			return skerr.Fmt("unknown DeviceSpecificBazelConfig: %q", utgArgs.DeviceSpecificBazelConfig)
+		}
 		var taskSpecificKeyValuePairs []string
-		for k, v := range ComputeGoldAndPerfKeyValuePairs(ctx) {
+		for k, v := range deviceSpecificBazelConfig.Keys {
 			taskSpecificKeyValuePairs = append(taskSpecificKeyValuePairs, k+":"+v)
 		}
 		sort.Strings(taskSpecificKeyValuePairs) // Sort for determinism.

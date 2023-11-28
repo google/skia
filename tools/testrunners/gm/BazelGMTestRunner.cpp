@@ -77,6 +77,16 @@ static DEFINE_string(via,
                      "direct",  // Equivalent to running DM without a via.
                      "Name of the \"via\" to use (e.g. \"picture_serialization\"). Optional.");
 
+// Set in //bazel/devicesrc but only consumed by adb_test_runner.go. We cannot use the
+// DEFINE_string macro because the flag name includes dashes.
+[[maybe_unused]] static bool unused =
+        SkFlagInfo::CreateStringFlag("device-specific-bazel-config",
+                                     nullptr,
+                                     new CommandLineFlags::StringArray(),
+                                     nullptr,
+                                     "Ignored by this test runner.",
+                                     nullptr);
+
 // Takes a SkBitmap and writes the resulting PNG and MD5 hash into the given files. Returns an
 // empty string on success, or an error message in the case of failures.
 static std::string write_png_and_json_files(std::string name,

@@ -45,37 +45,41 @@ func writeDeviceFlagsFile(outputFile string) error {
 			sb.WriteString("\n")
 		}
 
-		// Force device-specific tests to run locally. We assume Bazel is running on the device under
-		// test, or that the device under test is attached to the machine where Bazel is running (e.g.
-		// an Android device attached via USB).
+		// Force device-specific tests to run locally (as opposed to on RBE). For such tests, we assume
+		// Bazel is running on the device under test, or on a machine that controls the device under
+		// test (e.g. an Android device attached via USB). Compilation still happens on RBE.
 		//
-		// See https://bazel.build/docs/user-manual#strategy.
+		// We force local execution via the --strategy flag[1]. In order to understand the --strategy
+		// flag, we must first understand the --spawn_strategy flag[2], which controls where and how
+		// commands are executed. For example:
+		//
+		//  - Flag --spawn_strategy=sandboxed executes commands inside a sandbox on the local system.
+		//    This is the default Bazel behavior on systems that support sandboxing.
+		//
+		//  - Flag --spawn_strategy=local executes commands as regular, local subprocesses without any
+		//    sandboxing.
+		//
+		//  - Flag --spawn_strategy=remote executes commands remotely, provided a remote executor has
+		//    been configured. We use this strategy when running Bazel with --config=remote. See the
+		//    //.bazelrc file[3].
+		//
+		// The --strategy flag allows us to override --spawn_strategy on a per-mnemonic basis. In our
+		// case, we set --strategy=TestRunner=local to force test actions to run as a local subprocess.
+		// In combination with --config=remote (or any configuration that implies it, such as
+		// --config=linux_rbe) this has the effect of running test actions locally, while build actions
+		// (and any other actions) run on RBE.
+		//
+		// The "TestRunner" mnemonic for test actions is determined here[4].
+		//
+		// [1] https://bazel.build/docs/user-manual#strategy
+		// [2] https://bazel.build/docs/user-manual#spawn-strategy
+		// [3] https://skia.googlesource.com/skia/+/e5c37860c792de6bba0c9465c3f5280cb13dbbb9/.bazelrc#128
+		// [4] https://github.com/bazelbuild/bazel/blob/f79ca0275e14d7c8fb478bd910ad7fb127440fd8/src/main/java/com/google/devtools/build/lib/analysis/test/TestRunnerAction.java#L107
 		writeFlag(&sb, configName, "--strategy", "TestRunner=local")
 
 		config := device_specific_configs.Configs[configName]
-
-		// Sort keys for determinism.
-		var keys []string
-		for key := range config.Keys {
-			keys = append(keys, key)
-		}
-		sort.Strings(keys)
-
-		// Add key/value pairs.
-		writeTestArgFlag(&sb, configName, "--key")
-		for _, key := range keys {
-			writeTestArgFlag(&sb, configName, key)
-			writeTestArgFlag(&sb, configName, config.Keys[key])
-		}
-
-		if config.CPU != "" {
-			writeTestArgFlag(&sb, configName, "--cpuName")
-			writeTestArgFlag(&sb, configName, config.CPU)
-		}
-
-		if config.GPU != "" {
-			writeTestArgFlag(&sb, configName, "--gpuName")
-			writeTestArgFlag(&sb, configName, config.GPU)
+		for _, arg := range config.TestRunnerArgs() {
+			writeTestArgFlag(&sb, configName, arg)
 		}
 	}
 

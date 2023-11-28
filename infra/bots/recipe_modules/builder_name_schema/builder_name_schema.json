@@ -5,20 +5,17 @@
         "label",
         "config",
         "host"
-      ],
-      "optional_keys": [
-        "cross"
       ]
     },
     "BazelTest": {
       "keys": [
         "task_driver",
         "label",
-        "config",
+        "build_config",
         "host"
       ],
       "optional_keys": [
-        "cross"
+        "test_config"
       ]
     },
     "Build": {

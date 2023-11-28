@@ -1,7 +1,6 @@
 """This module defines the android_test macro."""
 
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
-load("//bazel/devices:android_devices.bzl", "ANDROID_DEVICES")
 load("//tools/testrunners/common:binary_wrapper_script_with_cmdline_flags.bzl", "binary_wrapper_script_with_cmdline_flags")
 load("//tools/testrunners/common/android:adb_test.bzl", "adb_test")
 
@@ -162,19 +161,8 @@ def android_test(
         name = name,
         archive = archive,
         test_runner = test_runner,
-        device = select(dict(
-            [
-                ("//bazel/devices:%s" % device_name, device_name)
-                for device_name in ANDROID_DEVICES
-            ] + [
-                ("//conditions:default", "unknown"),
-            ],
-        )),
         benchmark = benchmark,
         save_output_files = save_output_files,
         tags = ["no-remote"],  # Incompatible with RBE because it requires an Android device.
-        target_compatible_with = select({
-            "//bazel/devices:has_android_device": [],  # Compatible with everything.
-            "//conditions:default": ["@platforms//:incompatible"],
-        }),
+        target_compatible_with = ["@platforms//os:android"],
     )

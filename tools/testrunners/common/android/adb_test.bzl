@@ -82,12 +82,18 @@ def _adb_test_impl(ctx):
         # List the test runner binary for debugging purposes.
         ls -l $(rootpath {adb_test_runner})
 
-        # Any additional arguments to pass to the C++ binary. These can be set via Bazel's
-        # --test_arg flag, or can be passed directly to the binary produced by "bazel build".
+        # Determine the adb_test_runner's --test-runner-extra-args flag value, which is a
+        # space-separated string with any additional arguments to pass to the C++ binary. These can
+        # be set via Bazel's --test_arg flag, or can be passed directly to the binary produced by
+        # "bazel build".
+        #
+        # Note that if this space-separated string includes a
+        # "--device-specific-bazel-config=<config name>" substring, the adb_test_runner will parse
+        # it out as if it were its own flag. This is easier than trying to parse flags in this
+        # script. 
         TEST_RUNNER_EXTRA_ARGS="$@"
 
         $(rootpath {adb_test_runner}) \
-            --device {device} \
             {benchmark} \
             --archive $(rootpath {archive}) \
             --test-runner $(rootpath {test_runner}) \
@@ -95,19 +101,8 @@ def _adb_test_impl(ctx):
             {output_dir_flag}
     """)
 
-    if ctx.attr.device == "unknown":
-        template = remove_indentation("""
-            #!/bin/bash
-
-            echo "FAILED: No Android device was specified. Try re-running with a Bazel config that"
-            echo "        specifies an Android device under test, such as --config=pixel_5."
-
-            exit 1
-        """)
-
     # Expand variables.
     script = ctx.expand_location(template.format(
-        device = ctx.attr.device,
         benchmark = "--benchmark" if ctx.attr.benchmark else "",
         archive = ctx.attr.archive.label,
         test_runner = ctx.attr.test_runner.label,
@@ -146,15 +141,6 @@ adb_test = rule(
     """,
     implementation = _adb_test_impl,
     attrs = {
-        "device": attr.string(
-            doc = "Device under test.",
-            mandatory = True,
-            values = [
-                "pixel_5",
-                "pixel_7",
-                "unknown",
-            ],
-        ),
         "benchmark": attr.bool(
             doc = (
                 "Set up the device for benchmark tests. This might affect e.g. CPU and GPU " +

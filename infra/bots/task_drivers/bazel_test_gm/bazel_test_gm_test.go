@@ -58,11 +58,6 @@ func TestRun_Success(t *testing.T) {
 
 			commandCollector := exec.CommandCollector{}
 			res := td.RunTestSteps(t, false, func(ctx context.Context) error {
-				ctx = common.WithGoldAndPerfKeyValuePairsContext(ctx, map[string]string{
-					"os":   "linux",
-					"arch": "x86_64",
-				})
-
 				ctx = td.WithExecRunFn(ctx, commandCollector.Run)
 				var bazelCacheDirPath string
 				ctx, bazelCacheDirPath = common.WithEnoughSpaceOnBazelCachePartitionTestOnlyContext(ctx)
@@ -83,7 +78,7 @@ func TestRun_Success(t *testing.T) {
 
 			testutils.AssertStepNames(t, res,
 				"Test //some/test:target with config linux_rbe",
-				"bazelisk test //some/test:target --config=linux_rbe --test_output=errors --jobs=100",
+				"bazelisk test //some/test:target --config=linux_rbe --config=GCE_Debian10_AVX512 --test_output=errors --jobs=100",
 				"Creating TempDir",
 				"Extract undeclared outputs archive "+outputsZIP+" into "+outputsZIPExtractionDir,
 				"Extracting file: alfa.json",
@@ -114,6 +109,7 @@ func TestRun_Success(t *testing.T) {
 						"test",
 						"//some/test:target",
 						"--config=linux_rbe",
+						"--config=GCE_Debian10_AVX512",
 						"--test_output=errors",
 						"--jobs=100",
 					},
@@ -172,6 +168,7 @@ func TestRun_Success(t *testing.T) {
 			UploadToGoldArgs: common.UploadToGoldArgs{
 				TestOnlyAllowAnyBazelLabel: true,
 				BazelLabel:                 "//some/test:target",
+				DeviceSpecificBazelConfig:  "GCE_Debian10_AVX512",
 				GoldctlPath:                "/path/to/goldctl",
 				GitCommit:                  "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 			},
@@ -179,7 +176,7 @@ func TestRun_Success(t *testing.T) {
 			bazelConfig: "linux_rbe",
 		},
 		goldctlWorkDir,
-		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --key arch:x86_64 --key os:linux",
+		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --key arch:x86_64 --key model:GCE --key os:Debian10",
 		[]string{
 			"imgtest",
 			"init",
@@ -189,7 +186,8 @@ func TestRun_Success(t *testing.T) {
 			"--bucket", "skia-infra-gm",
 			"--git_hash", "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 			"--key", "arch:x86_64",
-			"--key", "os:linux",
+			"--key", "model:GCE",
+			"--key", "os:Debian10",
 		},
 	)
 
@@ -200,6 +198,7 @@ func TestRun_Success(t *testing.T) {
 			UploadToGoldArgs: common.UploadToGoldArgs{
 				TestOnlyAllowAnyBazelLabel: true,
 				BazelLabel:                 "//some/test:target",
+				DeviceSpecificBazelConfig:  "GCE_Debian10_AVX512",
 				GoldctlPath:                "/path/to/goldctl",
 				GitCommit:                  "ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99",
 				ChangelistID:               "changelist-id",
@@ -210,7 +209,7 @@ func TestRun_Success(t *testing.T) {
 			bazelConfig: "linux_rbe",
 		},
 		goldctlWorkDir,
-		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --crs gerrit --cis buildbucket --changelist changelist-id --patchset 1 --jobid tryjob-id --key arch:x86_64 --key os:linux",
+		"/path/to/goldctl imgtest init --work-dir "+goldctlWorkDir+" --instance skia --url https://gold.skia.org --bucket skia-infra-gm --git_hash ff99ff99ff99ff99ff99ff99ff99ff99ff99ff99 --crs gerrit --cis buildbucket --changelist changelist-id --patchset 1 --jobid tryjob-id --key arch:x86_64 --key model:GCE --key os:Debian10",
 		[]string{
 			"imgtest",
 			"init",
@@ -225,7 +224,8 @@ func TestRun_Success(t *testing.T) {
 			"--patchset", "1",
 			"--jobid", "tryjob-id",
 			"--key", "arch:x86_64",
-			"--key", "os:linux",
+			"--key", "model:GCE",
+			"--key", "os:Debian10",
 		},
 	)
 }

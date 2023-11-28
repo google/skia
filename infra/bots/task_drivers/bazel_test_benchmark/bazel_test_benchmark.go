@@ -52,8 +52,9 @@ var (
 
 func main() {
 	bazelFlags := common.MakeBazelFlags(common.MakeBazelFlagsOpts{
-		Label:  true,
-		Config: true,
+		Label:                true,
+		Config:               true,
+		DeviceSpecificConfig: true,
 	})
 
 	// StartRun calls flag.Parse().
@@ -107,9 +108,10 @@ func main() {
 // entry-point function from the command line flags, which facilitates writing unit tests.
 type taskDriverArgs struct {
 	common.BenchmarkInfo
-	checkoutDir string
-	bazelLabel  string
-	bazelConfig string
+	checkoutDir               string
+	bazelLabel                string
+	bazelConfig               string
+	deviceSpecificBazelConfig string
 }
 
 // run is the entrypoint of this task driver.
@@ -119,8 +121,8 @@ func run(ctx context.Context, bazelCacheDir string, tdArgs taskDriverArgs, gcsCl
 		return skerr.Wrap(err)
 	}
 
-	testArgs := common.ComputeBenchmarkTestRunnerCLIFlags(ctx, tdArgs.BenchmarkInfo)
-	if err := bazelTest(ctx, tdArgs.checkoutDir, tdArgs.bazelLabel, tdArgs.bazelConfig, testArgs); err != nil {
+	testArgs := common.ComputeBenchmarkTestRunnerCLIFlags(tdArgs.BenchmarkInfo)
+	if err := bazelTest(ctx, tdArgs.checkoutDir, tdArgs.bazelLabel, tdArgs.bazelConfig, tdArgs.deviceSpecificBazelConfig, testArgs); err != nil {
 		return skerr.Wrap(err)
 	}
 
@@ -139,40 +141,13 @@ func run(ctx context.Context, bazelCacheDir string, tdArgs taskDriverArgs, gcsCl
 
 // bazelTest runs the test referenced by the given fully qualified Bazel label under the given
 // config.
-func bazelTest(ctx context.Context, checkoutDir, label, config string, testArgs []string) error {
+func bazelTest(ctx context.Context, checkoutDir, label, config, deviceSpecificConfig string, testArgs []string) error {
 	args := []string{"test",
 		label,
-		"--config=" + config, // Should be defined in //bazel/buildrc.
+		"--config=" + config,               // Should be defined in //bazel/buildrc.
+		"--config=" + deviceSpecificConfig, // Should be defined in //bazel/devicesrc.
 		"--test_output=errors",
 		"--jobs=100",
-		// Run the test locally. We want benchmarks to run on bare-metal machines that we control,
-		// rather than on an RBE worker. Compilation can still happen on RBE.
-		//
-		// The --spawn_strategy flag[1] controls where and how commands are executed. For example:
-		//
-		//  - Flag --spawn_strategy=sandboxed executes commands inside a sandbox on the local system.
-		//    This is the default Bazel behavior on systems that support sandboxing.
-		//
-		//  - Flag --spawn_strategy=local executes commands as regular, local subprocesses without any
-		//    sandboxing.
-		//
-		//  - Flag --spawn_strategy=remote executes commands remotely, provided a remote executor has
-		//    been configured. We use this strategy when running Bazel with --config=remote. See the
-		//    //.bazelrc file[2].
-		//
-		// The --strategy flag[3] allows us to override --spawn_strategy on a per-mnemonic basis. In
-		// our case, we set --strategy=TestRunner=local to force test actions to run as a local
-		// subprocess. In combination with --config=remote (or any configuration that implies it, such
-		// as --config=linux_rbe) this has the effect of running test actions locally, while build
-		// actions and any other actions run on RBE.
-		//
-		// The "TestRunner" mnemonic for test actions is determined here[4].
-		//
-		// [1] https://bazel.build/docs/user-manual#spawn-strategy
-		// [2] https://skia.googlesource.com/skia/+/e5c37860c792de6bba0c9465c3f5280cb13dbbb9/.bazelrc#128
-		// [3] https://bazel.build/docs/user-manual#strategy
-		// [4] https://github.com/bazelbuild/bazel/blob/f79ca0275e14d7c8fb478bd910ad7fb127440fd8/src/main/java/com/google/devtools/build/lib/analysis/test/TestRunnerAction.java#L107
-		"--strategy=TestRunner=local",
 	}
 	for _, testArg := range testArgs {
 		args = append(args, "--test_arg="+testArg)
