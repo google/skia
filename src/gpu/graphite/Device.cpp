@@ -1402,9 +1402,9 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
     // image shaders, or by the PathAtlas. This is a unique circumstance.
     // TODO: Find a cleaner way to ensure 'maskProxyView' is transferred to the final Recording.
     TextureDataBlock tdb;
-    // TODO: Ideally we'd switch to kLinear filtering if `localToDevice` is not pixel-aligned, but
-    // CoverageMaskRenderStep registers the sampler right now as kNearest.
-    tdb.add(SkFilterMode::kNearest, kClamp, maskProxyView.refProxy());
+    // NOTE: CoverageMaskRenderStep controls the final sampling options; this texture data block
+    // serves only to keep the mask alive so the sampling passed to add() doesn't matter.
+    tdb.add(SkFilterMode::kLinear, kClamp, maskProxyView.refProxy());
     fRecorder->priv().textureDataCache()->insert(tdb);
 
     // CoverageMaskShape() wraps a Shape when it's used as a PathAtlas, but in this case the
