@@ -2683,10 +2683,7 @@ if (skia_enable_tools) {
       "tools/skdiff/skdiff_main.cpp",
       "tools/skdiff/skdiff_utils.cpp",
     ]
-    deps = [
-      ":skia",
-      ":tool_utils",
-    ]
+    deps = [ ":skia" ]
   }
 
   test_app("skp_parser") {

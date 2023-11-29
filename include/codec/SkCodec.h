@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/private/SkEncodedInfo.h"
@@ -23,7 +24,7 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
-#include <string>
+#include <string_view>
 #include <tuple>
 #include <vector>
 
@@ -45,6 +46,10 @@ enum class DisposalMethod;
 namespace DM {
 class CodecSrc;
 } // namespace DM
+
+namespace SkCodecs {
+struct Decoder;
+}
 
 /**
  *  Abstraction layer directly on top of an image codec.
@@ -175,7 +180,15 @@ public:
      *  SkCodec takes ownership of it, and will delete it when done with it.
      */
     static std::unique_ptr<SkCodec> MakeFromStream(
-            std::unique_ptr<SkStream>, Result* = nullptr,
+            std::unique_ptr<SkStream>,
+            SkSpan<const SkCodecs::Decoder> decoders,
+            Result* = nullptr,
+            SkPngChunkReader* = nullptr,
+            SelectionPolicy selectionPolicy = SelectionPolicy::kPreferStillImage);
+    // deprecated
+    static std::unique_ptr<SkCodec> MakeFromStream(
+            std::unique_ptr<SkStream>,
+            Result* = nullptr,
             SkPngChunkReader* = nullptr,
             SelectionPolicy selectionPolicy = SelectionPolicy::kPreferStillImage);
 
@@ -195,6 +208,10 @@ public:
      *      If the PNG does not contain unknown chunks, the SkPngChunkReader
      *      will not be used or modified.
      */
+    static std::unique_ptr<SkCodec> MakeFromData(sk_sp<SkData>,
+                                                 SkSpan<const SkCodecs::Decoder> decoders,
+                                                 SkPngChunkReader* = nullptr);
+    // deprecated
     static std::unique_ptr<SkCodec> MakeFromData(sk_sp<SkData>, SkPngChunkReader* = nullptr);
 
     virtual ~SkCodec();
@@ -1025,7 +1042,7 @@ using MakeFromStreamCallback = std::unique_ptr<SkCodec> (*)(std::unique_ptr<SkSt
 struct SK_API Decoder {
     // By convention, we use all lowercase letters and go with the primary filename extension.
     // For example "png", "jpg", "ico", "webp", etc
-    std::string id;
+    std::string_view id;
     IsFormatCallback isFormat;
     MakeFromStreamCallback makeFromStream;
 };

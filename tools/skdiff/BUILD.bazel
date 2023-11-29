@@ -16,8 +16,12 @@ cc_binary(
         "skdiff_utils.cpp",
         "skdiff_utils.h",
     ],
+    features = ["layering_check"],
     deps = [
-        "//:skia_internal",
-        "//tools:tool_utils",
+        "//:core",
+        "//:png_decode_codec",
+        "//:png_encode_codec",
+        "//src/base",
+        "//src/core:core_priv",
     ],
 )

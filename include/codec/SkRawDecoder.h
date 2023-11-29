@@ -41,7 +41,7 @@ SK_API std::unique_ptr<SkCodec> Decode(sk_sp<SkData>,
                                        SkCodecs::DecodeContext = nullptr);
 
 // This decoder will always be checked last, no matter when it is registered.
-inline SkCodecs::Decoder Decoder() {
+inline constexpr SkCodecs::Decoder Decoder() {
     return { "raw", IsRaw, Decode };
 }
 

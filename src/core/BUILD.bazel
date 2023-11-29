@@ -866,7 +866,10 @@ skia_cc_library(
     srcs = [":core_priv_srcs"],
     hdrs = [":core_priv_hdrs"],
     features = ["layering_check"],
-    visibility = ["//src:__subpackages__"],
+    visibility = [
+        "//src:__subpackages__",
+        "//tools:__subpackages__",
+    ],
     deps = [
         ":core",
         "//modules/skcms",

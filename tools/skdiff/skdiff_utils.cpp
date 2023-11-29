@@ -4,13 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/codec/SkCodec.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
+#include "include/core/SkPixelRef.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "tools/EncodeUtils.h"
-#include "tools/ToolUtils.h"
+#include "include/encode/SkPngEncoder.h"
 #include "tools/skdiff/skdiff.h"
 #include "tools/skdiff/skdiff_utils.h"
 
@@ -36,7 +36,11 @@ sk_sp<SkData> read_file(const char* file_path) {
 
 bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly,
                 bool ignoreColorSpace) {
-    auto codec = SkCodec::MakeFromData(std::move(fileBits));
+    static constexpr const SkCodecs::Decoder decoders[] = {
+        SkPngDecoder::Decoder(),
+    };
+
+    auto codec = SkCodec::MakeFromData(std::move(fileBits), decoders);
     if (!codec) {
         SkDebugf("ERROR: could not create codec for <%s>\n", resource.fFullPath.c_str());
         resource.fStatus = DiffResource::kCouldNotDecode_Status;
@@ -92,9 +96,20 @@ static void force_all_opaque(const SkBitmap& bitmap) {
 
 bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
     SkBitmap copy;
-    ToolUtils::copy_to(&copy, kN32_SkColorType, bitmap);
+    if (!copy.tryAllocPixels(bitmap.info().makeColorType(kN32_SkColorType))) {
+        return false;
+    }
+    if (!bitmap.readPixels(copy.pixmap())) {
+        return false;
+    }
     force_all_opaque(copy);
-    return ToolUtils::EncodeImageToPngFile(path.c_str(), copy);
+
+    SkFILEWStream file(path.c_str());
+    if (!file.isValid()) {
+        return false;
+    }
+
+    return SkPngEncoder::Encode(&file, copy.pixmap(), {});
 }
 
 /// Return a copy of the "input" string, within which we have replaced all instances
