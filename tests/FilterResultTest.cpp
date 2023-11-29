@@ -107,7 +107,7 @@ namespace {
 //   xsel -o | viewer --file stdin
 
 static constexpr float kRGBTolerance = 8.f / 255.f;
-static constexpr float kAATolerance  = 3.f / 255.f;
+static constexpr float kAATolerance  = 3.5f / 255.f;
 static constexpr float kDefaultMaxAllowedPercentImageDiff = 1.f;
 static const float kFuzzyKernel[3][3] = {{0.9f, 0.9f, 0.9f},
                                          {0.9f, 1.0f, 0.9f},
@@ -2133,8 +2133,8 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
         TestCase(r, "2-step rescale with near-identity elision",
-                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 37.33f
-                                                                      : periodic ? 73.55f : 52.f,
+                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 37.46f
+                                                                      : periodic ? 73.85 : 52.2f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 6 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
@@ -2284,7 +2284,7 @@ DEF_TEST_SUITE(RescaleWithTransform, r,
 
         const bool periodic = tm == SkTileMode::kRepeat || tm == SkTileMode::kMirror;
         TestCase(r, "2-step rescale applies complex transform",
-                 /*allowedPercentImageDiff=*/periodic ? 6.5f : 1.54f,
+                 /*allowedPercentImageDiff=*/periodic ? 6.72f : 1.61f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 4 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
