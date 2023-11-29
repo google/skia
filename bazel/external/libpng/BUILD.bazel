@@ -58,6 +58,8 @@ cc_library(
     srcs = LIBPNG_SRCS,
     hdrs = [
         "png.h",
+        "pngconf.h",
+        "pnglibconf.h",
     ],
     copts = [
         "-Wno-unused-but-set-variable",
