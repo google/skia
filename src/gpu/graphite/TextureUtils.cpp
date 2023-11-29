@@ -99,7 +99,11 @@ sk_sp<SkSpecialImage> eval_blur(skgpu::graphite::Recorder* recorder,
                                                 outII,
                                                 skgpu::Budgeted::kYes,
                                                 skgpu::Mipmapped::kNo,
+#if defined(GRAPHITE_USE_APPROX_FIT_FOR_FILTERS)
                                                 SkBackingFit::kApprox,
+#else
+                                                SkBackingFit::kExact,
+#endif
                                                 outProps,
                                                 /*addInitialClear=*/false);
     if (!device) {
@@ -745,7 +749,11 @@ public:
                                              imageInfo,
                                              skgpu::Budgeted::kYes,
                                              skgpu::Mipmapped::kNo,
+#if defined(GRAPHITE_USE_APPROX_FIT_FOR_FILTERS)
                                              SkBackingFit::kApprox,
+#else
+                                             SkBackingFit::kExact,
+#endif
                                              props ? *props : this->surfaceProps(),
                                              /*addInitialClear=*/false);
     }
