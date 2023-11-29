@@ -218,7 +218,7 @@ void CoverageMaskRenderStep::writeUniformsAndTextures(const DrawParams& params,
 
     // Write textures and samplers:
     const bool pixelAligned =
-            params.transform().type() == Transform::Type::kSimpleRectStaysRect &&
+            params.transform().type() <= Transform::Type::kSimpleRectStaysRect &&
             params.transform().maxScaleFactor() == 1.f &&
             all(deviceOrigin == floor(deviceOrigin + SK_ScalarNearlyZero));
     constexpr SkTileMode kTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
