@@ -81,11 +81,21 @@
 #if defined(SK_BUILD_FOR_GOOGLE3) && !defined(SK_BUILD_FOR_WASM_IN_GOOGLE3) \
     && !defined(SK_BUILD_FOR_WIN)
     extern "C" {
-        void __google_cxa_guard_acquire_begin(void);
-        void __google_cxa_guard_acquire_end  (void);
+        void __google_cxa_guard_acquire_begin(void) __attribute__((weak));
+        void __google_cxa_guard_acquire_end  (void) __attribute__((weak));
     }
-    #define SK_POTENTIALLY_BLOCKING_REGION_BEGIN __google_cxa_guard_acquire_begin()
-    #define SK_POTENTIALLY_BLOCKING_REGION_END   __google_cxa_guard_acquire_end()
+    static inline void sk_potentially_blocking_region_begin() {
+        if (&__google_cxa_guard_acquire_begin) {
+            __google_cxa_guard_acquire_begin();
+        }
+    }
+    static inline void sk_potentially_blocking_region_end() {
+        if (&__google_cxa_guard_acquire_end) {
+            __google_cxa_guard_acquire_end();
+        }
+    }
+    #define SK_POTENTIALLY_BLOCKING_REGION_BEGIN sk_potentially_blocking_region_begin()
+    #define SK_POTENTIALLY_BLOCKING_REGION_END   sk_potentially_blocking_region_end()
 #else
     #define SK_POTENTIALLY_BLOCKING_REGION_BEGIN
     #define SK_POTENTIALLY_BLOCKING_REGION_END
