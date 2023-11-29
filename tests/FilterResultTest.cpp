@@ -107,7 +107,7 @@ namespace {
 //   xsel -o | viewer --file stdin
 
 static constexpr float kRGBTolerance = 8.f / 255.f;
-static constexpr float kAATolerance  = 3.5f / 255.f;
+static constexpr float kAATolerance  = 2.f / 255.f;
 static constexpr float kDefaultMaxAllowedPercentImageDiff = 1.f;
 static const float kFuzzyKernel[3][3] = {{0.9f, 0.9f, 0.9f},
                                          {0.9f, 1.0f, 0.9f},
@@ -348,29 +348,32 @@ public:
             } else if (auto* cf = std::get_if<sk_sp<SkColorFilter>>(&fAction)) {
                 paint.setColorFilter(*cf);
             } else if (auto* s = std::get_if<RescaleParams>(&fAction)) {
-                SkISize lowResSize = {sk_float_ceil2int(source->width() * s->fScale.width()),
-                                      sk_float_ceil2int(source->height() * s->fScale.height())};
-                while (source->width() != lowResSize.width() ||
-                       source->height() != lowResSize.height()) {
-                    float sx = std::max(0.5f, lowResSize.width() / (float) source->width());
-                    float sy = std::max(0.5f, lowResSize.height() / (float) source->height());
-                    SkISize stepSize = {sk_float_ceil2int(source->width() * sx),
-                                        sk_float_ceil2int(source->height() * sy)};
-                    auto stepDevice = ctx.backend()->makeDevice(stepSize, ctx.refColorSpace());
-                    clear_device(stepDevice.get());
-                    stepDevice->drawSpecial(source.get(),
-                                            SkMatrix::Scale(sx, sy),
-                                            SkFilterMode::kLinear,
-                                            /*paint=*/{});
-                    source = stepDevice->snapSpecial(SkIRect::MakeSize(stepSize));
-                }
+                // Don't redraw with an identity scale since sampling errors creep in on some GPUs
+                if (s->fScale.width() != 1.f || s->fScale.height() != 1.f) {
+                    SkISize lowResSize = {sk_float_ceil2int(source->width() * s->fScale.width()),
+                                        sk_float_ceil2int(source->height() * s->fScale.height())};
+                    while (source->width() != lowResSize.width() ||
+                        source->height() != lowResSize.height()) {
+                        float sx = std::max(0.5f, lowResSize.width() / (float) source->width());
+                        float sy = std::max(0.5f, lowResSize.height() / (float) source->height());
+                        SkISize stepSize = {sk_float_ceil2int(source->width() * sx),
+                                            sk_float_ceil2int(source->height() * sy)};
+                        auto stepDevice = ctx.backend()->makeDevice(stepSize, ctx.refColorSpace());
+                        clear_device(stepDevice.get());
+                        stepDevice->drawSpecial(source.get(),
+                                                SkMatrix::Scale(sx, sy),
+                                                SkFilterMode::kLinear,
+                                                /*paint=*/{});
+                        source = stepDevice->snapSpecial(SkIRect::MakeSize(stepSize));
+                    }
 
-                // Adjust to draw the low-res image upscaled to fill the original image bounds
-                sampling = SkFilterMode::kLinear;
-                tileMode = SkTileMode::kClamp;
-                canvas.translate(origin.x(), origin.y());
-                canvas.scale(1.f / s->fScale.width(), 1.f / s->fScale.height());
-                origin = LayerSpace<SkIPoint>({0, 0});
+                    // Adjust to draw the low-res image upscaled to fill the original image bounds
+                    sampling = SkFilterMode::kLinear;
+                    tileMode = SkTileMode::kClamp;
+                    canvas.translate(origin.x(), origin.y());
+                    canvas.scale(1.f / s->fScale.width(), 1.f / s->fScale.height());
+                    origin = LayerSpace<SkIPoint>({0, 0});
+                }
             }
             // else it's a rescale action, but for the expected image leave it unmodified.
             paint.setShader(source->asShader(tileMode,
