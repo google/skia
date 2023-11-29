@@ -484,6 +484,10 @@ void TextLine::justify(SkScalar maxWidth) {
         --whitespacePatches;
     }
     if (whitespacePatches == 0) {
+        if (fOwner->paragraphStyle().getTextDirection() == TextDirection::kRtl) {
+            // Justify -> Right align
+            fShift = maxWidth - textLen;
+        }
         return;
     }
 

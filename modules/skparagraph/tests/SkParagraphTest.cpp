@@ -1986,7 +1986,9 @@ UNIX_ONLY_TEST(SkParagraph_JustifyRTL, reporter) {
     const char* text =
             "אאא בּבּבּבּ אאאא בּבּ אאא בּבּבּ אאאאא בּבּבּבּ אאאא בּבּבּבּבּ "
             "אאאאא בּבּבּבּבּ אאאבּבּבּבּבּבּאאאאא בּבּבּבּבּבּאאאאאבּבּבּבּבּבּ אאאאא בּבּבּבּבּ "
-            "אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ";
+            "אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ אאאאא בּבּבּבּבּבּ "
+            "אאאאאבּבּבּבּבּבּאאאאאבּבּבּבּבּבּאאאאאבּבּבּבּבּבּ "
+            "אאאאא בּבּבּבּבּבּ";
     const size_t len = strlen(text);
 
     ParagraphStyle paragraph_style;
@@ -2014,8 +2016,10 @@ UNIX_ONLY_TEST(SkParagraph_JustifyRTL, reporter) {
         return TestCanvasWidth - 100 - line.width();
     };
     for (auto& line : impl->lines()) {
-        if (&line == &impl->lines().back()) {
+        if (&line == &impl->lines().back() || &line == &impl->lines()[impl->lines().size() - 2]) {
+            // Second-last line will be also right-aligned because it is only one cluster
             REPORTER_ASSERT(reporter, calculate(line) > EPSILON100);
+            REPORTER_ASSERT(reporter, line.offset().fX > EPSILON100);
         } else {
             REPORTER_ASSERT(reporter, SkScalarNearlyEqual(calculate(line), 0, EPSILON100));
         }
@@ -2033,14 +2037,23 @@ UNIX_ONLY_TEST(SkParagraph_JustifyRTL, reporter) {
     canvas.drawRects(SK_ColorRED, boxes);
     REPORTER_ASSERT(reporter, boxes.size() == 3);
 
-    boxes = paragraph->getRectsForRange(240, 250, rect_height_style, rect_width_style);
+    boxes = paragraph->getRectsForRange(226, 278, rect_height_style, rect_width_style);
+    canvas.drawRects(SK_ColorYELLOW, boxes);
+    REPORTER_ASSERT(reporter, boxes.size() == 1);
+
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 16, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 130, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 900, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 156, EPSILON100));
+
+    boxes = paragraph->getRectsForRange(292, 296, rect_height_style, rect_width_style);
     canvas.drawRects(SK_ColorBLUE, boxes);
     REPORTER_ASSERT(reporter, boxes.size() == 1);
 
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 588, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 130, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), 156, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 640, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 156, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 182, EPSILON100));
 }
 
 UNIX_ONLY_TEST(SkParagraph_JustifyRTLNewLine, reporter) {
