@@ -1840,7 +1840,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
 
                 auto* ctx = alloc->make<SkRasterPipeline_BranchIfAllLanesActiveCtx>();
                 ctx->offset = inst.fImmA;
-                ctx->tail = nullptr;
                 pipeline->push_back({ProgramOp::branch_if_all_lanes_active, ctx});
                 break;
             }
@@ -1857,7 +1856,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
             }
             case BuilderOp::init_lane_masks: {
                 auto* ctx = alloc->make<SkRasterPipeline_InitLaneMasksCtx>();
-                ctx->tail = nullptr;
                 pipeline->push_back({ProgramOp::init_lane_masks, ctx});
                 break;
             }
