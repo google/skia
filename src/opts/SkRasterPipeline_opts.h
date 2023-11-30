@@ -3064,7 +3064,7 @@ STAGE_TAIL(mask_off_return_mask, NoCtx) {
     update_execution_mask();
 }
 
-STAGE_BRANCH(branch_if_all_lanes_active, SkRasterPipeline_BranchCtx* ctx) {
+STAGE_BRANCH(branch_if_all_lanes_active, SkRasterPipeline_BranchIfAllLanesActiveCtx* ctx) {
     if (tail) {
         uint32_t iota[] = {0,1,2,3,4,5,6,7};
         I32 tailLanes = cond_to_mask(tail <= sk_unaligned_load<U32>(iota));

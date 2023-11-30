@@ -1824,7 +1824,6 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 break;
 
             case BuilderOp::jump:
-            case BuilderOp::branch_if_all_lanes_active:
             case BuilderOp::branch_if_any_lanes_active:
             case BuilderOp::branch_if_no_lanes_active: {
                 SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
@@ -1833,6 +1832,16 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 auto* ctx = alloc->make<SkRasterPipeline_BranchCtx>();
                 ctx->offset = inst.fImmA;
                 pipeline->push_back({(ProgramOp)inst.fOp, ctx});
+                break;
+            }
+            case BuilderOp::branch_if_all_lanes_active: {
+                SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
+                EmitStackRewindForBackwardsBranch(inst.fImmA);
+
+                auto* ctx = alloc->make<SkRasterPipeline_BranchIfAllLanesActiveCtx>();
+                ctx->offset = inst.fImmA;
+                ctx->tail = nullptr;
+                pipeline->push_back({ProgramOp::branch_if_all_lanes_active, ctx});
                 break;
             }
             case BuilderOp::branch_if_no_active_lanes_on_stack_top_equal: {

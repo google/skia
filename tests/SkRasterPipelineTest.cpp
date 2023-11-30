@@ -2424,7 +2424,7 @@ DEF_TEST(SkRasterPipeline_ExchangeSrc, r) {
 DEF_TEST(SkRasterPipeline_BranchIfAllLanesActive, r) {
     const int N = SkOpts::raster_pipeline_highp_stride;
 
-    SkRasterPipeline_BranchCtx ctx;
+    SkRasterPipeline_BranchIfAllLanesActiveCtx ctx;
     ctx.offset = 2;
 
     // The branch should be taken when lane masks are all-on.

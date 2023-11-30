@@ -258,6 +258,10 @@ struct SkRasterPipeline_BranchCtx {
     int offset;  // contains the label ID during compilation, and the program offset when compiled
 };
 
+struct SkRasterPipeline_BranchIfAllLanesActiveCtx : public SkRasterPipeline_BranchCtx {
+    uint8_t* tail;  // lanes past the tail are _never_ active, so we need to exclude them
+};
+
 struct SkRasterPipeline_BranchIfEqualCtx : public SkRasterPipeline_BranchCtx {
     int value;
     const int* ptr;
