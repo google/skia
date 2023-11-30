@@ -58,12 +58,63 @@ struct GrContextOptions;
 #endif
 
 #ifdef SK_VULKAN
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/chromium/GrVkSecondaryCBDrawContext.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "tools/gpu/vk/VkTestHelper.h"
 #include <vulkan/vulkan_core.h>
 #endif
+
+static bool is_compatible(const GrSurfaceCharacterization& gsc, const GrBackendTexture& backendTex) {
+    if (!gsc.isValid() || !backendTex.isValid()) {
+        return false;
+    }
+
+    if (gsc.backendFormat() != backendTex.getBackendFormat()) {
+        return false;
+    }
+
+    if (gsc.usesGLFBO0()) {
+        // It is a backend texture so can't be wrapping FBO0
+        return false;
+    }
+
+    if (gsc.vulkanSecondaryCBCompatible()) {
+        return false;
+    }
+
+    if (gsc.vkRTSupportsInputAttachment()) {
+        if (backendTex.backend() != GrBackendApi::kVulkan) {
+            return false;
+        }
+#ifdef SK_VULKAN
+        GrVkImageInfo vkInfo;
+        if (!GrBackendTextures::GetVkImageInfo(backendTex, &vkInfo)) {
+            return false;
+        }
+        if (!SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT)) {
+            return false;
+        }
+#endif  // SK_VULKAN
+    }
+
+    if (gsc.isMipMapped() && !backendTex.hasMipmaps()) {
+        // backend texture is allowed to have mipmaps even if the characterization doesn't require
+        // them.
+        return false;
+    }
+
+    if (gsc.width() != backendTex.width() || gsc.height() != backendTex.height()) {
+        return false;
+    }
+
+    if (gsc.isProtected() != GrProtected(backendTex.isProtected())) {
+        return false;
+    }
+
+    return true;
+}
 
 class SurfaceParameters {
 public:
@@ -298,7 +349,7 @@ public:
         GrBackendTexture texture = SkSurfaces::GetBackendTexture(
                 surface.get(), SkSurfaces::BackendHandleAccess::kFlushRead);
         if (texture.isValid()) {
-            SkASSERT(c.isCompatible(texture));
+            SkASSERT(is_compatible(c, texture));
         }
 
         SkASSERT(c.isValid());
@@ -836,7 +887,7 @@ static void test_make_render_target(skiatest::Reporter* reporter,
         GrBackendTexture backend =
                 SkSurfaces::GetBackendTexture(s.get(), SkSurfaces::BackendHandleAccess::kFlushRead);
         if (backend.isValid()) {
-            REPORTER_ASSERT(reporter, c.isCompatible(backend));
+            REPORTER_ASSERT(reporter, is_compatible(c, backend));
         }
         REPORTER_ASSERT(reporter, s->isCompatible(c));
         // Note that we're leaving 'backend' live here

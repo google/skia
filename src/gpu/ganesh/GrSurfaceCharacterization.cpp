@@ -12,13 +12,6 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 
-#ifdef SK_VULKAN
-#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
-#include "include/gpu/vk/GrVkTypes.h"
-#include "include/private/base/SkTo.h"
-#include "include/private/gpu/vk/SkiaVulkan.h"
-#endif
-
 #ifdef SK_DEBUG
 void GrSurfaceCharacterization::validate() const {
     const GrCaps* caps = fContextInfo->priv().caps();
@@ -130,54 +123,4 @@ GrSurfaceCharacterization GrSurfaceCharacterization::createFBO0(bool usesGLFBO0)
                                      usesGLFBO0 ? UsesGLFBO0::kYes : UsesGLFBO0::kNo,
                                      fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
-}
-
-bool GrSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex) const {
-    if (!this->isValid() || !backendTex.isValid()) {
-        return false;
-    }
-
-    if (fBackendFormat != backendTex.getBackendFormat()) {
-        return false;
-    }
-
-    if (this->usesGLFBO0()) {
-        // It is a backend texture so can't be wrapping FBO0
-        return false;
-    }
-
-    if (this->vulkanSecondaryCBCompatible()) {
-        return false;
-    }
-
-    if (this->vkRTSupportsInputAttachment()) {
-        if (backendTex.backend() != GrBackendApi::kVulkan) {
-            return false;
-        }
-#ifdef SK_VULKAN
-        GrVkImageInfo vkInfo;
-        if (!GrBackendTextures::GetVkImageInfo(backendTex, &vkInfo)) {
-            return false;
-        }
-        if (!SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT)) {
-            return false;
-        }
-#endif  // SK_VULKAN
-    }
-
-    if (this->isMipMapped() && !backendTex.hasMipmaps()) {
-        // backend texture is allowed to have mipmaps even if the characterization doesn't require
-        // them.
-        return false;
-    }
-
-    if (this->width() != backendTex.width() || this->height() != backendTex.height()) {
-        return false;
-    }
-
-    if (this->isProtected() != GrProtected(backendTex.isProtected())) {
-        return false;
-    }
-
-    return true;
 }
