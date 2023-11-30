@@ -111,6 +111,7 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     // op + flatflags
     size_t size = 2 * kUInt32Size;
     uint32_t flatFlags = 0;
+    uint32_t filterCount = SkToU32(rec.fFilters.size());
 
     if (rec.fBounds) {
         flatFlags |= SAVELAYERREC_HAS_BOUNDS;
@@ -132,6 +133,11 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
         flatFlags |= SAVELAYERREC_HAS_BACKDROP_SCALE;
         size += sizeof(SkScalar);
     }
+    if (filterCount) {
+        flatFlags |= SAVELAYERREC_HAS_MULTIPLE_FILTERS;
+        size += sizeof(uint32_t);  // count
+        size += sizeof(uint32_t) * filterCount;  // N (paint) indices
+    }
 
     const size_t initialOffset = this->addDraw(SAVE_LAYER_SAVELAYERREC, &size);
     this->addInt(flatFlags);
@@ -152,6 +158,15 @@ void SkPictureRecord::recordSaveLayer(const SaveLayerRec& rec) {
     }
     if (flatFlags & SAVELAYERREC_HAS_BACKDROP_SCALE) {
         this->addScalar(SkCanvasPriv::GetBackdropScaleFactor(rec));
+    }
+    if (flatFlags & SAVELAYERREC_HAS_MULTIPLE_FILTERS) {
+        this->addInt(filterCount);
+        for (uint32_t i = 0; i < filterCount; ++i) {
+            // overkill to store a paint, oh well.
+            SkPaint paint;
+            paint.setImageFilter(rec.fFilters[i]);
+            this->addPaint(paint);
+        }
     }
     this->validate(initialOffset, size);
 }

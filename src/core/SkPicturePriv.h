@@ -114,6 +114,7 @@ public:
     // V101: Crop image filter supports all SkTileModes instead of just kDecal
     // V102: Convolution image filter uses ::Crop to apply tile mode
     // V103: Remove deprecated per-image filter crop rect
+    // v104: SaveLayer supports multiple image filters
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -138,6 +139,7 @@ public:
         kCropImageFilterSupportsTiling      = 101,
         kConvolutionImageFilterTilingUpdate = 102,
         kRemoveDeprecatedCropRect           = 103,
+        kMultipleFiltersOnSaveLayer         = 104,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -162,7 +164,7 @@ public:
         //
         // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kRemoveDeprecatedCropRect
+        kCurrent_Version = kMultipleFiltersOnSaveLayer
     };
 };
 

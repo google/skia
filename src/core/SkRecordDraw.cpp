@@ -40,6 +40,8 @@
 #include <optional>
 #include <vector>
 
+class SkImageFilter;
+
 void SkRecordDraw(const SkRecord& record,
                   SkCanvas* canvas,
                   SkPicture const* const drawablePicts[],
@@ -93,11 +95,15 @@ template <> void Draw::draw(const NoOp&) {}
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
 DRAW(Restore, restore())
 DRAW(Save, save())
-DRAW(SaveLayer, saveLayer(SkCanvasPriv::ScaledBackdropLayer(r.bounds,
-                                                            r.paint,
-                                                            r.backdrop.get(),
-                                                            r.backdropScale,
-                                                            r.saveLayerFlags)))
+DRAW(SaveLayer,
+     saveLayer(SkCanvasPriv::ScaledBackdropLayer(
+             r.bounds,
+             r.paint,
+             r.backdrop.get(),
+             r.backdropScale,
+             r.saveLayerFlags,
+             SkCanvas::FilterSpan{const_cast<sk_sp<SkImageFilter>*>(r.filters.data()),
+                                  r.filters.size()})))
 
 template <> void Draw::draw(const SaveBehind& r) {
     SkCanvasPriv::SaveBehind(fCanvas, r.subset);
