@@ -44,7 +44,7 @@ void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
     if (this->internalQuickReject(bounds, paint)) {
         return;
     }
-    auto layer = this->aboutToDraw(this, paint, &bounds);
+    auto layer = this->aboutToDraw(paint, &bounds);
     if (layer) {
         if (glyphRunList.hasRSXForm()) {
             this->SkCanvas::onDrawGlyphRunList(glyphRunList, layer->paint());
@@ -64,7 +64,7 @@ void SkTestCanvas<SkSerializeSlugTestKey>::onDrawGlyphRunList(
     if (this->internalQuickReject(bounds, paint)) {
         return;
     }
-    auto layer = this->aboutToDraw(this, paint, &bounds);
+    auto layer = this->aboutToDraw(paint, &bounds);
     if (layer) {
         if (glyphRunList.hasRSXForm()) {
             this->SkCanvas::onDrawGlyphRunList(glyphRunList, layer->paint());
@@ -162,7 +162,7 @@ void SkTestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
     if (this->internalQuickReject(bounds, paint)) {
         return;
     }
-    auto layer = this->aboutToDraw(this, paint, &bounds);
+    auto layer = this->aboutToDraw(paint, &bounds);
     if (layer) {
         if (glyphRunList.hasRSXForm()) {
             this->SkCanvas::onDrawGlyphRunList(glyphRunList, layer->paint());

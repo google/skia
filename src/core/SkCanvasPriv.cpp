@@ -20,7 +20,6 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/core/SkDevice.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -175,7 +174,8 @@ skgpu::graphite::TextureProxy* SkCanvasPriv::TopDeviceGraphiteTargetProxy(SkCanv
 
 AutoLayerForImageFilter::AutoLayerForImageFilter(SkCanvas* canvas,
                                                  const SkPaint& paint,
-                                                 const SkRect* rawBounds)
+                                                 const SkRect* rawBounds,
+                                                 bool skipMaskFilterLayer)
             : fPaint(paint)
             , fCanvas(canvas)
             , fTempLayersForFilters(0) {
@@ -196,9 +196,7 @@ AutoLayerForImageFilter::AutoLayerForImageFilter(SkCanvas* canvas,
     // coverage into the alpha channel). The draw's paint preserves all geometric effects that have
     // to be applied before the mask filter. The layer's restore paint adds an image filter
     // representing the mask filter.
-    // TODO: Eventually all devices will use this code path and it will just check for mask filters.
-    if (fPaint.getMaskFilter() &&
-        SkCanvasPriv::TopDevice(canvas)->useDrawCoverageMaskForMaskFilters()) {
+    if (fPaint.getMaskFilter() && !skipMaskFilterLayer) {
         this->addMaskFilterLayer(rawBounds);
     }
 

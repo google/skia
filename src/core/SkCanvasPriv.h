@@ -123,14 +123,18 @@ constexpr int kMaxPictureOpsToUnrollInsteadOfRef = 1;
  */
 class AutoLayerForImageFilter {
 public:
-    // "rawBounds" is the original bounds of the primitive about to be drawn, unmodified by the
+    // `rawBounds` is the original bounds of the primitive about to be drawn, unmodified by the
     // paint. It's used to determine the size of the offscreen layer for filters.
     // If null, the clip will be used instead.
+    //
+    // If `skipMaskFilterLayer` is true, any SkMaskFilter on `paint` will be left as-is and is
+    // assumed to be handled by the SkDevice that handles the draw.
     //
     // Draw functions should use layer->paint() instead of the passed-in paint.
     AutoLayerForImageFilter(SkCanvas* canvas,
                             const SkPaint& paint,
-                            const SkRect* rawBounds = nullptr);
+                            const SkRect* rawBounds,
+                            bool skipMaskFilterLayer);
 
     AutoLayerForImageFilter(const AutoLayerForImageFilter&) = delete;
     AutoLayerForImageFilter& operator=(const AutoLayerForImageFilter&) = delete;
