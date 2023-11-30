@@ -11,6 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -340,11 +341,17 @@ void SkRecorder::willSave() {
 }
 
 SkCanvas::SaveLayerStrategy SkRecorder::getSaveLayerStrategy(const SaveLayerRec& rec) {
-    this->append<SkRecords::SaveLayer>(this->copy(rec.fBounds)
-                    , this->copy(rec.fPaint)
-                    , sk_ref_sp(rec.fBackdrop)
-                    , rec.fSaveLayerFlags
-                    , SkCanvasPriv::GetBackdropScaleFactor(rec));
+    AutoTArray<sk_sp<SkImageFilter>> filters(rec.fFilters.size());
+    for (size_t i = 0; i < rec.fFilters.size(); ++i) {
+        filters[i] = rec.fFilters[i];
+    }
+
+    this->append<SkRecords::SaveLayer>(this->copy(rec.fBounds),
+                                       this->copy(rec.fPaint),
+                                       sk_ref_sp(rec.fBackdrop),
+                                       rec.fSaveLayerFlags,
+                                       SkCanvasPriv::GetBackdropScaleFactor(rec),
+                                       std::move(filters));
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }
 

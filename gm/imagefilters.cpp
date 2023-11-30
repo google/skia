@@ -29,6 +29,7 @@
 #include "include/effects/SkShaderMaskFilter.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "src/core/SkCanvasPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
@@ -281,4 +282,48 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     canvas->clipRect(crop);
     canvas->drawImage(image, 0, 0, SkSamplingOptions(), &testMaskPaint);
     canvas->restore();
+}
+
+DEF_SIMPLE_GM(multiple_filters, canvas, 415, 210) {
+    ToolUtils::draw_checkerboard(canvas);
+    canvas->translate(5, 5);
+
+    auto drawFilteredLayer = [=](SkCanvas::FilterSpan filters) {
+        SkPaint restorePaint;
+        restorePaint.setAlphaf(0.5f);
+        SkCanvas::SaveLayerRec rec = SkCanvasPriv::ScaledBackdropLayer(
+                /*bounds=*/nullptr,
+                &restorePaint,
+                /*backdrop=*/nullptr,
+                /*backdropScale=*/1,
+                /*saveLayerFlags=*/0,
+                filters);
+        canvas->save();
+        canvas->clipRect({0, 0, 200, 200});
+        canvas->saveLayer(rec);
+
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setStrokeWidth(20);
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawCircle(100, 100, 70, paint);
+
+        canvas->restore();
+        canvas->restore();
+        canvas->translate(205, 0);
+    };
+
+    {
+        // Test with two non-null filters that each change bounds in a different way:
+        sk_sp<SkImageFilter> filters[2] = {SkImageFilters::Dilate(5, 5, nullptr),
+                                           SkImageFilters::Erode(5, 5, nullptr)};
+        drawFilteredLayer(filters);
+    }
+
+    {
+        // Test with one null filter, to more closely mimic the canvas2D layers use-case:
+        sk_sp<SkImageFilter> filters[2] = {
+                SkImageFilters::DropShadowOnly(7, 7, 5, 5, SK_ColorBLUE, nullptr), nullptr};
+        drawFilteredLayer(filters);
+    }
 }

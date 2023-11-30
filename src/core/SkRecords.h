@@ -184,7 +184,8 @@ RECORD(SaveLayer, kHasPaint_Tag,
        Optional<SkPaint> paint;
        sk_sp<const SkImageFilter> backdrop;
        SkCanvas::SaveLayerFlags saveLayerFlags;
-       SkScalar backdropScale)
+       SkScalar backdropScale;
+       skia_private::AutoTArray<sk_sp<SkImageFilter>> filters)
 
 RECORD(SaveBehind, 0,
        Optional<SkRect> subset)
