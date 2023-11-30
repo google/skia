@@ -90,6 +90,9 @@ struct TextPropertyValue {
                             // breaking rules for certain scripts: ja-u-lb-strict.
                             // Pass an empty string to use the system locale.
     SkString                fLocale;
+                            // Optional font family name, to be passed to the font manager for
+                            // fallback.
+    SkString                fFontFamily;
 
     bool operator==(const TextPropertyValue& other) const;
     bool operator!=(const TextPropertyValue& other) const;

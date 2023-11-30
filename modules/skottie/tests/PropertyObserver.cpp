@@ -359,7 +359,8 @@ DEF_TEST(Skottie_Props, reporter) {
       false,
       false,
       nullptr,
-      SkString()
+      SkString(),
+      SkString("test-family")
     });
     REPORTER_ASSERT(reporter, texts[0].handle->get() == text_prop);
     text_prop.fLocale = "custom_lc";

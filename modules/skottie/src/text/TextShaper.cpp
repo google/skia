@@ -321,7 +321,7 @@ public:
         const auto font_iter = SkShaper::MakeFontMgrRunIterator(
                                     start, utf8_bytes, fFont,
                                     fFontMgr ? fFontMgr : SkFontMgr::RefEmpty(), // used as fallback
-                                    nullptr,
+                                    fDesc.fFontFamily,
                                     SkFontPriv::RefTypefaceOrDefault(fFont)->fontStyle(),
                                     lang_iter.get());
         const auto bidi_iter = SkShaper::MakeBiDiRunIterator(start, utf8_bytes,

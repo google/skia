@@ -651,7 +651,8 @@ void TextAdapter::reshape() {
         fText->fCapitalization,
         fText->fMaxLines,
         this->shaperFlags(),
-        fText->fLocale.size() ? fText->fLocale.c_str() : nullptr,
+        fText->fLocale.isEmpty()     ? nullptr : fText->fLocale.c_str(),
+        fText->fFontFamily.isEmpty() ? nullptr : fText->fFontFamily.c_str(),
     };
     auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
 
