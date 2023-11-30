@@ -819,12 +819,16 @@ func (b *taskBuilder) swarmDimensions() {
 	b.defaultSwarmDimensions()
 }
 
+// androidDeviceInfo maps Android models (as in the "model" part of a task) to the device_type and
+// device_os Swarming dimensions.
 var androidDeviceInfos = map[string][]string{
 	"AndroidOne":      {"sprout", "MOB30Q"},
 	"GalaxyS7_G930FD": {"herolte", "R16NW_G930FXXS2ERH6"}, // This is Oreo.
 	"GalaxyS9":        {"starlte", "QP1A.190711.020"},     // This is Android10.
 	"GalaxyS20":       {"exynos990", "QP1A.190711.020"},
 	"JioNext":         {"msm8937", "RKQ1.210602.002"},
+	"Mokey":           {"mokey", "UDC_11161052"},
+	"MokeyGo32":       {"mokey_go32", "UQ1A.240105.003.A1_11159138"},
 	"Nexus5":          {"hammerhead", "M4B30Z_3437181"},
 	"Nexus7":          {"grouper", "LMY47V_1836172"}, // 2012 Nexus 7
 	"P30":             {"HWELE", "HUAWEIELE-L29"},
@@ -863,6 +867,8 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Mac11":      "Mac-11.4",
 			"Mac12":      "Mac-12",
 			"Mac13":      "Mac-13",
+			"Mokey":      "Android",
+			"MokeyGo32":  "Android",
 			"Ubuntu18":   "Ubuntu-18.04",
 			"Win":        DEFAULT_OS_WIN,
 			"Win10":      "Windows-10-19045",
