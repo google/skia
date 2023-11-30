@@ -29,7 +29,8 @@ namespace SkOpts {
     StageFn ops_highp[] = { SK_RASTER_PIPELINE_OPS_ALL(M) };
     StageFn just_return_highp = (StageFn)SK_OPTS_NS::just_return;
     void (*start_pipeline_highp)(size_t, size_t, size_t, size_t, SkRasterPipelineStage*,
-                                 SkSpan<SkRasterPipeline_MemoryCtxPatch>) =
+                                 SkSpan<SkRasterPipeline_MemoryCtxPatch>,
+                                 uint8_t*) =
             SK_OPTS_NS::start_pipeline;
 #undef M
 
@@ -37,7 +38,8 @@ namespace SkOpts {
     StageFn ops_lowp[] = { SK_RASTER_PIPELINE_OPS_LOWP(M) };
     StageFn just_return_lowp = (StageFn)SK_OPTS_NS::lowp::just_return;
     void (*start_pipeline_lowp)(size_t, size_t, size_t, size_t, SkRasterPipelineStage*,
-                                SkSpan<SkRasterPipeline_MemoryCtxPatch>) =
+                                SkSpan<SkRasterPipeline_MemoryCtxPatch>,
+                                uint8_t*) =
             SK_OPTS_NS::lowp::start_pipeline;
 #undef M
 

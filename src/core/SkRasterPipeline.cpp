@@ -30,10 +30,13 @@ bool gForceHighPrecisionRasterPipeline;
 SkRasterPipeline::SkRasterPipeline(SkArenaAlloc* alloc) : fAlloc(alloc) {
     this->reset();
 }
+
 void SkRasterPipeline::reset() {
-    fRewindCtx = nullptr;
-    fStages    = nullptr;
-    fNumStages = 0;
+    // We intentionally leave the alloc alone here; we don't own it.
+    fRewindCtx   = nullptr;
+    fStages      = nullptr;
+    fTailPointer = nullptr;
+    fNumStages   = 0;
     fMemoryCtxInfos.clear();
 }
 
@@ -51,10 +54,16 @@ void SkRasterPipeline::append(SkRasterPipelineOp op, void* ctx) {
     SkASSERT(op != Op::stack_rewind);             // Please use appendStackRewind().
     this->uncheckedAppend(op, ctx);
 }
-void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
-    fStages = fAlloc->make<StageList>(StageList{fStages, op, ctx});
-    fNumStages += 1;
 
+uint8_t* SkRasterPipeline::tailPointer() {
+    if (!fTailPointer) {
+        // All ops in the pipeline that use the tail value share the same value.
+        fTailPointer = fAlloc->make<uint8_t>(0xFF);
+    }
+    return fTailPointer;
+}
+
+void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
     bool isLoad = false, isStore = false;
     SkColorType ct = kUnknown_SkColorType;
 
@@ -89,44 +98,56 @@ void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
 #undef COLOR_TYPE_CASE
 
         // Odd stage that doesn't have a load variant (appendLoad uses load_a8 + alpha_to_red)
-        case Op::store_r8:
+        case Op::store_r8: {
             ct = kR8_unorm_SkColorType;
             isStore = true;
             break;
-
-        case Op::srcover_rgba_8888:
+        }
+        case Op::srcover_rgba_8888: {
             ct = kRGBA_8888_SkColorType;
             isLoad = true;
             isStore = true;
             break;
-
+        }
         case Op::scale_u8:
-        case Op::lerp_u8:
+        case Op::lerp_u8: {
             ct = kAlpha_8_SkColorType;
             isLoad = true;
             break;
-
+        }
         case Op::scale_565:
-        case Op::lerp_565:
+        case Op::lerp_565: {
             ct = kRGB_565_SkColorType;
             isLoad = true;
             break;
-
+        }
         case Op::emboss: {
             // Special-case, this op uses a context that holds *two* MemoryCtxs
             SkRasterPipeline_EmbossCtx* embossCtx = (SkRasterPipeline_EmbossCtx*)ctx;
             this->addMemoryContext(&embossCtx->add,
-                                    SkColorTypeBytesPerPixel(kAlpha_8_SkColorType),
-                                    /*load=*/true, /*store=*/false);
+                                   SkColorTypeBytesPerPixel(kAlpha_8_SkColorType),
+                                   /*load=*/true, /*store=*/false);
             this->addMemoryContext(&embossCtx->mul,
-                                    SkColorTypeBytesPerPixel(kAlpha_8_SkColorType),
-                                    /*load=*/true, /*store=*/false);
+                                   SkColorTypeBytesPerPixel(kAlpha_8_SkColorType),
+                                   /*load=*/true, /*store=*/false);
             break;
         }
-
+        case Op::init_lane_masks: {
+            auto* initCtx = (SkRasterPipeline_InitLaneMasksCtx*)ctx;
+            initCtx->tail = this->tailPointer();
+            break;
+        }
+        case Op::branch_if_all_lanes_active: {
+            auto* branchCtx = (SkRasterPipeline_BranchIfAllLanesActiveCtx*)ctx;
+            branchCtx->tail = this->tailPointer();
+            break;
+        }
         default:
             break;
     }
+
+    fStages = fAlloc->make<StageList>(StageList{fStages, op, ctx});
+    fNumStages += 1;
 
     if (isLoad || isStore) {
         SkASSERT(ct != kUnknown_SkColorType);
@@ -134,6 +155,7 @@ void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
                 (SkRasterPipeline_MemoryCtx*)ctx, SkColorTypeBytesPerPixel(ct), isLoad, isStore);
     }
 }
+
 void SkRasterPipeline::append(SkRasterPipelineOp op, uintptr_t ctx) {
     void* ptrCtx;
     memcpy(&ptrCtx, &ctx, sizeof(ctx));
@@ -158,9 +180,24 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
         stages[n]      = *st;
         stages[n].prev = &stages[n-1];
 
-        if (stages[n].stage == Op::stack_rewind) {
-            // We make sure that all stack rewinds use _our_ stack context.
-            stages[n].ctx = fRewindCtx;
+        // We make sure that all ops use _our_ stack context and tail pointer.
+        switch (stages[n].stage) {
+            case Op::stack_rewind: {
+                stages[n].ctx = fRewindCtx;
+                break;
+            }
+            case Op::init_lane_masks: {
+                auto* ctx = (SkRasterPipeline_InitLaneMasksCtx*)stages[n].ctx;
+                ctx->tail = this->tailPointer();
+                break;
+            }
+            case Op::branch_if_all_lanes_active: {
+                auto* ctx = (SkRasterPipeline_BranchIfAllLanesActiveCtx*)stages[n].ctx;
+                ctx->tail = this->tailPointer();
+                break;
+            }
+            default:
+                break;
         }
 
         st = st->prev;
@@ -575,7 +612,9 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
     }
 
     auto start_pipeline = this->buildPipeline(program.get() + stagesNeeded);
-    start_pipeline(x, y, x + w, y + h, program.get(), SkSpan{patches.data(), numMemoryCtxs});
+    start_pipeline(x, y, x + w, y + h, program.get(),
+                   SkSpan{patches.data(), numMemoryCtxs},
+                   fTailPointer);
 }
 
 std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() const {
@@ -595,10 +634,13 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
         patches[i].backup = nullptr;
         memset(patches[i].scratch, 0, sizeof(patches[i].scratch));
     }
+    uint8_t* tailPointer = fTailPointer;
 
     auto start_pipeline = this->buildPipeline(program + stagesNeeded);
     return [=](size_t x, size_t y, size_t w, size_t h) {
-        start_pipeline(x, y, x + w, y + h, program, SkSpan{patches, numMemoryCtxs});
+        start_pipeline(x, y, x + w, y + h, program,
+                       SkSpan{patches, numMemoryCtxs},
+                       tailPointer);
     };
 }
 

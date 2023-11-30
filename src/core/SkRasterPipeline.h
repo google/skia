@@ -140,17 +140,20 @@ private:
 
     using StartPipelineFn = void (*)(size_t, size_t, size_t, size_t,
                                      SkRasterPipelineStage* program,
-                                     SkSpan<SkRasterPipeline_MemoryCtxPatch>);
+                                     SkSpan<SkRasterPipeline_MemoryCtxPatch>,
+                                     uint8_t*);
     StartPipelineFn buildPipeline(SkRasterPipelineStage*) const;
 
     void uncheckedAppend(SkRasterPipelineOp, void*);
     int stagesNeeded() const;
 
     void addMemoryContext(SkRasterPipeline_MemoryCtx*, int bytesPerPixel, bool load, bool store);
+    uint8_t* tailPointer();
 
     SkArenaAlloc*               fAlloc;
     SkRasterPipeline_RewindCtx* fRewindCtx;
     StageList*                  fStages;
+    uint8_t*                    fTailPointer;
     int                         fNumStages;
 
     // Only 1 in 2 million CPU-backend pipelines used more than two MemoryCtxs.

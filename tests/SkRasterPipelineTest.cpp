@@ -445,15 +445,12 @@ DEF_TEST(SkRasterPipeline_MaskOffReturnMask, reporter) {
 
 DEF_TEST(SkRasterPipeline_InitLaneMasks, reporter) {
     for (size_t width = 1; width <= SkOpts::raster_pipeline_highp_stride; ++width) {
-        SkRasterPipeline_<256> p;
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
 
-        // Initialize dRGBA to unrelated values.
-        SkRasterPipeline_UniformColorCtx uniformCtx;
-        uniformCtx.a = 0.0f;
-        uniformCtx.r = 0.25f;
-        uniformCtx.g = 0.50f;
-        uniformCtx.b = 0.75f;
-        p.append(SkRasterPipelineOp::uniform_color_dst, &uniformCtx);
+        // Initialize RGBA to unrelated values.
+        alignas(64) static constexpr float kArbitraryColor[4] = {0.0f, 0.25f, 0.50f, 0.75f};
+        p.appendConstantColor(&alloc, kArbitraryColor);
 
         // Overwrite RGBA with lane masks up to the tail width.
         SkRasterPipeline_InitLaneMasksCtx ctx;

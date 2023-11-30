@@ -193,7 +193,7 @@ struct SkRasterPipeline_TablesCtx {
 using SkRPOffset = uint32_t;
 
 struct SkRasterPipeline_InitLaneMasksCtx {
-    uint8_t* tail = nullptr;  // TODO(johnstiles): this field is currently unused
+    uint8_t* tail;
 };
 
 struct SkRasterPipeline_ConstantCtx {
