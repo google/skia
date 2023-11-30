@@ -2941,7 +2941,7 @@ STAGE_TAIL(set_base_pointer, std::byte* p) {
                                                    sk_bit_cast<I32>(g) & \
                                                    sk_bit_cast<I32>(b))
 
-STAGE_TAIL(init_lane_masks, NoCtx) {
+STAGE_TAIL(init_lane_masks, SkRasterPipeline_InitLaneMasksCtx*) {
     uint32_t iota[] = {0,1,2,3,4,5,6,7};
     I32 mask = tail ? cond_to_mask(sk_unaligned_load<U32>(iota) < tail) : I32(~0);
     r = g = b = a = sk_bit_cast<F>(mask);

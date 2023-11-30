@@ -1846,10 +1846,12 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({ProgramOp::branch_if_no_active_lanes_eq, ctx});
                 break;
             }
-            case BuilderOp::init_lane_masks:
-                pipeline->push_back({ProgramOp::init_lane_masks, nullptr});
+            case BuilderOp::init_lane_masks: {
+                auto* ctx = alloc->make<SkRasterPipeline_InitLaneMasksCtx>();
+                ctx->tail = nullptr;
+                pipeline->push_back({ProgramOp::init_lane_masks, ctx});
                 break;
-
+            }
             case BuilderOp::store_src_rg:
                 pipeline->push_back({ProgramOp::store_src_rg, SlotA()});
                 break;
