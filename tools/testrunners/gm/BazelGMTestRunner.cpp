@@ -23,6 +23,7 @@
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/HashAndEncode.h"
+#include "tools/testrunners/common/compilation_mode_keys/CompilationModeKeys.h"
 #include "tools/testrunners/common/surface_manager/SurfaceManager.h"
 #include "tools/testrunners/gm/vias/Draw.h"
 
@@ -131,6 +132,7 @@ static std::string write_png_and_json_files(std::string name,
     std::map<std::string, std::string> keys = {
             {"build_system", "bazel"},
     };
+    keys.merge(GetCompilationModeGoldAndPerfKeyValuePairs());
     keys.merge(commonKeys);
     keys.merge(surfaceGoldKeys);
     keys.merge(gmGoldKeys);

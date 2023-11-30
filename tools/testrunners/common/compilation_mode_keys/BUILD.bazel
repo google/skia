@@ -1,0 +1,22 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "compilation_mode_keys",
+    testonly = True,
+    srcs = ["CompilationModeKeys.cpp"],
+    hdrs = ["CompilationModeKeys.h"],
+    local_defines = select({
+        # These keys reflect all possible values of the --compilation_mode Bazel flag[1], which
+        # defaults to "fastbuild". See https://bazel.build/docs/user-manual#compilation-mode.
+        #
+        # TODO(lovisolo, kjlubick): Update this when we add support for "OptimizeForSize" builds.
+        "//bazel/common_config_settings:debug_build": ["'SKIA_COMPILATION_MODE_KEY=\"Debug\"'"],
+        "//bazel/common_config_settings:fast_build": ["'SKIA_COMPILATION_MODE_KEY=\"FastBuild\"'"],
+        "//bazel/common_config_settings:release_build": ["'SKIA_COMPILATION_MODE_KEY=\"Release\"'"],
+    }),
+    visibility = ["//tools/testrunners:__subpackages__"],
+)

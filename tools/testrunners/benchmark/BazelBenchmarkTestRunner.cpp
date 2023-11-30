@@ -24,6 +24,7 @@
 #include "tools/Stats.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/testrunners/benchmark/target/BenchmarkTarget.h"
+#include "tools/testrunners/common/compilation_mode_keys/CompilationModeKeys.h"
 #include "tools/testrunners/common/surface_manager/SurfaceManager.h"
 #include "tools/timer/Timer.h"
 
@@ -641,6 +642,7 @@ int main(int argc, char** argv) {
     for (int i = 1; i < FLAGS_key.size(); i += 2) {
         keyValuePairs[FLAGS_key[i - 1]] = FLAGS_key[i];
     }
+    keyValuePairs.merge(GetCompilationModeGoldAndPerfKeyValuePairs());
     jsonWriter.addKey(keyValuePairs);
 
     // Links.

@@ -22,6 +22,7 @@ skia_cc_library(
         "//tools:stats",
         "//tools:tool_utils",
         "//tools/testrunners/benchmark/target",
+        "//tools/testrunners/common/compilation_mode_keys",
         "//tools/timer",
     ],
 )

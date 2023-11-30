@@ -23,9 +23,9 @@
   {"name": "BazelBuild-all_tests-release-linux_x64",
     "cq_config": {}
   },
-  {"name": "BazelBuild-cpu_8888_benchmark_android_test-for_android_arm64-linux_x64"},
-  {"name": "BazelBuild-hello_bazel_world_android_test-for_android_arm64-linux_x64"},
-  {"name": "BazelBuild-android_math_test-for_android_arm64-linux_x64"},
+  {"name": "BazelBuild-cpu_8888_benchmark_android_test-for_android_arm64_release-linux_x64"},
+  {"name": "BazelBuild-hello_bazel_world_android_test-for_android_arm64_release-linux_x64"},
+  {"name": "BazelBuild-android_math_test-for_android_arm64_release-linux_x64"},
   {"name": "BazelTest-canvaskit_gold-modules_canvaskit_js_tests-ck_full_cpu_release_chrome-linux_x64",
     "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
   },
@@ -46,13 +46,13 @@
   {"name": "BazelTest-cpu_tests-all_tests-cpu_only_debug_rbe-linux_x64",
     "cq_config": {"experimental": true}
   },
-  {"name": "BazelTest-precompiled_benchmark-cpu_8888_benchmark_android_test-for_android_arm64-on_rpi-Pixel5_Android12",
+  {"name": "BazelTest-precompiled_benchmark-cpu_8888_benchmark_android_test-for_android_arm64_release-on_rpi-Pixel5_Android12",
     "cq_config": {"experimental": true}
   },
-  {"name": "BazelTest-precompiled_gm-hello_bazel_world_android_test-for_android_arm64-on_rpi-Pixel5_Android12",
+  {"name": "BazelTest-precompiled_gm-hello_bazel_world_android_test-for_android_arm64_release-on_rpi-Pixel5_Android12",
     "cq_config": {"experimental": true}
   },
-  {"name": "BazelTest-precompiled_test-android_math_test-for_android_arm64-on_rpi-Pixel5_Android12",
+  {"name": "BazelTest-precompiled_test-android_math_test-for_android_arm64_release-on_rpi-Pixel5_Android12",
     "cq_config": {"experimental": true}
   },
   {"name": "Build-Debian11-GCC-x86-Debug-Docker"},
