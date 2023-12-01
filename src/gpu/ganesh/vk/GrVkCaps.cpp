@@ -958,7 +958,7 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
         auto& info = this->getFormatInfo(format);
         info.init(contextOptions, interface, physDev, properties, format);
         if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
-            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
             // Format: VK_FORMAT_B8G8R8A8_UNORM, Surface: kBGRA_8888
@@ -968,6 +968,16 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
                 ctInfo.fColorType = ct;
                 ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            }
+            // Format: VK_FORMAT_B8G8R8A8_UNORM, Surface: kRGB_888x
+            // TODO: add and use kBGR_888X instead
+            {
+                constexpr GrColorType ct = GrColorType::kRGB_888x;
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = GrColorType::kBGRA_8888;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+                ctInfo.fReadSwizzle = skgpu::Swizzle::RGB1();
             }
         }
     }
@@ -1366,7 +1376,8 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
     this->setColorType(GrColorType::kRGBA_8888,        { VK_FORMAT_R8G8B8A8_UNORM });
     this->setColorType(GrColorType::kRGBA_8888_SRGB,   { VK_FORMAT_R8G8B8A8_SRGB });
     this->setColorType(GrColorType::kRGB_888x,         { VK_FORMAT_R8G8B8_UNORM,
-                                                         VK_FORMAT_R8G8B8A8_UNORM });
+                                                         VK_FORMAT_R8G8B8A8_UNORM,
+                                                         VK_FORMAT_B8G8R8A8_UNORM, });
     this->setColorType(GrColorType::kRG_88,            { VK_FORMAT_R8G8_UNORM });
     this->setColorType(GrColorType::kBGRA_8888,        { VK_FORMAT_B8G8R8A8_UNORM });
     this->setColorType(GrColorType::kRGBA_1010102,     { VK_FORMAT_A2B10G10R10_UNORM_PACK32 });
