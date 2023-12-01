@@ -56,8 +56,4 @@ struct skjpeg_error_mgr : jpeg_error_mgr {
     jmp_buf* fStack[4] = {};
 };
 
-namespace SkJpegPriv {
-SkEncodedOrigin get_exif_orientation(jpeg_decompress_struct* dinfo);
-}
-
 #endif

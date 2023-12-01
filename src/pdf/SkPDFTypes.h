@@ -186,6 +186,7 @@ public:
     void insertTextString(const char key[], const char value[]);
     void insertByteString(const char key[], SkString value);
     void insertTextString(const char key[], SkString value);
+    void insertUnion(const char key[], SkPDFUnion&&);
 
 private:
     std::vector<std::pair<SkPDFUnion, SkPDFUnion>> fRecords;

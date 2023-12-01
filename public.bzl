@@ -1363,8 +1363,6 @@ BASE_SRCS_ALL = [
     "src/pdf/SkClusterator.h",
     "src/pdf/SkDeflate.cpp",
     "src/pdf/SkDeflate.h",
-    "src/pdf/SkJpegInfo.h",
-    "src/pdf/SkJpegInfo_none.cpp",
     "src/pdf/SkKeyedImage.cpp",
     "src/pdf/SkKeyedImage.h",
     "src/pdf/SkPDFBitmap.cpp",

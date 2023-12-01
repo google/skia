@@ -12,6 +12,7 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/base/SkMutex.h"
 #include "src/core/SkTHash.h"
+#include "src/pdf/SkPDFBitmap.h"
 #include "src/pdf/SkPDFGraphicState.h"
 #include "src/pdf/SkPDFMetadata.h"
 #include "src/pdf/SkPDFShader.h"
@@ -149,6 +150,9 @@ public:
                            SkPDFIndirectReference,
                            SkPDFGradientShader::KeyHash> fGradientPatternMap;
     skia_private::THashMap<SkBitmapKey, SkPDFIndirectReference> fPDFBitmapMap;
+    skia_private::THashMap<SkPDFIccProfileKey,
+                           SkPDFIndirectReference,
+                           SkPDFIccProfileKey::Hash> fICCProfileMap;
     skia_private::THashMap<uint32_t, std::unique_ptr<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
     skia_private::THashMap<uint32_t, std::vector<SkString>> fType1GlyphNames;
     skia_private::THashMap<uint32_t, std::vector<SkUnichar>> fToUnicodeMap;

@@ -22,7 +22,6 @@ skia_pdf_sources = [
   "$_src/pdf/SkClusterator.h",
   "$_src/pdf/SkDeflate.cpp",
   "$_src/pdf/SkDeflate.h",
-  "$_src/pdf/SkJpegInfo.h",
   "$_src/pdf/SkKeyedImage.cpp",
   "$_src/pdf/SkKeyedImage.h",
   "$_src/pdf/SkPDFBitmap.cpp",

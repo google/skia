@@ -38,7 +38,6 @@ PDF_FILES = [
     "SkPDFMetadata.h",
     "SkPDFResourceDict.cpp",
     "SkPDFResourceDict.h",
-    "SkJpegInfo.h",
     "SkPDFShader.cpp",
     "SkPDFShader.h",
     "SkPDFSubsetFont.cpp",
@@ -60,11 +59,13 @@ split_srcs_and_hdrs(
     files = PDF_FILES,
 )
 
+#TODO: remove after Chromium no longer references this.
 skia_filegroup(
     name = "jpeg_info_libjpeg",
     srcs = ["SkJpegInfo_libjpegturbo.cpp"],
 )
 
+#TODO: remove after Chromium no longer references this.
 skia_filegroup(
     name = "jpeg_info_none",
     srcs = ["SkJpegInfo_none.cpp"],
@@ -74,10 +75,7 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         ":pdf_srcs",
-    ] + select({
-        "//src/codec:jpeg_decode_codec": [":jpeg_info_libjpeg"],
-        "//conditions:default": [":jpeg_info_none"],
-    }),
+    ],
     visibility = ["//src:__pkg__"],
 )
 
@@ -113,7 +111,11 @@ selects.config_setting_group(
 skia_cc_deps(
     name = "deps",
     visibility = ["//src:__pkg__"],
-    deps = ["@zlib_skia//:zlib"] + select({
+    deps = [
+        "@zlib_skia//:zlib",
+        #"//src/codec:jpeg_decode",
+        #"//src/encode:jpeg_encode",
+    ] + select({
         ":uses_harfbuzz": ["@harfbuzz"],
         "//conditions:default": [],
     }),

@@ -1412,12 +1412,3 @@ std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
 }
 
 }  // namespace SkJpegDecoder
-
-namespace SkJpegPriv {
-
-SkEncodedOrigin get_exif_orientation(jpeg_decompress_struct* dinfo) {
-    auto metadataDecoder = SkJpegMetadataDecoder::Make(get_sk_marker_list(dinfo));
-    return get_exif_orientation(metadataDecoder->getExifMetadata(/*copyData=*/false));
-}
-
-}  // namespace SkJpegPriv

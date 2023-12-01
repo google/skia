@@ -6,6 +6,7 @@
  */
 
 #include "include/codec/SkEncodedOrigin.h"
+#include "include/codec/SkJpegDecoder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
@@ -17,7 +18,7 @@
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkEncodedInfo.h"
-#include "src/pdf/SkJpegInfo.h"
+#include "src/pdf/SkPDFBitmap.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
@@ -121,19 +122,29 @@ struct SkJFIFInfo {
     } fType;
 };
 bool SkIsJFIF(const SkData* data, SkJFIFInfo* info) {
-    SkISize jpegSize;
-    SkEncodedInfo::Color jpegColorType;
-    SkEncodedOrigin exifOrientation;
-    if (data && SkGetJpegInfo(data->data(), data->size(), &jpegSize,
-                              &jpegColorType, &exifOrientation)) {
-        bool yuv = jpegColorType == SkEncodedInfo::kYUV_Color;
-        bool goodColorType = yuv || jpegColorType == SkEncodedInfo::kGray_Color;
-        if (goodColorType && kTopLeft_SkEncodedOrigin == exifOrientation) {
-            if (info) {
-                *info = {jpegSize, yuv ? SkJFIFInfo::kYCbCr : SkJFIFInfo::kGrayscale};
-            }
-            return true;
+    static constexpr const SkCodecs::Decoder decoders[] = {
+        SkJpegDecoder::Decoder(),
+    };
+
+    if (!data) {
+        return false;
+    }
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(sk_ref_sp(data), decoders);
+    if (!codec) {
+        return false;
+    }
+
+    SkISize jpegSize = codec->dimensions();
+    SkEncodedInfo::Color jpegColorType = SkPDFBitmap::GetEncodedInfo(*codec).color();
+    SkEncodedOrigin exifOrientation = codec->getOrigin();
+
+    bool yuv = jpegColorType == SkEncodedInfo::kYUV_Color;
+    bool goodColorType = yuv || jpegColorType == SkEncodedInfo::kGray_Color;
+    if (goodColorType && kTopLeft_SkEncodedOrigin == exifOrientation) {
+        if (info) {
+            *info = {jpegSize, yuv ? SkJFIFInfo::kYCbCr : SkJFIFInfo::kGrayscale};
         }
+        return true;
     }
     return false;
 }

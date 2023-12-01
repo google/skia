@@ -527,6 +527,10 @@ void SkPDFDict::insertTextString(const char key[], SkString value) {
     fRecords.emplace_back(SkPDFUnion::Name(key), SkPDFUnion::TextString(std::move(value)));
 }
 
+void SkPDFDict::insertUnion(const char key[], SkPDFUnion&& value) {
+    fRecords.emplace_back(SkPDFUnion::Name(key), std::move(value));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 

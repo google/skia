@@ -1233,7 +1233,8 @@ optional("graphite") {
 }
 
 optional("pdf") {
-  enabled = skia_use_zlib && skia_enable_pdf
+  enabled = skia_use_zlib && skia_enable_pdf && skia_use_libjpeg_turbo_decode &&
+            skia_use_libjpeg_turbo_encode
   public_defines = [ "SK_SUPPORT_PDF" ]
 
   deps = [ "//third_party/zlib" ]
@@ -1248,21 +1249,10 @@ optional("pdf") {
     defines = [ "SK_PDF_USE_SFNTLY" ]
   }
 
-  if (skia_use_libjpeg_turbo_decode) {
-    deps += [
-      ":jpeg_decode",
-
-      # This is not a public_dep so we need to directly depend on it
-      # to use jpeg headers
-      "//third_party/libjpeg-turbo:libjpeg",
-    ]
-    sources += [ "src/pdf/SkJpegInfo_libjpegturbo.cpp" ]
-  } else {
-    sources += [ "src/pdf/SkJpegInfo_none.cpp" ]
-  }
-  if (skia_use_libjpeg_turbo_encode) {
-    deps += [ ":jpeg_encode" ]
-  }
+  deps += [
+    ":jpeg_decode",
+    ":jpeg_encode",
+  ]
 }
 
 optional("xps") {

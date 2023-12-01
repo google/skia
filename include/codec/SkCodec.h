@@ -1029,6 +1029,7 @@ private:
     friend class SkSampledCodec;
     friend class SkIcoCodec;
     friend class SkAndroidCodec; // for fEncodedInfo
+    friend class SkPDFBitmap; // for fEncodedInfo
 };
 
 namespace SkCodecs {
