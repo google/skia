@@ -35,14 +35,15 @@ extern "C" {
         // Known limitations:
         // - Sanitizers do not work well with [[clang::musttail]], and corrupt src/dst pointers.
         //   (https://github.com/llvm/llvm-project/issues/70849)
-        // - Clang 18 runs into an ICE on Android with [[clang::musttail]].
+        // - Wasm tail-calls were only introduced in 2023 and aren't a mainstream feature yet.
+        // - Clang 18 runs into an ICE on armv7/androideabi with [[clang::musttail]].
         //   (http://crbug.com/1504548)
         // - Windows builds generate incorrect code with [[clang::musttail]] and crash mysteriously.
-        // - Wasm tail-calls were only introduced in 2023 and aren't a mainstream feature yet.
+        //   (http://crbug.com/1505442)
         #if __has_cpp_attribute(clang::musttail) && !__has_feature(memory_sanitizer) \
                                                  && !__has_feature(address_sanitizer) \
                                                  && !defined(__EMSCRIPTEN__) \
-                                                 && !defined(ANDROID) && !defined(__ANDROID__) \
+                                                 && !defined(__arm__) \
                                                  && !defined(_WIN32) && !defined(__SYMBIAN32__)
             #define SKCMS_MUSTTAIL [[clang::musttail]]
         #else
