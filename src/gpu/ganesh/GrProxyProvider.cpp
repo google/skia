@@ -33,11 +33,6 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/image/SkImage_Base.h"
 
-#ifdef SK_VULKAN
-#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
-#include "include/gpu/vk/GrVkTypes.h"
-#endif
-
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fImageContext->priv().singleOwner())
 
 GrProxyProvider::GrProxyProvider(GrImageContext* imageContext) : fImageContext(imageContext) {}
@@ -706,6 +701,15 @@ sk_sp<GrTextureProxy> GrProxyProvider::wrapRenderableBackendTexture(
             std::move(tex), UseAllocator::kNo, this->isDDLProvider()));
 }
 
+GrResourceProvider* GrProxyProvider::resourceProvider() const {
+    GrDirectContext* direct = fImageContext->asDirectContext();
+    if (!direct) {
+        return nullptr;
+    }
+
+    return direct->priv().resourceProvider();
+}
+
 sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
         const GrBackendRenderTarget& backendRT,
         sk_sp<skgpu::RefCntedCallback> releaseHelper) {
@@ -738,51 +742,6 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
     return sk_sp<GrRenderTargetProxy>(
             new GrRenderTargetProxy(std::move(rt), UseAllocator::kNo, {}));
 }
-
-#ifdef SK_VULKAN
-sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
-        const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo) {
-    if (this->isAbandoned()) {
-        return nullptr;
-    }
-
-    // This is only supported on a direct GrContext.
-    auto direct = fImageContext->asDirectContext();
-    if (!direct) {
-        return nullptr;
-    }
-
-    GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
-
-    sk_sp<GrRenderTarget> rt = resourceProvider->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
-                                                                                     vkInfo);
-    if (!rt) {
-        return nullptr;
-    }
-
-    SkASSERT(!rt->asTexture());  // A GrRenderTarget that's not textureable
-    SkASSERT(!rt->getUniqueKey().isValid());
-    // This proxy should be unbudgeted because we're just wrapping an external resource
-    SkASSERT(GrBudgetedType::kBudgeted != rt->resourcePriv().budgetedType());
-
-    GrColorType colorType = SkColorTypeToGrColorType(imageInfo.colorType());
-
-    if (!this->caps()->isFormatAsColorTypeRenderable(
-            colorType, GrBackendFormats::MakeVk(vkInfo.fFormat), /*sampleCount=*/1)) {
-        return nullptr;
-    }
-
-    return sk_sp<GrRenderTargetProxy>(
-            new GrRenderTargetProxy(std::move(rt),
-                                    UseAllocator::kNo,
-                                    GrRenderTargetProxy::WrapsVkSecondaryCB::kYes));
-}
-#else
-sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
-        const SkImageInfo&, const GrVkDrawableInfo&) {
-    return nullptr;
-}
-#endif
 
 sk_sp<GrTextureProxy> GrProxyProvider::CreatePromiseProxy(GrContextThreadSafeProxy* threadSafeProxy,
                                                           LazyInstantiateCallback&& callback,

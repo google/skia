@@ -10,6 +10,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/chromium/GrDeferredDisplayList.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
@@ -18,7 +19,9 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingContext* rContext,
@@ -33,9 +36,40 @@ sk_sp<GrVkSecondaryCBDrawContext> GrVkSecondaryCBDrawContext::Make(GrRecordingCo
         return nullptr;
     }
 
-    sk_sp<GrSurfaceProxy> proxy(
-            rContext->priv().proxyProvider()->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
-                                                                                  vkInfo));
+
+    GrProxyProvider* gpp = rContext->priv().proxyProvider();
+    if (gpp->isAbandoned()) {
+        return nullptr;
+    }
+
+    GrResourceProvider* resourceProvider = gpp->resourceProvider();
+    if (!resourceProvider) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTarget> rt = resourceProvider->wrapVulkanSecondaryCBAsRenderTarget(imageInfo,
+                                                                                     vkInfo);
+    if (!rt) {
+        return nullptr;
+    }
+
+    SkASSERT(!rt->asTexture());  // A GrRenderTarget that's not textureable
+    SkASSERT(!rt->getUniqueKey().isValid());
+    // This proxy should be unbudgeted because we're just wrapping an external resource
+    SkASSERT(GrBudgetedType::kBudgeted != rt->resourcePriv().budgetedType());
+
+    GrColorType colorType = SkColorTypeToGrColorType(imageInfo.colorType());
+
+    if (!gpp->caps()->isFormatAsColorTypeRenderable(
+            colorType, GrBackendFormats::MakeVk(vkInfo.fFormat), /*sampleCount=*/1)) {
+        return nullptr;
+    }
+
+    sk_sp<GrRenderTargetProxy> proxy(
+            new GrRenderTargetProxy(std::move(rt),
+                                    GrSurfaceProxy::UseAllocator::kNo,
+                                    GrRenderTargetProxy::WrapsVkSecondaryCB::kYes));
+
     if (!proxy) {
         return nullptr;
     }

@@ -142,9 +142,6 @@ public:
     sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&,
                                                   sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
-    sk_sp<GrRenderTargetProxy> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
-                                                                   const GrVkDrawableInfo&);
-
     using LazyInstantiationKeyMode = GrSurfaceProxy::LazyInstantiationKeyMode;
     using LazySurfaceDesc = GrSurfaceProxy::LazySurfaceDesc;
     using LazyCallbackResult = GrSurfaceProxy::LazyCallbackResult;
@@ -237,6 +234,8 @@ public:
     const GrCaps* caps() const;
     sk_sp<const GrCaps> refCaps() const;
 
+    GrResourceProvider* resourceProvider() const;
+
     int numUniqueKeyProxies_TestOnly() const;
 
     // This is called on a DDL's proxyprovider when the DDL is finished. The uniquely keyed
@@ -251,6 +250,7 @@ public:
      * instantiated immediately.
      */
     bool renderingDirectly() const;
+    bool isAbandoned() const;
 
 #if defined(GR_TEST_UTILS)
     /**
@@ -285,8 +285,6 @@ private:
     enum class RemoveTableEntry { kNo, kYes };
     void processInvalidUniqueKeyImpl(const skgpu::UniqueKey&, GrTextureProxy*,
                                      InvalidateGPUResource, RemoveTableEntry);
-
-    bool isAbandoned() const;
 
     /*
      * Create an un-mipmapped texture proxy for the bitmap.
