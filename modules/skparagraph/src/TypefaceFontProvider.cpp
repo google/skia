@@ -24,6 +24,16 @@ sk_sp<SkFontStyleSet> TypefaceFontProvider::onMatchFamily(const char familyName[
     return nullptr;
 }
 
+
+sk_sp<SkTypeface> TypefaceFontProvider::onMatchFamilyStyle(const char familyName[], const SkFontStyle& pattern) const {
+    sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
+    if (sset) {
+      return sset->matchStyle(pattern);
+    }
+
+    return nullptr;
+}
+
 size_t TypefaceFontProvider::registerTypeface(sk_sp<SkTypeface> typeface) {
     if (typeface == nullptr) {
         return 0;
