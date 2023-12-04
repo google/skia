@@ -7,7 +7,7 @@
  */
 
 #include "include/gpu/gl/GrGLInterface.h"
-#include "src/utils/win/SkWGL.h"
+#include "tools/gpu/gl/win/SkWGL.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/win/WindowContextFactory_win.h"
 

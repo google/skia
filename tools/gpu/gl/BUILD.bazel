@@ -8,7 +8,10 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "GLTestContext.h",
-    ],
+    ] + select({
+        "@platforms//os:windows": ["//tools/gpu/gl/win:private_hdrs"],
+        "//conditions:default": [],
+    }),
     visibility = ["//tools/gpu:__pkg__"],
 )
 

@@ -4,12 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "include/core/SkRefCnt.h"
-
 #ifndef SkWGL_DEFINED
 #define SkWGL_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "src/base/SkLeanWindows.h"
 
 /**

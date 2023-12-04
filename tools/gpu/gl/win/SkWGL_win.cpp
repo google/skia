@@ -8,7 +8,7 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN) && !defined(_M_ARM64) && !defined(WINUWP)
 
-#include "src/utils/win/SkWGL.h"
+#include "tools/gpu/gl/win/SkWGL.h"
 
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTDArray.h"

@@ -5,9 +5,18 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "SkWGL.h",
+    ],
+    visibility = ["//tools/gpu/gl:__pkg__"],
+)
+
+skia_filegroup(
     name = "srcs",
     srcs = [
         "CreatePlatformGLTestContext_win.cpp",
+        "SkWGL_win.cpp",
     ],
     visibility = ["//tools/gpu/gl:__pkg__"],
 )

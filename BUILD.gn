@@ -2026,7 +2026,11 @@ if (skia_enable_tools) {
           "X11",
         ]
       } else if (is_win) {
-        sources += [ "tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp" ]
+        sources += [
+          "tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp",
+          "tools/gpu/gl/win/SkWGL.h",
+          "tools/gpu/gl/win/SkWGL_win.cpp",
+        ]
         libs += [ "Gdi32.lib" ]
         if (target_cpu != "arm64") {
           libs += [ "OpenGL32.lib" ]
