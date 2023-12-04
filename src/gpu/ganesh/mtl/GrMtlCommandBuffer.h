@@ -12,9 +12,9 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/GpuRefCnt.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
-#include "src/gpu/ganesh/GrRefCnt.h"
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/mtl/GrMtlRenderCommandEncoder.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"

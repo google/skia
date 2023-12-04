@@ -68,7 +68,7 @@ void DispatchGroup::addResourceRefs(CommandBuffer* commandBuffer) const {
         commandBuffer->trackResource(fPipelines[i]);
     }
     for (int i = 0; i < fTextures.size(); ++i) {
-        commandBuffer->trackResource(fTextures[i]->refTexture());
+        commandBuffer->trackCommandBufferResource(fTextures[i]->refTexture());
     }
 }
 

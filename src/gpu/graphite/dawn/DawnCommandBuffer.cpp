@@ -284,7 +284,7 @@ bool DawnCommandBuffer::loadMSAAFromResolveAndBeginRenderPassEncoder(
         return false;
     }
 
-    this->trackResource(msaaLoadTexture);
+    this->trackCommandBufferResource(msaaLoadTexture);
 
     // Creating intermediate render pass (copy from resolve texture -> MSAA load texture)
     RenderPassDesc intermediateRenderPassDesc = {};

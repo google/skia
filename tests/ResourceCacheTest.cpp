@@ -553,8 +553,8 @@ static void test_purge_command_buffer_usage(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
     // Add command buffer usages to all resources
-    a->addCommandBufferUsage();
-    b->addCommandBufferUsage();
+    a->refCommandBuffer();
+    b->refCommandBuffer();
 
     // Should be safe to purge without deleting the resources since we still have refs and command
     // buffer usages.
@@ -573,8 +573,8 @@ static void test_purge_command_buffer_usage(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
     // Remove command buffer usages
-    a->removeCommandBufferUsage();
-    b->removeCommandBufferUsage();
+    a->unrefCommandBuffer();
+    b->unrefCommandBuffer();
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
     REPORTER_ASSERT(reporter, 2 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, a->gpuMemorySize() + b->gpuMemorySize() == cache->getResourceBytes());

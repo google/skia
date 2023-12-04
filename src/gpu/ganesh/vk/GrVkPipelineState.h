@@ -10,7 +10,7 @@
 #define GrVkPipelineState_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/ganesh/GrRefCnt.h"
+#include "src/gpu/GpuRefCnt.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"
 #include "src/gpu/ganesh/vk/GrVkDescriptorSetManager.h"

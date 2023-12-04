@@ -9,8 +9,6 @@
 #define GrRefCnt_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "src/gpu/ganesh/GrGpuResource.h"
-#include "src/gpu/ganesh/GrManagedResource.h"
 
 // We have to use auto for the function pointers here because if the actual functions live on the
 // base class of T we need the function here to be a pointer to a function of the base class and not
@@ -160,19 +158,19 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Shared pointer class to wrap classes that support a addCommandBufferUsage() and
- * removeCommandBufferUsage() interface.
+ * Shared pointer class to wrap classes that support a refCommandBuffer() and unrefCommandBuffer()
+ * interface.
  *
  * This class supports copying, moving, and assigning an sk_sp into it. In general these commands do
- * not modify the sk_sp at all but just call addCommandBufferUsage() on the underlying object.
+ * not modify the sk_sp at all but just call refCommandBuffer() on the underlying object.
  *
- * This class is designed to be used by GrGpuResources that need to track when they are in use on
- * gpu (usually via a command buffer) separately from tracking if there are any current logical
- * usages in Ganesh. This allows for a scratch GrGpuResource to be reused for new draw calls even
- * if it is in use on the GPU.
+ * This class is designed to be used by GrGpuResources/graphite::Resources that need to track when
+ * they are in use on gpu (usually via a command buffer) separately from tracking if there are any
+ * current logical usages in Skia. This allows for a scratch resources to be reused for new draw
+ * calls even if it is in use on the GPU.
  */
 template <typename T>
-using gr_cb = gr_sp<T, &T::addCommandBufferUsage, &T::removeCommandBufferUsage>;
+using gr_cb = gr_sp<T, &T::refCommandBuffer, &T::unrefCommandBuffer>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

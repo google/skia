@@ -12,10 +12,12 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTArray.h"
+#include "src/gpu/GpuRefCnt.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/CommandTypes.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/Resource.h"
 
 namespace skgpu {
 class RefCntedCallback;
@@ -29,7 +31,6 @@ class DispatchGroup;
 class DrawPass;
 class SharedContext;
 class GraphicsPipeline;
-class Resource;
 class Sampler;
 class Texture;
 class TextureProxy;
@@ -45,7 +46,14 @@ public:
     bool hasWork() { return fHasWork; }
 #endif
 
+    // Takes a Usage ref on the Resource that will be released when the command buffer has finished
+    // execution.
     void trackResource(sk_sp<Resource> resource);
+    // Takes a CommandBuffer ref on the Resource that will be released when the command buffer has
+    // finished execution. This allows a Resource to be returned to ResourceCache for reuse while
+    // the CommandBuffer is still executing on the GPU. This is most commonly used for Textures or
+    // Buffers which are only accessed via commands on a command buffer.
+    void trackCommandBufferResource(sk_sp<Resource> resource);
     // Release all tracked Resources
     void resetCommandBuffer();
 
@@ -150,9 +158,11 @@ private:
 #ifdef SK_DEBUG
     bool fHasWork = false;
 #endif
-
     inline static constexpr int kInitialTrackedResourcesCount = 32;
-    skia_private::STArray<kInitialTrackedResourcesCount, sk_sp<Resource>> fTrackedResources;
+    template <typename T>
+    using TrackedResourceArray = skia_private::STArray<kInitialTrackedResourcesCount, T>;
+    TrackedResourceArray<sk_sp<Resource>> fTrackedUsageResources;
+    TrackedResourceArray<gr_cb<Resource>> fCommandBufferResources;
     skia_private::TArray<sk_sp<RefCntedCallback>> fFinishedProcs;
     skia_private::TArray<sk_sp<Buffer>> fBuffersToAsyncMap;
 };

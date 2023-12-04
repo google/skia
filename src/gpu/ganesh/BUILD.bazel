@@ -157,7 +157,6 @@ CORE_FILES = [
     "GrRecordingContext.cpp",
     "GrRecordingContextPriv.cpp",
     "GrRecordingContextPriv.h",
-    "GrRefCnt.h",
     "GrRenderTarget.cpp",
     "GrRenderTarget.h",
     "GrRenderTargetProxy.cpp",

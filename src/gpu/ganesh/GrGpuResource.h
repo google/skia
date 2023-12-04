@@ -57,12 +57,12 @@ public:
         }
     }
 
-    void addCommandBufferUsage() const {
+    void refCommandBuffer() const {
         // No barrier required.
         (void)fCommandBufferUsageCnt.fetch_add(+1, std::memory_order_relaxed);
     }
 
-    void removeCommandBufferUsage() const {
+    void unrefCommandBuffer() const {
         SkASSERT(!this->hasNoCommandBufferUsages());
         if (1 == fCommandBufferUsageCnt.fetch_add(-1, std::memory_order_acq_rel)) {
             this->notifyWillBeZero(LastRemovedRef::kCommandBufferUsage);

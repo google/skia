@@ -28,6 +28,10 @@ public:
     void setFailureResultForFinishedProcs();
 
     bool addCommands(Context*, CommandBuffer*, Surface* targetSurface, SkIVector targetTranslation);
+    // This will eventually lead to adding a Usage Ref on the CommandBuffer. For now that is fine
+    // since the only Resource's we are reffing here are Buffers. However, if we ever want to track
+    // Textures or GPU only Buffers as well, we should keep a second list for Refs that we want to
+    // put CommandBuffer refs on.
     void addResourceRef(sk_sp<Resource> resource);
     void addTask(sk_sp<Task> task);
 

@@ -28,7 +28,8 @@ CommandBuffer::~CommandBuffer() {
 void CommandBuffer::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    fTrackedResources.clear();
+    fTrackedUsageResources.clear();
+    fCommandBufferResources.clear();
 }
 
 void CommandBuffer::resetCommandBuffer() {
@@ -40,7 +41,11 @@ void CommandBuffer::resetCommandBuffer() {
 }
 
 void CommandBuffer::trackResource(sk_sp<Resource> resource) {
-    fTrackedResources.push_back(std::move(resource));
+    fTrackedUsageResources.push_back(std::move(resource));
+}
+
+void CommandBuffer::trackCommandBufferResource(sk_sp<Resource> resource) {
+    fCommandBufferResources.push_back(std::move(resource));
 }
 
 void CommandBuffer::addFinishedProc(sk_sp<RefCntedCallback> finishedProc) {
@@ -86,13 +91,13 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
     }
 
     if (colorTexture) {
-        this->trackResource(std::move(colorTexture));
+        this->trackCommandBufferResource(std::move(colorTexture));
     }
     if (resolveTexture) {
-        this->trackResource(std::move(resolveTexture));
+        this->trackCommandBufferResource(std::move(resolveTexture));
     }
     if (depthStencilTexture) {
-        this->trackResource(std::move(depthStencilTexture));
+        this->trackCommandBufferResource(std::move(depthStencilTexture));
     }
     // We just assume if you are adding a render pass that the render pass will actually do work. In
     // theory we could have a discard load that doesn't submit any draws, clears, etc. But hopefully
@@ -147,7 +152,7 @@ bool CommandBuffer::copyTextureToBuffer(sk_sp<Texture> texture,
         return false;
     }
 
-    this->trackResource(std::move(texture));
+    this->trackCommandBufferResource(std::move(texture));
     this->trackResource(std::move(buffer));
 
     SkDEBUGCODE(fHasWork = true;)
@@ -167,7 +172,7 @@ bool CommandBuffer::copyBufferToTexture(const Buffer* buffer,
         return false;
     }
 
-    this->trackResource(std::move(texture));
+    this->trackCommandBufferResource(std::move(texture));
 
     SkDEBUGCODE(fHasWork = true;)
 
@@ -191,8 +196,8 @@ bool CommandBuffer::copyTextureToTexture(sk_sp<Texture> src,
         return false;
     }
 
-    this->trackResource(std::move(src));
-    this->trackResource(std::move(dst));
+    this->trackCommandBufferResource(std::move(src));
+    this->trackCommandBufferResource(std::move(dst));
 
     SkDEBUGCODE(fHasWork = true;)
 
