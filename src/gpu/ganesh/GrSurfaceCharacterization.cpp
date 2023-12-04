@@ -21,7 +21,7 @@ void GrSurfaceCharacterization::validate() const {
 
     SkASSERT(caps->areColorTypeAndFormatCompatible(grCT, fBackendFormat));
 
-    SkASSERT(MipMapped::kNo == fIsMipMapped || Textureable::kYes == fIsTextureable);
+    SkASSERT(skgpu::Mipmapped::kNo == fIsMipmapped || Textureable::kYes == fIsTextureable);
     SkASSERT(Textureable::kNo == fIsTextureable || UsesGLFBO0::kNo == fUsesGLFBO0);
     auto backend = fBackendFormat.backend();
     SkASSERT(UsesGLFBO0::kNo == fUsesGLFBO0 || backend == GrBackendApi::kOpenGL);
@@ -51,7 +51,7 @@ bool GrSurfaceCharacterization::operator==(const GrSurfaceCharacterization& othe
            fBackendFormat == other.fBackendFormat &&
            fSampleCnt == other.fSampleCnt &&
            fIsTextureable == other.fIsTextureable &&
-           fIsMipMapped == other.fIsMipMapped &&
+           fIsMipmapped == other.fIsMipmapped &&
            fUsesGLFBO0 == other.fUsesGLFBO0 &&
            fVulkanSecondaryCBCompatible == other.fVulkanSecondaryCBCompatible &&
            fIsProtected == other.fIsProtected &&
@@ -69,12 +69,19 @@ GrSurfaceCharacterization GrSurfaceCharacterization::createResized(int width, in
         return GrSurfaceCharacterization();
     }
 
-    return GrSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
-                                     fImageInfo.makeWH(width, height), fBackendFormat, fOrigin,
-                                     fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+    return GrSurfaceCharacterization(fContextInfo,
+                                     fCacheMaxResourceBytes,
+                                     fImageInfo.makeWH(width, height),
+                                     fBackendFormat,
+                                     fOrigin,
+                                     fSampleCnt,
+                                     fIsTextureable,
+                                     fIsMipmapped,
+                                     fUsesGLFBO0,
                                      fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible,
-                                     fIsProtected, fSurfaceProps);
+                                     fIsProtected,
+                                     fSurfaceProps);
 }
 
 GrSurfaceCharacterization GrSurfaceCharacterization::createColorSpace(
@@ -83,11 +90,19 @@ GrSurfaceCharacterization GrSurfaceCharacterization::createColorSpace(
         return GrSurfaceCharacterization();
     }
 
-    return GrSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
-                                     fImageInfo.makeColorSpace(std::move(cs)), fBackendFormat,
-                                     fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+    return GrSurfaceCharacterization(fContextInfo,
+                                     fCacheMaxResourceBytes,
+                                     fImageInfo.makeColorSpace(std::move(cs)),
+                                     fBackendFormat,
+                                     fOrigin,
+                                     fSampleCnt,
+                                     fIsTextureable,
+                                     fIsMipmapped,
+                                     fUsesGLFBO0,
                                      fVkRTSupportsInputAttachment,
-                                     fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
+                                     fVulkanSecondaryCBCompatible,
+                                     fIsProtected,
+                                     fSurfaceProps);
 }
 
 GrSurfaceCharacterization GrSurfaceCharacterization::createBackendFormat(
@@ -99,10 +114,19 @@ GrSurfaceCharacterization GrSurfaceCharacterization::createBackendFormat(
 
     SkImageInfo newII = fImageInfo.makeColorType(colorType);
 
-    return GrSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes, newII, backendFormat,
-                                     fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+    return GrSurfaceCharacterization(fContextInfo,
+                                     fCacheMaxResourceBytes,
+                                     newII,
+                                     backendFormat,
+                                     fOrigin,
+                                     fSampleCnt,
+                                     fIsTextureable,
+                                     fIsMipmapped,
+                                     fUsesGLFBO0,
                                      fVkRTSupportsInputAttachment,
-                                     fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
+                                     fVulkanSecondaryCBCompatible,
+                                     fIsProtected,
+                                     fSurfaceProps);
 }
 
 GrSurfaceCharacterization GrSurfaceCharacterization::createFBO0(bool usesGLFBO0) const {
@@ -117,10 +141,17 @@ GrSurfaceCharacterization GrSurfaceCharacterization::createFBO0(bool usesGLFBO0)
         return GrSurfaceCharacterization();
     }
 
-    return GrSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
-                                     fImageInfo, fBackendFormat,
-                                     fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped,
+    return GrSurfaceCharacterization(fContextInfo,
+                                     fCacheMaxResourceBytes,
+                                     fImageInfo,
+                                     fBackendFormat,
+                                     fOrigin,
+                                     fSampleCnt,
+                                     fIsTextureable,
+                                     fIsMipmapped,
                                      usesGLFBO0 ? UsesGLFBO0::kYes : UsesGLFBO0::kNo,
                                      fVkRTSupportsInputAttachment,
-                                     fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
+                                     fVulkanSecondaryCBCompatible,
+                                     fIsProtected,
+                                     fSurfaceProps);
 }

@@ -34,8 +34,10 @@ class SkTaskGroup;
     data members or virtual methods. */
 class GrDirectContextPriv : public GrRecordingContextPriv {
 public:
-    static sk_sp<GrDirectContext> Make(GrBackendApi backend, const GrContextOptions& options) {
-        return sk_sp<GrDirectContext>(new GrDirectContext(backend, options));
+    static sk_sp<GrDirectContext> Make(GrBackendApi backend,
+                                       const GrContextOptions& options,
+                                       sk_sp<GrContextThreadSafeProxy> proxy) {
+        return sk_sp<GrDirectContext>(new GrDirectContext(backend, options, std::move(proxy)));
     }
 
     static bool Init(const sk_sp<GrDirectContext>& ctx) {

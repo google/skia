@@ -144,10 +144,16 @@ static GrSurfaceCharacterization make_characterization(Fuzz* fuzz, GrDirectConte
 #endif
     GrSurfaceCharacterization c;
     size_t maxResourceBytes = dContext->getResourceCacheLimit();
-    c = dContext->threadSafeProxy()->createCharacterization(
-                                maxResourceBytes, ii, backendFormat, kSampleCount,
-                                origin, gen_fuzzed_surface_props(fuzz), true,
-                                false, true, protect);
+    c = dContext->threadSafeProxy()->createCharacterization(maxResourceBytes,
+                                                            ii,
+                                                            backendFormat,
+                                                            kSampleCount,
+                                                            origin,
+                                                            gen_fuzzed_surface_props(fuzz),
+                                                            skgpu::Mipmapped::kYes,
+                                                            false,
+                                                            true,
+                                                            protect);
     if (!c.isValid()) {
         SkDebugf("Could not create Characterization in the backend %s",
                  GrBackendApiToStr(dContext->backend()));

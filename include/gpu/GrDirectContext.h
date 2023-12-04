@@ -931,7 +931,9 @@ public:
     const GrDirectContextPriv priv() const;  // NOLINT(readability-const-return-type)
 
 protected:
-    GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
+    GrDirectContext(GrBackendApi backend,
+                    const GrContextOptions& options,
+                    sk_sp<GrContextThreadSafeProxy> proxy);
 
     bool init() override;
 

@@ -2154,6 +2154,8 @@ VULKAN_SRCS = [
     "src/gpu/ganesh/vk/GrVkCommandBuffer.h",
     "src/gpu/ganesh/vk/GrVkCommandPool.cpp",
     "src/gpu/ganesh/vk/GrVkCommandPool.h",
+    "src/gpu/ganesh/vk/GrVkContextThreadSafeProxy.cpp",
+    "src/gpu/ganesh/vk/GrVkContextThreadSafeProxy.h",
     "src/gpu/ganesh/vk/GrVkDescriptorPool.cpp",
     "src/gpu/ganesh/vk/GrVkDescriptorPool.h",
     "src/gpu/ganesh/vk/GrVkDescriptorSet.cpp",

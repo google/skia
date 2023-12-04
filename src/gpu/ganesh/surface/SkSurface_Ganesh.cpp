@@ -267,10 +267,9 @@ bool SkSurface_Ganesh::onCharacterize(GrSurfaceCharacterization* characterizatio
     GrSurfaceProxyView readSurfaceView = fDevice->readSurfaceView();
     size_t maxResourceBytes = direct->getResourceCacheLimit();
 
-    bool mipmapped =
-            readSurfaceView.asTextureProxy()
-                    ? skgpu::Mipmapped::kYes == readSurfaceView.asTextureProxy()->mipmapped()
-                    : false;
+    skgpu::Mipmapped mipmapped = readSurfaceView.asTextureProxy()
+                                         ? readSurfaceView.asTextureProxy()->mipmapped()
+                                         : skgpu::Mipmapped::kNo;
 
     bool usesGLFBO0 = readSurfaceView.asRenderTargetProxy()->glRTFBOIDIs0();
     // We should never get in the situation where we have a texture render target that is also
@@ -292,7 +291,7 @@ bool SkSurface_Ganesh::onCharacterize(GrSurfaceCharacterization* characterizatio
             readSurfaceView.origin(),
             numSamples,
             GrSurfaceCharacterization::Textureable(SkToBool(readSurfaceView.asTextureProxy())),
-            GrSurfaceCharacterization::MipMapped(mipmapped),
+            mipmapped,
             GrSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
             GrSurfaceCharacterization::VkRTSupportsInputAttachment(vkRTSupportsInputAttachment),
             GrSurfaceCharacterization::VulkanSecondaryCBCompatible(false),

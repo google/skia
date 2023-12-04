@@ -154,7 +154,7 @@ bool GrVkSecondaryCBDrawContext::characterize(GrSurfaceCharacterization* charact
                           readSurfaceView.origin(),
                           numSamples,
                           GrSurfaceCharacterization::Textureable(false),
-                          GrSurfaceCharacterization::MipMapped(false),
+                          skgpu::Mipmapped::kNo,
                           GrSurfaceCharacterization::UsesGLFBO0(false),
                           GrSurfaceCharacterization::VkRTSupportsInputAttachment(false),
                           GrSurfaceCharacterization::VulkanSecondaryCBCompatible(true),

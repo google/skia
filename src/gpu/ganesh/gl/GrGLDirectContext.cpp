@@ -14,6 +14,7 @@
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
@@ -74,7 +75,10 @@ GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGet
 
 sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface> glInterface,
                               const GrContextOptions& options) {
-    auto direct = GrDirectContextPriv::Make(GrBackendApi::kOpenGL, options);
+    auto direct = GrDirectContextPriv::Make(
+            GrBackendApi::kOpenGL,
+            options,
+            GrContextThreadSafeProxyPriv::Make(GrBackendApi::kOpenGL, options));
 #if defined(GR_TEST_UTILS)
     if (options.fRandomGLOOM) {
         auto copy = sk_make_sp<GrGLInterface>(*glInterface);

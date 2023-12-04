@@ -34,7 +34,6 @@
 class SK_API GrSurfaceCharacterization {
 public:
     enum class Textureable : bool { kNo = false, kYes = true };
-    enum class MipMapped : bool { kNo = false, kYes = true };
     enum class UsesGLFBO0 : bool { kNo = false, kYes = true };
     // This flag indicates that the backing VkImage for this Vulkan surface will have the
     // VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT set. This bit allows skia to handle advanced blends
@@ -48,12 +47,11 @@ public:
             , fOrigin(kBottomLeft_GrSurfaceOrigin)
             , fSampleCnt(0)
             , fIsTextureable(Textureable::kYes)
-            , fIsMipMapped(MipMapped::kYes)
+            , fIsMipmapped(skgpu::Mipmapped::kYes)
             , fUsesGLFBO0(UsesGLFBO0::kNo)
             , fVulkanSecondaryCBCompatible(VulkanSecondaryCBCompatible::kNo)
-            , fIsProtected(GrProtected::kNo)
-            , fSurfaceProps(0, kUnknown_SkPixelGeometry) {
-    }
+            , fIsProtected(skgpu::Protected::kNo)
+            , fSurfaceProps(0, kUnknown_SkPixelGeometry) {}
 
     GrSurfaceCharacterization(GrSurfaceCharacterization&&) = default;
     GrSurfaceCharacterization& operator=(GrSurfaceCharacterization&&) = default;
@@ -103,7 +101,7 @@ public:
     SkColorType colorType() const { return fImageInfo.colorType(); }
     int sampleCount() const { return fSampleCnt; }
     bool isTextureable() const { return Textureable::kYes == fIsTextureable; }
-    bool isMipMapped() const { return MipMapped::kYes == fIsMipMapped; }
+    bool isMipMapped() const { return skgpu::Mipmapped::kYes == fIsMipmapped; }
     bool usesGLFBO0() const { return UsesGLFBO0::kYes == fUsesGLFBO0; }
     bool vkRTSupportsInputAttachment() const {
         return VkRTSupportsInputAttachment::kYes == fVkRTSupportsInputAttachment;
@@ -111,7 +109,7 @@ public:
     bool vulkanSecondaryCBCompatible() const {
         return VulkanSecondaryCBCompatible::kYes == fVulkanSecondaryCBCompatible;
     }
-    GrProtected isProtected() const { return fIsProtected; }
+    skgpu::Protected isProtected() const { return fIsProtected; }
     SkColorSpace* colorSpace() const { return fImageInfo.colorSpace(); }
     sk_sp<SkColorSpace> refColorSpace() const { return fImageInfo.refColorSpace(); }
     const SkSurfaceProps& surfaceProps()const { return fSurfaceProps; }
@@ -120,24 +118,25 @@ private:
     friend class SkSurface_Ganesh;           // for 'set' & 'config'
     friend class GrVkSecondaryCBDrawContext; // for 'set' & 'config'
     friend class GrContextThreadSafeProxy; // for private ctor
+    friend class GrVkContextThreadSafeProxy;    // for private ctor
     friend class GrDeferredDisplayListRecorder; // for 'config'
     friend class SkSurface; // for 'config'
 
     SkDEBUGCODE(void validate() const;)
 
-    GrSurfaceCharacterization(sk_sp<GrContextThreadSafeProxy> contextInfo,
-                              size_t cacheMaxResourceBytes,
-                              const SkImageInfo& ii,
-                              const GrBackendFormat& backendFormat,
-                              GrSurfaceOrigin origin,
-                              int sampleCnt,
-                              Textureable isTextureable,
-                              MipMapped isMipMapped,
-                              UsesGLFBO0 usesGLFBO0,
-                              VkRTSupportsInputAttachment vkRTSupportsInputAttachment,
-                              VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
-                              GrProtected isProtected,
-                              const SkSurfaceProps& surfaceProps)
+            GrSurfaceCharacterization(sk_sp<GrContextThreadSafeProxy> contextInfo,
+                                      size_t cacheMaxResourceBytes,
+                                      const SkImageInfo& ii,
+                                      const GrBackendFormat& backendFormat,
+                                      GrSurfaceOrigin origin,
+                                      int sampleCnt,
+                                      Textureable isTextureable,
+                                      skgpu::Mipmapped isMipmapped,
+                                      UsesGLFBO0 usesGLFBO0,
+                                      VkRTSupportsInputAttachment vkRTSupportsInputAttachment,
+                                      VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
+                                      skgpu::Protected isProtected,
+                                      const SkSurfaceProps& surfaceProps)
             : fContextInfo(std::move(contextInfo))
             , fCacheMaxResourceBytes(cacheMaxResourceBytes)
             , fImageInfo(ii)
@@ -145,7 +144,7 @@ private:
             , fOrigin(origin)
             , fSampleCnt(sampleCnt)
             , fIsTextureable(isTextureable)
-            , fIsMipMapped(isMipMapped)
+            , fIsMipmapped(isMipmapped)
             , fUsesGLFBO0(usesGLFBO0)
             , fVkRTSupportsInputAttachment(vkRTSupportsInputAttachment)
             , fVulkanSecondaryCBCompatible(vulkanSecondaryCBCompatible)
@@ -165,11 +164,11 @@ private:
              GrSurfaceOrigin origin,
              int sampleCnt,
              Textureable isTextureable,
-             MipMapped isMipMapped,
+             skgpu::Mipmapped isMipmapped,
              UsesGLFBO0 usesGLFBO0,
              VkRTSupportsInputAttachment vkRTSupportsInputAttachment,
              VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
-             GrProtected isProtected,
+             skgpu::Protected isProtected,
              const SkSurfaceProps& surfaceProps) {
         if (surfaceProps.flags() & SkSurfaceProps::kDynamicMSAA_Flag) {
             // Dynamic MSAA is not currently supported with DDL.
@@ -183,7 +182,7 @@ private:
             fOrigin = origin;
             fSampleCnt = sampleCnt;
             fIsTextureable = isTextureable;
-            fIsMipMapped = isMipMapped;
+            fIsMipmapped = isMipmapped;
             fUsesGLFBO0 = usesGLFBO0;
             fVkRTSupportsInputAttachment = vkRTSupportsInputAttachment;
             fVulkanSecondaryCBCompatible = vulkanSecondaryCBCompatible;
@@ -201,11 +200,11 @@ private:
     GrSurfaceOrigin                 fOrigin;
     int                             fSampleCnt;
     Textureable                     fIsTextureable;
-    MipMapped                       fIsMipMapped;
+    skgpu::Mipmapped                fIsMipmapped;
     UsesGLFBO0                      fUsesGLFBO0;
     VkRTSupportsInputAttachment     fVkRTSupportsInputAttachment;
     VulkanSecondaryCBCompatible     fVulkanSecondaryCBCompatible;
-    GrProtected                     fIsProtected;
+    skgpu::Protected                fIsProtected;
     SkSurfaceProps                  fSurfaceProps;
 };
 

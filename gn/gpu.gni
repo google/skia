@@ -780,6 +780,8 @@ skia_gpu_vk_private = [
   "$_src/gpu/ganesh/vk/GrVkCommandBuffer.h",
   "$_src/gpu/ganesh/vk/GrVkCommandPool.cpp",
   "$_src/gpu/ganesh/vk/GrVkCommandPool.h",
+  "$_src/gpu/ganesh/vk/GrVkContextThreadSafeProxy.cpp",
+  "$_src/gpu/ganesh/vk/GrVkContextThreadSafeProxy.h",
   "$_src/gpu/ganesh/vk/GrVkDescriptorPool.cpp",
   "$_src/gpu/ganesh/vk/GrVkDescriptorPool.h",
   "$_src/gpu/ganesh/vk/GrVkDescriptorSet.cpp",

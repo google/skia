@@ -92,12 +92,13 @@ GrDirectContext::DirectContextID GrDirectContext::DirectContextID::Next() {
     return DirectContextID(id);
 }
 
-GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
-        : GrRecordingContext(GrContextThreadSafeProxyPriv::Make(backend, options), false)
+GrDirectContext::GrDirectContext(GrBackendApi backend,
+                                 const GrContextOptions& options,
+                                 sk_sp<GrContextThreadSafeProxy> proxy)
+        : GrRecordingContext(std::move(proxy), false)
         , fDeleteCallbackHelper(new DeleteCallbackHelper(options.fContextDeleteContext,
                                                          options.fContextDeleteProc))
-        , fDirectContextID(DirectContextID::Next()) {
-}
+        , fDirectContextID(DirectContextID::Next()) {}
 
 GrDirectContext::~GrDirectContext() {
     ASSERT_SINGLE_OWNER
@@ -1174,7 +1175,10 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOption
 
 sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOptions,
                                                  const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kMock, options));
+    sk_sp<GrDirectContext> direct(
+            new GrDirectContext(GrBackendApi::kMock,
+                                options,
+                                GrContextThreadSafeProxyPriv::Make(GrBackendApi::kMock, options)));
 
     direct->fGpu = GrMockGpu::Make(mockOptions, options, direct.get());
     if (!direct->init()) {
@@ -1193,7 +1197,10 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& bac
 
 sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& backendContext,
                                                      const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kMetal, options));
+    sk_sp<GrDirectContext> direct(
+            new GrDirectContext(GrBackendApi::kMetal,
+                                options,
+                                GrContextThreadSafeProxyPriv::Make(GrBackendApi::kMetal, options)));
 
     direct->fGpu = GrMtlTrampoline::MakeGpu(backendContext, options, direct.get());
     if (!direct->init()) {
@@ -1213,7 +1220,10 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device, void* queue) {
 // remove include/gpu/mtl/GrMtlBackendContext.h, above, when removed
 sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device, void* queue,
                                                   const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kMetal, options));
+    sk_sp<GrDirectContext> direct(
+            new GrDirectContext(GrBackendApi::kMetal,
+                                options,
+                                GrContextThreadSafeProxyPriv::Make(GrBackendApi::kMetal, options)));
     GrMtlBackendContext backendContext = {};
     backendContext.fDevice.reset(device);
     backendContext.fQueue.reset(queue);
@@ -1231,7 +1241,10 @@ sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& 
 
 sk_sp<GrDirectContext> GrDirectContext::MakeDirect3D(const GrD3DBackendContext& backendContext,
                                                      const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(new GrDirectContext(GrBackendApi::kDirect3D, options));
+    sk_sp<GrDirectContext> direct(new GrDirectContext(
+            GrBackendApi::kDirect3D,
+            options,
+            GrContextThreadSafeProxyPriv::Make(GrBackendApi::kDirect3D, options)));
 
     direct->fGpu = GrD3DGpu::Make(backendContext, options, direct.get());
     if (!direct->init()) {
