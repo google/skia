@@ -41,7 +41,8 @@ public:
 private:
     DawnBuffer(const DawnSharedContext*,
                size_t size,
-               wgpu::Buffer);
+               wgpu::Buffer,
+               void* mapAtCreationPtr);
 
     void onMap() override;
     void onAsyncMap(GpuFinishedProc, GpuFinishedContext) override;

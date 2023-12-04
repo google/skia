@@ -98,7 +98,16 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         return {};
     }
 
-    return sk_sp<DawnBuffer>(new DawnBuffer(sharedContext, size, std::move(buffer)));
+    void* mappedAtCreationPtr = nullptr;
+    if (desc.mappedAtCreation) {
+        mappedAtCreationPtr = buffer.GetMappedRange();
+        SkASSERT(mappedAtCreationPtr);
+    }
+
+    return sk_sp<DawnBuffer>(new DawnBuffer(sharedContext,
+                                            size,
+                                            std::move(buffer),
+                                            mappedAtCreationPtr));
 }
 
 void DawnBuffer::prepareForReturnToCache(const std::function<void()>& takeRef) {
@@ -128,17 +137,15 @@ void DawnBuffer::prepareForReturnToCache(const std::function<void()>& takeRef) {
                    this);
 }
 
-DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext, size_t size, wgpu::Buffer buffer)
+DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
+                       size_t size,
+                       wgpu::Buffer buffer,
+                       void* mappedAtCreationPtr)
         : Buffer(sharedContext,
                  size,
                  /*commandBufferRefsAsUsageRefs=*/buffer.GetUsage() & wgpu::BufferUsage::MapWrite)
         , fBuffer(std::move(buffer)) {
-    // Mapped at creation.
-    if (fBuffer && fBuffer.GetMapState() == wgpu::BufferMapState::Mapped) {
-        SkASSERT(fBuffer.GetUsage() & wgpu::BufferUsage::MapWrite);
-        fMapPtr = fBuffer.GetMappedRange();
-        SkASSERT(fMapPtr);
-    }
+    fMapPtr = mappedAtCreationPtr;
 }
 
 void DawnBuffer::onAsyncMap(GpuFinishedProc proc, GpuFinishedContext ctx) {
