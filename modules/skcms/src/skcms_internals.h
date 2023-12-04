@@ -38,12 +38,14 @@ extern "C" {
         // - Wasm tail-calls were only introduced in 2023 and aren't a mainstream feature yet.
         // - Clang 18 runs into an ICE on armv7/androideabi with [[clang::musttail]].
         //   (http://crbug.com/1504548)
+        // - Android RISC-V also runs into an ICE (b/314692534)
         // - Windows builds generate incorrect code with [[clang::musttail]] and crash mysteriously.
         //   (http://crbug.com/1505442)
         #if __has_cpp_attribute(clang::musttail) && !__has_feature(memory_sanitizer) \
                                                  && !__has_feature(address_sanitizer) \
                                                  && !defined(__EMSCRIPTEN__) \
                                                  && !defined(__arm__) \
+                                                 && !defined(__riscv) \
                                                  && !defined(_WIN32) && !defined(__SYMBIAN32__)
             #define SKCMS_MUSTTAIL [[clang::musttail]]
         #else
