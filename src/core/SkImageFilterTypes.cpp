@@ -311,9 +311,11 @@ public:
         // It is assumed the caller has already accounted for the desired output, or it's a
         // situation where the desired output shouldn't apply (e.g. this surface will be transformed
         // to align with the actual desired output via FilterResult metadata).
-        auto device = ctx.backend()->makeDevice(SkISize(dstBounds.size()),
-                                                ctx.refColorSpace(),
-                                                props);
+        sk_sp<SkDevice> device =
+                dstBounds.isEmpty() ? nullptr
+                                    : ctx.backend()->makeDevice(SkISize(dstBounds.size()),
+                                                                ctx.refColorSpace(),
+                                                                props);
         if (!device) {
             return;
         }
