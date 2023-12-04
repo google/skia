@@ -28,13 +28,13 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
     };
 
     // Test multiple small writes to a reused buffer.
-    auto [smWriter0, smBufferInfo0] = bufferManager->getUploadWriter(10, 1);
+    auto [smWriter0, smBufferInfo0] = bufferManager->getTextureUploadWriter(10, 1);
     smWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/3, /*trimRowBytes=*/3,
                     /*rowCount=*/2);
     smWriter0.write(/*offset=*/6, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
                     /*rowCount=*/2);
 
-    auto [smWriter1, smBufferInfo1] = bufferManager->getUploadWriter(4, 1);
+    auto [smWriter1, smBufferInfo1] = bufferManager->getTextureUploadWriter(4, 1);
     smWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
                     /*rowCount=*/2);
 
@@ -43,7 +43,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
     REPORTER_ASSERT(reporter, smBufferInfo1.fOffset >= 10);
 
     // Test a large write, which should get its own dedicated buffer.
-    auto [lgWriter, lgBufferInfo] = bufferManager->getUploadWriter((64 << 10) + 1, 1);
+    auto [lgWriter, lgBufferInfo] = bufferManager->getTextureUploadWriter((64 << 10) + 1, 1);
     lgWriter.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
                    /*rowCount=*/2);
 
@@ -59,7 +59,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
                     memcmp(lgBufferMap, expectedLgBufferMap, sizeof(expectedLgBufferMap)) == 0);
 
     // Test another small write after the large write.
-    auto [smWriter2, smBufferInfo2] = bufferManager->getUploadWriter(2, 1);
+    auto [smWriter2, smBufferInfo2] = bufferManager->getTextureUploadWriter(2, 1);
     smWriter2.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
                     /*rowCount=*/1);
 
@@ -90,11 +90,11 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
     auto recording = recorder->snap();
 
     // Test writes with a required alignment.
-    auto [alWriter0, alBufferInfo0] = bufferManager->getUploadWriter(6, 4);
+    auto [alWriter0, alBufferInfo0] = bufferManager->getTextureUploadWriter(6, 4);
     alWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/3, /*trimRowBytes=*/3,
                     /*rowCount=*/2);
 
-    auto [alWriter1, alBufferInfo1] = bufferManager->getUploadWriter(2, 4);
+    auto [alWriter1, alBufferInfo1] = bufferManager->getTextureUploadWriter(2, 4);
     alWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
                     /*rowCount=*/1);
 

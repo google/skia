@@ -20,11 +20,13 @@ class TextureProxy;
 
 class CopyBufferToBufferTask final : public Task {
 public:
-    static sk_sp<CopyBufferToBufferTask> Make(sk_sp<Buffer> srcBuffer,
-                                              sk_sp<Buffer> dstBuffer);
-
-    static sk_sp<CopyBufferToBufferTask> Make(sk_sp<Buffer> srcBuffer, size_t srcOffset,
-                                              sk_sp<Buffer> dstBuffer, size_t dstOffset,
+    // The srcBuffer for this Task is always a transfer buffer which is owned by the
+    // UploadBufferManager. Thus we don't have to take a ref to it as the UploadBufferManager will
+    // handle its refs and passing them to the Recording.
+    static sk_sp<CopyBufferToBufferTask> Make(const Buffer* srcBuffer,
+                                              size_t srcOffset,
+                                              sk_sp<Buffer> dstBuffer,
+                                              size_t dstOffset,
                                               size_t size);
 
     ~CopyBufferToBufferTask() override;
@@ -34,11 +36,13 @@ public:
     bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
-    CopyBufferToBufferTask(sk_sp<Buffer> srcBuffer, size_t srcOffset,
-                           sk_sp<Buffer> dstBuffer, size_t dstOffset,
+    CopyBufferToBufferTask(const Buffer* srcBuffer,
+                           size_t srcOffset,
+                           sk_sp<Buffer> dstBuffer,
+                           size_t dstOffset,
                            size_t size);
 
-    sk_sp<Buffer> fSrcBuffer;
+    const Buffer* fSrcBuffer;
     size_t        fSrcOffset;
     sk_sp<Buffer> fDstBuffer;
     size_t        fDstOffset;

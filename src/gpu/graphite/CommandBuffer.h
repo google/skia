@@ -85,7 +85,7 @@ public:
     //---------------------------------------------------------------
     // Can only be used outside renderpasses
     //---------------------------------------------------------------
-    bool copyBufferToBuffer(sk_sp<Buffer> srcBuffer,
+    bool copyBufferToBuffer(const Buffer* srcBuffer,
                             size_t srcOffset,
                             sk_sp<Buffer> dstBuffer,
                             size_t dstOffset,

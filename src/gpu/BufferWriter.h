@@ -440,16 +440,16 @@ struct UniformWriter : public BufferWriter {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct UploadWriter : public BufferWriter {
-    UploadWriter() = default;
+struct TextureUploadWriter : public BufferWriter {
+    TextureUploadWriter() = default;
 
-    UploadWriter(void* ptr, size_t size) : BufferWriter(ptr, size) {}
+    TextureUploadWriter(void* ptr, size_t size) : BufferWriter(ptr, size) {}
 
-    UploadWriter(const UploadWriter&) = delete;
-    UploadWriter(UploadWriter&& that) { *this = std::move(that); }
+    TextureUploadWriter(const TextureUploadWriter&) = delete;
+    TextureUploadWriter(TextureUploadWriter&& that) { *this = std::move(that); }
 
-    UploadWriter& operator=(const UploadWriter&) = delete;
-    UploadWriter& operator=(UploadWriter&& that) {
+    TextureUploadWriter& operator=(const TextureUploadWriter&) = delete;
+    TextureUploadWriter& operator=(TextureUploadWriter&& that) {
         BufferWriter::operator=(std::move(that));
         return *this;
     }

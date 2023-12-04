@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Task.h"
+#include "src/gpu/graphite/UploadBufferManager.h"
 
 namespace skgpu::graphite {
 
@@ -268,5 +269,11 @@ void QueueManager::checkForFinishedWork(SyncToCpu sync) {
 void QueueManager::returnCommandBuffer(std::unique_ptr<CommandBuffer> commandBuffer) {
     fAvailableCommandBuffers.push_back(std::move(commandBuffer));
 }
+
+void QueueManager::addUploadBufferManagerRefs(UploadBufferManager* uploadManager) {
+    SkASSERT(fCurrentCommandBuffer);
+    uploadManager->transferToCommandBuffer(fCurrentCommandBuffer.get());
+}
+
 
 } // namespace skgpu::graphite

@@ -62,7 +62,11 @@ sk_sp<Buffer> sync_buffer_to_cpu(Recorder* recorder, const Buffer* buffer) {
             buffer->size(), BufferType::kXferGpuToCpu, AccessPattern::kHostVisible);
     SkASSERT(xferBuffer);
 
-    recorder->priv().add(CopyBufferToBufferTask::Make(sk_ref_sp(buffer), xferBuffer));
+    recorder->priv().add(CopyBufferToBufferTask::Make(buffer,
+                                                      /*srcOffset=*/0,
+                                                      xferBuffer,
+                                                      /*dstOffset=*/0,
+                                                      buffer->size()));
     return xferBuffer;
 }
 

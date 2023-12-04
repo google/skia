@@ -27,6 +27,7 @@ struct InsertRecordingInfo;
 class ResourceProvider;
 class SharedContext;
 class Task;
+class UploadBufferManager;
 
 class QueueManager {
 public:
@@ -55,6 +56,8 @@ public:
     void returnCommandBuffer(std::unique_ptr<CommandBuffer>);
 
     virtual void tick() const {}
+
+    void addUploadBufferManagerRefs(UploadBufferManager*);
 
 protected:
     QueueManager(const SharedContext* sharedContext);

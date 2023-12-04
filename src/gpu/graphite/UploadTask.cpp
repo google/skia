@@ -132,7 +132,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     SkASSERT(combinedBufferSize);
 
     UploadBufferManager* bufferMgr = recorder->priv().uploadBufferManager();
-    auto [writer, bufferInfo] = bufferMgr->getUploadWriter(combinedBufferSize, minAlignment);
+    auto [writer, bufferInfo] = bufferMgr->getTextureUploadWriter(combinedBufferSize, minAlignment);
 
     std::vector<BufferTextureCopyData> copyData(mipLevelCount);
 

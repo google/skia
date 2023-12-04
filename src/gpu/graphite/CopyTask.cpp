@@ -15,14 +15,7 @@
 
 namespace skgpu::graphite {
 
-sk_sp<CopyBufferToBufferTask> CopyBufferToBufferTask::Make(sk_sp<Buffer> srcBuffer,
-                                                           sk_sp<Buffer> dstBuffer) {
-    SkASSERT(srcBuffer);
-    const size_t size = srcBuffer->size(); // Get size before we move it into Make()
-    return Make(std::move(srcBuffer), 0, std::move(dstBuffer), 0, size);
-}
-
-sk_sp<CopyBufferToBufferTask> CopyBufferToBufferTask::Make(sk_sp<Buffer> srcBuffer,
+sk_sp<CopyBufferToBufferTask> CopyBufferToBufferTask::Make(const Buffer* srcBuffer,
                                                            size_t srcOffset,
                                                            sk_sp<Buffer> dstBuffer,
                                                            size_t dstOffset,
@@ -31,15 +24,19 @@ sk_sp<CopyBufferToBufferTask> CopyBufferToBufferTask::Make(sk_sp<Buffer> srcBuff
     SkASSERT(size <= srcBuffer->size() - srcOffset);
     SkASSERT(dstBuffer);
     SkASSERT(size <= dstBuffer->size() - dstOffset);
-    return sk_sp<CopyBufferToBufferTask>(new CopyBufferToBufferTask(std::move(srcBuffer), srcOffset,
-                                                                    std::move(dstBuffer), dstOffset,
+    return sk_sp<CopyBufferToBufferTask>(new CopyBufferToBufferTask(srcBuffer,
+                                                                    srcOffset,
+                                                                    std::move(dstBuffer),
+                                                                    dstOffset,
                                                                     size));
 }
 
-CopyBufferToBufferTask::CopyBufferToBufferTask(sk_sp<Buffer> srcBuffer, size_t srcOffset,
-                                               sk_sp<Buffer> dstBuffer, size_t dstOffset,
+CopyBufferToBufferTask::CopyBufferToBufferTask(const Buffer* srcBuffer,
+                                               size_t srcOffset,
+                                               sk_sp<Buffer> dstBuffer,
+                                               size_t dstOffset,
                                                size_t size)
-        : fSrcBuffer(std::move(srcBuffer))
+        : fSrcBuffer(srcBuffer)
         , fSrcOffset(srcOffset)
         , fDstBuffer(std::move(dstBuffer))
         , fDstOffset(dstOffset)

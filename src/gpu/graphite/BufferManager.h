@@ -13,6 +13,7 @@
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/UploadBufferManager.h"
 
 #include <array>
 #include <tuple>
@@ -36,7 +37,7 @@ class ResourceProvider;
 */
 class DrawBufferManager {
 public:
-    DrawBufferManager(ResourceProvider*, const Caps*);
+    DrawBufferManager(ResourceProvider*, const Caps*, UploadBufferManager*);
     ~DrawBufferManager();
 
     std::tuple<VertexWriter, BindBufferInfo> getVertexWriter(size_t requiredBytes);
@@ -73,15 +74,12 @@ private:
         const BufferType fType;
         const size_t fStartAlignment;
         const size_t fBlockSize;
-        sk_sp<Buffer> fBuffer{};
+        sk_sp<Buffer> fBuffer;
         // The fTransferBuffer can be null, if draw buffer cannot be mapped,
         // see Caps::drawBufferCanBeMapped() for detail.
-        sk_sp<Buffer> fTransferBuffer{};
+        BindBufferInfo fTransferBuffer{};
+        void* fTransferMapPtr = nullptr;
         size_t fOffset = 0;
-
-        Buffer* getMappableBuffer() {
-            return fTransferBuffer ? fTransferBuffer.get() : fBuffer.get();
-        }
     };
     std::pair<void*, BindBufferInfo> prepareMappedBindBuffer(BufferInfo* info,
                                                              size_t requiredBytes);
@@ -92,6 +90,7 @@ private:
 
     ResourceProvider* const fResourceProvider;
     const Caps* const fCaps;
+    UploadBufferManager* fUploadManager;
 
     static constexpr size_t kVertexBufferIndex          = 0;
     static constexpr size_t kIndexBufferIndex           = 1;
@@ -104,7 +103,7 @@ private:
     std::array<BufferInfo, 8> fCurrentBuffers;
 
     // Vector of buffer and transfer buffer pairs.
-    std::vector<std::pair<sk_sp<Buffer>, sk_sp<Buffer>>> fUsedBuffers;
+    std::vector<std::pair<sk_sp<Buffer>, BindBufferInfo>> fUsedBuffers;
 
     // List of buffer regions that were requested to be cleared at the time of allocation.
     skia_private::TArray<ClearBufferInfo> fClearList;
@@ -172,15 +171,13 @@ private:
     void* prepareStaticData(BufferInfo* info, size_t requiredBytes, BindBufferInfo* target);
 
     ResourceProvider* const fResourceProvider;
+    UploadBufferManager fUploadManager;
 
     // The source data that's copied into a final GPU-private buffer
     BufferInfo fVertexBufferInfo;
     BufferInfo fIndexBufferInfo;
 
-    std::vector<sk_sp<Buffer>> fUsedBuffers;
-
-    sk_sp<Buffer> fCurrentTransferBuffer;
-    size_t        fCurrentOffset;
+    const size_t fRequiredTransferAlignment;
 };
 
 } // namespace skgpu::graphite

@@ -119,7 +119,7 @@ bool CommandBuffer::addComputePass(const DispatchGroupList& dispatchGroups) {
     return true;
 }
 
-bool CommandBuffer::copyBufferToBuffer(sk_sp<Buffer> srcBuffer,
+bool CommandBuffer::copyBufferToBuffer(const Buffer* srcBuffer,
                                        size_t srcOffset,
                                        sk_sp<Buffer> dstBuffer,
                                        size_t dstOffset,
@@ -127,11 +127,10 @@ bool CommandBuffer::copyBufferToBuffer(sk_sp<Buffer> srcBuffer,
     SkASSERT(srcBuffer);
     SkASSERT(dstBuffer);
 
-    if (!this->onCopyBufferToBuffer(srcBuffer.get(), srcOffset, dstBuffer.get(), dstOffset, size)) {
+    if (!this->onCopyBufferToBuffer(srcBuffer, srcOffset, dstBuffer.get(), dstOffset, size)) {
         return false;
     }
 
-    this->trackResource(std::move(srcBuffer));
     this->trackResource(std::move(dstBuffer));
 
     SkDEBUGCODE(fHasWork = true;)

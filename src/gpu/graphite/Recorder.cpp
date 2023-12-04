@@ -108,10 +108,12 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext, const RecorderOptions& op
     fResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner(),
                                                              fUniqueID,
                                                              options.fGpuBudgetInBytes);
-    fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider.get(),
-                                                             fSharedContext->caps());
     fUploadBufferManager = std::make_unique<UploadBufferManager>(fResourceProvider.get(),
                                                                  fSharedContext->caps());
+    fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider.get(),
+                                                             fSharedContext->caps(),
+                                                             fUploadBufferManager.get());
+
     SkASSERT(fResourceProvider);
 }
 
@@ -166,7 +168,8 @@ std::unique_ptr<Recording> Recorder::snap() {
         // Leaving 'fTrackedDevices' alone since they were flushed earlier and could still be
         // attached to extant SkSurfaces.
         fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider.get(),
-                                                                 fSharedContext->caps());
+                                                                 fSharedContext->caps(),
+                                                                 fUploadBufferManager.get());
         fTextureDataCache = std::make_unique<TextureDataCache>();
         fUniformDataCache = std::make_unique<UniformDataCache>();
         fGraph->reset();

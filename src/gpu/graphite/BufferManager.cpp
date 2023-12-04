@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
+#include "src/gpu/graphite/UploadBufferManager.h"
 
 namespace skgpu::graphite {
 
@@ -28,11 +29,6 @@ static constexpr size_t kVertexBufferSize = 16 << 10; // 16 KB
 static constexpr size_t kIndexBufferSize =   2 << 10; //  2 KB
 static constexpr size_t kUniformBufferSize = 2 << 10; //  2 KB
 static constexpr size_t kStorageBufferSize = 2 << 10; //  2 KB
-
-// TODO: Is it better to keep this above the max data size so we typically have one transfer buffer
-// allocation? Or have it line up with kVertexBufferSize so if we end up needing to use transfer
-// buffers for dynamic vertex data we can just reuse the first one?
-static constexpr size_t kStaticTransferBufferSize = 2 << 10; // 2 KB
 
 // The limit for all data created by the StaticBufferManager. This data remains alive for
 // the entire SharedContext so we want to keep it small and give a concrete upper bound to
@@ -54,11 +50,11 @@ size_t sufficient_block_size(size_t requiredBytes, size_t blockSize) {
 }
 
 bool can_fit(size_t requestedSize,
-             Buffer* buffer,
+             size_t allocatedSize,
              size_t currentOffset,
              size_t alignment) {
     size_t startOffset = SkAlignTo(currentOffset, alignment);
-    return requestedSize <= (buffer->size() - startOffset);
+    return requestedSize <= (allocatedSize - startOffset);
 }
 
 size_t starting_alignment(BufferType type, bool useTransferBuffers, const Caps* caps) {
@@ -81,9 +77,12 @@ size_t starting_alignment(BufferType type, bool useTransferBuffers, const Caps* 
 // ------------------------------------------------------------------------------------------------
 // DrawBufferManager
 
-DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider, const Caps* caps)
+DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider,
+                                     const Caps* caps,
+                                     UploadBufferManager* uploadManager)
         : fResourceProvider(resourceProvider)
         , fCaps(caps)
+        , fUploadManager(uploadManager)
         , fCurrentBuffers{{
                 { BufferType::kVertex,        kVertexBufferSize,  caps },
                 { BufferType::kIndex,         kIndexBufferSize,   caps },
@@ -228,10 +227,15 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
         if (transferBuffer) {
             SkASSERT(buffer);
             SkASSERT(!fCaps->drawBufferCanBeMapped());
-            // A transfer buffer should always be mapped at this stage
-            transferBuffer->unmap();
+            // Since the transfer buffer is managed by the UploadManager, we don't manually unmap
+            // it here or need to pass a ref into CopyBufferToBufferTask.
+            size_t copySize = buffer->size();
             recording->priv().addTask(
-                    CopyBufferToBufferTask::Make(std::move(transferBuffer), std::move(buffer)));
+                    CopyBufferToBufferTask::Make(transferBuffer.fBuffer,
+                                                 transferBuffer.fOffset,
+                                                 std::move(buffer),
+                                                 /*dstOffset=*/0,
+                                                 copySize));
         } else {
             if (buffer->isMapped()) {
                 buffer->unmap();
@@ -251,29 +255,38 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
             // A transfer buffer should always be mapped at this stage
             SkASSERT(info.fBuffer);
             SkASSERT(!fCaps->drawBufferCanBeMapped());
-            info.fTransferBuffer->unmap();
+            // Since the transfer buffer is managed by the UploadManager, we don't manually unmap
+            // it here or need to pass a ref into CopyBufferToBufferTask.
             recording->priv().addTask(
-                    CopyBufferToBufferTask::Make(std::move(info.fTransferBuffer), info.fBuffer));
+                    CopyBufferToBufferTask::Make(info.fTransferBuffer.fBuffer,
+                                                 info.fTransferBuffer.fOffset,
+                                                 info.fBuffer,
+                                                 /*dstOffset=*/0,
+                                                 info.fBuffer->size()));
         } else {
             if (info.fBuffer->isMapped()) {
                 info.fBuffer->unmap();
             }
             recording->priv().addResourceRef(std::move(info.fBuffer));
         }
+        info.fTransferBuffer = {};
         info.fOffset = 0;
     }
 }
 
 std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(BufferInfo* info,
                                                                             size_t requiredBytes) {
-    auto bindInfo = this->prepareBindBuffer(info, requiredBytes, /*supportCpuUpload=*/true);
+    BindBufferInfo bindInfo = this->prepareBindBuffer(info,
+                                                      requiredBytes,
+                                                      /*supportCpuUpload=*/true);
     if (!bindInfo) {
         return {nullptr, {}};
     }
 
-    void* ptr = SkTAddOffset<void>(info->getMappableBuffer()->map(),
-                                   static_cast<ptrdiff_t>(bindInfo.fOffset));
-    return {ptr, bindInfo};
+    void* mapPtr = info->fTransferBuffer ? info->fTransferMapPtr : info->fBuffer->map();
+
+    mapPtr = SkTAddOffset<void>(mapPtr, static_cast<ptrdiff_t>(bindInfo.fOffset));
+    return {mapPtr, bindInfo};
 }
 
 BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
@@ -287,9 +300,9 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
     bool useTransferBuffer = supportCpuUpload && !fCaps->drawBufferCanBeMapped();
 
     if (info->fBuffer &&
-        !can_fit(requiredBytes, info->fBuffer.get(), info->fOffset, info->fStartAlignment)) {
-        SkASSERT(!info->fTransferBuffer || info->fBuffer->size() == info->fTransferBuffer->size());
-        fUsedBuffers.emplace_back(std::move(info->fBuffer), std::move(info->fTransferBuffer));
+        !can_fit(requiredBytes, info->fBuffer->size(), info->fOffset, info->fStartAlignment)) {
+        fUsedBuffers.emplace_back(std::move(info->fBuffer), info->fTransferBuffer);
+        info->fTransferBuffer = {};
     }
 
     if (!info->fBuffer) {
@@ -309,13 +322,13 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
     }
 
     if (useTransferBuffer && !info->fTransferBuffer) {
-        info->fTransferBuffer = fResourceProvider->findOrCreateBuffer(
-                info->fBuffer->size(), BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
-        SkASSERT(info->fBuffer->size() == info->fTransferBuffer->size());
-        SkASSERT(info->fOffset == 0);
+        std::tie(info->fTransferMapPtr, info->fTransferBuffer) = fUploadManager->makeBindInfo(
+                info->fBuffer->size(), fCaps->requiredTransferBufferAlignment());
+
         if (!info->fTransferBuffer) {
             return {};
         }
+        SkASSERT(info->fTransferMapPtr);
     }
 
     info->fOffset = SkAlignTo(info->fOffset, info->fStartAlignment);
@@ -335,10 +348,10 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
 StaticBufferManager::StaticBufferManager(ResourceProvider* resourceProvider,
                                          const Caps* caps)
         : fResourceProvider(resourceProvider)
+        , fUploadManager(resourceProvider, caps)
         , fVertexBufferInfo(BufferType::kVertex, caps)
         , fIndexBufferInfo(BufferType::kIndex, caps)
-        , fCurrentTransferBuffer(nullptr)
-        , fCurrentOffset(0) {}
+        , fRequiredTransferAlignment(caps->requiredTransferBufferAlignment()) {}
 StaticBufferManager::~StaticBufferManager() = default;
 
 StaticBufferManager::BufferInfo::BufferInfo(BufferType type, const Caps* caps)
@@ -370,26 +383,13 @@ void* StaticBufferManager::prepareStaticData(BufferInfo* info,
     // the pair of buffer types involved (transfer cpu->gpu and either index or vertex). Copies
     // must also copy an aligned amount of bytes.
     size = SkAlignTo(size, info->fAlignment);
-    if (fCurrentTransferBuffer &&
-        !can_fit(size, fCurrentTransferBuffer.get(), fCurrentOffset, info->fAlignment)) {
-        fCurrentTransferBuffer->unmap();
-        fUsedBuffers.push_back(std::move(fCurrentTransferBuffer));
-    }
-    if (!fCurrentTransferBuffer) {
-        size_t bufferSize = sufficient_block_size(size, kStaticTransferBufferSize);
-        fCurrentTransferBuffer = fResourceProvider->findOrCreateBuffer(
-                bufferSize, BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
-        fCurrentOffset = 0;
-    }
 
-    fCurrentOffset = SkAlignTo(fCurrentOffset, info->fAlignment);
-    info->fData.push_back({BindBufferInfo{fCurrentTransferBuffer.get(), fCurrentOffset},
-                           target, size});
-    void* ptr = SkTAddOffset<void>(fCurrentTransferBuffer->map(),
-                                   static_cast<ptrdiff_t>(fCurrentOffset));
-    fCurrentOffset += size;
+    auto [transferMapPtr, transferBindInfo] =
+            fUploadManager.makeBindInfo(size, fRequiredTransferAlignment);
+
+    info->fData.push_back({transferBindInfo, target, size});
     info->fTotalRequiredBytes += size;
-    return ptr;
+    return transferMapPtr;
 }
 
 bool StaticBufferManager::BufferInfo::createAndUpdateBindings(
@@ -418,7 +418,7 @@ bool StaticBufferManager::BufferInfo::createAndUpdateBindings(
         data.fTarget->fOffset = offset;
 
         auto copyTask = CopyBufferToBufferTask::Make(
-                sk_ref_sp(data.fSource.fBuffer), data.fSource.fOffset,
+                data.fSource.fBuffer, data.fSource.fOffset,
                 sk_ref_sp(data.fTarget->fBuffer), data.fTarget->fOffset,
                 data.fSize);
         if (!queueManager->addTask(copyTask.get(), context)) {
@@ -437,11 +437,6 @@ bool StaticBufferManager::BufferInfo::createAndUpdateBindings(
 StaticBufferManager::FinishResult StaticBufferManager::finalize(Context* context,
                                                                 QueueManager* queueManager,
                                                                 GlobalCache* globalCache) {
-    // Used buffers were already unmapped, but we're also done with the current transfer buffer
-    if (fCurrentTransferBuffer) {
-        fCurrentTransferBuffer->unmap();
-    }
-
     const size_t totalRequiredBytes = fVertexBufferInfo.fTotalRequiredBytes +
                                       fIndexBufferInfo.fTotalRequiredBytes;
     SkASSERT(totalRequiredBytes <= kMaxStaticDataSize);
@@ -457,12 +452,10 @@ StaticBufferManager::FinishResult StaticBufferManager::finalize(Context* context
                                                   queueManager, globalCache)) {
         return FinishResult::kFailure;
     }
+    queueManager->addUploadBufferManagerRefs(&fUploadManager);
 
     // Reset the static buffer manager since the Recording's copy tasks now manage ownership of
     // the transfer buffers and the GlobalCache owns the final static buffers.
-    fCurrentTransferBuffer = nullptr;
-    fCurrentOffset = 0;
-    fUsedBuffers.clear();
     fVertexBufferInfo.reset();
     fIndexBufferInfo.reset();
 
