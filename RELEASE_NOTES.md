@@ -2,6 +2,32 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 121
+-------------
+  * `SkFontConfigInterface::makeTypeface` now has a required `sk_sp<SkFontMgr>` parameter to be used for
+    parsing the font data from the stream.
+  * `skgpu::graphite::ContextOptions` has a new field, `fNeverYieldToWebGPU`. This new option
+    is only valid with the Dawn backend. It indicates that `skgpu::graphite::Context` should never yield
+    to Dawn. In native this means `wgpu::Device::Tick()` is never called. In Emscripten it
+    means `Context` never yields to the main thread event loop.
+
+    When the option is enabled, `skgpu::SyncToCpu::kYes` is ignored when passed to
+    `Context::submit()`. Moreover, it is a fatal error to have submitted but unfinished
+    GPU work before deleting `Context`. A new method, `hasUnfinishedGpuWork()` is added
+    to `Context` that can be used to test this condition.
+
+    The intent of this option is to be able to use Graphite in WASM without requiring Asyncify.
+  * Deprecated `GrMipmapped` and `GrMipMapped` alias have been removed in favor of `skgpu::Mipmapped`.
+  * Harfbuzz-backed SkShaper instances will no longer treat a null SkFontMgr as meaning "use the
+    default SkFontMgr for fallback" and instead will *not* do fallback for glyphs missing from a font.
+  * `GrBackendSemaphore::initVk` and `GrBackendSemaphore::vkSemaphore` have been replaced with
+    `GrBackendSemaphores::MakeVk` and `GrBackendSemaphores::GetVkSemaphore`, defined in
+    `include/gpu/ganesh/vk/GrVkBackendSemaphore.h`
+  * The Vulkan-specific methods and constructor of `MutableTextureState` have been deprecated in favor
+    of those found in `include/gpu/vk/VulkanMutableTextureState.h`.
+
+* * *
+
 Milestone 120
 -------------
   * `SkBase64.h` has been removed from the public API.
