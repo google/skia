@@ -1157,11 +1157,16 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
 
     // When this is false, restoring the layer filled with unmodified prior contents should be
     // identical to the prior contents, so we can restrict the layer even more than just the
-    // clip bounds. A regular filter applied to a layer initialized with prior contents is somewhat
+    // clip bounds.
+    bool filtersPriorDevice = rec.fBackdrop;
+#if !defined(SK_LEGACY_INITWITHPREV_LAYER_SIZING)
+    // A regular filter applied to a layer initialized with prior contents is somewhat
     // analogous to a backdrop filter so they are treated the same.
-    const bool filtersPriorDevice = rec.fBackdrop ||
-            ((rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) &&
+    // TODO(b/314968012): Chrome needs to be updated to clip saveAlphaLayer bounds explicitly when
+    // it uses kInitWithPrevious and LCD text.
+    filtersPriorDevice |= ((rec.fSaveLayerFlags & kInitWithPrevious_SaveLayerFlag) &&
              (filter || cf || blender || restorePaint.getAlphaf() < 1.f));
+#endif
     // If the restorePaint has a transparency-affecting colorfilter or blender, the output is
     // unbounded during restore(). `internalDrawDeviceWithFilter` automatically applies these
     // effects. When there's no image filter, SkDevice::drawDevice is used, which does
