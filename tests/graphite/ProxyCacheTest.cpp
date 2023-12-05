@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/TextureProxy.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
+#include "tools/graphite/GraphiteTestContext.h"
 
 #include <thread>
 
@@ -148,7 +149,10 @@ struct ProxyCacheSetup {
     skgpu::StdSteadyClock::time_point fTimeAfterAllProxyCreation;
 };
 
-ProxyCacheSetup setup_test(Context* context, Recorder* recorder, skiatest::Reporter* r) {
+ProxyCacheSetup setup_test(Context* context,
+                           skiatest::graphite::GraphiteTestContext* testContext,
+                           Recorder* recorder,
+                           skiatest::Reporter* r) {
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
     ProxyCacheSetup setup;
@@ -182,7 +186,7 @@ ProxyCacheSetup setup_test(Context* context, Recorder* recorder, skiatest::Repor
         // Ensure proxy2's Texture is created (and timestamped) at this time
         auto recording = recorder->snap();
         context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
+        testContext->syncedSubmit(context);
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
@@ -195,11 +199,16 @@ ProxyCacheSetup setup_test(Context* context, Recorder* recorder, skiatest::Repor
 } // anonymous namespace
 
 // This test exercises the ProxyCache's freeUniquelyHeld method.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest4, r, context, CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest4,
+                                               r,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
-    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    ProxyCacheSetup setup = setup_test(context, testContext, recorder.get(), r);
     REPORTER_ASSERT(r, setup.valid());
     if (!setup.valid()) {
         return;
@@ -218,11 +227,16 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest4, r, context, CtsEnforcement::
 }
 
 // This test exercises the ProxyCache's purgeProxiesNotUsedSince method.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest5, r, context, CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest5,
+                                               r,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
-    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    ProxyCacheSetup setup = setup_test(context, testContext, recorder.get(), r);
     REPORTER_ASSERT(r, setup.valid());
     if (!setup.valid()) {
         return;
@@ -247,11 +261,16 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest5, r, context, CtsEnforcement::
 
 // This test simply verifies that the ProxyCache is correctly updating the Resource's
 // last access time stamp.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest6, r, context, CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest6,
+                                               r,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
-    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    ProxyCacheSetup setup = setup_test(context, testContext, recorder.get(), r);
     REPORTER_ASSERT(r, setup.valid());
     if (!setup.valid()) {
         return;
@@ -288,11 +307,16 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest6, r, context, CtsEnforcement::
 }
 
 // Verify that the ProxyCache's purgeProxiesNotUsedSince method can clear out multiple proxies.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest7, r, context, CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest7,
+                                               r,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
-    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    ProxyCacheSetup setup = setup_test(context, testContext, recorder.get(), r);
     REPORTER_ASSERT(r, setup.valid());
     if (!setup.valid()) {
         return;
@@ -308,14 +332,19 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest7, r, context, CtsEnforcement::
 }
 
 // Verify that the ProxyCache's freeUniquelyHeld behavior is working in the ResourceCache.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8, r, context, CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8,
+                                               r,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ResourceCache* resourceCache = recorder->priv().resourceCache();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
     resourceCache->setMaxBudget(0);
 
-    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    ProxyCacheSetup setup = setup_test(context, testContext, recorder.get(), r);
     REPORTER_ASSERT(r, setup.valid());
     if (!setup.valid()) {
         return;
@@ -354,13 +383,17 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8, r, context, CtsEnforcement::
 
 // Verify that the ProxyCache's purgeProxiesNotUsedSince behavior is working when triggered from
 // ResourceCache.
-DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(
-        ProxyCacheTest9, r, context, testContext, true, CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest9,
+                                               r,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ResourceCache* resourceCache = recorder->priv().resourceCache();
     ProxyCache* proxyCache = recorder->priv().proxyCache();
 
-    ProxyCacheSetup setup = setup_test(context, recorder.get(), r);
+    ProxyCacheSetup setup = setup_test(context, testContext, recorder.get(), r);
     REPORTER_ASSERT(r, setup.valid());
     if (!setup.valid()) {
         return;

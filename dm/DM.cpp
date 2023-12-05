@@ -147,6 +147,7 @@ static DEFINE_bool2(veryVerbose, V, false, "tell individual tests to be verbose.
 static DEFINE_bool(cpu, true, "Run CPU-bound work?");
 static DEFINE_bool(gpu, true, "Run GPU-bound work?");
 static DEFINE_bool(graphite, true, "Run Graphite work?");
+static DEFINE_bool(neverYieldToWebGPU, false, "Run Graphite with never-yield context option.");
 
 static DEFINE_bool(dryRun, false,
                    "just print the tests that would be run, without actually running them.");
@@ -979,7 +980,7 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
 
     // Try a simple Src as a canary.  If it fails, skip this sink.
     struct : public Src {
-        Result draw(SkCanvas* c) const override {
+        Result draw(SkCanvas* c, skiatest::graphite::GraphiteTestContext*) const override {
             c->drawRect(SkRect::MakeWH(1,1), SkPaint());
             return Result::Ok();
         }
@@ -1596,7 +1597,9 @@ int main(int argc, char** argv) {
     }
 
     skgpu::graphite::ContextOptions graphiteCtxOptions;
-    // Currently no command line flags directly control the Graphite context options
+    if (FLAGS_neverYieldToWebGPU) {
+        graphiteCtxOptions.fNeverYieldToWebGPU = true;
+    }
 
     GrContextOptions grCtxOptions;
     CommonFlags::SetCtxOptions(&grCtxOptions);

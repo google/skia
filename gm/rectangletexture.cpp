@@ -111,7 +111,7 @@ private:
         return SkImages::AdoptTextureFrom(dContext, bet, origin, kRGBA_8888_SkColorType);
     }
 
-    DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg) override {
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg, GraphiteTestContext*) override {
         auto context = GrAsDirectContext(canvas->recordingContext());
         if (!context || context->abandoned()) {
             return DrawResult::kSkip;

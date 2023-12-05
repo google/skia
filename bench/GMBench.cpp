@@ -25,7 +25,8 @@ bool GMBench::isSuitableFor(Backend backend) {
 }
 
 void GMBench::onPerCanvasPreDraw(SkCanvas* canvas) {
-    if (fGM->gpuSetup(canvas) != skiagm::DrawResult::kOk) {
+    SkString msg;
+    if (fGM->gpuSetup(canvas, &msg) != skiagm::DrawResult::kOk) {
         fGpuSetupFailed = true;
     }
 

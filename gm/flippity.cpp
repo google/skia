@@ -252,7 +252,7 @@ private:
         SkASSERT(kNumLabels == fLabels.size());
     }
 
-    DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg) override {
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg, GraphiteTestContext*) override {
         this->makeLabels();
         fReferenceImages[0] = make_reference_image(canvas, fLabels, false);
         fReferenceImages[1] = make_reference_image(canvas, fLabels, true);

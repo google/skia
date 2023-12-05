@@ -118,23 +118,27 @@ public:
     SkCommandLineConfigGraphite(const SkString& tag,
                                 const skia_private::TArray<SkString>& viaParts,
                                 ContextType contextType,
+                                const skgpu::graphite::ContextOptions& contextOptions,
                                 SkColorType colorType,
                                 SkAlphaType alphaType)
             : SkCommandLineConfig(tag, SkString("graphite"), viaParts)
+            , fContextOptions(contextOptions)
             , fContextType(contextType)
             , fColorType(colorType)
             , fAlphaType(alphaType) {}
 
     const SkCommandLineConfigGraphite* asConfigGraphite() const override { return this; }
 
+    const skgpu::graphite::ContextOptions& getContextOptions() const { return fContextOptions; }
     ContextType getContextType() const { return fContextType; }
     SkColorType getColorType() const { return fColorType; }
     SkAlphaType getAlphaType() const { return fAlphaType; }
 
 private:
-    ContextType         fContextType;
-    SkColorType         fColorType;
-    SkAlphaType         fAlphaType;
+    skgpu::graphite::ContextOptions fContextOptions;
+    ContextType                     fContextType;
+    SkColorType                     fColorType;
+    SkAlphaType                     fAlphaType;
 };
 
 #endif // SK_GRAPHITE

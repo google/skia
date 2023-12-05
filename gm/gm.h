@@ -33,6 +33,10 @@ namespace skgpu::graphite {
 struct ContextOptions;
 }
 
+namespace skiatest::graphite {
+class GraphiteTestContext;
+}
+
 #define DEF_GM(CODE)                                         \
     static skiagm::GMRegistry SK_MACRO_APPEND_COUNTER(REG_)( \
             []() { return std::unique_ptr<skiagm::GM>([]() { CODE; }()); });
@@ -106,6 +110,7 @@ namespace skiagm {
     class GM {
     public:
         using DrawResult = skiagm::DrawResult;
+        using GraphiteTestContext = skiatest::graphite::GraphiteTestContext;
 
         GM(SkColor backgroundColor = SK_ColorWHITE);
         virtual ~GM();
@@ -122,11 +127,7 @@ namespace skiagm {
         inline static constexpr char kErrorMsg_DrawSkippedGpuOnly[] =
                 "This test is for GPU configs only.";
 
-        DrawResult gpuSetup(SkCanvas* canvas) {
-            SkString errorMsg;
-            return this->gpuSetup(canvas, &errorMsg);
-        }
-        DrawResult gpuSetup(SkCanvas*, SkString* errorMsg);
+        DrawResult gpuSetup(SkCanvas*, SkString* errorMsg, GraphiteTestContext* = nullptr);
         void gpuTeardown();
 
         void onceBeforeDraw() {
@@ -212,7 +213,9 @@ namespace skiagm {
 
     protected:
         // onGpuSetup is called once before any other processing with a direct context.
-        virtual DrawResult onGpuSetup(SkCanvas*, SkString*) { return DrawResult::kOk; }
+        virtual DrawResult onGpuSetup(SkCanvas*, SkString*, GraphiteTestContext*) {
+            return DrawResult::kOk;
+        }
         virtual void onGpuTeardown() {}
         virtual void onOnceBeforeDraw();
         virtual DrawResult onDraw(SkCanvas*, SkString* errorMsg);
@@ -222,12 +225,15 @@ namespace skiagm {
         virtual bool onGetControls(SkMetaData*);
         virtual void onSetControls(const SkMetaData&);
 
+        GraphiteTestContext* graphiteTestContext() const { return fGraphiteTestContext; }
+
     private:
         Mode fMode;
         SkColor    fBGColor;
         bool       fHaveCalledOnceBeforeDraw = false;
         bool       fGpuSetup = false;
         DrawResult fGpuSetupResult = DrawResult::kOk;
+        GraphiteTestContext* fGraphiteTestContext;
     };
 
     using GMFactory = std::function<std::unique_ptr<skiagm::GM>()>;

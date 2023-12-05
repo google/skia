@@ -181,7 +181,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	sampleCount := 0
 	glPrefix := ""
-	if b.extraConfig("SwiftShader") {
+	if b.extraConfig("NeverYield") {
+		configs = append(configs, "grdawn_neveryield")
+	} else if b.extraConfig("SwiftShader") {
 		configs = append(configs, "vk", "vkdmsaa")
 		// skbug.com/12826
 		skip(ALL, "test", ALL, "GrThreadSafeCache16Verts")
@@ -1354,6 +1356,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 	if b.extraConfig("ReleaseAndAbandonGpuContext") {
 		args = append(args, "--releaseAndAbandonGpuContext")
+	}
+
+	if b.extraConfig("NeverYield") {
+		args = append(args, "--neverYieldToWebGPU")
 	}
 
 	if b.extraConfig("FailFlushTimeCallbacks") {

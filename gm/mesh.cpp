@@ -120,7 +120,7 @@ protected:
                                                SkTileMode::kMirror);
     }
 
-    DrawResult onGpuSetup(SkCanvas* canvas, SkString* string) override {
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString* string, GraphiteTestContext*) override {
         auto dc = GrAsDirectContext(canvas->recordingContext());
         this->ensureBuffers();
         if (!dc || dc->abandoned()) {
@@ -1372,7 +1372,7 @@ protected:
         }
     }
 
-    DrawResult onGpuSetup(SkCanvas* canvas, SkString* string) override {
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString* string, GraphiteTestContext*) override {
         auto dc = GrAsDirectContext(canvas->recordingContext());
         this->ensureBuffers();
         if (!dc || dc->abandoned()) {

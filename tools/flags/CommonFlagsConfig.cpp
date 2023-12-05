@@ -138,6 +138,7 @@ static const struct {
 #endif
 #ifdef SK_DAWN
     { "grdawn",                "graphite", "api=dawn" },
+    { "grdawn_neveryield",        "graphite", "api=dawn,never_yield=true" },
     { "grdawn_d3d11",          "graphite", "api=dawn_d3d11" },
     { "grdawn_d3d12",          "graphite", "api=dawn_d3d12" },
     { "grdawn_mtl",            "graphite", "api=dawn_mtl" },
@@ -686,19 +687,28 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
     SkColorType colorType = kRGBA_8888_SkColorType;
     SkAlphaType alphaType = kPremul_SkAlphaType;
 
+    skgpu::graphite::ContextOptions contextOptions;
+
     bool parseSucceeded = false;
     ExtendedOptions extendedOptions(options, &parseSucceeded);
     if (!parseSucceeded) {
         return nullptr;
     }
 
-    bool validOptions = extendedOptions.get_option_graphite_api("api", &contextType) &&
-                        extendedOptions.get_option_gpu_color("color", &colorType, &alphaType);
+    bool validOptions =
+            extendedOptions.get_option_graphite_api("api", &contextType) &&
+            extendedOptions.get_option_gpu_color("color", &colorType, &alphaType) &&
+            extendedOptions.get_option_bool("never_yield", &contextOptions.fNeverYieldToWebGPU);
     if (!validOptions) {
         return nullptr;
     }
 
-    return new SkCommandLineConfigGraphite(tag, vias, contextType, colorType, alphaType);
+    return new SkCommandLineConfigGraphite(tag,
+                                           vias,
+                                           contextType,
+                                           contextOptions,
+                                           colorType,
+                                           alphaType);
 }
 
 #endif

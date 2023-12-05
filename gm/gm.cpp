@@ -86,15 +86,19 @@ GM::GM(SkColor bgColor) {
 
 GM::~GM() {}
 
-DrawResult GM::gpuSetup(SkCanvas* canvas, SkString* errorMsg) {
+DrawResult GM::gpuSetup(SkCanvas* canvas,
+                        SkString* errorMsg,
+                        GraphiteTestContext* graphiteTestContext) {
     TRACE_EVENT1("GM", TRACE_FUNC, "name", TRACE_STR_COPY(this->getName().c_str()));
     if (!fGpuSetup) {
         // When drawn in viewer, gpuSetup will be called multiple times with the same
-        // GrContext.
+        // GrContext or graphite::Context.
         fGpuSetup = true;
-        fGpuSetupResult = this->onGpuSetup(canvas, errorMsg);
+        fGpuSetupResult = this->onGpuSetup(canvas, errorMsg, graphiteTestContext);
     }
-    if (DrawResult::kOk != fGpuSetupResult) {
+    if (fGpuSetupResult == DrawResult::kOk) {
+        fGraphiteTestContext = graphiteTestContext;
+    } else {
         handle_gm_failure(canvas, fGpuSetupResult, *errorMsg);
     }
 
@@ -104,9 +108,10 @@ DrawResult GM::gpuSetup(SkCanvas* canvas, SkString* errorMsg) {
 void GM::gpuTeardown() {
     this->onGpuTeardown();
 
-    // After 'gpuTeardown' a GM can be reused with a different GrContext. Reset the flag
-    // so 'onGpuSetup' will be called.
+    // After 'gpuTeardown' a GM can be reused with a different GrContext or graphite::Context. Reset
+    // the flag so 'onGpuSetup' will be called.
     fGpuSetup = false;
+    fGraphiteTestContext = nullptr;
 }
 
 DrawResult GM::draw(SkCanvas* canvas, SkString* errorMsg) {

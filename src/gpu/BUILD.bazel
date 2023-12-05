@@ -148,9 +148,10 @@ skia_filegroup(
         ":shared_srcs",
         "//src/gpu/ganesh:srcs",
         "//src/gpu/tessellate:srcs",
-    ] + select_multi(
+    ] + select(
         {
             ":has_vulkan": ["//src/gpu/vk:srcs"],
+            "//conditions:default": [],
         },
     ),
     visibility = ["//src:__pkg__"],

@@ -82,7 +82,7 @@ protected:
         bitmaps[2].writePixels(innerVPM, 1, 1);
     }
 
-    DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg) override {
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg, GraphiteTestContext*) override {
         auto context = GrAsDirectContext(canvas->recordingContext());
         if (!context) {
             return DrawResult::kSkip;

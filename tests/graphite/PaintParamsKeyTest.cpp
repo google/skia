@@ -46,6 +46,7 @@
 #include "src/shaders/SkImageShader.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/graphite/GraphiteTestContext.h"
 
 using namespace skgpu::graphite;
 
@@ -750,6 +751,7 @@ struct DrawData {
 
 void check_draw(skiatest::Reporter* reporter,
                 Context* context,
+                skiatest::graphite::GraphiteTestContext* testContext,
                 Recorder* recorder,
                 const SkPaint& paint,
                 DrawTypeFlags dt,
@@ -783,7 +785,7 @@ void check_draw(skiatest::Reporter* reporter,
 
         std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
         context->insertRecording({ recording.get() });
-        context->submit(SyncToCpu::kYes);
+        testContext->syncedSubmit(context);
     }
 
     int after = context->priv().globalCache()->numGraphicsPipelines();
@@ -805,8 +807,12 @@ void check_draw(skiatest::Reporter* reporter,
 //
 // TODO: keep this as a smoke test but add a fuzzer that reuses all the helpers
 // TODO(b/306174708): enable in SkQP (if it's feasible)
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context,
-                                   CtsEnforcement::kNever) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
+                                               reporter,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNever) {
     auto recorder = context->makeRecorder();
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
@@ -995,7 +1001,13 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context,
                             REPORTER_ASSERT(reporter, before == 0);
                             REPORTER_ASSERT(reporter, after > before);
 
-                            check_draw(reporter, context, recorder.get(), paint, dt, drawData);
+                            check_draw(reporter,
+                                       context,
+                                       testContext,
+                                       recorder.get(),
+                                       paint,
+                                       dt,
+                                       drawData);
                         }
                     }
                 }

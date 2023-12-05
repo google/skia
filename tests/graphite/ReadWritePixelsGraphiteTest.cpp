@@ -32,6 +32,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+#include "tools/graphite/GraphiteTestContext.h"
 
 using Mipmapped = skgpu::Mipmapped;
 
@@ -515,17 +516,20 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
     context->fCalled = true;
 };
 
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
-                                         reporter,
-                                         context,
-                                         CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
+                                                     reporter,
+                                                     context,
+                                                     testContext,
+                                                     true,
+                                                     CtsEnforcement::kNextRelease) {
     using Image = sk_sp<SkImage>;
     using Renderable = skgpu::Renderable;
     using TextureInfo = skgpu::graphite::TextureInfo;
 
-    auto reader = std::function<GraphiteReadSrcFn<Image>>([context](const Image& image,
-                                                                    const SkIPoint& offset,
-                                                                    const SkPixmap& pixels) {
+    auto reader = std::function<GraphiteReadSrcFn<Image>>([context, testContext](
+                                                                  const Image& image,
+                                                                  const SkIPoint& offset,
+                                                                  const SkPixmap& pixels) {
         AsyncContext asyncContext;
         auto rect = SkIRect::MakeSize(pixels.dimensions()).makeOffset(offset);
         // The GPU implementation is based on rendering and will fail for non-renderable color
@@ -550,6 +554,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
             context->submit();
         }
         while (!asyncContext.fCalled) {
+            testContext->tick();
             context->checkAsyncWorkCompletion();
         }
         if (!asyncContext.fResult) {
@@ -592,15 +597,18 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
     context->submit();
 }
 
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraphite,
-                                         reporter,
-                                         context,
-                                         CtsEnforcement::kNextRelease) {
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraphite,
+                                                     reporter,
+                                                     context,
+                                                     testContext,
+                                                     true,
+                                                     CtsEnforcement::kNextRelease) {
     using Surface = sk_sp<SkSurface>;
 
-    auto reader = std::function<GraphiteReadSrcFn<Surface>>([context](const Surface& surface,
-                                                                      const SkIPoint& offset,
-                                                                      const SkPixmap& pixels) {
+    auto reader = std::function<GraphiteReadSrcFn<Surface>>([context, testContext](
+                                                                    const Surface& surface,
+                                                                    const SkIPoint& offset,
+                                                                    const SkPixmap& pixels) {
         AsyncContext asyncContext;
         auto rect = SkIRect::MakeSize(pixels.dimensions()).makeOffset(offset);
 
@@ -615,6 +623,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraphite,
             context->submit();
         }
         while (!asyncContext.fCalled) {
+            testContext->tick();
             context->checkAsyncWorkCompletion();
         }
         if (!asyncContext.fResult) {

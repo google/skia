@@ -11,6 +11,8 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recording.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "tools/gpu/FlushFinishTracker.h"
 
 namespace skiatest::graphite {
@@ -26,7 +28,7 @@ void GraphiteTestContext::submitRecordingAndWaitOnSync(skgpu::graphite::Context*
     SkASSERT(recording);
 
     if (fFinishTrackers[fCurrentFlushIdx]) {
-        fFinishTrackers[fCurrentFlushIdx]->waitTillFinished();
+        fFinishTrackers[fCurrentFlushIdx]->waitTillFinished([this] { tick(); });
     }
 
     fFinishTrackers[fCurrentFlushIdx].reset(new sk_gpu_test::FlushFinishTracker(context));
@@ -44,6 +46,19 @@ void GraphiteTestContext::submitRecordingAndWaitOnSync(skgpu::graphite::Context*
     context->submit(skgpu::graphite::SyncToCpu::kNo);
 
     fCurrentFlushIdx = (fCurrentFlushIdx + 1) % std::size(fFinishTrackers);
+}
+
+void GraphiteTestContext::syncedSubmit(skgpu::graphite::Context* context) {
+    skgpu::graphite::SyncToCpu sync = context->priv().caps()->allowCpuSync()
+                                              ? skgpu::graphite::SyncToCpu::kYes
+                                              : skgpu::graphite::SyncToCpu::kNo;
+    context->submit(sync);
+    if (sync == skgpu::graphite::SyncToCpu::kNo) {
+        while (context->hasUnfinishedGpuWork()) {
+            this->tick();
+            context->checkAsyncWorkCompletion();
+        }
+    }
 }
 
 }  // namespace skiatest::graphite

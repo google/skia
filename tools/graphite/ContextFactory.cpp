@@ -8,6 +8,8 @@
 #include "tools/graphite/ContextFactory.h"
 
 #include "include/gpu/graphite/Context.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
 
 #ifdef SK_DAWN
 #include "tools/graphite/dawn/GraphiteDawnTestContext.h"
@@ -20,6 +22,27 @@
 #endif
 
 namespace skiatest::graphite {
+
+ContextFactory::OwnedContextInfo::OwnedContextInfo() = default;
+
+ContextFactory::OwnedContextInfo::OwnedContextInfo(
+        skgpu::ContextType type,
+        std::unique_ptr<GraphiteTestContext> testContext,
+        std::unique_ptr<skgpu::graphite::Context> context)
+        : fType(type), fTestContext(std::move(testContext)), fContext(std::move(context)) {}
+
+ContextFactory::OwnedContextInfo::~OwnedContextInfo() {
+    // If we created a non-syncing Context then we have to wait for GPU work to finish before
+    // destroying the Context.
+    if (fContext && !fContext->priv().caps()->allowCpuSync() && fContext->hasUnfinishedGpuWork()) {
+        fTestContext->syncedSubmit(fContext.get());
+        SkASSERT(!fContext->hasUnfinishedGpuWork());
+    }
+}
+
+ContextFactory::OwnedContextInfo::OwnedContextInfo(OwnedContextInfo&&) = default;
+ContextFactory::OwnedContextInfo& ContextFactory::OwnedContextInfo::operator=(OwnedContextInfo&&) =
+        default;
 
 ContextFactory::ContextFactory(const skgpu::graphite::ContextOptions& options)
         : fOptions(options) {}

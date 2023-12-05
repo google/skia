@@ -39,6 +39,15 @@ public:
 
 private:
     struct OwnedContextInfo {
+        OwnedContextInfo();
+        OwnedContextInfo(skgpu::ContextType,
+                         std::unique_ptr<GraphiteTestContext>,
+                         std::unique_ptr<skgpu::graphite::Context>);
+
+        ~OwnedContextInfo();
+        OwnedContextInfo(OwnedContextInfo&&);
+        OwnedContextInfo& operator=(OwnedContextInfo&&);
+
         // This holds the same data as ContextInfo, but uses unique_ptr to maintain ownership.
         skgpu::ContextType fType = skgpu::ContextType::kMock;
         std::unique_ptr<GraphiteTestContext> fTestContext;

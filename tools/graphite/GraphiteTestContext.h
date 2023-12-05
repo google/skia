@@ -62,6 +62,12 @@ public:
      */
     virtual void tick() {}
 
+    /**
+     * If the context supports CPU/GPU sync'ing this calls submit with skgpu::SyncToCpu::kYes.
+     * Otherwise it calls it with kNo in a busy loop.
+     */
+    void syncedSubmit(skgpu::graphite::Context*);
+
 protected:
     static constexpr int kMaxFrameLag = 3;
 

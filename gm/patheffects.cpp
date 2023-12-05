@@ -250,7 +250,7 @@ protected:
     SkISize getISize() override { return SkISize::Make(800, 600); }
 
     // TODO: ctm-aware path effects are currently CPU only
-    DrawResult onGpuSetup(SkCanvas* canvas, SkString*) override {
+    DrawResult onGpuSetup(SkCanvas* canvas, SkString*, GraphiteTestContext*) override {
         auto dctx = GrAsDirectContext(canvas->recordingContext());
         return dctx == nullptr ? DrawResult::kOk : DrawResult::kSkip;
     }
