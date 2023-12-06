@@ -39,6 +39,7 @@ struct ContextOptions;
 namespace skiatest {
 namespace graphite {
 class GraphiteTestContext;
+struct TestOptions;
 }
 
 SkString GetTmpDir();
@@ -108,11 +109,10 @@ private:
     Reporter* fReporter;
 };
 
-using CPUTestProc                = void (*)(skiatest::Reporter*);
-using GaneshTestProc             = void (*)(skiatest::Reporter*, const GrContextOptions&);
+using CPUTestProc                = void (*)(Reporter*);
+using GaneshTestProc             = void (*)(Reporter*, const GrContextOptions&);
 using GaneshContextOptionsProc   = void (*)(GrContextOptions*);
-using GraphiteTestProc           = void (*)(skiatest::Reporter*,
-                                            const skgpu::graphite::ContextOptions&);
+using GraphiteTestProc           = void (*)(Reporter*, const graphite::TestOptions&);
 using GraphiteContextOptionsProc = void (*)(skgpu::graphite::ContextOptions*);
 
 enum class TestType : uint8_t { kCPU, kGanesh, kGraphite };
@@ -172,7 +172,7 @@ struct Test {
         this->fGaneshProc(r, options);
     }
 
-    void graphite(skiatest::Reporter* r, const skgpu::graphite::ContextOptions& options) const {
+    void graphite(skiatest::Reporter* r, const graphite::TestOptions& options) const {
         SkASSERT(this->fTestType == TestType::kGraphite);
         TRACE_EVENT1("test_graphite", TRACE_FUNC, "name", this->fName/*these are static*/);
         this->fGraphiteProc(r, options);
@@ -233,7 +233,7 @@ using GraphiteTestFn = void(Reporter*,
 void RunWithGraphiteTestContexts(GraphiteTestFn*,
                                  ContextTypeFilterFn* filter,
                                  Reporter*,
-                                 const skgpu::graphite::ContextOptions&);
+                                 const TestOptions&);
 
 } // namespace graphite
 
@@ -317,7 +317,7 @@ using skiatest::Test;
 #define DEF_GRAPHITE_TEST(name, reporter, ctsEnforcement)                                \
     static void test_##name(skiatest::Reporter*);                                        \
     static void test_graphite_##name(skiatest::Reporter* reporter,                       \
-                                     const skgpu::graphite::ContextOptions&) {           \
+                                     const skiatest::graphite::TestOptions&) {           \
         test_##name(reporter);                                                           \
     }                                                                                    \
     skiatest::TestRegistry name##TestRegistry(Test::MakeGraphite(#name, ctsEnforcement,  \
@@ -329,9 +329,9 @@ using skiatest::Test;
     static void test_##name(skiatest::Reporter*, skgpu::graphite::Context*,                        \
                             skiatest::graphite::GraphiteTestContext*);                             \
     static void test_graphite_contexts_##name(skiatest::Reporter* _reporter,                       \
-                                              const skgpu::graphite::ContextOptions& ctxOptions) { \
+                                              const skiatest::graphite::TestOptions& options) {    \
         skiatest::graphite::RunWithGraphiteTestContexts(test_##name, context_filter,               \
-                                                        _reporter, ctxOptions);                    \
+                                                        _reporter, options);                       \
     }                                                                                              \
     skiatest::TestRegistry name##TestRegistry(                                                     \
             Test::MakeGraphite(#name, ctsEnforcement, test_graphite_contexts_##name, opt_filter),  \

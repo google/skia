@@ -18,6 +18,7 @@
 #include "include/docs/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
+#include "tools/graphite/TestOptions.h"
 
 #include <functional>
 
@@ -26,11 +27,6 @@
 namespace skiagm::verifiers {
 class VerifierList;
 }
-
-namespace skgpu::graphite {
-struct Options;
-}
-
 namespace DM {
 
 // This is just convenience.  It lets you use either return "foo" or return SkStringPrintf(...).
@@ -582,7 +578,7 @@ public:
     }
 
 private:
-    skgpu::graphite::ContextOptions fBaseContextOptions;
+    skiatest::graphite::TestOptions fOptions;
     skgpu::ContextType fContextType;
     SkColorType fColorType;
     SkAlphaType fAlphaType;

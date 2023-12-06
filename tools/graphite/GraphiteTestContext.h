@@ -25,6 +25,8 @@ namespace sk_gpu_test { class FlushFinishTracker; }
 
 namespace skiatest::graphite {
 
+struct TestOptions;
+
 /**
  * An offscreen 3D context. This class is intended for Skia's internal testing needs and not
  * for general use.
@@ -40,8 +42,7 @@ public:
 
     virtual skgpu::ContextType contextType() = 0;
 
-    virtual std::unique_ptr<skgpu::graphite::Context> makeContext(
-            const skgpu::graphite::ContextOptions&) = 0;
+    virtual std::unique_ptr<skgpu::graphite::Context> makeContext(const TestOptions&) = 0;
 
     bool getMaxGpuFrameLag(int *maxFrameLag) const {
         *maxFrameLag = kMaxFrameLag;

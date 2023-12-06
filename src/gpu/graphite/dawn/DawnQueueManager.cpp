@@ -46,7 +46,7 @@ private:
 DawnQueueManager::DawnQueueManager(wgpu::Queue queue, const SharedContext* sharedContext)
         : QueueManager(sharedContext), fQueue(std::move(queue)) {}
 
-void DawnQueueManager::tick() const { DawnTickDevice(this->dawnSharedContext()); }
+void DawnQueueManager::tick() const { this->dawnSharedContext()->tick(); }
 
 const DawnSharedContext* DawnQueueManager::dawnSharedContext() const {
     return static_cast<const DawnSharedContext*>(fSharedContext);

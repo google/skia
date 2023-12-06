@@ -21,10 +21,6 @@ namespace skgpu::graphite {
 
 sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& context,
                                                const ContextOptions& options) {
-    if (options.fNeverYieldToWebGPU) {
-        SKGPU_LOG_W("fNeverYieldToWebGPU is not supported with Vulkan.");
-        return nullptr;
-    }
     if (context.fInstance == VK_NULL_HANDLE ||
         context.fPhysicalDevice == VK_NULL_HANDLE ||
         context.fDevice == VK_NULL_HANDLE ||

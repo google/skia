@@ -125,8 +125,8 @@ namespace graphite {
 void RunWithGraphiteTestContexts(GraphiteTestFn* test,
                                  ContextTypeFilterFn* filter,
                                  Reporter* reporter,
-                                 const skgpu::graphite::ContextOptions& ctxOptions) {
-    ContextFactory factory(ctxOptions);
+                                 const TestOptions& options) {
+    ContextFactory factory(options);
     for (int typeInt = 0; typeInt < skgpu::kContextTypeCount; ++typeInt) {
         skgpu::ContextType contextType = static_cast<skgpu::ContextType>(typeInt);
         if (skip_context(contextType)) {

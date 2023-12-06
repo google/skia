@@ -14,6 +14,7 @@
 #include "include/private/base/SkTArray.h"
 #include "tools/gpu/ContextType.h"
 #include "tools/graphite/GraphiteTestContext.h"
+#include "tools/graphite/TestOptions.h"
 
 namespace skgpu::graphite {
 class Context;
@@ -28,7 +29,7 @@ struct ContextInfo {
 
 class ContextFactory {
 public:
-    explicit ContextFactory(const skgpu::graphite::ContextOptions&);
+    explicit ContextFactory(const TestOptions&);
     ContextFactory() = default;
     ContextFactory(const ContextFactory&) = delete;
     ContextFactory& operator=(const ContextFactory&) = delete;
@@ -57,7 +58,7 @@ private:
     static ContextInfo AsContextInfo(const OwnedContextInfo& ctx);
 
     skia_private::TArray<OwnedContextInfo> fContexts;
-    const skgpu::graphite::ContextOptions fOptions;
+    const TestOptions fOptions = {};
 };
 
 }  // namespace skiatest::graphite

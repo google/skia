@@ -2107,7 +2107,7 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
 #if defined(SK_GRAPHITE)
 
 GraphiteSink::GraphiteSink(const SkCommandLineConfigGraphite* config)
-        : fBaseContextOptions(config->getContextOptions())
+        : fOptions(config->getOptions())
         , fContextType(config->getContextType())
         , fColorType(config->getColorType())
         , fAlphaType(config->getAlphaType()) {}
@@ -2116,14 +2116,14 @@ Result GraphiteSink::draw(const Src& src,
                           SkBitmap* dst,
                           SkWStream* dstStream,
                           SkString* log) const {
-    skgpu::graphite::ContextOptions options = fBaseContextOptions;
+    skiatest::graphite::TestOptions options = fOptions;
     // If we've copied context options from an external source we can't trust that the
     // priv pointer is still in scope, so assume it should be NULL and set our own up.
-    SkASSERT(!options.fOptionsPriv);
+    SkASSERT(!options.fContextOptions.fOptionsPriv);
     skgpu::graphite::ContextOptionsPriv optionsPriv;
-    options.fOptionsPriv = &optionsPriv;
+    options.fContextOptions.fOptionsPriv = &optionsPriv;
 
-    src.modifyGraphiteContextOptions(&options);
+    src.modifyGraphiteContextOptions(&options.fContextOptions);
 
     SkImageInfo ii = SkImageInfo::Make(src.size(), this->colorInfo());
 

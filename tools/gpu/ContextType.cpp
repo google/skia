@@ -72,6 +72,22 @@ bool skgpu::IsNativeBackend(skgpu::ContextType type) {
     }
 }
 
+bool skgpu::IsDawnBackend(skgpu::ContextType type) {
+    switch (type) {
+        case ContextType::kDawn:
+        case ContextType::kDawn_D3D11:
+        case ContextType::kDawn_D3D12:
+        case ContextType::kDawn_Metal:
+        case ContextType::kDawn_OpenGL:
+        case ContextType::kDawn_OpenGLES:
+        case ContextType::kDawn_Vulkan:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 bool skgpu::IsRenderingContext(ContextType type) {
     return type != ContextType::kMock;
 }

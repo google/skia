@@ -11,6 +11,7 @@
 
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/gpu/graphite/dawn/DawnBackendContext.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
@@ -51,11 +52,11 @@ static constexpr wgpu::TextureFormat kFormats[skgpu::graphite::DawnCaps::kFormat
 
 namespace skgpu::graphite {
 
-DawnCaps::DawnCaps(const wgpu::Device& device, const ContextOptions& options)
+DawnCaps::DawnCaps(const DawnBackendContext& backendContext, const ContextOptions& options)
     : Caps() {
-    this->initCaps(device, options);
-    this->initShaderCaps(device);
-    this->initFormatTable(device);
+    this->initCaps(backendContext, options);
+    this->initShaderCaps(backendContext.fDevice);
+    this->initFormatTable(backendContext.fDevice);
     this->finishInitialization(options);
 }
 
@@ -268,15 +269,15 @@ SkColorType DawnCaps::supportedReadPixelsColorType(SkColorType srcColorType,
     return kUnknown_SkColorType;
 }
 
-void DawnCaps::initCaps(const wgpu::Device& device, const ContextOptions& options) {
+void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextOptions& options) {
 #if defined(GRAPHITE_TEST_UTILS) && !defined(__EMSCRIPTEN__)
     wgpu::AdapterProperties props;
-    device.GetAdapter().GetProperties(&props);
+    backendContext.fDevice.GetAdapter().GetProperties(&props);
     this->setDeviceName(props.name);
 #endif
 
     wgpu::SupportedLimits limits;
-    if (!device.GetLimits(&limits)) {
+    if (!backendContext.fDevice.GetLimits(&limits)) {
         SkASSERT(false);
     }
     fMaxTextureSize = limits.limits.maxTextureDimension2D;
@@ -308,11 +309,12 @@ void DawnCaps::initCaps(const wgpu::Device& device, const ContextOptions& option
 
 #if !defined(__EMSCRIPTEN__)
     fMSAARenderToSingleSampledSupport =
-            device.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
+            backendContext.fDevice.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
 
-    fTransientAttachmentSupport = device.HasFeature(wgpu::FeatureName::TransientAttachments);
+    fTransientAttachmentSupport =
+            backendContext.fDevice.HasFeature(wgpu::FeatureName::TransientAttachments);
 #endif
-    if (options.fNeverYieldToWebGPU) {
+    if (!backendContext.fTick) {
         fAllowCpuSync = false;
         // This seems paradoxical. However, if we use the async pipeline creation methods (e.g
         // Device::CreateRenderPipelineAsync) then we may have to synchronize before a submit that

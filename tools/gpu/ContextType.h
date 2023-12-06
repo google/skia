@@ -46,6 +46,8 @@ const char* ContextTypeName(skgpu::ContextType type);
 
 bool IsNativeBackend(skgpu::ContextType type);
 
+bool IsDawnBackend(skgpu::ContextType type);
+
 bool IsRenderingContext(skgpu::ContextType type);
 
 namespace ganesh {

@@ -605,7 +605,7 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
 
         using ContextFactory = skiatest::graphite::ContextFactory;
 
-        ContextFactory factory(gpuConfig->asConfigGraphite()->getContextOptions());
+        ContextFactory factory(gpuConfig->asConfigGraphite()->getOptions());
         skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(graphiteCtxType);
         skgpu::graphite::Context* ctx = ctxInfo.fContext;
         if (ctx) {

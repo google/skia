@@ -67,31 +67,5 @@ uint32_t DawnFormatChannels(wgpu::TextureFormat format) {
     SkUNREACHABLE;
 }
 
-#ifdef __EMSCRIPTEN__
-namespace {
-// When we use Dawn/WebGPU in a WebAssembly environment, we do not have access to
-// `wgpu::Device::Tick()`, which is only available to dawn_native. Here we emulate the same
-// behavior by scheduling and awaiting on a single async task, which will yield to the browser's
-// underlying event loop.
-//
-// This requires that Emscripten is configured with `-s ASYNCIFY` to work as expected.
-EM_ASYNC_JS(void, asyncSleep, (), {
-    await new Promise((resolve, _) = > {
-        setTimeout(resolve, 0);
-    })
-});
-}
-#endif  // __EMSCRIPTEN__
-
-void DawnTickDevice(const DawnSharedContext* sc) {
-    SkASSERT(sc);
-    SkASSERT(sc->dawnCaps()->allowCpuSync());
-#ifdef __EMSCRIPTEN__
-    asyncSleep();
-#else
-    sc->device().Tick();
-#endif  // __EMSCRIPTEN__
-}
-
 } // namespace skgpu::graphite
 

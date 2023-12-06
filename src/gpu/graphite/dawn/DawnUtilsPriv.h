@@ -18,8 +18,6 @@ size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format);
 
 uint32_t DawnFormatChannels(wgpu::TextureFormat format);
 
-void DawnTickDevice(const DawnSharedContext*);
-
 } // namespace skgpu::graphite
 
 #endif // skgpu_DawnUtilsPriv_DEFINED

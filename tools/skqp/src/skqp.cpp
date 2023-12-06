@@ -27,7 +27,7 @@
 #endif
 
 #ifdef SK_GRAPHITE
-#include "include/gpu/graphite/ContextOptions.h"
+#include "tools/graphite/TestOptions.h"
 #endif
 
 #ifdef SK_BUILD_FOR_ANDROID
@@ -166,13 +166,13 @@ std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {
     }
 #ifdef SK_GRAPHITE
     else if (test->fTestType == skiatest::TestType::kGraphite) {
-        skgpu::graphite::ContextOptions options;
+        skiatest::graphite::TestOptions options;
         if (test->fCTSEnforcement.eval(fEnforcedAndroidAPILevel) ==
             CtsEnforcement::RunMode::kRunStrict) {
-            options.fDisableDriverCorrectnessWorkarounds = true;
+            options.fContextOptions.fDisableDriverCorrectnessWorkarounds = true;
         }
         if (test->fGraphiteContextOptionsProc) {
-            test->fGraphiteContextOptionsProc(&options);
+            test->fGraphiteContextOptionsProc(&options.fContextOptions);
         }
         test->graphite(&r, options);
     }

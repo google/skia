@@ -24,8 +24,7 @@ public:
 
     skgpu::ContextType contextType() override;
 
-    std::unique_ptr<skgpu::graphite::Context> makeContext(
-            const skgpu::graphite::ContextOptions&) override;
+    std::unique_ptr<skgpu::graphite::Context> makeContext(const TestOptions&) override;
 
     const skgpu::graphite::MtlBackendContext& getBackendContext() const {
         return fMtl;

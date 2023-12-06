@@ -44,7 +44,7 @@ ContextFactory::OwnedContextInfo::OwnedContextInfo(OwnedContextInfo&&) = default
 ContextFactory::OwnedContextInfo& ContextFactory::OwnedContextInfo::operator=(OwnedContextInfo&&) =
         default;
 
-ContextFactory::ContextFactory(const skgpu::graphite::ContextOptions& options)
+ContextFactory::ContextFactory(const TestOptions& options)
         : fOptions(options) {}
 
 ContextInfo ContextFactory::AsContextInfo(const OwnedContextInfo& owned) {
@@ -52,6 +52,10 @@ ContextInfo ContextFactory::AsContextInfo(const OwnedContextInfo& owned) {
 }
 
 ContextInfo ContextFactory::getContextInfo(skgpu::ContextType type) {
+    if (!skgpu::IsDawnBackend(type) && fOptions.fNeverYieldToWebGPU) {
+        return {};
+    }
+
     // Look for an existing ContextInfo that we can re-use.
     for (const OwnedContextInfo& ctxInfo : fContexts) {
         if (ctxInfo.fType == type) {

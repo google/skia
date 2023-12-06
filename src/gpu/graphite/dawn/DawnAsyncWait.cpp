@@ -18,12 +18,12 @@ DawnAsyncWait::DawnAsyncWait(const DawnSharedContext* sharedContext)
         , fSignaled(false) {}
 
 bool DawnAsyncWait::yieldAndCheck() const {
-    if (fSharedContext->caps()->allowCpuSync()) {
+    if (fSharedContext->hasTick()) {
         if (fSignaled.load(std::memory_order_acquire)) {
             return true;
         }
 
-        DawnTickDevice(fSharedContext);
+        fSharedContext->tick();
     }
     return fSignaled.load(std::memory_order_acquire);
 }
@@ -31,7 +31,7 @@ bool DawnAsyncWait::yieldAndCheck() const {
 bool DawnAsyncWait::mayBusyWait() const { return fSharedContext->caps()->allowCpuSync(); }
 
 void DawnAsyncWait::busyWait() const {
-    SkASSERT(fSharedContext->caps()->allowCpuSync());
+    SkASSERT(fSharedContext->hasTick());
     while (!this->yieldAndCheck()) {}
 }
 

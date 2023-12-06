@@ -687,7 +687,7 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
     SkColorType colorType = kRGBA_8888_SkColorType;
     SkAlphaType alphaType = kPremul_SkAlphaType;
 
-    skgpu::graphite::ContextOptions contextOptions;
+    skiatest::graphite::TestOptions testOptions;
 
     bool parseSucceeded = false;
     ExtendedOptions extendedOptions(options, &parseSucceeded);
@@ -698,7 +698,7 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
     bool validOptions =
             extendedOptions.get_option_graphite_api("api", &contextType) &&
             extendedOptions.get_option_gpu_color("color", &colorType, &alphaType) &&
-            extendedOptions.get_option_bool("never_yield", &contextOptions.fNeverYieldToWebGPU);
+            extendedOptions.get_option_bool("never_yield", &testOptions.fNeverYieldToWebGPU);
     if (!validOptions) {
         return nullptr;
     }
@@ -706,7 +706,7 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
     return new SkCommandLineConfigGraphite(tag,
                                            vias,
                                            contextType,
-                                           contextOptions,
+                                           testOptions,
                                            colorType,
                                            alphaType);
 }
