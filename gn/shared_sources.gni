@@ -20,6 +20,3 @@ import("xps.gni")
 skia_opts = {
   hsw_sources = hsw
 }
-
-#Removed from Skia but still referenced by skia/BUILD.gn in chromium.
-skia_shared_dawn_sources = []
