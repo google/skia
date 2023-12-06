@@ -9,6 +9,9 @@
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/encode/SkICC.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
@@ -103,6 +106,10 @@ static std::unique_ptr<SkBitmap> prepare_for_image_ref(const SkBitmap& bm,
 
 CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
                                             CGColorSpaceRef colorSpace) {
+    return SkCreateCGImageRef(bm);
+}
+
+CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
     if (bm.drawsNothing()) {
         return nullptr;
     }
@@ -123,14 +130,18 @@ CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
             bitmap.release(), pixels, s,
             [](void* p, const void*, size_t) { delete reinterpret_cast<SkBitmap*>(p); }));
 
-    SkUniqueCFRef<CGColorSpaceRef> rgb;
-    if (nullptr == colorSpace) {
-        rgb.reset(CGColorSpaceCreateDeviceRGB());
-        colorSpace = rgb.get();
-    }
-    return CGImageCreate(pm.width(), pm.height(), bitsPerComponent,
-                         pm.info().bytesPerPixel() * CHAR_BIT, pm.rowBytes(), colorSpace,
-                         info, dataRef.get(), nullptr, false, kCGRenderingIntentDefault);
+    SkUniqueCFRef<CGColorSpaceRef> colorSpace(SkCreateCGColorSpace(bm.colorSpace()));
+    return CGImageCreate(pm.width(),
+                         pm.height(),
+                         bitsPerComponent,
+                         pm.info().bytesPerPixel() * CHAR_BIT,
+                         pm.rowBytes(),
+                         colorSpace.get(),
+                         info,
+                         dataRef.get(),
+                         nullptr,
+                         false,
+                         kCGRenderingIntentDefault);
 }
 
 void SkCGDrawBitmap(CGContextRef cg, const SkBitmap& bm, float x, float y) {
@@ -168,7 +179,7 @@ CGContextRef SkCreateCGContext(const SkPixmap& pmap) {
     }
 
     size_t rb = pmap.addr() ? pmap.rowBytes() : 0;
-    SkUniqueCFRef<CGColorSpaceRef> cs(CGColorSpaceCreateDeviceRGB());
+    SkUniqueCFRef<CGColorSpaceRef> cs(SkCreateCGColorSpace(pmap.colorSpace()));
     CGContextRef cg = CGBitmapContextCreate(pmap.writable_addr(), pmap.width(), pmap.height(),
                                             bitsPerComponent, rb, cs.get(), cg_bitmap_info);
     return cg;
@@ -191,7 +202,7 @@ bool SkCopyPixelsFromCGImage(const SkImageInfo& info, size_t rowBytes, void* pix
             return false;   // no other colortypes are supported (for now)
     }
 
-    SkUniqueCFRef<CGColorSpaceRef> cs(CGColorSpaceCreateDeviceRGB());
+    SkUniqueCFRef<CGColorSpaceRef> cs(SkCreateCGColorSpace(info.colorSpace()));
     SkUniqueCFRef<CGContextRef> cg(CGBitmapContextCreate(
                 pixels, info.width(), info.height(), bitsPerComponent,
                 rowBytes, cs.get(), cg_bitmap_info));
@@ -210,7 +221,8 @@ bool SkCopyPixelsFromCGImage(const SkImageInfo& info, size_t rowBytes, void* pix
 bool SkCreateBitmapFromCGImage(SkBitmap* dst, CGImageRef image) {
     const int width = SkToInt(CGImageGetWidth(image));
     const int height = SkToInt(CGImageGetHeight(image));
-    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    sk_sp<SkColorSpace> colorSpace(SkMakeColorSpaceFromCGColorSpace(CGImageGetColorSpace(image)));
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height, colorSpace);
 
     SkBitmap tmp;
     if (!tmp.tryAllocPixels(info)) {
@@ -248,6 +260,84 @@ sk_sp<SkImage> SkMakeImageFromCGImage(CGImageRef src) {
 
     bm.setImmutable();
     return bm.asImage();
+}
+
+CGDataProviderRef SkCreateCGDataProvider(sk_sp<SkData> data) {
+    if (!data) {
+        return nullptr;
+    }
+
+    CGDataProviderRef result = CGDataProviderCreateWithData(
+            data.get(), data->data(), data->size(), [](void* info, const void*, size_t) {
+                reinterpret_cast<SkData*>(info)->unref();
+            });
+    if (!result) {
+        return nullptr;
+    }
+
+    // Retain `data` for the release that will come when `result` is freed.
+    data->ref();
+    return result;
+}
+
+sk_sp<SkColorSpace> SkMakeColorSpaceFromCGColorSpace(CGColorSpaceRef cgColorSpace) {
+    if (!cgColorSpace) {
+        return nullptr;
+    }
+
+    // Attempt to convert by name.
+    SkUniqueCFRef<CFStringRef> name(CGColorSpaceCopyName(cgColorSpace));
+    if (name && CFStringCompare(name.get(), kCGColorSpaceSRGB, 0) == kCFCompareEqualTo) {
+        return SkColorSpace::MakeSRGB();
+    }
+
+    // Attempt to convert by parsing the ICC profile.
+    SkUniqueCFRef<CFDataRef> iccData(CGColorSpaceCopyICCData(cgColorSpace));
+    if (!iccData) {
+        return nullptr;
+    }
+    skcms_ICCProfile iccProfile;
+    if (!skcms_Parse(
+                CFDataGetBytePtr(iccData.get()), CFDataGetLength(iccData.get()), &iccProfile)) {
+        return nullptr;
+    }
+    return SkColorSpace::Make(iccProfile);
+}
+
+CGColorSpaceRef SkCreateCGColorSpace(const SkColorSpace* space) {
+    // Initialize result to sRGB. We will use this as the fallback on failure.
+    CGColorSpaceRef cgSRGB = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+
+    // Early-out of this is sRGB (or nullptr defaulting to sRGB).
+    if (!space || space->isSRGB()) {
+        return cgSRGB;
+    }
+
+    // Create an SkData with the ICC profile.
+    skcms_TransferFunction fn;
+    skcms_Matrix3x3 to_xyzd50;
+    space->transferFn(&fn);
+    space->toXYZD50(&to_xyzd50);
+    sk_sp<SkData> iccData = SkWriteICCProfile(fn, to_xyzd50);
+    if (!iccData) {
+        return cgSRGB;
+    }
+
+    // Create a CGColorSpaceRef from that ICC data.
+    const size_t kNumComponents = 3;
+    const CGFloat kComponentRanges[6] = {0, 1, 0, 1, 0, 1};
+    SkUniqueCFRef<CGDataProviderRef> iccDataProvider(SkCreateCGDataProvider(iccData));
+    CGColorSpaceRef result = CGColorSpaceCreateICCBased(
+            kNumComponents, kComponentRanges, iccDataProvider.get(), cgSRGB);
+    if (!result) {
+        return cgSRGB;
+    }
+
+    // We will not be returning |cgSRGB|, so free it now.
+    CFRelease(cgSRGB);
+    cgSRGB = nullptr;
+
+    return result;
 }
 
 #endif//defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
