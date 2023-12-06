@@ -645,6 +645,7 @@ private:
     bool fRebindColorAttachmentAfterCheckFramebufferStatus : 1;
     bool fFlushBeforeWritePixels : 1;
     bool fDisableScalingCopyAsDraws : 1;
+    bool fPadRG88TransferAlignment : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;

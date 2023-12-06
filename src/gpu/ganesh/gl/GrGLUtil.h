@@ -142,6 +142,7 @@ enum class GrGLVendor {
     kQualcomm,
     kNVIDIA,
     kATI,
+    kApple,
 
     kOther
 };
@@ -207,6 +208,8 @@ enum class GrGLRenderer {
     kAMDRadeonPro5xxx,    // AMD Radeon Pro 5000 Series
     kAMDRadeonProVegaxx,  // AMD Radeon Pro Vega
 
+    kApple,
+
     kWebGL,
 
     kOther
@@ -221,6 +224,7 @@ enum class GrGLDriver {
     kAndroidEmulator,
     kImagination,
     kARM,
+    kApple,
     kUnknown
 };
 

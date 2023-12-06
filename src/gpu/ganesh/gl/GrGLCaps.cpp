@@ -89,6 +89,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRebindColorAttachmentAfterCheckFramebufferStatus = false;
     fFlushBeforeWritePixels = false;
     fDisableScalingCopyAsDraws = false;
+    fPadRG88TransferAlignment = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -4658,6 +4659,12 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     } else if (ctxInfo.angleVendor() == GrGLVendor::kIntel) {
         fRegenerateMipmapType = RegenerateMipmapType::kBasePlusSync;
     }
+#ifdef SK_BUILD_FOR_MAC
+    // On Apple Silicon, RG88 requires 2-byte alignment for transfer buffer readback
+    if (ctxInfo.vendor() == GrGLVendor::kApple) {
+        fPadRG88TransferAlignment = true;
+    }
+#endif
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
@@ -4795,6 +4802,9 @@ GrCaps::SupportedRead GrGLCaps::onSupportedReadPixelsColorType(
                         if (formatInfo.fFlags & FormatInfo::kTransfers_Flag) {
                             transferOffsetAlignment =
                                     offset_alignment_for_transfer_buffer(ioInfo.fExternalType);
+                            if (dstColorType == GrColorType::kRG_88 && fPadRG88TransferAlignment) {
+                                transferOffsetAlignment = 2;
+                            }
                         }
                         if (ioInfo.fColorType == dstColorType) {
                             return {dstColorType, transferOffsetAlignment};
