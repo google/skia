@@ -47,9 +47,7 @@ public:
     sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override;
 
     sk_sp<SkFontStyleSet> onCreateStyleSet(int) const override { return nullptr; }
-    sk_sp<SkTypeface> onMatchFamilyStyle(const char[], const SkFontStyle&) const override {
-        return nullptr;
-    }
+    sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[], const SkFontStyle& pattern) const override;
     sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char[], const SkFontStyle&,
                                                   const char*[], int,
                                                   SkUnichar) const override {
