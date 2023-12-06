@@ -535,10 +535,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = append(configs, "mtlreducedshaders")
 		}
 
-		if b.gpu("AppleM1") && !b.extraConfig("Metal") {
-			skip(ALL, "test", ALL, "TransferPixelsFromTextureTest") // skia:11814
-		}
-
 		if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 			args = append(args, "--dontReduceOpsTaskSplitting", "true")
 		}
