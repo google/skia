@@ -450,11 +450,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
         fAvoidUpdateBuffers = true;
     }
 
-    if (kQualcomm_VkVendor == properties.vendorID) {
-        // Adreno devices don't support push constants well
-        fMaxPushConstantsSize = 0;
-    }
-
     fNativeDrawIndirectSupport = features.features.drawIndirectFirstInstance;
     if (properties.vendorID == kQualcomm_VkVendor) {
         // Indirect draws seem slow on QC. Disable until we can investigate. http://skbug.com/11139
