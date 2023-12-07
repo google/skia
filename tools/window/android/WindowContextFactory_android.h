@@ -19,6 +19,8 @@ struct DisplayParams;
 
 std::unique_ptr<WindowContext> MakeVulkanForAndroid(ANativeWindow*, const DisplayParams&);
 
+std::unique_ptr<WindowContext> MakeGraphiteVulkanForAndroid(ANativeWindow*, const DisplayParams&);
+
 std::unique_ptr<WindowContext> MakeGLForAndroid(ANativeWindow*, const DisplayParams&);
 
 std::unique_ptr<WindowContext> MakeRasterForAndroid(ANativeWindow*, const DisplayParams&);
