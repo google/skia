@@ -290,9 +290,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 			if b.extraConfig("Dawn") {
 				configs = []string{"grdawn"}
-				// Could not readback from surface
-				// https://skbug.com/14105
-				skip(ALL, "gm", ALL, "tall_stretched_bitmaps")
 				// Shader doesn't compile
 				// https://skbug.com/14105
 				skip(ALL, "gm", ALL, "runtime_intrinsics_matrix")
