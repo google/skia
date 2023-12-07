@@ -26,7 +26,7 @@ extern "C" {
         #define SKCMS_FALLTHROUGH [[clang::fallthrough]]
     #endif
 
-    #ifndef SKCMS_MUSTTAIL
+    #ifndef SKCMS_HAS_MUSTTAIL
         // [[clang::musttail]] is great for performance, but it's not well supported and we run into
         // a variety of problems when we use it. Fortunately, it's an optional feature that doesn't
         // affect correctness, and usually the compiler will generate a tail-call even for us
@@ -47,9 +47,7 @@ extern "C" {
                                                  && !defined(__arm__) \
                                                  && !defined(__riscv) \
                                                  && !defined(_WIN32) && !defined(__SYMBIAN32__)
-            #define SKCMS_MUSTTAIL [[clang::musttail]]
-        #else
-            #define SKCMS_MUSTTAIL
+            #define SKCMS_HAS_MUSTTAIL 1
         #endif
     #endif
 #endif
@@ -57,8 +55,8 @@ extern "C" {
 #ifndef SKCMS_FALLTHROUGH
     #define SKCMS_FALLTHROUGH
 #endif
-#ifndef SKCMS_MUSTTAIL
-    #define SKCMS_MUSTTAIL
+#ifndef SKCMS_HAS_MUSTTAIL
+    #define SKCMS_HAS_MUSTTAIL 0
 #endif
 
 #if defined(__clang__)
