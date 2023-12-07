@@ -17,7 +17,7 @@ namespace skcms_private {
 
 /** All transform ops */
 
-#define SKCMS_ALL_OPS(M)  \
+#define SKCMS_ALL_OPS(M) \
     M(load_a8)            \
     M(load_g8)            \
     M(load_4444)          \
@@ -34,7 +34,6 @@ namespace skcms_private {
     M(load_hhhh)          \
     M(load_fff)           \
     M(load_ffff)          \
-                          \
     M(swap_rb)            \
     M(clamp)              \
     M(invert)             \
@@ -84,7 +83,6 @@ namespace skcms_private {
                           \
     M(clut_A2B)           \
     M(clut_B2A)           \
-                          \
     M(store_a8)           \
     M(store_g8)           \
     M(store_4444)         \

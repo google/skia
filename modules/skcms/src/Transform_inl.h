@@ -769,64 +769,40 @@ struct Ctx {
     template <typename T> operator T*() { return (const T*)fArg; }
 };
 
-#define STAGE_PARAMS(MAYBE_REF) SKCMS_MAYBE_UNUSED const char* src, \
-                                SKCMS_MAYBE_UNUSED char* dst,       \
-                                SKCMS_MAYBE_UNUSED F MAYBE_REF r,            \
-                                SKCMS_MAYBE_UNUSED F MAYBE_REF g,            \
-                                SKCMS_MAYBE_UNUSED F MAYBE_REF b,            \
-                                SKCMS_MAYBE_UNUSED F MAYBE_REF a,            \
-                                SKCMS_MAYBE_UNUSED int i
+// We can't declare StageFn as a function pointer which takes a pointer to StageFns; that would be
+// a circular dependency. To avoid this, StageFn is wrapped in a `struct StageList` which forward-
+// declare here.
+struct StageList;
+using StageFn = void (*)(StageList stages, const void** ctx, const char* s, char* d,
+                         F r, F g, F b, F a, int i);
+struct StageList {
+    const StageFn* fn;
+};
 
-#if SKCMS_HAS_MUSTTAIL
+#define DECLARE_STAGE(name, arg, CALL_NEXT)                                                  \
+    SI void Exec_##name##_k(arg, const char* src, char* dst, F& r, F& g, F& b, F& a, int i); \
+                                                                                             \
+    SI void Exec_##name(StageList list, const void** ctx, const char* s, char* d,            \
+                        F r, F g, F b, F a, int i) {                                         \
+        Exec_##name##_k(Ctx{*ctx}, s, d, r, g, b, a, i);                                     \
+        ++list.fn; ++ctx;                                                                    \
+        CALL_NEXT;                                                                           \
+    }                                                                                        \
+                                                                                             \
+    SI void Exec_##name##_k(arg,                                                             \
+                            SKCMS_MAYBE_UNUSED const char* src,                              \
+                            SKCMS_MAYBE_UNUSED char* dst,                                    \
+                            SKCMS_MAYBE_UNUSED F& r,                                         \
+                            SKCMS_MAYBE_UNUSED F& g,                                         \
+                            SKCMS_MAYBE_UNUSED F& b,                                         \
+                            SKCMS_MAYBE_UNUSED F& a,                                         \
+                            SKCMS_MAYBE_UNUSED int i)
 
-    // Stages take a stage list, and each stage is responsible for tail-calling the next one.
-    //
-    // Unfortunately, we can't declare a StageFn as a function pointer which takes a pointer to
-    // another StageFn; declaring this leads to a circular dependency. To avoid this, StageFn is
-    // wrapped in a single-element `struct StageList` which we are able to forward-declare.
-    struct StageList;
-    using StageFn = void (*)(StageList stages, const void** ctx, STAGE_PARAMS());
-    struct StageList {
-        const StageFn* fn;
-    };
+#define STAGE(name, arg) \
+    DECLARE_STAGE(name, arg, SKCMS_MUSTTAIL return (*list.fn)(list, ctx, s, d, r, g, b, a, i))
 
-    #define EMIT_STAGE_EXEC(name, arg)                                                 \
-        SI void Exec_##name(StageList list, const void** ctx, STAGE_PARAMS()) {        \
-            Exec_##name##_k(Ctx{*ctx}, src, dst, r, g, b, a, i);                       \
-            ++list.fn; ++ctx;                                                          \
-            [[clang::musttail]] return (*list.fn)(list, ctx, src, dst, r, g, b, a, i); \
-        }
-
-    #define EMIT_FINAL_STAGE_EXEC(name, arg)                                           \
-        SI void Exec_##name(StageList, const void** ctx, STAGE_PARAMS()) {             \
-            Exec_##name##_k(Ctx{*ctx}, src, dst, r, g, b, a, i);                       \
-            /* Stop executing stages and return to the caller. */                      \
-        }
-
-#else
-
-    using StageFn = void(*)(const void* ctx, STAGE_PARAMS(&));
-
-    // If [[clang::musttail]] isn't available, we invoke stages in a tight loop. (In practice, this
-    // tends to be faster on compilers where we can't guarantee tail-calling will occur.)
-    #define EMIT_STAGE_EXEC(name, arg)                          \
-        SI void Exec_##name(const void* ctx, STAGE_PARAMS(&)) { \
-            Exec_##name##_k(Ctx{ctx}, src, dst, r, g, b, a, i); \
-        }
-
-    // We don't need to treat final stages differently in this mode.
-    #define EMIT_FINAL_STAGE_EXEC(name, arg) EMIT_STAGE_EXEC(name, arg)
-
-#endif
-
-
-#define STAGE(name, arg)        SI void Exec_##name##_k(arg, STAGE_PARAMS(&)); \
-                                EMIT_STAGE_EXEC(name, arg)                     \
-                                SI void Exec_##name##_k(arg, STAGE_PARAMS(&))
-
-#define FINAL_STAGE(name, arg)  SI void Exec_##name##_k(arg, STAGE_PARAMS(&)); \
-                                EMIT_FINAL_STAGE_EXEC(name, arg)               \
-                                SI void Exec_##name##_k(arg, STAGE_PARAMS(&))
+#define FINAL_STAGE(name, arg) \
+    DECLARE_STAGE(name, arg, /*just return to exec_stages*/)
 
 STAGE(load_a8, NoCtx) {
     a = F_from_U8(load<U8>(src + 1*i));
@@ -1470,32 +1446,15 @@ FINAL_STAGE(store_ffff, NoCtx) {
 #endif
 }
 
-#if SKCMS_HAS_MUSTTAIL
-
-    SI void exec_stages(StageFn* stages, ptrdiff_t /*numStages*/, const void** contexts,
-                        const char* src, char* dst, int i) {
-        // Run the stages via a chain of tailcalls.
-        (*stages)({stages}, contexts, src, dst, F0, F0, F0, F1, i);
-    }
-
-#else
-
-    SI void exec_stages(StageFn* stages, ptrdiff_t numStages, const void** contexts,
-                        const char* src, char* dst, int i) {
-        // Run the stages via a loop.
-        F r = F0, g = F0, b = F0, a = F1;
-        while (numStages--) {
-            (*stages++)(*contexts++, src, dst, r, g, b, a, i);
-        }
-    }
-
-#endif
+SI void exec_stages(StageList list, const void** contexts, const char* src, char* dst, int i) {
+    (*list.fn)(list, contexts, src, dst, F0, F0, F0, F1, i);
+}
 
 // NOLINTNEXTLINE(misc-definitions-in-headers)
 void run_program(const Op* program, const void** contexts, ptrdiff_t programSize,
                  const char* src, char* dst, int n,
                  const size_t src_bpp, const size_t dst_bpp) {
-    // Convert the program into an array of stage function pointers.
+    // Convert the program into an array of tailcall stages.
     StageFn stages[32];
     assert(programSize <= ARRAY_COUNT(stages));
 
@@ -1511,15 +1470,15 @@ void run_program(const Op* program, const void** contexts, ptrdiff_t programSize
 
     int i = 0;
     while (n >= N) {
-        exec_stages(stages, programSize, contexts, src, dst, i);
+        exec_stages({stages}, contexts, src, dst, i);
         i += N;
         n -= N;
     }
     if (n > 0) {
-        char tmp[4*4*N] = {};
+        char tmp[4*4*N] = {0};
 
         memcpy(tmp, (const char*)src + (size_t)i*src_bpp, (size_t)n*src_bpp);
-        exec_stages(stages, programSize, contexts, tmp, tmp, 0);
+        exec_stages({stages}, contexts, tmp, tmp, 0);
         memcpy((char*)dst + (size_t)i*dst_bpp, tmp, (size_t)n*dst_bpp);
     }
 }
