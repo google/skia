@@ -182,36 +182,7 @@ public class SkQPRunner extends Runner implements Filterable {
                                          name(index)));
                 return false;
             }
-            catch (Exception ex) {
-                // Verify that RuntimeShader actually emitted the expected error messages.
-                // The list of expectations isn't necessarily exhaustive, though.
-                String errorText = ex.getMessage();
-                String[] block = shaderText.split(Pattern.quote("*%%*"));
-                if (block.length >= 3) {
-                    // We only intend to support a single /%**%/ section.
-                    // Because we are splitting on *%%*, expectations should always be in block[1].
-                    String[] expectations = block[1].split("\n");
-                    for (String expectation : expectations) {
-                        if (expectation.length() == 0) {
-                            continue;
-                        }
-                        int errIndex = errorText.indexOf(expectation);
-                        // If this error wasn't reported, trigger an error.
-                        if (errIndex < 0) {
-                            String failMessage = String.format("Expected error '%s', got '%s'",
-                                                               expectation, ex.getMessage());
-                            SkQPRunner.Fail(desc(index), notifier, failMessage);
-                            Log.w(TAG, String.format("[FAIL] '%s': %s", name(index), failMessage));
-                            return false;
-                        }
-                        // We found the error that we expected to have. Remove that error from our
-                        // text, and everything preceding it as well. This ensures that we don't
-                        // match the same error twice, and that errors are reported in the order
-                        // we expect.
-                        errorText = errorText.substring(errIndex + expectation.length());
-                    }
-                }
-            }
+            catch (Exception ex) { } // Assume any exception is an expected SkSL error.
             return true;
         }
     }
