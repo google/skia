@@ -21,6 +21,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkTime.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <algorithm>
 #include <string>
@@ -170,7 +171,7 @@ void StatsLayer::onPaint(SkSurface* surface) {
         x += xStep;
     } while (i != nextMeasurement);
 
-    SkFont font(nullptr, 16);
+    SkFont font(ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle()), 16);
     paint.setColor(SK_ColorWHITE);
     double time = totalTime / std::max(1, totalCount);
     double measure = fCumulativeMeasurementTime / std::max(1, fCumulativeMeasurementCount);
