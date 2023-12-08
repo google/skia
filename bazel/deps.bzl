@@ -208,7 +208,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "vulkan_utility_libraries",
         build_file = ws + "//bazel/external/vulkan_utility_libraries:BUILD.bazel",
-        commit = "0e37b3279688cc5f09ac20fd1ccbbaf0883bcac0",
+        commit = "9d1d2629a0cd23a25af183cb1c54809e5c9bfa9c",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries",
     )
 
