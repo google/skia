@@ -6,7 +6,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_cc_library(
-    name = "skottie",
+    name = "legacy_skottie",
     srcs = [
         "//modules/skottie/src:srcs",
         "//src/utils:json_hdrs",
@@ -16,10 +16,10 @@ skia_cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",
-        "//modules/skresources",
-        "//modules/sksg",
-        "//modules/skshaper",
-        "//modules/skunicode",
+        "//modules/skresources:legacy_skresources",
+        "//modules/sksg:legacy_sksg",
+        "//modules/skshaper:legacy_skshaper",
+        "//modules/skunicode:legacy_skunicode",
     ],
 )
 
@@ -29,7 +29,7 @@ skia_cc_library(
     hdrs = ["//modules/skottie/utils:hdrs"],
     visibility = ["//:__subpackages__"],
     deps = [
-        ":skottie",
+        ":legacy_skottie",
         "//tools/skui",
     ],
 )
@@ -53,7 +53,7 @@ cc_binary_with_flags(
         "use_icu": ["True"],
     },
     deps = [
-        ":skottie",
+        ":legacy_skottie",
         ":utils",
     ],
 )
@@ -80,7 +80,7 @@ cc_binary_with_flags(
         "with_gl_standard": ["gl_standard"],
     },
     deps = [
-        ":skottie",
+        ":legacy_skottie",
         ":utils",
         "//tools/gpu:utils",
     ],

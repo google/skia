@@ -14,7 +14,7 @@ selects.config_setting_group(
 # TODO(kjlubick,bungeman) coretext shaper
 
 skia_cc_library(
-    name = "skshaper",
+    name = "legacy_skshaper",
     srcs = ["//modules/skshaper/src:srcs"],
     hdrs = ["//modules/skshaper/include:hdrs"],
     defines = ["SK_SHAPER_UNICODE_AVAILABLE"] + select({
@@ -33,7 +33,7 @@ skia_cc_library(
     #deps = ["//:skia_internal"]
     deps = [
         "//:skia_internal",
-        "//modules/skunicode",
+        "//modules/skunicode:legacy_skunicode",
     ] + select({
         ":use_harfbuzz_shaper": [
             "@harfbuzz",

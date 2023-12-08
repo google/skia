@@ -35,7 +35,7 @@ skia_cc_library(
     visibility = ["//platform_tools/android/apps/jetski:__pkg__"],
     deps = [
         "//:skia_internal",
-        "//modules/skottie",
+        "//modules/skottie:legacy_skottie",
         "//tools/window",
     ],
 )

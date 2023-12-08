@@ -5,14 +5,14 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_cc_library(
-    name = "skparagraph",
+    name = "legacy_skparagraph",
     srcs = ["//modules/skparagraph/src:srcs"],
     hdrs = ["//modules/skparagraph/include:hdrs"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",
-        "//modules/skshaper",
-        "//modules/skunicode",
+        "//modules/skshaper:legacy_skshaper",
+        "//modules/skunicode:legacy_skunicode",
         "@harfbuzz",
         "@icu",
     ],

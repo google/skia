@@ -5,7 +5,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_cc_library(
-    name = "skunicode",
+    name = "legacy_skunicode",
     srcs = [
         "//modules/skunicode/src:icu_bidi_srcs",
         "//modules/skunicode/src:icu_srcs",
