@@ -807,7 +807,7 @@ sk_sp<SkSpecialImage> cpu_blur(const skif::Context& ctx,
     SkASSERT(makerX->window() > 1 || makerY->window() > 1);
 
     SkBitmap src;
-    if (!input->getROPixels(&src)) {
+    if (!SkSpecialImages::AsBitmap(input.get(), &src)) {
         return nullptr;
     }
     if (src.colorType() != kN32_SkColorType) {

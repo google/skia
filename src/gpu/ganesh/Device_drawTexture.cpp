@@ -385,6 +385,12 @@ void Device::drawSpecial(SkSpecialImage* special,
                                                        : SkCanvas::kNone_QuadAAFlags;
 
     GrSurfaceProxyView view = SkSpecialImages::AsView(this->recordingContext(), special);
+    if (!view) {
+        // This shouldn't happen since we shouldn't be mixing SkSpecialImage subclasses but
+        // returning early should avoid problems in release builds.
+        SkASSERT(false);
+        return;
+    }
     SkImage_Ganesh image(sk_ref_sp(special->getContext()),
                          special->uniqueID(),
                          std::move(view),

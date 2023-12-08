@@ -123,15 +123,6 @@ public:
      */
     virtual GrRecordingContext* getContext() const { return nullptr; }
 
-    /**
-     *  Regardless of the underlying backing store, return the contents as an SkBitmap.
-     *  The returned bitmap represents the subset accessed by this image, thus (0,0) refers to the
-     *  top-left corner of 'subset'.
-     */
-    bool getROPixels(SkBitmap* bm) const {
-        return this->onGetROPixels(bm);
-    }
-
 protected:
     SkSpecialImage(const SkIRect& subset,
                    uint32_t uniqueID,
@@ -142,8 +133,6 @@ protected:
                         SkScalar x, SkScalar y,
                         const SkSamplingOptions&,
                         const SkPaint*) const = 0;
-
-    virtual bool onGetROPixels(SkBitmap*) const = 0;
 
     // This subset is relative to the backing store's coordinate frame, it has already been mapped
     // from the content rect by the non-virtual makeSubset().
@@ -169,6 +158,8 @@ namespace SkSpecialImages {
 sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset, sk_sp<SkImage>, const SkSurfaceProps&);
 sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset, const SkBitmap&, const SkSurfaceProps&);
 sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset, const SkBitmap&, const SkSurfaceProps&);
+
+bool AsBitmap(const SkSpecialImage* img, SkBitmap*);
 
 }  // namespace SkSpecialImages
 

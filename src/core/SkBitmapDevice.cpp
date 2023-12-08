@@ -578,7 +578,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
     SkASSERT(!src->isGraphiteBacked());
 
     SkBitmap resultBM;
-    if (src->getROPixels(&resultBM)) {
+    if (SkSpecialImages::AsBitmap(src, &resultBM)) {
         SkDraw draw;
         if (!this->accessPixels(&draw.fDst)) {
           return; // no pixels to draw to so skip it

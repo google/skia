@@ -720,8 +720,8 @@ private:
         } else
 #endif
         {
-            // Assume it's raster backed, so use getROPixels directly
-            SkAssertResult(specialImage->getROPixels(&bm));
+            // Assume it's raster backed, so use AsBitmap directly
+            SkAssertResult(SkSpecialImages::AsBitmap(specialImage, &bm));
         }
 
         return bm;

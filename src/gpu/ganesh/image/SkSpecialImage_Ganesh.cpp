@@ -7,7 +7,6 @@
 
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 
-#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"  // IWYU pragma: keep
 #include "include/core/SkImage.h"
@@ -26,14 +25,12 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkImageShader.h"
 
 #include <cstddef>
-#include <tuple>
 #include <utility>
 
 class SkPaint;
@@ -92,13 +89,6 @@ public:
     GrRecordingContext* getContext() const override { return fContext; }
 
     GrSurfaceProxyView view(GrRecordingContext*) const { return fView; }
-
-    bool onGetROPixels(SkBitmap* dst) const override {
-        // This should never be called: All GPU image filters are implemented entirely on the GPU,
-        // so we never perform read-back.
-        SkASSERT(false);
-        return false;
-    }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
         return SkSpecialImages::MakeDeferredFromGpu(
@@ -204,18 +194,11 @@ sk_sp<SkSpecialImage> MakeDeferredFromGpu(GrRecordingContext* context,
 }
 
 GrSurfaceProxyView AsView(GrRecordingContext* context, const SkSpecialImage* img) {
-    if (!context || !img) {
+    if (!context || !img || !img->isGaneshBacked()) {
         return {};
     }
-    if (img->isGaneshBacked()) {
-        auto grImg = static_cast<const SkSpecialImage_Gpu*>(img);
-        return grImg->view(context);
-    }
-    SkASSERT(!img->isGraphiteBacked());
-    SkBitmap bm;
-    SkAssertResult(img->getROPixels(&bm));  // this should always succeed for raster images
-    return std::get<0>(GrMakeCachedBitmapProxyView(
-            context, bm, /*label=*/"SpecialImageRaster_AsView", skgpu::Mipmapped::kNo));
+    auto grImg = static_cast<const SkSpecialImage_Gpu*>(img);
+    return grImg->view(context);
 }
 
 }  // namespace SkSpecialImages

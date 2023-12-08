@@ -1762,7 +1762,7 @@ void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, const SkMatrix& localToDev
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
 
     SkBitmap resultBM;
-    if (srcImg->getROPixels(&resultBM)) {
+    if (SkSpecialImages::AsBitmap(srcImg, &resultBM)) {
         auto r = SkRect::MakeWH(resultBM.width(), resultBM.height());
         this->internalDrawImageRect(SkKeyedImage(resultBM), nullptr, r, sampling, paint,
                                     localToDevice);

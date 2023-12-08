@@ -68,6 +68,10 @@ public:
         SkASSERT(fBitmap.getPixels());
     }
 
+    bool getROPixels(SkBitmap* bm) const {
+        return fBitmap.extractSubset(bm, this->subset());
+    }
+
     size_t getSize() const override { return fBitmap.computeByteSize(); }
 
     void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingOptions& sampling,
@@ -77,10 +81,6 @@ public:
 
         canvas->drawImageRect(fBitmap.asImage(), SkRect::Make(this->subset()), dst,
                               sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
-    }
-
-    bool onGetROPixels(SkBitmap* bm) const override {
-        return fBitmap.extractSubset(bm, this->subset());
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
@@ -188,6 +188,14 @@ sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
         return MakeFromRaster(subset, bm, props);
     }
     return nullptr;
+}
+
+bool AsBitmap(const SkSpecialImage* img, SkBitmap* result) {
+    if (!img || img->isGaneshBacked() || img->isGraphiteBacked()) {
+        return false;
+    }
+    auto rasterImg = static_cast<const SkSpecialImage_Raster*>(img);
+    return rasterImg->getROPixels(result);
 }
 
 }  // namespace SkSpecialImages
