@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google Inc.
+ * Copyright 2023 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -8,6 +8,7 @@
 #ifndef SkJpegConstants_codec_DEFINED
 #define SkJpegConstants_codec_DEFINED
 
+#include <cstddef>
 #include <cstdint>
 
 // The first marker of all JPEG files is StartOfImage.

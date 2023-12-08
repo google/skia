@@ -56,7 +56,6 @@ struct SkGainmapInfo;
 
 extern "C" {
     #include "jpeglib.h"  // NO_G3_REWRITE
-    #include "jmorecfg.h"  // NO_G3_REWRITE
 }
 
 bool SkJpegCodec::IsJpeg(const void* buffer, size_t bytesRead) {

@@ -50,3 +50,19 @@ cc_binary(
         "@skia//:png_encode_codec",
     ],
 )
+
+cc_binary(
+    name = "shape_text",
+    srcs = ["src/shape_text.cpp"],
+    copts = ["-std=c++17"],
+    linkopts = [
+        "-fuse-ld=lld",
+        "-lpthread",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:fontmgr_empty_freetype",
+        "@skia//:jpeg_encode_codec",
+        "@skia//:skparagraph_harfbuzz_icu",
+    ],
+)

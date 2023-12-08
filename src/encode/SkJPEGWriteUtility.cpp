@@ -16,7 +16,7 @@
 
 extern "C" {
     #include "jerror.h"    // NO_G3_REWRITE
-    #include "jmorecfg.h"  // NO_G3_REWRITE
+    #include "jpeglib.h"   // NO_G3_REWRITE
 }
 
 ///////////////////////////////////////////////////////////////////////////////

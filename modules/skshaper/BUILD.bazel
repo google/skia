@@ -1,4 +1,5 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "selects", "skia_cc_library")
+load("@bazel_skylib//lib:selects.bzl", "selects")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
 
 licenses(["notice"])
 
@@ -11,13 +12,16 @@ selects.config_setting_group(
     ],
 )
 
-# TODO(kjlubick,bungeman) coretext shaper
+# TODO(kjlubick,bungeman) delete skshaper (uses legacy non-modular build)
 
 skia_cc_library(
     name = "legacy_skshaper",
     srcs = ["//modules/skshaper/src:srcs"],
     hdrs = ["//modules/skshaper/include:hdrs"],
-    defines = ["SK_SHAPER_UNICODE_AVAILABLE"] + select({
+    defines = [
+        "SK_SHAPER_UNICODE_AVAILABLE",
+        "SK_SHAPER_PRIMITIVE_AVAILABLE",
+    ] + select({
         ":use_harfbuzz_shaper": ["SK_SHAPER_HARFBUZZ_AVAILABLE"],
         "//conditions:default": [],
     }),
@@ -40,4 +44,31 @@ skia_cc_library(
         ],
         "//conditions:default": [],
     }),
+)
+
+# TODO(kjlubick,bungeman) break this up such that a client could have one or more
+# non-conflicting skshaper targets (e.g. move core_srcs to a central cc_library)
+skia_cc_library(
+    name = "skshaper_harfbuzz",
+    srcs = [
+        "//modules/skshaper/src:core_srcs",
+        "//modules/skshaper/src:harfbuzz_srcs",
+    ],
+    hdrs = ["//modules/skshaper/include:hdrs"],
+    defines = [
+        "SK_SHAPER_UNICODE_AVAILABLE",
+        "SK_SHAPER_HARFBUZZ_AVAILABLE",
+    ],
+    features = ["layering_check"],
+    local_defines = ["SKSHAPER_IMPLEMENTATION=1"],
+    visibility = [
+        "//:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//modules/skunicode:skunicode_icu",
+        "//src/base",
+        "//src/core:core_priv",
+        "@harfbuzz",
+    ],
 )

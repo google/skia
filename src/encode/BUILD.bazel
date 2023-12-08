@@ -133,9 +133,36 @@ skia_cc_library(
         "//include/encode:encode_hdrs",
         "//include/encode:png_hdrs",
     ],
+    features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
+        "//modules/skcms",
+        "//src/base",
+        "//src/core:core_priv",
         "@libpng",
+    ],
+)
+
+skia_cc_library(
+    name = "jpeg_encode",
+    srcs = [
+        ":any_encoder_srcs",
+        ":jpeg_encode_hdrs",
+        ":jpeg_encode_srcs",
+        "//src/codec:common_jpeg_srcs",
+    ],
+    hdrs = [
+        "//include/encode:encode_hdrs",
+        "//include/encode:jpeg_hdrs",
+    ],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//modules/skcms",
+        "//src/base",
+        "//src/core:core_priv",
+        "@libjpeg_turbo",
     ],
 )

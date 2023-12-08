@@ -37,7 +37,11 @@ std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fallback) {
         return shaper;
     }
 #endif
+#if defined(SK_SHAPER_PRIMITIVE_AVAILABLE)
     return SkShaper::MakePrimitive();
+#else
+    return nullptr;
+#endif
 }
 
 void SkShaper::PurgeCaches() {

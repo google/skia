@@ -9,7 +9,7 @@ import("skshaper.gni")
 if (skia_enable_skshaper) {
   config("public_config") {
     include_dirs = [ "include" ]
-    defines = []
+    defines = [ "SK_SHAPER_PRIMITIVE_AVAILABLE" ]
     if (is_component_build) {
       defines += [ "SKSHAPER_DLL" ]
     }

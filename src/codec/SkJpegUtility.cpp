@@ -16,7 +16,6 @@
 #include <cstddef>
 
 extern "C" {
-    #include "jmorecfg.h"  // NO_G3_REWRITE
     #include "jpeglib.h"   // NO_G3_REWRITE
 }
 

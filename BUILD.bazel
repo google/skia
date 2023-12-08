@@ -93,6 +93,14 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+###
+
+alias(
+    name = "jpeg_encode_codec",
+    actual = "//src/encode:jpeg_encode",
+    visibility = ["//visibility:public"],
+)
+
 alias(
     name = "png_decode_codec",
     actual = "//src/codec:png_decode",
@@ -105,9 +113,25 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+###
+
 alias(
     name = "fontmgr_fontconfig_freetype",
     actual = "//src/ports:fontmgr_fontconfig_freetype",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "fontmgr_empty_freetype",
+    actual = "//src/ports:fontmgr_empty_freetype",
+    visibility = ["//visibility:public"],
+)
+
+###
+
+alias(
+    name = "skparagraph_harfbuzz_icu",
+    actual = "//modules/skparagraph:skparagraph_harfbuzz_icu",
     visibility = ["//visibility:public"],
 )
 

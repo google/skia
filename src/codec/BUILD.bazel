@@ -301,6 +301,15 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "common_jpeg_srcs",
+    srcs = [
+        "SkJpegConstants.h",
+        "SkJpegPriv.h",
+    ],
+    visibility = ["//src/encode:__pkg__"],
+)
+
+skia_filegroup(
     name = "buffet_png_srcs",
     srcs = [
         "SkCodec.cpp",

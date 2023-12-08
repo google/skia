@@ -2197,6 +2197,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	// Note: these paths are relative to the WORKSPACE in //example/external_client
 	"path_combiner":     {"//:path_combiner", ""},
 	"png_decoder":       {"//:png_decoder", ""},
+	"shape_text":        {"//:shape_text", ""},
 	"write_text_to_png": {"//:write_text_to_png", ""},
 
 	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them

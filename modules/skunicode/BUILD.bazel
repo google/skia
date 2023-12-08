@@ -22,3 +22,27 @@ skia_cc_library(
         "@icu",
     ],
 )
+
+# TODO(kjlubick,bungeman) break this up such that a client could have one or more
+# non-conflicting skunicode targets (e.g. move srcs to a central cc_library)
+skia_cc_library(
+    name = "skunicode_icu",
+    srcs = [
+        "//modules/skunicode/src:icu_bidi_srcs",
+        "//modules/skunicode/src:icu_srcs",
+        "//modules/skunicode/src:srcs",
+    ],
+    hdrs = ["//modules/skunicode/include:hdrs"],
+    defines = [
+        "SK_UNICODE_AVAILABLE",
+        "SK_UNICODE_ICU_IMPLEMENTATION",
+    ],
+    features = ["layering_check"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "@icu",
+    ],
+)

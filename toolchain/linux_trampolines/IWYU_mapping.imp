@@ -459,4 +459,6 @@
   { symbol: ["skia_private", "private", "\"src/core/SkTraceEvent.h\"", "public"] },
 
   { include: ["\"modules/skcms/src/skcms_public.h\"", "private", "\"modules/skcms/skcms.h\"", "public"] },
+
+  { include: ["\"jmorecfg.h\"", "private", "\"jpeglib.h\"", "public"] },
 ]
