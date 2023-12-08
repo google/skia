@@ -49,6 +49,10 @@ public:
         return fRecorder->fSharedContext->rendererProvider();
     }
 
+    Protected isProtected() const {
+        return fRecorder->fSharedContext->isProtected();
+    }
+
     UniformDataCache* uniformDataCache() { return fRecorder->fUniformDataCache.get(); }
     TextureDataCache* textureDataCache() { return fRecorder->fTextureDataCache.get(); }
     DrawBufferManager* drawBufferManager() { return fRecorder->fDrawBufferManager.get(); }

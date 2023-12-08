@@ -67,7 +67,8 @@ void GraphiteVulkanWindowContext::initializeContext() {
     VkPhysicalDeviceFeatures2 features;
     if (!sk_gpu_test::CreateVkBackendContext(getInstanceProc, &backendContext, &extensions,
                                              &features, &fDebugCallback, &fPresentQueueIndex,
-                                             fCanPresentFn)) {
+                                             fCanPresentFn,
+                                             fDisplayParams.fCreateProtectedNativeBackend)) {
         sk_gpu_test::FreeVulkanFeaturesStructs(&features);
         return;
     }
@@ -293,6 +294,9 @@ bool GraphiteVulkanWindowContext::createSwapchain(int width, int height,
     VkSwapchainCreateInfoKHR swapchainCreateInfo;
     memset(&swapchainCreateInfo, 0, sizeof(VkSwapchainCreateInfoKHR));
     swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    swapchainCreateInfo.flags = fDisplayParams.fCreateProtectedNativeBackend
+                                ? VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR
+                                : 0;
     swapchainCreateInfo.surface = fSurface;
     swapchainCreateInfo.minImageCount = imageCount;
     swapchainCreateInfo.imageFormat = surfaceFormat;
@@ -346,7 +350,8 @@ bool GraphiteVulkanWindowContext::createSwapchain(int width, int height,
     return true;
 }
 
-bool GraphiteVulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFlags usageFlags,
+bool GraphiteVulkanWindowContext::createBuffers(VkFormat format,
+                                                VkImageUsageFlags usageFlags,
                                                 SkColorType colorType,
                                                 VkSharingMode sharingMode) {
     fGetSwapchainImagesKHR(fDevice, fSwapchain, &fImageCount, nullptr);
@@ -365,6 +370,8 @@ bool GraphiteVulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFla
         info.fFormat = format;
         info.fImageUsageFlags = usageFlags;
         info.fSharingMode = sharingMode;
+        info.fFlags = fDisplayParams.fCreateProtectedNativeBackend ? VK_IMAGE_CREATE_PROTECTED_BIT
+                                                                   : 0;
 
         skgpu::graphite::BackendTexture backendTex(this->dimensions(),
                                                    info,
@@ -372,6 +379,7 @@ bool GraphiteVulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFla
                                                    fPresentQueueIndex,
                                                    fImages[i],
                                                    skgpu::VulkanAlloc());
+
         fSurfaces[i] = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                       backendTex,
                                                       colorType,
