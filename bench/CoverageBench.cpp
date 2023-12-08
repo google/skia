@@ -25,15 +25,23 @@ class DrawPathBench : public Benchmark {
     bool        fDrawCoverage;
 public:
     DrawPathBench(bool drawCoverage) : fDrawCoverage(drawCoverage) {
-        fPaint.setAntiAlias(true);
         fName.printf("draw_coverage_%s", drawCoverage ? "true" : "false");
+    }
+
+protected:
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    void onDelayedSetup() override {
+        fPaint.setAntiAlias(true);
 
         fPath.moveTo(0, 0);
         fPath.quadTo(500, 0, 500, 500);
         fPath.quadTo(250, 0, 0, 500);
 
         fPixmap.alloc(SkImageInfo::MakeA8(500, 500));
-        if (!drawCoverage) {
+        if (!fDrawCoverage) {
             // drawPathCoverage() goes out of its way to work fine with an uninitialized
             // dst buffer, even in "SrcOver" mode, but ordinary drawing sure doesn't.
             fPixmap.erase(0);
@@ -44,11 +52,6 @@ public:
         fDraw.fDst = fPixmap;
         fDraw.fCTM = &SkMatrix::I();
         fDraw.fRC = &fRC;
-    }
-
-protected:
-    const char* onGetName() override {
-        return fName.c_str();
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
