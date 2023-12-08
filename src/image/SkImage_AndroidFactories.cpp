@@ -37,6 +37,7 @@
 #include "src/core/SkImageInfoPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/SkBackingFit.h"
+#include "src/gpu/android/AHardwareBufferUtils.h"
 #include "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h"
 #include "src/gpu/ganesh/GrBackendTextureImageGenerator.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
@@ -127,7 +128,7 @@ sk_sp<SkImage> TextureFromAHardwareBufferWithData(GrDirectContext* dContext,
     auto releaseHelper = skgpu::RefCntedCallback::Make(deleteImageProc, deleteImageCtx);
 
     SkColorType colorType =
-            GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
+            AHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 

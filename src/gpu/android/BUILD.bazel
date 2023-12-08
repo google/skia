@@ -1,0 +1,27 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+SHARED_ANDROID_FILES = [
+    "AHardwareBufferUtils.h",
+    "AHardwareBufferUtils.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "shared_android",
+    files = SHARED_ANDROID_FILES,
+)
+
+skia_filegroup(
+    name = "android_srcs",
+    srcs = [":shared_android_srcs"],
+    visibility = ["//src/gpu:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [":shared_android_hdrs"],
+    visibility = ["//src/gpu:__pkg__"],
+)
