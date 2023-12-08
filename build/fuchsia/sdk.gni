@@ -98,6 +98,7 @@ template("_fuchsia_fidl_library") {
       "$target_gen_dir/$library_name_slashes/c/tables.c",
       "$target_gen_dir/$library_name_slashes/cpp/fidl.h",
       "$target_gen_dir/$library_name_slashes/cpp/fidl.cc",
+      "$target_gen_dir/$library_name_slashes/cpp/tables.c",
     ]
 
     args = [
