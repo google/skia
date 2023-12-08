@@ -422,7 +422,7 @@ static sktext::GlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* p
 }
 
 DEF_TEST(SkPDF_Clusterator, reporter) {
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     {
         constexpr unsigned len = 11;
         const uint32_t clusters[len] = { 3, 2, 2, 1, 0, 4, 4, 7, 6, 6, 5 };

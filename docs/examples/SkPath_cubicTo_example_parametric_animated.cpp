@@ -71,7 +71,7 @@ void draw(SkCanvas* canvas) {
     cubicCurve.cubicTo(b, c, d);
     canvas->drawPath(cubicCurve, paint);
 
-    SkFont font(nullptr, 32);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
     SkPaint textPaint;
     textPaint.setColor(SkColorSetARGB(255, 0, 255, 0));
     textPaint.setAntiAlias(true);

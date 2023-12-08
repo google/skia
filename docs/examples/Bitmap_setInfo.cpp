@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     bitmap.eraseColor(SK_ColorGREEN);
     SkCanvas offscreen(bitmap);
     SkPaint paint;
-    SkFont font;
+    SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
     offscreen.drawString("!@#$%", 0, 12, font, paint);
     canvas->scale(6, 6);
     canvas->drawImage(bitmap.asImage(), 0, 0);

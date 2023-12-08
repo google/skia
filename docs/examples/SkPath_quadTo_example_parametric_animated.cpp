@@ -63,7 +63,7 @@ void draw(SkCanvas* canvas) {
     canvas->drawPath(quadraticCurve, paint);
 
     SkPaint textPaint;
-    SkFont font(nullptr, 32);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
     textPaint.setAntiAlias(true);
     canvas->drawString("a", a.x(),    a.y(),    font, textPaint);
     canvas->drawString("b", b.x()+20, b.y()+20, font, textPaint);

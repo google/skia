@@ -126,7 +126,7 @@ public:
     // This unit test verifies blob bounds computation.
     static void TestBounds(skiatest::Reporter* reporter) {
         SkTextBlobBuilder builder;
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
 
         // Explicit bounds.
         {
@@ -249,7 +249,7 @@ private:
     static void RunBuilderTest(skiatest::Reporter* reporter, SkTextBlobBuilder& builder,
                                const RunDef in[], unsigned inCount,
                                const RunDef out[], unsigned outCount) {
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
 
         for (unsigned i = 0; i < inCount; ++i) {
             AddRun(font, in[i].count, in[i].pos, SkPoint::Make(in[i].x, in[i].y), builder);
@@ -333,7 +333,7 @@ DEF_TEST(TextBlob_paint, reporter) {
 
 DEF_TEST(TextBlob_extended, reporter) {
     SkTextBlobBuilder textBlobBuilder;
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     const char text1[] = "Foo";
     const char text2[] = "Bar";
 
@@ -452,7 +452,7 @@ DEF_TEST(TextBlob_serialize, reporter) {
 
 DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
     const char text[] = "Hello";
-    auto blob = SkTextBlob::MakeFromString(text, SkFont(), SkTextEncoding::kUTF8);
+    auto blob = SkTextBlob::MakeFromString(text, ToolUtils::DefaultFont(), SkTextEncoding::kUTF8);
 
     int runs = 0;
     for(SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {

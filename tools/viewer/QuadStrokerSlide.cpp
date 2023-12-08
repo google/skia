@@ -32,6 +32,7 @@
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkStroke.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
 #include <cfloat>
@@ -315,7 +316,7 @@ public:
 
         if (fTextButton.fEnabled) {
             path.reset();
-            SkFont font;
+            SkFont font = ToolUtils::DefaultFont();
             font.setSize(fTextSize);
             SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8,
                                  0, fTextSize, font, &path);
@@ -529,7 +530,7 @@ private:
         SkPaint paint, labelP;
         paint.setColor(color);
         labelP.setColor(color & 0xff5f9f5f);
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         SkPoint pos, tan;
         int index = 0;
         for (SkScalar dist = 0; dist <= total; dist += delta) {
@@ -604,7 +605,10 @@ private:
                 SkString label;
                 label.appendS32(index);
                 canvas->drawString(label,
-                    pos.x() + tan.x() * 1.25f, pos.y() + tan.y() * 1.25f, SkFont(), paint);
+                                   pos.x() + tan.x() * 1.25f,
+                                   pos.y() + tan.y() * 1.25f,
+                                   ToolUtils::DefaultFont(),
+                                   paint);
             }
         }
     }
@@ -710,7 +714,7 @@ private:
         canvas->drawRect(button.fBounds, paint);
         paint.setColor(button.fEnabled ? 0xFF3F0000 : 0x6F3F0000);
         paint.setStyle(SkPaint::kFill_Style);
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setSize(25.0f);
         SkTextUtils::Draw(canvas, &button.fLabel, 1, SkTextEncoding::kUTF8,
                 button.fBounds.centerX(), button.fBounds.fBottom - 5,
@@ -731,7 +735,7 @@ private:
         label.printf("%0.3g", value);
         paint.setColor(0xFF000000);
         paint.setStyle(SkPaint::kFill_Style);
-        SkFont font(nullptr, 11.0f);
+        SkFont font(ToolUtils::DefaultTypeface(), 11.0f);
         canvas->drawString(label, bounds.fLeft + 5, yPos - 5, font, paint);
         font.setSize(13.0f);
         canvas->drawString(name, bounds.fLeft, bounds.bottom() + 11, font, paint);

@@ -5,7 +5,7 @@
 REG_FIDDLE(Canvas_drawString, 256, 48, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkFont font;
+    SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
     canvas->drawString("a small hello", 20, 20, font, paint);
 }
 }  // END FIDDLE

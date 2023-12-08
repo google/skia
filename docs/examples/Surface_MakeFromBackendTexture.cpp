@@ -4,7 +4,7 @@
 // HASH=d3aec071998f871809f515e58abb1b0e
 REG_FIDDLE(Surface_WrapBackendTexture, 256, 256, false, 3) {
     void draw(SkCanvas * canvas) {
-        SkFont font(nullptr, 32);
+        SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
         SkPaint paint;
 
         GrRecordingContext* context = canvas->recordingContext();

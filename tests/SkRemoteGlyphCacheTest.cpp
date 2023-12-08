@@ -160,6 +160,7 @@ private:
 
 sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount, int textSize = 1) {
     SkFont font;
+    SkASSERT(tf);
     font.setTypeface(tf);
     font.setHinting(SkFontHinting::kNormal);
     font.setSize(textSize);
@@ -700,7 +701,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath,
 
 sk_sp<SkTextBlob> make_blob_causing_fallback(
         sk_sp<SkTypeface> targetTf, const SkTypeface* glyphTf, skiatest::Reporter* reporter) {
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     font.setSubpixel(true);
     font.setSize(96);
     font.setHinting(SkFontHinting::kNormal);
@@ -831,7 +832,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT,
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
     SkPaint paint;
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
 
     // A scale transform forces fallback to dft.
     SkMatrix matrix = SkMatrix::Scale(16, 16);
@@ -918,7 +919,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_CacheMissReporting,
 
 sk_sp<SkTextBlob> MakeEmojiBlob(sk_sp<SkTypeface> serverTf, SkScalar textSize,
                                 sk_sp<SkTypeface> clientTf = nullptr) {
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     font.setTypeface(serverTf);
     font.setSize(textSize);
 
@@ -987,7 +988,7 @@ class SkRemoteGlyphCacheTest {
     static sk_sp<SkTextBlob> MakeNormalBlob(SkPaint* paint,
                                             sk_sp<SkTypeface> serverTf, bool asPaths, SkScalar textSize,
                                             sk_sp<SkTypeface> clientTf = nullptr) {
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setTypeface(serverTf);
         font.setSize(textSize);
 

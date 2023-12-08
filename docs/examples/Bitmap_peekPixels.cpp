@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     SkCanvas offscreen(bitmap);
     offscreen.clear(SK_ColorWHITE);
     SkPaint paint;
-    SkFont font;
+    SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
     offscreen.drawString("?", 0, 10, font, paint);
     SkPixmap pixmap;
     if (bitmap.peekPixels(&pixmap)) {

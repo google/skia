@@ -24,6 +24,7 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkPointPriv.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 #include "tools/viewer/Slide.h"
 
@@ -458,7 +459,7 @@ public:
                        fFB.getUseClip() ? "clip" : "noclip");
             SkPaint paint;
             paint.setColor(SK_ColorBLUE);
-            SkFont font(nullptr, 16);
+            SkFont font(ToolUtils::DefaultTypeface(), 16);
             canvas->drawString(str, 10, 16, font, paint);
         }
     }

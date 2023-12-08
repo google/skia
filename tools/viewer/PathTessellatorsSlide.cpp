@@ -25,6 +25,7 @@
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace skgpu::ganesh {
 
@@ -205,7 +206,7 @@ void PathTessellatorsSlide::draw(SkCanvas* canvas) {
     }
     if (!error.isEmpty()) {
         canvas->clear(SK_ColorRED);
-        SkFont font(nullptr, 20);
+        SkFont font(ToolUtils::DefaultTypeface(), 20);
         SkPaint captionPaint;
         captionPaint.setColor(SK_ColorWHITE);
         canvas->drawString(error.c_str(), 10, 30, font, captionPaint);
@@ -228,7 +229,7 @@ void PathTessellatorsSlide::draw(SkCanvas* canvas) {
         canvas->setMatrix(SkMatrix::I());
         SkString caption(ModeName(fMode));
         caption.appendf(" (w=%g)", fConicWeight);
-        SkFont font(nullptr, 20);
+        SkFont font(ToolUtils::DefaultTypeface(), 20);
         SkPaint captionPaint;
         captionPaint.setColor(SK_ColorWHITE);
         canvas->drawString(caption, 10, 30, font, captionPaint);

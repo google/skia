@@ -23,7 +23,7 @@ void draw(SkCanvas* canvas) {
     blur.setAlpha(blurAlpha);
     blur.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, blurSigma, false));
 
-    SkFont font(nullptr, 120);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 120);
 
     // Draw once with drop shadow blur;
     canvas->drawString(text, x + xDrop, y + yDrop, font, blur);

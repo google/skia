@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 
@@ -34,7 +35,7 @@ public:
     AnimatedImageSlide() { fName = "AnimatedImage"; }
 
     void draw(SkCanvas* canvas) override {
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setSize(20);
 
         SkString str = SkStringPrintf("Press '%c' to start/pause; '%c' to reset.",

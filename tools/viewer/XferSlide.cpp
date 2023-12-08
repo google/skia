@@ -17,6 +17,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/base/SkRandom.h"
 #include "tools/DecodeUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
 const SkBlendMode gModes[] = {
@@ -53,7 +54,7 @@ public:
         canvas->drawRoundRect(fRect, 8, 8, paint);
 
         paint.setColor(0xFFFFFFFF);
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setSize(16);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
         SkTextUtils::DrawString(canvas, fLabel.c_str(), fRect.centerX(), fRect.fTop + 0.68f * fRect.height(),
@@ -238,7 +239,7 @@ protected:
 
         SkString str;
         str.printf("B=%4.2f  C=%4.2f", fCubic.B, fCubic.C);
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setSize(25);
         font.setEdging(SkFont::Edging::kAntiAlias);
         paint.setColor(SK_ColorBLACK);

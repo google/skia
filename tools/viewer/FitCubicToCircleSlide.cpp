@@ -10,6 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/private/base/SkTArray.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
 #include <tuple>
@@ -185,7 +186,7 @@ void SampleFitCubicToCircle::draw(SkCanvas* canvas) {
     SkPaint textPaint;
     textPaint.setColor(SK_ColorWHITE);
     constexpr static float kInfoTextSize = 16;
-    SkFont font(nullptr, kInfoTextSize);
+    SkFont font(ToolUtils::DefaultTypeface(), kInfoTextSize);
     int infoY = 10 + kInfoTextSize;
     for (const SkString& infoString : fInfoStrings) {
         canvas->drawString(infoString.c_str(), 10, infoY, font, textPaint);

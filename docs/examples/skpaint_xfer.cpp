@@ -42,7 +42,7 @@ void draw(SkCanvas* canvas) {
     SkRect rect = SkRect::MakeWH(64.0f, 64.0f);
     SkPaint stroke, src, dst;
     stroke.setStyle(SkPaint::kStroke_Style);
-    SkFont font(nullptr, 24);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 24);
     SkPoint srcPoints[2] = {
         SkPoint::Make(0.0f, 0.0f),
         SkPoint::Make(64.0f, 0.0f)

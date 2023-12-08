@@ -18,7 +18,7 @@ void draw(SkCanvas* canvas) {
         alphabet[i] = 'A' + i;
     }
     SkPaint paint;
-    SkFont font(nullptr, 20);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 20);
     auto spiral = SkTextBlob::MakeFromRSXform(alphabet, sizeof(alphabet), transforms, font);
     canvas->drawTextBlob(spiral, 110, 138, paint);
 }

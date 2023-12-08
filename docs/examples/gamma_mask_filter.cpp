@@ -6,7 +6,7 @@ void draw(SkCanvas* canvas) {
     const char text[] = "Skia";
     canvas->drawColor(SK_ColorWHITE);
 
-    SkFont font(nullptr, 80);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 80);
     SkPaint paint;
     paint.setAntiAlias(true);
 

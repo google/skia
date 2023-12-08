@@ -36,7 +36,7 @@ DEF_TEST(Unicode_textencodings, reporter) {
     uint16_t glyphs16[sizeof(text8)];
     uint16_t glyphs32[sizeof(text8)];
 
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
 
     int count8  = font.textToGlyphs(text8,  len8,  SkTextEncoding::kUTF8,  glyphs8,  std::size(glyphs8));
     int count16 = font.textToGlyphs(text16, len16, SkTextEncoding::kUTF16, glyphs16, std::size(glyphs16));

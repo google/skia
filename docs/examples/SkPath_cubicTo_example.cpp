@@ -18,7 +18,7 @@ REG_FIDDLE(SkPath_cubicTo_example, 512, 512, false, 0) {
 */
 void draw(SkCanvas* canvas) {
     canvas->clear(SkColorSetARGB(255, 255, 255, 255));
-    SkFont font(nullptr, 32);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
 
     SkPaint paint;
     paint.setAntiAlias(true);

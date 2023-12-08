@@ -19,9 +19,10 @@ void draw(SkCanvas* canvas) {
     float y = 0;
     constexpr float kSize = 256.0f / (sizeof(kColors) / sizeof(kColors[0]));
     const SkColor4f kBrown{0.5f, 0.25f, 0, 1};
+    SkFont defaultFont = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
     for (const auto& c : kColors) {
         canvas->drawRect(SkRect{0, y, 128, y + kSize}, SkPaint(c.fColor));
-        canvas->drawString(c.fName, 4, y + kSize * 0.7f, SkFont(), SkPaint(kBrown));
+        canvas->drawString(c.fName, 4, y + kSize * 0.7f, defaultFont, SkPaint(kBrown));
         y += kSize;
     }
 }

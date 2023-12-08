@@ -22,7 +22,7 @@ void draw(SkCanvas* canvas) {
         }
         SkRSXform rsxForm = SkRSXform::Make(tangent.fX, tangent.fY,
                position.fX + tangent.fY * 5, position.fY - tangent.fX * 5);
-        SkFont font(nullptr, 12);
+        SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 12);
         auto labels = SkTextBlob::MakeFromRSXform(&"01234567"[start], 1, &rsxForm, font);
         canvas->drawTextBlob(labels, 0, 0, paint);
     }

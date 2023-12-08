@@ -5,7 +5,7 @@
 REG_FIDDLE(Canvas_skew, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkFont font(nullptr, 128);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 128);
     canvas->translate(30, 130);
     canvas->save();
     canvas->skew(-.5, 0);

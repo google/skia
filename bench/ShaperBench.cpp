@@ -7,6 +7,7 @@
 
 #include "modules/skshaper/include/SkShaper.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cfloat>
 
@@ -25,7 +26,7 @@ struct ShaperBench : public Benchmark {
     }
     void onDraw(int loops, SkCanvas*) override {
         if (!fData || !fShaper) { return; }
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         const char* text = (const char*)fData->data();
         size_t len = fData->size();
         while (loops-- > 0) {

@@ -27,7 +27,7 @@ SkPoint cubic(SkPoint p0, SkPoint p1, SkPoint p2, SkPoint p3, float t) {
 
 void draw(SkCanvas* canvas) {
     canvas->clear(SkColorSetARGB(255, 255, 255, 255));
-    SkFont font(nullptr, 32);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
 
     SkPaint paint;
     paint.setAntiAlias(true);

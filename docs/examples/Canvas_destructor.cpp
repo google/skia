@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     {
         SkCanvas offscreen(bitmap);
         SkPaint paint;
-        SkFont font(nullptr, 100);
+        SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 100);
         offscreen.drawString("ABC", 20, 160, font, paint);
         SkRect layerBounds = SkRect::MakeXYWH(32, 32, 192, 192);
         offscreen.saveLayerAlpha(&layerBounds, 128);

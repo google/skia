@@ -20,6 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
 #include "src/pdf/SkPDFUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <memory>
 #include <utility>
@@ -125,7 +126,7 @@ DEF_TEST(SkPDF_tagged_table, r) {
             document->beginPage(pageSize.width(),
                                 pageSize.height());
     SkPDF::SetNodeId(canvas, 2);
-    SkFont font(nullptr, 36);
+    SkFont font(ToolUtils::DefaultTypeface(), 36);
     canvas->drawString("Tagged PDF Table", 72, 72, font, paint);
 
     font.setSize(14);

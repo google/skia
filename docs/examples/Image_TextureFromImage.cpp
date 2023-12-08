@@ -16,7 +16,7 @@ void draw(SkCanvas* canvas) {
             return;
         }
 
-        SkFont font(nullptr, 12);
+        SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 12);
 
         SkPaint paint;
         paint.setAntiAlias(true);

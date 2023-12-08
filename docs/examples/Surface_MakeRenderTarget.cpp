@@ -4,7 +4,7 @@
 // HASH=67b6609471a3f1ed0f4b1657004cdecb
 REG_FIDDLE(Surface_MakeRenderTarget, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
-    SkFont font(nullptr, 32);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
     SkPaint paint;
 
     auto dContext = GrAsDirectContext(canvas->recordingContext());

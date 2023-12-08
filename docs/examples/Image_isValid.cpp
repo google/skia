@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
         if (nullptr == image) {
             return;
         }
-        SkFont font;
+        SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
         SkPaint paint;
         paint.setAntiAlias(true);
         canvas->drawImage(image, 0, 0);

@@ -43,7 +43,7 @@ public:
 };
 
 DEF_TEST(GlyphVector_Serialization, r) {
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     auto [strikeSpec, _] = SkStrikeSpec::MakeCanonicalized(font);
 
     SubRunAllocator alloc;

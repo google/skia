@@ -8,7 +8,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "tools/fonts/FontToolUtils.h"

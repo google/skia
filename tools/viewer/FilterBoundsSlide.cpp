@@ -22,6 +22,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
 static constexpr float kLineHeight = 16.f;
@@ -47,7 +48,7 @@ static float print_info(SkCanvas* canvas,
                         const skif::DeviceSpace<SkIRect>& outputBounds,
                         std::optional<skif::DeviceSpace<SkIRect>> hintedOutputBounds,
                         const skif::LayerSpace<SkIRect>& unhintedLayerBounds) {
-    SkFont font(nullptr, 12);
+    SkFont font(ToolUtils::DefaultTypeface(), 12);
     SkPaint text;
     text.setAntiAlias(true);
 
@@ -71,7 +72,7 @@ static float print_info(SkCanvas* canvas,
 }
 
 static void print_label(SkCanvas* canvas, float x, float y, float value) {
-    SkFont font(nullptr, 12);
+    SkFont font(ToolUtils::DefaultTypeface(), 12);
     SkPaint text;
     text.setAntiAlias(true);
 

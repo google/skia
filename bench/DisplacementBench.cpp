@@ -11,6 +11,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #define FILTER_WIDTH_SMALL  32
 #define FILTER_HEIGHT_SMALL 32
@@ -37,7 +38,7 @@ protected:
         SkPaint paint;
         paint.setColor(0xFF884422);
 
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setSize(SkIntToScalar(96));
         surf->getCanvas()->drawSimpleText("g", 1, SkTextEncoding::kUTF8, 15, 55, font, paint);
         fImage = surf->makeImageSnapshot();

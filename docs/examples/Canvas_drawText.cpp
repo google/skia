@@ -5,21 +5,21 @@
 REG_FIDDLE(Canvas_drawText, 256, 200, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkFont font;
+    SkFont defaultFont = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
     float textSizes[] = { 12, 18, 24, 36 };
     for (auto size: textSizes ) {
-        font.setSize(size);
-        canvas->drawString("Aa", 10, 20, font, paint);
+        defaultFont.setSize(size);
+        canvas->drawString("Aa", 10, 20, defaultFont, paint);
         canvas->translate(0, size * 2);
     }
-    font = SkFont();
+    defaultFont = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
     float yPos = 20;
     for (auto size: textSizes ) {
         float scale = size / 12.f;
         canvas->resetMatrix();
         canvas->translate(100, 0);
         canvas->scale(scale, scale);
-        canvas->drawString("Aa", 10 / scale, yPos / scale, font, paint);
+        canvas->drawString("Aa", 10 / scale, yPos / scale, defaultFont, paint);
         yPos += size * 2;
     }
 }

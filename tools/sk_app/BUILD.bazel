@@ -24,6 +24,7 @@ skia_cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",
+        "//tools:tool_utils",
         "//tools/skui",
         "//tools/timer",
         "//tools/window",

@@ -15,6 +15,7 @@
 #include "src/core/SkBlendModePriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace {
 enum Type {
@@ -57,7 +58,7 @@ protected:
             switch (fType) {
                 case kText: {
                     // Draw text to exercise AA code paths.
-                    SkFont font;
+                    SkFont font = ToolUtils::DefaultFont();
                     font.setSize(random.nextRangeScalar(12, 96));
                     SkScalar x = random.nextRangeScalar(0, (SkScalar)size.fWidth),
                              y = random.nextRangeScalar(0, (SkScalar)size.fHeight);

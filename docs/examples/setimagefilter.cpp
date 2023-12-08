@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorWHITE);
-    SkFont font(nullptr, 96);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 96);
     offscreen.clear(0);
     offscreen.drawString("e", 20, 70, font, paint);
     paint.setImageFilter(SkImageFilters::PointLitDiffuse(

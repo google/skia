@@ -61,7 +61,7 @@ protected:
     void onDraw(int loops, SkCanvas*) override {
         size_t oldCacheLimitSize = SkGraphics::GetFontCacheLimit();
         SkGraphics::SetFontCacheLimit(fCacheSize);
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setEdging(SkFont::Edging::kAntiAlias);
         font.setSubpixel(true);
         font.setTypeface(ToolUtils::CreatePortableTypeface("serif", SkFontStyle::Italic()));
@@ -101,7 +101,7 @@ protected:
 
         for (int work = 0; work < loops; work++) {
             SkTaskGroup().batch(16, [&](int threadIndex) {
-                SkFont font;
+                SkFont font = ToolUtils::DefaultFont();
                 font.setEdging(SkFont::Edging::kAntiAlias);
                 font.setSubpixel(true);
                 font.setTypeface(typefaces[threadIndex % 2]);

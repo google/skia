@@ -16,7 +16,7 @@ void draw(SkCanvas* ) {
     const SkPMColor* pixels = pixmap.addr32();  // points to top-left of bitmap
     SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary
     SkPaint paint;  // by default, draws black, 12 point text
-    SkFont font;
+    SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
     canvas.drawString("!", 1, 10, font, paint);  // 1 char at baseline (1, 10)
     for (int y = 0; y < bitmap.height(); ++y) {
         for (int x = 0; x < bitmap.width(); ++x) {

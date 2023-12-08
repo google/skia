@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
         }
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkFont font;
+        SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
         canvas->drawImage(image, 0, 0);
         canvas->drawString(label, 30, image->height() / 4, font, paint);
         canvas->drawString(image->isTextureBacked() ? "is GPU texture" : "not GPU texture",

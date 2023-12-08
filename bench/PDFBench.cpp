@@ -21,6 +21,7 @@
 #include "src/utils/SkFloatToDecimal.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 
 namespace {
 struct WStreamWriteTextBenchmark : public Benchmark {
@@ -376,7 +377,7 @@ void big_pdf_test(SkDocument* doc, const SkBitmap& background) {
     float y = 36;
     constexpr size_t kLineCount = std::size(kText);
     constexpr int kLoopCount = 200;
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     SkPaint paint;
     for (int loop = 0; loop < kLoopCount; ++loop) {
         for (size_t line = 0; line < kLineCount; ++line) {

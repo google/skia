@@ -21,6 +21,7 @@
 #include "include/docs/SkPDFDocument.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <memory>
 #include <utility>
@@ -79,7 +80,7 @@ DEF_TEST(SkPDF_tagged_pruning, r) {
     SkCanvas* canvas =
             document->beginPage(pageSize.width(),
                                 pageSize.height());
-    SkFont font(nullptr, 20);
+    SkFont font(ToolUtils::DefaultTypeface(), 20);
     SkPDF::SetNodeId(canvas, 3);
     canvas->drawString("First paragraph line 1", 72, 72, font, paint);
     SkPDF::SetNodeId(canvas, 4);

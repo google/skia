@@ -43,7 +43,7 @@ void draw(SkCanvas* canvas) {
 
     SkPaint labelPaint;
     labelPaint.setAntiAlias(true);
-    SkFont font(nullptr, 12);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 12);
 
     for (auto mode : blendModes) {
         SkPaint layerPaint;

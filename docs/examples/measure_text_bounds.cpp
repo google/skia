@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    SkFont font(nullptr, 64, 1.25f, -0.25f);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 64, 1.25f, -0.25f);
 
     float x = 32.0f;
     float y = 88.0f;

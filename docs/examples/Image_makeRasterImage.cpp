@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
         }
         SkPaint paint;
         paint.setAntiAlias(true);
-        SkFont font;
+        SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
         sk_sp<SkImage> raster(image->makeRasterImage());
         canvas->drawImage(raster, 0, 0);
         canvas->drawString(label, 20, raster->height() / 4, font, paint);

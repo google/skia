@@ -16,6 +16,7 @@
 #include "src/core/SkPathPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 #include "tools/viewer/Slide.h"
 
@@ -25,7 +26,7 @@ constexpr int H = 200;
 static void show_text(SkCanvas* canvas, bool doAA) {
     SkRandom rand;
     SkPaint paint;
-    SkFont font(nullptr, 20);
+    SkFont font(ToolUtils::DefaultTypeface(), 20);
     font.setEdging(doAA ? SkFont::Edging::kSubpixelAntiAlias : SkFont::Edging::kAlias);
 
     for (int i = 0; i < 200; ++i) {

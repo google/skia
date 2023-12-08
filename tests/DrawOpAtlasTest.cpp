@@ -38,6 +38,7 @@
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -221,7 +222,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation,
     SkPaint paint;
     paint.setColor(SK_ColorRED);
 
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     font.setEdging(SkFont::Edging::kAlias);
 
     const char* text = "a";

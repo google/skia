@@ -13,6 +13,7 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkChecksum.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include "bench/gUniqueGlyphIDs.h"
 
@@ -36,7 +37,7 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         font.setEdging(SkFont::Edging::kAntiAlias);
 
         const uint16_t* array = gUniqueGlyphIDs;

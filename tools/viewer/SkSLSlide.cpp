@@ -26,6 +26,7 @@
 #include "include/sksl/SkSLDebugTrace.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/sk_app/Application.h"
 #include "tools/viewer/Viewer.h"
 
@@ -326,7 +327,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
             canvas->drawRoundRect({ 0, 224, 512, 288 }, 32, 32, p);
             break;
         case kText: {
-            SkFont font;
+            SkFont font = ToolUtils::DefaultFont();
             font.setSize(SkIntToScalar(96));
             canvas->drawSimpleText("Hello World", strlen("Hello World"), SkTextEncoding::kUTF8, 0,
                                    256, font, p);

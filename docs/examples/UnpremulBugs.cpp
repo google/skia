@@ -37,7 +37,7 @@ void draw(SkCanvas* canvas) {
     doCell(canvas, 160, 0, kPremul_SkAlphaType, 0x80808080, 1);
     doCell(canvas, 160, 50, kUnpremul_SkAlphaType, 0x80FFFFFF, 1);
 
-    SkFont font(nullptr, 12);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 12);
     SkPaint paint;
     paint.setColor(SK_ColorWHITE);
     canvas->drawString("Premul", 220, 20, font, paint);

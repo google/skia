@@ -137,7 +137,7 @@ DEF_TEST(DrawText_weirdMatricies, r) {
     auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
     auto canvas = surface->getCanvas();
 
-    SkFont font;
+    SkFont font = ToolUtils::DefaultFont();
     font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
     struct {

@@ -6,7 +6,7 @@ REG_FIDDLE(AutoCanvasRestore_SkCanvas_star, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
-    SkFont font(nullptr, 64);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 64);
     for (SkScalar sx : { -1, 1 } ) {
         for (SkScalar sy : { -1, 1 } ) {
             SkAutoCanvasRestore autoRestore(canvas, true);

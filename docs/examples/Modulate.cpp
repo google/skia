@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
         canvas->translate(dx, dy);
         canvas->drawRect({0, 0, 128, 128}, paint);
         paint.setBlendMode(SkBlendMode::kXor);
-        SkFont font;
+        SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
         canvas->drawString(label, 40, 100, font, paint);
     };
     drawSquare(0, 0, SkBlendMode::kSrc, "destination");

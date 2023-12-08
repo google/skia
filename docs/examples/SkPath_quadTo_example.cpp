@@ -27,7 +27,7 @@ void draw(SkCanvas* canvas) {
     quadraticCurve.quadTo(b, c);
     canvas->drawPath(quadraticCurve, paint);
 
-    SkFont font(nullptr, 32);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
     SkPaint textPaint;
     textPaint.setAntiAlias(true);
     canvas->drawString("a", a.x(), a.y(), font, textPaint);

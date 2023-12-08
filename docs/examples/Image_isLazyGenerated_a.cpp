@@ -26,8 +26,7 @@ void draw(SkCanvas* canvas) {
     SkString lazy(image->isLazyGenerated() ? "is lazy" : "not lazy");
     canvas->scale(8, 8);
     canvas->drawImage(image, 0, 0);
-    SkFont font;
-    font.setSize(4);
+    SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}), 4);
     SkPaint paint;
     canvas->drawString(lazy, 2, 5, font, paint);
 }

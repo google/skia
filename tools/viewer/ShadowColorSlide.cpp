@@ -12,6 +12,7 @@
 #include "include/core/SkPoint3.h"
 #include "include/utils/SkShadowUtils.h"
 #include "tools/Resources.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -107,7 +108,7 @@ public:
             0xFF15CCBE, 0xFF25E5CE, 0xFF2CFFE0, 0xFF80FFEA, 0xFFB3FFF0
         };
 
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         SkPaint paint;
         paint.setAntiAlias(true);
         if (fDarkBackground) {

@@ -23,6 +23,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
 class ArcsSlide : public Slide {
@@ -80,7 +81,7 @@ class ArcsSlide : public Slide {
     }
 
     static void DrawLabel(SkCanvas* canvas, const SkRect& rect, SkScalar start, SkScalar sweep) {
-        SkFont font;
+        SkFont font = ToolUtils::DefaultFont();
         SkString    str;
         str.appendScalar(start);
         str.append(", ");

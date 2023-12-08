@@ -32,6 +32,7 @@
 #include "tests/Test.h"
 #include "tools/SkSharingProc.h"
 #include "tools/ToolUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 
 #include <memory>
 #include <vector>
@@ -74,8 +75,9 @@ static void draw_basic(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {
     }
 
     SkPaint paint2;
-    auto text = SkTextBlob::MakeFromString(
-        SkStringPrintf("Frame %d", seed).c_str(), SkFont(nullptr, 2+seed));
+    SkFont font = ToolUtils::DefaultFont();
+    font.setSize(2 + seed);
+    auto text = SkTextBlob::MakeFromString(SkStringPrintf("Frame %d", seed).c_str(), font);
     canvas->drawTextBlob(text.get(), 50, 25, paint2);
 }
 

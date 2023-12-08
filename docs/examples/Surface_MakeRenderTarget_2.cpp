@@ -5,7 +5,7 @@
 REG_FIDDLE(Surface_MakeRenderTarget_2, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     auto test_draw = [](SkCanvas* surfaceCanvas) -> void {
-        SkFont font(nullptr, 32);
+        SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
 
         SkPaint paint;
         paint.setAntiAlias(true);

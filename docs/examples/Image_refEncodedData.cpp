@@ -23,7 +23,7 @@ void draw(SkCanvas* canvas) {
                                               nullptr)}};
     SkString string;
     SkPaint paint;
-    SkFont font;
+    SkFont font = SkFont(fontMgr->matchFamilyStyle(nullptr, {}));
 
     for (const auto& test : tests ) {
         if (!test.image) {
