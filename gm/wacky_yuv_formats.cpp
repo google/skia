@@ -767,8 +767,11 @@ class WackyYUVFormatsGM : public GM {
 public:
     using Type = sk_gpu_test::LazyYUVImage::Type;
 
-    WackyYUVFormatsGM(bool useTargetColorSpace, bool useSubset, Type type)
-            : fUseTargetColorSpace(useTargetColorSpace), fUseSubset(useSubset), fImageType(type) {
+    WackyYUVFormatsGM(bool useTargetColorSpace, bool useSubset, bool useCubicSampling, Type type)
+            : fUseTargetColorSpace(useTargetColorSpace)
+            , fUseSubset(useSubset)
+            , fUseCubicSampling(useCubicSampling)
+            , fImageType(type) {
         this->setBGColor(0xFFCCCCCC);
     }
 
@@ -780,6 +783,9 @@ protected:
         }
         if (fUseSubset) {
             name += "_domain";
+        }
+        if (fUseCubicSampling) {
+            name += "_cubic";
         }
         switch (fImageType) {
             case Type::kFromPixmaps:
@@ -937,7 +943,9 @@ protected:
             constraint = SkCanvas::kStrict_SrcRectConstraint;
         }
 
-        SkSamplingOptions sampling(SkFilterMode::kLinear);
+        SkSamplingOptions sampling = fUseCubicSampling
+                                         ? SkSamplingOptions(SkCubicResampler::Mitchell())
+                                         : SkSamplingOptions(SkFilterMode::kLinear);
         for (int cs = kJPEG_SkYUVColorSpace; cs <= kLastEnum_SkYUVColorSpace; ++cs) {
             SkPaint paint;
             if (kIdentity_SkYUVColorSpace == cs) {
@@ -990,6 +998,7 @@ private:
     sk_sp<SkImage>             fImages[2][kLastEnum_SkYUVColorSpace + 1][kLast_YUVFormat + 1];
     bool                       fUseTargetColorSpace;
     bool                       fUseSubset;
+    bool                       fUseCubicSampling;
     Type                       fImageType;
     sk_sp<SkColorSpace>        fTargetColorSpace;
 
@@ -1000,22 +1009,32 @@ private:
 
 DEF_GM(return new WackyYUVFormatsGM(/*useTargetColorSpace=*/false,
                                     /*useSubset=*/false,
+                                    /*useCubicSampling=*/false,
                                     WackyYUVFormatsGM::Type::kFromTextures);)
 DEF_GM(return new WackyYUVFormatsGM(/*useTargetColorSpace=*/false,
                                     /*useSubset=*/true,
+                                    /*useCubicSampling=*/false,
                                     WackyYUVFormatsGM::Type::kFromTextures);)
 DEF_GM(return new WackyYUVFormatsGM(/*useTargetColorSpace=*/true,
                                     /*useSubset=*/false,
+                                    /*useCubicSampling=*/false,
                                     WackyYUVFormatsGM::Type::kFromTextures);)
 DEF_GM(return new WackyYUVFormatsGM(/*useTargetColorSpace=*/false,
                                     /*useSubset=*/false,
+                                    /*useCubicSampling=*/true,
+                                    WackyYUVFormatsGM::Type::kFromTextures);)
+DEF_GM(return new WackyYUVFormatsGM(/*useTargetColorSpace=*/false,
+                                    /*useSubset=*/false,
+                                    /*useCubicSampling=*/false,
                                     WackyYUVFormatsGM::Type::kFromGenerator);)
 DEF_GM(return new WackyYUVFormatsGM(/*useTargetColorSpace=*/false,
                                     /*useSubset=*/false,
+                                    /*useCubicSampling=*/false,
                                     WackyYUVFormatsGM::Type::kFromPixmaps);)
 #if defined(SK_GRAPHITE)
 DEF_GM(return new WackyYUVFormatsGM(/*useTargetColorSpace=*/false,
                                     /*useSubset=*/false,
+                                    /*useCubicSampling=*/false,
                                     WackyYUVFormatsGM::Type::kFromImages);)
 #endif
 
