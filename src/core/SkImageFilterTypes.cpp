@@ -347,7 +347,11 @@ public:
             // Snap a subset of the device matching the expected dst bounds.
             SkIRect subset = SkIRect::MakeWH(fDstBounds.width(), fDstBounds.height());
             fCanvas->restoreToCount(0);
-            return {this->device()->snapSpecial(subset), fDstBounds.topLeft()};
+            this->device()->setImmutable();
+            auto snapped = std::make_pair(this->device()->snapSpecial(subset),
+                                          fDstBounds.topLeft());
+            fCanvas.reset(); // Only use the AutoSurface once
+            return snapped;
         } else {
             return {nullptr, {}};
         }
