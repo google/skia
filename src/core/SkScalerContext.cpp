@@ -1041,7 +1041,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
 
     sk_bzero(rec, sizeof(SkScalerContextRec));
 
-    SkTypeface* typeface = font.getTypeface();
+    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
 
     rec->fTypefaceID = typeface->uniqueID();
     rec->fTextSize = font.getSize();

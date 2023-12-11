@@ -103,8 +103,6 @@ protected:
     void getPostScriptGlyphNames(SkString*) const override {}
     void getGlyphToUnicodeMap(SkUnichar*) const override {}
     int onGetUPEM() const override { return 0; }
-    bool onComputeBounds(SkRect* bounds) const override { return false; }
-
     class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
     public:
         bool next(SkTypeface::LocalizedString*) override { return false; }

@@ -623,7 +623,7 @@ static void draw_something(SkCanvas* canvas) {
     canvas->drawCircle(SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/3), paint);
     paint.setColor(SK_ColorBLACK);
 
-    SkFont font = ToolUtils::DefaultFont();
+    SkFont font;
     font.setSize(kBitmapSize/3);
     canvas->drawString("Picture", SkIntToScalar(kBitmapSize/2), SkIntToScalar(kBitmapSize/4), font, paint);
 }
@@ -794,25 +794,28 @@ DEF_TEST(Serialization, reporter) {
 
     // Test simple SkPicture serialization
     {
-        skiatest::ReporterContext subtest(reporter, "simple SkPicture");
         SkPictureRecorder recorder;
         draw_something(recorder.beginRecording(SkIntToScalar(kBitmapSize),
                                                SkIntToScalar(kBitmapSize)));
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());
 
-        // Serialize picture. The default typeface proc should result in a non-empty
-        // typeface when deserializing.
+        // Serialize picture
         SkSerialProcs sProcs;
         sProcs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
             return SkPngEncoder::Encode(nullptr, img, SkPngEncoder::Options{});
         };
-        sk_sp<SkData> data = pict->serialize(&sProcs);
-        REPORTER_ASSERT(reporter, data);
+        SkBinaryWriteBuffer writer(sProcs);
 
-        // Deserialize picture using the default procs.
-        // TODO(kjlubick) Specify a proc for decoding image data.
-        sk_sp<SkPicture> readPict = SkPicture::MakeFromData(data.get());
-        REPORTER_ASSERT(reporter, readPict);
+        SkPicturePriv::Flatten(pict, writer);
+        size_t size = writer.bytesWritten();
+        AutoTMalloc<unsigned char> data(size);
+        writer.writeToMemory(static_cast<void*>(data.get()));
+
+        // Deserialize picture
+        SkReadBuffer reader(static_cast<void*>(data.get()), size);
+        sk_sp<SkPicture> readPict(SkPicturePriv::MakeFromBuffer(reader));
+        REPORTER_ASSERT(reporter, reader.isValid());
+        REPORTER_ASSERT(reporter, readPict.get());
         sk_sp<SkImage> img0 = render(*pict);
         sk_sp<SkImage> img1 = render(*readPict);
         if (img0 && img1) {

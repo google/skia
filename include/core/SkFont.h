@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 class SkMatrix;
@@ -201,14 +202,12 @@ public:
      */
     SkFont makeWithSize(SkScalar size) const;
 
-    /** Does not alter SkTypeface SkRefCnt.
+    /** Returns SkTypeface if set, or nullptr.
+        Does not alter SkTypeface SkRefCnt.
 
-        @return  non-null SkTypeface
+        @return  SkTypeface if previously set, nullptr otherwise
     */
-    SkTypeface* getTypeface() const {
-        SkASSERT(fTypeface);
-        return fTypeface.get();
-    }
+    SkTypeface* getTypeface() const {return fTypeface.get(); }
 
     /** Returns text size in points.
 
@@ -232,20 +231,17 @@ public:
 
     /** Increases SkTypeface SkRefCnt by one.
 
-        @return  A non-null SkTypeface.
+        @return  SkTypeface if previously set, nullptr otherwise
     */
-    sk_sp<SkTypeface> refTypeface() const {
-        SkASSERT(fTypeface);
-        return fTypeface;
-    }
+    sk_sp<SkTypeface> refTypeface() const { return fTypeface; }
 
     /** Sets SkTypeface to typeface, decreasing SkRefCnt of the previous SkTypeface.
-        Pass nullptr to clear SkTypeface and use an empty typeface (which draws nothing).
-        Increments tf SkRefCnt by one.
+        Pass nullptr to clear SkTypeface and use the default typeface. Increments
+        tf SkRefCnt by one.
 
         @param tf  font and style used to draw text
     */
-    void setTypeface(sk_sp<SkTypeface> tf);
+    void setTypeface(sk_sp<SkTypeface> tf) { fTypeface = std::move(tf); }
 
     /** Sets text size in points.
         Has no effect if textSize is not greater than or equal to zero.
@@ -534,6 +530,9 @@ private:
     friend class SkGlyphRunListPainterCPU;
     friend class SkStrikeSpec;
     friend class SkRemoteGlyphCacheTest;
+
+    sk_sp<SkTypeface> refTypefaceOrDefault() const;
+    SkTypeface* getTypefaceOrDefault() const;
 };
 
 #endif

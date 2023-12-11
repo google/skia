@@ -44,7 +44,7 @@ static void charsToGlyphs_proc(const Rec& r) {
     uint16_t glyphs[NGLYPHS];
     SkASSERT(r.fCount <= NGLYPHS);
 
-    SkTypeface* face = r.fFont.getTypeface();
+    SkTypeface* face = SkFontPriv::GetTypefaceOrDefault(r.fFont);
     for (int i = 0; i < r.fLoops; ++i) {
         face->unicharsToGlyphs(r.fText, r.fCount, glyphs);
     }
