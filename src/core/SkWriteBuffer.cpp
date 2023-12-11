@@ -242,7 +242,7 @@ void SkBinaryWriteBuffer::writeImage(const SkImage* image) {
 
 void SkBinaryWriteBuffer::writeTypeface(SkTypeface* obj) {
     // Write 32 bits (signed)
-    //   0 -- default font
+    //   0 -- empty font
     //  >0 -- index
     //  <0 -- custom (serial procs)
 

@@ -1720,7 +1720,7 @@ HRESULT SkXPSDevice::clipToPath(IXpsOMVisual* xpsVisual,
 
 HRESULT SkXPSDevice::CreateTypefaceUse(const SkFont& font,
                                        TypefaceUse** typefaceUse) {
-    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    SkTypeface* typeface = font.getTypeface();
 
     //Check cache.
     const SkTypefaceID typefaceID = typeface->uniqueID();

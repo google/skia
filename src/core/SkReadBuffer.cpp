@@ -449,7 +449,7 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
 
 sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
     // Read 32 bits (signed)
-    //   0 -- return null (default font)
+    //   0 -- return null (empty font)
     //  >0 -- index
     //  <0 -- custom (serial procs) : negative size in bytes
 

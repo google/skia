@@ -45,7 +45,7 @@ static void getGlyphPositions(const SkFont& font, const uint16_t glyphs[],
 
 static void applyKerning(SkPoint pos[], const int32_t adjustments[], int count,
                          const SkFont& font) {
-    SkScalar scale = font.getSize() / SkFontPriv::GetTypefaceOrDefault(font)->getUnitsPerEm();
+    SkScalar scale = font.getSize() / font.getTypeface()->getUnitsPerEm();
 
     SkScalar globalAdj = 0;
     for (int i = 0; i < count - 1; ++i) {
@@ -56,7 +56,7 @@ static void applyKerning(SkPoint pos[], const int32_t adjustments[], int count,
 
 static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
                          SkScalar x, SkScalar y, const SkFont& font, const SkPaint& paint) {
-    SkTypeface* face = SkFontPriv::GetTypefaceOrDefault(font);
+    SkTypeface* face = font.getTypeface();
     if (!face) {
         canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x, y, font, paint);
         return;

@@ -114,6 +114,7 @@ public:
 
         SkString path;
         while (iter.next(&path)) {
+            //SkDebugf("font %s\n", path.c_str());
             // Look for a sentinel font, without which several tests will fail/crash.
             if (path.endsWith("Roboto-Italic.ttf")) {
                 fFontsFound = true;
@@ -7575,6 +7576,14 @@ UNIX_ONLY_TEST(SkParagraph_RtlEllipsis2, reporter) {
         });
 };
 
+static bool has_empty_typeface(SkFont f) {
+    SkTypeface* face = f.getTypeface();
+    if (!face) {
+        return true; // Should be impossible, but just in case...
+    }
+    return face->countGlyphs() == 0 && face->getBounds().isEmpty();
+}
+
 UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
@@ -7655,7 +7664,7 @@ UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
                                               glyphInfo.fClusterTextRange.end == 229);
 
     auto font = paragraph->getFontAt(10);
-    REPORTER_ASSERT(reporter, font.getTypeface() != nullptr);
+    REPORTER_ASSERT(reporter, !has_empty_typeface(font));
     SkString fontFamily;
     font.getTypeface()->getFamilyName(&fontFamily);
     REPORTER_ASSERT(reporter, fontFamily.equals("Roboto"));
@@ -7663,7 +7672,7 @@ UNIX_ONLY_TEST(SkParagraph_TextEditingFunctionality, reporter) {
     auto fonts = paragraph->getFonts();
     REPORTER_ASSERT(reporter, fonts.size() == 1);
     REPORTER_ASSERT(reporter, fonts[0].fTextRange.start == 0 && fonts[0].fTextRange.end == len);
-    REPORTER_ASSERT(reporter, fonts[0].fFont.getTypeface() != nullptr);
+    REPORTER_ASSERT(reporter, !has_empty_typeface(fonts[0].fFont));
     font.getTypeface()->getFamilyName(&fontFamily);
     REPORTER_ASSERT(reporter, fontFamily.equals("Roboto"));
 }
@@ -7729,8 +7738,8 @@ UNIX_ONLY_TEST(SkParagraph_API_USES_UTF16, reporter) {
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
 
-    REPORTER_ASSERT(reporter, paragraph->getFontAtUTF16Offset(0).getTypeface() != nullptr);
-    REPORTER_ASSERT(reporter, paragraph->getFontAtUTF16Offset(4).getTypeface() == nullptr);
+    REPORTER_ASSERT(reporter, !has_empty_typeface(paragraph->getFontAtUTF16Offset(0)));
+    REPORTER_ASSERT(reporter, has_empty_typeface(paragraph->getFontAtUTF16Offset(4)));
 
     REPORTER_ASSERT(reporter, paragraph->getGlyphInfoAtUTF16Offset(0, nullptr));
     REPORTER_ASSERT(reporter, !paragraph->getGlyphInfoAtUTF16Offset(4, nullptr));
@@ -7772,7 +7781,7 @@ UNIX_ONLY_TEST(SkParagraph_Empty_Paragraph_Metrics, reporter) {
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
 
-    REPORTER_ASSERT(reporter, paragraph->getFontAt(0).getTypeface() == nullptr);
+    REPORTER_ASSERT(reporter, has_empty_typeface(paragraph->getFontAt(0)));
     REPORTER_ASSERT(reporter, !paragraph->getGlyphClusterAt(0, nullptr));
     REPORTER_ASSERT(reporter, paragraph->getLineNumberAt(0) == -1);
     REPORTER_ASSERT(reporter, !paragraph->getClosestGlyphClusterAt(10.0, 5.0, nullptr));

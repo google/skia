@@ -90,14 +90,6 @@ public:
     static bool Unflatten(SkFont*, SkReadBuffer& buffer);
 
     static inline uint8_t Flags(const SkFont& font) { return font.fFlags; }
-
-    static inline sk_sp<SkTypeface> RefTypefaceOrDefault(const SkFont& font) {
-        return font.refTypefaceOrDefault();
-    }
-
-    static inline SkTypeface* GetTypefaceOrDefault(const SkFont& font) {
-        return font.getTypefaceOrDefault();
-    }
 };
 
 class SkAutoToGlyphs {
