@@ -104,8 +104,12 @@ public:
      * any sample that falls outside its internal subset.
      */
     sk_sp<SkShader> asShader(SkTileMode, const SkSamplingOptions&, const SkMatrix& lm) const;
-    sk_sp<SkShader> asShader(const SkSamplingOptions& sampling) const;
-    sk_sp<SkShader> asShader(const SkSamplingOptions& sampling, const SkMatrix& lm) const;
+    /**
+     * Create an SkShader that samples the contents of this special image, assuming that the
+     * coords it's evaluated at will not access pixels beyond its subset
+     * (i.e., non-strict sampling).
+     */
+    sk_sp<SkShader> asShaderFast(const SkSamplingOptions& sampling, const SkMatrix& lm) const;
 
     /**
      *  If the SpecialImage is backed by a gpu texture, return true.
@@ -128,9 +132,11 @@ protected:
     // from the content rect by the non-virtual makeSubset().
     virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
 
+    // The default implementation calls `asImage()` or `SkImageShader::MakeSubset` based on `strict`
     virtual sk_sp<SkShader> onAsShader(SkTileMode,
                                        const SkSamplingOptions&,
-                                       const SkMatrix&) const = 0;
+                                       const SkMatrix&,
+                                       bool strict) const;
 
 private:
     const SkIRect        fSubset;

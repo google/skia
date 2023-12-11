@@ -10,12 +10,10 @@
 #include "include/core/SkColorSpace.h"  // IWYU pragma: keep
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/base/SkAssert.h"
-#include "include/private/base/SkPoint_impl.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
@@ -23,15 +21,11 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
-#include "src/shaders/SkImageShader.h"
 
 #include <cstddef>
 #include <utility>
 
-class SkShader;
-struct SkSamplingOptions;
 enum SkColorType : int;
-enum class SkTileMode;
 
 class SkSpecialImage_Gpu final : public SkSpecialImage {
 public:
@@ -62,23 +56,6 @@ public:
         fView.proxy()->priv().exactify(true);
         return sk_make_sp<SkImage_Ganesh>(
                 sk_ref_sp(fContext), this->uniqueID(), fView, this->colorInfo());
-    }
-
-    sk_sp<SkShader> onAsShader(SkTileMode tileMode,
-                               const SkSamplingOptions& sampling,
-                               const SkMatrix& lm) const override {
-        // The special image's logical (0,0) is at its subset's topLeft() so we need to account for
-        // that in the local matrix used when sampling.
-        SkMatrix subsetOrigin = SkMatrix::Translate(-this->subset().topLeft());
-        subsetOrigin.postConcat(lm);
-        // However, we don't need to modify the subset itself since that is defined with respect to
-        // the base image, and the local matrix is applied before any tiling/clamping.
-        const SkRect subset = SkRect::Make(this->subset());
-
-        // asImage() w/o a subset makes no copy; create the SkImageShader directly to remember the
-        // subset used to access the image.
-        return SkImageShader::MakeSubset(
-                this->asImage(), subset, tileMode, tileMode, sampling, &subsetOrigin);
     }
 
 private:
