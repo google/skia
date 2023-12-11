@@ -331,8 +331,6 @@ $pure half4 sk_yuv_image_shader(float2 coords,
                                 int tileModeX,
                                 int tileModeY,
                                 int filterMode,
-                                int useCubic,
-                                half4x4 cubicCoeffs,
                                 half4 channelSelectY,
                                 half4 channelSelectU,
                                 half4 channelSelectV,
@@ -349,21 +347,12 @@ $pure half4 sk_yuv_image_shader(float2 coords,
                                 sampler2D sV,
                                 sampler2D sA) {
     half4 sampleColorY, sampleColorU, sampleColorV;
-    if (useCubic != 0) {
-        sampleColorY = $cubic_filter_image(coords, invImgSize, subset, tileModeX, tileModeY,
-                                           cubicCoeffs, sY);
-        sampleColorU = $cubic_filter_image(coords, invImgSize, subset, tileModeX, tileModeY,
-                                           cubicCoeffs, sU);
-        sampleColorV = $cubic_filter_image(coords, invImgSize, subset, tileModeX, tileModeY,
-                                           cubicCoeffs, sV);
-    } else {
-        sampleColorY = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
-                                            filterMode, sY);
-        sampleColorU = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
-                                            filterMode, sU);
-        sampleColorV = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
-                                            filterMode, sV);
-    }
+    sampleColorY = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
+                                        filterMode, sY);
+    sampleColorU = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
+                                        filterMode, sU);
+    sampleColorV = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
+                                        filterMode, sV);
     float Y = dot(channelSelectY, sampleColorY);
     float U = dot(channelSelectU, sampleColorU);
     float V = dot(channelSelectV, sampleColorV);
@@ -373,11 +362,58 @@ $pure half4 sk_yuv_image_shader(float2 coords,
     if (channelSelectA == half4(0)) {
         sampleColor.a = 1;
     } else {
-        half4 sampleColorA = (useCubic != 0)
-            ? $cubic_filter_image(coords, invImgSize, subset, tileModeX, tileModeY, cubicCoeffs,
-                                  sA)
-            : $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY, filterMode,
-                                   sA);
+        half4 sampleColorA =
+            $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY, filterMode,
+                                 sA);
+        sampleColor.a = dot(channelSelectA, sampleColorA);
+        // premul alpha
+        sampleColor.rgb *= sampleColor.a;
+    }
+
+    return sk_color_space_transform(sampleColor, csXformFlags, csXformSrcKind,
+                                    csXformGamutTransform, csXformDstKind, csXformCoeffs);
+}
+
+$pure half4 sk_cubic_yuv_image_shader(float2 coords,
+                                      float2 invImgSize,
+                                      float4 subset,
+                                      int tileModeX,
+                                      int tileModeY,
+                                      half4x4 cubicCoeffs,
+                                      half4 channelSelectY,
+                                      half4 channelSelectU,
+                                      half4 channelSelectV,
+                                      half4 channelSelectA,
+                                      half3x3 yuvToRGBMatrix,
+                                      float3 yuvToRGBTranslate,
+                                      int csXformFlags,
+                                      int csXformSrcKind,
+                                      half3x3 csXformGamutTransform,
+                                      int csXformDstKind,
+                                      half4x4 csXformCoeffs,
+                                      sampler2D sY,
+                                      sampler2D sU,
+                                      sampler2D sV,
+                                      sampler2D sA) {
+    half4 sampleColorY, sampleColorU, sampleColorV;
+    sampleColorY = $cubic_filter_image(coords, invImgSize, subset, tileModeX, tileModeY,
+                                       cubicCoeffs, sY);
+    sampleColorU = $cubic_filter_image(coords, invImgSize, subset, tileModeX, tileModeY,
+                                       cubicCoeffs, sU);
+    sampleColorV = $cubic_filter_image(coords, invImgSize, subset, tileModeX, tileModeY,
+                                       cubicCoeffs, sV);
+    float Y = dot(channelSelectY, sampleColorY);
+    float U = dot(channelSelectU, sampleColorU);
+    float V = dot(channelSelectV, sampleColorV);
+    half3 preColor = half3(Y, U, V);
+    half4 sampleColor;
+    sampleColor.rgb = saturate(yuvToRGBMatrix * preColor.rgb + half3(yuvToRGBTranslate));
+    if (channelSelectA == half4(0)) {
+        sampleColor.a = 1;
+    } else {
+        half4 sampleColorA =
+            $cubic_filter_image(coords, invImgSize, subset, tileModeX, tileModeY, cubicCoeffs,
+                                sA);
         sampleColor.a = dot(channelSelectA, sampleColorA);
         // premul alpha
         sampleColor.rgb *= sampleColor.a;

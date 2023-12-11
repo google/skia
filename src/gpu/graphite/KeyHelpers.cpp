@@ -620,13 +620,27 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
     gatherer->write(SkTo<int>(imgData.fSampling.filter));
-    gatherer->write(imgData.fSampling.useCubic);
-    if (imgData.fSampling.useCubic) {
-        const SkCubicResampler& cubic = imgData.fSampling.cubic;
-        gatherer->writeHalf(SkImageShader::CubicResamplerMatrix(cubic.B, cubic.C));
-    } else {
-        gatherer->writeHalf(SkM44());
+
+    for (int i = 0; i < 4; ++i) {
+        gatherer->writeHalf(imgData.fChannelSelect[i]);
     }
+    gatherer->writeHalf(imgData.fYUVtoRGBMatrix);
+    gatherer->write(imgData.fYUVtoRGBTranslate);
+
+    add_color_space_uniforms(imgData.fSteps, ReadSwizzle::kRGBA, gatherer);
+}
+
+void add_cubic_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
+                                      const YUVImageShaderBlock::ImageData& imgData,
+                                      PipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCubicYUVImageShader)
+
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
+    gatherer->write(imgData.fSubset);
+    gatherer->write(SkTo<int>(imgData.fTileModes[0]));
+    gatherer->write(SkTo<int>(imgData.fTileModes[1]));
+    const SkCubicResampler& cubic = imgData.fSampling.cubic;
+    gatherer->writeHalf(SkImageShader::CubicResamplerMatrix(cubic.B, cubic.C));
 
     for (int i = 0; i < 4; ++i) {
         gatherer->writeHalf(imgData.fChannelSelect[i]);
@@ -666,9 +680,13 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
         gatherer->add(imgData.fSampling, imgData.fTileModes, imgData.fTextureProxies[i]);
     }
 
-    add_yuv_image_uniform_data(keyContext.dict(), imgData, gatherer);
-
-    builder->addBlock(BuiltInCodeSnippetID::kYUVImageShader);
+    if (imgData.fSampling.useCubic) {
+        add_cubic_yuv_image_uniform_data(keyContext.dict(), imgData, gatherer);
+        builder->addBlock(BuiltInCodeSnippetID::kCubicYUVImageShader);
+    } else {
+        add_yuv_image_uniform_data(keyContext.dict(), imgData, gatherer);
+        builder->addBlock(BuiltInCodeSnippetID::kYUVImageShader);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

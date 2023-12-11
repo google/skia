@@ -938,7 +938,25 @@ static constexpr Uniform kYUVImageShaderUniforms[] = {
         { "tilemodeX",             SkSLType::kInt },
         { "tilemodeY",             SkSLType::kInt },
         { "filterMode",            SkSLType::kInt },
-        { "useCubic",              SkSLType::kInt },
+        { "channelSelectY",        SkSLType::kHalf4 },
+        { "channelSelectU",        SkSLType::kHalf4 },
+        { "channelSelectV",        SkSLType::kHalf4 },
+        { "channelSelectA",        SkSLType::kHalf4 },
+        { "yuvToRGBMatrix",        SkSLType::kHalf3x3 },
+        { "yuvToRGBTranslate",     SkSLType::kFloat3 },
+        // The next 5 uniforms are for the color space transformation
+        { "csXformFlags",          SkSLType::kInt },
+        { "csXformSrcKind",        SkSLType::kInt },
+        { "csXformGamutTransform", SkSLType::kHalf3x3 },
+        { "csXformDstKind",        SkSLType::kInt },
+        { "csXformCoeffs",         SkSLType::kHalf4x4 },
+};
+
+static constexpr Uniform kCubicYUVImageShaderUniforms[] = {
+        { "invImgSize",            SkSLType::kFloat2 },
+        { "subset",                SkSLType::kFloat4 },
+        { "tilemodeX",             SkSLType::kInt },
+        { "tilemodeY",             SkSLType::kInt },
         { "cubicCoeffs",           SkSLType::kHalf4x4 },
         { "channelSelectY",        SkSLType::kHalf4 },
         { "channelSelectU",        SkSLType::kHalf4 },
@@ -946,7 +964,7 @@ static constexpr Uniform kYUVImageShaderUniforms[] = {
         { "channelSelectA",        SkSLType::kHalf4 },
         { "yuvToRGBMatrix",        SkSLType::kHalf3x3 },
         { "yuvToRGBTranslate",     SkSLType::kFloat3 },
-        // The next 6 uniforms are for the color space transformation
+        // The next 5 uniforms are for the color space transformation
         { "csXformFlags",          SkSLType::kInt },
         { "csXformSrcKind",        SkSLType::kInt },
         { "csXformGamutTransform", SkSLType::kHalf3x3 },
@@ -962,6 +980,7 @@ static constexpr TextureAndSampler kYUVISTexturesAndSamplers[] = {
 };
 
 static constexpr char kYUVImageShaderName[] = "sk_yuv_image_shader";
+static constexpr char kCubicYUVImageShaderName[] = "sk_cubic_yuv_image_shader";
 
 //--------------------------------------------------------------------------------------------------
 static constexpr Uniform kCoordClampShaderUniforms[] = {
@@ -1655,6 +1674,16 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kLocalCoords,
             SkSpan(kYUVISTexturesAndSamplers),
             kYUVImageShaderName,
+            GenerateDefaultExpression,
+            GenerateDefaultPreamble,
+            kNoChildren
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCubicYUVImageShader] = {
+            "CubicYUVImageShader",
+            SkSpan(kCubicYUVImageShaderUniforms),
+            SnippetRequirementFlags::kLocalCoords,
+            SkSpan(kYUVISTexturesAndSamplers),
+            kCubicYUVImageShaderName,
             GenerateDefaultExpression,
             GenerateDefaultPreamble,
             kNoChildren
