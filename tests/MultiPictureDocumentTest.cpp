@@ -189,7 +189,6 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
 #include "include/core/SkColorType.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
-#include "src/gpu/android/AHardwareBufferUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 
@@ -311,7 +310,7 @@ static sk_sp<SkImage> makeAHardwareBufferTestImage(
         backendFormat,
         false   // isRenderable
     );
-    SkColorType colorType = AHardwareBufferUtils::GetSkColorTypeFromBufferFormat(hwbDesc.format);
+    SkColorType colorType = GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(hwbDesc.format);
     sk_sp<SkImage> image = SkImages::BorrowTextureFrom(context,
                                                        texture,
                                                        kTopLeft_GrSurfaceOrigin,

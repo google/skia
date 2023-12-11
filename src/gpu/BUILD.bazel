@@ -151,7 +151,6 @@ skia_filegroup(
     ] + select(
         {
             ":has_vulkan": ["//src/gpu/vk:srcs"],
-            "@platforms//os:android": ["//src/gpu/android:android_srcs"],
             "//conditions:default": [],
         },
     ),
