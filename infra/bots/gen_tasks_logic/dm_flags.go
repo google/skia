@@ -1174,6 +1174,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~CopySurface")
 	}
 
+	// Pixel4XL on the tree is still on Android 10 (Q), and the vulkan drivers
+	// crash during this GM. It works correctly on newer versions of Android.
+	if b.extraConfig("Vulkan") && b.model("Pixel4XL") {
+		skip("vk", "gm", ALL, "custommesh_cs_uniforms")
+	}
+
 	if b.extraConfig("Vulkan") && b.matchGpu("Adreno") {
 		// skia:7663
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
@@ -1310,6 +1316,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "drawlines_with_local_matrix")
 		match = append(match, "gradients_interesting")
 		match = append(match, "manypathatlases_2048")
+		match = append(match, "custommesh_cs_uniforms")
 		match = append(match, "paint_alpha_normals_rt")
 		match = append(match, "runtimefunctions")
 		match = append(match, "savelayer_f16")

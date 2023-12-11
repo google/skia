@@ -8,23 +8,23 @@
 #include "gm/gm.h"
 #include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkMesh.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkMeshGanesh.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkMeshPriv.h"
 #include "tools/DecodeUtils.h"
-#include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
-
-#include <memory>
 
 using namespace skia_private;
 
@@ -1501,5 +1501,132 @@ DEF_GM(return new MeshWithShadersGM(MeshWithShadersGM::Type::kMeshWithImage))
 DEF_GM(return new MeshWithShadersGM(MeshWithShadersGM::Type::kMeshWithPaintColor))
 DEF_GM(return new MeshWithShadersGM(MeshWithShadersGM::Type::kMeshWithPaintImage))
 DEF_GM(return new MeshWithShadersGM(MeshWithShadersGM::Type::kMeshWithEffects))
+
+DEF_SIMPLE_GM_CAN_FAIL(custommesh_cs_uniforms, canvas, errorMsg, 200, 900) {
+    if (!canvas->recordingContext() && !canvas->recorder()) {
+        *errorMsg = GM::kErrorMsg_DrawSkippedGpuOnly;
+        return DrawResult::kSkip;
+    }
+
+    // Shared data
+    static constexpr SkRect kRect = SkRect::MakeLTRB(20, 20, 80, 80);
+    static constexpr SkPoint kQuad[]{
+            {kRect.left(), kRect.top()},
+            {kRect.right(), kRect.top()},
+            {kRect.left(), kRect.bottom()},
+            {kRect.right(), kRect.bottom()},
+    };
+    sk_sp<SkMesh::VertexBuffer> vb = SkMeshes::MakeVertexBuffer(kQuad, sizeof(kQuad));
+    sk_sp<SkData> unis = SkData::MakeWithCopy(&SkColors::kRed, sizeof(SkColor4f));
+
+    // Surface helper
+    auto makeSurface = [=](sk_sp<SkColorSpace> cs) {
+        SkImageInfo ii = SkImageInfo::MakeN32Premul(200, 100, cs);
+        sk_sp<SkSurface> surface = canvas->makeSurface(ii);
+        return surface ? surface : SkSurfaces::Raster(ii);
+    };
+
+    // Mesh helper
+    enum class Managed : bool { kNo, kYes };
+    auto makeMesh = [&](Managed managed, sk_sp<SkColorSpace> workingCS) {
+        static const SkMeshSpecification::Attribute kAttributes[]{
+                {SkMeshSpecification::Attribute::Type::kFloat2, 0, SkString{"pos"}},
+        };
+
+        static constexpr char kVS[] = R"(
+            Varyings main(in const Attributes attributes) {
+                Varyings varyings;
+                varyings.position = attributes.pos;
+                return varyings;
+            }
+        )";
+        static constexpr char kManagedFS[] = R"(
+            layout(color) uniform half4 color;
+            float2 main(const Varyings varyings, out half4 c) {
+                c = color;
+                return varyings.position;
+            }
+        )";
+        static constexpr char kRawFS[] = R"(
+            uniform half4 color;
+            float2 main(const Varyings varyings, out half4 c) {
+                c = color;
+                return varyings.position;
+            }
+        )";
+
+        auto [spec, error] = SkMeshSpecification::Make(
+                kAttributes,
+                sizeof(SkPoint),
+                /*varyings=*/{},
+                SkString(kVS),
+                SkString(managed == Managed::kYes ? kManagedFS : kRawFS),
+                std::move(workingCS),
+                kPremul_SkAlphaType);
+        SkASSERT(spec);
+
+        SkMesh::Result result = SkMesh::Make(std::move(spec),
+                                             SkMesh::Mode::kTriangleStrip,
+                                             vb,
+                                             /*vertexCount=*/4,
+                                             /*vertexOffset=*/0,
+                                             /*uniforms=*/unis,
+                                             /*children=*/{},
+                                             kRect);
+        SkASSERT(result.mesh.isValid());
+        return result.mesh;
+    };
+
+    sk_sp<SkColorSpace> null = nullptr,
+                        srgb = SkColorSpace::MakeSRGB(),
+                        spin = SkColorSpace::MakeSRGB()->makeColorSpin(),
+                        wide = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2,
+                                                     SkNamedGamut::kRec2020);
+
+    struct Config {
+        sk_sp<SkColorSpace> fMeshCS;
+        sk_sp<SkColorSpace> fSurfaceCS;
+        Managed fManaged;
+        SkColor fExpectedColor = SK_ColorRED;
+    };
+    static const Config kConfigs[] = {
+            // Uniforms should remain in sRGB mode, then get converted to destination after mesh FS
+            // Before b/316594914 was fixed, these would get double-converted:
+            {srgb, null, Managed::kYes},
+            {srgb, srgb, Managed::kYes},
+            {srgb, spin, Managed::kYes},
+            {srgb, wide, Managed::kYes},
+
+            // Uniforms should be converted to working space (spun), then converted to destination
+            {spin, srgb, Managed::kYes},
+            {spin, spin, Managed::kYes},
+            {spin, wide, Managed::kYes},
+
+            // Non-managed uniforms serve as a control group. The red uniforms are not converted to
+            // the working space. The mesh FS returns "red" {1, 0, 0, 1}, but that's actually green,
+            // because the working space of the mesh is `spin`. That output is converted to dest,
+            // rendering as green. Therefore, we manually change the control color's box to green.
+            {spin, srgb, Managed::kNo, SK_ColorGREEN},
+            {spin, wide, Managed::kNo, SK_ColorGREEN},
+    };
+
+    for (const Config& config : kConfigs) {
+        SkMesh mesh = makeMesh(config.fManaged, config.fMeshCS);
+
+        sk_sp<SkSurface> offscreen = makeSurface(config.fSurfaceCS);
+        SkCanvas* offscreenCanvas = offscreen->getCanvas();
+
+        SkPaint paint;
+        offscreenCanvas->drawMesh(mesh, SkBlender::Mode(SkBlendMode::kDst), paint);
+        offscreenCanvas->translate(100, 0);
+        paint.setColor(config.fExpectedColor);
+        offscreenCanvas->drawRect(kRect, paint);
+
+        offscreen->draw(canvas, 0, 0);
+        canvas->translate(0, 100);
+    }
+
+    return DrawResult::kOk;
+}
 
 }  // namespace skiagm
