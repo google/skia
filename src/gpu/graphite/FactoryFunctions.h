@@ -38,6 +38,7 @@ public:
                                          SkSpan<const sk_sp<PrecompileShader>> srcs);
     // TODO: add an SkShaders::Image to match this and SkImageFilters (skbug.com/13440)
     static sk_sp<PrecompileShader> Image();
+    static sk_sp<PrecompileShader> YUVImage();
 
     // TODO: make SkGradientShader match this convention (skbug.com/13438)
     static sk_sp<PrecompileShader> LinearGradient();

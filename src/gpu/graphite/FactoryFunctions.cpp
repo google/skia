@@ -307,6 +307,39 @@ sk_sp<PrecompileShader> PrecompileShaders::Image() {
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileYUVImageShader : public PrecompileShader {
+public:
+    PrecompileYUVImageShader() {}
+
+private:
+    // non-cubic and cubic sampling
+    inline static constexpr int kNumIntrinsicCombinations = 2;
+
+    int numIntrinsicCombinations() const override { return kNumIntrinsicCombinations; }
+
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination < kNumIntrinsicCombinations);
+
+        static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
+        static constexpr SkSamplingOptions kDefaultSampling;
+
+        YUVImageShaderBlock::ImageData imgData(desiredCombination == 1 ? kDefaultCubicSampling
+                                                                       : kDefaultSampling,
+                                               SkTileMode::kClamp, SkTileMode::kClamp,
+                                               SkISize::MakeEmpty(), SkRect::MakeEmpty());
+
+        YUVImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+    }
+};
+
+sk_sp<PrecompileShader> PrecompileShaders::YUVImage() {
+    return sk_make_sp<PrecompileYUVImageShader>();
+}
+
+//--------------------------------------------------------------------------------------------------
 class PrecompileGradientShader : public PrecompileShader {
 public:
     PrecompileGradientShader(SkShaderBase::GradientType type) : fType(type) {}
