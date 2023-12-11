@@ -7,18 +7,15 @@
 
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
 
-#include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"  // IWYU pragma: keep
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkScalar.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkPoint_impl.h"
-#include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/gpu/SkBackingFit.h"
@@ -33,7 +30,6 @@
 #include <cstddef>
 #include <utility>
 
-class SkPaint;
 class SkShader;
 struct SkSamplingOptions;
 enum SkColorType : int;
@@ -61,30 +57,6 @@ public:
     size_t getSize() const override { return fView.proxy()->gpuMemorySize(); }
 
     bool isGaneshBacked() const override { return true; }
-
-    void onDraw(SkCanvas* canvas,
-                SkScalar x,
-                SkScalar y,
-                const SkSamplingOptions& sampling,
-                const SkPaint* paint) const override {
-        SkRect dst = SkRect::MakeXYWH(x, y, this->subset().width(), this->subset().height());
-
-        // TODO: In this instance we know we're going to draw a sub-portion of the backing
-        // texture into the canvas so it is okay to wrap it in an SkImage. This poses
-        // some problems for full deferral however in that when the deferred SkImage_Ganesh
-        // instantiates itself it is going to have to either be okay with having a larger
-        // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs
-        // to be tightened (if it is deferred).
-        sk_sp<SkImage> img = sk_sp<SkImage>(new SkImage_Ganesh(
-                sk_ref_sp(canvas->recordingContext()), this->uniqueID(), fView, this->colorInfo()));
-
-        canvas->drawImageRect(img,
-                              SkRect::Make(this->subset()),
-                              dst,
-                              sampling,
-                              paint,
-                              SkCanvas::kStrict_SrcRectConstraint);
-    }
 
     GrRecordingContext* getContext() const override { return fContext; }
 

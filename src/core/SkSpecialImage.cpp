@@ -35,6 +35,17 @@ SkSpecialImage::SkSpecialImage(const SkIRect& subset,
     , fProps(props) {
 }
 
+void SkSpecialImage::draw(SkCanvas* canvas,
+                          SkScalar x, SkScalar y,
+                          const SkSamplingOptions& sampling,
+                          const SkPaint* paint, bool strict) const {
+    SkRect dst = SkRect::MakeXYWH(x, y, this->subset().width(), this->subset().height());
+
+    canvas->drawImageRect(this->asImage(), SkRect::Make(this->subset()), dst,
+                          sampling, paint, strict ? SkCanvas::kStrict_SrcRectConstraint
+                                                  : SkCanvas::kFast_SrcRectConstraint);
+}
+
 sk_sp<SkImage> SkSpecialImage::asImage(const SkIRect* subset) const {
     if (subset) {
         SkIRect absolute = subset->makeOffset(this->subset().topLeft());
@@ -74,14 +85,6 @@ public:
 
     size_t getSize() const override { return fBitmap.computeByteSize(); }
 
-    void onDraw(SkCanvas* canvas, SkScalar x, SkScalar y, const SkSamplingOptions& sampling,
-                const SkPaint* paint) const override {
-        SkRect dst = SkRect::MakeXYWH(x, y,
-                                      this->subset().width(), this->subset().height());
-
-        canvas->drawImageRect(fBitmap.asImage(), SkRect::Make(this->subset()), dst,
-                              sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
-    }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
         // No need to extract subset, onGetROPixels handles that when needed

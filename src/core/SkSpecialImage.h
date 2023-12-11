@@ -73,9 +73,8 @@ public:
     void draw(SkCanvas* canvas,
               SkScalar x, SkScalar y,
               const SkSamplingOptions& sampling,
-              const SkPaint* paint) const {
-        return this->onDraw(canvas, x, y, sampling, paint);
-    }
+              const SkPaint* paint,
+              bool strict = true) const;
     void draw(SkCanvas* canvas, SkScalar x, SkScalar y) const {
         this->draw(canvas, x, y, SkSamplingOptions(), nullptr);
     }
@@ -128,11 +127,6 @@ protected:
                    uint32_t uniqueID,
                    const SkColorInfo&,
                    const SkSurfaceProps&);
-
-    virtual void onDraw(SkCanvas*,
-                        SkScalar x, SkScalar y,
-                        const SkSamplingOptions&,
-                        const SkPaint*) const = 0;
 
     // This subset is relative to the backing store's coordinate frame, it has already been mapped
     // from the content rect by the non-virtual makeSubset().

@@ -38,21 +38,6 @@ public:
 
     TextureProxyView textureProxyView() const { return fTextureProxyView; }
 
-    void onDraw(SkCanvas* canvas,
-                SkScalar x, SkScalar y,
-                const SkSamplingOptions& sampling,
-                const SkPaint* paint) const override {
-        SkRect dst = SkRect::MakeXYWH(x, y,
-                                      this->subset().width(), this->subset().height());
-
-        sk_sp<SkImage> img = sk_sp<SkImage>(new skgpu::graphite::Image(this->uniqueID(),
-                                                                       fTextureProxyView,
-                                                                       this->colorInfo()));
-
-        canvas->drawImageRect(img, SkRect::Make(this->subset()), dst,
-                              sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
-    }
-
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
         return SkSpecialImages::MakeGraphite(subset,
                                              this->uniqueID(),
