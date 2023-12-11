@@ -413,7 +413,11 @@ static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, vo
         SkDEBUGFAIL("Did not serialize an index");
         return nullptr;
     }
-    size_t idx = *reinterpret_cast<const size_t*>(data);
+    if (!data) {
+        return nullptr;
+    }
+    size_t idx = 0;
+    std::memcpy(&idx, data, sizeof(size_t));
     if (idx >= SkToSizeT(array->size())) {
         SkDEBUGFAIL("Index too big");
         return nullptr;
@@ -451,6 +455,7 @@ DEF_TEST(TextBlob_serialize, reporter) {
     deserializeProcs.fTypefaceProc = &DeserializeTypeface;
     deserializeProcs.fTypefaceCtx = (void*) &array;
     sk_sp<SkTextBlob> blob1 = SkTextBlob::Deserialize(data->data(), data->size(), deserializeProcs);
+    REPORTER_ASSERT(reporter, blob1);
 
     sk_sp<SkImage> img0 = render(blob0.get());
     sk_sp<SkImage> img1 = render(blob1.get());
