@@ -46,12 +46,7 @@ public:
                                              this->props());
     }
 
-    sk_sp<SkImage> onAsImage(const SkIRect* subset) const override {
-        if (subset) {
-            // TODO: fill this in
-            return nullptr;
-        }
-
+    sk_sp<SkImage> asImage() const override {
         return sk_make_sp<Image>(this->uniqueID(), fTextureProxyView, this->colorInfo());
     }
 
