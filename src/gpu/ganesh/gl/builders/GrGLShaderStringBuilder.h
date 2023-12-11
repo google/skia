@@ -18,11 +18,13 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,
                                     GrGLenum type,
                                     const std::string& glsl,
+                                    bool shaderWasCached,
                                     GrThreadSafePipelineBuilder::Stats*,
                                     GrContextOptions::ShaderErrorHandler* errorHandler);
 
 bool GrGLCheckLinkStatus(const GrGLGpu* gpu,
                          GrGLuint programID,
+                         bool shaderWasCached,
                          GrContextOptions::ShaderErrorHandler* errorHandler,
                          const std::string* sksl[kGrShaderTypeCount],
                          const std::string glsl[kGrShaderTypeCount]);

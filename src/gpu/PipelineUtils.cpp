@@ -27,7 +27,8 @@ static bool sksl_to_backend(SkSL::Compiler* compiler,
                                                                       src,
                                                                       settings);
     if (!program || !(compiler->*toBackend)(*program, output)) {
-        errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
+        errorHandler->compileError(
+                src.c_str(), compiler->errorText().c_str(), /*shaderWasCached=*/false);
         return false;
     }
 
