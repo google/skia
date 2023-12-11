@@ -383,6 +383,7 @@ static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, S
 }
 
 static sk_sp<SkImage> render(const SkTextBlob* blob) {
+    SkASSERT(blob);
     auto surf = SkSurfaces::Raster(
             SkImageInfo::MakeN32Premul(SkScalarRoundToInt(blob->bounds().width()),
                                        SkScalarRoundToInt(blob->bounds().height())));
@@ -395,6 +396,10 @@ static sk_sp<SkImage> render(const SkTextBlob* blob) {
 }
 
 static sk_sp<SkData> SerializeTypeface(SkTypeface* tf, void* ctx) {
+    // Do not serialize the empty font.
+    if (!tf || (tf->countGlyphs() == 0 && tf->getBounds().isEmpty())) {
+        return nullptr;
+    }
     auto array = (TArray<sk_sp<SkTypeface>>*)ctx;
     const size_t idx = array->size();
     array->emplace_back(sk_ref_sp(tf));
@@ -405,12 +410,12 @@ static sk_sp<SkData> SerializeTypeface(SkTypeface* tf, void* ctx) {
 static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, void* ctx) {
     auto array = (TArray<sk_sp<SkTypeface>>*)ctx;
     if (length != sizeof(size_t)) {
-        SkASSERT(false);
+        SkDEBUGFAIL("Did not serialize an index");
         return nullptr;
     }
     size_t idx = *reinterpret_cast<const size_t*>(data);
     if (idx >= SkToSizeT(array->size())) {
-        SkASSERT(false);
+        SkDEBUGFAIL("Index too big");
         return nullptr;
     }
     return (*array)[idx];
@@ -423,8 +428,10 @@ static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, vo
  *  Then draw the new instance and assert it draws the same as the original.
  */
 DEF_TEST(TextBlob_serialize, reporter) {
-    sk_sp<SkTextBlob> blob0 = []() {
+    sk_sp<SkTextBlob> blob0 = [reporter]() {
         sk_sp<SkTypeface> tf = ToolUtils::CreateTestTypeface(nullptr, SkFontStyle::BoldItalic());
+        REPORTER_ASSERT(reporter, tf, "Test typeface was nullptr");
+        REPORTER_ASSERT(reporter, tf->countGlyphs() > 0, "Test typeface had no glyphs");
 
         SkTextBlobBuilder builder;
         add_run(&builder, "Hello", 10, 20, nullptr);    // don't flatten a typeface
@@ -437,7 +444,9 @@ DEF_TEST(TextBlob_serialize, reporter) {
     serializeProcs.fTypefaceProc = &SerializeTypeface;
     serializeProcs.fTypefaceCtx = (void*) &array;
     sk_sp<SkData> data = blob0->serialize(serializeProcs);
-    REPORTER_ASSERT(reporter, array.size() == 1);
+    REPORTER_ASSERT(reporter, array.size() == 1,
+        "Did not serialize exactly one non-empty font, instead %d", array.size());
+    REPORTER_ASSERT(reporter, array[0]->countGlyphs() > 0, "Serialized typeface had no glyphs");
     SkDeserialProcs deserializeProcs;
     deserializeProcs.fTypefaceProc = &DeserializeTypeface;
     deserializeProcs.fTypefaceCtx = (void*) &array;

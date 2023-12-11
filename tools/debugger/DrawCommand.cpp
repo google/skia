@@ -899,7 +899,7 @@ static void apply_paint_patheffect(const SkPaint&  paint,
 static void apply_font_typeface(const SkFont&   font,
                                 SkJSONWriter&   writer,
                                 UrlDataManager& urlDataManager) {
-    SkTypeface* typeface = SkFontPriv::GetTypefaceOrDefault(font);
+    SkTypeface* typeface = font.getTypeface();
     if (typeface != nullptr) {
         writer.beginObject(DEBUGCANVAS_ATTRIBUTE_TYPEFACE);
         SkDynamicMemoryWStream buffer;

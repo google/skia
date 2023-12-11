@@ -13,7 +13,6 @@
 #include "include/private/base/SkTFitsIn.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/base/SkUTF.h"
-#include "src/core/SkFontPriv.h"
 
 #include <limits.h>
 #include <algorithm>
@@ -105,13 +104,13 @@ public:
     {
         // If fallback is not wanted, clients should use TrivialFontRunIterator.
         SkASSERT(fFallbackMgr);
-        fFont.setTypeface(SkFontPriv::RefTypefaceOrDefault(font));
+        fFont.setTypeface(font.refTypeface());
         fFallbackFont.setTypeface(nullptr);
     }
     FontMgrRunIterator(const char* utf8, size_t utf8Bytes,
                        const SkFont& font, sk_sp<SkFontMgr> fallbackMgr)
         : FontMgrRunIterator(utf8, utf8Bytes, font, std::move(fallbackMgr),
-                             nullptr, SkFontPriv::RefTypefaceOrDefault(font)->fontStyle(), nullptr)
+                             nullptr, font.getTypeface()->fontStyle(), nullptr)
     {}
 
     void consume() override {

@@ -142,7 +142,7 @@ protected:
                 for (int makeGray = 0; makeGray < 2; makeGray++) {
                     for (int makeMode = 0; makeMode < 2; ++makeMode) {
                         for (int alpha = 0; alpha < 2; ++alpha) {
-                            SkFont shaderFont(SkFontPriv::RefTypefaceOrDefault(font));
+                            SkFont shaderFont(font.refTypeface());
                             SkPaint shaderPaint;
                             if (SkToBool(makeLinear)) {
                                 shaderPaint.setShader(MakeLinear());
