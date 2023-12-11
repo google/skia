@@ -84,7 +84,8 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                                     options, &error);
     }
     if (!compiledLibrary) {
-        errorHandler->compileError(msl.c_str(), error.debugDescription.UTF8String);
+        errorHandler->compileError(
+                msl.c_str(), error.debugDescription.UTF8String, /*shaderWasCached=*/false);
         return nil;
     }
 

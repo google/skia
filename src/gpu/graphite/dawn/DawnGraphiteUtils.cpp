@@ -118,7 +118,8 @@ static bool check_shader_module(wgpu::ShaderModule* module,
                               std::to_string(entry.linePos) + ' ' +
                               entry.message + '\n';
                 }
-                self->fErrorHandler->compileError(self->fShaderText, errors.c_str());
+                self->fErrorHandler->compileError(
+                        self->fShaderText, errors.c_str(), /*shaderWasCached=*/false);
             }
         }
 
