@@ -1310,6 +1310,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "drawlines_with_local_matrix")
 		match = append(match, "gradients_interesting")
 		match = append(match, "manypathatlases_2048")
+		match = append(match, "custommesh_cs_uniforms")
 		match = append(match, "paint_alpha_normals_rt")
 		match = append(match, "runtimefunctions")
 		match = append(match, "savelayer_f16")
