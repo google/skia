@@ -332,7 +332,7 @@ template <typename T> using V = T __attribute__((ext_vector_type(16)));
         return _mm256_castsi256_si128(_mm256_permute4x64_epi64(rst, 8));
     }
     SI F if_then_else(I32 c, F t, F e) {
-	    return _mm512_castsi512_ps(_mm512_ternarylogic_epi64(c, _mm512_castps_si512(t),
+        return _mm512_castsi512_ps(_mm512_ternarylogic_epi64(c, _mm512_castps_si512(t),
                      _mm512_castps_si512(e), 202));
     }
     SI bool any(I32 c) {
@@ -345,11 +345,11 @@ template <typename T> using V = T __attribute__((ext_vector_type(16)));
     }
     template <typename T>
     SI V<T> gather(const T* p, U32 ix) {
-        return{  p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
-                 p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]],
-                 p[ix[8]], p[ix[9]], p[ix[10]], p[ix[11]],
-                 p[ix[12]], p[ix[13]], p[ix[14]], p[ix[15]],
-                 };
+        return{p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
+               p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]],
+               p[ix[8]], p[ix[9]], p[ix[10]], p[ix[11]],
+               p[ix[12]], p[ix[13]], p[ix[14]], p[ix[15]],
+               };
     }
     SI F   gather(const float* p, U32 ix) { return _mm512_i32gather_ps(ix, p, 4); }
     SI U32 gather(const uint32_t* p, U32 ix) { return _mm512_i32gather_epi32(ix, p, 4); }
@@ -383,9 +383,8 @@ template <typename T> using V = T __attribute__((ext_vector_type(16)));
     }
 
     SI void load2(const uint16_t* ptr, U16* r, U16* g) {
-        U16 _01234567, _89abcdef;
-        _01234567 = _mm256_loadu_si256(((__m256i*)ptr) + 0);
-        _89abcdef = _mm256_loadu_si256(((__m256i*)ptr) + 1);
+        U16 _01234567 = _mm256_loadu_si256(((__m256i*)ptr) + 0);
+        U16 _89abcdef = _mm256_loadu_si256(((__m256i*)ptr) + 1);
 
         *r = _mm256_permute4x64_epi64(_mm256_packs_epi32(_mm256_srai_epi32(_mm256_slli_epi32
             (_01234567, 16), 16), _mm256_srai_epi32(_mm256_slli_epi32(_89abcdef, 16), 16)), 216);
@@ -395,7 +394,8 @@ template <typename T> using V = T __attribute__((ext_vector_type(16)));
     SI void store2(uint16_t* ptr, U16 r, U16 g) {
         auto _01234567 = _mm256_unpacklo_epi16(r, g);
         auto _89abcdef = _mm256_unpackhi_epi16(r, g);
-        __m512i combinedVector = _mm512_inserti64x4(_mm512_castsi256_si512(_01234567), _89abcdef, 1);
+        __m512i combinedVector = _mm512_inserti64x4(_mm512_castsi256_si512(_01234567),
+                    _89abcdef, 1);
         __m512i aa = _mm512_permutexvar_epi64(_mm512_setr_epi64(0,1,4,5,2,3,6,7), combinedVector);
         _01234567 = _mm512_castsi512_si256(aa);
         _89abcdef = _mm512_extracti64x4_epi64(aa, 1);
@@ -405,21 +405,21 @@ template <typename T> using V = T __attribute__((ext_vector_type(16)));
     }
 
     SI void load4(const uint16_t* ptr, U16* r, U16* g, U16* b, U16* a) {
-        __m512i _01234567, _89abcdef;
-        _01234567 = _mm512_loadu_si512((__m512i*)ptr);
-        _89abcdef = _mm512_loadu_si512((__m512i*)(ptr+32));
+        __m512i _01234567 = _mm512_loadu_si512((__m512i*)ptr);
+        __m512i _89abcdef = _mm512_loadu_si512((__m512i*)(ptr+32));
 
-        *r = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_01234567, _mm512_set1_epi64
-               (0xFF))), _mm512_cvtepi64_epi16(_mm512_and_si512(_89abcdef, _mm512_set1_epi64(0xFF))));
-        *g = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(_01234567, 16),
-               _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(_mm512_and_si512(
-                     _mm512_srli_epi64(_89abcdef, 16), _mm512_set1_epi64(0xFF))));
-        *b = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(_01234567, 32),
-               _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(_mm512_and_si512(
-                     _mm512_srli_epi64(_89abcdef, 32), _mm512_set1_epi64(0xFF))));
-        *a = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(_01234567, 48),
-               _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(_mm512_and_si512(
-                     _mm512_srli_epi64(_89abcdef, 48), _mm512_set1_epi64(0xFF))));
+        *r = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_01234567,
+                _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(_mm512_and_si512(
+                  _89abcdef, _mm512_set1_epi64(0xFF))));
+        *g = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(
+               _01234567, 16), _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(
+                 _mm512_and_si512(_mm512_srli_epi64(_89abcdef, 16), _mm512_set1_epi64(0xFF))));
+        *b = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(
+               _01234567, 32), _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(
+                 _mm512_and_si512(_mm512_srli_epi64(_89abcdef, 32), _mm512_set1_epi64(0xFF))));
+        *a = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(
+               _01234567, 48), _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(
+                 _mm512_and_si512(_mm512_srli_epi64(_89abcdef, 48), _mm512_set1_epi64(0xFF))));
     }
     SI void store4(uint16_t* ptr, U16 r, U16 g, U16 b, U16 a) {
         auto rg012389ab = _mm256_unpacklo_epi16(r, g),
@@ -447,21 +447,20 @@ template <typename T> using V = T __attribute__((ext_vector_type(16)));
 
     SI void load4(const float* ptr, F* r, F* g, F* b, F* a) {
         F _048c, _159d, _26ae, _37bf;
-          _048c = _159d = _26ae = _37bf = 0;
 
         _048c = _mm512_castps128_ps512(_mm_loadu_ps(ptr)         );
         _048c = _mm512_insertf32x4(_048c, _mm_loadu_ps(ptr+16), 1);
         _048c = _mm512_insertf32x4(_048c, _mm_loadu_ps(ptr+32), 2);
         _048c = _mm512_insertf32x4(_048c, _mm_loadu_ps(ptr+48), 3);
-        _159d = _mm512_insertf32x4(_159d, _mm_loadu_ps(ptr+ 4), 0);
+        _159d = _mm512_castps128_ps512(_mm_loadu_ps(ptr+4)       );
         _159d = _mm512_insertf32x4(_159d, _mm_loadu_ps(ptr+20), 1);
         _159d = _mm512_insertf32x4(_159d, _mm_loadu_ps(ptr+36), 2);
         _159d = _mm512_insertf32x4(_159d, _mm_loadu_ps(ptr+52), 3);
-        _26ae = _mm512_insertf32x4(_26ae, _mm_loadu_ps(ptr+ 8), 0);
+        _26ae = _mm512_castps128_ps512(_mm_loadu_ps(ptr+8)       );
         _26ae = _mm512_insertf32x4(_26ae, _mm_loadu_ps(ptr+24), 1);
         _26ae = _mm512_insertf32x4(_26ae, _mm_loadu_ps(ptr+40), 2);
         _26ae = _mm512_insertf32x4(_26ae, _mm_loadu_ps(ptr+56), 3);
-        _37bf = _mm512_insertf32x4(_37bf, _mm_loadu_ps(ptr+12), 0);
+        _37bf = _mm512_castps128_ps512(_mm_loadu_ps(ptr+12)      );
         _37bf = _mm512_insertf32x4(_37bf, _mm_loadu_ps(ptr+28), 1);
         _37bf = _mm512_insertf32x4(_37bf, _mm_loadu_ps(ptr+44), 2);
         _37bf = _mm512_insertf32x4(_37bf, _mm_loadu_ps(ptr+60), 3);
@@ -4394,16 +4393,7 @@ namespace lowp {
 
 #else  // We are compiling vector code with Clang... let's make some lowp stages!
 
-#if defined(JUMPER_IS_AVX512)
-    using U8  = uint8_t  __attribute__((ext_vector_type(16)));
-    using U16 = uint16_t __attribute__((ext_vector_type(16)));
-    using I16 =  int16_t __attribute__((ext_vector_type(16)));
-    using I32 =  int32_t __attribute__((ext_vector_type(16)));
-    using U32 = uint32_t __attribute__((ext_vector_type(16)));
-    using I64 =  int64_t __attribute__((ext_vector_type(16)));
-    using U64 = uint64_t __attribute__((ext_vector_type(16)));
-    using F   = float    __attribute__((ext_vector_type(16)));
-#elif defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_AVX512) || defined(JUMPER_IS_HSW)
     using U8  = uint8_t  __attribute__((ext_vector_type(16)));
     using U16 = uint16_t __attribute__((ext_vector_type(16)));
     using I16 =  int16_t __attribute__((ext_vector_type(16)));
