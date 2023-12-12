@@ -128,6 +128,13 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     }
     fMaxUniformBufferRange = physDevProperties.limits.maxUniformBufferRange;
 
+#ifdef SK_BUILD_FOR_ANDROID
+    if (extensions->hasExtension(
+            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME, 2)) {
+        fSupportsAHardwareBufferImages = true;
+    }
+#endif
+
     // Determine whether the client enabled certain physical device features.
     if (features) {
         auto ycbcrFeatures =
