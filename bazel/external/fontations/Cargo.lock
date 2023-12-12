@@ -13,9 +13,9 @@ dependencies = [
 
 [[package]]
 name = "cxx"
-version = "1.0.107"
+version = "1.0.110"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbe98ba1789d56fb3db3bee5e032774d4f421b685de7ba703643584ba24effbe"
+checksum = "7129e341034ecb940c9072817cd9007974ea696844fc4dd582dc1653a7fbe2e8"
 dependencies = [
  "cc",
  "cxxbridge-flags",
@@ -25,15 +25,15 @@ dependencies = [
 
 [[package]]
 name = "cxxbridge-flags"
-version = "1.0.107"
+version = "1.0.110"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20888d9e1d2298e2ff473cee30efe7d5036e437857ab68bbfea84c74dba91da2"
+checksum = "06fdd177fc61050d63f67f5bd6351fac6ab5526694ea8e359cd9cd3b75857f44"
 
 [[package]]
 name = "cxxbridge-macro"
-version = "1.0.107"
+version = "1.0.110"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2fa16a70dd58129e4dfffdff535fb1bce66673f7bbeec4a5a1765a504e1ccd84"
+checksum = "587663dd5fb3d10932c8aecfe7c844db1bcf0aee93eeab08fac13dc1212c2e7f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -42,9 +42,9 @@ dependencies = [
 
 [[package]]
 name = "font-types"
-version = "0.4.0"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02186306cae98ae594620ea5fb50db3706f54525a35ee9acf61dcac2978b3cba"
+checksum = "0bd7f3ea17572640b606b35df42cfb6ecdf003704b062580e59918692190b73d"
 
 [[package]]
 name = "fontations_bridge"
@@ -91,18 +91,18 @@ dependencies = [
 
 [[package]]
 name = "read-fonts"
-version = "0.13.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1281bfb309996f8057f0b008d313e7330ae14c038c0410ae0cc299a3a5e0e985"
+checksum = "be8b75ea775f573fad01d71eb8c266730f1e0760571fcf63aac3506b53cbec68"
 dependencies = [
  "font-types",
 ]
 
 [[package]]
 name = "skrifa"
-version = "0.12.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc3378514db0b5044d163f8920059e55553e881529d545a2d0fc4eacf153bafa"
+checksum = "16693462e908d7e35ba7644d4a176468eb393b5554643bf3f1aabcbfbcfa4b15"
 dependencies = [
  "read-fonts",
 ]
