@@ -11,6 +11,7 @@
 
 #include "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h"
 
+#include "include/android/AHardwareBufferUtils.h"
 #include "include/android/GrAHardwareBufferUtils.h"
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -38,7 +39,7 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
     AHardwareBuffer_describe(graphicBuffer, &bufferDesc);
 
     SkColorType colorType =
-            GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
+            AHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
     SkImageInfo info = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType,
                                          alphaType, std::move(colorSpace));
 

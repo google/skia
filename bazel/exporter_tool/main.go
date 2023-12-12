@@ -420,6 +420,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/mtl:mtl_hdrs",
 				"//src/gpu/mtl:mtl_srcs",
 			}},
+		{Var: "skia_shared_android_sources",
+			Rules: []string{
+				"//src/gpu/android:shared_android_srcs",
+			}},
 	}},
 	{GNI: "modules/svg/svg.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_svg_public",

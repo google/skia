@@ -183,6 +183,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
 
 #if defined(SK_GANESH) && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 
+#include "include/android/AHardwareBufferUtils.h"
 #include "include/android/GrAHardwareBufferUtils.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
@@ -310,7 +311,7 @@ static sk_sp<SkImage> makeAHardwareBufferTestImage(
         backendFormat,
         false   // isRenderable
     );
-    SkColorType colorType = GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(hwbDesc.format);
+    SkColorType colorType = AHardwareBufferUtils::GetSkColorTypeFromBufferFormat(hwbDesc.format);
     sk_sp<SkImage> image = SkImages::BorrowTextureFrom(context,
                                                        texture,
                                                        kTopLeft_GrSurfaceOrigin,

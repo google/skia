@@ -962,6 +962,10 @@ optional("gpu_shared") {
     public_defines += [ "SK_METAL" ]
     sources += skia_shared_mtl_sources
   }
+
+  if (is_android) {
+    sources += skia_shared_android_sources
+  }
 }
 
 optional("gpu") {

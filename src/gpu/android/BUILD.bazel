@@ -1,0 +1,11 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_filegroup(
+    name = "shared_android_srcs",
+    srcs = ["AHardwareBufferUtils.cpp"],
+    visibility = ["//src/gpu:__pkg__"],
+)
