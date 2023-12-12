@@ -12,6 +12,7 @@ skia_filegroup(
         "EventQueue.h",
         "EventQueueInterface.h",
         "Int96.h",
+        "Myers.h",
         "Point.h",
         "Segment.h",
         "SweepLine.h",

@@ -11,6 +11,7 @@ skia_filegroup(
         "BruteForceCrossings.cpp",
         "EventQueue.cpp",
         "Int96.cpp",
+        "Myers.cpp",
         "Point.cpp",
         "Segment.cpp",
         "SweepLine.cpp",

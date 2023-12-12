@@ -11,6 +11,7 @@ skia_filegroup(
         "BruteForceCrossingsTest.cpp",
         "EventQueueTest.cpp",
         "Int96Test.cpp",
+        "MyersTest.cpp",
         "PointTest.cpp",
         "SegmentTest.cpp",
         "SweepLineTest.cpp",
