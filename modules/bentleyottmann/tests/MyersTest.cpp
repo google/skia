@@ -5,6 +5,10 @@
 
 #include "tests/Test.h"
 
+namespace myers {
+extern bool slope_s0_less_than_slope_s1(const Segment& s0, const Segment& s1);
+}  // namespace myers
+
 using namespace myers;
 
 static bool operator==(std::pair<const Point &, const Point &> l, std::tuple<Point, Point> r) {
@@ -49,5 +53,31 @@ DEF_TEST(MFC_segment_ctor, r) {
         const auto [u, l] = s;
         REPORTER_ASSERT(r, u == s.upper() && u == p0);
         REPORTER_ASSERT(r, l == s.lower() && l == p1);
+    }
+}
+
+DEF_TEST(MFC_slope_less_than, r) {
+    {
+        Segment s0 = {{0, 0}, {1, 1}},
+                s1 = {{0, 0}, {-1, 1}};
+        REPORTER_ASSERT(r, !slope_s0_less_than_slope_s1(s0, s1));
+        REPORTER_ASSERT(r, slope_s0_less_than_slope_s1(s1, s0));
+        REPORTER_ASSERT(r, !slope_s0_less_than_slope_s1(s0, s0));
+    }
+    {
+        Segment s = {{0, 0}, {0,1}};
+        REPORTER_ASSERT(r, !slope_s0_less_than_slope_s1(s, s));
+    }
+    {  // Check slopes for horizontals.
+        Segment s0 = {{-2, 0}, {1, 0}},
+                s1 = {{-1, 0}, {2, 0}};
+        REPORTER_ASSERT(r, !slope_s0_less_than_slope_s1(s0, s1));
+        REPORTER_ASSERT(r, !slope_s0_less_than_slope_s1(s1, s0));
+    }
+    {  // Check slopes for horizontals.
+        Segment s0 = {{-2, 0}, {1, 0}},
+                s1 = {{0, 0}, {1, 1}};
+        REPORTER_ASSERT(r, !slope_s0_less_than_slope_s1(s0, s1));
+        REPORTER_ASSERT(r, slope_s0_less_than_slope_s1(s1, s0));
     }
 }
