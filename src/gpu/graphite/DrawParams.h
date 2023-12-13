@@ -64,8 +64,14 @@ private:
 class Clip {
 public:
     Clip() = default;
-    Clip(const Rect& drawBounds, const Rect& shapeBounds, const SkIRect& scissor)
-            : fDrawBounds(drawBounds), fTransformedShapeBounds(shapeBounds), fScissor(scissor) {}
+    Clip(const Rect& drawBounds,
+         const Rect& shapeBounds,
+         const SkIRect& scissor,
+         const SkShader* shader)
+            : fDrawBounds(drawBounds)
+            , fTransformedShapeBounds(shapeBounds)
+            , fScissor(scissor)
+            , fShader(shader) {}
 
     // Tight bounds of the draw, including any padding/outset for stroking and expansion due to
     // inverse fill and intersected with the scissor.
@@ -81,14 +87,18 @@ public:
     // to drawBounds(). For an inverse fill, this is a subset of drawBounds().
     const Rect& transformedShapeBounds() const { return fTransformedShapeBounds; }
 
+    // If set, the clip shader's output alpha is further used to clip the draw.
+    const SkShader* shader() const { return fShader; }
+
     bool isClippedOut() const { return fDrawBounds.isEmptyNegativeOrNaN(); }
 
 private:
     // DrawList assumes the DrawBounds are correct for a given shape, transform, and style. They
     // are provided to the DrawList to avoid re-calculating the same bounds.
-    Rect    fDrawBounds;
-    Rect    fTransformedShapeBounds;
-    SkIRect fScissor;
+    Rect            fDrawBounds;
+    Rect            fTransformedShapeBounds;
+    SkIRect         fScissor;
+    const SkShader* fShader;
 
     // TODO: If we add more complex analytic shapes for clipping, e.g. coverage rrect, it should
     // go here.

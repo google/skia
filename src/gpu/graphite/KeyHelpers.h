@@ -291,6 +291,12 @@ struct CoeffBlenderBlock {
                          SkSpan<const float> coeffs);
 };
 
+struct ClipShaderBlock {
+    static void BeginBlock(const KeyContext&,
+                           PaintParamsKeyBuilder*,
+                           PipelineDataGatherer*);
+};
+
 struct ComposeBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,

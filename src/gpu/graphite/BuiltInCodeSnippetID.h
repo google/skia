@@ -67,6 +67,10 @@ enum class BuiltInCodeSnippetID : int32_t {
     kDstReadSample,
     kDstReadFetch,
 
+    // Clip shader snippet
+    // TODO(b/238763003): Avoid incorporating clip shaders into the actual shader code.
+    kClipShader,
+
     kCompose,
 
     // Fixed-function blend modes are used for the final blend with the dst buffer's color when the

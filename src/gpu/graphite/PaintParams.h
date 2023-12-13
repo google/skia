@@ -33,6 +33,7 @@ class PaintParams {
 public:
     explicit PaintParams(const SkPaint&,
                          sk_sp<SkBlender> primitiveBlender,
+                         sk_sp<SkShader> clipShader,
                          DstReadRequirement dstReadReq,
                          bool skipColorXform);
 
@@ -83,12 +84,10 @@ private:
     // In the case where there is primitive blending, the primitive color is the source color and
     // the dest is the paint's color (or the paint's shader's computed color).
     sk_sp<SkBlender>     fPrimitiveBlender;
+    sk_sp<SkShader>      fClipShader;
     DstReadRequirement   fDstReadReq;
     bool                 fSkipColorXform;
     bool                 fDither;
-
-    // TODO: Will also store ColorFilter, dither, and any extra shader from an
-    // active clipShader().
 };
 
 using AddToKeyFn = std::function<void()>;

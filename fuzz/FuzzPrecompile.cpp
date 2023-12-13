@@ -360,6 +360,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
             recorder.get(), &gatherer, &builder, layout, {},
             PaintParams(paint,
                         /* primitiveBlender= */ nullptr,
+                        /* clipShader= */nullptr,
                         dstReadReq,
                         /* skipColorXform= */ false),
             curDst, fakeDstOffset, ci);

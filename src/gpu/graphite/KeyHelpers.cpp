@@ -75,8 +75,6 @@
 #include "src/shaders/gradients/SkRadialGradient.h"
 #include "src/shaders/gradients/SkSweepGradient.h"
 
-constexpr SkPMColor4f kErrorColor = { 1, 0, 0, 1 };
-
 #define VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID) \
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, dict->getUniforms(codeSnippetID));)
 
@@ -811,6 +809,16 @@ void CoeffBlenderBlock::AddBlock(const KeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
+void ClipShaderBlock::BeginBlock(const KeyContext& keyContext,
+                                 PaintParamsKeyBuilder* builder,
+                                 PipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kClipShader)
+
+    builder->beginBlock(BuiltInCodeSnippetID::kClipShader);
+}
+
+//--------------------------------------------------------------------------------------------------
+
 void ComposeBlock::BeginBlock(const KeyContext& keyContext,
                               PaintParamsKeyBuilder* builder,
                               PipelineDataGatherer* gatherer) {
@@ -1276,9 +1284,18 @@ static void add_to_key(const KeyContext& keyContext,
 static void add_to_key(const KeyContext& keyContext,
                        PaintParamsKeyBuilder* builder,
                        PipelineDataGatherer* gatherer,
-                       const SkCTMShader*) {
-    // TODO(michaelludwig) implement this when clipShader() is implemented
-    SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, kErrorColor);
+                       const SkCTMShader* shader) {
+    // CTM shaders are always given device coordinates, so we don't have to modify the CTM itself
+    // with keyContext's local transform.
+    LocalMatrixShaderBlock::LMShaderData lmShaderData(shader->ctm());
+
+    KeyContextWithLocalMatrix newContext(keyContext, shader->ctm());
+
+    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, lmShaderData);
+
+        AddToKey(newContext, builder, gatherer, shader->proxyShader().get());
+
+    builder->endBlock();
 }
 
 static void add_to_key(const KeyContext& keyContext,

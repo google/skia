@@ -372,8 +372,10 @@ void ClipStack::RawElement::drawClip(Device* device) {
         // draw directly.
         SkASSERT((fOp == SkClipOp::kDifference && !fShape.inverted()) ||
                  (fOp == SkClipOp::kIntersect && fShape.inverted()));
-        device->drawClipShape(
-                fLocalToDevice, fShape, Clip{drawBounds, drawBounds, scissor.asSkIRect()}, order);
+        device->drawClipShape(fLocalToDevice,
+                              fShape,
+                              Clip{drawBounds, drawBounds, scissor.asSkIRect(), nullptr},
+                              order);
     }
 
     // After the clip shape is drawn, reset its state. If the clip element is being popped off the
@@ -1039,8 +1041,8 @@ void ClipStack::clipShader(sk_sp<SkShader> shader) {
     bool wasDeferred;
     this->writableSaveRecord(&wasDeferred).addShader(std::move(shader));
     // Geometry elements are not invalidated by updating the clip shader
-    // TODO: Integrating clipShader into graphite needs more thought, particularly around how to
-    // handle the shader explosion and where to put the effects in the GraphicsPipelineDesc.
+    // TODO(b/238763003): Integrating clipShader into graphite needs more thought, particularly how
+    // to handle the shader explosion and where to put the effects in the GraphicsPipelineDesc.
     // One idea is to use sample locations and draw the clipShader into the depth buffer.
     // Another is resolve the clip shader into an alpha mask image that is sampled by the draw.
 }
@@ -1090,7 +1092,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                       const Renderer& renderer,
                                       ClipStack::ElementList* outEffectiveElements) const {
     static const Clip kClippedOut = {
-            Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty()};
+            Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty(), nullptr};
 
     const SaveRecord& cs = this->currentSaveRecord();
     if (cs.state() == ClipState::kEmpty) {
@@ -1188,7 +1190,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         // Either the draw is off screen, so it's clipped out regardless of the state of the
         // SaveRecord, or there are no elements to apply to the draw. In both cases, 'drawBounds'
         // has the correct value, the scissor is the device bounds (ignored if clipped-out).
-        return Clip(drawBounds, transformedShapeBounds, deviceBounds.asSkIRect());
+        return Clip(drawBounds, transformedShapeBounds, deviceBounds.asSkIRect(), cs.shader());
     }
 
     // We don't evaluate Simplify() on the SaveRecord and the draw because a reduced version of
@@ -1205,7 +1207,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     transformedShapeBounds.intersect(scissor);
     if (drawBounds.isEmptyNegativeOrNaN() || cs.innerBounds().contains(drawBounds)) {
         // Like above, in both cases drawBounds holds the right value.
-        return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect());
+        return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), cs.shader());
     }
 
     // If we made it here, the clip stack affects the draw in a complex way so iterate each element.
@@ -1241,7 +1243,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         }
     }
 
-    return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect());
+    return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), cs.shader());
 }
 
 CompressedPaintersOrder ClipStack::updateClipStateForDraw(const Clip& clip,
