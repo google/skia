@@ -105,7 +105,7 @@ void SkOverdrawCanvas::onDrawTextBlob(
 void SkOverdrawCanvas::onDrawGlyphRunList(
         const sktext::GlyphRunList& glyphRunList,
         const SkPaint& paint) {
-    SkSurfaceProps props{0, kUnknown_SkPixelGeometry};
+    SkSurfaceProps props;
     this->getProps(&props);
     TextDevice device{this, props};
 

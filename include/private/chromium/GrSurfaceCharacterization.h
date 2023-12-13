@@ -51,7 +51,7 @@ public:
             , fUsesGLFBO0(UsesGLFBO0::kNo)
             , fVulkanSecondaryCBCompatible(VulkanSecondaryCBCompatible::kNo)
             , fIsProtected(skgpu::Protected::kNo)
-            , fSurfaceProps(0, kUnknown_SkPixelGeometry) {}
+            , fSurfaceProps() {}
 
     GrSurfaceCharacterization(GrSurfaceCharacterization&&) = default;
     GrSurfaceCharacterization& operator=(GrSurfaceCharacterization&&) = default;

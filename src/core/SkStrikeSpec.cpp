@@ -147,7 +147,7 @@ SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) 
 
     return SkStrikeSpec(font,
                         SkPaint(),
-                        SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                        SkSurfaceProps(),
                         SkScalerContextFlags::kFakeGammaAndBoostContrast,
                         SkMatrix::I());
 }

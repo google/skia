@@ -230,7 +230,8 @@ sk_sp<SkDevice> SkPDFDevice::createDevice(const CreateInfo& cinfo, const SkPaint
     // to improve quality and file size (https://bug.skia.org/3043)
     if (layerPaint && (layerPaint->getImageFilter() || layerPaint->getColorFilter())) {
         // need to return a raster device, which we will detect in drawDevice()
-        return SkBitmapDevice::Create(cinfo.fInfo, SkSurfaceProps(0, kUnknown_SkPixelGeometry));
+        return SkBitmapDevice::Create(cinfo.fInfo,
+                                      SkSurfaceProps());
     }
     return sk_make_sp<SkPDFDevice>(cinfo.fInfo.dimensions(), fDocument);
 }
@@ -318,12 +319,11 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc, const SkMatrix& transform)
-    : SkClipStackDevice(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
-                        SkSurfaceProps(0, kUnknown_SkPixelGeometry))
-    , fInitialTransform(transform)
-    , fNodeId(0)
-    , fDocument(doc)
-{
+        : SkClipStackDevice(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
+                            SkSurfaceProps())
+        , fInitialTransform(transform)
+        , fNodeId(0)
+        , fDocument(doc) {
     SkASSERT(!pageSize.isEmpty());
 }
 

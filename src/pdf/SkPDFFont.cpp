@@ -541,7 +541,7 @@ SkStrikeSpec make_small_strike(const SkTypeface& typeface) {
     font.setEdging(SkFont::Edging::kAlias);
     return SkStrikeSpec::MakeMask(font,
                                   SkPaint(),
-                                  SkSurfaceProps(0, kUnknown_SkPixelGeometry),
+                                  SkSurfaceProps(),
                                   SkScalerContextFlags::kFakeGammaAndBoostContrast,
                                   SkMatrix::I());
 }
