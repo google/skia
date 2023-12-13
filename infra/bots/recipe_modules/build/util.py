@@ -77,10 +77,25 @@ for pattern in build_products:
       infra_step=True)
 
 
-def set_dawn_args_and_env(args, env, api, skia_dir):
+def set_dawn_args_and_env(args, env, api, extra_tokens, skia_dir):
     """Add to ``args`` and ``env`` the gn args and environment vars needed to
     make a build targeting Dawn."""
     args['skia_use_dawn'] = 'true'
     args['skia_use_gl'] = 'false'
+    # Set dawn specific args to limit which backends are built
+    args['dawn_enable_d3d11'] = 'false'
+    args['dawn_enable_d3d12'] = 'false'
+    args['dawn_enable_metal'] = 'false'
+    args['dawn_enable_desktop_gl'] = 'false'
+    args['dawn_enable_opengles'] = 'false'
+    args['dawn_enable_vulkan'] = 'false'
+    if 'D3D11' in extra_tokens:
+      args['dawn_enable_d3d11'] = 'true'
+    if 'D3D12' in extra_tokens:
+      args['dawn_enable_d3d12'] = 'true'
+    if 'Metal' in extra_tokens:
+      args['dawn_enable_metal'] = 'true'
+    if 'Vulkan' in extra_tokens:
+      args['dawn_enable_vulkan'] = 'true'
     env['PYTHONPATH'] = api.path.pathsep.join([
         str(skia_dir.join('third_party', 'externals')), '%%(PYTHONPATH)s'])

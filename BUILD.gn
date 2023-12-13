@@ -924,8 +924,8 @@ optional("gpu_shared") {
         "//third_party/externals/dawn/src/dawn:proc",
       ]
 
-      if (dawn_enable_d3d12 || dawn_enable_desktop_gl || dawn_enable_metal ||
-          dawn_enable_opengles || dawn_enable_vulkan) {
+      if (dawn_enable_d3d12 || dawn_enable_d3d11 || dawn_enable_desktop_gl ||
+          dawn_enable_metal || dawn_enable_opengles || dawn_enable_vulkan) {
         public_deps += [ "//third_party/externals/dawn/src/dawn/native" ]
       }
       if (dawn_enable_d3d12) {

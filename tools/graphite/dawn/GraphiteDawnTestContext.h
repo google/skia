@@ -23,7 +23,7 @@ class DawnTestContext : public GraphiteTestContext {
 public:
     ~DawnTestContext() override {}
 
-    static std::unique_ptr<GraphiteTestContext> Make(std::optional<wgpu::BackendType> backend);
+    static std::unique_ptr<GraphiteTestContext> Make(wgpu::BackendType backend);
 
     skgpu::BackendApi backend() override { return skgpu::BackendApi::kDawn; }
 

@@ -284,16 +284,25 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("Graphite") {
 			args = append(args, "--nogpu") // disable non-Graphite tests
 
-			if b.extraConfig("Metal") {
-				configs = []string{"grmtl"}
-				if b.gpu("IntelIrisPlus") {
-					// We get some 27/255 RGB diffs on the 45 degree
-					// rotation case on this device (skbug.com/14408)
-					skip(ALL, "test", ALL, "BigImageTest_Graphite")
-				}
-			}
 			if b.extraConfig("Dawn") {
-				configs = []string{"grdawn"}
+				if b.extraConfig("D3D11") {
+					configs = []string{"grdawn_d3d11"}
+				}
+				if b.extraConfig("D3D12") {
+					configs = []string{"grdawn_d3d12"}
+				}
+				if b.extraConfig("Metal") {
+					configs = []string{"grdawn_mtl"}
+				}
+				if b.extraConfig("Vulkan") {
+					configs = []string{"grdawn_vk"}
+				}
+				if b.extraConfig("GL") {
+					configs = []string{"grdawn_gl"}
+				}
+				if b.extraConfig("GLES") {
+					configs = []string{"grdawn_gles"}
+				}
 				// Shader doesn't compile
 				// https://skbug.com/14105
 				skip(ALL, "gm", ALL, "runtime_intrinsics_matrix")
@@ -307,43 +316,52 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					// The Dawn Win10 job OOMs (skbug.com/14410)
 					skip(ALL, "test", ALL, "BigImageTest_Graphite")
 				}
-			}
-			if b.extraConfig("Vulkan") {
-				configs = []string{"grvk"}
-				// Couldn't readback
-				skip(ALL, "gm", ALL, "aaxfermodes")
-				// Could not instantiate texture proxy for UploadTask!
-				skip(ALL, "test", ALL, "BigImageTest_Graphite")
-				// Test failures
-				skip(ALL, "test", ALL, "DeviceTestVertexTransparency")
-				skip(ALL, "test", ALL, "GraphitePromiseImageMultipleImgUses")
-				skip(ALL, "test", ALL, "GraphitePromiseImageRecorderLoss")
-				skip(ALL, "test", ALL, "GraphitePurgeNotUsedSinceResourcesTest")
-				skip(ALL, "test", ALL, "GraphiteTextureProxyTest")
-				skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageMultipleImgUses")
-				skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageRecorderLoss")
-				skip(ALL, "test", ALL, "ImageOriginTest_drawImage_Graphite")
-				skip(ALL, "test", ALL, "ImageOriginTest_imageShader_Graphite")
-				skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Testing")
-				skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Default")
-				skip(ALL, "test", ALL, "MakeColorSpace_Test")
-				skip(ALL, "test", ALL, "ImageProviderTest")
-				skip(ALL, "test", ALL, "ImageShaderTest")
-				skip(ALL, "test", ALL, "MutableImagesTest")
-				skip(ALL, "test", ALL, "MultisampleRetainTest")
-				skip(ALL, "test", ALL, "NonVolatileGraphitePromiseImageTest")
-				skip(ALL, "test", ALL, "NonVolatileGraphiteYUVAPromiseImageTest")
-				skip(ALL, "test", ALL, "PaintParamsKeyTest")
-				skip(ALL, "test", ALL, "RecordingOrderTest_Graphite")
-				skip(ALL, "test", ALL, "RecordingSurfacesTestClear")
-				skip(ALL, "test", ALL, "ShaderTestNestedBlendsGraphite")
-				skip(ALL, "test", ALL, "SkRuntimeEffectSimple_Graphite")
-				skip(ALL, "test", ALL, "VolatileGraphiteYUVAPromiseImageTest")
-				skip(ALL, "test", ALL, "VolatileGraphitePromiseImageTest")
-				if b.matchOs("Android") {
-					// Currently broken on Android Vulkan (skbug.com/310180104)
-					skip(ALL, "test", ALL, "ImageAsyncReadPixelsGraphite")
-					skip(ALL, "test", ALL, "SurfaceAsyncReadPixelsGraphite")
+			} else if b.extraConfig("Native") {
+				if b.extraConfig("Metal") {
+					configs = []string{"grmtl"}
+					if b.gpu("IntelIrisPlus") {
+						// We get some 27/255 RGB diffs on the 45 degree
+						// rotation case on this device (skbug.com/14408)
+						skip(ALL, "test", ALL, "BigImageTest_Graphite")
+					}
+				}
+				if b.extraConfig("Vulkan") {
+					configs = []string{"grvk"}
+					// Couldn't readback
+					skip(ALL, "gm", ALL, "aaxfermodes")
+					// Could not instantiate texture proxy for UploadTask!
+					skip(ALL, "test", ALL, "BigImageTest_Graphite")
+					// Test failures
+					skip(ALL, "test", ALL, "DeviceTestVertexTransparency")
+					skip(ALL, "test", ALL, "GraphitePromiseImageMultipleImgUses")
+					skip(ALL, "test", ALL, "GraphitePromiseImageRecorderLoss")
+					skip(ALL, "test", ALL, "GraphitePurgeNotUsedSinceResourcesTest")
+					skip(ALL, "test", ALL, "GraphiteTextureProxyTest")
+					skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageMultipleImgUses")
+					skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageRecorderLoss")
+					skip(ALL, "test", ALL, "ImageOriginTest_drawImage_Graphite")
+					skip(ALL, "test", ALL, "ImageOriginTest_imageShader_Graphite")
+					skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Testing")
+					skip(ALL, "test", ALL, "ImageProviderTest_Graphite_Default")
+					skip(ALL, "test", ALL, "MakeColorSpace_Test")
+					skip(ALL, "test", ALL, "ImageProviderTest")
+					skip(ALL, "test", ALL, "ImageShaderTest")
+					skip(ALL, "test", ALL, "MutableImagesTest")
+					skip(ALL, "test", ALL, "MultisampleRetainTest")
+					skip(ALL, "test", ALL, "NonVolatileGraphitePromiseImageTest")
+					skip(ALL, "test", ALL, "NonVolatileGraphiteYUVAPromiseImageTest")
+					skip(ALL, "test", ALL, "PaintParamsKeyTest")
+					skip(ALL, "test", ALL, "RecordingOrderTest_Graphite")
+					skip(ALL, "test", ALL, "RecordingSurfacesTestClear")
+					skip(ALL, "test", ALL, "ShaderTestNestedBlendsGraphite")
+					skip(ALL, "test", ALL, "SkRuntimeEffectSimple_Graphite")
+					skip(ALL, "test", ALL, "VolatileGraphiteYUVAPromiseImageTest")
+					skip(ALL, "test", ALL, "VolatileGraphitePromiseImageTest")
+					if b.matchOs("Android") {
+						// Currently broken on Android Vulkan (skbug.com/310180104)
+						skip(ALL, "test", ALL, "ImageAsyncReadPixelsGraphite")
+						skip(ALL, "test", ALL, "SurfaceAsyncReadPixelsGraphite")
+					}
 				}
 			}
 		}
@@ -1074,7 +1092,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchOs("Mac") && (b.gpu("IntelIrisPlus") || b.gpu("IntelHD6000")) &&
-		(b.extraConfig("Metal") || b.extraConfig("Dawn")) {
+		b.extraConfig("Metal") {
 		// TODO(skia:296960708): The IntelIrisPlus+Metal config hangs on this test, but passes
 		// SurfaceContextWritePixelsMipped so let that one keep running.
 		skip(ALL, "tests", ALL, "SurfaceContextWritePixels")

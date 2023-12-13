@@ -36,8 +36,6 @@ const char* skgpu::ContextTypeName(skgpu::ContextType type) {
             return "Metal";
         case skgpu::ContextType::kDirect3D:
             return "Direct3D";
-        case skgpu::ContextType::kDawn:
-            return "Dawn";
         case skgpu::ContextType::kDawn_D3D11:
             return "Dawn D3D11";
         case skgpu::ContextType::kDawn_D3D12:
@@ -74,7 +72,6 @@ bool skgpu::IsNativeBackend(skgpu::ContextType type) {
 
 bool skgpu::IsDawnBackend(skgpu::ContextType type) {
     switch (type) {
-        case ContextType::kDawn:
         case ContextType::kDawn_D3D11:
         case ContextType::kDawn_D3D12:
         case ContextType::kDawn_Metal:
@@ -114,7 +111,6 @@ GrBackendApi skgpu::ganesh::ContextTypeBackend(skgpu::ContextType type) {
         case ContextType::kDirect3D:
             return GrBackendApi::kDirect3D;
 
-        case ContextType::kDawn:
         case ContextType::kDawn_D3D11:
         case ContextType::kDawn_D3D12:
         case ContextType::kDawn_Metal:
@@ -149,7 +145,6 @@ skgpu::BackendApi skgpu::graphite::ContextTypeBackend(ContextType type) {
         case ContextType::kMetal:
             return BackendApi::kMetal;
 
-        case ContextType::kDawn:
         case ContextType::kDawn_D3D11:
         case ContextType::kDawn_D3D12:
         case ContextType::kDawn_Metal:

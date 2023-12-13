@@ -882,9 +882,7 @@ static void test_raster_pipeline(skiatest::Reporter* r,
 
 #if defined(SK_GRAPHITE)
 static bool is_native_context_or_dawn(skgpu::ContextType type) {
-    // This avoids re-testing Dawn over and over again against every possible API.
-    return skgpu::IsNativeBackend(type) ||
-           type == skgpu::ContextType::kDawn;
+    return skgpu::IsNativeBackend(type) || skgpu::IsDawnBackend(type);
 }
 
 #define DEF_GRAPHITE_SKSL_TEST(flags, ctsEnforcement, name, path)         \

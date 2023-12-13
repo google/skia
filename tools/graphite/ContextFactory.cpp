@@ -77,13 +77,6 @@ ContextInfo ContextFactory::getContextInfo(skgpu::ContextType type) {
             testCtx = graphite::VulkanTestContext::Make();
 #endif
         } break;
-        case skgpu::ContextType::kDawn:
-        {
-#ifdef SK_DAWN
-            // Pass nullopt for default backend.
-            testCtx = graphite::DawnTestContext::Make(std::nullopt);
-#endif
-        } break;
 #ifdef SK_DAWN
 
 #define CASE(TYPE)                                                          \

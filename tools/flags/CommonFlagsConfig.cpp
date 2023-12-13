@@ -137,8 +137,7 @@ static const struct {
     { "grd3d",                 "graphite", "api=direct3d" },
 #endif
 #ifdef SK_DAWN
-    { "grdawn",                "graphite", "api=dawn" },
-    { "grdawn_neveryield",        "graphite", "api=dawn,never_yield=true" },
+    { "grdawn_neveryield",     "graphite", "api=dawn_mtl,never_yield=true" },
     { "grdawn_d3d11",          "graphite", "api=dawn_d3d11" },
     { "grdawn_d3d12",          "graphite", "api=dawn_d3d12" },
     { "grdawn_mtl",            "graphite", "api=dawn_mtl" },
@@ -477,10 +476,6 @@ public:
             return false;
         }
 #ifdef SK_DAWN
-        if (optionValue->equals("dawn")) {
-            *outContextType = skgpu::ContextType::kDawn;
-            return true;
-        }
         if (optionValue->equals("dawn_d3d11")) {
             *outContextType = skgpu::ContextType::kDawn_D3D11;
             return true;

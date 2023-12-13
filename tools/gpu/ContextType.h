@@ -29,7 +29,6 @@ enum class ContextType {
     kVulkan,           //! Vulkan
     kMetal,            //! Metal
     kDirect3D,         //! Direct3D 12
-    kDawn,             //! Dawn
     kDawn_D3D11,       //! Dawn on Direct3D11
     kDawn_D3D12,       //! Dawn on Direct3D12
     kDawn_Metal,       //! Dawn on Metal
