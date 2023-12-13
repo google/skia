@@ -50,23 +50,6 @@ bool should_dither(const PaintParams& p, SkColorType dstCT) {
 
 } // anonymous namespace
 
-PaintParams::PaintParams(const SkColor4f& color,
-                         sk_sp<SkBlender> finalBlender,
-                         sk_sp<SkShader> shader,
-                         sk_sp<SkColorFilter> colorFilter,
-                         sk_sp<SkBlender> primitiveBlender,
-                         DstReadRequirement dstReadReq,
-                         bool skipColorXform,
-                         bool dither)
-        : fColor(color)
-        , fFinalBlender(std::move(finalBlender))
-        , fShader(std::move(shader))
-        , fColorFilter(std::move(colorFilter))
-        , fPrimitiveBlender(std::move(primitiveBlender))
-        , fDstReadReq(dstReadReq)
-        , fSkipColorXform(skipColorXform)
-        , fDither(dither) {}
-
 PaintParams::PaintParams(const SkPaint& paint,
                          sk_sp<SkBlender> primitiveBlender,
                          DstReadRequirement dstReadReq,

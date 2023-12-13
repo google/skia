@@ -31,14 +31,6 @@ class TextureProxy;
 // assumed to be anti-aliased.
 class PaintParams {
 public:
-    PaintParams(const SkColor4f& color,
-                sk_sp<SkBlender> finalBlender,
-                sk_sp<SkShader>,
-                sk_sp<SkColorFilter>,
-                sk_sp<SkBlender> primitiveBlender,
-                DstReadRequirement dstReadReq,
-                bool skipColorXform,
-                bool dither);
     explicit PaintParams(const SkPaint&,
                          sk_sp<SkBlender> primitiveBlender,
                          DstReadRequirement dstReadReq,
