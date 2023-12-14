@@ -31,19 +31,19 @@ jobs:
       uses: thedoctor0/zip-release@0.7.1
       with:
         type: 'tar'
-        filename: 'github-release/skia-with-deps.tar.gz'
+        filename: 'github-release/skia-with-deps-${{ github.ref_name }}.tar.gz'
         exclusions: 'github-release .git'
 
     - name: Calculate checksum
       run: |
         echo "MD5 Checksums:" >> CHECKSUMS
-        md5sum github-release/skia-with-deps.tar.gz >> CHECKSUMS
+        md5sum github-release/* >> CHECKSUMS
         echo >> CHECKSUMS
         echo "SHA256 Checksums:" >> CHECKSUMS
-        sha256sum github-release/skia-with-deps.tar.gz >> CHECKSUMS
+        sha256sum github-release/* >> CHECKSUMS
 
     - name: Publish
       uses: softprops/action-gh-release@v1
       with:
-        files: github-release/skia-with-deps.tar.gz
+        files: github-release/skia-with-deps-${{ github.ref_name }}.tar.gz
         body_path: CHECKSUMS
