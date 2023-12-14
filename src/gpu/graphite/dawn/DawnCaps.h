@@ -116,7 +116,10 @@ private:
     wgpu::TextureFormat fColorTypeToFormatTable[kSkColorTypeCnt];
     void setColorType(SkColorType, std::initializer_list<wgpu::TextureFormat> formats);
 
+#if !defined(__EMSCRIPTEN__)
     bool fTransientAttachmentSupport = false;
+#endif
+
     bool fUseAsyncPipelineCreation = true;
     bool fAllowScopedErrorChecks = true;
 };

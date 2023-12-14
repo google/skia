@@ -132,6 +132,10 @@ std::pair<wgpu::TextureView, wgpu::TextureView> create_texture_views(
         return {sampleTextureView, renderTextureView};
     }
 
+#if defined(__EMSCRIPTEN__)
+    SkASSERT(false);
+    return {};
+#else
     SkASSERT(aspect == wgpu::TextureAspect::Plane0Only ||
              aspect == wgpu::TextureAspect::Plane1Only ||
              aspect == wgpu::TextureAspect::Plane2Only);
@@ -140,6 +144,7 @@ std::pair<wgpu::TextureView, wgpu::TextureView> create_texture_views(
     planeViewDesc.aspect = aspect;
     planeTextureView = texture.CreateView(&planeViewDesc);
     return {planeTextureView, planeTextureView};
+#endif
 }
 
 sk_sp<Texture> DawnTexture::Make(const DawnSharedContext* sharedContext,
