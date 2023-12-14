@@ -1754,7 +1754,8 @@ void SkPDFDevice::drawDevice(SkDevice* device, const SkSamplingOptions& sampling
 }
 
 void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, const SkMatrix& localToDevice,
-                              const SkSamplingOptions& sampling, const SkPaint& paint) {
+                              const SkSamplingOptions& sampling, const SkPaint& paint,
+                              SkCanvas::SrcRectConstraint) {
     if (this->hasEmptyClip()) {
         return;
     }

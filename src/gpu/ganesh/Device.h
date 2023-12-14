@@ -214,7 +214,7 @@ public:
 
     void drawDevice(SkDevice*, const SkSamplingOptions&, const SkPaint&) override;
     void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice, const SkSamplingOptions&,
-                     const SkPaint&) override;
+                     const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], SkCanvas::QuadAAFlags aaFlags,
                         const SkColor4f& color, SkBlendMode mode) override;

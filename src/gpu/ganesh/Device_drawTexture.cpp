@@ -371,7 +371,8 @@ void Device::drawEdgeAAImage(const SkImage* image,
 void Device::drawSpecial(SkSpecialImage* special,
                          const SkMatrix& localToDevice,
                          const SkSamplingOptions& origSampling,
-                         const SkPaint& paint) {
+                         const SkPaint& paint,
+                         SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
     SkASSERT(special->isGaneshBacked());
 
@@ -405,7 +406,7 @@ void Device::drawSpecial(SkSpecialImage* special,
                           localToDevice,
                           sampling,
                           paint,
-                          SkCanvas::kStrict_SrcRectConstraint,
+                          constraint,
                           srcToDst,
                           SkTileMode::kClamp);
 }

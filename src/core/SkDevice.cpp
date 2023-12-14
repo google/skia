@@ -303,7 +303,7 @@ void SkDevice::drawDrawable(SkCanvas* canvas, SkDrawable* drawable, const SkMatr
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkDevice::drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
-                           const SkPaint&) {}
+                           const SkPaint&, SkCanvas::SrcRectConstraint) {}
 void SkDevice::drawCoverageMask(const SkSpecialImage*, const SkMatrix& maskToDevice,
                                 const SkSamplingOptions&, const SkPaint&) {
     // This shouldn't be reached; SkCanvas will only call this if

@@ -159,7 +159,8 @@ public:
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false) override;
 
     void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice,
-                     const SkSamplingOptions&, const SkPaint&) override;
+                     const SkSamplingOptions&, const SkPaint&,
+                     SkCanvas::SrcRectConstraint) override;
     void drawCoverageMask(const SkSpecialImage*, const SkMatrix& localToDevice,
                           const SkSamplingOptions&, const SkPaint&) override;
 

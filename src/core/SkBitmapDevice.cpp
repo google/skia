@@ -571,7 +571,8 @@ void SkBitmapDevice::drawAtlas(const SkRSXform xform[],
 void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
                                  const SkMatrix& localToDevice,
                                  const SkSamplingOptions& sampling,
-                                 const SkPaint& paint) {
+                                 const SkPaint& paint,
+                                 SkCanvas::SrcRectConstraint) {
     SkASSERT(!paint.getImageFilter());
     SkASSERT(!paint.getMaskFilter());
     SkASSERT(!src->isGaneshBacked());

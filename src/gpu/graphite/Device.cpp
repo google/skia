@@ -1412,7 +1412,8 @@ bool Device::needsFlushBeforeDraw(int numNewRenderSteps, DstReadRequirement dstR
 void Device::drawSpecial(SkSpecialImage* special,
                          const SkMatrix& localToDevice,
                          const SkSamplingOptions& sampling,
-                         const SkPaint& paint) {
+                         const SkPaint& paint,
+                         SkCanvas::SrcRectConstraint constraint) {
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
 
     sk_sp<SkImage> img = special->asImage();
@@ -1427,7 +1428,7 @@ void Device::drawSpecial(SkSpecialImage* special,
             sampling,
             /*src=*/SkRect::Make(special->subset()),
             /*dst=*/SkRect::MakeIWH(special->width(), special->height()),
-            /*strictSrcSubset=*/true,
+            /*strictSrcSubset=*/constraint == SkCanvas::kStrict_SrcRectConstraint,
             &paintWithShader);
     if (dst.isEmpty()) {
         return;

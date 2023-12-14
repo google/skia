@@ -101,7 +101,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     void drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
-                     const SkPaint&) override;
+                     const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
