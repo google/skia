@@ -188,7 +188,7 @@ DEF_TEST(GainmapShader_rects, r) {
 }
 
 DEF_TEST(GainmapShader_baseImageIsHdr, r) {
-SkColor4f hdrColors[4][2] = {
+    SkColor4f hdrColors[4][2] = {
             {{1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 0.5f, 1.0f}},
             {{1.0f, 0.5f, 1.0f, 1.0f}, {1.0f, 0.5f, 0.5f, 1.0f}},
             {{0.5f, 1.0f, 1.0f, 1.0f}, {0.5f, 1.0f, 0.5f, 1.0f}},
@@ -278,7 +278,7 @@ SkColor4f hdrColors[4][2] = {
 }
 
 // Verify that the gainmap shader isn't affected by the color spaces of the base, gainmap, or
-// destination.
+// destination. But the fGainmapMathColorSpace is taken into account.
 DEF_TEST(GainmapShader_colorSpace, r) {
     auto sdrColorSpace =
             SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kSRGB)->makeColorSpin();
@@ -288,7 +288,7 @@ DEF_TEST(GainmapShader_colorSpace, r) {
     constexpr SkColor4f kSdrColor = {0.25f, 0.5f, 1.f, 1.f};
     constexpr SkColor4f kGainmapColor = {
             0.0f,  // The sRGB G channel will have a exp2(0.0)=1.000 gain.
-            0.5f,  // The sRGB B channel will have a exp2(0.5)=0.707 gain.
+            0.5f,  // The sRGB B channel will have a exp2(0.5)=1.414 gain.
             1.0f,  // The sRGB R channel will have a exp2(1.0)=2.000 gain.
             1.f};
     constexpr SkColor4f kExpectedColor = {0.5f, 0.5f, 1.414f, 1.f};
@@ -301,4 +301,17 @@ DEF_TEST(GainmapShader_colorSpace, r) {
     auto color = draw_1x1_gainmap(
             sdrImage, gainmapImage, gainmapInfo, gainmapInfo.fDisplayRatioHdr, dstColorSpace);
     REPORTER_ASSERT(r, approx_equal(color, kExpectedColor));
+
+    // Setting fGainmapMathColorSpace to the base image's color space does not change the result.
+    gainmapInfo.fGainmapMathColorSpace = sdrColorSpace;
+    color = draw_1x1_gainmap(
+            sdrImage, gainmapImage, gainmapInfo, gainmapInfo.fDisplayRatioHdr, dstColorSpace);
+    REPORTER_ASSERT(r, approx_equal(color, kExpectedColor));
+
+    // Setting fGainmapMathColorSpace ot a different color space does change the result.
+    gainmapInfo.fGainmapMathColorSpace =
+            SkColorSpace::MakeRGB(SkNamedTransferFn::kPQ, SkNamedGamut::kRec2020);
+    color = draw_1x1_gainmap(
+            sdrImage, gainmapImage, gainmapInfo, gainmapInfo.fDisplayRatioHdr, dstColorSpace);
+    REPORTER_ASSERT(r, !approx_equal(color, kExpectedColor));
 }
