@@ -735,7 +735,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "ColorSpaces", "GL",
 				"SkottieTracing", "SkottieWASM", "GpuTess", "DMSAAStats", "Mskp", "Docker", "PDF",
 				"Puppeteer", "SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile",
-				"WebGL2", "i5", "OldestSupportedSkpVersion", "NeverYield", "Protected"}
+				"WebGL2", "i5", "OldestSupportedSkpVersion", "FakeWGPU", "Protected"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {

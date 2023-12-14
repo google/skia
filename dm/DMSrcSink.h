@@ -578,8 +578,13 @@ public:
     }
 
 private:
+    sk_sp<SkSurface> makeSurface(skgpu::graphite::Recorder*, SkISize) const;
+
+    using SurfaceType = SkCommandLineConfigGraphite::SurfaceType;
+
     skiatest::graphite::TestOptions fOptions;
     skgpu::ContextType fContextType;
+    SurfaceType fSurfaceType;
     SkColorType fColorType;
     SkAlphaType fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;

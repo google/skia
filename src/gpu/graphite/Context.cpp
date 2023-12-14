@@ -49,6 +49,7 @@
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/UploadTask.h"
+#include "src/image/SkSurface_Base.h"
 
 #if defined(GRAPHITE_TEST_UTILS)
 #include "include/private/gpu/graphite/ContextOptionsPriv.h"
@@ -279,8 +280,47 @@ void Context::asyncReadPixels(const TextureProxy* proxy,
 
     const Caps* caps = fSharedContext->caps();
     if (!caps->supportsReadPixels(proxy->textureInfo())) {
-        // TODO: try to copy to a readable texture instead
-        callback(callbackContext, nullptr);
+        if (!caps->isTexturable(proxy->textureInfo())) {
+            callback(callbackContext, nullptr);
+            return;
+        }
+
+        auto recorder = this->makeRecorder();
+
+        auto surface = SkSurfaces::RenderTarget(recorder.get(),
+                                                srcImageInfo.makeDimensions(srcRect.size()));
+        if (!surface) {
+            surface = SkSurfaces::RenderTarget(recorder.get(),
+                                               SkImageInfo::Make(srcRect.size(), dstColorInfo));
+            if (!surface) {
+                callback(callbackContext, nullptr);
+                return;
+            }
+        }
+
+        auto swizzle = caps->getReadSwizzle(srcImageInfo.colorType(), proxy->textureInfo());
+        TextureProxyView view(sk_ref_sp(proxy), swizzle);
+        auto srcImage = sk_make_sp<Image>(kNeedNewImageUniqueID, view, srcImageInfo.colorInfo());
+
+        SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kSrc);
+        surface->getCanvas()->drawImage(srcImage,
+                                        -srcRect.x(), -srcRect.y(),
+                                        SkFilterMode::kNearest,
+                                        &paint);
+
+        auto recording = recorder->snap();
+        InsertRecordingInfo recordingInfo;
+        recordingInfo.fRecording = recording.get();
+        this->insertRecording(recordingInfo);
+
+        this->asyncReadPixels(static_cast<Surface*>(surface.get())->readSurfaceView().proxy(),
+                              surface->imageInfo(),
+                              dstColorInfo,
+                              SkIRect::MakeSize(srcRect.size()),
+                              callback,
+                              callbackContext);
+
         return;
     }
 

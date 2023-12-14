@@ -174,8 +174,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	sampleCount := 0
 	glPrefix := ""
-	if b.extraConfig("NeverYield") {
-		configs = append(configs, "grdawn_neveryield")
+	if b.extraConfig("FakeWGPU") {
+		configs = append(configs, "grdawn_fakeWGPU")
 	} else if b.extraConfig("SwiftShader") {
 		configs = append(configs, "vk", "vkdmsaa")
 		// skbug.com/12826

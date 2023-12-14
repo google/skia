@@ -25,7 +25,6 @@ sk_sp<SkSurface> CreateProtectedSkSurface(Recorder* recorder,
 
     sk_sp<SkSurface> surface = sk_gpu_test::MakeBackendTextureSurface(recorder,
                                                                       ii,
-                                                                      Origin::kTopLeft,
                                                                       Mipmapped::kNo,
                                                                       isProtected,
                                                                       /* surfaceProps= */ nullptr);

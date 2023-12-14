@@ -2109,6 +2109,7 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
 GraphiteSink::GraphiteSink(const SkCommandLineConfigGraphite* config)
         : fOptions(config->getOptions())
         , fContextType(config->getContextType())
+        , fSurfaceType(config->getSurfaceType())
         , fColorType(config->getColorType())
         , fAlphaType(config->getAlphaType()) {}
 
@@ -2125,8 +2126,6 @@ Result GraphiteSink::draw(const Src& src,
 
     src.modifyGraphiteContextOptions(&options.fContextOptions);
 
-    SkImageInfo ii = SkImageInfo::Make(src.size(), this->colorInfo());
-
     skiatest::graphite::ContextFactory factory(options);
     skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(fContextType);
     skgpu::graphite::Context* context = ctxInfo.fContext;
@@ -2140,15 +2139,12 @@ Result GraphiteSink::draw(const Src& src,
         return Result::Fatal("Could not create a recorder.");
     }
 
-    dst->allocPixels(ii);
-
     {
-        SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
-        sk_sp<SkSurface> surface =
-                SkSurfaces::RenderTarget(recorder.get(), ii, skgpu::Mipmapped::kNo, &props);
+        sk_sp<SkSurface> surface = this->makeSurface(recorder.get(), src.size());
         if (!surface) {
             return Result::Fatal("Could not create a surface.");
         }
+        dst->allocPixels(surface->imageInfo());
         Result result = src.draw(surface->getCanvas(), ctxInfo.fTestContext);
         if (!result.isOk()) {
             return result;
@@ -2175,6 +2171,25 @@ Result GraphiteSink::draw(const Src& src,
 
     return Result::Ok();
 }
+
+sk_sp<SkSurface> GraphiteSink::makeSurface(skgpu::graphite::Recorder* recorder,
+                                           SkISize dimensions) const {
+    SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
+    auto ii = SkImageInfo::Make(dimensions, this->colorInfo());
+    switch (fSurfaceType) {
+        case SurfaceType::kDefault:
+            return SkSurfaces::RenderTarget(recorder, ii, skgpu::Mipmapped::kNo, &props);
+
+        case SurfaceType::kWrapTextureView:
+            return sk_gpu_test::MakeBackendTextureViewSurface(recorder,
+                                                              ii,
+                                                              skgpu::Mipmapped::kNo,
+                                                              skgpu::Protected::kNo,
+                                                              &props);
+    }
+    SkUNREACHABLE;
+}
+
 #endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

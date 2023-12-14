@@ -70,10 +70,17 @@ sk_sp<SkSurface> MakeBackendRenderTargetSurface(GrDirectContext*,
  */
 sk_sp<SkSurface> MakeBackendTextureSurface(skgpu::graphite::Recorder*,
                                            const SkImageInfo&,
-                                           skgpu::Origin,
                                            skgpu::Mipmapped = skgpu::Mipmapped::kNo,
                                            skgpu::Protected = skgpu::Protected::kNo,
                                            const SkSurfaceProps* = nullptr);
+/*
+ * Variation that wraps a WGPUTextureView. Only supported on Dawn backend.
+ */
+sk_sp<SkSurface> MakeBackendTextureViewSurface(skgpu::graphite::Recorder*,
+                                               const SkImageInfo&,
+                                               skgpu::Mipmapped = skgpu::Mipmapped::kNo,
+                                               skgpu::Protected = skgpu::Protected::kNo,
+                                               const SkSurfaceProps* = nullptr);
 #endif  // SK_GRAPHITE
 
 }  // namespace sk_gpu_test

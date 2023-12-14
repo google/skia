@@ -81,6 +81,8 @@ public:
 
     ~Recorder();
 
+    BackendApi backend() const;
+
     std::unique_ptr<Recording> snap();
 
     ImageProvider* clientImageProvider() { return fClientImageProvider.get(); }
@@ -187,8 +189,6 @@ private:
     Recorder(sk_sp<SharedContext>, const RecorderOptions&);
 
     SingleOwner* singleOwner() const { return &fSingleOwner; }
-
-    BackendApi backend() const;
 
     // We keep track of all Devices that are connected to a Recorder. This allows the client to
     // safely delete an SkSurface or a Recorder in any order. If the client deletes the Recorder

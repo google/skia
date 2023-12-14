@@ -62,6 +62,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(DawnBackendTextureCopyVariableTest,
     BackendTexture beTexture2;
     REPORTER_ASSERT(reporter, beTexture2 != beTexture);
     REPORTER_ASSERT(reporter, beTexture2.getDawnTexturePtr() == nullptr);
+    REPORTER_ASSERT(reporter, beTexture2.getDawnTextureViewPtr() == nullptr);
 
     beTexture2 = beTexture;
     REPORTER_ASSERT(reporter, beTexture2 == beTexture);

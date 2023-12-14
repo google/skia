@@ -137,7 +137,7 @@ static const struct {
     { "grd3d",                 "graphite", "api=direct3d" },
 #endif
 #ifdef SK_DAWN
-    { "grdawn_neveryield",     "graphite", "api=dawn_mtl,never_yield=true" },
+    { "grdawn_fakeWGPU",       "graphite", "api=dawn_mtl,fakeWGPU=true" },
     { "grdawn_d3d11",          "graphite", "api=dawn_d3d11" },
     { "grdawn_d3d12",          "graphite", "api=dawn_d3d12" },
     { "grdawn_mtl",            "graphite", "api=dawn_mtl" },
@@ -690,17 +690,24 @@ SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString& 
         return nullptr;
     }
 
-    bool validOptions =
-            extendedOptions.get_option_graphite_api("api", &contextType) &&
-            extendedOptions.get_option_gpu_color("color", &colorType, &alphaType) &&
-            extendedOptions.get_option_bool("never_yield", &testOptions.fNeverYieldToWebGPU);
+    bool fakeWGPU = false;
+    bool validOptions = extendedOptions.get_option_graphite_api("api", &contextType) &&
+                        extendedOptions.get_option_gpu_color("color", &colorType, &alphaType) &&
+                        extendedOptions.get_option_bool("fakeWGPU", &fakeWGPU);
     if (!validOptions) {
         return nullptr;
+    }
+
+    auto surfaceType = SkCommandLineConfigGraphite::SurfaceType::kDefault;
+    if (fakeWGPU) {
+        testOptions.fNeverYieldToWebGPU = true;
+        surfaceType = SkCommandLineConfigGraphite::SurfaceType::kWrapTextureView;
     }
 
     return new SkCommandLineConfigGraphite(tag,
                                            vias,
                                            contextType,
+                                           surfaceType,
                                            testOptions,
                                            colorType,
                                            alphaType);

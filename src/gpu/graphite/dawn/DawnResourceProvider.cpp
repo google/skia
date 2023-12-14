@@ -212,15 +212,25 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
 
 sk_sp<Texture> DawnResourceProvider::createWrappedTexture(const BackendTexture& texture) {
     // Convert to smart pointers. wgpu::Texture* constructor will increment the ref count.
-    wgpu::Texture dawnTexture = texture.getDawnTexturePtr();
-    if (!dawnTexture) {
+    wgpu::Texture dawnTexture         = texture.getDawnTexturePtr();
+    wgpu::TextureView dawnTextureView = texture.getDawnTextureViewPtr();
+    SkASSERT(!dawnTexture || !dawnTextureView);
+
+    if (!dawnTexture && !dawnTextureView) {
         return {};
     }
 
-    return DawnTexture::MakeWrapped(this->dawnSharedContext(),
-                                    texture.dimensions(),
-                                    texture.info(),
-                                    std::move(dawnTexture));
+    if (dawnTexture) {
+        return DawnTexture::MakeWrapped(this->dawnSharedContext(),
+                                        texture.dimensions(),
+                                        texture.info(),
+                                        std::move(dawnTexture));
+    } else {
+        return DawnTexture::MakeWrapped(this->dawnSharedContext(),
+                                        texture.dimensions(),
+                                        texture.info(),
+                                        std::move(dawnTextureView));
+    }
 }
 
 sk_sp<DawnTexture> DawnResourceProvider::findOrCreateDiscardableMSAALoadTexture(
@@ -303,8 +313,9 @@ void DawnResourceProvider::onDeleteBackendTexture(const BackendTexture& texture)
     SkASSERT(texture.isValid());
     SkASSERT(texture.backend() == BackendApi::kDawn);
 
-    // Automatically release the pointers in wgpu::Texture's dtor.
+    // Automatically release the pointers in wgpu::TextureView & wgpu::Texture's dtor.
     // Acquire() won't increment the ref count.
+    wgpu::TextureView::Acquire(texture.getDawnTextureViewPtr());
     wgpu::Texture::Acquire(texture.getDawnTexturePtr());
 }
 
