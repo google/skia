@@ -60,8 +60,6 @@ void RasterPathAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
         }
         pageIter.next();
     }
-
-    this->reset();
 }
 
 bool RasterPathAtlas::Page::initializeTextureIfNeeded(Recorder* recorder, uint16_t identifier) {
@@ -77,11 +75,12 @@ bool RasterPathAtlas::Page::initializeTextureIfNeeded(Recorder* recorder, uint16
     return fTexture != nullptr;
 }
 
-void RasterPathAtlas::makeMRU(Page* page) {
+void RasterPathAtlas::makeMRU(Page* page, Recorder* recorder) {
+    page->fLastUse = recorder->priv().tokenTracker()->nextFlushToken();
+
     if (fPageList.head() == page) {
         return;
     }
-
     fPageList.remove(page);
     fPageList.addToHead(page);
 }
@@ -111,8 +110,20 @@ const TextureProxy* RasterPathAtlas::addRect(Recorder* recorder,
             continue;
         }
 
-        this->makeMRU(currPage);
+        this->makeMRU(currPage, recorder);
         return currPage->fTexture.get();
+    }
+
+    // If the above fails, then see if the least recently used page has already been
+    // queued for upload, in which case we can reuse its space w/o corrupting prior atlas draws.
+    Page* lru = fPageList.tail();
+    SkASSERT(lru);
+    if (lru->fLastUse < recorder->priv().tokenTracker()->nextFlushToken()) {
+        this->reset(lru);
+        SkAssertResult(lru->fRectanizer.addPaddedRect(
+                maskSize.x(), maskSize.y(), kEntryPadding, outPos));
+        this->makeMRU(lru, recorder);
+        return lru->fTexture.get();
     }
 
     // No room in any Page
@@ -186,7 +197,7 @@ const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
             skvx::half2* found = currPage->fCachedShapes.find(maskKey);
             if (found) {
                 *outPos = *found;
-                this->makeMRU(currPage);
+                this->makeMRU(currPage, recorder);
                 return currPage->fTexture.get();
             }
             pageIter.next();
@@ -197,8 +208,6 @@ const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
     SkIPoint16 iPos;
     const TextureProxy* texProxy = this->addRect(recorder, maskSize, &iPos);
     if (!texProxy) {
-        // Reset LRU Page
-        fPageList.tail()->fNeedsReset = true;
         return nullptr;
     }
     *outPos = skvx::half2(iPos.x(), iPos.y());
@@ -267,19 +276,13 @@ const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
     return texProxy;
 }
 
-void RasterPathAtlas::reset() {
-    // Only reset LRU Page if needed
-    Page* lru = fPageList.tail();
-    SkASSERT(lru);
-    if (lru->fNeedsReset) {
-        lru->fRectanizer.reset();
+void RasterPathAtlas::reset(Page* lru) {
+    lru->fRectanizer.reset();
 
-        // clear backing data for next pass
-        SkASSERT(lru->fDirtyRect.isEmpty());
-        lru->fPixels.erase(0);
-        lru->fCachedShapes.reset();
-        lru->fNeedsReset = false;
-    }
+    // clear backing data for next pass
+    SkASSERT(lru->fDirtyRect.isEmpty());
+    lru->fPixels.erase(0);
+    lru->fCachedShapes.reset();
 }
 
 }  // namespace skgpu::graphite

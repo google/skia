@@ -10,6 +10,7 @@
 
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/PathAtlas.h"
 
@@ -65,19 +66,20 @@ private:
             uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
         };
         skia_private::THashMap<skgpu::UniqueKey, skvx::half2, UniqueKeyHash> fCachedShapes;
-        // Set to true to clear data for new usage
-        bool fNeedsReset = false;
+        // Tracks current state relative to last flush
+        AtlasToken fLastUse = AtlasToken::InvalidToken();
+
         uint16_t fIdentifier;
 
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Page);
     };
 
-    void makeMRU(Page*);
+    void makeMRU(Page*, Recorder*);
     // Free up atlas allocations, if necessary. After this call the atlas can be considered
     // available for new shape insertions. However this method does not have any bearing on the
     // contents of any atlas textures themselves, which may be in use by GPU commands that are
     // in-flight or yet to be submitted.
-    void reset();
+    void reset(Page*);
 
     // Investigation shows that eight pages helps with some of the more complex skps, and
     // since we're using less complex vertex setups with the RPA, we have more GPU memory
