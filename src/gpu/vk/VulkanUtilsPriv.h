@@ -76,6 +76,7 @@ static constexpr size_t VkFormatBytesPerBlock(VkFormat vkFormat) {
         // to compressed textures that go through their own special query for calculating size.
         case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM: return 3;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:  return 3;
+        case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16: return 6;
         case VK_FORMAT_S8_UINT:                   return 1;
         case VK_FORMAT_D24_UNORM_S8_UINT:         return 4;
         case VK_FORMAT_D32_SFLOAT_S8_UINT:        return 8;
@@ -120,7 +121,8 @@ static constexpr int VkFormatStencilBits(VkFormat format) {
 
 static constexpr bool VkFormatNeedsYcbcrSampler(VkFormat format)  {
     return format == VK_FORMAT_G8_B8R8_2PLANE_420_UNORM ||
-           format == VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM;
+           format == VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM ||
+           format == VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16;
 }
 
 static constexpr bool SampleCountToVkSampleCount(uint32_t samples,

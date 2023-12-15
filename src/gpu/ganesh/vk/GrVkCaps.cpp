@@ -816,6 +816,7 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_R16G16_UNORM,
     VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM,
     VK_FORMAT_G8_B8R8_2PLANE_420_UNORM,
+    VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16,
     VK_FORMAT_R16G16B16A16_UNORM,
     VK_FORMAT_R16G16_SFLOAT,
 };
@@ -1325,6 +1326,27 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
             // Format: VK_FORMAT_G8_B8R8_2PLANE_420_UNORM, Surface: kRGB_888x
             {
                 constexpr GrColorType ct = GrColorType::kRGB_888x;
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = ct;
+                ctInfo.fTransferColorType = ct;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kWrappedOnly_Flag;
+            }
+        }
+    }
+    // Format: VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16
+    {
+        constexpr VkFormat format = VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16;
+        auto& info = this->getFormatInfo(format);
+        if (fSupportsYcbcrConversion) {
+            info.init(contextOptions, interface, physDev, properties, format);
+        }
+        if (SkToBool(info.fOptimalFlags & FormatInfo::kTexturable_Flag)) {
+            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
+            int ctIdx = 0;
+            // Format: VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16, Surface: kRGBA_1010102
+            {
+                constexpr GrColorType ct = GrColorType::kRGBA_1010102;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
                 ctInfo.fTransferColorType = ct;
