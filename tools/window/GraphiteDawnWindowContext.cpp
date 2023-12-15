@@ -120,22 +120,36 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     DawnProcTable backendProcs = dawn::native::GetProcs();
     dawnProcSetProcs(&backendProcs);
 
+    static constexpr const char* kToggles[] = {
+        "allow_unsafe_apis",  // Needed for dual-source blending, BufferMapExtendedUsages.
+        "use_user_defined_labels_in_backend",
+    };
+    wgpu::DawnTogglesDescriptor togglesDesc;
+    togglesDesc.enabledToggleCount  = std::size(kToggles);
+    togglesDesc.enabledToggles      = kToggles;
+
     wgpu::RequestAdapterOptions adapterOptions;
     adapterOptions.backendType = type;
+    adapterOptions.nextInChain = &togglesDesc;
 
     std::vector<dawn::native::Adapter> adapters = fInstance->EnumerateAdapters(&adapterOptions);
     if (adapters.empty()) {
         return nullptr;
     }
 
+    wgpu::Adapter adapter = adapters[0].Get();
+
     std::vector<wgpu::FeatureName> requiredFeatures;
     requiredFeatures.push_back(wgpu::FeatureName::SurfaceCapabilities);
+    if (adapter.HasFeature(wgpu::FeatureName::BufferMapExtendedUsages)) {
+        requiredFeatures.push_back(wgpu::FeatureName::BufferMapExtendedUsages);
+    }
 
     wgpu::DeviceDescriptor deviceDescriptor;
     deviceDescriptor.requiredFeatures = requiredFeatures.data();
     deviceDescriptor.requiredFeatureCount = requiredFeatures.size();
 
-    auto device = wgpu::Device::Acquire(adapters[0].CreateDevice(&deviceDescriptor));
+    auto device = adapter.CreateDevice(&deviceDescriptor);
     if (!device) {
         return nullptr;
     }

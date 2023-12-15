@@ -49,7 +49,7 @@ void* map_buffer(Context* context,
 }
 
 sk_sp<Buffer> sync_buffer_to_cpu(Recorder* recorder, const Buffer* buffer) {
-    if (recorder->priv().caps()->drawBufferCanBeMapped()) {
+    if (recorder->priv().caps()->drawBufferCanBeMappedForReadback()) {
         // `buffer` can be mapped directly, however it may still require a synchronization step
         // by the underlying API (e.g. a managed buffer in Metal). SynchronizeToCpuTask
         // automatically handles this for us.

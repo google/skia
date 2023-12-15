@@ -98,6 +98,9 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     if (adapter.HasFeature(wgpu::FeatureName::FramebufferFetch)) {
         features.push_back(wgpu::FeatureName::FramebufferFetch);
     }
+    if (adapter.HasFeature(wgpu::FeatureName::BufferMapExtendedUsages)) {
+        features.push_back(wgpu::FeatureName::BufferMapExtendedUsages);
+    }
 
     wgpu::DeviceDescriptor desc;
     desc.requiredFeatureCount  = features.size();

@@ -315,7 +315,14 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     // TODO: support clamp to border.
     fClampToBorderSupport = false;
 
+#if defined(GRAPHITE_TEST_UTILS)
+    fDrawBufferCanBeMappedForReadback = false;
+#endif
+
 #if !defined(__EMSCRIPTEN__)
+    fDrawBufferCanBeMapped =
+            backendContext.fDevice.HasFeature(wgpu::FeatureName::BufferMapExtendedUsages);
+
     fMSAARenderToSingleSampledSupport =
             backendContext.fDevice.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
 

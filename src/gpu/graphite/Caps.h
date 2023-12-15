@@ -201,6 +201,10 @@ public:
     // Returns whether a draw buffer can be mapped.
     bool drawBufferCanBeMapped() const { return fDrawBufferCanBeMapped; }
 
+#if defined(GRAPHITE_TEST_UTILS)
+    bool drawBufferCanBeMappedForReadback() const { return fDrawBufferCanBeMappedForReadback; }
+#endif
+
     // Returns whether using Buffer::asyncMap() must be used to map buffers. map() may only be
     // called after asyncMap() is called and will fail if the asynchronous map is not complete. This
     // excludes premapped buffers for which map() can be called freely until the first unmap() call.
@@ -313,6 +317,10 @@ protected:
 
     bool fComputeSupport = false;
     bool fSupportsAHardwareBufferImages = false;
+
+#if defined(GRAPHITE_TEST_UTILS)
+    bool fDrawBufferCanBeMappedForReadback = true;
+#endif
 
     ResourceBindingRequirements fResourceBindingReqs;
 
