@@ -46,7 +46,6 @@
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
@@ -225,7 +224,7 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram(SkSL::DebugTracePriv* deb
         // no additional compilation occurring, so we need to manually inline here if we want the
         // performance boost of inlining.
         if (!(fFlags & kDisableOptimization_Flag)) {
-            SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
+            SkSL::Compiler compiler;
             fBaseProgram->fConfig->fSettings.fInlineThreshold = SkSL::kDefaultInlineThreshold;
             compiler.runInliner(*fBaseProgram);
         }
@@ -468,7 +467,7 @@ SkSL::ProgramSettings SkRuntimeEffect::MakeSettings(const Options& options) {
 SkRuntimeEffect::Result SkRuntimeEffect::MakeFromSource(SkString sksl,
                                                         const Options& options,
                                                         SkSL::ProgramKind kind) {
-    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
+    SkSL::Compiler compiler;
     SkSL::ProgramSettings settings = MakeSettings(options);
     std::unique_ptr<SkSL::Program> program =
             compiler.convertProgram(kind, std::string(sksl.c_str(), sksl.size()), settings);
@@ -483,7 +482,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeFromSource(SkString sksl,
 SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Program> program,
                                                       const Options& options,
                                                       SkSL::ProgramKind kind) {
-    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
+    SkSL::Compiler compiler;
 
     uint32_t flags = 0;
     switch (kind) {
@@ -630,7 +629,7 @@ sk_sp<SkRuntimeEffect> SkRuntimeEffect::makeUnoptimizedClone() {
     // Attempt to recompile the program's source with optimizations off. This ensures that the
     // Debugger shows results on every line, even for things that could be optimized away (static
     // branches, unused variables, etc). If recompilation fails, we fall back to the original code.
-    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
+    SkSL::Compiler compiler;
     SkSL::ProgramSettings settings = MakeSettings(options);
     std::unique_ptr<SkSL::Program> program =
             compiler.convertProgram(kind, *fBaseProgram->fSource, settings);

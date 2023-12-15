@@ -26,7 +26,6 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -503,7 +502,7 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
     std::vector<Child> children;
     size_t offset = 0;
 
-    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
+    SkSL::Compiler compiler;
 
     // Disable memory pooling; this might slow down compilation slightly, but it will ensure that a
     // long-lived mesh specification doesn't waste memory.

@@ -138,7 +138,7 @@ void FindAndDeclareBuiltinVariables(Program& program) {
         scanner.addImplicitFragColorWrite(program.fOwnedElements);
     }
 
-    if (context.fCaps->fMustDeclareFragmentFrontFacing) {
+    if (context.fCaps && context.fCaps->fMustDeclareFragmentFrontFacing) {
         scanner.addDeclaringElement(symbols.findBuiltinSymbol("sk_Clockwise"));
     }
 
@@ -150,7 +150,7 @@ void FindAndDeclareBuiltinVariables(Program& program) {
             switch (var->layout().fBuiltin) {
                 // Set the FlipRT program input if we find sk_FragCoord or sk_Clockwise.
                 case SK_FRAGCOORD_BUILTIN:
-                    if (context.fCaps->fCanUseFragCoord) {
+                    if (context.fCaps && context.fCaps->fCanUseFragCoord) {
                         program.fInterface.fUseFlipRTUniform =
                                 !context.fConfig->fSettings.fForceNoRTFlip;
                     }
@@ -164,7 +164,7 @@ void FindAndDeclareBuiltinVariables(Program& program) {
                 // Set the UseLastFragColor program input if we find sk_LastFragColor.
                 // Metal and Dawn define this as a program input, rather than a global variable.
                 case SK_LASTFRAGCOLOR_BUILTIN:
-                    if (context.fCaps->fFBFetchSupport) {
+                    if (context.fCaps && context.fCaps->fFBFetchSupport) {
                         program.fInterface.fUseLastFragColor = true;
                     } else {
                         context.fErrors->error({},
@@ -174,7 +174,7 @@ void FindAndDeclareBuiltinVariables(Program& program) {
 
                 // Set secondary color output if we find sk_SecondaryFragColor.
                 case SK_SECONDARYFRAGCOLOR_BUILTIN:
-                    if (context.fCaps->fDualSourceBlendingSupport) {
+                    if (context.fCaps && context.fCaps->fDualSourceBlendingSupport) {
                         program.fInterface.fOutputSecondaryColor = true;
                     } else {
                         context.fErrors->error({},
