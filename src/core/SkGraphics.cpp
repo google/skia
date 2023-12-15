@@ -78,6 +78,18 @@ void SkGraphics::PurgePinnedFontCache() {
     SkStrikeCache::GlobalStrikeCache()->purgePinned();
 }
 
+static int gTypefaceCacheCountLimit = 1024; // historical default value
+
+int SkGraphics::GetTypefaceCacheCountLimit() {
+    return gTypefaceCacheCountLimit;
+}
+
+int SkGraphics::SetTypefaceCacheCountLimit(int count) {
+    const int prev = gTypefaceCacheCountLimit;
+    gTypefaceCacheCountLimit = count;
+    return prev;
+}
+
 static SkGraphics::OpenTypeSVGDecoderFactory gSVGDecoderFactory = nullptr;
 
 SkGraphics::OpenTypeSVGDecoderFactory

@@ -1161,3 +1161,14 @@ DEF_TEST(SkTypefaceProxy_Basic_Serial, reporter) {
             SkTypefaceProxyPrototype::MakeFromBuffer(brokenBuffer);
     REPORTER_ASSERT(reporter, !brokenProto.has_value());
 }
+
+DEF_TEST(SkGraphics_Limits, reporter) {
+    const auto prev1 = SkGraphics::GetTypefaceCacheCountLimit();
+
+    auto prev2 = SkGraphics::SetTypefaceCacheCountLimit(prev1 + 1);
+    REPORTER_ASSERT(reporter, prev1 == prev2);
+    prev2 = SkGraphics::GetTypefaceCacheCountLimit();
+    REPORTER_ASSERT(reporter, prev2 == prev1 + 1);
+
+    SkGraphics::SetTypefaceCacheCountLimit(prev1);  // restore orig
+}
