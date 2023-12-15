@@ -210,11 +210,10 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromStream(
     SkCodecs::MakeFromStreamCallback rawFallback = nullptr;
     for (const SkCodecs::Decoder& proc : decoders) {
         if (proc.isFormat(buffer, bytesRead)) {
-            // png and heif are special, since we want to be able to supply a SkPngChunkReader
-            // or SelectionPolicy respectively
+            // Some formats are special, since we want to be able to provide an extra parameter.
             if (proc.id == "png") {
                 return proc.makeFromStream(std::move(stream), outResult, chunkReader);
-            } else if (proc.id == "heif") {
+            } else if (proc.id == "heif" || proc.id == "gif") {
                 return proc.makeFromStream(std::move(stream), outResult, &selectionPolicy);
             } else if (proc.id == "raw") {
                 rawFallback = proc.makeFromStream;

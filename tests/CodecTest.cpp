@@ -8,6 +8,7 @@
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
+#include "include/codec/SkGifDecoder.h"
 #include "include/codec/SkPngChunkReader.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
@@ -1914,4 +1915,95 @@ DEF_TEST(Codec_kBGR_101010x_XR_SkColorType_supported, r) {
     dstBm.allocPixels(dstInfo);
     bool success = codec->getPixels(dstInfo, dstBm.getPixels(), dstBm.rowBytes());
     REPORTER_ASSERT(r, SkCodec::kSuccess == success);
+}
+
+DEF_TEST(Codec_gif_notseekable, r) {
+    constexpr char path[] = "images/flightAnim.gif";
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+
+    // Verify that using a non-seekable stream works the same as a seekable one for
+    // decoding the first frame.
+    const SkMD5::Digest goodDigest = [data, &r]() {
+        auto codec = SkCodec::MakeFromStream(std::make_unique<SkMemoryStream>(data),
+                                             nullptr, nullptr,
+                                             SkCodec::SelectionPolicy::kPreferAnimation);
+        REPORTER_ASSERT(r, codec->getFrameCount() == 60);
+        const auto info = codec->getInfo();
+
+        SkBitmap bm;
+        bm.allocPixels(info);
+
+        SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        return md5(bm);
+    }();
+
+    auto codec = SkCodec::MakeFromStream(std::make_unique<NonseekableStream>(std::move(data)),
+                                         nullptr, nullptr,
+                                         SkCodec::SelectionPolicy::kPreferStillImage);
+    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+
+    test_info(r, codec.get(), codec->getInfo(), SkCodec::kSuccess, &goodDigest);
+}
+
+DEF_TEST(Codec_gif_notseekable2, r) {
+    constexpr char path[] = "images/flightAnim.gif";
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+
+    // Verify that using a non-seekable stream works the same as a seekable one for
+    // decoding a later frame.
+    SkCodec::Options options;
+    options.fFrameIndex = 5;
+
+    const SkMD5::Digest goodDigest = [data, &r, &options]() {
+        auto codec = SkCodec::MakeFromStream(std::make_unique<SkMemoryStream>(data),
+                                             nullptr, nullptr,
+                                             SkCodec::SelectionPolicy::kPreferAnimation);
+        REPORTER_ASSERT(r, codec->getFrameCount() == 60);
+        const auto info = codec->getInfo();
+
+        SkBitmap bm;
+        bm.allocPixels(info);
+
+        SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(), &options);
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+        return md5(bm);
+    }();
+
+    // This should copy the non seekable stream.
+    auto codec = SkCodec::MakeFromStream(std::make_unique<NonseekableStream>(std::move(data)),
+                                         nullptr, nullptr,
+                                         SkCodec::SelectionPolicy::kPreferAnimation);
+    REPORTER_ASSERT(r, codec->getFrameCount() == 60);
+
+    SkBitmap bm;
+    bm.allocPixels(codec->getInfo());
+
+    SkCodec::Result result = codec->getPixels(codec->getInfo(), bm.getPixels(), bm.rowBytes(),
+                                              &options);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+    compare_to_good_digest(r, goodDigest, bm);
+}
+
+DEF_TEST(Codec_gif_null_param, r) {
+    constexpr char path[] = "images/flightAnim.gif";
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+
+    SkCodec::Result result;
+    auto codec = SkGifDecoder::Decode(std::make_unique<SkMemoryStream>(std::move(data)),
+                                      &result, nullptr);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, codec);
 }

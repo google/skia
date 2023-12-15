@@ -136,6 +136,8 @@ public:
         /**
          *  If the container format contains both still images and image sequences,
          *  SkCodec should choose one of the still images. This is the default.
+         *  Note that kPreferStillImage may prevent use of the animation features
+         *  if the input is not rewindable.
          */
         kPreferStillImage,
         /**
