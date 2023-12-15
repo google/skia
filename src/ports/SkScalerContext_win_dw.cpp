@@ -1052,7 +1052,6 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
         // 2) Scale stops accordingly to 0 to 1 range.
 
         float colorStopRange = stops.back().position - stops.front().position;
-        bool colorStopInserted = false;
         if (colorStopRange == 0.f) {
             if (tileMode != SkTileMode::kClamp) {
                 //skPaint.setColor(SK_ColorTRANSPARENT);
@@ -1067,7 +1066,6 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
                 // color stops to the shader.
                 stops.push_back({ stops.back().position + 1.0f, stops.back().color });
                 colorStopRange = 1.0f;
-                colorStopInserted = true;
             }
         }
 
@@ -1088,8 +1086,7 @@ bool SkScalerContext_DW::drawColorV1Paint(SkCanvas& canvas,
         * start angle being larger than end angle. */
         startAngleScaled = 360.f - startAngleScaled;
         endAngleScaled = 360.f - endAngleScaled;
-        if (startAngleScaled > endAngleScaled ||
-            (startAngleScaled == endAngleScaled && !colorStopInserted)) {
+        if (startAngleScaled >= endAngleScaled) {
             std::swap(startAngleScaled, endAngleScaled);
             std::reverse(stops.begin(), stops.end());
             for (auto& stop : stops) {

@@ -1009,7 +1009,6 @@ bool colrv1_configure_skpaint(FT_Face face,
             // 2) Scale stops accordingly to 0 to 1 range.
 
             float colorStopRange = stops.back() - stops.front();
-            bool colorStopInserted = false;
             if (colorStopRange == 0.f) {
               if (tileMode != SkTileMode::kClamp) {
                 paint->setColor(SK_ColorTRANSPARENT);
@@ -1025,7 +1024,6 @@ bool colrv1_configure_skpaint(FT_Face face,
                 stops.push_back(stops.back() + 1.0f);
                 colors.push_back(colors.back());
                 colorStopRange = 1.0f;
-                colorStopInserted = true;
               }
             }
 
@@ -1046,8 +1044,7 @@ bool colrv1_configure_skpaint(FT_Face face,
              * start angle being larger than end angle. */
             startAngleScaled = 360.f - startAngleScaled;
             endAngleScaled = 360.f - endAngleScaled;
-            if (startAngleScaled > endAngleScaled ||
-                (startAngleScaled == endAngleScaled && !colorStopInserted)) {
+            if (startAngleScaled >= endAngleScaled) {
                 std::swap(startAngleScaled, endAngleScaled);
                 std::reverse(stops.begin(), stops.end());
                 std::reverse(colors.begin(), colors.end());

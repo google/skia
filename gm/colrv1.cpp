@@ -211,6 +211,10 @@ const uint32_t foreground_color[] = {
 const uint32_t clipbox[] = {0xf0c00, 0xf0c01, 0xf0c02, 0xf0c03, 0xf0c04};
 const uint32_t gradient_p2_skewed[] = {0xf0d00};
 const uint32_t variable_alpha[] = {0xf1000};
+const uint32_t sweep_coincident[] = { 0xf1300, 0xf1301, 0xf1302, 0xf1303, 0xf1304, 0xf1305,
+                                      0xf1306, 0xf1307, 0xf1308, 0xf1309, 0xf130a, 0xf130b,
+                                      0xf130c, 0xf130d, 0xf130e, 0xf130f, 0xf1310, 0xf1311,
+                                      0xf1312, 0xf1313, 0xf1314, 0xf1315, 0xf1316, 0xf1317};
 };  // namespace ColrV1TestDefinitions
 
 namespace {
@@ -297,17 +301,9 @@ DEF_GM(return F(C(sweep_varsweep),
                  {"SWC2"_t, 0.083333333f},
                  {"SWC3"_t, 0.083333333f},
                  {"SWC4"_t, +0.25f}}))
-DEF_GM(return F(C(sweep_varsweep),
-                0.0f,
-                0.0f,
-                {{"SWPS"_t, 45.f},
-                 {"SWPE"_t, -45.f},
-                 {"SWC1"_t, -0.25f},
-                 {"SWC2"_t, -0.416687f},
-                 {"SWC3"_t, -0.583313f},
-                 {"SWC4"_t, -0.75f}}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH1"_t, -0.7f}}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH2"_t, -0.7f}, {"APH3"_t, -0.2f}}))
+DEF_GM(return F(C(sweep_coincident),       0.0f,  0.0f, {}))
 
 }  // namespace skiagm
