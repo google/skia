@@ -198,15 +198,8 @@ std::unique_ptr<Recording> Recorder::snap() {
     fRuntimeEffectDict->reset();
     fTextureDataCache = std::make_unique<TextureDataCache>();
     fUniformDataCache = std::make_unique<UniformDataCache>();
-
-    if (!this->priv().caps()->disableCachedGlyphUploads()) {
-        // inject an initial task to maintain atlas state for next Recording
-        auto uploads = std::make_unique<UploadList>();
-        fAtlasProvider->textAtlasManager()->recordUploads(uploads.get(), /*useCachedUploads=*/true);
-        if (uploads->size() > 0) {
-            sk_sp<Task> uploadTask = UploadTask::Make(uploads.get());
-            this->priv().add(std::move(uploadTask));
-        }
+    if (!this->priv().caps()->requireOrderedRecordings()) {
+        fAtlasProvider->textAtlasManager()->evictAtlases();
     }
 
     return recording;

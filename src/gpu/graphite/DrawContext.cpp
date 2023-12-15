@@ -113,7 +113,7 @@ void DrawContext::recordDraw(const Renderer* renderer,
 }
 
 bool DrawContext::recordTextUploads(TextAtlasManager* am) {
-    return am->recordUploads(fPendingUploads.get(), /*useCachedUploads=*/false);
+    return am->recordUploads(fPendingUploads.get());
 }
 
 bool DrawContext::recordUpload(Recorder* recorder,

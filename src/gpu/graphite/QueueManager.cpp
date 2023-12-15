@@ -93,6 +93,11 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
                                    info.fRecording->priv().uniqueID());
     }
 
+// Merge error, remove later
+//    // Note the new Recording ID.
+//    fLastAddedRecordingIDs.set(info.fRecording->priv().recorderID(),
+//                               info.fRecording->priv().uniqueID());
+
     if (info.fTargetSurface &&
         !static_cast<const SkSurface_Base*>(info.fTargetSurface)->isGraphiteBacked()) {
         if (callback) {

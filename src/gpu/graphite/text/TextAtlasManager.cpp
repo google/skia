@@ -240,9 +240,9 @@ DrawAtlas::ErrorCode TextAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     return errorCode;
 }
 
-bool TextAtlasManager::recordUploads(UploadList* ul, bool useCachedUploads) {
+bool TextAtlasManager::recordUploads(UploadList* ul) {
     for (int i = 0; i < skgpu::kMaskFormatCount; i++) {
-        if (fAtlases[i] && !fAtlases[i]->recordUploads(ul, fRecorder, useCachedUploads)) {
+        if (fAtlases[i] && !fAtlases[i]->recordUploads(ul, fRecorder)) {
             return false;
         }
     }

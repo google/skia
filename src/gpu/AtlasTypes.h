@@ -467,7 +467,7 @@ public:
     void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
 
     bool needsUpload() { return !fDirtyRect.isEmpty(); }
-    std::pair<const void*, SkIRect> prepareForUpload(bool useCachedUploads);
+    std::pair<const void*, SkIRect> prepareForUpload();
     void resetRects();
 
     /**
@@ -511,7 +511,6 @@ private:
     const SkColorType fColorType;
     const size_t fBytesPerPixel;
     SkIRect fDirtyRect;  // area in the Plot that needs to be uploaded
-    SkIRect fCachedRect; // area in the Plot that has already been uploaded
     SkDEBUGCODE(bool fDirty);
 };
 

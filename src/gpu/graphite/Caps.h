@@ -239,8 +239,6 @@ public:
     bool allowMultipleGlyphCacheTextures() const { return fAllowMultipleGlyphCacheTextures; }
     bool supportBilerpFromGlyphAtlas() const { return fSupportBilerpFromGlyphAtlas; }
 
-    bool disableCachedGlyphUploads() const { return fDisableCachedGlyphUploads; }
-
     bool requireOrderedRecordings() const { return fRequireOrderedRecordings; }
 
     sktext::gpu::SDFTControl getSDFTControl(bool useSDFTForSmallText) const;
@@ -339,7 +337,6 @@ protected:
 
     bool fAllowMultipleGlyphCacheTextures = true;
     bool fSupportBilerpFromGlyphAtlas = false;
-    bool fDisableCachedGlyphUploads = false;
 
     // Set based on client options
     bool fRequireOrderedRecordings = false;

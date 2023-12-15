@@ -85,7 +85,6 @@ Context::Context(sk_sp<SharedContext> sharedContext,
                                                              SK_InvalidGenID,
                                                              options.fGpuBudgetInBytes);
     fMappedBufferManager = std::make_unique<ClientMappedBufferManager>(this->contextID());
-    fPlotUploadTracker = std::make_unique<PlotUploadTracker>();
 #if defined(GRAPHITE_TEST_UTILS)
     if (options.fOptionsPriv) {
         fStoreContextRefInRecorder = options.fOptionsPriv->fStoreContextRefInRecorder;

@@ -80,6 +80,8 @@ struct SK_API ContextOptions {
     /**
      * Disable caching of glyph uploads at the start of each Recording. These can add additional
      * overhead and are only necessary if Recordings are replayed or played out of order.
+     *
+     * Deprecated, now only used to set requireOrderedRecordings Caps.
      */
     bool fDisableCachedGlyphUploads = false;
 

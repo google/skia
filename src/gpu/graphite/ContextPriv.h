@@ -49,9 +49,6 @@ public:
     ResourceProvider* resourceProvider() const {
         return fContext->fResourceProvider.get();
     }
-    PlotUploadTracker* plotUploadTracker() const {
-        return fContext->fPlotUploadTracker.get();
-    }
 
 #if defined(GRAPHITE_TEST_UTILS)
     void startCapture() {

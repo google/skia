@@ -139,7 +139,7 @@ void GrDrawOpAtlas::uploadPlotToTexture(GrDeferredTextureUploadWritePixelsFn& wr
 
     const void* dataPtr;
     SkIRect rect;
-    std::tie(dataPtr, rect) = plot->prepareForUpload(/*useCachedUploads=*/false);
+    std::tie(dataPtr, rect) = plot->prepareForUpload();
 
     writePixels(proxy,
                 rect,
