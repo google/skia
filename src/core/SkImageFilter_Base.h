@@ -122,9 +122,15 @@ public:
     bool usesSource() const { return fUsesSrcInput; }
 
     /**
+     *  Most ImageFilters can natively handle scaling and translate components in the CTM. Only
+     *  some of them can handle affine (or more complex) matrices. Some may only handle translation.
      *  This call returns the maximum "kind" of CTM for a filter and all of its (non-null) inputs.
      */
-    using MatrixCapability = skif::MatrixCapability;
+    enum class MatrixCapability {
+        kTranslate,
+        kScaleTranslate,
+        kComplex,
+    };
     MatrixCapability getCTMCapability() const;
 
     uint32_t uniqueID() const { return fUniqueID; }

@@ -13,7 +13,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkMath.h"
-#include "include/private/base/SkTemplates.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecordPattern.h"
 #include "src/core/SkRecords.h"
@@ -165,11 +164,6 @@ struct SaveLayerDrawRestoreNooper {
             return false;
         }
 
-        if (!match->first<SaveLayer>()->filters.empty()) {
-            // Our optimizations don't handle the filter list correctly - don't bother trying
-            return false;
-        }
-
         // A SaveLayer's bounds field is just a hint, so we should be free to ignore it.
         SkPaint* layerPaint = match->first<SaveLayer>()->paint;
         SkPaint* drawPaint = match->second<SkPaint>();
@@ -220,12 +214,6 @@ struct SvgOpacityAndFilterLayerMergePass {
     bool onMatch(SkRecord* record, Match* match, int begin, int end) {
         if (match->first<SaveLayer>()->backdrop) {
             // can't throw away the layer if we have a backdrop
-            return false;
-        }
-
-        if (!match->first<SaveLayer>()->filters.empty() ||
-            !match->fourth<SaveLayer>()->filters.empty()) {
-            // Our optimizations don't handle the filter list correctly - don't bother trying
             return false;
         }
 

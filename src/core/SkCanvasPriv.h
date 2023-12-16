@@ -80,10 +80,8 @@ public:
                                                       const SkPaint* paint,
                                                       const SkImageFilter* backdrop,
                                                       SkScalar backdropScale,
-                                                      SkCanvas::SaveLayerFlags saveLayerFlags,
-                                                      SkCanvas::FilterSpan filters = {}) {
-        return SkCanvas::SaveLayerRec(
-                bounds, paint, backdrop, backdropScale, saveLayerFlags, filters);
+                                                      SkCanvas::SaveLayerFlags saveLayerFlags) {
+        return SkCanvas::SaveLayerRec(bounds, paint, backdrop, backdropScale, saveLayerFlags);
     }
 
     static SkScalar GetBackdropScaleFactor(const SkCanvas::SaveLayerRec& rec) {

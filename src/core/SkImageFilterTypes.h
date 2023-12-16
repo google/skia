@@ -533,16 +533,6 @@ private:
     SkMatrix fData;
 };
 
-/**
- * Most ImageFilters can natively handle scaling and translate components in the CTM. Only some of
- * them can handle affine (or more complex) matrices. Some may only handle translation.
- */
-enum class MatrixCapability {
-    kTranslate,
-    kScaleTranslate,
-    kComplex,
-};
-
 // Mapping is the primary definition of the shared layer space used when evaluating an image filter
 // DAG. It encapsulates any needed decomposition of the total CTM into the parameter-to-layer matrix
 // (that filters use to map their parameters to the layer space), and the layer-to-device matrix
@@ -571,9 +561,6 @@ public:
     // invalid device matrix. Assumes 'ctm' is invertible.
     [[nodiscard]] bool decomposeCTM(const SkMatrix& ctm,
                                     const SkImageFilter* filter,
-                                    const skif::ParameterSpace<SkPoint>& representativePt);
-    [[nodiscard]] bool decomposeCTM(const SkMatrix& ctm,
-                                    MatrixCapability,
                                     const skif::ParameterSpace<SkPoint>& representativePt);
 
     // Update the mapping's parameter-to-layer matrix to be pre-concatenated with the specified
