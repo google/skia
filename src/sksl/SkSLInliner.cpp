@@ -98,8 +98,9 @@ static std::unique_ptr<Statement>* find_parent_statement(
 }
 
 std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
-                                                VariableReference::RefKind refKind) {
-    std::unique_ptr<Expression> clone = expr.clone();
+                                                VariableReference::RefKind refKind,
+                                                Position pos) {
+    std::unique_ptr<Expression> clone = expr.clone(pos);
     Analysis::UpdateVariableRefKind(clone.get(), refKind);
     return clone;
 }
@@ -301,7 +302,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
             const VariableReference& v = expression.as<VariableReference>();
             std::unique_ptr<Expression>* remap = varMap->find(v.variable());
             if (remap) {
-                return clone_with_ref_kind(**remap, v.refKind());
+                return clone_with_ref_kind(**remap, v.refKind(), pos);
             }
             return expression.clone(pos);
         }
@@ -420,7 +421,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                     BinaryExpression::Make(
                             *fContext,
                             pos,
-                            clone_with_ref_kind(**resultExpr, VariableRefKind::kWrite),
+                            clone_with_ref_kind(**resultExpr, VariableRefKind::kWrite, pos),
                             Operator::Kind::EQ,
                             expr(r.expression())));
         }
