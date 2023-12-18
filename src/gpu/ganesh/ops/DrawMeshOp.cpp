@@ -874,8 +874,13 @@ MeshOp::MeshOp(GrProcessorSet*                              processorSet,
     fMeshes.emplace_back(mesh);
 
     fSpecification = mesh.refSpec();
-    fUniforms = SkRuntimeEffectPriv::TransformUniforms(
-            mesh.spec()->uniforms(), mesh.refUniforms(), mesh.spec()->colorSpace());
+    if (fColorSpaceXform) {
+        fUniforms = SkRuntimeEffectPriv::TransformUniforms(mesh.spec()->uniforms(),
+                                                           mesh.refUniforms(),
+                                                           fColorSpaceXform->steps());
+    } else {
+        fUniforms = mesh.refUniforms();
+    }
 
     fChildren = std::move(children);
 

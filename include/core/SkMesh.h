@@ -186,8 +186,6 @@ public:
 
     size_t stride() const { return fStride; }
 
-    SkColorSpace* colorSpace() const { return fColorSpace.get(); }
-
 private:
     friend struct SkMeshSpecificationPriv;
 
