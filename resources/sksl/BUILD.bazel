@@ -1094,6 +1094,7 @@ skia_filegroup(
         "spirv/StructArrayMemberInDifferentLayouts.sksl",
         "spirv/UnusedInterfaceBlock.sksl",
         "spirv/WrongCombinedSamplerLayoutForWebGPUSampler.sksl",
+        "workarounds/MustDeclareFragmentFrontFacing.sksl",
         "workarounds/RewriteMatrixVectorMultiply.sksl",
     ],
 )

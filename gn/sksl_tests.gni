@@ -404,6 +404,7 @@ sksl_spirv_tests = [
   "spirv/StructArrayMemberInDifferentLayouts.sksl",
   "spirv/UnusedInterfaceBlock.sksl",
   "spirv/WrongCombinedSamplerLayoutForWebGPUSampler.sksl",
+  "workarounds/MustDeclareFragmentFrontFacing.sksl",
   "workarounds/RewriteMatrixVectorMultiply.sksl",
 ]
 

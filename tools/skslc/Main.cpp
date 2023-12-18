@@ -145,6 +145,15 @@ public:
         return sCaps;
     }
 
+    static const SkSL::ShaderCaps* MustDeclareFragmentFrontFacing() {
+        static const SkSL::ShaderCaps* sCaps = [] {
+            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
+            caps->fMustDeclareFragmentFrontFacing = true;
+            return caps.release();
+        }();
+        return sCaps;
+    }
+
     static const SkSL::ShaderCaps* MustForceNegatedAtanParamToFloat() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -369,6 +378,9 @@ static bool detect_shader_settings(const std::string& text,
                 }
                 if (consume_suffix(&settingsText, " MustGuardDivisionEvenAfterExplicitZeroCheck")) {
                     *caps = Factory::MustGuardDivisionEvenAfterExplicitZeroCheck();
+                }
+                if (consume_suffix(&settingsText, " MustDeclareFragmentFrontFacing")) {
+                    *caps = Factory::MustDeclareFragmentFrontFacing();
                 }
                 if (consume_suffix(&settingsText, " MustForceNegatedAtanParamToFloat")) {
                     *caps = Factory::MustForceNegatedAtanParamToFloat();
