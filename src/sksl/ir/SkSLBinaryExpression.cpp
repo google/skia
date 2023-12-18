@@ -12,60 +12,14 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLIRHelpers.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
-#include "src/sksl/ir/SkSLLiteral.h"
-#include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 namespace SkSL {
-
-static bool is_low_precision_matrix_vector_multiply(const Expression& left,
-                                                    const Operator& op,
-                                                    const Expression& right,
-                                                    const Type& resultType) {
-    return !resultType.highPrecision() &&
-           op.kind() == Operator::Kind::STAR &&
-           left.type().isMatrix() &&
-           right.type().isVector() &&
-           left.type().rows() == right.type().columns() &&
-           Analysis::IsTrivialExpression(left) &&
-           Analysis::IsTrivialExpression(right);
-}
-
-static std::unique_ptr<Expression> rewrite_matrix_vector_multiply(const Context& context,
-                                                                  Position pos,
-                                                                  const Expression& left,
-                                                                  const Expression& right) {
-    // Rewrite m33 * v3 as (m[0] * v[0] + m[1] * v[1] + m[2] * v[2])
-    IRHelpers helpers(context);
-
-    std::unique_ptr<Expression> sum;
-    for (int n = 0; n < left.type().rows(); ++n) {
-        // Get mat[N] with an index expression.
-        std::unique_ptr<Expression> matN = helpers.Index(left.clone(), helpers.Int(n));
-
-        // Get vec[N] with another index expression.
-        std::unique_ptr<Expression> vecN = helpers.Index(right.clone(), helpers.Int(n));
-
-        // Multiply them together.
-        std::unique_ptr<Expression> product = helpers.Binary(std::move(matN), OperatorKind::STAR,
-                                                             std::move(vecN));
-        // Sum all the components together.
-        if (!sum) {
-            sum = std::move(product);
-        } else {
-            sum = helpers.Binary(std::move(sum), OperatorKind::PLUS, std::move(product));
-        }
-    }
-
-    return sum;
-}
 
 std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
                                                       Position pos,
@@ -178,48 +132,6 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
     if (std::unique_ptr<Expression> result = ConstantFolder::Simplify(context, pos, *left,
                                                                       op, *right, *resultType)) {
         return result;
-    }
-
-    if (context.fConfig->fSettings.fOptimize && !context.fConfig->fIsBuiltinCode) {
-        // When sk_Caps.rewriteMatrixVectorMultiply is set, we rewrite medium-precision
-        // matrix * vector multiplication as:
-        //   (sk_Caps.rewriteMatrixVectorMultiply ? (mat[0]*vec[0] + ... + mat[N]*vec[N])
-        //                                        : mat * vec)
-        if (is_low_precision_matrix_vector_multiply(*left, op, *right, *resultType)) {
-            // Look up `sk_Caps.rewriteMatrixVectorMultiply`.
-            auto caps = Setting::Make(context, pos, &ShaderCaps::fRewriteMatrixVectorMultiply);
-
-            // There are three possible outcomes from Setting::Make:
-            // - If the ShaderCaps aren't known (fCaps in the Context is null), we will get back a
-            //   Setting IRNode. In practice, this should happen when compiling a module.
-            //   In this case, we generate a ternary expression which will be optimized away when
-            //   the module code is actually incorporated into a program.
-            // - If `rewriteMatrixVectorMultiply` is true in our shader caps, we will get back a
-            //   Literal set to true. When this happens, we always return the rewritten expression.
-            // - If `rewriteMatrixVectorMultiply` is false in our shader caps, we will get back a
-            //   Literal set to false. When this happens, we return the expression as-is.
-            bool capsBitIsTrue = caps->isBoolLiteral() && caps->as<Literal>().boolValue();
-            if (capsBitIsTrue || !caps->isBoolLiteral()) {
-                // Rewrite the multiplication as a sum of vector-scalar products.
-                std::unique_ptr<Expression> rewrite =
-                        rewrite_matrix_vector_multiply(context, pos, *left, *right);
-
-                // If we know the caps bit is true, return the rewritten expression directly.
-                if (capsBitIsTrue) {
-                    return rewrite;
-                }
-
-                // Return a ternary expression:
-                //     sk_Caps.rewriteMatrixVectorMultiply ? (rewrite) : (mat * vec)
-                return TernaryExpression::Make(
-                        context,
-                        pos,
-                        std::move(caps),
-                        std::move(rewrite),
-                        std::make_unique<BinaryExpression>(pos, std::move(left), op,
-                                                           std::move(right), resultType));
-            }
-        }
     }
 
     return std::make_unique<BinaryExpression>(pos, std::move(left), op,

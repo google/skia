@@ -328,6 +328,15 @@ private:
     // - `a.x != b.x` merged with `a.y != b.y` generates `(a.x != b.x) || (a.y != b.y)`
     SpvId mergeComparisons(SpvId comparison, SpvId allComparisons, Operator op, OutputStream& out);
 
+    // When the RewriteMatrixVectorMultiply caps bit is set, we manually decompose the M*V
+    // multiplication into a sum of vector-scalar products.
+    SpvId writeDecomposedMatrixVectorMultiply(const Type& leftType,
+                                              SpvId lhs,
+                                              const Type& rightType,
+                                              SpvId rhs,
+                                              const Type& resultType,
+                                              OutputStream& out);
+
     SpvId writeComponentwiseMatrixUnary(const Type& operandType,
                                         SpvId operand,
                                         SpvOp_ op,

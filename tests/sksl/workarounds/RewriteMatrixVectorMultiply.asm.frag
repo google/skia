@@ -25,37 +25,31 @@
                OpDecorate %7 DescriptorSet 0
                OpDecorate %m44 RelaxedPrecision
                OpDecorate %v4 RelaxedPrecision
+               OpDecorate %33 RelaxedPrecision
+               OpDecorate %34 RelaxedPrecision
+               OpDecorate %35 RelaxedPrecision
                OpDecorate %36 RelaxedPrecision
                OpDecorate %37 RelaxedPrecision
-               OpDecorate %40 RelaxedPrecision
-               OpDecorate %41 RelaxedPrecision
-               OpDecorate %42 RelaxedPrecision
-               OpDecorate %45 RelaxedPrecision
-               OpDecorate %46 RelaxedPrecision
-               OpDecorate %47 RelaxedPrecision
+               OpDecorate %38 RelaxedPrecision
+               OpDecorate %39 RelaxedPrecision
+               OpDecorate %44 RelaxedPrecision
+               OpDecorate %48 RelaxedPrecision
+               OpDecorate %49 RelaxedPrecision
                OpDecorate %50 RelaxedPrecision
                OpDecorate %51 RelaxedPrecision
                OpDecorate %52 RelaxedPrecision
+               OpDecorate %53 RelaxedPrecision
+               OpDecorate %54 RelaxedPrecision
+               OpDecorate %55 RelaxedPrecision
+               OpDecorate %56 RelaxedPrecision
                OpDecorate %57 RelaxedPrecision
+               OpDecorate %58 RelaxedPrecision
                OpDecorate %59 RelaxedPrecision
                OpDecorate %60 RelaxedPrecision
                OpDecorate %61 RelaxedPrecision
+               OpDecorate %62 RelaxedPrecision
+               OpDecorate %63 RelaxedPrecision
                OpDecorate %64 RelaxedPrecision
-               OpDecorate %66 RelaxedPrecision
-               OpDecorate %67 RelaxedPrecision
-               OpDecorate %68 RelaxedPrecision
-               OpDecorate %69 RelaxedPrecision
-               OpDecorate %72 RelaxedPrecision
-               OpDecorate %74 RelaxedPrecision
-               OpDecorate %75 RelaxedPrecision
-               OpDecorate %76 RelaxedPrecision
-               OpDecorate %77 RelaxedPrecision
-               OpDecorate %80 RelaxedPrecision
-               OpDecorate %82 RelaxedPrecision
-               OpDecorate %83 RelaxedPrecision
-               OpDecorate %84 RelaxedPrecision
-               OpDecorate %85 RelaxedPrecision
-               OpDecorate %86 RelaxedPrecision
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -80,13 +74,11 @@
     %float_2 = OpConstant %float 2
     %float_3 = OpConstant %float 3
          %32 = OpConstantComposite %v4float %float_0 %float_1 %float_2 %float_3
+%_ptr_Uniform_mat4v4float = OpTypePointer Uniform %mat4v4float
         %int = OpTypeInt 32 1
       %int_0 = OpConstant %int 0
-      %int_1 = OpConstant %int 1
-      %int_2 = OpConstant %int 2
-      %int_3 = OpConstant %int 3
-%_ptr_Uniform_mat4v4float = OpTypePointer Uniform %mat4v4float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+      %int_1 = OpConstant %int 1
 %_entrypoint_v = OpFunction %void None %13
          %14 = OpLabel
          %15 = OpFunctionCall %v4float %main
@@ -99,52 +91,32 @@
          %v4 = OpVariable %_ptr_Function_v4float Function
                OpStore %m44 %26
                OpStore %v4 %32
-         %35 = OpAccessChain %_ptr_Function_v4float %m44 %int_0
-         %36 = OpLoad %v4float %35
-         %37 = OpVectorTimesScalar %v4float %36 %float_0
-         %39 = OpAccessChain %_ptr_Function_v4float %m44 %int_1
-         %40 = OpLoad %v4float %39
-         %41 = OpVectorTimesScalar %v4float %40 %float_1
-         %42 = OpFAdd %v4float %37 %41
-         %44 = OpAccessChain %_ptr_Function_v4float %m44 %int_2
-         %45 = OpLoad %v4float %44
-         %46 = OpVectorTimesScalar %v4float %45 %float_2
-         %47 = OpFAdd %v4float %42 %46
-         %49 = OpAccessChain %_ptr_Function_v4float %m44 %int_3
-         %50 = OpLoad %v4float %49
-         %51 = OpVectorTimesScalar %v4float %50 %float_3
-         %52 = OpFAdd %v4float %47 %51
-         %53 = OpAccessChain %_ptr_Uniform_mat4v4float %7 %int_0
-         %55 = OpAccessChain %_ptr_Uniform_v4float %53 %int_0
-         %57 = OpLoad %v4float %55
-         %58 = OpAccessChain %_ptr_Uniform_v4float %7 %int_1
-         %59 = OpLoad %v4float %58
-         %60 = OpCompositeExtract %float %59 0
-         %61 = OpVectorTimesScalar %v4float %57 %60
-         %62 = OpAccessChain %_ptr_Uniform_mat4v4float %7 %int_0
-         %63 = OpAccessChain %_ptr_Uniform_v4float %62 %int_1
-         %64 = OpLoad %v4float %63
-         %65 = OpAccessChain %_ptr_Uniform_v4float %7 %int_1
-         %66 = OpLoad %v4float %65
-         %67 = OpCompositeExtract %float %66 1
-         %68 = OpVectorTimesScalar %v4float %64 %67
-         %69 = OpFAdd %v4float %61 %68
-         %70 = OpAccessChain %_ptr_Uniform_mat4v4float %7 %int_0
-         %71 = OpAccessChain %_ptr_Uniform_v4float %70 %int_2
-         %72 = OpLoad %v4float %71
-         %73 = OpAccessChain %_ptr_Uniform_v4float %7 %int_1
-         %74 = OpLoad %v4float %73
-         %75 = OpCompositeExtract %float %74 2
-         %76 = OpVectorTimesScalar %v4float %72 %75
-         %77 = OpFAdd %v4float %69 %76
-         %78 = OpAccessChain %_ptr_Uniform_mat4v4float %7 %int_0
-         %79 = OpAccessChain %_ptr_Uniform_v4float %78 %int_3
-         %80 = OpLoad %v4float %79
-         %81 = OpAccessChain %_ptr_Uniform_v4float %7 %int_1
-         %82 = OpLoad %v4float %81
-         %83 = OpCompositeExtract %float %82 3
-         %84 = OpVectorTimesScalar %v4float %80 %83
-         %85 = OpFAdd %v4float %77 %84
-         %86 = OpFAdd %v4float %52 %85
-               OpReturnValue %86
+         %33 = OpVectorTimesScalar %v4float %22 %float_0
+         %34 = OpVectorTimesScalar %v4float %23 %float_1
+         %35 = OpFAdd %v4float %33 %34
+         %36 = OpVectorTimesScalar %v4float %24 %float_2
+         %37 = OpFAdd %v4float %35 %36
+         %38 = OpVectorTimesScalar %v4float %25 %float_3
+         %39 = OpFAdd %v4float %37 %38
+         %40 = OpAccessChain %_ptr_Uniform_mat4v4float %7 %int_0
+         %44 = OpLoad %mat4v4float %40
+         %45 = OpAccessChain %_ptr_Uniform_v4float %7 %int_1
+         %48 = OpLoad %v4float %45
+         %49 = OpCompositeExtract %v4float %44 0
+         %50 = OpCompositeExtract %float %48 0
+         %51 = OpVectorTimesScalar %v4float %49 %50
+         %52 = OpCompositeExtract %v4float %44 1
+         %53 = OpCompositeExtract %float %48 1
+         %54 = OpVectorTimesScalar %v4float %52 %53
+         %55 = OpFAdd %v4float %51 %54
+         %56 = OpCompositeExtract %v4float %44 2
+         %57 = OpCompositeExtract %float %48 2
+         %58 = OpVectorTimesScalar %v4float %56 %57
+         %59 = OpFAdd %v4float %55 %58
+         %60 = OpCompositeExtract %v4float %44 3
+         %61 = OpCompositeExtract %float %48 3
+         %62 = OpVectorTimesScalar %v4float %60 %61
+         %63 = OpFAdd %v4float %59 %62
+         %64 = OpFAdd %v4float %39 %63
+               OpReturnValue %64
                OpFunctionEnd

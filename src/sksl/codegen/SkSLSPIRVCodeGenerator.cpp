@@ -1098,7 +1098,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType,
                         fConstantBuffer);
             }
             SkDEBUGFAILF("unrecognized scalar type '%s'", type->description().c_str());
-            return (SpvId)-1;
+            return NA;
         }
         case Type::TypeKind::kVector: {
             SpvId scalarTypeId = this->getType(type->componentType(), typeLayout, memoryLayout);
@@ -3074,6 +3074,41 @@ static bool types_match(const Type& a, const Type& b) {
            a.componentType().numberKind() == b.componentType().numberKind();
 }
 
+SpvId SPIRVCodeGenerator::writeDecomposedMatrixVectorMultiply(const Type& leftType,
+                                                              SpvId lhs,
+                                                              const Type& rightType,
+                                                              SpvId rhs,
+                                                              const Type& resultType,
+                                                              OutputStream& out) {
+    SpvId sum = NA;
+    const Type& columnType = leftType.columnType(fContext);
+    const Type& scalarType = rightType.componentType();
+
+    for (int n = 0; n < leftType.rows(); ++n) {
+        // Extract mat[N] from the matrix.
+        SpvId matN = this->writeOpCompositeExtract(columnType, lhs, n, out);
+
+        // Extract vec[N] from the vector.
+        SpvId vecN = this->writeOpCompositeExtract(scalarType, rhs, n, out);
+
+        // Multiply them together.
+        SpvId product = this->writeBinaryExpression(columnType, matN, OperatorKind::STAR,
+                                                    scalarType, vecN,
+                                                    columnType, out);
+
+        // Sum all the components together.
+        if (sum == NA) {
+            sum = product;
+        } else {
+            sum = this->writeBinaryExpression(columnType, sum, OperatorKind::PLUS,
+                                              columnType, product,
+                                              columnType, out);
+        }
+    }
+
+    return sum;
+}
+
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs, Operator op,
                                                 const Type& rightType, SpvId rhs,
                                                 const Type& resultType, OutputStream& out) {
@@ -3126,6 +3161,15 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
             operandType = &rightType;
         } else if (leftType.isMatrix()) {
             if (op.kind() == Operator::Kind::STAR) {
+                // When the rewriteMatrixVectorMultiply bit is set, we rewrite medium-precision
+                // matrix * vector multiplication as (mat[0]*vec[0] + ... + mat[N]*vec[N]).
+                if (fContext.fCaps->fRewriteMatrixVectorMultiply &&
+                    rightType.isVector() &&
+                    !resultType.highPrecision()) {
+                    return this->writeDecomposedMatrixVectorMultiply(leftType, lhs, rightType, rhs,
+                                                                     resultType, out);
+                }
+
                 // Matrix-times-vector and matrix-times-scalar have dedicated ops in SPIR-V.
                 SpvOp_ spvop;
                 if (rightType.isMatrix()) {
