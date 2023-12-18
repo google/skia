@@ -516,7 +516,6 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
             this->writeBinaryExpression(expr.as<BinaryExpression>(), parentPrecedence);
             break;
         case Expression::Kind::kLiteral:
-        case Expression::Kind::kSetting:
             this->write(expr.description());
             break;
         case Expression::Kind::kChildCall:
@@ -560,6 +559,7 @@ void PipelineStageCodeGenerator::writeExpression(const Expression& expr,
         case Expression::Kind::kIndex:
             this->writeIndexExpression(expr.as<IndexExpression>());
             break;
+        case Expression::Kind::kSetting:
         default:
             SkDEBUGFAILF("unsupported expression: %s", expr.description().c_str());
             break;

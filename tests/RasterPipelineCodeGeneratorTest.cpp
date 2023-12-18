@@ -34,7 +34,7 @@ static void test(skiatest::Reporter* r,
                  SkSpan<const float> uniforms,
                  SkColor4f startingColor,
                  std::optional<SkColor4f> expectedResult) {
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
     SkSL::ProgramSettings settings;
     settings.fMaxVersionAllowed = SkSL::Version::k300;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(

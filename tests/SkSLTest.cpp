@@ -727,7 +727,7 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, SkSLTestFlag
     settings.fAllowVarDeclarationCloneForTesting = true;
     // TODO(skia:11209): Can we just put the correct #version in the source files that need this?
     settings.fMaxVersionAllowed = is_strict_es2(flags) ? SkSL::Version::k100 : SkSL::Version::k300;
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
             SkSL::ProgramKind::kRuntimeShader, shaderString.c_str(), settings);
     if (!program) {
@@ -771,7 +771,7 @@ static void test_raster_pipeline(skiatest::Reporter* r,
 
     // In Raster Pipeline, we can compile and run test shaders directly, without involving a surface
     // at all.
-    SkSL::Compiler compiler;
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
     SkSL::ProgramSettings settings;
     settings.fMaxVersionAllowed = SkSL::Version::k300;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(

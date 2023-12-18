@@ -120,12 +120,12 @@ public:
 };
 
 Compiler::Compiler(const ShaderCaps* caps) : fErrorReporter(this), fCaps(caps) {
+    SkASSERT(caps);
+
     auto moduleLoader = ModuleLoader::Get();
     fContext = std::make_shared<Context>(moduleLoader.builtinTypes(), /*caps=*/nullptr,
                                          fErrorReporter);
 }
-
-Compiler::Compiler() : Compiler(nullptr) {}
 
 Compiler::~Compiler() {}
 
@@ -217,21 +217,6 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
                                                   std::string text,
                                                   ProgramSettings settings) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
-
-    switch (kind) {
-        case ProgramKind::kVertex:
-        case ProgramKind::kFragment:
-        case ProgramKind::kCompute:
-        case ProgramKind::kGraphiteVertex:
-        case ProgramKind::kGraphiteFragment:
-            // We cannot compile a native program without real shader caps.
-            SkASSERT(fCaps != nullptr);
-            break;
-
-        default:
-            // We can compile runtime effects and mesh shaders without knowing the shader caps.
-            break;
-    }
 
     // Make sure the passed-in settings are valid.
     FinalizeSettings(&settings, kind);
@@ -515,8 +500,6 @@ static bool validate_spirv(ErrorReporter& reporter, std::string_view program) {
 
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
-    // We cannot emit SPIR-V without real shader caps.
-    SkASSERT(fCaps != nullptr);
     AutoSource as(this, *program.fSource);
     AutoShaderCaps autoCaps(fContext, fCaps);
     ProgramSettings settings;
@@ -553,8 +536,6 @@ bool Compiler::toSPIRV(Program& program, std::string* out) {
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toGLSL");
-    // We cannot emit GLSL without real shader caps.
-    SkASSERT(fCaps != nullptr);
     AutoSource as(this, *program.fSource);
     AutoShaderCaps autoCaps(fContext, fCaps);
     GLSLCodeGenerator cg(fContext.get(), &program, &out);
@@ -597,8 +578,6 @@ bool Compiler::toHLSL(Program& program, std::string* out) {
 
 bool Compiler::toMetal(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toMetal");
-    // We cannot emit MSL without real shader caps.
-    SkASSERT(fCaps != nullptr);
     AutoSource as(this, *program.fSource);
     AutoShaderCaps autoCaps(fContext, fCaps);
     MetalCodeGenerator cg(fContext.get(), &program, &out);
@@ -654,8 +633,6 @@ static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl, std:
 
 bool Compiler::toWGSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toWGSL");
-    // We cannot emit WGSL without real shader caps.
-    SkASSERT(fCaps != nullptr);
     AutoSource as(this, *program.fSource);
     AutoShaderCaps autoCaps(fContext, fCaps);
 #ifdef SK_ENABLE_WGSL_VALIDATION
@@ -782,8 +759,11 @@ std::string Compiler::errorText(bool showCount) {
 void Compiler::writeErrorCount() {
     int count = this->errorCount();
     if (count) {
-        fErrorText += std::to_string(count) +
-                      ((count == 1) ? " error\n" : " errors\n");
+        fErrorText += std::to_string(count) + " error";
+        if (count > 1) {
+            fErrorText += "s";
+        }
+        fErrorText += "\n";
     }
 }
 

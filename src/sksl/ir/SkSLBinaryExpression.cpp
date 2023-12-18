@@ -191,9 +191,9 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
 
             // There are three possible outcomes from Setting::Make:
             // - If the ShaderCaps aren't known (fCaps in the Context is null), we will get back a
-            //   Setting IRNode. In practice, this should happen when compiling a module, mesh or
-            //   runtime effect.In this case, we generate a ternary expression which will be
-            //   optimized away when the intermediate code is actually incorporated into a program.
+            //   Setting IRNode. In practice, this should happen when compiling a module.
+            //   In this case, we generate a ternary expression which will be optimized away when
+            //   the module code is actually incorporated into a program.
             // - If `rewriteMatrixVectorMultiply` is true in our shader caps, we will get back a
             //   Literal set to true. When this happens, we always return the rewritten expression.
             // - If `rewriteMatrixVectorMultiply` is false in our shader caps, we will get back a
