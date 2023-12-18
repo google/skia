@@ -138,10 +138,6 @@ void FindAndDeclareBuiltinVariables(Program& program) {
         scanner.addImplicitFragColorWrite(program.fOwnedElements);
     }
 
-    if (context.fCaps->fMustDeclareFragmentFrontFacing) {
-        scanner.addDeclaringElement(symbols.findBuiltinSymbol("sk_Clockwise"));
-    }
-
     // Scan all the variables used by the program and declare any built-ins.
     for (const auto& [var, counts] : program.fUsage->fVariableCounts) {
         if (var->isBuiltin()) {

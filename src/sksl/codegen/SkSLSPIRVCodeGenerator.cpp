@@ -4617,14 +4617,36 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             }
         }
     }
+    // If MustDeclareFragmentFrontFacing is set, the front-facing flag (sk_Clockwise) needs to be
+    // explicitly declared in the output, whether or not the program explicitly references it.
+    // However, if the program naturally declares it, we don't want to include it a second time;
+    // we keep track of the real global variable declarations to see if sk_Clockwise is emitted.
+    const VarDeclaration* missingClockwiseDecl = nullptr;
+    if (fContext.fCaps->fMustDeclareFragmentFrontFacing) {
+        if (const Symbol* clockwise = program.fSymbols->findBuiltinSymbol("sk_Clockwise")) {
+            missingClockwiseDecl = clockwise->as<Variable>().varDeclaration();
+        }
+    }
     // Emit global variable declarations.
     for (const ProgramElement* e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            if (!this->writeGlobalVarDeclaration(program.fConfig->fKind,
-                                                 e->as<GlobalVarDeclaration>().varDeclaration())) {
+            const VarDeclaration& decl = e->as<GlobalVarDeclaration>().varDeclaration();
+            if (!this->writeGlobalVarDeclaration(program.fConfig->fKind, decl)) {
                 return;
             }
+            if (missingClockwiseDecl == &decl) {
+                // We emitted an sk_Clockwise declaration naturally, so we don't need a workaround.
+                missingClockwiseDecl = nullptr;
+            }
         }
+    }
+    // All the global variables have been declared. If sk_Clockwise was not naturally included in
+    // the output, but MustDeclareFragmentFrontFacing was set, we need to bodge it in ourselves.
+    if (missingClockwiseDecl) {
+        if (!this->writeGlobalVarDeclaration(program.fConfig->fKind, *missingClockwiseDecl)) {
+            return;
+        }
+        missingClockwiseDecl = nullptr;
     }
     // Emit top-level uniforms into a dedicated uniform buffer.
     if (!fTopLevelUniforms.empty()) {
