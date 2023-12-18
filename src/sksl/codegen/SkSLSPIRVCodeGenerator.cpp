@@ -799,9 +799,7 @@ SpvId SPIRVCodeGenerator::writeOpCompositeConstruct(const Type& type,
         if (this->toConstants(SkSpan(values), &constants)) {
             // Create each matrix column.
             SkASSERT(type.isMatrix());
-            const Type& vecType = type.componentType().toCompound(fContext,
-                                                                  /*columns=*/type.rows(),
-                                                                  /*rows=*/1);
+            const Type& vecType = type.columnType(fContext);
             STArray<4, SpvId> columnIDs;
             for (int index=0; index < type.columns(); ++index) {
                 STArray<4, SpvId> columnConstants(&constants[index * type.rows()],
@@ -2213,15 +2211,14 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorCompound& c, O
         for (int i = 0; i < 4; ++i) {
             v[i] = this->writeOpCompositeExtract(type.componentType(), arguments[0], i, out);
         }
-        const Type& vecType = type.componentType().toCompound(fContext, /*columns=*/2, /*rows=*/1);
+        const Type& vecType = type.columnType(fContext);
         SpvId v0v1 = this->writeOpCompositeConstruct(vecType, {v[0], v[1]}, out);
         SpvId v2v3 = this->writeOpCompositeConstruct(vecType, {v[2], v[3]}, out);
         return this->writeOpCompositeConstruct(type, {v0v1, v2v3}, out);
     }
 
     int rows = type.rows();
-    const Type& columnType = type.componentType().toCompound(fContext,
-                                                             /*columns=*/rows, /*rows=*/1);
+    const Type& columnType = type.columnType(fContext);
     // SpvIds of completed columns of the matrix.
     STArray<4, SpvId> columnIds;
     // SpvIds of scalars we have written to the current column so far.
@@ -2365,9 +2362,7 @@ SpvId SPIRVCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagon
     // Build the diagonal matrix.
     SpvId zeroId = this->writeLiteral(0.0, *fContext.fTypes.fFloat);
 
-    const Type& vecType = type.componentType().toCompound(fContext,
-                                                          /*columns=*/type.rows(),
-                                                          /*rows=*/1);
+    const Type& vecType = type.columnType(fContext);
     STArray<4, SpvId> columnIds;
     STArray<4, SpvId> arguments;
     arguments.resize(type.rows());
@@ -3016,9 +3011,7 @@ SpvId SPIRVCodeGenerator::writeComponentwiseMatrixUnary(const Type& operandType,
                                                         SpvOp_ op,
                                                         OutputStream& out) {
     SkASSERT(operandType.isMatrix());
-    const Type& columnType = operandType.componentType().toCompound(fContext,
-                                                                    /*columns=*/operandType.rows(),
-                                                                    /*rows=*/1);
+    const Type& columnType = operandType.columnType(fContext);
     SpvId columnTypeId = this->getType(columnType);
 
     STArray<4, SpvId> columns;
@@ -3035,9 +3028,7 @@ SpvId SPIRVCodeGenerator::writeComponentwiseMatrixUnary(const Type& operandType,
 SpvId SPIRVCodeGenerator::writeComponentwiseMatrixBinary(const Type& operandType, SpvId lhs,
                                                          SpvId rhs, SpvOp_ op, OutputStream& out) {
     SkASSERT(operandType.isMatrix());
-    const Type& columnType = operandType.componentType().toCompound(fContext,
-                                                                    /*columns=*/operandType.rows(),
-                                                                    /*rows=*/1);
+    const Type& columnType = operandType.columnType(fContext);
     SpvId columnTypeId = this->getType(columnType);
 
     STArray<4, SpvId> columns;
@@ -3062,9 +3053,7 @@ SpvId SPIRVCodeGenerator::writeScalarToMatrixSplat(const Type& matrixType,
                                                    SpvId scalarId,
                                                    OutputStream& out) {
     // Splat the scalar into a vector.
-    const Type& vectorType = matrixType.componentType().toCompound(fContext,
-                                                                   /*columns=*/matrixType.rows(),
-                                                                   /*rows=*/1);
+    const Type& vectorType = matrixType.columnType(fContext);
     STArray<4, SpvId> vecArguments;
     vecArguments.push_back_n(/*n=*/matrixType.rows(), /*t=*/scalarId);
     SpvId vectorId = this->writeOpCompositeConstruct(vectorType, vecArguments, out);

@@ -143,8 +143,7 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                 // we're not obligated to simplify anything.
                 const Expression* baseExpr = ConstantFolder::GetConstantValueForVariable(*base);
                 int vecWidth = baseType.rows();
-                const Type& scalarType = baseType.componentType();
-                const Type& vecType = scalarType.toCompound(context, vecWidth, /*rows=*/1);
+                const Type& vecType = baseType.columnType(context);
                 indexValue *= vecWidth;
 
                 double ctorArgs[4];

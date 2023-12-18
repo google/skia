@@ -3540,9 +3540,7 @@ std::string WGSLCodeGenerator::assembleEqualityExpression(const Type& left,
         SkASSERT(left.rows() == right.rows());
         SkASSERT(left.columns() == right.columns());
         int columns = left.columns();
-        const Type& vecType = left.componentType().toCompound(fContext,
-                                                              /*columns=*/left.rows(),
-                                                              /*rows=*/1);
+        const Type& vecType = left.columnType(fContext);
         const char* separator = "(";
         for (int index = 0; index < columns; ++index) {
             expr += separator;

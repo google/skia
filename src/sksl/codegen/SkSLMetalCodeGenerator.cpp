@@ -1348,8 +1348,7 @@ void MetalCodeGenerator::writeConstructorCompoundMatrix(const ConstructorCompoun
     // returned false, we know that none of our scalars/vectors "wrap" across across a column, so we
     // can group our inputs up and synthesize a constructor for each column.
     const Type& matrixType = c.type();
-    const Type& columnType = matrixType.componentType().toCompound(
-            fContext, /*columns=*/matrixType.rows(), /*rows=*/1);
+    const Type& columnType = matrixType.columnType(fContext);
 
     this->writeType(matrixType);
     this->write("(");
