@@ -79,6 +79,8 @@ public:
     void    dump();
 #endif
 
+    const SkContourMeasure* currentMeasure() const { return fContour.get(); }
+
 private:
     SkContourMeasureIter    fIter;
     sk_sp<SkContourMeasure> fContour;

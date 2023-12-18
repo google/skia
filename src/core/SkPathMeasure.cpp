@@ -7,6 +7,7 @@
 
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkPathMeasure.h"
+#include "src/core/SkPathMeasurePriv.h"
 
 SkPathMeasure::SkPathMeasure() {}
 
@@ -51,3 +52,12 @@ bool SkPathMeasure::nextContour() {
 #ifdef SK_DEBUG
 void SkPathMeasure::dump() {}
 #endif
+
+/////
+
+size_t SkPathMeasurePriv::CountSegments(const SkPathMeasure& meas) {
+    if (auto cntr = meas.currentMeasure()) {
+        return cntr->fSegments.size();
+    }
+    return 0;
+}

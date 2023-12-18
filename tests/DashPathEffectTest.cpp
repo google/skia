@@ -144,3 +144,4 @@ DEF_TEST(DashCrazy_crbug_875494, r) {
     paint.setPathEffect(SkDashPathEffect::Make(vals, N, 222));
     skpathutils::FillPathWithPaint(path, paint, &path2, &cull);
 }
+

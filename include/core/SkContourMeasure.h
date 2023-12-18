@@ -90,6 +90,7 @@ private:
     const Segment* distanceToSegment(SkScalar distance, SkScalar* t) const;
 
     friend class SkContourMeasureIter;
+    friend class SkPathMeasurePriv;
 };
 
 class SK_API SkContourMeasureIter {

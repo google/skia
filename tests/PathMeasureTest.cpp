@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "src/core/SkPathMeasurePriv.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/Test.h"
 
@@ -20,7 +21,7 @@
 #include <initializer_list>
 #include <utility>
 
-static void test_small_segment3() {
+static void test_small_segment3(skiatest::Reporter* reporter) {
     SkPath path;
     const SkPoint pts[] = {
         { 0, 0 },
@@ -35,6 +36,21 @@ static void test_small_segment3() {
 
     SkPathMeasure meas(path, false);
     meas.getLength();
+
+    // Now check that we cap the segment size even with very large resolution scales.
+    // Earlier versions allowed the pathmeasure to recurse without limit in the face
+    // of a very large scale.
+    //
+    //  Before this limit, the above meas had 15K segments, and when built with
+    // a resScale of 100, it had 184K segments -- for 1 cubic!
+    {
+        auto n = SkPathMeasurePriv::CountSegments(meas);
+        REPORTER_ASSERT(reporter, n < 300);
+
+        constexpr float resScale = 1000;
+        n = SkPathMeasurePriv::CountSegments(SkPathMeasure(path, false, resScale));
+        REPORTER_ASSERT(reporter, n < 300);
+    }
 }
 
 static void test_small_segment2() {
@@ -211,7 +227,7 @@ DEF_TEST(PathMeasure, reporter) {
 
     test_small_segment();
     test_small_segment2();
-    test_small_segment3();
+    test_small_segment3(reporter);
 
     // SkPathMeasure isn't copyable, but it should be move-able
     SkPathMeasure meas2(std::move(meas));
