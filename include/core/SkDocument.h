@@ -36,6 +36,7 @@ public:
      *  Begin a new page for the document, returning the canvas that will draw
      *  into the page. The document owns this canvas, and it will go out of
      *  scope when endPage() or close() is called, or the document is deleted.
+     *  This will call endPage() if there is a currently active page.
      */
     SkCanvas* beginPage(SkScalar width, SkScalar height, const SkRect* content = nullptr);
 
