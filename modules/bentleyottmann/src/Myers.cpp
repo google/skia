@@ -102,4 +102,56 @@ int64_t compare_slopes(const Segment& s0, const Segment& s1) {
 bool slope_s0_less_than_slope_s1(const Segment& s0, const Segment& s1) {
     return compare_slopes(s0, s1) < 0;
 }
+
+// compare_point_to_segment the relation between a point p and a segment s in the following way:
+//     * p < s if the cross product is negative.
+//     * p == s if the cross product is zero.
+//     * p > s if the cross product is positive.
+int64_t compare_point_to_segment(Point p, const Segment& s) {
+    const auto [u, l] = s;
+
+    // The segment must span p vertically.
+    SkASSERT(u.y <= p.y && p.y <= l.y);
+
+    // Check horizontal extents.
+    {
+        const auto [left, right] = std::minmax(u.x, l.x);
+        if (p.x < left) {
+            return -1;
+        }
+
+        if (right < p.x) {
+            return 1;
+        }
+    }
+
+    // If s is horizontal, then p is on the interval [u.x, l.x].
+    if (s.isHorizontal()) {
+        return 0;
+    }
+
+    // The point p < s when:
+    //     p.x < u.x + (l.x - u.x)(p.y - u.y) / (l.y - u.y),
+    //     p.x - u.x < (l.x - u.x)(p.y - u.y) / (l.y - u.y),
+    //     (p.x - u.x)(l.y - u.y) < (l.x - u.x)(p.y - u.y),
+    //     (p.x - u.x)(l.y - u.y) - (l.x - u.x)(p.y - u.y) < 0,
+    //     (p - u) x (l - u) < 0,
+    //     dUtoP x dS < 0.
+    // The other relations can be implemented in a similar way.
+    const Point dUToP = p - u;
+    const Point dS = l - u;
+
+    SkASSERT(dS.y > 0);
+    return cross(dUToP, dS);
+}
+
+// segment_less_than_upper_to_insert is used with std::lower_bound to find the place to insert the
+// segment to_insert in a vector. The signature of this function is crafted to work with
+// lower_bound.
+bool segment_less_than_upper_to_insert(const Segment& segment, const Segment& to_insert) {
+    const int64_t compare = compare_point_to_segment(to_insert.upper(), segment);
+
+    // compare > 0 when segment < to_insert.upper().
+    return (compare > 0) || ((compare == 0) && slope_s0_less_than_slope_s1(segment, to_insert));
+}
 }  // namespace myers
