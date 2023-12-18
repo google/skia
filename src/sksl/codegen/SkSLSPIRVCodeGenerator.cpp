@@ -1316,7 +1316,7 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
         case Expression::Kind::kIndex:
             return this->writeIndexExpression(expr.as<IndexExpression>(), out);
         case Expression::Kind::kSetting:
-            return this->writeExpression(*expr.as<Setting>().toLiteral(fContext), out);
+            return this->writeExpression(*expr.as<Setting>().toLiteral(*fContext.fCaps), out);
         default:
             SkDEBUGFAILF("unsupported expression: %s", expr.description().c_str());
             break;

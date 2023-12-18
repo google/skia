@@ -235,7 +235,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             this->writePostfixExpression(expr.as<PostfixExpression>(), parentPrecedence);
             break;
         case Expression::Kind::kSetting:
-            this->writeExpression(*expr.as<Setting>().toLiteral(fContext), parentPrecedence);
+            this->writeExpression(*expr.as<Setting>().toLiteral(*fContext.fCaps), parentPrecedence);
             break;
         case Expression::Kind::kSwizzle:
             this->writeSwizzle(expr.as<Swizzle>());

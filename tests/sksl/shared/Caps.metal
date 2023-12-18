@@ -15,8 +15,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     int x = 0;
     int y = 0;
     int z = 0;
-    x = 1;
-    z = 1;
+    if (true) x = 1;
+    if (false) y = 1;
+    if (true) z = 1;
     _out.sk_FragColor.xyz = half3(half(x), half(y), half(z));
     return _out;
 }
