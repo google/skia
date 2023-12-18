@@ -65,10 +65,7 @@ namespace {
 
 class SkEmptyTypeface : public SkTypeface {
 public:
-    static sk_sp<SkTypeface> Make() {
-        static SkEmptyTypeface instance;
-        return sk_ref_sp(&instance);
-    }
+    static sk_sp<SkTypeface> Make() { return sk_sp<SkTypeface>(new SkEmptyTypeface); }
 
     static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('e','m','t','y');
     static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
