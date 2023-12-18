@@ -11,7 +11,7 @@
 #include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/private/base/SkTArray.h"
-#include "src/gpu/graphite/DescriptorTypes.h"
+#include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -895,7 +895,10 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
     // Query resource provider to obtain a descriptor set for the texture/samplers
     TArray<DescriptorData> descriptors(command.fNumTexSamplers);
     for (int i = 0; i < command.fNumTexSamplers; i++) {
-        descriptors.push_back({DescriptorType::kCombinedTextureSampler, 1, i});
+        descriptors.push_back({DescriptorType::kCombinedTextureSampler,
+                               /*descCount=*/1,
+                               /*bindingIdx=*/i,
+                               PipelineStageFlags::kFragmentShader});
     }
     sk_sp<VulkanDescriptorSet> set = fResourceProvider->findOrCreateDescriptorSet(
             SkSpan<DescriptorData>{&descriptors.front(), descriptors.size()});

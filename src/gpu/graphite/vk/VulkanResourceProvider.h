@@ -11,7 +11,7 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
-#include "src/gpu/graphite/DescriptorTypes.h"
+#include "src/gpu/graphite/DescriptorData.h"
 
 #ifdef  SK_BUILD_FOR_ANDROID
 extern "C" {

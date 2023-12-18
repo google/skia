@@ -10,7 +10,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/gpu/vk/VulkanTypes.h"
-#include "src/gpu/graphite/DescriptorTypes.h"
+#include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/vk/VulkanInterface.h"
 
@@ -60,6 +60,8 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext*,
                                      VkDescriptorSetLayout*);
 
 bool vkFormatIsSupported(VkFormat);
+
+VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(SkEnumBitMask<PipelineStageFlags>);
 
 } // namespace skgpu::graphite
 

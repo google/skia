@@ -73,14 +73,14 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext* ctxt,
     skia_private::STArray<kDescriptorTypeCount, VkDescriptorSetLayoutBinding> bindingLayouts;
     for (size_t i = 0; i < requestedDescriptors.size(); i++) {
         if (requestedDescriptors[i].count != 0) {
+            const DescriptorData& currDescriptor = requestedDescriptors[i];
             VkDescriptorSetLayoutBinding& layoutBinding = bindingLayouts.push_back();
             memset(&layoutBinding, 0, sizeof(VkDescriptorSetLayoutBinding));
-            layoutBinding.binding = requestedDescriptors[i].bindingIndex;
-            layoutBinding.descriptorType = DsTypeEnumToVkDs(requestedDescriptors[i].type);
-            layoutBinding.descriptorCount = requestedDescriptors[i].count;
-            // TODO(b/307577875): Track binding stage flags of a descriptor so this can be more
-            // precise
-            layoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+            layoutBinding.binding = currDescriptor.bindingIndex;
+            layoutBinding.descriptorType = DsTypeEnumToVkDs(currDescriptor.type);
+            layoutBinding.descriptorCount = currDescriptor.count;
+            layoutBinding.stageFlags =
+                    PipelineStageFlagsToVkShaderStageFlags(currDescriptor.pipelineStageFlags);
             // TODO(b/302126498): Optionally set immutableSamplers here. Needed for YCbCr
             layoutBinding.pImmutableSamplers = nullptr;
         }
@@ -156,6 +156,21 @@ bool vkFormatIsSupported(VkFormat format) {
         default:
             return false;
     }
+}
+
+VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(
+        SkEnumBitMask<PipelineStageFlags> stageFlags) {
+    VkShaderStageFlags vkStageFlags = 0;
+    if (stageFlags & PipelineStageFlags::kVertexShader) {
+        vkStageFlags |= VK_SHADER_STAGE_VERTEX_BIT;
+    }
+    if (stageFlags & PipelineStageFlags::kFragmentShader) {
+        vkStageFlags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+    }
+    if (stageFlags & PipelineStageFlags::kCompute) {
+        vkStageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
+    }
+    return vkStageFlags;
 }
 
 } // namespace skgpu::graphite

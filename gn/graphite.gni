@@ -58,7 +58,7 @@ skia_graphite_sources = [
   "$_src/ContextUtils.h",
   "$_src/CopyTask.cpp",
   "$_src/CopyTask.h",
-  "$_src/DescriptorTypes.h",
+  "$_src/DescriptorData.h",
   "$_src/Device.cpp",
   "$_src/Device.h",
   "$_src/DrawAtlas.cpp",

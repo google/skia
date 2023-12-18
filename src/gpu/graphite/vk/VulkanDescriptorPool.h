@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 
 #include "include/core/SkSpan.h"
-#include "src/gpu/graphite/DescriptorTypes.h"
+#include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 
 namespace skgpu::graphite {

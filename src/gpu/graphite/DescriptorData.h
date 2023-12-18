@@ -8,6 +8,8 @@
 #ifndef skgpu_graphite_DescriptorTypes_DEFINED
 #define skgpu_graphite_DescriptorTypes_DEFINED
 
+#include "src/base/SkEnumBitMask.h"
+
 namespace skgpu::graphite {
 
 /**
@@ -25,13 +27,27 @@ enum class DescriptorType : uint8_t {
 };
 static constexpr int kDescriptorTypeCount = (int)(DescriptorType::kLast) + 1;
 
+enum class PipelineStageFlags : uint8_t {
+    kVertexShader = 0b000,
+    kFragmentShader = 0b001,
+    kCompute = 0b010,
+};
+SK_MAKE_BITMASK_OPS(PipelineStageFlags);
+
 struct DescriptorData {
-    DescriptorData(DescriptorType descType, uint32_t descCount, int bindingIdx)
-            : type (descType), count (descCount), bindingIndex (bindingIdx) {}
+    DescriptorData(DescriptorType descType,
+                   uint32_t descCount,
+                   int bindingIdx,
+                   SkEnumBitMask<PipelineStageFlags> stageFlags)
+            : type (descType)
+            , count (descCount)
+            , bindingIndex (bindingIdx)
+            , pipelineStageFlags(stageFlags)  {}
 
     DescriptorType type;
     uint32_t count;
     int bindingIndex;
+    SkEnumBitMask<PipelineStageFlags> pipelineStageFlags;
 };
 
 };  // namespace skgpu::graphite
