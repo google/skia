@@ -285,7 +285,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
         }
         case Expression::Kind::kSetting: {
             const Setting& s = expression.as<Setting>();
-            return Setting::Convert(*fContext, pos, s.name());
+            return Setting::Make(*fContext, pos, s.capsPtr());
         }
         case Expression::Kind::kSwizzle: {
             const Swizzle& s = expression.as<Swizzle>();

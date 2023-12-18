@@ -60,6 +60,8 @@ public:
 
     std::string_view name() const;
 
+    CapsPtr capsPtr() const { return fCapsPtr; }
+
     std::string description(OperatorPrecedence) const override {
         return "sk_Caps." + std::string(this->name());
     }

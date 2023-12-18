@@ -80,6 +80,8 @@ std::unique_ptr<Expression> Setting::Convert(const Context& context,
 }
 
 std::unique_ptr<Expression> Setting::Make(const Context& context, Position pos, CapsPtr capsPtr) {
+    SkASSERT(!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind));
+
     if (context.fCaps) {
         // We know the caps values--return a boolean literal.
         return Literal::MakeBool(context, pos, context.fCaps->*capsPtr);
@@ -93,6 +95,5 @@ std::unique_ptr<Expression> Setting::toLiteral(const Context& context) const {
     SkASSERT(context.fCaps);
     return Literal::MakeBool(fPosition, context.fCaps->*fCapsPtr, &this->type());
 }
-
 
 }  // namespace SkSL
