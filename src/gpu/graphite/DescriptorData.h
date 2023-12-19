@@ -28,9 +28,9 @@ enum class DescriptorType : uint8_t {
 static constexpr int kDescriptorTypeCount = (int)(DescriptorType::kLast) + 1;
 
 enum class PipelineStageFlags : uint8_t {
-    kVertexShader = 0b000,
-    kFragmentShader = 0b001,
-    kCompute = 0b010,
+    kVertexShader = 0b001,
+    kFragmentShader = 0b010,
+    kCompute = 0b100,
 };
 SK_MAKE_BITMASK_OPS(PipelineStageFlags);
 
