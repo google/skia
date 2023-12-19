@@ -7,7 +7,7 @@ use read_fonts::{FileRef, FontRef, ReadError, TableProvider};
 use skrifa::{
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
-    outline::DrawSettings,
+    scale::Context,
     setting::VariationSetting,
     string::{LocalizedStrings, StringId},
     MetadataProvider, Tag,
@@ -71,15 +71,16 @@ fn get_path(
 ) -> bool {
     font_ref
         .with_font(|f| {
-            // TODO(https://issues.skia.org/issues/317020057): Store OutlineGlyphCollection
-            // at ScalerContext or SkTypeface level.
-            let glyph = f.outline_glyphs().get(GlyphId::new(glyph_id))?;
-            let draw_settings = DrawSettings::unhinted(Size::new(size), &coords.normalized_coords);
-
+            let mut cx = Context::new();
+            let mut scaler = cx
+                .new_scaler()
+                .size(Size::new(size))
+                .normalized_coords(coords.normalized_coords.into_iter())
+                .build(f);
             let mut pen_dump = PathWrapperPen {
                 path_wrapper: path_wrapper,
             };
-            match glyph.draw(draw_settings, &mut pen_dump) {
+            match scaler.outline(GlyphId::new(glyph_id), &mut pen_dump) {
                 Err(_) => None,
                 Ok(metrics) => {
                     scaler_metrics.has_overlaps = metrics.has_overlaps;
