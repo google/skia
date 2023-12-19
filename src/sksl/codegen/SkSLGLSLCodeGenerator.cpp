@@ -893,7 +893,11 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             }
             break;
         case SK_SECONDARYFRAGCOLOR_BUILTIN:
-            this->writeIdentifier("gl_SecondaryFragColorEXT");
+            if (this->caps().fDualSourceBlendingSupport) {
+                this->writeIdentifier("gl_SecondaryFragColorEXT");
+            } else {
+                fContext.fErrors->error(ref.position(), "'sk_SecondaryFragColor' not supported");
+            }
             break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
@@ -917,7 +921,11 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->writeIdentifier("gl_InstanceID");
             break;
         case SK_LASTFRAGCOLOR_BUILTIN:
-            this->write(this->caps().fFBFetchColorName);
+            if (this->caps().fFBFetchColorName) {
+                this->write(this->caps().fFBFetchColorName);
+            } else {
+                fContext.fErrors->error(ref.position(), "'sk_LastFragColor' not supported");
+            }
             break;
         case SK_SAMPLEMASKIN_BUILTIN:
             // GLSL defines gl_SampleMaskIn as an array of ints. SkSL defines it as a scalar uint.
