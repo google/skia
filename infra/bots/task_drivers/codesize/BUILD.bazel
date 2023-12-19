@@ -51,7 +51,7 @@ go_test(
         "@org_skia_go_infra//bazel/go/bazel",
         "@org_skia_go_infra//go/exec",
         "@org_skia_go_infra//go/gcs",
-        "@org_skia_go_infra//go/gcs/test_gcsclient",
+        "@org_skia_go_infra//go/gcs/mocks",
         "@org_skia_go_infra//go/gerrit",
         "@org_skia_go_infra//go/gerrit/testutils",
         "@org_skia_go_infra//go/git",

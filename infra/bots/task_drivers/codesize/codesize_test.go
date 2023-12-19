@@ -19,7 +19,7 @@ import (
 
 	"go.skia.org/infra/go/exec"
 	"go.skia.org/infra/go/gcs"
-	"go.skia.org/infra/go/gcs/test_gcsclient"
+	"go.skia.org/infra/go/gcs/mocks"
 	"go.skia.org/infra/go/gerrit"
 	gerrit_testutils "go.skia.org/infra/go/gerrit/testutils"
 	"go.skia.org/infra/go/git"
@@ -399,13 +399,13 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 	mockCodeSizeGCS.AssertExpectations(t)
 }
 
-func mockGCSClient(name string) *test_gcsclient.GCSClient {
-	m := test_gcsclient.NewMockClient()
+func mockGCSClient(name string) *mocks.GCSClient {
+	m := &mocks.GCSClient{}
 	m.On("Bucket").Return(name).Maybe()
 	return m
 }
 
-func expectUpload(t *testing.T, client *test_gcsclient.GCSClient, path, contents string) {
+func expectUpload(t *testing.T, client *mocks.GCSClient, path, contents string) {
 	client.On("SetFileContents", testutils.AnyContext, path, gcs.FILE_WRITE_OPTS_TEXT, mock.Anything).Run(func(args mock.Arguments) {
 		fileContents := string(args.Get(3).([]byte))
 		assert.Equal(t, contents, fileContents)

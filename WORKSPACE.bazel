@@ -123,26 +123,27 @@ maven_install(
 #######################################################################################
 # Gazelle
 #######################################################################################
+
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "099a9fb96a376ccbbb7d291ed4ecbdfd42f6bc822ab77ae6f1b5cb9e914e94fa",
+    sha256 = "91585017debb61982f7054c9688857a2ad1fd823fc3f9cb05048b0025c47d023",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.42.0/rules_go-v0.42.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.42.0/rules_go-v0.42.0.zip",
     ],
 )
 
 http_archive(
     name = "bazel_gazelle",
-    sha256 = "ecba0f04f96b4960a5b250c8e8eeec42281035970aa8852dda73098274d14a1d",
+    sha256 = "d3fa66a39028e97d76f9e2db8f1b0c11c099e8e01bf363a923074784e451f809",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.29.0/bazel-gazelle-v0.29.0.tar.gz",
-        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.29.0/bazel-gazelle-v0.29.0.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.33.0/bazel-gazelle-v0.33.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.33.0/bazel-gazelle-v0.33.0.tar.gz",
     ],
 )
 
-load("@io_bazel_rules_go//go:deps.bzl", "go_download_sdk", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+load("@io_bazel_rules_go//go:deps.bzl", "go_download_sdk", "go_register_toolchains", "go_rules_dependencies")
 load("//:go_repositories.bzl", "go_repositories")
 
 # gazelle:repository_macro go_repositories.bzl%go_repositories
@@ -155,13 +156,13 @@ go_download_sdk(
     name = "go_sdk_linux_amd64",
     goarch = "amd64",
     goos = "linux",
-    version = "1.19.11",
+    version = "1.21.4",
 )
 
 # For the host machine
 go_download_sdk(
     name = "go_sdk",
-    version = "1.19.11",
+    version = "1.21.4",
 )
 
 # Do not specify a version here or it will be an error (because we
@@ -173,9 +174,19 @@ gazelle_dependencies(
     go_sdk = "go_sdk",
 )
 
-# Because the skia infra repo has a dependency on google.golang.org/grpc (aka
-# @org_golang_google_grpc), we need to have this library available to build protos.
-# https://github.com/bazelbuild/rules_go#protobuf-and-grpc
+##########################
+# Other Go dependencies. #
+##########################
+
+load("//bazel:go_googleapis_compatibility_hack.bzl", "go_googleapis_compatibility_hack")
+
+# Compatibility hack to make the github.com/bazelbuild/remote-apis Go module work with rules_go
+# v0.41.0 or newer. See the go_googleapis() rule's docstring for details.
+go_googleapis_compatibility_hack(
+    name = "go_googleapis",
+)
+
+# Needed by @com_github_bazelbuild_remote_apis.
 http_archive(
     name = "com_google_protobuf",
     sha256 = "b8ab9bbdf0c6968cf20060794bc61e231fae82aaf69d6e3577c154181991f576",
@@ -186,9 +197,78 @@ http_archive(
     ),
 )
 
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+# Originally, we pulled protobuf dependencies as follows:
+#
+#     load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+#     protobuf_deps()
+#
+# The protobuf_deps() macro brings in a bunch of dependencies, but by copying the macro body here
+# and removing dependencies one by one, "rules_proto" was identified as the only dependency that is
+# required to build this repository.
+http_archive(
+    name = "rules_proto",
+    sha256 = "a4382f78723af788f0bc19fd4c8411f44ffe0a72723670a34692ffad56ada3ac",
+    strip_prefix = "rules_proto-f7a30f6f80006b591fa7c437fe5a951eb10bcbcf",
+    urls = ["https://github.com/bazelbuild/rules_proto/archive/f7a30f6f80006b591fa7c437fe5a951eb10bcbcf.zip"],
+)
 
-protobuf_deps()
+http_archive(
+    name = "com_google_googleapis",
+    sha256 = "38701e513aff81c89f0f727e925bf04ac4883913d03a60cdebb2c2a5f10beb40",
+    strip_prefix = "googleapis-86fa44cc5ee2136e87c312f153113d4dd8e9c4de",
+    urls = [
+        "https://github.com/googleapis/googleapis/archive/86fa44cc5ee2136e87c312f153113d4dd8e9c4de.tar.gz",
+    ],
+)
+
+# Needed by @com_github_bazelbuild_remote_apis for the googleapis protos.
+http_archive(
+    name = "googleapis",
+    build_file = "BUILD.googleapis",
+    sha256 = "7b6ea252f0b8fb5cd722f45feb83e115b689909bbb6a393a873b6cbad4ceae1d",
+    strip_prefix = "googleapis-143084a2624b6591ee1f9d23e7f5241856642f4d",
+    urls = gcs_mirror_url(
+        sha256 = "7b6ea252f0b8fb5cd722f45feb83e115b689909bbb6a393a873b6cbad4ceae1d",
+        # b/267219467
+        url = "https://github.com/googleapis/googleapis/archive/143084a2624b6591ee1f9d23e7f5241856642f4d.zip",
+    ),
+)
+
+load("@com_google_googleapis//:repository_rules.bzl", googleapis_imports_switched_rules_by_language = "switched_rules_by_language")
+
+googleapis_imports_switched_rules_by_language(
+    name = "com_google_googleapis_imports",
+    go = True,
+    grpc = True,
+)
+
+# Needed by @com_github_bazelbuild_remote_apis for gRPC.
+http_archive(
+    name = "com_github_grpc_grpc",
+    sha256 = "b391a327429279f6f29b9ae7e5317cd80d5e9d49cc100e6d682221af73d984a6",
+    strip_prefix = "grpc-93e8830070e9afcbaa992c75817009ee3f4b63a0",  # v1.24.3 with fixes
+    urls = gcs_mirror_url(
+        sha256 = "b391a327429279f6f29b9ae7e5317cd80d5e9d49cc100e6d682221af73d984a6",
+        # Fix after https://github.com/grpc/grpc/issues/32259 is resolved
+        url = "https://github.com/grpc/grpc/archive/93e8830070e9afcbaa992c75817009ee3f4b63a0.zip",
+    ),
+)
+
+# Originally, we pulled gRPC dependencies as follows:
+#
+#     load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
+#     grpc_deps()
+#
+# The grpc_deps() macro brings in a bunch of dependencies, but by copying the macro body here
+# and removing dependencies one by one, "zlib" was identified as the only dependency that is
+# required to build this repository.
+http_archive(
+    name = "zlib",
+    build_file = "@com_github_grpc_grpc//third_party:zlib.BUILD",
+    sha256 = "6d4d6640ca3121620995ee255945161821218752b551a1a180f4215f7d124d45",
+    strip_prefix = "zlib-cacf7f1d4e3d44d871b605da3b647f07d718623f",
+    url = "https://github.com/madler/zlib/archive/cacf7f1d4e3d44d871b605da3b647f07d718623f.tar.gz",
+)
 
 ###################################################
 # JavaScript / TypeScript rules and dependencies. #

@@ -37,6 +37,12 @@ build --extra_toolchains=//toolchain:linux_amd64_ndk_arm32_toolchain
 # https://bazel.build/reference/command-line-reference#flag--ui_event_filters
 build --ui_event_filters=-debug
 
+# For some reason, since upgrading to Go v1.21 and rules_go v0.42.0, Go binaries fail at runtime
+# with "fatal error: invalid function symbol table" unless we disable cgo via the below flag.
+# Reference:
+# https://github.com/bazelbuild/rules_go/blob/d74d9ab34e8789e6a55a2d9caf0e2b3c63202e04/go/modes.rst#build-settings.
+build --@io_bazel_rules_go//go/config:pure
+
 # =============================================================================
 # Alias to build configurations below. This makes configuring things from
 # the command line easier.
