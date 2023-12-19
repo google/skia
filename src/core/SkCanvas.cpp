@@ -1194,6 +1194,9 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
 #else
     sk_sp<SkImageFilter> paintFilter = rec.fPaint ? rec.fPaint->refImageFilter() : nullptr;
     FilterSpan filters = paintFilter ? FilterSpan{&paintFilter, 1} : rec.fFilters;
+    if (filters.size() > kMaxFiltersPerLayer) {
+        filters = filters.first(kMaxFiltersPerLayer);
+    }
     const SkColorFilter* cf = restorePaint.getColorFilter();
     const SkBlender* blender = restorePaint.getBlender();
 

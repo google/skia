@@ -674,6 +674,7 @@ public:
 
     using SaveLayerFlags = uint32_t;
     using FilterSpan = SkSpan<sk_sp<SkImageFilter>>;
+    static constexpr int kMaxFiltersPerLayer = 16;
 
     /** \struct SkCanvas::SaveLayerRec
         SaveLayerRec contains the state used to create the layer.
@@ -742,12 +743,14 @@ public:
                      FilterSpan filters)
                 : fBounds(bounds)
                 , fPaint(paint)
-            , fFilters(filters)
+                , fFilters(filters)
                 , fBackdrop(backdrop)
                 , fSaveLayerFlags(saveLayerFlags)
                 , fExperimentalBackdropScale(backdropScale) {
             // We only allow the paint's image filter or the side-car list of filters -- not both.
             SkASSERT(fFilters.empty() || !paint || !paint->getImageFilter());
+            // To keep things reasonable (during deserialization), we limit filter list size.
+            SkASSERT(fFilters.size() <= kMaxFiltersPerLayer);
         }
 
         // Relative scale factor that the image content used to initialize the layer when the
