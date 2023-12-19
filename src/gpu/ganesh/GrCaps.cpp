@@ -479,6 +479,7 @@ static inline GrColorType color_type_fallback(GrColorType ct) {
         // backend formats.
         case GrColorType::kAlpha_8:
         case GrColorType::kBGR_565:
+        case GrColorType::kRGB_565:
         case GrColorType::kABGR_4444:
         case GrColorType::kBGRA_8888:
         case GrColorType::kRGBA_1010102:

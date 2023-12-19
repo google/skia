@@ -360,6 +360,8 @@ static skgpu::Swizzle get_load_and_src_swizzle(GrColorType ct, SkRasterPipelineO
         case GrColorType::kAlpha_8:          *load = SkRasterPipelineOp::load_a8;       break;
         case GrColorType::kAlpha_16:         *load = SkRasterPipelineOp::load_a16;      break;
         case GrColorType::kBGR_565:          *load = SkRasterPipelineOp::load_565;      break;
+        case GrColorType::kRGB_565:          swizzle = skgpu::Swizzle("bgr1");
+                                             *load = SkRasterPipelineOp::load_565;      break;
         case GrColorType::kABGR_4444:        *load = SkRasterPipelineOp::load_4444;     break;
         case GrColorType::kARGB_4444:        swizzle = skgpu::Swizzle("bgra");
                                              *load = SkRasterPipelineOp::load_4444;     break;
@@ -445,6 +447,8 @@ static skgpu::Swizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline
         case GrColorType::kAlpha_8:          *store = SkRasterPipelineOp::store_a8;       break;
         case GrColorType::kAlpha_16:         *store = SkRasterPipelineOp::store_a16;      break;
         case GrColorType::kBGR_565:          *store = SkRasterPipelineOp::store_565;      break;
+        case GrColorType::kRGB_565:          swizzle = skgpu::Swizzle("bgr1");
+                                             *store = SkRasterPipelineOp::store_565;      break;
         case GrColorType::kABGR_4444:        *store = SkRasterPipelineOp::store_4444;     break;
         case GrColorType::kARGB_4444:        swizzle = skgpu::Swizzle("bgra");
                                              *store = SkRasterPipelineOp::store_4444;     break;
