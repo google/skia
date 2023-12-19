@@ -3,12 +3,17 @@
 
 #include "modules/bentleyottmann/include/Myers.h"
 
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "modules/bentleyottmann/include/Int96.h"
 
 #include <algorithm>
+#include <climits>
+#include <iterator>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 namespace myers {
 
@@ -204,4 +209,192 @@ bool s0_less_than_s1_at_y(const Segment& s0, const Segment& s1, int32_t y) {
 
     return lhs < rhs || ((lhs == rhs) && slope_s0_less_than_slope_s1(s0, s1));
 }
+
+// -- Event ----------------------------------------------------------------------------------------
+// Events are horizontal lines at a given y where segments are added, or they contain one or
+// more horizontal lines, or segments end.
+struct Event {
+    const int32_t y;
+
+    // The set of segments that begin at y.
+    SkSpan<const Segment> begin;
+
+    // The set of segments that are horizontal on y.
+    SkSpan<const Segment> horizontal;
+
+    // The set of segments that end on y.
+    SkSpan<const Segment> end;
+};
+
+// -- EventQueue -----------------------------------------------------------------------------------
+// The EventQueue produces Events. Events are never added to the queue after initial creation.
+class EventQueue {
+    class Iterator {
+    public:
+        using value_type = Event;
+        using difference_type = ptrdiff_t;
+        using pointer = value_type*;
+        using reference = value_type;
+        using iterator_category = std::input_iterator_tag;
+        Iterator(const EventQueue& eventQueue, size_t index)
+            : fEventQueue{eventQueue}
+            , fIndex{index} { }
+        Iterator(const Iterator& that) : Iterator{ that.fEventQueue, that.fIndex } { }
+        Iterator& operator++() { ++fIndex; return *this; }
+        Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
+        bool operator==(const Iterator& rhs) const { return fIndex == rhs.fIndex; }
+        bool operator!=(const Iterator& rhs) const { return fIndex != rhs.fIndex; }
+        value_type operator*() { return fEventQueue[fIndex]; }
+        friend difference_type operator-(Iterator lhs, Iterator rhs) {
+            return lhs.fIndex - rhs.fIndex;
+        }
+
+    private:
+        const EventQueue& fEventQueue;
+        size_t fIndex = 0;
+    };
+
+    // Events are stored using CompactEvent, Events are only passed back from nextEvent. start,
+    // endOfBegin, etc. are all indexes into fSegmentStorage. The beginning segments for the event
+    // are from start to endOfBegin, the horizontal segments are from endOfBegin to endOfStart, and
+    // the end segments are from endOfHorizontal to endOfEnd.
+    class CompactEvent {
+    public:
+        const int32_t y;
+        const int32_t start;
+        const int32_t endOfBegin;
+        const int32_t endOfHorizontal;
+        const int32_t endOfEnd;
+    };
+
+public:
+    // Given a list of segments make an EventQueue, and populate its queue with events.
+    static EventQueue Make(SkSpan<const Segment> segments) {
+        SkASSERT(!segments.empty());
+        SkASSERT(segments.size() < INT32_MAX);
+
+        // A vector of SetupTuple when ordered will produce the events, and all the different
+        // sets of segments (beginning, etc.). The three ints provide the ordering that produces
+        // the different sets needed for the event.
+        //     * 0: Segment - along for the to be sorted, and not part of the key
+        //     * 1: int32_t - the y value for the event and the most important part of the key
+        //     * 2: int - this is the set type, kBegin, kHorizontal or kEnd.
+        //     * 3: int32_t - this is -x to break ties when the y values and the set types are
+        //          the same.
+        using SetupTuple = std::tuple<Segment, int32_t, int, int32_t>;
+        enum EventType {
+            kBegin = 0,
+            kHorizontal = 1,
+            kEnd = 2
+        };
+
+        std::vector<SetupTuple> eventOrdering;
+        for (const auto& s : segments) {
+
+            // Exclude zero length segments.
+            if (s.upper() == s.lower()) {
+                continue;
+            }
+
+            if (s.isHorizontal()) {
+                // Tag for the horizontal set.
+                eventOrdering.emplace_back(s, s.upper().y, kHorizontal, -s.upper().x);
+            } else {
+                // Tag for the beginning and ending sets.
+                eventOrdering.emplace_back(s, s.upper().y, kBegin, -s.upper().x);
+                eventOrdering.emplace_back(s, s.lower().y, kEnd, -s.lower().x);
+            }
+        }
+
+        // Order the tuples by y, then by set type, then by x value.
+        auto eventLess = [](const SetupTuple& l, const SetupTuple& r) {
+            return std::tie(std::get<1>(l), std::get<2>(l), std::get<3>(l)) <
+                   std::tie(std::get<1>(r), std::get<2>(r), std::get<3>(r));
+        };
+
+        // Sort the events.
+        std::sort(eventOrdering.begin(), eventOrdering.end(), eventLess);
+
+        // Remove duplicate segments.
+        auto eraseFrom = std::unique(eventOrdering.begin(), eventOrdering.end());
+        eventOrdering.erase(eraseFrom, eventOrdering.end());
+
+        std::vector<CompactEvent> events;
+        std::vector<Segment> segmentStorage;
+        segmentStorage.reserve(eventOrdering.size());
+
+        int32_t currentY = std::get<1>(eventOrdering.front());
+        int32_t start = 0,
+                endOfBegin = 0,
+                endOfHorizontal = 0,
+                endOfEnd = 0;
+        for (const auto& [s, y, type, _] : eventOrdering) {
+            // If this is a new y then create the compact event.
+            if (currentY != y) {
+                events.push_back(CompactEvent{currentY,
+                                              start,
+                                              endOfBegin,
+                                              endOfHorizontal,
+                                              endOfEnd});
+                start = endOfBegin = endOfHorizontal = endOfEnd = segmentStorage.size();
+                currentY = y;
+            }
+
+            segmentStorage.push_back(s);
+
+            // Increment the various set indices.
+            const size_t segmentCount = segmentStorage.size();
+            switch (type) {
+                case kBegin: endOfBegin = segmentCount;
+                    [[fallthrough]];
+                case kHorizontal: endOfHorizontal = segmentCount;
+                    [[fallthrough]];
+                case kEnd: endOfEnd = segmentCount;
+            }
+        }
+
+        // Store the last event.
+        events.push_back(CompactEvent{currentY,
+                                      start,
+                                      endOfBegin,
+                                      endOfHorizontal,
+                                      endOfEnd});
+
+        return EventQueue{std::move(events), std::move(segmentStorage)};
+    }
+
+    Event operator[](size_t i) const {
+        SkASSERT(i < fEvents.size());
+        auto& [y, start, endOfBegin, endOfHorizontal, endOfEnd] = fEvents[i];
+        SkSpan<const Segment> begin{&fSegmentStorage[start], endOfBegin - start};
+        SkSpan<const Segment>
+            horizontal{&fSegmentStorage[endOfBegin], endOfHorizontal - endOfBegin};
+        SkSpan<const Segment> end{&fSegmentStorage[endOfHorizontal], endOfEnd - endOfHorizontal};
+        return Event{y, begin, horizontal, end};
+    }
+
+    Iterator begin() const {
+        return Iterator{*this, 0};
+    }
+
+    Iterator end() const {
+        return Iterator{*this, fEvents.size()};
+    }
+
+    size_t size() const {
+        return fEvents.size();
+    }
+
+    bool empty() const {
+        return fEvents.empty();
+    }
+
+private:
+    EventQueue(std::vector<CompactEvent>&& events, std::vector<Segment>&& segmentStorage)
+            : fEvents{std::move(events)}
+            , fSegmentStorage{std::move(segmentStorage)} {}
+
+    const std::vector<CompactEvent> fEvents;
+    const std::vector<Segment> fSegmentStorage;
+};
 }  // namespace myers
