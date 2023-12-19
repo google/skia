@@ -26,9 +26,8 @@ using namespace skia_private;
 
 DEF_TEST(SkSLMemoryLayoutTest_std140, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::ShaderCaps caps;
     SkSL::BuiltinTypes types;
-    SkSL::Context context(types, &caps, errors);
+    SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::k140);
 
     // basic types
@@ -124,9 +123,8 @@ DEF_TEST(SkSLMemoryLayoutTest_std140, r) {
 
 DEF_TEST(SkSLMemoryLayoutTest_std430, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::ShaderCaps caps;
     SkSL::BuiltinTypes types;
-    SkSL::Context context(types, &caps, errors);
+    SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::k430);
 
     // basic types
@@ -222,9 +220,8 @@ DEF_TEST(SkSLMemoryLayoutTest_std430, r) {
 
 DEF_TEST(SkSLMemoryLayoutTest_WGSLUniform_Base, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::ShaderCaps caps;
     SkSL::BuiltinTypes types;
-    SkSL::Context context(types, &caps, errors);
+    SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLUniform_Base);
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -513,9 +510,8 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLUniform_Base, r) {
 
 DEF_TEST(SkSLMemoryLayoutTest_WGSLUniform_EnableF16, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::ShaderCaps caps;
     SkSL::BuiltinTypes types;
-    SkSL::Context context(types, &caps, errors);
+    SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLUniform_EnableF16);
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -804,9 +800,8 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLUniform_EnableF16, r) {
 
 DEF_TEST(SkSLMemoryLayoutTest_WGSLStorage_Base, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::ShaderCaps caps;
     SkSL::BuiltinTypes types;
-    SkSL::Context context(types, &caps, errors);
+    SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLStorage_Base);
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -1093,9 +1088,8 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLStorage_Base, r) {
 
 DEF_TEST(SkSLMemoryLayoutTest_WGSLStorage_EnableF16, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::ShaderCaps caps;
     SkSL::BuiltinTypes types;
-    SkSL::Context context(types, &caps, errors);
+    SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLStorage_EnableF16);
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -1382,9 +1376,8 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLStorage_EnableF16, r) {
 
 DEF_TEST(SkSLMemoryLayoutTest_WGSLUnsupportedTypes, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::ShaderCaps caps;
     SkSL::BuiltinTypes types;
-    SkSL::Context context(types, &caps, errors);
+    SkSL::Context context(types, errors);
 
     auto testArray = SkSL::Type::MakeArrayType("bool[3]", *context.fTypes.fBool, 3);
 
@@ -1408,9 +1401,8 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLUnsupportedTypes, r) {
 
 DEF_TEST(SkSLMemoryLayoutTest_WGSLSupportedTypes, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
-    SkSL::ShaderCaps caps;
     SkSL::BuiltinTypes types;
-    SkSL::Context context(types, &caps, errors);
+    SkSL::Context context(types, errors);
 
     auto testArray = SkSL::Type::MakeArrayType("float[3]", *context.fTypes.fFloat, 3);
 

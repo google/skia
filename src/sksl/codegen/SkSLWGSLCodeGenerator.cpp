@@ -2130,8 +2130,8 @@ std::string WGSLCodeGenerator::assembleExpression(const Expression& e,
             return this->assemblePostfixExpression(e.as<PostfixExpression>(), parentPrecedence);
 
         case Expression::Kind::kSetting:
-            return this->assembleExpression(*e.as<Setting>().toLiteral(*fContext.fCaps),
-                                            parentPrecedence);
+            return this->assembleExpression(*e.as<Setting>().toLiteral(fCaps), parentPrecedence);
+
         case Expression::Kind::kSwizzle:
             return this->assembleSwizzle(e.as<Swizzle>());
 

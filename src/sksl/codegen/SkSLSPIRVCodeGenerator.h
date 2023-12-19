@@ -58,6 +58,7 @@ class PostfixExpression;
 class PrefixExpression;
 class ProgramElement;
 class ReturnStatement;
+struct ShaderCaps;
 class Statement;
 class SwitchStatement;
 class Swizzle;
@@ -103,8 +104,11 @@ public:
         virtual void store(SpvId value, OutputStream& out) = 0;
     };
 
-    SPIRVCodeGenerator(const Context* context, const Program* program, OutputStream* out)
-            : INHERITED(context, program, out) {}
+    SPIRVCodeGenerator(const Context* context,
+                       const ShaderCaps* caps,
+                       const Program* program,
+                       OutputStream* out)
+            : INHERITED(context, caps, program, out) {}
 
     bool generateCode() override;
 

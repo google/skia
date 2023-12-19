@@ -175,9 +175,7 @@ class Generator {
 public:
     Generator(const SkSL::Program& program, DebugTracePriv* debugTrace, bool writeTraceOps)
             : fProgram(program)
-            , fContext(fProgram.fContext->fTypes,
-                       fProgram.fContext->fCaps,
-                       *fProgram.fContext->fErrors)
+            , fContext(fProgram.fContext->fTypes, *fProgram.fContext->fErrors)
             , fDebugTrace(debugTrace)
             , fWriteTraceOps(writeTraceOps)
             , fProgramSlots(debugTrace ? &debugTrace->fSlotInfo : nullptr)

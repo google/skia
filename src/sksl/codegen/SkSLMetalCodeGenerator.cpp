@@ -235,7 +235,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
             this->writePostfixExpression(expr.as<PostfixExpression>(), parentPrecedence);
             break;
         case Expression::Kind::kSetting:
-            this->writeExpression(*expr.as<Setting>().toLiteral(*fContext.fCaps), parentPrecedence);
+            this->writeExpression(*expr.as<Setting>().toLiteral(fCaps), parentPrecedence);
             break;
         case Expression::Kind::kSwizzle:
             this->writeSwizzle(expr.as<Swizzle>());
@@ -1493,7 +1493,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
             }
             break;
         case SK_LASTFRAGCOLOR_BUILTIN:
-            this->write(fContext.fCaps->fFBFetchColorName);
+            this->write(fCaps.fFBFetchColorName);
             break;
         default:
             const Variable& var = *ref.variable();
@@ -2231,8 +2231,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                 this->write(", uint sk_SampleMaskIn [[sample_mask]]");
             }
             if (fProgram.fInterface.fUseLastFragColor) {
-                this->write(", half4 " + std::string(fContext.fCaps->fFBFetchColorName) +
-                            " [[color(0)]]\n");
+                this->write(", half4 " + std::string(fCaps.fFBFetchColorName) + " [[color(0)]]\n");
             }
             separator = ", ";
         } else if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {

@@ -8,7 +8,6 @@
 #ifndef SKSL_GLSLCODEGENERATOR
 #define SKSL_GLSLCODEGENERATOR
 
-#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
@@ -24,6 +23,7 @@ class BinaryExpression;
 class Block;
 class ConstructorCompound;
 class ConstructorDiagonalMatrix;
+class Context;
 class DoStatement;
 class Expression;
 class ExpressionStatement;
@@ -62,8 +62,11 @@ struct ShaderCaps;
  */
 class GLSLCodeGenerator final : public CodeGenerator {
 public:
-    GLSLCodeGenerator(const Context* context, const Program* program, OutputStream* out)
-            : INHERITED(context, program, out) {}
+    GLSLCodeGenerator(const Context* context,
+                      const ShaderCaps* caps,
+                      const Program* program,
+                      OutputStream* out)
+            : INHERITED(context, caps, program, out) {}
 
     bool generateCode() override;
 
@@ -181,8 +184,6 @@ protected:
     void writeReturnStatement(const ReturnStatement& r);
 
     void writeProgramElement(const ProgramElement& e);
-
-    const ShaderCaps& caps() const { return *fContext.fCaps; }
 
     bool shouldRewriteVoidTypedFunctions(const FunctionDeclaration* func) const;
 

@@ -14,17 +14,21 @@
 
 namespace SkSL {
 
+struct ShaderCaps;
+
 /**
  * Abstract superclass of all code generators, which take a Program as input and produce code as
  * output.
  */
 class CodeGenerator {
 public:
-    CodeGenerator(const Context* context, const Program* program, OutputStream* stream)
+    CodeGenerator(const Context* context,
+                  const ShaderCaps* caps,
+                  const Program* program,
+                  OutputStream* stream)
             : fProgram(*program)
-            , fContext(fProgram.fContext->fTypes,
-                       fProgram.fContext->fCaps,
-                       *fProgram.fContext->fErrors)
+            , fContext(fProgram.fContext->fTypes, *fProgram.fContext->fErrors)
+            , fCaps(*caps)
             , fOut(stream) {
         fContext.fConfig = fProgram.fConfig.get();
         fContext.fModule = fProgram.fContext->fModule;
@@ -57,6 +61,7 @@ protected:
 
     const Program& fProgram;
     Context fContext;
+    const ShaderCaps& fCaps;
     OutputStream* fOut;
 };
 
