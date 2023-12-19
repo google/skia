@@ -53,6 +53,7 @@ static constexpr uint32_t VkFormatChannels(VkFormat vkFormat) {
         case VK_FORMAT_R8_UNORM:                 return kRed_SkColorChannelFlag;
         case VK_FORMAT_B8G8R8A8_UNORM:           return kRGBA_SkColorChannelFlags;
         case VK_FORMAT_R5G6B5_UNORM_PACK16:      return kRGB_SkColorChannelFlags;
+        case VK_FORMAT_B5G6R5_UNORM_PACK16:      return kRGB_SkColorChannelFlags;
         case VK_FORMAT_R16G16B16A16_SFLOAT:      return kRGBA_SkColorChannelFlags;
         case VK_FORMAT_R16_SFLOAT:               return kRed_SkColorChannelFlag;
         case VK_FORMAT_R8G8B8_UNORM:             return kRGB_SkColorChannelFlags;
@@ -82,6 +83,7 @@ static constexpr size_t VkFormatBytesPerBlock(VkFormat vkFormat) {
         case VK_FORMAT_R8_UNORM:                  return 1;
         case VK_FORMAT_B8G8R8A8_UNORM:            return 4;
         case VK_FORMAT_R5G6B5_UNORM_PACK16:       return 2;
+        case VK_FORMAT_B5G6R5_UNORM_PACK16:       return 2;
         case VK_FORMAT_R16G16B16A16_SFLOAT:       return 8;
         case VK_FORMAT_R16_SFLOAT:                return 2;
         case VK_FORMAT_R8G8B8_UNORM:              return 3;
@@ -228,6 +230,7 @@ static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
         case VK_FORMAT_R8_UNORM:                 return "R8_UNORM";
         case VK_FORMAT_B8G8R8A8_UNORM:           return "B8G8R8A8_UNORM";
         case VK_FORMAT_R5G6B5_UNORM_PACK16:      return "R5G6B5_UNORM_PACK16";
+        case VK_FORMAT_B5G6R5_UNORM_PACK16:      return "B5G6R5_UNORM_PACK16";
         case VK_FORMAT_R16G16B16A16_SFLOAT:      return "R16G16B16A16_SFLOAT";
         case VK_FORMAT_R16_SFLOAT:               return "R16_SFLOAT";
         case VK_FORMAT_R8G8B8_UNORM:             return "R8G8B8_UNORM";
