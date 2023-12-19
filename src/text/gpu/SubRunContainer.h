@@ -38,7 +38,7 @@ namespace skgpu {
 enum class MaskFormat : int;
 }
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
@@ -89,7 +89,7 @@ public:
     virtual int glyphSrcPadding() const = 0;
     virtual unsigned short instanceFlags() const = 0;
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
     virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
 
     virtual std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(

@@ -65,7 +65,7 @@
 
 class GrRecordingContext;
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
@@ -75,7 +75,7 @@ class GrRecordingContext;
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
 using AtlasTextOp = skgpu::ganesh::AtlasTextOp;
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 using namespace skia_private;
 using namespace skglyph;
@@ -113,7 +113,7 @@ using namespace sktext;
 using namespace sktext::gpu;
 
 namespace {
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 SkPMColor4f calculate_colors(skgpu::ganesh::SurfaceDrawContext* sdc,
                              const SkPaint& paint,
                              const SkMatrix& matrix,
@@ -135,7 +135,7 @@ SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
     SkMatrix position_matrix = drawMatrix;
     return position_matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
 }
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 SkSpan<const SkPackedGlyphID> get_packedIDs(SkZip<const SkPackedGlyphID, const SkPoint> accepted) {
     return accepted.get<0>();
@@ -633,7 +633,7 @@ const AtlasSubRun* DrawableSubRun::testingOnly_atlasSubRun() const {
     return nullptr;
 }
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 enum ClipMethod {
     kClippedOut,
     kUnclipped,
@@ -673,7 +673,7 @@ calculate_clip(const GrClip* clip, SkRect deviceBounds, SkRect glyphBounds) {
     }
     return {kGPUClipped, SkIRect::MakeEmpty()};
 }
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 // -- DirectMaskSubRun -----------------------------------------------------------------------------
 class DirectMaskSubRun final : public SubRun, public AtlasSubRun {
@@ -754,7 +754,7 @@ public:
         fGlyphs.packedGlyphIDToGlyph(cache);
     }
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
     size_t vertexStride(const SkMatrix& drawMatrix) const override {
         return fVertexFiller.vertexStride(drawMatrix);
     }
@@ -841,7 +841,7 @@ public:
                                      clip,
                                      vertexDst);
     }
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end,
                                           RegenerateAtlasDelegate regenerateAtlas) const override {
@@ -968,7 +968,7 @@ public:
                   {/* isSDF = */false, fVertexFiller.isLCD()});
     }
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
     size_t vertexStride(const SkMatrix& drawMatrix) const override {
         return fVertexFiller.vertexStride(drawMatrix);
@@ -1025,7 +1025,7 @@ public:
                                      clip,
                                      vertexDst);
     }
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end,
                                           RegenerateAtlasDelegate regenerateAtlas) const override {
@@ -1066,7 +1066,7 @@ bool has_some_antialiasing(const SkFont& font ) {
 
 #if !defined(SK_DISABLE_SDF_TEXT)
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameters(
         const skgpu::ganesh::SurfaceDrawContext& sdc,
@@ -1097,7 +1097,7 @@ static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameter
     return {maskType, DFGPFlags, useGammaCorrectDistanceTable};
 }
 
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 class SDFTSubRun final : public SubRun, public AtlasSubRun {
 public:
@@ -1198,7 +1198,7 @@ public:
                   {/* isSDF = */true, /* isLCD = */fUseLCDText});
     }
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
     size_t vertexStride(const SkMatrix& drawMatrix) const override {
         return fVertexFiller.vertexStride(drawMatrix);
     }
@@ -1262,7 +1262,7 @@ public:
                                      vertexDst);
     }
 
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end,
                                           RegenerateAtlasDelegate regenerateAtlas) const override {

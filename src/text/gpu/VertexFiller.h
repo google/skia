@@ -23,10 +23,10 @@
 class SkReadBuffer;
 class SkWriteBuffer;
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 namespace skgpu {
 enum class MaskFormat : int;
@@ -79,7 +79,7 @@ public:
 
     void flatten(SkWriteBuffer &buffer) const;
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
     size_t vertexStride(const SkMatrix &matrix) const;
 
     void fillVertexData(int offset, int count,
@@ -90,7 +90,7 @@ public:
                         void* vertexBuffer) const;
 
     skgpu::ganesh::AtlasTextOp::MaskType opMaskType() const;
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
     // This is only available if the graphite backend is compiled in (see GraphiteVertexFiller.cpp)
     void fillInstanceData(skgpu::graphite::DrawWriter* dw,

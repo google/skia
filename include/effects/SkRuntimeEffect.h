@@ -305,11 +305,7 @@ private:
 
     const SkSL::RP::Program* getRPProgram(SkSL::DebugTracePriv* debugTrace) const;
 
-#if defined(SK_GANESH)
-    friend class GrSkSLFP;             // fBaseProgram, fSampleUsages
-    friend class GrGLSLSkSLFP;         //
-#endif
-
+    friend class GrSkSLFP;              // usesColorTransform
     friend class SkRuntimeShader;       // fBaseProgram, fMain, fSampleUsages, getRPProgram()
     friend class SkRuntimeBlender;      //
     friend class SkRuntimeColorFilter;  //

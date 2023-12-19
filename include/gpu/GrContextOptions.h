@@ -20,7 +20,6 @@
 
 class SkExecutor;
 
-#if defined(SK_GANESH)
 struct SK_API GrContextOptions {
     enum class Enable {
         /** Forces an option to be disabled. */
@@ -371,10 +370,5 @@ struct SK_API GrContextOptions {
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 };
-#else
-struct GrContextOptions {
-    struct PersistentCache {};
-};
-#endif
 
 #endif

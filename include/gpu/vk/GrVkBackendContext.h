@@ -30,7 +30,7 @@ enum GrVkFeatureFlags {
     kSampleRateShading_GrVkFeatureFlag = 0x0004,
 };
 
-// It is not guarenteed VkPhysicalDeviceProperties2 will be in the client's header so we forward
+// It is not guaranteed VkPhysicalDeviceProperties2 will be in the client's header so we forward
 // declare it here to be safe.
 struct VkPhysicalDeviceFeatures2;
 

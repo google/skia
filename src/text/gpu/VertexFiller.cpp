@@ -22,7 +22,7 @@
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #endif
 
@@ -117,7 +117,7 @@ struct AtlasPt {
     uint16_t v;
 };
 
-#if defined(SK_GANESH)
+#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 // Normal text mask, SDFT, or color.
 struct Mask2DVertex {
@@ -345,7 +345,7 @@ AtlasTextOp::MaskType VertexFiller::opMaskType() const {
     }
     SkUNREACHABLE;
 }
-#endif  // defined(SK_GANESH)
+#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 bool VertexFiller::isLCD() const { return fMaskType == MaskFormat::kA565; }
 
