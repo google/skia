@@ -125,6 +125,16 @@ public:
         return sCaps;
     }
 
+
+    static const SkSL::ShaderCaps* DualSourceBlending() {
+        static const SkSL::ShaderCaps* sCaps = [] {
+            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
+            caps->fDualSourceBlendingSupport = true;
+            return caps.release();
+        }();
+        return sCaps;
+    }
+
     static const SkSL::ShaderCaps* EmulateAbsIntFunction() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -366,6 +376,9 @@ static bool detect_shader_settings(const std::string& text,
                 }
                 if (consume_suffix(&settingsText, " CannotUseVoidInSequenceExpressions")) {
                     *caps = Factory::CannotUseVoidInSequenceExpressions();
+                }
+                if (consume_suffix(&settingsText, " DualSourceBlending")) {
+                    *caps = Factory::DualSourceBlending();
                 }
                 if (consume_suffix(&settingsText, " Default")) {
                     *caps = Factory::Default();
