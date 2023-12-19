@@ -5,6 +5,7 @@
 
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
+#include "modules/bentleyottmann/include/Int96.h"
 
 #include <algorithm>
 #include <tuple>
@@ -21,11 +22,11 @@ std::tuple<int64_t, int64_t> point_to_s64(Point p) {
 }
 
 // -- Segment --------------------------------------------------------------------------------------
-Point Segment::upper() const {
+const Point& Segment::upper() const {
     return fUpper;
 }
 
-Point Segment::lower() const {
+const Point& Segment::lower() const {
     return fLower;
 }
 
@@ -153,5 +154,54 @@ bool segment_less_than_upper_to_insert(const Segment& segment, const Segment& to
 
     // compare > 0 when segment < to_insert.upper().
     return (compare > 0) || ((compare == 0) && slope_s0_less_than_slope_s1(segment, to_insert));
+}
+
+// Return true if s0(y) < s1(y) else if s0(y) == s1(y) then slope(s0) < slope(s1)
+bool s0_less_than_s1_at_y(const Segment& s0, const Segment& s1, int32_t y) {
+    // Neither s0 nor s1 are horizontal because this is used during the sorting phase
+    SkASSERT(!s0.isHorizontal() && !s1.isHorizontal());
+
+    const auto [u0, l0] = s0;
+    const auto [u1, l1] = s1;
+
+    const auto [left0, right0] = std::minmax(u0.x, l0.x);
+    const auto [left1, right1] = std::minmax(u1.x, l1.x);
+
+    if (right0 < left1) {
+        return true;
+    } else if (right1 < left0) {
+        return false;
+    }
+
+    const Point d0 = l0 - u0;
+    const Point d1 = l1 - u1;
+
+    // Since horizontal lines are handled separately and the ordering of points for the segment,
+    // then there should always be positive Dy.
+    SkASSERT(d0.y > 0 && d1.y > 0);
+
+    namespace bo = bentleyottmann;
+    using Int96 = bo::Int96;
+
+    // Defining s0(y) and s1(y),
+    //    s0(y) = u0.x + (y - u0.y) * d0.x / d0.y
+    //    s1(y) = u1.x + (y - u1.y) * d1.x / d1.y
+    // Find the following
+    //    s0(y) < s1(y)
+    // Substituting s0(y) and s1(y)
+    //    u0.x + (y - u0.y) * d0.x / d0.y < u1.x + (y - u1.y) * d1.x / d1.y
+    // Factoring out the denominator.
+    //    (u0.x * d0.y + (y - u0.y) * d0.x) / d0.y < (u1.x * d1.y + (y - u1.y) * d1.x) / d1.y
+    // Cross-multiplying the denominators. The sign will not switch because d0.y and d1.y are
+    // always positive.
+    //    d1.y * (u0.x * d0.y + (y - u0.y) * d0.x) < d0.y * (u1.x * d1.y + (y - u1.y) * d1.x)
+    // If these are equal, then we use the slope to break the tie.
+    //    d0.x / d0.y < d1.x / d1.y
+    // Cross multiplying leaves.
+    //    d0.x * d1.y < d1.x * d0.y
+    const Int96 lhs = bo::multiply(d1.y, u0.x * SkToS64(d0.y) + (y - u0.y) * SkToS64(d0.x));
+    const Int96 rhs = bo::multiply(d0.y, u1.x * SkToS64(d1.y) + (y - u1.y) * SkToS64(d1.x));
+
+    return lhs < rhs || ((lhs == rhs) && slope_s0_less_than_slope_s1(s0, s1));
 }
 }  // namespace myers

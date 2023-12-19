@@ -40,8 +40,8 @@ public:
     constexpr Segment(Point p0, Point p1)
         : Segment{std::minmax(p0, p1)} {}
 
-    Point upper() const;
-    Point lower() const;
+    const Point& upper() const;
+    const Point& lower() const;
     std::tuple<int32_t, int32_t, int32_t, int32_t> bounds() const;
     bool isHorizontal() const;
     bool isVertical() const;
@@ -74,9 +74,9 @@ constexpr bool operator!=(const Segment& s0, const Segment& s1) {
 }
 
 // Support for Segment as a tuple.
-template<size_t> myers::Point get(const myers::Segment&);
-template<> inline myers::Point get<0>(const myers::Segment& s) { return s.upper(); }
-template<> inline myers::Point get<1>(const myers::Segment& s) { return s.lower(); }
+template<size_t> const myers::Point& get(const myers::Segment&);
+template<> inline const myers::Point& get<0>(const myers::Segment& s) { return s.upper(); }
+template<> inline const myers::Point& get<1>(const myers::Segment& s) { return s.lower(); }
 }  // namespace myers
 
 // Support for Segment as a tuple. Must be in top-level namespace.
@@ -85,6 +85,6 @@ template<> struct std::tuple_size<myers::Segment> {
 };
 
 template<size_t Index> struct std::tuple_element<Index, myers::Segment> {
-    using type = myers::Point;
+    using type = const myers::Point&;
 };
 #endif  // Myers_DEFINED
