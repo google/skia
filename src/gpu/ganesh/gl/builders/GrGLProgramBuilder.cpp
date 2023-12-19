@@ -149,7 +149,12 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
 }
 
 void GrGLProgramBuilder::addInputVars(const SkSL::Program::Interface& interface) {
-    if (interface.fUseFlipRTUniform) {
+    uint8_t useRTFlip = interface.fRTFlipUniform;
+    if (!this->gpu()->glCaps().shaderCaps()->fCanUseFragCoord) {
+        useRTFlip &= ~SkSL::Program::Interface::kRTFlip_FragCoord;
+    }
+
+    if (useRTFlip != SkSL::Program::Interface::kRTFlip_None) {
         this->addRTFlipUniform(SKSL_RTFLIP_NAME);
     }
 }

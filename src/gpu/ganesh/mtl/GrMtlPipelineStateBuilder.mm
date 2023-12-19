@@ -92,7 +92,8 @@ id<MTLLibrary> GrMtlPipelineStateBuilder::compileMtlShaderLibrary(
         SkSL::Program::Interface interface,
         GrContextOptions::ShaderErrorHandler* errorHandler) {
     id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shader, errorHandler);
-    if (shaderLibrary != nil && interface.fUseFlipRTUniform) {
+    if (shaderLibrary != nil &&
+        interface.fRTFlipUniform != SkSL::Program::Interface::kRTFlip_None) {
         this->addRTFlipUniform(SKSL_RTFLIP_NAME);
     }
     return shaderLibrary;
@@ -840,7 +841,8 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
                                           completionHandler: completionHandler];
     }
 
-    precompiledLibs->fRTFlip = interfaces[kFragment_GrShaderType].fUseFlipRTUniform;
+    precompiledLibs->fRTFlip = (interfaces[kFragment_GrShaderType].fRTFlipUniform !=
+                                SkSL::Program::Interface::kRTFlip_None);
     return true;
 }
 

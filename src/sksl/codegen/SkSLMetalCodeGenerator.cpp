@@ -2103,7 +2103,7 @@ int MetalCodeGenerator::getUniformSet(const Layout& layout) {
 }
 
 bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
-    fRTFlipName = fProgram.fInterface.fUseFlipRTUniform
+    fRTFlipName = (fProgram.fInterface.fRTFlipUniform != Program::Interface::kRTFlip_None)
                           ? "_globals._anonInterface0->" SKSL_RTFLIP_NAME
                           : "";
     const char* separator = "";
@@ -2218,7 +2218,8 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             }
         }
         if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-            if (fProgram.fInterface.fUseFlipRTUniform && fInterfaceBlockNameMap.empty()) {
+            if (fProgram.fInterface.fRTFlipUniform != Program::Interface::kRTFlip_None &&
+                fInterfaceBlockNameMap.empty()) {
                 this->write(separator);
                 this->write("constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]]");
                 fRTFlipName = "_anonInterface0." SKSL_RTFLIP_NAME;
@@ -2388,7 +2389,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine(" {");
     fIndentation++;
     this->writeFields(structType->fields(), structType->fPosition);
-    if (fProgram.fInterface.fUseFlipRTUniform) {
+    if (fProgram.fInterface.fRTFlipUniform != Program::Interface::kRTFlip_None) {
         this->writeLine("float2 " SKSL_RTFLIP_NAME ";");
     }
     fIndentation--;
@@ -2857,7 +2858,8 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
             wroteInterfaceBlock = true;
         }
     }
-    if (!wroteInterfaceBlock && fProgram.fInterface.fUseFlipRTUniform) {
+    if (!wroteInterfaceBlock &&
+        fProgram.fInterface.fRTFlipUniform != Program::Interface::kRTFlip_None) {
         this->writeLine("struct sksl_synthetic_uniforms {");
         this->writeLine("    float2 " SKSL_RTFLIP_NAME ";");
         this->writeLine("};");

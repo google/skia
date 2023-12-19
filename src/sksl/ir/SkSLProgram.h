@@ -15,7 +15,6 @@
 #include <vector>
 
 // name of the uniform used to handle features that are sensitive to whether Y is flipped.
-// TODO: find a better home for this constant
 #define SKSL_RTFLIP_NAME "u_skRTFlip"
 
 namespace SkSL {
@@ -47,11 +46,17 @@ struct UniformInfo {
 struct Program {
     // A program's inputs and outputs.
     struct Interface {
-        bool fUseFlipRTUniform = false;
+        enum RTFlip : uint8_t {
+            kRTFlip_None       = 0b0000'0000,
+            kRTFlip_FragCoord  = 0b0000'0001,
+            kRTFlip_Clockwise  = 0b0000'0010,
+            kRTFlip_Derivative = 0b0000'0100,
+        };
+        uint8_t fRTFlipUniform = kRTFlip_None;
         bool fUseLastFragColor = false;
         bool fOutputSecondaryColor = false;
         bool operator==(const Interface& that) const {
-            return fUseFlipRTUniform == that.fUseFlipRTUniform &&
+            return fRTFlipUniform == that.fRTFlipUniform &&
                    fUseLastFragColor == that.fUseLastFragColor &&
                    fOutputSecondaryColor == that.fOutputSecondaryColor;
         }

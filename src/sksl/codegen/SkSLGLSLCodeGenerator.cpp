@@ -1778,7 +1778,13 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
 }
 
 void GLSLCodeGenerator::writeInputVars() {
-    if (fProgram.fInterface.fUseFlipRTUniform) {
+    // If we are using sk_FragCoordWorkaround, we don't need to apply RTFlip to gl_FragCoord.
+    uint8_t useRTFlipUniform = fProgram.fInterface.fRTFlipUniform;
+    if (!this->caps().fCanUseFragCoord) {
+        useRTFlipUniform &= ~Program::Interface::kRTFlip_FragCoord;
+    }
+
+    if (useRTFlipUniform != Program::Interface::kRTFlip_None) {
         const char* precision = this->usesPrecisionModifiers() ? "highp " : "";
         fGlobals.writeText("uniform ");
         fGlobals.writeText(precision);
