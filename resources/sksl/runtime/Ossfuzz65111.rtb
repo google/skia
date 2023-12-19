@@ -1,0 +1,6 @@
+half4 f(half4 src, half4 dst) {
+    return half4x4(src.a) * dst;
+}
+half4 main(half4 src, half4) {
+    return f(src, half4(1));
+}

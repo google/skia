@@ -1,0 +1,11 @@
+9 instructions
+
+store_src                      src = src.rgba
+store_dst                      v4..7 = dst.rgba
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_constant                  $4 = 0
+copy_slot_unmasked             $5 = src(3)
+shuffle                        $4..19 = ($4..19)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
+splat_4_constants              $20..23 = 0x3F800000 (1.0)
+matrix_multiply_4              mat1x4($0..3) = mat4x4($4..19) * mat1x4($20..23)
+load_src                       src.rgba = $0..3

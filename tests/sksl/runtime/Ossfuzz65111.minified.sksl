@@ -1,0 +1,1 @@
+half4 f(half4 a,half4 b){return half4x4(a.w)*b;}half4 main(half4 a,half4){return f(a,half4(1.));}
