@@ -149,7 +149,7 @@ public:
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
             caps->fFBFetchSupport = true;
-            caps->fFBFetchColorName = "FramebufferFragColor";  // a nice, backend-neutral name
+            caps->fFBFetchColorName = "gl_LastFragData[0]";
             return caps.release();
         }();
         return sCaps;
