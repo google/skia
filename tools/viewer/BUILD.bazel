@@ -62,7 +62,7 @@ cc_binary_with_flags(
     deps = [
         "//:skia_internal",
         "//gm",
-        "//modules/sksg",
+        "//modules/sksg:legacy_sksg",
         "//tools:mskp_player",
         "//tools:registry",
         "//tools:runtime_blend_utils",
