@@ -104,11 +104,11 @@ public:
 };
 
 Compiler::Compiler(const ShaderCaps* caps) : fErrorReporter(this), fCaps(caps) {
-    SkASSERT(caps);
-
     auto moduleLoader = ModuleLoader::Get();
     fContext = std::make_shared<Context>(moduleLoader.builtinTypes(), fErrorReporter);
 }
+
+Compiler::Compiler() : Compiler(nullptr) {}
 
 Compiler::~Compiler() {}
 
@@ -731,11 +731,8 @@ std::string Compiler::errorText(bool showCount) {
 void Compiler::writeErrorCount() {
     int count = this->errorCount();
     if (count) {
-        fErrorText += std::to_string(count) + " error";
-        if (count > 1) {
-            fErrorText += "s";
-        }
-        fErrorText += "\n";
+        fErrorText += std::to_string(count) +
+                      ((count == 1) ? " error\n" : " errors\n");
     }
 }
 
