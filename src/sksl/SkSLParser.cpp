@@ -2252,7 +2252,9 @@ std::unique_ptr<Expression> Parser::term() {
             std::string_view text;
             if (this->identifier(&text)) {
                 Position pos = this->position(t);
-                return this->expressionOrPoison(pos, fCompiler.convertIdentifier(pos, text));
+                return this->expressionOrPoison(
+                        pos,
+                        this->symbolTable()->instantiateSymbolRef(fCompiler.context(), text, pos));
             }
             break;
         }

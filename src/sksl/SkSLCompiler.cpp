@@ -22,19 +22,8 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
-#include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFieldSymbol.h"
-#include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLFunctionReference.h"
-#include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
-#include "src/sksl/ir/SkSLType.h"
-#include "src/sksl/ir/SkSLTypeReference.h"
-#include "src/sksl/ir/SkSLVariable.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <atomic>
@@ -69,8 +58,6 @@ namespace SkSL {
 // These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
 Compiler::OverrideFlag Compiler::sOptimizer = OverrideFlag::kDefault;
 Compiler::OverrideFlag Compiler::sInliner = OverrideFlag::kDefault;
-
-using RefKind = VariableReference::RefKind;
 
 class AutoSource {
 public:
@@ -225,38 +212,6 @@ std::unique_ptr<SkSL::Program> Compiler::releaseProgram(std::unique_ptr<std::str
     SkASSERT(instance.fProgramElements.empty());
     SkASSERT(!fContext->fSymbolTable);
     return success ? std::move(result) : nullptr;
-}
-
-std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::string_view name) {
-    const Symbol* result = this->symbolTable()->find(name);
-    if (!result) {
-        this->errorReporter().error(pos, "unknown identifier '" + std::string(name) + "'");
-        return nullptr;
-    }
-    switch (result->kind()) {
-        case Symbol::Kind::kFunctionDeclaration:
-            return std::make_unique<FunctionReference>(*fContext, pos,
-                                                       &result->as<FunctionDeclaration>());
-
-        case Symbol::Kind::kVariable: {
-            const Variable* var = &result->as<Variable>();
-            // default to kRead_RefKind; this will be corrected later if the variable is written to
-            return VariableReference::Make(pos, var, VariableReference::RefKind::kRead);
-        }
-        case Symbol::Kind::kField: {
-            const FieldSymbol* field = &result->as<FieldSymbol>();
-            auto base = VariableReference::Make(pos, &field->owner(),
-                                                VariableReference::RefKind::kRead);
-            return FieldAccess::Make(*fContext, pos, std::move(base), field->fieldIndex(),
-                                     FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
-        }
-        case Symbol::Kind::kType:
-            return TypeReference::Convert(*fContext, pos, &result->as<Type>());
-
-        default:
-            SkDEBUGFAILF("unsupported symbol type %d\n", (int)result->kind());
-            return nullptr;
-    }
 }
 
 bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module, bool shrinkSymbols) {

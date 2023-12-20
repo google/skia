@@ -44,7 +44,6 @@ constexpr int SK_LOCALINVOCATIONINDEX_BUILTIN =   29;
 
 namespace SkSL {
 
-class Expression;
 class Inliner;
 class OutputStream;
 class ProgramUsage;
@@ -137,8 +136,6 @@ public:
     std::unique_ptr<Program> convertProgram(ProgramKind kind,
                                             std::string text,
                                             ProgramSettings settings);
-
-    std::unique_ptr<Expression> convertIdentifier(Position pos, std::string_view name);
 
     bool toSPIRV(Program& program, OutputStream& out);
 

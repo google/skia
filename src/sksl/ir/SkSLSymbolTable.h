@@ -25,6 +25,9 @@
 
 namespace SkSL {
 
+class Context;
+class Expression;
+class Position;
 class Type;
 
 /**
@@ -89,6 +92,14 @@ public:
     Symbol* findMutable(std::string_view name) const {
         return this->lookup(MakeSymbolKey(name));
     }
+
+    /**
+     * Looks up the requested symbol and instantiates an Expression reference to it; will return a
+     * VariableReference, TypeReference, FunctionReference, FieldAccess, or nullptr.
+     */
+    std::unique_ptr<Expression> instantiateSymbolRef(const Context& context,
+                                                     std::string_view name,
+                                                     Position pos);
 
     /**
      * Assigns a new name to the passed-in symbol. The old name will continue to exist in the symbol
