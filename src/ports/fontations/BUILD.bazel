@@ -46,7 +46,7 @@ skia_cc_deps(
 )
 
 rust_test(
-    name = "test_colr_cpal",
+    name = "test_ffi",
     timeout = "short",
     crate = ":bridge_rust_side",
     data = ["//resources"],
