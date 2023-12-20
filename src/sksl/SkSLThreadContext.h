@@ -58,14 +58,11 @@ public:
     static void End();
 
     /**
-     * Returns the Compiler used by SkSL in the current thread.
-     */
-    static SkSL::Compiler& Compiler() { return *Instance().fCompiler; }
-
-    /**
      * Returns the Context used by SkSL in the current thread.
      */
-    static SkSL::Context& Context();
+    static SkSL::Context& Context() {
+        return Instance().fContext;
+    }
 
     /**
      * Returns the collection to which SkSL program elements in this thread should be appended.
@@ -116,7 +113,7 @@ public:
     static ThreadContext& Instance();
 
 private:
-    ThreadContext(SkSL::Compiler* compiler,
+    ThreadContext(SkSL::Context& context,
                   SkSL::ProgramKind kind,
                   const SkSL::ProgramSettings& settings,
                   const SkSL::Module* module,
@@ -131,7 +128,7 @@ private:
     void setupSymbolTable();
 
     std::unique_ptr<SkSL::ProgramConfig> fConfig;
-    SkSL::Compiler* fCompiler;
+    SkSL::Context& fContext;
     std::unique_ptr<Pool> fPool;
     SkSL::ProgramConfig* fOldConfig;
     std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
@@ -142,7 +139,7 @@ private:
     RTAdjustData fRTAdjust;
     Program::Interface fInterface;
 
-    friend class Compiler;
+    friend class SkSL::Compiler;
 };
 
 } // namespace SkSL

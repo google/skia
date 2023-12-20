@@ -17,14 +17,14 @@
 
 namespace SkSL {
 
-ThreadContext::ThreadContext(SkSL::Compiler* compiler,
+ThreadContext::ThreadContext(SkSL::Context& context,
                              SkSL::ProgramKind kind,
                              const SkSL::ProgramSettings& settings,
                              const SkSL::Module* module,
                              bool isModule)
-        : fCompiler(compiler)
-        , fOldConfig(fCompiler->fContext->fConfig)
-        , fOldErrorReporter(*fCompiler->fContext->fErrors)
+        : fContext(context)
+        , fOldConfig(context.fConfig)
+        , fOldErrorReporter(*context.fErrors)
         , fSettings(settings) {
     if (!isModule) {
         if (settings.fUseMemoryPool) {
@@ -37,23 +37,23 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler,
     fConfig->fKind = kind;
     fConfig->fSettings = settings;
     fConfig->fIsBuiltinCode = isModule;
-    fCompiler->fContext->fConfig = fConfig.get();
-    fCompiler->fContext->fErrors = &fDefaultErrorReporter;
-    fCompiler->fContext->fModule = module;
-    fCompiler->fContext->fSymbolTable = module->fSymbols;
+    fContext.fConfig = fConfig.get();
+    fContext.fErrors = &fDefaultErrorReporter;
+    fContext.fModule = module;
+    fContext.fSymbolTable = module->fSymbols;
     this->setupSymbolTable();
 }
 
 ThreadContext::~ThreadContext() {
-    if (fCompiler->fContext->fSymbolTable) {
-        fCompiler->fContext->fSymbolTable = nullptr;
+    if (fContext.fSymbolTable) {
+        fContext.fSymbolTable = nullptr;
         fProgramElements.clear();
     } else {
         // We should only be here with a null symbol table if ReleaseProgram was called
         SkASSERT(fProgramElements.empty());
     }
-    fCompiler->fContext->fErrors = &fOldErrorReporter;
-    fCompiler->fContext->fConfig = fOldConfig;
+    fContext.fErrors = &fOldErrorReporter;
+    fContext.fConfig = fOldConfig;
     if (fPool) {
         fPool->detachFromThread();
     }
@@ -63,7 +63,7 @@ void ThreadContext::Start(SkSL::Compiler* compiler,
                           SkSL::ProgramKind kind,
                           const SkSL::ProgramSettings& settings) {
     ThreadContext::SetInstance(
-            std::unique_ptr<ThreadContext>(new ThreadContext(compiler,
+            std::unique_ptr<ThreadContext>(new ThreadContext(compiler->context(),
                                                              kind,
                                                              settings,
                                                              compiler->moduleForProgramKind(kind),
@@ -75,7 +75,7 @@ void ThreadContext::StartModule(SkSL::Compiler* compiler,
                           const SkSL::ProgramSettings& settings,
                           const SkSL::Module* parent) {
     ThreadContext::SetInstance(std::unique_ptr<ThreadContext>(
-            new ThreadContext(compiler, kind, settings, parent, /*isModule=*/true)));
+            new ThreadContext(compiler->context(), kind, settings, parent, /*isModule=*/true)));
 }
 
 void ThreadContext::End() {
@@ -83,14 +83,9 @@ void ThreadContext::End() {
 }
 
 void ThreadContext::setupSymbolTable() {
-    SkSL::Context& context = *fCompiler->fContext;
-    SymbolTable::Push(&context.fSymbolTable, context.fConfig->fIsBuiltinCode);
+    SymbolTable::Push(&fContext.fSymbolTable, fContext.fConfig->fIsBuiltinCode);
 
-    context.fSymbolTable->markModuleBoundary();
-}
-
-SkSL::Context& ThreadContext::Context() {
-    return Compiler().context();
+    fContext.fSymbolTable->markModuleBoundary();
 }
 
 ThreadContext::RTAdjustData& ThreadContext::RTAdjustState() {
