@@ -9,7 +9,7 @@ version = "0.1.0"
 [dependencies]
 read-fonts = "0.15"
 font-types = "0.4"
-skrifa = "0.15"
+skrifa = "0.15.1"
 cxx = "1.0.110"
 
 [lib]
