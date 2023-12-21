@@ -573,14 +573,14 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
                     std::string cached_sksl[kGrShaderTypeCount];
                     if (GrPersistentCacheUtils::UnpackCachedShaders(
                                 &reader, cached_sksl, interfaces, kGrShaderTypeCount)) {
-                        bool success = skgpu::SkSLToMSL(fGpu->shaderCompiler(),
+                        bool success = skgpu::SkSLToMSL(mtlCaps->shaderCaps(),
                                                         cached_sksl[kVertex_GrShaderType],
                                                         SkSL::ProgramKind::kVertex,
                                                         settings,
                                                         &msl[kVertex_GrShaderType],
                                                         &interfaces[kVertex_GrShaderType],
                                                         errorHandler);
-                        success = success && skgpu::SkSLToMSL(fGpu->shaderCompiler(),
+                        success = success && skgpu::SkSLToMSL(mtlCaps->shaderCaps(),
                                                               cached_sksl[kFragment_GrShaderType],
                                                               SkSL::ProgramKind::kFragment,
                                                               settings,
@@ -604,7 +604,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
         if (msl[kVertex_GrShaderType].empty() || msl[kFragment_GrShaderType].empty()) {
             bool success = true;
             if (msl[kVertex_GrShaderType].empty()) {
-                success = skgpu::SkSLToMSL(fGpu->shaderCompiler(),
+                success = skgpu::SkSLToMSL(mtlCaps->shaderCaps(),
                                            fVS.fCompilerString,
                                            SkSL::ProgramKind::kVertex,
                                            settings,
@@ -613,7 +613,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
                                            errorHandler);
             }
             if (success && msl[kFragment_GrShaderType].empty()) {
-                success = skgpu::SkSLToMSL(fGpu->shaderCompiler(),
+                success = skgpu::SkSLToMSL(mtlCaps->shaderCaps(),
                                            fFS.fCompilerString,
                                            SkSL::ProgramKind::kFragment,
                                            settings,
@@ -770,7 +770,7 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
 
         case kSKSL_Tag: {
             std::string msl[kGrShaderTypeCount];
-            if (!skgpu::SkSLToMSL(gpu->shaderCompiler(),
+            if (!skgpu::SkSLToMSL(gpu->caps()->shaderCaps(),
                                   shaders[kVertex_GrShaderType],
                                   SkSL::ProgramKind::kVertex,
                                   settings,
@@ -779,7 +779,7 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
                                   errorHandler)) {
                 return false;
             }
-            if (!skgpu::SkSLToMSL(gpu->shaderCompiler(),
+            if (!skgpu::SkSLToMSL(gpu->caps()->shaderCaps(),
                                   shaders[kFragment_GrShaderType],
                                   SkSL::ProgramKind::kFragment,
                                   settings,

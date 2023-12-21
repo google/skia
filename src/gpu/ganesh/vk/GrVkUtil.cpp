@@ -69,7 +69,7 @@ bool GrCompileVkShaderModule(GrVkGpu* gpu,
                              SkSL::Program::Interface* outInterface) {
     TRACE_EVENT0("skia.shaders", "CompileVkShaderModule");
     skgpu::ShaderErrorHandler* errorHandler = gpu->getContext()->priv().getShaderErrorHandler();
-    if (!skgpu::SkSLToSPIRV(gpu->shaderCompiler(),
+    if (!skgpu::SkSLToSPIRV(gpu->vkCaps().shaderCaps(),
                             shaderString,
                             vk_shader_stage_to_skiasl_kind(stage),
                             settings,

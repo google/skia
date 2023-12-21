@@ -247,7 +247,6 @@ static wgpu::BlendOperation blend_equation_to_dawn_blend_op(skgpu::BlendEquation
 // static
 sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* sharedContext,
                                                        DawnResourceProvider* resourceProvider,
-                                                       SkSL::Compiler* compiler,
                                                        const RuntimeEffectDictionary* runtimeDict,
                                                        const GraphicsPipelineDesc& pipelineDesc,
                                                        const RenderPassDesc& renderPassDesc) {
@@ -283,7 +282,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     bool hasFragmentSkSL = !fsSkSL.empty();
     if (hasFragmentSkSL) {
-        if (!SkSLToWGSL(compiler,
+        if (!SkSLToWGSL(caps.shaderCaps(),
                         fsSkSL,
                         SkSL::ProgramKind::kGraphiteFragment,
                         settings,
@@ -302,7 +301,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                               useStorageBuffers,
                                               localCoordsNeeded);
     const std::string& vsSkSL = vsSkSLInfo.fSkSL;
-    if (!SkSLToWGSL(compiler,
+    if (!SkSLToWGSL(caps.shaderCaps(),
                     vsSkSL,
                     SkSL::ProgramKind::kGraphiteVertex,
                     settings,

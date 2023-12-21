@@ -44,9 +44,8 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        GrShaderCaps caps;
         for (int i = 0; i < loops; i++) {
-            SkSL::Compiler compiler(&caps);
+            SkSL::Compiler compiler;
         }
     }
 };
@@ -83,7 +82,6 @@ public:
                     output_string(output) + name)
             , fSrc(src)
             , fCaps(GrContextOptions(), GrMockOptions())
-            , fCompiler(fCaps.shaderCaps())
             , fOutput(output) {
         fSettings.fOptimize = optimize;
         // The test programs we compile don't follow Vulkan rules and thus produce invalid SPIR-V.
@@ -146,13 +144,29 @@ protected:
             }
             std::string result;
             switch (fOutput) {
-                case Output::kNone:    break;
-                case Output::kGLSL:    SkAssertResult(fCompiler.toGLSL(*program,  &result)); break;
+                case Output::kNone:
+                    break;
+
+                case Output::kGLSL:
+                    SkAssertResult(fCompiler.toGLSL(*program, fCaps.shaderCaps(), &result));
+                    break;
+
                 case Output::kMetal:
-                case Output::kGrMtl:   SkAssertResult(fCompiler.toMetal(*program, &result)); break;
-                case Output::kSPIRV:   SkAssertResult(fCompiler.toSPIRV(*program, &result)); break;
-                case Output::kGrWGSL:  SkAssertResult(fCompiler.toWGSL(*program, &result)); break;
-                case Output::kSkRP:    SkAssertResult(CompileToSkRP(*program)); break;
+                case Output::kGrMtl:
+                    SkAssertResult(fCompiler.toMetal(*program, fCaps.shaderCaps(), &result));
+                    break;
+
+                case Output::kSPIRV:
+                    SkAssertResult(fCompiler.toSPIRV(*program, fCaps.shaderCaps(), &result));
+                    break;
+
+                case Output::kGrWGSL:
+                    SkAssertResult(fCompiler.toWGSL(*program, fCaps.shaderCaps(), &result));
+                    break;
+
+                case Output::kSkRP:
+                    SkAssertResult(CompileToSkRP(*program));
+                    break;
             }
         }
     }
@@ -636,8 +650,7 @@ static void bench(NanoJSONResultsWriter* log, const char* name, int bytes) {
 void RunSkSLModuleBenchmarks(NanoJSONResultsWriter* log) {
     // Heap used by a default compiler (with no modules loaded)
     int64_t before = heap_bytes_used();
-    GrShaderCaps caps;
-    SkSL::Compiler compiler(&caps);
+    SkSL::Compiler compiler;
     int baselineBytes = heap_bytes_used();
     if (baselineBytes >= 0) {
         baselineBytes = (baselineBytes - before);
@@ -720,8 +733,7 @@ public:
 
     void onDraw(int loops, SkCanvas*) override {
         SkASSERT(loops == 1);
-        GrShaderCaps caps;
-        SkSL::Compiler compiler(&caps);
+        SkSL::Compiler compiler;
         for (SkSL::ProgramKind kind : fModuleList) {
             compiler.moduleForProgramKind(kind);
         }

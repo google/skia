@@ -19,7 +19,7 @@
 static void test(skiatest::Reporter* r,
                  const char* src,
                  SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment) {
-    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
+    SkSL::Compiler compiler;
     SkSL::ProgramSettings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::string(src),
                                                                      settings);
@@ -28,7 +28,7 @@ static void test(skiatest::Reporter* r,
         REPORTER_ASSERT(r, program);
     } else {
         std::string output;
-        REPORTER_ASSERT(r, compiler.toWGSL(*program, &output));
+        REPORTER_ASSERT(r, compiler.toWGSL(*program, SkSL::ShaderCapsFactory::Default(), &output));
         REPORTER_ASSERT(r, output != "");
         //SkDebugf("WGSL output:\n\n%s", output.c_str());
     }

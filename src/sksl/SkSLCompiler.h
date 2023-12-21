@@ -103,19 +103,7 @@ public:
         return result;
     }
 
-    /**
-     * Creates an SkSL compiler with no shader caps. This can be used to compile programs into an
-     * state suitable for a pipeline stage, like runtime shaders or mesh programs, but cannot
-     * generate finished vertex/fragment/compute programs. It is also suitable for SkRP compilation.
-     */
     Compiler();
-
-    /**
-     * Creates an SkSL compiler with shader caps for a particular GPU. With shader caps, a compiler
-     * is able to compile all program kinds, including native vertex/fragment/compute shaders.
-     */
-    Compiler(const ShaderCaps* caps);
-
     ~Compiler();
 
     Compiler(const Compiler&) = delete;
@@ -137,25 +125,25 @@ public:
                                             std::string text,
                                             ProgramSettings settings);
 
-    bool toSPIRV(Program& program, OutputStream& out);
+    bool toSPIRV(Program& program, const ShaderCaps* caps, OutputStream& out);
 
-    bool toSPIRV(Program& program, std::string* out);
+    bool toSPIRV(Program& program, const ShaderCaps* caps, std::string* out);
 
-    bool toGLSL(Program& program, OutputStream& out);
+    bool toGLSL(Program& program, const ShaderCaps* caps, OutputStream& out);
 
-    bool toGLSL(Program& program, std::string* out);
+    bool toGLSL(Program& program, const ShaderCaps* caps, std::string* out);
 
-    bool toHLSL(Program& program, OutputStream& out);
+    bool toHLSL(Program& program, const ShaderCaps* caps, OutputStream& out);
 
-    bool toHLSL(Program& program, std::string* out);
+    bool toHLSL(Program& program, const ShaderCaps* caps, std::string* out);
 
-    bool toMetal(Program& program, OutputStream& out);
+    bool toMetal(Program& program, const ShaderCaps* caps, OutputStream& out);
 
-    bool toMetal(Program& program, std::string* out);
+    bool toMetal(Program& program, const ShaderCaps* caps, std::string* out);
 
-    bool toWGSL(Program& program, OutputStream& out);
+    bool toWGSL(Program& program, const ShaderCaps* caps, OutputStream& out);
 
-    bool toWGSL(Program& program, std::string* out);
+    bool toWGSL(Program& program, const ShaderCaps* caps, std::string* out);
 
     void handleError(std::string_view msg, Position pos);
 
@@ -234,7 +222,6 @@ private:
 
     CompilerErrorReporter fErrorReporter;
     std::shared_ptr<Context> fContext;
-    const ShaderCaps* fCaps;
 
     std::string fErrorText;
 

@@ -73,7 +73,6 @@ public:
             PipelineStageFlags::kFragmentShader};
 
     static sk_sp<VulkanGraphicsPipeline> Make(const VulkanSharedContext*,
-                                              SkSL::Compiler* compiler,
                                               const RuntimeEffectDictionary*,
                                               const GraphicsPipelineDesc&,
                                               const RenderPassDesc&,

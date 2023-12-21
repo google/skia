@@ -544,7 +544,6 @@ static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
 
 sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         const VulkanSharedContext* sharedContext,
-        SkSL::Compiler* compiler,
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc,
@@ -580,7 +579,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     VkShaderModule fsModule = VK_NULL_HANDLE, vsModule = VK_NULL_HANDLE;
 
     if (hasFragmentSkSL) {
-        if (!SkSLToSPIRV(compiler,
+        if (!SkSLToSPIRV(sharedContext->caps()->shaderCaps(),
                          fsSkSL,
                          SkSL::ProgramKind::kGraphiteFragment,
                          settings,
@@ -601,7 +600,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                               useStorageBuffers,
                                               localCoordsNeeded);
     const std::string& vsSkSL = vsSkSLInfo.fSkSL;
-    if (!SkSLToSPIRV(compiler,
+    if (!SkSLToSPIRV(sharedContext->caps()->shaderCaps(),
                      vsSkSL,
                      SkSL::ProgramKind::kGraphiteVertex,
                      settings,

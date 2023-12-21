@@ -79,11 +79,9 @@ sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
-    SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
     auto compatibleRenderPass =
             this->findOrCreateRenderPass(renderPassDesc, /*compatibleOnly=*/true);
     return VulkanGraphicsPipeline::Make(this->vulkanSharedContext(),
-                                        &skslCompiler,
                                         runtimeDict,
                                         pipelineDesc,
                                         renderPassDesc,

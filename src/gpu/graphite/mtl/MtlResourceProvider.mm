@@ -114,7 +114,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
 
     settings.fForceNoRTFlip = true;
 
-    SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
+    SkSL::Compiler skslCompiler;
     ShaderErrorHandler* errorHandler = fSharedContext->caps()->shaderErrorHandler();
 
     const RenderStep* step =
@@ -131,7 +131,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const BlendInfo& blendInfo = fsSkSLInfo.fBlendInfo;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
-    if (!SkSLToMSL(&skslCompiler,
+    if (!SkSLToMSL(fSharedContext->caps()->shaderCaps(),
                    fsSkSL,
                    SkSL::ProgramKind::kGraphiteFragment,
                    settings,
@@ -146,7 +146,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
                                               useStorageBuffers,
                                               localCoordsNeeded);
     const std::string& vsSkSL = vsSkSLInfo.fSkSL;
-    if (!SkSLToMSL(&skslCompiler,
+    if (!SkSLToMSL(fSharedContext->caps()->shaderCaps(),
                    vsSkSL,
                    SkSL::ProgramKind::kGraphiteVertex,
                    settings,
@@ -205,9 +205,9 @@ sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(
         SkSL::Program::Interface interface;
         SkSL::ProgramSettings settings;
 
-        SkSL::Compiler skslCompiler(fSharedContext->caps()->shaderCaps());
+        SkSL::Compiler skslCompiler;
         std::string sksl = BuildComputeSkSL(fSharedContext->caps(), pipelineDesc.computeStep());
-        if (!SkSLToMSL(&skslCompiler,
+        if (!SkSLToMSL(fSharedContext->caps()->shaderCaps(),
                        sksl,
                        SkSL::ProgramKind::kCompute,
                        settings,
