@@ -16,9 +16,9 @@ import shutil
 import subprocess
 
 
-NDK_VER = "android-ndk-r21d"
+NDK_VER = "android-ndk-r26b"
 NDK_URL = \
-    "https://dl.google.com/android/repository/%s-windows-x86_64.zip" % NDK_VER
+    "https://dl.google.com/android/repository/%s-windows.zip" % NDK_VER
 
 
 def create_asset(target_dir):
