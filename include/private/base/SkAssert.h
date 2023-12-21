@@ -28,6 +28,16 @@
     #define SK_UNLIKELY
 #endif
 
+#if defined(__clang__)
+    #define SK_ASSUME(cond) __builtin_assume(cond)
+#elif defined(__GNUC__)
+    #define SK_ASSUME(cond) ((cond) ? (void)0 : __builtin_unreachable())
+#elif defined(_MSC_VER)
+    #define SK_ASSUME(cond) __assume(cond)
+#else
+    #define SK_ASSUME(cond) ((void)0)
+#endif
+
 /** Called internally if we hit an unrecoverable error.
     The platform implementation must not return, but should either throw
     an exception or otherwise exit.
