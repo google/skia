@@ -105,7 +105,6 @@ if (!is_clang && !is_win) {
 if (is_android) {
   ndk_host = ""
   ndk_target = ""
-  ndk_gdbserver = ""
 
   if (host_os == "linux") {
     ndk_host = "linux-x86_64"
@@ -117,16 +116,12 @@ if (is_android) {
 
   if (target_cpu == "arm64") {
     ndk_target = "aarch64-linux-android"
-    ndk_gdbserver = "prebuilt/android-arm64/gdbserver/gdbserver"
   } else if (target_cpu == "arm") {
     ndk_target = "armv7a-linux-androideabi"
-    ndk_gdbserver = "prebuilt/android-arm/gdbserver/gdbserver"
   } else if (target_cpu == "x64") {
     ndk_target = "x86_64-linux-android"
-    ndk_gdbserver = "prebuilt/android-x86_64/gdbserver/gdbserver"
   } else if (target_cpu == "x86") {
     ndk_target = "i686-linux-android"
-    ndk_gdbserver = "prebuilt/android-x86/gdbserver/gdbserver"
   }
 }
 

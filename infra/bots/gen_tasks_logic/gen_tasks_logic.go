@@ -1638,7 +1638,7 @@ func (b *jobBuilder) codesize() {
 		if strings.Contains(compileTaskName, "Android") {
 			b.asset("android_ndk_linux")
 			cmd = append(cmd, "--strip_binary",
-				"android_ndk_linux/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip")
+				"android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip")
 		} else {
 			b.asset("binutils_linux_x64")
 			cmd = append(cmd, "--strip_binary", "binutils_linux_x64/strip")

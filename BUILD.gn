@@ -3044,13 +3044,6 @@ if (skia_enable_tools) {
     }
   }
 
-  if (is_android && defined(ndk) && ndk != "") {
-    copy("gdbserver") {
-      sources = [ "$ndk/$ndk_gdbserver" ]
-      outputs = [ "$root_out_dir/gdbserver" ]
-    }
-  }
-
   if (is_linux || is_win || is_mac) {
     test_app("editor") {
       is_shared_library = is_android
