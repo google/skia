@@ -56,6 +56,16 @@ enum class Layout {
     kMetal,
 };
 
+static constexpr const char* LayoutString(Layout layout) {
+    switch(layout) {
+        case Layout::kStd140:  return "std140";
+        case Layout::kStd430:  return "std430";
+        case Layout::kMetal:   return "metal";
+        case Layout::kInvalid: return "invalid";
+    }
+    SkUNREACHABLE;
+}
+
 /**
  * Indicates the intended access pattern over resource memory. This is used to select the most
  * efficient memory type during resource creation based on the capabilities of the platform.
