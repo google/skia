@@ -227,7 +227,36 @@ static constexpr int SkSLTypeVecLength(SkSLType type) {
  * function on GrGLSLProgramDataManager)?
  */
 static constexpr bool SkSLTypeCanBeUniformValue(SkSLType type) {
-    return SkSLTypeIsFloatType(type) || SkSLTypeIsIntegralType(type);
+    // This is almost "IsFloatType || IsIntegralType" but excludes non-full precision int types.
+    switch(type) {
+        case SkSLType::kFloat:
+        case SkSLType::kFloat2:
+        case SkSLType::kFloat3:
+        case SkSLType::kFloat4:
+        case SkSLType::kFloat2x2:
+        case SkSLType::kFloat3x3:
+        case SkSLType::kFloat4x4:
+        case SkSLType::kHalf:
+        case SkSLType::kHalf2:
+        case SkSLType::kHalf3:
+        case SkSLType::kHalf4:
+        case SkSLType::kHalf2x2:
+        case SkSLType::kHalf3x3:
+        case SkSLType::kHalf4x4:
+
+        case SkSLType::kInt:
+        case SkSLType::kInt2:
+        case SkSLType::kInt3:
+        case SkSLType::kInt4:
+        case SkSLType::kUInt:
+        case SkSLType::kUInt2:
+        case SkSLType::kUInt3:
+        case SkSLType::kUInt4:
+            return true;
+
+        default:
+            return false;
+    }
 }
 
 /** Is the shading language type full precision? */

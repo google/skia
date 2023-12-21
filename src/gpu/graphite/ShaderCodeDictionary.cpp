@@ -1393,10 +1393,12 @@ static SkSLType uniform_type_to_sksl_type(const SkRuntimeEffect::Uniform& u) {
             case Type::kFloat2x2: return SkSLType::kHalf2x2;
             case Type::kFloat3x3: return SkSLType::kHalf3x3;
             case Type::kFloat4x4: return SkSLType::kHalf4x4;
-            case Type::kInt:      return SkSLType::kShort;
-            case Type::kInt2:     return SkSLType::kShort2;
-            case Type::kInt3:     return SkSLType::kShort3;
-            case Type::kInt4:     return SkSLType::kShort4;
+            // NOTE: shorts cannot be uniforms, so we shouldn't ever get here.
+            // Defensively return the full precision integer type.
+            case Type::kInt:      SkDEBUGFAIL("unsupported uniform type"); return SkSLType::kInt;
+            case Type::kInt2:     SkDEBUGFAIL("unsupported uniform type"); return SkSLType::kInt2;
+            case Type::kInt3:     SkDEBUGFAIL("unsupported uniform type"); return SkSLType::kInt3;
+            case Type::kInt4:     SkDEBUGFAIL("unsupported uniform type"); return SkSLType::kInt4;
         }
     } else {
         switch (u.type) {

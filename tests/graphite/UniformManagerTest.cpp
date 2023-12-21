@@ -22,7 +22,6 @@ static constexpr Layout kLayouts[] = {
 
 // This list excludes SkSLTypes that we don't support in uniforms, like Bool, UInt or UShort.
 static constexpr SkSLType kTypes[] = {
-        SkSLType::kShort,    SkSLType::kShort2,   SkSLType::kShort3,   SkSLType::kShort4,   //
         SkSLType::kFloat,    SkSLType::kFloat2,   SkSLType::kFloat3,   SkSLType::kFloat4,   //
         SkSLType::kHalf,     SkSLType::kHalf2,    SkSLType::kHalf3,    SkSLType::kHalf4,    //
         SkSLType::kInt,      SkSLType::kInt2,     SkSLType::kInt3,     SkSLType::kInt4,     //
@@ -39,11 +38,6 @@ static constexpr SkHalf kHalfs[16] = { 0x3C00, 0x4000, 0x4200, 0x4400,
                                        0x4500, 0x4600, 0x4700, 0x4800,
                                        0x4880, 0x4900, 0x4980, 0x4A00,
                                        0x4A80, 0x4B00, 0x4B80, 0x4C00 };
-
-static constexpr int16_t kShorts[16] = { 1,  -2,  3,  -4,
-                                         5,  -6,  7,  -8,
-                                         9, -10, 11, -12,
-                                        13, -14, 15, -16 };
 
 static constexpr int32_t kInts[16] = { 1,  -2,  3,  -4,
                                        5,  -6,  7,  -8,
@@ -123,9 +117,8 @@ DEF_GRAPHITE_TEST(UniformManagerCheckIntEncoding, r, CtsEnforcement::kNextReleas
             UniformDataBlock uniformData = mgr.finishUniformDataBlock();
             int vecLength = SkSLTypeVecLength(type);
             size_t elementSize = element_size(layout, type);
-            const void* validData = (elementSize == 4) ? (const void*)kInts : (const void*)kShorts;
             REPORTER_ASSERT(r, uniformData.size() >= vecLength * elementSize);
-            REPORTER_ASSERT(r, 0 == memcmp(validData, uniformData.data(), vecLength * elementSize),
+            REPORTER_ASSERT(r, 0 == memcmp(kInts, uniformData.data(), vecLength * elementSize),
                             "Layout: %d - Type: %s int encoding failed",
                             (int)layout, SkSLTypeString(type));
             mgr.reset();
@@ -572,22 +565,18 @@ DEF_GRAPHITE_TEST(UniformManagerMetalArrayLayout, r, CtsEnforcement::kNextReleas
         // a/b: padding as part of the uniform type.
         // _  : padding between uniforms for alignment.
 
-        /* {half, short[3]}  */ "AABBBBBB",
-        /* {half, short2[3]} */ "AA__BBBBBBBBBBBB",
-        /* {half, short3[3]} */ "AA______BBBBBBbbBBBBBBbbBBBBBBbb",
-        /* {half, short4[3]} */ "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, float[3]}  */ "AA__BBBBBBBBBBBB",
-        /* {half, float2[3]} */ "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, float3[3]} */ "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
-        /* {half, float4[3]} */ "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, half[3]}   */ "AABBBBBB",
-        /* {half, half2[3]}  */ "AA__BBBBBBBBBBBB",
-        /* {half, half3[3]}  */ "AA______BBBBBBbbBBBBBBbbBBBBBBbb",
-        /* {half, half4[3]}  */ "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, int[3]}    */ "AA__BBBBBBBBBBBB",
-        /* {half, int2[3]}   */ "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, int3[3]}   */ "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
-        /* {half, int4[3]}   */ "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, float[3]}  */  "AA__BBBBBBBBBBBB",
+        /* {half, float2[3]} */  "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, float3[3]} */  "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
+        /* {half, float4[3]} */  "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, half[3]}   */  "AABBBBBB",
+        /* {half, half2[3]}  */  "AA__BBBBBBBBBBBB",
+        /* {half, half3[3]}  */  "AA______BBBBBBbbBBBBBBbbBBBBBBbb",
+        /* {half, half4[3]}  */  "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, int[3]}    */  "AA__BBBBBBBBBBBB",
+        /* {half, int2[3]}   */  "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, int3[3]}   */  "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
+        /* {half, int4[3]}   */  "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 
         /* {half, float2x2[3] */ "AA______BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
         /* {half, float3x3[3] */ "AA______________"
@@ -599,12 +588,12 @@ DEF_GRAPHITE_TEST(UniformManagerMetalArrayLayout, r, CtsEnforcement::kNextReleas
                                  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
                                  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 
-        /* {half, half2x2[3] */ "AA__BBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, half3x3[3] */ "AA______"
+        /* {half, half2x2[3] */  "AA__BBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, half3x3[3] */  "AA______"
                                  "BBBBBBbbBBBBBBbbBBBBBBbb"
                                  "BBBBBBbbBBBBBBbbBBBBBBbb"
                                  "BBBBBBbbBBBBBBbbBBBBBBbb",
-        /* {half, half4x4[3] */ "AA______"
+        /* {half, half4x4[3] */  "AA______"
                                  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
                                  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
                                  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
@@ -644,22 +633,18 @@ DEF_GRAPHITE_TEST(UniformManagerStd431ArrayLayout, r, CtsEnforcement::kNextRelea
         // a/b: padding as part of the uniform type.
         // _  : padding between uniforms for alignment.
 
-        /* {half, short[3]}  */ "AA__BBBBBBBBBBBB",
-        /* {half, short2[3]} */ "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, short3[3]} */ "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
-        /* {half, short4[3]} */ "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, float[3]}  */ "AA__BBBBBBBBBBBB",
-        /* {half, float2[3]} */ "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, float3[3]} */ "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
-        /* {half, float4[3]} */ "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, half[3]}   */ "AA__BBBBBBBBBBBB",
-        /* {half, half2[3]}  */ "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, half3[3]}  */ "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
-        /* {half, half4[3]}  */ "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, int[3]}    */ "AA__BBBBBBBBBBBB",
-        /* {half, int2[3]}   */ "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, int3[3]}   */ "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
-        /* {half, int4[3]}   */ "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, float[3]}  */  "AA__BBBBBBBBBBBB",
+        /* {half, float2[3]} */  "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, float3[3]} */  "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
+        /* {half, float4[3]} */  "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, half[3]}   */  "AA__BBBBBBBBBBBB",
+        /* {half, half2[3]}  */  "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, half3[3]}  */  "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
+        /* {half, half4[3]}  */  "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, int[3]}    */  "AA__BBBBBBBBBBBB",
+        /* {half, int2[3]}   */  "AA______BBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, int3[3]}   */  "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
+        /* {half, int4[3]}   */  "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 
         /* {half, float2x2[3] */ "AA______BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
         /* {half, float3x3[3] */ "AA______________"
@@ -716,22 +701,18 @@ DEF_GRAPHITE_TEST(UniformManagerStd140ArrayLayout, r, CtsEnforcement::kNextRelea
         // a/b: padding as part of the uniform type.
         // _  : padding between uniforms for alignment.
 
-        /* {half, short[3]}  */ "AA______________BBbbbbbbbbbbbbbbBBbbbbbbbbbbbbbbBBbbbbbbbbbbbbbb",
-        /* {half, short2[3]} */ "AA______________BBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbb",
-        /* {half, short3[3]} */ "AA______________BBBBBBbbbbbbbbbbBBBBBBbbbbbbbbbbBBBBBBbbbbbbbbbb",
-        /* {half, short4[3]} */ "AA______________BBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbb",
-        /* {half, float[3]}  */ "AA______________BBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbb",
-        /* {half, float2[3]} */ "AA______________BBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbb",
-        /* {half, float3[3]} */ "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
-        /* {half, float4[3]} */ "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
-        /* {half, half[3]}   */ "AA______________BBbbbbbbbbbbbbbbBBbbbbbbbbbbbbbbBBbbbbbbbbbbbbbb",
-        /* {half, half2[3]}  */ "AA______________BBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbb",
-        /* {half, half3[3]}  */ "AA______________BBBBBBbbbbbbbbbbBBBBBBbbbbbbbbbbBBBBBBbbbbbbbbbb",
-        /* {half, half4[3]}  */ "AA______________BBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbb",
-        /* {half, int[3]}    */ "AA______________BBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbb",
-        /* {half, int2[3]}   */ "AA______________BBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbb",
-        /* {half, int3[3]}   */ "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
-        /* {half, int4[3]}   */ "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, float[3]}  */  "AA______________BBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbb",
+        /* {half, float2[3]} */  "AA______________BBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbb",
+        /* {half, float3[3]} */  "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
+        /* {half, float4[3]} */  "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+        /* {half, half[3]}   */  "AA______________BBbbbbbbbbbbbbbbBBbbbbbbbbbbbbbbBBbbbbbbbbbbbbbb",
+        /* {half, half2[3]}  */  "AA______________BBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbb",
+        /* {half, half3[3]}  */  "AA______________BBBBBBbbbbbbbbbbBBBBBBbbbbbbbbbbBBBBBBbbbbbbbbbb",
+        /* {half, half4[3]}  */  "AA______________BBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbb",
+        /* {half, int[3]}    */  "AA______________BBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbbBBBBbbbbbbbbbbbb",
+        /* {half, int2[3]}   */  "AA______________BBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbb",
+        /* {half, int3[3]}   */  "AA______________BBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbbBBBBBBBBBBBBbbbb",
+        /* {half, int4[3]}   */  "AA______________BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
 
         /* {half, float2x2[3] */ "AA______________"
                                  "BBBBBBBBbbbbbbbbBBBBBBBBbbbbbbbb"

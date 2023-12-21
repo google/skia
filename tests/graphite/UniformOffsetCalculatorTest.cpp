@@ -74,28 +74,24 @@ static AlignmentAndSize calculate_alignment_and_size(Layout layout,
 DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kMetal;
 
-    // scalars: int, float, short, half (unsigned types are disallowed)
+    // scalars: int, float, half (unsigned types are disallowed)
     EXPECT(SkSLType::kInt,    /*alignment=*/4, /*size=*/4);
     EXPECT(SkSLType::kFloat,  /*alignment=*/4, /*size=*/4);
-    EXPECT(SkSLType::kShort,  /*alignment=*/2, /*size=*/2);
     EXPECT(SkSLType::kHalf,   /*alignment=*/2, /*size=*/2);
 
-    // int2, float2, short2, half2
+    // int2, float2, half2
     EXPECT(SkSLType::kInt2,    /*alignment=*/8, /*size=*/8);
     EXPECT(SkSLType::kFloat2,  /*alignment=*/8, /*size=*/8);
-    EXPECT(SkSLType::kShort2,  /*alignment=*/4, /*size=*/4);
     EXPECT(SkSLType::kHalf2,   /*alignment=*/4, /*size=*/4);
 
-    // int3, float3, short3, half3
+    // int3, float3, half3
     EXPECT(SkSLType::kInt3,    /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kFloat3,  /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kShort3,  /*alignment=*/8,  /*size=*/8);
     EXPECT(SkSLType::kHalf3,   /*alignment=*/8,  /*size=*/8);
 
-    // int4, float4, short4, half4
+    // int4, float4, half4
     EXPECT(SkSLType::kInt4,    /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kFloat4,  /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kShort4,  /*alignment=*/8,  /*size=*/8);
     EXPECT(SkSLType::kHalf4,   /*alignment=*/8,  /*size=*/8);
 
     // float2x2, half2x2
@@ -115,28 +111,24 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r, CtsEnforcement::kNex
     constexpr Layout kLayout = Layout::kMetal;
     constexpr size_t kCount = 3;
 
-    // int[3], float[3], short[3], half[3]
+    // int[3], float[3], half[3]
     EXPECT_ARRAY(SkSLType::kInt,   /*alignment=*/4, /*stride=*/4, /*size=*/12);
     EXPECT_ARRAY(SkSLType::kFloat, /*alignment=*/4, /*stride=*/4, /*size=*/12);
-    EXPECT_ARRAY(SkSLType::kShort, /*alignment=*/2, /*stride=*/2, /*size=*/6);
     EXPECT_ARRAY(SkSLType::kHalf,  /*alignment=*/2, /*stride=*/2, /*size=*/6);
 
-    // int2[3], float2[3], short2[3], half2[3]
+    // int2[3], float2[3], half2[3]
     EXPECT_ARRAY(SkSLType::kInt2,   /*alignment=*/8, /*stride=*/8, /*size=*/24);
     EXPECT_ARRAY(SkSLType::kFloat2, /*alignment=*/8, /*stride=*/8, /*size=*/24);
-    EXPECT_ARRAY(SkSLType::kShort2, /*alignment=*/4, /*stride=*/4, /*size=*/12);
     EXPECT_ARRAY(SkSLType::kHalf2,  /*alignment=*/4, /*stride=*/4, /*size=*/12);
 
-    // int3[3], float3[3], short3[3], half3[3]
+    // int3[3], float3[3], half3[3]
     EXPECT_ARRAY(SkSLType::kInt3,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kFloat3, /*alignment=*/16, /*stride=*/16, /*size=*/48);
-    EXPECT_ARRAY(SkSLType::kShort3, /*alignment=*/8,  /*stride=*/8,  /*size=*/24);
     EXPECT_ARRAY(SkSLType::kHalf3,  /*alignment=*/8,  /*stride=*/8,  /*size=*/24);
 
-    // int4[3], float4[3], short4[3], half4[3]
+    // int4[3], float4[3], half4[3]
     EXPECT_ARRAY(SkSLType::kInt4,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kFloat4, /*alignment=*/16, /*stride=*/16, /*size=*/48);
-    EXPECT_ARRAY(SkSLType::kShort4, /*alignment=*/8,  /*stride=*/8,  /*size=*/24);
     EXPECT_ARRAY(SkSLType::kHalf4,  /*alignment=*/8,  /*stride=*/8,  /*size=*/24);
 
     // float2x2[3], half2x2[3]
@@ -155,28 +147,24 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r, CtsEnforcement::kNex
 DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kStd430;
 
-    // scalars: int, float, short, half (unsigned types are disallowed)
+    // scalars: int, float, half (unsigned types are disallowed)
     EXPECT(SkSLType::kInt,    /*alignment=*/4, /*size=*/4);
     EXPECT(SkSLType::kFloat,  /*alignment=*/4, /*size=*/4);
-    EXPECT(SkSLType::kShort,  /*alignment=*/4, /*size=*/4);
     EXPECT(SkSLType::kHalf,   /*alignment=*/4, /*size=*/4);
 
-    // int2, float2, short2, half2
+    // int2, float2, half2
     EXPECT(SkSLType::kInt2,    /*alignment=*/8, /*size=*/8);
     EXPECT(SkSLType::kFloat2,  /*alignment=*/8, /*size=*/8);
-    EXPECT(SkSLType::kShort2,  /*alignment=*/8, /*size=*/8);
     EXPECT(SkSLType::kHalf2,   /*alignment=*/8, /*size=*/8);
 
-    // int3, float3, short3, half3
+    // int3, float3, half3
     EXPECT(SkSLType::kInt3,    /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kFloat3,  /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kShort3,  /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kHalf3,   /*alignment=*/16, /*size=*/16);
 
-    // int4, float4, short4, half4
+    // int4, float4, half4
     EXPECT(SkSLType::kInt4,    /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kFloat4,  /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kShort4,  /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kHalf4,   /*alignment=*/16, /*size=*/16);
 
     // float2x2, half2x2
@@ -196,28 +184,24 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r, CtsEnforcement::kNe
     constexpr Layout kLayout = Layout::kStd430;
     constexpr size_t kCount = 3;
 
-    // int[3], float[3], short[3], half[3]
+    // int[3], float[3], half[3]
     EXPECT_ARRAY(SkSLType::kInt,   /*alignment=*/4, /*stride=*/4, /*size=*/12);
     EXPECT_ARRAY(SkSLType::kFloat, /*alignment=*/4, /*stride=*/4, /*size=*/12);
-    EXPECT_ARRAY(SkSLType::kShort, /*alignment=*/4, /*stride=*/4, /*size=*/12);
     EXPECT_ARRAY(SkSLType::kHalf,  /*alignment=*/4, /*stride=*/4, /*size=*/12);
 
-    // int2[3], float2[3], short2[3], half2[3]
+    // int2[3], float2[3], half2[3]
     EXPECT_ARRAY(SkSLType::kInt2,   /*alignment=*/8, /*stride=*/8, /*size=*/24);
     EXPECT_ARRAY(SkSLType::kFloat2, /*alignment=*/8, /*stride=*/8, /*size=*/24);
-    EXPECT_ARRAY(SkSLType::kShort2, /*alignment=*/8, /*stride=*/8, /*size=*/24);
     EXPECT_ARRAY(SkSLType::kHalf2,  /*alignment=*/8, /*stride=*/8, /*size=*/24);
 
-    // int3[3], float3[3], short3[3], half3[3]
+    // int3[3], float3[3], half3[3] (stride is rounded up in arrays)
     EXPECT_ARRAY(SkSLType::kInt3,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kFloat3, /*alignment=*/16, /*stride=*/16, /*size=*/48);
-    EXPECT_ARRAY(SkSLType::kShort3, /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kHalf3,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
 
-    // int4[3], float4[3], short4[3], half4[3]
+    // int4[3], float4[3], half4[3]
     EXPECT_ARRAY(SkSLType::kInt4,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kFloat4, /*alignment=*/16, /*stride=*/16, /*size=*/48);
-    EXPECT_ARRAY(SkSLType::kShort4, /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kHalf4,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
 
     // float2x2[3], half2x2[3]
@@ -236,28 +220,24 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r, CtsEnforcement::kNe
 DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kStd140;
 
-    // scalars: int, float, short, half (unsigned types are disallowed)
+    // scalars: int, float, half (unsigned types are disallowed)
     EXPECT(SkSLType::kInt,    /*alignment=*/4, /*size=*/4);
     EXPECT(SkSLType::kFloat,  /*alignment=*/4, /*size=*/4);
-    EXPECT(SkSLType::kShort,  /*alignment=*/4, /*size=*/4);
     EXPECT(SkSLType::kHalf,   /*alignment=*/4, /*size=*/4);
 
-    // int2, float2, short2, half2
+    // int2, float2, half2
     EXPECT(SkSLType::kInt2,    /*alignment=*/8, /*size=*/8);
     EXPECT(SkSLType::kFloat2,  /*alignment=*/8, /*size=*/8);
-    EXPECT(SkSLType::kShort2,  /*alignment=*/8, /*size=*/8);
     EXPECT(SkSLType::kHalf2,   /*alignment=*/8, /*size=*/8);
 
-    // int3, float3, short3, half3
+    // int3, float3, half3
     EXPECT(SkSLType::kInt3,    /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kFloat3,  /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kShort3,  /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kHalf3,   /*alignment=*/16, /*size=*/16);
 
-    // int4, float4, short4, half4
+    // int4, float4, half4
     EXPECT(SkSLType::kInt4,    /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kFloat4,  /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kShort4,  /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kHalf4,   /*alignment=*/16, /*size=*/16);
 
     // float2x2, half2x2
@@ -277,28 +257,24 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140ArrayTest, r, CtsEnforcement::kNe
     constexpr Layout kLayout = Layout::kStd140;
     constexpr uint32_t kCount = 3;
 
-    // int[3], float[3], short[3], half[3]
+    // int[3], float[3], half[3]
     EXPECT_ARRAY(SkSLType::kInt,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kFloat, /*alignment=*/16, /*stride=*/16, /*size=*/48);
-    EXPECT_ARRAY(SkSLType::kShort, /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kHalf,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
 
-    // int2[3], float2[3], short2[3], half2[3]
+    // int2[3], float2[3], half2[3]
     EXPECT_ARRAY(SkSLType::kInt2,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kFloat2, /*alignment=*/16, /*stride=*/16, /*size=*/48);
-    EXPECT_ARRAY(SkSLType::kShort2, /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kHalf2,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
 
-    // int3[3], float3[3], short3[3], half3[3]
+    // int3[3], float3[3], half3[3]
     EXPECT_ARRAY(SkSLType::kInt3,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kFloat3, /*alignment=*/16, /*stride=*/16, /*size=*/48);
-    EXPECT_ARRAY(SkSLType::kShort3, /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kHalf3,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
 
-    // int4[3], float4[3], short4[3], half4[3]
+    // int4[3], float4[3], half4[3]
     EXPECT_ARRAY(SkSLType::kInt4,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kFloat4, /*alignment=*/16, /*stride=*/16, /*size=*/48);
-    EXPECT_ARRAY(SkSLType::kShort4, /*alignment=*/16, /*stride=*/16, /*size=*/48);
     EXPECT_ARRAY(SkSLType::kHalf4,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
 
     // float2x2[3], half2x2[3]
