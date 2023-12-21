@@ -93,7 +93,7 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fUniformsRingBuffer(this, 128 * 1024, 256, GrGpuBufferType::kUniform)
         , fDisconnected(false) {
     fMtlCaps.reset(new GrMtlCaps(options, fDevice));
-    this->initCapsAndCompiler(fMtlCaps);
+    this->initCaps(fMtlCaps);
 #if GR_METAL_CAPTURE_COMMANDBUFFER
     this->testingOnly_startCapture();
 #endif

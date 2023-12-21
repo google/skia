@@ -239,7 +239,7 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct,
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);
     SkASSERT(fMemoryAllocator);
 
-    this->initCapsAndCompiler(fVkCaps);
+    this->initCaps(fVkCaps);
 
     VK_CALL(GetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &fPhysDevProps));
     VK_CALL(GetPhysicalDeviceMemoryProperties(backendContext.fPhysicalDevice, &fPhysDevMemProps));

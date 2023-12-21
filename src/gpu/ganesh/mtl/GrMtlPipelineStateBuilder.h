@@ -58,8 +58,6 @@ private:
 
     const GrCaps* caps() const override;
 
-    SkSL::Compiler* shaderCompiler() const override;
-
     void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) override;
 
     id<MTLLibrary> compileMtlShaderLibrary(const std::string& shader,

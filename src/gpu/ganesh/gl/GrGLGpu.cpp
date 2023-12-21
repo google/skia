@@ -440,7 +440,7 @@ GrGLGpu::GrGLGpu(std::unique_ptr<GrGLContext> ctx, GrDirectContext* dContext)
     // Toss out any pre-existing OOM that was hanging around before we got started.
     this->checkAndResetOOMed();
 
-    this->initCapsAndCompiler(sk_ref_sp(fGLContext->caps()));
+    this->initCaps(sk_ref_sp(fGLContext->caps()));
 
     fHWTextureUnitBindings.reset(this->numTextureUnits());
 

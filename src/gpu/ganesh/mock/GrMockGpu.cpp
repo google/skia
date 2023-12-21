@@ -81,7 +81,7 @@ GrMockGpu::GrMockGpu(GrDirectContext* direct, const GrMockOptions& options,
                      const GrContextOptions& contextOptions)
         : INHERITED(direct)
         , fMockOptions(options) {
-    this->initCapsAndCompiler(sk_make_sp<GrMockCaps>(contextOptions, options));
+    this->initCaps(sk_make_sp<GrMockCaps>(contextOptions, options));
 }
 
 GrMockGpu::~GrMockGpu() {}
