@@ -102,7 +102,6 @@
 #include "src/text/gpu/SlugImpl.h"
 #include "src/text/gpu/SubRunContainer.h"
 
-#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <functional>

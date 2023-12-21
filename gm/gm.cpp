@@ -26,7 +26,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #endif
 
-#include <atomic>
 #include <cstdarg>
 #include <cstdint>
 

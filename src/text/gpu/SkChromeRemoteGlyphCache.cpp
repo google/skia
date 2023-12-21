@@ -47,7 +47,6 @@
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/TextBlob.h"
 
-#include <atomic>
 #include <cstring>
 #include <memory>
 #include <optional>

@@ -26,7 +26,6 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
 #include "src/sksl/transform/SkSLTransform.h"
 
-#include <atomic>
 #include <cstdint>
 #include <memory>
 #include <utility>

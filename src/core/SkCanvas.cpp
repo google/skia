@@ -60,7 +60,6 @@
 #include "src/utils/SkPatchUtils.h"
 
 #include <algorithm>
-#include <atomic>
 #include <memory>
 #include <new>
 #include <optional>

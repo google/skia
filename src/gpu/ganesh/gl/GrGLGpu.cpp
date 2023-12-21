@@ -69,7 +69,6 @@
 #include "src/sksl/ir/SkSLProgram.h"
 
 #include <algorithm>
-#include <atomic>
 #include <cmath>
 #include <functional>
 #include <memory>

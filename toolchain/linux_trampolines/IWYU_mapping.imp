@@ -448,6 +448,11 @@
 
   { symbol: ["SkScalar", "private", "\"include/core/SkScalar.h\"", "public"] },
 
+  # The TRACE_EVENT macros use std::atomic, but TraceEvent.h already includes <atomic> alongside
+  # the macros themselves; IWYU just can't see through the preprocessor.
+  { symbol: ["std::atomic", "private", "<atomic>", "public"] },
+  { symbol: ["std::atomic", "private", "\"src/core/SkTraceEvent.h\"", "public"] },
+
   # IWYU seems to get confused on where the namespace sktext is "defined". Any files in
   # this list are ok.
   { symbol: ["sktext", "private", "\"src/text/StrikeForGPU.h\"", "public"] },
