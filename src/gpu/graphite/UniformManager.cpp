@@ -549,7 +549,7 @@ void UniformManager::checkExpected(SkSLType type, unsigned int count) {
 
     SkASSERT(fExpectedUniforms[fExpectedUniformIndex].type() == type);
     SkASSERT((fExpectedUniforms[fExpectedUniformIndex].count() == 0 && count == 1) ||
-             fExpectedUniforms[fExpectedUniformIndex].count() == count);
+             fExpectedUniforms[fExpectedUniformIndex].count() == (int) count);
     SkDEBUGCODE(fExpectedUniformIndex++;)
 }
 

@@ -16,6 +16,7 @@ namespace skgpu::graphite {
 
 /**
  * Describes a uniform. Uniforms consist of:
+ *  name:       The constant string name to use in the generated SkSL (with mangling)
  *  type:       The type of the uniform
  *  count:      Number of elements of 'type' in the array or kNonArray if not an array.
  */
@@ -23,40 +24,47 @@ class Uniform {
 public:
     static constexpr int kNonArray = 0;
 
+    constexpr Uniform(const char* name, SkSLType type, int count = kNonArray)
+            : Uniform(name, type, count, /*isPaintColor=*/false) {}
+
     /*
      * The paint color uniform is treated special and will only be added to the uniform block
      * once. Its name will not be mangled.
      */
-    enum class IsPaintColor : bool {
-        kNo = false,
-        kYes = true,
-    };
-
-    constexpr Uniform(const char* name, SkSLType type) : Uniform(name, type, kNonArray) {}
-
-    constexpr Uniform(const char* name, SkSLType type, int count,
-                      IsPaintColor isPaintColor = IsPaintColor::kNo)
-            : fType(static_cast<unsigned>(type))
-            , fCount(static_cast<unsigned>(count))
-            , fIsPaintColor(isPaintColor)
-            , fName(name) {
+    static constexpr Uniform PaintColor() {
+        return Uniform("paintColor", SkSLType::kFloat4,
+                       Uniform::kNonArray, /*isPaintColor=*/true);
     }
 
     constexpr Uniform(const Uniform&) = default;
     Uniform& operator=(const Uniform&) = default;
 
-    constexpr bool isInitialized() const { return this->type() != SkSLType::kVoid; }
+    constexpr const char* name()  const { return fName; }
+    constexpr SkSLType    type()  const { return static_cast<SkSLType>(fType);  }
+    constexpr int         count() const { return static_cast<int>(fCount); }
 
-    constexpr const char* name() const  { return fName; }
-    constexpr SkSLType    type() const  { return static_cast<SkSLType>(fType);  }
-    constexpr uint32_t    count() const { return static_cast<uint32_t>(fCount); }
-    constexpr bool        isPaintColor() const   { return fIsPaintColor == IsPaintColor::kYes; }
+    constexpr bool isPaintColor() const { return static_cast<bool>(fIsPaintColor); }
 
 private:
-    uint32_t    fType    : 6;
-    uint32_t    fCount   : 26;
-    IsPaintColor fIsPaintColor;
+    constexpr Uniform(const char* name, SkSLType type, int count, bool isPaintColor)
+            : fName(name)
+            , fType(static_cast<unsigned>(type))
+            , fIsPaintColor(static_cast<unsigned>(isPaintColor))
+            , fCount(static_cast<unsigned>(count)) {
+        SkASSERT(SkSLTypeCanBeUniformValue(type));
+        SkASSERT(count >= 0);
+    }
+
     const char* fName;
+
+    // Uniform definitions for all encountered SkRuntimeEffects are stored permanently in the
+    // ShaderCodeDictionary as part of the stable ShaderSnippet and code ID assigned to the
+    // effect, including de-duplicating equivalent or re-created SkRuntimeEffects with the same
+    // SkSL. To help keep this memory overhead as low as possible, we pack the Uniform fields
+    // as tightly as possible.
+    uint32_t    fType         : 6;
+    uint32_t    fIsPaintColor : 1;
+    uint32_t    fCount        : 25;
 
     static_assert(kSkSLTypeCount <= (1 << 6));
 };

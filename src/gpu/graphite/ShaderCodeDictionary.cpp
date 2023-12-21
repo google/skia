@@ -849,10 +849,7 @@ static constexpr Uniform kSolidShaderUniforms[] = {
 static constexpr char kSolidShaderName[] = "sk_solid_shader";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr Uniform kPaintColorUniforms[] = {
-        { "paintColorSingleton", SkSLType::kFloat4, Uniform::kNonArray,
-          Uniform::IsPaintColor::kYes }
-};
+static constexpr Uniform kPaintColorUniforms[] = { Uniform::PaintColor() };
 
 static constexpr char kRGBPaintColorName[] = "sk_rgb_opaque";
 static constexpr char kAlphaOnlyPaintColorName[] = "sk_alpha_only";
