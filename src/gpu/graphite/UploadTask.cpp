@@ -10,6 +10,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/base/SkAlign.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/Buffer.h"
@@ -124,7 +125,17 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
         }
     }
 
-    const size_t bpp = dstColorInfo.bytesPerPixel();
+    SkColorType supportedColorType;
+    bool isRGB888Format;
+    std::tie(supportedColorType, isRGB888Format) =
+            caps->supportedWritePixelsColorType(dstColorInfo.colorType(),
+                                                textureProxy->textureInfo(),
+                                                srcColorInfo.colorType());
+    if (supportedColorType == kUnknown_SkColorType) {
+        return {};
+    }
+
+    const size_t bpp = isRGB888Format ? 3 : SkColorTypeBytesPerPixel(supportedColorType);
     TArray<std::pair<size_t, size_t>> levelOffsetsAndRowBytes(mipLevelCount);
 
     auto [combinedBufferSize, minAlignment] = compute_combined_buffer_size(
@@ -151,7 +162,35 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 
         // copy data into the buffer, skipping any trailing bytes
         const char* src = (const char*)levels[currentMipLevel].fPixels;
-        if (needsConversion) {
+
+        if (isRGB888Format) {
+            SkASSERT(supportedColorType == kRGB_888x_SkColorType &&
+                     dstColorInfo.colorType() == kRGB_888x_SkColorType);
+            SkISize dims = {currentWidth, currentHeight};
+            SkImageInfo srcImageInfo = SkImageInfo::Make(dims, srcColorInfo);
+            SkImageInfo dstImageInfo = SkImageInfo::Make(dims, dstColorInfo);
+
+            const void* rgbConvertSrc = src;
+            size_t rgbSrcRowBytes = srcRowBytes;
+            SkAutoPixmapStorage temp;
+            if (needsConversion) {
+                temp.alloc(dstImageInfo);
+                SkAssertResult(SkConvertPixels(dstImageInfo,
+                                               temp.writable_addr(),
+                                               temp.rowBytes(),
+                                               srcImageInfo,
+                                               src,
+                                               srcRowBytes));
+                rgbConvertSrc = temp.addr();
+                rgbSrcRowBytes = temp.rowBytes();
+            }
+            writer.writeRGBFromRGBx(mipOffset,
+                                    rgbConvertSrc,
+                                    rgbSrcRowBytes,
+                                    dstRowBytes,
+                                    currentWidth,
+                                    currentHeight);
+        } else if (needsConversion) {
             SkISize dims = {currentWidth, currentHeight};
             SkImageInfo srcImageInfo = SkImageInfo::Make(dims, srcColorInfo);
             SkImageInfo dstImageInfo = SkImageInfo::Make(dims, dstColorInfo);

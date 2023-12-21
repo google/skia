@@ -1028,9 +1028,10 @@ bool MtlCaps::supportsReadPixels(const TextureInfo& texInfo) const {
     return true;
 }
 
-SkColorType MtlCaps::supportedWritePixelsColorType(SkColorType dstColorType,
-                                                   const TextureInfo& dstTextureInfo,
-                                                   SkColorType srcColorType) const {
+std::pair<SkColorType, bool /*isRGBFormat*/> MtlCaps::supportedWritePixelsColorType(
+        SkColorType dstColorType,
+        const TextureInfo& dstTextureInfo,
+        SkColorType srcColorType) const {
     MtlTextureInfo mtlInfo;
     dstTextureInfo.getMtlTextureInfo(&mtlInfo);
 
@@ -1038,32 +1039,33 @@ SkColorType MtlCaps::supportedWritePixelsColorType(SkColorType dstColorType,
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == dstColorType) {
-            return dstColorType;
+            return {dstColorType, false};
         }
     }
-    return kUnknown_SkColorType;
+    return {kUnknown_SkColorType, false};
 }
 
-SkColorType MtlCaps::supportedReadPixelsColorType(SkColorType srcColorType,
-                                                  const TextureInfo& srcTextureInfo,
-                                                  SkColorType dstColorType) const {
+std::pair<SkColorType, bool /*isRGBFormat*/> MtlCaps::supportedReadPixelsColorType(
+        SkColorType srcColorType,
+        const TextureInfo& srcTextureInfo,
+        SkColorType dstColorType) const {
     MtlTextureInfo mtlInfo;
     srcTextureInfo.getMtlTextureInfo(&mtlInfo);
 
     // TODO: handle compressed formats
     if (MtlFormatIsCompressed((MTLPixelFormat)mtlInfo.fFormat)) {
         SkASSERT(this->isTexturable((MTLPixelFormat)mtlInfo.fFormat));
-        return kUnknown_SkColorType;
+        return {kUnknown_SkColorType, false};
     }
 
     const FormatInfo& info = this->getFormatInfo((MTLPixelFormat)mtlInfo.fFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == srcColorType) {
-            return srcColorType;
+            return {srcColorType, false};
         }
     }
-    return kUnknown_SkColorType;
+    return {kUnknown_SkColorType, false};
 }
 
 void MtlCaps::buildKeyForTexture(SkISize dimensions,

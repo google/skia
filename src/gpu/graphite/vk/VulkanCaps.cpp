@@ -510,7 +510,10 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                 constexpr SkColorType ct = SkColorType::kRGB_888x_SkColorType;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
-                // The Vulkan format is 3 bpp so we must convert to/from that when transferring.
+                // This SkColorType is a lie, but we don't have a kRGB_888_SkColorType. The Vulkan
+                // format is 3 bpp so we must manualy convert to/from this and kRGB_888x when doing
+                // transfers. We signal this need for manual conversions in the
+                // supportedRead/WriteColorType calls.
                 ctInfo.fTransferColorType = SkColorType::kRGB_888x_SkColorType;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
@@ -1237,60 +1240,62 @@ bool VulkanCaps::supportsReadPixels(const TextureInfo& texInfo) const {
     return true;
 }
 
-SkColorType VulkanCaps::supportedWritePixelsColorType(SkColorType dstColorType,
-                                                      const TextureInfo& dstTextureInfo,
-                                                      SkColorType srcColorType) const {
+std::pair<SkColorType, bool /*isRGBFormat*/> VulkanCaps::supportedWritePixelsColorType(
+        SkColorType dstColorType,
+        const TextureInfo& dstTextureInfo,
+        SkColorType srcColorType) const {
     VulkanTextureInfo vkInfo;
     if (!dstTextureInfo.getVulkanTextureInfo(&vkInfo)) {
-        return kUnknown_SkColorType;
+        return {kUnknown_SkColorType, false};
     }
 
     // Can't write to YCbCr formats
     // TODO: Can't write to external formats, either
     if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
-        return kUnknown_SkColorType;
+        return {kUnknown_SkColorType, false};
     }
 
     const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == dstColorType) {
-            return dstColorType;
+            return {ctInfo.fTransferColorType, vkInfo.fFormat == VK_FORMAT_R8G8B8_UNORM};
         }
     }
 
-    return kUnknown_SkColorType;
+    return {kUnknown_SkColorType, false};
 }
 
-SkColorType VulkanCaps::supportedReadPixelsColorType(SkColorType srcColorType,
-                                                     const TextureInfo& srcTextureInfo,
-                                                     SkColorType dstColorType) const {
+std::pair<SkColorType, bool /*isRGBFormat*/> VulkanCaps::supportedReadPixelsColorType(
+        SkColorType srcColorType,
+        const TextureInfo& srcTextureInfo,
+        SkColorType dstColorType) const {
     VulkanTextureInfo vkInfo;
     if (!srcTextureInfo.getVulkanTextureInfo(&vkInfo)) {
-        return kUnknown_SkColorType;
+        return {kUnknown_SkColorType, false};
     }
 
     // Can't read from YCbCr formats
     // TODO: external formats?
     if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
-        return kUnknown_SkColorType;
+        return {kUnknown_SkColorType, false};
     }
 
     // TODO: handle compressed formats
     if (VkFormatIsCompressed(vkInfo.fFormat)) {
         SkASSERT(this->isTexturable(vkInfo));
-        return kUnknown_SkColorType;
+        return {kUnknown_SkColorType, false};
     }
 
     const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == srcColorType) {
-            return srcColorType;
+            return {ctInfo.fTransferColorType, vkInfo.fFormat == VK_FORMAT_R8G8B8_UNORM};
         }
     }
 
-    return kUnknown_SkColorType;
+    return {kUnknown_SkColorType, false};
 }
 
 UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,

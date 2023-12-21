@@ -248,25 +248,26 @@ bool DawnCaps::supportsReadPixels(const TextureInfo& textureInfo) const {
     return spec.fUsage & wgpu::TextureUsage::CopySrc;
 }
 
-SkColorType DawnCaps::supportedWritePixelsColorType(SkColorType dstColorType,
-                                                    const TextureInfo& dstTextureInfo,
-                                                    SkColorType srcColorType) const {
-    SkASSERT(false);
-    return kUnknown_SkColorType;
+std::pair<SkColorType, bool /*isRGBFormat*/> DawnCaps::supportedWritePixelsColorType(
+        SkColorType dstColorType,
+        const TextureInfo& dstTextureInfo,
+        SkColorType srcColorType) const {
+    return {dstColorType, false};
 }
 
-SkColorType DawnCaps::supportedReadPixelsColorType(SkColorType srcColorType,
-                                                   const TextureInfo& srcTextureInfo,
-                                                   SkColorType dstColorType) const {
+std::pair<SkColorType, bool /*isRGBFormat*/> DawnCaps::supportedReadPixelsColorType(
+        SkColorType srcColorType,
+        const TextureInfo& srcTextureInfo,
+        SkColorType dstColorType) const {
     auto dawnFormat = getFormatFromColorType(srcColorType);
     const FormatInfo& info = this->getFormatInfo(dawnFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == srcColorType) {
-            return srcColorType;
+            return {srcColorType, false};
         }
     }
-    return kUnknown_SkColorType;
+    return {kUnknown_SkColorType, false};
 }
 
 void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextOptions& options) {
