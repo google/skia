@@ -32,7 +32,11 @@ struct SkFontArguments {
      */
     struct Palette {
         struct Override {
+#if defined(SK_DISABLE_SKFONTARGS_CHANGED_TYPE)
             int index;
+#else
+            uint16_t index;
+#endif
             SkColor color;
         };
         int index;
