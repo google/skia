@@ -8,6 +8,7 @@ platform(
     constraint_values = [
         "@platforms//os:linux",  # https://github.com/bazelbuild/platforms/blob/main/os/BUILD
         "@platforms//cpu:x86_64",  # https://github.com/bazelbuild/platforms/blob/main/cpu/BUILD
+        ":cgo_off",  # Necessary to build on RBE.
         ":use_hermetic_toolchain",
     ],
     # We specify exec_properties because we have an RBE instance that matches this platform.
@@ -32,6 +33,7 @@ platform(
     constraint_values = [
         "@platforms//os:macos",
         "@platforms//cpu:x86_64",
+        ":cgo_off",
         ":use_hermetic_toolchain",
     ],
 )
@@ -41,6 +43,7 @@ platform(
     constraint_values = [
         "@platforms//os:macos",
         "@platforms//cpu:arm64",
+        ":cgo_off",
         ":use_hermetic_toolchain",
     ],
 )
@@ -48,6 +51,7 @@ platform(
 platform(
     name = "host_with_hermetic_toolchain",
     constraint_values = [
+        ":cgo_off",  # Necessary to build locally (i.e. non-RBE builds).
         ":use_hermetic_toolchain",
     ],
     parents = ["@local_config_platform//:host"],
@@ -91,4 +95,39 @@ constraint_value(
     name = "trivial_abi",
     constraint_setting = ":clang_abi_mode",
     visibility = ["//visibility:public"],
+)
+
+# When added to a Bazel platform, this constraint has the effect of disabling cgo, meaning that
+# the C++ compiler will never be invoked when building Go binaries.
+#
+# For context, when cgo is enabled, the C++ compiler will be involved when building Go binaries,
+# even for pure builds (e.g. "bazel build //some:target --@io_bazel_rules_go//go/config:pure").
+# Presumably this is because some parts of the Go stdlib are written in C. It is unclear to
+# lovisolo@ whether disabling cgo means some parts of the Go stdlib become unavailable.
+#
+# We want to disable cgo because, for some unknown reason, the directory structure under which
+# clang_trampoline_linux.sh is executed is slightly different when building Go-related C/C++ code.
+# We previously worked around this issue by adding a special case to clang_trampoline_linux.sh
+# where clang is invoked using a different path (see
+# https://skia-review.googlesource.com/c/skia/+/791499/11/toolchain/linux_trampolines/clang_trampoline_linux.sh).
+# Unfortunately this does not work under macOS because clang is not found anywhere in the directory
+# tree under which clang_trampoline_mac.sh is invoked. By disabling cgo, we get rid of this problem
+# altogether. Fortunately all our Go code still compiles without cgo.
+#
+# It is unclear whether this is a rules_go bug, or if there's something specific about our hermetic
+# C++ toolchains (Linux and macOS) that is causing the build to fail when cgo is enabled.
+#
+# Note that the @io_bazel_rules_go//go/toolchain:cgo_off constraint is not well documented.
+# lovisolo@ discovered this constraint because it was mentioned on some issues and PRs in the
+# rules_go repository and some other places, namely:
+#
+#  - https://github.com/bazelbuild/rules_go/issues/2115#issuecomment-507467744
+#  - https://github.com/bazelbuild/rules_go/issues/2591#issuecomment-670527288
+#  - https://github.com/aspect-build/bazel-lib/pull/289/files#diff-963e4331fa8afa39ffa09be04587bc2a66f8cbab3416842e1554a6825ee532ecR27
+#
+# Note also that there is an ongoing effort to make C++ toolchains optional in rules_go:
+# https://github.com/bazelbuild/rules_go/pull/3390.
+alias(
+    name = "cgo_off",
+    actual = "@io_bazel_rules_go//go/toolchain:cgo_off",
 )

@@ -4,52 +4,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Since upgrading to Go v1.21 and rules_go v0.42.0, Go binaries fail to compile with:
-#
-#     ./toolchain/linux_trampolines/clang_trampoline_linux.sh: line XYZ:
-#     external/clang_linux_amd64/bin/clang: No such file or directory
-#
-# Note that this only affects Go binaries; C++ binaries compile just fine.
-#
-# Upon inspection, rules_go apparently compiles some C++ code using the provided C++ toolchain,
-# which in our case is the hermetic clang toolchain under Linux. For some reason, the directory
-# structure under which the compile action runs is slightly different for Go binaries, which
-# results in the above error. Fortunately all the required files are still there. We just need to
-# adjust the path to the clang compiler.
-#
-# The solution lovisolo@ found is to detect whether we are compiling a pure C++ binary or some
-# C/C++ core related to Go, and then invoke clang using a different path in the latter case.
-#
-# Debugging tip: Bazel does not report the standard output of any comands in this trampoline
-# script. To show the output of a command, prefix it with ">&2" so as to redirect its standard
-# output to its standard error. Examples:
-#
-#     >&2 echo "Environment variables:"
-#     >&2 env
-#
-# Another debugging option is to clone the rules_go repository, load it from //WORKSPACE.bazel
-# via a local_repository() rule, and add print statements to the following files:
-#
-#  - https://github.com/bazelbuild/rules_go/blob/d74d9ab34e8789e6a55a2d9caf0e2b3c63202e04/go/tools/builders/builder.go#L27
-#  - https://github.com/bazelbuild/rules_go/blob/d74d9ab34e8789e6a55a2d9caf0e2b3c63202e04/go/tools/builders/env.go#L164
-#
-# Remember to send any print statements to standard error, or Bazel won't report them.
-#
-# This environment variable is only set for Go-related compile actions.
-if [[ -n ${CGO_ENABLED} ]]; then
-  # The "set -u" command causes "unbound variable" errors when CGO_ENABLED is undefined, so we
-  # must call "set" inside this if-block.
-  set -euo pipefail
-
-  # Discovered by trial-and-error.
-  CLANG=$(realpath ${GOROOT}/../../../../../../external/clang_linux_amd64/bin/clang)
-
-  $CLANG $@
-
-  # The rest of this trampoline script is irrelevant for Go-related compile actions.
-  exit 0
-fi
-
 export LD_LIBRARY_PATH="external/clang_linux_amd64/usr/lib/x86_64-linux-gnu"
 
 set -euo pipefail
