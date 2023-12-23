@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkSwizzlePriv_DEFINED
+#define SkSwizzlePriv_DEFINED
+
 #include "include/private/SkColorData.h"
 #include "src/base/SkVx.h"
 
@@ -53,3 +56,5 @@ static inline uint32_t Sk4f_toL32(const skvx::float4& px) {
                        .store(&l32);
     return l32;
 }
+
+#endif
