@@ -555,7 +555,7 @@ half4 $colorize_grad_tex(sampler2D colorsAndOffsetsSampler, int numStops, float2
         int low = 0;
         int high = numStops;
         for (int loop = 1; loop < numStops; loop <<= 1) {
-            int mid = (low + high) / 2;
+            int mid = low + (high - low) / 2;
             float midFlt = (float(mid) + 0.5) / float(numStops);
 
             float2 tmp = sampleLod(colorsAndOffsetsSampler, float2(midFlt, kOffsetCoord), 0).xy;
