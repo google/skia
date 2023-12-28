@@ -207,12 +207,14 @@ void add_gradient_postamble(const GradientShaderBlocks::GradientData& gradData,
 
     constexpr int kInternalStopLimit = GradientShaderBlocks::GradientData::kNumInternalStorageStops;
 
-    static_assert(static_cast<int>(ColorSpace::kLab)   == 2);
-    static_assert(static_cast<int>(ColorSpace::kOKLab) == 3);
-    static_assert(static_cast<int>(ColorSpace::kLCH)   == 4);
-    static_assert(static_cast<int>(ColorSpace::kOKLCH) == 5);
-    static_assert(static_cast<int>(ColorSpace::kHSL)   == 7);
-    static_assert(static_cast<int>(ColorSpace::kHWB)   == 8);
+    static_assert(static_cast<int>(ColorSpace::kLab)           == 2);
+    static_assert(static_cast<int>(ColorSpace::kOKLab)         == 3);
+    static_assert(static_cast<int>(ColorSpace::kOKLabGamutMap) == 4);
+    static_assert(static_cast<int>(ColorSpace::kLCH)           == 5);
+    static_assert(static_cast<int>(ColorSpace::kOKLCH)         == 6);
+    static_assert(static_cast<int>(ColorSpace::kOKLCHGamutMap) == 7);
+    static_assert(static_cast<int>(ColorSpace::kHSL)           == 9);
+    static_assert(static_cast<int>(ColorSpace::kHWB)           == 10);
 
     bool inputPremul = static_cast<bool>(gradData.fInterpolation.fInPremul);
 
@@ -1801,8 +1803,10 @@ static void make_interpolated_to_dst(const KeyContext& keyContext,
     switch (interp.fColorSpace) {
         case ColorSpace::kLab:
         case ColorSpace::kOKLab:
+        case ColorSpace::kOKLabGamutMap:
         case ColorSpace::kLCH:
         case ColorSpace::kOKLCH:
+        case ColorSpace::kOKLCHGamutMap:
         case ColorSpace::kHSL:
         case ColorSpace::kHWB:
             inputPremul = false;

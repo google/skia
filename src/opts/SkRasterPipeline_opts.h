@@ -1809,6 +1809,22 @@ STAGE(css_oklab_to_linear_srgb, NoCtx) {
     b = -0.0041960863f * l - 0.7034186147f * m + 1.7076147010f * s;
 }
 
+STAGE(css_oklab_gamut_map_to_linear_srgb, NoCtx) {
+    // TODO(https://crbug.com/1508329): Add support for gamut mapping.
+    // Return a greyscale value, so that accidental use is obvious.
+    F l_ = r,
+      m_ = r,
+      s_ = r;
+
+    F l = l_*l_*l_,
+      m = m_*m_*m_,
+      s = s_*s_*s_;
+
+    r = +4.0767416621f * l - 3.3077115913f * m + 0.2309699292f * s;
+    g = -1.2684380046f * l + 2.6097574011f * m - 0.3413193965f * s;
+    b = -0.0041960863f * l - 0.7034186147f * m + 1.7076147010f * s;
+}
+
 // Skia stores all polar colors with hue in the first component, so this "LCH -> Lab" transform
 // actually takes "HCL". This is also used to do the same polar transform for OkHCL to OkLAB.
 // See similar comments & logic in SkGradientBaseShader.cpp.
