@@ -1,0 +1,5 @@
+/*#pragma settings FramebufferFetchSupport*/
+
+void main() {
+    sk_FragColor = sk_LastFragColor;
+}

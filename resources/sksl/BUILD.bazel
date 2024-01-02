@@ -541,8 +541,6 @@ skia_filegroup(
     name = "sksl_glsl_tests",
     srcs = [
         "glsl/ForceHighPrecision.sksl",
-        "glsl/LastFragColor.sksl",
-        "glsl/LastFragColorWithoutCaps.sksl",
         "glsl/LayoutQualifiers.sksl",
         "glsl/ShortIntPrecision.sksl",
         "glsl/TextureSharpenVersion110.sksl",
@@ -551,6 +549,7 @@ skia_filegroup(
         "glsl/UsesPrecisionModifiers.sksl",
         "glsl/Version110.sksl",
         "glsl/Version450Core.sksl",
+        "workarounds/LastFragColor.sksl",
     ],
 )
 
@@ -620,6 +619,7 @@ skia_filegroup(
         "metal/OutVarsRequireLocation.sksl",
         "metal/SamplerGlobals.sksl",
         "metal/SwizzleHelper.sksl",
+        "workarounds/LastFragColor.sksl",
     ],
 )
 
