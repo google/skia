@@ -1577,6 +1577,31 @@ static void test_convexity_doubleback(skiatest::Reporter* reporter) {
     doubleback.lineTo(-1, 1);
     doubleback.lineTo(-1, 0);
     check_convexity(reporter, doubleback, false);
+
+    for (int i = 0; i < 4; ++i) {
+        doubleback.reset();
+        doubleback.moveTo(0, 0);
+        if (i == 0) {
+            doubleback.lineTo(-1, -1);
+            doubleback.lineTo(0, 0);
+        }
+        doubleback.lineTo(0, 1);
+        if (i == 1) {
+            doubleback.lineTo(0, 2);
+            doubleback.lineTo(0, 1);
+        }
+        doubleback.lineTo(1, 1);
+        if (i == 2) {
+            doubleback.lineTo(2, 2);
+            doubleback.lineTo(1, 1);
+        }
+        doubleback.lineTo(0, 0);
+        if (i == 3) {
+            doubleback.lineTo(-1, -1);
+            doubleback.lineTo(0, 0);
+        }
+        check_convexity(reporter, doubleback, false);
+    }
 }
 
 static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
