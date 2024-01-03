@@ -11,7 +11,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/trietmn/go-wiki v1.0.1
 	go.chromium.org/luci v0.0.0-20231204022756-276ff2f399c8 // indirect
-	go.skia.org/infra v0.0.0-20231214182743-d32a5c6f592d
+	go.skia.org/infra v0.0.0-20240102232441-b9d08e6f5a57
 	google.golang.org/api v0.136.0
 	google.golang.org/protobuf v1.31.0
 )
