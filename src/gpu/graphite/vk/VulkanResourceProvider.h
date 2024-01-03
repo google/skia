@@ -24,6 +24,7 @@ namespace skgpu::graphite {
 class VulkanCommandBuffer;
 class VulkanDescriptorSet;
 class VulkanFramebuffer;
+class VulkanGraphicsPipeline;
 class VulkanRenderPass;
 class VulkanSharedContext;
 class VulkanSamplerYcbcrConversion;
@@ -79,10 +80,12 @@ private:
     void onDeleteBackendTexture(const BackendTexture&) override;
 
     sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<DescriptorData>);
+
+    sk_sp<VulkanGraphicsPipeline> findOrCreateLoadMSAAPipeline(const RenderPassDesc&);
+
     // Find or create a compatible (needed when creating a framebuffer and graphics pipeline) or
     // full (needed when beginning a render pass from the command buffer) RenderPass.
-    sk_sp<VulkanRenderPass> findOrCreateRenderPass(const RenderPassDesc&,
-                                                   bool compatibleOnly);
+    sk_sp<VulkanRenderPass> findOrCreateRenderPass(const RenderPassDesc&, bool compatibleOnly);
 
     VkPipelineCache pipelineCache();
 
@@ -94,6 +97,14 @@ private:
     // resource provider creation. This way, render passes across all command buffers can simply
     // update the value within this buffer as needed.
     sk_sp<Buffer> fIntrinsicUniformBuffer;
+
+    skia_private::THashMap<uint64_t, sk_sp<VulkanGraphicsPipeline>> fLoadMSAAPipelines;
+    // All of the following attributes are the same between all msaa load pipelines, so they only
+    // need to be created once and can then be stored.
+    VkShaderModule fMSAALoadVertShaderModule = VK_NULL_HANDLE;
+    VkShaderModule fMSAALoadFragShaderModule = VK_NULL_HANDLE;
+    VkPipelineShaderStageCreateInfo fMSAALoadShaderStageInfo[2];
+    VkPipelineLayout fMSAALoadPipelineLayout = VK_NULL_HANDLE;
 };
 
 } // namespace skgpu::graphite

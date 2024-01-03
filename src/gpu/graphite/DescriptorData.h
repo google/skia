@@ -42,7 +42,7 @@ struct DescriptorData {
             : type (descType)
             , count (descCount)
             , bindingIndex (bindingIdx)
-            , pipelineStageFlags(stageFlags)  {}
+            , pipelineStageFlags(stageFlags) {}
 
     DescriptorType type;
     uint32_t count;

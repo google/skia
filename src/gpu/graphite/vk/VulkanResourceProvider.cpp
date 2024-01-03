@@ -54,6 +54,24 @@ VulkanResourceProvider::~VulkanResourceProvider() {
                                          fPipelineCache,
                                          nullptr));
     }
+    if (fMSAALoadVertShaderModule != VK_NULL_HANDLE) {
+        VULKAN_CALL(this->vulkanSharedContext()->interface(),
+                    DestroyShaderModule(this->vulkanSharedContext()->device(),
+                                        fMSAALoadVertShaderModule,
+                                        nullptr));
+    }
+    if (fMSAALoadFragShaderModule != VK_NULL_HANDLE) {
+        VULKAN_CALL(this->vulkanSharedContext()->interface(),
+                    DestroyShaderModule(this->vulkanSharedContext()->device(),
+                                        fMSAALoadFragShaderModule,
+                                        nullptr));
+    }
+    if (fMSAALoadPipelineLayout != VK_NULL_HANDLE) {
+        VULKAN_CALL(this->vulkanSharedContext()->interface(),
+                    DestroyPipelineLayout(this->vulkanSharedContext()->device(),
+                                          fMSAALoadPipelineLayout,
+                                          nullptr));
+    }
 }
 
 const VulkanSharedContext* VulkanResourceProvider::vulkanSharedContext() const {
@@ -361,6 +379,36 @@ sk_sp<VulkanSamplerYcbcrConversion>
 
     return ycbcrConversion;
 }
+
+sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeline(
+        const RenderPassDesc& renderPassDesc) {
+    if (!renderPassDesc.fColorResolveAttachment.fTextureInfo.isValid() ||
+        !renderPassDesc.fColorAttachment.fTextureInfo.isValid()) {
+        SKGPU_LOG_E("Loading MSAA from resolve texture requires valid color & resolve attachment");
+        return nullptr;
+    }
+
+    // If any of the load MSAA pipeline creation structures are null then we need to initialize
+    // those before proceeding. If the creation of one of them fails, all are assigned to null, so
+    // we only need to check one of the structures.
+    if (fMSAALoadVertShaderModule   == VK_NULL_HANDLE) {
+        SkASSERT(fMSAALoadFragShaderModule  == VK_NULL_HANDLE &&
+                 fMSAALoadPipelineLayout == VK_NULL_HANDLE);
+        if (!VulkanGraphicsPipeline::InitializeMSAALoadPipelineStructs(
+                    this->vulkanSharedContext(),
+                    &fMSAALoadVertShaderModule,
+                    &fMSAALoadFragShaderModule,
+                    &fMSAALoadShaderStageInfo[0],
+                    &fMSAALoadPipelineLayout)) {
+            SKGPU_LOG_E("Failed to initialize MSAA load pipeline creation structure(s)\n");
+            return nullptr;
+        }
+    }
+
+    // TODO: Implement.
+    return nullptr;
+}
+
 
 #ifdef SK_BUILD_FOR_ANDROID
 
