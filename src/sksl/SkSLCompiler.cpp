@@ -493,21 +493,13 @@ bool Compiler::toHLSL(Program& program, const ShaderCaps* caps, std::string* out
 }
 
 bool Compiler::toMetal(Program& program, const ShaderCaps* caps, OutputStream& out) {
-    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toMetal");
-    AutoSource as(this, *program.fSource);
-    SkASSERT(caps != nullptr);
-    MetalCodeGenerator cg(fContext.get(), caps, &program, &out);
-    bool result = cg.generateCode();
-    return result;
+    // TODO(johnstiles): migrate callers to use SkSL::ToMetal directly
+    return SkSL::ToMetal(program, caps, out);
 }
 
 bool Compiler::toMetal(Program& program, const ShaderCaps* caps, std::string* out) {
-    StringStream buffer;
-    if (!this->toMetal(program, caps, buffer)) {
-        return false;
-    }
-    *out = buffer.str();
-    return true;
+    // TODO(johnstiles): migrate callers to use SkSL::ToMetal directly
+    return SkSL::ToMetal(program, caps, out);
 }
 
 #if defined(SK_ENABLE_WGSL_VALIDATION)
