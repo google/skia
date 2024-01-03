@@ -20,6 +20,7 @@
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
+#include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -163,7 +164,7 @@ protected:
                     break;
 
                 case Output::kGrWGSL:
-                    SkAssertResult(fCompiler.toWGSL(*program, fCaps.shaderCaps(), &result));
+                    SkAssertResult(SkSL::ToWGSL(*program, fCaps.shaderCaps(), &result));
                     break;
 
                 case Output::kSkRP:

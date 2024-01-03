@@ -21,6 +21,7 @@
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
+#include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -685,7 +686,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
                 [](SkSL::Compiler& compiler,
                    const SkSL::ShaderCaps* shaderCaps,
                    SkSL::Program& program,
-                   SkSL::OutputStream& out) { return compiler.toWGSL(program, shaderCaps, out); });
+                   SkSL::OutputStream& out) { return SkSL::ToWGSL(program, shaderCaps, out); });
     } else if (skstd::ends_with(outputPath, ".skrp")) {
         settings.fMaxVersionAllowed = SkSL::Version::k300;
         return compileProgramAsRuntimeShader([&](SkSL::Compiler& compiler,
