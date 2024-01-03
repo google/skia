@@ -81,18 +81,8 @@ public:
     void resetWithNewLayout(Layout);
     void reset();
 
-    // Write a single instance of `type` from the data block referenced by `src`.
-    // DEPRECATED: Prefer to use a compile-time typed write method.
-    void write(SkSLType type, const void* src, CType ctype = CType::kDefault);
-
-    // Write an array of `type` with `count` elements from the data block referenced by `src`.
-    // Does nothing if `count` is 0.
-    // DEPRECATED: Prefer to use a compile-time typed write method.
-    void writeArray(SkSLType type, const void* src, unsigned int count,
-                    CType ctype = CType::kDefault);
-
     // Copy from `src` using Uniform array-count semantics.
-    void write(const Uniform&, const uint8_t* src);
+    void write(const Uniform&, const void* src);
 
     void write(const SkM44&);
     void write(const SkMatrix&);
@@ -107,14 +97,14 @@ public:
     void write(float f);
     void write(int);
 
-    void writeArray(SkSpan<const SkColor4f>);
+    void writeArray(SkSpan<const SkV4>);
     void writeArray(SkSpan<const SkPMColor4f>);
     void writeArray(SkSpan<const float>);
 
     void writeHalf(float f);
     void writeHalf(const SkMatrix&);
     void writeHalf(const SkM44&);
-    void writeHalf(const SkColor4f&);
+    void writeHalf(const SkV4&);
     void writeHalfArray(SkSpan<const float>);
 
     // Debug only utilities used for debug assertions and tests.
@@ -124,6 +114,14 @@ public:
     void doneWithExpectedUniforms();
 
 private:
+    // Write a single instance of `type` from the data block referenced by `src`.
+    void write(SkSLType type, const void* src, CType ctype = CType::kDefault);
+
+    // Write an array of `type` with `count` elements from the data block referenced by `src`.
+    // Does nothing if `count` is 0.
+    void writeArray(SkSLType type, const void* src, unsigned int count,
+                    CType ctype = CType::kDefault);
+
     // Writes a single element of the given `type` if `count` == 0 (aka Uniform::kNonArray).
     // Writes an array of `count` elements if `count` > 0, obeying any array layout constraints.
     //

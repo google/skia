@@ -594,7 +594,7 @@ void UniformManager::writeArray(SkSLType type, const void* src, unsigned int cou
     }
 }
 
-void UniformManager::write(const Uniform& u, const uint8_t* src) {
+void UniformManager::write(const Uniform& u, const void* src) {
     this->checkExpected(u.type(), (u.count() == Uniform::kNonArray) ? 1 : u.count());
     this->writeInternal(u.type(), CType::kDefault, u.count(), src);
 }
@@ -670,7 +670,7 @@ void UniformManager::write(const SkV4& v) {
     this->write(kType, &v);
 }
 
-void UniformManager::writeArray(SkSpan<const SkColor4f> arr) {
+void UniformManager::writeArray(SkSpan<const SkV4> arr) {
     static constexpr SkSLType kType = SkSLType::kFloat4;
     this->writeArray(kType, arr.data(), arr.size());
 }
@@ -700,9 +700,9 @@ void UniformManager::writeHalf(const SkM44& mat) {
     this->write(kType, &mat);
 }
 
-void UniformManager::writeHalf(const SkColor4f& unpremulColor) {
+void UniformManager::writeHalf(const SkV4& v) {
     static constexpr SkSLType kType = SkSLType::kHalf4;
-    this->write(kType, &unpremulColor);
+    this->write(kType, v.ptr());
 }
 
 void UniformManager::writeHalfArray(SkSpan<const float> arr) {

@@ -105,34 +105,17 @@ public:
 
     const TextureDataBlock& textureDataBlock() { return fTextureDataBlock; }
 
-    void write(const SkM44& mat) { fUniformManager.write(mat); }
-    void write(const SkMatrix& mat) { fUniformManager.write(mat); }
-    void write(const SkPMColor4f& premulColor) { fUniformManager.write(premulColor); }
-    void writePaintColor(const SkPMColor4f& premulColor) {
-        fUniformManager.writePaintColor(premulColor);
+    // Mimic the type-safe API available in UniformManager
+    template <typename T> void write(const T& t) { fUniformManager.write(t); }
+    template <typename T> void writeHalf(const T& t) { fUniformManager.writeHalf(t); }
+    template <typename T> void writeArray(SkSpan<const T> t) { fUniformManager.writeArray(t); }
+    template <typename T> void writeHalfArray(SkSpan<const T> t) {
+        fUniformManager.writeHalfArray(t);
     }
-    void write(const SkRect& rect) { fUniformManager.write(rect); }
-    void write(const SkV2& v) { fUniformManager.write(v); }
-    void write(const SkV4& v) { fUniformManager.write(v); }
-    void write(const SkSize& size) { fUniformManager.write(size); }
-    void write(const SkPoint& point) { fUniformManager.write(point); }
-    void write(const SkPoint3& point3) { fUniformManager.write(point3); }
-    void write(float f) { fUniformManager.write(f); }
-    void write(int i) { fUniformManager.write(i); }
 
-    void write(SkSLType t, const void* data) { fUniformManager.write(t, data); }
-    void write(const Uniform& u, const uint8_t* data) { fUniformManager.write(u, data); }
+    void write(const Uniform& u, const void* data) { fUniformManager.write(u, data); }
 
-    void writeArray(SkSLType t, const void* data, int n) { fUniformManager.writeArray(t, data, n); }
-    void writeArray(SkSpan<const SkColor4f> colors) { fUniformManager.writeArray(colors); }
-    void writeArray(SkSpan<const SkPMColor4f> colors) { fUniformManager.writeArray(colors); }
-    void writeArray(SkSpan<const float> floats) { fUniformManager.writeArray(floats); }
-
-    void writeHalf(float f) { fUniformManager.writeHalf(f); }
-    void writeHalf(const SkMatrix& mat) { fUniformManager.writeHalf(mat); }
-    void writeHalf(const SkM44& mat) { fUniformManager.writeHalf(mat); }
-    void writeHalf(const SkColor4f& unpremulColor) { fUniformManager.writeHalf(unpremulColor); }
-    void writeHalfArray(SkSpan<const float> floats) { fUniformManager.writeHalfArray(floats); }
+    void writePaintColor(const SkPMColor4f& color) { fUniformManager.writePaintColor(color); }
 
     bool hasUniforms() const { return fUniformManager.size(); }
 
@@ -148,8 +131,8 @@ private:
     void doneWithExpectedUniforms() { fUniformManager.doneWithExpectedUniforms(); }
 #endif // SK_DEBUG
 
-    TextureDataBlock                       fTextureDataBlock;
-    UniformManager                         fUniformManager;
+    TextureDataBlock fTextureDataBlock;
+    UniformManager   fUniformManager;
 };
 
 #ifdef SK_DEBUG

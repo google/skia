@@ -58,7 +58,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckSingleUniform, r, CtsEnforcement::kNextRele
         for (SkSLType type : kTypes) {
             const Uniform expectations[] = {{"uniform", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
-            mgr.write(type, kFloats);
+            mgr.write(expectations[0], kFloats);
             mgr.doneWithExpectedUniforms();
             REPORTER_ASSERT(r, mgr.size() > 0);
             mgr.reset();
@@ -81,7 +81,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckFloatEncoding, r, CtsEnforcement::kNextRele
             // Write our uniform float scalar/vector.
             const Uniform expectations[] = {{"uniform", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
-            mgr.write(type, kFloats);
+            mgr.write(expectations[0], kFloats);
             mgr.doneWithExpectedUniforms();
 
             // Read back the uniform data.
@@ -110,7 +110,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckIntEncoding, r, CtsEnforcement::kNextReleas
             // Write our uniform int scalar/vector.
             const Uniform expectations[] = {{"uniform", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
-            mgr.write(type, kInts);
+            mgr.write(expectations[0], kInts);
             mgr.doneWithExpectedUniforms();
 
             // Read back the uniform data.
@@ -140,9 +140,9 @@ DEF_GRAPHITE_TEST(UniformManagerCheckScalarVectorPacking, r, CtsEnforcement::kNe
             // Write three matching uniforms.
             const Uniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
-            mgr.write(type, kFloats);
-            mgr.write(type, kFloats);
-            mgr.write(type, kFloats);
+            mgr.write(expectations[0], kFloats);
+            mgr.write(expectations[1], kFloats);
+            mgr.write(expectations[2], kFloats);
             mgr.doneWithExpectedUniforms();
 
             // Verify the uniform data packing.
@@ -172,9 +172,9 @@ DEF_GRAPHITE_TEST(UniformManagerCheckMatrixPacking, r, CtsEnforcement::kNextRele
             // Write three matching uniforms.
             const Uniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
-            mgr.write(type, kFloats);
-            mgr.write(type, kFloats);
-            mgr.write(type, kFloats);
+            mgr.write(expectations[0], kFloats);
+            mgr.write(expectations[1], kFloats);
+            mgr.write(expectations[2], kFloats);
             mgr.doneWithExpectedUniforms();
 
             // Verify the uniform data packing.
@@ -218,8 +218,8 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingScalarVector, r, CtsEnforcement::kNe
                 // Write two scalar/vector uniforms.
                 const Uniform expectations[] = {{"a", type1}, {"b", type2}};
                 mgr.setExpectedUniforms(SkSpan(expectations));
-                mgr.write(type1, kFloats);
-                mgr.write(type2, kFloats);
+                mgr.write(expectations[0], kFloats);
+                mgr.write(expectations[1], kFloats);
                 mgr.doneWithExpectedUniforms();
 
                 // The expected packing varies depending on the bit-widths of each element.
@@ -317,8 +317,8 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingVectorMatrix, r, CtsEnforcement::kNe
                 // Write the scalar/vector and matrix uniforms.
                 const Uniform expectations[] = {{"a", type1}, {"b", type2}};
                 mgr.setExpectedUniforms(SkSpan(expectations));
-                mgr.write(type1, kFloats);
-                mgr.write(type2, kFloats);
+                mgr.write(expectations[0], kFloats);
+                mgr.write(expectations[1], kFloats);
                 mgr.doneWithExpectedUniforms();
 
                 // The expected packing varies depending on the bit-widths of each element.
@@ -436,8 +436,8 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingMatrixVector, r, CtsEnforcement::kNe
                 // Write the scalar/vector and matrix uniforms.
                 const Uniform expectations[] = {{"a", type1}, {"b", type2}};
                 mgr.setExpectedUniforms(SkSpan(expectations));
-                mgr.write(type1, kFloats);
-                mgr.write(type2, kFloats);
+                mgr.write(expectations[0], kFloats);
+                mgr.write(expectations[1], kFloats);
                 mgr.doneWithExpectedUniforms();
 
                 // The expected packing varies depending on the bit-widths of each element.
@@ -603,8 +603,8 @@ DEF_GRAPHITE_TEST(UniformManagerMetalArrayLayout, r, CtsEnforcement::kNextReleas
         const Uniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
 
         mgr.setExpectedUniforms(SkSpan(expectations));
-        mgr.write(SkSLType::kHalf, kHalfs);
-        mgr.writeArray(arrayType, kBuffer, kArraySize);
+        mgr.write(expectations[0], kHalfs);
+        mgr.write(expectations[1], kBuffer);
         mgr.doneWithExpectedUniforms();
 
         const size_t expectedSize = strlen(kExpectedLayout[i]);
@@ -617,7 +617,7 @@ DEF_GRAPHITE_TEST(UniformManagerMetalArrayLayout, r, CtsEnforcement::kNextReleas
     }
 }
 
-DEF_GRAPHITE_TEST(UniformManagerStd431ArrayLayout, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformManagerStd430ArrayLayout, r, CtsEnforcement::kNextRelease) {
     UniformManager mgr(Layout::kStd430);
 
     // Tests set up a uniform block with a single half (to force alignment) and an array of 3
@@ -671,8 +671,8 @@ DEF_GRAPHITE_TEST(UniformManagerStd431ArrayLayout, r, CtsEnforcement::kNextRelea
         const Uniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
 
         mgr.setExpectedUniforms(SkSpan(expectations));
-        mgr.write(SkSLType::kHalf, kHalfs);
-        mgr.writeArray(arrayType, kBuffer, kArraySize);
+        mgr.write(expectations[0], kHalfs);
+        mgr.write(expectations[1], kBuffer);
         mgr.doneWithExpectedUniforms();
 
         const size_t expectedSize = strlen(kExpectedLayout[i]);
@@ -745,8 +745,8 @@ DEF_GRAPHITE_TEST(UniformManagerStd140ArrayLayout, r, CtsEnforcement::kNextRelea
         const Uniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
 
         mgr.setExpectedUniforms(SkSpan(expectations));
-        mgr.write(SkSLType::kHalf, kHalfs);
-        mgr.writeArray(arrayType, kBuffer, kArraySize);
+        mgr.write(expectations[0], kHalfs);
+        mgr.write(expectations[1], kBuffer);
         mgr.doneWithExpectedUniforms();
 
         const size_t expectedSize = strlen(kExpectedLayout[i]);
@@ -768,7 +768,7 @@ DEF_GRAPHITE_TEST(UniformManagerStd140MatrixLayoutContents, r, CtsEnforcement::k
     for (SkSLType type : {SkSLType::kFloat2x2, SkSLType::kHalf2x2}) {
         const Uniform expectations[] = {{"m", type}};
         mgr.setExpectedUniforms(SkSpan(expectations));
-        mgr.write(type, kFloats);
+        mgr.write(expectations[0], kFloats);
         mgr.doneWithExpectedUniforms();
         const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
         REPORTER_ASSERT(r, uniformData.size() == 32,
@@ -792,7 +792,7 @@ DEF_GRAPHITE_TEST(UniformManagerStd140MatrixLayoutContents, r, CtsEnforcement::k
     for (SkSLType type : {SkSLType::kFloat3x3, SkSLType::kHalf3x3}) {
         const Uniform expectations[] = {{"m", type}};
         mgr.setExpectedUniforms(SkSpan(expectations));
-        mgr.write(type, kFloats);
+        mgr.write(expectations[0], kFloats);
         mgr.doneWithExpectedUniforms();
         const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
         REPORTER_ASSERT(r, uniformData.size() == 48,
@@ -822,7 +822,7 @@ DEF_GRAPHITE_TEST(UniformManagerStd430MatrixLayoutContents, r, CtsEnforcement::k
     for (SkSLType type : {SkSLType::kFloat2x2, SkSLType::kHalf2x2}) {
         const Uniform expectations[] = {{"m", type}};
         mgr.setExpectedUniforms(SkSpan(expectations));
-        mgr.write(type, kFloats);
+        mgr.write(expectations[0], kFloats);
         mgr.doneWithExpectedUniforms();
         const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
         REPORTER_ASSERT(r, uniformData.size() == 16,
@@ -847,7 +847,7 @@ DEF_GRAPHITE_TEST(UniformManagerStd430MatrixLayoutContents, r, CtsEnforcement::k
     for (SkSLType type : {SkSLType::kFloat3x3, SkSLType::kHalf3x3}) {
         const Uniform expectations[] = {{"m", type}};
         mgr.setExpectedUniforms(SkSpan(expectations));
-        mgr.write(type, kFloats);
+        mgr.write(expectations[0], kFloats);
         mgr.doneWithExpectedUniforms();
         const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
         REPORTER_ASSERT(r, uniformData.size() == 48,
