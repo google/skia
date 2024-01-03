@@ -96,6 +96,7 @@ IR_FILES = [
     "SkSLSwitchStatement.h",
     "SkSLSwizzle.cpp",
     "SkSLSwizzle.h",
+    "SkSLSymbol.cpp",
     "SkSLSymbol.h",
     "SkSLSymbolTable.cpp",
     "SkSLSymbolTable.h",

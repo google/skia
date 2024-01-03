@@ -1650,6 +1650,7 @@ BASE_SRCS_ALL = [
     "src/sksl/ir/SkSLSwitchStatement.h",
     "src/sksl/ir/SkSLSwizzle.cpp",
     "src/sksl/ir/SkSLSwizzle.h",
+    "src/sksl/ir/SkSLSymbol.cpp",
     "src/sksl/ir/SkSLSymbol.h",
     "src/sksl/ir/SkSLSymbolTable.cpp",
     "src/sksl/ir/SkSLSymbolTable.h",

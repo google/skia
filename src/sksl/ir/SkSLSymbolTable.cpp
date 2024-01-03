@@ -12,15 +12,8 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLFieldAccess.h"
-#include "src/sksl/ir/SkSLFieldSymbol.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLFunctionReference.h"
-#include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLType.h"
-#include "src/sksl/ir/SkSLTypeReference.h"
-#include "src/sksl/ir/SkSLVariable.h"
-#include "src/sksl/ir/SkSLVariableReference.h"
 
 namespace SkSL {
 
@@ -161,36 +154,11 @@ const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
 std::unique_ptr<Expression> SymbolTable::instantiateSymbolRef(const Context& context,
                                                               std::string_view name,
                                                               Position pos) {
-    const Symbol* result = this->find(name);
-    if (!result) {
-        context.fErrors->error(pos, "unknown identifier '" + std::string(name) + "'");
-        return nullptr;
+    if (const Symbol* symbol = this->find(name)) {
+        return symbol->instantiate(context, pos);
     }
-
-    switch (result->kind()) {
-        case Symbol::Kind::kFunctionDeclaration:
-            return std::make_unique<FunctionReference>(context, pos,
-                                                       &result->as<FunctionDeclaration>());
-
-        case Symbol::Kind::kVariable: {
-            const Variable* var = &result->as<Variable>();
-            // default to kRead_RefKind; this will be corrected later if the variable is written to
-            return VariableReference::Make(pos, var, VariableReference::RefKind::kRead);
-        }
-        case Symbol::Kind::kField: {
-            const FieldSymbol* field = &result->as<FieldSymbol>();
-            auto base = VariableReference::Make(pos, &field->owner(),
-                                                VariableReference::RefKind::kRead);
-            return FieldAccess::Make(context, pos, std::move(base), field->fieldIndex(),
-                                     FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
-        }
-        case Symbol::Kind::kType:
-            return TypeReference::Convert(context, pos, &result->as<Type>());
-
-        default:
-            SkDEBUGFAILF("unsupported symbol type %d\n", (int)result->kind());
-            return nullptr;
-    }
+    context.fErrors->error(pos, "unknown identifier '" + std::string(name) + "'");
+    return nullptr;
 }
 
 }  // namespace SkSL
