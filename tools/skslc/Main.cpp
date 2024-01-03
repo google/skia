@@ -17,6 +17,7 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLHLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
@@ -681,7 +682,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
                 [](SkSL::Compiler& compiler,
                    const SkSL::ShaderCaps* shaderCaps,
                    SkSL::Program& program,
-                   SkSL::OutputStream& out) { return compiler.toHLSL(program, shaderCaps, out); });
+                   SkSL::OutputStream& out) { return SkSL::ToHLSL(program, shaderCaps, out); });
     } else if (skstd::ends_with(outputPath, ".wgsl")) {
         return compileProgram(
                 [](SkSL::Compiler& compiler,

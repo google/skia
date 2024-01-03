@@ -14,7 +14,6 @@
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLInliner.h"
 #include "src/sksl/SkSLModuleLoader.h"
-#include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLProgramKind.h"
@@ -35,9 +34,9 @@
 
 #if defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLHLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
-#include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #endif
 
@@ -380,27 +379,13 @@ bool Compiler::toGLSL(Program& program, const ShaderCaps* caps, std::string* out
 }
 
 bool Compiler::toHLSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
-    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toHLSL");
-    std::string hlsl;
-    if (!this->toHLSL(program, caps, &hlsl)) {
-        return false;
-    }
-    out.writeString(hlsl);
-    return true;
+    // TODO(johnstiles): migrate callers to use SkSL::ToHLSL directly
+    return SkSL::ToHLSL(program, caps, out);
 }
 
 bool Compiler::toHLSL(Program& program, const ShaderCaps* caps, std::string* out) {
-    std::string spirv;
-    if (!this->toSPIRV(program, caps, &spirv)) {
-        return false;
-    }
-
-    if (!SPIRVtoHLSL(spirv, out)) {
-        fErrorText += "HLSL cross-compilation not enabled";
-        return false;
-    }
-
-    return true;
+    // TODO(johnstiles): migrate callers to use SkSL::ToHLSL directly
+    return SkSL::ToHLSL(program, caps, out);
 }
 
 bool Compiler::toMetal(Program& program, const ShaderCaps* caps, OutputStream& out) {
