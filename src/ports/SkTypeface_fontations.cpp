@@ -67,7 +67,14 @@ SkTypeface_Fontations::SkTypeface_Fontations(sk_sp<SkData> fontData, const SkFon
         , fFontData(fontData)
         , fTtcIndex(args.getCollectionIndex())
         , fBridgeFontRef(make_bridge_font_ref(fFontData, fTtcIndex))
-        , fBridgeNormalizedCoords(make_normalized_coords(*fBridgeFontRef, args)) {}
+        , fBridgeNormalizedCoords(make_normalized_coords(*fBridgeFontRef, args))
+        , fPalette(resolve_palette(
+                  *fBridgeFontRef,
+                  args.getPalette().index,
+                  rust::Slice<const fontations_ffi::PaletteOverride>(
+                          reinterpret_cast<const ::fontations_ffi::PaletteOverride*>(
+                                  args.getPalette().overrides),
+                          args.getPalette().overrideCount))) {}
 
 sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
                                                         const SkFontArguments& args) {
@@ -232,7 +239,8 @@ public:
             , fBridgeFontRef(
                       static_cast<SkTypeface_Fontations*>(this->getTypeface())->getBridgeFontRef())
             , fBridgeNormalizedCoords(static_cast<SkTypeface_Fontations*>(this->getTypeface())
-                                              ->getBridgeNormalizedCoords()) {
+                                              ->getBridgeNormalizedCoords())
+            , fPalette(static_cast<SkTypeface_Fontations*>(this->getTypeface())->getPalette()) {
         fRec.getSingleMatrix(&fMatrix);
         this->forceGenerateImageFromPath();
     }
@@ -311,6 +319,7 @@ private:
     sk_sp<SkData> fFontData = nullptr;
     const fontations_ffi::BridgeFontRef& fBridgeFontRef;
     const fontations_ffi::BridgeNormalizedCoords& fBridgeNormalizedCoords;
+    const SkSpan<SkColor> fPalette;
 };
 
 std::unique_ptr<SkStreamAsset> SkTypeface_Fontations::onOpenStream(int* ttcIndex) const {
