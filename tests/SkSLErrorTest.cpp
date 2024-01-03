@@ -98,6 +98,7 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::
         // because the resources directory isn't properly cleaned up. (b/40044088)
         "sksl/errors/InvalidBackendBindingFlagsGL.sksl",
         "sksl/errors/InvalidThreadgroupRTS.rts",
+        "sksl/errors/LastFragColorWithoutCaps.sksl",
         "sksl/errors/MeshFragmentWithShader.mfrag",
         "sksl/errors/MeshFragmentWithBlender.mfrag",
         "sksl/errors/MeshFragmentWithColorFilter.mfrag",
