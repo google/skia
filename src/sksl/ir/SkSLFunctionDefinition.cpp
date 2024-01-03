@@ -17,7 +17,6 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -46,13 +45,12 @@ static void append_rtadjust_fixup_to_vertex_main(const Context& context,
                                                  const FunctionDeclaration& decl,
                                                  Block& body) {
     // If this program uses RTAdjust...
-    ThreadContext::RTAdjustData& rtAdjust = ThreadContext::RTAdjustState();
-    if (rtAdjust.fVar || rtAdjust.fInterfaceBlock) {
+    if (const SkSL::Symbol* rtAdjust = context.fSymbolTable->find(Compiler::RTADJUST_NAME)) {
         // ...append a line to the end of the function body which fixes up sk_Position.
         struct AppendRTAdjustFixupHelper : public IRHelpers {
-            AppendRTAdjustFixupHelper(const Context& ctx, ThreadContext::RTAdjustData& rt)
+            AppendRTAdjustFixupHelper(const Context& ctx, const SkSL::Symbol* rtAdjust)
                     : IRHelpers(ctx)
-                    , fRTAdjust(rt) {
+                    , fRTAdjust(rtAdjust) {
                 fSkPositionField = &fContext.fSymbolTable->find(Compiler::POSITION_NAME)
                                                          ->as<FieldSymbol>();
             }
@@ -62,9 +60,7 @@ static void append_rtadjust_fixup_to_vertex_main(const Context& context,
             }
 
             std::unique_ptr<Expression> Adjust() const {
-                return fRTAdjust.fInterfaceBlock
-                               ? Field(fRTAdjust.fInterfaceBlock, fRTAdjust.fFieldIndex)
-                               : Ref(fRTAdjust.fVar);
+                return fRTAdjust->instantiate(fContext, Position());
             }
 
             std::unique_ptr<Statement> makeFixupStmt() const {
@@ -82,7 +78,7 @@ static void append_rtadjust_fixup_to_vertex_main(const Context& context,
             }
 
             const FieldSymbol* fSkPositionField;
-            ThreadContext::RTAdjustData& fRTAdjust;
+            const SkSL::Symbol* fRTAdjust;
         };
 
         AppendRTAdjustFixupHelper helper(context, rtAdjust);
