@@ -45,13 +45,11 @@ constexpr int SK_LOCALINVOCATIONINDEX_BUILTIN =   29;
 namespace SkSL {
 
 class Inliner;
-class OutputStream;
 class ProgramUsage;
 class SymbolTable;
 enum class ProgramKind : int8_t;
 struct Program;
 struct ProgramSettings;
-struct ShaderCaps;
 
 struct Module {
     const Module*                                fParent = nullptr;
@@ -124,26 +122,6 @@ public:
     std::unique_ptr<Program> convertProgram(ProgramKind kind,
                                             std::string text,
                                             ProgramSettings settings);
-
-    bool toSPIRV(Program& program, const ShaderCaps* caps, OutputStream& out);
-
-    bool toSPIRV(Program& program, const ShaderCaps* caps, std::string* out);
-
-    bool toGLSL(Program& program, const ShaderCaps* caps, OutputStream& out);
-
-    bool toGLSL(Program& program, const ShaderCaps* caps, std::string* out);
-
-    bool toHLSL(Program& program, const ShaderCaps* caps, OutputStream& out);
-
-    bool toHLSL(Program& program, const ShaderCaps* caps, std::string* out);
-
-    bool toMetal(Program& program, const ShaderCaps* caps, OutputStream& out);
-
-    bool toMetal(Program& program, const ShaderCaps* caps, std::string* out);
-
-    bool toWGSL(Program& program, const ShaderCaps* caps, OutputStream& out);
-
-    bool toWGSL(Program& program, const ShaderCaps* caps, std::string* out);
 
     void handleError(std::string_view msg, Position pos);
 

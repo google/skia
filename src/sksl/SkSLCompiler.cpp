@@ -32,14 +32,6 @@
 #include <fstream>
 #endif
 
-#if defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
-#include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
-#include "src/sksl/codegen/SkSLHLSLCodeGenerator.h"
-#include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
-#include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
-#include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
-#endif
-
 namespace SkSL {
 
 // These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
@@ -355,60 +347,6 @@ bool Compiler::finalize(Program& program) {
 
     return this->errorCount() == 0;
 }
-
-#if defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
-
-bool Compiler::toSPIRV(Program& program, const ShaderCaps* caps, OutputStream& out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToSPIRV directly
-    return SkSL::ToSPIRV(program, caps, out);
-}
-
-bool Compiler::toSPIRV(Program& program, const ShaderCaps* caps, std::string* out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToSPIRV directly
-    return SkSL::ToSPIRV(program, caps, out);
-}
-
-bool Compiler::toGLSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToGLSL directly
-    return SkSL::ToGLSL(program, caps, out);
-}
-
-bool Compiler::toGLSL(Program& program, const ShaderCaps* caps, std::string* out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToGLSL directly
-    return SkSL::ToGLSL(program, caps, out);
-}
-
-bool Compiler::toHLSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToHLSL directly
-    return SkSL::ToHLSL(program, caps, out);
-}
-
-bool Compiler::toHLSL(Program& program, const ShaderCaps* caps, std::string* out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToHLSL directly
-    return SkSL::ToHLSL(program, caps, out);
-}
-
-bool Compiler::toMetal(Program& program, const ShaderCaps* caps, OutputStream& out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToMetal directly
-    return SkSL::ToMetal(program, caps, out);
-}
-
-bool Compiler::toMetal(Program& program, const ShaderCaps* caps, std::string* out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToMetal directly
-    return SkSL::ToMetal(program, caps, out);
-}
-
-bool Compiler::toWGSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToWGSL directly
-    return SkSL::ToWGSL(program, caps, out);
-}
-
-bool Compiler::toWGSL(Program& program, const ShaderCaps* caps, std::string* out) {
-    // TODO(johnstiles): migrate callers to use SkSL::ToWGSL directly
-    return SkSL::ToWGSL(program, caps, out);
-}
-
-#endif // defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
 
 void Compiler::handleError(std::string_view msg, Position pos) {
     fErrorText += "error: ";

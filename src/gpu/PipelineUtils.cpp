@@ -7,12 +7,18 @@
 
 #include "src/gpu/PipelineUtils.h"
 
+#include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLHLSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
+#include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
+#include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
+
 namespace skgpu {
 
 static bool sksl_to_backend(const SkSL::ShaderCaps* caps,
-                            bool (SkSL::Compiler::*toBackend)(SkSL::Program&,
-                                                              const SkSL::ShaderCaps*,
-                                                              std::string*),
+                            bool (*toBackend)(SkSL::Program&,
+                                              const SkSL::ShaderCaps*,
+                                              std::string*),
                             const char* backendLabel,
                             const std::string& sksl,
                             SkSL::ProgramKind programKind,
@@ -27,7 +33,7 @@ static bool sksl_to_backend(const SkSL::ShaderCaps* caps,
 #endif
     SkSL::Compiler compiler;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(programKind, src, settings);
-    if (!program || !(compiler.*toBackend)(*program, caps, output)) {
+    if (!program || !(*toBackend)(*program, caps, output)) {
         errorHandler->compileError(src.c_str(),
                                    compiler.errorText().c_str(),
                                    /*shaderWasCached=*/false);
@@ -70,7 +76,7 @@ bool SkSLToGLSL(const SkSL::ShaderCaps* caps,
                 std::string* glsl,
                 SkSL::Program::Interface* outInterface,
                 ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::Compiler::toGLSL, "GLSL",
+    return sksl_to_backend(caps, &SkSL::ToGLSL, "GLSL",
                            sksl, programKind, settings, glsl, outInterface, errorHandler);
 }
 
@@ -81,7 +87,7 @@ bool SkSLToSPIRV(const SkSL::ShaderCaps* caps,
                  std::string* spirv,
                  SkSL::Program::Interface* outInterface,
                  ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::Compiler::toSPIRV, /*backendLabel=*/nullptr,
+    return sksl_to_backend(caps, &SkSL::ToSPIRV, /*backendLabel=*/nullptr,
                            sksl, programKind, settings, spirv, outInterface, errorHandler);
 }
 
@@ -92,7 +98,7 @@ bool SkSLToWGSL(const SkSL::ShaderCaps* caps,
                 std::string* wgsl,
                 SkSL::Program::Interface* outInterface,
                 ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::Compiler::toWGSL, "WGSL",
+    return sksl_to_backend(caps, &SkSL::ToWGSL, "WGSL",
                            sksl, programKind, settings, wgsl, outInterface, errorHandler);
 }
 
@@ -103,7 +109,7 @@ bool SkSLToMSL(const SkSL::ShaderCaps* caps,
                std::string* msl,
                SkSL::Program::Interface* outInterface,
                ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::Compiler::toMetal, "MSL",
+    return sksl_to_backend(caps, &SkSL::ToMetal, "MSL",
                            sksl, programKind, settings, msl, outInterface, errorHandler);
 }
 
@@ -114,7 +120,7 @@ bool SkSLToHLSL(const SkSL::ShaderCaps* caps,
                 std::string* hlsl,
                 SkSL::Program::Interface* outInterface,
                 ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::Compiler::toHLSL, "HLSL",
+    return sksl_to_backend(caps, &SkSL::ToHLSL, "HLSL",
                            sksl, programKind, settings, hlsl, outInterface, errorHandler);
 }
 

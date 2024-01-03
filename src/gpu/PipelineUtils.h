@@ -14,6 +14,7 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/utils/SkShaderUtils.h"
 
+namespace SkSL { struct ShaderCaps; }
 
 // This file houses utilities to be shared across pipelines of different backend types.
 namespace skgpu {
