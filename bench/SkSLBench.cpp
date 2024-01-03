@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLParser.h"
+#include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -148,7 +149,7 @@ protected:
                     break;
 
                 case Output::kGLSL:
-                    SkAssertResult(fCompiler.toGLSL(*program, fCaps.shaderCaps(), &result));
+                    SkAssertResult(SkSL::ToGLSL(*program, fCaps.shaderCaps(), &result));
                     break;
 
                 case Output::kMetal:

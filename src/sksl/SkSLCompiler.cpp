@@ -459,21 +459,13 @@ bool Compiler::toSPIRV(Program& program, const ShaderCaps* caps, std::string* ou
 }
 
 bool Compiler::toGLSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
-    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toGLSL");
-    AutoSource as(this, *program.fSource);
-    SkASSERT(caps != nullptr);
-    GLSLCodeGenerator cg(fContext.get(), caps, &program, &out);
-    bool result = cg.generateCode();
-    return result;
+    // TODO(johnstiles): migrate callers to use SkSL::ToGLSL directly
+    return SkSL::ToGLSL(program, caps, out);
 }
 
 bool Compiler::toGLSL(Program& program, const ShaderCaps* caps, std::string* out) {
-    StringStream buffer;
-    if (!this->toGLSL(program, caps, buffer)) {
-        return false;
-    }
-    *out = buffer.str();
-    return true;
+    // TODO(johnstiles): migrate callers to use SkSL::ToGLSL directly
+    return SkSL::ToGLSL(program, caps, out);
 }
 
 bool Compiler::toHLSL(Program& program, const ShaderCaps* caps, OutputStream& out) {

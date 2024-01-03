@@ -12,6 +12,7 @@
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkStringView.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -25,7 +26,9 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
+#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructor.h"
@@ -69,10 +72,165 @@
 #include "src/sksl/spirv.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 namespace SkSL {
+
+class GLSLCodeGenerator final : public CodeGenerator {
+public:
+    GLSLCodeGenerator(const Context* context,
+                      const ShaderCaps* caps,
+                      const Program* program,
+                      OutputStream* out)
+            : INHERITED(context, caps, program, out) {}
+
+    bool generateCode() override;
+
+protected:
+    using Precedence = OperatorPrecedence;
+
+    void write(std::string_view s);
+
+    void writeLine(std::string_view s = std::string_view());
+
+    void finishLine();
+
+    void writeHeader();
+
+    bool usesPrecisionModifiers() const;
+
+    void writeIdentifier(std::string_view identifier);
+
+    std::string getTypeName(const Type& type);
+
+    void writeStructDefinition(const StructDefinition& s);
+
+    void writeType(const Type& type);
+
+    void writeExtension(std::string_view name, bool require = true);
+
+    void writeInterfaceBlock(const InterfaceBlock& intf);
+
+    void writeFunctionDeclaration(const FunctionDeclaration& f);
+
+    void writeFunctionPrototype(const FunctionPrototype& f);
+
+    void writeFunction(const FunctionDefinition& f);
+
+    void writeLayout(const Layout& layout);
+
+    void writeModifiers(const Layout& layout, ModifierFlags flags, bool globalContext);
+
+    void writeInputVars();
+
+    void writeVarInitializer(const Variable& var, const Expression& value);
+
+    const char* getTypePrecision(const Type& type);
+
+    void writeTypePrecision(const Type& type);
+
+    void writeGlobalVarDeclaration(const GlobalVarDeclaration& e);
+
+    void writeVarDeclaration(const VarDeclaration& var, bool global);
+
+    void writeFragCoord();
+
+    void writeVariableReference(const VariableReference& ref);
+
+    void writeExpression(const Expression& expr, Precedence parentPrecedence);
+
+    void writeIntrinsicCall(const FunctionCall& c);
+
+    void writeMinAbsHack(Expression& absExpr, Expression& otherExpr);
+
+    void writeDeterminantHack(const Expression& mat);
+
+    void writeInverseHack(const Expression& mat);
+
+    void writeTransposeHack(const Expression& mat);
+
+    void writeInverseSqrtHack(const Expression& x);
+
+    void writeMatrixComparisonWorkaround(const BinaryExpression& x);
+
+    void writeFunctionCall(const FunctionCall& c);
+
+    void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
+
+    void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                        Precedence parentPrecedence);
+
+    void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
+
+    void writeCastConstructor(const AnyConstructor& c, Precedence parentPrecedence);
+
+    void writeFieldAccess(const FieldAccess& f);
+
+    void writeSwizzle(const Swizzle& swizzle);
+
+    void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
+
+    void writeShortCircuitWorkaroundExpression(const BinaryExpression& b,
+                                               Precedence parentPrecedence);
+
+    void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
+
+    void writeIndexExpression(const IndexExpression& expr);
+
+    void writePrefixExpression(const PrefixExpression& p, Precedence parentPrecedence);
+
+    void writePostfixExpression(const PostfixExpression& p, Precedence parentPrecedence);
+
+    void writeLiteral(const Literal& l);
+
+    void writeStatement(const Statement& s);
+
+    void writeBlock(const Block& b);
+
+    void writeIfStatement(const IfStatement& stmt);
+
+    void writeForStatement(const ForStatement& f);
+
+    void writeDoStatement(const DoStatement& d);
+
+    void writeExpressionStatement(const ExpressionStatement& s);
+
+    void writeSwitchStatement(const SwitchStatement& s);
+
+    void writeReturnStatement(const ReturnStatement& r);
+
+    void writeProgramElement(const ProgramElement& e);
+
+    bool shouldRewriteVoidTypedFunctions(const FunctionDeclaration* func) const;
+
+    StringStream fExtensions;
+    StringStream fGlobals;
+    StringStream fExtraFunctions;
+    std::string fFunctionHeader;
+    int fVarCount = 0;
+    int fIndentation = 0;
+    bool fAtLineStart = false;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
+
+    // true if we have run into usages of dFdx / dFdy
+    bool fFoundDerivatives = false;
+    bool fFoundExternalSamplerDecl = false;
+    bool fFoundRectSamplerDecl = false;
+    bool fSetupClockwise = false;
+    bool fSetupFragPosition = false;
+    bool fSetupFragCoordWorkaround = false;
+
+    // Workaround/polyfill flags
+    bool fWrittenAbsEmulation = false;
+    bool fWrittenDeterminant2 = false, fWrittenDeterminant3 = false, fWrittenDeterminant4 = false;
+    bool fWrittenInverse2 = false, fWrittenInverse3 = false, fWrittenInverse4 = false;
+    bool fWrittenTranspose[3][3] = {};
+
+    using INHERITED = CodeGenerator;
+};
 
 void GLSLCodeGenerator::write(std::string_view s) {
     if (!s.length()) {
@@ -1858,6 +2016,27 @@ bool GLSLCodeGenerator::generateCode() {
     write_stringstream(fExtraFunctions, *rawOut);
     write_stringstream(body, *rawOut);
     return fContext.fErrors->errorCount() == 0;
+}
+
+bool ToGLSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
+    TRACE_EVENT0("skia.shaders", "SkSL::ToGLSL");
+    SkASSERT(caps != nullptr);
+
+    program.fContext->fErrors->setSource(*program.fSource);
+    GLSLCodeGenerator cg(program.fContext.get(), caps, &program, &out);
+    bool result = cg.generateCode();
+    program.fContext->fErrors->setSource(std::string_view());
+
+    return result;
+}
+
+bool ToGLSL(Program& program, const ShaderCaps* caps, std::string* out) {
+    StringStream buffer;
+    if (!ToGLSL(program, caps, buffer)) {
+        return false;
+    }
+    *out = buffer.str();
+    return true;
 }
 
 }  // namespace SkSL
