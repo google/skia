@@ -84,7 +84,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r, CtsEnforcement:
     EXPECT(SkSLType::kFloat2,  /*alignment=*/8, /*size=*/8);
     EXPECT(SkSLType::kHalf2,   /*alignment=*/4, /*size=*/4);
 
-    // int3, float3, half3
+    // int3, float3, half3 (unlike std430, size is also rounded up)
     EXPECT(SkSLType::kInt3,    /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kFloat3,  /*alignment=*/16, /*size=*/16);
     EXPECT(SkSLType::kHalf3,   /*alignment=*/8,  /*size=*/8);
@@ -157,10 +157,10 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r, CtsEnforcement
     EXPECT(SkSLType::kFloat2,  /*alignment=*/8, /*size=*/8);
     EXPECT(SkSLType::kHalf2,   /*alignment=*/8, /*size=*/8);
 
-    // int3, float3, half3
-    EXPECT(SkSLType::kInt3,    /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kFloat3,  /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kHalf3,   /*alignment=*/16, /*size=*/16);
+    // int3, float3, half3 (size is not rounded up for non-arrays of vec3s)
+    EXPECT(SkSLType::kInt3,    /*alignment=*/16, /*size=*/12);
+    EXPECT(SkSLType::kFloat3,  /*alignment=*/16, /*size=*/12);
+    EXPECT(SkSLType::kHalf3,   /*alignment=*/16, /*size=*/12);
 
     // int4, float4, half4
     EXPECT(SkSLType::kInt4,    /*alignment=*/16, /*size=*/16);
@@ -230,10 +230,10 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r, CtsEnforcement
     EXPECT(SkSLType::kFloat2,  /*alignment=*/8, /*size=*/8);
     EXPECT(SkSLType::kHalf2,   /*alignment=*/8, /*size=*/8);
 
-    // int3, float3, half3
-    EXPECT(SkSLType::kInt3,    /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kFloat3,  /*alignment=*/16, /*size=*/16);
-    EXPECT(SkSLType::kHalf3,   /*alignment=*/16, /*size=*/16);
+    // int3, float3, half3 (size is not rounded up for non-arrays of vec3s)
+    EXPECT(SkSLType::kInt3,    /*alignment=*/16, /*size=*/12);
+    EXPECT(SkSLType::kFloat3,  /*alignment=*/16, /*size=*/12);
+    EXPECT(SkSLType::kHalf3,   /*alignment=*/16, /*size=*/12);
 
     // int4, float4, half4
     EXPECT(SkSLType::kInt4,    /*alignment=*/16, /*size=*/16);
