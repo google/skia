@@ -219,19 +219,7 @@ SkRect SkCropImageFilter::computeFastBounds(const SkRect& bounds) const {
     // not involve any rounding to pixels for both the content bounds or the output.
     // NOTE: This relies on all image filters returning an infinite bounds when they affect
     // transparent black.
-#if defined(SK_USE_LEGACY_CONTENT_BOUNDS_PROPAGATION)
-    SkRect inputBounds = bounds;
-    if (this->getInput(0)) {
-        if (this->getInput(0)->canComputeFastBounds()) {
-            inputBounds = this->getInput(0)->computeFastBounds(bounds);
-        } else {
-            // The input bounds to the crop are effectively infinite
-            inputBounds = SkRectPriv::MakeLargeS32();
-        }
-    }
-#else
     SkRect inputBounds = this->getInput(0) ? this->getInput(0)->computeFastBounds(bounds) : bounds;
-#endif
     if (!inputBounds.intersect(SkRect(fCropRect))) {
         return SkRect::MakeEmpty();
     }
