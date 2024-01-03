@@ -8,23 +8,30 @@
 #ifndef skgpu_PipelineUtils_DEFINED
 #define skgpu_PipelineUtils_DEFINED
 
-#include "include/gpu/ShaderErrorHandler.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLProgram.h"
-#include "src/utils/SkShaderUtils.h"
+#include <cstdint>
+#include <string>
 
-namespace SkSL { struct ShaderCaps; }
+/** Wrappers for the SkSL compiler with useful logging and error handling. */
 
-// This file houses utilities to be shared across pipelines of different backend types.
+namespace SkSL {
+
+enum class ProgramKind : int8_t;
+struct ProgramInterface;
+struct ProgramSettings;
+struct ShaderCaps;
+
+}  // namespace SkSL
+
 namespace skgpu {
+
+class ShaderErrorHandler;
 
 bool SkSLToGLSL(const SkSL::ShaderCaps* caps,
                 const std::string& sksl,
                 SkSL::ProgramKind programKind,
                 const SkSL::ProgramSettings& settings,
                 std::string* glsl,
-                SkSL::Program::Interface*,
+                SkSL::ProgramInterface*,
                 ShaderErrorHandler* errorHandler);
 
 bool SkSLToSPIRV(const SkSL::ShaderCaps* caps,
@@ -32,7 +39,7 @@ bool SkSLToSPIRV(const SkSL::ShaderCaps* caps,
                  SkSL::ProgramKind,
                  const SkSL::ProgramSettings&,
                  std::string* spirv,
-                 SkSL::Program::Interface*,
+                 SkSL::ProgramInterface*,
                  ShaderErrorHandler*);
 
 bool SkSLToWGSL(const SkSL::ShaderCaps* caps,
@@ -40,7 +47,7 @@ bool SkSLToWGSL(const SkSL::ShaderCaps* caps,
                 SkSL::ProgramKind,
                 const SkSL::ProgramSettings&,
                 std::string* wgsl,
-                SkSL::Program::Interface*,
+                SkSL::ProgramInterface*,
                 ShaderErrorHandler*);
 
 bool SkSLToMSL(const SkSL::ShaderCaps* caps,
@@ -48,7 +55,7 @@ bool SkSLToMSL(const SkSL::ShaderCaps* caps,
                SkSL::ProgramKind kind,
                const SkSL::ProgramSettings& settings,
                std::string* msl,
-               SkSL::Program::Interface* outInterface,
+               SkSL::ProgramInterface* outInterface,
                ShaderErrorHandler* errorHandler);
 
 bool SkSLToHLSL(const SkSL::ShaderCaps* caps,
@@ -56,7 +63,7 @@ bool SkSLToHLSL(const SkSL::ShaderCaps* caps,
                 SkSL::ProgramKind kind,
                 const SkSL::ProgramSettings& settings,
                 std::string* hlsl,
-                SkSL::Program::Interface* outInterface,
+                SkSL::ProgramInterface* outInterface,
                 ShaderErrorHandler* errorHandler);
 
 } // namespace skgpu
