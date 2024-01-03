@@ -19,7 +19,6 @@
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -42,30 +41,11 @@
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #endif
 
-#ifdef SK_ENABLE_SPIRV_VALIDATION
-#include "spirv-tools/libspirv.hpp"
-#endif
-
 namespace SkSL {
 
 // These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
 Compiler::OverrideFlag Compiler::sOptimizer = OverrideFlag::kDefault;
 Compiler::OverrideFlag Compiler::sInliner = OverrideFlag::kDefault;
-
-class AutoSource {
-public:
-    AutoSource(Compiler* compiler, std::string_view source)
-            : fCompiler(compiler) {
-        SkASSERT(!fCompiler->errorReporter().source().data());
-        fCompiler->errorReporter().setSource(source);
-    }
-
-    ~AutoSource() {
-        fCompiler->errorReporter().setSource(std::string_view());
-    }
-
-    Compiler* fCompiler;
-};
 
 class AutoProgramConfig {
 public:
@@ -379,77 +359,14 @@ bool Compiler::finalize(Program& program) {
 
 #if defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
 
-#if defined(SK_ENABLE_SPIRV_VALIDATION)
-static bool validate_spirv(ErrorReporter& reporter, std::string_view program) {
-    SkASSERT(0 == program.size() % 4);
-    const uint32_t* programData = reinterpret_cast<const uint32_t*>(program.data());
-    size_t programSize = program.size() / 4;
-
-    spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
-    std::string errors;
-    auto msgFn = [&errors](spv_message_level_t, const char*, const spv_position_t&, const char* m) {
-        errors += "SPIR-V validation error: ";
-        errors += m;
-        errors += '\n';
-    };
-    tools.SetMessageConsumer(msgFn);
-
-    // Verify that the SPIR-V we produced is valid. At runtime, we will abort() with a message
-    // explaining the error. In standalone mode (skslc), we will send the message, plus the
-    // entire disassembled SPIR-V (for easier context & debugging) as *our* error message.
-    bool result = tools.Validate(programData, programSize);
-    if (!result) {
-#if defined(SKSL_STANDALONE)
-        // Convert the string-stream to a SPIR-V disassembly.
-        std::string disassembly;
-        uint32_t options = spvtools::SpirvTools::kDefaultDisassembleOption;
-        options |= SPV_BINARY_TO_TEXT_OPTION_INDENT;
-        if (tools.Disassemble(programData, programSize, &disassembly, options)) {
-            errors.append(disassembly);
-        }
-        reporter.error(Position(), errors);
-#else
-        SkDEBUGFAILF("%s", errors.c_str());
-#endif
-    }
-    return result;
-}
-#endif
-
 bool Compiler::toSPIRV(Program& program, const ShaderCaps* caps, OutputStream& out) {
-    TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
-    AutoSource as(this, *program.fSource);
-    SkASSERT(caps != nullptr);
-    ProgramSettings settings;
-    settings.fUseMemoryPool = false;
-    ThreadContext::Start(this, program.fConfig->fKind, settings);
-    ThreadContext::SetErrorReporter(&fErrorReporter);
-    fContext->fSymbolTable = program.fSymbols;
-#ifdef SK_ENABLE_SPIRV_VALIDATION
-    StringStream buffer;
-    SPIRVCodeGenerator cg(fContext.get(), caps, &program, &buffer);
-    bool result = cg.generateCode();
-
-    if (result && program.fConfig->fSettings.fValidateSPIRV) {
-        std::string_view binary = buffer.str();
-        result = validate_spirv(this->errorReporter(), binary);
-        out.write(binary.data(), binary.size());
-    }
-#else
-    SPIRVCodeGenerator cg(fContext.get(), caps, &program, &out);
-    bool result = cg.generateCode();
-#endif
-    ThreadContext::End();
-    return result;
+    // TODO(johnstiles): migrate callers to use SkSL::ToSPIRV directly
+    return SkSL::ToSPIRV(program, caps, out);
 }
 
 bool Compiler::toSPIRV(Program& program, const ShaderCaps* caps, std::string* out) {
-    StringStream buffer;
-    if (!this->toSPIRV(program, caps, buffer)) {
-        return false;
-    }
-    *out = buffer.str();
-    return true;
+    // TODO(johnstiles): migrate callers to use SkSL::ToSPIRV directly
+    return SkSL::ToSPIRV(program, caps, out);
 }
 
 bool Compiler::toGLSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
