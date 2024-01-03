@@ -31,3 +31,20 @@ int sk_RTAdjust;
 int sk_RTAdjust[2];
 bool sk_RTAdjust;
 float4 sk_RTAdjust[1];
+
+/*%%*
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+sk_RTAdjust must have type 'float4'
+*%%*/

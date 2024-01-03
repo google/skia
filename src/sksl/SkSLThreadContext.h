@@ -25,7 +25,6 @@ namespace SkSL {
 class Compiler;
 class Pool;
 class ProgramElement;
-class Variable;
 enum class ProgramKind : int8_t;
 struct Module;
 
@@ -76,25 +75,6 @@ public:
     }
 
     /**
-     * Returns the current ProgramConfig.
-     */
-    static bool IsModule() { return Instance().fConfig->fIsBuiltinCode; }
-
-    struct RTAdjustData {
-        // Points to a standalone sk_RTAdjust variable, if one exists.
-        const Variable* fVar = nullptr;
-        // Points to the interface block containing an sk_RTAdjust field, if one exists.
-        const Variable* fInterfaceBlock = nullptr;
-        // If fInterfaceBlock is non-null, contains the index of the sk_RTAdjust field within it.
-        int fFieldIndex = -1;
-    };
-
-    /**
-     * Returns a struct containing information about the RTAdjust variable.
-     */
-    static RTAdjustData& RTAdjustState();
-
-    /**
      * Returns the ErrorReporter associated with the current thread. This object will be notified
      * when any compilation errors occur.
      */
@@ -136,7 +116,6 @@ private:
     DefaultErrorReporter fDefaultErrorReporter;
     ErrorReporter& fOldErrorReporter;
     ProgramSettings fSettings;
-    RTAdjustData fRTAdjust;
     Program::Interface fInterface;
 
     friend class SkSL::Compiler;

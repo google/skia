@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 5: duplicate definition of 'sk_RTAdjust'
+error: 5: symbol 'sk_RTAdjust' was already defined
 float4 sk_RTAdjust;
 ^^^^^^^^^^^^^^^^^^
 1 error

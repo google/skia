@@ -466,16 +466,10 @@ std::unique_ptr<VarDeclaration> VarDeclaration::Convert(const Context& context,
 
         // `sk_RTAdjust` is special, and makes the IR generator emit position-fixup expressions.
         if (var->name() == Compiler::RTADJUST_NAME) {
-            if (ThreadContext::RTAdjustState().fVar ||
-                ThreadContext::RTAdjustState().fInterfaceBlock) {
-                context.fErrors->error(var->fPosition, "duplicate definition of 'sk_RTAdjust'");
-                return nullptr;
-            }
             if (!var->type().matches(*context.fTypes.fFloat4)) {
                 context.fErrors->error(var->fPosition, "sk_RTAdjust must have type 'float4'");
                 return nullptr;
             }
-            ThreadContext::RTAdjustState().fVar = var.get();
         }
     }
 

@@ -88,10 +88,6 @@ void ThreadContext::setupSymbolTable() {
     fContext.fSymbolTable->markModuleBoundary();
 }
 
-ThreadContext::RTAdjustData& ThreadContext::RTAdjustState() {
-    return Instance().fRTAdjust;
-}
-
 void ThreadContext::SetErrorReporter(ErrorReporter* errorReporter) {
     SkASSERT(errorReporter);
     Context().fErrors = errorReporter;
