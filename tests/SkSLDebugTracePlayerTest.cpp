@@ -37,8 +37,7 @@ static sk_sp<SkSL::DebugTracePriv> make_trace(skiatest::Reporter* r,
                                               std::string src) {
     auto debugTrace = sk_make_sp<SkSL::DebugTracePriv>();
 
-    SkSL::ShaderCaps caps;
-    SkSL::Compiler compiler(&caps);
+    SkSL::Compiler compiler;
     SkSL::ProgramSettings settings;
     settings.fOptimize = false;
 
