@@ -249,27 +249,11 @@ void SkFontDescriptor::serialize(SkWStream* stream) const {
         }
     }
     if (fPaletteEntryOverrideCount > 0) {
-#if defined(SK_DISABLE_SKFONTARGS_CHANGED_TYPE)
-        int nonNegativePaletteOverrideIndexes = 0;
-        for (int i = 0; i < fPaletteEntryOverrideCount; ++i) {
-            if (0 <= fPaletteEntryOverrides[i].index) {
-                ++nonNegativePaletteOverrideIndexes;
-            }
-        }
-        write_uint(stream, nonNegativePaletteOverrideIndexes, kPaletteEntryOverrides);
-        for (int i = 0; i < fPaletteEntryOverrideCount; ++i) {
-            if (0 <= fPaletteEntryOverrides[i].index) {
-                stream->writePackedUInt(fPaletteEntryOverrides[i].index);
-                stream->write32(fPaletteEntryOverrides[i].color);
-            }
-        }
-#else
         write_uint(stream, fPaletteEntryOverrideCount, kPaletteEntryOverrides);
         for (int i = 0; i < fPaletteEntryOverrideCount; ++i) {
             stream->writePackedUInt(fPaletteEntryOverrides[i].index);
             stream->write32(fPaletteEntryOverrides[i].color);
         }
-#endif
     }
 
     write_uint(stream, fFactoryId, kFactoryId);
