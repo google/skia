@@ -1244,7 +1244,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
                            VisitedSet* activePaints) {
     // Cycle detection, see section "5.7.11.1.9 Color glyphs as a directed acyclic graph".
     if (activePaints->contains(opaquePaint)) {
-        return false;
+        return true;
     }
 
     activePaints->add(opaquePaint);
