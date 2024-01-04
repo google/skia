@@ -473,9 +473,7 @@ config("warnings") {
     #   - clang-cl doesn't recognize the flag
     #   - The (old) Mac/iOS SDK used on the bots breaks this rule in various headers
     #     TODO: Re-enable on Apple when we update XCode
-    #   - The (old) Android NDK used on the bots breaks this rule in arm_neon.H
-    #     TODO: Re-enable on Android when we update the NDK
-    if (!is_win && !is_apple && !is_android) {
+    if (!is_win && !is_apple) {
       cflags += [ "-fno-lax-vector-conversions" ]
     }
 
