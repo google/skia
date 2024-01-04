@@ -535,12 +535,12 @@ class SkFontMgr_fontconfig : public SkFontMgr {
     mutable SkAutoFcConfig fFC;  // Only mutable to avoid const cast when passed to FontConfig API.
     const SkString fSysroot;
     const sk_sp<SkDataTable> fFamilyNames;
-    const SkTypeface_FreeType::Scanner fScanner;
 
     class StyleSet : public SkFontStyleSet {
     public:
         StyleSet(sk_sp<SkFontMgr_fontconfig> parent, SkAutoFcFontSet fontSet)
-            : fFontMgr(std::move(parent)), fFontSet(std::move(fontSet))
+            : fFontMgr(std::move(parent))
+            , fFontSet(std::move(fontSet))
         { }
 
         ~StyleSet() override {

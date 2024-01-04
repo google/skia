@@ -5,15 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/ports/SkFontMgr_data.h"
 #include "src/core/SkFontDescriptor.h"
+#include "src/core/SkFontScanner.h"
 #include "src/ports/SkFontMgr_custom.h"
 
 struct SkEmbeddedResource { const uint8_t* data; size_t size; };
 struct SkEmbeddedResourceHeader { const SkEmbeddedResource* entries; int count; };
 
-static void load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
+static void load_font_from_data(const SkFontScanner* scanner,
                                 std::unique_ptr<SkMemoryStream> stream, int index,
                                 SkFontMgr_Custom::Families* families);
 
@@ -21,7 +23,7 @@ class EmbeddedSystemFontLoader : public SkFontMgr_Custom::SystemFontLoader {
 public:
     EmbeddedSystemFontLoader(const SkEmbeddedResourceHeader* header) : fHeader(header) { }
 
-    void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
+    void loadSystemFonts(const SkFontScanner* scanner,
                          SkFontMgr_Custom::Families* families) const override
     {
         for (int i = 0; i < fHeader->count; ++i) {
@@ -44,7 +46,7 @@ class DataFontLoader : public SkFontMgr_Custom::SystemFontLoader {
 public:
     DataFontLoader(sk_sp<SkData>* datas, int n) : fDatas(datas), fNum(n) { }
 
-    void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
+    void loadSystemFonts(const SkFontScanner* scanner,
                          SkFontMgr_Custom::Families* families) const override
     {
         for (int i = 0; i < fNum; ++i) {
@@ -74,12 +76,12 @@ static SkFontStyleSet_Custom* find_family(SkFontMgr_Custom::Families& families,
     return nullptr;
 }
 
-static void load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
+static void load_font_from_data(const SkFontScanner* scanner,
                                 std::unique_ptr<SkMemoryStream> stream, int index,
                                 SkFontMgr_Custom::Families* families)
 {
     int numFaces;
-    if (!scanner.recognizedFont(stream.get(), &numFaces)) {
+    if (!scanner->recognizedFont(stream.get(), &numFaces)) {
         SkDebugf("---- failed to open <%d> as a font\n", index);
         return;
     }
@@ -88,7 +90,7 @@ static void load_font_from_data(const SkTypeface_FreeType::Scanner& scanner,
         bool isFixedPitch;
         SkString realname;
         SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
-        if (!scanner.scanFont(stream.get(), faceIndex,
+        if (!scanner->scanFont(stream.get(), faceIndex,
                               &realname, &style, &isFixedPitch, nullptr))
         {
             SkDebugf("---- failed to open <%d> <%d> as a font\n", index, faceIndex);

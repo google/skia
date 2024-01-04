@@ -14,6 +14,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/SkColorData.h"
@@ -27,6 +28,7 @@
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkFDot6.h"
 #include "src/core/SkFontDescriptor.h"
+#include "src/core/SkFontScanner.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"
@@ -739,8 +741,8 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArgum
         return nullptr;
     }
 
-    Scanner::AxisDefinitions axisDefinitions;
-    if (!Scanner::GetAxes(face, &axisDefinitions)) {
+    SkFontScanner::AxisDefinitions axisDefinitions;
+    if (!SkFontScanner_FreeType::GetAxes(face, &axisDefinitions)) {
         return nullptr;
     }
     int axisCount = axisDefinitions.size();
@@ -750,8 +752,12 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArgum
 
     SkString name;
     AutoSTMalloc<4, SkFixed> axisValues(axisCount);
-    Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(), axisValues, name,
-                               currentAxisCount == axisCount ? currentPosition.get() : nullptr);
+    SkFontScanner_FreeType::computeAxisValues(
+            axisDefinitions,
+            args.getVariationDesignPosition(),
+            axisValues,
+            name,
+            currentAxisCount == axisCount ? currentPosition.get() : nullptr);
 
     int ttcIndex;
     std::unique_ptr<SkStreamAsset> stream = this->openStream(&ttcIndex);
@@ -1929,321 +1935,6 @@ void SkTypeface_FreeType::FontDataPaletteToDescriptorPalette(const SkFontData& f
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypeface_FreeType::Scanner::Scanner() : fLibrary(nullptr) {
-    if (FT_New_Library(&gFTMemory, &fLibrary)) {
-        return;
-    }
-    FT_Add_Default_Modules(fLibrary);
-    FT_Set_Default_Properties(fLibrary);
-}
-SkTypeface_FreeType::Scanner::~Scanner() {
-    if (fLibrary) {
-        FT_Done_Library(fLibrary);
-    }
-}
-
-FT_Face SkTypeface_FreeType::Scanner::openFace(SkStreamAsset* stream, int ttcIndex,
-                                               FT_Stream ftStream) const
-{
-    if (fLibrary == nullptr || stream == nullptr) {
-        return nullptr;
-    }
-
-    FT_Open_Args args;
-    memset(&args, 0, sizeof(args));
-
-    const void* memoryBase = stream->getMemoryBase();
-
-    if (memoryBase) {
-        args.flags = FT_OPEN_MEMORY;
-        args.memory_base = (const FT_Byte*)memoryBase;
-        args.memory_size = stream->getLength();
-    } else {
-        memset(ftStream, 0, sizeof(*ftStream));
-        ftStream->size = stream->getLength();
-        ftStream->descriptor.pointer = stream;
-        ftStream->read  = sk_ft_stream_io;
-        ftStream->close = sk_ft_stream_close;
-
-        args.flags = FT_OPEN_STREAM;
-        args.stream = ftStream;
-    }
-
-    FT_Face face;
-    if (FT_Open_Face(fLibrary, &args, ttcIndex, &face)) {
-        return nullptr;
-    }
-    return face;
-}
-
-bool SkTypeface_FreeType::Scanner::recognizedFont(SkStreamAsset* stream, int* numFaces) const {
-    SkAutoMutexExclusive libraryLock(fLibraryMutex);
-
-    FT_StreamRec streamRec;
-    SkUniqueFTFace face(this->openFace(stream, -1, &streamRec));
-    if (!face) {
-        return false;
-    }
-
-    *numFaces = face->num_faces;
-    return true;
-}
-
-bool SkTypeface_FreeType::Scanner::scanFont(
-    SkStreamAsset* stream, int ttcIndex,
-    SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const
-{
-    SkAutoMutexExclusive libraryLock(fLibraryMutex);
-
-    FT_StreamRec streamRec;
-    SkUniqueFTFace face(this->openFace(stream, ttcIndex, &streamRec));
-    if (!face) {
-        return false;
-    }
-
-    int weight = SkFontStyle::kNormal_Weight;
-    int width = SkFontStyle::kNormal_Width;
-    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
-    if (face->style_flags & FT_STYLE_FLAG_BOLD) {
-        weight = SkFontStyle::kBold_Weight;
-    }
-    if (face->style_flags & FT_STYLE_FLAG_ITALIC) {
-        slant = SkFontStyle::kItalic_Slant;
-    }
-
-    bool hasAxes = face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS;
-    TT_OS2* os2 = static_cast<TT_OS2*>(FT_Get_Sfnt_Table(face.get(), ft_sfnt_os2));
-    bool hasOs2 = os2 && os2->version != 0xffff;
-
-    PS_FontInfoRec psFontInfo;
-
-    if (hasOs2) {
-        weight = os2->usWeightClass;
-        width = os2->usWidthClass;
-
-        // OS/2::fsSelection bit 9 indicates oblique.
-        if (SkToBool(os2->fsSelection & (1u << 9))) {
-            slant = SkFontStyle::kOblique_Slant;
-        }
-    }
-
-    // Let variable axes override properties from the OS/2 table.
-    if (hasAxes) {
-      AxisDefinitions axisDefinitions;
-      if (GetAxes(face.get(), &axisDefinitions)) {
-        size_t numAxes = axisDefinitions.size();
-        static constexpr SkFourByteTag wghtTag = SkSetFourByteTag('w', 'g', 'h', 't');
-        static constexpr SkFourByteTag wdthTag = SkSetFourByteTag('w', 'd', 't', 'h');
-        static constexpr SkFourByteTag slntTag = SkSetFourByteTag('s', 'l', 'n', 't');
-        std::optional<size_t> wghtIndex;
-        std::optional<size_t> wdthIndex;
-        std::optional<size_t> slntIndex;
-        for(size_t i = 0; i < numAxes; ++i) {
-          if (axisDefinitions[i].fTag == wghtTag) {
-              // Rough validity check, is there sufficient spread and are ranges
-              // within 0-1000.
-              int wghtRange = SkFixedToScalar(axisDefinitions[i].fMaximum) -
-                              SkFixedToScalar(axisDefinitions[i].fMinimum);
-              if (wghtRange > 5 && wghtRange <= 1000 &&
-                  SkFixedToScalar(axisDefinitions[i].fMaximum) <= 1000) {
-                  wghtIndex = i;
-              }
-          }
-          if (axisDefinitions[i].fTag == wdthTag) {
-              // Rough validity check, is there a spread and are ranges within
-              // 0-500.
-              int widthRange = SkFixedToScalar(axisDefinitions[i].fMaximum) -
-                               SkFixedToScalar(axisDefinitions[i].fMinimum);
-              if (widthRange > 0 && widthRange <= 500 &&
-                  SkFixedToScalar(axisDefinitions[i].fMaximum) <= 500)
-                  wdthIndex = i;
-          }
-          if (axisDefinitions[i].fTag == slntTag)
-            slntIndex = i;
-        }
-        AutoSTMalloc<4, FT_Fixed> coords(numAxes);
-        if ((wghtIndex || wdthIndex || slntIndex) &&
-            !FT_Get_Var_Design_Coordinates(face.get(), numAxes, coords.get())) {
-            if (wghtIndex) {
-                SkASSERT(*wghtIndex < numAxes);
-                weight = SkScalarRoundToInt(SkFixedToScalar(coords[*wghtIndex]));
-            }
-            if (wdthIndex) {
-                SkASSERT(*wdthIndex < numAxes);
-                SkScalar wdthValue = SkFixedToScalar(coords[*wdthIndex]);
-                width = SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(wdthValue);
-            }
-            if (slntIndex) {
-                SkASSERT(*slntIndex < numAxes);
-                // https://docs.microsoft.com/en-us/typography/opentype/spec/dvaraxistag_slnt
-                // "Scale interpretation: Values can be interpreted as the angle,
-                // in counter-clockwise degrees, of oblique slant from whatever
-                // the designer considers to be upright for that font design."
-                if (SkFixedToScalar(coords[*slntIndex]) < 0) {
-                    slant = SkFontStyle::kOblique_Slant;
-                }
-            }
-        }
-      }
-    }
-
-    if (!hasOs2 && !hasAxes && 0 == FT_Get_PS_Font_Info(face.get(), &psFontInfo) && psFontInfo.weight) {
-        static const struct {
-            char const * const name;
-            int const weight;
-        } commonWeights [] = {
-            // There are probably more common names, but these are known to exist.
-            { "all", SkFontStyle::kNormal_Weight }, // Multiple Masters usually default to normal.
-            { "black", SkFontStyle::kBlack_Weight },
-            { "bold", SkFontStyle::kBold_Weight },
-            { "book", (SkFontStyle::kNormal_Weight + SkFontStyle::kLight_Weight)/2 },
-            { "demi", SkFontStyle::kSemiBold_Weight },
-            { "demibold", SkFontStyle::kSemiBold_Weight },
-            { "extra", SkFontStyle::kExtraBold_Weight },
-            { "extrabold", SkFontStyle::kExtraBold_Weight },
-            { "extralight", SkFontStyle::kExtraLight_Weight },
-            { "hairline", SkFontStyle::kThin_Weight },
-            { "heavy", SkFontStyle::kBlack_Weight },
-            { "light", SkFontStyle::kLight_Weight },
-            { "medium", SkFontStyle::kMedium_Weight },
-            { "normal", SkFontStyle::kNormal_Weight },
-            { "plain", SkFontStyle::kNormal_Weight },
-            { "regular", SkFontStyle::kNormal_Weight },
-            { "roman", SkFontStyle::kNormal_Weight },
-            { "semibold", SkFontStyle::kSemiBold_Weight },
-            { "standard", SkFontStyle::kNormal_Weight },
-            { "thin", SkFontStyle::kThin_Weight },
-            { "ultra", SkFontStyle::kExtraBold_Weight },
-            { "ultrablack", SkFontStyle::kExtraBlack_Weight },
-            { "ultrabold", SkFontStyle::kExtraBold_Weight },
-            { "ultraheavy", SkFontStyle::kExtraBlack_Weight },
-            { "ultralight", SkFontStyle::kExtraLight_Weight },
-        };
-        int const index = SkStrLCSearch(&commonWeights[0].name, std::size(commonWeights),
-                                        psFontInfo.weight, sizeof(commonWeights[0]));
-        if (index >= 0) {
-            weight = commonWeights[index].weight;
-        } else {
-            LOG_INFO("Do not know weight for: %s (%s) \n", face->family_name, psFontInfo.weight);
-        }
-    }
-
-    if (name != nullptr) {
-        name->set(face->family_name);
-    }
-    if (style != nullptr) {
-        *style = SkFontStyle(weight, width, slant);
-    }
-    if (isFixedPitch != nullptr) {
-        *isFixedPitch = FT_IS_FIXED_WIDTH(face);
-    }
-
-    if (axes != nullptr && !GetAxes(face.get(), axes)) {
-        return false;
-    }
-    return true;
-}
-
-bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) {
-    SkASSERT(face && axes);
-    if (face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
-        FT_MM_Var* variations = nullptr;
-        FT_Error err = FT_Get_MM_Var(face, &variations);
-        if (err) {
-            LOG_INFO("INFO: font %s claims to have variations, but none found.\n",
-                     face->family_name);
-            return false;
-        }
-        UniqueVoidPtr autoFreeVariations(variations);
-
-        axes->reset(variations->num_axis);
-        for (FT_UInt i = 0; i < variations->num_axis; ++i) {
-            const FT_Var_Axis& ftAxis = variations->axis[i];
-            (*axes)[i].fTag = ftAxis.tag;
-            (*axes)[i].fMinimum = ftAxis.minimum;
-            (*axes)[i].fDefault = ftAxis.def;
-            (*axes)[i].fMaximum = ftAxis.maximum;
-        }
-    }
-    return true;
-}
-
-/*static*/ void SkTypeface_FreeType::Scanner::computeAxisValues(
-    AxisDefinitions axisDefinitions,
-    const SkFontArguments::VariationPosition position,
-    SkFixed* axisValues,
-    const SkString& name,
-    const SkFontArguments::VariationPosition::Coordinate* current)
-{
-    for (int i = 0; i < axisDefinitions.size(); ++i) {
-        const Scanner::AxisDefinition& axisDefinition = axisDefinitions[i];
-        const SkScalar axisMin = SkFixedToScalar(axisDefinition.fMinimum);
-        const SkScalar axisMax = SkFixedToScalar(axisDefinition.fMaximum);
-
-        // Start with the default value.
-        axisValues[i] = axisDefinition.fDefault;
-
-        // Then the current value.
-        if (current) {
-            for (int j = 0; j < axisDefinitions.size(); ++j) {
-                const auto& coordinate = current[j];
-                if (axisDefinition.fTag == coordinate.axis) {
-                    const SkScalar axisValue = SkTPin(coordinate.value, axisMin, axisMax);
-                    axisValues[i] = SkScalarToFixed(axisValue);
-                    break;
-                }
-            }
-        }
-
-        // Then the requested value.
-        // The position may be over specified. If there are multiple values for a given axis,
-        // use the last one since that's what css-fonts-4 requires.
-        for (int j = position.coordinateCount; j --> 0;) {
-            const auto& coordinate = position.coordinates[j];
-            if (axisDefinition.fTag == coordinate.axis) {
-                const SkScalar axisValue = SkTPin(coordinate.value, axisMin, axisMax);
-                if (coordinate.value != axisValue) {
-                    LOG_INFO("Requested font axis value out of range: "
-                             "%s '%c%c%c%c' %f; pinned to %f.\n",
-                             name.c_str(),
-                             (axisDefinition.fTag >> 24) & 0xFF,
-                             (axisDefinition.fTag >> 16) & 0xFF,
-                             (axisDefinition.fTag >>  8) & 0xFF,
-                             (axisDefinition.fTag      ) & 0xFF,
-                             SkScalarToDouble(coordinate.value),
-                             SkScalarToDouble(axisValue));
-                }
-                axisValues[i] = SkScalarToFixed(axisValue);
-                break;
-            }
-        }
-        // TODO: warn on defaulted axis?
-    }
-
-    SkDEBUGCODE(
-        // Check for axis specified, but not matched in font.
-        for (int i = 0; i < position.coordinateCount; ++i) {
-            SkFourByteTag skTag = position.coordinates[i].axis;
-            bool found = false;
-            for (int j = 0; j < axisDefinitions.size(); ++j) {
-                if (skTag == axisDefinitions[j].fTag) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                LOG_INFO("Requested font axis not found: %s '%c%c%c%c'\n",
-                         name.c_str(),
-                         (skTag >> 24) & 0xFF,
-                         (skTag >> 16) & 0xFF,
-                         (skTag >>  8) & 0xFF,
-                         (skTag)       & 0xFF);
-            }
-        }
-    )
-}
-
-
 SkTypeface_FreeTypeStream::SkTypeface_FreeTypeStream(std::unique_ptr<SkFontData> fontData,
                                                      const SkString familyName,
                                                      const SkFontStyle& style, bool isFixedPitch)
@@ -2290,12 +1981,11 @@ void SkTypeface_FreeTypeStream::onGetFontDescriptor(SkFontDescriptor* desc, bool
 
 sk_sp<SkTypeface> SkTypeface_FreeType::MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
                                                       const SkFontArguments& args) {
-    using Scanner = SkTypeface_FreeType::Scanner;
-    static Scanner scanner;
+    static SkFontScanner_FreeType scanner;
     bool isFixedPitch;
     SkFontStyle style;
     SkString name;
-    Scanner::AxisDefinitions axisDefinitions;
+    SkFontScanner::AxisDefinitions axisDefinitions;
     if (!scanner.scanFont(stream.get(), args.getCollectionIndex(),
                           &name, &style, &isFixedPitch, &axisDefinitions)) {
         return nullptr;
@@ -2303,11 +1993,326 @@ sk_sp<SkTypeface> SkTypeface_FreeType::MakeFromStream(std::unique_ptr<SkStreamAs
 
     const SkFontArguments::VariationPosition position = args.getVariationDesignPosition();
     AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
-    Scanner::computeAxisValues(axisDefinitions, position, axisValues, name);
+    SkFontScanner_FreeType::computeAxisValues(axisDefinitions, position, axisValues, name);
 
     auto data = std::make_unique<SkFontData>(
         std::move(stream), args.getCollectionIndex(), args.getPalette().index,
         axisValues.get(), axisDefinitions.size(),
         args.getPalette().overrides, args.getPalette().overrideCount);
     return sk_make_sp<SkTypeface_FreeTypeStream>(std::move(data), name, style, isFixedPitch);
+}
+
+SkFontScanner_FreeType::SkFontScanner_FreeType() : fLibrary(nullptr) {
+    if (FT_New_Library(&gFTMemory, &fLibrary)) {
+        return;
+    }
+    FT_Add_Default_Modules(fLibrary);
+    FT_Set_Default_Properties(fLibrary);
+}
+
+SkFontScanner_FreeType::~SkFontScanner_FreeType() {
+    if (fLibrary) {
+        FT_Done_Library(fLibrary);
+    }
+}
+
+FT_Face SkFontScanner_FreeType::openFace(SkStreamAsset* stream, int ttcIndex,
+                                         FT_Stream ftStream) const
+{
+    if (fLibrary == nullptr || stream == nullptr) {
+        return nullptr;
+    }
+
+    FT_Open_Args args;
+    memset(&args, 0, sizeof(args));
+
+    const void* memoryBase = stream->getMemoryBase();
+
+    if (memoryBase) {
+        args.flags = FT_OPEN_MEMORY;
+        args.memory_base = (const FT_Byte*)memoryBase;
+        args.memory_size = stream->getLength();
+    } else {
+        memset(ftStream, 0, sizeof(*ftStream));
+        ftStream->size = stream->getLength();
+        ftStream->descriptor.pointer = stream;
+        ftStream->read  = sk_ft_stream_io;
+        ftStream->close = sk_ft_stream_close;
+
+        args.flags = FT_OPEN_STREAM;
+        args.stream = ftStream;
+    }
+
+    FT_Face face;
+    if (FT_Open_Face(fLibrary, &args, ttcIndex, &face)) {
+        return nullptr;
+    }
+    return face;
+}
+
+bool SkFontScanner_FreeType::recognizedFont(SkStreamAsset* stream, int* numFaces) const {
+    SkAutoMutexExclusive libraryLock(fLibraryMutex);
+
+    FT_StreamRec streamRec;
+    SkUniqueFTFace face(this->openFace(stream, -1, &streamRec));
+    if (!face) {
+        return false;
+    }
+
+    *numFaces = face->num_faces;
+    return true;
+}
+
+bool SkFontScanner_FreeType::scanFont(
+        SkStreamAsset* stream, int ttcIndex,
+        SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const
+{
+    SkAutoMutexExclusive libraryLock(fLibraryMutex);
+
+    FT_StreamRec streamRec;
+    SkUniqueFTFace face(this->openFace(stream, ttcIndex, &streamRec));
+    if (!face) {
+        return false;
+    }
+
+    int weight = SkFontStyle::kNormal_Weight;
+    int width = SkFontStyle::kNormal_Width;
+    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
+    if (face->style_flags & FT_STYLE_FLAG_BOLD) {
+        weight = SkFontStyle::kBold_Weight;
+    }
+    if (face->style_flags & FT_STYLE_FLAG_ITALIC) {
+        slant = SkFontStyle::kItalic_Slant;
+    }
+
+    bool hasAxes = face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS;
+    TT_OS2* os2 = static_cast<TT_OS2*>(FT_Get_Sfnt_Table(face.get(), ft_sfnt_os2));
+    bool hasOs2 = os2 && os2->version != 0xffff;
+
+    PS_FontInfoRec psFontInfo;
+
+    if (hasOs2) {
+        weight = os2->usWeightClass;
+        width = os2->usWidthClass;
+
+        // OS/2::fsSelection bit 9 indicates oblique.
+        if (SkToBool(os2->fsSelection & (1u << 9))) {
+            slant = SkFontStyle::kOblique_Slant;
+        }
+    }
+
+    // Let variable axes override properties from the OS/2 table.
+    if (hasAxes) {
+        AxisDefinitions axisDefinitions;
+        if (GetAxes(face.get(), &axisDefinitions)) {
+            size_t numAxes = axisDefinitions.size();
+            static constexpr SkFourByteTag wghtTag = SkSetFourByteTag('w', 'g', 'h', 't');
+            static constexpr SkFourByteTag wdthTag = SkSetFourByteTag('w', 'd', 't', 'h');
+            static constexpr SkFourByteTag slntTag = SkSetFourByteTag('s', 'l', 'n', 't');
+            std::optional<size_t> wghtIndex;
+            std::optional<size_t> wdthIndex;
+            std::optional<size_t> slntIndex;
+            for(size_t i = 0; i < numAxes; ++i) {
+                if (axisDefinitions[i].fTag == wghtTag) {
+                    // Rough validity check, is there sufficient spread and are ranges
+                    // within 0-1000.
+                    int wghtRange = SkFixedToScalar(axisDefinitions[i].fMaximum) -
+                                    SkFixedToScalar(axisDefinitions[i].fMinimum);
+                    if (wghtRange > 5 && wghtRange <= 1000 &&
+                        SkFixedToScalar(axisDefinitions[i].fMaximum) <= 1000) {
+                    wghtIndex = i;
+                    }
+                }
+                if (axisDefinitions[i].fTag == wdthTag) {
+                    // Rough validity check, is there a spread and are ranges within
+                    // 0-500.
+                    int widthRange = SkFixedToScalar(axisDefinitions[i].fMaximum) -
+                                     SkFixedToScalar(axisDefinitions[i].fMinimum);
+                    if (widthRange > 0 && widthRange <= 500 &&
+                        SkFixedToScalar(axisDefinitions[i].fMaximum) <= 500)
+                    wdthIndex = i;
+                }
+                if (axisDefinitions[i].fTag == slntTag)
+                    slntIndex = i;
+            }
+            AutoSTMalloc<4, FT_Fixed> coords(numAxes);
+            if ((wghtIndex || wdthIndex || slntIndex) &&
+                !FT_Get_Var_Design_Coordinates(face.get(), numAxes, coords.get())) {
+                if (wghtIndex) {
+                    SkASSERT(*wghtIndex < numAxes);
+                    weight = SkScalarRoundToInt(SkFixedToScalar(coords[*wghtIndex]));
+                }
+                if (wdthIndex) {
+                    SkASSERT(*wdthIndex < numAxes);
+                    SkScalar wdthValue = SkFixedToScalar(coords[*wdthIndex]);
+                    width = SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(wdthValue);
+                }
+                if (slntIndex) {
+                    SkASSERT(*slntIndex < numAxes);
+                    // https://docs.microsoft.com/en-us/typography/opentype/spec/dvaraxistag_slnt
+                    // "Scale interpretation: Values can be interpreted as the angle,
+                    // in counter-clockwise degrees, of oblique slant from whatever
+                    // the designer considers to be upright for that font design."
+                    if (SkFixedToScalar(coords[*slntIndex]) < 0) {
+                    slant = SkFontStyle::kOblique_Slant;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!hasOs2 && !hasAxes && 0 == FT_Get_PS_Font_Info(face.get(), &psFontInfo) && psFontInfo.weight) {
+        static const struct {
+            char const * const name;
+            int const weight;
+        } commonWeights [] = {
+                // There are probably more common names, but these are known to exist.
+                { "all", SkFontStyle::kNormal_Weight }, // Multiple Masters usually default to normal.
+                { "black", SkFontStyle::kBlack_Weight },
+                { "bold", SkFontStyle::kBold_Weight },
+                { "book", (SkFontStyle::kNormal_Weight + SkFontStyle::kLight_Weight)/2 },
+                { "demi", SkFontStyle::kSemiBold_Weight },
+                { "demibold", SkFontStyle::kSemiBold_Weight },
+                { "extra", SkFontStyle::kExtraBold_Weight },
+                { "extrabold", SkFontStyle::kExtraBold_Weight },
+                { "extralight", SkFontStyle::kExtraLight_Weight },
+                { "hairline", SkFontStyle::kThin_Weight },
+                { "heavy", SkFontStyle::kBlack_Weight },
+                { "light", SkFontStyle::kLight_Weight },
+                { "medium", SkFontStyle::kMedium_Weight },
+                { "normal", SkFontStyle::kNormal_Weight },
+                { "plain", SkFontStyle::kNormal_Weight },
+                { "regular", SkFontStyle::kNormal_Weight },
+                { "roman", SkFontStyle::kNormal_Weight },
+                { "semibold", SkFontStyle::kSemiBold_Weight },
+                { "standard", SkFontStyle::kNormal_Weight },
+                { "thin", SkFontStyle::kThin_Weight },
+                { "ultra", SkFontStyle::kExtraBold_Weight },
+                { "ultrablack", SkFontStyle::kExtraBlack_Weight },
+                { "ultrabold", SkFontStyle::kExtraBold_Weight },
+                { "ultraheavy", SkFontStyle::kExtraBlack_Weight },
+                { "ultralight", SkFontStyle::kExtraLight_Weight },
+        };
+        int const index = SkStrLCSearch(&commonWeights[0].name, std::size(commonWeights),
+                                        psFontInfo.weight, sizeof(commonWeights[0]));
+        if (index >= 0) {
+            weight = commonWeights[index].weight;
+        } else {
+            LOG_INFO("Do not know weight for: %s (%s) \n", face->family_name, psFontInfo.weight);
+        }
+    }
+
+    if (name != nullptr) {
+        name->set(face->family_name);
+    }
+    if (style != nullptr) {
+        *style = SkFontStyle(weight, width, slant);
+    }
+    if (isFixedPitch != nullptr) {
+        *isFixedPitch = FT_IS_FIXED_WIDTH(face);
+    }
+
+    if (axes != nullptr && !GetAxes(face.get(), axes)) {
+        return false;
+    }
+    return true;
+}
+
+bool SkFontScanner_FreeType::GetAxes(FT_Face face, AxisDefinitions* axes) {
+    SkASSERT(face && axes);
+    if (face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS) {
+        FT_MM_Var* variations = nullptr;
+        FT_Error err = FT_Get_MM_Var(face, &variations);
+        if (err) {
+            LOG_INFO("INFO: font %s claims to have variations, but none found.\n",
+                     face->family_name);
+            return false;
+        }
+        UniqueVoidPtr autoFreeVariations(variations);
+
+        axes->reset(variations->num_axis);
+        for (FT_UInt i = 0; i < variations->num_axis; ++i) {
+            const FT_Var_Axis& ftAxis = variations->axis[i];
+            (*axes)[i].fTag = ftAxis.tag;
+            (*axes)[i].fMinimum = ftAxis.minimum;
+            (*axes)[i].fDefault = ftAxis.def;
+            (*axes)[i].fMaximum = ftAxis.maximum;
+        }
+    }
+    return true;
+}
+
+/*static*/ void SkFontScanner_FreeType::computeAxisValues(
+        AxisDefinitions axisDefinitions,
+        const SkFontArguments::VariationPosition position,
+        SkFixed* axisValues,
+        const SkString& name,
+        const SkFontArguments::VariationPosition::Coordinate* current)
+{
+    for (int i = 0; i < axisDefinitions.size(); ++i) {
+        const AxisDefinition& axisDefinition = axisDefinitions[i];
+        const SkScalar axisMin = SkFixedToScalar(axisDefinition.fMinimum);
+        const SkScalar axisMax = SkFixedToScalar(axisDefinition.fMaximum);
+
+        // Start with the default value.
+        axisValues[i] = axisDefinition.fDefault;
+
+        // Then the current value.
+        if (current) {
+            for (int j = 0; j < axisDefinitions.size(); ++j) {
+                const auto& coordinate = current[j];
+                if (axisDefinition.fTag == coordinate.axis) {
+                    const SkScalar axisValue = SkTPin(coordinate.value, axisMin, axisMax);
+                    axisValues[i] = SkScalarToFixed(axisValue);
+                    break;
+                }
+            }
+        }
+
+        // Then the requested value.
+        // The position may be over specified. If there are multiple values for a given axis,
+        // use the last one since that's what css-fonts-4 requires.
+        for (int j = position.coordinateCount; j --> 0;) {
+            const auto& coordinate = position.coordinates[j];
+            if (axisDefinition.fTag == coordinate.axis) {
+                const SkScalar axisValue = SkTPin(coordinate.value, axisMin, axisMax);
+                if (coordinate.value != axisValue) {
+                    LOG_INFO("Requested font axis value out of range: "
+                            "%s '%c%c%c%c' %f; pinned to %f.\n",
+                            name.c_str(),
+                            (axisDefinition.fTag >> 24) & 0xFF,
+                            (axisDefinition.fTag >> 16) & 0xFF,
+                            (axisDefinition.fTag >>  8) & 0xFF,
+                            (axisDefinition.fTag      ) & 0xFF,
+                            SkScalarToDouble(coordinate.value),
+                            SkScalarToDouble(axisValue));
+                }
+                axisValues[i] = SkScalarToFixed(axisValue);
+                break;
+            }
+        }
+        // TODO: warn on defaulted axis?
+    }
+
+    SkDEBUGCODE(
+            // Check for axis specified, but not matched in font.
+            for (int i = 0; i < position.coordinateCount; ++i) {
+                SkFourByteTag skTag = position.coordinates[i].axis;
+                bool found = false;
+                for (int j = 0; j < axisDefinitions.size(); ++j) {
+                    if (skTag == axisDefinitions[j].fTag) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    LOG_INFO("Requested font axis not found: %s '%c%c%c%c'\n",
+                             name.c_str(),
+                             (skTag >> 24) & 0xFF,
+                             (skTag >> 16) & 0xFF,
+                             (skTag >>  8) & 0xFF,
+                             (skTag)       & 0xFF);
+                }
+            }
+    )
 }

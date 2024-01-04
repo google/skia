@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/ports/SkFontMgr_directory.h"
+#include "src/core/SkFontScanner.h"
 #include "src/core/SkOSFile.h"
 #include "src/ports/SkFontMgr_custom.h"
 #include "src/ports/SkTypeface_FreeType.h"
@@ -16,7 +18,7 @@ class DirectorySystemFontLoader : public SkFontMgr_Custom::SystemFontLoader {
 public:
     DirectorySystemFontLoader(const char* dir) : fBaseDirectory(dir) { }
 
-    void loadSystemFonts(const SkTypeface_FreeType::Scanner& scanner,
+    void loadSystemFonts(const SkFontScanner* scanner,
                          SkFontMgr_Custom::Families* families) const override
     {
         load_directory_fonts(scanner, fBaseDirectory, ".ttf", families);
@@ -43,7 +45,7 @@ private:
         return nullptr;
     }
 
-    static void load_directory_fonts(const SkTypeface_FreeType::Scanner& scanner,
+    static void load_directory_fonts(const SkFontScanner* scanner,
                                      const SkString& directory, const char* suffix,
                                      SkFontMgr_Custom::Families* families)
     {
@@ -59,7 +61,7 @@ private:
             }
 
             int numFaces;
-            if (!scanner.recognizedFont(stream.get(), &numFaces)) {
+            if (!scanner->recognizedFont(stream.get(), &numFaces)) {
                 // SkDebugf("---- failed to open <%s> as a font\n", filename.c_str());
                 continue;
             }
@@ -68,7 +70,7 @@ private:
                 bool isFixedPitch;
                 SkString realname;
                 SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
-                if (!scanner.scanFont(stream.get(), faceIndex,
+                if (!scanner->scanFont(stream.get(), faceIndex,
                                       &realname, &style, &isFixedPitch, nullptr))
                 {
                     // SkDebugf("---- failed to open <%s> <%d> as a font\n",
