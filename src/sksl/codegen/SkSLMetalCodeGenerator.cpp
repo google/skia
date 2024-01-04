@@ -210,8 +210,8 @@ protected:
 
     bool matrixConstructHelperIsNeeded(const ConstructorCompound& c);
     std::string getMatrixConstructHelper(const AnyConstructor& c);
-    void assembleMatrixFromMatrix(const Type& sourceMatrix, int rows, int columns);
-    void assembleMatrixFromExpressions(const AnyConstructor& ctor, int rows, int columns);
+    void assembleMatrixFromMatrix(const Type& sourceMatrix, int columns, int rows);
+    void assembleMatrixFromExpressions(const AnyConstructor& ctor, int columns, int rows);
 
     void writeMatrixCompMult();
 
@@ -1312,7 +1312,7 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
 
 // Assembles a matrix of type floatRxC by resizing another matrix named `x0`.
 // Cells that don't exist in the source matrix will be populated with identity-matrix values.
-void MetalCodeGenerator::assembleMatrixFromMatrix(const Type& sourceMatrix, int rows, int columns) {
+void MetalCodeGenerator::assembleMatrixFromMatrix(const Type& sourceMatrix, int columns, int rows) {
     SkASSERT(rows <= 4);
     SkASSERT(columns <= 4);
 
@@ -1353,7 +1353,8 @@ void MetalCodeGenerator::assembleMatrixFromMatrix(const Type& sourceMatrix, int 
 // Assembles a matrix of type floatCxR by concatenating an arbitrary mix of values, named `x0`,
 // `x1`, etc. An error is written if the expression list don't contain exactly C*R scalars.
 void MetalCodeGenerator::assembleMatrixFromExpressions(const AnyConstructor& ctor,
-                                                       int columns, int rows) {
+                                                       int columns,
+                                                       int rows) {
     SkASSERT(rows <= 4);
     SkASSERT(columns <= 4);
 
@@ -1463,7 +1464,7 @@ std::string MetalCodeGenerator::getMatrixConstructHelper(const AnyConstructor& c
         fExtraFunctions.printf(") {\n    return %s(", typeName.c_str());
 
         if (args.size() == 1 && args.front()->type().isMatrix()) {
-            this->assembleMatrixFromMatrix(args.front()->type(), rows, columns);
+            this->assembleMatrixFromMatrix(args.front()->type(), columns, rows);
         } else {
             this->assembleMatrixFromExpressions(c, columns, rows);
         }
