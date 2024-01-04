@@ -2,7 +2,7 @@
 # declared dependencies, actual build rules are in BUILD.bazel.
 
 [package]
-name = "fontations_bridge"
+name = "fontations"
 edition = "2021"
 version = "0.1.0"
 

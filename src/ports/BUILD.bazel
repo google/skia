@@ -331,6 +331,14 @@ selects.config_setting_group(
     ],
 )
 
+selects.config_setting_group(
+    name = "uses_fontations",
+    match_any = [
+        # TODO(b/318667611): Fontations does not have a FontMgr yet.
+        "//bazel/common_config_settings:use_fontations_true",
+    ],
+)
+
 skia_cc_deps(
     name = "deps",
     linkopts = select({

@@ -105,6 +105,7 @@ CODEC_DEFINES = select_multi({
 TYPEFACE_DEFINES = select_multi(
     {
         "//src/ports:uses_freetype": ["SK_TYPEFACE_FACTORY_FREETYPE"],
+        "//src/ports:uses_fontations": ["SK_TYPEFACE_FACTORY_FONTATIONS"],
         #TODO: others when they become available
     },
 )
