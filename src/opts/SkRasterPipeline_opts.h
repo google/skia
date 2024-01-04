@@ -59,6 +59,8 @@ using NoCtx = const void*;
     #define JUMPER_IS_SCALAR
 #elif defined(SK_ARM_HAS_NEON)
     #define JUMPER_IS_NEON
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+    #define JUMPER_IS_AVX512
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #define JUMPER_IS_HSW
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
@@ -290,6 +292,228 @@ namespace SK_OPTS_NS {
     }
     SI void store4(float* ptr, F r, F g, F b, F a) {
         vst4q_f32(ptr, (float32x4x4_t{{r,g,b,a}}));
+    }
+#elif defined(JUMPER_IS_AVX512)
+template <typename T> using V = T __attribute__((ext_vector_type(16)));
+    using F   = V<float   >;
+    using I32 = V< int32_t>;
+    using U64 = V<uint64_t>;
+    using U32 = V<uint32_t>;
+    using U16 = V<uint16_t>;
+    using U8  = V<uint8_t >;
+
+    SI F   mad(F f, F m, F a) { return _mm512_fmadd_ps(f, m, a); }
+    SI F   min(F a, F b)     { return _mm512_min_ps(a,b);    }
+    SI I32 min(I32 a, I32 b) { return _mm512_min_epi32(a,b); }
+    SI U32 min(U32 a, U32 b) { return _mm512_min_epu32(a,b); }
+    SI F   max(F a, F b)     { return _mm512_max_ps(a,b);    }
+    SI I32 max(I32 a, I32 b) { return _mm512_max_epi32(a,b); }
+    SI U32 max(U32 a, U32 b) { return _mm512_max_epu32(a,b); }
+    SI F   abs_  (F v)   { return _mm512_and_ps(v, _mm512_sub_ps(_mm512_setzero(), v)); }
+    SI I32 abs_  (I32 v) { return _mm512_abs_epi32(v);   }
+    SI F   floor_(F v)   { return _mm512_floor_ps(v);    }
+    SI F   ceil_(F v)    { return _mm512_ceil_ps(v);     }
+    SI F   rcp_approx(F v) { return _mm512_rcp14_ps  (v);  }
+    SI F   rsqrt_approx (F v)   { return _mm512_rsqrt14_ps(v);  }
+    SI F   sqrt_ (F v)   { return _mm512_sqrt_ps (v);    }
+    SI F rcp_precise (F v) {
+        F e = rcp_approx(v);
+        return _mm512_fnmadd_ps(v, e, _mm512_set1_ps(2.0f)) * e;
+    }
+    SI U32 round(F v)          { return _mm512_cvtps_epi32(v); }
+    SI U32 round(F v, F scale) { return _mm512_cvtps_epi32(v*scale); }
+    SI U16 pack(U32 v) {
+        __m256i rst = _mm256_packus_epi32(_mm512_castsi512_si256(v),
+                                _mm512_extracti64x4_epi64(v, 1));
+        return _mm256_permutex_epi64(rst, 216);
+    }
+    SI U8 pack(U16 v) {
+        __m256i rst = _mm256_packus_epi16(v, v);
+        return _mm256_castsi256_si128(_mm256_permute4x64_epi64(rst, 8));
+    }
+    SI F if_then_else(I32 c, F t, F e) { 
+        __m512i mask = _mm512_set1_epi32(0x80000000);
+        __m512i aa = _mm512_and_si512(c, mask);
+        return _mm512_mask_blend_ps(_mm512_test_epi32_mask(aa, aa),e,t); 
+    } // Is c the scalar value or a vector of int32??
+    // NOTE: This version of 'all' only works with mask values (true == all bits set)
+    // SI bool any(I32 c) { return !_mm256_testz_si256(c, _mm256_set1_epi32(-1)); }
+    SI bool any(I32 c) { 
+        __mmask16 mask32 = _mm512_test_epi32_mask(c, c);
+        __mmask8 mask64 = _mm512_test_epi64_mask(c, c);
+        return (mask32 | mask64) != 0;
+    }
+
+    SI bool all(I32 c) { 
+        __mmask16 mask32 = _mm512_test_epi32_mask(c, c);
+        __mmask8 mask64 = _mm512_test_epi64_mask(c, c);
+        return (mask32 & mask64) == 0;
+    }
+
+    template <typename T>
+    SI V<T> gather(const T* p, U32 ix) {
+        return{  p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
+                 p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]],
+                 p[ix[8]], p[ix[9]], p[ix[10]], p[ix[11]],
+                 p[ix[12]], p[ix[13]], p[ix[14]], p[ix[15]], 
+                 };
+    }
+
+    SI F   gather(const float* p, U32 ix) { return _mm512_i32gather_ps(ix, p, 4); }
+    SI U32 gather(const uint32_t* p, U32 ix) { return _mm512_i32gather_epi32(ix, p, 4); }
+    SI U64 gather(const uint64_t* p, U32 ix) {
+        __m512i parts[] = {
+            _mm512_i32gather_epi64(_mm512_castsi512_si256(ix), p, 8),
+            _mm512_i32gather_epi64(_mm512_extracti32x8_epi32(ix, 1), p, 8),
+        };
+        return sk_bit_cast<U64>(parts);
+    }
+    template <typename V, typename S>
+    SI void scatter_masked(V src, S* dst, U32 ix, I32 mask) {
+        V before = gather(dst, ix);
+        V after = if_then_else(mask, src, before);
+        dst[ix[0]] = after[0];
+        dst[ix[1]] = after[1];
+        dst[ix[2]] = after[2];
+        dst[ix[3]] = after[3];
+        dst[ix[4]] = after[4];
+        dst[ix[5]] = after[5];
+        dst[ix[6]] = after[6];
+        dst[ix[7]] = after[7];
+        dst[ix[8]] = after[8];
+        dst[ix[9]] = after[9];
+        dst[ix[10]] = after[10];
+        dst[ix[11]] = after[11];
+        dst[ix[12]] = after[12];
+        dst[ix[13]] = after[13];
+        dst[ix[14]] = after[14];
+        dst[ix[15]] = after[15];
+    }
+
+    SI void load2(const uint16_t* ptr, U16* r, U16* g) {
+        U16 _01234567, _89abcdef;
+        _01234567 = _mm256_loadu_si256(((__m256i*)ptr) + 0);
+        _89abcdef = _mm256_loadu_si256(((__m256i*)ptr) + 1);
+
+        // 32-bit: shift left 16-bit first, and then shift right 16-bit
+        // Convert 32-bit into 16-bit
+        *r = _mm256_permute4x64_epi64(_mm256_packs_epi32(_mm256_srai_epi32(_mm256_slli_epi32(_01234567, 16), 16),
+                             _mm256_srai_epi32(_mm256_slli_epi32(_89abcdef, 16), 16)), 216);
+        *g = _mm256_permute4x64_epi64(_mm256_packs_epi32(_mm256_srai_epi32(_01234567, 16),
+                             _mm256_srai_epi32(_89abcdef, 16)), 216);
+    }
+    SI void store2(uint16_t* ptr, U16 r, U16 g) {
+        auto _01234567 = _mm256_unpacklo_epi16(r, g);
+        auto _89abcdef = _mm256_unpackhi_epi16(r, g);
+        __m512i combinedVector = _mm512_inserti64x4(_mm512_castsi256_si512(_01234567), _89abcdef, 1); // combine the two 256-bit into one 512-bit
+        __m512i aa = _mm512_permutexvar_epi64(_mm512_setr_epi64(0,1,4,5,2,3,6,7), combinedVector);
+        _01234567 = _mm512_castsi512_si256(aa);
+        _89abcdef = _mm512_extracti64x4_epi64(aa, 1);
+
+        _mm256_storeu_si256((__m256i*)ptr + 0, _01234567);
+        _mm256_storeu_si256((__m256i*)ptr + 1, _89abcdef);
+    }
+
+    SI void load4(const uint16_t* ptr, U16* r, U16* g, U16* b, U16* a) {
+        __m512i _01234567, _89abcdef;
+        _01234567 = _mm512_loadu_si512((__m512i*)ptr);
+        _89abcdef = _mm512_loadu_si512((__m512i*)(ptr+32));
+
+        // convert rgba to r, g, b, a
+        *r = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_01234567, _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(_mm512_and_si512(_89abcdef, _mm512_set1_epi64(0xFF))));
+        *g = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(_01234567, 16), _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(_89abcdef, 16), _mm512_set1_epi64(0xFF))));
+        *b = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(_01234567, 32), _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(_89abcdef, 32), _mm512_set1_epi64(0xFF))));
+        *a = _mm256_setr_m128i(_mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(_01234567, 48), _mm512_set1_epi64(0xFF))), _mm512_cvtepi64_epi16(_mm512_and_si512(_mm512_srli_epi64(_89abcdef, 48), _mm512_set1_epi64(0xFF))));
+    }
+    SI void store4(uint16_t* ptr, U16 r, U16 g, U16 b, U16 a) {
+        auto rg012389ab = _mm256_unpacklo_epi16(r, g),
+             rg4567cdef = _mm256_unpackhi_epi16(r, g),
+             ba012389ab = _mm256_unpacklo_epi16(b, a),
+             ba4567cdef = _mm256_unpackhi_epi16(b, a);
+
+        auto _0189 = _mm256_unpacklo_epi32(rg012389ab, ba012389ab), // r0 g0 b0 a0 r1 g1 b1 a1 for two pixels
+             _23ab = _mm256_unpackhi_epi32(rg012389ab, ba012389ab),
+             _45cd = _mm256_unpacklo_epi32(rg4567cdef, ba4567cdef),
+             _67ef = _mm256_unpackhi_epi32(rg4567cdef, ba4567cdef);
+
+        auto _ab23 = _mm256_permutex_epi64(_23ab, 78);
+        auto _0123 = _mm256_blend_epi32(_0189, _ab23, 0xf0);
+        auto _89ab = _mm256_permutex_epi64(_mm256_blend_epi32(_0189, _ab23, 0x0f), 78);
+        auto _ef67 = _mm256_permutex_epi64(_67ef, 78);
+        auto _4567 = _mm256_blend_epi32(_45cd, _ef67, 0xf0);
+        auto _cdef = _mm256_permutex_epi64(_mm256_blend_epi32(_45cd, _ef67, 0x0f), 78);
+
+        _mm256_storeu_si256((__m256i*)ptr, _0123);
+        _mm256_storeu_si256((__m256i*)ptr + 1, _4567);
+        _mm256_storeu_si256((__m256i*)ptr + 2, _89ab);
+        _mm256_storeu_si256((__m256i*)ptr + 3, _cdef);
+    }
+
+    SI void load4(const float* ptr, F* r, F* g, F* b, F* a) {
+        F _048c, _159d, _26ae, _37bf;
+          _048c = _159d = _26ae = _37bf = 0;
+
+        _048c = _mm512_insertf32x4(_048c, _mm_loadu_ps(ptr+ 0), 0);
+        _048c = _mm512_insertf32x4(_048c, _mm_loadu_ps(ptr+16), 1);
+        _048c = _mm512_insertf32x4(_048c, _mm_loadu_ps(ptr+32), 2);
+        _048c = _mm512_insertf32x4(_048c, _mm_loadu_ps(ptr+48), 3);
+        _159d = _mm512_insertf32x4(_159d, _mm_loadu_ps(ptr+4), 0);
+        _159d = _mm512_insertf32x4(_159d, _mm_loadu_ps(ptr+20), 1);
+        _159d = _mm512_insertf32x4(_159d, _mm_loadu_ps(ptr+36), 2);
+        _159d = _mm512_insertf32x4(_159d, _mm_loadu_ps(ptr+52), 3);
+        _26ae = _mm512_insertf32x4(_26ae, _mm_loadu_ps(ptr+8), 0);
+        _26ae = _mm512_insertf32x4(_26ae, _mm_loadu_ps(ptr+24), 1);
+        _26ae = _mm512_insertf32x4(_26ae, _mm_loadu_ps(ptr+40), 2);
+        _26ae = _mm512_insertf32x4(_26ae, _mm_loadu_ps(ptr+56), 3);
+        _37bf = _mm512_insertf32x4(_37bf, _mm_loadu_ps(ptr+12),0);
+        _37bf = _mm512_insertf32x4(_37bf, _mm_loadu_ps(ptr+28), 1);
+        _37bf = _mm512_insertf32x4(_37bf, _mm_loadu_ps(ptr+44), 2);
+        _37bf = _mm512_insertf32x4(_37bf, _mm_loadu_ps(ptr+60), 3);
+       
+        F rg02468acf = _mm512_unpacklo_ps(_048c, _26ae), // r0 r2 g0 g2 r4 r6 g4 g6 r8 ra g8 ga rc re gc ge
+          ba02468acf = _mm512_unpackhi_ps(_048c, _26ae),
+          rg13579bde = _mm512_unpacklo_ps(_159d, _37bf), // r1 r3 g1 g3 r5 r7 g5 g7 r9 rb g9 gb rd rf gd gf
+          ba13579bde = _mm512_unpackhi_ps(_159d, _37bf);
+
+        *r = _mm512_unpacklo_ps(rg02468acf, rg13579bde); // r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 ra rb rc rd re rf
+        *g = _mm512_unpackhi_ps(rg02468acf, rg13579bde);
+        *b = _mm512_unpacklo_ps(ba02468acf, ba13579bde);
+        *a = _mm512_unpackhi_ps(ba02468acf, ba13579bde);
+    }
+    
+    SI void store4(float* ptr, F r, F g, F b, F a) {
+        F rg014589cd = _mm512_unpacklo_ps(r, g), // r0 g0 r1 g1 r4 g4 r5 g5
+          rg2367abef = _mm512_unpackhi_ps(r, g),
+          ba014589cd = _mm512_unpacklo_ps(b, a), // b0 a0 b1 a1 b4 a4 b5 a5
+          ba2367abef = _mm512_unpackhi_ps(b, a);
+
+        F _048c = _mm512_unpacklo_pd(rg014589cd, ba014589cd), // r0 g0 b0 a0 4 8 c
+          _26ae = _mm512_unpacklo_pd(rg2367abef, ba2367abef), // r2 g2 b2 a2 6 a e
+          _159d = _mm512_unpackhi_pd(rg014589cd, ba014589cd), // r1 g1 b1 a1 5 9 d
+          _37bf = _mm512_unpackhi_pd(rg2367abef, ba2367abef); // r3 g3 b3 a3 7 b f
+
+
+        F _ae26 = _mm512_permutexvar_pd(_mm512_setr_epi64(4,5,6,7,0,1,2,3), _26ae),
+          _bf37 = _mm512_permutexvar_pd(_mm512_setr_epi64(4,5,6,7,0,1,2,3), _37bf),
+          _8c04 = _mm512_permutexvar_pd(_mm512_setr_epi64(4,5,6,7,0,1,2,3), _048c),
+          _9d15 = _mm512_permutexvar_pd(_mm512_setr_epi64(4,5,6,7,0,1,2,3), _159d),
+
+          _0426 = _mm512_permutex2var_pd(_048c, _mm512_setr_epi64(0,1,2,3,12,13,14,15), _ae26),
+          _1537 = _mm512_permutex2var_pd(_159d, _mm512_setr_epi64(0,1,2,3,12,13,14,15), _bf37),
+          _5173 = _mm512_permutex_pd(_1537, 176),
+          _0123 = _mm512_permutex2var_pd(_0426, _mm512_setr_epi64(0,1,10,11,4,5,14,15), _5173),
+          _5476 = _mm512_permutex2var_pd(_5173, _mm512_setr_epi64(0,1,10,11,4,5,14,15), _0426),
+          _4567 = _mm512_permutex_pd(_5476, 176),
+          _8cae = _mm512_permutex2var_pd(_8c04, _mm512_setr_epi64(0,1,2,3,12,13,14,15), _26ae),
+          _9dbf = _mm512_permutex2var_pd(_9d15, _mm512_setr_epi64(0,1,2,3,12,13,14,15), _37bf),
+          _d9fb = _mm512_permutex_pd(_9dbf, 176),
+          _89ab = _mm512_permutex2var_pd(_8cae, _mm512_setr_epi64(0,1,10,11,4,5,14,15), _d9fb),
+          _dcfe = _mm512_permutex2var_pd(_d9fb, _mm512_setr_epi64(0,1,10,11,4,5,14,15), _8cae),
+          _cdef = _mm512_permutex_pd(_dcfe, 176);
+        _mm512_storeu_ps(ptr+0, _0123);
+        _mm512_storeu_ps(ptr+16, _4567);
+        _mm512_storeu_ps(ptr+32, _89ab);
+        _mm512_storeu_ps(ptr+48, _cdef);
     }
 
 #elif defined(JUMPER_IS_HSW)
@@ -631,6 +855,12 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     SI U32 trunc_(F   v) { return (U32)v; }
     SI U32 expand(U16 v) { return (U32)v; }
     SI U32 expand(U8  v) { return (U32)v; }
+#elif defined (JUMPER_IS_AVX512)
+    SI F   cast  (U32 v) { return      _mm512_cvtepu32_ps(v); }
+    SI F   cast64(U64 v) { return      __builtin_convertvector(     v,   F); }
+    SI U32 trunc_(F   v) { return (U32)__builtin_convertvector(     v, I32); }
+    SI U32 expand(U16 v) { return      _mm512_cvtepu16_epi32(v); }
+    SI U32 expand(U8  v) { return      _mm512_cvtepu8_epi32(v); }
 #else
     SI F   cast  (U32 v) { return      __builtin_convertvector((I32)v,   F); }
     SI F   cast64(U64 v) { return      __builtin_convertvector(     v,   F); }
@@ -691,6 +921,9 @@ SI F from_half(U16 h) {
 #if defined(JUMPER_IS_NEON) && defined(SK_CPU_ARM64)
     return vcvt_f32_f16(h);
 
+#elif defined(JUMPER_IS_AVX512)
+    return _mm512_cvtph_ps(h);
+
 #elif defined(JUMPER_IS_HSW)
     return _mm256_cvtph_ps(h);
 
@@ -710,6 +943,9 @@ SI F from_half(U16 h) {
 SI U16 to_half(F f) {
 #if defined(JUMPER_IS_NEON) && defined(SK_CPU_ARM64)
     return vcvt_f16_f32(f);
+
+#elif defined(JUMPER_IS_AVX512)
+    return _mm512_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
 
 #elif defined(JUMPER_IS_HSW)
     return _mm256_cvtps_ph(f, _MM_FROUND_CUR_DIRECTION);
@@ -4177,7 +4413,25 @@ namespace lowp {
 
 #else  // We are compiling vector code with Clang... let's make some lowp stages!
 
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_AVX512)
+    using U8  = uint8_t  __attribute__((ext_vector_type(16)));
+    using U16 = uint16_t __attribute__((ext_vector_type(16)));
+    using I16 =  int16_t __attribute__((ext_vector_type(16)));
+    using I32 =  int32_t __attribute__((ext_vector_type(16)));
+    using U32 = uint32_t __attribute__((ext_vector_type(16)));
+    using I64 =  int64_t __attribute__((ext_vector_type(16)));
+    using U64 = uint64_t __attribute__((ext_vector_type(16)));
+    using F   = float    __attribute__((ext_vector_type(16)));
+
+    SI F sqrt_lowp (F v)   { return _mm512_sqrt_ps (v);}
+    SI F rcp_fast_lowp(F v) {return _mm512_rcp14_ps(v);}
+    SI F floor_lowp(F v)   { return _mm512_floor_ps(v);}
+    SI F rcp_precise_lowp (F v) {
+        F e = rcp_fast_lowp(v);
+        return _mm512_fnmadd_ps(v, e, _mm512_set1_ps(2.0f)) * e;
+    }
+
+#elif defined(JUMPER_IS_HSW)
     using U8  = uint8_t  __attribute__((ext_vector_type(16)));
     using U16 = uint16_t __attribute__((ext_vector_type(16)));
     using I16 =  int16_t __attribute__((ext_vector_type(16)));
@@ -4447,23 +4701,61 @@ SI D join(S lo, S hi) {
 }
 
 SI F if_then_else(I32 c, F t, F e) {
+#if defined(JUMPER_IS_AVX512) 
+    __m512i mask = _mm512_set1_epi32(0x80000000);
+    __m512i aa = _mm512_and_si512(c, mask);
+    return _mm512_mask_blend_ps(_mm512_test_epi32_mask(aa, aa),e,t); 
+#else
     return sk_bit_cast<F>( (sk_bit_cast<I32>(t) & c) | (sk_bit_cast<I32>(e) & ~c) );
+#endif
 }
-SI F max(F x, F y) { return if_then_else(x < y, y, x); }
-SI F min(F x, F y) { return if_then_else(x < y, x, y); }
+SI F max(F x, F y) { 
+#if defined(JUMPER_IS_AVX512) 
+    return _mm512_max_ps(x, y);
+#else
+    return if_then_else(x < y, y, x); 
+#endif
+}
+SI F min(F x, F y) { 
+#if defined(JUMPER_IS_AVX512) 
+    return _mm512_min_ps(x, y);
+#else
+    return if_then_else(x < y, x, y);
+#endif
+}
 
 SI I32 if_then_else(I32 c, I32 t, I32 e) {
     return (t & c) | (e & ~c);
 }
-SI I32 max(I32 x, I32 y) { return if_then_else(x < y, y, x); }
-SI I32 min(I32 x, I32 y) { return if_then_else(x < y, x, y); }
+SI I32 max(I32 x, I32 y) {
+#if defined(JUMPER_IS_AVX512) 
+    return _mm512_max_epi32(x, y);
+#else     
+    return if_then_else(x < y, y, x); 
+#endif
+}
+SI I32 min(I32 x, I32 y) {
+#if defined(JUMPER_IS_AVX512) 
+    return _mm512_min_epi32(x, y);
+#else     
+    return if_then_else(x < y, x, y);
+#endif
+}
 
-SI F mad(F f, F m, F a) { return f*m+a; }
+SI F mad(F f, F m, F a) {
+#if defined(JUMPER_IS_AVX512) 
+    return _mm512_fmadd_ps(f, m, a);
+#else     
+     return f*m+a;
+#endif
+}
 SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
 // Use approximate instructions and one Newton-Raphson step to calculate 1/x.
 SI F rcp_precise(F x) {
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_AVX512)
+    return rcp_precise_lowp(x);
+#elif defined(JUMPER_IS_HSW)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(SK_OPTS_NS::rcp_precise(lo), SK_OPTS_NS::rcp_precise(hi));
@@ -4480,7 +4772,9 @@ SI F rcp_precise(F x) {
 #endif
 }
 SI F sqrt_(F x) {
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_AVX512)
+    return sqrt_lowp(x);
+#elif defined(JUMPER_IS_HSW)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_sqrt_ps(lo), _mm256_sqrt_ps(hi));
@@ -4515,6 +4809,8 @@ SI F floor_(F x) {
     float32x4_t lo,hi;
     split(x, &lo,&hi);
     return join<F>(vrndmq_f32(lo), vrndmq_f32(hi));
+#elif defined(JUMPER_IS_AVX512)
+    return floor_lowp(x);
 #elif defined(JUMPER_IS_HSW)
     __m256 lo,hi;
     split(x, &lo,&hi);
@@ -4535,7 +4831,9 @@ SI F floor_(F x) {
 // The result is a number on [-1, 1).
 // Note: on neon this is a saturating multiply while the others are not.
 SI I16 scaled_mult(I16 a, I16 b) {
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_AVX512)
+    return _mm256_mulhrs_epi16(a, b);
+#elif defined(JUMPER_IS_HSW)
     return _mm256_mulhrs_epi16(a, b);
 #elif defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
     return _mm_mulhrs_epi16(a, b);
@@ -4809,7 +5107,25 @@ SI void store(T* ptr, V v) {
     memcpy(ptr, &v, sizeof(v));
 }
 
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_AVX512)
+    template <typename V, typename T>
+    SI V gather(const T* ptr, U32 ix) {
+        return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
+                  ptr[ix[ 4]], ptr[ix[ 5]], ptr[ix[ 6]], ptr[ix[ 7]],
+                  ptr[ix[ 8]], ptr[ix[ 9]], ptr[ix[10]], ptr[ix[11]],
+                  ptr[ix[12]], ptr[ix[13]], ptr[ix[14]], ptr[ix[15]], };
+    }
+
+    template<>
+    F gather(const float* ptr, U32 ix) {
+        return _mm512_i32gather_ps(ix, ptr, 4);
+    }
+
+    template<>
+    U32 gather(const uint32_t* ptr, U32 ix) {
+        return _mm512_i32gather_epi32(ix, ptr, 4);
+    }
+#elif defined(JUMPER_IS_HSW)
     template <typename V, typename T>
     SI V gather(const T* ptr, U32 ix) {
         return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
@@ -4847,7 +5163,13 @@ SI void store(T* ptr, V v) {
 // ~~~~~~ 32-bit memory loads and stores ~~~~~~ //
 
 SI void from_8888(U32 rgba, U16* r, U16* g, U16* b, U16* a) {
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_AVX512)
+    // Swap the middle 128-bit lanes to make _mm256_packus_epi32() in cast_U16() work out nicely.
+    rgba = _mm512_permutexvar_epi64(_mm512_setr_epi64(0,1,4,5,2,3,6,7), rgba); // swap to 0213
+    auto cast_U16 = [](U32 v) -> U16 {
+        return _mm256_packus_epi32(_mm512_castsi512_si256(v), _mm512_extracti64x4_epi64(v, 1));
+    };
+#elif defined(JUMPER_IS_HSW)
     // Swap the middle 128-bit lanes to make _mm256_packus_epi32() in cast_U16() work out nicely.
     __m256i _01,_23;
     split(rgba, &_01, &_23);

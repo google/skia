@@ -19,7 +19,7 @@ namespace SkSL { class TraceHook; }
 // by stages that have no lowp implementation. They can therefore use the (smaller) highp value to
 // save memory in the arena.
 inline static constexpr int SkRasterPipeline_kMaxStride = 16;
-inline static constexpr int SkRasterPipeline_kMaxStride_highp = 8;
+inline static constexpr int SkRasterPipeline_kMaxStride_highp = 16;
 
 // How much space to allocate for each MemoryCtx scratch buffer, as part of tail-pixel handling.
 inline static constexpr size_t SkRasterPipeline_MaxScratchPerPatch =
