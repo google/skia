@@ -2251,9 +2251,8 @@ protected:
     virtual void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                               const SkPaint& paint);
 
-    // DEPRECATED: This is no longer called and will be deleted.
-    virtual void onDrawImage2(const SkImage*, SkScalar, SkScalar, const SkSamplingOptions&,
-                              const SkPaint*) {}
+    virtual void onDrawImage2(const SkImage*, SkScalar dx, SkScalar dy, const SkSamplingOptions&,
+                              const SkPaint*);
     virtual void onDrawImageRect2(const SkImage*, const SkRect& src, const SkRect& dst,
                                   const SkSamplingOptions&, const SkPaint*, SrcRectConstraint);
     virtual void onDrawImageLattice2(const SkImage*, const Lattice&, const SkRect& dst,
@@ -2539,6 +2538,12 @@ private:
      */
     bool wouldOverwriteEntireSurface(const SkRect*, const SkPaint*,
                                      SkEnumBitMask<PredrawFlags>) const;
+
+    /**
+     *  Returns true if the paint's imagefilter can be invoked directly, without needed a layer.
+     */
+    bool canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkSamplingOptions&,
+                               const SkPaint&);
 
     /**
      *  Returns true if the clip (for any active layer) contains antialiasing.
