@@ -23,6 +23,7 @@
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 #include "src/gpu/graphite/vk/VulkanRenderPass.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -617,13 +618,13 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     VkShaderModule fsModule = VK_NULL_HANDLE, vsModule = VK_NULL_HANDLE;
 
     if (hasFragmentSkSL) {
-        if (!SkSLToSPIRV(sharedContext->caps()->shaderCaps(),
-                         fsSkSL,
-                         SkSL::ProgramKind::kGraphiteFragment,
-                         settings,
-                         &fsSPIRV,
-                         &fsInterface,
-                         errorHandler)) {
+        if (!skgpu::SkSLToSPIRV(sharedContext->caps()->shaderCaps(),
+                                fsSkSL,
+                                SkSL::ProgramKind::kGraphiteFragment,
+                                settings,
+                                &fsSPIRV,
+                                &fsInterface,
+                                errorHandler)) {
             return nullptr;
         }
 
@@ -638,13 +639,13 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                               useStorageBuffers,
                                               localCoordsNeeded);
     const std::string& vsSkSL = vsSkSLInfo.fSkSL;
-    if (!SkSLToSPIRV(sharedContext->caps()->shaderCaps(),
-                     vsSkSL,
-                     SkSL::ProgramKind::kGraphiteVertex,
-                     settings,
-                     &vsSPIRV,
-                     &vsInterface,
-                     errorHandler)) {
+    if (!skgpu::SkSLToSPIRV(sharedContext->caps()->shaderCaps(),
+                            vsSkSL,
+                            SkSL::ProgramKind::kGraphiteVertex,
+                            settings,
+                            &vsSPIRV,
+                            &vsInterface,
+                            errorHandler)) {
         return nullptr;
     }
 

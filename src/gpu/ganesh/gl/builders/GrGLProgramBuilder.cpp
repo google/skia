@@ -331,13 +331,13 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
             if (fFS.fForceHighPrecision) {
                 settings.fForceHighPrecision = true;
             }
-            if (!SkSLToGLSL(this->gpu()->caps()->shaderCaps(),
-                            *sksl[kFragment_GrShaderType],
-                            SkSL::ProgramKind::kFragment,
-                            settings,
-                            &glsl[kFragment_GrShaderType],
-                            &interface,
-                            errorHandler)) {
+            if (!skgpu::SkSLToGLSL(this->gpu()->caps()->shaderCaps(),
+                                   *sksl[kFragment_GrShaderType],
+                                   SkSL::ProgramKind::kFragment,
+                                   settings,
+                                   &glsl[kFragment_GrShaderType],
+                                   &interface,
+                                   errorHandler)) {
                 cleanup_program(fGpu, programID, shadersToDelete);
                 return nullptr;
             }
@@ -360,13 +360,13 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         if (glsl[kVertex_GrShaderType].empty()) {
             // Don't have cached GLSL, need to compile SkSL->GLSL
             SkSL::Program::Interface unusedInterface;
-            if (!SkSLToGLSL(this->gpu()->caps()->shaderCaps(),
-                            *sksl[kVertex_GrShaderType],
-                            SkSL::ProgramKind::kVertex,
-                            settings,
-                            &glsl[kVertex_GrShaderType],
-                            &unusedInterface,
-                            errorHandler)) {
+            if (!skgpu::SkSLToGLSL(this->gpu()->caps()->shaderCaps(),
+                                   *sksl[kVertex_GrShaderType],
+                                   SkSL::ProgramKind::kVertex,
+                                   settings,
+                                   &glsl[kVertex_GrShaderType],
+                                   &unusedInterface,
+                                   errorHandler)) {
                 cleanup_program(fGpu, programID, shadersToDelete);
                 return nullptr;
             }
@@ -487,13 +487,13 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
     auto compileShader = [&](SkSL::ProgramKind kind, const std::string& sksl, GrGLenum type) {
         std::string glsl;
         SkSL::Program::Interface unusedInterface;
-        if (!SkSLToGLSL(glGpu->caps()->shaderCaps(),
-                        sksl,
-                        kind,
-                        settings,
-                        &glsl,
-                        &unusedInterface,
-                        errorHandler)) {
+        if (!skgpu::SkSLToGLSL(glGpu->caps()->shaderCaps(),
+                               sksl,
+                               kind,
+                               settings,
+                               &glsl,
+                               &unusedInterface,
+                               errorHandler)) {
             return false;
         }
 

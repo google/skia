@@ -10,9 +10,36 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
+#include "src/gpu/PipelineUtils.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/gl/GrGLContext.h"
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
+
+namespace SkSL {
+
+enum class ProgramKind : int8_t;
+struct ProgramInterface;
+struct ProgramSettings;
+struct ShaderCaps;
+
+}  // namespace SkSL
+
+namespace skgpu {
+
+class ShaderErrorHandler;
+
+inline bool SkSLToGLSL(const SkSL::ShaderCaps* caps,
+                       const std::string& sksl,
+                       SkSL::ProgramKind programKind,
+                       const SkSL::ProgramSettings& settings,
+                       std::string* glsl,
+                       SkSL::ProgramInterface* outInterface,
+                       ShaderErrorHandler* errorHandler) {
+    return SkSLToBackend(caps, &SkSL::ToGLSL, "GLSL",
+                         sksl, programKind, settings, glsl, outInterface, errorHandler);
+}
+
+}  // namespace skgpu
 
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,

@@ -8,12 +8,23 @@
 #ifndef GrD3DPipelineStateBuilder_DEFINED
 #define GrD3DPipelineStateBuilder_DEFINED
 
+#include "src/gpu/PipelineUtils.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrSPIRVUniformHandler.h"
 #include "src/gpu/ganesh/GrSPIRVVaryingHandler.h"
 #include "src/gpu/ganesh/d3d/GrD3DPipelineState.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
+#include "src/sksl/codegen/SkSLHLSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
+
+namespace SkSL {
+
+enum class ProgramKind : int8_t;
+struct ProgramInterface;
+struct ProgramSettings;
+struct ShaderCaps;
+
+}  // namespace SkSL
 
 class GrProgramDesc;
 class GrD3DGpu;
@@ -66,5 +77,22 @@ private:
 
     using INHERITED = GrGLSLProgramBuilder;
 };
+
+namespace skgpu {
+
+class ShaderErrorHandler;
+
+inline bool SkSLToHLSL(const SkSL::ShaderCaps* caps,
+                       const std::string& sksl,
+                       SkSL::ProgramKind programKind,
+                       const SkSL::ProgramSettings& settings,
+                       std::string* hlsl,
+                       SkSL::ProgramInterface* outInterface,
+                       ShaderErrorHandler* errorHandler) {
+    return SkSLToBackend(caps, &SkSL::ToHLSL, "HLSL",
+                         sksl, programKind, settings, hlsl, outInterface, errorHandler);
+}
+
+}  // namespace skgpu
 
 #endif

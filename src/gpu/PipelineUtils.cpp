@@ -12,11 +12,6 @@
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
-#include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
-#include "src/sksl/codegen/SkSLHLSLCodeGenerator.h"
-#include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
-#include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
-#include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/utils/SkShaderUtils.h"
 
@@ -24,17 +19,15 @@
 
 namespace skgpu {
 
-static bool sksl_to_backend(const SkSL::ShaderCaps* caps,
-                            bool (*toBackend)(SkSL::Program&,
-                                              const SkSL::ShaderCaps*,
-                                              std::string*),
-                            const char* backendLabel,
-                            const std::string& sksl,
-                            SkSL::ProgramKind programKind,
-                            const SkSL::ProgramSettings& settings,
-                            std::string* output,
-                            SkSL::ProgramInterface* outInterface,
-                            ShaderErrorHandler* errorHandler) {
+bool SkSLToBackend(const SkSL::ShaderCaps* caps,
+                   bool (*toBackend)(SkSL::Program&, const SkSL::ShaderCaps*, std::string*),
+                   const char* backendLabel,
+                   const std::string& sksl,
+                   SkSL::ProgramKind programKind,
+                   const SkSL::ProgramSettings& settings,
+                   std::string* output,
+                   SkSL::ProgramInterface* outInterface,
+                   ShaderErrorHandler* errorHandler) {
 #ifdef SK_DEBUG
     std::string src = SkShaderUtils::PrettyPrint(sksl);
 #else
@@ -76,61 +69,6 @@ static bool sksl_to_backend(const SkSL::ShaderCaps* caps,
         *outInterface = program->fInterface;
     }
     return true;
-}
-
-bool SkSLToGLSL(const SkSL::ShaderCaps* caps,
-                const std::string& sksl,
-                SkSL::ProgramKind programKind,
-                const SkSL::ProgramSettings& settings,
-                std::string* glsl,
-                SkSL::ProgramInterface* outInterface,
-                ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::ToGLSL, "GLSL",
-                           sksl, programKind, settings, glsl, outInterface, errorHandler);
-}
-
-bool SkSLToSPIRV(const SkSL::ShaderCaps* caps,
-                 const std::string& sksl,
-                 SkSL::ProgramKind programKind,
-                 const SkSL::ProgramSettings& settings,
-                 std::string* spirv,
-                 SkSL::ProgramInterface* outInterface,
-                 ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::ToSPIRV, /*backendLabel=*/nullptr,
-                           sksl, programKind, settings, spirv, outInterface, errorHandler);
-}
-
-bool SkSLToWGSL(const SkSL::ShaderCaps* caps,
-                const std::string& sksl,
-                SkSL::ProgramKind programKind,
-                const SkSL::ProgramSettings& settings,
-                std::string* wgsl,
-                SkSL::ProgramInterface* outInterface,
-                ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::ToWGSL, "WGSL",
-                           sksl, programKind, settings, wgsl, outInterface, errorHandler);
-}
-
-bool SkSLToMSL(const SkSL::ShaderCaps* caps,
-               const std::string& sksl,
-               SkSL::ProgramKind programKind,
-               const SkSL::ProgramSettings& settings,
-               std::string* msl,
-               SkSL::ProgramInterface* outInterface,
-               ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::ToMetal, "MSL",
-                           sksl, programKind, settings, msl, outInterface, errorHandler);
-}
-
-bool SkSLToHLSL(const SkSL::ShaderCaps* caps,
-                const std::string& sksl,
-                SkSL::ProgramKind programKind,
-                const SkSL::ProgramSettings& settings,
-                std::string* hlsl,
-                SkSL::ProgramInterface* outInterface,
-                ShaderErrorHandler* errorHandler) {
-    return sksl_to_backend(caps, &SkSL::ToHLSL, "HLSL",
-                           sksl, programKind, settings, hlsl, outInterface, errorHandler);
 }
 
 }  // namespace skgpu

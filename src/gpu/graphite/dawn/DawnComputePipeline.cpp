@@ -15,7 +15,7 @@
 #include "src/gpu/graphite/dawn/DawnErrorChecker.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
 namespace skgpu::graphite {
@@ -53,13 +53,13 @@ static ShaderInfo compile_shader_module(const DawnSharedContext* sharedContext,
         SkSL::ProgramSettings settings;
 
         std::string sksl = BuildComputeSkSL(caps, step);
-        if (SkSLToWGSL(caps->shaderCaps(),
-                       sksl,
-                       SkSL::ProgramKind::kCompute,
-                       settings,
-                       &wgsl,
-                       &interface,
-                       errorHandler)) {
+        if (skgpu::SkSLToWGSL(caps->shaderCaps(),
+                              sksl,
+                              SkSL::ProgramKind::kCompute,
+                              settings,
+                              &wgsl,
+                              &interface,
+                              errorHandler)) {
             if (!DawnCompileWGSLShaderModule(sharedContext, wgsl, &info.fModule, errorHandler)) {
                 return {};
             }
