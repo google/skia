@@ -1183,11 +1183,15 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
     const bool currentXformIsInteger = is_nearly_integer_translation(fTransform);
     const bool nextXformIsInteger = !(flags & ShaderFlags::kNonTrivialSampling);
 
+    SkBlendMode colorFilterMode;
     SkSamplingOptions sampling = xtraSampling;
     const bool needsResolve =
-            // Deferred calculations on the input would be repeated with each sample
+            // Deferred calculations on the input would be repeated with each sample, but we allow
+            // simple color filters to skip resolving since their repeated math should be cheap.
             (flags & ShaderFlags::kSampledRepeatedly &&
-             (fColorFilter || !SkColorSpace::Equals(fImage->getColorSpace(), ctx.colorSpace()))) ||
+                    ((fColorFilter && (!fColorFilter->asAColorMode(nullptr, &colorFilterMode) ||
+                                       colorFilterMode > SkBlendMode::kLastCoeffMode)) ||
+                     !SkColorSpace::Equals(fImage->getColorSpace(), ctx.colorSpace()))) ||
             // The deferred sampling options can't be merged with the one requested
             !compatible_sampling(fSamplingOptions, currentXformIsInteger,
                                  &sampling, nextXformIsInteger) ||
