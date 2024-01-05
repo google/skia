@@ -1093,6 +1093,7 @@ skia_filegroup(
         "spirv/Ossfuzz37627.sksl",
         "spirv/Ossfuzz44096.sksl",
         "spirv/Ossfuzz53202.sksl",
+        "spirv/Ossfuzz65538.sksl",
         "spirv/StructArrayMemberInDifferentLayouts.sksl",
         "spirv/UnusedInterfaceBlock.sksl",
         "spirv/WrongCombinedSamplerLayoutForWebGPUSampler.sksl",

@@ -1,0 +1,5 @@
+InterfaceBlockA { int a; };
+InterfaceBlockB { int b; };
+void main() {
+    bool e = sk_FragCoord.y > 0; /* synthesizes u_skRTFlip */
+}
