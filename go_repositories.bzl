@@ -2652,6 +2652,6 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:PDO3l2MIimF+YskQJia6Go181mXTYdY92iN3kXqwEs8=",
-        version = "v0.0.0-20240103211248-58247e808c13",
+        sum = "h1:hRnO+Jv9u+pu7eUSWKPL3iLl/zuweugadwqgHWTuAK8=",
+        version = "v0.0.0-20240104222121-6de9699bbab6",
     )
