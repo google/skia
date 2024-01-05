@@ -47,10 +47,6 @@ public:
                                            Position pos,
                                            std::string_view name);
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<Extension>(fPosition, fName);
-    }
-
     std::string description() const override {
         return "#extension " + std::string(this->name()) + " : enable";
     }

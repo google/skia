@@ -362,13 +362,6 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Make(const Context&,
     return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body));
 }
 
-std::unique_ptr<ProgramElement> FunctionDefinition::clone() const {
-    return std::make_unique<FunctionDefinition>(fPosition,
-                                                &this->declaration(),
-                                                /*builtin=*/false,
-                                                this->body()->clone());
-}
-
 const SymbolTable* FunctionDefinition::parameterSymbolTable() const {
     // Parameters are always held in a symbol table immediately above the body.
     return fBody->as<Block>().symbolTable()->fParent.get();

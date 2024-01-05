@@ -136,12 +136,6 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Make(const Context& context,
     return std::make_unique<SkSL::InterfaceBlock>(pos, variable, context.fSymbolTable);
 }
 
-std::unique_ptr<ProgramElement> InterfaceBlock::clone() const {
-    return std::make_unique<InterfaceBlock>(fPosition,
-                                            this->var(),
-                                            SymbolTable::WrapIfBuiltin(this->typeOwner()));
-}
-
 std::string InterfaceBlock::description() const {
     std::string result = this->var()->layout().description() +
                          this->var()->modifierFlags().description() + ' ' +

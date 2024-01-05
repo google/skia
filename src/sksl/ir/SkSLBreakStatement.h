@@ -27,10 +27,6 @@ public:
         return std::make_unique<BreakStatement>(pos);
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<BreakStatement>(fPosition);
-    }
-
     std::string description() const override {
         return "break;";
     }

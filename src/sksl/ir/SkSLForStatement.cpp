@@ -17,7 +17,6 @@
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLNop.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -45,23 +44,6 @@ static bool is_vardecl_block_initializer(const Statement* stmt) {
 static bool is_simple_initializer(const Statement* stmt) {
     return !stmt || stmt->isEmpty() || stmt->is<SkSL::VarDeclaration>() ||
            stmt->is<SkSL::ExpressionStatement>();
-}
-
-std::unique_ptr<Statement> ForStatement::clone() const {
-    std::unique_ptr<LoopUnrollInfo> unrollInfo;
-    if (fUnrollInfo) {
-        unrollInfo = std::make_unique<LoopUnrollInfo>(*fUnrollInfo);
-    }
-
-    return std::make_unique<ForStatement>(
-            fPosition,
-            fForLoopPositions,
-            this->initializer() ? this->initializer()->clone() : nullptr,
-            this->test() ? this->test()->clone() : nullptr,
-            this->next() ? this->next()->clone() : nullptr,
-            this->statement()->clone(),
-            std::move(unrollInfo),
-            SymbolTable::WrapIfBuiltin(this->symbols()));
 }
 
 std::string ForStatement::description() const {

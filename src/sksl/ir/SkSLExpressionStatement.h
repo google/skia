@@ -47,10 +47,6 @@ public:
         return fExpression;
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<ExpressionStatement>(this->expression()->clone());
-    }
-
     std::string description() const override;
 
 private:

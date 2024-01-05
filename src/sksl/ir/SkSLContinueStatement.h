@@ -27,10 +27,6 @@ public:
         return std::make_unique<ContinueStatement>(pos);
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<ContinueStatement>(fPosition);
-    }
-
     std::string description() const override {
         return "continue;";
     }

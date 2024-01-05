@@ -22,11 +22,6 @@ std::unique_ptr<SwitchCase> SwitchCase::MakeDefault(Position pos,
                                                       std::move(statement)));
 }
 
-std::unique_ptr<Statement> SwitchCase::clone() const {
-    return fDefault ? SwitchCase::MakeDefault(fPosition, fStatement->clone())
-                    : SwitchCase::Make(fPosition, fValue, fStatement->clone());
-}
-
 std::string SwitchCase::description() const {
     return fDefault ? "default:\n" + fStatement->description()
                     : "case " + std::to_string(fValue) + ":\n" + fStatement->description();

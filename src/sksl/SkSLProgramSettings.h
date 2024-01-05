@@ -73,9 +73,6 @@ struct ProgramSettings {
     // investigating memory corruption. (This controls behavior of the SkSL compiler, not the code
     // we generate.)
     bool fUseMemoryPool = true;
-    // If true, VarDeclaration can be cloned for testing purposes. See VarDeclaration::clone for
-    // more information.
-    bool fAllowVarDeclarationCloneForTesting = false;
 };
 
 /**

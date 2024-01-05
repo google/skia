@@ -40,11 +40,6 @@ public:
         fExpression = std::move(expr);
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<ReturnStatement>(
-                fPosition, this->expression() ? this->expression()->clone() : nullptr);
-    }
-
     std::string description() const override {
         if (this->expression()) {
             return "return " + this->expression()->description() + ";";

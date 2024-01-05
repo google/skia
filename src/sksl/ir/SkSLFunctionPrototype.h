@@ -34,11 +34,6 @@ public:
         return fBuiltin;
     }
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<FunctionPrototype>(fPosition, &this->declaration(),
-                /*builtin=*/false);
-    }
-
     std::string description() const override {
         return this->declaration().description() + ";";
     }

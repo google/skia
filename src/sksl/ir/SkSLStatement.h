@@ -33,8 +33,6 @@ public:
         return false;
     }
 
-    virtual std::unique_ptr<Statement> clone() const = 0;
-
 private:
     using INHERITED = IRNode;
 };

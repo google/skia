@@ -45,11 +45,6 @@ std::unique_ptr<Statement> DoStatement::Make(const Context& context,
     return std::make_unique<DoStatement>(pos, std::move(stmt), std::move(test));
 }
 
-std::unique_ptr<Statement> DoStatement::clone() const {
-    return std::make_unique<DoStatement>(fPosition, this->statement()->clone(),
-                                         this->test()->clone());
-}
-
 std::string DoStatement::description() const {
     return "do " + this->statement()->description() +
            " while (" + this->test()->description() + ");";

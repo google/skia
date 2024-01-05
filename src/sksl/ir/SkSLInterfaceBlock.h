@@ -98,8 +98,6 @@ public:
         return fVariable->type().isArray() ? fVariable->type().columns() : 0;
     }
 
-    std::unique_ptr<ProgramElement> clone() const override;
-
     std::string description() const override;
 
 private:

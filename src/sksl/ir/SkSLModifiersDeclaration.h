@@ -50,10 +50,6 @@ public:
         return fFlags;
     }
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<ModifiersDeclaration>(fPosition, fLayout, fFlags);
-    }
-
     std::string description() const override {
         return fLayout.paddedDescription() + fFlags.description() + ';';
     }

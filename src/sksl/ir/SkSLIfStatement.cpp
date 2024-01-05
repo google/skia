@@ -20,11 +20,6 @@
 
 namespace SkSL {
 
-std::unique_ptr<Statement> IfStatement::clone() const {
-    return std::make_unique<IfStatement>(fPosition, this->test()->clone(), this->ifTrue()->clone(),
-                                         this->ifFalse() ? this->ifFalse()->clone() : nullptr);
-}
-
 std::string IfStatement::description() const {
     std::string result;
     result += "if (" + this->test()->description() + ") " + this->ifTrue()->description();

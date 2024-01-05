@@ -8,7 +8,6 @@
 #include "src/sksl/ir/SkSLBlock.h"
 
 #include "src/sksl/ir/SkSLNop.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <type_traits>
 
@@ -95,18 +94,6 @@ std::unique_ptr<Statement> Block::MakeCompoundStatement(std::unique_ptr<Statemen
     stmts.push_back(std::move(existing));
     stmts.push_back(std::move(additional));
     return Block::Make(pos, std::move(stmts), Block::Kind::kCompoundStatement);
-}
-
-std::unique_ptr<Statement> Block::clone() const {
-    StatementArray cloned;
-    cloned.reserve_exact(this->children().size());
-    for (const std::unique_ptr<Statement>& stmt : this->children()) {
-        cloned.push_back(stmt->clone());
-    }
-    return std::make_unique<Block>(fPosition,
-                                   std::move(cloned),
-                                   fBlockKind,
-                                   SymbolTable::WrapIfBuiltin(this->symbolTable()));
 }
 
 std::string Block::description() const {
