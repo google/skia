@@ -18,13 +18,11 @@
 #include <cstdint>
 #include <memory>
 #include <string_view>
-#include <vector>
 
 namespace SkSL {
 
 class Compiler;
 class Pool;
-class ProgramElement;
 enum class ProgramKind : int8_t;
 struct Module;
 
@@ -100,7 +98,6 @@ private:
     SkSL::Context& fContext;
     std::unique_ptr<Pool> fPool;
     SkSL::ProgramConfig* fOldConfig;
-    std::vector<const SkSL::ProgramElement*> fSharedElements;
     DefaultErrorReporter fDefaultErrorReporter;
     ErrorReporter& fOldErrorReporter;
     ProgramSettings fSettings;

@@ -164,7 +164,6 @@ std::unique_ptr<SkSL::Program> Compiler::releaseProgram(
                                                   std::move(instance.fConfig),
                                                   fContext,
                                                   std::move(programElements),
-                                                  std::move(instance.fSharedElements),
                                                   std::move(fContext->fSymbolTable),
                                                   std::move(instance.fPool),
                                                   instance.fInterface);
