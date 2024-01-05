@@ -27,7 +27,7 @@ std::unique_ptr<StructDefinition> StructDefinition::Convert(const Context& conte
     std::unique_ptr<Type> ownedType = Type::MakeStructType(context, pos, name,
                                                            std::move(fields),
                                                            /*interfaceBlock=*/false);
-    const SkSL::Type* type = context.fSymbolTable->add(std::move(ownedType));
+    const SkSL::Type* type = context.fSymbolTable->add(context, std::move(ownedType));
     return StructDefinition::Make(pos, *type);
 }
 

@@ -214,7 +214,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
     // Create our variable declaration.
     result.fVarDecl = VarDeclaration::Make(context, var.get(), type, arraySize,
                                            std::move(initialValue));
-    result.fVarSymbol = symbolTable->add(std::move(var));
+    result.fVarSymbol = symbolTable->add(context, std::move(var));
     return result;
 }
 

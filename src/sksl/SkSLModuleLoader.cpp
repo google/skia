@@ -253,31 +253,31 @@ void ModuleLoader::addPublicTypeAliases(const SkSL::Module* module) {
     SymbolTable* symbols = module->fSymbols.get();
 
     // Add some aliases to the runtime effect modules so that it's friendlier, and more like GLSL.
-    symbols->addWithoutOwnership(types.fVec2.get());
-    symbols->addWithoutOwnership(types.fVec3.get());
-    symbols->addWithoutOwnership(types.fVec4.get());
+    symbols->addWithoutOwnershipOrDie(types.fVec2.get());
+    symbols->addWithoutOwnershipOrDie(types.fVec3.get());
+    symbols->addWithoutOwnershipOrDie(types.fVec4.get());
 
-    symbols->addWithoutOwnership(types.fIVec2.get());
-    symbols->addWithoutOwnership(types.fIVec3.get());
-    symbols->addWithoutOwnership(types.fIVec4.get());
+    symbols->addWithoutOwnershipOrDie(types.fIVec2.get());
+    symbols->addWithoutOwnershipOrDie(types.fIVec3.get());
+    symbols->addWithoutOwnershipOrDie(types.fIVec4.get());
 
-    symbols->addWithoutOwnership(types.fBVec2.get());
-    symbols->addWithoutOwnership(types.fBVec3.get());
-    symbols->addWithoutOwnership(types.fBVec4.get());
+    symbols->addWithoutOwnershipOrDie(types.fBVec2.get());
+    symbols->addWithoutOwnershipOrDie(types.fBVec3.get());
+    symbols->addWithoutOwnershipOrDie(types.fBVec4.get());
 
-    symbols->addWithoutOwnership(types.fMat2.get());
-    symbols->addWithoutOwnership(types.fMat3.get());
-    symbols->addWithoutOwnership(types.fMat4.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat2.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat3.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat4.get());
 
-    symbols->addWithoutOwnership(types.fMat2x2.get());
-    symbols->addWithoutOwnership(types.fMat2x3.get());
-    symbols->addWithoutOwnership(types.fMat2x4.get());
-    symbols->addWithoutOwnership(types.fMat3x2.get());
-    symbols->addWithoutOwnership(types.fMat3x3.get());
-    symbols->addWithoutOwnership(types.fMat3x4.get());
-    symbols->addWithoutOwnership(types.fMat4x2.get());
-    symbols->addWithoutOwnership(types.fMat4x3.get());
-    symbols->addWithoutOwnership(types.fMat4x4.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat2x2.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat2x3.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat2x4.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat3x2.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat3x3.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat3x4.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat4x2.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat4x3.get());
+    symbols->addWithoutOwnershipOrDie(types.fMat4x4.get());
 
     // Hide all the private symbols by aliasing them all to "invalid". This will prevent code from
     // using built-in names like `sampler2D` as variable names.
@@ -399,24 +399,24 @@ void ModuleLoader::Impl::makeRootSymbolTable() {
     rootModule->fSymbols = std::make_shared<SymbolTable>(/*builtin=*/true);
 
     for (BuiltinTypePtr rootType : kRootTypes) {
-        rootModule->fSymbols->addWithoutOwnership((fBuiltinTypes.*rootType).get());
+        rootModule->fSymbols->addWithoutOwnershipOrDie((fBuiltinTypes.*rootType).get());
     }
 
     for (BuiltinTypePtr privateType : kPrivateTypes) {
-        rootModule->fSymbols->addWithoutOwnership((fBuiltinTypes.*privateType).get());
+        rootModule->fSymbols->addWithoutOwnershipOrDie((fBuiltinTypes.*privateType).get());
     }
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
-    rootModule->fSymbols->add(Variable::Make(/*pos=*/Position(),
-                                             /*modifiersPosition=*/Position(),
-                                             Layout{},
-                                             ModifierFlag::kNone,
-                                             fBuiltinTypes.fSkCaps.get(),
-                                             "sk_Caps",
-                                             /*mangledName=*/"",
-                                             /*builtin=*/false,
-                                             Variable::Storage::kGlobal));
+    rootModule->fSymbols->addOrDie(Variable::Make(/*pos=*/Position(),
+                                                  /*modifiersPosition=*/Position(),
+                                                  Layout{},
+                                                  ModifierFlag::kNone,
+                                                  fBuiltinTypes.fSkCaps.get(),
+                                                  "sk_Caps",
+                                                  /*mangledName=*/"",
+                                                  /*builtin=*/false,
+                                                  Variable::Storage::kGlobal));
     fRootModule = std::move(rootModule);
 }
 

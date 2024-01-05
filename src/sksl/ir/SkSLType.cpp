@@ -1160,7 +1160,7 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
             // fully error-check it again.
             const std::string* name = symbolTable->takeOwnershipOfString(std::string(this->name()));
             SkSpan<const Field> fieldSpan = this->fields();
-            return symbolTable->add(
+            return symbolTable->addOrDie(
                     std::make_unique<StructType>(this->fPosition,
                                                  *name,
                                                  TArray<Field>(fieldSpan.data(), fieldSpan.size()),

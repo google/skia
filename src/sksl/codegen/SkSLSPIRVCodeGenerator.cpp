@@ -3366,7 +3366,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                 /*mangledName=*/"",
                                                 /*builtin=*/true,
                                                 Variable::Storage::kGlobal);
-                fProgram.fSymbols->add(std::move(coordsVar));
+                fProgram.fSymbols->add(fContext, std::move(coordsVar));
             }
             std::unique_ptr<Expression> deviceCoord = this->identifier(DEVICE_COORDS_NAME);
             std::unique_ptr<Expression> rtFlip = this->identifier(SKSL_RTFLIP_NAME);
@@ -3417,7 +3417,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                    /*mangledName=*/"",
                                                    /*builtin=*/true,
                                                    Variable::Storage::kGlobal);
-                fProgram.fSymbols->add(std::move(clockwiseVar));
+                fProgram.fSymbols->add(fContext, std::move(clockwiseVar));
             }
             // FrontFacing in Vulkan is defined in terms of a top-down render target. In Skia,
             // we use the default convention of "counter-clockwise face is front".
@@ -4429,7 +4429,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                    intfVar.storage()));
             InterfaceBlock modifiedCopy(intf.fPosition, modifiedVar, intf.typeOwner());
             result = this->writeInterfaceBlock(modifiedCopy, /*appendRTFlip=*/false);
-            fProgram.fSymbols->add(std::make_unique<FieldSymbol>(
+            fProgram.fSymbols->add(fContext, std::make_unique<FieldSymbol>(
                     Position(), modifiedVar, rtFlipStructType->fields().size() - 1));
         }
         fVariableMap.set(&intfVar, result);
@@ -5054,7 +5054,8 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
                                                              Variable::Storage::kGlobal));
     {
         AutoAttachPoolToThread attach(fProgram.fPool.get());
-        fProgram.fSymbols->add(std::make_unique<FieldSymbol>(Position(), intfVar, /*field=*/0));
+        fProgram.fSymbols->add(fContext,
+                               std::make_unique<FieldSymbol>(Position(), intfVar, /*field=*/0));
     }
     InterfaceBlock intf(Position(), intfVar, std::make_shared<SymbolTable>(/*builtin=*/false));
     this->writeInterfaceBlock(intf, false);

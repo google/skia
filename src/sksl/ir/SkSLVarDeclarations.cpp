@@ -473,7 +473,7 @@ std::unique_ptr<VarDeclaration> VarDeclaration::Convert(const Context& context,
         }
     }
 
-    context.fSymbolTable->add(std::move(var));
+    context.fSymbolTable->add(context, std::move(var));
     return varDecl;
 }
 
