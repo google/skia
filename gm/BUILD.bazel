@@ -11,7 +11,9 @@ filegroup(
     name = "gm_subset",
     srcs = [
         "bitmaprect.cpp",
+        "colrv1.cpp",
         "fontations.cpp",
+        "palette.cpp",
     ],
     visibility = ["//tools/viewer:__pkg__"],
 )
