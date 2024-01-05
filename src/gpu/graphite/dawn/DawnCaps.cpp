@@ -271,9 +271,10 @@ std::pair<SkColorType, bool /*isRGBFormat*/> DawnCaps::supportedReadPixelsColorT
 }
 
 void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextOptions& options) {
-#if defined(GRAPHITE_TEST_UTILS) && !defined(__EMSCRIPTEN__)
     wgpu::AdapterProperties props;
     backendContext.fDevice.GetAdapter().GetProperties(&props);
+
+#if defined(GRAPHITE_TEST_UTILS) && !defined(__EMSCRIPTEN__)
     this->setDeviceName(props.name);
 #endif
 
@@ -304,8 +305,9 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fResourceBindingReqs.fStorageBufferLayout = Layout::kStd430;
     fResourceBindingReqs.fSeparateTextureAndSamplerBinding = true;
 
-    fStorageBufferSupport = true;
-    fStorageBufferPreferred = true;
+    // TODO(b/318817249): SSBOs trigger FXC compiler failures when attempting to unroll loops
+    fStorageBufferSupport = props.backendType != wgpu::BackendType::D3D11;
+    fStorageBufferPreferred = props.backendType != wgpu::BackendType::D3D11;
 
     fDrawBufferCanBeMapped = false;
     fBufferMapsAreAsync = true;
