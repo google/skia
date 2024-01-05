@@ -10,7 +10,6 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLPosition.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <type_traits>
@@ -47,10 +46,6 @@ ThreadContext::ThreadContext(SkSL::Context& context,
 ThreadContext::~ThreadContext() {
     if (fContext.fSymbolTable) {
         fContext.fSymbolTable = nullptr;
-        fProgramElements.clear();
-    } else {
-        // We should only be here with a null symbol table if ReleaseProgram was called
-        SkASSERT(fProgramElements.empty());
     }
     fContext.fErrors = &fOldErrorReporter;
     fContext.fConfig = fOldConfig;

@@ -21,6 +21,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace SkSL {
 
@@ -30,6 +31,7 @@ class Expression;
 class FunctionDeclaration;
 struct Module;
 struct Program;
+class ProgramElement;
 enum class ProgramKind : int8_t;
 class Statement;
 class SymbolTable;
@@ -43,6 +45,7 @@ class Variable;
 class Parser {
 public:
     Parser(Compiler* compiler, const ProgramSettings& settings, ProgramKind kind, std::string text);
+    ~Parser();
 
     std::unique_ptr<Program> program();
 
@@ -315,6 +318,7 @@ private:
     bool fEncounteredFatalError;
     ProgramKind fKind;
     std::unique_ptr<std::string> fText;
+    std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     Lexer fLexer;
     // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
     // stack on pathological inputs

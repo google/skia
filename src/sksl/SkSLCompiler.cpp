@@ -155,13 +155,15 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     return Parser(this, settings, kind, std::move(text)).program();
 }
 
-std::unique_ptr<SkSL::Program> Compiler::releaseProgram(std::unique_ptr<std::string> source) {
+std::unique_ptr<SkSL::Program> Compiler::releaseProgram(
+        std::unique_ptr<std::string> source,
+        std::vector<std::unique_ptr<SkSL::ProgramElement>> programElements) {
     ThreadContext& instance = ThreadContext::Instance();
     Pool* pool = instance.fPool.get();
     auto result = std::make_unique<SkSL::Program>(std::move(source),
                                                   std::move(instance.fConfig),
                                                   fContext,
-                                                  std::move(instance.fProgramElements),
+                                                  std::move(programElements),
                                                   std::move(instance.fSharedElements),
                                                   std::move(fContext->fSymbolTable),
                                                   std::move(instance.fPool),
@@ -171,7 +173,6 @@ std::unique_ptr<SkSL::Program> Compiler::releaseProgram(std::unique_ptr<std::str
     if (pool) {
         pool->detachFromThread();
     }
-    SkASSERT(instance.fProgramElements.empty());
     SkASSERT(!fContext->fSymbolTable);
     return success ? std::move(result) : nullptr;
 }

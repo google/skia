@@ -178,10 +178,12 @@ private:
     static void FinalizeSettings(ProgramSettings* settings, ProgramKind kind);
 
     /**
-     * Returns all global elements (functions and global variables) as a self-contained Program. The
-     * optional source string is retained as the program's source.
+     * Returns all global elements (functions and global variables) as a self-contained Program.
+     * The optional source string is retained as the program's source.
      */
-    std::unique_ptr<SkSL::Program> releaseProgram(std::unique_ptr<std::string> source);
+    std::unique_ptr<SkSL::Program> releaseProgram(
+            std::unique_ptr<std::string> source,
+            std::vector<std::unique_ptr<SkSL::ProgramElement>> programElements);
 
     /** Optimize every function in the program. */
     bool optimize(Program& program);

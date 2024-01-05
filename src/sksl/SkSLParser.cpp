@@ -217,6 +217,8 @@ Parser::Parser(Compiler* compiler,
     fLexer.start(*fText);
 }
 
+Parser::~Parser() = default;
+
 std::shared_ptr<SymbolTable>& Parser::symbolTable() {
     return fCompiler.symbolTable();
 }
@@ -399,8 +401,10 @@ std::unique_ptr<Program> Parser::program() {
     errorReporter->setSource(*fText);
     this->declarations();
     std::unique_ptr<Program> result;
-    if (!ThreadContext::GetErrorReporter().errorCount()) {
-        result = fCompiler.releaseProgram(std::move(fText));
+    if (!errorReporter->errorCount()) {
+        result = fCompiler.releaseProgram(std::move(fText), std::move(fProgramElements));
+    } else {
+        fProgramElements.clear();
     }
     errorReporter->setSource(std::string_view());
     ThreadContext::End();
@@ -417,7 +421,7 @@ std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* p
     auto result = std::make_unique<SkSL::Module>();
     result->fParent = parent;
     result->fSymbols = this->symbolTable();
-    result->fElements = std::move(ThreadContext::ProgramElements());
+    result->fElements = std::move(fProgramElements);
     errorReporter->setSource(std::string_view());
     ThreadContext::End();
     return result;
@@ -478,7 +482,7 @@ void Parser::extensionDirective(Position start) {
                                                                   this->text(name),
                                                                   this->text(behavior));
         if (ext) {
-            ThreadContext::ProgramElements().push_back(std::move(ext));
+            fProgramElements.push_back(std::move(ext));
         }
     } else {
         this->error(start, "invalid #extension directive");
@@ -535,7 +539,7 @@ bool Parser::modifiersDeclarationEnd(const SkSL::Modifiers& mods) {
     if (!decl) {
         return false;
     }
-    ThreadContext::ProgramElements().push_back(std::move(decl));
+    fProgramElements.push_back(std::move(decl));
     return true;
 }
 
@@ -631,7 +635,7 @@ bool Parser::prototypeFunction(SkSL::FunctionDeclaration* decl) {
     if (!decl) {
         return false;
     }
-    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::FunctionPrototype>(
+    fProgramElements.push_back(std::make_unique<SkSL::FunctionPrototype>(
             decl->fPosition, decl, fCompiler.context().fConfig->fIsBuiltinCode));
     return true;
 }
@@ -667,7 +671,7 @@ bool Parser::defineFunction(SkSL::FunctionDeclaration* decl) {
         return false;
     }
     decl->setDefinition(function.get());
-    ThreadContext::ProgramElements().push_back(std::move(function));
+    fProgramElements.push_back(std::move(function));
     return true;
 }
 
@@ -753,8 +757,7 @@ bool Parser::parseInitializer(Position pos, std::unique_ptr<Expression>* initial
 
 void Parser::addGlobalVarDeclaration(std::unique_ptr<VarDeclaration> decl) {
     if (decl) {
-        ThreadContext::ProgramElements().push_back(
-                std::make_unique<SkSL::GlobalVarDeclaration>(std::move(decl)));
+        fProgramElements.push_back(std::make_unique<SkSL::GlobalVarDeclaration>(std::move(decl)));
     }
 }
 
@@ -977,7 +980,7 @@ const Type* Parser::structDeclaration() {
     }
 
     const Type* result = &def->type();
-    ThreadContext::ProgramElements().push_back(std::move(def));
+    fProgramElements.push_back(std::move(def));
     return result;
 }
 
@@ -1377,7 +1380,7 @@ bool Parser::interfaceBlock(const Modifiers& modifiers) {
                                                                            std::move(fields),
                                                                            instanceName,
                                                                            size)) {
-        ThreadContext::ProgramElements().push_back(std::move(ib));
+        fProgramElements.push_back(std::move(ib));
         return true;
     }
     return false;

@@ -64,17 +64,6 @@ public:
     }
 
     /**
-     * Returns the collection to which SkSL program elements in this thread should be appended.
-     */
-    static std::vector<std::unique_ptr<SkSL::ProgramElement>>& ProgramElements() {
-        return Instance().fProgramElements;
-    }
-
-    static std::vector<const ProgramElement*>& SharedElements() {
-        return Instance().fSharedElements;
-    }
-
-    /**
      * Returns the ErrorReporter associated with the current thread. This object will be notified
      * when any compilation errors occur.
      */
@@ -111,7 +100,6 @@ private:
     SkSL::Context& fContext;
     std::unique_ptr<Pool> fPool;
     SkSL::ProgramConfig* fOldConfig;
-    std::vector<std::unique_ptr<SkSL::ProgramElement>> fProgramElements;
     std::vector<const SkSL::ProgramElement*> fSharedElements;
     DefaultErrorReporter fDefaultErrorReporter;
     ErrorReporter& fOldErrorReporter;
