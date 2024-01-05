@@ -68,8 +68,7 @@ struct Program {
             std::shared_ptr<Context> context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::shared_ptr<SymbolTable> symbols,
-            std::unique_ptr<Pool> pool,
-            ProgramInterface);
+            std::unique_ptr<Pool> pool);
 
     ~Program();
 

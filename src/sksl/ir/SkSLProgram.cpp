@@ -25,15 +25,13 @@ Program::Program(std::unique_ptr<std::string> source,
                  std::shared_ptr<Context> context,
                  std::vector<std::unique_ptr<ProgramElement>> elements,
                  std::shared_ptr<SymbolTable> symbols,
-                 std::unique_ptr<Pool> pool,
-                 Interface interface)
+                 std::unique_ptr<Pool> pool)
         : fSource(std::move(source))
         , fConfig(std::move(config))
         , fContext(context)
         , fSymbols(symbols)
         , fPool(std::move(pool))
-        , fOwnedElements(std::move(elements))
-        , fInterface(interface) {
+        , fOwnedElements(std::move(elements)) {
     fUsage = Analysis::GetUsage(*this);
 }
 

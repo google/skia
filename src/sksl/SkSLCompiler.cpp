@@ -165,8 +165,7 @@ std::unique_ptr<SkSL::Program> Compiler::releaseProgram(
                                                   fContext,
                                                   std::move(programElements),
                                                   std::move(fContext->fSymbolTable),
-                                                  std::move(instance.fPool),
-                                                  instance.fInterface);
+                                                  std::move(instance.fPool));
     bool success = this->finalize(*result) &&
                    this->optimize(*result);
     if (pool) {

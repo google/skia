@@ -13,7 +13,6 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/ir/SkSLProgram.h"
 
 #include <cstdint>
 #include <memory>
@@ -101,7 +100,6 @@ private:
     DefaultErrorReporter fDefaultErrorReporter;
     ErrorReporter& fOldErrorReporter;
     ProgramSettings fSettings;
-    Program::Interface fInterface;
 
     friend class SkSL::Compiler;
 };
