@@ -395,8 +395,8 @@ Position Parser::rangeFrom(Token start) {
 }
 
 /* declaration* END_OF_FILE */
-std::unique_ptr<Program> Parser::program() {
-    ThreadContext::Start(&fCompiler, fKind, fSettings, *fText);
+std::unique_ptr<Program> Parser::programInheritingFrom(const SkSL::Module* module) {
+    ThreadContext::Start(fCompiler.context(), module, fKind, fSettings, *fText);
     this->declarations();
     std::unique_ptr<Program> result;
     if (fCompiler.errorReporter().errorCount() == 0) {
@@ -408,12 +408,12 @@ std::unique_ptr<Program> Parser::program() {
     return result;
 }
 
-std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* parent) {
-    ThreadContext::StartModule(&fCompiler, fKind, fSettings, *fText, parent);
+std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* parentModule) {
+    ThreadContext::StartModule(fCompiler.context(), parentModule, fKind, fSettings, *fText);
     this->declarations();
     this->symbolTable()->takeOwnershipOfString(std::move(*fText));
     auto result = std::make_unique<SkSL::Module>();
-    result->fParent = parent;
+    result->fParent = parentModule;
     result->fSymbols = this->symbolTable();
     result->fElements = std::move(fProgramElements);
     ThreadContext::End();

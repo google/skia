@@ -33,7 +33,8 @@ public:
     /**
      * Initializes our thread-local state for compiling a program.
      */
-    static void Start(SkSL::Compiler* compiler,
+    static void Start(SkSL::Context& context,
+                      const SkSL::Module* module,
                       SkSL::ProgramKind kind,
                       const SkSL::ProgramSettings& settings,
                       std::string_view source);
@@ -41,11 +42,11 @@ public:
     /**
      * Initializes our thread-local state for compiling a module (SkSL include files).
      */
-    static void StartModule(SkSL::Compiler* compiler,
+    static void StartModule(SkSL::Context& context,
+                            const SkSL::Module* parentModule,
                             SkSL::ProgramKind kind,
                             const SkSL::ProgramSettings& settings,
-                            std::string_view source,
-                            const SkSL::Module* parentModule);
+                            std::string_view source);
 
     /**
      * Signals the end of compilation. This must be called sometime after a call to Start() and
@@ -57,10 +58,10 @@ public:
 
 private:
     ThreadContext(SkSL::Context& context,
+                  const SkSL::Module* module,
                   SkSL::ProgramKind kind,
                   const SkSL::ProgramSettings& settings,
                   std::string_view source,
-                  const SkSL::Module* module,
                   bool isModule);
 
     static void SetInstance(std::unique_ptr<ThreadContext>);
@@ -70,7 +71,6 @@ private:
     std::unique_ptr<SkSL::ProgramConfig> fConfig;
     SkSL::Context& fContext;
     std::unique_ptr<Pool> fPool;
-    SkSL::ProgramConfig* fOldConfig;
     ProgramSettings fSettings;
 
     friend class SkSL::Compiler;

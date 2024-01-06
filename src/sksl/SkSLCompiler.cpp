@@ -147,12 +147,15 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
                                                   ProgramSettings settings) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
 
+    // Load the module used by this ProgramKind.
+    const SkSL::Module* module = this->moduleForProgramKind(kind);
+
     // Make sure the passed-in settings are valid.
     FinalizeSettings(&settings, kind);
 
     this->resetErrors();
 
-    return Parser(this, settings, kind, std::move(text)).program();
+    return Parser(this, settings, kind, std::move(text)).programInheritingFrom(module);
 }
 
 std::unique_ptr<SkSL::Program> Compiler::releaseProgram(
