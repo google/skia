@@ -159,7 +159,7 @@ public:
         // Parser errors should have been fatal, but we can encounter other errors like type
         // mismatches despite accepting the parse. Forward those messages to the actual error
         // handler now.
-        fErrorReporter.forwardErrors();
+        fErrorReporter.forwardErrors(fParser);
     }
 
     void rewind() {
@@ -176,9 +176,9 @@ private:
             fErrors.push_back({std::string(msg), pos});
         }
 
-        void forwardErrors() {
-            for (Error& error : fErrors) {
-                ThreadContext::ReportError(error.fMsg, error.fPos);
+        void forwardErrors(Parser* parser) {
+            for (const Error& error : fErrors) {
+                parser->error(error.fPos, error.fMsg);
             }
         }
 
@@ -380,7 +380,7 @@ void Parser::error(Token token, std::string_view msg) {
 }
 
 void Parser::error(Position position, std::string_view msg) {
-    ThreadContext::ReportError(msg, position);
+    fCompiler.context().fErrors->error(position, msg);
 }
 
 Position Parser::rangeFrom(Position start) {

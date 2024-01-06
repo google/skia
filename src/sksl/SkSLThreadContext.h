@@ -11,7 +11,6 @@
 #include "include/core/SkTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
-#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
 #include <cstdint>
@@ -22,6 +21,7 @@ namespace SkSL {
 
 class Compiler;
 class Pool;
+class Position;
 enum class ProgramKind : int8_t;
 struct Module;
 
@@ -69,12 +69,6 @@ public:
     }
 
     static void SetErrorReporter(ErrorReporter* errorReporter);
-
-    /**
-     * Notifies the current ErrorReporter that an error has occurred. The default error handler
-     * prints the message to stderr and aborts.
-     */
-    static void ReportError(std::string_view msg, Position pos = Position{});
 
     static ThreadContext& Instance();
 
