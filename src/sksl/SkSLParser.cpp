@@ -142,12 +142,13 @@ private:
 class Parser::Checkpoint {
 public:
     Checkpoint(Parser* p) : fParser(p) {
+        Context& context = fParser->fCompiler.context();
         fPushbackCheckpoint = fParser->fPushback;
         fLexerCheckpoint = fParser->fLexer.getCheckpoint();
-        fOldErrorReporter = &ThreadContext::GetErrorReporter();
+        fOldErrorReporter = context.fErrors;
         fOldEncounteredFatalError = fParser->fEncounteredFatalError;
         SkASSERT(fOldErrorReporter);
-        ThreadContext::SetErrorReporter(&fErrorReporter);
+        context.setErrorReporter(&fErrorReporter);
     }
 
     ~Checkpoint() {
@@ -193,7 +194,7 @@ private:
 
     void restoreErrorReporter() {
         SkASSERT(fOldErrorReporter);
-        ThreadContext::SetErrorReporter(fOldErrorReporter);
+        fParser->fCompiler.context().setErrorReporter(fOldErrorReporter);
         fOldErrorReporter = nullptr;
     }
 
@@ -397,7 +398,7 @@ Position Parser::rangeFrom(Token start) {
 std::unique_ptr<Program> Parser::program() {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
     ThreadContext::Start(&fCompiler, fKind, fSettings);
-    ThreadContext::SetErrorReporter(errorReporter);
+    fCompiler.context().setErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
     std::unique_ptr<Program> result;
@@ -414,7 +415,7 @@ std::unique_ptr<Program> Parser::program() {
 std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* parent) {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
     ThreadContext::StartModule(&fCompiler, fKind, fSettings, parent);
-    ThreadContext::SetErrorReporter(errorReporter);
+    fCompiler.context().setErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
     this->symbolTable()->takeOwnershipOfString(std::move(*fText));

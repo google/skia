@@ -9,7 +9,6 @@
 #define SKSL_THREADCONTEXT
 
 #include "include/core/SkTypes.h"
-#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
@@ -20,6 +19,7 @@
 namespace SkSL {
 
 class Compiler;
+class Context;
 class Pool;
 class Position;
 enum class ProgramKind : int8_t;
@@ -52,23 +52,6 @@ public:
      * before the termination of the thread.
      */
     static void End();
-
-    /**
-     * Returns the Context used by SkSL in the current thread.
-     */
-    static SkSL::Context& Context() {
-        return Instance().fContext;
-    }
-
-    /**
-     * Returns the ErrorReporter associated with the current thread. This object will be notified
-     * when any compilation errors occur.
-     */
-    static ErrorReporter& GetErrorReporter() {
-        return *Context().fErrors;
-    }
-
-    static void SetErrorReporter(ErrorReporter* errorReporter);
 
     static ThreadContext& Instance();
 

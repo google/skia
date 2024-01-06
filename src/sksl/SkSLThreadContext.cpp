@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLThreadContext.h"
 
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -81,11 +82,6 @@ void ThreadContext::setupSymbolTable() {
     SymbolTable::Push(&fContext.fSymbolTable, fContext.fConfig->fIsBuiltinCode);
 
     fContext.fSymbolTable->markModuleBoundary();
-}
-
-void ThreadContext::SetErrorReporter(ErrorReporter* errorReporter) {
-    SkASSERT(errorReporter);
-    Context().fErrors = errorReporter;
 }
 
 void ThreadContext::DefaultErrorReporter::handleError(std::string_view msg, Position pos) {

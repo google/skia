@@ -8,6 +8,8 @@
 #ifndef SKSL_CONTEXT
 #define SKSL_CONTEXT
 
+#include "include/private/base/SkAssert.h"
+
 #include <memory>
 
 namespace SkSL {
@@ -34,6 +36,11 @@ public:
 
     // The Context holds a pointer to our error reporter.
     ErrorReporter* fErrors;
+
+    void setErrorReporter(ErrorReporter* e) {
+        SkASSERT(e);
+        fErrors = e;
+    }
 
     // The Context holds a pointer to our module with built-in declarations.
     const Module* fModule = nullptr;
