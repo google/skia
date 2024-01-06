@@ -9,7 +9,6 @@
 #define SKSL_THREADCONTEXT
 
 #include "include/core/SkTypes.h"
-#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
 #include <cstdint>
@@ -21,7 +20,6 @@ namespace SkSL {
 class Compiler;
 class Context;
 class Pool;
-class Position;
 enum class ProgramKind : int8_t;
 struct Module;
 
@@ -37,7 +35,8 @@ public:
      */
     static void Start(SkSL::Compiler* compiler,
                       SkSL::ProgramKind kind,
-                      const SkSL::ProgramSettings& settings);
+                      const SkSL::ProgramSettings& settings,
+                      std::string_view source);
 
     /**
      * Initializes our thread-local state for compiling a module (SkSL include files).
@@ -45,6 +44,7 @@ public:
     static void StartModule(SkSL::Compiler* compiler,
                             SkSL::ProgramKind kind,
                             const SkSL::ProgramSettings& settings,
+                            std::string_view source,
                             const SkSL::Module* parentModule);
 
     /**
@@ -59,14 +59,11 @@ private:
     ThreadContext(SkSL::Context& context,
                   SkSL::ProgramKind kind,
                   const SkSL::ProgramSettings& settings,
+                  std::string_view source,
                   const SkSL::Module* module,
                   bool isModule);
 
     static void SetInstance(std::unique_ptr<ThreadContext>);
-
-    class DefaultErrorReporter : public ErrorReporter {
-        void handleError(std::string_view msg, Position pos) override;
-    };
 
     void setupSymbolTable();
 
@@ -74,8 +71,6 @@ private:
     SkSL::Context& fContext;
     std::unique_ptr<Pool> fPool;
     SkSL::ProgramConfig* fOldConfig;
-    DefaultErrorReporter fDefaultErrorReporter;
-    ErrorReporter& fOldErrorReporter;
     ProgramSettings fSettings;
 
     friend class SkSL::Compiler;

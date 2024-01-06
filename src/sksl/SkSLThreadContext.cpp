@@ -9,8 +9,8 @@
 
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLPool.h"
-#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <type_traits>
@@ -20,11 +20,11 @@ namespace SkSL {
 ThreadContext::ThreadContext(SkSL::Context& context,
                              SkSL::ProgramKind kind,
                              const SkSL::ProgramSettings& settings,
+                             std::string_view source,
                              const SkSL::Module* module,
                              bool isModule)
         : fContext(context)
         , fOldConfig(context.fConfig)
-        , fOldErrorReporter(*context.fErrors)
         , fSettings(settings) {
     if (!isModule) {
         if (settings.fUseMemoryPool) {
@@ -38,18 +38,18 @@ ThreadContext::ThreadContext(SkSL::Context& context,
     fConfig->fSettings = settings;
     fConfig->fIsBuiltinCode = isModule;
     fContext.fConfig = fConfig.get();
-    fContext.fErrors = &fDefaultErrorReporter;
     fContext.fModule = module;
     fContext.fSymbolTable = module->fSymbols;
     this->setupSymbolTable();
+    fContext.fErrors->setSource(source);
 }
 
 ThreadContext::~ThreadContext() {
     if (fContext.fSymbolTable) {
         fContext.fSymbolTable = nullptr;
     }
-    fContext.fErrors = &fOldErrorReporter;
     fContext.fConfig = fOldConfig;
+    fContext.fErrors->setSource(std::string_view());
     if (fPool) {
         fPool->detachFromThread();
     }
@@ -57,11 +57,13 @@ ThreadContext::~ThreadContext() {
 
 void ThreadContext::Start(SkSL::Compiler* compiler,
                           SkSL::ProgramKind kind,
-                          const SkSL::ProgramSettings& settings) {
+                          const SkSL::ProgramSettings& settings,
+                          std::string_view source) {
     ThreadContext::SetInstance(
             std::unique_ptr<ThreadContext>(new ThreadContext(compiler->context(),
                                                              kind,
                                                              settings,
+                                                             source,
                                                              compiler->moduleForProgramKind(kind),
                                                              /*isModule=*/false)));
 }
@@ -69,9 +71,15 @@ void ThreadContext::Start(SkSL::Compiler* compiler,
 void ThreadContext::StartModule(SkSL::Compiler* compiler,
                           SkSL::ProgramKind kind,
                           const SkSL::ProgramSettings& settings,
+                          std::string_view source,
                           const SkSL::Module* parent) {
-    ThreadContext::SetInstance(std::unique_ptr<ThreadContext>(
-            new ThreadContext(compiler->context(), kind, settings, parent, /*isModule=*/true)));
+    ThreadContext::SetInstance(
+            std::unique_ptr<ThreadContext>(new ThreadContext(compiler->context(),
+                                                             kind,
+                                                             settings,
+                                                             source,
+                                                             parent,
+                                                             /*isModule=*/true)));
 }
 
 void ThreadContext::End() {
@@ -82,11 +90,6 @@ void ThreadContext::setupSymbolTable() {
     SymbolTable::Push(&fContext.fSymbolTable, fContext.fConfig->fIsBuiltinCode);
 
     fContext.fSymbolTable->markModuleBoundary();
-}
-
-void ThreadContext::DefaultErrorReporter::handleError(std::string_view msg, Position pos) {
-    SK_ABORT("error: %.*s\nNo SkSL error reporter configured, treating this as a fatal error\n",
-             (int)msg.length(), msg.data());
 }
 
 static thread_local ThreadContext* sInstance = nullptr;

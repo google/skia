@@ -396,34 +396,26 @@ Position Parser::rangeFrom(Token start) {
 
 /* declaration* END_OF_FILE */
 std::unique_ptr<Program> Parser::program() {
-    ErrorReporter* errorReporter = &fCompiler.errorReporter();
-    ThreadContext::Start(&fCompiler, fKind, fSettings);
-    fCompiler.context().setErrorReporter(errorReporter);
-    errorReporter->setSource(*fText);
+    ThreadContext::Start(&fCompiler, fKind, fSettings, *fText);
     this->declarations();
     std::unique_ptr<Program> result;
-    if (!errorReporter->errorCount()) {
+    if (fCompiler.errorReporter().errorCount() == 0) {
         result = fCompiler.releaseProgram(std::move(fText), std::move(fProgramElements));
     } else {
         fProgramElements.clear();
     }
-    errorReporter->setSource(std::string_view());
     ThreadContext::End();
     return result;
 }
 
 std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* parent) {
-    ErrorReporter* errorReporter = &fCompiler.errorReporter();
-    ThreadContext::StartModule(&fCompiler, fKind, fSettings, parent);
-    fCompiler.context().setErrorReporter(errorReporter);
-    errorReporter->setSource(*fText);
+    ThreadContext::StartModule(&fCompiler, fKind, fSettings, *fText, parent);
     this->declarations();
     this->symbolTable()->takeOwnershipOfString(std::move(*fText));
     auto result = std::make_unique<SkSL::Module>();
     result->fParent = parent;
     result->fSymbols = this->symbolTable();
     result->fElements = std::move(fProgramElements);
-    errorReporter->setSource(std::string_view());
     ThreadContext::End();
     return result;
 }
