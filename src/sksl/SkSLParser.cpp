@@ -20,7 +20,6 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLString.h"
-#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -209,11 +208,11 @@ private:
 Parser::Parser(Compiler* compiler,
                const ProgramSettings& settings,
                ProgramKind kind,
-               std::string text)
+               std::unique_ptr<std::string> text)
         : fCompiler(*compiler)
         , fSettings(settings)
         , fKind(kind)
-        , fText(std::make_unique<std::string>(std::move(text)))
+        , fText(std::move(text))
         , fPushback(Token::Kind::TK_NONE, /*offset=*/-1, /*length=*/-1) {
     fLexer.start(*fText);
 }
@@ -396,7 +395,6 @@ Position Parser::rangeFrom(Token start) {
 
 /* declaration* END_OF_FILE */
 std::unique_ptr<Program> Parser::programInheritingFrom(const SkSL::Module* module) {
-    ThreadContext::Start(fCompiler.context(), module, fKind, fSettings, *fText);
     this->declarations();
     std::unique_ptr<Program> result;
     if (fCompiler.errorReporter().errorCount() == 0) {
@@ -404,19 +402,16 @@ std::unique_ptr<Program> Parser::programInheritingFrom(const SkSL::Module* modul
     } else {
         fProgramElements.clear();
     }
-    ThreadContext::End();
     return result;
 }
 
 std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* parentModule) {
-    ThreadContext::StartModule(fCompiler.context(), parentModule, fKind, fSettings, *fText);
     this->declarations();
     this->symbolTable()->takeOwnershipOfString(std::move(*fText));
     auto result = std::make_unique<SkSL::Module>();
     result->fParent = parentModule;
     result->fSymbols = this->symbolTable();
     result->fElements = std::move(fProgramElements);
-    ThreadContext::End();
     return result;
 }
 

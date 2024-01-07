@@ -1518,8 +1518,6 @@ BASE_SRCS_ALL = [
     "src/sksl/SkSLString.cpp",
     "src/sksl/SkSLString.h",
     "src/sksl/SkSLStringStream.h",
-    "src/sksl/SkSLThreadContext.cpp",
-    "src/sksl/SkSLThreadContext.h",
     "src/sksl/SkSLUtil.cpp",
     "src/sksl/SkSLUtil.h",
     "src/sksl/analysis/SkSLCanExitWithoutReturningValue.cpp",

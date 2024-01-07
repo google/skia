@@ -18,7 +18,6 @@
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
@@ -118,20 +117,79 @@ void Compiler::FinalizeSettings(ProgramSettings* settings, ProgramKind kind) {
     }
 }
 
+void Compiler::initializeContext(const SkSL::Module* module,
+                                 ProgramKind kind,
+                                 ProgramSettings settings,
+                                 std::string_view source,
+                                 bool isModule) {
+    SkASSERT(!fPool);
+    SkASSERT(!fConfig);
+    SkASSERT(!fContext->fSymbolTable);
+    SkASSERT(!fContext->fConfig);
+    SkASSERT(!fContext->fModule);
+
+    // Start the ErrorReporter with a clean slate.
+    this->resetErrors();
+
+    fConfig = std::make_unique<ProgramConfig>();
+    fConfig->fIsBuiltinCode = isModule;
+    fConfig->fSettings = settings;
+    fConfig->fKind = kind;
+
+    // Make sure the passed-in settings are valid.
+    FinalizeSettings(&fConfig->fSettings, kind);
+
+    if (settings.fUseMemoryPool) {
+        fPool = Pool::Create();
+        fPool->attachToThread();
+    }
+
+    fContext->fConfig = fConfig.get();
+    fContext->fModule = module;
+    fContext->fErrors->setSource(source);
+
+    // Set up a clean symbol table atop the parent module's symbols.
+    fContext->fSymbolTable = std::make_shared<SymbolTable>(module->fSymbols, isModule);
+    fContext->fSymbolTable->markModuleBoundary();
+}
+
+void Compiler::cleanupContext() {
+    // Clear out the fields we initialized above.
+    fContext->fConfig = nullptr;
+    fContext->fModule = nullptr;
+    fContext->fErrors->setSource(std::string_view());
+    fContext->fSymbolTable = nullptr;
+
+    fConfig = nullptr;
+
+    if (fPool) {
+        fPool->detachFromThread();
+        fPool = nullptr;
+    }
+}
+
 std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
                                                 const char* moduleName,
                                                 std::string moduleSource,
-                                                const Module* parent,
+                                                const Module* parentModule,
                                                 bool shouldInline) {
-    SkASSERT(parent);
+    SkASSERT(parentModule);
     SkASSERT(!moduleSource.empty());
     SkASSERT(this->errorCount() == 0);
 
-    // Compile the module from source, using default program settings.
+    // Wrap the program source in a pointer so it is guaranteed to be stable across moves.
+    auto sourcePtr = std::make_unique<std::string>(std::move(moduleSource));
+
+    // Compile the module from source, using default program settings (but no memory pooling).
     ProgramSettings settings;
-    FinalizeSettings(&settings, kind);
-    SkSL::Parser parser{this, settings, kind, std::move(moduleSource)};
-    std::unique_ptr<Module> module = parser.moduleInheritingFrom(parent);
+    settings.fUseMemoryPool = false;
+    this->initializeContext(parentModule, kind, settings, *sourcePtr, /*isModule=*/true);
+
+    std::unique_ptr<Module> module = SkSL::Parser(this, settings, kind, std::move(sourcePtr))
+                                             .moduleInheritingFrom(parentModule);
+
+    this->cleanupContext();
+
     if (this->errorCount() != 0) {
         SkDebugf("Unexpected errors compiling %s:\n\n%s\n", moduleName, this->errorText().c_str());
         return nullptr;
@@ -143,38 +201,40 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
-                                                  std::string text,
-                                                  ProgramSettings settings) {
+                                                  std::string programSource,
+                                                  const ProgramSettings& settings) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
+
+    // Wrap the program source in a pointer so it is guaranteed to be stable across moves.
+    auto sourcePtr = std::make_unique<std::string>(std::move(programSource));
 
     // Load the module used by this ProgramKind.
     const SkSL::Module* module = this->moduleForProgramKind(kind);
 
-    // Make sure the passed-in settings are valid.
-    FinalizeSettings(&settings, kind);
+    this->initializeContext(module, kind, settings, *sourcePtr, /*isModule=*/false);
 
-    this->resetErrors();
+    std::unique_ptr<Program> program = SkSL::Parser(this, settings, kind, std::move(sourcePtr))
+                                               .programInheritingFrom(module);
 
-    return Parser(this, settings, kind, std::move(text)).programInheritingFrom(module);
+    this->cleanupContext();
+    return program;
 }
 
 std::unique_ptr<SkSL::Program> Compiler::releaseProgram(
         std::unique_ptr<std::string> source,
         std::vector<std::unique_ptr<SkSL::ProgramElement>> programElements) {
-    ThreadContext& instance = ThreadContext::Instance();
-    Pool* pool = instance.fPool.get();
+    Pool* pool = fPool.get();
     auto result = std::make_unique<SkSL::Program>(std::move(source),
-                                                  std::move(instance.fConfig),
+                                                  std::move(fConfig),
                                                   fContext,
                                                   std::move(programElements),
                                                   std::move(fContext->fSymbolTable),
-                                                  std::move(instance.fPool));
+                                                  std::move(fPool));
     bool success = this->finalize(*result) &&
                    this->optimize(*result);
     if (pool) {
         pool->detachFromThread();
     }
-    SkASSERT(!fContext->fSymbolTable);
     return success ? std::move(result) : nullptr;
 }
 

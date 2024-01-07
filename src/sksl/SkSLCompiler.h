@@ -45,6 +45,8 @@ constexpr int SK_LOCALINVOCATIONINDEX_BUILTIN =   29;
 namespace SkSL {
 
 class Inliner;
+class Pool;
+struct ProgramConfig;
 class ProgramUsage;
 class SymbolTable;
 enum class ProgramKind : int8_t;
@@ -120,8 +122,8 @@ public:
     static void EnableInliner(OverrideFlag flag) { sInliner = flag; }
 
     std::unique_ptr<Program> convertProgram(ProgramKind kind,
-                                            std::string text,
-                                            ProgramSettings settings);
+                                            std::string programSource,
+                                            const ProgramSettings& settings);
 
     void handleError(std::string_view msg, Position pos);
 
@@ -149,7 +151,7 @@ public:
     std::unique_ptr<Module> compileModule(ProgramKind kind,
                                           const char* moduleName,
                                           std::string moduleSource,
-                                          const Module* parent,
+                                          const Module* parentModule,
                                           bool shouldInline);
 
     /** Optimize a module at minification time, before writing it out. */
@@ -177,6 +179,16 @@ private:
     /** Updates ProgramSettings to eliminate contradictions and to honor the ProgramKind. */
     static void FinalizeSettings(ProgramSettings* settings, ProgramKind kind);
 
+    /** Prepares the Context for compilation of a program or module. */
+    void initializeContext(const SkSL::Module* module,
+                           ProgramKind kind,
+                           ProgramSettings settings,
+                           std::string_view source,
+                           bool isModule);
+
+    /** Cleans up the Context post-compilation. */
+    void cleanupContext();
+
     /**
      * Returns all global elements (functions and global variables) as a self-contained Program.
      * The optional source string is retained as the program's source.
@@ -202,6 +214,8 @@ private:
 
     CompilerErrorReporter fErrorReporter;
     std::shared_ptr<Context> fContext;
+    std::unique_ptr<ProgramConfig> fConfig;
+    std::unique_ptr<Pool> fPool;
 
     std::string fErrorText;
 

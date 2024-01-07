@@ -89,8 +89,6 @@ SKSL_SRCS = [
     "SkSLString.cpp",
     "SkSLString.h",
     "SkSLStringStream.h",
-    "SkSLThreadContext.cpp",
-    "SkSLThreadContext.h",
     "SkSLUtil.cpp",
     "SkSLUtil.h",
     "spirv.h",
