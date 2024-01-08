@@ -936,6 +936,7 @@ skia_filegroup(
         "shared/HelloWorld.sksl",
         "shared/Hex.sksl",
         "shared/HexUnsigned.sksl",
+        "shared/IfStatement.sksl",
         "shared/InoutParameters.sksl",
         "shared/InoutParamsAreDistinct.sksl",
         "shared/InstanceID.vert",

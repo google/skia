@@ -103,48 +103,6 @@ static void test(skiatest::Reporter* r,
     }
 }
 
-DEF_TEST(SkSLRasterPipelineCodeGeneratorIfElseTest, r) {
-    // Add in your SkSL here.
-    test(r,
-         R"__SkSL__(
-             const half4 colorWhite = half4(1);
-
-             half4 ifElseTest(half4 colorBlue, half4 colorGreen, half4 colorRed) {
-                 half4 result = half4(0);
-                 if (colorWhite != colorBlue) {    // TRUE
-                     if (colorGreen == colorRed) { // FALSE
-                         result = colorRed;
-                     } else {
-                         result = colorGreen;
-                     }
-                 } else {
-                     if (colorRed != colorGreen) { // TRUE, but in a false branch
-                         result = colorBlue;
-                     } else {                      // FALSE, and in a false branch
-                         result = colorWhite;
-                     }
-                 }
-                 if (colorRed == colorBlue) { // FALSE
-                     return colorWhite;
-                 }
-                 if (colorRed != colorGreen) { // TRUE
-                     return result;
-                 }
-                 if (colorRed == colorWhite) { // FALSE
-                     return colorBlue;
-                 }
-                 return colorRed;
-             }
-
-             half4 main(half4) {
-                 return ifElseTest(colorWhite.00b1, colorWhite.0g01, colorWhite.r001);
-             }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
-}
-
 DEF_TEST(SkSLRasterPipelineCodeGeneratorNestedTernaryTest, r) {
     // Add in your SkSL here.
     test(r,

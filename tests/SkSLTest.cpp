@@ -1107,6 +1107,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T, GeometricIntrinsics,             "shared/G
 SKSL_TEST(CPU | GPU,     kApiLevel_T, HelloWorld,                      "shared/HelloWorld.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, Hex,                             "shared/Hex.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      HexUnsigned,                     "shared/HexUnsigned.sksl")
+SKSL_TEST(CPU | GPU,     kNextRelease,IfStatement,                     "shared/IfStatement.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, InoutParameters,                 "shared/InoutParameters.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_U, InoutParamsAreDistinct,          "shared/InoutParamsAreDistinct.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kApiLevel_U, IntegerDivisionES3,              "shared/IntegerDivisionES3.sksl")
