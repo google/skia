@@ -28,10 +28,16 @@
     #define SK_UNLIKELY
 #endif
 
+// c++23 will give us [[assume]] -- until then we're stuck with various other options:
 #if defined(__clang__)
     #define SK_ASSUME(cond) __builtin_assume(cond)
 #elif defined(__GNUC__)
-    #define SK_ASSUME(cond) ((cond) ? (void)0 : __builtin_unreachable())
+    #if __GNUC__ >= 13
+        #define SK_ASSUME(cond) __attribute__((assume(cond)))
+    #else
+        // NOTE: This implementation could actually evaluate `cond`, which is not desirable.
+        #define SK_ASSUME(cond) ((cond) ? (void)0 : __builtin_unreachable())
+    #endif
 #elif defined(_MSC_VER)
     #define SK_ASSUME(cond) __assume(cond)
 #else
