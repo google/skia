@@ -1,4 +1,4 @@
-87 instructions
+84 instructions
 
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -49,7 +49,6 @@ copy_4_uniforms                $5..8 = colorWhite
 copy_4_slots_masked            result = Mask($5..8)
 load_condition_mask            CondMask = $3
 load_condition_mask            CondMask = $1
-store_condition_mask           $1 = CondMask
 copy_4_slots_unmasked          $2..5 = colorRed
 copy_4_slots_unmasked          $6..9 = colorBlue
 cmpeq_4_floats                 $2..5 = equal($2..5, $6..9)
@@ -60,7 +59,6 @@ copy_4_uniforms                $3..6 = colorWhite
 copy_4_slots_masked            [ifElseTest].result = Mask($3..6)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $1
-store_condition_mask           $1 = CondMask
 copy_4_slots_unmasked          $2..5 = colorRed
 copy_4_slots_unmasked          $6..9 = colorGreen
 cmpne_4_floats                 $2..5 = notEqual($2..5, $6..9)
@@ -71,7 +69,6 @@ copy_4_slots_unmasked          $3..6 = result
 copy_4_slots_masked            [ifElseTest].result = Mask($3..6)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $1
-store_condition_mask           $1 = CondMask
 copy_4_slots_unmasked          $2..5 = colorRed
 copy_4_uniforms                $6..9 = colorWhite
 cmpeq_4_floats                 $2..5 = equal($2..5, $6..9)

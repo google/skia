@@ -1011,6 +1011,20 @@ void Builder::pop_return_mask() {
     this->appendInstruction(BuilderOp::pop_return_mask, {});
 }
 
+void Builder::push_condition_mask() {
+    SkASSERT(this->executionMaskWritesAreEnabled());
+
+    // If the previous instruction is popping the condition mask, we can restore it onto the stack
+    // "for free" instead of copying it.
+    if (Instruction* lastInstruction = this->lastInstruction()) {
+        if (lastInstruction->fOp == BuilderOp::pop_condition_mask) {
+            this->pad_stack(1);
+            return;
+        }
+    }
+    this->appendInstruction(BuilderOp::push_condition_mask, {});
+}
+
 void Builder::merge_condition_mask() {
     SkASSERT(this->executionMaskWritesAreEnabled());
 

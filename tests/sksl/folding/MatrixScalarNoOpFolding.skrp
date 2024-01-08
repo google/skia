@@ -1,4 +1,4 @@
-873 instructions
+867 instructions
 
 [immutable slots]
 i0 = 0
@@ -67,7 +67,7 @@ store_condition_mask           $82 = CondMask
 store_condition_mask           $98 = CondMask
 store_condition_mask           $150 = CondMask
 store_condition_mask           $181 = CondMask
-branch_if_no_lanes_active      branch_if_no_lanes_active +69 (label 6 at #77)
+branch_if_no_lanes_active      branch_if_no_lanes_active +67 (label 6 at #75)
 store_return_mask              $182 = RetMask
 splat_4_constants              m = 0
 splat_4_constants              mm = 0
@@ -86,7 +86,6 @@ copy_constant                  $185 = 0
 copy_slot_masked               [test_no_op_scalar_X_mat2].result = Mask($185)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $183
-store_condition_mask           $183 = CondMask
 copy_4_slots_unmasked          $184..187 = m
 copy_4_uniforms                $188..191 = testMatrix2x2
 cmpne_4_floats                 $184..187 = notEqual($184..187, $188..191)
@@ -97,7 +96,6 @@ copy_constant                  $185 = 0
 copy_slot_masked               [test_no_op_scalar_X_mat2].result = Mask($185)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $183
-store_condition_mask           $183 = CondMask
 copy_4_slots_unmasked          $184..187 = m
 copy_4_uniforms                $188..191 = testMatrix2x2
 cmpne_4_floats                 $184..187 = notEqual($184..187, $188..191)
@@ -139,7 +137,7 @@ copy_slot_unmasked             $182 = [test_no_op_scalar_X_mat2].result
 label                          label 0x00000006
 copy_constant                  $151 = 0
 merge_condition_mask           CondMask = $181 & $182
-branch_if_no_lanes_active      branch_if_no_lanes_active +126 (label 5 at #206)
+branch_if_no_lanes_active      branch_if_no_lanes_active +124 (label 5 at #202)
 store_return_mask              $152 = RetMask
 splat_4_constants              m₁(0..3) = 0
 splat_4_constants              m₁(4..7) = 0
@@ -175,7 +173,6 @@ copy_constant                  $155 = 0
 copy_slot_masked               [test_no_op_scalar_X_mat3].result = Mask($155)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $153
-store_condition_mask           $153 = CondMask
 copy_4_slots_unmasked          $154..157 = m₁(0..3)
 copy_4_slots_unmasked          $158..161 = m₁(4..7)
 copy_slot_unmasked             $162 = m₁(8)
@@ -192,7 +189,6 @@ copy_constant                  $155 = 0
 copy_slot_masked               [test_no_op_scalar_X_mat3].result = Mask($155)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $153
-store_condition_mask           $153 = CondMask
 copy_4_slots_unmasked          $154..157 = m₁(0..3)
 copy_4_slots_unmasked          $158..161 = m₁(4..7)
 copy_slot_unmasked             $162 = m₁(8)
@@ -269,7 +265,7 @@ label                          label 0x00000005
 load_condition_mask            CondMask = $181
 copy_constant                  $99 = 0
 merge_condition_mask           CondMask = $150 & $151
-branch_if_no_lanes_active      branch_if_no_lanes_active +159 (label 4 at #369)
+branch_if_no_lanes_active      branch_if_no_lanes_active +157 (label 4 at #363)
 store_return_mask              $100 = RetMask
 copy_4_uniforms                testMatrix4x4(0..3) = testInputs
 copy_4_uniforms                testMatrix4x4(4..7) = testInputs
@@ -319,7 +315,6 @@ copy_constant                  $103 = 0
 copy_slot_masked               [test_no_op_scalar_X_mat4].result = Mask($103)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $101
-store_condition_mask           $101 = CondMask
 copy_4_slots_unmasked          $102..105 = m₂(0..3)
 copy_4_slots_unmasked          $106..109 = m₂(4..7)
 copy_4_slots_unmasked          $110..113 = m₂(8..11)
@@ -339,7 +334,6 @@ copy_constant                  $103 = 0
 copy_slot_masked               [test_no_op_scalar_X_mat4].result = Mask($103)
 mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
 load_condition_mask            CondMask = $101
-store_condition_mask           $101 = CondMask
 copy_4_slots_unmasked          $102..105 = m₂(0..3)
 copy_4_slots_unmasked          $106..109 = m₂(4..7)
 copy_4_slots_unmasked          $110..113 = m₂(8..11)
@@ -432,7 +426,7 @@ label                          label 0x00000004
 load_condition_mask            CondMask = $150
 copy_constant                  $83 = 0
 merge_condition_mask           CondMask = $98 & $99
-branch_if_no_lanes_active      branch_if_no_lanes_active +108 (label 3 at #481)
+branch_if_no_lanes_active      branch_if_no_lanes_active +108 (label 3 at #475)
 store_return_mask              $84 = RetMask
 splat_4_constants              m₃ = 0
 splat_4_constants              mm₃ = 0
@@ -544,7 +538,7 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $98
 copy_constant                  $52 = 0
 merge_condition_mask           CondMask = $82 & $83
-branch_if_no_lanes_active      branch_if_no_lanes_active +176 (label 2 at #661)
+branch_if_no_lanes_active      branch_if_no_lanes_active +176 (label 2 at #655)
 store_return_mask              $53 = RetMask
 splat_4_constants              m₄(0..3) = 0
 splat_4_constants              m₄(4..7) = 0
@@ -561,13 +555,13 @@ shuffle                        $54..62 = ($54..62)[1 0 0 0 1 0 0 0 1]
 copy_4_slots_masked            m₄(0..3) = Mask($54..57)
 copy_4_slots_masked            m₄(4..7) = Mask($58..61)
 copy_slot_masked               m₄(8) = Mask($62)
-stack_rewind
 copy_constant                  $54 = 0
 copy_slot_unmasked             $55 = scalar₁
 shuffle                        $54..62 = ($54..62)[1 0 0 0 1 0 0 0 1]
 copy_4_slots_masked            m₄(0..3) = Mask($54..57)
 copy_4_slots_masked            m₄(4..7) = Mask($58..61)
 copy_slot_masked               m₄(8) = Mask($62)
+stack_rewind
 store_condition_mask           $54 = CondMask
 copy_4_slots_unmasked          $55..58 = m₄(0..3)
 copy_4_slots_unmasked          $59..62 = m₄(4..7)
@@ -724,7 +718,7 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $82
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $51 & $52
-branch_if_no_lanes_active      branch_if_no_lanes_active +213 (label 1 at #878)
+branch_if_no_lanes_active      branch_if_no_lanes_active +213 (label 1 at #872)
 store_return_mask              $1 = RetMask
 splat_4_constants              m₅(0..3) = 0
 splat_4_constants              m₅(4..7) = 0
