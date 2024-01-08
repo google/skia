@@ -77,6 +77,30 @@ constexpr bool operator!=(const Segment& s0, const Segment& s1) {
 template<size_t> const myers::Point& get(const myers::Segment&);
 template<> inline const myers::Point& get<0>(const myers::Segment& s) { return s.upper(); }
 template<> inline const myers::Point& get<1>(const myers::Segment& s) { return s.lower(); }
+
+// -- Crossing -------------------------------------------------------------------------------------
+class Crossing {
+public:
+    Crossing(const Segment& s0, const Segment& s1) : Crossing{std::minmax(s0, s1)} {}
+    friend bool operator<(const Crossing& c0, const Crossing& c1);
+    friend bool operator==(const Crossing& c0, const Crossing& c1);
+
+private:
+    Crossing(std::tuple<Segment, Segment> highLow)
+            : fHigher{std::get<0>(highLow)}
+            , fLower{std::get<1>(highLow)} {}
+
+    Segment fHigher;
+    Segment fLower;
+};
+
+inline bool operator<(const Crossing& c0, const Crossing& c1) {
+    return std::tie(c0.fHigher, c0.fLower) < std::tie(c1.fHigher, c1.fLower);
+}
+
+inline bool operator==(const Crossing& c0, const Crossing& c1) {
+    return std::tie(c0.fHigher, c0.fLower) == std::tie(c1.fHigher, c1.fLower);
+}
 }  // namespace myers
 
 // Support for Segment as a tuple. Must be in top-level namespace.

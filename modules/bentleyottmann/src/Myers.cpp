@@ -409,4 +409,31 @@ private:
     const std::vector<CompactEvent> fEvents;
     const std::vector<Segment> fSegmentStorage;
 };
+
+// -- CrossingAccumulator --------------------------------------------------------------------------
+// Collect all the crossings, and reject endpoint-to-endpoint crossings as those intersections
+// are already represented in the data.
+class CrossingAccumulator {
+public:
+    void recordCrossing(const Segment& s0, const Segment& s1) {
+        // Endpoints with no possible interior overlap.
+        if (s0.upper() == s1.lower() || s0.lower() == s1.upper()) {
+            return;
+        }
+
+        // Segments don't overlap if they are not colinear.
+        if ((s0.upper() == s1.upper() || s0.lower() == s1.lower()) && compare_slopes(s0, s1) != 0) {
+            return;
+        }
+
+        fCrossings.emplace_back(s0, s1);
+    }
+
+    std::vector<Crossing> finishAndReleaseCrossings() {
+        return std::move(fCrossings);
+    }
+
+private:
+    std::vector<Crossing> fCrossings;
+};
 }  // namespace myers
