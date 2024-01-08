@@ -47,17 +47,22 @@ bool SkSLToBackend(const SkSL::ShaderCaps* caps,
 #else
     const bool kPrintSkSL = false;
 #endif
+    const bool kSkSLPostCompilation = false;
 #if defined(SK_PRINT_NATIVE_SHADERS)
     const bool printBackendSL = (backendLabel != nullptr);
 #else
     const bool printBackendSL = false;
 #endif
 
-    if (kPrintSkSL || printBackendSL) {
+    if (kPrintSkSL || kSkSLPostCompilation || printBackendSL) {
         SkShaderUtils::PrintShaderBanner(programKind);
         if (kPrintSkSL) {
             SkDebugf("SkSL:\n");
             SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(sksl));
+        }
+        if (kSkSLPostCompilation) {
+            SkDebugf("SkSL (post-compilation):\n");
+            SkShaderUtils::PrintLineByLine(SkShaderUtils::PrettyPrint(program->description()));
         }
         if (printBackendSL) {
             SkDebugf("%s:\n", backendLabel);

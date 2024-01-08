@@ -23,8 +23,8 @@ std::unique_ptr<SwitchCase> SwitchCase::MakeDefault(Position pos,
 }
 
 std::string SwitchCase::description() const {
-    return fDefault ? "default:\n" + fStatement->description()
-                    : "case " + std::to_string(fValue) + ":\n" + fStatement->description();
+    return fDefault ? "default: \n" + fStatement->description()
+                    : "case " + std::to_string(fValue) + ": \n" + fStatement->description();
 }
 
 }  // namespace SkSL
