@@ -168,7 +168,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "spirv_cross",
         build_file = ws + "//bazel/external/spirv_cross:BUILD.bazel",
-        commit = "cffc08a542b01dfd15f6ed7682251d002dbc4e64",
+        commit = "7eb09ee4432c11fedcd8a5063489851e1ffc8dc9",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross",
     )
 
