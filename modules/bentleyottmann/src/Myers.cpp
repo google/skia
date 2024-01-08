@@ -273,19 +273,31 @@ public:
         SkASSERT(!segments.empty());
         SkASSERT(segments.size() < INT32_MAX);
 
-        // A vector of SetupTuple when ordered will produce the events, and all the different
-        // sets of segments (beginning, etc.). The three ints provide the ordering that produces
-        // the different sets needed for the event.
-        //     * 0: Segment - along for the to be sorted, and not part of the key
-        //     * 1: int32_t - the y value for the event and the most important part of the key
-        //     * 2: int - this is the set type, kBegin, kHorizontal or kEnd.
-        //     * 3: int32_t - this is -x to break ties when the y values and the set types are
-        //          the same.
-        using SetupTuple = std::tuple<Segment, int32_t, int, int32_t>;
         enum EventType {
             kBegin = 0,
             kHorizontal = 1,
             kEnd = 2
+        };
+
+        // A vector of SetupTuple when ordered will produce the events, and all the different
+        // sets of segments (beginning, etc.).
+        struct SetupTuple {
+            // The main ordering of events.
+            int32_t yOrdering;
+
+            // Group together like event types together.
+            EventType type;
+
+            // Break ties if yOrdering is the same.
+            int32_t xTieBreaker;
+
+            // We want to sort the segments, but they are not part of the key.
+            Segment originalSegment;
+
+            bool operator==(const SetupTuple& r) const {
+                return std::tie(this->yOrdering, this->type, this->xTieBreaker) <
+                       std::tie(r.yOrdering, r.type, r.xTieBreaker);
+            }
         };
 
         std::vector<SetupTuple> eventOrdering;
@@ -298,18 +310,18 @@ public:
 
             if (s.isHorizontal()) {
                 // Tag for the horizontal set.
-                eventOrdering.emplace_back(s, s.upper().y, kHorizontal, -s.upper().x);
+                eventOrdering.push_back(SetupTuple{s.upper().y, kHorizontal, -s.upper().x, s});
             } else {
                 // Tag for the beginning and ending sets.
-                eventOrdering.emplace_back(s, s.upper().y, kBegin, -s.upper().x);
-                eventOrdering.emplace_back(s, s.lower().y, kEnd, -s.lower().x);
+                eventOrdering.push_back(SetupTuple{s.upper().y, kBegin, -s.upper().x, s});
+                eventOrdering.push_back(SetupTuple{s.lower().y, kEnd, -s.lower().x, s});
             }
         }
 
         // Order the tuples by y, then by set type, then by x value.
         auto eventLess = [](const SetupTuple& l, const SetupTuple& r) {
-            return std::tie(std::get<1>(l), std::get<2>(l), std::get<3>(l)) <
-                   std::tie(std::get<1>(r), std::get<2>(r), std::get<3>(r));
+            return std::tie(l.yOrdering, l.type, l.xTieBreaker) <
+                   std::tie(r.yOrdering, r.type, l.xTieBreaker);
         };
 
         // Sort the events.
@@ -323,12 +335,12 @@ public:
         std::vector<Segment> segmentStorage;
         segmentStorage.reserve(eventOrdering.size());
 
-        int32_t currentY = std::get<1>(eventOrdering.front());
+        int32_t currentY = eventOrdering.front().yOrdering;
         int32_t start = 0,
                 endOfBegin = 0,
                 endOfHorizontal = 0,
                 endOfEnd = 0;
-        for (const auto& [s, y, type, _] : eventOrdering) {
+        for (const auto& [y, type, _, s] : eventOrdering) {
             // If this is a new y then create the compact event.
             if (currentY != y) {
                 events.push_back(CompactEvent{currentY,
