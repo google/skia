@@ -14,8 +14,6 @@
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
-extern bool gCreateProtectedContext;
-
 namespace {
 
 class VkTestContextImpl : public sk_gpu_test::VkTestContext {
@@ -44,9 +42,7 @@ public:
             features = new VkPhysicalDeviceFeatures2;
             memset(features, 0, sizeof(VkPhysicalDeviceFeatures2));
             if (!sk_gpu_test::CreateVkBackendContext(instProc, &backendContext, extensions,
-                                                     features, &debugCallback,
-                                                     nullptr, sk_gpu_test::CanPresentFn(),
-                                                     gCreateProtectedContext)) {
+                                                     features, &debugCallback)) {
                 sk_gpu_test::FreeVulkanFeaturesStructs(features);
                 delete features;
                 delete extensions;

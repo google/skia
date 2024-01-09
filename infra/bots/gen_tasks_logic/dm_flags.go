@@ -258,9 +258,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "colorImage", ALL, ALL)
 			skip(ALL, "svg", ALL, ALL)
 			skip(ALL, "skp", ALL, ALL)
-
-			// These unit tests attempt to readback
-			skip(ALL, "test", ALL, "SkSLCross")
 		}
 
 		// The Tegra3 doesn't support MSAA

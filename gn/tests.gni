@@ -343,7 +343,6 @@ metal_tests_sources = [
 ]
 
 graphite_tests_sources = [
-  "$_tests/graphite/AHardwareBufferTest.cpp",
   "$_tests/graphite/BackendTextureTest.cpp",
   "$_tests/graphite/BoundsManagerTest.cpp",
   "$_tests/graphite/BufferManagerTest.cpp",
