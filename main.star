@@ -69,6 +69,11 @@ luci.bucket(
     ],
 )
 
+luci.task_backend(
+    name = "skia-staging-taskbackend",
+    target = "skia://task-scheduler-staging",
+)
+
 luci.bucket(
     name = "skia.testing",
     acls = [
@@ -85,4 +90,13 @@ luci.bucket(
             "skiabot-test",
         ]),
     ],
+    dynamic = True,
+)
+
+luci.dynamic_builder_template(
+    bucket = "skia.testing",
+    backend = "skia-staging-taskbackend",
+    experiments = {
+        "luci.buildbucket.backend_alt": 100,
+    },
 )
