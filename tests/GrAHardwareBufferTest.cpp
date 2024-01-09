@@ -275,6 +275,8 @@ static void surface_draw_test_helper(skiatest::Reporter* reporter,
     surface->getCanvas()->drawImage(srcBitmap.asImage(), 0, 0);
 
     if (!isProtected) {
+        // In Protected mode we can't readback so we just test that we can wrap the AHB and
+        // draw it w/o errors
         SkBitmap readbackBitmap;
         readbackBitmap.allocN32Pixels(DEV_W, DEV_H);
 

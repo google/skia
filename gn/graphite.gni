@@ -210,6 +210,11 @@ skia_graphite_sources = [
   "$_src/text/TextAtlasManager.h",
 ]
 
+skia_graphite_android_private = [
+  "$_src/surface/Surface_AndroidFactories.cpp",
+  "$_include/android/graphite/SurfaceAndroid.h",
+]
+
 skia_graphite_dawn_public = [
   "$_include/dawn/DawnBackendContext.h",
   "$_include/dawn/DawnTypes.h",
