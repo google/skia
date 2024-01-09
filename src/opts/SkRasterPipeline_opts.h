@@ -55,7 +55,10 @@ struct Ctx {
 
 using NoCtx = const void*;
 
-#if !defined(__clang__)
+#if defined(JUMPER_IS_SCALAR) || defined(JUMPER_IS_NEON) || defined(JUMPER_IS_HSW) || \
+        defined(JUMPER_IS_AVX) || defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_SSE2)
+    // Honor the existing setting
+#elif !defined(__clang__)
     #define JUMPER_IS_SCALAR
 #elif defined(SK_ARM_HAS_NEON)
     #define JUMPER_IS_NEON
