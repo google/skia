@@ -3276,8 +3276,8 @@ STAGE_TAIL(copy_4_immutables_unmasked, SkRasterPipeline_BinaryOpCtx* packed) {
 template <int NumSlots>
 SI void copy_n_slots_masked_fn(SkRasterPipeline_BinaryOpCtx* packed, std::byte* base, I32 mask) {
     auto ctx = SkRPCtxUtils::Unpack(packed);
-    F* dst = (F*)(base + ctx.dst);
-    F* src = (F*)(base + ctx.src);
+    I32* dst = (I32*)(base + ctx.dst);
+    I32* src = (I32*)(base + ctx.src);
     SK_UNROLL for (int count = 0; count < NumSlots; ++count) {
         *dst = if_then_else(mask, *src, *dst);
         dst += 1;
@@ -3353,10 +3353,10 @@ STAGE_TAIL(shuffle, SkRasterPipeline_ShuffleCtx* ctx) {
 }
 
 template <int NumSlots>
-SI void swizzle_copy_masked_fn(F* dst, const F* src, uint16_t* offsets, I32 mask) {
+SI void swizzle_copy_masked_fn(I32* dst, const I32* src, uint16_t* offsets, I32 mask) {
     std::byte* dstB = (std::byte*)dst;
     SK_UNROLL for (int count = 0; count < NumSlots; ++count) {
-        F* dstS = (F*)(dstB + *offsets);
+        I32* dstS = (I32*)(dstB + *offsets);
         *dstS = if_then_else(mask, *src, *dstS);
         offsets += 1;
         src     += 1;
@@ -3364,16 +3364,16 @@ SI void swizzle_copy_masked_fn(F* dst, const F* src, uint16_t* offsets, I32 mask
 }
 
 STAGE_TAIL(swizzle_copy_slot_masked, SkRasterPipeline_SwizzleCopyCtx* ctx) {
-    swizzle_copy_masked_fn<1>((F*)ctx->dst, (F*)ctx->src, ctx->offsets, execution_mask());
+    swizzle_copy_masked_fn<1>((I32*)ctx->dst, (const I32*)ctx->src, ctx->offsets, execution_mask());
 }
 STAGE_TAIL(swizzle_copy_2_slots_masked, SkRasterPipeline_SwizzleCopyCtx* ctx) {
-    swizzle_copy_masked_fn<2>((F*)ctx->dst, (F*)ctx->src, ctx->offsets, execution_mask());
+    swizzle_copy_masked_fn<2>((I32*)ctx->dst, (const I32*)ctx->src, ctx->offsets, execution_mask());
 }
 STAGE_TAIL(swizzle_copy_3_slots_masked, SkRasterPipeline_SwizzleCopyCtx* ctx) {
-    swizzle_copy_masked_fn<3>((F*)ctx->dst, (F*)ctx->src, ctx->offsets, execution_mask());
+    swizzle_copy_masked_fn<3>((I32*)ctx->dst, (const I32*)ctx->src, ctx->offsets, execution_mask());
 }
 STAGE_TAIL(swizzle_copy_4_slots_masked, SkRasterPipeline_SwizzleCopyCtx* ctx) {
-    swizzle_copy_masked_fn<4>((F*)ctx->dst, (F*)ctx->src, ctx->offsets, execution_mask());
+    swizzle_copy_masked_fn<4>((I32*)ctx->dst, (const I32*)ctx->src, ctx->offsets, execution_mask());
 }
 
 STAGE_TAIL(copy_from_indirect_unmasked, SkRasterPipeline_CopyIndirectCtx* ctx) {

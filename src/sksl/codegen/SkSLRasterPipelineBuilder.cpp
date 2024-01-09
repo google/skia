@@ -2249,8 +2249,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 // immC: offset from stack top
                 auto stage = (ProgramOp)((int)ProgramOp::swizzle_copy_slot_masked + inst.fImmA - 1);
                 auto* ctx = alloc->make<SkRasterPipeline_SwizzleCopyCtx>();
-                ctx->src = tempStackPtr - (inst.fImmC * N);
-                ctx->dst = SlotA();
+                ctx->src = reinterpret_cast<const int32_t*>(tempStackPtr) - (inst.fImmC * N);
+                ctx->dst = reinterpret_cast<int32_t*>(SlotA());
                 unpack_nybbles_to_offsets(inst.fImmB, SkSpan(ctx->offsets));
                 pipeline->push_back({stage, ctx});
                 break;

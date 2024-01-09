@@ -237,8 +237,8 @@ struct SkRasterPipeline_ShuffleCtx {
 };
 
 struct SkRasterPipeline_SwizzleCopyCtx {
-    float* dst;
-    float* src;           // src values must _not_ overlap dst values
+    int32_t* dst;
+    const int32_t* src;   // src values must _not_ overlap dst values
     uint16_t offsets[4];  // values must be byte offsets (4 * highp-stride * component-index)
 };
 

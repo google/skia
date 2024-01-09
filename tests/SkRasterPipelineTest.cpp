@@ -1095,7 +1095,7 @@ DEF_TEST(SkRasterPipeline_TraceScope, r) {
 
 DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
     // Allocate space for 5 source slots and 5 dest slots.
-    alignas(64) float slots[10 * SkRasterPipeline_kMaxStride_highp];
+    alignas(64) int slots[10 * SkRasterPipeline_kMaxStride_highp];
     const int srcIndex = 0, dstIndex = 5;
 
     struct CopySlotsOp {
@@ -1120,9 +1120,9 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
 
     for (const CopySlotsOp& op : kCopyOps) {
         for (const int32_t* mask : {kMask1, kMask2, kMask3, kMask4}) {
-            // Initialize the destination slots to 0,1,2.. and the source slots to 1000,1001,1002...
-            std::iota(&slots[N * dstIndex],  &slots[N * (dstIndex + 5)], 0.0f);
-            std::iota(&slots[N * srcIndex],  &slots[N * (srcIndex + 5)], 1000.0f);
+            // Initialize the destination slots to 0,1,2.. and the source slots to various NaNs
+            std::iota(&slots[N * dstIndex],  &slots[N * (dstIndex + 5)], 0);
+            std::iota(&slots[N * srcIndex],  &slots[N * (srcIndex + 5)], kLastSignalingNaN);
 
             // Run `copy_slots_masked` over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1140,8 +1140,8 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
 
             // Verify that the destination has been overwritten in the mask-on fields, and has not
             // been overwritten in the mask-off fields, for each destination slot.
-            float expectedUnchanged = 0.0f, expectedChanged = 1000.0f;
-            float* destPtr = &slots[N * dstIndex];
+            int expectedUnchanged = 0, expectedChanged = kLastSignalingNaN;
+            int* destPtr = &slots[N * dstIndex];
             for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
                 for (int checkMask = 0; checkMask < N; ++checkMask) {
                     if (checkSlot < op.numSlotsAffected && mask[checkMask]) {
@@ -1151,8 +1151,8 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
                     }
 
                     ++destPtr;
-                    expectedUnchanged += 1.0f;
-                    expectedChanged += 1.0f;
+                    expectedUnchanged += 1;
+                    expectedChanged += 1;
                 }
             }
         }
@@ -1368,11 +1368,11 @@ DEF_TEST(SkRasterPipeline_SwizzleCopy, r) {
 
     for (const TestPattern& pattern : kPatterns) {
         // Allocate space for 4 dest slots, and initialize them to zero.
-        alignas(64) float dest[4 * SkRasterPipeline_kMaxStride_highp] = {};
+        alignas(64) int dest[4 * SkRasterPipeline_kMaxStride_highp] = {};
 
-        // Allocate 4 source slots and initialize them to 1, 2, 3, 4...
-        alignas(64) float source[4 * SkRasterPipeline_kMaxStride_highp] = {};
-        std::iota(&source[0 * N], &source[4 * N], 1.0f);
+        // Allocate 4 source slots and initialize them to various NaNs
+        alignas(64) int source[4 * SkRasterPipeline_kMaxStride_highp] = {};
+        std::iota(&source[0 * N], &source[4 * N], kLastSignalingNaN);
 
         // Apply the dest-swizzle pattern.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1391,7 +1391,7 @@ DEF_TEST(SkRasterPipeline_SwizzleCopy, r) {
         p.run(0,0,N,1);
 
         // Verify that the swizzle has been applied in each slot.
-        float* destPtr = &dest[0];
+        int* destPtr = &dest[0];
         for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
             for (int checkLane = 0; checkLane < N; ++checkLane) {
                 if (pattern.expectation[checkSlot] == _) {
