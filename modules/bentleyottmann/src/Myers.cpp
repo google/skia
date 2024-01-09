@@ -295,8 +295,9 @@ public:
             Segment originalSegment;
 
             bool operator==(const SetupTuple& r) const {
-                return std::tie(this->yOrdering, this->type, this->xTieBreaker) <
-                       std::tie(r.yOrdering, r.type, r.xTieBreaker);
+                return
+                    std::tie(this->yOrdering, this->type, this->xTieBreaker, this->originalSegment)
+                        == std::tie(r.yOrdering, r.type, r.xTieBreaker, r.originalSegment);
             }
         };
 
@@ -321,7 +322,7 @@ public:
         // Order the tuples by y, then by set type, then by x value.
         auto eventLess = [](const SetupTuple& l, const SetupTuple& r) {
             return std::tie(l.yOrdering, l.type, l.xTieBreaker) <
-                   std::tie(r.yOrdering, r.type, l.xTieBreaker);
+                   std::tie(r.yOrdering, r.type, r.xTieBreaker);
         };
 
         // Sort the events.
