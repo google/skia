@@ -417,6 +417,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
                                        reporter,
                                        context_info,
                                        CtsEnforcement::kApiLevel_T) {
+    using namespace skgpu;
+
     auto fillPixels = [](SkPixmap* p, const std::function<uint32_t(int x, int y)>& f) {
         for (int y = 0; y < p->height(); ++y) {
             for (int x = 0; x < p->width(); ++x) {
@@ -449,6 +451,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
     auto dContext = context_info.directContext();
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
 
+    Protected isProtected = Protected(dContext->priv().caps()->supportsProtectedContent());
+
     // We test both kRW in addition to kRead mostly to ensure that the calls are structured such
     // that they'd succeed if the texture wasn't kRead. We want to be sure we're failing with
     // kRead for the right reason.
@@ -457,7 +461,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
                                                                      srcPixmap,
                                                                      kTopLeft_GrSurfaceOrigin,
                                                                      GrRenderable::kNo,
-                                                                     GrProtected::kNo);
+                                                                     isProtected);
         if (!mbet) {
             ERRORF(reporter, "Could not make texture.");
             return;
@@ -465,8 +469,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
         auto proxy = proxyProvider->wrapBackendTexture(mbet->texture(), kBorrow_GrWrapOwnership,
                                                        GrWrapCacheable::kNo, ioType,
                                                        mbet->refCountedCallback());
-        skgpu::Swizzle swizzle = dContext->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                         GrColorType::kRGBA_8888);
+        Swizzle swizzle = dContext->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                  GrColorType::kRGBA_8888);
         GrSurfaceProxyView view(proxy, kTopLeft_GrSurfaceOrigin, swizzle);
         auto surfContext = dContext->priv().makeSC(std::move(view), ii.colorInfo());
         // Read pixels should work with a read-only texture.
@@ -522,9 +526,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
                                                                        kSize,
                                                                        kSize,
                                                                        kRGBA_8888_SkColorType,
-                                                                       skgpu::Mipmapped::kYes,
+                                                                       Mipmapped::kYes,
                                                                        GrRenderable::kNo,
-                                                                       GrProtected::kNo);
+                                                                       isProtected);
             proxy = proxyProvider->wrapBackendTexture(mbet->texture(), kBorrow_GrWrapOwnership,
                                                       GrWrapCacheable::kNo, ioType,
                                                       mbet->refCountedCallback());

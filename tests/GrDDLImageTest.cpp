@@ -22,6 +22,7 @@
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/ContextType.h"
@@ -30,6 +31,8 @@ class GrRecordingContext;
 struct GrContextOptions;
 
 DEF_GANESH_TEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLevel_T) {
+    using namespace skgpu;
+
     sk_gpu_test::GrContextFactory factory(options);
     for (int ct = 0; ct < skgpu::kContextTypeCount; ++ct) {
         auto contextType = static_cast<skgpu::ContextType>(ct);
@@ -37,6 +40,9 @@ DEF_GANESH_TEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLe
         if (!dContext) {
             continue;
         }
+
+        Protected isProtected = Protected(dContext->priv().caps()->supportsProtectedContent());
+
         SkIRect subsetBounds = SkIRect::MakeLTRB(4,4,8,8);
         SkImageInfo ii = SkImageInfo::Make(16, 16, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
@@ -65,7 +71,8 @@ DEF_GANESH_TEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLe
                                                               ii.height(),
                                                               ii.colorType(),
                                                               skgpu::Mipmapped(sc.isMipMapped()),
-                                                              GrRenderable::kYes);
+                                                              GrRenderable::kYes,
+                                                              isProtected);
         auto gpuImage = SkImages::BorrowTextureFrom(dContext,
                                                     tex,
                                                     kTopLeft_GrSurfaceOrigin,

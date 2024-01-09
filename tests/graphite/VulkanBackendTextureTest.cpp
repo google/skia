@@ -11,6 +11,8 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
 
 using namespace skgpu::graphite;
 
@@ -22,10 +24,12 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureSimpleCreationTest, rep
                                      CtsEnforcement::kNextRelease) {
     auto recorder = context->makeRecorder();
 
+    bool isProtected = context->priv().caps()->protectedSupport();
+
     VulkanTextureInfo textureInfo;
     textureInfo.fSampleCount = 1;
     textureInfo.fMipmapped = skgpu::Mipmapped::kNo;
-    textureInfo.fFlags = 0;
+    textureInfo.fFlags = isProtected ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     textureInfo.fFormat = VK_FORMAT_R8G8B8A8_UNORM;
     textureInfo.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     textureInfo.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -47,10 +51,12 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureCopyVariableTest, repor
                                      CtsEnforcement::kNextRelease) {
     auto recorder = context->makeRecorder();
 
+    bool isProtected = context->priv().caps()->protectedSupport();
+
     VulkanTextureInfo textureInfo;
     textureInfo.fSampleCount = 1;
     textureInfo.fMipmapped = skgpu::Mipmapped::kNo;
-    textureInfo.fFlags = 0;
+    textureInfo.fFlags = isProtected ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     textureInfo.fFormat = VK_FORMAT_R8G8B8A8_UNORM;
     textureInfo.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     textureInfo.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;

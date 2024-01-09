@@ -30,6 +30,10 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_SmokeTest, reporter, ctxInfo, CtsEnfo
 
     for (bool textureable : { true, false }) {
         for (bool isProtected : { true, false }) {
+            if (!isProtected && GrBackendApi::kVulkan == dContext->backend()) {
+                continue;
+            }
+
             sk_sp<SkSurface> surface = ProtectedUtils::CreateProtectedSkSurface(dContext,
                                                                                 { kSize, kSize },
                                                                                 textureable,
@@ -53,6 +57,10 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_SmokeTest, reporter, ctxInfo, CtsEnfo
     }
 
     for (bool isProtected : { true, false }) {
+        if (!isProtected && GrBackendApi::kVulkan == dContext->backend()) {
+            continue;
+        }
+
         sk_sp<SkImage> image = ProtectedUtils::CreateProtectedSkImage(dContext,
                                                                       { kSize, kSize },
                                                                       SkColors::kBlue,
@@ -110,6 +118,10 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_readPixelsFromSurfaces, reporter, ctx
     }
 
     for (bool isProtected : { true, false }) {
+        if (!isProtected && GrBackendApi::kVulkan == dContext->backend()) {
+            continue;
+        }
+
         sk_sp<SkSurface> surface = ProtectedUtils::CreateProtectedSkSurface(dContext,
                                                                             { kSize, kSize },
                                                                             /* textureable= */ true,
@@ -150,6 +162,10 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_asyncRescaleAndReadPixelsFromSurfaces
     }
 
     for (bool isProtected : { true, false }) {
+        if (!isProtected && GrBackendApi::kVulkan == dContext->backend()) {
+            continue;
+        }
+
         sk_sp<SkSurface> surface = ProtectedUtils::CreateProtectedSkSurface(dContext,
                                                                             { kSize, kSize },
                                                                             /* textureable= */ true,

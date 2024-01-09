@@ -61,7 +61,11 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter,
                                           GrRecordingContext* rContext,
                                           GrProxyProvider* proxyProvider,
                                           SkBackingFit fit) {
+    using namespace skgpu;
+
     const GrCaps* caps = rContext->priv().caps();
+
+    Protected isProtected = Protected(caps->supportsProtectedContent());
 
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kNo);
 
@@ -69,10 +73,10 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter,
                                                              kSize,
                                                              GrRenderable::kNo,
                                                              1,
-                                                             skgpu::Mipmapped::kNo,
+                                                             Mipmapped::kNo,
                                                              fit,
-                                                             skgpu::Budgeted::kYes,
-                                                             GrProtected::kNo,
+                                                             Budgeted::kYes,
+                                                             isProtected,
                                                              /*label=*/{});
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
@@ -83,7 +87,11 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter,
                                             GrRecordingContext* rContext,
                                             GrProxyProvider* proxyProvider,
                                             SkBackingFit fit) {
+    using namespace skgpu;
+
     const GrCaps* caps = rContext->priv().caps();
+
+    Protected isProtected = Protected(caps->supportsProtectedContent());
 
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
 
@@ -91,53 +99,67 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter,
                                                              kSize,
                                                              GrRenderable::kYes,
                                                              1,
-                                                             skgpu::Mipmapped::kNo,
+                                                             Mipmapped::kNo,
                                                              fit,
-                                                             skgpu::Budgeted::kYes,
-                                                             GrProtected::kNo,
+                                                             Budgeted::kYes,
+                                                             isProtected,
                                                              /*label=*/{});
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
 }
 
-static sk_sp<GrTextureProxy> wrapped(skiatest::Reporter* reporter, GrRecordingContext*,
+static sk_sp<GrTextureProxy> wrapped(skiatest::Reporter* reporter, GrRecordingContext* rContext,
                                      GrProxyProvider* proxyProvider, SkBackingFit fit) {
+    using namespace skgpu;
+
+    Protected isProtected = Protected(rContext->priv().caps()->supportsProtectedContent());
+
     sk_sp<GrTextureProxy> proxy = proxyProvider->testingOnly_createInstantiatedProxy(
-            kSize, kColorType, GrRenderable::kNo, 1, fit, skgpu::Budgeted::kYes, GrProtected::kNo);
+            kSize, kColorType, GrRenderable::kNo, 1, fit, Budgeted::kYes, isProtected);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
 }
 
-static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter, GrRecordingContext*,
-                                              GrProxyProvider* proxyProvider, SkBackingFit fit) {
-    static skgpu::UniqueKey::Domain d = skgpu::UniqueKey::GenerateDomain();
+static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter,
+                                              GrRecordingContext* rContext,
+                                              GrProxyProvider* proxyProvider,
+                                              SkBackingFit fit) {
+    using namespace skgpu;
+
+    Protected isProtected = Protected(rContext->priv().caps()->supportsProtectedContent());
+
+    static UniqueKey::Domain d = UniqueKey::GenerateDomain();
     static int kUniqueKeyData = 0;
 
-    skgpu::UniqueKey key;
+    UniqueKey key;
 
-    skgpu::UniqueKey::Builder builder(&key, d, 1, nullptr);
+    UniqueKey::Builder builder(&key, d, 1, nullptr);
     builder[0] = kUniqueKeyData++;
     builder.finish();
 
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     sk_sp<GrTextureProxy> proxy = proxyProvider->testingOnly_createInstantiatedProxy(
-            kSize, kColorType, GrRenderable::kNo, 1, fit, skgpu::Budgeted::kYes, GrProtected::kNo);
+            kSize, kColorType, GrRenderable::kNo, 1, fit, Budgeted::kYes, isProtected);
     SkAssertResult(proxyProvider->assignUniqueKeyToProxy(key, proxy.get()));
     REPORTER_ASSERT(reporter, proxy->getUniqueKey().isValid());
     return proxy;
 }
 
 static sk_sp<GrTextureProxy> create_wrapped_backend(GrDirectContext* dContext) {
+    using namespace skgpu;
+
+    Protected isProtected = Protected(dContext->priv().caps()->supportsProtectedContent());
+
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
             dContext,
             kSize.width(),
             kSize.height(),
             GrColorTypeToSkColorType(kColorType),
-            skgpu::Mipmapped::kNo,
+            Mipmapped::kNo,
             GrRenderable::kNo,
-            GrProtected::kNo);
+            isProtected);
     if (!mbet) {
         return nullptr;
     }

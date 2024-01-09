@@ -1053,9 +1053,13 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
+    using namespace skgpu;
+
     auto dContext = ctxInfo.directContext();
     size_t maxResourceBytes = dContext->getResourceCacheLimit();
     auto proxy = dContext->threadSafeProxy().get();
+
+    Protected isProtected = Protected(dContext->priv().caps()->supportsProtectedContent());
 
     auto check_create_fails = [proxy, reporter, maxResourceBytes](
                                       const GrBackendFormat& backendFormat,
@@ -1064,7 +1068,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures,
                                       SkColorType ct,
                                       bool willUseGLFBO0,
                                       bool isTextureable,
-                                      skgpu::Protected prot,
+                                      Protected prot,
                                       bool vkRTSupportsInputAttachment,
                                       bool forVulkanSecondaryCommandBuffer) {
         const SkSurfaceProps surfaceProps(0x0, kRGB_H_SkPixelGeometry);
@@ -1079,7 +1083,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures,
                                               1,
                                               kBottomLeft_GrSurfaceOrigin,
                                               surfaceProps,
-                                              skgpu::Mipmapped::kNo,
+                                              Mipmapped::kNo,
                                               willUseGLFBO0,
                                               isTextureable,
                                               prot,
@@ -1119,47 +1123,42 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures,
     // In each of the check_create_fails calls there is one bad parameter that should cause the
     // creation of the characterization to fail.
     check_create_fails(goodBackendFormat, goodWidth, badHeights[0], kGoodCT, kGoodUseFBO0,
-                       kIsTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
+                       kIsTextureable, isProtected, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(goodBackendFormat, goodWidth, badHeights[1], kGoodCT, kGoodUseFBO0,
-                       kIsTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
+                       kIsTextureable, isProtected, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(goodBackendFormat, badWidths[0], goodHeight, kGoodCT, kGoodUseFBO0,
-                       kIsTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
+                       kIsTextureable, isProtected, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(goodBackendFormat, badWidths[1], goodHeight, kGoodCT, kGoodUseFBO0,
-                       kIsTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
+                       kIsTextureable, isProtected, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(badBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
-                       kIsTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
+                       kIsTextureable, isProtected, kGoodVkInputAttachment, kGoodForVkSCB);
     check_create_fails(goodBackendFormat, goodWidth, goodHeight, kBadCT, kGoodUseFBO0,
-                       kIsTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
+                       kIsTextureable, isProtected, kGoodVkInputAttachment, kGoodForVkSCB);
     // This fails because we always try to make a characterization that is textureable and we can't
     // have UseFBO0 be true and textureable.
     check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kBadUseFBO0,
-                       kIsTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment, kGoodForVkSCB);
+                       kIsTextureable, isProtected, kGoodVkInputAttachment, kGoodForVkSCB);
     if (dContext->backend() == GrBackendApi::kVulkan) {
-        // The bad parameter in this case is the skgpu::Protected::kYes since none of our test contexts
-        // are made protected we can't have a protected surface.
-        check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
-                           kIsTextureable, skgpu::Protected::kYes, kGoodVkInputAttachment,
-                           kGoodForVkSCB);
         // The following fails because forVulkanSecondaryCommandBuffer is true and
         // isTextureable is true. This is not a legal combination.
         check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
-                           kIsTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment, kBadForVkSCB);
+                           kIsTextureable, isProtected, kGoodVkInputAttachment, kBadForVkSCB);
         // The following fails because forVulkanSecondaryCommandBuffer is true and
         // vkRTSupportsInputAttachment is true. This is not a legal combination.
         check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
-                           kIsNotTextureable, skgpu::Protected::kNo, kBadVkInputAttachment,
+                           kIsNotTextureable, isProtected, kBadVkInputAttachment,
                            kBadForVkSCB);
         // The following fails because forVulkanSecondaryCommandBuffer is true and
         // willUseGLFBO0 is true. This is not a legal combination.
         check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kBadUseFBO0,
-                           kIsNotTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment,
+                           kIsNotTextureable, isProtected, kGoodVkInputAttachment,
                            kBadForVkSCB);
     } else {
         // The following set vulkan only flags on non vulkan backends.
         check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
-                           kIsTextureable, skgpu::Protected::kNo, kBadVkInputAttachment, kGoodForVkSCB);
+                           kIsTextureable, isProtected, kBadVkInputAttachment, kGoodForVkSCB);
         check_create_fails(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0,
-                           kIsNotTextureable, skgpu::Protected::kNo, kGoodVkInputAttachment,
+                           kIsNotTextureable, isProtected, kGoodVkInputAttachment,
                            kBadForVkSCB);
     }
 }
@@ -1188,15 +1187,22 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
+    using namespace skgpu;
+
     auto context = ctxInfo.directContext();
 
+    Protected isProtected = Protected(context->priv().caps()->supportsProtectedContent());
+
     SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> s = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, ii);
+    sk_sp<SkSurface> s = SkSurfaces::RenderTarget(context, Budgeted::kNo, ii);
 
     GrSurfaceCharacterization characterization;
     SkAssertResult(s->characterize(&characterization));
 
-    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(context, ii);
+    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(context, ii,
+                                                                 Mipmapped::kNo,
+                                                                 Renderable::kNo,
+                                                                 isProtected);
     if (!mbet) {
         ERRORF(reporter, "Could not make texture.");
         return;

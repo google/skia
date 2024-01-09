@@ -42,6 +42,8 @@ class GrTexture;
 struct GrContextOptions;
 
 DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDRMModifierTest, reporter, ctxInfo, CtsEnforcement::kNever) {
+    using namespace skgpu;
+
     auto dContext = ctxInfo.directContext();
 
     const GrVkCaps* vkCaps = static_cast<const GrVkCaps*>(dContext->priv().caps());
@@ -49,9 +51,11 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDRMModifierTest, reporter, ctxInfo, CtsEnfo
         return;
     }
 
+    Protected isProtected = Protected(vkCaps->supportsProtectedContent());
+
     // First make a normal backend texture with DRM
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            dContext, 1, 1, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
+            dContext, 1, 1, kRGBA_8888_SkColorType, Mipmapped::kNo, GrRenderable::kNo, isProtected);
     if (!mbet) {
         ERRORF(reporter, "Could not create backend texture.");
         return;
@@ -84,7 +88,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDRMModifierTest, reporter, ctxInfo, CtsEnfo
     REPORTER_ASSERT(reporter, ok);
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(actual, drmBETex));
 
-    auto [view, _] = skgpu::ganesh::AsView(dContext, drmImage, skgpu::Mipmapped::kNo);
+    auto [view, _] = skgpu::ganesh::AsView(dContext, drmImage, Mipmapped::kNo);
     REPORTER_ASSERT(reporter, view);
     const GrSurfaceProxy* proxy = view.proxy();
     REPORTER_ASSERT(reporter, proxy);
@@ -99,10 +103,14 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDRMModifierTest, reporter, ctxInfo, CtsEnfo
 }
 
 DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo, CtsEnforcement::kNever) {
+    using namespace skgpu;
+
     auto dContext = ctxInfo.directContext();
 
+    Protected isProtected = Protected(dContext->priv().caps()->supportsProtectedContent());
+
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            dContext, 1, 1, kRGBA_8888_SkColorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
+            dContext, 1, 1, kRGBA_8888_SkColorType, Mipmapped::kNo, GrRenderable::kNo, isProtected);
     if (!mbet) {
         ERRORF(reporter, "Could not create backend texture.");
         return;

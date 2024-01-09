@@ -32,10 +32,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
     constexpr SkColorType kValidColorType = kRGBA_8888_SkColorType;
     constexpr SkColorType kInvalidColorType = kUnknown_SkColorType;
 
+    Protected isProtected = Protected(caps->protectedSupport());
+
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
     const TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(
-            kValidColorType, Mipmapped::kNo, Protected::kNo, Renderable::kNo);
+            kValidColorType, Mipmapped::kNo, isProtected, Renderable::kNo);
     BackendTexture backendTexture = recorder->createBackendTexture(kValidSize, textureInfo);
     sk_sp<Texture> texture = resourceProvider->createWrappedTexture(backendTexture);
 
@@ -54,7 +56,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
                                       kInvalidSize,
                                       kValidColorType,
                                       Mipmapped::kNo,
-                                      Protected::kNo,
+                                      isProtected,
                                       Renderable::kNo,
                                       skgpu::Budgeted::kNo);
     REPORTER_ASSERT(reporter, textureProxy == nullptr);
@@ -62,7 +64,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
                                       kValidSize,
                                       kInvalidColorType,
                                       Mipmapped::kNo,
-                                      Protected::kNo,
+                                      isProtected,
                                       Renderable::kNo,
                                       skgpu::Budgeted::kNo);
     REPORTER_ASSERT(reporter, textureProxy == nullptr);
@@ -72,7 +74,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
                                       kValidSize,
                                       kValidColorType,
                                       Mipmapped::kNo,
-                                      Protected::kNo,
+                                      isProtected,
                                       Renderable::kNo,
                                       skgpu::Budgeted::kNo);
     REPORTER_ASSERT(reporter, !textureProxy->isLazy());
@@ -163,7 +165,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
                                       kValidSize,
                                       kValidColorType,
                                       Mipmapped::kNo,
-                                      Protected::kNo,
+                                      isProtected,
                                       Renderable::kNo,
                                       skgpu::Budgeted::kNo);
     instantiateSuccess = TextureProxy::InstantiateIfNotLazy(resourceProvider, textureProxy.get());

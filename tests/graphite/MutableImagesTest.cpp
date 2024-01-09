@@ -210,11 +210,13 @@ public:
     }
 
     std::unique_ptr<Recording> init(const Caps* caps) override {
+        skgpu::Protected isProtected = skgpu::Protected(caps->protectedSupport());
+
         // Note: not renderable
         TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
                                                               fWithMips ? Mipmapped::kYes
                                                                         : Mipmapped::kNo,
-                                                              skgpu::Protected::kNo,
+                                                              isProtected,
                                                               skgpu::Renderable::kNo);
         REPORTER_ASSERT(fReporter, info.isValid());
 
@@ -295,11 +297,13 @@ public:
     }
 
     std::unique_ptr<Recording> init(const Caps* caps) override {
+        skgpu::Protected isProtected = skgpu::Protected(caps->protectedSupport());
+
         // Note: not renderable
         TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
                                                               fWithMips ? Mipmapped::kYes
                                                                         : Mipmapped::kNo,
-                                                              skgpu::Protected::kNo,
+                                                              isProtected,
                                                               skgpu::Renderable::kNo);
         REPORTER_ASSERT(fReporter, info.isValid());
 

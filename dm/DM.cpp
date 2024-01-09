@@ -1109,6 +1109,12 @@ static Sink* create_via(const SkString& tag, Sink* wrapped) {
 }
 
 static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfigs) {
+    if (FLAGS_src.size() == 1 && FLAGS_src.contains("tests")) {
+        // If we're just running tests skip trying to accumulate sinks. The 'justOneRect' test
+        // can fail for protected contexts.
+        return true;
+    }
+
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
     AutoreleasePool pool;

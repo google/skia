@@ -66,7 +66,11 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> new_SDC(GrRecordingCon
 }
 
 static sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
+    using namespace skgpu;
+
     static constexpr SkISize kDimensions = {128, 128};
+
+    Protected isProtected = Protected(rContext->priv().caps()->supportsProtectedContent());
 
     const GrBackendFormat format = rContext->priv().caps()->getDefaultBackendFormat(
                                                                            GrColorType::kRGBA_8888,
@@ -75,10 +79,10 @@ static sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
                                                          kDimensions,
                                                          GrRenderable::kYes,
                                                          1,
-                                                         skgpu::Mipmapped::kNo,
+                                                         Mipmapped::kNo,
                                                          SkBackingFit::kExact,
-                                                         skgpu::Budgeted::kNo,
-                                                         GrProtected::kNo,
+                                                         Budgeted::kNo,
+                                                         isProtected,
                                                          /*label=*/"CreateSurfaceProxy",
                                                          GrInternalSurfaceFlags::kNone);
 }

@@ -16,6 +16,8 @@
 #include "tools/gpu/vk/VkTestUtils.h"
 #include "tools/graphite/TestOptions.h"
 
+extern bool gCreateProtectedContext;
+
 namespace skiatest::graphite {
 
 std::unique_ptr<GraphiteTestContext> VulkanTestContext::Make() {
@@ -34,7 +36,9 @@ std::unique_ptr<GraphiteTestContext> VulkanTestContext::Make() {
     features = new VkPhysicalDeviceFeatures2;
     memset(features, 0, sizeof(VkPhysicalDeviceFeatures2));
     if (!sk_gpu_test::CreateVkBackendContext(instProc, &backendContext, extensions,
-                                             features, &debugCallback)) {
+                                             features, &debugCallback,
+                                             nullptr, sk_gpu_test::CanPresentFn(),
+                                             gCreateProtectedContext)) {
         sk_gpu_test::FreeVulkanFeaturesStructs(features);
         delete features;
         delete extensions;

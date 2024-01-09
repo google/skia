@@ -563,7 +563,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
+    using namespace skgpu;
+
     auto dContext = ctxInfo.directContext();
+
+    Protected isProtected = Protected(dContext->priv().caps()->supportsProtectedContent());
 
     static constexpr int kSize = 10;
 
@@ -572,7 +576,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage,
         bool can = dContext->colorTypeSupportedAsImage(colorType);
 
         auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-                dContext, kSize, kSize, colorType, skgpu::Mipmapped::kNo, GrRenderable::kNo);
+                dContext, kSize, kSize, colorType, skgpu::Mipmapped::kNo, GrRenderable::kNo,
+                isProtected);
         sk_sp<SkImage> img;
         if (mbet) {
             img = SkImages::BorrowTextureFrom(dContext,

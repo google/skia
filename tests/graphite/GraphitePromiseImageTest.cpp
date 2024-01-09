@@ -187,9 +187,11 @@ void setup_test_context(Context* context,
     const Caps* caps = context->priv().caps();
     testCtx->fRecorder = context->makeRecorder();
 
+    skgpu::Protected isProtected = skgpu::Protected(caps->protectedSupport());
+
     TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
                                                                  skgpu::Mipmapped::kNo,
-                                                                 skgpu::Protected::kNo,
+                                                                 isProtected,
                                                                  skgpu::Renderable::kYes);
 
     if (invalidBackendTex) {

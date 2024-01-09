@@ -14,6 +14,8 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Surface.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/shaders/SkImageShader.h"
 #include "tools/ToolUtils.h"
@@ -38,6 +40,7 @@ void test_draw(skiatest::Reporter* reporter,
                DrawFn drawImageFn) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
+    skgpu::Protected isProtected = skgpu::Protected(context->priv().caps()->protectedSupport());
 
     SkBitmap bitmap;
     bitmap.allocPixels(SkImageInfo::Make(kImageSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
@@ -50,7 +53,8 @@ void test_draw(skiatest::Reporter* reporter,
             sk_gpu_test::ManagedGraphiteTexture::MakeFromPixmap(recorder.get(),
                                                                 bitmap.pixmap(),
                                                                 skgpu::Mipmapped::kNo,
-                                                                skgpu::Renderable::kNo);
+                                                                skgpu::Renderable::kNo,
+                                                                isProtected);
 
     REPORTER_ASSERT(reporter, managedTexture);
     if (!managedTexture) {

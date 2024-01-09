@@ -209,6 +209,9 @@ void setup_test_context(Context* context,
     testCtx->fContext = context;
 
     const Caps* caps = context->priv().caps();
+
+    skgpu::Protected isProtected = skgpu::Protected(caps->protectedSupport());
+
     testCtx->fRecorder = context->makeRecorder();
 
     testCtx->fPromiseImageChecker = PromiseImageChecker();
@@ -217,7 +220,7 @@ void setup_test_context(Context* context,
     for (int i = 0; i < 4; ++i) {
         textureInfo[i] = caps->getDefaultSampledTextureInfo(kAlpha_8_SkColorType,
                                                             skgpu::Mipmapped::kNo,
-                                                            skgpu::Protected::kNo,
+                                                            isProtected,
                                                             skgpu::Renderable::kYes);
 
         if (invalidBackendTex) {

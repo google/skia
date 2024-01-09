@@ -89,12 +89,16 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
+    using namespace skgpu;
+
     auto dContext = ctxInfo.directContext();
     if (!dContext->priv().caps()->mipmapSupport()) {
         return;
     }
 
-    for (auto mipmapped : {skgpu::Mipmapped::kNo, skgpu::Mipmapped::kYes}) {
+    Protected isProtected = Protected(dContext->priv().caps()->supportsProtectedContent());
+
+    for (auto mipmapped : { Mipmapped::kNo, Mipmapped::kYes }) {
         for (auto renderable : {GrRenderable::kNo, GrRenderable::kYes}) {
             // createBackendTexture currently doesn't support uploading data to mip maps
             // so we don't send any. However, we pretend there is data for the checks below which is
@@ -106,7 +110,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest,
                                                                          SkColors::kTransparent,
                                                                          mipmapped,
                                                                          renderable,
-                                                                         GrProtected::kNo);
+                                                                         isProtected);
             if (!mbet) {
                 ERRORF(reporter, "Could not make texture.");
                 return;
@@ -137,8 +141,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest,
                                                     /* color space */ nullptr,
                                                     sk_gpu_test::ManagedBackendTexture::ReleaseProc,
                                                     mbet->releaseContext());
-                REPORTER_ASSERT(reporter,
-                                (mipmapped == skgpu::Mipmapped::kYes) == image->hasMipmaps());
+                REPORTER_ASSERT(reporter, (mipmapped == Mipmapped::kYes) == image->hasMipmaps());
                 proxy = sk_ref_sp(sk_gpu_test::GetTextureImageProxy(image.get(), dContext));
             }
             REPORTER_ASSERT(reporter, proxy);
@@ -154,15 +157,15 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest,
                 continue;
             }
 
-            if (mipmapped == skgpu::Mipmapped::kYes) {
-                REPORTER_ASSERT(reporter, skgpu::Mipmapped::kYes == texture->mipmapped());
+            if (mipmapped == Mipmapped::kYes) {
+                REPORTER_ASSERT(reporter, Mipmapped::kYes == texture->mipmapped());
                 if (GrRenderable::kYes == renderable) {
                     REPORTER_ASSERT(reporter, texture->mipmapsAreDirty());
                 } else {
                     REPORTER_ASSERT(reporter, !texture->mipmapsAreDirty());
                 }
             } else {
-                REPORTER_ASSERT(reporter, skgpu::Mipmapped::kNo == texture->mipmapped());
+                REPORTER_ASSERT(reporter, Mipmapped::kNo == texture->mipmapped());
             }
         }
     }
@@ -174,19 +177,25 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
+    using namespace skgpu;
+
     auto dContext = ctxInfo.directContext();
     if (!dContext->priv().caps()->mipmapSupport()) {
         return;
     }
 
-    for (auto betMipmapped : {skgpu::Mipmapped::kNo, skgpu::Mipmapped::kYes}) {
-        for (auto requestMipmapped : {skgpu::Mipmapped::kNo, skgpu::Mipmapped::kYes}) {
+    Protected isProtected = Protected(dContext->priv().caps()->supportsProtectedContent());
+
+    for (auto betMipmapped : { Mipmapped::kNo, Mipmapped::kYes }) {
+        for (auto requestMipmapped : { Mipmapped::kNo, Mipmapped::kYes }) {
             auto ii =
                     SkImageInfo::Make({kSize, kSize}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
             sk_sp<SkImage> image = sk_gpu_test::MakeBackendTextureImage(
-                    dContext, ii, SkColors::kTransparent, betMipmapped);
-            REPORTER_ASSERT(reporter,
-                            (betMipmapped == skgpu::Mipmapped::kYes) == image->hasMipmaps());
+                    dContext, ii, SkColors::kTransparent, betMipmapped,
+                    Renderable::kNo,
+                    GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+                    isProtected);
+            REPORTER_ASSERT(reporter, (betMipmapped == Mipmapped::kYes) == image->hasMipmaps());
 
             GrTextureProxy* proxy = sk_gpu_test::GetTextureImageProxy(image.get(), dContext);
             REPORTER_ASSERT(reporter, proxy);
@@ -247,8 +256,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                 GrGLTextureInfo origTexInfo;
                 if (GrBackendTextures::GetGLTextureInfo(genBackendTex, &genTexInfo) &&
                     GrBackendTextures::GetGLTextureInfo(backendTex, &origTexInfo)) {
-                    if (requestMipmapped == skgpu::Mipmapped::kYes &&
-                        betMipmapped == skgpu::Mipmapped::kNo) {
+                    if (requestMipmapped == Mipmapped::kYes && betMipmapped == Mipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origTexInfo.fID != genTexInfo.fID);
                     } else {
@@ -264,8 +272,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                 GrVkImageInfo origImageInfo;
                 if (GrBackendTextures::GetVkImageInfo(genBackendTex, &genImageInfo) &&
                     GrBackendTextures::GetVkImageInfo(backendTex, &origImageInfo)) {
-                    if (requestMipmapped == skgpu::Mipmapped::kYes &&
-                        betMipmapped == skgpu::Mipmapped::kNo) {
+                    if (requestMipmapped == Mipmapped::kYes && betMipmapped == Mipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origImageInfo.fImage != genImageInfo.fImage);
                     } else {
@@ -281,8 +288,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                 GrMtlTextureInfo origImageInfo;
                 if (genBackendTex.getMtlTextureInfo(&genImageInfo) &&
                     backendTex.getMtlTextureInfo(&origImageInfo)) {
-                    if (requestMipmapped == skgpu::Mipmapped::kYes &&
-                        betMipmapped == skgpu::Mipmapped::kNo) {
+                    if (requestMipmapped == Mipmapped::kYes && betMipmapped == Mipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origImageInfo.fTexture != genImageInfo.fTexture);
                     } else {
@@ -298,8 +304,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
                 GrD3DTextureResourceInfo origImageInfo;
                 if (genBackendTex.getD3DTextureResourceInfo(&genImageInfo) &&
                     backendTex.getD3DTextureResourceInfo(&origImageInfo)) {
-                    if (requestMipmapped == skgpu::Mipmapped::kYes &&
-                        betMipmapped == skgpu::Mipmapped::kNo) {
+                    if (requestMipmapped == Mipmapped::kYes && betMipmapped == Mipmapped::kNo) {
                         // We did a copy so the texture resources should be different
                         REPORTER_ASSERT(reporter,
                                         origImageInfo.fResource != genImageInfo.fResource);
@@ -329,6 +334,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest,
         return;
     }
 
+    GrProtected isProtected = GrProtected(dContext->priv().caps()->supportsProtectedContent());
+
     auto resourceProvider = dContext->priv().resourceProvider();
 
     for (auto willUseMips : {false, true}) {
@@ -343,7 +350,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest,
                                                                  info,
                                                                  kTopLeft_GrSurfaceOrigin,
                                                                  /* sample count */ 1,
-                                                                 mipmapped);
+                                                                 mipmapped,
+                                                                 isProtected);
             } else {
                 surface = SkSurfaces::RenderTarget(dContext,
                                                    skgpu::Budgeted::kYes,
