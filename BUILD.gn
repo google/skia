@@ -1206,6 +1206,10 @@ optional("graphite") {
   public = skia_graphite_public
   sources = skia_graphite_sources
 
+  if (is_android) {
+    sources += skia_graphite_android_private
+  }
+
   if (skia_enable_vello_shaders) {
     sources += skia_graphite_vello_sources
   }
