@@ -15,4 +15,4 @@ import sys
 
 header = open(sys.argv[2], "w")
 code = subprocess.Popen(sys.argv[1], shell=True, universal_newlines=True, stdout=header, cwd=sys.argv[3])
-code.wait()
+exit(code.wait())
