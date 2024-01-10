@@ -11,6 +11,7 @@
 #include "src/base/SkRandom.h"
 #include "src/base/SkTSearch.h"
 #include "src/base/SkTSort.h"
+#include "src/base/SkUtils.h"
 #include "src/base/SkZip.h"
 #include "src/core/SkEnumerate.h"
 #include "tests/Test.h"
@@ -608,5 +609,38 @@ DEF_TEST(SkMakeZip, reporter) {
         constexpr static const uint16_t* cP = &cA[0];
         constexpr auto z = SkMakeZip(cA, cP);
         REPORTER_ASSERT(reporter, !z.empty());
+    }
+}
+
+DEF_TEST(UtilsPreserveBitPatterns, r) {
+    // Various kinds of floating point bit patterns. We round trip each one through float using
+    // utility functions. If any of them ever do any real FP operation (including loading it into
+    // the x87 FPU on x86 builds), they might change. (In practice, signaling NaN is the only one
+    // that's likely to break -- it can be converted to a quiet NaN).
+    const uint32_t kBitPatterns[] = {
+        0x00400000,  // Denormal value
+        0x80000000,  // -0.0f
+        0x3f800000,  // 1.0f (arbitrary normal float)
+        0x7f800000,  // Infinity
+        0x7fa00000,  // Signaling NaN
+        0x7fe00000,  // Quiet NaN
+    };
+
+    for (uint32_t srcBits : kBitPatterns) {
+        {
+            float floatVal = sk_unaligned_load<float>(&srcBits);
+            uint32_t dstBits = sk_unaligned_load<uint32_t>(&floatVal);
+            REPORTER_ASSERT(r, dstBits == srcBits);
+        }
+
+        {
+            float floatVal;
+            sk_unaligned_store(&floatVal, srcBits);
+            uint32_t dstBits;
+            sk_unaligned_store(&dstBits, floatVal);
+            REPORTER_ASSERT(r, dstBits == srcBits);
+        }
+
+        REPORTER_ASSERT(r, sk_bit_cast<uint32_t>(sk_bit_cast<float>(srcBits)) == srcBits);
     }
 }
