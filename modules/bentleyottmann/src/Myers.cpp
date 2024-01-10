@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <climits>
+#include <cstdint>
 #include <iterator>
 #include <tuple>
 #include <utility>
@@ -422,7 +423,7 @@ public:
             return;
         }
 
-        // Segments don't overlap if they are not colinear.
+        // Segments don't overlap if they are not collinear.
         if ((s0.upper() == s1.upper() || s0.lower() == s1.lower()) && compare_slopes(s0, s1) != 0) {
             return;
         }
@@ -438,6 +439,133 @@ private:
     std::vector<Crossing> fCrossings;
 };
 
+class SweepLine {
+    static constexpr Segment kLeftStatusSentinel{{INT32_MIN, INT32_MIN}, {INT32_MIN, INT32_MAX}};
+    static constexpr Segment kRightStatusSentinel{{INT32_MAX, INT32_MIN}, {INT32_MAX, INT32_MAX}};
+
+public:
+    SweepLine() {
+        fStatus.push_back(kLeftStatusSentinel);
+        fStatus.push_back(kRightStatusSentinel);
+    }
+
+    void handleEvent(Event e) {
+        auto& [y, beginnings, horizontals, endings] = e;
+
+        // Things could be out of order from last event.
+        this->sortAndRecord(y);
+
+        this->handleBeginnings(y, beginnings);
+        this->handleHorizontals(y, horizontals);
+        this->handleEndings(y, endings);
+    }
+
+    std::vector<Crossing> finishAndReleaseCrossings() {
+        // Only the sentinels should be left.
+        SkASSERT(this->statusEmpty());
+        return fCrossings.finishAndReleaseCrossings();
+    }
+
+private:
+    using StatusLine = std::vector<Segment>;
+
+    bool statusEmpty() const {
+        return fStatus.size() == 2;
+    }
+
+    // Sort the status line, if items are swapped, then there is a crossing to record.
+    void sortAndRecord(int32_t y) {
+        // If there are only the sentinels or just 1 segment, then nothing to sort.
+        if (fStatus.size() <= 3) {
+            return;
+        }
+
+        // Skip the first and last sentinels.
+        for (size_t i = 2; i < fStatus.size() - 1; ++i) {
+            const Segment t = fStatus[i];
+            size_t j = i;
+            for (; j > 1 && s0_less_than_s1_at_y(t, fStatus[j - 1], y); --j) {
+                // While t < the thing before it move it down.
+                fCrossings.recordCrossing(t, fStatus[j-1]);
+                fStatus[j] = fStatus[j-1];
+            }
+            fStatus[j] = t;
+        }
+    }
+
+    // When inserting a starting point (either a beginning or a horizontal) check the segments to
+    // the left and the right checking nearby segments for crossings.
+    template <typename CrossingCheck>
+    void checkCrossingsLeftAndRight(
+            const Segment& segment, StatusLine::iterator insertionPoint, CrossingCheck check) {
+
+        // Match to the left using the left sentinel to break the loop.
+        for (auto cursor = std::make_reverse_iterator(insertionPoint); check(*cursor); cursor++) {
+            fCrossings.recordCrossing(segment, *cursor);
+        }
+
+        // Match to the right using the right sentinel to break the loop.
+        for (auto cursor = insertionPoint; check(*cursor); cursor++) {
+            fCrossings.recordCrossing(segment, *cursor);
+        }
+    }
+
+    // Add segments that start on y excluding horizontals.
+    void handleBeginnings(int32_t y, SkSpan<const Segment> inserting) {
+        for (const Segment& s : inserting) {
+            auto insertionPoint =
+                    std::lower_bound(fStatus.begin(), fStatus.end(), s,
+                                     segment_less_than_upper_to_insert);
+
+            // Checking intersections left and right checks if the point s.upper() lies on
+            // the nearby segment.
+            auto checkIntersect = [&](const Segment& toCheck) {
+                return compare_point_to_segment(s.upper(), toCheck) == 0;
+            };
+            this->checkCrossingsLeftAndRight(s, insertionPoint, checkIntersect);
+
+            fStatus.insert(insertionPoint, s);
+        }
+    }
+
+    // Horizontals on y are handled by checking for crossings by adding them, and the immediately
+    // removing them.
+    void handleHorizontals(int32_t y, SkSpan<const Segment> horizontals) {
+        for (const Segment& s : horizontals) {
+            auto insertionPoint =
+                    std::lower_bound(fStatus.begin(), fStatus.end(), s,
+                                     segment_less_than_upper_to_insert);
+
+            // Check if the nearby segment crosses the horizontal line.
+            auto checkIntersection = [&](const Segment& toCheck) {
+                return compare_point_to_segment(s.upper(), toCheck) <= 0 &&
+                       compare_point_to_segment(s.lower(), toCheck) >= 0;
+            };
+            this->checkCrossingsLeftAndRight(s, insertionPoint, checkIntersection);
+
+            fStatus.insert(insertionPoint, s);
+        }
+
+        for (const Segment& s : horizontals) {
+            auto removedPoint = std::remove(fStatus.begin(), fStatus.end(), s);
+            SkASSERT(removedPoint != fStatus.end());
+            fStatus.erase(removedPoint, fStatus.end());
+        }
+    }
+
+    // Remove all the segments ending on y.
+    void handleEndings(int32_t y, SkSpan<const Segment> removing) {
+        for (const Segment& s : removing) {
+            auto removedPoint = std::remove(fStatus.begin(), fStatus.end(), s);
+            SkASSERT(removedPoint != fStatus.end());
+            fStatus.erase(removedPoint, fStatus.end());
+        }
+    }
+
+    StatusLine fStatus;
+    CrossingAccumulator fCrossings;
+};
+
 SkSpan<Segment> remove_zero_segments_and_duplicates(SkSpan<Segment> segments) {
     auto isZeroSegment = [](const Segment& segment) {
         return segment.upper() == segment.lower();
@@ -449,6 +577,22 @@ SkSpan<Segment> remove_zero_segments_and_duplicates(SkSpan<Segment> segments) {
     const auto duplicateSegments = std::unique(segments.begin(), zeroSegments);
 
     return SkSpan{segments.data(), std::distance(segments.begin(), duplicateSegments)};
+}
+
+std::vector<Crossing> myers_find_crossings(SkSpan<Segment> segments) {
+
+    // This is strictly not needed, but is added to compare performance with brute-force.
+    // TODO: remove this after done with performance comparisons.
+    SkSpan<const Segment> cleanSegments = remove_zero_segments_and_duplicates(segments);
+
+    const EventQueue eventQueue = EventQueue::Make(cleanSegments);
+    SweepLine sweepLine;
+
+    for (const Event event : eventQueue) {
+        sweepLine.handleEvent(event);
+    }
+
+    return sweepLine.finishAndReleaseCrossings();
 }
 
 // This intersection algorithm is from "Robust Plane Sweep for Intersecting Segments" page 10.

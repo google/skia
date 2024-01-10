@@ -3,7 +3,12 @@
 
 #include "modules/bentleyottmann/include/Myers.h"
 
+#include "src/base/SkRandom.h"
 #include "tests/Test.h"
+
+#include <chrono>
+#include <cinttypes>
+#include <cstdint>
 
 namespace myers {
 extern bool slope_s0_less_than_slope_s1(const Segment& s0, const Segment& s1);
@@ -203,4 +208,167 @@ DEF_TEST(MFC_has_inner_intersection, r) {
         REPORTER_ASSERT(r, !s0_intersects_s1(s0, s1));
         REPORTER_ASSERT(r, !s0_intersects_s1(s1, s0));
     }
+}
+
+DEF_TEST(MFC_myers_brute_force_comparison, r) {
+    std::vector<Segment> tests[] = {
+            {{{-57, -138}, {56, 178}}, {{14, -146}, {-22, 132}}},
+            {{{-4, -23}, {-11, 11}}, {{6, -2}, {-11, 11}}, {{159, -244}, {-159, 233}}},
+            {{{-7, -22}, {10, 14}}, {{-7, -71}, {-7, 80}}, {{-7, -22}, {-4, 5}}},
+            {{{91, -22}, {-93, 24}}, {{31, -18}, {-25, 7}}, {{-25, 7}, {33, 12}}, {{-26, -24}, {18, 20}}},
+            {{{2, -21}, {-16, 7}}, {{-45, -28}, {51, 35}}, {{39, -48}, {-53, 44}}, {{-16, 7}, {26, 7}}},
+            {{{142, -82}, {-128, 64}}, {{208, -16}, {-217, -3}}, {{91, -22}, {-93, 24}}, {{31, -18}, {-25, 7}}, {{-25, 7}, {33, 12}}},
+            {{{-159, -101}, {167, 91}}, {{-96, -117}, {99, 117}}, {{-16, -21}, {12, 35}}, {{-48, -55}, {33, 63}}, {{-16, -21}, {26, 41}}},
+            {{{-51, -18}, {34, 1}}, {{189, -169}, {-171, 150}}, {{24, -8}, {-5, 7}}, {{24, -8}, {-26, 16}}, {{54, -22}, {-36, 20}}},
+            {{{-29, -3}, {15, -3}}, {{-28, -7}, {15, -3}}},
+            {{{20, -149}, {-32, 130}}, {{-29, -3}, {15, -3}}, {{-28, -7}, {15, -3}}},
+            {{{-32, -8}, {16, -8}}, {{-28, -104}, {23, 88}}, {{-17, -11}, {16, -8}}},
+            {{{-59, -9}, {48, 11}}, {{-59, -9}, {75, -9}}, {{173, -20}, {-178, 13}}},
+            {{{-11, 1}, {12, 1}}, {{-42, -35}, {54, 29}}},
+            {{{14, -11}, {-15, -2}}, {{-9, -2}, {13, -2}}}, // both end same s0 horz s1 < s0
+            {{{-38, 7}, {47, 7}}, {{-148, 6}, {166, 7}}},  // just sort of s0 along s1
+            {{{-26, -22}, {9, 21}}, {{-32, -28}, {13, 17}}}, // s1 endpoint on s0
+            {{{23, -2}, {-12, 3}}, {{22, -13}, {-5, 2}}},   // s1 endpoint on s0
+            {{{-2, -100}, {-2, 89}}, {{6, -70}, {-2, 72}}},
+            {{{8, -1}, {-8, 19}}, {{-130, -93}, {137, 85}}},  // Endpoint of s0 lies on s1
+            {{{-39, -111}, {25, 119}}, {{-26, -112}, {25, 119}}}, // Same end points
+            {{{-9, -5}, {16, -5}}, {{90, -134}, {-71, 144}}},  // Diag crossing horizontal
+            {{{-1, -1}, {1, 1}}, {{1, -1}, {-1, 1}}},  // Crossing
+            {{{-1, -1}, {-1, 1}}, {{1, -1}, {1, 1}}},  // Two vertical lines
+            {{{-1, -1}, {1, -1}}, {{-1, 1}, {1, 1}}},  // Two horizontal lines
+            {{{-2, 1}, {1, 1}}, {{-1, 1}, {2, 1}}},  // Overlapping horizontal lines
+            {{{0, -100}, {0, -50}}, {{100, -100}, {-100, 100}}},
+            {{{0, 100}, {0, 50}}, {{100, -100}, {-100, 100}}},
+            {{{0, -101}, {0, -50}}, {{100, -100}, {-100, 100}}},
+            {{{0, 0}, {0, 50}}, {{100, -100}, {-100, 100}}},
+            {{{-10, -10}, {10, 10}}, {{-10, -10}, {11, 11}}, {{10, -10}, {-10, 10}}},
+            {{{10, -10}, {-10, 10}}, {{10, -10}, {-11, 11}}, {{-10, -10}, {10, 10}}},
+            {{{-11, -11}, {10, 10}}, {{-10, -10}, {11, 11}}, {{10, -10}, {-10, 10}}},
+    };
+
+    for (auto& segments : tests) {
+        std::vector<Segment> myersSegments = segments;
+        std::vector<Segment> bruteSegments = segments;
+        auto myersResponse = myers_find_crossings(myersSegments);
+        auto bruteResponse = brute_force_crossings(bruteSegments);
+
+        std::sort(myersResponse.begin(), myersResponse.end());
+        std::sort(bruteResponse.begin(), bruteResponse.end());
+
+        REPORTER_ASSERT(r, myersResponse.size() == bruteResponse.size());
+#if 0
+        if (myersResponse.size() != bruteResponse.size()) {
+            SkASSERT(false);
+        }
+#endif
+        // There should be no duplicate crossings.
+        REPORTER_ASSERT(r,
+                        std::unique(myersResponse.begin(), myersResponse.end()) ==
+                            myersResponse.end());
+        REPORTER_ASSERT(r,
+                        std::unique(bruteResponse.begin(), bruteResponse.end()) ==
+                            bruteResponse.end());
+
+        // Both should be equal.
+        REPORTER_ASSERT(r, std::equal(myersResponse.begin(), myersResponse.end(),
+                                      bruteResponse.begin(), bruteResponse.end()));
+    }
+}
+
+class StopWatch {
+public:
+    void start() {
+        fStart = std::chrono::high_resolution_clock::now();
+    }
+
+    void stop() {
+        std::chrono::high_resolution_clock::time_point stop =
+                std::chrono::high_resolution_clock::now();
+
+        fAccumulatedTime += std::chrono::duration_cast<std::chrono::microseconds>(stop - fStart);
+        fCount += 1;
+    }
+
+    void print() {
+        int64_t average = fAccumulatedTime.count() / fCount;
+        printf("average time: %" PRId64 " µs\n", average);
+    }
+
+private:
+    int fCount = 0;
+    std::chrono::high_resolution_clock::time_point fStart;
+    std::chrono::microseconds fAccumulatedTime = std::chrono::microseconds::zero();
+};
+
+constexpr bool kRunRandomTest = false;
+DEF_TEST(MFC_myers_brute_force_random_comparison, r) {
+    if constexpr (!kRunRandomTest) {
+        return;
+    }
+    const int n = 50;
+    const int boxSize = 10000;
+    SkRandom random{n};
+    std::vector<Segment> segments;
+
+    StopWatch myersStopWatch;
+    StopWatch bruteStopWatch;
+
+    for (int trials = 0; trials < 1'000; trials++) {
+    for (int i = 0; i < n; ++i) {
+        float x = random.nextRangeF(-boxSize, boxSize),
+              y = random.nextRangeF(-boxSize, boxSize);
+
+        float angle = random.nextF() * SK_FloatPI;
+        float distance = random.nextRangeF(10, 300);
+
+        Point p0 = {sk_float_round2int(x + cos(angle) * distance),
+                    sk_float_round2int(y + sin(angle) * distance)};
+        Point p1 = {sk_float_round2int(x - cos(angle) * distance),
+                    sk_float_round2int(y - sin(angle) * distance)};
+
+        segments.emplace_back(p0, p1);
+    }
+
+    std::vector<Segment> myersSegments = segments;
+    std::vector<Segment> bruteSegments = segments;
+    myersStopWatch.start();
+    auto myersResponse = myers_find_crossings(myersSegments);
+    myersStopWatch.stop();
+    bruteStopWatch.start();
+    auto bruteResponse = brute_force_crossings(bruteSegments);
+    bruteStopWatch.stop();
+
+    std::sort(myersResponse.begin(), myersResponse.end());
+    std::sort(bruteResponse.begin(), bruteResponse.end());
+
+    //printf("myers size: %zu brute size: %zu\n", myersResponse.size(), bruteResponse.size());
+
+    REPORTER_ASSERT(r, myersResponse.size() == bruteResponse.size());
+    if (myersResponse.size() != bruteResponse.size()) {
+        printf("myers size: %zu brute size: %zu\n", myersResponse.size(), bruteResponse.size());
+        printf("{");
+        for (const Segment& s : segments) {
+            const auto [u, l] = s;
+            printf("{{%d, %d}, {%d, %d}}, ", u.x, u.y, l.x, l.y);
+        }
+        printf("},\n");
+    }
+
+    // There should be no duplicate crossings.
+    REPORTER_ASSERT(r,
+                    std::unique(myersResponse.begin(), myersResponse.end()) ==
+                    myersResponse.end());
+    REPORTER_ASSERT(r,
+                    std::unique(bruteResponse.begin(), bruteResponse.end()) ==
+                    bruteResponse.end());
+
+    // Both should be equal.
+    REPORTER_ASSERT(r, std::equal(myersResponse.begin(), myersResponse.end(),
+                                  bruteResponse.begin(), bruteResponse.end()));
+    segments.clear();
+    }
+    printf("myers ");
+    myersStopWatch.print();
+    printf("brute ");
+    bruteStopWatch.print();
 }
