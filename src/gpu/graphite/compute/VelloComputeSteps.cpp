@@ -59,613 +59,204 @@ ComputeStep::NativeShaderSource VelloNativeShaderSource(vello_cpp::ShaderStage s
     return {{source.data(), source.length()}, std::move(entryPoint)};
 }
 
+#define BUFFER_BINDING(slot, type, policy)          \
+        {                                           \
+            /*type=*/ResourceType::k##type##Buffer, \
+            /*flow=*/DataFlow::kShared,             \
+            /*policy=*/ResourcePolicy::k##policy,   \
+            /*slot=*/kVelloSlot_##slot,             \
+        }
+
 // PathtagReduce
-VelloPathtagReduceStep::VelloPathtagReduceStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kMapped,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kMapped,
-                /*slot=*/kVelloSlot_Scene,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PathtagReduceOutput,
-            },
-        }) {}
+VelloPathtagReduceStep::VelloPathtagReduceStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform,       Uniform, Mapped),
+                  BUFFER_BINDING(Scene,               Storage, Mapped),
+                  BUFFER_BINDING(PathtagReduceOutput, Storage, None),
+          }) {}
 
 // PathtagScanSmall
-VelloPathtagScanSmallStep::VelloPathtagScanSmallStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Scene,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PathtagReduceOutput,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_TagMonoid,
-            },
-        }) {}
-
+VelloPathtagScanSmallStep::VelloPathtagScanSmallStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform,       Uniform, None),
+                  BUFFER_BINDING(Scene,               Storage, None),
+                  BUFFER_BINDING(PathtagReduceOutput, Storage, None),
+                  BUFFER_BINDING(TagMonoid,           Storage, None),
+          }) {}
 
 // PathtagReduce2
-VelloPathtagReduce2Step::VelloPathtagReduce2Step() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_LargePathtagReduceFirstPassOutput,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_LargePathtagReduceSecondPassOutput,
-            },
-        }) {}
+VelloPathtagReduce2Step::VelloPathtagReduce2Step()
+        : VelloStep({
+                  BUFFER_BINDING(LargePathtagReduceFirstPassOutput,  Storage, None),
+                  BUFFER_BINDING(LargePathtagReduceSecondPassOutput, Storage, None),
+          }) {}
 
 // PathtagScan1
-VelloPathtagScan1Step::VelloPathtagScan1Step() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_LargePathtagReduceFirstPassOutput,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_LargePathtagReduceSecondPassOutput,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_LargePathtagScanFirstPassOutput,
-            },
-        }) {}
+VelloPathtagScan1Step::VelloPathtagScan1Step()
+        : VelloStep({
+                  BUFFER_BINDING(LargePathtagReduceFirstPassOutput,  Storage, None),
+                  BUFFER_BINDING(LargePathtagReduceSecondPassOutput, Storage, None),
+                  BUFFER_BINDING(LargePathtagScanFirstPassOutput,    Storage, None),
+          }) {}
 
 // PathtagScanLarge
-VelloPathtagScanLargeStep::VelloPathtagScanLargeStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Scene,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_LargePathtagScanFirstPassOutput,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_TagMonoid,
-            },
-        }) {}
+VelloPathtagScanLargeStep::VelloPathtagScanLargeStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform,                   Uniform, None),
+                  BUFFER_BINDING(Scene,                           Storage, None),
+                  BUFFER_BINDING(LargePathtagScanFirstPassOutput, Storage, None),
+                  BUFFER_BINDING(TagMonoid,                       Storage, None),
+          }) {}
 
 // BboxClear
-VelloBboxClearStep::VelloBboxClearStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PathBBoxes,
-            },
-        }) {}
+VelloBboxClearStep::VelloBboxClearStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(PathBBoxes,    Storage, None),
+          }) {}
 
 // Pathseg
-VelloPathsegStep::VelloPathsegStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Scene,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_TagMonoid,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PathBBoxes,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Cubics,
-            },
-        }) {}
+VelloPathsegStep::VelloPathsegStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(Scene,         Storage, None),
+                  BUFFER_BINDING(TagMonoid,     Storage, None),
+                  BUFFER_BINDING(PathBBoxes,    Storage, None),
+                  BUFFER_BINDING(Cubics,        Storage, None),
+          }) {}
 
 // DrawReduce
-VelloDrawReduceStep::VelloDrawReduceStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Scene,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_DrawReduceOutput,
-            },
-        }) {}
+VelloDrawReduceStep::VelloDrawReduceStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform,    Uniform, None),
+                  BUFFER_BINDING(Scene,            Storage, None),
+                  BUFFER_BINDING(DrawReduceOutput, Storage, None),
+          }) {}
 
 // DrawLeaf
-VelloDrawLeafStep::VelloDrawLeafStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Scene,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_DrawReduceOutput,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PathBBoxes,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_DrawMonoid,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_InfoBinData,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ClipInput,
-            },
-        }) {}
+VelloDrawLeafStep::VelloDrawLeafStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform,    Uniform, None),
+                  BUFFER_BINDING(Scene,            Storage, None),
+                  BUFFER_BINDING(DrawReduceOutput, Storage, None),
+                  BUFFER_BINDING(PathBBoxes,       Storage, None),
+                  BUFFER_BINDING(DrawMonoid,       Storage, None),
+                  BUFFER_BINDING(InfoBinData,      Storage, None),
+                  BUFFER_BINDING(ClipInput,        Storage, None),
+          }) {}
 
 // ClipReduce
-VelloClipReduceStep::VelloClipReduceStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ClipInput,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PathBBoxes,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ClipBicyclic,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ClipElement,
-            },
-        }) {}
+VelloClipReduceStep::VelloClipReduceStep()
+        : VelloStep({
+                  BUFFER_BINDING(ClipInput,    Storage, None),
+                  BUFFER_BINDING(PathBBoxes,   Storage, None),
+                  BUFFER_BINDING(ClipBicyclic, Storage, None),
+                  BUFFER_BINDING(ClipElement,  Storage, None),
+          }) {}
 
 // ClipLeaf
-VelloClipLeafStep::VelloClipLeafStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ClipInput,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PathBBoxes,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ClipBicyclic,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ClipElement,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_DrawMonoid,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ClipBBoxes,
-            },
-        }) {}
+VelloClipLeafStep::VelloClipLeafStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(ClipInput,     Storage, None),
+                  BUFFER_BINDING(PathBBoxes,    Storage, None),
+                  BUFFER_BINDING(ClipBicyclic,  Storage, None),
+                  BUFFER_BINDING(ClipElement,   Storage, None),
+                  BUFFER_BINDING(DrawMonoid,    Storage, None),
+                  BUFFER_BINDING(ClipBBoxes,    Storage, None),
+          }) {}
 
 // Binning
-VelloBinningStep::VelloBinningStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_DrawMonoid,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PathBBoxes,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ClipBBoxes,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_DrawBBoxes,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kClear,
-                /*slot=*/kVelloSlot_BumpAlloc,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_InfoBinData,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_BinHeader,
-            },
-        }) {}
+VelloBinningStep::VelloBinningStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(DrawMonoid,    Storage, None),
+                  BUFFER_BINDING(PathBBoxes,    Storage, None),
+                  BUFFER_BINDING(ClipBBoxes,    Storage, None),
+                  BUFFER_BINDING(DrawBBoxes,    Storage, None),
+                  BUFFER_BINDING(BumpAlloc,     Storage, Clear),
+                  BUFFER_BINDING(InfoBinData,   Storage, None),
+                  BUFFER_BINDING(BinHeader,     Storage, None),
+          }) {}
 
 // TileAlloc
-VelloTileAllocStep::VelloTileAllocStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Scene,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_DrawBBoxes,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_BumpAlloc,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Path,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Tile,
-            },
-        }) {}
+VelloTileAllocStep::VelloTileAllocStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(Scene,         Storage, None),
+                  BUFFER_BINDING(DrawBBoxes,    Storage, None),
+                  BUFFER_BINDING(BumpAlloc,     Storage, None),
+                  BUFFER_BINDING(Path,          Storage, None),
+                  BUFFER_BINDING(Tile,          Storage, None),
+          }) {}
 
 // PathCoarseFull
-VelloPathCoarseFullStep::VelloPathCoarseFullStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Scene,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Cubics,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Path,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_BumpAlloc,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Tile,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Segments,
-            },
-        }) {}
+VelloPathCoarseFullStep::VelloPathCoarseFullStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(Scene,         Storage, None),
+                  BUFFER_BINDING(Cubics,        Storage, None),
+                  BUFFER_BINDING(Path,          Storage, None),
+                  BUFFER_BINDING(BumpAlloc,     Storage, None),
+                  BUFFER_BINDING(Tile,          Storage, None),
+                  BUFFER_BINDING(Segments,      Storage, None),
+          }) {}
 
 // Backdrop
-VelloBackdropStep::VelloBackdropStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Tile,
-            },
-        }) {}
+VelloBackdropStep::VelloBackdropStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(Tile,          Storage, None),
+          }) {}
 
 // BackdropDyn
-VelloBackdropDynStep::VelloBackdropDynStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Path,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Tile,
-            },
-        }) {}
+VelloBackdropDynStep::VelloBackdropDynStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(Path, Storage, None),
+                  BUFFER_BINDING(Tile, Storage, None),
+          }) {}
 
 // Coarse
-VelloCoarseStep::VelloCoarseStep() : VelloStep(
-        /*resources=*/{
-            {
-                /*type=*/ResourceType::kUniformBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_ConfigUniform,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Scene,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_DrawMonoid,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_BinHeader,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_InfoBinData,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Path,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_Tile,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_BumpAlloc,
-            },
-            {
-                /*type=*/ResourceType::kStorageBuffer,
-                /*flow=*/DataFlow::kShared,
-                /*policy=*/ResourcePolicy::kNone,
-                /*slot=*/kVelloSlot_PTCL,
-            },
-        }) {}
+VelloCoarseStep::VelloCoarseStep()
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(Scene,         Storage, None),
+                  BUFFER_BINDING(DrawMonoid,    Storage, None),
+                  BUFFER_BINDING(BinHeader,     Storage, None),
+                  BUFFER_BINDING(InfoBinData,   Storage, None),
+                  BUFFER_BINDING(Path,          Storage, None),
+                  BUFFER_BINDING(Tile,          Storage, None),
+                  BUFFER_BINDING(BumpAlloc,     Storage, None),
+                  BUFFER_BINDING(PTCL,          Storage, None),
+          }) {}
 
 // Fine
 VelloFineStep::VelloFineStep(SkColorType targetFormat)
-        : VelloStep(
-            /*resources=*/{
-                {
-                    /*type=*/ResourceType::kUniformBuffer,
-                    /*flow=*/DataFlow::kShared,
-                    /*policy=*/ResourcePolicy::kNone,
-                    /*slot=*/kVelloSlot_ConfigUniform,
-                },
-                {
-                    /*type=*/ResourceType::kStorageBuffer,
-                    /*flow=*/DataFlow::kShared,
-                    /*policy=*/ResourcePolicy::kNone,
-                    /*slot=*/kVelloSlot_Segments,
-                },
-                {
-                    /*type=*/ResourceType::kStorageBuffer,
-                    /*flow=*/DataFlow::kShared,
-                    /*policy=*/ResourcePolicy::kNone,
-                    /*slot=*/kVelloSlot_PTCL,
-                },
-                {
-                    /*type=*/ResourceType::kStorageBuffer,
-                    /*flow=*/DataFlow::kShared,
-                    /*policy=*/ResourcePolicy::kNone,
-                    /*slot=*/kVelloSlot_InfoBinData,
-                },
-                {
-                    /*type=*/ResourceType::kWriteOnlyStorageTexture,
-                    /*flow=*/DataFlow::kShared,
-                    /*policy=*/ResourcePolicy::kNone,
-                    /*slot=*/kVelloSlot_OutputImage,
-                },
-                {
-                    /*type=*/ResourceType::kReadOnlyTexture,
-                    /*flow=*/DataFlow::kShared,
-                    /*policy=*/ResourcePolicy::kNone,
-                    /*slot=*/kVelloSlot_GradientImage,
-                },
-                {
-                    /*type=*/ResourceType::kReadOnlyTexture,
-                    /*flow=*/DataFlow::kShared,
-                    /*policy=*/ResourcePolicy::kNone,
-                    /*slot=*/kVelloSlot_ImageAtlas,
-                },
-            })
+        : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(Segments,      Storage, None),
+                  BUFFER_BINDING(PTCL,          Storage, None),
+                  BUFFER_BINDING(InfoBinData,   Storage, None),
+                  {
+                          /*type=*/ResourceType::kWriteOnlyStorageTexture,
+                          /*flow=*/DataFlow::kShared,
+                          /*policy=*/ResourcePolicy::kNone,
+                          /*slot=*/kVelloSlot_OutputImage,
+                  },
+                  {
+                          /*type=*/ResourceType::kReadOnlyTexture,
+                          /*flow=*/DataFlow::kShared,
+                          /*policy=*/ResourcePolicy::kNone,
+                          /*slot=*/kVelloSlot_GradientImage,
+                  },
+                  {
+                          /*type=*/ResourceType::kReadOnlyTexture,
+                          /*flow=*/DataFlow::kShared,
+                          /*policy=*/ResourcePolicy::kNone,
+                          /*slot=*/kVelloSlot_ImageAtlas,
+                  },
+          })
         , fTargetFormat(targetFormat) {}
 
 std::tuple<SkISize, SkColorType> VelloFineStep::calculateTextureParameters(int index, const ResourceDesc&) const {
