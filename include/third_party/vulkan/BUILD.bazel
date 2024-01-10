@@ -7,6 +7,11 @@ exports_files_legacy()
 skia_cc_library(
     name = "vulkan",
     hdrs = [
+        "vulkan/vk_video/vulkan_video_codec_h264std.h",
+        "vulkan/vk_video/vulkan_video_codec_h264std_decode.h",
+        "vulkan/vk_video/vulkan_video_codec_h265std.h",
+        "vulkan/vk_video/vulkan_video_codec_h265std_decode.h",
+        "vulkan/vk_video/vulkan_video_codecs_common.h",
         "vulkan/vulkan.h",
         "vulkan/vulkan_core.h",
     ],
