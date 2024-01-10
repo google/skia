@@ -500,6 +500,7 @@ int main(int argc, char** argv) {
     //   - we need to know its duration upfront
     //   - we want to only report parsing errors once
     auto anim = skottie::Animation::Builder()
+            .setFontManager(fontMgr)
             .setLogger(logger)
             .setResourceProvider(rp)
             .make(static_cast<const char*>(data->data()), data->size());

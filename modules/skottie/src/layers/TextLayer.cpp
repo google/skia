@@ -244,7 +244,7 @@ bool AnimationBuilder::resolveNativeTypefaces() {
         }
         if (!finfo->fTypeface && !fFontMgr) {
             this->log(Logger::Level::kError, nullptr,
-                      "Could not load typeface for %s|%s becuase no SkFontMgr provided.",
+                      "Could not load typeface for %s|%s because no SkFontMgr provided.",
                       finfo->fFamily.c_str(), finfo->fStyle.c_str());
         }
     });
