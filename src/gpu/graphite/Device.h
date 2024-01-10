@@ -49,8 +49,7 @@ public:
                               Mipmapped,
                               SkBackingFit,
                               const SkSurfaceProps&,
-                              bool addInitialClear,
-                              Device* parentDevice = nullptr);
+                              bool addInitialClear);
     static sk_sp<Device> Make(Recorder*,
                               sk_sp<TextureProxy>,
                               const SkColorInfo&,
@@ -61,8 +60,7 @@ public:
                               SkISize deviceSize,
                               const SkColorInfo&,
                               const SkSurfaceProps&,
-                              bool addInitialClear,
-                              Device* parentDevice = nullptr);
+                              bool addInitialClear);
 
     Device* asGraphiteDevice() override { return this; }
 
@@ -200,7 +198,7 @@ private:
     };
     SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags);
 
-    Device(Recorder*, sk_sp<DrawContext>, bool addInitialClear, Device* parentDevice);
+    Device(Recorder*, sk_sp<DrawContext>, bool addInitialClear);
 
     // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
     // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.
@@ -252,11 +250,9 @@ private:
                                                           bool requireMSAA) const;
 
     bool needsFlushBeforeDraw(int numNewDraws, DstReadRequirement) const;
-    void flushPendingUploadsToRecorder();
 
     Recorder* fRecorder;
     sk_sp<DrawContext> fDC;
-    Device* fParentDevice = nullptr;
 
     ClipStack fClip;
 

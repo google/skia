@@ -74,8 +74,6 @@ public:
 
     size_t getResourceCacheLimit() const;
 
-    void issueFlushToken();
-
 #if defined(GRAPHITE_TEST_UTILS)
     bool deviceIsRegistered(Device*);
     ResourceCache* resourceCache() { return fRecorder->fResourceProvider->resourceCache(); }

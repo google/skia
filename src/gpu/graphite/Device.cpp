@@ -226,8 +226,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            Mipmapped mipmapped,
                            SkBackingFit backingFit,
                            const SkSurfaceProps& props,
-                           bool addInitialClear,
-                           Device* parentDevice) {
+                           bool addInitialClear) {
     SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
 
     if (!recorder) {
@@ -248,8 +247,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
     }
 
     return Make(
-            recorder, std::move(target), ii.dimensions(), ii.colorInfo(), props,
-            addInitialClear, parentDevice);
+            recorder, std::move(target), ii.dimensions(), ii.colorInfo(), props, addInitialClear);
 }
 
 sk_sp<Device> Device::Make(Recorder* recorder,
@@ -265,8 +263,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            SkISize deviceSize,
                            const SkColorInfo& colorInfo,
                            const SkSurfaceProps& props,
-                           bool addInitialClear,
-                           Device* parentDevice) {
+                           bool addInitialClear) {
     if (!recorder) {
         return nullptr;
     }
@@ -281,7 +278,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
         return nullptr;
     }
 
-    return sk_sp<Device>(new Device(recorder, std::move(dc), addInitialClear, parentDevice));
+    return sk_sp<Device>(new Device(recorder, std::move(dc), addInitialClear));
 }
 
 // These default tuning numbers for the HybridBoundsManager were chosen from looking at performance
@@ -297,14 +294,10 @@ static constexpr int kGridCellSize = 16;
 static constexpr int kMaxBruteForceN = 64;
 static constexpr int kMaxGridSize = 32;
 
-Device::Device(Recorder* recorder,
-               sk_sp<DrawContext> dc,
-               bool addInitialClear,
-               Device* parentDevice)
+Device::Device(Recorder* recorder, sk_sp<DrawContext> dc, bool addInitialClear)
         : SkDevice(dc->imageInfo(), dc->surfaceProps())
         , fRecorder(recorder)
         , fDC(std::move(dc))
-        , fParentDevice(parentDevice)
         , fClip(this)
         , fColorDepthBoundsManager(
                     std::make_unique<HybridBoundsManager>(fDC->imageInfo().dimensions(),
@@ -363,8 +356,7 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {
                 SkBackingFit::kExact,
 #endif
                 props,
-                addInitialClear,
-                this);
+                addInitialClear);
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& props) {
@@ -1375,7 +1367,13 @@ void Device::flushPendingWorkToRecorder() {
     // TODO: we may need to further split this function up since device->device drawList and
     // DrawPass stealing will need to share some of the same logic w/o becoming a Task.
 
-    this->flushPendingUploadsToRecorder();
+    // Push any pending uploads from the atlasProvider
+    fRecorder->priv().atlasProvider()->recordUploads(fDC.get(), fRecorder);
+
+    auto uploadTask = fDC->snapUploadTask(fRecorder);
+    if (uploadTask) {
+        fRecorder->priv().add(std::move(uploadTask));
+    }
 
     fClip.recordDeferredClipDraws();
 
@@ -1397,20 +1395,6 @@ void Device::flushPendingWorkToRecorder() {
     fColorDepthBoundsManager->reset();
     fDisjointStencilSet->reset();
     fCurrentDepth = DrawOrder::kClearDepth;
-}
-
-void Device::flushPendingUploadsToRecorder() {
-    if (fParentDevice) {
-        fParentDevice->flushPendingUploadsToRecorder();
-    }
-
-    // Push any pending uploads from the atlasProvider
-    fRecorder->priv().atlasProvider()->recordUploads(fDC.get(), fRecorder);
-
-    auto uploadTask = fDC->snapUploadTask(fRecorder);
-    if (uploadTask) {
-        fRecorder->priv().add(std::move(uploadTask));
-    }
 }
 
 bool Device::needsFlushBeforeDraw(int numNewRenderSteps, DstReadRequirement dstReadReq) const {

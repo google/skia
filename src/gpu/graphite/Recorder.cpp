@@ -402,13 +402,8 @@ void RecorderPriv::flushTrackedDevices() {
         device->flushPendingWorkToRecorder();
     }
     // Issue next upload flush token. This is only used by the atlasing code which
-    // always uses this method. Always flushing here is safe because the parent's
-    // associated draws have also been flushed so there's no concern about
-    // atlas corruption.
-    this->issueFlushToken();
-}
-
-void RecorderPriv::issueFlushToken() {
+    // always uses this method. Calling in Device::flushPendingWorkToRecorder may
+    // miss parent device flushes, increment too often, and lead to atlas corruption.
     this->tokenTracker()->issueFlushToken();
 }
 
