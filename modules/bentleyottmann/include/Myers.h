@@ -104,7 +104,7 @@ inline bool operator==(const Crossing& c0, const Crossing& c1) {
     return std::tie(c0.fHigher, c0.fLower) == std::tie(c1.fHigher, c1.fLower);
 }
 
-std::vector<Crossing> myers_find_crossings(SkSpan<Segment>);
+std::vector<Crossing> myers_find_crossings(const SkSpan<const Segment> segments);
 std::vector<Crossing> brute_force_crossings(SkSpan<Segment>);
 }  // namespace myers
 
