@@ -362,9 +362,4 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Make(const Context&,
     return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body));
 }
 
-const SymbolTable* FunctionDefinition::parameterSymbolTable() const {
-    // Parameters are always held in a symbol table immediately above the body.
-    return fBody->as<Block>().symbolTable()->fParent.get();
-}
-
 }  // namespace SkSL

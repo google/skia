@@ -21,7 +21,6 @@
 namespace SkSL {
 
 class Context;
-class SymbolTable;
 
 /**
  * A function definition (a declaration plus an associated block of code).
@@ -79,8 +78,6 @@ public:
     const std::unique_ptr<Statement>& body() const {
         return fBody;
     }
-
-    const SymbolTable* parameterSymbolTable() const;
 
     std::string description() const override {
         return this->declaration().description() + " " + this->body()->description();

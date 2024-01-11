@@ -683,10 +683,18 @@ public:
         switch (pe->kind()) {
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
-                const SymbolTable* parameterSymbols = funcDef.parameterSymbolTable();
+
                 // If this function has parameter names that would shadow globally-scoped names, we
-                // don't look for any inline candidates, because it's too late to mangle the names.
-                if (!parameterSymbols->wouldShadowSymbolsFrom(fSymbolTableStack.front().get())) {
+                // don't scan it for inline candidates, because it's too late to mangle the names.
+                bool foundShadowingParameterName = false;
+                for (const Variable* param : funcDef.declaration().parameters()) {
+                    if (fSymbolTableStack.front()->find(param->name())) {
+                        foundShadowingParameterName = true;
+                        break;
+                    }
+                }
+
+                if (!foundShadowingParameterName) {
                     fEnclosingFunction = &funcDef;
                     this->visitStatement(&funcDef.body());
                 }
