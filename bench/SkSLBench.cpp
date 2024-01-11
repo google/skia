@@ -36,6 +36,8 @@
 #include "src/sksl/generated/sksl_vert.minified.sksl"
 #include "src/sksl/generated/sksl_graphite_frag.minified.sksl"
 #include "src/sksl/generated/sksl_graphite_vert.minified.sksl"
+#include "src/sksl/generated/sksl_graphite_frag_es2.minified.sksl"
+#include "src/sksl/generated/sksl_graphite_vert_es2.minified.sksl"
 
 class SkSLCompilerStartupBench : public Benchmark {
 protected:
@@ -709,6 +711,10 @@ void RunSkSLModuleBenchmarks(NanoJSONResultsWriter* log) {
     int compilerGraphiteBinarySize = std::size(SKSL_MINIFIED_sksl_graphite_frag) +
                                      std::size(SKSL_MINIFIED_sksl_graphite_vert);
     bench(log, "sksl_binary_size_graphite", compilerGraphiteBinarySize);
+
+    int compilerGraphiteES2BinarySize = std::size(SKSL_MINIFIED_sksl_graphite_frag_es2) +
+                                        std::size(SKSL_MINIFIED_sksl_graphite_vert_es2);
+    bench(log, "sksl_binary_size_graphite_es2", compilerGraphiteES2BinarySize);
 
     int compilerComputeBinarySize = std::size(SKSL_MINIFIED_sksl_compute);
     bench(log, "sksl_binary_size_compute", compilerComputeBinarySize);

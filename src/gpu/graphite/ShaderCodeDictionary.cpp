@@ -214,7 +214,8 @@ void append_color_output(std::string* mainBody,
 
 // The current, incomplete, model for shader construction is:
 //   - Static code snippets (which can have an arbitrary signature) live in the Graphite
-//     pre-compiled module, which is located at `src/sksl/sksl_graphite_frag.sksl`.
+//     pre-compiled modules, which are located at `src/sksl/sksl_graphite_frag.sksl` and
+//     `src/sksl/sksl_graphite_frag_es2.sksl`.
 //   - Glue code is generated in a `main` method which calls these static code snippets.
 //     The glue code is responsible for:
 //            1) gathering the correct (mangled) uniforms
