@@ -597,6 +597,7 @@ std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step) {
                 sksl += r.fSkSL;
                 break;
             case Type::kStorageBuffer:
+            case Type::kIndirectBuffer:
                 SkSL::String::appendf(&sksl, "layout(binding=%d) buffer ", index++);
                 sksl += r.fSkSL;
                 break;

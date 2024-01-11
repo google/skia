@@ -87,8 +87,8 @@ SamplerDesc ComputeStep::calculateSamplerParameters(int resourceIndex, const Res
 }
 
 WorkgroupSize ComputeStep::calculateGlobalDispatchSize() const {
-    SK_ABORT("ComputeSteps must override calculateGlobalDispatchSize() if it participates "
-             "in resource creation");
+    SK_ABORT("ComputeSteps must override calculateGlobalDispatchSize() unless "
+             "the workgroup count is determined out-of-band");
     return WorkgroupSize();
 }
 

@@ -105,6 +105,16 @@ public:
                            threadsPerThreadgroup:threadsPerThreadgroup];
     }
 
+    void dispatchThreadgroupsWithIndirectBuffer(id<MTLBuffer> indirectBuffer,
+                                                NSUInteger offset,
+                                                const WorkgroupSize& localSize) {
+        MTLSize threadsPerThreadgroup =
+                MTLSizeMake(localSize.fWidth, localSize.fHeight, localSize.fDepth);
+        [(*fCommandEncoder) dispatchThreadgroupsWithIndirectBuffer:indirectBuffer
+                                              indirectBufferOffset:offset
+                                             threadsPerThreadgroup:threadsPerThreadgroup];
+    }
+
     void endEncoding() { [(*fCommandEncoder) endEncoding]; }
 
 private:

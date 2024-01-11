@@ -54,7 +54,7 @@ public:
     BindBufferInfo getStorage(size_t requiredBytes, ClearBuffer cleared = ClearBuffer::kNo);
     BindBufferInfo getVertexStorage(size_t requiredBytes);
     BindBufferInfo getIndexStorage(size_t requiredBytes);
-    BindBufferInfo getIndirectStorage(size_t requiredBytes);
+    BindBufferInfo getIndirectStorage(size_t requiredBytes, ClearBuffer cleared = ClearBuffer::kNo);
 
     // Returns the last 'unusedBytes' from the last call to getVertexWriter(). Assumes that
     // 'unusedBytes' is less than the 'requiredBytes' to the original allocation.

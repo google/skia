@@ -122,7 +122,15 @@ bool DawnCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
         for (const auto& dispatch : group->dispatches()) {
             this->bindComputePipeline(group->getPipeline(dispatch.fPipelineIndex));
             this->bindDispatchResources(*group, dispatch);
-            this->dispatchWorkgroups(dispatch.fParams.fGlobalDispatchSize);
+            if (const WorkgroupSize* globalSize =
+                        std::get_if<WorkgroupSize>(&dispatch.fGlobalSizeOrIndirect)) {
+                this->dispatchWorkgroups(*globalSize);
+            } else {
+                SkASSERT(std::holds_alternative<BufferView>(dispatch.fGlobalSizeOrIndirect));
+                const BufferView& indirect =
+                        *std::get_if<BufferView>(&dispatch.fGlobalSizeOrIndirect);
+                this->dispatchWorkgroupsIndirect(indirect.fInfo.fBuffer, indirect.fInfo.fOffset);
+            }
         }
     }
     this->endComputePass();
@@ -846,6 +854,15 @@ void DawnCommandBuffer::dispatchWorkgroups(const WorkgroupSize& globalSize) {
 
     fActiveComputePassEncoder.DispatchWorkgroups(
             globalSize.fWidth, globalSize.fHeight, globalSize.fDepth);
+}
+
+void DawnCommandBuffer::dispatchWorkgroupsIndirect(const Buffer* indirectBuffer,
+                                                   size_t indirectBufferOffset) {
+    SkASSERT(fActiveComputePassEncoder);
+    SkASSERT(fActiveComputePipeline);
+
+    auto& wgpuIndirectBuffer = static_cast<const DawnBuffer*>(indirectBuffer)->dawnBuffer();
+    fActiveComputePassEncoder.DispatchWorkgroupsIndirect(wgpuIndirectBuffer, indirectBufferOffset);
 }
 
 void DawnCommandBuffer::endComputePass() {

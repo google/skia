@@ -225,7 +225,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
                                               reporter,
                                               context,
                                               testContext) {
-    // This fails on Dawn D3D11, b/315834710
+    // TODO(b/315834710): This fails on Dawn D3D11
     if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
         return;
     }
@@ -476,7 +476,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_UniformBufferTest,
                                               reporter,
                                               context,
                                               testContext) {
-    // This fails on Dawn D3D11, b/315834710
+    // TODO(b/315834710): This fails on Dawn D3D11
     if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
         return;
     }
@@ -1696,6 +1696,178 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer,
         const uint32_t found = outData[i];
         REPORTER_ASSERT(reporter, 0u == found, "expected '0u', found '%u'", found);
     }
+}
+
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_IndirectDispatch,
+                                              reporter,
+                                              context,
+                                              testContext) {
+    // This fails on Dawn D3D11, b/315834710
+    if (testContext->contextType() == skgpu::ContextType::kDawn_D3D11) {
+        return;
+    }
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    constexpr uint32_t kWorkgroupCount = 32;
+    constexpr uint32_t kWorkgroupSize = 64;
+
+    // `IndirectStep` populates a buffer with the global workgroup count for `CountStep`.
+    // `CountStep` is recorded using `DispatchGroup::appendStepIndirect()` and its workgroups get
+    // dispatched according to the values computed by `IndirectStep` on the GPU.
+    class IndirectStep : public ComputeStep {
+    public:
+        IndirectStep()
+                : ComputeStep(
+                          /*name=*/"TestIndirectDispatch_IndirectStep",
+                          /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
+                          /*resources=*/
+                          {{
+                                  /*type=*/ResourceType::kIndirectBuffer,
+                                  /*flow=*/DataFlow::kShared,
+                                  /*policy=*/ResourcePolicy::kClear,
+                                  /*slot=*/0,
+                                  // TODO(armansito): Ideally the SSBO would have a single member of
+                                  // type `IndirectDispatchArgs` struct type. SkSL modules don't
+                                  // support struct declarations so this is currently not possible.
+                                  /*sksl=*/"ssbo { uint indirect[]; }",
+                          }}) {}
+        ~IndirectStep() override = default;
+
+        // Kernel that specifies a workgroup size of `kWorkgroupCount` to be used by the indirect
+        // dispatch.
+        std::string computeSkSL() const override {
+            return R"(
+                // This needs to match `kWorkgroupCount` declared above.
+                const uint kWorkgroupCount = 32;
+
+                void main() {
+                    if (sk_LocalInvocationID.x == 0) {
+                        indirect[0] = kWorkgroupCount;
+                        indirect[1] = 1;
+                        indirect[2] = 1;
+                    }
+                }
+            )";
+        }
+
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
+            SkASSERT(index == 0);
+            SkASSERT(r.fSlot == 0);
+            SkASSERT(r.fFlow == DataFlow::kShared);
+            return kIndirectDispatchArgumentSize;
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize() const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } indirectStep;
+
+    class CountStep : public ComputeStep {
+    public:
+        CountStep()
+                : ComputeStep(
+                          /*name=*/"TestIndirectDispatch_CountStep",
+                          /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
+                          /*resources=*/
+                          {{
+                                  /*type=*/ResourceType::kStorageBuffer,
+                                  /*flow=*/DataFlow::kShared,
+                                  /*policy=*/ResourcePolicy::kMapped,
+                                  /*slot=*/1,
+                                  /*sksl=*/"ssbo { atomicUint globalCounter; }",
+                          }}) {}
+        ~CountStep() override = default;
+
+        std::string computeSkSL() const override {
+            return R"(
+                workgroup atomicUint localCounter;
+
+                void main() {
+                    // Initialize the local counter.
+                    if (sk_LocalInvocationID.x == 0) {
+                        atomicStore(localCounter, 0);
+                    }
+
+                    // Synchronize the threads in the workgroup so they all see the initial value.
+                    workgroupBarrier();
+
+                    // All threads increment the counter.
+                    atomicAdd(localCounter, 1);
+
+                    // Synchronize the threads again to ensure they have all executed the increment
+                    // and the following load reads the same value across all threads in the
+                    // workgroup.
+                    workgroupBarrier();
+
+                    // Add the workgroup-only tally to the global counter.
+                    if (sk_LocalInvocationID.x == 0) {
+                        atomicAdd(globalCounter, atomicLoad(localCounter));
+                    }
+                }
+            )";
+        }
+
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
+            SkASSERT(index == 0);
+            SkASSERT(r.fSlot == 1);
+            SkASSERT(r.fFlow == DataFlow::kShared);
+            return sizeof(uint32_t);
+        }
+
+        void prepareStorageBuffer(int resourceIndex,
+                                  const ResourceDesc& r,
+                                  void* buffer,
+                                  size_t bufferSize) const override {
+            SkASSERT(resourceIndex == 0);
+            *static_cast<uint32_t*>(buffer) = 0;
+        }
+    } countStep;
+
+    DispatchGroup::Builder builder(recorder.get());
+    builder.appendStep(&indirectStep);
+    BindBufferInfo indirectBufferInfo = builder.getSharedBufferResource(0);
+    if (!indirectBufferInfo) {
+        ERRORF(reporter, "Shared resource at slot 0 is missing");
+        return;
+    }
+    builder.appendStepIndirect(&countStep, {indirectBufferInfo, kIndirectDispatchArgumentSize});
+
+    BindBufferInfo info = builder.getSharedBufferResource(1);
+    if (!info) {
+        ERRORF(reporter, "Shared resource at slot 1 is missing");
+        return;
+    }
+
+    // Record the compute pass task.
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    // Ensure the output buffer is synchronized to the CPU once the GPU submission has finished.
+    auto buffer = sync_buffer_to_cpu(recorder.get(), info.fBuffer);
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    testContext->syncedSubmit(context);
+
+    // Verify the contents of the output buffer.
+    constexpr uint32_t kExpectedCount = kWorkgroupCount * kWorkgroupSize;
+    const uint32_t result = static_cast<const uint32_t*>(
+            map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
+    REPORTER_ASSERT(reporter,
+                    result == kExpectedCount,
+                    "expected '%d', found '%d'",
+                    kExpectedCount,
+                    result);
 }
 
 DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal,

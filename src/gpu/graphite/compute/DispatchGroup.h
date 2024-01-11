@@ -63,7 +63,10 @@ public:
     class Builder;
 
     struct Dispatch {
-        ComputePassDesc fParams;
+        WorkgroupSize fLocalSize;
+        std::variant<WorkgroupSize, BufferView> fGlobalSizeOrIndirect;
+
+        std::optional<WorkgroupSize> fGlobalDispatchSize;
         skia_private::TArray<ResourceBinding> fBindings;
         skia_private::TArray<ComputeStep::WorkgroupBufferDesc> fWorkgroupBuffers;
         int fPipelineIndex = 0;
@@ -119,16 +122,23 @@ public:
 
     const OutputTable& outputTable() const { return fOutputTable; }
 
-    // Add a new compute step to the dispatch group and assign its resources. Any output resources
-    // currently present in the OutputTable will be forwarded to the corresponding input slots of
-    // the new ComputeStep. If the ComputeStep specifies a geometry input resource, it will be
-    // prompted to populate it using the draw parameters. All other resources will be assigned
-    // dynamically.
+    // Add a new compute step to the dispatch group and initialize its required resources if
+    // necessary.
     //
     // If the global dispatch size (i.e. workgroup count) is known ahead of time it can be
     // optionally provided here while appending a step. If provided, the ComputeStep will not
     // receive a call to `calculateGlobalDispatchSize`.
     bool appendStep(const ComputeStep*, std::optional<WorkgroupSize> globalSize = std::nullopt);
+
+    // Add a new compute step to the dispatch group with an indirectly specified global dispatch
+    // size. Initialize the required resources if necessary.
+    //
+    // The global dispatch size is determined by the GPU by reading the entries in `indirectBuffer`.
+    // The contents of this buffer must conform to the layout of the `IndirectDispatchArgs`
+    // structure declared in ComputeTypes.h.
+    //
+    // The ComputeStep will not receive a call to `calculateGlobalDispatchSize`.
+    bool appendStepIndirect(const ComputeStep*, BufferView indirectBuffer);
 
     // Directly assign a buffer range to a shared slot. ComputeSteps that are appended after this
     // call will use this resouce if they reference the given `slot` index. Builder will not
@@ -161,6 +171,8 @@ public:
     sk_sp<TextureProxy> getSharedTextureResource(unsigned int slot) const;
 
 private:
+    bool appendStepInternal(const ComputeStep*, const std::variant<WorkgroupSize, BufferView>&);
+
     // Allocate a resource that can be assigned to the shared or private data flow slots. Returns a
     // std::monostate if allocation fails.
     DispatchResourceOptional allocateResource(const ComputeStep* step,

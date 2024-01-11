@@ -76,7 +76,8 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
                 wgpu::BufferUsage::CopySrc;
         break;
     case BufferType::kIndirect:
-        usage = wgpu::BufferUsage::Indirect | wgpu::BufferUsage::Storage;
+        usage = wgpu::BufferUsage::Indirect | wgpu::BufferUsage::Storage |
+                wgpu::BufferUsage::CopyDst;
         break;
     case BufferType::kVertexStorage:
         usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::Storage;

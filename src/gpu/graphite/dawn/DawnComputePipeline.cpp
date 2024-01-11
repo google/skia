@@ -114,6 +114,7 @@ sk_sp<DawnComputePipeline> DawnComputePipeline::Make(const DawnSharedContext* sh
                 entry.buffer.type = wgpu::BufferBindingType::Uniform;
                 break;
             case ComputeStep::ResourceType::kStorageBuffer:
+            case ComputeStep::ResourceType::kIndirectBuffer:
                 entry.buffer.type = wgpu::BufferBindingType::Storage;
                 break;
             case ComputeStep::ResourceType::kReadOnlyTexture:

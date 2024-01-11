@@ -92,6 +92,17 @@ Builder::Builder(Recorder* recorder) : fObj(new DispatchGroup()), fRecorder(reco
 }
 
 bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> globalSize) {
+    return this->appendStepInternal(step,
+                                    globalSize ? *globalSize : step->calculateGlobalDispatchSize());
+}
+
+bool Builder::appendStepIndirect(const ComputeStep* step, BufferView indirectBuffer) {
+    return this->appendStepInternal(step, indirectBuffer);
+}
+
+bool Builder::appendStepInternal(
+        const ComputeStep* step,
+        const std::variant<WorkgroupSize, BufferView>& globalSizeOrIndirect) {
     SkASSERT(fObj);
     SkASSERT(step);
 
@@ -145,7 +156,8 @@ bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> g
                     *slot = maybeResource;
                 } else {
                     SkASSERT(((r.fType == Type::kUniformBuffer ||
-                               r.fType == Type::kStorageBuffer) &&
+                               r.fType == Type::kStorageBuffer ||
+                               r.fType == Type::kIndirectBuffer) &&
                               std::holds_alternative<BufferView>(*slot)) ||
                              ((r.fType == Type::kReadOnlyTexture ||
                                r.fType == Type::kSampledTexture ||
@@ -212,9 +224,8 @@ bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> g
     }
 
     dispatch.fPipelineIndex = fObj->fPipelineDescs.size() - 1;
-    dispatch.fParams.fGlobalDispatchSize =
-            globalSize ? *globalSize : step->calculateGlobalDispatchSize();
-    dispatch.fParams.fLocalDispatchSize = step->localDispatchSize();
+    dispatch.fLocalSize = step->localDispatchSize();
+    dispatch.fGlobalSizeOrIndirect = globalSizeOrIndirect;
 
     fObj->fDispatchList.push_back(std::move(dispatch));
 
@@ -292,6 +303,20 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
                 if (bufInfo) {
                     result = BufferView{bufInfo, bufferSize};
                 }
+            }
+            break;
+        }
+        case Type::kIndirectBuffer: {
+            SkASSERT(resource.fPolicy != ResourcePolicy::kMapped);
+
+            size_t bufferSize = step->calculateBufferSize(resourceIdx, resource);
+            SkASSERT(bufferSize);
+            auto bufInfo = bufferMgr->getIndirectStorage(bufferSize,
+                                                         resource.fPolicy == ResourcePolicy::kClear
+                                                                 ? ClearBuffer::kYes
+                                                                 : ClearBuffer::kNo);
+            if (bufInfo) {
+                result = BufferView{bufInfo, bufferSize};
             }
             break;
         }

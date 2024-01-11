@@ -209,13 +209,13 @@ BindBufferInfo DrawBufferManager::getIndexStorage(size_t requiredBytes) {
     return this->prepareBindBuffer(&info, requiredBytes);
 }
 
-BindBufferInfo DrawBufferManager::getIndirectStorage(size_t requiredBytes) {
+BindBufferInfo DrawBufferManager::getIndirectStorage(size_t requiredBytes, ClearBuffer cleared) {
     if (!requiredBytes) {
         return {};
     }
 
     auto& info = fCurrentBuffers[kIndirectStorageBufferIndex];
-    return this->prepareBindBuffer(&info, requiredBytes);
+    return this->prepareBindBuffer(&info, requiredBytes, /*supportCpuUpload=*/false, cleared);
 }
 
 void DrawBufferManager::transferToRecording(Recording* recording) {
