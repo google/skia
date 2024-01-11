@@ -509,12 +509,6 @@ FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
                                                   intrinsicKind));
 }
 
-void FunctionDeclaration::addParametersToSymbolTable(const Context& context) {
-    for (Variable* param : fParameters) {
-        context.fSymbolTable->addWithoutOwnership(context, param);
-    }
-}
-
 std::string FunctionDeclaration::mangledName() const {
     if ((this->isBuiltin() && !this->definition()) || this->isMain()) {
         // Builtins without a definition (like `sin` or `sqrt`) must use their real names.

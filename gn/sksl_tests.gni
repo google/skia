@@ -90,6 +90,7 @@ sksl_error_tests = [
   "errors/ForInitStmt.sksl",
   "errors/ForTypeMismatch.rts",
   "errors/FunctionParamBadType.rts",
+  "errors/FunctionParamShadowedByLocal.rts",
   "errors/FunctionParameterOfVoid.rts",
   "errors/GenericArgumentMismatch.rts",
   "errors/IfTypeMismatch.rts",

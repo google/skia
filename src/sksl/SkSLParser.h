@@ -8,6 +8,7 @@
 #ifndef SKSL_PARSER
 #define SKSL_PARSER
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLLexer.h"
@@ -246,7 +247,10 @@ private:
 
     std::unique_ptr<Statement> discardStatement();
 
-    std::unique_ptr<Statement> block();
+    // A function's top-level block needs to implicitly include the parameters from the function
+    // declaration (which appear in the source before the block is opened). For inner blocks, an
+    // empty span should always be passed.
+    std::unique_ptr<Statement> block(SkSpan<Variable* const> parametersForTopLevel = {});
 
     std::unique_ptr<Statement> expressionStatement();
 

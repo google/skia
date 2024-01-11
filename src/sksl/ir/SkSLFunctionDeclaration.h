@@ -53,8 +53,6 @@ public:
                                         Position returnTypePos,
                                         const Type* returnType);
 
-    void addParametersToSymbolTable(const Context& context);
-
     ModifierFlags modifierFlags() const {
         return fModifierFlags;
     }
