@@ -233,7 +233,7 @@ if (is_win) {
   # Windows tool chain
   set_default_toolchain("//gn/toolchain:msvc")
   default_toolchain_name = "msvc"
-  host_toolchain = "msvc"
+  host_toolchain = "msvc_host"
 } else if (is_wasm) {
   set_default_toolchain("//gn/toolchain:wasm")
   default_toolchain_name = "wasm"

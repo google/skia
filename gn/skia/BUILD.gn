@@ -80,14 +80,14 @@ config("default") {
   if (is_fuchsia && using_fuchsia_sdk) {
     ldflags += [
       "-v",
-      "--sysroot=" + rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot"),
+      "--sysroot=" + rebase_path("$fuchsia_sdk_path/arch/$current_cpu/sysroot"),
     ]
     cflags += [ "--sysroot=" +
-                rebase_path("$fuchsia_sdk_path/arch/$target_cpu/sysroot") ]
-    if (target_cpu == "x64") {
-      target_triple = "--target=x86_64-${target_os}"
-    } else if (target_cpu == "arm64") {
-      target_triple = "--target=aarch64-unknown-${target_os}"
+                rebase_path("$fuchsia_sdk_path/arch/$current_cpu/sysroot") ]
+    if (current_cpu == "x64") {
+      current_cpu = "--target=x86_64-${current_os}"
+    } else if (current_cpu == "arm64") {
+      target_triple = "--target=aarch64-unknown-${current_os}"
     } else {
       print("Unknown target CPU for Fuchsia target build.")
       assert(false)
@@ -98,7 +98,7 @@ config("default") {
   }
 
   if (is_win) {
-    if (is_clang && target_cpu == "arm64") {
+    if (is_clang && current_cpu == "arm64") {
       cflags += [ "--target=arm64-windows" ]
     }
     cflags += [
@@ -133,9 +133,9 @@ config("default") {
     }
 
     lib_dirs = [
-      "$win_sdk/Lib/$win_sdk_version/ucrt/$target_cpu",
-      "$win_sdk/Lib/$win_sdk_version/um/$target_cpu",
-      "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$target_cpu",
+      "$win_sdk/Lib/$win_sdk_version/ucrt/$current_cpu",
+      "$win_sdk/Lib/$win_sdk_version/um/$current_cpu",
+      "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$current_cpu",
     ]
   } else {
     cflags += [
@@ -196,24 +196,24 @@ config("default") {
   }
 
   if (is_ios) {
-    if (target_cpu == "arm") {
+    if (current_cpu == "arm") {
       _arch_flags = [
         "-arch",
         "armv7",
       ]
-    } else if (target_cpu == "arm64") {
+    } else if (current_cpu == "arm64") {
       _arch_flags = [
         "-arch",
         "arm64",
         "-arch",
         "arm64e",
       ]
-    } else if (target_cpu == "x86") {
+    } else if (current_cpu == "x86") {
       _arch_flags = [
         "-arch",
         "i386",
       ]
-    } else if (target_cpu == "x64") {
+    } else if (current_cpu == "x64") {
       _arch_flags = [
         "-arch",
         "x86_64",
@@ -221,7 +221,7 @@ config("default") {
     } else {
       _arch_flags = [
         "-arch",
-        target_cpu,
+        current_cpu,
       ]
     }
 
@@ -477,12 +477,12 @@ config("warnings") {
       cflags += [ "-fno-lax-vector-conversions" ]
     }
 
-    if (target_cpu == "arm" && is_ios) {
+    if (current_cpu == "arm" && is_ios) {
       # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit iOS.
       # We're pretty sure it's actually 8-byte alignment.
       cflags += [ "-Wno-over-aligned" ]
     }
-    if (target_cpu == "x86" && is_android) {
+    if (current_cpu == "x86" && is_android) {
       # Clang seems to think new/malloc will only be 4-byte aligned on 32-bit x86 Android builds.
       # We're pretty sure it's actually 8-byte alignment.  See OverAlignedTest.cpp for more info.
       cflags += [ "-Wno-over-aligned" ]

@@ -79,162 +79,183 @@ if (current_toolchain == default_toolchain) {
   }
 }
 
-toolchain("msvc") {
-  lib_switch = ""
-  lib_dir_switch = "/LIBPATH:"
+template("msvc_toolchain") {
+  toolchain(target_name) {
+    toolchain_target_cpu = invoker.cpu
+    lib_switch = ""
+    lib_dir_switch = "/LIBPATH:"
 
-  bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
+    bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$toolchain_target_cpu"
 
-  env_setup = ""
-  if (target_cpu == "x86") {
-    # Toolchain asset includes a script that configures for x86 building.
-    # We don't support x86 builds with local MSVC installations.
-    env_setup = "$shell $win_sdk/bin/SetEnv.cmd /x86 && "
-  } else if (target_cpu == "arm64") {
-    # ARM64 compiler is incomplete - it relies on DLLs located in the host toolchain directory.
-    env_setup = "$shell set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
-  }
-
-  cl_m32_flag = ""
-
-  if (clang_win != "") {
-    if (target_cpu == "x86") {
-      # cl.exe knows implicitly by the choice of executable that it's targeting
-      # x86, but clang-cl.exe needs to be told when targeting non-host
-      # platforms. (All our builders are x86-64, so x86 is always non-host.)
-      cl_m32_flag = "-m32"
+    env_setup = ""
+    if (toolchain_target_cpu == "x86") {
+      # Toolchain asset includes a script that configures for x86 building.
+      # We don't support x86 builds with local MSVC installations.
+      env_setup = "$shell $win_sdk/bin/SetEnv.cmd /x86 && "
+    } else if (toolchain_target_cpu == "arm64") {
+      # ARM64 compiler is incomplete - it relies on DLLs located in the host toolchain directory.
+      env_setup = "$shell set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
     }
-    if (host_os == "win") {
-      cl = "\"$clang_win/bin/clang-cl.exe\""
-      lib = "\"$clang_win/bin/lld-link.exe\" /lib"
-      link = "\"$clang_win/bin/lld-link.exe\""
+
+    cl_m32_flag = ""
+
+    if (clang_win != "") {
+      if (toolchain_target_cpu == "x86") {
+        # cl.exe knows implicitly by the choice of executable that it's targeting
+        # x86, but clang-cl.exe needs to be told when targeting non-host
+        # platforms. (All our builders are x86-64, so x86 is always non-host.)
+        cl_m32_flag = "-m32"
+      }
+      if (host_os == "win") {
+        cl = "\"$clang_win/bin/clang-cl.exe\""
+        lib = "\"$clang_win/bin/lld-link.exe\" /lib"
+        link = "\"$clang_win/bin/lld-link.exe\""
+      } else {
+        cl = "\"$clang_win/bin/clang-cl\""
+        lib = "\"$clang_win/bin/lld-link\" /lib"
+        link = "\"$clang_win/bin/lld-link\""
+      }
     } else {
-      cl = "\"$clang_win/bin/clang-cl\""
-      lib = "\"$clang_win/bin/lld-link\" /lib"
-      link = "\"$clang_win/bin/lld-link\""
+      cl = "\"$bin/cl.exe\""
+      lib = "\"$bin/lib.exe\""
+      link = "\"$bin/link.exe\""
     }
-  } else {
-    cl = "\"$bin/cl.exe\""
-    lib = "\"$bin/lib.exe\""
-    link = "\"$bin/link.exe\""
-  }
 
-  tool("asm") {
-    _ml = "ml"
-    if (target_cpu == "x64") {
-      _ml += "64"
+    tool("asm") {
+      _ml = "ml"
+      if (toolchain_target_cpu == "x64") {
+        _ml += "64"
+      }
+      command = "$env_setup \"$bin/$_ml.exe\" {{asmflags}} /nologo /c /Fo {{output}} {{source}}"
+      outputs = [
+        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+      ]
+      description = "assemble {{source}}"
     }
-    command = "$env_setup \"$bin/$_ml.exe\" {{asmflags}} /nologo /c /Fo {{output}} {{source}}"
-    outputs =
-        [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj" ]
-    description = "assemble {{source}}"
-  }
 
-  tool("cc") {
-    precompiled_header_type = "msvc"
-    pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
+    tool("cc") {
+      precompiled_header_type = "msvc"
+      pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
-    # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
-    depsformat = "msvc"
-    outputs =
-        [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj" ]
-    description = "compile {{source}}"
-  }
+      # Label names may have spaces so pdbname must be quoted.
+      command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+      depsformat = "msvc"
+      outputs = [
+        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+      ]
+      description = "compile {{source}}"
+    }
 
-  tool("cxx") {
-    precompiled_header_type = "msvc"
-    pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
+    tool("cxx") {
+      precompiled_header_type = "msvc"
+      pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
-    # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
-    depsformat = "msvc"
-    outputs =
-        [ "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj" ]
-    description = "compile {{source}}"
-  }
+      # Label names may have spaces so pdbname must be quoted.
+      command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+      depsformat = "msvc"
+      outputs = [
+        "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
+      ]
+      description = "compile {{source}}"
+    }
 
-  tool("alink") {
-    rspfile = "{{output}}.rsp"
+    tool("alink") {
+      rspfile = "{{output}}.rsp"
 
-    command = "$env_setup $lib /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
-    outputs = [
-      # Ignore {{output_extension}} and always use .lib, there's no reason to
-      # allow targets to override this extension on Windows.
-      "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
-    ]
-    default_output_extension = ".lib"
-    default_output_dir = "{{target_out_dir}}"
+      command = "$env_setup $lib /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
+      outputs = [
+        # Ignore {{output_extension}} and always use .lib, there's no reason to
+        # allow targets to override this extension on Windows.
+        "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
+      ]
+      default_output_extension = ".lib"
+      default_output_dir = "{{target_out_dir}}"
 
-    # inputs_newline works around a fixed per-line buffer size in the linker.
-    rspfile_content = "{{inputs_newline}}"
-    description = "link {{output}}"
-    if (0 <= link_pool_depth) {
-      pool = ":link_pool($default_toolchain)"
+      # inputs_newline works around a fixed per-line buffer size in the linker.
+      rspfile_content = "{{inputs_newline}}"
+      description = "link {{output}}"
+      if (0 <= link_pool_depth) {
+        pool = ":link_pool($default_toolchain)"
+      }
+    }
+
+    tool("solink") {
+      dllname = "{{output_dir}}/{{target_output_name}}{{output_extension}}"
+      libname = "${dllname}.lib"
+      pdbname = "${dllname}.pdb"
+      rspfile = "${dllname}.rsp"
+
+      command = "$env_setup $link /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+      outputs = [
+        dllname,
+        libname,
+        pdbname,
+      ]
+      default_output_extension = ".dll"
+      default_output_dir = "{{root_out_dir}}"
+
+      link_output = libname
+      depend_output = libname
+      runtime_outputs = [
+        dllname,
+        pdbname,
+      ]
+
+      # I don't quite understand this.  Aping Chrome's toolchain/win/BUILD.gn.
+      restat = true
+
+      # inputs_newline works around a fixed per-line buffer size in the linker.
+      rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
+      description = "link {{output}}"
+      if (0 <= link_pool_depth) {
+        pool = ":link_pool($default_toolchain)"
+      }
+    }
+
+    tool("link") {
+      exename = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
+      pdbname = "$exename.pdb"
+      rspfile = "$exename.rsp"
+
+      command = "$env_setup $link /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+      default_output_extension = ".exe"
+      default_output_dir = "{{root_out_dir}}"
+      outputs = [ exename ]
+
+      # inputs_newline works around a fixed per-line buffer size in the linker.
+      rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
+      description = "link {{output}}"
+      if (0 <= link_pool_depth) {
+        pool = ":link_pool($default_toolchain)"
+      }
+    }
+
+    tool("stamp") {
+      command = "$stamp {{output}}"
+      description = "stamp {{output}}"
+    }
+
+    tool("copy") {
+      cp_py = rebase_path("../cp.py")
+      command = "$shell python3 \"$cp_py\" {{source}} {{output}}"
+      description = "copy {{source}} {{output}}"
+    }
+
+    toolchain_args = {
+      current_cpu = invoker.cpu
+      current_os = invoker.os
     }
   }
+}
 
-  tool("solink") {
-    dllname = "{{output_dir}}/{{target_output_name}}{{output_extension}}"
-    libname = "${dllname}.lib"
-    pdbname = "${dllname}.pdb"
-    rspfile = "${dllname}.rsp"
+msvc_toolchain("msvc") {
+  cpu = current_cpu
+  os = current_os
+}
 
-    command = "$env_setup $link /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
-    outputs = [
-      dllname,
-      libname,
-      pdbname,
-    ]
-    default_output_extension = ".dll"
-    default_output_dir = "{{root_out_dir}}"
-
-    link_output = libname
-    depend_output = libname
-    runtime_outputs = [
-      dllname,
-      pdbname,
-    ]
-
-    # I don't quite understand this.  Aping Chrome's toolchain/win/BUILD.gn.
-    restat = true
-
-    # inputs_newline works around a fixed per-line buffer size in the linker.
-    rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
-    description = "link {{output}}"
-    if (0 <= link_pool_depth) {
-      pool = ":link_pool($default_toolchain)"
-    }
-  }
-
-  tool("link") {
-    exename = "{{root_out_dir}}/{{target_output_name}}{{output_extension}}"
-    pdbname = "$exename.pdb"
-    rspfile = "$exename.rsp"
-
-    command = "$env_setup $link /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
-    default_output_extension = ".exe"
-    default_output_dir = "{{root_out_dir}}"
-    outputs = [ exename ]
-
-    # inputs_newline works around a fixed per-line buffer size in the linker.
-    rspfile_content = "{{inputs_newline}} {{libs}} {{solibs}} {{ldflags}}"
-    description = "link {{output}}"
-    if (0 <= link_pool_depth) {
-      pool = ":link_pool($default_toolchain)"
-    }
-  }
-
-  tool("stamp") {
-    command = "$stamp {{output}}"
-    description = "stamp {{output}}"
-  }
-
-  tool("copy") {
-    cp_py = rebase_path("../cp.py")
-    command = "$shell python3 \"$cp_py\" {{source}} {{output}}"
-    description = "copy {{source}} {{output}}"
-  }
+msvc_toolchain("msvc_host") {
+  cpu = host_cpu
+  os = host_os
 }
 
 template("gcc_like_toolchain") {
