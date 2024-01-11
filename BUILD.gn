@@ -1363,6 +1363,8 @@ optional("typeface_fontations") {
     "$root_out_dir/libbridge_rust_side.a",
   ]
   sources = [
+    "src/ports/SkFontScanner_fontations.cpp",
+    "src/ports/SkFontScanner_fontations.h",
     "src/ports/SkTypeface_fontations.cpp",
     "src/ports/SkTypeface_fontations_priv.h",
   ]

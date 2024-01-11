@@ -42,6 +42,7 @@ skia_filegroup(
     name = "typeface_fontations",
     srcs = select({
         "//bazel/common_config_settings:use_fontations_true": [
+            "SkFontScanner_fontations.cpp",
             "SkTypeface_fontations.cpp",
         ],
         "//conditions:default": [],
@@ -224,6 +225,7 @@ skia_filegroup(
         "//conditions:default": [],
     }) + select({
         "//bazel/common_config_settings:use_fontations_true": [
+            "SkFontScanner_fontations.h",
             "SkTypeface_fontations_priv.h",
         ],
         "//conditions:default": [],
