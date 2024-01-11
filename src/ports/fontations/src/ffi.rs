@@ -15,6 +15,8 @@ use skrifa::{
 };
 use std::pin::Pin;
 
+use skrifa::attribute::{Style};
+
 use crate::ffi::{
     AxisWrapper, BridgeScalerMetrics, ColorPainterWrapper, ColorStop, PaletteOverride, PathWrapper,
     SkiaDesignCoordinate,
@@ -713,6 +715,42 @@ fn num_color_stops(color_stops: &BridgeColorStops) -> usize {
     return color_stops.num_stops;
 }
 
+use crate::ffi::BridgeFontStyle;
+
+fn get_font_style(font_ref: &BridgeFontRef, style: &mut BridgeFontStyle) -> bool {
+    font_ref
+        .with_font(|f| {
+            let attrs = f.attributes();
+            let skia_weight = attrs.weight.value().round() as i32;
+            let skia_slant = match attrs.style {
+                x if x == Style::Normal => 0,
+                x if x == Style::Italic => 1,
+                        _ /* kOblique_Slant */=> 2
+            };
+            // Match back the skrifa values to get the system values (more or less)
+            let skia_width = match (attrs.stretch.ratio()*1000.0).round() as i32 {
+                x if x <=  500 => 1,
+                x if x <=  625 => 2,
+                x if x <=  725 => 3,
+                x if x <=  875 => 4,
+                x if x <= 1000 => 5,
+                x if x <= 1125 => 6,
+                x if x <= 1250 => 7,
+                x if x <= 1500 => 8,
+                x if x <= 2000 => 9,
+                _ => 9,
+            };
+
+            *style = BridgeFontStyle {
+                weight: skia_weight,
+                slant: skia_slant,
+                width: skia_width,
+            };
+            Some(true)
+        })
+        .unwrap_or_default()
+}
+
 struct BridgeFontRef<'a>(Option<FontRef<'a>>);
 
 impl<'a> BridgeFontRef<'a> {
@@ -821,6 +859,13 @@ mod ffi {
         end_angle: f32,
     }
 
+    // This type is used to mirror SkFontStyle values for Weight, Slant and Width
+    pub struct BridgeFontStyle {
+        pub weight: i32,
+        pub slant: i32,
+        pub width: i32,
+    }
+
     extern "Rust" {
         type BridgeFontRef<'a>;
         unsafe fn make_font_ref<'a>(font_data: &'a [u8], index: u32) -> Box<BridgeFontRef<'a>>;
@@ -923,6 +968,7 @@ mod ffi {
         fn next_color_stop(color_stops: &mut BridgeColorStops, stop: &mut ColorStop) -> bool;
         fn num_color_stops(color_stops: &BridgeColorStops) -> usize;
 
+        fn get_font_style(font_ref: &BridgeFontRef, font_style: &mut BridgeFontStyle) -> bool;
     }
 
     unsafe extern "C++" {
@@ -1035,25 +1081,37 @@ mod ffi {
     }
 }
 
+impl Default for BridgeFontStyle {
+    fn default() -> Self {
+        Self {
+            weight: 0,
+            slant: 0,
+            width: 0,
+        }
+    }
+}
+
 /// Tests to exercise COLR and CPAL parts of the Fontations FFI.
 /// Run using `$ bazel test --with_fontations //src/ports/fontations:test_ffi`
 #[cfg(test)]
 mod test {
-
     use crate::{
-        ffi::PaletteOverride, font_or_collection, font_ref_is_valid, make_font_ref, resolve_palette,
+        ffi::BridgeFontStyle, ffi::PaletteOverride, font_or_collection, font_ref_is_valid,
+        get_font_style, make_font_ref, resolve_palette,
     };
     use std::fs;
 
     const TEST_FONT_FILENAME: &str = "resources/fonts/test_glyphs-glyf_colr_1_variable.ttf";
     const TEST_COLLECTION_FILENAME: &str = "resources/fonts/test.ttc";
+    const TEST_CONDENSED_BOLD_ITALIC: &str = "resources/fonts/cond-bold-italic.ttf";
+    const TEST_VARIABLE: &str = "resources/fonts/Variable.ttf";
 
     #[test]
     fn test_palette_override() {
         let file_buffer =
             fs::read(TEST_FONT_FILENAME).expect("COLRv0/v1 test font could not be opened.");
         let font_ref = make_font_ref(&file_buffer, 0);
-        assert_eq!(font_ref_is_valid(&font_ref), true);
+        assert!(font_ref_is_valid(&font_ref));
 
         let override_color = 0xFFEEEEEE;
         let valid_overrides = [
@@ -1125,5 +1183,39 @@ mod test {
 
         let result_garbage = font_or_collection(&garbage, &mut num_fonts);
         assert!(!result_garbage);
+    }
+
+    #[test]
+    fn test_font_attributes() {
+        let file_buffer = fs::read(TEST_CONDENSED_BOLD_ITALIC)
+            .expect("Font to test font styles could not be opened.");
+        let font_ref = make_font_ref(&file_buffer, 0);
+        assert!(font_ref_is_valid(&font_ref));
+
+        let mut font_style = BridgeFontStyle::default();
+
+        if get_font_style(font_ref.as_ref(), &mut font_style) {
+            assert_eq!(font_style.width, 5); // The font should have condenced width attribute but
+                                             // it's condenced itself so we have the normal width
+            assert_eq!(font_style.slant, 1); // Skia italic
+            assert_eq!(font_style.weight, 700); // Skia bold
+        } else {
+            assert!(false);
+        }
+    }
+
+    #[test]
+    fn test_variable_font_attributes() {
+        let file_buffer = fs::read(TEST_VARIABLE)
+            .expect("Font to test font styles could not be opened.");
+        let font_ref = make_font_ref(&file_buffer, 0);
+        assert!(font_ref_is_valid(&font_ref));
+
+        let mut font_style = BridgeFontStyle::default();
+
+        assert!(get_font_style(font_ref.as_ref(), &mut font_style));
+        assert_eq!(font_style.width, 5);    // Skia normal
+        assert_eq!(font_style.slant, 0);    // Skia upright
+        assert_eq!(font_style.weight, 400); // Skia normal
     }
 }

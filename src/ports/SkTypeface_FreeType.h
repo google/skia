@@ -31,37 +31,6 @@ typedef struct FT_BBox_ FT_BBox;
 
 class SkTypeface_FreeType : public SkTypeface {
 public:
-    /** For SkFontMgrs to make use of our ability to extract
-     *  name and style from a stream, using FreeType's API.
-     */
-    class Scanner : ::SkNoncopyable {
-    public:
-        Scanner();
-        ~Scanner();
-        struct AxisDefinition {
-            SkFourByteTag fTag;
-            SkFixed fMinimum;
-            SkFixed fDefault;
-            SkFixed fMaximum;
-        };
-        using AxisDefinitions = skia_private::STArray<4, AxisDefinition, true>;
-        bool recognizedFont(SkStreamAsset* stream, int* numFonts) const;
-        bool scanFont(SkStreamAsset* stream, int ttcIndex,
-                      SkString* name, SkFontStyle* style, bool* isFixedPitch,
-                      AxisDefinitions* axes) const;
-        static void computeAxisValues(
-            AxisDefinitions axisDefinitions,
-            const SkFontArguments::VariationPosition position,
-            SkFixed* axisValues,
-            const SkString& name,
-            const SkFontArguments::VariationPosition::Coordinate* currentPosition = nullptr);
-        static bool GetAxes(FT_Face face, AxisDefinitions* axes);
-    private:
-        FT_Face openFace(SkStreamAsset* stream, int ttcIndex, FT_Stream ftStream) const;
-        FT_Library fLibrary;
-        mutable SkMutex fLibraryMutex;
-    };
-
     /** Fetch units/EM from "head" table if needed (ie for bitmap fonts) */
     static int GetUnitsPerEm(FT_Face face);
 

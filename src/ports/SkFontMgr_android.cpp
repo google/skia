@@ -21,6 +21,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkTSearch.h"
 #include "src/core/SkFontDescriptor.h"
+#include "src/core/SkFontScanner.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/ports/SkFontMgr_android_parser.h"
@@ -256,8 +257,9 @@ struct NameToFamily {
 
 class SkFontMgr_Android : public SkFontMgr {
 public:
-    SkFontMgr_Android(const SkFontMgr_Android_CustomFonts* custom) {
-        fScanner = std::make_unique<SkFontScanner_FreeType>();
+    SkFontMgr_Android(const SkFontMgr_Android_CustomFonts* custom,
+                      std::unique_ptr<SkFontScanner> scanner)
+        : fScanner(std::move(scanner)) {
         SkTDArray<FontFamily*> families;
         if (custom && SkFontMgr_Android_CustomFonts::kPreferSystem != custom->fSystemFontUse) {
             SkString base(custom->fBasePath);
@@ -505,6 +507,11 @@ static char const * const gSystemFontUseStrings[] = {
 }  // namespace
 
 sk_sp<SkFontMgr> SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom) {
+    return SkFontMgr_New_Android(custom, std::make_unique<SkFontScanner_FreeType>());
+}
+
+
+sk_sp<SkFontMgr> SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom, std::unique_ptr<SkFontScanner> scanner) {
     if (custom) {
         SkASSERT(0 <= custom->fSystemFontUse);
         SkASSERT(custom->fSystemFontUse < std::size(gSystemFontUseStrings));
@@ -514,5 +521,5 @@ sk_sp<SkFontMgr> SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* cust
                  custom->fFontsXml,
                  custom->fFallbackFontsXml);
     }
-    return sk_make_sp<SkFontMgr_Android>(custom);
+    return sk_make_sp<SkFontMgr_Android>(custom, std::move(scanner));
 }
