@@ -91,6 +91,13 @@ wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlag
 static bool check_shader_module(wgpu::ShaderModule* module,
                                 const char* shaderText,
                                 ShaderErrorHandler* errorHandler) {
+    // Prior to emsdk 3.1.51 wgpu::ShaderModule::GetCompilationInfo is unimplemented.
+#if defined(__EMSCRIPTEN__)                                      &&  \
+        ((__EMSCRIPTEN_major__ <  3                               || \
+         (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ <  1) || \
+         (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ < 51)))
+    return true;
+#endif
     struct Handler {
         static void Fn(WGPUCompilationInfoRequestStatus status,
                        const WGPUCompilationInfo* info,
