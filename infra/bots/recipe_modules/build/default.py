@@ -270,8 +270,7 @@ def compile_fn(api, checkout_root, out_dir):
   elif configuration != 'OptimizeForSize':
     args.update({
       'skia_use_client_icu': 'true',
-      # Enable after fixing MSVC host and xSAN host toolchains.
-      #'skia_use_libgrapheme': 'true',
+      'skia_use_libgrapheme': 'true',
     })
 
   if 'Fontations' in extra_tokens:
