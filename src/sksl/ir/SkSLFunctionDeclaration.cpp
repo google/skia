@@ -236,7 +236,8 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
             break;
         }
         case ProgramKind::kFragment:
-        case ProgramKind::kGraphiteFragment: {
+        case ProgramKind::kGraphiteFragment:
+        case ProgramKind::kGraphiteFragmentES2: {
             bool validParams = (parameters.size() == 0) ||
                                (parameters.size() == 1 && paramIsCoords(0));
             if (!validParams) {
@@ -247,6 +248,7 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
         }
         case ProgramKind::kVertex:
         case ProgramKind::kGraphiteVertex:
+        case ProgramKind::kGraphiteVertexES2:
         case ProgramKind::kCompute:
             if (!returnType.matches(*context.fTypes.fVoid)) {
                 errors.error(pos, "'main' must return 'void'");

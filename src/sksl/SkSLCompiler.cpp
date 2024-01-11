@@ -63,11 +63,13 @@ Compiler::~Compiler() {}
 const Module* Compiler::moduleForProgramKind(ProgramKind kind) {
     auto m = ModuleLoader::Get();
     switch (kind) {
-        case ProgramKind::kVertex:                return m.loadVertexModule(this);
         case ProgramKind::kFragment:              return m.loadFragmentModule(this);
+        case ProgramKind::kVertex:                return m.loadVertexModule(this);
         case ProgramKind::kCompute:               return m.loadComputeModule(this);
-        case ProgramKind::kGraphiteVertex:        return m.loadGraphiteVertexModule(this);
         case ProgramKind::kGraphiteFragment:      return m.loadGraphiteFragmentModule(this);
+        case ProgramKind::kGraphiteVertex:        return m.loadGraphiteVertexModule(this);
+        case ProgramKind::kGraphiteFragmentES2:   return m.loadGraphiteFragmentES2Module(this);
+        case ProgramKind::kGraphiteVertexES2:     return m.loadGraphiteVertexES2Module(this);
         case ProgramKind::kPrivateRuntimeShader:  return m.loadPrivateRTShaderModule(this);
         case ProgramKind::kRuntimeColorFilter:
         case ProgramKind::kRuntimeShader:

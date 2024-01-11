@@ -112,12 +112,14 @@ struct ProgramConfig {
 
     static bool IsFragment(ProgramKind kind) {
         return kind == ProgramKind::kFragment ||
-               kind == ProgramKind::kGraphiteFragment;
+               kind == ProgramKind::kGraphiteFragment ||
+               kind == ProgramKind::kGraphiteFragmentES2;
     }
 
     static bool IsVertex(ProgramKind kind) {
         return kind == ProgramKind::kVertex ||
-               kind == ProgramKind::kGraphiteVertex;
+               kind == ProgramKind::kGraphiteVertex ||
+               kind == ProgramKind::kGraphiteVertexES2;
     }
 
     static bool IsCompute(ProgramKind kind) {
