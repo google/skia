@@ -172,14 +172,14 @@ SkPDFUnion write_icc_profile(SkPDFDocument* doc, sk_sp<SkData>&& icc, int channe
         static SkMutex iccProfileMapMutex;
         SkAutoMutexExclusive lock(iccProfileMapMutex);
 
-        SkPDFIndirectReference* ref = doc->fICCProfileMap.find(SkPDFIccProfileKey{icc});
+        SkPDFIndirectReference* ref = doc->fICCProfileMap.find(SkPDFIccProfileKey{icc, channels});
         if (ref) {
             iccStreamRef = *ref;
         } else {
             std::unique_ptr<SkPDFDict> iccStreamDict = SkPDFMakeDict();
             iccStreamDict->insertInt("N", channels);
             iccStreamRef = SkPDFStreamOut(std::move(iccStreamDict), SkMemoryStream::Make(icc), doc);
-            doc->fICCProfileMap.set(SkPDFIccProfileKey{icc}, iccStreamRef);
+            doc->fICCProfileMap.set(SkPDFIccProfileKey{icc, channels}, iccStreamRef);
         }
     }
 

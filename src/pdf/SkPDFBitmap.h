@@ -31,14 +31,15 @@ public:
 
 struct SkPDFIccProfileKey {
     sk_sp<SkData> fData;
+    int fChannels;
     bool operator==(const SkPDFIccProfileKey& that) const {
-        return fData->equals(that.fData.get());
+        return fChannels == that.fChannels && fData->equals(that.fData.get());
     }
     bool operator!=(const SkPDFIccProfileKey& rhs) const { return !(*this == rhs); }
 
     struct Hash {
         uint32_t operator()(const SkPDFIccProfileKey& k) const {
-            return SkChecksum::Hash32(k.fData->data(), k.fData->size());
+            return SkGoodHash()(k.fChannels) ^ SkChecksum::Hash32(k.fData->data(), k.fData->size());
         }
     };
 };
