@@ -747,7 +747,10 @@ GrFPResult GrRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
         bool squashedRadii = false;
         for (int c = 0; c < 4; ++c) {
             radii[c] = rrect.radii((SkRRect::Corner)c);
-            SkASSERT((0 == radii[c].fX) == (0 == radii[c].fY));
+            // This effect can't handle a corner with both zero and non-zero radii
+            if ((0 == radii[c].fX) != (0 == radii[c].fY)) {
+                return GrFPFailure(std::move(inputFP));
+            }
             if (0 == radii[c].fX) {
                 // The corner is square, so no need to squash or flag as circular.
                 continue;
