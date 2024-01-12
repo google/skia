@@ -243,8 +243,8 @@ struct SkRasterPipeline_SwizzleCopyCtx {
 };
 
 struct SkRasterPipeline_CopyIndirectCtx {
-    float* dst;
-    const float* src;
+    int32_t* dst;
+    const int32_t* src;
     const uint32_t *indirectOffset;  // this applies to `src` or `dst` based on the op
     uint32_t indirectLimit;          // the indirect offset is clamped to this upper bound
     uint32_t slots;                  // the number of slots to copy

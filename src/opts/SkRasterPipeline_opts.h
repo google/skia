@@ -145,7 +145,7 @@ namespace SK_OPTS_NS {
     template <typename T>
     SI T gather(const T* p, U32 ix) { return p[ix]; }
 
-    SI void scatter_masked(F src, float* dst, U32 ix, I32 mask) {
+    SI void scatter_masked(I32 src, int* dst, U32 ix, I32 mask) {
         dst[ix] = mask ? src : dst[ix];
     }
 
@@ -258,9 +258,9 @@ namespace SK_OPTS_NS {
     SI V<T> gather(const T* p, U32 ix) {
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
-    SI void scatter_masked(F src, float* dst, U32 ix, I32 mask) {
-        F before = gather(dst, ix);
-        F after = if_then_else(mask, src, before);
+    SI void scatter_masked(I32 src, int* dst, U32 ix, I32 mask) {
+        I32 before = gather(dst, ix);
+        I32 after = if_then_else(mask, src, before);
         dst[ix[0]] = after[0];
         dst[ix[1]] = after[1];
         dst[ix[2]] = after[2];
@@ -363,9 +363,9 @@ namespace SK_OPTS_NS {
         };
         return sk_bit_cast<U64>(parts);
     }
-    SI void scatter_masked(F src, float* dst, U32 ix, I32 mask) {
-        F before = gather(dst, ix);
-        F after = if_then_else(mask, src, before);
+    SI void scatter_masked(I32 src, int* dst, U32 ix, I32 mask) {
+        I32 before = gather(dst, ix);
+        I32 after = if_then_else(mask, src, before);
         dst[ix[0]] = after[0];
         dst[ix[1]] = after[1];
         dst[ix[2]] = after[2];
@@ -562,9 +562,9 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     SI V<T> gather(const T* p, U32 ix) {
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
-    SI void scatter_masked(F src, float* dst, U32 ix, I32 mask) {
-        F before = gather(dst, ix);
-        F after = if_then_else(mask, src, before);
+    SI void scatter_masked(I32 src, int* dst, U32 ix, I32 mask) {
+        I32 before = gather(dst, ix);
+        I32 after = if_then_else(mask, src, before);
         dst[ix[0]] = after[0];
         dst[ix[1]] = after[1];
         dst[ix[2]] = after[2];
@@ -3389,9 +3389,9 @@ STAGE_TAIL(copy_from_indirect_unmasked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     offsets += sk_unaligned_load<U32>(iota);
 
     // Use gather to perform indirect lookups; write the results into `dst`.
-    const float* src = ctx->src;
-    F*           dst = (F*)ctx->dst;
-    F*           end = dst + ctx->slots;
+    const int* src = ctx->src;
+    I32*       dst = (I32*)ctx->dst;
+    I32*       end = dst + ctx->slots;
     do {
         *dst = gather(src, offsets);
         dst += 1;
@@ -3405,9 +3405,9 @@ STAGE_TAIL(copy_from_indirect_uniform_unmasked, SkRasterPipeline_CopyIndirectCtx
     offsets = min(offsets, ctx->indirectLimit);
 
     // Use gather to perform indirect lookups; write the results into `dst`.
-    const float* src = ctx->src;
-    F*           dst = (F*)ctx->dst;
-    F*           end = dst + ctx->slots;
+    const int* src = ctx->src;
+    I32*       dst = (I32*)ctx->dst;
+    I32*       end = dst + ctx->slots;
     do {
         *dst = gather(src, offsets);
         dst += 1;
@@ -3428,10 +3428,10 @@ STAGE_TAIL(copy_to_indirect_masked, SkRasterPipeline_CopyIndirectCtx* ctx) {
     offsets += sk_unaligned_load<U32>(iota);
 
     // Perform indirect, masked writes into `dst`.
-    const F* src = (const F*)ctx->src;
-    const F* end = src + ctx->slots;
-    float*   dst = ctx->dst;
-    I32      mask = execution_mask();
+    const I32* src = (const I32*)ctx->src;
+    const I32* end = src + ctx->slots;
+    int*       dst = ctx->dst;
+    I32        mask = execution_mask();
     do {
         scatter_masked(*src, dst, offsets, mask);
         dst += N;
@@ -3452,13 +3452,13 @@ STAGE_TAIL(swizzle_copy_to_indirect_masked, SkRasterPipeline_SwizzleCopyIndirect
     offsets += sk_unaligned_load<U32>(iota);
 
     // Perform indirect, masked, swizzled writes into `dst`.
-    const F*        src     = (const F*)ctx->src;
-    const F*        end     = src + ctx->slots;
+    const I32*      src   = (const I32*)ctx->src;
+    const I32*      end   = src + ctx->slots;
     std::byte*      dstB    = (std::byte*)ctx->dst;
     const uint16_t* swizzle = ctx->offsets;
     I32             mask    = execution_mask();
     do {
-        float* dst = (float*)(dstB + *swizzle);
+        int* dst = (int*)(dstB + *swizzle);
         scatter_masked(*src, dst, offsets, mask);
         swizzle += 1;
         src     += 1;
