@@ -1350,7 +1350,7 @@ static void add_to_key(const KeyContext& keyContext,
                        PaintParamsKeyBuilder* builder,
                        PipelineDataGatherer* gatherer,
                        const SkEmptyShader*) {
-    builder->addBlock(BuiltInCodeSnippetID::kError);
+    // The empty shader acts as a no-op
 }
 
 static void add_yuv_image_to_key(const KeyContext& keyContext,
