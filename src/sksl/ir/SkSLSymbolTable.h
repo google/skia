@@ -59,6 +59,13 @@ public:
     }
 
     /**
+     * Creates a new, empty SymbolTable between this SymbolTable and its current parent.
+     * The new symbol table is returned, and is also accessible as `this->fParent`.
+     * The original parent is accessible as `this->fParent->fParent`.
+     */
+    std::shared_ptr<SymbolTable> insertNewParent();
+
+    /**
      * If the input is a built-in symbol table, returns a new empty symbol table as a child of the
      * input table. If the input is not a built-in symbol table, returns it as-is. Built-in symbol
      * tables must not be mutated after creation, so they must be wrapped if mutation is necessary.
@@ -106,6 +113,13 @@ public:
      * table and point to the symbol.
      */
     void renameSymbol(const Context& context, Symbol* symbol, std::string_view newName);
+
+    /**
+     * Removes a symbol from the symbol table. If this symbol table had ownership of the symbol, the
+     * symbol is returned (and can be deleted or reinserted as desired); if not, null is returned.
+     * In either event, the name will no longer correspond to the symbol.
+     */
+    std::unique_ptr<Symbol> removeSymbol(const Symbol* symbol);
 
     /**
      * Returns true if the name refers to a type (user or built-in) in the current symbol table.
@@ -211,7 +225,7 @@ public:
 
     std::shared_ptr<SymbolTable> fParent;
 
-    std::vector<std::unique_ptr<const Symbol>> fOwnedSymbols;
+    std::vector<std::unique_ptr<Symbol>> fOwnedSymbols;
 
 private:
     struct SymbolKey {
