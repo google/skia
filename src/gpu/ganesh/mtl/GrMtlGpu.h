@@ -12,7 +12,6 @@
 #include "include/private/base/SkDeque.h"
 #include "src/gpu/ganesh/mtl/GrMtlTypesPriv.h"
 
-#include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrRingBuffer.h"
