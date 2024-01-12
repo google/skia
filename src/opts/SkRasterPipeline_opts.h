@@ -136,7 +136,9 @@ namespace SK_OPTS_NS {
     SI U16 pack(U32 v)          { return (U16)v; }
     SI U8  pack(U16 v)          { return  (U8)v; }
 
-    SI F if_then_else(I32 c, F t, F e) { return c ? t : e; }
+    SI F   if_then_else(I32 c, F   t, F   e) { return c ? t : e; }
+    SI I32 if_then_else(I32 c, I32 t, I32 e) { return c ? t : e; }
+
     SI bool any(I32 c)                 { return c != 0; }
     SI bool all(I32 c)                 { return c != 0; }
 
@@ -208,7 +210,8 @@ namespace SK_OPTS_NS {
     SI U16 pack(U32 v)       { return __builtin_convertvector(v, U16); }
     SI U8  pack(U16 v)       { return __builtin_convertvector(v,  U8); }
 
-    SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
+    SI F   if_then_else(I32 c, F   t, F   e) { return vbslq_f32((U32)c,t,e); }
+    SI I32 if_then_else(I32 c, I32 t, I32 e) { return vbslq_s32((U32)c,t,e); }
 
     #if defined(SK_CPU_ARM64)
         SI bool any(I32 c) { return vmaxvq_u32((U32)c) != 0; }
@@ -227,12 +230,12 @@ namespace SK_OPTS_NS {
         SI F mad(F f, F m, F a) { return vmlaq_f32(a,f,m); }
         SI F floor_(F v) {
             F roundtrip = vcvtq_f32_s32(vcvtq_s32_f32(v));
-            return roundtrip - if_then_else(roundtrip > v, 1, 0);
+            return roundtrip - if_then_else(roundtrip > v, F(1), F(0));
         }
 
         SI F ceil_(F v) {
             F roundtrip = vcvtq_f32_s32(vcvtq_s32_f32(v));
-            return roundtrip + if_then_else(roundtrip < v, 1, 0);
+            return roundtrip + if_then_else(roundtrip < v, F(1), F(0));
         }
 
         SI F sqrt_(F v) {
@@ -335,7 +338,11 @@ namespace SK_OPTS_NS {
         return sk_unaligned_load<U8>(&r);
     }
 
-    SI F if_then_else(I32 c, F t, F e) { return _mm256_blendv_ps(e, t, (__m256)c); }
+    SI F   if_then_else(I32 c, F   t, F   e) { return _mm256_blendv_ps(e, t, (__m256)c); }
+    SI I32 if_then_else(I32 c, I32 t, I32 e) {
+        return (I32)_mm256_blendv_ps((__m256)e, (__m256)t, (__m256)c);
+    }
+
     // NOTE: This version of 'all' only works with mask values (true == all bits set)
     SI bool any(I32 c) { return !_mm256_testz_si256((__m256i)c, _mm256_set1_epi32(-1)); }
     SI bool all(I32 c) { return  _mm256_testc_si256((__m256i)c, _mm256_set1_epi32(-1)); }
@@ -473,7 +480,11 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     using U8  = V<uint8_t >;
 
     SI F if_then_else(I32 c, F t, F e) {
-        return _mm_or_ps(_mm_and_ps(sk_bit_cast<F>(c), t), _mm_andnot_ps(sk_bit_cast<F>(c), e));
+        return _mm_or_ps(_mm_and_ps((__m128)c, t), _mm_andnot_ps((__m128)c, e));
+    }
+    SI I32 if_then_else(I32 c, I32 t, I32 e) {
+        return (I32)_mm_or_ps(_mm_and_ps((__m128)c, (__m128)t),
+                              _mm_andnot_ps((__m128)c, (__m128)e));
     }
 
     SI F   min(F a, F b)     { return _mm_min_ps(a,b); }
@@ -484,17 +495,13 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     SI I32 max(I32 a, I32 b) { return (I32)_mm_max_epi32((__m128i)a,(__m128i)b); }
     SI U32 max(U32 a, U32 b) { return (U32)_mm_max_epu32((__m128i)a,(__m128i)b); }
 #else
-    SI I32 min(I32 a, I32 b) {
-        return sk_bit_cast<I32>(if_then_else(a < b, sk_bit_cast<F>(a), sk_bit_cast<F>(b)));
-    }
+    SI I32 min(I32 a, I32 b) { return if_then_else(a < b, a, b); }
+    SI I32 max(I32 a, I32 b) { return if_then_else(a > b, a, b); }
     SI U32 min(U32 a, U32 b) {
-        return sk_bit_cast<U32>(if_then_else(a < b, sk_bit_cast<F>(a), sk_bit_cast<F>(b)));
-    }
-    SI I32 max(I32 a, I32 b) {
-        return sk_bit_cast<I32>(if_then_else(a > b, sk_bit_cast<F>(a), sk_bit_cast<F>(b)));
+        return sk_bit_cast<U32>(if_then_else(a < b, sk_bit_cast<I32>(a), sk_bit_cast<I32>(b)));
     }
     SI U32 max(U32 a, U32 b) {
-        return sk_bit_cast<U32>(if_then_else(a > b, sk_bit_cast<F>(a), sk_bit_cast<F>(b)));
+        return sk_bit_cast<U32>(if_then_else(a > b, sk_bit_cast<I32>(a), sk_bit_cast<I32>(b)));
     }
 #endif
 
@@ -538,7 +545,7 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
         return _mm_floor_ps(v);
     #else
         F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
-        return roundtrip - if_then_else(roundtrip > v, 1, 0);
+        return roundtrip - if_then_else(roundtrip > v, F(1), F(0));
     #endif
     }
 
@@ -547,7 +554,7 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
         return _mm_ceil_ps(v);
     #else
         F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
-        return roundtrip + if_then_else(roundtrip < v, 1, 0);
+        return roundtrip + if_then_else(roundtrip < v, F(1), F(0));
     #endif
     }
 
@@ -640,11 +647,6 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     SI U32 expand(U8  v) { return      __builtin_convertvector(     v, U32); }
 #endif
 
-template <typename V>
-SI V if_then_else(I32 c, V t, V e) {
-    return sk_bit_cast<V>(if_then_else(c, sk_bit_cast<F>(t), sk_bit_cast<F>(e)));
-}
-
 SI F fract(F v) { return v - floor_(v); }
 
 // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html
@@ -723,8 +725,8 @@ SI U16 to_half(F f) {
 
     // Convert to 1-5-10 half with 15 bias, flushing denorm halfs (including zero) to zero.
     auto denorm = (I32)em < 0x38800000;  // I32 comparison is often quicker, and always safe here.
-    return pack(if_then_else(denorm, U32(0)
-                                   , (s>>16) + (em>>13) - ((127-15)<<10)));
+    return pack((U32)if_then_else(denorm, I32(0)
+                                        , (I32)((s>>16) + (em>>13) - ((127-15)<<10))));
 #endif
 }
 
@@ -1506,7 +1508,7 @@ BLEND_MODE(overlay) {
 }
 
 BLEND_MODE(softlight) {
-    F m  = if_then_else(da > 0, d / da, 0),
+    F m  = if_then_else(da > 0, d / da, 0.0f),
       s2 = two(s),
       m4 = two(two(m));
 
@@ -1540,7 +1542,7 @@ SI void set_sat(F* r, F* g, F* b, F s) {
 
     // Map min channel to 0, max channel to s, and scale the middle proportionally.
     auto scale = [=](F c) {
-        return if_then_else(sat == 0, 0, (c - mn) * s / sat);
+        return if_then_else(sat == 0, 0.0f, (c - mn) * s / sat);
     };
     *r = scale(*r);
     *g = scale(*g);
@@ -1718,14 +1720,14 @@ STAGE(premul_dst, NoCtx) {
 }
 STAGE(unpremul, NoCtx) {
     float inf = sk_bit_cast<float>(0x7f800000);
-    auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0);
+    auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0.0f);
     r *= scale;
     g *= scale;
     b *= scale;
 }
 STAGE(unpremul_polar, NoCtx) {
     float inf = sk_bit_cast<float>(0x7f800000);
-    auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0);
+    auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0.0f);
     g *= scale;
     b *= scale;
 }
@@ -1740,13 +1742,13 @@ STAGE(rgb_to_hsl, NoCtx) {
       d_rcp = 1.0f / d;
 
     F h = (1/6.0f) *
-          if_then_else(mx == mn, 0,
-          if_then_else(mx ==  r, (g-b)*d_rcp + if_then_else(g < b, 6.0f, 0),
+          if_then_else(mx == mn, 0.0f,
+          if_then_else(mx ==  r, (g-b)*d_rcp + if_then_else(g < b, F(6.0f), 0.0f),
           if_then_else(mx ==  g, (b-r)*d_rcp + 2.0f,
                                  (r-g)*d_rcp + 4.0f)));
 
     F l = (mx + mn) * 0.5f;
-    F s = if_then_else(mx == mn, 0,
+    F s = if_then_else(mx == mn, 0.0f,
                        d / if_then_else(l > 0.5f, 2.0f-mx-mn, mx+mn));
 
     r = h;
@@ -2684,7 +2686,7 @@ STAGE(gradient, const SkRasterPipeline_GradientCtx* c) {
 
     // N.B. The loop starts at 1 because idx 0 is the color to use before the first stop.
     for (size_t i = 1; i < c->stopCount; i++) {
-        idx += if_then_else(t >= c->ts[i], U32(1), U32(0));
+        idx += (U32)if_then_else(t >= c->ts[i], I32(1), I32(0));
     }
 
     gradient_lookup(c, idx, t, &r, &g, &b, &a);
@@ -2720,7 +2722,7 @@ STAGE(xy_to_unit_angle, NoCtx) {
     phi = if_then_else(xabs < yabs, 1.0f/4.0f - phi, phi);
     phi = if_then_else(X < 0.0f   , 1.0f/2.0f - phi, phi);
     phi = if_then_else(Y < 0.0f   , 1.0f - phi     , phi);
-    phi = if_then_else(phi != phi , 0              , phi);  // Check for NaN.
+    phi = if_then_else(phi != phi , 0.0f           , phi);  // Check for NaN.
     r = phi;
 }
 

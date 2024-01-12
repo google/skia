@@ -487,6 +487,13 @@ DEF_TEST(SkRasterPipeline_InitLaneMasks, reporter) {
     }
 }
 
+// This is the bit pattern of the "largest" signaling NaN. The next integer is a quiet NaN.
+// We use this as the starting point for various memory-shuffling tests below, to ensure that our
+// code doesn't interpret values as float when they might be integral. Using floats can cause
+// signaling NaN values to change (becoming quiet), even with the most innocuous operations
+// (particularly on 32-bit x86, where floats are often passed around in the x87 FPU).
+static constexpr int kLastSignalingNaN    = 0x7fbfffff;
+
 DEF_TEST(SkRasterPipeline_CopyFromIndirectUnmasked, r) {
     // Allocate space for 5 source slots, and 5 dest slots.
     alignas(64) float src[5 * SkRasterPipeline_kMaxStride_highp];
@@ -2355,6 +2362,73 @@ DEF_TEST(SkRasterPipeline_MixTest, r) {
                 fromValue += 1.0f;
                 toValue += 1.0f;
                 weightValue += 1.0f;
+            }
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_MixIntTest, r) {
+    // Allocate space for 5 dest and 10 source slots.
+    alignas(64) int slots[15 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    struct MixOp {
+        int numSlotsAffected;
+        std::function<void(SkRasterPipeline*, SkArenaAlloc*)> append;
+    };
+
+    static const MixOp kMixOps[] = {
+        {1, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                p->append(SkRasterPipelineOp::mix_int, slots);
+            }},
+        {2, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                p->append(SkRasterPipelineOp::mix_2_ints, slots);
+            }},
+        {3, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                p->append(SkRasterPipelineOp::mix_3_ints, slots);
+            }},
+        {4, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                p->append(SkRasterPipelineOp::mix_4_ints, slots);
+            }},
+        {5, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                SkRasterPipeline_TernaryOpCtx ctx;
+                ctx.dst = 0;
+                ctx.delta = 5 * N * sizeof(int);
+                p->append(SkRasterPipelineOp::mix_n_ints, SkRPCtxUtils::Pack(ctx, alloc));
+            }},
+    };
+
+    for (const MixOp& op : kMixOps) {
+        // Initialize the selector ("weight") values to alternating masks
+        for (int idx = 0; idx < 1 * op.numSlotsAffected * N; ++idx) {
+            slots[idx] = (idx & 1) ? ~0 : 0;
+        }
+
+        // Initialize the other values to various NaNs
+        std::iota(&slots[1 * op.numSlotsAffected * N], &slots[15 * N], kLastSignalingNaN);
+
+        int weightValue = slots[0];
+        int fromValue   = slots[1 * op.numSlotsAffected * N];
+        int toValue     = slots[2 * op.numSlotsAffected * N];
+
+        // Run the mix op over our data.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        p.append(SkRasterPipelineOp::set_base_pointer, &slots[0]);
+        op.append(&p, &alloc);
+        p.run(0,0,1,1);
+
+        // Verify that the affected slots now equal either fromValue or toValue, correctly
+        int* destPtr = &slots[0];
+        for (int checkSlot = 0; checkSlot < op.numSlotsAffected; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                int checkValue = weightValue ? toValue : fromValue;
+                REPORTER_ASSERT(r, *destPtr == checkValue);
+
+                ++destPtr;
+                fromValue += 1;
+                toValue += 1;
+                weightValue = ~weightValue;
             }
         }
     }
