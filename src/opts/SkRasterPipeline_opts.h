@@ -143,8 +143,7 @@ namespace SK_OPTS_NS {
     template <typename T>
     SI T gather(const T* p, U32 ix) { return p[ix]; }
 
-    template <typename T>
-    SI void scatter_masked(T src, T* dst, U32 ix, I32 mask) {
+    SI void scatter_masked(F src, float* dst, U32 ix, I32 mask) {
         dst[ix] = mask ? src : dst[ix];
     }
 
@@ -256,10 +255,9 @@ namespace SK_OPTS_NS {
     SI V<T> gather(const T* p, U32 ix) {
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
-    template <typename V, typename S>
-    SI void scatter_masked(V src, S* dst, U32 ix, I32 mask) {
-        V before = gather(dst, ix);
-        V after = if_then_else(mask, src, before);
+    SI void scatter_masked(F src, float* dst, U32 ix, I32 mask) {
+        F before = gather(dst, ix);
+        F after = if_then_else(mask, src, before);
         dst[ix[0]] = after[0];
         dst[ix[1]] = after[1];
         dst[ix[2]] = after[2];
@@ -358,10 +356,9 @@ namespace SK_OPTS_NS {
         };
         return sk_bit_cast<U64>(parts);
     }
-    template <typename V, typename S>
-    SI void scatter_masked(V src, S* dst, U32 ix, I32 mask) {
-        V before = gather(dst, ix);
-        V after = if_then_else(mask, src, before);
+    SI void scatter_masked(F src, float* dst, U32 ix, I32 mask) {
+        F before = gather(dst, ix);
+        F after = if_then_else(mask, src, before);
         dst[ix[0]] = after[0];
         dst[ix[1]] = after[1];
         dst[ix[2]] = after[2];
@@ -558,10 +555,9 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     SI V<T> gather(const T* p, U32 ix) {
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
-    template <typename V, typename S>
-    SI void scatter_masked(V src, S* dst, U32 ix, I32 mask) {
-        V before = gather(dst, ix);
-        V after = if_then_else(mask, src, before);
+    SI void scatter_masked(F src, float* dst, U32 ix, I32 mask) {
+        F before = gather(dst, ix);
+        F after = if_then_else(mask, src, before);
         dst[ix[0]] = after[0];
         dst[ix[1]] = after[1];
         dst[ix[2]] = after[2];
