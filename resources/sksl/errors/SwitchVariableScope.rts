@@ -1,0 +1,16 @@
+int func(int n) {
+    switch (n) {
+        case 1:
+            int x = 123;
+
+        case 2:
+            int y = 456;
+            break;
+    }
+    return x + y;
+}
+
+/*%%*
+unknown identifier 'x'
+unknown identifier 'y'
+*%%*/

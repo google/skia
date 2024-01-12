@@ -156,7 +156,8 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
                                                     Position pos,
                                                     std::unique_ptr<Expression> value,
                                                     ExpressionArray caseValues,
-                                                    StatementArray caseStatements) {
+                                                    StatementArray caseStatements,
+                                                    std::shared_ptr<SymbolTable> symbolTable) {
     SkASSERT(caseValues.size() == caseStatements.size());
 
     value = context.fTypes.fInt->coerceExpression(std::move(value), context);
@@ -202,7 +203,7 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
     }
 
     return SwitchStatement::Make(context, pos, std::move(value), std::move(cases),
-                                 context.fSymbolTable);
+                                 std::move(symbolTable));
 }
 
 std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,

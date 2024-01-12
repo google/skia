@@ -475,6 +475,7 @@ skia_filegroup(
         "errors/SwitchDuplicateDefault.rts",
         "errors/SwitchHoistingAtomicArray.sksl",
         "errors/SwitchTypes.rts",
+        "errors/SwitchVariableScope.rts",
         "errors/SwitchWithContinueInside.sksl",
         "errors/SwizzleConstantOutput.rts",
         "errors/SwizzleDomain.rts",

@@ -1524,26 +1524,38 @@ std::unique_ptr<Statement> Parser::switchStatement() {
 
     ExpressionArray values;
     StatementArray caseBlocks;
-    while (this->peek().fKind == Token::Kind::TK_CASE) {
-        if (!this->switchCase(&values, &caseBlocks)) {
+    std::shared_ptr<SymbolTable> symbolTable;
+    {
+        // Keeping a tight scope around AutoSymbolTable is important here. SwitchStatement::Convert
+        // may end up creating a new symbol table if the HoistSwitchVarDeclarationsAtTopLevel
+        // transform is used. We want ~AutoSymbolTable to happen first, so it can restore the
+        // context's active symbol table to the enclosing block instead of the switch's inner block.
+        AutoSymbolTable symbols(this);
+        symbolTable = this->symbolTable();
+
+        while (this->peek().fKind == Token::Kind::TK_CASE) {
+            if (!this->switchCase(&values, &caseBlocks)) {
+                return nullptr;
+            }
+        }
+        // Requiring `default:` to be last (in defiance of C and GLSL) was a deliberate decision.
+        // Other parts of the compiler are allowed to rely upon this assumption.
+        if (this->checkNext(Token::Kind::TK_DEFAULT)) {
+            if (!this->switchCaseBody(&values, &caseBlocks, /*value=*/nullptr)) {
+                return nullptr;
+            }
+        }
+        if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
             return nullptr;
         }
     }
-    // Requiring `default:` to be last (in defiance of C and GLSL) was a deliberate decision. Other
-    // parts of the compiler are allowed to rely upon this assumption.
-    if (this->checkNext(Token::Kind::TK_DEFAULT)) {
-        if (!this->switchCaseBody(&values, &caseBlocks, /*value=*/nullptr)) {
-            return nullptr;
-        }
-    }
-    if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
-        return nullptr;
-    }
+
     Position pos = this->rangeFrom(start);
     return this->statementOrNop(pos, SwitchStatement::Convert(fCompiler.context(), pos,
                                                               std::move(value),
                                                               std::move(values),
-                                                              std::move(caseBlocks)));
+                                                              std::move(caseBlocks),
+                                                              std::move(symbolTable)));
 }
 
 static Position range_of_at_least_one_char(int start, int end) {

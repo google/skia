@@ -47,7 +47,8 @@ public:
                                               Position pos,
                                               std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
-                                              StatementArray caseStatements);
+                                              StatementArray caseStatements,
+                                              std::shared_ptr<SymbolTable> symbolTable);
 
     // Create a `switch` statement with an array of SwitchCases. The array of SwitchCases must
     // already contain non-overlapping, correctly-typed case values. Reports errors via ASSERT.
