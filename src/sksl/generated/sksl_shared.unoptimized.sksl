@@ -177,10 +177,10 @@ static constexpr char SKSL_MINIFIED_sksl_shared[] =
 " half4 $interpolated_to_rgb_unpremul(half4 color,int colorSpace,int doUnpremul"
 "){if(bool(doUnpremul)){switch(colorSpace){case 2:;case 3:;case 4:color=unpremul"
 "(color);break;case 5:;case 6:;case 7:;case 9:;case 10:color=$unpremul_polar"
-"(color);break;}}switch(colorSpace){case 2:{color.xyz=$css_lab_to_xyz(color."
-"xyz);break;}case 3:{color.xyz=$css_oklab_to_linear_srgb(color.xyz);break;}case"
-" 4:{color.xyz=$css_oklab_gamut_map_to_linear_srgb(color.xyz);break;}case 5:"
-"{color.xyz=$css_hcl_to_xyz(color.xyz);break;}case 6:{color.xyz=$css_okhcl_to_linear_srgb"
-"(color.xyz);break;}case 7:{color.xyz=$css_okhcl_gamut_map_to_linear_srgb(color"
-".xyz);break;}case 9:{color.xyz=$css_hsl_to_srgb(color.xyz);break;}case 10:{"
-"color.xyz=$css_hwb_to_srgb(color.xyz);break;}}return color;}";
+"(color);break;}}switch(colorSpace){case 2:color.xyz=$css_lab_to_xyz(color.xyz"
+");break;case 3:color.xyz=$css_oklab_to_linear_srgb(color.xyz);break;case 4:"
+"color.xyz=$css_oklab_gamut_map_to_linear_srgb(color.xyz);break;case 5:color"
+".xyz=$css_hcl_to_xyz(color.xyz);break;case 6:color.xyz=$css_okhcl_to_linear_srgb"
+"(color.xyz);break;case 7:color.xyz=$css_okhcl_gamut_map_to_linear_srgb(color"
+".xyz);break;case 9:color.xyz=$css_hsl_to_srgb(color.xyz);break;case 10:color"
+".xyz=$css_hwb_to_srgb(color.xyz);break;}return color;}";

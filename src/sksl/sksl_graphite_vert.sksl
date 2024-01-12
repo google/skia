@@ -13,13 +13,9 @@ const float $kTriangularConicCurveType = 2;  // skgpu::tess::kTriangularConicCur
 // path control-point encoding used by tessellating path renderers. Calling this function on a
 // platform that lacks infinity support may result in a shader compilation error.
 $pure float curve_type_using_inf_support(float4 p23) {
-    if (isinf(p23.z)) {
-        return $kTriangularConicCurveType;
-    }
-    if (isinf(p23.w)) {
-        return $kConicCurveType;
-    }
-    return $kCubicCurveType;
+    return isinf(p23.z) ? $kTriangularConicCurveType :
+           isinf(p23.w) ? $kConicCurveType :
+                          $kCubicCurveType;
 }
 
 $pure bool $is_conic_curve(float curveType) {

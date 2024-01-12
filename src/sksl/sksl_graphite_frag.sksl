@@ -122,12 +122,12 @@ $pure half4 $color_space_transform_swizzle(half4 halfColor,
                                            half4x4 coeffs) {
     if (flags == 0) {
         return halfColor;
+    } else {
+        if (bool(flags & $kColorSpaceXformFlagAlphaSwizzle)) {
+            halfColor.a = dot(halfColor.r1, half2(coeffs[1][3], coeffs[3][3]));
+        }
+        return sk_color_space_transform(halfColor, flags, srcKind, gamutTransform, dstKind, coeffs);
     }
-    if (bool(flags & $kColorSpaceXformFlagAlphaSwizzle)) {
-        halfColor.a = dot(halfColor.r1, half2(coeffs[1][3], coeffs[3][3]));
-    }
-    return sk_color_space_transform(halfColor, flags, srcKind,
-                                    gamutTransform, dstKind, coeffs);
 }
 
 $pure float $tile(int tileMode, float f, float low, float high) {
@@ -1117,36 +1117,36 @@ $pure half4 sk_blend(half4 src, half4 dst, int blendMode) {
     const int kLuminosity = 28;
 
     switch (blendMode) {
-        case kClear:      { return blend_clear(src, dst); }
-        case kSrc:        { return blend_src(src, dst); }
-        case kDst:        { return blend_dst(src, dst); }
-        case kSrcOver:    { return blend_porter_duff(half4(1, 0,  0, -1), src, dst); }
-        case kDstOver:    { return blend_porter_duff(half4(0, 1, -1,  0), src, dst); }
-        case kSrcIn:      { return blend_porter_duff(half4(0, 0,  1,  0), src, dst); }
-        case kDstIn:      { return blend_porter_duff(half4(0, 0,  0,  1), src, dst); }
-        case kSrcOut:     { return blend_porter_duff(half4(0, 0, -1,  0), src, dst); }
-        case kDstOut:     { return blend_porter_duff(half4(0, 0,  0, -1), src, dst); }
-        case kSrcATop:    { return blend_porter_duff(half4(0, 0,  1, -1), src, dst); }
-        case kDstATop:    { return blend_porter_duff(half4(0, 0, -1,  1), src, dst); }
-        case kXor:        { return blend_porter_duff(half4(0, 0, -1, -1), src, dst); }
-        case kPlus:       { return blend_porter_duff(half4(1, 1,  0,  0), src, dst); }
-        case kModulate:   { return blend_modulate(src, dst); }
-        case kScreen:     { return blend_screen(src, dst); }
-        case kOverlay:    { return blend_overlay(/*flip=*/0, src, dst); }
-        case kDarken:     { return blend_darken(/*mode=*/1, src, dst); }
-        case kLighten:    { return blend_darken(/*mode=*/-1, src, dst); }
-        case kColorDodge: { return blend_color_dodge(src, dst); }
-        case kColorBurn:  { return blend_color_burn(src, dst); }
-        case kHardLight:  { return blend_overlay(/*flip=*/1, src, dst); }
-        case kSoftLight:  { return blend_soft_light(src, dst); }
-        case kDifference: { return blend_difference(src, dst); }
-        case kExclusion:  { return blend_exclusion(src, dst); }
-        case kMultiply:   { return blend_multiply(src, dst); }
-        case kHue:        { return blend_hslc(/*flipSat=*/half2(0, 1), src, dst); }
-        case kSaturation: { return blend_hslc(/*flipSat=*/half2(1), src, dst); }
-        case kColor:      { return blend_hslc(/*flipSat=*/half2(0), src, dst); }
-        case kLuminosity: { return blend_hslc(/*flipSat=*/half2(1, 0), src, dst); }
-        default: return half4(0);  // Avoids 'blend can exit without returning a value' error
+        case kClear:      return blend_clear(src, dst);
+        case kSrc:        return blend_src(src, dst);
+        case kDst:        return blend_dst(src, dst);
+        case kSrcOver:    return blend_porter_duff(half4(1, 0,  0, -1), src, dst);
+        case kDstOver:    return blend_porter_duff(half4(0, 1, -1,  0), src, dst);
+        case kSrcIn:      return blend_porter_duff(half4(0, 0,  1,  0), src, dst);
+        case kDstIn:      return blend_porter_duff(half4(0, 0,  0,  1), src, dst);
+        case kSrcOut:     return blend_porter_duff(half4(0, 0, -1,  0), src, dst);
+        case kDstOut:     return blend_porter_duff(half4(0, 0,  0, -1), src, dst);
+        case kSrcATop:    return blend_porter_duff(half4(0, 0,  1, -1), src, dst);
+        case kDstATop:    return blend_porter_duff(half4(0, 0, -1,  1), src, dst);
+        case kXor:        return blend_porter_duff(half4(0, 0, -1, -1), src, dst);
+        case kPlus:       return blend_porter_duff(half4(1, 1,  0,  0), src, dst);
+        case kModulate:   return blend_modulate(src, dst);
+        case kScreen:     return blend_screen(src, dst);
+        case kOverlay:    return blend_overlay(/*flip=*/0, src, dst);
+        case kDarken:     return blend_darken(/*mode=*/1, src, dst);
+        case kLighten:    return blend_darken(/*mode=*/-1, src, dst);
+        case kColorDodge: return blend_color_dodge(src, dst);
+        case kColorBurn:  return blend_color_burn(src, dst);
+        case kHardLight:  return blend_overlay(/*flip=*/1, src, dst);
+        case kSoftLight:  return blend_soft_light(src, dst);
+        case kDifference: return blend_difference(src, dst);
+        case kExclusion:  return blend_exclusion(src, dst);
+        case kMultiply:   return blend_multiply(src, dst);
+        case kHue:        return blend_hslc(/*flipSat=*/half2(0, 1), src, dst);
+        case kSaturation: return blend_hslc(/*flipSat=*/half2(1), src, dst);
+        case kColor:      return blend_hslc(/*flipSat=*/half2(0), src, dst);
+        case kLuminosity: return blend_hslc(/*flipSat=*/half2(1, 0), src, dst);
+        default:          return half4(0); // avoid 'blend can exit without returning a value' error
     }
 }
 

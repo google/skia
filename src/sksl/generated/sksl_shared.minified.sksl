@@ -153,9 +153,9 @@ static constexpr char SKSL_MINIFIED_sksl_shared[] =
 "(half3(a.x,100.,50.));b*=(1.-a.y)-a.z;b+=a.y;return b;}$pure half4 $interpolated_to_rgb_unpremul"
 "(half4 a,int b,int c){if(bool(c)){switch(b){case 2:;case 3:;case 4:a=unpremul"
 "(a);break;case 5:;case 6:;case 7:;case 9:;case 10:a=$unpremul_polar(a);break"
-";}}switch(b){case 2:{a.xyz=$css_lab_to_xyz(a.xyz);break;}case 3:{a.xyz=$css_oklab_to_linear_srgb"
-"(a.xyz);break;}case 4:{a.xyz=$css_oklab_gamut_map_to_linear_srgb(a.xyz);break"
-";}case 5:{a.xyz=$css_hcl_to_xyz(a.xyz);break;}case 6:{a.xyz=$css_okhcl_to_linear_srgb"
-"(a.xyz);break;}case 7:{a.xyz=$css_okhcl_gamut_map_to_linear_srgb(a.xyz);break"
-";}case 9:{a.xyz=$css_hsl_to_srgb(a.xyz);break;}case 10:{a.xyz=$css_hwb_to_srgb"
-"(a.xyz);break;}}return a;}";
+";}}switch(b){case 2:a.xyz=$css_lab_to_xyz(a.xyz);break;case 3:a.xyz=$css_oklab_to_linear_srgb"
+"(a.xyz);break;case 4:a.xyz=$css_oklab_gamut_map_to_linear_srgb(a.xyz);break"
+";case 5:a.xyz=$css_hcl_to_xyz(a.xyz);break;case 6:a.xyz=$css_okhcl_to_linear_srgb"
+"(a.xyz);break;case 7:a.xyz=$css_okhcl_gamut_map_to_linear_srgb(a.xyz);break"
+";case 9:a.xyz=$css_hsl_to_srgb(a.xyz);break;case 10:a.xyz=$css_hwb_to_srgb("
+"a.xyz);break;}return a;}";

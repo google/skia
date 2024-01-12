@@ -541,14 +541,14 @@ $export $pure half4 $interpolated_to_rgb_unpremul(half4 color, int colorSpace, i
         }
     }
     switch (colorSpace) {
-        case kLab:           { color.rgb = $css_lab_to_xyz(color.rgb); break; }
-        case kOKLab:         { color.rgb = $css_oklab_to_linear_srgb(color.rgb); break; }
-        case kOKLabGamutMap: { color.rgb = $css_oklab_gamut_map_to_linear_srgb(color.rgb); break; }
-        case kLCH:           { color.rgb = $css_hcl_to_xyz(color.rgb); break; }
-        case kOKLCH:         { color.rgb = $css_okhcl_to_linear_srgb(color.rgb); break; }
-        case kOKLCHGamutMap: { color.rgb = $css_okhcl_gamut_map_to_linear_srgb(color.rgb); break; }
-        case kHSL:           { color.rgb = $css_hsl_to_srgb(color.rgb); break; }
-        case kHWB:           { color.rgb = $css_hwb_to_srgb(color.rgb); break; }
+        case kLab:           color.rgb = $css_lab_to_xyz(color.rgb); break;
+        case kOKLab:         color.rgb = $css_oklab_to_linear_srgb(color.rgb); break;
+        case kOKLabGamutMap: color.rgb = $css_oklab_gamut_map_to_linear_srgb(color.rgb); break;
+        case kLCH:           color.rgb = $css_hcl_to_xyz(color.rgb); break;
+        case kOKLCH:         color.rgb = $css_okhcl_to_linear_srgb(color.rgb); break;
+        case kOKLCHGamutMap: color.rgb = $css_okhcl_gamut_map_to_linear_srgb(color.rgb); break;
+        case kHSL:           color.rgb = $css_hsl_to_srgb(color.rgb); break;
+        case kHWB:           color.rgb = $css_hwb_to_srgb(color.rgb); break;
     }
     return color;
 }

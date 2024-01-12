@@ -1,8 +1,7 @@
 static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
-"const float $PI=3.14159274;const float $kCubicCurveType=0.;const float $kConicCurveType"
-"=1.;const float $kTriangularConicCurveType=2.;$pure float curve_type_using_inf_support"
-"(float4 p23){if(isinf(p23.z)){return $kTriangularConicCurveType;}if(isinf(p23"
-".w)){return $kConicCurveType;}return $kCubicCurveType;}$pure bool $is_conic_curve"
+"const float $PI=3.14159274;const float $kCubicCurveType=0.;const float $kTriangularConicCurveType"
+"=2.;$pure float curve_type_using_inf_support(float4 p23){return isinf(p23.z"
+")?$kTriangularConicCurveType:float(isinf(p23.w));}$pure bool $is_conic_curve"
 "(float curveType){return curveType!=$kCubicCurveType;}$pure bool $is_triangular_conic_curve"
 "(float curveType){return curveType==$kTriangularConicCurveType;}const float"
 " $kPrecision=4.;const float $kLengthTerm=3.;const float $kLengthTermPow2=9."
