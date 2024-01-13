@@ -4427,7 +4427,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                    /*mangledName=*/"",
                                    intfVar.isBuiltin(),
                                    intfVar.storage()));
-            InterfaceBlock modifiedCopy(intf.fPosition, modifiedVar, intf.typeOwner());
+            InterfaceBlock modifiedCopy(intf.fPosition, modifiedVar);
             result = this->writeInterfaceBlock(modifiedCopy, /*appendRTFlip=*/false);
             fProgram.fSymbols->add(fContext, std::make_unique<FieldSymbol>(
                     Position(), modifiedVar, rtFlipStructType->fields().size() - 1));
@@ -4986,9 +4986,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(
 
     // Create an interface block object for this global variable.
     fUniformBuffer.fInterfaceBlock =
-            std::make_unique<InterfaceBlock>(Position(),
-                                             fUniformBuffer.fInnerVariable.get(),
-                                             topLevelSymbolTable);
+            std::make_unique<InterfaceBlock>(Position(), fUniformBuffer.fInnerVariable.get());
 
     // Generate an interface block and hold onto its ID.
     fUniformBufferId = this->writeInterfaceBlock(*fUniformBuffer.fInterfaceBlock);
@@ -5057,7 +5055,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
         fProgram.fSymbols->add(fContext,
                                std::make_unique<FieldSymbol>(Position(), intfVar, /*field=*/0));
     }
-    InterfaceBlock intf(Position(), intfVar, std::make_shared<SymbolTable>(/*builtin=*/false));
+    InterfaceBlock intf(Position(), intfVar);
     this->writeInterfaceBlock(intf, false);
 }
 
