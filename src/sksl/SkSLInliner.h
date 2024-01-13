@@ -65,7 +65,7 @@ private:
                                                  const Expression& expression);
     std::unique_ptr<Statement> inlineStatement(Position pos,
                                                VariableRewriteMap* varMap,
-                                               SymbolTable* symbolTableForStatement,
+                                               std::shared_ptr<SymbolTable> symbolTableForStatement,
                                                std::unique_ptr<Expression>* resultExpr,
                                                Analysis::ReturnComplexity returnComplexity,
                                                const Statement& statement,

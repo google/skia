@@ -66,21 +66,6 @@ public:
     std::shared_ptr<SymbolTable> insertNewParent();
 
     /**
-     * If the input is a built-in symbol table, returns a new empty symbol table as a child of the
-     * input table. If the input is not a built-in symbol table, returns it as-is. Built-in symbol
-     * tables must not be mutated after creation, so they must be wrapped if mutation is necessary.
-     */
-    static std::shared_ptr<SymbolTable> WrapIfBuiltin(std::shared_ptr<SymbolTable> symbolTable) {
-        if (!symbolTable) {
-            return nullptr;
-        }
-        if (!symbolTable->isBuiltin()) {
-            return symbolTable;
-        }
-        return std::make_shared<SymbolTable>(std::move(symbolTable), /*builtin=*/false);
-    }
-
-    /**
      * Looks up the requested symbol and returns a const pointer.
      */
     const Symbol* find(std::string_view name) const {

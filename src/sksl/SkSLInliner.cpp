@@ -315,14 +315,15 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
     }
 }
 
-std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
-                                                    VariableRewriteMap* varMap,
-                                                    SymbolTable* symbolTableForStatement,
-                                                    std::unique_ptr<Expression>* resultExpr,
-                                                    Analysis::ReturnComplexity returnComplexity,
-                                                    const Statement& statement,
-                                                    const ProgramUsage& usage,
-                                                    bool isBuiltinCode) {
+std::unique_ptr<Statement> Inliner::inlineStatement(
+        Position pos,
+        VariableRewriteMap* varMap,
+        std::shared_ptr<SymbolTable> symbolTableForStatement,
+        std::unique_ptr<Expression>* resultExpr,
+        Analysis::ReturnComplexity returnComplexity,
+        const Statement& statement,
+        const ProgramUsage& usage,
+        bool isBuiltinCode) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
             return this->inlineStatement(pos, varMap, symbolTableForStatement, resultExpr,
@@ -330,17 +331,9 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
         }
         return nullptr;
     };
-    auto blockStmts = [&](const Block& block) {
-        StatementArray result;
-        result.reserve_exact(block.children().size());
-        for (const std::unique_ptr<Statement>& child : block.children()) {
-            result.push_back(stmt(child));
-        }
-        return result;
-    };
     auto expr = [&](const std::unique_ptr<Expression>& e) -> std::unique_ptr<Expression> {
         if (e) {
-            return this->inlineExpression(pos, varMap, symbolTableForStatement, *e);
+            return this->inlineExpression(pos, varMap, symbolTableForStatement.get(), *e);
         }
         return nullptr;
     };
@@ -348,15 +341,32 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                                  const Expression* initialValue) -> ModifierFlags {
         return Transform::AddConstToVarModifiers(variable, initialValue, &usage);
     };
+    auto makeWithChildSymbolTable = [&](auto callback) -> std::unique_ptr<Statement> {
+        std::shared_ptr<SymbolTable> origSymbolTable = std::move(symbolTableForStatement);
+        symbolTableForStatement = std::make_shared<SymbolTable>(origSymbolTable, isBuiltinCode);
+
+        std::unique_ptr<Statement> stmt = callback(symbolTableForStatement);
+
+        symbolTableForStatement = std::move(origSymbolTable);
+        return stmt;
+    };
 
     ++fInlinedStatementCounter;
 
     switch (statement.kind()) {
-        case Statement::Kind::kBlock: {
-            const Block& b = statement.as<Block>();
-            return Block::Make(pos, blockStmts(b), b.blockKind(),
-                               SymbolTable::WrapIfBuiltin(b.symbolTable()));
-        }
+        case Statement::Kind::kBlock:
+            return makeWithChildSymbolTable([&](std::shared_ptr<SymbolTable> symbolTable) {
+                const Block& block = statement.as<Block>();
+                StatementArray statements;
+                statements.reserve_exact(block.children().size());
+                for (const std::unique_ptr<Statement>& child : block.children()) {
+                    statements.push_back(stmt(child));
+                }
+                return Block::Make(pos,
+                                   std::move(statements),
+                                   block.blockKind(),
+                                   std::move(symbolTable));
+            });
 
         case Statement::Kind::kBreak:
             return BreakStatement::Make(pos);
@@ -375,25 +385,34 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             const ExpressionStatement& e = statement.as<ExpressionStatement>();
             return ExpressionStatement::Make(*fContext, expr(e.expression()));
         }
-        case Statement::Kind::kFor: {
-            const ForStatement& f = statement.as<ForStatement>();
-            // need to ensure initializer is evaluated first so that we've already remapped its
-            // declarations by the time we evaluate test & next
-            std::unique_ptr<Statement> initializer = stmt(f.initializer());
+        case Statement::Kind::kFor:
+            return makeWithChildSymbolTable([&](std::shared_ptr<SymbolTable> symbolTable) {
+                const ForStatement& f = statement.as<ForStatement>();
+                // We need to ensure `initializer` is evaluated first, so that we've already
+                // remapped its declaration by the time we evaluate `test` and `next`.
+                std::unique_ptr<Statement> initializerStmt = stmt(f.initializer());
+                std::unique_ptr<Expression> testExpr = expr(f.test());
+                std::unique_ptr<Expression> nextExpr = expr(f.next());
+                std::unique_ptr<Statement> bodyStmt = stmt(f.statement());
 
-            std::unique_ptr<LoopUnrollInfo> unrollInfo;
-            if (f.unrollInfo()) {
-                // The for loop's unroll-info points to the Variable in the initializer as the
-                // index. This variable has been rewritten into a clone by the inliner, so we need
-                // to update the loop-unroll info to point to the clone.
-                unrollInfo = std::make_unique<LoopUnrollInfo>(*f.unrollInfo());
-                unrollInfo->fIndex = RemapVariable(unrollInfo->fIndex, varMap);
-            }
-            return ForStatement::Make(*fContext, pos, ForLoopPositions{}, std::move(initializer),
-                                      expr(f.test()), expr(f.next()), stmt(f.statement()),
-                                      std::move(unrollInfo),
-                                      SymbolTable::WrapIfBuiltin(f.symbols()));
-        }
+                std::unique_ptr<LoopUnrollInfo> unrollInfo;
+                if (f.unrollInfo()) {
+                    // The for loop's unroll-info points to the Variable in the initializer as the
+                    // index. This variable has been rewritten into a clone by the inliner, so we
+                    // need to update the loop-unroll info to point to the clone.
+                    unrollInfo = std::make_unique<LoopUnrollInfo>(*f.unrollInfo());
+                    unrollInfo->fIndex = RemapVariable(unrollInfo->fIndex, varMap);
+                }
+
+                return ForStatement::Make(*fContext, pos, ForLoopPositions{},
+                                          std::move(initializerStmt),
+                                          std::move(testExpr),
+                                          std::move(nextExpr),
+                                          std::move(bodyStmt),
+                                          std::move(unrollInfo),
+                                          std::move(symbolTable));
+            });
+
         case Statement::Kind::kIf: {
             const IfStatement& i = statement.as<IfStatement>();
             return IfStatement::Make(*fContext, pos, expr(i.test()),
@@ -432,21 +451,27 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                             Operator::Kind::EQ,
                             expr(r.expression())));
         }
-        case Statement::Kind::kSwitch: {
-            const SwitchStatement& ss = statement.as<SwitchStatement>();
-            StatementArray cases;
-            cases.reserve_exact(ss.cases().size());
-            for (const std::unique_ptr<Statement>& switchCaseStmt : ss.cases()) {
-                const SwitchCase& sc = switchCaseStmt->as<SwitchCase>();
-                if (sc.isDefault()) {
-                    cases.push_back(SwitchCase::MakeDefault(pos, stmt(sc.statement())));
-                } else {
-                    cases.push_back(SwitchCase::Make(pos, sc.value(), stmt(sc.statement())));
+        case Statement::Kind::kSwitch:
+            return makeWithChildSymbolTable([&](std::shared_ptr<SymbolTable> symbolTable) {
+                const SwitchStatement& ss = statement.as<SwitchStatement>();
+
+                StatementArray cases;
+                cases.reserve_exact(ss.cases().size());
+                for (const std::unique_ptr<Statement>& switchCaseStmt : ss.cases()) {
+                    const SwitchCase& sc = switchCaseStmt->as<SwitchCase>();
+                    if (sc.isDefault()) {
+                        cases.push_back(SwitchCase::MakeDefault(pos, stmt(sc.statement())));
+                    } else {
+                        cases.push_back(SwitchCase::Make(pos, sc.value(), stmt(sc.statement())));
+                    }
                 }
-            }
-            return SwitchStatement::Make(*fContext, pos, expr(ss.value()),
-                                        std::move(cases), SymbolTable::WrapIfBuiltin(ss.symbols()));
-        }
+                return SwitchStatement::Make(*fContext,
+                                             pos,
+                                             expr(ss.value()),
+                                             std::move(cases),
+                                             std::move(symbolTable));
+            });
+
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
             std::unique_ptr<Expression> initialValue = expr(decl.value());
@@ -456,12 +481,12 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
             const std::string* name = symbolTableForStatement->takeOwnershipOfString(
-                    fMangler.uniqueName(variable->name(), symbolTableForStatement));
+                    fMangler.uniqueName(variable->name(), symbolTableForStatement.get()));
             auto clonedVar = Variable::Make(pos,
                                             variable->modifiersPosition(),
                                             variable->layout(),
                                             variableModifiers(*variable, initialValue.get()),
-                                            variable->type().clone(symbolTableForStatement),
+                                            variable->type().clone(symbolTableForStatement.get()),
                                             name->c_str(),
                                             /*mangledName=*/"",
                                             isBuiltinCode,
@@ -470,10 +495,10 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             std::unique_ptr<Statement> result =
                     VarDeclaration::Make(*fContext,
                                          clonedVar.get(),
-                                         decl.baseType().clone(symbolTableForStatement),
+                                         decl.baseType().clone(symbolTableForStatement.get()),
                                          decl.arraySize(),
                                          std::move(initialValue));
-            symbolTableForStatement->takeOwnershipOfSymbol(std::move(clonedVar));
+            symbolTableForStatement->add(*fContext, std::move(clonedVar));
             return result;
         }
         default:
@@ -566,7 +591,7 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
     }
 
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
-        inlineStatements.push_back(this->inlineStatement(pos, &varMap, symbolTable.get(),
+        inlineStatements.push_back(this->inlineStatement(pos, &varMap, symbolTable,
                                                          &resultExpr, returnComplexity, *stmt,
                                                          usage, caller->isBuiltin()));
     }
