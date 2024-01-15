@@ -46,8 +46,6 @@ skia_codec_core = [
   "$_src/codec/SkImageGenerator_FromEncoded.cpp",
   "$_src/codec/SkMaskSwizzler.cpp",
   "$_src/codec/SkMaskSwizzler.h",
-  "$_src/codec/SkMasks.cpp",
-  "$_src/codec/SkMasks.h",
   "$_src/codec/SkPixmapUtils.cpp",
   "$_src/codec/SkPixmapUtilsPriv.h",
   "$_src/codec/SkSampler.cpp",

@@ -421,6 +421,8 @@ skia_core_sources = [
   "$_src/core/SkMaskFilterBase.h",
   "$_src/core/SkMaskGamma.cpp",
   "$_src/core/SkMaskGamma.h",
+  "$_src/core/SkMasks.cpp",
+  "$_src/core/SkMasks.h",
   "$_src/core/SkMatrix.cpp",
   "$_src/core/SkMatrixInvert.cpp",
   "$_src/core/SkMatrixInvert.h",

@@ -12,7 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "src/codec/SkBmpBaseCodec.h"
 #include "src/codec/SkMaskSwizzler.h"
-#include "src/codec/SkMasks.h"
+#include "src/core/SkMasks.h"
 
 #include <cstddef>
 #include <cstdint>

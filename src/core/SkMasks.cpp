@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/codec/SkMasks.h"
+#include "src/core/SkMasks.h"
 
-#include "src/codec/SkCodecPriv.h"
+#include "include/private/base/SkDebug.h"
 
 /*
  *
@@ -101,7 +101,7 @@ static SkMasks::MaskInfo process_mask(uint32_t mask) {
         }
         // Verify that the mask is continuous
         if (tempMask) {
-            SkCodecPrintf("Warning: Bit mask is not continuous.\n");
+            SkDebugf("Warning: Bit mask is not continuous.\n");
             // Finish processing the mask
             for (; tempMask; tempMask >>= 1) {
                 size++;

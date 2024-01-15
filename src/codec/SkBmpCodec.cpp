@@ -19,7 +19,7 @@
 #include "src/codec/SkBmpRLECodec.h"
 #include "src/codec/SkBmpStandardCodec.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkMasks.h"
+#include "src/core/SkMasks.h"
 
 #include <cstring>
 #include <memory>
