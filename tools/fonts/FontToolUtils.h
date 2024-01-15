@@ -75,11 +75,6 @@ sk_sp<SkTypeface> CreateTypefaceFromResource(const char* resource, int ttcIndex 
 // This returns a font using DefaultTypeface()
 SkFont DefaultFont();
 
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
-// Temporary hack to set the global for non-migrated uses of SkFontMgr::RefDefault()
-void SetDefaultFontMgr();
-#endif
-
 }  // namespace ToolUtils
 
 #endif

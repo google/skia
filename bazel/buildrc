@@ -141,7 +141,7 @@ build:canvaskit_full --noincompatible_enable_cc_toolchain_resolution \
                      --include_encoder=jpeg_encode_codec --include_encoder=png_encode_codec \
                      --include_encoder=webp_encode_codec \
                      \
-                     --with_harfbuzz --with_icu --fontmgr_factory=custom_embedded_fontmgr_factory \
+                     --with_harfbuzz --with_icu --include_fontmgr=custom_embedded_fontmgr \
                      --ck_enable_fonts --ck_enable_embedded_font \
                      \
                      --disable_tracing --enable_sksl_tracing \
@@ -197,7 +197,7 @@ build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --gpu_backend=vulkan_ganesh \
                    --enable_gpu_test_utils \
                    --include_fontmgr=custom_directory_fontmgr --include_fontmgr=custom_embedded_fontmgr \
-                   --include_fontmgr=custom_empty_fontmgr --fontmgr_factory=custom_directory_fontmgr_factory \
+                   --include_fontmgr=custom_empty_fontmgr \
                    --include_decoder=avif_decode_codec --include_decoder=gif_decode_codec \
                    --include_decoder=jpeg_decode_codec --include_decoder=jxl_decode_codec \
                    --include_decoder=png_decode_codec --include_decoder=raw_decode_codec \

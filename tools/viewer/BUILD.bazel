@@ -52,9 +52,7 @@ cc_binary_with_flags(
         "with_gl_standard": [
             "gl_standard",
         ],
-        "fontmgr_factory": [
-            "custom_directory_fontmgr_factory",
-        ],
+        "include_fontmgr": ["custom_directory_fontmgr"],
         "enable_gpu_test_utils": ["True"],
         "enable_svg_canvas": ["True"],
         "enable_sksl_tracing": ["True"],

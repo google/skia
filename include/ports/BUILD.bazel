@@ -43,15 +43,17 @@ skia_filegroup(
     name = "fontmgr",
     srcs = select_multi(
         {
-            "//bazel/common_config_settings:uses_android_fontmgr": [":android_fontmgr_hdrs"],
-            "//bazel/common_config_settings:uses_custom_directory_fontmgr": [":directory_fontmgr_hdrs"],
-            "//bazel/common_config_settings:uses_custom_embedded_fontmgr": [":embedded_fontmgr_hdrs"],
-            "//bazel/common_config_settings:uses_custom_empty_fontmgr": [":empty_fontmgr_hdrs"],
-            "//bazel/common_config_settings:uses_fontconfig_fontmgr": [":fontconfig_fontmgr_hdrs"],
-            "//bazel/common_config_settings:uses_fci_fontmgr": [":fci_fontmgr_hdrs"],
+            "//bazel/common_config_settings:android_fontmgr": [":android_fontmgr_hdrs"],
+            "//bazel/common_config_settings:custom_directory_fontmgr": [":directory_fontmgr_hdrs"],
+            "//bazel/common_config_settings:custom_embedded_fontmgr": [":embedded_fontmgr_hdrs"],
+            "//bazel/common_config_settings:custom_empty_fontmgr": [":empty_fontmgr_hdrs"],
+            "//bazel/common_config_settings:fci_fontmgr": [":fci_fontmgr_hdrs"],
             # TODO(kjlubick, bungeman) fuchsia_fontmgr, fontmgr_mac_ct, fontmgr_win
         },
-    ),
+    ) + select({
+        "@platforms//os:linux": [":fontconfig_fontmgr_hdrs"],
+        "//conditions:default": [],
+    }),
 )
 
 skia_filegroup(

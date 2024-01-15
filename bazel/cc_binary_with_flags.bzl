@@ -26,7 +26,6 @@ _bool_flags = [
 ]
 
 _string_flags = [
-    "//bazel/common_config_settings:fontmgr_factory",
     "//src/gpu:with_gl_standard",
     "//tools/testrunners/gm/vias:via",
 ]

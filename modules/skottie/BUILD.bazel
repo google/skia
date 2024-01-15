@@ -43,7 +43,7 @@ cc_binary_with_flags(
     ],
     defines = ["CPU_ONLY"],
     set_flags = {
-        "fontmgr_factory": ["custom_directory_fontmgr_factory"],
+        "include_fontmgr": ["custom_empty_fontmgr"],
         "include_decoder": [
             "jpeg_decode_codec",
             "png_decode_codec",
@@ -68,7 +68,7 @@ cc_binary_with_flags(
     defines = ["GPU_ONLY"],
     set_flags = {
         "enable_gpu_test_utils": ["True"],
-        "fontmgr_factory": ["custom_directory_fontmgr_factory"],
+        "include_fontmgr": ["custom_empty_fontmgr"],
         "gpu_backend": ["gl_ganesh"],
         "include_decoder": [
             "jpeg_decode_codec",

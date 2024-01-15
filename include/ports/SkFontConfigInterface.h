@@ -98,9 +98,6 @@ public:
      *  openStream() using the provided SkFontMgr, but derived classes may implement more
      *  complex caching schemes.
      */
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-    virtual sk_sp<SkTypeface> makeTypeface(const FontIdentity& identity);
-#endif
     virtual sk_sp<SkTypeface> makeTypeface(const FontIdentity& identity, sk_sp<SkFontMgr> mgr);
 
     /**
