@@ -119,24 +119,32 @@ public:
         return nullptr;
     }
 
-    // Remove the value with this key from the hash table.
-    void remove(const K& key) {
-        SkASSERT(this->find(key));
-
+    // If a value with this key exists in the hash table, removes it and returns true.
+    // Otherwise, returns false.
+    bool removeIfExists(const K& key) {
         uint32_t hash = Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
-            SkASSERT(s.has_value());
+            if (s.empty()) {
+                return false;
+            }
             if (hash == s.fHash && key == Traits::GetKey(*s)) {
                this->removeSlot(index);
                if (4 * fCount <= fCapacity && fCapacity > 4) {
                    this->resize(fCapacity / 2);
                }
-               return;
+               return true;
             }
             index = this->next(index);
         }
+        SkASSERT(fCapacity == fCount);
+        return false;
+    }
+
+    // Removes the value with this key from the hash table. Asserts if it is missing.
+    void remove(const K& key) {
+        SkAssertResult(this->removeIfExists(key));
     }
 
     // Hash tables will automatically resize themselves when set() and remove() are called, but
@@ -482,10 +490,14 @@ public:
         return *this->set(key, V{});
     }
 
-    // Remove the key/value entry in the table with this key.
+    // Removes the key/value entry in the table with this key. Asserts if the key is not present.
     void remove(const K& key) {
-        SkASSERT(this->find(key));
         fTable.remove(key);
+    }
+
+    // If the key exists in the table, removes it and returns true. Otherwise, returns false.
+    bool removeIfExists(const K& key) {
+        return fTable.removeIfExists(key);
     }
 
     // Call fn on every key/value pair in the table.  You may mutate the value but not the key.

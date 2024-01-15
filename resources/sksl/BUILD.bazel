@@ -264,6 +264,7 @@ skia_filegroup(
         "errors/DuplicateRTAdjust.sksl",
         "errors/DuplicateSkClockwise.sksl",
         "errors/DuplicateSymbol.rts",
+        "errors/DuplicateSymbolInSwitch.rts",
         "errors/DuplicateWorkgroupSize.compute",
         "errors/EmptyArray.rts",
         "errors/EmptyBuffer.sksl",
