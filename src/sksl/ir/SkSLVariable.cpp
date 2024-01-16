@@ -135,7 +135,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
         // Having a variable name overlap an intrinsic name will prevent us from calling the
         // intrinsic, but it's not illegal for user names to shadow a global symbol.
         // Mangle the name to avoid a possible collision.
-        mangledName = Mangler{}.uniqueName(name, context.fSymbolTable.get());
+        mangledName = Mangler{}.uniqueName(name, context.fSymbolTable);
     }
 
     return Make(pos, modifiersPos, layout, flags, type, name, std::move(mangledName),

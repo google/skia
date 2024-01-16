@@ -126,15 +126,20 @@ private:
 
 class Parser::AutoSymbolTable {
 public:
-    AutoSymbolTable(Parser* p) : fParser(p) {
-        SymbolTable::Push(&fParser->symbolTable());
+    AutoSymbolTable(Parser* p, std::unique_ptr<SymbolTable>* newSymbolTable) : fParser(p) {
+        SymbolTable*& ctxSymbols = this->contextSymbolTable();
+        *newSymbolTable = std::make_unique<SymbolTable>(ctxSymbols, ctxSymbols->isBuiltin());
+        ctxSymbols = newSymbolTable->get();
     }
 
     ~AutoSymbolTable() {
-        SymbolTable::Pop(&fParser->symbolTable());
+        SymbolTable*& ctxSymbols = this->contextSymbolTable();
+        ctxSymbols = ctxSymbols->fParent;
     }
 
 private:
+    SymbolTable*& contextSymbolTable() { return fParser->fCompiler.context().fSymbolTable; }
+
     Parser* fParser;
 };
 
@@ -219,7 +224,7 @@ Parser::Parser(Compiler* compiler,
 
 Parser::~Parser() = default;
 
-std::shared_ptr<SymbolTable>& Parser::symbolTable() {
+SymbolTable* Parser::symbolTable() {
     return fCompiler.symbolTable();
 }
 
@@ -410,7 +415,7 @@ std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* p
     this->symbolTable()->takeOwnershipOfString(std::move(*fText));
     auto result = std::make_unique<SkSL::Module>();
     result->fParent = parentModule;
-    result->fSymbols = this->symbolTable();
+    result->fSymbols = std::move(fCompiler.fGlobalSymbols);
     result->fElements = std::move(fProgramElements);
     return result;
 }
@@ -431,6 +436,9 @@ void Parser::declarations() {
     }
 
     while (!fEncounteredFatalError) {
+        // We should always be at global scope when processing top-level declarations.
+        SkASSERT(fCompiler.context().fSymbolTable == fCompiler.globalSymbols());
+
         switch (this->peek().fKind) {
             case Token::Kind::TK_END_OF_FILE:
                 return;
@@ -1522,16 +1530,15 @@ std::unique_ptr<Statement> Parser::switchStatement() {
         return nullptr;
     }
 
+    std::unique_ptr<SymbolTable> symbolTable;
     ExpressionArray values;
     StatementArray caseBlocks;
-    std::shared_ptr<SymbolTable> symbolTable;
     {
         // Keeping a tight scope around AutoSymbolTable is important here. SwitchStatement::Convert
         // may end up creating a new symbol table if the HoistSwitchVarDeclarationsAtTopLevel
         // transform is used. We want ~AutoSymbolTable to happen first, so it can restore the
         // context's active symbol table to the enclosing block instead of the switch's inner block.
-        AutoSymbolTable symbols(this);
-        symbolTable = this->symbolTable();
+        AutoSymbolTable symbols(this, &symbolTable);
 
         while (this->peek().fKind == Token::Kind::TK_CASE) {
             if (!this->switchCase(&values, &caseBlocks)) {
@@ -1573,46 +1580,51 @@ std::unique_ptr<Statement> Parser::forStatement() {
     if (!this->expect(Token::Kind::TK_LPAREN, "'('", &lparen)) {
         return nullptr;
     }
-    AutoSymbolTable symbols(this);
+    std::unique_ptr<SymbolTable> symbolTable;
     std::unique_ptr<Statement> initializer;
-    Token nextToken = this->peek();
-    int firstSemicolonOffset;
-    if (nextToken.fKind == Token::Kind::TK_SEMICOLON) {
-        // An empty init-statement.
-        firstSemicolonOffset = this->nextToken().fOffset;
-    } else {
-        // The init-statement must be an expression or variable declaration.
-        initializer = this->varDeclarationsOrExpressionStatement();
-        if (!initializer) {
-            return nullptr;
-        }
-        firstSemicolonOffset = fLexer.getCheckpoint().fOffset - 1;
-    }
     std::unique_ptr<Expression> test;
-    if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
-        test = this->expression();
-        if (!test) {
-            return nullptr;
-        }
-    }
-    Token secondSemicolon;
-    if (!this->expect(Token::Kind::TK_SEMICOLON, "';'", &secondSemicolon)) {
-        return nullptr;
-    }
     std::unique_ptr<Expression> next;
-    if (this->peek().fKind != Token::Kind::TK_RPAREN) {
-        next = this->expression();
-        if (!next) {
+    std::unique_ptr<Statement> statement;
+    int firstSemicolonOffset;
+    Token secondSemicolon;
+    Token rparen;
+    {
+        AutoSymbolTable symbols(this, &symbolTable);
+
+        Token nextToken = this->peek();
+        if (nextToken.fKind == Token::Kind::TK_SEMICOLON) {
+            // An empty init-statement.
+            firstSemicolonOffset = this->nextToken().fOffset;
+        } else {
+            // The init-statement must be an expression or variable declaration.
+            initializer = this->varDeclarationsOrExpressionStatement();
+            if (!initializer) {
+                return nullptr;
+            }
+            firstSemicolonOffset = fLexer.getCheckpoint().fOffset - 1;
+        }
+        if (this->peek().fKind != Token::Kind::TK_SEMICOLON) {
+            test = this->expression();
+            if (!test) {
+                return nullptr;
+            }
+        }
+        if (!this->expect(Token::Kind::TK_SEMICOLON, "';'", &secondSemicolon)) {
             return nullptr;
         }
-    }
-    Token rparen;
-    if (!this->expect(Token::Kind::TK_RPAREN, "')'", &rparen)) {
-        return nullptr;
-    }
-    std::unique_ptr<Statement> statement = this->statement();
-    if (!statement) {
-        return nullptr;
+        if (this->peek().fKind != Token::Kind::TK_RPAREN) {
+            next = this->expression();
+            if (!next) {
+                return nullptr;
+            }
+        }
+        if (!this->expect(Token::Kind::TK_RPAREN, "')'", &rparen)) {
+            return nullptr;
+        }
+        statement = this->statement();
+        if (!statement) {
+            return nullptr;
+        }
     }
     Position pos = this->rangeFrom(start);
     ForLoopPositions loopPositions{
@@ -1624,7 +1636,8 @@ std::unique_ptr<Statement> Parser::forStatement() {
                                                            std::move(initializer),
                                                            std::move(test),
                                                            std::move(next),
-                                                           std::move(statement)));
+                                                           std::move(statement),
+                                                           std::move(symbolTable)));
 }
 
 /* RETURN expression? SEMICOLON */
@@ -1695,36 +1708,40 @@ std::unique_ptr<Statement> Parser::block(SkSpan<Variable* const> parametersForTo
     if (!depth.increase()) {
         return nullptr;
     }
-    AutoSymbolTable symbols(this);
-    for (Variable* param : parametersForTopLevel) {
-        this->symbolTable()->addWithoutOwnership(fCompiler.context(), param);
-    }
+
+    std::unique_ptr<SymbolTable> symbolTable;
     StatementArray statements;
-    for (;;) {
-        switch (this->peek().fKind) {
-            case Token::Kind::TK_RBRACE: {
+    {
+        AutoSymbolTable symbols(this, &symbolTable);
+
+        // At function top-level, parameters from the function declaration are implicitly injected
+        // into the block's symbol table.
+        for (Variable* param : parametersForTopLevel) {
+            this->symbolTable()->addWithoutOwnership(fCompiler.context(), param);
+        }
+        // Consume statements until we reach the closing brace.
+        for (;;) {
+            Token::Kind tokenKind = this->peek().fKind;
+            if (tokenKind == Token::Kind::TK_RBRACE) {
                 this->nextToken();
-                Position pos = this->rangeFrom(start);
-                return SkSL::Block::MakeBlock(pos, std::move(statements),
-                                              Block::Kind::kBracedScope,
-                                              this->symbolTable());
+                break;
             }
-            case Token::Kind::TK_END_OF_FILE: {
+            if (tokenKind == Token::Kind::TK_END_OF_FILE) {
                 this->error(this->peek(), "expected '}', but found end of file");
                 return nullptr;
             }
-            default: {
-                std::unique_ptr<Statement> statement = this->statement();
-                if (fEncounteredFatalError) {
-                    return nullptr;
-                }
-                if (statement) {
-                    statements.push_back(std::move(statement));
-                }
-                break;
+            if (std::unique_ptr<Statement> statement = this->statement()) {
+                statements.push_back(std::move(statement));
+            }
+            if (fEncounteredFatalError) {
+                return nullptr;
             }
         }
     }
+    return SkSL::Block::MakeBlock(this->rangeFrom(start),
+                                  std::move(statements),
+                                  Block::Kind::kBracedScope,
+                                  std::move(symbolTable));
 }
 
 /* expression SEMICOLON */

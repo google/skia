@@ -15,7 +15,6 @@
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLSymbolTable.h" // IWYU pragma: keep
 
-#include <type_traits>
 #include <utility>
 
 namespace SkSL {
@@ -24,12 +23,12 @@ Program::Program(std::unique_ptr<std::string> source,
                  std::unique_ptr<ProgramConfig> config,
                  std::shared_ptr<Context> context,
                  std::vector<std::unique_ptr<ProgramElement>> elements,
-                 std::shared_ptr<SymbolTable> symbols,
+                 std::unique_ptr<SymbolTable> symbols,
                  std::unique_ptr<Pool> pool)
         : fSource(std::move(source))
         , fConfig(std::move(config))
         , fContext(context)
-        , fSymbols(symbols)
+        , fSymbols(std::move(symbols))
         , fPool(std::move(pool))
         , fOwnedElements(std::move(elements)) {
     fUsage = Analysis::GetUsage(*this);

@@ -12,14 +12,13 @@
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <memory>
 #include <string>
 #include <utility>
 
 namespace SkSL {
-
-class SymbolTable;
 
 /**
  * A block of multiple statements functioning as a single statement.
@@ -42,18 +41,18 @@ public:
     Block(Position pos,
           StatementArray statements,
           Kind kind = Kind::kBracedScope,
-          std::shared_ptr<SymbolTable> symbols = nullptr)
+          std::unique_ptr<SymbolTable> symbols = nullptr)
             : INHERITED(pos, kIRNodeKind)
+            , fSymbolTable(std::move(symbols))
             , fChildren(std::move(statements))
-            , fBlockKind(kind)
-            , fSymbolTable(std::move(symbols)) {}
+            , fBlockKind(kind) {}
 
     // Make is allowed to simplify compound statements. For a single-statement unscoped Block,
     // Make can return the Statement as-is. For an empty unscoped Block, Make can return Nop.
     static std::unique_ptr<Statement> Make(Position pos,
                                            StatementArray statements,
                                            Kind kind = Kind::kBracedScope,
-                                           std::shared_ptr<SymbolTable> symbols = nullptr);
+                                           std::unique_ptr<SymbolTable> symbols = nullptr);
 
     // MakeCompoundStatement wraps two Statements into a single compound-statement Block.
     // If either statement is empty, no Block will be created; the non-empty Statement is returned.
@@ -67,7 +66,7 @@ public:
     static std::unique_ptr<Block> MakeBlock(Position pos,
                                             StatementArray statements,
                                             Kind kind = Kind::kBracedScope,
-                                            std::shared_ptr<SymbolTable> symbols = nullptr);
+                                            std::unique_ptr<SymbolTable> symbols = nullptr);
 
     const StatementArray& children() const {
         return fChildren;
@@ -89,8 +88,8 @@ public:
         fBlockKind = kind;
     }
 
-    std::shared_ptr<SymbolTable> symbolTable() const {
-        return fSymbolTable;
+    SymbolTable* symbolTable() const {
+        return fSymbolTable.get();
     }
 
     bool isEmpty() const override {
@@ -105,9 +104,9 @@ public:
     std::string description() const override;
 
 private:
+    std::unique_ptr<SymbolTable> fSymbolTable;
     StatementArray fChildren;
     Kind fBlockKind;
-    std::shared_ptr<SymbolTable> fSymbolTable;
 
     using INHERITED = Statement;
 };

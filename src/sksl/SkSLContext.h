@@ -10,8 +10,6 @@
 
 #include "include/private/base/SkAssert.h"
 
-#include <memory>
-
 namespace SkSL {
 
 class BuiltinTypes;
@@ -47,7 +45,7 @@ public:
 
     // This is the current symbol table of the code we are processing, and therefore changes during
     // compilation.
-    std::shared_ptr<SymbolTable> fSymbolTable;
+    SymbolTable* fSymbolTable = nullptr;
 };
 
 }  // namespace SkSL

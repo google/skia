@@ -67,7 +67,7 @@ struct Program {
             std::unique_ptr<ProgramConfig> config,
             std::shared_ptr<Context> context,
             std::vector<std::unique_ptr<ProgramElement>> elements,
-            std::shared_ptr<SymbolTable> symbols,
+            std::unique_ptr<SymbolTable> symbols,
             std::unique_ptr<Pool> pool);
 
     ~Program();
@@ -154,8 +154,8 @@ struct Program {
     std::shared_ptr<Context> fContext;
     std::unique_ptr<ProgramUsage> fUsage;
     // it's important to keep fOwnedElements defined after (and thus destroyed before) fSymbols,
-    // because destroying elements can modify reference counts in symbols
-    std::shared_ptr<SymbolTable> fSymbols;
+    // because an IR element might access the symbol table during its destruction
+    std::unique_ptr<SymbolTable> fSymbols;
     std::unique_ptr<Pool> fPool;
     // Contains *only* elements owned exclusively by this program.
     std::vector<std::unique_ptr<ProgramElement>> fOwnedElements;

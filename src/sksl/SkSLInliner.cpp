@@ -315,15 +315,14 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
     }
 }
 
-std::unique_ptr<Statement> Inliner::inlineStatement(
-        Position pos,
-        VariableRewriteMap* varMap,
-        std::shared_ptr<SymbolTable> symbolTableForStatement,
-        std::unique_ptr<Expression>* resultExpr,
-        Analysis::ReturnComplexity returnComplexity,
-        const Statement& statement,
-        const ProgramUsage& usage,
-        bool isBuiltinCode) {
+std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
+                                                    VariableRewriteMap* varMap,
+                                                    SymbolTable* symbolTableForStatement,
+                                                    std::unique_ptr<Expression>* resultExpr,
+                                                    Analysis::ReturnComplexity returnComplexity,
+                                                    const Statement& statement,
+                                                    const ProgramUsage& usage,
+                                                    bool isBuiltinCode) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
             return this->inlineStatement(pos, varMap, symbolTableForStatement, resultExpr,
@@ -333,7 +332,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(
     };
     auto expr = [&](const std::unique_ptr<Expression>& e) -> std::unique_ptr<Expression> {
         if (e) {
-            return this->inlineExpression(pos, varMap, symbolTableForStatement.get(), *e);
+            return this->inlineExpression(pos, varMap, symbolTableForStatement, *e);
         }
         return nullptr;
     };
@@ -342,12 +341,13 @@ std::unique_ptr<Statement> Inliner::inlineStatement(
         return Transform::AddConstToVarModifiers(variable, initialValue, &usage);
     };
     auto makeWithChildSymbolTable = [&](auto callback) -> std::unique_ptr<Statement> {
-        std::shared_ptr<SymbolTable> origSymbolTable = std::move(symbolTableForStatement);
-        symbolTableForStatement = std::make_shared<SymbolTable>(origSymbolTable, isBuiltinCode);
+        SymbolTable* origSymbolTable = symbolTableForStatement;
+        auto childSymbols = std::make_unique<SymbolTable>(origSymbolTable, isBuiltinCode);
+        symbolTableForStatement = childSymbols.get();
 
-        std::unique_ptr<Statement> stmt = callback(symbolTableForStatement);
+        std::unique_ptr<Statement> stmt = callback(std::move(childSymbols));
 
-        symbolTableForStatement = std::move(origSymbolTable);
+        symbolTableForStatement = origSymbolTable;
         return stmt;
     };
 
@@ -355,7 +355,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(
 
     switch (statement.kind()) {
         case Statement::Kind::kBlock:
-            return makeWithChildSymbolTable([&](std::shared_ptr<SymbolTable> symbolTable) {
+            return makeWithChildSymbolTable([&](std::unique_ptr<SymbolTable> symbolTable) {
                 const Block& block = statement.as<Block>();
                 StatementArray statements;
                 statements.reserve_exact(block.children().size());
@@ -386,7 +386,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(
             return ExpressionStatement::Make(*fContext, expr(e.expression()));
         }
         case Statement::Kind::kFor:
-            return makeWithChildSymbolTable([&](std::shared_ptr<SymbolTable> symbolTable) {
+            return makeWithChildSymbolTable([&](std::unique_ptr<SymbolTable> symbolTable) {
                 const ForStatement& f = statement.as<ForStatement>();
                 // We need to ensure `initializer` is evaluated first, so that we've already
                 // remapped its declaration by the time we evaluate `test` and `next`.
@@ -452,7 +452,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(
                             expr(r.expression())));
         }
         case Statement::Kind::kSwitch:
-            return makeWithChildSymbolTable([&](std::shared_ptr<SymbolTable> symbolTable) {
+            return makeWithChildSymbolTable([&](std::unique_ptr<SymbolTable> symbolTable) {
                 const SwitchStatement& ss = statement.as<SwitchStatement>();
 
                 StatementArray cases;
@@ -481,12 +481,12 @@ std::unique_ptr<Statement> Inliner::inlineStatement(
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
             const std::string* name = symbolTableForStatement->takeOwnershipOfString(
-                    fMangler.uniqueName(variable->name(), symbolTableForStatement.get()));
+                    fMangler.uniqueName(variable->name(), symbolTableForStatement));
             auto clonedVar = Variable::Make(pos,
                                             variable->modifiersPosition(),
                                             variable->layout(),
                                             variableModifiers(*variable, initialValue.get()),
-                                            variable->type().clone(symbolTableForStatement.get()),
+                                            variable->type().clone(symbolTableForStatement),
                                             name->c_str(),
                                             /*mangledName=*/"",
                                             isBuiltinCode,
@@ -495,7 +495,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(
             std::unique_ptr<Statement> result =
                     VarDeclaration::Make(*fContext,
                                          clonedVar.get(),
-                                         decl.baseType().clone(symbolTableForStatement.get()),
+                                         decl.baseType().clone(symbolTableForStatement),
                                          decl.arraySize(),
                                          std::move(initialValue));
             symbolTableForStatement->add(*fContext, std::move(clonedVar));
@@ -526,7 +526,7 @@ static bool argument_needs_scratch_variable(const Expression* arg,
 }
 
 Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
-                                         std::shared_ptr<SymbolTable> symbolTable,
+                                         SymbolTable* symbolTable,
                                          const ProgramUsage& usage,
                                          const FunctionDeclaration* caller) {
     using ScratchVariable = Variable::ScratchVariable;
@@ -564,7 +564,7 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
                                                             fMangler,
                                                             function.declaration().name(),
                                                             &function.declaration().returnType(),
-                                                            symbolTable.get(),
+                                                            symbolTable,
                                                             /*initialValue=*/nullptr);
         inlineStatements.push_back(std::move(var.fVarDecl));
         resultExpr = VariableReference::Make(Position(), var.fVarSymbol);
@@ -584,7 +584,7 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
                                                             fMangler,
                                                             param->name(),
                                                             &arg->type(),
-                                                            symbolTable.get(),
+                                                            symbolTable,
                                                             arg->clone());
         inlineStatements.push_back(std::move(var.fVarDecl));
         varMap.set(param, VariableReference::Make(Position(), var.fVarSymbol));
@@ -664,7 +664,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const Progra
 
 // A candidate function for inlining, containing everything that `inlineCall` needs.
 struct InlineCandidate {
-    std::shared_ptr<SymbolTable> fSymbols;        // the SymbolTable of the candidate
+    SymbolTable* fSymbols;                        // the SymbolTable of the candidate
     std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
     std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
     std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
@@ -682,7 +682,7 @@ public:
 
     // A stack of the symbol tables; since most nodes don't have one, expected to be shallower than
     // the enclosing-statement stack.
-    std::vector<std::shared_ptr<SymbolTable>> fSymbolTableStack;
+    std::vector<SymbolTable*> fSymbolTableStack;
     // A stack of "enclosing" statements--these would be suitable for the inliner to use for adding
     // new instructions. Not all statements are suitable (e.g. a for-loop's initializer). The
     // inliner might replace a statement with a block containing the statement.
@@ -691,7 +691,7 @@ public:
     FunctionDefinition* fEnclosingFunction = nullptr;
 
     void visit(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-               std::shared_ptr<SymbolTable> symbols,
+               SymbolTable* symbols,
                InlineCandidateList* candidateList) {
         fCandidateList = candidateList;
         fSymbolTableStack.push_back(symbols);
@@ -741,7 +741,7 @@ public:
         // If this statement contains symbols that would shadow globally-scoped names, we don't look
         // for any inline candidates, because it's too late to mangle the names.
         if (scopedStackBuilder.foundSymbolTable() &&
-            fSymbolTableStack.back()->wouldShadowSymbolsFrom(fSymbolTableStack.front().get())) {
+            fSymbolTableStack.back()->wouldShadowSymbolsFrom(fSymbolTableStack.front())) {
             return;
         }
 
@@ -1006,7 +1006,8 @@ int Inliner::getFunctionSize(const FunctionDeclaration& funcDecl, FunctionSizeCa
 }
 
 void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                                 std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,
+                                 SymbolTable* symbols,
+                                 ProgramUsage* usage,
                                  InlineCandidateList* candidateList) {
     // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
     // The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so
@@ -1069,7 +1070,7 @@ void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElemen
 }
 
 bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                      std::shared_ptr<SymbolTable> symbols,
+                      SymbolTable* symbols,
                       ProgramUsage* usage) {
     // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
     if (this->settings().fInlineThreshold <= 0) {

@@ -16,9 +16,9 @@
 
 namespace SkSL {
 
-std::shared_ptr<SymbolTable> SymbolTable::insertNewParent() {
-    auto newTable = std::make_shared<SymbolTable>(fParent, fBuiltin);
-    fParent = newTable;
+std::unique_ptr<SymbolTable> SymbolTable::insertNewParent() {
+    auto newTable = std::make_unique<SymbolTable>(fParent, fBuiltin);
+    fParent = newTable.get();
     return newTable;
 }
 

@@ -32,7 +32,7 @@ public:
             , fOut(stream) {
         fContext.fConfig = fProgram.fConfig.get();
         fContext.fModule = fProgram.fContext->fModule;
-        fContext.fSymbolTable = fProgram.fSymbols;
+        fContext.fSymbolTable = fProgram.fSymbols.get();
     }
 
     virtual ~CodeGenerator() = default;

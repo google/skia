@@ -9,14 +9,12 @@
 
 #include "src/sksl/ir/SkSLNop.h"
 
-#include <type_traits>
-
 namespace SkSL {
 
 std::unique_ptr<Statement> Block::Make(Position pos,
                                        StatementArray statements,
                                        Kind kind,
-                                       std::shared_ptr<SymbolTable> symbols) {
+                                       std::unique_ptr<SymbolTable> symbols) {
     // We can't simplify away braces or populated symbol tables.
     if (kind == Kind::kBracedScope || (symbols && symbols->count())) {
         return std::make_unique<Block>(pos, std::move(statements), kind, std::move(symbols));
@@ -61,7 +59,7 @@ std::unique_ptr<Statement> Block::Make(Position pos,
 std::unique_ptr<Block> Block::MakeBlock(Position pos,
                                         StatementArray statements,
                                         Kind kind,
-                                        std::shared_ptr<SymbolTable> symbols) {
+                                        std::unique_ptr<SymbolTable> symbols) {
     // Nothing to optimize here--eliminating empty statements doesn't actually improve the generated
     // code, and we promise to return a Block.
     return std::make_unique<Block>(pos, std::move(statements), kind, std::move(symbols));

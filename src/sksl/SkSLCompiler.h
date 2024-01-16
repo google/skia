@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <array>
 #include <cstdint>
@@ -48,14 +49,13 @@ class Inliner;
 class Pool;
 struct ProgramConfig;
 class ProgramUsage;
-class SymbolTable;
 enum class ProgramKind : int8_t;
 struct Program;
 struct ProgramSettings;
 
 struct Module {
     const Module*                                fParent = nullptr;
-    std::shared_ptr<SymbolTable>                 fSymbols;
+    std::unique_ptr<SymbolTable>                 fSymbols;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
 };
 
@@ -144,7 +144,11 @@ public:
         return *fContext;
     }
 
-    std::shared_ptr<SymbolTable>& symbolTable() {
+    SymbolTable* globalSymbols() {
+        return fGlobalSymbols.get();
+    }
+
+    SymbolTable* symbolTable() {
         return fContext->fSymbolTable;
     }
 
@@ -209,11 +213,12 @@ private:
     /** Flattens out function calls when it is safe to do so. */
     bool runInliner(Inliner* inliner,
                     const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                    std::shared_ptr<SymbolTable> symbols,
+                    SymbolTable* symbols,
                     ProgramUsage* usage);
 
     CompilerErrorReporter fErrorReporter;
     std::shared_ptr<Context> fContext;
+    std::unique_ptr<SymbolTable> fGlobalSymbols;
     std::unique_ptr<ProgramConfig> fConfig;
     std::unique_ptr<Pool> fPool;
 

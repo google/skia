@@ -37,7 +37,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <forward_list>
-#include <type_traits>
 
 namespace SkSL {
 

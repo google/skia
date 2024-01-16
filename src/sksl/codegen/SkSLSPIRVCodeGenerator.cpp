@@ -566,7 +566,7 @@ private:
         std::unique_ptr<Type> fStruct;
     };
 
-    void writeUniformBuffer(const std::shared_ptr<SymbolTable>& topLevelSymbolTable);
+    void writeUniformBuffer(SymbolTable* topLevelSymbolTable);
 
     void addRTFlipUniform(Position pos);
 
@@ -4875,7 +4875,7 @@ void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputSt
 }
 
 // Given any function, returns the top-level symbol table (OUTSIDE of the function's scope).
-static std::shared_ptr<SymbolTable> get_top_level_symbol_table(const FunctionDeclaration& anyFunc) {
+static SymbolTable* get_top_level_symbol_table(const FunctionDeclaration& anyFunc) {
     return anyFunc.definition()->body()->as<Block>().symbolTable()->fParent;
 }
 
@@ -4885,7 +4885,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     //     void _entrypoint() { sk_FragColor = main(); }
 
     // Fish a symbol table out of main().
-    std::shared_ptr<SymbolTable> symbolTable = get_top_level_symbol_table(main);
+    SymbolTable* symbolTable = get_top_level_symbol_table(main);
 
     // Get `sk_FragColor` as a writable reference.
     const Symbol* skFragColorSymbol = symbolTable->find("sk_FragColor");
@@ -4926,7 +4926,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     StatementArray entrypointStmts;
     entrypointStmts.push_back(std::move(assignmentStmt));
     auto entrypointBlock = Block::Make(Position(), std::move(entrypointStmts),
-                                       Block::Kind::kBracedScope, symbolTable);
+                                       Block::Kind::kBracedScope, /*symbols=*/nullptr);
     // Declare an entrypoint function.
     EntrypointAdapter adapter;
     adapter.entrypointDecl =
@@ -4948,8 +4948,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     return adapter;
 }
 
-void SPIRVCodeGenerator::writeUniformBuffer(
-        const std::shared_ptr<SymbolTable>& topLevelSymbolTable) {
+void SPIRVCodeGenerator::writeUniformBuffer(SymbolTable* topLevelSymbolTable) {
     SkASSERT(!fTopLevelUniforms.empty());
     static constexpr char kUniformBufferName[] = "_UniformBuffer";
 

@@ -23,7 +23,6 @@
 
 #include <algorithm>
 #include <string>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -434,7 +433,7 @@ const Module* ModuleLoader::loadGraphiteVertexES2Module(SkSL::Compiler* compiler
 
 void ModuleLoader::Impl::makeRootSymbolTable() {
     auto rootModule = std::make_unique<Module>();
-    rootModule->fSymbols = std::make_shared<SymbolTable>(/*builtin=*/true);
+    rootModule->fSymbols = std::make_unique<SymbolTable>(/*builtin=*/true);
 
     for (BuiltinTypePtr rootType : kRootTypes) {
         rootModule->fSymbols->addWithoutOwnershipOrDie((fBuiltinTypes.*rootType).get());

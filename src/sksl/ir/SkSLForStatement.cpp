@@ -71,7 +71,8 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
                                                  std::unique_ptr<Statement> initializer,
                                                  std::unique_ptr<Expression> test,
                                                  std::unique_ptr<Expression> next,
-                                                 std::unique_ptr<Statement> statement) {
+                                                 std::unique_ptr<Statement> statement,
+                                                 std::unique_ptr<SymbolTable> symbolTable) {
     bool isSimpleInitializer = is_simple_initializer(initializer.get());
     bool isVardeclBlockInitializer =
             !isSimpleInitializer && is_vardecl_block_initializer(initializer.get());
@@ -126,12 +127,12 @@ std::unique_ptr<Statement> ForStatement::Convert(const Context& context,
                                            std::move(test), std::move(next), std::move(statement),
                                            std::move(unrollInfo), /*symbolTable=*/nullptr));
         return Block::Make(pos, std::move(scope), Block::Kind::kBracedScope,
-                           context.fSymbolTable);
+                           std::move(symbolTable));
     }
 
     return ForStatement::Make(context, pos, positions, std::move(initializer), std::move(test),
                               std::move(next), std::move(statement), std::move(unrollInfo),
-                              context.fSymbolTable);
+                              std::move(symbolTable));
 }
 
 std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context,
@@ -142,8 +143,14 @@ std::unique_ptr<Statement> ForStatement::ConvertWhile(const Context& context,
         context.fErrors->error(pos, "while loops are not supported");
         return nullptr;
     }
-    return ForStatement::Convert(context, pos, ForLoopPositions(), /*initializer=*/nullptr,
-                                 std::move(test), /*next=*/nullptr, std::move(statement));
+    return ForStatement::Convert(context,
+                                 pos,
+                                 ForLoopPositions(),
+                                 /*initializer=*/nullptr,
+                                 std::move(test),
+                                 /*next=*/nullptr,
+                                 std::move(statement),
+                                 /*symbolTable=*/nullptr);
 }
 
 std::unique_ptr<Statement> ForStatement::Make(const Context& context,
@@ -154,7 +161,7 @@ std::unique_ptr<Statement> ForStatement::Make(const Context& context,
                                               std::unique_ptr<Expression> next,
                                               std::unique_ptr<Statement> statement,
                                               std::unique_ptr<LoopUnrollInfo> unrollInfo,
-                                              std::shared_ptr<SymbolTable> symbolTable) {
+                                              std::unique_ptr<SymbolTable> symbolTable) {
     SkASSERT(is_simple_initializer(initializer.get()) ||
              is_vardecl_block_initializer(initializer.get()));
     SkASSERT(!test || test->type().matches(*context.fTypes.fBool));
@@ -171,8 +178,14 @@ std::unique_ptr<Statement> ForStatement::Make(const Context& context,
         }
     }
 
-    return std::make_unique<ForStatement>(pos, positions, std::move(initializer), std::move(test),
-            std::move(next), std::move(statement), std::move(unrollInfo), std::move(symbolTable));
+    return std::make_unique<ForStatement>(pos,
+                                          positions,
+                                          std::move(initializer),
+                                          std::move(test),
+                                          std::move(next),
+                                          std::move(statement),
+                                          std::move(unrollInfo),
+                                          std::move(symbolTable));
 }
 
 }  // namespace SkSL

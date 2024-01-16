@@ -47,7 +47,7 @@ public:
 
     /** Inlines any eligible functions that are found. Returns true if any changes are made. */
     bool analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                 std::shared_ptr<SymbolTable> symbols,
+                 SymbolTable* symbols,
                  ProgramUsage* usage);
 
 private:
@@ -56,7 +56,8 @@ private:
     const ProgramSettings& settings() const { return fContext->fConfig->fSettings; }
 
     void buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                            std::shared_ptr<SymbolTable> symbols, ProgramUsage* usage,
+                            SymbolTable* symbols,
+                            ProgramUsage* usage,
                             InlineCandidateList* candidateList);
 
     std::unique_ptr<Expression> inlineExpression(Position pos,
@@ -65,7 +66,7 @@ private:
                                                  const Expression& expression);
     std::unique_ptr<Statement> inlineStatement(Position pos,
                                                VariableRewriteMap* varMap,
-                                               std::shared_ptr<SymbolTable> symbolTableForStatement,
+                                               SymbolTable* symbolTableForStatement,
                                                std::unique_ptr<Expression>* resultExpr,
                                                Analysis::ReturnComplexity returnComplexity,
                                                const Statement& statement,
@@ -101,7 +102,7 @@ private:
         std::unique_ptr<Expression> fReplacementExpr;
     };
     InlinedCall inlineCall(const FunctionCall&,
-                           std::shared_ptr<SymbolTable>,
+                           SymbolTable*,
                            const ProgramUsage&,
                            const FunctionDeclaration* caller);
 

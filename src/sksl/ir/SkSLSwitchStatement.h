@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <memory>
 #include <string>
@@ -22,7 +23,6 @@ namespace SkSL {
 
 class Context;
 class SwitchCase;
-class SymbolTable;
 
 /**
  * A 'switch' statement.
@@ -34,11 +34,11 @@ public:
     SwitchStatement(Position pos,
                     std::unique_ptr<Expression> value,
                     StatementArray cases,
-                    std::shared_ptr<SymbolTable> symbols)
+                    std::unique_ptr<SymbolTable> symbols)
             : INHERITED(pos, kIRNodeKind)
+            , fSymbols(std::move(symbols))
             , fValue(std::move(value))
-            , fCases(std::move(cases))
-            , fSymbols(std::move(symbols)) {}
+            , fCases(std::move(cases)) {}
 
     // Create a `switch` statement with an array of case-values and case-statements.
     // Coerces case values to the proper type and reports an error if cases are duplicated.
@@ -48,7 +48,7 @@ public:
                                               std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
                                               StatementArray caseStatements,
-                                              std::shared_ptr<SymbolTable> symbolTable);
+                                              std::unique_ptr<SymbolTable> symbolTable);
 
     // Create a `switch` statement with an array of SwitchCases. The array of SwitchCases must
     // already contain non-overlapping, correctly-typed case values. Reports errors via ASSERT.
@@ -56,7 +56,7 @@ public:
                                            Position pos,
                                            std::unique_ptr<Expression> value,
                                            StatementArray cases,
-                                           std::shared_ptr<SymbolTable> symbolTable);
+                                           std::unique_ptr<SymbolTable> symbolTable);
 
     // Returns a block containing all of the statements that will be run if the given case matches
     // (which, owing to the statements being owned by unique_ptrs, means the switch itself will be
@@ -65,7 +65,7 @@ public:
     // as when break statements appear inside conditionals.
     static std::unique_ptr<Statement> BlockForCase(StatementArray* cases,
                                                    SwitchCase* caseToCapture,
-                                                   std::shared_ptr<SymbolTable> symbolTable);
+                                                   std::unique_ptr<SymbolTable>& symbolTable);
 
     std::unique_ptr<Expression>& value() {
         return fValue;
@@ -83,16 +83,16 @@ public:
         return fCases;
     }
 
-    const std::shared_ptr<SymbolTable>& symbols() const {
-        return fSymbols;
+    SymbolTable* symbols() const {
+        return fSymbols.get();
     }
 
     std::string description() const override;
 
 private:
+    std::unique_ptr<SymbolTable> fSymbols;
     std::unique_ptr<Expression> fValue;
     StatementArray fCases;  // every Statement inside fCases must be a SwitchCase
-    std::shared_ptr<SymbolTable> fSymbols;
 
     using INHERITED = Statement;
 };

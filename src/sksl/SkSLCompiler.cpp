@@ -151,8 +151,9 @@ void Compiler::initializeContext(const SkSL::Module* module,
     fContext->fErrors->setSource(source);
 
     // Set up a clean symbol table atop the parent module's symbols.
-    fContext->fSymbolTable = std::make_shared<SymbolTable>(module->fSymbols, isModule);
-    fContext->fSymbolTable->markModuleBoundary();
+    fGlobalSymbols = std::make_unique<SymbolTable>(module->fSymbols.get(), isModule);
+    fGlobalSymbols->markModuleBoundary();
+    fContext->fSymbolTable = fGlobalSymbols.get();
 }
 
 void Compiler::cleanupContext() {
@@ -163,6 +164,7 @@ void Compiler::cleanupContext() {
     fContext->fSymbolTable = nullptr;
 
     fConfig = nullptr;
+    fGlobalSymbols = nullptr;
 
     if (fPool) {
         fPool->detachFromThread();
@@ -230,8 +232,10 @@ std::unique_ptr<SkSL::Program> Compiler::releaseProgram(
                                                   std::move(fConfig),
                                                   fContext,
                                                   std::move(programElements),
-                                                  std::move(fContext->fSymbolTable),
+                                                  std::move(fGlobalSymbols),
                                                   std::move(fPool));
+    fContext->fSymbolTable = nullptr;
+
     bool success = this->finalize(*result) &&
                    this->optimize(*result);
     if (pool) {
@@ -311,7 +315,7 @@ bool Compiler::optimizeModuleAfterLoading(ProgramKind kind, Module& module) {
     // Perform inline-candidate analysis and inline any functions deemed suitable.
     Inliner inliner(fContext.get());
     while (this->errorCount() == 0) {
-        if (!this->runInliner(&inliner, module.fElements, module.fSymbols, usage.get())) {
+        if (!this->runInliner(&inliner, module.fElements, module.fSymbols.get(), usage.get())) {
             break;
         }
     }
@@ -334,7 +338,8 @@ bool Compiler::optimize(Program& program) {
         // Run the inliner only once; it is expensive! Multiple passes can occasionally shake out
         // more wins, but it's diminishing returns.
         Inliner inliner(fContext.get());
-        this->runInliner(&inliner, program.fOwnedElements, program.fSymbols, program.fUsage.get());
+        this->runInliner(&inliner, program.fOwnedElements, program.fSymbols.get(),
+                         program.fUsage.get());
 #endif
 
         // Unreachable code can confuse some drivers, so it's worth removing. (skia:12012)
@@ -360,13 +365,14 @@ void Compiler::runInliner(Program& program) {
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
     AutoProgramConfig autoConfig(this->context(), program.fConfig.get());
     Inliner inliner(fContext.get());
-    this->runInliner(&inliner, program.fOwnedElements, program.fSymbols, program.fUsage.get());
+    this->runInliner(&inliner, program.fOwnedElements, program.fSymbols.get(),
+                     program.fUsage.get());
 #endif
 }
 
 bool Compiler::runInliner(Inliner* inliner,
                           const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                          std::shared_ptr<SymbolTable> symbols,
+                          SymbolTable* symbols,
                           ProgramUsage* usage) {
 #ifdef SK_ENABLE_OPTIMIZE_SIZE
     return true;

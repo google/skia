@@ -63,11 +63,11 @@ void Transform::RenamePrivateSymbols(Context& context,
     public:
         SymbolRenamer(Context& context,
                       ProgramUsage* usage,
-                      std::shared_ptr<SymbolTable> symbolBase,
+                      SymbolTable* symbolBase,
                       ProgramKind kind)
                 : fContext(context)
                 , fUsage(usage)
-                , fSymbolTableStack({std::move(symbolBase)})
+                , fSymbolTableStack({symbolBase})
                 , fKind(kind) {}
 
         static std::string FindShortNameForSymbol(const Symbol* sym,
@@ -111,7 +111,7 @@ void Transform::RenamePrivateSymbols(Context& context,
             }
 
             // Ensure that this variable is properly set up in the symbol table.
-            SymbolTable* symbols = fSymbolTableStack.back().get();
+            SymbolTable* symbols = fSymbolTableStack.back();
             Symbol* mutableSym = symbols->findMutable(var->name());
             SkASSERTF(mutableSym != nullptr,
                       "symbol table missing '%.*s'", (int)var->name().size(), var->name().data());
@@ -134,7 +134,7 @@ void Transform::RenamePrivateSymbols(Context& context,
         void minifyFunctionName(const FunctionDeclaration* funcDecl) {
             // Look for a new name for this function.
             std::string namePrefix = ProgramConfig::IsRuntimeEffect(fKind) ? "" : "$";
-            SymbolTable* symbols = fSymbolTableStack.back().get();
+            SymbolTable* symbols = fSymbolTableStack.back();
             std::string shortName = FindShortNameForSymbol(funcDecl, symbols,
                                                            std::move(namePrefix));
             SkASSERT(symbols->findMutable(shortName) == nullptr);
@@ -218,13 +218,13 @@ void Transform::RenamePrivateSymbols(Context& context,
 
         Context& fContext;
         ProgramUsage* fUsage;
-        std::vector<std::shared_ptr<SymbolTable>> fSymbolTableStack;
+        std::vector<SymbolTable*> fSymbolTableStack;
         ProgramKind fKind;
         using INHERITED = ProgramWriter;
     };
 
     // Rename local variables and private functions.
-    SymbolRenamer renamer{context, usage, module.fSymbols, kind};
+    SymbolRenamer renamer{context, usage, module.fSymbols.get(), kind};
     for (std::unique_ptr<ProgramElement>& pe : module.fElements) {
         renamer.visitProgramElement(*pe);
     }

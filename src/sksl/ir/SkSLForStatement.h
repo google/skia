@@ -12,6 +12,7 @@
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <memory>
 #include <string>
@@ -20,7 +21,6 @@
 namespace SkSL {
 
 class Context;
-class SymbolTable;
 class Variable;
 
 /**
@@ -47,7 +47,7 @@ public:
                  std::unique_ptr<Expression> next,
                  std::unique_ptr<Statement> statement,
                  std::unique_ptr<LoopUnrollInfo> unrollInfo,
-                 std::shared_ptr<SymbolTable> symbols)
+                 std::unique_ptr<SymbolTable> symbols)
             : INHERITED(pos, kIRNodeKind)
             , fForLoopPositions(forLoopPositions)
             , fSymbolTable(std::move(symbols))
@@ -64,7 +64,8 @@ public:
                                               std::unique_ptr<Statement> initializer,
                                               std::unique_ptr<Expression> test,
                                               std::unique_ptr<Expression> next,
-                                              std::unique_ptr<Statement> statement);
+                                              std::unique_ptr<Statement> statement,
+                                              std::unique_ptr<SymbolTable> symbolTable);
 
     // Creates an SkSL while loop; handles type-coercion and uses the ErrorReporter for errors.
     static std::unique_ptr<Statement> ConvertWhile(const Context& context,
@@ -81,7 +82,7 @@ public:
                                            std::unique_ptr<Expression> next,
                                            std::unique_ptr<Statement> statement,
                                            std::unique_ptr<LoopUnrollInfo> unrollInfo,
-                                           std::shared_ptr<SymbolTable> symbolTable);
+                                           std::unique_ptr<SymbolTable> symbolTable);
 
     ForLoopPositions forLoopPositions() const {
         return fForLoopPositions;
@@ -119,8 +120,8 @@ public:
         return fStatement;
     }
 
-    const std::shared_ptr<SymbolTable>& symbols() const {
-        return fSymbolTable;
+    SymbolTable* symbols() const {
+        return fSymbolTable.get();
     }
 
     /** Loop-unroll information is only supported in strict-ES2 code. Null is returned in ES3+. */
@@ -132,7 +133,7 @@ public:
 
 private:
     ForLoopPositions fForLoopPositions;
-    std::shared_ptr<SymbolTable> fSymbolTable;
+    std::unique_ptr<SymbolTable> fSymbolTable;
     std::unique_ptr<Statement> fInitializer;
     std::unique_ptr<Expression> fTest;
     std::unique_ptr<Expression> fNext;

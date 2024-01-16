@@ -317,7 +317,7 @@ private:
 
     bool identifier(std::string_view* dest);
 
-    std::shared_ptr<SymbolTable>& symbolTable();
+    SymbolTable* symbolTable();
 
     Compiler& fCompiler;
     ProgramSettings fSettings;

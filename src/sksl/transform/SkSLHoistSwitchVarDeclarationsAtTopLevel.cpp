@@ -26,7 +26,6 @@
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <memory>
-#include <type_traits>
 #include <utility>
 
 using namespace skia_private;
@@ -91,7 +90,7 @@ std::unique_ptr<Statement> Transform::HoistSwitchVarDeclarationsAtTopLevel(
     }
 
     // Move all of the var-declaration statements into a separate block.
-    std::shared_ptr<SymbolTable> blockSymbols = stmt->symbols()->insertNewParent();
+    std::unique_ptr<SymbolTable> blockSymbols = stmt->symbols()->insertNewParent();
 
     StatementArray blockStmts;
     blockStmts.reserve_exact(visitor.fVarDeclarations.size() + 1);

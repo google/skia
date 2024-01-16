@@ -257,8 +257,7 @@ skia_private::TArray<const SkSL::Variable*> GetComputeShaderMainParams(const Con
 class SymbolTableStackBuilder {
 public:
     // If the passed-in statement holds a symbol table, adds it to the stack.
-    SymbolTableStackBuilder(const Statement* stmt,
-                            std::vector<std::shared_ptr<SymbolTable>>* stack);
+    SymbolTableStackBuilder(const Statement* stmt, std::vector<SymbolTable*>* stack);
 
     // If a symbol table was added to the stack earlier, removes it from the stack.
     ~SymbolTableStackBuilder();
@@ -269,7 +268,7 @@ public:
     }
 
 private:
-    std::vector<std::shared_ptr<SymbolTable>>* fStackToPop = nullptr;
+    std::vector<SymbolTable*>* fStackToPop = nullptr;
 };
 
 }  // namespace Analysis
