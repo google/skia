@@ -67,6 +67,28 @@ skia_cc_library(
     ],
 )
 
+skia_cc_library(
+    name = "legacy_skx",
+    srcs = [
+        "SkOpts_skx.cpp",
+        "//include/core:opts_srcs",
+        "//include/private:opts_srcs",
+        "//include/private/base:private_hdrs",
+        "//src/base:private_hdrs",
+        "//src/core:opts_srcs",
+        "//src/sksl/tracing:opts_srcs",
+    ],
+    copts = DEFAULT_COPTS + ["-march=skylake-avx512"],
+    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
+    textual_hdrs = [
+        "SkRasterPipeline_opts.h",
+    ],
+    deps = [
+        "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h
+        "@skia_user_config//:user_config",
+    ],
+)
+
 skia_cc_deps(
     name = "deps",
     visibility = [
@@ -76,6 +98,7 @@ skia_cc_deps(
     deps = selects.with_or({
         ("@platforms//cpu:x86_64", "@platforms//cpu:x86_32"): [
             ":legacy_hsw",
+            ":legacy_skx",
         ],
         # We have no architecture specific optimizations for ARM64 right now
         "@platforms//cpu:arm64": [],
@@ -107,12 +130,35 @@ skia_cc_library(
     ],
 )
 
+skia_cc_library(
+    name = "skx",
+    srcs = [
+        "SkOpts_skx.cpp",
+        "//include/core:opts_srcs",
+        "//include/private:opts_srcs",
+        "//src/core:opts_srcs",
+        "//src/sksl/tracing:opts_srcs",
+    ],
+    copts = DEFAULT_COPTS + ["-march=skylake-avx512"],
+    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
+    textual_hdrs = [
+        "SkRasterPipeline_opts.h",
+        ":private_hdrs",
+    ],
+    deps = [
+        "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h
+        "//src/base",
+        "@skia_user_config//:user_config",
+    ],
+)
+
 skia_cc_deps(
     name = "opts",
     visibility = ["//src/core:__pkg__"],
     deps = selects.with_or({
         ("@platforms//cpu:x86_64", "@platforms//cpu:x86_32"): [
             ":hsw",
+            ":skx",
         ],
         "//bazel/common_config_settings:cpu_wasm": [],
         "//conditions:default": [],

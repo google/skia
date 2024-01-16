@@ -7,3 +7,4 @@
 _src = get_path_info("../src", "abspath")
 
 hsw = [ "$_src/opts/SkOpts_hsw.cpp" ]
+skx = [ "$_src/opts/SkOpts_skx.cpp" ]

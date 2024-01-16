@@ -45,6 +45,7 @@ namespace SkOpts {
 
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_hsw();
+    void Init_skx();
 
     static bool init() {
     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
@@ -53,6 +54,11 @@ namespace SkOpts {
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
             if (SkCpu::Supports(SkCpu::HSW)) { Init_hsw(); }
         #endif
+
+        #if (SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SKX) && defined(SK_ENABLE_AVX512_OPTS)
+            if (SkCpu::Supports(SkCpu::SKX)) { Init_skx(); }
+        #endif
+
     #endif
         return true;
     }

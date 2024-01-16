@@ -129,6 +129,9 @@ config("skia_private") {
   if (skia_print_native_shaders) {
     defines += [ "SK_PRINT_NATIVE_SHADERS" ]
   }
+
+  # Temporary staging flag:
+  defines += [ "SK_ENABLE_AVX512_OPTS" ]
 }
 
 # Any code that's linked into Skia-the-library should use this config via += skia_library_configs.
@@ -179,6 +182,16 @@ opts("hsw") {
     cflags = [ "/arch:AVX2" ]
   } else {
     cflags = [ "-march=haswell" ]
+  }
+}
+
+opts("skx") {
+  enabled = is_x86
+  sources = skia_opts.skx_sources
+  if (is_win) {
+    cflags = [ "/arch:AVX512" ]
+  } else {
+    cflags = [ "-march=skylake-avx512" ]
   }
 }
 
@@ -1448,6 +1461,7 @@ skia_component("skia") {
     ":ndk_images",
     ":png_decode",
     ":raw",
+    ":skx",
     ":typeface_fontations",
     ":vello",
     ":webp_decode",
