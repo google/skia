@@ -27,6 +27,7 @@
 #include "src/base/SkNoDestructor.h"
 #include "src/base/SkSpinlock.h"
 #include "src/base/SkTime.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
@@ -1313,7 +1314,7 @@ struct Task {
                     bool unclamped = false;
                     for (int y = 0; y < pm.height() && !unclamped; ++y)
                     for (int x = 0; x < pm.width() && !unclamped; ++x) {
-                        skvx::float4 rgba = SkHalfToFloat_finite_ftz(*pm.addr64(x, y));
+                        skvx::float4 rgba = from_half(skvx::half4::Load(pm.addr64(x, y)));
                         float a = rgba[3];
                         if (a > 1.0f || any(rgba < 0.0f) || any(rgba > a)) {
                             SkDebugf("[%s] F16Norm pixel [%d, %d] unclamped: (%g, %g, %g, %g)\n",

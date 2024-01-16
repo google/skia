@@ -147,6 +147,7 @@ excluded_files=(
   "src/core/SkMipmapHQDownSampler.cpp"
   "src/core/SkMaskBlurFilter.cpp"
   "src/core/SkM44.cpp"
+  "src/core/SkPixmap.cpp"
 )
 
 function opted_in_to_IWYU_checks() {

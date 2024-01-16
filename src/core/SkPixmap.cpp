@@ -152,9 +152,7 @@ float SkPixmap::getAlphaf(int x, int y) const {
         }
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType: {
-            uint64_t px;
-            memcpy(&px, srcPtr, sizeof(px));
-            value = SkHalfToFloat_finite_ftz(px)[3];
+            value = from_half(skvx::half4::Load(srcPtr))[3];
             break;
         }
         case kRGBA_F32_SkColorType:
@@ -349,7 +347,7 @@ SkColor SkPixmap::getColor(int x, int y) const {
         case kRGBA_F16_SkColorType: {
             const uint64_t* addr =
                 (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
-            skvx::float4 p4 = SkHalfToFloat_finite_ftz(*addr);
+            skvx::float4 p4 = from_half(skvx::half4::Load(addr));
             if (p4[3] && needsUnpremul) {
                 float inva = 1 / p4[3];
                 p4 = p4 * skvx::float4(inva, inva, inva, 1);
@@ -539,7 +537,7 @@ SkColor4f SkPixmap::getColor4f(int x, int y) const {
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType: {
             const uint64_t* addr = (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
-            skvx::float4 p4 = SkHalfToFloat_finite_ftz(*addr);
+            skvx::float4 p4 = from_half(skvx::half4::Load(addr));
             if (p4[3] && needsUnpremul) {
                 float inva = 1 / p4[3];
                 p4 = p4 * skvx::float4(inva, inva, inva, 1);

@@ -686,56 +686,71 @@ SIN Vec<N,int> lrint(const Vec<N,float>& x) {
 
 SIN Vec<N,float> fract(const Vec<N,float>& x) { return x - floor(x); }
 
-// Assumes inputs are finite and treat/flush denorm half floats as/to zero.
-// Key constants to watch for:
-//    - a float is 32-bit, 1-8-23 sign-exponent-mantissa, with 127 exponent bias;
-//    - a half  is 16-bit, 1-5-10 sign-exponent-mantissa, with  15 exponent bias.
-SIN Vec<N,uint16_t> to_half_finite_ftz(const Vec<N,float>& x) {
-    Vec<N,uint32_t> sem = sk_bit_cast<Vec<N,uint32_t>>(x),
-                    s   = sem & 0x8000'0000,
-                     em = sem ^ s,
-                is_norm =  em > 0x387f'd000, // halfway between largest f16 denorm and smallest norm
-                   norm = (em>>13) - ((127-15)<<10);
-    return cast<uint16_t>((s>>16) | (is_norm & norm));
-}
-SIN Vec<N,float> from_half_finite_ftz(const Vec<N,uint16_t>& x) {
-    Vec<N,uint32_t> wide = cast<uint32_t>(x),
-                      s  = wide & 0x8000,
-                      em = wide ^ s,
-                 is_norm =   em > 0x3ff,
-                    norm = (em<<13) + ((127-15)<<23);
-    return sk_bit_cast<Vec<N,float>>((s<<16) | (is_norm & norm));
-}
-
-// Like if_then_else(), these N=1 base cases won't actually be used unless explicitly called.
-SI Vec<1,uint16_t> to_half(const Vec<1,float>&    x) { return   to_half_finite_ftz(x); }
-SI Vec<1,float>  from_half(const Vec<1,uint16_t>& x) { return from_half_finite_ftz(x); }
-
+// Converts float to half, rounding to nearest even, and supporting de-normal f16 conversion,
+// and overflow to f16 infinity. Should not be called with NaNs, since it can convert NaN->inf.
 SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
+    assert(all(x == x)); // No NaNs should reach this function
+
+    // Intrinsics for float->half tend to operate on 4 lanes, and the default implementation has
+    // enough instructions that it's better to split and join on 128 bits groups vs.
+    // recursing for each min/max/shift/etc.
+    if constexpr (N > 4) {
+        return join(to_half(x.lo),
+                    to_half(x.hi));
+    }
+
 #if SKVX_USE_SIMD && defined(__aarch64__)
     if constexpr (N == 4) {
         return sk_bit_cast<Vec<N,uint16_t>>(vcvt_f16_f32(sk_bit_cast<float32x4_t>(x)));
 
     }
 #endif
-    if constexpr (N > 4) {
-        return join(to_half(x.lo),
-                    to_half(x.hi));
-    }
-    return to_half_finite_ftz(x);
+
+#define I(x) sk_bit_cast<Vec<N,int32_t>>(x)
+#define F(x) sk_bit_cast<Vec<N,float>>(x)
+    Vec<N,int32_t> sem = I(x),
+                   s   = sem & 0x8000'0000,
+                    em = min(sem ^ s, 0x4780'0000), // |x| clamped to f16 infinity
+                 // F(em)*8192 increases the exponent by 13, which when added back to em will shift
+                 // the mantissa bits 13 to the right. We clamp to 1/2 for subnormal values, which
+                 // automatically shifts the mantissa to match 2^-14 expected for a subnorm f16.
+                 magic = I(max(F(em) * 8192.f, 0.5f)) & (255 << 23),
+               rounded = I((F(em) + F(magic))), // shift mantissa with automatic round-to-even
+                   // Subtract 127 for f32 bias, subtract 13 to undo the *8192, subtract 1 to remove
+                   // the implicit leading 1., and add 15 to get the f16 biased exponent.
+                   exp = ((magic >> 13) - ((127-15+13+1)<<10)), // shift and re-bias exponent
+                   f16 = rounded + exp; // use + if 'rounded' rolled over into first exponent bit
+    return cast<uint16_t>((s>>16) | f16);
+#undef I
+#undef F
 }
 
+// Converts from half to float, preserving NaN and +/- infinity.
 SIN Vec<N,float> from_half(const Vec<N,uint16_t>& x) {
+    if constexpr (N > 4) {
+        return join(from_half(x.lo),
+                    from_half(x.hi));
+    }
+
 #if SKVX_USE_SIMD && defined(__aarch64__)
     if constexpr (N == 4) {
         return sk_bit_cast<Vec<N,float>>(vcvt_f32_f16(sk_bit_cast<float16x4_t>(x)));
     }
 #endif
-    if constexpr (N > 4) {
-        return join(from_half(x.lo),
-                    from_half(x.hi));
-    }
-    return from_half_finite_ftz(x);
+
+    Vec<N,int32_t> wide = cast<int32_t>(x),
+                      s  = wide & 0x8000,
+                      em = wide ^ s,
+              inf_or_nan =  (em >= (31 << 10)) & (255 << 23),  // Expands exponent to fill 8 bits
+                 is_norm =   em > 0x3ff,
+                     // subnormal f16's are 2^-14*0.[m0:9] == 2^-24*[m0:9].0
+                     sub = sk_bit_cast<Vec<N,int32_t>>((cast<float>(em) * (1.f/(1<<24)))),
+                    norm = ((em<<13) + ((127-15)<<23)), // Shifts mantissa, shifts + re-biases exp
+                  finite = (is_norm & norm) | (~is_norm & sub);
+    // If 'x' is f16 +/- infinity, inf_or_nan will be the filled 8-bit exponent but 'norm' will be
+    // all 0s since 'x's mantissa is 0. Thus norm | inf_or_nan becomes f32 infinity. However, if
+    // 'x' is an f16 NaN, some bits of 'norm' will be non-zero, so it stays an f32 NaN after the OR.
+    return sk_bit_cast<Vec<N,float>>((s<<16) | finite | inf_or_nan);
 }
 
 // div255(x) = (x + 127) / 255 is a bit-exact rounding divide-by-255, packing down to 8-bit.

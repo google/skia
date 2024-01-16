@@ -8,30 +8,24 @@
 #ifndef SkHalf_DEFINED
 #define SkHalf_DEFINED
 
-#include "src/base/SkVx.h"
+#include <cstdint>
 
 // 16-bit floating point value
 // format is 1 bit sign, 5 bits exponent, 10 bits mantissa
 // only used for storage
-typedef uint16_t SkHalf;
+using SkHalf = uint16_t;
 
-static constexpr uint16_t SK_HalfMin     = 0x0400; // 2^-14  (minimum positive normal value)
-static constexpr uint16_t SK_HalfMax     = 0x7bff; // 65504
-static constexpr uint16_t SK_HalfEpsilon = 0x1400; // 2^-10
-static constexpr uint16_t SK_Half1       = 0x3C00; // 1
+static constexpr uint16_t SK_HalfNaN      = 0x7c01; // a NaN value, not all possible NaN values
+static constexpr uint16_t SK_HalfInfinity = 0x7c00;
+static constexpr uint16_t SK_HalfMin      = 0x0400; // 2^-14  (minimum positive normal value)
+static constexpr uint16_t SK_HalfMax      = 0x7bff; // 65504  (maximum positive normal value)
+static constexpr uint16_t SK_HalfEpsilon  = 0x1400; // 2^-10
+static constexpr uint16_t SK_Half1        = 0x3C00; // 1
 
-// convert between half and single precision floating point
+// Convert between half and single precision floating point. Vectorized functions
+// skvx::from_half and skvx::to_half are also available. Unlike skvx::to_half, this will
+// correctly handle float NaN -> half NaN.
 float SkHalfToFloat(SkHalf h);
 SkHalf SkFloatToHalf(float f);
-
-// Convert between half and single precision floating point,
-// assuming inputs and outputs are both finite, and may
-// flush values which would be denormal half floats to zero.
-static inline skvx::float4 SkHalfToFloat_finite_ftz(uint64_t rgba) {
-    return skvx::from_half(skvx::half4::Load(&rgba));
-}
-static inline skvx::half4 SkFloatToHalf_finite_ftz(const skvx::float4& c) {
-    return skvx::to_half(c);
-}
 
 #endif
