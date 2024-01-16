@@ -347,12 +347,20 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                     tf = procs.fTypefaceProc(&stream, sizeof(stream), procs.fTypefaceCtx);
                 }
                 else {
+#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
+                    tf = SkTypeface::MakeDeserialize(stream, SkFontMgr::RefDefault());
+#else
                     tf = SkTypeface::MakeDeserialize(stream, nullptr);
+#endif
                 }
                 if (!tf) {    // failed to deserialize
                     // fTFPlayback asserts it never has a null, so we plop in
                     // a default here.
+#if !defined(SK_DISABLE_LEGACY_DEFAULT_TYPEFACE)
+                    tf = SkTypeface::MakeDefault();
+#else
                     tf = SkTypeface::MakeEmpty();
+#endif
                 }
                 fTFPlayback[i] = std::move(tf);
             }
