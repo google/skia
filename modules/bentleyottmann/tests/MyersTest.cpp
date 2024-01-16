@@ -11,10 +11,10 @@
 #include <cstdint>
 
 namespace myers {
-extern bool slope_s0_less_than_slope_s1(const Segment& s0, const Segment& s1);
-extern bool segment_less_than_upper_to_insert(const Segment& segment, const Segment& to_insert);
-extern bool s0_less_than_s1_at_y(const Segment& s0, const Segment& s1, int32_t y);
-extern bool s0_intersects_s1(const Segment& s0, const Segment& s1);
+bool slope_s0_less_than_slope_s1(const Segment& s0, const Segment& s1);
+bool segment_less_than_upper_to_insert(const Segment& segment, const Segment& to_insert);
+bool s0_less_than_s1_at_y(const Segment& s0, const Segment& s1, int32_t y);
+bool s0_intersects_s1(const Segment& s0, const Segment& s1);
 }  // namespace myers
 
 using namespace myers;
@@ -211,7 +211,7 @@ DEF_TEST(MFC_has_inner_intersection, r) {
 }
 
 DEF_TEST(MFC_myers_brute_force_comparison, r) {
-    std::vector<Segment> tests[] = {
+    const std::vector<Segment> tests[] = {
             {{{-57, -138}, {56, 178}}, {{14, -146}, {-22, 132}}},
             {{{-4, -23}, {-11, 11}}, {{6, -2}, {-11, 11}}, {{159, -244}, {-159, 233}}},
             {{{-7, -22}, {10, 14}}, {{-7, -71}, {-7, 80}}, {{-7, -22}, {-4, 5}}},
@@ -246,7 +246,7 @@ DEF_TEST(MFC_myers_brute_force_comparison, r) {
             {{{-11, -11}, {10, 10}}, {{-10, -10}, {11, 11}}, {{10, -10}, {-10, 10}}},
     };
 
-    for (auto& segments : tests) {
+    for (const auto& segments : tests) {
         std::vector<Segment> myersSegments = segments;
         std::vector<Segment> bruteSegments = segments;
         auto myersResponse = myers_find_crossings(myersSegments);
@@ -291,7 +291,7 @@ public:
 
     void print() {
         int64_t average = fAccumulatedTime.count() / fCount;
-        printf("average time: %" PRId64 " µs\n", average);
+        SkDebugf("average time: %" PRId64 " µs\n", average);
     }
 
 private:
@@ -341,17 +341,17 @@ DEF_TEST(MFC_myers_brute_force_random_comparison, r) {
     std::sort(myersResponse.begin(), myersResponse.end());
     std::sort(bruteResponse.begin(), bruteResponse.end());
 
-    //printf("myers size: %zu brute size: %zu\n", myersResponse.size(), bruteResponse.size());
+    //SkDebugf("myers size: %zu brute size: %zu\n", myersResponse.size(), bruteResponse.size());
 
     REPORTER_ASSERT(r, myersResponse.size() == bruteResponse.size());
     if (myersResponse.size() != bruteResponse.size()) {
-        printf("myers size: %zu brute size: %zu\n", myersResponse.size(), bruteResponse.size());
-        printf("{");
+        SkDebugf("myers size: %zu brute size: %zu\n", myersResponse.size(), bruteResponse.size());
+        SkDebugf("{");
         for (const Segment& s : segments) {
             const auto [u, l] = s;
-            printf("{{%d, %d}, {%d, %d}}, ", u.x, u.y, l.x, l.y);
+            SkDebugf("{{%d, %d}, {%d, %d}}, ", u.x, u.y, l.x, l.y);
         }
-        printf("},\n");
+        SkDebugf("},\n");
     }
 
     // There should be no duplicate crossings.
@@ -367,8 +367,8 @@ DEF_TEST(MFC_myers_brute_force_random_comparison, r) {
                                   bruteResponse.begin(), bruteResponse.end()));
     segments.clear();
     }
-    printf("myers ");
+    SkDebugf("myers ");
     myersStopWatch.print();
-    printf("brute ");
+    SkDebugf("brute ");
     bruteStopWatch.print();
 }
