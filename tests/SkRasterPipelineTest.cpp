@@ -105,7 +105,7 @@ DEF_TEST(SkRasterPipeline_PackBigContext, r) {
 }
 
 DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, reporter) {
-    alignas(64) int32_t mask[]  = {~0, 0, ~0,  0, ~0, ~0, ~0,  0};
+    alignas(64) int32_t mask[16]  = {~0, 0, ~0, 0, ~0, ~0, ~0, 0, ~0, 0, ~0, 0, ~0, ~0, ~0, 0};
     alignas(64) int32_t maskCopy[SkRasterPipeline_kMaxStride_highp] = {};
     alignas(64) int32_t src[4 * SkRasterPipeline_kMaxStride_highp] = {};
 
@@ -149,7 +149,7 @@ DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_LoadStoreLoopMask, reporter) {
-    alignas(64) int32_t mask[]  = {~0, 0, ~0,  0, ~0, ~0, ~0,  0};
+    alignas(64) int32_t mask[16]  = {~0, 0, ~0, 0, ~0, ~0, ~0, 0, ~0, 0, ~0, 0, ~0, ~0, ~0, 0};
     alignas(64) int32_t maskCopy[SkRasterPipeline_kMaxStride_highp] = {};
     alignas(64) int32_t src[4 * SkRasterPipeline_kMaxStride_highp] = {};
 
@@ -193,7 +193,7 @@ DEF_TEST(SkRasterPipeline_LoadStoreLoopMask, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_LoadStoreReturnMask, reporter) {
-    alignas(64) int32_t mask[]  = {~0, 0, ~0,  0, ~0, ~0, ~0,  0};
+    alignas(64) int32_t mask[16]  = {~0, 0, ~0, 0, ~0, ~0, ~0, 0, ~0, 0, ~0, 0, ~0, ~0, ~0, 0};
     alignas(64) int32_t maskCopy[SkRasterPipeline_kMaxStride_highp] = {};
     alignas(64) int32_t src[4 * SkRasterPipeline_kMaxStride_highp] = {};
 
@@ -237,8 +237,10 @@ DEF_TEST(SkRasterPipeline_LoadStoreReturnMask, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_MergeConditionMask, reporter) {
-    alignas(64) int32_t mask[]  = { 0,  0, ~0, ~0, 0, ~0, 0, ~0,
-                                   ~0, ~0, ~0, ~0, 0,  0, 0,  0};
+    alignas(64) int32_t mask[32]  = { 0, 0, ~0, ~0, 0, ~0, 0, ~0,
+                                      ~0, ~0, ~0, ~0, 0, 0, 0, 0,
+                                      0, 0, ~0, ~0, 0, ~0, 0, ~0,
+                                      ~0, ~0, ~0, ~0, 0, 0, 0, 0};
     alignas(64) int32_t src[4 * SkRasterPipeline_kMaxStride_highp] = {};
     static_assert(std::size(mask) == (2 * SkRasterPipeline_kMaxStride_highp));
 
@@ -265,11 +267,15 @@ DEF_TEST(SkRasterPipeline_MergeConditionMask, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_MergeLoopMask, reporter) {
-    alignas(64) int32_t initial[]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
-                                      ~0,  0, ~0,  0, ~0, ~0, ~0, ~0,  // g (loop)
-                                      ~0, ~0, ~0, ~0, ~0, ~0,  0, ~0,  // b (return)
-                                      ~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0}; // a (combined)
-    alignas(64) int32_t mask[]     = { 0, ~0, ~0,  0, ~0, ~0, ~0, ~0};
+    alignas(64) int32_t initial[64]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
+                                        ~0,  0, ~0,  0, ~0, ~0, ~0, ~0,
+                                        ~0, ~0, ~0, ~0, ~0, ~0,  0, ~0,  // g (loop)
+                                        ~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0,
+                                        ~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // b (return)
+                                        ~0,  0, ~0,  0, ~0, ~0, ~0, ~0,
+                                        ~0, ~0, ~0, ~0, ~0, ~0,  0, ~0,  // a (combined)
+                                        ~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) int32_t mask[16]     = {0, ~0, ~0, 0, ~0, ~0, ~0, ~0, 0, ~0, ~0, 0, ~0, ~0, ~0, ~0};
     alignas(64) int32_t src[4 * SkRasterPipeline_kMaxStride_highp] = {};
     static_assert(std::size(initial) == (4 * SkRasterPipeline_kMaxStride_highp));
 
@@ -297,11 +303,15 @@ DEF_TEST(SkRasterPipeline_MergeLoopMask, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_ReenableLoopMask, reporter) {
-    alignas(64) int32_t initial[]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
-                                      ~0,  0, ~0,  0, ~0, ~0,  0, ~0,  // g (loop)
-                                       0, ~0, ~0, ~0,  0,  0,  0, ~0,  // b (return)
-                                       0,  0, ~0,  0,  0,  0,  0, ~0}; // a (combined)
-    alignas(64) int32_t mask[]     = { 0, ~0,  0,  0,  0,  0, ~0,  0};
+    alignas(64) int32_t initial[64]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
+                                        ~0,  0, ~0,  0, ~0, ~0,  0, ~0,
+                                         0, ~0, ~0, ~0,  0,  0,  0, ~0,  // g (loop)
+                                         0,  0, ~0,  0,  0,  0,  0, ~0,
+                                        ~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // b (return)
+                                        ~0,  0, ~0,  0, ~0, ~0,  0, ~0,
+                                         0, ~0, ~0, ~0,  0,  0,  0, ~0,  // a (combined)
+                                         0,  0, ~0,  0,  0,  0,  0, ~0};
+    alignas(64) int32_t mask[16]     = { 0, ~0, 0, 0, 0, 0, ~0, 0, 0, ~0, 0, 0, 0, 0, ~0, 0};
     alignas(64) int32_t src[4 * SkRasterPipeline_kMaxStride_highp] = {};
     static_assert(std::size(initial) == (4 * SkRasterPipeline_kMaxStride_highp));
 
@@ -329,14 +339,18 @@ DEF_TEST(SkRasterPipeline_ReenableLoopMask, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_CaseOp, reporter) {
-    alignas(64) int32_t initial[]        = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
-                                             0, ~0, ~0,  0, ~0, ~0,  0, ~0,  // g (loop)
-                                            ~0,  0, ~0, ~0,  0,  0,  0, ~0,  // b (return)
-                                             0,  0, ~0,  0,  0,  0,  0, ~0}; // a (combined)
+    alignas(64) int32_t initial[64]        = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
+                                               0, ~0, ~0,  0, ~0, ~0,  0, ~0,
+                                              ~0,  0, ~0, ~0,  0,  0,  0, ~0,  // g (loop)
+                                               0,  0, ~0,  0,  0,  0,  0, ~0,
+                                              ~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // b (return)
+                                               0, ~0, ~0,  0, ~0, ~0,  0, ~0,
+                                              ~0,  0, ~0, ~0,  0,  0,  0, ~0,  // a (combined)
+                                               0,  0, ~0,  0,  0,  0,  0, ~0};
     alignas(64) int32_t src[4 * SkRasterPipeline_kMaxStride_highp] = {};
     static_assert(std::size(initial) == (4 * SkRasterPipeline_kMaxStride_highp));
 
-    constexpr int32_t actualValues[] = { 2,  1,  2,  4,  5,  2,  2,  8};
+    constexpr int32_t actualValues[16] = { 2,  1,  2,  4,  5,  2,  2,  8};
     static_assert(std::size(actualValues) == SkRasterPipeline_kMaxStride_highp);
 
     alignas(64) int32_t caseOpData[2 * SkRasterPipeline_kMaxStride_highp];
@@ -386,10 +400,14 @@ DEF_TEST(SkRasterPipeline_CaseOp, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_MaskOffLoopMask, reporter) {
-    alignas(64) int32_t initial[]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
-                                      ~0,  0, ~0, ~0,  0,  0,  0, ~0,  // g (loop)
-                                      ~0, ~0,  0, ~0,  0,  0, ~0, ~0,  // b (return)
-                                      ~0,  0,  0, ~0,  0,  0,  0, ~0}; // a (combined)
+    alignas(64) int32_t initial[64]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
+                                        ~0,  0, ~0, ~0,  0,  0,  0, ~0,
+                                        ~0, ~0,  0, ~0,  0,  0, ~0, ~0,  // g (loop)
+                                        ~0,  0,  0, ~0,  0,  0,  0, ~0,
+                                        ~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // b (return)
+                                        ~0,  0, ~0, ~0,  0,  0,  0, ~0,
+                                        ~0, ~0,  0, ~0,  0,  0, ~0, ~0,  // a (combined)
+                                        ~0,  0,  0, ~0,  0,  0,  0, ~0};
     alignas(64) int32_t src[4 * SkRasterPipeline_kMaxStride_highp] = {};
     static_assert(std::size(initial) == (4 * SkRasterPipeline_kMaxStride_highp));
 
@@ -415,10 +433,14 @@ DEF_TEST(SkRasterPipeline_MaskOffLoopMask, reporter) {
 }
 
 DEF_TEST(SkRasterPipeline_MaskOffReturnMask, reporter) {
-    alignas(64) int32_t initial[]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
-                                      ~0,  0, ~0, ~0,  0,  0,  0, ~0,  // g (loop)
-                                      ~0, ~0,  0, ~0,  0,  0, ~0, ~0,  // b (return)
-                                      ~0,  0,  0, ~0,  0,  0,  0, ~0}; // a (combined)
+    alignas(64) int32_t initial[64]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // r (condition)
+                                        ~0,  0, ~0, ~0,  0,  0,  0, ~0,
+                                        ~0, ~0,  0, ~0,  0,  0, ~0, ~0,  // g (loop)
+                                        ~0,  0,  0, ~0,  0,  0,  0, ~0,
+                                        ~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // b (return)
+                                        ~0,  0, ~0, ~0,  0,  0,  0, ~0,
+                                        ~0, ~0,  0, ~0,  0,  0, ~0, ~0,  // a (combined)
+                                        ~0,  0,  0, ~0,  0,  0,  0, ~0};
     alignas(64) int32_t src[4 * SkRasterPipeline_kMaxStride_highp] = {};
     static_assert(std::size(initial) == (4 * SkRasterPipeline_kMaxStride_highp));
 
@@ -505,11 +527,12 @@ DEF_TEST(SkRasterPipeline_CopyFromIndirectUnmasked, r) {
     alignas(64) int dst[5 * SkRasterPipeline_kMaxStride_highp];
 
     // Test with various mixes of indirect offsets.
-    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) const uint32_t kOffsets1[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    alignas(64) const uint32_t kOffsets2[8] = {2, 2, 2, 2, 2, 2, 2, 2};
-    alignas(64) const uint32_t kOffsets3[8] = {0, 2, 0, 2, 0, 2, 0, 2};
-    alignas(64) const uint32_t kOffsets4[8] = {99, 99, 0, 0, 99, 99, 0, 0};
+    static_assert(SkRasterPipeline_kMaxStride_highp == 16);
+    alignas(64) const uint32_t kOffsets1[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    alignas(64) const uint32_t kOffsets2[16] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    alignas(64) const uint32_t kOffsets3[16] = {0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2};
+    alignas(64) const uint32_t kOffsets4[16] = {99, 99, 0, 0, 99, 99, 0, 0,
+                                                99, 99, 0, 0, 99, 99, 0, 0};
 
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -577,11 +600,12 @@ DEF_TEST(SkRasterPipeline_CopyFromIndirectUniformUnmasked, r) {
     alignas(64) int dst[5 * SkRasterPipeline_kMaxStride_highp];
 
     // Test with various mixes of indirect offsets.
-    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) const uint32_t kOffsets1[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    alignas(64) const uint32_t kOffsets2[8] = {2, 2, 2, 2, 2, 2, 2, 2};
-    alignas(64) const uint32_t kOffsets3[8] = {0, 2, 0, 2, 0, 2, 0, 2};
-    alignas(64) const uint32_t kOffsets4[8] = {99, ~99u, 0, 0, ~99u, 99, 0, 0};
+    static_assert(SkRasterPipeline_kMaxStride_highp == 16);
+    alignas(64) const uint32_t kOffsets1[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    alignas(64) const uint32_t kOffsets2[16] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    alignas(64) const uint32_t kOffsets3[16] = {0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2};
+    alignas(64) const uint32_t kOffsets4[16] = {99, ~99u, 0, 0, ~99u, 99, 0, 0,
+                                                99, ~99u, 0, 0, ~99u, 99, 0, 0};
 
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -647,17 +671,22 @@ DEF_TEST(SkRasterPipeline_CopyToIndirectMasked, r) {
     alignas(64) int dst[5 * SkRasterPipeline_kMaxStride_highp];
 
     // Test with various mixes of indirect offsets.
-    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) const uint32_t kOffsets1[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    alignas(64) const uint32_t kOffsets2[8] = {2, 2, 2, 2, 2, 2, 2, 2};
-    alignas(64) const uint32_t kOffsets3[8] = {0, 2, 0, 2, 0, 2, 0, 2};
-    alignas(64) const uint32_t kOffsets4[8] = {99, ~99u, 0, 0, ~99u, 99, 0, 0};
+    static_assert(SkRasterPipeline_kMaxStride_highp == 16);
+    alignas(64) const uint32_t kOffsets1[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    alignas(64) const uint32_t kOffsets2[16] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    alignas(64) const uint32_t kOffsets3[16] = {0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2};
+    alignas(64) const uint32_t kOffsets4[16] = {99, ~99u, 0, 0, ~99u, 99, 0, 0,
+                                                99, ~99u, 0, 0, ~99u, 99, 0, 0};
 
     // Test with various masks.
-    alignas(64) const int32_t kMask1[8]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0};
-    alignas(64) const int32_t kMask2[8]  = {~0,  0, ~0, ~0,  0,  0,  0, ~0};
-    alignas(64) const int32_t kMask3[8]  = {~0, ~0,  0, ~0,  0,  0, ~0, ~0};
-    alignas(64) const int32_t kMask4[8]  = { 0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) const int32_t kMask1[16]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,
+                                             ~0, ~0, ~0, ~0, ~0,  0, ~0, ~0};
+    alignas(64) const int32_t kMask2[16]  = {~0,  0, ~0, ~0,  0,  0,  0, ~0,
+                                             ~0,  0, ~0, ~0,  0,  0,  0, ~0};
+    alignas(64) const int32_t kMask3[16]  = {~0, ~0,  0, ~0,  0,  0, ~0, ~0,
+                                             ~0, ~0,  0, ~0,  0,  0, ~0, ~0};
+    alignas(64) const int32_t kMask4[16]  = { 0,  0,  0,  0,  0,  0,  0,  0,
+                                              0,  0,  0,  0,  0,  0,  0,  0};
 
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -733,17 +762,22 @@ DEF_TEST(SkRasterPipeline_SwizzleCopyToIndirectMasked, r) {
     alignas(64) int dst[5 * SkRasterPipeline_kMaxStride_highp];
 
     // Test with various mixes of indirect offsets.
-    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) const uint32_t kOffsets1[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    alignas(64) const uint32_t kOffsets2[8] = {2, 2, 2, 2, 2, 2, 2, 2};
-    alignas(64) const uint32_t kOffsets3[8] = {0, 2, 0, 2, 0, 2, 0, 2};
-    alignas(64) const uint32_t kOffsets4[8] = {99, ~99u, 0, 0, ~99u, 99, 0, 0};
+    static_assert(SkRasterPipeline_kMaxStride_highp == 16);
+    alignas(64) const uint32_t kOffsets1[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    alignas(64) const uint32_t kOffsets2[16] = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+    alignas(64) const uint32_t kOffsets3[16] = {0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2};
+    alignas(64) const uint32_t kOffsets4[16] = {99, ~99u, 0, 0, ~99u, 99, 0, 0,
+                                                99, ~99u, 0, 0, ~99u, 99, 0, 0};
 
     // Test with various masks.
-    alignas(64) const int32_t kMask1[8]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0};
-    alignas(64) const int32_t kMask2[8]  = {~0,  0, ~0, ~0,  0,  0,  0, ~0};
-    alignas(64) const int32_t kMask3[8]  = {~0, ~0,  0, ~0,  0,  0, ~0, ~0};
-    alignas(64) const int32_t kMask4[8]  = { 0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) const int32_t kMask1[16]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,
+                                             ~0, ~0, ~0, ~0, ~0,  0, ~0, ~0};
+    alignas(64) const int32_t kMask2[16]  = {~0,  0, ~0, ~0,  0,  0,  0, ~0,
+                                             ~0,  0, ~0, ~0,  0,  0,  0, ~0};
+    alignas(64) const int32_t kMask3[16]  = {~0, ~0,  0, ~0,  0,  0, ~0, ~0,
+                                             ~0, ~0,  0, ~0,  0,  0, ~0, ~0};
+    alignas(64) const int32_t kMask4[16]  = { 0,  0,  0,  0,  0,  0,  0,  0,
+                                              0,  0,  0,  0,  0,  0,  0,  0};
 
     // Test with various swizzle permutations.
     struct TestPattern {
@@ -886,16 +920,20 @@ DEF_TEST(SkRasterPipeline_TraceVar, r) {
         TArray<int> fBuffer;
     };
 
-    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) static constexpr int32_t  kMaskOn   [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
-    alignas(64) static constexpr int32_t  kMaskOff  [8] = { 0,  0,  0,  0,  0,  0,  0,  0};
-    alignas(64) static constexpr uint32_t kIndirect0[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
-    alignas(64) static constexpr uint32_t kIndirect1[8] = { 1,  1,  1,  1,  1,  1,  1,  1};
-    alignas(64) int32_t kData333[8];
-    alignas(64) int32_t kData555[8];
-    alignas(64) int32_t kData666[8];
-    alignas(64) int32_t kData777[16];
-    alignas(64) int32_t kData999[16];
+    static_assert(SkRasterPipeline_kMaxStride_highp == 16);
+    alignas(64) static constexpr int32_t  kMaskOn   [16] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0,
+                                                            ~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) static constexpr int32_t  kMaskOff  [16] = { 0,  0,  0,  0,  0,  0,  0,  0,
+                                                             0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) static constexpr uint32_t kIndirect0[16] = { 0,  0,  0,  0,  0,  0,  0,  0,
+                                                             0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) static constexpr uint32_t kIndirect1[16] = { 1,  1,  1,  1,  1,  1,  1,  1,
+                                                             1,  1,  1,  1,  1,  1,  1,  1};
+    alignas(64) int32_t kData333[16];
+    alignas(64) int32_t kData555[16];
+    alignas(64) int32_t kData666[16];
+    alignas(64) int32_t kData777[32];
+    alignas(64) int32_t kData999[32];
     std::fill(kData333,     kData333 + N,   333);
     std::fill(kData555,     kData555 + N,   555);
     std::fill(kData666,     kData666 + N,   666);
@@ -971,9 +1009,11 @@ DEF_TEST(SkRasterPipeline_TraceLine, r) {
         TArray<int> fBuffer;
     };
 
-    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) static constexpr int32_t kMaskOn [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
-    alignas(64) static constexpr int32_t kMaskOff[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+    static_assert(SkRasterPipeline_kMaxStride_highp == 16);
+    alignas(64) static constexpr int32_t kMaskOn [16] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0,
+                                                         ~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) static constexpr int32_t kMaskOff[16] = { 0,  0,  0,  0,  0,  0,  0,  0,
+                                                          0,  0,  0,  0,  0,  0,  0,  0};
 
     TestTraceHook trace;
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1021,9 +1061,11 @@ DEF_TEST(SkRasterPipeline_TraceEnterExit, r) {
         TArray<int> fBuffer;
     };
 
-    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) static constexpr int32_t kMaskOn [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
-    alignas(64) static constexpr int32_t kMaskOff[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+    static_assert(SkRasterPipeline_kMaxStride_highp == 16);
+    alignas(64) static constexpr int32_t kMaskOn [16] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0,
+                                                         ~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) static constexpr int32_t kMaskOff[16] = { 0,  0,  0,  0,  0,  0,  0,  0,
+                                                          0,  0,  0,  0,  0,  0,  0,  0};
 
     TestTraceHook trace;
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1065,9 +1107,11 @@ DEF_TEST(SkRasterPipeline_TraceScope, r) {
         TArray<int> fBuffer;
     };
 
-    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) static constexpr int32_t kMaskOn [8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
-    alignas(64) static constexpr int32_t kMaskOff[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+    static_assert(SkRasterPipeline_kMaxStride_highp == 16);
+    alignas(64) static constexpr int32_t kMaskOn [16] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0,
+                                                         ~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) static constexpr int32_t kMaskOff[16] = { 0,  0,  0,  0,  0,  0,  0,  0,
+                                                          0,  0,  0,  0,  0,  0,  0,  0};
 
     TestTraceHook trace;
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
@@ -1110,11 +1154,15 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
         {SkRasterPipelineOp::copy_4_slots_masked, 4},
     };
 
-    static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    alignas(64) const int32_t kMask1[8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
-    alignas(64) const int32_t kMask2[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
-    alignas(64) const int32_t kMask3[8] = {~0,  0, ~0, ~0, ~0, ~0,  0, ~0};
-    alignas(64) const int32_t kMask4[8] = { 0, ~0,  0,  0,  0, ~0, ~0,  0};
+    static_assert(SkRasterPipeline_kMaxStride_highp == 16);
+    alignas(64) const int32_t kMask1[16] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0,
+                                            ~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) const int32_t kMask2[16] = { 0,  0,  0,  0,  0,  0,  0,  0,
+                                             0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) const int32_t kMask3[16] = {~0,  0, ~0, ~0, ~0, ~0,  0, ~0,
+                                            ~0,  0, ~0, ~0, ~0, ~0,  0, ~0};
+    alignas(64) const int32_t kMask4[16] = { 0, ~0,  0,  0,  0, ~0, ~0,  0,
+                                             0, ~0,  0,  0,  0, ~0, ~0,  0};
 
     const int N = SkOpts::raster_pipeline_highp_stride;
 
