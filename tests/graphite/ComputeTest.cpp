@@ -1001,6 +1001,149 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
     }
 }
 
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ReadOnlyStorageBuffer,
+                                              reporter,
+                                              context,
+                                              testContext) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
+    // size.
+    constexpr uint32_t kDim = 16;
+
+    class TestComputeStep : public ComputeStep {
+    public:
+        TestComputeStep() : ComputeStep(
+                /*name=*/"TestReadOnlyStorageBuffer",
+                /*localDispatchSize=*/{kDim, kDim, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kReadOnlyStorageBuffer,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kMapped,
+                        /*slot=*/0,
+                        /*sksl=*/"src { uint in_data[]; }",
+                    },
+                    {
+                        /*type=*/ResourceType::kWriteOnlyStorageTexture,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/1,
+                        /*sksl=*/"dst",
+                    }
+                }) {}
+        ~TestComputeStep() override = default;
+
+        std::string computeSkSL() const override {
+            return R"(
+                void main() {
+                    uint ix = sk_LocalInvocationID.y * 16 + sk_LocalInvocationID.x;
+                    uint value = in_data[ix];
+                    half4 splat = half4(
+                        half(value & 0xFF),
+                        half((value >> 8) & 0xFF),
+                        half((value >> 16) & 0xFF),
+                        half((value >> 24) & 0xFF)
+                    );
+                    textureWrite(dst, sk_LocalInvocationID.xy, splat / 255.0);
+                }
+            )";
+        }
+
+        size_t calculateBufferSize(int index, const ResourceDesc& r) const override {
+            SkASSERT(index == 0);
+            return kDim * kDim * sizeof(uint32_t);
+        }
+
+        void prepareStorageBuffer(int index,
+                                  const ResourceDesc&,
+                                  void* buffer,
+                                  size_t bufferSize) const override {
+            SkASSERT(index == 0);
+            SkASSERT(bufferSize == kDim * kDim * sizeof(uint32_t));
+
+            uint32_t* inputs = reinterpret_cast<uint32_t*>(buffer);
+            for (uint32_t y = 0; y < kDim; ++y) {
+                for (uint32_t x = 0; x < kDim; ++x) {
+                    uint32_t value =
+                            ((x * 256 / kDim) & 0xFF) | ((y * 256 / kDim) & 0xFF) << 8 | 255 << 24;
+                    *(inputs++) = value;
+                }
+            }
+        }
+
+        std::tuple<SkISize, SkColorType> calculateTextureParameters(
+                int index, const ResourceDesc& r) const override {
+            SkASSERT(index == 1);
+            return {{kDim, kDim}, kRGBA_8888_SkColorType};
+        }
+
+        WorkgroupSize calculateGlobalDispatchSize() const override {
+            return WorkgroupSize(1, 1, 1);
+        }
+    } step;
+
+    DispatchGroup::Builder builder(recorder.get());
+    if (!builder.appendStep(&step)) {
+        ERRORF(reporter, "Failed to add ComputeStep to DispatchGroup");
+        return;
+    }
+
+    sk_sp<TextureProxy> dst = builder.getSharedTextureResource(1);
+    if (!dst) {
+        ERRORF(reporter, "shared resource at slot 1 is missing");
+        return;
+    }
+
+    // Record the compute task
+    ComputeTask::DispatchGroupList groups;
+    groups.push_back(builder.finalize());
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    testContext->syncedSubmit(context);
+
+    SkBitmap bitmap;
+    SkImageInfo imgInfo =
+            SkImageInfo::Make(kDim, kDim, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType);
+    bitmap.allocPixels(imgInfo);
+
+    SkPixmap pixels;
+    bool peekPixelsSuccess = bitmap.peekPixels(&pixels);
+    REPORTER_ASSERT(reporter, peekPixelsSuccess);
+
+    bool readPixelsSuccess = context->priv().readPixels(pixels, dst.get(), imgInfo, 0, 0);
+    REPORTER_ASSERT(reporter, readPixelsSuccess);
+
+    for (uint32_t x = 0; x < kDim; ++x) {
+        for (uint32_t y = 0; y < kDim; ++y) {
+            SkColor4f expected =
+                    SkColor4f::FromColor(SkColorSetARGB(255, x * 256 / kDim, y * 256 / kDim, 0));
+            SkColor4f color = pixels.getColor4f(x, y);
+            bool pass = true;
+            for (int i = 0; i < 4; i++) {
+                pass &= color[i] == expected[i];
+            }
+            REPORTER_ASSERT(reporter, pass,
+                            "At position {%u, %u}, "
+                            "expected {%.1f, %.1f, %.1f, %.1f}, "
+                            "found {%.1f, %.1f, %.1f, %.1f}",
+                            x, y,
+                            expected.fR, expected.fG, expected.fB, expected.fA,
+                            color.fR, color.fG, color.fB, color.fA);
+        }
+    }
+}
+
 // Tests that a texture written by one compute step can be sampled by a subsequent step.
 DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComputeSteps,
                                               reporter,

@@ -117,6 +117,9 @@ sk_sp<DawnComputePipeline> DawnComputePipeline::Make(const DawnSharedContext* sh
             case ComputeStep::ResourceType::kIndirectBuffer:
                 entry.buffer.type = wgpu::BufferBindingType::Storage;
                 break;
+            case ComputeStep::ResourceType::kReadOnlyStorageBuffer:
+                entry.buffer.type = wgpu::BufferBindingType::ReadOnlyStorage;
+                break;
             case ComputeStep::ResourceType::kReadOnlyTexture:
                 entry.texture.sampleType = wgpu::TextureSampleType::Float;
                 entry.texture.viewDimension = wgpu::TextureViewDimension::e2D;

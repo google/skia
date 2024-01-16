@@ -79,6 +79,7 @@ public:
     enum class ResourceType {
         kUniformBuffer,
         kStorageBuffer,
+        kReadOnlyStorageBuffer,
 
         // An indirect buffer is a storage buffer populated by this ComputeStep to determine the
         // global dispatch size of a subsequent ComputeStep within the same DispatchGroup. The

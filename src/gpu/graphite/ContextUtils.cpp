@@ -601,6 +601,10 @@ std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step) {
                 SkSL::String::appendf(&sksl, "layout(binding=%d) buffer ", index++);
                 sksl += r.fSkSL;
                 break;
+            case Type::kReadOnlyStorageBuffer:
+                SkSL::String::appendf(&sksl, "layout(binding=%d) readonly buffer ", index++);
+                sksl += r.fSkSL;
+                break;
             case Type::kWriteOnlyStorageTexture:
                 SkSL::String::appendf(&sksl, "layout(binding=%d, rgba8) writeonly texture2D ",
                                       distinctRanges ? texIdx++ : index++);

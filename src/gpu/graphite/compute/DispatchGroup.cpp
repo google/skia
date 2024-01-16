@@ -157,6 +157,7 @@ bool Builder::appendStepInternal(
                 } else {
                     SkASSERT(((r.fType == Type::kUniformBuffer ||
                                r.fType == Type::kStorageBuffer ||
+                               r.fType == Type::kReadOnlyStorageBuffer ||
                                r.fType == Type::kIndirectBuffer) &&
                               std::holds_alternative<BufferView>(*slot)) ||
                              ((r.fType == Type::kReadOnlyTexture ||
@@ -286,6 +287,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
     DrawBufferManager* bufferMgr = fRecorder->priv().drawBufferManager();
     DispatchResourceOptional result;
     switch (resource.fType) {
+        case Type::kReadOnlyStorageBuffer:
         case Type::kStorageBuffer: {
             size_t bufferSize = step->calculateBufferSize(resourceIdx, resource);
             SkASSERT(bufferSize);
