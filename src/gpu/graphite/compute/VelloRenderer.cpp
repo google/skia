@@ -247,7 +247,8 @@ VelloRenderer::VelloRenderer(const Caps* caps)
         //
         // Currently fine has only one variant: on Metal this variant can operate on any floating
         // point format (so we set it to R8) but on Dawn it must use RGBA8unorm.
-        : fFine(ComputeShaderCoverageMaskTargetFormat(caps)) {
+        : fFineArea(ComputeShaderCoverageMaskTargetFormat(caps))
+        , fFineMsaa16(ComputeShaderCoverageMaskTargetFormat(caps)) {
     fGradientImage = TextureProxy::Make(caps,
                                         {1, 1},
                                         kRGBA_8888_SkColorType,
@@ -449,7 +450,10 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     builder.assignSharedTexture(fImageAtlas, kVelloSlot_ImageAtlas);
     builder.assignSharedTexture(fGradientImage, kVelloSlot_GradientImage);
     builder.assignSharedTexture(std::move(target), kVelloSlot_OutputImage);
-    builder.appendStep(&fFine, to_wg_size(dispatchInfo.fine));
+    const ComputeStep* fineVariant = params.fAaConfig == VelloAaConfig::kMSAA16
+                                             ? static_cast<const ComputeStep*>(&fFineMsaa16)
+                                             : static_cast<const ComputeStep*>(&fFineArea);
+    builder.appendStep(fineVariant, to_wg_size(dispatchInfo.fine));
 
     return builder.finalize();
 }

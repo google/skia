@@ -13,7 +13,7 @@
 namespace skgpu::graphite {
 
 // The maximum number of shared resource binding slots permitted for ComputeSteps of a DispatchGroup
-constexpr int kMaxComputeDataFlowSlots = 27;
+constexpr int kMaxComputeDataFlowSlots = 28;
 
 // The minimum element stride of an indirect dispatch argument array in bytes
 struct IndirectDispatchArgs {

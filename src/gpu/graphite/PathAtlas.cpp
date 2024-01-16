@@ -184,7 +184,7 @@ std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder*
 
     SkASSERT(recorder);
     return recorder->priv().rendererProvider()->velloRenderer()->renderScene(
-            {fOccuppiedWidth, fOccuppiedHeight, SkColors::kBlack},
+            {fOccuppiedWidth, fOccuppiedHeight, SkColors::kBlack, VelloAaConfig::kAnalyticArea},
             fScene,
             sk_ref_sp(this->texture()),
             recorder);

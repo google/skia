@@ -249,35 +249,74 @@ VelloPathTilingStep::VelloPathTilingStep()
           }) {}
 
 // Fine
-VelloFineStep::VelloFineStep(SkColorType targetFormat)
-        : VelloStep({
-                  BUFFER_BINDING(ConfigUniform, Uniform, None),
-                  BUFFER_BINDING(Segments,      ReadOnlyStorage, None),
-                  BUFFER_BINDING(PTCL,          ReadOnlyStorage, None),
-                  BUFFER_BINDING(InfoBinData,   ReadOnlyStorage, None),
-                  {
-                          /*type=*/ResourceType::kWriteOnlyStorageTexture,
-                          /*flow=*/DataFlow::kShared,
-                          /*policy=*/ResourcePolicy::kNone,
-                          /*slot=*/kVelloSlot_OutputImage,
-                  },
-                  {
-                          /*type=*/ResourceType::kReadOnlyTexture,
-                          /*flow=*/DataFlow::kShared,
-                          /*policy=*/ResourcePolicy::kNone,
-                          /*slot=*/kVelloSlot_GradientImage,
-                  },
-                  {
-                          /*type=*/ResourceType::kReadOnlyTexture,
-                          /*flow=*/DataFlow::kShared,
-                          /*policy=*/ResourcePolicy::kNone,
-                          /*slot=*/kVelloSlot_ImageAtlas,
-                  },
-          })
-        , fTargetFormat(targetFormat) {}
+VelloFineAreaStep::VelloFineAreaStep(SkColorType targetFormat)
+        : VelloFineStep(targetFormat,
+                        {
+                                BUFFER_BINDING(ConfigUniform, Uniform,         None),
+                                BUFFER_BINDING(Segments,      ReadOnlyStorage, None),
+                                BUFFER_BINDING(PTCL,          ReadOnlyStorage, None),
+                                BUFFER_BINDING(InfoBinData,   ReadOnlyStorage, None),
+                                {
+                                        /*type=*/ResourceType::kWriteOnlyStorageTexture,
+                                        /*flow=*/DataFlow::kShared,
+                                        /*policy=*/ResourcePolicy::kNone,
+                                        /*slot=*/kVelloSlot_OutputImage,
+                                },
+                                {
+                                        /*type=*/ResourceType::kReadOnlyTexture,
+                                        /*flow=*/DataFlow::kShared,
+                                        /*policy=*/ResourcePolicy::kNone,
+                                        /*slot=*/kVelloSlot_GradientImage,
+                                },
+                                {
+                                        /*type=*/ResourceType::kReadOnlyTexture,
+                                        /*flow=*/DataFlow::kShared,
+                                        /*policy=*/ResourcePolicy::kNone,
+                                        /*slot=*/kVelloSlot_ImageAtlas,
+                                },
+                        }) {}
 
-std::tuple<SkISize, SkColorType> VelloFineStep::calculateTextureParameters(int index, const ResourceDesc&) const {
-    return {{}, index == 4 ? fTargetFormat : kRGBA_8888_SkColorType};
+VelloFineMsaa16Step::VelloFineMsaa16Step(SkColorType targetFormat)
+        : VelloFineStep(targetFormat,
+                        {
+                                BUFFER_BINDING(ConfigUniform, Uniform, None),
+                                BUFFER_BINDING(Segments,      ReadOnlyStorage, None),
+                                BUFFER_BINDING(PTCL,          ReadOnlyStorage, None),
+                                BUFFER_BINDING(InfoBinData,   ReadOnlyStorage, None),
+                                {
+                                        /*type=*/ResourceType::kWriteOnlyStorageTexture,
+                                        /*flow=*/DataFlow::kShared,
+                                        /*policy=*/ResourcePolicy::kNone,
+                                        /*slot=*/kVelloSlot_OutputImage,
+                                },
+                                {
+                                        /*type=*/ResourceType::kReadOnlyTexture,
+                                        /*flow=*/DataFlow::kShared,
+                                        /*policy=*/ResourcePolicy::kNone,
+                                        /*slot=*/kVelloSlot_GradientImage,
+                                },
+                                {
+                                        /*type=*/ResourceType::kReadOnlyTexture,
+                                        /*flow=*/DataFlow::kShared,
+                                        /*policy=*/ResourcePolicy::kNone,
+                                        /*slot=*/kVelloSlot_ImageAtlas,
+                                },
+                                BUFFER_BINDING(MaskLUT, ReadOnlyStorage, Mapped),
+                        })
+        , fMaskLut(vello_cpp::build_mask_lut_16()) {}
+
+size_t VelloFineMsaa16Step::calculateBufferSize(int resourceIndex, const ResourceDesc&) const {
+    SkASSERT(resourceIndex == 7);
+    return 64 * 64 * 2;
+}
+
+void VelloFineMsaa16Step::prepareStorageBuffer(int resourceIndex,
+                                               const ResourceDesc&,
+                                               void* buffer,
+                                               size_t bufferSize) const {
+    SkASSERT(resourceIndex == 7);
+    SkASSERT(fMaskLut.size() == bufferSize);
+    memcpy(buffer, fMaskLut.data(), fMaskLut.size());
 }
 
 }  // namespace skgpu::graphite
