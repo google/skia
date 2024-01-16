@@ -84,8 +84,7 @@ public:
 
 private:
     // Pipelines
-    VelloBackdropStep fBackdrop;
-    VelloBackdropDynStep fBackdropDyn;
+    VelloBackdropDynStep fBackdrop;
     VelloBboxClearStep fBboxClear;
     VelloBinningStep fBinning;
     VelloClipLeafStep fClipLeaf;
@@ -94,8 +93,11 @@ private:
     VelloDrawLeafStep fDrawLeaf;
     VelloDrawReduceStep fDrawReduce;
     VelloFineStep fFine;
-    VelloPathCoarseFullStep fPathCoarseFull;
-    VelloPathsegStep fPathseg;
+    VelloFlattenStep fFlatten;
+    VelloPathCountStep fPathCount;
+    VelloPathCountSetupStep fPathCountSetup;
+    VelloPathTilingStep fPathTiling;
+    VelloPathTilingSetupStep fPathTilingSetup;
     VelloPathtagReduceStep fPathtagReduce;
     VelloPathtagReduce2Step fPathtagReduce2;
     VelloPathtagScan1Step fPathtagScan1;

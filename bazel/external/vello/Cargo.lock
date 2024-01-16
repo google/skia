@@ -104,11 +104,12 @@ dependencies = [
 
 [[package]]
 name = "kurbo"
-version = "0.9.4"
+version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d676038719d1c892f91e6e85121550143c75880b42f7feff6d413a078cf91fb3"
+checksum = "1618d4ebd923e97d67e7cd363d80aef35fe961005cbbbb3d2dad8bdd1bc63440"
 dependencies = [
  "arrayvec",
+ "smallvec",
 ]
 
 [[package]]
@@ -157,7 +158,7 @@ dependencies = [
 [[package]]
 name = "peniko"
 version = "0.1.0"
-source = "git+https://github.com/linebender/peniko?rev=cafdac9a211a0fb2fec5656bd663d1ac770bcc81#cafdac9a211a0fb2fec5656bd663d1ac770bcc81"
+source = "git+https://github.com/linebender/peniko?rev=629fc3325b016a8c98b1cd6204cb4ddf1c6b3daa#629fc3325b016a8c98b1cd6204cb4ddf1c6b3daa"
 dependencies = [
  "kurbo",
  "smallvec",
@@ -273,6 +274,7 @@ name = "vello_deps"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
+ "kurbo",
  "naga",
  "peniko",
  "regex",

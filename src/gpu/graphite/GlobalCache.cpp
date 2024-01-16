@@ -15,8 +15,8 @@
 namespace skgpu::graphite {
 
 GlobalCache::GlobalCache()
-        : fGraphicsPipelineCache(256) // TODO: find a good value for these limits
-        , fComputePipelineCache(16) {}
+        : fGraphicsPipelineCache(256)  // TODO: find a good value for these limits
+        , fComputePipelineCache(256) {}
 
 GlobalCache::~GlobalCache() {
     // These should have been cleared out earlier by deleteResources().

@@ -35,6 +35,11 @@ BufferView new_storage_slice(DrawBufferManager* mgr,
     return {info, info ? size : 0};
 }
 
+BufferView new_indirect_slice(DrawBufferManager* mgr, size_t size) {
+    BindBufferInfo info = mgr->getIndirectStorage(size, ClearBuffer::kYes);
+    return {info, info ? size : 0};
+}
+
 ::rust::Slice<uint8_t> to_slice(void* ptr, size_t size) {
     return {static_cast<uint8_t*>(ptr), size};
 }
@@ -74,6 +79,39 @@ vello_cpp::Fill to_fill_type(SkPathFillType fillType) {
             return vello_cpp::Fill::EvenOdd;
     }
     return vello_cpp::Fill::NonZero;
+}
+
+vello_cpp::CapStyle to_cap_style(SkPaint::Cap cap) {
+    switch (cap) {
+        case SkPaint::Cap::kButt_Cap:
+            return vello_cpp::CapStyle::Butt;
+        case SkPaint::Cap::kRound_Cap:
+            return vello_cpp::CapStyle::Round;
+        case SkPaint::Cap::kSquare_Cap:
+            return vello_cpp::CapStyle::Square;
+    }
+    SkUNREACHABLE;
+}
+
+vello_cpp::JoinStyle to_join_style(SkPaint::Join join) {
+    switch (join) {
+        case SkPaint::Join::kMiter_Join:
+            return vello_cpp::JoinStyle::Miter;
+        case SkPaint::Join::kBevel_Join:
+            return vello_cpp::JoinStyle::Bevel;
+        case SkPaint::Join::kRound_Join:
+            return vello_cpp::JoinStyle::Round;
+    }
+    SkUNREACHABLE;
+}
+
+vello_cpp::Stroke to_stroke(const SkStrokeRec& style) {
+    return vello_cpp::Stroke{
+            /*width=*/style.getWidth(),
+            /*miter_limit=*/style.getMiter(),
+            /*cap*/ to_cap_style(style.getCap()),
+            /*join*/ to_join_style(style.getJoin()),
+    };
 }
 
 class PathIter : public vello_cpp::PathIterator {
@@ -184,24 +222,11 @@ void VelloScene::solidStroke(const SkPath& shape,
                              const SkColor4f& fillColor,
                              const SkStrokeRec& style,
                              const Transform& t) {
-    // TODO(b/285423263): Vello currently only supports round stroke styles. Draw unsupported
-    // stroke styles by expanding the stroke and encoding it as a fill, until the GPU pipelines
-    // support them.
-    if (style.getCap() == SkPaint::kRound_Cap && style.getJoin() == SkPaint::kRound_Join) {
-        PathIter iter(shape, t);
-        fEncoding->stroke({style.getWidth()},
-                          to_vello_affine(t),
-                          {vello_cpp::BrushKind::Solid, {to_vello_color(fillColor)}},
-                          iter);
-    } else {
-        SkPath p;
-        style.applyToPath(&p, shape);
-        PathIter iter(p, t);
-        fEncoding->fill(vello_cpp::Fill::NonZero,
-                        to_vello_affine(t),
-                        {vello_cpp::BrushKind::Solid, {to_vello_color(fillColor)}},
-                        iter);
-    }
+    // TODO: Obtain dashing pattern here and let Vello handle dashing on the CPU while
+    // encoding the path?
+    PathIter iter(shape, t);
+    vello_cpp::Brush brush{vello_cpp::BrushKind::Solid, {to_vello_color(fillColor)}};
+    fEncoding->stroke(to_stroke(style), to_vello_affine(t), brush, iter);
 }
 
 void VelloScene::pushClipLayer(const SkPath& shape, const Transform& t) {
@@ -302,10 +327,12 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     // and the path's transform, and the total number of tiles.
     //
     // The following numbers amount to ~48MB
-    const size_t bin_data_size = bufferSizes.bin_data / 2;
-    const size_t tiles_size = bufferSizes.tiles / 2;
-    const size_t segments_size = bufferSizes.segments * 2 / 3;
-    const size_t ptcl_size = bufferSizes.ptcl / 2;
+    const size_t lines_size = bufferSizes.lines;
+    const size_t bin_data_size = bufferSizes.bin_data;
+    const size_t tiles_size = bufferSizes.tiles;
+    const size_t segments_size = bufferSizes.segments;
+    const size_t seg_counts_size = bufferSizes.seg_counts;
+    const size_t ptcl_size = bufferSizes.ptcl;
 
     // See the comments in VelloComputeSteps.h for an explanation of the logic here.
 
@@ -340,9 +367,11 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
                                kVelloSlot_PathBBoxes);
     builder.appendStep(&fBboxClear, to_wg_size(dispatchInfo.bbox_clear));
 
-    // pathseg
-    builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.cubics), kVelloSlot_Cubics);
-    builder.appendStep(&fPathseg, to_wg_size(dispatchInfo.path_seg));
+    // flatten
+    builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.bump_alloc, ClearBuffer::kYes),
+                               kVelloSlot_BumpAlloc);
+    builder.assignSharedBuffer(new_storage_slice(bufMgr, lines_size), kVelloSlot_Lines);
+    builder.appendStep(&fFlatten, to_wg_size(dispatchInfo.flatten));
 
     // draw_reduce
     builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.draw_reduced),
@@ -383,8 +412,6 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     // binning
     builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.draw_bboxes),
                                kVelloSlot_DrawBBoxes);
-    builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.bump_alloc, ClearBuffer::kYes),
-                               kVelloSlot_BumpAlloc);
     builder.assignSharedBuffer(new_storage_slice(bufMgr, bufferSizes.bin_headers),
                                kVelloSlot_BinHeader);
     builder.appendStep(&fBinning, to_wg_size(dispatchInfo.binning));
@@ -394,16 +421,29 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     builder.assignSharedBuffer(new_storage_slice(bufMgr, tiles_size), kVelloSlot_Tile);
     builder.appendStep(&fTileAlloc, to_wg_size(dispatchInfo.tile_alloc));
 
-    // path_coarse
-    builder.assignSharedBuffer(new_storage_slice(bufMgr, segments_size), kVelloSlot_Segments);
-    builder.appendStep(&fPathCoarseFull, to_wg_size(dispatchInfo.path_coarse));
+    // path_count_setup
+    auto indirectCountBuffer = new_indirect_slice(bufMgr, bufferSizes.indirect_count);
+    builder.assignSharedBuffer(indirectCountBuffer, kVelloSlot_IndirectCount);
+    builder.appendStep(&fPathCountSetup, to_wg_size(dispatchInfo.path_count_setup));
+
+    // path_count
+    builder.assignSharedBuffer(new_storage_slice(bufMgr, seg_counts_size),
+                               kVelloSlot_SegmentCounts);
+    builder.appendStepIndirect(&fPathCount, indirectCountBuffer);
 
     // backdrop
-    builder.appendStep(&fBackdropDyn, to_wg_size(dispatchInfo.backdrop));
+    builder.appendStep(&fBackdrop, to_wg_size(dispatchInfo.backdrop));
 
     // coarse
     builder.assignSharedBuffer(new_storage_slice(bufMgr, ptcl_size), kVelloSlot_PTCL);
     builder.appendStep(&fCoarse, to_wg_size(dispatchInfo.coarse));
+
+    // path_tiling_setup
+    builder.appendStep(&fPathTilingSetup, to_wg_size(dispatchInfo.path_tiling_setup));
+
+    // path_tiling
+    builder.assignSharedBuffer(new_storage_slice(bufMgr, segments_size), kVelloSlot_Segments);
+    builder.appendStepIndirect(&fPathTiling, indirectCountBuffer);
 
     // fine
     builder.assignSharedTexture(fImageAtlas, kVelloSlot_ImageAtlas);

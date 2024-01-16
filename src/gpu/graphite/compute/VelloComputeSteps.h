@@ -82,7 +82,6 @@ namespace skgpu::graphite {
 //   fine
 //
 // TODO: Document the coverage mask pipeline once it has been re-implemented.
-// TODO: Update this when the stroke rework is complete.
 
 // ***
 // Shared buffers that are accessed by various stages.
@@ -115,13 +114,14 @@ constexpr int kVelloSlot_LargePathtagReduceSecondPassOutput = 4;
 constexpr int kVelloSlot_LargePathtagScanFirstPassOutput = 5;
 
 // ***
-// The second part of element processing converts path tags (moveTo, lineTo, quadTo, etc) into a
-// fixed-stride buffer of cubic beziers (using the tag monoids computed earlier) and computes their
-// bounding boxes.
+// The second part of element processing flattens path elements (moveTo, lineTo, quadTo, etc) into
+// an unordered line soup buffer and computes their bounding boxes. This stage is where strokes get
+// expanded to fills and stroke styles get applied. The output is an unordered "line soup" buffer
+// and the tight device-space bounding box of each path.
 //
-// Pipelines: bbox_clear, pathseg
+// Pipelines: bbox_clear, flatten
 constexpr int kVelloSlot_PathBBoxes = 6;
-constexpr int kVelloSlot_Cubics = 7;
+constexpr int kVelloSlot_Lines = 7;
 
 // ***
 // The next part prepares the draw object stream (entries in the per-tile command list aka PTCL)
@@ -145,18 +145,19 @@ constexpr int kVelloSlot_ClipElement = 13;
 constexpr int kVelloSlot_ClipBBoxes = 14;
 
 // ***
-// Buffers containing bump allocated data, including path segment, tile, bounding box, and binning
-// metadata, and the per-tile command list assembled from the draw monoids.
+// Buffers containing bump allocated data, the inputs and outputs to the binning, coarse raster, and
+// per-tile segment assembly stages.
 //
-// Pipelines: binning, tile_alloc, path_coarse_full, backdrop_dyn, coarse
+// Pipelines: binning, tile_alloc, path_count, backdrop, coarse, path_tiling
 constexpr int kVelloSlot_DrawBBoxes = 15;
 constexpr int kVelloSlot_BumpAlloc = 16;
 constexpr int kVelloSlot_BinHeader = 17;
 
 constexpr int kVelloSlot_Path = 18;
 constexpr int kVelloSlot_Tile = 19;
-constexpr int kVelloSlot_Segments = 20;
-constexpr int kVelloSlot_PTCL = 21;
+constexpr int kVelloSlot_SegmentCounts = 20;
+constexpr int kVelloSlot_Segments = 21;
+constexpr int kVelloSlot_PTCL = 22;
 
 // ***
 // Texture resources used by the fine rasterization stage. The gradient image needs to get populated
@@ -164,9 +165,14 @@ constexpr int kVelloSlot_PTCL = 21;
 // images that are composited into the scene.
 //
 // The output image contains the final render.
-constexpr int kVelloSlot_OutputImage = 22;
-constexpr int kVelloSlot_GradientImage = 23;
-constexpr int kVelloSlot_ImageAtlas = 24;
+constexpr int kVelloSlot_OutputImage = 23;
+constexpr int kVelloSlot_GradientImage = 24;
+constexpr int kVelloSlot_ImageAtlas = 25;
+
+// ***
+// The indirect count buffer is used to issue an indirect dispatch of the path count and path tiling
+// stages.
+constexpr int kVelloSlot_IndirectCount = 26;
 
 std::string_view VelloStageName(vello_cpp::ShaderStage);
 WorkgroupSize VelloStageLocalSize(vello_cpp::ShaderStage);
@@ -216,18 +222,19 @@ private:
         Vello##stage##Step();                                                          \
     };
 
-VELLO_COMPUTE_STEP(Backdrop);
 VELLO_COMPUTE_STEP(BackdropDyn);
 VELLO_COMPUTE_STEP(BboxClear);
 VELLO_COMPUTE_STEP(Binning);
 VELLO_COMPUTE_STEP(ClipLeaf);
 VELLO_COMPUTE_STEP(ClipReduce);
 VELLO_COMPUTE_STEP(Coarse);
+VELLO_COMPUTE_STEP(Flatten);
 VELLO_COMPUTE_STEP(DrawLeaf);
 VELLO_COMPUTE_STEP(DrawReduce);
-VELLO_COMPUTE_STEP(PathCoarse);
-VELLO_COMPUTE_STEP(PathCoarseFull);
-VELLO_COMPUTE_STEP(Pathseg);
+VELLO_COMPUTE_STEP(PathCount);
+VELLO_COMPUTE_STEP(PathCountSetup);
+VELLO_COMPUTE_STEP(PathTiling);
+VELLO_COMPUTE_STEP(PathTilingSetup);
 VELLO_COMPUTE_STEP(PathtagReduce);
 VELLO_COMPUTE_STEP(PathtagReduce2);
 VELLO_COMPUTE_STEP(PathtagScan1);
