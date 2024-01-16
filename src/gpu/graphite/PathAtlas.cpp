@@ -183,8 +183,16 @@ std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder*
     }
 
     SkASSERT(recorder);
+    // Unless the analytic area AA mode unless caps say otherwise.
+    VelloAaConfig config = VelloAaConfig::kAnalyticArea;
+#if defined(GRAPHITE_TEST_UTILS)
+    PathRendererStrategy strategy = recorder->priv().caps()->requestedPathRendererStrategy();
+    if (strategy == PathRendererStrategy::kComputeMSAA16) {
+        config = VelloAaConfig::kMSAA16;
+    }
+#endif
     return recorder->priv().rendererProvider()->velloRenderer()->renderScene(
-            {fOccuppiedWidth, fOccuppiedHeight, SkColors::kBlack, VelloAaConfig::kAnalyticArea},
+            {fOccuppiedWidth, fOccuppiedHeight, SkColors::kBlack, config},
             fScene,
             sk_ref_sp(this->texture()),
             recorder);

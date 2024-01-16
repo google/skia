@@ -893,6 +893,7 @@ bool ContextPriv::supportsPathRendererStrategy(PathRendererStrategy strategy) {
         case PathRendererStrategy::kDefault:
             return true;
         case PathRendererStrategy::kComputeAnalyticAA:
+        case PathRendererStrategy::kComputeMSAA16:
             return SkToBool(pathAtlasFlags & AtlasProvider::PathAtlasFlags::kCompute);
         case PathRendererStrategy::kRasterAA:
             return SkToBool(pathAtlasFlags & AtlasProvider::PathAtlasFlags::kRaster);
