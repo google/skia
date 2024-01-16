@@ -197,13 +197,13 @@ struct SkRasterPipeline_InitLaneMasksCtx {
 };
 
 struct SkRasterPipeline_ConstantCtx {
-    float value;
+    int32_t value;
     SkRPOffset dst;
 };
 
 struct SkRasterPipeline_UniformCtx {
-    float* dst;
-    const float* src;
+    int32_t* dst;
+    const int32_t* src;
 };
 
 struct SkRasterPipeline_BinaryOpCtx {
@@ -231,7 +231,7 @@ struct SkRasterPipeline_SwizzleCtx {
 };
 
 struct SkRasterPipeline_ShuffleCtx {
-    float* ptr;
+    int32_t* ptr;
     int count;
     uint16_t offsets[16];  // values must be byte offsets (4 * highp-stride * component-index)
 };

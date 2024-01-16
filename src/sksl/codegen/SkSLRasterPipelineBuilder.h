@@ -237,7 +237,7 @@ private:
     // case, the multi-slot ops can be absent, but numSlots must be 1.
     void appendImmediateBinaryOp(skia_private::TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                  ProgramOp baseStage,
-                                 SkRPOffset dst, float value, int numSlots) const;
+                                 SkRPOffset dst, int32_t value, int numSlots) const;
 
     // Appends a two-input math operation to the pipeline. `src` must be _immediately_ after `dst`
     // in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage. A BinaryOpCtx

@@ -1413,11 +1413,11 @@ Program::Program(TArray<Instruction> instrs,
 
 Program::~Program() = default;
 
-static bool immutable_data_is_splattable(float* immutablePtr, int numSlots) {
+static bool immutable_data_is_splattable(int32_t* immutablePtr, int numSlots) {
     // If every value between `immutablePtr[0]` and `immutablePtr[numSlots]` is bit-identical, we
     // can use a splat.
     for (int index = 1; index < numSlots; ++index) {
-        if (sk_bit_cast<int32_t>(immutablePtr[0]) != sk_bit_cast<int32_t>(immutablePtr[index])) {
+        if (immutablePtr[0] != immutablePtr[index]) {
             return false;
         }
     }
@@ -1451,7 +1451,7 @@ void Program::appendCopy(TArray<Stage>* pipeline,
         // preferable, since splats are a tiny bit faster than regular copies.
         if (basePtr) {
             SkASSERT(srcStride == 1);
-            float* immutablePtr = reinterpret_cast<float*>(basePtr + src);
+            int32_t* immutablePtr = reinterpret_cast<int32_t*>(basePtr + src);
             if (immutable_data_is_splattable(immutablePtr, numSlots)) {
                 auto stage = (ProgramOp)((int)ProgramOp::copy_constant + numSlots - 1);
                 SkRasterPipeline_ConstantCtx ctx;
@@ -1532,7 +1532,7 @@ void Program::appendMultiSlotUnaryOp(TArray<Stage>* pipeline, ProgramOp baseStag
 
 void Program::appendImmediateBinaryOp(TArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                       ProgramOp baseStage,
-                                      SkRPOffset dst, float value, int numSlots) const {
+                                      SkRPOffset dst, int32_t value, int numSlots) const {
     SkASSERT(is_immediate_op((BuilderOp)baseStage));
     SkASSERT(numSlots == 1 || is_multi_slot_immediate_op((BuilderOp)baseStage));
 
@@ -1916,8 +1916,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
                                                  : SlotA();
 
                 this->appendImmediateBinaryOp(pipeline, alloc, (ProgramOp)inst.fOp,
-                                              OffsetFromBase(dst), sk_bit_cast<float>(inst.fImmB),
-                                              inst.fImmA);
+                                              OffsetFromBase(dst), inst.fImmB, inst.fImmA);
                 break;
             }
             case ALL_N_WAY_BINARY_OP_CASES: {
@@ -2025,7 +2024,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 int generated = inst.fImmB;
 
                 auto* ctx = alloc->make<SkRasterPipeline_ShuffleCtx>();
-                ctx->ptr = tempStackPtr - (N * consumed);
+                ctx->ptr = reinterpret_cast<int32_t*>(tempStackPtr) - (N * consumed);
                 ctx->count = generated;
                 // Unpack immB and immC from nybble form into the offset array.
                 unpack_nybbles_to_offsets(inst.fImmC, SkSpan(&ctx->offsets[0], 8));
@@ -2137,8 +2136,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
 
                 for (int remaining = inst.fImmA; remaining > 0; remaining -= 4) {
                     auto ctx = alloc->make<SkRasterPipeline_UniformCtx>();
-                    ctx->dst = dst;
-                    ctx->src = src;
+                    ctx->dst = reinterpret_cast<int32_t*>(dst);
+                    ctx->src = reinterpret_cast<const int32_t*>(src);
                     switch (remaining) {
                         case 1:  pipeline->push_back({ProgramOp::copy_uniform,    ctx}); break;
                         case 2:  pipeline->push_back({ProgramOp::copy_2_uniforms, ctx}); break;
@@ -2215,7 +2214,7 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 for (int remaining = inst.fImmA; remaining > 0; remaining -= 4) {
                     SkRasterPipeline_ConstantCtx ctx;
                     ctx.dst = OffsetFromBase(dst);
-                    ctx.value = sk_bit_cast<float>(inst.fImmB);
+                    ctx.value = inst.fImmB;
                     void* ptr = SkRPCtxUtils::Pack(ctx, alloc);
                     switch (remaining) {
                         case 1:  pipeline->push_back({ProgramOp::copy_constant,     ptr}); break;
@@ -2655,7 +2654,7 @@ public:
                                                      bool showAsFloat = true) const {
         auto ctx = SkRPCtxUtils::Unpack((const SkRasterPipeline_ConstantCtx*)v);
         return {this->offsetCtx(ctx.dst, slots),
-                this->imm(ctx.value, showAsFloat)};
+                this->imm(sk_bit_cast<float>(ctx.value), showAsFloat)};
     }
 
     // Interprets the context value as a BinaryOp structure for copy_n_slots (numSlots is dictated
@@ -2671,7 +2670,7 @@ public:
     std::tuple<std::string, std::string> copyUniformCtx(const void* v, int numSlots) const {
         const auto *ctx = static_cast<const SkRasterPipeline_UniformCtx*>(v);
         return {this->ptrCtx(ctx->dst, numSlots),
-                this->multiImmCtx(ctx->src, numSlots)};
+                this->multiImmCtx(reinterpret_cast<const float*>(ctx->src), numSlots)};
     }
 
     // Interprets the context value as a pointer to two adjacent values.

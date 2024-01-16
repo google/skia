@@ -3171,26 +3171,26 @@ STAGE_TAIL(trace_var, SkRasterPipeline_TraceVarCtx* ctx) {
 }
 
 STAGE_TAIL(copy_uniform, SkRasterPipeline_UniformCtx* ctx) {
-    const float* src = ctx->src;
-    F* dst = (F*)ctx->dst;
+    const int* src = ctx->src;
+    I32* dst = (I32*)ctx->dst;
     dst[0] = src[0];
 }
 STAGE_TAIL(copy_2_uniforms, SkRasterPipeline_UniformCtx* ctx) {
-    const float* src = ctx->src;
-    F* dst = (F*)ctx->dst;
+    const int* src = ctx->src;
+    I32* dst = (I32*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
 }
 STAGE_TAIL(copy_3_uniforms, SkRasterPipeline_UniformCtx* ctx) {
-    const float* src = ctx->src;
-    F* dst = (F*)ctx->dst;
+    const int* src = ctx->src;
+    I32* dst = (I32*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
     dst[2] = src[2];
 }
 STAGE_TAIL(copy_4_uniforms, SkRasterPipeline_UniformCtx* ctx) {
-    const float* src = ctx->src;
-    F* dst = (F*)ctx->dst;
+    const int* src = ctx->src;
+    I32* dst = (I32*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
     dst[2] = src[2];
@@ -3199,26 +3199,26 @@ STAGE_TAIL(copy_4_uniforms, SkRasterPipeline_UniformCtx* ctx) {
 
 STAGE_TAIL(copy_constant, SkRasterPipeline_ConstantCtx* packed) {
     auto ctx = SkRPCtxUtils::Unpack(packed);
-    F* dst = (F*)(base + ctx.dst);
-    F value = ctx.value;
+    I32* dst = (I32*)(base + ctx.dst);
+    I32 value = ctx.value;
     dst[0] = value;
 }
 STAGE_TAIL(splat_2_constants, SkRasterPipeline_ConstantCtx* packed) {
     auto ctx = SkRPCtxUtils::Unpack(packed);
-    F* dst = (F*)(base + ctx.dst);
-    F value = ctx.value;
+    I32* dst = (I32*)(base + ctx.dst);
+    I32 value = ctx.value;
     dst[0] = dst[1] = value;
 }
 STAGE_TAIL(splat_3_constants, SkRasterPipeline_ConstantCtx* packed) {
     auto ctx = SkRPCtxUtils::Unpack(packed);
-    F* dst = (F*)(base + ctx.dst);
-    F value = ctx.value;
+    I32* dst = (I32*)(base + ctx.dst);
+    I32 value = ctx.value;
     dst[0] = dst[1] = dst[2] = value;
 }
 STAGE_TAIL(splat_4_constants, SkRasterPipeline_ConstantCtx* packed) {
     auto ctx = SkRPCtxUtils::Unpack(packed);
-    F* dst = (F*)(base + ctx.dst);
-    F value = ctx.value;
+    I32* dst = (I32*)(base + ctx.dst);
+    I32 value = ctx.value;
     dst[0] = dst[1] = dst[2] = dst[3] = value;
 }
 
