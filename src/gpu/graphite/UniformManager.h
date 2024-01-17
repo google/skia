@@ -374,13 +374,21 @@ struct LayoutTraits {
     // into 'dst'. Does not add any other padding that may depend on usage and Layout.
     static void Copy(const void* src, void* dst) {
         if constexpr (Half) {
-            // TODO(b/318684744): Use `to_half(skvx::float4::Load(src)).store(dst);` when N=4
-            // once values encode the same as SkFloatToHalf.
-            const float* srcF = reinterpret_cast<const float*>(src);
-            SkHalf* dstH = reinterpret_cast<SkHalf*>(dst);
-            for (int i = 0; i < N; ++i) {
-                *dstH++ = SkFloatToHalf(*srcF++);
+            using VecF = skvx::Vec<SkNextPow2_portable(N), float>;
+            VecF srcData;
+            if constexpr (N == 3) {
+                // Load the 3 values into a float4 to take advantage of vectorized conversion.
+                // The 4th value will not be copied to dst.
+                const float* srcF = static_cast<const float*>(src);
+                srcData = VecF{srcF[0], srcF[1], srcF[2], 0.f};
+            } else {
+                srcData = VecF::Load(src);
             }
+
+            auto dstData = to_half(srcData);
+            // NOTE: this is identical to Vec::store() for N=1,2,4 and correctly drops the 4th
+            // lane when N=3.
+            memcpy(dst, &dstData, kSize);
         } else {
             memcpy(dst, src, kSize);
         }
