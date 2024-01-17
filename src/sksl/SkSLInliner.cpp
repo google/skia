@@ -451,27 +451,15 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                             Operator::Kind::EQ,
                             expr(r.expression())));
         }
-        case Statement::Kind::kSwitch:
-            return makeWithChildSymbolTable([&](std::unique_ptr<SymbolTable> symbolTable) {
-                const SwitchStatement& ss = statement.as<SwitchStatement>();
-
-                StatementArray cases;
-                cases.reserve_exact(ss.cases().size());
-                for (const std::unique_ptr<Statement>& switchCaseStmt : ss.cases()) {
-                    const SwitchCase& sc = switchCaseStmt->as<SwitchCase>();
-                    if (sc.isDefault()) {
-                        cases.push_back(SwitchCase::MakeDefault(pos, stmt(sc.statement())));
-                    } else {
-                        cases.push_back(SwitchCase::Make(pos, sc.value(), stmt(sc.statement())));
-                    }
-                }
-                return SwitchStatement::Make(*fContext,
-                                             pos,
-                                             expr(ss.value()),
-                                             std::move(cases),
-                                             std::move(symbolTable));
-            });
-
+        case Statement::Kind::kSwitch: {
+            const SwitchStatement& ss = statement.as<SwitchStatement>();
+            return SwitchStatement::Make(*fContext, pos, expr(ss.value()), stmt(ss.caseBlock()));
+        }
+        case Statement::Kind::kSwitchCase: {
+            const SwitchCase& sc = statement.as<SwitchCase>();
+            return sc.isDefault() ? SwitchCase::MakeDefault(pos, stmt(sc.statement()))
+                                  : SwitchCase::Make(pos, sc.value(), stmt(sc.statement()));
+        }
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
             std::unique_ptr<Expression> initialValue = expr(decl.value());

@@ -661,15 +661,7 @@ template <typename T> bool TProgramVisitor<T>::visitStatement(typename T::Statem
         }
         case Statement::Kind::kSwitch: {
             auto& sw = s.template as<SwitchStatement>();
-            if (this->visitExpressionPtr(sw.value())) {
-                return true;
-            }
-            for (auto& c : sw.cases()) {
-                if (this->visitStatementPtr(c)) {
-                    return true;
-                }
-            }
-            return false;
+            return this->visitExpressionPtr(sw.value()) || this->visitStatementPtr(sw.caseBlock());
         }
         case Statement::Kind::kVarDeclaration: {
             auto& v = s.template as<VarDeclaration>();

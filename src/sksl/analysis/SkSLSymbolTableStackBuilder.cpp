@@ -10,7 +10,6 @@
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLStatement.h"
-#include "src/sksl/ir/SkSLSwitchStatement.h"
 
 #include <vector>
 
@@ -33,13 +32,6 @@ SymbolTableStackBuilder::SymbolTableStackBuilder(const Statement* stmt,
 
             case Statement::Kind::kFor:
                 if (SymbolTable* symbols = stmt->as<ForStatement>().symbols()) {
-                    stack->push_back(symbols);
-                    fStackToPop = stack;
-                }
-                break;
-
-            case Statement::Kind::kSwitch:
-                if (SymbolTable* symbols = stmt->as<SwitchStatement>().symbols()) {
                     stack->push_back(symbols);
                     fStackToPop = stack;
                 }
