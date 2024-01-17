@@ -94,8 +94,6 @@ CORE_FILES = [
     "GrEagerVertexAllocator.cpp",
     "GrEagerVertexAllocator.h",
     "GrFPArgs.h",
-    "GrFinishCallbacks.cpp",
-    "GrFinishCallbacks.h",
     "GrFixedClip.cpp",
     "GrFixedClip.h",
     "GrFragmentProcessor.cpp",

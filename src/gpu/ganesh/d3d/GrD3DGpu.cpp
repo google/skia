@@ -164,11 +164,11 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     }
     fMipmapCPUDescriptors.clear();
 
-    GrD3DDirectCommandList::SubmitResult result = fCurrentDirectCommandList->submit(fQueue.get());
-    if (result == GrD3DDirectCommandList::SubmitResult::kFailure) {
+    GrD3DDirectCommandList::SubmitResult sResult = fCurrentDirectCommandList->submit(fQueue.get());
+    if (sResult == GrD3DDirectCommandList::SubmitResult::kFailure) {
         fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
         return false;
-    } else if (result == GrD3DDirectCommandList::SubmitResult::kNoWork) {
+    } else if (sResult == GrD3DDirectCommandList::SubmitResult::kNoWork) {
         if (sync == SyncQueue::kForce) {
             this->waitForQueueCompletion();
             this->checkForFinishedCommandLists();
@@ -180,9 +180,9 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     // uniform data as dirty.
     fResourceProvider.markPipelineStateUniformsDirty();
 
-    GrFence fence = this->insertFence();
+    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), ++fCurrentFenceValue));
     new (fOutstandingCommandLists.push_back()) OutstandingCommandList(
-            std::move(fCurrentDirectCommandList), fence);
+            std::move(fCurrentDirectCommandList), fCurrentFenceValue);
 
     if (sync == SyncQueue::kForce) {
         this->waitForQueueCompletion();
@@ -1794,15 +1794,6 @@ void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
     GrD3DSemaphore* d3dSem = static_cast<GrD3DSemaphore*>(semaphore);
     // TODO: Do we need to track the lifetime of this?
     fQueue->Wait(d3dSem->fence(), d3dSem->value());
-}
-
-[[nodiscard]] GrFence GrD3DGpu::insertFence() {
-    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), ++fCurrentFenceValue));
-    return fCurrentFenceValue;
-}
-
-bool GrD3DGpu::waitFence(GrFence fence) {
-    return (fFence->GetCompletedValue() >= fence);
 }
 
 void GrD3DGpu::finishOutstandingGpuWork() {

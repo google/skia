@@ -398,15 +398,15 @@ public:
 
     bool wireframeMode() const { return fWireframeMode; }
 
-    /** Supports using GrFence. */
-    bool fenceSyncSupport() const { return fFenceSyncSupport; }
-
     /** Supports using GrSemaphores. */
     bool semaphoreSupport() const { return fSemaphoreSupport; }
 
     /** Supports using GrBackendSemaphore as "signal" semaphores or for waiting. See also
      *  GrFlushInfo and GrDirectContext. */
     bool backendSemaphoreSupport() const { return fBackendSemaphoreSupport; }
+
+    /** Supports async callback for finishedProcs */
+    bool finishedProcAsyncCallbackSupport() const { return fFinishedProcAsyncCallbackSupport; }
 
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
     /**
@@ -635,9 +635,9 @@ protected:
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;
 
-    bool fFenceSyncSupport                           : 1;
     bool fSemaphoreSupport                           : 1;
-    bool fBackendSemaphoreSupport                     : 1;
+    bool fBackendSemaphoreSupport                    : 1;
+    bool fFinishedProcAsyncCallbackSupport           : 1;
 
     // Requires fence sync support in GL.
     bool fCrossContextTextureSupport                 : 1;

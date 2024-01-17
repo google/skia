@@ -1596,36 +1596,6 @@ bool GrMtlGpu::readOrTransferPixels(GrSurface* surface,
     return true;
 }
 
-struct FenceWrapper {
-    dispatch_semaphore_t fSemaphore;
-};
-
-[[nodiscard]] GrFence GrMtlGpu::insertFence() {
-    GrMtlCommandBuffer* cmdBuffer = this->commandBuffer();
-    // We create a semaphore and signal it within the current
-    // command buffer's completion handler.
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    cmdBuffer->addCompletedHandler(^(id <MTLCommandBuffer>commandBuffer) {
-        dispatch_semaphore_signal(semaphore);
-    });
-
-    FenceWrapper* fw = new FenceWrapper{semaphore};
-    return sk_bit_cast<GrFence>(fw);
-}
-
-bool GrMtlGpu::waitFence(GrFence fence) {
-    FenceWrapper* fw = sk_bit_cast<FenceWrapper*>(fence);
-
-    long result = dispatch_semaphore_wait(fw->fSemaphore, 0);
-
-    return !result;
-}
-
-void GrMtlGpu::deleteFence(GrFence fence) {
-    FenceWrapper* fw = sk_bit_cast<FenceWrapper*>(fence);
-    delete fw;
-}
-
 [[nodiscard]] std::unique_ptr<GrSemaphore> GrMtlGpu::makeSemaphore(bool /*isOwned*/) {
     SkASSERT(this->caps()->semaphoreSupport());
     return GrMtlSemaphore::Make(this);

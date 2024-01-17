@@ -405,10 +405,6 @@ public:
 
     virtual void submit(GrOpsRenderPass*) = 0;
 
-    [[nodiscard]] virtual GrFence insertFence() = 0;
-    virtual bool waitFence(GrFence) = 0;
-    virtual void deleteFence(GrFence) = 0;
-
     [[nodiscard]] virtual std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned = true) = 0;
     virtual std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
                                                               GrSemaphoreWrapType,

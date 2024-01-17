@@ -4249,7 +4249,7 @@ void GrGLGpu::flush(FlushType flushType) {
 
 bool GrGLGpu::onSubmitToGpu(GrSyncCpu sync) {
     if (sync == GrSyncCpu::kYes ||
-        (!fFinishCallbacks.empty() && !this->caps()->fenceSyncSupport())) {
+        (!fFinishCallbacks.empty() && !this->glCaps().fenceSyncSupport())) {
         this->finishOutstandingGpuWork();
         fFinishCallbacks.callAll(true);
     } else {
@@ -4277,9 +4277,9 @@ void GrGLGpu::submit(GrOpsRenderPass* renderPass) {
     fCachedOpsRenderPass->reset();
 }
 
-[[nodiscard]] GrFence GrGLGpu::insertFence() {
-    if (!this->caps()->fenceSyncSupport()) {
-        return 0;
+[[nodiscard]] GrGLsync GrGLGpu::insertFence() {
+    if (!this->glCaps().fenceSyncSupport()) {
+        return nullptr;
     }
     GrGLsync sync;
     if (this->glCaps().fenceType() == GrGLCaps::FenceType::kNVFence) {
@@ -4292,8 +4292,7 @@ void GrGLGpu::submit(GrOpsRenderPass* renderPass) {
         GL_CALL_RET(sync, FenceSync(GR_GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
     }
     this->setNeedsFlush();
-    static_assert(sizeof(GrFence) >= sizeof(GrGLsync));
-    return (GrFence)sync;
+    return sync;
 }
 
 bool GrGLGpu::waitSync(GrGLsync sync, uint64_t timeout, bool flush) {
@@ -4320,16 +4319,16 @@ bool GrGLGpu::waitSync(GrGLsync sync, uint64_t timeout, bool flush) {
     }
 }
 
-bool GrGLGpu::waitFence(GrFence fence) {
-    if (!this->caps()->fenceSyncSupport()) {
+bool GrGLGpu::waitFence(GrGLsync fence) {
+    if (!this->glCaps().fenceSyncSupport()) {
         return true;
     }
-    return this->waitSync(reinterpret_cast<GrGLsync>(fence), 0, false);
+    return this->waitSync(fence, 0, false);
 }
 
-void GrGLGpu::deleteFence(GrFence fence) {
-    if (this->caps()->fenceSyncSupport()) {
-        this->deleteSync(reinterpret_cast<GrGLsync>(fence));
+void GrGLGpu::deleteFence(GrGLsync fence) {
+    if (this->glCaps().fenceSyncSupport()) {
+        this->deleteSync(fence);
     }
 }
 
@@ -4400,7 +4399,7 @@ std::unique_ptr<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTextu
     std::unique_ptr<GrSemaphore> semaphore = this->makeSemaphore(true);
     SkASSERT(semaphore);
     this->insertSemaphore(semaphore.get());
-    // We must call flush here to make sure the GrGLSync object gets created and sent to the gpu.
+    // We must call flush here to make sure the GrGLsync object gets created and sent to the gpu.
     this->flush(FlushType::kForce);
 
     return semaphore;

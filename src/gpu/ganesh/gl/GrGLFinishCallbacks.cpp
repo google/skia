@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/GrFinishCallbacks.h"
-#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/gl/GrGLFinishCallbacks.h"
+#include "src/gpu/ganesh/gl/GrGLGpu.h"
 
-GrFinishCallbacks::GrFinishCallbacks(GrGpu* gpu) : fGpu(gpu) {}
+GrGLFinishCallbacks::GrGLFinishCallbacks(GrGLGpu* gpu) : fGpu(gpu) {}
 
-GrFinishCallbacks::~GrFinishCallbacks() {
+GrGLFinishCallbacks::~GrGLFinishCallbacks() {
     this->callAll(true);
 }
 
-void GrFinishCallbacks::add(GrGpuFinishedProc finishedProc,
-                            GrGpuFinishedContext finishedContext) {
+void GrGLFinishCallbacks::add(GrGpuFinishedProc finishedProc,
+                              GrGpuFinishedContext finishedContext) {
     SkASSERT(finishedProc);
     FinishCallback callback;
     callback.fCallback = finishedProc;
@@ -24,7 +24,7 @@ void GrFinishCallbacks::add(GrGpuFinishedProc finishedProc,
     fCallbacks.push_back(callback);
 }
 
-void GrFinishCallbacks::check() {
+void GrGLFinishCallbacks::check() {
     // Bail after the first unfinished sync since we expect they signal in the order inserted.
     while (!fCallbacks.empty() && fGpu->waitFence(fCallbacks.front().fFence)) {
         // While we are processing a proc we need to make sure to remove it from the callback list
@@ -38,7 +38,7 @@ void GrFinishCallbacks::check() {
     }
 }
 
-void GrFinishCallbacks::callAll(bool doDelete) {
+void GrGLFinishCallbacks::callAll(bool doDelete) {
     while (!fCallbacks.empty()) {
         // While we are processing a proc we need to make sure to remove it from the callback list
         // before calling it. This is because the client could trigger a call (e.g. calling

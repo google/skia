@@ -500,11 +500,6 @@ enum class GrBackendObjectOwnership : bool {
     kOwned = true
 };
 
-/*
- * Object for CPU-GPU synchronization
- */
-typedef uint64_t GrFence;
-
 /**
  * Used to include or exclude specific GPU path renderers for testing purposes.
  */

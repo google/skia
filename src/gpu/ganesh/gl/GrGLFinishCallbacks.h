@@ -5,24 +5,24 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrFinishCallbacks_DEFINED
-#define GrFinishCallbacks_DEFINED
+#ifndef GrGLFinishCallbacks_DEFINED
+#define GrGLFinishCallbacks_DEFINED
 
 #include "include/gpu/GrTypes.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/gpu/gl/GrGLTypes.h"
 
 #include <list>
 
-class GrGpu;
+class GrGLGpu;
 
 /**
  * Maintains a list of callbacks to be called when work on the GPU is complete.
  */
 
-class GrFinishCallbacks {
+class GrGLFinishCallbacks {
 public:
-    GrFinishCallbacks(GrGpu* gpu);
-   ~GrFinishCallbacks();
+    GrGLFinishCallbacks(GrGLGpu* gpu);
+   ~GrGLFinishCallbacks();
 
     /**
      * Call all the callbacks in the list. This will block until all work is done.
@@ -54,11 +54,11 @@ private:
     struct FinishCallback {
         GrGpuFinishedProc     fCallback;
         GrGpuFinishedContext  fContext;
-        GrFence               fFence;
+        GrGLsync              fFence;
     };
 
-    GrGpu*                    fGpu;
+    GrGLGpu*                  fGpu;
     std::list<FinishCallback> fCallbacks;
 };
 
-#endif
+#endif  // GrGLFinishCallbacks

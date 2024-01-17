@@ -88,11 +88,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest,
     dContext->flush(surface.get(), flushInfoFinishedProc);
     dContext->submit(GrSyncCpu::kNo);
 
-    bool fenceSupport = dContext->priv().caps()->fenceSyncSupport();
-    bool expectAsyncCallback = dContext->backend() == GrBackendApi::kVulkan ||
-                               ((dContext->backend() == GrBackendApi::kOpenGL) && fenceSupport) ||
-                               ((dContext->backend() == GrBackendApi::kMetal) && fenceSupport) ||
-                               dContext->backend() == GrBackendApi::kDirect3D;
+    bool expectAsyncCallback = dContext->priv().caps()->finishedProcAsyncCallbackSupport();
     if (expectAsyncCallback) {
         // On Vulkan the command buffer we just submitted may or may not have finished immediately
         // so the finish proc may not have been called.

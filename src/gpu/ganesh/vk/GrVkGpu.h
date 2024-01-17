@@ -156,10 +156,6 @@ public:
 
     void submit(GrOpsRenderPass*) override;
 
-    [[nodiscard]] GrFence insertFence() override;
-    bool waitFence(GrFence) override;
-    void deleteFence(GrFence) override;
-
     [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
                                                       GrSemaphoreWrapType,

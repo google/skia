@@ -27,7 +27,6 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/GrNativeRect.h"
@@ -43,6 +42,7 @@
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
 #include "src/gpu/ganesh/gl/GrGLContext.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
+#include "src/gpu/ganesh/gl/GrGLFinishCallbacks.h"
 #include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
 #include "src/gpu/ganesh/gl/GrGLTypesPriv.h"
@@ -241,9 +241,9 @@ public:
 
     void submit(GrOpsRenderPass* renderPass) override;
 
-    [[nodiscard]] GrFence insertFence() override;
-    bool waitFence(GrFence) override;
-    void deleteFence(GrFence) override;
+    [[nodiscard]] GrGLsync insertFence();
+    bool waitFence(GrGLsync);
+    void deleteFence(GrGLsync);
 
     [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
@@ -857,7 +857,7 @@ private:
 
     std::unique_ptr<GrStagingBufferManager> fStagingBufferManager;
 
-    GrFinishCallbacks fFinishCallbacks;
+    GrGLFinishCallbacks fFinishCallbacks;
 
     // If we've called a command that requires us to call glFlush than this will be set to true
     // since we defer calling flush until submit time. When we call submitToGpu if this is true then

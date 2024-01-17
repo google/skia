@@ -2699,41 +2699,6 @@ void GrVkGpu::submit(GrOpsRenderPass* renderPass) {
     fCachedOpsRenderPass->reset();
 }
 
-[[nodiscard]] GrFence GrVkGpu::insertFence() {
-    VkFenceCreateInfo createInfo;
-    memset(&createInfo, 0, sizeof(VkFenceCreateInfo));
-    createInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    createInfo.pNext = nullptr;
-    createInfo.flags = 0;
-    VkFence fence = VK_NULL_HANDLE;
-    VkResult result;
-
-    VK_CALL_RET(result, CreateFence(this->device(), &createInfo, nullptr, &fence));
-    if (result != VK_SUCCESS) {
-        return 0;
-    }
-    VK_CALL_RET(result, QueueSubmit(this->queue(), 0, nullptr, fence));
-    if (result != VK_SUCCESS) {
-        VK_CALL(DestroyFence(this->device(), fence, nullptr));
-        return 0;
-    }
-
-    static_assert(sizeof(GrFence) >= sizeof(VkFence));
-    return (GrFence)fence;
-}
-
-bool GrVkGpu::waitFence(GrFence fence) {
-    SkASSERT(VK_NULL_HANDLE != (VkFence)fence);
-
-    VkResult result;
-    VK_CALL_RET(result, WaitForFences(this->device(), 1, (VkFence*)&fence, VK_TRUE, 0));
-    return (VK_SUCCESS == result);
-}
-
-void GrVkGpu::deleteFence(GrFence fence) {
-    VK_CALL(DestroyFence(this->device(), (VkFence)fence, nullptr));
-}
-
 [[nodiscard]] std::unique_ptr<GrSemaphore> GrVkGpu::makeSemaphore(bool isOwned) {
     return GrVkSemaphore::Make(this, isOwned);
 }

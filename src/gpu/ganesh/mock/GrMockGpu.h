@@ -30,10 +30,6 @@ public:
     GrThreadSafePipelineBuilder* pipelineBuilder() override;
     sk_sp<GrThreadSafePipelineBuilder> refPipelineBuilder() override;
 
-    [[nodiscard]] GrFence insertFence() override { return 0; }
-    bool waitFence(GrFence) override { return true; }
-    void deleteFence(GrFence) override {}
-
     [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override {
         return nullptr;
     }
