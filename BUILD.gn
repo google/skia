@@ -1262,6 +1262,7 @@ optional("typeface_freetype") {
     "src/ports/SkFontHost_FreeType.cpp",
     "src/ports/SkFontHost_FreeType_common.cpp",
     "src/ports/SkFontHost_FreeType_common.h",
+    "src/ports/SkTypeface_FreeType.h",
   ]
 }
 

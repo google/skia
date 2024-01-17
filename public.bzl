@@ -1973,6 +1973,7 @@ PORTS_SRCS_UNIX = [
     "src/ports/SkOSFile_stdio.cpp",
     "src/ports/SkOSLibrary.h",
     "src/ports/SkOSLibrary_posix.cpp",
+    "src/ports/SkTypeface_FreeType.h",
 ]
 
 GL_SRCS_ANDROID = base_gl_srcs + [
@@ -1998,6 +1999,7 @@ PORTS_SRCS_ANDROID = [
     "src/ports/SkOSFile_stdio.cpp",
     "src/ports/SkOSLibrary.h",
     "src/ports/SkOSLibrary_posix.cpp",
+    "src/ports/SkTypeface_FreeType.h",
 ]
 
 PORTS_SRCS_ANDROID_NO_FONT = [
@@ -2052,6 +2054,7 @@ PORTS_SRCS_FUCHSIA = [
     "src/ports/SkOSFile_stdio.cpp",
     "src/ports/SkOSLibrary.h",
     "src/ports/SkOSLibrary_posix.cpp",
+    "src/ports/SkTypeface_FreeType.h",
 ]
 
 GL_SRCS_MACOS = base_gl_srcs + [
@@ -2075,6 +2078,7 @@ PORTS_SRCS_WASM = [
     "src/ports/SkOSFile_stdio.cpp",
     "src/ports/SkOSLibrary.h",
     "src/ports/SkOSLibrary_posix.cpp",
+    "src/ports/SkTypeface_FreeType.h",
 ]
 GL_SRCS_WASM = GL_SRCS_UNIX_EGL
 

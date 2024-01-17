@@ -23,8 +23,8 @@
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTypefaceCache.h"
-#include "src/ports/SkFontHost_FreeType_common.h"
 #include "src/ports/SkFontMgr_android_parser.h"
+#include "src/ports/SkTypeface_FreeType.h"
 
 #include <algorithm>
 #include <limits>

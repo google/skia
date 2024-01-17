@@ -8,7 +8,7 @@
 #include "tools/Resources.h"
 
 #if defined(SK_TYPEFACE_FACTORY_FREETYPE)
-#include "src/ports/SkFontHost_FreeType_common.h"
+#include "src/ports/SkTypeface_FreeType.h"
 #elif defined(SK_TYPEFACE_FACTORY_CORETEXT)
 #include "src/ports/SkTypeface_mac_ct.h"
 #elif defined(SK_TYPEFACE_FACTORY_DIRECTWRITE)

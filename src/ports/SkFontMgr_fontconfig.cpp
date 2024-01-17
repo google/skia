@@ -28,7 +28,7 @@
 #include "src/core/SkOSFile.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkTypefaceCache.h"
-#include "src/ports/SkFontHost_FreeType_common.h"
+#include "src/ports/SkTypeface_FreeType.h"
 
 #include <fontconfig/fontconfig.h>
 
