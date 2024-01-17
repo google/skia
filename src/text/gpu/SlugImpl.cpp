@@ -49,7 +49,6 @@ void SlugImpl::doFlatten(SkWriteBuffer& buffer) const {
 
 sk_sp<Slug> SlugImpl::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
     SkRect sourceBounds = buffer.readRect();
-    SkASSERT(!sourceBounds.isEmpty());
     if (!buffer.validate(!sourceBounds.isEmpty())) { return nullptr; }
     SkPaint paint = buffer.readPaint();
     SkPoint origin = buffer.readPoint();
