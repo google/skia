@@ -1595,9 +1595,6 @@ int main(int argc, char** argv) {
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
-    ToolUtils::SetDefaultFontMgr();
-#endif
     CommonFlags::SetAnalyticAA();
     skiatest::SetFontTestDataDirectory();
 

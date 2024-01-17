@@ -174,7 +174,8 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
         auto surf = SkSurfaces::Raster(info);
         surf->getCanvas()->drawPicture(frame.fPicture);
         auto img = surf->makeImageSnapshot();
-        REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img.get(), expectedImages[i].get()));
+        REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img.get(), expectedImages[i].get()),
+                        "Frame %d is wrong", i);
 
         i++;
     }

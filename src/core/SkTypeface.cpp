@@ -49,7 +49,6 @@
 
 #include <cstddef>
 #include <cstring>
-#include <utility>
 #include <vector>
 
 using namespace skia_private;
@@ -143,38 +142,6 @@ protected:
 
 }  // namespace
 
-SkFontStyle SkTypeface::FromOldStyle(Style oldStyle) {
-    return SkFontStyle((oldStyle & SkTypeface::kBold) ? SkFontStyle::kBold_Weight
-                                                      : SkFontStyle::kNormal_Weight,
-                       SkFontStyle::kNormal_Width,
-                       (oldStyle & SkTypeface::kItalic) ? SkFontStyle::kItalic_Slant
-                                                        : SkFontStyle::kUpright_Slant);
-}
-
-SkTypeface* SkTypeface::GetDefaultTypeface(Style style) {
-#if !defined(SK_DEFAULT_TYPEFACE_IS_EMPTY) && !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-    static SkOnce once[4];
-    static sk_sp<SkTypeface> defaults[4];
-
-    SkASSERT((int)style < 4);
-    once[style]([style] {
-        sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
-        auto t = fm->legacyMakeTypeface(nullptr, FromOldStyle(style));
-        defaults[style] = t ? t : SkEmptyTypeface::Make();
-    });
-    return defaults[style].get();
-#else
-    static sk_sp<SkTypeface> empty = SkEmptyTypeface::Make();
-    return empty.get();
-#endif  // !defined(SK_DEFAULT_TYPEFACE_IS_EMPTY)
-}
-
-#if !defined(SK_DISABLE_LEGACY_DEFAULT_TYPEFACE)
-sk_sp<SkTypeface> SkTypeface::MakeDefault() {
-    return sk_ref_sp(GetDefaultTypeface());
-}
-#endif
-
 sk_sp<SkTypeface> SkTypeface::MakeEmpty() {
     return SkEmptyTypeface::Make();
 }
@@ -219,52 +186,6 @@ namespace {
     }
 
 }  // namespace
-
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[],
-                                           SkFontStyle fontStyle) {
-    if (nullptr == name && (fontStyle.slant() == SkFontStyle::kItalic_Slant ||
-                            fontStyle.slant() == SkFontStyle::kUpright_Slant) &&
-                           (fontStyle.weight() == SkFontStyle::kBold_Weight ||
-                            fontStyle.weight() == SkFontStyle::kNormal_Weight)) {
-        return sk_ref_sp(GetDefaultTypeface(static_cast<SkTypeface::Style>(
-            (fontStyle.slant() == SkFontStyle::kItalic_Slant ? SkTypeface::kItalic :
-                                                               SkTypeface::kNormal) |
-            (fontStyle.weight() == SkFontStyle::kBold_Weight ? SkTypeface::kBold :
-                                                               SkTypeface::kNormal))));
-    }
-    return SkFontMgr::RefDefault()->legacyMakeTypeface(name, fontStyle);
-}
-
-sk_sp<SkTypeface> SkTypeface::MakeFromStream(std::unique_ptr<SkStreamAsset> stream, int index) {
-    if (!stream) {
-        return nullptr;
-    }
-    // TODO: Enable this while updating tests (FontHostStream), expectations, and nonativeFonts.
-#if 0
-    SkFontArguments args;
-    args.setCollectionIndex(index);
-    for (const DecoderProc& proc : *decoders()) {
-        sk_sp<SkTypeface> typeface = proc.makeFromStream(stream->duplicate(), args);
-        if (typeface) {
-            return typeface;
-        }
-    }
-#endif
-    return SkFontMgr::RefDefault()->makeFromStream(std::move(stream), index);
-}
-
-sk_sp<SkTypeface> SkTypeface::MakeFromData(sk_sp<SkData> data, int index) {
-    if (!data) {
-        return nullptr;
-    }
-    return SkFontMgr::RefDefault()->makeFromData(std::move(data), index);
-}
-
-sk_sp<SkTypeface> SkTypeface::MakeFromFile(const char path[], int index) {
-    return SkFontMgr::RefDefault()->makeFromFile(path, index);
-}
-#endif  // !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
 
 sk_sp<SkTypeface> SkTypeface::makeClone(const SkFontArguments& args) const {
     return this->onMakeClone(args);
@@ -316,12 +237,6 @@ sk_sp<SkData> SkTypeface::serialize(SerializeBehavior behavior) const {
     this->serialize(&stream, behavior);
     return stream.detachAsData();
 }
-
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
-    return MakeDeserialize(stream, SkFontMgr::RefDefault());
-}
-#endif
 
 sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream, sk_sp<SkFontMgr> lastResortMgr) {
     SkFontDescriptor desc;

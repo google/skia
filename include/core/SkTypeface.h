@@ -105,51 +105,8 @@ public:
      */
     static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
 
-#if !defined(SK_DISABLE_LEGACY_DEFAULT_TYPEFACE)
-    /** Returns the default normal typeface, which is never nullptr. */
-    static sk_sp<SkTypeface> MakeDefault();
-#endif
     /** Returns a non-null typeface which contains no glyphs. */
     static sk_sp<SkTypeface> MakeEmpty();
-
-    /** Creates a new reference to the typeface that most closely matches the
-        requested familyName and fontStyle. This method allows extended font
-        face specifiers as in the SkFontStyle type. Will never return null.
-
-        @param familyName  May be NULL. The name of the font family.
-        @param fontStyle   The style of the typeface.
-        @return reference to the closest-matching typeface. Call must call
-              unref() when they are done.
-        Deprecated: call SkFontMgr::matchFamilyStyle or SkFontMgr::legacyMakeTypeface
-    */
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-    static sk_sp<SkTypeface> MakeFromName(const char familyName[], SkFontStyle fontStyle);
-#endif
-
-    /** Return a new typeface given a file. If the file does not exist, or is
-        not a valid font file, returns nullptr.
-        Deprecated: call SkFontMgr::makeFromFile instead
-    */
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-    static sk_sp<SkTypeface> MakeFromFile(const char path[], int index = 0);
-#endif
-
-    /** Return a new typeface given a stream and TTC index(pass 0 for none).
-        If the stream is not a valid font file, returns nullptr.
-        Ownership of the stream is transferred, so the caller must not reference it again.
-        Deprecated: call SkFontMgr::makeFromStream instead
-    */
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-    static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream, int index = 0);
-#endif
-
-    /** Return a new typeface given a SkData and TTC index (pass 0 for none).
-     *  If the data is null, or is not a valid font file, returns nullptr.
-     * Deprecated: call SkFontMgr::makeFromData instead
-     */
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-    static sk_sp<SkTypeface> MakeFromData(sk_sp<SkData>, int index = 0);
-#endif
 
     /** Return a new typeface based on this typeface but parameterized as specified in the
         SkFontArguments. If the SkFontArguments does not supply an argument for a parameter
@@ -188,9 +145,6 @@ public:
         Does not affect ownership of SkStream.
      */
 
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-    static sk_sp<SkTypeface> MakeDeserialize(SkStream*);
-#endif
     static sk_sp<SkTypeface> MakeDeserialize(SkStream*, sk_sp<SkFontMgr> lastResortMgr);
 
     /**
@@ -466,21 +420,7 @@ private:
     friend class SkRandomTypeface;   // getAdvancedMetrics
     friend class SkPDFFont;          // getAdvancedMetrics
 
-    /** Style specifies the intrinsic style attributes of a given typeface */
-    enum Style {
-        kNormal = 0,
-        kBold   = 0x01,
-        kItalic = 0x02,
-
-        // helpers
-        kBoldItalic = 0x03
-    };
-    static SkFontStyle FromOldStyle(Style oldStyle);
-    static SkTypeface* GetDefaultTypeface(Style style = SkTypeface::kNormal);
-
-    friend class SkFontPriv;         // GetDefaultTypeface
-    friend class SkPaintPriv;        // GetDefaultTypeface
-    friend class SkFont;             // getGlyphToUnicodeMap
+    friend class SkFontPriv;         // getGlyphToUnicodeMap
 
 private:
     SkTypefaceID        fUniqueID;

@@ -323,11 +323,6 @@ sk_sp<SkTypeface> DataURIResourceProviderProxy::loadTypeface(const char name[],
             return fFontMgr->makeFromData(std::move(data));
         }
     }
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
-    if (auto data = decode_datauri("data:font/", url)) {
-        return SkTypeface::MakeFromData(std::move(data));
-    }
-#endif
 
     return this->INHERITED::loadTypeface(name, url);
 }

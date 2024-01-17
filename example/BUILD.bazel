@@ -21,11 +21,6 @@ cc_binary_with_flags(
         "with_gl_standard": [
             "gl_standard",
         ],
-        # Load fonts from the standard system directory (e.g. "/usr/share/fonts/")
-        # as defined in //src/ports/SkFontMgr_custom_directory_factory.cpp
-        "fontmgr_factory": [
-            "custom_directory_fontmgr_factory",
-        ],
     },
     deps = [
         "//:skia_public",
@@ -48,11 +43,6 @@ cc_binary_with_flags(
         "gpu_backend": [
             "vulkan_ganesh",
         ],
-        # Load fonts from the standard system directory (e.g. "/usr/share/fonts/")
-        # as defined in //src/ports/SkFontMgr_custom_directory_factory.cpp
-        "fontmgr_factory": [
-            "custom_directory_fontmgr_factory",
-        ],
     },
     deps = [
         "//:skia_public",
@@ -71,11 +61,6 @@ cc_binary_with_flags(
     set_flags = {
         "gpu_backend": [
             "metal_ganesh",
-        ],
-        # Load fonts from the standard system directory (e.g. "/usr/share/fonts/")
-        # as defined in //src/ports/SkFontMgr_custom_directory_factory.cpp
-        "fontmgr_factory": [
-            "custom_directory_fontmgr_factory",
         ],
     },
     deps = [

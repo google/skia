@@ -32,12 +32,6 @@ void SkFontConfigInterface::SetGlobal(sk_sp<SkFontConfigInterface> fc) {
     gFontConfigInterface = fc.release();
 }
 
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT)
-sk_sp<SkTypeface> SkFontConfigInterface::makeTypeface(const FontIdentity& identity) {
-    return makeTypeface(identity, SkFontMgr::RefDefault());
-}
-#endif
-
 sk_sp<SkTypeface> SkFontConfigInterface::makeTypeface(const FontIdentity& identity,
                                                       sk_sp<SkFontMgr> mgr) {
     return mgr->makeFromStream(std::unique_ptr<SkStreamAsset>(this->openStream(identity)),

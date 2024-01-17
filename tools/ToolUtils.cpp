@@ -452,7 +452,14 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
-    if (a.width() != b.width() || a.height() != b.height() || a.colorType() != b.colorType()) {
+    if (a.width() != b.width() || a.height() != b.height()) {
+        SkDebugf("[ToolUtils::equal_pixels] Dimensions do not match (%d x %d) != (%d x %d)\n",
+                 a.width(), a.height(), b.width(), b.height());
+    }
+
+    if (a.colorType() != b.colorType()) {
+        SkDebugf("[ToolUtils::equal_pixels] colorType does not match %d != %d\n",
+                 (int) a.colorType(), (int) b.colorType());
         return false;
     }
 
@@ -460,6 +467,7 @@ bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
         const char* aptr = (const char*)a.addr(0, y);
         const char* bptr = (const char*)b.addr(0, y);
         if (0 != memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
+            SkDebugf("[ToolUtils::equal_pixels] row %d does not match byte for byte\n", y);
             return false;
         }
     }

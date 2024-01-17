@@ -816,7 +816,18 @@ DEF_TEST(Serialization, reporter) {
         sk_sp<SkImage> img0 = render(*pict);
         sk_sp<SkImage> img1 = render(*readPict);
         if (img0 && img1) {
-            REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img0.get(), img1.get()));
+            bool ok = ToolUtils::equal_pixels(img0.get(), img1.get());
+            REPORTER_ASSERT(reporter, ok, "before and after image did not match");
+            if (!ok) {
+                auto left = SkFILEWStream("before_serialize.png");
+                sk_sp<SkData> d = SkPngEncoder::Encode(nullptr, img0.get(), {});
+                left.write(d->data(), d->size());
+                left.fsync();
+                auto right = SkFILEWStream("after_serialize.png");
+                d = SkPngEncoder::Encode(nullptr, img1.get(), {});
+                right.write(d->data(), d->size());
+                right.fsync();
+            }
         }
     }
 

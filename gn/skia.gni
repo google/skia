@@ -171,31 +171,6 @@ declare_args() {
   skia_libgrapheme_third_party_dir = "//third_party/libgrapheme"
 }
 
-declare_args() {
-  # skia_fontmgr_factory should define SkFontMgr::Factory()
-  if (skia_enable_fontmgr_empty) {
-    skia_fontmgr_factory = ":fontmgr_empty_factory"
-  } else if (is_android && skia_enable_fontmgr_android) {
-    skia_fontmgr_factory = ":fontmgr_android_factory"
-  } else if (is_win && skia_enable_fontmgr_win) {
-    skia_fontmgr_factory = ":fontmgr_win_factory"
-  } else if ((is_mac || is_ios) && skia_use_fonthost_mac) {
-    skia_fontmgr_factory = ":fontmgr_mac_ct_factory"
-  } else if (skia_enable_fontmgr_fontconfig) {
-    skia_fontmgr_factory = ":fontmgr_fontconfig_factory"
-  } else if (skia_enable_fontmgr_custom_directory) {
-    skia_fontmgr_factory = ":fontmgr_custom_directory_factory"
-  } else if (skia_enable_fontmgr_custom_embedded) {
-    skia_fontmgr_factory = ":fontmgr_custom_embedded_factory"
-  } else if (skia_enable_fontmgr_custom_empty) {
-    skia_fontmgr_factory = ":fontmgr_custom_empty_factory"
-  } else {
-    #"src/ports/SkFontMgr_FontConfigInterface_factory.cpp" #WontFix
-    #"src/ports/SkFontMgr_win_gdi_factory.cpp" # WontFix
-    skia_fontmgr_factory = ":fontmgr_empty_factory"
-  }
-}
-
 assert(!skia_use_dawn || skia_enable_graphite)  # Dawn is Graphite-only
 
 # Our tools require static linking (they use non-exported symbols), and the Ganesh backend.

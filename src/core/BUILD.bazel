@@ -144,7 +144,6 @@ CORE_FILES = [
     "SkFontMetricsPriv.cpp",
     "SkFontMetricsPriv.h",
     "SkFontMgr.cpp",
-    "SkFontMgrPriv.h",
     "SkFontPriv.h",
     "SkFontStream.cpp",
     "SkFontStream.h",
@@ -451,7 +450,6 @@ skia_filegroup(
         "SkFDot6.h",
         "SkFontDescriptor.h",
         "SkFontMetricsPriv.h",
-        "SkFontMgrPriv.h",
         "SkFontPriv.h",
         "SkFontStream.h",
         "SkGeometry.h",
@@ -839,17 +837,11 @@ skia_cc_library(
         "//include/sksl:core_hdrs",
         "//include/utils:core_hdrs",
     ],
-    defines = [
-        "SK_DISABLE_LEGACY_FONTMGR_FACTORY",
-        "SK_DISABLE_LEGACY_FONTMGR_REFDEFAULT",
-        "SK_DISABLE_LEGACY_DEFAULT_TYPEFACE",
-    ],
     features = ["layering_check"],
     local_defines = [
         "SK_SLUG_DISABLE_LEGACY_DESERIALIZE",
         "SK_DISABLE_LEGACY_PNG_WRITEBUFFER",
         "SK_DISABLE_LEGACY_IMAGE_READBUFFER",
-        "SK_DEFAULT_TYPEFACE_IS_EMPTY",
     ],
     textual_hdrs = [
         "//src/opts:textual_hdrs",

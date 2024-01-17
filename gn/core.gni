@@ -373,7 +373,6 @@ skia_core_sources = [
   "$_src/core/SkFontMetricsPriv.cpp",
   "$_src/core/SkFontMetricsPriv.h",
   "$_src/core/SkFontMgr.cpp",
-  "$_src/core/SkFontMgrPriv.h",
   "$_src/core/SkFontPriv.h",
   "$_src/core/SkFontStream.cpp",
   "$_src/core/SkFontStream.h",

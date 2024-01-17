@@ -21,7 +21,6 @@
 #include "include/private/base/SkMutex.h"
 #include "include/utils/SkCustomTypeface.h"
 #include "src/base/SkUTF.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkOSFile.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
@@ -273,18 +272,5 @@ sk_sp<SkTypeface> CreateTypefaceFromResource(const char* resource, int ttcIndex)
 SkFont DefaultFont() {
     return SkFont(DefaultTypeface(), 12);
 }
-
-#if !defined(SK_DISABLE_LEGACY_FONTMGR_FACTORY)
-void SetDefaultFontMgr() {
-    if (!FLAGS_nativeFonts) {
-        gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
-    }
-#if defined(SK_BUILD_FOR_WIN) && defined(SK_FONTMGR_GDI_AVAILABLE)
-    if (FLAGS_gdi) {
-        gSkFontMgr_DefaultFactory = &SkFontMgr_New_GDI;
-    }
-#endif
-}
-#endif
 
 }  // namespace ToolUtils
