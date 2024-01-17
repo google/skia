@@ -304,7 +304,7 @@ Token Parser::nextToken() {
 
 void Parser::pushback(Token t) {
     SkASSERT(fPushback.fKind == Token::Kind::TK_NONE);
-    fPushback = std::move(t);
+    fPushback = t;
 }
 
 Token Parser::peek() {
@@ -325,7 +325,7 @@ bool Parser::checkNext(Token::Kind kind, Token* result) {
         }
         return true;
     }
-    this->pushback(std::move(next));
+    this->pushback(next);
     return false;
 }
 
@@ -333,7 +333,7 @@ bool Parser::expect(Token::Kind kind, const char* expected, Token* result) {
     Token next = this->nextToken();
     if (next.fKind == kind) {
         if (result) {
-            *result = std::move(next);
+            *result = next;
         }
         return true;
     } else {
@@ -362,7 +362,7 @@ bool Parser::checkIdentifier(Token* result) {
         return false;
     }
     if (this->symbolTable()->isBuiltinType(this->text(*result))) {
-        this->pushback(std::move(*result));
+        this->pushback(*result);
         return false;
     }
     return true;
@@ -1194,13 +1194,11 @@ std::unique_ptr<Statement> Parser::statementOrNop(Position pos, std::unique_ptr<
 
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
 std::unique_ptr<Statement> Parser::statement() {
-    Token start = this->nextToken();
     AutoDepth depth(this);
     if (!depth.increase()) {
         return nullptr;
     }
-    this->pushback(start);
-    switch (start.fKind) {
+    switch (this->peek().fKind) {
         case Token::Kind::TK_IF:
             return this->ifStatement();
         case Token::Kind::TK_FOR:
@@ -1224,10 +1222,11 @@ std::unique_ptr<Statement> Parser::statement() {
         case Token::Kind::TK_SEMICOLON:
             this->nextToken();
             return Nop::Make();
+        case Token::Kind::TK_CONST:
+            return this->varDeclarations();
         case Token::Kind::TK_HIGHP:
         case Token::Kind::TK_MEDIUMP:
         case Token::Kind::TK_LOWP:
-        case Token::Kind::TK_CONST:
         case Token::Kind::TK_IDENTIFIER:
             return this->varDeclarationsOrExpressionStatement();
         default:
