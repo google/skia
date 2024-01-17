@@ -37,8 +37,10 @@ public:
     // Methods to create compatible (needed when creating a framebuffer and graphics pipeline) or
     // full (needed when beginning a render pass from the command buffer) render passes and keys.
     static GraphiteResourceKey MakeRenderPassKey(const RenderPassDesc&, bool compatibleOnly);
-    static sk_sp<VulkanRenderPass> MakeRenderPass(
-            const VulkanSharedContext*, const RenderPassDesc&, bool compatibleOnly);
+
+    static sk_sp<VulkanRenderPass> MakeRenderPass(const VulkanSharedContext*,
+                                                  const RenderPassDesc&,
+                                                  bool compatibleOnly);
 
     VkRenderPass renderPass() const {
         SkASSERT(fRenderPass != VK_NULL_HANDLE);
@@ -48,6 +50,31 @@ public:
     VkExtent2D granularity() { return fGranularity; }
 
     const char* getResourceType() const override { return "Vulkan RenderPass"; }
+
+    // Struct to store Vulkan information surrounding a RenderPassDesc
+    struct VulkanRenderPassMetaData {
+        VulkanRenderPassMetaData(const RenderPassDesc& renderPassDesc);
+
+        bool fLoadMSAAFromResolve;
+        bool fHasColorAttachment;
+        bool fHasColorResolveAttachment;
+        bool fHasDepthStencilAttachment;
+
+        int fNumColorAttachments;
+        int fNumResolveAttachments;
+        int fNumDepthStencilAttachments;
+        int fSubpassCount;
+        int fSubpassDependencyCount;
+        int fUint32DataCnt;
+
+        // Accumulate attachments into a container to mimic future structure in RenderPassDesc
+        skia_private::TArray<const AttachmentDesc*> fAttachments;
+    };
+
+    static void AddRenderPassInfoToKey(VulkanRenderPassMetaData& rpMetaData,
+                                       ResourceKey::Builder& builder,
+                                       int& builderIdx,
+                                       bool compatibleOnly);
 
 private:
     void freeGpuData() override;

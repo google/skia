@@ -84,8 +84,6 @@ public:
     }
     uint64_t maxUniformBufferRange() const { return fMaxUniformBufferRange; }
 
-    uint64_t getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const;
-
     const VkPhysicalDeviceMemoryProperties2& physicalDeviceMemoryProperties2() const {
         return fPhysicalDeviceMemoryProperties2;
     }
