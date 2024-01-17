@@ -925,7 +925,7 @@ skia_filegroup(
         "shared/EmptyBlocksES2.sksl",
         "shared/EmptyBlocksES3.sksl",
         "shared/ForLoopControlFlow.sksl",
-        "shared/ForLoopMultipleInit.sksl",
+        "shared/ForLoopMultipleInitES3.sksl",
         "shared/ForLoopShadowing.sksl",
         "shared/FragCoords.sksl",
         "shared/FragCoordsNoRTFlip.sksl",

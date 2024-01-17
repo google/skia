@@ -1097,6 +1097,7 @@ SKSL_TEST(ES3 | GPU_ES3, kNever,      DoWhileControlFlow,              "shared/D
 SKSL_TEST(CPU | GPU,     kApiLevel_T, EmptyBlocksES2,                  "shared/EmptyBlocksES2.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      EmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, ForLoopControlFlow,              "shared/ForLoopControlFlow.sksl")
+SKSL_TEST(ES3 | GPU_ES3, kNever,      ForLoopMultipleInitES3,          "shared/ForLoopMultipleInitES3.sksl")
 SKSL_TEST(CPU | GPU,     kNextRelease,ForLoopShadowing,                "shared/ForLoopShadowing.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, FunctionAnonymousParameters,     "shared/FunctionAnonymousParameters.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, FunctionArgTypeMatch,            "shared/FunctionArgTypeMatch.sksl")

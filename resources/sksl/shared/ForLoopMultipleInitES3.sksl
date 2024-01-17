@@ -1,0 +1,37 @@
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    // Two variables, both used.
+    half sumA = 0, sumB = 0;
+    for (half a = 0, b = 10; a < 10 && b > 0; ++a, --b) {
+        sumA += a;
+        sumB += b;
+    }
+    if (sumA != 45 || sumB != 55) {
+        return colorRed;
+    }
+
+    // Two variables, one dead
+    int sumC = 0;
+    for (int c = 0, d = 0; c < 10; ++c) {
+        sumC += c;
+    }
+    if (sumC != 45) {
+        return colorRed;
+    }
+
+    // Three variables, all used, some array-typed
+    float sumE = 0.0;
+    for (float d[2] = float[2](0, 10), e[4] = float[4](1,2,3,4), f = 0; d[0] < d[1]; ++d[0]) {
+        sumE += half(e[0]);
+    }
+    if (sumE != 10) {
+        return colorRed;
+    }
+
+    // Four variables, all dead
+    for (half4 x, y, z, w;; ) break;
+
+    // Just referencing a variable instead of declaring it--legal, if not meaningful.
+    for (sumA;; ) return colorGreen;
+}
