@@ -931,7 +931,16 @@ void Device::drawGeometry(const Transform& localToDevice,
         // TODO: If asADash() returns true and the base path matches the dashing fast path, then
         // that should be detected now as well. Maybe add dashPath to Device so canvas can handle it
         SkStrokeRec newStyle = style;
-        newStyle.setResScale(localToDevice.maxScaleFactor());
+        float maxScaleFactor = localToDevice.maxScaleFactor();
+        if (localToDevice.type() == Transform::Type::kProjection) {
+            auto bounds = geometry.bounds();
+            float tl = std::get<1>(localToDevice.scaleFactors({bounds.left(), bounds.top()}));
+            float tr = std::get<1>(localToDevice.scaleFactors({bounds.right(), bounds.top()}));
+            float br = std::get<1>(localToDevice.scaleFactors({bounds.right(), bounds.bot()}));
+            float bl = std::get<1>(localToDevice.scaleFactors({bounds.left(), bounds.bot()}));
+            maxScaleFactor = std::max(std::max(tl, tr), std::max(bl, br));
+        }
+        newStyle.setResScale(maxScaleFactor);
         SkPath dst;
         if (paint.getPathEffect()->filterPath(&dst, geometry.shape().asPath(), &newStyle,
                                               nullptr, localToDevice)) {

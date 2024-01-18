@@ -93,93 +93,6 @@ namespace skgpu::graphite {
 
 using AAFlags = EdgeAAQuad::Flags;
 
-static float local_aa_radius(const Transform& t, const SkV2& p) {
-    // TODO: This should be the logic for Transform::scaleFactor()
-    //              [m00 m01 * m03]                                 [f(u,v)]
-    // Assuming M = [m10 m11 * m13], define the projected p'(u,v) = [g(u,v)] where
-    //              [ *   *  *  * ]
-    //              [m30 m31 * m33]
-    //                                                        [x]     [u]
-    // f(u,v) = x(u,v) / w(u,v), g(u,v) = y(u,v) / w(u,v) and [y] = M*[v]
-    //                                                        [*] =   [0]
-    //                                                        [w]     [1]
-    //
-    // x(u,v) = m00*u + m01*v + m03
-    // y(u,v) = m10*u + m11*v + m13
-    // w(u,v) = m30*u + m31*v + m33
-    //
-    // dx/du = m00, dx/dv = m01,
-    // dy/du = m10, dy/dv = m11
-    // dw/du = m30, dw/dv = m31
-    //
-    // df/du = (dx/du*w - x*dw/du)/w^2 = (m00*w - m30*x)/w^2 = (m00 - m30*f)/w
-    // df/dv = (dx/dv*w - x*dw/dv)/w^2 = (m01*w - m31*x)/w^2 = (m01 - m31*f)/w
-    // dg/du = (dy/du*w - y*dw/du)/w^2 = (m10*w - m30*y)/w^2 = (m10 - m30*g)/w
-    // dg/dv = (dy/dv*w - y*dw/du)/w^2 = (m11*w - m31*y)/w^2 = (m11 - m31*g)/w
-    //
-    // Singular values of [df/du df/dv] define perspective correct minimum and maximum scale factors
-    //                    [dg/du dg/dv]
-    // for M evaluated at  (u,v)
-    const SkM44& matrix = t.matrix();
-    SkV4 devP = matrix.map(p.x, p.y, 0.f, 1.f);
-
-    const float dxdu = matrix.rc(0,0);
-    const float dxdv = matrix.rc(0,1);
-    const float dydu = matrix.rc(1,0);
-    const float dydv = matrix.rc(1,1);
-    const float dwdu = matrix.rc(3,0);
-    const float dwdv = matrix.rc(3,1);
-
-    float invW2 = sk_ieee_float_divide(1.f, (devP.w * devP.w));
-    // non-persp has invW2 = 1, devP.w = 1, dwdu = 0, dwdv = 0
-    float dfdu = (devP.w*dxdu - devP.x*dwdu) * invW2; // non-persp -> dxdu -> m00
-    float dfdv = (devP.w*dxdv - devP.x*dwdv) * invW2; // non-persp -> dxdv -> m01
-    float dgdu = (devP.w*dydu - devP.y*dwdu) * invW2; // non-persp -> dydu -> m10
-    float dgdv = (devP.w*dydv - devP.y*dwdv) * invW2; // non-persp -> dydv -> m11
-
-    // no-persp, these are the singular values of [m00,m01][m10,m11], which is just the upper 2x2
-    // and equivalent to SkMatrix::getMinmaxScales().
-    float s1 = dfdu*dfdu + dfdv*dfdv + dgdu*dgdu + dgdv*dgdv;
-
-    float e = dfdu*dfdu + dfdv*dfdv - dgdu*dgdu - dgdv*dgdv;
-    float f = dfdu*dgdu + dfdv*dgdv;
-    float s2 = SkScalarSqrt(e*e + 4*f*f);
-
-    float singular1 = SkScalarSqrt(0.5f * (s1 + s2));
-    float singular2 = SkScalarSqrt(0.5f * (s1 - s2));
-
-    // singular1 and 2 represent the minimum and maximum scale factors at that transformed point.
-    // Moving 1 from 'p' before transforming will move at least minimum and at most maximum from
-    // the transformed point. Thus moving between [1/max, 1/min] pre-transformation means post
-    // transformation moves between [1,max/min] so using 1/min as the local AA radius ensures that
-    // the post-transformed point is at least 1px away from the original.
-    float aaRadius = sk_ieee_float_divide(1.f, std::min(singular1, singular2));
-    if (sk_float_isfinite(aaRadius)) {
-        return aaRadius;
-    } else {
-        // Treat NaNs and infinities as +inf, which will always trigger the inset self-intersection
-        // logic that snaps inner vertices to the center instead of insetting by the local AA radius
-        return SK_FloatInfinity;
-    }
-}
-
-static float local_aa_radius(const Transform& t, const Rect& bounds) {
-    // Use the maximum radius of the 4 corners so that every local vertex uses the same offset
-    // even if it's more conservative on some corners (when the min/max scale isn't constant due
-    // to perspective).
-    if (t.type() < Transform::Type::kProjection) {
-        // Scale factors are constant, so the point doesn't really matter
-        return local_aa_radius(t, SkV2{0.f, 0.f});
-    } else {
-        // TODO can we share calculation here?
-        float tl = local_aa_radius(t, SkV2{bounds.left(), bounds.top()});
-        float tr = local_aa_radius(t, SkV2{bounds.right(), bounds.top()});
-        float br = local_aa_radius(t, SkV2{bounds.right(), bounds.bot()});
-        float bl = local_aa_radius(t, SkV2{bounds.left(), bounds.bot()});
-        return std::max(std::max(tl, tr), std::max(bl, br));
-    }
-}
-
 static bool is_clockwise(const EdgeAAQuad& quad) {
     if (quad.isRect()) {
         return true; // by construction, these are always locally clockwise
@@ -261,7 +174,7 @@ static void write_vertex_buffer(VertexWriter writer) {
 PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(StaticBufferManager* bufferManager)
         : RenderStep("PerEdgeAAQuadRenderStep",
                      "",
-                     Flags::kPerformsShading | Flags::kEmitsCoverage,
+                     Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
@@ -315,11 +228,6 @@ const char* PerEdgeAAQuadRenderStep::fragmentCoverageSkSL() const {
     // The returned SkSL must write its coverage into a 'half4 outputCoverage' variable (defined in
     // the calling code) with the actual coverage splatted out into all four channels.
     return "outputCoverage = per_edge_aa_quad_coverage_fn(sk_FragCoord, edgeDistances);";
-}
-
-float PerEdgeAAQuadRenderStep::boundsOutset(const Transform& localToDevice,
-                                           const Rect& bounds) const {
-    return local_aa_radius(localToDevice, bounds);
 }
 
 void PerEdgeAAQuadRenderStep::writeVertices(DrawWriter* writer,

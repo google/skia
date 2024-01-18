@@ -109,12 +109,6 @@ public:
     // 'half4 primitiveColor' variable (defined in the calling code).
     virtual const char* fragmentColorSkSL() const { return R"()"; }
 
-    // Returns the effective local-space outset the RenderStep applies to geometry transformed by
-    // `localToDevice` contained in the local `bounds`.
-    virtual float boundsOutset(const Transform& localToDevice, const Rect& bounds) const {
-        return 0.0f;
-    }
-
     uint32_t uniqueID() const { return fUniqueID; }
 
     // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
@@ -125,6 +119,7 @@ public:
     bool performsShading()     const { return SkToBool(fFlags & Flags::kPerformsShading);     }
     bool hasTextures()         const { return SkToBool(fFlags & Flags::kHasTextures);         }
     bool emitsPrimitiveColor() const { return SkToBool(fFlags & Flags::kEmitsPrimitiveColor); }
+    bool outsetBoundsForAA()   const { return SkToBool(fFlags & Flags::kOutsetBoundsForAA);   }
 
     Coverage coverage() const { return RenderStep::GetCoverage(fFlags); }
 
@@ -168,13 +163,14 @@ public:
     //    - Does each DrawList::Draw have extra space (e.g. 8 bytes) that steps can cache data in?
 protected:
     enum class Flags : unsigned {
-        kNone                  = 0b000000,
-        kRequiresMSAA          = 0b000001,
-        kPerformsShading       = 0b000010,
-        kHasTextures           = 0b000100,
-        kEmitsCoverage         = 0b001000,
-        kLCDCoverage           = 0b010000,
-        kEmitsPrimitiveColor   = 0b100000,
+        kNone                  = 0b0000000,
+        kRequiresMSAA          = 0b0000001,
+        kPerformsShading       = 0b0000010,
+        kHasTextures           = 0b0000100,
+        kEmitsCoverage         = 0b0001000,
+        kLCDCoverage           = 0b0010000,
+        kEmitsPrimitiveColor   = 0b0100000,
+        kOutsetBoundsForAA     = 0b1000000,
     };
     SK_DECL_BITMASK_OPS_FRIENDS(Flags);
 
@@ -249,14 +245,13 @@ public:
     bool emitsPrimitiveColor() const {
         return SkToBool(fStepFlags & StepFlags::kEmitsPrimitiveColor);
     }
+    bool outsetBoundsForAA() const {
+        return SkToBool(fStepFlags & StepFlags::kOutsetBoundsForAA);
+    }
 
     SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
 
     Coverage coverage() const { return RenderStep::GetCoverage(fStepFlags); }
-
-    // Returns the effective local-space outset the Renderer applies to geometry transformed by
-    // `localToDevice` contained in the local `bounds`.
-    float boundsOutset(const Transform& localToDevice, const Rect& bounds) const;
 
 private:
     friend class RendererProvider; // for ctors

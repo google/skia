@@ -8,8 +8,11 @@
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
 #include "src/base/SkVx.h"
+#include "src/core/SkMatrixInvert.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/graphite/geom/Rect.h"
+
+#include <tuple>
 
 namespace skgpu::graphite {
 
@@ -35,22 +38,46 @@ void map_points(const SkM44& m, const SkV4* in, SkV4* out, int count) {
     }
 }
 
-Transform::Type get_matrix_info(const SkM44& m, SkM44* inverse, SkV2* scale) {
-    // First compute the inverse.
-    // TODO: Alternatively we could compute type first and have type-specific inverses, but it seems
-    // useful to ensure any non-invalid matrix returns true from SkM44::invert.
-    if (!m.invert(inverse)) {
-        *scale = {1.f, 1.f};
-        return Transform::Type::kInvalid;
-    }
+// Returns singular value decomposition of the 2x2 matrix [m00 m01] as {min, max}
+//                                                        [m10 m11]
+std::pair<float, float> compute_svd(float m00, float m01, float m10, float m11) {
+    // no-persp, these are the singular values of [m00,m01][m10,m11], which is just the upper 2x2
+    // and equivalent to SkMatrix::getMinmaxScales().
+    float s1 = m00*m00 + m01*m01 + m10*m10 + m11*m11;
 
+    float e = m00*m00 + m01*m01 - m10*m10 - m11*m11;
+    float f = m00*m10 + m01*m11;
+    float s2 = SkScalarSqrt(e*e + 4*f*f);
+
+    // s2 >= 0, so (s1 - s2) <= (s1 + s2) so this always returns {min, max}.
+    return {SkScalarSqrt(0.5f * (s1 - s2)),
+            SkScalarSqrt(0.5f * (s1 + s2))};
+}
+
+std::pair<float, float> sort_scale(float sx, float sy) {
+    float min = std::abs(sx);
+    float max = std::abs(sy);
+    if (min > max) {
+        return {max, min};
+    } else {
+        return {min, max};
+    }
+}
+
+} // anonymous namespace
+
+Transform::Transform(const SkM44& m) : fM(m) {
     static constexpr SkV4 kNoPerspective = {0.f, 0.f, 0.f, 1.f};
-    static constexpr SkV4 kNoZ = {0.f, 0.f, 1.f, 0.f};
+    static constexpr SkV4 kNoZ           = {0.f, 0.f, 1.f, 0.f};
     if (m.row(3) != kNoPerspective || m.col(2) != kNoZ || m.row(2) != kNoZ) {
-        // TODO: Use SkMatrixPriv::DifferentialAreaScale, but we need a representative point then.
-        // Or something like lengths of upper 2x2 divided by w?
-        *scale = {1.f, 1.f};
-        return Transform::Type::kProjection;
+        // Projection matrices will have per-location scale factors calculated, so cached scale
+        // factors will not be used.
+        if (m.invert(&fInvM)) {
+            fType = Type::kProjection;
+        } else {
+            fType = Type::kInvalid;
+        }
+        return;
     }
 
     //                                              [sx kx 0 tx]
@@ -59,51 +86,156 @@ Transform::Type get_matrix_info(const SkM44& m, SkM44* inverse, SkV2* scale) {
     //                                              [0  0  0 1 ]
     // Other than kIdentity, none of the types depend on (tx, ty). The remaining types are
     // identified by considering the upper 2x2.
-    float sx = m.rc(0, 0);
-    float sy = m.rc(1, 1);
-    float kx = m.rc(0, 1);
-    float ky = m.rc(1, 0);
+    const float sx = m.rc(0, 0);
+    const float sy = m.rc(1, 1);
+    const float kx = m.rc(0, 1);
+    const float ky = m.rc(1, 0);
+    const float tx = m.rc(0, 3);
+    const float ty = m.rc(1, 3);
     if (kx == 0.f && ky == 0.f) {
         // 2x2 is a diagonal matrix
-        *scale = {std::abs(sx), std::abs(sy)};
-        if (sx == 1.f && sy == 1.f && m.rc(0, 3) == 0.f && m.rc(1, 3) == 0.f) {
-            return Transform::Type::kIdentity;
-        } else if (sx > 0.f && sy > 0.f) {
-            return Transform::Type::kSimpleRectStaysRect;
+        if (sx == 0.f || sy == 0.f) {
+            // Not invertible
+            fType = Type::kInvalid;
+        } else if (sx == 1.f && sy == 1.f && tx == 0.f && ty == 0.f) {
+            fType = Type::kIdentity;
+            fInvM.setIdentity();
         } else {
-            // We don't need to worry about sx or sy being 0 here because that would imply the
-            // matrix wasn't invertible and that was already tested.
-            SkASSERT(sx != 0.f && sy != 0.f);
-            return Transform::Type::kRectStaysRect;
+            const float ix = 1.f / sx;
+            const float iy = 1.f / sy;
+            fType = sx > 0.f && sy > 0.f ? Type::kSimpleRectStaysRect
+                                         : Type::kRectStaysRect;
+            fInvM = SkM44(ix, 0.f, 0.f, -ix*tx,
+                          0.f, iy, 0.f, -iy*ty,
+                          0.f, 0.f, 1.f, 0.f,
+                          0.f, 0.f, 0.f, 1.f);
+            std::tie(fMinScaleFactor, fMaxScaleFactor) = sort_scale(sx, sy);
         }
     } else if (sx == 0.f && sy == 0.f) {
         // 2x2 is an anti-diagonal matrix and represents a 90 or 270 degree rotation plus optional
-        // scale and translate. Similar to before, kx and ky can't be 0 or m wouldn't be invertible.
-        SkASSERT(kx != 0.f && ky != 0.f);
-        *scale = {std::abs(ky), std::abs(kx)};
-        return Transform::Type::kRectStaysRect;
+        // scale and translate.
+        if (kx == 0.f || ky == 0.f) {
+            // Not invertible
+            fType = Type::kInvalid;
+        } else {
+            const float ix = 1.f / kx;
+            const float iy = 1.f / ky;
+            fType = Type::kRectStaysRect;
+            fInvM = SkM44(0.f, iy, 0.f, -iy*ty,
+                          ix, 0.f, 0.f, -ix*tx,
+                          0.f, 0.f, 1.f, 0.f,
+                          0.f, 0.f, 0.f, 1.f);
+            std::tie(fMinScaleFactor, fMaxScaleFactor) = sort_scale(kx, ky);
+        }
     } else {
-        *scale = {SkV2{sx, ky}.length(), SkV2{kx, sy}.length()};
-        return Transform::Type::kAffine;
+        // Invert just the upper 2x2 and derive inverse translation from that
+        float upper[4] = {sx, ky, kx, sy}; // col-major
+        float invUpper[4];
+        if (SkInvert2x2Matrix(upper, invUpper) == 0.f) {
+            // 2x2 was not invertible, so the original matrix won't be invertible either
+            fType = Type::kInvalid;
+        } else {
+            fType = Type::kAffine;
+            fInvM = SkM44(invUpper[0], invUpper[2], 0.f, -invUpper[0]*tx - invUpper[2]*ty,
+                          invUpper[1], invUpper[3], 0.f, -invUpper[1]*tx - invUpper[3]*ty,
+                          0.f, 0.f, 1.f, 0.f,
+                          0.f, 0.f, 0.f, 1.f);
+            std::tie(fMinScaleFactor, fMaxScaleFactor) = compute_svd(sx, kx, ky, sy);
+        }
     }
 }
 
-} // anonymous namespace
+std::pair<float, float> Transform::scaleFactors(const SkV2& p) const {
+    SkASSERT(this->valid());
+    if (fType < Type::kProjection) {
+        return {fMinScaleFactor, fMaxScaleFactor};
+    }
 
-Transform::Transform(const SkM44& m) : fM(m) {
-    fType = get_matrix_info(m, &fInvM, &fScale);
+    //              [m00 m01 * m03]                                 [f(u,v)]
+    // Assuming M = [m10 m11 * m13], define the projected p'(u,v) = [g(u,v)] where
+    //              [ *   *  *  * ]
+    //              [m30 m31 * m33]
+    //                                                        [x]     [u]
+    // f(u,v) = x(u,v) / w(u,v), g(u,v) = y(u,v) / w(u,v) and [y] = M*[v]
+    //                                                        [*] =   [0]
+    //                                                        [w]     [1]
+    //
+    // x(u,v) = m00*u + m01*v + m03
+    // y(u,v) = m10*u + m11*v + m13
+    // w(u,v) = m30*u + m31*v + m33
+    //
+    // dx/du = m00, dx/dv = m01,
+    // dy/du = m10, dy/dv = m11
+    // dw/du = m30, dw/dv = m31
+    //
+    // df/du = (dx/du*w - x*dw/du)/w^2 = (m00*w - m30*x)/w^2 = (m00 - m30*f)/w
+    // df/dv = (dx/dv*w - x*dw/dv)/w^2 = (m01*w - m31*x)/w^2 = (m01 - m31*f)/w
+    // dg/du = (dy/du*w - y*dw/du)/w^2 = (m10*w - m30*y)/w^2 = (m10 - m30*g)/w
+    // dg/dv = (dy/dv*w - y*dw/du)/w^2 = (m11*w - m31*y)/w^2 = (m11 - m31*g)/w
+    //
+    // Singular values of [df/du df/dv] define perspective correct minimum and maximum scale factors
+    //                    [dg/du dg/dv]
+    // for M evaluated at  (u,v)
+    SkV4 devP = fM.map(p.x, p.y, 0.f, 1.f);
+
+    const float dxdu = fM.rc(0,0);
+    const float dxdv = fM.rc(0,1);
+    const float dydu = fM.rc(1,0);
+    const float dydv = fM.rc(1,1);
+    const float dwdu = fM.rc(3,0);
+    const float dwdv = fM.rc(3,1);
+
+    float invW2 = sk_ieee_float_divide(1.f, (devP.w * devP.w));
+    // non-persp has invW2 = 1, devP.w = 1, dwdu = 0, dwdv = 0
+    float dfdu = (devP.w*dxdu - devP.x*dwdu) * invW2; // non-persp -> dxdu -> m00
+    float dfdv = (devP.w*dxdv - devP.x*dwdv) * invW2; // non-persp -> dxdv -> m01
+    float dgdu = (devP.w*dydu - devP.y*dwdu) * invW2; // non-persp -> dydu -> m10
+    float dgdv = (devP.w*dydv - devP.y*dwdv) * invW2; // non-persp -> dydv -> m11
+
+    // no-persp, these are the singular values of [m00,m01][m10,m11], which was already calculated
+    // in get_matrix_info.
+    return compute_svd(dfdu, dfdv, dgdu, dgdv);
 }
 
-bool Transform::operator==(const Transform& t) const {
-    // Checking fM should be sufficient as all other values are computed from it.
-    SkASSERT(fM != t.fM || (fInvM == t.fInvM && fType == t.fType && fScale == t.fScale));
-    return fM == t.fM;
+float Transform::localAARadius(const Rect& bounds) const {
+    SkASSERT(this->valid());
+
+    float min;
+    if (fType < Type::kProjection) {
+        // The scale factor is constant
+        min = fMinScaleFactor;
+    } else {
+        // Calculate the minimum scale factor over the 4 corners of the bounding box
+        float tl = std::get<0>(this->scaleFactors(SkV2{bounds.left(), bounds.top()}));
+        float tr = std::get<0>(this->scaleFactors(SkV2{bounds.right(), bounds.top()}));
+        float br = std::get<0>(this->scaleFactors(SkV2{bounds.right(), bounds.bot()}));
+        float bl = std::get<0>(this->scaleFactors(SkV2{bounds.left(), bounds.bot()}));
+        min = std::min(std::min(tl, tr), std::min(br, bl));
+    }
+
+    // Moving 1 from 'p' before transforming will move at least 'min' and at most 'max' from
+    // the transformed point. Thus moving between [1/max, 1/min] pre-transformation means post
+    // transformation moves between [1,max/min] so using 1/min as the local AA radius ensures that
+    // the post-transformed point is at least 1px away from the original.
+    float aaRadius = sk_ieee_float_divide(1.f, min);
+    if (sk_float_isfinite(aaRadius)) {
+        return aaRadius;
+    } else {
+        return SK_FloatInfinity;
+    }
 }
 
-Rect Transform::mapRect(const Rect& rect) const { return map_rect(fM, rect); }
-Rect Transform::inverseMapRect(const Rect& rect) const { return map_rect(fInvM, rect); }
+Rect Transform::mapRect(const Rect& rect) const {
+    SkASSERT(this->valid());
+    return map_rect(fM, rect);
+}
+Rect Transform::inverseMapRect(const Rect& rect) const {
+    SkASSERT(this->valid());
+    return map_rect(fInvM, rect);
+}
 
 void Transform::mapPoints(const Rect& localRect, SkV4 deviceOut[4]) const {
+    SkASSERT(this->valid());
     SkV2 localCorners[4] = {{localRect.left(),  localRect.top()},
                             {localRect.right(), localRect.top()},
                             {localRect.right(), localRect.bot()},
@@ -112,6 +244,7 @@ void Transform::mapPoints(const Rect& localRect, SkV4 deviceOut[4]) const {
 }
 
 void Transform::mapPoints(const SkV2* localIn, SkV4* deviceOut, int count) const {
+    SkASSERT(this->valid());
     // TODO: These maybe should go into SkM44, since bulk point mapping seems generally useful
     auto c0 = skvx::float4::Load(SkMatrixPriv::M44ColMajor(fM) + 0);
     auto c1 = skvx::float4::Load(SkMatrixPriv::M44ColMajor(fM) + 4);
@@ -125,57 +258,13 @@ void Transform::mapPoints(const SkV2* localIn, SkV4* deviceOut, int count) const
 }
 
 void Transform::mapPoints(const SkV4* localIn, SkV4* deviceOut, int count) const {
+    SkASSERT(this->valid());
     return map_points(fM, localIn, deviceOut, count);
 }
 
 void Transform::inverseMapPoints(const SkV4* deviceIn, SkV4* localOut, int count) const {
+    SkASSERT(this->valid());
     return map_points(fInvM, deviceIn, localOut, count);
-}
-
-Transform Transform::preTranslate(float x, float y) const {
-    Transform t = *this;
-    t.fM.preTranslate(x, y);
-    t.fInvM.postTranslate(-x, -y);
-
-    // Under normal conditions, type and scale won't change, but if we've overflown the translation
-    // components, mark the matrix as invalid.
-    if (!t.fM.isFinite() || !t.fInvM.isFinite()) {
-        t.fType = Type::kInvalid;
-    }
-    return t;
-}
-
-Transform Transform::postTranslate(float x, float y) const {
-    Transform t = *this;
-    t.fM.postTranslate(x, y);
-    t.fInvM.preTranslate(-x, -y);
-    if (!t.fM.isFinite() || !t.fInvM.isFinite()) {
-        t.fType = Type::kInvalid;
-    }
-    return t;
-}
-
-Transform Transform::concat(const Transform& t) const {
-    Transform c = {fM * t.fM, t.fInvM * fInvM, std::max(fType, t.fType), {fScale * t.fScale}};
-    if (!c.fM.isFinite() || !c.fInvM.isFinite()) {
-        c.fType = Type::kInvalid;
-    }
-    return c;
-}
-
-Transform Transform::concatInverse(const Transform& t) const {
-    Transform c = {fM * t.fInvM, t.fM * fInvM, std::max(fType, t.fType), {fScale * (1.f/t.fScale)}};
-    if (!c.fM.isFinite() || !c.fInvM.isFinite()) {
-        c.fType = Type::kInvalid;
-    }
-    return c;
-}
-
-Transform Transform::concatInverse(const SkM44& t) const {
-    // saves a multiply compared to inverting just t and then computing fM*t^-1 and t*fInvM, if we
-    // instead start with (t*fInvM) and swap definition of computed fM and fInvM.
-    Transform inverse{t * fInvM};
-    return {inverse.fInvM, inverse.fM, inverse.fType, 1.f / inverse.fScale};
 }
 
 } // namespace skgpu::graphite

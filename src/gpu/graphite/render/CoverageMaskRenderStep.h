@@ -22,8 +22,6 @@ public:
                                         int* nextBindingIndex) const override;
     const char* fragmentCoverageSkSL() const override;
 
-    float boundsOutset(const Transform& localToDevice, const Rect& bounds) const override;
-
     void writeVertices(DrawWriter*, const DrawParams&, skvx::ushort2 ssboIndices) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 };

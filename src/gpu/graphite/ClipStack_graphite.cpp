@@ -1139,8 +1139,9 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     Rect transformedShapeBounds;
     bool shapeInDeviceSpace = false;
 
-    // Some renderers make the drawn area larger than the geometry.
-    float rendererOutset = renderer.boundsOutset(localToDevice, styledShape->bounds());
+    // Some renderers make the drawn area larger than the geometry for anti-aliasing
+    float rendererOutset = renderer.outsetBoundsForAA() ?
+            localToDevice.localAARadius(styledShape->bounds()) : 0.f;
     if (!SkScalarIsFinite(rendererOutset)) {
         transformedShapeBounds = deviceBounds;
         infiniteBounds = true;
