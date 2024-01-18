@@ -315,6 +315,11 @@ config("default") {
     ldflags += [ "--sysroot=$skia_emsdk_dir/upstream/emscripten/cache/sysroot" ]
   }
 
+  # sanitize only applies to the default toolchain (usually the target).
+  if (current_toolchain != default_toolchain) {
+    sanitize = ""
+  }
+
   if (is_win && !is_clang && sanitize == "ASAN") {
     sanitizers = "address"
     cflags += [ "/fsanitize=$sanitizers" ]
@@ -623,11 +628,14 @@ config("warnings_for_public_headers") {
 }
 
 config("extra_flags") {
-  asmflags = extra_asmflags
-  cflags = extra_cflags
-  cflags_c = extra_cflags_c
-  cflags_cc = extra_cflags_cc
-  ldflags = extra_ldflags
+  # extra_flags only applies to the default toolchain (usually the target).
+  if (current_toolchain == default_toolchain) {
+    asmflags = extra_asmflags
+    cflags = extra_cflags
+    cflags_c = extra_cflags_c
+    cflags_cc = extra_cflags_cc
+    ldflags = extra_ldflags
+  }
 }
 
 config("debug_symbols") {
