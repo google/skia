@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorPriv.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkRefCnt.h"
