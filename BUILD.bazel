@@ -181,6 +181,7 @@ test_suite(
         "//infra/bots/task_drivers/perf_puppeteer_canvas:perf_puppeteer_canvas_test",
         "//infra/bots/task_drivers/perf_puppeteer_render_skps:perf_puppeteer_render_skps_test",
         "//infra/bots/task_drivers/perf_puppeteer_skottie_frames:perf_puppeteer_skottie_frames_test",
+        "//tools/testrunners/common/android/adb_test_runner:adb_test_runner_test",
     ],
 )
 

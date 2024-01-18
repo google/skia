@@ -11,7 +11,11 @@ go_library(
     srcs = ["adb_test_runner.go"],
     importpath = "go.skia.org/skia/tools/testrunners/common/android/adb_test_runner",
     visibility = ["//visibility:private"],
-    deps = ["//bazel/device_specific_configs"],
+    deps = [
+        "//bazel/device_specific_configs",
+        "@org_golang_x_exp//slices",
+        "@org_skia_go_infra//go/exec",
+    ],
 )
 
 go_binary(
@@ -49,5 +53,9 @@ go_test(
     name = "adb_test_runner_test",
     srcs = ["adb_test_runner_test.go"],
     embed = [":adb_test_runner_lib"],
-    deps = ["@com_github_stretchr_testify//assert"],
+    deps = [
+        "@com_github_stretchr_testify//assert",
+        "@com_github_stretchr_testify//require",
+        "@org_skia_go_infra//go/exec",
+    ],
 )
