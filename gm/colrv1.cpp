@@ -243,6 +243,10 @@ const uint32_t sweep_coincident[] = { 0xf1300, 0xf1301, 0xf1302, 0xf1303, 0xf130
                                       0xf1306, 0xf1307, 0xf1308, 0xf1309, 0xf130a, 0xf130b,
                                       0xf130c, 0xf130d, 0xf130e, 0xf130f, 0xf1310, 0xf1311,
                                       0xf1312, 0xf1313, 0xf1314, 0xf1315, 0xf1316, 0xf1317};
+const uint32_t paint_glyph_nested[] = { 0xf1400, 0xf1401, 0xf1402, 0xf1403,
+                                        0xf1404, 0xf1405, 0xf1406, 0xf1407,
+                                        0xf1408, 0xf1409, 0xf140a, 0xf140b,
+                                        0xf140c, 0xf140d, 0xf140e, 0xf140f };
 };  // namespace ColrV1TestDefinitions
 
 namespace {
@@ -334,5 +338,6 @@ DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH1"_t, -0.7f}}))
 DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH2"_t, -0.7f}, {"APH3"_t, -0.2f}}))
 DEF_GM(return F(C(paintcolrglyph_cycle),   0.0f,  0.0f, {}))
 DEF_GM(return F(C(sweep_coincident),       0.0f,  0.0f, {}))
+DEF_GM(return F(C(paint_glyph_nested),     0.0f,  0.0f, {}))
 
 }  // namespace skiagm
