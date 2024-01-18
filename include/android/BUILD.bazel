@@ -22,5 +22,8 @@ skia_filegroup(
         "SkImageAndroid.h",
         "SkSurfaceAndroid.h",
     ],
-    visibility = ["//include:__pkg__"],
+    visibility = [
+        "//include:__pkg__",
+        "//src/gpu/ganesh:__pkg__",
+    ],
 )

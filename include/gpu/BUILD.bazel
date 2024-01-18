@@ -42,3 +42,33 @@ skia_filegroup(
     ),
     visibility = ["//include:__pkg__"],
 )
+
+skia_filegroup(
+    name = "ganesh_hdrs",
+    srcs = [
+        "GrBackendDrawableInfo.h",
+        "GrBackendSemaphore.h",
+        "GrBackendSurface.h",
+        "GrContextOptions.h",
+        "GrContextThreadSafeProxy.h",
+        "GrDirectContext.h",
+        "GrDriverBugWorkarounds.h",
+        "GrDriverBugWorkaroundsAutogen.h",
+        "GrRecordingContext.h",
+        "GrTypes.h",
+        "GrYUVABackendTextures.h",
+        ":shared_public_hdrs",
+    ],
+    visibility = ["//src/gpu/ganesh:__subpackages__"],
+)
+
+skia_filegroup(
+    name = "shared_gpu_hdrs",
+    srcs = [
+        "GpuTypes.h",
+        "GrTypes.h",  # TODO(kjlubick, egdaniel) Tesselation.h uses GR_MAKE_BITFIELD_CLASS_OPS
+        "MutableTextureState.h",
+        "ShaderErrorHandler.h",
+    ],
+    visibility = ["//src/gpu:__pkg__"],
+)

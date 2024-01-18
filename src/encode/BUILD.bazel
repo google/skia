@@ -166,3 +166,24 @@ skia_cc_library(
         "@libjpeg_turbo",
     ],
 )
+
+skia_cc_library(
+    name = "webp_encode",
+    srcs = [
+        ":any_encoder_srcs",
+        ":webp_encode_srcs",
+    ],
+    hdrs = [
+        "//include/encode:encode_hdrs",
+        "//include/encode:webp_hdrs",
+    ],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//modules/skcms",
+        "//src/base",
+        "//src/core:core_priv",
+        "@libwebp",
+    ],
+)

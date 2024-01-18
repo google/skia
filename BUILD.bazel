@@ -96,6 +96,20 @@ alias(
 ###
 
 alias(
+    name = "ganesh_gl",
+    actual = "//src/gpu/ganesh/gl:ganesh_gl",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "ganesh_glx_factory",
+    actual = "//src/gpu/ganesh/gl/glx:glx_factory",
+    visibility = ["//visibility:public"],
+)
+
+###
+
+alias(
     name = "jpeg_encode_codec",
     actual = "//src/encode:jpeg_encode",
     visibility = ["//visibility:public"],
@@ -110,6 +124,12 @@ alias(
 alias(
     name = "png_encode_codec",
     actual = "//src/encode:png_encode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "webp_encode_codec",
+    actual = "//src/encode:webp_encode",
     visibility = ["//visibility:public"],
 )
 

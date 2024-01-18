@@ -21,3 +21,17 @@ skia_filegroup(
     }),
     visibility = ["//include/gpu:__pkg__"],
 )
+
+skia_filegroup(
+    name = "ganesh_gl_hdrs",
+    srcs = [
+        "GrGLAssembleHelpers.h",
+        "GrGLAssembleInterface.h",
+        "GrGLConfig.h",
+        "GrGLExtensions.h",
+        "GrGLFunctions.h",
+        "GrGLInterface.h",
+        "GrGLTypes.h",
+    ],
+    visibility = ["//src/gpu/ganesh/gl:__pkg__"],
+)

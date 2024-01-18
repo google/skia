@@ -198,3 +198,19 @@ skia_filegroup(
     ],
     visibility = ["//src/ports:__pkg__"],
 )
+
+skia_filegroup(
+    name = "shader_utils_hdrs",
+    srcs = [
+        "SkShaderUtils.h",
+    ],
+    visibility = ["//src/gpu:__subpackages__"],
+)
+
+skia_filegroup(
+    name = "shader_utils_srcs",
+    srcs = [
+        "SkShaderUtils.cpp",
+    ],
+    visibility = ["//src/gpu:__subpackages__"],
+)

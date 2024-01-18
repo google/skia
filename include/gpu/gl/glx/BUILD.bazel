@@ -7,5 +7,8 @@ exports_files_legacy()
 skia_filegroup(
     name = "public_hdrs",
     srcs = ["GrGLMakeGLXInterface.h"],
-    visibility = ["//include/gpu/gl:__pkg__"],
+    visibility = [
+        "//include/gpu/gl:__pkg__",
+        "//src/gpu/ganesh/gl/glx:__pkg__",
+    ],
 )
