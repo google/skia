@@ -206,6 +206,12 @@ bool IsConstantExpression(const Expression& expr);
 void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
 
 /**
+ * Emits an internal error if a VarDeclaration exists without a matching entry in the nearest
+ * SymbolTable.
+ */
+void CheckSymbolTableCorrectness(const Program& program);
+
+/**
  * Ensures that a for-loop meets the strict requirements of The OpenGL ES Shading Language 1.00,
  * Appendix A, Section 4.
  * If the requirements are met, information about the loop's structure is returned.

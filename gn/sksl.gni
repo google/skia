@@ -88,6 +88,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLUtil.h",
   "$_src/sksl/analysis/SkSLCanExitWithoutReturningValue.cpp",
   "$_src/sksl/analysis/SkSLCheckProgramStructure.cpp",
+  "$_src/sksl/analysis/SkSLCheckSymbolTableCorrectness.cpp",
   "$_src/sksl/analysis/SkSLFinalizationChecks.cpp",
   "$_src/sksl/analysis/SkSLGetLoopControlFlowInfo.cpp",
   "$_src/sksl/analysis/SkSLGetLoopUnrollInfo.cpp",

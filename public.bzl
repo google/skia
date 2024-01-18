@@ -1524,6 +1524,7 @@ BASE_SRCS_ALL = [
     "src/sksl/SkSLUtil.h",
     "src/sksl/analysis/SkSLCanExitWithoutReturningValue.cpp",
     "src/sksl/analysis/SkSLCheckProgramStructure.cpp",
+    "src/sksl/analysis/SkSLCheckSymbolTableCorrectness.cpp",
     "src/sksl/analysis/SkSLFinalizationChecks.cpp",
     "src/sksl/analysis/SkSLGetLoopControlFlowInfo.cpp",
     "src/sksl/analysis/SkSLGetLoopUnrollInfo.cpp",

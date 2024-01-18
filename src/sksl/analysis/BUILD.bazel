@@ -7,6 +7,7 @@ exports_files_legacy()
 ANALYSIS_FILES = [
     "SkSLCanExitWithoutReturningValue.cpp",
     "SkSLCheckProgramStructure.cpp",
+    "SkSLCheckSymbolTableCorrectness.cpp",
     "SkSLFinalizationChecks.cpp",
     "SkSLGetLoopControlFlowInfo.cpp",
     "SkSLGetLoopUnrollInfo.cpp",
