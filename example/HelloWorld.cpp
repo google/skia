@@ -20,6 +20,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/window/DisplayParams.h"
 
 #include <string.h>
@@ -49,6 +50,11 @@ HelloWorld::HelloWorld(int argc, char** argv, void* platformData)
     fWindow->pushLayer(this);
 
     fWindow->attach(fBackendType);
+
+    fTypeface = ToolUtils::CreateTypefaceFromResource("fonts/Roboto-Regular.ttf");
+    if (!fTypeface) {
+        fTypeface = ToolUtils::DefaultPortableTypeface();
+    }
 }
 
 HelloWorld::~HelloWorld() {
@@ -113,9 +119,8 @@ void HelloWorld::onPaint(SkSurface* surface) {
     }
 
     // Draw a message with a nice black paint
-    SkFont font;
+    SkFont font(fTypeface, 20);
     font.setSubpixel(true);
-    font.setSize(20);
     paint.setColor(SK_ColorBLACK);
 
     canvas->save();
