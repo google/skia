@@ -90,6 +90,13 @@ public:
     std::unique_ptr<Symbol> removeSymbol(const Symbol* symbol);
 
     /**
+     * Moves a symbol from this symbol table to another one. If this symbol table had ownership of
+     * the symbol, the ownership will be transferred as well. (If the symbol does not actually exist
+     * in this table at all, it will still be added to the other table.)
+     */
+    void moveSymbolTo(SymbolTable* otherTable, Symbol* sym, const Context& context);
+
+    /**
      * Returns true if the name refers to a type (user or built-in) in the current symbol table.
      */
     bool isType(std::string_view name) const;

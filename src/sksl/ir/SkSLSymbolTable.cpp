@@ -105,6 +105,14 @@ std::unique_ptr<Symbol> SymbolTable::removeSymbol(const Symbol* symbol) {
     return nullptr;
 }
 
+void SymbolTable::moveSymbolTo(SymbolTable* otherTable, Symbol* sym, const Context& context) {
+    if (std::unique_ptr<Symbol> ownedSymbol = this->removeSymbol(sym)) {
+        otherTable->add(context, std::move(ownedSymbol));
+    } else {
+        otherTable->addWithoutOwnership(context, sym);
+    }
+}
+
 const std::string* SymbolTable::takeOwnershipOfString(std::string str) {
     fOwnedStrings.push_front(std::move(str));
     // Because fOwnedStrings is a linked list, pointers to elements are stable.
