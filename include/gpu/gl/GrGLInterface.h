@@ -18,6 +18,7 @@ typedef void(*GrGLFuncPtr)();
 struct GrGLInterface;
 
 
+#if !defined(SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE)
 /**
  * Rather than depend on platform-specific GL headers and libraries, we require
  * the client to provide a struct of GL function pointers. This struct can be
@@ -31,6 +32,7 @@ struct GrGLInterface;
  * appropriate one to build.
  */
 SK_API sk_sp<const GrGLInterface> GrGLMakeNativeInterface();
+#endif
 
 /**
  * GrContext uses the following interface to make all calls into OpenGL. When a

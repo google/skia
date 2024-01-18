@@ -182,9 +182,7 @@ protected:
     static std::unique_ptr<ShaderCaps> MakeShaderCaps();
 };
 
-#if !defined(SKSL_STANDALONE) && (defined(SK_GANESH) || defined(SK_GRAPHITE))
 bool type_to_sksltype(const Context& context, const Type& type, SkSLType* outType);
-#endif
 
 void write_stringstream(const StringStream& d, OutputStream& out);
 

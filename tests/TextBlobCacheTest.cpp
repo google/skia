@@ -44,6 +44,7 @@
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/fonts/RandomScalerContext.h"
+#include "tools/gpu/ganesh/GrAtlasTools.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #include "include/ports/SkTypeface_win.h"
@@ -75,7 +76,7 @@ static const int kWidth = 1024;
 static const int kHeight = 768;
 
 static void setup_always_evict_atlas(GrDirectContext* dContext) {
-    dContext->priv().getAtlasManager()->setAtlasDimensionsToMinimum_ForTesting();
+    GrAtlasManagerTools::SetAtlasDimensionsToMinimum(dContext->priv().getAtlasManager());
 }
 
 class GrTextBlobTestingPeer {

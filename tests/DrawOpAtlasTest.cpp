@@ -39,6 +39,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/gpu/ganesh/GrAtlasTools.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -54,31 +55,6 @@ static const int kNumPlots = 2;
 static const int kPlotSize = 32;
 static const int kAtlasSize = kNumPlots * kPlotSize;
 
-int GrDrawOpAtlas::numAllocated_TestingOnly() const {
-    int count = 0;
-    for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        if (fViews[i].proxy()->isInstantiated()) {
-            ++count;
-        }
-    }
-
-    return count;
-}
-
-void GrAtlasManager::setMaxPages_TestingOnly(uint32_t maxPages) {
-    for (int i = 0; i < skgpu::kMaskFormatCount; i++) {
-        if (fAtlases[i]) {
-            fAtlases[i]->setMaxPages_TestingOnly(maxPages);
-        }
-    }
-}
-
-void GrDrawOpAtlas::setMaxPages_TestingOnly(uint32_t maxPages) {
-    SkASSERT(!fNumActivePages);
-
-    fMaxPages = maxPages;
-}
-
 class AssertOnEvict : public skgpu::PlotEvictionCallback {
 public:
     void evict(skgpu::PlotLocator) override {
@@ -90,7 +66,7 @@ static void check(skiatest::Reporter* r, GrDrawOpAtlas* atlas,
                   uint32_t expectedActive, uint32_t expectedMax, int expectedAlloced) {
     REPORTER_ASSERT(r, expectedActive == atlas->numActivePages());
     REPORTER_ASSERT(r, expectedMax == atlas->maxPages());
-    REPORTER_ASSERT(r, expectedAlloced == atlas->numAllocated_TestingOnly());
+    REPORTER_ASSERT(r, expectedAlloced == GrDrawOpAtlasTools::NumAllocated(atlas));
 }
 
 class TestingUploadTarget : public GrDeferredUploadTarget {
@@ -255,7 +231,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation,
     auto atlasManager = dContext->priv().getAtlasManager();
     unsigned int numProxies;
     atlasManager->getViews(MaskFormat::kA8, &numProxies);
-    atlasManager->setMaxPages_TestingOnly(0);
+    GrAtlasManagerTools::SetMaxPages(atlasManager, 0);
 
     flushState.setOpArgs(&opArgs);
     op->prepare(&flushState);

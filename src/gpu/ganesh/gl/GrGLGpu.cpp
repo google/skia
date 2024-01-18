@@ -408,12 +408,18 @@ private:
 std::unique_ptr<GrGpu> GrGLGpu::Make(sk_sp<const GrGLInterface> interface,
                                      const GrContextOptions& options,
                                      GrDirectContext* direct) {
+#if !defined(SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE)
     if (!interface) {
         interface = GrGLMakeNativeInterface();
         if (!interface) {
             return nullptr;
         }
     }
+#else
+    if (!interface) {
+        return nullptr;
+    }
+#endif
 #ifdef USE_NSIGHT
     const_cast<GrContextOptions&>(options).fSuppressPathRendering = true;
 #endif

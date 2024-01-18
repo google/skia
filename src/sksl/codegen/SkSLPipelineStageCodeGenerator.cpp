@@ -7,8 +7,6 @@
 
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 
-#if defined(SKSL_STANDALONE) || defined(SK_GANESH) || defined(SK_GRAPHITE)
-
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
@@ -818,5 +816,3 @@ void ConvertProgram(const Program& program,
 
 }  // namespace PipelineStage
 }  // namespace SkSL
-
-#endif

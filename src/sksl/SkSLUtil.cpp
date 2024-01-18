@@ -42,7 +42,6 @@ void write_stringstream(const StringStream& s, OutputStream& out) {
     out.write(s.str().c_str(), s.str().size());
 }
 
-#if !defined(SKSL_STANDALONE) && (defined(SK_GANESH) || SK_SUPPORT_GRAPHITE)
 bool type_to_sksltype(const Context& context, const Type& type, SkSLType* outType) {
     // If a new GrSL type is added, this function will need to be updated.
     static_assert(kSkSLTypeCount == 41);
@@ -84,6 +83,5 @@ bool type_to_sksltype(const Context& context, const Type& type, SkSLType* outTyp
     if (type.matches(*context.fTypes.fUInt4   )) { *outType = SkSLType::kUInt4;    return true; }
     return false;
 }
-#endif
 
 }  // namespace SkSL

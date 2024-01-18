@@ -8,17 +8,30 @@
 #ifndef GrAtlasManager_DEFINED
 #define GrAtlasManager_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
+class GrDeferredUploadTarget;
+class GrResourceProvider;
+class GrSurfaceProxyView;
+class SkGlyph;
+
 namespace sktext::gpu {
 class Glyph;
 }
-class GrResourceProvider;
-class SkGlyph;
-class GrTextStrike;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /** The GrAtlasManager manages the lifetime of and access to GrDrawOpAtlases.
@@ -114,16 +127,8 @@ public:
     // OnFlushCallbackObject list
     bool retainOnFreeGpuResources() override { return true; }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Functions intended debug only
-#ifdef SK_DEBUG
-    void dump(GrDirectContext*) const;
-#endif
-
-    void setAtlasDimensionsToMinimum_ForTesting();
-    void setMaxPages_TestingOnly(uint32_t maxPages);
-
 private:
+    friend class GrAtlasManagerTools;
     bool initAtlas(skgpu::MaskFormat);
     // Change an expected 565 mask format to 8888 if 565 is not supported (will happen when using
     // Metal on macOS). The actual conversion of the data is handled in get_packed_glyph_image() in

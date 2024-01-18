@@ -162,10 +162,9 @@ public:
         return fMaxPages;
     }
 
-    int numAllocated_TestingOnly() const;
-    void setMaxPages_TestingOnly(uint32_t maxPages);
-
 private:
+    friend class GrDrawOpAtlasTools;
+
     GrDrawOpAtlas(GrProxyProvider*, const GrBackendFormat& format, SkColorType, size_t bpp,
                   int width, int height, int plotWidth, int plotHeight,
                   skgpu::AtlasGenerationCounter* generationCounter,

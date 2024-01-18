@@ -17,13 +17,14 @@ struct GrGLInterface;
 
 namespace GrDirectContexts {
 /**
- * Creates a GrDirectContext for a backend context. If no GrGLInterface is provided then the
- * result of GrGLMakeNativeInterface() is used if it succeeds.
+ * Creates a GrDirectContext for a backend context. GrGLInterface must be non-null.
  */
 SK_API sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
 SK_API sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface>);
+#if !defined(SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE)
 SK_API sk_sp<GrDirectContext> MakeGL(const GrContextOptions&);
 SK_API sk_sp<GrDirectContext> MakeGL();
+#endif
 }
 
 #endif

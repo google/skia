@@ -8,7 +8,6 @@
 #ifndef skgpu_Rectanizer_DEFINED
 #define skgpu_Rectanizer_DEFINED
 
-#include "include/gpu/GrTypes.h"
 #include "src/core/SkIPoint16.h"
 
 namespace skgpu {

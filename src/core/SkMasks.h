@@ -11,24 +11,22 @@
 
 #include <cstdint>
 
-// Contains useful mask routines for SkMaskSwizzler
 class SkMasks {
 public:
-   //Contains all of the information for a single mask
+    // Contains all of the information for a single mask
     struct MaskInfo {
         uint32_t mask;
         uint32_t shift;  // To the left
         uint32_t size;   // Of mask width
     };
 
-    constexpr SkMasks(const MaskInfo red, const MaskInfo green, const MaskInfo blue,
-            const MaskInfo alpha)
-        : fRed(red)
-        , fGreen(green)
-        , fBlue(blue)
-        , fAlpha(alpha) { }
+    constexpr SkMasks(const MaskInfo red,
+                      const MaskInfo green,
+                      const MaskInfo blue,
+                      const MaskInfo alpha)
+            : fRed(red), fGreen(green), fBlue(blue), fAlpha(alpha) {}
 
-    //Input bit masks format
+    // Input bit masks format
     struct InputMasks {
         uint32_t red;
         uint32_t green;
@@ -45,11 +43,9 @@ public:
     uint8_t getBlue(uint32_t pixel) const;
     uint8_t getAlpha(uint32_t pixel) const;
 
-     // Getter for the alpha mask
-     // The alpha mask may be used in other decoding modes
-     uint32_t getAlphaMask() const {
-        return fAlpha.mask;
-     }
+    // Getter for the alpha mask
+    // The alpha mask may be used in other decoding modes
+    uint32_t getAlphaMask() const { return fAlpha.mask; }
 
 private:
     const MaskInfo fRed;

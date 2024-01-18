@@ -7,7 +7,6 @@
 
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/PipelineUtils.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.h"
 #include "src/sksl/SkSLCompiler.h"

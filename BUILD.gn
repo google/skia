@@ -2008,6 +2008,11 @@ if (skia_enable_tools) {
       sources -= [ "tools/gpu/GrTest.cpp" ]
       sources -= [ "tools/gpu/TestOps.cpp" ]
       sources -= [ "tools/gpu/TestOps.h" ]
+    } else {
+      sources += [
+        "tools/gpu/ganesh/GrAtlasTools.cpp",
+        "tools/gpu/ganesh/GrAtlasTools.h",
+      ]
     }
     if (skia_enable_graphite) {
       sources += [ "tools/graphite/ContextFactory.h" ]

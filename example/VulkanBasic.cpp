@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     // function as a guide on things to consider when setting up Vulkan for themselves, but they
     // should not depend on that function. We may arbitrarily change it as it is meant only for Skia
     // internal testing. Additionally it may do some odd things that a normal Vulkan user wouldn't
-    // do because it is againt meant for Skia testing.
+    // do because it is only meant for Skia testing.
     {
         PFN_vkGetInstanceProcAddr instProc;
         if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {

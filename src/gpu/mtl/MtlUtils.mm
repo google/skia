@@ -9,7 +9,6 @@
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/gpu/PipelineUtils.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/utils/SkShaderUtils.h"
