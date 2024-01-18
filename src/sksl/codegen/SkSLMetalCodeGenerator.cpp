@@ -2523,8 +2523,9 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             if (this->requirements(f) & kSampleMaskIn_Requirement) {
                 this->write(", uint sk_SampleMaskIn [[sample_mask]]");
             }
-            if (fProgram.fInterface.fUseLastFragColor) {
-                this->write(", half4 " + std::string(fCaps.fFBFetchColorName) + " [[color(0)]]\n");
+            if (fProgram.fInterface.fUseLastFragColor && fCaps.fFBFetchColorName) {
+                this->write(", half4 " + std::string(fCaps.fFBFetchColorName) +
+                            " [[color(0)]]\n");
             }
             separator = ", ";
         } else if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {

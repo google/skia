@@ -544,6 +544,7 @@ skia_filegroup(
     name = "sksl_glsl_tests",
     srcs = [
         "glsl/ForceHighPrecision.sksl",
+        "glsl/LastFragColorWithoutCaps.sksl",
         "glsl/LayoutQualifiers.sksl",
         "glsl/ShortIntPrecision.sksl",
         "glsl/TextureSharpenVersion110.sksl",
@@ -613,6 +614,7 @@ skia_filegroup(
         "metal/CastMat2x3ToMat4x4.sksl",
         "metal/CastMat4x4ToMat3x4.sksl",
         "metal/CastMat4x4ToMat4x3.sksl",
+        "metal/LastFragColorWithoutCaps.sksl",
         "metal/LayoutMtlSampler.sksl",
         "metal/NumericGlobals.sksl",
         "metal/OpaqueTypeInInterfaceBlock.sksl",
