@@ -1,0 +1,24 @@
+void func() {
+    for (int x=0; x<10; ++x) {
+        int x;       // conflicts with loop induction variable
+    }
+
+    for (int y, z;;) {
+        float y;     // conflicts with loop induction variable
+        bool z;      // conflicts with loop induction variable
+    }
+
+    for (float w;;) {{
+        int w;       // OK: no conflict due to extra braced scope
+    }}
+
+    int x, y, z, w;  // OK: no conflict with for-loop scopes
+
+    for (int x=0; x<10; ++x) {} // OK: no conflict with outer scope
+}
+
+/*%%*
+symbol 'x' was already defined
+symbol 'y' was already defined
+symbol 'z' was already defined
+*%%*/

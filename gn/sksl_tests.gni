@@ -89,6 +89,7 @@ sksl_error_tests = [
   "errors/ErrorsInDeadCode.rts",
   "errors/FloatRemainder.rts",
   "errors/ForInitStmt.sksl",
+  "errors/ForLoopInductionVariableScope.sksl",
   "errors/ForTypeMismatch.rts",
   "errors/FunctionParamBadType.rts",
   "errors/FunctionParamShadowedByLocal.rts",

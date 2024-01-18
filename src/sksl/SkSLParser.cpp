@@ -126,21 +126,26 @@ private:
 
 class Parser::AutoSymbolTable {
 public:
-    AutoSymbolTable(Parser* p, std::unique_ptr<SymbolTable>* newSymbolTable) : fParser(p) {
-        SymbolTable*& ctxSymbols = this->contextSymbolTable();
-        *newSymbolTable = std::make_unique<SymbolTable>(ctxSymbols, ctxSymbols->isBuiltin());
-        ctxSymbols = newSymbolTable->get();
+    AutoSymbolTable(Parser* p, std::unique_ptr<SymbolTable>* newSymbolTable, bool enable = true) {
+        if (enable) {
+            fParser = p;
+            SymbolTable*& ctxSymbols = this->contextSymbolTable();
+            *newSymbolTable = std::make_unique<SymbolTable>(ctxSymbols, ctxSymbols->isBuiltin());
+            ctxSymbols = newSymbolTable->get();
+        }
     }
 
     ~AutoSymbolTable() {
-        SymbolTable*& ctxSymbols = this->contextSymbolTable();
-        ctxSymbols = ctxSymbols->fParent;
+        if (fParser) {
+            SymbolTable*& ctxSymbols = this->contextSymbolTable();
+            ctxSymbols = ctxSymbols->fParent;
+        }
     }
 
 private:
     SymbolTable*& contextSymbolTable() { return fParser->fCompiler.context().fSymbolTable; }
 
-    Parser* fParser;
+    Parser* fParser = nullptr;
 };
 
 class Parser::Checkpoint {
@@ -637,16 +642,23 @@ bool Parser::prototypeFunction(SkSL::FunctionDeclaration* decl) {
 }
 
 bool Parser::defineFunction(SkSL::FunctionDeclaration* decl) {
-    // Create a symbol table for the function parameters.
     const Context& context = fCompiler.context();
-
-    // Parse the function body.
     Token bodyStart = this->peek();
-    SkSpan<Variable* const> parametersForTopLevel;
-    if (decl) {
-        parametersForTopLevel = decl->parameters();
+
+    std::unique_ptr<SymbolTable> symbolTable;
+    std::unique_ptr<Statement> body;
+    {
+        // Create a symbol table for the function which includes the parameters.
+        AutoSymbolTable symbols(this, &symbolTable);
+        if (decl) {
+            for (Variable* param : decl->parameters()) {
+                symbolTable->addWithoutOwnership(fCompiler.context(), param);
+            }
+        }
+
+        // Parse the function body.
+        body = this->block(/*introduceNewScope=*/false, /*adoptExistingSymbolTable=*/&symbolTable);
     }
-    std::unique_ptr<Statement> body = this->block(parametersForTopLevel);
 
     // If there was a problem with the declarations or body, don't actually create a definition.
     if (!decl || !body) {
@@ -1193,7 +1205,7 @@ std::unique_ptr<Statement> Parser::statementOrNop(Position pos, std::unique_ptr<
 }
 
 /* ifStatement | forStatement | doStatement | whileStatement | block | expression */
-std::unique_ptr<Statement> Parser::statement() {
+std::unique_ptr<Statement> Parser::statement(bool bracesIntroduceNewScope) {
     AutoDepth depth(this);
     if (!depth.increase()) {
         return nullptr;
@@ -1218,7 +1230,7 @@ std::unique_ptr<Statement> Parser::statement() {
         case Token::Kind::TK_DISCARD:
             return this->discardStatement();
         case Token::Kind::TK_LBRACE:
-            return this->block();
+            return this->block(bracesIntroduceNewScope, /*adoptExistingSymbolTable=*/nullptr);
         case Token::Kind::TK_SEMICOLON:
             this->nextToken();
             return Nop::Make();
@@ -1620,7 +1632,7 @@ std::unique_ptr<Statement> Parser::forStatement() {
         if (!this->expect(Token::Kind::TK_RPAREN, "')'", &rparen)) {
             return nullptr;
         }
-        statement = this->statement();
+        statement = this->statement(/*bracesIntroduceNewScope=*/false);
         if (!statement) {
             return nullptr;
         }
@@ -1698,7 +1710,11 @@ std::unique_ptr<Statement> Parser::discardStatement() {
 }
 
 /* LBRACE statement* RBRACE */
-std::unique_ptr<Statement> Parser::block(SkSpan<Variable* const> parametersForTopLevel) {
+std::unique_ptr<Statement> Parser::block(bool introduceNewScope,
+                                         std::unique_ptr<SymbolTable>* adoptExistingSymbolTable) {
+    // We can't introduce a new scope _and_ adopt an existing symbol table.
+    SkASSERT(!(introduceNewScope && adoptExistingSymbolTable));
+
     AutoDepth depth(this);
     Token start;
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'", &start)) {
@@ -1708,16 +1724,14 @@ std::unique_ptr<Statement> Parser::block(SkSpan<Variable* const> parametersForTo
         return nullptr;
     }
 
-    std::unique_ptr<SymbolTable> symbolTable;
+    std::unique_ptr<SymbolTable> newSymbolTable;
+    std::unique_ptr<SymbolTable>* symbolTableToUse =
+            adoptExistingSymbolTable ? adoptExistingSymbolTable : &newSymbolTable;
+
     StatementArray statements;
     {
-        AutoSymbolTable symbols(this, &symbolTable);
+        AutoSymbolTable symbols(this, symbolTableToUse, /*enable=*/introduceNewScope);
 
-        // At function top-level, parameters from the function declaration are implicitly injected
-        // into the block's symbol table.
-        for (Variable* param : parametersForTopLevel) {
-            this->symbolTable()->addWithoutOwnership(fCompiler.context(), param);
-        }
         // Consume statements until we reach the closing brace.
         for (;;) {
             Token::Kind tokenKind = this->peek().fKind;
@@ -1740,7 +1754,7 @@ std::unique_ptr<Statement> Parser::block(SkSpan<Variable* const> parametersForTo
     return SkSL::Block::MakeBlock(this->rangeFrom(start),
                                   std::move(statements),
                                   Block::Kind::kBracedScope,
-                                  std::move(symbolTable));
+                                  std::move(*symbolTableToUse));
 }
 
 /* expression SEMICOLON */
