@@ -33,8 +33,5 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [":tessellate_hdrs"],
-    visibility = [
-        "//src/gpu:__pkg__",
-        "//src/gpu/ganesh:__pkg__",
-    ],
+    visibility = ["//src/gpu:__pkg__"],
 )

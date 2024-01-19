@@ -18,8 +18,5 @@ skia_filegroup(
         "GrTextureGenerator.h",
         "GrTypesPriv.h",
     ],
-    visibility = [
-        "//include/private/gpu:__pkg__",
-        "//src/gpu/ganesh:__pkg__",
-    ],
+    visibility = ["//include/private/gpu:__pkg__"],
 )

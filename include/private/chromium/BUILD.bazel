@@ -22,7 +22,6 @@ skia_filegroup(
         "GrSurfaceCharacterization.h",
         "SkImageChromium.h",
     ],
-    visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 
 # This group is mapped to //gn/gpu.gni:skia_gpu_vk_chromium.

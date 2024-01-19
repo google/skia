@@ -40,17 +40,11 @@ split_srcs_and_hdrs(
 skia_filegroup(
     name = "srcs",
     srcs = [":gpu_srcs"],
-    visibility = [
-        "//src:__pkg__",
-        "//src/gpu/ganesh:__pkg__",
-    ],
+    visibility = ["//src:__pkg__"],
 )
 
 skia_filegroup(
     name = "private_hdrs",
     srcs = [":gpu_hdrs"],
-    visibility = [
-        "//src:__pkg__",
-        "//src/gpu/ganesh:__pkg__",
-    ],
+    visibility = ["//src:__pkg__"],
 )
