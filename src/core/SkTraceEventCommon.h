@@ -236,6 +236,9 @@ static inline void sk_noop(...) {}
     #define TRACE_EVENT_INSTANT1(cg, n, scope, a1n, a1v) TRACE_EMPTY(cg, n, scope, a1n, a1v)
     #define TRACE_EVENT_INSTANT2(cg, n, scope, a1n, a1v, a2n, a2v)  \
         TRACE_EMPTY(cg, n, scope, a1n, a1v, a2n, a2v)
+    #define TRACE_EVENT_OBJECT_CREATED_WITH_ID(cg, n, id) TRACE_EMPTY(cg, n, id)
+    #define TRACE_EVENT_OBJECT_SNAPSHOT_WITH_ID(cg, n, id, ss) TRACE_EMPTY(cg, n, id, ss)
+    #define TRACE_EVENT_OBJECT_DELETED_WITH_ID(cg, n, id) TRACE_EMPTY(cg, n, id)
     #define TRACE_COUNTER1(cg, n, value) TRACE_EMPTY(cg, n, value)
     #define TRACE_COUNTER2(cg, n, v1n, v1v, v2n, v2v) TRACE_EMPTY(cg, n, v1n, v1v, v2n, v2v)
 
