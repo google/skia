@@ -37,7 +37,7 @@ const (
 
 func main() {
 	deviceSpecificBazelConfigFlag := flag.String("device-specific-bazel-config", "", "The Bazel config corresponding to this Android device (see //bazel/devicesrc).")
-	benchmarkFlag := flag.Bool("benchmark", false, "Whether this is a benchmark terst or not. Might affect CPU/GPU settings, etc.")
+	benchmarkFlag := flag.Bool("benchmark", false, "Whether this is a benchmark test or not. The Android device will be tuned to reduce variations in performance for single-threaded tests.")
 	archiveFlag := flag.String("archive", "", "Tarball with the payload to upload to the device under test.")
 	testRunnerFlag := flag.String("test-runner", "", "Path to the test runner inside the tarball.")
 	// Some context regarding the parsing step mentioned in this flag's help text:
@@ -260,7 +260,7 @@ func runTest(ctx context.Context, model string, isBenchmarkTest bool, archive, t
 	return nil
 }
 
-// scaleDevice scales the CPU and GPU of the device as required based on the type of test.
+// scaleDevice scales the CPU of the device as required based on the type of test.
 func scaleDevice(ctx context.Context, model string, isBenchmarkTest bool) error {
 	// Based on
 	// https://skia.googlesource.com/skia/+/5a635f2211ceb7639ceca4200e0094a6ca17111b/infra/bots/recipe_modules/flavor/android.py#151
@@ -314,8 +314,8 @@ func scaleDeviceForPerformance(ctx context.Context, model string) error {
 	return nil
 }
 
-// scaleDeviceForBenchmark tunes the device's CPUs and GPU for single-threaded tests, such as
-// benchmark tests. It tries to minimize variations in the performance over successive test runs.
+// scaleDeviceForBenchmark tunes the device's CPUs for single-threaded tests, such as benchmark
+// tests. It tries to minimize variations in the performance over successive test runs.
 //
 // Based on
 // https://skia.googlesource.com/skia/+/0e8023dc0a1a5655703b39454c090b5a004415d6/infra/bots/recipe_modules/flavor/android.py#177.
