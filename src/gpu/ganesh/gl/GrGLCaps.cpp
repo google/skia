@@ -758,7 +758,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // GrGLsync objects ahead of time without talking to the GPU.
     fBackendSemaphoreSupport = false;
     // We prefer GL sync objects but also support NV_fence_sync. The former can be
-    // used to implement GrGLFence and GrSemaphore. The latter only implements GrGLFence.
+    // used to implement GrGLsync and GrSemaphore. The latter only implements GrGLsync.
     // TODO: support CHROMIUM_sync_point and maybe KHR_fence_sync
     if (GR_IS_GR_WEBGL(standard)) {
         // Only in WebGL 2.0

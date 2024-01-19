@@ -331,7 +331,7 @@ public:
     /** Supports using GrGLsync. */
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
 
-    /// How are GrFences implemented?
+    /// How is GrGLsync implemented?
     FenceType fenceType() const { return fFenceType; }
 
     /// How are multi draws implemented (if at all)?
