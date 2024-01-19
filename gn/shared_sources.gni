@@ -19,5 +19,4 @@ import("xml.gni")
 import("xps.gni")
 skia_opts = {
   hsw_sources = hsw
-  skx_sources = skx
 }
