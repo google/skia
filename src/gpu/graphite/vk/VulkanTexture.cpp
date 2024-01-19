@@ -118,10 +118,15 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
                                                forceDedicatedMemory,
                                                useLazyAllocation,
                                                checkResult,
-                                               &outInfo->fMemoryAlloc) ||
-        (useLazyAllocation &&
-         !SkToBool(outInfo->fMemoryAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag))) {
+                                               &outInfo->fMemoryAlloc)) {
         VULKAN_CALL(interface, DestroyImage(device, image, nullptr));
+        return false;
+    }
+
+    if (useLazyAllocation &&
+        !SkToBool(outInfo->fMemoryAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag)) {
+        SKGPU_LOG_E("Failed allocate lazy vulkan memory when requested");
+        skgpu::VulkanMemory::FreeImageMemory(allocator, outInfo->fMemoryAlloc);
         return false;
     }
 
