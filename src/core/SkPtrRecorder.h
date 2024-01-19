@@ -13,6 +13,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTDArray.h"
 
+#include <cstdint>
+
 /**
  *  Maintains a set of ptrs, assigning each a unique ID [1...N]. Duplicate ptrs
  *  return the same ID (since its a set). Subclasses can override inPtr()

@@ -9,8 +9,13 @@
 #define SkPathMeasure_DEFINED
 
 #include "include/core/SkContourMeasure.h"
-#include "include/core/SkPath.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAPI.h"
+
+class SkMatrix;
+class SkPath;
 
 class SK_API SkPathMeasure {
 public:

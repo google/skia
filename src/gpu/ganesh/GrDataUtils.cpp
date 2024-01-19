@@ -19,6 +19,7 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"

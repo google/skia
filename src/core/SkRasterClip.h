@@ -8,13 +8,19 @@
 #ifndef SkRasterClip_DEFINED
 #define SkRasterClip_DEFINED
 
-#include "include/core/SkClipOp.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
-#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "src/core/SkAAClip.h"
 
+class SkBlitter;
+class SkMatrix;
+class SkPath;
 class SkRRect;
+enum class SkClipOp;
 
 /**
  *  Wraps a SkRegion and SkAAClip, so we have a single object that can represent either our

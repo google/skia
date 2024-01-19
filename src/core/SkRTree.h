@@ -11,6 +11,10 @@
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkRect.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <vector>
+
 /**
  * An R-Tree implementation. In short, it is a balanced n-ary tree containing a hierarchy of
  * bounding rectangles.

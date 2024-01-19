@@ -5,10 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBlendMode.h"
-#include "include/core/SkPath.h"
 #include "src/core/SkRasterClip.h"
+
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkRegionPriv.h"
+
+class SkBlitter;
 
 SkRasterClip::SkRasterClip(const SkRasterClip& that)
         : fIsBW(that.fIsBW)

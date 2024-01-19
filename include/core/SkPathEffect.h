@@ -9,13 +9,20 @@
 #define SkPathEffect_DEFINED
 
 #include "include/core/SkFlattenable.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-// not needed, but some of our clients need it (they don't IWYU)
-#include "include/core/SkPath.h"
+#include "include/private/base/SkAPI.h"
 
-class SkPath;
-struct SkRect;
+// TODO(kjlubick) update clients and remove this unnecessary #include
+#include "include/core/SkPath.h"  // IWYU pragma: keep
+
+#include <cstddef>
+#include <cstdint>
+
+class SkMatrix;
 class SkStrokeRec;
+struct SkDeserialProcs;
+struct SkRect;
 
 /** \class SkPathEffect
 

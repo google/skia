@@ -8,8 +8,10 @@
 #ifndef SkPaintPriv_DEFINED
 #define SkPaintPriv_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 
+class SkColorSpace;
 class SkReadBuffer;
 class SkWriteBuffer;
 enum SkColorType : int;

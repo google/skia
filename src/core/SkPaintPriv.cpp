@@ -5,11 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPaint.h"
-
-#include "src/core/SkBlenderBase.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkPaintPriv.h"
+
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/private/base/SkAssert.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeRange.h"
@@ -17,6 +26,11 @@
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkColorFilterShader.h"
 #include "src/shaders/SkShaderBase.h"
+
+#include <cstdint>
+#include <optional>
+
+class SkColorSpace;
 
 static bool changes_alpha(const SkPaint& paint) {
     SkColorFilter* cf = paint.getColorFilter();

@@ -6,8 +6,16 @@
  */
 
 #include "include/core/SkData.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/private/SkPathRef.h"
-#include "include/private/base/SkMath.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
@@ -17,7 +25,8 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 
-#include <cmath>
+#include <cstddef>
+#include <cstdint>
 
 enum SerializationOffsets {
     kType_SerializationShift = 28,       // requires 4 bits

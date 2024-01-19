@@ -13,6 +13,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
 #include <functional>

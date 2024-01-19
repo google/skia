@@ -15,13 +15,13 @@
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
-#include "src/core/SkRasterPipelineOpList.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <functional>
 
 class SkMatrix;
+enum class SkRasterPipelineOp;
 enum SkColorType : int;
 struct SkImageInfo;
 struct skcms_TransferFunction;
