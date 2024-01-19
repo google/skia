@@ -215,7 +215,8 @@ private:
 #ifdef SK_DEBUG
 static void skprintf_like_noop(const char format[], ...) SK_PRINTF_LIKE(1, 2);
 static inline void skprintf_like_noop(const char format[], ...) {}
-static inline void sk_noop(...) {}
+template <typename... Args>
+static inline void sk_noop(Args...) {}
 #define TRACE_EMPTY(...) do { sk_noop(__VA_ARGS__); } while (0)
 #define TRACE_EMPTY_FMT(fmt, ...) do { skprintf_like_noop(fmt, ##__VA_ARGS__); } while (0)
 #else

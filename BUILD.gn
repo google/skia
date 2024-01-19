@@ -73,6 +73,9 @@ config("skia_public") {
   if (skia_enable_graphite) {
     defines += [ "SK_GRAPHITE" ]
   }
+  if (skia_disable_tracing) {
+    defines += [ "SK_DISABLE_TRACING" ]
+  }
   if (skia_use_perfetto) {
     defines += [ "SK_USE_PERFETTO" ]
   }

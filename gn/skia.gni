@@ -20,14 +20,15 @@ declare_args() {
   skia_enable_fontmgr_empty = false
   skia_enable_fontmgr_fuchsia = is_fuchsia
   skia_enable_fontmgr_win = is_win
+  skia_enable_gpu_debug_layers = is_skia_dev_build && is_debug
   skia_enable_optimize_size = false
   skia_enable_pdf = !is_wasm
+  skia_enable_precompile = true
   skia_enable_skottie = !(is_win && is_component_build) ||
                         (is_wasm && skia_canvaskit_enable_skottie)
-  skia_enable_precompile = true
   skia_enable_svg = !is_component_build
   skia_enable_tools = is_skia_dev_build
-  skia_enable_gpu_debug_layers = is_skia_dev_build && is_debug
+  skia_disable_tracing = is_official_build
   skia_enable_vello_shaders = false
   skia_disable_vma_stl_shared_mutex = false
   skia_enable_winuwp = false
@@ -54,10 +55,10 @@ declare_args() {
   skia_use_gl = !is_fuchsia
   skia_use_icu = !is_fuchsia
   skia_use_icu4x = false
+  skia_use_jpeg_gainmaps = is_skia_dev_build
   skia_use_libavif = false
   skia_use_libgrapheme = false
   skia_use_libheif = is_skia_dev_build
-  skia_use_jpeg_gainmaps = is_skia_dev_build
   skia_use_libjpeg_turbo_decode = true
   skia_use_libjpeg_turbo_encode = true
   skia_use_no_jpeg_encode = false
