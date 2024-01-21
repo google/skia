@@ -12,23 +12,13 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkMutex.h"
-#include "include/private/base/SkTArray.h"
-#include "src/base/SkSharedMutex.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkScalerContext.h"
-#include "src/utils/SkCharToGlyphCache.h"
-
-struct SkAdvancedTypefaceMetrics;
-class SkFontDescriptor;
-class SkFontData;
 
 // These are forward declared to avoid pimpl but also hide the FreeType implementation.
-typedef struct FT_LibraryRec_* FT_Library;
 typedef struct FT_FaceRec_* FT_Face;
 typedef struct FT_StreamRec_* FT_Stream;
 typedef signed long FT_Pos;
-typedef struct FT_BBox_ FT_BBox;
 
 
 #ifdef SK_DEBUG
@@ -49,7 +39,7 @@ protected:
 
     SkScalerContext_FreeType_Base(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
                                   const SkDescriptor *desc)
-        : INHERITED(std::move(typeface), effects, desc)
+    : INHERITED(std::move(typeface), effects, desc)
     {}
 
     bool drawCOLRv0Glyph(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
@@ -60,7 +50,6 @@ protected:
                       SkSpan<SkColor> palette, SkCanvas*);
     void generateGlyphImage(FT_Face, const SkGlyph&, void*, const SkMatrix& bitmapTransform);
     bool generateGlyphPath(FT_Face, SkPath*);
-    bool generateFacePath(FT_Face, SkGlyphID, uint32_t loadGlyphFlags, SkPath*);
 
     /** Computes a bounding box for a COLRv1 glyph.
      *
@@ -75,8 +64,11 @@ protected:
         static const constexpr uint32_t COLRv1 = 2;
         static const constexpr uint32_t SVG    = 3;
     };
+
 private:
     using INHERITED = SkScalerContext;
+
+    bool generateFacePath(FT_Face, SkGlyphID, uint32_t loadGlyphFlags, SkPath*);
 };
 
 #endif // SKFONTHOST_FREETYPE_COMMON_H_
