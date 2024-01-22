@@ -9,6 +9,7 @@ skia_filegroup(
     srcs = [
         "BentleyOttmann1.h",
         "BruteForceCrossings.h",
+        "Contour.h",
         "EventQueue.h",
         "EventQueueInterface.h",
         "Int96.h",
