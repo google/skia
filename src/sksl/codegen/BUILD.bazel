@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -33,8 +33,21 @@ GPU_SRCS = [
 ]
 
 split_srcs_and_hdrs(
-    name = "gpu",
+    name = "legacy_gpu",
     files = GPU_SRCS,
+)
+
+# TODO(kjlubick) delete after updating G3
+alias(
+    name = "gpu_hdrs",
+    actual = ":legacy_gpu_hdrs",
+    visibility = ["//:__pkg__"],
+)
+
+alias(
+    name = "gpu_srcs",
+    actual = ":legacy_gpu_srcs",
+    visibility = ["//:__pkg__"],
 )
 
 skia_filegroup(
@@ -42,7 +55,7 @@ skia_filegroup(
     srcs = [
         ":core_srcs",
     ] + select({
-        "//src/sksl:use_sksl_gpu_srcs": [":gpu_srcs"],
+        "//src/sksl:use_sksl_gpu_srcs": [":legacy_gpu_srcs"],
         "//conditions:default": [],
     }),
     visibility = ["//src/sksl:__pkg__"],
@@ -54,7 +67,7 @@ skia_filegroup(
         "SkSLRasterPipelineBuilder.h",
         "SkSLRasterPipelineCodeGenerator.h",
     ] + select({
-        "//src/sksl:use_sksl_gpu_srcs": [":gpu_hdrs"],
+        "//src/sksl:use_sksl_gpu_srcs": [":legacy_gpu_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src/sksl:__pkg__"],
@@ -85,4 +98,39 @@ skia_filegroup(
         "SkSLRasterPipelineCodeGenerator.cpp",
     ],
     visibility = ["//src/core:__pkg__"],
+)
+
+skia_cc_library(
+    name = "gpu",
+    srcs = [
+        "SkSLPipelineStageCodeGenerator.cpp",
+    ],
+    hdrs = [
+        "SkSLPipelineStageCodeGenerator.h",
+    ],
+    features = ["layering_check"],
+    visibility = ["//src/gpu/ganesh:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu",
+    ],
+)
+
+skia_cc_library(
+    name = "glsl",
+    srcs = [
+        "SkSLCodeGenerator.h",
+        "SkSLGLSLCodeGenerator.cpp",
+    ],
+    hdrs = ["SkSLGLSLCodeGenerator.h"],
+    features = ["layering_check"],
+    visibility = ["//src/gpu/ganesh/gl:__pkg__"],
+    deps = [
+        ":gpu",
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+    ],
 )

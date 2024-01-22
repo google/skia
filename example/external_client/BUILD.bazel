@@ -66,3 +66,20 @@ cc_binary(
         "@skia//:skparagraph_harfbuzz_icu",
     ],
 )
+
+cc_binary(
+    name = "use_ganesh_gl",
+    srcs = ["src/ganesh_gl.cpp"],
+    copts = ["-std=c++17"],
+    linkopts = [
+        "-lpthread",
+        "-lGL",
+        "-lX11",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:ganesh_gl",
+        "@skia//:ganesh_glx_factory",
+        "@skia//:webp_encode_codec",
+    ],
+)

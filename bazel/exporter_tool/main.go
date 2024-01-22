@@ -189,8 +189,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_sksl_gpu_sources",
 			Rules: []string{
-				"//src/sksl/codegen:gpu_hdrs",
-				"//src/sksl/codegen:gpu_srcs",
+				"//src/sksl/codegen:legacy_gpu_hdrs",
+				"//src/sksl/codegen:legacy_gpu_srcs",
 			}},
 		{Var: "skslc_deps",
 			Rules: []string{
@@ -275,7 +275,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//include/gpu/mock:public_hdrs",
 				"//include/gpu:public_hdrs",
 				"//include/gpu:shared_public_hdrs",
-				"//include/gpu/ganesh:public_hdrs",
+				"//include/gpu/ganesh:ganesh_hdrs",
 			}},
 		{Var: "skia_ganesh_private",
 			Rules: []string{

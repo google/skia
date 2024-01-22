@@ -56,7 +56,7 @@ _include = get_path_info("../include", "abspath")
 #  //include/gpu/mock:public_hdrs
 #  //include/gpu:public_hdrs
 #  //include/gpu:shared_public_hdrs
-#  //include/gpu/ganesh:public_hdrs
+#  //include/gpu/ganesh:ganesh_hdrs
 skia_gpu_public = [
   "$_include/gpu/GpuTypes.h",
   "$_include/gpu/GrBackendDrawableInfo.h",
