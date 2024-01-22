@@ -117,6 +117,12 @@ struct Metadata {
     */
     DateTime fModified = {0, 0, 0, 0, 0, 0, 0, 0};
 
+    /** The natural language of the text in the PDF. If fLang is empty, the root
+        StructureElementNode::fLang will be used (if not empty). Text not in
+        this language should be marked with StructureElementNode::fLang.
+    */
+    SkString fLang;
+
     /** The DPI (pixels-per-inch) at which features without native PDF support
         will be rasterized (e.g. draw image with perspective, draw text with
         perspective, ...)  A larger DPI would create a PDF that reflects the

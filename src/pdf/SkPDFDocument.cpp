@@ -604,6 +604,14 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         }
     }
 
+    SkString lang = fMetadata.fLang;
+    if (lang.isEmpty()) {
+        lang = fTagTree.getRootLanguage();
+    }
+    if (!lang.isEmpty()) {
+        docCatalog->insertTextString("Lang", lang);
+    }
+
     auto docCatalogRef = this->emit(*docCatalog);
 
     for (const SkPDFFont* f : get_fonts(*this)) {

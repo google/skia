@@ -570,3 +570,7 @@ SkPDFIndirectReference SkPDFTagTree::makeOutline(SkPDFDocument* doc) {
 
     return doc->emit(outline, outlineRef);
 }
+
+SkString SkPDFTagTree::getRootLanguage() {
+    return fRoot ? fRoot->fLang : SkString();
+}

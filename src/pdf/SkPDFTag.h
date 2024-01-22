@@ -51,6 +51,7 @@ public:
     void addNodeTitle(int nodeId, SkSpan<const char>);
     SkPDFIndirectReference makeStructTreeRoot(SkPDFDocument* doc);
     SkPDFIndirectReference makeOutline(SkPDFDocument* doc);
+    SkString getRootLanguage();
 
 private:
     // An entry in a map from a node ID to an indirect reference to its
