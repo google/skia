@@ -16,7 +16,7 @@ MutableTextureState::MutableTextureState():
     fIsValid(false) {}
 MutableTextureState::~MutableTextureState() = default;
 
-MutableTextureState::MutableTextureState(const MutableTextureState& that) {
+MutableTextureState::MutableTextureState(const MutableTextureState& that): fIsValid(false) {
     this->set(that);
 }
 

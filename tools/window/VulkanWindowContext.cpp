@@ -17,6 +17,7 @@
 #include "include/gpu/ganesh/vk/GrVkDirectContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/gpu/ganesh/vk/GrVkImage.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
@@ -555,7 +556,8 @@ void VulkanWindowContext::onSwapBuffers() {
     GrFlushInfo info;
     info.fNumSemaphores = 1;
     info.fSignalSemaphores = &beSemaphore;
-    skgpu::MutableTextureState presentState(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, fPresentQueueIndex);
+    skgpu::MutableTextureState presentState = skgpu::MutableTextureStates::MakeVulkan(
+            VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, fPresentQueueIndex);
     auto dContext = surface->recordingContext()->asDirectContext();
     dContext->flush(surface, info, &presentState);
     dContext->submit();

@@ -62,7 +62,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest,
     REPORTER_ASSERT(reporter, GrBackendTextures::GetVkImageInfo(backendTex, &info));
     VkImageLayout initLayout = info.fImageLayout;
     uint32_t initQueue = info.fCurrentQueueFamily;
-    MutableTextureState initState(initLayout, initQueue);
+    MutableTextureState initState = skgpu::MutableTextureStates::MakeVulkan(initLayout, initQueue);
 
     // Verify that setting that state via a copy of a backendTexture is reflected in all the
     // backendTextures.
@@ -71,7 +71,8 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest,
     REPORTER_ASSERT(reporter, initLayout == info.fImageLayout);
     REPORTER_ASSERT(reporter, initQueue == info.fCurrentQueueFamily);
 
-    MutableTextureState newState(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_QUEUE_FAMILY_IGNORED);
+    MutableTextureState newState = skgpu::MutableTextureStates::MakeVulkan(
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_QUEUE_FAMILY_IGNORED);
     backendTexCopy.setMutableState(newState);
 
     REPORTER_ASSERT(reporter, GrBackendTextures::GetVkImageInfo(backendTex, &info));
@@ -155,7 +156,8 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest,
     REPORTER_ASSERT(reporter, GetVkQueueFamilyIndex(previousState) == initQueue);
 
     // Make sure passing in VK_IMAGE_LAYOUT_UNDEFINED does not change the layout
-    MutableTextureState noopState(VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_IGNORED);
+    MutableTextureState noopState = skgpu::MutableTextureStates::MakeVulkan(
+            VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_IGNORED);
     dContext->setBackendTextureState(backendTex, noopState, &previousState);
     REPORTER_ASSERT(reporter, GrBackendTextures::GetVkImageInfo(backendTex, &info));
     REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == info.fImageLayout);
@@ -170,7 +172,8 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest,
     // To test queue transitions, we don't have any other valid queue available so instead we try
     // to transition to external queue.
     if (gpu->vkCaps().supportsExternalMemory()) {
-        MutableTextureState externalState(VK_IMAGE_LAYOUT_GENERAL, VK_QUEUE_FAMILY_EXTERNAL);
+        MutableTextureState externalState = skgpu::MutableTextureStates::MakeVulkan(
+                VK_IMAGE_LAYOUT_GENERAL, VK_QUEUE_FAMILY_EXTERNAL);
 
         dContext->setBackendTextureState(backendTex, externalState, &previousState);
 
@@ -188,7 +191,8 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest,
 
         // Go back to the initial queue. Also we should stay in VK_IMAGE_LAYOUT_GENERAL since we
         // are passing in VK_IMAGE_LAYOUT_UNDEFINED
-        MutableTextureState externalState2(VK_IMAGE_LAYOUT_UNDEFINED, initQueue);
+        MutableTextureState externalState2 =
+                skgpu::MutableTextureStates::MakeVulkan(VK_IMAGE_LAYOUT_UNDEFINED, initQueue);
         dContext->setBackendTextureState(backendTex, externalState2, &previousState);
 
         REPORTER_ASSERT(reporter, GrBackendTextures::GetVkImageInfo(backendTex, &info));

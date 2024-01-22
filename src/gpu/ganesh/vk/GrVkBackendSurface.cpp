@@ -13,6 +13,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -157,10 +158,15 @@ class GrVkBackendTextureData final : public GrBackendTextureData {
 public:
     GrVkBackendTextureData(const GrVkImageInfo& info,
                            sk_sp<skgpu::MutableTextureState> mutableState = nullptr)
-            : fVkInfo(info)
-            , fMutableState(mutableState ? std::move(mutableState)
-                                         : sk_make_sp<skgpu::MutableTextureState>(
-                                                   info.fImageLayout, info.fCurrentQueueFamily)) {}
+            : fVkInfo(info) {
+        if (mutableState) {
+            fMutableState = std::move(mutableState);
+        } else {
+            fMutableState =
+                    sk_make_sp<skgpu::MutableTextureState>(skgpu::MutableTextureStates::MakeVulkan(
+                            info.fImageLayout, info.fCurrentQueueFamily));
+        }
+    }
 
     const GrVkImageInfo& info() const { return fVkInfo; }
 
@@ -319,10 +325,15 @@ class GrVkBackendRenderTargetData final : public GrBackendRenderTargetData {
 public:
     GrVkBackendRenderTargetData(const GrVkImageInfo& info,
                                 sk_sp<skgpu::MutableTextureState> mutableState = nullptr)
-            : fVkInfo(info)
-            , fMutableState(mutableState ? std::move(mutableState)
-                                         : sk_make_sp<skgpu::MutableTextureState>(
-                                                   info.fImageLayout, info.fCurrentQueueFamily)) {}
+            : fVkInfo(info) {
+        if (mutableState) {
+            fMutableState = std::move(mutableState);
+        } else {
+            fMutableState =
+                    sk_make_sp<skgpu::MutableTextureState>(skgpu::MutableTextureStates::MakeVulkan(
+                            info.fImageLayout, info.fCurrentQueueFamily));
+        }
+    }
 
     const GrVkImageInfo& info() const { return fVkInfo; }
 

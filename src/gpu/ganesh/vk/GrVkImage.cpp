@@ -163,8 +163,8 @@ sk_sp<GrVkImage> GrVkImage::Make(GrVkGpu* gpu,
         return nullptr;
     }
 
-    sk_sp<skgpu::MutableTextureState> mutableState(
-            new skgpu::MutableTextureState(info.fImageLayout, info.fCurrentQueueFamily));
+    auto mutableState = sk_make_sp<skgpu::MutableTextureState>(
+            skgpu::MutableTextureStates::MakeVulkan(info.fImageLayout, info.fCurrentQueueFamily));
     return sk_sp<GrVkImage>(new GrVkImage(gpu,
                                           dimensions,
                                           attachmentUsages,
