@@ -22,11 +22,15 @@ using U8  = V<uint8_t>;
     // GCC is kind of weird, not allowing vector = scalar directly.
     static constexpr F F0 = F() + 0.0f,
                        F1 = F() + 1.0f,
+                       FHalf = F() + 0.5f,
                        FInfBits = F() + 0x7f800000; // equals 2139095040, the bit pattern of +Inf
+    static constexpr I32 F16InfBits = I32() + 0x4780'0000;
 #else
     static constexpr F F0 = 0.0f,
                        F1 = 1.0f,
+                       FHalf = 0.5f,
                        FInfBits = 0x7f800000; // equals 2139095040, the bit pattern of +Inf
+    static constexpr I32 F16InfBits = 0x4780'0000; // equals +Inf in half float, shifted to 32-bits
 #endif
 
 // Instead of checking __AVX__ below, we'll check USING_AVX.
@@ -149,7 +153,22 @@ SI U32 to_fixed(F f) {  return (U32)cast<I32>(f + 0.5f); }
     }
 #endif
 
+#if defined(USING_NEON)
+    SI F min_(F x, F y) { return (F)vminq_f32((float32x4_t)x, (float32x4_t)y); }
+    SI F max_(F x, F y) { return (F)vmaxq_f32((float32x4_t)x, (float32x4_t)y); }
 
+    SI I32 min_(I32 x, I32 y) { return (I32)vminq_s32((int32x4_t)x, (int32x4_t)y); }
+    SI I32 max_(I32 x, I32 y) { return (I32)vmaxq_s32((int32x4_t)x, (int32x4_t)y); }
+#else
+    SI F min_(F x, F y) { return if_then_else(x > y, y, x); }
+    SI F max_(F x, F y) { return if_then_else(x < y, y, x); }
+
+    SI I32 min_(I32 x, I32 y) { return if_then_else(x > y, y, x); }
+    SI I32 max_(I32 x, I32 y) { return if_then_else(x < y, y, x); }
+#endif
+
+// KEEP IN SYNC with skvx::from_half to ensure that f16 colors are computed consistently in both
+// skcms and skvx.
 SI F F_from_Half(U16 half) {
 #if defined(USING_NEON_F16C)
     return vcvt_f32_f16((float16x4_t)half);
@@ -159,24 +178,27 @@ SI F F_from_Half(U16 half) {
     typedef int16_t __attribute__((vector_size(16))) I16;
     return __builtin_ia32_vcvtph2ps256((I16)half);
 #else
-    U32 wide = cast<U32>(half);
+    I32 wide = cast<I32>(half);
     // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
-    U32 s  = wide & 0x8000,
-        em = wide ^ s;
-
-    // Constructing the float is easy if the half is not denormalized.
-    F norm = bit_pun<F>( (s<<16) + (em<<13) + ((127-15)<<23) );
-
-    // Simply flush all denorm half floats to zero.
-    return if_then_else(em < 0x0400, F0, norm);
+    // To match intrinsic behavior, this preserves denormal values, infinities, and NaNs, which
+    // helps improve consistency between architectures.
+    I32     s  = wide & 0x8000,
+            em = wide ^ s,
+    inf_or_nan = (em >= (31 << 10)) & (255 << 23), // Expands exponent to fill 8 bits
+       is_norm =  em > 0x3ff,
+           // denormalized f16's are 2^-14*0.[m0:9] == 2^-24*[m0:9].0
+           sub = bit_pun<I32>(cast<F>(em) * (1.f/(1<<24))),
+          norm = ((em<<13) + ((127-15)<<23)), // Shifts mantissa, shifts + re-biases exponent
+        finite = if_then_else(is_norm, norm, sub);
+    // If 'x' is f16 +/- infinity, inf_or_nan will be the filled 8-bit exponent but 'norm' will be
+    // all 0s since 'x's mantissa is 0. Thus norm | inf_or_nan becomes f32 infinity. However, if
+    // 'x' is an f16 NaN, some bits of 'norm' will be non-zero, so it stays an f32 NaN after the OR.
+    return bit_pun<F>((s<<16) | finite | inf_or_nan);
 #endif
 }
 
-#if defined(__clang__)
-    // The -((127-15)<<10) underflows that side of the math when
-    // we pass a denorm half float.  It's harmless... we'll take the 0 side anyway.
-    __attribute__((no_sanitize("unsigned-integer-overflow")))
-#endif
+// KEEP IN SYNC with skvx::to_half to ensure that f16 colors are computed consistently in both
+// skcms and skvx.
 SI U16 Half_from_F(F f) {
 #if defined(USING_NEON_F16C)
     return (U16)vcvt_f16_f32(f);
@@ -186,13 +208,23 @@ SI U16 Half_from_F(F f) {
     return (U16)__builtin_ia32_vcvtps2ph256(f, 0x04/*_MM_FROUND_CUR_DIRECTION*/);
 #else
     // A float is 1-8-23 sign-exponent-mantissa, with 127 exponent bias.
-    U32 sem = bit_pun<U32>(f),
-        s   = sem & 0x80000000,
-         em = sem ^ s;
-
-    // For simplicity we flush denorm half floats (including all denorm floats) to zero.
-    return cast<U16>(if_then_else(em < 0x38800000, (U32)F0
-                                                 , (s>>16) + (em>>13) - ((127-15)<<10)));
+    // To match intrinsic behavior, this implements round-to-nearest-even, converting floats to
+    // denormal f16 values, overflowing to infinity and preserving infinity. However, it does not
+    // handle NaN float values (they become infinity).
+    I32     sem = bit_pun<I32>(f),
+            s   = sem & 0x8000'0000,
+             em = min_(sem ^ s, F16InfBits), // |x| clamped to f16 infinity
+          // F(em)*8192 increases the exponent by 13, which when added back to em will shift the
+          // mantissa bits 13 to the right. We clamp to 1/2 for subnormal values, which
+          // automatically shifts the mantissa to match 2^-14 expected for a subnorm f16.
+          magic = bit_pun<I32>(max_(bit_pun<F>(em) * 8192.f, FHalf)) & (255 << 23),
+        // Shift mantissa with automatic round-to-even
+        rounded = bit_pun<I32>((bit_pun<F>(em) + bit_pun<F>(magic))),
+            // Subtract 127 for f32 bias, subtract 13 to undo the *8192, subtract 1 to remove
+            // the implicit leading 1., and add 15 to get the f16 biased exponent.
+            exp = ((magic >> 13) - ((127-15+13+1)<<10)), // shift and re-bias exponent
+            f16 = rounded + exp; // use + if 'rounded' rolled over into first exponent bit
+    return cast<U16>((s>>16) | f16);
 #endif
 }
 
@@ -207,14 +239,6 @@ SI U64 swap_endian_16x4(const U64& rgba) {
     return (rgba & 0x00ff00ff00ff00ff) << 8
          | (rgba & 0xff00ff00ff00ff00) >> 8;
 }
-
-#if defined(USING_NEON)
-    SI F min_(F x, F y) { return (F)vminq_f32((float32x4_t)x, (float32x4_t)y); }
-    SI F max_(F x, F y) { return (F)vmaxq_f32((float32x4_t)x, (float32x4_t)y); }
-#else
-    SI F min_(F x, F y) { return if_then_else(x > y, y, x); }
-    SI F max_(F x, F y) { return if_then_else(x < y, y, x); }
-#endif
 
 SI F floor_(F x) {
 #if N == 1

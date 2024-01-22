@@ -688,6 +688,8 @@ SIN Vec<N,float> fract(const Vec<N,float>& x) { return x - floor(x); }
 
 // Converts float to half, rounding to nearest even, and supporting de-normal f16 conversion,
 // and overflow to f16 infinity. Should not be called with NaNs, since it can convert NaN->inf.
+// KEEP IN SYNC with skcms' Half_from_F to ensure that f16 colors are computed consistently in both
+// skcms and skvx.
 SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
     assert(all(x == x)); // No NaNs should reach this function
 
@@ -726,6 +728,8 @@ SIN Vec<N,uint16_t> to_half(const Vec<N,float>& x) {
 }
 
 // Converts from half to float, preserving NaN and +/- infinity.
+// KEEP IN SYNC with skcms' F_from_Half to ensure that f16 colors are computed consistently in both
+// skcms and skvx.
 SIN Vec<N,float> from_half(const Vec<N,uint16_t>& x) {
     if constexpr (N > 4) {
         return join(from_half(x.lo),
