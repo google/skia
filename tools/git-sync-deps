@@ -258,7 +258,7 @@ def main(argv):
   deps_file_path = os.environ.get('GIT_SYNC_DEPS_PATH', DEFAULT_DEPS_PATH)
   verbose = not bool(os.environ.get('GIT_SYNC_DEPS_QUIET', False))
   skip_emsdk = bool(os.environ.get('GIT_SYNC_DEPS_SKIP_EMSDK', False))
-  shallow = bool(os.environ.get('GIT_SYNC_DEPS_SHALLOW_CLONE', False))
+  shallow = not ('--deep' in argv)
 
   if '--help' in argv or '-h' in argv:
     usage(deps_file_path)
