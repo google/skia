@@ -28,7 +28,7 @@ import("gn/ios.gni")
 config("skia_public") {
   include_dirs = [ "." ]
 
-  defines = []
+  defines = [ "SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE" ]
   cflags_objcc = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]

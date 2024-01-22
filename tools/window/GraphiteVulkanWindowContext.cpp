@@ -20,13 +20,14 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/gpu/graphite/ContextOptionsPriv.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/vk/VulkanInterface.h"
-#include "tools/ToolUtils.h"
 #include "tools/GpuToolUtils.h"
+#include "tools/ToolUtils.h"
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
@@ -562,8 +563,8 @@ void GraphiteVulkanWindowContext::onSwapBuffers() {
 
         // set up surface for layout transition
         info.fTargetSurface = fSurfaces[backbuffer->fImageIndex].get();
-        skgpu::MutableTextureState presentState(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                                                fPresentQueueIndex);
+        skgpu::MutableTextureState presentState = skgpu::MutableTextureStates::MakeVulkan(
+                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, fPresentQueueIndex);
         info.fTargetTextureState = &presentState;
 
         SkASSERT(fWaitSemaphore != VK_NULL_HANDLE);

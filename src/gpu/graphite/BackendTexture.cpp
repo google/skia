@@ -183,7 +183,8 @@ BackendTexture::BackendTexture(SkISize dimensions,
                                VulkanAlloc vulkanMemoryAllocation)
         : fDimensions(dimensions)
         , fInfo(info)
-        , fMutableState(sk_make_sp<MutableTextureState>(layout, queueFamilyIndex))
+        , fMutableState(sk_make_sp<skgpu::MutableTextureState>(
+                  skgpu::MutableTextureStates::MakeVulkan(layout, queueFamilyIndex)))
         , fMemoryAlloc(vulkanMemoryAllocation)
         , fVkImage(image) {}
 

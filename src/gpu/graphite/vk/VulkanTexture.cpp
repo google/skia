@@ -141,8 +141,8 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
     }
 
     outInfo->fImage = image;
-    outInfo->fMutableState = sk_make_sp<MutableTextureState>(initialLayout,
-                                                                VK_QUEUE_FAMILY_IGNORED);
+    outInfo->fMutableState = sk_make_sp<MutableTextureState>(
+            skgpu::MutableTextureStates::MakeVulkan(initialLayout, VK_QUEUE_FAMILY_IGNORED));
     return true;
 }
 
