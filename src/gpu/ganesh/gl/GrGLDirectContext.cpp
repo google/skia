@@ -14,7 +14,7 @@
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
-#include "include/private/base/SkAssert.h"
+
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
@@ -27,6 +27,10 @@
 #   if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #       include <sanitizer/lsan_interface.h>
 #   endif
+#endif
+
+#if defined(SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE)
+#include "include/private/base/SkAssert.h"
 #endif
 
 namespace GrDirectContexts {
@@ -78,7 +82,7 @@ GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGet
 
 sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface> glInterface,
                               const GrContextOptions& options) {
-#if !defined(SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE)
+#if defined(SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE)
     SkASSERT(glInterface);
 #endif
     auto direct = GrDirectContextPriv::Make(
