@@ -25,13 +25,6 @@
 
 #include <utility>
 
-#if defined(SK_DISABLE_AAA)
-void SkScan::AAAFillPath(const SkPath&, SkBlitter*, const SkIRect&, const SkIRect&, bool) {
-    SkDEBUGFAIL("AAA Disabled");
-    return;
-}
-#else
-
 /*
 
 The following is a high-level overview of our analytic anti-aliasing
@@ -2026,4 +2019,3 @@ void SkScan::AAAFillPath(const SkPath&  path,
                       forceRLE);
     }
 }
-#endif  // defined(SK_DISABLE_AAA)

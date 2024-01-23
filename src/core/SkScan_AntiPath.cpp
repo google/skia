@@ -25,27 +25,6 @@ static SkIRect safeRoundOut(const SkRect& src) {
     return dst;
 }
 
-static bool ShouldUseAAA(const SkPath& path) {
-#if defined(SK_DISABLE_AAA)
-    return false;
-#elif defined(SK_FORCE_AAA)
-    return true;
-#else
-    if (path.isRect(nullptr)) {
-        return true;
-    }
-
-    const SkRect& bounds = path.getBounds();
-    // When the path have so many points compared to the size of its
-    // bounds/resolution, it indicates that the path is not quite smooth in
-    // the current resolution: the expected number of turning points in
-    // every pixel row/column is significantly greater than zero. Hence
-    // Aanlytic AA is not likely to produce visible quality improvements,
-    // and Analytic AA might be slower than supersampling.
-    return path.countPoints() < std::max(bounds.width(), bounds.height()) / 2 - 10;
-#endif
-}
-
 static int overflows_short_shift(int value, int shift) {
     const int s = 16 + shift;
     return (SkLeftShift(value, s) >> s) - value;
@@ -140,13 +119,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         sk_blit_above(blitter, ir, *clipRgn);
     }
 
-    if (ShouldUseAAA(path)) {
-        // Do not use AAA if path is too complicated:
-        // there won't be any speedup or significant visual improvement.
-        SkScan::AAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE);
-    } else {
-        SkScan::SAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE);
-    }
+    SkScan::AAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE);
 
     if (isInverse) {
         sk_blit_below(blitter, ir, *clipRgn);

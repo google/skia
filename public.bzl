@@ -653,7 +653,6 @@ BASE_SRCS_ALL = [
     "src/core/SkScan_Antihair.cpp",
     "src/core/SkScan_Hairline.cpp",
     "src/core/SkScan_Path.cpp",
-    "src/core/SkScan_SAAPath.cpp",
     "src/core/SkSpecialImage.cpp",
     "src/core/SkSpecialImage.h",
     "src/core/SkSpriteBlitter.h",
