@@ -1,3 +1,4 @@
+use ffi::{FillLinearParams, FillRadialParams};
 // Copyright 2023 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
@@ -67,14 +68,16 @@ struct ColorPainterImpl<'a> {
 
 impl<'a> ColorPainter for ColorPainterImpl<'a> {
     fn push_transform(&mut self, transform: Transform) {
-        self.color_painter_wrapper.as_mut().push_transform(
-            transform.xx,
-            transform.xy,
-            transform.yx,
-            transform.yy,
-            transform.dx,
-            transform.dy,
-        );
+        self.color_painter_wrapper
+            .as_mut()
+            .push_transform(&ffi::Transform {
+                xx: transform.xx,
+                xy: transform.xy,
+                yx: transform.yx,
+                yy: transform.yy,
+                dx: transform.dx,
+                dy: transform.dy,
+            });
     }
 
     fn pop_transform(&mut self) {
@@ -121,10 +124,12 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
                     num_stops: color_stops.len(),
                 };
                 color_painter.fill_linear(
-                    p0.x,
-                    p0.y,
-                    p1.x,
-                    p1.y,
+                    &FillLinearParams {
+                        x0: p0.x,
+                        y0: p0.y,
+                        x1: p1.x,
+                        y1: p1.y,
+                    },
                     &mut bridge_color_stops,
                     extend as u8,
                 );
@@ -142,12 +147,14 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
                     num_stops: color_stops.len(),
                 };
                 color_painter.fill_radial(
-                    c0.x,
-                    c0.y,
-                    r0,
-                    c1.x,
-                    c1.y,
-                    r1,
+                    &FillRadialParams {
+                        x0: c0.x,
+                        y0: c0.y,
+                        r0: r0,
+                        x1: c1.x,
+                        y1: c1.y,
+                        r1: r1,
+                    },
                     &mut bridge_color_stops,
                     extend as u8,
                 );
@@ -164,10 +171,12 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
                     num_stops: color_stops.len(),
                 };
                 color_painter.fill_sweep(
-                    c0.x,
-                    c0.y,
-                    start_angle,
-                    end_angle,
+                    &ffi::FillSweepParams {
+                        x0: c0.x,
+                        y0: c0.y,
+                        start_angle,
+                        end_angle,
+                    },
                     &mut bridge_color_stops,
                     extend as u8,
                 );
@@ -175,7 +184,118 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
         }
     }
 
-    // TODO(drott): Add here an optimized paint function combining clip and fill.
+    fn fill_glyph(
+        &mut self,
+        glyph: GlyphId,
+        brush_transform: Option<Transform>,
+        brush: Brush,
+    ) {
+        let color_painter = self.color_painter_wrapper.as_mut();
+        let brush_transform = brush_transform.unwrap_or_default();
+        match brush {
+            Brush::Solid {
+                palette_index,
+                alpha,
+            } => {
+                color_painter.fill_glyph_solid(glyph.to_u16(), palette_index, alpha);
+            }
+            Brush::LinearGradient {
+                p0,
+                p1,
+                color_stops,
+                extend,
+            } => {
+                let mut bridge_color_stops = BridgeColorStops {
+                    stops_iterator: Box::new(color_stops.iter()),
+                    num_stops: color_stops.len(),
+                };
+                color_painter.fill_glyph_linear(
+                    glyph.to_u16(),
+                    &ffi::Transform {
+                        xx: brush_transform.xx,
+                        xy: brush_transform.xy,
+                        yx: brush_transform.yx,
+                        yy: brush_transform.yy,
+                        dx: brush_transform.dx,
+                        dy: brush_transform.dy,
+                    },
+                    &FillLinearParams {
+                        x0: p0.x,
+                        y0: p0.y,
+                        x1: p1.x,
+                        y1: p1.y,
+                    },
+                    &mut bridge_color_stops,
+                    extend as u8,
+                );
+            }
+            Brush::RadialGradient {
+                c0,
+                r0,
+                c1,
+                r1,
+                color_stops,
+                extend,
+            } => {
+                let mut bridge_color_stops = BridgeColorStops {
+                    stops_iterator: Box::new(color_stops.iter()),
+                    num_stops: color_stops.len(),
+                };
+                color_painter.fill_glyph_radial(
+                    glyph.to_u16(),
+                    &ffi::Transform {
+                        xx: brush_transform.xx,
+                        xy: brush_transform.xy,
+                        yx: brush_transform.yx,
+                        yy: brush_transform.yy,
+                        dx: brush_transform.dx,
+                        dy: brush_transform.dy,
+                    },
+                    &FillRadialParams {
+                        x0: c0.x,
+                        y0: c0.y,
+                        r0: r0,
+                        x1: c1.x,
+                        y1: c1.y,
+                        r1: r1,
+                    },
+                    &mut bridge_color_stops,
+                    extend as u8,
+                );
+            }
+            Brush::SweepGradient {
+                c0,
+                start_angle,
+                end_angle,
+                color_stops,
+                extend,
+            } => {
+                let mut bridge_color_stops = BridgeColorStops {
+                    stops_iterator: Box::new(color_stops.iter()),
+                    num_stops: color_stops.len(),
+                };
+                color_painter.fill_glyph_sweep(
+                    glyph.to_u16(),
+                    &ffi::Transform {
+                        xx: brush_transform.xx,
+                        xy: brush_transform.xy,
+                        yx: brush_transform.yx,
+                        yy: brush_transform.yy,
+                        dx: brush_transform.dx,
+                        dy: brush_transform.dy,
+                    },
+                    &ffi::FillSweepParams {
+                        x0: c0.x,
+                        y0: c0.y,
+                        start_angle,
+                        end_angle,
+                    },
+                    &mut bridge_color_stops,
+                    extend as u8,
+                );
+            }
+        }
+    }
 
     fn push_layer(&mut self, composite_mode: CompositeMode) {
         self.color_painter_wrapper
@@ -596,7 +716,7 @@ struct BridgeLocalizedStrings<'a> {
     localized_strings: LocalizedStrings<'a>,
 }
 
-struct BridgeColorStops<'a> {
+pub struct BridgeColorStops<'a> {
     pub stops_iterator: Box<dyn Iterator<Item = &'a skrifa::color::ColorStop> + 'a>,
     pub num_stops: usize,
 }
@@ -648,6 +768,38 @@ mod ffi {
         y_min: f32,
         x_max: f32,
         y_max: f32,
+    }
+
+    struct Transform {
+        xx: f32,
+        xy: f32,
+        yx: f32,
+        yy: f32,
+        dx: f32,
+        dy: f32,
+    }
+
+    struct FillLinearParams {
+        x0: f32,
+        y0: f32,
+        x1: f32,
+        y1: f32,
+    }
+
+    struct FillRadialParams {
+        x0: f32,
+        y0: f32,
+        r0: f32,
+        x1: f32,
+        y1: f32,
+        r1: f32,
+    }
+
+    struct FillSweepParams {
+        x0: f32,
+        y0: f32,
+        start_angle: f32,
+        end_angle: f32,
     }
 
     extern "Rust" {
@@ -784,15 +936,7 @@ mod ffi {
 
         type ColorPainterWrapper;
 
-        fn push_transform(
-            self: Pin<&mut ColorPainterWrapper>,
-            xx: f32,
-            xy: f32,
-            yx: f32,
-            yy: f32,
-            dx: f32,
-            dy: f32,
-        );
+        fn push_transform(self: Pin<&mut ColorPainterWrapper>, transform: &Transform);
         fn pop_transform(self: Pin<&mut ColorPainterWrapper>);
         fn push_clip_glyph(self: Pin<&mut ColorPainterWrapper>, glyph_id: u16);
         fn push_clip_rectangle(
@@ -805,32 +949,53 @@ mod ffi {
         fn pop_clip(self: Pin<&mut ColorPainterWrapper>);
 
         fn fill_solid(self: Pin<&mut ColorPainterWrapper>, palette_index: u16, alpha: f32);
-        fn fill_radial(
+        fn fill_linear(
             self: Pin<&mut ColorPainterWrapper>,
-            x0: f32,
-            y0: f32,
-            r0: f32,
-            x1: f32,
-            y1: f32,
-            r1: f32,
+            fill_linear_params: &FillLinearParams,
             color_stops: &mut BridgeColorStops,
             extend_mode: u8,
         );
-        fn fill_linear(
+        fn fill_radial(
             self: Pin<&mut ColorPainterWrapper>,
-            x0: f32,
-            y0: f32,
-            x1: f32,
-            y1: f32,
+            fill_radial_params: &FillRadialParams,
             color_stops: &mut BridgeColorStops,
             extend_mode: u8,
         );
         fn fill_sweep(
             self: Pin<&mut ColorPainterWrapper>,
-            x0: f32,
-            y0: f32,
-            start_angle: f32,
-            end_angle: f32,
+            fill_sweep_params: &FillSweepParams,
+            color_stops: &mut BridgeColorStops,
+            extend_mode: u8,
+        );
+
+        // Optimized functions.
+        fn fill_glyph_solid(
+            self: Pin<&mut ColorPainterWrapper>,
+            glyph_id: u16,
+            palette_index: u16,
+            alpha: f32,
+        );
+        fn fill_glyph_linear(
+            self: Pin<&mut ColorPainterWrapper>,
+            glyph_id: u16,
+            fill_transform: &Transform,
+            fill_linear_params: &FillLinearParams,
+            color_stops: &mut BridgeColorStops,
+            extend_mode: u8,
+        );
+        fn fill_glyph_radial(
+            self: Pin<&mut ColorPainterWrapper>,
+            glyph_id: u16,
+            fill_transform: &Transform,
+            fill_radial_params: &FillRadialParams,
+            color_stops: &mut BridgeColorStops,
+            extend_mode: u8,
+        );
+        fn fill_glyph_sweep(
+            self: Pin<&mut ColorPainterWrapper>,
+            glyph_id: u16,
+            fill_transform: &Transform,
+            fill_sweep_params: &FillSweepParams,
             color_stops: &mut BridgeColorStops,
             extend_mode: u8,
         );

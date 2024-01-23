@@ -72,8 +72,7 @@ public:
                  uint16_t upem);
 
     // fontations_ffi::ColorPainter interface.
-    virtual void push_transform(
-            float xx, float xy, float yx, float yy, float dx, float dy) override;
+    virtual void push_transform(const fontations_ffi::Transform& transform) override;
     virtual void pop_transform() override;
     virtual void push_clip_glyph(uint16_t glyph_id) override;
     virtual void push_clip_rectangle(float x_min, float y_min, float x_max, float y_max) override;
@@ -81,32 +80,55 @@ public:
 
     // Paint*Gradient equivalents:
     virtual void fill_solid(uint16_t palette_index, float alpha) override;
-    virtual void fill_radial(float x0,
-                             float y0,
-                             float r0,
-                             float x1,
-                             float y1,
-                             float r1,
+    virtual void fill_radial(const fontations_ffi::FillRadialParams& fill_radial_params,
                              fontations_ffi::BridgeColorStops&,
                              uint8_t extend_mode) override;
-    virtual void fill_linear(float x0,
-                             float y0,
-                             float x1,
-                             float y1,
+    virtual void fill_linear(const fontations_ffi::FillLinearParams& fill_linear_params,
                              fontations_ffi::BridgeColorStops&,
                              uint8_t extend_mode) override;
-    virtual void fill_sweep(float x0,
-                            float y0,
-                            float startAngle,
-                            float endAngle,
+    virtual void fill_sweep(const fontations_ffi::FillSweepParams& fill_sweep_params,
                             fontations_ffi::BridgeColorStops&,
                             uint8_t extend_mode) override;
+
+    // Optimized calls that allow a SkCanvas::drawPath() call.
+    virtual void fill_glyph_solid(uint16_t glyph_id, uint16_t palette_index, float alpha) override;
+    virtual void fill_glyph_radial(uint16_t glyph_id,
+                                   const fontations_ffi::Transform& transform,
+                                   const fontations_ffi::FillRadialParams& fill_radial_params,
+                                   fontations_ffi::BridgeColorStops& stops,
+                                   uint8_t) override;
+    virtual void fill_glyph_linear(uint16_t glyph_id,
+                                   const fontations_ffi::Transform& transform,
+                                   const fontations_ffi::FillLinearParams& fill_linear_params,
+                                   fontations_ffi::BridgeColorStops& stops,
+                                   uint8_t) override;
+    virtual void fill_glyph_sweep(uint16_t glyph_id,
+                                  const fontations_ffi::Transform& transform,
+                                  const fontations_ffi::FillSweepParams& fill_sweep_params,
+                                  fontations_ffi::BridgeColorStops& stops,
+                                  uint8_t) override;
 
     // compositeMode arg matches composite mode values from the OpenType COLR table spec.
     virtual void push_layer(uint8_t compositeMode) override;
     virtual void pop_layer() override;
 
 private:
+    void configure_solid_paint(uint16_t palette_index, float alpha, SkPaint& paint);
+    void configure_linear_paint(const fontations_ffi::FillLinearParams& fill_linear_params,
+                                fontations_ffi::BridgeColorStops& bridge_stops,
+                                uint8_t extend_mode,
+                                SkPaint& paint,
+                                SkMatrix* = nullptr);
+    void configure_radial_paint(const fontations_ffi::FillRadialParams& fill_radial_params,
+                                fontations_ffi::BridgeColorStops& bridge_stops,
+                                uint8_t extend_mode,
+                                SkPaint& paint,
+                                SkMatrix* = nullptr);
+    void configure_sweep_paint(const fontations_ffi::FillSweepParams& sweep_params,
+                               fontations_ffi::BridgeColorStops& bridge_stops,
+                               uint8_t extend_mode,
+                               SkPaint& paint,
+                               SkMatrix* = nullptr);
     SkFontationsScalerContext& fScalerContext;
     SkCanvas& fCanvas;
     SkSpan<SkColor> fPalette;
@@ -125,8 +147,7 @@ public:
     SkRect getBoundingBox();
 
     // fontations_ffi::ColorPainter interface.
-    virtual void push_transform(
-            float xx, float xy, float yx, float yy, float dx, float dy) override;
+    virtual void push_transform(const fontations_ffi::Transform& transform) override;
     virtual void pop_transform() override;
     virtual void push_clip_glyph(uint16_t glyph_id) override;
     virtual void push_clip_rectangle(float x_min, float y_min, float x_max, float y_max) override;
@@ -134,26 +155,37 @@ public:
 
     // Paint*Gradient equivalents:
     virtual void fill_solid(uint16_t palette_index, float alpha) override {}
-    virtual void fill_radial(float,
-                             float,
-                             float,
-                             float,
-                             float,
-                             float,
+    virtual void fill_radial(const fontations_ffi::FillRadialParams& fill_radial_params,
                              fontations_ffi::BridgeColorStops& stops,
                              uint8_t) override {}
-    virtual void fill_linear(
-            float, float, float, float, fontations_ffi::BridgeColorStops& stops, uint8_t) override {
-    }
-    virtual void fill_sweep(float x0,
-                            float y0,
-                            float startAngle,
-                            float endAngle,
+    virtual void fill_linear(const fontations_ffi::FillLinearParams& fill_linear_params,
+                             fontations_ffi::BridgeColorStops& stops,
+                             uint8_t) override {}
+    virtual void fill_sweep(const fontations_ffi::FillSweepParams& fill_sweep_params,
                             fontations_ffi::BridgeColorStops& stops,
                             uint8_t extend_mode) override {}
 
     virtual void push_layer(uint8_t) override {}
     virtual void pop_layer() override {}
+
+    // Stubs for optimized calls. We're only interested in the glyph bounds, so we forward this to
+    // push_clip_glyph()
+    virtual void fill_glyph_solid(uint16_t glyph_id, uint16_t, float) override;
+    virtual void fill_glyph_radial(uint16_t glyph_id,
+                                   const fontations_ffi::Transform&,
+                                   const fontations_ffi::FillRadialParams&,
+                                   fontations_ffi::BridgeColorStops&,
+                                   uint8_t) override;
+    virtual void fill_glyph_linear(uint16_t glyph_id,
+                                   const fontations_ffi::Transform&,
+                                   const fontations_ffi::FillLinearParams&,
+                                   fontations_ffi::BridgeColorStops&,
+                                   uint8_t) override;
+    virtual void fill_glyph_sweep(uint16_t glyph_id,
+                                  const fontations_ffi::Transform&,
+                                  const fontations_ffi::FillSweepParams&,
+                                  fontations_ffi::BridgeColorStops&,
+                                  uint8_t) override;
 
 private:
     SkFontationsScalerContext& fScalerContext;
