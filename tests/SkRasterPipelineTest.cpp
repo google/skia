@@ -2602,13 +2602,14 @@ DEF_TEST(SkRasterPipeline_BranchIfAllLanesActive, r) {
         std::fill(&first [0], &first [N], 0x12345678);
         std::fill(&second[0], &second[N], 0x12345678);
 
-        // An array of all zeros, except for a single ~0 in the second A slot.
-        alignas(64) int32_t oneLaneActive[4 * SkRasterPipeline_kMaxStride_highp] = {};
-        oneLaneActive[3*N + 1] = ~0;
+        // An array of ~0s, except for a single zero in the last A slot.
+        alignas(64) int32_t oneLaneInactive[4 * SkRasterPipeline_kMaxStride_highp] = {};
+        std::fill(oneLaneInactive, &oneLaneInactive[4*N], ~0);
+        oneLaneInactive[4*N - 1] = 0;
 
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        p.append(SkRasterPipelineOp::load_src, oneLaneActive);
+        p.append(SkRasterPipelineOp::load_src, oneLaneInactive);
         p.append(SkRasterPipelineOp::branch_if_all_lanes_active, &ctx);
         p.append(SkRasterPipelineOp::store_src_a, first);
         p.append(SkRasterPipelineOp::store_src_a, second);

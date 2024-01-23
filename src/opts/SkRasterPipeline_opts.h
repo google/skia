@@ -1627,6 +1627,8 @@ STAGE(seed_shader, NoCtx) {
         0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
         8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
     };
+    static_assert(std::size(iota) >= SkRasterPipeline_kMaxStride_highp);
+
     // It's important for speed to explicitly cast(dx) and cast(dy),
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
@@ -1638,7 +1640,9 @@ STAGE(seed_shader, NoCtx) {
 
 STAGE(dither, const float* rate) {
     // Get [(dx,dy), (dx+1,dy), (dx+2,dy), ...] loaded up in integer vectors.
-    uint32_t iota[] = {0,1,2,3,4,5,6,7};
+    uint32_t iota[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+    static_assert(std::size(iota) >= SkRasterPipeline_kMaxStride_highp);
+
     U32 X = U32_(dx) + sk_unaligned_load<U32>(iota),
         Y = U32_(dy);
 
@@ -3271,6 +3275,8 @@ STAGE_TAIL(set_base_pointer, std::byte* p) {
 
 STAGE_TAIL(init_lane_masks, SkRasterPipeline_InitLaneMasksCtx* ctx) {
     uint32_t iota[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+    static_assert(std::size(iota) >= SkRasterPipeline_kMaxStride_highp);
+
     I32 mask = cond_to_mask(sk_unaligned_load<U32>(iota) < *ctx->tail);
     r = g = b = a = sk_bit_cast<F>(mask);
 }
@@ -3282,6 +3288,8 @@ STAGE_TAIL(store_device_xy01, F* dst) {
         0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
         8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
     };
+    static_assert(std::size(iota) >= SkRasterPipeline_kMaxStride_highp);
+
     dst[0] = cast(U32_(dx)) + sk_unaligned_load<F>(iota);
     dst[1] = cast(U32_(dy)) + 0.5f;
     dst[2] = F0;
@@ -3393,7 +3401,9 @@ STAGE_TAIL(mask_off_return_mask, NoCtx) {
 }
 
 STAGE_BRANCH(branch_if_all_lanes_active, SkRasterPipeline_BranchIfAllLanesActiveCtx* ctx) {
-    uint32_t iota[] = {0,1,2,3,4,5,6,7};
+    uint32_t iota[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+    static_assert(std::size(iota) >= SkRasterPipeline_kMaxStride_highp);
+
     I32 tailLanes = cond_to_mask(*ctx->tail <= sk_unaligned_load<U32>(iota));
     return all(execution_mask() | tailLanes) ? ctx->offset : 1;
 }
@@ -3692,6 +3702,7 @@ STAGE_TAIL(copy_from_indirect_unmasked, SkRasterPipeline_CopyIndirectCtx* ctx) {
 
     // Adjust the offsets forward so that they fetch from the correct lane.
     static constexpr uint32_t iota[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    static_assert(std::size(iota) >= SkRasterPipeline_kMaxStride_highp);
     offsets += sk_unaligned_load<U32>(iota);
 
     // Use gather to perform indirect lookups; write the results into `dst`.
@@ -3731,6 +3742,7 @@ STAGE_TAIL(copy_to_indirect_masked, SkRasterPipeline_CopyIndirectCtx* ctx) {
 
     // Adjust the offsets forward so that they store into the correct lane.
     static constexpr uint32_t iota[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    static_assert(std::size(iota) >= SkRasterPipeline_kMaxStride_highp);
     offsets += sk_unaligned_load<U32>(iota);
 
     // Perform indirect, masked writes into `dst`.
@@ -3755,6 +3767,7 @@ STAGE_TAIL(swizzle_copy_to_indirect_masked, SkRasterPipeline_SwizzleCopyIndirect
 
     // Adjust the offsets forward so that they store into the correct lane.
     static constexpr uint32_t iota[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+    static_assert(std::size(iota) >= SkRasterPipeline_kMaxStride_highp);
     offsets += sk_unaligned_load<U32>(iota);
 
     // Perform indirect, masked, swizzled writes into `dst`.
@@ -4935,6 +4948,8 @@ STAGE_GG(seed_shader, NoCtx) {
         0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
         8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
     };
+    static_assert(std::size(iota) >= SkRasterPipeline_kMaxStride);
+
     x = cast<F>(I32_(dx)) + sk_unaligned_load<F>(iota);
     y = cast<F>(I32_(dy)) + 0.5f;
 }
