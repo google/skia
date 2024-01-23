@@ -85,7 +85,7 @@ Transform::Transform(const SkM44& m) : fM(m) {
     //                                              [0  0  1 0 ]
     //                                              [0  0  0 1 ]
     // Other than kIdentity, none of the types depend on (tx, ty). The remaining types are
-    // identified by considering the upper 2x2.
+    // identified by considering the upper 2x2 (tx and ty are still used to compute the inverse).
     const float sx = m.rc(0, 0);
     const float sy = m.rc(1, 1);
     const float kx = m.rc(0, 1);
