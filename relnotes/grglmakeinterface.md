@@ -1,2 +1,0 @@
-`GrGLMakeNativeInterface` has been deprecated and will eventually be removed. Clients should
-be calling the precise factory (e.g. `GrGLInterfaces::makeGLX`) they need. Some APIs that currently allow a nullptr GrGLInterface will be stop allowing this (e.g. `GrDirectContexts::MakeGL`).
