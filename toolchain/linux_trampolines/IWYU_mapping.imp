@@ -18,6 +18,7 @@
   { include: ["<__algorithm/min_element.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/minmax.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/move.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/partition.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/remove.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/remove_if.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/reverse.h>", "private", "<algorithm>", "public"] },

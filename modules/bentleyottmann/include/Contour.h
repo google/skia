@@ -4,10 +4,19 @@
 #ifndef Contour_DEFINED
 #define Contour_DEFINED
 
-#include "include/core/SkPath.h"
-#include "modules/bentleyottmann/include/Myers.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkSpan_impl.h"
 
+#include <limits.h>
+#include <cstddef>
+#include <cstdint>
+#include <iterator>
 #include <vector>
+
+class SkPath;
+namespace myers { class Segment; }
+struct SkPoint;
 
 namespace contour {
 struct Point {

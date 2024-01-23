@@ -3,8 +3,13 @@
 
 #include "modules/bentleyottmann/include/Contour.h"
 
+#include "include/core/SkPath.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTo.h"
 #include "modules/bentleyottmann/include/Myers.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace contour {
