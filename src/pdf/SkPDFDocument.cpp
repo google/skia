@@ -604,6 +604,13 @@ void SkPDFDocument::onClose(SkWStream* stream) {
         }
     }
 
+    // If ViewerPreferences DisplayDocTitle isn't set to true, accessibility checks will fail.
+    if (!fMetadata.fTitle.isEmpty()) {
+        auto viewerPrefs = SkPDFMakeDict("ViewerPreferences");
+        viewerPrefs->insertBool("DisplayDocTitle", true);
+        docCatalog->insertObject("ViewerPreferences", std::move(viewerPrefs));
+    }
+
     SkString lang = fMetadata.fLang;
     if (lang.isEmpty()) {
         lang = fTagTree.getRootLanguage();

@@ -223,6 +223,8 @@ DEF_TEST(SkPDF_unicode_metadata, r) {
             "D835DCD5D835DCD6D835DCD7D835DCD8D835DCD9>"),
          "/Author (ABCDE FGHIJ)",
          "Subject <FEFF03B103B203B303B403B5002003B603B703B803B903BA>",
+         "/ViewerPreferences",
+         "/DisplayDocTitle true",
     };
     for (const char* expectation : expectations) {
         if (!contains(data->bytes(), data->size(), expectation)) {
