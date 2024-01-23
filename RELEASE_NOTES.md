@@ -2,6 +2,83 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 122
+-------------
+  * `graphite::BackendTexture` can be created from a `WGPUTextureView`. This comes with a
+    perfomance cost when reading pixels to or writing pixels from the CPU. An intermediate
+    WGPUTexture is created to support these operations. However, this enables creating
+    `SkSurface` or `SkImage` from `wgpu::SwapChain::GetCurrentTextureView`.
+  * SkSL now properly reports an error if the body of a for-loop declares a variable which shadows the
+    for-loop induction variable.
+
+    In other words, SkSL code like this will now generate an error:
+
+    ```
+        for (int x = 0; x < 10; ++x) {
+            int x = 123;  // error: symbol 'x' was already defined
+        }
+    ```
+
+    Previously, the declaration of `x` would be allowed, in violation of the GLSL scoping rules (6.3):
+    "For both for and while loops, the sub-statement does not introduce a new scope for variable names."
+  * The PDF code now directly depends on Skia's JPEG decoder and encoder. The build
+    time shims to avoid using a JPEG decoder and encoder have been removed. In the
+    future these may be made optional again by allowing the user to supply them at
+    runtime.
+  * SkSL variables declared inside of a switch statement will now properly fall out of scope after the
+    closing brace of the switch-block, as one would expect.
+
+    In other words, SkSL code like this will now generate an error:
+
+    ```
+        switch (n) {
+            case 1:
+                int x = 123;
+        }
+        return x; // error: unknown identifier 'x'
+    ```
+
+    Previously, `x` would remain accessible after the switch's closing brace.
+  * `skgpu::graphite::ContextOptions::fNeverYieldToWebGPU` is removed. Instead, yielding in an
+    Emscripten build is controlled by installing a client-provided function on
+    `skgpu::graphite::DawnBackendContext`. The client may install a function that uses Asyncify to
+    yield to the main thread loop. If no function is installed then the Context has the same
+    restrictions as with the old option.
+
+    In native builds the default is to use `wgpu::Device::Tick` to detect GPU progress. To simulate the
+    non-yielding behavior of `Context` in native `DawnBackendContext::fTick` may be explicitly set to
+    to `nullptr`.
+
+    By externalizing the use of Asyncify it is possible to build Skia without generated JS
+    code that relies on Asyncify.
+  * SkSL will now properly report an error if a function contains a top-level variable with the same
+    name as a function parameter. SkSL intends to match the scoping rules of GLSL, in particular: "A
+    function’s parameter declarations and body together form a single scope nested in the global scope."
+
+    A program like this will now be rejected:
+
+    ```
+        void func(int var) {
+            int var;
+        }
+
+        error: 2: symbol 'var' was already defined
+            int var;
+            ^^^^^^^
+    ```
+  * `SkFont::getTypeface()` will no longer return a nullptr to indicate "the default typeface".
+    If left unspecified, SkFonts will use an empty typeface (e.g. no glyphs).
+  * `SkFontMgr::RefDefault()` has been deleted. Clients should instantiate and manage their own
+    `SkFontMgr`s and use them to explicitly create `SkTypeface`s
+  * `GrGLMakeNativeInterface` has been deprecated and will eventually be removed. Clients should
+    be calling the precise factory (e.g. `GrGLInterfaces::makeGLX`) they need. Some APIs that currently allow a nullptr GrGLInterface will be stop allowing this (e.g. `GrDirectContexts::MakeGL`).
+  * `SkFontArguments::Palette::Override`'s index member is changing from an `int`
+    type to `uint16_t` to make the size exact and remove an unneeded
+    signedness. This avoids platform/compiler-specific size ambiguiity and more
+    closely matches the OpenType CPAL table.
+
+* * *
+
 Milestone 121
 -------------
   * `SkFontConfigInterface::makeTypeface` now has a required `sk_sp<SkFontMgr>` parameter to be used for
