@@ -759,11 +759,12 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
             // There are some extensions that are not supported by the debug layers which result in
             // many warnings even though we don't actually use them. It's easiest to just
             // avoid enabling those.
-            if (0 == strcmp(deviceExtensions[i].extensionName, "VK_EXT_provoking_vertex") ||
-                0 == strcmp(deviceExtensions[i].extensionName, "VK_KHR_dynamic_rendering") ||
+            if (0 == strcmp(deviceExtensions[i].extensionName, "VK_EXT_provoking_vertex")     ||
+                0 == strcmp(deviceExtensions[i].extensionName, "VK_EXT_shader_object")        ||
+                0 == strcmp(deviceExtensions[i].extensionName, "VK_KHR_dynamic_rendering")    ||
                 0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_acquire_winrt_display") ||
-                0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_cuda_kernel_launch") ||
-                0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_low_latency") ||
+                0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_cuda_kernel_launch")    ||
+                0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_low_latency")           ||
                 0 == strcmp(deviceExtensions[i].extensionName, "VK_NV_present_barrier")) {
                 continue;
             }
