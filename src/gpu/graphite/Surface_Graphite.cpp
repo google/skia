@@ -146,6 +146,24 @@ sk_sp<SkSurface> Surface::MakeGraphite(Recorder* recorder,
     return sk_make_sp<Surface>(std::move(device));
 }
 
+sk_sp<SkSurface> Surface::MakeGraphiteScratch(Recorder* recorder,
+                                              const SkImageInfo& info,
+                                              Mipmapped mipmapped,
+                                              const SkSurfaceProps* props) {
+    sk_sp<Device> device = Device::MakeScratch(recorder,
+                                               info,
+                                               mipmapped,
+                                               SkSurfacePropsCopyOrDefault(props),
+                                               /* addInitialClear= */ true);
+    if (!device) {
+        return nullptr;
+    }
+    if (!device->target()->instantiate(recorder->priv().resourceProvider())) {
+        return nullptr;
+    }
+    return sk_make_sp<Surface>(std::move(device));
+}
+
 void Flush(sk_sp<SkSurface> surface) {
     return Flush(surface.get());
 }

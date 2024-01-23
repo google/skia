@@ -62,6 +62,14 @@ public:
                               const SkSurfaceProps&,
                               bool addInitialClear);
 
+    // Creates a device that is not registered on the provided recorder. Meant to be short-lived and
+    // managed by the caller within a single scope.
+    static sk_sp<Device> MakeScratch(Recorder* recorder,
+                                     const SkImageInfo& ii,
+                                     Mipmapped mipmapped,
+                                     const SkSurfaceProps& props,
+                                     bool addInitialClear);
+
     Device* asGraphiteDevice() override { return this; }
 
     Recorder* recorder() const override { return fRecorder; }
@@ -198,7 +206,7 @@ private:
     };
     SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags);
 
-    Device(Recorder*, sk_sp<DrawContext>, bool addInitialClear);
+    Device(Recorder*, sk_sp<DrawContext>, bool addInitialClear, bool registerWithRecorder);
 
     // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
     // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.

@@ -27,6 +27,13 @@ public:
                                          Mipmapped = Mipmapped::kNo,
                                          const SkSurfaceProps* props = nullptr);
 
+    // Make a surface that is not registered with the provided recorder. This surface should be
+    // short-lived and it must be flushed manually for its draw commands to be recorded.
+    static sk_sp<SkSurface> MakeGraphiteScratch(Recorder* recorder,
+                                                const SkImageInfo& info,
+                                                Mipmapped = Mipmapped::kNo,
+                                                const SkSurfaceProps* props = nullptr);
+
     Surface(sk_sp<Device>);
     ~Surface() override;
 

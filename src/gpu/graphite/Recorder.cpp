@@ -141,9 +141,7 @@ BackendApi Recorder::backend() const { return fSharedContext->backend(); }
 std::unique_ptr<Recording> Recorder::snap() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     ASSERT_SINGLE_OWNER
-    for (auto& device : fTrackedDevices) {
-        device->flushPendingWorkToRecorder();
-    }
+    this->priv().flushTrackedDevices();
 
     std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> nonVolatileLazyProxies;
     std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> volatileLazyProxies;
