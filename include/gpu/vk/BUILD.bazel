@@ -4,7 +4,8 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-# Group is exported to //gn/gpu.gni:skia_shared_vk_sources.
+# This is a separate gropu to make it easier to enforce that Graphite does not
+# include Ganesh-specific Vulkan headers.
 skia_filegroup(
     name = "shared_public_hdrs",
     srcs = [
@@ -16,14 +17,23 @@ skia_filegroup(
     ],
 )
 
-# Group is exported to //gn/gpu.gni:skia_gpu_vk_public.
+# These are Ganesh specific. In a perfect world, we'd move these to
+# //include/gpu/ganesh/vk, but that involves updating several clients.
 skia_filegroup(
-    name = "public_hdrs",
+    name = "ganesh_public_hdrs",
     srcs = [
         "GrVkBackendContext.h",
         "GrVkExtensions.h",
         "GrVkMemoryAllocator.h",
         "GrVkTypes.h",
+    ],
+)
+
+# Group is exported to //gn/gpu.gni:skia_gpu_vk_public.
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = [
+        ":ganesh_public_hdrs",
         ":shared_public_hdrs",
     ],
     visibility = ["//include/gpu:__pkg__"],

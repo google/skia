@@ -342,7 +342,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_gpu_vk_public",
 			Rules: []string{
-				"//include/gpu/vk:public_hdrs",
+				"//include/gpu/vk:ganesh_public_hdrs",
+				"//include/gpu/vk:shared_public_hdrs",
 				"//include/gpu/ganesh/vk:public_hdrs",
 			}},
 		{Var: "skia_gpu_vk_chromium_public",
@@ -410,7 +411,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_shared_vk_sources",
 			Rules: []string{
-				"//include/gpu/vk:shared_public_hdrs",
 				"//include/private/gpu/vk:private_hdrs",
 				"//src/gpu/vk:vk_hdrs",
 				"//src/gpu/vk:vk_srcs"}},
