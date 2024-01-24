@@ -60,7 +60,11 @@ public:
 
     uint32_t uniqueID() const { return fUniqueID; }
 
+    virtual SkISize backingStoreDimensions() const = 0;
+
     virtual size_t getSize() const = 0;
+
+    bool isExactFit() const { return fSubset == SkIRect::MakeSize(this->backingStoreDimensions()); }
 
     const SkColorInfo& colorInfo() const { return fColorInfo; }
     SkAlphaType alphaType() const { return fColorInfo.alphaType(); }

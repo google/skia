@@ -229,6 +229,8 @@ void SkImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
 }
 
 skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context) const {
+    context.markVisitedImageFilter();
+
     skif::FilterResult result;
     if (context.desiredOutput().isEmpty() || !context.mapping().layerMatrix().isFinite()) {
         return result;
@@ -247,6 +249,7 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
                               SkIRect(context.desiredOutput()),
                               srcGenID, srcSubset);
     if (context.backend()->cache() && context.backend()->cache()->get(key, &result)) {
+        context.markCacheHit();
         return result;
     }
 
@@ -274,14 +277,18 @@ sk_sp<SkImage> SkImageFilter_Base::makeImageWithFilter(sk_sp<skif::Backend> back
         return nullptr;
     }
 
+    skif::Stats stats;
     const skif::Context context{std::move(backend),
                                 skif::Mapping(SkMatrix::I()),
                                 skif::LayerSpace<SkIRect>(clipBounds),
                                 skif::FilterResult(std::move(srcSpecialImage),
                                                    skif::LayerSpace<SkIPoint>(subset.topLeft())),
-                                src->imageInfo().colorSpace()};
+                                src->imageInfo().colorSpace(),
+                                &stats};
 
     sk_sp<SkSpecialImage> result = this->filterImage(context).imageAndOffset(context, offset);
+    stats.reportStats();
+
     if (!result) {
         return nullptr;
     }

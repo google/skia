@@ -96,6 +96,10 @@ public:
                                       const skif::LayerSpace<SkSize> scale) {
         return image.rescale(ctx, scale, /*enforceDecal=*/false);
     }
+
+    static void TrackStats(skif::Context* ctx, skif::Stats* stats) {
+        ctx->fStats = stats;
+    }
 };
 
 namespace {
@@ -245,6 +249,27 @@ public:
     const SkSamplingOptions& expectedSampling() const { return fExpectedSampling; }
     SkTileMode expectedTileMode() const { return fExpectedTileMode; }
     const SkColorFilter* expectedColorFilter() const { return fExpectedColorFilter.get(); }
+
+    int expectedOffscreenSurfaces() const {
+        if (fExpectation != Expect::kNewImage) {
+            return 0;
+        }
+        if (auto* s = std::get_if<RescaleParams>(&fAction)) {
+            float minScale = std::min(s->fScale.width(), s->fScale.height());
+            if (minScale >= 1.f - 0.001f) {
+                return 1;
+            } else {
+                int steps = 0;
+                do {
+                    steps++;
+                    minScale *= 2.f;
+                } while(minScale < 0.8f);
+                return steps;
+            }
+        } else {
+            return 1;
+        }
+    }
 
     LayerSpace<SkIRect> expectedBounds(const LayerSpace<SkIRect>& inputBounds) const {
         // This assumes anything outside 'inputBounds' is transparent black.
@@ -647,7 +672,9 @@ private:
         return badTransparencyCount == 0;
     }
 
-    bool approxColor(const SkColor4f& a, const SkColor4f& b, float tolerance = kRGBTolerance) const {
+    bool approxColor(const SkColor4f& a,
+                     const SkColor4f& b,
+                     float tolerance = kRGBTolerance) const {
         SkPMColor4f apm = a.premul();
         SkPMColor4f bpm = b.premul();
         // Calculate red-mean, a lowcost approximation of color difference that gives reasonable
@@ -945,11 +972,13 @@ public:
             source = FilterResult(sourceSurface->snapSpecial(subset), fSourceBounds.topLeft());
         }
 
+        Stats stats;
         Context baseContext{fRunner.refBackend(),
                             skif::Mapping{SkMatrix::I()},
                             skif::LayerSpace<SkIRect>::Empty(),
                             source,
-                            colorSpace.get()};
+                            colorSpace.get(),
+                            &stats};
 
         // Applying modifiers to FilterResult might produce a new image, but hopefully it's
         // able to merge properties and even re-order operations to minimize the number of offscreen
@@ -966,10 +995,15 @@ public:
         }
         SkASSERT(expectedImage);
 
+        int expectedNumOffscreenSurfaces = 0;
+        int expectedShaderTiledDraws = 0; // includes shader-based clamping for simplicity
+
         // Apply each action and validate, from first to last action
         for (int i = 0; i < (int) fActions.size(); ++i) {
             skiatest::ReporterContext actionLabel(fRunner, SkStringPrintf("action %d", i));
             auto ctx = baseContext.withNewDesiredOutput(desiredOutputs[i]);
+            FilterResultTestAccess::TrackStats(&ctx, &stats);
+
             FilterResult output = fActions[i].apply(ctx, source);
             // Validate consistency of the output
             REPORTER_ASSERT(fRunner, SkToBool(output.image()) == !output.layerBounds().isEmpty());
@@ -993,11 +1027,17 @@ public:
                 correctedExpectation = Expect::kEmptyImage;
             }
 
+            int numIntermediateSurfaces = fActions[i].expectedOffscreenSurfaces();
+            expectedNumOffscreenSurfaces += numIntermediateSurfaces;
+
             bool actualNewImage = output.image() &&
                     (!source.image() || output.image()->uniqueID() != source.image()->uniqueID());
             switch(correctedExpectation) {
                 case Expect::kNewImage:
                     REPORTER_ASSERT(fRunner, actualNewImage);
+                    if (source && !source.image()->isExactFit()) {
+                        expectedShaderTiledDraws += numIntermediateSurfaces;
+                    }
                     break;
                 case Expect::kDeferredImage:
                     REPORTER_ASSERT(fRunner, !actualNewImage && output.image());
@@ -1017,6 +1057,7 @@ public:
                                                             fActions[i].expectedColorFilter()));
             }
 
+            FilterResultTestAccess::TrackStats(&ctx, nullptr);
             expectedImage = fActions[i].renderExpectedImage(ctx,
                                                             std::move(expectedImage),
                                                             expectedOrigin,
@@ -1034,6 +1075,18 @@ public:
             }
             source = output;
         }
+
+        // Verify overall stats behavior
+        REPORTER_ASSERT(fRunner, expectedNumOffscreenSurfaces == stats.fNumOffscreenSurfaces,
+                        "expected %d, got %d",
+                        expectedNumOffscreenSurfaces, stats.fNumOffscreenSurfaces);
+
+        REPORTER_ASSERT(fRunner,
+                        expectedShaderTiledDraws ==
+                                stats.fNumShaderBasedTilingDraws + stats.fNumShaderClampedDraws,
+                        "expected %d, got %d + %d",
+                        expectedShaderTiledDraws,
+                        stats.fNumShaderBasedTilingDraws, stats.fNumShaderClampedDraws);
     }
 
 private:
@@ -1857,6 +1910,7 @@ DEF_TEST_SUITE(CroppedColorFilter, r, CtsEnforcement::kApiLevel_T, CtsEnforcemen
                 .applyCrop({8, 8, 24, 24}, tm, Expect::kDeferredImage)
                 .applyColorFilter(alpha_modulate(0.5f), Expect::kDeferredImage)
                 .run(/*requestedOutput=*/{0, 0, 32, 32});
+            // FIXME need to disable the stats tracking for renderExpected() and compare()
 
         TestCase(r, "Transparency-affecting color filter restricted by crop")
                 .source({0, 0, 32, 32})

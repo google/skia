@@ -86,6 +86,8 @@ public:
         return fBitmap.extractSubset(bm, this->subset());
     }
 
+    SkISize backingStoreDimensions() const override { return fBitmap.dimensions(); }
+
     size_t getSize() const override { return fBitmap.computeByteSize(); }
 
     sk_sp<SkImage> asImage() const override { return fBitmap.asImage(); }

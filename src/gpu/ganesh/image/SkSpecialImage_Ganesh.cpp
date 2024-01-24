@@ -11,6 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/base/SkAssert.h"
@@ -46,6 +47,10 @@ public:
     GrRecordingContext* getContext() const override { return fContext; }
 
     GrSurfaceProxyView view(GrRecordingContext*) const { return fView; }
+
+    SkISize backingStoreDimensions() const override {
+        return fView.proxy()->backingStoreDimensions();
+    }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
         return SkSpecialImages::MakeDeferredFromGpu(

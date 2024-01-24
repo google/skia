@@ -351,15 +351,18 @@ void SkDevice::drawFilteredImage(const skif::Mapping& mapping,
         colorType = kRGBA_8888_SkColorType;
     }
 
+    skif::Stats stats;
     skif::Context ctx{this->createImageFilteringBackend(src ? src->props() : this->surfaceProps(),
                                                         colorType),
                       mapping,
                       targetOutput,
                       skif::FilterResult(sk_ref_sp(src)),
-                      this->imageInfo().colorSpace()};
+                      this->imageInfo().colorSpace(),
+                      &stats};
 
     SkIPoint offset;
     sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(ctx).imageAndOffset(ctx, &offset);
+    stats.reportStats();
     if (result) {
         SkMatrix deviceMatrixWithOffset = mapping.layerToDevice();
         deviceMatrixWithOffset.preTranslate(offset.fX, offset.fY);

@@ -305,7 +305,8 @@ static skif::Context make_context(const SkIRect& out, const SkSpecialImage* src)
                          skif::Mapping{SkMatrix::I()},
                          skif::LayerSpace<SkIRect>{out},
                          skif::FilterResult{sk_ref_sp(src)},
-                         src->getColorSpace()};
+                         src->getColorSpace(),
+                         /*stats=*/nullptr};
 }
 static skif::Context make_context(int outWidth, int outHeight, const SkSpecialImage* src) {
     return make_context(SkIRect::MakeWH(outWidth, outHeight), src);
