@@ -82,14 +82,14 @@ static inline bool SkStrContains(const char string[], const char subchar) {
  */
 
 static constexpr int kSkStrAppendU32_MaxSize = 10;
-char*   SkStrAppendU32(char buffer[], uint32_t);
+char* SkStrAppendU32(char buffer[], uint32_t);
 static constexpr int kSkStrAppendU64_MaxSize = 20;
-char*   SkStrAppendU64(char buffer[], uint64_t, int minDigits);
+char* SkStrAppendU64(char buffer[], uint64_t, int minDigits);
 
 static constexpr int kSkStrAppendS32_MaxSize = kSkStrAppendU32_MaxSize + 1;
-char*   SkStrAppendS32(char buffer[], int32_t);
+char* SkStrAppendS32(char buffer[], int32_t);
 static constexpr int kSkStrAppendS64_MaxSize = kSkStrAppendU64_MaxSize + 1;
-char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
+char* SkStrAppendS64(char buffer[], int64_t, int minDigits);
 
 /**
  *  Floats have at most 8 significant digits, so we limit our %g to that.
@@ -281,7 +281,7 @@ private:
 };
 
 /// Creates a new string and writes into it using a printf()-style format.
-SkString SkStringPrintf(const char* format, ...) SK_PRINTF_LIKE(1, 2);
+SK_API SkString SkStringPrintf(const char* format, ...) SK_PRINTF_LIKE(1, 2);
 /// This makes it easier to write a caller as a VAR_ARGS function where the format string is
 /// optional.
 static inline SkString SkStringPrintf() { return SkString(); }
