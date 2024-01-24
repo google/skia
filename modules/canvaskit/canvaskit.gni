@@ -12,7 +12,6 @@ declare_args() {
   skia_canvaskit_enable_matrix_helper = true
   skia_canvaskit_enable_pathops = true
   skia_canvaskit_enable_rt_shader = true
-  skia_canvaskit_enable_skottie = true
   skia_canvaskit_enable_skp_serialization = true
   skia_canvaskit_enable_sksl_trace = true
   skia_canvaskit_enable_paragraph = true
