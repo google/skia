@@ -552,13 +552,14 @@ half4 $colorize_grad_tex(sampler2D colorsAndOffsetsSampler, int numStops, float2
     } else if (t.x == 1) {
         return sampleLod(colorsAndOffsetsSampler, float2(1, kColorCoord), 0);
     } else {
-        int low = 0;
-        int high = numStops;
-        for (int loop = 1; loop < numStops; loop <<= 1) {
-            int mid = (low + high) / 2;
-            float midFlt = (float(mid) + 0.5) / float(numStops);
+        float low = 0;
+        float high = float(numStops);
+        float invNumStops = 1.0 / high;
+        for (int loop = 1; loop < numStops; loop += loop) {
+            float mid = floor((low + high) * 0.5);
+            float samplePos = (mid + 0.5) * invNumStops;
 
-            float2 tmp = sampleLod(colorsAndOffsetsSampler, float2(midFlt, kOffsetCoord), 0).xy;
+            float2 tmp = sampleLod(colorsAndOffsetsSampler, float2(samplePos, kOffsetCoord), 0).xy;
             float offset = ldexp(tmp.x, int(tmp.y));
 
             if (t.x < offset) {
@@ -568,15 +569,15 @@ half4 $colorize_grad_tex(sampler2D colorsAndOffsetsSampler, int numStops, float2
             }
         }
 
-        float lowFlt = (float(low) + 0.5) / float(numStops);
-        float highFlt = (float(low + 1) + 0.5) / float(numStops);
-        half4 color0 = sampleLod(colorsAndOffsetsSampler, float2(lowFlt, kColorCoord), 0);
-        half4 color1 = sampleLod(colorsAndOffsetsSampler, float2(highFlt, kColorCoord), 0);
+        high = (low + 1.5) * invNumStops;
+        low = (low + 0.5) * invNumStops;
+        half4 color0 = sampleLod(colorsAndOffsetsSampler, float2(low, kColorCoord), 0);
+        half4 color1 = sampleLod(colorsAndOffsetsSampler, float2(high, kColorCoord), 0);
 
-        float2 tmp = sampleLod(colorsAndOffsetsSampler, float2(lowFlt, kOffsetCoord), 0).xy;
+        float2 tmp = sampleLod(colorsAndOffsetsSampler, float2(low, kOffsetCoord), 0).xy;
         float offset0 = ldexp(tmp.x, int(tmp.y));
 
-        tmp = sampleLod(colorsAndOffsetsSampler, float2(highFlt, kOffsetCoord), 0).xy;
+        tmp = sampleLod(colorsAndOffsetsSampler, float2(high, kOffsetCoord), 0).xy;
         float offset1 = ldexp(tmp.x, int(tmp.y));
 
         return half4(mix(color0, color1,
