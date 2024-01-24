@@ -5,6 +5,9 @@
 if (!defined(is_skia_standalone)) {
   is_skia_standalone = false
 }
+if (!defined(skia_canvaskit_enable_skottie)) {
+  skia_canvaskit_enable_skottie = true
+}
 
 is_skia_dev_build = is_skia_standalone && !is_official_build
 
@@ -24,7 +27,7 @@ declare_args() {
   skia_enable_optimize_size = false
   skia_enable_pdf = !is_wasm
   skia_enable_precompile = true
-  skia_enable_skottie = !(is_win && is_component_build) ||
+  skia_enable_skottie = (!is_wasm && !is_component_build) ||
                         (is_wasm && skia_canvaskit_enable_skottie)
   skia_enable_svg = !is_component_build
   skia_enable_tools = is_skia_dev_build
