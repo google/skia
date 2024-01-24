@@ -239,6 +239,11 @@ VulkanInterface::VulkanInterface(VulkanGetProc getProc,
         ACQUIRE_PROC_SUFFIX(DestroySamplerYcbcrConversion, KHR, VK_NULL_HANDLE, device);
     }
 
+    // Functions for VK_EXT_device_fault
+    if (extensions->hasExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(GetDeviceFaultInfo, EXT, VK_NULL_HANDLE, device);
+    }
+
 #ifdef SK_BUILD_FOR_ANDROID
     // Functions for VK_ANDROID_external_memory_android_hardware_buffer
     if (extensions->hasExtension(

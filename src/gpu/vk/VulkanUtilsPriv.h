@@ -12,6 +12,7 @@
 #include <string>
 
 #include "include/gpu/vk/VulkanTypes.h"
+#include "src/gpu/vk/VulkanInterface.h"
 
 #include "include/core/SkColor.h"
 #include "src/gpu/PipelineUtils.h"
@@ -19,8 +20,6 @@
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <android/hardware_buffer.h>
-#include "include/gpu/vk/VulkanTypes.h"
-#include "src/gpu/vk/VulkanInterface.h"
 #endif
 
 namespace SkSL {
@@ -281,6 +280,17 @@ bool AllocateAndBindImageMemory(skgpu::VulkanAlloc* outVulkanAlloc,
                                 VkDevice);
 
 #endif // SK_BUILD_FOR_ANDROID
+
+/**
+ * Calls faultProc with faultContext; passes debug info if VK_EXT_device_fault is supported/enabled.
+ *
+ * Note: must only be called *after* receiving VK_ERROR_DEVICE_LOST.
+ */
+void InvokeDeviceLostCallback(const skgpu::VulkanInterface* vulkanInterface,
+                              VkDevice vkDevice,
+                              skgpu::VulkanDeviceLostContext faultContext,
+                              skgpu::VulkanDeviceLostProc faultProc,
+                              bool supportsDeviceFaultInfoExtension);
 
 }  // namespace skgpu
 

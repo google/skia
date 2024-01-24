@@ -7,7 +7,16 @@
 
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
+#include <vector>
+
 namespace skgpu {
+
+/**
+ * Define a macro that both ganesh and graphite can use to make simple calls into Vulkan so we can
+ * share more code between them.
+*/
+#define SHARED_GR_VULKAN_CALL(IFACE, X) (IFACE)->fFunctions.f##X
+
 /**
  * Returns a populated VkSamplerYcbcrConversionCreateInfo object based on VulkanYcbcrConversionInfo
 */
@@ -49,12 +58,6 @@ void SetupSamplerYcbcrConversionInfo(VkSamplerYcbcrConversionCreateInfo* outInfo
 }
 
 #ifdef SK_BUILD_FOR_ANDROID
-
-/**
- * Define a macro that both ganesh and graphite can use to make simple calls into Vulkan so we can
- * share more code between them.
-*/
-#define SHARED_GR_VULKAN_CALL(IFACE, X) (IFACE)->fFunctions.f##X
 
 /**
  * Shared Vulkan AHardwareBuffer utility functions between graphite and ganesh
@@ -188,5 +191,75 @@ bool AllocateAndBindImageMemory(skgpu::VulkanAlloc* outVulkanAlloc,
 }
 
 #endif // SK_BUILD_FOR_ANDROID
+
+// Note: since this is called from Vulkan result-checking functions, any Vk calls this function
+// makes must NOT be checked with those same functions to avoid infinite recursion.
+void InvokeDeviceLostCallback(const skgpu::VulkanInterface* vulkanInterface,
+                              VkDevice vkDevice,
+                              skgpu::VulkanDeviceLostContext deviceLostContext,
+                              skgpu::VulkanDeviceLostProc deviceLostProc,
+                              bool supportsDeviceFaultInfoExtension) {
+    if (!deviceLostProc) {
+        return;
+    }
+
+    std::vector<VkDeviceFaultAddressInfoEXT> addressInfos = {};
+    std::vector<VkDeviceFaultVendorInfoEXT> vendorInfos = {};
+    std::vector<std::byte> vendorBinaryData = {};
+
+    if (!supportsDeviceFaultInfoExtension) {
+        deviceLostProc(deviceLostContext,
+                       "No details: VK_EXT_device_fault not available/enabled.",
+                       addressInfos,
+                       vendorInfos,
+                       vendorBinaryData);
+        return;
+    }
+
+    // Query counts
+    VkDeviceFaultCountsEXT faultCounts = {};
+    faultCounts.sType = VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT;
+    VkResult result = SHARED_GR_VULKAN_CALL(vulkanInterface,
+                                            GetDeviceFaultInfo(vkDevice, &faultCounts, NULL));
+    if (result != VK_SUCCESS) {
+        deviceLostProc(
+                deviceLostContext,
+                "No details: VK_EXT_device_fault error counting failed: " + std::to_string(result),
+                addressInfos,
+                vendorInfos,
+                vendorBinaryData);
+        return;
+    }
+
+    // Prepare storage
+    addressInfos.resize(faultCounts.addressInfoCount);
+    vendorInfos.resize(faultCounts.vendorInfoCount);
+    vendorBinaryData.resize(faultCounts.vendorBinarySize);
+
+    // Query fault info
+    VkDeviceFaultInfoEXT faultInfo = {};
+    faultInfo.sType             = VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT;
+    faultInfo.pAddressInfos     = addressInfos.data();
+    faultInfo.pVendorInfos      = vendorInfos.data();
+    faultInfo.pVendorBinaryData =
+            faultCounts.vendorBinarySize > 0 ? vendorBinaryData.data() : nullptr;
+    result = SHARED_GR_VULKAN_CALL(vulkanInterface,
+                                   GetDeviceFaultInfo(vkDevice, &faultCounts, &faultInfo));
+    if (result != VK_SUCCESS) {
+        deviceLostProc(
+                deviceLostContext,
+                "No details: VK_EXT_device_fault info dumping failed: " + std::to_string(result),
+                addressInfos,
+                vendorInfos,
+                vendorBinaryData);
+        return;
+    }
+
+    deviceLostProc(deviceLostContext,
+                   std::string(faultInfo.description),
+                   addressInfos,
+                   vendorInfos,
+                   vendorBinaryData);
+}
 
 } // namespace skgpu
