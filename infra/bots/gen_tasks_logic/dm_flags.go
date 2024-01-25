@@ -1459,13 +1459,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		args = append(args, "--noRAW_threading")
 	}
 
-	if b.extraConfig("FSAA") {
-		args = append(args, "--analyticAA", "false")
-	}
-	if b.extraConfig("FAAA") {
-		args = append(args, "--forceAnalyticAA")
-	}
-
 	if b.extraConfig("NativeFonts") {
 		args = append(args, "--nativeFonts")
 		if !b.matchOs("Android") {

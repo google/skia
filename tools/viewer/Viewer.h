@@ -15,7 +15,6 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "modules/skcms/skcms.h"
-#include "src/core/SkScan.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "tools/gpu/MemoryCache.h"
 #include "tools/sk_app/Application.h"
@@ -125,14 +124,6 @@ public:
         bool fAntiAlias = false;
         bool fDither = false;
         bool fForceRuntimeBlend = false;
-        enum class AntiAliasState {
-            Alias,
-            Normal,
-            AnalyticAAEnabled,
-            AnalyticAAForced,
-        } fAntiAliasState = AntiAliasState::Alias;
-        const bool fOriginalSkUseAnalyticAA = gSkUseAnalyticAA;
-        const bool fOriginalSkForceAnalyticAA = gSkForceAnalyticAA;
 
         bool fCapType = false;
         bool fJoinType = false;

@@ -730,7 +730,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			ec = strings.Split(val, "_")
 			ignore := []string{
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
-				"FailFlushTimeCallbacks", "ReleaseAndAbandonGpuContext", "FSAA", "FAAA", "FDAA",
+				"FailFlushTimeCallbacks", "ReleaseAndAbandonGpuContext",
 				"NativeFonts", "GDI", "NoGPUThreads", "DDL1", "DDL3",
 				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "ColorSpaces", "GL",
 				"SkottieTracing", "SkottieWASM", "GpuTess", "DMSAAStats", "Mskp", "Docker", "PDF",

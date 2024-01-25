@@ -1434,8 +1434,6 @@ int main(int argc, char** argv) {
         start_keepalive();
     }
 
-    CommonFlags::SetAnalyticAA();
-
     gSkForceRasterPipelineBlitter     = FLAGS_forceRasterPipelineHP || FLAGS_forceRasterPipeline;
     gForceHighPrecisionRasterPipeline = FLAGS_forceRasterPipelineHP;
 

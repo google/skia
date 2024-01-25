@@ -732,39 +732,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         this->updateTitle();
         fWindow->inval();
     });
-    fCommands.addCommand('A', "Paint", "Antialias Mode", [this]() {
-        if (!fPaintOverrides.fAntiAlias) {
-            fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::Alias;
-            fPaintOverrides.fAntiAlias = true;
-            fPaint.setAntiAlias(false);
-            gSkUseAnalyticAA = gSkForceAnalyticAA = false;
-        } else {
-            fPaint.setAntiAlias(true);
-            switch (fPaintOverrides.fAntiAliasState) {
-                case SkPaintFields::AntiAliasState::Alias:
-                    fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::Normal;
-                    gSkUseAnalyticAA = gSkForceAnalyticAA = false;
-                    break;
-                case SkPaintFields::AntiAliasState::Normal:
-                    fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::AnalyticAAEnabled;
-                    gSkUseAnalyticAA = true;
-                    gSkForceAnalyticAA = false;
-                    break;
-                case SkPaintFields::AntiAliasState::AnalyticAAEnabled:
-                    fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::AnalyticAAForced;
-                    gSkUseAnalyticAA = gSkForceAnalyticAA = true;
-                    break;
-                case SkPaintFields::AntiAliasState::AnalyticAAForced:
-                    fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::Alias;
-                    fPaintOverrides.fAntiAlias = false;
-                    gSkUseAnalyticAA = fPaintOverrides.fOriginalSkUseAnalyticAA;
-                    gSkForceAnalyticAA = fPaintOverrides.fOriginalSkForceAnalyticAA;
-                    break;
-            }
-        }
-        this->updateTitle();
-        fWindow->inval();
-    });
     fCommands.addCommand('D', "Modes", "DFT", [this]() {
         DisplayParams params = fWindow->getRequestedDisplayParams();
         uint32_t flags = params.fSurfaceProps.flags();
@@ -1144,13 +1111,6 @@ void Viewer::updateTitle() {
     SkString title("Viewer: ");
     title.append(fSlides[fCurrentSlide]->getName());
 
-    if (gSkUseAnalyticAA) {
-        if (gSkForceAnalyticAA) {
-            title.append(" <FAAA>");
-        } else {
-            title.append(" <AAA>");
-        }
-    }
     if (fDrawViaSerialize) {
         title.append(" <serialize>");
     }
@@ -2345,39 +2305,6 @@ void Viewer::drawImGui() {
             }
 
             if (ImGui::CollapsingHeader("Paint")) {
-                int aliasIdx = 0;
-                if (fPaintOverrides.fAntiAlias) {
-                    aliasIdx = SkTo<int>(fPaintOverrides.fAntiAliasState) + 1;
-                }
-                if (ImGui::Combo("Anti-Alias", &aliasIdx,
-                                 "Default\0Alias\0Normal\0AnalyticAAEnabled\0AnalyticAAForced\0\0"))
-                {
-                    gSkUseAnalyticAA = fPaintOverrides.fOriginalSkUseAnalyticAA;
-                    gSkForceAnalyticAA = fPaintOverrides.fOriginalSkForceAnalyticAA;
-                    if (aliasIdx == 0) {
-                        fPaintOverrides.fAntiAliasState = SkPaintFields::AntiAliasState::Alias;
-                        fPaintOverrides.fAntiAlias = false;
-                    } else {
-                        fPaintOverrides.fAntiAlias = true;
-                        fPaintOverrides.fAntiAliasState = SkTo<SkPaintFields::AntiAliasState>(aliasIdx-1);
-                        fPaint.setAntiAlias(aliasIdx > 1);
-                        switch (fPaintOverrides.fAntiAliasState) {
-                            case SkPaintFields::AntiAliasState::Alias:
-                                break;
-                            case SkPaintFields::AntiAliasState::Normal:
-                                break;
-                            case SkPaintFields::AntiAliasState::AnalyticAAEnabled:
-                                gSkUseAnalyticAA = true;
-                                gSkForceAnalyticAA = false;
-                                break;
-                            case SkPaintFields::AntiAliasState::AnalyticAAForced:
-                                gSkUseAnalyticAA = gSkForceAnalyticAA = true;
-                                break;
-                        }
-                    }
-                    uiParamsChanged = true;
-                }
-
                 auto paintFlag = [this, &uiParamsChanged](const char* label, const char* items,
                                                           bool SkPaintFields::* flag,
                                                           bool (SkPaint::* isFlag)() const,
@@ -2397,6 +2324,11 @@ void Viewer::drawImGui() {
                         uiParamsChanged = true;
                     }
                 };
+
+                paintFlag("Antialias",
+                          "Default\0No AA\0AA\0\0",
+                          &SkPaintFields::fAntiAlias,
+                          &SkPaint::isAntiAlias, &SkPaint::setAntiAlias);
 
                 paintFlag("Dither",
                           "Default\0No Dither\0Dither\0\0",

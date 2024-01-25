@@ -31,12 +31,6 @@ static bool ShouldUseAAA(const SkPath& path) {
 #elif defined(SK_FORCE_AAA)
     return true;
 #else
-    if (gSkForceAnalyticAA) {
-        return true;
-    }
-    if (!gSkUseAnalyticAA) {
-        return false;
-    }
     if (path.isRect(nullptr)) {
         return true;
     }

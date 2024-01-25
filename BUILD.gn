@@ -2082,10 +2082,6 @@ if (skia_enable_tools) {
     sources = [ "tools/flags/CommonFlagsImages.cpp" ]
     deps = [ ":flags" ]
   }
-  test_lib("common_flags_aa") {
-    sources = [ "tools/flags/CommonFlagsAA.cpp" ]
-    deps = [ ":flags" ]
-  }
 
   test_lib("trace") {
     deps = [ ":flags" ]
@@ -2390,7 +2386,6 @@ if (skia_enable_tools) {
         "dm/DMSrcSink.h",
       ]
       deps = [
-        ":common_flags_aa",
         ":common_flags_config",
         ":common_flags_gpu",
         ":common_flags_images",
@@ -2443,7 +2438,6 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":bench",
-      ":common_flags_aa",
       ":common_flags_config",
       ":common_flags_gpu",
       ":common_flags_images",

@@ -1595,7 +1595,6 @@ int main(int argc, char** argv) {
     setbuf(stdout, nullptr);
     setup_crash_handler();
 
-    CommonFlags::SetAnalyticAA();
     skiatest::SetFontTestDataDirectory();
 
     gSkForceRasterPipelineBlitter     = FLAGS_forceRasterPipelineHP || FLAGS_forceRasterPipeline;
