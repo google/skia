@@ -11,12 +11,13 @@ use skrifa::{
     outline::DrawSettings,
     setting::VariationSetting,
     string::{LocalizedStrings, StringId},
-    MetadataProvider, Tag,
+    MetadataProvider, OutlineGlyphCollection, Tag,
 };
 use std::pin::Pin;
 
 use crate::ffi::{
     AxisWrapper, BridgeScalerMetrics, ColorPainterWrapper, ColorStop, PaletteOverride, PathWrapper,
+    SkiaDesignCoordinate,
 };
 
 fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16 {
@@ -308,18 +309,18 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
 }
 
 fn get_path(
-    font_ref: &BridgeFontRef,
+    outlines: &BridgeOutlineCollection,
     glyph_id: u16,
     size: f32,
     coords: &BridgeNormalizedCoords,
     path_wrapper: Pin<&mut PathWrapper>,
     scaler_metrics: &mut BridgeScalerMetrics,
 ) -> bool {
-    font_ref
-        .with_font(|f| {
-            // TODO(https://issues.skia.org/issues/317020057): Store OutlineGlyphCollection
-            // at ScalerContext or SkTypeface level.
-            let glyph = f.outline_glyphs().get(GlyphId::new(glyph_id))?;
+    outlines
+        .0
+        .as_ref()
+        .map(|outlines| {
+            let glyph = outlines.get(GlyphId::new(glyph_id))?;
             let draw_settings = DrawSettings::unhinted(Size::new(size), &coords.normalized_coords);
 
             let mut pen_dump = PathWrapperPen {
@@ -643,7 +644,13 @@ fn font_ref_is_valid(bridge_font_ref: &BridgeFontRef) -> bool {
     bridge_font_ref.0.is_some()
 }
 
-use crate::ffi::SkiaDesignCoordinate;
+fn get_outline_collection<'a>(font_ref: &'a BridgeFontRef<'a>) -> Box<BridgeOutlineCollection<'a>> {
+    Box::new(
+        font_ref
+            .with_font(|f| Some(BridgeOutlineCollection(Some(f.outline_glyphs()))))
+            .unwrap_or_default(),
+    )
+}
 
 fn resolve_into_normalized_coords(
     font_ref: &BridgeFontRef,
@@ -704,6 +711,9 @@ impl<'a> BridgeFontRef<'a> {
         f(self.0.as_ref()?)
     }
 }
+
+#[derive(Default)]
+struct BridgeOutlineCollection<'a>(Option<OutlineGlyphCollection<'a>>);
 
 #[derive(Default)]
 struct BridgeNormalizedCoords {
@@ -814,9 +824,14 @@ mod ffi {
         // accessible.
         fn font_ref_is_valid(bridge_font_ref: &BridgeFontRef) -> bool;
 
+        type BridgeOutlineCollection<'a>;
+        unsafe fn get_outline_collection<'a>(
+            font_ref: &'a BridgeFontRef<'a>,
+        ) -> Box<BridgeOutlineCollection<'a>>;
+
         fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16;
         fn get_path(
-            font_ref: &BridgeFontRef,
+            outlines: &BridgeOutlineCollection,
             glyph_id: u16,
             size: f32,
             coords: &BridgeNormalizedCoords,

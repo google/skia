@@ -208,6 +208,9 @@ public:
     const fontations_ffi::BridgeNormalizedCoords& getBridgeNormalizedCoords() {
         return *fBridgeNormalizedCoords;
     }
+    const fontations_ffi::BridgeOutlineCollection& getOutlines() {
+        return *fOutlines;
+    }
     SkSpan<SkColor> getPalette() {
         return SkSpan<SkColor>(reinterpret_cast<SkColor*>(fPalette.data()), fPalette.size());
     }
@@ -251,6 +254,7 @@ private:
     // lifetime of fBridgeFontRef to safely request parsed data.
     rust::Box<fontations_ffi::BridgeFontRef> fBridgeFontRef;
     rust::Box<fontations_ffi::BridgeNormalizedCoords> fBridgeNormalizedCoords;
+    rust::Box<fontations_ffi::BridgeOutlineCollection> fOutlines;
     rust::Vec<uint32_t> fPalette;
 
     mutable SkOnce fGlyphMasksMayNeedCurrentColorOnce;

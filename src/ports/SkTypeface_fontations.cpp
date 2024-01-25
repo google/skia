@@ -86,6 +86,7 @@ SkTypeface_Fontations::SkTypeface_Fontations(sk_sp<SkData> fontData, const SkFon
         , fTtcIndex(args.getCollectionIndex())
         , fBridgeFontRef(make_bridge_font_ref(fFontData, fTtcIndex))
         , fBridgeNormalizedCoords(make_normalized_coords(*fBridgeFontRef, args))
+        , fOutlines(fontations_ffi::get_outline_collection(*fBridgeFontRef))
         , fPalette(resolve_palette(
                   *fBridgeFontRef,
                   args.getPalette().index,
@@ -260,6 +261,7 @@ public:
                       static_cast<SkTypeface_Fontations*>(this->getTypeface())->getBridgeFontRef())
             , fBridgeNormalizedCoords(static_cast<SkTypeface_Fontations*>(this->getTypeface())
                                               ->getBridgeNormalizedCoords())
+            , fOutlines(static_cast<SkTypeface_Fontations*>(this->getTypeface())->getOutlines())
             , fPalette(static_cast<SkTypeface_Fontations*>(this->getTypeface())->getPalette()) {
         fRec.getSingleMatrix(&fMatrix);
     }
@@ -269,7 +271,7 @@ public:
         sk_fontations::PathGeometrySink pathWrapper;
         fontations_ffi::BridgeScalerMetrics scalerMetrics;
 
-        if (!fontations_ffi::get_path(fBridgeFontRef,
+        if (!fontations_ffi::get_path(fOutlines,
                                       glyphId,
                                       yScale,
                                       fBridgeNormalizedCoords,
@@ -506,6 +508,7 @@ private:
     sk_sp<SkData> fFontData = nullptr;
     const fontations_ffi::BridgeFontRef& fBridgeFontRef;
     const fontations_ffi::BridgeNormalizedCoords& fBridgeNormalizedCoords;
+    const fontations_ffi::BridgeOutlineCollection& fOutlines;
     const SkSpan<SkColor> fPalette;
     friend class sk_fontations::ColorPainter;
 };
