@@ -10,6 +10,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -177,7 +178,7 @@ const Type* SymbolTable::addArrayDimension(const Context& context,
     }
     // If we are making an array of a builtin type, we add it as high as possible in the symbol
     // table tree (at the module boundary), to enable additional reuse of the array-type.
-    if (type->isInBuiltinTypes() && fParent && !fAtModuleBoundary) {
+    if (fParent && !fAtModuleBoundary && !context.fConfig->fIsBuiltinCode && type->isBuiltin()) {
         return fParent->addArrayDimension(context, type, arraySize);
     }
     // Reuse an existing array type with this name if one already exists in our symbol table.
@@ -187,7 +188,7 @@ const Type* SymbolTable::addArrayDimension(const Context& context,
     }
     // Add a new array type to the symbol table.
     const std::string* arrayNamePtr = this->takeOwnershipOfString(std::move(arrayName));
-    return this->add(context, Type::MakeArrayType(*arrayNamePtr, *type, arraySize));
+    return this->add(context, Type::MakeArrayType(context, *arrayNamePtr, *type, arraySize));
 }
 
 std::unique_ptr<Expression> SymbolTable::instantiateSymbolRef(const Context& context,
