@@ -167,7 +167,7 @@ public:
      * table. The created array type is returned. If zero is passed, the base type is returned
      * unchanged.
      */
-    const Type* addArrayDimension(const Type* type, int arraySize);
+    const Type* addArrayDimension(const Context& context, const Type* type, int arraySize);
 
     // Call fn for every symbol in the table. You may not mutate anything.
     template <typename Fn>

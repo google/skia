@@ -219,7 +219,7 @@ public:
     }
 
     /** Creates a clone of this Type, if needed, and inserts it into a different symbol table. */
-    const Type* clone(SymbolTable* symbolTable) const;
+    const Type* clone(const Context& context, SymbolTable* symbolTable) const;
 
     /**
      * Returns true if this type is known to come from BuiltinTypes. If this returns true, the Type

@@ -85,7 +85,7 @@ std::unique_ptr<InterfaceBlock> InterfaceBlock::Convert(const Context& context,
         if (!arraySize) {
             return nullptr;
         }
-        type = context.fSymbolTable->addArrayDimension(type, arraySize);
+        type = context.fSymbolTable->addArrayDimension(context, type, arraySize);
     }
 
     // Error-check the interface block as if it were being declared as a global variable.

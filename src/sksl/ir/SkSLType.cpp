@@ -957,8 +957,8 @@ const Type* Type::applyPrecisionQualifiers(const Context& context,
         if (mediumpType) {
             // Convert the mediump component type into the final vector/matrix/array type as needed.
             return this->isArray()
-                           ? context.fSymbolTable->addArrayDimension(mediumpType, this->columns())
-                           : &mediumpType->toCompound(context, this->columns(), this->rows());
+                    ? context.fSymbolTable->addArrayDimension(context, mediumpType, this->columns())
+                    : &mediumpType->toCompound(context, this->columns(), this->rows());
         }
     }
 
@@ -1138,7 +1138,7 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
     return *context.fTypes.fVoid;
 }
 
-const Type* Type::clone(SymbolTable* symbolTable) const {
+const Type* Type::clone(const Context& context, SymbolTable* symbolTable) const {
     // Many types are built-ins, and exist in every SymbolTable by default.
     if (this->isInBuiltinTypes()) {
         return this;
@@ -1153,14 +1153,15 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
     // This type actually needs to be cloned into the destination SymbolTable.
     switch (this->typeKind()) {
         case TypeKind::kArray: {
-            return symbolTable->addArrayDimension(&this->componentType(), this->columns());
+            return symbolTable->addArrayDimension(context, &this->componentType(), this->columns());
         }
         case TypeKind::kStruct: {
             // We are cloning an existing struct, so there's no need to call MakeStructType and
             // fully error-check it again.
             const std::string* name = symbolTable->takeOwnershipOfString(std::string(this->name()));
             SkSpan<const Field> fieldSpan = this->fields();
-            return symbolTable->addOrDie(
+            return symbolTable->add(
+                    context,
                     std::make_unique<StructType>(this->fPosition,
                                                  *name,
                                                  TArray<Field>(fieldSpan.data(), fieldSpan.size()),

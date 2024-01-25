@@ -200,62 +200,77 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
             const ChildCall& childCall = expression.as<ChildCall>();
             return ChildCall::Make(*fContext,
                                    pos,
-                                   childCall.type().clone(symbolTableForExpression),
+                                   childCall.type().clone(*fContext, symbolTableForExpression),
                                    childCall.child(),
                                    argList(childCall.arguments()));
         }
         case Expression::Kind::kConstructorArray: {
             const ConstructorArray& ctor = expression.as<ConstructorArray>();
-            return ConstructorArray::Make(*fContext, pos,
-                                          *ctor.type().clone(symbolTableForExpression),
+            return ConstructorArray::Make(*fContext,
+                                          pos,
+                                          *ctor.type().clone(*fContext, symbolTableForExpression),
                                           argList(ctor.arguments()));
         }
         case Expression::Kind::kConstructorArrayCast: {
             const ConstructorArrayCast& ctor = expression.as<ConstructorArrayCast>();
-            return ConstructorArrayCast::Make(*fContext, pos,
-                                              *ctor.type().clone(symbolTableForExpression),
-                                              expr(ctor.argument()));
+            return ConstructorArrayCast::Make(
+                    *fContext,
+                    pos,
+                    *ctor.type().clone(*fContext, symbolTableForExpression),
+                    expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorCompound: {
             const ConstructorCompound& ctor = expression.as<ConstructorCompound>();
-            return ConstructorCompound::Make(*fContext, pos,
-                                              *ctor.type().clone(symbolTableForExpression),
-                                              argList(ctor.arguments()));
+            return ConstructorCompound::Make(
+                    *fContext,
+                    pos,
+                    *ctor.type().clone(*fContext, symbolTableForExpression),
+                    argList(ctor.arguments()));
         }
         case Expression::Kind::kConstructorCompoundCast: {
             const ConstructorCompoundCast& ctor = expression.as<ConstructorCompoundCast>();
-            return ConstructorCompoundCast::Make(*fContext, pos,
-                                                  *ctor.type().clone(symbolTableForExpression),
-                                                  expr(ctor.argument()));
+            return ConstructorCompoundCast::Make(
+                    *fContext,
+                    pos,
+                    *ctor.type().clone(*fContext, symbolTableForExpression),
+                    expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorDiagonalMatrix: {
             const ConstructorDiagonalMatrix& ctor = expression.as<ConstructorDiagonalMatrix>();
-            return ConstructorDiagonalMatrix::Make(*fContext, pos,
-                                                   *ctor.type().clone(symbolTableForExpression),
-                                                   expr(ctor.argument()));
+            return ConstructorDiagonalMatrix::Make(
+                    *fContext,
+                    pos,
+                    *ctor.type().clone(*fContext, symbolTableForExpression),
+                    expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorMatrixResize: {
             const ConstructorMatrixResize& ctor = expression.as<ConstructorMatrixResize>();
-            return ConstructorMatrixResize::Make(*fContext, pos,
-                                                 *ctor.type().clone(symbolTableForExpression),
-                                                 expr(ctor.argument()));
+            return ConstructorMatrixResize::Make(
+                    *fContext,
+                    pos,
+                    *ctor.type().clone(*fContext, symbolTableForExpression),
+                    expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorScalarCast: {
             const ConstructorScalarCast& ctor = expression.as<ConstructorScalarCast>();
-            return ConstructorScalarCast::Make(*fContext, pos,
-                                               *ctor.type().clone(symbolTableForExpression),
-                                               expr(ctor.argument()));
+            return ConstructorScalarCast::Make(
+                    *fContext,
+                    pos,
+                    *ctor.type().clone(*fContext, symbolTableForExpression),
+                    expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorSplat: {
             const ConstructorSplat& ctor = expression.as<ConstructorSplat>();
-            return ConstructorSplat::Make(*fContext, pos,
-                                          *ctor.type().clone(symbolTableForExpression),
+            return ConstructorSplat::Make(*fContext,
+                                          pos,
+                                          *ctor.type().clone(*fContext, symbolTableForExpression),
                                           expr(ctor.argument()));
         }
         case Expression::Kind::kConstructorStruct: {
             const ConstructorStruct& ctor = expression.as<ConstructorStruct>();
-            return ConstructorStruct::Make(*fContext, pos,
-                                           *ctor.type().clone(symbolTableForExpression),
+            return ConstructorStruct::Make(*fContext,
+                                           pos,
+                                           *ctor.type().clone(*fContext, symbolTableForExpression),
                                            argList(ctor.arguments()));
         }
         case Expression::Kind::kFieldAccess: {
@@ -266,7 +281,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
             const FunctionCall& funcCall = expression.as<FunctionCall>();
             return FunctionCall::Make(*fContext,
                                       pos,
-                                      funcCall.type().clone(symbolTableForExpression),
+                                      funcCall.type().clone(*fContext, symbolTableForExpression),
                                       funcCall.function(),
                                       argList(funcCall.arguments()));
         }
@@ -470,20 +485,21 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             // names are important.
             const std::string* name = symbolTableForStatement->takeOwnershipOfString(
                     fMangler.uniqueName(variable->name(), symbolTableForStatement));
-            auto clonedVar = Variable::Make(pos,
-                                            variable->modifiersPosition(),
-                                            variable->layout(),
-                                            variableModifiers(*variable, initialValue.get()),
-                                            variable->type().clone(symbolTableForStatement),
-                                            name->c_str(),
-                                            /*mangledName=*/"",
-                                            isBuiltinCode,
-                                            variable->storage());
+            auto clonedVar =
+                    Variable::Make(pos,
+                                   variable->modifiersPosition(),
+                                   variable->layout(),
+                                   variableModifiers(*variable, initialValue.get()),
+                                   variable->type().clone(*fContext, symbolTableForStatement),
+                                   name->c_str(),
+                                   /*mangledName=*/"",
+                                   isBuiltinCode,
+                                   variable->storage());
             varMap->set(variable, VariableReference::Make(pos, clonedVar.get()));
             std::unique_ptr<Statement> result =
                     VarDeclaration::Make(*fContext,
                                          clonedVar.get(),
-                                         decl.baseType().clone(symbolTableForStatement),
+                                         decl.baseType().clone(*fContext, symbolTableForStatement),
                                          decl.arraySize(),
                                          std::move(initialValue));
             symbolTableForStatement->add(*fContext, std::move(clonedVar));

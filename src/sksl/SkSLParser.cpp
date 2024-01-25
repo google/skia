@@ -721,7 +721,7 @@ const Type* Parser::arrayType(const Type* base, int count, Position pos) {
     if (!count) {
         return context.fTypes.fPoison.get();
     }
-    return this->symbolTable()->addArrayDimension(base, count);
+    return this->symbolTable()->addArrayDimension(fCompiler.context(), base, count);
 }
 
 const Type* Parser::unsizedArrayType(const Type* base, Position pos) {
@@ -729,7 +729,8 @@ const Type* Parser::unsizedArrayType(const Type* base, Position pos) {
     if (!base->checkIfUsableInArray(context, pos)) {
         return context.fTypes.fPoison.get();
     }
-    return this->symbolTable()->addArrayDimension(base, SkSL::Type::kUnsizedArray);
+    return this->symbolTable()->addArrayDimension(fCompiler.context(), base,
+                                                  SkSL::Type::kUnsizedArray);
 }
 
 bool Parser::parseArrayDimensions(Position pos, const Type** type) {
