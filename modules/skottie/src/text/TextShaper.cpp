@@ -318,12 +318,19 @@ public:
         const auto lang_iter = fDesc.fLocale
                 ? std::make_unique<SkShaper::TrivialLanguageRunIterator>(fDesc.fLocale, utf8_bytes)
                 : SkShaper::MakeStdLanguageRunIterator(start, utf8_bytes);
+#if defined(SKOTTIE_TRIVIAL_FONTRUN_ITER)
+        // Chrome Linux/CrOS does not have a fallback-capable fontmgr, and crashes if fallback is
+        // triggered.  Using a TrivialFontRunIterator avoids the issue (https://crbug.com/1520148).
+        const auto font_iter = std::make_unique<SkShaper::TrivialFontRunIterator>(fFont,
+                                                                                  utf8_bytes);
+#else
         const auto font_iter = SkShaper::MakeFontMgrRunIterator(
                                     start, utf8_bytes, fFont,
                                     fFontMgr ? fFontMgr : SkFontMgr::RefEmpty(), // used as fallback
                                     fDesc.fFontFamily,
                                     fFont.getTypeface()->fontStyle(),
                                     lang_iter.get());
+#endif
         const auto bidi_iter = SkShaper::MakeBiDiRunIterator(start, utf8_bytes,
                                     shape_ltr ? kBidiLevelLTR : kBidiLevelRTL);
         const auto scpt_iter = SkShaper::MakeScriptRunIterator(start, utf8_bytes,
