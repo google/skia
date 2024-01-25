@@ -982,7 +982,7 @@ void Device::drawGeometry(const Transform& localToDevice,
         // that should be detected now as well. Maybe add dashPath to Device so canvas can handle it
         SkStrokeRec newStyle = style;
         float maxScaleFactor = localToDevice.maxScaleFactor();
-        if (localToDevice.type() == Transform::Type::kProjection) {
+        if (localToDevice.type() == Transform::Type::kPerspective) {
             auto bounds = geometry.bounds();
             float tl = std::get<1>(localToDevice.scaleFactors({bounds.left(), bounds.top()}));
             float tr = std::get<1>(localToDevice.scaleFactors({bounds.right(), bounds.top()}));
@@ -1021,7 +1021,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // TODO: The tessellating and atlas path renderers haven't implemented perspective yet, so
     // transform to device space so we draw something approximately correct (barring local coord
     // issues).
-    if (geometry.isShape() && localToDevice.type() == Transform::Type::kProjection &&
+    if (geometry.isShape() && localToDevice.type() == Transform::Type::kPerspective &&
         !is_simple_shape(geometry.shape(), style.getStyle())) {
         SkPath devicePath = geometry.shape().asPath();
         devicePath.transform(localToDevice.matrix().asM33());
@@ -1259,7 +1259,7 @@ void Device::drawClipShape(const Transform& localToDevice,
 
     // Clips draws are depth-only (null PaintParams), and filled (null StrokeStyle).
     // TODO: Remove this CPU-transform once perspective is supported for all path renderers
-    if (localToDevice.type() == Transform::Type::kProjection) {
+    if (localToDevice.type() == Transform::Type::kPerspective) {
         SkPath devicePath = geometry.shape().asPath();
         devicePath.transform(localToDevice.matrix().asM33());
         fDC->recordDraw(renderer, Transform::Identity(), Geometry(Shape(devicePath)), clip, order,

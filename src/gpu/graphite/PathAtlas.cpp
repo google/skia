@@ -210,7 +210,7 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
 
     // TODO: The compute renderer doesn't support perspective yet. We assume that the path has been
     // appropriately transformed in that case.
-    SkASSERT(transform.type() != Transform::Type::kProjection);
+    SkASSERT(transform.type() != Transform::Type::kPerspective);
 
     // Restrict the render to the occupied area of the atlas, including entry padding so that the
     // padded row/column is cleared when Vello renders.

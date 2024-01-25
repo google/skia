@@ -240,7 +240,8 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
 
 void TessellateStrokesRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                            PipelineDataGatherer* gatherer) const {
-    SkASSERT(params.transform().type() < Transform::Type::kProjection); // TODO: Implement perspective
+    // TODO: Implement perspective
+    SkASSERT(params.transform().type() < Transform::Type::kPerspective);
 
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 

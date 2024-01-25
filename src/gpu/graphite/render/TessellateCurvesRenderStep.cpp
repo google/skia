@@ -124,7 +124,7 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw,
     // more accurately compute how many *parametric* segments are needed.
     // TODO: This doesn't account for perspective division yet, which will require updating the
     // approximate transform based on each verb's control points' bounding box.
-    SkASSERT(params.transform().type() < Transform::Type::kProjection);
+    SkASSERT(params.transform().type() < Transform::Type::kPerspective);
     writer.setShaderTransform(wangs_formula::VectorXform{params.transform().matrix()},
                               params.transform().maxScaleFactor());
 

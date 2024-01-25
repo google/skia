@@ -69,11 +69,24 @@ std::pair<float, float> sort_scale(float sx, float sy) {
 Transform::Transform(const SkM44& m) : fM(m) {
     static constexpr SkV4 kNoPerspective = {0.f, 0.f, 0.f, 1.f};
     static constexpr SkV4 kNoZ           = {0.f, 0.f, 1.f, 0.f};
-    if (m.row(3) != kNoPerspective || m.col(2) != kNoZ || m.row(2) != kNoZ) {
-        // Projection matrices will have per-location scale factors calculated, so cached scale
+    if (m.row(3) != kNoPerspective) {
+        // Perspective matrices will have per-location scale factors calculated, so cached scale
         // factors will not be used.
         if (m.invert(&fInvM)) {
-            fType = Type::kProjection;
+            fType = Type::kPerspective;
+        } else {
+            fType = Type::kInvalid;
+        }
+        return;
+    } else if (m.col(2) != kNoZ || m.row(2) != kNoZ) {
+        // Orthographic matrices are lumped into the kAffine type although we use SkM44::invert()
+        // instead of taking short cuts.
+        if (m.invert(&fInvM)) {
+            fType = Type::kAffine;
+            // These scale factors are valid for the case where Z=0, which is the case for all
+            // local geometry that's drawn.
+            std::tie(fMinScaleFactor, fMaxScaleFactor) = compute_svd(m.rc(0,0), m.rc(0,1),
+                                                                     m.rc(1,0), m.rc(1,1));
         } else {
             fType = Type::kInvalid;
         }
@@ -147,7 +160,7 @@ Transform::Transform(const SkM44& m) : fM(m) {
 
 std::pair<float, float> Transform::scaleFactors(const SkV2& p) const {
     SkASSERT(this->valid());
-    if (fType < Type::kProjection) {
+    if (fType < Type::kPerspective) {
         return {fMinScaleFactor, fMaxScaleFactor};
     }
 
@@ -201,7 +214,7 @@ float Transform::localAARadius(const Rect& bounds) const {
     SkASSERT(this->valid());
 
     float min;
-    if (fType < Type::kProjection) {
+    if (fType < Type::kPerspective) {
         // The scale factor is constant
         min = fMinScaleFactor;
     } else {

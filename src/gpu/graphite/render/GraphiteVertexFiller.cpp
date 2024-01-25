@@ -62,7 +62,7 @@ std::tuple<Rect, Transform> VertexFiller::boundsAndDeviceMatrix(const Transform&
                                   positionMatrix.rc(0,1) == fCreationMatrix.rc(0, 1) &&
                                   positionMatrix.rc(1,0) == fCreationMatrix.rc(1, 0) &&
                                   positionMatrix.rc(1,1) == fCreationMatrix.rc(1, 1) &&
-                                  localToDevice.type() != Transform::Type::kProjection &&
+                                  localToDevice.type() != Transform::Type::kPerspective &&
                                   !fCreationMatrix.hasPerspective();
 
     if (compatibleMatrix) {
