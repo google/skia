@@ -103,17 +103,14 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
 
     sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator = context.fMemoryAllocator;
     if (!memoryAllocator) {
-        // TODO: fix this check when we have the caps check
         // We were not given a memory allocator at creation
-        bool mustUseCoherentHostVisibleMemory = false; /*caps->mustUseCoherentHostVisibleMemory();*/
         bool threadSafe = !options.fClientWillExternallySynchronizeAllThreads;
         memoryAllocator = skgpu::VulkanAMDMemoryAllocator::Make(context.fInstance,
                                                                 context.fPhysicalDevice,
                                                                 context.fDevice,
                                                                 physDevVersion,
                                                                 context.fVkExtensions,
-                                                                interface,
-                                                                mustUseCoherentHostVisibleMemory,
+                                                                interface.get(),
                                                                 threadSafe);
     }
     if (!memoryAllocator) {

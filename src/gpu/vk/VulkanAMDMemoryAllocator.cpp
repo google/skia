@@ -20,8 +20,7 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
          VkDevice device,
          uint32_t physicalDeviceVersion,
          const VulkanExtensions* extensions,
-         sk_sp<const VulkanInterface> interface,
-         bool mustUseCoherentHostVisibleMemory,
+         const VulkanInterface* interface,
          bool threadSafe) {
     return nullptr;
 }
@@ -33,8 +32,7 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
         VkDevice device,
         uint32_t physicalDeviceVersion,
         const VulkanExtensions* extensions,
-        sk_sp<const VulkanInterface> interface,
-        bool mustUseCoherentHostVisibleMemory,
+        const VulkanInterface* interface,
         bool threadSafe) {
 #define SKGPU_COPY_FUNCTION(NAME) functions.vk##NAME = interface->fFunctions.f##NAME
 #define SKGPU_COPY_FUNCTION_KHR(NAME) functions.vk##NAME##KHR = interface->fFunctions.f##NAME
@@ -102,16 +100,11 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
     VmaAllocator allocator;
     vmaCreateAllocator(&info, &allocator);
 
-    return sk_sp<VulkanAMDMemoryAllocator>(new VulkanAMDMemoryAllocator(
-            allocator, std::move(interface), mustUseCoherentHostVisibleMemory));
+    return sk_sp<VulkanAMDMemoryAllocator>(new VulkanAMDMemoryAllocator(allocator));
 }
 
-VulkanAMDMemoryAllocator::VulkanAMDMemoryAllocator(VmaAllocator allocator,
-                                                   sk_sp<const VulkanInterface> interface,
-                                                   bool mustUseCoherentHostVisibleMemory)
-        : fAllocator(allocator)
-        , fInterface(std::move(interface))
-        , fMustUseCoherentHostVisibleMemory(mustUseCoherentHostVisibleMemory) {}
+VulkanAMDMemoryAllocator::VulkanAMDMemoryAllocator(VmaAllocator allocator)
+        : fAllocator(allocator) {}
 
 VulkanAMDMemoryAllocator::~VulkanAMDMemoryAllocator() {
     vmaDestroyAllocator(fAllocator);
@@ -194,10 +187,6 @@ VkResult VulkanAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer,
             break;
     }
 
-    if (fMustUseCoherentHostVisibleMemory &&
-        (info.requiredFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) {
-        info.requiredFlags |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    }
     if (kDedicatedAllocation_AllocationPropertyFlag & allocationPropertyFlags) {
         info.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     }

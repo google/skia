@@ -186,14 +186,12 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
     sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
     if (!memoryAllocator) {
         // We were not given a memory allocator at creation
-        bool mustUseCoherentHostVisibleMemory = caps->mustUseCoherentHostVisibleMemory();
         memoryAllocator = skgpu::VulkanAMDMemoryAllocator::Make(backendContext.fInstance,
                                                                 backendContext.fPhysicalDevice,
                                                                 backendContext.fDevice,
                                                                 physDevVersion,
                                                                 backendContext.fVkExtensions,
-                                                                interface,
-                                                                mustUseCoherentHostVisibleMemory,
+                                                                interface.get(),
                                                                 /*=threadSafe=*/false);
     }
     if (!memoryAllocator) {
