@@ -2902,6 +2902,7 @@ if (skia_enable_tools) {
         "tools/viewer/MegaStrokeSlide.cpp",
         "tools/viewer/MeshSlide.cpp",
         "tools/viewer/MixerSlide.cpp",
+        "tools/viewer/MotionMarkSlide.cpp",
         "tools/viewer/PatchSlide.cpp",
         "tools/viewer/PathClipSlide.cpp",
         "tools/viewer/PathEffectsSlide.cpp",
