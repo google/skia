@@ -1,0 +1,47 @@
+               OpCapability Shader
+          %1 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint GLCompute %main "main"
+               OpExecutionMode %main LocalSize 16 16 1
+               OpName %outX "outX"
+               OpName %outY "outY"
+               OpName %outZ "outZ"
+               OpName %main "main"
+               OpName %IndirectDispatchArgs "IndirectDispatchArgs"
+               OpMemberName %IndirectDispatchArgs 0 "x"
+               OpMemberName %IndirectDispatchArgs 1 "y"
+               OpMemberName %IndirectDispatchArgs 2 "z"
+               OpName %args "args"
+               OpMemberDecorate %IndirectDispatchArgs 0 Offset 0
+               OpMemberDecorate %IndirectDispatchArgs 1 Offset 4
+               OpMemberDecorate %IndirectDispatchArgs 2 Offset 8
+               OpDecorate %_arr_IndirectDispatchArgs_int_3 ArrayStride 16
+        %int = OpTypeInt 32 1
+%_ptr_Workgroup_int = OpTypePointer Workgroup %int
+       %outX = OpVariable %_ptr_Workgroup_int Workgroup
+       %outY = OpVariable %_ptr_Workgroup_int Workgroup
+       %outZ = OpVariable %_ptr_Workgroup_int Workgroup
+       %void = OpTypeVoid
+          %9 = OpTypeFunction %void
+%IndirectDispatchArgs = OpTypeStruct %int %int %int
+      %int_3 = OpConstant %int 3
+%_arr_IndirectDispatchArgs_int_3 = OpTypeArray %IndirectDispatchArgs %int_3
+%_ptr_Function__arr_IndirectDispatchArgs_int_3 = OpTypePointer Function %_arr_IndirectDispatchArgs_int_3
+      %int_0 = OpConstant %int 0
+%_ptr_Function_int = OpTypePointer Function %int
+      %int_1 = OpConstant %int 1
+      %int_2 = OpConstant %int 2
+       %main = OpFunction %void None %9
+         %10 = OpLabel
+       %args = OpVariable %_ptr_Function__arr_IndirectDispatchArgs_int_3 Function
+         %17 = OpAccessChain %_ptr_Function_int %args %int_0 %int_0
+         %19 = OpLoad %int %17
+               OpStore %outX %19
+         %21 = OpAccessChain %_ptr_Function_int %args %int_1 %int_1
+         %22 = OpLoad %int %21
+               OpStore %outY %22
+         %24 = OpAccessChain %_ptr_Function_int %args %int_2 %int_2
+         %25 = OpLoad %int %24
+               OpStore %outZ %25
+               OpReturn
+               OpFunctionEnd

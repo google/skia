@@ -1,8 +1,8 @@
 static constexpr char SKSL_MINIFIED_sksl_compute[] =
 "layout(builtin=24)in uint3 sk_NumWorkgroups;layout(builtin=26)in uint3 sk_WorkgroupID"
 ";layout(builtin=27)in uint3 sk_LocalInvocationID;layout(builtin=28)in uint3"
-" sk_GlobalInvocationID;layout(builtin=29)in uint sk_LocalInvocationIndex;$pure"
-" half4 textureRead($readableTexture2D t,uint2 pos);void textureWrite($writableTexture2D"
-" t,uint2 pos,half4 color);$pure uint textureWidth($genTexture2D t);$pure uint"
-" textureHeight($genTexture2D t);void workgroupBarrier();void storageBarrier"
-"();";
+" sk_GlobalInvocationID;layout(builtin=29)in uint sk_LocalInvocationIndex;struct"
+" IndirectDispatchArgs{int x;int y;int z;};$pure half4 textureRead($readableTexture2D"
+" t,uint2 pos);void textureWrite($writableTexture2D t,uint2 pos,half4 color)"
+";$pure uint textureWidth($genTexture2D t);$pure uint textureHeight($genTexture2D"
+" t);void workgroupBarrier();void storageBarrier();";

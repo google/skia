@@ -225,6 +225,7 @@ static std::unique_ptr<Module> compile_and_shrink(SkSL::Compiler* compiler,
                                               case ProgramElement::Kind::kFunction:
                                               case ProgramElement::Kind::kGlobalVar:
                                               case ProgramElement::Kind::kInterfaceBlock:
+                                              case ProgramElement::Kind::kStructDefinition:
                                                   // We need to preserve these.
                                                   return false;
 

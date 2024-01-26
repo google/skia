@@ -1,0 +1,12 @@
+layout(local_size_x = 16, local_size_y = 16) in;
+
+workgroup int outX, outY, outZ;
+
+void main() {
+    IndirectDispatchArgs[3] args;
+
+    // Use the values from `args` to make the test meaningful.
+    outX = args[0].x;
+    outY = args[1].y;
+    outZ = args[2].z;
+}

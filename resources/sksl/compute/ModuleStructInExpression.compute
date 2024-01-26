@@ -1,0 +1,16 @@
+layout(local_size_x = 16, local_size_y = 16) in;
+
+workgroup int outX, outY, outZ;
+
+int one()   { return 1; }
+int two()   { return 2; }
+int three() { return 3; }
+
+void main() {
+    // This test is somewhat contrived, but it is possible to use a struct from the modules as part
+    // of an expression, without ever declaring a variable of that type. We need to detect this
+    // usage, and emit the struct type into the finished program.
+    outX = IndirectDispatchArgs(one(), two(), three()).x;
+    outY = IndirectDispatchArgs(one(), two(), three()).y;
+    outZ = IndirectDispatchArgs(one(), two(), three()).z;
+}

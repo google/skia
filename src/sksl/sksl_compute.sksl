@@ -6,6 +6,10 @@ layout(builtin=27) in uint3 sk_LocalInvocationID;
 layout(builtin=28) in uint3 sk_GlobalInvocationID;
 layout(builtin=29) in uint sk_LocalInvocationIndex;
 
+struct IndirectDispatchArgs {
+    int x, y, z;
+};
+
 $pure half4 textureRead($readableTexture2D t, uint2 pos);
 void textureWrite($writableTexture2D t, uint2 pos, half4 color);
 
