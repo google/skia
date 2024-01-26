@@ -22,6 +22,7 @@
 #include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -50,10 +51,15 @@ public:
                 // they are unread and unwritten.
                 ProgramUsage::VariableCounts& counts = fUsage->fVariableCounts[param];
                 counts.fVarExists += fDelta;
+
+                this->visitType(param->type());
             }
         } else if (pe.is<InterfaceBlock>()) {
             // Ensure interface-block variables exist in the variable usage map.
-            fUsage->fVariableCounts[pe.as<InterfaceBlock>().var()];
+            const Variable* var = pe.as<InterfaceBlock>().var();
+            fUsage->fVariableCounts[var];
+
+            this->visitType(var->type());
         }
         return INHERITED::visitProgramElement(pe);
     }
@@ -62,18 +68,21 @@ public:
         if (s.is<VarDeclaration>()) {
             // Add all declared variables to the usage map (even if never otherwise accessed).
             const VarDeclaration& vd = s.as<VarDeclaration>();
-            ProgramUsage::VariableCounts& counts = fUsage->fVariableCounts[vd.var()];
+            const Variable* var = vd.var();
+            ProgramUsage::VariableCounts& counts = fUsage->fVariableCounts[var];
             counts.fVarExists += fDelta;
             SkASSERT(counts.fVarExists >= 0 && counts.fVarExists <= 1);
             if (vd.value()) {
                 // The initial-value expression, when present, counts as a write.
                 counts.fWrite += fDelta;
             }
+            this->visitType(var->type());
         }
         return INHERITED::visitStatement(s);
     }
 
     bool visitExpression(const Expression& e) override {
+        this->visitType(e.type());
         if (e.is<FunctionCall>()) {
             const FunctionDeclaration* f = &e.as<FunctionCall>().function();
             fUsage->fCallCounts[f] += fDelta;
@@ -97,6 +106,22 @@ public:
             SkASSERT(counts.fRead >= 0 && counts.fWrite >= 0);
         }
         return INHERITED::visitExpression(e);
+    }
+
+    void visitType(const Type& t) {
+        if (t.isArray()) {
+            this->visitType(t.componentType());
+            return;
+        }
+        if (t.isStruct()) {
+            int& structCount = fUsage->fStructCounts[&t];
+            structCount += fDelta;
+            SkASSERT(structCount >= 0);
+
+            for (const Field& f : t.fields()) {
+                this->visitType(*f.fType);
+            }
+        }
     }
 
     using ProgramVisitor::visitProgramElement;
@@ -222,6 +247,24 @@ static bool contains_matching_data(const ProgramUsage& a, const ProgramUsage& b)
                          (int)callA->name().size(), callA->name().data(),
                          callCountA,
                          callCountB ? *callCountB : 0);
+            }
+            return false;
+        }
+    }
+
+    for (const auto& [structA, structCountA] : a.fStructCounts) {
+        // Skip struct entries with zero reported usage.
+        if (!structCountA) {
+            continue;
+        }
+        // Find the matching struct in the other map and ensure that its usage-count matches.
+        const int* structCountB = b.fStructCounts.find(structA);
+        if (!structCountB || structCountA != *structCountB) {
+            if constexpr (kReportMismatch) {
+                SkDebugf("StructCounts mismatch: '%.*s' (%d != %d)\n",
+                         (int)structA->name().size(), structA->name().data(),
+                         structCountA,
+                         structCountB ? *structCountB : 0);
             }
             return false;
         }

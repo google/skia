@@ -4,6 +4,11 @@
 #pragma clang diagnostic ignored "-Wall"
 #endif
 using namespace metal;
+struct IndirectDispatchArgs {
+    int x;
+    int y;
+    int z;
+};
 struct Inputs {
 };
 struct Threadgroups {

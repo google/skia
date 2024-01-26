@@ -396,8 +396,11 @@ bool Compiler::finalize(Program& program) {
     // Copy all referenced built-in functions into the Program.
     Transform::FindAndDeclareBuiltinFunctions(program);
 
-    // Variables defined in the pre-includes need their declaring elements added to the program.
+    // Variables defined in modules need their declaring elements added to the program.
     Transform::FindAndDeclareBuiltinVariables(program);
+
+    // Structs from module code need to be added to the program's shared elements.
+    Transform::FindAndDeclareBuiltinStructs(program);
 
     // Do one last correctness-check pass. This looks for dangling FunctionReference/TypeReference
     // expressions, and reports them as errors.

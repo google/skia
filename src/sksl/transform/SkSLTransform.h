@@ -54,6 +54,12 @@ std::unique_ptr<Expression> RewriteIndexedSwizzle(const Context& context,
 void FindAndDeclareBuiltinFunctions(Program& program);
 
 /**
+ * Copies built-in structs from modules into the program. Relies on ProgramUsage to determine
+ * which structs are necessary.
+ */
+void FindAndDeclareBuiltinStructs(Program& program);
+
+/**
  * Scans the finished program for built-in variables like `sk_FragColor` and adds them to the
  * program's shared elements.
  */

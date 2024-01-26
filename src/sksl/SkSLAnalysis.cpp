@@ -50,6 +50,7 @@
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -371,9 +372,10 @@ bool Analysis::CallsSampleOutsideMain(const Program& program) {
 }
 
 bool Analysis::CallsColorTransformIntrinsics(const Program& program) {
-    for (auto [fn, count] : program.usage()->fCallCounts) {
-        if (count != 0 && (fn->intrinsicKind() == k_toLinearSrgb_IntrinsicKind ||
-                           fn->intrinsicKind() == k_fromLinearSrgb_IntrinsicKind)) {
+    for (auto [symbol, count] : program.usage()->fCallCounts) {
+        const FunctionDeclaration& fn = symbol->as<FunctionDeclaration>();
+        if (count != 0 && (fn.intrinsicKind() == k_toLinearSrgb_IntrinsicKind ||
+                           fn.intrinsicKind() == k_fromLinearSrgb_IntrinsicKind)) {
             return true;
         }
     }

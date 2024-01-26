@@ -14,6 +14,7 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
@@ -35,18 +36,19 @@ void Transform::FindAndDeclareBuiltinFunctions(Program& program) {
     for (;;) {
         // Find all the built-ins referenced by the program but not yet included in the code.
         size_t numBuiltinsAtStart = addedBuiltins.size();
-        for (const auto& [fn, count] : usage->fCallCounts) {
-            if (!fn->isBuiltin() || count == 0) {
+        for (const auto& [symbol, count] : usage->fCallCounts) {
+            const FunctionDeclaration& fn = symbol->as<FunctionDeclaration>();
+            if (!fn.isBuiltin() || count == 0) {
                 // Not a built-in; skip it.
                 continue;
             }
-            if (fn->intrinsicKind() == k_dFdy_IntrinsicKind) {
+            if (fn.intrinsicKind() == k_dFdy_IntrinsicKind) {
                 // Programs that invoke the `dFdy` intrinsic will need the RTFlip input.
                 if (!context.fConfig->fSettings.fForceNoRTFlip) {
                     program.fInterface.fRTFlipUniform |= Program::Interface::kRTFlip_Derivative;
                 }
             }
-            if (const FunctionDefinition* builtinDef = fn->definition()) {
+            if (const FunctionDefinition* builtinDef = fn.definition()) {
                 // Make sure we only add a built-in function once. We rarely add more than a handful
                 // of builtin functions, so linear search here is good enough.
                 if (std::find(addedBuiltins.begin(), addedBuiltins.end(), builtinDef) ==
