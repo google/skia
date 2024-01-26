@@ -116,6 +116,10 @@ private:
 };
 
 class CanvasLineSegmentStage : public Stage {
+private:
+    static const int kStartingObjectCount = 5000;
+    static const int kObjectIncrement = 1000;
+
 public:
     CanvasLineSegmentStage(SkSize size) : Stage(size) {
         fParams.fLineMinimum = 20;
@@ -129,7 +133,7 @@ public:
         fHalfSize = SkSize::Make(fSize.fWidth * 0.5f, fSize.fHeight * 0.5f);
         fTwoFifthsSizeX = fSize.fWidth * .4;
 
-        for (int i = 0; i < 5000; ++i) {
+        for (int i = 0; i < kStartingObjectCount; ++i) {
             std::unique_ptr<CanvasLineSegment> segment =
                     std::make_unique<CanvasLineSegment>(&fRandom, fParams);
             fObjects.push_back(std::move(segment));
@@ -219,8 +223,7 @@ public:
         switch (uni) {
             case '+':
             case '=':
-                // Add 1000
-                for (int i = 0; i < 1000; ++i) {
+                for (int i = 0; i < kObjectIncrement; ++i) {
                     std::unique_ptr<CanvasLineSegment> segment =
                             std::make_unique<CanvasLineSegment>(&fRandom,fParams);
                     fObjects.push_back(std::move(segment));
@@ -229,8 +232,8 @@ public:
                 break;
             case '-':
             case '_':
-                if (fObjects.size() > 1000) {
-                    fObjects.resize(fObjects.size() - 1000);
+                if (fObjects.size() > kObjectIncrement) {
+                    fObjects.resize(fObjects.size() - kObjectIncrement);
                 }
                 handled = true;
                 break;
@@ -250,42 +253,199 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Canvas Arcs
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class CanvasArc : public MMObject {
+public:
+    CanvasArc(SkRandom* random, SkSize size) {
+        constexpr float kMaxX = 6;
+        constexpr float kMaxY = 3;
+
+        const SkColor baseColors[3] = {
+            0xff101010, 0xff808080, 0xffc0c0c0
+        };
+        const SkColor bonusColors[3] = {
+            0xffe01040, 0xff10c030, 0xffe05010
+        };
+        float distanceX = size.fWidth / kMaxX;
+        float distanceY = size.fHeight / (kMaxY + 1);
+        int randY = random->nextRangeU(0, kMaxY);
+        int randX = random->nextRangeU(0, kMaxX - 1 * (randY % 2));
+
+        fPoint = SkPoint::Make(distanceX * (randX + (randY % 2) / 2), distanceY * (randY + 0.5f));
+
+        fRadius = 20 + sk_float_pow(random->nextF(), 5) * (std::min(distanceX, distanceY) / 1.8f);
+        fStartAngle = random->nextRangeF(0, 2*SK_ScalarPI);
+        fEndAngle = random->nextRangeF(0, 2*SK_ScalarPI);
+        fOmega = (random->nextF() - 0.5f) * 0.3f;
+        fCounterclockwise = random->nextBool();
+        // The MotionMark code appends a random element from an array and appends it to the color
+        // array, then randomly picks from that. We'll just pick that random element and use it
+        // if the index is out of bounds for the base color array.
+        SkColor bonusColor = bonusColors[(randX + sk_float_ceil2int(randY * 0.5f)) % 3];
+        int colorIndex = random->nextRangeU(0, 3);
+        fColor = colorIndex == 3 ? bonusColor : baseColors[colorIndex];
+        fLineWidth = 1 + sk_float_pow(random->nextF(), 5) * 30;
+        fDoStroke = random->nextRangeU(0, 3) != 0;
+    }
+
+    ~CanvasArc() override = default;
+
+    void draw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setColor(fColor);
+        SkRect arcRect = SkRect::MakeXYWH(fPoint.fX - fRadius, fPoint.fY - fRadius,
+                                          2*fRadius, 2*fRadius);
+        float startAngleDeg = fStartAngle * 180.f/SK_ScalarPI;
+        float endAngleDeg = fEndAngle * 180.f/SK_ScalarPI;
+        float sweepAngle = (endAngleDeg > startAngleDeg) ? endAngleDeg - startAngleDeg
+                                                         : 360 - (startAngleDeg - endAngleDeg);
+        if (fCounterclockwise) {
+            sweepAngle = 360 - sweepAngle;
+        }
+
+        if (fDoStroke) {
+            paint.setStrokeWidth(fLineWidth);
+            paint.setStyle(SkPaint::kStroke_Style);
+            canvas->drawArc(arcRect, startAngleDeg, sweepAngle, false, paint);
+        } else {
+            paint.setStyle(SkPaint::kFill_Style);
+            // The MotionMark code creates a path for fills via lineTo(point), arc(), lineTo(point).
+            // For now we'll just use drawArc for both but might need to revisit.
+            canvas->drawArc(arcRect, startAngleDeg, sweepAngle, true, paint);
+        }
+    }
+
+    void animate(double /*nanos*/) override {
+        fStartAngle += fOmega;
+        fEndAngle += fOmega / 2;
+    }
+
+private:
+    SkPoint fPoint;
+    float fRadius;
+    float fStartAngle; // in radians
+    float fEndAngle;   // in radians
+    SkColor fColor;
+    float fOmega;      // in radians
+    bool fDoStroke;
+    bool fCounterclockwise;
+    float fLineWidth;
+};
+
+class CanvasArcStage : public Stage {
+private:
+    static const int kStartingObjectCount = 1000;
+    static const int kObjectIncrement = 200;
+
+public:
+    CanvasArcStage(SkSize size) : Stage(size) {
+        for (int i = 0; i < kStartingObjectCount; ++i) {
+            std::unique_ptr<CanvasArc> arc = std::make_unique<CanvasArc>(&fRandom, fSize);
+            fObjects.push_back(std::move(arc));
+        }
+    }
+
+    ~CanvasArcStage() override = default;
+
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorWHITE);
+
+        for (size_t i = 0; i < fObjects.size(); ++i) {
+            fObjects[i]->draw(canvas);
+        }
+    }
+
+    bool animate(double nanos) override {
+        for (size_t i = 0; i < fObjects.size(); ++i) {
+            fObjects[i]->animate(nanos);
+        }
+        return true;
+    }
+
+    bool onChar(SkUnichar uni) override {
+        bool handled = false;
+        switch (uni) {
+            case '+':
+            case '=':
+                for (int i = 0; i < kObjectIncrement; ++i) {
+                    std::unique_ptr<CanvasArc> arc = std::make_unique<CanvasArc>(&fRandom, fSize);
+                    fObjects.push_back(std::move(arc));
+                }
+                handled = true;
+                break;
+            case '-':
+            case '_':
+                if (fObjects.size() > kObjectIncrement) {
+                    fObjects.resize(fObjects.size() - kObjectIncrement);
+                }
+                handled = true;
+                break;
+            default:
+                break;
+        }
+
+        return handled;
+    }
+
+private:
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class MotionMarkSlide : public Slide {
 public:
     MotionMarkSlide() {fName = "MotionMark"; }
 
     void load(SkScalar w, SkScalar h) override {
-        // for now we only have one stage type
-        Stage* stage = new CanvasLineSegmentStage(SkSize::Make(w, h));
-        fCurrentStage.reset(stage);
+        SkSize size = SkSize::Make(w, h);
+
+        std::unique_ptr<CanvasLineSegmentStage> lineStage =
+                std::make_unique<CanvasLineSegmentStage>(size);
+        fStages.push_back(std::move(lineStage));
+
+        std::unique_ptr<CanvasArcStage> arcStage =
+                std::make_unique<CanvasArcStage>(size);
+        fStages.push_back(std::move(arcStage));
     }
 
     bool onChar(SkUnichar uni) override {
         bool handled = false;
-        /* TODO
         switch (uni) {
+            case '<':
+            case ',':
+            case '4':
+                fCurrentStage = (fCurrentStage - 1) % fStages.size();
+                handled = true;
+                break;
+            case '>':
+            case '.':
+            case '6':
+                fCurrentStage = (fCurrentStage + 1) % fStages.size();
+                handled = true;
+                break;
             default:
                 break;
         }
-        */
         if (!handled) {
-            handled = fCurrentStage->onChar(uni);
+            handled = fStages[fCurrentStage]->onChar(uni);
         }
 
         return handled;
     }
 
     void draw(SkCanvas* canvas) override {
-        fCurrentStage->draw(canvas);
+        fStages[fCurrentStage]->draw(canvas);
     }
 
     bool animate(double nanos) override {
-        return fCurrentStage->animate(nanos);
+        return fStages[fCurrentStage]->animate(nanos);
     }
 
 private:
-    std::unique_ptr<Stage> fCurrentStage;
+    std::vector<std::unique_ptr<Stage>> fStages;
+    int fCurrentStage;
 };
 
 DEF_SLIDE( return new MotionMarkSlide(); )
