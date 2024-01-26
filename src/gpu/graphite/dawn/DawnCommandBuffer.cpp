@@ -668,9 +668,12 @@ void DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
         size_t bufferSize;
 
         if constexpr (kNumSlotsForIntrinsicConstantBuffer > 1) {
+            // With multipule slots in the one constant buffer, each slot must be bindable,
+            // slot's offset must be aligned.
             bufferSize = kIntrinsicConstantAlignedSize * kNumSlotsForIntrinsicConstantBuffer;
         } else {
-            bufferSize = kIntrinsicConstantAlignedSize;
+            // For single slot case, the slot offset is always 0.
+            bufferSize = sizeof(IntrinsicConstant);
         }
 
         fIntrinsicConstantBuffer = fResourceProvider->findOrCreateDawnBuffer(
