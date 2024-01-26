@@ -53,6 +53,10 @@ public:
                                                                    uint32_t recorderID,
                                                                    size_t resourceBudget) = 0;
 
+    // Called by Context::isContextLost(). Returns true if the backend-specific SharedContext has
+    // gotten into an unrecoverable, lost state.
+    virtual bool isDeviceLost() const { return false; }
+
 protected:
     SharedContext(std::unique_ptr<const Caps>, BackendApi);
 

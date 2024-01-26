@@ -398,6 +398,10 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
         fSupportsDRMFormatModifiers = true;
     }
 
+    if (extensions.hasExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME, 1)) {
+        fSupportsDeviceFaultInfo = true;
+    }
+
     fMaxInputAttachmentDescriptors = properties.limits.maxDescriptorSetInputAttachments;
 
     fMaxSamplerAnisotropy = properties.limits.maxSamplerAnisotropy;

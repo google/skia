@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
+#include "include/private/base/SkMutex.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"
@@ -16,6 +17,7 @@
 #include "src/gpu/graphite/vk/VulkanResourceProvider.h"
 #include "src/gpu/vk/VulkanAMDMemoryAllocator.h"
 #include "src/gpu/vk/VulkanInterface.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 namespace skgpu::graphite {
 
@@ -132,7 +134,9 @@ VulkanSharedContext::VulkanSharedContext(const VulkanBackendContext& backendCont
         , fInterface(std::move(interface))
         , fMemoryAllocator(std::move(memoryAllocator))
         , fDevice(std::move(backendContext.fDevice))
-        , fQueueIndex(backendContext.fGraphicsQueueIndex) {}
+        , fQueueIndex(backendContext.fGraphicsQueueIndex)
+        , fDeviceLostContext(backendContext.fDeviceLostContext)
+        , fDeviceLostProc(backendContext.fDeviceLostProc) {}
 
 VulkanSharedContext::~VulkanSharedContext() {
     // need to clear out resources before the allocator is removed
@@ -172,8 +176,21 @@ bool VulkanSharedContext::checkVkResult(VkResult result) const {
     case VK_SUCCESS:
         return true;
     case VK_ERROR_DEVICE_LOST:
-        // TODO: determine how we'll track this in a thread-safe manner
-        //fDeviceIsLost = true;
+        {
+            SkAutoMutexExclusive lock(fDeviceIsLostMutex);
+            if (fDeviceIsLost) {
+                return false;
+            }
+            fDeviceIsLost = true;
+            // Fall through to InvokeDeviceLostCallback (on first VK_ERROR_DEVICE_LOST) only afer
+            // releasing fDeviceIsLostMutex, otherwise clients might cause deadlock by checking
+            // isDeviceLost() from the callback.
+        }
+        skgpu::InvokeDeviceLostCallback(interface(),
+                                        device(),
+                                        fDeviceLostContext,
+                                        fDeviceLostProc,
+                                        vulkanCaps().supportsDeviceFaultInfo());
         return false;
     case VK_ERROR_OUT_OF_DEVICE_MEMORY:
     case VK_ERROR_OUT_OF_HOST_MEMORY:

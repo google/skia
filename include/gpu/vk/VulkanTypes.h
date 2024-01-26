@@ -11,7 +11,10 @@
 #include "include/core/SkTypes.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 
+#include <cstddef>
 #include <functional>
+#include <string>
+#include <vector>
 
 #ifndef VK_VERSION_1_1
 #error Skia requires the use of Vulkan 1.1 headers
@@ -97,6 +100,13 @@ struct VulkanYcbcrConversionInfo {
     // vkAndroidHardwareBufferFormatPropertiesANDROID
     VkFormatFeatureFlags fFormatFeatures = 0;
 };
+
+typedef void* VulkanDeviceLostContext;
+typedef void (*VulkanDeviceLostProc)(VulkanDeviceLostContext faultContext,
+                                     const std::string& description,
+                                     const std::vector<VkDeviceFaultAddressInfoEXT>& addressInfos,
+                                     const std::vector<VkDeviceFaultVendorInfoEXT>& vendorInfos,
+                                     const std::vector<std::byte>& vendorBinaryData);
 
 } // namespace skgpu
 
