@@ -1594,9 +1594,9 @@ void WGSLCodeGenerator::writeUserDefinedIODecl(const Layout& layout,
                                                Delimiter delimiter) {
     this->write("@location(" + std::to_string(layout.fLocation) + ") ");
 
-    // Indices are only allowed when doing dual-source blending, and only on color attachment 0.
+    // @blend_src is only allowed when doing dual-source blending, and only on color attachment 0.
     if (layout.fLocation == 0 && layout.fIndex >= 0 && fProgram.fInterface.fOutputSecondaryColor) {
-        this->write("@index(" + std::to_string(layout.fIndex) + ") ");
+        this->write("@blend_src(" + std::to_string(layout.fIndex) + ") ");
     }
 
     // "User-defined IO of scalar or vector integer type must always be specified as
