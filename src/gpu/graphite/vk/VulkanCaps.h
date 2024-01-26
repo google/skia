@@ -79,8 +79,6 @@ public:
 
     bool supportsYcbcrConversion() const { return fSupportsYcbcrConversion; }
 
-    bool supportsDeviceFaultInfo() const { return fSupportsDeviceFaultInfo; }
-
     uint32_t maxVertexAttributes() const {
         return fMaxVertexAttributes;
     }
@@ -235,7 +233,6 @@ private:
     bool fShouldAlwaysUseDedicatedImageMemory = false;
     bool fGpuOnlyBuffersMorePerformant = false;
     bool fShouldPersistentlyMapCpuToGpuBuffers = true;
-    bool fSupportsDeviceFaultInfo = false;
 };
 
 } // namespace skgpu::graphite

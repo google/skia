@@ -820,10 +820,6 @@ void Context::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     // used bytes here (see Ganesh implementation).
 }
 
-bool Context::isDeviceLost() const {
-    return fSharedContext->isDeviceLost();
-}
-
 bool Context::supportsProtectedContent() const {
     return fSharedContext->isProtected() == Protected::kYes;
 }

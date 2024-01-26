@@ -53,8 +53,7 @@
 #include "src/gpu/vk/VulkanMemory.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
-#include "include/gpu/vk/VulkanTypes.h"
-#include "include/private/gpu/vk/SkiaVulkan.h"
+#include <utility>
 
 using namespace skia_private;
 
@@ -234,9 +233,7 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct,
         , fResourceProvider(this)
         , fStagingBufferManager(this)
         , fDisconnected(false)
-        , fProtectedContext(backendContext.fProtectedContext)
-        , fDeviceLostContext(backendContext.fDeviceLostContext)
-        , fDeviceLostProc(backendContext.fDeviceLostProc) {
+        , fProtectedContext(backendContext.fProtectedContext) {
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);
     SkASSERT(fMemoryAllocator);
 
@@ -2675,15 +2672,7 @@ bool GrVkGpu::checkVkResult(VkResult result) {
         case VK_SUCCESS:
             return true;
         case VK_ERROR_DEVICE_LOST:
-            if (!fDeviceIsLost) {
-                // Callback should only be invoked once, and device should be marked as lost first.
-                fDeviceIsLost = true;
-                skgpu::InvokeDeviceLostCallback(vkInterface(),
-                                                device(),
-                                                fDeviceLostContext,
-                                                fDeviceLostProc,
-                                                vkCaps().supportsDeviceFaultInfo());
-            }
+            fDeviceIsLost = true;
             return false;
         case VK_ERROR_OUT_OF_DEVICE_MEMORY:
         case VK_ERROR_OUT_OF_HOST_MEMORY:

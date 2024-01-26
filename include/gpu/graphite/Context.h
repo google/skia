@@ -157,12 +157,6 @@ public:
      */
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-    /**
-     * Returns true if the backend-specific context has gotten into an unrecoverarble, lost state
-     * (e.g. if we've gotten a VK_ERROR_DEVICE_LOST in the Vulkan backend).
-     */
-    bool isDeviceLost() const;
-
     /*
      * Does this context support protected content?
      */

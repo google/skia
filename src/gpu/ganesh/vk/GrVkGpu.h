@@ -436,9 +436,6 @@ private:
 
     std::unique_ptr<GrVkOpsRenderPass>                    fCachedOpsRenderPass;
 
-    skgpu::VulkanDeviceLostContext                        fDeviceLostContext;
-    skgpu::VulkanDeviceLostProc                           fDeviceLostProc;
-
     using INHERITED = GrGpu;
 };
 

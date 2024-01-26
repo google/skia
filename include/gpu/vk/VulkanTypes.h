@@ -98,13 +98,6 @@ struct VulkanYcbcrConversionInfo {
     VkFormatFeatureFlags fFormatFeatures = 0;
 };
 
-typedef void* VulkanDeviceLostContext;
-typedef void (*VulkanDeviceLostProc)(VulkanDeviceLostContext faultContext,
-                                     const std::string& description,
-                                     const std::vector<VkDeviceFaultAddressInfoEXT>& addressInfos,
-                                     const std::vector<VkDeviceFaultVendorInfoEXT>& vendorInfos,
-                                     const std::vector<std::byte>& vendorBinaryData);
-
 } // namespace skgpu
 
 #endif // skgpu_VulkanTypes_DEFINED

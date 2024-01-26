@@ -73,12 +73,6 @@ struct SK_API GrVkBackendContext {
     // Indicates that we are working with protected content and all CommandPool and Queue operations
     // should be done in a protected context.
     skgpu::Protected                    fProtectedContext = skgpu::Protected::kNo;
-    // Optional callback which will be invoked if a VK_ERROR_DEVICE_LOST error code is received from
-    // the driver. Debug information from the driver will be provided to the callback if the
-    // VK_EXT_device_fault extension is supported and enabled (VkPhysicalDeviceFaultFeaturesEXT must
-    // be in the pNext chain of VkDeviceCreateInfo).
-    skgpu::VulkanDeviceLostContext      fDeviceLostContext = nullptr;
-    skgpu::VulkanDeviceLostProc         fDeviceLostProc = nullptr;
 };
 
 #endif
