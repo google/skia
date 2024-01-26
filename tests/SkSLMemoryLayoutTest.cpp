@@ -30,7 +30,7 @@ DEF_TEST(SkSLMemoryLayoutTest_std140, r) {
     SkSL::BuiltinTypes types;
     SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::k140);
-    SkSL::ProgramConfig config;
+    SkSL::ProgramConfig config = {};
     context.fConfig = &config;
 
     // basic types
@@ -129,7 +129,7 @@ DEF_TEST(SkSLMemoryLayoutTest_std430, r) {
     SkSL::BuiltinTypes types;
     SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::k430);
-    SkSL::ProgramConfig config;
+    SkSL::ProgramConfig config = {};
     context.fConfig = &config;
 
     // basic types
@@ -228,7 +228,7 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLUniform_Base, r) {
     SkSL::BuiltinTypes types;
     SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLUniform_Base);
-    SkSL::ProgramConfig config;
+    SkSL::ProgramConfig config = {};
     context.fConfig = &config;
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -520,7 +520,7 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLUniform_EnableF16, r) {
     SkSL::BuiltinTypes types;
     SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLUniform_EnableF16);
-    SkSL::ProgramConfig config;
+    SkSL::ProgramConfig config = {};
     context.fConfig = &config;
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -812,7 +812,7 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLStorage_Base, r) {
     SkSL::BuiltinTypes types;
     SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLStorage_Base);
-    SkSL::ProgramConfig config;
+    SkSL::ProgramConfig config = {};
     context.fConfig = &config;
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -1102,7 +1102,7 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLStorage_EnableF16, r) {
     SkSL::BuiltinTypes types;
     SkSL::Context context(types, errors);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLStorage_EnableF16);
-    SkSL::ProgramConfig config;
+    SkSL::ProgramConfig config = {};
     context.fConfig = &config;
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -1391,7 +1391,7 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLUnsupportedTypes, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::BuiltinTypes types;
     SkSL::Context context(types, errors);
-    SkSL::ProgramConfig config;
+    SkSL::ProgramConfig config = {};
     context.fConfig = &config;
 
     auto testArray = SkSL::Type::MakeArrayType(context, "bool[3]", *context.fTypes.fBool, 3);
@@ -1418,7 +1418,7 @@ DEF_TEST(SkSLMemoryLayoutTest_WGSLSupportedTypes, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::BuiltinTypes types;
     SkSL::Context context(types, errors);
-    SkSL::ProgramConfig config;
+    SkSL::ProgramConfig config = {};
     context.fConfig = &config;
 
     auto testArray = SkSL::Type::MakeArrayType(context, "float[3]", *context.fTypes.fFloat, 3);
