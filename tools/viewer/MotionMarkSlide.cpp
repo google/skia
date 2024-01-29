@@ -393,6 +393,230 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Paths
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class CanvasLinePoint : public MMObject {
+protected:
+    void setEndPoint(SkRandom* random, SkSize size, SkPoint* prevCoord) {
+        const SkSize kGridSize = { 80, 40 };
+        const SkPoint kGridCenter = { 40, 20 };
+        const SkPoint kOffsets[4] = {
+            {-4, 0},
+            {2, 0},
+            {1, -2},
+            {1, 2}
+        };
+
+        SkPoint coordinate = prevCoord ? *prevCoord : kGridCenter;
+        if (prevCoord) {
+            SkPoint offset = kOffsets[random->nextRangeU(0, 3)];
+            coordinate += offset;
+            if (coordinate.fX < 0 || coordinate.fX > kGridSize.width())
+                coordinate.fX -= offset.fX * 2;
+            if (coordinate.fY < 0 || coordinate.fY > kGridSize.height())
+                coordinate.fY -= offset.fY * 2;
+        }
+
+        fPoint = SkPoint::Make((coordinate.fX + 0.5f) * size.width() / (kGridSize.width() + 1),
+                               (coordinate.fY + 0.5f) * size.height() / (kGridSize.height() + 1));
+        fCoordinate = coordinate;
+    }
+
+public:
+    CanvasLinePoint(SkRandom* random, SkSize size, SkPoint* prev) {
+        const SkColor kColors[7] = {
+            0xff101010, 0xff808080, 0xffc0c0c0, 0xff101010, 0xff808080, 0xffc0c0c0, 0xffe01040
+        };
+        fColor = kColors[random->nextRangeU(0, 6)];
+
+        fWidth = sk_float_pow(random->nextF(), 5) * 20 + 1;
+        fIsSplit = random->nextBool();
+
+        this->setEndPoint(random, size, prev);
+    }
+
+    ~CanvasLinePoint() override = default;
+
+    virtual void append(SkPath* path) {
+        path->lineTo(fPoint);
+    }
+
+    // unused, all the work is done by append
+    void draw(SkCanvas*) override {}
+    void animate(double) override {}
+
+    SkColor getColor() { return fColor; }
+    float getWidth() { return fWidth; }
+    SkPoint getPoint() { return fPoint; }
+    SkPoint getCoord() { return fCoordinate; }
+    bool isSplit() { return fIsSplit; }
+    void toggleIsSplit() { fIsSplit = !fIsSplit; }
+
+private:
+    SkPoint fPoint;
+    SkPoint fCoordinate;
+    SkColor fColor;
+    float fWidth;
+    bool fIsSplit;
+};
+
+class CanvasQuadraticSegment : public CanvasLinePoint {
+public:
+    CanvasQuadraticSegment(SkRandom* random, SkSize size, SkPoint* prev)
+            : CanvasLinePoint(random, size, prev) {
+        // Note: The construction of these points is odd but mirrors the Javascript code.
+
+        // The chosen point from the base constructor is instead the control point.
+        fPoint2 = this->getPoint();
+
+        // Get another random point for the actual end point of the segment.
+        this->setEndPoint(random, size, prev);
+    }
+
+    void append(SkPath* path) override {
+        path->quadTo(fPoint2, this->getPoint());
+    }
+
+private:
+    SkPoint fPoint2;
+};
+
+class CanvasBezierSegment : public CanvasLinePoint {
+public:
+    CanvasBezierSegment(SkRandom* random, SkSize size, SkPoint* prev)
+            : CanvasLinePoint(random, size, prev) {
+        // Note: The construction of these points is odd but mirrors the Javascript code.
+
+        // The chosen point from the base constructor is instead the control point.
+        fPoint2 = this->getPoint();
+
+        // Get the second control point.
+        this->setEndPoint(random, size, prev);
+        fPoint3 = this->getPoint();
+
+        // Get third random point for the actual end point of the segment.
+        this->setEndPoint(random, size, prev);
+    }
+
+    void append(SkPath* path) override {
+        path->cubicTo(fPoint2, fPoint3, this->getPoint());
+    }
+
+private:
+    SkPoint fPoint2;
+    SkPoint fPoint3;
+};
+
+
+std::unique_ptr<CanvasLinePoint> make_line_path(SkRandom* random, SkSize size, SkPoint* prev) {
+    int choice = random->nextRangeU(0, 3);
+    switch (choice) {
+        case 0:
+            return std::make_unique<CanvasQuadraticSegment>(random, size, prev);
+            break;
+        case 1:
+            return std::make_unique<CanvasBezierSegment>(random, size, prev);
+            break;
+        case 2:
+        case 3:
+        default:
+            return std::make_unique<CanvasLinePoint>(random, size, prev);
+            break;
+    }
+}
+
+class CanvasLinePathStage : public Stage {
+private:
+    static constexpr int kStartingObjectCount = 5000;
+    static constexpr int kObjectIncrement = 1000;
+
+public:
+    CanvasLinePathStage(SkSize size) : Stage(size) {
+        SkPoint prevCoord;
+        for (int i = 0; i < kStartingObjectCount; ++i) {
+            std::unique_ptr<CanvasLinePoint> obj;
+            if (i > 0) {
+                obj = make_line_path(&fRandom, fSize, &prevCoord);
+            } else {
+                obj = make_line_path(&fRandom, fSize, nullptr);
+            }
+            prevCoord = obj->getCoord();
+            fObjects.push_back(std::move(obj));
+        }
+    }
+
+    ~CanvasLinePathStage() override = default;
+
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorWHITE);
+
+        SkPath currentPath;
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        for (size_t i = 0; i < fObjects.size(); ++i) {
+            CanvasLinePoint* object = reinterpret_cast<CanvasLinePoint*>(fObjects[i].get());
+            if (i == 0) {
+                paint.setStrokeWidth(object->getWidth());
+                paint.setColor(object->getColor());
+                currentPath.moveTo(object->getPoint());
+            } else {
+                object->append(&currentPath);
+
+                if (object->isSplit()) {
+                    canvas->drawPath(currentPath, paint);
+
+                    paint.setStrokeWidth(object->getWidth());
+                    paint.setColor(object->getColor());
+                    currentPath.reset();
+                    currentPath.moveTo(object->getPoint());
+                }
+
+                if (fRandom.nextF() > 0.995) {
+                    object->toggleIsSplit();
+                }
+            }
+        }
+        canvas->drawPath(currentPath, paint);
+    }
+
+    bool animate(double /*nanos*/) override {
+        // Nothing to do, but return true so we redraw.
+        return true;
+    }
+
+    bool onChar(SkUnichar uni) override {
+        bool handled = false;
+        switch (uni) {
+            case '+':
+            case '=':
+                for (int i = 0; i < kObjectIncrement; ++i) {
+                    CanvasLinePoint* prevObject =
+                        reinterpret_cast<CanvasLinePoint*>(fObjects[fObjects.size()-1].get());
+                    SkPoint coord = prevObject->getCoord();
+                    std::unique_ptr<CanvasLinePoint> path = make_line_path(&fRandom, fSize, &coord);
+                    fObjects.push_back(std::move(path));
+                }
+                handled = true;
+                break;
+            case '-':
+            case '_':
+                if (fObjects.size() > kObjectIncrement) {
+                    fObjects.resize(fObjects.size() - kObjectIncrement);
+                }
+                handled = true;
+                break;
+            default:
+                break;
+        }
+
+        return handled;
+    }
+
+private:
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 class MotionMarkSlide : public Slide {
 public:
@@ -408,6 +632,10 @@ public:
         std::unique_ptr<CanvasArcStage> arcStage =
                 std::make_unique<CanvasArcStage>(size);
         fStages.push_back(std::move(arcStage));
+
+        std::unique_ptr<CanvasLinePathStage> pathStage =
+                std::make_unique<CanvasLinePathStage>(size);
+        fStages.push_back(std::move(pathStage));
     }
 
     bool onChar(SkUnichar uni) override {
@@ -416,7 +644,8 @@ public:
             case '<':
             case ',':
             case '4':
-                fCurrentStage = (fCurrentStage - 1) % fStages.size();
+                fCurrentStage = (fCurrentStage == 0) ? fStages.size() - 1
+                                                     : (fCurrentStage - 1) % fStages.size();
                 handled = true;
                 break;
             case '>':
