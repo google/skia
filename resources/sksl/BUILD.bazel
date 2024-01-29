@@ -595,6 +595,7 @@ skia_filegroup(
         "inliner/ModifiedStructParametersCannotBeInlined.sksl",
         "inliner/NoInline.sksl",
         "inliner/Ossfuzz37994.sksl",
+        "inliner/Ossfuzz66207.sksl",
         "inliner/ShortCircuitEvaluationsCannotInlineRightHandSide.sksl",
         "inliner/StaticSwitch.sksl",
         "inliner/StructsCanBeInlinedSafely.sksl",

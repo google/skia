@@ -1,0 +1,17 @@
+uniform half4 colorGreen;
+
+struct S {
+    float x;
+    int y;
+};
+struct Nested {
+    S a;
+};
+S returns_a_struct() {
+    return S(2,4);
+}
+half4 main(float2) {
+    Nested n;
+    n.a = returns_a_struct();
+    return colorGreen;
+}
