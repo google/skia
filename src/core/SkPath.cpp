@@ -258,6 +258,7 @@ bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) con
     }
     out->reset();
     out->addPath(*this);
+    SkPathRef::Editor editor(&(out->fPathRef));
     fPathRef->interpolate(*ending.fPathRef, weight, out->fPathRef.get());
     return true;
 }
@@ -1431,6 +1432,13 @@ SkPath& SkPath::addPath(const SkPath& path, SkScalar dx, SkScalar dy, AddPathMod
 
 SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMode mode) {
     if (srcPath.isEmpty()) {
+        return *this;
+    }
+
+    if (this->isEmpty() && matrix.isIdentity()) {
+        const uint8_t fillType = fFillType;
+        *this = srcPath;
+        fFillType = fillType;
         return *this;
     }
 
