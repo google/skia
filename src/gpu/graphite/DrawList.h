@@ -62,7 +62,11 @@ public:
     // shared by multiple draw calls so it's more difficult to reason about how much room is left
     // in a DrawList. Limiting it to this keeps tracking simple and ensures that the sequences in
     // DrawOrder cannot overflow since they are always less than or equal to the number of draws.
-    static constexpr int kMaxRenderSteps = std::numeric_limits<uint16_t>::max();
+    // TODO(b/322840221): The theoretic max for this value is 16-bit, but we see markedly better
+    // performance with smaller values. This should be understood and fixed directly rather than as
+    // a magic side-effect, but for now, let it go fast.
+    static constexpr int kMaxRenderSteps = 4096;
+    static_assert(kMaxRenderSteps <= std::numeric_limits<uint16_t>::max());
 
     // DrawList requires that all Transforms be valid and asserts as much; invalid transforms should
     // be detected at the Device level or similar. The provided Renderer must be compatible with the
