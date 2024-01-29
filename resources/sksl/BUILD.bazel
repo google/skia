@@ -686,6 +686,7 @@ skia_filegroup(
         "runtime_errors/Ossfuzz36655.rts",
         "runtime_errors/Ossfuzz38131.rts",
         "runtime_errors/Ossfuzz45279.rts",
+        "runtime_errors/Ossfuzz66263.rts",
         "runtime_errors/PrivateFunctions.rts",
         "runtime_errors/PrivateRTShader.rts",
         "runtime_errors/ProgramTooLarge_BlocklessLoops.rts",

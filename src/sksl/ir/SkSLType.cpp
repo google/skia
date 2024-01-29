@@ -595,6 +595,7 @@ public:
             fContainsArray        = fContainsArray        || f.fType->isOrContainsArray();
             fContainsUnsizedArray = fContainsUnsizedArray || f.fType->isOrContainsUnsizedArray();
             fContainsAtomic       = fContainsAtomic       || f.fType->isOrContainsAtomic();
+            fIsAllowedInES2       = fIsAllowedInES2       && f.fType->isAllowedInES2();
         }
         if (!fContainsUnsizedArray) {
             for (const Field& f : fFields) {
@@ -620,9 +621,7 @@ public:
     }
 
     bool isAllowedInES2() const override {
-        return std::all_of(fFields.begin(), fFields.end(), [](const Field& f) {
-            return f.fType->isAllowedInES2();
-        });
+        return fIsAllowedInES2;
     }
 
     bool isOrContainsArray() const override {
@@ -670,6 +669,7 @@ private:
     bool fContainsUnsizedArray = false;
     bool fContainsAtomic = false;
     bool fIsBuiltin = false;
+    bool fIsAllowedInES2 = true;
 };
 
 class VectorType final : public Type {

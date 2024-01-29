@@ -1,0 +1,398 @@
+sSCmpvv{
+layout(offset = 0) iint x;int x;
+} t;
+void main() {t.x =-26026;
+sk_FragColor.r = hhu    ;
+    half4 h4;
+    half h; x;
+} t;
+void main() {t.x =-26026;
+sk_FregColor.r = hhu    ;
+    half4 h4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[99999];
+      int small;
+    S _FragCod_[],_,ragCod_[],_,t[],_sddrint4rd88s,_[],_8ss,s,_[],_,t[],_sdddrd8ss88drd88s,_[],_8sall;
+    S big_chu    ;
+    half3 h4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[49999];
+      int small;
+    S _FragCod_[],_,t[], mat4x3ddrd88s,_[bool],_8ss,s,_[],sddrd4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[99999];
+      int small;
+    S _FragCod_[],_,ragCod_[],_,t[],_sddrint4rd88s,_[],_8ss,s,_[],_,t[],_sdddrd8ss88drd88s,_[],_8sall;
+    S big_chu    ;
+    half3 h4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[49999];
+      int small;
+    S _FragCod_[],_,t[], mat4x3ddrd88s,_[bool],_8ss,s,_[],sddrd4ss,t[],_sddrint4rd88s,_[],_8ss,s,_[],_,t[],_sdddrd8ss88drd88s,_[],_8sall;
+
+} t;
+void main() {t.x =-26026;
+sk_FragColor.r = hhu    ;
+    half4 h4;
+    half h; x;
+} t;
+void main() {t.x =-26026;
+sk_FregColor.r = hhu    ;
+    half4 h4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[99999];
+      int small;
+    S _FragCod_[],_,ragCod_[],_,t[],_sddrint4rd88s,_[],_8ss,s,_[],_,t[],_sdddrd8ss88drd88s,_[],_8sall;
+    S big_chu    ;
+    half3 h4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[49999];
+      int small;
+    S _FragCod_[],_,t[], mat4x3ddrd88s,_[bool],_8ss,s,_[],sddrd4ss,t[],_sddrint4rd88s,_[],_8ss,s,_[],_,t[],_sdddrd8ss88drd88s,_[],_8sall;
+    S big_chu    ;
+    half3 h4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[49999];
+      int small;
+    S _FragCod_[],_,t[], mat4x3ddrd88s,_[bool],_8ss,s,_[],sddrd4ss,sk_Fr_,t[],_s_,t[],t3x[],_sddrd8ddrd8ss88drd88s,_[],_8ss,siiiiri4ss,t[],_sddrint4rd88s,_[],_8ss,s,_[],_,t[],_sdddrd8ss88drd88s,_[],_8sall;
+
+} t;
+void main() {t.x =-26026;
+sk_FragColor.r = hhu    ;
+    half4 h4;
+    half h; x;
+} t;
+void main() {t.x =-26026;
+sk_FregColor.r = hhu    ;
+    half4 h4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[99999];
+      int small;
+    S _FragCod_[],_,ragCod_[],_,t[],_sddrint4rd88s,_[],_8ss,s,_[],_,t[],_sdddrd8ss88drd88s,_[],_8sall;
+    S big_chu    ;
+    half3 h4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[49999];
+      int small;
+    S _FragCod_[],_,t[], mat4x3ddrd88s,_[bool],_8ss,s,_[],sddrd4ss,t[],_sddrint4rd88s,_[],_8ss,s,_[],_,t[],_sdddrd8ss88drd88s,_[],_8sall;
+    S big_chu    ;
+    half3 h4;
+    half h;
+};struct S {
+    hoolalf4 ah4[1];
+    half ah[49999];
+      int small;
+    S _FragCod_[],_,t[], mat4x3ddrd88s,_[bool],_8ss,s,_[],sddrd4ss,sk_Fr_,t[],_s_,t[],t3x[],_sddrd8ddrd8ss88drd88s,_[],_8ss,siiiiriiiii;
+
+/*%%*
+error: 2: no type named 'iint'
+error: 1: interface blocks are not allowed in this kind of program
+error: 4: 'main' must return: 'vec4', 'float4', or 'half4'
+error: 4: unknown identifier 't'
+error: 5: unknown identifier 'sk_FragColor'
+error: 5: unknown identifier 'hhu'
+error: 7: unknown identifier 'x'
+error: 8: no type named 't'
+error: 8: expected a declaration, but found ';'
+error: 9: 'main' must return: 'vec4', 'float4', or 'half4'
+error: 9: unknown identifier 't'
+error: 10: unknown identifier 'sk_FregColor'
+error: 10: unknown identifier 'hhu'
+error: 13: expected a declaration, but found ';'
+error: 14: no type named 'hoolalf4'
+error: 17: no type named 'S'
+error: 17: unsized arrays are not permitted here
+error: 17: unsized arrays are not permitted here
+error: 17: unsized arrays are not permitted here
+error: 17: unsized arrays are not permitted here
+error: 17: unsized arrays are not permitted here
+error: 17: unsized arrays are not permitted here
+error: 17: unsized arrays are not permitted here
+error: 18: no type named 'S'
+error: 13: struct is too large
+error: 17: field '_' was already defined in the same struct ('S')
+error: 17: field '_' was already defined in the same struct ('S')
+error: 17: field '_' was already defined in the same struct ('S')
+error: 17: field '_' was already defined in the same struct ('S')
+error: 17: field 't' was already defined in the same struct ('S')
+error: 17: field '_' was already defined in the same struct ('S')
+error: 22: no type named 'hoolalf4'
+error: 25: unsized arrays are not permitted here
+error: 25: array size is too large
+error: 25: unsized arrays are not permitted here
+error: 25: array size is too large
+error: 25: array size must be an integer
+error: 25: array size is too large
+error: 25: unsized arrays are not permitted here
+error: 25: array size is too large
+error: 21: struct is too large
+error: 25: field '_' was already defined in the same struct ('S')
+error: 25: field '_' was already defined in the same struct ('S')
+error: 21: symbol 'S' was already defined
+error: 28: no type named 'hoolalf4'
+error: 31: unsized arrays are not permitted here
+error: 31: array size is too large
+error: 31: unsized arrays are not permitted here
+error: 31: array size is too large
+error: 31: unsized arrays are not permitted here
+error: 31: array size is too large
+error: 31: unsized arrays are not permitted here
+error: 31: array size is too large
+error: 31: unsized arrays are not permitted here
+error: 31: array size is too large
+error: 31: unsized arrays are not permitted here
+error: 31: array size is too large
+error: 31: unsized arrays are not permitted here
+error: 31: array size is too large
+error: 27: struct is too large
+error: 31: field '_' was already defined in the same struct ('S')
+error: 31: field '_' was already defined in the same struct ('S')
+error: 31: field '_' was already defined in the same struct ('S')
+error: 31: field '_' was already defined in the same struct ('S')
+error: 31: field 't' was already defined in the same struct ('S')
+error: 31: field '_' was already defined in the same struct ('S')
+error: 27: symbol 'S' was already defined
+error: 36: no type named 'hoolalf4'
+error: 39: unsized arrays are not permitted here
+error: 39: array size is too large
+error: 39: unsized arrays are not permitted here
+error: 39: array size is too large
+error: 39: array size must be an integer
+error: 39: array size is too large
+error: 39: unsized arrays are not permitted here
+error: 39: array size is too large
+error: 39: unsized arrays are not permitted here
+error: 39: array size is too large
+error: 39: unsized arrays are not permitted here
+error: 39: array size is too large
+error: 39: unsized arrays are not permitted here
+error: 39: array size is too large
+error: 39: unsized arrays are not permitted here
+error: 39: array size is too large
+error: 39: unsized arrays are not permitted here
+error: 39: array size is too large
+error: 35: struct is too large
+error: 39: field '_' was already defined in the same struct ('S')
+error: 39: field '_' was already defined in the same struct ('S')
+error: 39: field 't' was already defined in the same struct ('S')
+error: 39: field '_' was already defined in the same struct ('S')
+error: 39: field '_8ss' was already defined in the same struct ('S')
+error: 39: field 's' was already defined in the same struct ('S')
+error: 39: field '_' was already defined in the same struct ('S')
+error: 39: field '_' was already defined in the same struct ('S')
+error: 39: field 't' was already defined in the same struct ('S')
+error: 39: field '_' was already defined in the same struct ('S')
+error: 35: symbol 'S' was already defined
+error: 42: 'main' must return: 'vec4', 'float4', or 'half4'
+error: 42: type 'S' does not have a field named 'x'
+error: 43: unknown identifier 'sk_FragColor'
+error: 43: unknown identifier 'hhu'
+error: 45: unknown identifier 'x'
+error: 46: no type named 't'
+error: 46: expected a declaration, but found ';'
+error: 47: 'main' must return: 'vec4', 'float4', or 'half4'
+error: 47: type 'S' does not have a field named 'x'
+error: 48: unknown identifier 'sk_FregColor'
+error: 48: unknown identifier 'hhu'
+error: 51: expected a declaration, but found ';'
+error: 52: no type named 'hoolalf4'
+error: 55: unsized arrays are not permitted here
+error: 55: array size is too large
+error: 55: unsized arrays are not permitted here
+error: 55: array size is too large
+error: 55: unsized arrays are not permitted here
+error: 55: array size is too large
+error: 55: unsized arrays are not permitted here
+error: 55: array size is too large
+error: 55: unsized arrays are not permitted here
+error: 55: array size is too large
+error: 55: unsized arrays are not permitted here
+error: 55: array size is too large
+error: 55: unsized arrays are not permitted here
+error: 55: array size is too large
+error: 51: struct is too large
+error: 55: field '_' was already defined in the same struct ('S')
+error: 55: field '_' was already defined in the same struct ('S')
+error: 55: field '_' was already defined in the same struct ('S')
+error: 55: field '_' was already defined in the same struct ('S')
+error: 55: field 't' was already defined in the same struct ('S')
+error: 55: field '_' was already defined in the same struct ('S')
+error: 51: symbol 'S' was already defined
+error: 60: no type named 'hoolalf4'
+error: 63: unsized arrays are not permitted here
+error: 63: array size is too large
+error: 63: unsized arrays are not permitted here
+error: 63: array size is too large
+error: 63: array size must be an integer
+error: 63: array size is too large
+error: 63: unsized arrays are not permitted here
+error: 63: array size is too large
+error: 63: unsized arrays are not permitted here
+error: 63: array size is too large
+error: 63: unsized arrays are not permitted here
+error: 63: array size is too large
+error: 63: unsized arrays are not permitted here
+error: 63: array size is too large
+error: 63: unsized arrays are not permitted here
+error: 63: array size is too large
+error: 63: unsized arrays are not permitted here
+error: 63: array size is too large
+error: 59: struct is too large
+error: 63: field '_' was already defined in the same struct ('S')
+error: 63: field '_' was already defined in the same struct ('S')
+error: 63: field 't' was already defined in the same struct ('S')
+error: 63: field '_' was already defined in the same struct ('S')
+error: 63: field '_8ss' was already defined in the same struct ('S')
+error: 63: field 's' was already defined in the same struct ('S')
+error: 63: field '_' was already defined in the same struct ('S')
+error: 63: field '_' was already defined in the same struct ('S')
+error: 63: field 't' was already defined in the same struct ('S')
+error: 63: field '_' was already defined in the same struct ('S')
+error: 59: symbol 'S' was already defined
+error: 68: no type named 'hoolalf4'
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: array size must be an integer
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 71: unsized arrays are not permitted here
+error: 71: array size is too large
+error: 67: struct is too large
+error: 71: field '_' was already defined in the same struct ('S')
+error: 71: field '_' was already defined in the same struct ('S')
+error: 71: field 't' was already defined in the same struct ('S')
+error: 71: field 't' was already defined in the same struct ('S')
+error: 71: field '_' was already defined in the same struct ('S')
+error: 71: field '_8ss' was already defined in the same struct ('S')
+error: 71: field 't' was already defined in the same struct ('S')
+error: 71: field '_' was already defined in the same struct ('S')
+error: 71: field '_8ss' was already defined in the same struct ('S')
+error: 71: field 's' was already defined in the same struct ('S')
+error: 71: field '_' was already defined in the same struct ('S')
+error: 71: field '_' was already defined in the same struct ('S')
+error: 71: field 't' was already defined in the same struct ('S')
+error: 71: field '_' was already defined in the same struct ('S')
+error: 67: symbol 'S' was already defined
+error: 73: symbol 't' was already defined
+error: 74: 'main' must return: 'vec4', 'float4', or 'half4'
+error: 74: type 'S' does not have a field named 'x'
+error: 75: unknown identifier 'sk_FragColor'
+error: 75: unknown identifier 'hhu'
+error: 77: unknown identifier 'x'
+error: 78: no type named 't'
+error: 78: expected a declaration, but found ';'
+error: 79: 'main' must return: 'vec4', 'float4', or 'half4'
+error: 79: type 'S' does not have a field named 'x'
+error: 80: unknown identifier 'sk_FregColor'
+error: 80: unknown identifier 'hhu'
+error: 83: expected a declaration, but found ';'
+error: 84: no type named 'hoolalf4'
+error: 87: unsized arrays are not permitted here
+error: 87: array size is too large
+error: 87: unsized arrays are not permitted here
+error: 87: array size is too large
+error: 87: unsized arrays are not permitted here
+error: 87: array size is too large
+error: 87: unsized arrays are not permitted here
+error: 87: array size is too large
+error: 87: unsized arrays are not permitted here
+error: 87: array size is too large
+error: 87: unsized arrays are not permitted here
+error: 87: array size is too large
+error: 87: unsized arrays are not permitted here
+error: 87: array size is too large
+error: 83: struct is too large
+error: 87: field '_' was already defined in the same struct ('S')
+error: 87: field '_' was already defined in the same struct ('S')
+error: 87: field '_' was already defined in the same struct ('S')
+error: 87: field '_' was already defined in the same struct ('S')
+error: 87: field 't' was already defined in the same struct ('S')
+error: 87: field '_' was already defined in the same struct ('S')
+error: 83: symbol 'S' was already defined
+error: 92: no type named 'hoolalf4'
+error: 95: unsized arrays are not permitted here
+error: 95: array size is too large
+error: 95: unsized arrays are not permitted here
+error: 95: array size is too large
+error: 95: array size must be an integer
+error: 95: array size is too large
+error: 95: unsized arrays are not permitted here
+error: 95: array size is too large
+error: 95: unsized arrays are not permitted here
+error: 95: array size is too large
+error: 95: unsized arrays are not permitted here
+error: 95: array size is too large
+error: 95: unsized arrays are not permitted here
+error: 95: array size is too large
+error: 95: unsized arrays are not permitted here
+error: 95: array size is too large
+error: 95: unsized arrays are not permitted here
+error: 95: array size is too large
+error: 91: struct is too large
+error: 95: field '_' was already defined in the same struct ('S')
+error: 95: field '_' was already defined in the same struct ('S')
+error: 95: field 't' was already defined in the same struct ('S')
+error: 95: field '_' was already defined in the same struct ('S')
+error: 95: field '_8ss' was already defined in the same struct ('S')
+error: 95: field 's' was already defined in the same struct ('S')
+error: 95: field '_' was already defined in the same struct ('S')
+error: 95: field '_' was already defined in the same struct ('S')
+error: 95: field 't' was already defined in the same struct ('S')
+error: 95: field '_' was already defined in the same struct ('S')
+error: 91: struct 'S' is too deeply nested
+error: 91: symbol 'S' was already defined
+error: 100: no type named 'hoolalf4'
+error: 103: unsized arrays are not permitted here
+error: 103: array size is too large
+error: 103: unsized arrays are not permitted here
+error: 103: array size is too large
+error: 103: array size must be an integer
+error: 103: array size is too large
+error: 103: unsized arrays are not permitted here
+error: 103: array size is too large
+error: 103: unsized arrays are not permitted here
+error: 103: array size is too large
+error: 103: unsized arrays are not permitted here
+error: 103: array size is too large
+error: 103: unsized arrays are not permitted here
+error: 103: array size is too large
+error: 103: unsized arrays are not permitted here
+error: 103: array size is too large
+*%%*/
