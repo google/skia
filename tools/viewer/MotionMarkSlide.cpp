@@ -248,8 +248,8 @@ private:
     LineSegmentParams fParams;
     SkSize fHalfSize;
     float fTwoFifthsSizeX;
-    float fCurrentAngle;
-    float fCurrentGradientStep;
+    float fCurrentAngle = 0;
+    float fCurrentGradientStep = 0.5f;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -445,7 +445,7 @@ public:
 
 private:
     std::vector<std::unique_ptr<Stage>> fStages;
-    int fCurrentStage;
+    int fCurrentStage = 0;
 };
 
 DEF_SLIDE( return new MotionMarkSlide(); )
