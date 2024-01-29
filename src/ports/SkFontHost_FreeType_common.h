@@ -59,12 +59,6 @@ protected:
      */
     static bool computeColrV1GlyphBoundingBox(FT_Face, SkGlyphID, SkRect* bounds);
 
-    struct ScalerContextBits {
-        static const constexpr uint32_t COLRv0 = 1;
-        static const constexpr uint32_t COLRv1 = 2;
-        static const constexpr uint32_t SVG    = 3;
-    };
-
 private:
     using INHERITED = SkScalerContext;
 
