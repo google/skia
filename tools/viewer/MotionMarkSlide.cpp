@@ -28,22 +28,72 @@ public:
 
 class Stage {
 public:
-    Stage(SkSize size) : fSize(size) {}
+    Stage(SkSize size, int startingObjectCount, int objectIncrement)
+            : fSize(size)
+            , fStartingObjectCount(startingObjectCount)
+            , fObjectIncrement(objectIncrement) {}
     virtual ~Stage() = default;
 
-    virtual void draw(SkCanvas* canvas) = 0;
+    // The default impls of draw() and animate() simply iterate over fObjects and call the
+    // MMObject function.
+    virtual void draw(SkCanvas* canvas) {
+        for (size_t i = 0; i < fObjects.size(); ++i) {
+            fObjects[i]->draw(canvas);
+        }
+    }
 
-    virtual bool animate(double /*nanos*/) = 0;
+    virtual bool animate(double nanos) {
+        for (size_t i = 0; i < fObjects.size(); ++i) {
+            fObjects[i]->animate(nanos);
+        }
+        return true;
+    }
 
-    virtual bool onChar(SkUnichar uni) = 0;
+    // The default impl handles +/- to add or remove N objects from the scene
+    virtual bool onChar(SkUnichar uni) {
+        bool handled = false;
+        switch (uni) {
+            case '+':
+            case '=':
+                for (int i = 0; i < fObjectIncrement; ++i) {
+                    fObjects.push_back(this->createObject());
+                }
+                handled = true;
+                break;
+            case '-':
+            case '_':
+                if (fObjects.size() > (size_t) fObjectIncrement) {
+                    fObjects.resize(fObjects.size() - (size_t) fObjectIncrement);
+                }
+                handled = true;
+                break;
+            default:
+                break;
+        }
+
+        return handled;
+    }
 
 protected:
+    virtual std::unique_ptr<MMObject> createObject() = 0;
+
+    void initializeObjects() {
+        for (int i = 0; i < fStartingObjectCount; ++i) {
+            fObjects.push_back(this->createObject());
+        }
+    }
+
     [[maybe_unused]] SkSize fSize;
+
+    int fStartingObjectCount;
+    int fObjectIncrement;
+
     std::vector<std::unique_ptr<MMObject>> fObjects;
     SkRandom fRandom;
 };
 
 namespace {
+
 float time_counter_value(double nanos, float factor) {
     constexpr double kMillisPerNano = 0.0000001;
     return static_cast<float>(nanos*kMillisPerNano)/factor;
@@ -51,6 +101,33 @@ float time_counter_value(double nanos, float factor) {
 
 float time_fractional_value(double nanos, float cycleLengthMs) {
     return SkScalarFraction(time_counter_value(nanos, cycleLengthMs));
+}
+
+// The following functions match the input processing that Chrome's canvas2d layer performs before
+// calling into Skia.
+
+// See https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/modules/canvas/canvas2d/canvas_path.cc;drc=572074cb06425797e7e110511db405134cf67e2f;l=299
+void canonicalize_angle(float* startAngle, float* endAngle) {
+    float newStartAngle = SkScalarMod(*startAngle, 360.f);
+    float delta = newStartAngle - *startAngle;
+    *startAngle = newStartAngle;
+    *endAngle = *endAngle + delta;
+}
+
+// See https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/renderer/modules/canvas/canvas2d/canvas_path.cc;drc=572074cb06425797e7e110511db405134cf67e2f;l=245
+float adjust_end_angle(float startAngle, float endAngle, bool ccw) {
+    float newEndAngle = endAngle;
+    if (!ccw && endAngle - startAngle >= 360.f) {
+        newEndAngle = startAngle + 360.f;
+    } else if (ccw && startAngle - endAngle >= 360.f) {
+        newEndAngle = startAngle - 360.f;
+    } else if (!ccw && startAngle > endAngle) {
+        newEndAngle = startAngle + (360.f - SkScalarMod(startAngle - endAngle, 360.f));
+    } else if (ccw && startAngle < endAngle) {
+        newEndAngle = startAngle - (360.f - SkScalarMod(endAngle - startAngle, 360.f));
+    }
+
+    return newEndAngle;
 }
 }
 
@@ -116,12 +193,9 @@ private:
 };
 
 class CanvasLineSegmentStage : public Stage {
-private:
-    static const int kStartingObjectCount = 5000;
-    static const int kObjectIncrement = 1000;
-
 public:
-    CanvasLineSegmentStage(SkSize size) : Stage(size) {
+    CanvasLineSegmentStage(SkSize size)
+            : Stage(size, /*startingObjectCount=*/5000, /*objectIncrement*/1000) {
         fParams.fLineMinimum = 20;
         fParams.fLineLengthMaximum = 40;
         fParams.fCircleRadius = fSize.fWidth/8 - .4 * (fParams.fLineMinimum +
@@ -133,11 +207,7 @@ public:
         fHalfSize = SkSize::Make(fSize.fWidth * 0.5f, fSize.fHeight * 0.5f);
         fTwoFifthsSizeX = fSize.fWidth * .4;
 
-        for (int i = 0; i < kStartingObjectCount; ++i) {
-            std::unique_ptr<CanvasLineSegment> segment =
-                    std::make_unique<CanvasLineSegment>(&fRandom, fParams);
-            fObjects.push_back(std::move(segment));
-        }
+        this->initializeObjects();
     }
 
     ~CanvasLineSegmentStage() override = default;
@@ -202,9 +272,7 @@ public:
             paint.setShader(nullptr);
         }
 
-        for (size_t i = 0; i < fObjects.size(); ++i) {
-            fObjects[i]->draw(canvas);
-        }
+        this->Stage::draw(canvas);
     }
 
     bool animate(double nanos) override {
@@ -212,38 +280,13 @@ public:
         fCurrentGradientStep = 0.5f + 0.5f * sk_float_sin(
                                        time_fractional_value(nanos, 5000) * SK_ScalarPI * 2);
 
-        for (size_t i = 0; i < fObjects.size(); ++i) {
-            fObjects[i]->animate(nanos);
-        }
+        this->Stage::animate(nanos);
         return true;
     }
 
-    bool onChar(SkUnichar uni) override {
-        bool handled = false;
-        switch (uni) {
-            case '+':
-            case '=':
-                for (int i = 0; i < kObjectIncrement; ++i) {
-                    std::unique_ptr<CanvasLineSegment> segment =
-                            std::make_unique<CanvasLineSegment>(&fRandom,fParams);
-                    fObjects.push_back(std::move(segment));
-                }
-                handled = true;
-                break;
-            case '-':
-            case '_':
-                if (fObjects.size() > kObjectIncrement) {
-                    fObjects.resize(fObjects.size() - kObjectIncrement);
-                }
-                handled = true;
-                break;
-            default:
-                break;
-        }
-
-        return handled;
+    std::unique_ptr<MMObject> createObject() override {
+        return std::make_unique<CanvasLineSegment>(&fRandom,fParams);
     }
-
 private:
     LineSegmentParams fParams;
     SkSize fHalfSize;
@@ -297,13 +340,13 @@ public:
         paint.setColor(fColor);
         SkRect arcRect = SkRect::MakeXYWH(fPoint.fX - fRadius, fPoint.fY - fRadius,
                                           2*fRadius, 2*fRadius);
-        float startAngleDeg = fStartAngle * 180.f/SK_ScalarPI;
-        float endAngleDeg = fEndAngle * 180.f/SK_ScalarPI;
-        float sweepAngle = (endAngleDeg > startAngleDeg) ? endAngleDeg - startAngleDeg
-                                                         : 360 - (startAngleDeg - endAngleDeg);
-        if (fCounterclockwise) {
-            sweepAngle = 360 - sweepAngle;
-        }
+
+        float startAngleDeg = fStartAngle * 180.f / SK_ScalarPI;
+        float endAngleDeg = fEndAngle * 180.f / SK_ScalarPI;
+        canonicalize_angle(&startAngleDeg, &endAngleDeg);
+        endAngleDeg = adjust_end_angle(startAngleDeg, endAngleDeg, fCounterclockwise);
+
+        float sweepAngle = startAngleDeg - endAngleDeg;
 
         if (fDoStroke) {
             paint.setStrokeWidth(fLineWidth);
@@ -335,61 +378,22 @@ private:
 };
 
 class CanvasArcStage : public Stage {
-private:
-    static const int kStartingObjectCount = 1000;
-    static const int kObjectIncrement = 200;
-
 public:
-    CanvasArcStage(SkSize size) : Stage(size) {
-        for (int i = 0; i < kStartingObjectCount; ++i) {
-            std::unique_ptr<CanvasArc> arc = std::make_unique<CanvasArc>(&fRandom, fSize);
-            fObjects.push_back(std::move(arc));
-        }
+    CanvasArcStage(SkSize size)
+            : Stage(size, /*startingObjectCount=*/1000, /*objectIncrement=*/200) {
+        this->initializeObjects();
     }
 
     ~CanvasArcStage() override = default;
 
     void draw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorWHITE);
-
-        for (size_t i = 0; i < fObjects.size(); ++i) {
-            fObjects[i]->draw(canvas);
-        }
+        this->Stage::draw(canvas);
     }
 
-    bool animate(double nanos) override {
-        for (size_t i = 0; i < fObjects.size(); ++i) {
-            fObjects[i]->animate(nanos);
-        }
-        return true;
+    std::unique_ptr<MMObject> createObject() override {
+        return std::make_unique<CanvasArc>(&fRandom, fSize);
     }
-
-    bool onChar(SkUnichar uni) override {
-        bool handled = false;
-        switch (uni) {
-            case '+':
-            case '=':
-                for (int i = 0; i < kObjectIncrement; ++i) {
-                    std::unique_ptr<CanvasArc> arc = std::make_unique<CanvasArc>(&fRandom, fSize);
-                    fObjects.push_back(std::move(arc));
-                }
-                handled = true;
-                break;
-            case '-':
-            case '_':
-                if (fObjects.size() > kObjectIncrement) {
-                    fObjects.resize(fObjects.size() - kObjectIncrement);
-                }
-                handled = true;
-                break;
-            default:
-                break;
-        }
-
-        return handled;
-    }
-
-private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -527,23 +531,10 @@ std::unique_ptr<CanvasLinePoint> make_line_path(SkRandom* random, SkSize size, S
 }
 
 class CanvasLinePathStage : public Stage {
-private:
-    static constexpr int kStartingObjectCount = 5000;
-    static constexpr int kObjectIncrement = 1000;
-
 public:
-    CanvasLinePathStage(SkSize size) : Stage(size) {
-        SkPoint prevCoord;
-        for (int i = 0; i < kStartingObjectCount; ++i) {
-            std::unique_ptr<CanvasLinePoint> obj;
-            if (i > 0) {
-                obj = make_line_path(&fRandom, fSize, &prevCoord);
-            } else {
-                obj = make_line_path(&fRandom, fSize, nullptr);
-            }
-            prevCoord = obj->getCoord();
-            fObjects.push_back(std::move(obj));
-        }
+    CanvasLinePathStage(SkSize size)
+            : Stage(size, /*startingObjectCount=*/5000, /*objectIncrement=*/1000) {
+        this->initializeObjects();
     }
 
     ~CanvasLinePathStage() override = default;
@@ -585,35 +576,15 @@ public:
         return true;
     }
 
-    bool onChar(SkUnichar uni) override {
-        bool handled = false;
-        switch (uni) {
-            case '+':
-            case '=':
-                for (int i = 0; i < kObjectIncrement; ++i) {
-                    CanvasLinePoint* prevObject =
-                        reinterpret_cast<CanvasLinePoint*>(fObjects[fObjects.size()-1].get());
-                    SkPoint coord = prevObject->getCoord();
-                    std::unique_ptr<CanvasLinePoint> path = make_line_path(&fRandom, fSize, &coord);
-                    fObjects.push_back(std::move(path));
-                }
-                handled = true;
-                break;
-            case '-':
-            case '_':
-                if (fObjects.size() > kObjectIncrement) {
-                    fObjects.resize(fObjects.size() - kObjectIncrement);
-                }
-                handled = true;
-                break;
-            default:
-                break;
+    std::unique_ptr<MMObject> createObject() override {
+        if (fObjects.empty()) {
+            return make_line_path(&fRandom, fSize, nullptr);
+        } else {
+            CanvasLinePoint* prevObject = reinterpret_cast<CanvasLinePoint*>(fObjects.back().get());
+            SkPoint coord = prevObject->getCoord();
+            return make_line_path(&fRandom, fSize, &coord);
         }
-
-        return handled;
     }
-
-private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
