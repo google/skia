@@ -838,7 +838,6 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     local_defines = [
-        "SK_SLUG_DISABLE_LEGACY_DESERIALIZE",
         "SK_DISABLE_LEGACY_PNG_WRITEBUFFER",
         "SK_DISABLE_LEGACY_IMAGE_READBUFFER",
     ],
