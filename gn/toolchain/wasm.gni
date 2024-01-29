@@ -42,7 +42,6 @@ template("skia_wasm_lib") {
 
 wasm_defines = [
   "SKNX_NO_SIMD",
-  "SK_FORCE_AAA",
   "SK_FORCE_8_BYTE_ALIGNMENT",
 ]
 

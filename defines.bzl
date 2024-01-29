@@ -112,7 +112,6 @@ PLATFORM_DEFINES = select({
     "//bazel/common_config_settings:cpu_wasm": [
         # working around https://github.com/emscripten-core/emscripten/issues/10072
         "SK_FORCE_8_BYTE_ALIGNMENT",
-        "SK_FORCE_AAA",
     ],
     "//conditions:default": [],
 }) + select({

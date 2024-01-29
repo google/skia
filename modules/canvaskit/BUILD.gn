@@ -340,7 +340,6 @@ skia_wasm_lib("canvaskit") {
     defines += [ "SK_DISABLE_TRACING" ]
   }
   defines += [
-    "SK_FORCE_AAA",
     "SK_FORCE_8_BYTE_ALIGNMENT",
     "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
     "SK_SHAPER_HARFBUZZ_AVAILABLE",
