@@ -39,19 +39,61 @@ skia_filegroup(
 skia_filegroup(
     name = "any_codec_hdrs",
     srcs = [
+        "SkCodec.h",
+        "SkCodecAnimation.h",
+        "SkEncodedImageFormat.h",
         "SkPixmapUtils.h",
     ],
     visibility = ["//src/codec:__pkg__"],
 )
 
 skia_filegroup(
+    name = "bmp_public_hdrs",
+    srcs = ["SkBmpDecoder.h"],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
+    name = "gif_public_hdrs",
+    srcs = ["SkGifDecoder.h"],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
+    name = "ico_public_hdrs",
+    srcs = ["SkIcoDecoder.h"],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
+    name = "jpeg_public_hdrs",
+    srcs = ["SkJpegDecoder.h"],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
+    name = "jpegxl_public_hdrs",
+    srcs = ["SkJpegxlDecoder.h"],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
     name = "png_public_hdrs",
     srcs = [
-        "SkCodec.h",
-        "SkCodecAnimation.h",
-        "SkEncodedImageFormat.h",
         "SkPngChunkReader.h",
         "SkPngDecoder.h",
     ],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
+    name = "wbmp_public_hdrs",
+    srcs = ["SkWbmpDecoder.h"],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
+    name = "webp_public_hdrs",
+    srcs = ["SkWebpDecoder.h"],
     visibility = ["//src/codec:__pkg__"],
 )

@@ -2195,6 +2195,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"cpu_8888_benchmark_test":        {"//bench:cpu_8888_test", ""},
 
 	// Note: these paths are relative to the WORKSPACE in //example/external_client
+	"decode_everything": {"//:decode_everything", ""},
 	"path_combiner":     {"//:path_combiner", ""},
 	"png_decoder":       {"//:png_decoder", ""},
 	"shape_text":        {"//:shape_text", ""},

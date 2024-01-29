@@ -37,6 +37,30 @@ cc_binary(
 )
 
 cc_binary(
+    name = "decode_everything",
+    srcs = ["src/decode_everything.cpp"],
+    copts = ["-std=c++17"],
+    linkopts = select({
+        "@platforms//os:linux": [
+            "-fuse-ld=lld",
+            "-lpthread",
+        ],
+        "//conditions:default": [],
+    }),
+    deps = [
+        "@skia//:bmp_decode_codec",
+        "@skia//:core",
+        "@skia//:gif_decode_codec",
+        "@skia//:ico_decode_codec",
+        "@skia//:jpeg_decode_codec",
+        "@skia//:jpegxl_decode_codec",
+        "@skia//:png_decode_codec",
+        "@skia//:wbmp_decode_codec",
+        "@skia//:webp_decode_codec",
+    ],
+)
+
+cc_binary(
     name = "write_text_to_png",
     srcs = ["src/write_text_to_png.cpp"],
     copts = ["-std=c++17"],

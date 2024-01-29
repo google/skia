@@ -328,6 +328,7 @@ skia_cc_library(
     hdrs = [
         "//include/ports:fontconfig_fontmgr_hdrs",
     ],
+    defines = ["SK_FONTMGR_FONTCONFIG_AVAILABLE"],
     visibility = ["//:__pkg__"],
     deps = [
         ":freetype_support",
@@ -355,6 +356,7 @@ skia_cc_library(
     hdrs = [
         "//include/ports:empty_fontmgr_hdrs",
     ],
+    defines = ["SK_FONTMGR_FREETYPE_EMPTY_AVAILABLE"],
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = [

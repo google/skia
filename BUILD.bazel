@@ -110,8 +110,38 @@ alias(
 ###
 
 alias(
+    name = "bmp_decode_codec",
+    actual = "//src/codec:bmp_decode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "gif_decode_codec",
+    actual = "//src/codec:gif_decode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "ico_decode_codec",
+    actual = "//src/codec:ico_decode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "jpeg_encode_codec",
     actual = "//src/encode:jpeg_encode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "jpeg_decode_codec",
+    actual = "//src/codec:jpeg_decode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "jpegxl_decode_codec",
+    actual = "//src/codec:jpegxl_decode",
     visibility = ["//visibility:public"],
 )
 
@@ -124,6 +154,18 @@ alias(
 alias(
     name = "png_encode_codec",
     actual = "//src/encode:png_encode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "wbmp_decode_codec",
+    actual = "//src/codec:wbmp_decode",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "webp_decode_codec",
+    actual = "//src/codec:webp_decode",
     visibility = ["//visibility:public"],
 )
 

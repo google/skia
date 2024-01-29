@@ -11,12 +11,6 @@ genrule(
 )
 
 JPEG_XL_SRCS = [
-    "lib/include/jxl/codestream_header.h",
-    "lib/include/jxl/color_encoding.h",
-    "lib/include/jxl/memory_manager.h",
-    "lib/include/jxl/parallel_runner.h",
-    "lib/include/jxl/types.h",
-    "lib/include/jxl/jxl_export.h",
     "lib/jxl/ac_context.h",
     "lib/jxl/ac_strategy.cc",
     "lib/jxl/ac_strategy.h",
@@ -249,6 +243,12 @@ JPEG_XL_SRCS = [
 JPEG_XL_HDRS = [
     "lib/include/jxl/decode.h",
     "lib/include/jxl/decode_cxx.h",
+    "lib/include/jxl/codestream_header.h",
+    "lib/include/jxl/color_encoding.h",
+    "lib/include/jxl/memory_manager.h",
+    "lib/include/jxl/parallel_runner.h",
+    "lib/include/jxl/types.h",
+    "lib/include/jxl/jxl_export.h",
 ]
 
 JPEG_XL_LOCAL_DEFINES = [
@@ -276,6 +276,7 @@ cc_library(
         # and thus clang throws an error about that. It is easier to add an extra include
         # path than figuring out if we should upstream the change to libjxl and/or highway.
         "-isystem external/highway",
+        "-Wno-unused-function",
     ],
     defines = JPEG_XL_PUBLIC_DEFINES,
     includes = ["lib/include"],  # We include jxl files from this folder

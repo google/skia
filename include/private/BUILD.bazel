@@ -65,6 +65,15 @@ skia_filegroup(
     name = "decode_srcs",
     srcs = [
         "SkEncodedInfo.h",
+        "SkExif.h",
+    ],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
+    name = "jpeg_decode_srcs",
+    srcs = [
+        "SkJpegMetadataDecoder.h",
     ],
     visibility = ["//src/codec:__pkg__"],
 )

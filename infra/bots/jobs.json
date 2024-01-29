@@ -40,6 +40,7 @@
   },
   {"name": "BazelTest-toolchain_layering_check-experimental_bazel_test_client-release-linux_x64"},
   {"name": "BazelTest-cpu_tests-all_go_tests-linux_rbe-linux_x64"},
+  {"name": "BazelTest-external_client-decode_everything-default-linux_x64"},
   {"name": "BazelTest-external_client-path_combiner-default-linux_x64"},
   {"name": "BazelTest-external_client-png_decoder-default-linux_x64"},
   {"name": "BazelTest-external_client-shape_text-default-linux_x64"},
