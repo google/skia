@@ -369,6 +369,7 @@ skia_cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         ":any_decoder",
+        "//modules/skcms",
         "//src/base",
         "//src/core",
         "//src/core:core_priv",
@@ -525,15 +526,10 @@ skia_cc_library(
 skia_cc_library(
     name = "wbmp_decode",
     srcs = [
-        "SkBmpBaseCodec.cpp",
         "SkBmpBaseCodec.h",
-        "SkBmpCodec.cpp",
         "SkBmpCodec.h",
-        "SkBmpMaskCodec.cpp",
         "SkBmpMaskCodec.h",
-        "SkBmpRLECodec.cpp",
         "SkBmpRLECodec.h",
-        "SkBmpStandardCodec.cpp",
         "SkBmpStandardCodec.h",
         "SkWbmpCodec.cpp",
         "SkWbmpCodec.h",
@@ -547,6 +543,7 @@ skia_cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         ":any_decoder",
+        ":bmp_decode",  # Avoid ODR violations by not duplicating .cpp files
         "//modules/skcms",
         "//src/base",
         "//src/core",
