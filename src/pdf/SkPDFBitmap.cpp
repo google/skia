@@ -253,7 +253,7 @@ void do_deflated_image(const SkPixmap& pm,
         deflateWStream->finalize();
     }
 
-    if (pm.colorSpace()) {
+    if (pm.colorSpace() && channels != 1) {
         skcms_ICCProfile iccProfile;
         pm.colorSpace()->toProfile(&iccProfile);
         sk_sp<SkData> iccData = SkWriteICCProfile(&iccProfile, "");
@@ -306,7 +306,7 @@ bool do_jpeg(sk_sp<SkData> data, SkColorSpace* imageColorSpace, SkPDFDocument* d
     } else if (const skcms_ICCProfile* codecIccProfile = codec->getICCProfile()) {
         sk_sp<SkData> codecIccData = SkWriteICCProfile(codecIccProfile, "");
         colorSpace = write_icc_profile(doc, std::move(codecIccData), channels);
-    } else if (imageColorSpace) {
+    } else if (imageColorSpace && channels != 1) {
         skcms_ICCProfile imageIccProfile;
         imageColorSpace->toProfile(&imageIccProfile);
         sk_sp<SkData> imageIccData = SkWriteICCProfile(&imageIccProfile, "");
