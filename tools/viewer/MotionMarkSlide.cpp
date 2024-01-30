@@ -14,7 +14,9 @@
 
 // Implementation in C++ of some WebKit MotionMark tests
 // Tests implemented so far:
-// * Lines
+// * Canvas Lines
+// * Canvas Arcs
+// * Paths
 // Based on https://github.com/WebKit/MotionMark/blob/main/MotionMark/
 
 class MMObject {
@@ -92,6 +94,27 @@ protected:
     SkRandom fRandom;
 };
 
+class MotionMarkSlide : public Slide {
+public:
+    MotionMarkSlide() = default;
+
+    bool onChar(SkUnichar uni) override {
+        return fStage->onChar(uni);
+    }
+
+    void draw(SkCanvas* canvas) override {
+        fStage->draw(canvas);
+    }
+
+    bool animate(double nanos) override {
+        return fStage->animate(nanos);
+    }
+
+protected:
+    std::unique_ptr<Stage> fStage;
+};
+
+
 namespace {
 
 float time_counter_value(double nanos, float factor) {
@@ -129,7 +152,8 @@ float adjust_end_angle(float startAngle, float endAngle, bool ccw) {
 
     return newEndAngle;
 }
-}
+
+}  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Canvas Lines
@@ -589,63 +613,33 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class MotionMarkSlide : public Slide {
+class CanvasLinesSlide : public MotionMarkSlide {
 public:
-    MotionMarkSlide() {fName = "MotionMark"; }
+    CanvasLinesSlide() {fName = "MotionMarkCanvasLines"; }
 
     void load(SkScalar w, SkScalar h) override {
-        SkSize size = SkSize::Make(w, h);
-
-        std::unique_ptr<CanvasLineSegmentStage> lineStage =
-                std::make_unique<CanvasLineSegmentStage>(size);
-        fStages.push_back(std::move(lineStage));
-
-        std::unique_ptr<CanvasArcStage> arcStage =
-                std::make_unique<CanvasArcStage>(size);
-        fStages.push_back(std::move(arcStage));
-
-        std::unique_ptr<CanvasLinePathStage> pathStage =
-                std::make_unique<CanvasLinePathStage>(size);
-        fStages.push_back(std::move(pathStage));
+        fStage = std::make_unique<CanvasLineSegmentStage>(SkSize::Make(w, h));
     }
-
-    bool onChar(SkUnichar uni) override {
-        bool handled = false;
-        switch (uni) {
-            case '<':
-            case ',':
-            case '4':
-                fCurrentStage = (fCurrentStage == 0) ? fStages.size() - 1
-                                                     : (fCurrentStage - 1) % fStages.size();
-                handled = true;
-                break;
-            case '>':
-            case '.':
-            case '6':
-                fCurrentStage = (fCurrentStage + 1) % fStages.size();
-                handled = true;
-                break;
-            default:
-                break;
-        }
-        if (!handled) {
-            handled = fStages[fCurrentStage]->onChar(uni);
-        }
-
-        return handled;
-    }
-
-    void draw(SkCanvas* canvas) override {
-        fStages[fCurrentStage]->draw(canvas);
-    }
-
-    bool animate(double nanos) override {
-        return fStages[fCurrentStage]->animate(nanos);
-    }
-
-private:
-    std::vector<std::unique_ptr<Stage>> fStages;
-    int fCurrentStage = 0;
 };
 
-DEF_SLIDE( return new MotionMarkSlide(); )
+class CanvasArcsSlide : public MotionMarkSlide {
+public:
+    CanvasArcsSlide() {fName = "MotionMarkCanvasArcs"; }
+
+    void load(SkScalar w, SkScalar h) override {
+        fStage = std::make_unique<CanvasArcStage>(SkSize::Make(w, h));
+    }
+};
+
+class PathsSlide : public MotionMarkSlide {
+public:
+    PathsSlide() {fName = "MotionMarkPaths"; }
+
+    void load(SkScalar w, SkScalar h) override {
+        fStage = std::make_unique<CanvasLinePathStage>(SkSize::Make(w, h));
+    }
+};
+
+DEF_SLIDE( return new CanvasLinesSlide(); )
+DEF_SLIDE( return new CanvasArcsSlide(); )
+DEF_SLIDE( return new PathsSlide(); )
