@@ -8,35 +8,32 @@ easy reference.
 
 ## Skia team information
 
-- [Granting access to Skia](https://sites.google.com/a/google.com/skia/key-resources/access)
-- [Project communications](https://sites.google.com/a/google.com/skia/key-resources)
+- [Granting access to Skia](https://g3doc.corp.google.com/chrome/skia/g3doc/user/granting.md)
+- [Project communications](https://g3doc.corp.google.com/chrome/skia/g3doc/user/access.md?cl=head)
 
 ## Skia project information
 
-- [Milestones and schedule](https://sites.google.com/a/google.com/skia/milestones)
-- [Status](https://sites.google.com/a/google.com/skia/status) from weekly,
-  monthly updates and OKRs
 - [Skia branch process](https://docs.google.com/a/google.com/document/d/1Xn24lTMlmUgdP8bp-iHOeGKAOp8L5uCxg12lw49Jlpg/edit?usp=sharing)
-- [Design documents](https://sites.google.com/a/google.com/skia/design-documents)
+- [Design documents](https://g3doc.corp.google.com/chrome/skia/g3doc/user/design-docs.md)
 
 ## Infrastructure related
 
-- [iOS tools](https://sites.google.com/a/google.com/skia/key-resources/ios-provisioning)
+- [iOS tools](https://g3doc.corp.google.com/chrome/skia/g3doc/user/ios-tools.md)
   for machine setup and provisioning
 - [SKP Playback](https://docs.google.com/a/google.com/document/d/1oJpuY8XKc212RsfUm6oEH2tp26Veb-Gez3clBuqapE4/edit?usp=sharing)
   for downloading buildbot SKPs
 
 ## Chrome related
 
-- [Development on a Chrome branch](https://sites.google.com/a/google.com/skia/development-on-a-chrome-branch)
-- [Cherrypick instructions](https://sites.google.com/a/google.com/skia/development-on-a-chrome-branch#TOC-How-to-cherrypick-a-Skia-fix-into-a-Chrome-branch)
+- [Development on a Chrome branch](https://g3doc.corp.google.com/chrome/skia/g3doc/user/chrome-branch-build.md)
+- [Cherrypick instructions](https://g3doc.corp.google.com/chrome/skia/g3doc/user/chrome-skia-cherry-pick.md)
 
 ## Android related
 
 - Skia on Android
-  [development guide](https://sites.google.com/a/google.com/skia/android)
+  [development guide](https://g3doc.corp.google.com/chrome/skia/g3doc/user/android.md)
 
 ## Google3 related
 
-- [Google3-Autoroller](https://sites.google.com/a/google.com/skia-infrastructure/docs/google3-autoroller)
+- [Google3-Autoroller](http://go/skia-google3-autoroller)
   -- How to handle failures and how to test CLs.
