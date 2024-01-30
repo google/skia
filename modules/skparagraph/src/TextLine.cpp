@@ -949,7 +949,8 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(TextAdjustment textAdjustment
 
     if (styleType == StyleType::kNone) {
         ClipContext clipContext = correctContext(textRange, 0.0f);
-        if (clipContext.clip.height() > 0) {
+        // The placehoder can have height=0 or (exclusively) width=0 and still be a thing
+        if (clipContext.clip.height() > 0.0f || clipContext.clip.width() > 0.0f) {
             visitor(textRange, TextStyle(), clipContext);
             return clipContext.clip.width();
         } else {

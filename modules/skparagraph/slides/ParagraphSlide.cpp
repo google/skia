@@ -4263,55 +4263,30 @@ class ParagraphSlideLast : public ParagraphSlide_Base {
 public:
     ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
     void draw(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
-        auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr(), std::vector<SkString>());
+        canvas->clear(SK_ColorGRAY);
+        auto fontCollection = getFontCollection();
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
         fontCollection->enableFontFallback();
-        TextStyle text_style;
-        text_style.setFontFamilies({SkString("")});
-        text_style.setFontSize(20);
-        text_style.setColor(SK_ColorBLACK);
-        ParagraphStyle paragraph_style;
-        paragraph_style.setTextStyle(text_style);
 
-        auto test = [&](const char* text) {
-            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-            builder.pushStyle(text_style);
-            builder.addText(text);
-            auto paragraph = builder.Build();
-            paragraph->layout(this->size().width());
-            paragraph->paint(canvas, 0, 0);
-            if ((false)) {
-                SkDebugf("Paragraph '%s'\n", text);
-                auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-                for (auto& run: impl->runs()) {
-                    SkString ff;
-                    run.font().getTypeface()->getFamilyName(&ff);
-                    SkDebugf("'%s': [%zu:%zu)\n", ff.c_str(), run.textRange().start, run.textRange().end);
-                }
-            }
-        };
-        test("2nd");
-        canvas->translate(0, 50);
-        test("99");
-        canvas->translate(0, 50);
-        test("999");
-        canvas->translate(0, 50);
-        /*
-        test("🆗");
-        canvas->translate(0, 50);
-        test("0️⃣");
-        canvas->translate(0, 50);
-        test("0️⃣🆗");
-        canvas->translate(0, 50);
-        test("0");
-        canvas->translate(0, 50);
-        test("0️");
-        canvas->translate(0, 50);
-        test("♻️");
-        canvas->translate(0, 50);
-        test("󠁢󠁳󠁣󠁴󠁿🏴󠁧󠁢󠁳󠁣󠁴󠁿♻️");
-        */
+        ParagraphStyle paragraph_style;
+        TextStyle text_style;
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(200);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        builder.pushStyle(text_style);
+        builder.addText("a");
+        PlaceholderStyle placeholder_style;
+        placeholder_style.fHeight = 0;
+        placeholder_style.fWidth = 600;
+        placeholder_style.fBaseline = TextBaseline::kAlphabetic;
+        placeholder_style.fAlignment = PlaceholderAlignment::kBottom;
+        builder.addPlaceholder(placeholder_style);
+        builder.addText("c");
+        auto paragraph = builder.Build();
+        paragraph->layout(this->size().width());
+        auto results = paragraph->getRectsForRange(1, 2, RectHeightStyle::kTight, RectWidthStyle::kTight);
+        paragraph->paint(canvas, 0, 0);
     }
 };
 
