@@ -354,6 +354,13 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
             disables[test].push_back({regex("Quadro P400"), _, _, kLinux});
         }
 
+        // b/318725123
+        for (const char* test : {"UniformArray",
+                                 "TemporaryIndexLookup",
+                                 "MatrixIndexLookup"}) {
+            disables[test].push_back({regex("Quadro P400"), "Dawn Vulkan", Graphite, kWindows});
+        }
+
         // - PowerVR ------------------------------------------------------------------------------
         for (const char* test : {"OutParamsAreDistinct",              // b/40044222
                                  "OutParamsAreDistinctFromGlobal"}) {
@@ -425,6 +432,13 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         // Adreno generates the wrong result for this test. (b/40044477)
         disables["StructFieldFolding"].push_back({regex(ADRENO "[56]"), "OpenGL",
                                                         _, kAndroid});
+
+        // b/318726662
+        for (const char* test : {"PrefixExpressionsES2",
+                                 "MatrixToVectorCast",
+                                 "MatrixConstructorsES2"}) {
+            disables[test].push_back({regex(ADRENO "620"), "Vulkan", Graphite, kAndroid});
+        }
 
         // - Intel --------------------------------------------------------------------------------
         // Disable various tests on Intel.

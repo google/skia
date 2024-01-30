@@ -283,6 +283,13 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~^draw_coverage")
 		match = append(match, "~^compositing_images")
 	}
+	if b.extraConfig("Graphite") && b.extraConfig("Dawn") {
+		if b.matchOs("Win10") && b.matchGpu("RadeonR9M470X") {
+			// The Dawn Win10 Radeon allocates too many Vulkan resources in bulk rect tests (b/318725123)
+			match = append(match, "~bulkrect_1000_grid_uniqueimages")
+			match = append(match, "~bulkrect_1000_random_uniqueimages")
+		}
+	}
 
 	if b.model(DONT_REDUCE_OPS_TASK_SPLITTING_MODELS...) {
 		args = append(args, "--dontReduceOpsTaskSplitting", "true")

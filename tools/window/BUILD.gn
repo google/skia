@@ -166,7 +166,7 @@ skia_component("window") {
         }
       }
     } else if (is_win) {
-      if (dawn_enable_d3d12 || dawn_enable_d3d11) {
+      if (dawn_enable_d3d12 || dawn_enable_d3d11 || dawn_enable_vulkan) {
         if (skia_enable_graphite) {
           sources += [
             "GraphiteDawnWindowContext.cpp",
