@@ -437,7 +437,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 
-class SkScalerContext_FreeType : public SkScalerContext_FreeType_Base {
+class SkScalerContext_FreeType : public SkScalerContext {
 public:
     SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType>,
                              const SkScalerContextEffects&,
@@ -462,10 +462,16 @@ private:
         static const constexpr uint32_t SVG    = 3;
     };
 
+    // See http://freetype.sourceforge.net/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
+    // This value was chosen by eyeballing the result in Firefox and trying to match it.
+    static const FT_Pos kBitmapEmboldenStrength = 1 << 6;
+
     SkTypeface_FreeType::FaceRec* fFaceRec; // Borrowed face from the typeface's FaceRec.
     FT_Face   fFace;  // Borrowed face from fFaceRec.
     FT_Size   fFTSize;  // The size to apply to the fFace.
     FT_Int    fStrikeIndex; // The bitmap strike for the fFace (or -1 if none).
+
+    SkScalerContextFTUtils fUtils;
 
     /** The rest of the matrix after FreeType handles the size.
      *  With outline font rasterization this is handled by FreeType with FT_Set_Transform.
@@ -885,7 +891,7 @@ static FT_Int chooseBitmapStrike(FT_Face face, FT_F26Dot6 scaleY) {
 SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> typeface,
                                                    const SkScalerContextEffects& effects,
                                                    const SkDescriptor* desc)
-    : SkScalerContext_FreeType_Base(std::move(typeface), effects, desc)
+    : SkScalerContext(std::move(typeface), effects, desc)
     , fFace(nullptr)
     , fFTSize(nullptr)
     , fStrikeIndex(-1)
@@ -1064,6 +1070,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> ty
     fFTSize = ftSize.release();
     fFace = fFaceRec->fFace.get();
     fDoLinearMetrics = linearMetrics;
+    fUtils.init(fRec.fForegroundColor, (SkScalerContext::Flags)fRec.fFlags);
 }
 
 SkScalerContext_FreeType::~SkScalerContext_FreeType() {
@@ -1201,7 +1208,9 @@ SkScalerContext::GlyphMetrics SkScalerContext_FreeType::generateMetrics(const Sk
                 // Traverse the glyph graph with a focus on measuring the required bounding box.
                 // The call to computeColrV1GlyphBoundingBox may modify the face.
                 // Reset the face to load the base glyph for metrics.
-                if (!computeColrV1GlyphBoundingBox(fFace, glyph.getGlyphID(), &bounds) ||
+                if (!SkScalerContextFTUtils::computeColrV1GlyphBoundingBox(fFace,
+                                                                           glyph.getGlyphID(),
+                                                                           &bounds) ||
                     this->setupSize())
                 {
                     return mx;
@@ -1295,7 +1304,7 @@ SkScalerContext::GlyphMetrics SkScalerContext_FreeType::generateMetrics(const Sk
             sk_sp<SkBBoxHierarchy> bboxh = SkRTreeFactory()();
             SkSpan<SkColor> palette(fFaceRec->fSkPalette.get(), fFaceRec->fFTPaletteEntryCount);
             SkCanvas* recordingCanvas = recorder.beginRecording(infiniteRect, bboxh);
-            if (!this->drawSVGGlyph(fFace, glyph, fLoadGlyphFlags, palette, recordingCanvas)) {
+            if (!fUtils.drawSVGGlyph(fFace, glyph, fLoadGlyphFlags, palette, recordingCanvas)) {
                 return mx;
             }
             sk_sp<SkPicture> pic = recorder.finishRecordingAsPicture();
@@ -1368,18 +1377,18 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph, void* imageBu
         SkSpan<SkColor> palette(fFaceRec->fSkPalette.get(), fFaceRec->fFTPaletteEntryCount);
         if (glyph.extraBits() == ScalerContextBits::COLRv0) {
 #ifdef FT_COLOR_H
-            this->drawCOLRv0Glyph(fFace, glyph, fLoadGlyphFlags, palette, &canvas);
+            fUtils.drawCOLRv0Glyph(fFace, glyph, fLoadGlyphFlags, palette, &canvas);
 #endif
         } else if (glyph.extraBits() == ScalerContextBits::COLRv1) {
 #ifdef TT_SUPPORT_COLRV1
-            this->drawCOLRv1Glyph(fFace, glyph, fLoadGlyphFlags, palette, &canvas);
+            fUtils.drawCOLRv1Glyph(fFace, glyph, fLoadGlyphFlags, palette, &canvas);
 #endif
         } else if (glyph.extraBits() == ScalerContextBits::SVG) {
 #if defined(FT_CONFIG_OPTION_SVG)
             if (FT_Load_Glyph(fFace, glyph.getGlyphID(), fLoadGlyphFlags)) {
                 return;
             }
-            this->drawSVGGlyph(fFace, glyph, fLoadGlyphFlags, palette, &canvas);
+            fUtils.drawSVGGlyph(fFace, glyph, fLoadGlyphFlags, palette, &canvas);
 #endif
         }
         return;
@@ -1400,7 +1409,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph, void* imageBu
         bitmapMatrix = &subpixelBitmapMatrix;
     }
 
-    generateGlyphImage(fFace, glyph, imageBuffer, *bitmapMatrix);
+    fUtils.generateGlyphImage(fFace, glyph, imageBuffer, *bitmapMatrix, fPreBlend);
 }
 
 sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(const SkGlyph& glyph) {
@@ -1426,7 +1435,7 @@ sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(const SkGlyph& glyp
         SkCanvas* recordingCanvas = recorder.beginRecording(SkRect::Make(glyph.mask().fBounds));
         if (glyph.extraBits() == ScalerContextBits::COLRv0) {
 #ifdef FT_COLOR_H
-            if (!this->drawCOLRv0Glyph(fFace, glyph, fLoadGlyphFlags, palette, recordingCanvas)) {
+            if (!fUtils.drawCOLRv0Glyph(fFace, glyph, fLoadGlyphFlags, palette, recordingCanvas)) {
                 return nullptr;
             }
 #else
@@ -1434,7 +1443,7 @@ sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(const SkGlyph& glyp
 #endif
         } else if (glyph.extraBits() == ScalerContextBits::COLRv1) {
 #ifdef TT_SUPPORT_COLRV1
-            if (!this->drawCOLRv1Glyph(fFace, glyph, fLoadGlyphFlags, palette, recordingCanvas)) {
+            if (!fUtils.drawCOLRv1Glyph(fFace, glyph, fLoadGlyphFlags, palette, recordingCanvas)) {
                 return nullptr;
             }
 #else
@@ -1445,7 +1454,7 @@ sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(const SkGlyph& glyp
             if (FT_Load_Glyph(fFace, glyph.getGlyphID(), fLoadGlyphFlags)) {
                 return nullptr;
             }
-            if (!this->drawSVGGlyph(fFace, glyph, fLoadGlyphFlags, palette, recordingCanvas)) {
+            if (!fUtils.drawSVGGlyph(fFace, glyph, fLoadGlyphFlags, palette, recordingCanvas)) {
                 return nullptr;
             }
 #else
@@ -1481,7 +1490,7 @@ bool SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path) 
     }
     emboldenIfNeeded(fFace, fFace->glyph, glyphID);
 
-    if (!generateGlyphPath(fFace, path)) {
+    if (!fUtils.generateGlyphPath(fFace, path)) {
         path->reset();
         return false;
     }

@@ -9,15 +9,16 @@
 #ifndef SKFONTHOST_FREETYPE_COMMON_H_
 #define SKFONTHOST_FREETYPE_COMMON_H_
 
+#include "include/core/SkColor.h"
 #include "include/core/SkSpan.h"
-#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkScalerContext.h"
 
+class SkCanvas;
+
 // These are forward declared to avoid pimpl but also hide the FreeType implementation.
 typedef struct FT_FaceRec_* FT_Face;
-typedef struct FT_StreamRec_* FT_Stream;
 typedef signed long FT_Pos;
 
 
@@ -30,26 +31,31 @@ const char* SkTraceFtrGetError(int);
 #define SK_TRACEFTR(ERR, ...) do { sk_ignore_unused_variable(ERR); } while (false)
 #endif
 
+struct SkScalerContextFTUtils {
+    SkColor                 fForegroundColor;
+    SkScalerContext::Flags  fFlags;
 
-class SkScalerContext_FreeType_Base : public SkScalerContext {
-protected:
-    // See http://freetype.sourceforge.net/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
-    // This value was chosen by eyeballing the result in Firefox and trying to match it.
-    static const FT_Pos kBitmapEmboldenStrength = 1 << 6;
+    using LoadGlyphFlags = uint32_t;
 
-    SkScalerContext_FreeType_Base(sk_sp<SkTypeface> typeface, const SkScalerContextEffects& effects,
-                                  const SkDescriptor *desc)
-    : INHERITED(std::move(typeface), effects, desc)
-    {}
+    void init(SkColor fgColor, SkScalerContext::Flags);
 
-    bool drawCOLRv0Glyph(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
-                         SkSpan<SkColor> palette, SkCanvas*);
-    bool drawCOLRv1Glyph(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
-                         SkSpan<SkColor> palette, SkCanvas*);
-    bool drawSVGGlyph(FT_Face, const SkGlyph&, uint32_t loadGlyphFlags,
-                      SkSpan<SkColor> palette, SkCanvas*);
-    void generateGlyphImage(FT_Face, const SkGlyph&, void*, const SkMatrix& bitmapTransform);
-    bool generateGlyphPath(FT_Face, SkPath*);
+    bool isSubpixel() const {
+        return SkToBool(fFlags & SkScalerContext::kSubpixelPositioning_Flag);
+    }
+
+    bool isLinearMetrics() const {
+        return SkToBool(fFlags & SkScalerContext::kLinearMetrics_Flag);
+    }
+
+    bool drawCOLRv0Glyph(FT_Face, const SkGlyph&, LoadGlyphFlags,
+                         SkSpan<SkColor> palette, SkCanvas*) const;
+    bool drawCOLRv1Glyph(FT_Face, const SkGlyph&, LoadGlyphFlags,
+                         SkSpan<SkColor> palette, SkCanvas*) const;
+    bool drawSVGGlyph(FT_Face, const SkGlyph&, LoadGlyphFlags,
+                      SkSpan<SkColor> palette, SkCanvas*) const;
+    void generateGlyphImage(FT_Face, const SkGlyph&, void*, const SkMatrix& bitmapTransform,
+                            const SkMaskGamma::PreBlend&) const;
+    bool generateGlyphPath(FT_Face, SkPath*) const;
 
     /** Computes a bounding box for a COLRv1 glyph.
      *
@@ -60,9 +66,7 @@ protected:
     static bool computeColrV1GlyphBoundingBox(FT_Face, SkGlyphID, SkRect* bounds);
 
 private:
-    using INHERITED = SkScalerContext;
-
-    bool generateFacePath(FT_Face, SkGlyphID, uint32_t loadGlyphFlags, SkPath*);
+    bool generateFacePath(FT_Face, SkGlyphID, LoadGlyphFlags, SkPath*) const;
 };
 
 #endif // SKFONTHOST_FREETYPE_COMMON_H_
