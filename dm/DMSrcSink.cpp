@@ -20,6 +20,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/docs/SkMultiPictureDocument.h"
+#include "include/codec/SkPixmapUtils.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -1065,6 +1066,9 @@ Result ColorCodecSrc::draw(SkCanvas* canvas, GraphiteTestContext*) const {
     }
 
     SkImageInfo info = codec->getInfo();
+    if (SkEncodedOriginSwapsWidthHeight(codec->getOrigin())) {
+        info = SkPixmapUtils::SwapWidthHeight(info);
+    }
     if (fDecodeToDst) {
         SkImageInfo canvasInfo = canvas->imageInfo();
         if (!canvasInfo.colorSpace()) {

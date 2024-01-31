@@ -409,7 +409,8 @@ public:
     }
 
     /**
-     *  Return an image containing the pixels.
+     *  Return an image containing the pixels. If the codec's origin is not "upper left",
+     *  This will rotate the output image accordingly.
      */
     std::tuple<sk_sp<SkImage>, SkCodec::Result> getImage(const SkImageInfo& info,
                                                          const Options* opts = nullptr);

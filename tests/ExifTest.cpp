@@ -7,12 +7,16 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedOrigin.h"
+#include "include/codec/SkWebpDecoder.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkExif.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
 #include <memory>
+#include <tuple>
 #include <utility>
 
 DEF_TEST(ExifOrientation, r) {
@@ -31,6 +35,29 @@ DEF_TEST(ExifOrientation, r) {
     REPORTER_ASSERT(r, nullptr != codec);
     origin = codec->getOrigin();
     REPORTER_ASSERT(r, kTopLeft_SkEncodedOrigin == origin);
+}
+
+DEF_TEST(GetImageRespectsExif, r) {
+    std::unique_ptr<SkStream> stream(GetResourceAsStream("images/orientation/6.webp"));
+    REPORTER_ASSERT(r, nullptr != stream);
+    if (!stream) {
+        return;
+    }
+
+    std::unique_ptr<SkCodec> codec(SkWebpDecoder::Decode(std::move(stream), nullptr));
+    REPORTER_ASSERT(r, nullptr != codec);
+    SkEncodedOrigin origin = codec->getOrigin();
+    REPORTER_ASSERT(r, kRightTop_SkEncodedOrigin == origin,
+                    "Actual origin %d", origin);
+
+    auto result = codec->getImage();
+    REPORTER_ASSERT(r, std::get<1>(result) == SkCodec::Result::kSuccess,
+                    "Not success %d", std::get<1>(result));
+    sk_sp<SkImage> frame = std::get<0>(result);
+    REPORTER_ASSERT(r, frame);
+    SkISize dims = frame->dimensions();
+    REPORTER_ASSERT(r, dims.fWidth == 100, "width %d != 100", dims.fWidth);
+    REPORTER_ASSERT(r, dims.fHeight == 80, "height %d != 80", dims.fHeight);
 }
 
 DEF_TEST(ExifOrientationInExif, r) {
