@@ -77,6 +77,7 @@ struct RenderPassDesc {
     // TODO:
     // * bounds (TBD whether exact bounds vs. granular)
     // * input attachments
+    // * subpass makeup information
 };
 
 };  // namespace skgpu::graphite

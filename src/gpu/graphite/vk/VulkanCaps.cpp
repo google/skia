@@ -1330,6 +1330,7 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
                                    kGraphicsPipelineDomain,
                                    kUint32sNeededForPipelineInfo + rpMetaData.fUint32DataCnt,
                                    "GraphicsPipeline");
+
         int idx = 0;
         // Add GraphicsPipelineDesc information
         builder[idx++] = pipelineDesc.renderStepID();

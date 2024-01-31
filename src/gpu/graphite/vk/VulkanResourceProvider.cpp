@@ -262,24 +262,34 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
     return firstDescSet;
 }
 
-sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPass(
-        const RenderPassDesc& renderPassDesc, bool compatibleOnly) {
-    auto renderPassKey = VulkanRenderPass::MakeRenderPassKey(renderPassDesc, compatibleOnly);
+sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPassWithKnownKey(
+            const RenderPassDesc& renderPassDesc,
+            bool compatibleOnly,
+            const GraphiteResourceKey& rpKey) {
     if (Resource* resource =
-            fResourceCache->findAndRefResource(renderPassKey, skgpu::Budgeted::kYes)) {
+            fResourceCache->findAndRefResource(rpKey, skgpu::Budgeted::kYes)) {
         return sk_sp<VulkanRenderPass>(static_cast<VulkanRenderPass*>(resource));
     }
 
-    auto renderPass = VulkanRenderPass::MakeRenderPass(this->vulkanSharedContext(), renderPassDesc,
-                                                       compatibleOnly);
+    sk_sp<VulkanRenderPass> renderPass =
+                VulkanRenderPass::MakeRenderPass(this->vulkanSharedContext(),
+                                                renderPassDesc,
+                                                compatibleOnly);
     if (!renderPass) {
         return nullptr;
     }
 
-    renderPass->setKey(renderPassKey);
+    renderPass->setKey(rpKey);
     fResourceCache->insertResource(renderPass.get());
 
     return renderPass;
+}
+
+sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPass(
+        const RenderPassDesc& renderPassDesc, bool compatibleOnly) {
+    GraphiteResourceKey rpKey = VulkanRenderPass::MakeRenderPassKey(renderPassDesc, compatibleOnly);
+
+    return this->findOrCreateRenderPassWithKnownKey(renderPassDesc, compatibleOnly, rpKey);
 }
 
 VkPipelineCache VulkanResourceProvider::pipelineCache() {
@@ -382,10 +392,20 @@ sk_sp<VulkanSamplerYcbcrConversion>
 
 sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeline(
         const RenderPassDesc& renderPassDesc) {
+
     if (!renderPassDesc.fColorResolveAttachment.fTextureInfo.isValid() ||
         !renderPassDesc.fColorAttachment.fTextureInfo.isValid()) {
         SKGPU_LOG_E("Loading MSAA from resolve texture requires valid color & resolve attachment");
         return nullptr;
+    }
+
+    // Check to see if we already have a suitable pipeline that we can use.
+    GraphiteResourceKey renderPassKey =
+            VulkanRenderPass::MakeRenderPassKey(renderPassDesc, /*compatibleOnly=*/true);
+    for (int i = 0; i < fLoadMSAAPipelines.size(); i++) {
+        if (renderPassKey == fLoadMSAAPipelines.at(i).first) {
+            return fLoadMSAAPipelines.at(i).second;
+        }
     }
 
     // If any of the load MSAA pipeline creation structures are null then we need to initialize
@@ -400,15 +420,37 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
                     &fMSAALoadFragShaderModule,
                     &fMSAALoadShaderStageInfo[0],
                     &fMSAALoadPipelineLayout)) {
-            SKGPU_LOG_E("Failed to initialize MSAA load pipeline creation structure(s)\n");
+            SKGPU_LOG_E("Failed to initialize MSAA load pipeline creation structure(s)");
             return nullptr;
         }
     }
 
-    // TODO: Implement.
-    return nullptr;
-}
+    sk_sp<VulkanRenderPass> compatibleRenderPass =
+            this->findOrCreateRenderPassWithKnownKey(renderPassDesc,
+                                                     /*compatibleOnly=*/true,
+                                                     renderPassKey);
+    if (!compatibleRenderPass) {
+        SKGPU_LOG_E("Failed to make compatible render pass for loading MSAA");
+    }
 
+    sk_sp<VulkanGraphicsPipeline> pipeline = VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
+            this->vulkanSharedContext(),
+            fMSAALoadVertShaderModule,
+            fMSAALoadFragShaderModule,
+            &fMSAALoadShaderStageInfo[0],
+            fMSAALoadPipelineLayout,
+            compatibleRenderPass,
+            this->pipelineCache(),
+            renderPassDesc.fColorAttachment.fTextureInfo.numSamples());
+
+    if (!pipeline) {
+        SKGPU_LOG_E("Failed to create MSAA load pipeline");
+        return nullptr;
+    }
+
+    fLoadMSAAPipelines.push_back(std::make_pair(renderPassKey, pipeline));
+    return pipeline;
+}
 
 #ifdef SK_BUILD_FOR_ANDROID
 

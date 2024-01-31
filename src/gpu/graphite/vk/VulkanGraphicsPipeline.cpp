@@ -118,14 +118,14 @@ static void setup_vertex_input_state(
         attributeDescs->push_back(vkAttrib);
     }
 
-    if (vertexAttrs.size()) {
+    if (bindingDescs && !vertexAttrs.empty()) {
         bindingDescs->push_back() = {
                 VulkanGraphicsPipeline::kVertexBufferIndex,
                 (uint32_t) vertexAttributeOffset,
                 VK_VERTEX_INPUT_RATE_VERTEX
         };
     }
-    if (instanceAttrs.size()) {
+    if (bindingDescs && !instanceAttrs.empty()) {
         bindingDescs->push_back() = {
                 VulkanGraphicsPipeline::kInstanceBufferIndex,
                 (uint32_t) instanceAttributeOffset,
@@ -138,9 +138,11 @@ static void setup_vertex_input_state(
     vertexInputInfo->pNext = nullptr;
     vertexInputInfo->flags = 0;
     vertexInputInfo->vertexBindingDescriptionCount = bindingDescs->size();
-    vertexInputInfo->pVertexBindingDescriptions = bindingDescs->begin();
+    vertexInputInfo->pVertexBindingDescriptions =
+            bindingDescs->empty() ? VK_NULL_HANDLE : bindingDescs->begin();
     vertexInputInfo->vertexAttributeDescriptionCount = attributeDescs->size();
-    vertexInputInfo->pVertexAttributeDescriptions = attributeDescs->begin();
+    vertexInputInfo->pVertexAttributeDescriptions =
+            attributeDescs->empty() ? VK_NULL_HANDLE : attributeDescs->begin();
 }
 
 static VkPrimitiveTopology primitive_type_to_vk_topology(PrimitiveType primitiveType) {
@@ -868,6 +870,100 @@ bool VulkanGraphicsPipeline::InitializeMSAALoadPipelineStructs(
         return false;
     }
     return true;
+}
+
+sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
+        const VulkanSharedContext* sharedContext,
+        VkShaderModule vsModule,
+        VkShaderModule fsModule,
+        VkPipelineShaderStageCreateInfo* pipelineShaderStages,
+        VkPipelineLayout pipelineLayout,
+        sk_sp<VulkanRenderPass> compatibleRenderPass,
+        VkPipelineCache pipelineCache,
+        int numSamples) {
+    // The load msaa pipeline takes no vertex/instance attributes
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+    setup_vertex_input_state(/*vertexAttrs=*/{},
+                             /*instanceAttrs=*/{},
+                             &vertexInputInfo,
+                             /*bindingDescs=*/nullptr,
+                             /*attributeDescs=*/nullptr);
+
+    VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+    setup_input_assembly_state(PrimitiveType::kTriangleStrip, &inputAssemblyInfo);
+
+    VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+    setup_depth_stencil_state(/*stencilSettings=*/{}, &depthStencilInfo);
+
+    VkPipelineViewportStateCreateInfo viewportInfo;
+    setup_viewport_scissor_state(&viewportInfo);
+
+    VkPipelineMultisampleStateCreateInfo multisampleInfo;
+    setup_multisample_state(numSamples, &multisampleInfo);
+
+    // We will only have one color blend attachment per pipeline.
+    VkPipelineColorBlendAttachmentState attachmentStates[1];
+    VkPipelineColorBlendStateCreateInfo colorBlendInfo;
+    setup_color_blend_state({}, &colorBlendInfo, attachmentStates);
+
+    VkPipelineRasterizationStateCreateInfo rasterInfo;
+    // TODO: Check for wire frame mode once that is an available context option within graphite.
+    setup_raster_state(/*isWireframe=*/false, &rasterInfo);
+
+    VkDynamicState dynamicStates[3];
+    VkPipelineDynamicStateCreateInfo dynamicInfo;
+    setup_dynamic_state(&dynamicInfo, dynamicStates);
+
+    VkGraphicsPipelineCreateInfo pipelineCreateInfo;
+    memset(&pipelineCreateInfo, 0, sizeof(VkGraphicsPipelineCreateInfo));
+    pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineCreateInfo.pNext = nullptr;
+    pipelineCreateInfo.flags = 0;
+    pipelineCreateInfo.stageCount = 2;
+    pipelineCreateInfo.pStages = pipelineShaderStages;
+    pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
+    pipelineCreateInfo.pInputAssemblyState = &inputAssemblyInfo;
+    pipelineCreateInfo.pTessellationState = nullptr;
+    pipelineCreateInfo.pViewportState = &viewportInfo;
+    pipelineCreateInfo.pRasterizationState = &rasterInfo;
+    pipelineCreateInfo.pMultisampleState = &multisampleInfo;
+    pipelineCreateInfo.pDepthStencilState = &depthStencilInfo;
+    pipelineCreateInfo.pColorBlendState = &colorBlendInfo;
+    pipelineCreateInfo.pDynamicState = &dynamicInfo;
+    pipelineCreateInfo.layout = pipelineLayout;
+    pipelineCreateInfo.renderPass = compatibleRenderPass->renderPass();
+
+    VkPipeline vkPipeline;
+    VkResult result;
+    {
+        TRACE_EVENT0_ALWAYS("skia.shaders", "CreateGraphicsPipeline");
+        SkASSERT(pipelineCache != VK_NULL_HANDLE);
+        VULKAN_CALL_RESULT(sharedContext->interface(),
+                           result,
+                           CreateGraphicsPipelines(sharedContext->device(),
+                                                   pipelineCache,
+                                                   /*createInfoCount=*/1,
+                                                   &pipelineCreateInfo,
+                                                   /*pAllocator=*/nullptr,
+                                                   &vkPipeline));
+    }
+    if (result != VK_SUCCESS) {
+        SkDebugf("Failed to create pipeline. Error: %d\n", result);
+        return nullptr;
+    }
+
+
+    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = nullptr;
+
+    return sk_sp<VulkanGraphicsPipeline>(
+            new VulkanGraphicsPipeline(sharedContext,
+                                       /*pipelineInfo=*/pipelineInfoPtr,
+                                       pipelineLayout,
+                                       vkPipeline,
+                                       /*hasFragmentUniforms=*/false,
+                                       /*hasStepUniforms=*/false,
+                                       /*numTextureSamplers*/0,
+                                       /*ownsPipelineLayout=*/false));
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
