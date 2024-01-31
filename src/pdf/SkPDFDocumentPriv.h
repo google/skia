@@ -113,8 +113,9 @@ public:
     const SkPDF::Metadata& metadata() const { return fMetadata; }
 
     SkPDFIndirectReference getPage(size_t pageIndex) const;
+    bool hasCurrentPage() const { return bool(fPageDevice); }
     SkPDFIndirectReference currentPage() const {
-        return SkASSERT(!fPageRefs.empty()), fPageRefs.back();
+        return SkASSERT(this->hasCurrentPage() && !fPageRefs.empty()), fPageRefs.back();
     }
     // Used to allow marked content to refer to its corresponding structure
     // tree node, via a page entry in the parent tree. Returns -1 if no
