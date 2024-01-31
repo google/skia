@@ -90,21 +90,3 @@ void SetVkQueueFamilyIndex(MutableTextureState* state, uint32_t queueFamilyIndex
 }
 
 }  // namespace skgpu::MutableTextureStates
-
-
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE)
-namespace skgpu {
-MutableTextureState::MutableTextureState(VkImageLayout layout, uint32_t queueFamilyIndex)
-            : MutableTextureState(BackendApi::kVulkan,
-                                  skgpu::MutableTextureStates::VulkanMutableTextureState(layout, queueFamilyIndex)) {}
-
-VkImageLayout MutableTextureState::getVkImageLayout() const {
-    return skgpu::MutableTextureStates::GetVkImageLayout(this);
-}
-
-uint32_t MutableTextureState::getQueueFamilyIndex() const {
-    return skgpu::MutableTextureStates::GetVkQueueFamilyIndex(this);
-}
-
-}  // namespace skgpu
-#endif

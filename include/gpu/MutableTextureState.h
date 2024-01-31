@@ -12,12 +12,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkAnySubclass.h"
 
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE)
-#include "include/private/gpu/vk/SkiaVulkan.h"
-
-#include <cstdint>
-#endif
-
 #include <cstddef>
 
 namespace skgpu {
@@ -48,13 +42,6 @@ public:
 
     // Returns true if the backend mutable state has been initialized.
     bool isValid() const { return fIsValid; }
-
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE)
-    MutableTextureState(VkImageLayout layout, uint32_t queueFamilyIndex);
-
-    VkImageLayout getVkImageLayout() const;
-    uint32_t getQueueFamilyIndex() const;
-#endif
 
 private:
     friend class MutableTextureStateData;
