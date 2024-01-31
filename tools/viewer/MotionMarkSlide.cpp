@@ -190,6 +190,7 @@ public:
 
     void draw(SkCanvas* canvas) override {
         SkPaint paint;
+        paint.setAntiAlias(true);
         paint.setColor(fColor);
         paint.setStrokeWidth(fLineWidth);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -273,6 +274,7 @@ public:
                                                                       SkTileMode::kClamp, 0);
 
         SkPaint paint;
+        paint.setAntiAlias(true);
         paint.setStrokeWidth(15);
         for (int i = 0; i < 4; i++) {
             const SkColor strokeColors[] = {
@@ -361,6 +363,7 @@ public:
 
     void draw(SkCanvas* canvas) override {
         SkPaint paint;
+        paint.setAntiAlias(true);
         paint.setColor(fColor);
         SkRect arcRect = SkRect::MakeXYWH(fPoint.fX - fRadius, fPoint.fY - fRadius,
                                           2*fRadius, 2*fRadius);
@@ -568,6 +571,7 @@ public:
 
         SkPath currentPath;
         SkPaint paint;
+        paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         for (size_t i = 0; i < fObjects.size(); ++i) {
             CanvasLinePoint* object = reinterpret_cast<CanvasLinePoint*>(fObjects[i].get());
