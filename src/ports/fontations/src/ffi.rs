@@ -185,12 +185,7 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
         }
     }
 
-    fn fill_glyph(
-        &mut self,
-        glyph: GlyphId,
-        brush_transform: Option<Transform>,
-        brush: Brush,
-    ) {
+    fn fill_glyph(&mut self, glyph: GlyphId, brush_transform: Option<Transform>, brush: Brush) {
         let color_painter = self.color_painter_wrapper.as_mut();
         let brush_transform = brush_transform.unwrap_or_default();
         match brush {
@@ -652,9 +647,6 @@ fn get_outline_collection<'a>(font_ref: &'a BridgeFontRef<'a>) -> Box<BridgeOutl
     )
 }
 
-/// Returns true on a font or collection, sets `num_fonts``
-/// to 0 if single font file, and to > 0 for a TrueType collection.
-/// Returns false if the data cannot be interpreted as a font or collection.
 fn font_or_collection<'a>(font_data: &'a [u8], num_fonts: &mut u32) -> bool {
     match FileRef::new(font_data) {
         Ok(FileRef::Collection(collection)) => {
@@ -846,9 +838,9 @@ mod ffi {
             font_ref: &'a BridgeFontRef<'a>,
         ) -> Box<BridgeOutlineCollection<'a>>;
 
-        // Returns true if the passed in data is a font collection. In that
-        // case, assigns the number of fonts in the collection to the output
-        // parameter num_fonts. Otherwise returns false.
+        /// Returns true on a font or collection, sets `num_fonts``
+        /// to 0 if single font file, and to > 0 for a TrueType collection.
+        /// Returns false if the data cannot be interpreted as a font or collection.
         unsafe fn font_or_collection<'a>(font_data: &'a [u8], num_fonts: &mut u32) -> bool;
 
         fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16;
