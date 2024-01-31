@@ -1,5 +1,5 @@
 load("//bazel:flags.bzl", "bool_flag")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -111,4 +111,37 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = [":vk_hdrs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+skia_cc_library(
+    name = "ganesh_vulkan",
+    srcs = [
+        ":vk_hdrs",
+        ":vk_srcs",
+        "//include/private/gpu/vk:private_hdrs",
+        "//src/gpu/vk:private_hdrs",
+        "//src/gpu/vk:srcs",
+    ],
+    hdrs = [
+        "//include/gpu:ganesh_hdrs",
+        "//include/gpu/ganesh:ganesh_hdrs",
+        "//include/gpu/ganesh/vk:public_hdrs",
+        "//include/gpu/vk:public_hdrs",
+    ],
+    defines = [
+        "SK_USE_EXTERNAL_VULKAN_HEADERS",
+        "SK_DISABLE_LEGACY_VULKAN_BACKENDSEMAPHORE",
+        "SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE",
+    ],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu",
+        "//src/gpu/ganesh",
+        "//src/sksl/codegen:spirv",
+        "@vulkan_headers",
+    ],
 )

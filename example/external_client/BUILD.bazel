@@ -107,3 +107,16 @@ cc_binary(
         "@skia//:webp_encode_codec",
     ],
 )
+
+cc_binary(
+    name = "use_ganesh_vulkan",
+    srcs = ["src/ganesh_vulkan.cpp"],
+    copts = ["-std=c++17"],
+    linkopts = [
+        "-lpthread",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:ganesh_vulkan",
+    ],
+)

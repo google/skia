@@ -110,6 +110,7 @@ skia_filegroup(
     srcs = [
         "GLSL.std.450.h",
     ],
+    visibility = ["//src/sksl/codegen:__pkg__"],
 )
 
 selects.config_setting_group(

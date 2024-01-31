@@ -36,5 +36,8 @@ skia_filegroup(
         ":ganesh_public_hdrs",
         ":shared_public_hdrs",
     ],
-    visibility = ["//include/gpu:__pkg__"],
+    visibility = [
+        "//include/gpu:__pkg__",
+        "//src/gpu/ganesh/vk:__pkg__",
+    ],
 )

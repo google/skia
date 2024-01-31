@@ -9,5 +9,8 @@ skia_filegroup(
     srcs = [
         "SkiaVulkan.h",
     ],
-    visibility = ["//include/private/gpu:__pkg__"],
+    visibility = [
+        "//include/private/gpu:__pkg__",
+        "//src/gpu/ganesh/vk:__pkg__",
+    ],
 )

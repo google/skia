@@ -107,6 +107,12 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "ganesh_vulkan",
+    actual = "//src/gpu/ganesh/vk:ganesh_vulkan",
+    visibility = ["//visibility:public"],
+)
+
 ###
 
 alias(
