@@ -48,6 +48,7 @@ SK_API inline void DawnNativeTickFunction(const wgpu::Device& device) { device.T
 // backend. The client will create this object and pass it into the Context::MakeDawn factory call
 // when setting up Skia.
 struct SK_API DawnBackendContext {
+    wgpu::Instance fInstance;
     wgpu::Device fDevice;
     wgpu::Queue fQueue;
     // See comment on DawnTickFunction.
