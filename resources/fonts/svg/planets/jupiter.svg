@@ -54,7 +54,9 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,223.70002)">
+    <!-- Jupiter is a bit transparent to force a layer. Testing https://crbug.com/1523260 -->
     <g
+       opacity="0.5"
        id="g12968"
        transform="translate(274.33353,-150.70357)">
       <path

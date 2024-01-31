@@ -524,10 +524,20 @@ SkPDFIndirectReference SkPDFDocument::getPage(size_t pageIndex) const {
 }
 
 const SkMatrix& SkPDFDocument::currentPageTransform() const {
+    static constexpr const SkMatrix gIdentity;
+    // If not on a page (like when emitting a Type3 glyph) return identity.
+    if (!this->hasCurrentPage()) {
+        return gIdentity;
+    }
     return fPageDevice->initialTransform();
 }
 
 SkPDFTagTree::Mark SkPDFDocument::createMarkIdForNodeId(int nodeId, SkPoint p) {
+    // If the mark isn't on a page (like when emitting a Type3 glyph)
+    // return a temporary mark not attached to the tag tree, node id, or page.
+    if (!this->hasCurrentPage()) {
+        return SkPDFTagTree::Mark();
+    }
     return fTagTree.createMarkIdForNodeId(nodeId, SkToUInt(this->currentPageIndex()), p);
 }
 
@@ -536,6 +546,10 @@ void SkPDFDocument::addNodeTitle(int nodeId, SkSpan<const char> title) {
 }
 
 int SkPDFDocument::createStructParentKeyForNodeId(int nodeId) {
+    // Structure elements are tied to pages, so don't emit one if not on a page.
+    if (!this->hasCurrentPage()) {
+        return -1;
+    }
     return fTagTree.createStructParentKeyForNodeId(nodeId, SkToUInt(this->currentPageIndex()));
 }
 
