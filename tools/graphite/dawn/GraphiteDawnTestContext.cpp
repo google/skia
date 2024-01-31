@@ -123,6 +123,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
             /*userdata=*/nullptr);
 
     skgpu::graphite::DawnBackendContext backendContext;
+    backendContext.fInstance = wgpu::Instance(sInstance->Get());
     backendContext.fDevice = device;
     backendContext.fQueue  = device.GetQueue();
     return std::unique_ptr<GraphiteTestContext>(new DawnTestContext(backendContext));
@@ -172,6 +173,6 @@ std::unique_ptr<skgpu::graphite::Context> DawnTestContext::makeContext(const Tes
     return skgpu::graphite::ContextFactory::MakeDawn(backendContext, revisedContextOptions);
 }
 
-void DawnTestContext::tick() { fBackendContext.fTick(fBackendContext.fDevice); }
+void DawnTestContext::tick() { fBackendContext.fTick(fBackendContext.fInstance); }
 
 }  // namespace skiatest::graphite

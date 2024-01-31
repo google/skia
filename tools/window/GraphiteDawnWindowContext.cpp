@@ -46,6 +46,7 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     SkASSERT(fSwapChain);
 
     skgpu::graphite::DawnBackendContext backendContext;
+    backendContext.fInstance = wgpu::Instance(fInstance->Get());
     backendContext.fDevice = fDevice;
     backendContext.fQueue = fDevice.GetQueue();
     // Needed to make synchronous readPixels work:

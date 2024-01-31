@@ -37,7 +37,7 @@ public:
 
     void tick() const {
         SkASSERT(this->hasTick());
-        fTick(fDevice);
+        fTick(fInstance);
     }
 
 private:
@@ -45,6 +45,7 @@ private:
                       std::unique_ptr<const DawnCaps> caps,
                       wgpu::ShaderModule noopFragment);
 
+    wgpu::Instance     fInstance;
     wgpu::Device       fDevice;
     wgpu::Queue        fQueue;
     DawnTickFunction*  fTick;

@@ -50,6 +50,7 @@ DawnSharedContext::DawnSharedContext(const DawnBackendContext& backendContext,
                                      std::unique_ptr<const DawnCaps> caps,
                                      wgpu::ShaderModule noopFragment)
         : skgpu::graphite::SharedContext(std::move(caps), BackendApi::kDawn)
+        , fInstance(backendContext.fInstance)
         , fDevice(backendContext.fDevice)
         , fQueue(backendContext.fQueue)
         , fTick(backendContext.fTick)
