@@ -383,4 +383,16 @@ constexpr SkPMColor4f SK_PMColor4fILLEGAL = { SK_FloatNegativeInfinity,
                                               SK_FloatNegativeInfinity,
                                               SK_FloatNegativeInfinity };
 
-#endif
+// Return 255 / a, or 0 if a = 0.
+// ieee 754 max(x, NaN) returns x.
+// From the standard:
+//     maxNum(x, y) is the canonicalized number y if x < y, x if y < x, the canonicalized number
+//     if one operand is a number and the other a quiet NaN.
+// The other trick we can use is that 0/0 produces NaN. We can produce NaN in 255/a by
+// multiplying by a/a which is NaN when a = 0.
+//     (255 * a) / (a * a).
+static inline float SkReciprocalAlphaTimes255(float a) {
+    SkASSERT(a <= 255);
+    return std::max(0.0f, sk_ieee_float_divide(a * 255.0f, a * a));
+}
+#endif  // SkColorData_DEFINED

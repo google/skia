@@ -161,6 +161,11 @@ inline constexpr int SK_FLT_DECIMAL_DIG = std::numeric_limits<float>::max_digits
 
 // IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not,
 // so we have a helper that suppresses the possible undefined-behavior warnings.
+#ifdef SK_BUILD_FOR_WIN
+#pragma warning( push )
+#pragma warning( disable : 4723)
+#endif
+// Your function
 SK_NO_SANITIZE("float-divide-by-zero")
 static constexpr float sk_ieee_float_divide(float numer, float denom) {
     return numer / denom;
@@ -170,6 +175,9 @@ SK_NO_SANITIZE("float-divide-by-zero")
 static constexpr double sk_ieee_double_divide(double numer, double denom) {
     return numer / denom;
 }
+#ifdef SK_BUILD_FOR_WIN
+#pragma warning( pop )
+#endif
 
 // Return a*b + c.
 static inline float sk_fmaf(float a, float b, float c) {

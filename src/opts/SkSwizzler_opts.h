@@ -10,6 +10,8 @@
 
 #include "include/private/SkColorData.h"
 #include "src/base/SkVx.h"
+#include <algorithm>
+#include <cmath>
 #include <utility>
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
@@ -36,6 +38,42 @@ static void RGBA_to_rgbA_portable(uint32_t* dst, const uint32_t* src, int count)
     }
 }
 
+static uint32_t rgbA_to_CCCA(float c00, float c08, float c16, float a) {
+    // Doing the math for an original color b resulting in a premul color x,
+    //   x = ⌊(b * a + 127) / 255⌋,
+    //   x ≤ (b * a + 127) / 255 < x + 1,
+    //   255 * x ≤ b * a + 127 < 255 * (x + 1),
+    //   255 * x - 127 ≤ b * a < 255 * (x + 1) - 127,
+    //   255 * x - 127 ≤ b * a < 255 * x + 128,
+    //   (255 * x - 127) / a ≤ b < (255 * x + 128) / a.
+    // So, given a premul value x < a, the original color b can be in the above range.
+    // We can pick the middle of that range as
+    //   b = 255 * x / a
+    //   b = x * (255 / a)
+    const float reciprocalA = SkReciprocalAlphaTimes255(a);
+    auto unpremul = [reciprocalA](float c) {
+        return (uint32_t)std::min(255.0f, (c * reciprocalA + 0.5f));
+    };
+
+    return (uint32_t) a << 24
+        | unpremul(c16) << 16
+        | unpremul(c08) <<  8
+        | unpremul(c00) <<  0;
+}
+
+static void rgbA_to_RGBA_portable(uint32_t* dst, const uint32_t* src, int count) {
+    for (int i = 0; i < count; i++) {
+        const uint32_t p = src[i];
+
+        const float a = (p >> 24) & 0xFF,
+                    b = (p >> 16) & 0xFF,
+                    g = (p >>  8) & 0xFF,
+                    r = (p >>  0) & 0xFF;
+
+        dst[i] = rgbA_to_CCCA(r, g, b, a);
+    }
+}
+
 static void RGBA_to_bgrA_portable(uint32_t* dst, const uint32_t* src, int count) {
     for (int i = 0; i < count; i++) {
         uint8_t a = (src[i] >> 24) & 0xFF,
@@ -49,6 +87,19 @@ static void RGBA_to_bgrA_portable(uint32_t* dst, const uint32_t* src, int count)
                | (uint32_t)r << 16
                | (uint32_t)g <<  8
                | (uint32_t)b <<  0;
+    }
+}
+
+static void rgbA_to_BGRA_portable(uint32_t* dst, const uint32_t* src, int count) {
+    for (int i = 0; i < count; i++) {
+        const uint32_t p = src[i];
+
+        const uint32_t a = (p >> 24) & 0xFF,
+                       b = (p >> 16) & 0xFF,
+                       g = (p >>  8) & 0xFF,
+                       r = (p >>  0) & 0xFF;
+
+        dst[i] = rgbA_to_CCCA(b, g, r, a);
     }
 }
 
@@ -121,6 +172,14 @@ static void inverted_CMYK_to_BGR1_portable(uint32_t* dst, const uint32_t* src, i
                | (uint32_t)   g <<  8
                | (uint32_t)   b <<  0;
     }
+}
+
+/*not static*/ inline void rgbA_to_RGBA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_BGRA_portable(dst, src, count);
 }
 
 #if defined(SK_ARM_HAS_NEON)
