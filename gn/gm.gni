@@ -166,6 +166,7 @@ gm_sources = [
   "$_gm/ducky_yuv_blend.cpp",
   "$_gm/emboss.cpp",
   "$_gm/emptypath.cpp",
+  "$_gm/emptyshader.cpp",
   "$_gm/encode.cpp",
   "$_gm/encode_alpha_jpeg.cpp",
   "$_gm/encode_color_types.cpp",
