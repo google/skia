@@ -101,7 +101,6 @@ ZLIB_SRCS = [
         "crc32_simd.h",
         "crc32_simd.c",
         "crc_folding.c",
-        "fill_window_sse.c",
     ],
     "@platforms//cpu:arm64": [
         "adler32_simd.h",
@@ -109,7 +108,6 @@ ZLIB_SRCS = [
         "contrib/optimizations/chunkcopy.h",
         "contrib/optimizations/inffast_chunk.h",
         "contrib/optimizations/inffast_chunk.c",
-        "contrib/optimizations/slide_hash_neon.h",
         "contrib/optimizations/inflate.c",
         "crc32_simd.h",
         "crc32_simd.c",
@@ -172,6 +170,8 @@ ZLIB_COPTS = [
     "//conditions:default": [],
 })
 
+# TODO(kjlubick) this is not the most optimal build of zlib, but it's good enough for
+# our tests at the moment. We should re-evaluate how we are compiling in SIMD instructions.
 cc_library(
     name = "zlib",
     srcs = ZLIB_SRCS,

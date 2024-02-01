@@ -222,7 +222,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "zlib_skia",
         build_file = ws + "//bazel/external/zlib_skia:BUILD.bazel",
-        commit = "c876c8f87101c5a75f6014b0f832499afeb65b73",
+        commit = "646b7f569718921d7d4b5b8e22572ff6c76f2596",
         remote = "https://chromium.googlesource.com/chromium/src/third_party/zlib",
     )
 
