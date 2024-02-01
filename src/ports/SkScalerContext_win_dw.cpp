@@ -12,6 +12,7 @@
 #undef GetGlyphIndices
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
@@ -1735,7 +1736,7 @@ bool SkScalerContext_DW::generatePngMetrics(const SkGlyph& glyph, SkRect* bounds
                                               &ReleaseProc,
                                               context);
 
-    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(std::move(data));
+    std::unique_ptr<SkCodec> codec = SkPngDecoder::Decode(std::move(data), nullptr);
     if (!codec) {
         return false;
     }
