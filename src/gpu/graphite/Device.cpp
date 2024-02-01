@@ -578,8 +578,26 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
 
     this->flushPendingWorkToRecorder();
 
-    return fDC->recordUpload(fRecorder, sk_ref_sp(target), src.info().colorInfo(),
-                             this->imageInfo().colorInfo(), levels, dstRect, nullptr);
+    if (!fDC->recordUpload(fRecorder, fDC->refTarget(), src.info().colorInfo(),
+                           this->imageInfo().colorInfo(), levels, dstRect, nullptr)) {
+        return false;
+    }
+
+    // TODO(b/297344089): This always regenerates mipmaps on the draw target when it's drawn to.
+    // This could be wasteful if we draw to a target multiple times before reading from it with
+    // downscaling.
+    if (target->mipmapped() == Mipmapped::kYes) {
+        sk_sp<Task> uploadTask = fDC->snapUploadTask(fRecorder);
+        SkASSERT(uploadTask);
+        if (uploadTask) {
+            fRecorder->priv().add(std::move(uploadTask));
+        }
+        if (!GenerateMipmaps(fRecorder, fDC->refTarget(), fDC->colorInfo())) {
+            SKGPU_LOG_W("Device::onWritePixels: Failed to generate mipmaps for draw target");
+        }
+    }
+
+    return true;
 }
 
 
@@ -1440,6 +1458,7 @@ void Device::flushPendingWorkToRecorder() {
     // record DispatchGroups that it depends on (e.g. to process geometry or atlas draws).
     auto drawTask = fDC->snapRenderPassTask(fRecorder);
     auto computeTask = fDC->snapComputeTask(fRecorder);
+    const bool addingDrawTask = SkToBool(drawTask);
 
     // Execute the compute task before the draw task.
     if (computeTask) {
@@ -1447,6 +1466,16 @@ void Device::flushPendingWorkToRecorder() {
     }
     if (drawTask) {
         fRecorder->priv().add(std::move(drawTask));
+    }
+
+    // TODO(b/297344089): This always regenerates mipmaps on the draw target when it's drawn to.
+    // This could be wasteful if we draw to a target multiple times before reading from it with
+    // downscaling.
+    if (addingDrawTask && fDC->target()->mipmapped() == Mipmapped::kYes) {
+        if (!GenerateMipmaps(fRecorder, fDC->refTarget(), fDC->colorInfo())) {
+            SKGPU_LOG_W("Device::flushPendingWorkToRecorder: Failed to generate mipmaps for draw "
+                        "target");
+        }
     }
 
     // Reset accumulated state tracking since everything that it referred to has been moved into
