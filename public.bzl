@@ -2236,8 +2236,6 @@ BASE_DEFINES = [
     "GR_TEST_UTILS",
     # Should remove after we update golden images
     "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
-    # Experiment to diagnose image diffs in Google3
-    "SK_DISABLE_LOWP_RASTER_PIPELINE",
 
     # JPEG is in codec_limited and is included in all
     # builds except the no_codec android build
