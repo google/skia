@@ -126,7 +126,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "libpng",
         build_file = ws + "//bazel/external/libpng:BUILD.bazel",
-        commit = "386707c6d19b974ca2e3db7f5c61873813c6fe44",
+        commit = "144b348e072a78e8130ed0acc452c9f039a67bf2",
         remote = "https://skia.googlesource.com/third_party/libpng.git",
     )
 
