@@ -29,13 +29,8 @@ if (skia_use_system_zlib) {
     ]
   }
 
-  use_arm_neon_optimizations = false
-  if ((current_cpu == "arm" || current_cpu == "arm64") &&
-      !(is_win && !is_clang)) {
-    # TODO(richard.townsend@arm.com): Optimizations temporarily disabled for
-    # Windows on Arm MSVC builds, see http://crbug.com/v8/10012.
-    use_arm_neon_optimizations = true
-  }
+  use_arm_neon_optimizations =
+      (current_cpu == "arm" || current_cpu == "arm64") && (is_clang || !is_win)
   use_x86_x64_optimizations =
       (current_cpu == "x86" || current_cpu == "x64") && !is_ios
 
@@ -280,8 +275,6 @@ if (skia_use_system_zlib) {
     }
 
     if (!use_x86_x64_optimizations && !use_arm_neon_optimizations) {
-      # Apparently android_cronet bot builds with NEON disabled and
-      # we also should disable optimizations for iOS@x86 (a.k.a. simulator).
       defines += [ "CPU_NO_SIMD" ]
     }
 
