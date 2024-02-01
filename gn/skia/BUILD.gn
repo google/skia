@@ -453,6 +453,7 @@ config("warnings") {
       "-Wno-deprecated-declarations",
       "-Wno-maybe-uninitialized",
       "-Wno-psabi",
+      "-Wno-switch-default",  # Warns even when all enum values are covered
       "-Wno-unused-parameter",  # Re-enabled for header sources
     ]
     cflags_cc += [
