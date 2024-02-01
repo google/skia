@@ -84,7 +84,18 @@ private:
             // arc length.
             SkPoint  pos;
             SkVector tan;
-            if (v0.cmeasure->getPosTan(lerp_info.weight * v0.cmeasure->length(), &pos, &tan)) {
+            const float len = v0.cmeasure->length(),
+                   distance = len * lerp_info.weight;
+            if (v0.cmeasure->getPosTan(distance, &pos, &tan)) {
+                // Easing can yield a sub/super normal weight, which in turn can cause the
+                // interpolation position to become negative or larger than the path length.
+                // In those cases the expectation is to extrapolate using the endpoint tangent.
+                if (distance < 0 || distance > len) {
+                    const float overshoot = std::copysign(std::max(-distance, distance - len),
+                                                          distance);
+                    pos += tan * overshoot;
+                }
+
                 return this->update({ pos.fX, pos.fY }, {tan.fX, tan.fY});
             }
         }
