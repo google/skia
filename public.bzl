@@ -2413,7 +2413,7 @@ SKRESOURCES_LIB_HDRS = ["modules/skresources/include/SkResources.h"]
 SKRESOURCES_LIB_SRCS = [
     "modules/skresources/src/SkResources.cpp",
     "modules/skresources/src/SkAnimCodecPlayer.cpp",
-    "modules/skresources/src/SkAnimCodecPlayer.cpp",
+    "modules/skresources/src/SkAnimCodecPlayer.h",
 ]
 
 ################################################################################
