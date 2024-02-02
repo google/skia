@@ -35,7 +35,10 @@ variables of type 'bool' may not be uniform
 variables of type 'bool2' may not be uniform
 variables of type 'bool3' may not be uniform
 variables of type 'bool4' may not be uniform
-variables of type 'bool' may not be uniform
-variables of type 'bool' may not be uniform
-variables of type 'bool' may not be uniform
+variables of type 'InvalidStruct1' may not be uniform
+caused by:
+variables of type 'InvalidStruct2' may not be uniform
+caused by:
+variables of type 'invalidBlock' may not be uniform
+caused by:
 *%%*/

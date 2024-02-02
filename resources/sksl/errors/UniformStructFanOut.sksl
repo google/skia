@@ -1,0 +1,105 @@
+struct A { int a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct B { A   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct C { B   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct D { C   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct E { D   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct F { E   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct G { F   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct H { G   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct I { H   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct J { I   a[99], b, c, d, e, f, g, h; bool  k; int   n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct K { J   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct L { K   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct M { L   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct N { M   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct O { N   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct P { O   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct Q { P   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct R { Q   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct S { R   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct T { S   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct U { T   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct V { U   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct W { V   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct X { W   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct Y { X   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+struct Z { Y   a[99], b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z; };
+
+// This uniform is invalid for two reasons. Of course, its size is astronomical. Besides that, it
+// also contains a secret buried type which is not allowed to exist in a uniform.
+uniform Z myUniform;
+
+void main() {}
+
+/*%%*
+array size is too large
+struct is too large
+array size is too large
+struct is too large
+array size is too large
+struct is too large
+array size is too large
+struct is too large
+array size is too large
+struct is too large
+array size is too large
+struct is too large
+array size is too large
+struct is too large
+struct 'I' is too deeply nested
+array size is too large
+struct is too large
+struct 'J' is too deeply nested
+array size is too large
+struct is too large
+struct 'K' is too deeply nested
+array size is too large
+struct is too large
+struct 'L' is too deeply nested
+array size is too large
+struct is too large
+struct 'M' is too deeply nested
+array size is too large
+struct is too large
+struct 'N' is too deeply nested
+array size is too large
+struct is too large
+struct 'O' is too deeply nested
+array size is too large
+struct is too large
+struct 'P' is too deeply nested
+array size is too large
+struct is too large
+struct 'Q' is too deeply nested
+array size is too large
+struct is too large
+struct 'R' is too deeply nested
+array size is too large
+struct is too large
+struct 'S' is too deeply nested
+array size is too large
+struct is too large
+struct 'T' is too deeply nested
+array size is too large
+struct is too large
+struct 'U' is too deeply nested
+array size is too large
+struct is too large
+struct 'V' is too deeply nested
+array size is too large
+struct is too large
+struct 'W' is too deeply nested
+array size is too large
+struct is too large
+struct 'X' is too deeply nested
+array size is too large
+struct is too large
+struct 'Y' is too deeply nested
+array size is too large
+struct is too large
+struct 'Z' is too deeply nested
+variables of type 'Z' may not be uniform
+caused by:
+struct J { I   a[99], b, c, d, e, f, g, h; bool  k; int   n, o, p, q, r, s, t, u, v, w, x, y, z; };
+                                           ^^^^^^^
+*%%*/

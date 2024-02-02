@@ -494,6 +494,7 @@ skia_filegroup(
         "errors/UndeclaredFunction.rts",
         "errors/UndefinedFunction.rts",
         "errors/UndefinedSymbol.rts",
+        "errors/UniformStructFanOut.sksl",
         "errors/UniformVarWithInitializerExpression.rts",
         "errors/UnknownDivideByZero.sksl",
         "errors/UnscopedVariableInDoWhile.sksl",

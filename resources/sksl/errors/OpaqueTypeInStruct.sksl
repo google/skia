@@ -4,5 +4,6 @@ void main() {}
 
 /*%%*
 opaque type 'sampler' is not permitted in a struct
-variables of type 'sampler' may not be uniform
+variables of type 'Bad' may not be uniform
+caused by:
 *%%*/

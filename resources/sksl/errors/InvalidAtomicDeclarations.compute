@@ -73,14 +73,20 @@ atomics are only permitted in workgroup variables and writable storage blocks
 atomics are only permitted in workgroup variables and writable storage blocks
 atomics are only permitted in workgroup variables and writable storage blocks
 atomics are only permitted in workgroup variables and writable storage blocks
-variables of type 'atomicUint' may not be uniform
+variables of type 'ubo1' may not be uniform
+caused by:
 atomics are only permitted in workgroup variables and writable storage blocks
-variables of type 'atomicUint[2]' may not be uniform
+variables of type 'ubo2' may not be uniform
+caused by:
 atomics are only permitted in workgroup variables and writable storage blocks
-variables of type 'atomicUint' may not be uniform
+variables of type 'ubo3' may not be uniform
+caused by:
 atomics are only permitted in workgroup variables and writable storage blocks
+variables of type 'ubo4' may not be uniform
+caused by:
 atomics are only permitted in workgroup variables and writable storage blocks
-variables of type 'atomicUint' may not be uniform
+variables of type 'ubo5' may not be uniform
+caused by:
 atomics are only permitted in workgroup variables and writable storage blocks
 atomics are only permitted in workgroup variables and writable storage blocks
 atomics are only permitted in workgroup variables and writable storage blocks

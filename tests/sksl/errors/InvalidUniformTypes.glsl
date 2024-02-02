@@ -12,22 +12,22 @@ uniform bool3 b3;
 error: 9: variables of type 'bool4' may not be uniform
 uniform bool4 b4;
 ^^^^^^^^^^^^^^^^
-error: 14: variables of type 'bool' may not be uniform
-    bool b; // invalid
-    ^^^^^^
-error: 21: caused by:
+error: 21: variables of type 'InvalidStruct1' may not be uniform
 uniform InvalidStruct1 st1;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-error: 14: variables of type 'bool' may not be uniform
+error: 14: caused by:
     bool b; // invalid
     ^^^^^^
-error: 22: caused by:
+error: 22: variables of type 'InvalidStruct2' may not be uniform
 uniform InvalidStruct2 st2;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-error: 26: variables of type 'bool' may not be uniform
+error: 14: caused by:
     bool b; // invalid
-    ^^^^^^^
-error: 24: caused by:
+    ^^^^^^
+error: 24: variables of type 'invalidBlock' may not be uniform
 uniform invalidBlock {
         ^^^^^^^^^^^^
+error: 26: caused by:
+    bool b; // invalid
+    ^^^^^^^
 10 errors

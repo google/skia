@@ -202,8 +202,8 @@ public:
         return fComponentType.isAllowedInES2();
     }
 
-    bool isAllowedInUniform() const override {
-        return fComponentType.isAllowedInUniform();
+    bool isAllowedInUniform(Position* errorPosition) const override {
+        return fComponentType.isAllowedInUniform(errorPosition);
     }
 
     size_t slotCount() const override {
@@ -358,7 +358,7 @@ public:
         return fNumberKind != NumberKind::kUnsigned;
     }
 
-    bool isAllowedInUniform() const override {
+    bool isAllowedInUniform(Position*) const override {
         return fNumberKind != NumberKind::kBoolean;
     }
 
@@ -426,7 +426,7 @@ public:
 
     bool isAllowedInES2() const override { return false; }
 
-    bool isAllowedInUniform() const override { return false; }
+    bool isAllowedInUniform(Position*) const override { return false; }
 
     bool isOrContainsAtomic() const override { return true; }
 
@@ -607,6 +607,13 @@ public:
             fContainsAtomic       = fContainsAtomic       || f.fType->isOrContainsAtomic();
             fIsAllowedInES2       = fIsAllowedInES2       && f.fType->isAllowedInES2();
         }
+        for (const Field& f : fFields) {
+            Position errorPosition = f.fPosition;
+            if (!f.fType->isAllowedInUniform(&errorPosition)) {
+                fUniformErrorPosition = errorPosition;
+                break;
+            }
+        }
         if (!fContainsUnsizedArray) {
             for (const Field& f : fFields) {
                 fSlotCount += f.fType->slotCount();
@@ -632,6 +639,13 @@ public:
 
     bool isAllowedInES2() const override {
         return fIsAllowedInES2;
+    }
+
+    bool isAllowedInUniform(Position* errorPosition) const override {
+        if (errorPosition != nullptr) {
+            *errorPosition = fUniformErrorPosition;
+        }
+        return !fUniformErrorPosition.valid();
     }
 
     bool isOrContainsArray() const override {
@@ -674,6 +688,7 @@ private:
     TArray<Field> fFields;
     size_t fSlotCount = 0;
     int fNestingDepth = 0;
+    Position fUniformErrorPosition = {};
     bool fInterfaceBlock = false;
     bool fContainsArray = false;
     bool fContainsUnsizedArray = false;
@@ -718,8 +733,8 @@ public:
         return fComponentType.isAllowedInES2();
     }
 
-    bool isAllowedInUniform() const override {
-        return fComponentType.isAllowedInUniform();
+    bool isAllowedInUniform(Position* errorPosition) const override {
+        return fComponentType.isAllowedInUniform(errorPosition);
     }
 
     size_t slotCount() const override {

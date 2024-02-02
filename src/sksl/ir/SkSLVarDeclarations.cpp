@@ -34,11 +34,13 @@ static bool check_valid_uniform_type(Position pos,
                                      const Type* t,
                                      const Context& context,
                                      bool topLevel = true) {
-    const Type& ct = t->componentType();
+    auto reportError = [&]() {
+        context.fErrors->error(pos, "variables of type '" + t->displayName() +
+                                    "' may not be uniform");
+    };
 
-    // In RuntimeEffects we only allow a restricted set of types, namely shader/blender/colorFilter,
-    // 32-bit signed integers, 16-bit and 32-bit floats, and their composites.
-    bool error = false;
+    // In Runtime Effects we only allow a restricted set of types: shader, blender, colorFilter,
+    // 32-bit signed integers, 16-bit and 32-bit floats, and their vector/square-matrix composites.
     if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
         // `shader`, `blender`, `colorFilter`
         if (t->isEffectChild()) {
@@ -46,6 +48,7 @@ static bool check_valid_uniform_type(Position pos,
         }
 
         // `int`, `int2`, `int3`, `int4`
+        const Type& ct = t->componentType();
         if (ct.isSigned() && ct.bitWidth() == 32 && (t->isScalar() || t->isVector())) {
             return true;
         }
@@ -58,34 +61,19 @@ static bool check_valid_uniform_type(Position pos,
         }
 
         // Everything else is an error.
-        error = true;
-    } else {
-        // We don't allow samplers, textures or atomics to be marked as uniforms. This rules out
-        // any possible opaque type.
-        error = !t->isAllowedInUniform();
-    }
-
-    if (error) {
-        context.fErrors->error(pos, "variables of type '" + t->displayName() +
-                                    "' may not be uniform");
+        reportError();
         return false;
     }
 
-    // In non-RTE SkSL we allow structs and interface blocks to be uniforms but we must make sure
-    // their fields are allowed.
-    if (t->isStruct()) {
-        for (const Field& field : t->fields()) {
-            if (!check_valid_uniform_type(field.fPosition, field.fType, context,
-                                          /*topLevel=*/false)) {
-                // Emit a "caused by" line only for the top-level uniform type and not for any
-                // nested structs.
-                if (topLevel) {
-                    context.fErrors->error(pos, "caused by:");
-                }
-                return false;
-            }
+    Position errorPosition = {};
+    if (!t->isAllowedInUniform(&errorPosition)) {
+        reportError();
+        if (errorPosition.valid()) {
+            context.fErrors->error(errorPosition, "caused by:");
         }
+        return false;
     }
+
     return true;
 }
 
