@@ -7975,6 +7975,7 @@ UNIX_ONLY_TEST(SkParagraph_EmojiFontResolution, reporter) {
     }
 }
 
+#ifdef SK_UNICODE_ICU_IMPLEMENTATION
 UNIX_ONLY_TEST(SkParagraph_EmojiRuns, reporter) {
 
     auto icu = SkUnicode::MakeIcuBasedUnicode();
@@ -8041,3 +8042,4 @@ UNIX_ONLY_TEST(SkParagraph_EmojiRuns, reporter) {
     test("👋🏼", 128075); // Modifier sequence
     test("👨‍👩‍👧‍👦", 128104); // ZWJ sequence
 }
+#endif
