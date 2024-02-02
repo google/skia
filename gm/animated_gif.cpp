@@ -27,6 +27,8 @@
 #include <utility>
 #include <vector>
 
+#if defined(SK_ENABLE_SKOTTIE)
+
 static DEFINE_string(animatedGif, "images/test640x479.gif", "Animated gif in resources folder");
 
 class AnimatedGifGM : public skiagm::GM {
@@ -294,3 +296,5 @@ public:
 DEF_GM(return new AnimCodecPlayerExifGM("images/required.webp");)
 DEF_GM(return new AnimCodecPlayerExifGM("images/required.gif");)
 DEF_GM(return new AnimCodecPlayerExifGM("images/stoplight_h.webp");)
+
+#endif

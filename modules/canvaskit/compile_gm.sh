@@ -161,6 +161,7 @@ fi
 
 # These gms do not compile or link with the WASM code. Thus, we omit them.
 GLOBIGNORE="gm/compressed_textures.cpp:"\
+"gm/animated_gif.cpp:"\
 "gm/fiddle.cpp:"\
 "gm/fontations.cpp:"\
 "gm/fontations_ft_compare.cpp:"\
@@ -168,6 +169,7 @@ GLOBIGNORE="gm/compressed_textures.cpp:"\
 
 # These tests do not compile with the WASM code (require other deps).
 GLOBIGNORE+="tests/CodecTest.cpp:"\
+"tests/CodecAnimTest.cpp:"\
 "tests/ColorSpaceTest.cpp:"\
 "tests/DrawOpAtlasTest.cpp:"\
 "tests/EncodeTest.cpp:"\

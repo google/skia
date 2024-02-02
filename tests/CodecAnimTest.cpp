@@ -21,7 +21,6 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "modules/skresources/src/SkAnimCodecPlayer.h"
 #include "tests/CodecPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -584,6 +583,10 @@ DEF_TEST(EncodedOriginToMatrixTest, r) {
     }
 }
 
+#if defined(SK_ENABLE_SKOTTIE)
+
+#include "modules/skresources/src/SkAnimCodecPlayer.h"
+
 DEF_TEST(AnimCodecPlayer, r) {
     static constexpr struct {
         const char* fFile;
@@ -626,3 +629,5 @@ DEF_TEST(AnimCodecPlayer, r) {
                         "Mismatched size for frame at 500 ms of %s", test.fFile);
     }
 }
+
+#endif
