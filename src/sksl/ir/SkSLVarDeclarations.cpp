@@ -62,11 +62,7 @@ static bool check_valid_uniform_type(Position pos,
     } else {
         // We don't allow samplers, textures or atomics to be marked as uniforms. This rules out
         // any possible opaque type.
-        error = error || ct.isOpaque();
-
-        // We disallow boolean uniforms in SkSL since they are not well supported by backend
-        // platforms and drivers.
-        error = error || (ct.isBoolean() && (t->isScalar() || t->isVector()));
+        error = !t->isAllowedInUniform();
     }
 
     if (error) {
