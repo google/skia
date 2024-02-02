@@ -203,6 +203,14 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+###
+
+alias(
+    name = "skresources",
+    actual = "//modules/skresources:skresources",
+    visibility = ["//visibility:public"],
+)
+
 # Load bearing comment below - gazelle looks here (and not in any other BUILD.bazel files)
 # for a special comment indicating the prefix.
 # gazelle:prefix go.skia.org/skia

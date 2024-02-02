@@ -13,3 +13,17 @@ skia_cc_library(
         "//:skia_internal",
     ],
 )
+
+skia_cc_library(
+    name = "skresources",
+    srcs = ["//modules/skresources/src:srcs"],
+    hdrs = ["//modules/skresources/include:hdrs"],
+    features = ["layering_check"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/codec:codec_support",
+        "//src/core:core_priv",
+    ],
+)

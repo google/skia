@@ -116,6 +116,12 @@ sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(sk_sp<SkData> data, Image
     return nullptr;
 }
 
+sk_sp<MultiFrameImageAsset> MultiFrameImageAsset::Make(std::unique_ptr<SkCodec> codec, ImageDecodeStrategy strat) {
+    SkASSERT(codec);
+    return sk_sp<MultiFrameImageAsset>(new MultiFrameImageAsset(
+            std::make_unique<SkAnimCodecPlayer>(std::move(codec)), strat));
+}
+
 MultiFrameImageAsset::MultiFrameImageAsset(std::unique_ptr<SkAnimCodecPlayer> player,
                                            ImageDecodeStrategy strat)
         : fPlayer(std::move(player)), fStrategy(strat) {

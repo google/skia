@@ -6,6 +6,8 @@
  */
 
 #include "gm/gm.h"
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkGifDecoder.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkStream.h"
 #include "modules/skottie/include/Skottie.h"
@@ -217,8 +219,11 @@ private:
     public:
         sk_sp<skresources::ImageAsset> loadImageAsset(const char[], const char[],
                                                       const char[]) const override {
-            return skresources::MultiFrameImageAsset::Make(
-                        GetResourceAsData("images/flightAnim.gif"));
+            sk_sp<SkData> data = GetResourceAsData("images/flightAnim.gif");
+            SkASSERT(data);
+            std::unique_ptr<SkCodec> codec = SkGifDecoder::Decode(data, nullptr);
+            SkASSERT(codec);
+            return skresources::MultiFrameImageAsset::Make(std::move(codec));
         }
     };
 

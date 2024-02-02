@@ -341,7 +341,10 @@ skia_cc_library(
     hdrs = [
         "//include/codec:any_codec_hdrs",
     ],
-    visibility = ["//:__pkg__"],
+    visibility = [
+        "//:__pkg__",
+        "//modules/skresources:__pkg__",
+    ],
     deps = [
         ":any_decoder",
     ],

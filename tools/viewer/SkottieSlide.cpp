@@ -9,6 +9,10 @@
 
 #if defined(SK_ENABLE_SKOTTIE)
 
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkGifDecoder.h"
+#include "include/codec/SkJpegDecoder.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/private/base/SkNoncopyable.h"
@@ -127,6 +131,7 @@ public:
                                                   const char resource_name[],
                                                   const char /*resource_id*/[]) const override {
         auto data = this->load(resource_path, resource_name);
+
         return skresources::MultiFrameImageAsset::Make(data);
     }
 
@@ -515,6 +520,10 @@ void SkottieSlide::init() {
         flags |= skottie::Animation::Builder::kPreferEmbeddedFonts;
     }
     skottie::Animation::Builder builder(flags);
+
+    SkCodecs::Register(SkPngDecoder::Decoder());
+    SkCodecs::Register(SkGifDecoder::Decoder());
+    SkCodecs::Register(SkJpegDecoder::Decoder());
 
     auto predecode = skresources::ImageDecodeStrategy::kPreDecode;
     auto resource_provider =

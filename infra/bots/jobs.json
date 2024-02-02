@@ -46,6 +46,7 @@
   {"name": "BazelTest-external_client-shape_text-default-linux_x64"},
   {"name": "BazelTest-external_client-use_ganesh_gl-default-linux_x64"},
   {"name": "BazelTest-external_client-use_ganesh_vulkan-default-linux_x64"},
+  {"name": "BazelTest-external_client-use_skresources-default-linux_x64"},
   {"name": "BazelTest-external_client-write_text_to_png-default-linux_x64"},
   {"name": "BazelTest-cpu_tests-all_tests-cpu_only_debug_rbe-linux_x64",
     "cq_config": {"experimental": true}

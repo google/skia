@@ -120,3 +120,18 @@ cc_binary(
         "@skia//:ganesh_vulkan",
     ],
 )
+
+cc_binary(
+    name = "use_skresources",
+    srcs = ["src/use_skresources.cpp"],
+    copts = ["-std=c++17"],
+    linkopts = [
+        "-lpthread",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:jpeg_decode_codec",
+        "@skia//:png_decode_codec",
+        "@skia//:skresources",
+    ],
+)
