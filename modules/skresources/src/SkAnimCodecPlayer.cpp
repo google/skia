@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/utils/SkAnimCodecPlayer.h"
+#include "modules/skresources/src/SkAnimCodecPlayer.h"
 
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedOrigin.h"

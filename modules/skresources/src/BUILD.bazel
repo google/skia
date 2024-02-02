@@ -7,6 +7,8 @@ exports_files_legacy()
 skia_filegroup(
     name = "srcs",
     srcs = [
+        "SkAnimCodecPlayer.cpp",
+        "SkAnimCodecPlayer.h",
         "SkResources.cpp",
     ],
     visibility = ["//modules/skresources:__pkg__"],

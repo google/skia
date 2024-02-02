@@ -20,7 +20,6 @@ split_srcs_and_hdrs(
 )
 
 UTIL_FILES = [
-    "SkAnimCodecPlayer.cpp",
     "SkBitSet.h",
     "SkCallableTraits.h",
     "SkCamera.cpp",

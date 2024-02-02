@@ -18,7 +18,6 @@ _include = get_path_info("../include", "abspath")
 #  //include/utils:public_hdrs
 #  //include/utils/mac:public_hdrs
 skia_utils_public = [
-  "$_include/utils/SkAnimCodecPlayer.h",
   "$_include/utils/SkCamera.h",
   "$_include/utils/SkCanvasStateUtils.h",
   "$_include/utils/SkCustomTypeface.h",
@@ -56,7 +55,6 @@ skia_utils_chromium = [
 #  //src/utils/win:core_hdrs
 #  //src/utils/win:core_srcs
 skia_utils_private = [
-  "$_src/utils/SkAnimCodecPlayer.cpp",
   "$_src/utils/SkBitSet.h",
   "$_src/utils/SkCallableTraits.h",
   "$_src/utils/SkCamera.cpp",

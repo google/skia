@@ -21,7 +21,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/utils/SkAnimCodecPlayer.h"
+#include "modules/skresources/src/SkAnimCodecPlayer.h"
 #include "tests/CodecPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"

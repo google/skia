@@ -16,7 +16,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/utils/SkAnimCodecPlayer.h"
+#include "modules/skresources/src/SkAnimCodecPlayer.h"
 #include "src/core/SkOSFile.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
