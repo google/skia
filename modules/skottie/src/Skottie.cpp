@@ -286,8 +286,6 @@ void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* obse
 
 } // namespace internal
 
-void Logger::log(Level, const char[], const char*) {}
-
 Animation::Builder::Builder(uint32_t flags) : fFlags(flags) {}
 Animation::Builder::~Builder() = default;
 

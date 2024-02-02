@@ -31,6 +31,13 @@ skia_filegroup(
         "SkSGScene.cpp",
         "SkSGText.cpp",
         "SkSGTransform.cpp",
+    ],
+    visibility = ["//modules/sksg:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [
         "SkSGTransformPriv.h",
     ],
     visibility = ["//modules/sksg:__pkg__"],

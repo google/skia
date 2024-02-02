@@ -36,6 +36,7 @@ skia_filegroup(
         "SkParse.h",
         "SkParsePath.h",
         "SkShadowUtils.h",
+        "SkTextUtils.h",
         "SkTraceEventPhase.h",
     ],
     visibility = ["//src/core:__pkg__"],

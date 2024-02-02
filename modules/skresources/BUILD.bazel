@@ -23,7 +23,7 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/base",
-        "//src/codec:codec_support",
+        "//src/codec:codec_support_priv",
         "//src/core:core_priv",
     ],
 )

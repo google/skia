@@ -6,10 +6,41 @@ exports_files_legacy()
 
 skia_cc_library(
     name = "legacy_sksg",
-    srcs = ["//modules/sksg/src:srcs"],
+    srcs = [
+        "//modules/sksg/src:private_hdrs",
+        "//modules/sksg/src:srcs",
+    ],
     hdrs = ["//modules/sksg/include:hdrs"],
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_public",
+    ],
+)
+
+skia_cc_library(
+    name = "sksg",
+    srcs = [
+        "//modules/sksg/src:private_hdrs",
+        "//modules/sksg/src:srcs",
+    ],
+    hdrs = ["//modules/sksg/include:hdrs"],
+    features = ["layering_check"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:core",
+        "//:pathops",
+        "//src/base",
+        "//src/core:core_priv",
+    ],
+)
+
+skia_cc_library(
+    name = "sksg_priv",
+    hdrs = ["//modules/sksg/src:private_hdrs"],
+    features = ["layering_check"],
+    visibility = ["//modules/skottie:__pkg__"],
+    deps = [
+        ":sksg",
+        "//:core",
     ],
 )

@@ -51,7 +51,7 @@ public:
         kError,
     };
 
-    virtual void log(Level, const char message[], const char* json = nullptr);
+    virtual void log(Level, const char message[], const char* json = nullptr) = 0;
 };
 
 // Evaluates AE expressions.
