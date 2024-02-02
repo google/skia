@@ -1,7 +1,7 @@
 # Pip checks downloaded package archives against local hashes to protect against remote tampering
 # Read https://pip.pypa.io/en/stable/cli/pip_install/#hash-checking-mode for more information
 
-jinja2==2.11.3 --hash=sha256:03e47ad063331dd6a3f04a43eddca8a966a26ba0c5b7207a9a9e4e08f1b29419
+jinja2==3.1.3 --hash=sha256:7d6d50dd97d52cbc355597bd845fabfbac3f551e1f99619e39a35ce8c370b5fa --hash=sha256:ac8bd6544d4bb2c9792bf3a159e80bba8fda7f07e81bc3aed565432d5925ba90
 # https://github.com/pallets/markupsafe/issues/286
 
 # Multiple hash entries are required for platform dependent distributions.
