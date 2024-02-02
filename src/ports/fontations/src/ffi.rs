@@ -558,7 +558,7 @@ fn table_data(font_ref: &BridgeFontRef, tag: u32, offset: usize, data: &mut [u8]
 }
 
 fn table_tags(font_ref: &BridgeFontRef, tags: &mut [u32]) -> u16 {
-    return font_ref
+    font_ref
         .with_font(|f| {
             let table_directory = &f.table_directory;
             let table_tags_iter = table_directory
@@ -570,7 +570,7 @@ fn table_tags(font_ref: &BridgeFontRef, tags: &mut [u32]) -> u16 {
                 .for_each(|(out_tag, table_tag)| *out_tag = table_tag);
             Some(table_directory.num_tables())
         })
-        .unwrap_or_default();
+        .unwrap_or_default()
 }
 
 fn variation_position(
