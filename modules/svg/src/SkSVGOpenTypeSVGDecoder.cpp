@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkJpegDecoder.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkSpan.h"
@@ -35,7 +38,21 @@ public:
                                                   const char rname[],
                                                   const char rid[]) const override {
         if (auto data = decode_datauri("data:image/", rname)) {
-            return skresources::MultiFrameImageAsset::Make(std::move(data));
+            std::unique_ptr<SkCodec> codec = nullptr;
+            if (SkPngDecoder::IsPng(data->bytes(), data->size())) {
+                codec = SkPngDecoder::Decode(data, nullptr);
+            } else if (SkJpegDecoder::IsJpeg(data->bytes(), data->size())) {
+                codec = SkJpegDecoder::Decode(data, nullptr);
+            } else {
+                // The spec says only JPEG or PNG should be used to encode the embedded data.
+                // https://learn.microsoft.com/en-us/typography/opentype/spec/svg#svg-capability-requirements-and-restrictions
+                SkDEBUGFAIL("Unsupported codec");
+                return nullptr;
+            }
+            if (!codec) {
+                return nullptr;
+            }
+            return skresources::MultiFrameImageAsset::Make(std::move(codec));
         }
         return nullptr;
     }
