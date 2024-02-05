@@ -31,6 +31,7 @@ skia_filegroup(
         "SkSGScene.cpp",
         "SkSGText.cpp",
         "SkSGTransform.cpp",
+        "SkSGTransformPriv.h",  # TODO(kjlubick) remove this (in favor of private_hdrs) after G3
     ],
     visibility = ["//modules/sksg:__pkg__"],
 )

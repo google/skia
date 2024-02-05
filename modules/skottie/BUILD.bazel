@@ -42,14 +42,19 @@ skia_cc_binary(
         "//tools/flags",
     ],
     defines = ["CPU_ONLY"],
+    features = ["layering_check"],
     deps = [
         ":skottie_harfbuzz_icu",
         ":utils",
+        "//:core",
         "//:fontmgr_empty_freetype",
         "//:jpeg_decode_codec",
         "//:png_decode_codec",
         "//:png_encode_codec",
         "//:webp_decode_codec",
+        "//modules/skresources",
+        "//src/base",
+        "//src/core:core_priv",
     ],
 )
 

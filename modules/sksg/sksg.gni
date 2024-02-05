@@ -33,4 +33,5 @@ skia_sksg_sources = [
   "$_modules/sksg/src/SkSGScene.cpp",
   "$_modules/sksg/src/SkSGText.cpp",
   "$_modules/sksg/src/SkSGTransform.cpp",
+  "$_modules/sksg/src/SkSGTransformPriv.h",
 ]
