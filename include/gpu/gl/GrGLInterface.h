@@ -78,11 +78,7 @@ public:
 #endif
 
     // Indicates the type of GL implementation
-    union {
-        GrGLStandard fStandard;
-        GrGLStandard fBindingsExported; // Legacy name, will be remove when Chromium is updated.
-    };
-
+    GrGLStandard fStandard;
     GrGLExtensions fExtensions;
 
     bool hasExtension(const char ext[]) const { return fExtensions.has(ext); }
