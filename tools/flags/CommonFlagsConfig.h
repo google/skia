@@ -128,14 +128,16 @@ public:
                                 SurfaceType surfaceType,
                                 const skiatest::graphite::TestOptions& options,
                                 SkColorType colorType,
-                                SkAlphaType alphaType)
+                                SkAlphaType alphaType,
+                                bool testPrecompile)
             : SkCommandLineConfig(tag, SkString("graphite"), viaParts)
             , fOptions(options)
             , fContextType(contextType)
             , fSurfaceType(surfaceType)
             , fColorType(colorType)
-            , fAlphaType(alphaType) {}
-
+            , fAlphaType(alphaType)
+            , fTestPrecompile(testPrecompile) {
+    }
     const SkCommandLineConfigGraphite* asConfigGraphite() const override { return this; }
 
     const skiatest::graphite::TestOptions& getOptions() const { return fOptions; }
@@ -143,6 +145,7 @@ public:
     SurfaceType getSurfaceType() const { return fSurfaceType; }
     SkColorType getColorType() const { return fColorType; }
     SkAlphaType getAlphaType() const { return fAlphaType; }
+    bool        getTestPrecompile() const { return fTestPrecompile; }
 
 private:
     skiatest::graphite::TestOptions fOptions;
@@ -150,6 +153,7 @@ private:
     SurfaceType                     fSurfaceType;
     SkColorType                     fColorType;
     SkAlphaType                     fAlphaType;
+    bool                            fTestPrecompile;
 };
 
 #endif // SK_GRAPHITE

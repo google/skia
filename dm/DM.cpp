@@ -1043,10 +1043,17 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
 #if defined(SK_GRAPHITE)
     if (FLAGS_graphite) {
         if (const SkCommandLineConfigGraphite *graphiteConfig = config->asConfigGraphite()) {
-            return new GraphiteSink(graphiteConfig);
+#if defined(SK_ENABLE_PRECOMPILE)
+            if (graphiteConfig->getTestPrecompile()) {
+                return new GraphitePrecompileTestingSink(graphiteConfig);
+            } else
+#endif // SK_ENABLE_PRECOMPILE
+            {
+                return new GraphiteSink(graphiteConfig);
+            }
         }
     }
-#endif
+#endif // SK_GRAPHITE
     if (const SkCommandLineConfigSvg* svgConfig = config->asConfigSvg()) {
         int pageIndex = svgConfig->getPageIndex();
         return new SVGSink(pageIndex);

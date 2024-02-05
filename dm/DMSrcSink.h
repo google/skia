@@ -577,7 +577,7 @@ public:
         return SkColorInfo(fColorType, fAlphaType, fColorSpace);
     }
 
-private:
+protected:
     sk_sp<SkSurface> makeSurface(skgpu::graphite::Recorder*, SkISize) const;
 
     using SurfaceType = SkCommandLineConfigGraphite::SurfaceType;
@@ -590,7 +590,39 @@ private:
     sk_sp<SkColorSpace> fColorSpace;
 };
 
-#endif
+#if defined(SK_ENABLE_PRECOMPILE)
+// In general this sink:
+//   renders a gm, skp or svg (in drawSrc)
+//   collects all the UniqueKeys                  |
+//   clears the pipeline cache                    | (in resetAndRecreatePipelines)
+//   recreates the pipelines from the UniqueKeys  |
+//   renders a second time (in drawSrc)
+//   asserts that no new pipelines were created
+class GraphitePrecompileTestingSink : public GraphiteSink {
+public:
+    GraphitePrecompileTestingSink(const SkCommandLineConfigGraphite*);
+    ~GraphitePrecompileTestingSink() override;
+
+    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+    const char* fileExtension() const override {
+        // Suppress writing out results from this config - we just want to check that
+        // the precompilation API is expressive enough and prepopulates the cache.
+        // If desired, this could be updated to save the result of the precompiled rendering.
+        // However; if all the keys match, as is expected, the images should always match.
+        return nullptr;
+    }
+
+private:
+    Result drawSrc(const Src&,
+                   skgpu::graphite::Context*,
+                   skiatest::graphite::GraphiteTestContext*) const;
+    Result resetAndRecreatePipelines(skgpu::graphite::Context*) const;
+
+    mutable std::unique_ptr<skgpu::graphite::Recorder> fRecorder;
+};
+#endif // SK_ENABLE_PRECOMPILE
+#endif // SK_GRAPHITE
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
