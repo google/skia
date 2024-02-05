@@ -16,6 +16,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"  // IWYU pragma: keep
 #include "include/core/SkShader.h"
@@ -23,6 +24,7 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkMathPriv.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkBitmapDevice.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkBlurEngine.h"
@@ -189,106 +191,6 @@ std::optional<LayerSpace<SkMatrix>> periodic_axis_transform(
         // boundary is visible in 'output'. Just keep the periodic tiling.
         return {};
     }
-}
-
-// Returns true if decal tiling an image with 'imageBounds' subject to 'transform', limited to
-// the un-transformed 'sampleBounds' would exhibit significantly different visual quality from
-// drawing the image with clamp tiling and limited geometrically to 'imageBounds'.
-//
-// Non-nearest-neighbor sampling across the image boundary with decal tiling introduces transparency
-// If the transform's scale factor is near identity, the width of this transparent interpolation is
-// visually consistent with the 1px anti-aliased edge produced by a SkCanvas::drawImage operation.
-// If the scale factor is non-identity, the transparent ramp can get progressively smaller or larger
-// as the relative size of a texel changes vs. the pixel size. While technically expected of decal
-// tiling, it produces inconsistent rendering vs. when the transformed image is resolved to the
-// actual layer resolution and then sampled by an image filter shader.
-bool decal_tiling_differs_from_aa(const LayerSpace<SkMatrix> transform,
-                                  const LayerSpace<SkIRect> imageBounds,
-                                  const LayerSpace<SkIRect> sampleBounds,
-                                  const SkSamplingOptions& sampling) {
-    static constexpr SkSamplingOptions kNearestNeighbor = {};
-    static constexpr SkSize kHalfPixel = {0.5f, 0.5f};
-    static constexpr SkSize kCubicRadius = {1.5f, 1.5f};
-
-    if (sampling == kNearestNeighbor) {
-        // There's no interpolating between two samples, so the size of texels doesn't matter.
-        return false;
-    }
-
-    LayerSpace<SkSize> expectedSampleRadius{sampling.useCubic ? kCubicRadius : kHalfPixel};
-    LayerSpace<SkSize> sampleRadius = transform.mapSize(expectedSampleRadius);
-
-    LayerSpace<SkRect> bufferedSampleBounds{sampleBounds};
-    // First inset by half a pixel to account for where the dst sample coords actually are
-    bufferedSampleBounds.inset(LayerSpace<SkSize>(kHalfPixel));
-    // Then outset by the mapped radius
-    bufferedSampleBounds.outset(sampleRadius);
-
-    // If the sample bounds (including implicit samples from interpolation) are contained by the
-    // transformed 'imageBounds', then the sampling would not access texels outside the image bounds
-    if (SkRectPriv::QuadContainsRect(SkMatrix(transform),
-                                     SkIRect(imageBounds),
-                                     SkIRect(bufferedSampleBounds.roundOut()),
-                                     kRoundEpsilon)) {
-        return false;
-    }
-
-    // The decal sampling would be visible, but we only care if the width of the interpolation is
-    // significantly different from an identity-scale.
-    return !SkScalarNearlyEqual(sampleRadius.width(), expectedSampleRadius.width(), 0.1f) ||
-           !SkScalarNearlyEqual(sampleRadius.height(), expectedSampleRadius.height(), 0.1f);
-}
-
-// The returned shader includes the transform as a local matrix.
-sk_sp<SkShader> apply_decal(
-        const LayerSpace<SkMatrix>& transform,
-        sk_sp<SkSpecialImage> image,
-        const LayerSpace<SkIRect>& sampleBounds,
-        const SkSamplingOptions& sampling) {
-    LayerSpace<SkIRect> imageBounds{image->dimensions()};
-    if (!decal_tiling_differs_from_aa(transform, imageBounds, sampleBounds, sampling)) {
-        // Decal the image as part of its sampling and apply the full transform afterwards
-        return image->asShader(SkTileMode::kDecal, sampling, SkMatrix(transform));
-    }
-
-    // Otherwise we need to apply the decal in a coordinate space that matches the resolution of
-    // the layer space. If the transform preserves rectangles, map the image bounds by the transform
-    // so we can apply it before we evaluate the shader. Otherwise decompose the transform into
-    // a non-scaling post-decal transform and a scaling pre-decal transform.
-    const SkMatrix& m(transform);
-    SkMatrix postDecal, preDecal;
-    if (m.rectStaysRect()) {
-        postDecal = SkMatrix::I();
-        preDecal = m;
-    } else {
-        auto representativePoint = LayerSpace<SkRect>(imageBounds).center();
-        decompose_transform(m, SkPoint(representativePoint), &postDecal, &preDecal);
-    }
-
-    // TODO(skbug:12784) - As part of fully supporting subsets in image shaders, it probably makes
-    // sense to share the subset tiling logic that's in GrTextureEffect as dedicated SkShaders.
-    // Graphite can then add those to its program as-needed vs. always doing shader-based tiling,
-    // and CPU can have raster-pipeline tiling applied more flexibly than at the bitmap level. At
-    // that point, this effect is redundant and can be replaced with the decal-subset shader.
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-        "uniform shader image;"
-        "uniform float4 decalBounds;"
-
-        "half4 main(float2 coord) {"
-            "half4 d = half4(decalBounds - coord.xyxy) * half4(-1, -1, 1, 1);"
-            "d = saturate(d + 0.5);"
-            "return (d.x*d.y*d.z*d.w) * image.eval(coord);"
-        "}");
-
-    SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
-    builder.child("image") = image->asShader(SkTileMode::kClamp, sampling, preDecal);
-    builder.uniform("decalBounds") = preDecal.mapRect(SkRect::Make(SkIRect(imageBounds)));
-
-    sk_sp<SkShader> decalShader = builder.makeShader();
-    if (decalShader && !postDecal.isIdentity()) {
-        decalShader = decalShader->makeWithLocalMatrix(postDecal);
-    }
-    return decalShader;
 }
 
 // AutoSurface manages an SkCanvas and device state to draw to a layer-space bounding box,
@@ -714,62 +616,116 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>FilterResult::imageAndOffs
 
 SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         const SkMatrix& xtraTransform,
-        const SkIRect& dstBounds,
-        bool blendAffectsTransparentBlack) const {
-    SkEnumBitMask<BoundsAnalysis> analysis = BoundsAnalysis::kSimple;
+        const SkIRect& dstBounds) const {
+    static constexpr SkSamplingOptions kNearestNeighbor = {};
+    static constexpr float kHalfPixel = 0.5f;
+    static constexpr float kCubicRadius = 1.5f;
 
-    // First determine if the effects fill the layer bounds beyond the edges of the pixel data
-    bool fillsLayerBounds = false; // optimistic
-    {
-        // If there is no transparency-affecting color filter and it's just decal tiling, it doesn't
-        // matter how the image geometry overlaps with the dst bounds.
-        // We only need to check how the image geometry overlaps the dst bounds if there's a color
-        // filter that affects transparent black, or there's non-decal tiling, or there's a blend
-        // that modifies transparent black (applied post layer clip).
-        const bool hasFillingEffectPreLayerClip =
-                (fColorFilter && as_CFB(fColorFilter)->affectsTransparentBlack()) ||
-                    fTileMode != SkTileMode::kDecal;
-        if (hasFillingEffectPreLayerClip || blendAffectsTransparentBlack) {
-            // If the image does not completely cover the render bounds, then the effects of tiling
-            // won't be visible; otherwise add the analysis flag.
-            if (!SkRectPriv::QuadContainsRect(SkMatrix::Concat(xtraTransform, SkMatrix(fTransform)),
-                                              SkIRect::MakeSize(fImage->dimensions()),
-                                              dstBounds,
-                                              kRoundEpsilon)) {
-                // We add the effects-visible flag for any reason, but we only mark the effect as
-                // filling layer bounds if there's an effect that applies *before* the layer clip.
-                // If it's just a non-transparency-preserving blend, that applies after the layer
-                // clip so the layer boundary wouldn't be made visible by the blend.
-                fillsLayerBounds = hasFillingEffectPreLayerClip;
-                analysis |= BoundsAnalysis::kEffectsVisible;
+    SkEnumBitMask<BoundsAnalysis> analysis = BoundsAnalysis::kSimple;
+    const bool fillsLayerBounds = fTileMode != SkTileMode::kDecal ||
+                                  (fColorFilter && as_CFB(fColorFilter)->affectsTransparentBlack());
+
+    // 1. Is the layer geometry visible in the dstBounds (ignoring whether or not there are shading
+    //    effects that highlight that boundary).
+    SkRect pixelCenterBounds = SkRect::Make(dstBounds);
+    if (!SkRectPriv::QuadContainsRect(xtraTransform,
+                                      SkIRect(fLayerBounds),
+                                      dstBounds,
+                                      kRoundEpsilon)) {
+        // 1a. If an effect doesn't fill out to the layer bounds, is the image content itself
+        //     clipped by the layer bounds?
+        bool requireLayerCrop = fillsLayerBounds;
+        if (!fillsLayerBounds) {
+            LayerSpace<SkIRect> imageBounds =
+                    fTransform.mapRect(LayerSpace<SkIRect>{fImage->dimensions()});
+            requireLayerCrop = !fLayerBounds.contains(imageBounds);
+        }
+
+        if (requireLayerCrop) {
+            analysis |= BoundsAnalysis::kRequiresLayerCrop;
+            // And since the layer crop will have to be applied externally, we can restrict the
+            // sample bounds to the intersection of dstBounds and layerBounds
+            SkIRect layerBoundsInDst = Mapping::map(SkIRect(fLayerBounds), xtraTransform);
+            // In some cases these won't intersect, usually in a complex graph where the input is
+            // a bitmap or the dynamic source, in which case it hasn't been clipped or dropped by
+            // earlier image filter processing for that particular node. We could return a flag here
+            // to signal that the operation should be treated as transparent black, but that would
+            // create more shader combinations and image sampling will still do the right thing by
+            // leaving 'pixelCenterBounds' as the original 'dstBounds'.
+            (void) pixelCenterBounds.intersect(SkRect::Make(layerBoundsInDst));
+        }
+        // else this is a decal-tiled, non-transparent affecting FilterResult that doesn't have
+        // its pixel data clipped by the layer bounds, so the layer crop doesn't have to be applied
+        // separately. But this means that the image will be sampled over all of 'dstBounds'.
+    }
+    // else the layer bounds geometry isn't visible, so 'dstBounds' is already a tighter bounding
+    // box for how the image will be sampled.
+
+    // 2. Are the tiling and deferred color filter effects visible in the sampled bounds
+    SkRect imageBounds = SkRect::Make(fImage->dimensions());
+    LayerSpace<SkMatrix> netTransform = fTransform;
+    netTransform.postConcat(LayerSpace<SkMatrix>(xtraTransform));
+    SkM44 netM44{SkMatrix(netTransform)};
+
+    if (!SkRectPriv::QuadContainsRect(netM44,
+                                      imageBounds,
+                                      pixelCenterBounds,
+                                      kRoundEpsilon)) {
+        analysis |= BoundsAnalysis::kDstBoundsNotCovered;
+        if (fillsLayerBounds) {
+            analysis |= BoundsAnalysis::kHasLayerFillingEffect;
+        }
+    }
+
+    // 3. Would image pixels outside of its subset be sampled if shader-clamping is skipped?
+    const float sampleRadius = fSamplingOptions.useCubic ? kCubicRadius : kHalfPixel;
+    SkRect safeImageBounds = imageBounds.makeInset(sampleRadius, sampleRadius);
+    if (fSamplingOptions == kDefaultSampling && !is_nearly_integer_translation(netTransform)) {
+        // When using default sampling, integer translations are eventually downgraded to nearest
+        // neighbor, so the 1/2px inset clamping is sufficient to safely access within the subset.
+        // When staying with linear filtering, a sample at 1/2px inset exactly will end up accessing
+        // one external pixel with a weight of 0 (but MSAN will complain and not all GPUs actually
+        // seem to get that correct). To be safe we have to clamp to epsilon inside the 1/2px.
+        safeImageBounds.inset(kRoundEpsilon, kRoundEpsilon);
+    }
+    pixelCenterBounds.inset(kHalfPixel, kHalfPixel);
+
+    // True if all corners of 'pixelCenterBounds' are on the inside of each edge of
+    // 'safeImageBounds', ordered T,R,B,L.
+    skvx::int4 edgeMask = SkRectPriv::QuadContainsRectMask(netM44,
+                                                           safeImageBounds,
+                                                           pixelCenterBounds,
+                                                           kRoundEpsilon);
+    if (!all(edgeMask)) {
+        // Sampling outside the image subset occurs, but if the edges that are exceeded are HW
+        // edges, then we can avoid using shader-based tiling.
+        skvx::int4 hwEdge{fImage->subset().fTop == 0,
+                          fImage->subset().fRight == fImage->backingStoreDimensions().fWidth,
+                          fImage->subset().fBottom == fImage->backingStoreDimensions().fHeight,
+                          fImage->subset().fLeft == 0};
+        if (fTileMode == SkTileMode::kRepeat || fTileMode == SkTileMode::kMirror) {
+            // For periodic tile modes, we require both edges on an axis to be HW edges
+            hwEdge = hwEdge & skvx::shuffle<2,3,0,1>(hwEdge); // TRBL & BLTR
+        }
+        if (!all(edgeMask | hwEdge)) {
+            analysis |= BoundsAnalysis::kRequiresShaderTiling;
+        }
+
+        if (fTileMode == SkTileMode::kDecal) {
+            // Some amount of decal tiling will be visible in the output, but it only needs to
+            // be handled special if it's not nearest neighbor and not an identity scale factor.
+            // NOTE: all the cases where fSamplingOptions is not nearest neighbor, but can be
+            // reduced to nearest neighbor later, satisfy the net xform having the identity scale
+            float scaleFactors[2];
+            if (fSamplingOptions != kNearestNeighbor &&
+                !(SkMatrix(netTransform).getMinMaxScales(scaleFactors) &&
+                  SkScalarNearlyEqual(scaleFactors[0], 1.f, 0.2f) &&
+                  SkScalarNearlyEqual(scaleFactors[1], 1.f, 0.2f))) {
+                analysis |= BoundsAnalysis::kRequiresDecalInLayerSpace;
             }
         }
     }
 
-    // Second determine if the layer bounds clip are visible given the target dstBounds.
-    if (!fillsLayerBounds) {
-        // When the effects don't fill the layer bounds, the clip may still be important if it crops
-        // the edges of the original transformed image.
-        LayerSpace<SkIRect> imageBounds =
-                fTransform.mapRect(LayerSpace<SkIRect>{fImage->dimensions()});
-        fillsLayerBounds = !fLayerBounds.contains(imageBounds);
-    }
-
-    if (fillsLayerBounds) {
-        // Some content (either the image itself, or tiling/color-filtering) can produce
-        // non-transparent output beyond 'fLayerBounds'. 'fLayerBounds' can only be ignored if the
-        // desired output is completely contained within it (i.e. the edges of 'fLayerBounds' are
-        // not visible).
-        // NOTE: For the identity transform, this is equal to !fLayerBounds.contains(dstBounds)
-        if (!SkRectPriv::QuadContainsRect(SkMatrix(xtraTransform),
-                                          SkIRect(fLayerBounds),
-                                          dstBounds,
-                                          kRoundEpsilon)) {
-            analysis |= BoundsAnalysis::kLayerCropVisible;
-        }
-    }
-    // else no part of the sampled and color-filtered image would produce non-transparent pixels
-    // outside of 'fLayerBounds' so 'fLayerBounds' can be ignored.
     return analysis;
 }
 
@@ -845,11 +801,12 @@ FilterResult FilterResult::applyCrop(const Context& ctx,
     LayerSpace<SkIPoint> origin;
     if (!preserveTransparencyInCrop &&
         is_nearly_integer_translation(fTransform, &origin) &&
-        (doubleClamp || !(this->analyzeBounds(fittedCrop) & BoundsAnalysis::kEffectsVisible))) {
+        (doubleClamp ||
+         !(this->analyzeBounds(fittedCrop) & BoundsAnalysis::kHasLayerFillingEffect))) {
         // Since the transform is axis-aligned, the tile mode can be applied to the original
         // image pre-transformation and still be consistent with the 'crop' geometry. When the
         // original tile mode is decal, extract_subset is always valid. When the original mode is
-        // mirror/repeat, !modifiesPixelsBeyondImage() ensures that 'fittedCrop' is contained within
+        // mirror/repeat, !kHasLayerFillingEffect ensures that 'fittedCrop' is contained within
         // the base image bounds, so extract_subset is valid. When the original mode is clamp
         // and the new mode is not clamp, that is also the case. When both modes are clamp, we have
         // to consider how 'fittedCrop' intersects (or doesn't) with the base image bounds.
@@ -911,7 +868,7 @@ FilterResult FilterResult::applyColorFilter(const Context& ctx,
             return solidColor;
         }
 
-        if (this->analyzeBounds(ctx.desiredOutput()) & BoundsAnalysis::kLayerCropVisible) {
+        if (this->analyzeBounds(ctx.desiredOutput()) & BoundsAnalysis::kRequiresLayerCrop) {
             // Since 'colorFilter' modifies transparent black, the new result's layer bounds must
             // be the desired output. But if the current image is cropped we need to resolve the
             // image to avoid losing the effect of the current 'fLayerBounds'.
@@ -1023,9 +980,8 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
     // translation in which case any visible edge is aligned with the desired output and can be
     // resolved by intersecting the transformed layer bounds and the output bounds).
     bool isCropped = !nextXformIsInteger &&
-                     (this->analyzeBounds(SkMatrix(transform), SkIRect(ctx.desiredOutput()),
-                                          /*blendAffectsTransparentBlack=*/false)
-                            & BoundsAnalysis::kLayerCropVisible);
+                     (this->analyzeBounds(SkMatrix(transform), SkIRect(ctx.desiredOutput()))
+                            & BoundsAnalysis::kRequiresLayerCrop);
 
     FilterResult transformed;
     if (!isCropped && compatible_sampling(fSamplingOptions, currentXformIsInteger,
@@ -1117,10 +1073,9 @@ void FilterResult::draw(const Context& ctx,
     }
 
     SkEnumBitMask<BoundsAnalysis> analysis = this->analyzeBounds(device->localToDevice(),
-                                                                 device->devClipBounds(),
-                                                                 blendAffectsTransparentBlack);
+                                                                 device->devClipBounds());
 
-    if (analysis & BoundsAnalysis::kLayerCropVisible) {
+    if (analysis & BoundsAnalysis::kRequiresLayerCrop) {
         if (blendAffectsTransparentBlack) {
             // This is similar to the resolve() path in applyColorFilter() when the filter affects
             // transparent black but must be applied after the prior visible layer bounds clip.
@@ -1142,17 +1097,8 @@ void FilterResult::draw(const Context& ctx,
         if (preserveDeviceState) {
             device->pushClipStack();
         }
-        device->clipRect(SkRect::Make(SkIRect(fLayerBounds)), SkClipOp::kIntersect, /*aa=*/false);
+        device->clipRect(SkRect::Make(SkIRect(fLayerBounds)), SkClipOp::kIntersect, /*aa=*/true);
     }
-
-    SkPaint paint;
-    paint.setAntiAlias(true);
-    if (blender) {
-        paint.setBlender(sk_ref_sp(blender));
-    } else {
-        paint.setBlendMode(SkBlendMode::kSrcOver);
-    }
-    paint.setColorFilter(fColorFilter);
 
     // If we are an integer translate, the default bilinear sampling *should* be equivalent to
     // nearest-neighbor. Going through the direct image-drawing path tends to detect this
@@ -1166,36 +1112,37 @@ void FilterResult::draw(const Context& ctx,
         sampling = {};
     }
 
-    const bool approxFitImage = !fImage->isExactFit();
-    if (analysis & BoundsAnalysis::kEffectsVisible) {
-        if (fTileMode == SkTileMode::kDecal) {
-            // apply_decal consumes the transform, so we don't modify the canvas
-            paint.setShader(apply_decal(fTransform, fImage, fLayerBounds, sampling));
-        } else {
-            // For clamp/repeat/mirror, tiling at the layer resolution vs. resolving the image to
-            // the layer resolution and then tiling produces much more compatible results than
-            // decal would, so just always use a simple shader. If we don't have SkSL to let us use
-            // apply_decal, this might introduce some distortion if there was a deferred transform
-            // with a high scale factor, but this is a rare scenario.
-            paint.setShader(fImage->asShader(fTileMode, sampling, SkMatrix(fTransform)));
-        }
-        // Fill the canvas with the shader, relying on it to do the transform
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    if (blender) {
+        paint.setBlender(sk_ref_sp(blender));
+    } else {
+        paint.setBlendMode(SkBlendMode::kSrcOver);
+    }
+
+    if (analysis & BoundsAnalysis::kHasLayerFillingEffect ||
+        (blendAffectsTransparentBlack && (analysis & BoundsAnalysis::kDstBoundsNotCovered))) {
+        // Fill the canvas with the shader, so that the pixels beyond the image dimensions are still
+        // covered by the draw and either resolve tiling into the image, color filter transparent
+        // black, apply the blend mode to the dst, or any combination thereof.
+        paint.setShader(this->getAnalyzedShaderView(ctx, sampling, analysis));
         device->drawPaint(paint);
-        if (approxFitImage) {
-            ctx.markShaderBasedTilingRequired(fTileMode);
-        }
     } else {
         // src's origin is embedded in fTransform. For historical reasons, drawSpecial() does
         // not automatically use the device's current local-to-device matrix, but that's what preps
         // it to match the expected layer coordinate system.
+        paint.setColorFilter(fColorFilter);
         SkMatrix netTransform = SkMatrix::Concat(device->localToDevice(), SkMatrix(fTransform));
-        device->drawSpecial(fImage.get(), netTransform, sampling, paint);
-        if (approxFitImage) {
+
+        SkCanvas::SrcRectConstraint constraint = SkCanvas::kFast_SrcRectConstraint;
+        if (analysis & BoundsAnalysis::kRequiresShaderTiling) {
+            constraint = SkCanvas::kStrict_SrcRectConstraint;
             ctx.markShaderBasedTilingRequired(SkTileMode::kClamp);
         }
+        device->drawSpecial(fImage.get(), netTransform, sampling, paint, constraint);
     }
 
-    if (preserveDeviceState && (analysis & BoundsAnalysis::kLayerCropVisible)) {
+    if (preserveDeviceState && (analysis & BoundsAnalysis::kRequiresLayerCrop)) {
         device->popClipStack();
     }
 }
@@ -1217,6 +1164,8 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
     const bool nextXformIsInteger = !(flags & ShaderFlags::kNonTrivialSampling);
 
     SkBlendMode colorFilterMode;
+    SkEnumBitMask<BoundsAnalysis> analysis = this->analyzeBounds(sampleBounds);
+
     SkSamplingOptions sampling = xtraSampling;
     const bool needsResolve =
             // Deferred calculations on the input would be repeated with each sample, but we allow
@@ -1229,7 +1178,7 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
             !compatible_sampling(fSamplingOptions, currentXformIsInteger,
                                  &sampling, nextXformIsInteger) ||
             // The deferred edge of the layer bounds is visible to sampling
-            (this->analyzeBounds(sampleBounds) & BoundsAnalysis::kLayerCropVisible);
+            (analysis & BoundsAnalysis::kRequiresLayerCrop);
 
     // Downgrade to nearest-neighbor if the sequence of sampling doesn't do anything
     if (sampling == kDefaultSampling && nextXformIsInteger &&
@@ -1250,24 +1199,85 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
             }
         }
     } else {
-        // Since we didn't need to resolve, we know the content being sampled isn't cropped by
-        // fLayerBounds. fTransform and fColorFilter are handled in the shader directly.
-        if (fTileMode == SkTileMode::kDecal) {
-            shader = apply_decal(fTransform, fImage, sampleBounds, sampling);
-        } else {
-            shader = fImage->asShader(fTileMode, sampling, SkMatrix(fTransform));
-        }
-
-        if (shader && fColorFilter) {
-            shader = shader->makeWithColorFilter(fColorFilter);
-        }
-
-        if (!fImage->isExactFit()) {
-            ctx.markShaderBasedTilingRequired(fTileMode);
-        }
+        shader = this->getAnalyzedShaderView(ctx, sampling, analysis);
     }
 
     return shader;
+}
+
+sk_sp<SkShader> FilterResult::getAnalyzedShaderView(
+        const Context& ctx,
+        const SkSamplingOptions& finalSampling,
+        SkEnumBitMask<BoundsAnalysis> analysis) const {
+    const SkMatrix& localMatrix(fTransform);
+    const SkRect imageBounds = SkRect::Make(fImage->dimensions());
+    // We need to apply the decal in a coordinate space that matches the resolution of the layer
+    // space. If the transform preserves rectangles, map the image bounds by the transform so we
+    // can apply it before we evaluate the shader. Otherwise decompose the transform into a
+    // non-scaling post-decal transform and a scaling pre-decal transform.
+    SkMatrix postDecal, preDecal;
+    if (localMatrix.rectStaysRect() ||
+        !(analysis & BoundsAnalysis::kRequiresDecalInLayerSpace)) {
+        postDecal = SkMatrix::I();
+        preDecal = localMatrix;
+    } else {
+        decompose_transform(localMatrix, imageBounds.center(), &postDecal, &preDecal);
+    }
+
+    // If the image covers the dst bounds, then its tiling won't be visible, so we can switch
+    // to the faster kClamp for either HW or shader-based tiling. If we are applying the decal
+    // in layer space, then that extra shader implements the tiling, so we can switch to clamp
+    // for the image shader itself.
+    SkTileMode effectiveTileMode = fTileMode;
+    if (!(analysis & BoundsAnalysis::kDstBoundsNotCovered) ||
+        analysis & BoundsAnalysis::kRequiresDecalInLayerSpace) {
+        effectiveTileMode = SkTileMode::kClamp;
+    }
+    const bool strict = SkToBool(analysis & BoundsAnalysis::kRequiresShaderTiling);
+    if (strict) {
+        ctx.markShaderBasedTilingRequired(effectiveTileMode);
+    }
+    sk_sp<SkShader> imageShader =
+            fImage->asShader(effectiveTileMode, finalSampling, preDecal, strict);
+
+    if (analysis & BoundsAnalysis::kRequiresDecalInLayerSpace) {
+        SkASSERT(fTileMode == SkTileMode::kDecal);
+        // TODO(skbug:12784) - As part of fully supporting subsets in image shaders, it probably
+        // makes sense to share the subset tiling logic that's in GrTextureEffect as dedicated
+        // SkShaders. Graphite can then add those to its program as-needed vs. always doing
+        // shader-based tiling, and CPU can have raster-pipeline tiling applied more flexibly than
+        // at the bitmap level. At that point, this effect is redundant and can be replaced with the
+        // decal-subset shader.
+        static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+            "uniform shader image;"
+            "uniform float4 decalBounds;"
+
+            "half4 main(float2 coord) {"
+                "half4 d = half4(decalBounds - coord.xyxy) * half4(-1, -1, 1, 1);"
+                "d = saturate(d + 0.5);"
+                "return (d.x*d.y*d.z*d.w) * image.eval(coord);"
+            "}");
+
+        SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
+        builder.child("image") = std::move(imageShader);
+        builder.uniform("decalBounds") = preDecal.mapRect(imageBounds);
+
+        imageShader = builder.makeShader();
+    }
+
+    if (imageShader && !postDecal.isIdentity()) {
+        imageShader = imageShader->makeWithLocalMatrix(postDecal);
+    }
+
+    if (imageShader && fColorFilter) {
+        imageShader = imageShader->makeWithColorFilter(fColorFilter);
+    }
+
+    // Shader now includes the image, the sampling, the tile mode, the transform, and the color
+    // filter, skipping deferred effects that aren't present or aren't visible given 'analysis'.
+    // The last "effect", layer bounds cropping, must be handled externally by either resolving
+    // the image before hand or clipping the device that's drawing the returned shader.
+    return imageShader;
 }
 
 static int downscale_step_count(float netScaleFactor) {
@@ -1320,8 +1330,8 @@ FilterResult FilterResult::rescale(const Context& ctx,
     // scale factor (possibly identity).
     const bool canDeferTiling =
             pixelAligned &&
-            !(analysis & BoundsAnalysis::kLayerCropVisible) &&
-            !(enforceDecal && (analysis & BoundsAnalysis::kEffectsVisible));
+            !(analysis & BoundsAnalysis::kRequiresLayerCrop) &&
+            !(enforceDecal && (analysis & BoundsAnalysis::kHasLayerFillingEffect));
 
     const bool hasEffectsToApply =
             !canDeferTiling ||
@@ -1330,7 +1340,7 @@ FilterResult FilterResult::rescale(const Context& ctx,
             !SkColorSpace::Equals(fImage->getColorSpace(), ctx.colorSpace());
 
     if (xSteps == 0 && ySteps == 0 && !hasEffectsToApply) {
-        if (analysis & BoundsAnalysis::kEffectsVisible) {
+        if (analysis & BoundsAnalysis::kHasLayerFillingEffect) {
             // At this point, the only effects that could be visible is a non-decal mode, so just
             // return the image with adjusted layer bounds to match desired output.
             FilterResult noop = *this;
@@ -1344,7 +1354,7 @@ FilterResult FilterResult::rescale(const Context& ctx,
 
     PixelSpace<SkIRect> srcRect;
     SkTileMode tileMode;
-    if (canDeferTiling && (analysis & BoundsAnalysis::kEffectsVisible)) {
+    if (canDeferTiling && (analysis & BoundsAnalysis::kHasLayerFillingEffect)) {
         // When we can defer tiling, and said tiling is visible, rescaling the original image
         // uses smaller textures.
         srcRect = LayerSpace<SkIRect>(SkIRect::MakeXYWH(origin.x(), origin.y(),
@@ -1424,18 +1434,12 @@ FilterResult FilterResult::rescale(const Context& ctx,
 
             SkPaint paint;
             if (!image) {
-                // For the first iteration, paint with the original properties of the FilterResult.
-                if (fTileMode == SkTileMode::kDecal) {
-                    paint.setShader(apply_decal(fTransform, fImage, srcRect, fSamplingOptions));
-                } else {
-                    paint.setShader(fImage->asShader(fTileMode,
-                                                     fSamplingOptions,
-                                                     SkMatrix(fTransform)));
-                }
-                paint.setColorFilter(fColorFilter);
-                if (!fImage->isExactFit()) {
-                    ctx.markShaderBasedTilingRequired(fTileMode);
-                }
+                // Redo analysis with the actual scale transform and padded low res bounds, but
+                // remove kRequiresDecalInLayerSpace because it will always trigger with the scale
+                // factor and can be automatically applied at the end when upscaling.
+                analysis = this->analyzeBounds(SkMatrix(scaleXform), SkIRect(dstPixelBounds));
+                analysis &= ~BoundsAnalysis::kRequiresDecalInLayerSpace;
+                paint.setShader(this->getAnalyzedShaderView(ctx, fSamplingOptions, analysis));
             } else {
                 // Otherwise just bilinearly downsample the origin-aligned prior step's image.
                 paint.setShader(image->asShader(tileMode, SkFilterMode::kLinear,

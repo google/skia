@@ -620,6 +620,7 @@ public:
 
 private:
     friend class LayerSpace<SkMatrix>; // for map()
+    friend class FilterResult;         // ""
 
     // The image filter process decomposes the total CTM into layerToDev * paramToLayer and uses the
     // param-to-layer matrix to define the layer-space coordinate system. Depending on how it's
@@ -824,13 +825,25 @@ private:
         // The image can be drawn directly, without needing to apply tiling, or handling how any
         // color filter might affect transparent black.
         kSimple = 0,
-        // The image's tiling or color filter modify pixels beyond the image and those regions are
-        // visible when rendering to the 'dstBounds'.
-        kEffectsVisible = 1 << 0,
+        // The image does not directly cover the intersection of 'dstBounds' and the layer bounds.
+        // (ignoring tiling or color filters).
+        kDstBoundsNotCovered = 1 << 0,
+        // Added when kDstBoundsNotCovered is true, *and* there are non-decal tiling or transparency
+        // affecting color filters that would fill to the layer bounds, not covered by the image
+        // itself.
+        kHasLayerFillingEffect = 1 << 1,
         // The crop boundary induced by `fLayerBounds` is visible when rendering to the 'dstBounds',
-        // although this could be either because it intersects the image's content or because the
-        // effects modify transparent black and fill out to the layer bounds.
-        kLayerCropVisible = 1 << 1
+        // although this could be either because it intersects the image's content or because
+        // kHasLayerFillingEffect is true.
+        kRequiresLayerCrop = 1 << 2,
+        // The image's sampling would access pixel data outside of its valid subset so shader-based
+        // tiling is necessary. This can be true even if kHasLayerFillingEffect is false due to the
+        // filter sampling radius; it can also be false when kHasLayerFillingEffect is true if the
+        // image can use HW tiling.
+        kRequiresShaderTiling = 1 << 3,
+        // The image's decal tiling/sampling would operate at the wrong resolution (e.g. drawImage
+        // vs. image-shader look different), so it has to be applied with a wrapping shader effect
+        kRequiresDecalInLayerSpace = 1 << 4,
     };
     SK_DECL_BITMASK_OPS_FRIENDS(BoundsAnalysis)
 
@@ -839,15 +852,10 @@ private:
     // 'xtraTransform' may be either a within-layer transform, or a layer-to-device space transform.
     // The 'dstBounds' should be in the same coordinate space that 'xtraTransform' maps to. When
     // that is the identity matrix, 'dstBounds' is in layer space.
-    //
-    // Set 'blendAffectsTransparentBlack' to true when drawing a FilterResult with the non-default
-    // src-over blend and the blend modifies transparent black.
     SkEnumBitMask<BoundsAnalysis> analyzeBounds(const SkMatrix& xtraTransform,
-                                                const SkIRect& dstBounds,
-                                                bool blendAffectsTransparentBlack) const;
+                                                const SkIRect& dstBounds) const;
     SkEnumBitMask<BoundsAnalysis> analyzeBounds(const LayerSpace<SkIRect>& dstBounds) const {
-        return this->analyzeBounds(SkMatrix::I(), SkIRect(dstBounds),
-                                   /*blendAffectsTransparentBlack=*/false);
+        return this->analyzeBounds(SkMatrix::I(), SkIRect(dstBounds));
     }
 
     // Return an equivalent FilterResult such that its backing image dimensions have been reduced
@@ -882,10 +890,21 @@ private:
     // Returns the FilterResult as a shader, ideally without resolving to an axis-aligned image.
     // 'xtraSampling' is the sampling that any parent shader applies to the FilterResult.
     // 'sampleBounds' is the bounding box of coords the shader will be evaluated at by any parent.
+    //
+    // This variant may resolve to an intermediate image if needed. The returned shader encapsulates
+    // all deferred effects of the FilterResult.
     sk_sp<SkShader> asShader(const Context& ctx,
                              const SkSamplingOptions& xtraSampling,
                              SkEnumBitMask<ShaderFlags> flags,
                              const LayerSpace<SkIRect>& sampleBounds) const;
+
+    // This variant should only be called after analysis and final sampling has been determined, and
+    // there's no need to resolve the FilterResult to an intermediate image. This version will
+    // never introduce a new image pass but is unable to handle the layer crop. If (analysis &
+    // kRequiresLayerCrop) is true, it must be accounted for outside of this shader.
+    sk_sp<SkShader> getAnalyzedShaderView(const Context& ctx,
+                                          const SkSamplingOptions& finalSampling,
+                                          SkEnumBitMask<BoundsAnalysis> analysis) const;
 
     // Safely updates fTileMode, doing nothing if the FilterResult is empty. Updates the layer
     // bounds to the context's desired output if the tilemode is not decal.

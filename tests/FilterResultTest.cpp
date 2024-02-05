@@ -91,6 +91,24 @@ public:
                               FilterResult::ShaderFlags::kNone, sampleBounds);
     }
 
+    static sk_sp<SkShader> StrictShader(const skif::Context& ctx,
+                                        const skif::FilterResult& image) {
+        auto analysis = image.analyzeBounds(ctx.desiredOutput());
+        if (analysis & FilterResult::BoundsAnalysis::kRequiresLayerCrop) {
+            // getAnalyzedShaderView() doesn't include the layer crop, this will be handled by
+            // the FilterResultImageResolver.
+           return nullptr;
+        } else {
+            // Add flags to ensure no deferred effects or clamping logic are optimized away.
+            analysis |= FilterResult::BoundsAnalysis::kDstBoundsNotCovered;
+            analysis |= FilterResult::BoundsAnalysis::kRequiresShaderTiling;
+            if (image.tileMode() == SkTileMode::kDecal) {
+                analysis |= FilterResult::BoundsAnalysis::kRequiresDecalInLayerSpace;
+            }
+            return image.getAnalyzedShaderView(ctx, image.sampling(), analysis);
+        }
+    }
+
     static skif::FilterResult Rescale(const skif::Context& ctx,
                                       const skif::FilterResult& image,
                                       const skif::LayerSpace<SkSize> scale) {
@@ -118,6 +136,8 @@ static const float kFuzzyKernel[3][3] = {{0.9f, 0.9f, 0.9f},
                                          {0.9f, 0.9f, 0.9f}};
 static_assert(std::size(kFuzzyKernel) == std::size(kFuzzyKernel[0]), "Kernel must be square");
 static constexpr int kKernelSize = std::size(kFuzzyKernel);
+
+static constexpr bool kLogAllBitmaps = false; // Spammy, recommend limiting test cases being run
 
 bool colorfilter_equals(const SkColorFilter* actual, const SkColorFilter* expected) {
     if (!actual || !expected) {
@@ -431,9 +451,10 @@ class FilterResultImageResolver {
 public:
     enum class Method {
         kImageAndOffset,
+        kDrawToCanvas,
         kShader,
         kClippedShader,
-        kDrawToCanvas
+        kStrictShader // Only used to check image correctness when stats reported an optimization
     };
 
     FilterResultImageResolver(Method method) : fMethod(method) {}
@@ -441,9 +462,10 @@ public:
     const char* methodName() const {
         switch (fMethod) {
             case Method::kImageAndOffset: return "imageAndOffset";
+            case Method::kDrawToCanvas:   return "drawToCanvas";
             case Method::kShader:         return "asShader";
             case Method::kClippedShader:  return "asShaderClipped";
-            case Method::kDrawToCanvas:   return "drawToCanvas";
+            case Method::kStrictShader:   return "strictShader";
         }
         SkUNREACHABLE;
     }
@@ -467,21 +489,29 @@ public:
             canvas.clear(SK_ColorTRANSPARENT);
             canvas.translate(-ctx.desiredOutput().left(), -ctx.desiredOutput().top());
 
-            if (fMethod == Method::kShader || fMethod == Method::kClippedShader) {
-                skif::LayerSpace<SkIRect> sampleBounds;
+            if (fMethod > Method::kDrawToCanvas) {
+                sk_sp<SkShader> shader;
                 if (fMethod == Method::kShader) {
                     // asShader() applies layer bounds by resolving automatically
                     // (e.g. kDrawToCanvas), if sampleBounds is larger than the layer bounds. Since
                     // we want to test the unclipped shader version, pass in layerBounds() for
                     // sampleBounds and add a clip to the canvas instead.
                     canvas.clipIRect(SkIRect(image.layerBounds()));
-                    sampleBounds = image.layerBounds();
+                    shader = FilterResultTestAccess::AsShader(ctx, image, image.layerBounds());
+                } else if (fMethod == Method::kClippedShader) {
+                    shader = FilterResultTestAccess::AsShader(ctx, image, ctx.desiredOutput());
                 } else {
-                    sampleBounds = ctx.desiredOutput();
+                    shader = FilterResultTestAccess::StrictShader(ctx, image);
+                    if (!shader) {
+                        auto [pixels, origin] = this->resolve(
+                                ctx.withNewDesiredOutput(image.layerBounds()), image);
+                        shader = FilterResultTestAccess::StrictShader(
+                                ctx, FilterResult(std::move(pixels), LayerSpace<SkIPoint>(origin)));
+                    }
                 }
 
                 SkPaint paint;
-                paint.setShader(FilterResultTestAccess::AsShader(ctx, image, sampleBounds));
+                paint.setShader(std::move(shader));
                 canvas.drawPaint(paint);
             } else {
                 SkASSERT(fMethod == Method::kDrawToCanvas);
@@ -501,6 +531,7 @@ private:
 
 class TestRunner {
     static constexpr SkColorType kColorType = kRGBA_8888_SkColorType;
+    using ResolveMethod = FilterResultImageResolver::Method;
 public:
     // Raster-backed TestRunner
     TestRunner(skiatest::Reporter* reporter)
@@ -546,23 +577,34 @@ public:
         // Resolve actual using all 4 methods to ensure they are approximately equal to the expected
         // (which is used as a proxy for being approximately equal to each other).
         return this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-                                   FilterResultImageResolver::Method::kImageAndOffset,
+                                   ResolveMethod::kImageAndOffset,
                                    allowedPercentImageDiff, transparentCheckBorderTolerance) &&
                this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-                                   FilterResultImageResolver::Method::kShader,
+                                   ResolveMethod::kDrawToCanvas,
                                    allowedPercentImageDiff, transparentCheckBorderTolerance) &&
                this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-                                   FilterResultImageResolver::Method::kClippedShader,
+                                   ResolveMethod::kShader,
                                    allowedPercentImageDiff, transparentCheckBorderTolerance) &&
                this->compareImages(ctx, expectedBM, expectedOrigin, actual,
-                                   FilterResultImageResolver::Method::kDrawToCanvas,
+                                   ResolveMethod::kClippedShader,
                                    allowedPercentImageDiff, transparentCheckBorderTolerance);
+
+    }
+
+    bool validateOptimizedImage(const skif::Context& ctx, const FilterResult& actual) {
+        FilterResultImageResolver expectedResolver{ResolveMethod::kStrictShader};
+        auto [expectedImage, expectedOrigin] = expectedResolver.resolve(ctx, actual);
+        SkBitmap expectedBM = this->readPixels(expectedImage.get());
+        return this->compareImages(ctx, expectedBM, expectedOrigin, actual,
+                                   ResolveMethod::kImageAndOffset,
+                                   /*allowedPercentImageDiff=*/0.0f,
+                                   /*transparentCheckBorderTolerance=*/0);
     }
 
 private:
 
     bool compareImages(const skif::Context& ctx, const SkBitmap& expected, SkIPoint expectedOrigin,
-                       const FilterResult& actual, FilterResultImageResolver::Method method,
+                       const FilterResult& actual, ResolveMethod method,
                        float allowedPercentImageDiff, int transparentCheckBorderTolerance) {
         FilterResultImageResolver resolver{method};
         auto [actualImage, actualOrigin] = resolver.resolve(ctx, actual);
@@ -572,9 +614,14 @@ private:
         if (!this->compareBitmaps(expected, expectedOrigin, actualBM, actualOrigin,
                                   allowedPercentImageDiff, transparentCheckBorderTolerance,
                                   &badPixels)) {
-            SkDebugf("FilterResult comparison failed for method %s\n", resolver.methodName());
-            this->logBitmaps(expected, actualBM, badPixels);
+            if (!fLoggedErrorImage) {
+                SkDebugf("FilterResult comparison failed for method %s\n", resolver.methodName());
+                this->logBitmaps(expected, actualBM, badPixels);
+                fLoggedErrorImage = true;
+            }
             return false;
+        } else if (kLogAllBitmaps) {
+            this->logBitmaps(expected, actualBM, badPixels);
         }
         return true;
     }
@@ -757,10 +804,6 @@ private:
     void logBitmaps(const SkBitmap& expected,
                     const SkBitmap& actual,
                     const TArray<SkIPoint>& badPixels) {
-        if (fLoggedErrorImage) {
-            return; // no more spam
-        }
-
         SkString expectedURL;
         ToolUtils::BitmapToBase64DataURI(expected, &expectedURL);
         SkDebugf("Expected:\n%s\n\n", expectedURL.c_str());
@@ -774,15 +817,16 @@ private:
         }
 
         if (!badPixels.empty()) {
+            SkBitmap error = expected;
+            error.allocPixels();
+            SkAssertResult(expected.readPixels(error.pixmap()));
             for (auto p : badPixels) {
-                expected.erase(SkColors::kRed, SkIRect::MakeXYWH(p.fX, p.fY, 1, 1));
+                error.erase(SkColors::kRed, SkIRect::MakeXYWH(p.fX, p.fY, 1, 1));
             }
             SkString markedURL;
-            ToolUtils::BitmapToBase64DataURI(expected, &markedURL);
+            ToolUtils::BitmapToBase64DataURI(error, &markedURL);
             SkDebugf("Errors:\n%s\n\n", markedURL.c_str());
         }
-
-        fLoggedErrorImage = true;
     }
 
     skiatest::Reporter* fReporter;
@@ -972,13 +1016,12 @@ public:
             source = FilterResult(sourceSurface->snapSpecial(subset), fSourceBounds.topLeft());
         }
 
-        Stats stats;
         Context baseContext{fRunner.refBackend(),
                             skif::Mapping{SkMatrix::I()},
                             skif::LayerSpace<SkIRect>::Empty(),
                             source,
                             colorSpace.get(),
-                            &stats};
+                            /*stats=*/nullptr};
 
         // Applying modifiers to FilterResult might produce a new image, but hopefully it's
         // able to merge properties and even re-order operations to minimize the number of offscreen
@@ -995,12 +1038,11 @@ public:
         }
         SkASSERT(expectedImage);
 
-        int expectedNumOffscreenSurfaces = 0;
-        int expectedShaderTiledDraws = 0; // includes shader-based clamping for simplicity
-
         // Apply each action and validate, from first to last action
         for (int i = 0; i < (int) fActions.size(); ++i) {
             skiatest::ReporterContext actionLabel(fRunner, SkStringPrintf("action %d", i));
+
+            Stats stats;
             auto ctx = baseContext.withNewDesiredOutput(desiredOutputs[i]);
             FilterResultTestAccess::TrackStats(&ctx, &stats);
 
@@ -1027,16 +1069,16 @@ public:
                 correctedExpectation = Expect::kEmptyImage;
             }
 
-            int numIntermediateSurfaces = fActions[i].expectedOffscreenSurfaces();
-            expectedNumOffscreenSurfaces += numIntermediateSurfaces;
-
+            int numOffscreenSurfaces = fActions[i].expectedOffscreenSurfaces();
+            int actualShaderDraws = stats.fNumShaderBasedTilingDraws + stats.fNumShaderClampedDraws;
+            int expectedShaderTiledDraws = 0;
             bool actualNewImage = output.image() &&
                     (!source.image() || output.image()->uniqueID() != source.image()->uniqueID());
             switch(correctedExpectation) {
                 case Expect::kNewImage:
                     REPORTER_ASSERT(fRunner, actualNewImage);
                     if (source && !source.image()->isExactFit()) {
-                        expectedShaderTiledDraws += numIntermediateSurfaces;
+                        expectedShaderTiledDraws = numOffscreenSurfaces;
                     }
                     break;
                 case Expect::kDeferredImage:
@@ -1046,6 +1088,14 @@ public:
                     REPORTER_ASSERT(fRunner, !actualNewImage && !output.image());
                     break;
             }
+            // Verify stats behavior for the current action
+            REPORTER_ASSERT(fRunner, numOffscreenSurfaces == stats.fNumOffscreenSurfaces,
+                            "expected %d, got %d",
+                            numOffscreenSurfaces, stats.fNumOffscreenSurfaces);
+            REPORTER_ASSERT(fRunner, actualShaderDraws <= expectedShaderTiledDraws,
+                            "expected %d+%d <= %d",
+                            stats.fNumShaderBasedTilingDraws, stats.fNumShaderClampedDraws,
+                            expectedShaderTiledDraws);
 
             // Validate layer bounds and sampling when we expect a new or deferred image
             if (output.image()) {
@@ -1055,9 +1105,14 @@ public:
                 REPORTER_ASSERT(fRunner, output.tileMode() == fActions[i].expectedTileMode());
                 REPORTER_ASSERT(fRunner, colorfilter_equals(output.colorFilter(),
                                                             fActions[i].expectedColorFilter()));
+                if (actualShaderDraws < expectedShaderTiledDraws ||
+                    (source.tileMode() != SkTileMode::kClamp && stats.fNumShaderClampedDraws > 0)) {
+                    // Some tile draws were optimized to HW draws, or some tile draws were reduced
+                    // to shader-clamped draws, so compare the output to a non-optimized image.
+                    REPORTER_ASSERT(fRunner, fRunner.validateOptimizedImage(ctx, output));
+                }
             }
 
-            FilterResultTestAccess::TrackStats(&ctx, nullptr);
             expectedImage = fActions[i].renderExpectedImage(ctx,
                                                             std::move(expectedImage),
                                                             expectedOrigin,
@@ -1075,18 +1130,6 @@ public:
             }
             source = output;
         }
-
-        // Verify overall stats behavior
-        REPORTER_ASSERT(fRunner, expectedNumOffscreenSurfaces == stats.fNumOffscreenSurfaces,
-                        "expected %d, got %d",
-                        expectedNumOffscreenSurfaces, stats.fNumOffscreenSurfaces);
-
-        REPORTER_ASSERT(fRunner,
-                        expectedShaderTiledDraws ==
-                                stats.fNumShaderBasedTilingDraws + stats.fNumShaderClampedDraws,
-                        "expected %d, got %d + %d",
-                        expectedShaderTiledDraws,
-                        stats.fNumShaderBasedTilingDraws, stats.fNumShaderClampedDraws);
     }
 
 private:
@@ -2249,7 +2292,7 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
         TestCase(r, "1-step X axis, 2-step Y axis preserves tile mode",
                  /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 22.f
                                                                       : periodic ? 55.f : 29.5f,
-                /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
                 .rescale({.55f, 0.27f}, Expect::kNewImage, expectedTileMode)
@@ -2279,7 +2322,7 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
         TestCase(r, "2-step X axis, 1-step Y axis preserves tile mode",
                  /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 22.f
                                                                       : periodic ? 55.f : 29.5f,
-                /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
                 .rescale({.27f, 0.55f}, Expect::kNewImage, expectedTileMode)

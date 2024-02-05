@@ -10,6 +10,7 @@
 
 #include "include/core/SkRect.h"
 #include "src/base/SkMathPriv.h"
+#include "src/base/SkVx.h"
 
 class SkM44;
 class SkMatrix;
@@ -92,6 +93,9 @@ public:
                                  const SkIRect& b,
                                  float tol=0.f);
     static bool QuadContainsRect(const SkM44& m, const SkRect& a, const SkRect& b, float tol=0.f);
+    // Like QuadContainsRect() but returns the edge test masks ordered T, R, B, L.
+    static skvx::int4 QuadContainsRectMask(const SkM44& m, const SkRect& a, const SkRect& b,
+                                           float tol=0.f);
 
     // Assuming 'src' does not intersect 'dst', returns the edge or corner of 'src' that is closest
     // to 'dst', e.g. the pixels that would be sampled from 'src' when clamp-tiled into 'dst'.
