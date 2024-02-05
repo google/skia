@@ -215,7 +215,10 @@ public:
     }
 
     SkString toUpper(const SkString& str) override {
+        return this->toUpper(str, nullptr);
+    }
 
+    SkString toUpper(const SkString& str, const char* locale) override {
         SkString res(" ", str.size());
         grapheme_to_uppercase_utf8(str.data(), str.size(), res.data(), res.size());
         return res;

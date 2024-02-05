@@ -84,7 +84,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "icu4x",
         build_file = ws + "//bazel/external/icu4x:BUILD.bazel",
-        commit = "4f81635489681ecf7707623177123cb78d6a66a0",
+        commit = "bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13",
         remote = "https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git",
     )
 

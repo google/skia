@@ -3,28 +3,69 @@
 version = 3
 
 [[package]]
-name = "diplomat"
-version = "0.5.2"
+name = "calendrical_calculations"
+version = "0.1.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+dependencies = [
+ "core_maths",
+ "displaydoc",
+]
+
+[[package]]
+name = "colored"
+version = "2.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "131a7c8474cb3648784b28b131021017bf0e8a0acb2e7fe4432ac5a72b81d734"
+checksum = "2674ec482fbc38012cf31e6c42ba0177b431a0cb6f15fe40efa5aab1bda516f6"
+dependencies = [
+ "is-terminal",
+ "lazy_static",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "core_maths"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3b02505ccb8c50b0aa21ace0fc08c3e53adebd4e58caa18a36152803c7709a3"
+dependencies = [
+ "libm",
+]
+
+[[package]]
+name = "deranged"
+version = "0.3.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b42b6fa04a440b495c8b04d0e71b707c585f83cb9cb28cf8cd0d976c315e31b4"
+dependencies = [
+ "powerfmt",
+]
+
+[[package]]
+name = "diplomat"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a31672b3ebc3c7866c3c98726f7a9a5ac8f13962e77d3c8225f6be49a7b8c5f2"
 dependencies = [
  "diplomat_core",
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn",
 ]
 
 [[package]]
 name = "diplomat-runtime"
-version = "0.5.2"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7be78da2d794f65e463740e6f1a6b1e7a3973d62f40fd02d05cc71adbee7ea5a"
+checksum = "f7b0f23d549a46540e26e5490cd44c64ced0d762959f1ffdec6ab0399634cf3c"
+dependencies = [
+ "log",
+]
 
 [[package]]
 name = "diplomat_core"
-version = "0.5.2"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7c69d55d3abfc5b4f487e4410df7971626d999d84b25de6ad0ffd5c278f58a1"
+checksum = "bfaa5e13e8b8735d2338f2836c06cd8643902ab87dda1dd07dbb351998ddc127"
 dependencies = [
  "lazy_static",
  "proc-macro2",
@@ -32,7 +73,7 @@ dependencies = [
  "serde",
  "smallvec",
  "strck_ident",
- "syn 1.0.109",
+ "syn",
 ]
 
 [[package]]
@@ -43,7 +84,7 @@ checksum = "487585f4d0c6655fe74905e2504d8ad6908e4db67f744eb140876906c2f3175d"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.38",
+ "syn",
 ]
 
 [[package]]
@@ -54,14 +95,20 @@ checksum = "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
 
 [[package]]
 name = "fixed_decimal"
-version = "0.5.3"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.5.5"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "ryu",
  "smallvec",
  "writeable",
 ]
+
+[[package]]
+name = "hermit-abi"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd5256b483761cd23699d0da46cc6fd2ee3be420bbe6d020ae4a091e70b7e9fd"
 
 [[package]]
 name = "icu4x_deps"
@@ -72,11 +119,14 @@ dependencies = [
 
 [[package]]
 name = "icu_calendar"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
+ "calendrical_calculations",
  "displaydoc",
+ "icu_calendar_data",
  "icu_locid",
+ "icu_locid_transform",
  "icu_provider",
  "tinystr",
  "writeable",
@@ -84,18 +134,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "icu_calendar_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
 name = "icu_capi"
-version = "1.2.2"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.1"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "diplomat",
  "diplomat-runtime",
  "fixed_decimal",
  "icu_calendar",
+ "icu_casemap",
  "icu_collator",
  "icu_collections",
  "icu_datetime",
  "icu_decimal",
+ "icu_displaynames",
  "icu_list",
  "icu_locid",
  "icu_locid_transform",
@@ -105,22 +162,44 @@ dependencies = [
  "icu_provider",
  "icu_provider_adapters",
  "icu_segmenter",
- "icu_testdata",
  "icu_timezone",
  "log",
+ "simple_logger",
  "tinystr",
  "unicode-bidi",
  "writeable",
 ]
 
 [[package]]
-name = "icu_collator"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+name = "icu_casemap"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
+ "icu_casemap_data",
  "icu_collections",
  "icu_locid",
+ "icu_properties",
+ "icu_provider",
+ "writeable",
+ "zerovec",
+]
+
+[[package]]
+name = "icu_casemap_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
+name = "icu_collator"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+dependencies = [
+ "displaydoc",
+ "icu_collator_data",
+ "icu_collections",
+ "icu_locid",
+ "icu_locid_transform",
  "icu_normalizer",
  "icu_properties",
  "icu_provider",
@@ -131,9 +210,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "icu_collator_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
 name = "icu_collections"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "yoke",
@@ -143,15 +227,17 @@ dependencies = [
 
 [[package]]
 name = "icu_datetime"
-version = "1.2.1"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "either",
  "fixed_decimal",
  "icu_calendar",
+ "icu_datetime_data",
  "icu_decimal",
  "icu_locid",
+ "icu_locid_transform",
  "icu_plurals",
  "icu_provider",
  "icu_timezone",
@@ -162,32 +248,69 @@ dependencies = [
 ]
 
 [[package]]
+name = "icu_datetime_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
 name = "icu_decimal"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "fixed_decimal",
+ "icu_decimal_data",
  "icu_locid",
+ "icu_locid_transform",
  "icu_provider",
  "writeable",
 ]
 
 [[package]]
+name = "icu_decimal_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
+name = "icu_displaynames"
+version = "0.11.2"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+dependencies = [
+ "icu_displaynames_data",
+ "icu_locid",
+ "icu_locid_transform",
+ "icu_provider",
+ "tinystr",
+ "zerovec",
+]
+
+[[package]]
+name = "icu_displaynames_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
 name = "icu_list"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
+ "icu_list_data",
+ "icu_locid_transform",
  "icu_provider",
  "regex-automata",
  "writeable",
 ]
 
 [[package]]
+name = "icu_list_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
 name = "icu_locid"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "litemap",
@@ -198,23 +321,30 @@ dependencies = [
 
 [[package]]
 name = "icu_locid_transform"
-version = "1.2.1"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "icu_locid",
+ "icu_locid_transform_data",
  "icu_provider",
  "tinystr",
  "zerovec",
 ]
 
 [[package]]
+name = "icu_locid_transform_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
 name = "icu_normalizer"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.1"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "icu_collections",
+ "icu_normalizer_data",
  "icu_properties",
  "icu_provider",
  "smallvec",
@@ -225,24 +355,38 @@ dependencies = [
 ]
 
 [[package]]
+name = "icu_normalizer_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
 name = "icu_plurals"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "fixed_decimal",
  "icu_locid",
+ "icu_locid_transform",
+ "icu_plurals_data",
  "icu_provider",
  "zerovec",
 ]
 
 [[package]]
+name = "icu_plurals_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
 name = "icu_properties"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "icu_collections",
+ "icu_locid_transform",
+ "icu_properties_data",
  "icu_provider",
  "tinystr",
  "unicode-bidi",
@@ -250,14 +394,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "icu_properties_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
 name = "icu_provider"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "icu_locid",
  "icu_provider_macros",
+ "log",
  "stable_deref_trait",
+ "tinystr",
  "writeable",
  "yoke",
  "zerofrom",
@@ -266,81 +417,94 @@ dependencies = [
 
 [[package]]
 name = "icu_provider_adapters"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "icu_locid",
+ "icu_locid_transform",
  "icu_provider",
  "tinystr",
- "yoke",
  "zerovec",
 ]
 
 [[package]]
 name = "icu_provider_macros"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn",
 ]
 
 [[package]]
 name = "icu_segmenter"
-version = "1.2.1"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
+ "core_maths",
  "displaydoc",
  "icu_collections",
  "icu_locid",
  "icu_provider",
- "libm",
+ "icu_segmenter_data",
  "utf8_iter",
  "zerovec",
 ]
 
 [[package]]
-name = "icu_testdata"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
-dependencies = [
- "icu_calendar",
- "icu_collator",
- "icu_collections",
- "icu_datetime",
- "icu_decimal",
- "icu_list",
- "icu_locid",
- "icu_locid_transform",
- "icu_normalizer",
- "icu_plurals",
- "icu_properties",
- "icu_provider",
- "icu_provider_adapters",
- "icu_segmenter",
- "icu_timezone",
- "zerovec",
-]
+name = "icu_segmenter_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 
 [[package]]
 name = "icu_timezone"
-version = "1.2.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "icu_calendar",
  "icu_locid",
  "icu_provider",
+ "icu_timezone_data",
  "tinystr",
+ "zerotrie",
  "zerovec",
 ]
+
+[[package]]
+name = "icu_timezone_data"
+version = "1.4.0"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+
+[[package]]
+name = "is-terminal"
+version = "0.4.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f23ff5ef2b80d608d61efee834934d862cd92461afc0560dedf493e4c033738b"
+dependencies = [
+ "hermit-abi",
+ "libc",
+ "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "itoa"
+version = "1.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1a46d1a171d865aa5f83f92695765caa047a9b4cbae2cbf37dbd613a793fd4c"
 
 [[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+
+[[package]]
+name = "libc"
+version = "0.2.153"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
 
 [[package]]
 name = "libm"
@@ -350,8 +514,8 @@ checksum = "4ec2a862134d2a7d32d7983ddcdd1c4923530833c9f2ea1a44fc5fa473989058"
 
 [[package]]
 name = "litemap"
-version = "0.7.0"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.7.2"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 
 [[package]]
 name = "log"
@@ -361,24 +525,45 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 
 [[package]]
 name = "memchr"
-version = "2.6.4"
+version = "2.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f665ee40bc4a3c5590afb1e9677db74a508659dfd71e126420da8274909a0167"
+checksum = "523dc4f511e55ab87b694dc30d0f820d60906ef06413f93d4d7a1385599cc149"
+
+[[package]]
+name = "num-conv"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "51d515d32fb182ee37cda2ccdcb92950d6a3c2893aa280e540671c2cd0f3b1d9"
+
+[[package]]
+name = "num_threads"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2819ce041d2ee131036f4fc9d6ae7ae125a3a40e97ba64d04fe799ad9dabbb44"
+dependencies = [
+ "libc",
+]
+
+[[package]]
+name = "powerfmt"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.69"
+version = "1.0.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "134c189feb4956b20f6f547d2cf727d4c0fe06722b20a0eec87ed445a97f92da"
+checksum = "e2422ad645d89c99f8f3e6b88a9fdeca7fabeac836b1002371c4367c8f984aae"
 dependencies = [
  "unicode-ident",
 ]
 
 [[package]]
 name = "quote"
-version = "1.0.33"
+version = "1.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5267fca4496028628a95160fc423a33e8b2e6af8a5302579e322e4b520293cae"
+checksum = "291ec9ab5efd934aaf503a6466c5d5251535d108ee747472c3977cc5acc868ef"
 dependencies = [
  "proc-macro2",
 ]
@@ -394,35 +579,47 @@ dependencies = [
 
 [[package]]
 name = "ryu"
-version = "1.0.15"
+version = "1.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
+checksum = "f98d2aa92eebf49b69786be48e4477826b256916e84a57ff2a4f21923b48eb4c"
 
 [[package]]
 name = "serde"
-version = "1.0.190"
+version = "1.0.196"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "91d3c334ca1ee894a2c6f6ad698fe8c435b76d504b13d436f0685d648d6d96f7"
+checksum = "870026e60fa08c69f064aa766c10f10b1d62db9ccd4d0abb206472bee0ce3b32"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.190"
+version = "1.0.196"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67c5609f394e5c2bd7fc51efda478004ea80ef42fee983d5c67a65e34f32c0e3"
+checksum = "33c85360c95e7d137454dc81d9a4ed2b8efd8fbe19cee57357b32b9771fccb67"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.38",
+ "syn",
+]
+
+[[package]]
+name = "simple_logger"
+version = "4.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e7e46c8c90251d47d08b28b8a419ffb4aede0f87c2eea95e17d1d5bacbf3ef1"
+dependencies = [
+ "colored",
+ "log",
+ "time",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
 name = "smallvec"
-version = "1.11.1"
+version = "1.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "942b4a808e05215192e39f4ab80813e599068285906cc91aa64f923db842bd5a"
+checksum = "e6ecd384b10a64542d77071bd64bd7b231f4ed5940fba55e98c3de13824cf3d7"
 
 [[package]]
 name = "stable_deref_trait"
@@ -448,20 +645,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.109"
+version = "2.0.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
-dependencies = [
- "proc-macro2",
- "quote",
- "unicode-ident",
-]
-
-[[package]]
-name = "syn"
-version = "2.0.38"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e96b79aaa137db8f61e26363a0c9b47d8b4ec75da28b7d1d614c2303e232408b"
+checksum = "0f3531638e407dfc0814761abb7c00a5b54992b849452a0646b7f65c9f770f3f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -470,20 +656,52 @@ dependencies = [
 
 [[package]]
 name = "synstructure"
-version = "0.12.6"
+version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f36bdaa60a83aca3921b5259d5400cbf5e90fc51931376a9bd4a0eb79aa7210f"
+checksum = "c8af7666ab7b6390ab78131fb5b0fce11d6b7a6951602017c35fa82800708971"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
- "unicode-xid",
+ "syn",
+]
+
+[[package]]
+name = "time"
+version = "0.3.34"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c8248b6521bb14bc45b4067159b9b6ad792e2d6d754d6c41fb50e29fefe38749"
+dependencies = [
+ "deranged",
+ "itoa",
+ "libc",
+ "num-conv",
+ "num_threads",
+ "powerfmt",
+ "serde",
+ "time-core",
+ "time-macros",
+]
+
+[[package]]
+name = "time-core"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef927ca75afb808a4d64dd374f00a2adf8d0fcff8e7b184af886c3c87ec4a3f3"
+
+[[package]]
+name = "time-macros"
+version = "0.2.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ba3a3ef41e6672a2f0f001392bb5dcd3ff0a9992d618ca761a11c3121547774"
+dependencies = [
+ "num-conv",
+ "time-core",
 ]
 
 [[package]]
 name = "tinystr"
-version = "0.7.1"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.7.5"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "displaydoc",
  "zerovec",
@@ -491,9 +709,9 @@ dependencies = [
 
 [[package]]
 name = "unicode-bidi"
-version = "0.3.13"
+version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92888ba5573ff080736b3648696b70cafad7d250551175acbaa4e0385b3e1460"
+checksum = "08f95100a766bf4f8f28f90d77e0a5461bbdb219042e7679bebe79004fed8d75"
 
 [[package]]
 name = "unicode-ident"
@@ -502,22 +720,148 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
 
 [[package]]
-name = "unicode-xid"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
-
-[[package]]
 name = "utf16_iter"
-version = "1.0.4"
+version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52df8b7fb78e7910d776fccf2e42ceaf3604d55e8e7eb2dbd183cb1441d8a692"
+checksum = "c8232dd3cdaed5356e0f716d285e4b40b932ac434100fe9b7e0e8e935b9e6246"
 
 [[package]]
 name = "utf8_iter"
-version = "1.0.3"
+version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64a8922555b9500e3d865caed19330172cd67cbf82203f1a3311d8c305cc9f33"
+checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
+
+[[package]]
+name = "windows-sys"
+version = "0.48.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "677d2418bec65e3338edb076e806bc1ec15693c5d0104683f2efe857f61056a9"
+dependencies = [
+ "windows-targets 0.48.5",
+]
+
+[[package]]
+name = "windows-sys"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "282be5f36a8ce781fad8c8ae18fa3f9beff57ec1b52cb3de0789201425d9a33d"
+dependencies = [
+ "windows-targets 0.52.0",
+]
+
+[[package]]
+name = "windows-targets"
+version = "0.48.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a2fa6e2155d7247be68c096456083145c183cbbbc2764150dda45a87197940c"
+dependencies = [
+ "windows_aarch64_gnullvm 0.48.5",
+ "windows_aarch64_msvc 0.48.5",
+ "windows_i686_gnu 0.48.5",
+ "windows_i686_msvc 0.48.5",
+ "windows_x86_64_gnu 0.48.5",
+ "windows_x86_64_gnullvm 0.48.5",
+ "windows_x86_64_msvc 0.48.5",
+]
+
+[[package]]
+name = "windows-targets"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a18201040b24831fbb9e4eb208f8892e1f50a37feb53cc7ff887feb8f50e7cd"
+dependencies = [
+ "windows_aarch64_gnullvm 0.52.0",
+ "windows_aarch64_msvc 0.52.0",
+ "windows_i686_gnu 0.52.0",
+ "windows_i686_msvc 0.52.0",
+ "windows_x86_64_gnu 0.52.0",
+ "windows_x86_64_gnullvm 0.52.0",
+ "windows_x86_64_msvc 0.52.0",
+]
+
+[[package]]
+name = "windows_aarch64_gnullvm"
+version = "0.48.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b38e32f0abccf9987a4e3079dfb67dcd799fb61361e53e2882c3cbaf0d905d8"
+
+[[package]]
+name = "windows_aarch64_gnullvm"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb7764e35d4db8a7921e09562a0304bf2f93e0a51bfccee0bd0bb0b666b015ea"
+
+[[package]]
+name = "windows_aarch64_msvc"
+version = "0.48.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc35310971f3b2dbbf3f0690a219f40e2d9afcf64f9ab7cc1be722937c26b4bc"
+
+[[package]]
+name = "windows_aarch64_msvc"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbaa0368d4f1d2aaefc55b6fcfee13f41544ddf36801e793edbbfd7d7df075ef"
+
+[[package]]
+name = "windows_i686_gnu"
+version = "0.48.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a75915e7def60c94dcef72200b9a8e58e5091744960da64ec734a6c6e9b3743e"
+
+[[package]]
+name = "windows_i686_gnu"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a28637cb1fa3560a16915793afb20081aba2c92ee8af57b4d5f28e4b3e7df313"
+
+[[package]]
+name = "windows_i686_msvc"
+version = "0.48.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f55c233f70c4b27f66c523580f78f1004e8b5a8b659e05a4eb49d4166cca406"
+
+[[package]]
+name = "windows_i686_msvc"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffe5e8e31046ce6230cc7215707b816e339ff4d4d67c65dffa206fd0f7aa7b9a"
+
+[[package]]
+name = "windows_x86_64_gnu"
+version = "0.48.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53d40abd2583d23e4718fddf1ebec84dbff8381c07cae67ff7768bbf19c6718e"
+
+[[package]]
+name = "windows_x86_64_gnu"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d6fa32db2bc4a2f5abeacf2b69f7992cd09dca97498da74a151a3132c26befd"
+
+[[package]]
+name = "windows_x86_64_gnullvm"
+version = "0.48.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b7b52767868a23d5bab768e390dc5f5c55825b6d30b86c844ff2dc7414044cc"
+
+[[package]]
+name = "windows_x86_64_gnullvm"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a657e1e9d3f514745a572a6846d3c7aa7dbe1658c056ed9c3344c4109a6949e"
+
+[[package]]
+name = "windows_x86_64_msvc"
+version = "0.48.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
+
+[[package]]
+name = "windows_x86_64_msvc"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dff9641d1cd4be8d1a070daf9e3773c5f67e78b4d9d42263020c057706765c04"
 
 [[package]]
 name = "write16"
@@ -527,13 +871,13 @@ checksum = "d1890f4022759daae28ed4fe62859b1236caebfc61ede2f63ed4e695f3f6d936"
 
 [[package]]
 name = "writeable"
-version = "0.5.2"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.5.4"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 
 [[package]]
 name = "yoke"
-version = "0.7.1"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.7.3"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "serde",
  "stable_deref_trait",
@@ -543,38 +887,48 @@ dependencies = [
 
 [[package]]
 name = "yoke-derive"
-version = "0.7.1"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.7.3"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn",
  "synstructure",
 ]
 
 [[package]]
 name = "zerofrom"
-version = "0.1.2"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.1.3"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "zerofrom-derive",
 ]
 
 [[package]]
 name = "zerofrom-derive"
-version = "0.1.2"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.1.3"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
+ "syn",
  "synstructure",
 ]
 
 [[package]]
+name = "zerotrie"
+version = "0.1.2"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
+dependencies = [
+ "displaydoc",
+ "yoke",
+ "zerofrom",
+]
+
+[[package]]
 name = "zerovec"
-version = "0.9.4"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.10.1"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "yoke",
  "zerofrom",
@@ -583,11 +937,10 @@ dependencies = [
 
 [[package]]
 name = "zerovec-derive"
-version = "0.9.4"
-source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.2.2#4f81635489681ecf7707623177123cb78d6a66a0"
+version = "0.10.1"
+source = "git+https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git?tag=upstream/ind/icu_capi@1.4.1#bcf4f7198d4dc5f3127e84a6ca657c88e7d07a13"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 1.0.109",
- "synstructure",
+ "syn",
 ]

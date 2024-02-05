@@ -163,7 +163,7 @@ UNIX_ONLY_TEST(SkUnicode_GetBidiRegionsMix2, reporter) {
     }
 }
 
-#ifndef SK_UNICODE_ICU4X_IMPLEMENTATION
+
 UNIX_ONLY_TEST(SkUnicode_ToUpper, reporter) {
     SkString lower("abcdefghijklmnopqrstuvwxyz");
     SkString upper("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -173,7 +173,6 @@ UNIX_ONLY_TEST(SkUnicode_ToUpper, reporter) {
     auto icu_result2 = icu->toUpper(upper);
     REPORTER_ASSERT(reporter, icu_result2.equals(upper));
 }
-#endif
 
 UNIX_ONLY_TEST(SkUnicode_ComputeCodeUnitFlags, reporter) {
     //SkString text("World domination is such an ugly phrase - I prefer to call it world optimisation");

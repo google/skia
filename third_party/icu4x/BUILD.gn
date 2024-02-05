@@ -24,8 +24,8 @@ action("compile_icu4x_rust") {
 
 third_party("icu4x") {
   public_include_dirs = [
-    "../externals/icu4x/ffi/diplomat/cpp/include",
-    "../externals/icu4x/ffi/diplomat/c/include",
+    "../externals/icu4x/ffi/capi/cpp/include",
+    "../externals/icu4x/ffi/capi/c/include",
   ]
 
   libs = [ "$root_out_dir/libicu4x_rust.a" ]

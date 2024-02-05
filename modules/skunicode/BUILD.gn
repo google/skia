@@ -33,6 +33,14 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     }
   }
 
+  config("cpp20") {
+    if (is_win) {
+      cflags_cc = [ "/std:c++20" ]
+    } else {
+      cflags_cc = [ "-std=c++20" ]
+    }
+  }
+
   component("skunicode") {
     check_includes = false
     public_configs = [ ":public_config" ]
@@ -41,7 +49,10 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     defines = [ "SKUNICODE_IMPLEMENTATION=1" ]
     sources = skia_unicode_sources
     defines += [ "SK_UNICODE_AVAILABLE" ]
-    configs += [ "../../:skia_private" ]
+    configs += [
+      "../../:skia_private",
+      #":cpp20",
+    ]
 
     if (skia_use_icu) {
       sources += skia_unicode_icu_bidi_sources

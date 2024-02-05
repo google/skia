@@ -9,7 +9,7 @@ edition = "2021"
 version = "0.1.0"
 
 [dependencies]
-icu_capi = { git = "https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git", tag="upstream/ind/icu_capi@1.2.2", features = ["provider_test"]}
+icu_capi = { git = "https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git", tag="upstream/ind/icu_capi@1.4.1", features = ["provider_test", "icu_casemap", "compiled_data"]}
 
 [lib]
 crate-type = ["staticlib"]

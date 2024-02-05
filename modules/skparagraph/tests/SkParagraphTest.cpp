@@ -217,6 +217,18 @@ private:
     SkCanvas* canvas;
     const char* name;
 };
+
+
+static std::unique_ptr<SkUnicode> get_icu_based_unicode() {
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+    return SkUnicode::MakeIcuBasedUnicode();
+#endif  // defined(SK_UNICODE_ICU_IMPLEMENTATION)
+#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
+    return SkUnicode::MakeIcu4xBasedUnicode();
+#endif
+    SkDEBUGFAIL("Cannot make SkUnicode");
+    return nullptr;
+}
 }  // namespace
 
 // Skip tests which do not find the fonts, unless the user set --paragraph_fonts in which case
@@ -8083,6 +8095,9 @@ UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
 }
 
 UNIX_ONLY_TEST(SkParagraph_EmojiFontResolution, reporter) {
+
+    auto icu = get_icu_based_unicode();
+
     auto fontCollection = sk_make_sp<FontCollection>();
     fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr(), std::vector<SkString>());
     fontCollection->enableFontFallback();
@@ -8120,10 +8135,9 @@ UNIX_ONLY_TEST(SkParagraph_EmojiFontResolution, reporter) {
     }
 }
 
-#ifdef SK_UNICODE_ICU_IMPLEMENTATION
 UNIX_ONLY_TEST(SkParagraph_EmojiRuns, reporter) {
 
-    auto icu = SkUnicode::MakeIcuBasedUnicode();
+    auto icu = get_icu_based_unicode();
 
     auto test = [&](const char* text, SkUnichar expected) {
         SkString str(text);
@@ -8187,4 +8201,3 @@ UNIX_ONLY_TEST(SkParagraph_EmojiRuns, reporter) {
     test("👋🏼", 128075); // Modifier sequence
     test("👨‍👩‍👧‍👦", 128104); // ZWJ sequence
 }
-#endif

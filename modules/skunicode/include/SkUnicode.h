@@ -122,7 +122,9 @@ class SKUNICODE_API SkUnicode {
 
         virtual ~SkUnicode() = default;
 
+        // deprecated
         virtual SkString toUpper(const SkString&) = 0;
+        virtual SkString toUpper(const SkString&, const char* locale) = 0;
 
         virtual bool isControl(SkUnichar utf8) = 0;
         virtual bool isWhitespace(SkUnichar utf8) = 0;

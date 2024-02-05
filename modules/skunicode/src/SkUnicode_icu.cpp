@@ -489,12 +489,16 @@ public:
     }
 
     SkString toUpper(const SkString& str) override {
+        return this->toUpper(str, nullptr);
+    }
+
+    SkString toUpper(const SkString& str, const char* locale) override {
         // Convert to UTF16 since that's what ICU wants.
         auto str16 = SkUnicode::convertUtf8ToUtf16(str.c_str(), str.size());
 
         UErrorCode icu_err = U_ZERO_ERROR;
         const auto upper16len = sk_u_strToUpper(nullptr, 0, (UChar*)(str16.c_str()), str16.size(),
-                                                nullptr, &icu_err);
+                                                locale, &icu_err);
         if (icu_err != U_BUFFER_OVERFLOW_ERROR || upper16len <= 0) {
             return SkString();
         }
@@ -503,7 +507,7 @@ public:
         icu_err = U_ZERO_ERROR;
         sk_u_strToUpper((UChar*)(upper16.get()), SkToS32(upper16.size()),
                         (UChar*)(str16.c_str()), str16.size(),
-                        nullptr, &icu_err);
+                        locale, &icu_err);
         SkASSERT(!U_FAILURE(icu_err));
 
         // ... and back to utf8 'cause that's what we want.

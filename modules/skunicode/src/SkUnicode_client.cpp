@@ -179,7 +179,10 @@ public:
     }
 
     SkString toUpper(const SkString& str) override {
-        SkASSERT(false);
+        return this->toUpper(str, nullptr);
+    }
+
+    SkString toUpper(const SkString& str, const char* locale) override {
         return SkString(fData->fText8.data(), fData->fText8.size());
     }
 
