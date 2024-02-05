@@ -4484,11 +4484,13 @@ STAGE(swizzle, void* ctx) {
 }
 
 namespace lowp {
-#if defined(JUMPER_IS_SCALAR) || defined(SK_ENABLE_OPTIMIZE_SIZE) || defined(SK_BUILD_FOR_GOOGLE3)
+#if defined(JUMPER_IS_SCALAR) || defined(SK_ENABLE_OPTIMIZE_SIZE) || \
+        defined(SK_BUILD_FOR_GOOGLE3) || defined(SK_DISABLE_LOWP_RASTER_PIPELINE)
     // We don't bother generating the lowp stages if we are:
     //   - ... in scalar mode (MSVC, old clang, etc...)
     //   - ... trying to save code size
     //   - ... building for Google3. (No justification for this, but changing it would be painful).
+    //   - ... explicitly disabling it. This is currently just used by Flutter.
     //
     // Having nullptr for every stage will cause SkRasterPipeline to always use the highp stages.
     #define M(st) static void (*st)(void) = nullptr;
