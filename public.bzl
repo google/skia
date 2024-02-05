@@ -2230,8 +2230,6 @@ BASE_DEFINES = [
     "SK_USE_FREETYPE_EMBOLDEN",
     # Turn on a few Google3-specific build fixes.
     "SK_BUILD_FOR_GOOGLE3",
-    # Required for building dm.
-    "GR_TEST_UTILS",
     # Should remove after we update golden images
     "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
 
