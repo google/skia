@@ -63,7 +63,7 @@ CPU_GMS = [
     "alpha_image.cpp",
     "analytic_gradients.cpp",
     "androidblendmodes.cpp",
-    "animated_gif.cpp",
+    # "animated_gif.cpp", # needs a dep on SkResources
     "animatedimageblurs.cpp",
     "animated_image_orientation.cpp",
     # "annotated_text.cpp",  # ./include/core/SkRefCnt.h:41: fatal error: "assert(this->getRefCnt() == 1)"
