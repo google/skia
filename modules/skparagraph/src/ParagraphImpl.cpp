@@ -700,12 +700,27 @@ void ParagraphImpl::resolveStrut() {
     font.getMetrics(&metrics);
 
     if (strutStyle.getHeightOverride()) {
-        auto strutHeight = metrics.fDescent - metrics.fAscent;
-        auto strutMultiplier = strutStyle.getHeight() * strutStyle.getFontSize();
+        auto strutIntrinsicHeight = metrics.fDescent - metrics.fAscent;
+        auto strutHeight = strutStyle.getHeight() * strutStyle.getFontSize();
+
+        SkScalar strutAscent = 0.0f;
+        SkScalar strutDescent = 0.0f;
+        SkScalar strutLeading = 0.0f;
+        // The half leading flag doesn't take effect unless there's height override.
+        if (strutStyle.getHalfLeading()) {
+            strutAscent = metrics.fAscent;
+            strutDescent = metrics.fDescent;
+            strutLeading = metrics.fLeading + strutHeight - strutIntrinsicHeight;
+        } else {
+            strutAscent = metrics.fAscent * strutHeight / strutIntrinsicHeight;
+            strutDescent = metrics.fDescent * strutHeight / strutIntrinsicHeight;
+            strutLeading = strutStyle.getLeading() < 0 ? 0 : strutStyle.getLeading() * strutStyle.getFontSize();
+        }
+
         fStrutMetrics = InternalLineMetrics(
-            (metrics.fAscent / strutHeight) * strutMultiplier,
-            (metrics.fDescent / strutHeight) * strutMultiplier,
-                strutStyle.getLeading() < 0 ? 0 : strutStyle.getLeading() * strutStyle.getFontSize(),
+            strutAscent,
+            strutDescent,
+            strutLeading,
             metrics.fAscent, metrics.fDescent, metrics.fLeading);
     } else {
         fStrutMetrics = InternalLineMetrics(

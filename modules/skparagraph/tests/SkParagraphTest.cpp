@@ -1507,7 +1507,72 @@ UNIX_ONLY_TEST(SkParagraph_NearZeroHeightMixedDistribution, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, EPSILON100));
 }
 
-UNIX_ONLY_TEST(SkParagraph_StrutHalfLeading, reporter) {
+UNIX_ONLY_TEST(SkParagraph_StrutHalfLeadingSimple, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "A";
+    const size_t len = strlen(text);
+
+    TestCanvas canvas("SkParagraph_StrutHalfLeading.png");
+
+    ParagraphStyle paragraph_style;
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(100.0f);
+    text_style.setColor(SK_ColorBLACK);
+    text_style.setLetterSpacing(0.0f);
+    text_style.setWordSpacing(0.0f);
+    text_style.setHeightOverride(true);
+    text_style.setHeight(2.0f);
+    text_style.setHalfLeading(true);
+
+    StrutStyle strut_style;
+    strut_style.setFontFamilies({SkString("Roboto")});
+    strut_style.setFontSize(100.0f);
+    strut_style.setHeightOverride(true);
+    strut_style.setHeight(2.0f);
+    strut_style.setHalfLeading(true);
+    strut_style.setStrutEnabled(true);
+    strut_style.setForceStrutHeight(true);
+
+    paragraph_style.setStrutStyle(strut_style);
+    paragraph_style.setTextStyle(text_style);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+
+    builder.pushStyle(text_style);
+    builder.addText(text);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(550);
+
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->styles().size() == 1);  // paragraph style does not count
+
+    paragraph->paint(canvas.get(), 0, 0);
+
+    const RectWidthStyle rect_width_style = RectWidthStyle::kTight;
+    std::vector<TextBox> boxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kTight, rect_width_style);
+    std::vector<TextBox> lineBoxes = paragraph->getRectsForRange(0, len, RectHeightStyle::kMax, rect_width_style);
+
+    canvas.drawRects(SK_ColorBLUE, boxes);
+    REPORTER_ASSERT(reporter, lineBoxes.size() == boxes.size());
+
+    // line spacing is distributed evenly over and under the text.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[0].rect.bottom() - boxes[0].rect.bottom(), boxes[0].rect.top() - lineBoxes[0].rect.top()));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[0].rect.top(), 0.0f));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(lineBoxes[0].rect.left(), 0.0f));
+
+    std::vector<LineMetrics> lineMetrics;
+    paragraph->getLineMetrics(lineMetrics);
+    LineMetrics& firstLine = lineMetrics[0];
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(firstLine.fHeight, 200.0f));
+
+    // Half leading does not move the text horizontally.
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 0, EPSILON100));
+}
+
+UNIX_ONLY_TEST(SkParagraph_StrutHalfLeadingMultiline, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
 
@@ -1517,24 +1582,27 @@ UNIX_ONLY_TEST(SkParagraph_StrutHalfLeading, reporter) {
     TestCanvas canvas("SkParagraph_StrutHalfLeading.png");
 
     ParagraphStyle paragraph_style;
-    // Tiny font and height multiplier to ensure the height is entirely decided
-    // by the strut.
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
-    text_style.setFontSize(1.0f);
+    text_style.setFontSize(20.0f);
     text_style.setColor(SK_ColorBLACK);
     text_style.setLetterSpacing(0.0f);
     text_style.setWordSpacing(0.0f);
-    text_style.setHeight(0.1f);
+    text_style.setHeightOverride(true);
+    text_style.setHeight(3.0f);
+    text_style.setHalfLeading(true);
 
     StrutStyle strut_style;
     strut_style.setFontFamilies({SkString("Roboto")});
     strut_style.setFontSize(20.0f);
-    strut_style.setHeight(3.6345f);
+    strut_style.setHeightOverride(true);
+    strut_style.setHeight(3.0f);
     strut_style.setHalfLeading(true);
     strut_style.setStrutEnabled(true);
     strut_style.setForceStrutHeight(true);
 
+    paragraph_style.setStrutStyle(strut_style);
+    paragraph_style.setTextStyle(text_style);
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
 
     builder.pushStyle(text_style);
