@@ -222,9 +222,15 @@ void OneLineShaper::finish(const Block& block, SkScalar height, SkScalar& advanc
 
             auto index = i - glyphs.start;
             if (i < glyphs.end) {
+                // There are only n glyphs in a run, not n+1.
                 piece->fGlyphs[index] = run->fGlyphs[i];
+
+                // fClusterIndexes n+1 is already set to the end of the run.
+                // Do not attempt to overwrite this value with the cluster index
+                // that starts the next Run.
+                // It is assumed later that all clusters in a Run are contained by the Run.
+                piece->fClusterIndexes[index] = run->fClusterIndexes[i];
             }
-            piece->fClusterIndexes[index] = run->fClusterIndexes[i];
             piece->fPositions[index] = run->fPositions[i] - zero;
             piece->fOffsets[index] = run->fOffsets[i];
             piece->addX(index, advanceX);
