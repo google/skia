@@ -174,16 +174,8 @@ static void inverted_CMYK_to_BGR1_portable(uint32_t* dst, const uint32_t* src, i
     }
 }
 
-/*not static*/ inline void rgbA_to_RGBA(uint32_t* dst, const uint32_t* src, int count) {
-    rgbA_to_RGBA_portable(dst, src, count);
-}
-
-/*not static*/ inline void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
-    rgbA_to_BGRA_portable(dst, src, count);
-}
-
 #if defined(SK_ARM_HAS_NEON)
-
+// -- NEON -----------------------------------------------------------------------------------------
 // Rounded divide by 255, (x + 127) / 255
 static uint8x8_t div255_round(uint16x8_t x) {
     // result = (x + 127) / 255
@@ -397,7 +389,16 @@ static void inverted_cmyk_to(Format format, uint32_t* dst, const uint32_t* src, 
     inverted_cmyk_to(kBGR1, dst, src, count);
 }
 
+/*not static*/ inline void rgbA_to_RGBA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_BGRA_portable(dst, src, count);
+}
+
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+// -- AVX2 -----------------------------------------------------------------------------------------
 
 // Scale a byte by another.
 // Inputs are stored in 16-bit lanes, but are not larger than 8-bits.
@@ -645,7 +646,16 @@ static void inverted_cmyk_to(Format format, uint32_t* dst, const uint32_t* src, 
     inverted_cmyk_to(kBGR1, dst, src, count);
 }
 
+/*not static*/ inline void rgbA_to_RGBA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_BGRA_portable(dst, src, count);
+}
+
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+// -- SSSE3 ----------------------------------------------------------------------------------------
 
 // Scale a byte by another.
 // Inputs are stored in 16-bit lanes, but are not larger than 8-bits.
@@ -871,7 +881,24 @@ static void inverted_cmyk_to(Format format, uint32_t* dst, const uint32_t* src, 
     inverted_cmyk_to(kBGR1, dst, src, count);
 }
 
+/*not static*/ inline void rgbA_to_RGBA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_BGRA_portable(dst, src, count);
+}
+
 #else
+// -- No Opts --------------------------------------------------------------------------------------
+
+/*not static*/ inline void rgbA_to_RGBA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_BGRA_portable(dst, src, count);
+}
 
 /*not static*/ inline void RGBA_to_rgbA(uint32_t* dst, const uint32_t* src, int count) {
     RGBA_to_rgbA_portable(dst, src, count);
