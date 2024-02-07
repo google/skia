@@ -1376,7 +1376,8 @@ void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
 sk_sp<SkDevice> Device::createDevice(const CreateInfo& cinfo, const SkPaint*) {
     ASSERT_SINGLE_OWNER
 
-    SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);
+    SkSurfaceProps props =
+        this->surfaceProps().cloneWithPixelGeometry(cinfo.fPixelGeometry);
 
     SkASSERT(cinfo.fInfo.colorType() != kRGBA_1010102_SkColorType);
 

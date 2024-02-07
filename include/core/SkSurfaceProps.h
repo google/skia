@@ -8,6 +8,7 @@
 #ifndef SkSurfaceProps_DEFINED
 #define SkSurfaceProps_DEFINED
 
+#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTo.h"
 
@@ -60,19 +61,24 @@ public:
         kAlwaysDither_Flag              = 1 << 2,
     };
 
-    /** No flags, unknown pixel geometry. */
+    /** No flags, unknown pixel geometry, platform-default contrast/gamma. */
     SkSurfaceProps();
+    /** TODO(kschmi): Remove this constructor and replace with the one below. **/
     SkSurfaceProps(uint32_t flags, SkPixelGeometry);
+    /** Specified pixel geometry, text contrast, and gamma **/
+    SkSurfaceProps(uint32_t flags, SkPixelGeometry, SkScalar textContrast, SkScalar textGamma);
 
     SkSurfaceProps(const SkSurfaceProps&) = default;
     SkSurfaceProps& operator=(const SkSurfaceProps&) = default;
 
     SkSurfaceProps cloneWithPixelGeometry(SkPixelGeometry newPixelGeometry) const {
-        return SkSurfaceProps(fFlags, newPixelGeometry);
+        return SkSurfaceProps(fFlags, newPixelGeometry, fTextContrast, fTextGamma);
     }
 
     uint32_t flags() const { return fFlags; }
     SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
+    SkScalar textContrast() const { return fTextContrast; }
+    SkScalar textGamma() const { return fTextGamma; }
 
     bool isUseDeviceIndependentFonts() const {
         return SkToBool(fFlags & kUseDeviceIndependentFonts_Flag);
@@ -83,7 +89,8 @@ public:
     }
 
     bool operator==(const SkSurfaceProps& that) const {
-        return fFlags == that.fFlags && fPixelGeometry == that.fPixelGeometry;
+        return fFlags == that.fFlags && fPixelGeometry == that.fPixelGeometry &&
+        fTextContrast == that.fTextContrast && fTextGamma == that.fTextGamma;
     }
 
     bool operator!=(const SkSurfaceProps& that) const {
@@ -93,6 +100,11 @@ public:
 private:
     uint32_t        fFlags;
     SkPixelGeometry fPixelGeometry;
+
+    // This gamma value is specifically about blending of mask coverage.
+    // The surface also has a color space, but that applies to the colors.
+    SkScalar fTextContrast;
+    SkScalar fTextGamma;
 };
 
 #endif

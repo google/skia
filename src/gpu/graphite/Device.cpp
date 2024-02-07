@@ -391,7 +391,8 @@ SkStrikeDeviceInfo Device::strikeDeviceInfo() const {
 sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {
     // TODO: Inspect the paint and create info to determine if there's anything that has to be
     // modified to support inline subpasses.
-    SkSurfaceProps props(this->surfaceProps().flags(), info.fPixelGeometry);
+    SkSurfaceProps props =
+        this->surfaceProps().cloneWithPixelGeometry(info.fPixelGeometry);
 
     // Skia's convention is to only clear a device if it is non-opaque.
     bool addInitialClear = !info.fInfo.isOpaque();
