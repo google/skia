@@ -160,10 +160,10 @@ DEF_TEST(PublicSwizzleOpts, r) {
     REPORTER_ASSERT(r, dst == 0xFA04B0CE);
 }
 
-using fn = float (*)(float);
+using fn_reciprocal = float (*)(float);
 static void test_reciprocal_alpha(
         skiatest::Reporter* reporter,
-        fn test255, fn test1) {
+        fn_reciprocal test255, fn_reciprocal test1) {
     REPORTER_ASSERT(reporter, test255(0) == 0);
     for (uint32_t i = 1; i < 256; ++i) {
         const float r = test255(i);
@@ -194,4 +194,55 @@ DEF_TEST(ReciprocalAlphaPortable, reporter) {
                           SK_OPTS_NS::SkReciprocalAlphaTimes255_portable,
                           SK_OPTS_NS::SkReciprocalAlpha_portable);
 }
+
+// The stages of RasterPipeline unpremul calcExpected needs to simulate.
+// SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
+//     *r = cast((_8888      ) & 0xff) * (1/255.0f);
+//     *g = cast((_8888 >>  8) & 0xff) * (1/255.0f);
+//     *b = cast((_8888 >> 16) & 0xff) * (1/255.0f);
+//     *a = cast((_8888 >> 24)       ) * (1/255.0f);
+// }
+// STAGE(unpremul, NoCtx) {
+//     float inf = sk_bit_cast<float>(0x7f800000);
+//     auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0.0f);
+//     r *= scale;
+//     g *= scale;
+//     b *= scale;
+// }
+// STAGE(store_8888, const SkRasterPipeline_MemoryCtx* ctx) {
+//     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+//
+//     U32 px = to_unorm(r, 255)
+//            | to_unorm(g, 255) <<  8
+//            | to_unorm(b, 255) << 16
+//            | to_unorm(a, 255) << 24;
+//     store(ptr, px);
+// }
+uint32_t calcExpected(float alpha, float comp) {
+    if (alpha == 0) {
+        return 0;
+    }
+    const float normalized = comp * (1.0f / 255.0f);
+    const float normalizedA = alpha * (1.0f / 255.0f);
+    const float inverseAlpha = 1.0f / normalizedA;
+    const float unpremul = normalized * inverseAlpha;
+    const float scaledAndPinned = std::min(255.0f, unpremul * 255.0f);
+    return SK_OPTS_NS::pixel_round_as_RP(scaledAndPinned);
+};
+
+DEF_TEST(UnpremulSimulatingRP, reporter) {
+    for (uint32_t a = 0; a < 256; ++a) {
+        for (uint32_t c = 0; c < 256; ++c) {
+            const uint32_t expected = calcExpected(a, c);
+            const float normalizedA = a * (1.0f / 255.0f);
+            const float invA = SK_OPTS_NS::SkReciprocalAlpha(normalizedA);
+            const uint32_t actual = SK_OPTS_NS::unpremul_simulating_RP(invA, c);
+            if (actual != expected) {
+                SkDebugf("a: %d c: %d expected: %d actual: %d\n", a, c, expected, actual);
+            }
+            REPORTER_ASSERT(reporter, actual == expected);
+        }
+    }
+}
+
 #include "src/opts/SkOpts_RestoreTarget.h"
