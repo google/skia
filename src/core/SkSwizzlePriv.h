@@ -58,5 +58,4 @@ static inline uint32_t Sk4f_toL32(const skvx::float4& px) {
                        .store(&l32);
     return l32;
 }
-
-#endif
+#endif  // SkSwizzlePriv_DEFINED

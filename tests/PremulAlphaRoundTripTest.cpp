@@ -241,11 +241,3 @@ DEF_TEST(PremulAlphaRoundTripSkConvertPixels, reporter) {
     }
 }
 
-DEF_TEST(ReciprocalAlpha, reporter) {
-    REPORTER_ASSERT(reporter, SkReciprocalAlphaTimes255(0) == 0);
-    for (uint32_t i = 1; i < 256; ++i) {
-        const float r = SkReciprocalAlphaTimes255(i);
-        const float e = (255.0f / i);
-        REPORTER_ASSERT(reporter, r == e);
-    }
-}

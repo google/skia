@@ -9,18 +9,66 @@
 #define SkSwizzler_opts_DEFINED
 
 #include "include/private/SkColorData.h"
+#include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkSwizzlePriv.h"
+
 #include <algorithm>
 #include <cmath>
 #include <utility>
 
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
     #include <immintrin.h>
 #elif defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
 #endif
 
 namespace SK_OPTS_NS {
+
+static inline float SkReciprocalAlphaTimes255_portable(float a) {
+    return a != 0 ? 255.0f / a : 0.0f;
+}
+
+static inline float SkReciprocalAlpha_portable(float a) {
+    return a != 0 ? 1.0f / a : 0.0f;
+}
+
+#if defined(SK_ARM_HAS_NEON)
+// -- NEON -- Harden against timing attacks
+// For neon, the portable versions create branchless code.
+static inline float SkReciprocalAlphaTimes255(float a) {
+    return SkReciprocalAlphaTimes255_portable(a);
+}
+
+static inline float SkReciprocalAlpha(float a) {
+    return SkReciprocalAlpha_portable(a);
+}
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1 && (defined(__clang__) || !defined(_MSC_VER))
+// -- SSE -- Harden against timing attacks -- MSVC is not supported.
+using F4 = __m128;
+static inline float SkReciprocalAlphaTimes255(float a) {
+    SkASSERT(0 <= a && a <= 255);
+    F4 vA{a};
+    auto q = _mm_div_ss(F4{255.0f}, vA);
+    return _mm_and_ps(sk_bit_cast<__m128>(vA != F4{0.0f}), q)[0];
+}
+
+static inline float SkReciprocalAlpha(float a) {
+    SkASSERT(0 <= a && a <= 1);
+    F4 vA{a};
+    auto q = _mm_div_ss(F4{1.0f}, vA);
+    return _mm_and_ps(sk_bit_cast<__m128>(vA != F4{0.0f}), q)[0];
+}
+#else
+// -- Portable -- *Not* hardened against timing attacks
+static inline float SkReciprocalAlphaTimes255(float a) {
+    return SkReciprocalAlphaTimes255_portable(a);
+}
+
+static inline float SkReciprocalAlpha(float a) {
+    return SkReciprocalAlpha_portable(a);
+}
+#endif
 
 static void RGBA_to_rgbA_portable(uint32_t* dst, const uint32_t* src, int count) {
     for (int i = 0; i < count; i++) {

@@ -159,3 +159,39 @@ DEF_TEST(PublicSwizzleOpts, r) {
     SkSwapRB(&dst, &src, 1);
     REPORTER_ASSERT(r, dst == 0xFA04B0CE);
 }
+
+using fn = float (*)(float);
+static void test_reciprocal_alpha(
+        skiatest::Reporter* reporter,
+        fn test255, fn test1) {
+    REPORTER_ASSERT(reporter, test255(0) == 0);
+    for (uint32_t i = 1; i < 256; ++i) {
+        const float r = test255(i);
+        const float e = (255.0f / i);
+        REPORTER_ASSERT(reporter, r == e);
+    }
+
+    REPORTER_ASSERT(reporter, test1(0) == 0);
+    for (uint32_t i = 1; i < 256; ++i) {
+        const float normalized = i / 255.0f;
+        const float r = test1(normalized);
+        const float e = (1.0f / normalized);
+        REPORTER_ASSERT(reporter, r == e);
+    }
+}
+
+#define SK_OPTS_TARGET SK_OPTS_TARGET_DEFAULT
+#include "src/opts/SkOpts_SetTarget.h"
+#include "src/opts/SkSwizzler_opts.h"
+DEF_TEST(ReciprocalAlphaOptimized, reporter) {
+    test_reciprocal_alpha(reporter,
+                          SK_OPTS_NS::SkReciprocalAlphaTimes255,
+                          SK_OPTS_NS::SkReciprocalAlpha);
+}
+
+DEF_TEST(ReciprocalAlphaPortable, reporter) {
+    test_reciprocal_alpha(reporter,
+                          SK_OPTS_NS::SkReciprocalAlphaTimes255_portable,
+                          SK_OPTS_NS::SkReciprocalAlpha_portable);
+}
+#include "src/opts/SkOpts_RestoreTarget.h"
