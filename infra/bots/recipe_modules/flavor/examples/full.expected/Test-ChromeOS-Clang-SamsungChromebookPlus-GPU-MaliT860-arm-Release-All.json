@@ -248,9 +248,9 @@
   },
   {
     "cmd": [
-      "scp",
-      "-r",
-      "[START_DIR]/skia/resources/*",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/scp.py",
+      "[START_DIR]/skia/resources",
       "foo@127.0.0.1:/home/chronos/user/resources"
     ],
     "infra_step": true,
@@ -369,9 +369,9 @@
   },
   {
     "cmd": [
-      "scp",
-      "-r",
-      "[START_DIR]/skp/*",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/scp.py",
+      "[START_DIR]/skp",
       "foo@127.0.0.1:/home/chronos/user/skps"
     ],
     "infra_step": true,
@@ -503,9 +503,9 @@
   },
   {
     "cmd": [
-      "scp",
-      "-r",
-      "[START_DIR]/skimage/*",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/scp.py",
+      "[START_DIR]/skimage",
       "foo@127.0.0.1:/home/chronos/user/images"
     ],
     "infra_step": true,
@@ -637,9 +637,9 @@
   },
   {
     "cmd": [
-      "scp",
-      "-r",
-      "[START_DIR]/svg/*",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/scp.py",
+      "[START_DIR]/svg",
       "foo@127.0.0.1:/home/chronos/user/svgs"
     ],
     "infra_step": true,
@@ -678,9 +678,9 @@
   },
   {
     "cmd": [
-      "scp",
-      "-r",
-      "foo@127.0.0.1:/home/chronos/user/dm_out/*",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/scp.py",
+      "foo@127.0.0.1:/home/chronos/user/dm_out",
       "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
