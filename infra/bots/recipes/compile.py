@@ -17,7 +17,6 @@ DEPS = [
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
-  'recipe_engine/python',
   'recipe_engine/step',
   'run',
   'vars',
@@ -39,26 +38,11 @@ def RunSteps(api):
     api.build.copy_build_products(out_dir=out_dir, dst=dst)
   finally:
     if 'Win' in api.vars.builder_cfg.get('os', ''):
-      api.python.inline(
+      script = api.build.resource('cleanup_win_processes.py')
+      api.step(
           name='cleanup',
-          program='''
-# [VPYTHON:BEGIN]
-# wheel: <
-#  name: "infra/python/wheels/psutil/${vpython_platform}"
-#  version: "version:5.8.0.chromium.2"
-# >
-# [VPYTHON:END]
-
-import psutil
-for p in psutil.process_iter():
-  try:
-    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):
-      p.kill()
-  except psutil._error.AccessDenied:
-    pass
-''',
-          infra_step=True,
-          venv=True)
+          cmd=['vpython', script],
+          infra_step=True)
 
   api.run.check_failure()
 

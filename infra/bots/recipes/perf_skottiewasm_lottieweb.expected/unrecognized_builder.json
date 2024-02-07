@@ -27,7 +27,7 @@
       "The recipe has crashed at point 'Uncaught exception'!",
       "",
       "Traceback (most recent call last):",
-      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/perf_skottiewasm_lottieweb.py\", line 129, in RunSteps",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipes/perf_skottiewasm_lottieweb.py\", line 128, in RunSteps",
       "    raise Exception('Could not recognize the buildername %s' % buildername)",
       "Exception('Could not recognize the buildername Perf-Debian10-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized')"
     ]

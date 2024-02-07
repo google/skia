@@ -16,6 +16,7 @@ PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'flavor',
+  'infra',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
@@ -23,7 +24,6 @@ DEPS = [
   'recipe_engine/step',
   'recipe_engine/time',
   'recipe_engine/properties',
-  'recipe_engine/python',
   'recipe_engine/raw_io',
   'run',
   'vars',
@@ -173,59 +173,12 @@ def parse_trace(trace_json, lottie_filename, api):
     'frame_avg_us': 95,
   }
   """
+  script = api.infra.resource('parse_skottie_trace.py')
   step_result = api.run(
-      api.python.inline,
+      api.step,
       'parse %s trace' % lottie_filename,
-      program="""
-  import json
-  import sys
-
-  trace_output = sys.argv[1]
-  trace_json = json.loads(trace_output)
-  lottie_filename = sys.argv[2]
-  output_json_file = sys.argv[3]
-
-  perf_results = {}
-  frame_max = 0
-  frame_min = 0
-  frame_cumulative = 0
-  current_frame_duration = 0
-  total_frames = 0
-  frame_start = False
-  for trace in trace_json:
-    if '%s' in trace['name']:
-      if frame_start:
-        raise Exception('We got consecutive Animation::seek without a ' +
-                        'render. Something is wrong.')
-      frame_start = True
-      current_frame_duration = trace['dur']
-    elif '%s' in trace['name']:
-      if not frame_start:
-        raise Exception('We got an Animation::render without a seek first. ' +
-                        'Something is wrong.')
-
-      current_frame_duration += trace['dur']
-      frame_start = False
-      total_frames += 1
-      frame_max = max(frame_max, current_frame_duration)
-      frame_min = (min(frame_min, current_frame_duration)
-                   if frame_min else current_frame_duration)
-      frame_cumulative += current_frame_duration
-
-  expected_dm_frames = %d
-  if total_frames != expected_dm_frames:
-    raise Exception(
-        'Got ' + str(total_frames) + ' frames instead of ' +
-        str(expected_dm_frames))
-  perf_results['frame_max_us'] = frame_max
-  perf_results['frame_min_us'] = frame_min
-  perf_results['frame_avg_us'] = frame_cumulative/total_frames
-
-  # Write perf_results to the output json.
-  with open(output_json_file, 'w') as f:
-    f.write(json.dumps(perf_results))
-  """ % (SEEK_TRACE_NAME, RENDER_TRACE_NAME, EXPECTED_DM_FRAMES),
-  args=[trace_json, lottie_filename, api.json.output()])
+      cmd=['python3', script, trace_json, lottie_filename, api.json.output(),
+           SEEK_TRACE_NAME, RENDER_TRACE_NAME, EXPECTED_DM_FRAMES])
 
   # Sanitize float outputs to 2 precision points.
   output = dict(step_result.json.output)

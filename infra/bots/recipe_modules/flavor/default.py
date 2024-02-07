@@ -118,7 +118,7 @@ class DefaultFlavor(object):
                infra_step=infra_step, **kwargs)
 
   def _py(self, title, script, infra_step=True, args=()):
-    return self.m.run(self.m.python, title, script=script, args=args,
+    return self.m.run(self.m.step, title, cmd=['python3', script]+args,
                       infra_step=infra_step)
 
   def step(self, name, cmd, **unused_kwargs):

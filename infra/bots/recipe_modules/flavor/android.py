@@ -197,89 +197,21 @@ class AndroidFlavor(default.DefaultFlavor):
       # Nexus 5 is  320000000 by default
       # Nexus 5x is 180000000 by default
       gpu_freq = self.gpu_scaling[device]
-      self.m.run.with_retry(self.m.python.inline,
+      script = self.module.resource('set_gpu_scaling.py')
+      self.m.run.with_retry(self.m.step,
         "Lock GPU to %d (and other perf tweaks)" % gpu_freq,
         3, # attempts
-        program="""
-import os
-import subprocess
-import sys
-import time
-ADB = sys.argv[1]
-freq = sys.argv[2]
-idle_timer = "10000"
-
-log = subprocess.check_output([ADB, 'root']).decode('utf-8')
-# check for message like 'adbd cannot run as root in production builds'
-print(log)
-if 'cannot' in log:
-  raise Exception('adb root failed')
-
-subprocess.check_output([ADB, 'shell', 'stop', 'thermald']).decode('utf-8')
-
-subprocess.check_output([ADB, 'shell', 'echo "%s" > '
-    '/sys/class/kgsl/kgsl-3d0/gpuclk' % freq]).decode('utf-8')
-
-actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/class/kgsl/kgsl-3d0/gpuclk']).decode('utf-8').strip()
-if actual_freq != freq:
-  raise Exception('Frequency (actual, expected) (%s, %s)'
-                  % (actual_freq, freq))
-
-subprocess.check_call([ADB, 'shell', 'echo "%s" > '
-    '/sys/class/kgsl/kgsl-3d0/idle_timer' % idle_timer])
-
-actual_timer = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/class/kgsl/kgsl-3d0/idle_timer']).decode('utf-8').strip()
-if actual_timer != idle_timer:
-  raise Exception('idle_timer (actual, expected) (%s, %s)'
-                  % (actual_timer, idle_timer))
-
-for s in ['force_bus_on', 'force_rail_on', 'force_clk_on']:
-  subprocess.check_call([ADB, 'shell', 'echo "1" > '
-      '/sys/class/kgsl/kgsl-3d0/%s' % s])
-  actual_set = subprocess.check_output([ADB, 'shell', 'cat '
-      '/sys/class/kgsl/kgsl-3d0/%s' % s]).decode('utf-8').strip()
-  if actual_set != "1":
-    raise Exception('%s (actual, expected) (%s, 1)'
-                    % (s, actual_set))
-""",
-        args = [self.ADB_BINARY, gpu_freq],
+        cmd=['python3', script, self.ADB_BINARY, gpu_freq],
         infra_step=True,
         timeout=30)
 
   def _set_governor(self, cpu, gov):
     self._ever_ran_adb = True
-    self.m.run.with_retry(self.m.python.inline,
+    script = self.module.resource('set_cpu_scaling_governor.py')
+    self.m.run.with_retry(self.m.step,
         "Set CPU %d's governor to %s" % (cpu, gov),
         3, # attempts
-        program="""
-import os
-import subprocess
-import sys
-import time
-ADB = sys.argv[1]
-cpu = int(sys.argv[2])
-gov = sys.argv[3]
-
-log = subprocess.check_output([ADB, 'root']).decode('utf-8')
-# check for message like 'adbd cannot run as root in production builds'
-print(log)
-if 'cannot' in log:
-  raise Exception('adb root failed')
-
-subprocess.check_output([
-    ADB, 'shell',
-    'echo "%s" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (
-        gov, cpu)]).decode('utf-8')
-actual_gov = subprocess.check_output([
-    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %
-        cpu]).decode('utf-8').strip()
-if actual_gov != gov:
-  raise Exception('(actual, expected) (%s, %s)'
-                  % (actual_gov, gov))
-""",
-        args = [self.ADB_BINARY, cpu, gov],
+        cmd=['python3', script, self.ADB_BINARY, cpu, gov],
         infra_step=True,
         timeout=30)
 
@@ -294,41 +226,11 @@ if actual_gov != gov:
     def wait_for_device(attempt):
       return self._wait_for_device("set cpu online", attempt) # pragma: nocover
 
-    self.m.run.with_retry(self.m.python.inline,
+    script = self.module.resource('set_cpu_online.py')
+    self.m.run.with_retry(self.m.step,
         '%s CPU %d' % (msg, cpu),
         3, # attempts
-        program="""
-import os
-import subprocess
-import sys
-import time
-ADB = sys.argv[1]
-cpu = int(sys.argv[2])
-value = int(sys.argv[3])
-
-log = subprocess.check_output([ADB, 'root']).decode('utf-8')
-# check for message like 'adbd cannot run as root in production builds'
-print(log)
-if 'cannot' in log:
-  raise Exception('adb root failed')
-
-# If we try to echo 1 to an already online cpu, adb returns exit code 1.
-# So, check the value before trying to write it.
-prior_status = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()
-if prior_status == str(value):
-  print('CPU %d online already %d' % (cpu, value))
-  sys.exit()
-
-subprocess.check_call([ADB, 'shell', 'echo %s > '
-    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])
-actual_status = subprocess.check_output([ADB, 'shell', 'cat '
-    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()
-if actual_status != str(value):
-  raise Exception('(actual, expected) (%s, %d)'
-                  % (actual_status, value))
-""",
-        args = [self.ADB_BINARY, cpu, value],
+        cmd=['python3', script, self.ADB_BINARY, cpu, value],
         infra_step=True,
         between_attempts_fn=wait_for_device,
         timeout=30)
@@ -340,65 +242,11 @@ if actual_status != str(value):
     def wait_for_device(attempt):
       return self._wait_for_device("scale cpu", attempt)
 
-    self.m.run.with_retry(self.m.python.inline,
+    script = self.module.resource('scale_cpu.py')
+    self.m.run.with_retry(self.m.step,
         'Scale CPU %d to %f' % (cpu, target_percent),
         3, # attempts
-        program="""
-import os
-import subprocess
-import sys
-import time
-ADB = sys.argv[1]
-target_percent = float(sys.argv[2])
-cpu = int(sys.argv[3])
-log = subprocess.check_output([ADB, 'root']).decode('utf-8')
-# check for message like 'adbd cannot run as root in production builds'
-print(log)
-if 'cannot' in log:
-  raise Exception('adb root failed')
-
-root = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu
-
-# All devices we test on give a list of their available frequencies.
-available_freqs = subprocess.check_output([ADB, 'shell',
-    'cat %s/scaling_available_frequencies' % root]).decode('utf-8')
-
-# Check for message like '/system/bin/sh: file not found'
-if available_freqs and '/system/bin/sh' not in available_freqs:
-  available_freqs = sorted(
-      int(i) for i in available_freqs.strip().split())
-else:
-  raise Exception('Could not get list of available frequencies: %s' %
-                  available_freqs)
-
-maxfreq = available_freqs[-1]
-target = int(round(maxfreq * target_percent))
-freq = maxfreq
-for f in reversed(available_freqs):
-  if f <= target:
-    freq = f
-    break
-
-print('Setting frequency to %d' % freq)
-
-# If scaling_max_freq is lower than our attempted setting, it won't take.
-# We must set min first, because if we try to set max to be less than min
-# (which sometimes happens after certain devices reboot) it returns a
-# perplexing permissions error.
-subprocess.check_call([ADB, 'shell', 'echo 0 > '
-    '%s/scaling_min_freq' % root])
-subprocess.check_call([ADB, 'shell', 'echo %d > '
-    '%s/scaling_max_freq' % (freq, root)])
-subprocess.check_call([ADB, 'shell', 'echo %d > '
-    '%s/scaling_setspeed' % (freq, root)])
-time.sleep(5)
-actual_freq = subprocess.check_output([ADB, 'shell', 'cat '
-    '%s/scaling_cur_freq' % root]).decode('utf-8').strip()
-if actual_freq != str(freq):
-  raise Exception('(actual, expected) (%s, %d)'
-                  % (actual_freq, freq))
-""",
-        args = [self.ADB_BINARY, str(target_percent), cpu],
+        cmd=['python3', script, self.ADB_BINARY, str(target_percent), cpu],
         infra_step=True,
         between_attempts_fn=wait_for_device,
         timeout=30)
@@ -421,83 +269,13 @@ if actual_freq != str(freq):
                 self.device_dirs.bin_dir + 'libvulkan.so')
     if 'ASAN' in self.m.vars.extra_tokens:
       self._ever_ran_adb = True
-      self.m.run(self.m.python.inline, 'Setting up device to run ASAN',
-                 program="""
-import os
-import subprocess
-import sys
-import time
-ADB = sys.argv[1]
-ASAN_SETUP = sys.argv[2]
-
-def wait_for_device():
-  while True:
-    time.sleep(5)
-    print('Waiting for device')
-    subprocess.check_call([ADB, 'wait-for-device'])
-    bit1 = subprocess.check_output([ADB, 'shell', 'getprop',
-                                   'dev.bootcomplete']).decode('utf-8')
-    bit2 = subprocess.check_output([ADB, 'shell', 'getprop',
-                                   'sys.boot_completed']).decode('utf-8')
-    if '1' in bit1 and '1' in bit2:
-      print('Device detected')
-      break
-
-log = subprocess.check_output([ADB, 'root']).decode('utf-8')
-# check for message like 'adbd cannot run as root in production builds'
-print(log)
-if 'cannot' in log:
-  raise Exception('adb root failed')
-
-output = subprocess.check_output([ADB, 'disable-verity']).decode('utf-8')
-print(output)
-
-if 'already disabled' not in output:
-  print('Rebooting device')
-  subprocess.check_call([ADB, 'reboot'])
-  wait_for_device()
-
-def installASAN(revert=False):
-  # ASAN setup script is idempotent, either it installs it or
-  # says it's installed.  Returns True on success, false otherwise.
-  out = subprocess.check_output([ADB, 'wait-for-device']).decode('utf-8')
-  print(out)
-  cmd = [ASAN_SETUP]
-  if revert:
-    cmd = [ASAN_SETUP, '--revert']
-  process = subprocess.Popen(cmd, env={'ADB': ADB},
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-  # this also blocks until command finishes
-  (stdout, stderr) = process.communicate()
-  print(stdout.decode('utf-8'))
-  print('Stderr: %s' % stderr.decode('utf-8'))
-  return process.returncode == 0
-
-if not installASAN():
-  print('Trying to revert the ASAN install and then re-install')
-  # ASAN script sometimes has issues if it was interrupted or partially applied
-  # Try reverting it, then re-enabling it
-  if not installASAN(revert=True):
-    raise Exception('reverting ASAN install failed')
-
-  # Sleep because device does not reboot instantly
-  time.sleep(10)
-
-  if not installASAN():
-    raise Exception('Tried twice to setup ASAN and failed.')
-
-# Sleep because device does not reboot instantly
-time.sleep(10)
-wait_for_device()
-# Sleep again to hopefully avoid error "secure_mkdirs failed: No such file or
-# directory" when pushing resources to the device.
-time.sleep(60)
-""",
-                 args = [self.ADB_BINARY, self._asan_setup_path()],
-                 infra_step=True,
-                 timeout=300,
-                 abort_on_failure=True)
+      script = self.module.resource('setup_device_for_asan.py')
+      self.m.run(
+          self.m.step, 'Setting up device to run ASAN',
+          cmd=['python3', script, self.ADB_BINARY, self._asan_setup_path()],
+          infra_step=True,
+          timeout=300,
+          abort_on_failure=True)
     if self.app_name:
       if (self.app_name == 'nanobench'):
         self._scale_for_nanobench()
@@ -544,28 +322,9 @@ time.sleep(60)
                  abort_on_failure=False, fail_build_on_failure=False)
 
     if self._ever_ran_adb:
-      self.m.run(self.m.python.inline, 'dump log', program="""
-          import os
-          import subprocess
-          import sys
-          out = sys.argv[1]
-          log = subprocess.check_output([
-              '%s', 'logcat', '-d']).decode('utf-8', errors='ignore')
-          for line in log.split('\\n'):
-            tokens = line.split()
-            if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':
-              addr, path = tokens[-2:]
-              local = os.path.join(out, os.path.basename(path))
-              if os.path.exists(local):
-                try:
-                  sym = subprocess.check_output([
-                      'addr2line', '-Cfpe', local, addr]).decode('utf-8')
-                  line = line.replace(addr, addr + ' ' + sym.strip())
-                except subprocess.CalledProcessError:
-                  pass
-            print(line)
-          """ % self.ADB_BINARY,
-          args=[self.host_dirs.bin_dir],
+      script = self.module.resource('dump_adb_log.py')
+      self.m.run(self.m.step, 'dump log',
+          cmd=['python3', script, self.host_dirs.bin_dir, self.ADB_BINARY],
           infra_step=True,
           timeout=300,
           abort_on_failure=False)
@@ -597,20 +356,9 @@ time.sleep(60)
               'push', self.m.vars.tmp_dir.join(sh), self.device_dirs.bin_dir)
 
     self._adb('clear log', 'logcat', '-c')
-    self.m.python.inline('%s' % cmd[0], """
-    import subprocess
-    import sys
-    bin_dir = sys.argv[1]
-    sh      = sys.argv[2]
-    subprocess.check_call(['%s', 'shell', 'sh', bin_dir + sh])
-    try:
-      sys.exit(int(subprocess.check_output([
-          '%s', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))
-    except ValueError:
-      print("Couldn't read the return code.  Probably killed for OOM.")
-      sys.exit(1)
-    """ % (self.ADB_BINARY, self.ADB_BINARY),
-      args=[self.device_dirs.bin_dir, sh])
+    script = self.module.resource('run_sh.py')
+    self.m.step('%s' % cmd[0],
+        cmd=['python3', script, self.device_dirs.bin_dir, sh, self.ADB_BINARY])
 
   def copy_file_to_device(self, host, device):
     self._adb('push %s %s' % (host, device), 'push', host, device)
@@ -653,35 +401,9 @@ time.sleep(60)
     return rv.stdout.decode('utf-8').rstrip() if rv and rv.stdout else None
 
   def remove_file_on_device(self, path):
-    self.m.run.with_retry(self.m.python.inline, 'rm %s' % path, 3, program="""
-        import subprocess
-        import sys
-
-        # Remove the path.
-        adb = sys.argv[1]
-        path = sys.argv[2]
-        print('Removing %s' % path)
-        cmd = [adb, 'shell', 'rm', '-rf', path]
-        print(' '.join(cmd))
-        subprocess.check_call(cmd)
-
-        # Verify that the path was deleted.
-        print('Checking for existence of %s' % path)
-        cmd = [adb, 'shell', 'ls', path]
-        print(' '.join(cmd))
-        try:
-          output = subprocess.check_output(
-              cmd, stderr=subprocess.STDOUT).decode('utf-8')
-        except subprocess.CalledProcessError as e:
-          output = e.output.decode('utf-8')
-        print('Output was:')
-        print('======')
-        print(output)
-        print('======')
-        if 'No such file or directory' not in output:
-          raise Exception('%s exists despite being deleted' % path)
-        """,
-        args=[self.ADB_BINARY, path],
+    script = self.module.resource('remove_file_on_device.py')
+    self.m.run.with_retry(self.m.step, 'rm %s' % path, 3,
+        cmd=['python3', script, self.ADB_BINARY, path],
         infra_step=True)
 
   def create_clean_device_dir(self, path):

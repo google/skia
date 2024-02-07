@@ -599,7 +599,7 @@
   },
   {
     "cmd": [
-      "python",
+      "python3",
       "RECIPE_MODULE[skia::flavor]/resources/ios_debug_cmd.py",
       "com.google.dm",
       "--some-flag"

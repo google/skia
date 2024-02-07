@@ -6,7 +6,6 @@ PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'recipe_engine/context',
-  'recipe_engine/python',
   'recipe_engine/step',
   'run',
   'vars',

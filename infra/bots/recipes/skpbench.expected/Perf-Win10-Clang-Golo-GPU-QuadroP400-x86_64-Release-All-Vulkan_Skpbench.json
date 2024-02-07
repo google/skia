@@ -67,7 +67,7 @@
   },
   {
     "cmd": [
-      "python",
+      "python3",
       "[START_DIR]\\skia\\tools\\skpbench\\skpbench.py",
       "[START_DIR]\\build\\skpbench",
       "--resultsfile",
@@ -87,31 +87,23 @@
   },
   {
     "cmd": [
-      "python",
-      "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
+      "python3",
+      "RECIPE_MODULE[skia::vars]\\resources\\get_env_var.py",
+      "SWARMING_BOT_ID"
     ],
-    "name": "get swarming bot id",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_BOT_ID', ''))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "get swarming bot id"
   },
   {
     "cmd": [
-      "python",
-      "import os\nprint(os.environ.get('SWARMING_TASK_ID', ''))\n"
+      "python3",
+      "RECIPE_MODULE[skia::vars]\\resources\\get_env_var.py",
+      "SWARMING_TASK_ID"
     ],
-    "name": "get swarming task id",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_TASK_ID', ''))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "get swarming task id"
   },
   {
     "cmd": [
-      "python",
+      "python3",
       "[START_DIR]\\skia\\tools\\skpbench\\skiaperf.py",
       "[START_DIR]\\[SWARM_OUT_DIR]\\table",
       "--properties",

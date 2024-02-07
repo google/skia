@@ -16,7 +16,6 @@ DEPS = [
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
-  'recipe_engine/python',
   'recipe_engine/raw_io',
   'recipe_engine/step',
   'run',
@@ -145,9 +144,9 @@ def analyze_web_file(api, checkout_root, out_dir, files):
     with api.context(cwd=skia_dir):
       script = skia_dir.join('infra', 'bots', 'buildstats',
                              'buildstats_web.py')
-      step_data = api.run(api.python, 'Analyze %s' % f, script=script,
-          args=[f, out_dir, keystr, propstr, TOTAL_SIZE_BYTES_KEY,
-                MAGIC_SEPERATOR],
+      step_data = api.run(api.step, 'Analyze %s' % f,
+          cmd=['python3', script, f, out_dir, keystr, propstr,
+               TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
           stdout=api.raw_io.output())
       if step_data and step_data.stdout:
         sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
@@ -173,9 +172,9 @@ def analyze_cpp_lib(api, checkout_root, out_dir, files):
     with api.context(cwd=skia_dir):
       script = skia_dir.join('infra', 'bots', 'buildstats',
                              'buildstats_cpp.py')
-      step_data = api.run(api.python, 'Analyze %s' % f, script=script,
-          args=[f, out_dir, keystr, propstr, bloaty_exe, TOTAL_SIZE_BYTES_KEY,
-                MAGIC_SEPERATOR],
+      step_data = api.run(api.step, 'Analyze %s' % f,
+          cmd=['python3', script, f, out_dir, keystr, propstr, bloaty_exe,
+               TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
           stdout=api.raw_io.output())
       if step_data and step_data.stdout:
         sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
@@ -205,11 +204,11 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
                              'buildstats_flutter.py')
       config = "skia_in_flutter"
       lib_name = "libflutter.so"
-      step_data = api.run(api.python, 'Analyze flutter', script=script,
-                         args=[stripped, out_dir, keystr, propstr, bloaty_exe,
-                               f, config, TOTAL_SIZE_BYTES_KEY, lib_name,
-                               MAGIC_SEPERATOR],
-                         stdout=api.raw_io.output())
+      step_data = api.run(api.step, 'Analyze flutter',
+          cmd=['python3', script, stripped, out_dir, keystr, propstr,
+               bloaty_exe, f, config, TOTAL_SIZE_BYTES_KEY, lib_name,
+               MAGIC_SEPERATOR],
+          stdout=api.raw_io.output())
       if step_data and step_data.stdout:
         sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
         result = api.step.active_result
@@ -241,10 +240,10 @@ def analyze_wasm_file(api, checkout_root, out_dir, files):
     with api.context(cwd=skia_dir):
       script = skia_dir.join('infra', 'bots', 'buildstats',
                              'buildstats_wasm.py')
-      step_data = api.run(api.python, 'Analyze wasm', script=script,
-                          args=[f, out_dir, keystr, propstr, bloaty_exe,
-                                TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
-                          stdout=api.raw_io.output())
+      step_data = api.run(api.step, 'Analyze wasm',
+          cmd=['python3', script, f, out_dir, keystr, propstr, bloaty_exe,
+               TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
+               stdout=api.raw_io.output())
       if step_data and step_data.stdout:
         sections = step_data.stdout.decode('utf-8').split(MAGIC_SEPERATOR)
         result = api.step.active_result
@@ -271,10 +270,9 @@ def make_treemap(api, checkout_root, out_dir, files):
       with api.context(cwd=skia_dir):
         script = skia_dir.join('infra', 'bots', 'buildstats',
                                'make_treemap.py')
-        api.run(api.python, 'Make code size treemap %s' % f,
-                             script=script,
-                             args=[f, out_dir],
-                             stdout=api.raw_io.output())
+        api.run(api.step, 'Make code size treemap %s' % f,
+                cmd=['python3', script, f, out_dir],
+                stdout=api.raw_io.output())
 
 
 def GenTests(api):

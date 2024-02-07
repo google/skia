@@ -5,15 +5,12 @@
   },
   {
     "cmd": [
-      "python",
-      "import os\nprint('%d:%d' % (os.getuid(), os.getgid()))\n"
+      "python3",
+      "RECIPE_MODULE[skia::docker]/resources/get_uid_gid.py"
     ],
     "name": "Docker setup.Get uid and gid",
     "~followup_annotations": [
-      "@@@STEP_NEST_LEVEL@1@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('%d:%d' % (os.getuid(), os.getgid()))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_NEST_LEVEL@1@@@"
     ]
   },
   {

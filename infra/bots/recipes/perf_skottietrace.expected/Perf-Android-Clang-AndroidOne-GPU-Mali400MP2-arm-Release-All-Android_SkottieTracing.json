@@ -16,15 +16,11 @@
   },
   {
     "cmd": [
-      "python",
-      "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
+      "python3",
+      "RECIPE_MODULE[skia::vars]/resources/get_env_var.py",
+      "SWARMING_BOT_ID"
     ],
-    "name": "get swarming bot id",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_BOT_ID', ''))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "get swarming bot id"
   },
   {
     "cmd": [
@@ -45,8 +41,8 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([\n    ADB, 'shell',\n    'echo \"%s\" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (\n        gov, cpu)]).decode('utf-8')\nactual_gov = subprocess.check_output([\n    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %\n        cpu]).decode('utf-8').strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_scaling_governor.py",
       "/opt/infra-android/tools/adb",
       "0",
       "hotplug"
@@ -57,35 +53,7 @@
     },
     "infra_step": true,
     "name": "Set CPU 0's governor to hotplug",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@gov = sys.argv[3]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@    ADB, 'shell',@@@",
-      "@@@STEP_LOG_LINE@python.inline@    'echo \"%s\" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (@@@",
-      "@@@STEP_LOG_LINE@python.inline@        gov, cpu)]).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_gov = subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %@@@",
-      "@@@STEP_LOG_LINE@python.inline@        cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_gov != gov:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %s)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 30
   },
   {
     "cmd": [
@@ -210,8 +178,8 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/opt/infra-android/tools/adb",
       "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
     ],
@@ -220,42 +188,12 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/opt/infra-android/tools/adb",
       "/sdcard/revenge_of_the_skiabot/lotties"
     ],
@@ -264,37 +202,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/lotties",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/lotties"
   },
   {
     "cmd": [
@@ -367,8 +275,8 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/opt/infra-android/tools/adb",
       "/sdcard/revenge_of_the_skiabot/dm_out"
     ],
@@ -377,37 +285,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out"
   },
   {
     "cmd": [
@@ -428,8 +306,8 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/opt/infra-android/tools/adb",
       "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
     ],
@@ -438,37 +316,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/lotties_with_assets",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/lotties_with_assets"
   },
   {
     "cmd": [
@@ -611,31 +459,17 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output([\n      '/opt/infra-android/tools/adb', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))\nexcept ValueError:\n  print(\"Couldn't read the return code.  Probably killed for OOM.\")\n  sys.exit(1)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/run_sh.py",
       "/data/local/tmp/",
-      "dm.sh"
+      "dm.sh",
+      "/opt/infra-android/tools/adb"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "dm",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@      '/opt/infra-android/tools/adb', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))@@@",
-      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print(\"Couldn't read the return code.  Probably killed for OOM.\")@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "dm"
   },
   {
     "cmd": [
@@ -672,11 +506,14 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
+      "python3",
+      "RECIPE_MODULE[skia::infra]/resources/parse_skottie_trace.py",
       "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
       "skottie_asset_000",
-      "/path/to/tmp/json"
+      "/path/to/tmp/json",
+      "skottie::Animation::seek",
+      "skottie::Animation::render",
+      "25"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -689,62 +526,13 @@
       "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"frame_min_us\": 141.17@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@trace_output = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@trace_json = json.loads(trace_output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@lottie_filename = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@output_json_file = sys.argv[3]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results = {}@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_max = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_min = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_cumulative = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@current_frame_duration = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@total_frames = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_start = False@@@",
-      "@@@STEP_LOG_LINE@python.inline@for trace in trace_json:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if 'skottie::Animation::seek' in trace['name']:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if frame_start:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got consecutive Animation::seek without a ' +@@@",
-      "@@@STEP_LOG_LINE@python.inline@                      'render. Something is wrong.')@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_start = True@@@",
-      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration = trace['dur']@@@",
-      "@@@STEP_LOG_LINE@python.inline@  elif 'skottie::Animation::render' in trace['name']:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if not frame_start:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got an Animation::render without a seek first. ' +@@@",
-      "@@@STEP_LOG_LINE@python.inline@                      'Something is wrong.')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration += trace['dur']@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_start = False@@@",
-      "@@@STEP_LOG_LINE@python.inline@    total_frames += 1@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_max = max(frame_max, current_frame_duration)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_min = (min(frame_min, current_frame_duration)@@@",
-      "@@@STEP_LOG_LINE@python.inline@                 if frame_min else current_frame_duration)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_cumulative += current_frame_duration@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@expected_dm_frames = 25@@@",
-      "@@@STEP_LOG_LINE@python.inline@if total_frames != expected_dm_frames:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      'Got ' + str(total_frames) + ' frames instead of ' +@@@",
-      "@@@STEP_LOG_LINE@python.inline@      str(expected_dm_frames))@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_max_us'] = frame_max@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_min_us'] = frame_min@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_avg_us'] = frame_cumulative/total_frames@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Write perf_results to the output json.@@@",
-      "@@@STEP_LOG_LINE@python.inline@with open(output_json_file, 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  f.write(json.dumps(perf_results))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/opt/infra-android/tools/adb",
       "/sdcard/revenge_of_the_skiabot/dm_out/1.json"
     ],
@@ -753,37 +541,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out/1.json",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out/1.json"
   },
   {
     "cmd": [
@@ -840,31 +598,17 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output([\n      '/opt/infra-android/tools/adb', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))\nexcept ValueError:\n  print(\"Couldn't read the return code.  Probably killed for OOM.\")\n  sys.exit(1)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/run_sh.py",
       "/data/local/tmp/",
-      "dm.sh"
+      "dm.sh",
+      "/opt/infra-android/tools/adb"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "dm (2)",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@      '/opt/infra-android/tools/adb', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))@@@",
-      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print(\"Couldn't read the return code.  Probably killed for OOM.\")@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "dm (2)"
   },
   {
     "cmd": [
@@ -901,11 +645,14 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
+      "python3",
+      "RECIPE_MODULE[skia::infra]/resources/parse_skottie_trace.py",
       "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
       "skottie_asset_001",
-      "/path/to/tmp/json"
+      "/path/to/tmp/json",
+      "skottie::Animation::seek",
+      "skottie::Animation::render",
+      "25"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -918,62 +665,13 @@
       "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"frame_min_us\": 141.17@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@trace_output = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@trace_json = json.loads(trace_output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@lottie_filename = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@output_json_file = sys.argv[3]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results = {}@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_max = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_min = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_cumulative = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@current_frame_duration = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@total_frames = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_start = False@@@",
-      "@@@STEP_LOG_LINE@python.inline@for trace in trace_json:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if 'skottie::Animation::seek' in trace['name']:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if frame_start:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got consecutive Animation::seek without a ' +@@@",
-      "@@@STEP_LOG_LINE@python.inline@                      'render. Something is wrong.')@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_start = True@@@",
-      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration = trace['dur']@@@",
-      "@@@STEP_LOG_LINE@python.inline@  elif 'skottie::Animation::render' in trace['name']:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if not frame_start:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got an Animation::render without a seek first. ' +@@@",
-      "@@@STEP_LOG_LINE@python.inline@                      'Something is wrong.')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration += trace['dur']@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_start = False@@@",
-      "@@@STEP_LOG_LINE@python.inline@    total_frames += 1@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_max = max(frame_max, current_frame_duration)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_min = (min(frame_min, current_frame_duration)@@@",
-      "@@@STEP_LOG_LINE@python.inline@                 if frame_min else current_frame_duration)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_cumulative += current_frame_duration@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@expected_dm_frames = 25@@@",
-      "@@@STEP_LOG_LINE@python.inline@if total_frames != expected_dm_frames:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      'Got ' + str(total_frames) + ' frames instead of ' +@@@",
-      "@@@STEP_LOG_LINE@python.inline@      str(expected_dm_frames))@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_max_us'] = frame_max@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_min_us'] = frame_min@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_avg_us'] = frame_cumulative/total_frames@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Write perf_results to the output json.@@@",
-      "@@@STEP_LOG_LINE@python.inline@with open(output_json_file, 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  f.write(json.dumps(perf_results))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/opt/infra-android/tools/adb",
       "/sdcard/revenge_of_the_skiabot/dm_out/2.json"
     ],
@@ -982,37 +680,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out/2.json",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out/2.json"
   },
   {
     "cmd": [
@@ -1069,31 +737,17 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output([\n      '/opt/infra-android/tools/adb', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))\nexcept ValueError:\n  print(\"Couldn't read the return code.  Probably killed for OOM.\")\n  sys.exit(1)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/run_sh.py",
       "/data/local/tmp/",
-      "dm.sh"
+      "dm.sh",
+      "/opt/infra-android/tools/adb"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "dm (3)",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@      '/opt/infra-android/tools/adb', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))@@@",
-      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print(\"Couldn't read the return code.  Probably killed for OOM.\")@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "dm (3)"
   },
   {
     "cmd": [
@@ -1130,11 +784,14 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
+      "python3",
+      "RECIPE_MODULE[skia::infra]/resources/parse_skottie_trace.py",
       "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
       "skottie_asset_002",
-      "/path/to/tmp/json"
+      "/path/to/tmp/json",
+      "skottie::Animation::seek",
+      "skottie::Animation::render",
+      "25"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -1147,62 +804,13 @@
       "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",
       "@@@STEP_LOG_LINE@json.output@  \"frame_min_us\": 141.17@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
-      "@@@STEP_LOG_END@json.output@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import json@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@trace_output = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@trace_json = json.loads(trace_output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@lottie_filename = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@output_json_file = sys.argv[3]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results = {}@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_max = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_min = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_cumulative = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@current_frame_duration = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@total_frames = 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@frame_start = False@@@",
-      "@@@STEP_LOG_LINE@python.inline@for trace in trace_json:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if 'skottie::Animation::seek' in trace['name']:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if frame_start:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got consecutive Animation::seek without a ' +@@@",
-      "@@@STEP_LOG_LINE@python.inline@                      'render. Something is wrong.')@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_start = True@@@",
-      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration = trace['dur']@@@",
-      "@@@STEP_LOG_LINE@python.inline@  elif 'skottie::Animation::render' in trace['name']:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if not frame_start:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      raise Exception('We got an Animation::render without a seek first. ' +@@@",
-      "@@@STEP_LOG_LINE@python.inline@                      'Something is wrong.')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@    current_frame_duration += trace['dur']@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_start = False@@@",
-      "@@@STEP_LOG_LINE@python.inline@    total_frames += 1@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_max = max(frame_max, current_frame_duration)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_min = (min(frame_min, current_frame_duration)@@@",
-      "@@@STEP_LOG_LINE@python.inline@                 if frame_min else current_frame_duration)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    frame_cumulative += current_frame_duration@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@expected_dm_frames = 25@@@",
-      "@@@STEP_LOG_LINE@python.inline@if total_frames != expected_dm_frames:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      'Got ' + str(total_frames) + ' frames instead of ' +@@@",
-      "@@@STEP_LOG_LINE@python.inline@      str(expected_dm_frames))@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_max_us'] = frame_max@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_min_us'] = frame_min@@@",
-      "@@@STEP_LOG_LINE@python.inline@perf_results['frame_avg_us'] = frame_cumulative/total_frames@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Write perf_results to the output json.@@@",
-      "@@@STEP_LOG_LINE@python.inline@with open(output_json_file, 'w') as f:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  f.write(json.dumps(perf_results))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
+      "@@@STEP_LOG_END@json.output@@@"
     ]
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/opt/infra-android/tools/adb",
       "/sdcard/revenge_of_the_skiabot/dm_out/3.json"
     ],
@@ -1211,61 +819,23 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out/3.json",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/dm_out/3.json"
   },
   {
     "cmd": [
-      "python",
-      "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
+      "python3",
+      "RECIPE_MODULE[skia::vars]/resources/get_env_var.py",
+      "SWARMING_BOT_ID"
     ],
-    "name": "get swarming bot id (2)",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_BOT_ID', ''))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "get swarming bot id (2)"
   },
   {
     "cmd": [
-      "python",
-      "import os\nprint(os.environ.get('SWARMING_TASK_ID', ''))\n"
+      "python3",
+      "RECIPE_MODULE[skia::vars]/resources/get_env_var.py",
+      "SWARMING_TASK_ID"
     ],
-    "name": "get swarming task id",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_TASK_ID', ''))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "get swarming task id"
   },
   {
     "cmd": [
@@ -1369,9 +939,10 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output([\n    '/opt/infra-android/tools/adb', 'logcat', '-d']).decode('utf-8', errors='ignore')\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      try:\n        sym = subprocess.check_output([\n            'addr2line', '-Cfpe', local, addr]).decode('utf-8')\n        line = line.replace(addr, addr + ' ' + sym.strip())\n      except subprocess.CalledProcessError:\n        pass\n  print(line)\n",
-      "[START_DIR]/build"
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/dump_adb_log.py",
+      "[START_DIR]/build",
+      "/opt/infra-android/tools/adb"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -1379,30 +950,7 @@
     },
     "infra_step": true,
     "name": "dump log",
-    "timeout": 300,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/opt/infra-android/tools/adb', 'logcat', '-d']).decode('utf-8', errors='ignore')@@@",
-      "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
-      "@@@STEP_LOG_LINE@python.inline@    addr, path = tokens[-2:]@@@",
-      "@@@STEP_LOG_LINE@python.inline@    local = os.path.join(out, os.path.basename(path))@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if os.path.exists(local):@@@",
-      "@@@STEP_LOG_LINE@python.inline@      try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@        sym = subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@            'addr2line', '-Cfpe', local, addr]).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@        line = line.replace(addr, addr + ' ' + sym.strip())@@@",
-      "@@@STEP_LOG_LINE@python.inline@      except subprocess.CalledProcessError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@        pass@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print(line)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 300
   },
   {
     "name": "$result"

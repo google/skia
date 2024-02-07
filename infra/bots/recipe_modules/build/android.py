@@ -90,8 +90,8 @@ def compile_fn(api, checkout_root, out_dir):
   gn      = skia_dir.join('bin', 'gn')
 
   with api.context(cwd=skia_dir):
-    api.run(api.python, 'fetch-gn',
-            script=skia_dir.join('bin', 'fetch-gn'),
+    api.run(api.step, 'fetch-gn',
+            cmd=['python3', skia_dir.join('bin', 'fetch-gn')],
             infra_step=True)
 
     with api.env(env):

@@ -10,13 +10,13 @@ PYTHON_VERSION_COMPATIBILITY = "PY3"
 DEPS = [
   'build',
   'checkout',
+  'infra',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/platform',
   'recipe_engine/properties',
-  'recipe_engine/python',
   'recipe_engine/step',
   'depot_tools/gitiles',
   'run',
@@ -86,14 +86,10 @@ def RunSteps(api):
       # [2] https://docs.python.org/3/library/shutil.html#shutil.copytree
       src = api.path['start_dir'].join('k', 'skia')
       dst = api.path['start_dir'].join('skia')
-      api.python.inline(
+      script = api.infra.resource('copytree.py')
+      api.step(
           name='copy Skia repository checkout from %s to %s' % (src, dst),
-          program='''
-import shutil
-import sys
-shutil.copytree(sys.argv[1], sys.argv[2], dirs_exist_ok=True)
-''',
-          args=[src, dst])
+          cmd=['python3', script, src, dst])
       api.file.rmtree('remove %s' % src, src)
 
   else:
@@ -117,26 +113,11 @@ shutil.copytree(sys.argv[1], sys.argv[2], dirs_exist_ok=True)
     api.build.copy_build_products(out_dir=out_dir, dst=dst)
   finally:
     if 'Win' in api.vars.builder_cfg.get('os', ''):
-      api.python.inline(
+      script = api.build.resource('cleanup_win_processes.py')
+      api.step(
           name='cleanup',
-          program='''
-# [VPYTHON:BEGIN]
-# wheel: <
-#  name: "infra/python/wheels/psutil/${vpython_platform}"
-#  version: "version:5.4.7"
-# >
-# [VPYTHON:END]
-
-import psutil
-for p in psutil.process_iter():
-  try:
-    if p.name in ('mspdbsrv.exe', 'vctip.exe', 'cl.exe', 'link.exe'):
-      p.kill()
-  except psutil._error.AccessDenied:
-    pass
-''',
-          infra_step=True,
-          venv=True)
+          cmd=['vpython', script],
+          infra_step=True)
 
   api.run.check_failure()
 

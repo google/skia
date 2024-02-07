@@ -16,15 +16,11 @@
   },
   {
     "cmd": [
-      "python",
-      "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
+      "python3",
+      "RECIPE_MODULE[skia::vars]/resources/get_env_var.py",
+      "SWARMING_BOT_ID"
     ],
-    "name": "get swarming bot id",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_BOT_ID', ''))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "get swarming bot id"
   },
   {
     "cmd": [
@@ -45,8 +41,8 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\nASAN_SETUP = sys.argv[2]\n\ndef wait_for_device():\n  while True:\n    time.sleep(5)\n    print('Waiting for device')\n    subprocess.check_call([ADB, 'wait-for-device'])\n    bit1 = subprocess.check_output([ADB, 'shell', 'getprop',\n                                   'dev.bootcomplete']).decode('utf-8')\n    bit2 = subprocess.check_output([ADB, 'shell', 'getprop',\n                                   'sys.boot_completed']).decode('utf-8')\n    if '1' in bit1 and '1' in bit2:\n      print('Device detected')\n      break\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\noutput = subprocess.check_output([ADB, 'disable-verity']).decode('utf-8')\nprint(output)\n\nif 'already disabled' not in output:\n  print('Rebooting device')\n  subprocess.check_call([ADB, 'reboot'])\n  wait_for_device()\n\ndef installASAN(revert=False):\n  # ASAN setup script is idempotent, either it installs it or\n  # says it's installed.  Returns True on success, false otherwise.\n  out = subprocess.check_output([ADB, 'wait-for-device']).decode('utf-8')\n  print(out)\n  cmd = [ASAN_SETUP]\n  if revert:\n    cmd = [ASAN_SETUP, '--revert']\n  process = subprocess.Popen(cmd, env={'ADB': ADB},\n                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n\n  # this also blocks until command finishes\n  (stdout, stderr) = process.communicate()\n  print(stdout.decode('utf-8'))\n  print('Stderr: %s' % stderr.decode('utf-8'))\n  return process.returncode == 0\n\nif not installASAN():\n  print('Trying to revert the ASAN install and then re-install')\n  # ASAN script sometimes has issues if it was interrupted or partially applied\n  # Try reverting it, then re-enabling it\n  if not installASAN(revert=True):\n    raise Exception('reverting ASAN install failed')\n\n  # Sleep because device does not reboot instantly\n  time.sleep(10)\n\n  if not installASAN():\n    raise Exception('Tried twice to setup ASAN and failed.')\n\n# Sleep because device does not reboot instantly\ntime.sleep(10)\nwait_for_device()\n# Sleep again to hopefully avoid error \"secure_mkdirs failed: No such file or\n# directory\" when pushing resources to the device.\ntime.sleep(60)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/setup_device_for_asan.py",
       "/usr/bin/adb.1.0.35",
       "[START_DIR]/android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/lib/clang/17/bin/asan_device_setup"
     ],
@@ -56,86 +52,12 @@
     },
     "infra_step": true,
     "name": "Setting up device to run ASAN",
-    "timeout": 300,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@ASAN_SETUP = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@def wait_for_device():@@@",
-      "@@@STEP_LOG_LINE@python.inline@  while True:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    time.sleep(5)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    print('Waiting for device')@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call([ADB, 'wait-for-device'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@    bit1 = subprocess.check_output([ADB, 'shell', 'getprop',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                                   'dev.bootcomplete']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@    bit2 = subprocess.check_output([ADB, 'shell', 'getprop',@@@",
-      "@@@STEP_LOG_LINE@python.inline@                                   'sys.boot_completed']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if '1' in bit1 and '1' in bit2:@@@",
-      "@@@STEP_LOG_LINE@python.inline@      print('Device detected')@@@",
-      "@@@STEP_LOG_LINE@python.inline@      break@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@output = subprocess.check_output([ADB, 'disable-verity']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'already disabled' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print('Rebooting device')@@@",
-      "@@@STEP_LOG_LINE@python.inline@  subprocess.check_call([ADB, 'reboot'])@@@",
-      "@@@STEP_LOG_LINE@python.inline@  wait_for_device()@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@def installASAN(revert=False):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # ASAN setup script is idempotent, either it installs it or@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # says it's installed.  Returns True on success, false otherwise.@@@",
-      "@@@STEP_LOG_LINE@python.inline@  out = subprocess.check_output([ADB, 'wait-for-device']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print(out)@@@",
-      "@@@STEP_LOG_LINE@python.inline@  cmd = [ASAN_SETUP]@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if revert:@@@",
-      "@@@STEP_LOG_LINE@python.inline@    cmd = [ASAN_SETUP, '--revert']@@@",
-      "@@@STEP_LOG_LINE@python.inline@  process = subprocess.Popen(cmd, env={'ADB': ADB},@@@",
-      "@@@STEP_LOG_LINE@python.inline@                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # this also blocks until command finishes@@@",
-      "@@@STEP_LOG_LINE@python.inline@  (stdout, stderr) = process.communicate()@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print(stdout.decode('utf-8'))@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print('Stderr: %s' % stderr.decode('utf-8'))@@@",
-      "@@@STEP_LOG_LINE@python.inline@  return process.returncode == 0@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@if not installASAN():@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print('Trying to revert the ASAN install and then re-install')@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # ASAN script sometimes has issues if it was interrupted or partially applied@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Try reverting it, then re-enabling it@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if not installASAN(revert=True):@@@",
-      "@@@STEP_LOG_LINE@python.inline@    raise Exception('reverting ASAN install failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@  # Sleep because device does not reboot instantly@@@",
-      "@@@STEP_LOG_LINE@python.inline@  time.sleep(10)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if not installASAN():@@@",
-      "@@@STEP_LOG_LINE@python.inline@    raise Exception('Tried twice to setup ASAN and failed.')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Sleep because device does not reboot instantly@@@",
-      "@@@STEP_LOG_LINE@python.inline@time.sleep(10)@@@",
-      "@@@STEP_LOG_LINE@python.inline@wait_for_device()@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Sleep again to hopefully avoid error \"secure_mkdirs failed: No such file or@@@",
-      "@@@STEP_LOG_LINE@python.inline@# directory\" when pushing resources to the device.@@@",
-      "@@@STEP_LOG_LINE@python.inline@time.sleep(60)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 300
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif prior_status == str(value):\n  print('CPU %d online already %d' % (cpu, value))\n  sys.exit()\n\nsubprocess.check_call([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_online.py",
       "/usr/bin/adb.1.0.35",
       "0",
       "1"
@@ -146,45 +68,12 @@
     },
     "infra_step": true,
     "name": "Enabling CPU 0",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# If we try to echo 1 to an already online cpu, adb returns exit code 1.@@@",
-      "@@@STEP_LOG_LINE@python.inline@# So, check the value before trying to write it.@@@",
-      "@@@STEP_LOG_LINE@python.inline@prior_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if prior_status == str(value):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print('CPU %d online already %d' % (cpu, value))@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit()@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call([ADB, 'shell', 'echo %s > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(value):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_status, value))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 30
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif prior_status == str(value):\n  print('CPU %d online already %d' % (cpu, value))\n  sys.exit()\n\nsubprocess.check_call([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_online.py",
       "/usr/bin/adb.1.0.35",
       "1",
       "1"
@@ -195,45 +84,12 @@
     },
     "infra_step": true,
     "name": "Enabling CPU 1",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# If we try to echo 1 to an already online cpu, adb returns exit code 1.@@@",
-      "@@@STEP_LOG_LINE@python.inline@# So, check the value before trying to write it.@@@",
-      "@@@STEP_LOG_LINE@python.inline@prior_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if prior_status == str(value):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print('CPU %d online already %d' % (cpu, value))@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit()@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call([ADB, 'shell', 'echo %s > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(value):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_status, value))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 30
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif prior_status == str(value):\n  print('CPU %d online already %d' % (cpu, value))\n  sys.exit()\n\nsubprocess.check_call([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_online.py",
       "/usr/bin/adb.1.0.35",
       "2",
       "1"
@@ -244,45 +100,12 @@
     },
     "infra_step": true,
     "name": "Enabling CPU 2",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# If we try to echo 1 to an already online cpu, adb returns exit code 1.@@@",
-      "@@@STEP_LOG_LINE@python.inline@# So, check the value before trying to write it.@@@",
-      "@@@STEP_LOG_LINE@python.inline@prior_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if prior_status == str(value):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print('CPU %d online already %d' % (cpu, value))@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit()@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call([ADB, 'shell', 'echo %s > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(value):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_status, value))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 30
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif prior_status == str(value):\n  print('CPU %d online already %d' % (cpu, value))\n  sys.exit()\n\nsubprocess.check_call([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_online.py",
       "/usr/bin/adb.1.0.35",
       "3",
       "1"
@@ -293,45 +116,12 @@
     },
     "infra_step": true,
     "name": "Enabling CPU 3",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@value = int(sys.argv[3])@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# If we try to echo 1 to an already online cpu, adb returns exit code 1.@@@",
-      "@@@STEP_LOG_LINE@python.inline@# So, check the value before trying to write it.@@@",
-      "@@@STEP_LOG_LINE@python.inline@prior_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if prior_status == str(value):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print('CPU %d online already %d' % (cpu, value))@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit()@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call([ADB, 'shell', 'echo %s > '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_status = subprocess.check_output([ADB, 'shell', 'cat '@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_status != str(value):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %d)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_status, value))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 30
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([\n    ADB, 'shell',\n    'echo \"%s\" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (\n        gov, cpu)]).decode('utf-8')\nactual_gov = subprocess.check_output([\n    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %\n        cpu]).decode('utf-8').strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_scaling_governor.py",
       "/usr/bin/adb.1.0.35",
       "4",
       "ondemand"
@@ -342,40 +132,12 @@
     },
     "infra_step": true,
     "name": "Set CPU 4's governor to ondemand",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@gov = sys.argv[3]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@    ADB, 'shell',@@@",
-      "@@@STEP_LOG_LINE@python.inline@    'echo \"%s\" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (@@@",
-      "@@@STEP_LOG_LINE@python.inline@        gov, cpu)]).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_gov = subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %@@@",
-      "@@@STEP_LOG_LINE@python.inline@        cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_gov != gov:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %s)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 30
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([\n    ADB, 'shell',\n    'echo \"%s\" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (\n        gov, cpu)]).decode('utf-8')\nactual_gov = subprocess.check_output([\n    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %\n        cpu]).decode('utf-8').strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/set_cpu_scaling_governor.py",
       "/usr/bin/adb.1.0.35",
       "0",
       "ondemand"
@@ -386,35 +148,7 @@
     },
     "infra_step": true,
     "name": "Set CPU 0's governor to ondemand",
-    "timeout": 30,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@import time@@@",
-      "@@@STEP_LOG_LINE@python.inline@ADB = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@cpu = int(sys.argv[2])@@@",
-      "@@@STEP_LOG_LINE@python.inline@gov = sys.argv[3]@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([ADB, 'root']).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@# check for message like 'adbd cannot run as root in production builds'@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(log)@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'cannot' in log:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('adb root failed')@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@    ADB, 'shell',@@@",
-      "@@@STEP_LOG_LINE@python.inline@    'echo \"%s\" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (@@@",
-      "@@@STEP_LOG_LINE@python.inline@        gov, cpu)]).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@actual_gov = subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %@@@",
-      "@@@STEP_LOG_LINE@python.inline@        cpu]).decode('utf-8').strip()@@@",
-      "@@@STEP_LOG_LINE@python.inline@if actual_gov != gov:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('(actual, expected) (%s, %s)'@@@",
-      "@@@STEP_LOG_LINE@python.inline@                  % (actual_gov, gov))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 30
   },
   {
     "cmd": [
@@ -539,8 +273,8 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
@@ -549,42 +283,12 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/SKP_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/SKP_VERSION"
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
@@ -593,37 +297,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/skps",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/skps"
   },
   {
     "cmd": [
@@ -765,8 +439,8 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
@@ -775,42 +449,12 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/images"
     ],
@@ -819,37 +463,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/images",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/images"
   },
   {
     "cmd": [
@@ -991,8 +605,8 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
     ],
@@ -1001,42 +615,12 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/SVG_VERSION",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/SVG_VERSION"
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/remove_file_on_device.py",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/svgs"
     ],
@@ -1045,37 +629,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "rm /sdcard/revenge_of_the_skiabot/svgs",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
-      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
-      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
-      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
-      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
-      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "rm /sdcard/revenge_of_the_skiabot/svgs"
   },
   {
     "cmd": [
@@ -1148,15 +702,11 @@
   },
   {
     "cmd": [
-      "python",
-      "import os\nprint(os.environ.get('SWARMING_TASK_ID', ''))\n"
+      "python3",
+      "RECIPE_MODULE[skia::vars]/resources/get_env_var.py",
+      "SWARMING_TASK_ID"
     ],
-    "name": "get swarming task id",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@print(os.environ.get('SWARMING_TASK_ID', ''))@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "get swarming task id"
   },
   {
     "cmd": [
@@ -1213,31 +763,17 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output([\n      '/usr/bin/adb.1.0.35', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))\nexcept ValueError:\n  print(\"Couldn't read the return code.  Probably killed for OOM.\")\n  sys.exit(1)\n",
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/run_sh.py",
       "/data/local/tmp/",
-      "dm.sh"
+      "dm.sh",
+      "/usr/bin/adb.1.0.35"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "dm",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])@@@",
-      "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@      '/usr/bin/adb.1.0.35', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))@@@",
-      "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print(\"Couldn't read the return code.  Probably killed for OOM.\")@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "name": "dm"
   },
   {
     "cmd": [
@@ -1296,9 +832,10 @@
   },
   {
     "cmd": [
-      "python",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output([\n    '/usr/bin/adb.1.0.35', 'logcat', '-d']).decode('utf-8', errors='ignore')\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      try:\n        sym = subprocess.check_output([\n            'addr2line', '-Cfpe', local, addr]).decode('utf-8')\n        line = line.replace(addr, addr + ' ' + sym.strip())\n      except subprocess.CalledProcessError:\n        pass\n  print(line)\n",
-      "[START_DIR]/build"
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/dump_adb_log.py",
+      "[START_DIR]/build",
+      "/usr/bin/adb.1.0.35"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -1306,30 +843,7 @@
     },
     "infra_step": true,
     "name": "dump log",
-    "timeout": 300,
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@import os@@@",
-      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
-      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
-      "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@    '/usr/bin/adb.1.0.35', 'logcat', '-d']).decode('utf-8', errors='ignore')@@@",
-      "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
-      "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
-      "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
-      "@@@STEP_LOG_LINE@python.inline@    addr, path = tokens[-2:]@@@",
-      "@@@STEP_LOG_LINE@python.inline@    local = os.path.join(out, os.path.basename(path))@@@",
-      "@@@STEP_LOG_LINE@python.inline@    if os.path.exists(local):@@@",
-      "@@@STEP_LOG_LINE@python.inline@      try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@        sym = subprocess.check_output([@@@",
-      "@@@STEP_LOG_LINE@python.inline@            'addr2line', '-Cfpe', local, addr]).decode('utf-8')@@@",
-      "@@@STEP_LOG_LINE@python.inline@        line = line.replace(addr, addr + ' ' + sym.strip())@@@",
-      "@@@STEP_LOG_LINE@python.inline@      except subprocess.CalledProcessError:@@@",
-      "@@@STEP_LOG_LINE@python.inline@        pass@@@",
-      "@@@STEP_LOG_LINE@python.inline@  print(line)@@@",
-      "@@@STEP_LOG_END@python.inline@@@"
-    ]
+    "timeout": 300
   },
   {
     "name": "$result"
