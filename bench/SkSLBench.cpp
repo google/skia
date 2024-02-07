@@ -103,6 +103,11 @@ protected:
     }
 
     bool isSuitableFor(Backend backend) override {
+#if !defined(SK_GRAPHITE)
+        if (this->usesGraphite()) {
+            return false;
+        }
+#endif
         return backend == kNonRendering_Backend;
     }
 
