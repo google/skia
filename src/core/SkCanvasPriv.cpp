@@ -159,19 +159,6 @@ bool SkCanvasPriv::ImageToColorFilter(SkPaint* paint) {
     return true;
 }
 
-#if defined(GRAPHITE_TEST_UTILS)
-#include "src/gpu/graphite/Device.h"
-
-skgpu::graphite::TextureProxy* SkCanvasPriv::TopDeviceGraphiteTargetProxy(SkCanvas* canvas) {
-    if (auto gpuDevice = canvas->topDevice()->asGraphiteDevice()) {
-        return gpuDevice->target();
-    }
-    return nullptr;
-}
-
-#endif // defined(GRAPHITE_TEST_UTILS)
-
-
 AutoLayerForImageFilter::AutoLayerForImageFilter(SkCanvas* canvas,
                                                  const SkPaint& paint,
                                                  const SkRect* rawBounds,

@@ -209,7 +209,7 @@ static DEFINE_string2(match, m, nullptr,
                "If a name does not match any list entry,\n"
                "it is skipped unless some list entry starts with ~");
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(SK_GRAPHITE)
 #ifdef SK_ENABLE_VELLO_SHADERS
 #define COMPUTE_ANALYTIC_PATHSTRATEGY_STR ", \"compute-analytic\""
 #else
@@ -276,7 +276,7 @@ static bool is_graphite_backend_type(sk_app::Window::BackendType type) {
     return false;
 }
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(SK_GRAPHITE)
 static const char*
         get_path_renderer_strategy_string(skgpu::graphite::PathRendererStrategy strategy) {
     using Strategy = skgpu::graphite::PathRendererStrategy;
@@ -529,7 +529,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                 displayParams.fSurfaceProps.pixelGeometry());
     }
     displayParams.fCreateProtectedNativeBackend = FLAGS_createProtected;
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(SK_GRAPHITE)
     displayParams.fGraphiteContextOptions.fPriv.fPathRendererStrategy =
             get_path_renderer_strategy_type(FLAGS_pathstrategy[0]);
 #endif
@@ -1240,7 +1240,7 @@ void Viewer::updateTitle() {
     title.append("]");
 
     if (is_graphite_backend_type(fBackendType)) {
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(SK_GRAPHITE)
         skgpu::graphite::PathRendererStrategy strategy =
                 fWindow->getRequestedDisplayParams()
                         .fGraphiteContextOptions.fPriv.fPathRendererStrategy;
@@ -2190,7 +2190,7 @@ void Viewer::drawImGui() {
                 if (ImGui::TreeNode("Path Renderers")) {
                     skgpu::graphite::Context* gctx = fWindow->graphiteContext();
                     if (is_graphite_backend_type(fBackendType) && gctx) {
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(SK_GRAPHITE)
                         using skgpu::graphite::PathRendererStrategy;
                         skgpu::graphite::ContextOptionsPriv* opts =
                                 &params.fGraphiteContextOptions.fPriv;
@@ -2689,7 +2689,6 @@ void Viewer::drawImGui() {
                         });
                     }
 #if defined(SK_GRAPHITE)
-#if defined(GRAPHITE_TEST_UTILS)
                     if (skgpu::graphite::Context* gctx = fWindow->graphiteContext()) {
                         int index = 1;
                         auto callback = [&](const skgpu::UniqueKey& key,
@@ -2727,7 +2726,6 @@ void Viewer::drawImGui() {
                         };
                         gctx->priv().globalCache()->forEachGraphicsPipeline(callback);
                     }
-#endif
 #endif
 
                     gLoadPending = false;

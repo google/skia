@@ -94,6 +94,13 @@ static sk_sp<SkData> create_image_data(const SkImageInfo& info) {
     return data;
 }
 
+static skgpu::graphite::TextureProxy* top_device_graphite_target_proxy(SkCanvas* canvas) {
+    if (auto gpuDevice = SkCanvasPriv::TopDevice(canvas)->asGraphiteDevice()) {
+        return gpuDevice->target();
+    }
+    return nullptr;
+}
+
 DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest,
                                                reporter,
                                                context,
@@ -235,7 +242,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest,
         return;
     }
 
-    TextureProxy* surfaceProxy = SkCanvasPriv::TopDeviceGraphiteTargetProxy(surface->getCanvas());
+    TextureProxy* surfaceProxy = top_device_graphite_target_proxy(surface->getCanvas());
     if (!surfaceProxy) {
         ERRORF(reporter, "Failed to get surface proxy");
         return;
