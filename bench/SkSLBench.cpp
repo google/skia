@@ -685,6 +685,7 @@ void RunSkSLModuleBenchmarks(NanoJSONResultsWriter* log) {
         bench(log, "sksl_compiler_gpu", gpuBytes);
     }
 
+#if defined(SK_GRAPHITE)
     // Heap used by a compiler with the Graphite modules loaded.
     before = heap_bytes_used();
     compiler.moduleForProgramKind(SkSL::ProgramKind::kGraphiteVertex);
@@ -703,6 +704,7 @@ void RunSkSLModuleBenchmarks(NanoJSONResultsWriter* log) {
         computeBytes = (computeBytes - before) + baselineBytes;
         bench(log, "sksl_compiler_compute", computeBytes);
     }
+#endif
 
     // Report the minified module sizes.
     int compilerGPUBinarySize = std::size(SKSL_MINIFIED_sksl_shared) +
