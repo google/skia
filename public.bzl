@@ -2232,9 +2232,11 @@ BASE_DEFINES = [
     "SK_BUILD_FOR_GOOGLE3",
     # Should remove after we update golden images
     "SK_WEBP_ENCODER_USE_DEFAULT_METHOD",
-
     # JPEG is in codec_limited and is included in all
     # builds except the no_codec android build
+    # BMP and WBMP are on by default in this build.
+    "SK_CODEC_DECODES_BMP",
+    "SK_CODEC_DECODES_WBMP",
 ]
 UNIX_DEFINES = [
     "PNG_SKIP_SETJMP_CHECK",
