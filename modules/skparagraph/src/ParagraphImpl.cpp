@@ -434,16 +434,18 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
 
     // Walk through all the clusters in the direction of shaped text
     // (we have to walk through the styles in the same order, too)
+    // Not breaking the iteration on every run!
     SkScalar shift = 0;
+    bool soFarWhitespacesOnly = true;
+    bool wordSpacingPending = false;
+    Cluster* lastSpaceCluster = nullptr;
     for (auto& run : fRuns) {
 
         // Skip placeholder runs
         if (run.isPlaceholder()) {
             continue;
         }
-        bool soFarWhitespacesOnly = true;
-        bool wordSpacingPending = false;
-        Cluster* lastSpaceCluster = nullptr;
+
         run.iterateThroughClusters([this, &run, &shift, &soFarWhitespacesOnly, &wordSpacingPending, &lastSpaceCluster](Cluster* cluster) {
             // Shift the cluster (shift collected from the previous clusters)
             run.shift(cluster, shift);
@@ -466,7 +468,15 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
                     }
                 } else if (wordSpacingPending) {
                     SkScalar spacing = currentStyle->fStyle.getWordSpacing();
-                    run.addSpacesAtTheEnd(spacing, lastSpaceCluster);
+                    if (cluster->fRunIndex != lastSpaceCluster->fRunIndex) {
+                        // If the last space cluster belongs to the previous run
+                        // we have to extend that cluster and that run
+                        lastSpaceCluster->run().addSpacesAtTheEnd(spacing, lastSpaceCluster);
+                        lastSpaceCluster->run().extend(lastSpaceCluster, spacing);
+                    } else {
+                        run.addSpacesAtTheEnd(spacing, lastSpaceCluster);
+                    }
+
                     run.shift(cluster, spacing);
                     shift += spacing;
                     wordSpacingPending = false;
