@@ -24,11 +24,18 @@
 #include "tools/Stats.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/testrunners/benchmark/target/BenchmarkTarget.h"
+#include "tools/testrunners/common/TestRunner.h"
 #include "tools/testrunners/common/compilation_mode_keys/CompilationModeKeys.h"
 #include "tools/testrunners/common/surface_manager/SurfaceManager.h"
 #include "tools/timer/Timer.h"
 
 #include <cinttypes>
+
+static DEFINE_string(skip, "", "Space-separated list of test cases (regexps) to skip.");
+static DEFINE_string(
+        match,
+        "",
+        "Space-separated list of test cases (regexps) to run. Will run all tests if omitted.");
 
 // TODO(lovisolo): Should we check that this is a valid Git hash?
 static DEFINE_string(
@@ -657,6 +664,11 @@ int main(int argc, char** argv) {
     int runs = 0;
     for (auto benchmarkFactory : BenchRegistry::Range()) {
         std::unique_ptr<Benchmark> benchmark(benchmarkFactory(nullptr));
+
+        if (!TestRunner::ShouldRunTestCase(benchmark->getUniqueName(), FLAGS_match, FLAGS_skip)) {
+            SkDebugf("Skipping %s\n", benchmark->getName());
+            continue;
+        }
 
         benchmark->delayedSetup();
 

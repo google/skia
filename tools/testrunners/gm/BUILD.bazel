@@ -20,6 +20,7 @@ skia_cc_library(
         "//:skia_internal",
         "//gm",
         "//tools:hash_and_encode",
+        "//tools/testrunners/common:testrunner",
         "//tools/testrunners/common/compilation_mode_keys",
         "//tools/testrunners/common/surface_manager",
         "//tools/testrunners/gm/vias",

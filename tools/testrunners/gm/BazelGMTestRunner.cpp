@@ -23,6 +23,7 @@
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/HashAndEncode.h"
+#include "tools/testrunners/common/TestRunner.h"
 #include "tools/testrunners/common/compilation_mode_keys/CompilationModeKeys.h"
 #include "tools/testrunners/common/surface_manager/SurfaceManager.h"
 #include "tools/testrunners/gm/vias/Draw.h"
@@ -34,8 +35,13 @@
 #include <sstream>
 #include <string>
 
-// TODO(lovisolo): Add flag --skip.
 // TODO(lovisolo): Add flag --omitDigestIfHashInFile (provides the known hashes file).
+
+static DEFINE_string(skip, "", "Space-separated list of test cases (regexps) to skip.");
+static DEFINE_string(
+        match,
+        "",
+        "Space-separated list of test cases (regexps) to run. Will run all tests if omitted.");
 
 // When running under Bazel and overriding the output directory, you might encounter errors such
 // as "No such file or directory" and "Read-only file system". The former can happen when running
@@ -348,7 +354,14 @@ int main(int argc, char** argv) {
         }
     }
     for (const skiagm::GMFactory& f : skiagm::GMRegistry::Range()) {
-        run_gm(f(), config, keyValuePairs, cpuName, gpuName, outputDir);
+        std::unique_ptr<skiagm::GM> gm = f();
+
+        if (!TestRunner::ShouldRunTestCase(gm->getName().c_str(), FLAGS_match, FLAGS_skip)) {
+            SkDebugf("[%s] Skipping %s\n", now().c_str(), gm->getName().c_str());
+            continue;
+        }
+
+        run_gm(std::move(gm), config, keyValuePairs, cpuName, gpuName, outputDir);
     }
 
     // TODO(lovisolo): If running under Bazel, print command to display output files.

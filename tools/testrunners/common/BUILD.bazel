@@ -12,3 +12,15 @@ skia_cc_library(
         "//gm:__pkg__",
     ],
 )
+
+skia_cc_library(
+    name = "testrunner",
+    testonly = True,
+    srcs = [
+        "TestRunner.cpp",
+        "//tools/flags",
+    ],
+    hdrs = ["TestRunner.h"],
+    visibility = ["//tools/testrunners:__subpackages__"],
+    deps = ["//:core"],
+)

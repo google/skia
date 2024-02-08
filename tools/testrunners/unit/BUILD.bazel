@@ -12,5 +12,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//tests:test_harness",
+        "//tools/testrunners/common:testrunner",
     ],
 )

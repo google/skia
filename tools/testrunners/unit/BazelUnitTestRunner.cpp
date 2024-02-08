@@ -15,6 +15,7 @@
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/testrunners/common/TestRunner.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/GrContextOptions.h"
@@ -34,7 +35,11 @@
 
 struct tm;
 
-static DEFINE_string(skip, "", "Space-separated list of test cases to skip.");
+static DEFINE_string(skip, "", "Space-separated list of test cases (regexps) to skip.");
+static DEFINE_string(
+        match,
+        "",
+        "Space-separated list of test cases (regexps) to run. Will run all tests if omitted.");
 
 // Set in //bazel/devicesrc but consumed by other C++ test runners.
 static DEFINE_string(key, "", "Ignored by this test runner.");
@@ -145,7 +150,7 @@ std::string now() {
 }
 
 void maybeRunTest(const char* name, std::function<void()> testFn) {
-    if (FLAGS_skip.contains(name)) {
+    if (!TestRunner::ShouldRunTestCase(name, FLAGS_match, FLAGS_skip)) {
         SkDebugf("[%s] Skipping %s\n", now().c_str(), name);
         return;
     }
