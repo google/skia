@@ -694,9 +694,6 @@ public:
     explicit FilterResult(sk_sp<SkSpecialImage> image)
             : FilterResult(std::move(image), LayerSpace<SkIPoint>({0, 0})) {}
 
-    FilterResult(std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> imageAndOrigin)
-            : FilterResult(std::move(std::get<0>(imageAndOrigin)), std::get<1>(imageAndOrigin)) {}
-
     FilterResult(sk_sp<SkSpecialImage> image, const LayerSpace<SkIPoint>& origin)
             : fImage(std::move(image))
             , fSamplingOptions(kDefaultSampling)
@@ -819,9 +816,15 @@ private:
     // has default sampling, no color filter, and a transform that translates by only 'dstBounds's
     // top-left corner. 'dstBounds' is intersected with 'fLayerBounds' unless 'preserveTransparency'
     // is true.
-    std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>
-    resolve(const Context& ctx, LayerSpace<SkIRect> dstBounds,
-            bool preserveTransparency=false) const;
+    FilterResult resolve(const Context& ctx, LayerSpace<SkIRect> dstBounds,
+                         bool preserveTransparency=false) const;
+    // Returns a decal-tiled subset view of this FilterResult, requiring that this has an integer
+    // translation equivalent to 'knownOrigin'. If 'clampSrcIfDisjoint' is true and the image bounds
+    // do not overlap with dstBounds, the closest edge/corner pixels of the image will be extracted,
+    // assuming it will be tiled with kClamp.
+    FilterResult subset(const LayerSpace<SkIPoint>& knownOrigin,
+                        const LayerSpace<SkIRect>& subsetBounds,
+                        bool clampSrcIfDisjoint=false) const;
 
     enum class BoundsAnalysis : int {
         // The image can be drawn directly, without needing to apply tiling, or handling how any
