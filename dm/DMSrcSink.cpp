@@ -1260,6 +1260,8 @@ SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 
 Result SkottieSrc::draw(SkCanvas* canvas, GraphiteTestContext*) const {
     auto predecode = skresources::ImageDecodeStrategy::kPreDecode;
+    // DM should have already registered the codecs necessary for DataURIResourceProviderProxy
+    // to decode images.
     auto resource_provider = skresources::DataURIResourceProviderProxy::Make(
             skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()), predecode),
             predecode,
@@ -1348,6 +1350,8 @@ SVGSrc::SVGSrc(Path path)
         return;
     }
 
+    // DM should have already registered the codecs necessary for DataURIResourceProviderProxy
+    // to decode images.
     auto predecode = skresources::ImageDecodeStrategy::kPreDecode;
     auto rp = skresources::DataURIResourceProviderProxy::Make(
             skresources::FileResourceProvider::Make(SkOSPath::Dirname(path.c_str()), predecode),

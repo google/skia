@@ -55,6 +55,7 @@
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkShaderUtils.h"
+#include "tools/CodecUtils.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/RuntimeBlendUtils.h"
@@ -124,6 +125,22 @@
 #if defined(SK_ENABLE_SVG)
 #include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
 #include "tools/viewer/SvgSlide.h"
+#endif
+
+#ifdef SK_CODEC_DECODES_AVIF
+#include "include/codec/SkAvifDecoder.h"
+#endif
+
+#ifdef SK_HAS_HEIF_LIBRARY
+#include "include/android/SkHeifDecoder.h"
+#endif
+
+#ifdef SK_CODEC_DECODES_JPEGXL
+#include "include/codec/SkJpegxlDecoder.h"
+#endif
+
+#ifdef SK_CODEC_DECODES_RAW
+#include "include/codec/SkRawDecoder.h"
 #endif
 
 using namespace skia_private;
@@ -488,6 +505,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 #if defined(SK_ENABLE_SVG)
     SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
 #endif
+    CodecUtils::RegisterAllAvailable();
 
     gGaneshPathRendererNames[GpuPathRenderers::kDefault] = "Default Path Renderers";
     gGaneshPathRendererNames[GpuPathRenderers::kAtlas] = "Atlas (tessellation)";

@@ -32,6 +32,7 @@ void SvgSlide::load(SkScalar w, SkScalar h) {
         return;
     }
 
+    // Viewer should have already registered the codecs necessary for DataURIResourceProviderProxy
     auto predecode = skresources::ImageDecodeStrategy::kPreDecode;
     auto rp = skresources::DataURIResourceProviderProxy::Make(
             skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()), predecode),

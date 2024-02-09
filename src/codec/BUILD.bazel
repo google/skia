@@ -382,6 +382,7 @@ skia_cc_library(
         "//include/codec:any_codec_hdrs",
         "//include/codec:bmp_public_hdrs",
     ],
+    defines = ["SK_CODEC_DECODES_BMP"],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
@@ -402,6 +403,7 @@ skia_cc_library(
         "//include/codec:any_codec_hdrs",
         "//include/codec:gif_public_hdrs",
     ],
+    defines = ["SK_CODEC_DECODES_GIF"],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
@@ -426,6 +428,7 @@ skia_cc_library(
         "//include/codec:any_codec_hdrs",
         "//include/codec:ico_public_hdrs",
     ],
+    defines = ["SK_CODEC_DECODES_ICO"],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
@@ -467,6 +470,7 @@ skia_cc_library(
         "//include/codec:any_codec_hdrs",
         "//include/codec:jpeg_public_hdrs",
     ],
+    defines = ["SK_CODEC_DECODES_JPEG"],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
@@ -490,6 +494,7 @@ skia_cc_library(
         "//include/codec:any_codec_hdrs",
         "//include/codec:jpegxl_public_hdrs",
     ],
+    defines = ["SK_CODEC_DECODES_JPEGXL"],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
@@ -528,6 +533,7 @@ skia_cc_library(
         "//include/codec:any_codec_hdrs",
         "//include/codec:png_public_hdrs",
     ],
+    defines = ["SK_CODEC_DECODES_PNG"],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
@@ -556,6 +562,7 @@ skia_cc_library(
         "//include/codec:any_codec_hdrs",
         "//include/codec:wbmp_public_hdrs",
     ],
+    defines = ["SK_CODEC_DECODES_WBMP"],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
@@ -578,6 +585,7 @@ skia_cc_library(
         "//include/codec:any_codec_hdrs",
         "//include/codec:webp_public_hdrs",
     ],
+    defines = ["SK_CODEC_DECODES_WEBP"],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [

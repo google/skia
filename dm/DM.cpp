@@ -7,15 +7,8 @@
 
 #include "dm/DMJsonWriter.h"
 #include "dm/DMSrcSink.h"
-#include "include/codec/SkBmpDecoder.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
-#include "include/codec/SkGifDecoder.h"
-#include "include/codec/SkIcoDecoder.h"
-#include "include/codec/SkJpegDecoder.h"
-#include "include/codec/SkPngDecoder.h"
-#include "include/codec/SkWbmpDecoder.h"
-#include "include/codec/SkWebpDecoder.h"
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
@@ -39,6 +32,7 @@
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
 #include "tools/AutoreleasePool.h"
+#include "tools/CodecUtils.h"
 #include "tools/HashAndEncode.h"
 #include "tools/ProcStats.h"
 #include "tools/Resources.h"
@@ -72,22 +66,6 @@
 
 #if defined(SK_ENABLE_SVG)
     #include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
-#endif
-
-#ifdef SK_CODEC_DECODES_AVIF
-#include "include/codec/SkAvifDecoder.h"
-#endif
-
-#ifdef SK_HAS_HEIF_LIBRARY
-#include "include/android/SkHeifDecoder.h"
-#endif
-
-#ifdef SK_CODEC_DECODES_JPEGXL
-#include "include/codec/SkJpegxlDecoder.h"
-#endif
-
-#ifdef SK_CODEC_DECODES_RAW
-#include "include/codec/SkRawDecoder.h"
 #endif
 
 using namespace skia_private;
@@ -273,29 +251,6 @@ static void dump_json() {
     if (!FLAGS_writePath.isEmpty()) {
         JsonWriter::DumpJson(FLAGS_writePath[0], FLAGS_key, FLAGS_properties);
     }
-}
-
-static void register_codecs() {
-    SkCodecs::Register(SkPngDecoder::Decoder());
-    SkCodecs::Register(SkJpegDecoder::Decoder());
-    SkCodecs::Register(SkWebpDecoder::Decoder());
-    SkCodecs::Register(SkGifDecoder::Decoder());
-    SkCodecs::Register(SkBmpDecoder::Decoder());
-    SkCodecs::Register(SkWbmpDecoder::Decoder());
-    SkCodecs::Register(SkIcoDecoder::Decoder());
-
-#ifdef SK_CODEC_DECODES_AVIF
-    SkCodecs::Register(SkAvifDecoder::Decoder());
-#endif
-#ifdef SK_HAS_HEIF_LIBRARY
-    SkCodecs::Register(SkHeifDecoder::Decoder());
-#endif
-#ifdef SK_CODEC_DECODES_JPEGXL
-    SkCodecs::Register(SkJpegxlDecoder::Decoder());
-#endif
-#ifdef SK_CODEC_DECODES_RAW
-    SkCodecs::Register(SkRawDecoder::Decoder());
-#endif
 }
 
 // We use a spinlock to make locking this in a signal handler _somewhat_ safe.
@@ -1632,7 +1587,7 @@ int main(int argc, char** argv) {
     SkGraphics::SetOpenTypeSVGDecoderFactory(SkSVGOpenTypeSVGDecoder::Make);
 #endif
     SkTaskGroup::Enabler enabled(FLAGS_threads);
-    register_codecs();
+    CodecUtils::RegisterAllAvailable();
 
     if (nullptr == GetResourceAsData("images/color_wheel.png")) {
         info("Some resources are missing.  Do you need to set --resourcePath?\n");

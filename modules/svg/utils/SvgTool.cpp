@@ -14,6 +14,7 @@
 #include "modules/skresources/include/SkResources.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "src/utils/SkOSPath.h"
+#include "tools/CodecUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/fonts/FontToolUtils.h"
 
@@ -54,6 +55,8 @@ int main(int argc, char** argv) {
 #else
     sk_sp<SkFontMgr> fontMgr = SkFontMgr_New_Custom_Empty();
 #endif
+
+    CodecUtils::RegisterAllAvailable();
 
     auto predecode = skresources::ImageDecodeStrategy::kPreDecode;
     auto rp = skresources::DataURIResourceProviderProxy::Make(

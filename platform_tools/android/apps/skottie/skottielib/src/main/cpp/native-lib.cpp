@@ -6,13 +6,19 @@
  * found in the LICENSE file.
  */
 
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkGifDecoder.h"
+#include "include/codec/SkJpegDecoder.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"
+#include "include/ports/SkFontMgr_empty.h"
 #include "modules/skresources/include/SkResources.h"
+
 #include <jni.h>
 #include <math.h>
 #include <string>
@@ -167,8 +173,17 @@ Java_org_skia_skottie_SkottieAnimation_nCreateProxy(JNIEnv *env,
     skottieAnimation->mRunner = skottieRunner;
     skottieAnimation->mStream = std::move(stream);
 
+    sk_sp<SkFontMgr> freetypeMgr = SkFontMgr_New_Custom_Empty();
+
+    SkCodecs::Register(SkPngDecoder::Decoder());
+    SkCodecs::Register(SkGifDecoder::Decoder());
+    SkCodecs::Register(SkJpegDecoder::Decoder());
+
     skottieAnimation->mAnimation = skottie::Animation::Builder()
-        .setResourceProvider(skresources::DataURIResourceProviderProxy::Make(nullptr))
+        // Note, this nullptr ResourceProvider will only be able to decode base64 encoded images
+        // (using the above registered codecs) or base64 encoded FreeType typefaces.
+        .setResourceProvider(skresources::DataURIResourceProviderProxy::Make(nullptr,
+            skresources::ImageDecodeStrategy::kPreDecode, freetypeMgr))
         .make(skottieAnimation->mStream.get());
     skottieAnimation->mTimeBase  = 0.0f; // force a time reset
     skottieAnimation->mDuration = 1000 * skottieAnimation->mAnimation->duration();

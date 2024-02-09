@@ -9,10 +9,6 @@
 
 #if defined(SK_ENABLE_SKOTTIE)
 
-#include "include/codec/SkCodec.h"
-#include "include/codec/SkGifDecoder.h"
-#include "include/codec/SkJpegDecoder.h"
-#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/private/base/SkNoncopyable.h"
@@ -131,7 +127,7 @@ public:
                                                   const char resource_name[],
                                                   const char /*resource_id*/[]) const override {
         auto data = this->load(resource_path, resource_name);
-
+        // Viewer should have already registered the codecs necessary for MultiFrameImageAsset
         return skresources::MultiFrameImageAsset::Make(data);
     }
 
@@ -521,10 +517,7 @@ void SkottieSlide::init() {
     }
     skottie::Animation::Builder builder(flags);
 
-    SkCodecs::Register(SkPngDecoder::Decoder());
-    SkCodecs::Register(SkGifDecoder::Decoder());
-    SkCodecs::Register(SkJpegDecoder::Decoder());
-
+    // Viewer should have already registered the codecs necessary for DataURIResourceProviderProxy
     auto predecode = skresources::ImageDecodeStrategy::kPreDecode;
     auto resource_provider =
             sk_make_sp<AudioProviderProxy>(skresources::DataURIResourceProviderProxy::Make(

@@ -32,40 +32,49 @@
 #include <utility>
 
 #if !defined(SK_DISABLE_LEGACY_INIT_DECODERS)
-#include "include/codec/SkBmpDecoder.h"
-#include "include/codec/SkWbmpDecoder.h"
 #include "include/private/base/SkOnce.h"
 
-#ifdef SK_CODEC_DECODES_AVIF
+#if defined(SK_CODEC_DECODES_AVIF)
 #include "include/codec/SkAvifDecoder.h"
 #endif
 
-#ifdef SK_HAS_WUFFS_LIBRARY
+#if defined(SK_CODEC_DECODES_BMP)
+#include "include/codec/SkBmpDecoder.h"
+#endif
+
+#if defined(SK_CODEC_DECODES_GIF)
 #include "include/codec/SkGifDecoder.h"
 #endif
 
-#ifdef SK_HAS_HEIF_LIBRARY
+#if defined(SK_HAS_HEIF_LIBRARY)
 #include "include/android/SkHeifDecoder.h"
 #endif
 
-#ifdef SK_CODEC_DECODES_JPEG
+#if defined(SK_CODEC_DECODES_ICO)
+#include "include/codec/SkIcoDecoder.h"
+#endif
+
+#if defined(SK_CODEC_DECODES_JPEG)
 #include "include/codec/SkJpegDecoder.h"
 #endif
 
-#ifdef SK_CODEC_DECODES_JPEGXL
+#if defined(SK_CODEC_DECODES_JPEGXL)
 #include "include/codec/SkJpegxlDecoder.h"
 #endif
 
-#ifdef SK_CODEC_DECODES_PNG
-#include "include/codec/SkIcoDecoder.h"
+#if defined(SK_CODEC_DECODES_PNG)
 #include "include/codec/SkPngDecoder.h"
 #endif
 
-#ifdef SK_CODEC_DECODES_RAW
+#if defined(SK_CODEC_DECODES_RAW)
 #include "include/codec/SkRawDecoder.h"
 #endif
 
-#ifdef SK_CODEC_DECODES_WEBP
+#if defined(SK_CODEC_DECODES_WBMP)
+#include "include/codec/SkWbmpDecoder.h"
+#endif
+
+#if defined(SK_CODEC_DECODES_WEBP)
 #include "include/codec/SkWebpDecoder.h"
 #endif
 #endif // !defined(SK_DISABLE_LEGACY_INIT_DECODERS)
@@ -79,33 +88,37 @@ static std::vector<Decoder>* get_decoders_for_editing() {
     static SkOnce once;
     once([] {
         if (decoders->empty()) {
-#ifdef SK_CODEC_DECODES_PNG
+#if defined(SK_CODEC_DECODES_PNG)
             decoders->push_back(SkPngDecoder::Decoder());
 #endif
-#ifdef SK_CODEC_DECODES_JPEG
+#if defined(SK_CODEC_DECODES_JPEG)
             decoders->push_back(SkJpegDecoder::Decoder());
 #endif
-#ifdef SK_CODEC_DECODES_WEBP
+#if defined(SK_CODEC_DECODES_WEBP)
             decoders->push_back(SkWebpDecoder::Decoder());
 #endif
-#ifdef SK_HAS_WUFFS_LIBRARY
+#if defined(SK_CODEC_DECODES_GIF)
             decoders->push_back(SkGifDecoder::Decoder());
 #endif
-#ifdef SK_CODEC_DECODES_PNG
+#if defined(SK_CODEC_DECODES_ICO)
             decoders->push_back(SkIcoDecoder::Decoder());
 #endif
+#if defined(SK_CODEC_DECODES_BMP)
             decoders->push_back(SkBmpDecoder::Decoder());
+#endif
+#if defined(SK_CODEC_DECODES_WBMP)
             decoders->push_back(SkWbmpDecoder::Decoder());
-#ifdef SK_CODEC_DECODES_AVIF
+#endif
+#if defined(SK_CODEC_DECODES_AVIF)
             decoders->push_back(SkAvifDecoder::Decoder());
 #endif
-#ifdef SK_CODEC_DECODES_JPEGXL
+#if defined(SK_CODEC_DECODES_JPEGXL)
             decoders->push_back(SkJpegxlDecoder::Decoder());
 #endif
-#ifdef SK_HAS_HEIF_LIBRARY
+#if defined(SK_HAS_HEIF_LIBRARY)
             decoders->push_back(SkHeifDecoder::Decoder());
 #endif
-#ifdef SK_CODEC_DECODES_RAW
+#if defined(SK_CODEC_DECODES_RAW)
             decoders->push_back(SkRawDecoder::Decoder());
 #endif
         }
@@ -764,7 +777,7 @@ bool sk_select_xform_format(SkColorType colorType, bool forColorTable,
             break;
         case kRGB_565_SkColorType:
             if (forColorTable) {
-#ifdef SK_PMCOLOR_IS_RGBA
+#if defined(SK_PMCOLOR_IS_RGBA)
                 *outFormat = skcms_PixelFormat_RGBA_8888;
 #else
                 *outFormat = skcms_PixelFormat_BGRA_8888;

@@ -28,7 +28,11 @@ import("gn/ios.gni")
 config("skia_public") {
   include_dirs = [ "." ]
 
-  defines = [ "SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE" ]
+  defines = [
+    "SK_CODEC_DECODES_BMP",
+    "SK_CODEC_DECODES_WBMP",
+    "SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE",
+  ]
   cflags_objcc = []
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
@@ -1232,7 +1236,10 @@ optional("xps") {
 
 optional("png_decode") {
   enabled = skia_use_libpng_decode
-  public_defines = [ "SK_CODEC_DECODES_PNG" ]
+  public_defines = [
+    "SK_CODEC_DECODES_ICO",
+    "SK_CODEC_DECODES_PNG",
+  ]
 
   deps = [ "//third_party/libpng" ]
   sources = [
@@ -1384,7 +1391,10 @@ optional("webp_encode") {
 
 optional("wuffs") {
   enabled = skia_use_wuffs
-  public_defines = [ "SK_HAS_WUFFS_LIBRARY" ]
+  public_defines = [
+    "SK_HAS_WUFFS_LIBRARY",
+    "SK_CODEC_DECODES_GIF",
+  ]
 
   deps = [ "//third_party/wuffs" ]
   sources = [ "src/codec/SkWuffsCodec.cpp" ]

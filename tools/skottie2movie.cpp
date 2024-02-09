@@ -16,6 +16,7 @@
 #include "src/base/SkTime.h"
 #include "src/utils/SkOSPath.h"
 
+#include "tools/CodecUtils.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/gpu/GrContextFactory.h"
 
@@ -65,6 +66,8 @@ int main(int argc, char** argv) {
         assetPath = SkOSPath::Dirname(FLAGS_input[0]);
     }
     SkDebugf("assetPath %s\n", assetPath.c_str());
+
+    CodecUtils::RegisterAllAvailable();
 
     auto animation = skottie::Animation::Builder()
         .setResourceProvider(skresources::FileResourceProvider::Make(assetPath))

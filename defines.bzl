@@ -90,7 +90,7 @@ GPU_DEFINES = select_multi({
 
 CODEC_DEFINES = select_multi({
     "//src/codec:avif_decode_codec": ["SK_CODEC_DECODES_AVIF"],
-    "//src/codec:gif_decode_codec": ["SK_HAS_WUFFS_LIBRARY"],
+    "//src/codec:gif_decode_codec": ["SK_HAS_WUFFS_LIBRARY", "SK_CODEC_DECODES_GIF"],
     "//src/codec:jpeg_decode_codec": ["SK_CODEC_DECODES_JPEG"],
     "//src/codec:png_decode_codec": ["SK_CODEC_DECODES_PNG"],
     "//src/codec:raw_decode_codec": [

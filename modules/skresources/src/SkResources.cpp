@@ -315,10 +315,11 @@ static sk_sp<SkData> decode_datauri(const char prefix[], const char uri[]) {
 sk_sp<ImageAsset> DataURIResourceProviderProxy::loadImageAsset(const char rpath[],
                                                                const char rname[],
                                                                const char rid[]) const {
+    // First try to decode the data as base64 using codecs registered with SkCodecs::Register()
     if (auto data = decode_datauri("data:image/", rname)) {
         return MultiFrameImageAsset::Make(std::move(data), fStrategy);
     }
-
+    // Fallback to the asking the ProviderProxy to load this image for us.
     return this->INHERITED::loadImageAsset(rpath, rname, rid);
 }
 
