@@ -175,6 +175,8 @@ static int gNumSuccessfulGMs = 0;
 static int gNumFailedGMs = 0;
 static int gNumSkippedGMs = 0;
 
+static bool gMissingCpuOrGpuWarningLogged = false;
+
 // Runs a GM under the given surface config, and saves its output PNG file (and accompanying JSON
 // file with metadata) to the given output directory.
 void run_gm(std::unique_ptr<skiagm::GM> gm,
@@ -193,15 +195,19 @@ void run_gm(std::unique_ptr<skiagm::GM> gm,
     }
 
     // Print warning about missing cpu_or_gpu key if necessary.
-    if ((surfaceManager->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kCPU && cpuName == "")) {
+    if ((surfaceManager->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kCPU && cpuName == "" &&
+         !gMissingCpuOrGpuWarningLogged)) {
         TestRunner::Log(
                 "\tWarning: The surface is CPU-bound, but flag --cpuName was not provided. "
                 "Gold traces will omit keys \"cpu_or_gpu\" and \"cpu_or_gpu_value\".");
+        gMissingCpuOrGpuWarningLogged = true;
     }
-    if ((surfaceManager->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kGPU && gpuName == "")) {
+    if ((surfaceManager->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kGPU && gpuName == "" &&
+         !gMissingCpuOrGpuWarningLogged)) {
         TestRunner::Log(
                 "\tWarning: The surface is GPU-bound, but flag --gpuName was not provided. "
                 "Gold traces will omit keys \"cpu_or_gpu\" and \"cpu_or_gpu_value\".");
+        gMissingCpuOrGpuWarningLogged = true;
     }
 
     // Set up GPU.

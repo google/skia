@@ -587,6 +587,7 @@ int main(int argc, char** argv) {
     }
 
     int runs = 0;
+    bool missingCpuOrGpuWarningLogged = false;
     for (auto benchmarkFactory : BenchRegistry::Range()) {
         std::unique_ptr<Benchmark> benchmark(benchmarkFactory(nullptr));
 
@@ -601,15 +602,19 @@ int main(int argc, char** argv) {
                 BenchmarkTarget::FromConfig(surfaceConfig, benchmark.get());
 
         // Print warning about missing cpu_or_gpu key if necessary.
-        if (target->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kCPU && cpuName == "") {
+        if (target->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kCPU && cpuName == "" &&
+            !missingCpuOrGpuWarningLogged) {
             TestRunner::Log(
                     "Warning: The surface is CPU-bound, but flag --cpuName was not provided. "
                     "Perf traces will omit keys \"cpu_or_gpu\" and \"cpu_or_gpu_value\".");
+            missingCpuOrGpuWarningLogged = true;
         }
-        if (target->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kGPU && gpuName == "") {
+        if (target->isCpuOrGpuBound() == SurfaceManager::CpuOrGpu::kGPU && gpuName == "" &&
+            !missingCpuOrGpuWarningLogged) {
             TestRunner::Log(
                     "Warning: The surface is GPU-bound, but flag --gpuName was not provided. "
                     "Perf traces will omit keys \"cpu_or_gpu\" and \"cpu_or_gpu_value\".");
+            missingCpuOrGpuWarningLogged = true;
         }
 
         if (benchmark->isSuitableFor(target->getBackend())) {
