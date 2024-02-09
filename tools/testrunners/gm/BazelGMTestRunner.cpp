@@ -310,31 +310,16 @@ int main(int argc, char** argv) {
 
     // Parse and validate flags.
     CommandLineFlags::Parse(argc, argv);
-    if (!isBazelTest && FLAGS_outputDir.isEmpty()) {
-        SK_ABORT("Flag --outputDir cannot be empty.");
+    if (!isBazelTest) {
+        TestRunner::FlagValidators::StringNonEmpty("--outputDir", FLAGS_outputDir);
     }
-    if (FLAGS_outputDir.size() > 1) {
-        SK_ABORT("Flag --outputDir takes one single value, got %d.", FLAGS_outputDir.size());
-    }
-    if (FLAGS_key.size() % 2 == 1) {
-        SK_ABORT("Flag --key takes an even number of arguments, got: %d.\n", FLAGS_key.size());
-    }
-    if (FLAGS_surfaceConfig.isEmpty()) {
-        SK_ABORT("Flag --surfaceConfig cannot be empty.");
-    }
-    if (FLAGS_surfaceConfig.size() > 1) {
-        SK_ABORT("Flag --surfaceConfig takes one single value, got %d.",
-                 FLAGS_surfaceConfig.size());
-    }
-    if (FLAGS_cpuName.size() > 1) {
-        SK_ABORT("Flag --cpuName takes at most one value, got %d.", FLAGS_cpuName.size());
-    }
-    if (FLAGS_gpuName.size() > 1) {
-        SK_ABORT("Flag --gpuName takes at most one value, got %d.", FLAGS_gpuName.size());
-    }
-    if (FLAGS_via.size() > 1) {
-        SK_ABORT("Flag --via takes at most one value, got %d.", FLAGS_via.size());
-    }
+    TestRunner::FlagValidators::StringAtMostOne("--outputDir", FLAGS_outputDir);
+    TestRunner::FlagValidators::StringEven("--key", FLAGS_key);
+    TestRunner::FlagValidators::StringNonEmpty("--surfaceConfig", FLAGS_surfaceConfig);
+    TestRunner::FlagValidators::StringAtMostOne("--surfaceConfig", FLAGS_surfaceConfig);
+    TestRunner::FlagValidators::StringAtMostOne("--cpuName", FLAGS_cpuName);
+    TestRunner::FlagValidators::StringAtMostOne("--gpuName", FLAGS_gpuName);
+    TestRunner::FlagValidators::StringAtMostOne("--via", FLAGS_via);
 
     std::string outputDir =
             FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];

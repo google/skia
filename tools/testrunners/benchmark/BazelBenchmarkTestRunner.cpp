@@ -146,103 +146,40 @@ static DEFINE_bool2(verbose, v, false, "Enable verbose output from the test runn
                                      "Ignored by this test runner.",
                                      nullptr);
 
-// TODO(lovisolo): Move these flag validation utilities under //tools/testrunners.
-
-static void validate_string_flag_nonempty(std::string name, CommandLineFlags::StringArray flag) {
-    if (flag.size() == 0) {
-        SK_ABORT("Flag %s cannot be empty.\n", name.c_str());
-    }
-}
-
-static void validate_string_flag_single_value(std::string name,
-                                              CommandLineFlags::StringArray flag) {
-    if (flag.size() > 1) {
-        SK_ABORT("Flag %s takes one single value, got: %d.\n", name.c_str(), flag.size());
-    }
-}
-
-static void validate_string_flag_even(std::string name, CommandLineFlags::StringArray flag) {
-    if (flag.size() % 2 == 1) {
-        SK_ABORT(
-                "Flag %s takes an even number of arguments, got: %d.\n", name.c_str(), flag.size());
-    }
-}
-
-static void validate_int_flag_greater_or_equal(std::string name, int flag, int min) {
-    if (flag < min) {
-        SK_ABORT("Flag %s must be greater or equal than %d, got: %d.\n", name.c_str(), min, flag);
-    }
-}
-
-static void validate_flags_all_or_none(std::map<std::string, bool> flags) {
-    std::string names;
-    unsigned int numFlagsSet = 0;
-    for (auto const& [name, isSet] : flags) {
-        if (names == "") {
-            names = name;
-        } else {
-            names += ", " + name;
-        }
-        if (isSet) {
-            numFlagsSet++;
-        }
-    }
-    if (numFlagsSet != flags.size() && numFlagsSet != 0) {
-        SK_ABORT("Either all or none of the following flags must be set: %s.\n", names.c_str());
-    }
-}
-
-static void validate_flags_exactly_one(std::map<std::string, bool> flags) {
-    std::string names;
-    unsigned int numFlagsSet = 0;
-    for (auto const& [name, isSet] : flags) {
-        if (names == "") {
-            names = name;
-        } else {
-            names += ", " + name;
-        }
-        if (isSet) {
-            numFlagsSet++;
-        }
-    }
-    if (numFlagsSet != 1) {
-        SK_ABORT("Exactly one of the following flags must be set: %s.\n", names.c_str());
-    }
-}
-
 static void validate_flags(bool isBazelTest) {
-    validate_flags_all_or_none(
+    TestRunner::FlagValidators::AllOrNone(
             {{"--issue", FLAGS_issue.size() > 0}, {"--patchset", FLAGS_patchset.size() > 0}});
-    validate_string_flag_single_value("--issue", FLAGS_issue);
-    validate_string_flag_single_value("--patchset", FLAGS_patchset);
-    validate_string_flag_even("--key", FLAGS_key);
-    validate_string_flag_even("--links", FLAGS_links);
+    TestRunner::FlagValidators::StringAtMostOne("--issue", FLAGS_issue);
+    TestRunner::FlagValidators::StringAtMostOne("--patchset", FLAGS_patchset);
+    TestRunner::FlagValidators::StringEven("--key", FLAGS_key);
+    TestRunner::FlagValidators::StringEven("--links", FLAGS_links);
 
     if (!isBazelTest) {
-        validate_string_flag_nonempty("--outputDir", FLAGS_outputDir);
+        TestRunner::FlagValidators::StringNonEmpty("--outputDir", FLAGS_outputDir);
     }
-    validate_string_flag_single_value("--outputDir", FLAGS_outputDir);
+    TestRunner::FlagValidators::StringAtMostOne("--outputDir", FLAGS_outputDir);
 
-    validate_string_flag_nonempty("--surfaceConfig", FLAGS_surfaceConfig);
-    validate_string_flag_single_value("--surfaceConfig", FLAGS_surfaceConfig);
+    TestRunner::FlagValidators::StringNonEmpty("--surfaceConfig", FLAGS_surfaceConfig);
+    TestRunner::FlagValidators::StringAtMostOne("--surfaceConfig", FLAGS_surfaceConfig);
 
-    validate_string_flag_single_value("--cpuName", FLAGS_cpuName);
-    validate_string_flag_single_value("--gpuName", FLAGS_gpuName);
+    TestRunner::FlagValidators::StringAtMostOne("--cpuName", FLAGS_cpuName);
+    TestRunner::FlagValidators::StringAtMostOne("--gpuName", FLAGS_gpuName);
 
-    validate_flags_exactly_one(
+    TestRunner::FlagValidators::ExactlyOne(
             {{"--loops", FLAGS_loops != 0}, {"--autoTuneLoops", FLAGS_autoTuneLoops}});
     if (!FLAGS_autoTuneLoops) {
-        validate_int_flag_greater_or_equal("--loops", FLAGS_loops, 1);
+        TestRunner::FlagValidators::IntGreaterOrEqual("--loops", FLAGS_loops, 1);
     }
 
-    validate_int_flag_greater_or_equal("--autoTuneLoopsMax", FLAGS_autoTuneLoopsMax, 1);
+    TestRunner::FlagValidators::IntGreaterOrEqual("--autoTuneLoopsMax", FLAGS_autoTuneLoopsMax, 1);
 
-    validate_flags_exactly_one({{"--samples", FLAGS_samples != 0}, {"--ms", FLAGS_ms != 0}});
+    TestRunner::FlagValidators::ExactlyOne(
+            {{"--samples", FLAGS_samples != 0}, {"--ms", FLAGS_ms != 0}});
     if (FLAGS_ms == 0) {
-        validate_int_flag_greater_or_equal("--samples", FLAGS_samples, 1);
+        TestRunner::FlagValidators::IntGreaterOrEqual("--samples", FLAGS_samples, 1);
     }
     if (FLAGS_samples == 0) {
-        validate_int_flag_greater_or_equal("--ms", FLAGS_ms, 1);
+        TestRunner::FlagValidators::IntGreaterOrEqual("--ms", FLAGS_ms, 1);
     }
 }
 
