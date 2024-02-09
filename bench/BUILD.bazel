@@ -71,6 +71,58 @@ cc_test_with_flags(
     deps = [":benchmarks_base"],
 )
 
+# Vulkan benchmarks.
+[
+    cc_test_with_flags(
+        name = name,
+        srcs = [
+            "GradientBench.cpp",
+            "TextBlobBench.cpp",
+        ],
+        args = [
+            "--surfaceConfig",
+            surfaceConfig,
+            "--autoTuneLoops",
+        ],
+        set_flags = {
+            "include_encoder": [
+                "png_encode_codec",
+            ],
+        },
+        deps = [":benchmarks_base"],
+    )
+    for name, surfaceConfig in [
+        [
+            "ganesh_vk_test",
+            "vk",
+        ],
+        [
+            "ganesh_vk_1010102_test",
+            "vk_1010102",
+        ],
+        [
+            "ganesh_vk_msaa4_test",
+            "vk_msaa4",
+        ],
+        [
+            "ganesh_vk_msaa8_test",
+            "vk_msaa8",
+        ],
+        [
+            "ganesh_vk_dmsaa_test",
+            "vk_dmsaa",
+        ],
+        [
+            "ganesh_vk_betex_test",
+            "vk_betex",
+        ],
+        [
+            "ganesh_vk_bert_test",
+            "vk_bert",
+        ],
+    ]
+]
+
 cc_test_with_flags(
     name = "gpu_gles_test",
     srcs = [

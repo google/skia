@@ -605,6 +605,59 @@ cc_test_with_flags(
     ],
 )
 
+# Vulkan GMs.
+[
+    cc_test_with_flags(
+        name = name,
+        srcs = GPU_GMS,
+        args = [
+            "--surfaceConfig",
+            surfaceConfig,
+        ],
+        data = ["//resources"],
+        set_flags = {
+            "include_decoder": [
+                "gif_decode_codec",
+                "webp_decode_codec",
+            ],
+        },
+        deps = [
+            ":tests_base",
+            "//tools/testrunners/gm:testrunner",
+        ],
+    )
+    for name, surfaceConfig in [
+        [
+            "ganesh_vk_test",
+            "vk",
+        ],
+        [
+            "ganesh_vk_1010102_test",
+            "vk_1010102",
+        ],
+        [
+            "ganesh_vk_msaa4_test",
+            "vk_msaa4",
+        ],
+        [
+            "ganesh_vk_msaa8_test",
+            "vk_msaa8",
+        ],
+        [
+            "ganesh_vk_dmsaa_test",
+            "vk_dmsaa",
+        ],
+        [
+            "ganesh_vk_betex_test",
+            "vk_betex",
+        ],
+        [
+            "ganesh_vk_bert_test",
+            "vk_bert",
+        ],
+    ]
+]
+
 cc_test_with_flags(
     name = "hello_bazel_world_test",
     srcs = ["hello_bazel_world.cpp"],

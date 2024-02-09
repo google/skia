@@ -53,12 +53,13 @@ static inline bool SkPixelGeometryIsV(SkPixelGeometry geo) {
 class SK_API SkSurfaceProps {
 public:
     enum Flags {
+        kDefault_Flag = 0,
         kUseDeviceIndependentFonts_Flag = 1 << 0,
         // Use internal MSAA to render to non-MSAA GPU surfaces.
-        kDynamicMSAA_Flag               = 1 << 1,
+        kDynamicMSAA_Flag = 1 << 1,
         // If set, all rendering will have dithering enabled
         // Currently this only impacts GPU backends
-        kAlwaysDither_Flag              = 1 << 2,
+        kAlwaysDither_Flag = 1 << 2,
     };
 
     /** No flags, unknown pixel geometry, platform-default contrast/gamma. */
