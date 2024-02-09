@@ -49,7 +49,8 @@ private:
 
 std::unique_ptr<SurfaceManager> makeGLESSurfaceManager(std::string config,
                                                        SurfaceOptions surfaceOptions,
-                                                       GrContextOptions grContextOptions) {
+                                                       GrContextOptions grContextOptions,
+                                                       int sampleCount) {
     if (surfaceOptions.modifyGrContextOptions) {
         surfaceOptions.modifyGrContextOptions(&grContextOptions);
     }
@@ -73,23 +74,22 @@ std::unique_ptr<SurfaceManager> makeGLESSurfaceManager(std::string config,
 std::unique_ptr<SurfaceManager> SurfaceManager::FromConfig(std::string config,
                                                            SurfaceOptions surfaceOptions) {
     if (config == "gles") {
-        return makeGLESSurfaceManager(config, surfaceOptions, GrContextOptions());
+        return makeGLESSurfaceManager(
+                config, surfaceOptions, GrContextOptions(), /* sampleCount= */ 1);
     }
     if (config == "gles_msaa4") {
-        GrContextOptions grContextOptions;
-        grContextOptions.fInternalMultisampleCount = 4;
-        return makeGLESSurfaceManager(config, surfaceOptions, grContextOptions);
+        return makeGLESSurfaceManager(
+                config, surfaceOptions, GrContextOptions(), /* sampleCount= */ 4);
     }
     if (config == "gles_msaa8") {
-        GrContextOptions grContextOptions;
-        grContextOptions.fInternalMultisampleCount = 8;
-        return makeGLESSurfaceManager(config, surfaceOptions, grContextOptions);
+        return makeGLESSurfaceManager(
+                config, surfaceOptions, GrContextOptions(), /* sampleCount= */ 8);
     }
     if (config == "gles_msaa8_noReduceOpsTaskSplitting") {
         GrContextOptions grContextOptions;
-        grContextOptions.fInternalMultisampleCount = 8;
         grContextOptions.fReduceOpsTaskSplitting = GrContextOptions::Enable::kNo;
-        return makeGLESSurfaceManager(config, surfaceOptions, grContextOptions);
+        return makeGLESSurfaceManager(
+                config, surfaceOptions, grContextOptions, /* sampleCount= */ 8);
     }
     return nullptr;
 }
