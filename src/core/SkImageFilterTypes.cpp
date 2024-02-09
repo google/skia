@@ -193,80 +193,6 @@ std::optional<LayerSpace<SkMatrix>> periodic_axis_transform(
     }
 }
 
-// AutoSurface manages an SkCanvas and device state to draw to a layer-space bounding box,
-// and then snap it into a FilterResult. It provides operators to be used directly as an SkDevice,
-// assuming surface creation succeeded. It can also be viewed as an SkCanvas (for when an operation
-// is unavailable on SkDevice). A given AutoSurface should only rely on one access API.
-// Usage:
-//
-//     AutoSurface surface{ctx, dstBounds, renderInParameterSpace}; // if true, concats layer matrix
-//     if (surface) {
-//         surface->drawFoo(...);
-//     }
-//     return surface.snap(); // Automatically handles failed allocations
-class AutoSurface {
-public:
-    AutoSurface(const Context& ctx,
-                const LayerSpace<SkIRect>& dstBounds,
-                bool renderInParameterSpace,
-                const SkSurfaceProps* props = nullptr)
-            : fDstBounds(dstBounds) {
-        // We don't intersect by ctx.desiredOutput() and only use the Context to make the surface.
-        // It is assumed the caller has already accounted for the desired output, or it's a
-        // situation where the desired output shouldn't apply (e.g. this surface will be transformed
-        // to align with the actual desired output via FilterResult metadata).
-        ctx.markNewSurface();
-        sk_sp<SkDevice> device =
-                dstBounds.isEmpty() ? nullptr
-                                    : ctx.backend()->makeDevice(SkISize(dstBounds.size()),
-                                                                ctx.refColorSpace(),
-                                                                props);
-        if (!device) {
-            return;
-        }
-
-        // Wrap the device in a canvas and use that to configure its origin and clip. This ensures
-        // the device and the canvas are in sync regardless of how the AutoSurface user intends
-        // to render.
-        fCanvas.emplace(std::move(device));
-        fCanvas->translate(-fDstBounds.left(), -fDstBounds.top());
-        fCanvas->clear(SkColors::kTransparent);
-        // The device functor may have provided an approx-fit backing surface so clip to the
-        // expected dst bounds.
-        fCanvas->clipIRect(SkIRect(fDstBounds));
-
-        if (renderInParameterSpace) {
-            fCanvas->concat(SkMatrix(ctx.mapping().layerMatrix()));
-        }
-    }
-
-    explicit operator bool() const { return fCanvas.has_value(); }
-
-    SkDevice* device() { SkASSERT(fCanvas.has_value()); return SkCanvasPriv::TopDevice(&*fCanvas); }
-    SkCanvas* operator->() { SkASSERT(fCanvas.has_value()); return &*fCanvas; }
-
-    // NOTE: This pair is equivalent to a FilterResult but we keep it this way for use by resolve(),
-    // which wants them separate while the legacy imageAndOffset() function is around.
-    std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> snap() {
-        if (fCanvas.has_value()) {
-            // Snap a subset of the device matching the expected dst bounds.
-            SkIRect subset = SkIRect::MakeWH(fDstBounds.width(), fDstBounds.height());
-            fCanvas->restoreToCount(0);
-            this->device()->setImmutable();
-            auto snapped = std::make_pair(this->device()->snapSpecial(subset),
-                                          fDstBounds.topLeft());
-            fCanvas.reset(); // Only use the AutoSurface once
-            return snapped;
-        } else {
-            return {nullptr, {}};
-        }
-    }
-
-private:
-    std::optional<SkCanvas> fCanvas;
-    LayerSpace<SkIRect> fDstBounds;
-};
-
 class RasterBackend : public Backend {
 public:
 
@@ -599,6 +525,83 @@ bool LayerSpace<SkMatrix>::inverseMapRect(const LayerSpace<SkIRect>& rect,
 
     return false;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// FilterResult::AutoSurface
+//
+// AutoSurface manages an SkCanvas and device state to draw to a layer-space bounding box,
+// and then snap it into a FilterResult. It provides operators to be used directly as an SkDevice,
+// assuming surface creation succeeded. It can also be viewed as an SkCanvas (for when an operation
+// is unavailable on SkDevice). A given AutoSurface should only rely on one access API.
+// Usage:
+//
+//     AutoSurface surface{ctx, dstBounds, renderInParameterSpace}; // if true, concats layer matrix
+//     if (surface) {
+//         surface->drawFoo(...);
+//     }
+//     return surface.snap(); // Automatically handles failed allocations
+class FilterResult::AutoSurface {
+public:
+    AutoSurface(const Context& ctx,
+                const LayerSpace<SkIRect>& dstBounds,
+                bool renderInParameterSpace,
+                const SkSurfaceProps* props = nullptr)
+            : fDstBounds(dstBounds) {
+        // We don't intersect by ctx.desiredOutput() and only use the Context to make the surface.
+        // It is assumed the caller has already accounted for the desired output, or it's a
+        // situation where the desired output shouldn't apply (e.g. this surface will be transformed
+        // to align with the actual desired output via FilterResult metadata).
+        ctx.markNewSurface();
+        sk_sp<SkDevice> device =
+                dstBounds.isEmpty() ? nullptr
+                                    : ctx.backend()->makeDevice(SkISize(dstBounds.size()),
+                                                                ctx.refColorSpace(),
+                                                                props);
+        if (!device) {
+            return;
+        }
+
+        // Wrap the device in a canvas and use that to configure its origin and clip. This ensures
+        // the device and the canvas are in sync regardless of how the AutoSurface user intends
+        // to render.
+        fCanvas.emplace(std::move(device));
+        fCanvas->translate(-fDstBounds.left(), -fDstBounds.top());
+        fCanvas->clear(SkColors::kTransparent);
+        // The device functor may have provided an approx-fit backing surface so clip to the
+        // expected dst bounds.
+        fCanvas->clipIRect(SkIRect(fDstBounds));
+
+        if (renderInParameterSpace) {
+            fCanvas->concat(SkMatrix(ctx.mapping().layerMatrix()));
+        }
+    }
+
+    explicit operator bool() const { return fCanvas.has_value(); }
+
+    SkDevice* device() { SkASSERT(fCanvas.has_value()); return SkCanvasPriv::TopDevice(&*fCanvas); }
+    SkCanvas* operator->() { SkASSERT(fCanvas.has_value()); return &*fCanvas; }
+
+    // NOTE: This pair is equivalent to a FilterResult but we keep it this way for use by resolve(),
+    // which wants them separate while the legacy imageAndOffset() function is around.
+    std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> snap() {
+        if (fCanvas.has_value()) {
+            // Snap a subset of the device matching the expected dst bounds.
+            SkIRect subset = SkIRect::MakeWH(fDstBounds.width(), fDstBounds.height());
+            fCanvas->restoreToCount(0);
+            this->device()->setImmutable();
+            auto snapped = std::make_pair(this->device()->snapSpecial(subset),
+                                          fDstBounds.topLeft());
+            fCanvas.reset(); // Only use the AutoSurface once
+            return snapped;
+        } else {
+            return {nullptr, {}};
+        }
+    }
+
+private:
+    std::optional<SkCanvas> fCanvas;
+    LayerSpace<SkIRect> fDstBounds;
+};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // FilterResult

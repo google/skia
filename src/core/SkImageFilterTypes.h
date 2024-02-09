@@ -813,6 +813,8 @@ public:
 private:
     friend class ::FilterResultTestAccess; // For testing draw() and asShader()
 
+    class AutoSurface;
+
     // Renders this FilterResult into a new, but visually equivalent, image that fills 'dstBounds',
     // has default sampling, no color filter, and a transform that translates by only 'dstBounds's
     // top-left corner. 'dstBounds' is intersected with 'fLayerBounds' unless 'preserveTransparency'
