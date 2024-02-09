@@ -421,12 +421,7 @@ DEF_TEST(Codec_GifPreMap, r) {
         bm.allocPixels(info);
         result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
 
-        // See the comments in Codec_GifTruncated2.
-#ifdef SK_HAS_WUFFS_LIBRARY
         REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
-#else
-        REPORTER_ASSERT(r, result == SkCodec::kInvalidInput);
-#endif
     }
 
     // Again, truncate to 23 bytes, this time for an incremental decode. We
@@ -440,8 +435,6 @@ DEF_TEST(Codec_GifPreMap, r) {
         bm.allocPixels(info);
         result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
 
-        // See the comments in Codec_GifTruncated2.
-#ifdef SK_HAS_WUFFS_LIBRARY
         REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
         // Note that this is incrementalDecode, not startIncrementalDecode.
@@ -449,14 +442,6 @@ DEF_TEST(Codec_GifPreMap, r) {
         REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
 
         stream->addNewData(data->size());
-#else
-        REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
-
-        // Note that this is startIncrementalDecode, not incrementalDecode.
-        stream->addNewData(data->size());
-        result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes());
-        REPORTER_ASSERT(r, result == SkCodec::kSuccess);
-#endif
 
         result = codec->incrementalDecode();
         REPORTER_ASSERT(r, result == SkCodec::kSuccess);

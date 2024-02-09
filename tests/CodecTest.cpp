@@ -1746,56 +1746,9 @@ DEF_TEST(Codec_ossfuzz6274, r) {
     const char* file = "invalid_images/ossfuzz6274.gif";
     auto image = ToolUtils::GetResourceAsImage(file);
 
-#ifdef SK_HAS_WUFFS_LIBRARY
-    // We are transitioning from an old GIF implementation to a new (Wuffs) GIF
-    // implementation.
-    //
-    // This test (without SK_HAS_WUFFS_LIBRARY) is overly specific to the old
-    // implementation. In the new implementation, the MakeFromStream factory
-    // method returns a nullptr SkImage*, instead of returning a non-null but
-    // otherwise all-transparent SkImage*.
-    //
-    // Either way, the end-to-end result is the same - the source input is
-    // rejected as an invalid GIF image - but the two implementations differ in
-    // how that's represented.
-    //
-    // Once the transition is complete, we can remove the #ifdef and delete the
-    // rest of the test function.
-    //
-    // See Codec_GifTruncated3 for the equivalent of the rest of the test
-    // function, on different (but still truncated) source data.
     if (image) {
         ERRORF(r, "Invalid data gave non-nullptr image");
     }
-    return;
-#else
-    if (!image) {
-        ERRORF(r, "Missing %s", file);
-        return;
-    }
-
-    REPORTER_ASSERT(r, image->width()  == 32);
-    REPORTER_ASSERT(r, image->height() == 32);
-
-    SkBitmap bm;
-    if (!bm.tryAllocPixels(SkImageInfo::MakeN32Premul(32, 32))) {
-        ERRORF(r, "Failed to allocate pixels");
-        return;
-    }
-
-    bm.eraseColor(SK_ColorTRANSPARENT);
-
-    SkCanvas canvas(bm);
-    canvas.drawImage(image, 0, 0);
-
-    for (int i = 0; i < image->width();  ++i)
-    for (int j = 0; j < image->height(); ++j) {
-        SkColor actual = SkUnPreMultiply::PMColorToColor(*bm.getAddr32(i, j));
-        if (actual != SK_ColorTRANSPARENT) {
-            ERRORF(r, "did not initialize pixels! %i, %i is %x", i, j, actual);
-        }
-    }
-#endif
 }
 
 DEF_TEST(Codec_78329453, r) {

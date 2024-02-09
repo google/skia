@@ -42,7 +42,7 @@
 #include "include/codec/SkBmpDecoder.h"
 #endif
 
-#if defined(SK_CODEC_DECODES_GIF)
+#if defined(SK_CODEC_DECODES_GIF) || defined(SK_HAS_WUFFS_LIBRARY)
 #include "include/codec/SkGifDecoder.h"
 #endif
 
@@ -97,7 +97,7 @@ static std::vector<Decoder>* get_decoders_for_editing() {
 #if defined(SK_CODEC_DECODES_WEBP)
             decoders->push_back(SkWebpDecoder::Decoder());
 #endif
-#if defined(SK_CODEC_DECODES_GIF)
+#if defined(SK_CODEC_DECODES_GIF) || defined(SK_HAS_WUFFS_LIBRARY)
             decoders->push_back(SkGifDecoder::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_ICO)
