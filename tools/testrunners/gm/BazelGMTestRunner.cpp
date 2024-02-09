@@ -271,24 +271,7 @@ void run_gm(std::unique_ptr<skiagm::GM> gm,
 }
 
 int main(int argc, char** argv) {
-#ifdef SK_BUILD_FOR_ANDROID
-    extern bool gSkDebugToStdOut;  // If true, sends SkDebugf to stdout as well.
-    gSkDebugToStdOut = true;
-#endif
-
-    // Print command-line for debugging purposes.
-    if (argc < 2) {
-        TestRunner::Log("GM runner invoked with no arguments.");
-    } else {
-        std::ostringstream oss;
-        for (int i = 1; i < argc; i++) {
-            if (i > 1) {
-                oss << " ";
-            }
-            oss << argv[i];
-        }
-        TestRunner::Log("GM runner invoked with arguments: %s", oss.str().c_str());
-    }
+    TestRunner::InitAndLogCmdlineArgs(argc, argv);
 
     // When running under Bazel (e.g. "bazel test //path/to:test"), we'll store output files in
     // $TEST_UNDECLARED_OUTPUTS_DIR unless overridden via the --outputDir flag.

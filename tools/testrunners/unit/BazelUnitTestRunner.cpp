@@ -152,21 +152,7 @@ void maybeRunTest(const char* name, std::function<void()> testFn) {
 }
 
 int main(int argc, char** argv) {
-#ifdef SK_BUILD_FOR_ANDROID
-    extern bool gSkDebugToStdOut;  // If true, sends SkDebugf to stdout as well.
-    gSkDebugToStdOut = true;
-#endif
-
-    if (argc < 2) {
-        TestRunner::Log("Test runner invoked with no arguments.");
-    } else {
-        std::ostringstream oss;
-        oss << "Test runner invoked with arguments:";
-        for (int i = 1; i < argc; i++) {
-            oss << " " << argv[i];
-        }
-        TestRunner::Log("%s", oss.str().c_str());
-    }
+    TestRunner::InitAndLogCmdlineArgs(argc, argv);
 
     CommandLineFlags::Parse(argc, argv);
 

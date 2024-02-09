@@ -29,6 +29,11 @@ void ExactlyOne(std::map<std::string, bool> flags);
 
 }  // namespace FlagValidators
 
+// Performs some common initialization steps, and logs all command-line arguments.
+//
+// It should be called by all test runners at the beginning of their main() function.
+void InitAndLogCmdlineArgs(int argc, char** argv);
+
 // Determines whether a test case should be run based on the --match and --skip command-line flags.
 bool ShouldRunTestCase(const char* name,
                        CommandLineFlags::StringArray& matchFlag,

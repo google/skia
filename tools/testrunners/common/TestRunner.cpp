@@ -77,6 +77,32 @@ void TestRunner::FlagValidators::ExactlyOne(std::map<std::string, bool> flags) {
     }
 }
 
+void TestRunner::InitAndLogCmdlineArgs(int argc, char** argv) {
+#if defined(SK_BUILD_FOR_ANDROID)
+    // If true, sends SkDebugf to stdout as well.
+    //
+    // It is critical that we set this up as early in a test runner as possible, otherwise
+    // SK_ABORT(msg) and other similar macros will just print "Trap" to stdout without logging the
+    // message.
+    extern bool gSkDebugToStdOut;
+    gSkDebugToStdOut = true;
+#endif
+
+    // Print command-line for debugging purposes.
+    if (argc < 2) {
+        TestRunner::Log("Test runner invoked with no arguments.");
+    } else {
+        std::ostringstream oss;
+        for (int i = 1; i < argc; i++) {
+            if (i > 1) {
+                oss << " ";
+            }
+            oss << argv[i];
+        }
+        TestRunner::Log("Test runner invoked with arguments: %s", oss.str().c_str());
+    }
+}
+
 bool TestRunner::ShouldRunTestCase(const char* name,
                                    CommandLineFlags::StringArray& matchFlag,
                                    CommandLineFlags::StringArray& skipFlag) {
