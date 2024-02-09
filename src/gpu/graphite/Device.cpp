@@ -1061,18 +1061,24 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // TODO: Some renderer decisions could depend on the clip (see PathAtlas::addShape for
     // one workaround) so we should figure out how to remove this circular dependency.
+
+    // We assume that we will receive a renderer, or a PathAtlas. If it's a PathAtlas,
+    // then we assume that the renderer chosen in PathAtlas::addShape() will have
+    // single-channel coverage, require AA bounds outsetting, and have a single renderStep.
     auto [renderer, pathAtlas] =
             this->chooseRenderer(localToDevice, geometry, style, /*requireMSAA=*/false);
-    if (!renderer) {
-        SKGPU_LOG_W("Skipping draw with no supported renderer.");
+    if (!renderer && !pathAtlas) {
+        SKGPU_LOG_W("Skipping draw with no supported renderer or PathAtlas.");
         return;
     }
 
     // Calculate the clipped bounds of the draw and determine the clip elements that affect the
     // draw without updating the clip stack.
+    const bool outsetBoundsForAA = renderer ? renderer->outsetBoundsForAA() : true;
     ClipStack::ElementList clipElements;
     const Clip clip =
-            fClip.visitClipStackForDraw(localToDevice, geometry, style, *renderer, &clipElements);
+            fClip.visitClipStackForDraw(localToDevice, geometry, style, outsetBoundsForAA,
+                                        &clipElements);
     if (clip.isClippedOut()) {
         // Clipped out, so don't record anything.
         return;
@@ -1083,14 +1089,15 @@ void Device::drawGeometry(const Transform& localToDevice,
     const SkBlenderBase* blender = as_BB(paint.getBlender());
     const std::optional<SkBlendMode> blendMode = blender ? blender->asBlendMode()
                                                          : SkBlendMode::kSrcOver;
-    const Coverage rendererCoverage = renderer->coverage();
+    const Coverage rendererCoverage = renderer ? renderer->coverage()
+                                               : Coverage::kSingleChannel;
     dstReadReq = GetDstReadRequirement(recorder()->priv().caps(), blendMode, rendererCoverage);
 
     // When using a tessellating path renderer a stroke-and-fill is rendered using two draws. When
     // drawing from an atlas we issue a single draw as the atlas mask covers both styles.
     SkStrokeRec::Style styleType = style.getStyle();
     const int numNewRenderSteps =
-            renderer->numRenderSteps() +
+            renderer ? renderer->numRenderSteps() : 1 +
             (!pathAtlas && (styleType == SkStrokeRec::kStrokeAndFill_Style)
                      ? fRecorder->priv().rendererProvider()->tessellatedStrokes()->numRenderSteps()
                      : 0);
@@ -1113,11 +1120,11 @@ void Device::drawGeometry(const Transform& localToDevice,
     // it to be drawn.
     std::optional<PathAtlas::MaskAndOrigin> atlasMask;  // only used if `pathAtlas != nullptr`
     if (pathAtlas != nullptr) {
-        atlasMask = pathAtlas->addShape(recorder(),
-                                        clip.transformedShapeBounds(),
-                                        geometry.shape(),
-                                        localToDevice,
-                                        style);
+        std::tie(renderer, atlasMask) = pathAtlas->addShape(recorder(),
+                                                            clip.transformedShapeBounds(),
+                                                            geometry.shape(),
+                                                            localToDevice,
+                                                            style);
 
         // If there was no space in the atlas and we haven't flushed already, then flush pending
         // work to clear up space in the atlas. If we had already flushed once (which would have
@@ -1128,11 +1135,11 @@ void Device::drawGeometry(const Transform& localToDevice,
             fRecorder->priv().flushTrackedDevices();
 
             // Try inserting the shape again.
-            atlasMask = pathAtlas->addShape(recorder(),
-                                            clip.transformedShapeBounds(),
-                                            geometry.shape(),
-                                            localToDevice,
-                                            style);
+            std::tie(renderer, atlasMask) = pathAtlas->addShape(recorder(),
+                                                                clip.transformedShapeBounds(),
+                                                                geometry.shape(),
+                                                                localToDevice,
+                                                                style);
         }
 
         if (!atlasMask) {
@@ -1143,6 +1150,8 @@ void Device::drawGeometry(const Transform& localToDevice,
             // texture.
             return;
         }
+        // Since addShape() was successful we should have a valid Renderer now.
+        SkASSERT(renderer);
     }
 
     // Update the clip stack after issuing a flush (if it was needed). A draw will be recorded after
@@ -1377,7 +1386,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         // paths with atlasing.
         if (!msaaSupported || strategy == PathRendererStrategy::kComputeAnalyticAA ||
             strategy == PathRendererStrategy::kRasterAA) {
-            return {renderers->coverageMask(), pathAtlas};
+            return {nullptr, pathAtlas};
         }
 
         // Use the conservative clip bounds for a rough estimate of the mask size (this avoids
@@ -1386,7 +1395,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         Rect drawBounds = localToDevice.mapRect(shape.bounds());
         drawBounds.intersect(fClip.conservativeBounds());
         if (pathAtlas->isSuitableForAtlasing(drawBounds)) {
-            return {renderers->coverageMask(), pathAtlas};
+            return {nullptr, pathAtlas};
         }
     }
 

@@ -24,7 +24,6 @@ namespace skgpu::graphite {
 class BoundsManager;
 class Device;
 class Geometry;
-class Renderer;
 
 // TODO: Port over many of the unit tests for skgpu/v1/ClipStack defined in GrClipStackTest since
 // those tests do a thorough job of enumerating the different element combinations.
@@ -89,7 +88,7 @@ public:
     Clip visitClipStackForDraw(const Transform&,
                                const Geometry&,
                                const SkStrokeRec&,
-                               const Renderer&,
+                               bool outsetBoundsForAA,
                                ElementList* outEffectiveElements) const;
 
     // Update the per-clip element state for later rendering using pre-computed clip state data for

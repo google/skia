@@ -16,7 +16,6 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawParams.h"
-#include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 
@@ -1089,7 +1088,7 @@ void ClipStack::clipShape(const Transform& localToDevice,
 Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                       const Geometry& geometry,
                                       const SkStrokeRec& style,
-                                      const Renderer& renderer,
+                                      bool outsetBoundsForAA,
                                       ClipStack::ElementList* outEffectiveElements) const {
     static const Clip kClippedOut = {
             Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty(), nullptr};
@@ -1140,8 +1139,8 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     bool shapeInDeviceSpace = false;
 
     // Some renderers make the drawn area larger than the geometry for anti-aliasing
-    float rendererOutset = renderer.outsetBoundsForAA() ?
-            localToDevice.localAARadius(styledShape->bounds()) : 0.f;
+    float rendererOutset = outsetBoundsForAA ? localToDevice.localAARadius(styledShape->bounds())
+                                             : 0.f;
     if (!SkScalarIsFinite(rendererOutset)) {
         transformedShapeBounds = deviceBounds;
         infiniteBounds = true;
