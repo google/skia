@@ -5,8 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/base/SkAttributes.h"
+#include "include/private/base/SkDebug.h"
 #include "tools/testrunners/common/TestRunner.h"
+
+#include <cstdarg>
+#include <iomanip>
 #include <regex>
+#include <sstream>
 
 void TestRunner::FlagValidators::StringNonEmpty(std::string name,
                                                 CommandLineFlags::StringArray flag) {
@@ -93,4 +99,20 @@ bool TestRunner::ShouldRunTestCase(const char* name,
     }
 
     return false;
+}
+
+void TestRunner::Log(const char* format, ...) {
+    std::time_t t = std::time(nullptr);
+    std::tm* now = std::gmtime(&t);
+    std::ostringstream oss;
+    oss << std::put_time(now, "%Y-%m-%d %H:%M:%S UTC");
+    printf("[%s] ", oss.str().c_str());
+
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+
+    printf("\n");
+    fflush(stdout);
 }

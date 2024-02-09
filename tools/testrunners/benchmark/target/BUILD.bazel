@@ -17,6 +17,7 @@ skia_cc_library(
         "//:skia_internal",
         "//bench:benchmark",
         "//tools:tool_utils",
+        "//tools/testrunners/common:testrunner",
         "//tools/testrunners/common/surface_manager",
     ] + select({
         "//src/gpu:has_ganesh_backend": ["//tools/gpu:utils"],

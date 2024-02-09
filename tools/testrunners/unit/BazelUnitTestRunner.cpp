@@ -59,7 +59,7 @@ static DEFINE_string(gpuName, "", "Ignored by this test runner.");
 class BazelReporter : public skiatest::Reporter {
 public:
     void reportFailed(const skiatest::Failure& failure) override {
-        SkDebugf("FAIL: %s\n", failure.toString().c_str());
+        TestRunner::Log("FAIL: %s", failure.toString().c_str());
         fFailed = true;
     }
     bool allowExtendedTest() const override { return false; }
@@ -128,7 +128,7 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn,
             // Sync so any release/finished procs get called.
             ctxInfo.directContext()->flushAndSubmit(GrSyncCpu::kYes);
         } else {
-            SkDebugf("Unable to make direct context for Ganesh test.\n");
+            TestRunner::Log("Unable to make direct context for Ganesh test.");
             SkASSERT(false);
             return;
         }
@@ -140,24 +140,15 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn,
 
 TestHarness CurrentTestHarness() { return TestHarness::kBazelUnitTestRunner; }
 
-std::string now() {
-    std::time_t t = std::time(nullptr);
-    std::tm* now = std::gmtime(&t);
-
-    std::ostringstream oss;
-    oss << std::put_time(now, "%Y-%m-%d %H:%M:%S UTC");
-    return oss.str();
-}
-
 void maybeRunTest(const char* name, std::function<void()> testFn) {
     if (!TestRunner::ShouldRunTestCase(name, FLAGS_match, FLAGS_skip)) {
-        SkDebugf("[%s] Skipping %s\n", now().c_str(), name);
+        TestRunner::Log("Skipping %s", name);
         return;
     }
 
-    SkDebugf("[%s] Running %s\n", now().c_str(), name);
+    TestRunner::Log("Running %s", name);
     testFn();
-    SkDebugf("[%s]\tDone\n", now().c_str());
+    TestRunner::Log("\tDone");
 }
 
 int main(int argc, char** argv) {
@@ -167,14 +158,14 @@ int main(int argc, char** argv) {
 #endif
 
     if (argc < 2) {
-        SkDebugf("Test runner invoked with no arguments.\n");
+        TestRunner::Log("Test runner invoked with no arguments.");
     } else {
         std::ostringstream oss;
         oss << "Test runner invoked with arguments:";
         for (int i = 1; i < argc; i++) {
             oss << " " << argv[i];
         }
-        SkDebugf("%s\n", oss.str().c_str());
+        TestRunner::Log("%s", oss.str().c_str());
     }
 
     CommandLineFlags::Parse(argc, argv);
@@ -207,9 +198,9 @@ int main(int argc, char** argv) {
     // TODO(kjlubick) Graphite support
 
     if (reporter.ok()) {
-        SkDebugf("PASS\n");
+        TestRunner::Log("PASS");
         return 0;
     }
-    SkDebugf("FAIL\n");
+    TestRunner::Log("FAIL");
     return 1;
 }

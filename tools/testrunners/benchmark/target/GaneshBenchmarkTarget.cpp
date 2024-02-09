@@ -13,6 +13,7 @@
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/TestContext.h"
 #include "tools/testrunners/benchmark/target/BenchmarkTarget.h"
+#include "tools/testrunners/common/TestRunner.h"
 #include "tools/testrunners/common/surface_manager/SurfaceManager.h"
 
 // Based on flags found here:
@@ -51,7 +52,7 @@ GrRecordingContextPriv::DMSAAStats combinedDMSAAStats;
 
 void BenchmarkTarget::printGlobalStats() {
     if (FLAGS_dmsaaStatsDump) {
-        SkDebugf("<<Total Combined DMSAA Stats>>\n");
+        TestRunner::Log("<<Total Combined DMSAA Stats>>");
         combinedDMSAAStats.dump();
     }
 }
@@ -184,9 +185,9 @@ std::unique_ptr<BenchmarkTarget> BenchmarkTarget::FromConfig(std::string surface
     }
 
     if (surfaceManager->getGaneshContextInfo()->testContext()->fenceSyncSupport()) {
-        SkDebugf(
+        TestRunner::Log(
                 "WARNING: GL context for config \"%s\" does not support fence sync. "
-                "Timings might not be accurate.\n",
+                "Timings might not be accurate.",
                 surfaceConfig.c_str());
     }
 

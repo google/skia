@@ -8,6 +8,7 @@
 #include "bench/Benchmark.h"
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/testrunners/benchmark/target/BenchmarkTarget.h"
+#include "tools/testrunners/common/TestRunner.h"
 
 static DEFINE_int(maxCalibrationAttempts,
                   3,
@@ -48,10 +49,10 @@ public:
         int round = 0;
         while (bench_plus_overhead < overhead) {
             if (round++ == FLAGS_maxCalibrationAttempts) {
-                SkDebugf("Warning: Cannot estimate loops for %s (%s vs. %s); skipping.\n",
-                         fBenchmark->getUniqueName(),
-                         humanize(bench_plus_overhead).c_str(),
-                         humanize(overhead).c_str());
+                TestRunner::Log("Warning: Cannot estimate loops for %s (%s vs. %s); skipping.",
+                                fBenchmark->getUniqueName(),
+                                humanize(bench_plus_overhead).c_str(),
+                                humanize(overhead).c_str());
                 return std::make_tuple(0, false);
             }
             bench_plus_overhead = time(1);
