@@ -22,9 +22,9 @@ namespace skgpu::graphite {
  * When a new shape gets added, its path is rasterized in preparation for upload. These
  * uploads are recorded by `recordUploads()` and subsequently added to an UploadTask.
  *
- * After a successful call to `recordUploads()`, the client is free to call `reset()` and start
- * adding new shapes for a future atlas render.
- * TODO: We should cache Shapes for future frames to avoid the cost of raster pipeline rendering.
+ * Shapes are cached for future frames to avoid the cost of raster pipeline rendering. Multiple
+ * textures (or Pages) are used to cache masks, so if the atlas is full we can reset a Page and
+ * start adding new shapes for a future atlas render.
  */
 class RasterPathAtlas : public PathAtlas {
 public:
