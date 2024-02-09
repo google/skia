@@ -22,7 +22,7 @@ public:
 protected:
     const char* onGetName() override { return "json_skjson"; }
 
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
 
     void onPerCanvasPreDraw(SkCanvas*) override {
         fData = SkData::MakeFromFileName(kBenchFile);
@@ -65,7 +65,7 @@ public:
 protected:
     const char* onGetName() override { return "json_rapidjson"; }
 
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
 
     void onPerCanvasPreDraw(SkCanvas*) override {
         if (auto stream = SkStream::MakeFromFile(kBenchFile)) {
@@ -117,7 +117,7 @@ public:
 protected:
     const char* onGetName() override { return "json_pjson"; }
 
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
 
     void onPerCanvasPreDraw(SkCanvas*) override {
         if (auto stream = SkStream::MakeFromFile(kBenchFile)) {

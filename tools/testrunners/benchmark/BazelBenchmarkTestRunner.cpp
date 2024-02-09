@@ -404,7 +404,7 @@ static int sample_benchmark(BenchmarkTarget* target,
 // Based on
 // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#432.
 static void maybe_write_png(BenchmarkTarget* target, std::string outputDir) {
-    if (target->getBackend() == Benchmark::kNonRendering_Backend) {
+    if (target->getBackend() == Benchmark::Backend::kNonRendering) {
         return;
     }
 

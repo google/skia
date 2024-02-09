@@ -22,7 +22,7 @@ public:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return kNonRendering_Backend == backend;
+        return Backend::kNonRendering == backend;
     }
 
 protected:

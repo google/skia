@@ -40,7 +40,7 @@ public:
         fName.appendf("_%d", static_cast<int>(fBlockSize));
     }
 
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
     const char* onGetName() override { return fName.c_str(); }
 
     void onPreDraw(SkCanvas*) override {

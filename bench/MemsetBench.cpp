@@ -19,7 +19,7 @@ public:
         , fBuffer(fN)
         , fName(SkStringPrintf("memset%zu_%zu", sizeof(T)*8, bytes)) {}
 
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
     const char* onGetName() override { return fName.c_str(); }
 
     void onDraw(int loops, SkCanvas*) override;

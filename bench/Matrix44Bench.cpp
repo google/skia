@@ -27,7 +27,7 @@ public:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     virtual void performTest() = 0;
@@ -193,7 +193,7 @@ public:
         fName.printf("mapRect_%s_%s", name, typeName);
     }
 
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
 
     virtual void performTest() = 0;
 

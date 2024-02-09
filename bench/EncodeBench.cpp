@@ -27,7 +27,7 @@ public:
         , fEncoder(encoder)
         , fName(SkStringPrintf("Encode_%s_%s", filename, encoderName)) {}
 
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
 
     const char* onGetName() override { return fName.c_str(); }
 

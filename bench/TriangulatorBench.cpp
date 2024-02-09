@@ -34,7 +34,7 @@ public:
     }
 
     const char* onGetName() override { return fName.c_str(); }
-    bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) final { return backend == Backend::kNonRendering; }
 
 protected:
     void onDelayedSetup() override {

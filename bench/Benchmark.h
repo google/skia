@@ -41,19 +41,19 @@ public:
     const char* getUniqueName();
     SkISize getSize();
 
-    enum Backend {
-        kNonRendering_Backend,
-        kRaster_Backend,
-        kGPU_Backend,
-        kGraphite_Backend,
-        kPDF_Backend,
-        kHWUI_Backend,
+    enum class Backend {
+        kNonRendering,
+        kRaster,
+        kGanesh,
+        kGraphite,
+        kPDF,
+        kHWUI,
     };
 
     // Call to determine whether the benchmark is intended for
     // the rendering mode.
     virtual bool isSuitableFor(Backend backend) {
-        return backend != kNonRendering_Backend;
+        return backend != Backend::kNonRendering;
     }
 
     // Allows a benchmark to override options used to construct the GrContext.

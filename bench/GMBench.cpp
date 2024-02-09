@@ -21,7 +21,7 @@ const char* GMBench::onGetName() {
 }
 
 bool GMBench::isSuitableFor(Backend backend) {
-    return kNonRendering_Backend != backend;
+    return Backend::kNonRendering != backend;
 }
 
 void GMBench::onPerCanvasPreDraw(SkCanvas* canvas) {

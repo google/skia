@@ -24,7 +24,7 @@ const char* PictureCentricBench::onGetName() {
 }
 
 bool PictureCentricBench::isSuitableFor(Backend backend) {
-    return backend == kNonRendering_Backend;
+    return backend == Backend::kNonRendering;
 }
 
 SkISize PictureCentricBench::onGetSize() {
@@ -61,7 +61,7 @@ const char* DeserializePictureBench::onGetName() {
 }
 
 bool DeserializePictureBench::isSuitableFor(Backend backend) {
-    return backend == kNonRendering_Backend;
+    return backend == Backend::kNonRendering;
 }
 
 SkISize DeserializePictureBench::onGetSize() {

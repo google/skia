@@ -29,7 +29,7 @@ struct WStreamWriteTextBenchmark : public Benchmark {
     WStreamWriteTextBenchmark() : fWStream(new SkNullWStream) {}
     const char* onGetName() override { return "WStreamWriteText"; }
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
     void onDraw(int loops, SkCanvas*) override {
         while (loops-- > 0) {
@@ -50,7 +50,7 @@ struct PDFScalarBench : public Benchmark {
     const char* fName;
     float (*fNextFloat)(SkRandom*);
     bool isSuitableFor(Backend b) override {
-        return b == kNonRendering_Backend;
+        return b == Backend::kNonRendering;
     }
     const char* onGetName() override { return fName; }
     void onDraw(int loops, SkCanvas*) override {
@@ -92,7 +92,7 @@ public:
 protected:
     const char* onGetName() override { return "PDFImage"; }
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
     void onDelayedSetup() override {
         sk_sp<SkImage> img(ToolUtils::GetResourceAsImage("images/color_wheel.png"));
@@ -129,7 +129,7 @@ public:
 protected:
     const char* onGetName() override { return "PDFJpegImage"; }
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
     void onDelayedSetup() override {
         sk_sp<SkImage> img(ToolUtils::GetResourceAsImage("images/mandrill_512_q075.jpg"));
@@ -166,7 +166,7 @@ public:
 protected:
     const char* onGetName() override { return "PDFCompression"; }
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
     void onDelayedSetup() override {
         fAsset = GetResourceAsStream("pdf_command_stream.txt");
@@ -189,7 +189,7 @@ private:
 
 struct PDFColorComponentBench : public Benchmark {
     bool isSuitableFor(Backend b) override {
-        return b == kNonRendering_Backend;
+        return b == Backend::kNonRendering;
     }
     const char* onGetName() override { return "PDFColorComponent"; }
     void onDraw(int loops, SkCanvas*) override {
@@ -205,7 +205,7 @@ struct PDFColorComponentBench : public Benchmark {
 struct PDFShaderBench : public Benchmark {
     sk_sp<SkShader> fShader;
     const char* onGetName() final { return "PDFShader"; }
-    bool isSuitableFor(Backend b) final { return b == kNonRendering_Backend; }
+    bool isSuitableFor(Backend b) final { return b == Backend::kNonRendering; }
     void onDelayedSetup() final {
         const SkPoint pts[2] = {{0.0f, 0.0f}, {100.0f, 100.0f}};
         const SkColor colors[] = {
@@ -233,7 +233,7 @@ struct WritePDFTextBenchmark : public Benchmark {
     WritePDFTextBenchmark() : fWStream(new SkNullWStream) {}
     const char* onGetName() override { return "WritePDFText"; }
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
     void onDraw(int loops, SkCanvas*) override {
         static const char kHello[] = "HELLO SKIA!\n";
@@ -289,7 +289,7 @@ struct PDFClipPathBenchmark : public Benchmark {
     }
     const char* onGetName() override { return "PDFClipPath"; }
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
     void onDraw(int loops, SkCanvas*) override {
         while (loops-- > 0) {
@@ -427,7 +427,7 @@ struct PDFBigDocBench : public Benchmark {
         static const char kNameSlow[] = "PDFBigDocBench_slow";
         return fFast ? kNameFast : kNameSlow;
     }
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
     void onDraw(int loops, SkCanvas*) override {
         while (loops-- > 0) {
             #ifdef SK_PDF_TEST_BIGDOCBENCH_OUTPUT

@@ -15,7 +15,7 @@ class QuickRejectBench : public Benchmark {
     int   fInts  [N];
 
     const char* onGetName() override { return "quick_reject"; }
-    bool isSuitableFor(Backend backend) override { return backend != kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend != Backend::kNonRendering; }
 
     void onDelayedSetup() override  {
         SkRandom rand;
@@ -42,7 +42,7 @@ class ConcatBench : public Benchmark {
     SkMatrix fMatrix;
 
     const char* onGetName() override { return "concat"; }
-    bool isSuitableFor(Backend backend) override { return backend != kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend != Backend::kNonRendering; }
 
     void onDelayedSetup() override  {
         SkRandom r;

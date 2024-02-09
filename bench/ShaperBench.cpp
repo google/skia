@@ -19,7 +19,7 @@ struct ShaperBench : public Benchmark {
     const char* fResource;
     const char* fName;
     const char* onGetName() override { return fName; }
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
     void onDelayedSetup() override {
         fShaper = SkShaper::Make();
         fData = GetResourceAsData(fResource);

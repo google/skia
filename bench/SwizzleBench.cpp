@@ -15,7 +15,7 @@ public:
     SwizzleBench(const char* name, SkOpts::Swizzle_8888_u32 fn) : fName(name), fFn_u32(fn) {}
     SwizzleBench(const char* name, SkOpts::Swizzle_8888_u8  fn) : fName(name), fFn_u8 (fn) {}
 
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
     const char* onGetName() override { return fName; }
     void onDraw(int loops, SkCanvas*) override {
         static const int K = 1023; // Arbitrary, but nice to be a non-power-of-two to trip up SIMD.

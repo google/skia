@@ -82,7 +82,7 @@ public:
                      (shuffle ? "_shuffle" : ""));
     }
 
-    bool isSuitableFor(Backend backend) override { return kGPU_Backend == backend; }
+    bool isSuitableFor(Backend backend) override { return Backend::kGanesh == backend; }
 
 protected:
     const char* onGetName() override {
@@ -191,7 +191,7 @@ public:
 
     ImageCacheBudgetDynamicBench(Mode mode) : fMode(mode) {}
 
-    bool isSuitableFor(Backend backend) override { return kGPU_Backend == backend; }
+    bool isSuitableFor(Backend backend) override { return Backend::kGanesh == backend; }
 
 protected:
     const char* onGetName() override {

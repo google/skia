@@ -67,7 +67,7 @@ public:
 
 protected:
     bool isSuitableFor(Backend backend) override {
-        return kNonRendering_Backend == backend;
+        return Backend::kNonRendering == backend;
     }
 
     const char* onGetName() override {

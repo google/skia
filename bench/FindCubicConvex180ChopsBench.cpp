@@ -16,7 +16,7 @@ public:
 
 private:
     const char* onGetName() override { return fName.c_str(); }
-    bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) final { return backend == Backend::kNonRendering; }
     void onDraw(int loops, SkCanvas*) final {
         float T[2] = {0};
         bool areCusps;

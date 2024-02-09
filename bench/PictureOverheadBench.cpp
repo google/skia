@@ -17,7 +17,7 @@ public:
 
 private:
     const char* onGetName() override { return "clip_overhead_recording"; }
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
 
     void onDraw(int loops, SkCanvas*) override {
         SkPictureRecorder rec;

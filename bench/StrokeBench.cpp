@@ -23,7 +23,7 @@ public:
 
 protected:
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     const char* onGetName() override { return fName.c_str(); }

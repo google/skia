@@ -92,7 +92,7 @@ public:
     }
 
     const char* onGetName() override { return fName.c_str(); }
-    bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) final { return backend == Backend::kNonRendering; }
 
 protected:
     void onDelayedSetup() override {
@@ -322,7 +322,7 @@ public:
 
 private:
     const char* onGetName() override { return fName.c_str(); }
-    bool isSuitableFor(Backend backend) final { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) final { return backend == Backend::kNonRendering; }
 
     void onDelayedSetup() override {
         fTarget = std::make_unique<GrMockOpTarget>(make_mock_context());

@@ -104,7 +104,7 @@ void SKPBench::onPerCanvasPostDraw(SkCanvas* canvas) {
 }
 
 bool SKPBench::isSuitableFor(Backend backend) {
-    return backend != kNonRendering_Backend;
+    return backend != Backend::kNonRendering;
 }
 
 SkISize SKPBench::onGetSize() {

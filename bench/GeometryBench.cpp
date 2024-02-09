@@ -23,7 +23,7 @@ public:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return kNonRendering_Backend == backend;
+        return Backend::kNonRendering == backend;
     }
 
 protected:
@@ -261,7 +261,7 @@ public:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return kNonRendering_Backend == backend;
+        return Backend::kNonRendering == backend;
     }
 
     virtual void preparePath(SkPath*) = 0;

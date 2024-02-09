@@ -29,7 +29,7 @@ protected:
     const char* onGetName() final { return fName.c_str(); }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     void onDelayedSetup() final {

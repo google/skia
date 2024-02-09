@@ -25,7 +25,7 @@ const char* AndroidCodecBench::onGetName() {
 }
 
 bool AndroidCodecBench::isSuitableFor(Backend backend) {
-    return kNonRendering_Backend == backend;
+    return Backend::kNonRendering == backend;
 }
 
 void AndroidCodecBench::onDelayedSetup() {

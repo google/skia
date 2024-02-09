@@ -12,7 +12,7 @@
 class WriterBench : public Benchmark {
 public:
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
 protected:

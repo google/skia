@@ -55,7 +55,7 @@ protected:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     void onDraw(int loops, SkCanvas*) override {
@@ -89,7 +89,7 @@ protected:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     void onDraw(int loops, SkCanvas*) override {
@@ -223,7 +223,7 @@ class DiffCanvasBench : public Benchmark {
 
     const char* onGetName() override { return fBenchName.c_str(); }
 
-    bool isSuitableFor(Backend b) override { return b == kNonRendering_Backend; }
+    bool isSuitableFor(Backend b) override { return b == Backend::kNonRendering; }
 
     void onDraw(int loops, SkCanvas* modelCanvas) override {
         SkSurfaceProps props;

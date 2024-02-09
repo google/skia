@@ -34,7 +34,7 @@ const char* CodecBench::onGetName() {
 }
 
 bool CodecBench::isSuitableFor(Backend backend) {
-    return kNonRendering_Backend == backend;
+    return Backend::kNonRendering == backend;
 }
 
 void CodecBench::onDelayedSetup() {

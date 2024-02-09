@@ -97,7 +97,7 @@ class TextBlobMakeBench : public SkTextBlobBench {
     }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     void onDraw(int loops, SkCanvas*) override {

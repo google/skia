@@ -55,7 +55,7 @@ public:
         if (kDrawMode == DrawMode::kBatch && kImageMode == ImageMode::kNone) {
             // Currently the bulk color quad API is only available on
             // skgpu::ganesh::SurfaceDrawContext
-            return backend == kGPU_Backend;
+            return backend == Backend::kGanesh;
         } else {
             return this->INHERITED::isSuitableFor(backend);
         }

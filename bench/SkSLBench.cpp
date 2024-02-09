@@ -46,7 +46,7 @@ protected:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     void onDraw(int loops, SkCanvas*) override {
@@ -108,7 +108,7 @@ protected:
             return false;
         }
 #endif
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     bool usesRuntimeShader() const {
@@ -737,7 +737,7 @@ public:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     bool shouldLoop() const override {

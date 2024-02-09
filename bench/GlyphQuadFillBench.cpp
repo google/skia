@@ -37,7 +37,7 @@ public:
 
 class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
     bool isSuitableFor(Backend backend) override {
-        return backend == kGPU_Backend;
+        return backend == Backend::kGanesh;
     }
 
     const char* onGetName() override {

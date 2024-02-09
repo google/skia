@@ -51,7 +51,7 @@ public:
     DDLRecorderBench() { }
 
 protected:
-    bool isSuitableFor(Backend backend) override { return kGPU_Backend == backend; }
+    bool isSuitableFor(Backend backend) override { return Backend::kGanesh == backend; }
 
     const char* onGetName() override { return "DDLRecorder"; }
 

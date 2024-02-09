@@ -16,7 +16,7 @@ public:
 
 protected:
     const char* onGetName() override { return fName.c_str(); }
-    bool isSuitableFor(Backend backend) override { return backend == kRaster_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kRaster; }
     SkISize onGetSize() override { return { 1, 1 }; }
 
     void onDraw(int loops, SkCanvas* canvas) override {

@@ -38,7 +38,7 @@ protected:
 
     bool isSuitableFor(Backend backend) override {
         // fParagraph might have failed to be created in onDelayedSetup()
-        return backend == kNonRendering_Backend && !!fParagraph;
+        return backend == Backend::kNonRendering && !!fParagraph;
     }
 
     void onDelayedSetup() override {

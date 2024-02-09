@@ -241,7 +241,7 @@ public:
             : fName(name)
             , fFilterFn(std::move(f)) {}
 
-    bool isSuitableFor(Backend backend) override { return backend == kNonRendering_Backend; }
+    bool isSuitableFor(Backend backend) override { return backend == Backend::kNonRendering; }
 
 private:
     const char* onGetName() override { return fName; }

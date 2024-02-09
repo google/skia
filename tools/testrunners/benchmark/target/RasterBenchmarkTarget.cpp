@@ -29,7 +29,7 @@ public:
     RasterBenchmarkTarget(std::unique_ptr<SurfaceManager> surfaceManager, Benchmark* benchmark)
             : BenchmarkTarget(std::move(surfaceManager), benchmark) {}
 
-    Benchmark::Backend getBackend() const override { return Benchmark::kRaster_Backend; }
+    Benchmark::Backend getBackend() const override { return Benchmark::Backend::kRaster; }
 
     // Based on nanobench's setup_cpu_bench():
     // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/nanobench.cpp#466.
@@ -86,7 +86,7 @@ class NonRenderingBenchmarkTarget : public RasterBenchmarkTarget {
 public:
     NonRenderingBenchmarkTarget(Benchmark* benchmark) : RasterBenchmarkTarget(nullptr, benchmark) {}
 
-    Benchmark::Backend getBackend() const override { return Benchmark::kNonRendering_Backend; }
+    Benchmark::Backend getBackend() const override { return Benchmark::Backend::kNonRendering; }
 };
 
 std::unique_ptr<BenchmarkTarget> BenchmarkTarget::FromConfig(std::string surfaceConfig,

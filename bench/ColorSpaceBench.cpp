@@ -42,7 +42,7 @@ protected:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     // Call before draw, allows the benchmark to do setup work outside of the
@@ -129,7 +129,7 @@ protected:
     }
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     // Call before draw, allows the benchmark to do setup work outside of the

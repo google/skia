@@ -34,7 +34,7 @@ protected:
     virtual void gatherRects(TArray<SkRect>* rects) = 0;
 
     bool isSuitableFor(Backend backend) override {
-        return backend == kNonRendering_Backend;
+        return backend == Backend::kNonRendering;
     }
 
     const char* onGetName() final { return fName.c_str(); }

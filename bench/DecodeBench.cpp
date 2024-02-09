@@ -22,7 +22,7 @@ protected:
     {}
 
     bool isSuitableFor(Backend backend) final {
-            return backend == kNonRendering_Backend;
+            return backend == Backend::kNonRendering;
     }
 
     const char* onGetName() final { return fName.c_str(); }
