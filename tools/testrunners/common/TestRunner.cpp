@@ -77,6 +77,14 @@ void TestRunner::FlagValidators::ExactlyOne(std::map<std::string, bool> flags) {
     }
 }
 
+#if defined(SK_BUILD_FOR_ANDROID)
+// We declare the below external variable here, rather than within
+// TestRunner::InitAndLogCmdlineArgs(), because the latter causes the following linking error:
+//
+//     undefined reference to `TestRunner::gSkDebugToStdOut'
+extern bool gSkDebugToStdOut;
+#endif
+
 void TestRunner::InitAndLogCmdlineArgs(int argc, char** argv) {
 #if defined(SK_BUILD_FOR_ANDROID)
     // If true, sends SkDebugf to stdout as well.
@@ -84,7 +92,6 @@ void TestRunner::InitAndLogCmdlineArgs(int argc, char** argv) {
     // It is critical that we set this up as early in a test runner as possible, otherwise
     // SK_ABORT(msg) and other similar macros will just print "Trap" to stdout without logging the
     // message.
-    extern bool gSkDebugToStdOut;
     gSkDebugToStdOut = true;
 #endif
 
