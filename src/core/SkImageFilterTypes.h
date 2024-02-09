@@ -814,10 +814,10 @@ private:
 
     // Renders this FilterResult into a new, but visually equivalent, image that fills 'dstBounds',
     // has default sampling, no color filter, and a transform that translates by only 'dstBounds's
-    // top-left corner. 'dstBounds' is intersected with 'fLayerBounds' unless 'preserveTransparency'
+    // top-left corner. 'dstBounds' is intersected with 'fLayerBounds' unless 'preserveDstBounds'
     // is true.
     FilterResult resolve(const Context& ctx, LayerSpace<SkIRect> dstBounds,
-                         bool preserveTransparency=false) const;
+                         bool preserveDstBounds=false) const;
     // Returns a decal-tiled subset view of this FilterResult, requiring that this has an integer
     // translation equivalent to 'knownOrigin'. If 'clampSrcIfDisjoint' is true and the image bounds
     // do not overlap with dstBounds, the closest edge/corner pixels of the image will be extracted,

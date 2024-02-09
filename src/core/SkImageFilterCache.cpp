@@ -11,6 +11,7 @@
 #include "include/private/base/SkOnce.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkChecksum.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTHash.h"

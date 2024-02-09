@@ -793,7 +793,7 @@ FilterResult FilterResult::applyCrop(const Context& ctx,
     } else {
         // There is a non-trivial transform to the image data that must be applied before the
         // non-decal tilemode is meant to be applied to the axis-aligned 'crop'.
-        FilterResult tiled = this->resolve(ctx, fittedCrop, true);
+        FilterResult tiled = this->resolve(ctx, fittedCrop, /*preserveDstBounds=*/true);
         tiled.updateTileMode(ctx, tileMode);
         return tiled;
     }
@@ -840,7 +840,7 @@ FilterResult FilterResult::applyColorFilter(const Context& ctx,
             newLayerBounds.outset(LayerSpace<SkISize>({1, 1}));
             SkAssertResult(newLayerBounds.intersect(ctx.desiredOutput()));
             FilterResult filtered = this->resolve(ctx, newLayerBounds,
-                                                  /*preserveTransparency=*/true);
+                                                  /*preserveDstBounds=*/true);
             filtered.fColorFilter = std::move(colorFilter);
             filtered.updateTileMode(ctx, SkTileMode::kClamp);
             return filtered;
@@ -986,18 +986,18 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
 
 FilterResult FilterResult::resolve(const Context& ctx,
                                    LayerSpace<SkIRect> dstBounds,
-                                   bool preserveTransparency) const {
+                                   bool preserveDstBounds) const {
     // The layer bounds is the final clip, so it can always be used to restrict 'dstBounds'. Even
     // if there's a non-decal tile mode or transparent-black affecting color filter, those floods
     // are restricted to fLayerBounds.
-    if (!fImage || (!preserveTransparency && !dstBounds.intersect(fLayerBounds))) {
+    if (!fImage || (!preserveDstBounds && !dstBounds.intersect(fLayerBounds))) {
         return {nullptr, {}};
     }
 
     // If we have any extra effect to apply, there's no point in trying to extract a subset.
     const bool subsetCompatible = !fColorFilter &&
                                   fTileMode == SkTileMode::kDecal &&
-                                  !preserveTransparency;
+                                  !preserveDstBounds;
 
     // TODO(michaelludwig): If we get to the point where all filter results track bounds in
     // floating point, then we can extend this case to any S+T transform.
