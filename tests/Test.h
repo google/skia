@@ -13,6 +13,7 @@
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkTraceEvent.h"
 #include "tests/CtsEnforcement.h"
+#include "tests/TestType.h"
 #include "tools/Registry.h"
 
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
@@ -114,8 +115,6 @@ using GaneshTestProc             = void (*)(Reporter*, const GrContextOptions&);
 using GaneshContextOptionsProc   = void (*)(GrContextOptions*);
 using GraphiteTestProc           = void (*)(Reporter*, const graphite::TestOptions&);
 using GraphiteContextOptionsProc = void (*)(skgpu::graphite::ContextOptions*);
-
-enum class TestType : uint8_t { kCPU, kGanesh, kGraphite };
 
 struct Test {
     static Test MakeCPU(const char* name, CPUTestProc proc) {

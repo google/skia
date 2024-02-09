@@ -12,7 +12,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
-#include "tests/Test.h"
+#include "tests/TestType.h"
 #include "tools/gpu/ProtectedUtils.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 

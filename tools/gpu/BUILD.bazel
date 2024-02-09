@@ -65,6 +65,7 @@ skia_cc_library(
     ],
     deps = ["//:skia_internal"] + select_multi({
         "//src/gpu:gl_ganesh": ["//tools/gpu/gl:deps"],
+        "//src/gpu:vulkan_ganesh": ["//tests:test_type"],
     }) + select({
         "@platforms//os:macos": ["//tools:autorelease_pool_objc"],
         "//conditions:default": ["//tools:autorelease_pool"],
