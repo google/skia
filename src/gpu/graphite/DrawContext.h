@@ -75,7 +75,6 @@ public:
                     const PaintParams* paint,
                     const StrokeStyle* stroke);
 
-    bool recordTextUploads(TextAtlasManager*);
     bool recordUpload(Recorder* recorder,
                       sk_sp<TextureProxy> targetProxy,
                       const SkColorInfo& srcColorInfo,

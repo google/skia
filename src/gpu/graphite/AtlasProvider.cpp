@@ -90,7 +90,7 @@ void AtlasProvider::clearTexturePool() {
 }
 
 void AtlasProvider::recordUploads(DrawContext* dc, Recorder* recorder) {
-    if (!dc->recordTextUploads(fTextAtlasManager.get())) {
+    if (!fTextAtlasManager->recordUploads(dc, recorder)) {
         SKGPU_LOG_E("TextAtlasManager uploads have failed -- may see invalid results.");
     }
 

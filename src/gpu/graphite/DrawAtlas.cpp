@@ -21,9 +21,9 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandTypes.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
-#include "src/gpu/graphite/UploadTask.h"
 
 using namespace skia_private;
 
@@ -139,7 +139,7 @@ bool DrawAtlas::addToPage(unsigned int pageIdx, int width, int height, const voi
     return false;
 }
 
-bool DrawAtlas::recordUploads(UploadList* ul, Recorder* recorder) {
+bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     for (uint32_t pageIdx = 0; pageIdx < fNumActivePages; ++pageIdx) {
         PlotList::Iter plotIter;
@@ -161,7 +161,7 @@ bool DrawAtlas::recordUploads(UploadList* ul, Recorder* recorder) {
 
                 // Src and dst colorInfo are the same
                 SkColorInfo colorInfo(fColorType, kUnknown_SkAlphaType, nullptr);
-                if (!ul->recordUpload(recorder, sk_ref_sp(proxy), colorInfo, colorInfo, levels,
+                if (!dc->recordUpload(recorder, sk_ref_sp(proxy), colorInfo, colorInfo, levels,
                                       dstRect, /*ConditionalUploadContext=*/nullptr)) {
                     return false;
                 }

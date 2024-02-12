@@ -67,7 +67,7 @@ public:
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
 
-    bool recordUploads(UploadList*);
+    bool recordUploads(DrawContext* dc, Recorder* recorder);
 
     void evictAtlases() {
         for (int i = 0; i < kMaskFormatCount; ++i) {

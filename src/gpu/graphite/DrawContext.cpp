@@ -112,10 +112,6 @@ void DrawContext::recordDraw(const Renderer* renderer,
     fPendingDraws->recordDraw(renderer, localToDevice, geometry, clip, ordering, paint, stroke);
 }
 
-bool DrawContext::recordTextUploads(TextAtlasManager* am) {
-    return am->recordUploads(fPendingUploads.get());
-}
-
 bool DrawContext::recordUpload(Recorder* recorder,
                                sk_sp<TextureProxy> targetProxy,
                                const SkColorInfo& srcColorInfo,

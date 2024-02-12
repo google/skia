@@ -19,8 +19,8 @@
 
 namespace skgpu::graphite {
 
+class DrawContext;
 class Recorder;
-class UploadList;
 class TextureProxy;
 
 /**
@@ -103,7 +103,7 @@ public:
     };
 
     ErrorCode addToAtlas(Recorder*, int width, int height, const void* image, AtlasLocator*);
-    bool recordUploads(UploadList*, Recorder*);
+    bool recordUploads(DrawContext*, Recorder*);
 
     const sk_sp<TextureProxy>* getProxies() const { return fProxies; }
 
