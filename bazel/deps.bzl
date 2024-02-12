@@ -57,7 +57,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "freetype",
         build_file = ws + "//bazel/external/freetype:BUILD.bazel",
-        commit = "45903920b984540bb629bc89f4c010159c23a89a",
+        commit = "47574f7ea445c8bb751da0fa716424c9c29a6807",
         remote = "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git",
     )
 
