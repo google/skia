@@ -441,11 +441,6 @@
     // New Mesh2D API: https://github.com/fserb/canvas2D/blob/master/spec/mesh2d.md#mesh2d-api
     makeVertexBuffer(buf) { return this.ctx.createMesh2DVertexBuffer(buf); }
     makeUVBuffer(buf) {
-        // Temp workaround for lack of uv normalization support in the current prototype.
-        for (let i = 0; i < buf.length; i+= 2) {
-          buf[i + 0] *= this.img.width;
-          buf[i + 1] *= this.img.height;
-        }
         return this.ctx.createMesh2DUVBuffer(buf);
     }
     makeIndexBuffer(buf)  { return this.ctx.createMesh2DIndexBuffer(buf); }
