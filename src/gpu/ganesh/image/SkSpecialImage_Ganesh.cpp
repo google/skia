@@ -58,7 +58,7 @@ public:
     }
 
     sk_sp<SkImage> asImage() const override {
-        fView.proxy()->priv().exactify(true);
+        fView.proxy()->priv().exactify();
         return sk_make_sp<SkImage_Ganesh>(
                 sk_ref_sp(fContext), this->uniqueID(), fView, this->colorInfo());
     }

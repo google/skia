@@ -392,6 +392,15 @@ void Device::drawSpecial(SkSpecialImage* special,
         SkASSERT(false);
         return;
     }
+
+    if (constraint == SkCanvas::kFast_SrcRectConstraint) {
+        // If 'fast' was requested, we assume the caller has done sufficient analysis to know the
+        // logical dimensions are safe (which is true for FilterResult, the only current caller that
+        // passes in 'fast'). Without exactify'ing the proxy, GrTextureEffect would re-introduce
+        // subset clamping.
+        view.proxy()->priv().exactify();
+    }
+
     SkImage_Ganesh image(sk_ref_sp(special->getContext()),
                          special->uniqueID(),
                          std::move(view),
