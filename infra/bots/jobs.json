@@ -63,12 +63,8 @@
   {"name": "Build-Debian11-GCC-x86-Debug-Docker"},
   {"name": "Build-Debian11-GCC-x86-Release-Docker"},
   {"name": "Build-Debian11-GCC-x86_64-Debug-Docker"},
-  {"name": "Build-Debian11-GCC-x86_64-Debug-NoGPU_Docker",
-   "cq_config": {}
-   },
-  {"name": "Build-Debian11-GCC-x86_64-Release-Docker",
-   "cq_config": {}
-   },
+  {"name": "Build-Debian11-GCC-x86_64-Debug-NoGPU_Docker"},
+  {"name": "Build-Debian11-GCC-x86_64-Release-Docker"},
   {"name": "Build-Debian11-GCC-x86_64-Release-NoGPU_Docker"},
   {"name": "Build-Debian11-GCC-x86_64-Release-Shared_Docker"},
   {"name": "Build-Debian10-Clang-arm-Debug-Android",
@@ -180,12 +176,8 @@
   {"name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit_WebGPU"},
   {"name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit_CPU"},
   {"name": "Build-Debian10-EMCC-wasm-Debug-PathKit"},
-  {"name": "Build-Debian10-EMCC-wasm-Release-CanvasKit",
-   "cq_config": {}
-   },
-  {"name": "Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU",
-   "cq_config": {}
-   },
+  {"name": "Build-Debian10-EMCC-wasm-Release-CanvasKit"},
+  {"name": "Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU"},
   {"name": "Build-Debian10-EMCC-wasm-Release-PathKit"},
   {"name": "Build-Debian10-EMCC-wasm-Release-WasmGMTests"},
   {"name": "Build-Debian11-Clang-x86_64-Debug"},
@@ -672,15 +664,11 @@
   {"name": "Test-Debian10-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-All"},
   {"name": "Test-Debian10-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug-All"},
   {"name": "Test-Debian10-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release-All"},
-  {"name": "Test-Debian10-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit",
-   "cq_config": {}
-   },
+  {"name": "Test-Debian10-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit"},
   {"name": "Test-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",
    "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
    },
-  {"name": "Test-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit",
-   "cq_config": {}
-   },
+  {"name": "Test-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit"},
   {"name": "Test-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
    "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
    },
