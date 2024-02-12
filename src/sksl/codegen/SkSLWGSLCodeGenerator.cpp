@@ -4464,7 +4464,7 @@ static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl, std:
         // The program isn't valid WGSL. In debug, report the error via SkDEBUGFAIL. We also append
         // the generated program for ease of debugging.
         tint::diag::Formatter diagFormatter;
-        std::string diagOutput = diagFormatter.format(program.Diagnostics());
+        std::string diagOutput = diagFormatter.Format(program.Diagnostics());
         diagOutput += "\n";
         diagOutput += wgsl;
 #if defined(SKSL_STANDALONE)
