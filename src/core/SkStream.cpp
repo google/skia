@@ -558,7 +558,11 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
         size = std::max<size_t>(count, SkDynamicMemoryWStream_MinBlockSize - sizeof(Block));
         size = SkAlign4(size);  // ensure we're always a multiple of 4 (see padToAlign4())
 
-        Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
+        Block* block = (Block*)sk_malloc_canfail(sizeof(Block) + size);
+        if (!block) {
+            this->validate();
+            return false;
+        }
         block->init(size);
         block->append(buffer, count);
 
