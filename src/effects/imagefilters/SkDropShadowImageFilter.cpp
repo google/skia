@@ -51,8 +51,17 @@ static sk_sp<SkImageFilter> make_drop_shadow_graph(SkVector offset,
                                              SkFilterMode::kLinear,
                                              std::move(filter));
     if (!shadowOnly) {
+#if defined(SK_LEGACY_BLEND_FOR_DROP_SHADOWS)
         filter = SkImageFilters::Blend(
                 SkBlendMode::kSrcOver, std::move(filter), std::move(input));
+#else
+        // Merge is visually equivalent to Blend(kSrcOver) but draws each child independently,
+        // whereas Blend() fills the union of the child bounds with a single shader evaluation.
+        // Since we know the original and the offset blur will have somewhat disjoint bounds, a
+        // Blend() shader would force evaluating tile edge conditions for each, while merge lets us
+        // avoid that.
+        filter = SkImageFilters::Merge(std::move(filter), std::move(input));
+#endif
     }
     if (crop) {
         filter = SkImageFilters::Crop(*crop, std::move(filter));
