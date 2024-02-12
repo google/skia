@@ -57,12 +57,20 @@ static inline ShortCoordinate sk_float_saturate2sm8(float x) {
 }
 
 struct SBIXSlide : public ClickHandlerSlide {
-    SkPoint  fPts[12] = {
-        {0, 0}, // min
-        {0, 0}, // max
-        {0, 20}, // lsb
-        {0, 0}, // point
-   };
+    struct Point {
+        SkPoint location;
+        SkColor color;
+    } fPts[4] = {
+        {{0, 0}, SK_ColorBLACK }, // glyph x/y min
+        {{0, 0}, SK_ColorWHITE }, // glyph x/y max
+        {{0, 20}, SK_ColorGREEN }, // lsb (x only, y ignored)
+        {{0, 0}, SK_ColorBLUE }, // first point of glyph contour
+    };
+    static constexpr const int kGlyfXYMin = 0;
+    static constexpr const int kGlyfXYMax = 1;
+    static constexpr const int kGlyfLSB = 2;
+    static constexpr const int kGlyfFirstPoint = 3;
+
     std::vector<sk_sp<SkFontMgr>> fFontMgr;
     std::vector<SkFont> fFonts;
     sk_sp<SkData> fSBIXData;
@@ -119,7 +127,10 @@ public:
             canvas->drawPoint(advance, 0, paint);
 
             paint.setStrokeWidth(SkIntToScalar(kPointSize));
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, std::size(fPts), fPts, paint);
+            for (auto&& pt : fPts) {
+                paint.setColor(pt.color);
+                canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, &pt.location, paint);
+            }
 
             canvas->translate(kFontSize, 0);
         }
@@ -133,8 +144,8 @@ protected:
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         x -= DX;
         y -= DY;
-        for (size_t i = 0; i < std::size(fPts); i++) {
-            if (hittest(fPts[i], x, y)) {
+        for (size_t i = 0; i < std::size(fPts); ++i) {
+            if (hittest(fPts[i].location, x, y)) {
                 return new PtClick((int)i);
             }
         }
@@ -142,7 +153,7 @@ protected:
     }
 
     bool onClick(Click* click) override {
-        fPts[((PtClick*)click)->fIndex].set(click->fCurr.fX - DX, click->fCurr.fY - DY);
+        fPts[((PtClick*)click)->fIndex].location.set(click->fCurr.fX - DX, click->fCurr.fY - DY);
         fDirty = true;
         return true;
     }
@@ -235,15 +246,15 @@ private:
         SkOTTableGlyphData* glyphData = glyphIter.next();
         if (glyphData) {
             if (setPts) {
-                fPts[0].set((int16_t)SkEndian_SwapBE16(glyphData->xMin) /  toEm,
-                            (int16_t)SkEndian_SwapBE16(glyphData->yMin) / -toEm);
-                fPts[1].set((int16_t)SkEndian_SwapBE16(glyphData->xMax) /  toEm,
-                            (int16_t)SkEndian_SwapBE16(glyphData->yMax) / -toEm);
+                fPts[kGlyfXYMin].location.set((int16_t)SkEndian_SwapBE16(glyphData->xMin) /  toEm,
+                                     (int16_t)SkEndian_SwapBE16(glyphData->yMin) / -toEm);
+                fPts[kGlyfXYMax].location.set((int16_t)SkEndian_SwapBE16(glyphData->xMax) /  toEm,
+                                     (int16_t)SkEndian_SwapBE16(glyphData->yMax) / -toEm);
             } else {
-                glyphData->xMin = SkEndian_SwapBE16(sk_float_saturate2int16( fPts[0].x()*toEm));
-                glyphData->yMin = SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[0].y()*toEm));
-                glyphData->xMax = SkEndian_SwapBE16(sk_float_saturate2int16( fPts[1].x()*toEm));
-                glyphData->yMax = SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[1].y()*toEm));
+                glyphData->xMin = SkEndian_SwapBE16(sk_float_saturate2int16( fPts[kGlyfXYMin].location.x()*toEm));
+                glyphData->yMin = SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[kGlyfXYMin].location.y()*toEm));
+                glyphData->xMax = SkEndian_SwapBE16(sk_float_saturate2int16( fPts[kGlyfXYMax].location.x()*toEm));
+                glyphData->yMax = SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[kGlyfXYMax].location.y()*toEm));
             }
 
             int contourCount = SkEndian_SwapBE16(glyphData->numberOfContours);
@@ -327,34 +338,34 @@ private:
                     // Zero delta relative to the origin. There is no data to modify.
                     SkDebugf("Failed to move point in X at all.\n");
                 } else if (coordinates[pointIndex].xDeltaSize == 1) {
-                    ShortCoordinate x = sk_float_saturate2sm8(fPts[3].x()*toEm);
+                    ShortCoordinate x = sk_float_saturate2sm8(fPts[kGlyfFirstPoint].location.x()*toEm);
                     xCoordinates[coordinates[pointIndex].offsetToXDelta] = x.magnitude;
                     coordinates[pointIndex].flags->field.xIsSame_xShortVectorPositive = !x.negative;
                 } else {
                     *reinterpret_cast<SK_OT_SHORT*>(xCoordinates + coordinates[pointIndex].offsetToXDelta) =
-                            SkEndian_SwapBE16(sk_float_saturate2int16(fPts[3].x()*toEm));
+                            SkEndian_SwapBE16(sk_float_saturate2int16(fPts[kGlyfFirstPoint].location.x()*toEm));
                 }
 
                 if (coordinates[pointIndex].yDeltaSize == 0) {
                     // Zero delta relative to the origin. There is no data to modify.
                     SkDebugf("Failed to move point in Y at all.\n");
                 } else if (coordinates[pointIndex].yDeltaSize == 1) {
-                    ShortCoordinate y = sk_float_saturate2sm8(-fPts[3].y()*toEm);
+                    ShortCoordinate y = sk_float_saturate2sm8(-fPts[kGlyfFirstPoint].location.y()*toEm);
                     yCoordinates[coordinates[pointIndex].offsetToYDelta] = y.magnitude;
                     coordinates[pointIndex].flags->field.yIsSame_yShortVectorPositive = !y.negative;
                 } else {
                     *reinterpret_cast<SK_OT_SHORT*>(yCoordinates + coordinates[pointIndex].offsetToYDelta) =
-                            SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[3].y()*toEm));
+                            SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[kGlyfFirstPoint].location.y()*toEm));
                 }
             }
         }
 
         int numberOfFullMetrics = SkEndian_SwapBE16(hheaTable->numberOfHMetrics);
         SkOTTableHorizontalMetrics::FullMetric* fullMetrics = hmtxTable->longHorMetric;
-        SK_OT_SHORT lsb = SkEndian_SwapBE16(sk_float_saturate2int16(fPts[2].x()*toEm));
+        SK_OT_SHORT lsb = SkEndian_SwapBE16(sk_float_saturate2int16(fPts[kGlyfLSB].location.x()*toEm));
         if (kGlyphID < numberOfFullMetrics) {
             if (setPts) {
-                fPts[2].fX = (int16_t)SkEndian_SwapBE16(fullMetrics[kGlyphID].lsb) / toEm;
+                fPts[kGlyfLSB].location.fX = (int16_t)SkEndian_SwapBE16(fullMetrics[kGlyphID].lsb) / toEm;
             } else {
                 fullMetrics[kGlyphID].lsb = lsb;
             }
@@ -363,7 +374,7 @@ private:
                     SkTAfter<SkOTTableHorizontalMetrics::ShortMetric>(fullMetrics, numberOfFullMetrics);
             int shortMetricIndex = kGlyphID - numberOfFullMetrics;
             if (setPts) {
-                fPts[2].fX = (int16_t)SkEndian_SwapBE16(shortMetrics[shortMetricIndex].lsb) / toEm;
+                fPts[kGlyfLSB].location.fX = (int16_t)SkEndian_SwapBE16(shortMetrics[shortMetricIndex].lsb) / toEm;
             } else {
                 shortMetrics[shortMetricIndex].lsb = lsb;
             }
