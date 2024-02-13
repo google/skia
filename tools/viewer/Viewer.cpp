@@ -229,13 +229,19 @@ static DEFINE_string2(match, m, nullptr,
 #if defined(SK_GRAPHITE)
 #ifdef SK_ENABLE_VELLO_SHADERS
 #define COMPUTE_ANALYTIC_PATHSTRATEGY_STR ", \"compute-analytic\""
+#define COMPUTE_MSAA16_PATHSTRATEGY_STR ", \"compute-msaa16\""
 #else
 #define COMPUTE_ANALYTIC_PATHSTRATEGY_STR
+#define COMPUTE_MSAA16_PATHSTRATEGY_STR
 #endif
-#define PATHSTRATEGY_STR_EVALUATOR(default, raster, compute_analytic, tess) \
-    default raster compute_analytic tess
-#define PATHSTRATEGY_STR PATHSTRATEGY_STR_EVALUATOR( \
-    "\"default\"", "\"raster\"", COMPUTE_ANALYTIC_PATHSTRATEGY_STR, "\"tessellation\"")
+#define PATHSTRATEGY_STR_EVALUATOR(default, raster, compute_analytic, compute_msaa16, tess) \
+    default raster compute_analytic compute_msaa16 tess
+#define PATHSTRATEGY_STR                                          \
+    PATHSTRATEGY_STR_EVALUATOR("\"default\"",                     \
+                               "\"raster\"",                      \
+                               COMPUTE_ANALYTIC_PATHSTRATEGY_STR, \
+                               COMPUTE_MSAA16_PATHSTRATEGY_STR,   \
+                               "\"tessellation\"")
 
 static DEFINE_string(pathstrategy, "default",
                      "Path renderer strategy to use. Allowed values are " PATHSTRATEGY_STR ".");
@@ -321,6 +327,8 @@ static skgpu::graphite::PathRendererStrategy get_path_renderer_strategy_type(con
 #ifdef SK_ENABLE_VELLO_SHADERS
     } else if (0 == strcmp(str, "compute-analytic")) {
         return Strategy::kComputeAnalyticAA;
+    } else if (0 == strcmp(str, "compute-msaa16")) {
+        return Strategy::kComputeMSAA16;
 #endif
     } else if (0 == strcmp(str, "tessellation")) {
         return Strategy::kTessellation;
