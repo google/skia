@@ -11,6 +11,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkTileMode.h"
 
+#include <tuple>
+
 class GrClip;
 class GrRecordingContext;
 class SkBitmap;
@@ -20,10 +22,6 @@ class SkMatrix;
 class SkPaint;
 struct SkRect;
 struct SkSamplingOptions;
-
-namespace skgpu::ganesh {
-    class Device;
-}
 
 namespace skgpu {
 
@@ -63,15 +61,16 @@ public:
     static void ClampedOutsetWithOffset(SkIRect* iRect, int outset, SkPoint* offset,
                                         const SkIRect& clamp);
 
-    static bool DrawAsTiledImageRect(SkCanvas*,
-                                     const SkImage*,
-                                     const SkRect& srcRect,
-                                     const SkRect& dstRect,
-                                     SkCanvas::QuadAAFlags,
-                                     const SkSamplingOptions&,
-                                     const SkPaint*,
-                                     SkCanvas::SrcRectConstraint);
-
+    static std::tuple<bool, size_t> DrawAsTiledImageRect(SkCanvas*,
+                                                         const SkImage*,
+                                                         const SkRect& srcRect,
+                                                         const SkRect& dstRect,
+                                                         SkCanvas::QuadAAFlags,
+                                                         const SkSamplingOptions&,
+                                                         const SkPaint*,
+                                                         SkCanvas::SrcRectConstraint,
+                                                         size_t cacheSize,
+                                                         size_t maxTextureSize);
 };
 
 } // namespace skgpu

@@ -367,6 +367,9 @@ public:
     virtual void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                                const SkSamplingOptions&, const SkPaint&,
                                SkCanvas::SrcRectConstraint) = 0;
+    // Return true if canvas calls to drawImage or drawImageRect should try to
+    // be drawn in a tiled way.
+    virtual bool shouldDrawAsTiledImageRect() const { return false; }
     virtual bool drawAsTiledImageRect(SkCanvas*,
                                       const SkImage*,
                                       const SkRect* src,

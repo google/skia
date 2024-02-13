@@ -148,7 +148,13 @@ public:
                        SkCanvas::SrcRectConstraint) override;
 
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
-
+    bool drawAsTiledImageRect(SkCanvas*,
+                              const SkImage*,
+                              const SkRect* src,
+                              const SkRect& dst,
+                              const SkSamplingOptions&,
+                              const SkPaint&,
+                              SkCanvas::SrcRectConstraint) override;
     // TODO: Implement these using per-edge AA quads and an inlined image shader program.
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, SkFilterMode, const SkPaint&) override {}

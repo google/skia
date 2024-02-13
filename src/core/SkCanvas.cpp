@@ -2491,9 +2491,11 @@ void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
         } // else fall through to regular drawing path
     }
 
-    if (this->topDevice()->drawAsTiledImageRect(this, image, nullptr, dst, sampling,
-                                                realPaint, kFast_SrcRectConstraint)) {
-        return;
+    if (this->topDevice()->shouldDrawAsTiledImageRect()) {
+        if (this->topDevice()->drawAsTiledImageRect(
+                    this, image, nullptr, dst, sampling, realPaint, kFast_SrcRectConstraint)) {
+            return;
+        }
     }
 
     auto layer = this->aboutToDraw(realPaint, &dst);
@@ -2531,11 +2533,12 @@ void SkCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src, const S
         return;
     }
 
-    if (this->topDevice()->drawAsTiledImageRect(this, image, &src, dst, realSampling,
-                                                realPaint, constraint)) {
-        return;
+    if (this->topDevice()->shouldDrawAsTiledImageRect()) {
+        if (this->topDevice()->drawAsTiledImageRect(
+                    this, image, &src, dst, realSampling, realPaint, constraint)) {
+            return;
+        }
     }
-
 #if !defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
     // drawImageRect()'s behavior is modified by the presence of an image filter, a mask filter, a
     // color filter, the paint's alpha, the paint's blender, and--when it's an alpha-only image--

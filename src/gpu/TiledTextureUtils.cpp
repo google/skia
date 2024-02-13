@@ -20,22 +20,6 @@
 #include "src/core/SkSamplingPriv.h"
 #include "src/image/SkImage_Base.h"
 
-#if defined(SK_GANESH)
-#include "include/gpu/GrDirectContext.h"
-#endif
-
-#if defined(SK_GRAPHITE)
-#include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-#endif
-
-#if defined(GR_TEST_UTILS)
-// GrContextOptions::fMaxTextureSizeOverride exists but doesn't allow for changing the
-// maxTextureSize on the fly.
-int gOverrideMaxTextureSize = 0;
-std::atomic<int> gNumTilesDrawn{0};
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 //  Helper functions for tiling a large SkBitmap
 
@@ -98,16 +82,16 @@ SkIRect determine_clipped_src_rect(SkIRect clippedSrcIRect,
     return clippedSrcIRect;
 }
 
-void draw_tiled_bitmap(SkCanvas* canvas,
-                       const SkBitmap& bitmap,
-                       int tileSize,
-                       const SkMatrix& srcToDst,
-                       const SkRect& srcRect,
-                       const SkIRect& clippedSrcIRect,
-                       const SkPaint* paint,
-                       SkCanvas::QuadAAFlags origAAFlags,
-                       SkCanvas::SrcRectConstraint constraint,
-                       SkSamplingOptions sampling) {
+int draw_tiled_bitmap(SkCanvas* canvas,
+                      const SkBitmap& bitmap,
+                      int tileSize,
+                      const SkMatrix& srcToDst,
+                      const SkRect& srcRect,
+                      const SkIRect& clippedSrcIRect,
+                      const SkPaint* paint,
+                      SkCanvas::QuadAAFlags origAAFlags,
+                      SkCanvas::SrcRectConstraint constraint,
+                      SkSamplingOptions sampling) {
     if (sampling.isAniso()) {
         sampling = SkSamplingPriv::AnisoFallback(/* imageIsMipped= */ false);
     }
@@ -116,9 +100,7 @@ void draw_tiled_bitmap(SkCanvas* canvas,
     int nx = bitmap.width() / tileSize;
     int ny = bitmap.height() / tileSize;
 
-#if defined(GR_TEST_UTILS)
-    gNumTilesDrawn.store(0, std::memory_order_relaxed);
-#endif
+    int numTilesDrawn = 0;
 
     skia_private::TArray<SkCanvas::ImageSetEntry> imgSet(nx * ny);
 
@@ -200,9 +182,7 @@ void draw_tiled_bitmap(SkCanvas* canvas,
                                                          aaFlags,
                                                          /* hasClip= */ false));
 
-#if defined(GR_TEST_UTILS)
-                (void)gNumTilesDrawn.fetch_add(+1, std::memory_order_relaxed);
-#endif
+                numTilesDrawn += 1;
             }
         }
     }
@@ -214,47 +194,7 @@ void draw_tiled_bitmap(SkCanvas* canvas,
                                             sampling,
                                             paint,
                                             constraint);
-}
-
-size_t get_cache_size(SkDevice* device) {
-#if defined(SK_GANESH)
-    if (auto dContext = GrAsDirectContext(device->recordingContext())) {
-        // NOTE: if the context is not a direct context, it doesn't have access to the resource
-        // cache, and theoretically, the resource cache's limits could be being changed on
-        // another thread, so even having access to just the limit wouldn't be a reliable
-        // test during recording here.
-        return dContext->getResourceCacheLimit();
-    }
-#endif
-
-#if defined(SK_GRAPHITE)
-    if (auto recorder = device->recorder()) {
-        // For Graphite this is a pretty loose heuristic. The Recorder-local cache size (relative
-        // to the large image's size) is used as a proxy for how conservative we should be when
-        // allocating tiles. Since the tiles will actually be owned by the client (via an
-        // ImageProvider) they won't actually add any memory pressure directly to Graphite.
-        return recorder->priv().getResourceCacheLimit();
-    }
-#endif
-
-    return 0;
-}
-
-int get_max_texture_size(SkCanvas* canvas) {
-#if defined(SK_GANESH)
-    if (GrRecordingContext* rContext = canvas->recordingContext()) {
-        return rContext->maxTextureSize();
-    }
-#endif
-
-#if defined(SK_GRAPHITE)
-    if (auto recorder = canvas->recorder()) {
-        return recorder->priv().caps()->maxTextureSize();
-    }
-#endif
-
-    static const int kFallbackMaxTextureSize = 1 << 22;
-    return kFallbackMaxTextureSize;                       // we should never get here
+    return numTilesDrawn;
 }
 
 } // anonymous namespace
@@ -413,16 +353,19 @@ void TiledTextureUtils::ClampedOutsetWithOffset(SkIRect* iRect, int outset, SkPo
     }
 }
 
-bool TiledTextureUtils::DrawAsTiledImageRect(SkCanvas* canvas,
-                                             const SkImage* image,
-                                             const SkRect& srcRect,
-                                             const SkRect& dstRect,
-                                             SkCanvas::QuadAAFlags aaFlags,
-                                             const SkSamplingOptions& origSampling,
-                                             const SkPaint* paint,
-                                             SkCanvas::SrcRectConstraint constraint) {
+std::tuple<bool, size_t> TiledTextureUtils::DrawAsTiledImageRect(
+        SkCanvas* canvas,
+        const SkImage* image,
+        const SkRect& srcRect,
+        const SkRect& dstRect,
+        SkCanvas::QuadAAFlags aaFlags,
+        const SkSamplingOptions& origSampling,
+        const SkPaint* paint,
+        SkCanvas::SrcRectConstraint constraint,
+        size_t cacheSize,
+        size_t maxTextureSize) {
     if (canvas->isClipEmpty()) {
-        return true;
+        return {true, 0};
     }
 
     if (!image->isTextureBacked()) {
@@ -433,7 +376,7 @@ bool TiledTextureUtils::DrawAsTiledImageRect(SkCanvas* canvas,
                                                 srcRect, dstRect, /* dstClip= */ nullptr,
                                                 &src, &dst, &srcToDst);
         if (mode == ImageDrawMode::kSkip) {
-            return true;
+            return {true, 0};
         }
 
         SkASSERT(mode != ImageDrawMode::kDecal); // only happens if there is a 'dstClip'
@@ -462,15 +405,7 @@ bool TiledTextureUtils::DrawAsTiledImageRect(SkCanvas* canvas,
             tileFilterPad = 0;
         }
 
-        int maxTileSize = get_max_texture_size(canvas) - 2*tileFilterPad;
-#if defined(GR_TEST_UTILS)
-        if (gOverrideMaxTextureSize) {
-            maxTileSize = gOverrideMaxTextureSize - 2 * tileFilterPad;
-        }
-#endif
-
-        size_t cacheSize = get_cache_size(device);
-
+        int maxTileSize = maxTextureSize - 2 * tileFilterPad;
         int tileSize;
         SkIRect clippedSubset;
         if (ShouldTileImage(clipRect,
@@ -485,22 +420,22 @@ bool TiledTextureUtils::DrawAsTiledImageRect(SkCanvas* canvas,
             // Extract pixels on the CPU, since we have to split into separate textures before
             // sending to the GPU if tiling.
             if (SkBitmap bm; as_IB(image)->getROPixels(nullptr, &bm)) {
-                draw_tiled_bitmap(canvas,
-                                  bm,
-                                  tileSize,
-                                  srcToDst,
-                                  src,
-                                  clippedSubset,
-                                  paint,
-                                  aaFlags,
-                                  constraint,
-                                  sampling);
-                return true;
+                size_t tiles = draw_tiled_bitmap(canvas,
+                                                 bm,
+                                                 tileSize,
+                                                 srcToDst,
+                                                 src,
+                                                 clippedSubset,
+                                                 paint,
+                                                 aaFlags,
+                                                 constraint,
+                                                 sampling);
+                return {true, tiles};
             }
         }
     }
 
-    return false;
+    return {false, 0};
 }
 
 } // namespace skgpu

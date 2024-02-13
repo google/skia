@@ -8,15 +8,14 @@
 #include "include/core/SkTiledImageUtils.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPixelRef.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTFitsIn.h"
+#include "src/core/SkCanvasPriv.h"
+#include "src/core/SkDevice.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Picture.h"
-
-#if defined(SK_GRAPHITE)
-#include "src/gpu/TiledTextureUtils.h"
-#endif
 
 #include <string.h>
 
@@ -33,17 +32,16 @@ void DrawImageRect(SkCanvas* canvas,
         return;
     }
 
-#if defined(SK_GRAPHITE)
-    if (canvas->recorder()) {
-        if (skgpu::TiledTextureUtils::DrawAsTiledImageRect(canvas, image, src, dst,
-                                                           SkCanvas::kAll_QuadAAFlags, sampling,
-                                                           paint, constraint)) {
-            return;
-        }
+    SkPaint p;
+    if (paint) {
+        p = *paint;
     }
-#endif
-
-    canvas->drawImageRect(image, src, dst, sampling, paint, constraint);
+    if (!SkCanvasPriv::TopDevice(canvas)->drawAsTiledImageRect(
+                canvas, image, &src, dst, sampling, p, constraint)) {
+        // Either the image didn't require tiling or this is a raster-backed
+        // canvas. In either case fall back to a default draw.
+        canvas->drawImageRect(image, src, dst, sampling, paint, constraint);
+    }
 }
 
 void GetImageKeyValues(const SkImage* image, uint32_t keyValues[kNumImageKeyValues]) {

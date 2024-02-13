@@ -41,6 +41,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
@@ -116,6 +117,15 @@ struct SkDrawShadowRec;
 using namespace skia_private;
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
+
+#if defined(GR_TEST_UTILS)
+// GrContextOptions::fMaxTextureSizeOverride exists but doesn't allow for changing the
+// maxTextureSize on the fly.
+int gOverrideMaxTextureSizeGanesh = 0;
+// Allows tests to check how many tiles were drawn on the most recent call to
+// Device::drawAsTiledImageRect
+int gNumTilesDrawnGanesh = 0;
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -991,20 +1001,48 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
                                   const SkSamplingOptions& sampling,
                                   const SkPaint& paint,
                                   SkCanvas::SrcRectConstraint constraint) {
+    GrRecordingContext* rCtx = canvas->recordingContext();
+    if (!rCtx) {
+        return false;
+    }
     ASSERT_SINGLE_OWNER
 
     GrAA aa = fSurfaceDrawContext->chooseAA(paint);
     SkCanvas::QuadAAFlags aaFlags = (aa == GrAA::kYes) ? SkCanvas::kAll_QuadAAFlags
                                                        : SkCanvas::kNone_QuadAAFlags;
 
-    return TiledTextureUtils::DrawAsTiledImageRect(canvas,
-                                                   image,
-                                                   src ? *src
-                                                       : SkRect::MakeIWH(image->width(),
-                                                                         image->height()),
-                                                   dst, aaFlags, sampling, &paint, constraint);
-}
+    // NOTE: if the context is not a direct context, it doesn't have access to the resource
+    // cache, and theoretically, the resource cache's limits could be being changed on
+    // another thread, so even having access to just the limit wouldn't be a reliable
+    // test during recording here.
+    size_t cacheSize = 0;
+    if (auto dCtx = GrAsDirectContext(rCtx)) {
+        cacheSize = dCtx->getResourceCacheLimit();
+    }
+    size_t maxTextureSize = rCtx->maxTextureSize();
+#if defined(GR_TEST_UTILS)
+    if (gOverrideMaxTextureSizeGanesh) {
+        maxTextureSize = gOverrideMaxTextureSizeGanesh;
+    }
+    gNumTilesDrawnGanesh = 0;
+#endif
 
+    [[maybe_unused]] auto [wasTiled, numTiles] = TiledTextureUtils::DrawAsTiledImageRect(
+            canvas,
+            image,
+            src ? *src : SkRect::MakeIWH(image->width(), image->height()),
+            dst,
+            aaFlags,
+            sampling,
+            &paint,
+            constraint,
+            cacheSize,
+            maxTextureSize);
+#if defined(GR_TEST_UTILS)
+    gNumTilesDrawnGanesh = numTiles;
+#endif
+    return wasTiled;
+}
 
 void Device::drawViewLattice(GrSurfaceProxyView view,
                              const GrColorInfo& info,
@@ -1033,15 +1071,21 @@ void Device::drawViewLattice(GrSurfaceProxyView view,
     }
 
     if (info.isAlphaOnly()) {
-        // If we were doing this with an FP graph we'd use a kDstIn blend between the texture and
-        // the paint color.
+        // If we were doing this with an FP graph we'd use a kDstIn blend between the texture
+        // and the paint color.
         view.concatSwizzle(skgpu::Swizzle("aaaa"));
     }
     auto csxf = GrColorSpaceXform::Make(info, fSurfaceDrawContext->colorInfo());
 
-    fSurfaceDrawContext->drawImageLattice(this->clip(), std::move(grPaint), this->localToDevice(),
-                                          std::move(view), info.alphaType(), std::move(csxf),
-                                          filter, std::move(iter), dst);
+    fSurfaceDrawContext->drawImageLattice(this->clip(),
+                                          std::move(grPaint),
+                                          this->localToDevice(),
+                                          std::move(view),
+                                          info.alphaType(),
+                                          std::move(csxf),
+                                          filter,
+                                          std::move(iter),
+                                          dst);
 }
 
 void Device::drawImageLattice(const SkImage* image,
@@ -1055,12 +1099,8 @@ void Device::drawImageLattice(const SkImage* image,
     auto [view, ct] = skgpu::ganesh::AsView(this->recordingContext(), image, skgpu::Mipmapped::kNo);
     if (view) {
         GrColorInfo colorInfo(ct, image->alphaType(), image->refColorSpace());
-        this->drawViewLattice(std::move(view),
-                              std::move(colorInfo),
-                              std::move(iter),
-                              dst,
-                              filter,
-                              paint);
+        this->drawViewLattice(
+                std::move(view), std::move(colorInfo), std::move(iter), dst, filter, paint);
     }
 }
 
