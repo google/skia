@@ -852,15 +852,23 @@ private:
     };
     SK_DECL_BITMASK_OPS_FRIENDS(BoundsAnalysis)
 
+    enum class BoundsScope : int {
+        kDeferred,        // The bounds analysis won't be used for any rendering yet
+        kCanDrawDirectly, // The rendering may draw the image directly if analysis allows it
+        kShaderOnly       // The rendering will always use a filling shader, e.g. drawPaint()
+    };
+
     // Determine what effects are visible based on the target 'dstBounds' and extra transform that
     // will be applied when this FilterResult is drawn. These are not LayerSpace because the
     // 'xtraTransform' may be either a within-layer transform, or a layer-to-device space transform.
     // The 'dstBounds' should be in the same coordinate space that 'xtraTransform' maps to. When
     // that is the identity matrix, 'dstBounds' is in layer space.
     SkEnumBitMask<BoundsAnalysis> analyzeBounds(const SkMatrix& xtraTransform,
-                                                const SkIRect& dstBounds) const;
-    SkEnumBitMask<BoundsAnalysis> analyzeBounds(const LayerSpace<SkIRect>& dstBounds) const {
-        return this->analyzeBounds(SkMatrix::I(), SkIRect(dstBounds));
+                                                const SkIRect& dstBounds,
+                                                BoundsScope scope = BoundsScope::kDeferred) const;
+    SkEnumBitMask<BoundsAnalysis> analyzeBounds(const LayerSpace<SkIRect>& dstBounds,
+                                                BoundsScope scope = BoundsScope::kDeferred) const {
+        return this->analyzeBounds(SkMatrix::I(), SkIRect(dstBounds), scope);
     }
 
     // Return an equivalent FilterResult such that its backing image dimensions have been reduced

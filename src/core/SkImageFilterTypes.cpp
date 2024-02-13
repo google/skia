@@ -586,7 +586,8 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>FilterResult::imageAndOffs
 
 SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         const SkMatrix& xtraTransform,
-        const SkIRect& dstBounds) const {
+        const SkIRect& dstBounds,
+        BoundsScope scope) const {
     static constexpr SkSamplingOptions kNearestNeighbor = {};
     static constexpr float kHalfPixel = 0.5f;
     static constexpr float kCubicRadius = 1.5f;
@@ -636,6 +637,7 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
     LayerSpace<SkMatrix> netTransform = fTransform;
     netTransform.postConcat(LayerSpace<SkMatrix>(xtraTransform));
     SkM44 netM44{SkMatrix(netTransform)};
+    const bool isPixelAligned = is_nearly_integer_translation(netTransform);
 
     if (!SkRectPriv::QuadContainsRect(netM44,
                                       imageBounds,
@@ -645,12 +647,38 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         if (fillsLayerBounds) {
             analysis |= BoundsAnalysis::kHasLayerFillingEffect;
         }
+        if (fTileMode == SkTileMode::kDecal) {
+            // Some amount of decal tiling will be visible in the output, but it only needs to
+            // be handled special if it's not nearest neighbor and not an identity scale factor.
+            // NOTE: all the cases where fSamplingOptions is not nearest neighbor, but can be
+            // reduced to nearest neighbor later, satisfy the net xform having the identity scale
+            float scaleFactors[2];
+            if (fSamplingOptions != kNearestNeighbor &&
+                !(SkMatrix(netTransform).getMinMaxScales(scaleFactors) &&
+                  SkScalarNearlyEqual(scaleFactors[0], 1.f, 0.2f) &&
+                  SkScalarNearlyEqual(scaleFactors[1], 1.f, 0.2f))) {
+                analysis |= BoundsAnalysis::kRequiresDecalInLayerSpace;
+            }
+        }
+    }
+
+    if (scope == BoundsScope::kDeferred) {
+        return analysis; // skip sampling analysis
+    } else if (scope == BoundsScope::kCanDrawDirectly &&
+               !(analysis & BoundsAnalysis::kHasLayerFillingEffect)) {
+        // When drawing the image directly, the geometry is limited to the image. If the pixels
+        // we are pixel aligned, then it is safe to skip shader-based tiling.
+        const bool nnOrBilerp = fSamplingOptions == kDefaultSampling ||
+                                fSamplingOptions == SkFilterMode::kNearest;
+        if (nnOrBilerp && isPixelAligned) {
+            return analysis;
+        }
     }
 
     // 3. Would image pixels outside of its subset be sampled if shader-clamping is skipped?
     const float sampleRadius = fSamplingOptions.useCubic ? kCubicRadius : kHalfPixel;
     SkRect safeImageBounds = imageBounds.makeInset(sampleRadius, sampleRadius);
-    if (fSamplingOptions == kDefaultSampling && !is_nearly_integer_translation(netTransform)) {
+    if (fSamplingOptions == kDefaultSampling && !isPixelAligned) {
         // When using default sampling, integer translations are eventually downgraded to nearest
         // neighbor, so the 1/2px inset clamping is sufficient to safely access within the subset.
         // When staying with linear filtering, a sample at 1/2px inset exactly will end up accessing
@@ -679,20 +707,6 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         }
         if (!all(edgeMask | hwEdge)) {
             analysis |= BoundsAnalysis::kRequiresShaderTiling;
-        }
-
-        if (fTileMode == SkTileMode::kDecal) {
-            // Some amount of decal tiling will be visible in the output, but it only needs to
-            // be handled special if it's not nearest neighbor and not an identity scale factor.
-            // NOTE: all the cases where fSamplingOptions is not nearest neighbor, but can be
-            // reduced to nearest neighbor later, satisfy the net xform having the identity scale
-            float scaleFactors[2];
-            if (fSamplingOptions != kNearestNeighbor &&
-                !(SkMatrix(netTransform).getMinMaxScales(scaleFactors) &&
-                  SkScalarNearlyEqual(scaleFactors[0], 1.f, 0.2f) &&
-                  SkScalarNearlyEqual(scaleFactors[1], 1.f, 0.2f))) {
-                analysis |= BoundsAnalysis::kRequiresDecalInLayerSpace;
-            }
         }
     }
 
@@ -1068,7 +1082,8 @@ void FilterResult::draw(const Context& ctx,
     }
 
     SkEnumBitMask<BoundsAnalysis> analysis = this->analyzeBounds(device->localToDevice(),
-                                                                 device->devClipBounds());
+                                                                 device->devClipBounds(),
+                                                                 BoundsScope::kCanDrawDirectly);
 
     if (analysis & BoundsAnalysis::kRequiresLayerCrop) {
         if (blendAffectsTransparentBlack) {
@@ -1159,7 +1174,8 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
     const bool nextXformIsInteger = !(flags & ShaderFlags::kNonTrivialSampling);
 
     SkBlendMode colorFilterMode;
-    SkEnumBitMask<BoundsAnalysis> analysis = this->analyzeBounds(sampleBounds);
+    SkEnumBitMask<BoundsAnalysis> analysis = this->analyzeBounds(sampleBounds,
+                                                                 BoundsScope::kShaderOnly);
 
     SkSamplingOptions sampling = xtraSampling;
     const bool needsResolve =
@@ -1194,7 +1210,7 @@ sk_sp<SkShader> FilterResult::asShader(const Context& ctx,
             // have HW-tileable boundaries.
             [[maybe_unused]] static constexpr SkEnumBitMask<BoundsAnalysis> kExpectedAnalysis =
                     BoundsAnalysis::kDstBoundsNotCovered | BoundsAnalysis::kRequiresShaderTiling;
-            analysis = resolved.analyzeBounds(sampleBounds);
+            analysis = resolved.analyzeBounds(sampleBounds, BoundsScope::kShaderOnly);
             SkASSERT(!(analysis & ~kExpectedAnalysis));
             return resolved.getAnalyzedShaderView(ctx, sampling, analysis);
         }
@@ -1323,7 +1339,8 @@ FilterResult FilterResult::rescale(const Context& ctx,
     // NOTE: For the first pass, PixelSpace and LayerSpace are equivalent
     PixelSpace<SkIPoint> origin;
     const bool pixelAligned = is_nearly_integer_translation(fTransform, &origin);
-    SkEnumBitMask<BoundsAnalysis> analysis = this->analyzeBounds(ctx.desiredOutput());
+    SkEnumBitMask<BoundsAnalysis> analysis = this->analyzeBounds(ctx.desiredOutput(),
+                                                                 BoundsScope::kShaderOnly);
 
     // If there's no actual scaling, and no other effects that have to be resolved for blur(),
     // then just extract the necessary subset. Otherwise fall through and apply the effects with
@@ -1437,7 +1454,8 @@ FilterResult FilterResult::rescale(const Context& ctx,
                 // Redo analysis with the actual scale transform and padded low res bounds, but
                 // remove kRequiresDecalInLayerSpace because it will always trigger with the scale
                 // factor and can be automatically applied at the end when upscaling.
-                analysis = this->analyzeBounds(SkMatrix(scaleXform), SkIRect(dstPixelBounds));
+                analysis = this->analyzeBounds(SkMatrix(scaleXform), SkIRect(dstPixelBounds),
+                                               BoundsScope::kShaderOnly);
                 analysis &= ~BoundsAnalysis::kRequiresDecalInLayerSpace;
                 paint.setShader(this->getAnalyzedShaderView(ctx, fSamplingOptions, analysis));
             } else {
