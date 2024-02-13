@@ -92,7 +92,7 @@ public:
 
     sk_sp<SkImage> asImage() const override { return fBitmap.asImage(); }
 
-    sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {
+    sk_sp<SkSpecialImage> onMakeBackingStoreSubset(const SkIRect& subset) const override {
         // No need to extract subset, onGetROPixels handles that when needed
         return SkSpecialImages::MakeFromRaster(subset, fBitmap, this->props());
     }
