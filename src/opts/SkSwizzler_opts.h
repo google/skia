@@ -50,16 +50,16 @@ using F4 = __m128;
 SK_NO_SANITIZE("float-divide-by-zero")
 static inline float SkReciprocalAlphaTimes255(float a) {
     SkASSERT(0 <= a && a <= 255);
-    F4 vA{a};
-    auto q = _mm_div_ss(F4{255.0f}, vA);
+    F4 vA{a, a, a, a};
+    auto q = F4{255.0f} / vA;
     return _mm_and_ps(sk_bit_cast<__m128>(vA != F4{0.0f}), q)[0];
 }
 
 SK_NO_SANITIZE("float-divide-by-zero")
 static inline float SkReciprocalAlpha(float a) {
     SkASSERT(0 <= a && a <= 1);
-    F4 vA{a};
-    auto q = _mm_div_ss(F4{1.0f}, vA);
+    F4 vA{a, a, a, a};
+    auto q = F4{1.0f} / vA;
     return _mm_and_ps(sk_bit_cast<__m128>(vA != F4{0.0f}), q)[0];
 }
 #else
