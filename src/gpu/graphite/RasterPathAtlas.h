@@ -28,19 +28,17 @@ namespace skgpu::graphite {
  */
 class RasterPathAtlas : public PathAtlas {
 public:
-    RasterPathAtlas();
+    explicit RasterPathAtlas(Recorder* recorder);
     ~RasterPathAtlas() override {}
-    void recordUploads(DrawContext*, Recorder*);
+    void recordUploads(DrawContext*);
 
 protected:
-    const TextureProxy* onAddShape(Recorder* recorder,
-                                   const Shape&,
+    const TextureProxy* onAddShape(const Shape&,
                                    const Transform& transform,
                                    const SkStrokeRec&,
                                    skvx::half2 maskSize,
                                    skvx::half2* outPos) override;
-    const TextureProxy* addRect(Recorder* recorder,
-                                skvx::half2 maskSize,
+    const TextureProxy* addRect(skvx::half2 maskSize,
                                 SkIPoint16* outPos);
 
 private:
@@ -74,7 +72,7 @@ private:
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Page);
     };
 
-    void makeMRU(Page*, Recorder*);
+    void makeMRU(Page*);
     // Free up atlas allocations, if necessary. After this call the atlas can be considered
     // available for new shape insertions. However this method does not have any bearing on the
     // contents of any atlas textures themselves, which may be in use by GPU commands that are

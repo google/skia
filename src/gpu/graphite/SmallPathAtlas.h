@@ -29,14 +29,13 @@ class UploadList;
  */
 class SmallPathAtlas : public PathAtlas {
 public:
-    SmallPathAtlas();
+    explicit SmallPathAtlas(Recorder*);
     ~SmallPathAtlas() override {}
 
     bool recordUploads(UploadList*) { /*TODO*/ return false; }
 
 protected:
-    const TextureProxy* onAddShape(Recorder* recorder,
-                                   const Shape&,
+    const TextureProxy* onAddShape(const Shape&,
                                    const Transform& transform,
                                    const SkStrokeRec&,
                                    skvx::half2 maskSize,

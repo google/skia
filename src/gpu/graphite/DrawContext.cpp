@@ -133,7 +133,7 @@ bool DrawContext::recordUpload(Recorder* recorder,
 
 PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
     if (!fComputePathAtlas) {
-        fComputePathAtlas = recorder->priv().atlasProvider()->createComputePathAtlas();
+        fComputePathAtlas = recorder->priv().atlasProvider()->createComputePathAtlas(recorder);
     }
     return fComputePathAtlas.get();
 }

@@ -1120,8 +1120,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // it to be drawn.
     std::optional<PathAtlas::MaskAndOrigin> atlasMask;  // only used if `pathAtlas != nullptr`
     if (pathAtlas != nullptr) {
-        std::tie(renderer, atlasMask) = pathAtlas->addShape(recorder(),
-                                                            clip.transformedShapeBounds(),
+        std::tie(renderer, atlasMask) = pathAtlas->addShape(clip.transformedShapeBounds(),
                                                             geometry.shape(),
                                                             localToDevice,
                                                             style);
@@ -1135,8 +1134,7 @@ void Device::drawGeometry(const Transform& localToDevice,
             fRecorder->priv().flushTrackedDevices();
 
             // Try inserting the shape again.
-            std::tie(renderer, atlasMask) = pathAtlas->addShape(recorder(),
-                                                                clip.transformedShapeBounds(),
+            std::tie(renderer, atlasMask) = pathAtlas->addShape(clip.transformedShapeBounds(),
                                                                 geometry.shape(),
                                                                 localToDevice,
                                                                 style);
@@ -1456,7 +1454,7 @@ void Device::flushPendingWorkToRecorder() {
     // DrawPass stealing will need to share some of the same logic w/o becoming a Task.
 
     // Push any pending uploads from the atlasProvider
-    fRecorder->priv().atlasProvider()->recordUploads(fDC.get(), fRecorder);
+    fRecorder->priv().atlasProvider()->recordUploads(fDC.get());
 
     auto uploadTask = fDC->snapUploadTask(fRecorder);
     if (uploadTask) {

@@ -21,8 +21,8 @@
 
 namespace skgpu::graphite {
 
-RasterPathAtlas::RasterPathAtlas()
-    : PathAtlas(kDefaultAtlasDim, kDefaultAtlasDim) {
+RasterPathAtlas::RasterPathAtlas(Recorder* recorder)
+    : PathAtlas(recorder, kDefaultAtlasDim, kDefaultAtlasDim) {
 
     // set up LRU list
     Page* currPage = &fPageArray[0];
@@ -33,7 +33,7 @@ RasterPathAtlas::RasterPathAtlas()
     }
 }
 
-void RasterPathAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
+void RasterPathAtlas::recordUploads(DrawContext* dc) {
     // Cycle through all the pages and handle their uploads
     PageList::Iter pageIter;
     pageIter.init(fPageList, PageList::Iter::kHead_IterStart);
@@ -50,7 +50,7 @@ void RasterPathAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
 
             SkColorInfo colorInfo(kAlpha_8_SkColorType, kUnknown_SkAlphaType, nullptr);
 
-            if (!dc->recordUpload(recorder, currPage->fTexture, colorInfo, colorInfo, levels,
+            if (!dc->recordUpload(fRecorder, currPage->fTexture, colorInfo, colorInfo, levels,
                                   currPage->fDirtyRect, nullptr)) {
                 SKGPU_LOG_W("Coverage mask upload failed!");
                 return;
@@ -75,8 +75,8 @@ bool RasterPathAtlas::Page::initializeTextureIfNeeded(Recorder* recorder, uint16
     return fTexture != nullptr;
 }
 
-void RasterPathAtlas::makeMRU(Page* page, Recorder* recorder) {
-    page->fLastUse = recorder->priv().tokenTracker()->nextFlushToken();
+void RasterPathAtlas::makeMRU(Page* page) {
+    page->fLastUse = fRecorder->priv().tokenTracker()->nextFlushToken();
 
     if (fPageList.head() == page) {
         return;
@@ -85,14 +85,13 @@ void RasterPathAtlas::makeMRU(Page* page, Recorder* recorder) {
     fPageList.addToHead(page);
 }
 
-const TextureProxy* RasterPathAtlas::addRect(Recorder* recorder,
-                                             skvx::half2 maskSize,
+const TextureProxy* RasterPathAtlas::addRect(skvx::half2 maskSize,
                                              SkIPoint16* outPos) {
     // Look through all pages in MRU order and find the first one with room, and move that to MRU
     PageList::Iter pageIter;
     pageIter.init(fPageList, PageList::Iter::kHead_IterStart);
     for (Page* currPage = pageIter.get(); currPage; currPage = pageIter.next()) {
-        if (!currPage->initializeTextureIfNeeded(recorder, currPage->fIdentifier)) {
+        if (!currPage->initializeTextureIfNeeded(fRecorder, currPage->fIdentifier)) {
             SKGPU_LOG_E("Failed to instantiate an atlas texture");
             return nullptr;
         }
@@ -110,7 +109,7 @@ const TextureProxy* RasterPathAtlas::addRect(Recorder* recorder,
             continue;
         }
 
-        this->makeMRU(currPage, recorder);
+        this->makeMRU(currPage);
         return currPage->fTexture.get();
     }
 
@@ -118,11 +117,11 @@ const TextureProxy* RasterPathAtlas::addRect(Recorder* recorder,
     // queued for upload, in which case we can reuse its space w/o corrupting prior atlas draws.
     Page* lru = fPageList.tail();
     SkASSERT(lru);
-    if (lru->fLastUse < recorder->priv().tokenTracker()->nextFlushToken()) {
+    if (lru->fLastUse < fRecorder->priv().tokenTracker()->nextFlushToken()) {
         this->reset(lru);
         SkAssertResult(lru->fRectanizer.addPaddedRect(
                 maskSize.x(), maskSize.y(), kEntryPadding, outPos));
-        this->makeMRU(lru, recorder);
+        this->makeMRU(lru);
         return lru->fTexture.get();
     }
 
@@ -179,8 +178,7 @@ skgpu::UniqueKey generate_key(const Shape& shape,
 }
 } // namespace
 
-const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
-                                                const Shape& shape,
+const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
                                                 const Transform& transform,
                                                 const SkStrokeRec& strokeRec,
                                                 skvx::half2 maskSize,
@@ -197,7 +195,7 @@ const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
             skvx::half2* found = currPage->fCachedShapes.find(maskKey);
             if (found) {
                 *outPos = *found;
-                this->makeMRU(currPage, recorder);
+                this->makeMRU(currPage);
                 return currPage->fTexture.get();
             }
             pageIter.next();
@@ -206,7 +204,7 @@ const TextureProxy* RasterPathAtlas::onAddShape(Recorder* recorder,
 
     // Try to add to Rectanizer
     SkIPoint16 iPos;
-    const TextureProxy* texProxy = this->addRect(recorder, maskSize, &iPos);
+    const TextureProxy* texProxy = this->addRect(maskSize, &iPos);
     if (!texProxy) {
         return nullptr;
     }

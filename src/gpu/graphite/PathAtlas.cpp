@@ -33,12 +33,12 @@ constexpr uint16_t kComputeAtlasDim = 4096;
 
 }  // namespace
 
-PathAtlas::PathAtlas(uint32_t width, uint32_t height) : fWidth(width), fHeight(height) {}
+PathAtlas::PathAtlas(Recorder* recorder, uint32_t width, uint32_t height)
+        : fRecorder(recorder), fWidth(width), fHeight(height) {}
 
 PathAtlas::~PathAtlas() = default;
 
 std::pair<const Renderer*, std::optional<PathAtlas::MaskAndOrigin>> PathAtlas::addShape(
-        Recorder* recorder,
         const Rect& transformedShapeBounds,
         const Shape& shape,
         const Transform& localToDevice,
@@ -59,8 +59,7 @@ std::pair<const Renderer*, std::optional<PathAtlas::MaskAndOrigin>> PathAtlas::a
     // represents the area the shape can actually modify.
     maskInfo.fMaskSize = emptyMask ? skvx::half2(0) : skvx::cast<uint16_t>(maskBounds.size());
     Transform atlasTransform = localToDevice.postTranslate(-maskBounds.left(), -maskBounds.top());
-    const TextureProxy* atlasProxy = this->onAddShape(recorder,
-                                                      shape,
+    const TextureProxy* atlasProxy = this->onAddShape(shape,
                                                       atlasTransform,
                                                       style,
                                                       maskInfo.fMaskSize,
@@ -72,24 +71,24 @@ std::pair<const Renderer*, std::optional<PathAtlas::MaskAndOrigin>> PathAtlas::a
     std::optional<PathAtlas::MaskAndOrigin> atlasMask =
             std::make_pair(CoverageMaskShape(shape, atlasProxy, localToDevice.inverse(), maskInfo),
                            SkIPoint{(int) maskBounds.left(), (int) maskBounds.top()});
-    return std::make_pair(recorder->priv().rendererProvider()->coverageMask(), atlasMask);
+    return std::make_pair(fRecorder->priv().rendererProvider()->coverageMask(), atlasMask);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-ComputePathAtlas::ComputePathAtlas()
-    : PathAtlas(kComputeAtlasDim, kComputeAtlasDim)
+ComputePathAtlas::ComputePathAtlas(Recorder* recorder)
+    : PathAtlas(recorder, kComputeAtlasDim, kComputeAtlasDim)
     , fRectanizer(fWidth, fHeight) {}
 
-bool ComputePathAtlas::initializeTextureIfNeeded(Recorder* recorder) {
+bool ComputePathAtlas::initializeTextureIfNeeded() {
     if (!fTexture) {
-        SkColorType targetCT = ComputeShaderCoverageMaskTargetFormat(recorder->priv().caps());
-        fTexture = recorder->priv().atlasProvider()->getAtlasTexture(recorder,
-                                                                     this->width(),
-                                                                     this->height(),
-                                                                     targetCT,
-                                                                     /*identifier=*/0,
-                                                                     /*requireStorageUsage=*/true);
+        SkColorType targetCT = ComputeShaderCoverageMaskTargetFormat(fRecorder->priv().caps());
+        fTexture = fRecorder->priv().atlasProvider()->getAtlasTexture(fRecorder,
+                                                                      this->width(),
+                                                                      this->height(),
+                                                                      targetCT,
+                                                                      /*identifier=*/0,
+                                                                      /*requireStorageUsage=*/true);
     }
     return fTexture != nullptr;
 }
@@ -118,10 +117,9 @@ bool ComputePathAtlas::isSuitableForAtlasing(const Rect& transformedShapeBounds)
     return (width * height) <= (1024 * 512);
 }
 
-const TextureProxy* ComputePathAtlas::addRect(Recorder* recorder,
-                                              skvx::half2 maskSize,
+const TextureProxy* ComputePathAtlas::addRect(skvx::half2 maskSize,
                                               SkIPoint16* outPos) {
-    if (!this->initializeTextureIfNeeded(recorder)) {
+    if (!this->initializeTextureIfNeeded()) {
         SKGPU_LOG_E("Failed to instantiate an atlas texture");
         return nullptr;
     }
@@ -154,12 +152,12 @@ void ComputePathAtlas::reset() {
  */
 class VelloComputePathAtlas final : public ComputePathAtlas {
 public:
+    explicit VelloComputePathAtlas(Recorder* recorder) : ComputePathAtlas(recorder) {}
     // Record the compute dispatches that will draw the atlas contents.
-    std::unique_ptr<DispatchGroup> recordDispatches(Recorder*) const override;
+    std::unique_ptr<DispatchGroup> recordDispatches(Recorder* recorder) const override;
 
 private:
-    const TextureProxy* onAddShape(Recorder* recorder,
-                                   const Shape&,
+    const TextureProxy* onAddShape(const Shape&,
                                    const Transform& transform,
                                    const SkStrokeRec&,
                                    skvx::half2 maskSize,
@@ -182,7 +180,7 @@ std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder*
         return nullptr;
     }
 
-    SkASSERT(recorder);
+    SkASSERT(recorder && recorder == fRecorder);
     // Unless the analytic area AA mode unless caps say otherwise.
     VelloAaConfig config = VelloAaConfig::kAnalyticArea;
 #if defined(GRAPHITE_TEST_UTILS)
@@ -199,14 +197,13 @@ std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder*
 }
 
 const TextureProxy* VelloComputePathAtlas::onAddShape(
-        Recorder* recorder,
         const Shape& shape,
         const Transform& transform,
         const SkStrokeRec& style,
         skvx::half2 maskSize,
         skvx::half2* outPos) {
     SkIPoint16 iPos;
-    const TextureProxy* texProxy = this->addRect(recorder, maskSize, &iPos);
+    const TextureProxy* texProxy = this->addRect(maskSize, &iPos);
     if (!texProxy) {
         return nullptr;
     }
@@ -288,9 +285,9 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
 
 #endif  // SK_ENABLE_VELLO_SHADERS
 
-std::unique_ptr<ComputePathAtlas> ComputePathAtlas::CreateDefault() {
+std::unique_ptr<ComputePathAtlas> ComputePathAtlas::CreateDefault(Recorder* recorder) {
 #ifdef SK_ENABLE_VELLO_SHADERS
-    return std::make_unique<VelloComputePathAtlas>();
+    return std::make_unique<VelloComputePathAtlas>(recorder);
 #else
     return nullptr;
 #endif

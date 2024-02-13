@@ -21,12 +21,11 @@
 
 namespace skgpu::graphite {
 
-SmallPathAtlas::SmallPathAtlas()
-        : PathAtlas(kDefaultAtlasDim, kDefaultAtlasDim) {
+SmallPathAtlas::SmallPathAtlas(Recorder* recorder)
+        : PathAtlas(recorder, kDefaultAtlasDim, kDefaultAtlasDim) {
 }
 
-const TextureProxy* SmallPathAtlas::onAddShape(Recorder* recorder,
-                                               const Shape& shape,
+const TextureProxy* SmallPathAtlas::onAddShape(const Shape& shape,
                                                const Transform& transform,
                                                const SkStrokeRec& strokeRec,
                                                skvx::half2 maskSize,
