@@ -541,18 +541,14 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
         SkASSERT(buffer);
         size_t size;
 
-        if (fTail) {
-            if (fTail->avail() > 0) {
-                size = std::min(fTail->avail(), count);
-                buffer = fTail->append(buffer, size);
-                SkASSERT(count >= size);
-                count -= size;
-                if (count == 0) {
-                    return true;
-                }
+        if (fTail && fTail->avail() > 0) {
+            size = std::min(fTail->avail(), count);
+            buffer = fTail->append(buffer, size);
+            SkASSERT(count >= size);
+            count -= size;
+            if (count == 0) {
+                return true;
             }
-            // If we get here, we've just exhausted fTail, so update our tracker
-            fBytesWrittenBeforeTail += fTail->written();
         }
 
         size = std::max<size_t>(count, SkDynamicMemoryWStream_MinBlockSize - sizeof(Block));
@@ -566,7 +562,8 @@ bool SkDynamicMemoryWStream::write(const void* buffer, size_t count) {
         block->init(size);
         block->append(buffer, count);
 
-        if (fTail != nullptr) {
+        if (fTail) {
+            fBytesWrittenBeforeTail += fTail->written();
             fTail->fNext = block;
         } else {
             fHead = fTail = block;
