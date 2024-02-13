@@ -46,6 +46,8 @@ static inline float SkReciprocalAlpha(float a) {
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1 && (defined(__clang__) || !defined(_MSC_VER))
 // -- SSE -- Harden against timing attacks -- MSVC is not supported.
 using F4 = __m128;
+
+SK_NO_SANITIZE("float-divide-by-zero")
 static inline float SkReciprocalAlphaTimes255(float a) {
     SkASSERT(0 <= a && a <= 255);
     F4 vA{a};
@@ -53,6 +55,7 @@ static inline float SkReciprocalAlphaTimes255(float a) {
     return _mm_and_ps(sk_bit_cast<__m128>(vA != F4{0.0f}), q)[0];
 }
 
+SK_NO_SANITIZE("float-divide-by-zero")
 static inline float SkReciprocalAlpha(float a) {
     SkASSERT(0 <= a && a <= 1);
     F4 vA{a};
