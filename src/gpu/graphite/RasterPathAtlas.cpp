@@ -9,13 +9,11 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "src/core/SkBlitter_A8.h"
-#include "src/core/SkDrawBase.h"
 #include "src/core/SkIPoint16.h"
-#include "src/core/SkRasterClip.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RasterPathUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 
@@ -129,55 +127,6 @@ const TextureProxy* RasterPathAtlas::addRect(skvx::half2 maskSize,
     return nullptr;
 }
 
-namespace {
-skgpu::UniqueKey generate_key(const Shape& shape,
-                              const Transform& transform,
-                              const SkStrokeRec& strokeRec,
-                              skvx::half2 maskSize) {
-    skgpu::UniqueKey maskKey;
-    {
-        static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
-        skgpu::UniqueKey::Builder builder(&maskKey, kDomain, 6 + shape.keySize(),
-                                          "Raster Path Mask");
-        builder[0] = maskSize.x() | (maskSize.y() << 16);
-
-        // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
-        SkMatrix mat = transform.matrix().asM33();
-        SkScalar sx = mat.get(SkMatrix::kMScaleX);
-        SkScalar sy = mat.get(SkMatrix::kMScaleY);
-        SkScalar kx = mat.get(SkMatrix::kMSkewX);
-        SkScalar ky = mat.get(SkMatrix::kMSkewY);
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        // Fractional translate does not affect caching on Android. This is done for better cache
-        // hit ratio and speed and is matching HWUI behavior, which didn't consider the matrix
-        // at all when caching paths.
-        SkFixed fracX = 0;
-        SkFixed fracY = 0;
-#else
-        SkScalar tx = mat.get(SkMatrix::kMTransX);
-        SkScalar ty = mat.get(SkMatrix::kMTransY);
-        // Allow 8 bits each in x and y of subpixel positioning.
-        SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
-        SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
-#endif
-        builder[1] = SkFloat2Bits(sx);
-        builder[2] = SkFloat2Bits(sy);
-        builder[3] = SkFloat2Bits(kx);
-        builder[4] = SkFloat2Bits(ky);
-        // FracX and fracY are &ed with 0x0000ff00, so need to shift one down to fill 16 bits.
-        uint32_t fracBits = fracX | (fracY >> 8);
-        // Distinguish between hairline and filled paths. For hairlines, we also need to include
-        // the cap. (SW grows hairlines by 0.5 pixel with round and square caps). Note that
-        // stroke-and-fill of hairlines is turned into pure fill by SkStrokeRec, so this covers
-        // all cases we might see.
-        uint32_t styleBits = strokeRec.isHairlineStyle() ? ((strokeRec.getCap() << 1) | 1) : 0;
-        builder[5] = fracBits | (styleBits << 16);
-        shape.writeKey(&builder[6], /*includeInverted=*/false);
-    }
-    return maskKey;
-}
-} // namespace
-
 const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
                                                 const Transform& transform,
                                                 const SkStrokeRec& strokeRec,
@@ -189,7 +138,7 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
         // Iterate through pagelist in MRU order and see if this shape is cached
         PageList::Iter pageIter;
         pageIter.init(fPageList, PageList::Iter::kHead_IterStart);
-        maskKey = generate_key(shape, transform, strokeRec, maskSize);
+        maskKey = GeneratePathMaskKey(shape, transform, strokeRec, maskSize);
         while (Page* currPage = pageIter.get()) {
             // Look up shape and use cached texture and position if found.
             skvx::half2* found = currPage->fCachedShapes.find(maskKey);
@@ -220,45 +169,13 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
     Page* mru = fPageList.head();  // set up by addRect()
     SkASSERT(mru->fTexture.get() == texProxy);
 
-    // Allocate pixmap if needed
-    if (!mru->fPixels.addr()) {
-        const SkImageInfo bmImageInfo = SkImageInfo::MakeA8(mru->fRectanizer.width(),
-                                                            mru->fRectanizer.height());
-        if (!mru->fPixels.tryAlloc(bmImageInfo)) {
-            return nullptr;
-        }
-        mru->fPixels.erase(0);
-    }
-
     // Rasterize path to backing pixmap
-    // TODO: render in a separate thread?
-    SkDrawBase draw;
-    draw.fBlitterChooser = SkA8Blitter_Choose;
-    draw.fDst      = mru->fPixels;
-    SkRasterClip rasterClip;
-    SkIRect iAtlasBounds = SkIRect::MakeXYWH(iPos.x(), iPos.y(), maskSize.x(), maskSize.y());
-    rasterClip.setRect(iAtlasBounds);
-    draw.fRC       = &rasterClip;
-
-    SkPaint paint;
-    paint.setBlendMode(SkBlendMode::kSrc);  // "Replace" mode
-    paint.setAntiAlias(true);
-    // SkPaint's color is unpremul so this will produce alpha in every channel.
-    paint.setColor(SK_ColorWHITE);
-    strokeRec.applyToPaint(&paint);
-
-    SkMatrix translatedMatrix = SkMatrix(transform);
-    // The atlas transform of the shape is the linear-components (scale, rotation, skew) of
-    // `localToDevice` translated by the top-left offset of `atlasBounds.
-    translatedMatrix.postTranslate(iAtlasBounds.x(), iAtlasBounds.y());
-
-    draw.fCTM = &translatedMatrix;
-    SkPath path = shape.asPath();
-    if (path.isInverseFillType()) {
-        // The shader will handle the inverse fill in this case
-        path.toggleInverseFillType();
+    RasterMaskHelper helper(&mru->fPixels);
+    if (!helper.init({mru->fRectanizer.width(), mru->fRectanizer.height()})) {
+        return nullptr;
     }
-    draw.drawPathCoverage(path, paint);
+    SkIRect iAtlasBounds = SkIRect::MakeXYWH(iPos.x(), iPos.y(), maskSize.x(), maskSize.y());
+    helper.drawShape(shape, transform, strokeRec, iAtlasBounds);
 
     // Add atlasBounds to dirtyRect for later upload, including the 1px padding applied by the
     // rectanizer. If we didn't include this then our uploads would not include writes to the

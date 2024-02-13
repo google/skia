@@ -111,6 +111,8 @@ skia_graphite_sources = [
   "$_src/QueueManager.h",
   "$_src/RasterPathAtlas.cpp",
   "$_src/RasterPathAtlas.h",
+  "$_src/RasterPathUtils.cpp",
+  "$_src/RasterPathUtils.h",
   "$_src/ReadSwizzle.h",
   "$_src/Recorder.cpp",
   "$_src/RecorderPriv.h",
