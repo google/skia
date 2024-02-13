@@ -992,8 +992,13 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     // Flat interpolation appears to be slow on Qualcomm GPUs (tested Adreno 405 and 530).
     // Avoid on ANGLE too, it inserts a geometry shader into the pipeline to implement flat interp.
     // Is this only true on ANGLE's D3D backends or also on the GL backend?
-    // Flat interpolation is slow with ANGLE's Metal backend.
-    shaderCaps->fPreferFlatInterpolation = shaderCaps->fFlatInterpolationSupport &&
+    // Flat interpolation is slow with ANGLE's Metal backend and uses memory to rewrite index
+    // buffers to support GL's provoking vertex semantics.
+    // Never prefer flat shading on WebGL. GPU detection isn't as robust (e.g.
+    // WEBGL_debug_renderer_info may not be enabled and strings may be masked), the perf benefits
+    // are minimal, and potential cost is high (e.g. on ANGLE Metal backend).
+    shaderCaps->fPreferFlatInterpolation = !GR_IS_GR_WEBGL(standard) &&
+                                           shaderCaps->fFlatInterpolationSupport &&
                                            ctxInfo.vendor() != GrGLVendor::kQualcomm &&
                                            !angle_backend_is_d3d(ctxInfo.angleBackend()) &&
                                            !angle_backend_is_metal(ctxInfo.angleBackend());
