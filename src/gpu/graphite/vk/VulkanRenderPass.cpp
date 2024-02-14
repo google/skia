@@ -72,15 +72,6 @@ void add_subpass_info_to_key(ResourceKey::Builder& builder,
                              bool loadMSAAFromResolve,
                              int subpassCount,
                              int subpassDependencyCount) {
-    // The following assumes that we only have up to one reference of each type per subpass and
-    // that attachments are indexed in order of color, resolve, depth/stencil, then input
-    // attachments. Enforce this via static variables.
-    static constexpr int kColorAttachmentIdx = 0;
-    static constexpr int kColorResolveAttachmentIdx = 1;
-    static constexpr int kDepthStencilAttachmentIdx = 2;
-    // TODO: Add index variable for main subpass input attachment once supported.
-    static constexpr int kLoadSubpassInputAttachmentIdx = kColorResolveAttachmentIdx;
-
     // TODO: Fetch actual attachment reference and index information for each
     // subpass from RenderPassDesc. For now, determine subpass data based upon whether we are
     // loading from MSAA or not.
@@ -88,24 +79,32 @@ void add_subpass_info_to_key(ResourceKey::Builder& builder,
     // Assign a smaller value to represent VK_ATTACHMENT_UNUSED.
     static constexpr int kAttachmentUnused = std::numeric_limits<uint8_t>::max();
 
+    // The following key structure assumes that we only have up to one reference of each type per
+    // subpass and that attachments are indexed in order of color, resolve, depth/stencil, then
+    // input attachments. These indices are statically defined in the VulkanRenderPass header file.
     for (int j = 0; j < subpassCount; j++) {
         if (j == mainSubpassIdx) {
             uint32_t attachmentIdxKeyInfo;
-            attachmentIdxKeyInfo = hasColorAttachment ? kColorAttachmentIdx : kAttachmentUnused;
-            attachmentIdxKeyInfo |= (hasColorResolveAttachment ? kColorResolveAttachmentIdx
-                                                               : kAttachmentUnused) << 8;
-            attachmentIdxKeyInfo |= (hasDepthStencilAttachment ? kDepthStencilAttachmentIdx
-                                                               : kAttachmentUnused) << 16;
+            attachmentIdxKeyInfo = hasColorAttachment ? VulkanRenderPass::kColorAttachmentIdx
+                                                      : kAttachmentUnused;
+            attachmentIdxKeyInfo |=
+                    (hasColorResolveAttachment ? VulkanRenderPass::kColorResolveAttachmentIdx
+                                               : kAttachmentUnused) << 8;
+            attachmentIdxKeyInfo |=
+                    (hasDepthStencilAttachment ? VulkanRenderPass::kDepthStencilAttachmentIdx
+                                               : kAttachmentUnused) << 16;
             // TODO: Add input attachment info to key once supported for use in main subpass
             attachmentIdxKeyInfo |= kAttachmentUnused << 24;
 
             builder[builderIdx++] = attachmentIdxKeyInfo;
         } else { // Loading MSAA from resolve subpass
             SkASSERT(hasColorAttachment);
-            builder[builderIdx++] = kColorAttachmentIdx |  // color attachment
-                                    (kAttachmentUnused << 8) | // No color resolve attachment
-                                    (kAttachmentUnused << 16) | // No depth/stencil attachment
-                                    (kLoadSubpassInputAttachmentIdx << 24); // input attachment
+            builder[builderIdx++] =
+                    VulkanRenderPass::kColorAttachmentIdx | // color attachment
+                    (kAttachmentUnused << 8)              | // No color resolve attachment
+                    (kAttachmentUnused << 16)             | // No depth/stencil attachment
+                    // The input attachment for the load subpass is the color resolve texture.
+                    (VulkanRenderPass::kColorResolveAttachmentIdx << 24);
         }
     }
 
@@ -158,7 +157,7 @@ void populate_key(VulkanRenderPass::VulkanRenderPassMetaData& rpMetaData,
 VulkanRenderPass::VulkanRenderPassMetaData::VulkanRenderPassMetaData(
         const RenderPassDesc& renderPassDesc) {
     fLoadMSAAFromResolve = renderPassDesc.fColorResolveAttachment.fTextureInfo.isValid() &&
-                            renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
+                           renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
     fHasColorAttachment        = renderPassDesc.fColorAttachment.fTextureInfo.isValid();
     fHasColorResolveAttachment =
             renderPassDesc.fColorResolveAttachment.fTextureInfo.isValid();
@@ -284,11 +283,7 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::MakeRenderPass(const VulkanSharedConte
     VkAttachmentReference resolveLoadInputRef;
     VkAttachmentReference depthStencilRef;
 
-    // TODO: Assign real value to loadMSAAFromResolve according to whether the resolve
-    // attachment's load op is LoadOp::kLoad. Keeping as false until all the plumbing is hooked
-    // up.
     bool loadMSAAFromResolve = false;
-
     if (hasColorAttachment) {
         VulkanTextureInfo colorAttachTexInfo;
         colorAttachmentTextureInfo.getVulkanTextureInfo(&colorAttachTexInfo);
@@ -308,6 +303,7 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::MakeRenderPass(const VulkanSharedConte
         colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
         if (hasColorResolveAttachment) {
+            loadMSAAFromResolve = renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
             SkASSERT(renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore);
             VulkanTextureInfo resolveAttachTexInfo;
             colorResolveAttachmentTextureInfo.getVulkanTextureInfo(&resolveAttachTexInfo);
@@ -322,7 +318,8 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::MakeRenderPass(const VulkanSharedConte
                     resolveAttachDesc,
                     compatibleOnly ? LoadOp::kDiscard  : resolveAttachDesc.fLoadOp,
                     compatibleOnly ? StoreOp::kDiscard : resolveAttachDesc.fStoreOp,
-                    VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                    loadMSAAFromResolve ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+                                        : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
             resolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
         } else {

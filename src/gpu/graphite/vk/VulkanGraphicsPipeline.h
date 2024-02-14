@@ -27,6 +27,7 @@ class GraphicsPipelineDesc;
 class RuntimeEffectDictionary;
 class VulkanSharedContext;
 struct RenderPassDesc;
+class TextureInfo;
 class VulkanRenderPass;
 
 class VulkanGraphicsPipeline final : public GraphicsPipeline {
@@ -42,8 +43,8 @@ public:
     inline static constexpr unsigned int kUniformBufferDescSetIndex = 0;
     inline static constexpr unsigned int kTextureBindDescSetIndex = 1;
     // Currently input attachments are only used for loading MSAA from resolve, so we can use the
-    // descriptor set index normally assigned to texture desc sets.
-    inline static constexpr unsigned int kInputAttachmentDescSetIndex = kTextureBindDescSetIndex;
+    // descriptor set index normally assigned to uniform desc sets.
+    inline static constexpr unsigned int kInputAttachmentDescSetIndex = kUniformBufferDescSetIndex;
 
     inline static constexpr unsigned int kVertexBufferIndex = 0;
     inline static constexpr unsigned int kInstanceBufferIndex = 1;
@@ -87,7 +88,7 @@ public:
             VkPipelineLayout,
             sk_sp<VulkanRenderPass> compatibleRenderPass,
             VkPipelineCache,
-            int numSamples);
+            const TextureInfo& dstColorAttachmentTexInfo);
 
     static bool InitializeMSAALoadPipelineStructs(
             const VulkanSharedContext*,

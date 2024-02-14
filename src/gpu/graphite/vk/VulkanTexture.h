@@ -71,6 +71,10 @@ public:
                                      bool byRegion,
                                      uint32_t newQueueFamilyIndex) const;
 
+    // This simply updates our internal tracking of the image layout and does not actually perform
+    // any gpu work.
+    void updateImageLayout(VkImageLayout);
+
     VkImageLayout currentLayout() const;
     uint32_t currentQueueFamilyIndex() const;
 
@@ -79,6 +83,11 @@ public:
     // Helpers to use for setting the layout of the VkImage
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
     static VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
+
+    bool supportsInputAttachmentUsage() const {
+        return (this->textureInfo().vulkanTextureSpec().fImageUsageFlags &
+                VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
+    }
 
 private:
     VulkanTexture(const VulkanSharedContext* sharedContext,
