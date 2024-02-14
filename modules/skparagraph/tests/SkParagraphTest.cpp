@@ -3638,7 +3638,84 @@ UNIX_ONLY_TEST(SkParagraph_GetRectsForRangeStrut, reporter) {
     }
 }
 
-// Checked: NO DIFF
+UNIX_ONLY_TEST(SkParagraph_GetRectsForRangeStrutWithHeight, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    const char* text = "A";
+    const size_t len = strlen(text);
+
+    StrutStyle strutStyle;
+    strutStyle.setStrutEnabled(true);
+    strutStyle.setFontFamilies({SkString("Roboto")});
+    strutStyle.setFontSize(14.0);
+    strutStyle.setHeightOverride(true);
+    strutStyle.setHeight(2.0);
+    strutStyle.setLeading(3.0);
+
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setStrutStyle(strutStyle);
+
+    TextStyle textStyle;
+    textStyle.setFontFamilies({SkString("Roboto")});
+    textStyle.setFontSize(10);
+    textStyle.setColor(SK_ColorBLACK);
+
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    builder.pushStyle(textStyle);
+    builder.addText(text, len);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(550);
+
+    auto result = paragraph->getRectsForRange(0, 1, RectHeightStyle::kStrut, RectWidthStyle::kMax);
+    REPORTER_ASSERT(reporter, result.size() == 1);
+    // Half of the strut leading: 3.0 * 14.0 / 2
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.top(), 21.0, EPSILON100));
+    // Strut height 2.0 * 14.0
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.height(), 28.0, EPSILON100));
+}
+
+UNIX_ONLY_TEST(SkParagraph_GetRectsForRangeStrutWithHeightAndHalfLeading, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    const char* text = "A";
+    const size_t len = strlen(text);
+
+    StrutStyle strutStyle;
+    strutStyle.setStrutEnabled(true);
+    strutStyle.setFontFamilies({SkString("Roboto")});
+    strutStyle.setFontSize(14.0);
+    strutStyle.setHeightOverride(true);
+    strutStyle.setHeight(2.0);
+    strutStyle.setLeading(3.0);
+    strutStyle.setHalfLeading(true);
+
+    ParagraphStyle paragraphStyle;
+    paragraphStyle.setStrutStyle(strutStyle);
+
+    TextStyle textStyle;
+    textStyle.setFontFamilies({SkString("Roboto")});
+    textStyle.setFontSize(10);
+    textStyle.setColor(SK_ColorBLACK);
+
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    builder.pushStyle(textStyle);
+    builder.addText(text, len);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(550);
+
+    // Produces the same results as halfLeading = false.
+    auto result = paragraph->getRectsForRange(0, 1, RectHeightStyle::kStrut, RectWidthStyle::kMax);
+    REPORTER_ASSERT(reporter, result.size() == 1);
+    // Half of the strut leading: 3.0 * 14.0 / 2
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.top(), 21.0, EPSILON100));
+    // Strut height 2.0 * 14.0
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(result[0].rect.height(), 28.0, EPSILON100));
+}
+
 UNIX_ONLY_TEST(SkParagraph_GetRectsForRangeStrutFallback, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
