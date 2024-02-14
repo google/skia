@@ -939,10 +939,10 @@ $pure half4 sk_matrix_colorfilter(half4 colorIn, float4x4 m, float4 v, int inHSL
 
 // This method computes the 4 x-coodinates ([0..1]) that should be used to look
 // up in the Perlin noise shader's noise table.
-$pure half4 noise_helper(half2 noiseVec,
-                         half2 stitchData,
-                         int stitching,
-                         sampler2D permutationSampler) {
+$pure half4 $noise_helper(half2 noiseVec,
+                          half2 stitchData,
+                          int stitching,
+                          sampler2D permutationSampler) {
     const half kBlockSize = 256.0;
 
     half4 floorVal;
@@ -975,10 +975,9 @@ $pure half4 noise_helper(half2 noiseVec,
 }
 
 // TODO: Move this to sksl_shared.sksl and try to share with Ganesh
-$pure half4 noise_function(half2 noiseVec,
-                           half4 noiseXCoords,
-                           sampler2D noiseSampler) {
-
+$pure half4 $noise_function(half2 noiseVec,
+                            half4 noiseXCoords,
+                            sampler2D noiseSampler) {
     half2 fractVal = fract(noiseVec);
 
     // smooth curve : t^2*(3 - 2*t)
@@ -1057,9 +1056,9 @@ $pure half4 perlin_noise_shader(float2 coords,
 
     // Loop over all octaves
     for (int octave = 0; octave < numOctaves; ++octave) {
-        half4 noiseXCoords = noise_helper(noiseVec, stitchData, stitching, permutationSampler);
+        half4 noiseXCoords = $noise_helper(noiseVec, stitchData, stitching, permutationSampler);
 
-        half4 tmp = noise_function(noiseVec, noiseXCoords, noiseSampler);
+        half4 tmp = $noise_function(noiseVec, noiseXCoords, noiseSampler);
 
         if (noiseType != kFractalNoise_Type) {
             // For kTurbulence_Type the result is: abs(noise[-1,1])
