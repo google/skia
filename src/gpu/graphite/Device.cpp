@@ -82,8 +82,10 @@ using ReadPixelsContext  = SkImage::ReadPixelsContext;
 #if defined(GRAPHITE_TEST_UTILS)
 int gOverrideMaxTextureSizeGraphite = 0;
 // Allows tests to check how many tiles were drawn on the most recent call to
-// Device::drawAsTiledImageRect
-int gNumTilesDrawnGraphite = 0;
+// Device::drawAsTiledImageRect. This is an atomic because we can write to it from
+// multiple threads during "normal" operations. However, the tests that actually
+// read from it are done single-threaded.
+std::atomic<int> gNumTilesDrawnGraphite{0};
 #endif
 
 namespace skgpu::graphite {
@@ -788,7 +790,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
     if (gOverrideMaxTextureSizeGraphite) {
         maxTextureSize = gOverrideMaxTextureSizeGraphite;
     }
-    gNumTilesDrawnGraphite = 0;
+    gNumTilesDrawnGraphite.store(0, std::memory_order_relaxed);
 #endif
 
     [[maybe_unused]] auto [wasTiled, numTiles] =
@@ -803,7 +805,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
                                                            cacheSize,
                                                            maxTextureSize);
 #if defined(GRAPHITE_TEST_UTILS)
-    gNumTilesDrawnGraphite = numTiles;
+    gNumTilesDrawnGraphite.store(numTiles, std::memory_order_relaxed);
 #endif
     return wasTiled;
 }

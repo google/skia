@@ -66,12 +66,12 @@ namespace skgpu { namespace graphite { class Recorder; } }
 
 #if defined(SK_GANESH) && defined(GR_TEST_UTILS)
 extern int gOverrideMaxTextureSizeGanesh;
-extern int gNumTilesDrawnGanesh;
+extern std::atomic<int> gNumTilesDrawnGanesh;
 #endif
 
 #if defined(SK_GRAPHITE) && defined(GRAPHITE_TEST_UTILS)
 extern int gOverrideMaxTextureSizeGraphite;
-extern int gNumTilesDrawnGraphite;
+extern std::atomic<int> gNumTilesDrawnGraphite;
 #endif
 
 namespace {
@@ -401,10 +401,14 @@ void tiling_comparison_test(GrDirectContext* dContext,
                                                              constraint);
                             SkAssertResult(surface->readPixels(expected, 0, 0));
 #if defined(SK_GANESH) && defined(GR_TEST_UTILS)
-                            REPORTER_ASSERT(reporter, gNumTilesDrawnGanesh == 0);
+                            int actualNumTiles =
+                                    gNumTilesDrawnGanesh.load(std::memory_order_acquire);
+                            REPORTER_ASSERT(reporter, actualNumTiles == 0);
 #endif
 #if defined(SK_GRAPHITE) && defined(GRAPHITE_TEST_UTILS)
-                            REPORTER_ASSERT(reporter, gOverrideMaxTextureSizeGraphite == 0);
+                            int actualNumTiles2 =
+                                    gNumTilesDrawnGraphite.load(std::memory_order_acquire);
+                            REPORTER_ASSERT(reporter, actualNumTiles2 == 0);
 #endif
                             canvas->restore();
 
@@ -426,20 +430,24 @@ void tiling_comparison_test(GrDirectContext* dContext,
                             SkAssertResult(surface->readPixels(actual, 0, 0));
 #if defined(SK_GANESH) && defined(GR_TEST_UTILS)
                             if (canvas->recordingContext()) {
+                                actualNumTiles =
+                                        gNumTilesDrawnGanesh.load(std::memory_order_acquire);
                                 REPORTER_ASSERT(reporter,
-                                                numDesiredTiles == gNumTilesDrawnGanesh,
+                                                numDesiredTiles == actualNumTiles,
                                                 "mismatch expected: %d actual: %d\n",
                                                 numDesiredTiles,
-                                                gNumTilesDrawnGanesh);
+                                                actualNumTiles);
                             }
 #endif
 #if defined(SK_GRAPHITE) && defined(GRAPHITE_TEST_UTILS)
                             if (canvas->recorder()) {
+                                actualNumTiles2 =
+                                        gNumTilesDrawnGraphite.load(std::memory_order_acquire);
                                 REPORTER_ASSERT(reporter,
-                                                numDesiredTiles == gNumTilesDrawnGraphite,
+                                                numDesiredTiles == actualNumTiles2,
                                                 "mismatch expected: %d actual: %d\n",
                                                 numDesiredTiles,
-                                                gNumTilesDrawnGraphite);
+                                                actualNumTiles2);
                             }
 #endif
 

@@ -103,6 +103,7 @@
 #include "src/text/gpu/SlugImpl.h"
 #include "src/text/gpu/SubRunContainer.h"
 
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -123,8 +124,10 @@ using namespace skia_private;
 // maxTextureSize on the fly.
 int gOverrideMaxTextureSizeGanesh = 0;
 // Allows tests to check how many tiles were drawn on the most recent call to
-// Device::drawAsTiledImageRect
-int gNumTilesDrawnGanesh = 0;
+// Device::drawAsTiledImageRect. This is an atomic because we can write to it from
+// multiple threads during "normal" operations. However, the tests that actually
+// read from it are done single-threaded.
+std::atomic<int> gNumTilesDrawnGanesh{0};
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1024,7 +1027,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
     if (gOverrideMaxTextureSizeGanesh) {
         maxTextureSize = gOverrideMaxTextureSizeGanesh;
     }
-    gNumTilesDrawnGanesh = 0;
+    gNumTilesDrawnGanesh.store(0, std::memory_order_relaxed);
 #endif
 
     [[maybe_unused]] auto [wasTiled, numTiles] = TiledTextureUtils::DrawAsTiledImageRect(
@@ -1039,7 +1042,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
             cacheSize,
             maxTextureSize);
 #if defined(GR_TEST_UTILS)
-    gNumTilesDrawnGanesh = numTiles;
+    gNumTilesDrawnGanesh.store(numTiles, std::memory_order_relaxed);
 #endif
     return wasTiled;
 }
