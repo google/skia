@@ -52,12 +52,12 @@ class SkBlitter;
                                             const SkPoint texs[], SkMatrix* matrix) {
     SkPoint src[3], dst[3];
 
-    src[0] = texs[state.f0];
-    src[1] = texs[state.f1];
-    src[2] = texs[state.f2];
-    dst[0] = verts[state.f0];
-    dst[1] = verts[state.f1];
-    dst[2] = verts[state.f2];
+    src[0] = verts[state.f0];
+    src[1] = verts[state.f1];
+    src[2] = verts[state.f2];
+    dst[0] = texs[state.f0];
+    dst[1] = texs[state.f1];
+    dst[2] = texs[state.f2];
     return matrix->setPolyToPoly(src, dst, 3);
 }
 
@@ -300,7 +300,7 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
 
         SkMatrix localM;
         if (!transformShader || (texture_to_matrix(state, positions, texCoords, &localM) &&
-                                 transformShader->update(SkMatrix::Concat(*fCTM, localM)))) {
+                                 transformShader->update(SkMatrix::Concat(localM, ctmInverse)))) {
             fill_triangle(state, blitter, *fRC, dev2, dev3);
         }
     }

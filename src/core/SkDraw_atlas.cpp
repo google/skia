@@ -140,7 +140,11 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
         mx.setRSXform(xform[i]);
         mx.preTranslate(-textures[i].fLeft, -textures[i].fTop);
         mx.postConcat(*fCTM);
-        if (transformShader->update(mx)) {
+        SkMatrix inv;
+        if (!mx.invert(&inv)) {
+            return;
+        }
+        if (transformShader->update(inv)) {
             fill_rect(mx, *fRC, textures[i], blitter, &scratchPath);
         }
     }
