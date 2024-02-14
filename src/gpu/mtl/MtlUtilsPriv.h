@@ -46,9 +46,7 @@ uint32_t MtlFormatChannels(MTLPixelFormat);
 
 size_t MtlFormatBytesPerBlock(MTLPixelFormat);
 
-#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 const char* MtlFormatToString(MTLPixelFormat);
-#endif
 
 #ifdef SK_BUILD_FOR_IOS
 bool MtlIsAppInBackground();

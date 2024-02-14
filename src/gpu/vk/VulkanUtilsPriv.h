@@ -222,7 +222,6 @@ template<typename T> T* GetExtensionFeatureStruct(const VkPhysicalDeviceFeatures
 void SetupSamplerYcbcrConversionInfo(VkSamplerYcbcrConversionCreateInfo* outInfo,
                                      const VulkanYcbcrConversionInfo& conversionInfo);
 
-#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
     switch (vkFormat) {
         case VK_FORMAT_R8G8B8A8_UNORM:           return "R8G8B8A8_UNORM";
@@ -254,7 +253,6 @@ static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
         default:                                 return "Unknown";
     }
 }
-#endif // defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 
 #ifdef SK_BUILD_FOR_ANDROID
 /**

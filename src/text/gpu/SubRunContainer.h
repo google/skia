@@ -243,7 +243,7 @@ public:
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const;
 
 private:
-    friend struct SubRunContainerPeer;
+    friend class TextBlobTools;
     const SkMatrix fInitialPositionMatrix;
     SubRunList fSubRuns;
 };

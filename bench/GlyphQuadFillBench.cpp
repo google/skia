@@ -22,6 +22,7 @@
 #include "src/text/gpu/TextBlob.h"
 #include "src/utils/SkTestCanvas.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/text/gpu/TextBlobTools.h"
 
 // From Project Guttenberg. This is UTF-8 text.
 static const char* gText =
@@ -64,14 +65,16 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
                                             device->strikeDeviceInfo(),
                                             SkStrikeCache::GlobalStrikeCache());
 
-        const sktext::gpu::AtlasSubRun* subRun = fBlob->testingOnlyFirstSubRun();
+        const sktext::gpu::AtlasSubRun* subRun =
+                sktext::gpu::TextBlobTools::FirstSubRun(fBlob.get());
         SkASSERT_RELEASE(subRun);
         subRun->testingOnly_packedGlyphIDToGlyph(&fCache);
         fVertices.reset(new char[subRun->vertexStride(drawMatrix) * subRun->glyphCount() * 4]);
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        const sktext::gpu::AtlasSubRun* subRun = fBlob->testingOnlyFirstSubRun();
+        const sktext::gpu::AtlasSubRun* subRun =
+                sktext::gpu::TextBlobTools::FirstSubRun(fBlob.get());
         SkASSERT_RELEASE(subRun);
 
         SkIRect clip = SkIRect::MakeEmpty();

@@ -1961,6 +1961,7 @@ if (skia_enable_tools) {
       "tools/gpu/YUVUtils.cpp",
       "tools/gpu/YUVUtils.h",
       "tools/gpu/mock/MockTestContext.cpp",
+      "tools/text/gpu/TextBlobTools.cpp",
     ]
     sources += skia_utils_gpu
 
@@ -2034,6 +2035,8 @@ if (skia_enable_tools) {
       sources -= [ "tools/gpu/TestOps.h" ]
     } else {
       sources += [
+        "tools/gpu/ganesh/AtlasTextOpTools.cpp",
+        "tools/gpu/ganesh/AtlasTextOpTools.h",
         "tools/gpu/ganesh/GrAtlasTools.cpp",
         "tools/gpu/ganesh/GrAtlasTools.h",
       ]

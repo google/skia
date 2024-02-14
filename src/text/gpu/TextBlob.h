@@ -117,9 +117,8 @@ public:
               const SkPaint& paint,
               const AtlasDrawDelegate&);
 
-    const AtlasSubRun* testingOnlyFirstSubRun() const;
-
 private:
+    friend class TextBlobTools;
     // The allocator must come first because it needs to be destroyed last. Other fields of this
     // structure may have pointers into it.
     SubRunAllocator fAlloc;

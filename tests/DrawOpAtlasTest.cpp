@@ -39,6 +39,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/gpu/ganesh/AtlasTextOpTools.h"
 #include "tools/gpu/ganesh/GrAtlasTools.h"
 
 #include <cstddef>
@@ -203,9 +204,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation,
 
     const char* text = "a";
 
-    GrOp::Owner op = AtlasTextOp::CreateOpTestingOnly(sdc.get(), paint,
-                                                      font, SkMatrix::I(),
-                                                      text, 16, 16);
+    GrOp::Owner op =
+            AtlasTextOpTools::CreateOp(sdc.get(), paint, font, SkMatrix::I(), text, 16, 16);
     if (!op) {
         return;
     }
