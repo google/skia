@@ -151,8 +151,13 @@ size_t MtlFormatBytesPerBlock(MTLPixelFormat mtlFormat) {
 
 #ifdef SK_BUILD_FOR_IOS
 bool MtlIsAppInBackground() {
+#ifdef SK_BUILD_FOR_IOS_APP_EXTENSION
+    // Treat extensions as always in the foreground.
+    return false;
+#else
     return [NSThread isMainThread] &&
            ([UIApplication sharedApplication].applicationState == UIApplicationStateBackground);
+#endif
 }
 #endif
 } // namespace skgpu
