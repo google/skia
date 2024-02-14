@@ -1081,9 +1081,11 @@ void FilterResult::draw(const Context& ctx,
         return;
     }
 
+    BoundsScope scope = blendAffectsTransparentBlack ? BoundsScope::kShaderOnly
+                                                     : BoundsScope::kCanDrawDirectly;
     SkEnumBitMask<BoundsAnalysis> analysis = this->analyzeBounds(device->localToDevice(),
                                                                  device->devClipBounds(),
-                                                                 BoundsScope::kCanDrawDirectly);
+                                                                 scope);
 
     if (analysis & BoundsAnalysis::kRequiresLayerCrop) {
         if (blendAffectsTransparentBlack) {
