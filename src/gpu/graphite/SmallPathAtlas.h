@@ -16,7 +16,7 @@
 
 namespace skgpu::graphite {
 
-class UploadList;
+class DrawContext;
 
 /**
  * PathAtlas class that rasterizes coverage masks on the CPU and caches them in a
@@ -27,12 +27,16 @@ class UploadList;
  * uploads are recorded by `recordUploads()` and subsequently added to an UploadTask.
  *
  */
-class SmallPathAtlas : public PathAtlas {
+class SmallPathAtlas : public PathAtlas,
+                       public AtlasGenerationCounter,
+                       public PlotEvictionCallback {
 public:
     explicit SmallPathAtlas(Recorder*);
     ~SmallPathAtlas() override {}
 
-    bool recordUploads(UploadList*) { /*TODO*/ return false; }
+    bool initAtlas();
+
+    bool recordUploads(DrawContext*);
 
 protected:
     const TextureProxy* onAddShape(const Shape&,
@@ -42,10 +46,30 @@ protected:
                                    skvx::half2* outPos) override;
 
 private:
+    void evict(PlotLocator) override;
+
     // TODO: select atlas size dynamically? Take ContextOptions::fMaxTextureAtlasSize into account?
     static constexpr int kDefaultAtlasDim = 2048;
 
     std::unique_ptr<DrawAtlas> fDrawAtlas;
+
+    // Tracks whether a shape is already in the DrawAtlas, and its location in the atlas
+    struct UniqueKeyHash {
+        uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
+    };
+    using ShapeCache = skia_private::THashMap<skgpu::UniqueKey, AtlasLocator, UniqueKeyHash>;
+    ShapeCache fShapeCache;
+
+    // List of stored keys per Plot, used to invalidate cache entries.
+    // When a Plot is invalidated via evict(), we'll get its index and Page index from the
+    // PlotLocator, index into the fKeyLists array to get the ShapeKeyList for that Plot,
+    // then iterate through that list and remove entries matching those keys from the ShapeCache.
+    struct ShapeKeyEntry {
+        skgpu::UniqueKey fKey;
+        SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeKeyEntry);
+    };
+    using ShapeKeyList = SkTInternalLList<ShapeKeyEntry>;
+    SkTDArray<ShapeKeyList> fKeyLists;
 };
 
 }  // namespace skgpu::graphite

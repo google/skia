@@ -143,6 +143,7 @@ public:
 
 protected:
     explicit ComputePathAtlas(Recorder*);
+
     const TextureProxy* texture() const { return fTexture.get(); }
     const TextureProxy* addRect(skvx::half2 maskSize,
                                 SkIPoint16* outPos);

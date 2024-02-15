@@ -134,7 +134,8 @@ public:
         plot->setLastUseToken(token);
     }
 
-    uint32_t numActivePages() { return fNumActivePages; }
+    uint32_t numActivePages() const { return fNumActivePages; }
+    unsigned int numPlots() const { return fNumPlots; }
 
     void setLastUseTokenBulk(const BulkUsePlotUpdater& updater,
                              AtlasToken token) {
