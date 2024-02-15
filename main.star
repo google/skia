@@ -21,6 +21,11 @@ luci.logdog(
     gs_bucket = "skia-logdog",
 )
 
+luci.task_backend(
+    name = "skia-taskbackend",
+    target = "skia://task-scheduler",
+)
+
 luci.bucket(
     name = "skia.primary",
     acls = [
@@ -67,6 +72,15 @@ luci.bucket(
             ],
         ),
     ],
+    dynamic = True,
+)
+
+luci.dynamic_builder_template(
+    bucket = "skia.primary",
+    backend = "skia-taskbackend",
+    experiments = {
+        "luci.buildbucket.backend_alt": 100,
+    },
 )
 
 luci.task_backend(
