@@ -3,16 +3,7 @@
 error: 1: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^
-error: 5: name 'sk_Caps' is reserved
-    if (sk_Caps.floatIs32Bits) x = 1;
-        ^^^^^^^^^^^^^^^^^^^^^
-error: 6: name 'sk_Caps' is reserved
-    if (sk_Caps.integerSupport) y = 1;
-        ^^^^^^^^^^^^^^^^^^^^^^
-error: 7: name 'sk_Caps' is reserved
-    if (sk_Caps.builtinDeterminantSupport) z = 1;
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 8: unknown identifier 'sk_FragColor'
     sk_FragColor.rgb = half3(x, y, z);
     ^^^^^^^^^^^^
-5 errors
+2 errors

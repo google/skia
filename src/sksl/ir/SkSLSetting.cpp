@@ -65,7 +65,7 @@ std::unique_ptr<Expression> Setting::Convert(const Context& context,
                                              const std::string_view& name) {
     SkASSERT(context.fConfig);
 
-    if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
+    if (!ProgramConfig::AllowsPrivateIdentifiers(context.fConfig->fKind)) {
         context.fErrors->error(pos, "name 'sk_Caps' is reserved");
         return nullptr;
     }
@@ -80,7 +80,7 @@ std::unique_ptr<Expression> Setting::Convert(const Context& context,
 }
 
 std::unique_ptr<Expression> Setting::Make(const Context& context, Position pos, CapsPtr capsPtr) {
-    SkASSERT(!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind));
+    SkASSERT(ProgramConfig::AllowsPrivateIdentifiers(context.fConfig->fKind));
 
     return std::make_unique<Setting>(pos, capsPtr, context.fTypes.fBool.get());
 }
