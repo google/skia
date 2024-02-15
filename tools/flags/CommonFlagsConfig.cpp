@@ -157,6 +157,8 @@ static const struct {
     { "grmtl1010102",          "graphite", "api=metal,color=1010102" },
 #if defined(SK_ENABLE_PRECOMPILE)
     { "grmtlprecompile",       "graphite", "api=metal,precompile=true" },
+    { "grmtlprecompilef16",    "graphite", "api=metal,precompile=true,color=f16" },
+    { "grmtlprecompile1010102","graphite", "api=metal,precompile=true,color=1010102" },
 #endif
 #endif
 #ifdef SK_VULKAN

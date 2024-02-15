@@ -19,6 +19,7 @@ namespace skgpu::graphite {
  */
 class GraphicsPipelineDesc {
 public:
+    GraphicsPipelineDesc() : fRenderStepID(0), fPaintID(UniquePaintParamsID::InvalidID()) {}
     GraphicsPipelineDesc(const RenderStep* renderStep, UniquePaintParamsID paintID)
         : fRenderStepID(renderStep->uniqueID())
         , fPaintID(paintID) {}

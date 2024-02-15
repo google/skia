@@ -38,6 +38,7 @@ SHARED_FILES = [
     "SkBackingFit.h",
     "Swizzle.cpp",
     "Swizzle.h",
+    "SwizzlePriv.h",
     "TiledTextureUtils.cpp",
     "TiledTextureUtils.h",
 ]

@@ -261,7 +261,12 @@ public:
 
     const char* tag() const { return fTag; }
 
+    const uint32_t* data() const { return this->ResourceKey::data(); }
+
 #ifdef SK_DEBUG
+    uint32_t domain() const { return this->ResourceKey::domain(); }
+    size_t dataSize() const { return this->ResourceKey::dataSize(); }
+
     void dump(const char* label) const {
         SkDebugf("%s tag: %s\n", label, fTag ? fTag : "None");
         this->ResourceKey::dump();

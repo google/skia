@@ -804,6 +804,7 @@ BASE_SRCS_ALL = [
     "src/gpu/SkRenderEngineAbortf.h",
     "src/gpu/Swizzle.cpp",
     "src/gpu/Swizzle.h",
+    "src/gpu/SwizzlePriv.h",
     "src/gpu/TiledTextureUtils.cpp",
     "src/gpu/TiledTextureUtils.h",
     # We include the ganesh files, but leave out any specific backend (e.g. GL, Vulkan)

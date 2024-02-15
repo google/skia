@@ -57,6 +57,17 @@ MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags> mas
     return MTLPixelFormatInvalid;
 }
 
+SkEnumBitMask<DepthStencilFlags> MtlFormatToDepthStencilFlags(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatDepth32Float:          return DepthStencilFlags::kDepth;
+        case MTLPixelFormatStencil8:              return DepthStencilFlags::kStencil;
+        case MTLPixelFormatDepth32Float_Stencil8: return DepthStencilFlags::kDepthStencil;
+        default:                                  return DepthStencilFlags::kNone;
+    }
+
+    SkUNREACHABLE;
+}
+
 sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
                                                std::string_view msl,
                                                ShaderErrorHandler* errorHandler) {
