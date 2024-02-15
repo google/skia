@@ -17,7 +17,6 @@ skia_filegroup(
 skia_filegroup(
     name = "public_hdrs",
     srcs = [
-        "GrBackendDrawableInfo.h",
         "GrBackendSemaphore.h",
         "GrBackendSurface.h",
         "GrContextOptions.h",
@@ -46,7 +45,6 @@ skia_filegroup(
 skia_filegroup(
     name = "ganesh_hdrs",
     srcs = [
-        "GrBackendDrawableInfo.h",
         "GrBackendSemaphore.h",
         "GrBackendSurface.h",
         "GrContextOptions.h",

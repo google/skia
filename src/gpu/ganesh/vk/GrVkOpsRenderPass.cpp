@@ -9,7 +9,7 @@
 
 #include "include/core/SkDrawable.h"
 #include "include/core/SkRect.h"
-#include "include/gpu/GrBackendDrawableInfo.h"
+#include "include/gpu/ganesh/vk/GrBackendDrawableInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"

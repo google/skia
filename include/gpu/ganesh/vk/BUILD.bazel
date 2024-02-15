@@ -7,6 +7,7 @@ exports_files_legacy()
 skia_filegroup(
     name = "public_hdrs",
     srcs = [
+        "GrBackendDrawableInfo.h",
         "GrVkBackendSemaphore.h",
         "GrVkBackendSurface.h",
         "GrVkDirectContext.h",
