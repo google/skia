@@ -70,6 +70,8 @@ SKOTTIE_WASM_EXCLUDE = [
   'streetby_test_loading.json',
   # Times out
   'beetle.json',
+  # Too slow? Doesn't provide enough frames for analysis b/325452373
+  'Name.json',
 ]
 
 # These files work in SVG but not in Canvas.

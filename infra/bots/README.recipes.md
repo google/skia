@@ -482,9 +482,9 @@ Run DM on lottie files with tracing turned on and then parse the output.
 
 PYTHON_VERSION_COMPATIBILITY: PY3
 
-&mdash; **def [RunSteps](/infra/bots/recipes/perf_skottiewasm_lottieweb.py#83)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/perf_skottiewasm_lottieweb.py#85)(api):**
 
-&mdash; **def [parse\_trace](/infra/bots/recipes/perf_skottiewasm_lottieweb.py#204)(trace_json, lottie_filename, api, renderer):**
+&mdash; **def [parse\_trace](/infra/bots/recipes/perf_skottiewasm_lottieweb.py#206)(trace_json, lottie_filename, api, renderer):**
 
 parse_trace parses the specified trace JSON.
 
