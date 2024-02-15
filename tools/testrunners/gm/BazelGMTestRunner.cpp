@@ -28,10 +28,14 @@
 #include "tools/testrunners/common/surface_manager/SurfaceManager.h"
 #include "tools/testrunners/gm/vias/Draw.h"
 
+#include <algorithm>
 #include <ctime>
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <regex>
+#include <set>
 #include <sstream>
 #include <string>
 
@@ -57,6 +61,11 @@ static DEFINE_string(outputDir,
                      "Optional when running under Bazel "
                      "(e.g. \"bazel test //path/to:test\") as it defaults to "
                      "$TEST_UNDECLARED_OUTPUTS_DIR.");
+
+static DEFINE_string(knownDigestsFile,
+                     "",
+                     "Plaintext file with one MD5 hash per line. This test runner will omit from "
+                     "the output directory any images with an MD5 hash in this file.");
 
 static DEFINE_string(key, "", "Space-separated key/value pairs common to all traces.");
 
@@ -94,15 +103,23 @@ static DEFINE_string(via,
                                      "Ignored by this test runner.",
                                      nullptr);
 
-// Takes a SkBitmap and writes the resulting PNG and MD5 hash into the given files. Returns an
-// empty string on success, or an error message in the case of failures.
-static std::string write_png_and_json_files(std::string name,
-                                            std::map<std::string, std::string> commonKeys,
-                                            std::map<std::string, std::string> gmGoldKeys,
-                                            std::map<std::string, std::string> surfaceGoldKeys,
-                                            const SkBitmap& bitmap,
-                                            const char* pngPath,
-                                            const char* jsonPath) {
+// Return type for function write_png_and_json_files().
+struct WritePNGAndJSONFilesResult {
+    enum { kSuccess, kSkippedKnownDigest, kError } status;
+    std::string errorMsg = "";
+    std::string skippedDigest = "";
+};
+
+// Takes a SkBitmap and writes the resulting PNG and MD5 hash into the given files.
+static WritePNGAndJSONFilesResult write_png_and_json_files(
+        std::string name,
+        std::map<std::string, std::string> commonKeys,
+        std::map<std::string, std::string> gmGoldKeys,
+        std::map<std::string, std::string> surfaceGoldKeys,
+        const SkBitmap& bitmap,
+        const char* pngPath,
+        const char* jsonPath,
+        std::set<std::string> knownDigests) {
     HashAndEncode hashAndEncode(bitmap);
 
     // Compute MD5 hash.
@@ -111,6 +128,14 @@ static std::string write_png_and_json_files(std::string name,
     SkMD5::Digest digest = hash.finish();
     SkString md5 = digest.toLowercaseHexString();
 
+    // Skip this digest if it's known.
+    if (knownDigests.find(md5.c_str()) != knownDigests.end()) {
+        return {
+                .status = WritePNGAndJSONFilesResult::kSkippedKnownDigest,
+                .skippedDigest = md5.c_str(),
+        };
+    }
+
     // Write PNG file.
     SkFILEWStream pngFile(pngPath);
     bool result = hashAndEncode.encodePNG(&pngFile,
@@ -118,7 +143,10 @@ static std::string write_png_and_json_files(std::string name,
                                           /* key= */ CommandLineFlags::StringArray(),
                                           /* properties= */ CommandLineFlags::StringArray());
     if (!result) {
-        return "Error encoding or writing PNG to " + std::string(pngPath);
+        return {
+                .status = WritePNGAndJSONFilesResult::kError,
+                .errorMsg = "Error encoding or writing PNG to " + std::string(pngPath),
+        };
     }
 
     // Validate GM-related Gold keys.
@@ -155,7 +183,7 @@ static std::string write_png_and_json_files(std::string name,
     jsonWriter.endObject();  // "keys" dictionary.
     jsonWriter.endObject();  // Root object.
 
-    return "";
+    return {.status = WritePNGAndJSONFilesResult::kSuccess};
 }
 
 static std::string draw_result_to_string(skiagm::DrawResult result) {
@@ -184,7 +212,8 @@ void run_gm(std::unique_ptr<skiagm::GM> gm,
             std::map<std::string, std::string> keyValuePairs,
             std::string cpuName,
             std::string gpuName,
-            std::string outputDir) {
+            std::string outputDir,
+            std::set<std::string> knownDigests) {
     TestRunner::Log("GM: %s", gm->getName().c_str());
 
     // Create surface and canvas.
@@ -257,23 +286,55 @@ void run_gm(std::unique_ptr<skiagm::GM> gm,
         SkString pngPath = SkOSPath::Join(outputDir.c_str(), (name + ".png").c_str());
         SkString jsonPath = SkOSPath::Join(outputDir.c_str(), (name + ".json").c_str());
 
-        std::string pngAndJSONResult =
+        WritePNGAndJSONFilesResult pngAndJSONResult =
                 write_png_and_json_files(gm->getName().c_str(),
                                          keyValuePairs,
                                          gm->getGoldKeys(),
                                          surfaceManager->getGoldKeyValuePairs(cpuName, gpuName),
                                          bitmap,
                                          pngPath.c_str(),
-                                         jsonPath.c_str());
-        if (pngAndJSONResult != "") {
-            TestRunner::Log("%s", pngAndJSONResult.c_str());
+                                         jsonPath.c_str(),
+                                         knownDigests);
+        if (pngAndJSONResult.status == WritePNGAndJSONFilesResult::kError) {
+            TestRunner::Log("\tERROR: %s", pngAndJSONResult.errorMsg.c_str());
             gNumFailedGMs++;
+        } else if (pngAndJSONResult.status == WritePNGAndJSONFilesResult::kSkippedKnownDigest) {
+            TestRunner::Log("\tSkipping known digest: %s", pngAndJSONResult.skippedDigest.c_str());
         } else {
             gNumSuccessfulGMs++;
             TestRunner::Log("\tPNG file written to: %s", pngPath.c_str());
             TestRunner::Log("\tJSON file written to: %s", jsonPath.c_str());
         }
     }
+}
+
+// Reads a plaintext file with "known digests" (i.e. digests that are known positives or negatives
+// in Gold) and returns the digests (MD5 hashes) as a set of strings.
+std::set<std::string> read_known_digests_file(std::string path) {
+    std::set<std::string> hashes;
+    std::regex md5HashRegex("^[a-fA-F0-9]{32}$");
+    std::ifstream f(path);
+    std::string line;
+    for (int lineNum = 1; std::getline(f, line); lineNum++) {
+        // Trim left and right (https://stackoverflow.com/a/217605).
+        auto isSpace = [](unsigned char c) { return !std::isspace(c); };
+        std::string md5 = line;
+        md5.erase(md5.begin(), std::find_if(md5.begin(), md5.end(), isSpace));
+        md5.erase(std::find_if(md5.rbegin(), md5.rend(), isSpace).base(), md5.end());
+
+        if (md5 == "") continue;
+
+        if (!std::regex_match(md5, md5HashRegex)) {
+            SK_ABORT(
+                    "File '%s' passed via --knownDigestsFile contains an invalid entry on line "
+                    "%d: '%s'",
+                    path.c_str(),
+                    lineNum,
+                    line.c_str());
+        }
+        hashes.insert(md5);
+    }
+    return hashes;
 }
 
 int main(int argc, char** argv) {
@@ -295,6 +356,7 @@ int main(int argc, char** argv) {
         TestRunner::FlagValidators::StringNonEmpty("--outputDir", FLAGS_outputDir);
     }
     TestRunner::FlagValidators::StringAtMostOne("--outputDir", FLAGS_outputDir);
+    TestRunner::FlagValidators::StringAtMostOne("--knownDigestsFile", FLAGS_knownDigestsFile);
     TestRunner::FlagValidators::StringEven("--key", FLAGS_key);
     TestRunner::FlagValidators::StringNonEmpty("--surfaceConfig", FLAGS_surfaceConfig);
     TestRunner::FlagValidators::StringAtMostOne("--surfaceConfig", FLAGS_surfaceConfig);
@@ -304,6 +366,14 @@ int main(int argc, char** argv) {
 
     std::string outputDir =
             FLAGS_outputDir.isEmpty() ? testUndeclaredOutputsDir : FLAGS_outputDir[0];
+
+    auto knownDigests = std::set<std::string>();
+    if (!FLAGS_knownDigestsFile.isEmpty()) {
+        knownDigests = read_known_digests_file(FLAGS_knownDigestsFile[0]);
+        TestRunner::Log(
+                "Read %zu known digests from: %s", knownDigests.size(), FLAGS_knownDigestsFile[0]);
+    }
+
     std::map<std::string, std::string> keyValuePairs;
     for (int i = 1; i < FLAGS_key.size(); i += 2) {
         keyValuePairs[FLAGS_key[i - 1]] = FLAGS_key[i];
@@ -327,7 +397,7 @@ int main(int argc, char** argv) {
             continue;
         }
 
-        run_gm(std::move(gm), config, keyValuePairs, cpuName, gpuName, outputDir);
+        run_gm(std::move(gm), config, keyValuePairs, cpuName, gpuName, outputDir, knownDigests);
     }
 
     // TODO(lovisolo): If running under Bazel, print command to display output files.
