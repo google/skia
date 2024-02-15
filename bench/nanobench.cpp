@@ -209,6 +209,8 @@ static DEFINE_bool(splitPerfettoTracesByBenchmark, true,
                   "Create separate perfetto trace files for each benchmark?\n"
                   "Will only take effect if perfetto tracing is enabled. See --trace.");
 
+static DEFINE_bool(runtimeCPUDetection, true, "Skip runtime CPU detection and optimization");
+
 static double now_ms() { return SkTime::GetNSecs() * 1e-6; }
 
 static SkString humanize(double ms) {
@@ -1346,7 +1348,9 @@ int main(int argc, char** argv) {
     cd_Documents();
 #endif
     SetupCrashHandler();
-    SkGraphics::Init();
+    if (FLAGS_runtimeCPUDetection) {
+        SkGraphics::Init();
+    }
 
     // Our benchmarks only currently decode .png or .jpg files
     SkCodecs::Register(SkPngDecoder::Decoder());
