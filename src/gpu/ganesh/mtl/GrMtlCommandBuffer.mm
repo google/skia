@@ -22,11 +22,6 @@
 GR_NORETAIN_BEGIN
 
 sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
-#ifdef SK_BUILD_FOR_IOS
-    if (skgpu::MtlIsAppInBackground()) {
-        NSLog(@"GrMtlCommandBuffer: WARNING: Creating MTLCommandBuffer while in background.");
-    }
-#endif
     id<MTLCommandBuffer> mtlCommandBuffer;
 #if GR_METAL_SDK_VERSION >= 230
     if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
@@ -76,13 +71,6 @@ id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
         NSLog(@"GrMtlCommandBuffer: tried to create MTLBlitCommandEncoder while in invalid state.");
         return nullptr;
     }
-#ifdef SK_BUILD_FOR_IOS
-    if (skgpu::MtlIsAppInBackground()) {
-        fActiveBlitCommandEncoder = nil;
-        NSLog(@"GrMtlCommandBuffer: tried to create MTLBlitCommandEncoder while in background.");
-        return nil;
-    }
-#endif
     fActiveBlitCommandEncoder = [fCmdBuffer blitCommandEncoder];
     fHasWork = true;
 
@@ -179,13 +167,6 @@ GrMtlRenderCommandEncoder* GrMtlCommandBuffer::getRenderCommandEncoder(
         NSLog(@"GrMtlCommandBuffer: tried to create MTLRenderCommandEncoder while in bad state.");
         return nullptr;
     }
-#ifdef SK_BUILD_FOR_IOS
-    if (skgpu::MtlIsAppInBackground()) {
-        fActiveRenderCommandEncoder = nullptr;
-        NSLog(@"GrMtlCommandBuffer: tried to create MTLRenderCommandEncoder while in background.");
-        return nullptr;
-    }
-#endif
     fActiveRenderCommandEncoder = GrMtlRenderCommandEncoder::Make(
             [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor]);
     if (opsRenderPass) {
@@ -203,12 +184,6 @@ bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
         NSLog(@"GrMtlCommandBuffer: Tried to commit command buffer while in invalid state.\n");
         return false;
     }
-#ifdef SK_BUILD_FOR_IOS
-    if (skgpu::MtlIsAppInBackground()) {
-        NSLog(@"GrMtlCommandBuffer: Tried to commit command buffer while in background.\n");
-        return false;
-    }
-#endif
     [fCmdBuffer commit];
     if (waitUntilCompleted) {
         this->waitUntilCompleted();

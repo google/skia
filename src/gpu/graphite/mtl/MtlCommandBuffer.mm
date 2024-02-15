@@ -78,12 +78,6 @@ bool MtlCommandBuffer::commit() {
     SkASSERT(!fActiveRenderCommandEncoder);
     SkASSERT(!fActiveComputeCommandEncoder);
     this->endBlitCommandEncoder();
-#ifdef SK_BUILD_FOR_IOS
-    if (MtlIsAppInBackground()) {
-        NSLog(@"CommandBuffer: Tried to commit command buffer while in background.\n");
-        return false;
-    }
-#endif
     [(*fCommandBuffer) commit];
 
     if ((*fCommandBuffer).status == MTLCommandBufferStatusError) {
@@ -219,12 +213,6 @@ bool MtlCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     SkASSERT(!fActiveRenderCommandEncoder);
     SkASSERT(!fActiveComputeCommandEncoder);
     this->endBlitCommandEncoder();
-#ifdef SK_BUILD_FOR_IOS
-    if (MtlIsAppInBackground()) {
-        NSLog(@"CommandBuffer: tried to create MTLRenderCommandEncoder while in background.\n");
-        return false;
-    }
-#endif
 
     const static MTLLoadAction mtlLoadAction[] {
         MTLLoadActionLoad,
@@ -452,12 +440,6 @@ MtlBlitCommandEncoder* MtlCommandBuffer::getBlitCommandEncoder() {
     if (fActiveBlitCommandEncoder) {
         return fActiveBlitCommandEncoder.get();
     }
-#ifdef SK_BUILD_FOR_IOS
-    if (MtlIsAppInBackground()) {
-        NSLog(@"CommandBuffer: tried to create MTLBlitCommandEncoder while in background.\n");
-        return nullptr;
-    }
-#endif
 
     fActiveBlitCommandEncoder = MtlBlitCommandEncoder::Make(fSharedContext, fCommandBuffer.get());
 

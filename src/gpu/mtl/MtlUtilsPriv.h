@@ -48,10 +48,6 @@ size_t MtlFormatBytesPerBlock(MTLPixelFormat);
 
 const char* MtlFormatToString(MTLPixelFormat);
 
-#ifdef SK_BUILD_FOR_IOS
-bool MtlIsAppInBackground();
-#endif
-
 }  // namespace skgpu
 
 #endif // skgpu_MtlUtilsPriv_DEFINED
