@@ -30,6 +30,7 @@ skia_cc_library(
         "SkMetaData.cpp",
     ],
     hdrs = [
+        "CodecUtils.h",
         "DecodeUtils.h",
         "EncodeUtils.h",
         "GpuToolUtils.h",
