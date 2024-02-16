@@ -11,5 +11,8 @@ skia_filegroup(
         "GrGLMakeEGLInterface.cpp",
         "GrGLMakeNativeInterface_egl.cpp",
     ],
-    visibility = ["//src/gpu/ganesh/gl:__pkg__"],
+    visibility = [
+        "//src/gpu/ganesh/gl:__pkg__",
+        "//tools/gpu/gl/egl:__pkg__",
+    ],
 )

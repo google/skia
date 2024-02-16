@@ -1,6 +1,5 @@
 load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
-load("//tools/testrunners/gm:android_gm_test.bzl", "android_gm_test")
 load(":png_codec.bzl", "png_codec_tests")
 
 licenses(["notice"])
@@ -672,96 +671,100 @@ cc_test_with_flags(
     ],
 )
 
-android_gm_test(
-    name = "hello_bazel_world_android_test",
-    srcs = ["hello_bazel_world.cpp"],
-    requires_resources_dir = True,
-    surface_config = "8888",
-    deps = [":tests_base"],
-)
+# Android tests temporarily disabled until we rewrite them to use the modular build.
 
-[
-    # Sample invocation (assuming there's a Pixel 5 or similar device available via adb):
-    #
-    #     $ bazel test --config=linux_rbe //gm:cpu_8888_android_test --config=pixel_5
-    #
-    # Then inspect the PNG and JSON files produced by the GMs:
-    #
-    #     $ unzip -l bazel-testlogs/gm/cpu_8888_android_test/test.outputs/outputs.zip
-    android_gm_test(
-        name = "cpu_%s_android_test" % surface_config,
-        srcs = CPU_GMS,
-        flags = {
-            "include_decoder": [
-                "gif_decode_codec",
-                "webp_decode_codec",
-            ],
-        },
-        requires_resources_dir = True,
-        surface_config = surface_config,
-        deps = [":tests_base"],
-    )
-    for surface_config in [
-        "8888",
-        "565",
-    ]
-]
+# load("//tools/testrunners/gm:android_gm_test.bzl", "android_gm_test")
 
-android_gm_test(
-    name = "gpu_gles_android_test",
-    srcs = GPU_GMS,
-    flags = {
-        "include_decoder": [
-            "png_decode_codec",
-            "webp_decode_codec",
-        ],
-    },
-    requires_condition = "//src/gpu:gl_ganesh",
-    requires_resources_dir = True,
-    surface_config = "gles",
-    deps = [":tests_base"],
-)
+# android_gm_test(
+#     name = "hello_bazel_world_android_test",
+#     srcs = ["hello_bazel_world.cpp"],
+#     requires_resources_dir = True,
+#     surface_config = "8888",
+#     deps = [":tests_base"],
+# )
 
-# Currently fails the "anisomips" GM with "Deserialized and reference bitmap pixels do not match".
-# Other GMs do pass.
-# TODO(lovisolo): Define flag --skip and skip the "anisomips" GM.
-android_gm_test(
-    name = "gpu_gles_via_picture_serialization_android_test",
-    srcs = GPU_GMS,
-    flags = {
-        "include_decoder": [
-            "png_decode_codec",
-            "webp_decode_codec",
-        ],
-        "include_encoder": [
-            "png_encode_codec",  # Required by the "picture_serialization" via.
-        ],
-    },
-    requires_condition = "//src/gpu:gl_ganesh",
-    requires_resources_dir = True,
-    surface_config = "gles",
-    via = "picture_serialization",
-    deps = [":tests_base"],
-)
+# [
+#     # Sample invocation (assuming there's a Pixel 5 or similar device available via adb):
+#     #
+#     #     $ bazel test --config=linux_rbe //gm:cpu_8888_android_test --config=pixel_5
+#     #
+#     # Then inspect the PNG and JSON files produced by the GMs:
+#     #
+#     #     $ unzip -l bazel-testlogs/gm/cpu_8888_android_test/test.outputs/outputs.zip
+#     android_gm_test(
+#         name = "cpu_%s_android_test" % surface_config,
+#         srcs = CPU_GMS,
+#         flags = {
+#             "include_decoder": [
+#                 "gif_decode_codec",
+#                 "webp_decode_codec",
+#             ],
+#         },
+#         requires_resources_dir = True,
+#         surface_config = surface_config,
+#         deps = [":tests_base"],
+#     )
+#     for surface_config in [
+#         "8888",
+#         "565",
+#     ]
+# ]
 
-# Currently fails the "anisomips" GM with "Deserialized and reference bitmap pixels do not match".
-# Other GMs do pass.
-# TODO(lovisolo): Define flag --skip and skip the "anisomips" GM.
-android_gm_test(
-    name = "gpu_gles_via_picture_android_test",
-    srcs = GPU_GMS,
-    flags = {
-        "include_decoder": [
-            "png_decode_codec",
-            "webp_decode_codec",
-        ],
-        "include_encoder": [
-            "png_encode_codec",  # Required by the "picture" via.
-        ],
-    },
-    requires_condition = "//src/gpu:gl_ganesh",
-    requires_resources_dir = True,
-    surface_config = "gles",
-    via = "picture",
-    deps = [":tests_base"],
-)
+# android_gm_test(
+#     name = "gpu_gles_android_test",
+#     srcs = GPU_GMS,
+#     flags = {
+#         "include_decoder": [
+#             "png_decode_codec",
+#             "webp_decode_codec",
+#         ],
+#     },
+#     requires_condition = "//src/gpu:gl_ganesh",
+#     requires_resources_dir = True,
+#     surface_config = "gles",
+#     deps = [":tests_base"],
+# )
+
+# # Currently fails the "anisomips" GM with "Deserialized and reference bitmap pixels do not match".
+# # Other GMs do pass.
+# # TODO(lovisolo): Define flag --skip and skip the "anisomips" GM.
+# android_gm_test(
+#     name = "gpu_gles_via_picture_serialization_android_test",
+#     srcs = GPU_GMS,
+#     flags = {
+#         "include_decoder": [
+#             "png_decode_codec",
+#             "webp_decode_codec",
+#         ],
+#         "include_encoder": [
+#             "png_encode_codec",  # Required by the "picture_serialization" via.
+#         ],
+#     },
+#     requires_condition = "//src/gpu:gl_ganesh",
+#     requires_resources_dir = True,
+#     surface_config = "gles",
+#     via = "picture_serialization",
+#     deps = [":tests_base"],
+# )
+
+# # Currently fails the "anisomips" GM with "Deserialized and reference bitmap pixels do not match".
+# # Other GMs do pass.
+# # TODO(lovisolo): Define flag --skip and skip the "anisomips" GM.
+# android_gm_test(
+#     name = "gpu_gles_via_picture_android_test",
+#     srcs = GPU_GMS,
+#     flags = {
+#         "include_decoder": [
+#             "png_decode_codec",
+#             "webp_decode_codec",
+#         ],
+#         "include_encoder": [
+#             "png_encode_codec",  # Required by the "picture" via.
+#         ],
+#     },
+#     requires_condition = "//src/gpu:gl_ganesh",
+#     requires_resources_dir = True,
+#     surface_config = "gles",
+#     via = "picture",
+#     deps = [":tests_base"],
+# )

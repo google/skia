@@ -192,12 +192,31 @@ android_benchmark_test(
     srcs = [
         "GradientBench.cpp",
         "TextBlobBench.cpp",
+        "//tools/testrunners/benchmark:BazelBenchmarkTestRunner.cpp",
     ],
-    extra_args = [
+    args = [
+        "--surfaceConfig",
+        "nonrendering",
         "--autoTuneLoops",
     ],
-    surface_config = "nonrendering",
-    deps = [":benchmarks_base"],
+    deps = [
+        "//:core",
+        "//:png_encode_codec",
+        "//bench:benchmark",
+        "//src/base",
+        "//src/utils:json",
+        "//tools:autorelease_pool",
+        "//tools:registry",
+        "//tools:resources",
+        "//tools:stats",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/fonts:font_tool_utils",
+        "//tools/testrunners/benchmark/target:raster",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/compilation_mode_keys",
+        "//tools/timer",
+    ],
 )
 
 android_benchmark_test(
@@ -205,23 +224,61 @@ android_benchmark_test(
     srcs = [
         "GradientBench.cpp",
         "TextBlobBench.cpp",
+        "//tools/testrunners/benchmark:BazelBenchmarkTestRunner.cpp",
     ],
-    extra_args = [
+    args = [
+        "--surfaceConfig",
+        "8888",
         "--autoTuneLoops",
     ],
-    surface_config = "8888",
-    deps = [":benchmarks_base"],
+    deps = [
+        "//:core",
+        "//:png_encode_codec",
+        "//bench:benchmark",
+        "//src/base",
+        "//src/utils:json",
+        "//tools:autorelease_pool",
+        "//tools:registry",
+        "//tools:resources",
+        "//tools:stats",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/fonts:font_tool_utils",
+        "//tools/testrunners/benchmark/target:raster",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/compilation_mode_keys",
+        "//tools/timer",
+    ],
 )
 
 android_benchmark_test(
-    name = "gpu_gles_android_test",
+    name = "ganesh_gles_android_test",
     srcs = [
         "GradientBench.cpp",
         "TextBlobBench.cpp",
+        "//tools/testrunners/benchmark:BazelBenchmarkTestRunner.cpp",
     ],
-    extra_args = [
+    args = [
+        "--surfaceConfig",
+        "gles",
         "--autoTuneLoops",
     ],
-    surface_config = "gles",
-    deps = [":benchmarks_base"],
+    deps = [
+        "//:core",
+        "//:png_encode_codec",
+        "//bench:benchmark",
+        "//src/base",
+        "//src/utils:json",
+        "//tools:autorelease_pool",
+        "//tools:registry",
+        "//tools:resources",
+        "//tools:stats",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/fonts:font_tool_utils",
+        "//tools/testrunners/benchmark/target:ganesh_gl",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/compilation_mode_keys",
+        "//tools/timer",
+    ],
 )

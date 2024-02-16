@@ -1,32 +1,25 @@
 """This module defines the android_test macro."""
 
-load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
+load("//bazel:skia_rules.bzl", "skia_cc_binary")
 load("//tools/testrunners/common:binary_wrapper_script_with_cmdline_flags.bzl", "binary_wrapper_script_with_cmdline_flags")
 load("//tools/testrunners/common/android:adb_test.bzl", "adb_test")
 
 def android_test(
         name,
         srcs,
-        test_runner_if_required_condition_is_satisfied,
-        test_runner_if_required_condition_is_not_satisfied,
         deps = [],
-        flags = {},
         extra_args = [],
         benchmark = False,
-        requires_condition = "//bazel/common_config_settings:always_true",
         requires_resources_dir = False,
         save_output_files = False):
     """Defines an Android test.
 
     Note: This macro is not intended to be used directly in BUILD files. Instead, please use macros
-    android_unit_test, android_gm_test, etc.
+    android_unit_test, android_gm_test, android_benchmark_test, etc.
 
     This macro compiles one or more C++ tests into a single Android binary and produces a script
     that runs the test on an attached Android device via `adb`. This macro is compatible with unit,
-    GM and perf tests.
-
-    This macro requires a device-specific Android platform such as //bazel/platform:pixel_5. This is
-    used to decide what device-specific set-up steps to apply, such as setting CPU/GPU frequencies.
+    GM and benchmark tests.
 
     The test target produced by this macro can be executed on a machine attached to an Android
     device. This can be either via USB, or by port-forwarding a remote ADB server (TCP port 5037)
@@ -61,34 +54,12 @@ def android_test(
 
     Args:
         name: The name of the test.
-        srcs: A list of C++ source files. This list should not include a main() function (see the
-            requires_condition argument).
-        test_runner_if_required_condition_is_satisfied: A C++ source file with a main() function to
-            be appended to the srcs attribute if requires_condition is satisfied. The resulting
-            program should return exit code 0 if all tests pass, or a non-zero exit code in the
-            case of failures. See the requires_condition argument.
-        test_runner_if_required_condition_is_not_satisfied: A C++ source file with a main()
-            function to be appended to the srcs attribute if requires_condition is *not* satisfied.
-            The main() function in this source file should do nothing, and the resulting program
-            should always return exit code 0 to indicate that the test was successful. See the
-            requires_condition argument.
-        deps: Any dependencies needed by the srcs. This list should not include a main() function
-            (see the requires_condition argument).
-        flags: A map of strings to lists of strings to specify features that must be compiled in
-            for these tests to work. For example, tests targeting our codec logic will want the
-            various codecs included, but most tests won't need that.
+        srcs: A list of C++ source files.
+        deps: Any dependencies needed by the srcs.
         extra_args: Additional command-line arguments to pass to the test, for example, any
             device-specific --skip flags to skip incompatible or buggy test cases.
         benchmark: Set up the device for benchmark tests. This might affect e.g. CPU and GPU
             settings specific to the Android device under test.
-        requires_condition: A necessary condition for the test to work. For example, Ganesh tests
-            should set this argument to "//src/gpu:has_ganesh_backend". If the condition is
-            satisfied, test_runner_if_required_condition_is_satisfied will be appended to the deps
-            attribute.
-            If the condition is not satisfied, test_runner_if_required_condition_is_not_satisfied
-            will be included as the only source file, and no deps will be included. This prevents
-            spurious build failures when using wildcard expressions (e.g.
-            "bazel build //tests/...") with a configuration that is incompatible with this test.
         requires_resources_dir: If set, the contents of the //resources directory will be included
             in the tarball that is pushed to the device via `adb push`, and the test binary will be
             invoked with flag --resourcePath set to the path to said directory.
@@ -96,22 +67,14 @@ def android_test(
             in the case of GM tests) as undeclared outputs (see documentation for the
             TEST_UNDECLARED_OUTPUTS_DIR environment variable at
             https://bazel.build/reference/test-encyclopedia#initial-conditions).
-
     """
 
     test_binary = "%s_binary" % name
 
-    cc_binary_with_flags(
+    skia_cc_binary(
         name = test_binary,
-        srcs = select({
-            requires_condition: srcs,
-            "//conditions:default": [],
-        }),
-        deps = select({
-            requires_condition: [test_runner_if_required_condition_is_satisfied] + deps,
-            "//conditions:default": [test_runner_if_required_condition_is_not_satisfied],
-        }),
-        set_flags = flags,
+        srcs = srcs,
+        deps = deps,
         testonly = True,  # Needed to gain access to test-only files.
     )
 

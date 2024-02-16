@@ -130,6 +130,12 @@ static GrGLFuncPtr egl_get_gl_proc(void* ctx, const char name[]) {
     return eglGetProcAddress(name);
 }
 
-sk_sp<const GrGLInterface> GrGLMakeEGLInterface() {
+namespace GrGLInterfaces {
+sk_sp<const GrGLInterface> MakeEGL() {
     return GrGLMakeAssembledInterface(nullptr, egl_get_gl_proc);
 }
+}  // namespace GrGLInterfaces
+
+#if !defined(SK_DISABLE_LEGACY_GLXINTERFACE_FACTORY)
+sk_sp<const GrGLInterface> GrGLMakeEGLInterface() { return GrGLInterfaces::MakeEGL(); }
+#endif
