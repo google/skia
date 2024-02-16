@@ -40,14 +40,15 @@ def write_header(filename, workarounds):
     # length of max string passed to write + 1
     max_len = len(indent) + len(macro) + 1 + max_workaround_len + 1 + 1
     write = lambda line: f.write(line + ' ' * (max_len - len(line)) + '\\\n')
-
+    f.write('#ifndef GPU_DRIVER_BUG_WORKAROUNDS\n')
     write('#define GPU_DRIVER_BUG_WORKAROUNDS(GPU_OP)')
     for w in workarounds:
       write(indent + macro + '(' + w.upper() + ',')
       write(indent + ' ' * (len(macro) + 1) + w + ')')
 
-    # one extra line to put 'The End' comment.
-    f.write('// The End\n')
+    # one extra line for the last escaped newline to handle.
+    f.write('\n')
+    f.write('#endif  // GPU_DRIVER_BUG_WORKAROUNDS\n')
 
 
 def main(argv):

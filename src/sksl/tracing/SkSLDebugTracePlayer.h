@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef SkSLDebugTracePlayer_DEFINED
+#define SkSLDebugTracePlayer_DEFINED
 
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 
@@ -138,3 +140,5 @@ private:
 }  // namespace SkSL
 
 #endif  // SKSL_ENABLE_TRACING
+
+#endif  // SkSLPoison_DEFINED

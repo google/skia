@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef SkSLEmptyExpression_DEFINED
+#define SkSLEmptyExpression_DEFINED
 
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -45,3 +47,5 @@ private:
 };
 
 } // namespace SkSL
+
+#endif  // SkSLEmptyExpression_DEFINED
