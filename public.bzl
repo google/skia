@@ -1851,7 +1851,6 @@ CODEC_SRCS_LIMITED = [
     "src/codec/SkWbmpCodec.cpp",
     "src/codec/SkWbmpCodec.h",
     "src/codec/SkWuffsCodec.cpp",
-    "src/codec/SkWuffsCodec.h",
 ]
 
 CODEC_SRCS_ALL = CODEC_SRCS_LIMITED + [
