@@ -179,7 +179,7 @@ private:
     void commitRunInfo() override {}
     Buffer runBuffer(const RunInfo& ri) override;
     void commitRunBuffer(const RunInfo& ri) override;
-    void commitLine() override {}
+    void commitLine() override;
 
     // http://www.w3.org/TR/SVG11/text.html#TextLayout
     const SkSVGRenderContext&       fRenderContext; // original render context

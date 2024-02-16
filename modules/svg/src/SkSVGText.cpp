@@ -471,9 +471,14 @@ void SkSVGTextContext::commitRunBuffer(const RunInfo& ri) {
         current_run.glyhPosAdjust[i] = fShapeBuffer.fUtf8PosAdjust[SkToInt(utf8_index)];
     }
 
-    // Offset adjustments are cumulative - we only need to advance the current chunk
-    // with the last value.
-    fChunkAdvance += ri.fAdvance + fShapeBuffer.fUtf8PosAdjust.back().offset;
+    fChunkAdvance += ri.fAdvance;
+}
+
+void SkSVGTextContext::commitLine() {
+    if (!fShapeBuffer.fUtf8PosAdjust.empty()) {
+        // Offset adjustments are cumulative - only advance the current chunk with the last value.
+        fChunkAdvance += fShapeBuffer.fUtf8PosAdjust.back().offset;
+    }
 }
 
 void SkSVGTextFragment::renderText(const SkSVGRenderContext& ctx, SkSVGTextContext* tctx,
