@@ -1416,9 +1416,21 @@ std::optional<SlotRange> Generator::writeFunction(
                 continue;
             }
 
+            // If a parameter is never read by the function, we don't need to populate its slots.
+            ProgramUsage::VariableCounts paramCounts = fProgram.fUsage->get(param);
+            if (paramCounts.fRead == 0) {
+                // Honor the expression's side effects, if any.
+                if (Analysis::HasSideEffects(arg)) {
+                    if (!this->pushExpression(arg, /*usesResult=*/false)) {
+                        return std::nullopt;
+                    }
+                    this->discardExpression(arg.type().slotCount());
+                }
+                continue;
+            }
+
             // If the expression is a plain variable and the parameter is never written to, we don't
             // need to copy it; we can just share the slots from the existing variable.
-            ProgramUsage::VariableCounts paramCounts = fProgram.fUsage->get(param);
             if (paramCounts.fWrite == 0 && arg.is<VariableReference>()) {
                 const Variable& var = *arg.as<VariableReference>().variable();
                 if (this->hasVariableSlots(var)) {

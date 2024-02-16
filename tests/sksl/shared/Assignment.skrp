@@ -1,4 +1,4 @@
-92 instructions
+91 instructions
 
 [immutable slots]
 i0 = 0x00000001 (1.401298e-45)
@@ -65,7 +65,6 @@ splat_2_constants              $0..1 = 0x40A00000 (5.0)
 swizzle_copy_2_slots_masked    (s.ah4[2]).yw = Mask($0..1)
 splat_4_constants              globalVar = 0
 copy_constant                  globalStruct.f = 0
-copy_constant                  x₁ = 0
 copy_slot_unmasked             y = f3x3(0)
 copy_constant                  x₁ = 0x00000001 (1.401298e-45)
 copy_constant                  y = 0x3F800000 (1.0)
