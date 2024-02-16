@@ -21,7 +21,6 @@ namespace SkOpts {
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
 
     void Init_BitmapProcState_ssse3();
-    void Init_BitmapProcState_hsw();
 
     static bool init() {
     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
@@ -29,10 +28,6 @@ namespace SkOpts {
     #elif defined(SK_CPU_X86)
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_SSSE3
             if (SkCpu::Supports(SkCpu::SSSE3)) { Init_BitmapProcState_ssse3(); }
-        #endif
-
-        #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
-            if (SkCpu::Supports(SkCpu::HSW)) { Init_BitmapProcState_hsw();   }
         #endif
     #endif
       return true;

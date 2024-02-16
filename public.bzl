@@ -383,7 +383,6 @@ BASE_SRCS_ALL = [
     "src/core/SkBitmapDevice.h",
     "src/core/SkBitmapProcState.h",  # needed for src/opts/SkBitmapProcState_opts.h
     "src/core/SkBitmapProcState_opts.cpp",
-    "src/core/SkBitmapProcState_opts_hsw.cpp",
     "src/core/SkBitmapProcState_opts_ssse3.cpp",
     "src/core/SkBlendMode.cpp",
     "src/core/SkBlendModeBlender.cpp",
