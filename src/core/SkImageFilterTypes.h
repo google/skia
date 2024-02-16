@@ -695,7 +695,14 @@ public:
             : FilterResult(std::move(image), LayerSpace<SkIPoint>({0, 0})) {}
 
     FilterResult(sk_sp<SkSpecialImage> image, const LayerSpace<SkIPoint>& origin)
-            : FilterResult(std::move(image), origin, PixelBoundary::kUnknown) {}
+            : fImage(std::move(image))
+            , fSamplingOptions(kDefaultSampling)
+            , fTileMode(SkTileMode::kDecal)
+            , fTransform(SkMatrix::Translate(origin.x(), origin.y()))
+            , fColorFilter(nullptr)
+            , fLayerBounds(
+                    fTransform.mapRect(LayerSpace<SkIRect>(fImage ? fImage->dimensions()
+                                                                  : SkISize{0, 0}))) {}
 
     // Renders the 'pic', clipped by 'cullRect', into an optimally sized surface (depending on
     // picture bounds and 'ctx's desired output). The picture is transformed by the context's
@@ -805,25 +812,6 @@ private:
 
     class AutoSurface;
 
-    enum class PixelBoundary : int {
-        kUnknown,     // Pixels outside the image subset are of unknown value, possibly unitialized
-        kTransparent, // Pixels bordering the image subset are transparent black
-        kInitialized, // Pixels bordering the image are known to be initialized
-    };
-
-    FilterResult(sk_sp<SkSpecialImage> image,
-                 const LayerSpace<SkIPoint>& origin,
-                 PixelBoundary boundary)
-            : fImage(std::move(image))
-            , fBoundary(boundary)
-            , fSamplingOptions(kDefaultSampling)
-            , fTileMode(SkTileMode::kDecal)
-            , fTransform(SkMatrix::Translate(origin.x(), origin.y()))
-            , fColorFilter(nullptr)
-            , fLayerBounds(
-                    fTransform.mapRect(LayerSpace<SkIRect>(fImage ? fImage->dimensions()
-                                                                  : SkISize{0, 0}))) {}
-
     // Renders this FilterResult into a new, but visually equivalent, image that fills 'dstBounds',
     // has default sampling, no color filter, and a transform that translates by only 'dstBounds's
     // top-left corner. 'dstBounds' is intersected with 'fLayerBounds' unless 'preserveDstBounds'
@@ -883,15 +871,6 @@ private:
         return this->analyzeBounds(SkMatrix::I(), SkIRect(dstBounds), scope);
     }
 
-    // If true, the tile mode can be changed to kClamp to sample the transparent black pixels in
-    // the boundary. This will be visually equivalent to the decal tiling or anti-aliasing of a
-    // drawn image.
-    bool canClampToTransparentBoundary(SkEnumBitMask<BoundsAnalysis> analysis) const {
-        return fTileMode == SkTileMode::kDecal &&
-               fBoundary == PixelBoundary::kTransparent &&
-               !(analysis & BoundsAnalysis::kRequiresDecalInLayerSpace);
-    }
-
     // Return an equivalent FilterResult such that its backing image dimensions have been reduced
     // by the X and Y scale factors in 'scale' (assumed to be in [0, 1]). The returned FilterResult
     // will have a transform that aligns it with the original FilterResult (i.e. a deferred upscale)
@@ -948,8 +927,6 @@ private:
     // respecting 'fTileMode' (on the SkSpecialImage's subset), transformed by 'fTransform',
     // filtered by 'fColorFilter', and then clipped to 'fLayerBounds'.
     sk_sp<SkSpecialImage> fImage;
-    PixelBoundary         fBoundary;
-
     SkSamplingOptions     fSamplingOptions;
     SkTileMode            fTileMode;
     // Typically this will be an integer translation that encodes the origin of the top left corner,
