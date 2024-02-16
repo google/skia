@@ -35,7 +35,7 @@ void BenchmarkTarget::tearDown() const { fBenchmark->perCanvasPostDraw(getCanvas
 
 SkCanvas* BenchmarkTarget::getCanvas() const {
     if (!fSurfaceManager || !fSurfaceManager->getSurface()) {
-        return nullptr;
+        return nullptr;  // The NonRenderingBenchmarkTarget has a null SurfaceManager.
     }
     return fSurfaceManager->getSurface()->getCanvas();
 }
@@ -44,10 +44,12 @@ Benchmark* BenchmarkTarget::getBenchmark() const { return fBenchmark; }
 
 std::map<std::string, std::string> BenchmarkTarget::getKeyValuePairs(std::string cpuName,
                                                                      std::string gpuName) const {
+    SkASSERT_RELEASE(fSurfaceManager);
     return fSurfaceManager->getPerfKeyValuePairs(cpuName, gpuName);
 }
 
 SurfaceManager::CpuOrGpu BenchmarkTarget::isCpuOrGpuBound() const {
+    SkASSERT_RELEASE(fSurfaceManager);
     return fSurfaceManager->isCpuOrGpuBound();
 }
 

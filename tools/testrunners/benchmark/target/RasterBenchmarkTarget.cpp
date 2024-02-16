@@ -16,7 +16,7 @@ static DEFINE_int(maxCalibrationAttempts,
                   "benchmark.");
 static DEFINE_double(overheadGoal,
                      0.0001,
-                     "Loop until timer overhead is at most this fraction of our measurments.");
+                     "Loop until timer overhead is at most this fraction of our measurements.");
 static DEFINE_int(overheadLoops, 100000, "Loops to estimate timer overhead.");
 
 // Defined in BazelBenchmarkTestRunner.cpp.
@@ -87,6 +87,21 @@ public:
     NonRenderingBenchmarkTarget(Benchmark* benchmark) : RasterBenchmarkTarget(nullptr, benchmark) {}
 
     Benchmark::Backend getBackend() const override { return Benchmark::Backend::kNonRendering; }
+
+    SurfaceManager::CpuOrGpu isCpuOrGpuBound() const override {
+        return SurfaceManager::CpuOrGpu::kCPU;
+    }
+
+    std::map<std::string, std::string> getKeyValuePairs(std::string cpuName,
+                                                        std::string gpuName) const override {
+        if (cpuName == "") {
+            return std::map<std::string, std::string>();
+        }
+        return {
+                {"cpu_or_gpu", "CPU"},
+                {"cpu_or_gpu_value", cpuName},
+        };
+    }
 };
 
 std::unique_ptr<BenchmarkTarget> BenchmarkTarget::FromConfig(std::string surfaceConfig,

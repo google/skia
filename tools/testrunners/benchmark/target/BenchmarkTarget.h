@@ -66,11 +66,11 @@ public:
     // Returns the subset of Perf key/value pairs that are determined by the surface config. The
     // returned map includes keys "cpu_or_gpu" and "cpu_or_gpu_value", which are populated based
     // on the cpuName and gpuName arguments, and whether the surface config is CPU or GPU bound.
-    std::map<std::string, std::string> getKeyValuePairs(std::string cpuName,
-                                                        std::string gpuName) const;
+    virtual std::map<std::string, std::string> getKeyValuePairs(std::string cpuName,
+                                                                std::string gpuName) const;
 
     // Returns an enum indicating whether the surface is CPU or GPU bound.
-    SurfaceManager::CpuOrGpu isCpuOrGpuBound() const;
+    virtual SurfaceManager::CpuOrGpu isCpuOrGpuBound() const;
 
 protected:
     BenchmarkTarget(std::unique_ptr<SurfaceManager> surfaceManager, Benchmark* benchmark)
