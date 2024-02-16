@@ -102,7 +102,7 @@ protected:
 
     void commonAsAGradient(GradientInfo*) const;
 
-    bool onAsLuminanceColor(SkColor*) const override;
+    bool onAsLuminanceColor(SkColor4f*) const override;
 
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 

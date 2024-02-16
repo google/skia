@@ -44,8 +44,8 @@ private:
 
     void flatten(SkWriteBuffer&) const override;
 
-    bool onAsLuminanceColor(SkColor* lum) const override {
-        *lum = fColor;
+    bool onAsLuminanceColor(SkColor4f* lum) const override {
+        *lum = SkColor4f::FromColor(fColor);
         return true;
     }
 
@@ -71,7 +71,7 @@ private:
     SK_FLATTENABLE_HOOKS(SkColor4Shader)
 
     void flatten(SkWriteBuffer&) const override;
-    bool onAsLuminanceColor(SkColor* lum) const override;
+    bool onAsLuminanceColor(SkColor4f* lum) const override;
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
     sk_sp<SkColorSpace> fColorSpace;

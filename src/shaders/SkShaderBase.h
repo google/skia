@@ -343,7 +343,7 @@ public:
      *  Note: if this returns true, the returned color will always be opaque, as only the RGB
      *  components are used to compute luminance.
      */
-    bool asLuminanceColor(SkColor*) const;
+    bool asLuminanceColor(SkColor4f*) const;
 
     /**
      * If this returns false, then we draw nothing (do not fall back to shader context). This should
@@ -403,7 +403,7 @@ protected:
     }
 #endif
 
-    virtual bool onAsLuminanceColor(SkColor*) const {
+    virtual bool onAsLuminanceColor(SkColor4f*) const {
         return false;
     }
 

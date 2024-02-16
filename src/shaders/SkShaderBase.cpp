@@ -85,13 +85,13 @@ SkShaderBase::~SkShaderBase() = default;
 
 void SkShaderBase::flatten(SkWriteBuffer& buffer) const { this->INHERITED::flatten(buffer); }
 
-bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
-    SkColor storage;
+bool SkShaderBase::asLuminanceColor(SkColor4f* colorPtr) const {
+    SkColor4f storage;
     if (nullptr == colorPtr) {
         colorPtr = &storage;
     }
     if (this->onAsLuminanceColor(colorPtr)) {
-        *colorPtr = SkColorSetA(*colorPtr, 0xFF);  // we only return opaque
+        colorPtr->fA = 1.0f;  // we only return opaque
         return true;
     }
     return false;
