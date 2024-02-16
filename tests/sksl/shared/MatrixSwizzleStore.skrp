@@ -20,7 +20,7 @@ label                          label 0x00000001
 copy_slot_unmasked             $33 = _2_index
 mul_imm_int                    $33 *= 0x00000003
 copy_3_slots_unmasked          $0..2 = _1_values
-swizzle_1                      $1 = ($1..2).y
+copy_slot_unmasked             $1 = $2
 swizzle_copy_to_indirect_maske Indirect(_0_matrix(0..2) + $33).zx = Mask($0..1)
 copy_slot_unmasked             $33 = _2_index
 mul_imm_int                    $33 *= 0x00000003
@@ -62,7 +62,7 @@ label                          label 0x00000006
 copy_slot_unmasked             $52 = index
 mul_imm_int                    $52 *= 0x00000004
 copy_4_slots_unmasked          $1..4 = values
-swizzle_1                      $2 = ($2..4).z
+copy_slot_unmasked             $2 = $4
 swizzle_copy_to_indirect_maske Indirect(matrix(0..3) + $52).wx = Mask($1..2)
 copy_slot_unmasked             $52 = index
 mul_imm_int                    $52 *= 0x00000004

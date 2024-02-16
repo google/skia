@@ -29,7 +29,7 @@ copy_slot_unmasked             $1 = _1_num
 add_imm_float                  $1 += 0x3F800000 (1.0)
 copy_slot_masked               _1_num = Mask($1)
 copy_constant                  $2 = 0
-swizzle_1                      $1 = ($1..2).y
+copy_slot_unmasked             $1 = $2
 cmpeq_imm_float                $1 = equal($1, 0)
 copy_slot_masked               $0 = Mask($1)
 label                          label 0
@@ -146,7 +146,7 @@ copy_slot_unmasked             $3 = _1_num
 add_imm_float                  $3 += 0x3F800000 (1.0)
 copy_slot_masked               _1_num = Mask($3)
 copy_constant                  $4 = 0x3F800000 (1.0)
-swizzle_1                      $1 = ($1..4).w
+copy_slot_unmasked             $1 = $4
 cmpeq_imm_float                $1 = equal($1, 0x3F800000 (1.0))
 copy_slot_masked               $0 = Mask($1)
 label                          label 0x00000007

@@ -1166,7 +1166,7 @@ void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> components) {
         --numElements;
     }
 
-    // A completely empty swizzle is a no-op.
+    // A completely empty swizzle is a discard.
     if (numElements == 0) {
         this->discard_stack(consumedSlots);
         return;
@@ -2010,7 +2010,21 @@ void Program::makeStages(TArray<Stage>* pipeline,
                 pipeline->push_back({(ProgramOp)inst.fOp, dst});
                 break;
             }
-            case BuilderOp::swizzle_1:
+            case BuilderOp::swizzle_1: {
+                // A single-component swizzle just copies a slot and shrinks the stack; we can
+                // slightly improve codegen by making that simplification here.
+                int offset = inst.fImmB;
+                SkASSERT(offset >= 0 && offset <= 15);
+                float* dst = tempStackPtr - (inst.fImmA * N);
+                float* src = dst + (offset * N);
+                if (src != dst) {
+                    this->appendCopySlotsUnmasked(pipeline, alloc,
+                                                  OffsetFromBase(dst),
+                                                  OffsetFromBase(src),
+                                                  /*numSlots=*/1);
+                }
+                break;
+            }
             case BuilderOp::swizzle_2:
             case BuilderOp::swizzle_3:
             case BuilderOp::swizzle_4: {

@@ -27,7 +27,7 @@ cast_to_int_from_float         $1 = FloatToInt($1)
 copy_slot_unmasked             a = $1
 trace_var                      TraceVar(a) when $13 is true
 copy_2_uniforms                $1..2 = testMatrix2x2(0..1)
-swizzle_1                      $1 = ($1..2).y
+copy_slot_unmasked             $1 = $2
 cast_to_int_from_float         $1 = FloatToInt($1)
 copy_slot_unmasked             b = $1
 trace_var                      TraceVar(b) when $13 is true
@@ -35,7 +35,7 @@ trace_line                     TraceLine(11) when $13 is true
 copy_uniform                   c = testMatrix2x2(2)
 trace_var                      TraceVar(c) when $13 is true
 copy_2_uniforms                $1..2 = testMatrix2x2(2..3)
-swizzle_1                      $1 = ($1..2).y
+copy_slot_unmasked             $1 = $2
 copy_slot_unmasked             d = $1
 trace_var                      TraceVar(d) when $13 is true
 trace_line                     TraceLine(13) when $13 is true

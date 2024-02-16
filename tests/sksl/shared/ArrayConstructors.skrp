@@ -26,10 +26,10 @@ store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  $0 = 0x40800000 (4.0)
 copy_2_immutables_unmasked     $1..2 = i2..3 [0x40400000 (3.0), 0x40800000 (4.0)]
-swizzle_1                      $1 = ($1..2).y
+copy_slot_unmasked             $1 = $2
 add_float                      $0 += $1
 copy_4_immutables_unmasked     $1..4 = i16..19 [0, 0, 0, 0x41800000 (16.0)]
-swizzle_1                      $1 = ($1..4).w
+copy_slot_unmasked             $1 = $4
 add_float                      $0 += $1
 cmpeq_imm_float                $0 = equal($0, 0x41C00000 (24.0))
 swizzle_4                      $0..3 = ($0..3).xxxx

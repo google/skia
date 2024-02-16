@@ -512,7 +512,7 @@ copy_2_slots_unmasked          $1..2 = p
 exchange_src                   swap(src.rgba, $1..4)
 invoke_shader                  invoke_shader 0
 exchange_src                   swap(src.rgba, $1..4)
-swizzle_1                      $1 = ($1..4).w
+copy_slot_unmasked             $1 = $4
 cmplt_float                    $0 = lessThan($0, $1)
 bitwise_and_imm_int            $0 &= 0x3F800000
 jump                           jump +3 (label 19 at #510)
