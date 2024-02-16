@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/gl/glx/GrGLMakeGLXInterface.h"
 #include "include/private/base/SkOnce.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
@@ -239,8 +240,8 @@ GLXGLTestContext::GLXGLTestContext(GrGLStandard forcedGpuAPI, GLXGLTestContext* 
         return;
     }
 
-#ifdef SK_GL
-    auto gl = GrGLMakeNativeInterface();
+#if defined(SK_GL)
+    auto gl = GrGLInterfaces::MakeGLX();
     if (!gl) {
         SkDebugf("Failed to create gl interface");
         this->destroyGLContext();

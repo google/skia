@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
 
 licenses(["notice"])
 
@@ -18,7 +18,6 @@ skia_filegroup(
         "//gm:__pkg__",
         "//modules/skottie:__pkg__",
         "//tests:__subpackages__",
-        "//tools:__pkg__",
         "//tools:__subpackages__",
     ],
 )
@@ -36,5 +35,25 @@ skia_filegroup(
     visibility = [
         "//gm:__pkg__",
         "//tools:__subpackages__",
+    ],
+)
+
+skia_cc_library(
+    name = "cmd_flags",
+    testonly = True,
+    srcs = [
+        "CommandLineFlags.cpp",
+    ],
+    hdrs = [
+        "CommandLineFlags.h",
+    ],
+    visibility = [
+        "//bench:__pkg__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
     ],
 )

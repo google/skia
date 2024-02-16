@@ -68,11 +68,10 @@ def select_multi(values_map, default_cases = None):
     return rv
 
 def skia_cc_binary(name, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **kwargs):
-    """A wrapper around cc_library for Skia C++ executables (e.g. tests).
+    """A wrapper around cc_library for Skia C++ executables (e.g. tools).
 
     This lets us provide compiler flags (copts) and global linker flags (linkopts) consistently
-    to Skia built executables. These executables are almost always things like unit tests and
-    dev tools.
+    to Skia built executables. These executables are almost always things like dev tools.
 
     Args:
         name: the name of the underlying executable.
@@ -84,6 +83,23 @@ def skia_cc_binary(name, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **k
         **kwargs: All the normal arguments that cc_binary takes.
     """
     native.cc_binary(name = name, copts = copts, linkopts = linkopts, **kwargs)
+
+def skia_cc_test(name, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **kwargs):
+    """A wrapper around cc_test for Skia C++ executables (e.g. tests).
+
+    This lets us provide compiler flags (copts) and global linker flags (linkopts) consistently
+    to Skia built executables, that is, tests.
+
+    Args:
+        name: the name of the underlying executable.
+        copts: Flags which should be passed to the C++ compiler. By default, we use DEFAULT_COPTS
+            from @skia_user_config//:copts.bzl.
+        linkopts: Global flags which should be passed to the C++ linker. By default, we use
+            DEFAULT_LINKOPTS from  @skia_user_config//:linkopts.bzl. Other linker flags will be
+            passed in via deps (see deps_and_linkopts below).
+        **kwargs: All the normal arguments that cc_binary takes.
+    """
+    native.cc_test(name = name, copts = copts, linkopts = linkopts, **kwargs)
 
 def skia_cc_binary_with_flags(
         name,

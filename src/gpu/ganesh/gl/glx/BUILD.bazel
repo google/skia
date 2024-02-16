@@ -10,7 +10,10 @@ skia_filegroup(
         "GrGLMakeGLXInterface.cpp",
         "GrGLMakeNativeInterface_glx.cpp",
     ],
-    visibility = ["//src/gpu/ganesh/gl:__pkg__"],
+    visibility = [
+        "//src/gpu/ganesh/gl:__pkg__",
+        "//tools/gpu/gl/glx:__pkg__",
+    ],
 )
 
 skia_cc_library(

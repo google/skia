@@ -1,5 +1,5 @@
 load("//bazel:flags.bzl", "selects")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -213,4 +213,23 @@ skia_filegroup(
         "SkShaderUtils.cpp",
     ],
     visibility = ["//src/gpu:__subpackages__"],
+)
+
+skia_cc_library(
+    name = "json",
+    srcs = [
+        "SkJSON.cpp",
+        "SkJSONWriter.cpp",
+    ],
+    hdrs = [
+        "SkJSON.h",
+        "SkJSONWriter.h",
+    ],
+    visibility = [
+        "//bench:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+    ],
 )

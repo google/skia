@@ -24,9 +24,9 @@ skia_cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",
-        "//tools:tool_utils",
+        "//tools:legacy_tool_utils",
         "//tools/skui",
-        "//tools/timer",
+        "//tools/timer:legacy_timer",
         "//tools/window",
     ] + select({
         "@platforms//os:linux": ["//tools/sk_app/unix:deps"],
@@ -73,7 +73,7 @@ skia_objc_library(
         ":platform_deps",
         "//:skia_internal",
         "//tools/skui",
-        "//tools/timer",
+        "//tools/timer:legacy_timer",
     ],
 )
 

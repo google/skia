@@ -2,7 +2,10 @@ load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
 
 licenses(["notice"])
 
-exports_files_legacy()
+exports_files_legacy(
+    label_list = ["BazelBenchmarkTestRunner.cpp"],
+    visibility = ["//bench:__pkg__"],
+)
 
 skia_cc_library(
     name = "testrunner",
@@ -17,13 +20,12 @@ skia_cc_library(
         "//:skia_internal",
         "//bench:benchmark",
         "//tools:autorelease_pool",
-        "//tools:proc_stats",
         "//tools:registry",
         "//tools:stats",
         "//tools:tool_utils",
         "//tools/testrunners/benchmark/target",
         "//tools/testrunners/common:testrunner",
         "//tools/testrunners/common/compilation_mode_keys",
-        "//tools/timer",
+        "//tools/timer:legacy_timer",
     ],
 )

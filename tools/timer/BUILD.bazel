@@ -5,7 +5,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_cc_library(
-    name = "timer",
+    name = "legacy_timer",
     srcs = [
         "TimeUtils.h",
         "Timer.cpp",
@@ -13,4 +13,20 @@ skia_cc_library(
     hdrs = ["Timer.h"],
     visibility = ["//:__subpackages__"],
     deps = ["//:skia_internal"],
+)
+
+skia_cc_library(
+    name = "timer",
+    srcs = [
+        "Timer.cpp",
+    ],
+    hdrs = [
+        "TimeUtils.h",
+        "Timer.h",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/base",
+    ],
 )

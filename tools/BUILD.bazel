@@ -15,7 +15,7 @@ exports_files_legacy(label_list = [
 ])
 
 skia_cc_library(
-    name = "tool_utils",
+    name = "legacy_tool_utils",
     testonly = True,
     srcs = [
         "EncodeUtils.cpp",
@@ -57,7 +57,7 @@ skia_cc_library(
         "//tools/testrunners/benchmark:__pkg__",
         "//tools/viewer:__pkg__",
     ],
-    deps = ["//:skia_internal"],
+    deps = ["//:core"],
 )
 
 skia_cc_library(
@@ -85,6 +85,7 @@ skia_cc_library(
     name = "autorelease_pool",
     hdrs = ["AutoreleasePool.h"],
     visibility = [
+        "//bench:__pkg__",
         "//tools/gpu:__pkg__",
         "//tools/testrunners/benchmark:__pkg__",
     ],
@@ -151,17 +152,59 @@ skia_cc_library(
 
 skia_cc_library(
     name = "stats",
-    hdrs = ["Stats.h"],
-    visibility = ["//tools/testrunners/benchmark:__pkg__"],
-    deps = ["//:skia_internal"],
+    srcs = ["ProcStats.cpp"],
+    hdrs = [
+        "ProcStats.h",
+        "Stats.h",
+    ],
+    visibility = [
+        "//bench:__pkg__",
+        "//tools/testrunners/benchmark:__pkg__",
+    ],
+    deps = ["//:core"],
 )
 
 skia_cc_library(
-    name = "proc_stats",
-    srcs = ["ProcStats.cpp"],
-    hdrs = ["ProcStats.h"],
-    visibility = ["//tools/testrunners/benchmark:__pkg__"],
-    deps = ["//:skia_internal"],
+    name = "tool_utils",
+    testonly = True,
+    srcs = [
+        "SkMetaData.cpp",
+        "ToolUtils.cpp",
+    ],
+    hdrs = [
+        "SkMetaData.h",
+        "ToolUtils.h",
+    ],
+    visibility = [
+        "//bench:__subpackages__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+    ],
+)
+
+skia_cc_library(
+    name = "resources",
+    testonly = True,
+    srcs = [
+        "Resources.cpp",
+    ],
+    hdrs = [
+        "Resources.h",
+    ],
+    visibility = [
+        "//bench:__subpackages__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//tools/flags:cmd_flags",
+    ],
 )
 
 # Regenerate workarounds with `bazel run //tools:generate_workarounds`

@@ -50,3 +50,32 @@ skia_cc_library(
     visibility = ["//tests:__pkg__"],
     deps = ["//:skia_internal"],
 )
+
+skia_cc_library(
+    name = "font_tool_utils",
+    testonly = True,
+    srcs = [
+        "FontToolUtils.cpp",
+        "TestFontMgr.cpp",
+        "TestFontMgr.h",
+        "TestTypeface.cpp",
+        "TestTypeface.h",
+    ],
+    hdrs = [
+        "FontToolUtils.h",
+    ],
+    textual_hdrs = [
+        "//tools/fonts:test_fonts",
+    ],
+    visibility = [
+        "//bench:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//tools:resources",
+        "//tools:tool_utils",
+    ],
+)

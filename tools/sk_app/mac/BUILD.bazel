@@ -37,6 +37,6 @@ skia_cc_deps(
     ],
     visibility = ["//tools/sk_app:__pkg__"],
     deps = [
-        "//tools:tool_utils",
+        "//tools:legacy_tool_utils",
     ],
 )

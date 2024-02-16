@@ -31,8 +31,8 @@ skia_cc_library(
     ],
     deps = [
         "//:skia_internal",
+        "//tools:legacy_tool_utils",
         "//tools:registry",
-        "//tools:tool_utils",
     ],
 )
 
@@ -45,7 +45,7 @@ skia_cc_library(
     ],
     deps = [
         ":gm",
-        "//tools/timer",  # Required by animatedimageblurs.cpp.
+        "//tools/timer:legacy_timer",  # Required by animatedimageblurs.cpp.
     ],
 )
 

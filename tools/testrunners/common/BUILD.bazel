@@ -18,9 +18,14 @@ skia_cc_library(
     testonly = True,
     srcs = [
         "TestRunner.cpp",
-        "//tools/flags",
     ],
     hdrs = ["TestRunner.h"],
-    visibility = ["//tools/testrunners:__subpackages__"],
-    deps = ["//:core"],
+    visibility = [
+        "//bench:__subpackages__",
+        "//tools/testrunners:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//tools/flags:cmd_flags",
+    ],
 )

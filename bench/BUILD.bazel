@@ -1,5 +1,11 @@
 load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
+load(
+    "//bazel:skia_rules.bzl",
+    "exports_files_legacy",
+    "skia_cc_library",
+    "skia_cc_test",
+    "skia_filegroup",
+)
 load("//tools/testrunners/benchmark:android_benchmark_test.bzl", "android_benchmark_test")
 
 licenses(["notice"])
@@ -18,7 +24,7 @@ skia_cc_library(
     hdrs = ["Benchmark.h"],
     visibility = ["//tools/testrunners/benchmark:__subpackages__"],
     deps = [
-        "//:skia_internal",
+        "//:core",
         "//tools:registry",
     ],
 )
@@ -33,42 +39,68 @@ skia_cc_library(
     ],
 )
 
-cc_test_with_flags(
+skia_cc_test(
     name = "cpu_nonrendering_test",
     srcs = [
         "GradientBench.cpp",
         "TextBlobBench.cpp",
+        "//tools/testrunners/benchmark:BazelBenchmarkTestRunner.cpp",
     ],
     args = [
         "--surfaceConfig",
         "nonrendering",
         "--autoTuneLoops",
     ],
-    set_flags = {
-        "include_encoder": [
-            "png_encode_codec",
-        ],
-    },
-    deps = [":benchmarks_base"],
+    deps = [
+        "//:core",
+        "//:png_encode_codec",
+        "//bench:benchmark",
+        "//src/base",
+        "//src/utils:json",
+        "//tools:autorelease_pool",
+        "//tools:registry",
+        "//tools:resources",
+        "//tools:stats",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/fonts:font_tool_utils",
+        "//tools/testrunners/benchmark/target:raster",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/compilation_mode_keys",
+        "//tools/timer",
+    ],
 )
 
-cc_test_with_flags(
+skia_cc_test(
     name = "cpu_8888_test",
     srcs = [
         "GradientBench.cpp",
         "TextBlobBench.cpp",
+        "//tools/testrunners/benchmark:BazelBenchmarkTestRunner.cpp",
     ],
     args = [
         "--surfaceConfig",
         "8888",
         "--autoTuneLoops",
     ],
-    set_flags = {
-        "include_encoder": [
-            "png_encode_codec",
-        ],
-    },
-    deps = [":benchmarks_base"],
+    deps = [
+        "//:core",
+        "//:png_encode_codec",
+        "//bench:benchmark",
+        "//src/base",
+        "//src/utils:json",
+        "//tools:autorelease_pool",
+        "//tools:registry",
+        "//tools:resources",
+        "//tools:stats",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/fonts:font_tool_utils",
+        "//tools/testrunners/benchmark/target:raster",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/compilation_mode_keys",
+        "//tools/timer",
+    ],
 )
 
 # Vulkan benchmarks.
@@ -123,23 +155,36 @@ cc_test_with_flags(
     ]
 ]
 
-cc_test_with_flags(
-    name = "gpu_gles_test",
+skia_cc_test(
+    name = "ganesh_gles_test",
     srcs = [
         "GradientBench.cpp",
         "TextBlobBench.cpp",
+        "//tools/testrunners/benchmark:BazelBenchmarkTestRunner.cpp",
     ],
     args = [
         "--surfaceConfig",
         "gles",
         "--autoTuneLoops",
     ],
-    set_flags = {
-        "include_encoder": [
-            "png_encode_codec",
-        ],
-    },
-    deps = [":benchmarks_base"],
+    deps = [
+        "//:core",
+        "//:png_encode_codec",
+        "//bench:benchmark",
+        "//src/base",
+        "//src/utils:json",
+        "//tools:autorelease_pool",
+        "//tools:registry",
+        "//tools:resources",
+        "//tools:stats",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/fonts:font_tool_utils",
+        "//tools/testrunners/benchmark/target:ganesh_gl",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/compilation_mode_keys",
+        "//tools/timer",
+    ],
 )
 
 android_benchmark_test(

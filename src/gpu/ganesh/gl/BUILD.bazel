@@ -138,7 +138,11 @@ skia_cc_library(
         "//include/gpu/ganesh/gl:public_hdrs",
         "//include/gpu/gl:ganesh_gl_hdrs",
     ],
-    defines = ["SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE"],
+    defines = [
+        "SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE",
+        "SK_GANESH",
+        "SK_GL",
+    ],
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = [
@@ -147,6 +151,39 @@ skia_cc_library(
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/ganesh",
+        "//src/sksl/codegen:glsl",
+    ],
+)
+
+skia_cc_library(
+    name = "ganesh_gl_TEST_UTIL",
+    testonly = True,
+    srcs = [
+        ":core_hdrs",
+        ":core_srcs",
+        "//src/gpu/ganesh/gl/builders:private_hdrs",
+        "//src/gpu/ganesh/gl/builders:srcs",
+    ],
+    hdrs = [
+        "//include/gpu:ganesh_hdrs",
+        "//include/gpu/ganesh:ganesh_hdrs",
+        "//include/gpu/ganesh/gl:public_hdrs",
+        "//include/gpu/gl:ganesh_gl_hdrs",
+    ],
+    defines = [
+        "SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE",
+        "GR_TEST_UTILS",
+        "SK_GANESH",
+        "SK_GL",
+    ],
+    features = ["layering_check"],
+    visibility = ["//tools:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu",
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/sksl/codegen:glsl",
     ],
 )

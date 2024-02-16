@@ -16,9 +16,43 @@ skia_cc_library(
     visibility = ["//tools/testrunners:__subpackages__"],
     deps = [
         "//:skia_internal",
-        "//tools:tool_utils",
+        "//tools:legacy_tool_utils",
     ] + select({
         "//src/gpu:has_ganesh_backend": ["//tools/gpu:utils"],
         "//conditions:default": [],
     }),
+)
+
+skia_cc_library(
+    name = "raster",
+    testonly = True,
+    srcs = [
+        "RasterSurfaceManager.cpp",
+        "SurfaceManager.cpp",
+    ],
+    hdrs = ["SurfaceManager.h"],
+    visibility = ["//tools/testrunners:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//tools:tool_utils",
+    ],
+)
+
+skia_cc_library(
+    name = "ganesh_gl",
+    testonly = True,
+    srcs = [
+        "GaneshGLSurfaceManager.cpp",
+        "SurfaceManager.cpp",
+    ],
+    hdrs = ["SurfaceManager.h"],
+    visibility = ["//tools/testrunners:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//tools:tool_utils",
+        "//tools/gpu:ganesh_gl_utils",
+    ],
 )
