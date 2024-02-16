@@ -71,7 +71,7 @@ public:
         fSurfaceManager->getSurface().reset();
     }
 
-    Benchmark::Backend getBackend() const override { return Benchmark::kGPU_Backend; }
+    Benchmark::Backend getBackend() const override { return Benchmark::Backend::kGanesh; }
 
     // TODO(lovisolo): Do we still need this?
     void setup() const override {
