@@ -27,6 +27,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -152,3 +153,24 @@ private:
 
 DEF_GM(return new ImageFiltersClippedGM;)
 }  // namespace skiagm
+
+DEF_SIMPLE_GM(imagefilter_convolve_subset, canvas, 160, 180) {
+    sk_sp<SkImage> reference = ToolUtils::GetResourceAsImage("images/filter_reference.png");
+    SkRect crop = SkRect::Make(reference->dimensions()).makeInset(10, 10);
+    auto drawFilteredImage = [&](sk_sp<SkImageFilter> filter) {
+        SkPaint p;
+        p.setImageFilter(std::move(filter));
+        canvas->drawImage(reference, 0, 0, {}, &p);
+        canvas->translate(0, reference->height());
+    };
+
+    {
+        float kernel[] = {1.f,  1.f, 1.f,
+                          1.f, -7.f, 1.f,
+                          1.f,  1.f, 1.f};
+        drawFilteredImage(SkImageFilters::MatrixConvolution(
+                {3, 3}, kernel, 1.f, 0.3f, {1, 1}, SkTileMode::kClamp, true, nullptr, crop));
+    }
+
+    drawFilteredImage(SkImageFilters::Blur(10.f, 10.f, SkTileMode::kMirror, nullptr, crop));
+}
