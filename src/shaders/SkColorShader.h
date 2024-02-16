@@ -71,6 +71,7 @@ private:
     SK_FLATTENABLE_HOOKS(SkColor4Shader)
 
     void flatten(SkWriteBuffer&) const override;
+    bool onAsLuminanceColor(SkColor* lum) const override;
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 
     sk_sp<SkColorSpace> fColorSpace;

@@ -156,3 +156,24 @@ private:
 };
 
 DEF_GM( return new GammaShaderTextGM; )
+
+DEF_SIMPLE_GM_BG(gammatext_color_shader, canvas, 300, 275, SK_ColorGRAY) {
+    const char* kText = "ABCDEFG";
+    sk_sp<SkTypeface> tf = ToolUtils::CreatePortableTypeface("serif", SkFontStyle());
+    SkASSERT(tf);
+    SkFont font(tf, 18);
+    font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+
+    canvas->translate(10, 30);
+    for (int i = 0; i < 256; i += 20) {
+        SkColor color = SkColorSetRGB(i, i, i);
+        SkPaint paint;
+        paint.setColor(color);
+        canvas->drawString(kText, 0, 0, font, paint);
+        paint.setShader(SkShaders::Color(color));
+        canvas->drawString(kText, 100, 0, font, paint);
+        paint.setShader(SkShaders::Color(SkColor4f::FromColor(color), SkColorSpace::MakeSRGB()));
+        canvas->drawString(kText, 200, 0, font, paint);
+        canvas->translate(0, 20);
+    }
+}
