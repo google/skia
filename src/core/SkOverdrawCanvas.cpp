@@ -221,7 +221,6 @@ void SkOverdrawCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matr
 
 void SkOverdrawCanvas::onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) {
     SkASSERT(false);
-    return;
 }
 
 void SkOverdrawCanvas::onDrawAnnotation(const SkRect&, const char[], SkData*) {}

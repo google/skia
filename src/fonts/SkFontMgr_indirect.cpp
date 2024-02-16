@@ -107,21 +107,21 @@ sk_sp<SkTypeface> SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdent
     }
 
     // No exact match, but did find a data match.
-    if (dataTypeface.get() != nullptr) {
+    if (dataTypeface != nullptr) {
         std::unique_ptr<SkStreamAsset> stream(dataTypeface->openStream(nullptr));
-        if (stream.get() != nullptr) {
+        if (stream != nullptr) {
             return fImpl->makeFromStream(std::move(stream), dataTypefaceIndex);
         }
     }
 
     // No data match, request data and add entry.
     std::unique_ptr<SkStreamAsset> stream(fProxy->getData(id.fDataId));
-    if (stream.get() == nullptr) {
+    if (stream == nullptr) {
         return nullptr;
     }
 
     sk_sp<SkTypeface> typeface(fImpl->makeFromStream(std::move(stream), id.fTtcIndex));
-    if (typeface.get() == nullptr) {
+    if (typeface == nullptr) {
         return nullptr;
     }
 

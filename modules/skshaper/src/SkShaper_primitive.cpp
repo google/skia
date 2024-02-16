@@ -241,6 +241,4 @@ void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
         utf8 += bytesConsumed;
         utf8Bytes -= bytesConsumed;
     } while (0 < utf8Bytes);
-
-    return;
 }

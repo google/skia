@@ -607,7 +607,6 @@ void SkDynamicMemoryWStream::prependToAndReset(SkDynamicMemoryWStream* dst) {
     dst->fBytesWrittenBeforeTail += fBytesWrittenBeforeTail + fTail->written();
     fHead = fTail = nullptr;
     fBytesWrittenBeforeTail = 0;
-    return;
 }
 
 
