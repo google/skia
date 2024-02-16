@@ -3,8 +3,8 @@
 store_src_rg                   p = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_2_slots_unmasked          $0..1 = p
-splat_2_constants              $2..3 = 0x3EAAAAAB (0.333333343)
-mul_2_floats                   $0..1 *= $2..3
+mul_imm_float                  $0 *= 0x3EAAAAAB (0.333333343)
+mul_imm_float                  $1 *= 0x3EAAAAAB (0.333333343)
 copy_2_slots_unmasked          p = $0..1
 splat_4_constants              $0..3 = 0x3F800000 (1.0)
 load_src                       src.rgba = $0..3

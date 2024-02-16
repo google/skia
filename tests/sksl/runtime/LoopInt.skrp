@@ -15,8 +15,8 @@ i10 = 0x00000009 (1.261169e-44)
 i11 = 0x00000001 (1.401298e-45)
 
 store_device_xy01              $13..16 = DeviceCoords.xy01
-splat_2_constants              $15..16 = 0x3F000000 (0.5)
-cmpeq_2_floats                 $13..14 = equal($13..14, $15..16)
+cmpeq_imm_float                $13 = equal($13, 0x3F000000 (0.5))
+cmpeq_imm_float                $14 = equal($14, 0x3F000000 (0.5))
 bitwise_and_int                $13 &= $14
 store_src_rg                   pos = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

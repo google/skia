@@ -1,8 +1,8 @@
 39 instructions
 
 store_device_xy01              $3..6 = DeviceCoords.xy01
-splat_2_constants              $5..6 = 0x3F000000 (0.5)
-cmpeq_2_floats                 $3..4 = equal($3..4, $5..6)
+cmpeq_imm_float                $3 = equal($3, 0x3F000000 (0.5))
+cmpeq_imm_float                $4 = equal($4, 0x3F000000 (0.5))
 bitwise_and_int                $3 &= $4
 store_src_rg                   xy = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

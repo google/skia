@@ -10,8 +10,8 @@ i5 = 0x40400000 (3.0)
 i6 = 0x40800000 (4.0)
 
 store_device_xy01              $35..38 = DeviceCoords.xy01
-splat_2_constants              $37..38 = 0x3F000000 (0.5)
-cmpeq_2_floats                 $35..36 = equal($35..36, $37..38)
+cmpeq_imm_float                $35 = equal($35, 0x3F000000 (0.5))
+cmpeq_imm_float                $36 = equal($36, 0x3F000000 (0.5))
 bitwise_and_int                $35 &= $36
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true

@@ -41,56 +41,56 @@ store_condition_mask           $63 = CondMask
 store_condition_mask           $97 = CondMask
 store_condition_mask           $117 = CondMask
 store_condition_mask           $127 = CondMask
-store_condition_mask           $133 = CondMask
-store_condition_mask           $139 = CondMask
-store_condition_mask           $142 = CondMask
-copy_slot_unmasked             $143 = _0_x
-cmpeq_imm_float                $143 = equal($143, 0xBF800000 (-1.0))
-copy_constant                  $140 = 0
-merge_condition_mask           CondMask = $142 & $143
+store_condition_mask           $131 = CondMask
+store_condition_mask           $135 = CondMask
+store_condition_mask           $138 = CondMask
+copy_slot_unmasked             $139 = _0_x
+cmpeq_imm_float                $139 = equal($139, 0xBF800000 (-1.0))
+copy_constant                  $136 = 0
+merge_condition_mask           CondMask = $138 & $139
 branch_if_no_lanes_active      branch_if_no_lanes_active +9 (label 9 at #27)
-copy_uniform                   $141 = colorWhite(0)
-cast_to_int_from_float         $141 = FloatToInt($141)
-copy_slot_unmasked             x = $141
-mul_imm_int                    $141 *= 0xFFFFFFFF
-copy_slot_masked               x = Mask($141)
-cmpeq_imm_int                  $141 = equal($141, 0xFFFFFFFF)
+copy_uniform                   $137 = colorWhite(0)
+cast_to_int_from_float         $137 = FloatToInt($137)
+copy_slot_unmasked             x = $137
+mul_imm_int                    $137 *= 0xFFFFFFFF
+copy_slot_masked               x = Mask($137)
+cmpeq_imm_int                  $137 = equal($137, 0xFFFFFFFF)
 label                          label 0x0000000A
-copy_slot_masked               $140 = Mask($141)
+copy_slot_masked               $136 = Mask($137)
 label                          label 0x00000009
-load_condition_mask            CondMask = $142
-copy_constant                  $134 = 0
-merge_condition_mask           CondMask = $139 & $140
+load_condition_mask            CondMask = $138
+copy_constant                  $132 = 0
+merge_condition_mask           CondMask = $135 & $136
 branch_if_no_lanes_active      branch_if_no_lanes_active +11 (label 8 at #42)
 copy_2_uniforms                x₁ = colorWhite(0..1)
-copy_2_slots_unmasked          $135..136 = x₁
-splat_2_constants              $137..138 = 0x80000000 (-0.0)
-bitwise_xor_2_ints             $135..136 ^= $137..138
-copy_2_slots_masked            x₁ = Mask($135..136)
-splat_2_constants              $137..138 = 0xBF800000 (-1.0)
-cmpeq_2_floats                 $135..136 = equal($135..136, $137..138)
-bitwise_and_int                $135 &= $136
+copy_2_slots_unmasked          $133..134 = x₁
+bitwise_xor_imm_int            $133 ^= 0x80000000
+bitwise_xor_imm_int            $134 ^= 0x80000000
+copy_2_slots_masked            x₁ = Mask($133..134)
+cmpeq_imm_float                $133 = equal($133, 0xBF800000 (-1.0))
+cmpeq_imm_float                $134 = equal($134, 0xBF800000 (-1.0))
+bitwise_and_int                $133 &= $134
 label                          label 0x0000000B
-copy_slot_masked               $134 = Mask($135)
+copy_slot_masked               $132 = Mask($133)
 label                          label 0x00000008
-load_condition_mask            CondMask = $139
+load_condition_mask            CondMask = $135
 copy_constant                  $128 = 0
-merge_condition_mask           CondMask = $133 & $134
+merge_condition_mask           CondMask = $131 & $132
 branch_if_no_lanes_active      branch_if_no_lanes_active +13 (label 7 at #59)
 copy_uniform                   $129 = colorWhite(0)
 cast_to_int_from_float         $129 = FloatToInt($129)
 copy_slot_unmasked             $130 = $129
 copy_2_slots_unmasked          x₂ = $129..130
-splat_2_constants              $131..132 = 0xFFFFFFFF
-mul_2_ints                     $129..130 *= $131..132
+mul_imm_int                    $129 *= 0xFFFFFFFF
+mul_imm_int                    $130 *= 0xFFFFFFFF
 copy_2_slots_masked            x₂ = Mask($129..130)
-splat_2_constants              $131..132 = 0xFFFFFFFF
-cmpeq_2_ints                   $129..130 = equal($129..130, $131..132)
+cmpeq_imm_int                  $129 = equal($129, 0xFFFFFFFF)
+cmpeq_imm_int                  $130 = equal($130, 0xFFFFFFFF)
 bitwise_and_int                $129 &= $130
 label                          label 0x0000000C
 copy_slot_masked               $128 = Mask($129)
 label                          label 0x00000007
-load_condition_mask            CondMask = $133
+load_condition_mask            CondMask = $131
 copy_constant                  $118 = 0
 merge_condition_mask           CondMask = $127 & $128
 branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 6 at #75)

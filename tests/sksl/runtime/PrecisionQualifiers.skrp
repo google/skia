@@ -34,8 +34,8 @@ i29 = 0
 i30 = 0x3F800000 (1.0)
 
 store_device_xy01              $13..16 = DeviceCoords.xy01
-splat_2_constants              $15..16 = 0x3F000000 (0.5)
-cmpeq_2_floats                 $13..14 = equal($13..14, $15..16)
+cmpeq_imm_float                $13 = equal($13, 0x3F000000 (0.5))
+cmpeq_imm_float                $14 = equal($14, 0x3F000000 (0.5))
 bitwise_and_int                $13 &= $14
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
