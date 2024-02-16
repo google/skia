@@ -113,7 +113,8 @@ DEF_TEST(ColorMatrix_clamp_while_unpremul, r) {
     };
     auto filter = SkColorFilters::Matrix(m);
 
-    SkColor filtered = filter->filterColor(0xff0a0b0c);
+    SkColor4f srcColor = SkColor4f::FromColor(0xff0a0b0c);
+    SkColor filtered = filter->filterColor4f(srcColor, nullptr, nullptr).toSkColor();
     REPORTER_ASSERT(r, SkColorGetA(filtered) == 0xff);
     REPORTER_ASSERT(r, SkColorGetR(filtered) == 0x0a);
     REPORTER_ASSERT(r, SkColorGetG(filtered) == 0xff);

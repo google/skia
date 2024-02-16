@@ -870,7 +870,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeColorFilterReturningInvalidAlpha
 
 DEF_TEST(SkRuntimeColorFilterLimitedToES2, r) {
     // Verify that SkSL requesting #version 300 can't be used to create a color-filter effect.
-    // This restriction could be removed if we can find a way to implement filterColor for these
+    // This restriction could be removed if we can find a way to implement filterColor4f for these
     // color filters.
     {
         auto effect = SkRuntimeEffect::MakeForColorFilter(SkString(R"(

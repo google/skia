@@ -5,53 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBitmap.h"
-#include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkScalar.h"
 #include "include/effects/SkHighContrastFilter.h"
 #include "tests/Test.h"
 
 #include <initializer_list>
-
-DEF_TEST(HighContrastFilter_FilterImage, reporter) {
-    SkHighContrastConfig config;
-    config.fInvertStyle = SkHighContrastConfig::InvertStyle::kInvertLightness;
-
-    int w = 10, h = 10;
-    SkBitmap filterResult, paintResult;
-
-    filterResult.allocN32Pixels(w, h);
-    SkCanvas canvasFilter(filterResult);
-    canvasFilter.clear(0x00000000);
-
-    paintResult.allocN32Pixels(w, h);
-    SkCanvas canvasPaint(paintResult);
-    canvasPaint.clear(0x00000000);
-
-    SkPaint paint;
-    paint.setColor(SK_ColorBLUE);
-    SkRect r = SkRect::MakeLTRB(SkIntToScalar(2), SkIntToScalar(2),
-                                SkIntToScalar(8), SkIntToScalar(8));
-    canvasPaint.drawRect(r, paint);
-
-    paint.setColorFilter(SkHighContrastFilter::Make(config));
-    canvasFilter.drawRect(r, paint);
-
-    for (int y = r.top(); y < r.bottom(); ++y) {
-        for (int x = r.left(); x < r.right(); ++x) {
-            SkColor paintColor = paintResult.getColor(x, y);
-            SkColor filterColor = filterResult.getColor(x, y);
-            REPORTER_ASSERT(
-                reporter, filterColor ==
-                paint.getColorFilter()->filterColor(paintColor));
-        }
-    }
-}
 
 DEF_TEST(HighContrastFilter_SmokeTest, reporter) {
     SkHighContrastConfig config;
@@ -59,11 +20,12 @@ DEF_TEST(HighContrastFilter_SmokeTest, reporter) {
     sk_sp<SkColorFilter> filter = SkHighContrastFilter::Make(config);
     REPORTER_ASSERT(reporter, filter->isAlphaUnchanged());
 
-    SkColor white_inverted = filter->filterColor(SK_ColorWHITE);
-    REPORTER_ASSERT(reporter, white_inverted == SK_ColorBLACK);
+    SkColorSpace* cs = nullptr;
+    SkColor4f white_inverted = filter->filterColor4f(SkColors::kWhite, cs, cs);
+    REPORTER_ASSERT(reporter, white_inverted == SkColors::kBlack);
 
-    SkColor black_inverted = filter->filterColor(SK_ColorBLACK);
-    REPORTER_ASSERT(reporter, black_inverted == SK_ColorWHITE);
+    SkColor4f black_inverted = filter->filterColor4f(SkColors::kBlack, cs, cs);
+    REPORTER_ASSERT(reporter, black_inverted == SkColors::kWhite);
 }
 
 DEF_TEST(HighContrastFilter_InvalidInputs, reporter) {
