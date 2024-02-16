@@ -7,16 +7,30 @@
 
 #include "src/gpu/ganesh/tessellate/StrokeTessellator.h"
 
+#include "include/core/SkMatrix.h"
+#include "include/private/base/SkAlignedStorage.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkOnce.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkGeometry.h"
-#include "src/core/SkPathPriv.h"
+#include "src/gpu/ResourceKey.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/tessellate/VertexChunkPatchAllocator.h"
+#include "src/gpu/tessellate/FixedCountBufferUtils.h"
+#include "src/gpu/tessellate/LinearTolerances.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/StrokeIterator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
+
+#include <algorithm>
+#include <cmath>
+#include <utility>
 
 namespace skgpu::ganesh {
 

@@ -4,16 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.h"
 
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
-#include "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
-#include "src/sksl/ir/SkSLProgram.h"
-#include "src/utils/SkShaderUtils.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
+#include "src/sksl/SkSLString.h"
+
+#include <cstdint>
 
 GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrGLuint programId,

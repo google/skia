@@ -8,8 +8,24 @@
 #ifndef GrMockSurfaceProxy_DEFINED
 #define GrMockSurfaceProxy_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTextureCompressionType.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
+
+#include <cstddef>
+#include <string_view>
+#include <utility>
+
+class GrResourceProvider;
+class GrSurface;
 
 class GrMockSurfaceProxy : public GrSurfaceProxy {
 public:

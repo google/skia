@@ -8,8 +8,11 @@
 #ifndef SkCGBase_DEFINED
 #define SkCGBase_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkFeatures.h"
+
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+
+#include "include/core/SkScalar.h"
 
 #ifdef SK_BUILD_FOR_MAC
 #import <ApplicationServices/ApplicationServices.h>

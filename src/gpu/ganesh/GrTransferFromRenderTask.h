@@ -8,7 +8,21 @@
 #ifndef GrTransferFromRenderTask_DEFINED
 #define GrTransferFromRenderTask_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrRenderTask.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+
+#include <cstddef>
+#include <utility>
+
+class GrOpFlushState;
+class GrRecordingContext;
+class GrResourceAllocator;
 
 class GrTransferFromRenderTask final : public GrRenderTask {
 public:

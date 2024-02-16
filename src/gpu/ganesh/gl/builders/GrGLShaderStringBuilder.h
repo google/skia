@@ -10,10 +10,17 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/PipelineUtils.h"
-#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/ganesh/gl/GrGLContext.h"
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
+
+#include <cstdint>
+#include <string>
+
+class GrGLGpu;
 
 namespace SkSL {
 

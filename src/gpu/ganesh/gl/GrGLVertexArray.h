@@ -12,10 +12,12 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
-#include "src/gpu/ganesh/gl/GrGLDefines.h"
+
+#include <cstddef>
 
 class GrBuffer;
 class GrGLGpu;
+enum class SkSLType : char;
 
 /**
  * This sets and tracks the vertex attribute array state. It is used internally by GrGLVertexArray
