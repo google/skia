@@ -1,4 +1,4 @@
-62 instructions
+61 instructions
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -35,16 +35,15 @@ store_condition_mask           $12 = CondMask
 copy_slot_unmasked             $13 = _0_ok
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +33 (label 6 at #69)
-copy_slot_unmasked             value = x
+branch_if_no_lanes_active      branch_if_no_lanes_active +32 (label 6 at #68)
 copy_constant                  ok = 0
 store_loop_mask                $1 = LoopMask
-copy_slot_unmasked             $2 = value
+copy_slot_unmasked             $2 = x
 store_loop_mask                $3 = LoopMask
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 case_op                        if ($2 == 0) { LoopMask = true; $3 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 9 at #47)
-branch_if_all_lanes_active     branch_if_all_lanes_active +19 (label 8 at #64)
+branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 9 at #46)
+branch_if_all_lanes_active     branch_if_all_lanes_active +19 (label 8 at #63)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x00000009
 case_op                        if ($2 == 0x00000001) { LoopMask = true; $3 = false; }
@@ -52,15 +51,15 @@ label                          label 0x0000000A
 case_op                        if ($2 == 0x00000002) { LoopMask = true; $3 = false; }
 label                          label 0x0000000B
 case_op                        if ($2 == 0x00000003) { LoopMask = true; $3 = false; }
-branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 12 at #58)
+branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 12 at #57)
 copy_constant                  $4 = 0xFFFFFFFF
 copy_slot_masked               ok = Mask($4)
-branch_if_all_lanes_active     branch_if_all_lanes_active +8 (label 8 at #64)
+branch_if_all_lanes_active     branch_if_all_lanes_active +8 (label 8 at #63)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x0000000C
 reenable_loop_mask             LoopMask |= $3
-branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 13 at #63)
-branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 8 at #64)
+branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 13 at #62)
+branch_if_all_lanes_active     branch_if_all_lanes_active +3 (label 8 at #63)
 mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
 label                          label 0x0000000D
 label                          label 0x00000008

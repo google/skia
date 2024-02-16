@@ -1,4 +1,4 @@
-61 instructions
+53 instructions
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -11,14 +11,12 @@ store_condition_mask           $15 = CondMask
 store_condition_mask           $18 = CondMask
 store_condition_mask           $21 = CondMask
 store_condition_mask           $24 = CondMask
-branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 6 at #15)
-copy_2_slots_unmasked          x[0], x[1] = _3_b[0], _3_b[1]
+branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 6 at #14)
 copy_constant                  $25 = 0xFFFFFFFF
 label                          label 0x00000006
 copy_constant                  $22 = 0
 merge_condition_mask           CondMask = $24 & $25
-branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 5 at #23)
-copy_2_slots_unmasked          x[0], x[1] = _4_c[0], _4_c[1]
+branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 5 at #21)
 copy_constant                  $23 = 0xFFFFFFFF
 label                          label 0x00000007
 copy_slot_masked               $22 = Mask($23)
@@ -26,8 +24,7 @@ label                          label 0x00000005
 load_condition_mask            CondMask = $24
 copy_constant                  $19 = 0
 merge_condition_mask           CondMask = $21 & $22
-branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 4 at #32)
-copy_2_slots_unmasked          x[0], x[1] = _5_d[0], _5_d[1]
+branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 4 at #29)
 copy_constant                  $20 = 0xFFFFFFFF
 label                          label 0x00000008
 copy_slot_masked               $19 = Mask($20)
@@ -35,8 +32,7 @@ label                          label 0x00000004
 load_condition_mask            CondMask = $21
 copy_constant                  $16 = 0
 merge_condition_mask           CondMask = $18 & $19
-branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 3 at #41)
-copy_2_slots_unmasked          x[0], x[1] = _6_e[0], _6_e[1]
+branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 3 at #37)
 copy_constant                  $17 = 0xFFFFFFFF
 label                          label 0x00000009
 copy_slot_masked               $16 = Mask($17)
@@ -44,8 +40,7 @@ label                          label 0x00000003
 load_condition_mask            CondMask = $18
 copy_constant                  $13 = 0
 merge_condition_mask           CondMask = $15 & $16
-branch_if_no_lanes_active      branch_if_no_lanes_active +5 (label 2 at #50)
-copy_2_slots_unmasked          x[0], x[1] = _7_f[0], _7_f[1]
+branch_if_no_lanes_active      branch_if_no_lanes_active +4 (label 2 at #45)
 copy_constant                  $14 = 0xFFFFFFFF
 label                          label 0x0000000A
 copy_slot_masked               $13 = Mask($14)
@@ -53,16 +48,13 @@ label                          label 0x00000002
 load_condition_mask            CondMask = $15
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +15 (label 1 at #69)
-copy_4_slots_unmasked          a[0], a[1], a[2], b[0] = f[0], f[1], f[2], g[0]
-copy_2_slots_unmasked          b[1], b[2] = g[1], g[2]
+branch_if_no_lanes_active      branch_if_no_lanes_active +12 (label 1 at #61)
 copy_constant                  $15 = 0xFFFFFFFF
-branch_if_no_active_lanes_eq   branch +6 (label 12 at #64) if no lanes of $15 == 0xFFFFFFFF
-branch_if_no_lanes_active      branch_if_no_lanes_active +3 (label 14 at #62)
-copy_3_slots_unmasked          x[0]₁, x[1]₁, x[2] = b[0], b[1], b[2]
+branch_if_no_active_lanes_eq   branch +5 (label 12 at #56) if no lanes of $15 == 0xFFFFFFFF
+branch_if_no_lanes_active      branch_if_no_lanes_active +2 (label 14 at #54)
 copy_constant                  $1 = 0xFFFFFFFF
 label                          label 0x0000000E
-jump                           jump +3 (label 13 at #66)
+jump                           jump +3 (label 13 at #58)
 label                          label 0x0000000C
 copy_constant                  $1 = 0
 label                          label 0x0000000D

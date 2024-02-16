@@ -1,4 +1,4 @@
-12 instructions
+5 instructions
 
 [immutable slots]
 i0 = 0x00000004 (5.605194e-45)
@@ -6,16 +6,9 @@ i0 = 0x00000004 (5.605194e-45)
 store_src_rg                   v0..1 = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
 copy_constant                  i = 0
-copy_slot_unmasked             i₁ = i
-copy_slot_unmasked             i₂ = i₁
-copy_slot_unmasked             i₃ = i₂
-copy_slot_unmasked             ₁ = i₃
 label                          label 0x00000003
 label                          label 0x00000002
 label                          label 0x00000001
-copy_slot_unmasked             i₂ = i₁
-copy_slot_unmasked             i₃ = i₂
-copy_slot_unmasked             ₁ = i₃
 label                          label 0x00000006
 label                          label 0x00000005
 label                          label 0x00000004

@@ -1,4 +1,4 @@
-166 instructions
+165 instructions
 
 [immutable slots]
 i0 = 0x40000000 (2.0)
@@ -23,15 +23,14 @@ copy_constant                  s.y = 0x00000002 (2.802597e-45)
 copy_2_slots_unmasked          $0..1 = s.x, s.y
 label                          label 0
 copy_2_slots_unmasked          s.x₁, s.y₁ = $0..1
-copy_2_slots_unmasked          s.x₂, s.y₂ = $0..1
 cast_to_float_from_int         $1 = IntToFloat($1)
 add_float                      $0 += $1
 label                          label 0x00000001
 copy_slot_unmasked             x = $0
-copy_2_slots_unmasked          s.x₃, s.y₃ = s.x₁, s.y₁
-add_imm_float                  s.x₃ += 0x3F800000 (1.0)
-add_imm_int                    s.y₃ += 0x00000001
-copy_2_slots_unmasked          s.x₁, s.y₁ = s.x₃, s.y₃
+copy_2_slots_unmasked          s.x₂, s.y₂ = s.x₁, s.y₁
+add_imm_float                  s.x₂ += 0x3F800000 (1.0)
+add_imm_int                    s.y₂ += 0x00000001
+copy_2_slots_unmasked          s.x₁, s.y₁ = s.x₂, s.y₂
 label                          label 0x00000002
 copy_2_immutables_unmasked     $0..1 = i0..1 [0x40000000 (2.0), 0x00000003 (4.203895e-45)]
 label                          label 0x00000003
@@ -48,10 +47,10 @@ copy_2_slots_unmasked          n1.a.x, n1.a.y = $0..1
 copy_2_slots_unmasked          n1.b.x, n1.b.y = $0..1
 copy_4_slots_unmasked          n2.a.x, n2.a.y, n2.b.x, n2.b.y = n1.a.x, n1.a.y, n1.b.x, n1.b.y
 copy_4_slots_unmasked          n3.a.x, n3.a.y, n3.b.x, n3.b.y = n2.a.x, n2.a.y, n2.b.x, n2.b.y
-copy_2_slots_unmasked          s.x₃, s.y₃ = n3.b.x, n3.b.y
-add_imm_float                  s.x₃ += 0x3F800000 (1.0)
-add_imm_int                    s.y₃ += 0x00000001
-copy_2_slots_unmasked          n3.b.x, n3.b.y = s.x₃, s.y₃
+copy_2_slots_unmasked          s.x₂, s.y₂ = n3.b.x, n3.b.y
+add_imm_float                  s.x₂ += 0x3F800000 (1.0)
+add_imm_int                    s.y₂ += 0x00000001
+copy_2_slots_unmasked          n3.b.x, n3.b.y = s.x₂, s.y₂
 label                          label 0x00000005
 copy_uniform                   c2.f4(0) = colorGreen(1)
 copy_constant                  c2.f4(1) = 0x40000000 (2.0)
@@ -91,9 +90,9 @@ bitwise_and_int                $14 &= $15
 bitwise_and_int                $13 &= $14
 copy_constant                  $0 = 0
 merge_condition_mask           CondMask = $12 & $13
-branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #94)
+branch_if_no_lanes_active      branch_if_no_lanes_active +17 (label 6 at #93)
 copy_slot_unmasked             $1 = s.x₁
-branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #86)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 7 at #85)
 splat_2_constants              s.x, s.y = 0
 copy_constant                  $17 = 0x3F800000 (1.0)
 copy_slot_masked               s.x = Mask($17)
