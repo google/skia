@@ -261,7 +261,7 @@ private:
         canvas->clipRect(SkRect::MakeWH(256, 256));
         canvas->scale(0.5f, 0.5f);
         canvas->translate(128, 128);
-        canvas->drawImage(fImage, 0, 0, SkSamplingOptions(), &p);
+        canvas->drawImage(fImage, 0, 0, SkSamplingOptions(SkFilterMode::kLinear), &p);
         canvas->restore();
     }
 

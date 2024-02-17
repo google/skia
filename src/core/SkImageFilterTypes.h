@@ -413,6 +413,10 @@ public:
     LayerSpace<SkIPoint> topLeft() const { return LayerSpace<SkIPoint>(fData.topLeft()); }
     LayerSpace<SkISize> size() const { return LayerSpace<SkISize>(fData.size()); }
 
+    static bool Intersects(const LayerSpace<SkIRect>& a, const LayerSpace<SkIRect>& b) {
+        return SkIRect::Intersects(a.fData, b.fData);
+    }
+
     bool intersect(const LayerSpace<SkIRect>& r) { return fData.intersect(r.fData); }
     void join(const LayerSpace<SkIRect>& r) { fData.join(r.fData); }
     void offset(const LayerSpace<IVector>& v) { fData.offset(SkIVector(v)); }

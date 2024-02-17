@@ -39,7 +39,6 @@
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <algorithm>
-#include <tuple>
 
 namespace skif {
 
@@ -609,7 +608,7 @@ sk_sp<SkSpecialImage> FilterResult::imageAndOffset(const Context& ctx, SkIPoint*
 
 std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>FilterResult::imageAndOffset(
         const Context& ctx) const {
-    FilterResult resolved = this->resolve(ctx, fLayerBounds);
+    FilterResult resolved = this->resolve(ctx, ctx.desiredOutput());
     return {resolved.fImage, resolved.layerBounds().topLeft()};
 }
 
@@ -907,7 +906,7 @@ FilterResult FilterResult::applyColorFilter(const Context& ctx,
         // otherwise we can fill out to the desired output without worrying about losing the crop.
         newLayerBounds = ctx.desiredOutput();
     } else {
-        if (!fImage || !newLayerBounds.intersect(ctx.desiredOutput())) {
+        if (!fImage || !LayerSpace<SkIRect>::Intersects(newLayerBounds, ctx.desiredOutput())) {
             // The color filter does not modify transparent black, so it remains transparent
             return {};
         }
@@ -1033,9 +1032,8 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
     // accumulated soft crops from desired outputs of prior stages. To prevent discarding that info,
     // we map fLayerBounds by the additional transform, instead of re-mapping the image bounds.
     transformed.fLayerBounds = transform.mapRect(transformed.fLayerBounds);
-    if (!transformed.fLayerBounds.intersect(ctx.desiredOutput())) {
+    if (!LayerSpace<SkIRect>::Intersects(transformed.fLayerBounds, ctx.desiredOutput())) {
         // The transformed output doesn't touch the desired, so it would just be transparent black.
-        // TODO: This intersection only applies when the tile mode is kDecal.
         return {};
     }
 
@@ -1565,7 +1563,11 @@ FilterResult FilterResult::rescale(const Context& ctx,
             tileMode = SkTileMode::kClamp;
         } // else we are non-decal deferred so use repeat/mirror/clamp all the way down.
 
-        std::tie(image, origin) = surface.snap().imageAndOffset(ctx);
+        // TODO(b/323886180): Once rescale() is updated to use smarter padding and PixelBoundary,
+        // this can stay as a FilterResult.
+        FilterResult snapped = surface.snap();
+        image = snapped.fImage;
+        origin = snapped.fLayerBounds.topLeft();
         stepBoundsF = dstBoundsF;
         stepPixelBounds = dstPixelBounds;
     }
@@ -1814,25 +1816,24 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     // TODO: resolve() doesn't actually guarantee that the returned image has the same color space
     // as the Context, but probably should since the blur algorithm operates in the color space of
     // the input image.
-    auto [image, origin] = fInputs[0].fImage.resolve(fContext, sampleBounds)
-                                            .imageAndOffset(fContext);
-    if (!image) {
+    FilterResult resolved = fInputs[0].fImage.resolve(fContext, sampleBounds);
+    if (!resolved) {
         return {};
     }
 
     // TODO: Can blur() take advantage of AutoSurface? Right now the GPU functions are responsible
     // for creating their own target surfaces.
     auto srcRelativeOutput = outputBounds;
-    srcRelativeOutput.offset(-origin);
-    image = algorithm->blur(SkSize(sigma),
-                            image,
-                            SkIRect::MakeSize(image->dimensions()),
-                            SkTileMode::kDecal,
-                            SkIRect(srcRelativeOutput));
-
+    srcRelativeOutput.offset(-resolved.layerBounds().topLeft());
+    resolved = {algorithm->blur(SkSize(sigma),
+                                resolved.fImage,
+                                SkIRect::MakeSize(resolved.fImage->dimensions()),
+                                SkTileMode::kDecal,
+                                SkIRect(srcRelativeOutput)),
+                outputBounds.topLeft()};
     // TODO: Allow the blur functor to provide an upscaling transform that is applied to the
     // FilterResult so that a render pass can possibly be elided if this is the final operation.
-    return {image, outputBounds.topLeft()};
+    return resolved;
 }
 
 } // end namespace skif

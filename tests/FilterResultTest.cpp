@@ -118,6 +118,13 @@ public:
     static void TrackStats(skif::Context* ctx, skif::Stats* stats) {
         ctx->fStats = stats;
     }
+
+    static bool IsIntegerTransform(const skif::FilterResult& image) {
+        SkMatrix m = SkMatrix(image.fTransform);
+        return m.isTranslate() &&
+               SkScalarIsInt(m.getTranslateX()) &&
+               SkScalarIsInt(m.getTranslateY());
+    }
 };
 
 namespace {
@@ -1099,8 +1106,18 @@ public:
 
             // Validate layer bounds and sampling when we expect a new or deferred image
             if (output.image()) {
+                auto actualBounds = output.layerBounds();
+                // A deferred action doesn't have to crop its layer bounds to the desired output to
+                // preserve accuracy of later bounds analysis. New images however should restrict
+                // themselves to the desired output to minimize memory of the surface. The exception
+                // is a new image for applyTransform() because the new transform is deferred to the
+                // resolved image, which can make its layer bounds larger than the desired output.
+                if (correctedExpectation == Expect::kDeferredImage ||
+                    !FilterResultTestAccess::IsIntegerTransform(output)) {
+                    REPORTER_ASSERT(fRunner, actualBounds.intersect(desiredOutputs[i]));
+                }
                 REPORTER_ASSERT(fRunner, !expectedBounds.isEmpty());
-                REPORTER_ASSERT(fRunner, SkIRect(output.layerBounds()) == SkIRect(expectedBounds));
+                REPORTER_ASSERT(fRunner, SkIRect(actualBounds) == SkIRect(expectedBounds));
                 REPORTER_ASSERT(fRunner, output.sampling() == fActions[i].expectedSampling());
                 REPORTER_ASSERT(fRunner, output.tileMode() == fActions[i].expectedTileMode());
                 REPORTER_ASSERT(fRunner, colorfilter_equals(output.colorFilter(),
@@ -2349,7 +2366,7 @@ DEF_TEST_SUITE(RescaleWithTransform, r,
     for (SkTileMode tm : kTileModes) {
         TestCase(r, "Identity rescale defers integer translation")
                 .source({0, 0, 50, 50})
-                .applyCrop({0, 0, 50, 50}, SkTileMode::kMirror, Expect::kDeferredImage)
+                .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
                 .applyTransform(SkMatrix::Translate(-10.f, -10.f), Expect::kDeferredImage)
                 .rescale({1.f, 1.f}, Expect::kDeferredImage)
                 .run(/*requestedOutput=*/{-15, -15, 45, 45});
@@ -2361,16 +2378,18 @@ DEF_TEST_SUITE(RescaleWithTransform, r,
                 .rescale({1.f, 1.f}, Expect::kNewImage, SkTileMode::kClamp)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
-        TestCase(r, "Near-identity rescale defers integer translation")
+        TestCase(r, "Near-identity rescale defers integer translation",
+                 /*allowedPercentImageDiff=*/kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
                 .source({0, 0, 50, 50})
-                .applyCrop({0, 0, 50, 50}, SkTileMode::kMirror, Expect::kDeferredImage)
+                .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
                 .applyTransform(SkMatrix::Translate(-10.f, -10.f), Expect::kDeferredImage)
                 .rescale(kNearlyIdentity, Expect::kDeferredImage)
                 .run(/*requestedOutput=*/{-15, -15, 45, 45});
 
         TestCase(r, "Near-identity rescale applies complex transform")
                 .source({0, 0, 50, 50})
-                .applyCrop({0, 0, 50, 50}, SkTileMode::kClamp, Expect::kDeferredImage)
+                .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
                 .applyTransform(SkMatrix::RotateDeg(15.f, {25.f, 25.f}), Expect::kDeferredImage)
                 .rescale(kNearlyIdentity, Expect::kNewImage, SkTileMode::kClamp)
                 .run(/*requestedOutput=*/{-5, -5, 55, 55});
