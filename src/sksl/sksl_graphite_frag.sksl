@@ -974,7 +974,6 @@ $pure half4 $noise_helper(half2 noiseVec,
     return noiseXCoords;
 }
 
-// TODO: Move this to sksl_shared.sksl and try to share with Ganesh
 $pure half4 $noise_function(half2 noiseVec,
                             half4 noiseXCoords,
                             sampler2D noiseSampler) {
@@ -999,33 +998,31 @@ $pure half4 $noise_function(half2 noiseVec,
         half4 sampleC = sample(noiseSampler, half2(noiseXCoords.w, chanCoord));
         half4 sampleD = sample(noiseSampler, half2(noiseXCoords.z, chanCoord));
 
-        half2 uv;
         half2 tmpFractVal = fractVal;
 
         // Compute u, at offset (0,0)
-        uv.x = dot((sampleA.ga + sampleA.rb*kInv256)*2 - half2(1), tmpFractVal);
+        half u = dot((sampleA.ga + sampleA.rb*kInv256)*2 - half2(1), tmpFractVal);
 
         // Compute v, at offset (-1,0)
         tmpFractVal.x -= 1.0;
-        uv.y = dot((sampleB.ga + sampleB.rb*kInv256)*2 - half2(1), tmpFractVal);
+        half v = dot((sampleB.ga + sampleB.rb*kInv256)*2 - half2(1), tmpFractVal);
 
         // Compute 'a' as a linear interpolation of 'u' and 'v'
-        half2 ab;
-        ab.x = mix(uv.x, uv.y, noiseSmooth.x);
+        half a = mix(u, v, noiseSmooth.x);
 
         // Compute v, at offset (-1,-1)
         tmpFractVal.y -= 1.0;
-        uv.y = dot((sampleC.ga + sampleC.rb*kInv256)*2 - half2(1), tmpFractVal);
+        v = dot((sampleC.ga + sampleC.rb*kInv256)*2 - half2(1), tmpFractVal);
 
         // Compute u, at offset (0,-1)
         tmpFractVal.x += 1.0;
-        uv.x = dot((sampleD.ga + sampleD.rb*kInv256)*2 - half2(1), tmpFractVal);
+        u = dot((sampleD.ga + sampleD.rb*kInv256)*2 - half2(1), tmpFractVal);
 
         // Compute 'b' as a linear interpolation of 'u' and 'v'
-        ab.y = mix(uv.x, uv.y, noiseSmooth.x);
+        half b = mix(u, v, noiseSmooth.x);
 
         // Compute the noise as a linear interpolation of 'a' and 'b'
-        result[channel] =  mix(ab.x, ab.y, noiseSmooth.y);
+        result[channel] = mix(a, b, noiseSmooth.y);
     }
 
     return result;
@@ -1065,8 +1062,7 @@ $pure half4 perlin_noise_shader(float2 coords,
             tmp = abs(tmp);
         }
 
-        tmp *= ratio;
-        color += tmp;
+        color += tmp * ratio;
 
         noiseVec *= half2(2.0);
         ratio *= 0.5;

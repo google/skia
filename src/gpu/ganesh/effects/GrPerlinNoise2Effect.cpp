@@ -112,8 +112,6 @@ SkString GrPerlinNoise2Effect::Impl::emitHelper(EmitArgs& args) {
     // Get (x,y) coordinates with the permuted x
     noiseCode.append("half4 bcoords = 256*latticeIdx.xyxy + floorVal.yyww;");
 
-    noiseCode.append("half2 uv;");
-
     // This is the math to convert the two 16bit integer packed into rgba 8 bit input into a
     // [-1,1] vector and perform a dot product between that vector and the provided vector.
     // Save it as a string because we will repeat it 4x.
@@ -128,31 +126,31 @@ SkString GrPerlinNoise2Effect::Impl::emitHelper(EmitArgs& args) {
 
     // Compute u, at offset (0,0)
     noiseCode.appendf("half4 lattice = %s;", sampleA.c_str());
-    noiseCode.appendf("uv.x = %s;", dotLattice.c_str());
+    noiseCode.appendf("half u = %s;", dotLattice.c_str());
 
     // Compute v, at offset (-1,0)
     noiseCode.append("fractVal.x -= 1.0;");
     noiseCode.appendf("lattice = %s;", sampleB.c_str());
-    noiseCode.appendf("uv.y = %s;", dotLattice.c_str());
+    noiseCode.appendf("half v = %s;", dotLattice.c_str());
 
     // Compute 'a' as a linear interpolation of 'u' and 'v'
-    noiseCode.append("half2 ab;");
-    noiseCode.append("ab.x = mix(uv.x, uv.y, noiseSmooth.x);");
+    noiseCode.append("half a = mix(u, v, noiseSmooth.x);");
 
     // Compute v, at offset (-1,-1)
     noiseCode.append("fractVal.y -= 1.0;");
     noiseCode.appendf("lattice = %s;", sampleC.c_str());
-    noiseCode.appendf("uv.y = %s;", dotLattice.c_str());
+    noiseCode.appendf("v = %s;", dotLattice.c_str());
 
     // Compute u, at offset (0,-1)
     noiseCode.append("fractVal.x += 1.0;");
     noiseCode.appendf("lattice = %s;", sampleD.c_str());
-    noiseCode.appendf("uv.x = %s;", dotLattice.c_str());
+    noiseCode.appendf("u = %s;", dotLattice.c_str());
 
     // Compute 'b' as a linear interpolation of 'u' and 'v'
-    noiseCode.append("ab.y = mix(uv.x, uv.y, noiseSmooth.x);");
+    noiseCode.append("half b = mix(u, v, noiseSmooth.x);");
+
     // Compute the noise as a linear interpolation of 'a' and 'b'
-    noiseCode.append("return mix(ab.x, ab.y, noiseSmooth.y);");
+    noiseCode.append("return mix(a, b, noiseSmooth.y);");
 
     SkString noiseFuncName = fragBuilder->getMangledFunctionName("noiseFuncName");
     if (pne.stitchTiles()) {
