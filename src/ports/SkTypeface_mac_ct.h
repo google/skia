@@ -86,7 +86,8 @@ public:
                                   std::unique_ptr<SkStreamAsset> providedData);
 
     static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('c','t','x','t');
-    static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset>, const SkFontArguments&);
+    static sk_sp<SkTypeface> SK_SPI MakeFromStream(std::unique_ptr<SkStreamAsset>,
+                                                   const SkFontArguments&);
 
     SkUniqueCFRef<CTFontRef> fFontRef;
     const OpszVariation fOpszVariation;

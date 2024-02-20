@@ -26,7 +26,7 @@
 class SkFontDescriptor;
 struct SkScalerContextRec;
 
-/* dwrite_3.h incorrectly uses NTDDI_VERSION to hide immutible interfaces (it should only be used to
+/* dwrite_3.h incorrectly uses NTDDI_VERSION to hide immutable interfaces (it should only be used to
    gate changes to public ABI). The implementation files can (and must) get away with including
    SkDWriteNTDDI_VERSION.h which simply unsets NTDDI_VERSION, but this doesn't work well for this
    header which can be included in SkTypeface.cpp. Instead, ensure that any declarations hidden
@@ -48,7 +48,7 @@ static SkFontStyle get_style(IDWriteFont* font) {
     return SkFontStyle(weight, width, slant);
 }
 
-class SK_SPI DWriteFontTypeface : public SkTypeface {
+class DWriteFontTypeface : public SkTypeface {
 public:
     struct Loaders : public SkNVRefCnt<Loaders> {
         Loaders(IDWriteFactory* factory,
@@ -70,7 +70,8 @@ public:
     };
 
     static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('d','w','r','t');
-    static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset>, const SkFontArguments&);
+    static sk_sp<SkTypeface> SK_SPI MakeFromStream(std::unique_ptr<SkStreamAsset>,
+                                                   const SkFontArguments&);
 
     ~DWriteFontTypeface() override;
 private:
