@@ -9,6 +9,7 @@ skia_cc_library(
     name = "legacy_skottie",
     srcs = [
         "//modules/skottie/src:srcs",
+        "//modules/skottie/src/text:text_shaper_srcs",
         "//src/utils:json_hdrs",
         "//src/utils:json_srcs",
     ],
@@ -97,12 +98,11 @@ skia_cc_library(
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
+        ":textshaper_harfbuzz_icu",
         "//:core",
         "//modules/skresources",
         "//modules/sksg",
         "//modules/sksg:sksg_priv",
-        "//modules/skshaper:skshaper_harfbuzz",
-        "//modules/skunicode:skunicode_icu",
         "//src/base",
         "//src/codec:codec_support_priv",
         "//src/core:core_priv",
@@ -117,5 +117,23 @@ skia_cc_library(
         ":skottie_harfbuzz_icu",
         "//:core",
         "//tools/skui",
+    ],
+)
+
+# A tiny subset of Skottie, exposing text-shaping related functions
+# for clients which require low-level access to shaping metrics.
+# There is no animation code available here.
+skia_cc_library(
+    name = "textshaper_harfbuzz_icu",
+    srcs = ["//modules/skottie/src/text:text_shaper_srcs"],
+    hdrs = ["//modules/skottie/include:text_shaper_hdrs"],
+    features = ["layering_check"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:core",
+        "//modules/skshaper:skshaper_harfbuzz",
+        "//modules/skunicode:skunicode_icu",
+        "//src/base",
+        "//src/core:core_priv",
     ],
 )

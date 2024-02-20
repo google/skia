@@ -15,9 +15,16 @@ skia_filegroup(
         "TextAdapter.h",
         "TextAnimator.cpp",
         "TextAnimator.h",
-        "TextShaper.cpp",
         "TextValue.cpp",
         "TextValue.h",
     ],
     visibility = ["//modules/skottie/src:__pkg__"],
+)
+
+skia_filegroup(
+    name = "text_shaper_srcs",
+    srcs = [
+        "TextShaper.cpp",
+    ],
+    visibility = ["//modules/skottie:__pkg__"],
 )

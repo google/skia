@@ -525,6 +525,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//modules/skottie/src/layers:srcs",
 				"//modules/skottie/src/layers/shapelayer:srcs",
 				"//modules/skottie/src/text:srcs",
+				"//modules/skottie/src/text:text_shaper_srcs",
 			}},
 	}},
 	{GNI: "modules/skcms/skcms.gni", Vars: []exporter.GNIFileListExportDesc{
