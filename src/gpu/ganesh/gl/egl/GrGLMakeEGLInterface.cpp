@@ -136,6 +136,6 @@ sk_sp<const GrGLInterface> MakeEGL() {
 }
 }  // namespace GrGLInterfaces
 
-#if !defined(SK_DISABLE_LEGACY_GLXINTERFACE_FACTORY)
+#if !defined(SK_DISABLE_LEGACY_EGLINTERFACE_FACTORY)
 sk_sp<const GrGLInterface> GrGLMakeEGLInterface() { return GrGLInterfaces::MakeEGL(); }
 #endif
