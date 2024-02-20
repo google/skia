@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSIn {
   @location(2) @interpolate(flat) bufferIndex: i32,
 };

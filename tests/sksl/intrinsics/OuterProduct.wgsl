@@ -1,11 +1,12 @@
 ### Compilation failed:
 
-error: :16:20 error: unresolved call target 'outerProduct'
+error: :17:20 error: unresolved call target 'outerProduct'
     let _skTemp0 = outerProduct(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]);
                    ^^^^^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };

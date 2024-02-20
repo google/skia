@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct InputBuffer {
   args: IndirectDispatchArgs,
 };

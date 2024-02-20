@@ -1,11 +1,12 @@
 ### Compilation failed:
 
-error: :12:20 error: unresolved call target 'bitCount'
+error: :13:20 error: unresolved call target 'bitCount'
     let _skTemp0 = bitCount(_globalUniforms.a);
                    ^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };

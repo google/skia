@@ -1,12 +1,5 @@
-/*
-
-:31:3 warning: code is unreachable
-  return f32();
-  ^^^^^^
-
-*/
-
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };

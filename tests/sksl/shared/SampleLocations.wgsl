@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct VSIn {
   @builtin(instance_index) sk_InstanceID: u32,
   @builtin(vertex_index) sk_VertexID: u32,

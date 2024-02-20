@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSIn {
   @location(0) vLocalCoord_Stage0: vec2<f32>,
 };

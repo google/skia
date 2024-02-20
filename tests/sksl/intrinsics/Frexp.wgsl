@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :16:20 error: no matching call to frexp(f32, i32)
+error: :17:20 error: no matching call to frexp(f32, i32)
 
 2 candidate functions:
   frexp(T) -> __frexp_result_T  where: T is abstract-float, f32 or f16
@@ -11,6 +11,7 @@ error: :16:20 error: no matching call to frexp(f32, i32)
 
 
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };

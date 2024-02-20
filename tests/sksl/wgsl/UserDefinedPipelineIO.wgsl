@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSIn {
   @location(1) input1: f32,
   @location(2) input2: f32,

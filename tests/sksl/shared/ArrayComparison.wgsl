@@ -1,10 +1,10 @@
 ### Compilation failed:
 
-error: :8:14 error: uniform storage requires that array elements are aligned to 16 bytes, but array element of type 'f32' has a stride of 4 bytes. Consider using a vector or struct as the element type instead.
+error: :9:14 error: uniform storage requires that array elements are aligned to 16 bytes, but array element of type 'f32' has a stride of 4 bytes. Consider using a vector or struct as the element type instead.
   testArray: array<f32, 5>,
              ^^^^^^^^^^^^^
 
-:5:1 note: see layout of struct:
+:6:1 note: see layout of struct:
 /*            align(16) size(80) */ struct _GlobalUniforms {
 /* offset( 0) align(16) size(16) */   colorGreen : vec4<f32>;
 /* offset(16) align(16) size(16) */   colorRed : vec4<f32>;
@@ -15,12 +15,13 @@ error: :8:14 error: uniform storage requires that array elements are aligned to 
 struct _GlobalUniforms {
 ^^^^^^
 
-:11:36 note: '_GlobalUniforms' used in address space 'uniform' here
+:12:36 note: '_GlobalUniforms' used in address space 'uniform' here
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
                                    ^^^^^^^^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };

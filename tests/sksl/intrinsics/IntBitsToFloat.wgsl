@@ -1,11 +1,12 @@
 ### Compilation failed:
 
-error: :15:20 error: unresolved call target 'intBitsToFloat'
+error: :16:20 error: unresolved call target 'intBitsToFloat'
     let _skTemp0 = intBitsToFloat(expectedB.x);
                    ^^^^^^^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };

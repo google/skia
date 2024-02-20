@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct VSIn {
   @location(0) pos: vec4<f32>,
 };

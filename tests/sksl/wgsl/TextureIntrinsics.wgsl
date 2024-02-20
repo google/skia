@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 @group(1) @binding(0) var texRGBA: texture_storage_2d<rgba8unorm, write>;
 @group(1) @binding(1) var texRed: texture_2d<f32>;
 fn fill_texture_vTT(passedInTexRGBA: texture_storage_2d<rgba8unorm, write>, passedInTexRed: texture_2d<f32>) {

@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct _GlobalUniforms {
   unknownInput: f32,
   colorRed: vec4<f32>,

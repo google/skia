@@ -1,11 +1,12 @@
 ### Compilation failed:
 
-error: :12:20 error: unresolved call target 'findLSB'
+error: :13:20 error: unresolved call target 'findLSB'
     let _skTemp0 = findLSB(_globalUniforms.a);
                    ^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
 };

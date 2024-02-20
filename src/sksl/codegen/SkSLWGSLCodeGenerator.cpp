@@ -4157,6 +4157,8 @@ void WGSLCodeGenerator::writeFields(SkSpan<const Field> fields, const MemoryLayo
 
 void WGSLCodeGenerator::writeEnables() {
     this->writeLine("diagnostic(off, derivative_uniformity);");
+    this->writeLine("diagnostic(off, chromium.unreachable_code);");
+
     if (fRequirements.fPixelLocalExtension) {
         this->writeLine("enable chromium_experimental_pixel_local;");
     }

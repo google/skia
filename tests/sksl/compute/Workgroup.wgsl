@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct CSIn {
   @builtin(global_invocation_id) sk_GlobalInvocationID: vec3<u32>,
 };

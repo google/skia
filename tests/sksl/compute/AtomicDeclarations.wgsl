@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct ssbo {
   ssboAtomic: atomic<u32>,
   ssboAtomicArray: array<atomic<u32>, 2>,

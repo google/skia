@@ -1,4 +1,5 @@
 diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct _GlobalUniforms {
   testMatrix2x2: mat2x2<f32>,
   testMatrix3x3: mat3x3<f32>,
