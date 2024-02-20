@@ -2511,7 +2511,6 @@ SKOTTIE_LIB_SRCS = [
     "modules/skottie/src/text/Font.h",
     "modules/skottie/src/text/RangeSelector.cpp",
     "modules/skottie/src/text/RangeSelector.h",
-    "modules/skottie/src/text/SkottieShaper.h",
     "modules/skottie/src/text/TextAdapter.cpp",
     "modules/skottie/src/text/TextAdapter.h",
     "modules/skottie/src/text/TextAnimator.cpp",
@@ -2541,8 +2540,6 @@ SKOTTIE_UTILS_SRCS = [
 
 SKOTTIE_SHAPER_HDRS = [
     "modules/skottie/include/TextShaper.h",
-    # transitional
-    "modules/skottie/src/text/SkottieShaper.h",
 ]
 
 SKOTTIE_SHAPER_SRCS = [

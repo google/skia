@@ -11,7 +11,6 @@ skia_filegroup(
         "Font.h",
         "RangeSelector.cpp",
         "RangeSelector.h",
-        "SkottieShaper.h",
         "TextAdapter.cpp",
         "TextAdapter.h",
         "TextAnimator.cpp",

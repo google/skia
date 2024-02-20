@@ -115,7 +115,6 @@ skia_skottie_sources = [
   "$_modules/skottie/src/text/Font.h",
   "$_modules/skottie/src/text/RangeSelector.cpp",
   "$_modules/skottie/src/text/RangeSelector.h",
-  "$_modules/skottie/src/text/SkottieShaper.h",
   "$_modules/skottie/src/text/TextAdapter.cpp",
   "$_modules/skottie/src/text/TextAdapter.h",
   "$_modules/skottie/src/text/TextAnimator.cpp",
