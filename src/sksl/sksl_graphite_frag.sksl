@@ -954,8 +954,8 @@ $pure half4 $noise_helper(half2 noiseVec,
         floorVal -= step(stitchData.xyxy, floorVal) * stitchData.xyxy;
     }
 
-    half sampleX = sample(permutationSampler, half2(floorVal.x/kBlockSize, 0.5)).r;
-    half sampleY = sample(permutationSampler, half2(floorVal.z/kBlockSize, 0.5)).r;
+    half sampleX = sample(permutationSampler, half2((floorVal.x + 0.5) / kBlockSize, 0.5)).r;
+    half sampleY = sample(permutationSampler, half2((floorVal.z + 0.5) / kBlockSize, 0.5)).r;
 
     half2 latticeIdx = half2(sampleX, sampleY);
 
