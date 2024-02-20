@@ -93,7 +93,7 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType,
         , fBufferType(bufferType) {}
 
 void GrBufferAllocPool::deleteBlocks() {
-    if (fBlocks.size()) {
+    if (!fBlocks.empty()) {
         GrBuffer* buffer = fBlocks.back().fBuffer.get();
         if (!buffer->isCpuBuffer() && static_cast<GrGpuBuffer*>(buffer)->isMapped()) {
             UNMAP_BUFFER(fBlocks.back());

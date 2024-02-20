@@ -189,7 +189,7 @@ bool Encode(SkWStream* stream, const SkPixmap& pixmap, const Options& opts) {
 }
 
 bool EncodeAnimated(SkWStream* stream, SkSpan<const SkEncoder::Frame> frames, const Options& opts) {
-    if (!stream || !frames.size()) {
+    if (!stream || frames.empty()) {
         return false;
     }
 

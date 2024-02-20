@@ -277,7 +277,7 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
     RunBlock unresolved(fCurrentRun, extendedText, glyphRange, 0);
     if (unresolved.fGlyphs.width() == fCurrentRun->size()) {
         SkASSERT(unresolved.fText.width() == fCurrentRun->fTextRange.width());
-    } else if (fUnresolvedBlocks.size() > 0) {
+    } else if (!fUnresolvedBlocks.empty()) {
         auto& lastUnresolved = fUnresolvedBlocks.back();
         if (lastUnresolved.fRun != nullptr &&
             lastUnresolved.fRun->fIndex == fCurrentRun->fIndex) {
@@ -581,7 +581,7 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
             placeholder.fTextStyle.getFontFamilies(),
             placeholder.fTextStyle.getFontStyle(),
             placeholder.fTextStyle.getFontArguments());
-        sk_sp<SkTypeface> typeface = typefaces.size() ? typefaces.front() : nullptr;
+        sk_sp<SkTypeface> typeface = typefaces.empty() ? nullptr : typefaces.front();
         SkFont font(typeface, placeholder.fTextStyle.getFontSize());
 
         // "Shape" the placeholder
