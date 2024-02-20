@@ -65,3 +65,24 @@ skia_cc_library(
         "//tools/testrunners/common/surface_manager:ganesh_gl",
     ],
 )
+
+skia_cc_library(
+    name = "ganesh_vulkan",
+    testonly = True,
+    srcs = [
+        "BenchmarkTarget.cpp",
+        "GaneshBenchmarkTarget.cpp",
+    ],
+    hdrs = ["BenchmarkTarget.h"],
+    visibility = ["//bench:__pkg__"],
+    deps = [
+        "//:core",
+        "//bench:benchmark",
+        "//src/base",
+        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//tools:tool_utils",
+        "//tools/flags:cmd_flags",
+        "//tools/testrunners/common:testrunner",
+        "//tools/testrunners/common/surface_manager:ganesh_vulkan",
+    ],
+)

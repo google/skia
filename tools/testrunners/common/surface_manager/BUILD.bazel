@@ -56,3 +56,21 @@ skia_cc_library(
         "//tools/gpu:ganesh_gl_utils",
     ],
 )
+
+skia_cc_library(
+    name = "ganesh_vulkan",
+    testonly = True,
+    srcs = [
+        "GaneshVulkanSurfaceManager.cpp",
+        "SurfaceManager.cpp",
+    ],
+    hdrs = ["SurfaceManager.h"],
+    visibility = ["//tools/testrunners:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//tools:tool_utils",
+        "//tools/gpu:ganesh_vulkan_utils",
+    ],
+)

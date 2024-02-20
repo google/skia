@@ -168,10 +168,11 @@ skia_filegroup(
 
 skia_filegroup(
     name = "load_dynamic_library",
-    srcs = select({
+    srcs = ["SkOSLibrary.h"] + select({
         "@platforms//os:windows": ["SkOSLibrary_win.cpp"],
         "//conditions:default": ["SkOSLibrary_posix.cpp"],
     }),
+    visibility = ["//tools/gpu:__pkg__"],
 )
 
 skia_filegroup(
