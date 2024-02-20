@@ -15,29 +15,19 @@ namespace skgpu::graphite {
 
 SmallPathAtlas::SmallPathAtlas(Recorder* recorder)
         : PathAtlas(recorder, kDefaultAtlasDim, kDefaultAtlasDim) {
-}
-
-bool SmallPathAtlas::initAtlas() {
-    if (fDrawAtlas) {
-        return true;
-    }
-
     static constexpr size_t kPlotWidth = 512;
     static constexpr size_t kPlotHeight = 256;
     static constexpr SkColorType colorType = kAlpha_8_SkColorType;
 
-    // TODO: Set atlas size based on maxTextureSize()
     fDrawAtlas = DrawAtlas::Make(colorType,
                                  SkColorTypeBytesPerPixel(colorType),
-                                 kDefaultAtlasDim, kDefaultAtlasDim,
+                                 this->width(), this->height(),
                                  kPlotWidth, kPlotHeight,
                                  this,
                                  DrawAtlas::AllowMultitexturing::kYes,
                                  this,
                                  /*label=*/"SmallPathAtlas");
     fKeyLists.resize(fDrawAtlas->numPlots() * fDrawAtlas->maxPages());
-
-    return SkToBool(fDrawAtlas);
 }
 
 bool SmallPathAtlas::recordUploads(DrawContext* dc) {

@@ -20,13 +20,14 @@
 namespace skgpu::graphite {
 
 RasterPathAtlas::RasterPathAtlas(Recorder* recorder)
-    : PathAtlas(recorder, kDefaultAtlasDim, kDefaultAtlasDim) {
+        : PathAtlas(recorder, kDefaultAtlasDim, kDefaultAtlasDim) {
 
     // set up LRU list
-    Page* currPage = &fPageArray[0];
+    fPageArray = std::make_unique<std::unique_ptr<Page>[]>(kMaxPages);
+    std::unique_ptr<Page>* currPage = &fPageArray[0];
     for (int i = 0; i < kMaxPages; ++i) {
-        fPageList.addToHead(currPage);
-        currPage->fIdentifier = i;
+        *currPage = std::make_unique<Page>(this->width(), this->height(), i);
+        fPageList.addToHead(currPage->get());
         ++currPage;
     }
 }

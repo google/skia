@@ -34,16 +34,20 @@ class Transform;
  * PathAtlas manages one or more atlas textures that store coverage masks for path rendering.
  *
  * The contents of a PathAtlas are intended to be transient: atlas regions are considered valid only
- * for the scope of the render passes that sample them. Unlike DrawAtlas, PathAtlas does not support
- * partial eviction and reuse of subregions. Once an atlas texture is filled up, all of its
- * sub-allocations must be invalidated before it can be reused.
+ * for the scope of the render passes that sample them. Unlike DrawAtlas, PathAtlas does not
+ * necessarily support partial eviction and reuse of subregions. In most subclasses, once an atlas
+ * texture is filled up all of its sub-allocations must be invalidated before it can be reused.
  *
  * PathAtlas does not prescribe how atlas contents get uploaded to the GPU. The specific task
  * mechanism is defined by subclasses.
  */
 class PathAtlas {
 public:
-    PathAtlas(Recorder* recorder, uint32_t width, uint32_t height);
+    /**
+     * The PathAtlas will use textures of the requested size or the system's maximum texture size,
+     * whichever is smaller.
+     */
+    PathAtlas(Recorder* recorder, uint32_t requestedWidth, uint32_t requestedHeight);
     virtual ~PathAtlas();
 
     using MaskAndOrigin = std::pair<CoverageMaskShape, SkIPoint>;
@@ -111,8 +115,8 @@ protected:
     // The Recorder that created and owns this Atlas.
     Recorder* fRecorder;
 
-    uint32_t fWidth;
-    uint32_t fHeight;
+    uint32_t fWidth = 0;
+    uint32_t fHeight = 0;
 };
 
 class DispatchGroup;

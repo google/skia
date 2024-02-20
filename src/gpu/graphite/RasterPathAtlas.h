@@ -46,6 +46,9 @@ private:
     static constexpr int kDefaultAtlasDim = 4096;
 
     struct Page {
+        Page(int width, int height, uint16_t identifier)
+                : fRectanizer(width, height)
+                , fIdentifier(identifier) {}
         bool initializeTextureIfNeeded(Recorder* recorder, uint16_t identifier);
 
         // A Page lazily requests a texture from the AtlasProvider when the first shape gets added
@@ -54,7 +57,7 @@ private:
         // render pass.
         sk_sp<TextureProxy> fTexture;
         // Tracks placement of paths in a Page
-        skgpu::RectanizerSkyline fRectanizer = {kDefaultAtlasDim, kDefaultAtlasDim};
+        skgpu::RectanizerSkyline fRectanizer;
         // Rendered data that gets uploaded
         SkAutoPixmapStorage fPixels;
         // Area that's needed to be uploaded
@@ -87,7 +90,7 @@ private:
     // LRU list of Pages (MRU at head - LRU at tail)
     PageList fPageList;
     // Allocated array of pages (backing data for list)
-    Page fPageArray[kMaxPages];
+    std::unique_ptr<std::unique_ptr<Page>[]> fPageArray;
 };
 
 }  // namespace skgpu::graphite

@@ -95,8 +95,10 @@ DrawAtlas::DrawAtlas(SkColorType colorType, size_t bpp, int width, int height,
     int numPlotsX = width/plotWidth;
     int numPlotsY = height/plotHeight;
     SkASSERT(numPlotsX * numPlotsY <= PlotLocator::kMaxPlots);
-    SkASSERT(fPlotWidth * numPlotsX == fTextureWidth);
-    SkASSERT(fPlotHeight * numPlotsY == fTextureHeight);
+    SkASSERTF(fPlotWidth * numPlotsX == fTextureWidth,
+             "Invalid DrawAtlas. Plot width: %d, texture width %d", fPlotWidth, fTextureWidth);
+    SkASSERTF(fPlotHeight * numPlotsY == fTextureHeight,
+              "Invalid DrawAtlas. Plot height: %d, texture height %d", fPlotHeight, fTextureHeight);
 
     fNumPlots = numPlotsX * numPlotsY;
 

@@ -34,8 +34,6 @@ public:
     explicit SmallPathAtlas(Recorder*);
     ~SmallPathAtlas() override {}
 
-    bool initAtlas();
-
     bool recordUploads(DrawContext*);
 
 protected:
@@ -48,7 +46,6 @@ protected:
 private:
     void evict(PlotLocator) override;
 
-    // TODO: select atlas size dynamically? Take ContextOptions::fMaxTextureAtlasSize into account?
     static constexpr int kDefaultAtlasDim = 2048;
 
     std::unique_ptr<DrawAtlas> fDrawAtlas;
