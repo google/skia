@@ -2,6 +2,41 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 123
+-------------
+  * When `SkCodec::SelectionPolicy::kPreferStillImage` is passed to `SkWuffsCodec`/`SkGifDecoder`
+    creation, and the input stream cannot be rewound, the resulting `SkWuffsCodec` will no longer copy
+    the stream. Because it will now have a non-seekable stream, it no longer supports `getFrameCount`,
+    which will now simply report `1`, or `getFrameInfo`, which is useful only for animation anyway.
+    Chromium uses `kPreferStillImage`, simply because it is the default, but will not be affected by
+    this change because it always supplies a seekable stream.
+  * A `kDefault_Flag = 0` value has been added to the `SkSurfaceProps::Flags` enum. This is just a
+    self-documenting zero-value that aims to improve code readability, e.g.:
+
+    ```
+    // The two lines below are equivalent.
+
+    SkSurfaceProps(/* surfaceFlags= */ 0, kRGB_H_SkPixelGeometry);
+
+    SkSurfaceProps(SkSurfaceProps::kDefault_Flag, kRGB_H_SkPixelGeometry);
+    ```
+  * In native builds the default use of `wgpu::Device::Tick` to detect GPU progress has been updated
+    to use `wgpu::Instance::ProcessEvents` instead. To simulate the non-yielding behavior of `Context`
+    in native `DawnBackendContext::fTick` may still be explicitly set to `nullptr`.
+  * The Vulkan backend for both Ganesh and Graphite will now invoke an optional client-provided callback
+    function when a `VK_ERROR_DEVICE_LOST` error code is returned from the Vulkan driver. Additional
+    debugging information will be passed from the driver to this callback if the `VK_EXT_device_fault`
+    extension is supported and enabled.
+
+    This optional callback can be be provided via the `fDeviceLostContext` and `fDeviceLostProc` fields
+    on `GrVkBackendContext` (Ganesh) and `VulkanBackendContext` (Graphite).
+  * `SkAnimCodecPlayer` has been removed from the public API.
+  * `SkCodec::getImage()` will now respect the origin in the metadata (e.g. Exif metadata that
+    rotates the image). This may mean callers who provide an SkImageInfo may need to rotate it,
+    e.g. via `SkPixmapUtils::SwapWidthHeight`.
+
+* * *
+
 Milestone 122
 -------------
   * `graphite::BackendTexture` can be created from a `WGPUTextureView`. This comes with a
