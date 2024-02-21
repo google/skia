@@ -115,7 +115,7 @@ def skia_cc_binary_with_flags(
         **kwargs
     )
 
-def skia_cc_library(name, copts = DEFAULT_COPTS, **kwargs):
+def skia_cc_library(name, copts = DEFAULT_COPTS, local_defines = [], **kwargs):
     """A wrapper around cc_library for Skia C++ libraries.
 
     This lets us provide compiler flags (copts) consistently to the Skia build (e.g. //:skia_public)
@@ -130,9 +130,20 @@ def skia_cc_library(name, copts = DEFAULT_COPTS, **kwargs):
         name: the name of the underlying library.
         copts: Flags which should be passed to the C++ compiler. By default, we use DEFAULT_COPTS
             from @skia_user_config//:copts.bzl.
+        local_defines: Defines set when compiling this library, but not dependents. We
+            add a define to all our libraries to correctly export/import symbols.
         **kwargs: All the normal arguments that cc_library takes.
     """
-    native.cc_library(name = name, copts = copts, **kwargs)
+
+    # This allows us to mark APIs as exported when building this
+    # as a library, but the APIs will be marked as an import
+    # (the default) when clients try to use our headers. See SkAPI.h for more.
+    # We have to create a new (mutable) list since if the client passes in a list
+    # it will be immutable ("frozen").
+    ld = []
+    ld.extend(local_defines)
+    ld.append("SKIA_IMPLEMENTATION=1")
+    native.cc_library(name = name, copts = copts, local_defines = ld, **kwargs)
 
 def skia_cc_deps(name, visibility, deps = [], linkopts = [], textual_hdrs = [], testonly = False):
     """A self-documenting wrapper around cc_library for things to pass to the top skia_cc_library.

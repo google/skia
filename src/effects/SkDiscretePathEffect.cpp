@@ -75,7 +75,7 @@ static void Perterb(SkPoint* p, const SkVector& tangent, SkScalar scale) {
     *p += normal;
 }
 
-class SK_API SkDiscretePathEffectImpl : public SkPathEffectBase {
+class SkDiscretePathEffectImpl : public SkPathEffectBase {
 public:
     SkDiscretePathEffectImpl(SkScalar segLength, SkScalar deviation, uint32_t seedAssist)
         : fSegLength(segLength), fPerterb(deviation), fSeedAssist(seedAssist)

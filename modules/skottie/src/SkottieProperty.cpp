@@ -58,6 +58,8 @@ bool TransformPropertyValue::operator!=(const TransformPropertyValue& other) con
     return !(*this == other);
 }
 
+// The SK_API attributes are important here due o them being declared as a template.
+
 template <> SK_API
 ColorPropertyHandle::PropertyHandle(sk_sp<sksg::Color> node)
     : fNode(std::move(node)), fRevalidator(nullptr) {}

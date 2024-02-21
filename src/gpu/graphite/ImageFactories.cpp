@@ -186,15 +186,15 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
                               imageContext);
 }
 
-SK_API sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
-                                             const YUVABackendTextureInfo& backendTextureInfo,
-                                             sk_sp<SkColorSpace> imageColorSpace,
-                                             skgpu::graphite::Volatile isVolatile,
-                                             GraphitePromiseImageYUVAFulfillProc fulfillProc,
-                                             GraphitePromiseImageReleaseProc imageReleaseProc,
-                                             GraphitePromiseTextureReleaseProc textureReleaseProc,
-                                             GraphitePromiseImageContext imageContext,
-                                             GraphitePromiseTextureContext textureContexts[]) {
+sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
+                                      const YUVABackendTextureInfo& backendTextureInfo,
+                                      sk_sp<SkColorSpace> imageColorSpace,
+                                      skgpu::graphite::Volatile isVolatile,
+                                      GraphitePromiseImageYUVAFulfillProc fulfillProc,
+                                      GraphitePromiseImageReleaseProc imageReleaseProc,
+                                      GraphitePromiseTextureReleaseProc textureReleaseProc,
+                                      GraphitePromiseImageContext imageContext,
+                                      GraphitePromiseTextureContext textureContexts[]) {
     // Our contract is that we will always call the _image_ release proc even on failure.
     // We use the helper to convey the imageContext, so we need to ensure Make doesn't fail.
     imageReleaseProc = imageReleaseProc ? imageReleaseProc : [](void*) {};

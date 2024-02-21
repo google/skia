@@ -171,7 +171,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SK_API SkPath2DPathEffectImpl : public Sk2DPathEffect {
+class SkPath2DPathEffectImpl : public Sk2DPathEffect {
 public:
     SkPath2DPathEffectImpl(const SkMatrix& m, const SkPath& p) : INHERITED(m), fPath(p) {}
 

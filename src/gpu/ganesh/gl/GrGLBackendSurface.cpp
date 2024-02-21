@@ -270,8 +270,8 @@ static const GrGLBackendRenderTargetData* get_and_cast_data(const GrBackendRende
 namespace GrBackendRenderTargets {
 // The GrGLTextureInfo must have a valid fFormat. If wrapping in an SkSurface we require the
 // stencil bits to be either 0, 8 or 16.
-SK_API GrBackendRenderTarget
-MakeGL(int width, int height, int sampleCnt, int stencilBits, const GrGLFramebufferInfo& glInfo) {
+GrBackendRenderTarget MakeGL(
+        int width, int height, int sampleCnt, int stencilBits, const GrGLFramebufferInfo& glInfo) {
     return GrBackendSurfacePriv::MakeGrBackendRenderTarget(width,
                                                            height,
                                                            std::max(1, sampleCnt),
@@ -281,7 +281,7 @@ MakeGL(int width, int height, int sampleCnt, int stencilBits, const GrGLFramebuf
                                                            GrGLBackendRenderTargetData(glInfo));
 }
 
-SK_API bool GetGLFramebufferInfo(const GrBackendRenderTarget& rt, GrGLFramebufferInfo* outInfo) {
+bool GetGLFramebufferInfo(const GrBackendRenderTarget& rt, GrGLFramebufferInfo* outInfo) {
     if (!rt.isValid() || rt.backend() != GrBackendApi::kOpenGL) {
         return false;
     }

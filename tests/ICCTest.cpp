@@ -32,13 +32,13 @@ DEF_TEST(AdobeRGB, r) {
 
 DEF_TEST(HDR_ICC, r) {
     constexpr size_t kTestCount = 3;
-    SK_API sk_sp<SkData> profile[kTestCount] = {
+    sk_sp<SkData> profile[kTestCount] = {
             SkWriteICCProfile(SkNamedTransferFn::kPQ, SkNamedGamut::kRec2020),
             SkWriteICCProfile(SkNamedTransferFn::kHLG, SkNamedGamut::kDisplayP3),
             SkWriteICCProfile(SkNamedTransferFn::kSRGB, SkNamedGamut::kSRGB),
     };
 
-    SK_API sk_sp<SkData> dst_profile[kTestCount] = {
+    sk_sp<SkData> dst_profile[kTestCount] = {
             SkWriteICCProfile(SkNamedTransferFn::kLinear, SkNamedGamut::kRec2020),
             SkWriteICCProfile(SkNamedTransferFn::kLinear, SkNamedGamut::kDisplayP3),
             SkWriteICCProfile(SkNamedTransferFn::kLinear, SkNamedGamut::kSRGB),

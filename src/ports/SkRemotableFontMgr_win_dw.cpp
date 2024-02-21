@@ -27,7 +27,7 @@
 
 using namespace skia_private;
 
-class SK_API SkRemotableFontMgr_DirectWrite : public SkRemotableFontMgr {
+class SkRemotableFontMgr_DirectWrite : public SkRemotableFontMgr {
 private:
     struct DataId {
         IUnknown* fLoader;  // In COM only IUnknown pointers may be safely used for identity.

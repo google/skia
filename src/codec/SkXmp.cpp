@@ -350,7 +350,7 @@ static const SkDOM::Node* find_uri_namespaces(const SkDOM& dom,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SkXmpImpl
 
-class SK_API SkXmpImpl final : public SkXmp {
+class SkXmpImpl final : public SkXmp {
 public:
     SkXmpImpl() = default;
 

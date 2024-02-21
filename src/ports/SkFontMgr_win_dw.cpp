@@ -872,14 +872,14 @@ sk_sp<SkTypeface> SkFontStyleSet_DirectWrite::matchStyle(const SkFontStyle& patt
 ////////////////////////////////////////////////////////////////////////////////
 #include "include/ports/SkTypeface_win.h"
 
-SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
-                                                  IDWriteFontCollection* collection) {
+sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
+                                           IDWriteFontCollection* collection) {
     return SkFontMgr_New_DirectWrite(factory, collection, nullptr);
 }
 
-SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
-                                                  IDWriteFontCollection* collection,
-                                                  IDWriteFontFallback* fallback) {
+sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
+                                           IDWriteFontCollection* collection,
+                                           IDWriteFontFallback* fallback) {
     if (nullptr == factory) {
         factory = sk_get_dwrite_factory();
         if (nullptr == factory) {
@@ -946,7 +946,7 @@ SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
 }
 
 #include "include/ports/SkFontMgr_indirect.h"
-SK_API sk_sp<SkFontMgr> SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
+sk_sp<SkFontMgr> SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
     sk_sp<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
     if (!impl) {
         return nullptr;

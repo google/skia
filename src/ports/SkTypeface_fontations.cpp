@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/ports/SkTypeface_fontations.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -16,7 +17,6 @@
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
 #include "src/ports/SkTypeface_fontations_priv.h"
-
 #include "src/ports/fontations/src/skpath_bridge.h"
 
 namespace {
@@ -75,8 +75,8 @@ SkMatrix SkMatrixFromFontationsTransform(const fontations_ffi::Transform& transf
 
 }  // namespace
 
-SK_API sk_sp<SkTypeface> SkTypeface_Make_Fontations(std::unique_ptr<SkStreamAsset> fontData,
-                                                    const SkFontArguments& args) {
+sk_sp<SkTypeface> SkTypeface_Make_Fontations(std::unique_ptr<SkStreamAsset> fontData,
+                                             const SkFontArguments& args) {
     return SkTypeface_Fontations::MakeFromStream(std::move(fontData), args);
 }
 
