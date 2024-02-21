@@ -49,6 +49,12 @@ public:
     // Returns true if the filter is guaranteed to never change the alpha of a color it filters.
     bool isAlphaUnchanged() const;
 
+    /**
+     * Applies this filter to the input color. This function does no color management.
+     *
+     * DEPRECATED: Please use filterColor4f instead. That function supports higher precision,
+     *             wide-gamut color, and is explicit about the color space of the input and output.
+     */
     SkColor filterColor(SkColor) const;
 
     /**
