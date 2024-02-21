@@ -36,21 +36,6 @@ skia_cc_library(
     ],
 )
 
-skia_cc_library(
-    name = "tests_base",
-    testonly = True,
-    deps = [
-        "//:core",
-        "//gm",
-        "//src/utils:json",
-        "//tools:codec_utils",
-        "//tools:hash_and_encode",
-        "//tools:tool_utils",
-        "//tools/testrunners/common:testrunner",
-        "//tools/testrunners/common/compilation_mode_keys",
-    ],
-)
-
 CPU_GMS = [
     # This is an incomplete list of GMs that only require a CPU.
     # TODO(lovisolo): Complete this list.
@@ -490,6 +475,17 @@ GPU_GMS = [
     # "clockwise.cpp",  # ./include/core/SkRefCnt.h:41: fatal error: "assert(this->getRefCnt() == 1)"
 ]
 
+COMMON_DEPS = [
+    "//:core",
+    "//gm",
+    "//src/utils:json",
+    "//tools:codec_utils",
+    "//tools:hash_and_encode",
+    "//tools:tool_utils",
+    "//tools/testrunners/common:testrunner",
+    "//tools/testrunners/common/compilation_mode_keys",
+]
+
 # Sample invocation:
 #
 #     $ bazel run --config=linux_rbe //gm:cpu_8888_test
@@ -507,8 +503,7 @@ skia_cc_test(
         "8888",
     ],
     data = ["//resources"],
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:raster",
         "//tools/testrunners/gm/vias:simple_vias",
         "//tools/timer",  # Required by addarc.cpp and animatedimageblurs.cpp.
@@ -532,8 +527,7 @@ skia_cc_test(
         "arithmode_blender",
     ],
     data = ["//resources"],
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:raster",
         "//tools/testrunners/gm/vias:simple_vias",
         "//tools/timer",  # Required by addarc.cpp and animatedimageblurs.cpp.
@@ -552,8 +546,7 @@ skia_cc_test(
         "picture",
     ],
     data = ["//resources"],
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:raster",
         "//tools/testrunners/gm/vias:simple_vias",
         "//tools/timer",  # Required by addarc.cpp and animatedimageblurs.cpp.
@@ -582,8 +575,7 @@ skia_cc_test(
         "gles",
     ],
     data = ["//resources"],
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:ganesh_gl",
         "//tools/testrunners/gm/vias:simple_vias",
     ],
@@ -601,8 +593,7 @@ skia_cc_test(
             surfaceConfig,
         ],
         data = ["//resources"],
-        deps = [
-            ":tests_base",
+        deps = COMMON_DEPS + [
             "//tools/testrunners/common/surface_manager:ganesh_vulkan",
             "//tools/testrunners/gm/vias:simple_vias",
         ],
@@ -650,8 +641,7 @@ skia_cc_test(
         "8888",
     ],
     data = ["//resources"],
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:raster",
         "//tools/testrunners/gm/vias:simple_vias",
     ],
@@ -668,8 +658,7 @@ android_gm_test(
         "8888",
     ],
     requires_resources_dir = True,
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:raster",
         "//tools/testrunners/gm/vias:simple_vias",
     ],
@@ -693,8 +682,7 @@ android_gm_test(
             "8888",
         ],
         requires_resources_dir = True,
-        deps = [
-            ":tests_base",
+        deps = COMMON_DEPS + [
             "//tools/testrunners/common/surface_manager:raster",
             "//tools/testrunners/gm/vias:simple_vias",
             "//tools/timer",  # Required by addarc.cpp and animatedimageblurs.cpp.
@@ -716,8 +704,7 @@ android_gm_test(
         "gles",
     ],
     requires_resources_dir = True,
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:ganesh_gl",
         "//tools/testrunners/gm/vias:simple_vias",
     ],
@@ -737,8 +724,7 @@ android_gm_test(
         "anisomips",  # Fails with "Recorded and reference bitmap pixels do not match".
     ],
     requires_resources_dir = True,
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:ganesh_gl",
         "//tools/testrunners/gm/vias:simple_vias",
     ],
@@ -758,8 +744,7 @@ android_gm_test(
         "anisomips",  # Fails with "Recorded and reference bitmap pixels do not match".
     ],
     requires_resources_dir = True,
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:ganesh_gl",
         "//tools/testrunners/gm/vias:simple_vias",
     ],
@@ -775,8 +760,7 @@ android_gm_test(
         "vk",
     ],
     requires_resources_dir = True,
-    deps = [
-        ":tests_base",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/common/surface_manager:ganesh_vulkan",
         "//tools/testrunners/gm/vias:simple_vias",
     ],
