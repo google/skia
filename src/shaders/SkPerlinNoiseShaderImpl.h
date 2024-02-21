@@ -295,6 +295,8 @@ public:
     SkISize tileSize() const { return fTileSize; }
 
     std::unique_ptr<PaintingData> getPaintingData(const SkMatrix& mat) const {
+        // TODO(b/40045243): the passed-in matrix should be removed once Graphite switches over to
+        // local coordinates
         return std::make_unique<PaintingData>(
                 fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, mat);
     }
