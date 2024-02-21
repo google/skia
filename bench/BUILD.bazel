@@ -28,15 +28,23 @@ skia_cc_library(
     ],
 )
 
-skia_cc_library(
-    name = "benchmarks_base",
-    testonly = True,
-    deps = [
-        ":benchmark",
-        "//:skia_internal",
-        "//tools/testrunners/benchmark:testrunner",
-    ],
-)
+COMMON_DEPS = [
+    "//:core",
+    "//:png_encode_codec",
+    "//bench:benchmark",
+    "//src/base",
+    "//src/utils:json",
+    "//tools:autorelease_pool",
+    "//tools:registry",
+    "//tools:resources",
+    "//tools:stats",
+    "//tools:tool_utils",
+    "//tools/flags:cmd_flags",
+    "//tools/fonts:font_tool_utils",
+    "//tools/testrunners/common:testrunner",
+    "//tools/testrunners/common/compilation_mode_keys",
+    "//tools/timer",
+]
 
 skia_cc_test(
     name = "cpu_nonrendering_test",
@@ -50,23 +58,8 @@ skia_cc_test(
         "nonrendering",
         "--autoTuneLoops",
     ],
-    deps = [
-        "//:core",
-        "//:png_encode_codec",
-        "//bench:benchmark",
-        "//src/base",
-        "//src/utils:json",
-        "//tools:autorelease_pool",
-        "//tools:registry",
-        "//tools:resources",
-        "//tools:stats",
-        "//tools:tool_utils",
-        "//tools/flags:cmd_flags",
-        "//tools/fonts:font_tool_utils",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/benchmark/target:raster",
-        "//tools/testrunners/common:testrunner",
-        "//tools/testrunners/common/compilation_mode_keys",
-        "//tools/timer",
     ],
 )
 
@@ -82,23 +75,8 @@ skia_cc_test(
         "8888",
         "--autoTuneLoops",
     ],
-    deps = [
-        "//:core",
-        "//:png_encode_codec",
-        "//bench:benchmark",
-        "//src/base",
-        "//src/utils:json",
-        "//tools:autorelease_pool",
-        "//tools:registry",
-        "//tools:resources",
-        "//tools:stats",
-        "//tools:tool_utils",
-        "//tools/flags:cmd_flags",
-        "//tools/fonts:font_tool_utils",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/benchmark/target:raster",
-        "//tools/testrunners/common:testrunner",
-        "//tools/testrunners/common/compilation_mode_keys",
-        "//tools/timer",
     ],
 )
 
@@ -116,23 +94,8 @@ skia_cc_test(
             surfaceConfig,
             "--autoTuneLoops",
         ],
-        deps = [
-            "//:core",
-            "//:png_encode_codec",
-            "//bench:benchmark",
-            "//src/base",
-            "//src/utils:json",
-            "//tools:autorelease_pool",
-            "//tools:registry",
-            "//tools:resources",
-            "//tools:stats",
-            "//tools:tool_utils",
-            "//tools/flags:cmd_flags",
-            "//tools/fonts:font_tool_utils",
+        deps = COMMON_DEPS + [
             "//tools/testrunners/benchmark/target:ganesh_vulkan",
-            "//tools/testrunners/common:testrunner",
-            "//tools/testrunners/common/compilation_mode_keys",
-            "//tools/timer",
         ],
     )
     for name, surfaceConfig in [
@@ -179,23 +142,8 @@ skia_cc_test(
         "gles",
         "--autoTuneLoops",
     ],
-    deps = [
-        "//:core",
-        "//:png_encode_codec",
-        "//bench:benchmark",
-        "//src/base",
-        "//src/utils:json",
-        "//tools:autorelease_pool",
-        "//tools:registry",
-        "//tools:resources",
-        "//tools:stats",
-        "//tools:tool_utils",
-        "//tools/flags:cmd_flags",
-        "//tools/fonts:font_tool_utils",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/benchmark/target:ganesh_gl",
-        "//tools/testrunners/common:testrunner",
-        "//tools/testrunners/common/compilation_mode_keys",
-        "//tools/timer",
     ],
 )
 
@@ -211,23 +159,8 @@ android_benchmark_test(
         "nonrendering",
         "--autoTuneLoops",
     ],
-    deps = [
-        "//:core",
-        "//:png_encode_codec",
-        "//bench:benchmark",
-        "//src/base",
-        "//src/utils:json",
-        "//tools:autorelease_pool",
-        "//tools:registry",
-        "//tools:resources",
-        "//tools:stats",
-        "//tools:tool_utils",
-        "//tools/flags:cmd_flags",
-        "//tools/fonts:font_tool_utils",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/benchmark/target:raster",
-        "//tools/testrunners/common:testrunner",
-        "//tools/testrunners/common/compilation_mode_keys",
-        "//tools/timer",
     ],
 )
 
@@ -243,23 +176,8 @@ android_benchmark_test(
         "8888",
         "--autoTuneLoops",
     ],
-    deps = [
-        "//:core",
-        "//:png_encode_codec",
-        "//bench:benchmark",
-        "//src/base",
-        "//src/utils:json",
-        "//tools:autorelease_pool",
-        "//tools:registry",
-        "//tools:resources",
-        "//tools:stats",
-        "//tools:tool_utils",
-        "//tools/flags:cmd_flags",
-        "//tools/fonts:font_tool_utils",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/benchmark/target:raster",
-        "//tools/testrunners/common:testrunner",
-        "//tools/testrunners/common/compilation_mode_keys",
-        "//tools/timer",
     ],
 )
 
@@ -275,22 +193,24 @@ android_benchmark_test(
         "gles",
         "--autoTuneLoops",
     ],
-    deps = [
-        "//:core",
-        "//:png_encode_codec",
-        "//bench:benchmark",
-        "//src/base",
-        "//src/utils:json",
-        "//tools:autorelease_pool",
-        "//tools:registry",
-        "//tools:resources",
-        "//tools:stats",
-        "//tools:tool_utils",
-        "//tools/flags:cmd_flags",
-        "//tools/fonts:font_tool_utils",
+    deps = COMMON_DEPS + [
         "//tools/testrunners/benchmark/target:ganesh_gl",
-        "//tools/testrunners/common:testrunner",
-        "//tools/testrunners/common/compilation_mode_keys",
-        "//tools/timer",
+    ],
+)
+
+android_benchmark_test(
+    name = "ganesh_vk_android_test",
+    srcs = [
+        "GradientBench.cpp",
+        "TextBlobBench.cpp",
+        "//tools/testrunners/benchmark:BazelBenchmarkTestRunner.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "vk",
+        "--autoTuneLoops",
+    ],
+    deps = COMMON_DEPS + [
+        "//tools/testrunners/benchmark/target:ganesh_vulkan",
     ],
 )
