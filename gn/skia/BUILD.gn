@@ -613,6 +613,11 @@ config("warnings") {
       "-Wno-unreachable-code",  # Causes false positives in old GCC; removed
                                 # from modern GCC entirely
     ]
+    cflags_cc += [
+      "-Wno-dangling-reference",  # Attempt at borrow checker in C++.
+                                  # Warns on temporary views, like Span.
+                                  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=107532
+    ]
   }
 
   cflags_objcc += cflags_cc
