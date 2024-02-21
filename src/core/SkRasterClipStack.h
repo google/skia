@@ -106,7 +106,7 @@ private:
     SkTBlockList<Rec, 16> fStack;
     SkIRect fRootBounds;
     bool fDisableAA;
-    SkDEBUGCODE(int fCounter = 0);
+    SkDEBUGCODE(int fCounter = 0;)
 
     SkRasterClip& writable_rc() {
         SkASSERT(fStack.back().fDeferredCount >= 0);

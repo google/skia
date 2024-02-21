@@ -393,8 +393,8 @@ protected:
     bool fReverse;  // true if contour should be reverse written to path (used only by fix winding)
     bool fXor;  // set if original path had even-odd fill
     bool fOppXor;  // set if opposite path had even-odd fill
-    SkDEBUGCODE(int fID);
-    SkDEBUGCODE(mutable int fDebugIndent);
+    SkDEBUGCODE(int fID;)
+    SkDEBUGCODE(mutable int fDebugIndent;)
 };
 
 class SkOpContourHead : public SkOpContour {

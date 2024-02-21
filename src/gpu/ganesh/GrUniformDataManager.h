@@ -58,7 +58,7 @@ protected:
         SkSLType fType   : 8;
         SkDEBUGCODE(
             int  fArrayCount;
-        );
+        )
     };
 
     int copyUniforms(void* dest, const void* src, int numUniforms, SkSLType uniformType) const;

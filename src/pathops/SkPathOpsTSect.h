@@ -240,9 +240,9 @@ private:
     SkOpDebugBool fIsLinear;
     SkOpDebugBool fIsLine;
     SkOpDebugBool fDeleted;
-    SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState);
-    SkDEBUGCODE(SkTSect* fDebugSect);
-    PATH_OPS_DEBUG_T_SECT_CODE(int fID);
+    SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState;)
+    SkDEBUGCODE(SkTSect* fDebugSect;)
+    PATH_OPS_DEBUG_T_SECT_CODE(int fID;)
     friend class SkTSect;
 };
 
@@ -365,10 +365,10 @@ private:
     bool fRemovedStartT;
     bool fRemovedEndT;
     bool fHung;
-    SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState);
-    SkDEBUGCODE(SkTSect* fOppSect);
-    PATH_OPS_DEBUG_T_SECT_CODE(int fID);
-    PATH_OPS_DEBUG_T_SECT_CODE(int fDebugCount);
+    SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState;)
+    SkDEBUGCODE(SkTSect* fOppSect;)
+    PATH_OPS_DEBUG_T_SECT_CODE(int fID;)
+    PATH_OPS_DEBUG_T_SECT_CODE(int fDebugCount;)
 #if DEBUG_T_SECT
     int fDebugAllocatedCount;
 #endif

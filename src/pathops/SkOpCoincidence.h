@@ -132,7 +132,7 @@ private:
     const SkOpPtT* fCoinPtTEnd;
     const SkOpPtT* fOppPtTStart;
     const SkOpPtT* fOppPtTEnd;
-    SkDEBUGCODE(SkOpGlobalState* fGlobalState);
+    SkDEBUGCODE(SkOpGlobalState* fGlobalState;)
 };
 
 class SkOpCoincidence {

@@ -157,7 +157,7 @@ public:
         const GrStyledShape* fShape;
         GrAA                 fDoStencilMSAA;
 
-        SkDEBUGCODE(void validate() const);
+        SkDEBUGCODE(void validate() const;)
     };
 
     /**

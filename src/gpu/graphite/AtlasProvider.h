@@ -40,7 +40,7 @@ public:
         // RasterPathAtlas is supported
         kRaster  = 0b010,
     };
-    SK_DECL_BITMASK_OPS_FRIENDS(PathAtlasFlags);
+    SK_DECL_BITMASK_OPS_FRIENDS(PathAtlasFlags)
     using PathAtlasFlagsBitMask = SkEnumBitMask<PathAtlasFlags>;
 
     // Query the supported path atlas algorithms based on device capabilities.

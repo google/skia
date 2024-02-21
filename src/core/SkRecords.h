@@ -167,17 +167,23 @@ enum Tags {
 };
 
 // A macro to make it a little easier to define a struct that can be stored in SkRecord.
-#define RECORD(T, tags, ...)            \
-struct T {                              \
-    static const Type kType = T##_Type; \
-    static const int kTags = tags;      \
-    __VA_ARGS__;                        \
-};
+#define RECORD(T, tags, ...)                \
+    struct T {                              \
+        static const Type kType = T##_Type; \
+        static const int kTags = tags;      \
+        __VA_ARGS__;                        \
+    };
 
-RECORD(NoOp, 0)
+#define RECORD_TRIVIAL(T, tags)             \
+    struct T {                              \
+        static const Type kType = T##_Type; \
+        static const int kTags = tags;      \
+    };
+
+RECORD_TRIVIAL(NoOp, 0)
 RECORD(Restore, 0,
         TypedMatrix matrix)
-RECORD(Save, 0)
+RECORD_TRIVIAL(Save, 0)
 
 RECORD(SaveLayer, kHasPaint_Tag,
        Optional<SkRect> bounds;
@@ -235,7 +241,7 @@ RECORD(ClipRegion, 0,
 RECORD(ClipShader, 0,
         sk_sp<SkShader> shader;
         SkClipOp op)
-RECORD(ResetClip, 0)
+RECORD_TRIVIAL(ResetClip, 0)
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
 RECORD(DrawArc, kDraw_Tag|kHasPaint_Tag,

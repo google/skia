@@ -297,7 +297,7 @@ private:
     };
 
     std::vector<Clip> fClips;
-    sk_sp<SkImage>    fImg;;
+    sk_sp<SkImage>    fImg;
 
     using INHERITED = GM;
 };

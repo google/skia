@@ -25,7 +25,7 @@ struct SkPathOpsBounds;
 struct SkOpCurve {
     SkPoint fPts[4];
     SkScalar fWeight;
-    SkDEBUGCODE(SkPath::Verb fVerb);
+    SkDEBUGCODE(SkPath::Verb fVerb;)
 
     const SkPoint& operator[](int n) const {
         SkASSERT(n >= 0 && n <= SkPathOpsVerbToPoints(fVerb));
@@ -59,7 +59,7 @@ struct SkDCurve {
         SkDConic fConic;
         SkDCubic fCubic;
     };
-    SkDEBUGCODE(SkPath::Verb fVerb);
+    SkDEBUGCODE(SkPath::Verb fVerb;)
 
     const SkDPoint& operator[](int n) const {
         SkASSERT(n >= 0 && n <= SkPathOpsVerbToPoints(fVerb));

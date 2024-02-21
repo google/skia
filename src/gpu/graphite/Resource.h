@@ -380,7 +380,7 @@ private:
     // resource being purgeable or not. However, purgeable itself just means having no refs. The
     // refs can be removed before a Resource is returned to the cache (or even added to the
     // ReturnQueue).
-    SkDEBUGCODE(mutable bool fNonShareableInCache = false);
+    SkDEBUGCODE(mutable bool fNonShareableInCache = false;)
 };
 
 } // namespace skgpu::graphite

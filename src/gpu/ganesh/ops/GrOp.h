@@ -249,7 +249,7 @@ public:
      * chain or null if this was already a tail.
      */
     GrOp::Owner cutChain();
-    SkDEBUGCODE(void validateChain(GrOp* expectedTail = nullptr) const);
+    SkDEBUGCODE(void validateChain(GrOp* expectedTail = nullptr) const;)
 
 #ifdef SK_DEBUG
     virtual void validate() const {}

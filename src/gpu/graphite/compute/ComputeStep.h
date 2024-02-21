@@ -255,7 +255,7 @@ protected:
         kNone                 = 0b00000,
         kSupportsNativeShader = 0b00010,
     };
-    SK_DECL_BITMASK_OPS_FRIENDS(Flags);
+    SK_DECL_BITMASK_OPS_FRIENDS(Flags)
 
     ComputeStep(std::string_view name,
                 WorkgroupSize localDispatchSize,

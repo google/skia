@@ -31,7 +31,7 @@ class OpsTask;
 class GrRenderTask : public SkRefCnt {
 public:
     GrRenderTask();
-    SkDEBUGCODE(~GrRenderTask() override);
+    SkDEBUGCODE(~GrRenderTask() override;)
 
     void makeClosed(GrRecordingContext*);
 

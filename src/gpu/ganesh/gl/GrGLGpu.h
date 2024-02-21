@@ -864,7 +864,7 @@ private:
     // we call glFlush and reset this to false.
     bool fNeedsGLFlush = false;
 
-    SkDEBUGCODE(bool fIsExecutingCommandBuffer_DebugOnly = false);
+    SkDEBUGCODE(bool fIsExecutingCommandBuffer_DebugOnly = false;)
 
     friend class GrGLPathRendering; // For accessing setTextureUnit.
 

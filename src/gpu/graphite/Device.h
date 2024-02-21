@@ -210,7 +210,7 @@ private:
         // - drawShape after it's applied the path effect.
         kIgnorePathEffect = 0b010,
     };
-    SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags);
+    SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags)
 
     Device(Recorder*, sk_sp<DrawContext>, bool addInitialClear, bool registerWithRecorder);
 

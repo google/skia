@@ -213,7 +213,7 @@ private:
 
     bool submitToGpu(GrSyncCpu sync);
 
-    SkDEBUGCODE(void validate() const);
+    SkDEBUGCODE(void validate() const;)
 
     friend class GrDirectContext; // access to: flush & cleanup
     friend class GrOnFlushResourceProvider; // this is just a shallow wrapper around this class

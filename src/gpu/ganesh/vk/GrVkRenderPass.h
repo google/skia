@@ -90,7 +90,7 @@ public:
         // at least have a color attachment.
         kExternal_AttachmentFlag = 0x8,
     };
-    SK_DECL_BITFIELD_OPS_FRIENDS(AttachmentFlags);
+    SK_DECL_BITFIELD_OPS_FRIENDS(AttachmentFlags)
 
     enum class SelfDependencyFlags {
         kNone =                   0,

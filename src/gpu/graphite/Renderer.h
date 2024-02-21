@@ -172,7 +172,7 @@ protected:
         kEmitsPrimitiveColor   = 0b0100000,
         kOutsetBoundsForAA     = 0b1000000,
     };
-    SK_DECL_BITMASK_OPS_FRIENDS(Flags);
+    SK_DECL_BITMASK_OPS_FRIENDS(Flags)
 
     // While RenderStep does not define the full program that's run for a draw, it defines the
     // entire vertex layout of the pipeline. This is not allowed to change, so can be provided to

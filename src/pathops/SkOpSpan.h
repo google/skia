@@ -172,7 +172,7 @@ protected:
     bool fDuplicatePt;  // set if identical pt is somewhere in the next loop
     // below mutable since referrer is otherwise always const
     mutable bool fCoincident;  // set if at some point a coincident span pointed here
-    SkDEBUGCODE(int fID);
+    SkDEBUGCODE(int fID;)
 };
 
 class SkOpSpanBase {
@@ -410,9 +410,9 @@ protected:  // no direct access to internals to avoid treating a span base as a 
     int fSpanAdds;  // number of times intersections have been added to span
     bool fAligned;
     bool fChased;  // set after span has been added to chase array
-    SkDEBUGCODE(int fCount);  // number of pt/t pairs added
-    SkDEBUGCODE(int fID);
-    SkDEBUGCODE(bool fDebugDeleted);  // set when span was merged with another span
+    SkDEBUGCODE(int fCount;)  // number of pt/t pairs added
+    SkDEBUGCODE(int fID;)
+    SkDEBUGCODE(bool fDebugDeleted;)  // set when span was merged with another span
 };
 
 class SkOpSpan : public SkOpSpanBase {

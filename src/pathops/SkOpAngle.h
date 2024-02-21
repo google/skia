@@ -146,7 +146,7 @@ private:
     bool fComputedSector;
     bool fCheckCoincidence;
     bool fTangentsAmbiguous;
-    SkDEBUGCODE(int fID);
+    SkDEBUGCODE(int fID;)
 
     friend class PathOpsAngleTester;
 };
