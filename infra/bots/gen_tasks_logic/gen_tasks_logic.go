@@ -2181,9 +2181,6 @@ type labelAndSavedOutputDir struct {
 // The reason we need this mapping is because Buildbucket build names cannot have / or : in them.
 var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"base":                           {"//src/base:base", ""},
-	"example_hello_world_dawn":       {"//example:hello_world_dawn", ""},
-	"example_hello_world_gl":         {"//example:hello_world_gl", ""},
-	"example_hello_world_vulkan":     {"//example:hello_world_vulkan", ""},
 	"modules_canvaskit":              {"//modules/canvaskit:canvaskit", ""},
 	"modules_canvaskit_js_tests":     {"//modules/canvaskit:canvaskit_js_tests", ""},
 	"skia_public":                    {"//:skia_public", ""},

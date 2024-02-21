@@ -243,8 +243,8 @@ def go_repositories():
     go_repository(
         name = "com_github_danjacques_gofslock",
         importpath = "github.com/danjacques/gofslock",
-        sum = "h1:BBkZ6LZYtzMQ2Oo5LkovMmUp0gxAD+AnXzfknZlFTBo=",
-        version = "v0.0.0-20230728142113-ae8f59f9e88b",
+        sum = "h1:m+Fkk9QEMuV6Z1ithqqYogOHV7Pl6rMKe34NBTJTS/c=",
+        version = "v0.0.0-20240212154529-d899e02bfe22",
     )
 
     go_repository(
