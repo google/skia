@@ -979,8 +979,8 @@ $pure half4 $noise_function(half2 noiseVec,
                             sampler2D noiseSampler) {
     half2 fractVal = fract(noiseVec);
 
-    // smooth curve : t^2*(3 - 2*t)
-    half2 noiseSmooth = fractVal*fractVal*(half2(3) - 2*fractVal);
+    // Hermite interpolation : t^2*(3 - 2*t)
+    half2 noiseSmooth = smoothstep(0, 1, fractVal);
 
     // This is used to convert the two 16bit integers packed into rgba 8 bit input into
     // a [-1,1] vector
@@ -993,30 +993,30 @@ $pure half4 $noise_function(half2 noiseVec,
         // There are 4 lines in the noise texture, put y coords at center of each.
         half chanCoord = (half(channel) + 0.5) / 4.0;
 
-        half4 sampleA = sample(noiseSampler, half2(noiseXCoords.x, chanCoord));
-        half4 sampleB = sample(noiseSampler, half2(noiseXCoords.y, chanCoord));
-        half4 sampleC = sample(noiseSampler, half2(noiseXCoords.w, chanCoord));
-        half4 sampleD = sample(noiseSampler, half2(noiseXCoords.z, chanCoord));
+        half4 sampleA = sample(noiseSampler, float2(noiseXCoords.x, chanCoord));
+        half4 sampleB = sample(noiseSampler, float2(noiseXCoords.y, chanCoord));
+        half4 sampleC = sample(noiseSampler, float2(noiseXCoords.w, chanCoord));
+        half4 sampleD = sample(noiseSampler, float2(noiseXCoords.z, chanCoord));
 
         half2 tmpFractVal = fractVal;
 
         // Compute u, at offset (0,0)
-        half u = dot((sampleA.ga + sampleA.rb*kInv256)*2 - half2(1), tmpFractVal);
+        half u = dot((sampleA.ga + sampleA.rb*kInv256)*2 - 1, tmpFractVal);
 
         // Compute v, at offset (-1,0)
         tmpFractVal.x -= 1.0;
-        half v = dot((sampleB.ga + sampleB.rb*kInv256)*2 - half2(1), tmpFractVal);
+        half v = dot((sampleB.ga + sampleB.rb*kInv256)*2 - 1, tmpFractVal);
 
         // Compute 'a' as a linear interpolation of 'u' and 'v'
         half a = mix(u, v, noiseSmooth.x);
 
         // Compute v, at offset (-1,-1)
         tmpFractVal.y -= 1.0;
-        v = dot((sampleC.ga + sampleC.rb*kInv256)*2 - half2(1), tmpFractVal);
+        v = dot((sampleC.ga + sampleC.rb*kInv256)*2 - 1, tmpFractVal);
 
         // Compute u, at offset (0,-1)
         tmpFractVal.x += 1.0;
-        u = dot((sampleD.ga + sampleD.rb*kInv256)*2 - half2(1), tmpFractVal);
+        u = dot((sampleD.ga + sampleD.rb*kInv256)*2 - 1, tmpFractVal);
 
         // Compute 'b' as a linear interpolation of 'u' and 'v'
         half b = mix(u, v, noiseSmooth.x);
@@ -1041,8 +1041,14 @@ $pure half4 perlin_noise_shader(float2 coords,
     const int kFractalNoise_Type = 0;
     const int kTurbulence_Type = 1;
 
-    // There are rounding errors if the floor operation is not performed here
-    half2 noiseVec = half2(floor(coords.xy) * baseFrequency);
+    // In the past, Perlin noise handled coordinates a bit differently than most shaders.
+    // It operated in device space, floored; it also had a one-pixel transform matrix applied to
+    // both the X and Y coordinates. This is roughly equivalent to adding 0.5 to the coordinates.
+    // This was originally done in order to better match preexisting golden images from WebKit.
+    // Perlin noise now operates in local space, which allows rotation to work correctly. To better
+    // approximate past behavior, we add 0.5 to the coordinates here. This is _not_ exactly the same
+    // because this adjustment is occurring in local space, not device space.
+    half2 noiseVec = half2((coords + 0.5) * baseFrequency);
 
     // Clear the color accumulator
     half4 color = half4(0);

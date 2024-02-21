@@ -1568,21 +1568,8 @@ static void add_to_key(const KeyContext& keyContext,
     SkASSERT(shader);
     SkASSERT(shader->numOctaves());
 
-    SkMatrix totalMatrix = keyContext.local2Dev().asM33();
-    if (keyContext.localMatrix()) {
-        totalMatrix.preConcat(*keyContext.localMatrix());
-    }
-
-    SkMatrix invTotal;
-    bool result = totalMatrix.invert(&invTotal);
-    if (!result) {
-        SKGPU_LOG_W("Couldn't invert totalMatrix for PerlinNoiseShader");
-        builder->addBlock(BuiltInCodeSnippetID::kError);
-        return;
-    }
-
     std::unique_ptr<SkPerlinNoiseShader::PaintingData> paintingData =
-        shader->getPaintingData(totalMatrix);
+            shader->getPaintingData(SkMatrix::I());
     paintingData->generateBitmaps();
 
     sk_sp<TextureProxy> perm = RecorderPriv::CreateCachedProxy(
@@ -1606,21 +1593,7 @@ static void add_to_key(const KeyContext& keyContext,
     perlinData.fPermutationsProxy = std::move(perm);
     perlinData.fNoiseProxy = std::move(noise);
 
-    // This (1,1) translation is due to WebKit's 1 based coordinates for the noise
-    // (as opposed to 0 based, usually). Remember: this matrix (shader2World) is going to be
-    // inverted before being applied.
-    SkMatrix shader2Local =
-            SkMatrix::Translate(-1 + totalMatrix.getTranslateX(), -1 + totalMatrix.getTranslateY());
-    shader2Local.postConcat(invTotal);
-
-    LocalMatrixShaderBlock::LMShaderData lmShaderData(shader2Local);
-
-    KeyContextWithLocalMatrix newContext(keyContext, shader2Local);
-
-    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, lmShaderData);
-        PerlinNoiseShaderBlock::AddBlock(newContext, builder, gatherer, perlinData);
-    builder->endBlock();
-
+    PerlinNoiseShaderBlock::AddBlock(keyContext, builder, gatherer, perlinData);
 }
 
 static void add_to_key(const KeyContext& keyContext,
