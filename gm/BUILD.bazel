@@ -1,4 +1,5 @@
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_cc_test")
+load("//tools/testrunners/gm:android_gm_test.bzl", "android_gm_test")
 load(":png_codec.bzl", "png_codec_tests")
 
 licenses(["notice"])
@@ -656,100 +657,127 @@ skia_cc_test(
     ],
 )
 
-# Android tests temporarily disabled until we rewrite them to use the modular build.
+android_gm_test(
+    name = "hello_bazel_world_android_test",
+    srcs = [
+        "hello_bazel_world.cpp",
+        "//tools/testrunners/gm:BazelGMTestRunner.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "8888",
+    ],
+    requires_resources_dir = True,
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/common/surface_manager:raster",
+        "//tools/testrunners/gm/vias:simple_vias",
+    ],
+)
 
-# load("//tools/testrunners/gm:android_gm_test.bzl", "android_gm_test")
+[
+    # Sample invocation (assuming there's a Pixel 5 or similar device available via adb):
+    #
+    #     $ bazel test --config=android_rbe --config=Pixel5 //gm:cpu_8888_android_test
+    #
+    # Then inspect the PNG and JSON files produced by the GMs:
+    #
+    #     $ unzip -l bazel-testlogs/gm/cpu_8888_android_test/test.outputs/outputs.zip
+    android_gm_test(
+        name = "cpu_%s_android_test" % surface_config,
+        srcs = CPU_GMS + [
+            "//tools/testrunners/gm:BazelGMTestRunner.cpp",
+        ],
+        args = [
+            "--surfaceConfig",
+            "8888",
+        ],
+        requires_resources_dir = True,
+        deps = [
+            ":tests_base",
+            "//tools/testrunners/common/surface_manager:raster",
+            "//tools/testrunners/gm/vias:simple_vias",
+            "//tools/timer",  # Required by addarc.cpp and animatedimageblurs.cpp.
+        ],
+    )
+    for surface_config in [
+        "8888",
+        "565",
+    ]
+]
 
-# android_gm_test(
-#     name = "hello_bazel_world_android_test",
-#     srcs = ["hello_bazel_world.cpp"],
-#     requires_resources_dir = True,
-#     surface_config = "8888",
-#     deps = [":tests_base"],
-# )
+android_gm_test(
+    name = "ganesh_gles_android_test",
+    srcs = GPU_GMS + [
+        "//tools/testrunners/gm:BazelGMTestRunner.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "gles",
+    ],
+    requires_resources_dir = True,
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/common/surface_manager:ganesh_gl",
+        "//tools/testrunners/gm/vias:simple_vias",
+    ],
+)
 
-# [
-#     # Sample invocation (assuming there's a Pixel 5 or similar device available via adb):
-#     #
-#     #     $ bazel test --config=linux_rbe //gm:cpu_8888_android_test --config=pixel_5
-#     #
-#     # Then inspect the PNG and JSON files produced by the GMs:
-#     #
-#     #     $ unzip -l bazel-testlogs/gm/cpu_8888_android_test/test.outputs/outputs.zip
-#     android_gm_test(
-#         name = "cpu_%s_android_test" % surface_config,
-#         srcs = CPU_GMS,
-#         flags = {
-#             "include_decoder": [
-#                 "gif_decode_codec",
-#                 "webp_decode_codec",
-#             ],
-#         },
-#         requires_resources_dir = True,
-#         surface_config = surface_config,
-#         deps = [":tests_base"],
-#     )
-#     for surface_config in [
-#         "8888",
-#         "565",
-#     ]
-# ]
+android_gm_test(
+    name = "ganesh_gles_via_picture_serialization_android_test",
+    srcs = GPU_GMS + [
+        "//tools/testrunners/gm:BazelGMTestRunner.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "gles",
+        "--via",
+        "picture_serialization",
+        "--skip",
+        "anisomips",  # Fails with "Recorded and reference bitmap pixels do not match".
+    ],
+    requires_resources_dir = True,
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/common/surface_manager:ganesh_gl",
+        "//tools/testrunners/gm/vias:simple_vias",
+    ],
+)
 
-# android_gm_test(
-#     name = "gpu_gles_android_test",
-#     srcs = GPU_GMS,
-#     flags = {
-#         "include_decoder": [
-#             "png_decode_codec",
-#             "webp_decode_codec",
-#         ],
-#     },
-#     requires_condition = "//src/gpu:gl_ganesh",
-#     requires_resources_dir = True,
-#     surface_config = "gles",
-#     deps = [":tests_base"],
-# )
+android_gm_test(
+    name = "ganesh_gles_via_picture_android_test",
+    srcs = GPU_GMS + [
+        "//tools/testrunners/gm:BazelGMTestRunner.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "gles",
+        "--via",
+        "picture",
+        "--skip",
+        "anisomips",  # Fails with "Recorded and reference bitmap pixels do not match".
+    ],
+    requires_resources_dir = True,
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/common/surface_manager:ganesh_gl",
+        "//tools/testrunners/gm/vias:simple_vias",
+    ],
+)
 
-# # Currently fails the "anisomips" GM with "Deserialized and reference bitmap pixels do not match".
-# # Other GMs do pass.
-# # TODO(lovisolo): Define flag --skip and skip the "anisomips" GM.
-# android_gm_test(
-#     name = "gpu_gles_via_picture_serialization_android_test",
-#     srcs = GPU_GMS,
-#     flags = {
-#         "include_decoder": [
-#             "png_decode_codec",
-#             "webp_decode_codec",
-#         ],
-#         "include_encoder": [
-#             "png_encode_codec",  # Required by the "picture_serialization" via.
-#         ],
-#     },
-#     requires_condition = "//src/gpu:gl_ganesh",
-#     requires_resources_dir = True,
-#     surface_config = "gles",
-#     via = "picture_serialization",
-#     deps = [":tests_base"],
-# )
-
-# # Currently fails the "anisomips" GM with "Deserialized and reference bitmap pixels do not match".
-# # Other GMs do pass.
-# # TODO(lovisolo): Define flag --skip and skip the "anisomips" GM.
-# android_gm_test(
-#     name = "gpu_gles_via_picture_android_test",
-#     srcs = GPU_GMS,
-#     flags = {
-#         "include_decoder": [
-#             "png_decode_codec",
-#             "webp_decode_codec",
-#         ],
-#         "include_encoder": [
-#             "png_encode_codec",  # Required by the "picture" via.
-#         ],
-#     },
-#     requires_condition = "//src/gpu:gl_ganesh",
-#     requires_resources_dir = True,
-#     surface_config = "gles",
-#     via = "picture",
-#     deps = [":tests_base"],
-# )
+android_gm_test(
+    name = "ganesh_vk_android_test",
+    srcs = GPU_GMS + [
+        "//tools/testrunners/gm:BazelGMTestRunner.cpp",
+    ],
+    args = [
+        "--surfaceConfig",
+        "vk",
+    ],
+    requires_resources_dir = True,
+    deps = [
+        ":tests_base",
+        "//tools/testrunners/common/surface_manager:ganesh_vulkan",
+        "//tools/testrunners/gm/vias:simple_vias",
+    ],
+)
