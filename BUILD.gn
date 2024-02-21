@@ -2175,6 +2175,8 @@ if (skia_enable_tools) {
       "tools/fonts/TestSVGTypeface.h",
       "tools/fonts/TestTypeface.cpp",
       "tools/fonts/TestTypeface.h",
+      "tools/text/SkTextBlobTrace.cpp",
+      "tools/text/SkTextBlobTrace.h",
       "tools/timer/TimeUtils.h",
       "tools/timer/Timer.cpp",
       "tools/timer/Timer.h",
@@ -2447,7 +2449,10 @@ if (skia_enable_tools) {
   if (!is_win) {
     test_app("blob_cache_sim") {
       sources = [ "tools/blob_cache_sim.cpp" ]
-      deps = [ ":skia" ]
+      deps = [
+        ":skia",
+        ":tool_utils",
+      ]
     }
   }
 

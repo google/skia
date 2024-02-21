@@ -13,7 +13,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkTextBlobTrace.h"
+#include "tools/text/SkTextBlobTrace.h"
 
 #include <iostream>
 #include <string>

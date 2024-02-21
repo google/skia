@@ -17,10 +17,10 @@
 #include "src/base/SkTLazy.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
-#include "src/core/SkTextBlobTrace.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/text/SkTextBlobTrace.h"
 
 using namespace skia_private;
 
