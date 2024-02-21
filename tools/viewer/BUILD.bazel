@@ -40,7 +40,7 @@ cc_binary_with_flags(
         "//bench:gpu_tools",
         "//gm:gm_subset",
         "//tools/flags",
-        "//tools/flags:common_flags",
+        "//tools/flags:common_flags_legacy",
         "//tools/fonts:test_font_manager_srcs",
         "//tools/trace",
     ],

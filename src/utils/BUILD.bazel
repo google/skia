@@ -227,6 +227,7 @@ skia_cc_library(
     ],
     visibility = [
         "//bench:__pkg__",
+        "//gm:__pkg__",
     ],
     deps = [
         "//:core",

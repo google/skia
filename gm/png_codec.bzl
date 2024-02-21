@@ -1,6 +1,6 @@
 """This module defines the png_codec_tests macro."""
 
-load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
+load("//bazel:skia_rules.bzl", "skia_cc_test")
 
 # These lists of lists are shaped as follows:
 #
@@ -77,7 +77,7 @@ _TESTS = (
 )
 
 def png_codec_tests(name):
-    """Generates various cc_test_with_flags targets for png_codec.cpp.
+    """Generates various skia_cc_test targets for png_codec.cpp.
 
     Args:
         name: The name of the test_suite to generate.
@@ -95,11 +95,13 @@ def png_codec_tests(name):
         )
         all_tests.append(test_name)
 
-        cc_test_with_flags(
+        skia_cc_test(
             name = test_name,
             size = "large",
             srcs = [
                 "png_codec.cpp",
+                "//tools/flags:common_flags",
+                "//tools/testrunners/gm:BazelGMTestRunner.cpp",
             ],
             args = [
                 "--surfaceConfig",
@@ -114,14 +116,18 @@ def png_codec_tests(name):
                 dst_alpha_type,
             ],
             data = [images],
-            set_flags = {
-                "include_decoder": [
-                    "png_decode_codec",
-                ],
-            },
             deps = [
-                ":tests_base",
-                "//tools/testrunners/gm:testrunner",
+                "//:core",
+                "//:png_decode_codec",
+                "//gm",
+                "//src/utils:json",
+                "//tools:codec_utils",
+                "//tools:hash_and_encode",
+                "//tools:tool_utils",
+                "//tools/testrunners/common:testrunner",
+                "//tools/testrunners/common/compilation_mode_keys",
+                "//tools/testrunners/common/surface_manager:raster",
+                "//tools/testrunners/gm/vias:simple_vias",
             ],
         )
 

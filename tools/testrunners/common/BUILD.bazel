@@ -22,6 +22,7 @@ skia_cc_library(
     hdrs = ["TestRunner.h"],
     visibility = [
         "//bench:__subpackages__",
+        "//gm:__subpackages__",
         "//tools/testrunners:__subpackages__",
     ],
     deps = [

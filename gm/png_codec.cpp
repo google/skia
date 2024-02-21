@@ -6,7 +6,6 @@
  */
 
 #include "gm/gm.h"
-#include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/codec/SkPngDecoder.h"

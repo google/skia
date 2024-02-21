@@ -23,7 +23,7 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "common_flags",
+    name = "common_flags_legacy",
     testonly = True,
     srcs = [
         "CommonFlags.h",
@@ -35,6 +35,18 @@ skia_filegroup(
     visibility = [
         "//gm:__pkg__",
         "//tools:__subpackages__",
+    ],
+)
+
+skia_filegroup(
+    name = "common_flags",
+    testonly = True,
+    srcs = [
+        "CommonFlags.h",
+        "CommonFlagsImages.cpp",
+    ],
+    visibility = [
+        "//gm:__pkg__",
     ],
 )
 

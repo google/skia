@@ -31,7 +31,10 @@ skia_cc_library(
         "SurfaceManager.cpp",
     ],
     hdrs = ["SurfaceManager.h"],
-    visibility = ["//tools/testrunners:__subpackages__"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tools/testrunners:__subpackages__",
+    ],
     deps = [
         "//:core",
         "//src/base",
@@ -47,7 +50,10 @@ skia_cc_library(
         "SurfaceManager.cpp",
     ],
     hdrs = ["SurfaceManager.h"],
-    visibility = ["//tools/testrunners:__subpackages__"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tools/testrunners:__subpackages__",
+    ],
     deps = [
         "//:core",
         "//src/base",
@@ -65,7 +71,10 @@ skia_cc_library(
         "SurfaceManager.cpp",
     ],
     hdrs = ["SurfaceManager.h"],
-    visibility = ["//tools/testrunners:__subpackages__"],
+    visibility = [
+        "//gm:__pkg__",
+        "//tools/testrunners:__subpackages__",
+    ],
     deps = [
         "//:core",
         "//src/base",

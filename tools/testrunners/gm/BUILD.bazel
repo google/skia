@@ -2,7 +2,10 @@ load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
 
 licenses(["notice"])
 
-exports_files_legacy()
+exports_files_legacy(
+    label_list = ["BazelGMTestRunner.cpp"],
+    visibility = ["//gm:__pkg__"],
+)
 
 skia_cc_library(
     name = "testrunner",

@@ -63,15 +63,13 @@ skia_cc_library(
 skia_cc_library(
     name = "hash_and_encode",
     testonly = True,
-    srcs = [
-        "HashAndEncode.cpp",
-        "//tools/flags",
-    ],
+    srcs = ["HashAndEncode.cpp"],
     hdrs = ["HashAndEncode.h"],
-    visibility = ["//tools/testrunners/gm:__pkg__"],
+    visibility = ["//gm:__pkg__"],
     deps = [
-        "//:skia_internal",
-        "@libpng",
+        "//:core",
+        "//:png_encode_codec",
+        "//tools/flags:cmd_flags",
     ],
 )
 
@@ -177,12 +175,37 @@ skia_cc_library(
     ],
     visibility = [
         "//bench:__subpackages__",
+        "//gm:__subpackages__",
         "//tools:__subpackages__",
     ],
     deps = [
         "//:core",
         "//src/base",
         "//src/core:core_priv",
+    ],
+)
+
+skia_cc_library(
+    name = "codec_utils",
+    testonly = True,
+    srcs = [
+        "DecodeUtils.cpp",
+        "EncodeUtils.cpp",
+    ],
+    hdrs = [
+        "DecodeUtils.h",
+        "EncodeUtils.h",
+    ],
+    visibility = [
+        "//gm:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//:png_decode_codec",
+        "//:png_encode_codec",
+        "//src/base",
+        "//src/core:core_priv",
+        "//tools:resources",
     ],
 )
 

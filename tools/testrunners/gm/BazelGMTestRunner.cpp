@@ -394,6 +394,7 @@ int main(int argc, char** argv) {
 
         if (!TestRunner::ShouldRunTestCase(gm->getName().c_str(), FLAGS_match, FLAGS_skip)) {
             TestRunner::Log("Skipping %s", gm->getName().c_str());
+            gNumSkippedGMs++;
             continue;
         }
 
