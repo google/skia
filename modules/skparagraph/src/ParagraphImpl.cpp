@@ -1224,10 +1224,9 @@ int ParagraphImpl::getLineNumberAt(TextIndex codeUnitIndex) const {
     if (codeUnitIndex >= fText.size()) {
         return -1;
     }
-    SkASSERT(!fLines.empty());
     size_t startLine = 0;
     size_t endLine = fLines.size() - 1;
-    if (fLines[endLine].textWithNewlines().end <= codeUnitIndex) {
+    if (fLines.empty() || fLines[endLine].textWithNewlines().end <= codeUnitIndex) {
         return -1;
     }
 
@@ -1333,7 +1332,9 @@ bool ParagraphImpl::getGlyphInfoAtUTF16Offset(size_t codeUnitIndex, GlyphInfo* g
     // `startIndex` and `endIndex` must be on the same line.
     std::vector<TextBox> boxes;
     line.getRectsForRange({startIndex, endIndex}, RectHeightStyle::kTight, RectWidthStyle::kTight, boxes);
-    SkASSERT(!boxes.empty());
+    // TODO: currently placeholders with height=0 and width=0 are ignored so boxes
+    // can be empty. These placeholders should still be reported for their
+    // offset information.
     if (glyphInfo && !boxes.empty()) {
         *glyphInfo = {
             boxes[0].rect,
