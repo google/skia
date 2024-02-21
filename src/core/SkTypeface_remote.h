@@ -8,19 +8,33 @@
 #ifndef SkRemoteTypeface_DEFINED
 #define SkRemoteTypeface_DEFINED
 
+#include "include/core/SkFontArguments.h"
+#include "include/core/SkFontParameters.h"
 #include "include/core/SkFontStyle.h"
-#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
-#include "src/core/SkAdvancedTypefaceMetrics.h"
-#include "src/core/SkDescriptor.h"
-#include "src/core/SkFontDescriptor.h"
 #include "src/core/SkScalerContext.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <optional>
+
+class SkArenaAlloc;
+class SkDescriptor;
+class SkDrawable;
+class SkFontDescriptor;
+class SkGlyph;
+class SkPath;
 class SkReadBuffer;
-class SkStrikeCache;
+class SkStreamAsset;
 class SkTypefaceProxy;
 class SkWriteBuffer;
+struct SkAdvancedTypefaceMetrics;
+struct SkFontMetrics;
 
 class SkScalerContextProxy : public SkScalerContext {
 public:

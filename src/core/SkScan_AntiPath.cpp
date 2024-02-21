@@ -5,12 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPath.h"
+
+#include "include/core/SkRect.h"
+#include "include/core/SkRegion.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMath.h"
+#include "src/core/SkAAClip.h"
+#include "src/core/SkBlitter.h"
+#include "src/core/SkRasterClip.h"
+#include "src/core/SkScan.h"
 #include "src/core/SkScanPriv.h"
 
-#include "include/core/SkGraphics.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkRegion.h"
-#include "src/core/SkBlitter.h"
+#include <cstdint>
 
 static SkIRect safeRoundOut(const SkRect& src) {
     // roundOut will pin huge floats to max/min int
@@ -127,8 +134,6 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "src/core/SkRasterClip.h"
 
 void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip, SkBlitter* blitter) {
     if (clip.isEmpty() || !path.isFinite()) {

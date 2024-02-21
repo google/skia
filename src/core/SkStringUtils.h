@@ -12,6 +12,9 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
 
+#include <cstddef>
+#include <cstdint>
+
 enum SkScalarAsStringType {
     kDec_SkScalarAsStringType,
     kHex_SkScalarAsStringType,

@@ -5,16 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPaint.h"
-#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkStrike.h"
-#include "src/core/SkStrikeCache.h"
-#include "src/core/SkTraceEvent.h"
 #include "src/core/SkTypeface_remote.h"
+
+#include "include/core/SkDrawable.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkReadBuffer.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <optional>
+#include <utility>
+
+class SkArenaAlloc;
+class SkDescriptor;
+class SkPath;
 
 SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
                                            const SkScalerContextEffects& effects,

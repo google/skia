@@ -5,25 +5,29 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColor.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkRegion.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTo.h"
-#include "src/base/SkAutoMalloc.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkAlphaRuns.h"
 #include "src/core/SkAnalyticEdge.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
-#include "src/core/SkGeometry.h"
 #include "src/core/SkMask.h"
-#include "src/core/SkQuadClipper.h"
-#include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkScanPriv.h"
 
-#include <utility>
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
 
 /*
 

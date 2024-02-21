@@ -4,10 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "include/core/SkExecutor.h"
 #include "src/core/SkTaskGroup.h"
 
+#include "include/core/SkExecutor.h"
+
+#include <type_traits>
 #include <utility>
 
 SkTaskGroup::SkTaskGroup(SkExecutor& executor) : fPending(0), fExecutor(executor) {}

@@ -8,7 +8,9 @@
 #ifndef SkSwizzle_DEFINED
 #define SkSwizzle_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkAPI.h"
+
+#include <cstdint>
 
 /**
   Swizzles byte order of |count| 32-bit pixels, swapping R and B.

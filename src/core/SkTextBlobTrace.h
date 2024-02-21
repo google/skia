@@ -3,17 +3,24 @@
 #ifndef SkTextBlobTrace_DEFINED
 #define SkTextBlobTrace_DEFINED
 
-#include "include/core/SkTypes.h"
-
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/text/GlyphRun.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
+
+class SkFontMgr;
+class SkRefCntSet;
+class SkStream;
+class SkWStream;
+namespace sktext {
+class GlyphRunList;
+}
 
 namespace SkTextBlobTrace {
 

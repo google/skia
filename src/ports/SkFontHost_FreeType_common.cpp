@@ -22,9 +22,11 @@
 #include "include/private/base/SkTo.h"
 #include "src/core/SkFDot6.h"
 #include "src/core/SkSwizzlePriv.h"
+#include "src/core/SkTHash.h"
 
 #include <algorithm>
 #include <utility>
+#include <vector>
 
 #include <ft2build.h>
 #include <freetype/freetype.h>

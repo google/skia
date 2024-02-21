@@ -5,14 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "tools/fonts/RandomScalerContext.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkStream.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkRectPriv.h"
-#include "tools/fonts/RandomScalerContext.h"
+#include "src/core/SkTHash.h"
 
 using namespace skia_private;
 

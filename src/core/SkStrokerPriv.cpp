@@ -4,11 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/core/SkStrokerPriv.h"
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
-#include "src/core/SkStrokerPriv.h"
 
 #include <utility>
 

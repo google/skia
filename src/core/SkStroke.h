@@ -9,9 +9,15 @@
 #define SkStroke_DEFINED
 
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkPoint.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
+
+#include <cstdint>
+
+class SkPath;
+struct SkRect;
 
 #ifdef SK_DEBUG
 extern bool gDebugStrokerErrorSet;

@@ -5,22 +5,34 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColor.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFixed.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMacros.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkSafe32.h"
-#include "include/private/base/SkTemplates.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
-#include "src/core/SkGeometry.h"
-#include "src/core/SkQuadClipper.h"
+#include "src/core/SkFDot6.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
+#include "src/core/SkScan.h"
 #include "src/core/SkScanPriv.h"
 
-#include <utility>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+
+struct SkMask;
 
 #define kEDGE_HEAD_Y    SK_MinS32
 #define kEDGE_TAIL_Y    SK_MaxS32

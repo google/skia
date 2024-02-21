@@ -7,7 +7,6 @@
  */
 
 #include "include/private/base/SkFeatures.h"
-#include "src/core/SkOpts.h"
 #include "src/core/SkOptsTargets.h"
 #include "src/core/SkSwizzlePriv.h"
 

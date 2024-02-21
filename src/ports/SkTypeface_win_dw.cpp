@@ -18,6 +18,7 @@
 #undef GetGlyphIndices
 
 #include "include/core/SkData.h"
+#include "include/core/SkFontTypes.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontStream.h"

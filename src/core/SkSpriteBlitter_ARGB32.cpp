@@ -5,12 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColorType.h"
 #include "include/core/SkPaint.h"
-#include "include/private/SkColorData.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkSpriteBlitter.h"
+
+#include <cstddef>
+#include <cstdint>
 
 ///////////////////////////////////////////////////////////////////////////////
 

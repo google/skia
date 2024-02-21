@@ -3,14 +3,24 @@
 
 #include "src/core/SkTextBlobTrace.h"
 
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/base/SkDebug.h"
 #include "src/base/SkTLazy.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkPtrRecorder.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/text/GlyphRun.h"
+
+#include <utility>
 
 std::vector<SkTextBlobTrace::Record> SkTextBlobTrace::CreateBlobTrace(
         SkStream* stream, sk_sp<SkFontMgr> lastResortMgr) {

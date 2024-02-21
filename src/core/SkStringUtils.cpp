@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkStringUtils.h"
+
 #include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkUTF.h"
-#include "src/core/SkStringUtils.h"
+
+#include <cstring>
 
 using namespace skia_private;
 

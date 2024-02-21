@@ -10,6 +10,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"

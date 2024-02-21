@@ -5,15 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkStrokerPriv.h"
+#include "src/core/SkStroke.h"
 
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkStrokerPriv.h"
 
-#include <utility>
+#include <algorithm>
+#include <array>
 
 enum {
     kTangent_RecursiveLimit,

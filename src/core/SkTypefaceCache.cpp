@@ -5,10 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkGraphics.h"
-#include "include/private/base/SkMutex.h"
 #include "src/core/SkTypefaceCache.h"
+
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkGraphics.h"
+#include "include/core/SkString.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMutex.h"
+
 #include <atomic>
+#include <cstdint>
+#include <utility>
 
 SkTypefaceCache::SkTypefaceCache() {}
 
