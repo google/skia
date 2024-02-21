@@ -171,7 +171,6 @@ skia_cc_library(
     local_defines = [
         "SK_USE_EXTERNAL_VULKAN_HEADERS",
         "GR_TEST_UTILS",
-        "SK_USE_VMA",
         "SK_DISABLE_LEGACY_VULKAN_BACKENDSEMAPHORE",
         "SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE",
     ],
@@ -184,6 +183,5 @@ skia_cc_library(
         "//src/gpu",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/sksl/codegen:spirv",
-        "//third_party/vulkanmemoryallocator",
     ],
 )

@@ -1729,6 +1729,10 @@ config("our_vulkan_headers") {
   include_dirs = [ "include/third_party/vulkan" ]
 }
 
+config("vulkan_memory_allocator") {
+  include_dirs = [ "$skia_vulkan_memory_allocator_dir/include" ]
+}
+
 # Targets guarded by skia_enable_tools may use //third_party freely.
 if (skia_enable_tools) {
   skia_public_includes = [
@@ -2011,10 +2015,13 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestHelper.h" ]
       sources += [ "tools/gpu/vk/VkTestHelper.cpp" ]
+      sources += [ "tools/gpu/vk/VkTestMemoryAllocator.h" ]
+      sources += [ "tools/gpu/vk/VkTestMemoryAllocator.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.h" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
       sources += [ "tools/gpu/vk/VkYcbcrSamplerHelper.h" ]
       sources += [ "tools/gpu/vk/VkYcbcrSamplerHelper.cpp" ]
+      all_dependent_configs += [ ":vulkan_memory_allocator" ]
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
@@ -3013,9 +3020,14 @@ if (skia_enable_tools) {
     test_app("VulkanBasic") {
       # Bots and even devs may not have Vulkan headers, so put
       # include/third_party/vulkan on our path so they're always available.
-      all_dependent_configs = [ ":our_vulkan_headers" ]
+      all_dependent_configs = [
+        ":our_vulkan_headers",
+        ":vulkan_memory_allocator",
+      ]
 
       sources = [ "example/VulkanBasic.cpp" ]
+      sources += [ "tools/gpu/vk/VkTestMemoryAllocator.h" ]
+      sources += [ "tools/gpu/vk/VkTestMemoryAllocator.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.h" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
       deps = [ ":skia" ]

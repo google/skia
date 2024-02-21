@@ -178,6 +178,7 @@ skia_cc_library(
         "//src/core:core_priv",
         "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
         "//tests:test_type",
+        "//third_party/vulkanmemoryallocator",
         "//tools:autorelease_pool",
     ],
 )

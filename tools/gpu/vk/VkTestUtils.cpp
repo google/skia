@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/vk/VulkanInterface.h"
+#include "tools/gpu/vk/VkTestMemoryAllocator.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 #ifdef SK_VULKAN
@@ -874,6 +876,13 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
         grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
     }
 
+    skgpu::VulkanInterface interface = skgpu::VulkanInterface(
+            getProc, inst, device, instanceVersion, physDeviceVersion, extensions);
+    SkASSERT(interface.validate(instanceVersion, physDeviceVersion, extensions));
+
+    sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator = VkTestMemoryAllocator::Make(
+            inst, physDev, device, physDeviceVersion, extensions, &interface);
+
     ctx->fInstance = inst;
     ctx->fPhysicalDevice = physDev;
     ctx->fDevice = device;
@@ -884,6 +893,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     ctx->fDeviceFeatures2 = features;
     ctx->fGetProc = getProc;
     ctx->fProtectedContext = skgpu::Protected(isProtected);
+    ctx->fMemoryAllocator = memoryAllocator;
 
     return true;
 }
