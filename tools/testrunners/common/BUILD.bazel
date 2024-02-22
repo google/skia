@@ -5,15 +5,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_cc_library(
-    name = "noop_testrunner",
-    testonly = True,
-    srcs = ["BazelNoopTestRunner.cpp"],
-    visibility = [
-        "//gm:__pkg__",
-    ],
-)
-
-skia_cc_library(
     name = "testrunner",
     testonly = True,
     srcs = [

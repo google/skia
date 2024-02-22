@@ -27,7 +27,6 @@ _bool_flags = [
 
 _string_flags = [
     "//src/gpu:with_gl_standard",
-    "//tools/testrunners/gm/vias:via",
 ]
 
 _string_list_flags = [
