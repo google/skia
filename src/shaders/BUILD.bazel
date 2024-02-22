@@ -25,6 +25,7 @@ SHADER_FILES = [
     "SkLocalMatrixShader.h",
     "SkPerlinNoiseShaderImpl.cpp",
     "SkPerlinNoiseShaderImpl.h",
+    "SkPerlinNoiseShaderType.h",
     "SkPictureShader.cpp",
     "SkPictureShader.h",
     "SkRuntimeShader.cpp",
@@ -60,6 +61,14 @@ skia_filegroup(
         "//src:__pkg__",
         "//src/core:__pkg__",
     ],
+)
+
+skia_filegroup(
+    name = "opts_srcs",
+    srcs = [
+        "SkPerlinNoiseShaderType.h",
+    ],
+    visibility = ["//src/opts:__pkg__"],
 )
 
 skia_filegroup(

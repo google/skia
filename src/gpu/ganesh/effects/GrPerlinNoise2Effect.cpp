@@ -24,6 +24,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/shaders/SkPerlinNoiseShaderType.h"
 
 #include <cstdint>
 #include <iterator>

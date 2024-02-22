@@ -658,6 +658,7 @@ skia_core_sources = [
   "$_src/shaders/SkLocalMatrixShader.h",
   "$_src/shaders/SkPerlinNoiseShaderImpl.cpp",
   "$_src/shaders/SkPerlinNoiseShaderImpl.h",
+  "$_src/shaders/SkPerlinNoiseShaderType.h",
   "$_src/shaders/SkPictureShader.cpp",
   "$_src/shaders/SkPictureShader.h",
   "$_src/shaders/SkRuntimeShader.cpp",

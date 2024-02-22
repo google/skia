@@ -16,6 +16,7 @@
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkPerlinNoiseShaderType.h"
 
 namespace {
 

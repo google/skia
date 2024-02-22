@@ -30,6 +30,7 @@ namespace skgpu {
 class KeyBuilder;
 }
 struct GrShaderCaps;
+enum class SkPerlinNoiseShaderType;
 
 class GrPerlinNoise2Effect : public GrFragmentProcessor {
 public:
