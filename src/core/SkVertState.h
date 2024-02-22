@@ -10,6 +10,8 @@
 
 #include "include/core/SkVertices.h"
 
+#include <cstdint>
+
 /** \struct VertState
     This is a helper for drawVertices(). It is used to iterate over the triangles
     that are to be rendered based on an SkCanvas::VertexMode and (optionally) an

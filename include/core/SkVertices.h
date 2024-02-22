@@ -9,13 +9,15 @@
 #define SkVertices_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 
-class SkData;
-struct SkPoint;
 class SkVerticesPriv;
 
 /**

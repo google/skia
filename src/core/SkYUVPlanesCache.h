@@ -10,6 +10,8 @@
 
 #include "include/core/SkTypes.h"
 
+#include <cstdint>
+
 class SkCachedData;
 class SkResourceCache;
 class SkYUVAPixmaps;

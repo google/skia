@@ -9,20 +9,26 @@
 #define SkWriter32_DEFINED
 
 #include "include/core/SkData.h"
-#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 
+#include <cstdint>
+#include <cstring>
+
+class SkMatrix;
 struct SkSamplingOptions;
 
 class SkWriter32 : SkNoncopyable {

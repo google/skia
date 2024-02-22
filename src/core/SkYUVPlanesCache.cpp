@@ -12,6 +12,10 @@
 #include "src/core/SkCachedData.h"
 #include "src/core/SkResourceCache.h"
 
+#include <cstddef>
+
+class SkDiscardableMemory;
+
 #define CHECK_LOCAL(localCache, localName, globalName, ...) \
     ((localCache) ? localCache->localName(__VA_ARGS__) : SkResourceCache::globalName(__VA_ARGS__))
 
