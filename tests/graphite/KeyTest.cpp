@@ -83,8 +83,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context
     SkArenaAlloc arena{256};
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
-    int userSnippetID1 = dict->addUserDefinedSnippet("key1");
-    int userSnippetID2 = dict->addUserDefinedSnippet("key2");
+    int userSnippetID1 = dict->addRuntimeEffectSnippet("key1");
+    int userSnippetID2 = dict->addRuntimeEffectSnippet("key2");
 
     PaintParamsKey keyA = create_key(dict, userSnippetID1, &arena);
     PaintParamsKey keyB = create_key(dict, userSnippetID1, &arena);

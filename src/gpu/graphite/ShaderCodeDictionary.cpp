@@ -33,6 +33,8 @@ using namespace skia_private;
 
 namespace skgpu::graphite {
 
+static constexpr int kNoChildren = 0;
+
 namespace {
 
 std::string get_mangled_name(const std::string& baseName, int manglingSuffix) {
@@ -483,6 +485,8 @@ const ShaderSnippet* ShaderCodeDictionary::getEntry(int codeSnippetID) const {
     if (codeSnippetID < kBuiltInCodeSnippetIDCount) {
         return &fBuiltInCodeSnippets[codeSnippetID];
     }
+
+    SkAutoSpinlock lock{fSpinLock};
 
     int userDefinedCodeSnippetID = codeSnippetID - kBuiltInCodeSnippetIDCount;
     if (userDefinedCodeSnippetID < SkTo<int>(fUserDefinedCodeSnippets.size())) {
@@ -1211,6 +1215,7 @@ std::string GenerateRuntimeShaderPreamble(const ShaderInfo& shaderInfo,
     const SkRuntimeEffect* effect =
             shaderInfo.runtimeEffectDictionary()->find(node->codeSnippetId());
     SkASSERT(effect);
+
     const SkSL::Program& program = SkRuntimeEffectPriv::Program(*effect);
 
     std::string preamble;
@@ -1332,6 +1337,7 @@ std::string GeneratePrimitiveColorExpression(const ShaderInfo&,
 
 } // anonymous namespace
 
+#if defined(SK_DEBUG)
 bool ShaderCodeDictionary::isValidID(int snippetID) const {
     if (snippetID < 0) {
         return false;
@@ -1341,47 +1347,32 @@ bool ShaderCodeDictionary::isValidID(int snippetID) const {
         return true;
     }
 
+    SkAutoSpinlock lock{fSpinLock};
+
     int userDefinedCodeSnippetID = snippetID - kBuiltInCodeSnippetIDCount;
     return userDefinedCodeSnippetID < SkTo<int>(fUserDefinedCodeSnippets.size());
 }
+#endif
 
-static constexpr int kNoChildren = 0;
+#if defined(GRAPHITE_TEST_UTILS)
 
-int ShaderCodeDictionary::addUserDefinedSnippet(
-        const char* name,
-        SkSpan<const Uniform> uniforms,
-        SkEnumBitMask<SnippetRequirementFlags> snippetRequirementFlags,
-        SkSpan<const TextureAndSampler> texturesAndSamplers,
-        const char* functionName,
-        ShaderSnippet::GenerateExpressionForSnippetFn expressionGenerator,
-        ShaderSnippet::GeneratePreambleForSnippetFn preambleGenerator,
-        int numChildren) {
-    // TODO: the memory for user-defined entries could go in the dictionary's arena but that
-    // would have to be a thread safe allocation since the arena also stores entries for
-    // 'fHash' and 'fEntryVector'
-    fUserDefinedCodeSnippets.push_back(std::make_unique<ShaderSnippet>(name,
-                                                                       uniforms,
-                                                                       snippetRequirementFlags,
-                                                                       texturesAndSamplers,
-                                                                       functionName,
-                                                                       expressionGenerator,
-                                                                       preambleGenerator,
-                                                                       numChildren));
+int ShaderCodeDictionary::addRuntimeEffectSnippet(const char* functionName) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    fUserDefinedCodeSnippets.push_back(
+            std::make_unique<ShaderSnippet>("UserDefined",
+                                            SkSpan<const Uniform>(),            // no uniforms
+                                            SnippetRequirementFlags::kNone,
+                                            SkSpan<const TextureAndSampler>(),  // no samplers
+                                            functionName,
+                                            GenerateDefaultExpression,
+                                            GenerateDefaultPreamble,
+                                            kNoChildren));
 
     return kBuiltInCodeSnippetIDCount + fUserDefinedCodeSnippets.size() - 1;
 }
 
-// TODO: this version needs to be removed
-int ShaderCodeDictionary::addUserDefinedSnippet(const char* name) {
-    return this->addUserDefinedSnippet("UserDefined",
-                                       {},  // no uniforms
-                                       SnippetRequirementFlags::kNone,
-                                       {},  // no samplers
-                                       name,
-                                       GenerateDefaultExpression,
-                                       GenerateDefaultPreamble,
-                                       kNoChildren);
-}
+#endif // GRAPHITE_TEST_UTILS
 
 static SkSLType uniform_type_to_sksl_type(const SkRuntimeEffect::Uniform& u) {
     using Type = SkRuntimeEffect::Uniform::Type;
@@ -1451,6 +1442,15 @@ SkSpan<const Uniform> ShaderCodeDictionary::convertUniforms(const SkRuntimeEffec
 }
 
 int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect) {
+
+    SkEnumBitMask<SnippetRequirementFlags> snippetFlags = SnippetRequirementFlags::kNone;
+    if (effect->allowShader()) {
+        snippetFlags |= SnippetRequirementFlags::kLocalCoords;
+    }
+    if (effect->allowBlender()) {
+        snippetFlags |= SnippetRequirementFlags::kBlenderDstColor;
+    }
+
     // Use the combination of {SkSL program hash, uniform size} as our key.
     // In the unfortunate event of a hash collision, at least we'll have the right amount of
     // uniform data available.
@@ -1465,21 +1465,21 @@ int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect
         return *existingCodeSnippetID;
     }
 
-    SkEnumBitMask<SnippetRequirementFlags> snippetFlags = SnippetRequirementFlags::kNone;
-    if (effect->allowShader()) {
-        snippetFlags |= SnippetRequirementFlags::kLocalCoords;
-    }
-    if (effect->allowBlender()) {
-        snippetFlags |= SnippetRequirementFlags::kBlenderDstColor;
-    }
-    int newCodeSnippetID = this->addUserDefinedSnippet("RuntimeEffect",
-                                                       this->convertUniforms(effect),
-                                                       snippetFlags,
-                                                       /*texturesAndSamplers=*/{},
-                                                       kRuntimeShaderName,
-                                                       GenerateRuntimeShaderExpression,
-                                                       GenerateRuntimeShaderPreamble,
-                                                       (int)effect->children().size());
+    // TODO: the memory for user-defined entries could go in the dictionary's arena but that
+    // would have to be a thread safe allocation since the arena also stores entries for
+    // 'fHash' and 'fEntryVector'
+    fUserDefinedCodeSnippets.push_back(
+        std::make_unique<ShaderSnippet>("RuntimeEffect",
+                                        this->convertUniforms(effect),
+                                        snippetFlags,
+                                        /* texturesAndSamplers= */SkSpan<const TextureAndSampler>(),
+                                        kRuntimeShaderName,
+                                        GenerateRuntimeShaderExpression,
+                                        GenerateRuntimeShaderPreamble,
+                                        (int)effect->children().size()));
+
+    int newCodeSnippetID = kBuiltInCodeSnippetIDCount + fUserDefinedCodeSnippets.size() - 1;
+
     fRuntimeEffectMap.set(key, newCodeSnippetID);
     return newCodeSnippetID;
 }
