@@ -28,7 +28,7 @@ skia_filegroup(
         "//modules/skottie/src/animator:srcs",
         "//modules/skottie/src/effects:srcs",
         "//modules/skottie/src/layers:srcs",
-        "//modules/skottie/src/text:srcs",
+        "//modules/skottie/src/text:srcs_without_textshaper",
     ],
     visibility = ["//modules/skottie:__pkg__"],
 )

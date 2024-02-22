@@ -15,6 +15,25 @@ skia_filegroup(
         "TextAdapter.h",
         "TextAnimator.cpp",
         "TextAnimator.h",
+        "TextShaper.cpp",
+        "TextValue.cpp",
+        "TextValue.h",
+    ],
+    visibility = ["//modules/skottie/src:__pkg__"],
+)
+
+# TODO(kjlubick) delete this after fixing G3
+skia_filegroup(
+    name = "srcs_without_textshaper",
+    srcs = [
+        "Font.cpp",
+        "Font.h",
+        "RangeSelector.cpp",
+        "RangeSelector.h",
+        "TextAdapter.cpp",
+        "TextAdapter.h",
+        "TextAnimator.cpp",
+        "TextAnimator.h",
         "TextValue.cpp",
         "TextValue.h",
     ],
