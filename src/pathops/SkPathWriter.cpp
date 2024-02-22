@@ -432,5 +432,4 @@ void SkPathWriter::assemble() {
        SkASSERT(eLink[rIndex] == SK_MaxS32);
     }
 #endif
-    return;
 }

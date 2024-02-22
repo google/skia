@@ -433,7 +433,7 @@ bool AsWinding(const SkPath& path, SkPath* result) {
     }
     // if sorted has no grandchildren, no child has to fix its children's winding
     if (std::all_of(sorted.fChildren.begin(), sorted.fChildren.end(),
-            [](const Contour* contour) -> bool { return !contour->fChildren.size(); } )) {
+            [](const Contour* contour) -> bool { return contour->fChildren.empty(); } )) {
         return set_result_path(result, path, fillType);
     }
     // starting with outermost and moving inward, see if one path contains another
