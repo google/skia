@@ -15,7 +15,6 @@ skia_filegroup(
         "TextAdapter.h",
         "TextAnimator.cpp",
         "TextAnimator.h",
-        "TextShaper.cpp",  # TODO(kjlubick) remove this after updating G3
         "TextValue.cpp",
         "TextValue.h",
     ],
