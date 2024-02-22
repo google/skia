@@ -38,9 +38,6 @@ protected:
                                    const SkStrokeRec&,
                                    skvx::half2 maskSize,
                                    skvx::half2* outPos) override;
-    const TextureProxy* addRect(skvx::half2 maskSize,
-                                SkIPoint16* outPos);
-
 private:
     // TODO: select atlas size dynamically? Take ContextOptions::fMaxTextureAtlasSize into account?
     static constexpr int kDefaultAtlasDim = 4096;
@@ -75,7 +72,6 @@ private:
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Page);
     };
 
-    void makeMRU(Page*);
     // Free up atlas allocations, if necessary. After this call the atlas can be considered
     // available for new shape insertions. However this method does not have any bearing on the
     // contents of any atlas textures themselves, which may be in use by GPU commands that are
@@ -85,12 +81,21 @@ private:
     // Investigation shows that eight pages helps with some of the more complex skps, and
     // since we're using less complex vertex setups with the RPA, we have more GPU memory
     // to take advantage of.
-    static constexpr int kMaxPages = 8;
+    static constexpr int kMaxCachedPages = 6;
+    static constexpr int kMaxUncachedPages = 2;
     typedef SkTInternalLList<Page> PageList;
-    // LRU list of Pages (MRU at head - LRU at tail)
-    PageList fPageList;
-    // Allocated array of pages (backing data for list)
+    // LRU lists of Pages (MRU at head - LRU at tail)
+    // We have two lists, one for cached paths and one for uncached
+    PageList fCachedPageList;
+    PageList fUncachedPageList;
+    // Allocated array of pages (backing data for lists)
     std::unique_ptr<std::unique_ptr<Page>[]> fPageArray;
+
+    Page* addRect(PageList* pageList,
+                  skvx::half2 maskSize,
+                  SkIPoint16* outPos);
+    void makeMRU(Page*, PageList*);
+    void uploadPages(DrawContext* dc, PageList* pageList);
 };
 
 }  // namespace skgpu::graphite

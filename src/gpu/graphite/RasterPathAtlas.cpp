@@ -22,20 +22,30 @@ namespace skgpu::graphite {
 RasterPathAtlas::RasterPathAtlas(Recorder* recorder)
         : PathAtlas(recorder, kDefaultAtlasDim, kDefaultAtlasDim) {
 
-    // set up LRU list
-    fPageArray = std::make_unique<std::unique_ptr<Page>[]>(kMaxPages);
+    // set up LRU lists
+    fPageArray = std::make_unique<std::unique_ptr<Page>[]>(kMaxCachedPages+kMaxUncachedPages);
     std::unique_ptr<Page>* currPage = &fPageArray[0];
-    for (int i = 0; i < kMaxPages; ++i) {
+    for (int i = 0; i < kMaxCachedPages; ++i) {
         *currPage = std::make_unique<Page>(this->width(), this->height(), i);
-        fPageList.addToHead(currPage->get());
+        fCachedPageList.addToHead(currPage->get());
+        ++currPage;
+    }
+    for (int i = 0; i < kMaxUncachedPages; ++i) {
+        *currPage = std::make_unique<Page>(this->width(), this->height(), kMaxCachedPages+i);
+        fUncachedPageList.addToHead(currPage->get());
         ++currPage;
     }
 }
 
 void RasterPathAtlas::recordUploads(DrawContext* dc) {
+    this->uploadPages(dc, &fCachedPageList);
+    this->uploadPages(dc, &fUncachedPageList);
+}
+
+void RasterPathAtlas::uploadPages(DrawContext* dc, PageList* pageList) {
     // Cycle through all the pages and handle their uploads
     PageList::Iter pageIter;
-    pageIter.init(fPageList, PageList::Iter::kHead_IterStart);
+    pageIter.init(*pageList, PageList::Iter::kHead_IterStart);
     while (Page* currPage = pageIter.get()) {
         // build an upload for the dirty rect and record it
         if (!currPage->fDirtyRect.isEmpty()) {
@@ -82,21 +92,22 @@ bool RasterPathAtlas::Page::initializeTextureIfNeeded(Recorder* recorder, uint16
     return fTexture != nullptr;
 }
 
-void RasterPathAtlas::makeMRU(Page* page) {
+void RasterPathAtlas::makeMRU(Page* page, PageList* pageList) {
     page->fLastUse = fRecorder->priv().tokenTracker()->nextFlushToken();
 
-    if (fPageList.head() == page) {
+    if (pageList->head() == page) {
         return;
     }
-    fPageList.remove(page);
-    fPageList.addToHead(page);
+    pageList->remove(page);
+    pageList->addToHead(page);
 }
 
-const TextureProxy* RasterPathAtlas::addRect(skvx::half2 maskSize,
-                                             SkIPoint16* outPos) {
+RasterPathAtlas::Page* RasterPathAtlas::addRect(PageList* pageList,
+                                                skvx::half2 maskSize,
+                                                SkIPoint16* outPos) {
     // Look through all pages in MRU order and find the first one with room, and move that to MRU
     PageList::Iter pageIter;
-    pageIter.init(fPageList, PageList::Iter::kHead_IterStart);
+    pageIter.init(*pageList, PageList::Iter::kHead_IterStart);
     for (Page* currPage = pageIter.get(); currPage; currPage = pageIter.next()) {
         if (!currPage->initializeTextureIfNeeded(fRecorder, currPage->fIdentifier)) {
             SKGPU_LOG_E("Failed to instantiate an atlas texture");
@@ -108,7 +119,7 @@ const TextureProxy* RasterPathAtlas::addRect(skvx::half2 maskSize,
         // another way. See PathAtlas::addShape().
         if (!all(maskSize)) {
             *outPos = {0, 0};
-            return currPage->fTexture.get();
+            return currPage;
         }
 
         if (!currPage->fRectanizer.addPaddedRect(
@@ -116,20 +127,20 @@ const TextureProxy* RasterPathAtlas::addRect(skvx::half2 maskSize,
             continue;
         }
 
-        this->makeMRU(currPage);
-        return currPage->fTexture.get();
+        this->makeMRU(currPage, pageList);
+        return currPage;
     }
 
     // If the above fails, then see if the least recently used page has already been
     // queued for upload, in which case we can reuse its space w/o corrupting prior atlas draws.
-    Page* lru = fPageList.tail();
+    Page* lru = pageList->tail();
     SkASSERT(lru);
     if (lru->fLastUse < fRecorder->priv().tokenTracker()->nextFlushToken()) {
         this->reset(lru);
         SkAssertResult(lru->fRectanizer.addPaddedRect(
                 maskSize.x(), maskSize.y(), kEntryPadding, outPos));
-        this->makeMRU(lru);
-        return lru->fTexture.get();
+        this->makeMRU(lru, pageList);
+        return lru;
     }
 
     // No room in any Page
@@ -146,14 +157,14 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
     if (hasKey) {
         // Iterate through pagelist in MRU order and see if this shape is cached
         PageList::Iter pageIter;
-        pageIter.init(fPageList, PageList::Iter::kHead_IterStart);
+        pageIter.init(fCachedPageList, PageList::Iter::kHead_IterStart);
         maskKey = GeneratePathMaskKey(shape, transform, strokeRec, maskSize);
         while (Page* currPage = pageIter.get()) {
             // Look up shape and use cached texture and position if found.
             skvx::half2* found = currPage->fCachedShapes.find(maskKey);
             if (found) {
                 *outPos = *found;
-                this->makeMRU(currPage);
+                this->makeMRU(currPage, &fCachedPageList);
                 return currPage->fTexture.get();
             }
             pageIter.next();
@@ -162,8 +173,18 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
 
     // Try to add to Rectanizer
     SkIPoint16 iPos;
-    const TextureProxy* texProxy = this->addRect(maskSize, &iPos);
-    if (!texProxy) {
+    Page* maskPage = nullptr;
+    if (hasKey) {
+        maskPage = this->addRect(&fCachedPageList, maskSize, &iPos);
+        // No room in the cached pages, try the uncached and don't worry about caching
+        if (!maskPage) {
+            maskPage = this->addRect(&fUncachedPageList, maskSize, &iPos);
+            hasKey = false;
+        }
+    } else {
+        maskPage = this->addRect(&fUncachedPageList, maskSize, &iPos);
+    }
+    if (!maskPage || !maskPage->fTexture) {
         return nullptr;
     }
     *outPos = skvx::half2(iPos.x(), iPos.y());
@@ -171,16 +192,14 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
     // TODO: This may not be needed if we can handle clipped out bounds with inverse fills
     // another way. See PathAtlas::addShape().
     if (!all(maskSize)) {
-        return texProxy;
+        return maskPage->fTexture.get();
     }
 
     // Handle render
-    Page* mru = fPageList.head();  // set up by addRect()
-    SkASSERT(mru->fTexture.get() == texProxy);
 
     // Rasterize path to backing pixmap
-    RasterMaskHelper helper(&mru->fPixels);
-    if (!helper.init({mru->fRectanizer.width(), mru->fRectanizer.height()})) {
+    RasterMaskHelper helper(&maskPage->fPixels);
+    if (!helper.init({maskPage->fRectanizer.width(), maskPage->fRectanizer.height()})) {
         return nullptr;
     }
     SkIRect iAtlasBounds = SkIRect::MakeXYWH(iPos.x(), iPos.y(), maskSize.x(), maskSize.y());
@@ -190,14 +209,14 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
     // rectanizer. If we didn't include this then our uploads would not include writes to the
     // padded border, so the GPU texture might not then contain transparency even though the CPU
     // data was cleared properly.
-    mru->fDirtyRect.join(iAtlasBounds.makeOutset(kEntryPadding, kEntryPadding));
+    maskPage->fDirtyRect.join(iAtlasBounds.makeOutset(kEntryPadding, kEntryPadding));
 
     // Add to cache
     if (hasKey) {
-        mru->fCachedShapes.set(maskKey, *outPos);
+        maskPage->fCachedShapes.set(maskKey, *outPos);
     }
 
-    return texProxy;
+    return maskPage->fTexture.get();
 }
 
 void RasterPathAtlas::reset(Page* lru) {
