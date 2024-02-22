@@ -31,6 +31,16 @@ class SkArenaAlloc;
 class SkReadBuffer;
 class SkWriteBuffer;
 
+/**
+ * About the noise types : the difference between the first 2 is just minor tweaks to the algorithm;
+ * they're not two entirely different noises. The output looks different, but once the noise is
+ * generated in the [1, -1] range, the output is brought back in the [0, 1] range by doing:
+ *   kFractalNoise : noise * 0.5 + 0.5
+ *   kTurbulence   : abs(noise)
+ * Very little differs between the 2 types, although you can tell the difference visually.
+ */
+enum class SkPerlinNoiseShaderType { kFractalNoise, kTurbulence, kLast = kTurbulence };
+
 class SkPerlinNoiseShader : public SkShaderBase {
 private:
     static constexpr int kBlockSize = 256;
@@ -248,20 +258,9 @@ public:
         }
     };  // struct PaintingData
 
-    /**
-     *  About the noise types : the difference between the first 2 is just minor tweaks to the
-     *  algorithm, they're not 2 entirely different noises. The output looks different, but once the
-     *  noise is generated in the [1, -1] range, the output is brought back in the [0, 1] range by
-     *  doing :
-     *  kFractalNoise_Type : noise * 0.5 + 0.5
-     *  kTurbulence_Type   : abs(noise)
-     *  Very little differs between the 2 types, although you can tell the difference visually.
-     */
-    enum Type { kFractalNoise_Type, kTurbulence_Type, kLast_Type = kTurbulence_Type };
-
     static const int kMaxOctaves = 255;  // numOctaves must be <= 0 and <= kMaxOctaves
 
-    SkPerlinNoiseShader(SkPerlinNoiseShader::Type type,
+    SkPerlinNoiseShader(SkPerlinNoiseShaderType type,
                         SkScalar baseFrequencyX,
                         SkScalar baseFrequencyY,
                         int numOctaves,
@@ -289,7 +288,7 @@ public:
         PaintingData fPaintingData;
     };
 
-    SkPerlinNoiseShader::Type noiseType() const { return fType; }
+    SkPerlinNoiseShaderType noiseType() const { return fType; }
     int numOctaves() const { return fNumOctaves; }
     bool stitchTiles() const { return fStitchTiles; }
     SkISize tileSize() const { return fTileSize; }
@@ -310,7 +309,7 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkPerlinNoiseShader)
 
-    const SkPerlinNoiseShader::Type fType;
+    const SkPerlinNoiseShaderType fType;
     const SkScalar fBaseFrequencyX;
     const SkScalar fBaseFrequencyY;
     const int fNumOctaves;

@@ -210,7 +210,7 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     // Loop over all octaves
     fragBuilder->codeAppendf("for (int octave = 0; octave < %d; ++octave) {", pne.numOctaves());
     fragBuilder->codeAppendf("color += ");
-    if (pne.type() != SkPerlinNoiseShader::kFractalNoise_Type) {
+    if (pne.type() != SkPerlinNoiseShaderType::kFractalNoise) {
         fragBuilder->codeAppend("abs(");
     }
 
@@ -244,7 +244,7 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
                 noiseFuncName.c_str(),
                 chanCoordA);
     }
-    if (pne.type() != SkPerlinNoiseShader::kFractalNoise_Type) {
+    if (pne.type() != SkPerlinNoiseShaderType::kFractalNoise) {
         fragBuilder->codeAppend(")");  // end of "abs("
     }
     fragBuilder->codeAppend(" * ratio;");
@@ -258,7 +258,7 @@ void GrPerlinNoise2Effect::Impl::emitCode(EmitArgs& args) {
     }
     fragBuilder->codeAppend("}");  // end of the for loop on octaves
 
-    if (pne.type() == SkPerlinNoiseShader::kFractalNoise_Type) {
+    if (pne.type() == SkPerlinNoiseShaderType::kFractalNoise) {
         // The value of turbulenceFunctionResult comes from ((turbulenceFunctionResult) + 1) / 2
         // by fractalNoise and (turbulenceFunctionResult) by turbulence.
         fragBuilder->codeAppendf("color = color * half4(0.5) + half4(0.5);");
@@ -290,10 +290,10 @@ void GrPerlinNoise2Effect::onAddToKey(const GrShaderCaps& caps, skgpu::KeyBuilde
     uint32_t key = fNumOctaves;
     key = key << 3;  // Make room for next 3 bits
     switch (fType) {
-        case SkPerlinNoiseShader::kFractalNoise_Type:
+        case SkPerlinNoiseShaderType::kFractalNoise:
             key |= 0x1;
             break;
-        case SkPerlinNoiseShader::kTurbulence_Type:
+        case SkPerlinNoiseShaderType::kTurbulence:
             key |= 0x2;
             break;
         default:

@@ -1038,8 +1038,8 @@ $pure half4 perlin_noise_shader(float2 coords,
                                 int stitching,
                                 sampler2D permutationSampler,
                                 sampler2D noiseSampler) {
-    const int kFractalNoise_Type = 0;
-    const int kTurbulence_Type = 1;
+    const int kFractalNoise = 0;
+    const int kTurbulence = 1;
 
     // In the past, Perlin noise handled coordinates a bit differently than most shaders.
     // It operated in device space, floored; it also had a one-pixel transform matrix applied to
@@ -1063,8 +1063,8 @@ $pure half4 perlin_noise_shader(float2 coords,
 
         half4 tmp = $noise_function(noiseVec, noiseXCoords, noiseSampler);
 
-        if (noiseType != kFractalNoise_Type) {
-            // For kTurbulence_Type the result is: abs(noise[-1,1])
+        if (noiseType != kFractalNoise) {
+            // For kTurbulence the result is: abs(noise[-1,1])
             tmp = abs(tmp);
         }
 
@@ -1075,8 +1075,8 @@ $pure half4 perlin_noise_shader(float2 coords,
         stitchData *= half2(2.0);
     }
 
-    if (noiseType == kFractalNoise_Type) {
-        // For kFractalNoise_Type the result is: noise[-1,1] * 0.5 + 0.5
+    if (noiseType == kFractalNoise) {
+        // For kFractalNoise the result is: noise[-1,1] * 0.5 + 0.5
         color = color * half4(0.5) + half4(0.5);
     }
 
