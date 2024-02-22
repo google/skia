@@ -81,6 +81,9 @@ public:
     // Push any pending uploads to atlases onto the draw context
     void recordUploads(DrawContext*);
 
+    // Handle any post-flush work (garbage collection, e.g.)
+    void postFlush();
+
 private:
     std::unique_ptr<TextAtlasManager> fTextAtlasManager;
 

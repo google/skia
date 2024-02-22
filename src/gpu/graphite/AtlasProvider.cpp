@@ -109,4 +109,8 @@ void AtlasProvider::recordUploads(DrawContext* dc) {
     }
 }
 
+void AtlasProvider::postFlush() {
+    fTextAtlasManager->postFlush();
+}
+
 }  // namespace skgpu::graphite
