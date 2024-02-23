@@ -56,14 +56,6 @@ SK_API extern void* sk_malloc_flags(size_t size, unsigned flags);
  */
 SK_API extern void* sk_realloc_throw(void* buffer, size_t size);
 
-/**
- *  Return the size of the block of memory allocated in reality for a given pointer. The pointer
- *  passed must have been allocated using the sk_malloc_* or sk_realloc_* functions. The "size"
- *  parameter indicates the size originally requested when the memory block was allocated, and
- *  the value returned by this function must be bigger or equal to it.
- */
-SK_API extern size_t sk_malloc_size(void* addr, size_t size);
-
 static inline void* sk_malloc_throw(size_t size) {
     return sk_malloc_flags(size, SK_MALLOC_THROW);
 }
