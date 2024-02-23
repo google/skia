@@ -1571,8 +1571,7 @@ static void add_to_key(const KeyContext& keyContext,
     SkASSERT(shader);
     SkASSERT(shader->numOctaves());
 
-    std::unique_ptr<SkPerlinNoiseShader::PaintingData> paintingData =
-            shader->getPaintingData(SkMatrix::I());
+    std::unique_ptr<SkPerlinNoiseShader::PaintingData> paintingData = shader->getPaintingData();
     paintingData->generateBitmaps();
 
     sk_sp<TextureProxy> perm = RecorderPriv::CreateCachedProxy(

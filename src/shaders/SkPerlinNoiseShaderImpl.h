@@ -12,7 +12,6 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -64,19 +63,10 @@ public:
         PaintingData(const SkISize& tileSize,
                      SkScalar seed,
                      SkScalar baseFrequencyX,
-                     SkScalar baseFrequencyY,
-                     const SkMatrix& matrix) {
-            SkVector tileVec;
-            matrix.mapVector(
-                    SkIntToScalar(tileSize.fWidth), SkIntToScalar(tileSize.fHeight), &tileVec);
-
-            SkSize scale;
-            if (!matrix.decomposeScale(&scale, nullptr)) {
-                scale.set(SK_ScalarNearlyZero, SK_ScalarNearlyZero);
-            }
-            fBaseFrequency.set(baseFrequencyX * SkScalarInvert(scale.width()),
-                               baseFrequencyY * SkScalarInvert(scale.height()));
-            fTileSize.set(SkScalarRoundToInt(tileVec.fX), SkScalarRoundToInt(tileVec.fY));
+                     SkScalar baseFrequencyY) {
+            fBaseFrequency.set(baseFrequencyX, baseFrequencyY);
+            fTileSize.set(SkScalarRoundToInt(tileSize.fWidth),
+                          SkScalarRoundToInt(tileSize.fHeight));
             this->init(seed);
             if (!fTileSize.isEmpty()) {
                 this->stitch();
@@ -261,11 +251,8 @@ public:
     bool stitchTiles() const { return fStitchTiles; }
     SkISize tileSize() const { return fTileSize; }
 
-    std::unique_ptr<PaintingData> getPaintingData(const SkMatrix& mat) const {
-        // TODO(b/40045243): the passed-in matrix should be removed once Graphite switches over to
-        // local coordinates
-        return std::make_unique<PaintingData>(
-                fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, mat);
+    std::unique_ptr<PaintingData> getPaintingData() const {
+        return std::make_unique<PaintingData>(fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY);
     }
 
     bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const override;

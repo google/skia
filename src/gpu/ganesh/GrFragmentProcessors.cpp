@@ -665,8 +665,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPerlinNoiseSh
     // Either we don't stitch tiles, or we have a valid tile size
     SkASSERT(!shader->stitchTiles() || !shader->tileSize().isEmpty());
 
-
-    auto paintingData = shader->getPaintingData(SkMatrix::I());
+    auto paintingData = shader->getPaintingData();
     paintingData->generateBitmaps();
 
     GrRecordingContext* context = args.fContext;
