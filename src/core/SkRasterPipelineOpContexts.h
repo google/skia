@@ -108,6 +108,18 @@ struct SkRasterPipeline_DecalTileCtx {
     float    inclusiveEdge_y = 0;
 };
 
+enum class SkPerlinNoiseShaderType;
+
+struct SkRasterPipeline_PerlinNoiseCtx {
+    SkPerlinNoiseShaderType noiseType;
+    float baseFrequencyX, baseFrequencyY;
+    float stitchDataInX, stitchDataInY;
+    bool stitching;
+    int numOctaves;
+    const uint8_t* latticeSelector;  // [256 values]
+    const uint16_t* noiseData;       // [4 channels][256 elements][vector of 2]
+};
+
 // State used by mipmap_linear_*
 struct SkRasterPipeline_MipmapCtx {
     // Original coords, saved before the base level logic

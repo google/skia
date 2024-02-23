@@ -32,6 +32,11 @@ class SkReadBuffer;
 enum class SkPerlinNoiseShaderType;
 class SkWriteBuffer;
 
+#ifdef SK_RASTER_PIPELINE_PERLIN_NOISE
+#include "include/private/base/SkOnce.h"
+struct SkStageRec;
+#endif
+
 class SkPerlinNoiseShader : public SkShaderBase {
 private:
     static constexpr int kBlockSize = 256;
@@ -291,6 +296,10 @@ public:
                 fTileSize, fSeed, fBaseFrequencyX, fBaseFrequencyY, mat);
     }
 
+#ifdef SK_RASTER_PIPELINE_PERLIN_NOISE
+    bool appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const override;
+#endif
+
 protected:
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
@@ -307,6 +316,11 @@ private:
     const SkScalar fSeed;
     const SkISize fTileSize;
     const bool fStitchTiles;
+
+#ifdef SK_RASTER_PIPELINE_PERLIN_NOISE
+    mutable SkOnce fInitPaintingDataOnce;
+    std::unique_ptr<PaintingData> fPaintingData;
+#endif
 
     friend void SkRegisterPerlinNoiseShaderFlattenable();
 };

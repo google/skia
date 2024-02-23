@@ -7,6 +7,7 @@
 
 #include "src/shaders/SkPerlinNoiseShaderImpl.h"
 
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
@@ -17,6 +18,14 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkPerlinNoiseShaderType.h"
+
+#ifdef SK_RASTER_PIPELINE_PERLIN_NOISE
+#include "src/core/SkEffectPriv.h"
+#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
+#include <optional>
+#endif
 
 namespace {
 
@@ -47,7 +56,7 @@ SkPerlinNoiseShader::SkPerlinNoiseShader(SkPerlinNoiseShaderType type,
         , fBaseFrequencyX(baseFrequencyX)
         , fBaseFrequencyY(baseFrequencyY)
         , fNumOctaves(numOctaves > kMaxOctaves ? kMaxOctaves
-                                               : numOctaves)  //[0,255] octaves allowed
+                                               : numOctaves)  // [0,255] octaves allowed
         , fSeed(seed)
         , fTileSize(nullptr == tileSize ? SkISize::Make(0, 0) : *tileSize)
         , fStitchTiles(!fTileSize.isEmpty()) {
@@ -245,6 +254,37 @@ void SkPerlinNoiseShader::PerlinNoiseShaderContext::shadeSpan(int x,
         point.fX += SK_Scalar1;
     }
 }
+
+#ifdef SK_RASTER_PIPELINE_PERLIN_NOISE  // TODO(b/40045243): enable in Chromium
+
+bool SkPerlinNoiseShader::appendStages(const SkStageRec& rec,
+                                       const SkShaders::MatrixRec& mRec) const {
+    std::optional<SkShaders::MatrixRec> newMRec = mRec.apply(rec);
+    if (!newMRec.has_value()) {
+        return false;
+    }
+
+    fInitPaintingDataOnce([&] {
+        const_cast<SkPerlinNoiseShader*>(this)->fPaintingData =
+                this->getPaintingData(SkMatrix::I());
+    });
+
+    auto* ctx = rec.fAlloc->make<SkRasterPipeline_PerlinNoiseCtx>();
+    ctx->noiseType = fType;
+    ctx->baseFrequencyX = fBaseFrequencyX;
+    ctx->baseFrequencyY = fBaseFrequencyY;
+    ctx->stitchDataInX = fPaintingData->fStitchDataInit.fWidth;
+    ctx->stitchDataInY = fPaintingData->fStitchDataInit.fHeight;
+    ctx->stitching = fStitchTiles;
+    ctx->numOctaves = fNumOctaves;
+    ctx->latticeSelector = fPaintingData->fLatticeSelector;
+    ctx->noiseData = &fPaintingData->fNoise[0][0][0];
+
+    rec.fPipeline->append(SkRasterPipelineOp::perlin_noise, ctx);
+    return true;
+}
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

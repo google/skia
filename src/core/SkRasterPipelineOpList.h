@@ -188,6 +188,7 @@
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)                \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)                \
     M(accumulate)                                                              \
+    M(perlin_noise)                                                            \
     M(mipmap_linear_init) M(mipmap_linear_update) M(mipmap_linear_finish)      \
     M(xy_to_2pt_conical_strip)                                                 \
     M(xy_to_2pt_conical_focal_on_circle)                                       \
