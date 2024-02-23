@@ -1429,16 +1429,6 @@ std::optional<SlotRange> Generator::writeFunction(
                 continue;
             }
 
-            // If the expression is a plain variable and the parameter is never written to, we don't
-            // need to copy it; we can just share the slots from the existing variable.
-            if (paramCounts.fWrite == 0 && arg.is<VariableReference>()) {
-                const Variable& var = *arg.as<VariableReference>().variable();
-                if (this->hasVariableSlots(var)) {
-                    fProgramSlots.mapVariableToSlots(param, this->getVariableSlots(var));
-                    continue;
-                }
-            }
-
             // Copy input arguments into their respective parameter slots.
             if (!this->pushExpression(arg)) {
                 return std::nullopt;
