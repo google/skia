@@ -36,3 +36,7 @@ void* sk_malloc_flags(size_t size, unsigned flags) {
     }
     return (flags & SK_MALLOC_THROW) ? moz_xmalloc(size) : malloc(size);
 }
+
+size_t sk_malloc_size(void* addr, size_t size) {
+    return std::max(moz_malloc_usable_size(addr), size);
+}
