@@ -18,6 +18,7 @@
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkSpinlock.h"
+#include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
@@ -256,6 +257,9 @@ private:
     SkSpan<const Uniform> convertUniforms(const SkRuntimeEffect* effect);
 
     std::array<ShaderSnippet, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
+
+    using KnownRuntimeEffectArray = std::array<ShaderSnippet, SkKnownRuntimeEffects::kStableKeyCnt>;
+    KnownRuntimeEffectArray fKnownRuntimeEffectCodeSnippets SK_GUARDED_BY(fSpinLock);
 
     // The value returned from 'getEntry' must be stable so, hold the user-defined code snippet
     // entries as pointers.

@@ -8,7 +8,7 @@
 #include "src/gpu/graphite/FactoryFunctions.h"
 
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkRuntimeEffectPriv.h"
+#include "src/core/SkKnownRuntimeEffects.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
@@ -152,20 +152,11 @@ private:
             BlendShaderBlock::BeginBlock(keyContext, builder, gatherer);
 
         } else {
-            // TODO: share this with the copy over in SkComposeShader.cpp. For now, the block ID is
-            // determined by a hash of the code so both copies will generate the same key and
-            // the SkPaint vs. PaintOptions key match testing will trigger if they get out of
-            // sync.
-            static SkRuntimeEffect* sBlendEffect = SkMakeRuntimeEffect(
-                    SkRuntimeEffect::MakeForShader,
-                    "uniform shader s, d;"
-                    "uniform blender b;"
-                    "half4 main(float2 xy) {"
-                        "return b.eval(s.eval(xy), d.eval(xy));"
-                    "}"
-            );
+            const SkRuntimeEffect* blendEffect =
+                    GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kBlend);
+
             RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer,
-                                           { sk_ref_sp(sBlendEffect) });
+                                           { sk_ref_sp(blendEffect) });
             SkASSERT(desiredBlendCombination >= fBlenderIndex);
             desiredBlendCombination -= fBlenderIndex;
         }

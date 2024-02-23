@@ -740,6 +740,7 @@ SkRuntimeEffect::SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
                                  std::vector<SkSL::SampleUsage>&& sampleUsages,
                                  uint32_t flags)
         : fHash(SkChecksum::Hash32(baseProgram->fSource->c_str(), baseProgram->fSource->size()))
+        , fStableKey(options.fStableKey)
         , fBaseProgram(std::move(baseProgram))
         , fMain(main)
         , fUniforms(std::move(uniforms))
@@ -755,6 +756,7 @@ SkRuntimeEffect::SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
     // to match the layout of Options.
     struct KnownOptions {
         bool forceUnoptimized, allowPrivateAccess;
+        uint32_t fStableKey;
         SkSL::Version maxVersionAllowed;
     };
     static_assert(sizeof(Options) == sizeof(KnownOptions));
@@ -762,6 +764,8 @@ SkRuntimeEffect::SkRuntimeEffect(std::unique_ptr<SkSL::Program> baseProgram,
                                sizeof(options.forceUnoptimized), fHash);
     fHash = SkChecksum::Hash32(&options.allowPrivateAccess,
                                sizeof(options.allowPrivateAccess), fHash);
+    fHash = SkChecksum::Hash32(&options.fStableKey,
+                               sizeof(options.fStableKey), fHash);
     fHash = SkChecksum::Hash32(&options.maxVersionAllowed,
                                sizeof(options.maxVersionAllowed), fHash);
 }

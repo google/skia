@@ -16,11 +16,11 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkEffectPriv.h"
+#include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -117,6 +117,8 @@ sk_sp<SkShader> SkShaders::Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<Sk
 sk_sp<SkShader> SkShaders::Blend(sk_sp<SkBlender> blender,
                                  sk_sp<SkShader> dst,
                                  sk_sp<SkShader> src) {
+    using namespace SkKnownRuntimeEffects;
+
     if (!src || !dst) {
         return nullptr;
     }
@@ -128,15 +130,10 @@ sk_sp<SkShader> SkShaders::Blend(sk_sp<SkBlender> blender,
     }
 
     // This isn't a built-in blend mode; we might as well use a runtime effect to evaluate it.
-    static SkRuntimeEffect* sBlendEffect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-        "uniform shader s, d;"
-        "uniform blender b;"
-        "half4 main(float2 xy) {"
-            "return b.eval(s.eval(xy), d.eval(xy));"
-        "}"
-    );
+    SkRuntimeEffect* blendEffect = GetKnownRuntimeEffect(StableKey::kBlend);
+
     SkRuntimeEffect::ChildPtr children[] = {std::move(src), std::move(dst), std::move(blender)};
-    return sBlendEffect->makeShader(/*uniforms=*/{}, children);
+    return blendEffect->makeShader(/*uniforms=*/{}, children);
 }
 
 void SkRegisterBlendShaderFlattenable() {

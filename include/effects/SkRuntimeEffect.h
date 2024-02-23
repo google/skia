@@ -134,6 +134,8 @@ public:
         // This flag allows Runtime Effects to access Skia implementation details like sk_FragCoord
         // and functions with private identifiers (e.g. $rgb_to_hsl).
         bool allowPrivateAccess = false;
+        // When not 0, this field allows Skia to assign a stable key to a known runtime effect
+        uint32_t fStableKey = 0;
 
         // TODO(skia:11209) - Replace this with a promised SkCapabilities?
         // This flag lifts the ES2 restrictions on Runtime Effects that are gated by the
@@ -313,6 +315,7 @@ private:
     friend class SkRuntimeEffectPriv;
 
     uint32_t fHash;
+    uint32_t fStableKey;
 
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::unique_ptr<SkSL::RP::Program> fRPProgram;

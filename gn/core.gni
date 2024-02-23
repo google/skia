@@ -399,6 +399,8 @@ skia_core_sources = [
   "$_src/core/SkImageInfo.cpp",
   "$_src/core/SkImageInfoPriv.h",
   "$_src/core/SkImagePriv.h",
+  "$_src/core/SkKnownRuntimeEffects.cpp",
+  "$_src/core/SkKnownRuntimeEffects.h",
   "$_src/core/SkLRUCache.h",
   "$_src/core/SkLatticeIter.cpp",
   "$_src/core/SkLatticeIter.h",

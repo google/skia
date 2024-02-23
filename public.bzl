@@ -506,6 +506,8 @@ BASE_SRCS_ALL = [
     "src/core/SkImageInfo.cpp",
     "src/core/SkImageInfoPriv.h",
     "src/core/SkImagePriv.h",
+    "src/core/SkKnownRuntimeEffects.cpp",
+    "src/core/SkKnownRuntimeEffects.h",
     "src/core/SkLRUCache.h",
     "src/core/SkLatticeIter.cpp",
     "src/core/SkLatticeIter.h",

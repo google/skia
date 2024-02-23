@@ -71,7 +71,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, co
     // NOTE: This is intentionally abusing memory to create a corrupt scenario and is dependent on
     // the structure of PaintParamsKey (just SkSpan<const int32_t>).
     int32_t invalidKeyData[3] = {(int32_t) BuiltInCodeSnippetID::kSolidColorShader,
-                                 kBuiltInCodeSnippetIDCount + 12345,
+                                 SkKnownRuntimeEffects::kSkiaBuiltInReservedCnt - 1,
                                  (int32_t) BuiltInCodeSnippetID::kFixedFunctionSrcBlendMode};
     SkSpan<const int32_t> invalidKeySpan{invalidKeyData, std::size(invalidKeyData)*sizeof(int32_t)};
     const PaintParamsKey* fakeKey = reinterpret_cast<const PaintParamsKey*>(&invalidKeySpan);
