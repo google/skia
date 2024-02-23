@@ -1,4 +1,4 @@
-93 instructions
+83 instructions
 
 store_src_rg                   coords = src.rg
 init_lane_masks                CondMask = LoopMask = RetMask = true
@@ -12,22 +12,19 @@ copy_uniform                   colorRed(0) = colorWhite(0)
 splat_2_constants              colorRed(1..2) = 0
 copy_uniform                   colorRed(3) = colorWhite(3)
 store_condition_mask           $20 = CondMask
-branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 1 at #21)
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 1 at #20)
 copy_4_uniforms                x = colorWhite
-copy_4_slots_unmasked          y = colorBlue
 copy_4_slots_unmasked          $21..24 = x
-copy_4_slots_unmasked          $25..28 = y
+copy_4_slots_unmasked          $25..28 = colorBlue
 cmpeq_4_floats                 $21..24 = equal($21..24, $25..28)
 bitwise_and_2_ints             $21..22 &= $23..24
 bitwise_and_int                $21 &= $22
 label                          label 0x00000001
 bitwise_xor_imm_int            $21 ^= 0xFFFFFFFF
 merge_condition_mask           CondMask = $20 & $21
-branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 3 at #32)
-copy_4_slots_unmasked          x = colorGreen
-copy_4_slots_unmasked          y = colorRed
-copy_4_slots_unmasked          $0..3 = x
-copy_4_slots_unmasked          $4..7 = y
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 3 at #29)
+copy_4_slots_unmasked          $0..3 = colorGreen
+copy_4_slots_unmasked          $4..7 = colorRed
 cmpeq_4_floats                 $0..3 = equal($0..3, $4..7)
 bitwise_and_2_ints             $0..1 &= $2..3
 bitwise_and_int                $0 &= $1
@@ -37,11 +34,9 @@ copy_4_slots_unmasked          $4..7 = colorGreen
 copy_4_slots_unmasked          $8..11 = colorRed
 mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
 merge_inv_condition_mask       CondMask = $20 & ~$21
-branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 5 at #46)
-copy_4_slots_unmasked          x = colorRed
-copy_4_slots_unmasked          y = colorGreen
-copy_4_slots_unmasked          $4..7 = x
-copy_4_slots_unmasked          $8..11 = y
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 5 at #41)
+copy_4_slots_unmasked          $4..7 = colorRed
+copy_4_slots_unmasked          $8..11 = colorGreen
 cmpeq_4_floats                 $4..7 = equal($4..7, $8..11)
 bitwise_and_2_ints             $4..5 &= $6..7
 bitwise_and_int                $4 &= $5
@@ -55,11 +50,9 @@ copy_4_slots_masked            $0..3 = Mask($4..7)
 load_condition_mask            CondMask = $20
 copy_4_slots_unmasked          result = $0..3
 store_condition_mask           $20 = CondMask
-branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 7 at #64)
-copy_4_slots_unmasked          x = colorRed
-copy_4_slots_unmasked          y = colorBlue
-copy_4_slots_unmasked          $21..24 = x
-copy_4_slots_unmasked          $25..28 = y
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 7 at #57)
+copy_4_slots_unmasked          $21..24 = colorRed
+copy_4_slots_unmasked          $25..28 = colorBlue
 cmpeq_4_floats                 $21..24 = equal($21..24, $25..28)
 bitwise_and_2_ints             $21..22 &= $23..24
 bitwise_and_int                $21 &= $22
@@ -68,11 +61,9 @@ merge_condition_mask           CondMask = $20 & $21
 copy_4_uniforms                $0..3 = colorWhite
 merge_inv_condition_mask       CondMask = $20 & ~$21
 store_condition_mask           $29 = CondMask
-branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 9 at #77)
-copy_4_slots_unmasked          x = colorRed
-copy_4_slots_unmasked          y = colorGreen
-copy_4_slots_unmasked          $30..33 = x
-copy_4_slots_unmasked          $34..37 = y
+branch_if_no_lanes_active      branch_if_no_lanes_active +6 (label 9 at #68)
+copy_4_slots_unmasked          $30..33 = colorRed
+copy_4_slots_unmasked          $34..37 = colorGreen
 cmpeq_4_floats                 $30..33 = equal($30..33, $34..37)
 bitwise_and_2_ints             $30..31 &= $32..33
 bitwise_and_int                $30 &= $31
@@ -81,10 +72,9 @@ bitwise_xor_imm_int            $30 ^= 0xFFFFFFFF
 merge_condition_mask           CondMask = $29 & $30
 copy_4_slots_unmasked          $4..7 = result
 merge_inv_condition_mask       CondMask = $29 & ~$30
-branch_if_no_lanes_active      branch_if_no_lanes_active +8 (label 11 at #90)
-copy_4_slots_unmasked          x = colorRed
+branch_if_no_lanes_active      branch_if_no_lanes_active +7 (label 11 at #80)
 copy_4_uniforms                y = colorWhite
-copy_4_slots_unmasked          $8..11 = x
+copy_4_slots_unmasked          $8..11 = colorRed
 copy_4_slots_unmasked          $12..15 = y
 cmpeq_4_floats                 $8..11 = equal($8..11, $12..15)
 bitwise_and_2_ints             $8..9 &= $10..11

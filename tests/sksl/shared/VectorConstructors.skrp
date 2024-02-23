@@ -1,4 +1,4 @@
-79 instructions
+77 instructions
 
 [immutable slots]
 i0 = 0x3F800000 (1.0)
@@ -49,8 +49,6 @@ copy_constant                  v4(2) = 0x3F800000 (1.0)
 splat_2_constants              v5 = 0x00000001 (1.401298e-45)
 copy_2_immutables_unmasked     v6 = i6..7 [0x00000001 (1.401298e-45), 0x00000002 (2.802597e-45)]
 copy_2_immutables_unmasked     v7 = i2..3 [0x3F800000 (1.0), 0x40000000 (2.0)]
-copy_4_slots_unmasked          v8₁, v9₁(0..1) = v8, v9(0..1)
-copy_4_slots_unmasked          v9₁(2..3), v10₁ = v9(2..3), v10
 copy_4_immutables_unmasked     v11 = i8..11 [0xFFFFFFFF, 0, 0xFFFFFFFF, 0]
 copy_2_immutables_unmasked     v12 = i12..13 [0x3F800000 (1.0), 0]
 splat_4_constants              v13, v14 = 0
@@ -72,11 +70,11 @@ cast_to_float_from_int         $1 = IntToFloat($1)
 add_float                      $0 += $1
 copy_slot_unmasked             $1 = v7(0)
 add_float                      $0 += $1
-copy_slot_unmasked             $1 = v8₁(0)
+copy_slot_unmasked             $1 = v8(0)
 add_float                      $0 += $1
-copy_slot_unmasked             $1 = v9₁(0)
+copy_slot_unmasked             $1 = v9(0)
 add_float                      $0 += $1
-copy_slot_unmasked             $1 = v10₁(0)
+copy_slot_unmasked             $1 = v10(0)
 cast_to_float_from_int         $1 = IntToFloat($1)
 add_float                      $0 += $1
 copy_slot_unmasked             $1 = v11(0)

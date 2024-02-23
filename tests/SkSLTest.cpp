@@ -1073,6 +1073,8 @@ SKSL_TEST(ES3 | GPU_ES3, kNever,      IntrinsicUintBitsToFloat,        "intrinsi
 SKSL_TEST(ES3 | GPU_ES3, kNever,      ArrayNarrowingConversions,       "runtime/ArrayNarrowingConversions.rts")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      Commutative,                     "runtime/Commutative.rts")
 SKSL_TEST(CPU,           kNever,      DivideByZero,                    "runtime/DivideByZero.rts")
+SKSL_TEST(CPU | GPU,     kNextRelease,FunctionParameterAliasingFirst,  "runtime/FunctionParameterAliasingFirst.rts")
+SKSL_TEST(CPU | GPU,     kNextRelease,FunctionParameterAliasingSecond, "runtime/FunctionParameterAliasingSecond.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, LoopFloat,                       "runtime/LoopFloat.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, LoopInt,                         "runtime/LoopInt.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_U, Ossfuzz52603,                    "runtime/Ossfuzz52603.rts")

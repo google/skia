@@ -1,0 +1,14 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+noinline half4 clear_blue_0(half4 param);
+noinline half4 clear_blue_0(half4 param)
+{
+	return half4(param.xy, 0.0, param.w);
+}
+half4 main(float2 )
+{
+	half4 result = clear_blue_0(half4(colorRed.xyz, 1.0));
+	half4 green = colorGreen;
+	result = clear_blue_0(green);
+	return half4(result);
+}

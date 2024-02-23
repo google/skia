@@ -114,10 +114,17 @@ public:
                           bool isFunctionReturnValue);
 
     /**
-     * Associates previously-created slots with an SkSL variable. (This would result in multiple
-     * variables sharing a slot range.)
+     * Associates previously-created slots with an SkSL variable; this can allow multiple variables
+     * to share overlapping ranges. If the variable was already associated with a slot range,
+     * returns the previously associated range.
      */
-    void mapVariableToSlots(const Variable& v, SlotRange range);
+    std::optional<SlotRange> mapVariableToSlots(const Variable& v, SlotRange range);
+
+    /**
+     * Deletes the existing mapping between a variable and its slots; a future call to
+     * `getVariableSlots` will see this as a brand new variable and associate new slots.
+     */
+    void unmapVariableSlots(const Variable& v);
 
     /** Looks up the slots associated with an SkSL variable; creates the slot if necessary. */
     SlotRange getVariableSlots(const Variable& v);
@@ -1184,9 +1191,17 @@ SlotRange SlotManager::createSlots(std::string name,
     return result;
 }
 
-void SlotManager::mapVariableToSlots(const Variable& v, SlotRange range) {
+std::optional<SlotRange> SlotManager::mapVariableToSlots(const Variable& v, SlotRange range) {
     SkASSERT(v.type().slotCount() == SkToSizeT(range.count));
+    const SlotRange* existingEntry = fSlotMap.find(&v);
+    std::optional<SlotRange> originalRange = existingEntry ? std::optional(*existingEntry)
+                                                           : std::nullopt;
     fSlotMap.set(&v, range);
+    return originalRange;
+}
+
+void SlotManager::unmapVariableSlots(const Variable& v) {
+    fSlotMap.remove(&v);
 }
 
 SlotRange SlotManager::getVariableSlots(const Variable& v) {
@@ -1375,8 +1390,14 @@ std::optional<SlotRange> Generator::writeFunction(
     }
 
     // Handle parameter lvalues.
+    struct RemappedSlotRange {
+        const Variable* fVariable;
+        std::optional<SlotRange> fSlotRange;
+    };
     SkSpan<Variable* const> parameters = function.declaration().parameters();
     TArray<std::unique_ptr<LValue>> lvalues;
+    TArray<RemappedSlotRange> remappedSlotRanges;
+
     if (function.declaration().isMain()) {
         // For main(), the parameter slots have already been populated by `writeProgram`, but we
         // still need to explicitly emit trace ops for the variables in main(), since they are
@@ -1427,6 +1448,18 @@ std::optional<SlotRange> Generator::writeFunction(
                     this->discardExpression(arg.type().slotCount());
                 }
                 continue;
+            }
+
+            // If the expression is a plain variable and the parameter is never written to, we don't
+            // need to copy it; we can just share the slots from the existing variable.
+            if (paramCounts.fWrite == 0 && arg.is<VariableReference>()) {
+                const Variable& var = *arg.as<VariableReference>().variable();
+                if (this->hasVariableSlots(var)) {
+                    std::optional<SlotRange> originalRange =
+                            fProgramSlots.mapVariableToSlots(param, this->getVariableSlots(var));
+                    remappedSlotRanges.push_back({&param, originalRange});
+                    continue;
+                }
             }
 
             // Copy input arguments into their respective parameter slots.
@@ -1484,6 +1517,15 @@ std::optional<SlotRange> Generator::writeFunction(
                 return std::nullopt;
             }
             this->discardExpression(param.type().slotCount());
+        }
+    }
+
+    // Restore any remapped parameter slot ranges to their original values.
+    for (const RemappedSlotRange& remapped : remappedSlotRanges) {
+        if (remapped.fSlotRange.has_value()) {
+            fProgramSlots.mapVariableToSlots(*remapped.fVariable, *remapped.fSlotRange);
+        } else {
+            fProgramSlots.unmapVariableSlots(*remapped.fVariable);
         }
     }
 

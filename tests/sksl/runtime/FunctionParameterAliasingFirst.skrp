@@ -1,0 +1,18 @@
+14 instructions
+
+store_src_rg                   v0..1 = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_4_uniforms                red = colorRed
+copy_2_slots_unmasked          $0..1 = red(0..1)
+copy_constant                  $2 = 0
+copy_slot_unmasked             $3 = red(3)
+label                          label 0
+copy_4_slots_unmasked          result = $0..3
+copy_3_uniforms                param(0..2) = colorGreen(0..2)
+copy_constant                  param(3) = 0x3F800000 (1.0)
+copy_2_slots_unmasked          $0..1 = param(0..1)
+copy_constant                  $2 = 0
+copy_slot_unmasked             $3 = param(3)
+label                          label 0x00000001
+copy_4_slots_unmasked          result = $0..3
+load_src                       src.rgba = $0..3

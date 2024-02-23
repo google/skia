@@ -732,6 +732,8 @@ skia_filegroup(
         "runtime/ConstPreservation.rts",
         "runtime/ConversionConstructors.rts",
         "runtime/DivideByZero.rts",
+        "runtime/FunctionParameterAliasingFirst.rts",
+        "runtime/FunctionParameterAliasingSecond.rts",
         "runtime/GLSLTypeNames.rts",
         "runtime/GlobalVariables.rts",
         "runtime/LargeProgram_BlocklessLoops.rts",

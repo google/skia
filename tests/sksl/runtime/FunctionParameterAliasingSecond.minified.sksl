@@ -1,0 +1,1 @@
+uniform half4 colorGreen;uniform half4 colorRed;noinline half4 a(half4 b){return half4(b.xy,0.,b.w);}half4 main(float2){half4 b=a(half4(colorRed.xyz,1.));half4 c=colorGreen;b=a(c);return b;}

@@ -1,0 +1,17 @@
+uniform half4 colorGreen, colorRed;
+
+noinline half4 clear_blue(half4 param) {
+    return param.rg0a;
+}
+
+half4 main(float2) {
+    // First, call `clear_blue` with an expression that cannot be aliased directly onto a variable.
+    // The parameter should now get dedicated slots.
+    half4 result = clear_blue(colorRed.rgb1);
+
+    // Now, pass a variable directly to `clear_blue`; the function parameter can be aliased directly
+    // to `green`.
+    half4 green = colorGreen;
+    result = clear_blue(green);
+    return result;
+}
