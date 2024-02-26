@@ -1439,7 +1439,7 @@ SI T* ptr_at_xy(const SkRasterPipeline_MemoryCtx* ctx, size_t dx, size_t dy) {
 
 // clamp v to [0,limit).
 SI F clamp(F v, F limit) {
-    F inclusive = sk_bit_cast<F>( sk_bit_cast<U32>(limit) - 1 );  // Exclusive -> inclusive.
+    F inclusive = sk_bit_cast<F>(sk_bit_cast<U32>(limit) - 1);  // Exclusive -> inclusive.
     return min(max(0.0f, v), inclusive);
 }
 
@@ -1502,7 +1502,7 @@ SI F tan_(F x) {
     constexpr float Pi = SK_FloatPI;
     // periodic between -pi/2 ... pi/2
     // shift to 0...Pi, scale 1/Pi to get into 0...1, then fract, scale-up, shift-back
-    x = fract((1/Pi)*x + 0.5f) * Pi - (Pi/2);
+    x = mad(fract(mad(x, 1/Pi, 0.5f)), Pi, -Pi/2);
 
     I32 neg = (x < 0.0f);
     x = if_then_else(neg, -x, x);
@@ -1565,7 +1565,7 @@ SI F asin_(F x) {
     const float c1 = -0.2121144f;
     const float c0 = 1.5707288f;
     F poly = mad(x, mad(x, mad(x, c3, c2), c1), c0);
-    x = SK_FloatPI/2 - sqrt_(1 - x) * poly;
+    x = nmad(sqrt_(1 - x), poly, SK_FloatPI/2);
     x = if_then_else(neg, -x, x);
     return x;
 }
@@ -4035,20 +4035,20 @@ STAGE_TAIL(inverse_mat3, F* dst) {
     F a00 = dst[0], a01 = dst[1], a02 = dst[2],
       a10 = dst[3], a11 = dst[4], a12 = dst[5],
       a20 = dst[6], a21 = dst[7], a22 = dst[8];
-    F b01 = mad(a22, a11, -a12 * a21),
-      b11 = mad(a12, a20, -a22 * a10),
-      b21 = mad(a21, a10, -a11 * a20);
+    F b01 = nmad(a12, a21, a22 * a11),
+      b11 = nmad(a22, a10, a12 * a20),
+      b21 = nmad(a11, a20, a21 * a10);
     F det = mad(a00, b01, mad(a01, b11, a02 * b21)),
       invdet = rcp_precise(det);
     dst[0] = invdet * b01;
-    dst[1] = invdet * mad(a02, a21, -a22 * a01);
-    dst[2] = invdet * mad(a12, a01, -a02 * a11);
+    dst[1] = invdet * nmad(a22, a01, a02 * a21);
+    dst[2] = invdet * nmad(a02, a11, a12 * a01);
     dst[3] = invdet * b11;
-    dst[4] = invdet * mad(a22, a00, -a02 * a20);
-    dst[5] = invdet * mad(a02, a10, -a12 * a00);
+    dst[4] = invdet * nmad(a02, a20, a22 * a00);
+    dst[5] = invdet * nmad(a12, a00, a02 * a10);
     dst[6] = invdet * b21;
-    dst[7] = invdet * mad(a01, a20, -a21 * a00);
-    dst[8] = invdet * mad(a11, a00, -a01 * a10);
+    dst[7] = invdet * nmad(a21, a00, a01 * a20);
+    dst[8] = invdet * nmad(a01, a10, a11 * a00);
 }
 
 STAGE_TAIL(inverse_mat4, F* dst) {
@@ -4056,18 +4056,18 @@ STAGE_TAIL(inverse_mat4, F* dst) {
       a10 = dst[4],  a11 = dst[5],  a12 = dst[6],  a13 = dst[7],
       a20 = dst[8],  a21 = dst[9],  a22 = dst[10], a23 = dst[11],
       a30 = dst[12], a31 = dst[13], a32 = dst[14], a33 = dst[15];
-    F b00 = mad(a00, a11, -a01 * a10),
-      b01 = mad(a00, a12, -a02 * a10),
-      b02 = mad(a00, a13, -a03 * a10),
-      b03 = mad(a01, a12, -a02 * a11),
-      b04 = mad(a01, a13, -a03 * a11),
-      b05 = mad(a02, a13, -a03 * a12),
-      b06 = mad(a20, a31, -a21 * a30),
-      b07 = mad(a20, a32, -a22 * a30),
-      b08 = mad(a20, a33, -a23 * a30),
-      b09 = mad(a21, a32, -a22 * a31),
-      b10 = mad(a21, a33, -a23 * a31),
-      b11 = mad(a22, a33, -a23 * a32),
+    F b00 = nmad(a01, a10, a00 * a11),
+      b01 = nmad(a02, a10, a00 * a12),
+      b02 = nmad(a03, a10, a00 * a13),
+      b03 = nmad(a02, a11, a01 * a12),
+      b04 = nmad(a03, a11, a01 * a13),
+      b05 = nmad(a03, a12, a02 * a13),
+      b06 = nmad(a21, a30, a20 * a31),
+      b07 = nmad(a22, a30, a20 * a32),
+      b08 = nmad(a23, a30, a20 * a33),
+      b09 = nmad(a22, a31, a21 * a32),
+      b10 = nmad(a23, a31, a21 * a33),
+      b11 = nmad(a23, a32, a22 * a33),
       det = mad(b00, b11, b05 * b06) + mad(b02, b09, b03 * b08) - mad(b01, b10, b04 * b07),
       invdet = rcp_precise(det);
     b00 *= invdet;
@@ -4082,22 +4082,22 @@ STAGE_TAIL(inverse_mat4, F* dst) {
     b09 *= invdet;
     b10 *= invdet;
     b11 *= invdet;
-    dst[0]  = mad(a11, b11, a13*b09) - a12*b10;
-    dst[1]  = a02*b10 - mad(a01, b11, a03*b09);
-    dst[2]  = mad(a31, b05, a33*b03) - a32*b04;
-    dst[3]  = a22*b04 - mad(a21, b05, a23*b03);
-    dst[4]  = a12*b08 - mad(a10, b11, a13*b07);
-    dst[5]  = mad(a00, b11, a03*b07) - a02*b08;
-    dst[6]  = a32*b02 - mad(a30, b05, a33*b01);
-    dst[7]  = mad(a20, b05, a23*b01) - a22*b02;
-    dst[8]  = mad(a10, b10, a13*b06) - a11*b08;
-    dst[9]  = a01*b08 - mad(a00, b10, a03*b06);
-    dst[10] = mad(a30, b04, a33*b00) - a31*b02;
-    dst[11] = a21*b02 - mad(a20, b04, a23*b00);
-    dst[12] = a11*b07 - mad(a10, b09, a12*b06);
-    dst[13] = mad(a00, b09, a02*b06) - a01*b07;
-    dst[14] = a31*b01 - mad(a30, b03, a32*b00);
-    dst[15] = mad(a20, b03, a22*b00) - a21*b01;
+    dst[0]  =  mad(a13, b09, nmad(a12, b10, a11*b11));
+    dst[1]  = nmad(a03, b09, nmad(a01, b11, a02*b10));
+    dst[2]  =  mad(a33, b03, nmad(a32, b04, a31*b05));
+    dst[3]  = nmad(a23, b03, nmad(a21, b05, a22*b04));
+    dst[4]  = nmad(a13, b07, nmad(a10, b11, a12*b08));
+    dst[5]  =  mad(a03, b07, nmad(a02, b08, a00*b11));
+    dst[6]  = nmad(a33, b01, nmad(a30, b05, a32*b02));
+    dst[7]  =  mad(a23, b01, nmad(a22, b02, a20*b05));
+    dst[8]  =  mad(a13, b06, nmad(a11, b08, a10*b10));
+    dst[9]  = nmad(a03, b06, nmad(a00, b10, a01*b08));
+    dst[10] =  mad(a33, b00, nmad(a31, b02, a30*b04));
+    dst[11] = nmad(a23, b00, nmad(a20, b04, a21*b02));
+    dst[12] = nmad(a12, b06, nmad(a10, b09, a11*b07));
+    dst[13] =  mad(a02, b06, nmad(a01, b07, a00*b09));
+    dst[14] = nmad(a32, b00, nmad(a30, b03, a31*b01));
+    dst[15] =  mad(a22, b00, nmad(a21, b01, a20*b03));
 }
 
 // Binary operations take two adjacent inputs, and write their output in the first position.
