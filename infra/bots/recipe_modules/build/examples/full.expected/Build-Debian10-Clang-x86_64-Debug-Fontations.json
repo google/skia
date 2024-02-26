@@ -66,6 +66,23 @@
   },
   {
     "cmd": [
+      "[START_DIR]/cache/work/skia/bin/gn",
+      "clean",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-Fontations/Debug"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CCACHE_COMPILERCHECK": "content",
+      "CCACHE_DIR": "[START_DIR]/cache/ccache",
+      "CCACHE_MAXFILES": "0",
+      "CCACHE_MAXSIZE": "75G",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "gn clean"
+  },
+  {
+    "cmd": [
       "ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-Fontations/Debug"

@@ -352,6 +352,9 @@ def compile_fn(api, checkout_root, out_dir):
         api.run(api.step, 'ccache stats-start', cmd=[ccache, '-s'])
       api.run(api.step, 'gn gen',
               cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
+      if 'Fontations' in extra_tokens:
+        api.run(api.step, 'gn clean',
+              cmd=[gn, 'clean', out_dir])
       api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
       if ccache:
         api.run(api.step, 'ccache stats-end', cmd=[ccache, '-s'])
