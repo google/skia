@@ -5,14 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/Adapter.h"
+#include "include/core/SkRefCnt.h"
 #include "modules/skottie/src/SkottieJson.h"
-#include "modules/skottie/src/SkottiePriv.h"
-#include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
+#include "modules/sksg/include/SkSGMerge.h"
+#include "src/utils/SkJSON.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <utility>
+#include <vector>
 
 namespace skottie {
 namespace internal {
+class AnimationBuilder;
 
 sk_sp<sksg::Merge> ShapeBuilder::MergeGeometry(std::vector<sk_sp<sksg::GeometryNode>>&& geos,
                                                sksg::Merge::Mode mode) {

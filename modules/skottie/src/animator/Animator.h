@@ -17,7 +17,6 @@ struct SkV2;
 namespace skjson {
 
 class ObjectValue;
-class StringValue;
 
 } // namespace skjson
 

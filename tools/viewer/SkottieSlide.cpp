@@ -11,6 +11,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/audioplayer/SkAudioPlayer.h"

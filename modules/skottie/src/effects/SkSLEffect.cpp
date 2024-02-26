@@ -5,15 +5,42 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/effects/Effects.h"
-
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMalloc.h"
+#include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/Adapter.h"
-#include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/skottie/src/animator/Animator.h"
+#include "modules/skottie/src/effects/Effects.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
+#include "modules/sksg/include/SkSGNode.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
+#include "src/utils/SkJSON.h"
+
+#include <cstdint>
+#include <cstring>
+#include <memory>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+class SkMatrix;
+struct SkPoint;
+
+namespace sksg {
+class InvalidationController;
+}
 
 namespace skottie::internal {
 

@@ -8,10 +8,17 @@
 #include "modules/sksg/include/SkSGGroup.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "modules/sksg/include/SkSGNode.h"
 
 #include <algorithm>
 
+class SkMatrix;
+struct SkPoint;
+
 namespace sksg {
+class InvalidationController;
 
 Group::Group() = default;
 

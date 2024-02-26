@@ -7,11 +7,19 @@
 
 #include "modules/skottie/src/text/Font.h"
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypeface.h"
+#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGTransform.h"
+#include "src/base/SkUTF.h"
+#include "src/utils/SkJSON.h"
 
 namespace skottie::internal {
 

@@ -10,34 +10,58 @@
 #include "include/codec/SkPngDecoder.h"
 #include "include/codec/SkWebpDecoder.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkGraphics.h"
-#include "include/core/SkPicture.h"
-#include "include/core/SkPictureRecorder.h"
-#include "include/core/SkSerialProcs.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/encode/SkPngEncoder.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTo.h"
+#include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTaskGroup.h"
-#include "src/image/SkImage_Base.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/flags/CommandLineFlags.h"
 
-#include <algorithm>
-#include <chrono>
-#include <future>
-#include <numeric>
-#include <vector>
-
 #if !defined(CPU_ONLY)
-#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "tools/gpu/ContextType.h"
 #include "tools/gpu/GrContextFactory.h"
 #endif
+
+#if !defined(CPU_ONLY) && !defined(GPU_ONLY)
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSerialProcs.h"
+#include "src/image/SkImage_Base.h"
+#endif
+
+#include <algorithm>
+#include <chrono>
+#include <cstdio>
+#include <cstring>
+#include <functional>
+#include <memory>
+#include <numeric>
+#include <utility>
+#include <vector>
 
 #if defined(HAVE_VIDEO_ENCODER)
     #include "experimental/ffmpeg/SkVideoEncoder.h"
@@ -453,14 +477,14 @@ int main(int argc, char** argv) {
     }
 
     OutputFormat fmt;
-    if (0 == strcmp(FLAGS_format[0],  "png")) {
+    if (0 == std::strcmp(FLAGS_format[0], "png")) {
         fmt = OutputFormat::kPNG;
-    } else if (0 == strcmp(FLAGS_format[0],  "skp")) {
+    } else if (0 == std::strcmp(FLAGS_format[0], "skp")) {
         fmt = OutputFormat::kSKP;
-    }  else if (0 == strcmp(FLAGS_format[0], "null")) {
+    } else if (0 == std::strcmp(FLAGS_format[0], "null")) {
         fmt = OutputFormat::kNull;
 #if defined(HAVE_VIDEO_ENCODER)
-    } else if (0 == strcmp(FLAGS_format[0],  "mp4")) {
+    } else if (0 == std::strcmp(FLAGS_format[0], "mp4")) {
         fmt = OutputFormat::kMP4;
 #endif
     } else {

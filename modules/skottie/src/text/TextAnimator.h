@@ -8,17 +8,20 @@
 #ifndef SkottieTextAnimator_DEFINED
 #define SkottieTextAnimator_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
-#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 
-#include <memory>
+#include <cstddef>
 #include <vector>
+
+namespace skjson {
+class ObjectValue;
+}
 
 namespace skottie {
 namespace internal {
-
 class AnimatablePropertyContainer;
 class AnimationBuilder;
 class RangeSelector;

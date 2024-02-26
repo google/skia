@@ -14,6 +14,10 @@ skia_cc_library(
         "//src/utils:json_srcs",
     ],
     hdrs = ["//modules/skottie/include:hdrs"],
+    defines = [
+        "SK_ENABLE_SKOTTIE_SKSLEFFECT",
+        "SK_ENABLE_SKOTTIE",
+    ],
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",
@@ -95,6 +99,10 @@ skia_cc_library(
         "//src/utils:json_srcs",
     ],
     hdrs = ["//modules/skottie/include:hdrs"],
+    defines = [
+        "SK_ENABLE_SKOTTIE_SKSLEFFECT",
+        "SK_ENABLE_SKOTTIE",
+    ],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [

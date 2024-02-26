@@ -5,11 +5,23 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/animator/VectorKeyframeAnimator.h"
+#include "src/utils/SkJSON.h"
+
+#include <cstddef>
+#include <vector>
+
+namespace skottie::internal {
+class AnimationBuilder;
+}
 
 namespace skottie {
 

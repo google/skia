@@ -8,9 +8,20 @@
 #ifndef SkSGOpacityEffect_DEFINED
 #define SkSGOpacityEffect_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "modules/sksg/include/SkSGEffectNode.h"
+#include "modules/sksg/include/SkSGNode.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
+
+#include <utility>
+
+class SkCanvas;
+class SkMatrix;
+struct SkPoint;
 
 namespace sksg {
+class InvalidationController;
 
 /**
  * Concrete Effect node, applying opacity to its descendants.

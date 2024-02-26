@@ -5,12 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/effects/Effects.h"
-
-#include "modules/skottie/src/SkottieJson.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "modules/skottie/src/Adapter.h"
+#include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/Transform.h"
+#include "modules/skottie/src/animator/Animator.h"
+#include "modules/skottie/src/effects/Effects.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
+
+#include <cstddef>
+#include <utility>
+
+namespace skjson {
+class ArrayValue;
+class ObjectValue;
+}  // namespace skjson
 
 namespace skottie {
 namespace internal {

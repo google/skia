@@ -5,11 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "modules/skottie/src/Camera.h"
-
-#include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGTransform.h"
+#include "src/utils/SkJSON.h"
+
+#include <algorithm>
+#include <cmath>
+#include <utility>
 
 namespace skottie {
 namespace internal {

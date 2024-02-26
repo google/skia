@@ -25,6 +25,7 @@
   { include: ["<__algorithm/search.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/sort.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/stable_sort.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/transform.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/unique.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/upper_bound.h>", "private", "<algorithm>", "public"] },
 

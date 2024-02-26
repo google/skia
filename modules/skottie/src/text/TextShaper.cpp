@@ -10,6 +10,11 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTPin.h"
@@ -25,8 +30,11 @@
 #endif
 
 #include <algorithm>
-#include <limits.h>
+#include <memory>
 #include <numeric>
+#include <utility>
+
+class SkPaint;
 
 using namespace skia_private;
 

@@ -8,25 +8,39 @@
 #ifndef SkottieTextAdapter_DEFINED
 #define SkottieTextAdapter_DEFINED
 
+#include "include/core/SkM44.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "modules/skottie/include/TextShaper.h"
+#include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/Font.h"
 #include "modules/skottie/src/text/TextAnimator.h"
 #include "modules/skottie/src/text/TextValue.h"
+#include "modules/sksg/include/SkSGPaint.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGTransform.h"
 
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 class SkFontMgr;
 
+namespace skjson {
+class ObjectValue;
+}
+namespace skottie {
+class Logger;
+}
 namespace sksg {
-class BlurImageFilter;
 class Group;
-template <typename T>
-class Matrix;
-} // namespace sksg
+class RenderNode;
+}  // namespace sksg
 
 namespace skottie {
 namespace internal {
+class AnimationBuilder;
 
 class TextAdapter final : public AnimatablePropertyContainer {
 public:

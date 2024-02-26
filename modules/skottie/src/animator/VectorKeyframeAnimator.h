@@ -8,11 +8,25 @@
 #ifndef SkottieVectorKeyframeAnimator_DEFINED
 #define SkottieVectorKeyframeAnimator_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
 
+#include <cstddef>
 #include <vector>
 
+namespace skjson {
+class ArrayValue;
+class ObjectValue;
+class Value;
+}  // namespace skjson
+
+namespace skottie {
+class ExpressionManager;
+}
+
 namespace skottie::internal {
+class AnimationBuilder;
+class Animator;
 
 class VectorAnimatorBuilder final : public AnimatorBuilder {
 public:

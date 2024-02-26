@@ -5,20 +5,44 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/effects/Effects.h"
-
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skottie/src/Adapter.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/skottie/src/effects/Effects.h"
+#include "modules/sksg/include/SkSGNode.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "src/utils/SkJSON.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <utility>
+#include <vector>
+
+namespace skjson {
+class ArrayValue;
+}
+namespace sksg {
+class InvalidationController;
+}
 
 namespace skottie {
 namespace internal {

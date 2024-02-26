@@ -13,6 +13,7 @@
 class SkCanvas;
 class SkPaint;
 class SkPath;
+struct SkPoint;
 
 namespace sksg {
 

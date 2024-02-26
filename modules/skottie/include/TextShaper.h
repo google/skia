@@ -11,16 +11,21 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkTypeTraits.h"
 #include "include/utils/SkTextUtils.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <type_traits>
 #include <vector>
 
 class SkCanvas;
 class SkFontMgr;
-class SkTypeface;
+class SkPaint;
 class SkString;
-
+class SkTypeface;
 struct SkRect;
 
 namespace skottie {

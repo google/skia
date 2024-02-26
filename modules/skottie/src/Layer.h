@@ -8,7 +8,20 @@
 #ifndef SkottieLayer_DEFINED
 #define SkottieLayer_DEFINED
 
+#include <cstddef>
+#include <cstdint>
+#include "include/core/SkRefCnt.h"
 #include "modules/skottie/src/SkottiePriv.h"
+
+struct SkSize;
+
+namespace skjson {
+class ObjectValue;
+}
+namespace sksg {
+class RenderNode;
+class Transform;
+}  // namespace sksg
 
 namespace skottie {
 namespace internal {

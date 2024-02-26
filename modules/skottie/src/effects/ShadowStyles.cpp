@@ -5,16 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/effects/Effects.h"
-
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/skottie/src/Adapter.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/skottie/src/effects/Effects.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
 #include "src/utils/SkJSON.h"
+
+#include <utility>
 
 namespace skottie::internal {
 

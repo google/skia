@@ -5,17 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/SkottiePriv.h"
-
 #include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "modules/skottie/include/ExternalLayer.h"
+#include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
+#include "modules/sksg/include/SkSGNode.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "src/base/SkTLazy.h"
 #include "src/utils/SkJSON.h"
+
+#include <utility>
+
+class SkMatrix;
+
+namespace sksg {
+class InvalidationController;
+}
 
 namespace skottie {
 namespace internal {

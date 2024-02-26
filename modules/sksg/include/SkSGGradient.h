@@ -8,14 +8,17 @@
 #ifndef SkSGGradient_DEFINED
 #define SkSGGradient_DEFINED
 
-#include "modules/sksg/include/SkSGRenderEffect.h"
-
 #include "include/core/SkColor.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "modules/sksg/include/SkSGNode.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
 
 #include <vector>
+
+class SkShader;
 
 namespace sksg {
 

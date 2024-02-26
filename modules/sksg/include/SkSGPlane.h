@@ -8,12 +8,18 @@
 #ifndef SkSGPlane_DEFINED
 #define SkSGPlane_DEFINED
 
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "modules/sksg/include/SkSGGeometryNode.h"
 
 class SkCanvas;
+class SkMatrix;
 class SkPaint;
+struct SkPoint;
 
 namespace sksg {
+class InvalidationController;
 
 /**
  * Concrete Geometry node, representing the whole canvas.

@@ -5,12 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/SkottieJson.h"
-#include "modules/skottie/src/SkottieValue.h"
+#include "include/core/SkCubicMap.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
 #include "modules/skottie/src/text/TextValue.h"
+#include "src/utils/SkJSON.h"
+
+#include <utility>
+#include <vector>
 
 namespace skottie::internal {
+class AnimationBuilder;
 
 namespace  {
 class TextKeyframeAnimator final : public KeyframeAnimator {

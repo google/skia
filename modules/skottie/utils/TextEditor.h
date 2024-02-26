@@ -9,11 +9,25 @@
 #define SkottieTextEditor_DEFINED
 
 #include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "modules/skottie/include/SkottieProperty.h"
-#include "tools/skui/InputState.h"
-#include "tools/skui/ModifierKey.h"
 
 #include <chrono>
+#include <cstddef>
+#include <memory>
+#include <tuple>
+#include <vector>
+
+class SkCanvas;
+class SkString;
+struct SkPoint;
+
+namespace skui {
+enum class InputState;
+enum class ModifierKey;
+}  // namespace skui
 
 namespace skottie_utils {
 

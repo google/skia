@@ -8,10 +8,22 @@
 #ifndef SkottieCamera_DEFINED
 #define SkottieCamera_DEFINED
 
+#include "include/core/SkM44.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/Transform.h"
+
+namespace skjson {
+class ObjectValue;
+}
+namespace sksg {
+class Transform;
+}
 
 namespace skottie {
 namespace internal {
+class AnimationBuilder;
 
 class CameraAdaper final : public TransformAdapter3D {
 public:

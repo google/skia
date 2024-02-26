@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "modules/sksg/include/SkSGInvalidationController.h"
 #include "modules/sksg/include/SkSGNode.h"
+
+#include "include/private/base/SkDebug.h"
+#include "modules/sksg/include/SkSGInvalidationController.h"
 #include "src/core/SkRectPriv.h"
 
 #include <algorithm>

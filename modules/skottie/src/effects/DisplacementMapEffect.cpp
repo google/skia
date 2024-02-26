@@ -5,22 +5,45 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/effects/Effects.h"
-
 #include "include/core/SkCanvas.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
-#include "include/effects/SkColorMatrix.h"
-#include "include/effects/SkImageFilters.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
 #include "modules/skottie/src/Adapter.h"
+#include "modules/skottie/src/Layer.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
-#include "modules/sksg/include/SkSGRenderEffect.h"
+#include "modules/skottie/src/effects/Effects.h"
+#include "modules/sksg/include/SkSGNode.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
+#include "src/utils/SkJSON.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <tuple>
+#include <utility>
+#include <vector>
+
+struct SkPoint;
+
+namespace sksg {
+class InvalidationController;
+}
 
 namespace skottie::internal {
 namespace {

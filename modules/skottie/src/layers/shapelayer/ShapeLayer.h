@@ -8,8 +8,8 @@
 #ifndef SkottieShapeLayer_DEFINED
 #define SkottieShapeLayer_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkNoncopyable.h"
-#include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGMerge.h"
 
 #include <vector>
@@ -30,7 +30,7 @@ class RenderNode;
 
 namespace skottie {
 namespace internal {
-
+class AnimatablePropertyContainer;
 class AnimationBuilder;
 
 // TODO/TRANSITIONAL: not much state here yet, but will eventually hold ShapeLayer-related stuff.

@@ -5,13 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "modules/sksg/include/SkSGTransform.h"
-
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPoint.h"
+#include "include/private/base/SkAssert.h"
+#include "modules/sksg/include/SkSGTransform.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
 
 namespace sksg {
-
 namespace {
 
 template <typename T>

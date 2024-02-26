@@ -7,23 +7,30 @@
 
 #include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
 
-#include "include/core/SkPath.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
-#include "modules/skottie/src/SkottieValue.h"
+#include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGeometryEffect.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGMerge.h"
 #include "modules/sksg/include/SkSGPaint.h"
-#include "modules/sksg/include/SkSGPath.h"
-#include "modules/sksg/include/SkSGRect.h"
-#include "modules/sksg/include/SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGPath.h"  // IWYU pragma: keep
+#include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
 #include "src/utils/SkJSON.h"
 
+#include <string.h>
 #include <algorithm>
+#include <cstdint>
+#include <cstdlib>
 #include <iterator>
+#include <utility>
 
 namespace skottie {
 namespace internal {

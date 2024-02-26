@@ -10,10 +10,11 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
 
+#include <cstdint>
 #include <vector>
 
-class SkCanvas;
 class SkMatrix;
 
 namespace sksg {

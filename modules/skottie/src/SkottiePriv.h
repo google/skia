@@ -11,9 +11,11 @@
 #include "include/core/SkRefCnt.h"
 #include "modules/skottie/include/Skottie.h"
 
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/include/SlotManager.h"
 #include "modules/skottie/src/animator/Animator.h"
@@ -22,8 +24,6 @@
 #include "src/core/SkTHash.h"
 
 #include <vector>
-
-class SkFontMgr;
 
 namespace skjson {
 class ArrayValue;

@@ -5,14 +5,30 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkM44.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTo.h"
+#include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
 #include "modules/sksg/include/SkSGPath.h"
+#include "src/utils/SkJSON.h"
+
+#include <array>
+#include <cmath>
+#include <cstddef>
+
+namespace sksg {
+class GeometryNode;
+}
 
 namespace skottie {
 namespace internal {

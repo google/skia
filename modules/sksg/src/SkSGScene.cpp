@@ -5,13 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMatrix.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGScene.h"
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkMatrix.h"
-#include "include/core/SkPaint.h"
-#include "modules/sksg/include/SkSGInvalidationController.h"
-#include "modules/sksg/include/SkSGRenderNode.h"
+#include <utility>
 
 namespace sksg {
 

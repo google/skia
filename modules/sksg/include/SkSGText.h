@@ -8,19 +8,26 @@
 #ifndef SkSGText_DEFINED
 #define SkSGText_DEFINED
 
-#include "modules/sksg/include/SkSGGeometryNode.h"
-
 #include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
-#include "include/core/SkTextBlob.h"
 #include "include/utils/SkTextUtils.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
+#include "modules/sksg/include/SkSGNode.h"
 
 class SkCanvas;
+class SkMatrix;
 class SkPaint;
+class SkTextBlob;
 class SkTypeface;
 
 namespace sksg {
+class InvalidationController;
 
 /**
  * Concrete Geometry node, wrapping a (shaped) SkTextBlob.

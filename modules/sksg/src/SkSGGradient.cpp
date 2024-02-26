@@ -8,9 +8,11 @@
 #include "modules/sksg/include/SkSGGradient.h"
 
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkPaint.h"
+#include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTo.h"
 
 namespace sksg {
 

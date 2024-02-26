@@ -9,16 +9,20 @@
 #define GrDataUtils_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkSize.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 
+#include <array>
 #include <cstddef>
 
-class GrImageInfo;
 class GrCPixmap;
+class GrImageInfo;
 class GrPixmap;
 class SkPixmap;
 enum class SkTextureCompressionType;
+namespace skgpu {
+enum class Mipmapped : bool;
+}
 
 size_t GrNumBlocks(SkTextureCompressionType, SkISize baseDimensions);
 

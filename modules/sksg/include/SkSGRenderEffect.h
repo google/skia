@@ -8,24 +8,30 @@
 #ifndef SkSGRenderEffect_DEFINED
 #define SkSGRenderEffect_DEFINED
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "modules/sksg/include/SkSGEffectNode.h"
 #include "modules/sksg/include/SkSGNode.h"
 
-#include "include/core/SkBlendMode.h"
-#include "include/core/SkColor.h"
-#include "include/effects/SkImageFilters.h"
+#include <optional>
 
-#include <memory>
-#include <vector>
+class SkCanvas;
+class SkMatrix;
 
 // TODO: merge EffectNode.h with this header
 
-class SkBlender;
-class SkImageFilter;
-class SkMaskFilter;
-class SkShader;
-
 namespace sksg {
+class InvalidationController;
+class RenderNode;
 
 /**
  * Shader base class.

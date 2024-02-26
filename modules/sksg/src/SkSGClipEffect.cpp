@@ -9,9 +9,15 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/private/base/SkAssert.h"
 #include "modules/sksg/include/SkSGGeometryNode.h"
+#include "modules/sksg/include/SkSGNode.h"
+
+class SkMatrix;
+struct SkPoint;
 
 namespace sksg {
+class InvalidationController;
 
 ClipEffect::ClipEffect(sk_sp<RenderNode> child, sk_sp<GeometryNode> clip, bool aa, bool force_clip)
     : INHERITED(std::move(child))

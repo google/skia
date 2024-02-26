@@ -10,10 +10,13 @@
 
 #include "include/core/SkCubicMap.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkNoncopyable.h"
-#include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/animator/Animator.h"
 
+#include <cstdint>
+#include <utility>
 #include <vector>
 
 namespace skjson {
@@ -21,6 +24,10 @@ class ArrayValue;
 class ObjectValue;
 class Value;
 } // namespace skjson
+
+namespace skottie {
+class ExpressionManager;
+}
 
 namespace skottie::internal {
 

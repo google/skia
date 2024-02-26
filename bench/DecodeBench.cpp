@@ -7,6 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "modules/skottie/include/Skottie.h"

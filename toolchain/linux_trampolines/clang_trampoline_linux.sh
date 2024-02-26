@@ -27,6 +27,8 @@ supported_files_or_dirs=(
   "gm/"
   "include/private/base/"
   "modules/bentleyottmann/"
+  "modules/skottie/"
+  "modules/sksg/"
   "modules/skshaper/"
   "modules/skunicode/"
   "src/base/"
@@ -90,6 +92,8 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/tessellate/StrokeTessellator.cpp"
   "src/gpu/ganesh/vk/GrVkDirectContext.cpp"
   "src/gpu/ganesh/ops/DrawAtlasPathOp.cpp"
+  "src/gpu/ganesh/GrStencilSettings.cpp"
+  "src/gpu/ganesh/GrDataUtils.cpp"
   "src/gpu/vk/VulkanMutableTextureState.cpp"
   "src/pdf/SkJpeg"
   "tools/DecodeUtils.cpp"
@@ -115,6 +119,7 @@ excluded_files=(
   "src/core/SkMaskBlurFilter.cpp"
   "src/core/SkM44.cpp"
   "src/core/SkPixmap.cpp"
+  "modules/skottie/src/effects/MotionBlurEffect.cpp"
 )
 
 function opted_in_to_IWYU_checks() {

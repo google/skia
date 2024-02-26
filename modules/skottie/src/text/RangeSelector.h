@@ -9,14 +9,19 @@
 #define SkottieRangeSelector_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/text/TextAnimator.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <tuple>
-#include <vector>
+namespace skjson {
+class ObjectValue;
+}
 
 namespace skottie {
 namespace internal {
+class AnimatablePropertyContainer;
+class AnimationBuilder;
 
 class RangeSelector final : public SkNVRefCnt<RangeSelector> {
 public:

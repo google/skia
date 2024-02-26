@@ -5,12 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/effects/Effects.h"
-
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
+#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/skottie/src/animator/Animator.h"
+#include "modules/skottie/src/effects/Effects.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
 #include "modules/sksg/include/SkSGPaint.h"
-#include "src/utils/SkJSON.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
+
+#include <cstddef>
+#include <utility>
+
+namespace skjson {
+class ArrayValue;
+}
 
 namespace skottie {
 namespace internal {

@@ -5,11 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkImage.h"
 #include "modules/skottie/include/SlotManager.h"
+
+#include "include/core/SkImage.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkSamplingOptions.h"
+#include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/TextAdapter.h"
 #include "modules/skresources/include/SkResources.h"
+
+#include <utility>
 
 class skottie::SlotManager::ImageAssetProxy final : public skresources::ImageAsset {
 public:

@@ -8,8 +8,13 @@
 #include "modules/sksg/include/SkSGPath.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkPaint.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkRectPriv.h"
+
+class SkMatrix;
 
 namespace sksg {
 

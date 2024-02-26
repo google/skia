@@ -7,17 +7,29 @@
 
 #include "modules/skottie/src/animator/VectorKeyframeAnimator.h"
 
+#include "include/core/SkColor.h"
+#include "include/core/SkCubicMap.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTo.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/SlotManager.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "src/base/SkSafeMath.h"
 #include "src/base/SkVx.h"
+#include "src/utils/SkJSON.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
+#include <utility>
 
 namespace skottie {
 

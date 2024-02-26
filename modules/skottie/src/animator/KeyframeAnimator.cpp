@@ -7,7 +7,11 @@
 
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
 
+#include "include/private/base/SkTo.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "src/utils/SkJSON.h"
+
+#include <cstddef>
 
 #define DUMP_KF_RECORDS 0
 

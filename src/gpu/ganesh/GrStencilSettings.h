@@ -4,13 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef GrStencilSettings_DEFINED
 #define GrStencilSettings_DEFINED
 
-#include "include/core/SkRegion.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
+
+#include <cstdint>
 
 namespace skgpu {
 class KeyBuilder;

@@ -7,9 +7,15 @@
 
 #include "modules/skottie/src/Transform.h"
 
-#include "modules/skottie/src/SkottieJson.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGTransform.h"
+#include "src/utils/SkJSON.h"
+
+#include <cmath>
 
 namespace skottie {
 namespace internal {

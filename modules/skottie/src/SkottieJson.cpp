@@ -7,15 +7,16 @@
 
 #include "modules/skottie/src/SkottieJson.h"
 
-#include "include/core/SkData.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "src/utils/SkJSON.h"
+
+#include <cstddef>
 #include <limits>
-#include <vector>
 
 namespace skottie {
 

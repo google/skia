@@ -11,6 +11,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/private/base/SkMacros.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/vk/VulkanInterface.h"

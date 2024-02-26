@@ -8,17 +8,24 @@
 #include "modules/sksg/include/SkSGGeometryEffect.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
 #include "include/pathops/SkPathOps.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
-#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
 
+#include <algorithm>
 #include <cmath>
 
 using namespace skia_private;

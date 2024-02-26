@@ -5,23 +5,29 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skottie/src/SkottiePriv.h"
-
-#include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/SkottieJson.h"
+#include "modules/skottie/src/SkottiePriv.h"
+#include "modules/skottie/src/text/Font.h"
 #include "modules/skottie/src/text/TextAdapter.h"
-#include "modules/skottie/src/text/TextAnimator.h"
-#include "modules/skottie/src/text/TextValue.h"
-#include "modules/sksg/include/SkSGDraw.h"
-#include "modules/sksg/include/SkSGGroup.h"
-#include "modules/sksg/include/SkSGPaint.h"
-#include "modules/sksg/include/SkSGPath.h"
-#include "modules/sksg/include/SkSGText.h"
+#include "modules/skresources/include/SkResources.h"
+#include "modules/sksg/include/SkSGGroup.h"  // IWYU pragma: keep
+#include "modules/sksg/include/SkSGRenderNode.h"
 #include "src/base/SkTSearch.h"
+#include "src/core/SkTHash.h"
+#include "src/utils/SkJSON.h"
 
 #include <string.h>
+#include <memory>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 namespace skottie {
 namespace internal {

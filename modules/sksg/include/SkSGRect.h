@@ -8,16 +8,25 @@
 #ifndef SkSGRect_DEFINED
 #define SkSGRect_DEFINED
 
-#include "modules/sksg/include/SkSGGeometryNode.h"
-
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkTo.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
+#include "modules/sksg/include/SkSGNode.h"
+
+#include <cstdint>
 
 class SkCanvas;
+class SkMatrix;
 class SkPaint;
+struct SkPoint;
 
 namespace sksg {
+class InvalidationController;
 
 /**
  * Concrete Geometry node, wrapping an SkRect.

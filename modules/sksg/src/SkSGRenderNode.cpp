@@ -7,9 +7,16 @@
 
 #include "modules/sksg/include/SkSGRenderNode.h"
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTo.h"
 #include "modules/sksg/src/SkSGNodePriv.h"
 
 namespace sksg {

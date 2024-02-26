@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"

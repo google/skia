@@ -6,14 +6,28 @@
  */
 
 #include "include/core/SkContourMeasure.h"
+#include "include/core/SkCubicMap.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/SlotManager.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
+#include "src/utils/SkJSON.h"
 
+#include <algorithm>
 #include <cmath>
+#include <utility>
+#include <vector>
 
 namespace skottie::internal {
 
@@ -168,7 +182,7 @@ class Vec2AnimatorBuilder final : public AnimatorBuilder {
         }
 
         bool parseValue(const AnimationBuilder&, const skjson::Value& jv) const override {
-            return Parse(jv, fVecTarget);
+            return ::skottie::Parse(jv, fVecTarget);
         }
 
     private:
@@ -219,7 +233,7 @@ class Vec2AnimatorBuilder final : public AnimatorBuilder {
                           const skjson::Value& jv,
                           Keyframe::Value* v) override {
             Vec2KeyframeAnimator::SpatialValue val;
-            if (!Parse(jv, &val.v2)) {
+            if (!::skottie::Parse(jv, &val.v2)) {
                 return false;
             }
 

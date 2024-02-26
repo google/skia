@@ -4,10 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "modules/sksg/include/SkSGEffectNode.h"
 
+#include "include/private/base/SkAssert.h"
+#include "modules/sksg/include/SkSGNode.h"
+
+#include <utility>
+
+class SkCanvas;
+class SkMatrix;
+struct SkPoint;
+
 namespace sksg {
+class InvalidationController;
 
 EffectNode::EffectNode(sk_sp<RenderNode> child, uint32_t inval_traits)
     : INHERITED(inval_traits)

@@ -8,18 +8,25 @@
 #ifndef SkottieEffects_DEFINED
 #define SkottieEffects_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "modules/skottie/src/Composition.h"
-#include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/animator/Animator.h"
+#include "modules/sksg/include/SkSGRenderEffect.h"
+#include "src/utils/SkJSON.h"  // IWYU pragma: keep
 
-class SkMaskFilter;
+#include <cstddef>
 
 namespace sksg {
-class MaskShaderEffect;
+class RenderNode;
 } // namespace sksg
 
 namespace skottie {
 namespace internal {
+class AnimationBuilder;
+class LayerBuilder;
 
 class EffectBuilder final : public SkNoncopyable {
 public:

@@ -5,13 +5,21 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
 #include "modules/sksg/include/SkSGRect.h"
+#include "src/utils/SkJSON.h"
+
+namespace sksg {
+class GeometryNode;
+}
 
 namespace skottie {
 namespace internal {

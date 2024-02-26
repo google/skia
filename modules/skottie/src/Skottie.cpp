@@ -10,36 +10,44 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
-#include "include/core/SkImage.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkPoint.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkStream.h"
-#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skottie/include/SlotManager.h"
+#include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
-#include "modules/skottie/src/Transform.h"
+#include "modules/skottie/src/Transform.h"  // IWYU pragma: keep
+#include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/TextAdapter.h"
-#include "modules/sksg/include/SkSGInvalidationController.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
-#include "modules/sksg/include/SkSGPaint.h"
-#include "modules/sksg/include/SkSGPath.h"
-#include "modules/sksg/include/SkSGRenderEffect.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "modules/sksg/include/SkSGTransform.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/utils/SkJSON.h"
 
+#include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstdarg>
+#include <cstdio>
+#include <cstring>
+#include <functional>
 #include <memory>
 #include <ratio>
+#include <utility>
 
-#include <stdlib.h>
+namespace sksg {
+class Color;
+}
 
 namespace skottie {
 

@@ -5,9 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/base/SkAssert.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
 
+class SkCanvas;
+class SkMatrix;
+struct SkPoint;
+
 namespace sksg {
+class InvalidationController;
 
 OpacityEffect::OpacityEffect(sk_sp<RenderNode> child, float opacity)
     : INHERITED(std::move(child))

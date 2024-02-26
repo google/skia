@@ -7,9 +7,25 @@
 
 #include "modules/skottie/src/text/TextValue.h"
 
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/utils/SkTextUtils.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skottie/include/TextShaper.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "src/utils/SkJSON.h"
+
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <limits>
 
 namespace skottie::internal {
 

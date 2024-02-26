@@ -4,13 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlender.h"
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
+#include "src/utils/SkJSON.h"
+
+#include <array>
+#include <cstddef>
+#include <utility>
 
 namespace skottie::internal {
 

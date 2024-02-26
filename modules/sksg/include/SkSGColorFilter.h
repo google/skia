@@ -8,17 +8,24 @@
 #ifndef SkSGColorFilter_DEFINED
 #define SkSGColorFilter_DEFINED
 
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "modules/sksg/include/SkSGEffectNode.h"
-
-#include "include/core/SkBlendMode.h"
+#include "modules/sksg/include/SkSGNode.h"
 
 #include <vector>
 
-class SkColorFilter;
+class SkCanvas;
+class SkMatrix;
+enum class SkBlendMode;
+struct SkPoint;
 
 namespace sksg {
 
 class Color;
+class InvalidationController;
+class RenderNode;
 
 /**
  * Base class for nodes which apply a color filter when rendering their descendants.

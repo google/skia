@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTPin.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"
@@ -12,6 +14,11 @@
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
 #include "modules/sksg/include/SkSGGeometryEffect.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
+#include "src/utils/SkJSON.h"
+
+#include <utility>
+#include <vector>
 
 namespace skottie::internal {
 

@@ -8,14 +8,26 @@
 #ifndef SkottieUtils_DEFINED
 #define SkottieUtils_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "modules/skottie/include/ExternalLayer.h"
-#include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+struct SkSize;
+
+namespace skottie {
+class MarkerObserver;
+}
+
+namespace skresources {
+class ResourceProvider;
+}
 
 namespace skottie_utils {
 

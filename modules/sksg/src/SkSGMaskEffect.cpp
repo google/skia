@@ -7,8 +7,17 @@
 
 #include "modules/sksg/include/SkSGMaskEffect.h"
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
+#include "include/core/SkPaint.h"
 #include "include/effects/SkLumaColorFilter.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
+#include "modules/sksg/include/SkSGNode.h"
+
+class SkMatrix;
+struct SkPoint;
 
 namespace sksg {
 

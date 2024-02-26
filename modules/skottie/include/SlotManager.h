@@ -9,24 +9,22 @@
 #define SlotManager_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "include/private/base/SkAPI.h"
 #include "include/private/base/SkTArray.h"
 #include "modules/skottie/src/SkottieValue.h"
+#include "modules/skottie/src/text/TextAdapter.h"
 #include "src/core/SkTHash.h"
 
 #include <optional>
 
-namespace skjson {
-class ObjectValue;
-}
+struct SkV2;
 
 namespace skresources {
 class ImageAsset;
 }
 
-namespace sksg {
-class Node;
-}
 namespace skottie {
 
 struct TextPropertyValue;
@@ -35,7 +33,6 @@ namespace internal {
 class AnimationBuilder;
 class SceneGraphRevalidator;
 class AnimatablePropertyContainer;
-class TextAdapter;
 } // namespace internal
 
 using namespace skia_private;
