@@ -101,10 +101,7 @@ public:
     MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
             : SkImageFilter_Base(nullptr, 0)
             , fReporter(reporter)
-            , fExpectedMatrix(expectedMatrix) {
-        // Layers have an extra pixel of padding that adjusts the coordinate space
-        fExpectedMatrix.postTranslate(1.f, 1.f);
-    }
+            , fExpectedMatrix(expectedMatrix) {}
 
 private:
     Factory getFactory() const override {
