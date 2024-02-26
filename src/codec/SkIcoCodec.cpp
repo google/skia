@@ -188,7 +188,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         }
     }
 
-    if (0 == codecs->size()) {
+    if (codecs->empty()) {
         SkCodecPrintf("Error: could not find any valid embedded ico codecs.\n");
         return nullptr;
     }
