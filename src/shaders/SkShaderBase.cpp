@@ -10,17 +10,11 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColorFilter.h"
-#include "include/private/SkColorData.h"
-#include "src/base/SkArenaAlloc.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/shaders/SkLocalMatrixShader.h"
-
-#include <cstring>
 
 class SkWriteBuffer;
 
@@ -137,43 +131,6 @@ sk_sp<SkShader> SkShaderBase::makeAsALocalMatrixShader(SkMatrix*) const { return
 
 bool SkShaderBase::appendRootStages(const SkStageRec& rec, const SkMatrix& ctm) const {
     return this->appendStages(rec, SkShaders::MatrixRec(ctm));
-}
-
-bool SkShaderBase::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const {
-    // SkShader::Context::shadeSpan() handles the paint opacity internally,
-    // but SkRasterPipelineBlitter applies it as a separate stage.
-    // We skip the internal shadeSpan() step by forcing the alpha to be opaque.
-    ContextRec cr(SK_AlphaOPAQUE, mRec, rec.fDstColorType, sk_srgb_singleton(), rec.fSurfaceProps);
-
-    struct CallbackCtx : SkRasterPipeline_CallbackCtx {
-        sk_sp<const SkShader> shader;
-        Context* ctx;
-    };
-    auto cb = rec.fAlloc->make<CallbackCtx>();
-    cb->shader = sk_ref_sp(this);
-    cb->ctx = as_SB(this)->makeContext(cr, rec.fAlloc);
-    cb->fn = [](SkRasterPipeline_CallbackCtx* self, int active_pixels) {
-        auto c = (CallbackCtx*)self;
-        int x = (int)c->rgba[0], y = (int)c->rgba[1];
-        SkPMColor tmp[SkRasterPipeline_kMaxStride_highp];
-        c->ctx->shadeSpan(x, y, tmp, active_pixels);
-
-        for (int i = 0; i < active_pixels; i++) {
-            auto rgba_4f = SkPMColor4f::FromPMColor(tmp[i]);
-            memcpy(c->rgba + 4 * i, rgba_4f.vec(), 4 * sizeof(float));
-        }
-    };
-
-    if (cb->ctx) {
-        rec.fPipeline->append(SkRasterPipelineOp::seed_shader);
-        rec.fPipeline->append(SkRasterPipelineOp::callback, cb);
-        rec.fAlloc
-                ->make<SkColorSpaceXformSteps>(
-                        sk_srgb_singleton(), kPremul_SkAlphaType, rec.fDstCS, kPremul_SkAlphaType)
-                ->apply(rec.fPipeline);
-        return true;
-    }
-    return false;
 }
 
 sk_sp<SkShader> SkShaderBase::makeWithCTM(const SkMatrix& postM) const {
