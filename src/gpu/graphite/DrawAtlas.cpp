@@ -243,12 +243,6 @@ DrawAtlas::ErrorCode DrawAtlas::addRect(Recorder* recorder,
     return ErrorCode::kTryAgain;
 }
 
-Plot* DrawAtlas::findPlot(const AtlasLocator& atlasLocator) {
-    Page* page = &fPages[atlasLocator.pageIndex()];
-    Plot* plot = page->fPlotArray[atlasLocator.plotIndex()].get();
-    return plot;
-}
-
 DrawAtlas::ErrorCode DrawAtlas::addToAtlas(Recorder* recorder,
                                            int width, int height, const void* image,
                                            AtlasLocator* atlasLocator) {
