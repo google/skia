@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: :7:14 error: uniform storage requires that array elements are aligned to 16 bytes, but array element of type 'f32' has a stride of 4 bytes. Consider using a vector or struct as the element type instead.
+error: :7:14 error: 'uniform' storage requires that array elements are aligned to 16 bytes, but array element of type 'f32' has a stride of 4 bytes. Consider using a vector or struct as the element type instead.
   testArray: array<f32, 5>,
              ^^^^^^^^^^^^^
 
