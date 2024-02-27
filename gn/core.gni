@@ -638,7 +638,7 @@ skia_core_sources = [
   "$_src/opts/SkOpts_RestoreTarget.h",
   "$_src/opts/SkOpts_SetTarget.h",
   "$_src/opts/SkRasterPipeline_opts.h",
-  "$_src/opts/SkSwizzler_opts.h",
+  "$_src/opts/SkSwizzler_opts.inc",
   "$_src/shaders/SkBitmapProcShader.cpp",
   "$_src/shaders/SkBitmapProcShader.h",
   "$_src/shaders/SkBlendShader.cpp",

@@ -1298,7 +1298,7 @@ BASE_SRCS_ALL = [
     "src/opts/SkOpts_RestoreTarget.h",
     "src/opts/SkOpts_SetTarget.h",
     "src/opts/SkRasterPipeline_opts.h",
-    "src/opts/SkSwizzler_opts.h",
+    "src/opts/SkSwizzler_opts.inc",
     "src/pathops/SkAddIntersections.cpp",
     "src/pathops/SkAddIntersections.h",
     "src/pathops/SkDConicLineIntersection.cpp",
