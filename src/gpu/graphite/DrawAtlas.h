@@ -103,6 +103,7 @@ public:
     };
 
     ErrorCode addToAtlas(Recorder*, int width, int height, const void* image, AtlasLocator*);
+    ErrorCode addRect(Recorder*, int width, int height, AtlasLocator*);
     bool recordUploads(DrawContext*, Recorder*);
 
     const sk_sp<TextureProxy>* getProxies() const { return fProxies; }
@@ -168,7 +169,7 @@ private:
               AtlasGenerationCounter* generationCounter,
               AllowMultitexturing allowMultitexturing, std::string_view label);
 
-    bool updatePlot(AtlasLocator*, Plot* plot);
+    bool updatePlot(Plot* plot, AtlasLocator*);
 
     inline void makeMRU(Plot* plot, int pageIdx) {
         if (fPages[pageIdx].fPlotList.head() == plot) {
@@ -182,7 +183,8 @@ private:
         // the front and remove from the back there is no need for MRU.
     }
 
-    bool addToPage(unsigned int pageIdx, int width, int height, const void* image, AtlasLocator*);
+    bool addRectToPage(unsigned int pageIdx, int width, int height, AtlasLocator*);
+    Plot* findPlot(const AtlasLocator&);
 
     bool createPages(AtlasGenerationCounter*);
     bool activateNewPage(Recorder*);
