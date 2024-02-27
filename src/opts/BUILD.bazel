@@ -37,7 +37,7 @@ skia_filegroup(
         "SkOpts_RestoreTarget.h",
         "SkOpts_SetTarget.h",
         "SkRasterPipeline_opts.h",
-        "SkSwizzler_opts.h",
+        "SkSwizzler_opts.inc",
     ],
     visibility = [
         "//src:__pkg__",
@@ -174,7 +174,7 @@ skia_filegroup(
         "SkOpts_RestoreTarget.h",
         "SkOpts_SetTarget.h",
         "SkRasterPipeline_opts.h",
-        "SkSwizzler_opts.h",
+        "SkSwizzler_opts.inc",
     ],
     visibility = [
         "//src/core:__pkg__",

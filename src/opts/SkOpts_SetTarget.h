@@ -13,7 +13,9 @@
     #error Define SK_OPTS_TARGET before including SkOpts_SetTarget
 #endif
 
-#if SK_OPTS_TARGET == SK_OPTS_TARGET_DEFAULT
+#if defined(SK_OPTS_NS)
+    // For testing define SK_OPTS_NS before including.
+#elif SK_OPTS_TARGET == SK_OPTS_TARGET_DEFAULT
 
     #if defined(SK_ARM_HAS_NEON)
         #define SK_OPTS_NS neon

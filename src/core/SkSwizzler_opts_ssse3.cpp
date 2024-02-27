@@ -14,13 +14,13 @@
 
 // The order of these includes is important:
 // 1) Select the target CPU architecture by defining SK_OPTS_TARGET and including SkOpts_SetTarget
-// 2) Include the code to compile, typically in a _opts.h file.
+// 2) Include the code to compile, typically in a _opts.inc file.
 // 3) Include SkOpts_RestoreTarget to switch back to the default CPU architecture
 
 #define SK_OPTS_TARGET SK_OPTS_TARGET_SSSE3
 #include "src/opts/SkOpts_SetTarget.h"
 
-#include "src/opts/SkSwizzler_opts.h"
+#include "src/opts/SkSwizzler_opts.inc"
 
 #include "src/opts/SkOpts_RestoreTarget.h"
 
