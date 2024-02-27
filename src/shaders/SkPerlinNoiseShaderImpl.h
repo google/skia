@@ -302,8 +302,10 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override;
+#ifndef SK_RASTER_PIPELINE_PERLIN_NOISE  // TODO(b/40045243): enable in Chromium
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+#endif
 #endif
 
 private:

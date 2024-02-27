@@ -220,12 +220,14 @@ SkPMColor SkPerlinNoiseShader::PerlinNoiseShaderContext::shade(const SkPoint& po
     return SkPreMultiplyARGB(rgba[3], rgba[0], rgba[1], rgba[2]);
 }
 
+#ifndef SK_RASTER_PIPELINE_PERLIN_NOISE  // TODO(b/40045243): enable in Chromium
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkPerlinNoiseShader::onMakeContext(const ContextRec& rec,
                                                           SkArenaAlloc* alloc) const {
     // should we pay attention to rec's device-colorspace?
     return alloc->make<PerlinNoiseShaderContext>(*this, rec);
 }
+#endif
 #endif
 
 SkPerlinNoiseShader::PerlinNoiseShaderContext::PerlinNoiseShaderContext(
