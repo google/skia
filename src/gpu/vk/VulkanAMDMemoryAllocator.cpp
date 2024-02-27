@@ -82,11 +82,11 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
 
     info.physicalDevice = physicalDevice;
     info.device = device;
-    // 4MB was picked for the size here by looking at memory usage of Android apps and runs of DM.
-    // It seems to be a good compromise of not wasting unused allocated space and not making too
-    // many small allocations. The AMD allocator will start making blocks at 1/8 the max size and
-    // builds up block size as needed before capping at the max set here.
-    info.preferredLargeHeapBlockSize = 4*1024*1024;
+    // The old value was found to result in roughly 20% wasted space in Chromium. Reducing to only
+    // 64KB cut down the wasted space to about 1%, with no perf regressions and some perf
+    // improvements. The AMD allocator will start making blocks at 1/8 the max size set here and
+    // builds up as needed until capping at this max size.
+    info.preferredLargeHeapBlockSize = 64*1024;
     info.pAllocationCallbacks = nullptr;
     info.pDeviceMemoryCallbacks = nullptr;
     info.pHeapSizeLimit = nullptr;
