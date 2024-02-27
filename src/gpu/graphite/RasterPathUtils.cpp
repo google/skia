@@ -72,7 +72,12 @@ skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
     skgpu::UniqueKey maskKey;
     {
         static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
-        skgpu::UniqueKey::Builder builder(&maskKey, kDomain, 6 + shape.keySize(),
+        int styleKeySize = 6;
+        if (!strokeRec.isHairlineStyle() && !strokeRec.isFillStyle()) {
+            // Add space for width and miter if needed
+            styleKeySize += 2;
+        }
+        skgpu::UniqueKey::Builder builder(&maskKey, kDomain, styleKeySize + shape.keySize(),
                                           "Raster Path Mask");
         builder[0] = maskSize.x() | (maskSize.y() << 16);
 
@@ -101,13 +106,23 @@ skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
         builder[4] = SkFloat2Bits(ky);
         // FracX and fracY are &ed with 0x0000ff00, so need to shift one down to fill 16 bits.
         uint32_t fracBits = fracX | (fracY >> 8);
-        // Distinguish between hairline and filled paths. For hairlines, we also need to include
-        // the cap. (SW grows hairlines by 0.5 pixel with round and square caps). Note that
-        // stroke-and-fill of hairlines is turned into pure fill by SkStrokeRec, so this covers
-        // all cases we might see.
-        uint32_t styleBits = strokeRec.isHairlineStyle() ? ((strokeRec.getCap() << 1) | 1) : 0;
-        builder[5] = fracBits | (styleBits << 16);
-        shape.writeKey(&builder[6], /*includeInverted=*/false);
+        // Distinguish between path styles. For anything but fill, we also need to include
+        // the cap. (SW grows hairlines by 0.5 pixel with round and square caps). For stroke
+        // or fill-and-stroke we need to include the join, width, and miter.
+        static_assert(SkStrokeRec::kStyleCount <= (1 << 2));
+        static_assert(SkPaint::kCapCount <= (1 << 2));
+        static_assert(SkPaint::kJoinCount <= (1 << 2));
+        uint32_t styleBits = strokeRec.getStyle();
+        if (!strokeRec.isFillStyle()) {
+            styleBits |= (strokeRec.getCap() << 2);
+        }
+        if (!strokeRec.isHairlineStyle() && !strokeRec.isFillStyle()) {
+            styleBits |= (strokeRec.getJoin() << 4);
+            builder[5] = SkFloat2Bits(strokeRec.getWidth());
+            builder[6] = SkFloat2Bits(strokeRec.getMiter());
+        }
+        builder[styleKeySize-1] = fracBits | (styleBits << 16);
+        shape.writeKey(&builder[styleKeySize], /*includeInverted=*/false);
     }
     return maskKey;
 }
