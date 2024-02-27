@@ -3337,18 +3337,18 @@ STAGE(perlin_noise, SkRasterPipeline_PerlinNoiseCtx* ctx) {
             color[channel] = lerp(A, B, smoothY);
         }
 
+        if (ctx->noiseType != SkPerlinNoiseShaderType::kFractalNoise) {
+            // For kTurbulence the result is: abs(noise[-1,1])
+            color[0] = abs_(color[0]);
+            color[1] = abs_(color[1]);
+            color[2] = abs_(color[2]);
+            color[3] = abs_(color[3]);
+        }
+
         r = mad(color[0], ratio, r);
         g = mad(color[1], ratio, g);
         b = mad(color[2], ratio, b);
         a = mad(color[3], ratio, a);
-
-        if (ctx->noiseType != SkPerlinNoiseShaderType::kFractalNoise) {
-            // For kTurbulence the result is: abs(noise[-1,1])
-            r = abs_(r);
-            g = abs_(g);
-            b = abs_(b);
-            a = abs_(a);
-        }
 
         // Scale inputs for the next round.
         noiseVecX *= 2.0f;
