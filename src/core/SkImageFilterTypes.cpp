@@ -616,6 +616,31 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>FilterResult::imageAndOffs
     return {resolved.fImage, resolved.layerBounds().topLeft()};
 }
 
+FilterResult FilterResult::insetForSaveLayer() const {
+    if (!fImage) {
+        return {};
+    }
+
+    // A layer image should not have any other transform beyond it's origin that matches its bounds
+    SkDEBUGCODE(LayerSpace<SkIPoint> origin;)
+    SkASSERT(is_nearly_integer_translation(fTransform, &origin) &&
+             SkIPoint(origin) == SkIPoint(fLayerBounds.topLeft()));
+    SkASSERT(fTileMode == SkTileMode::kDecal);
+
+    // PixelBoundary tracking assumes the special image's subset does not include the padding, so
+    // inset by a single pixel.
+    auto layerBounds = fLayerBounds;
+    layerBounds.inset(LayerSpace<SkISize>({1, 1}));
+    FilterResult inset = this->subset(fLayerBounds.topLeft(), layerBounds);
+    // Trust that SkCanvas configured the layer's SkDevice to ensure the padding remained
+    // transparent. Upgrading this pixel boundary knowledge allows the source image to use the
+    // simpler clamp math (vs. decal math) when used in a shader context.
+    SkASSERT(inset.fBoundary == PixelBoundary::kInitialized &&
+             inset.fTileMode == SkTileMode::kDecal);
+    inset.fBoundary = PixelBoundary::kTransparent;
+    return inset;
+}
+
 SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
         const SkMatrix& xtraTransform,
         const SkIRect& dstBounds,

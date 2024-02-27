@@ -787,6 +787,12 @@ public:
      // If 'blender' is null, it's equivalent to kSrcOver blending.
     void draw(const Context& ctx, SkDevice* target, const SkBlender* blender) const;
 
+    // SkCanvas can prepare layer source images with transparent padding, similarly to AutoSurface.
+    // This adjusts the FilterResult metadata to be aware of that padding. This should only be
+    // called when it's externally known that the FilterResult has a 1px buffer of transparent
+    // black pixels and has had no further modifications.
+    FilterResult insetForSaveLayer() const;
+
     class Builder;
 
     enum class ShaderFlags : int {

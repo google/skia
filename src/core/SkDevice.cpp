@@ -332,7 +332,19 @@ void SkDevice::drawDevice(SkDevice* device,
                           const SkPaint& paint) {
     sk_sp<SkSpecialImage> deviceImage = device->snapSpecial();
     if (deviceImage) {
+#if defined(SK_DONT_PAD_LAYER_IMAGES) || defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
         this->drawSpecial(deviceImage.get(), device->getRelativeTransform(*this), sampling, paint);
+#else
+        // SkCanvas only calls drawDevice() when there are no filters (so the transform is pixel
+        // aligned), and it will have added transparent padding. Inset the special image by 1px
+        // and draw with a fast constraint.
+        deviceImage = deviceImage->makeSubset(SkIRect::MakeSize(deviceImage->dimensions())
+                                                      .makeInset(1, 1));
+        SkMatrix offsetTransform = device->getRelativeTransform(*this);
+        offsetTransform.preTranslate(1.f, 1.f); // account for the 1px inset
+        this->drawSpecial(deviceImage.get(), offsetTransform, sampling, paint,
+                          SkCanvas::kFast_SrcRectConstraint);
+#endif
     }
 }
 
