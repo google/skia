@@ -88,8 +88,7 @@ bool SkPerlinNoiseShader::appendStages(const SkStageRec& rec,
     }
 
     fInitPaintingDataOnce([&] {
-        const_cast<SkPerlinNoiseShader*>(this)->fPaintingData =
-                this->getPaintingData(SkMatrix::I());
+        const_cast<SkPerlinNoiseShader*>(this)->fPaintingData = this->getPaintingData();
     });
 
     auto* ctx = rec.fAlloc->make<SkRasterPipeline_PerlinNoiseCtx>();
