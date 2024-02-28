@@ -273,8 +273,8 @@ bool SkPerlinNoiseShader::appendStages(const SkStageRec& rec,
 
     auto* ctx = rec.fAlloc->make<SkRasterPipeline_PerlinNoiseCtx>();
     ctx->noiseType = fType;
-    ctx->baseFrequencyX = fBaseFrequencyX;
-    ctx->baseFrequencyY = fBaseFrequencyY;
+    ctx->baseFrequencyX = fPaintingData->fBaseFrequency.fX;
+    ctx->baseFrequencyY = fPaintingData->fBaseFrequency.fX;
     ctx->stitchDataInX = fPaintingData->fStitchDataInit.fWidth;
     ctx->stitchDataInY = fPaintingData->fStitchDataInit.fHeight;
     ctx->stitching = fStitchTiles;
