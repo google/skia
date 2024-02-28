@@ -99,7 +99,7 @@ static skgpu::VertexWriter emit_triangle(Vertex* v0, Vertex* v1, Vertex* v2,
     TESS_LOG("emit_triangle %g (%g, %g) %d\n", v0->fID, v0->fPoint.fX, v0->fPoint.fY, v0->fAlpha);
     TESS_LOG("              %g (%g, %g) %d\n", v1->fID, v1->fPoint.fX, v1->fPoint.fY, v1->fAlpha);
     TESS_LOG("              %g (%g, %g) %d\n", v2->fID, v2->fPoint.fX, v2->fPoint.fY, v2->fAlpha);
-#if TESSELLATOR_WIREFRAME
+#if TRIANGULATOR_WIREFRAME
     data = emit_vertex(v0, emitCoverage, std::move(data));
     data = emit_vertex(v1, emitCoverage, std::move(data));
     data = emit_vertex(v1, emitCoverage, std::move(data));
