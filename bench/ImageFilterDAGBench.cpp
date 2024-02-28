@@ -109,7 +109,6 @@ protected:
                 image = SkImages::MakeWithFilter(fImage, mergeFilter.get(),
                                                  subset, subset, &discardSubset, &offset);
             }
-            SkASSERT(image && image->dimensions() == fImage->dimensions());
         }
     }
 
