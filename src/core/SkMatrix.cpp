@@ -10,6 +10,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRSXform.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkDebug.h"
@@ -25,8 +26,6 @@
 
 #include <algorithm>
 #include <cmath>
-
-struct SkSamplingOptions;
 
 void SkMatrix::doNormalizePerspective() {
     // If the bottom row of the matrix is [0, 0, not_one], we will treat the matrix as if it
@@ -1629,6 +1628,17 @@ bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkSamplingO
     if (mat.getType() & ~(SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
         return false;
     }
+
+#if !defined(SK_LEGACY_SNAP_DRAW_IMAGE_TRANSLATION)
+    // We don't want to snap to pixels if we're asking for linear filtering with
+    // a subpixel translation. (b/41322892).
+    // This mirrors `tweak_sampling` in SkImageShader.cpp
+    if (sampling.filter == SkFilterMode::kLinear &&
+        (mat.getTranslateX() != (int)mat.getTranslateX() ||
+         mat.getTranslateY() != (int)mat.getTranslateY())) {
+        return false;
+    }
+#endif
 
     // quick success check
     if (!subpixelBits && !(mat.getType() & ~SkMatrix::kTranslate_Mask)) {
