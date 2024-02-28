@@ -560,32 +560,34 @@ gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
 local_includes.add("modules/skcms")
 gm_includes   .add("modules/skcms")
 
-# Android's build will choke if we list headers.
-def strip_headers(sources):
-  return {s for s in sources if not s.endswith('.h')}
+# Android's build (soong) will break if we list anything other than these file
+# types in `srcs` (e.g. all header extensions must be excluded).
+def strip_non_srcs(sources):
+  src_extensions = ['.s', '.S', '.c', '.cpp', '.cc', '.cxx', '.mm']
+  return {s for s in sources if os.path.splitext(s)[1] in src_extensions}
 
 VMA_DEP = "//src/gpu/vk/vulkanmemoryallocator:vulkanmemoryallocator"
 
 gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', android_srcs, VMA_DEP)
-android_srcs    = strip_headers(android_srcs)
+android_srcs    = strip_non_srcs(android_srcs)
 
 js_linux        = gn_to_bp_utils.GenerateJSONFromGN(gn_args_linux)
 linux_srcs      = strip_slashes(js_linux['targets']['//:skia']['sources'])
 gn_to_bp_utils.GrabDependentValues(js_linux, '//:skia', 'sources', linux_srcs,
                                    None)
-linux_srcs      = strip_headers(linux_srcs)
+linux_srcs      = strip_non_srcs(linux_srcs)
 
 js_mac          = gn_to_bp_utils.GenerateJSONFromGN(gn_args_mac)
 mac_srcs        = strip_slashes(js_mac['targets']['//:skia']['sources'])
 gn_to_bp_utils.GrabDependentValues(js_mac, '//:skia', 'sources', mac_srcs,
                                    None)
-mac_srcs        = strip_headers(mac_srcs)
+mac_srcs        = strip_non_srcs(mac_srcs)
 
 js_win          = gn_to_bp_utils.GenerateJSONFromGN(gn_args_win)
 win_srcs        = strip_slashes(js_win['targets']['//:skia']['sources'])
 gn_to_bp_utils.GrabDependentValues(js_win, '//:skia', 'sources', win_srcs,
                                    None)
-win_srcs        = strip_headers(win_srcs)
+win_srcs        = strip_non_srcs(win_srcs)
 
 srcs = android_srcs.intersection(linux_srcs).intersection(mac_srcs)
 srcs = srcs.intersection(win_srcs)
@@ -595,10 +597,10 @@ linux_srcs      =   linux_srcs.difference(srcs)
 mac_srcs        =     mac_srcs.difference(srcs)
 win_srcs        =     win_srcs.difference(srcs)
 
-gm_srcs         = strip_headers(gm_srcs)
-test_srcs       = strip_headers(test_srcs)
-dm_srcs         = strip_headers(dm_srcs).difference(gm_srcs).difference(test_srcs)
-nanobench_srcs  = strip_headers(nanobench_srcs).difference(gm_srcs)
+gm_srcs         = strip_non_srcs(gm_srcs)
+test_srcs       = strip_non_srcs(test_srcs)
+dm_srcs         = strip_non_srcs(dm_srcs).difference(gm_srcs).difference(test_srcs)
+nanobench_srcs  = strip_non_srcs(nanobench_srcs).difference(gm_srcs)
 
 test_minus_gm_includes = test_includes.difference(gm_includes)
 test_minus_gm_srcs = test_srcs.difference(gm_srcs)
@@ -612,7 +614,7 @@ renderengine_srcs = strip_slashes(
     js_renderengine['targets']['//:skia']['sources'])
 gn_to_bp_utils.GrabDependentValues(js_renderengine, '//:skia', 'sources',
                                    renderengine_srcs, VMA_DEP)
-renderengine_srcs = strip_headers(renderengine_srcs)
+renderengine_srcs = strip_non_srcs(renderengine_srcs)
 
 # Execute GN for specialized SkQP target
 skqp_sdk_version = 26
@@ -648,7 +650,7 @@ skqp_defines.add("SK_BUILD_FOR_SKQP")
 skqp_defines.add("SK_ENABLE_DUMP_GPU")
 skqp_defines.remove("SK_USE_PERFETTO")
 
-skqp_srcs = strip_headers(skqp_srcs)
+skqp_srcs = strip_non_srcs(skqp_srcs)
 skqp_cflags = gn_to_bp_utils.CleanupCFlags(skqp_cflags)
 skqp_cflags_cc = gn_to_bp_utils.CleanupCCFlags(skqp_cflags_cc)
 
@@ -747,7 +749,7 @@ with open('Android.bp', 'w') as Android_bp:
     'cflags':          bpfmt(8, cflags, False),
     'cflags_cc':       bpfmt(8, cflags_cc),
 
-    'x86_srcs':      bpfmt(16, strip_headers(defs['hsw'] +
+    'x86_srcs':      bpfmt(16, strip_non_srcs(defs['hsw'] +
                                              defs['skx'])),
 
     'gm_includes'       : bpfmt(8, gm_includes),
