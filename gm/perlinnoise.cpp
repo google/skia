@@ -51,78 +51,83 @@ sk_sp<SkShader> noise_shader(Type type,
 }
 
 class PerlinNoiseGM : public skiagm::GM {
-    SkISize fSize = {80, 80};
-
-    void onOnceBeforeDraw() override { this->setBGColor(0xFF000000); }
+    static constexpr SkISize kSize = {80, 80};
 
     SkString getName() const override { return SkString("perlinnoise"); }
 
-    SkISize getISize() override { return {200, 500}; }
+    SkISize getISize() override { return {220, 620}; }
 
-    void drawRect(SkCanvas* canvas, int x, int y, const SkPaint& paint, const SkISize& size) {
+    void drawRect(SkCanvas* canvas, SkPoint pt, const SkPaint& paint, const SkISize& size) {
         canvas->save();
-        canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
-        SkRect r = SkRect::MakeWH(SkIntToScalar(size.width()),
-                                  SkIntToScalar(size.height()));
+        canvas->translate(pt.fX, pt.fY);
+        SkRect r = SkRect::MakeWH(SkIntToScalar(size.width()), SkIntToScalar(size.height()));
         canvas->drawRect(r, paint);
         canvas->restore();
     }
 
-    void test(SkCanvas* canvas, int x, int y, Type type,
-              float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed,
-              bool stitchTiles) {
-        SkISize tileSize = SkISize::Make(fSize.width() / 2, fSize.height() / 2);
+    void test(SkCanvas* canvas, SkPoint pt, Type type, bool stitch,
+              SkVector baseFrequency, int numOctaves, float seed, SkISize tileSize = {40, 40}) {
         sk_sp<SkShader> shader = noise_shader(type,
-                                              baseFrequencyX,
-                                              baseFrequencyY,
+                                              baseFrequency.fX,
+                                              baseFrequency.fY,
                                               numOctaves,
                                               seed,
-                                              stitchTiles,
+                                              stitch,
                                               tileSize);
-
         SkPaint paint;
         paint.setShader(std::move(shader));
-        if (stitchTiles) {
-            drawRect(canvas, x, y, paint, tileSize);
-            x += tileSize.width();
-            drawRect(canvas, x, y, paint, tileSize);
-            y += tileSize.width();
-            drawRect(canvas, x, y, paint, tileSize);
-            x -= tileSize.width();
-            drawRect(canvas, x, y, paint, tileSize);
+        if (stitch) {
+            this->drawRect(canvas, pt, paint, tileSize);
+            pt.fX += tileSize.width();
+            this->drawRect(canvas, pt, paint, tileSize);
+            pt.fY += tileSize.height();
+            this->drawRect(canvas, pt, paint, tileSize);
+            pt.fX -= tileSize.width();
+            this->drawRect(canvas, pt, paint, tileSize);
         } else {
-            drawRect(canvas, x, y, paint, fSize);
+            this->drawRect(canvas, pt, paint, kSize);
         }
     }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->clear(SK_ColorBLACK);
-        test(canvas,   0,   0, Type::kFractalNoise,
-             0.1f, 0.1f, 0, 0, false);
-        test(canvas, 100,   0, Type::kTurbulence,
-             0.1f, 0.1f, 0, 0, false);
+        this->test(canvas, SkPoint{  0,   0}, Type::kFractalNoise, /*stitch=*/false,
+                   SkVector{0.1f, 0.1f}, /*numOctaves=*/0, /*seed=*/0);
+        this->test(canvas, SkPoint{100,   0}, Type::kTurbulence, /*stitch=*/false,
+                   SkVector{0.1f, 0.1f}, /*numOctaves=*/0, /*seed=*/0);
 
-        test(canvas,   0, 100, Type::kFractalNoise,
-             0.1f, 0.1f, 2, 0, false);
-        test(canvas, 100, 100, Type::kFractalNoise,
-             0.05f, 0.1f, 1, 0, true);
+        this->test(canvas, SkPoint{  0, 100}, Type::kFractalNoise, /*stitch=*/false,
+                   SkVector{0.1f, 0.1f}, /*numOctaves=*/2, /*seed=*/0);
+        this->test(canvas, SkPoint{100, 100}, Type::kFractalNoise, /*stitch=*/true,
+                   SkVector{0.05f, 0.1f}, /*numOctaves=*/1, /*seed=*/0);
 
-        test(canvas,   0, 200, Type::kTurbulence,
-             0.1f, 0.1f, 1, 0, true);
-        test(canvas, 100, 200, Type::kTurbulence,
-             0.2f, 0.4f, 5, 0, false);
+        this->test(canvas, SkPoint{  0, 200}, Type::kTurbulence, /*stitch=*/true,
+                   SkVector{0.1f, 0.1f}, /*numOctaves=*/1, /*seed=*/0);
+        this->test(canvas, SkPoint{100, 200}, Type::kTurbulence, /*stitch=*/false,
+                   SkVector{0.2f, 0.4f}, /*numOctaves=*/5, /*seed=*/0);
 
-        test(canvas,   0, 300, Type::kFractalNoise,
-             0.1f, 0.1f, 3, 1, false);
-        test(canvas, 100, 300, Type::kFractalNoise,
-             0.1f, 0.1f, 3, 4, false);
+        this->test(canvas, SkPoint{  0, 300}, Type::kFractalNoise, /*stitch=*/false,
+                   SkVector{0.1f, 0.1f}, /*numOctaves=*/3, /*seed=*/1);
+        this->test(canvas, SkPoint{100, 300}, Type::kFractalNoise, /*stitch=*/false,
+                   SkVector{0.1f, 0.1f}, /*numOctaves=*/3, /*seed=*/4);
 
+        canvas->save();
         canvas->scale(0.75f, 1.0f);
 
-        test(canvas,   0, 400, Type::kFractalNoise,
-             0.1f, 0.1f, 2, 0, false);
-        test(canvas, 100, 400, Type::kFractalNoise,
-             0.1f, 0.05f, 1, 0, true);
+        this->test(canvas, SkPoint{  0, 400}, Type::kFractalNoise, /*stitch=*/false,
+                   SkVector{0.1f, 0.1f}, /*numOctaves=*/2, /*seed=*/0);
+        this->test(canvas, SkPoint{100, 400}, Type::kFractalNoise, /*stitch=*/true,
+                   SkVector{0.1f, 0.05f}, /*numOctaves=*/1, /*seed=*/0);
+
+        canvas->restore();
+
+        // Matches Chromium test case in svg/filters/feTurbulence-tiled.svg
+        this->test(canvas, SkPoint{  0, 500}, Type::kTurbulence, /*stitch=*/true,
+                   SkVector{0.03f, 0.03f}, /*numOctaves=*/1, /*seed=*/0, /*tileSize=*/{50, 50});
+
+        // Matches Chromium test case in css3/filters/effect-reference.html
+        this->test(canvas, SkPoint{120, 500}, Type::kTurbulence, /*stitch=*/false,
+                   SkVector{0.05f, 0.05f}, /*numOctaves=*/2, /*seed=*/0);
+
     }
 
 private:
@@ -130,7 +135,7 @@ private:
 };
 
 class PerlinNoiseLocalMatrixGM : public skiagm::GM {
-    SkISize fSize = {80, 80};
+    static constexpr SkISize kSize = {80, 80};
 
     SkString getName() const override { return SkString("perlinnoise_localmatrix"); }
 
@@ -140,10 +145,10 @@ class PerlinNoiseLocalMatrixGM : public skiagm::GM {
         canvas->translate(10, 10);
 
         SkPaint paint;
-        paint.setShader(noise_shader(Type::kFractalNoise, 0.1f, 0.1f, 2, 0, false, fSize));
+        paint.setShader(noise_shader(Type::kFractalNoise, 0.1f, 0.1f, 2, 0, false, kSize));
 
-        const SkScalar w = SkIntToScalar(fSize.width());
-        const SkScalar h = SkIntToScalar(fSize.height());
+        const SkScalar w = SkIntToScalar(kSize.width());
+        const SkScalar h = SkIntToScalar(kSize.height());
 
         SkRect r = SkRect::MakeWH(w, h);
         canvas->drawRect(r, paint);
