@@ -7,7 +7,9 @@
 #ifndef SkImageGeneratorCG_DEFINED
 #define SkImageGeneratorCG_DEFINED
 
-#include "include/private/base/SkFeatures.h"
+// This is needed as clients may override the target platform
+// using SkUserConfig
+#include "include/private/base/SkLoadUserConfig.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
