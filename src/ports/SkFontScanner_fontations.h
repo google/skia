@@ -28,13 +28,15 @@ public:
     SkFontScanner_Fontations();
     ~SkFontScanner_Fontations() override;
 
-    bool recognizedFont(SkStreamAsset* stream, int* numFaces) const override;
-    bool scanFont(SkStreamAsset* stream,
-                  int ttcIndex,
-                  SkString* name,
-                  SkFontStyle* style,
-                  bool* isFixedPitch,
-                  SkFontScanner::AxisDefinitions* axes) const override;
+    bool scanFile(SkStreamAsset* stream, int* numFaces) const override;
+    bool scanFace(SkStreamAsset* stream, int faceIndex, int* numInstances) const override;
+    bool scanInstance(SkStreamAsset* stream,
+                      int faceIndex,
+                      int instanceIndex,
+                      SkString* name,
+                      SkFontStyle* style,
+                      bool* isFixedPitch,
+                      AxisDefinitions* axes) const override;
 private:
 };
 

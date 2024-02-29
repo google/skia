@@ -163,8 +163,8 @@ public:
             SkFontStyle style;
             bool isFixedWidth;
             SkFontScanner::AxisDefinitions axisDefinitions;
-            if (!scanner->scanFont(stream.get(), ttcIndex,
-                                  &familyName, &style, &isFixedWidth, &axisDefinitions))
+            if (!scanner->scanInstance(stream.get(), ttcIndex, 0,
+                                      &familyName, &style, &isFixedWidth, &axisDefinitions))
             {
                 SkDEBUGF("Requested font file %s exists, but is not a valid font.\n",
                          pathName.c_str());

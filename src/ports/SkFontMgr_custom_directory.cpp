@@ -61,31 +61,42 @@ private:
             }
 
             int numFaces;
-            if (!scanner->recognizedFont(stream.get(), &numFaces)) {
+            if (!scanner->scanFile(stream.get(), &numFaces)) {
                 // SkDebugf("---- failed to open <%s> as a font\n", filename.c_str());
                 continue;
             }
 
             for (int faceIndex = 0; faceIndex < numFaces; ++faceIndex) {
-                bool isFixedPitch;
-                SkString realname;
-                SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
-                if (!scanner->scanFont(stream.get(), faceIndex,
-                                      &realname, &style, &isFixedPitch, nullptr))
-                {
-                    // SkDebugf("---- failed to open <%s> <%d> as a font\n",
-                    //          filename.c_str(), faceIndex);
+                int numInstances;
+                if (!scanner->scanFace(stream.get(), faceIndex, &numInstances)) {
+                    // SkDebugf("---- failed to open <%s> as a font\n", filename.c_str());
                     continue;
                 }
+                for (int instanceIndex = 0; instanceIndex <= numInstances; ++instanceIndex) {
+                    bool isFixedPitch;
+                    SkString realname;
+                    SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
+                    if (!scanner->scanInstance(stream.get(),
+                                               faceIndex,
+                                               instanceIndex,
+                                               &realname,
+                                               &style,
+                                               &isFixedPitch,
+                                               nullptr)) {
+                        // SkDebugf("---- failed to open <%s> <%d> as a font\n",
+                        //          filename.c_str(), faceIndex);
+                        continue;
+                    }
 
-                SkFontStyleSet_Custom* addTo = find_family(*families, realname.c_str());
-                if (nullptr == addTo) {
-                    addTo = new SkFontStyleSet_Custom(realname);
-                    families->push_back().reset(addTo);
+                    SkFontStyleSet_Custom* addTo = find_family(*families, realname.c_str());
+                    if (nullptr == addTo) {
+                        addTo = new SkFontStyleSet_Custom(realname);
+                        families->push_back().reset(addTo);
+                    }
+                    addTo->appendTypeface(sk_make_sp<SkTypeface_File>(
+                            style, isFixedPitch, true, realname, filename.c_str(),
+                            (instanceIndex << 16) + faceIndex));
                 }
-                addTo->appendTypeface(sk_make_sp<SkTypeface_File>(style, isFixedPitch, true,
-                                                                  realname, filename.c_str(),
-                                                                  faceIndex));
             }
         }
 

@@ -2001,8 +2001,8 @@ sk_sp<SkTypeface> SkTypeface_FreeType::MakeFromStream(std::unique_ptr<SkStreamAs
     SkFontStyle style;
     SkString name;
     SkFontScanner::AxisDefinitions axisDefinitions;
-    if (!scanner.scanFont(stream.get(), args.getCollectionIndex(),
-                          &name, &style, &isFixedPitch, &axisDefinitions)) {
+    if (!scanner.scanInstance(stream.get(), args.getCollectionIndex(), 0,
+                              &name, &style, &isFixedPitch, &axisDefinitions)) {
         return nullptr;
     }
 
@@ -2065,7 +2065,7 @@ FT_Face SkFontScanner_FreeType::openFace(SkStreamAsset* stream, int ttcIndex,
     return face;
 }
 
-bool SkFontScanner_FreeType::recognizedFont(SkStreamAsset* stream, int* numFaces) const {
+bool SkFontScanner_FreeType::scanFile(SkStreamAsset* stream, int* numFaces) const {
     SkAutoMutexExclusive libraryLock(fLibraryMutex);
 
     FT_StreamRec streamRec;
@@ -2078,14 +2078,33 @@ bool SkFontScanner_FreeType::recognizedFont(SkStreamAsset* stream, int* numFaces
     return true;
 }
 
-bool SkFontScanner_FreeType::scanFont(
-        SkStreamAsset* stream, int ttcIndex,
-        SkString* name, SkFontStyle* style, bool* isFixedPitch, AxisDefinitions* axes) const
-{
+bool SkFontScanner_FreeType::scanFace(SkStreamAsset* stream,
+                                      int faceIndex,
+                                      int* numInstances) const {
     SkAutoMutexExclusive libraryLock(fLibraryMutex);
 
     FT_StreamRec streamRec;
-    SkUniqueFTFace face(this->openFace(stream, ttcIndex, &streamRec));
+    SkUniqueFTFace face(this->openFace(stream, -(faceIndex + 1), &streamRec));
+    if (!face) {
+        return false;
+    }
+
+    *numInstances = face->style_flags >> 16;
+    return true;
+}
+
+bool SkFontScanner_FreeType::scanInstance(SkStreamAsset* stream,
+                                          int faceIndex,
+                                          int instanceIndex,
+                                          SkString* name,
+                                          SkFontStyle* style,
+                                          bool* isFixedPitch,
+                                          AxisDefinitions* axes) const {
+
+    SkAutoMutexExclusive libraryLock(fLibraryMutex);
+
+    FT_StreamRec streamRec;
+    SkUniqueFTFace face(this->openFace(stream, (instanceIndex << 16) + faceIndex, &streamRec));
     if (!face) {
         return false;
     }
