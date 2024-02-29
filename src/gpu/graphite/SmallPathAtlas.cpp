@@ -69,33 +69,34 @@ const TextureProxy* SmallPathAtlas::onAddShape(const Shape& shape,
     }
 
     // Render mask.
+    // TODO: Render directly into the atlas backing store, rather than doing a copy.
+    //       This will require some refactoring of DrawAtlas.
     SkIRect iShapeBounds = SkIRect::MakeXYWH(0, 0, maskSize.x(), maskSize.y());
     // Outset to take padding into account
     SkIRect iAtlasBounds = iShapeBounds.makeOutset(kEntryPadding, kEntryPadding);
+    SkAutoPixmapStorage dst;
+    // Rasterize path to backing pixmap
+    RasterMaskHelper helper(&dst);
+    if (!helper.init(iAtlasBounds.size())) {
+        return nullptr;
+    }
+    // Offset to padded location
+    iShapeBounds.offset(kEntryPadding, kEntryPadding);
+    helper.drawShape(shape, transform, strokeRec, iShapeBounds);
+    sk_sp<SkData> pixelData = dst.detachPixelsAsData();
 
-    // Request space in DrawAtlas.
+    // Add to DrawAtlas.
     AtlasLocator locator;
-    DrawAtlas::ErrorCode errorCode = fDrawAtlas->addRect(fRecorder,
-                                                         iAtlasBounds.width(),
-                                                         iAtlasBounds.height(),
-                                                         &locator);
+    DrawAtlas::ErrorCode errorCode = fDrawAtlas->addToAtlas(fRecorder,
+                                                            iAtlasBounds.width(),
+                                                            iAtlasBounds.height(),
+                                                            pixelData->data(),
+                                                            &locator);
     if (errorCode != DrawAtlas::ErrorCode::kSucceeded) {
         return nullptr;
     }
     SkIPoint topLeft = locator.topLeft();
     *outPos = skvx::half2(topLeft.x()+kEntryPadding, topLeft.y()+kEntryPadding);
-
-    // Rasterize path to backing pixmap
-    SkAutoPixmapStorage dst;
-    fDrawAtlas->initPixmapStorage(&dst, locator);
-
-    RasterMaskHelper helper(&dst);
-    if (!helper.init(fDrawAtlas->plotSize())) {
-        return nullptr;
-    }
-    // Offset to atlas location and draw
-    iShapeBounds.offset(outPos->x(), outPos->y());
-    helper.drawShape(shape, transform, strokeRec, iShapeBounds);
 
     // Add locator to ShapeCache.
     fShapeCache.set(maskKey, locator);
