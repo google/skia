@@ -31,7 +31,6 @@
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
-#include "src/gpu/graphite/SmallPathAtlas.h"
 #include "src/gpu/graphite/SpecialImage_Graphite.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -1430,19 +1429,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     } else if (atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster) &&
                (strategy == PathRendererStrategy::kRasterAA ||
                 (strategy == PathRendererStrategy::kDefault && !msaaSupported))) {
-        if (shape.hasKey()) {
-            static constexpr float kSmallPathSizeThreshold = 73;
-            Rect drawBounds = localToDevice.mapRect(shape.bounds());
-            drawBounds.intersect(fClip.conservativeBounds());
-            drawBounds = drawBounds.makeRoundOut();
-            skvx::float2 size = drawBounds.size();
-            if (size.x() < kSmallPathSizeThreshold && size.y() < kSmallPathSizeThreshold) {
-                pathAtlas = atlasProvider->getSmallPathAtlas();
-            }
-        }
-        if (!pathAtlas) {
-            pathAtlas = atlasProvider->getRasterPathAtlas();
-        }
+        pathAtlas = atlasProvider->getRasterPathAtlas();
     }
 
     // Use an atlas only if an MSAA technique isn't required.
@@ -1453,7 +1440,8 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         //
         // If the hardware doesn't support MSAA and anti-aliasing is required, then we always render
         // paths with atlasing.
-        if (!msaaSupported || strategy != PathRendererStrategy::kDefault) {
+        if (!msaaSupported || strategy == PathRendererStrategy::kComputeAnalyticAA ||
+            strategy == PathRendererStrategy::kRasterAA) {
             return {nullptr, pathAtlas};
         }
 

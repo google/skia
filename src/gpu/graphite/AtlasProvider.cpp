@@ -111,9 +111,6 @@ void AtlasProvider::recordUploads(DrawContext* dc) {
 
 void AtlasProvider::postFlush() {
     fTextAtlasManager->postFlush();
-    if (fSmallPathAtlas) {
-        fSmallPathAtlas->postFlush();
-    }
 }
 
 }  // namespace skgpu::graphite
