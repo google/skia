@@ -34,6 +34,7 @@ class SkShaper_CoreText : public SkShaper {
 public:
     SkShaper_CoreText() {}
 private:
+#if !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
     void shape(const char* utf8, size_t utf8Bytes,
                const SkFont& srcFont,
                bool leftToRight,
@@ -47,6 +48,7 @@ private:
                LanguageRunIterator&,
                SkScalar width,
                RunHandler*) const override;
+#endif
 
     void shape(const char* utf8, size_t utf8Bytes,
                FontRunIterator&,
@@ -57,47 +59,6 @@ private:
                SkScalar width,
                RunHandler*) const override;
 };
-
-std::unique_ptr<SkShaper> SkShaper::MakeCoreText() {
-    return std::make_unique<SkShaper_CoreText>();
-}
-
-void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
-                              FontRunIterator& font,
-                              BiDiRunIterator& bidi,
-                              ScriptRunIterator&,
-                              LanguageRunIterator&,
-                              SkScalar width,
-                              RunHandler* handler) const
-{
-    SkFont skfont;
-    if (!font.atEnd()) {
-        font.consume();
-        skfont = font.currentFont();
-    }
-    SkASSERT(skfont.getTypeface());
-    bool skbidi = 0;
-    if (!bidi.atEnd()) {
-        bidi.consume();
-        skbidi = (bidi.currentLevel() % 2) == 0;
-    }
-    return this->shape(utf8, utf8Bytes, skfont, skbidi, width, handler);
-}
-
-void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
-                              FontRunIterator& font,
-                              BiDiRunIterator& bidi,
-                              ScriptRunIterator&,
-                              LanguageRunIterator&,
-                              const Feature*, size_t,
-                              SkScalar width,
-                              RunHandler* handler) const {
-    font.consume();
-    SkASSERT(font.currentFont().getTypeface());
-    bidi.consume();
-    return this->shape(utf8, utf8Bytes, font.currentFont(), (bidi.currentLevel() % 2) == 0,
-                       width, handler);
-}
 
 // CTFramesetter/CTFrame can do this, but require version 10.14
 class LineBreakIter {
@@ -197,11 +158,54 @@ private:
 // kCTTrackingAttributeName not available until 10.12
 const CFStringRef kCTTracking_AttributeName = CFSTR("CTTracking");
 
-void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
-                              const SkFont& font,
-                              bool /* leftToRight */,
+#if !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
+void SkShaper_CoreText::shape(const char* utf8,
+                              size_t utf8Bytes,
+                              FontRunIterator& font,
+                              BiDiRunIterator& bidi,
+                              ScriptRunIterator& script,
+                              LanguageRunIterator& lang,
                               SkScalar width,
                               RunHandler* handler) const {
+    return this->shape(utf8, utf8Bytes, font, bidi, script, lang, nullptr, 0, width, handler);
+}
+
+void SkShaper_CoreText::shape(const char* utf8,
+                              size_t utf8Bytes,
+                              const SkFont& font,
+                              bool,
+                              SkScalar width,
+                              RunHandler* handler) const {
+    std::unique_ptr<FontRunIterator> fontRuns(
+            MakeFontMgrRunIterator(utf8, utf8Bytes, font, nullptr));
+    if (!fontRuns) {
+        return;
+    }
+    // bidi, script, and lang are all unused so we can construct them with empty data.
+    TrivialBiDiRunIterator bidi{0, 0};
+    TrivialScriptRunIterator script{0, 0};
+    TrivialLanguageRunIterator lang{nullptr, 0};
+    return this->shape(utf8, utf8Bytes, *fontRuns, bidi, script, lang, nullptr, 0, width, handler);
+}
+#endif
+
+void SkShaper_CoreText::shape(const char* utf8,
+                              size_t utf8Bytes,
+                              FontRunIterator& fontRuns,
+                              BiDiRunIterator&,
+                              ScriptRunIterator&,
+                              LanguageRunIterator&,
+                              const Feature*,
+                              size_t,
+                              SkScalar width,
+                              RunHandler* handler) const {
+    SkFont font;
+    if (!fontRuns.atEnd()) {
+        fontRuns.consume();
+        font = fontRuns.currentFont();
+    }
+    SkASSERT(font.getTypeface());
+
     SkUniqueCFRef<CFStringRef> textString(
             CFStringCreateWithBytes(kCFAllocatorDefault, (const uint8_t*)utf8, utf8Bytes,
                                     kCFStringEncodingUTF8, false));
@@ -312,3 +316,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
         handler->commitLine();
     }
 }
+
+namespace SkShapers::CT {
+std::unique_ptr<SkShaper> CoreText() { return std::make_unique<SkShaper_CoreText>(); }
+}  // namespace SkShapers::CT

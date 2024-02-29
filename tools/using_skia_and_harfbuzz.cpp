@@ -22,8 +22,9 @@
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/ports/SkFontMgr_empty.h"
-#include "modules/skshaper/include/SkShaper.h"
-
+#include "modules/skshaper/include/SkShaper_harfbuzz.h"
+#include "modules/skshaper/include/SkShaper_skunicode.h"
+#include "modules/skunicode/include/SkUnicode.h"
 
 // Options /////////////////////////////////////////////////////////////////////
 
@@ -142,10 +143,38 @@ public:
         font.setSize(SkDoubleToScalar(config->font_size.value));
     }
 
-    void WriteLine(const SkShaper& shaper, const char *text, size_t textBytes) {
+    void WriteLine(const SkShaper& shaper, const char* text, size_t textBytes) {
         SkTextBlobBuilderRunHandler textBlobBuilder(text, {0, 0});
-        shaper.shape(text, textBytes, font, true,
-                     config->page_width.value - 2*config->left_margin.value, &textBlobBuilder);
+
+        const SkBidiIterator::Level defaultLevel = SkBidiIterator::kLTR;
+        auto unicode = SkUnicode::Make();
+        std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
+                SkShapers::unicode::BidiRunIterator(unicode.get(), text, textBytes, defaultLevel);
+        SkASSERT(bidi);
+
+        std::unique_ptr<SkShaper::LanguageRunIterator> language =
+                SkShaper::MakeStdLanguageRunIterator(text, textBytes);
+        SkASSERT(language);
+
+        std::unique_ptr<SkShaper::ScriptRunIterator> script =
+                SkShapers::HB::ScriptRunIterator(text, textBytes);
+        SkASSERT(script);
+
+        std::unique_ptr<SkShaper::FontRunIterator> fontRuns =
+                SkShaper::MakeFontMgrRunIterator(text, textBytes, font, SkFontMgr::RefEmpty());
+        SkASSERT(fontRuns);
+
+        const SkScalar width = config->page_width.value - 2 * config->left_margin.value;
+        shaper.shape(text,
+                     textBytes,
+                     *fontRuns,
+                     *bidi,
+                     *script,
+                     *language,
+                     nullptr,
+                     0,
+                     width,
+                     &textBlobBuilder);
         SkPoint endPoint = textBlobBuilder.endPoint();
         sk_sp<const SkTextBlob> blob = textBlobBuilder.makeBlob();
         // If we don't have a page, or if we're not at the start of the page and the blob won't fit
@@ -215,7 +244,9 @@ int main(int argc, char **argv) {
         assert(mgr);
         typeface = mgr->makeFromFile(font_file.c_str(), 0 /* index */);
     }
-    std::unique_ptr<SkShaper> shaper = SkShaper::Make();
+    auto unicode = SkUnicode::Make();
+    std::unique_ptr<SkShaper> shaper =
+            SkShapers::HB::ShaperDrivenWrapper(std::move(unicode), nullptr);
     assert(shaper);
     //SkString line("This is هذا هو الخط a line.");
     //SkString line("⁧This is a line هذا هو الخط.⁩");

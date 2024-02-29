@@ -24,6 +24,16 @@
 #include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
 
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+#include "modules/skshaper/include/SkShaper_harfbuzz.h"
+#include "modules/skshaper/include/SkShaper_skunicode.h"
+#include "modules/skunicode/include/SkUnicode.h"
+#endif
+
+#if defined(SK_SHAPER_CORETEXT_AVAILABLE)
+#include "modules/skshaper/include/SkShaper_coretext.h"
+#endif
+
 using namespace skia_private;
 
 namespace {
@@ -220,23 +230,75 @@ void SkSVGTextContext::ShapeBuffer::append(SkUnichar ch, PositionAdjustment pos)
     fUtf8PosAdjust.push_back_n(utf8_len, pos);
 }
 
-void SkSVGTextContext::shapePendingBuffer(const SkFont& font) {
-    // TODO: directionality hints?
-    const auto LTR  = true;
+void SkSVGTextContext::shapePendingBuffer(const SkFont& font, sk_sp<SkFontMgr> fallback) {
+    const char* utf8 = fShapeBuffer.fUtf8.data();
+    size_t utf8Bytes = fShapeBuffer.fUtf8.size();
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+    auto unicode = SkUnicode::Make();
+    const SkBidiIterator::Level defaultLevel = SkBidiIterator::kLTR;
+    std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
+            SkShapers::unicode::BidiRunIterator(unicode.get(), utf8, utf8Bytes, defaultLevel);
+    if (!bidi) {
+        return;
+    }
 
-    // Initiate shaping: this will generate a series of runs via callbacks.
-    fShaper->shape(fShapeBuffer.fUtf8.data(), fShapeBuffer.fUtf8.size(),
-                   font, LTR, SK_ScalarMax, this);
+    std::unique_ptr<SkShaper::LanguageRunIterator> language =
+            SkShaper::MakeStdLanguageRunIterator(utf8, utf8Bytes);
+    if (!language) {
+        return;
+    }
+
+    std::unique_ptr<SkShaper::ScriptRunIterator> script =
+            SkShapers::HB::ScriptRunIterator(utf8, utf8Bytes);
+    if (!script) {
+        return;
+    }
+
+    std::unique_ptr<SkShaper::FontRunIterator> fontRuns =
+            SkShaper::MakeFontMgrRunIterator(utf8, utf8Bytes, font, fallback);
+    if (!fontRuns) {
+        return;
+    }
+    fShaper->shape(
+            utf8, utf8Bytes, *fontRuns, *bidi, *script, *language, nullptr, 0, SK_ScalarMax, this);
+#else
+    std::unique_ptr<SkShaper::FontRunIterator> fontRuns =
+            SkShaper::MakeFontMgrRunIterator(utf8, utf8Bytes, font, fallback);
+    if (!fontRuns) {
+        return;
+    }
+    // bidi, script, and lang are all unused so we can construct them with empty data.
+    SkShaper::TrivialBiDiRunIterator bidi{0, 0};
+    SkShaper::TrivialScriptRunIterator script{0, 0};
+    SkShaper::TrivialLanguageRunIterator lang{nullptr, 0};
+    fShaper->shape(utf8, utf8Bytes, *fontRuns, bidi, script, lang, nullptr, 0, SK_ScalarMax, this);
+#endif
     fShapeBuffer.reset();
 }
 
-SkSVGTextContext::SkSVGTextContext(const SkSVGRenderContext& ctx, const ShapedTextCallback& cb,
+static std::unique_ptr<SkShaper> make_shaper(sk_sp<SkFontMgr> fallback) {
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+    auto unicode = SkUnicode::Make();
+    std::unique_ptr<SkShaper> shaper =
+            SkShapers::HB::ShaperDrivenWrapper(std::move(unicode), fallback);
+    if (shaper) {
+        return shaper;
+    }
+#elif defined(SK_SHAPER_CORETEXT_AVAILABLE)
+    if (auto shaper = SkShapers::CT::CoreText()) {
+        return shaper;
+    }
+#endif
+    return SkShapers::Primitive();
+}
+
+SkSVGTextContext::SkSVGTextContext(const SkSVGRenderContext& ctx,
+                                   const ShapedTextCallback& cb,
                                    const SkSVGTextPath* tpath)
-    : fRenderContext(ctx)
-    , fCallback(cb)
-    , fShaper(SkShaper::Make(ctx.fontMgr()))
-    , fChunkAlignmentFactor(ComputeAlignmentFactor(ctx.presentationContext()))
-{
+        : fRenderContext(ctx)
+        , fCallback(cb)
+        , fShaper(make_shaper(ctx.fontMgr()))
+        , fChunkAlignmentFactor(ComputeAlignmentFactor(ctx.presentationContext())) {
     if (tpath) {
         fPathData = std::make_unique<PathData>(ctx, *tpath);
 
@@ -325,7 +387,7 @@ void SkSVGTextContext::shapeFragment(const SkString& txt, const SkSVGRenderConte
         // Absolute position adjustments define a new chunk.
         // (https://www.w3.org/TR/SVG11/text.html#TextLayoutIntroduction)
         if (pos.has(PosAttrs::kX) || pos.has(PosAttrs::kY)) {
-            this->shapePendingBuffer(font);
+            this->shapePendingBuffer(font, ctx.fontMgr());
             this->flushChunk(ctx);
 
             // New chunk position.
@@ -348,7 +410,7 @@ void SkSVGTextContext::shapeFragment(const SkString& txt, const SkSVGRenderConte
         fPrevCharSpace = (ch == ' ');
     }
 
-    this->shapePendingBuffer(font);
+    this->shapePendingBuffer(font, ctx.fontMgr());
 
     // Note: at this point we have shaped and buffered RunRecs for the current fragment.
     // The active text chunk continues until an explicit or implicit flush.

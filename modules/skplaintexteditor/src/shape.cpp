@@ -18,6 +18,12 @@
 #include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
 
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+#include "modules/skshaper/include/SkShaper_harfbuzz.h"
+#include "modules/skshaper/include/SkShaper_skunicode.h"
+#include "modules/skunicode/include/SkUnicode.h"
+#endif
+
 #include <cfloat>
 #include <climits>
 #include <cstring>
@@ -270,7 +276,15 @@ ShapeResult SkPlainTextEditor::Shape(const char* utf8Text,
         utf8Text = nullptr;
         textByteLen = 0;
     }
-    std::unique_ptr<SkShaper> shaper = SkShaper::Make(fontMgr);
+    std::unique_ptr<SkShaper> shaper = nullptr;
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+    auto unicode = SkUnicode::Make();
+    shaper = SkShapers::HB::ShaperDrivenWrapper(std::move(unicode), fontMgr);
+#else
+    shaper = SkShapers::Primitive();
+#endif
+    SkASSERT(shaper);
+
     float height = font.getSpacing();
     RunHandler runHandler(utf8Text, textByteLen);
     if (textByteLen) {
@@ -279,8 +293,41 @@ ShapeResult SkPlainTextEditor::Shape(const char* utf8Text,
             c = SkRect{-FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX};
         }
         runHandler.setRunCallback(set_character_bounds, result.glyphBounds.data());
-        // TODO: make use of locale in shaping.
-        shaper->shape(utf8Text, textByteLen, font, true, width, &runHandler);
+
+        static constexpr uint8_t kBidiLevelLTR = 0;
+        std::unique_ptr<SkShaper::BiDiRunIterator> bidi = nullptr;
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+        auto unicode2 = SkUnicode::Make();
+        bidi = SkShapers::unicode::BidiRunIterator(
+                unicode2.get(), utf8Text, textByteLen, kBidiLevelLTR);
+#endif
+        if (!bidi) {
+            bidi = std::make_unique<SkShaper::TrivialBiDiRunIterator>(kBidiLevelLTR, textByteLen);
+        }
+        SkASSERT(bidi);
+
+        std::unique_ptr<SkShaper::LanguageRunIterator> language =
+                SkShaper::MakeStdLanguageRunIterator(utf8Text, textByteLen);
+        SkASSERT(language);
+
+        std::unique_ptr<SkShaper::ScriptRunIterator> script =
+                SkShapers::HB::ScriptRunIterator(utf8Text, textByteLen);
+        SkASSERT(script);
+
+        std::unique_ptr<SkShaper::FontRunIterator> fontRuns =
+                SkShaper::MakeFontMgrRunIterator(utf8Text, textByteLen, font, fontMgr);
+        SkASSERT(fontRuns);
+
+        shaper->shape(utf8Text,
+                      textByteLen,
+                      *fontRuns,
+                      *bidi,
+                      *script,
+                      *language,
+                      nullptr,
+                      0,
+                      width,
+                      &runHandler);
         if (runHandler.lineEndOffsets().size() > 1) {
             result.lineBreakOffsets = runHandler.lineEndOffsets();
             SkASSERT(result.lineBreakOffsets.size() > 0);

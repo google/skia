@@ -8,6 +8,41 @@ skia_filegroup(
     name = "hdrs",
     srcs = [
         "SkShaper.h",
+        "SkShaper_harfbuzz.h",
+        "SkShaper_skunicode.h",
+    ],
+    visibility = ["//modules/skshaper:__pkg__"],
+)
+
+skia_filegroup(
+    name = "core_hdrs",
+    srcs = [
+        "SkShaper.h",
+        "SkShaper_harfbuzz.h",
+    ],
+    visibility = ["//modules/skshaper:__pkg__"],
+)
+
+skia_filegroup(
+    name = "coretext_hdrs",
+    srcs = [
+        "SkShaper_coretext.h",
+    ],
+    visibility = ["//modules/skshaper:__pkg__"],
+)
+
+skia_filegroup(
+    name = "harfbuzz_hdrs",
+    srcs = [
+        "SkShaper_harfbuzz.h",
+    ],
+    visibility = ["//modules/skshaper:__pkg__"],
+)
+
+skia_filegroup(
+    name = "skunicode_hdrs",
+    srcs = [
+        "SkShaper_skunicode.h",
     ],
     visibility = ["//modules/skshaper:__pkg__"],
 )

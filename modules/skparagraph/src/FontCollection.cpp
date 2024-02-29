@@ -1,9 +1,10 @@
 // Copyright 2019 Google LLC.
-#include "include/core/SkTypeface.h"
 #include "modules/skparagraph/include/FontCollection.h"
+
+#include "include/core/SkTypeface.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skshaper/include/SkShaper.h"
+#include "modules/skshaper/include/SkShaper_harfbuzz.h"
 
 namespace {
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
@@ -220,7 +221,7 @@ void FontCollection::enableFontFallback() { fEnableFontFallback = true; }
 void FontCollection::clearCaches() {
     fParagraphCache.reset();
     fTypefaces.reset();
-    SkShaper::PurgeCaches();
+    SkShapers::HB::PurgeCaches();
 }
 
 }  // namespace textlayout

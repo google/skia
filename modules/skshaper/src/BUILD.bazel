@@ -15,6 +15,7 @@ skia_filegroup(
 skia_filegroup(
     name = "skunicode_srcs",
     srcs = ["SkShaper_skunicode.cpp"],
+    visibility = ["//modules/skshaper:__pkg__"],
 )
 
 # In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_coretext_sources.
@@ -52,7 +53,7 @@ skia_filegroup(
     name = "core_srcs",
     srcs = [
         "SkShaper.cpp",
-        "SkShaper_skunicode.cpp",
+        "SkShaper_primitive.cpp",
     ],
     visibility = ["//modules/skshaper:__pkg__"],
 )

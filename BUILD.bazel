@@ -206,6 +206,33 @@ alias(
 ###
 
 alias(
+    name = "skshaper_core",
+    actual = "//modules/skshaper:skshaper_core",
+    visibility = ["//visibility:public"],
+)
+
+# TODO(kjlubick)
+# alias(
+#     name = "skshaper_coretext",
+#     actual = "//modules/skshaper:skshaper_coretext",
+#     visibility = ["//visibility:public"],
+# )
+
+alias(
+    name = "skshaper_harfbuzz",
+    actual = "//modules/skshaper:skshaper_harfbuzz",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "skshaper_unicode",
+    actual = "//modules/skshaper:skshaper_unicode",
+    visibility = ["//visibility:public"],
+)
+
+###
+
+alias(
     name = "skresources",
     actual = "//modules/skresources:skresources",
     visibility = ["//visibility:public"],
