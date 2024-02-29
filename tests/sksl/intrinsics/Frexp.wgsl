@@ -3,8 +3,10 @@
 error: :17:20 error: no matching call to 'frexp(f32, i32)'
 
 2 candidate functions:
-  'frexp(T) -> __frexp_result_T'  where: 'T' is 'abstract-float', 'f32' or 'f16'
-  'frexp(vecN<T>) -> __frexp_result_vecN_T'  where: 'T' is 'abstract-float', 'f32' or 'f16'
+ • 'frexp(T  ✓ ) -> __frexp_result_T' where:
+      ✓  'T' is 'abstract-float', 'f32' or 'f16'
+ • 'frexp(vecN<T>  ✗ ) -> __frexp_result_vecN_T' where:
+      ✗  'T' is 'abstract-float', 'f32' or 'f16'
 
     let _skTemp0 = frexp(value.x, _0_exp.x);
                    ^^^^^^^^^^^^^^^^^^^^^^^^
