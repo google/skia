@@ -11,6 +11,12 @@
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkReadBuffer.h"
 
+#include <atomic>
+#include <cstdint>
+
+// This file contains Slug methods that need to be defined on CPU and GPU builds, even though
+// Slugs aren't fully implemented in the CPU backend (yet?)
+
 namespace sktext::gpu {
 
 sk_sp<Slug> Slug::MakeFromBuffer(SkReadBuffer& buffer) {
@@ -20,6 +26,11 @@ sk_sp<Slug> Slug::MakeFromBuffer(SkReadBuffer& buffer) {
     }
     SkDEBUGFAIL("Should have set serial procs");
     return nullptr;
+}
+
+uint32_t Slug::NextUniqueID() {
+    static std::atomic<uint32_t> nextUnique = 1;
+    return nextUnique++;
 }
 
 }  // namespace sktext::gpu

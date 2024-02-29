@@ -13,8 +13,6 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 
-#include <atomic>
-
 class SkData;
 
 namespace sktext::gpu {
@@ -54,11 +52,6 @@ sk_sp<Slug> Slug::Deserialize(const void* data,
 
 void Slug::draw(SkCanvas* canvas) const {
     canvas->drawSlug(this);
-}
-
-uint32_t Slug::NextUniqueID() {
-    static std::atomic<uint32_t> nextUnique = 1;
-    return nextUnique++;
 }
 
 }  // namespace sktext::gpu
