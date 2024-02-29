@@ -32,6 +32,7 @@ skia_cc_library(
     deps = [
         "//:core",
         "//modules/skshaper:skshaper_harfbuzz",
+        "//modules/skshaper:skshaper_unicode",
         "//modules/skunicode:skunicode_icu",
         "//src/base",
         "//src/core:core_priv",

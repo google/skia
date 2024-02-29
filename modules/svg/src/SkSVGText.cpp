@@ -233,58 +233,64 @@ void SkSVGTextContext::ShapeBuffer::append(SkUnichar ch, PositionAdjustment pos)
 void SkSVGTextContext::shapePendingBuffer(const SkFont& font, sk_sp<SkFontMgr> fallback) {
     const char* utf8 = fShapeBuffer.fUtf8.data();
     size_t utf8Bytes = fShapeBuffer.fUtf8.size();
+
+    std::unique_ptr<SkShaper::FontRunIterator> font_runs =
+            SkShaper::MakeFontMgrRunIterator(utf8, utf8Bytes, font, fallback);
+    if (!font_runs) {
+        return;
+    }
 #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
     auto unicode = SkUnicode::Make();
     const SkBidiIterator::Level defaultLevel = SkBidiIterator::kLTR;
     std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
             SkShapers::unicode::BidiRunIterator(unicode.get(), utf8, utf8Bytes, defaultLevel);
-    if (!bidi) {
-        return;
-    }
 
     std::unique_ptr<SkShaper::LanguageRunIterator> language =
             SkShaper::MakeStdLanguageRunIterator(utf8, utf8Bytes);
-    if (!language) {
-        return;
-    }
 
     std::unique_ptr<SkShaper::ScriptRunIterator> script =
             SkShapers::HB::ScriptRunIterator(utf8, utf8Bytes);
-    if (!script) {
-        return;
-    }
 
-    std::unique_ptr<SkShaper::FontRunIterator> fontRuns =
-            SkShaper::MakeFontMgrRunIterator(utf8, utf8Bytes, font, fallback);
-    if (!fontRuns) {
+    if (bidi && script && language) {
+        fShaper->shape(utf8,
+                       utf8Bytes,
+                       *font_runs,
+                       *bidi,
+                       *script,
+                       *language,
+                       nullptr,
+                       0,
+                       SK_ScalarMax,
+                       this);
+        fShapeBuffer.reset();
         return;
     }
-    fShaper->shape(
-            utf8, utf8Bytes, *fontRuns, *bidi, *script, *language, nullptr, 0, SK_ScalarMax, this);
-#else
-    std::unique_ptr<SkShaper::FontRunIterator> fontRuns =
-            SkShaper::MakeFontMgrRunIterator(utf8, utf8Bytes, font, fallback);
-    if (!fontRuns) {
-        return;
-    }
-    // bidi, script, and lang are all unused so we can construct them with empty data.
-    SkShaper::TrivialBiDiRunIterator bidi{0, 0};
-    SkShaper::TrivialScriptRunIterator script{0, 0};
-    SkShaper::TrivialLanguageRunIterator lang{nullptr, 0};
-    fShaper->shape(utf8, utf8Bytes, *fontRuns, bidi, script, lang, nullptr, 0, SK_ScalarMax, this);
 #endif
+    // bidi, script, and lang are all unused so we can construct them with empty data.
+    SkShaper::TrivialBiDiRunIterator trivial_bidi{0, 0};
+    SkShaper::TrivialScriptRunIterator trivial_script{0, 0};
+    SkShaper::TrivialLanguageRunIterator trivial_lang{nullptr, 0};
+    fShaper->shape(utf8,
+                   utf8Bytes,
+                   *font_runs,
+                   trivial_bidi,
+                   trivial_script,
+                   trivial_lang,
+                   nullptr,
+                   0,
+                   SK_ScalarMax,
+                   this);
     fShapeBuffer.reset();
 }
 
 static std::unique_ptr<SkShaper> make_shaper(sk_sp<SkFontMgr> fallback) {
 #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
     auto unicode = SkUnicode::Make();
-    std::unique_ptr<SkShaper> shaper =
-            SkShapers::HB::ShaperDrivenWrapper(std::move(unicode), fallback);
-    if (shaper) {
+    if (auto shaper = SkShapers::HB::ShaperDrivenWrapper(std::move(unicode), fallback)) {
         return shaper;
     }
-#elif defined(SK_SHAPER_CORETEXT_AVAILABLE)
+#endif
+#if defined(SK_SHAPER_CORETEXT_AVAILABLE)
     if (auto shaper = SkShapers::CT::CoreText()) {
         return shaper;
     }
