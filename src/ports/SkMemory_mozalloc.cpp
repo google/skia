@@ -13,6 +13,9 @@
 #include "mozilla/mozalloc_abort.h"
 #include "mozilla/mozalloc_oom.h"
 
+// needed for std::max
+#include <algorithm>
+
 void sk_abort_no_print() {
     mozalloc_abort("Abort from sk_abort");
 }
