@@ -931,6 +931,14 @@ private:
               bool preserveDeviceState,
               const SkBlender* blender=nullptr) const;
 
+    // This variant should only be called after analysis and final sampling has been determined,
+    // and there's no need to fall back to filling the device with shader.
+    void drawAnalyzedImage(const Context& ctx,
+                           SkDevice* device,
+                           const SkSamplingOptions& finalSampling,
+                           SkEnumBitMask<BoundsAnalysis> analysis,
+                           const SkBlender* blender=nullptr) const;
+
     // Returns the FilterResult as a shader, ideally without resolving to an axis-aligned image.
     // 'xtraSampling' is the sampling that any parent shader applies to the FilterResult.
     // 'sampleBounds' is the bounding box of coords the shader will be evaluated at by any parent.
