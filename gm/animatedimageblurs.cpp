@@ -19,6 +19,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkTPin.h"
 #include "src/base/SkRandom.h"
+#include "tools/DecodeUtils.h"
 #include "tools/timer/TimeUtils.h"
 
 static const SkScalar kBlurMax = 7.0f;
@@ -142,6 +143,56 @@ private:
     using INHERITED = GM;
 };
 
+// This GM draws an image with a tiled blur that animates from large to small sigmas
+class AnimatedTiledImageBlur : public skiagm::GM {
+static constexpr float kMaxBlurSigma = 250.f;
+static constexpr float kAnimationDuration = 12.f; // seconds
+public:
+    AnimatedTiledImageBlur() : fBlurSigma(0.3f * kMaxBlurSigma) {
+        this->setBGColor(0xFFCCCCCC);
+    }
+
+protected:
+    bool runAsBench() const override { return true; }
+
+    SkString getName() const override { return SkString("animated-tiled-image-blur"); }
+
+    SkISize getISize() override { return SkISize::Make(530, 530); }
+
+    void onOnceBeforeDraw() override {
+        fImage = ToolUtils::GetResourceAsImage("images/mandrill_512.png");
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        auto drawBlurredImage = [&](float tx, float ty, SkTileMode tileMode) {
+            SkPaint paint;
+            SkRect rect = SkRect::MakeIWH(250, 250);
+            canvas->save();
+            canvas->translate(tx, ty);
+            paint.setImageFilter(SkImageFilters::Blur(fBlurSigma, fBlurSigma, tileMode,
+                                                      nullptr, rect));
+            canvas->drawImageRect(fImage, rect, SkFilterMode::kLinear, &paint);
+            canvas->restore();
+        };
+
+        drawBlurredImage(10.f,  10.f,  SkTileMode::kDecal);
+        drawBlurredImage(270.f, 10.f,  SkTileMode::kClamp);
+        drawBlurredImage(10.f,  270.f, SkTileMode::kRepeat);
+        drawBlurredImage(270.f, 270.f, SkTileMode::kMirror);
+    }
+
+    bool onAnimate(double nanos) override {
+        fBlurSigma = TimeUtils::PingPong(1e-9 * nanos, kAnimationDuration,
+                                         0.f, 0.0f, kMaxBlurSigma);
+        return true;
+    }
+
+private:
+    sk_sp<SkImage> fImage;
+    SkScalar fBlurSigma;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new AnimatedImageBlurs;)
+DEF_GM(return new AnimatedTiledImageBlur;)
