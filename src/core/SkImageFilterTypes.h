@@ -847,6 +847,8 @@ private:
     FilterResult subset(const LayerSpace<SkIPoint>& knownOrigin,
                         const LayerSpace<SkIRect>& subsetBounds,
                         bool clampSrcIfDisjoint=false) const;
+    // Convenient version of subset() that insets a single pixel.
+    FilterResult insetByPixel() const;
 
     enum class BoundsAnalysis : int {
         // The image can be drawn directly, without needing to apply tiling, or handling how any
