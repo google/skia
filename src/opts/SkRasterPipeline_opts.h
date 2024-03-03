@@ -981,10 +981,7 @@ SI F approx_log2(F x) {
 
     // ... but using the mantissa to refine its error is _much_ better.
     F m = sk_bit_cast<F>((sk_bit_cast<U32>(x) & 0x007fffff) | 0x3f000000);
-    return e
-         - 124.225514990f
-         -   1.498030302f * m
-         -   1.725879990f / (0.3520887068f + m);
+    return nmad(m, 1.498030302f, e - 124.225514990f) - 1.725879990f / (0.3520887068f + m);
 }
 
 SI F approx_log(F x) {
@@ -996,8 +993,7 @@ SI F approx_pow2(F x) {
     constexpr float kInfinityBits = 0x7f800000;
 
     F f = fract(x);
-    F approx = x + 121.274057500f;
-      approx -= f * 1.490129070f;
+    F approx = nmad(f, 1.490129070f, x + 121.274057500f);
       approx += 27.728023300f / (4.84252568f - f);
       approx *= 1.0f * (1<<23);
       approx  = min(max(approx, F0), F_(kInfinityBits));  // guard against underflow/overflow
