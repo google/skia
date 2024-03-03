@@ -1864,6 +1864,102 @@ BLEND_MODE(softlight) {
 SI F sat(F r, F g, F b) { return max(r, max(g,b)) - min(r, min(g,b)); }
 SI F lum(F r, F g, F b) { return mad(r, 0.30f, mad(g, 0.59f, b*0.11f)); }
 
+#if defined(SK_RASTER_PIPELINE_FASTER_HUE_SAT_CLR_LUM)
+
+SI void set_sat(F* r, F* g, F* b, F s) {
+    F mn  = min(*r, min(*g,*b)),
+      mx  = max(*r, max(*g,*b)),
+      sat = mx - mn;
+
+    // Map min channel to 0, max channel to s, and scale the middle proportionally.
+    s = if_then_else(sat == 0.0f, 0.0f, s * rcp_fast(sat));
+    *r = (*r - mn) * s;
+    *g = (*g - mn) * s;
+    *b = (*b - mn) * s;
+}
+SI void set_lum(F* r, F* g, F* b, F l) {
+    F diff = l - lum(*r, *g, *b);
+    *r += diff;
+    *g += diff;
+    *b += diff;
+}
+SI F clip_channel(F c, F l, I32 clip_low, I32 clip_high, F mn_scale, F mx_scale) {
+    c = if_then_else(clip_low,  mad(mn_scale, c - l, l), c);
+    c = if_then_else(clip_high, mad(mx_scale, c - l, l), c);
+    c = max(c, 0.0f);  // Sometimes without this we may dip just a little negative.
+    return c;
+}
+SI void clip_color(F* r, F* g, F* b, F a) {
+    F   mn        = min(*r, min(*g, *b)),
+        mx        = max(*r, max(*g, *b)),
+        l         = lum(*r, *g, *b),
+        mn_scale  = (    l) * rcp_fast(l - mn),
+        mx_scale  = (a - l) * rcp_fast(mx - l);
+    I32 clip_low  = cond_to_mask(mn < 0 && l != mn),
+        clip_high = cond_to_mask(mx > a && l != mx);
+
+    *r = clip_channel(*r, l, clip_low, clip_high, mn_scale, mx_scale);
+    *g = clip_channel(*g, l, clip_low, clip_high, mn_scale, mx_scale);
+    *b = clip_channel(*b, l, clip_low, clip_high, mn_scale, mx_scale);
+}
+
+STAGE(hue, NoCtx) {
+    F R = r*a,
+      G = g*a,
+      B = b*a;
+
+    set_sat(&R, &G, &B, sat(dr,dg,db)*a);
+    set_lum(&R, &G, &B, lum(dr,dg,db)*a);
+    clip_color(&R,&G,&B, a*da);
+
+    r = mad(r, inv(da), mad(dr, inv(a), R));
+    g = mad(g, inv(da), mad(dg, inv(a), G));
+    b = mad(b, inv(da), mad(db, inv(a), B));
+    a = a + nmad(a, da, da);
+}
+STAGE(saturation, NoCtx) {
+    F R = dr*a,
+      G = dg*a,
+      B = db*a;
+
+    set_sat(&R, &G, &B, sat( r, g, b)*da);
+    set_lum(&R, &G, &B, lum(dr,dg,db)* a);  // (This is not redundant.)
+    clip_color(&R,&G,&B, a*da);
+
+    r = mad(r, inv(da), mad(dr, inv(a), R));
+    g = mad(g, inv(da), mad(dg, inv(a), G));
+    b = mad(b, inv(da), mad(db, inv(a), B));
+    a = a + nmad(a, da, da);
+}
+STAGE(color, NoCtx) {
+    F R = r*da,
+      G = g*da,
+      B = b*da;
+
+    set_lum(&R, &G, &B, lum(dr,dg,db)*a);
+    clip_color(&R,&G,&B, a*da);
+
+    r = mad(r, inv(da), mad(dr, inv(a), R));
+    g = mad(g, inv(da), mad(dg, inv(a), G));
+    b = mad(b, inv(da), mad(db, inv(a), B));
+    a = a + nmad(a, da, da);
+}
+STAGE(luminosity, NoCtx) {
+    F R = dr*a,
+      G = dg*a,
+      B = db*a;
+
+    set_lum(&R, &G, &B, lum(r,g,b)*da);
+    clip_color(&R,&G,&B, a*da);
+
+    r = mad(r, inv(da), mad(dr, inv(a), R));
+    g = mad(g, inv(da), mad(dg, inv(a), G));
+    b = mad(b, inv(da), mad(db, inv(a), B));
+    a = a + nmad(a, da, da);
+}
+
+#else  // if not defined(SK_RASTER_PIPELINE_FASTER_HUE_SAT_CLR_LUM)
+
 SI void set_sat(F* r, F* g, F* b, F s) {
     F mn  = min(*r, min(*g,*b)),
       mx  = max(*r, max(*g,*b)),
@@ -1953,6 +2049,8 @@ STAGE(luminosity, NoCtx) {
     b = b*inv(da) + db*inv(a) + B;
     a = a + da - a*da;
 }
+
+#endif  // defined(SK_RASTER_PIPELINE_FASTER_HUE_SAT_CLR_LUM)
 
 STAGE(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
