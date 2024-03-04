@@ -733,7 +733,7 @@ ShaperHarfBuzz::ShaperHarfBuzz(std::unique_ptr<SkUnicode> unicode,
     , fBuffer(std::move(buffer))
     , fUndefinedLanguage(hb_language_from_string("und", -1)) {
 #if defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
-    SkASSERT(unicode);
+    SkASSERT(fUnicode);
 #endif
 }
 
