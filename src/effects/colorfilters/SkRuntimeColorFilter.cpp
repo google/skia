@@ -20,10 +20,10 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkSLSampleUsage.h"
-#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkEffectPriv.h"
+#include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
@@ -115,6 +115,8 @@ sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
 
 sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0,
                                                         sk_sp<SkColorFilter> cf1) {
+    using namespace SkKnownRuntimeEffects;
+
     if (!cf0 && !cf1) {
         return nullptr;
     }
@@ -133,57 +135,30 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
         return cf1;
     }
 
-    static const SkRuntimeEffect* effect =
-            SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-                                      "uniform colorFilter cf0;"
-                                      "uniform colorFilter cf1;"
-                                      "uniform half weight;"
-                                      "half4 main(half4 color) {"
-                                      "return mix(cf0.eval(color), cf1.eval(color), weight);"
-                                      "}")
-                    .release();
-    SkASSERT(effect);
+    const SkRuntimeEffect* lerpEffect = GetKnownRuntimeEffect(StableKey::kLerp);
 
     sk_sp<SkColorFilter> inputs[] = {cf0,cf1};
-    return effect->makeColorFilter(SkData::MakeWithCopy(&weight, sizeof(weight)),
-                                   inputs, std::size(inputs));
+    return lerpEffect->makeColorFilter(SkData::MakeWithCopy(&weight, sizeof(weight)),
+                                       inputs, std::size(inputs));
 }
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
-    static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(
-        SkRuntimeEffect::MakeForColorFilter,
-        "half4 main(half4 inColor) {"
-            "return saturate(dot(half3(0.2126, 0.7152, 0.0722), inColor.rgb)).000r;"
-        "}"
-    ).release();
-    SkASSERT(effect);
+    using namespace SkKnownRuntimeEffects;
 
-    return effect->makeColorFilter(SkData::MakeEmpty());
+    const SkRuntimeEffect* lumaEffect = GetKnownRuntimeEffect(StableKey::kLuma);
+
+    return lumaEffect->makeColorFilter(SkData::MakeEmpty());
 }
 
 sk_sp<SkColorFilter> SkOverdrawColorFilter::MakeWithSkColors(const SkColor colors[kNumColors]) {
-    static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(
-        SkRuntimeEffect::MakeForColorFilter,
-        "uniform half4 color0, color1, color2, color3, color4, color5;"
+    using namespace SkKnownRuntimeEffects;
 
-        "half4 main(half4 color) {"
-            "half alpha = 255.0 * color.a;"
-            "return alpha < 0.5 ? color0"
-                 ": alpha < 1.5 ? color1"
-                 ": alpha < 2.5 ? color2"
-                 ": alpha < 3.5 ? color3"
-                 ": alpha < 4.5 ? color4 : color5;"
-        "}"
-    ).release();
+    const SkRuntimeEffect* overdrawEffect = GetKnownRuntimeEffect(StableKey::kOverdraw);
 
-    if (effect) {
-        auto data = SkData::MakeUninitialized(kNumColors * sizeof(SkPMColor4f));
-        SkPMColor4f* premul = (SkPMColor4f*)data->writable_data();
-        for (int i = 0; i < kNumColors; ++i) {
-            premul[i] = SkColor4f::FromColor(colors[i]).premul();
-        }
-        return effect->makeColorFilter(std::move(data));
+    auto data = SkData::MakeUninitialized(kNumColors * sizeof(SkPMColor4f));
+    SkPMColor4f* premul = (SkPMColor4f*)data->writable_data();
+    for (int i = 0; i < kNumColors; ++i) {
+        premul[i] = SkColor4f::FromColor(colors[i]).premul();
     }
-    return nullptr;
+    return overdrawEffect->makeColorFilter(std::move(data));
 }
-
