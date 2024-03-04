@@ -175,6 +175,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 				if b.extraConfig("Metal") {
 					configs = []string{"grmtl"}
 				}
+				if b.extraConfig("Vulkan") {
+					configs = []string{"grvk"}
+				}
 			}
 		}
 
