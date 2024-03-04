@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/RenderPassTask.h"
 
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawPass.h"
@@ -107,8 +108,10 @@ bool RenderPassTask::addCommands(Context* context,
     sk_sp<Texture> depthStencilAttachment;
     if (fRenderPassDesc.fDepthStencilAttachment.fTextureInfo.isValid()) {
         // TODO: ensure this is a scratch/recycled texture
+        SkISize dimensions = context->priv().caps()->getDepthAttachmentDimensions(
+                fTarget->textureInfo(), fTarget->dimensions());
         depthStencilAttachment = resourceProvider->findOrCreateDepthStencilAttachment(
-                fTarget->dimensions(), fRenderPassDesc.fDepthStencilAttachment.fTextureInfo);
+                dimensions, fRenderPassDesc.fDepthStencilAttachment.fTextureInfo);
         if (!depthStencilAttachment) {
             SKGPU_LOG_W("Could not get DepthStencil attachment for RenderPassTask");
             return false;

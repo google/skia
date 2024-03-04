@@ -130,7 +130,7 @@ sk_sp<DawnComputePipeline> DawnComputePipeline::Make(const DawnSharedContext* sh
 
                 auto [_, colorType] = step->calculateTextureParameters(declarationIndex, r);
                 auto textureInfo = sharedContext->caps()->getDefaultStorageTextureInfo(colorType);
-                entry.storageTexture.format = textureInfo.dawnTextureSpec().fFormat;
+                entry.storageTexture.format = textureInfo.dawnTextureSpec().getViewFormat();
                 break;
             }
             case ComputeStep::ResourceType::kSampledTexture: {

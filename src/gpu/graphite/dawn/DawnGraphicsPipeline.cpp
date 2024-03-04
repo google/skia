@@ -335,7 +335,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     }
 
     wgpu::ColorTargetState colorTarget;
-    colorTarget.format = renderPassDesc.fColorAttachment.fTextureInfo.dawnTextureSpec().fFormat;
+    colorTarget.format =
+            renderPassDesc.fColorAttachment.fTextureInfo.dawnTextureSpec().getViewFormat();
     colorTarget.blend = blendOn ? &blend : nullptr;
     colorTarget.writeMask = blendInfo.fWritesColor && hasFragmentSkSL ? wgpu::ColorWriteMask::All
                                                                       : wgpu::ColorWriteMask::None;
@@ -356,7 +357,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     wgpu::DepthStencilState depthStencil;
     if (renderPassDesc.fDepthStencilAttachment.fTextureInfo.isValid()) {
         wgpu::TextureFormat dsFormat =
-                renderPassDesc.fDepthStencilAttachment.fTextureInfo.dawnTextureSpec().fFormat;
+                renderPassDesc.fDepthStencilAttachment.fTextureInfo.dawnTextureSpec()
+                        .getViewFormat();
         depthStencil.format =
                 DawnFormatIsDepthOrStencil(dsFormat) ? dsFormat : wgpu::TextureFormat::Undefined;
         if (depthStencilSettings.fDepthTestEnabled) {

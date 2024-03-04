@@ -39,6 +39,8 @@ public:
                                                   uint32_t sampleCount,
                                                   Protected) const override;
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
+    SkISize getDepthAttachmentDimensions(const TextureInfo&,
+                                         const SkISize colorAttachmentDimensions) const override;
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                       const RenderPassDesc&) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override;
