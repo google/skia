@@ -36,6 +36,8 @@ public:
 
     bool recordUploads(DrawContext*);
 
+    void postFlush();
+
 protected:
     const TextureProxy* onAddShape(const Shape&,
                                    const Transform& transform,
