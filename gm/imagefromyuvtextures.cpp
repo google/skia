@@ -35,6 +35,10 @@
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Surface.h"
+#endif
+
 namespace skiagm {
 class ImageFromYUVTextures : public GM {
 public:
@@ -45,7 +49,7 @@ public:
 protected:
     SkString getName() const override { return SkString("image_from_yuv_textures"); }
 
-    SkISize getISize() override { return {1420, 610}; }
+    SkISize getISize() override { return {1950, 800}; }
 
     static std::unique_ptr<sk_gpu_test::LazyYUVImage> CreatePlanes(const char* name) {
         SkBitmap bmp;
@@ -118,15 +122,23 @@ protected:
                         m[10]*rgba[0] + m[11]*rgba[1] + m[12]*rgba[2] + m[13]*rgba[3] + 255*m[14]));
             }
         }
-        return sk_gpu_test::LazyYUVImage::Make(std::move(pixmaps));
+        return sk_gpu_test::LazyYUVImage::Make(std::move(pixmaps), skgpu::Mipmapped::kYes);
     }
 
-    sk_sp<SkImage> makeYUVAImage(GrDirectContext* context) {
-        return fLazyYUVImage->refImage(context, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+    sk_sp<SkImage> makeYUVAImage(GrDirectContext* context, skgpu::graphite::Recorder* recorder) {
+        SkASSERT(SkToBool(context) != SkToBool(recorder));
+        if (context) {
+            return fLazyYUVImage->refImage(context, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+        }
+#if defined(SK_GRAPHITE)
+        return fLazyYUVImage->refImage(recorder, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+#endif
+        return nullptr;
     }
 
-    sk_sp<SkImage> createReferenceImage(GrDirectContext* dContext) {
-        auto planarImage = this->makeYUVAImage(dContext);
+    sk_sp<SkImage> createReferenceImage(GrDirectContext* dContext,
+                                        skgpu::graphite::Recorder* recorder) {
+        auto planarImage = this->makeYUVAImage(dContext, recorder);
         if (!planarImage) {
             return nullptr;
         }
@@ -134,8 +146,21 @@ protected:
         auto resultInfo = SkImageInfo::Make(fLazyYUVImage->dimensions(),
                                             kRGBA_8888_SkColorType,
                                             kPremul_SkAlphaType);
-        auto resultSurface = SkSurfaces::RenderTarget(
-                dContext, skgpu::Budgeted::kYes, resultInfo, 1, kTopLeft_GrSurfaceOrigin, nullptr);
+        sk_sp<SkSurface> resultSurface;
+        if (dContext) {
+            resultSurface = SkSurfaces::RenderTarget(dContext,
+                                                     skgpu::Budgeted::kYes,
+                                                     resultInfo,
+                                                     1,
+                                                     kTopLeft_GrSurfaceOrigin,
+                                                     nullptr,
+                                                     /*shouldCreateWithMips=*/true);
+        }
+#if defined(SK_GRAPHITE)
+        if (recorder) {
+            resultSurface = SkSurfaces::RenderTarget(recorder, resultInfo, skgpu::Mipmapped::kYes);
+        }
+#endif
         if (!resultSurface) {
             return nullptr;
         }
@@ -146,41 +171,46 @@ protected:
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg, GraphiteTestContext*) override {
         auto dContext = GrAsDirectContext(canvas->recordingContext());
-        if (!dContext || dContext->abandoned()) {
-            *errorMsg = "DirectContext required to create YUV images";
+        auto* recorder = canvas->recorder();
+
+        if (!recorder && (!dContext || dContext->abandoned())) {
+            *errorMsg = "DirectContext or graphite::Recorder required to create YUV images";
             return DrawResult::kSkip;
         }
 
         if (!fLazyYUVImage) {
-            fLazyYUVImage = CreatePlanes("images/mandrill_32.png");
+            fLazyYUVImage = CreatePlanes("images/mandrill_128.png");
         }
 
         // We make a version of this image for each draw because, if any draw flattens it to
         // RGBA, then all subsequent draws would use the RGBA texture.
         for (int i = 0; i < kNumImages; ++i) {
-            fYUVAImages[i] = this->makeYUVAImage(dContext);
+            fYUVAImages[i] = this->makeYUVAImage(dContext, recorder);
             if (!fYUVAImages[i]) {
                 *errorMsg = "Couldn't create src YUVA image.";
                 return DrawResult::kFail;
             }
         }
 
-        fReferenceImage = this->createReferenceImage(dContext);
+        fReferenceImage = this->createReferenceImage(dContext, recorder);
         if (!fReferenceImage) {
             *errorMsg = "Couldn't create reference YUVA image.";
             return DrawResult::kFail;
         }
 
-        // Some backends (e.g., Vulkan) require all work be completed for backend textures
-        // before they are deleted. Since we don't know when we'll next have access to a
-        // direct context, flush all the work now.
-        dContext->flush();
-        dContext->submit(GrSyncCpu::kYes);
+        if (dContext) {
+            // Some backends (e.g., Vulkan) require all work be completed for backend textures
+            // before they are deleted. Since we don't know when we'll next have access to a
+            // direct context, flush all the work now.
+            dContext->flush();
+            dContext->submit(GrSyncCpu::kYes);
+        }
 
         return DrawResult::kOk;
     }
 
     void onGpuTeardown() override {
+        fLazyYUVImage.reset();
         for (sk_sp<SkImage>& image : fYUVAImages) {
             image.reset();
         }
@@ -234,30 +264,56 @@ protected:
         using DrawSig = SkSize(SkImage* image, const SkSamplingOptions&);
         using DF = std::function<DrawSig>;
         for (const auto& draw : {DF(draw_image), DF(draw_image_rect), DF(draw_image_shader)}) {
-            for (auto scale : {1.f, 4.f, 0.75f}) {
-                SkScalar h = 0;
+            float wForDrawFunc = 0;
+            canvas->save();
+            for (auto scale : {1.f, 1.5f, 0.3f}) {
+                float hForScale = 0;
+                float wForScale = 0;
                 canvas->save();
-                for (const auto& sampling : {
-                    SkSamplingOptions(SkFilterMode::kNearest),
-                    SkSamplingOptions(SkFilterMode::kLinear),
-                    SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest),
-                    SkSamplingOptions(SkCubicResampler::Mitchell())})
-                {
+                // We exercise either bicubic or mipmaps depending on the scale.
+                SkSamplingOptions samplings[] = {
+                        {SkFilterMode::kNearest},
+                        {SkFilterMode::kLinear},
+                        scale > 1.f
+                                ? SkSamplingOptions{SkCubicResampler::CatmullRom()}
+                                : SkSamplingOptions{SkFilterMode::kLinear, SkMipmapMode::kLinear}};
+
+                for (const auto& sampling : samplings) {
+                    float yuvAndRefH;
                     canvas->save();
                         canvas->scale(scale, scale);
                         auto s1 = draw(this->getYUVAImage(imageIndex++), sampling);
+                        yuvAndRefH = kPad + sk_float_ceil(scale * s1.height());
                     canvas->restore();
-                    canvas->translate(kPad + SkScalarCeilToScalar(scale*s1.width()), 0);
                     canvas->save();
+                        canvas->translate(0, yuvAndRefH);
                         canvas->scale(scale, scale);
                         auto s2 = draw(fReferenceImage.get(), sampling);
+                        yuvAndRefH += sk_float_ceil(scale * s2.height());
                     canvas->restore();
-                    canvas->translate(kPad + SkScalarCeilToScalar(scale*s2.width()), 0);
-                    h = std::max({h, s1.height(), s2.height()});
+
+                    float thisW = sk_float_ceil(scale * std::max(s1.width(), s2.width()));
+
+                    SkPaint outline;
+                    outline.setColor(SK_ColorBLACK);
+                    outline.setStroke(true);
+                    outline.setAntiAlias(false);
+                    canvas->drawRect(SkRect::MakeXYWH(-1, -1, thisW + 1, yuvAndRefH + 1), outline);
+
+                    thisW += kPad;
+                    yuvAndRefH += kPad;
+
+                    canvas->translate(thisW, 0);
+
+                    wForScale += thisW;
+                    hForScale = std::max(hForScale, yuvAndRefH);
                 }
                 canvas->restore();
-                canvas->translate(0, kPad + SkScalarCeilToScalar(scale*h));
+                canvas->translate(0, hForScale);
+                wForDrawFunc = std::max(wForScale, wForDrawFunc);
             }
+            canvas->restore();
+            canvas->translate(wForDrawFunc, 0);
         }
      }
 

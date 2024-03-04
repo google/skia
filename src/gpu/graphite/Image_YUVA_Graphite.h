@@ -33,10 +33,7 @@ public:
 
     size_t textureSize() const override;
 
-    bool onHasMipmaps() const override {
-        // TODO: Add mipmap support
-        return false;
-    }
+    bool onHasMipmaps() const override { return fYUVAProxies.mipmapped() == Mipmapped::kYes; }
 
     bool onIsProtected() const override {
         // TODO: add protected content support

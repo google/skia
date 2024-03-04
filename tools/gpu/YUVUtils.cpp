@@ -310,20 +310,14 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
             if (!rContext || rContext->abandoned()) {
                 return false;
             }
-            if (fMipmapped == skgpu::Mipmapped::kYes) {
-                // If this becomes necessary we should invoke SkMipmapBuilder here to make mip
-                // maps from our src data (and then pass a pixmaps array to initialize the planar
-                // textures.
-                return false;
-            }
             if (auto direct = rContext->asDirectContext()) {
                 sk_sp<sk_gpu_test::ManagedBackendTexture> mbets[SkYUVAInfo::kMaxPlanes];
                 GrBackendTexture textures[SkYUVAInfo::kMaxPlanes];
                 for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
-                    mbets[i] = sk_gpu_test::ManagedBackendTexture::MakeWithData(
+                    mbets[i] = sk_gpu_test::ManagedBackendTexture::MakeFromPixmap(
                             direct,
                             fPixmaps.plane(i),
-                            kTopLeft_GrSurfaceOrigin,
+                            fMipmapped,
                             skgpu::Renderable::kNo,
                             skgpu::Protected::kNo);
                     if (mbets[i]) {
@@ -389,19 +383,15 @@ bool LazyYUVImage::ensureYUVImage(Recorder* recorder, Type type) {
             if (!recorder) {
                 return false;
             }
-            if (fMipmapped == skgpu::Mipmapped::kYes) {
-                // If this becomes necessary we should invoke SkMipmapBuilder here to make mip
-                // maps from our src data (and then pass a pixmaps array to initialize the planar
-                // textures.
-                return false;
-            }
+
             sk_sp<sk_gpu_test::ManagedGraphiteTexture> mbets[SkYUVAInfo::kMaxPlanes];
             BackendTexture textures[SkYUVAInfo::kMaxPlanes];
             for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
+                // MakeFromPixmap will handle generating the upper mipmap levels if necessary.
                 mbets[i] = sk_gpu_test::ManagedGraphiteTexture::MakeFromPixmap(
                         recorder,
                         fPixmaps.plane(i),
-                        skgpu::Mipmapped::kNo,
+                        fMipmapped,
                         skgpu::Renderable::kNo,
                         skgpu::Protected::kNo);
                 if (mbets[i]) {
