@@ -17,6 +17,8 @@
 #include "src/core/SkTHash.h"
 #include "src/gpu/AtlasTypes.h"
 
+class SkAutoPixmapStorage;
+
 namespace skgpu::graphite {
 
 class DrawContext;
@@ -104,6 +106,9 @@ public:
 
     ErrorCode addToAtlas(Recorder*, int width, int height, const void* image, AtlasLocator*);
     ErrorCode addRect(Recorder*, int width, int height, AtlasLocator*);
+    // Reset Pixmap to point to backing data for the AtlasLocator's Plot.
+    // Return relative location within the Plot, as indicated by the AtlasLocator.
+    SkIPoint prepForRender(const AtlasLocator&, SkAutoPixmapStorage*);
     bool recordUploads(DrawContext*, Recorder*);
 
     const sk_sp<TextureProxy>* getProxies() const { return fProxies; }
@@ -112,6 +117,7 @@ public:
     uint64_t atlasGeneration() const { return fAtlasGeneration; }
     uint32_t numActivePages() const { return fNumActivePages; }
     unsigned int numPlots() const { return fNumPlots; }
+    SkISize plotSize() const { return {fPlotWidth, fPlotHeight}; }
 
     bool hasID(const PlotLocator& plotLocator) {
         if (!plotLocator.isValid()) {

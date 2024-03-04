@@ -60,34 +60,36 @@ const TextureProxy* SmallPathAtlas::onAddShape(const Shape& shape,
     }
 
     // Render mask.
-    // TODO: Render directly into the atlas backing store, rather than doing a copy.
-    //       This will require some refactoring of DrawAtlas.
     SkIRect iShapeBounds = SkIRect::MakeXYWH(0, 0, maskSize.x(), maskSize.y());
     // Outset to take padding into account
     SkIRect iAtlasBounds = iShapeBounds.makeOutset(kEntryPadding, kEntryPadding);
-    SkAutoPixmapStorage dst;
-    // Rasterize path to backing pixmap
-    RasterMaskHelper helper(&dst);
-    if (!helper.init(iAtlasBounds.size())) {
-        return nullptr;
-    }
-    // Offset to padded location
-    iShapeBounds.offset(kEntryPadding, kEntryPadding);
-    helper.drawShape(shape, transform, strokeRec, iShapeBounds);
-    sk_sp<SkData> pixelData = dst.detachPixelsAsData();
 
-    // Add to DrawAtlas.
+    // Request space in DrawAtlas.
     AtlasLocator locator;
-    DrawAtlas::ErrorCode errorCode = fDrawAtlas->addToAtlas(fRecorder,
-                                                            iAtlasBounds.width(),
-                                                            iAtlasBounds.height(),
-                                                            pixelData->data(),
-                                                            &locator);
+    DrawAtlas::ErrorCode errorCode = fDrawAtlas->addRect(fRecorder,
+                                                         iAtlasBounds.width(),
+                                                         iAtlasBounds.height(),
+                                                         &locator);
     if (errorCode != DrawAtlas::ErrorCode::kSucceeded) {
         return nullptr;
     }
     SkIPoint topLeft = locator.topLeft();
     *outPos = skvx::half2(topLeft.x()+kEntryPadding, topLeft.y()+kEntryPadding);
+
+    // Rasterize path to backing pixmap.
+    // This pixmap will be the size of the Plot that contains the given rect, not the entire atlas,
+    // and hence the position we render at will be relative to that Plot.
+    // The value of outPos is relative to the entire texture, to be used for texture coords.
+    SkAutoPixmapStorage dst;
+    SkIPoint renderPos = fDrawAtlas->prepForRender(locator, &dst);
+
+    RasterMaskHelper helper(&dst);
+    if (!helper.init(fDrawAtlas->plotSize())) {
+        return nullptr;
+    }
+    // Offset to plot location and draw
+    iShapeBounds.offset(renderPos.x(), renderPos.y());
+    helper.drawShape(shape, transform, strokeRec, iShapeBounds);
 
     // Add locator to ShapeCache.
     fShapeCache.set(maskKey, locator);

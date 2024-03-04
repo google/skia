@@ -21,6 +21,7 @@
 #include "src/gpu/RectanizerSkyline.h"
 
 class GrOpFlushState;
+class SkAutoPixmapStorage;
 class TestingUploadTarget;
 namespace skgpu::graphite { class RecorderPriv; }
 
@@ -456,6 +457,9 @@ public:
     bool addRect(int width, int height, AtlasLocator* atlasLocator);
     void* dataAt(const AtlasLocator& atlasLocator);
     void copySubImage(const AtlasLocator& atlasLocator, const void* image);
+    // Reset Pixmap to point to backing data for this Plot,
+    // and return render location specified by AtlasLocator but relative to this Plot.
+    SkIPoint prepForRender(const AtlasLocator&, SkAutoPixmapStorage*);
     // TODO: Utility method for Ganesh, consider removing
     bool addSubImage(int width, int height, const void* image, AtlasLocator* atlasLocator);
 
