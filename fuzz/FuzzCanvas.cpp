@@ -1542,11 +1542,16 @@ DEF_FUZZ(RasterN32CanvasViaSerialization, fuzz) {
 }
 
 DEF_FUZZ(ImageFilter, fuzz) {
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocN32Pixels(256, 256)) {
+        SkDEBUGF("Could not allocate 256x256 bitmap in ImageFilter");
+        return;
+    }
+
     auto fil = make_fuzz_imageFilter(fuzz, 20);
 
     SkPaint paint;
     paint.setImageFilter(fil);
-    SkBitmap bitmap;
     SkCanvas canvas(bitmap);
     canvas.saveLayer(SkRect::MakeWH(500, 500), &paint);
 }
