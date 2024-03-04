@@ -102,7 +102,7 @@ protected:
         if (e.is<ChildCall>() && &e.as<ChildCall>().child() == &fChild) {
             // Determine the type of call at this site, and merge it with the accumulated state
             const ExpressionArray& arguments = e.as<ChildCall>().arguments();
-            SkASSERT(arguments.size() >= 1);
+            SkASSERT(!arguments.empty());
 
             const Expression* maybeCoords = arguments[0].get();
             if (maybeCoords->type().matches(*fContext.fTypes.fFloat2)) {

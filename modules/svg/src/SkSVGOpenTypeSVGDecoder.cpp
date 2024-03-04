@@ -132,7 +132,7 @@ bool SkSVGOpenTypeSVGDecoder::render(SkCanvas& canvas, int upem, SkGlyphID glyph
     pctx.fInherited.fColor.set(foregroundColor);
 
     THashMap<SkString, SkSVGColorType> namedColors;
-    if (palette.size()) {
+    if (!palette.empty()) {
         for (auto&& [i, color] : SkMakeEnumerate(palette)) {
             constexpr const size_t colorStringLen = sizeof("color") - 1;
             char colorIdString[colorStringLen + kSkStrAppendU32_MaxSize + 1] = "color";

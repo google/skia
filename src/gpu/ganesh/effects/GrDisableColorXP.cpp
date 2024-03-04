@@ -58,7 +58,6 @@ std::unique_ptr<GrXferProcessor::ProgramImpl> DisableColorXP::makeProgramImpl() 
                               const char*,
                               const char*) const override {
             // Don't write any swizzling. This makes sure the final shader does not output a color.
-            return;
         }
     };
 
