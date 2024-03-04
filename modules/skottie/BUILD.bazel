@@ -143,6 +143,7 @@ skia_cc_library(
     name = "utils",
     srcs = ["//modules/skottie/utils:srcs"],
     hdrs = ["//modules/skottie/utils:hdrs"],
+    visibility = ["//modules/canvaskit:__pkg__"],
     deps = [
         ":skottie_harfbuzz_icu",
         "//:core",

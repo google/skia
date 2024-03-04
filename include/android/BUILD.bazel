@@ -27,3 +27,11 @@ skia_filegroup(
         "//src/gpu/ganesh:__pkg__",
     ],
 )
+
+skia_filegroup(
+    name = "animated_image_hdrs",
+    srcs = [
+        "SkAnimatedImage.h",
+    ],
+    visibility = ["//src/android:__pkg__"],
+)

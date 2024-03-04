@@ -369,3 +369,23 @@ skia_cc_library(
         "//src/core:core_priv",
     ],
 )
+
+skia_cc_library(
+    name = "fontmgr_data_freetype",
+    srcs = [
+        "SkFontMgr_custom_embedded.cpp",
+        ":fontmgr_custom",
+    ],
+    hdrs = [
+        "//include/ports:data_fontmgr_hdrs",
+    ],
+    defines = ["SK_FONTMGR_FREETYPE_DATA_AVAILABLE"],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":freetype_support",
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+    ],
+)

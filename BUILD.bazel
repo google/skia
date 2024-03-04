@@ -108,6 +108,12 @@ alias(
 )
 
 alias(
+    name = "ganesh_webgl_factory",
+    actual = "//src/gpu/ganesh/gl/webgl:webgl_factory",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "ganesh_vulkan",
     actual = "//src/gpu/ganesh/vk:ganesh_vulkan",
     visibility = ["//visibility:public"],
@@ -184,14 +190,20 @@ alias(
 ###
 
 alias(
-    name = "fontmgr_fontconfig_freetype",
-    actual = "//src/ports:fontmgr_fontconfig_freetype",
+    name = "fontmgr_empty_freetype",
+    actual = "//src/ports:fontmgr_empty_freetype",
     visibility = ["//visibility:public"],
 )
 
 alias(
-    name = "fontmgr_empty_freetype",
-    actual = "//src/ports:fontmgr_empty_freetype",
+    name = "fontmgr_data_freetype",
+    actual = "//src/ports:fontmgr_data_freetype",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "fontmgr_fontconfig_freetype",
+    actual = "//src/ports:fontmgr_fontconfig_freetype",
     visibility = ["//visibility:public"],
 )
 

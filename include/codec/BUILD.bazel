@@ -48,6 +48,14 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "android_public_hdrs",
+    srcs = [
+        "SkAndroidCodec.h",
+    ],
+    visibility = ["//src/codec:__pkg__"],
+)
+
+skia_filegroup(
     name = "bmp_public_hdrs",
     srcs = ["SkBmpDecoder.h"],
     visibility = ["//src/codec:__pkg__"],

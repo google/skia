@@ -149,7 +149,7 @@ build:canvaskit_full --noincompatible_enable_cc_toolchain_resolution \
                      --ck_enable_canvas_polyfill --ck_enable_skp_serialization --ck_enable_skottie \
                      --ck_enable_runtime_effect --ck_enable_matrix_js
 
-build:ck_webgl2 --with_gl_standard=webgl_standard --gpu_backend=gl_ganesh \
+build:ck_webgl2 --ck_enable_webgl \
                 --disable_legacy_shader_context
 # CPU build needs legacy shader context otherwise SkPerlinNoiseShader does not render
 build:ck_cpu --enable_legacy_shader_context

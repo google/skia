@@ -287,6 +287,19 @@ skia_cc_deps(
     ),
 )
 
+PRIVATE_CODEC_HEADERS = [
+    "SkCodecPriv.h",
+    "SkColorPalette.h",
+    "SkFrameHolder.h",
+    "SkMaskSwizzler.h",
+    "SkParseEncodedOrigin.h",
+    "SkSampler.h",
+    "SkScalingCodec.h",
+    "SkSwizzler.h",
+    "SkPixmapUtilsPriv.h",
+    "//include/private:decode_srcs",
+]
+
 # We put any file that is used by more than one codec here to avoid potential issues if clients
 # depend on multiple codecs. This is not a problem for a statically linked binary, but could maybe
 # cause issues with producing a shared library (e.g. duplicate symbols showing up).
@@ -303,26 +316,13 @@ skia_cc_library(
         "SkMaskSwizzler.cpp",
         "SkParseEncodedOrigin.cpp",
         "SkPixmapUtils.cpp",
-        "SkPixmapUtilsPriv.h",
         "SkSampler.cpp",
         "SkSwizzler.cpp",
         "SkTiffUtility.cpp",
         "SkTiffUtility.h",
         "//include/codec:any_codec_hdrs",
     ],
-    hdrs = [
-        # These are not actually "public" headers, and clients using a toolchain that supports layer
-        # checking will enforce that these are not directly used by them.
-        "SkCodecPriv.h",
-        "SkColorPalette.h",
-        "SkFrameHolder.h",
-        "SkMaskSwizzler.h",
-        "SkParseEncodedOrigin.h",
-        "SkSampler.h",
-        "SkScalingCodec.h",
-        "SkSwizzler.h",
-        "//include/private:decode_srcs",
-    ],
+    hdrs = PRIVATE_CODEC_HEADERS,
     features = ["layering_check"],
     local_defines = ["SK_DISABLE_LEGACY_INIT_DECODERS"],
     deps = [
@@ -354,13 +354,38 @@ skia_cc_library(
     hdrs = [
         "SkCodecImageGenerator.h",
         "//include/codec:any_codec_hdrs",
-    ],
+    ] + PRIVATE_CODEC_HEADERS,
     visibility = [
         "//modules/skottie:__pkg__",
         "//modules/skresources:__pkg__",
+        "//src/android:__pkg__",
     ],
     deps = [
         ":any_decoder",
+    ],
+)
+
+skia_cc_library(
+    name = "android_codec",
+    srcs = [
+        "SkAndroidCodec.cpp",
+        "SkAndroidCodecAdapter.cpp",
+        "SkAndroidCodecAdapter.h",
+        "SkSampledCodec.cpp",
+        "SkSampledCodec.h",
+    ],
+    hdrs = [
+        "//include/codec:android_public_hdrs",
+        "//include/codec:any_codec_hdrs",
+    ],
+    features = ["layering_check"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":any_decoder",
+        "//modules/skcms",
+        "//src/base",
+        "//src/core",
+        "//src/core:core_priv",
     ],
 )
 

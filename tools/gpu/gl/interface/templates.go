@@ -163,7 +163,7 @@ const ASSEMBLE_INTERFACE_WEBGL = `/*
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
-#if SK_DISABLE_WEBGL_INTERFACE || !defined(SK_USE_WEBGL)
+#if SK_DISABLE_WEBGL_INTERFACE || !defined(__EMSCRIPTEN__)
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
     return nullptr;
 }

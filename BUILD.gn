@@ -63,10 +63,7 @@ config("skia_public") {
   } else if (skia_gl_standard == "gl") {
     defines += [ "SK_ASSUME_GL=1" ]
   } else if (skia_gl_standard == "webgl") {
-    defines += [
-      "SK_ASSUME_WEBGL=1",
-      "SK_USE_WEBGL",
-    ]
+    defines += [ "SK_ASSUME_WEBGL=1" ]
   }
   if (skia_enable_ganesh) {
     defines += [ "SK_GANESH" ]

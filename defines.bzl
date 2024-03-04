@@ -78,7 +78,6 @@ GPU_DEFINES = select_multi({
     ],
     "//src/gpu:webgl_standard": [
         "SK_ASSUME_WEBGL=1",
-        "SK_USE_WEBGL",
     ],
     "//conditions:default": [],
 }) + select({

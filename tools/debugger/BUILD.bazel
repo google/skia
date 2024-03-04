@@ -25,7 +25,7 @@ skia_cc_library(
         "//tests:__subpackages__",
     ],
     deps = [
-        "//:skia_internal",
+        "//:core",
         "//tools:sk_sharing_proc",
         "//tools:url_data_manager",
     ],

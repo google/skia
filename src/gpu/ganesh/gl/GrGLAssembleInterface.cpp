@@ -25,7 +25,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get
     }
 
     GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
-    // standard can be unused (optimzed away) if SK_ASSUME_GL_ES is set
+    // standard can be unused (optimized away) if SK_ASSUME_GL_ES is set
     sk_ignore_unused_variable(standard);
 
     if (GR_IS_GR_GL_ES(standard)) {

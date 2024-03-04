@@ -15,3 +15,13 @@ skia_filegroup(
         "//src/gpu/ganesh/gl:__pkg__",
     ],
 )
+
+skia_filegroup(
+    name = "webgl_hdrs",
+    srcs = [
+        "GrGLMakeWebGLInterface.h",
+    ],
+    visibility = [
+        "//src/gpu/ganesh/gl/webgl:__pkg__",
+    ],
+)

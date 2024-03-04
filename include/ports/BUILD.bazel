@@ -15,8 +15,9 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "embedded_fontmgr_hdrs",
+    name = "data_fontmgr_hdrs",
     srcs = ["SkFontMgr_data.h"],
+    visibility = ["//src/ports:__pkg__"],
 )
 
 skia_filegroup(
@@ -45,7 +46,7 @@ skia_filegroup(
         {
             "//bazel/common_config_settings:android_fontmgr": [":android_fontmgr_hdrs"],
             "//bazel/common_config_settings:custom_directory_fontmgr": [":directory_fontmgr_hdrs"],
-            "//bazel/common_config_settings:custom_embedded_fontmgr": [":embedded_fontmgr_hdrs"],
+            "//bazel/common_config_settings:custom_embedded_fontmgr": [":data_fontmgr_hdrs"],
             "//bazel/common_config_settings:custom_empty_fontmgr": [":empty_fontmgr_hdrs"],
             "//bazel/common_config_settings:fci_fontmgr": [":fci_fontmgr_hdrs"],
             # TODO(kjlubick, bungeman) fuchsia_fontmgr, fontmgr_mac_ct, fontmgr_win

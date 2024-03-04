@@ -18,7 +18,6 @@ skia_filegroup(
     name = "core_hdrs",
     srcs = [
         "SkShaper.h",
-        "SkShaper_harfbuzz.h",
     ],
     visibility = ["//modules/skshaper:__pkg__"],
 )

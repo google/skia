@@ -81,7 +81,7 @@ CK_DEFINES = [
     ":enable_runtime_effect_true": ["CK_INCLUDE_RUNTIME_EFFECT=1"],
     ":enable_runtime_effect_false": [],
 }) + select({
-    "//src/gpu:gl_ganesh": ["CK_ENABLE_WEBGL"],
+    ":enable_webgl_true": ["CK_ENABLE_WEBGL"],
     "//conditions:default": [],
 })
 
@@ -109,7 +109,7 @@ CK_LINKOPTS = BASE_LINKOPTS + [
     "--pre-js",
     "modules/canvaskit/pathops.js",
 ] + select({
-    "//src/gpu:gl_ganesh": [
+    ":enable_webgl_true": [
         "--pre-js",
         "modules/canvaskit/cpu.js",
         "--pre-js",
@@ -277,17 +277,28 @@ cc_binary(
     # headers etc. Therefore, we hide it from wildcards.
     tags = ["manual"],
     deps = [
-        "//:skia_public",
+        "//:bmp_decode_codec",
+        "//:core",
+        "//:gif_decode_codec",
+        "//:ico_decode_codec",
+        "//:jpeg_decode_codec",
+        "//:jpeg_encode_codec",
+        "//:png_decode_codec",
+        "//:png_encode_codec",
+        "//:wbmp_decode_codec",
+        "//:webp_decode_codec",
+        "//:webp_encode_codec",
+        "//src/android:animated_image",
     ] + select({
         ":enable_fonts_true": [
-            "//modules/skparagraph:legacy_skparagraph",
-            "//modules/skunicode:legacy_skunicode",
+            "//:fontmgr_data_freetype",
+            "//modules/skparagraph:skparagraph_harfbuzz_icu",
         ],
         ":enable_fonts_false": [],
     }) + select({
         ":enable_skottie_true": [
-            "//modules/skottie:legacy_skottie",
-            "//modules/skottie:legacy_utils",
+            "//modules/skottie",
+            "//modules/skottie:utils",
         ],
         ":enable_skottie_false": [],
     }) + select({
@@ -295,6 +306,12 @@ cc_binary(
             "//tools/debugger",
         ],
         "//bazel/common_config_settings:build_for_debugger_false": [],
+    }) + select({
+        ":enable_webgl_true": [
+            "//:ganesh_gl",
+            "//:ganesh_webgl_factory",
+        ],
+        "//conditions:default": [],
     }),
 )
 
@@ -343,6 +360,11 @@ bool_flag(
 
 bool_flag(
     name = "enable_runtime_effect",
+    default = False,
+)
+
+bool_flag(
+    name = "enable_webgl",
     default = False,
 )
 
