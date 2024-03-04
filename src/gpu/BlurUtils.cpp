@@ -9,6 +9,7 @@
 
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkMathPriv.h"
+#include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 
 #include <array>
@@ -180,31 +181,30 @@ void Compute1DBlurLinearKernel(float sigma,
     }
 }
 
-template<typename MakeEffectFn>
-static const SkRuntimeEffect* get_effect(int kernelWidth, MakeEffectFn makeEffect) {
+static SkKnownRuntimeEffects::StableKey to_stablekey(int kernelWidth, uint32_t baseKey) {
     SkASSERT(kernelWidth >= 2 && kernelWidth <= kMaxBlurSamples);
     switch(kernelWidth) {
         // Batch on multiples of 4 (skipping width=1, since that can't happen)
         case 2:  [[fallthrough]];
         case 3:  [[fallthrough]];
-        case 4:  { static const SkRuntimeEffect* effect = makeEffect(4);  return effect; }
+        case 4:  return static_cast<SkKnownRuntimeEffects::StableKey>(baseKey);
         case 5:  [[fallthrough]];
         case 6:  [[fallthrough]];
         case 7:  [[fallthrough]];
-        case 8:  { static const SkRuntimeEffect* effect = makeEffect(8);  return effect; }
+        case 8:  return static_cast<SkKnownRuntimeEffects::StableKey>(baseKey+1);
         case 9:  [[fallthrough]];
         case 10: [[fallthrough]];
         case 11: [[fallthrough]];
-        case 12: { static const SkRuntimeEffect* effect = makeEffect(12); return effect; }
+        case 12: return static_cast<SkKnownRuntimeEffects::StableKey>(baseKey+2);
         case 13: [[fallthrough]];
         case 14: [[fallthrough]];
         case 15: [[fallthrough]];
-        case 16: { static const SkRuntimeEffect* effect = makeEffect(16); return effect; }
+        case 16: return static_cast<SkKnownRuntimeEffects::StableKey>(baseKey+3);
         case 17: [[fallthrough]];
         case 18: [[fallthrough]];
         case 19: [[fallthrough]];
         // With larger kernels, batch on multiples of eight so up to 7 wasted samples.
-        case 20: { static const SkRuntimeEffect* effect = makeEffect(20); return effect; }
+        case 20: return static_cast<SkKnownRuntimeEffects::StableKey>(baseKey+4);
         case 21: [[fallthrough]];
         case 22: [[fallthrough]];
         case 23: [[fallthrough]];
@@ -212,86 +212,23 @@ static const SkRuntimeEffect* get_effect(int kernelWidth, MakeEffectFn makeEffec
         case 25: [[fallthrough]];
         case 26: [[fallthrough]];
         case 27: [[fallthrough]];
-        case 28: { static const SkRuntimeEffect* effect = makeEffect(28); return effect; }
+        case 28: return static_cast<SkKnownRuntimeEffects::StableKey>(baseKey+5);
         default:
             SkUNREACHABLE;
     }
 }
 
 const SkRuntimeEffect* GetLinearBlur1DEffect(int radius) {
-    static const auto make1DEffect = [](int kernelWidth) {
-        SkASSERT(kernelWidth <= kMaxBlurSamples);
-        // The SkSL structure performs two kernel taps; if the kernel has an odd width the last
-        // sample will be skipped with the current loop limit calculation.
-        SkASSERT(kernelWidth % 2 == 0);
-        return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                SkStringPrintf(
-                        // The coefficients are always stored for the max radius to keep the
-                        // uniform block consistent across all effects.
-                        "const int kMaxUniformKernelSize = %d / 2;"
-                        // But we generate an exact loop over the kernel size. Note that this
-                        // program can be used for kernels smaller than the constructed max as long
-                        // as the kernel weights for excess entries are set to 0.
-                        "const int kMaxLoopLimit = %d / 2;"
-
-                        "uniform half4 offsetsAndKernel[kMaxUniformKernelSize];"
-                        "uniform half2 dir;"
-
-                        "uniform shader child;"
-
-                        "half4 main(float2 coord) {"
-                            "half4 sum = half4(0);"
-                            "for (int i = 0; i < kMaxLoopLimit; ++i) {"
-                                "half4 s = offsetsAndKernel[i];"
-                                "sum += s.y * child.eval(coord + s.x*dir);"
-                                "sum += s.w * child.eval(coord + s.z*dir);"
-                            "}"
-                            "return sum;"
-                        "}", kMaxBlurSamples, kernelWidth).c_str());
-    };
-
-    return get_effect(BlurLinearKernelWidth(radius), make1DEffect);
+    return GetKnownRuntimeEffect(
+            to_stablekey(BlurLinearKernelWidth(radius),
+                         static_cast<uint32_t>(SkKnownRuntimeEffects::StableKey::k1DBlurBase)));
 }
 
 const SkRuntimeEffect* GetBlur2DEffect(const SkISize& radii) {
-    static const auto make2DEffect = [](int maxKernelSize) {
-        SkASSERT(maxKernelSize % 4 == 0);
-        return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                SkStringPrintf(
-                        // The coefficients are always stored for the max radius to keep the
-                        // uniform block consistent across all effects.
-                        "const int kMaxUniformKernelSize = %d / 4;"
-                        "const int kMaxUniformOFfsetsSize = 2*kMaxUniformKernelSize;"
-                        // But we generate an exact loop over the kernel size. Note that this
-                        // program can be used for kernels smaller than the constructed max as long
-                        // as the kernel weights for excess entries are set to 0.
-                        "const int kMaxLoopLimit = %d / 4;"
-
-                        // Pack scalar coefficients into half4 for better packing on std140, and
-                        // upload offsets to avoid having to transform the 1D index into a 2D coord
-                        "uniform half4 kernel[kMaxUniformKernelSize];"
-                        "uniform half4 offsets[kMaxUniformOFfsetsSize];"
-
-                        "uniform shader child;"
-
-                        "half4 main(float2 coord) {"
-                            "half4 sum = half4(0);"
-
-                            "for (int i = 0; i < kMaxLoopLimit; ++i) {"
-                                "half4 k = kernel[i];"
-                                "half4 o = offsets[2*i];"
-                                "sum += k.x * child.eval(coord + o.xy);"
-                                "sum += k.y * child.eval(coord + o.zw);"
-                                "o = offsets[2*i + 1];"
-                                "sum += k.z * child.eval(coord + o.xy);"
-                                "sum += k.w * child.eval(coord + o.zw);"
-                            "}"
-                            "return sum;"
-                        "}", kMaxBlurSamples, maxKernelSize).c_str());
-    };
-
     int kernelArea = BlurKernelWidth(radii.width()) * BlurKernelWidth(radii.height());
-    return get_effect(kernelArea, make2DEffect);
+    return GetKnownRuntimeEffect(
+            to_stablekey(kernelArea,
+                         static_cast<uint32_t>(SkKnownRuntimeEffects::StableKey::k2DBlurBase)));
 }
 
 } // namespace skgpu

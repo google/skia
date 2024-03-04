@@ -57,6 +57,25 @@ enum class StableKey : uint32_t {
 
     // shaders
     kBlend,
+    // Binned 1D Blurs
+    k1DBlurBase,
+    k1DBlur4 = k1DBlurBase, // all six 1DBlur stable keys must be consecutive after the Base
+    k1DBlur8,
+    k1DBlur12,
+    k1DBlur16,
+    k1DBlur20,
+    // For large kernels we bin by a multiple of eight (so no k1DBlur24)
+    k1DBlur28,
+
+    // Binned 2D Blurs
+    k2DBlurBase,
+    k2DBlur4 = k2DBlurBase, // all six 2DBlur stable keys must be consecutive after the Base
+    k2DBlur8,
+    k2DBlur12,
+    k2DBlur16,
+    k2DBlur20,
+    // For large kernels we bin by a multiple of eight (so no k2DBlur24)
+    k2DBlur28,
 
     // blenders
     kArithmetic,
@@ -76,6 +95,20 @@ static const int kStableKeyCnt = static_cast<int>(StableKey::kLast) -
 static_assert(static_cast<int>(StableKey::kLast) < kSkiaKnownRuntimeEffectsEnd);
 
 const SkRuntimeEffect* GetKnownRuntimeEffect(StableKey);
+
+static_assert(static_cast<int>(StableKey::k1DBlur4)  == static_cast<int>(StableKey::k1DBlurBase));
+static_assert(static_cast<int>(StableKey::k1DBlur8)  == static_cast<int>(StableKey::k1DBlurBase)+1);
+static_assert(static_cast<int>(StableKey::k1DBlur12) == static_cast<int>(StableKey::k1DBlurBase)+2);
+static_assert(static_cast<int>(StableKey::k1DBlur16) == static_cast<int>(StableKey::k1DBlurBase)+3);
+static_assert(static_cast<int>(StableKey::k1DBlur20) == static_cast<int>(StableKey::k1DBlurBase)+4);
+static_assert(static_cast<int>(StableKey::k1DBlur28) == static_cast<int>(StableKey::k1DBlurBase)+5);
+
+static_assert(static_cast<int>(StableKey::k2DBlur4)  == static_cast<int>(StableKey::k2DBlurBase));
+static_assert(static_cast<int>(StableKey::k2DBlur8)  == static_cast<int>(StableKey::k2DBlurBase)+1);
+static_assert(static_cast<int>(StableKey::k2DBlur12) == static_cast<int>(StableKey::k2DBlurBase)+2);
+static_assert(static_cast<int>(StableKey::k2DBlur16) == static_cast<int>(StableKey::k2DBlurBase)+3);
+static_assert(static_cast<int>(StableKey::k2DBlur20) == static_cast<int>(StableKey::k2DBlurBase)+4);
+static_assert(static_cast<int>(StableKey::k2DBlur28) == static_cast<int>(StableKey::k2DBlurBase)+5);
 
 } // namespace SkKnownRuntimeEffects
 
