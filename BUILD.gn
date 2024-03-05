@@ -31,7 +31,6 @@ config("skia_public") {
   defines = [
     "SK_CODEC_DECODES_BMP",
     "SK_CODEC_DECODES_WBMP",
-    "SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE",
   ]
   cflags_objcc = []
   if (is_component_build) {

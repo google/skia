@@ -13,21 +13,10 @@
 #include "include/private/chromium/GrDeferredDisplayList.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
 
-class GrBackendFormat;
 class GrRecordingContext;
 class GrRenderTargetProxy;
-class GrYUVABackendTextureInfo;
 class SkCanvas;
-class SkColorSpace;
-class SkImage;
-class GrPromiseImageTexture;
 class SkSurface;
-enum SkAlphaType : int;
-enum SkColorType : int;
-enum GrSurfaceOrigin : int;
-namespace skgpu {
-enum class Mipmapped : bool;
-}
 
 /*
  * This class is intended to be used as:
@@ -56,34 +45,6 @@ public:
     SkCanvas* getCanvas();
 
     sk_sp<GrDeferredDisplayList> detach();
-
-    using PromiseImageTextureContext = void*;
-    using PromiseImageTextureFulfillProc =
-            sk_sp<GrPromiseImageTexture> (*)(PromiseImageTextureContext);
-    using PromiseImageTextureReleaseProc = void (*)(PromiseImageTextureContext);
-
-#ifndef SK_MAKE_PROMISE_TEXTURE_DISABLE_LEGACY_API
-    /** Deprecated: Use SkImages::PromiseTextureFrom instead. */
-    sk_sp<SkImage> makePromiseTexture(const GrBackendFormat& backendFormat,
-                                      int width,
-                                      int height,
-                                      skgpu::Mipmapped mipmapped,
-                                      GrSurfaceOrigin origin,
-                                      SkColorType colorType,
-                                      SkAlphaType alphaType,
-                                      sk_sp<SkColorSpace> colorSpace,
-                                      PromiseImageTextureFulfillProc textureFulfillProc,
-                                      PromiseImageTextureReleaseProc textureReleaseProc,
-                                      PromiseImageTextureContext textureContext);
-
-    /** Deprecated: Use SkImages::PromiseTextureFromYUVA instead. */
-    sk_sp<SkImage> makeYUVAPromiseTexture(const GrYUVABackendTextureInfo& yuvaBackendTextureInfo,
-                                          sk_sp<SkColorSpace> imageColorSpace,
-                                          PromiseImageTextureFulfillProc textureFulfillProc,
-                                          PromiseImageTextureReleaseProc textureReleaseProc,
-                                          PromiseImageTextureContext textureContexts[]);
-#endif // SK_MAKE_PROMISE_TEXTURE_DISABLE_LEGACY_API
-
 
 private:
     GrDeferredDisplayListRecorder(const GrDeferredDisplayListRecorder&) = delete;

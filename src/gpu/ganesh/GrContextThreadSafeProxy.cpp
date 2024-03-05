@@ -44,36 +44,6 @@ void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps,
     fPipelineBuilder = std::move(pipelineBuilder);
 }
 
-#if !defined(SK_DISABLE_LEGACY_CREATE_CHARACTERIZATION)
-GrSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
-            size_t cacheMaxResourceBytes,
-            const SkImageInfo& ii,
-            const GrBackendFormat& backendFormat,
-            int sampleCount,
-            GrSurfaceOrigin origin,
-            const SkSurfaceProps& surfaceProps,
-            bool isMipmapped,
-            bool willUseGLFBO0,
-            bool isTextureable,
-            skgpu::Protected isProtected,
-            bool vkRTSupportsInputAttachment,
-            bool forVulkanSecondaryCommandBuffer) {
-        return this->createCharacterization(
-                cacheMaxResourceBytes,
-                ii,
-                backendFormat,
-                sampleCount,
-                origin,
-                surfaceProps,
-                isMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo,
-                willUseGLFBO0,
-                isTextureable,
-                isProtected,
-                vkRTSupportsInputAttachment,
-                forVulkanSecondaryCommandBuffer);
-}
-#endif
-
 GrSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
         size_t cacheMaxResourceBytes,
         const SkImageInfo& ii,

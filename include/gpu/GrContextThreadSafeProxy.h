@@ -96,21 +96,6 @@ public:
             bool vkRTSupportsInputAttachment = false,
             bool forVulkanSecondaryCommandBuffer = false);
 
-#if !defined(SK_DISABLE_LEGACY_CREATE_CHARACTERIZATION)
-    GrSurfaceCharacterization createCharacterization(
-            size_t cacheMaxResourceBytes,
-            const SkImageInfo& ii,
-            const GrBackendFormat& backendFormat,
-            int sampleCount,
-            GrSurfaceOrigin origin,
-            const SkSurfaceProps& surfaceProps,
-            bool isMipmapped,
-            bool willUseGLFBO0 = false,
-            bool isTextureable = true,
-            skgpu::Protected isProtected = GrProtected::kNo,
-            bool vkRTSupportsInputAttachment = false,
-            bool forVulkanSecondaryCommandBuffer = false);
-#endif
     /*
      * Retrieve the default GrBackendFormat for a given SkColorType and renderability.
      * It is guaranteed that this backend format will be the one used by the following

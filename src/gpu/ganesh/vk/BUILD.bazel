@@ -130,8 +130,6 @@ skia_cc_library(
     ],
     defines = [
         "SK_USE_EXTERNAL_VULKAN_HEADERS",
-        "SK_DISABLE_LEGACY_VULKAN_BACKENDSEMAPHORE",
-        "SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE",
     ],
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
@@ -171,8 +169,6 @@ skia_cc_library(
     local_defines = [
         "SK_USE_EXTERNAL_VULKAN_HEADERS",
         "GR_TEST_UTILS",
-        "SK_DISABLE_LEGACY_VULKAN_BACKENDSEMAPHORE",
-        "SK_DISABLE_LEGACY_VULKAN_MUTABLE_TEXTURE_STATE",
     ],
     visibility = ["//tools:__subpackages__"],
     deps = [

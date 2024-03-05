@@ -413,11 +413,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill,
         int fFulfillCount = 0;
         int fReleaseCount = 0;
     } counts;
-    auto fulfill = [](GrDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+    auto fulfill = [](SkImages::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fFulfillCount;
         return sk_sp<GrPromiseImageTexture>();
     };
-    auto release = [](GrDeferredDisplayListRecorder::PromiseImageTextureContext ctx) {
+    auto release = [](SkImages::PromiseImageTextureContext ctx) {
         ++static_cast<Counts*>(ctx)->fReleaseCount;
     };
     GrSurfaceOrigin texOrigin = kTopLeft_GrSurfaceOrigin;

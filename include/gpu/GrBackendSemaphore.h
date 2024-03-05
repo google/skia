@@ -16,10 +16,6 @@
 #include "include/gpu/mtl/GrMtlTypes.h"
 #endif
 
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VULKAN_BACKENDSEMAPHORE)
-#include "include/private/gpu/vk/SkiaVulkan.h"
-#endif
-
 #ifdef SK_DIRECT3D
 #include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
 #endif
@@ -39,11 +35,6 @@ public:
     ~GrBackendSemaphore();
     GrBackendSemaphore(const GrBackendSemaphore&);
     GrBackendSemaphore& operator=(const GrBackendSemaphore&);
-
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VULKAN_BACKENDSEMAPHORE)
-    void initVulkan(VkSemaphore semaphore);
-    VkSemaphore vkSemaphore() const;
-#endif
 
 #ifdef SK_METAL
     // It is the creator's responsibility to ref the MTLEvent passed in here, via __bridge_retained.

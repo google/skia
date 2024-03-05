@@ -115,10 +115,4 @@ void Slug::AddDeserialProcs(SkDeserialProcs* procs, const SkStrikeClient* client
     };
 }
 
-#if !defined(SK_SLUG_DISABLE_LEGACY_DESERIALIZE)
-sk_sp<Slug> SkMakeSlugFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
-    return SlugImpl::MakeFromBuffer(buffer, client);
-}
-#endif
-
 }  // namespace sktext::gpu
