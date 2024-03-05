@@ -26,8 +26,7 @@ public:
     GlyphTransformView() { fName = "Glyph Transform"; }
 
     void load(SkScalar w, SkScalar h) override {
-        fEmojiFont.fTypeface = ToolUtils::EmojiTypeface();
-        fEmojiFont.fText     = ToolUtils::EmojiSampleText();
+        fEmojiFont = ToolUtils::EmojiSample();
         fSize = {w, h};
     }
 
@@ -36,8 +35,8 @@ public:
     void draw(SkCanvas* canvas) override {
         SkPaint paint;
 
-        SkFont font(fEmojiFont.fTypeface);
-        const char* text = fEmojiFont.fText;
+        SkFont font(fEmojiFont.typeface);
+        const char* text = fEmojiFont.sampleText;
 
         double baseline = fSize.height() / 2;
         canvas->drawLine(0, baseline, fSize.width(), baseline, paint);
@@ -67,10 +66,7 @@ public:
     }
 
 private:
-    struct EmojiFont {
-        sk_sp<SkTypeface> fTypeface;
-        const char* fText;
-    } fEmojiFont;
+    ToolUtils::EmojiTestSample fEmojiFont;
 
     SkVector fTranslate;
     SkScalar fScale;

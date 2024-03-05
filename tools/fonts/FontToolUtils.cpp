@@ -86,23 +86,61 @@ sk_sp<SkTypeface> PlanetTypeface() {
     return planetTypeface;
 }
 
-sk_sp<SkTypeface> EmojiTypeface() {
-    static const sk_sp<SkTypeface> emojiTypeface = []() {
-        const char* filename;
+EmojiTestSample EmojiSample() {
+    static const EmojiTestSample emojiSample = []() {
+        EmojiTestSample sample = {nullptr, ""};
 #if defined(SK_BUILD_FOR_WIN)
-        filename = "fonts/colr.ttf";
+        sample = EmojiSample(EmojiFontFormat::ColrV0);
 #elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-        filename = "fonts/sbix.ttf";
+        sample = EmojiSample(EmojiFontFormat::Sbix);
 #else
-        filename = "fonts/cbdt.ttf";
+        sample = EmojiSample(EmojiFontFormat::Cbdt);
 #endif
-        sk_sp<SkTypeface> typeface = CreateTypefaceFromResource(filename);
-        if (typeface) {
-            return typeface;
+        if (sample.typeface) {
+            return sample;
         }
-        return CreateTestTypeface("Emoji", SkFontStyle());
+        return EmojiSample(EmojiFontFormat::Test);
     }();
-    return emojiTypeface;
+    return emojiSample;
+}
+
+EmojiTestSample EmojiSample(EmojiFontFormat format) {
+    EmojiTestSample sample;
+    sample.sampleText = "\U0001F600 \u2662";  // 😀 ♢
+    switch (format) {
+        case EmojiFontFormat::Cbdt:
+            sample.typeface = CreateTypefaceFromResource("fonts/cbdt.ttf");
+            break;
+        case EmojiFontFormat::Sbix:
+            sample.typeface = CreateTypefaceFromResource("fonts/sbix.ttf");
+            break;
+        case EmojiFontFormat::ColrV0:
+            sample.typeface = CreateTypefaceFromResource("fonts/colr.ttf");
+            break;
+        case EmojiFontFormat::Svg:
+            sample.typeface = CreateTypefaceFromResource("fonts/SampleSVG.ttf");
+            sample.sampleText = "abcdefghij";
+            break;
+        case EmojiFontFormat::Test:
+            sample.typeface = CreatePortableTypeface("Emoji", SkFontStyle());
+    }
+    return sample;
+}
+
+SkString NameForFontFormat(EmojiFontFormat format) {
+    switch (format) {
+        case EmojiFontFormat::Cbdt:
+            return SkString("cbdt");
+        case EmojiFontFormat::Sbix:
+            return SkString("sbix");
+        case EmojiFontFormat::ColrV0:
+            return SkString("colrv0");
+        case EmojiFontFormat::Test:
+            return SkString("test");
+        case EmojiFontFormat::Svg:
+            return SkString("svg");
+    }
+    return SkString();
 }
 
 sk_sp<SkTypeface> SampleUserTypeface() {

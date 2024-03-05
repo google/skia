@@ -74,19 +74,17 @@ namespace skiagm {
 
 class ColorEmojiGM : public GM {
 public:
-    ColorEmojiGM() { }
+    ColorEmojiGM(ToolUtils::EmojiFontFormat format) : fFormat(format) {}
 
 protected:
-    struct EmojiFont {
-        sk_sp<SkTypeface> typeface;
-        const char* text;
-    } emojiFont;
+    ToolUtils::EmojiTestSample emojiFont;
     void onOnceBeforeDraw() override {
-        emojiFont.typeface = ToolUtils::EmojiTypeface();
-        emojiFont.text     = ToolUtils::EmojiSampleText();
+        emojiFont = ToolUtils::EmojiSample(fFormat);
     }
 
-    SkString getName() const override { return SkString("coloremoji"); }
+    SkString getName() const override {
+        return SkString("coloremoji_") += ToolUtils::NameForFontFormat(fFormat);
+    }
 
     SkISize getISize() override { return SkISize::Make(650, 1200); }
 
@@ -104,12 +102,17 @@ protected:
     }
 #endif
 
-    void onDraw(SkCanvas* canvas) override {
-
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->drawColor(SK_ColorGRAY);
 
+        if (!emojiFont.typeface) {
+            *errorMsg = SkStringPrintf("Unable to instantiate emoji test font of format %s.",
+                                       ToolUtils::NameForFontFormat(fFormat).c_str());
+            return DrawResult::kSkip;
+        }
+
         SkFont font(emojiFont.typeface);
-        char const * const text = emojiFont.text;
+        char const * const text = emojiFont.sampleText;
         size_t textLen = strlen(text);
 
         // draw text at different point sizes
@@ -213,13 +216,20 @@ protected:
             canvas->restore();
             canvas->translate(0, SkIntToScalar(25));
         }
+
+        return DrawResult::kOk;
     }
 
+    ToolUtils::EmojiFontFormat fFormat;
     using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new ColorEmojiGM;)
+DEF_GM(return new ColorEmojiGM(ToolUtils::EmojiFontFormat::ColrV0);)
+DEF_GM(return new ColorEmojiGM(ToolUtils::EmojiFontFormat::Cbdt);)
+DEF_GM(return new ColorEmojiGM(ToolUtils::EmojiFontFormat::Sbix);)
+DEF_GM(return new ColorEmojiGM(ToolUtils::EmojiFontFormat::Test);)
+DEF_GM(return new ColorEmojiGM(ToolUtils::EmojiFontFormat::Svg);)
 
 }  // namespace skiagm

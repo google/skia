@@ -923,7 +923,7 @@ sk_sp<SkTextBlob> MakeEmojiBlob(sk_sp<SkTypeface> serverTf, SkScalar textSize,
     font.setTypeface(serverTf);
     font.setSize(textSize);
 
-    const char* text = ToolUtils::EmojiSampleText();
+    const char* text = ToolUtils::EmojiSample().sampleText;
     auto blob = SkTextBlob::MakeFromText(text, strlen(text), font);
     if (clientTf == nullptr) return blob;
 
@@ -950,7 +950,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithNoPaths,
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
 
-    auto serverTypeface = ToolUtils::EmojiTypeface();
+    auto serverTypeface = ToolUtils::EmojiSample().typeface;
     const SkTypefaceID serverTypefaceID = serverTypeface->uniqueID();
 
     auto props = FindSurfaceProps(direct);
