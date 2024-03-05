@@ -23,9 +23,9 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <algorithm>
@@ -143,37 +143,10 @@ static sk_sp<SkShader> make_magnifier_shader(
         const skif::LayerSpace<SkRect>& lensBounds,
         const skif::LayerSpace<SkMatrix>& zoomXform,
         const skif::LayerSpace<SkSize>& inset) {
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-        "uniform shader src;"
-        "uniform float4 lensBounds;"
-        "uniform float4 zoomXform;"
-        "uniform float2 invInset;"
+    const SkRuntimeEffect* magEffect =
+            GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kMagnifier);
 
-        "half4 main(float2 coord) {"
-            "float2 zoomCoord = zoomXform.xy + zoomXform.zw*coord;"
-            // edgeInset is the smallest distance to the lens bounds edges,
-            // in units of "insets".
-            "float2 edgeInset = min(coord - lensBounds.xy, lensBounds.zw - coord) * invInset;"
-
-            // The equations for 'weight' ensure that it is 0 along the outside of lensBounds so
-            // it seams with any un-zoomed, un-filtered content. The zoomed content fills a rounded
-            // rectangle that is 1 "inset" in from lensBounds with circular corners with radii
-            // equal to the inset distance. Outside of this region, there is a non-linear weighting
-            // to compress the un-zoomed content to the zoomed content. The critical zone about
-            // each corner is limited to 2x"inset" square.
-            "float weight = (edgeInset.x < 2.0 && edgeInset.y < 2.0)"
-                // Circular distortion weighted by distance to inset corner
-                "? (2.0 - length(2.0 - edgeInset))"
-                // Linear zoom, or single-axis compression outside of the inset area (if delta < 1)
-                ": min(edgeInset.x, edgeInset.y);"
-
-            // Saturate before squaring so that negative weights are clamped to 0 before squaring
-            "weight = saturate(weight);"
-            "return src.eval(mix(coord, zoomCoord, weight*weight));"
-        "}"
-    );
-
-    SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
+    SkRuntimeShaderBuilder builder(sk_ref_sp(magEffect));
     builder.child("src") = std::move(input);
 
     SkASSERT(inset.width() > 0.f && inset.height() > 0.f);

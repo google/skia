@@ -20,8 +20,8 @@
 #include "include/private/base/SkSpan_impl.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <algorithm>
@@ -128,32 +128,17 @@ sk_sp<SkImageFilter> make_morphology(MorphType type,
 // room. The other tradeoff is that for R > kMaxLinearRadius, the sparse morphology kernel only
 // requires 2 samples to double the accumulated kernel size, but at the cost of another render
 // target.
-static constexpr int kMaxLinearRadius = 14;
+static constexpr int kMaxLinearRadius = 14; // KEEP IN SYNC W/ SkKnownRuntimeEffects.cpp VERSION
 sk_sp<SkShader> make_linear_morphology(sk_sp<SkShader> input,
                                        MorphType type,
                                        MorphDirection direction,
                                        int radius) {
     SkASSERT(radius <= kMaxLinearRadius);
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-            "const int kMaxLinearRadius = 14;" // KEEP IN SYNC WITH ABOVE DEFINITION
 
-            "uniform shader child;"
-            "uniform half2 offset;"
-            "uniform half flip;" // -1 converts the max() calls to min()
-            "uniform int radius;"
+    const SkRuntimeEffect* linearMorphologyEffect =
+            GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kLinearMorphology);
 
-            "half4 main(float2 coord) {"
-                "half4 aggregate = flip*child.eval(coord);" // case 0 only samples once
-                "for (int i = 1; i <= kMaxLinearRadius; ++i) {"
-                    "if (i > radius) break;"
-                    "half2 delta = half(i) * offset;"
-                    "aggregate = max(aggregate, max(flip*child.eval(coord + delta),"
-                                                   "flip*child.eval(coord - delta)));"
-                "}"
-                "return flip*aggregate;"
-            "}");
-
-    SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
+    SkRuntimeShaderBuilder builder(sk_ref_sp(linearMorphologyEffect));
     builder.child("child") = std::move(input);
     builder.uniform("offset") = direction == MorphDirection::kX ? SkV2{1.f, 0.f} : SkV2{0.f, 1.f};
     builder.uniform("flip") = (type == MorphType::kDilate) ? 1.f : -1.f;
@@ -170,18 +155,11 @@ sk_sp<SkShader> make_sparse_morphology(sk_sp<SkShader> input,
                                        MorphType type,
                                        MorphDirection direction,
                                        int radius) {
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-        "uniform shader child;"
-        "uniform half2 offset;"
-        "uniform half flip;"
 
-        "half4 main(float2 coord) {"
-            "half4 aggregate = max(flip*child.eval(coord + offset),"
-                                  "flip*child.eval(coord - offset));"
-            "return flip*aggregate;"
-        "}");
+    const SkRuntimeEffect* sparseMorphologyEffect =
+            GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kSparseMorphology);
 
-    SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
+    SkRuntimeShaderBuilder builder(sk_ref_sp(sparseMorphologyEffect));
     builder.child("child") = std::move(input);
     builder.uniform("offset") = direction == MorphDirection::kX ? SkV2{(float)radius, 0.f}
                                                                 : SkV2{0.f, (float)radius};

@@ -95,7 +95,7 @@ const SkRuntimeEffect* GetKnownRuntimeEffect(StableKey stableKey) {
         case StableKey::kInvalid:
             return nullptr;
 
-            // Shaders
+        // Shaders
         case StableKey::kBlend: {
             static constexpr char kBlendShaderCode[] =
                 "uniform shader s, d;"
@@ -158,6 +158,210 @@ const SkRuntimeEffect* GetKnownRuntimeEffect(StableKey stableKey) {
         case StableKey::k2DBlur28: {
             static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_effect(28);
             return s2DBlurEffect;
+        }
+        case StableKey::kLighting: {
+            static constexpr char kLightingShaderCode[] =
+                "const half kConeAAThreshold = 0.016;"
+                "const half kConeScale = 1.0 / kConeAAThreshold;"
+
+                "uniform shader normalMap;"
+
+                // Packs surface depth, shininess, material type (0 == diffuse) and light type
+                // (< 0 = distant, 0 = point, > 0 = spot)
+                "uniform half4 materialAndLightType;"
+
+                "uniform half4 lightPosAndSpotFalloff;" // (x,y,z) are lightPos, w is spot falloff
+                                                        // exponent
+                "uniform half4 lightDirAndSpotCutoff;" // (x,y,z) are lightDir,
+                                                       // w is spot cos(cutoffAngle)
+                "uniform half3 lightColor;" // Material's k has already been multiplied in
+
+                "half3 surface_to_light(half3 coord) {"
+                    "if (materialAndLightType.w < 0) {"
+                        "return lightDirAndSpotCutoff.xyz;"
+                    "} else {"
+                        // Spot and point have the same equation
+                        "return normalize(lightPosAndSpotFalloff.xyz - coord);"
+                    "}"
+                "}"
+
+                "half spotlight_scale(half3 surfaceToLight) {"
+                    "half cosCutoffAngle = lightDirAndSpotCutoff.w;"
+                    "half cosAngle = -dot(surfaceToLight, lightDirAndSpotCutoff.xyz);"
+                    "if (cosAngle < cosCutoffAngle) {"
+                        "return 0.0;"
+                    "}"
+                    "half scale = pow(cosAngle, lightPosAndSpotFalloff.w);"
+                    "if (cosAngle < cosCutoffAngle + kConeAAThreshold) {"
+                        "return scale * (cosAngle - cosCutoffAngle) * kConeScale;"
+                    "} else {"
+                        "return scale;"
+                    "}"
+                "}"
+
+                "half4 compute_lighting(half3 normal, half3 surfaceToLight) {"
+                    // Point and distant light color contributions are constant
+                    "half3 color = lightColor;"
+                    // Spotlights fade based on the angle away from its direction
+                    "if (materialAndLightType.w > 0) {"
+                        "color *= spotlight_scale(surfaceToLight);"
+                    "}"
+
+                    // Diffuse and specular reflections scale the light's "color" differently
+                    "if (materialAndLightType.z == 0) {"
+                        "half coeff = dot(normal, surfaceToLight);"
+                        "color = saturate(coeff * color);"
+                        "return half4(color, 1.0);"
+                    "} else {"
+                        "half3 halfDir = normalize(surfaceToLight + half3(0, 0, 1));"
+                        "half shininess = materialAndLightType.y;"
+                        "half coeff = pow(dot(normal, halfDir), shininess);"
+                        "color = saturate(coeff * color);"
+                        "return half4(color, max(max(color.r, color.g), color.b));"
+                    "}"
+                "}"
+
+                "half4 main(float2 coord) {"
+                    "half4 normalAndA = normalMap.eval(coord);"
+                    "half depth = materialAndLightType.x;"
+                    "half3 surfaceToLight = surface_to_light(half3(half2(coord),"
+                                                                  "depth*normalAndA.a));"
+                    "return compute_lighting(normalAndA.xyz, surfaceToLight);"
+                "}";
+
+            static const SkRuntimeEffect* sLightingEffect =
+                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                                        kLightingShaderCode,
+                                        options);
+            return sLightingEffect;
+        }
+        case StableKey::kLinearMorphology: {
+            static constexpr char kLinearMorphologyShaderCode[] =
+                // KEEP IN SYNC WITH SkMorphologyImageFilter.cpp DEFINITION
+                "const int kMaxLinearRadius = 14;"
+
+                "uniform shader child;"
+                "uniform half2 offset;"
+                "uniform half flip;" // -1 converts the max() calls to min()
+                "uniform int radius;"
+
+                "half4 main(float2 coord) {"
+                    "half4 aggregate = flip*child.eval(coord);" // case 0 only samples once
+                    "for (int i = 1; i <= kMaxLinearRadius; ++i) {"
+                        "if (i > radius) break;"
+                        "half2 delta = half(i) * offset;"
+                        "aggregate = max(aggregate, max(flip*child.eval(coord + delta),"
+                                                       "flip*child.eval(coord - delta)));"
+                    "}"
+                    "return flip*aggregate;"
+                "}";
+
+            static const SkRuntimeEffect* sLinearMorphologyEffect =
+                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                                        kLinearMorphologyShaderCode,
+                                        options);
+            return sLinearMorphologyEffect;
+        }
+
+        case StableKey::kMagnifier: {
+            static constexpr char kMagnifierShaderCode[] =
+                "uniform shader src;"
+                "uniform float4 lensBounds;"
+                "uniform float4 zoomXform;"
+                "uniform float2 invInset;"
+
+                "half4 main(float2 coord) {"
+                    "float2 zoomCoord = zoomXform.xy + zoomXform.zw*coord;"
+                    // edgeInset is the smallest distance to the lens bounds edges,
+                    // in units of "insets".
+                    "float2 edgeInset = min(coord - lensBounds.xy, lensBounds.zw - coord) *"
+                                       "invInset;"
+
+                    // The equations for 'weight' ensure that it is 0 along the outside of
+                    // lensBounds so it seams with any un-zoomed, un-filtered content. The zoomed
+                    // content fills a rounded rectangle that is 1 "inset" in from lensBounds with
+                    // circular corners with radii equal to the inset distance. Outside of this
+                    // region, there is a non-linear weighting to compress the un-zoomed content
+                    // to the zoomed content. The critical zone about each corner is limited
+                    // to 2x"inset" square.
+                    "float weight = (edgeInset.x < 2.0 && edgeInset.y < 2.0)"
+                        // Circular distortion weighted by distance to inset corner
+                        "? (2.0 - length(2.0 - edgeInset))"
+                        // Linear zoom, or single-axis compression outside of the inset
+                        // area (if delta < 1)
+                        ": min(edgeInset.x, edgeInset.y);"
+
+                    // Saturate before squaring so that negative weights are clamped to 0
+                    // before squaring
+                    "weight = saturate(weight);"
+                    "return src.eval(mix(coord, zoomCoord, weight*weight));"
+                "}";
+
+            static const SkRuntimeEffect* sMagnifierEffect =
+                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                                        kMagnifierShaderCode,
+                                        options);
+            return sMagnifierEffect;
+        }
+        case StableKey::kNormal: {
+            static constexpr char kNormalShaderCode[] =
+                "uniform shader alphaMap;"
+                "uniform float4 edgeBounds;"
+                "uniform half negSurfaceDepth;"
+
+                "half3 normal(half3 alphaC0, half3 alphaC1, half3 alphaC2) {"
+                    // The right column (or bottom row) terms of the Sobel filter. The left/top is
+                    // just the negative, and the middle row/column is all 0s so those instructions
+                    // are skipped.
+                    "const half3 kSobel = 0.25 * half3(1,2,1);"
+                    "half3 alphaR0 = half3(alphaC0.x, alphaC1.x, alphaC2.x);"
+                    "half3 alphaR2 = half3(alphaC0.z, alphaC1.z, alphaC2.z);"
+                    "half nx = dot(kSobel, alphaC2) - dot(kSobel, alphaC0);"
+                    "half ny = dot(kSobel, alphaR2) - dot(kSobel, alphaR0);"
+                    "return normalize(half3(negSurfaceDepth * half2(nx, ny), 1));"
+                "}"
+
+                "half4 main(float2 coord) {"
+                   "half3 alphaC0 = half3("
+                     "alphaMap.eval(clamp(coord + float2(-1,-1), edgeBounds.LT, edgeBounds.RB)).a,"
+                     "alphaMap.eval(clamp(coord + float2(-1, 0), edgeBounds.LT, edgeBounds.RB)).a,"
+                     "alphaMap.eval(clamp(coord + float2(-1, 1), edgeBounds.LT, edgeBounds.RB)).a);"
+                   "half3 alphaC1 = half3("
+                     "alphaMap.eval(clamp(coord + float2( 0,-1), edgeBounds.LT, edgeBounds.RB)).a,"
+                     "alphaMap.eval(clamp(coord + float2( 0, 0), edgeBounds.LT, edgeBounds.RB)).a,"
+                     "alphaMap.eval(clamp(coord + float2( 0, 1), edgeBounds.LT, edgeBounds.RB)).a);"
+                   "half3 alphaC2 = half3("
+                     "alphaMap.eval(clamp(coord + float2( 1,-1), edgeBounds.LT, edgeBounds.RB)).a,"
+                     "alphaMap.eval(clamp(coord + float2( 1, 0), edgeBounds.LT, edgeBounds.RB)).a,"
+                     "alphaMap.eval(clamp(coord + float2( 1, 1), edgeBounds.LT, edgeBounds.RB)).a);"
+
+                   "half mainAlpha = alphaC1.y;" // offset = (0,0)
+                   "return half4(normal(alphaC0, alphaC1, alphaC2), mainAlpha);"
+                "}";
+
+            static const SkRuntimeEffect* sNormalEffect =
+                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                                        kNormalShaderCode,
+                                        options);
+            return sNormalEffect;
+        }
+        case StableKey::kSparseMorphology: {
+            static constexpr char kSparseMorphologyShaderCode[] =
+                "uniform shader child;"
+                "uniform half2 offset;"
+                "uniform half flip;"
+
+                "half4 main(float2 coord) {"
+                    "half4 aggregate = max(flip*child.eval(coord + offset),"
+                                          "flip*child.eval(coord - offset));"
+                    "return flip*aggregate;"
+                "}";
+
+            static const SkRuntimeEffect* sSparseMorphologyEffect =
+                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                                        kSparseMorphologyShaderCode,
+                                        options);
+            return sSparseMorphologyEffect;
         }
 
         // Blenders

@@ -77,6 +77,12 @@ enum class StableKey : uint32_t {
     // For large kernels we bin by a multiple of eight (so no k2DBlur24)
     k2DBlur28,
 
+    kLighting,
+    kLinearMorphology,
+    kMagnifier,
+    kNormal,
+    kSparseMorphology,
+
     // blenders
     kArithmetic,
 
