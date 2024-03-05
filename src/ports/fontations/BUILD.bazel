@@ -42,6 +42,8 @@ skia_cc_deps(
         ":bridge_rust_side",
         ":fontations_ffi",
         ":path_bridge_include",
+        # For color bitmap fonts.
+        "//src/codec:png_decode",
     ],
 )
 

@@ -15,6 +15,7 @@
 #include "include/ports/SkTypeface_fontations.h"
 #include "tools/Resources.h"
 
+
 namespace skiagm {
 
 namespace {
