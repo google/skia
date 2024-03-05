@@ -31,7 +31,8 @@
 
 namespace skiagm {
 
-// Copied from https://github.com/googlefonts/color-fonts#colrv1-test-font glyph descriptions markdown file.
+// Copied from https://github.com/googlefonts/color-fonts#colrv1-test-font glyph descriptions
+// markdown file.
 namespace ColrV1TestDefinitions {
 const uint32_t color_circles_palette[] = {0xf0e00, 0xf0e01};
 };
@@ -44,6 +45,7 @@ constexpr SkFontArguments::Palette::Override kColorOverridesAll[] = {
         // Randomly ordered with `shuf`.
         // Add a repeat (later overrides override earlier overrides).
         // Add three out of bounds entries (font has 12 palette entries).
+        // clang-format off
         { 6, 0xffffff00},
         { 2, 0xff76078f},
         { 4, 0xffb404c4},
@@ -60,6 +62,7 @@ constexpr SkFontArguments::Palette::Override kColorOverridesAll[] = {
         {13, 0xff00ffff},
         {12, 0xff00ffff},
         {static_cast<uint16_t>(-1), 0xff00ff00},
+        // clang-format on
 };
 
 constexpr SkFontArguments::Palette::Override kColorOverridesOne[] = {
@@ -73,41 +76,15 @@ constexpr SkFontArguments::Palette kOnePaletteOverride{
 constexpr SkFontArguments::Palette kAllPaletteOverride{
         0, kColorOverridesAll, std::size(kColorOverridesAll)};
 
-
-
-enum TypefaceBackend { UseDefault, UseFontations };
-
-// TODO(b/318667611): Move the explicit instantation to font manager for Fontations.
-#if defined(SK_TYPEFACE_FACTORY_FONTATIONS)
-constexpr auto kBackend = TypefaceBackend::UseFontations;
-#else
-constexpr auto kBackend = TypefaceBackend::UseDefault;
-#endif
-
-template <TypefaceBackend variant>
-sk_sp<SkTypeface> MakeTypefaceFromResource(const char* resource, const SkFontArguments& args);
-
-#if defined(SK_TYPEFACE_FACTORY_FONTATIONS)
-template <>
-sk_sp<SkTypeface> MakeTypefaceFromResource<UseFontations>(const char* resource,
-                                                          const SkFontArguments& args) {
-    std::unique_ptr<SkStreamAsset> resourceStream(GetResourceAsStream(resource, false));
-    return SkTypeface_Make_Fontations(std::move(resourceStream), args);
-}
-#else
-template <>
-sk_sp<SkTypeface> MakeTypefaceFromResource<UseDefault>(const char* resource,
-                                                       const SkFontArguments& args) {
+sk_sp<SkTypeface> MakeTypefaceFromResource(const char* resource, const SkFontArguments& args) {
     return ToolUtils::TestFontMgr()->makeFromStream(GetResourceAsStream(resource), args);
 }
-#endif
 
 }  // namespace
 
 class FontPaletteGM : public GM {
 public:
-    FontPaletteGM(const char* test_name,
-                  const SkFontArguments::Palette& paletteOverride)
+    FontPaletteGM(const char* test_name, const SkFontArguments::Palette& paletteOverride)
             : fName(test_name), fPalette(paletteOverride) {}
 
 protected:
@@ -119,13 +96,11 @@ protected:
         SkFontArguments paletteArguments;
         paletteArguments.setPalette(fPalette);
 
-        fTypefaceDefault =
-                MakeTypefaceFromResource<kBackend>(kColrCpalTestFontPath, SkFontArguments());
+        fTypefaceDefault = MakeTypefaceFromResource(kColrCpalTestFontPath, SkFontArguments());
         fTypefaceCloned =
                 fTypefaceDefault ? fTypefaceDefault->makeClone(paletteArguments) : nullptr;
 
-        fTypefaceFromStream =
-                MakeTypefaceFromResource<kBackend>(kColrCpalTestFontPath, paletteArguments);
+        fTypefaceFromStream = MakeTypefaceFromResource(kColrCpalTestFontPath, paletteArguments);
     }
 
     SkString getName() const override {
@@ -149,7 +124,7 @@ protected:
         SkFontMetrics metrics;
         SkScalar y = 0;
         SkScalar textSize = 200;
-        for (auto& typeface : { fTypefaceFromStream, fTypefaceCloned} ) {
+        for (auto& typeface : {fTypefaceFromStream, fTypefaceCloned}) {
             SkFont defaultFont(fTypefaceDefault);
             SkFont paletteFont(typeface);
             defaultFont.setSize(textSize);

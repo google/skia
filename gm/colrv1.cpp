@@ -32,31 +32,6 @@
 namespace skiagm {
 
 namespace {
-enum TypefaceBackend { UseDefault, UseFontations };
-
-// TODO(b/318667611): Move the explicit instantation to font manager for Fontations.
-#if defined(SK_TYPEFACE_FACTORY_FONTATIONS)
-constexpr auto kBackend = TypefaceBackend::UseFontations;
-#else
-constexpr auto kBackend = TypefaceBackend::UseDefault;
-#endif
-
-template <TypefaceBackend variant> sk_sp<SkTypeface> MakeTypefaceFromResource(const char* resource);
-
-#if defined(SK_TYPEFACE_FACTORY_FONTATIONS)
-template <> sk_sp<SkTypeface> MakeTypefaceFromResource<UseFontations>(const char* resource) {
-    std::unique_ptr<SkStreamAsset> resourceStream(GetResourceAsStream(resource, false));
-    return SkTypeface_Make_Fontations(std::move(resourceStream), SkFontArguments());
-}
-#else
-template <> sk_sp<SkTypeface> MakeTypefaceFromResource<UseDefault>(const char* resource) {
-    return ToolUtils::CreateTypefaceFromResource(resource, 0);
-}
-#endif
-
-}  // namespace
-
-namespace {
 const SkScalar kTextSizes[] = {12, 18, 30, 120};
 const char kTestFontName[] = "fonts/test_glyphs-glyf_colr_1.ttf";
 const char kTestFontNameVariable[] = "fonts/test_glyphs-glyf_colr_1_variable.ttf";
@@ -86,9 +61,9 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         if (fVariationPosition.coordinateCount) {
-            fTypeface = MakeTypefaceFromResource<kBackend>(kTestFontNameVariable);
+            fTypeface = ToolUtils::CreateTypefaceFromResource(kTestFontNameVariable, 0);
         } else {
-            fTypeface = MakeTypefaceFromResource<kBackend>(kTestFontName);
+            fTypeface = ToolUtils::CreateTypefaceFromResource(kTestFontName, 0);
         }
         fVariationSliders = ToolUtils::VariationSliders(fTypeface.get(), fVariationPosition);
     }
@@ -151,8 +126,8 @@ protected:
         canvas->translate(xTranslate, 20);
 
         if (!fTypeface) {
-          *errorMsg = "Did not recognize COLR v1 font format.";
-          return DrawResult::kSkip;
+            *errorMsg = "Did not recognize COLR v1 font format.";
+            return DrawResult::kSkip;
         }
 
         canvas->rotate(fRotateDeg);
@@ -208,6 +183,7 @@ private:
     ToolUtils::VariationSliders fVariationSliders;
 };
 
+// clang-format off
 // Generated using test glyphs generator script from https://github.com/googlefonts/color-fonts:
 // $ python3 config/test_glyphs-glyf_colr_1.py -vvv  --generate-descriptions fonts/
 // Regenerate descriptions and paste the generated arrays here when updating the test font.
@@ -247,24 +223,27 @@ const uint32_t paint_glyph_nested[] = { 0xf1400, 0xf1401, 0xf1402, 0xf1403,
                                         0xf1404, 0xf1405, 0xf1406, 0xf1407,
                                         0xf1408, 0xf1409, 0xf140a, 0xf140b,
                                         0xf140c, 0xf140d, 0xf140e, 0xf140f };
+// clang-format on
+
 };  // namespace ColrV1TestDefinitions
 
 namespace {
 std::unique_ptr<ColrV1GM> F(
-    const char* name,
-    SkSpan<const uint32_t> codepoints,
-    SkScalar skewX,
-    SkScalar rotateDeg,
-    std::initializer_list<SkFontArguments::VariationPosition::Coordinate> variations)
-{
+        const char* name,
+        SkSpan<const uint32_t> codepoints,
+        SkScalar skewX,
+        SkScalar rotateDeg,
+        std::initializer_list<SkFontArguments::VariationPosition::Coordinate> variations) {
     return std::make_unique<ColrV1GM>(name, codepoints, skewX, rotateDeg, variations);
 }
 
-SkFourByteTag constexpr operator "" _t(const char* tagName, size_t size) {
+SkFourByteTag constexpr operator"" _t(const char* tagName, size_t size) {
     SkASSERT(size == 4);
     return SkSetFourByteTag(tagName[0], tagName[1], tagName[2], tagName[3]);
 }
-}
+}  // namespace
+
+// clang-format off
 #define C(TEST_CATEGORY) #TEST_CATEGORY, ColrV1TestDefinitions::TEST_CATEGORY
 DEF_GM(return F(C(clipbox),                0.0f,  0.0f, {}))
 DEF_GM(return F(C(clipbox),                0.0f,  0.0f, {{"CLIO"_t, 200.f}}))
@@ -339,5 +318,6 @@ DEF_GM(return F(C(variable_alpha),         0.0f,  0.0f, {{"APH2"_t, -0.7f}, {"AP
 DEF_GM(return F(C(paintcolrglyph_cycle),   0.0f,  0.0f, {}))
 DEF_GM(return F(C(sweep_coincident),       0.0f,  0.0f, {}))
 DEF_GM(return F(C(paint_glyph_nested),     0.0f,  0.0f, {}))
+// clang-format on
 
 }  // namespace skiagm

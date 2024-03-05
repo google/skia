@@ -42,8 +42,8 @@ skia_filegroup(
     name = "typeface_fontations",
     srcs = select({
         "//bazel/common_config_settings:use_fontations_true": [
-            "SkFontScanner_fontations.cpp",
             "SkTypeface_fontations.cpp",
+            "SkTypeface_fontations_priv.h",
         ],
         "//conditions:default": [],
     }),
@@ -258,7 +258,6 @@ selects.config_setting_group(
 selects.config_setting_group(
     name = "uses_fontations",
     match_any = [
-        # TODO(b/318667611): Fontations does not have a FontMgr yet.
         "//bazel/common_config_settings:use_fontations_true",
     ],
 )
@@ -283,7 +282,10 @@ skia_cc_deps(
         "//bazel/common_config_settings:android_fontmgr": ["@expat"],
         "//conditions:default": [],
     }) + select({
-        "//bazel/common_config_settings:use_fontations_true": ["//src/ports/fontations:deps"],
+        "//bazel/common_config_settings:use_fontations_true": [
+            ":fontmgr_fontations_empty",
+            "//src/ports/fontations:deps",
+        ],
         "//conditions:default": [],
     }),
 )
@@ -387,5 +389,28 @@ skia_cc_library(
         "//:core",
         "//src/base",
         "//src/core:core_priv",
+    ],
+)
+
+skia_cc_library(
+    name = "fontmgr_fontations_empty",
+    srcs = [
+        "SkFontMgr_fontations_empty.cpp",
+        "SkFontMgr_fontations_empty.h",
+        ":typeface_fontations",
+        "//include/ports:typeface_fontations_hdrs",
+    ],
+    hdrs = [
+        "//include/ports:fontmgr_fontations_hdrs",
+    ],
+    defines = ["SK_FONTMGR_FONTATIONS_AVAILABLE"],
+    visibility = [
+        "//:__pkg__",
+        "//tools/fonts:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//:pathops",
+        "//src/ports/fontations:deps",
     ],
 )

@@ -41,6 +41,18 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "typeface_fontations_hdrs",
+    srcs = ["SkTypeface_fontations.h"],
+    visibility = ["//src/ports:__pkg__"],
+)
+
+skia_filegroup(
+    name = "fontmgr_fontations_hdrs",
+    srcs = ["SkFontMgr_Fontations.h"],
+    visibility = ["//src/ports:__pkg__"],
+)
+
+skia_filegroup(
     name = "fontmgr",
     srcs = select_multi(
         {
@@ -74,7 +86,7 @@ skia_filegroup(
         "//conditions:default": [],
     }) + select({
         "//bazel/common_config_settings:use_fontations_true": [
-            "SkTypeface_fontations.h",
+            ":typeface_fontations_hdrs",
         ],
         "//conditions:default": [],
     }),

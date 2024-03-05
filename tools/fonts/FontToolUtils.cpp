@@ -41,6 +41,10 @@
 #include "include/ports/SkFontMgr_mac_ct.h"
 #endif
 
+#if defined(SK_FONTMGR_FONTATIONS_AVAILABLE)
+#include "include/ports/SkFontMgr_Fontations.h"
+#endif
+
 #if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
 #include "include/ports/SkFontMgr_fontconfig.h"
 #endif
@@ -219,6 +223,8 @@ sk_sp<SkFontMgr> TestFontMgr() {
 #elif defined(SK_FONTMGR_CORETEXT_AVAILABLE) && (defined(SK_BUILD_FOR_IOS) || \
                                                 defined(SK_BUILD_FOR_MAC))
             mgr = SkFontMgr_New_CoreText(nullptr);
+#elif defined(SK_FONTMGR_FONTATIONS_AVAILABLE)
+            mgr = SkFontMgr_New_Fontations_Empty();
 #elif defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
             mgr = SkFontMgr_New_FontConfig(nullptr);
 #elif defined(SK_FONTMGR_FREETYPE_DIRECTORY_AVAILABLE)
