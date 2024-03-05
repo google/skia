@@ -8,24 +8,43 @@
 #include "src/gpu/graphite/SmallPathAtlas.h"
 
 #include "include/gpu/graphite/Recorder.h"
-#include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/RasterPathUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 
 namespace skgpu::graphite {
 
+static constexpr size_t kPlotWidth = 512;
+static constexpr size_t kPlotHeight = 256;
+
 SmallPathAtlas::SmallPathAtlas(Recorder* recorder)
-        : PathAtlas(recorder, kDefaultAtlasDim, kDefaultAtlasDim) {
+        : PathAtlas(recorder, kDefaultAtlasDim, kDefaultAtlasDim)
+        , fAtlasMgr(fWidth, fHeight, kPlotWidth, kPlotHeight) {
     SkASSERT(fRecorder);
-    static constexpr size_t kPlotWidth = 512;
-    static constexpr size_t kPlotHeight = 256;
+}
+
+bool SmallPathAtlas::recordUploads(DrawContext* dc) {
+    return fAtlasMgr.recordUploads(dc, fRecorder);
+}
+
+const TextureProxy* SmallPathAtlas::onAddShape(const Shape& shape,
+                                               const Transform& transform,
+                                               const SkStrokeRec& strokeRec,
+                                               skvx::half2 maskSize,
+                                               skvx::half2* outPos) {
+    return fAtlasMgr.findOrCreateEntry(fRecorder, shape, transform, strokeRec, maskSize, outPos);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+SmallPathAtlas::DrawAtlasMgr::DrawAtlasMgr(size_t width, size_t height,
+                                           size_t plotWidth, size_t plotHeight) {
     static constexpr SkColorType colorType = kAlpha_8_SkColorType;
 
     fDrawAtlas = DrawAtlas::Make(colorType,
                                  SkColorTypeBytesPerPixel(colorType),
-                                 this->width(), this->height(),
-                                 kPlotWidth, kPlotHeight,
+                                 width, height,
+                                 plotWidth, plotHeight,
                                  this,
                                  DrawAtlas::AllowMultitexturing::kYes,
                                  this,
@@ -37,25 +56,18 @@ SmallPathAtlas::SmallPathAtlas(Recorder* recorder)
     }
 }
 
-bool SmallPathAtlas::recordUploads(DrawContext* dc) {
-    return fDrawAtlas->recordUploads(dc, fRecorder);
-}
-
-void SmallPathAtlas::postFlush() {
-    fDrawAtlas->compact(fRecorder->priv().tokenTracker()->nextFlushToken());
-}
-
 namespace {
 uint32_t shape_key_list_index(const PlotLocator& locator, const DrawAtlas* drawAtlas) {
     return locator.pageIndex() * drawAtlas->numPlots() + locator.plotIndex();
 }
 }  // namespace
 
-const TextureProxy* SmallPathAtlas::onAddShape(const Shape& shape,
-                                               const Transform& transform,
-                                               const SkStrokeRec& strokeRec,
-                                               skvx::half2 maskSize,
-                                               skvx::half2* outPos) {
+const TextureProxy* SmallPathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorder,
+                                                                    const Shape& shape,
+                                                                    const Transform& transform,
+                                                                    const SkStrokeRec& strokeRec,
+                                                                    skvx::half2 maskSize,
+                                                                    skvx::half2* outPos) {
     // Shapes must have a key to be stored in the SmallPathAtlas
     SkASSERT(shape.hasKey());
     skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, transform, strokeRec, maskSize);
@@ -64,7 +76,7 @@ const TextureProxy* SmallPathAtlas::onAddShape(const Shape& shape,
         SkIPoint topLeft = cachedLocator->topLeft();
         *outPos = skvx::half2(topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding);
         fDrawAtlas->setLastUseToken(*cachedLocator,
-                                    fRecorder->priv().tokenTracker()->nextFlushToken());
+                                    recorder->priv().tokenTracker()->nextFlushToken());
         return fDrawAtlas->getProxies()[cachedLocator->pageIndex()].get();
     }
 
@@ -75,7 +87,7 @@ const TextureProxy* SmallPathAtlas::onAddShape(const Shape& shape,
 
     // Request space in DrawAtlas.
     AtlasLocator locator;
-    DrawAtlas::ErrorCode errorCode = fDrawAtlas->addRect(fRecorder,
+    DrawAtlas::ErrorCode errorCode = fDrawAtlas->addRect(recorder,
                                                          iAtlasBounds.width(),
                                                          iAtlasBounds.height(),
                                                          &locator);
@@ -109,12 +121,16 @@ const TextureProxy* SmallPathAtlas::onAddShape(const Shape& shape,
     fKeyLists[index].addToTail(keyEntry);
 
     fDrawAtlas->setLastUseToken(locator,
-                                fRecorder->priv().tokenTracker()->nextFlushToken());
+                                recorder->priv().tokenTracker()->nextFlushToken());
 
     return fDrawAtlas->getProxies()[locator.pageIndex()].get();
 }
 
-void SmallPathAtlas::evict(PlotLocator plotLocator) {
+bool SmallPathAtlas::DrawAtlasMgr::recordUploads(DrawContext* dc, Recorder* recorder) {
+    return fDrawAtlas->recordUploads(dc, recorder);
+}
+
+void SmallPathAtlas::DrawAtlasMgr::evict(PlotLocator plotLocator) {
     // Remove all entries for this Plot from the ShapeCache
     uint32_t index = shape_key_list_index(plotLocator, fDrawAtlas.get());
     ShapeKeyList::Iter iter;
@@ -126,6 +142,10 @@ void SmallPathAtlas::evict(PlotLocator plotLocator) {
         fKeyLists[index].remove(currEntry);
         delete currEntry;
     }
+}
+
+void SmallPathAtlas::DrawAtlasMgr::postFlush(Recorder* recorder) {
+    fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
 }
 
 }  // namespace skgpu::graphite
