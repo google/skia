@@ -1629,7 +1629,6 @@ bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkSamplingO
         return false;
     }
 
-#if !defined(SK_LEGACY_SNAP_DRAW_IMAGE_TRANSLATION)
     // We don't want to snap to pixels if we're asking for linear filtering with
     // a subpixel translation. (b/41322892).
     // This mirrors `tweak_sampling` in SkImageShader.cpp
@@ -1638,7 +1637,6 @@ bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkSamplingO
          mat.getTranslateY() != (int)mat.getTranslateY())) {
         return false;
     }
-#endif
 
     // quick success check
     if (!subpixelBits && !(mat.getType() & ~SkMatrix::kTranslate_Mask)) {
