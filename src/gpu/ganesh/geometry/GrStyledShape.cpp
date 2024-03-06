@@ -4,12 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkStrokeRec.h"
 #include "include/private/SkIDChangeListener.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTo.h"
 
+#include <algorithm>
+#include <cstring>
 #include <utility>
+
 
 GrStyledShape& GrStyledShape::operator=(const GrStyledShape& that) {
     fShape      = that.fShape;
@@ -785,5 +795,4 @@ void GrStyledShape::simplifyStroke() {
     // If we made it here, the stroke was fully applied to the new shape so we can become a fill.
     fStyle = GrStyle::SimpleFill();
     fSimplified = true;
-    return;
 }
