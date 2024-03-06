@@ -83,7 +83,7 @@ def compile_fn(api, checkout_root, out_dir):
   cc, cxx, ccache = None, None, None
   extra_cflags = []
   extra_ldflags = []
-  args = {'werror': 'true'}
+  args = {'werror': 'true', 'link_pool_depth':'2'}
   env = {}
 
   if os == 'Mac':
