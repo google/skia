@@ -1242,6 +1242,12 @@ def go_repositories():
         sum = "h1:lEOLY2vyGIqKWUI9nzsOJRV3mb3WC9dXYORsLEUcoeY=",
         version = "v5.1.1",
     )
+    go_repository(
+        name = "com_github_segmentio_fasthash",
+        importpath = "github.com/segmentio/fasthash",
+        sum = "h1:EI9+KE1EwvMLBWwjpRDc+fEM+prwxDYbslddQGtrmhM=",
+        version = "v1.0.3",
+    )
 
     go_repository(
         name = "com_github_sendgrid_rest",
@@ -1532,6 +1538,12 @@ def go_repositories():
         importpath = "github.com/zeebo/xxh3",
         sum = "h1:xZmwmqxHZA8AI603jOQ0tMqmBr9lPeFwGg6d+xy9DC0=",
         version = "v1.0.2",
+    )
+    go_repository(
+        name = "com_github_zyedidia_generic",
+        importpath = "github.com/zyedidia/generic",
+        sum = "h1:Zv5KS/N2m0XZZiuLS82qheRG4X1o5gsWreGb0hR7XDc=",
+        version = "v1.2.1",
     )
 
     go_repository(
@@ -2658,8 +2670,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:hCwgNyVXGa+wYq9OsDsKbhsH1P4mRD8xf9K9nA4ZVbM=",
-        version = "v0.0.0-20240304223142-65414438feb7",
+        sum = "h1:RgcBbYmE3XtV2sn0uEUmIr/aLZBnB/LmtrqyAMXLF6c=",
+        version = "v0.0.0-20240305223234-756dffd9e74f",
     )
     go_repository(
         name = "org_uber_go_atomic",
