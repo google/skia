@@ -111,6 +111,9 @@ void AtlasProvider::recordUploads(DrawContext* dc) {
 
 void AtlasProvider::postFlush() {
     fTextAtlasManager->postFlush();
+    if (fRasterPathAtlas) {
+        fRasterPathAtlas->postFlush();
+    }
     if (fSmallPathAtlas) {
         fSmallPathAtlas->postFlush();
     }
