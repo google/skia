@@ -177,7 +177,7 @@ size_t TextureInfo::bytesPerPixel() const {
     switch (fBackend) {
 #ifdef SK_DAWN
         case BackendApi::kDawn:
-            return DawnFormatBytesPerBlock(this->dawnTextureSpec().fFormat);
+            return DawnFormatBytesPerBlock(this->dawnTextureSpec().getViewFormat());
 #endif
 #ifdef SK_METAL
         case BackendApi::kMetal:
