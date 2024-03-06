@@ -67,6 +67,37 @@ def select_multi(values_map, default_cases = None):
         })
     return rv
 
+def supports_platforms(*platforms):
+    """Convenience macro to set the "target_compatible_with" argument of binary and test targets.
+
+    The example below shows a binary that is compatible with all desktop OSes:
+
+        skia_cc_binary(
+            name = "my_binary",
+            target_compatible_with = supports_platforms(
+                "@platforms//os:linux",
+                "@platforms//os:windows",
+                "@platforms//os:macos",
+            ),
+            ...
+        )
+
+    Args:
+        *platforms: One or more supported platforms, e.g. "@platforms//os:linux".
+    Returns:
+        A select() statement with an empty list for each provided platform, and
+            ["@platforms//:incompatible"] as the default condition.
+    """
+    if len(platforms) == 0:
+        fail("Please provide at least one platform.")
+
+    platforms_map = {
+        "//conditions:default": ["@platforms//:incompatible"],
+    }
+    for platform in platforms:
+        platforms_map[platform] = []
+    return select(platforms_map)
+
 def skia_cc_binary(name, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **kwargs):
     """A wrapper around cc_library for Skia C++ executables (e.g. tools).
 

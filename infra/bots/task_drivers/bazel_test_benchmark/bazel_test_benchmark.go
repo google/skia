@@ -96,9 +96,10 @@ func main() {
 			ChangelistID:  *changelistID,
 			PatchsetOrder: *patchsetOrderStr,
 		},
-		checkoutDir: filepath.Join(wd, "skia"),
-		bazelLabel:  *bazelFlags.Label,
-		bazelConfig: *bazelFlags.Config,
+		checkoutDir:               filepath.Join(wd, "skia"),
+		bazelLabel:                *bazelFlags.Label,
+		bazelConfig:               *bazelFlags.Config,
+		deviceSpecificBazelConfig: *bazelFlags.DeviceSpecificConfig,
 	}, gcsClient); err != nil {
 		td.Fatal(ctx, err)
 	}

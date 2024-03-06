@@ -4,6 +4,7 @@ load(
     "skia_cc_library",
     "skia_cc_test",
     "skia_filegroup",
+    "supports_platforms",
 )
 load("//tools/testrunners/benchmark:android_benchmark_test.bzl", "android_benchmark_test")
 
@@ -58,11 +59,11 @@ skia_cc_test(
         "nonrendering",
         "--autoTuneLoops",
     ],
-    target_compatible_with = [
+    target_compatible_with = supports_platforms(
         "@platforms//os:linux",
         "@platforms//os:windows",
         "@platforms//os:macos",
-    ],
+    ),
     deps = COMMON_DEPS + [
         "//tools/testrunners/benchmark/target:raster",
     ],
@@ -80,11 +81,11 @@ skia_cc_test(
         "8888",
         "--autoTuneLoops",
     ],
-    target_compatible_with = [
+    target_compatible_with = supports_platforms(
         "@platforms//os:linux",
         "@platforms//os:windows",
         "@platforms//os:macos",
-    ],
+    ),
     deps = COMMON_DEPS + [
         "//tools/testrunners/benchmark/target:raster",
     ],
@@ -104,11 +105,11 @@ skia_cc_test(
             surfaceConfig,
             "--autoTuneLoops",
         ],
-        target_compatible_with = [
+        target_compatible_with = supports_platforms(
             "@platforms//os:linux",
             "@platforms//os:windows",
             "@platforms//os:macos",
-        ],
+        ),
         deps = COMMON_DEPS + [
             "//tools/testrunners/benchmark/target:ganesh_vulkan",
         ],
@@ -157,11 +158,11 @@ skia_cc_test(
         "gles",
         "--autoTuneLoops",
     ],
-    target_compatible_with = [
+    target_compatible_with = supports_platforms(
         "@platforms//os:linux",
         "@platforms//os:windows",
         "@platforms//os:macos",
-    ],
+    ),
     deps = COMMON_DEPS + [
         "//tools/testrunners/benchmark/target:ganesh_gl",
     ],
