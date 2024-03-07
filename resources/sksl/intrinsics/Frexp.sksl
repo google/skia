@@ -1,5 +1,10 @@
 uniform half4 colorGreen, colorRed;
 
+noinline bool checkIntrinsicAsFunctionArg(float3 f3, int3 e3) {
+    // 6 equals 0.75 * 2^3.
+    return (f3 == float3(0.75) && e3 == int3(3));
+}
+
 half4 main(float2 coords) {
     float4 value = colorGreen.gggg * 6;
     int4   exp;
@@ -16,5 +21,7 @@ half4 main(float2 coords) {
     result.xyzw = frexp(value.xyzw, exp.xyzw);
     ok.w        = (result.w == 0.75 && exp.w == 3);
 
-    return all(ok) ? colorGreen : colorRed;
+    bool funcOk = checkIntrinsicAsFunctionArg(frexp(value.wzy, exp.zxw).yxz, exp.yxz);
+
+    return all(ok) && funcOk ? colorGreen : colorRed;
 }

@@ -1,15 +1,21 @@
 ### Compilation failed:
 
-error: 10: unknown identifier 'frexp'
+error: 15: unknown identifier 'frexp'
     result.x    = frexp(value.x,    exp.x);
                   ^^^^^
-error: 12: unknown identifier 'frexp'
+error: 17: unknown identifier 'frexp'
     result.xy   = frexp(value.xy,   exp.xy);
                   ^^^^^
-error: 14: unknown identifier 'frexp'
+error: 19: unknown identifier 'frexp'
     result.xyz  = frexp(value.xyz,  exp.xyz);
                   ^^^^^
-error: 16: unknown identifier 'frexp'
+error: 21: unknown identifier 'frexp'
     result.xyzw = frexp(value.xyzw, exp.xyzw);
                   ^^^^^
-4 errors
+error: 24: unknown identifier 'frexp'
+    bool funcOk = checkIntrinsicAsFunctionArg(frexp(value.wzy, exp.zxw).yxz, exp.yxz);
+                                              ^^^^^
+error: 26: unknown identifier 'funcOk'
+    return all(ok) && funcOk ? colorGreen : colorRed;
+                      ^^^^^^
+6 errors

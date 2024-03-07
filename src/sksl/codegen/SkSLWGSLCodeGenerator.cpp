@@ -273,7 +273,11 @@ private:
                                           Precedence parentPrecedence);
     std::string assembleVectorizedIntrinsic(std::string_view intrinsicName,
                                             const FunctionCall& call);
-    std::string assemblePartialSampleCall(std::string_view functionName,
+    std::string assembleOutAssignedIntrinsic(std::string_view intrinsicName,
+                                             std::string_view returnFieldName,
+                                             std::string_view outFieldName,
+                                             const FunctionCall& call);
+    std::string assemblePartialSampleCall(std::string_view intrinsicName,
                                           const Expression& sampler,
                                           const Expression& coords);
     std::string assembleInversePolyfill(const FunctionCall& call);
@@ -2903,6 +2907,45 @@ std::string WGSLCodeGenerator::assembleBinaryOpIntrinsic(Operator op,
     return expr;
 }
 
+// Rewrite a WGSL intrinsic of the form "intrinsicName(in) -> struct" to the SkSL's
+// "intrinsicName(in, outField) -> returnField", where outField and returnField are the names of the
+// fields in the struct returned by the WGSL intrinsic.
+std::string WGSLCodeGenerator::assembleOutAssignedIntrinsic(std::string_view intrinsicName,
+                                                            std::string_view returnField,
+                                                            std::string_view outField,
+                                                            const FunctionCall& call) {
+    SkASSERT(call.type().componentType().isNumber());
+    SkASSERT(call.arguments().size() == 2);
+    SkASSERT(call.function().parameters()[1]->modifierFlags() & ModifierFlag::kOut);
+
+    std::string expr = std::string(intrinsicName);
+    expr += "(";
+
+    // Invoke the intrinsic with the first parameter. Use a scratch-let if argument is a constant
+    // to dodge WGSL overflow errors. (skia:14385)
+    std::string argument = this->assembleExpression(*call.arguments()[0], Precedence::kSequence);
+    expr += ConstantFolder::GetConstantValueOrNull(*call.arguments()[0])
+            ? this->writeScratchLet(argument) : argument;
+    expr += ")";
+    // In WGSL the intrinsic returns a struct; assign it to a local so that its fields can be
+    // accessed multiple times.
+    expr = this->writeScratchLet(expr);
+    expr += ".";
+
+    // Store the outField of `expr` to the intended "out" argument
+    std::unique_ptr<LValue> lvalue = this->makeLValue(*call.arguments()[1]);
+    if (!lvalue) {
+        return "";
+    }
+    std::string outValue = expr;
+    outValue += outField;
+    this->writeLine(lvalue->store(outValue));
+
+    // And return the expression accessing the returnField.
+    expr += returnField;
+    return expr;
+}
+
 std::string WGSLCodeGenerator::assemblePartialSampleCall(std::string_view functionName,
                                                          const Expression& sampler,
                                                          const Expression& coords) {
@@ -3011,6 +3054,11 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             }
             return this->assembleSimpleIntrinsic("faceForward", call);
         }
+        case k_frexp_IntrinsicKind:
+            // SkSL frexp is "$genType fract = frexp($genType, out $genIType exp)" whereas WGSL
+            // returns a struct with no out param: "let [fract, exp] = frexp($genType)".
+            return this->assembleOutAssignedIntrinsic("frexp", "fract", "exp", call);
+
         case k_greaterThan_IntrinsicKind:
             return this->assembleBinaryOpIntrinsic(OperatorKind::GT, call, parentPrecedence);
 
@@ -3058,6 +3106,12 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             return this->writeScratchLet(arg0 + " - " + arg1 + " * floor(" +
                                          arg0 + " / " + arg1 + ")");
         }
+
+        case k_modf_IntrinsicKind:
+            // SkSL modf is "$genType fract = modf($genType, out $genType whole)" whereas WGSL
+            // returns a struct with no out param: "let [fract, whole] = modf($genType)".
+            return this->assembleOutAssignedIntrinsic("modf", "fract", "whole", call);
+
         case k_normalize_IntrinsicKind: {
             const char* name = arguments[0]->type().isScalar() ? "sign" : "normalize";
             return this->assembleSimpleIntrinsic(name, call);

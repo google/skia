@@ -13,6 +13,9 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
+bool checkIntrinsicAsFunctionArg_bf3i3(float3 f3, int3 e3) {
+    return all(f3 == float3(0.75)) && all(e3 == int3(3));
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
@@ -24,6 +27,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float3 _skTemp5;
     int4 _skTemp6;
     float4 _skTemp7;
+    int3 _skTemp8;
+    float3 _skTemp9;
     float4 value = float4(_uniforms.colorGreen.yyyy * 6.0h);
     int4 _0_exp;
     float4 result;
@@ -36,6 +41,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ok.z = result.z == 0.75 && _0_exp.z == 3;
     result = ((_skTemp7 = frexp(value, _skTemp6)), (_0_exp = _skTemp6), _skTemp7);
     ok.w = result.w == 0.75 && _0_exp.w == 3;
-    _out.sk_FragColor = all(ok) ? _uniforms.colorGreen : _uniforms.colorRed;
+    bool funcOk = checkIntrinsicAsFunctionArg_bf3i3(((_skTemp9 = frexp(value.wzy, _skTemp8)), (_0_exp.zxw = _skTemp8), _skTemp9).yxz, _0_exp.yxz);
+    _out.sk_FragColor = all(ok) && funcOk ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

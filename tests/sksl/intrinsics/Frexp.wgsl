@@ -1,18 +1,3 @@
-### Compilation failed:
-
-error: :17:20 error: no matching call to 'frexp(f32, i32)'
-
-2 candidate functions:
- • 'frexp(T  ✓ ) -> __frexp_result_T' where:
-      ✗  overload expects 1 argument, call passed 2 arguments
-      ✓  'T' is 'abstract-float', 'f32' or 'f16'
- • 'frexp(vecN<T>  ✗ ) -> __frexp_result_vecN_T' where:
-      ✗  'T' is 'abstract-float', 'f32' or 'f16'
-
-    let _skTemp0 = frexp(value.x, _0_exp.x);
-                   ^^^^^^^^^^^^^^^^^^^^^^^^
-
-
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
 struct FSOut {
@@ -23,26 +8,39 @@ struct _GlobalUniforms {
   colorRed: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
+fn checkIntrinsicAsFunctionArg_bf3i3(f3: vec3<f32>, e3: vec3<i32>) -> bool {
+  {
+    return all(f3 == vec3<f32>(0.75)) && all(e3 == vec3<i32>(3));
+  }
+}
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var value: vec4<f32> = vec4<f32>(_globalUniforms.colorGreen.yyyy * 6.0);
     var _0_exp: vec4<i32>;
     var result: vec4<f32>;
     var ok: vec4<bool>;
-    let _skTemp0 = frexp(value.x, _0_exp.x);
-    result.x = _skTemp0;
+    let _skTemp0 = frexp(value.x);
+    _0_exp.x = _skTemp0.exp;
+    result.x = _skTemp0.fract;
     ok.x = (result.x == 0.75) && (_0_exp.x == 3);
-    let _skTemp1 = frexp(value.xy, _0_exp.xy);
-    result = vec4<f32>((_skTemp1), result.zw).xyzw;
+    let _skTemp1 = frexp(value.xy);
+    _0_exp = vec4<i32>((_skTemp1.exp), _0_exp.zw).xyzw;
+    result = vec4<f32>((_skTemp1.fract), result.zw).xyzw;
     ok.y = (result.y == 0.75) && (_0_exp.y == 3);
-    let _skTemp2 = frexp(value.xyz, _0_exp.xyz);
-    result = vec4<f32>((_skTemp2), result.w).xyzw;
+    let _skTemp2 = frexp(value.xyz);
+    _0_exp = vec4<i32>((_skTemp2.exp), _0_exp.w).xyzw;
+    result = vec4<f32>((_skTemp2.fract), result.w).xyzw;
     ok.z = (result.z == 0.75) && (_0_exp.z == 3);
-    let _skTemp3 = frexp(value, _0_exp);
-    result = _skTemp3;
+    let _skTemp3 = frexp(value);
+    _0_exp = _skTemp3.exp;
+    result = _skTemp3.fract;
     ok.w = (result.w == 0.75) && (_0_exp.w == 3);
-    let _skTemp4 = all(ok);
-    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_skTemp4));
+    let _skTemp4 = frexp(value.wzy);
+    _0_exp = vec4<i32>((_skTemp4.exp), _0_exp.y).ywxz;
+    let _skTemp5 = checkIntrinsicAsFunctionArg_bf3i3(_skTemp4.fract.yxz, _0_exp.yxz);
+    var funcOk: bool = _skTemp5;
+    let _skTemp6 = all(ok);
+    return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(_skTemp6 && funcOk));
   }
 }
 @fragment fn main() -> FSOut {
@@ -50,5 +48,3 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   _stageOut.sk_FragColor = _skslMain(/*fragcoord*/ vec2<f32>());
   return _stageOut;
 }
-
-1 error
