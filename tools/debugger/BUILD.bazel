@@ -26,6 +26,8 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
+        "//src/gpu/ganesh",
+        "//src/utils:multi_picture_document",
         "//tools:sk_sharing_proc",
         "//tools:url_data_manager",
     ],
