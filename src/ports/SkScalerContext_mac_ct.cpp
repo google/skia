@@ -47,6 +47,7 @@
 #include "src/utils/mac/SkCGBase.h"
 #include "src/utils/mac/SkCGGeometry.h"
 #include "src/utils/mac/SkCTFont.h"
+#include "src/utils/mac/SkCTFontCreateExactCopy.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 
 #include <algorithm>

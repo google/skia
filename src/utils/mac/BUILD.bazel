@@ -11,6 +11,8 @@ MAC_FILES = [
     "SkCGGeometry.h",
     "SkCTFont.cpp",
     "SkCTFont.h",
+    "SkCTFontCreateExactCopy.cpp",
+    "SkCTFontCreateExactCopy.h",
     "SkCreateCGImageRef.cpp",
     "SkUniqueCFRef.h",
 ]
