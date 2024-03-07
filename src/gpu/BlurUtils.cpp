@@ -4,15 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/BlurUtils.h"
 
-#include "include/effects/SkRuntimeEffect.h"
-#include "src/base/SkMathPriv.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkKnownRuntimeEffects.h"
-#include "src/core/SkRuntimeEffectPriv.h"
 
 #include <array>
+#include <cstdint>
+#include <cstring>
 
 namespace skgpu {
 

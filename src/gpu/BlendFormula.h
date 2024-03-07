@@ -13,6 +13,10 @@
 #include "include/private/base/SkTo.h"
 #include "src/gpu/Blend.h"
 
+#include <cstdint>
+
+enum class SkBlendMode;
+
 namespace skgpu {
 
 /**

@@ -2687,7 +2687,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     fIndentation--;
     this->write("}");
-    if (intf.instanceName().size()) {
+    if (!intf.instanceName().empty()) {
         this->write(" ");
         this->write(intf.instanceName());
         if (intf.arraySize() > 0) {

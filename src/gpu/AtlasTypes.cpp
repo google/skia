@@ -7,6 +7,8 @@
 
 #include "src/gpu/AtlasTypes.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkImageInfo.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkSwizzlePriv.h"

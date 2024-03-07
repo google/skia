@@ -11,6 +11,9 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+
+#include <cstdint>
 
 namespace skgpu {
 

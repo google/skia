@@ -11,12 +11,20 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkRectMemcpy.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkConvertPixels.h"
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <type_traits>
+#include <utility>
 
 namespace skgpu {
 

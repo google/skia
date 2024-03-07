@@ -1906,7 +1906,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
     }
     const ExpressionArray& arguments = c.arguments();
     int32_t intrinsicId = intrinsic.floatOp;
-    if (arguments.size() > 0) {
+    if (!arguments.empty()) {
         const Type& type = arguments[0]->type();
         if (intrinsic.opKind == kSpecial_IntrinsicOpcodeKind) {
             // Keep the default float op.

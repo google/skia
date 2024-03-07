@@ -233,7 +233,7 @@ protected:
 };
 
 void GLSLCodeGenerator::write(std::string_view s) {
-    if (!s.length()) {
+    if (s.empty()) {
         return;
     }
     if (fAtLineStart) {
@@ -1473,7 +1473,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     fIndentation--;
     this->write("}");
-    if (intf.instanceName().size()) {
+    if (!intf.instanceName().empty()) {
         this->write(" ");
         this->writeIdentifier(intf.instanceName());
         if (intf.arraySize() > 0) {

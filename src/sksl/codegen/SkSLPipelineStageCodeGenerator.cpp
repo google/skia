@@ -166,7 +166,7 @@ void PipelineStageCodeGenerator::writeLine(std::string_view s) {
 
 void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
     const ExpressionArray& arguments = c.arguments();
-    SkASSERT(arguments.size() >= 1);
+    SkASSERT(!arguments.empty());
     int index = 0;
     bool found = false;
     for (const ProgramElement* p : fProgram.elements()) {
@@ -227,7 +227,6 @@ void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
         }
     }
     this->write(sampleOutput);
-    return;
 }
 
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
@@ -761,7 +760,6 @@ void PipelineStageCodeGenerator::writeDoStatement(const DoStatement& d) {
     this->write(" while (");
     this->writeExpression(*d.test(), Precedence::kExpression);
     this->write(");");
-    return;
 }
 
 void PipelineStageCodeGenerator::writeForStatement(const ForStatement& f) {

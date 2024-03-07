@@ -8,8 +8,6 @@
 #ifndef skgpu_BlurUtils_DEFINED
 #define skgpu_BlurUtils_DEFINED
 
-#include "include/core/SkM44.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkFloatingPoint.h"
@@ -17,6 +15,7 @@
 #include <array>
 
 class SkRuntimeEffect;
+struct SkV4;
 
 // TODO(b/): Many of these utilities could be lifted even into src/core as part of the backend
 // agnostic blur engine once that API exists.
@@ -115,7 +114,7 @@ void Compute2DBlurKernel(SkSize sigma,
 
 // A convenience for the 2D case where one dimension has a sigma of 0.
 inline void Compute1DBlurKernel(float sigma, int radius, SkSpan<float> kernel) {
-    Compute2DBlurKernel({sigma, 0.f}, {radius, 0}, kernel);
+    Compute2DBlurKernel(SkSize{sigma, 0.f}, SkISize{radius, 0}, kernel);
 }
 
 // Utility function to fill in 'offsets' for the effect returned by GetBlur2DEffect(). It

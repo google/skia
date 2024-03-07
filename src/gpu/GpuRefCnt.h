@@ -9,6 +9,11 @@
 #define GrRefCnt_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+
+#include <cstddef>
+#include <type_traits>
 
 // We have to use auto for the function pointers here because if the actual functions live on the
 // base class of T we need the function here to be a pointer to a function of the base class and not
