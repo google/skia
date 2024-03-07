@@ -108,8 +108,9 @@ bool RenderPassTask::addCommands(Context* context,
     sk_sp<Texture> depthStencilAttachment;
     if (fRenderPassDesc.fDepthStencilAttachment.fTextureInfo.isValid()) {
         // TODO: ensure this is a scratch/recycled texture
+        SkASSERT(fTarget->isInstantiated());
         SkISize dimensions = context->priv().caps()->getDepthAttachmentDimensions(
-                fTarget->textureInfo(), fTarget->dimensions());
+                fTarget->texture()->textureInfo(), fTarget->dimensions());
         depthStencilAttachment = resourceProvider->findOrCreateDepthStencilAttachment(
                 dimensions, fRenderPassDesc.fDepthStencilAttachment.fTextureInfo);
         if (!depthStencilAttachment) {
