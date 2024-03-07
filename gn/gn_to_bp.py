@@ -455,7 +455,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     'skia_tools_require_resources':         'true',
 
     'skia_use_fontconfig':                  'false',
-    'skia_include_multiframe_procs':        'false',
+    'skia_include_multiframe_procs':        'true',
 
     # Tracing-related flags:
     'skia_disable_tracing':                 'false',
@@ -468,7 +468,6 @@ def generate_args(target_os, enable_gpu, renderengine = False):
   d['target_os'] = target_os
   if target_os == '"android"':
     d['skia_enable_tools'] = 'true'
-    d['skia_include_multiframe_procs'] = 'true'
     # Only enable for actual Android framework builds targeting Android devices.
     # (E.g. disabled for host builds and SkQP)
     d['skia_android_framework_use_perfetto'] = 'true'
