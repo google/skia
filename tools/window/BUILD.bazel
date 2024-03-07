@@ -34,8 +34,10 @@ skia_cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         "//:skia_internal",
-        "//tools/gpu/vk:testutils",
     ] + select({
+        "//src/gpu:vulkan_ganesh": ["//tools/gpu/vk:testutils"],
+        "//conditions:default": [],
+    }) + select({
         "@platforms//os:android": ["//tools/window/android:deps"],
         "//conditions:default": [],
     }),
