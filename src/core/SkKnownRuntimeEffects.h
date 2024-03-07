@@ -56,7 +56,6 @@ enum class StableKey : uint32_t {
     kInvalid = kStart,
 
     // shaders
-    kBlend,
     // Binned 1D Blurs
     k1DBlurBase,
     k1DBlur4 = k1DBlurBase, // all six 1DBlur stable keys must be consecutive after the Base
@@ -77,6 +76,9 @@ enum class StableKey : uint32_t {
     // For large kernels we bin by a multiple of eight (so no k2DBlur24)
     k2DBlur28,
 
+    kBlend,
+    kDecal,
+    kDisplacement,
     kLighting,
     kLinearMorphology,
     kMagnifier,

@@ -23,8 +23,8 @@
 #include "include/private/base/SkSpan_impl.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <optional>
@@ -117,22 +117,8 @@ sk_sp<SkShader> make_displacement_shader(
         displacement = SkShaders::Color(SK_ColorTRANSPARENT);
     }
 
-    // NOTE: This uses dot product selection to work on all GLES2 hardware (enforced by public
-    // runtime effect restrictions). Otherwise, this would use a "uniform ivec2" and component
-    // indexing to convert the displacement color into a vector.
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-        "uniform shader displMap;"
-        "uniform shader colorMap;"
-        "uniform half2 scale;"
-        "uniform half4 xSelect;" // Only one of RGBA will be 1, the rest are 0
-        "uniform half4 ySelect;"
-
-        "half4 main(float2 coord) {"
-            "half4 displColor = unpremul(displMap.eval(coord));"
-            "half2 displ = half2(dot(displColor, xSelect), dot(displColor, ySelect));"
-            "displ = scale * (displ - 0.5);"
-            "return colorMap.eval(coord + displ);"
-        "}");
+    const SkRuntimeEffect* displacementEffect =
+            GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kDisplacement);
 
     auto channelSelector = [](SkColorChannel c) {
         return SkV4{c == SkColorChannel::kR ? 1.f : 0.f,
@@ -141,7 +127,7 @@ sk_sp<SkShader> make_displacement_shader(
                     c == SkColorChannel::kA ? 1.f : 0.f};
     };
 
-    SkRuntimeShaderBuilder builder(sk_ref_sp(effect));
+    SkRuntimeShaderBuilder builder(sk_ref_sp(displacementEffect));
     builder.child("displMap") = std::move(displacement);
     builder.child("colorMap") = std::move(color);
     builder.uniform("scale") = SkV2{scale.x(), scale.y()};
