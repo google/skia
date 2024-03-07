@@ -14,7 +14,6 @@
 #include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RendererProvider.h"
-#include "src/gpu/graphite/SmallPathAtlas.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/text/TextAtlasManager.h"
 
@@ -32,7 +31,6 @@ AtlasProvider::PathAtlasFlagsBitMask AtlasProvider::QueryPathAtlasSupport(const 
 AtlasProvider::AtlasProvider(Recorder* recorder)
         : fTextAtlasManager(std::make_unique<TextAtlasManager>(recorder))
         , fRasterPathAtlas(std::make_unique<RasterPathAtlas>(recorder))
-        , fSmallPathAtlas(std::make_unique<SmallPathAtlas>(recorder))
         , fPathAtlasFlags(QueryPathAtlasSupport(recorder->priv().caps())) {}
 
 std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas(Recorder* recorder) const {
@@ -44,10 +42,6 @@ std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas(Recorder
 
 RasterPathAtlas* AtlasProvider::getRasterPathAtlas() const {
     return fRasterPathAtlas.get();
-}
-
-SmallPathAtlas* AtlasProvider::getSmallPathAtlas() const {
-    return fSmallPathAtlas.get();
 }
 
 sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
@@ -103,19 +97,12 @@ void AtlasProvider::recordUploads(DrawContext* dc) {
     if (fRasterPathAtlas) {
         fRasterPathAtlas->recordUploads(dc);
     }
-
-    if (fSmallPathAtlas) {
-        fSmallPathAtlas->recordUploads(dc);
-    }
 }
 
 void AtlasProvider::postFlush() {
     fTextAtlasManager->postFlush();
     if (fRasterPathAtlas) {
         fRasterPathAtlas->postFlush();
-    }
-    if (fSmallPathAtlas) {
-        fSmallPathAtlas->postFlush();
     }
 }
 

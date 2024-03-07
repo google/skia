@@ -35,6 +35,7 @@ public:
 
     void postFlush() {
         fCachedAtlasMgr.postFlush(fRecorder);
+        fSmallPathAtlasMgr.postFlush(fRecorder);
         fUncachedAtlasMgr.postFlush(fRecorder);
     }
 
@@ -94,6 +95,7 @@ private:
     };
 
     DrawAtlasMgr fCachedAtlasMgr;
+    DrawAtlasMgr fSmallPathAtlasMgr;
     DrawAtlasMgr fUncachedAtlasMgr;
 };
 

@@ -24,7 +24,6 @@ class DrawContext;
 class PathAtlas;
 class RasterPathAtlas;
 class Recorder;
-class SmallPathAtlas;
 class TextAtlasManager;
 class TextureProxy;
 
@@ -67,10 +66,6 @@ public:
     // for path rendering.
     RasterPathAtlas* getRasterPathAtlas() const;
 
-    // Gets the atlas handler that uses the CPU raster pipeline to create coverage masks
-    // for small path rendering.
-    SmallPathAtlas* getSmallPathAtlas() const;
-
     // Return a TextureProxy with the given dimensions and color type.
     sk_sp<TextureProxy> getAtlasTexture(
             Recorder*, uint16_t width, uint16_t height, SkColorType, uint16_t identifier,
@@ -98,8 +93,6 @@ private:
     // TODO: We may need a method to generate raster-generated masks in separate threads prior to
     // upload.
     std::unique_ptr<RasterPathAtlas> fRasterPathAtlas;
-
-    std::unique_ptr<SmallPathAtlas> fSmallPathAtlas;
 
     // Allocated and cached texture proxies shared by all PathAtlas instances. It is possible for
     // the same texture to be bound to multiple DispatchGroups and DrawPasses across flushes. The

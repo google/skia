@@ -139,8 +139,6 @@ skia_graphite_sources = [
   "$_src/ShaderCodeDictionary.h",
   "$_src/SharedContext.cpp",
   "$_src/SharedContext.h",
-  "$_src/SmallPathAtlas.cpp",
-  "$_src/SmallPathAtlas.h",
   "$_src/SpecialImage_Graphite.cpp",
   "$_src/Surface_Graphite.cpp",
   "$_src/Surface_Graphite.h",
