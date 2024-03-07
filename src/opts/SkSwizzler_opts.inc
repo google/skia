@@ -37,30 +37,36 @@
 
 namespace SK_OPTS_NS {
 
-SI float SkReciprocalAlphaTimes255_portable(float a) {
+#if defined(SK_USE_FAST_UNPREMUL_324099025)
+constexpr bool kFastUnpremul = true;
+#else
+constexpr bool kFastUnpremul = false;
+#endif
+
+SI float reciprocal_alpha_times_255_portable(float a) {
     return a != 0 ? 255.0f / a : 0.0f;
 }
 
-SI float SkReciprocalAlpha_portable(float a) {
+SI float reciprocal_alpha_portable(float a) {
     return a != 0 ? 1.0f / a : 0.0f;
 }
 
 #if defined(SK_ARM_HAS_NEON)
 // -- NEON -- Harden against timing attacks
 // For neon, the portable versions create branchless code.
-SI float SkReciprocalAlphaTimes255(float a) {
-    return SkReciprocalAlphaTimes255_portable(a);
+SI float reciprocal_alpha_times_255(float a) {
+    return reciprocal_alpha_times_255_portable(a);
 }
 
-SI float SkReciprocalAlpha(float a) {
-    return SkReciprocalAlpha_portable(a);
+SI float reciprocal_alpha(float a) {
+    return reciprocal_alpha_portable(a);
 }
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1 && (defined(__clang__) || !defined(_MSC_VER))
 // -- SSE -- Harden against timing attacks -- MSVC is not supported.
 using F4 = __m128;
 
 SK_NO_SANITIZE("float-divide-by-zero")
-SI float SkReciprocalAlphaTimes255(float a) {
+SI float reciprocal_alpha_times_255(float a) {
     SkASSERT(0 <= a && a <= 255);
     F4 vA{a, a, a, a};
     auto q = F4{255.0f} / vA;
@@ -68,7 +74,7 @@ SI float SkReciprocalAlphaTimes255(float a) {
 }
 
 SK_NO_SANITIZE("float-divide-by-zero")
-SI float SkReciprocalAlpha(float a) {
+SI float reciprocal_alpha(float a) {
     SkASSERT(0 <= a && a <= 1);
     F4 vA{a, a, a, a};
     auto q = F4{1.0f} / vA;
@@ -76,12 +82,12 @@ SI float SkReciprocalAlpha(float a) {
 }
 #else
 // -- Portable -- *Not* hardened against timing attacks
-SI float SkReciprocalAlphaTimes255(float a) {
-    return SkReciprocalAlphaTimes255_portable(a);
+SI float reciprocal_alpha_times_255(float a) {
+    return reciprocal_alpha_times_255_portable(a);
 }
 
-SI float SkReciprocalAlpha(float a) {
-    return SkReciprocalAlpha_portable(a);
+SI float reciprocal_alpha(float a) {
+    return reciprocal_alpha_portable(a);
 }
 #endif
 
@@ -147,23 +153,26 @@ SI uint32_t unpremul_simulating_RP(float reciprocalA, float c) {
 }
 
 SI uint32_t rgbA_to_CCCA(float c00, float c08, float c16, float a) {
-    #if defined(SK_USE_FAST_UNPREMUL_324099025)
-        const float reciprocalA = SkReciprocalAlphaTimes255(a);
+    if constexpr (kFastUnpremul) {
+        const float reciprocalA = reciprocal_alpha_times_255(a);
         auto unpremul = [reciprocalA](float c) {
             return unpremul_quick(reciprocalA, c);
         };
-    #else
+        return (uint32_t) a << 24
+               | unpremul(c16) << 16
+               | unpremul(c08) <<  8
+               | unpremul(c00) <<  0;
+    } else {
         const float normalizedA = a * (1.0f / 255.0f);
-        const float reciprocalA = SkReciprocalAlpha(normalizedA);
+        const float reciprocalA = reciprocal_alpha(normalizedA);
         auto unpremul = [reciprocalA](float c) {
             return unpremul_simulating_RP(reciprocalA, c);
         };
-    #endif
-
-    return (uint32_t) a << 24
-        | unpremul(c16) << 16
-        | unpremul(c08) <<  8
-        | unpremul(c00) <<  0;
+        return (uint32_t) a << 24
+               | unpremul(c16) << 16
+               | unpremul(c08) <<  8
+               | unpremul(c00) <<  0;
+    }
 }
 
 static void rgbA_to_RGBA_portable(uint32_t* dst, const uint32_t* src, int count) {
