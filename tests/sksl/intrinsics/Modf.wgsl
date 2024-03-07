@@ -4,6 +4,7 @@ error: :19:20 error: no matching call to 'modf(f32, f32)'
 
 2 candidate functions:
  • 'modf(T  ✓ ) -> __modf_result_T' where:
+      ✗  overload expects 1 argument, call passed 2 arguments
       ✓  'T' is 'abstract-float', 'f32' or 'f16'
  • 'modf(vecN<T>  ✗ ) -> __modf_result_vecN_T' where:
       ✗  'T' is 'abstract-float', 'f32' or 'f16'
