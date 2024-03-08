@@ -17,6 +17,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/docs/SkMultiPictureDocument.h"
@@ -2111,6 +2112,10 @@ RasterSink::RasterSink(SkColorType colorType)
 
 Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const {
     const SkISize size = src.size();
+    if (size.isEmpty()) {
+        return Result(Result::Status::Skip,
+                      SkStringPrintf("Skipping empty source: %s", src.name().c_str()));
+    }
 
     dst->allocPixelsFlags(SkImageInfo::Make(size, this->colorInfo()),
                           SkBitmap::kZeroPixels_AllocFlag);
