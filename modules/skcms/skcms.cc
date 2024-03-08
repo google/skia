@@ -1237,7 +1237,7 @@ static bool usable_as_src(const skcms_ICCProfile* profile) {
 bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
                                 const int priority[], const int priorities,
                                 skcms_ICCProfile* profile) {
-    assert(SAFE_SIZEOF(header_Layout) == 132);
+    static_assert(SAFE_SIZEOF(header_Layout) == 132, "need to update header code");
 
     if (!profile) {
         return false;
