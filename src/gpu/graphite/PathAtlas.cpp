@@ -30,11 +30,17 @@ namespace {
 // TODO: This is the maximum target dimension that vello can handle today
 constexpr uint16_t kComputeAtlasDim = 4096;
 
+constexpr int kMinAtlasTextureSize = 512;  // the smallest we want the PathAtlas textures to be
+                                           // unless the device requires smaller
+
 }  // namespace
 
 PathAtlas::PathAtlas(Recorder* recorder, uint32_t requestedWidth, uint32_t requestedHeight)
         : fRecorder(recorder) {
-    uint32_t maxTextureSize = recorder->priv().caps()->maxTextureSize();
+    const Caps* caps = recorder->priv().caps();
+    int maxTextureSize = std::max(caps->maxPathAtlasTextureSize(), kMinAtlasTextureSize);
+    maxTextureSize = std::min(maxTextureSize, caps->maxTextureSize());
+
     fWidth = SkPrevPow2(std::min<uint32_t>(requestedWidth, maxTextureSize));
     fHeight = SkPrevPow2(std::min<uint32_t>(requestedHeight, maxTextureSize));
 }

@@ -71,10 +71,15 @@ struct SK_API ContextOptions {
 #endif
 
     /**
-     * Can the glyph atlas use multiple textures. If allowed, the each texture's size is bound by
-     * fGlypheCacheTextureMaximumBytes.
+     * The maximum size of textures used for Skia's PathAtlas caches.
      */
-    bool fAllowMultipleGlyphCacheTextures = true;
+    int fMaxPathAtlasTextureSize = 8192;  // oversized, PathAtlas will likely be smaller
+
+    /**
+     * Can the glyph and path atlases use multiple textures. If allowed, each texture's size is
+     * bound by fGlyphCacheTextureMaximumBytes and fMaxPathAtlasTextureSize, respectively.
+     */
+    bool fAllowMultipleAtlasTextures = true;
     bool fSupportBilerpFromGlyphAtlas = false;
 
     /**

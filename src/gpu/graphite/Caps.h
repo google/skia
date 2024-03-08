@@ -260,8 +260,9 @@ public:
     float glyphsAsPathsFontSize() const { return fGlyphsAsPathsFontSize; }
 
     size_t glyphCacheTextureMaximumBytes() const { return fGlyphCacheTextureMaximumBytes; }
+    int maxPathAtlasTextureSize() const { return fMaxPathAtlasTextureSize; }
 
-    bool allowMultipleGlyphCacheTextures() const { return fAllowMultipleGlyphCacheTextures; }
+    bool allowMultipleAtlasTextures() const { return fAllowMultipleAtlasTextures; }
     bool supportBilerpFromGlyphAtlas() const { return fSupportBilerpFromGlyphAtlas; }
 
     bool requireOrderedRecordings() const { return fRequireOrderedRecordings; }
@@ -364,7 +365,9 @@ protected:
     float fMinDistanceFieldFontSize = 18;
     float fGlyphsAsPathsFontSize = 324;
 
-    bool fAllowMultipleGlyphCacheTextures = true;
+    int fMaxPathAtlasTextureSize = 8192;
+
+    bool fAllowMultipleAtlasTextures = true;
     bool fSupportBilerpFromGlyphAtlas = false;
 
     // Set based on client options

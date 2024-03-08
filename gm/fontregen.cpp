@@ -64,7 +64,7 @@ class FontRegenGM : public skiagm::GM {
 #if defined(SK_GRAPHITE)
     void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
         options->fGlyphCacheTextureMaximumBytes = 0;
-        options->fAllowMultipleGlyphCacheTextures = false;
+        options->fAllowMultipleAtlasTextures = false;
     }
 #endif
 
