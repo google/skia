@@ -234,3 +234,22 @@ skia_cc_library(
         "//src/base",
     ],
 )
+
+skia_cc_library(
+    name = "multi_picture_document",
+    srcs = [
+        "SkMultiPictureDocument.cpp",
+        "SkMultiPictureDocument.h",
+        "SkMultiPictureDocumentPriv.h",
+    ],
+    hdrs = [
+        "//include/docs:multi_picture_document_hdrs",
+    ],
+    visibility = [
+        "//tools/debugger:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+    ],
+)

@@ -394,7 +394,10 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     local_defines = ["SK_USE_LEGACY_GANESH_TEXT_APIS"],
-    visibility = ["//src/gpu/ganesh:__subpackages__"],
+    visibility = [
+        "//src/gpu/ganesh:__subpackages__",
+        "//tools/debugger:__pkg__",
+    ],
     deps = [
         "//:core",
         "//modules/skcms",

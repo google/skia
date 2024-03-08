@@ -455,6 +455,7 @@ bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
     if (a.width() != b.width() || a.height() != b.height()) {
         SkDebugf("[ToolUtils::equal_pixels] Dimensions do not match (%d x %d) != (%d x %d)\n",
                  a.width(), a.height(), b.width(), b.height());
+        return false;
     }
 
     if (a.colorType() != b.colorType()) {
@@ -476,16 +477,34 @@ bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
 
 bool equal_pixels(const SkBitmap& bm0, const SkBitmap& bm1) {
     SkPixmap pm0, pm1;
-    return bm0.peekPixels(&pm0) && bm1.peekPixels(&pm1) && equal_pixels(pm0, pm1);
+    if (!bm0.peekPixels(&pm0)) {
+        SkDebugf("Could not read pixels from A\n");
+        return false;
+    }
+    if (!bm1.peekPixels(&pm1)) {
+        SkDebugf("Could not read pixels from B\n");
+        return false;
+    }
+    return equal_pixels(pm0, pm1);
 }
 
 bool equal_pixels(const SkImage* a, const SkImage* b) {
+    SkASSERT_RELEASE(a);
+    SkASSERT_RELEASE(b);
     // ensure that peekPixels will succeed
     auto imga = a->makeRasterImage();
     auto imgb = b->makeRasterImage();
 
     SkPixmap pm0, pm1;
-    return imga->peekPixels(&pm0) && imgb->peekPixels(&pm1) && equal_pixels(pm0, pm1);
+    if (!imga->peekPixels(&pm0)) {
+        SkDebugf("Could not read pixels from A\n");
+        return false;
+    }
+    if (!imgb->peekPixels(&pm1)) {
+        SkDebugf("Could not read pixels from B\n");
+        return false;
+    }
+    return equal_pixels(pm0, pm1);
 }
 
 sk_sp<SkSurface> makeSurface(SkCanvas*             canvas,
