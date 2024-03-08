@@ -55,6 +55,9 @@ struct CTFontVariation {
     OpszVariation opsz;
 };
 
+SkUniqueCFRef<CTFontRef> SkCTFontCreateExactCopy(CTFontRef baseFont, CGFloat textSize,
+                                                 OpszVariation opsz);
+
 SkFontStyle SkCTFontDescriptorGetSkFontStyle(CTFontDescriptorRef desc, bool fromDataProvider);
 
 CGFloat SkCTFontCTWeightForCSSWeight(int fontstyleWeight);

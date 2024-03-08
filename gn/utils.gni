@@ -103,8 +103,6 @@ skia_utils_private = [
   "$_src/utils/mac/SkCGGeometry.h",
   "$_src/utils/mac/SkCTFont.cpp",
   "$_src/utils/mac/SkCTFont.h",
-  "$_src/utils/mac/SkCTFontCreateExactCopy.cpp",
-  "$_src/utils/mac/SkCTFontCreateExactCopy.h",
   "$_src/utils/mac/SkCreateCGImageRef.cpp",
   "$_src/utils/mac/SkUniqueCFRef.h",
   "$_src/utils/win/SkAutoCoInitialize.cpp",
