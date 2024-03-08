@@ -375,6 +375,16 @@ Device::Device(Recorder* recorder,
     if (addInitialClear) {
         fDC->clear(SkColors::kTransparent);
     }
+    if (fRecorder->priv().caps()->defaultMSAASamplesCount() > 1) {
+        if (fRecorder->priv().caps()->msaaRenderToSingleSampledSupport()) {
+            fMSAASupported = true;
+        } else {
+            TextureInfo msaaTexInfo =
+                   fRecorder->priv().caps()->getDefaultMSAATextureInfo(fDC->target()->textureInfo(),
+                                                                       Discardable::kYes);
+            fMSAASupported = msaaTexInfo.isValid();
+        }
+    }
 }
 
 Device::~Device() {
@@ -1413,7 +1423,6 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     }
 
     PathAtlas* pathAtlas = nullptr;
-    bool msaaSupported = fRecorder->priv().caps()->defaultMSAASamplesCount() > 1;
 
     // Prefer compute atlas draws if supported. This currently implicitly filters out clip draws as
     // they require MSAA. Eventually we may want to route clip shapes to the atlas as well but not
@@ -1428,7 +1437,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     // TODO: enable other uses of the software path renderer
     } else if (atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster) &&
                (strategy == PathRendererStrategy::kRasterAA ||
-                (strategy == PathRendererStrategy::kDefault && !msaaSupported))) {
+                (strategy == PathRendererStrategy::kDefault && !fMSAASupported))) {
         pathAtlas = atlasProvider->getRasterPathAtlas();
     }
 
@@ -1440,7 +1449,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         //
         // If the hardware doesn't support MSAA and anti-aliasing is required, then we always render
         // paths with atlasing.
-        if (!msaaSupported || strategy != PathRendererStrategy::kDefault) {
+        if (!fMSAASupported || strategy != PathRendererStrategy::kDefault) {
             return {nullptr, pathAtlas};
         }
 

@@ -282,6 +282,9 @@ private:
     // The max depth value sent to the DrawContext, incremented so each draw has a unique value.
     PaintersDepth fCurrentDepth;
 
+    // The DrawContext's target supports MSAA
+    bool fMSAASupported = false;
+
     const sktext::gpu::SDFTControl fSDFTControl;
 
     friend class ClipStack; // for recordDraw

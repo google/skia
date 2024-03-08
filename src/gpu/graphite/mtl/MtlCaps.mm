@@ -284,10 +284,12 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
 
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
     fColorSampleCounts.push_back(1);
-    if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
-        for (auto sampleCnt : {2, 4, 8}) {
-            if ([device supportsTextureSampleCount:sampleCnt]) {
-                fColorSampleCounts.push_back(sampleCnt);
+    if (![device.name containsString:@"Intel"]) {
+        if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
+            for (auto sampleCnt : {2, 4, 8}) {
+                if ([device supportsTextureSampleCount:sampleCnt]) {
+                    fColorSampleCounts.push_back(sampleCnt);
+                }
             }
         }
     }
@@ -817,6 +819,9 @@ TextureInfo MtlCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledI
         return {};
     }
     const MtlTextureSpec& singleSpec = singleSampledInfo.mtlTextureSpec();
+    if (!this->isRenderable((MTLPixelFormat)singleSpec.fFormat, fDefaultMSAASamples)) {
+        return {};
+    }
 
     MTLTextureUsage usage = MTLTextureUsageRenderTarget;
 
