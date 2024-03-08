@@ -66,6 +66,9 @@ static DEFINE_bool(nativeFonts,
 #if defined(SK_BUILD_FOR_WIN)
 static DEFINE_bool(gdi, false, "Use GDI instead of DirectWrite for font rendering.");
 #endif
+#if defined(SK_FONTMGR_FONTATIONS_AVAILABLE)
+static DEFINE_bool(fontations, false, "Use Fontations for native font rendering.");
+#endif
 
 sk_sp<SkTypeface> PlanetTypeface() {
     static const sk_sp<SkTypeface> planetTypeface = []() {
@@ -253,6 +256,11 @@ sk_sp<SkFontMgr> TestFontMgr() {
             mgr = SkFontMgr_New_GDI();
         }
 #endif
+#if defined(SK_FONTMGR_FONTATIONS_AVAILABLE)
+        else if (FLAGS_fontations) {
+            mgr = SkFontMgr_New_Fontations_Empty();
+        }
+#endif
         else {
 #if defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_AVAILABLE)
             mgr = SkFontMgr_New_Android(nullptr, std::make_unique<SkFontScanner_FreeType>());
@@ -261,8 +269,6 @@ sk_sp<SkFontMgr> TestFontMgr() {
 #elif defined(SK_FONTMGR_CORETEXT_AVAILABLE) && (defined(SK_BUILD_FOR_IOS) || \
                                                 defined(SK_BUILD_FOR_MAC))
             mgr = SkFontMgr_New_CoreText(nullptr);
-#elif defined(SK_FONTMGR_FONTATIONS_AVAILABLE)
-            mgr = SkFontMgr_New_Fontations_Empty();
 #elif defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
             mgr = SkFontMgr_New_FontConfig(nullptr);
 #elif defined(SK_FONTMGR_FREETYPE_DIRECTORY_AVAILABLE)

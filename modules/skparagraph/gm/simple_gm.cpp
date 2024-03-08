@@ -57,8 +57,14 @@ public:
         skia::textlayout::ParagraphStyle paraStyle;
         paraStyle.setTextStyle(style);
 
+        sk_sp<SkFontMgr> fontmgr = ToolUtils::TestFontMgr();
+        if (fontmgr->countFamilies() == 0) {
+            fPara = nullptr;
+            return;
+        }
         auto collection = sk_make_sp<skia::textlayout::FontCollection>();
-        collection->setDefaultFontManager(ToolUtils::TestFontMgr());
+        collection->setDefaultFontManager(std::move(fontmgr));
+
         auto builder = skia::textlayout::ParagraphBuilderImpl::make(
                 paraStyle, collection, SkUnicode::Make());
         if (nullptr == builder) {
@@ -160,6 +166,7 @@ protected:
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         if (nullptr == fPara) {
+            *errorMsg = "Font manager had no fonts or could not build paragraph.";
             return DrawResult::kSkip;
         }
 

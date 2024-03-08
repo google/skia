@@ -132,10 +132,15 @@ public:
             sk_sp<SkTypeface> face = mgr->makeFromStream(std::move(stream), {});
             // Without --nativeFonts, DM will use the portable test font manager which does
             // not know how to read in fonts from bytes.
-            SkASSERTF(face, "%s was not turned into a Typeface. Did you set --nativeFonts?",
-                      file_path.c_str());
-            fFontProvider->registerTypeface(face);
+            if (face) {
+                fFontProvider->registerTypeface(face);
+            } else {
+                SkDEBUGF("%s was not turned into a Typeface. Did you set --nativeFonts?",
+                         file_path.c_str());
+            }
         }
+        SkASSERTF(fFontProvider->countFamilies(),
+                  "No font families found. Did you set --nativeFonts?");
 
         if (testOnly) {
             this->setTestFontManager(std::move(fFontProvider));

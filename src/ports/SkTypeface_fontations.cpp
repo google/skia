@@ -193,7 +193,9 @@ void SkTypeface_Fontations::onGetFamilyName(SkString* familyName) const {
 bool SkTypeface_Fontations::onGetPostScriptName(SkString* postscriptName) const {
     rust::String readPsName;
     if (fontations_ffi::postscript_name(*fBridgeFontRef, readPsName)) {
-        *postscriptName = SkString(readPsName.data(), readPsName.size());
+        if (postscriptName) {
+            *postscriptName = SkString(readPsName.data(), readPsName.size());
+        }
         return true;
     }
 
@@ -519,8 +521,7 @@ protected:
     }
 
     bool generatePath(const SkGlyph& glyph, SkPath* path) override {
-        SkASSERT(glyph.extraBits() != ScalerContextBits::COLRv1);
-        SkASSERT(glyph.extraBits() != ScalerContextBits::COLRv0);
+        SkASSERT(glyph.extraBits() == ScalerContextBits::PATH);
 
         SkVector scale;
         SkMatrix remainingMatrix;
@@ -584,11 +585,10 @@ protected:
             }
         };
         ScalerContextBits::value_type format = glyph.extraBits();
-        if (format == ScalerContextBits::BITMAP) {
-            return nullptr;
+        if (format == ScalerContextBits::COLRv1 || format == ScalerContextBits::COLRv0) {
+            return sk_sp<SkDrawable>(new ColrGlyphDrawable(this, glyph));
         }
-        SkASSERT(format == ScalerContextBits::COLRv1 || format == ScalerContextBits::COLRv0);
-        return sk_sp<SkDrawable>(new ColrGlyphDrawable(this, glyph));
+        return nullptr;
     }
 
     void generateFontMetrics(SkFontMetrics* out_metrics) override {
