@@ -101,7 +101,7 @@ skia_cc_library(
     srcs = ["UrlDataManager.cpp"],
     hdrs = ["UrlDataManager.h"],
     visibility = ["//tools/debugger:__pkg__"],
-    deps = ["//:core"],
+    deps = ["//:skia_internal"],
 )
 
 skia_cc_library(
@@ -109,11 +109,7 @@ skia_cc_library(
     srcs = ["SkSharingProc.cpp"],
     hdrs = ["SkSharingProc.h"],
     visibility = ["//tools/debugger:__pkg__"],
-    deps = [
-        "//:core",
-        "//:png_decode_codec",
-        "//:png_encode_codec",
-    ],
+    deps = ["//:skia_internal"],
 )
 
 skia_cc_library(

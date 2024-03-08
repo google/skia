@@ -7,7 +7,6 @@
 
 #include "tools/SkSharingProc.h"
 
-#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
@@ -83,12 +82,7 @@ sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(
     // Otherwise, the data is an image, deserialise it, store it in our map at its fid.
     // TODO(nifong): make DeserialProcs accept sk_sp<SkData> so we don't have to copy this.
     sk_sp<SkData> dataView = SkData::MakeWithCopy(data, length);
-    auto codec = SkPngDecoder::Decode(std::move(dataView), nullptr);
-    if (!codec) {
-        SkDebugf("Cannot deserialize image - might not be a PNG.\n");
-        return nullptr;
-    }
-    auto [image, results] = codec->getImage();
+    const sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(std::move(dataView));
     context->fImages.push_back(image);
     return image;
 }

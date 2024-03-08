@@ -12,14 +12,13 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "multi_picture_document_hdrs",
+    name = "chromium_hdrs",
     srcs = ["SkMultiPictureDocument.h"],
-    visibility = ["//src/utils:__pkg__"],
 )
 
 skia_filegroup(
     name = "public_hdrs",
-    srcs = [":multi_picture_document_hdrs"] + select({
+    srcs = [":chromium_hdrs"] + select({
         "//src/pdf:enable_pdf_backend_true": ["SkPDFDocument.h"],
         "//conditions:default": [],
     }),  # TODO(kjlubick) XPSDocument
