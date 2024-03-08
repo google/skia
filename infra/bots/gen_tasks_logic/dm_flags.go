@@ -1471,6 +1471,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		args = append(args, "--gdi")
 	}
 
+	if b.extraConfig("Fontations") {
+		args = append(args, "--fontations")
+	}
+
 	// Let's make all tasks produce verbose output by default.
 	args = append(args, "--verbose")
 
