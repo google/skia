@@ -61,7 +61,7 @@ void compile(const RendererProvider* rendererProvider,
             GraphicsPipelineDesc pipelineDesc(s, paintID);
 
             for (const RenderPassDesc& renderPassDesc : renderPassDescs) {
-                auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(
+                sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
                         keyContext.rtEffectDict(),
                         pipelineDesc,
                         renderPassDesc);
@@ -77,6 +77,24 @@ void compile(const RendererProvider* rendererProvider,
 } // anonymous namespace
 
 namespace skgpu::graphite {
+
+bool Precompile(Context* context,
+                RuntimeEffectDictionary* rteDict,
+                const GraphicsPipelineDesc& pipelineDesc,
+                const RenderPassDesc& renderPassDesc) {
+    ResourceProvider* resourceProvider = context->priv().resourceProvider();
+
+    sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
+            rteDict,
+            pipelineDesc,
+            renderPassDesc);
+    if (!pipeline) {
+        SKGPU_LOG_W("Failed to create GraphicsPipeline in precompile!");
+        return false;
+    }
+
+    return true;
+}
 
 void Precompile(Context* context, const PaintOptions& options, DrawTypeFlags drawTypes) {
 

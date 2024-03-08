@@ -15,7 +15,10 @@
 namespace skgpu::graphite {
 
 class Context;
+class GraphicsPipelineDesc;
 class PaintOptions;
+struct RenderPassDesc;
+class RuntimeEffectDictionary;
 
 /**
  * Precompilation allows clients to create pipelines ahead of time based on what they expect
@@ -28,6 +31,15 @@ class PaintOptions;
  *   @param drawTypes      communicates which primitives those paints will be drawn with
  */
 void Precompile(Context*, const PaintOptions&, DrawTypeFlags = kMostCommon);
+
+/*
+ * TODO: Rather than passing in a pipelineDesc and renderPassDesc we need to add an
+ * opaque serializable object that contains the same information.
+ */
+bool Precompile(Context*,
+                RuntimeEffectDictionary* rteDict,
+                const GraphicsPipelineDesc& pipelineDesc,
+                const RenderPassDesc& renderPassDesc);
 
 } // namespace skgpu::graphite
 
