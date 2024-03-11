@@ -169,7 +169,7 @@ private:
 
     bool addRectToPage(unsigned int pageIdx, int width, int height, AtlasLocator*);
 
-    bool updatePlot(Plot* plot, AtlasLocator*);
+    void updatePlot(Plot* plot, AtlasLocator*);
 
     inline void makeMRU(Plot* plot, int pageIdx) {
         if (fPages[pageIdx].fPlotList.head() == plot) {

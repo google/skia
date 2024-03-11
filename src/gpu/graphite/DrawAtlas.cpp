@@ -113,7 +113,7 @@ inline void DrawAtlas::processEviction(PlotLocator plotLocator) {
     fAtlasGeneration = fGenerationCounter->next();
 }
 
-inline bool DrawAtlas::updatePlot(Plot* plot, AtlasLocator* atlasLocator) {
+inline void DrawAtlas::updatePlot(Plot* plot, AtlasLocator* atlasLocator) {
     int pageIdx = plot->pageIndex();
     this->makeMRU(plot, pageIdx);
 
@@ -121,7 +121,6 @@ inline bool DrawAtlas::updatePlot(Plot* plot, AtlasLocator* atlasLocator) {
 
     atlasLocator->updatePlotLocator(plot->plotLocator());
     SkDEBUGCODE(this->validate(*atlasLocator);)
-    return true;
 }
 
 bool DrawAtlas::addRectToPage(unsigned int pageIdx, int width, int height,
@@ -134,7 +133,8 @@ bool DrawAtlas::addRectToPage(unsigned int pageIdx, int width, int height,
 
     for (Plot* plot = plotIter.get(); plot; plot = plotIter.next()) {
         if (plot->addRect(width, height, atlasLocator)) {
-            return this->updatePlot(plot, atlasLocator);
+            this->updatePlot(plot, atlasLocator);
+            return true;
         }
     }
 
@@ -211,9 +211,7 @@ DrawAtlas::ErrorCode DrawAtlas::addRect(Recorder* recorder,
                 this->processEvictionAndResetRects(plot);
                 SkDEBUGCODE(bool verify = )plot->addRect(width, height, atlasLocator);
                 SkASSERT(verify);
-                if (!this->updatePlot(plot, atlasLocator)) {
-                    return ErrorCode::kError;
-                }
+                this->updatePlot(plot, atlasLocator);
                 return ErrorCode::kSucceeded;
             }
         }
