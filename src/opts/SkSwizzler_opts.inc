@@ -505,66 +505,72 @@ void inverted_CMYK_to_BGR1(uint32_t dst[], const uint32_t* src, int count) {
 
 template <bool swapRB>
 static void common_rgbA_to_RGBA(uint32_t* dst, const uint32_t* src, int count) {
-    while (count >= 8) {
-        const uint8x8x4_t in = vld4_u8((const uint8_t*)src);
 
-        auto round = [](float32x4_t v) -> uint32x4_t {
-            #if defined(SK_CPU_ARM64)
-                return vcvtnq_u32_f32(v);
-            #else
-                return vcvtq_u32_f32(v + 0.5f);
-            #endif
-        };
+    // Only use the SIMD code if simulating RP, otherwise the quick code auto-vectorizes will
+    // enough on ARM to not need a SIMD implementation.
+    if constexpr (!kFastUnpremul) {
+        while (count >= 8) {
+            const uint8x8x4_t in = vld4_u8((const uint8_t*)src);
 
-        static constexpr float kN = 1.0f / 255.0f;
-        auto toNormalized = [](uint16x4_t v) -> float32x4_t {
-            return vcvtq_f32_u32(vmovl_u16(v)) * kN;
-        };
+            auto round = [](float32x4_t v) -> uint32x4_t {
+                #if defined(SK_CPU_ARM64)
+                    return vcvtnq_u32_f32(v);
+                #else
+                    return vcvtq_u32_f32(v + 0.5f);
+                #endif
+            };
 
-        auto unpremulHalf = [toNormalized, round](float32x4_t invA, uint16x4_t v) -> uint16x4_t {
-            const float32x4_t normalizedV = toNormalized(v);
-            const float32x4_t divided = invA * normalizedV;
-            const float32x4_t denormalized = divided * 255.0f;
-            const uint32x4_t rounded = round(denormalized);
-            return vqmovn_u32(rounded);
-        };
+            static constexpr float kN = 1.0f / 255.0f;
+            auto toNormalized = [](uint16x4_t v) -> float32x4_t {
+                return vcvtq_f32_u32(vmovl_u16(v)) * kN;
+            };
 
-        auto reciprocal = [](float32x4_t a) -> float32x4_t {
-            uint32x4_t mask = sk_bit_cast<uint32x4_t>(a != float32x4_t{0, 0, 0, 0});
-            auto recip = 1.0f / a;
-            return sk_bit_cast<float32x4_t>(mask & sk_bit_cast<uint32x4_t>(recip));
-        };
+            auto unpremulHalf =
+                    [toNormalized, round](float32x4_t invA, uint16x4_t v) -> uint16x4_t {
+                const float32x4_t normalizedV = toNormalized(v);
+                const float32x4_t divided = invA * normalizedV;
+                const float32x4_t denormalized = divided * 255.0f;
+                const uint32x4_t rounded = round(denormalized);
+                return vqmovn_u32(rounded);
+            };
 
-        const uint8x8_t a = in.val[3];
-        const uint16x8_t intA = vmovl_u8(a);
-        const float32x4_t invALow = reciprocal(toNormalized(vget_low_u16(intA)));
-        const float32x4_t invAHigh = reciprocal(toNormalized(vget_high_u16(intA)));
+            auto reciprocal = [](float32x4_t a) -> float32x4_t {
+                uint32x4_t mask = sk_bit_cast<uint32x4_t>(a != float32x4_t{0, 0, 0, 0});
+                auto recip = 1.0f / a;
+                return sk_bit_cast<float32x4_t>(mask & sk_bit_cast<uint32x4_t>(recip));
+            };
 
-        auto unpremul = [unpremulHalf, invALow, invAHigh](uint8x8_t v) -> uint8x8_t {
-            const uint16x8_t to16 = vmovl_u8(v);
+            const uint8x8_t a = in.val[3];
+            const uint16x8_t intA = vmovl_u8(a);
+            const float32x4_t invALow = reciprocal(toNormalized(vget_low_u16(intA)));
+            const float32x4_t invAHigh = reciprocal(toNormalized(vget_high_u16(intA)));
 
-            const uint16x4_t low = unpremulHalf(invALow, vget_low_u16(to16));
-            const uint16x4_t high = unpremulHalf(invAHigh, vget_high_u16(to16));
+            auto unpremul = [unpremulHalf, invALow, invAHigh](uint8x8_t v) -> uint8x8_t {
+                const uint16x8_t to16 = vmovl_u8(v);
 
-            const uint16x8_t combined = vcombine_u16(low, high);
-            return vqmovn_u16(combined);
-        };
+                const uint16x4_t low = unpremulHalf(invALow, vget_low_u16(to16));
+                const uint16x4_t high = unpremulHalf(invAHigh, vget_high_u16(to16));
 
-        const uint8x8_t b = unpremul(in.val[2]);
-        const uint8x8_t g = unpremul(in.val[1]);
-        const uint8x8_t r = unpremul(in.val[0]);
+                const uint16x8_t combined = vcombine_u16(low, high);
+                return vqmovn_u16(combined);
+            };
 
-        if constexpr (swapRB) {
-            const uint8x8x4_t out{b, g, r, a};
-            vst4_u8((uint8_t*)dst, out);
-        } else {
-            const uint8x8x4_t out{r, g, b, a};
-            vst4_u8((uint8_t*)dst, out);
+            const uint8x8_t b = unpremul(in.val[2]);
+            const uint8x8_t g = unpremul(in.val[1]);
+            const uint8x8_t r = unpremul(in.val[0]);
+
+            if constexpr (swapRB) {
+                const uint8x8x4_t out{b, g, r, a};
+                vst4_u8((uint8_t*)dst, out);
+            } else {
+                const uint8x8x4_t out{r, g, b, a};
+                vst4_u8((uint8_t*)dst, out);
+            }
+
+            src += 8;
+            dst += 8;
+            count -= 8;
         }
-
-        src += 8;
-        dst += 8;
-        count -= 8;
     }
 
     // Handle the tail. Count will be < 8.
