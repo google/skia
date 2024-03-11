@@ -332,10 +332,10 @@ void SkNWayCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y
     }
 }
 
-void SkNWayCanvas::onDrawSlug(const sktext::gpu::Slug* slug) {
+void SkNWayCanvas::onDrawSlug(const sktext::gpu::Slug* slug, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawSlug(slug);
+        iter->drawSlug(slug, paint);
     }
 }
 

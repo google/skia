@@ -73,7 +73,7 @@ protected:
     void onDrawGlyphRunList(const sktext::GlyphRunList&, const SkPaint&) override;
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                         const SkPaint& paint) override;
-    void onDrawSlug(const sktext::gpu::Slug* slug) override;
+    void onDrawSlug(const sktext::gpu::Slug* slug, const SkPaint& paint) override;
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                      const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint) override;
 

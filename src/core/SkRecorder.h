@@ -107,7 +107,7 @@ public:
                         SkScalar x,
                         SkScalar y,
                         const SkPaint& paint) override;
-    void onDrawSlug(const sktext::gpu::Slug* slug) override;
+    void onDrawSlug(const sktext::gpu::Slug* slug, const SkPaint& paint) override;
     void onDrawGlyphRunList(
             const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
     void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],

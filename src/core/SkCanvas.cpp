@@ -2745,21 +2745,20 @@ SkCanvas::onConvertGlyphRunListToSlug(
     return nullptr;
 }
 
-void SkCanvas::drawSlug(const Slug* slug) {
+void SkCanvas::drawSlug(const Slug* slug, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (slug) {
-        this->onDrawSlug(slug);
+        this->onDrawSlug(slug, paint);
     }
 }
 
-void SkCanvas::onDrawSlug(const Slug* slug) {
+void SkCanvas::onDrawSlug(const Slug* slug, const SkPaint& paint) {
     SkRect bounds = slug->sourceBoundsWithOrigin();
-    if (this->internalQuickReject(bounds, slug->initialPaint())) {
+    if (this->internalQuickReject(bounds, paint)) {
         return;
     }
     // See comment in onDrawGlyphRunList()
-    auto layer = this->aboutToDraw(slug->initialPaint(), &bounds,
-                                   PredrawFlags::kSkipMaskFilterAutoLayer);
+    auto layer = this->aboutToDraw(paint, &bounds, PredrawFlags::kSkipMaskFilterAutoLayer);
     if (layer) {
         this->topDevice()->drawSlug(this, slug, layer->paint());
     }

@@ -50,7 +50,7 @@ void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
             this->SkCanvas::onDrawGlyphRunList(glyphRunList, layer->paint());
         } else {
             auto slug = this->onConvertGlyphRunListToSlug(glyphRunList, layer->paint());
-            this->drawSlug(slug.get());
+            this->drawSlug(slug.get(), layer->paint());
         }
     }
 }
@@ -92,7 +92,7 @@ void SkTestCanvas<SkSerializeSlugTestKey>::onDrawGlyphRunList(
                     };
                     auto slug = sktext::gpu::Slug::Deserialize(
                             bytes->data(), bytes->size(), nullptr, procs);
-                    this->drawSlug(slug.get());
+                    this->drawSlug(slug.get(), layer->paint());
                 }
             }
         }
@@ -208,7 +208,7 @@ void SkTestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
                     };
                     auto slug = sktext::gpu::Slug::Deserialize(
                             slugBytes->data(), slugBytes->size(), &fStrikeClient, procs);
-                    this->drawSlug(slug.get());
+                    this->drawSlug(slug.get(), layer->paint());
                 }
             }
         }

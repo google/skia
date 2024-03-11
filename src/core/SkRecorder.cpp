@@ -250,8 +250,8 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     this->append<SkRecords::DrawTextBlob>(paint, sk_ref_sp(blob), x, y);
 }
 
-void SkRecorder::onDrawSlug(const sktext::gpu::Slug* slug) {
-    this->append<SkRecords::DrawSlug>(sk_ref_sp(slug));
+void SkRecorder::onDrawSlug(const sktext::gpu::Slug* slug, const SkPaint& paint) {
+    this->append<SkRecords::DrawSlug>(paint, sk_ref_sp(slug));
 }
 
 void SkRecorder::onDrawGlyphRunList(

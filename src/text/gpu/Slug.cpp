@@ -51,7 +51,11 @@ sk_sp<Slug> Slug::Deserialize(const void* data,
 }
 
 void Slug::draw(SkCanvas* canvas) const {
-    canvas->drawSlug(this);
+    canvas->drawSlug(this, this->initialPaint());
+}
+
+void Slug::draw(SkCanvas* canvas, const SkPaint& paint) const {
+    canvas->drawSlug(this, paint);
 }
 
 }  // namespace sktext::gpu

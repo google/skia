@@ -2299,7 +2299,7 @@ protected:
 
     /**
      */
-    virtual void onDrawSlug(const sktext::gpu::Slug* slug);
+    virtual void onDrawSlug(const sktext::gpu::Slug* slug, const SkPaint& paint);
 
 private:
     enum class PredrawFlags : unsigned {
@@ -2466,7 +2466,7 @@ private:
     /**
      * Draw an sktext::gpu::Slug given the current canvas state.
      */
-    void drawSlug(const sktext::gpu::Slug* slug);
+    void drawSlug(const sktext::gpu::Slug* slug, const SkPaint& paint);
 
     /** Experimental
      *  Saves the specified subset of the current pixels in the current layer,

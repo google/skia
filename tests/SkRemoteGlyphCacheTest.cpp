@@ -235,7 +235,7 @@ SkBitmap RasterBlobThroughSlug(sk_sp<SkTextBlob> blob, int width, int height, co
     }
     auto canvas = surface->getCanvas();
     auto slug = Slug::ConvertBlob(canvas, *blob, {x, height/2.0f}, paint);
-    slug->draw(canvas);
+    slug->draw(canvas, paint);
     SkBitmap bitmap;
     bitmap.allocN32Pixels(width, height);
     surface->readPixels(bitmap, 0, 0);
@@ -250,7 +250,7 @@ SkBitmap RasterSlug(sk_sp<Slug> slug, int width, int height, const SkPaint& pain
     if (matrix) {
         canvas->concat(*matrix);
     }
-    slug->draw(canvas);
+    slug->draw(canvas, paint);
     SkBitmap bitmap;
     bitmap.allocN32Pixels(width, height);
     surface->readPixels(bitmap, 0, 0);

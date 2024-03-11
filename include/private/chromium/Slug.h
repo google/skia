@@ -53,7 +53,8 @@ public:
     static void AddDeserialProcs(SkDeserialProcs* procs, const SkStrikeClient* client = nullptr);
 
     // Draw the Slug obeying the canvas's mapping and clipping.
-    void draw(SkCanvas* canvas) const;
+    void draw(SkCanvas* canvas) const;  // DEPRECATED
+    void draw(SkCanvas* canvas, const SkPaint& paint) const;
 
     virtual SkRect sourceBounds() const = 0;
     virtual SkRect sourceBoundsWithOrigin () const = 0;

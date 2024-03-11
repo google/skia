@@ -600,11 +600,12 @@ void SkPictureRecord::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScala
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawSlug(const sktext::gpu::Slug* slug) {
-    // op + slug id
-    size_t size = 2 * kUInt32Size;
+void SkPictureRecord::onDrawSlug(const sktext::gpu::Slug* slug, const SkPaint& paint) {
+    // op + paint index + slug id
+    size_t size = 3 * kUInt32Size;
     size_t initialOffset = this->addDraw(DRAW_SLUG, &size);
 
+    this->addPaint(paint);
     this->addSlug(slug);
     this->validate(initialOffset, size);
 }

@@ -317,7 +317,8 @@ RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         sk_sp<const SkTextBlob> blob;
         SkScalar x;
         SkScalar y)
-RECORD(DrawSlug, kDraw_Tag|kHasText_Tag,
+RECORD(DrawSlug, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
+       SkPaint paint;
        sk_sp<const sktext::gpu::Slug> slug)
 RECORD(DrawPatch, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
