@@ -689,7 +689,7 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
         font.setSubpixel(true);
 
         std::unique_ptr<SkShaper> shaper = SkShapers::HB::ShapeDontWrapOrReorder(
-                fOwner->getUnicode()->copy(), fallback ? fallback : SkFontMgr::RefEmpty());
+                fOwner->getUnicode(), fallback ? fallback : SkFontMgr::RefEmpty());
 
         const SkBidiIterator::Level defaultLevel = SkBidiIterator::kLTR;
         const char* utf8 = ellipsis.c_str();

@@ -2518,7 +2518,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (is_linux) {
+  if (is_linux && skia_use_icu) {
     test_app("sktexttopdf") {
       sources = [ "tools/using_skia_and_harfbuzz.cpp" ]
       deps = [

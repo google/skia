@@ -7,7 +7,7 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "modules/skunicode/src/SkUnicode_icu.h"
+#include "modules/skunicode/src/SkUnicode_icupriv.h"
 
 #include <dlfcn.h>
 
@@ -83,3 +83,4 @@ std::unique_ptr<SkICULib> SkLoadICULib() {
 
     return std::make_unique<SkICULib>(lib);
 }
+

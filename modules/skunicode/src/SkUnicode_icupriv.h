@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkUnicode_icu_DEFINED
-#define SkUnicode_icu_DEFINED
+#ifndef SkUnicode_icupriv_DEFINED
+#define SkUnicode_icupriv_DEFINED
 
 #include <unicode/ubidi.h>
 #include <unicode/ubrk.h>
@@ -70,4 +70,4 @@ std::unique_ptr<SkICULib> SkLoadICULib();
 // Get cached already loaded ICU library.
 const SkICULib* SkGetICULib();
 
-#endif // SkUnicode_icu_DEFINED
+#endif // SkUnicode_icupriv_DEFINED

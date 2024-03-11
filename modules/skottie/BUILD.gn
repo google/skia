@@ -75,6 +75,7 @@ if (skia_enable_skottie) {
           "../..:skia",
           "../..:test",
           "../skshaper",
+          "../skunicode",
         ]
       }
 

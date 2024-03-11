@@ -625,7 +625,7 @@ bool OneLineShaper::shape() {
             (TextRange textRange, SkSpan<Block> styleSpan, SkScalar& advanceX, TextIndex textStart, uint8_t defaultBidiLevel) {
 
         // Set up the shaper and shape the next
-        auto shaper = SkShapers::HB::ShapeDontWrapOrReorder(fParagraph->fUnicode->copy(),
+        auto shaper = SkShapers::HB::ShapeDontWrapOrReorder(fParagraph->fUnicode,
                                                             SkFontMgr::RefEmpty());  // no fallback
         if (shaper == nullptr) {
             // For instance, loadICU does not work. We have to stop the process

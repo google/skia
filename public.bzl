@@ -2564,7 +2564,7 @@ SKOTTIE_SHAPER_SRCS = [
 SKUNICODE_ICU_BUILTIN_SRCS = [
     "modules/skunicode/src/SkUnicode.cpp",
     "modules/skunicode/src/SkUnicode_icu.cpp",
-    "modules/skunicode/src/SkUnicode_icu.h",
+    "modules/skunicode/src/SkUnicode_icupriv.h",
     "modules/skunicode/src/SkUnicode_icu_bidi.cpp",
     "modules/skunicode/src/SkUnicode_icu_bidi.h",
     "modules/skunicode/src/SkUnicode_icu_builtin.cpp",
@@ -2573,7 +2573,7 @@ SKUNICODE_ICU_BUILTIN_SRCS = [
 SKUNICODE_ICU_RUNTIME_SRCS = [
     "modules/skunicode/src/SkUnicode.cpp",
     "modules/skunicode/src/SkUnicode_icu.cpp",
-    "modules/skunicode/src/SkUnicode_icu.h",
+    "modules/skunicode/src/SkUnicode_icupriv.h",
     "modules/skunicode/src/SkUnicode_icu_bidi.cpp",
     "modules/skunicode/src/SkUnicode_icu_bidi.h",
     "modules/skunicode/src/SkUnicode_icu_runtime.cpp",
@@ -2588,6 +2588,10 @@ SKUNICODE_CLIENT_SRCS = [
 
 SKUNICODE_HDRS = [
     "modules/skunicode/include/SkUnicode.h",
+    "modules/skunicode/include/SkUnicode_client.h",
+    "modules/skunicode/include/SkUnicode_icu.h",
+    "modules/skunicode/include/SkUnicode_icu4x.h",
+    "modules/skunicode/include/SkUnicode_libgrapheme.h",
 ]
 
 SKSHAPER_HDRS = [
