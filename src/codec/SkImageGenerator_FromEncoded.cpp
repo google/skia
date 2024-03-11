@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/codec/SkCodec.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkGraphics.h"
@@ -57,3 +58,12 @@ sk_sp<SkImage> DeferredFromEncodedData(sk_sp<SkData> encoded,
 }
 
 }  // namespace SkImages
+
+namespace SkCodecs {
+
+sk_sp<SkImage> DeferredImage(std::unique_ptr<SkCodec> codec, std::optional<SkAlphaType> alphaType) {
+    return SkImages::DeferredFromGenerator(
+            SkCodecImageGenerator::MakeFromCodec(std::move(codec), alphaType));
+}
+
+}  // namespace SkCodecs

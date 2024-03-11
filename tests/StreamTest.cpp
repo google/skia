@@ -191,7 +191,7 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
 static void TestDereferencingData(SkMemoryStream* memStream) {
     memStream->read(nullptr, 0);
     memStream->getMemoryBase();
-    (void)memStream->asData();
+    (void)memStream->getData();
 }
 
 static void TestNullData() {

@@ -98,6 +98,8 @@ SK_API sk_sp<SkImage> RasterFromCompressedTextureData(sk_sp<SkData> data,
  *
  *  If the encoded format is not supported, nullptr is returned.
  *
+ *  If possible, clients should use SkCodecs::DeferredImage instead.
+ *
  *  @param encoded  the encoded data
  *  @return         created SkImage, or nullptr
 

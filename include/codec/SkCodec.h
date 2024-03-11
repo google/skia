@@ -24,6 +24,7 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string_view>
 #include <tuple>
 #include <vector>
@@ -289,6 +290,13 @@ public:
      *  Format of the encoded data.
      */
     SkEncodedImageFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
+
+    /**
+     *  Return the underlying encoded data. If this was passed in via a SkMemoryStream,
+     *  the data will be shared. Other streams may return a copy of the data or no data
+     *  at all (e.g. non-rewindable streams).
+     */
+    virtual sk_sp<SkData> refEncodedData() const;
 
     /**
      *  Whether or not the memory passed to getPixels is zero initialized.
@@ -1056,6 +1064,23 @@ struct SK_API Decoder {
 // will replace the existing one (in the same position). This is not thread-safe, so make sure all
 // initialization is done before the first call.
 void SK_API Register(Decoder d);
+
+/**
+ *  Return a SkImage produced by the codec, but attempts to defer image allocation until the
+ *  image is actually used/drawn. This deferral allows the system to cache the result, either on the
+ *  CPU or on the GPU, depending on where the image is drawn. If memory is low, the cache may
+ *  be purged, causing the next draw of the image to have to re-decode.
+ *
+ *  If alphaType is nullopt, the image's alpha type will be chosen automatically based on the
+ *  image format. Transparent images will default to kPremul_SkAlphaType. If alphaType contains
+ *  kPremul_SkAlphaType or kUnpremul_SkAlphaType, that alpha type will be used. Forcing opaque
+ *  (passing kOpaque_SkAlphaType) is not allowed, and will return nullptr.
+ *
+ *  @param codec    A non-null codec (e.g. from SkPngDecoder::Decode)
+ *  @return         created SkImage, or nullptr
+ */
+SK_API sk_sp<SkImage> DeferredImage(std::unique_ptr<SkCodec> codec,
+                                    std::optional<SkAlphaType> alphaType = std::nullopt);
 }
 
 #endif // SkCodec_DEFINED

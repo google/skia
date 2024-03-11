@@ -9,6 +9,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/codec/SkGifDecoder.h"
+#include "include/codec/SkJpegDecoder.h"
 #include "include/codec/SkPngChunkReader.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
@@ -2006,4 +2007,77 @@ DEF_TEST(Codec_gif_null_param, r) {
                                       &result, nullptr);
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
     REPORTER_ASSERT(r, codec);
+
+    auto [image, res] = codec->getImage();
+    REPORTER_ASSERT(r, res == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, image);
+    REPORTER_ASSERT(r, image->width() == 320, "width %d != 320", image->width());
+    REPORTER_ASSERT(r, image->height() == 240, "height %d != 240", image->height());
+
+    // Decoding the image this way loses the original data.
+    REPORTER_ASSERT(r, !image->refEncodedData());
+}
+
+DEF_TEST(Codec_gif_can_preserve_original_data, r) {
+    constexpr char path[] = "images/flightAnim.gif";
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+
+    SkCodec::Result result;
+    auto codec = SkGifDecoder::Decode(data, &result, nullptr);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, codec);
+
+    sk_sp<SkImage> image = SkCodecs::DeferredImage(std::move(codec), kPremul_SkAlphaType);
+    REPORTER_ASSERT(r, image);
+    REPORTER_ASSERT(r, image->width() == 320, "width %d != 320", image->width());
+    REPORTER_ASSERT(r, image->height() == 240, "height %d != 240", image->height());
+    REPORTER_ASSERT(r,
+                    image->alphaType() == kPremul_SkAlphaType,
+                    "AlphaType is wrong %d",
+                    image->alphaType());
+
+    // The whole point of DeferredFromCodec is that it allows the client
+    // to hold onto the original image data for later.
+    sk_sp<SkData> encodedData = image->refEncodedData();
+    REPORTER_ASSERT(r, encodedData != nullptr);
+    // The returned data should the same as what went in.
+    REPORTER_ASSERT(r, encodedData->size() == data->size());
+    REPORTER_ASSERT(r, encodedData->bytes() == data->bytes());
+}
+
+DEF_TEST(Codec_jpeg_can_return_data_from_original_stream, r) {
+    constexpr char path[] = "images/dog.jpg";
+    // stream will be an SkFILEStream, not a SkMemoryStream (exercised above)
+    std::unique_ptr<SkStreamAsset> stream = GetResourceAsStream(path, true);
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+    size_t expectedBytes = stream->getLength();
+
+    SkCodec::Result result;
+    auto codec = SkJpegDecoder::Decode(std::move(stream), &result, nullptr);
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, codec);
+
+    sk_sp<SkImage> image = SkCodecs::DeferredImage(std::move(codec), kUnpremul_SkAlphaType);
+    REPORTER_ASSERT(r, image);
+    REPORTER_ASSERT(r, image->width() == 180, "width %d != 180", image->width());
+    REPORTER_ASSERT(r, image->height() == 180, "height %d != 180", image->height());
+    REPORTER_ASSERT(r,
+                    image->alphaType() == kUnpremul_SkAlphaType,
+                    "AlphaType is wrong %d",
+                    image->alphaType());
+
+    // The whole point of DeferredFromCodec is that it allows the client
+    // to hold onto the original image data for later.
+    sk_sp<SkData> encodedData = image->refEncodedData();
+    REPORTER_ASSERT(r, encodedData != nullptr);
+    // The returned data should the same as what went in.
+    REPORTER_ASSERT(r, encodedData->size() == expectedBytes);
+    REPORTER_ASSERT(r, SkJpegDecoder::IsJpeg(encodedData->data(), encodedData->size()));
 }

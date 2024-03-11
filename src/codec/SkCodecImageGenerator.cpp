@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/codec/SkCodecImageGenerator.h"
 
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/codec/SkPixmapUtils.h"
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkTypes.h"
@@ -17,21 +17,20 @@
 
 #include <utility>
 
-
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromEncodedCodec(
         sk_sp<SkData> data, std::optional<SkAlphaType> at) {
     auto codec = SkCodec::MakeFromData(data);
-    if (nullptr == codec) {
+    if (codec == nullptr) {
         return nullptr;
     }
 
-    return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), data, at));
+    return std::unique_ptr<SkImageGenerator>(new SkCodecImageGenerator(std::move(codec), at));
 }
 
 std::unique_ptr<SkImageGenerator> SkCodecImageGenerator::MakeFromCodec(
-        std::unique_ptr<SkCodec> codec) {
+        std::unique_ptr<SkCodec> codec, std::optional<SkAlphaType> at) {
     return codec ? std::unique_ptr<SkImageGenerator>(
-                           new SkCodecImageGenerator(std::move(codec), nullptr, std::nullopt))
+                           new SkCodecImageGenerator(std::move(codec), at))
                  : nullptr;
 }
 
@@ -52,14 +51,12 @@ static SkImageInfo adjust_info(SkCodec* codec, std::optional<SkAlphaType> at) {
 }
 
 SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec,
-                                             sk_sp<SkData> data,
                                              std::optional<SkAlphaType> at)
-        : INHERITED(adjust_info(codec.get(), at))
-        , fCodec(std::move(codec))
-        , fData(std::move(data)) {}
+        : SkImageGenerator(adjust_info(codec.get(), at)), fCodec(std::move(codec)) {}
 
 sk_sp<SkData> SkCodecImageGenerator::onRefEncodedData() {
-    return fData;
+    SkASSERT(fCodec);
+    return fCodec->refEncodedData();
 }
 
 bool SkCodecImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const SkCodec::Options* options) {
