@@ -109,7 +109,6 @@ struct MultiPictureDocument final : public SkDocument {
         p->serialize(wStream, &fProcs);
         fPages.clear();
         fSizes.clear();
-        return;
     }
     void onAbort() override {
         fPages.clear();
