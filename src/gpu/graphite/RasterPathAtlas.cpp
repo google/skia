@@ -173,6 +173,15 @@ const TextureProxy* RasterPathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder
     SkIPoint topLeft = locator->topLeft();
     *outPos = skvx::half2(topLeft.x()+kEntryPadding, topLeft.y()+kEntryPadding);
 
+    // If the mask is empty, just return.
+    // TODO: this may not be needed if we can handle clipped out bounds with inverse fills
+    // another way. See PathAtlas::addShape().
+    if (!all(maskSize)) {
+        fDrawAtlas->setLastUseToken(*locator,
+                                    recorder->priv().tokenTracker()->nextFlushToken());
+        return fDrawAtlas->getProxies()[locator->pageIndex()].get();
+    }
+
     // Rasterize path to backing pixmap.
     // This pixmap will be the size of the Plot that contains the given rect, not the entire atlas,
     // and hence the position we render at will be relative to that Plot.
