@@ -58,7 +58,7 @@ impl<'a> Pen for PathWrapperPen<'a> {
     fn curve_to(&mut self, cx0: f32, cy0: f32, cx1: f32, cy1: f32, x: f32, y: f32) {
         self.path_wrapper
             .as_mut()
-            .curve_to(cx0, -cy0, cx1, cy1, x, -y);
+            .curve_to(cx0, -cy0, cx1, -cy1, x, -y);
     }
 
     fn close(&mut self) {
