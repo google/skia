@@ -43,8 +43,8 @@ private:
     bool current_is_not(SkPoint);
 
     SkPath fPath;
-    bool fStarted;
-    SkPoint fCurrent;
+    bool fStarted{false};
+    SkPoint fCurrent{0, 0};
 };
 
 /** Implementation of AxisWrapper FFI C++ interface, allowing Rust to call back into
