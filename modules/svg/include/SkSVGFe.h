@@ -27,6 +27,7 @@ public:
             case SkSVGTag::kFeFlood:
             case SkSVGTag::kFeGaussianBlur:
             case SkSVGTag::kFeImage:
+            case SkSVGTag::kFeMerge:
             case SkSVGTag::kFeMorphology:
             case SkSVGTag::kFeOffset:
             case SkSVGTag::kFeSpecularLighting:

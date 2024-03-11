@@ -30,16 +30,12 @@ void SkSVGGradient::collectColorStops(const SkSVGRenderContext& ctx,
     // Used to resolve percentage offsets.
     const SkSVGLengthContext ltx(SkSize::Make(1, 1));
 
-    for (const auto& child : fChildren) {
-        if (child->tag() != SkSVGTag::kStop) {
-            continue;
-        }
-
-        const auto& stop = static_cast<const SkSVGStop&>(*child);
-        colors->push_back(this->resolveStopColor(ctx, stop));
-        pos->push_back(SkTPin(ltx.resolve(stop.getOffset(), SkSVGLengthContext::LengthType::kOther),
-                              0.f, 1.f));
-    }
+    this->forEachChild<SkSVGStop>([&](const SkSVGStop* stop) {
+        colors->push_back(this->resolveStopColor(ctx, *stop));
+        pos->push_back(
+            SkTPin(ltx.resolve(stop->getOffset(), SkSVGLengthContext::LengthType::kOther),
+                   0.f, 1.f));
+    });
 
     SkASSERT(colors->size() == pos->size());
 

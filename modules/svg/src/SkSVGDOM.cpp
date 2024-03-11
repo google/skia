@@ -26,6 +26,7 @@
 #include "modules/svg/include/SkSVGFeImage.h"
 #include "modules/svg/include/SkSVGFeLightSource.h"
 #include "modules/svg/include/SkSVGFeLighting.h"
+#include "modules/svg/include/SkSVGFeMerge.h"
 #include "modules/svg/include/SkSVGFeMorphology.h"
 #include "modules/svg/include/SkSVGFeOffset.h"
 #include "modules/svg/include/SkSVGFeTurbulence.h"
@@ -251,6 +252,8 @@ SortedDictionaryEntry<sk_sp<SkSVGNode>(*)()> gTagFactories[] = {
     { "feFlood"           , []() -> sk_sp<SkSVGNode> { return SkSVGFeFlood::Make();            }},
     { "feGaussianBlur"    , []() -> sk_sp<SkSVGNode> { return SkSVGFeGaussianBlur::Make();     }},
     { "feImage"           , []() -> sk_sp<SkSVGNode> { return SkSVGFeImage::Make();            }},
+    { "feMerge"           , []() -> sk_sp<SkSVGNode> { return SkSVGFeMerge::Make();            }},
+    { "feMergeNode"       , []() -> sk_sp<SkSVGNode> { return SkSVGFeMergeNode::Make();        }},
     { "feMorphology"      , []() -> sk_sp<SkSVGNode> { return SkSVGFeMorphology::Make();       }},
     { "feOffset"          , []() -> sk_sp<SkSVGNode> { return SkSVGFeOffset::Make();           }},
     { "fePointLight"      , []() -> sk_sp<SkSVGNode> { return SkSVGFePointLight::Make();       }},

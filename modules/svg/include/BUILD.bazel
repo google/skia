@@ -30,6 +30,7 @@ skia_filegroup(
         "SkSVGFeImage.h",
         "SkSVGFeLightSource.h",
         "SkSVGFeLighting.h",
+        "SkSVGFeMerge.h",
         "SkSVGFeMorphology.h",
         "SkSVGFeOffset.h",
         "SkSVGFeTurbulence.h",
