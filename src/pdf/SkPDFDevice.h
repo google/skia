@@ -139,10 +139,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    void onDrawGlyphRunList(SkCanvas*,
-                            const sktext::GlyphRunList&,
-                            const SkPaint& initialPaint,
-                            const SkPaint& drawingPaint) override;
+    void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&, const SkPaint& paint) override;
 
     // Set alpha to true if making a transparency group form x-objects.
     SkPDFIndirectReference makeFormXObjectFromDevice(bool alpha = false);

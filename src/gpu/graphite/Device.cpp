@@ -974,12 +974,11 @@ sktext::gpu::AtlasDrawDelegate Device::atlasDelegate() {
 
 void Device::onDrawGlyphRunList(SkCanvas* canvas,
                                 const sktext::GlyphRunList& glyphRunList,
-                                const SkPaint& initialPaint,
-                                const SkPaint& drawingPaint) {
+                                const SkPaint& paint) {
     fRecorder->priv().textBlobCache()->drawGlyphRunList(canvas,
                                                         this->localToDevice(),
                                                         glyphRunList,
-                                                        drawingPaint,
+                                                        paint,
                                                         this->strikeDeviceInfo(),
                                                         this->atlasDelegate());
 }
@@ -1695,21 +1694,17 @@ TextureProxyView Device::readSurfaceView() const {
 }
 
 sk_sp<sktext::gpu::Slug> Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
-                                                           const SkPaint& initialPaint,
-                                                           const SkPaint& drawingPaint) {
+                                                           const SkPaint& paint) {
     return sktext::gpu::SlugImpl::Make(this->localToDevice(),
                                        glyphRunList,
-                                       initialPaint,
-                                       drawingPaint,
+                                       paint,
                                        this->strikeDeviceInfo(),
                                        SkStrikeCache::GlobalStrikeCache());
 }
 
-void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug,
-                      const SkPaint& drawingPaint) {
+void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug, const SkPaint& paint) {
     auto slugImpl = static_cast<const sktext::gpu::SlugImpl*>(slug);
-    slugImpl->subRuns()->draw(canvas, slugImpl->origin(), drawingPaint, slugImpl,
-                              this->atlasDelegate());
+    slugImpl->subRuns()->draw(canvas, slugImpl->origin(), paint, slugImpl, this->atlasDelegate());
 }
 
 } // namespace skgpu::graphite

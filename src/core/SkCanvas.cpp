@@ -2719,7 +2719,7 @@ void SkCanvas::onDrawGlyphRunList(const sktext::GlyphRunList& glyphRunList, cons
     // filter layer.
     auto layer = this->aboutToDraw(paint, &bounds, PredrawFlags::kSkipMaskFilterAutoLayer);
     if (layer) {
-        this->topDevice()->drawGlyphRunList(this, glyphRunList, paint, layer->paint());
+        this->topDevice()->drawGlyphRunList(this, glyphRunList, layer->paint());
     }
 }
 
@@ -2730,9 +2730,8 @@ sk_sp<Slug> SkCanvas::convertBlobToSlug(
     return this->onConvertGlyphRunListToSlug(glyphRunList, paint);
 }
 
-sk_sp<Slug>
-SkCanvas::onConvertGlyphRunListToSlug(
-        const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
+sk_sp<Slug> SkCanvas::onConvertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
+                                                  const SkPaint& paint) {
     SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
     if (bounds.isEmpty() || !bounds.isFinite() || paint.nothingToDraw()) {
         return nullptr;
@@ -2740,7 +2739,7 @@ SkCanvas::onConvertGlyphRunListToSlug(
     // See comment in onDrawGlyphRunList()
     auto layer = this->aboutToDraw(paint, &bounds, PredrawFlags::kSkipMaskFilterAutoLayer);
     if (layer) {
-        return this->topDevice()->convertGlyphRunListToSlug(glyphRunList, paint, layer->paint());
+        return this->topDevice()->convertGlyphRunListToSlug(glyphRunList, layer->paint());
     }
     return nullptr;
 }

@@ -50,10 +50,6 @@ sk_sp<Slug> Slug::Deserialize(const void* data,
     return MakeFromBuffer(buffer);
 }
 
-void Slug::draw(SkCanvas* canvas) const {
-    canvas->drawSlug(this, this->initialPaint());
-}
-
 void Slug::draw(SkCanvas* canvas, const SkPaint& paint) const {
     canvas->drawSlug(this, paint);
 }

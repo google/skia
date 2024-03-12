@@ -473,8 +473,7 @@ public:
 protected:
     void onDrawGlyphRunList(SkCanvas*,
                             const sktext::GlyphRunList& glyphRunList,
-                            const SkPaint& initialPaint,
-                            const SkPaint& drawingPaint) override {
+                            const SkPaint& paint) override {
         SkMatrix drawMatrix = this->localToDevice();
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
@@ -483,7 +482,7 @@ protected:
         STSubRunAllocator<sizeof(SubRunContainer), alignof(SubRunContainer)> tempAlloc;
         auto container = SubRunContainer::MakeInAlloc(glyphRunList,
                                                       drawMatrix,
-                                                      drawingPaint,
+                                                      paint,
                                                       this->strikeDeviceInfo(),
                                                       fStrikeServerImpl,
                                                       &tempAlloc,
@@ -494,8 +493,7 @@ protected:
     }
 
     sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
-                                                       const SkPaint& initialPaint,
-                                                       const SkPaint& drawingPaint) override {
+                                                       const SkPaint& paint) override {
         // Full matrix for placing glyphs.
         SkMatrix positionMatrix = this->localToDevice();
         positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
@@ -503,8 +501,7 @@ protected:
         // Use the SkStrikeServer's strike cache to generate the Slug.
         return sktext::gpu::MakeSlug(this->localToDevice(),
                                      glyphRunList,
-                                     initialPaint,
-                                     drawingPaint,
+                                     paint,
                                      this->strikeDeviceInfo(),
                                      fStrikeServerImpl);
     }

@@ -188,8 +188,7 @@ private:
 
     bool onWritePixels(const SkPixmap&, int x, int y) override;
 
-    void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&,
-                            const SkPaint&, const SkPaint&) override;
+    void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&, const SkPaint&) override;
 
     void onClipShader(sk_sp<SkShader> shader) override;
 
@@ -238,10 +237,9 @@ private:
                          sktext::gpu::RendererData);
 
     sk_sp<sktext::gpu::Slug> convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
-                                                       const SkPaint& initialPaint,
-                                                       const SkPaint& drawingPaint) override;
+                                                       const SkPaint& paint) override;
 
-    void drawSlug(SkCanvas*, const sktext::gpu::Slug* slug, const SkPaint& drawingPaint) override;
+    void drawSlug(SkCanvas*, const sktext::gpu::Slug* slug, const SkPaint& paint) override;
 
     // Returns the Renderer to draw the shape in the given style. If SkStrokeRec is a
     // stroke-and-fill, this returns the Renderer used for the fill portion and it can be assumed

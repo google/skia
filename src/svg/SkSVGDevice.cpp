@@ -1136,11 +1136,10 @@ private:
 
 void SkSVGDevice::onDrawGlyphRunList(SkCanvas* canvas,
                                      const sktext::GlyphRunList& glyphRunList,
-                                     const SkPaint& initialPaint,
-                                     const SkPaint& drawingPaint)  {
+                                     const SkPaint& paint) {
     SkASSERT(!glyphRunList.hasRSXForm());
-    const auto draw_as_path = (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag) ||
-                              drawingPaint.getPathEffect();
+    const auto draw_as_path =
+            (fFlags & SkSVGCanvas::kConvertTextToPaths_Flag) || paint.getPathEffect();
 
     if (draw_as_path) {
         // Emit a single <path> element.
@@ -1149,14 +1148,14 @@ void SkSVGDevice::onDrawGlyphRunList(SkCanvas* canvas,
             AddPath(glyphRun, glyphRunList.origin(), &path);
         }
 
-        this->drawPath(path, drawingPaint);
+        this->drawPath(path, paint);
 
         return;
     }
 
     // Emit one <text> element for each run.
     for (auto& glyphRun : glyphRunList) {
-        AutoElement elem("text", this, fResourceBucket.get(), MxCp(this), drawingPaint);
+        AutoElement elem("text", this, fResourceBucket.get(), MxCp(this), paint);
         elem.addTextAttributes(glyphRun.font());
 
         SVGTextBuilder builder(glyphRunList.origin(), glyphRun);

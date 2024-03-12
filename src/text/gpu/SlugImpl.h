@@ -7,7 +7,6 @@
 #ifndef sktext_SlugImpl_DEFINED
 #define sktext_SlugImpl_DEFINED
 
-#include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -19,6 +18,7 @@
 #include <cstddef>
 
 class SkMatrix;
+class SkPaint;
 class SkReadBuffer;
 class SkStrikeClient;
 class SkWriteBuffer;
@@ -36,14 +36,12 @@ public:
     SlugImpl(SubRunAllocator&& alloc,
              gpu::SubRunContainerOwner subRuns,
              SkRect sourceBounds,
-             const SkPaint& paint,
              SkPoint origin);
     ~SlugImpl() override = default;
 
     static sk_sp<SlugImpl> Make(const SkMatrix& viewMatrix,
                                 const sktext::GlyphRunList& glyphRunList,
-                                const SkPaint& initialPaint,
-                                const SkPaint& drawingPaint,
+                                const SkPaint& paint,
                                 SkStrikeDeviceInfo strikeDeviceInfo,
                                 sktext::StrikeForGPUCacheInterface* strikeCache);
     static sk_sp<Slug> MakeFromBuffer(SkReadBuffer& buffer,
@@ -52,7 +50,6 @@ public:
 
     SkRect sourceBounds() const override { return fSourceBounds; }
     SkRect sourceBoundsWithOrigin() const override { return fSourceBounds.makeOffset(fOrigin); }
-    const SkPaint& initialPaint() const override { return fInitialPaint; }
 
     const SkMatrix& initialPositionMatrix() const { return fSubRuns->initialPosition(); }
     SkPoint origin() const { return fOrigin; }
@@ -71,7 +68,6 @@ private:
     SubRunAllocator fAlloc;
     gpu::SubRunContainerOwner fSubRuns;
     const SkRect fSourceBounds;
-    const SkPaint fInitialPaint;
     const SkPoint fOrigin;
 };
 

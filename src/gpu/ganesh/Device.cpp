@@ -1234,8 +1234,7 @@ void Device::drawAtlas(const SkRSXform xform[],
 
 void Device::onDrawGlyphRunList(SkCanvas* canvas,
                                 const sktext::GlyphRunList& glyphRunList,
-                                const SkPaint& initialPaint,
-                                const SkPaint& drawingPaint) {
+                                const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::ganesh::Device", "drawGlyphRunList", fContext.get());
     SkASSERT(!glyphRunList.hasRSXForm());
@@ -1243,9 +1242,9 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
     if (glyphRunList.blob() == nullptr) {
         // If the glyphRunList does not have an associated text blob, then it was created by one of
         // the direct draw APIs (drawGlyphs, etc.). Use a Slug to draw the glyphs.
-        auto slug = this->convertGlyphRunListToSlug(glyphRunList, initialPaint, drawingPaint);
+        auto slug = this->convertGlyphRunListToSlug(glyphRunList, paint);
         if (slug != nullptr) {
-            this->drawSlug(canvas, slug.get(), drawingPaint);
+            this->drawSlug(canvas, slug.get(), paint);
         }
     } else {
         fSurfaceDrawContext->drawGlyphRunList(canvas,
@@ -1253,7 +1252,7 @@ void Device::onDrawGlyphRunList(SkCanvas* canvas,
                                               this->localToDevice(),
                                               glyphRunList,
                                               this->strikeDeviceInfo(),
-                                              drawingPaint);
+                                              paint);
     }
 }
 
@@ -1493,20 +1492,16 @@ SkStrikeDeviceInfo Device::strikeDeviceInfo() const {
     return {this->surfaceProps(), this->scalerContextFlags(), &fSDFTControl};
 }
 
-sk_sp<sktext::gpu::Slug>
-Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
-                                  const SkPaint& initialPaint,
-                                  const SkPaint& drawingPaint) {
+sk_sp<sktext::gpu::Slug> Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
+                                                           const SkPaint& paint) {
     return sktext::gpu::SlugImpl::Make(this->localToDevice(),
                                        glyphRunList,
-                                       initialPaint,
-                                       drawingPaint,
+                                       paint,
                                        this->strikeDeviceInfo(),
                                        SkStrikeCache::GlobalStrikeCache());
 }
 
-void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug,
-                      const SkPaint& drawingPaint) {
+void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug, const SkPaint& paint) {
     SkASSERT(canvas);
     SkASSERT(slug);
     const sktext::gpu::SlugImpl* slugImpl = static_cast<const sktext::gpu::SlugImpl*>(slug);
@@ -1534,8 +1529,7 @@ void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug,
         }
     };
 
-    slugImpl->subRuns()->draw(canvas, slugImpl->origin(),
-                              drawingPaint, slugImpl, atlasDelegate);
+    slugImpl->subRuns()->draw(canvas, slugImpl->origin(), paint, slugImpl, atlasDelegate);
 }
 
 }  // namespace skgpu::ganesh

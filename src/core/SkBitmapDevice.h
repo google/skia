@@ -130,10 +130,7 @@ private:
 
     void onClipShader(sk_sp<SkShader>) override;
 
-    void onDrawGlyphRunList(SkCanvas*,
-                            const sktext::GlyphRunList&,
-                            const SkPaint& initialPaint,
-                            const SkPaint& drawingPaint) override;
+    void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&, const SkPaint& paint) override;
 
     bool onReadPixels(const SkPixmap&, int x, int y) override;
     bool onWritePixels(const SkPixmap&, int, int) override;

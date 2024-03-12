@@ -115,8 +115,7 @@ private:
     };
     friend HRESULT subset_typeface(const TypefaceUse& current);
 
-    void onDrawGlyphRunList(
-            SkCanvas*, const sktext::GlyphRunList&, const SkPaint&, const SkPaint&) override;
+    void onDrawGlyphRunList(SkCanvas*, const sktext::GlyphRunList&, const SkPaint&) override;
 
     bool createCanvasForLayer();
 

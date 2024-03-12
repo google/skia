@@ -979,11 +979,10 @@ void SkPDFDevice::internalDrawGlyphRun(
 
 void SkPDFDevice::onDrawGlyphRunList(SkCanvas*,
                                      const sktext::GlyphRunList& glyphRunList,
-                                     const SkPaint& initialPaint,
-                                     const SkPaint& drawingPaint) {
+                                     const SkPaint& paint) {
     SkASSERT(!glyphRunList.hasRSXForm());
     for (const sktext::GlyphRun& glyphRun : glyphRunList) {
-        this->internalDrawGlyphRun(glyphRun, glyphRunList.origin(), drawingPaint);
+        this->internalDrawGlyphRun(glyphRun, glyphRunList.origin(), paint);
     }
 }
 
