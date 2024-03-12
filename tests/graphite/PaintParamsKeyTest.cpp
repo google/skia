@@ -30,6 +30,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/FactoryFunctions.h"
+#include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintOptionsPriv.h"
@@ -47,6 +48,10 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/graphite/GraphiteTestContext.h"
+#include "tools/graphite/UniqueKeyUtils.h"
+
+// Set this to 1 for more expansive (aka far slower) local testing
+#define EXPANDED_SET 0
 
 using namespace skgpu::graphite;
 
@@ -171,7 +176,7 @@ SkColor random_opaque_color(SkRandom* rand) {
     return 0xff000000 | rand->nextU();
 }
 
-SkColor4f random_color(SkRandom* rand) {
+SkColor4f random_color4f(SkRandom* rand) {
     SkColor4f result = { rand->nextRangeF(0.0f, 1.0f),
                          rand->nextRangeF(0.0f, 1.0f),
                          rand->nextRangeF(0.0f, 1.0f),
@@ -349,27 +354,28 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_blend_shader(SkRandom
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>>  create_shader(SkRandom* rand,
                                                                    Recorder* recorder,
                                                                    ShaderType shaderType) {
+
     switch (shaderType) {
         case ShaderType::kNone:
             return { nullptr, nullptr };
-        case ShaderType::kSolidColor:
-            return create_solid_shader(rand);
-        case ShaderType::kLinearGradient:
-            return create_gradient_shader(rand, SkShaderBase::GradientType::kLinear);
-        case ShaderType::kRadialGradient:
-            return create_gradient_shader(rand, SkShaderBase::GradientType::kRadial);
-        case ShaderType::kSweepGradient:
-            return create_gradient_shader(rand, SkShaderBase::GradientType::kSweep);
-        case ShaderType::kConicalGradient:
-            return create_gradient_shader(rand, SkShaderBase::GradientType::kConical);
-        case ShaderType::kLocalMatrix:
-            return create_localmatrix_shader(rand, recorder);
-        case ShaderType::kColorFilter:
-            return create_colorfilter_shader(rand, recorder);
-        case ShaderType::kImage:
-            return create_image_shader(rand, recorder);
         case ShaderType::kBlend:
             return create_blend_shader(rand, recorder);
+        case ShaderType::kColorFilter:
+            return create_colorfilter_shader(rand, recorder);
+        case ShaderType::kConicalGradient:
+            return create_gradient_shader(rand, SkShaderBase::GradientType::kConical);
+        case ShaderType::kImage:
+            return create_image_shader(rand, recorder);
+        case ShaderType::kLinearGradient:
+            return create_gradient_shader(rand, SkShaderBase::GradientType::kLinear);
+        case ShaderType::kLocalMatrix:
+            return create_localmatrix_shader(rand, recorder);
+        case ShaderType::kRadialGradient:
+            return create_gradient_shader(rand, SkShaderBase::GradientType::kRadial);
+        case ShaderType::kSolidColor:
+            return create_solid_shader(rand);
+        case ShaderType::kSweepGradient:
+            return create_gradient_shader(rand, SkShaderBase::GradientType::kSweep);
     }
 
     SkUNREACHABLE;
@@ -550,7 +556,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_blendmode_c
     // SkColorFilters::Blend is clever and can weed out noop color filters. Loop until we get
     // a valid color filter.
     while (!cf) {
-        cf = SkColorFilters::Blend(random_color(rand),
+        cf = SkColorFilters::Blend(random_color4f(rand),
                                    random_colorspace(rand),
                                    random_blend_mode(rand));
     }
@@ -663,7 +669,6 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_colorfilter
             return create_table_colorfilter();
         case ColorFilterType::kWorkingFormat:
             return create_workingformat_colorfilter(rand);
-
     }
 
     SkUNREACHABLE;
@@ -758,6 +763,12 @@ void check_draw(skiatest::Reporter* reporter,
                 const DrawData& drawData) {
     int before = context->priv().globalCache()->numGraphicsPipelines();
 
+#ifdef SK_DEBUG
+    std::vector<skgpu::UniqueKey> beforeKeys;
+
+    UniqueKeyUtils::FetchUniqueKeys(context->priv().globalCache(), &beforeKeys);
+#endif
+
     {
         // TODO: vary the colorType of the target surface too
         SkImageInfo ii = SkImageInfo::Make(16, 16,
@@ -792,13 +803,35 @@ void check_draw(skiatest::Reporter* reporter,
 
     // Actually using the SkPaint with the specified type of draw shouldn't have caused
     // any additional compilation
-    REPORTER_ASSERT(reporter, before == after);
+    REPORTER_ASSERT(reporter, before == after, "before: %d after: %d", before, after);
+#ifdef SK_DEBUG
+    if (before != after) {
+        const RendererProvider* rendererProvider = context->priv().rendererProvider();
+
+        std::vector<skgpu::UniqueKey> afterKeys;
+
+        UniqueKeyUtils::FetchUniqueKeys(context->priv().globalCache(), &afterKeys);
+
+        for (const skgpu::UniqueKey& afterKey : afterKeys) {
+            if (std::find(beforeKeys.begin(), beforeKeys.end(), afterKey) == beforeKeys.end()) {
+                GraphicsPipelineDesc originalPipelineDesc;
+                RenderPassDesc originalRenderPassDesc;
+                UniqueKeyUtils::ExtractKeyDescs(context, afterKey,
+                                                &originalPipelineDesc,
+                                                &originalRenderPassDesc);
+
+                SkDebugf("------- New key from draw:\n");
+                afterKey.dump("original key:");
+                UniqueKeyUtils::DumpDescs(rendererProvider,
+                                          originalPipelineDesc,
+                                          originalRenderPassDesc);
+            }
+        }
+    }
+#endif // SK_DEBUG
 }
 
 } // anonymous namespace
-
-// Set this to 1 for more expansive (aka far slower) local testing
-#define EXPANDED_SET 0
 
 // This is intended to be a smoke test for the agreement between the two ways of creating a
 // PaintParamsKey:

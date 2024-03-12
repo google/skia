@@ -2065,6 +2065,8 @@ if (skia_enable_tools) {
       sources += [ "tools/graphite/GraphiteTestContext.h" ]
       sources += [ "tools/graphite/GraphiteTestContext.cpp" ]
       sources += [ "tools/graphite/ProtectedUtils_Graphite.cpp" ]
+      sources += [ "tools/graphite/UniqueKeyUtils.cpp" ]
+      sources += [ "tools/graphite/UniqueKeyUtils.h" ]
       if (skia_use_dawn) {
         sources += [ "tools/graphite/dawn/GraphiteDawnTestContext.cpp" ]
         sources += [ "tools/graphite/dawn/GraphiteDawnTestContext.h" ]
