@@ -903,6 +903,11 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
 }
 
 void SkSVGDevice::drawRect(const SkRect& r, const SkPaint& paint) {
+    if (paint.getPathEffect()) {
+        this->drawPath(SkPath::Rect(r), paint, true);
+        return;
+    }
+
     std::unique_ptr<AutoElement> svg;
     if (RequiresViewportReset(paint)) {
       svg = std::make_unique<AutoElement>("svg", this, fResourceBucket.get(), MxCp(this), paint);
@@ -922,6 +927,11 @@ void SkSVGDevice::drawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkSVGDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
+    if (paint.getPathEffect()) {
+        this->drawPath(SkPath::Oval(oval), paint, true);
+        return;
+    }
+
     AutoElement ellipse("ellipse", this, fResourceBucket.get(), MxCp(this), paint);
     ellipse.addAttribute("cx", oval.centerX());
     ellipse.addAttribute("cy", oval.centerY());
@@ -930,6 +940,11 @@ void SkSVGDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
 }
 
 void SkSVGDevice::drawRRect(const SkRRect& rr, const SkPaint& paint) {
+    if (paint.getPathEffect()) {
+        this->drawPath(SkPath::RRect(rr), paint, true);
+        return;
+    }
+
     AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
     elem.addPathAttributes(SkPath::RRect(rr), this->pathEncoding());
 }

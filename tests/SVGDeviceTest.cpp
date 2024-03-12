@@ -571,6 +571,67 @@ DEF_TEST(SVGDevice_fill_stroke_rect_hex, reporter) {
     REPORTER_ASSERT(reporter, strcmp(dom.findAttr(rectNode, "stroke-width"), "1") == 0);
 }
 
+DEF_TEST(SVGDevice_rect_with_path_effect, reporter) {
+    SkDOM dom;
+
+    SkScalar intervals[] = {0, 20};
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+
+    SkPaint paint;
+    paint.setPathEffect(pathEffect);
+
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        svgCanvas->drawRect(SkRect::MakeXYWH(0, 0, 100, 100), paint);
+    }
+
+    const auto* rootElement = dom.finishParsing();
+    REPORTER_ASSERT(reporter, rootElement, "root element not found");
+    const auto* pathElement = dom.getFirstChild(rootElement, "path");
+    REPORTER_ASSERT(reporter, pathElement, "path element not found");
+}
+
+DEF_TEST(SVGDevice_rrect_with_path_effect, reporter) {
+    SkDOM dom;
+
+    SkScalar intervals[] = {0, 20};
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+
+    SkPaint paint;
+    paint.setPathEffect(pathEffect);
+
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        svgCanvas->drawRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(0, 0, 100, 100), 10, 10), paint);
+    }
+
+    const auto* rootElement = dom.finishParsing();
+    REPORTER_ASSERT(reporter, rootElement, "root element not found");
+    const auto* pathElement = dom.getFirstChild(rootElement, "path");
+    REPORTER_ASSERT(reporter, pathElement, "path element not found");
+}
+
+DEF_TEST(SVGDevice_oval_with_path_effect, reporter) {
+    SkDOM dom;
+
+    SkScalar intervals[] = {0, 20};
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+
+    SkPaint paint;
+    paint.setPathEffect(pathEffect);
+
+    {
+        auto svgCanvas = MakeDOMCanvas(&dom);
+        svgCanvas->drawOval(SkRect::MakeXYWH(0, 0, 100, 100), paint);
+    }
+
+    const auto* rootElement = dom.finishParsing();
+    REPORTER_ASSERT(reporter, rootElement, "root element not found");
+    const auto* pathElement = dom.getFirstChild(rootElement, "path");
+    REPORTER_ASSERT(reporter, pathElement, "path element not found");
+}
+
+
 DEF_TEST(SVGDevice_path_effect, reporter) {
     SkDOM dom;
 
