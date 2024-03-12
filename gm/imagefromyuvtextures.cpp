@@ -31,6 +31,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkYUVMath.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
@@ -175,6 +176,10 @@ protected:
 
         if (!recorder && (!dContext || dContext->abandoned())) {
             *errorMsg = "DirectContext or graphite::Recorder required to create YUV images";
+            return DrawResult::kSkip;
+        }
+
+        if (dContext && !dContext->priv().caps()->mipmapSupport()) {
             return DrawResult::kSkip;
         }
 
