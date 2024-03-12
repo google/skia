@@ -1318,7 +1318,10 @@ static void add_to_key(const KeyContext& keyContext,
                        const SkColor4Shader* shader) {
     SkASSERT(shader);
 
-    SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, shader->color().premul());
+    SkPMColor4f color = map_color(shader->color(), shader->colorSpace().get(),
+                                  keyContext.dstColorInfo().colorSpace());
+
+    SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, color);
 }
 
 static void add_to_key(const KeyContext& keyContext,

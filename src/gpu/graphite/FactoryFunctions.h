@@ -28,8 +28,10 @@ class PrecompileShader;
 // This will move to be beside SkShaders in include/core/SkShader.h
 class PrecompileShaders {
 public:
-    //TODO: Add Empty? - see skbug.com/12165
+    static sk_sp<PrecompileShader> Empty();
     static sk_sp<PrecompileShader> Color();
+    static sk_sp<PrecompileShader> Color(sk_sp<SkColorSpace>);
+
     static sk_sp<PrecompileShader> Blend(SkSpan<const sk_sp<PrecompileBlender>> blenders,
                                          SkSpan<const sk_sp<PrecompileShader>> dsts,
                                          SkSpan<const sk_sp<PrecompileShader>> srcs);

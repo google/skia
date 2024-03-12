@@ -66,6 +66,7 @@ enum class ShaderType {
     kBlend,
     kColorFilter,
     kConicalGradient,
+    kEmpty,
     kImage,
     kLinearGradient,
     kLocalMatrix,
@@ -176,6 +177,10 @@ SkColor random_opaque_color(SkRandom* rand) {
     return 0xff000000 | rand->nextU();
 }
 
+SkColor random_color(SkRandom* rand) {
+    return 0xff000000 | rand->nextU();
+}
+
 SkColor4f random_color4f(SkRandom* rand) {
     SkColor4f result = { rand->nextRangeF(0.0f, 1.0f),
                          rand->nextRangeF(0.0f, 1.0f),
@@ -237,9 +242,25 @@ sk_sp<SkImage> make_image(SkRandom* rand, Recorder* recorder) {
 }
 
 //--------------------------------------------------------------------------------------------------
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_empty_shader(SkRandom* /* rand */) {
+    sk_sp<SkShader> s = SkShaders::Empty();
+    sk_sp<PrecompileShader> o = PrecompileShaders::Empty();
+
+    return { s, o };
+}
+
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_solid_shader(SkRandom* rand) {
-    sk_sp<SkShader> s = SkShaders::Color(random_opaque_color(rand));
-    sk_sp<PrecompileShader> o = PrecompileShaders::Color();
+    sk_sp<SkShader> s;
+    sk_sp<PrecompileShader> o;
+
+    if (rand->nextBool()) {
+        s = SkShaders::Color(random_color(rand));
+        o = PrecompileShaders::Color();
+    } else {
+        sk_sp<SkColorSpace> cs = random_colorspace(rand);
+        s = SkShaders::Color(random_color4f(rand), cs);
+        o = PrecompileShaders::Color(std::move(cs));
+    }
 
     return { s, o };
 }
@@ -364,6 +385,8 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>>  create_shader(SkRandom* ran
             return create_colorfilter_shader(rand, recorder);
         case ShaderType::kConicalGradient:
             return create_gradient_shader(rand, SkShaderBase::GradientType::kConical);
+        case ShaderType::kEmpty:
+            return create_empty_shader(rand);
         case ShaderType::kImage:
             return create_image_shader(rand, recorder);
         case ShaderType::kLinearGradient:
@@ -594,6 +617,8 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_compose_col
     auto [outerCF, outerO] = create_random_colorfilter(rand);
     auto [innerCF, innerO] = create_random_colorfilter(rand);
 
+    // TODO: if outerCF is null, innerCF will be returned by Compose. We need a Precompile
+    // list object that can encapsulate innerO if there are no combinations in outerO.
     return { SkColorFilters::Compose(std::move(outerCF), std::move(innerCF)),
              PrecompileColorFilters::Compose({ std::move(outerO) }, { std::move(innerO) }) };
 }
@@ -901,6 +926,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ShaderType::kNone,
             ShaderType::kColorFilter,
             ShaderType::kConicalGradient,
+            ShaderType::kEmpty,
             ShaderType::kLinearGradient,
             ShaderType::kLocalMatrix,
             ShaderType::kSweepGradient,

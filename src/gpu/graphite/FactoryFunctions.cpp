@@ -21,6 +21,44 @@
 
 namespace skgpu::graphite {
 
+namespace {
+
+#ifdef SK_DEBUG
+
+bool precompilebase_is_valid_as_child(const PrecompileBase *child) {
+    if (!child) {
+        return true;
+    }
+
+    switch (child->type()) {
+        case PrecompileBase::Type::kShader:
+        case PrecompileBase::Type::kColorFilter:
+        case PrecompileBase::Type::kBlender:
+            return true;
+        default:
+            return false;
+    }
+}
+
+#endif // SK_DEBUG
+
+// If all the options are null the span is considered empty
+bool is_empty(SkSpan<const sk_sp<PrecompileColorFilter>> options) {
+    if (options.empty()) {
+        return true;
+    }
+
+    for (const auto& o : options) {
+        if (o) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+} // anonymous namespace
+
 //--------------------------------------------------------------------------------------------------
 class PrecompileBlendModeBlender : public PrecompileBlender {
 public:
@@ -47,6 +85,28 @@ sk_sp<PrecompileBlender> PrecompileBlender::Mode(SkBlendMode blendMode) {
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileEmptyShader : public PrecompileShader {
+public:
+    PrecompileEmptyShader() {}
+
+private:
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+
+        SkASSERT(desiredCombination == 0); // The empty shader only ever has one combination
+
+        builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);
+    }
+
+};
+
+sk_sp<PrecompileShader> PrecompileShaders::Empty() {
+    return sk_make_sp<PrecompileEmptyShader>();
+}
+
+//--------------------------------------------------------------------------------------------------
 class PrecompileColorShader : public PrecompileShader {
 public:
     PrecompileColorShader() {}
@@ -68,6 +128,12 @@ private:
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::Color() {
+    return sk_make_sp<PrecompileColorShader>();
+}
+
+// The colorSpace is safe to ignore - it is just applied to the color and doesn't modify the
+// generated program.
+sk_sp<PrecompileShader> PrecompileShaders::Color(sk_sp<SkColorSpace>) {
     return sk_make_sp<PrecompileColorShader>();
 }
 
@@ -618,7 +684,7 @@ private:
 sk_sp<PrecompileColorFilter> PrecompileColorFilters::Compose(
         SkSpan<const sk_sp<PrecompileColorFilter>> outerOptions,
         SkSpan<const sk_sp<PrecompileColorFilter>> innerOptions) {
-    if (outerOptions.empty() && innerOptions.empty()) {
+    if (is_empty(outerOptions) && is_empty(innerOptions)) {
         return nullptr;
     }
 
@@ -766,29 +832,6 @@ PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileColorFilter> cf)
         : fChild(std::move(cf)) {
 }
 PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileBlender> b) : fChild(std::move(b)) {}
-
-namespace {
-
-#ifdef SK_DEBUG
-
-bool precompilebase_is_valid_as_child(const PrecompileBase *child) {
-    if (!child) {
-        return true;
-    }
-
-    switch (child->type()) {
-        case PrecompileBase::Type::kShader:
-        case PrecompileBase::Type::kColorFilter:
-        case PrecompileBase::Type::kBlender:
-            return true;
-        default:
-            return false;
-    }
-}
-
-#endif // SK_DEBUG
-
-} // anonymous namespace
 
 PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileBase> child)
         : fChild(std::move(child)) {
