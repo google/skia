@@ -634,6 +634,36 @@ std::unique_ptr<SkScalerContext> SkTypeface_Fontations::onCreateScalerContext(
             sk_ref_sp(const_cast<SkTypeface_Fontations*>(this)), effects, desc);
 }
 
+std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Fontations::onGetAdvancedMetrics() const {
+    std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
+
+    if (!fontations_ffi::is_embeddable(*fBridgeFontRef)) {
+        info->fFlags |= SkAdvancedTypefaceMetrics::kNotEmbeddable_FontFlag;
+    }
+
+    if (!fontations_ffi::is_subsettable(*fBridgeFontRef)) {
+        info->fFlags |= SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag;
+    }
+
+    if (fontations_ffi::table_data(
+                *fBridgeFontRef, SkSetFourByteTag('f', 'v', 'a', 'r'), 0, rust::Slice<uint8_t>())) {
+        info->fFlags |= SkAdvancedTypefaceMetrics::kVariable_FontFlag;
+    }
+
+    fontations_ffi::Metrics metrics =
+            fontations_ffi::get_unscaled_metrics(*fBridgeFontRef, *fBridgeNormalizedCoords);
+    info->fAscent = metrics.ascent;
+    info->fDescent = metrics.descent;
+    info->fCapHeight = metrics.cap_height;
+
+    info->fBBox = SkIRect::MakeLTRB((int32_t)metrics.x_min,
+                                    (int32_t)metrics.top,
+                                    (int32_t)metrics.x_max,
+                                    (int32_t)metrics.bottom);
+
+    return info;
+}
+
 void SkTypeface_Fontations::onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const {
     SkString familyName;
     onGetFamilyName(&familyName);

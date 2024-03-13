@@ -385,6 +385,19 @@ fn get_skia_metrics(
         .unwrap_or_default()
 }
 
+fn get_unscaled_metrics(
+    font_ref: &BridgeFontRef,
+    coords: &BridgeNormalizedCoords,
+) -> ffi::Metrics {
+    font_ref
+        .with_font(|f| {
+            let fontations_metrics =
+                Metrics::new(f, Size::unscaled(), coords.normalized_coords.coords());
+            Some(convert_metrics(&fontations_metrics))
+        })
+        .unwrap_or_default()
+}
+
 fn get_localized_strings<'a>(font_ref: &'a BridgeFontRef<'a>) -> Box<BridgeLocalizedStrings<'a>> {
     Box::new(BridgeLocalizedStrings {
         localized_strings: font_ref
@@ -750,6 +763,29 @@ fn get_font_style(font_ref: &BridgeFontRef, style: &mut BridgeFontStyle) -> bool
         .unwrap_or_default()
 }
 
+fn is_embeddable(font_ref: &BridgeFontRef) -> bool {
+    font_ref
+        .with_font(|f| {
+            let fs_type = f.os2().ok()?.fs_type();
+            // https://learn.microsoft.com/en-us/typography/opentype/spec/os2#fstype
+            // Bit 2 and bit 9 must be cleared, "Restricted License embedding" and
+            // "Bitmap embedding only" must both be unset.
+            // Implemented to match SkTypeface_FreeType::onGetAdvancedMetrics.
+            Some(fs_type & 0x202 == 0)
+        })
+        .unwrap_or(true)
+}
+
+fn is_subsettable(font_ref: &BridgeFontRef) -> bool {
+    font_ref
+        .with_font(|f| {
+            let fs_type = f.os2().ok()?.fs_type();
+            // https://learn.microsoft.com/en-us/typography/opentype/spec/os2#fstype
+            Some((fs_type & 0x100) == 0)
+        })
+        .unwrap_or(true)
+}
+
 pub struct BridgeFontRef<'a>(Option<FontRef<'a>>);
 
 impl<'a> BridgeFontRef<'a> {
@@ -1111,6 +1147,10 @@ mod ffi {
             size: f32,
             coords: &BridgeNormalizedCoords,
         ) -> Metrics;
+        fn get_unscaled_metrics(
+            font_ref: &BridgeFontRef,
+            coords: &BridgeNormalizedCoords,
+        ) -> Metrics;
         fn num_glyphs(font_ref: &BridgeFontRef) -> u16;
         fn family_name(font_ref: &BridgeFontRef) -> String;
         fn postscript_name(font_ref: &BridgeFontRef, out_string: &mut String) -> bool;
@@ -1181,6 +1221,9 @@ mod ffi {
         fn num_color_stops(color_stops: &BridgeColorStops) -> usize;
 
         fn get_font_style(font_ref: &BridgeFontRef, font_style: &mut BridgeFontStyle) -> bool;
+
+        fn is_embeddable(font_ref: &BridgeFontRef) -> bool;
+        fn is_subsettable(font_ref: &BridgeFontRef) -> bool;
     }
 
     unsafe extern "C++" {
