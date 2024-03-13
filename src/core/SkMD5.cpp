@@ -17,6 +17,7 @@
 #include "src/core/SkMD5.h"
 
 #include "include/private/base/SkFeatures.h"
+#include "include/private/base/SkMalloc.h"
 
 /** MD5 basic transformation. Transforms state based on block. */
 static void transform(uint32_t state[4], const uint8_t block[64]);
@@ -46,7 +47,7 @@ bool SkMD5::write(const void* buf, size_t inputLength) {
     unsigned int inputIndex;
     if (inputLength >= bufferAvailable) {
         if (bufferIndex) {
-            memcpy(&this->buffer[bufferIndex], input, bufferAvailable);
+            sk_careful_memcpy(&this->buffer[bufferIndex], input, bufferAvailable);
             transform(this->state, this->buffer);
             inputIndex = bufferAvailable;
         } else {
@@ -62,7 +63,7 @@ bool SkMD5::write(const void* buf, size_t inputLength) {
         inputIndex = 0;
     }
 
-    memcpy(&this->buffer[bufferIndex], &input[inputIndex], inputLength - inputIndex);
+    sk_careful_memcpy(&this->buffer[bufferIndex], &input[inputIndex], inputLength - inputIndex);
 
     this->byteCount += inputLength;
     return true;
