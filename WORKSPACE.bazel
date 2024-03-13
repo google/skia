@@ -472,7 +472,7 @@ local_repository(
 # //bazel/external/<dep_name> and one can go find it there.
 #
 #### START GENERATED LIST OF THIRD_PARTY DEPS
-# @abseil_cpp - https://skia.googlesource.com/external/github.com/abseil/abseil-cpp.git
+# @abseil_cpp - https://chromium.googlesource.com/chromium/src/third_party/abseil-cpp.git
 # @brotli - https://skia.googlesource.com/external/github.com/google/brotli.git
 # @highway - https://chromium.googlesource.com/external/github.com/google/highway.git
 # @spirv_headers - https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git
