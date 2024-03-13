@@ -39,6 +39,10 @@ namespace PrecompileShaders {
                                          SkSpan<const sk_sp<PrecompileShader>> srcs);
     SK_API sk_sp<PrecompileShader> CoordClamp(SkSpan<const sk_sp<PrecompileShader>>);
 
+    // This block of two matches the SkShaders factories in SkPerlinNoiseShader.h
+    SK_API sk_sp<PrecompileShader> MakeFractalNoise();
+    SK_API sk_sp<PrecompileShader> MakeTurbulence();
+
     // TODO: add an SkShaders::Image to match this and SkImageFilters (skbug.com/13440)
     SK_API sk_sp<PrecompileShader> Image();
     SK_API sk_sp<PrecompileShader> YUVImage();

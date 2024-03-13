@@ -19,6 +19,7 @@
 #include "include/core/SkVertices.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
@@ -71,6 +72,7 @@ enum class ShaderType {
     kImage,
     kLinearGradient,
     kLocalMatrix,
+    kPerlinNoise,
     kRadialGradient,
     kSolidColor,
     kSweepGradient,
@@ -266,6 +268,27 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_empty_shader(SkRandom
     return { s, o };
 }
 
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_perlin_noise_shader(SkRandom* rand) {
+    sk_sp<SkShader> s;
+    sk_sp<PrecompileShader> o;
+
+    if (rand->nextBool()) {
+        s = SkShaders::MakeFractalNoise(/* baseFrequencyX= */ 0.3f,
+                                        /* baseFrequencyY= */ 0.3f,
+                                        /* numOctaves= */ 2,
+                                        /* seed= */ 4);
+        o = PrecompileShaders::MakeFractalNoise();
+    } else {
+        s = SkShaders::MakeTurbulence(/* baseFrequencyX= */ 0.3f,
+                                      /* baseFrequencyY= */ 0.3f,
+                                      /* numOctaves= */ 2,
+                                      /* seed= */ 4);
+        o = PrecompileShaders::MakeTurbulence();
+    }
+
+    return { s, o };
+}
+
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_solid_shader(SkRandom* rand) {
     sk_sp<SkShader> s;
     sk_sp<PrecompileShader> o;
@@ -412,6 +435,8 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>>  create_shader(SkRandom* ran
             return create_gradient_shader(rand, SkShaderBase::GradientType::kLinear);
         case ShaderType::kLocalMatrix:
             return create_localmatrix_shader(rand, recorder);
+        case ShaderType::kPerlinNoise:
+            return create_perlin_noise_shader(rand);
         case ShaderType::kRadialGradient:
             return create_gradient_shader(rand, SkShaderBase::GradientType::kRadial);
         case ShaderType::kSolidColor:
@@ -949,6 +974,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ShaderType::kEmpty,
             ShaderType::kLinearGradient,
             ShaderType::kLocalMatrix,
+            ShaderType::kPerlinNoise,
             ShaderType::kSweepGradient,
 #endif
     };
