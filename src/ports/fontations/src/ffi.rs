@@ -19,8 +19,8 @@ use std::pin::Pin;
 use crate::bitmap::{bitmap_glyph, bitmap_metrics, has_bitmap_glyph, png_data, BridgeBitmapGlyph};
 
 use crate::ffi::{
-    AxisWrapper, BridgeScalerMetrics, ColorPainterWrapper, ColorStop, PaletteOverride, PathWrapper,
-    SkiaDesignCoordinate,BridgeFontStyle
+    AxisWrapper, BridgeFontStyle, BridgeScalerMetrics, ColorPainterWrapper, ColorStop,
+    PaletteOverride, PathWrapper, SkiaDesignCoordinate,
 };
 
 fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16 {
@@ -727,11 +727,11 @@ fn get_font_style(font_ref: &BridgeFontRef, style: &mut BridgeFontStyle) -> bool
                         _ /* kOblique_Slant */=> 2
             };
             // Match back the skrifa values to get the system values (more or less)
-            let skia_width = match (attrs.stretch.ratio()*1000.0).round() as i32 {
-                x if x <=  500 => 1,
-                x if x <=  625 => 2,
-                x if x <=  725 => 3,
-                x if x <=  875 => 4,
+            let skia_width = match (attrs.stretch.ratio() * 1000.0).round() as i32 {
+                x if x <= 500 => 1,
+                x if x <= 625 => 2,
+                x if x <= 725 => 3,
+                x if x <= 875 => 4,
                 x if x <= 1000 => 5,
                 x if x <= 1125 => 6,
                 x if x <= 1250 => 7,
@@ -1418,16 +1418,16 @@ mod test {
 
     #[test]
     fn test_variable_font_attributes() {
-        let file_buffer = fs::read(TEST_VARIABLE)
-            .expect("Font to test font styles could not be opened.");
+        let file_buffer =
+            fs::read(TEST_VARIABLE).expect("Font to test font styles could not be opened.");
         let font_ref = make_font_ref(&file_buffer, 0);
         assert!(font_ref_is_valid(&font_ref));
 
         let mut font_style = BridgeFontStyle::default();
 
         assert!(get_font_style(font_ref.as_ref(), &mut font_style));
-        assert_eq!(font_style.width, 5);    // Skia normal
-        assert_eq!(font_style.slant, 0);    // Skia upright
+        assert_eq!(font_style.width, 5); // Skia normal
+        assert_eq!(font_style.slant, 0); // Skia upright
         assert_eq!(font_style.weight, 400); // Skia normal
     }
 }
