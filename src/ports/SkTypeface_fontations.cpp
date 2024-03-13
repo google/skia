@@ -650,6 +650,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Fontations::onGetAdvancedM
         info->fFlags |= SkAdvancedTypefaceMetrics::kVariable_FontFlag;
     }
 
+    // Metrics information.
     fontations_ffi::Metrics metrics =
             fontations_ffi::get_unscaled_metrics(*fBridgeFontRef, *fBridgeNormalizedCoords);
     info->fAscent = metrics.ascent;
@@ -660,6 +661,26 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Fontations::onGetAdvancedM
                                     (int32_t)metrics.top,
                                     (int32_t)metrics.x_max,
                                     (int32_t)metrics.bottom);
+
+    // Style information.
+    if (fontations_ffi::is_fixed_pitch(*fBridgeFontRef)) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
+    }
+
+    fontations_ffi::BridgeFontStyle fontStyle;
+    if (fontations_ffi::get_font_style(*fBridgeFontRef, fontStyle)) {
+        if (fontStyle.slant == SkFontStyle::Slant::kItalic_Slant) {
+            info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
+        }
+    }
+
+    if (fontations_ffi::is_serif_style(*fBridgeFontRef)) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+    } else if (fontations_ffi::is_script_style(*fBridgeFontRef)) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
+    }
+
+    info->fItalicAngle = fontations_ffi::italic_angle(*fBridgeFontRef);
 
     return info;
 }

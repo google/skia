@@ -385,10 +385,7 @@ fn get_skia_metrics(
         .unwrap_or_default()
 }
 
-fn get_unscaled_metrics(
-    font_ref: &BridgeFontRef,
-    coords: &BridgeNormalizedCoords,
-) -> ffi::Metrics {
+fn get_unscaled_metrics(font_ref: &BridgeFontRef, coords: &BridgeNormalizedCoords) -> ffi::Metrics {
     font_ref
         .with_font(|f| {
             let fontations_metrics =
@@ -784,6 +781,56 @@ fn is_subsettable(font_ref: &BridgeFontRef) -> bool {
             Some((fs_type & 0x100) == 0)
         })
         .unwrap_or(true)
+}
+
+fn is_fixed_pitch(font_ref: &BridgeFontRef) -> bool {
+    font_ref
+        .with_font(|f| {
+            // Compare DWriteFontTypeface::onGetAdvancedMetrics().
+            Some(
+                f.post().ok()?.is_fixed_pitch() != 0
+                    || f.hhea().ok()?.number_of_long_metrics() == 1,
+            )
+        })
+        .unwrap_or_default()
+}
+
+fn is_serif_style(font_ref: &BridgeFontRef) -> bool {
+    const FAMILY_TYPE_TEXT_AND_DISPLAY: u8 = 2;
+    const SERIF_STYLE_COVE: u8 = 2;
+    const SERIF_STYLE_TRIANGLE: u8 = 10;
+    font_ref
+        .with_font(|f| {
+            // Compare DWriteFontTypeface::onGetAdvancedMetrics().
+            let panose = f.os2().ok()?.panose_10();
+            let family_type = panose[0];
+
+            match family_type {
+                FAMILY_TYPE_TEXT_AND_DISPLAY => {
+                    let serif_style = panose[1];
+                    Some(serif_style >= SERIF_STYLE_COVE && serif_style <= SERIF_STYLE_TRIANGLE)
+                }
+                _ => None,
+            }
+        })
+        .unwrap_or_default()
+}
+
+fn is_script_style(font_ref: &BridgeFontRef) -> bool {
+    const FAMILY_TYPE_SCRIPT: u8 = 3;
+    font_ref
+        .with_font(|f| {
+            // Compare DWriteFontTypeface::onGetAdvancedMetrics().
+            let family_type = f.os2().ok()?.panose_10()[0];
+            Some(family_type == FAMILY_TYPE_SCRIPT)
+        })
+        .unwrap_or_default()
+}
+
+fn italic_angle(font_ref: &BridgeFontRef) -> i32 {
+    font_ref
+        .with_font(|f| Some(f.post().ok()?.italic_angle().to_i32()))
+        .unwrap_or_default()
 }
 
 pub struct BridgeFontRef<'a>(Option<FontRef<'a>>);
@@ -1222,8 +1269,13 @@ mod ffi {
 
         fn get_font_style(font_ref: &BridgeFontRef, font_style: &mut BridgeFontStyle) -> bool;
 
+        // Additional low-level access functions needed for generateAdvancedMetrics().
         fn is_embeddable(font_ref: &BridgeFontRef) -> bool;
         fn is_subsettable(font_ref: &BridgeFontRef) -> bool;
+        fn is_fixed_pitch(font_ref: &BridgeFontRef) -> bool;
+        fn is_serif_style(font_ref: &BridgeFontRef) -> bool;
+        fn is_script_style(font_ref: &BridgeFontRef) -> bool;
+        fn italic_angle(font_ref: &BridgeFontRef) -> i32;
     }
 
     unsafe extern "C++" {
