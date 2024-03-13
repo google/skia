@@ -10,7 +10,6 @@
 sk_sp<SkData> SkPDFSubsetFont(sk_sp<SkData> fontData,
                               const SkPDFGlyphUse& glyphUsage,
                               SkPDF::Metadata::Subsetter subsetter,
-                              const char* fontName,
                               int ttcIndex);
 
 #endif  // SkPDFSubsetFont_DEFINED

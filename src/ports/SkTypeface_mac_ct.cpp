@@ -499,7 +499,6 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
         SkUniqueCFRef<CFStringRef> fontName(CTFontCopyPostScriptName(ctFont.get()));
         if (fontName.get()) {
             SkStringFromCFString(fontName.get(), &info->fPostScriptName);
-            info->fFontName = info->fPostScriptName;
         }
     }
 
@@ -518,7 +517,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
 
     // If it's not a truetype font, mark it as 'other'. Assume that TrueType
     // fonts always have both glyf and loca tables. At the least, this is what
-    // sfntly needs to subset the font. CTFontCopyAttribute() does not always
+    // is needed to subset the font. CTFontCopyAttribute() does not always
     // succeed in determining this directly.
     if (!this->getTableSize(SkSetFourByteTag('g','l','y','f')) ||
         !this->getTableSize(SkSetFourByteTag('l','o','c','a')))

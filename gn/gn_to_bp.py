@@ -270,13 +270,16 @@ cc_defaults {
     static_libs: [
         "libwebp-decode",
         "libwebp-encode",
-        "libsfntly",
         "libwuffs_mirror_release_c",
     ],
     target: {
       android: {
         shared_libs: [
+            "libharfbuzz_subset",
             "libheif",
+        ],
+        cflags: [
+            "-DSK_PDF_USE_HARFBUZZ_SUBSET",
         ],
       },
       darwin: {
@@ -450,6 +453,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     'skia_use_fonthost_mac':                'false',
 
     'skia_use_system_harfbuzz':             'false',
+    'skia_pdf_subset_harfbuzz':             'true',
 
     # enable features used in skia_nanobench
     'skia_tools_require_resources':         'true',

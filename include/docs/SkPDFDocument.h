@@ -179,15 +179,9 @@ struct Metadata {
         HighButSlow = 9,
     } fCompressionLevel = CompressionLevel::Default;
 
-    /** Preferred Subsetter. Only respected if both are compiled in.
-
-        The Sfntly subsetter is deprecated.
-
-        Experimental.
-    */
+    /** Preferred Subsetter. */
     enum Subsetter {
         kHarfbuzz_Subsetter,
-        kSfntly_Subsetter,
     } fSubsetter = kHarfbuzz_Subsetter;
 };
 

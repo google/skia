@@ -469,7 +469,9 @@ void SkTypeface::getGlyphToUnicodeMap(SkUnichar* dst) const {
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() const {
     std::unique_ptr<SkAdvancedTypefaceMetrics> result = this->onGetAdvancedMetrics();
     if (result && result->fPostScriptName.isEmpty()) {
-        result->fPostScriptName = result->fFontName;
+        if (!this->getPostScriptName(&result->fPostScriptName)) {
+            this->getFamilyName(&result->fPostScriptName);
+        }
     }
     if (result && result->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
         SkOTTableOS2::Version::V2::Type::Field fsType;

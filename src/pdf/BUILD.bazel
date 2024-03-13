@@ -106,8 +106,6 @@ selects.config_setting_group(
     ],
 )
 
-# TODO(kjlubick) sfntly support
-
 skia_cc_deps(
     name = "deps",
     visibility = ["//src:__pkg__"],

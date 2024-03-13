@@ -329,8 +329,8 @@ presenting the font as multiple fonts, each with up to 255 glyphs.
 #### _Font subsetting_
 
 Many fonts, especially fonts with CJK support are fairly large, so it is
-desirable to subset them. Chrome uses the SFNTLY package to provide subsetting
-support to Skia for TrueType fonts.
+desirable to subset them. Chrome uses the HarfBuzz subsetter to provide
+subsetting support to Skia for TrueType fonts.
 
 ### Shaders
 

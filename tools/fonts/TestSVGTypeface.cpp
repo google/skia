@@ -147,7 +147,7 @@ void TestSVGTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> TestSVGTypeface::onGetAdvancedMetrics() const {
     std::unique_ptr<SkAdvancedTypefaceMetrics> info(new SkAdvancedTypefaceMetrics);
-    info->fFontName = fName;
+    info->fPostScriptName = fName;
     return info;
 }
 

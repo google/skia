@@ -1654,7 +1654,6 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
     glyphCount = calculateGlyphCount(hdc, fLogFont);
 
     info.reset(new SkAdvancedTypefaceMetrics);
-    tchar_to_skstring(lf.lfFaceName, &info->fFontName);
 
     SkOTTableOS2_V4::Type fsType;
     if (sizeof(fsType) == this->getTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG),
