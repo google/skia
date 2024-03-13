@@ -990,11 +990,16 @@ optional("gpu") {
         libs += [ "android" ]
       }
     } else if (skia_use_egl) {
-      sources += [
-        "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
-        "src/gpu/ganesh/gl/egl/GrGLMakeNativeInterface_egl.cpp",
-      ]
-      libs += [ "EGL" ]
+      if (skia_use_epoxy_egl) {
+        sources += [ "src/gpu/ganesh/gl/epoxy/GrGLMakeEpoxyEGLInterface.cpp" ]
+        libs += [ "epoxy" ]
+      } else {
+        sources += [
+          "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
+          "src/gpu/ganesh/gl/egl/GrGLMakeNativeInterface_egl.cpp",
+        ]
+        libs += [ "EGL" ]
+      }
     } else if (skia_use_webgl) {
       sources += [ "src/gpu/ganesh/gl/webgl/GrGLMakeNativeInterface_webgl.cpp" ]
     } else if (is_linux && skia_use_x11) {

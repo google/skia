@@ -1,0 +1,30 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+# Used for exporting to //gn/gpu.gni:skia_native_gpu_sources.
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "GrGLMakeEpoxyEGLInterface.cpp",
+    ],
+    visibility = ["//src/gpu/ganesh/gl:__pkg__"],
+)
+
+skia_cc_library(
+    name = "epoxy_factory",
+    srcs = [
+        "GrGLMakeEpoxyEGLInterface.cpp",
+    ],
+    hdrs = [
+        "//include/gpu/gl/epoxy:public_hdrs",
+    ],
+    linkopts = ["-lepoxy"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//:ganesh_gl",
+    ],
+)

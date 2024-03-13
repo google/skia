@@ -1,0 +1,14 @@
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = ["GrGLMakeEpoxyEGLInterface.h"],
+    visibility = [
+        "//include/gpu/gl:__pkg__",
+        "//src/gpu/ganesh/gl/epoxy:__pkg__",
+    ],
+)

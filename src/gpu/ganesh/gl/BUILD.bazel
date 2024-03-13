@@ -19,6 +19,7 @@ CORE_FILES = [
     "GrGLCaps.h",
     "GrGLContext.cpp",
     "GrGLContext.h",
+    "GrGLCoreFunctions.h",
     "GrGLDefines.h",
     "GrGLDirectContext.cpp",
     "GrGLExtensions.cpp",
