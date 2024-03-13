@@ -39,6 +39,7 @@ extern "C" {
         // - Clang 18 runs into an ICE on armv7/androideabi with [[clang::musttail]].
         //   (http://crbug.com/1504548)
         // - Android RISC-V also runs into an ICE (b/314692534)
+        // - LoongArch developers indicate they had to turn it off
         // - Windows builds generate incorrect code with [[clang::musttail]] and crash mysteriously.
         //   (http://crbug.com/1505442)
         #if __has_cpp_attribute(clang::musttail) && !__has_feature(memory_sanitizer) \
@@ -46,6 +47,7 @@ extern "C" {
                                                  && !defined(__EMSCRIPTEN__) \
                                                  && !defined(__arm__) \
                                                  && !defined(__riscv) \
+                                                 && !defined(__loongarch__) \
                                                  && !defined(_WIN32) && !defined(__SYMBIAN32__)
             #define SKCMS_HAS_MUSTTAIL 1
         #endif
