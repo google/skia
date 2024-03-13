@@ -28,6 +28,8 @@
 #ifdef SK_GRAPHITE
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/YUVABackendTextures.h"
+#include "include/private/base/SkTArray.h"
+#include "src/core/SkAutoPixmapStorage.h"
 #endif
 
 namespace {
@@ -420,28 +422,61 @@ bool LazyYUVImage::ensureYUVImage(Recorder* recorder, Type type) {
             if (!recorder) {
                 return false;
             }
-            if (fMipmapped == skgpu::Mipmapped::kYes) {
-                // If this becomes necessary we should invoke SkMipmapBuilder here to make mip
-                // maps from our src data (and then pass a pixmaps array to initialize the planar
-                // textures.
-                return false;
-            }
+
             sk_sp<SkImage> planeImgs[SkYUVAInfo::kMaxPlanes];
+
+            using SkImages::GenerateMipmapsFromBase;
+            GenerateMipmapsFromBase genMipmaps = GenerateMipmapsFromBase::kNo;
+            if (fMipmapped == skgpu::Mipmapped::kYes) {
+                genMipmaps = GenerateMipmapsFromBase::kYes;
+            }
+
             for (int i = 0; i < fPixmaps.numPlanes(); ++i) {
-                sk_sp<sk_gpu_test::ManagedGraphiteTexture> mbet =
-                        sk_gpu_test::ManagedGraphiteTexture::MakeFromPixmap(recorder,
-                                                                            fPixmaps.plane(i),
-                                                                            skgpu::Mipmapped::kNo,
-                                                                            skgpu::Renderable::kNo,
-                                                                            skgpu::Protected::kNo);
-                if (!mbet) {
-                    return false;
+                const auto& plane = fPixmaps.plane(i);
+                sk_sp<ManagedGraphiteTexture> mbet;
+                if (fMipmapped == skgpu::Mipmapped::kYes) {
+                    mbet = ManagedGraphiteTexture::MakeUnInit(recorder,
+                                                              plane.info(),
+                                                              skgpu::Mipmapped::kYes,
+                                                              skgpu::Renderable::kNo);
+                    // We allocate a full mip set because updateBackendTexture requires it. However,
+                    // the non-base levels are cleared to red. We rely on SkImages::WrapTexture
+                    // to actually generate the contents from the base level for each plane on the
+                    // GPU. This exercises the case where the client wants a mipmapped YUV image but
+                    // only provides the base level contents.
+                    int levelCnt = SkMipmap::ComputeLevelCount(plane.dimensions());
+                    skia_private::TArray<SkAutoPixmapStorage> levelStorage(levelCnt);
+                    skia_private::TArray<SkPixmap> levels(levelCnt + 1);
+                    levels.push_back(plane);
+                    for (int l = 0; l < levelCnt; ++l) {
+                        SkISize dims = SkMipmap::ComputeLevelSize(plane.dimensions(), l);
+                        SkAutoPixmapStorage level;
+                        level.alloc(plane.info().makeDimensions(dims));
+                        level.erase(SK_ColorRED);
+                        levels.push_back(level);
+                        levelStorage.push_back(std::move(level));
+                    }
+                    if (!mbet || !recorder->updateBackendTexture(mbet->texture(),
+                                                                 levels.data(),
+                                                                 levels.size())) {
+                        return false;
+                    }
+                } else {
+                    mbet = ManagedGraphiteTexture::MakeFromPixmap(recorder,
+                                                                  plane,
+                                                                  skgpu::Mipmapped::kNo,
+                                                                  skgpu::Renderable::kNo);
+                    if (!mbet) {
+                        return false;
+                    }
                 }
                 planeImgs[i] = SkImages::WrapTexture(recorder,
                                                      mbet->texture(),
-                                                     fPixmaps.plane(i).colorType(),
-                                                     fPixmaps.plane(i).alphaType(),
+                                                     plane.colorType(),
+                                                     plane.alphaType(),
                                                      fColorSpace,
+                                                     skgpu::Origin::kTopLeft,
+                                                     genMipmaps,
                                                      ManagedGraphiteTexture::ImageReleaseProc,
                                                      mbet->releaseContext());
             }

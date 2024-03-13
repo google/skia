@@ -68,6 +68,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                            SkAlphaType at,
                            sk_sp<SkColorSpace> cs,
                            skgpu::Origin origin,
+                           GenerateMipmapsFromBase genMipmaps,
                            TextureReleaseProc releaseP,
                            ReleaseContext releaseC) {
     auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
@@ -96,7 +97,39 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
 
     skgpu::Swizzle swizzle = caps->getReadSwizzle(ct, backendTex.info());
     TextureProxyView view(std::move(proxy), swizzle, origin);
+
+    if (genMipmaps == GenerateMipmapsFromBase::kYes) {
+        if (view.proxy()->mipmapped() == skgpu::Mipmapped::kNo) {
+            SKGPU_LOG_W("Failed SkImage:::WrapTexture because asked to generate mipmaps for "
+                        "nonmipmapped texture");
+            return nullptr;
+        }
+        if (!GenerateMipmaps(recorder, view.refProxy(), info)) {
+            SKGPU_LOG_W("Failed SkImage::WrapTexture. Could not generate mipmaps.");
+            return nullptr;
+        }
+    }
+
     return sk_make_sp<skgpu::graphite::Image>(kNeedNewImageUniqueID, view, info);
+}
+
+sk_sp<SkImage> WrapTexture(Recorder* recorder,
+                           const BackendTexture& backendTex,
+                           SkColorType ct,
+                           SkAlphaType at,
+                           sk_sp<SkColorSpace> cs,
+                           skgpu::Origin origin,
+                           TextureReleaseProc releaseP,
+                           ReleaseContext releaseC) {
+    return WrapTexture(recorder,
+                       backendTex,
+                       ct,
+                       at,
+                       std::move(cs),
+                       origin,
+                       SkImages::GenerateMipmapsFromBase::kNo,
+                       releaseP,
+                       releaseC);
 }
 
 sk_sp<SkImage> WrapTexture(Recorder* recorder,
@@ -112,6 +145,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                        at,
                        std::move(cs),
                        skgpu::Origin::kTopLeft,
+                       SkImages::GenerateMipmapsFromBase::kNo,
                        releaseP,
                        releaseC);
 }

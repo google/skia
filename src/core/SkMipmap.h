@@ -56,6 +56,9 @@ public:
     // |level| is an index into the generated mipmap levels. It does not include
     // the base level. So index 0 represents mipmap level 1.
     static SkISize ComputeLevelSize(int baseWidth, int baseHeight, int level);
+    static SkISize ComputeLevelSize(SkISize s, int level) {
+        return ComputeLevelSize(s.width(), s.height(), level);
+    }
 
     // Computes the fractional level based on the scaling in X and Y.
     static float ComputeLevel(SkSize scaleSize);

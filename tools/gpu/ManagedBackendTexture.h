@@ -163,6 +163,12 @@ public:
                                                         skgpu::Renderable,
                                                         skgpu::Protected = skgpu::Protected::kNo);
 
+    static sk_sp<ManagedGraphiteTexture> MakeMipmappedFromPixmaps(
+            Recorder*,
+            SkSpan<const SkPixmap> levels,
+            skgpu::Renderable,
+            skgpu::Protected = skgpu::Protected::kNo);
+
     /** finished and image/surface release procs */
     static void FinishedProc(void* context, skgpu::CallbackResult);
     static void ReleaseProc(void* context);
