@@ -538,9 +538,6 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* des
 
     std::vector<std::pair<uint32_t, sk_sp<SkData>>> tags;
 
-    // Compute profile description tag
-    tags.emplace_back(kTAG_desc, write_text_tag(desc));
-
     // Compute primaries.
     if (profile->has_toXYZD50) {
         const auto& m = profile->toXYZD50;
@@ -608,6 +605,21 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* des
 
     // Compute copyright tag
     tags.emplace_back(kTAG_cprt, write_text_tag("Google Inc. 2016"));
+
+    // Ensure that the desc isn't empty https://crbug.com/329032158
+    std::string generatedDesc;
+    if (!desc || *desc == '\0') {
+        SkMD5 md5;
+        for (const auto& tag : tags) {
+            md5.write(&tag.first, sizeof(tag.first));
+            md5.write(tag.second->bytes(), tag.second->size());
+        }
+        SkMD5::Digest digest = md5.finish();
+        generatedDesc = std::string("Google/Skia/") + digest.toHexString().c_str();
+        desc = generatedDesc.c_str();
+    }
+    // Compute profile description tag
+    tags.emplace(tags.begin(), kTAG_desc, write_text_tag(desc));
 
     // Compute the size of the profile.
     size_t tag_data_size = 0;
