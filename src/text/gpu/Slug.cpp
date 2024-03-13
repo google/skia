@@ -22,14 +22,14 @@ sk_sp<Slug> Slug::ConvertBlob(
     return canvas->convertBlobToSlug(blob, origin, paint);
 }
 
-sk_sp<SkData> Slug::serialize(const SkSerialProcs& procs) const {
-    SkBinaryWriteBuffer buffer(procs);
+sk_sp<SkData> Slug::serialize() const {
+    SkBinaryWriteBuffer buffer({});
     this->doFlatten(buffer);
     return buffer.snapshotAsData();
 }
 
-size_t Slug::serialize(void* buffer, size_t size, const SkSerialProcs& procs) const {
-    SkBinaryWriteBuffer writeBuffer{buffer, size, procs};
+size_t Slug::serialize(void* buffer, size_t size) const {
+    SkBinaryWriteBuffer writeBuffer{buffer, size, {}};
     this->doFlatten(writeBuffer);
 
     // If we overflow the given buffer, then SkWriteBuffer allocates a new larger buffer. Check
@@ -39,14 +39,11 @@ size_t Slug::serialize(void* buffer, size_t size, const SkSerialProcs& procs) co
     return writeBuffer.usingInitialStorage() ? writeBuffer.bytesWritten() : 0u;
 }
 
-sk_sp<Slug> Slug::Deserialize(const void* data,
-                              size_t size,
-                              const SkStrikeClient* client,
-                              const SkDeserialProcs& procs) {
+sk_sp<Slug> Slug::Deserialize(const void* data, size_t size, const SkStrikeClient* client) {
     SkReadBuffer buffer{data, size};
-    SkDeserialProcs procsWithSlug = procs;
-    Slug::AddDeserialProcs(&procsWithSlug, client);
-    buffer.setDeserialProcs(procsWithSlug);
+    SkDeserialProcs procs;
+    Slug::AddDeserialProcs(&procs, client);
+    buffer.setDeserialProcs(procs);
     return MakeFromBuffer(buffer);
 }
 

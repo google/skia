@@ -815,7 +815,6 @@ bool SkStrikeClient::translateTypefaceID(SkAutoDescriptor* descriptor) const {
 }
 
 sk_sp<sktext::gpu::Slug> SkStrikeClient::deserializeSlugForTest(const void* data,
-                                                                size_t size,
-                                                                const SkDeserialProcs& p) const {
-    return sktext::gpu::Slug::Deserialize(data, size, this, p);
+                                                                size_t size) const {
+    return sktext::gpu::Slug::Deserialize(data, size, this);
 }

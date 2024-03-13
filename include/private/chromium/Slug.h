@@ -10,7 +10,6 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSerialProcs.h"  // IWYU pragma: keep
 #include "include/private/base/SkAPI.h"
 
 #include <cstddef>
@@ -23,6 +22,7 @@ class SkReadBuffer;
 class SkStrikeClient;
 class SkTextBlob;
 class SkWriteBuffer;
+struct SkDeserialProcs;
 struct SkPoint;
 
 namespace sktext::gpu {
@@ -38,15 +38,14 @@ public:
             SkCanvas* canvas, const SkTextBlob& blob, SkPoint origin, const SkPaint& paint);
 
     // Serialize the slug.
-    sk_sp<SkData> serialize(const SkSerialProcs& procs = {}) const;
-    size_t serialize(void* buffer, size_t size, const SkSerialProcs& procs = {}) const;
+    sk_sp<SkData> serialize() const;
+    size_t serialize(void* buffer, size_t size) const;
 
     // Set the client parameter to the appropriate SkStrikeClient when typeface ID translation
     // is needed.
     static sk_sp<Slug> Deserialize(const void* data,
                                    size_t size,
-                                   const SkStrikeClient* client = nullptr,
-                                   const SkDeserialProcs& procs = {});
+                                   const SkStrikeClient* client = nullptr);
     static sk_sp<Slug> MakeFromBuffer(SkReadBuffer& buffer);
 
     // Allows clients to deserialize SkPictures that contain slug data

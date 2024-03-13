@@ -419,7 +419,7 @@ DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_SlugSerialization,
 
     // Generate strike updates.
     auto srcSlug = Slug::ConvertBlob(analysisCanvas.get(), *serverBlob, {0.3f, 0}, paint);
-    auto dstSlugData = srcSlug->serialize({});
+    auto dstSlugData = srcSlug->serialize();
 
     std::vector<uint8_t> serverStrikeData;
     server.writeStrikeData(&serverStrikeData);
@@ -429,7 +429,7 @@ DEF_GANESH_TEST_FOR_CONTEXTS(SkRemoteGlyphCache_SlugSerialization,
                     client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
 
     SkBitmap expected = RasterSlug(srcSlug, 10, 10, paint, dContext);
-    auto dstSlug = client.deserializeSlugForTest(dstSlugData->data(), dstSlugData->size(), {});
+    auto dstSlug = client.deserializeSlugForTest(dstSlugData->data(), dstSlugData->size());
     REPORTER_ASSERT(reporter, dstSlug != nullptr);
     SkBitmap actual = RasterSlug(dstSlug, 10, 10, paint, dContext);
     compare_blobs(expected, actual, reporter);
