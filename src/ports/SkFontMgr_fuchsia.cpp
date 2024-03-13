@@ -243,13 +243,22 @@ private:
 
 sk_sp<SkTypeface> CreateTypefaceFromSkStream(std::unique_ptr<SkStreamAsset> stream,
                                              const SkFontArguments& args, TypefaceId id) {
+    SkFontScanner_FreeType fontScanner;
+    int numInstances;
+    if (!fontScanner.scanFace(stream.get(), args.getCollectionIndex(), &numInstances)) {
+        return nullptr;
+    }
     bool isFixedPitch;
     SkFontStyle style;
     SkString name;
-    SkFontScanner_FreeType fontScanner;
     SkFontScanner::AxisDefinitions axisDefinitions;
-    if (!fontScanner.scanFont(stream.get(), args.getCollectionIndex(), &name, &style, &isFixedPitch,
-                          &axisDefinitions)) {
+    if (!fontScanner.scanInstance(stream.get(),
+                                  args.getCollectionIndex(),
+                                  0,
+                                  &name,
+                                  &style,
+                                  &isFixedPitch,
+                                  &axisDefinitions)) {
         return nullptr;
     }
 
