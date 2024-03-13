@@ -149,6 +149,7 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/ganesh/SkSurfaceGanesh.h",
     "include/gpu/ganesh/gl/GrGLBackendSurface.h",
     "include/gpu/ganesh/gl/GrGLDirectContext.h",
+    "include/gpu/ganesh/mtl/GrMtlBackendSemaphore.h",
     "include/gpu/ganesh/mtl/SkSurfaceMetal.h",
     "include/gpu/ganesh/vk/GrBackendDrawableInfo.h",
     "include/gpu/ganesh/vk/GrVkBackendSemaphore.h",
@@ -2114,6 +2115,7 @@ MTL_HDRS = [
 
 MTL_SRCS = [
     "src/gpu/ganesh/mtl/GrMtlAttachment.mm",
+    "src/gpu/ganesh/mtl/GrMtlBackendSemaphore.mm",
     "src/gpu/ganesh/mtl/GrMtlBuffer.mm",
     "src/gpu/ganesh/mtl/GrMtlCaps.mm",
     "src/gpu/ganesh/mtl/GrMtlCommandBuffer.mm",

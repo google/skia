@@ -12,10 +12,6 @@
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkAnySubclass.h"
 
-#ifdef SK_METAL
-#include "include/gpu/mtl/GrMtlTypes.h"
-#endif
-
 #ifdef SK_DIRECT3D
 #include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
 #endif
@@ -35,33 +31,6 @@ public:
     ~GrBackendSemaphore();
     GrBackendSemaphore(const GrBackendSemaphore&);
     GrBackendSemaphore& operator=(const GrBackendSemaphore&);
-
-#ifdef SK_METAL
-    // It is the creator's responsibility to ref the MTLEvent passed in here, via __bridge_retained.
-    // The other end will wrap this BackendSemaphore and take the ref, via __bridge_transfer.
-    void initMetal(GrMTLHandle event, uint64_t value) {
-        fBackend = GrBackendApi::kMetal;
-        fMtlEvent = event;
-        fMtlValue = value;
-
-        fIsInitialized = true;
-    }
-
-    GrMTLHandle mtlSemaphore() const {
-        if (!fIsInitialized || GrBackendApi::kMetal != fBackend) {
-            return nullptr;
-        }
-        return fMtlEvent;
-    }
-
-    uint64_t mtlValue() const {
-        if (!fIsInitialized || GrBackendApi::kMetal != fBackend) {
-            return 0;
-        }
-        return fMtlValue;
-    }
-
-#endif
 
 #ifdef SK_DIRECT3D
     void initDirect3D(const GrD3DFenceInfo& info) {
@@ -84,7 +53,7 @@ private:
     // Size determined by looking at the GrBackendSemaphoreData subclasses, then
     // guessing-and-checking. Compiler will complain if this is too small - in that case,
     // just increase the number.
-    inline constexpr static size_t kMaxSubclassSize = 16;
+    inline constexpr static size_t kMaxSubclassSize = 24;
     using AnySemaphoreData = SkAnySubclass<GrBackendSemaphoreData, kMaxSubclassSize>;
 
     template <typename SemaphoreData>
@@ -101,16 +70,10 @@ private:
 
     union {
         void* fPlaceholder;  // TODO(293490566)
-#ifdef SK_METAL
-        GrMTLHandle fMtlEvent;    // Expected to be an id<MTLEvent>
-#endif
 #ifdef SK_DIRECT3D
         GrD3DFenceInfo* fD3DFenceInfo;
 #endif
     };
-#ifdef SK_METAL
-    uint64_t fMtlValue;
-#endif
     bool fIsInitialized;
 };
 

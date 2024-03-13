@@ -44,14 +44,9 @@ GrBackendSemaphore& GrBackendSemaphore::operator=(const GrBackendSemaphore& that
             SK_ABORT("Unsupported");
             break;
         case GrBackendApi::kVulkan:
+        case GrBackendApi::kMetal:
             that.fSemaphoreData->copyTo(fSemaphoreData);
             break;
-#ifdef SK_METAL
-        case GrBackendApi::kMetal:
-            fMtlEvent = that.fMtlEvent;
-            fMtlValue = that.fMtlValue;
-            break;
-#endif
 #ifdef SK_DIRECT3D
         case GrBackendApi::kDirect3D:
             this->assignD3DFenceInfo(*that.fD3DFenceInfo);
