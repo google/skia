@@ -26,39 +26,37 @@ class PrecompileShader;
 
 //--------------------------------------------------------------------------------------------------
 // This will move to be beside SkShaders in include/core/SkShader.h
-class PrecompileShaders {
-public:
-    static sk_sp<PrecompileShader> Empty();
-    static sk_sp<PrecompileShader> Color();
-    static sk_sp<PrecompileShader> Color(sk_sp<SkColorSpace>);
+namespace PrecompileShaders {
+    // This block of six matches the SkShaders factories in SkShader.h
+    SK_API sk_sp<PrecompileShader> Empty();
+    SK_API sk_sp<PrecompileShader> Color();
+    SK_API sk_sp<PrecompileShader> Color(sk_sp<SkColorSpace>);
+    SK_API sk_sp<PrecompileShader> Blend(SkSpan<SkBlendMode> blendModes,
+                                         SkSpan<const sk_sp<PrecompileShader>> dsts,
+                                         SkSpan<const sk_sp<PrecompileShader>> srcs);
+    SK_API sk_sp<PrecompileShader> Blend(SkSpan<const sk_sp<PrecompileBlender>> blenders,
+                                         SkSpan<const sk_sp<PrecompileShader>> dsts,
+                                         SkSpan<const sk_sp<PrecompileShader>> srcs);
+    SK_API sk_sp<PrecompileShader> CoordClamp(SkSpan<const sk_sp<PrecompileShader>>);
 
-    static sk_sp<PrecompileShader> Blend(SkSpan<const sk_sp<PrecompileBlender>> blenders,
-                                         SkSpan<const sk_sp<PrecompileShader>> dsts,
-                                         SkSpan<const sk_sp<PrecompileShader>> srcs);
-    static sk_sp<PrecompileShader> Blend(SkSpan<SkBlendMode> blendModes,
-                                         SkSpan<const sk_sp<PrecompileShader>> dsts,
-                                         SkSpan<const sk_sp<PrecompileShader>> srcs);
     // TODO: add an SkShaders::Image to match this and SkImageFilters (skbug.com/13440)
-    static sk_sp<PrecompileShader> Image();
-    static sk_sp<PrecompileShader> YUVImage();
+    SK_API sk_sp<PrecompileShader> Image();
+    SK_API sk_sp<PrecompileShader> YUVImage();
 
     // TODO: make SkGradientShader match this convention (skbug.com/13438)
-    static sk_sp<PrecompileShader> LinearGradient();
-    static sk_sp<PrecompileShader> RadialGradient();
-    static sk_sp<PrecompileShader> TwoPointConicalGradient();
-    static sk_sp<PrecompileShader> SweepGradient();
+    SK_API sk_sp<PrecompileShader> LinearGradient();
+    SK_API sk_sp<PrecompileShader> RadialGradient();
+    SK_API sk_sp<PrecompileShader> TwoPointConicalGradient();
+    SK_API sk_sp<PrecompileShader> SweepGradient();
 
     // TODO: hide these? The issue here is that, in the main Skia API, these are only accessed
     // via makeWithLocalMatrix and makeWithColorFilter. However, in the combination API, clients
     // may want to create a set of these (i.e., pass SkSpans to the factory functions vs
     // just single options).
-    static sk_sp<PrecompileShader> LocalMatrix(sk_sp<PrecompileShader> wrapped);
-    static sk_sp<PrecompileShader> ColorFilter(sk_sp<PrecompileShader>,
+    SK_API sk_sp<PrecompileShader> LocalMatrix(sk_sp<PrecompileShader> wrapped);
+    SK_API sk_sp<PrecompileShader> ColorFilter(sk_sp<PrecompileShader>,
                                                sk_sp<PrecompileColorFilter>);
-
-private:
-    PrecompileShaders() = delete;
-};
+}
 
 //--------------------------------------------------------------------------------------------------
 // Initially this will go next to SkMaskFilter in include/core/SkMaskFilter.h but the

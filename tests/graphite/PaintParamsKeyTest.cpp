@@ -65,6 +65,7 @@ enum class ShaderType {
     kNone,
     kBlend,
     kColorFilter,
+    kCoordClamp,
     kConicalGradient,
     kEmpty,
     kImage,
@@ -242,6 +243,22 @@ sk_sp<SkImage> make_image(SkRandom* rand, Recorder* recorder) {
 }
 
 //--------------------------------------------------------------------------------------------------
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_coord_clamp_shader(SkRandom* rand,
+                                                                              Recorder* recorder) {
+    auto [s, o] = create_random_shader(rand, recorder);
+    SkASSERT(!s == !o);
+
+    if (!s) {
+        return { nullptr, nullptr };
+    }
+
+    constexpr SkRect kSubset{0, 0, 256, 256}; // this is somewhat arbitrary but we need some subset
+    sk_sp<SkShader> ccs = SkShaders::CoordClamp(std::move(s), kSubset);
+    sk_sp<PrecompileShader> cco = PrecompileShaders::CoordClamp({ std::move(o) });
+
+    return { ccs, cco };
+}
+
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_empty_shader(SkRandom* /* rand */) {
     sk_sp<SkShader> s = SkShaders::Empty();
     sk_sp<PrecompileShader> o = PrecompileShaders::Empty();
@@ -383,6 +400,8 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>>  create_shader(SkRandom* ran
             return create_blend_shader(rand, recorder);
         case ShaderType::kColorFilter:
             return create_colorfilter_shader(rand, recorder);
+        case ShaderType::kCoordClamp:
+            return create_coord_clamp_shader(rand, recorder);
         case ShaderType::kConicalGradient:
             return create_gradient_shader(rand, SkShaderBase::GradientType::kConical);
         case ShaderType::kEmpty:
@@ -925,6 +944,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
 #if EXPANDED_SET
             ShaderType::kNone,
             ShaderType::kColorFilter,
+            ShaderType::kCoordClamp,
             ShaderType::kConicalGradient,
             ShaderType::kEmpty,
             ShaderType::kLinearGradient,
