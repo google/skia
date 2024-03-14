@@ -540,8 +540,3 @@ bool SkTypeface::onComputeBounds(SkRect* bounds) const {
                     fm.fXMax * invTextSize, fm.fBottom * invTextSize);
     return true;
 }
-
-std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::onGetAdvancedMetrics() const {
-    SkDEBUGFAIL("Typefaces that need to work with PDF backend must override this.");
-    return nullptr;
-}
