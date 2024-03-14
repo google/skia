@@ -28,8 +28,11 @@ namespace skwindow::internal {
 GraphiteDawnWindowContext::GraphiteDawnWindowContext(const DisplayParams& params,
                                                      wgpu::TextureFormat swapChainFormat)
     : WindowContext(params)
-    , fSwapChainFormat(swapChainFormat)
-    , fInstance(std::make_unique<dawn::native::Instance>()) {
+    , fSwapChainFormat(swapChainFormat) {
+    WGPUInstanceDescriptor desc{};
+    // need for WaitAny with timeout > 0
+    desc.features.timedWaitAnyEnable = true;
+    fInstance = std::make_unique<dawn::native::Instance>(&desc);
 }
 
 void GraphiteDawnWindowContext::initializeContext(int width, int height) {

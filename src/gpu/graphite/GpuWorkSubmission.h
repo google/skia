@@ -21,8 +21,8 @@ class GpuWorkSubmission {
 public:
     virtual ~GpuWorkSubmission();
 
-    bool isFinished();
-    void waitUntilFinished();
+    bool isFinished(const SharedContext* sharedContext);
+    void waitUntilFinished(const SharedContext* sharedContext);
 
 protected:
     CommandBuffer* commandBuffer() { return fCommandBuffer.get(); }
@@ -30,8 +30,8 @@ protected:
     GpuWorkSubmission(std::unique_ptr<CommandBuffer> cmdBuffer, QueueManager* queueManager);
 
 private:
-    virtual bool onIsFinished() = 0;
-    virtual void onWaitUntilFinished() = 0;
+    virtual bool onIsFinished(const SharedContext* sharedContext) = 0;
+    virtual void onWaitUntilFinished(const SharedContext* sharedContext) = 0;
 
     std::unique_ptr<CommandBuffer> fCommandBuffer;
     sk_sp<SkRefCnt> fOutstandingAsyncMapCounter;

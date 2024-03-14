@@ -37,13 +37,13 @@ GpuWorkSubmission::~GpuWorkSubmission() {
     fQueueManager->returnCommandBuffer(std::move(fCommandBuffer));
 }
 
-bool GpuWorkSubmission::isFinished() {
-    return this->onIsFinished() &&
+bool GpuWorkSubmission::isFinished(const SharedContext* sharedContext) {
+    return this->onIsFinished(sharedContext) &&
            (!fOutstandingAsyncMapCounter || fOutstandingAsyncMapCounter->unique());
 }
 
-void GpuWorkSubmission::waitUntilFinished() {
-    this->onWaitUntilFinished();
+void GpuWorkSubmission::waitUntilFinished(const SharedContext* sharedContext) {
+    this->onWaitUntilFinished(sharedContext);
     if (fOutstandingAsyncMapCounter) {
         while (!fOutstandingAsyncMapCounter->unique()) {
             fQueueManager->tick();
