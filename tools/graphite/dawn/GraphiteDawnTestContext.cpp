@@ -48,7 +48,10 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     sOnce([&]{
         DawnProcTable backendProcs = dawn::native::GetProcs();
         dawnProcSetProcs(&backendProcs);
-        sInstance = std::make_unique<dawn::native::Instance>();
+        WGPUInstanceDescriptor desc{};
+        // need for WaitAny with timeout > 0
+        desc.features.timedWaitAnyEnable = true;
+        sInstance = std::make_unique<dawn::native::Instance>(&desc);
     });
 
     dawn::native::Adapter matchedAdaptor;

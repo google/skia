@@ -41,10 +41,10 @@ public:
     ~MtlWorkSubmission() override {}
 
 private:
-    bool onIsFinished() override {
+    bool onIsFinished(const SharedContext*) override {
         return static_cast<MtlCommandBuffer*>(this->commandBuffer())->isFinished();
     }
-    void onWaitUntilFinished() override {
+    void onWaitUntilFinished(const SharedContext*) override {
         return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
     }
 };
