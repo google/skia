@@ -593,6 +593,18 @@ void SurfaceDrawContext::drawTexture(const GrClip* clip,
     // If we are using dmsaa then go through FillRRectOp (via fillRectToRect).
     if ((this->alwaysAntialias() || this->caps()->reducedShaderMode()) &&
         edgeAA != GrQuadAAFlags::kNone) {
+        auto [mustFilter, mustMM] = FilterAndMipmapHaveNoEffect(
+                GrQuad::MakeFromRect(dstRect, viewMatrix), GrQuad(srcRect));
+        if (!mustFilter) {
+            // Chromeos-jacuzzi devices (ARM Mali-G72 MP3) have issues with blitting with linear
+            // filtering. Likely some optimization or quantization causes fragments to be produced
+            // with small offset/error. This will result in a slight blending of pixels when
+            // sampling. Normally in most application this would be completely unnoticeable but when
+            // trying to use the gpu as a per pixel blit we will end up with slightly blurry
+            // results.
+            // See https://crbug.com/326980863
+            filter = GrSamplerState::Filter::kNearest;
+        }
 
         GrPaint paint;
         paint.setColor4f(color);

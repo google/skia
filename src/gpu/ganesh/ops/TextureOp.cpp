@@ -68,44 +68,6 @@ SkSize axis_aligned_quad_size(const GrQuad& quad) {
     return {dw, dh};
 }
 
-std::tuple<bool /* filter */,
-           bool /* mipmap */>
-filter_and_mm_have_effect(const GrQuad& srcQuad, const GrQuad& dstQuad) {
-    // If not axis-aligned in src or dst, then always say it has an effect
-    if (srcQuad.quadType() != GrQuad::Type::kAxisAligned ||
-        dstQuad.quadType() != GrQuad::Type::kAxisAligned) {
-        return {true, true};
-    }
-
-    SkRect srcRect;
-    SkRect dstRect;
-    if (srcQuad.asRect(&srcRect) && dstQuad.asRect(&dstRect)) {
-        // Disable filtering when there is no scaling (width and height are the same), and the
-        // top-left corners have the same fraction (so src and dst snap to the pixel grid
-        // identically).
-        SkASSERT(srcRect.isSorted());
-        bool filter = srcRect.width() != dstRect.width() || srcRect.height() != dstRect.height() ||
-                      SkScalarFraction(srcRect.fLeft) != SkScalarFraction(dstRect.fLeft) ||
-                      SkScalarFraction(srcRect.fTop)  != SkScalarFraction(dstRect.fTop);
-        bool mm = srcRect.width() > dstRect.width() || srcRect.height() > dstRect.height();
-        return {filter, mm};
-    }
-    // Extract edge lengths
-    SkSize srcSize = axis_aligned_quad_size(srcQuad);
-    SkSize dstSize = axis_aligned_quad_size(dstQuad);
-    // Although the quads are axis-aligned, the local coordinate system is transformed such
-    // that fractionally-aligned sample centers will not align with the device coordinate system
-    // So disable filtering when edges are the same length and both srcQuad and dstQuad
-    // 0th vertex is integer aligned.
-    bool filter = srcSize != dstSize ||
-                  !SkScalarIsInt(srcQuad.x(0)) ||
-                  !SkScalarIsInt(srcQuad.y(0)) ||
-                  !SkScalarIsInt(dstQuad.x(0)) ||
-                  !SkScalarIsInt(dstQuad.y(0));
-    bool mm = srcSize.fWidth > dstSize.fWidth || srcSize.fHeight > dstSize.fHeight;
-    return {filter, mm};
-}
-
 // Describes function for normalizing src coords: [x * iw, y * ih + yOffset] can represent
 // regular and rectangular textures, w/ or w/o origin correction.
 struct NormalizationParams {
@@ -578,7 +540,7 @@ private:
                          (netFilter == GrSamplerState::Filter::kNearest && filter > netFilter));
                 SkASSERT(mm == netMM ||
                          (netMM == GrSamplerState::MipmapMode::kNone && mm > netMM));
-                auto [mustFilter, mustMM] = filter_and_mm_have_effect(quad.fLocal, quad.fDevice);
+                auto [mustFilter, mustMM] = FilterAndMipmapHaveNoEffect(quad.fLocal, quad.fDevice);
                 if (filter != GrSamplerState::Filter::kNearest) {
                     if (mustFilter) {
                         netFilter = filter; // upgrade batch to higher filter level
@@ -1149,6 +1111,41 @@ uint32_t TextureOp::ClassID() {
 }
 #endif
 
+std::tuple<bool /* filter */, bool /* mipmap */> FilterAndMipmapHaveNoEffect(
+        const GrQuad& srcQuad, const GrQuad& dstQuad) {
+    // If not axis-aligned in src or dst, then always say it has an effect
+    if (srcQuad.quadType() != GrQuad::Type::kAxisAligned ||
+        dstQuad.quadType() != GrQuad::Type::kAxisAligned) {
+        return {true, true};
+    }
+
+    SkRect srcRect;
+    SkRect dstRect;
+    if (srcQuad.asRect(&srcRect) && dstQuad.asRect(&dstRect)) {
+        // Disable filtering when there is no scaling (width and height are the same), and the
+        // top-left corners have the same fraction (so src and dst snap to the pixel grid
+        // identically).
+        SkASSERT(srcRect.isSorted());
+        bool filter = srcRect.width() != dstRect.width() || srcRect.height() != dstRect.height() ||
+                      SkScalarFraction(srcRect.fLeft) != SkScalarFraction(dstRect.fLeft) ||
+                      SkScalarFraction(srcRect.fTop) != SkScalarFraction(dstRect.fTop);
+        bool mm = srcRect.width() > dstRect.width() || srcRect.height() > dstRect.height();
+        return {filter, mm};
+    }
+    // Extract edge lengths
+    SkSize srcSize = axis_aligned_quad_size(srcQuad);
+    SkSize dstSize = axis_aligned_quad_size(dstQuad);
+    // Although the quads are axis-aligned, the local coordinate system is transformed such
+    // that fractionally-aligned sample centers will not align with the device coordinate system
+    // So disable filtering when edges are the same length and both srcQuad and dstQuad
+    // 0th vertex is integer aligned.
+    bool filter = srcSize != dstSize || !SkScalarIsInt(srcQuad.x(0)) ||
+                  !SkScalarIsInt(srcQuad.y(0)) || !SkScalarIsInt(dstQuad.x(0)) ||
+                  !SkScalarIsInt(dstQuad.y(0));
+    bool mm = srcSize.fWidth > dstSize.fWidth || srcSize.fHeight > dstSize.fHeight;
+    return {filter, mm};
+}
+
 GrOp::Owner TextureOp::Make(GrRecordingContext* context,
                             GrSurfaceProxyView proxyView,
                             SkAlphaType alphaType,
@@ -1168,7 +1165,7 @@ GrOp::Owner TextureOp::Make(GrRecordingContext* context,
     }
 
     if (filter != GrSamplerState::Filter::kNearest || mm != GrSamplerState::MipmapMode::kNone) {
-        auto [mustFilter, mustMM] = filter_and_mm_have_effect(quad->fLocal, quad->fDevice);
+        auto [mustFilter, mustMM] = FilterAndMipmapHaveNoEffect(quad->fLocal, quad->fDevice);
         if (!mustFilter) {
             filter = GrSamplerState::Filter::kNearest;
         }

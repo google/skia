@@ -22,6 +22,7 @@ class GrTextureProxy;
 struct GrTextureSetEntry;
 struct SkRect;
 class SkMatrix;
+class GrQuad;
 
 namespace skgpu::ganesh {
 class SurfaceDrawContext;
@@ -29,11 +30,17 @@ class SurfaceDrawContext;
 
 namespace skgpu::ganesh {
 
+/**
+ * Tests if filtering will have any effect in the drawing of the 'srcQuad' to the 'dstquad'.
+ * We return false when filtering has no impact drawing operations as they are effectively blits.
+ */
+std::tuple<bool /* filter */, bool /* mipmap */> FilterAndMipmapHaveNoEffect(const GrQuad& srcQuad,
+                                                                             const GrQuad& dstQuad);
+
 class SurfaceDrawContext;
 
 class TextureOp {
 public:
-
     /**
      * Controls whether saturate() is called after the texture is color-converted to ensure all
      * color values are in 0..1 range.
