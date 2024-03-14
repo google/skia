@@ -14,6 +14,8 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkPictureRecorder.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
@@ -54,6 +56,11 @@
 // Set this to 1 for more expansive (aka far slower) local testing
 #define EXPANDED_SET 0
 
+// This flag is set to true if during the PaintOption creation an SkPictureShader is created.
+// The SkPictureShader will need an additional program in order to draw the contents of its
+// SkPicture.
+bool gNeedSKPPaintOption = false;
+
 using namespace skgpu::graphite;
 
 namespace {
@@ -73,6 +80,7 @@ enum class ShaderType {
     kLinearGradient,
     kLocalMatrix,
     kPerlinNoise,
+    kPicture,
     kRadialGradient,
     kSolidColor,
     kSweepGradient,
@@ -245,6 +253,21 @@ sk_sp<SkImage> make_image(SkRandom* rand, Recorder* recorder) {
 }
 
 //--------------------------------------------------------------------------------------------------
+sk_sp<SkPicture> make_picture(SkRandom* rand) {
+    constexpr SkRect kRect = SkRect::MakeWH(128, 128);
+
+    SkPictureRecorder recorder;
+
+    SkCanvas* canvas = recorder.beginRecording(kRect);
+
+    SkPaint paint; // Explicitly using the default SkPaint here
+
+    canvas->drawRect(kRect, paint);
+
+    return recorder.finishRecordingAsPicture();
+}
+
+//--------------------------------------------------------------------------------------------------
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_coord_clamp_shader(SkRandom* rand,
                                                                               Recorder* recorder) {
     auto [s, o] = create_random_shader(rand, recorder);
@@ -285,6 +308,27 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_perlin_noise_shader(S
                                       /* seed= */ 4);
         o = PrecompileShaders::MakeTurbulence();
     }
+
+    return { s, o };
+}
+
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_picture_shader(SkRandom* rand) {
+    sk_sp<SkPicture> picture = make_picture(rand);
+
+    gNeedSKPPaintOption = true;
+
+    SkMatrix lm;
+    if (rand->nextBool()) {
+        lm = SkMatrix::Translate(1.5f, 2.0f);
+    }
+
+    // TODO: can the clamp, filter mode, or tileRect affect the final program?
+    sk_sp<SkShader> s = picture->makeShader(SkTileMode::kClamp,
+                                            SkTileMode::kClamp,
+                                            SkFilterMode::kLinear,
+                                            &lm,
+                                            /* tileRect= */ nullptr);
+    sk_sp<PrecompileShader> o = PrecompileShaders::Picture();
 
     return { s, o };
 }
@@ -437,6 +481,8 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>>  create_shader(SkRandom* ran
             return create_localmatrix_shader(rand, recorder);
         case ShaderType::kPerlinNoise:
             return create_perlin_noise_shader(rand);
+        case ShaderType::kPicture:
+            return create_picture_shader(rand);
         case ShaderType::kRadialGradient:
             return create_gradient_shader(rand, SkShaderBase::GradientType::kRadial);
         case ShaderType::kSolidColor:
@@ -975,6 +1021,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ShaderType::kLinearGradient,
             ShaderType::kLocalMatrix,
             ShaderType::kPerlinNoise,
+            ShaderType::kPicture,
             ShaderType::kSweepGradient,
 #endif
     };
@@ -1020,6 +1067,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
                 ++current;
 #endif
 
+                gNeedSKPPaintOption = false;
                 auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf);
 
                 for (auto dt : { DrawTypeFlags::kShape,
@@ -1102,6 +1150,11 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
 
                             int before = context->priv().globalCache()->numGraphicsPipelines();
                             Precompile(context, paintOptions, dt);
+                            if (gNeedSKPPaintOption) {
+                                // The skp draws a rect w/ a default SkPaint
+                                PaintOptions skpPaintOptions;
+                                Precompile(context, skpPaintOptions, DrawTypeFlags::kShape);
+                            }
                             int after = context->priv().globalCache()->numGraphicsPipelines();
 
                             REPORTER_ASSERT(reporter, before == 0);

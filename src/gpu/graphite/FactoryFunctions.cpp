@@ -396,15 +396,17 @@ public:
     PrecompileImageShader() {}
 
 private:
+    friend class PrecompilePictureShader;
+
     // hardware-tiled, shader-tiled and cubic sampling
     inline static constexpr int kNumIntrinsicCombinations = 3;
 
     int numIntrinsicCombinations() const override { return kNumIntrinsicCombinations; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    static void AddToKey(const KeyContext& keyContext,
+                         PaintParamsKeyBuilder* builder,
+                         PipelineDataGatherer* gatherer,
+                         int desiredCombination) {
         SkASSERT(desiredCombination < kNumIntrinsicCombinations);
 
         static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
@@ -425,6 +427,13 @@ private:
                                             kSubset, ReadSwizzle::kRGBA);
 
         ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+    }
+
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        AddToKey(keyContext, builder, gatherer, desiredCombination);
     }
 };
 
@@ -463,6 +472,51 @@ private:
 
 sk_sp<PrecompileShader> PrecompileShaders::YUVImage() {
     return sk_make_sp<PrecompileYUVImageShader>();
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompilePictureShader : public PrecompileShader {
+public:
+    PrecompilePictureShader() {}
+
+private:
+    // The normal compilation path changes the structure depending on the LM being the identity.
+    inline static constexpr int kNumLocalMatrixCombinations = 2;
+
+    int numIntrinsicCombinations() const override {
+        return kNumLocalMatrixCombinations * PrecompileImageShader::kNumIntrinsicCombinations;
+    }
+
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination < this->numIntrinsicCombinations());
+
+        const int desiredLMCombination = desiredCombination % kNumLocalMatrixCombinations;
+        int remainingCombinations = desiredCombination / kNumLocalMatrixCombinations;
+
+        int desiredImageCombination = remainingCombinations;
+        SkASSERT(desiredImageCombination < PrecompileImageShader::kNumIntrinsicCombinations);
+
+        if (desiredLMCombination) {
+            static const LocalMatrixShaderBlock::LMShaderData kIgnoredLMShaderData(SkMatrix::I());
+
+            LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer, kIgnoredLMShaderData);
+        }
+
+        // Note: We don't need to consider the PrecompileYUVImageShader since the image
+        // being drawn was created internally by Skia (as non-YUV).
+        PrecompileImageShader::AddToKey(keyContext, builder, gatherer, desiredImageCombination);
+
+        if (desiredLMCombination) {
+            builder->endBlock();
+        }
+    }
+};
+
+sk_sp<PrecompileShader> PrecompileShaders::Picture() {
+    return sk_make_sp<PrecompilePictureShader>();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1611,8 +1611,7 @@ static void add_to_key(const KeyContext& keyContext,
     const Caps* caps = recorder->priv().caps();
 
     // TODO: We'll need additional plumbing to get the correct props from our callers. In
-    // particular we'll need to expand the keyContext to have the surfaceProps, the dstColorType
-    // and dstColorSpace.
+    // particular we'll need to expand the keyContext to have the surfaceProps.
     SkSurfaceProps props{};
 
     SkMatrix totalM = keyContext.local2Dev().asM33();
@@ -1621,8 +1620,8 @@ static void add_to_key(const KeyContext& keyContext,
     }
     auto info = SkPictureShader::CachedImageInfo::Make(shader->tile(),
                                                        totalM,
-                                                       /* dstColorType= */ kRGBA_8888_SkColorType,
-                                                       /* dstColorSpace= */ nullptr,
+                                                       keyContext.dstColorInfo().colorType(),
+                                                       keyContext.dstColorInfo().colorSpace(),
                                                        caps->maxTextureSize(),
                                                        props);
     if (!info.success) {

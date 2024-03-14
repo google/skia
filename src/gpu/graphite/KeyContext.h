@@ -45,7 +45,7 @@ public:
     // Constructor for the ExtractPaintData code path (i.e., with a Recorder)
     KeyContext(Recorder*,
                const SkM44& local2Dev,
-               const SkColorInfo&,
+               const SkColorInfo& dstColorInfo,
                const SkColor4f& paintColor,
                sk_sp<TextureProxy> dstTexture,
                SkIPoint dstOffset);
