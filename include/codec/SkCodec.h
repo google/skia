@@ -292,11 +292,10 @@ public:
     SkEncodedImageFormat getEncodedFormat() const { return this->onGetEncodedFormat(); }
 
     /**
-     *  Return the underlying encoded data. If this was passed in via a SkMemoryStream,
-     *  the data will be shared. Other streams may return a copy of the data or no data
-     *  at all (e.g. non-rewindable streams).
+     *  Return the underlying encoded data stream. This may be nullptr if the original
+     *  stream could not be duplicated.
      */
-    virtual sk_sp<SkData> refEncodedData() const;
+    virtual std::unique_ptr<SkStream> getEncodedData() const;
 
     /**
      *  Whether or not the memory passed to getPixels is zero initialized.

@@ -247,7 +247,7 @@ public:
 
     const SkWuffsFrame* frame(int i) const;
 
-    sk_sp<SkData> refEncodedData() const override;
+    std::unique_ptr<SkStream> getEncodedData() const override;
 
 private:
     // SkCodec overrides.
@@ -967,16 +967,9 @@ void SkWuffsCodec::updateNumFullyReceivedFrames() {
 
 // We cannot use the SkCodec implementation since we pass nullptr to the superclass out of
 // an abundance of caution w/r to rewinding the stream.
-sk_sp<SkData> SkWuffsCodec::refEncodedData() const {
+std::unique_ptr<SkStream> SkWuffsCodec::getEncodedData() const {
     SkASSERT(fStream);
-    if (auto data = fStream->getData()) {
-        return data;
-    }
-    // Copy stream from the beginning, and then copy that stream into an SkData.
-    if (auto copy = fStream->duplicate()) {
-        return SkData::MakeFromStream(copy.get(), copy->getLength());
-    }
-    return nullptr;
+    return fStream->duplicate();
 }
 
 namespace SkGifDecoder {

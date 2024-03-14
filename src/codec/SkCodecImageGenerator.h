@@ -8,6 +8,7 @@
 #define SkCodecImageGenerator_DEFINED
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
@@ -17,7 +18,6 @@
 #include <memory>
 #include <optional>
 
-class SkData;
 enum SkAlphaType : int;
 struct SkImageInfo;
 
@@ -122,5 +122,6 @@ private:
     SkCodecImageGenerator(std::unique_ptr<SkCodec>, std::optional<SkAlphaType>);
 
     std::unique_ptr<SkCodec> fCodec;
+    sk_sp<SkData> fCachedData = nullptr;
 };
 #endif  // SkCodecImageGenerator_DEFINED
