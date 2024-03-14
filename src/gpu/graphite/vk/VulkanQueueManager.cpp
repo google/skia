@@ -39,10 +39,10 @@ public:
     ~VulkanWorkSubmission() override {}
 
 private:
-    bool onIsFinished() override {
+    bool onIsFinished(const SharedContext*) override {
         return static_cast<VulkanCommandBuffer*>(this->commandBuffer())->isFinished();
     }
-    void onWaitUntilFinished() override {
+    void onWaitUntilFinished(const SharedContext*) override {
         return static_cast<VulkanCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
     }
 };

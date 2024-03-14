@@ -36,17 +36,20 @@ public:
 
     const wgpu::Buffer& dawnBuffer() const { return fBuffer; }
 
-    void prepareForReturnToCache(const std::function<void()>& takeRef) override;
-
 private:
     DawnBuffer(const DawnSharedContext*,
                size_t size,
                wgpu::Buffer,
                void* mapAtCreationPtr);
 
-    void onMap() override;
+#if defined(__EMSCRIPTEN__)
+    void prepareForReturnToCache(const std::function<void()>& takeRef) override;
     void onAsyncMap(GpuFinishedProc, GpuFinishedContext) override;
+#endif
+    void onMap() override;
     void onUnmap() override;
+
+    void mapCallback(WGPUBufferMapAsyncStatus status);
 
     void freeGpuData() override;
 
