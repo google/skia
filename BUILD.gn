@@ -3,7 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("gn/flutter_defines.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 import("gn/skia.gni")
@@ -38,9 +37,6 @@ config("skia_public") {
   }
   if (is_fuchsia || is_linux) {
     defines += [ "SK_R32_SHIFT=16" ]
-  }
-  if (skia_enable_flutter_defines) {
-    defines += flutter_defines
   }
   if (skia_enable_optimize_size) {
     defines += [ "SK_ENABLE_OPTIMIZE_SIZE" ]
@@ -3422,14 +3418,13 @@ if (skia_enable_tools) {
   }
 }
 
-if (is_ios && skia_use_metal && skia_enable_ganesh &&
-    !skia_enable_flutter_defines) {
+if (is_ios && skia_use_metal && skia_enable_ganesh) {
   group("minimal_ios_mtl_skia_app") {
     deps = [ "experimental/minimal_ios_mtl_skia_app" ]
   }
 }
 
-if (is_ios && skia_enable_skottie && !skia_enable_flutter_defines) {
+if (is_ios && skia_enable_skottie) {
   group("skottie_ios") {
     deps = [ "tools/skottie_ios_app" ]
   }
