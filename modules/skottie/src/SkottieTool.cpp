@@ -64,6 +64,7 @@
 #include <vector>
 
 #if defined(HAVE_VIDEO_ENCODER)
+    #include <future>
     #include "experimental/ffmpeg/SkVideoEncoder.h"
     const char* formats_help = "Output format (png, skp, mp4, or null)";
 #else
