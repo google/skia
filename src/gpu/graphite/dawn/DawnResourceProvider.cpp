@@ -25,7 +25,7 @@ namespace {
 
 constexpr int kBufferBindingSizeAlignment = 16;
 constexpr int kMaxNumberOfCachedBufferBindGroups = 32;
-constexpr int kMaxNumberOfCachedTextureBindGroups = 256;
+constexpr int kMaxNumberOfCachedTextureBindGroups = 4096;
 
 wgpu::ShaderModule create_shader_module(const wgpu::Device& device, const char* source) {
     wgpu::ShaderModuleWGSLDescriptor wgslDesc;
