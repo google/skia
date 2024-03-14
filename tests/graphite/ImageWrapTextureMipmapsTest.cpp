@@ -14,6 +14,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/graphite/GraphiteTestContext.h"
@@ -33,6 +34,8 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageWrapTextureMipmapsTest,
         return;
     }
 
+    skgpu::Protected isProtected = skgpu::Protected(context->priv().caps()->protectedSupport());
+
     auto info = SkImageInfo::Make({2, 1}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkAutoPixmapStorage basePM, topPM;
     basePM.alloc(info);
@@ -43,7 +46,8 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageWrapTextureMipmapsTest,
     SkPixmap levelPMs[]{basePM, topPM};
     auto mbet = sk_gpu_test::ManagedGraphiteTexture::MakeMipmappedFromPixmaps(recorder.get(),
                                                                               levelPMs,
-                                                                              Renderable::kNo);
+                                                                              Renderable::kNo,
+                                                                              isProtected);
 
     if (!mbet) {
         ERRORF(reporter, "Could not make backend texture");
