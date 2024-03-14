@@ -260,7 +260,7 @@ private:
     using INHERITED = ResourceProviderProxyBase;
 };
 
-class DataURIResourceProviderProxy final : public ResourceProviderProxyBase {
+class SK_API DataURIResourceProviderProxy final : public ResourceProviderProxyBase {
 public:
     // If font data is supplied via base64 encoding, this needs a provided SkFontMgr to process
     // that font data into an SkTypeface. To decode images, clients must call SkCodecs::Register()
