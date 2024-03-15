@@ -649,7 +649,6 @@ public:
                this->compareImages(ctx, expectedBM, expectedOrigin, actual,
                                    ResolveMethod::kClippedShader,
                                    allowedPercentImageDiff, transparentCheckBorderTolerance);
-
     }
 
     bool validateOptimizedImage(const skif::Context& ctx, const FilterResult& actual) {
@@ -660,6 +659,39 @@ public:
                                    ResolveMethod::kImageAndOffset,
                                    /*allowedPercentImageDiff=*/0.0f,
                                    /*transparentCheckBorderTolerance=*/0);
+    }
+
+    sk_sp<SkSpecialImage> createSourceImage(SkISize size, sk_sp<SkColorSpace> colorSpace) {
+        sk_sp<SkDevice> sourceSurface = fBackend->makeDevice(size, std::move(colorSpace));
+
+        const SkColor colors[] = { SK_ColorMAGENTA,
+                                   SK_ColorRED,
+                                   SK_ColorYELLOW,
+                                   SK_ColorGREEN,
+                                   SK_ColorCYAN,
+                                   SK_ColorBLUE };
+        SkMatrix rotation = SkMatrix::RotateDeg(15.f, {size.width() / 2.f,
+                                                       size.height() / 2.f});
+
+        SkCanvas canvas{sourceSurface};
+        canvas.clear(SK_ColorBLACK);
+        canvas.concat(rotation);
+
+        int color = 0;
+        SkRect coverBounds;
+        SkRect dstBounds = SkRect::Make(canvas.imageInfo().bounds());
+        SkAssertResult(SkMatrixPriv::InverseMapRect(rotation, &coverBounds, dstBounds));
+
+        float sz = size.width() <= 16.f || size.height() <= 16.f ? 2.f : 8.f;
+        for (float y = coverBounds.fTop; y < coverBounds.fBottom; y += sz) {
+            for (float x = coverBounds.fLeft; x < coverBounds.fRight; x += sz) {
+                SkPaint p;
+                p.setColor(colors[(color++) % std::size(colors)]);
+                canvas.drawRect(SkRect::MakeXYWH(x, y, sz, sz), p);
+            }
+        }
+
+        return sourceSurface->snapSpecial(SkIRect::MakeSize(size));
     }
 
 private:
@@ -1043,38 +1075,9 @@ public:
         sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeSRGB();
         FilterResult source;
         if (!fSourceBounds.isEmpty()) {
-            sk_sp<SkDevice> sourceSurface =
-                    fRunner.backend()->makeDevice(SkISize(fSourceBounds.size()), colorSpace);
-
-            const SkColor colors[] = { SK_ColorMAGENTA,
-                                       SK_ColorRED,
-                                       SK_ColorYELLOW,
-                                       SK_ColorGREEN,
-                                       SK_ColorCYAN,
-                                       SK_ColorBLUE };
-            SkMatrix rotation = SkMatrix::RotateDeg(15.f, {fSourceBounds.width() / 2.f,
-                                                           fSourceBounds.height() / 2.f});
-
-            SkCanvas canvas{sourceSurface};
-            canvas.clear(SK_ColorBLACK);
-            canvas.concat(rotation);
-
-            int color = 0;
-            SkRect coverBounds;
-            SkRect dstBounds = SkRect::Make(canvas.imageInfo().bounds());
-            SkAssertResult(SkMatrixPriv::InverseMapRect(rotation, &coverBounds, dstBounds));
-
-            float sz = fSourceBounds.width() <= 16.f || fSourceBounds.height() <= 16.f ? 2.f : 8.f;
-            for (float y = coverBounds.fTop; y < coverBounds.fBottom; y += sz) {
-                for (float x = coverBounds.fLeft; x < coverBounds.fRight; x += sz) {
-                    SkPaint p;
-                    p.setColor(colors[(color++) % std::size(colors)]);
-                    canvas.drawRect(SkRect::MakeXYWH(x, y, sz, sz), p);
-                }
-            }
-
-            SkIRect subset = SkIRect::MakeWH(fSourceBounds.width(), fSourceBounds.height());
-            source = FilterResult(sourceSurface->snapSpecial(subset), fSourceBounds.topLeft());
+            source = FilterResult(fRunner.createSourceImage(SkISize(fSourceBounds.size()),
+                                                            colorSpace),
+                                  fSourceBounds.topLeft());
         }
 
         Context baseContext{fRunner.refBackend(),
@@ -2516,6 +2519,68 @@ DEF_TEST_SUITE(RescaleWithColorFilter, r,
                 .rescale({0.5f, 0.5f}, Expect::kNewImage, expectedTileMode)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
     }
+}
+
+DEF_TEST_SUITE(MakeFromImage, r, CtsEnforcement::kNextRelease, CtsEnforcement::kNextRelease) {
+    static constexpr SkISize kSrcSize = {128,128};
+    static constexpr SkIRect kIdentitySrc = {0,0,128,128};
+    static constexpr SkIRect kSubsetSrc = {16,16,112,112};
+    static constexpr SkIRect kOverlappingSrc = {-64, 16, 192, 112};
+    static constexpr SkIRect kContainingSrc = {-64,-64,192,192};
+    static constexpr SkIRect kDisjointSrc = {0,-200,128,-1};
+
+    // For convenience, most tests will use kIdentitySrc as the dstRect so that the result's
+    // layer bounds can be used to validate the src->dst transform is preserved.
+    static constexpr SkIRect kDstRect = kIdentitySrc;
+
+    // Sufficiently large to not affect the layer bounds of a FilterResult.
+    static constexpr SkIRect kDesiredOutput = {-400, -400, 400, 400};
+
+    sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeSRGB();
+    Context ctx{r.refBackend(),
+                Mapping(),
+                LayerSpace<SkIRect>(kDesiredOutput),
+                /*source=*/{},
+                colorSpace.get(),
+                /*stats=*/nullptr};
+
+    sk_sp<SkSpecialImage> source = r.createSourceImage(kSrcSize, colorSpace);
+    SkASSERT(source->subset() == kIdentitySrc);
+    sk_sp<SkImage> sourceImage = source->asImage();
+
+
+    auto makeImage = [&](SkIRect src, SkIRect dst) {
+        ParameterSpace<SkRect> dstRect{SkRect::Make(dst)};
+        return FilterResult::MakeFromImage(ctx, sourceImage, SkRect::Make(src), dstRect, {});
+    };
+
+    // Failure cases should return an empty FilterResult
+    REPORTER_ASSERT(r, !SkToBool(makeImage(kIdentitySrc, SkIRect::MakeEmpty())),
+                    "Empty dst rect returns empty FilterResult");
+    REPORTER_ASSERT(r, !SkToBool(makeImage(SkIRect::MakeEmpty(), kDstRect)),
+                    "Empty src rect returns empty FilterResult");
+    REPORTER_ASSERT(r, !SkToBool(makeImage(kDisjointSrc, kDstRect)),
+                    "Disjoint src rect returns empty FilterREsult");
+
+
+    auto testSuccess = [&](SkIRect src, SkIRect expectedImageSubset, SkIRect expectedLayerBounds,
+                           const char* label) {
+        auto result = makeImage(src, kDstRect);
+        REPORTER_ASSERT(r, SkToBool(result), "Image should not be empty: %s", label);
+        REPORTER_ASSERT(r, result.image()->subset() == expectedImageSubset,
+                        "Result subset is incorrect: %s", label);
+        REPORTER_ASSERT(r, SkIRect(result.layerBounds()) == expectedLayerBounds,
+                        "Result layer bounds are incorrect: %s", label);
+    };
+
+    testSuccess(kIdentitySrc, kIdentitySrc, kDstRect,
+                "Identity src->dst preserves original image bounds");
+    testSuccess(kSubsetSrc, kSubsetSrc, kDstRect,
+                "Contained src rect is preserved, stretched to original dst bounds");
+    testSuccess(kOverlappingSrc, {0,16,128,112}, {32,0,96,128},
+                "Overlapping src rect is clipped and dst is scaled on clipped axis");
+    testSuccess(kContainingSrc, kIdentitySrc, {32,32,96,96},
+                "Containing src rect is clipped and dst is scaled on both axes");
 }
 
 } // anonymous namespace

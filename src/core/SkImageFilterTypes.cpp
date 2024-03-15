@@ -1701,10 +1701,25 @@ FilterResult FilterResult::MakeFromShader(const Context& ctx,
 
 FilterResult FilterResult::MakeFromImage(const Context& ctx,
                                          sk_sp<SkImage> image,
-                                         const SkRect& srcRect,
-                                         const ParameterSpace<SkRect>& dstRect,
+                                         SkRect srcRect,
+                                         ParameterSpace<SkRect> dstRect,
                                          const SkSamplingOptions& sampling) {
     SkASSERT(image);
+
+    SkRect imageBounds = SkRect::Make(image->dimensions());
+    if (!imageBounds.contains(srcRect)) {
+        SkMatrix srcToDst = SkMatrix::RectToRect(srcRect, SkRect(dstRect));
+        if (!srcRect.intersect(imageBounds)) {
+            return {}; // No overlap, so return an empty/transparent image
+        }
+        // Adjust dstRect to match the updated srcRect
+        dstRect = ParameterSpace<SkRect>{srcToDst.mapRect(srcRect)};
+    }
+
+    if (SkRect(dstRect).isEmpty()) {
+        return {}; // Output collapses to empty
+    }
+
     // Check for direct conversion to an SkSpecialImage and then FilterResult. Eventually this
     // whole function should be replaceable with:
     //    FilterResult(fImage, fSrcRect, fDstRect).applyTransform(mapping.layerMatrix(), fSampling);
