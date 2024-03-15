@@ -316,6 +316,7 @@ gm_sources = [
   "$_gm/rasterhandleallocator.cpp",
   "$_gm/readpixels.cpp",
   "$_gm/recordopts.cpp",
+  "$_gm/rendertomipmappedyuvimageplanes.cpp",
   "$_gm/repeated_bitmap.cpp",
   "$_gm/resizeimagefilter.cpp",
   "$_gm/rippleshadergm.cpp",

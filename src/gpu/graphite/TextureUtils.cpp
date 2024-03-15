@@ -594,8 +594,13 @@ bool GenerateMipmaps(Recorder* recorder,
 
     // Within a rescaling pass scratchImg is read from and a scratch surface is written to.
     // At the end of the pass the scratch surface's texture is wrapped and assigned to scratchImg.
+
+    // The scratch surface we create below will use a write swizzle derived from SkColorType and
+    // pixel format. We have to be consistent and swizzle on the read.
+    auto imgSwizzle = recorder->priv().caps()->getReadSwizzle(colorInfo.colorType(),
+                                                              texture->textureInfo());
     sk_sp<SkImage> scratchImg(
-            new Image(kNeedNewImageUniqueID, TextureProxyView(texture), colorInfo));
+            new Image(kNeedNewImageUniqueID, TextureProxyView(texture, imgSwizzle), colorInfo));
 
     SkISize srcSize = texture->dimensions();
     const SkColorInfo outColorInfo = colorInfo.makeAlphaType(kPremul_SkAlphaType);
