@@ -4,8 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #include "include/gpu/GrDirectContext.h"
 
 #include "include/core/SkImageInfo.h"
@@ -69,10 +67,6 @@
 
 class GrSemaphore;
 
-#ifdef SK_METAL
-#include "include/gpu/mtl/GrMtlBackendContext.h"
-#include "src/gpu/ganesh/mtl/GrMtlTrampoline.h"
-#endif
 #ifdef SK_DIRECT3D
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
 #endif
@@ -1187,50 +1181,6 @@ sk_sp<GrDirectContext> GrDirectContext::MakeMock(const GrMockOptions* mockOption
 
     return direct;
 }
-
-#ifdef SK_METAL
-/*************************************************************************************************/
-sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& backendContext) {
-    GrContextOptions defaultOptions;
-    return MakeMetal(backendContext, defaultOptions);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& backendContext,
-                                                     const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(
-            new GrDirectContext(GrBackendApi::kMetal,
-                                options,
-                                GrContextThreadSafeProxyPriv::Make(GrBackendApi::kMetal, options)));
-
-    direct->fGpu = GrMtlTrampoline::MakeGpu(backendContext, options, direct.get());
-    if (!direct->init()) {
-        return nullptr;
-    }
-
-    return direct;
-}
-
-// deprecated
-sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device, void* queue) {
-    GrContextOptions defaultOptions;
-    return MakeMetal(device, queue, defaultOptions);
-}
-
-// deprecated
-// remove include/gpu/mtl/GrMtlBackendContext.h, above, when removed
-sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device, void* queue,
-                                                  const GrContextOptions& options) {
-    sk_sp<GrDirectContext> direct(
-            new GrDirectContext(GrBackendApi::kMetal,
-                                options,
-                                GrContextThreadSafeProxyPriv::Make(GrBackendApi::kMetal, options)));
-    GrMtlBackendContext backendContext = {};
-    backendContext.fDevice.reset(device);
-    backendContext.fQueue.reset(queue);
-
-    return GrDirectContext::MakeMetal(backendContext, options);
-}
-#endif
 
 #ifdef SK_DIRECT3D
 /*************************************************************************************************/

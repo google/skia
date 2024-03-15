@@ -28,7 +28,7 @@ class MutableTextureState;
 }
 
 #ifdef SK_METAL
-#include "include/gpu/mtl/GrMtlTypes.h"
+#include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #endif
 
 #ifdef SK_DIRECT3D

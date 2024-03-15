@@ -8,7 +8,7 @@
 #ifndef GrMtlAttachment_DEFINED
 #define GrMtlAttachment_DEFINED
 
-#include "include/gpu/mtl/GrMtlTypes.h"
+#include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 
 #import <Metal/Metal.h>

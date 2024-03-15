@@ -5,6 +5,8 @@
 
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/mtl/GrMtlBackendContext.h"
+#include "include/gpu/ganesh/mtl/GrMtlDirectContext.h"
 #include "tools/skottie_ios_app/SkMetalViewBridge.h"
 
 #import <Metal/Metal.h>
@@ -88,12 +90,13 @@
         return nil;
     }
     [self setMetalQueue:[[self metalDevice] newCommandQueue]];
-    fDContext = GrDirectContext::MakeMetal((__bridge void*)[self metalDevice],
-                                           (__bridge void*)[self metalQueue],
-                                           GrContextOptions());
+    GrMtlBackendContext backendContext = {};
+    backendContext.fDevice.reset((__bridge void*)[self metalDevice]);
+    backendContext.fQueue.reset((__bridge void*)[self metalQueue]);
+    fDContext = GrDirectContexts::MakeMetal(backendContext, GrContextOptions());
 
     if (!fDContext) {
-        NSLog(@"GrDirectContext::MakeMetal failed");
+        NSLog(@"GrDirectContexts::MakeMetal failed");
         return nil;
     }
     return self;

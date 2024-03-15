@@ -8,6 +8,10 @@ exports_files_legacy()
 skia_filegroup(
     name = "public_hdrs",
     srcs = [
+        "GrMtlBackendContext.h",
+        "GrMtlBackendSemaphore.h",
+        "GrMtlDirectContext.h",
+        "GrMtlTypes.h",
         "SkSurfaceMetal.h",
     ],
     visibility = ["//include/gpu/ganesh:__pkg__"],

@@ -60,8 +60,7 @@ enum class BackendSurfaceAccess;
 
 class SK_API GrDirectContext : public GrRecordingContext {
 public:
-
-#ifdef SK_METAL
+#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_METAL_GRDIRECTCONTEXT_FACTORIES)
     /**
      * Makes a GrDirectContext which uses Metal as the backend. The GrMtlBackendContext contains a
      * MTLDevice and MTLCommandQueue which should be used by the backend. These objects must

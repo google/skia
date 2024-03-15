@@ -27,6 +27,7 @@ MTL_FILES = [
     "GrMtlCommandBuffer.mm",
     "GrMtlDepthStencil.h",
     "GrMtlDepthStencil.mm",
+    "GrMtlDirectContext.mm",
     "GrMtlFramebuffer.h",
     "GrMtlFramebuffer.mm",
     "GrMtlGpu.h",

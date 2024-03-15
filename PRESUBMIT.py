@@ -332,7 +332,8 @@ def _CheckPublicBzl(input_api, output_api):
     action = affected_file.Action()
     affected_file_path = affected_file.LocalPath()
     if ((affected_file_path.startswith("include") or affected_file_path.startswith("src")) and
-        (affected_file_path.endswith(".cpp") or affected_file_path.endswith(".h"))):
+        (affected_file_path.endswith(".cpp") or affected_file_path.endswith(".h") or
+         affected_file_path.endswith(".mm"))):
       affected_file_path = '"' + affected_file_path + '"'
       if action == "D" and affected_file_path in public_bzl:
         results.append(output_api.PresubmitError(

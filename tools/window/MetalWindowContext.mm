@@ -5,19 +5,21 @@
  * found in the LICENSE file.
  */
 
+#include "tools/window/MetalWindowContext.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/mtl/GrMtlBackendContext.h"
+#include "include/gpu/ganesh/mtl/GrMtlDirectContext.h"
+#include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "include/gpu/ganesh/mtl/SkSurfaceMetal.h"
-#include "include/gpu/mtl/GrMtlBackendContext.h"
-#include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/base/SkMathPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/image/SkImage_Base.h"
-#include "tools/window/MetalWindowContext.h"
 
 using skwindow::DisplayParams;
 using skwindow::internal::MetalWindowContext;
@@ -89,7 +91,7 @@ void MetalWindowContext::initializeContext() {
         backendContext.fBinaryArchive.retain((__bridge GrMTLHandle)fPipelineArchive);
     }
 #endif
-    fContext = GrDirectContext::MakeMetal(backendContext, fDisplayParams.fGrContextOptions);
+    fContext = GrDirectContexts::MakeMetal(backendContext, fDisplayParams.fGrContextOptions);
     if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
         fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();

@@ -9,7 +9,7 @@
 #define GrMtlBackendSemaphore_DEFINED
 
 #include "include/gpu/GrBackendSemaphore.h"
-#include "include/gpu/mtl/GrMtlTypes.h"
+#include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "include/private/base/SkAPI.h"
 
 namespace GrBackendSemaphores {

@@ -12,7 +12,7 @@
 
 #ifdef SK_METAL
 
-#include "include/gpu/mtl/GrMtlBackendContext.h"
+#include "include/gpu/ganesh/mtl/GrMtlBackendContext.h"
 
 namespace sk_gpu_test {
 class MtlTestContext : public TestContext {

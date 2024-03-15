@@ -9,7 +9,7 @@
 #define GrMtlFramebuffer_DEFINED
 
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/mtl/GrMtlTypes.h"
+#include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 class GrMtlAttachment;
