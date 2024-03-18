@@ -12,11 +12,19 @@ error: :9:14 error: 'uniform' storage requires that array elements are aligned t
 /* offset(52) align( 1) size(12) */   // -- implicit struct size padding --;
 /*                               */ };
 struct _GlobalUniforms {
-^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
+  colorGreen: vec4<f32>,
+^^^^^^^^^^^^^^^^^^^^^^^^
+  colorRed: vec4<f32>,
+^^^^^^^^^^^^^^^^^^^^^^
+  testArray: array<f32, 5>,
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+};
+^
 
-:11:36 note: '_GlobalUniforms' used in address space 'uniform' here
+:11:23 note: '_GlobalUniforms' used in address space 'uniform' here
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
-                                   ^^^^^^^^^^^^^^^
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 diagnostic(off, derivative_uniformity);
