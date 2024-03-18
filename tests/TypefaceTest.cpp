@@ -93,10 +93,10 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
                     (weight == 1000 && newStyle.weight() == 999)     // DW weirdness
     );
 
-    // Some back-ends (GDI) don't support width, ensure these always report 'medium'.
-    REPORTER_ASSERT(reporter,
-                    newStyle.width() == width ||
-                    newStyle.width() == 5);
+    // Some back-ends (GDI) don't support width, ensure these always report 'normal'.
+    REPORTER_ASSERT(
+            reporter,
+            newStyle.width() == width || newStyle.width() == SkFontStyle::Width::kNormal_Width);
 }
 DEF_TEST(TypefaceStyle, reporter) {
     std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("fonts/Em.ttf"));

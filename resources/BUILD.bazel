@@ -67,6 +67,7 @@ skia_filegroup(
         "fonts/ahem.ttf",
         "fonts/cbdt.ttf",
         "fonts/colr.ttf",
+        "fonts/cond-bold-italic.ttf",
         "fonts/fonts.xml",
         "fonts/hintgasp.ttf",
         "fonts/planetcbdt.ttf",

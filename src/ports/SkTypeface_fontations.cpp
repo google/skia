@@ -112,6 +112,14 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
         return nullptr;
     }
 
+    SkFontStyle style;
+    fontations_ffi::BridgeFontStyle fontStyle;
+    if (fontations_ffi::get_font_style(*bridgeFontRef, fontStyle)) {
+        style = SkFontStyle(fontStyle.weight,
+                            fontStyle.width,
+                            static_cast<SkFontStyle::Slant>(fontStyle.slant));
+    }
+
     rust::Box<fontations_ffi::BridgeNormalizedCoords> normalizedCoords =
             make_normalized_coords(*bridgeFontRef, args);
     rust::Box<fontations_ffi::BridgeOutlineCollection> outlines =
@@ -123,13 +131,13 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
     rust::Vec<uint32_t> palette =
             resolve_palette(*bridgeFontRef, args.getPalette().index, paletteOverrides);
 
-    return  sk_sp<SkTypeface>(new SkTypeface_Fontations(data,
-                                     SkFontStyle(),
-                                     ttcIndex,
-                                     std::move(bridgeFontRef),
-                                     std::move(normalizedCoords),
-                                     std::move(outlines),
-                                     std::move(palette)));
+    return sk_sp<SkTypeface>(new SkTypeface_Fontations(data,
+                                                       style,
+                                                       ttcIndex,
+                                                       std::move(bridgeFontRef),
+                                                       std::move(normalizedCoords),
+                                                       std::move(outlines),
+                                                       std::move(palette)));
 }
 
 namespace sk_fontations {
