@@ -683,8 +683,18 @@ fn resolve_into_normalized_coords(
         .map(|coord| (Tag::from_be_bytes(coord.axis.to_be_bytes()), coord.value));
     let bridge_normalized_coords = font_ref
         .with_font(|f| {
+            let merged_defaults_with_user = f
+                .axes()
+                .iter()
+                .map(|axis| (axis.tag(), axis.default_value()))
+                .chain(design_coords.iter().map(|user_coord| {
+                    (
+                        Tag::from_be_bytes(user_coord.axis.to_be_bytes()),
+                        user_coord.value,
+                    )
+                }));
             Some(BridgeNormalizedCoords {
-                filtered_user_coords: f.axes().filter(variation_tuples.clone()).collect(),
+                filtered_user_coords: f.axes().filter(merged_defaults_with_user).collect(),
                 normalized_coords: f.axes().location(variation_tuples),
             })
         })
