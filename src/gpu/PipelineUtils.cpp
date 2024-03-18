@@ -8,13 +8,12 @@
 #include "src/gpu/PipelineUtils.h"
 
 #include "include/gpu/ShaderErrorHandler.h"
+#include "include/private/base/SkDebug.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLProgramKind.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/utils/SkShaderUtils.h"
 
+#include <memory>
 #include <string>
 
 namespace skgpu {

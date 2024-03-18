@@ -10,6 +10,8 @@
 
 #include "src/gpu/Swizzle.h"
 
+#include <cstdint>
+
 namespace skgpu {
 
 // This class is friended by Swizzle and allows other functions to trampoline through this

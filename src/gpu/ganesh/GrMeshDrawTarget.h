@@ -8,18 +8,39 @@
 #ifndef GrMeshDrawTarget_DEFINED
 #define GrMeshDrawTarget_DEFINED
 
+#include "include/core/SkRefCnt.h"  // IWYU pragma: keep
+#include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrDrawIndirectCommand.h"
 #include "src/gpu/ganesh/GrSimpleMesh.h"
 
+#include <cstddef>
+#include <cstdint>
+
 class GrAtlasManager;
+class GrBuffer;
+class GrCaps;
+class GrDeferredUploadTarget;
+class GrDstProxyView;
+class GrGeometryProcessor;
+class GrRenderTargetProxy;
+class GrResourceProvider;
+class GrSurfaceProxy;
+class GrSurfaceProxyView;
 class GrThreadSafeCache;
+enum class GrLoadOp;
+enum class GrPrimitiveType : uint8_t;
+enum class GrXferBarrierFlags;
+
+namespace skgpu::ganesh {
+class SmallPathAtlasMgr;
+}
 
 namespace skgpu {
-namespace ganesh { class SmallPathAtlasMgr; }
 struct IndexWriter;
 struct VertexWriter;
-} // namespace skgpu
+}  // namespace skgpu
 
 namespace sktext::gpu {
 class StrikeCache;

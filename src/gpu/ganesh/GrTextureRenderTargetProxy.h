@@ -4,12 +4,32 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef GrTextureRenderTargetProxy_DEFINED
 #define GrTextureRenderTargetProxy_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+
+#include <cstddef>
+#include <string_view>
+
+class GrBackendFormat;
+class GrResourceProvider;
+class GrSurface;
+enum class GrDDLProvider : bool;
+enum class GrInternalSurfaceFlags;
+enum class GrMipmapStatus;
+enum class SkBackingFit;
+struct SkISize;
+
+namespace skgpu {
+enum class Budgeted : bool;
+enum class Mipmapped : bool;
+}  // namespace skgpu
 
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives warnings about inheriting asTextureProxy/asRenderTargetProxy via dominance.

@@ -8,20 +8,29 @@
 #ifndef GrGpuResource_DEFINED
 #define GrGpuResource_DEFINED
 
-#include "include/gpu/GpuTypes.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
 
+#include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <string_view>
+
 class GrDirectContext;
 class GrGpu;
 class GrResourceCache;
+class GrSurface;
 class SkTraceMemoryDump;
 
-#if defined(GR_TEST_UTILS)
-class GrSurface;
-#endif
+namespace skgpu {
+enum class Budgeted : bool;
+}
 
 /**
  * Base class for GrGpuResource. Provides the hooks for resources to interact with the cache.

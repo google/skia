@@ -10,6 +10,7 @@
 
 #include "include/core/SkTextureCompressionType.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrSemaphore.h"

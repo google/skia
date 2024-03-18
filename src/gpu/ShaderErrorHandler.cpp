@@ -7,7 +7,11 @@
 
 #include "include/gpu/ShaderErrorHandler.h"
 
+#include "include/private/base/SkDebug.h"
 #include "src/utils/SkShaderUtils.h"
+
+#include <functional>
+#include <string>
 
 namespace skgpu {
 

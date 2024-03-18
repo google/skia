@@ -8,10 +8,18 @@
 #ifndef GrGpuBuffer_DEFINED
 #define GrGpuBuffer_DEFINED
 
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 
+#include <cstddef>
+#include <string_view>
+
 class GrGpu;
+
+namespace skgpu {
+class ScratchKey;
+}
 
 class GrGpuBuffer : public GrGpuResource, public GrBuffer {
 public:

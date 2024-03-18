@@ -9,14 +9,18 @@
 #define skgpu_ResourceKey_DEFINED
 
 #include "include/core/SkData.h"
-#include "include/core/SkString.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAlignedStorage.h"
-#include "include/private/base/SkOnce.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 
+#include <cstdint>
+#include <cstring>
 #include <new>
+#include <utility>
 
 class TestResource;
 

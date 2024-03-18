@@ -11,6 +11,10 @@
 #include "include/private/base/SkTDArray.h"
 #include "src/gpu/Rectanizer.h"
 
+#include <cstdint>
+
+struct SkIPoint16;
+
 namespace skgpu {
 
 // Pack rectangles and track the current silhouette

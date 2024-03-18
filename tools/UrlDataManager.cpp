@@ -43,19 +43,19 @@ void UrlDataManager::reset() {
 }
 
 void UrlDataManager::indexImages(const std::vector<sk_sp<SkImage>>& images) {
-  SkASSERT(imageMap.size() == 0); // this method meant only for initialization once.
-  for (size_t i = 0; i < images.size(); ++i) {
-    imageMap.insert({images[i].get(), i});
-  }
+    SkASSERT(imageMap.empty());  // this method meant only for initialization once.
+    for (size_t i = 0; i < images.size(); ++i) {
+        imageMap.insert({images[i].get(), i});
+    }
 }
 
 int UrlDataManager::lookupImage(const SkImage* im) {
-  auto search = imageMap.find(im);
-  if (search != imageMap.end()) {
-    return search->second;
-  } else {
-      // -1 signals the pointer to this image wasn't in the original list.
-      // Maybe it was synthesized after file load? If so, you shouldn't be looking it up here.
-      return -1;
-  }
+    auto search = imageMap.find(im);
+    if (search != imageMap.end()) {
+        return search->second;
+    } else {
+        // -1 signals the pointer to this image wasn't in the original list.
+        // Maybe it was synthesized after file load? If so, you shouldn't be looking it up here.
+        return -1;
+    }
 }

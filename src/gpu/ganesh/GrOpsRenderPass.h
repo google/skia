@@ -9,18 +9,27 @@
 #define GrOpsRenderPass_DEFINED
 
 #include "include/core/SkDrawable.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
-#include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
 
-class GrOpFlushState;
-class GrGpu;
-class GrPipeline;
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
 class GrGeometryProcessor;
+class GrGpu;
+class GrOpFlushState;
+class GrPipeline;
 class GrProgramInfo;
 class GrRenderTarget;
 class GrScissorState;
-class GrSemaphore;
+class GrSurfaceProxy;
 struct SkIRect;
 struct SkRect;
 

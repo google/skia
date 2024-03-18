@@ -10,6 +10,8 @@
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
+#include <cstring>
+
 namespace skgpu {
 
 void Swizzle::apply(SkRasterPipeline* pipeline) const {

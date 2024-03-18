@@ -4,20 +4,29 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
-
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 
-#include "include/core/SkRect.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrCpuBuffer.h"
 #include "src/gpu/ganesh/GrDrawIndirectCommand.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
-#include "src/gpu/ganesh/GrRenderTarget.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrScissorState.h"
-#include "src/gpu/ganesh/GrSimpleMesh.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrUserStencilSettings.h"
+
+#include <algorithm>
+#include <functional>
+#include <utility>
 
 void GrOpsRenderPass::begin() {
     fDrawPipelineStatus = DrawPipelineStatus::kNotConfigured;

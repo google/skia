@@ -4,24 +4,55 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef GrOpFlushState_DEFINED
 #define GrOpFlushState_DEFINED
 
-#include <utility>
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkArenaAllocList.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrBufferAllocPool.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
+#include "src/gpu/ganesh/GrDrawIndirectCommand.h"
+#include "src/gpu/ganesh/GrDstProxyView.h"
+#include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
+#include "src/gpu/ganesh/GrOpsRenderPass.h"
+#include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
-#include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrScissorState.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+class GrAtlasManager;
+class GrCaps;
 class GrGpu;
-class GrOpsRenderPass;
+class GrOp;
+class GrRenderTargetProxy;
 class GrResourceProvider;
+class GrSurfaceProxy;
+class GrThreadSafeCache;
+enum class GrXferBarrierFlags;
+struct GrSimpleMesh;
+struct GrUserStencilSettings;
+struct SkIRect;
+struct SkRect;
+
+namespace skgpu::ganesh {
+class SmallPathAtlasMgr;
+}
+namespace sktext::gpu {
+class StrikeCache;
+}
 
 /** Tracks the state across all the GrOps (really just the GrDrawOps) in a OpsTask flush. */
 class GrOpFlushState final : public GrDeferredUploadTarget, public GrMeshDrawTarget {

@@ -8,11 +8,18 @@
 #ifndef skgpu_Swizzle_DEFINED
 #define skgpu_Swizzle_DEFINED
 
-#include "include/core/SkAlphaType.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTypeTraits.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <type_traits>
 
 class SkRasterPipeline;
+enum SkAlphaType : int;
 
 namespace skgpu {
 

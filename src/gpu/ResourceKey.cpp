@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkChecksum.h"
 #include "src/gpu/ResourceKey.h"
+
+#include "src/core/SkChecksum.h"
+
+#include <atomic>
 
 namespace skgpu {
 

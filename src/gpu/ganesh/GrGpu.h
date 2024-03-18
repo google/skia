@@ -8,45 +8,56 @@
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
-#include "include/core/SkPath.h"
+#include "include/core/SkData.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
-#include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkTArray.h"
-#include "src/base/SkTInternalLList.h"
-#include "src/gpu/RefCntedCallback.h"
-#include "src/gpu/Swizzle.h"
-#include "src/gpu/ganesh/GrAttachment.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"  // IWYU pragma: keep
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
-#include "src/gpu/ganesh/GrPixmap.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string_view>
+
 class GrAttachment;
-class GrBackendRenderTarget;
 class GrBackendSemaphore;
-struct GrContextOptions;
 class GrDirectContext;
 class GrGLContext;
-class GrPipeline;
-class GrGeometryProcessor;
+class GrProgramDesc;
+class GrProgramInfo;
 class GrRenderTarget;
 class GrRingBuffer;
 class GrSemaphore;
 class GrStagingBufferManager;
-class GrStencilSettings;
 class GrSurface;
+class GrSurfaceProxy;
 class GrTexture;
 class GrThreadSafePipelineBuilder;
-struct GrVkDrawableInfo;
 class SkJSONWriter;
+class SkString;
 enum class SkTextureCompressionType;
+struct GrVkDrawableInfo;
+struct SkISize;
+struct SkImageInfo;
 
-namespace SkSL {
-    class Compiler;
+namespace SkSurfaces {
+enum class BackendSurfaceAccess;
 }
+namespace skgpu {
+class MutableTextureState;
+class RefCntedCallback;
+}  // namespace skgpu
 
 class GrGpu {
 public:

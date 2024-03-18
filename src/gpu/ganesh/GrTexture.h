@@ -9,15 +9,24 @@
 #ifndef GrTexture_DEFINED
 #define GrTexture_DEFINED
 
-#include "include/core/SkImage.h"
-#include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurface.h"
 
+#include <cstddef>
+#include <string_view>
+
 class GrCaps;
+class GrGpu;
+struct SkISize;
+
+namespace skgpu {
+class ScratchKey;
+enum class Mipmapped : bool;
+}  // namespace skgpu
 
 class GrTexture : virtual public GrSurface {
 public:

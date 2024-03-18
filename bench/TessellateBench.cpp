@@ -10,6 +10,7 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/mock/GrMockOpTarget.h"
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 #include "src/gpu/ganesh/tessellate/StrokeTessellator.h"
@@ -17,6 +18,7 @@
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "tools/ToolUtils.h"
+
 #include <vector>
 
 namespace skgpu::ganesh {
