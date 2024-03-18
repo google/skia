@@ -266,20 +266,20 @@ cc_defaults {
         "libpiex",
         "libexpat",
         "libft2",
+        "libharfbuzz_subset",
     ],
     static_libs: [
         "libwebp-decode",
         "libwebp-encode",
         "libwuffs_mirror_release_c",
     ],
+    cflags: [
+        "-DSK_PDF_USE_HARFBUZZ_SUBSET",
+    ],
     target: {
       android: {
         shared_libs: [
-            "libharfbuzz_subset",
             "libheif",
-        ],
-        cflags: [
-            "-DSK_PDF_USE_HARFBUZZ_SUBSET",
         ],
       },
       darwin: {
