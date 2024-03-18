@@ -633,6 +633,12 @@ protected:
         out_metrics->fXHeight = -metrics.x_height;
         out_metrics->fCapHeight = -metrics.cap_height;
         out_metrics->fFlags = 0;
+        if (fontations_ffi::table_data(fBridgeFontRef,
+                                       SkSetFourByteTag('f', 'v', 'a', 'r'),
+                                       0,
+                                       rust::Slice<uint8_t>())) {
+            out_metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
+        }
         // TODO(drott): Is it necessary to transform metrics with remaining parts of matrix?
     }
 
