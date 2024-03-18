@@ -12,7 +12,7 @@ version = "0.1.0"
 
 [dependencies]
 bytemuck = { version = "1.12.1", features = ["derive"] }
-naga = { version = "0.13", features = ["wgsl-in", "msl-out", "validate"] }
+naga = { version = "0.19.2", features = ["wgsl-in", "msl-out"] }
 peniko = "0.1.0"
 regex = "1.8.1"
 thiserror = "1.0.40"

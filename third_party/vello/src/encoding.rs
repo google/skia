@@ -28,7 +28,7 @@ impl Encoding {
         // streams with first entries (an identity transform and -1 linewidth value). Resetting
         // the encoding as non-fragment achieves this.
         let mut encoding = VelloEncoding::new();
-        encoding.reset(/*is_fragment=*/ false);
+        encoding.reset();
         Encoding { encoding }
     }
 
@@ -37,7 +37,7 @@ impl Encoding {
     }
 
     pub fn reset(&mut self) {
-        self.encoding.reset(/*is_fragment=*/ false);
+        self.encoding.reset();
     }
 
     pub fn fill(
@@ -62,30 +62,13 @@ impl Encoding {
         brush: &ffi::Brush,
         path_iter: Pin<&mut ffi::PathIterator>,
     ) {
-        const GPU_STROKES: bool = false;
         self.encoding
             .encode_transform(Transform::from_kurbo(&transform.into()));
-
-        if GPU_STROKES {
-            // TODO: process any dash pattern here using kurbo's dash expander unless we decide to chop
-            // dashed strokes in Graphite.
-            self.encoding.encode_stroke_style(&style.into());
-            if self.encode_path(path_iter, /*is_fill=*/ false) {
-                self.encoding.encode_brush(&Brush::from(brush), 1.0)
-            }
-        } else {
-            const SHAPE_TOLERANCE: f64 = 0.01;
-            const STROKE_TOLERANCE: f64 = SHAPE_TOLERANCE;
-            let stroked = peniko::kurbo::stroke(
-                path_iter,
-                &style.into(),
-                &Default::default(),
-                STROKE_TOLERANCE,
-            );
-            self.encoding.encode_fill_style(Fill::NonZero);
-            if self.encoding.encode_shape(&stroked, /*is_fill=*/ true) {
-                self.encoding.encode_brush(&Brush::from(brush), 1.0)
-            }
+        // TODO: process any dash pattern here using kurbo's dash expander unless Graphite
+        // handles dashing already.
+        self.encoding.encode_stroke_style(&style.into());
+        if self.encode_path(path_iter, /*is_fill=*/ false) {
+            self.encoding.encode_brush(&Brush::from(brush), 1.0)
         }
     }
 

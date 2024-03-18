@@ -63,7 +63,7 @@ deps = {
   "third_party/externals/spirv-cross"            : "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross@b8fcf307f1f347089e3c46eb4451d27f32ebc8d3",
   "third_party/externals/spirv-headers"          : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@8b246ff75c6615ba4532fe4fde20f1be090c3764",
   "third_party/externals/spirv-tools"            : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@3a0471c3b6b24517a37e9e44dbe7eefffb5b493e",
-  "third_party/externals/vello"                  : "https://skia.googlesource.com/external/github.com/linebender/vello.git@e04b6028651dfd6b87067c0d27c1207c7f735a6d",
+  "third_party/externals/vello"                  : "https://skia.googlesource.com/external/github.com/linebender/vello.git@74715ee4650ec3f4483ccc86540b32d15d5bfaa3",
   "third_party/externals/vulkan-headers"         : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers@577baa05033cf1d9236b3d078ca4b3269ed87a2b",
   "third_party/externals/vulkan-tools"           : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools@934b5f7c13374949527b71b9732b93b5bc0fcc3e",
   "third_party/externals/vulkan-utility-libraries": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries@a4140c5fd47dcf3a030726a60b293db61cfb54a3",
