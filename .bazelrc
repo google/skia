@@ -70,8 +70,6 @@ build --flag_alias=disable_pdf_backend=no//src/pdf:enable_pdf_backend
 build --flag_alias=enable_pdf_backend=//src/pdf:enable_pdf_backend
 build --flag_alias=disable_skslc=no//src/sksl:enable_skslc
 build --flag_alias=enable_skslc=//src/sksl:enable_skslc
-build --flag_alias=disable_sksl_tracing=no//src/sksl:enable_sksl_tracing
-build --flag_alias=enable_sksl_tracing=//src/sksl:enable_sksl_tracing
 build --flag_alias=disable_svg_canvas=no//src/svg:enable_svg_canvas
 build --flag_alias=enable_svg_canvas=//src/svg:enable_svg_canvas
 build --flag_alias=disable_tracing=no//bazel/common_config_settings:enable_tracing

@@ -24,8 +24,6 @@
 
 #include "imgui.h"
 
-#ifdef SKSL_ENABLE_TRACING
-
 using namespace sk_app;
 using LineNumberMap = SkSL::SkSLDebugTracePlayer::LineNumberMap;
 
@@ -292,5 +290,3 @@ void SkSLDebuggerSlide::draw(SkCanvas* canvas) {
 bool SkSLDebuggerSlide::animate(double nanos) {
     return true;
 }
-
-#endif  // SKSL_ENABLE_TRACING

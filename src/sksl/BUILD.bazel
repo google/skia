@@ -127,11 +127,6 @@ bool_flag(
     default = False,
 )
 
-bool_flag(
-    name = "enable_sksl_tracing",
-    default = False,
-)
-
 skia_filegroup(
     name = "srcs",
     srcs = [

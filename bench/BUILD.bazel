@@ -34,7 +34,7 @@ COMMON_DEPS = [
     "//:png_encode_codec",
     "//bench:benchmark",
     "//src/base",
-    "//src/utils:json",
+    "//src/core:core_priv",
     "//tools:autorelease_pool",
     "//tools:registry",
     "//tools:resources",

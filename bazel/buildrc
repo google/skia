@@ -144,7 +144,7 @@ build:canvaskit_full --noincompatible_enable_cc_toolchain_resolution \
                      --with_harfbuzz --with_icu --include_fontmgr=custom_embedded_fontmgr \
                      --ck_enable_fonts --ck_enable_embedded_font \
                      \
-                     --disable_tracing --enable_sksl_tracing \
+                     --disable_tracing \
                      \
                      --ck_enable_canvas_polyfill --ck_enable_skp_serialization --ck_enable_skottie \
                      --ck_enable_runtime_effect --ck_enable_matrix_js
@@ -205,7 +205,6 @@ build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --include_encoder=jpeg_encode_codec --include_encoder=png_encode_codec \
                    --include_encoder=webp_encode_codec \
                    --with_harfbuzz --with_icu \
-                   --enable_sksl_tracing \
                    --enable_svg_canvas --enable_pdf_backend \
                    --compile_generated_cpp_files_for_headers
 

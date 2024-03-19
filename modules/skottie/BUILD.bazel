@@ -10,8 +10,6 @@ skia_cc_library(
     srcs = [
         "//modules/skottie/src:srcs",
         "//modules/skottie/src/text:text_shaper_srcs",
-        "//src/utils:json_hdrs",
-        "//src/utils:json_srcs",
     ],
     hdrs = ["//modules/skottie/include:hdrs"],
     defines = [
@@ -95,8 +93,6 @@ skia_cc_library(
     name = "skottie_harfbuzz_icu",
     srcs = [
         "//modules/skottie/src:srcs",
-        "//src/utils:json_hdrs",
-        "//src/utils:json_srcs",
     ],
     hdrs = ["//modules/skottie/include:hdrs"],
     defines = [
@@ -121,8 +117,6 @@ skia_cc_library(
     name = "skottie",
     srcs = [
         "//modules/skottie/src:srcs",
-        "//src/utils:json_hdrs",
-        "//src/utils:json_srcs",
     ],
     hdrs = ["//modules/skottie/include:hdrs"],
     features = ["layering_check"],

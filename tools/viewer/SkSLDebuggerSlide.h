@@ -21,8 +21,6 @@ enum class InputState;
 enum class ModifierKey;
 }  // namespace sk
 
-#ifdef SKSL_ENABLE_TRACING
-
 class SkSLDebuggerSlide : public Slide {
 public:
     SkSLDebuggerSlide();
@@ -54,5 +52,4 @@ private:
     char fTraceFile[256] = "SkSLDebugTrace.json";
 };
 
-#endif
 #endif

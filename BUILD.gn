@@ -44,9 +44,6 @@ config("skia_public") {
   if (skia_enable_precompile) {
     defines += [ "SK_ENABLE_PRECOMPILE" ]
   }
-  if (skia_enable_sksl_tracing) {
-    defines += [ "SKSL_ENABLE_TRACING" ]
-  }
   if (is_fuchsia) {
     defines += fuchsia_defines
   }
@@ -707,7 +704,6 @@ if (skia_compile_sksl_tests) {
   # Build skslc.
   skia_executable("skslc") {
     defines = [
-      "SKSL_ENABLE_TRACING",
       "SKSL_STANDALONE",
       "SK_DISABLE_TRACING",
       "SK_ENABLE_SPIRV_CROSS",
@@ -1505,6 +1501,7 @@ skia_component("skia") {
   sources += skia_codec_decode_bmp
   sources += skia_encode_srcs
   sources += skia_sksl_sources
+  sources += skia_sksl_tracing_sources
   sources += [
     "src/android/SkAndroidFrameworkUtils.cpp",
     "src/android/SkAnimatedImage.cpp",
@@ -1524,9 +1521,6 @@ skia_component("skia") {
   defines = []
   libs = []
 
-  if (skia_enable_sksl_tracing) {
-    sources += skia_sksl_tracing_sources
-  }
   if (skia_build_for_debugger) {
     defines += [ "SK_BUILD_FOR_DEBUGGER" ]
   }

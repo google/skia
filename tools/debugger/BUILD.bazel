@@ -11,8 +11,6 @@ skia_cc_library(
         "DebugLayerManager.cpp",
         "DrawCommand.cpp",
         "JsonWriteBuffer.cpp",
-        "//src/utils:json_hdrs",
-        "//src/utils:json_srcs",
     ],
     hdrs = [
         "DebugCanvas.h",
@@ -26,6 +24,7 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
+        "//src/core:core_priv",
         "//src/gpu/ganesh",
         "//src/utils:multi_picture_document",
         "//tools:sk_sharing_proc",

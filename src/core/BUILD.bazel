@@ -861,6 +861,8 @@ skia_cc_library(
     hdrs = [":core_priv_hdrs"],
     features = ["layering_check"],
     visibility = [
+        "//bench:__subpackages__",
+        "//gm:__subpackages__",
         "//modules:__subpackages__",
         "//src:__subpackages__",
         "//tools:__subpackages__",

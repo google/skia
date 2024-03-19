@@ -40,9 +40,6 @@ GENERAL_DEFINES = [
     ],
     "//conditions:default": [],
 }) + select({
-    "//src/sksl:enable_sksl_tracing_true": ["SKSL_ENABLE_TRACING"],
-    "//conditions:default": [],
-}) + select({
     "//src/pdf:enable_pdf_backend_true": ["SK_SUPPORT_PDF"],
     "//conditions:default": [],
 }) + select({

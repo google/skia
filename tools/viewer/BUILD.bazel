@@ -55,7 +55,6 @@ cc_binary_with_flags(
         "include_fontmgr": ["custom_directory_fontmgr"],
         "enable_gpu_test_utils": ["True"],
         "enable_svg_canvas": ["True"],
-        "enable_sksl_tracing": ["True"],
     },
     deps = [
         "//:skia_internal",

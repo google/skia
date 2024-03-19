@@ -20,8 +20,6 @@
 #include <unordered_set>
 #include <vector>
 
-#ifdef SKSL_ENABLE_TRACING
-
 namespace SkSL {
 
 /**
@@ -139,6 +137,4 @@ private:
 
 }  // namespace SkSL
 
-#endif  // SKSL_ENABLE_TRACING
-
-#endif  // SkSLPoison_DEFINED
+#endif  // SkSLDebugTracePlayer_DEFINED

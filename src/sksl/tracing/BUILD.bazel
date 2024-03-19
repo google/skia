@@ -7,19 +7,13 @@ exports_files_legacy()
 # In own group for exporting to sksl.gni:skia_sksl_tracing_sources.
 skia_filegroup(
     name = "enabled_srcs",
-    srcs = select({
-        "//src/sksl:enable_sksl_tracing_true": ["SkSLDebugTracePlayer.cpp"],
-        "//src/sksl:enable_sksl_tracing_false": [],
-    }),
+    srcs = ["SkSLDebugTracePlayer.cpp"],
 )
 
 # In own group for exporting to sksl.gni:skia_sksl_tracing_sources.
 skia_filegroup(
     name = "enabled_hdrs",
-    srcs = select({
-        "//src/sksl:enable_sksl_tracing_true": ["SkSLDebugTracePlayer.h"],
-        "//src/sksl:enable_sksl_tracing_false": [],
-    }),
+    srcs = ["SkSLDebugTracePlayer.h"],
 )
 
 skia_filegroup(

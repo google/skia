@@ -478,7 +478,7 @@ GPU_GMS = [
 COMMON_DEPS = [
     "//:core",
     "//gm",
-    "//src/utils:json",
+    "//src/core:core_priv",
     "//tools:codec_utils",
     "//tools:hash_and_encode",
     "//tools:tool_utils",

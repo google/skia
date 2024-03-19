@@ -90,12 +90,6 @@ if [[ $@ == *no_pathops* ]] ; then
   ENABLE_PATHOPS="false"
 fi
 
-ENABLE_SKSL_TRACE="true"
-if [[ $@ == *no_sksl_trace* ]] ; then
-  echo "Omitting SkSl trace"
-  ENABLE_SKSL_TRACE="false"
-fi
-
 ENABLE_MATRIX="true"
 if [[ $@ == *no_matrix* ]]; then
   echo "Omitting matrix helper code"
@@ -238,7 +232,6 @@ echo "Compiling"
   skia_enable_graphite=${ENABLE_GRAPHITE} \
   skia_build_for_debugger=${DEBUGGER_ENABLED} \
   skia_enable_skottie=${ENABLE_SKOTTIE} \
-  skia_enable_sksl_tracing=${ENABLE_SKSL_TRACE} \
   \
   ${GN_SHAPER} \
   ${GN_FONT} \
