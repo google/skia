@@ -76,7 +76,7 @@ private:
                          const Texture* depthStencilTexture,
                          SkRect viewport,
                          const DrawPassList&) override;
-    bool onAddComputePass(const DispatchGroupList&) override;
+    bool onAddComputePass(DispatchGroupSpan) override;
 
     // Methods for populating a MTLRenderCommandEncoder:
     bool beginRenderPass(const RenderPassDesc&,

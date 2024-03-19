@@ -83,6 +83,10 @@ public:
     bool prepareResources(ResourceProvider*);
     void addResourceRefs(CommandBuffer*) const;
 
+    // Returns a single tasks that must execute before this DispatchGroup or nullptr if the group
+    // has no task dependencies.
+    sk_sp<Task> snapChildTask();
+
 private:
     friend class DispatchGroupBuilder;
 
@@ -93,6 +97,9 @@ private:
     DispatchGroup(DispatchGroup&&) = delete;
 
     skia_private::TArray<Dispatch> fDispatchList;
+
+    // The list of all buffers that must be cleared before the dispatches.
+    skia_private::TArray<ClearBufferInfo> fClearList;
 
     // Pipelines are referenced by index by each Dispatch in `fDispatchList`. They are stored as a
     // pipeline description until instantiated in `prepareResources()`.
@@ -148,7 +155,12 @@ public:
     // If the slot is already assigned a buffer, it will be overwritten. Calling this method does
     // not have any effect on previously appended ComputeSteps that were already bound that
     // resource.
-    void assignSharedBuffer(BufferView buffer, unsigned int slot);
+    //
+    // If `cleared` is kYes, the contents of the given view will be cleared to 0 before the current
+    // DispatchGroup gets submitted.
+    void assignSharedBuffer(BufferView buffer,
+                            unsigned int slot,
+                            ClearBuffer cleared = ClearBuffer::kNo);
 
     // Directly assign a texture to a shared slot. ComputeSteps that are appended after this call
     // will use this resource if they reference the given `slot` index. Builder will not allocate
@@ -160,9 +172,16 @@ public:
     // resource.
     void assignSharedTexture(sk_sp<TextureProxy> texture, unsigned int slot);
 
-    // Finalize and return the constructed DispatchGroup. The Builder can be used to construct a new
-    // DispatchGroup after this method returns.
+    // Finalize and return the constructed DispatchGroup.
+    //
+    // The Builder can be used to construct a new DispatchGroup by calling "reset()" after this
+    // method returns.
     std::unique_ptr<DispatchGroup> finalize();
+
+#if defined(GRAPHITE_TEST_UTILS)
+    // Clear old state and start a new DispatchGroup.
+    void reset();
+#endif
 
     // Returns the buffer resource assigned to the shared slot with the given index, if any.
     BindBufferInfo getSharedBufferResource(unsigned int slot) const;

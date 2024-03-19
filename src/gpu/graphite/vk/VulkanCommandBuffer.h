@@ -119,7 +119,7 @@ private:
 
     // TODO: The virtuals in this class have not yet been implemented as we still haven't
     // implemented the objects they use.
-    bool onAddComputePass(const DispatchGroupList&) override;
+    bool onAddComputePass(DispatchGroupSpan) override;
 
     bool onCopyBufferToBuffer(const Buffer* srcBuffer,
                               size_t srcOffset,

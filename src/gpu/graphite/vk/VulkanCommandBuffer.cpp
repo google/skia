@@ -1296,7 +1296,7 @@ void VulkanCommandBuffer::drawIndexedIndirect(PrimitiveType) {
                                        /*stride=*/0));
 }
 
-bool VulkanCommandBuffer::onAddComputePass(const DispatchGroupList&) { return false; }
+bool VulkanCommandBuffer::onAddComputePass(DispatchGroupSpan) { return false; }
 
 bool VulkanCommandBuffer::onCopyBufferToBuffer(const Buffer* srcBuffer,
                                                size_t srcOffset,

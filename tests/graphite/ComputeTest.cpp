@@ -29,6 +29,7 @@
 #include "tools/graphite/GraphiteTestContext.h"
 
 using namespace skgpu::graphite;
+using namespace skiatest::graphite;
 
 namespace {
 
@@ -69,6 +70,22 @@ sk_sp<Buffer> sync_buffer_to_cpu(Recorder* recorder, const Buffer* buffer) {
                                                       /*dstOffset=*/0,
                                                       buffer->size()));
     return xferBuffer;
+}
+
+std::unique_ptr<Recording> submit_recording(Context* context,
+                                            GraphiteTestContext* testContext,
+                                            Recorder* recorder) {
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        return nullptr;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    testContext->syncedSubmit(context);
+
+    return recording;
 }
 
 bool is_dawn_or_metal_context_type(skiatest::GpuContextType ctxType) {
@@ -1837,6 +1854,238 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearedBuffer,
             map_buffer(context, testContext, outputBuffer.get(), outputInfo.fOffset));
     SkASSERT(outputBuffer->isMapped() && outData != nullptr);
     for (unsigned int i = 0; i < kProblemSize; ++i) {
+        const uint32_t found = outData[i];
+        REPORTER_ASSERT(reporter, 0u == found, "expected '0u', found '%u'", found);
+    }
+}
+
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrdering,
+                                              reporter,
+                                              context,
+                                              testContext) {
+    // Initiate two independent DispatchGroups operating on the same buffer. The first group
+    // writes garbage to the buffer and the second group copies the contents to an output buffer.
+    // This test validates that the reads, writes, and clear occur in the expected order.
+    constexpr uint32_t kWorkgroupSize = 64;
+
+    // Initialize buffer with non-zero data.
+    class FillWithGarbage : public ComputeStep {
+    public:
+        FillWithGarbage() : ComputeStep(
+                /*name=*/"FillWithGarbage",
+                /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                        /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
+                    }
+                }) {}
+        ~FillWithGarbage() override = default;
+
+        std::string computeSkSL() const override {
+            return R"(
+                void main() {
+                    out_data[sk_GlobalInvocationID.x] = uint4(0xFE);
+                }
+            )";
+        }
+    } garbageStep;
+
+    // Second stage just copies the data to a destination buffer. This is only to verify that this
+    // stage, issued in a separate DispatchGroup, observes the clear.
+    class CopyBuffer : public ComputeStep {
+    public:
+        CopyBuffer() : ComputeStep(
+                /*name=*/"CopyBuffer",
+                /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                        /*sksl=*/"inputBlock { uint4 in_data[]; }\n",
+                    },
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/1,
+                        /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
+                    }
+                }) {}
+        ~CopyBuffer() override = default;
+
+        std::string computeSkSL() const override {
+            return R"(
+                void main() {
+                    out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x];
+                }
+            )";
+        }
+    } copyStep;
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    DispatchGroup::Builder builder(recorder.get());
+
+    constexpr size_t kElementCount = 4 * kWorkgroupSize;
+    constexpr size_t kBufferSize = sizeof(uint32_t) * kElementCount;
+    auto input = recorder->priv().drawBufferManager()->getStorage(kBufferSize);
+    auto [_, output] = recorder->priv().drawBufferManager()->getStoragePointer(kBufferSize);
+
+    ComputeTask::DispatchGroupList groups;
+
+    // First group.
+    builder.assignSharedBuffer({input, kBufferSize}, 0);
+    builder.appendStep(&garbageStep, {{1, 1, 1}});
+    groups.push_back(builder.finalize());
+
+    // Second group.
+    builder.reset();
+    builder.assignSharedBuffer({input, kBufferSize}, 0, ClearBuffer::kYes);
+    builder.assignSharedBuffer({output, kBufferSize}, 1);
+    builder.appendStep(&copyStep, {{1, 1, 1}});
+    groups.push_back(builder.finalize());
+
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+    // Ensure the output buffer is synchronized to the CPU once the GPU submission has finished.
+    auto outputBuffer = sync_buffer_to_cpu(recorder.get(), output.fBuffer);
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = submit_recording(context, testContext, recorder.get());
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    // Verify the contents of the output buffer.
+    uint32_t* outData = static_cast<uint32_t*>(
+            map_buffer(context, testContext, outputBuffer.get(), output.fOffset));
+    SkASSERT(outputBuffer->isMapped() && outData != nullptr);
+    for (unsigned int i = 0; i < kElementCount; ++i) {
+        const uint32_t found = outData[i];
+        REPORTER_ASSERT(reporter, 0u == found, "expected '0u', found '%u'", found);
+    }
+}
+
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffers,
+                                              reporter,
+                                              context,
+                                              testContext) {
+    // This test is the same as the ClearOrdering test but the two stages write to a recycled
+    // ScratchBuffer. This is primarily to test ScratchBuffer reuse.
+    constexpr uint32_t kWorkgroupSize = 64;
+
+    // Initialize buffer with non-zero data.
+    class FillWithGarbage : public ComputeStep {
+    public:
+        FillWithGarbage() : ComputeStep(
+                /*name=*/"FillWithGarbage",
+                /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                        /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
+                    }
+                }) {}
+        ~FillWithGarbage() override = default;
+
+        std::string computeSkSL() const override {
+            return R"(
+                void main() {
+                    out_data[sk_GlobalInvocationID.x] = uint4(0xFE);
+                }
+            )";
+        }
+    } garbageStep;
+
+    // Second stage just copies the data to a destination buffer. This is only to verify that this
+    // stage (issued in a separate DispatchGroup) sees the changes.
+    class CopyBuffer : public ComputeStep {
+    public:
+        CopyBuffer() : ComputeStep(
+                /*name=*/"CopyBuffer",
+                /*localDispatchSize=*/{kWorkgroupSize, 1, 1},
+                /*resources=*/{
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/0,
+                        /*sksl=*/"inputBlock { uint4 in_data[]; }\n",
+                    },
+                    {
+                        /*type=*/ResourceType::kStorageBuffer,
+                        /*flow=*/DataFlow::kShared,
+                        /*policy=*/ResourcePolicy::kNone,
+                        /*slot=*/1,
+                        /*sksl=*/"outputBlock { uint4 out_data[]; }\n",
+                    }
+                }) {}
+        ~CopyBuffer() override = default;
+
+        std::string computeSkSL() const override {
+            return R"(
+                void main() {
+                    out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x];
+                }
+            )";
+        }
+    } copyStep;
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    DispatchGroup::Builder builder(recorder.get());
+
+    constexpr size_t kElementCount = 4 * kWorkgroupSize;
+    constexpr size_t kBufferSize = sizeof(uint32_t) * kElementCount;
+    auto [_, output] = recorder->priv().drawBufferManager()->getStoragePointer(kBufferSize);
+
+    ComputeTask::DispatchGroupList groups;
+
+    // First group.
+    {
+        auto scratch = recorder->priv().drawBufferManager()->getScratchStorage(kBufferSize);
+        auto input = scratch.suballocate(kBufferSize);
+        builder.assignSharedBuffer({input, kBufferSize}, 0);
+
+        // `scratch` returns to the scratch buffer pool when it goes out of scope
+    }
+    builder.appendStep(&garbageStep, {{1, 1, 1}});
+    groups.push_back(builder.finalize());
+
+    // Second group.
+    builder.reset();
+    {
+        auto scratch = recorder->priv().drawBufferManager()->getScratchStorage(kBufferSize);
+        auto input = scratch.suballocate(kBufferSize);
+        builder.assignSharedBuffer({input, kBufferSize}, 0, ClearBuffer::kYes);
+    }
+    builder.assignSharedBuffer({output, kBufferSize}, 1);
+    builder.appendStep(&copyStep, {{1, 1, 1}});
+    groups.push_back(builder.finalize());
+
+    recorder->priv().add(ComputeTask::Make(std::move(groups)));
+    // Ensure the output buffer is synchronized to the CPU once the GPU submission has finished.
+    auto outputBuffer = sync_buffer_to_cpu(recorder.get(), output.fBuffer);
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = submit_recording(context, testContext, recorder.get());
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    // Verify the contents of the output buffer.
+    uint32_t* outData = static_cast<uint32_t*>(
+            map_buffer(context, testContext, outputBuffer.get(), output.fOffset));
+    SkASSERT(outputBuffer->isMapped() && outData != nullptr);
+    for (unsigned int i = 0; i < kElementCount; ++i) {
         const uint32_t found = outData[i];
         REPORTER_ASSERT(reporter, 0u == found, "expected '0u', found '%u'", found);
     }

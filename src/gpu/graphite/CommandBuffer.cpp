@@ -107,7 +107,7 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
     return true;
 }
 
-bool CommandBuffer::addComputePass(const DispatchGroupList& dispatchGroups) {
+bool CommandBuffer::addComputePass(DispatchGroupSpan dispatchGroups) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     if (!this->onAddComputePass(dispatchGroups)) {

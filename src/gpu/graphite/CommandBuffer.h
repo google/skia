@@ -38,7 +38,7 @@ class TextureProxy;
 class CommandBuffer {
 public:
     using DrawPassList = skia_private::TArray<std::unique_ptr<DrawPass>>;
-    using DispatchGroupList = skia_private::TArray<std::unique_ptr<DispatchGroup>>;
+    using DispatchGroupSpan = SkSpan<const std::unique_ptr<DispatchGroup>>;
 
     virtual ~CommandBuffer();
 
@@ -80,7 +80,7 @@ public:
                        SkRect viewport,
                        const DrawPassList& drawPasses);
 
-    bool addComputePass(const DispatchGroupList& dispatchGroups);
+    bool addComputePass(DispatchGroupSpan dispatchGroups);
 
     //---------------------------------------------------------------
     // Can only be used outside renderpasses
@@ -131,7 +131,7 @@ private:
                                  SkRect viewport,
                                  const DrawPassList& drawPasses) = 0;
 
-    virtual bool onAddComputePass(const DispatchGroupList& dispatchGroups) = 0;
+    virtual bool onAddComputePass(DispatchGroupSpan dispatchGroups) = 0;
 
     virtual bool onCopyBufferToBuffer(const Buffer* srcBuffer,
                                       size_t srcOffset,

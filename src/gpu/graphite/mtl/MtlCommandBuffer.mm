@@ -165,7 +165,7 @@ bool MtlCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
     return true;
 }
 
-bool MtlCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
+bool MtlCommandBuffer::onAddComputePass(DispatchGroupSpan groups) {
     this->beginComputePass();
     for (const auto& group : groups) {
         group->addResourceRefs(this);

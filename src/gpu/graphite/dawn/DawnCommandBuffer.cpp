@@ -115,7 +115,7 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
     return true;
 }
 
-bool DawnCommandBuffer::onAddComputePass(const DispatchGroupList& groups) {
+bool DawnCommandBuffer::onAddComputePass(DispatchGroupSpan groups) {
     this->beginComputePass();
     for (const auto& group : groups) {
         group->addResourceRefs(this);
