@@ -8,7 +8,6 @@
 #include "src/gpu/graphite/BufferManager.h"
 
 #include "include/gpu/graphite/Recording.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Log.h"
@@ -26,7 +25,7 @@ namespace {
 
 // TODO: Tune these values on real world data
 static constexpr size_t kVertexBufferSize = 16 << 10; // 16 KB
-static constexpr size_t kIndexBufferSize =   2 << 10; //  2 KB
+static constexpr size_t kIndexBufferSize   = 2 << 10; //  2 KB
 static constexpr size_t kUniformBufferSize = 2 << 10; //  2 KB
 static constexpr size_t kStorageBufferSize = 2 << 10; //  2 KB
 
@@ -73,6 +72,42 @@ size_t starting_alignment(BufferType type, bool useTransferBuffers, const Caps* 
 }
 
 } // anonymous namespace
+
+// ------------------------------------------------------------------------------------------------
+// ScratchBuffer
+
+ScratchBuffer::ScratchBuffer(size_t size, size_t alignment,
+                             sk_sp<Buffer> buffer, DrawBufferManager* owner)
+        : fSize(size)
+        , fAlignment(alignment)
+        , fBuffer(std::move(buffer))
+        , fOwner(owner) {
+    SkASSERT(fSize > 0);
+    SkASSERT(fBuffer);
+    SkASSERT(fOwner);
+}
+
+ScratchBuffer::~ScratchBuffer() { this->returnToPool(); }
+
+BindBufferInfo ScratchBuffer::suballocate(size_t requiredBytes) {
+    if (!this->isValid()) {
+        return {};
+    }
+    if (!can_fit(requiredBytes, fBuffer->size(), fOffset, fAlignment)) {
+        return {};
+    }
+    const size_t offset = SkAlignTo(fOffset, fAlignment);
+    fOffset = offset + requiredBytes;
+    return {fBuffer.get(), offset};
+}
+
+void ScratchBuffer::returnToPool() {
+    if (fOwner && fBuffer) {
+        // TODO: Generalize the pool to other buffer types.
+        fOwner->fReusableScratchStorageBuffers.push_back(std::move(fBuffer));
+        SkASSERT(!fBuffer);
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // DrawBufferManager
@@ -218,10 +253,33 @@ BindBufferInfo DrawBufferManager::getIndirectStorage(size_t requiredBytes, Clear
     return this->prepareBindBuffer(&info, requiredBytes, /*supportCpuUpload=*/false, cleared);
 }
 
+ScratchBuffer DrawBufferManager::getScratchStorage(size_t requiredBytes) {
+    if (!requiredBytes) {
+        return {};
+    }
+
+    // TODO: Generalize the pool to other buffer types.
+    auto& info = fCurrentBuffers[kStorageBufferIndex];
+    size_t bufferSize = sufficient_block_size(requiredBytes, info.fBlockSize);
+    sk_sp<Buffer> buffer = this->findReusableSbo(bufferSize);
+    if (!buffer) {
+        buffer = fResourceProvider->findOrCreateBuffer(
+                bufferSize, BufferType::kStorage, AccessPattern::kGpuOnly);
+    }
+    return {requiredBytes, info.fStartAlignment, std::move(buffer), this};
+}
+
 void DrawBufferManager::transferToRecording(Recording* recording) {
     if (!fClearList.empty()) {
         recording->priv().addTask(ClearBuffersTask::Make(std::move(fClearList)));
     }
+
+    // Transfer the buffers in the reuse pool to the recording.
+    // TODO: Allow reuse across different Recordings?
+    for (auto& buffer : fReusableScratchStorageBuffers) {
+        recording->priv().addResourceRef(std::move(buffer));
+    }
+    fReusableScratchStorageBuffers.clear();
 
     for (auto& [buffer, transferBuffer] : fUsedBuffers) {
         if (transferBuffer) {
@@ -340,6 +398,24 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
     }
 
     return bindInfo;
+}
+
+sk_sp<Buffer> DrawBufferManager::findReusableSbo(size_t bufferSize) {
+    SkASSERT(bufferSize);
+
+    for (int i = 0; i < fReusableScratchStorageBuffers.size(); ++i) {
+        sk_sp<Buffer>* buffer = &fReusableScratchStorageBuffers[i];
+        if ((*buffer)->size() >= bufferSize) {
+            auto found = std::move(*buffer);
+            // Fill the hole left by the move (if necessary) and shrink the pool.
+            if (i < fReusableScratchStorageBuffers.size() - 1) {
+                *buffer = std::move(fReusableScratchStorageBuffers.back());
+            }
+            fReusableScratchStorageBuffers.pop_back();
+            return found;
+        }
+    }
+    return nullptr;
 }
 
 // ------------------------------------------------------------------------------------------------

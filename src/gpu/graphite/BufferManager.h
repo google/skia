@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/BufferWriter.h"
+#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
@@ -21,13 +22,74 @@
 
 namespace skgpu::graphite {
 
-class Buffer;
 class Caps;
 class Context;
+class DrawBufferManager;
 class GlobalCache;
 class QueueManager;
 class Recording;
 class ResourceProvider;
+
+/**
+ * ScratchBuffer represents a GPU buffer object that is allowed to be reused across strictly
+ * sequential tasks within a Recording. It can be used to sub-allocate multiple bindings.
+ * When a ScratchBuffer gets deallocated, the underlying GPU buffer gets returned to the
+ * originating DrawBufferManager for reuse.
+ */
+class ScratchBuffer final {
+public:
+    // The default constructor creates an invalid ScratchBuffer that cannot be used for
+    // suballocations.
+    ScratchBuffer() = default;
+
+    // The destructor returns the underlying buffer back to the reuse pool, if the ScratchBuffer is
+    // valid.
+    ~ScratchBuffer();
+
+    // Disallow copy
+    ScratchBuffer(const ScratchBuffer&) = delete;
+    ScratchBuffer& operator=(const ScratchBuffer&) = delete;
+
+    // Allow move
+    ScratchBuffer(ScratchBuffer&&) = default;
+    ScratchBuffer& operator=(ScratchBuffer&&) = default;
+
+    // Returns false if the underlying buffer has been returned to the reuse pool.
+    bool isValid() const { return static_cast<bool>(fBuffer); }
+
+    // Convenience wrapper for checking the validity of a buffer.
+    explicit operator bool() { return this->isValid(); }
+
+    // Logical size of the initially requested allocation.
+    //
+    // NOTE: This number may be different from the size of the underlying GPU buffer but it is
+    // guaranteed to be less than or equal to it.
+    size_t size() const { return fSize; }
+
+    // Sub-allocate a slice within the scratch buffer object. Fails and returns a NULL pointer if
+    // the buffer doesn't have enough space remaining for `requiredBytes`.
+    // TODO(b/330743233): Currently the suballocations use the alignment for the BufferInfo that was
+    // assigned by the DrawBufferManager based on the ScratchBuffer's buffer type. One way to
+    // generalize this across different buffer usages/types is to have this function accept an
+    // additional alignment parameter. That should happen after we loosen the coupling between
+    // DrawBufferManager's BufferInfos and ScratchBuffer reuse pools.
+    BindBufferInfo suballocate(size_t requiredBytes);
+
+    // Returns the underlying buffer object back to the pool and invalidates this ScratchBuffer.
+    void returnToPool();
+
+private:
+    friend class DrawBufferManager;
+
+    ScratchBuffer(size_t size, size_t alignment, sk_sp<Buffer>, DrawBufferManager*);
+
+    size_t fSize;
+    size_t fAlignment;
+    sk_sp<Buffer> fBuffer;
+    size_t fOffset = 0;
+
+    DrawBufferManager* fOwner = nullptr;
+};
 
 /**
  * DrawBufferManager controls writing to buffer data ranges within larger, cacheable Buffers and
@@ -56,6 +118,24 @@ public:
     BindBufferInfo getIndexStorage(size_t requiredBytes);
     BindBufferInfo getIndirectStorage(size_t requiredBytes, ClearBuffer cleared = ClearBuffer::kNo);
 
+    // Returns an entire storage buffer object that is large enough to fit `requiredBytes`. The
+    // returned ScratchBuffer can be used to sub-allocate one or more storage buffer bindings that
+    // reference the same buffer object.
+    //
+    // When the ScratchBuffer goes out of scope, the buffer object gets added to an internal pool
+    // and is available for immediate reuse. getScratchStorage() returns buffers from this pool if
+    // possible. A ScratchBuffer can be explicitly returned to the pool by calling `returnToPool()`.
+    //
+    // Returning a ScratchBuffer back to the buffer too early can result in validation failures
+    // and/or data races. It is the callers responsibility to manage reuse within a Recording and
+    // guarantee synchronized access to buffer bindings.
+    //
+    // This type of usage is currently limited to GPU-only storage buffers.
+    //
+    // TODO(b/330743233): Generalize the underlying pool to other buffer types, including mapped
+    //                    ones.
+    ScratchBuffer getScratchStorage(size_t requiredBytes);
+
     // Returns the last 'unusedBytes' from the last call to getVertexWriter(). Assumes that
     // 'unusedBytes' is less than the 'requiredBytes' to the original allocation.
     void returnVertexBytes(size_t unusedBytes);
@@ -68,6 +148,8 @@ public:
     void transferToRecording(Recording*);
 
 private:
+    friend class ScratchBuffer;
+
     struct BufferInfo {
         BufferInfo(BufferType type, size_t blockSize, const Caps* caps);
 
@@ -88,6 +170,8 @@ private:
                                      bool supportCpuUpload = false,
                                      ClearBuffer cleared = ClearBuffer::kNo);
 
+    sk_sp<Buffer> findReusableSbo(size_t bufferSize);
+
     ResourceProvider* const fResourceProvider;
     const Caps* const fCaps;
     UploadBufferManager* fUploadManager;
@@ -107,6 +191,14 @@ private:
 
     // List of buffer regions that were requested to be cleared at the time of allocation.
     skia_private::TArray<ClearBufferInfo> fClearList;
+
+    // TODO(b/330744081): These should probably be maintained in a sorted data structure that
+    // supports fast insertion and lookup doesn't waste buffers (e.g. by vending out large buffers
+    // for small buffer sizes).
+    // TODO(b/330743233): We may want this pool to contain buffers with mixed usages (such as
+    // VERTEX|INDEX|UNIFORM|STORAGE) to reduce buffer usage on platforms like Dawn where
+    // host-written data always go through a copy via transfer buffer.
+    skia_private::TArray<sk_sp<Buffer>> fReusableScratchStorageBuffers;
 };
 
 /**
