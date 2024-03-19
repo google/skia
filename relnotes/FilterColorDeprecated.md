@@ -1,1 +1,0 @@
-`SkColorFilter::filterColor` is now deprecated and will eventually be removed in favor of `filterColor4f`.
