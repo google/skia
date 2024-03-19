@@ -537,15 +537,17 @@ public:
     */
     bool conservativelyContainsRect(const SkRect& rect) const;
 
-    /** Grows SkPath verb array and SkPoint array to contain extraPtCount additional SkPoint.
+    /** Grows SkPath verb array, SkPoint array, and conics to contain additional space.
         May improve performance and use less memory by
         reducing the number and size of allocations when creating SkPath.
 
         @param extraPtCount  number of additional SkPoint to allocate
+        @param extraVerbCount  number of additional verbs
+        @param extraConicCount  number of additional conics
 
         example: https://fiddle.skia.org/c/@Path_incReserve
     */
-    void incReserve(int extraPtCount);
+    void incReserve(int extraPtCount, int extraVerbCount = 0, int extraConicCount = 0);
 
 #ifdef SK_HIDE_PATH_EDIT_METHODS
 private:

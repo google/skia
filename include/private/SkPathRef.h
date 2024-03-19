@@ -83,7 +83,8 @@ public:
     public:
         Editor(sk_sp<SkPathRef>* pathRef,
                int incReserveVerbs = 0,
-               int incReservePoints = 0);
+               int incReservePoints = 0,
+               int incReserveConics = 0);
 
         ~Editor() { SkDEBUGCODE(fPathRef->fEditorsAttached--;) }
 
@@ -351,7 +352,7 @@ private:
         kSegmentMask_SerializationShift = 0                 // requires 4 bits (deprecated)
     };
 
-    SkPathRef(int numVerbs = 0, int numPoints = 0) {
+    SkPathRef(int numVerbs = 0, int numPoints = 0, int numConics = 0) {
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = kEmptyGenID;
         fSegmentMask = 0;
@@ -366,11 +367,14 @@ private:
         if (numVerbs > 0) {
             fVerbs.reserve_exact(numVerbs);
         }
+        if (numConics > 0) {
+            fConicWeights.reserve_exact(numConics);
+        }
         SkDEBUGCODE(fEditorsAttached.store(0);)
         SkDEBUGCODE(this->validate();)
     }
 
-    void copy(const SkPathRef& ref, int additionalReserveVerbs, int additionalReservePoints);
+    void copy(const SkPathRef& ref, int additionalReserveVerbs, int additionalReservePoints, int additionalReserveConics);
 
     // Return true if the computed bounds are finite.
     static bool ComputePtBounds(SkRect* bounds, const SkPathRef& ref) {
@@ -396,14 +400,19 @@ private:
     }
 
     /** Makes additional room but does not change the counts or change the genID */
-    void incReserve(int additionalVerbs, int additionalPoints) {
+    void incReserve(int additionalVerbs, int additionalPoints, int additionalConics) {
         SkDEBUGCODE(this->validate();)
         // Use reserve() so that if there is not enough space, the array will grow with some
         // additional space. This ensures repeated calls to grow won't always allocate.
-        if (additionalPoints > 0)
+        if (additionalPoints > 0) {
             fPoints.reserve(fPoints.size() + additionalPoints);
-        if (additionalVerbs > 0)
+        }
+        if (additionalVerbs > 0) {
             fVerbs.reserve(fVerbs.size() + additionalVerbs);
+        }
+        if (additionalConics > 0) {
+            fConicWeights.reserve(fConicWeights.size() + additionalConics);
+        }
         SkDEBUGCODE(this->validate();)
     }
 
@@ -425,7 +434,8 @@ private:
     /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
      *  allocates space for reserveVerb additional verbs and reservePoints additional points.*/
     void resetToSize(int verbCount, int pointCount, int conicCount,
-                     int reserveVerbs = 0, int reservePoints = 0) {
+                     int reserveVerbs = 0, int reservePoints = 0,
+                     int reserveConics = 0) {
         this->commonReset();
         // Use reserve_exact() so the arrays are sized to exactly fit the data.
         fPoints.reserve_exact(pointCount + reservePoints);
@@ -434,7 +444,8 @@ private:
         fVerbs.reserve_exact(verbCount + reserveVerbs);
         fVerbs.resize_back(verbCount);
 
-        fConicWeights.resize_back(conicCount);
+        fConicWeights.reserve_exact(conicCount + reserveConics);
+        fVerbs.resize_back(conicCount);
         SkDEBUGCODE(this->validate();)
     }
 

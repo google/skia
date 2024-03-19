@@ -24,25 +24,26 @@
 //////////////////////////////////////////////////////////////////////////////
 SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
                           int incReserveVerbs,
-                          int incReservePoints)
+                          int incReservePoints,
+                          int incReserveConics)
 {
     SkASSERT(incReserveVerbs >= 0);
     SkASSERT(incReservePoints >= 0);
 
     if ((*pathRef)->unique()) {
-        (*pathRef)->incReserve(incReserveVerbs, incReservePoints);
+        (*pathRef)->incReserve(incReserveVerbs, incReservePoints, incReserveConics);
     } else {
         SkPathRef* copy;
         // No need to copy if the existing ref is the empty ref (because it doesn't contain
         // anything).
         if (!(*pathRef)->isInitialEmptyPathRef()) {
             copy = new SkPathRef;
-            copy->copy(**pathRef, incReserveVerbs, incReservePoints);
+            copy->copy(**pathRef, incReserveVerbs, incReservePoints, incReserveConics);
         } else {
             // Size previously empty paths to exactly fit the supplied hints. The assumpion is
             // the caller knows the exact size they want (as happens in chrome when deserializing
             // paths).
-            copy = new SkPathRef(incReserveVerbs, incReservePoints);
+            copy = new SkPathRef(incReserveVerbs, incReservePoints, incReserveConics);
         }
         pathRef->reset(copy);
     }
@@ -269,10 +270,11 @@ bool SkPathRef::operator== (const SkPathRef& ref) const {
 
 void SkPathRef::copy(const SkPathRef& ref,
                      int additionalReserveVerbs,
-                     int additionalReservePoints) {
+                     int additionalReservePoints,
+                     int additionalReserveConics) {
     SkDEBUGCODE(this->validate();)
     this->resetToSize(ref.fVerbs.size(), ref.fPoints.size(), ref.fConicWeights.size(),
-                      additionalReserveVerbs, additionalReservePoints);
+                      additionalReserveVerbs, additionalReservePoints, additionalReserveConics);
     fVerbs = ref.fVerbs;
     fPoints = ref.fPoints;
     fConicWeights = ref.fConicWeights;

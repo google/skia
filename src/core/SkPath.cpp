@@ -664,10 +664,12 @@ SkPath& SkPath::dirtyAfterEdit() {
     return *this;
 }
 
-void SkPath::incReserve(int inc) {
+void SkPath::incReserve(int extraPtCount, int extraVerbCount, int extraConicCount) {
     SkDEBUGCODE(this->validate();)
-    if (inc > 0) {
-        SkPathRef::Editor(&fPathRef, inc, inc);
+    if (extraPtCount > 0) {
+        // For compat with when this function only took a single argument, use
+        // extraPtCount if extraVerbCount is 0 (default value).
+        SkPathRef::Editor(&fPathRef, extraVerbCount == 0 ? extraPtCount : extraVerbCount, extraPtCount, extraConicCount);
     }
     SkDEBUGCODE(this->validate();)
 }
@@ -1201,7 +1203,8 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
     SkConic conics[SkConic::kMaxConicsForArc];
     int count = build_arc_conics(oval, startV, stopV, dir, conics, &singlePt);
     if (count) {
-        this->incReserve(count * 2 + 1);
+        // Conics take two points. Add one to the verb in case there is a moveto.
+        this->incReserve(count * 2 + 1, count + 1, count);
         const SkPoint& pt = conics[0].fPts[0];
         addPt(pt);
         for (int i = 0; i < count; ++i) {
@@ -3144,7 +3147,7 @@ void SkPath::shrinkToFit() {
     // any existing iterators.
     if (!fPathRef->unique()) {
         SkPathRef* pr = new SkPathRef;
-        pr->copy(*fPathRef, 0, 0);
+        pr->copy(*fPathRef, 0, 0, 0);
         fPathRef.reset(pr);
     }
     fPathRef->fPoints.shrink_to_fit();
