@@ -43,7 +43,6 @@ enum SkColorType : int;
 enum class SkTextureCompressionType;
 struct GrMockOptions;
 struct GrD3DBackendContext; // IWYU pragma: keep
-struct GrMtlBackendContext; // IWYU pragma: keep
 
 namespace skgpu {
     class MutableTextureState;
@@ -60,28 +59,6 @@ enum class BackendSurfaceAccess;
 
 class SK_API GrDirectContext : public GrRecordingContext {
 public:
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_METAL_GRDIRECTCONTEXT_FACTORIES)
-    /**
-     * Makes a GrDirectContext which uses Metal as the backend. The GrMtlBackendContext contains a
-     * MTLDevice and MTLCommandQueue which should be used by the backend. These objects must
-     * have their own ref which will be released when the GrMtlBackendContext is destroyed.
-     * Ganesh will take its own ref on the objects which will be released when the GrDirectContext
-     * is destroyed.
-     */
-    static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&, const GrContextOptions&);
-    static sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&);
-    /**
-     * Deprecated.
-     *
-     * Makes a GrDirectContext which uses Metal as the backend. The device parameter is an
-     * MTLDevice and queue is an MTLCommandQueue which should be used by the backend. These objects
-     * must have a ref on them that can be transferred to Ganesh, which will release the ref
-     * when the GrDirectContext is destroyed.
-     */
-    static sk_sp<GrDirectContext> MakeMetal(void* device, void* queue, const GrContextOptions&);
-    static sk_sp<GrDirectContext> MakeMetal(void* device, void* queue);
-#endif
-
 #ifdef SK_DIRECT3D
     /**
      * Makes a GrDirectContext which uses Direct3D as the backend. The Direct3D context

@@ -34,30 +34,3 @@ sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext& backendContext,
     return direct;
 }
 }  // namespace GrDirectContexts
-
-#if !defined(SK_DISABLE_LEGACY_METAL_GRDIRECTCONTEXT_FACTORIES)
-/*************************************************************************************************/
-sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& backendContext) {
-    return GrDirectContexts::MakeMetal(backendContext);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeMetal(const GrMtlBackendContext& backendContext,
-                                                  const GrContextOptions& options) {
-    return GrDirectContexts::MakeMetal(backendContext, options);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device, void* queue) {
-    GrContextOptions defaultOptions;
-    return MakeMetal(device, queue, defaultOptions);
-}
-
-sk_sp<GrDirectContext> GrDirectContext::MakeMetal(void* device,
-                                                  void* queue,
-                                                  const GrContextOptions& options) {
-    GrMtlBackendContext backendContext = {};
-    backendContext.fDevice.reset(device);
-    backendContext.fQueue.reset(queue);
-
-    return GrDirectContexts::MakeMetal(backendContext, options);
-}
-#endif
