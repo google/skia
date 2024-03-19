@@ -674,6 +674,10 @@ public:
     }
 };
 
+bool SkUnicode::isEmoji(SkUnichar utf8) {
+    return sk_u_hasBinaryProperty(utf8, UCHAR_EMOJI);
+}
+
 std::unique_ptr<SkUnicode> SkUnicode::MakeIcuBasedUnicode() {
     #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {

@@ -191,6 +191,7 @@ class SKUNICODE_API SkUnicode {
         static SkString convertUtf16ToUtf8(const std::u16string& utf16);
         static std::u16string convertUtf8ToUtf16(const char* utf8, int utf8Units);
         static std::u16string convertUtf8ToUtf16(const SkString& utf8);
+        static bool isEmoji(SkUnichar utf8);
 
         template <typename Appender8, typename Appender16>
         static bool extractUtfConversionMapping(SkSpan<const char> utf8, Appender8&& appender8, Appender16&& appender16) {
