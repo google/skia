@@ -625,7 +625,7 @@ protected:
         out_metrics->fAscent = -metrics.ascent;
         out_metrics->fDescent = -metrics.descent;
         out_metrics->fBottom = -metrics.bottom;
-        out_metrics->fLeading = -metrics.leading;
+        out_metrics->fLeading = metrics.leading;
         out_metrics->fAvgCharWidth = metrics.avg_char_width;
         out_metrics->fMaxCharWidth = metrics.max_char_width;
         out_metrics->fXMin = metrics.x_min;
