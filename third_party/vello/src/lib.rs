@@ -239,7 +239,7 @@ mod ffi {
         fn workgroup_counts(self: &RenderConfiguration) -> DispatchInfo;
         fn buffer_sizes(self: &RenderConfiguration) -> BufferSizes;
 
-        /// Sample mask lookup table used in MSAA modes. This data is the same for all MSAA16
+        /// Sample mask lookup table used in MSAA modes. This data is the same for all MSAAx16
         /// renders and can be computed once.
         fn build_mask_lut_16() -> Vec<u8>;
     }
