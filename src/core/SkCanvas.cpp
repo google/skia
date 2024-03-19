@@ -1315,7 +1315,9 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
         // switch from shader-decal'ing to clamping. We could skip padding the layer when there's
         // no image filter and no device-filling effects, but always padding simplifies the rest of
         // the layer prep logic and the restore logic.
-        layerBounds.outset(skif::LayerSpace<SkISize>({1, 1}));
+        if (!filters.empty()) {
+            layerBounds.outset(skif::LayerSpace<SkISize>({1, 1}));
+        }
 #endif
     }
 
@@ -1358,8 +1360,10 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
 #if !defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE) && !defined(SK_DONT_PAD_LAYER_IMAGES)
     // Clip while the device coordinate space is the identity so it's easy to define the rect that
     // excludes the added padding pixels. This ensures they remain cleared to transparent black.
-    newDevice->clipRect(SkRect::Make(newDevice->devClipBounds().makeInset(1, 1)),
-                        SkClipOp::kIntersect, /*aa=*/false);
+    if (!filters.empty()) {
+        newDevice->clipRect(SkRect::Make(newDevice->devClipBounds().makeInset(1, 1)),
+                            SkClipOp::kIntersect, /*aa=*/false);
+    }
 #endif
 
     // Configure device to match determined mapping for any image filters.
