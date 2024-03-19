@@ -652,7 +652,54 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Fontations::onOpenStream(int* ttcIndex
 }
 
 sk_sp<SkTypeface> SkTypeface_Fontations::onMakeClone(const SkFontArguments& args) const {
-    return MakeFromData(fFontData, args);
+    // Matching DWrite implementation, return self if ttc index mismatches.
+    if (fTtcIndex != SkTo<uint32_t>(args.getCollectionIndex())) {
+        return sk_ref_sp(this);
+    }
+
+    int numAxes = onGetVariationDesignPosition(nullptr, 0);
+    auto fusedDesignPosition =
+            std::make_unique<SkFontArguments::VariationPosition::Coordinate[]>(numAxes);
+    int retrievedAxes = onGetVariationDesignPosition(fusedDesignPosition.get(), numAxes);
+    if (numAxes != retrievedAxes) {
+        return nullptr;
+    }
+
+    // We know the internally retrieved axes are normalized, contain a value for every possible
+    // axis, other axes do not exist, so we only need to override any of those.
+    for (int i = 0; i < numAxes; ++i) {
+        const SkFontArguments::VariationPosition& argPosition = args.getVariationDesignPosition();
+        for (int j = 0; j < argPosition.coordinateCount; ++j) {
+            if (fusedDesignPosition[i].axis == argPosition.coordinates[j].axis) {
+                fusedDesignPosition[i].value = argPosition.coordinates[j].value;
+            }
+        }
+    }
+
+    SkFontArguments fusedArgs;
+    fusedArgs.setVariationDesignPosition({fusedDesignPosition.get(), SkToInt(numAxes)});
+    fusedArgs.setPalette(args.getPalette());
+
+    rust::cxxbridge1::Box<fontations_ffi::BridgeNormalizedCoords> normalized_args =
+            make_normalized_coords(*fBridgeFontRef, fusedArgs);
+
+    if (!fontations_ffi::normalized_coords_equal(*normalized_args, *fBridgeNormalizedCoords)) {
+        return MakeFromData(fFontData, fusedArgs);
+    }
+
+    // TODO(crbug.com/skia/330149870): Palette differences are not fused, see DWrite backend impl.
+    rust::Slice<const fontations_ffi::PaletteOverride> argPaletteOverrides(
+            reinterpret_cast<const fontations_ffi::PaletteOverride*>(args.getPalette().overrides),
+            args.getPalette().overrideCount);
+    rust::Vec<uint32_t> newPalette =
+            resolve_palette(*fBridgeFontRef, args.getPalette().index, argPaletteOverrides);
+
+    if (fPalette.size() != newPalette.size() ||
+        memcmp(fPalette.data(), newPalette.data(), fPalette.size() * sizeof(fPalette[0]))) {
+        return MakeFromData(fFontData, fusedArgs);
+    }
+
+    return sk_ref_sp(this);
 }
 
 std::unique_ptr<SkScalerContext> SkTypeface_Fontations::onCreateScalerContext(

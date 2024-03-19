@@ -702,6 +702,10 @@ fn resolve_into_normalized_coords(
     Box::new(bridge_normalized_coords)
 }
 
+fn normalized_coords_equal(a : &BridgeNormalizedCoords, b: &BridgeNormalizedCoords) -> bool {
+    a.normalized_coords.coords() == b.normalized_coords.coords()
+}
+
 fn draw_colr_glyph(
     font_ref: &BridgeFontRef,
     coords: &BridgeNormalizedCoords,
@@ -1265,6 +1269,8 @@ mod ffi {
             font_ref: &BridgeFontRef,
             design_coords: &[SkiaDesignCoordinate],
         ) -> Box<BridgeNormalizedCoords>;
+
+        fn normalized_coords_equal(a : &BridgeNormalizedCoords, b: &BridgeNormalizedCoords) -> bool;
 
         fn draw_colr_glyph(
             font_ref: &BridgeFontRef,
