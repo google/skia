@@ -196,7 +196,8 @@ DEF_TEST(Fontations_VariationPosition, reporter) {
     sk_sp<SkTypeface> variableTypeface(
             SkTypeface_Make_Fontations(GetResourceAsStream(kVariableResource), SkFontArguments()));
     // Everything at default.
-    REPORTER_ASSERT(reporter, variableTypeface->getVariationDesignPosition(nullptr, 0) == 0);
+    const int numAxes = variableTypeface->getVariationDesignPosition(nullptr, 0);
+    REPORTER_ASSERT(reporter, numAxes == kNumVariableAxes, "numAxes: %d", numAxes);
 
     SkFontArguments::VariationPosition::Coordinate kSwpsCoordinateFirst = {SkSetFourByteTag('S', 'W', 'P', 'S'), 25};
     SkFontArguments::VariationPosition::Coordinate kSwpsCoordinateSecond = {SkSetFourByteTag('S', 'W', 'P', 'S'), 55};
@@ -211,22 +212,27 @@ DEF_TEST(Fontations_VariationPosition, reporter) {
     clonePosition.coordinates = cloneCoordinates;
     clonePosition.coordinateCount = 4;
 
-    sk_sp<SkTypeface> clonedTypeface = variableTypeface->makeClone(
+    sk_sp<SkTypeface> cloneTypeface = variableTypeface->makeClone(
             SkFontArguments().setVariationDesignPosition(clonePosition));
-    REPORTER_ASSERT(reporter, clonedTypeface->getVariationDesignPosition(nullptr, 0) == 2);
+    const int cloneNumAxes = cloneTypeface->getVariationDesignPosition(nullptr, 0);
+    REPORTER_ASSERT(reporter, cloneNumAxes == kNumVariableAxes, "clonedNumAxes: %d", cloneNumAxes);
 
     SkFontArguments::VariationPosition::Coordinate retrieveCoordinates[kNumVariableAxes] = {};
-    // Error when providing too little space.
-    REPORTER_ASSERT(reporter, clonedTypeface->getVariationDesignPosition(retrieveCoordinates, 1) == -1);
 
+    // Error when providing too little space.
+    const int badClonedNumAxes = cloneTypeface->getVariationDesignPosition(retrieveCoordinates, 1);
+    REPORTER_ASSERT(reporter, badClonedNumAxes == -1, "badClonedNumAxes: %d", badClonedNumAxes);
+
+    const int retrievedClonedNumAxes =
+            cloneTypeface->getVariationDesignPosition(retrieveCoordinates, kNumVariableAxes);
+    REPORTER_ASSERT(reporter, retrievedClonedNumAxes == kNumVariableAxes,
+                    "retrievedClonedNumAxes: %d", retrievedClonedNumAxes);
     REPORTER_ASSERT(reporter,
-                    clonedTypeface->getVariationDesignPosition(retrieveCoordinates, kNumVariableAxes) == 2);
+                    retrieveCoordinates[0].axis  == kSwpsCoordinateSecond.axis &&
+                    retrieveCoordinates[0].value == kSwpsCoordinateSecond.value);
     REPORTER_ASSERT(reporter,
-                    retrieveCoordinates[0].axis == kSwpsCoordinateSecond.axis &&
-                            retrieveCoordinates[0].value == kSwpsCoordinateSecond.value);
-    REPORTER_ASSERT(reporter,
-                    retrieveCoordinates[1].axis == kSwpeCoordinate.axis &&
-                            retrieveCoordinates[1].value == kSwpeCoordinate.value);
+                    retrieveCoordinates[1].axis  == kSwpeCoordinate.axis &&
+                    retrieveCoordinates[1].value == kSwpeCoordinate.value);
 }
 
 DEF_TEST(Fontations_VariationParameters, reporter) {
