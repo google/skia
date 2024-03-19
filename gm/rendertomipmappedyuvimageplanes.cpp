@@ -40,7 +40,7 @@ protected:
             return DrawResult::kSkip;
         }
         if (!fSrcImage) {
-            fSrcImage = ToolUtils::GetResourceAsImage("images/mandrill_128.png");
+            fSrcImage = ToolUtils::GetResourceAsImage("images/mandrill_512.png");
             if (!fSrcImage) {
                 *errorMsg = "Could not load src image.";
                 return DrawResult::kFail;
@@ -122,7 +122,7 @@ protected:
                                                              yuvaInfo,
                                                              planes,
                                                              /*imageColorSpace=*/nullptr);
-            auto dstRect = SkRect::MakeWH(yuvaImage->width() / 4.f, yuvaImage->height() / 4.f);
+            auto dstRect = SkRect::MakeWH(yuvaImage->width() / 16.f, yuvaImage->height() / 16.f);
             canvas->drawImageRect(yuvaImage.get(),
                                   dstRect,
                                   SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear));

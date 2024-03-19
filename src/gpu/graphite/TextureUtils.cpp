@@ -627,6 +627,7 @@ bool GenerateMipmaps(Recorder* recorder,
         SkSurface* scratchSurface = scratchSurfaces[(mipLevel - 1) & 1].get();
 
         SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kSrc);
         scratchSurface->getCanvas()->drawImageRect(scratchImg,
                                                    SkRect::Make(srcSize),
                                                    SkRect::Make(dstSize),
