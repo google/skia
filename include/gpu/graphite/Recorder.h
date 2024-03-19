@@ -167,9 +167,15 @@ public:
     void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
 
     /**
-     * Returns the number of bytes of gpu memory currently budgeted in the Recorder's cache.
+     * Returns the number of bytes of the Recorder's gpu memory cache budget that are currently in
+     * use.
      */
     size_t currentBudgetedBytes() const;
+
+    /**
+     * Returns the size of Recorder's gpu memory cache budget in bytes.
+     */
+    size_t maxBudgetedBytes() const;
 
     /**
      * Enumerates all cached GPU resources owned by the Recorder and dumps their memory to

@@ -147,9 +147,15 @@ public:
     void performDeferredCleanup(std::chrono::milliseconds msNotUsed);
 
     /**
-     * Returns the number of bytes of gpu memory currently budgeted in the Context's cache.
+     * Returns the number of bytes of the Context's gpu memory cache budget that are currently in
+     * use.
      */
     size_t currentBudgetedBytes() const;
+
+    /**
+     * Returns the size of Context's gpu memory cache budget in bytes.
+     */
+    size_t maxBudgetedBytes() const;
 
     /**
      * Enumerates all cached GPU resources owned by the Context and dumps their memory to
