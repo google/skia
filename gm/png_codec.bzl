@@ -121,7 +121,7 @@ def png_codec_tests(name):
                 "//:core",
                 "//:png_decode_codec",
                 "//gm",
-                "//src/utils:json",
+                "//src/core:core_priv",
                 "//tools:codec_utils",
                 "//tools:hash_and_encode",
                 "//tools:tool_utils",
