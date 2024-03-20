@@ -40,7 +40,7 @@ skia_filegroup(
     name = "icu_srcs",
     srcs = [
         "SkUnicode_icu.cpp",
-        "SkUnicode_icu.h",
+        "SkUnicode_icupriv.h",
         ":builtin_srcs",
         # TODO(kjlubick, bungeman): add support for SkUnicode_icu_runtime.cpp
     ],
@@ -51,7 +51,6 @@ skia_filegroup(
     name = "client_srcs",
     srcs = [
         "SkUnicode_client.cpp",
-        "SkUnicode_client.h",
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )

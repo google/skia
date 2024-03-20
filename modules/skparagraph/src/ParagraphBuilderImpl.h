@@ -20,8 +20,8 @@ namespace textlayout {
 class ParagraphBuilderImpl : public ParagraphBuilder {
 public:
     ParagraphBuilderImpl(const ParagraphStyle& style,
-        sk_sp<FontCollection> fontCollection,
-        std::unique_ptr<SkUnicode> unicode);
+                         sk_sp<FontCollection> fontCollection,
+                         sk_sp<SkUnicode> unicode);
 
     // Just until we fix all the code; calls icu::make inside
     ParagraphBuilderImpl(const ParagraphStyle& style, sk_sp<FontCollection> fontCollection);
@@ -64,6 +64,7 @@ public:
     SkSpan<char> getText() override;
     const ParagraphStyle& getParagraphStyle() const override;
 
+#ifndef SK_DISABLE_LEGACY_CLIENT_UNICODE
     void setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8) override;
     void setWordsUtf16(std::vector<SkUnicode::Position> wordsUtf16) override;
 
@@ -73,15 +74,16 @@ public:
     void setLineBreaksUtf8(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf8) override;
     void setLineBreaksUtf16(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf16) override;
 
-    void SetUnicode(std::unique_ptr<SkUnicode> unicode) override {
+    void SetUnicode(sk_sp<SkUnicode> unicode) override {
         fUnicode = std::move(unicode);
     }
+#endif
     // Support for Flutter optimization
     void Reset() override;
 
     static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
                                                   sk_sp<FontCollection> fontCollection,
-                                                  std::unique_ptr<SkUnicode> unicode);
+                                                  sk_sp<SkUnicode> unicode);
 
     // Just until we fix all the code; calls icu::make inside
     static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
@@ -102,7 +104,7 @@ protected:
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
 
-    std::shared_ptr<SkUnicode> fUnicode;
+    sk_sp<SkUnicode> fUnicode;
 private:
     SkOnce fillUTF16MappingOnce;
     void ensureUTF16Mapping();

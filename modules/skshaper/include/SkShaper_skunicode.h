@@ -8,6 +8,7 @@
 #ifndef SkShaper_skunicode_DEFINED
 #define SkShaper_skunicode_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "modules/skshaper/include/SkShaper.h"
 
 #include <cstddef>
@@ -17,7 +18,7 @@
 class SkUnicode;
 
 namespace SkShapers::unicode {
-SKSHAPER_API std::unique_ptr<SkShaper::BiDiRunIterator> BidiRunIterator(SkUnicode* unicode,
+SKSHAPER_API std::unique_ptr<SkShaper::BiDiRunIterator> BidiRunIterator(sk_sp<SkUnicode> unicode,
                                                                         const char* utf8,
                                                                         size_t utf8Bytes,
                                                                         uint8_t bidiLevel);

@@ -44,40 +44,42 @@ static const char gText[] =
     "a decent respect to the opinions of mankind requires that they should "
     "declare the causes which impel them to the separation.";
 
-static std::unique_ptr<SkUnicode> make_sk_unicode() {
+namespace {
+sk_sp<SkUnicode> get_unicode() {
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)
-    unicode = SkUnicode::MakeIcuBasedUnicode();
-    if (unicode) {
+    if (auto unicode = SkUnicodes::ICU::Make()) {
         return unicode;
     }
-#endif
+#endif  // defined(SK_UNICODE_ICU_IMPLEMENTATION)
 #if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
-    unicode = SkUnicode::MakeLibgraphemeBasedUnicode();
-    if (unicode) {
+    if (auto unicode = SkUnicodes::Libgrapheme::Make()) {
         return unicode;
     }
 #endif
 #if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
-    return SkUnicode::MakeIcu4xBasedUnicode();
+    if (auto unicode = SkUnicodes::ICU4X::Make()) {
+        return unicode;
+    }
 #endif
     return nullptr;
 }
+}
 
-using MakeBidiIteratorCallback = std::unique_ptr<SkShaper::BiDiRunIterator> (*)(SkUnicode* unicode,
+using MakeBidiIteratorCallback = std::unique_ptr<SkShaper::BiDiRunIterator> (*)(sk_sp<SkUnicode> unicode,
                                                                                 const char* utf8,
                                                                                 size_t utf8Bytes,
                                                                                 uint8_t bidiLevel);
 using MakeScriptRunCallback = std::unique_ptr<SkShaper::ScriptRunIterator> (*)(
         const char* utf8, size_t utf8Bytes, SkFourByteTag script);
 
-static std::unique_ptr<SkShaper::BiDiRunIterator> make_trivial_bidi(SkUnicode*,
+static std::unique_ptr<SkShaper::BiDiRunIterator> make_trivial_bidi(sk_sp<SkUnicode>,
                                                                     const char*,
                                                                     size_t utf8Bytes,
                                                                     uint8_t bidiLevel) {
     return std::make_unique<SkShaper::TrivialBiDiRunIterator>(bidiLevel, utf8Bytes);
 }
 
-static std::unique_ptr<SkShaper::BiDiRunIterator> make_unicode_bidi(SkUnicode* unicode,
+static std::unique_ptr<SkShaper::BiDiRunIterator> make_unicode_bidi(sk_sp<SkUnicode> unicode,
                                                                     const char* utf8,
                                                                     size_t utf8Bytes,
                                                                     uint8_t bidiLevel) {
@@ -153,9 +155,9 @@ private:
             const char* utf8 = gText;
             size_t utf8Bytes = sizeof(gText) - 1;
 
-            std::unique_ptr<SkUnicode> unicode = make_sk_unicode();
+            auto unicode = get_unicode();
             std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
-                    fBidiCallback(unicode.get(), utf8, utf8Bytes, 0xfe);
+                    fBidiCallback(unicode, utf8, utf8Bytes, 0xfe);
             if (!bidi) {
                 return;
             }
@@ -207,7 +209,7 @@ private:
     MakeScriptRunCallback fScriptRunCallback;
 };
 
-DEF_SLIDE(return new TextBoxSlide(SkShapers::Primitive,
+DEF_SLIDE(return new TextBoxSlide(SkShapers::Primitive::PrimitiveText,
                                   make_trivial_bidi,
                                   make_trivial_script_runner,
                                   "primitive"););
@@ -222,8 +224,7 @@ DEF_SLIDE(return new TextBoxSlide(SkShapers::CT::CoreText,
 #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
 DEF_SLIDE(return new TextBoxSlide(
                          []() {
-                             auto unicode = make_sk_unicode();
-                             return SkShapers::HB::ShaperDrivenWrapper(std::move(unicode),
+                             return SkShapers::HB::ShaperDrivenWrapper(get_unicode(),
                                                                        SkFontMgr::RefEmpty());
                          },
                          make_unicode_bidi,
@@ -244,7 +245,7 @@ public:
             this->drawTest(canvas,
                            text,
                            size,
-                           SkShapers::Primitive(),
+                           SkShapers::Primitive::PrimitiveText(),
                            make_trivial_bidi,
                            make_trivial_script_runner);
             canvas->translate(0, size + 5);
@@ -258,12 +259,12 @@ public:
 #endif
             canvas->translate(0, size + 5);
 #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
-            auto unicode = make_sk_unicode();
+            auto unicode = get_unicode();
             this->drawTest(
                     canvas,
                     text,
                     size,
-                    SkShapers::HB::ShaperDrivenWrapper(std::move(unicode), SkFontMgr::RefEmpty()),
+                    SkShapers::HB::ShaperDrivenWrapper(unicode, SkFontMgr::RefEmpty()),
                     make_unicode_bidi,
                     make_harfbuzz_script_runner);
 #endif
@@ -288,9 +289,9 @@ private:
 
         size_t len = strlen(str);
 
-        std::unique_ptr<SkUnicode> unicode = make_sk_unicode();
+        auto unicode = get_unicode();
         std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
-                bidiCallback(unicode.get(), str, len, 0xfe);
+                bidiCallback(unicode, str, len, 0xfe);
         if (!bidi) {
             return;
         }

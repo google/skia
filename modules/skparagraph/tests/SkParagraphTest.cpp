@@ -51,6 +51,20 @@
 #include <vector>
 #include <thread>
 
+#include "modules/skunicode/include/SkUnicode.h"
+
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_icu.h"
+#endif
+
+#if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_libgrapheme.h"
+#endif
+
+#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_icu4x.h"
+#endif
+
 using namespace skia_private;
 
 struct GrContextOptions;
@@ -222,18 +236,6 @@ private:
     SkCanvas* canvas;
     const char* name;
 };
-
-
-static std::unique_ptr<SkUnicode> get_icu_based_unicode() {
-#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
-    return SkUnicode::MakeIcuBasedUnicode();
-#endif  // defined(SK_UNICODE_ICU_IMPLEMENTATION)
-#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
-    return SkUnicode::MakeIcu4xBasedUnicode();
-#endif
-    SkDEBUGFAIL("Cannot make SkUnicode");
-    return nullptr;
-}
 }  // namespace
 
 // Skip tests which do not find the fonts, unless the user set --paragraph_fonts in which case
@@ -8099,10 +8101,7 @@ UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
     REPORTER_ASSERT(reporter, visitedCount == 3);
 }
 
-UNIX_ONLY_TEST(SkParagraph_EmojiFontResolution, reporter) {
-
-    auto icu = get_icu_based_unicode();
-
+[[maybe_unused]] static void SkParagraph_EmojiFontResolution(sk_sp<SkUnicode> icu, skiatest::Reporter* reporter) {
     auto fontCollection = sk_make_sp<FontCollection>();
     fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr(), std::vector<SkString>());
     fontCollection->enableFontFallback();
@@ -8140,10 +8139,19 @@ UNIX_ONLY_TEST(SkParagraph_EmojiFontResolution, reporter) {
     }
 }
 
-UNIX_ONLY_TEST(SkParagraph_EmojiRuns, reporter) {
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+UNIX_ONLY_TEST(SkParagraph_ICU_EmojiFontResolution, reporter) {
+    SkParagraph_EmojiFontResolution(SkUnicodes::ICU::Make(), reporter);
+}
+#endif
 
-    auto icu = get_icu_based_unicode();
+#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
+UNIX_ONLY_TEST(SkParagraph_ICU4X_EmojiFontResolution, reporter) {
+    SkParagraph_EmojiFontResolution(SkUnicodes::ICU::Make(), reporter);
+}
+#endif
 
+[[maybe_unused]] static void SkUnicode_Emoji(sk_sp<SkUnicode> icu, skiatest::Reporter* reporter) {
     auto test = [&](const char* text, SkUnichar expected) {
         SkString str(text);
         if ((false)) {
@@ -8206,3 +8214,15 @@ UNIX_ONLY_TEST(SkParagraph_EmojiRuns, reporter) {
     test("👋🏼", 128075); // Modifier sequence
     test("👨‍👩‍👧‍👦", 128104); // ZWJ sequence
 }
+
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+UNIX_ONLY_TEST(SkParagraph_ICU_EmojiRuns, reporter) {
+    SkUnicode_Emoji(SkUnicodes::ICU::Make(), reporter);
+}
+#endif
+
+#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
+UNIX_ONLY_TEST(SkParagraph_ICU4X_EmojiRuns, reporter) {
+    SkUnicode_Emoji(SkUnicodes::ICU4X::Make(), reporter);
+}
+#endif

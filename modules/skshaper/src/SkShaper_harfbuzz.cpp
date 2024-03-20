@@ -624,12 +624,12 @@ struct ShapedRunGlyphIterator {
 
 class ShaperHarfBuzz : public SkShaper {
 public:
-    ShaperHarfBuzz(std::unique_ptr<SkUnicode>,
+    ShaperHarfBuzz(sk_sp<SkUnicode>,
                    HBBuffer,
                    sk_sp<SkFontMgr>);
 
 protected:
-    std::unique_ptr<SkUnicode> fUnicode;
+    sk_sp<SkUnicode> fUnicode;
 
     ShapedRun shape(const char* utf8, size_t utf8Bytes,
                     const char* utf8Start,
@@ -725,10 +725,10 @@ private:
               RunHandler*) const override;
 };
 
-ShaperHarfBuzz::ShaperHarfBuzz(std::unique_ptr<SkUnicode> unicode,
+ShaperHarfBuzz::ShaperHarfBuzz(sk_sp<SkUnicode> unicode,
                                HBBuffer buffer,
                                sk_sp<SkFontMgr> fallback)
-    : fUnicode(std::move(unicode))
+    : fUnicode(unicode)
     , fFontMgr(fallback ? std::move(fallback) : SkFontMgr::RefEmpty())
     , fBuffer(std::move(buffer))
     , fUndefinedLanguage(hb_language_from_string("und", -1)) {
@@ -746,7 +746,7 @@ void ShaperHarfBuzz::shape(const char* utf8,
                            RunHandler* handler) const {
     SkBidiIterator::Level defaultLevel = leftToRight ? SkBidiIterator::kLTR : SkBidiIterator::kRTL;
     std::unique_ptr<BiDiRunIterator> bidi(
-            SkShapers::unicode::BidiRunIterator(fUnicode.get(), utf8, utf8Bytes, defaultLevel));
+            SkShapers::unicode::BidiRunIterator(fUnicode, utf8, utf8Bytes, defaultLevel));
 
     if (!bidi) {
         return;
@@ -1417,10 +1417,41 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
 
     return run;
 }
-
 }  // namespace
 
 #if !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
+
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_icu.h"
+#endif
+
+#if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_libgrapheme.h"
+#endif
+
+#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_icu4x.h"
+#endif
+
+static sk_sp<SkUnicode> get_unicode() {
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+    if (auto unicode = SkUnicodes::ICU::Make()) {
+        return unicode;
+    }
+#endif  // defined(SK_UNICODE_ICU_IMPLEMENTATION)
+#if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
+    if (auto unicode = SkUnicodes::Libgrapheme::Make()) {
+        return unicode;
+    }
+#endif
+#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
+    if (auto unicode = SkUnicodes::ICU4X::Make()) {
+        return unicode;
+    }
+#endif
+    return nullptr;
+}
+
 std::unique_ptr<SkShaper::ScriptRunIterator>
 SkShaper::MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes) {
     return SkShapers::HB::ScriptRunIterator(utf8, utf8Bytes);
@@ -1437,25 +1468,18 @@ std::unique_ptr<SkShaper::ScriptRunIterator> SkShaper::MakeSkUnicodeHbScriptRunI
 }
 
 std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper(sk_sp<SkFontMgr> fontmgr) {
-    auto unicode = SkUnicode::Make();
-    return SkShapers::HB::ShaperDrivenWrapper(std::move(unicode), fontmgr);
+    return SkShapers::HB::ShaperDrivenWrapper(get_unicode(), fontmgr);
 }
 
 std::unique_ptr<SkShaper> SkShaper::MakeShapeThenWrap(sk_sp<SkFontMgr> fontmgr) {
-    auto unicode = SkUnicode::Make();
-    return SkShapers::HB::ShapeThenWrap(std::move(unicode), fontmgr);
-}
-
-std::unique_ptr<SkShaper> SkShaper::MakeShapeDontWrapOrReorder(std::unique_ptr<SkUnicode> unicode,
-                                                               sk_sp<SkFontMgr> fontmgr) {
-    return SkShapers::HB::ShapeDontWrapOrReorder(std::move(unicode), std::move(fontmgr));
+    return SkShapers::HB::ShapeThenWrap(get_unicode(), fontmgr);
 }
 
 void SkShaper::PurgeHarfBuzzCache() { SkShapers::HB::PurgeCaches(); }
 #endif  // !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
 
 namespace SkShapers::HB {
-std::unique_ptr<SkShaper> ShaperDrivenWrapper(std::unique_ptr<SkUnicode> unicode,
+std::unique_ptr<SkShaper> ShaperDrivenWrapper(sk_sp<SkUnicode> unicode,
                                               sk_sp<SkFontMgr> fallback) {
     if (!unicode) {
         return nullptr;
@@ -1466,10 +1490,10 @@ std::unique_ptr<SkShaper> ShaperDrivenWrapper(std::unique_ptr<SkUnicode> unicode
         return nullptr;
     }
     return std::make_unique<::ShaperDrivenWrapper>(
-            std::move(unicode), std::move(buffer), std::move(fallback));
+            unicode, std::move(buffer), std::move(fallback));
 }
 
-std::unique_ptr<SkShaper> ShapeThenWrap(std::unique_ptr<SkUnicode> unicode,
+std::unique_ptr<SkShaper> ShapeThenWrap(sk_sp<SkUnicode> unicode,
                                         sk_sp<SkFontMgr> fallback) {
     if (!unicode) {
         return nullptr;
@@ -1480,10 +1504,10 @@ std::unique_ptr<SkShaper> ShapeThenWrap(std::unique_ptr<SkUnicode> unicode,
         return nullptr;
     }
     return std::make_unique<::ShapeThenWrap>(
-            std::move(unicode), std::move(buffer), std::move(fallback));
+            unicode, std::move(buffer), std::move(fallback));
 }
 
-std::unique_ptr<SkShaper> ShapeDontWrapOrReorder(std::unique_ptr<SkUnicode> unicode,
+std::unique_ptr<SkShaper> ShapeDontWrapOrReorder(sk_sp<SkUnicode> unicode,
                                                  sk_sp<SkFontMgr> fallback) {
     if (!unicode) {
         return nullptr;
@@ -1494,7 +1518,7 @@ std::unique_ptr<SkShaper> ShapeDontWrapOrReorder(std::unique_ptr<SkUnicode> unic
         return nullptr;
     }
     return std::make_unique<::ShapeDontWrapOrReorder>(
-            std::move(unicode), std::move(buffer), std::move(fallback));
+            unicode, std::move(buffer), std::move(fallback));
 }
 
 std::unique_ptr<SkShaper::ScriptRunIterator> ScriptRunIterator(const char* utf8, size_t utf8Bytes) {

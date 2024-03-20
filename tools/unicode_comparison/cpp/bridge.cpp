@@ -10,7 +10,7 @@
 #include "tools/unicode_comparison/cpp/bridge.h"
 
 namespace {
-static std::unique_ptr<SkUnicode> gUnicode = nullptr;
+static sk_sp<SkUnicode> gUnicode = nullptr;
 static skia_private::TArray<SkUnicode::CodeUnitFlags, true> gCodeUnitFlags;
 static std::vector<SkUnicode::Position> gSentences;
 static std::vector<SkUnicode::Position> gWords;
@@ -20,9 +20,11 @@ bool init_skunicode_impl(char* impl) {
 
     SkString unicodeName(impl);
     if (unicodeName.equals("icu")) {
-        gUnicode = SkUnicode::MakeIcuBasedUnicode();
+        gUnicode = SkUnicode::ICU::Make();
+    } else if (unicodeName.equals("icu4x")) {
+        gUnicode = SkUnicode::ICU4X::Make();
     } else if (unicodeName.equals("libgrapheme")) {
-        gUnicode = SkUnicode::MakeLibgraphemeBasedUnicode();
+        gUnicode = SkUnicode::Libgrapheme::Make();
     } else {
         SkDebugf("Implementation '%s' not supported\n", impl);
         return false;

@@ -245,9 +245,9 @@ void SkShaperPrimitive::shape(const char* utf8,
 }
 
 #if !defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
-std::unique_ptr<SkShaper> SkShaper::MakePrimitive() { return SkShapers::Primitive(); }
+std::unique_ptr<SkShaper> SkShaper::MakePrimitive() { return SkShapers::Primitive::PrimitiveText(); }
 #endif
 
-namespace SkShapers {
-std::unique_ptr<SkShaper> Primitive() { return std::make_unique<SkShaperPrimitive>(); }
+namespace SkShapers::Primitive {
+std::unique_ptr<SkShaper> PrimitiveText() { return std::make_unique<SkShaperPrimitive>(); }
 }  // namespace SkShapers

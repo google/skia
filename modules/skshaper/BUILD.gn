@@ -64,9 +64,10 @@ if (skia_enable_skshaper) {
         testonly = true
         sources = skia_shaper_tests
         deps = [
+          ":skshaper",
           "../..:skia",
           "../..:test",
-          "../skshaper",
+          "../skunicode",
         ]
       } else {
         sources = []

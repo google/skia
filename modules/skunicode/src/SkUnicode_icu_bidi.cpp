@@ -19,7 +19,7 @@
 
 #ifdef SK_UNICODE_ICU_IMPLEMENTATION
 
-#include "modules/skunicode/src/SkUnicode_icu.h"
+#include "modules/skunicode/src/SkUnicode_icupriv.h"
 
 const char* SkUnicode_IcuBidi::errorName(UErrorCode status) {
     return SkGetICULib()->f_u_errorName(status);

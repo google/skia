@@ -8,6 +8,10 @@ skia_filegroup(
     name = "hdrs",
     srcs = [
         "SkUnicode.h",
+        "SkUnicode_client.h",
+        "SkUnicode_icu.h",
+        "SkUnicode_icu4x.h",
+        "SkUnicode_libgrapheme.h",
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )

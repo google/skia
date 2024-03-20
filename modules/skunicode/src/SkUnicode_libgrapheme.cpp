@@ -10,6 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "modules/skunicode/include/SkUnicode.h"
+#include "modules/skunicode/include/SkUnicode_libgrapheme.h"
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
 #include "src/base/SkBitmaskEnum.h"
@@ -28,10 +29,6 @@ public:
     SkUnicode_libgrapheme() { }
 
     ~SkUnicode_libgrapheme() override = default;
-
-    std::unique_ptr<SkUnicode> copy() override {
-        return std::make_unique<SkUnicode_libgrapheme>();
-    }
 
     // For SkShaper
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[], int count,
@@ -293,6 +290,9 @@ std::unique_ptr<SkBreakIterator> SkUnicode_libgrapheme::makeBreakIterator(const 
 std::unique_ptr<SkBreakIterator> SkUnicode_libgrapheme::makeBreakIterator(BreakType breakType) {
     return std::make_unique<SkBreakIterator_libgrapheme>(this);
 }
-std::unique_ptr<SkUnicode> SkUnicode::MakeLibgraphemeBasedUnicode() {
-    return std::make_unique<SkUnicode_libgrapheme>();
+
+namespace SkUnicodes::Libgrapheme {
+sk_sp<SkUnicode> Make() {
+    return sk_make_sp<SkUnicode_libgrapheme>();
+}
 }
