@@ -26,6 +26,7 @@ rust_library(
         include = ["crates/encoding/src/**/*.rs"],
         allow_empty = False,
     ),
+    crate_features = ["bump_estimate"],
     visibility = ["//visibility:public"],
     deps = [
         "@vello_deps//:bytemuck",
