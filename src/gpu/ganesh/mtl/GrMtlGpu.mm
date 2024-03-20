@@ -75,8 +75,7 @@ std::unique_ptr<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context,
     return std::unique_ptr<GrGpu>(new GrMtlGpu(direct,
                                                options,
                                                device,
-                                               queue,
-                                               context.fBinaryArchive.get()));
+                                               queue));
 }
 
 // This constant determines how many OutstandingCommandBuffers are allocated together as a block in
@@ -86,7 +85,7 @@ std::unique_ptr<GrGpu> GrMtlGpu::Make(const GrMtlBackendContext& context,
 static const int kDefaultOutstandingAllocCnt = 8;
 
 GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
-                   id<MTLDevice> device, id<MTLCommandQueue> queue, GrMTLHandle binaryArchive)
+                   id<MTLDevice> device, id<MTLCommandQueue> queue)
         : INHERITED(direct)
         , fDevice(device)
         , fQueue(queue)
@@ -101,11 +100,6 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
     this->testingOnly_startCapture();
 #endif
     fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
-#if GR_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
-        fBinaryArchive = (__bridge id<MTLBinaryArchive>)(binaryArchive);
-    }
-#endif
 }
 
 GrMtlGpu::~GrMtlGpu() {

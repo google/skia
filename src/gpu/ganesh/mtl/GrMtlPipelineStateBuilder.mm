@@ -669,26 +669,6 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(
     SkASSERT(pipelineDescriptor.fragmentFunction);
 
     NSError* error = nil;
-#if GR_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
-        id<MTLBinaryArchive> archive = fGpu->binaryArchive();
-        if (archive) {
-            NSArray* archiveArray = [NSArray arrayWithObjects:archive, nil];
-            pipelineDescriptor.binaryArchives = archiveArray;
-            BOOL result;
-            {
-                TRACE_EVENT0("skia.shaders", "addRenderPipelineFunctionsWithDescriptor");
-                result = [archive addRenderPipelineFunctionsWithDescriptor: pipelineDescriptor
-                                                                            error: &error];
-            }
-            if (!result && error) {
-                SkDebugf("Error storing pipeline: %s\n",
-                        [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
-            }
-        }
-    }
-#endif
-
     id<MTLRenderPipelineState> pipelineState;
     {
         TRACE_EVENT0("skia.shaders", "newRenderPipelineStateWithDescriptor");
@@ -801,26 +781,6 @@ bool GrMtlPipelineStateBuilder::PrecompileShaders(GrMtlGpu* gpu, const SkData& c
     pipelineDescriptor.fragmentFunction =
             [precompiledLibs->fFragmentLibrary newFunctionWithName: @"fragmentMain"];
 
-#if GR_METAL_SDK_VERSION >= 230
-    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
-        id<MTLBinaryArchive> archive = gpu->binaryArchive();
-        if (archive) {
-            NSArray* archiveArray = [NSArray arrayWithObjects:archive, nil];
-            pipelineDescriptor.binaryArchives = archiveArray;
-            BOOL result;
-            NSError* error = nil;
-            {
-                TRACE_EVENT0("skia.shaders", "addRenderPipelineFunctionsWithDescriptor");
-                result = [archive addRenderPipelineFunctionsWithDescriptor: pipelineDescriptor
-                                                                            error: &error];
-            }
-            if (!result && error) {
-                SkDebugf("Error storing pipeline: %s\n",
-                        [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
-            }
-        }
-    }
-#endif
     {
         TRACE_EVENT0("skia.shaders", "newRenderPipelineStateWithDescriptor");
         MTLNewRenderPipelineStateCompletionHandler completionHandler =

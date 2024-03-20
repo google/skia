@@ -52,7 +52,6 @@ struct DisplayParams {
         , fSurfaceProps(0, kRGB_H_SkPixelGeometry)
         , fDisableVsync(false)
         , fDelayDrawableAcquisition(false)
-        , fEnableBinaryArchive(false)
         , fCreateProtectedNativeBackend(false)
     {}
 
@@ -66,7 +65,6 @@ struct DisplayParams {
     SkSurfaceProps         fSurfaceProps;
     bool                   fDisableVsync;
     bool                   fDelayDrawableAcquisition;
-    bool                   fEnableBinaryArchive;
     bool                   fCreateProtectedNativeBackend = false;
 };
 

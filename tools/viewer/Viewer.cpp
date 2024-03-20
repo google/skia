@@ -272,7 +272,6 @@ static DEFINE_bool(redraw, false, "Toggle continuous redraw.");
 
 static DEFINE_bool(offscreen, false, "Force rendering to an offscreen surface.");
 static DEFINE_bool(stats, false, "Display stats overlay on startup.");
-static DEFINE_bool(binaryarchive, false, "Enable MTLBinaryArchive use (if available).");
 static DEFINE_bool(createProtected, false, "Create a protected native backend (e.g., in EGL).");
 
 #ifndef SK_GL
@@ -543,7 +542,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
     DisplayParams displayParams;
     displayParams.fMSAASampleCount = FLAGS_msaa;
-    displayParams.fEnableBinaryArchive = FLAGS_binaryarchive;
     CommonFlags::SetCtxOptions(&displayParams.fGrContextOptions);
     displayParams.fGrContextOptions.fPersistentCache = &fPersistentCache;
     displayParams.fGrContextOptions.fShaderCacheStrategy =

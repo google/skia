@@ -89,12 +89,6 @@ public:
                        GrSurface* src, const SkIRect& srcRect,
                        GrSamplerState::Filter) override;
 
-#if GR_METAL_SDK_VERSION >= 230
-    id<MTLBinaryArchive> binaryArchive() const SK_API_AVAILABLE(macos(11.0), ios(14.0), tvos(14.0)) {
-        return fBinaryArchive;
-    }
-#endif
-
     void submit(GrOpsRenderPass* renderPass) override;
 
     [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override;
@@ -124,8 +118,7 @@ public:
     GrRingBuffer* uniformsRingBuffer() override { return &fUniformsRingBuffer; }
 
 private:
-    GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>,
-             id<MTLCommandQueue>, GrMTLHandle binaryArchive);
+    GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>, id<MTLCommandQueue>);
 
     void destroyResources();
 
@@ -312,10 +305,6 @@ private:
 
     using OutstandingCommandBuffer = sk_sp<GrMtlCommandBuffer>;
     SkDeque fOutstandingCommandBuffers;
-
-#if GR_METAL_SDK_VERSION >= 230
-    id<MTLBinaryArchive> fBinaryArchive SK_API_AVAILABLE(macos(11.0), ios(14.0), tvos(14.0));
-#endif
 
     GrMtlResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;
