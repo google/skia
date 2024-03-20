@@ -10,11 +10,14 @@ use {
         Brush, Color, Fill, Mix,
     },
     std::pin::Pin,
-    vello_encoding::{Encoding as VelloEncoding, RenderConfig, Transform},
+    vello_encoding::{
+        BumpEstimator, Encoding as VelloEncoding, PathEncoder, RenderConfig, Transform,
+    },
 };
 
 pub(crate) struct Encoding {
     encoding: VelloEncoding,
+    estimator: BumpEstimator,
 }
 
 pub(crate) fn new_encoding() -> Box<Encoding> {
@@ -29,7 +32,7 @@ impl Encoding {
         // the encoding as non-fragment achieves this.
         let mut encoding = VelloEncoding::new();
         encoding.reset();
-        Encoding { encoding }
+        Encoding { encoding, estimator: BumpEstimator::new(), }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -38,6 +41,7 @@ impl Encoding {
 
     pub fn reset(&mut self) {
         self.encoding.reset();
+        self.estimator.reset();
     }
 
     pub fn fill(
@@ -47,10 +51,10 @@ impl Encoding {
         brush: &ffi::Brush,
         path_iter: Pin<&mut ffi::PathIterator>,
     ) {
-        self.encoding
-            .encode_transform(Transform::from_kurbo(&transform.into()));
+        let t = Transform::from_kurbo(&transform.into());
+        self.encoding.encode_transform(t);
         self.encoding.encode_fill_style(style.into());
-        if self.encode_path(path_iter, /*is_fill=*/ true) {
+        if self.encode_path(path_iter, &t, None) {
             self.encoding.encode_brush(&Brush::from(brush), 1.0)
         }
     }
@@ -62,23 +66,24 @@ impl Encoding {
         brush: &ffi::Brush,
         path_iter: Pin<&mut ffi::PathIterator>,
     ) {
-        self.encoding
-            .encode_transform(Transform::from_kurbo(&transform.into()));
+        let t = Transform::from_kurbo(&transform.into());
+        self.encoding.encode_transform(t);
+
         // TODO: process any dash pattern here using kurbo's dash expander unless Graphite
         // handles dashing already.
-        self.encoding.encode_stroke_style(&style.into());
-        if self.encode_path(path_iter, /*is_fill=*/ false) {
-            self.encoding.encode_brush(&Brush::from(brush), 1.0)
+        let stroke = style.into();
+        self.encoding.encode_stroke_style(&stroke);
+        if self.encode_path(path_iter, &t, Some(&stroke)) {
+            self.encoding.encode_brush(&Brush::from(brush), 1.0);
         }
     }
 
     pub fn begin_clip(&mut self, transform: ffi::Affine, path_iter: Pin<&mut ffi::PathIterator>) {
-        self.encoding
-            .encode_transform(Transform::from_kurbo(&transform.into()));
+        let t = Transform::from_kurbo(&transform.into());
+        self.encoding.encode_transform(t);
         self.encoding.encode_fill_style(Fill::NonZero);
-        self.encode_path(path_iter, /*is_fill=*/ true);
-        self.encoding
-            .encode_begin_clip(Mix::Clip.into(), /*alpha=*/ 1.0);
+        self.encode_path(path_iter, &t, None);
+        self.encoding.encode_begin_clip(Mix::Clip.into(), /*alpha=*/ 1.0);
     }
 
     pub fn end_clip(&mut self) {
@@ -87,6 +92,7 @@ impl Encoding {
 
     pub fn append(&mut self, other: &Encoding) {
         self.encoding.append(&other.encoding, &None);
+        self.estimator.append(&other.estimator, None);
     }
 
     pub fn prepare_render(
@@ -97,45 +103,85 @@ impl Encoding {
     ) -> Box<RenderConfiguration> {
         let mut packed_scene = Vec::new();
         let layout = vello_encoding::resolve_solid_paths_only(&self.encoding, &mut packed_scene);
-        let config = RenderConfig::new(&layout, width, height, &background.into());
+        let mut config = RenderConfig::new(&layout, width, height, &background.into());
+
+        let bump_estimate = self.estimator.tally(None);
+        //println!("bump: {bump_estimate}");
+        config.buffer_sizes.bin_data = bump_estimate.binning;
+        config.buffer_sizes.seg_counts = bump_estimate.seg_counts;
+        config.buffer_sizes.segments = bump_estimate.segments;
+        config.buffer_sizes.lines = bump_estimate.lines;
+        config.gpu.binning_size = bump_estimate.binning.len();
+        config.gpu.seg_counts_size = bump_estimate.seg_counts.len();
+        config.gpu.segments_size = bump_estimate.segments.len();
+        config.gpu.lines_size = bump_estimate.lines.len();
+
         Box::new(RenderConfiguration {
             packed_scene,
             config,
         })
     }
 
-    fn encode_path(&mut self, mut path_iter: Pin<&mut ffi::PathIterator>, is_fill: bool) -> bool {
-        let segments = {
-            let mut path_encoder = self.encoding.encode_path(is_fill);
-            let mut path_el = ffi::PathElement::default();
-            while unsafe { path_iter.as_mut().next_element(&mut path_el) } {
-                match path_el.verb {
-                    ffi::PathVerb::MoveTo => {
-                        let p = &path_el.points[0];
-                        path_encoder.move_to(p.x, p.y);
-                    }
-                    ffi::PathVerb::LineTo => {
-                        let p = &path_el.points[1];
-                        path_encoder.line_to(p.x, p.y);
-                    }
-                    ffi::PathVerb::QuadTo => {
-                        let p0 = &path_el.points[1];
-                        let p1 = &path_el.points[2];
-                        path_encoder.quad_to(p0.x, p0.y, p1.x, p1.y);
-                    }
-                    ffi::PathVerb::CurveTo => {
-                        let p0 = &path_el.points[1];
-                        let p1 = &path_el.points[2];
-                        let p2 = &path_el.points[3];
-                        path_encoder.cubic_to(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y);
-                    }
-                    ffi::PathVerb::Close => path_encoder.close(),
-                    _ => panic!("invalid path verb"),
-                }
+    fn encode_path(
+        &mut self,
+        iter: Pin<&mut ffi::PathIterator>,
+        transform: &Transform,
+        stroke: Option<&Stroke>,
+    ) -> bool {
+        let mut encoder = self.encoding.encode_path(/*is_fill=*/ stroke.is_none());
+
+        // Wrap the input iterator inside a custom iterator, so that the path gets
+        // encoded as the estimator runs through it.
+        let path = IterablePathEncoder { iter, encoder: &mut encoder };
+        self.estimator.count_path(path, transform, stroke);
+        encoder.finish(/*insert_path_marker=*/ true) != 0
+    }
+}
+
+// This is path element iterator that encodes path elements as it gets polled.
+struct IterablePathEncoder<'a, 'b> {
+    iter: Pin<&'a mut ffi::PathIterator>,
+    encoder: &'a mut PathEncoder<'b>,
+}
+
+impl Iterator for IterablePathEncoder<'_, '_> {
+    type Item = PathEl;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut path_el = ffi::PathElement::default();
+        if !unsafe { self.iter.as_mut().next_element(&mut path_el) } {
+            return None;
+        }
+        Some(match path_el.verb {
+            ffi::PathVerb::MoveTo => {
+                let p = &path_el.points[0];
+                self.encoder.move_to(p.x, p.y);
+                PathEl::MoveTo(p.into())
             }
-            path_encoder.finish(/*insert_path_marker=*/ true)
-        };
-        segments != 0
+            ffi::PathVerb::LineTo => {
+                let p = &path_el.points[1];
+                self.encoder.line_to(p.x, p.y);
+                PathEl::LineTo(p.into())
+            }
+            ffi::PathVerb::QuadTo => {
+                let p0 = &path_el.points[1];
+                let p1 = &path_el.points[2];
+                self.encoder.quad_to(p0.x, p0.y, p1.x, p1.y);
+                PathEl::QuadTo(p0.into(), p1.into())
+            }
+            ffi::PathVerb::CurveTo => {
+                let p0 = &path_el.points[1];
+                let p1 = &path_el.points[2];
+                let p2 = &path_el.points[3];
+                self.encoder.cubic_to(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y);
+                PathEl::CurveTo(p0.into(), p1.into(), p2.into())
+            }
+            ffi::PathVerb::Close => {
+                self.encoder.close();
+                PathEl::ClosePath
+            }
+            _ => panic!("invalid path verb"),
+        })
     }
 }
 
