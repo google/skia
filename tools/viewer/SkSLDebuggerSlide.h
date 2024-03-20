@@ -52,4 +52,4 @@ private:
     char fTraceFile[256] = "SkSLDebugTrace.json";
 };
 
-#endif
+#endif  // SkSLDebuggerSlide_DEFINED
