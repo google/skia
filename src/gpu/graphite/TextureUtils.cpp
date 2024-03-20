@@ -524,6 +524,7 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
         SkRect gammaDstRect = SkRect::Make(srcIRect.size());
 
         SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kSrc);
         gammaDst->drawImageRect(tempInput, srcRect, gammaDstRect,
                                 SkSamplingOptions(SkFilterMode::kNearest), &paint,
                                 SkCanvas::kStrict_SrcRectConstraint);
@@ -575,6 +576,7 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
                                SkSamplingOptions(SkFilterMode::kLinear);
         }
         SkPaint paint;
+        paint.setBlendMode(SkBlendMode::kSrc);
         stepDst->drawImageRect(tempInput, srcRect, stepDstRect, samplingOptions, &paint,
                                SkCanvas::kStrict_SrcRectConstraint);
 
