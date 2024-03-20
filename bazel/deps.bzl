@@ -98,7 +98,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "libavif",
         build_file = ws + "//bazel/external/libavif:BUILD.bazel",
-        commit = "d77cfece0b3e233ee4bed49dfef1e7dc451599f8",
+        commit = "55aab4ac0607ab651055d354d64c4615cf3d8000",
         remote = "https://skia.googlesource.com/external/github.com/AOMediaCodec/libavif.git",
     )
 
