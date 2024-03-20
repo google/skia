@@ -169,6 +169,11 @@ public:
      */
     bool isDeviceLost() const;
 
+    /**
+     * Returns the maximum texture dimension supported by the underlying backend.
+     */
+    int maxTextureSize() const;
+
     /*
      * Does this context support protected content?
      */
