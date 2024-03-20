@@ -391,6 +391,7 @@ sk_sp<PrecompileShader> PrecompileShaders::CoordClamp(SkSpan<const sk_sp<Precomp
 }
 
 //--------------------------------------------------------------------------------------------------
+// TODO: Investigate the Alpha-only use case
 class PrecompileImageShader : public PrecompileShader {
 public:
     PrecompileImageShader() {}
@@ -398,8 +399,15 @@ public:
 private:
     friend class PrecompilePictureShader;
 
-    // hardware-tiled, shader-tiled and cubic sampling
-    inline static constexpr int kNumIntrinsicCombinations = 3;
+    // The normal Skia API always wraps an ImageShader in a LocalMatrixShader and then changes the
+    // program structure depending on the LM being the identity.
+    inline static constexpr int kNumLocalMatrixCombinations = 2;
+
+    // The ImageShader has 3 variants: hardware-tiled, shader-tiled and cubic sampling
+    inline static constexpr int kNumSamplingCombinations = 3;
+
+    inline static constexpr int kNumIntrinsicCombinations = kNumLocalMatrixCombinations *
+                                                            kNumSamplingCombinations;
 
     int numIntrinsicCombinations() const override { return kNumIntrinsicCombinations; }
 
@@ -408,6 +416,12 @@ private:
                          PipelineDataGatherer* gatherer,
                          int desiredCombination) {
         SkASSERT(desiredCombination < kNumIntrinsicCombinations);
+
+        const int desiredLMCombination = desiredCombination % kNumLocalMatrixCombinations;
+        int remainingCombinations = desiredCombination / kNumLocalMatrixCombinations;
+
+        int desiredImageCombination = remainingCombinations;
+        SkASSERT(desiredImageCombination < PrecompileImageShader::kNumSamplingCombinations);
 
         static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
         static constexpr SkSamplingOptions kDefaultSampling;
@@ -419,14 +433,24 @@ private:
         static constexpr SkISize kHwTileableSize = SkISize::Make(1, 1);
         static constexpr SkISize kNonHwTileableSize = SkISize::Make(2, 2);
 
-        ImageShaderBlock::ImageData imgData(desiredCombination == 2 ? kDefaultCubicSampling
-                                                                    : kDefaultSampling,
-                                            SkTileMode::kClamp, SkTileMode::kClamp,
-                                            desiredCombination == 1 ? kHwTileableSize
-                                                                    : kNonHwTileableSize,
-                                            kSubset, ReadSwizzle::kRGBA);
+        if (desiredLMCombination) {
+            static const LocalMatrixShaderBlock::LMShaderData kIgnoredLMShaderData(SkMatrix::I());
 
-        ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+            LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer, kIgnoredLMShaderData);
+        }
+
+            ImageShaderBlock::ImageData imgData(desiredImageCombination == 2 ? kDefaultCubicSampling
+                                                                             : kDefaultSampling,
+                                                SkTileMode::kClamp, SkTileMode::kClamp,
+                                                desiredImageCombination == 1 ? kHwTileableSize
+                                                                             : kNonHwTileableSize,
+                                                kSubset, ReadSwizzle::kRGBA);
+
+            ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+
+        if (desiredLMCombination) {
+            builder->endBlock();
+        }
     }
 
     void addToKey(const KeyContext& keyContext,
@@ -438,6 +462,12 @@ private:
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::Image() {
+    return sk_make_sp<PrecompileImageShader>();
+}
+
+sk_sp<PrecompileShader> PrecompileShaders::RawImage() {
+    // Raw images do not perform color space conversion, but in Graphite, this is represented as
+    // an identity color space xform, not as a distinct shader
     return sk_make_sp<PrecompileImageShader>();
 }
 
@@ -475,6 +505,9 @@ sk_sp<PrecompileShader> PrecompileShaders::YUVImage() {
 }
 
 //--------------------------------------------------------------------------------------------------
+// The PictureShader ultimately turns into an SkImageShader optionally wrapped in a
+// LocalMatrixShader. This means each precompile PictureShader will add 12 combinations:
+//    2 (pictureshader LM) x 2 (imageShader LM) x 3 (imageShader sample methods)
 class PrecompilePictureShader : public PrecompileShader {
 public:
     PrecompilePictureShader() {}
@@ -580,6 +613,8 @@ sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient() {
 }
 
 //--------------------------------------------------------------------------------------------------
+// TODO: Would adding a self-eliding precompile option here reduce the complexity of dealing w/
+// the LMShader combinations?
 class PrecompileLocalMatrixShader : public PrecompileShader {
 public:
     PrecompileLocalMatrixShader(sk_sp<PrecompileShader> wrapped) : fWrapped(std::move(wrapped)) {}

@@ -43,8 +43,15 @@ namespace PrecompileShaders {
     SK_API sk_sp<PrecompileShader> MakeFractalNoise();
     SK_API sk_sp<PrecompileShader> MakeTurbulence();
 
-    // TODO: add an SkShaders::Image to match this and SkImageFilters (skbug.com/13440)
+    // In the normal Skia API ImageShaders are usually created via a SkImage::makeShader call.
+    // Since the SkImage used to create the ImageShader is unlikely to be present at precompilation
+    // time this entry point allows the equivalent precompilation program structure to be created.
     SK_API sk_sp<PrecompileShader> Image();
+    // As with the above Image call, raw ImageShaders are usually created via an
+    // SkImage::makeRawShader call. The RawImage call allows the equivalent precompilation
+    // program structure to be created without needing the SkImage.
+    SK_API sk_sp<PrecompileShader> RawImage();
+
     SK_API sk_sp<PrecompileShader> YUVImage();
 
     // TODO: make SkGradientShader match this convention (skbug.com/13438)

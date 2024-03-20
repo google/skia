@@ -788,3 +788,21 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
 
     return append_misc();
 }
+
+namespace SkShaders {
+
+sk_sp<SkShader> Image(sk_sp<SkImage> image,
+                      SkTileMode tmx, SkTileMode tmy,
+                      const SkSamplingOptions& options,
+                      const SkMatrix* localMatrix) {
+    return SkImageShader::Make(std::move(image), tmx, tmy, options, localMatrix);
+}
+
+sk_sp<SkShader> RawImage(sk_sp<SkImage> image,
+                         SkTileMode tmx, SkTileMode tmy,
+                         const SkSamplingOptions& options,
+                         const SkMatrix* localMatrix) {
+    return SkImageShader::MakeRaw(std::move(image), tmx, tmy, options, localMatrix);
+}
+
+}  // namespace SkShaders
