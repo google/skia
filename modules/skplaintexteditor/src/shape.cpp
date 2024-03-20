@@ -22,13 +22,12 @@
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"
 #include "modules/skshaper/include/SkShaper_skunicode.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#else
-class SkUnicode;
 #endif
 
 #include <cfloat>
 #include <climits>
 #include <cstring>
+
 
 using namespace SkPlainTextEditor;
 
@@ -97,29 +96,6 @@ private:
     SkPoint fCurrentPosition = {0, 0};
     SkPoint fOffset = {0, 0};
 };
-
-// TODO(kjlubick,jlavrova) Remove these defines by having clients register something or somehow
-// plumbing this all into the animation builder factories.
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
-sk_sp<SkUnicode> get_unicode() {
-#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
-    if (auto unicode = SkUnicodes::ICU::Make()) {
-        return unicode;
-    }
-#endif  // defined(SK_UNICODE_ICU_IMPLEMENTATION)
-#if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
-    if (auto unicode = SkUnicodes::Libgrapheme::Make()) {
-        return unicode;
-    }
-#endif
-#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
-    if (auto unicode = SkUnicodes::ICU4X::Make()) {
-        return unicode;
-    }
-#endif
-    return nullptr;
-}
-#endif
 }  // namespace
 
 void RunHandler::beginLine() {
@@ -302,10 +278,10 @@ ShapeResult SkPlainTextEditor::Shape(const char* utf8Text,
     }
     std::unique_ptr<SkShaper> shaper = nullptr;
 #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
-    auto unicode = get_unicode();
-    shaper = SkShapers::HB::ShaperDrivenWrapper(unicode, fontMgr);
+    auto unicode = SkUnicode::Make();
+    shaper = SkShapers::HB::ShaperDrivenWrapper(std::move(unicode), fontMgr);
 #else
-    shaper = SkShapers::Primitive::PrimitiveText();
+    shaper = SkShapers::Primitive();
 #endif
     SkASSERT(shaper);
 
@@ -321,8 +297,9 @@ ShapeResult SkPlainTextEditor::Shape(const char* utf8Text,
         static constexpr uint8_t kBidiLevelLTR = 0;
         std::unique_ptr<SkShaper::BiDiRunIterator> bidi = nullptr;
 #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+        auto unicode2 = SkUnicode::Make();
         bidi = SkShapers::unicode::BidiRunIterator(
-                unicode, utf8Text, textByteLen, kBidiLevelLTR);
+                unicode2.get(), utf8Text, textByteLen, kBidiLevelLTR);
 #endif
         if (!bidi) {
             bidi = std::make_unique<SkShaper::TrivialBiDiRunIterator>(kBidiLevelLTR, textByteLen);
@@ -334,7 +311,7 @@ ShapeResult SkPlainTextEditor::Shape(const char* utf8Text,
         SkASSERT(language);
 
         std::unique_ptr<SkShaper::ScriptRunIterator> script =
-                SkShaper::MakeScriptRunIterator(utf8Text, textByteLen, SkSetFourByteTag('Z','z','z','z'));
+                SkShapers::HB::ScriptRunIterator(utf8Text, textByteLen);
         SkASSERT(script);
 
         std::unique_ptr<SkShaper::FontRunIterator> fontRuns =

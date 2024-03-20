@@ -14,7 +14,6 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "modules/skunicode/include/SkUnicode_icu4x.h"
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkUTF.h"
@@ -64,6 +63,10 @@ public:
     }
 
     ~SkUnicode_icu4x() override = default;
+
+    std::unique_ptr<SkUnicode> copy() override {
+        return std::make_unique<SkUnicode_icu4x>();
+    }
 
     void reset();
 
@@ -411,8 +414,6 @@ std::unique_ptr<SkBreakIterator> SkUnicode_icu4x::makeBreakIterator(BreakType br
     SkASSERT(false); return nullptr;
 }
 
-namespace SkUnicodes::ICU4X {
-sk_sp<SkUnicode> Make() {
-    return sk_make_sp<SkUnicode_icu4x>();
-}
+std::unique_ptr<SkUnicode> SkUnicode::MakeIcu4xBasedUnicode() {
+    return std::make_unique<SkUnicode_icu4x>();
 }

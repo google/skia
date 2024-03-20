@@ -29,6 +29,10 @@ public:
 
     ~SkUnicode_libgrapheme() override = default;
 
+    std::unique_ptr<SkUnicode> copy() override {
+        return std::make_unique<SkUnicode_libgrapheme>();
+    }
+
     // For SkShaper
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[], int count,
                                                      SkBidiIterator::Direction dir) override;
@@ -289,9 +293,6 @@ std::unique_ptr<SkBreakIterator> SkUnicode_libgrapheme::makeBreakIterator(const 
 std::unique_ptr<SkBreakIterator> SkUnicode_libgrapheme::makeBreakIterator(BreakType breakType) {
     return std::make_unique<SkBreakIterator_libgrapheme>(this);
 }
-
-namespace SkUnicodes::Libgrapheme {
-sk_sp<SkUnicode> Make() {
-    return sk_make_sp<SkUnicode_libgrapheme>();
-}
+std::unique_ptr<SkUnicode> SkUnicode::MakeLibgraphemeBasedUnicode() {
+    return std::make_unique<SkUnicode_libgrapheme>();
 }

@@ -22,7 +22,6 @@ if (skia_enable_svg && skia_use_expat) {
       "../..:skia",
       "../skresources",
       "../skshaper",
-      "../skunicode",
     ]
   }
 

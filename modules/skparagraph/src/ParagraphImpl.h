@@ -94,14 +94,14 @@ public:
                   skia_private::TArray<Block, true> blocks,
                   skia_private::TArray<Placeholder, true> placeholders,
                   sk_sp<FontCollection> fonts,
-                  sk_sp<SkUnicode> unicode);
+                  std::shared_ptr<SkUnicode> unicode);
 
     ParagraphImpl(const std::u16string& utf16text,
                   ParagraphStyle style,
                   skia_private::TArray<Block, true> blocks,
                   skia_private::TArray<Placeholder, true> placeholders,
                   sk_sp<FontCollection> fonts,
-                  sk_sp<SkUnicode> unicode);
+                  std::shared_ptr<SkUnicode> unicode);
 
     ~ParagraphImpl() override;
 
@@ -244,7 +244,7 @@ public:
         return (fCodeUnitProperties[index] & property) == property;
     }
 
-    sk_sp<SkUnicode> getUnicode() { return fUnicode; }
+    SkUnicode* getUnicode() { return fUnicode.get(); }
 
 private:
     friend class ParagraphBuilder;
@@ -296,7 +296,7 @@ private:
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
 
-    sk_sp<SkUnicode> fUnicode;
+    std::shared_ptr<SkUnicode> fUnicode;
     bool fHasLineBreaks;
     bool fHasWhitespacesInside;
     TextIndex fTrailingSpaces;

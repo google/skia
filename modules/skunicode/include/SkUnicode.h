@@ -6,19 +6,18 @@
  */
 #ifndef SkUnicode_DEFINED
 #define SkUnicode_DEFINED
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkUTF.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
-namespace sknonstd { template <typename T> struct is_bitmask_enum; }
 
 #if !defined(SKUNICODE_IMPLEMENTATION)
     #define SKUNICODE_IMPLEMENTATION 0
@@ -39,6 +38,10 @@ namespace sknonstd { template <typename T> struct is_bitmask_enum; }
         #define SKUNICODE_API
     #endif
 #endif
+
+namespace sknonstd {
+template <typename T> struct is_bitmask_enum;
+}
 
 class SKUNICODE_API SkBidiIterator {
 public:
@@ -74,7 +77,7 @@ public:
     virtual bool setText(const char16_t utftext16[], int utf16Units) = 0;
 };
 
-class SKUNICODE_API SkUnicode : public SkRefCnt {
+class SKUNICODE_API SkUnicode {
     public:
         enum CodeUnitFlags {
             kNoCodeUnitFlag = 0x00,
@@ -117,7 +120,7 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
             LineBreakType breakType;
         };
 
-        ~SkUnicode() override = default;
+        virtual ~SkUnicode() = default;
 
         // deprecated
         virtual SkString toUpper(const SkString&) = 0;
@@ -298,6 +301,22 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
         }
 
         virtual void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) = 0;
+
+        virtual std::unique_ptr<SkUnicode> copy() = 0;
+
+        static std::unique_ptr<SkUnicode> Make();
+
+        static std::unique_ptr<SkUnicode> MakeIcuBasedUnicode();
+
+        static std::unique_ptr<SkUnicode> MakeClientBasedUnicode(
+                SkSpan<char> text,
+                std::vector<SkUnicode::Position> words,
+                std::vector<SkUnicode::Position> graphemeBreaks,
+                std::vector<SkUnicode::LineBreakBefore> lineBreaks);
+
+        static std::unique_ptr<SkUnicode> MakeLibgraphemeBasedUnicode();
+
+        static std::unique_ptr<SkUnicode> MakeIcu4xBasedUnicode();
 };
 
 namespace sknonstd {
