@@ -19,8 +19,8 @@ use std::pin::Pin;
 use crate::bitmap::{bitmap_glyph, bitmap_metrics, has_bitmap_glyph, png_data, BridgeBitmapGlyph};
 
 use crate::ffi::{
-    AxisWrapper, BridgeFontStyle, BridgeScalerMetrics, ColorPainterWrapper, ColorStop,
-    PaletteOverride, PathWrapper, SkiaDesignCoordinate,
+    AxisWrapper, BridgeFontStyle, BridgeLocalizedName, BridgeScalerMetrics, ClipBox,
+    ColorPainterWrapper, ColorStop, PaletteOverride, PathWrapper, SkiaDesignCoordinate,
 };
 
 fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16 {
@@ -167,10 +167,10 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
                     &FillRadialParams {
                         x0: c0.x,
                         y0: c0.y,
-                        r0: r0,
+                        r0,
                         x1: c1.x,
                         y1: c1.y,
-                        r1: r1,
+                        r1,
                     },
                     &mut bridge_color_stops,
                     extend as u8,
@@ -266,10 +266,10 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
                     &FillRadialParams {
                         x0: c0.x,
                         y0: c0.y,
-                        r0: r0,
+                        r0,
                         x1: c1.x,
                         y1: c1.y,
-                        r1: r1,
+                        r1,
                     },
                     &mut bridge_color_stops,
                     extend as u8,
@@ -334,9 +334,7 @@ fn get_path(
             let glyph = outlines.get(GlyphId::new(glyph_id))?;
             let draw_settings = DrawSettings::unhinted(Size::new(size), &coords.normalized_coords);
 
-            let mut pen_dump = PathWrapperPen {
-                path_wrapper: path_wrapper,
-            };
+            let mut pen_dump = PathWrapperPen { path_wrapper };
             match glyph.draw(draw_settings, &mut pen_dump) {
                 Err(_) => None,
                 Ok(metrics) => {
@@ -415,8 +413,6 @@ fn get_localized_strings<'a>(font_ref: &'a BridgeFontRef<'a>) -> Box<BridgeLocal
             .unwrap_or_default(),
     })
 }
-
-use crate::ffi::BridgeLocalizedName;
 
 fn localized_name_next(
     bridge_localized_strings: &mut BridgeLocalizedStrings,
@@ -514,8 +510,6 @@ fn has_colrv1_glyph(font_ref: &BridgeFontRef, glyph_id: u16) -> bool {
 fn has_colrv0_glyph(font_ref: &BridgeFontRef, glyph_id: u16) -> bool {
     has_colr_glyph(font_ref, ColorGlyphFormat::ColrV0, glyph_id)
 }
-
-use crate::ffi::ClipBox;
 
 fn get_colrv1_clip_box(
     font_ref: &BridgeFontRef,
@@ -715,7 +709,7 @@ fn resolve_into_normalized_coords(
     Box::new(bridge_normalized_coords)
 }
 
-fn normalized_coords_equal(a : &BridgeNormalizedCoords, b: &BridgeNormalizedCoords) -> bool {
+fn normalized_coords_equal(a: &BridgeNormalizedCoords, b: &BridgeNormalizedCoords) -> bool {
     a.normalized_coords.coords() == b.normalized_coords.coords()
 }
 
@@ -743,14 +737,14 @@ fn next_color_stop(color_stops: &mut BridgeColorStops, out_stop: &mut ColorStop)
         out_stop.alpha = color_stop.alpha;
         out_stop.stop = color_stop.offset;
         out_stop.palette_index = color_stop.palette_index;
-        return true;
+        true
     } else {
-        return false;
+        false
     }
 }
 
 fn num_color_stops(color_stops: &BridgeColorStops) -> usize {
-    return color_stops.num_stops;
+    color_stops.num_stops
 }
 
 fn get_font_style(font_ref: &BridgeFontRef, style: &mut BridgeFontStyle) -> bool {
@@ -759,9 +753,9 @@ fn get_font_style(font_ref: &BridgeFontRef, style: &mut BridgeFontStyle) -> bool
             let attrs = f.attributes();
             let skia_weight = attrs.weight.value().round() as i32;
             let skia_slant = match attrs.style {
-                x if x == Style::Normal => 0,
-                x if x == Style::Italic => 1,
-                        _ /* kOblique_Slant */=> 2
+                Style::Normal => 0,
+                Style::Italic => 1,
+                _ => 2, /* kOblique_Slant */
             };
             // Match back the skrifa values to get the system values (more or less)
             let skia_width = match (attrs.stretch.ratio() * 1000.0).round() as i32 {
@@ -835,7 +829,7 @@ fn is_serif_style(font_ref: &BridgeFontRef) -> bool {
             match family_type {
                 FAMILY_TYPE_TEXT_AND_DISPLAY => {
                     let serif_style = panose[1];
-                    Some(serif_style >= SERIF_STYLE_COVE && serif_style <= SERIF_STYLE_TRIANGLE)
+                    Some((SERIF_STYLE_COVE..=SERIF_STYLE_TRIANGLE).contains(&serif_style))
                 }
                 _ => None,
             }
@@ -1157,6 +1151,7 @@ mod ffi {
     }
 
     // This type is used to mirror SkFontStyle values for Weight, Slant and Width
+    #[derive(Default)]
     pub struct BridgeFontStyle {
         pub weight: i32,
         pub slant: i32,
@@ -1284,7 +1279,7 @@ mod ffi {
             design_coords: &[SkiaDesignCoordinate],
         ) -> Box<BridgeNormalizedCoords>;
 
-        fn normalized_coords_equal(a : &BridgeNormalizedCoords, b: &BridgeNormalizedCoords) -> bool;
+        fn normalized_coords_equal(a: &BridgeNormalizedCoords, b: &BridgeNormalizedCoords) -> bool;
 
         fn draw_colr_glyph(
             font_ref: &BridgeFontRef,
@@ -1415,16 +1410,6 @@ mod ffi {
         fn push_layer(self: Pin<&mut ColorPainterWrapper>, colrv1_composite_mode: u8);
         fn pop_layer(self: Pin<&mut ColorPainterWrapper>);
 
-    }
-}
-
-impl Default for BridgeFontStyle {
-    fn default() -> Self {
-        Self {
-            weight: 0,
-            slant: 0,
-            width: 0,
-        }
     }
 }
 
