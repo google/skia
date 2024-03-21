@@ -27,7 +27,7 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithLocalMatrix() {
         return sk_ref_sp(this);
     }
 
-    return PrecompileShaders::LocalMatrix(sk_ref_sp(this));
+    return PrecompileShaders::LocalMatrix({ sk_ref_sp(this) });
 }
 
 sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(sk_sp<PrecompileColorFilter> cf) {
@@ -35,7 +35,7 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(sk_sp<PrecompileCo
         return sk_ref_sp(this);
     }
 
-    return PrecompileShaders::ColorFilter(sk_ref_sp(this), std::move(cf));
+    return PrecompileShaders::ColorFilter({ sk_ref_sp(this) }, { std::move(cf) });
 }
 
 sk_sp<PrecompileColorFilter> PrecompileColorFilter::makeComposed(

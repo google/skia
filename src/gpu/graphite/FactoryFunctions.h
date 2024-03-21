@@ -25,9 +25,8 @@ class PrecompileShader;
 // All of these factory functions will be moved elsewhere once the pre-compile API becomes public
 
 //--------------------------------------------------------------------------------------------------
-// This will move to be beside SkShaders in include/core/SkShader.h
 namespace PrecompileShaders {
-    // This block of six matches the SkShaders factories in include/core/SkShader.h
+    // --- This block of six matches the SkShaders factories in include/core/SkShader.h
     SK_API sk_sp<PrecompileShader> Empty();
     SK_API sk_sp<PrecompileShader> Color();
     SK_API sk_sp<PrecompileShader> Color(sk_sp<SkColorSpace>);
@@ -39,10 +38,11 @@ namespace PrecompileShaders {
                                          SkSpan<const sk_sp<PrecompileShader>> srcs);
     SK_API sk_sp<PrecompileShader> CoordClamp(SkSpan<const sk_sp<PrecompileShader>>);
 
-    // This block of two matches the SkShaders factories in include/effects/SkPerlinNoiseShader.h
+    // --- This block of two matches the SkShaders factories in include/effects/SkPerlinNoiseShader.h
     SK_API sk_sp<PrecompileShader> MakeFractalNoise();
     SK_API sk_sp<PrecompileShader> MakeTurbulence();
 
+    // --- This block of two matches the SkShaders factories in include/core/SkImage.h
     // In the normal Skia API ImageShaders are usually created via a SkImage::makeShader call.
     // Since the SkImage used to create the ImageShader is unlikely to be present at precompilation
     // time this entry point allows the equivalent precompilation program structure to be created.
@@ -52,6 +52,7 @@ namespace PrecompileShaders {
     // program structure to be created without needing the SkImage.
     SK_API sk_sp<PrecompileShader> RawImage();
 
+    // ??
     SK_API sk_sp<PrecompileShader> YUVImage();
 
     // TODO: make SkGradientShader match this convention (skbug.com/13438)
@@ -61,7 +62,7 @@ namespace PrecompileShaders {
     SK_API sk_sp<PrecompileShader> TwoPointConicalGradient();
     SK_API sk_sp<PrecompileShader> SweepGradient();
 
-    // Normally SkPicture shaders are only created via SkPicture::makeShader. Since the
+    // Normally, SkPicture shaders are only created via SkPicture::makeShader. Since the
     // SkPicture to be drawn, most likely, won't be available at precompilation time, this
     // entry point can be used to create a precompilation equivalent.
     // Note: this will precompile the program that draws the SkPicture. It, obviously, won't
@@ -75,13 +76,22 @@ namespace PrecompileShaders {
     // though.
     SK_API sk_sp<PrecompileShader> Picture();
 
-    // TODO: hide these? The issue here is that, in the main Skia API, these are only accessed
-    // via makeWithLocalMatrix and makeWithColorFilter. However, in the combination API, clients
-    // may want to create a set of these (i.e., pass SkSpans to the factory functions vs
-    // just single options).
-    SK_API sk_sp<PrecompileShader> LocalMatrix(sk_sp<PrecompileShader> wrapped);
-    SK_API sk_sp<PrecompileShader> ColorFilter(sk_sp<PrecompileShader>,
-                                               sk_sp<PrecompileColorFilter>);
+    // Normally, LocalMatrixShaders are only created via SkShader::makeWithLocalMatrix.
+    // However, in the combination API, clients may want to create a set of precompile
+    // LocalMatrixShaders (i.e., pass an SkSpan to the factory function vs just creating a
+    // single option). This entry point allows that use case.
+    // Note: PrecompileShader::makeWithLocalMatrix() can still be used and works as expected.
+    SK_API sk_sp<PrecompileShader> LocalMatrix(SkSpan<const sk_sp<PrecompileShader>> wrapped);
+
+    // Normally, ColorFilterShaders are only created via SkShader::makeWithColorFilter.
+    // However, in the combination API, clients may want to create a set of precompile
+    // ColorFilterShaders (i.e., pass SkSpans to the factory function vs just creating a
+    // single option). This entry point allows that use case.
+    // Note: PrecompileShader::makeWithColorFilter can still be used and works as expected.
+    SK_API sk_sp<PrecompileShader> ColorFilter(
+            SkSpan<const sk_sp<PrecompileShader>> shaders,
+            SkSpan<const sk_sp<PrecompileColorFilter>> colorFilters);
+
 } // namespace PrecompileShaders
 
 //--------------------------------------------------------------------------------------------------
