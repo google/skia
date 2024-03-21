@@ -35,6 +35,19 @@ fn num_glyphs(font_ref: &BridgeFontRef) -> u16 {
         .unwrap_or_default()
 }
 
+fn fill_glyph_to_unicode_map(font_ref: &BridgeFontRef, map: &mut [u32]) {
+    map.fill(0);
+    font_ref.with_font(|f| {
+        let mappings = f.charmap().mappings();
+        for item in mappings {
+            if map[item.1.to_u16() as usize] == 0 {
+                map[item.1.to_u16() as usize] = item.0;
+            }
+        }
+        Some(())
+    });
+}
+
 struct PathWrapperPen<'a> {
     path_wrapper: Pin<&'a mut ffi::PathWrapper>,
 }
@@ -1213,6 +1226,7 @@ mod ffi {
             coords: &BridgeNormalizedCoords,
         ) -> Metrics;
         fn num_glyphs(font_ref: &BridgeFontRef) -> u16;
+        fn fill_glyph_to_unicode_map(font_ref: &BridgeFontRef, map: &mut [u32]);
         fn family_name(font_ref: &BridgeFontRef) -> String;
         fn postscript_name(font_ref: &BridgeFontRef, out_string: &mut String) -> bool;
 
