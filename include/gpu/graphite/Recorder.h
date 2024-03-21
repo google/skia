@@ -50,7 +50,7 @@ class ResourceProvider;
 class RuntimeEffectDictionary;
 class SharedContext;
 class Task;
-class TaskGraph;
+class TaskList;
 class TextureDataBlock;
 class TextureInfo;
 class UniformDataBlock;
@@ -220,7 +220,7 @@ private:
     std::unique_ptr<ResourceProvider> fResourceProvider;
     std::unique_ptr<RuntimeEffectDictionary> fRuntimeEffectDict;
 
-    std::unique_ptr<TaskGraph> fGraph;
+    std::unique_ptr<TaskList> fRootTaskList;
     std::unique_ptr<UniformDataCache> fUniformDataCache;
     std::unique_ptr<TextureDataCache> fTextureDataCache;
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;

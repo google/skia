@@ -25,7 +25,7 @@ class CommandBuffer;
 class RecordingPriv;
 class Resource;
 class ResourceProvider;
-class TaskGraph;
+class TaskList;
 class Texture;
 class TextureInfo;
 class TextureProxy;
@@ -62,7 +62,7 @@ private:
 
     Recording(uint32_t uniqueID,
               uint32_t recorderID,
-              std::unique_ptr<TaskGraph>,
+              std::unique_ptr<TaskList>,
               std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& nonVolatileLazyProxies,
               std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& volatileLazyProxies,
               std::unique_ptr<LazyProxyData> targetProxyData,
@@ -75,7 +75,7 @@ private:
     uint32_t fUniqueID;
     uint32_t fRecorderID;
 
-    std::unique_ptr<TaskGraph> fGraph;
+    std::unique_ptr<TaskList> fRootTaskList;
     // We don't always take refs to all resources used by specific Tasks (e.g. a common buffer used
     // for uploads). Instead we'll just hold onto one ref for those Resources outside the Tasks.
     // Those refs are stored in the array here and will eventually be passed onto a CommandBuffer

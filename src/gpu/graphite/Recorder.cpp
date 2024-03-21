@@ -40,7 +40,7 @@
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
 #include "src/gpu/graphite/task/CopyTask.h"
-#include "src/gpu/graphite/task/TaskGraph.h"
+#include "src/gpu/graphite/task/TaskList.h"
 #include "src/gpu/graphite/task/UploadTask.h"
 #include "src/gpu/graphite/text/TextAtlasManager.h"
 #include "src/image/SkImage_Base.h"
@@ -92,7 +92,7 @@ static uint32_t next_id() {
 Recorder::Recorder(sk_sp<SharedContext> sharedContext, const RecorderOptions& options)
         : fSharedContext(std::move(sharedContext))
         , fRuntimeEffectDict(std::make_unique<RuntimeEffectDictionary>())
-        , fGraph(new TaskGraph)
+        , fRootTaskList(new TaskList)
         , fUniformDataCache(new UniformDataCache)
         , fTextureDataCache(new TextureDataCache)
         , fUniqueID(next_id())
@@ -162,7 +162,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     // TODO: fulfill all promise images in the TextureDataCache here
     // TODO: create all the samplers needed in the TextureDataCache here
 
-    if (!fGraph->prepareResources(fResourceProvider.get(), fRuntimeEffectDict.get())) {
+    if (!fRootTaskList->prepareResources(fResourceProvider.get(), fRuntimeEffectDict.get())) {
         // Leaving 'fTrackedDevices' alone since they were flushed earlier and could still be
         // attached to extant SkSurfaces.
         fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider.get(),
@@ -170,7 +170,7 @@ std::unique_ptr<Recording> Recorder::snap() {
                                                                  fUploadBufferManager.get());
         fTextureDataCache = std::make_unique<TextureDataCache>();
         fUniformDataCache = std::make_unique<UniformDataCache>();
-        fGraph->reset();
+        fRootTaskList->reset();
         fRuntimeEffectDict->reset();
         return nullptr;
     }
@@ -183,7 +183,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     }
     std::unique_ptr<Recording> recording(new Recording(fNextRecordingID++,
                                                        fUniqueID,
-                                                       std::move(fGraph),
+                                                       std::move(fRootTaskList),
                                                        std::move(nonVolatileLazyProxies),
                                                        std::move(volatileLazyProxies),
                                                        std::move(targetProxyData),
@@ -192,7 +192,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     fDrawBufferManager->transferToRecording(recording.get());
     fUploadBufferManager->transferToRecording(recording.get());
 
-    fGraph = std::make_unique<TaskGraph>();
+    fRootTaskList = std::make_unique<TaskList>();
     fRuntimeEffectDict->reset();
     fTextureDataCache = std::make_unique<TextureDataCache>();
     fUniformDataCache = std::make_unique<UniformDataCache>();
@@ -402,7 +402,7 @@ void Recorder::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
 
 void RecorderPriv::add(sk_sp<Task> task) {
     ASSERT_SINGLE_OWNER_PRIV
-    fRecorder->fGraph->add(std::move(task));
+    fRecorder->fRootTaskList->add(std::move(task));
 }
 
 void RecorderPriv::flushTrackedDevices() {
