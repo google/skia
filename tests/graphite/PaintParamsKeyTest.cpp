@@ -410,9 +410,10 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_localmatrix_shader(Sk
         return { nullptr, nullptr };
     }
 
-    SkMatrix tmp = SkMatrix::Scale(1.5f, 2.0f); // TODO: fuzz
+    SkMatrix lmStorage;
+    random_local_matrix(rand, &lmStorage);
 
-    return { s->makeWithLocalMatrix(tmp), o->makeWithLocalMatrix() };
+    return { s->makeWithLocalMatrix(lmStorage), o->makeWithLocalMatrix() };
 }
 
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_colorfilter_shader(SkRandom* rand,
