@@ -116,7 +116,7 @@ class PrecompileShader : public PrecompileBase {
 public:
     PrecompileShader() : PrecompileBase(Type::kShader) {}
 
-    virtual bool isConstant() const { return false; }
+    virtual bool isConstant(int desiredCombination) const { return false; }
 
     sk_sp<PrecompileShader> makeWithLocalMatrix();
 

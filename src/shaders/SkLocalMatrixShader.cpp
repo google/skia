@@ -13,6 +13,10 @@ class SkImage;
 enum class SkTileMode;
 struct SkStageRec;
 
+bool SkLocalMatrixShader::isConstant() const {
+    return as_SB(fWrappedShader)->isConstant();
+}
+
 SkShaderBase::GradientType SkLocalMatrixShader::asGradient(GradientInfo* info,
                                                            SkMatrix* localMatrix) const {
     GradientType type = as_SB(fWrappedShader)->asGradient(info, localMatrix);
@@ -63,6 +67,10 @@ bool SkLocalMatrixShader::appendStages(const SkStageRec& rec,
 
 SkCTMShader::SkCTMShader(sk_sp<SkShader> proxy, const SkMatrix& ctm)
         : fProxyShader(std::move(proxy)), fCTM(ctm) {}
+
+bool SkCTMShader::isConstant() const {
+    return as_SB(fProxyShader)->isConstant();
+}
 
 SkShaderBase::GradientType SkCTMShader::asGradient(GradientInfo* info,
                                                    SkMatrix* localMatrix) const {
