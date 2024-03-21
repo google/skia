@@ -36,6 +36,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cinttypes>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -96,7 +97,8 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
     // Some back-ends (GDI) don't support width, ensure these always report 'normal'.
     REPORTER_ASSERT(
             reporter,
-            newStyle.width() == width || newStyle.width() == SkFontStyle::Width::kNormal_Width);
+            newStyle.width() == width || newStyle.width() == SkFontStyle::Width::kNormal_Width,
+            "newStyle.width(): %d width: %" PRIu16, newStyle.width(), width);
 }
 DEF_TEST(TypefaceStyle, reporter) {
     std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("fonts/Em.ttf"));
@@ -335,7 +337,8 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
         return;
     }
     REPORTER_ASSERT(reporter, positionRead[0].axis == SkSetFourByteTag('w','g','h','t'));
-    REPORTER_ASSERT(reporter, positionRead[0].value == 0.5);
+    REPORTER_ASSERT(reporter, positionRead[0].value == 0.5,
+                    "positionRead[0].value: %f", positionRead[0].value);
 }
 
 DEF_TEST(Typeface, reporter) {

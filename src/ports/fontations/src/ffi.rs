@@ -757,17 +757,16 @@ fn get_font_style(font_ref: &BridgeFontRef, style: &mut BridgeFontStyle) -> bool
                 Style::Italic => 1,
                 _ => 2, /* kOblique_Slant */
             };
-            // Match back the skrifa values to get the system values (more or less)
-            let skia_width = match (attrs.stretch.ratio() * 1000.0).round() as i32 {
-                x if x <= 500 => 1,
-                x if x <= 625 => 2,
-                x if x <= 725 => 3,
-                x if x <= 875 => 4,
-                x if x <= 1000 => 5,
-                x if x <= 1125 => 6,
-                x if x <= 1250 => 7,
-                x if x <= 1500 => 8,
-                x if x <= 2000 => 9,
+            //1-9 map to 0.5, 0.625, 0.75, 0.875, 1.0, 1.125, 1.25, 1.5, 2.0
+            let skia_width = match attrs.stretch.ratio() {
+                x if x <= 0.5625 => 1,
+                x if x <= 0.6875 => 2,
+                x if x <= 0.8125 => 3,
+                x if x <= 0.9375 => 4,
+                x if x <= 1.0625 => 5,
+                x if x <= 1.1875 => 6,
+                x if x <= 1.3750 => 7,
+                x if x <= 1.7500 => 8,
                 _ => 9,
             };
 
