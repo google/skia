@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_UploadTask_DEFINED
-#define skgpu_graphite_UploadTask_DEFINED
+#ifndef skgpu_graphite_task_UploadTask_DEFINED
+#define skgpu_graphite_task_UploadTask_DEFINED
 
-#include "src/gpu/graphite/Task.h"
+#include "src/gpu/graphite/task/Task.h"
 
 #include <memory>
 #include <vector>
@@ -156,4 +156,4 @@ private:
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_UploadTask_DEFINED
+#endif // skgpu_graphite_task_UploadTask_DEFINED

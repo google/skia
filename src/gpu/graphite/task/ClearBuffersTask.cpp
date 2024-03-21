@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/ClearBuffersTask.h"
+#include "src/gpu/graphite/task/ClearBuffersTask.h"
 
 #include "src/gpu/graphite/CommandBuffer.h"
 

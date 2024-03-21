@@ -17,7 +17,7 @@
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawTypes.h"
-#include "src/gpu/graphite/UploadTask.h"
+#include "src/gpu/graphite/task/UploadTask.h"
 
 #include <vector>
 

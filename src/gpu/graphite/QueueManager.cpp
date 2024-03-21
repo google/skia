@@ -18,8 +18,8 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
-#include "src/gpu/graphite/Task.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/task/Task.h"
 
 namespace skgpu::graphite {
 

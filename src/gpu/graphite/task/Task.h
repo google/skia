@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_Task_DEFINED
-#define skgpu_graphite_Task_DEFINED
+#ifndef skgpu_graphite_task_Task_DEFINED
+#define skgpu_graphite_task_Task_DEFINED
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
@@ -44,4 +44,4 @@ private:
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_Task_DEFINED
+#endif // skgpu_graphite_task_Task_DEFINED

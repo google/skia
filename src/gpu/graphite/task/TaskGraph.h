@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_TaskGraph_DEFINED
-#define skgpu_graphite_TaskGraph_DEFINED
+#ifndef skgpu_graphite_task_TaskGraph_DEFINED
+#define skgpu_graphite_task_TaskGraph_DEFINED
 
 #include <vector>
-#include "src/gpu/graphite/Task.h"
+#include "src/gpu/graphite/task/Task.h"
 
 namespace skgpu::graphite {
 class CommandBuffer;
@@ -39,4 +39,4 @@ private:
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_TaskGraph_DEFINED
+#endif // skgpu_graphite_task_TaskGraph_DEFINED

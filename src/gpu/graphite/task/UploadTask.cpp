@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/UploadTask.h"
+#include "src/gpu/graphite/task/UploadTask.h"
 
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"

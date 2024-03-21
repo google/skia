@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_SynchronizeToCpuTask_DEFINED
-#define skgpu_graphite_SynchronizeToCpuTask_DEFINED
+#ifndef skgpu_graphite_task_SynchronizeToCpuTask_DEFINED
+#define skgpu_graphite_task_SynchronizeToCpuTask_DEFINED
 
 #include "src/gpu/graphite/Buffer.h"
-#include "src/gpu/graphite/Task.h"
+#include "src/gpu/graphite/task/Task.h"
 
 namespace skgpu::graphite {
 

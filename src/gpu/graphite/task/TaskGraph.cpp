@@ -6,7 +6,7 @@
  */
 
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/graphite/TaskGraph.h"
+#include "src/gpu/graphite/task/TaskGraph.h"
 
 namespace skgpu::graphite {
 

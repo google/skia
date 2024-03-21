@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_RenderPassTask_DEFINED
-#define skgpu_graphite_RenderPassTask_DEFINED
+#ifndef skgpu_graphite_task_RenderPassTask_DEFINED
+#define skgpu_graphite_task_RenderPassTask_DEFINED
 
 #include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/Task.h"
+#include "src/gpu/graphite/task/Task.h"
 
 namespace skgpu::graphite {
 
@@ -46,4 +46,4 @@ private:
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_RenderPassTask_DEFINED
+#endif // skgpu_graphite_task_RenderPassTask_DEFINED

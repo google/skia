@@ -10,15 +10,15 @@
 #include "include/gpu/graphite/Recording.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/ClearBuffersTask.h"
 #include "src/gpu/graphite/ContextPriv.h"
-#include "src/gpu/graphite/CopyTask.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/task/ClearBuffersTask.h"
+#include "src/gpu/graphite/task/CopyTask.h"
 
 namespace skgpu::graphite {
 

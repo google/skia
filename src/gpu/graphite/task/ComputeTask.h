@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_ComputeTask_DEFINED
-#define skgpu_graphite_ComputeTask_DEFINED
+#ifndef skgpu_graphite_task_ComputeTask_DEFINED
+#define skgpu_graphite_task_ComputeTask_DEFINED
 
 #include "include/private/base/SkTArray.h"
-#include "src/gpu/graphite/Task.h"
+#include "src/gpu/graphite/task/Task.h"
 
 #include <memory>
 
@@ -41,4 +41,4 @@ private:
 
 }  // namespace skgpu::graphite
 
-#endif  // skgpu_graphite_ComputeTask_DEFINED
+#endif  // skgpu_graphite_task_ComputeTask_DEFINED

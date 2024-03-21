@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_CopyTask_DEFINED
-#define skgpu_graphite_CopyTask_DEFINED
+#ifndef skgpu_graphite_task_CopyTask_DEFINED
+#define skgpu_graphite_task_CopyTask_DEFINED
 
-#include "src/gpu/graphite/Task.h"
+#include "src/gpu/graphite/task/Task.h"
 
 #include "include/core/SkRect.h"
 
@@ -107,4 +107,4 @@ private:
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_CopyTask_DEFINED
+#endif // skgpu_graphite_task_CopyTask_DEFINED
