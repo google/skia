@@ -445,7 +445,7 @@ private:
         fVerbs.resize_back(verbCount);
 
         fConicWeights.reserve_exact(conicCount + reserveConics);
-        fVerbs.resize_back(conicCount);
+        fConicWeights.resize_back(conicCount);
         SkDEBUGCODE(this->validate();)
     }
 
