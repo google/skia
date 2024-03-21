@@ -92,6 +92,14 @@ namespace PrecompileShaders {
             SkSpan<const sk_sp<PrecompileShader>> shaders,
             SkSpan<const sk_sp<PrecompileColorFilter>> colorFilters);
 
+    // Normally, WorkingColorSpaceShaders are only created via SkShader::makeWithWorkingColorSpace.
+    // However, in the combination API, clients may want to create a set of precompile
+    // WorkingColorSpaceShaders (i.e., pass SkSpans to the factory function vs just creating a
+    // single option). This entry point allows that use case.
+    // Note: PrecompileShader::makeWithWorkingColorSpace can still be used and works as expected.
+    SK_API sk_sp<PrecompileShader> WorkingColorSpace(SkSpan<const sk_sp<PrecompileShader>> shaders,
+                                                     SkSpan<const sk_sp<SkColorSpace>> colorSpaces);
+
 } // namespace PrecompileShaders
 
 //--------------------------------------------------------------------------------------------------

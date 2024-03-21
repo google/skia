@@ -121,6 +121,8 @@ public:
     sk_sp<PrecompileShader> makeWithLocalMatrix();
 
     sk_sp<PrecompileShader> makeWithColorFilter(sk_sp<PrecompileColorFilter>);
+
+    sk_sp<PrecompileShader> makeWithWorkingColorSpace(sk_sp<SkColorSpace>);
 };
 
 class PrecompileMaskFilter : public PrecompileBase {

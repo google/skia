@@ -675,6 +675,67 @@ sk_sp<PrecompileShader> PrecompileShaders::ColorFilter(
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileWorkingColorSpaceShader : public PrecompileShader {
+public:
+    PrecompileWorkingColorSpaceShader(SkSpan<const sk_sp<PrecompileShader>> shaders,
+                                      SkSpan<const sk_sp<SkColorSpace>> colorSpaces)
+            : fShaders(shaders.begin(), shaders.end())
+            , fColorSpaces(colorSpaces.begin(), colorSpaces.end()) {
+        fNumShaderCombos = 0;
+        for (const auto& s : fShaders) {
+            fNumShaderCombos += s->numCombinations();
+        }
+    }
+
+private:
+    int numChildCombinations() const override { return fNumShaderCombos * fColorSpaces.size(); }
+
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination < this->numCombinations());
+
+        int desiredShaderCombination = desiredCombination % fNumShaderCombos;
+        int desiredColorSpaceCombination = desiredCombination / fNumShaderCombos;
+        SkASSERT(desiredColorSpaceCombination < (int) fColorSpaces.size());
+
+        const SkColorInfo& dstInfo = keyContext.dstColorInfo();
+        const SkAlphaType dstAT = dstInfo.alphaType();
+        sk_sp<SkColorSpace> dstCS = dstInfo.refColorSpace();
+        if (!dstCS) {
+            dstCS = SkColorSpace::MakeSRGB();
+        }
+
+        sk_sp<SkColorSpace> workingCS = fColorSpaces[desiredColorSpaceCombination];
+        SkColorInfo workingInfo(dstInfo.colorType(), dstAT, workingCS);
+        KeyContextWithColorInfo workingContext(keyContext, workingInfo);
+
+        Compose(keyContext, builder, gatherer,
+                /* addInnerToKey= */ [&]() -> void {
+                    AddToKey<PrecompileShader>(keyContext, builder, gatherer, fShaders,
+                                               desiredShaderCombination);
+                },
+                /* addOuterToKey= */ [&]() -> void {
+                    ColorSpaceTransformBlock::ColorSpaceTransformData data(
+                            workingCS.get(), dstAT, dstCS.get(), dstAT);
+                    ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, data);
+                });
+    }
+
+    std::vector<sk_sp<PrecompileShader>> fShaders;
+    std::vector<sk_sp<SkColorSpace>>     fColorSpaces;
+    int fNumShaderCombos;
+};
+
+sk_sp<PrecompileShader> PrecompileShaders::WorkingColorSpace(
+        SkSpan<const sk_sp<PrecompileShader>> shaders,
+        SkSpan<const sk_sp<SkColorSpace>> colorSpaces) {
+    return sk_make_sp<PrecompileWorkingColorSpaceShader>(std::move(shaders),
+                                                         std::move(colorSpaces));
+}
+
+//--------------------------------------------------------------------------------------------------
 class PrecompileBlurMaskFilter : public PrecompileMaskFilter {
 public:
     PrecompileBlurMaskFilter() {}

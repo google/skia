@@ -38,6 +38,14 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(sk_sp<PrecompileCo
     return PrecompileShaders::ColorFilter({ sk_ref_sp(this) }, { std::move(cf) });
 }
 
+sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(sk_sp<SkColorSpace> cs) {
+    if (!cs) {
+        return sk_ref_sp(this);
+    }
+
+    return PrecompileShaders::WorkingColorSpace({ sk_ref_sp(this) }, { std::move(cs) });
+}
+
 sk_sp<PrecompileColorFilter> PrecompileColorFilter::makeComposed(
         sk_sp<PrecompileColorFilter> inner) const {
     if (!inner) {
