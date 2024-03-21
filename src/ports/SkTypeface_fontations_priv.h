@@ -206,6 +206,7 @@ private:
                           const SkFontStyle& style,
                           uint32_t ttcIndex,
                           rust::Box<fontations_ffi::BridgeFontRef>&& fontRef,
+                          rust::Box<fontations_ffi::BridgeMappingIndex>&& mappingIndex,
                           rust::Box<fontations_ffi::BridgeNormalizedCoords>&& normalizedCoords,
                           rust::Box<fontations_ffi::BridgeOutlineCollection>&& outlines,
                           rust::Vec<uint32_t>&& palette);
@@ -256,6 +257,7 @@ private:
     // fBridgeFontRef accesses the data in fFontData. fFontData needs to be kept around for the
     // lifetime of fBridgeFontRef to safely request parsed data.
     rust::Box<fontations_ffi::BridgeFontRef> fBridgeFontRef;
+    rust::Box<fontations_ffi::BridgeMappingIndex> fMappingIndex;
     rust::Box<fontations_ffi::BridgeNormalizedCoords> fBridgeNormalizedCoords;
     rust::Box<fontations_ffi::BridgeOutlineCollection> fOutlines;
     rust::Vec<uint32_t> fPalette;

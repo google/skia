@@ -88,6 +88,7 @@ SkTypeface_Fontations::SkTypeface_Fontations(
         const SkFontStyle& style,
         uint32_t ttcIndex,
         rust::Box<fontations_ffi::BridgeFontRef>&& fontRef,
+        rust::Box<fontations_ffi::BridgeMappingIndex>&& mappingIndex,
         rust::Box<fontations_ffi::BridgeNormalizedCoords>&& normalizedCoords,
         rust::Box<fontations_ffi::BridgeOutlineCollection>&& outlines,
         rust::Vec<uint32_t>&& palette)
@@ -95,6 +96,7 @@ SkTypeface_Fontations::SkTypeface_Fontations(
         , fFontData(std::move(fontData))
         , fTtcIndex(ttcIndex)
         , fBridgeFontRef(std::move(fontRef))
+        , fMappingIndex(std::move(mappingIndex))
         , fBridgeNormalizedCoords(std::move(normalizedCoords))
         , fOutlines(std::move(outlines))
         , fPalette(std::move(palette)) {}
@@ -119,6 +121,8 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
                             fontStyle.width,
                             static_cast<SkFontStyle::Slant>(fontStyle.slant));
     }
+    rust::Box<fontations_ffi::BridgeMappingIndex> mappingIndex =
+            fontations_ffi::make_mapping_index(*bridgeFontRef);
 
     rust::Box<fontations_ffi::BridgeNormalizedCoords> normalizedCoords =
             make_normalized_coords(*bridgeFontRef, args);
@@ -135,6 +139,7 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
                                                        style,
                                                        ttcIndex,
                                                        std::move(bridgeFontRef),
+                                                       std::move(mappingIndex),
                                                        std::move(normalizedCoords),
                                                        std::move(outlines),
                                                        std::move(palette)));
@@ -247,7 +252,7 @@ void SkTypeface_Fontations::onCharsToGlyphs(const SkUnichar* chars,
     sk_bzero(glyphs, count * sizeof(glyphs[0]));
 
     for (int i = 0; i < count; ++i) {
-        glyphs[i] = fontations_ffi::lookup_glyph_or_zero(*fBridgeFontRef, chars[i]);
+        glyphs[i] = fontations_ffi::lookup_glyph_or_zero(*fBridgeFontRef, *fMappingIndex, chars[i]);
     }
 }
 int SkTypeface_Fontations::onCountGlyphs() const {

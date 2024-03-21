@@ -6,6 +6,7 @@ use font_types::{BoundingBox, GlyphId, Pen};
 use read_fonts::{tables::colr::CompositeMode, FileRef, FontRef, ReadError, TableProvider};
 use skrifa::{
     attribute::Style,
+    charmap::{MappingIndex},
     color::{Brush, ColorGlyphFormat, ColorPainter, Transform},
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
@@ -23,9 +24,15 @@ use crate::ffi::{
     ColorPainterWrapper, ColorStop, PaletteOverride, PathWrapper, SkiaDesignCoordinate,
 };
 
-fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16 {
+fn make_mapping_index<'a>(font_ref: &'a BridgeFontRef) -> Box<BridgeMappingIndex> {
     font_ref
-        .with_font(|f| Some(f.charmap().map(codepoint)?.to_u16()))
+        .with_font(|f| Some(Box::new(BridgeMappingIndex(MappingIndex::new(f)))))
+        .unwrap()
+}
+
+fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, map: &BridgeMappingIndex, codepoint: u32) -> u16 {
+    font_ref
+        .with_font(|f| Some(map.0.charmap(f).map(codepoint)?.to_u16()))
         .unwrap_or_default()
 }
 
@@ -1068,6 +1075,8 @@ mod bitmap {
     }
 }
 
+pub struct BridgeMappingIndex(MappingIndex);
+
 #[cxx::bridge(namespace = "fontations_ffi")]
 mod ffi {
     struct ColorStop {
@@ -1194,7 +1203,10 @@ mod ffi {
         /// Returns false if the data cannot be interpreted as a font or collection.
         unsafe fn font_or_collection<'a>(font_data: &'a [u8], num_fonts: &mut u32) -> bool;
 
-        fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, codepoint: u32) -> u16;
+        type BridgeMappingIndex;
+        unsafe fn make_mapping_index<'a>(font_ref: &'a BridgeFontRef) -> Box<BridgeMappingIndex>;
+        fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, map: &BridgeMappingIndex, codepoint: u32) -> u16;
+
         fn get_path(
             outlines: &BridgeOutlineCollection,
             glyph_id: u16,
