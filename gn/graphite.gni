@@ -202,7 +202,6 @@ skia_graphite_sources = [
   "$_src/task/RenderPassTask.h",
   "$_src/task/SynchronizeToCpuTask.cpp",
   "$_src/task/SynchronizeToCpuTask.h",
-  "$_src/task/Task.cpp",
   "$_src/task/Task.h",
   "$_src/task/TaskList.cpp",
   "$_src/task/TaskList.h",

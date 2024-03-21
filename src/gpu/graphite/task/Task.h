@@ -21,8 +21,6 @@ class Texture;
 
 class Task : public SkRefCnt {
 public:
-    ~Task() override;
-
     // Holds a render target and translation to use in the task's work, if necessary.
     struct ReplayTargetData {
         const Texture* fTarget;
@@ -35,11 +33,6 @@ public:
 
     // Returns true on success; false on failure.
     virtual bool addCommands(Context*, CommandBuffer*, ReplayTargetData) = 0;
-
-protected:
-    Task();
-
-private:
 };
 
 } // namespace skgpu::graphite
