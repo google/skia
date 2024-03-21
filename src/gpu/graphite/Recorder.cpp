@@ -34,6 +34,7 @@
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/SharedContext.h"
@@ -183,16 +184,18 @@ std::unique_ptr<Recording> Recorder::snap() {
     }
     std::unique_ptr<Recording> recording(new Recording(fNextRecordingID++,
                                                        fUniqueID,
-                                                       std::move(fRootTaskList),
                                                        std::move(nonVolatileLazyProxies),
                                                        std::move(volatileLazyProxies),
                                                        std::move(targetProxyData),
                                                        std::move(fFinishedProcs)));
 
+    // Allow the buffer managers to add any collected tasks for data transfer or initialization
+    // before moving the root task list to the Recording.
     fDrawBufferManager->transferToRecording(recording.get());
     fUploadBufferManager->transferToRecording(recording.get());
+    recording->priv().addTasks(std::move(*fRootTaskList));
 
-    fRootTaskList = std::make_unique<TaskList>();
+    SkASSERT(!fRootTaskList->hasTasks());
     fRuntimeEffectDict->reset();
     fTextureDataCache = std::make_unique<TextureDataCache>();
     fUniformDataCache = std::make_unique<UniformDataCache>();

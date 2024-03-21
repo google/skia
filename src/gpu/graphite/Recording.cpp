@@ -28,14 +28,13 @@ namespace skgpu::graphite {
 
 Recording::Recording(uint32_t uniqueID,
                      uint32_t recorderID,
-                     std::unique_ptr<TaskList> tasks,
                      std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& nonVolatileLazyProxies,
                      std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& volatileLazyProxies,
                      std::unique_ptr<LazyProxyData> targetProxyData,
                      TArray<sk_sp<RefCntedCallback>>&& finishedProcs)
         : fUniqueID(uniqueID)
         , fRecorderID(recorderID)
-        , fRootTaskList(std::move(tasks))
+        , fRootTaskList(new TaskList)
         , fNonVolatileLazyProxies(std::move(nonVolatileLazyProxies))
         , fVolatileLazyProxies(std::move(volatileLazyProxies))
         , fTargetProxyData(std::move(targetProxyData))
@@ -170,7 +169,11 @@ void RecordingPriv::addResourceRef(sk_sp<Resource> resource) {
 }
 
 void RecordingPriv::addTask(sk_sp<Task> task) {
-    fRecording->fRootTaskList->prepend(std::move(task));
+    fRecording->fRootTaskList->add(std::move(task));
+}
+
+void RecordingPriv::addTasks(TaskList&& tasks) {
+    fRecording->fRootTaskList->add(std::move(tasks));
 }
 
 #if defined(GRAPHITE_TEST_UTILS)

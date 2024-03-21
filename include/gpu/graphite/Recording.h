@@ -62,7 +62,6 @@ private:
 
     Recording(uint32_t uniqueID,
               uint32_t recorderID,
-              std::unique_ptr<TaskList>,
               std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& nonVolatileLazyProxies,
               std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& volatileLazyProxies,
               std::unique_ptr<LazyProxyData> targetProxyData,
@@ -75,6 +74,7 @@ private:
     uint32_t fUniqueID;
     uint32_t fRecorderID;
 
+    // This is held by a pointer instead of being inline to allow TaskList to be forward declared.
     std::unique_ptr<TaskList> fRootTaskList;
     // We don't always take refs to all resources used by specific Tasks (e.g. a common buffer used
     // for uploads). Instead we'll just hold onto one ref for those Resources outside the Tasks.

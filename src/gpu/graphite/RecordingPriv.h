@@ -34,6 +34,7 @@ public:
     // put CommandBuffer refs on.
     void addResourceRef(sk_sp<Resource> resource);
     void addTask(sk_sp<Task> task);
+    void addTasks(TaskList&& tasks);
 
     uint32_t recorderID() const { return fRecording->fRecorderID; }
     uint32_t uniqueID() const { return fRecording->fUniqueID; }

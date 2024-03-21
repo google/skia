@@ -220,6 +220,7 @@ private:
     std::unique_ptr<ResourceProvider> fResourceProvider;
     std::unique_ptr<RuntimeEffectDictionary> fRuntimeEffectDict;
 
+    // NOTE: These are stored by pointer to allow them to be forward declared.
     std::unique_ptr<TaskList> fRootTaskList;
     std::unique_ptr<UniformDataCache> fUniformDataCache;
     std::unique_ptr<TextureDataCache> fTextureDataCache;
