@@ -70,7 +70,6 @@ type GNIExporter struct {
 // clients that include it.
 var deprecatedFiles = []string{
 	"include/core/SkDrawLooper.h",
-	"include/effects/SkBlurDrawLooper.h",
 	"include/effects/SkLayerDrawLooper.h",
 }
 

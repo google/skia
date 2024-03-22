@@ -13,7 +13,6 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
-#include "include/effects/SkBlurDrawLooper.h"
 #include "include/effects/SkLayerDrawLooper.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
@@ -258,37 +257,6 @@ sk_sp<SkDrawLooper> SkLayerDrawLooper::Builder::detach() {
     fTopRec = nullptr;
 
     return sk_sp<SkDrawLooper>(looper);
-}
-
-sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor color, SkScalar sigma, SkScalar dx, SkScalar dy)
-{
-    return Make(SkColor4f::FromColor(color), sk_srgb_singleton(), sigma, dx, dy);
-}
-
-sk_sp<SkDrawLooper> SkBlurDrawLooper::Make(SkColor4f color, SkColorSpace* cs,
-        SkScalar sigma, SkScalar dx, SkScalar dy)
-{
-    sk_sp<SkMaskFilter> blur = nullptr;
-    if (sigma > 0.0f) {
-        blur = SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, true);
-    }
-
-    SkLayerDrawLooper::Builder builder;
-
-    // First layer
-    SkLayerDrawLooper::LayerInfo defaultLayer;
-    builder.addLayer(defaultLayer);
-
-    // Blur layer
-    SkLayerDrawLooper::LayerInfo blurInfo;
-    blurInfo.fColorMode = SkBlendMode::kSrc;
-    blurInfo.fPaintBits = SkLayerDrawLooper::kMaskFilter_Bit;
-    blurInfo.fOffset = SkVector::Make(dx, dy);
-    SkPaint* paint = builder.addLayer(blurInfo);
-    paint->setMaskFilter(std::move(blur));
-    paint->setColor4f(color, cs);
-
-    return builder.detach();
 }
 
 #endif

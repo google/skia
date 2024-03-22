@@ -365,7 +365,7 @@ func TestFilterDeprecatedFiles_ContainsDeprecatedFiles_DeprecatedFiltered(t *tes
 	test("MultipleDeprecated",
 		[]string{
 			"include/core/SkDrawLooper.h",
-			"include/effects/SkBlurDrawLooper.h"},
+			"include/effects/SkLayerDrawLooper.h"},
 		[]string{})
 	test("FirstDeprecated",
 		[]string{

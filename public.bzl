@@ -118,7 +118,6 @@ SKIA_PUBLIC_HDRS = [
     "include/effects/Sk1DPathEffect.h",
     "include/effects/Sk2DPathEffect.h",
     "include/effects/SkBlenders.h",
-    "include/effects/SkBlurDrawLooper.h",
     "include/effects/SkBlurMaskFilter.h",
     "include/effects/SkColorMatrixFilter.h",
     "include/effects/SkColorMatrix.h",
