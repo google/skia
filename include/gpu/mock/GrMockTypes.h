@@ -10,7 +10,10 @@
 
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+
+#include <cstdint>
 
 class GrBackendFormat;
 

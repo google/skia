@@ -9,9 +9,30 @@
 #define GrMockCaps_DEFINED
 
 #include "include/core/SkTextureCompressionType.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/mock/GrMockTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/GrProgramDesc.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrSurface.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <memory>
+#include <vector>
+
+class GrProgramInfo;
+class GrRenderTarget;
+namespace GrTest { struct TestFormatColorTypeCombination; }
+struct GrContextOptions;
+struct SkIRect;
 
 class GrMockCaps : public GrCaps {
 public:

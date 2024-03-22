@@ -44,6 +44,7 @@
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/GrSemaphore.h"  // IWYU pragma: keep
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
@@ -64,8 +65,6 @@
 #include <forward_list>
 #include <memory>
 #include <utility>
-
-class GrSemaphore;
 
 #ifdef SK_DIRECT3D
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"

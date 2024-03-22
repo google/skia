@@ -8,17 +8,47 @@
 #ifndef GrMockGpu_DEFINED
 #define GrMockGpu_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkTextureCompressionType.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/mock/GrMockTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrGpu.h"
-#include "src/gpu/ganesh/GrRenderTarget.h"
-#include "src/gpu/ganesh/GrSemaphore.h"
-#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrOpsRenderPass.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSemaphore.h"  // IWYU pragma: keep
+#include "src/gpu/ganesh/GrXferProcessor.h"
 
-class GrMockOpsRenderPass;
-struct GrMockOptions;
-class GrPipeline;
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string_view>
+
+class GrBackendSemaphore;
+class GrDirectContext;
+class GrGpuBuffer;
+class GrProgramDesc;
+class GrProgramInfo;
+class GrRenderTarget;
+class GrSurface;
+class GrSurfaceProxy;
+class GrTexture;
+class GrThreadSafePipelineBuilder;
+struct GrContextOptions;
+
+namespace skgpu {
+class RefCntedCallback;
+enum class Budgeted : bool;
+enum class Mipmapped : bool;
+}
 
 class GrMockGpu : public GrGpu {
 public:
