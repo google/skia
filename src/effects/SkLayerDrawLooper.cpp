@@ -150,50 +150,6 @@ bool SkLayerDrawLooper::LayerDrawLooperContext::next(Info* info, SkPaint* paint)
     return true;
 }
 
-bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
-    if (fCount != 2) {
-        return false;
-    }
-    const Rec* rec = fRecs;
-
-    // bottom layer needs to be just blur(maskfilter)
-    if ((rec->fInfo.fPaintBits & ~kMaskFilter_Bit)) {
-        return false;
-    }
-    if (SkBlendMode::kSrc != (SkBlendMode)rec->fInfo.fColorMode) {
-        return false;
-    }
-    const SkMaskFilter* mf = rec->fPaint.getMaskFilter();
-    if (nullptr == mf) {
-        return false;
-    }
-    SkMaskFilterBase::BlurRec maskBlur;
-    if (!as_MFB(mf)->asABlur(&maskBlur)) {
-        return false;
-    }
-
-    rec = rec->fNext;
-    // top layer needs to be "plain"
-    if (rec->fInfo.fPaintBits) {
-        return false;
-    }
-    if (SkBlendMode::kDst != (SkBlendMode)rec->fInfo.fColorMode) {
-        return false;
-    }
-    if (!rec->fInfo.fOffset.equals(0, 0)) {
-        return false;
-    }
-
-    if (bsRec) {
-        bsRec->fSigma = maskBlur.fSigma;
-        bsRec->fOffset = fRecs->fInfo.fOffset;
-        // TODO: Update BlurShadowRec to use SkColor4f?
-        bsRec->fColor = fRecs->fPaint.getColor();
-        bsRec->fStyle = maskBlur.fStyle;
-    }
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {

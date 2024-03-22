@@ -90,23 +90,6 @@ public:
     bool canComputeFastBounds(const SkPaint& paint) const;
     void computeFastBounds(const SkPaint& paint, const SkRect& src, SkRect* dst) const;
 
-    struct BlurShadowRec {
-        SkScalar        fSigma;
-        SkVector        fOffset;
-        SkColor         fColor;
-        SkBlurStyle     fStyle;
-    };
-    /**
-     *  If this looper can be interpreted as having two layers, such that
-     *      1. The first layer (bottom most) just has a blur and translate
-     *      2. The second layer has no modifications to either paint or canvas
-     *      3. No other layers.
-     *  then return true, and if not null, fill out the BlurShadowRec).
-     *
-     *  If any of the above are not met, return false and ignore the BlurShadowRec parameter.
-     */
-    virtual bool asABlurShadow(BlurShadowRec*) const;
-
     static SkFlattenable::Type GetFlattenableType() {
         return kSkDrawLooper_Type;
     }

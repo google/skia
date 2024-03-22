@@ -81,8 +81,6 @@ public:
 
     SkDrawLooper::Context* makeContext(SkArenaAlloc*) const override;
 
-    bool asABlurShadow(BlurShadowRec* rec) const override;
-
 protected:
     SkLayerDrawLooper();
 
