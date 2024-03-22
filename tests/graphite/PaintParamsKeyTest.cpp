@@ -247,11 +247,12 @@ SkMatrix* random_local_matrix(SkRandom* rand, SkMatrix* storage) {
 }
 
 sk_sp<SkImage> make_image(SkRandom* rand, Recorder* recorder) {
-    // TODO: add alpha-only images too
-    SkImageInfo info = SkImageInfo::Make(32, 32,
-                                         SkColorType::kRGBA_8888_SkColorType,
-                                         kPremul_SkAlphaType,
-                                         random_colorspace(rand));
+    SkColorType ct = SkColorType::kRGBA_8888_SkColorType;
+    if (rand->nextBool()) {
+        ct = SkColorType::kAlpha_8_SkColorType;
+    }
+
+    SkImageInfo info = SkImageInfo::Make(32, 32, ct, kPremul_SkAlphaType, random_colorspace(rand));
 
     SkBitmap bitmap;
     bitmap.allocPixels(info);

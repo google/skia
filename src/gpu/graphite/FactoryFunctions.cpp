@@ -394,52 +394,98 @@ sk_sp<PrecompileShader> PrecompileShaders::CoordClamp(SkSpan<const sk_sp<Precomp
 }
 
 //--------------------------------------------------------------------------------------------------
-// TODO: Investigate the Alpha-only use case
+// TODO: Investigate the YUV-image use case
 class PrecompileImageShader : public PrecompileShader {
 public:
-    PrecompileImageShader() {}
+    PrecompileImageShader(bool isRaw) : fIsRaw(isRaw) {}
 
 private:
-    // The ImageShader has 3 variants: hardware-tiled, shader-tiled and cubic sampling
-    inline static constexpr int kNumIntrinsicCombinations = 3;
+    // The ImageShader has 3 sampling/tiling variants: hardware-tiled, shader-tiled and
+    // cubic sampling (which always uses shader-tiling)
+    inline static constexpr int kNumSamplingTilingCombinations = 3;
+    inline static constexpr int kCubicSampled = 2;
+    inline static constexpr int kHWTiled      = 1;
+    inline static constexpr int kShaderTiled  = 0;
 
-    int numIntrinsicCombinations() const override { return kNumIntrinsicCombinations; }
+    // There are 2 alpha combinations: alpha-only and not-alpha-only
+    inline static constexpr int kNumAlphaCombinations = 2;
+    inline static constexpr int kAlphaOnly    = 1;
+    inline static constexpr int kNonAlphaOnly = 0;
+
+    int numIntrinsicCombinations() const override {
+        if (fIsRaw) {
+            // RawImageShaders don't blend alpha-only images w/ the paint color
+            return kNumSamplingTilingCombinations;
+        }
+        return kNumSamplingTilingCombinations * kNumAlphaCombinations;
+    }
 
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
                   int desiredCombination) const override {
-        SkASSERT(desiredCombination < kNumIntrinsicCombinations);
+        SkASSERT(desiredCombination < this->numIntrinsicCombinations());
+
+        int desiredAlphaCombo, desiredSamplingTilingCombo;
+
+        if (fIsRaw) {
+            desiredAlphaCombo = kNonAlphaOnly;
+            desiredSamplingTilingCombo = desiredCombination;
+        } else {
+            desiredAlphaCombo = desiredCombination % kNumAlphaCombinations;
+            desiredSamplingTilingCombo = desiredCombination / kNumAlphaCombinations;
+        }
+        SkASSERT(desiredSamplingTilingCombo < kNumSamplingTilingCombinations);
 
         static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
         static constexpr SkSamplingOptions kDefaultSampling;
+        constexpr ReadSwizzle kIgnoredSwizzle = ReadSwizzle::kRGBA;
 
         // ImageShaderBlock will use hardware tiling when the subset covers the entire image, so we
         // create subset + image size combinations where subset == imgSize (for a shader that uses
         // hardware tiling) and subset < imgSize (for a shader that does shader-based tiling).
         static constexpr SkRect kSubset = SkRect::MakeWH(1.0f, 1.0f);
-        static constexpr SkISize kHwTileableSize = SkISize::Make(1, 1);
-        static constexpr SkISize kNonHwTileableSize = SkISize::Make(2, 2);
+        static constexpr SkISize kHWTileableSize = SkISize::Make(1, 1);
+        static constexpr SkISize kShaderTileableSize = SkISize::Make(2, 2);
 
-        ImageShaderBlock::ImageData imgData(desiredCombination == 2 ? kDefaultCubicSampling
-                                                                    : kDefaultSampling,
-                                            SkTileMode::kClamp, SkTileMode::kClamp,
-                                            desiredCombination == 1 ? kHwTileableSize
-                                                                    : kNonHwTileableSize,
-                                            kSubset, ReadSwizzle::kRGBA);
+        ImageShaderBlock::ImageData imgData(
+                desiredSamplingTilingCombo == kCubicSampled ? kDefaultCubicSampling
+                                                            : kDefaultSampling,
+                SkTileMode::kClamp, SkTileMode::kClamp,
+                desiredSamplingTilingCombo == kHWTiled ? kHWTileableSize : kShaderTileableSize,
+                kSubset, kIgnoredSwizzle);
 
-        ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+        if (desiredAlphaCombo == kAlphaOnly) {
+            SkASSERT(!fIsRaw);
+
+            Blend(keyContext, builder, gatherer,
+                  /* addBlendToKey= */ [&] () -> void {
+                      AddKnownModeBlend(keyContext, builder, gatherer, SkBlendMode::kDstIn);
+                  },
+                  /* addSrcToKey= */ [&] () -> void {
+                      ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+                  },
+                  /* addDstToKey= */ [&]() -> void {
+                      RGBPaintColorBlock::AddBlock(keyContext, builder, gatherer);
+                  });
+        } else {
+            ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+        }
     }
+
+    bool fIsRaw;
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::Image() {
-    return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileImageShader>() });
+    constexpr bool kIsNotRaw = false;
+    return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileImageShader>(kIsNotRaw) });
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::RawImage() {
+    constexpr bool kIsRaw = false;
     // Raw images do not perform color space conversion, but in Graphite, this is represented as
     // an identity color space xform, not as a distinct shader
-    return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileImageShader>() });
+    return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileImageShader>(kIsRaw) });
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -478,8 +524,8 @@ sk_sp<PrecompileShader> PrecompileShaders::YUVImage() {
 //--------------------------------------------------------------------------------------------------
 // The PictureShader ultimately turns into an SkImageShader optionally wrapped in a
 // LocalMatrixShader. The PrecompileImageShader already captures that use case so just reuse it.
-// Note that this means each precompile PictureShader will add 12 combinations:
-//    2 (pictureshader LM) x 2 (imageShader LM) x 3 (imageShader sample methods)
+// Note that this means each precompile PictureShader will add 24 combinations:
+//    2 (pictureshader LM) x 2 (imageShader LM) x 6 (imageShader variations)
 sk_sp<PrecompileShader> PrecompileShaders::Picture() {
     // Note: We don't need to consider the PrecompileYUVImageShader since the image
     // being drawn was created internally by Skia (as non-YUV).

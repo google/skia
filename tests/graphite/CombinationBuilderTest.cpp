@@ -94,14 +94,14 @@ void no_blend_mode_option_test(const KeyContext& keyContext,
 void big_test(const KeyContext& keyContext,
               PipelineDataGatherer* gatherer,
               skiatest::Reporter* reporter) {
-    // paintOptions (62)
-    //  |- sweepGrad_0 (2) | blendShader_0 (60)
+    // paintOptions (116)
+    //  |- sweepGrad_0 (2) | blendShader_0 (114)
     //  |                     0: kSrc (1)
     //  |                     1: (dsts) linearGrad_0 (2) | solid_0 (1)
-    //  |                     2: (srcs) linearGrad_1 (2) | blendShader_1 (18)
+    //  |                     2: (srcs) linearGrad_1 (2) | blendShader_1 (36)
     //  |                                            0: kDst (1)
     //  |                                            1: (dsts) radGrad_0 (2) | solid_1 (1)
-    //  |                                            2: (srcs) imageShader_0 (6)
+    //  |                                            2: (srcs) imageShader_0 (12)
     //  |
     //  |- 4-built-in-blend-modes (just 1 since all are PorterDuff)
 
@@ -146,7 +146,8 @@ void big_test(const KeyContext& keyContext,
     // now, blend modes
     paintOptions.setBlendModes(evenMoreBlendModes);                             // c array
 
-    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 62);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 116,
+                    "Actual # of combinations %d", paintOptions.priv().numCombinations());
 
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
@@ -157,7 +158,7 @@ void big_test(const KeyContext& keyContext,
                                               precompileIDs.push_back(id);
                                           });
 
-    SkASSERT(precompileIDs.size() == 62);
+    SkASSERT(precompileIDs.size() == 116);
 }
 
 template <typename T>
