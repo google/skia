@@ -71,6 +71,18 @@
         }
         return features;
     }
+#elif defined(SK_CPU_LOONGARCH)
+    #include <sys/auxv.h>
+    static uint32_t read_cpu_features(void)
+    {
+        uint64_t features = 0;
+        uint64_t hwcap = getauxval(AT_HWCAP);
+
+        if (hwcap & HWCAP_LOONGARCH_LSX)  { features |= SkCpu::LOONGARCH_SX; }
+        if (hwcap & HWCAP_LOONGARCH_LASX) { features |= SkCpu::LOONGARCH_ASX; }
+
+        return features;
+    }
 #else
     static uint32_t read_cpu_features() {
         return 0;
