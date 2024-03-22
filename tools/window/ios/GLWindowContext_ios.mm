@@ -56,7 +56,7 @@ GLWindowContext_ios::GLWindowContext_ios(const IOSWindowInfo& info, const Displa
         , fViewController(info.fViewController)
         , fGLContext(nil) {
 
-    // any config code here (particularly for msaa)?
+    // iOS test apps currently ignore MSAA settings.
 
     this->initializeContext();
 }
@@ -144,8 +144,6 @@ void GLWindowContext_ios::onSwapBuffers() {
 }
 
 void GLWindowContext_ios::resize(int w, int h) {
-    // TODO: handle rotation
-    // [fGLContext update];
     GLWindowContext::resize(w, h);
 }
 

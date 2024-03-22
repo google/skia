@@ -49,7 +49,7 @@ MetalWindowContext_ios::MetalWindowContext_ios(const IOSWindowInfo& info,
     , fWindow(info.fWindow)
     , fViewController(info.fViewController) {
 
-    // any config code here (particularly for msaa)?
+    // iOS test apps currently ignore MSAA settings.
 
     this->initializeContext();
 }
@@ -61,8 +61,8 @@ MetalWindowContext_ios::~MetalWindowContext_ios() {
 }
 
 bool MetalWindowContext_ios::onInitializeContext() {
-    SkASSERT(nil != fWindow);
-    SkASSERT(nil != fViewController);
+    SkASSERT(fWindow != nil);
+    SkASSERT(fViewController != nil);
 
     CGRect frameRect = [fViewController.view frame];
     fMetalView = [[[MetalView alloc] initWithFrame:frameRect] initWithWindow:fWindow];
@@ -74,9 +74,6 @@ bool MetalWindowContext_ios::onInitializeContext() {
     fMetalLayer.drawableSize = frameRect.size;
     fMetalLayer.frame = frameRect;
 
-    // TODO: need solution for iOS
-    // BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
-    // fMetalLayer.displaySyncEnabled = useVsync;
     fMetalLayer.contentsGravity = kCAGravityTopLeft;
 
     fWidth = frameRect.size.width;
@@ -88,7 +85,6 @@ bool MetalWindowContext_ios::onInitializeContext() {
 void MetalWindowContext_ios::onDestroyContext() {}
 
 void MetalWindowContext_ios::resize(int w, int h) {
-    // TODO: handle rotation
     fMetalLayer.drawableSize = fMetalView.frame.size;
     fMetalLayer.frame = fMetalView.frame;
     fWidth = w;
