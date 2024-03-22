@@ -194,10 +194,19 @@ static void test_skstarray_compatibility(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, arrayMoveAssign[2] == 3);
 }
 
+// Move-only type used for testing swap and move_back() of TArray&&'s.
+namespace {
+struct MoveOnlyInt {
+    MoveOnlyInt(int i) : fInt(i) {}
+    MoveOnlyInt(MoveOnlyInt&& that) : fInt(that.fInt) {}
+    bool operator==(int i) { return fInt == i; }
+    int fInt;
+};
+} // anonymous
+
 template <typename T> static void test_swap(skiatest::Reporter* reporter,
-                                            TArray<T>* (&arrays)[4],
-                                            int (&sizes)[7])
-{
+                                            SkSpan<TArray<T>*> arrays,
+                                            SkSpan<const int> sizes) {
     for (auto a : arrays) {
     for (auto b : arrays) {
         if (a == b) {
@@ -229,28 +238,80 @@ template <typename T> static void test_swap(skiatest::Reporter* reporter,
 }
 
 static void test_swap(skiatest::Reporter* reporter) {
-    int sizes[] = {0, 1, 5, 10, 15, 20, 25};
+    static constexpr int kSizes[] = {0, 1, 5, 10, 15, 20, 25};
 
     TArray<int> arr;
     STArray< 5, int> arr5;
     STArray<10, int> arr10;
     STArray<20, int> arr20;
     TArray<int>* arrays[] = { &arr, &arr5, &arr10, &arr20 };
-    test_swap(reporter, arrays, sizes);
-
-    struct MoveOnlyInt {
-        MoveOnlyInt(int i) : fInt(i) {}
-        MoveOnlyInt(MoveOnlyInt&& that) : fInt(that.fInt) {}
-        bool operator==(int i) { return fInt == i; }
-        int fInt;
-    };
+    test_swap<int>(reporter, arrays, kSizes);
 
     TArray<MoveOnlyInt> moi;
     STArray< 5, MoveOnlyInt> moi5;
     STArray<10, MoveOnlyInt> moi10;
     STArray<20, MoveOnlyInt> moi20;
     TArray<MoveOnlyInt>* arraysMoi[] = { &moi, &moi5, &moi10, &moi20 };
-    test_swap(reporter, arraysMoi, sizes);
+    test_swap<MoveOnlyInt>(reporter, arraysMoi, kSizes);
+}
+
+template <typename T> static void test_array_move(skiatest::Reporter* reporter,
+                                                  SkSpan<TArray<T>*> arrays,
+                                                  SkSpan<const int> sizes) {
+    // self test is a no-op
+    for (auto a : arrays) {
+        for (auto sizeA : sizes) {
+            a->clear();
+            for (int i = 0; i < sizeA; i++) { a->push_back(i); }
+            a->move_back(*a);
+            REPORTER_ASSERT(reporter, a->size() == sizeA);
+            for (int i = 0; i < sizeA; i++) {
+                REPORTER_ASSERT(reporter, (*a)[i] == i);
+            }
+        }
+    }
+
+    for (auto a : arrays) {
+    for (auto b : arrays) {
+        if (a == b) {
+            continue;
+        }
+
+        for (auto sizeA : sizes) {
+        for (auto sizeB : sizes) {
+            a->clear();
+            b->clear();
+
+            int curr = 0;
+            for (int i = 0; i < sizeA; i++) { a->push_back(curr++); }
+            for (int i = 0; i < sizeB; i++) { b->push_back(curr++); }
+
+            a->move_back(*b);
+            REPORTER_ASSERT(reporter, b->size() == 0);
+            REPORTER_ASSERT(reporter, a->size() == sizeA + sizeB);
+
+            curr = 0;
+            for (auto&& x : *a) { REPORTER_ASSERT(reporter, x == curr++); }
+        }}
+    }}
+}
+
+static void test_array_move(skiatest::Reporter* reporter) {
+    static constexpr int kSizes[] = {0, 1, 5, 10, 15, 20, 25};
+
+    TArray<int> arr;
+    STArray< 5, int> arr5;
+    STArray<10, int> arr10;
+    STArray<20, int> arr20;
+    TArray<int>* arrays[] = { &arr, &arr5, &arr10, &arr20 };
+    test_array_move<int>(reporter, arrays, kSizes);
+
+    TArray<MoveOnlyInt> moi;
+    STArray< 5, MoveOnlyInt> moi5;
+    STArray<10, MoveOnlyInt> moi10;
+    STArray<20, MoveOnlyInt> moi20;
+    TArray<MoveOnlyInt>* arraysMoi[] = { &moi, &moi5, &moi10, &moi20 };
+    test_array_move<MoveOnlyInt>(reporter, arraysMoi, kSizes);
 }
 
 void test_unnecessary_alloc(skiatest::Reporter* reporter) {
@@ -416,6 +477,7 @@ DEF_TEST(TArray, reporter) {
     TestTSet_basic<TestClass, false>(reporter);
 
     test_swap(reporter);
+    test_array_move(reporter);
 
     test_unnecessary_alloc(reporter);
 

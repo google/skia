@@ -359,6 +359,25 @@ public:
         }
     }
 
+    /**
+     * Moves all elements of `that` to the end of this array, leaving `that` empty.
+     * This is a no-op if `that` is empty or equal to this array.
+     */
+    void move_back(TArray& that) {
+        if (that.empty() || &that == this) {
+            return;
+        }
+        void* dst = this->push_back_raw(that.size());
+        // After move() returns, the contents of `dst` will have either been in-place initialized
+        // using a the move constructor (per-item from `that`'s elements), or will have been
+        // mem-copied into when MEM_MOVE is true (now valid objects).
+        that.move(dst);
+        // All items in `that` have either been destroyed (when MEM_MOVE is false) or should be
+        // considered invalid (when MEM_MOVE is true). Reset fSize to 0 directly to skip any further
+        // per-item destruction.
+        that.fSize = 0;
+    }
+
     T* begin() {
         return fData;
     }
