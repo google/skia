@@ -81,10 +81,6 @@ cc_defaults {
     arch: {
         arm: {
             srcs: [],
-
-            neon: {
-                srcs: [],
-            },
         },
 
         arm64: {
