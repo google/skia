@@ -35,6 +35,9 @@ inline std::unique_ptr<WindowContext> MakeVulkanForIOS(const IOSWindowInfo&, con
 
 #ifdef SK_METAL
 std::unique_ptr<WindowContext> MakeMetalForIOS(const IOSWindowInfo&, const DisplayParams&);
+#if defined(SK_GRAPHITE)
+std::unique_ptr<WindowContext> MakeGraphiteMetalForIOS(const IOSWindowInfo&, const DisplayParams&);
+#endif
 #endif
 
 #ifdef SK_GL

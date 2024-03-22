@@ -88,6 +88,11 @@ bool Window_ios::attach(BackendType attachType) {
         case kMetal_BackendType:
             fWindowContext = skwindow::MakeMetalForIOS(info, fRequestedDisplayParams);
             break;
+#if defined(SK_GRAPHITE)
+        case kGraphiteMetal_BackendType:
+            fWindowContext = MakeGraphiteMetalForIOS(info, fRequestedDisplayParams);
+            break;
+#endif
 #endif
 #ifdef SK_GL
         case kNativeGL_BackendType:

@@ -145,6 +145,9 @@ skia_component("window") {
       }
     } else if (is_ios) {
       sources += [ "ios/MetalWindowContext_ios.mm" ]
+      if (skia_enable_graphite) {
+        sources += [ "ios/GraphiteMetalWindowContext_ios.mm" ]
+      }
     }
   }
 
