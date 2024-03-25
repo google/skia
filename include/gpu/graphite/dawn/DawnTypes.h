@@ -30,19 +30,17 @@ struct DawnTextureInfo {
     }
 
     DawnTextureInfo() = default;
-    DawnTextureInfo(const wgpu::Texture& texture);
     DawnTextureInfo(uint32_t sampleCount,
                     Mipmapped mipmapped,
                     wgpu::TextureFormat format,
                     wgpu::TextureUsage usage,
                     wgpu::TextureAspect aspect)
-            : fSampleCount(sampleCount)
-            , fMipmapped(mipmapped)
-            , fFormat(format)
-            , fViewFormat(format)
-            , fUsage(usage)
-            , fAspect(aspect) {}
-
+            : DawnTextureInfo(sampleCount,
+                              mipmapped,
+                              /*format=*/format,
+                              /*viewFormat=*/format,
+                              usage,
+                              aspect) {}
     DawnTextureInfo(uint32_t sampleCount,
                     Mipmapped mipmapped,
                     wgpu::TextureFormat format,

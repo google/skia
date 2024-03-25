@@ -51,6 +51,9 @@ protected:
 
     void invokeReleaseProc() override;
 
+    void onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
+                                const char* dumpName) const override;
+
 private:
     SkISize fDimensions;
     TextureInfo fInfo;
@@ -58,6 +61,6 @@ private:
     sk_sp<RefCntedCallback> fReleaseCallback;
 };
 
-} // namepsace skgpu::graphite
+} // namespace skgpu::graphite
 
 #endif // skgpu_graphite_Texture_DEFINED

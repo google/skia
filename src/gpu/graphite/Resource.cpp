@@ -132,6 +132,8 @@ void Resource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
                                            this->budgeted() == skgpu::Budgeted::kYes);
     }
 
+    this->onDumpMemoryStatistics(traceMemoryDump, resourceName.c_str());
+
     // TODO: implement this to report real gpu id backing the resource. Will be virtual implemented
     // by backend specific resource subclasses.
     //this->setMemoryBacking(traceMemoryDump, resourceName);

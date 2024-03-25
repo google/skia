@@ -7,20 +7,25 @@
 
 #include "include/private/gpu/graphite/DawnTypesPriv.h"
 
-#include "include/core/SkTypes.h"
-
 namespace skgpu::graphite {
 
-DawnTextureInfo::DawnTextureInfo(const wgpu::Texture& texture) {
+SkString DawnTextureSpec::toString() const {
+    return SkStringPrintf("format=0x%08X,viewFormat=0x%08X,usage=0x%08X,aspect=0x%08X",
+                          static_cast<unsigned int>(fFormat),
+                          static_cast<unsigned int>(fViewFormat),
+                          static_cast<unsigned int>(fUsage),
+                          static_cast<unsigned int>(fAspect));
+}
+
+DawnTextureInfo DawnTextureInfoFromWGPUTexture(WGPUTexture texture) {
     SkASSERT(texture);
-
-    fSampleCount = texture.GetSampleCount();
-    fMipmapped  = texture.GetMipLevelCount() > 1 ? Mipmapped::kYes : Mipmapped::kNo;
-
-    fFormat = texture.GetFormat();
-    fViewFormat = fFormat;
-    fUsage = texture.GetUsage();
-    fAspect = wgpu::TextureAspect::All;
+    return DawnTextureInfo(
+            wgpuTextureGetSampleCount(texture),
+            wgpuTextureGetMipLevelCount(texture) > 1 ? Mipmapped::kYes : Mipmapped::kNo,
+            /*format=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
+            /*viewFormat=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
+            static_cast<wgpu::TextureUsage>(wgpuTextureGetUsage(texture)),
+            wgpu::TextureAspect::All);
 }
 
 DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,

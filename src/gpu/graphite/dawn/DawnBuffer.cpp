@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
 
+#include "include/core/SkTraceMemoryDump.h"
 #include "include/private/base/SkAlign.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
@@ -14,7 +15,6 @@
 
 namespace skgpu::graphite {
 
-#ifdef SK_DEBUG
 static const char* kBufferTypeNames[kBufferTypeCount] = {
         "Vertex",
         "Index",
@@ -26,29 +26,11 @@ static const char* kBufferTypeNames[kBufferTypeCount] = {
         "VertexStorage",
         "IndexStorage",
 };
-#endif
 
 sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
                                    size_t size,
                                    BufferType type,
                                    AccessPattern accessPattern) {
-    return DawnBuffer::Make(sharedContext,
-                            size,
-                            type,
-                            accessPattern,
-#ifdef SK_DEBUG
-                            /*label=*/kBufferTypeNames[static_cast<int>(type)]
-#else
-                            /*label=*/nullptr
-#endif
-                            );
-}
-
-sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
-                                   size_t size,
-                                   BufferType type,
-                                   AccessPattern accessPattern,
-                                   const char* label) {
     if (size <= 0) {
         return nullptr;
     }
@@ -94,7 +76,9 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
     }
 
     wgpu::BufferDescriptor desc;
-    desc.label = label;
+#ifdef SK_DEBUG
+    desc.label = kBufferTypeNames[static_cast<int>(type)];
+#endif
     desc.usage = usage;
     desc.size  = size;
     // Specifying mappedAtCreation avoids clearing the buffer on the GPU which can cause MapAsync to
@@ -112,10 +96,8 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         SkASSERT(mappedAtCreationPtr);
     }
 
-    return sk_sp<DawnBuffer>(new DawnBuffer(sharedContext,
-                                            size,
-                                            std::move(buffer),
-                                            mappedAtCreationPtr));
+    return sk_sp<DawnBuffer>(
+            new DawnBuffer(sharedContext, size, std::move(buffer), type, mappedAtCreationPtr));
 }
 
 void DawnBuffer::prepareForReturnToCache(const std::function<void()>& takeRef) {
@@ -148,11 +130,13 @@ void DawnBuffer::prepareForReturnToCache(const std::function<void()>& takeRef) {
 DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
                        size_t size,
                        wgpu::Buffer buffer,
+                       BufferType type,
                        void* mappedAtCreationPtr)
         : Buffer(sharedContext,
                  size,
                  /*commandBufferRefsAsUsageRefs=*/buffer.GetUsage() & wgpu::BufferUsage::MapWrite)
-        , fBuffer(std::move(buffer)) {
+        , fBuffer(std::move(buffer))
+        , fType(type) {
     fMapPtr = mappedAtCreationPtr;
 }
 
@@ -252,6 +236,13 @@ bool DawnBuffer::isUnmappable() const {
 
 void DawnBuffer::freeGpuData() {
     fBuffer = nullptr;
+}
+
+void DawnBuffer::onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
+                                         const char* dumpName) const {
+    Buffer::onDumpMemoryStatistics(traceMemoryDump, dumpName);
+    traceMemoryDump->dumpStringValue(
+            dumpName, "backend_label", kBufferTypeNames[static_cast<int>(fType)]);
 }
 
 } // namespace skgpu::graphite

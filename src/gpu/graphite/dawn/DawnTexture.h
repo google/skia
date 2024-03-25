@@ -55,6 +55,9 @@ private:
 
     void freeGpuData() override;
 
+    void onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
+                                const char* dumpName) const override;
+
     static std::pair<wgpu::TextureView, wgpu::TextureView> CreateTextureViews(
             const wgpu::Texture& texture, const TextureInfo& info);
 

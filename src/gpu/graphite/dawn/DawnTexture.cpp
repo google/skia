@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/dawn/DawnTexture.h"
 
+#include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 #include "include/private/gpu/graphite/DawnTypesPriv.h"
@@ -18,10 +19,8 @@
 
 namespace skgpu::graphite {
 namespace {
-
 const char* texture_info_to_label(const TextureInfo& info,
                                   const DawnTextureSpec& dawnSpec) {
-#ifdef SK_DEBUG
     if (dawnSpec.fUsage & wgpu::TextureUsage::RenderAttachment) {
         if (DawnFormatIsDepthOrStencil(dawnSpec.fFormat)) {
             return "DepthStencil";
@@ -44,11 +43,7 @@ const char* texture_info_to_label(const TextureInfo& info,
         SkASSERT(dawnSpec.fUsage & wgpu::TextureUsage::TextureBinding);
         return "SampledTexture";
     }
-#else
-    return nullptr;
-#endif
 }
-
 }
 
 wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContext,
@@ -83,7 +78,9 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
     }
 
     wgpu::TextureDescriptor desc;
+#ifdef SK_DEBUG
     desc.label                      = texture_info_to_label(info, dawnSpec);
+#endif
     desc.usage                      = dawnSpec.fUsage;
     desc.dimension                  = wgpu::TextureDimension::e2D;
     desc.size.width                 = dimensions.width();
@@ -111,7 +108,12 @@ DawnTexture::DawnTexture(const DawnSharedContext* sharedContext,
                          wgpu::TextureView renderTextureView,
                          Ownership ownership,
                          skgpu::Budgeted budgeted)
-        : Texture(sharedContext, dimensions, info, /*mutableState=*/nullptr, ownership, budgeted)
+        : Texture(sharedContext,
+                  dimensions,
+                  info,
+                  /*mutableState=*/nullptr,
+                  ownership,
+                  budgeted)
         , fTexture(std::move(texture))
         , fSampleTextureView(std::move(sampleTextureView))
         , fRenderTextureView(std::move(renderTextureView)) {}
@@ -217,6 +219,15 @@ void DawnTexture::freeGpuData() {
     fTexture = nullptr;
     fSampleTextureView = nullptr;
     fRenderTextureView = nullptr;
+}
+
+void DawnTexture::onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
+                                         const char* dumpName) const {
+    Texture::onDumpMemoryStatistics(traceMemoryDump, dumpName);
+    traceMemoryDump->dumpStringValue(
+            dumpName,
+            "backend_label",
+            texture_info_to_label(this->textureInfo(), this->textureInfo().dawnTextureSpec()));
 }
 
 } // namespace skgpu::graphite

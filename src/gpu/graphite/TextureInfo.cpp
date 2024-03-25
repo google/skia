@@ -162,7 +162,8 @@ SkString TextureInfo::toString() const {
             ret += "Invalid(";
             break;
     }
-    ret.appendf("sampleCount=%u,mipmapped=%d,protected=%d)",
+    ret.appendf("bytesPerPixel=%zu,sampleCount=%u,mipmapped=%d,protected=%d)",
+                bytesPerPixel(),
                 fSampleCount,
                 static_cast<int>(fMipmapped),
                 static_cast<int>(fProtected));

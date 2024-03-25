@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/Texture.h"
 
+#include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/MutableTextureState.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Caps.h"
@@ -46,5 +47,13 @@ void Texture::invokeReleaseProc() {
 }
 
 MutableTextureState* Texture::mutableState() const { return fMutableState.get(); }
+
+void Texture::onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
+                                     const char* dumpName) const {
+    SkString dimensionsStr;
+    dimensionsStr.printf("(%dx%d)", fDimensions.width(), fDimensions.height());
+    traceMemoryDump->dumpStringValue(dumpName, "dimensions", dimensionsStr.c_str());
+    traceMemoryDump->dumpStringValue(dumpName, "textureInfo", fInfo.toString().c_str());
+}
 
 } // namespace skgpu::graphite

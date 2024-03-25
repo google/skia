@@ -8,7 +8,14 @@
 #include "include/gpu/graphite/BackendTexture.h"
 
 #include "include/gpu/MutableTextureState.h"
+
+#ifdef SK_DAWN
+#include "include/private/gpu/graphite/DawnTypesPriv.h"
+#endif
+
+#ifdef SK_VULKAN
 #include "include/gpu/vk/VulkanMutableTextureState.h"
+#endif
 
 namespace skgpu::graphite {
 
@@ -107,7 +114,7 @@ sk_sp<MutableTextureState> BackendTexture::getMutableState() const {
 BackendTexture::BackendTexture(WGPUTexture texture)
         : fDimensions{static_cast<int32_t>(wgpuTextureGetWidth(texture)),
                       static_cast<int32_t>(wgpuTextureGetHeight(texture))}
-        , fInfo(DawnTextureInfo(wgpu::Texture(texture)))
+        , fInfo(DawnTextureInfoFromWGPUTexture(texture))
         , fDawnTexture(texture)
         , fDawnTextureView(nullptr) {}
 
