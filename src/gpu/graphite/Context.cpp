@@ -155,6 +155,7 @@ bool Context::submit(SyncToCpu syncToCpu) {
     }
     bool success = fQueueManager->submitToGpu();
     fQueueManager->checkForFinishedWork(syncToCpu);
+    fMappedBufferManager->process();
     return success;
 }
 
@@ -807,6 +808,7 @@ void Context::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
 
     auto purgeTime = skgpu::StdSteadyClock::now() - msNotUsed;
     fResourceProvider->purgeResourcesNotUsedSince(purgeTime);
+    fMappedBufferManager->process();
 }
 
 size_t Context::currentBudgetedBytes() const {
