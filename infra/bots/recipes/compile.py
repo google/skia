@@ -41,7 +41,7 @@ def RunSteps(api):
       script = api.build.resource('cleanup_win_processes.py')
       api.step(
           name='cleanup',
-          cmd=['vpython', script],
+          cmd=['vpython3', script],
           infra_step=True)
 
   api.run.check_failure()

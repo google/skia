@@ -382,10 +382,10 @@ func (b *taskBuilder) usesPython() {
 		"cipd_bin_packages/cpython3/bin",
 	)
 	b.cache(&specs.Cache{
-		Name: "vpython",
-		Path: "cache/vpython",
+		Name: "vpython3",
+		Path: "cache/vpython3",
 	})
-	b.envPrefixes("VPYTHON_VIRTUALENV_ROOT", "cache/vpython")
+	b.envPrefixes("VPYTHON_VIRTUALENV_ROOT", "cache/vpython3")
 	b.env("VPYTHON_LOG_TRACE", "1")
 }
 

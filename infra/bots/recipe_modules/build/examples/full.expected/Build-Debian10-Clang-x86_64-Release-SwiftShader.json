@@ -83,6 +83,19 @@
   },
   {
     "cmd": [
+      "python3",
+      "[START_DIR]/cache/work/skia/bin/fetch-ninja"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-ninja"
+  },
+  {
+    "cmd": [
       "[START_DIR]/ccache_linux/bin/ccache",
       "-s"
     ],

@@ -347,6 +347,10 @@ def compile_fn(api, checkout_root, out_dir):
             cmd=['python3', skia_dir.join('bin', 'fetch-gn')],
             infra_step=True)
 
+    api.run(api.step, 'fetch-ninja',
+            cmd=['python3', skia_dir.join('bin', 'fetch-ninja')],
+            infra_step=True)
+
     with api.env(env):
       if ccache:
         api.run(api.step, 'ccache stats-start', cmd=[ccache, '-s'])

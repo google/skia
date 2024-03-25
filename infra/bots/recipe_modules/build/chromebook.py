@@ -92,6 +92,9 @@ def compile_fn(api, checkout_root, out_dir):
     api.run(api.step, 'fetch-gn',
             cmd=['python3', skia_dir.join('bin', 'fetch-gn')],
             infra_step=True)
+    api.run(api.step, 'fetch-ninja',
+            cmd=['python3', skia_dir.join('bin', 'fetch-ninja')],
+            infra_step=True)
     api.run(api.step, 'gn gen',
             cmd=[gn, 'gen', out_dir, '--args=' + util.py_to_gn(args)])
     api.run(api.step, 'ninja',

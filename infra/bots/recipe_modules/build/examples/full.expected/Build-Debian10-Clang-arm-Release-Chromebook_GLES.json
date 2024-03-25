@@ -33,6 +33,20 @@
   },
   {
     "cmd": [
+      "python3",
+      "[START_DIR]/cache/work/skia/bin/fetch-ninja"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "LD_LIBRARY_PATH": "[START_DIR]/armhf_sysroot/lib",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-ninja"
+  },
+  {
+    "cmd": [
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-Release-Chromebook_GLES/Release",

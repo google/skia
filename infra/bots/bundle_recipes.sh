@@ -7,8 +7,8 @@
 set -x -e
 
 which vpython3
-vpython3 --version
 cd skia
+vpython3 --version
 git init
 git add .
 git commit -m "Commit Recipes"

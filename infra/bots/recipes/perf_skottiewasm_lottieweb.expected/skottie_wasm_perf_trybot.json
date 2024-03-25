@@ -69,8 +69,8 @@
     "name": "parse lottie1.json trace",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71,@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25,@@@",
       "@@@STEP_LOG_LINE@json.output@  \"frame_min_us\": 141.17@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
@@ -113,8 +113,8 @@
     "name": "parse lottie2.json trace",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71,@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25,@@@",
       "@@@STEP_LOG_LINE@json.output@  \"frame_min_us\": 141.17@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"
@@ -157,8 +157,8 @@
     "name": "parse lottie3.json trace",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71, @@@",
-      "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25, @@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71,@@@",
+      "@@@STEP_LOG_LINE@json.output@  \"frame_max_us\": 218.25,@@@",
       "@@@STEP_LOG_LINE@json.output@  \"frame_min_us\": 141.17@@@",
       "@@@STEP_LOG_LINE@json.output@}@@@",
       "@@@STEP_LOG_END@json.output@@@"

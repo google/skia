@@ -47,7 +47,7 @@ var (
 		".bazelversion",
 		".clang-format",
 		".clang-tidy",
-		".vpython",
+		".vpython3",
 		"BUILD.bazel",
 		"DEPS", // Needed by bin/fetch-ninja
 		"WORKSPACE.bazel",

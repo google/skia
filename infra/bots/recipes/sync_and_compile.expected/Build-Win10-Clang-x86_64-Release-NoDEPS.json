@@ -121,6 +121,19 @@
   },
   {
     "cmd": [
+      "python3",
+      "[START_DIR]\\skia\\bin\\fetch-ninja"
+    ],
+    "cwd": "[START_DIR]\\skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-ninja"
+  },
+  {
+    "cmd": [
       "[START_DIR]\\skia\\bin\\gn",
       "gen",
       "[START_DIR]\\skia\\out\\Build-Win10-Clang-x86_64-Release-NoDEPS\\Release_x64",
@@ -159,7 +172,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "RECIPE_MODULE[skia::build]\\resources\\cleanup_win_processes.py"
     ],
     "infra_step": true,

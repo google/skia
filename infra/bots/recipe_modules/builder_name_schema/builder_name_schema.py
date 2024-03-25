@@ -58,7 +58,7 @@ def _LoadSchema():
     elif isinstance(obj, tuple):
       return tuple(map(ToStr, obj))
     else:
-      return obj.decode('utf-8')
+      return obj.decode('utf-8')  # pragma: nocover
 
   builder_name_json_filename = os.path.join(
       os.path.dirname(__file__), 'builder_name_schema.json')

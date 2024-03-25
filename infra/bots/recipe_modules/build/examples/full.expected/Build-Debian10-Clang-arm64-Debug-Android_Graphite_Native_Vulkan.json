@@ -32,6 +32,19 @@
   },
   {
     "cmd": [
+      "python3",
+      "[START_DIR]/cache/work/skia/bin/fetch-ninja"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-ninja"
+  },
+  {
+    "cmd": [
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm64-Debug-Android_Graphite_Native_Vulkan/Debug",
