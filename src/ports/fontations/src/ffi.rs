@@ -6,7 +6,7 @@ use font_types::{BoundingBox, GlyphId, Pen};
 use read_fonts::{tables::colr::CompositeMode, FileRef, FontRef, ReadError, TableProvider};
 use skrifa::{
     attribute::Style,
-    charmap::{MappingIndex},
+    charmap::MappingIndex,
     color::{Brush, ColorGlyphFormat, ColorPainter, Transform},
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
@@ -623,6 +623,36 @@ fn variation_position(
     coords.filtered_user_coords.len().try_into().unwrap()
 }
 
+fn coordinates_for_shifted_named_instance_index(
+    font_ref: &BridgeFontRef,
+    shifted_index: u32,
+    coords: &mut [SkiaDesignCoordinate],
+) -> isize {
+    font_ref
+        .with_font(|f| {
+            let fvar = f.fvar().ok()?;
+            let instances = fvar.instances().ok()?;
+            let index: usize = ((shifted_index >> 16) - 1).try_into().unwrap();
+            let instance_coords = instances.get(index).ok()?.coordinates;
+
+            if coords.len() != 0 {
+                if coords.len() < instance_coords.len() {
+                    return None;
+                }
+                let axis_coords = f.axes().iter().zip(instance_coords.iter()).enumerate();
+                for (i, axis_coord) in axis_coords {
+                    coords[i] = SkiaDesignCoordinate {
+                        axis: u32::from_be_bytes(axis_coord.0.tag().to_be_bytes()),
+                        value: axis_coord.1.get().to_f32(),
+                    };
+                }
+            }
+
+            Some(instance_coords.len() as isize)
+        })
+        .unwrap_or(-1)
+}
+
 fn populate_axes(font_ref: &BridgeFontRef, mut axis_wrapper: Pin<&mut AxisWrapper>) -> isize {
     font_ref
         .with_font(|f| {
@@ -651,7 +681,17 @@ fn populate_axes(font_ref: &BridgeFontRef, mut axis_wrapper: Pin<&mut AxisWrappe
 fn make_font_ref_internal<'a>(font_data: &'a [u8], index: u32) -> Result<FontRef<'a>, ReadError> {
     match FileRef::new(font_data) {
         Ok(file_ref) => match file_ref {
-            FileRef::Font(font_ref) => Ok(font_ref),
+            FileRef::Font(font_ref) => {
+                // Indices with the higher bits set are meaningful here and do not result in an
+                // error, as they may refer to a named instance and are taken into account by the
+                // Fontations typeface implementation,
+                // compare `coordinates_for_shifted_named_instance_index()`.
+                if index & 0xFFFF > 0 {
+                    Err(ReadError::InvalidCollectionIndex(index))
+                } else {
+                    Ok(font_ref)
+                }
+            }
             FileRef::Collection(collection) => collection.get(index),
         },
         Err(e) => Err(e),
@@ -1105,6 +1145,7 @@ mod ffi {
         language: String,
     }
 
+    #[derive(PartialEq, Debug, Default)]
     struct SkiaDesignCoordinate {
         axis: u32,
         value: f32,
@@ -1205,7 +1246,11 @@ mod ffi {
 
         type BridgeMappingIndex;
         unsafe fn make_mapping_index<'a>(font_ref: &'a BridgeFontRef) -> Box<BridgeMappingIndex>;
-        fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, map: &BridgeMappingIndex, codepoint: u32) -> u16;
+        fn lookup_glyph_or_zero(
+            font_ref: &BridgeFontRef,
+            map: &BridgeMappingIndex,
+            codepoint: u32,
+        ) -> u16;
 
         fn get_path(
             outlines: &BridgeOutlineCollection,
@@ -1271,6 +1316,19 @@ mod ffi {
         fn variation_position(
             coords: &BridgeNormalizedCoords,
             coordinates: &mut [SkiaDesignCoordinate],
+        ) -> isize;
+        // Fills the passed-in slice with the axis coordinates for a given
+        // shifted named instance index. A shifted named instance index is a
+        // 32bit value that contains the index to a named instance left-shifted
+        // by 16bits and offset by 1. This mirrors FreeType behavior to smuggle
+        // named instance identifiers through a TrueType collection index.
+        // Returns the number of coordinates copied. If the slice length is 0,
+        // performs no copy but only returns the number of axis coordinates for
+        // the given shifted index. Returns -1 on error.
+        fn coordinates_for_shifted_named_instance_index(
+            font_ref: &BridgeFontRef,
+            shifted_index: u32,
+            coords: &mut [SkiaDesignCoordinate],
         ) -> isize;
 
         fn populate_axes(font_ref: &BridgeFontRef, axis_wrapper: Pin<&mut AxisWrapper>) -> isize;
@@ -1429,8 +1487,9 @@ mod ffi {
 #[cfg(test)]
 mod test {
     use crate::{
-        ffi::BridgeFontStyle, ffi::PaletteOverride, font_or_collection, font_ref_is_valid,
-        get_font_style, make_font_ref, resolve_palette,
+        coordinates_for_shifted_named_instance_index,
+        ffi::{BridgeFontStyle, PaletteOverride, SkiaDesignCoordinate},
+        font_or_collection, font_ref_is_valid, get_font_style, make_font_ref, resolve_palette,
     };
     use std::fs;
 
@@ -1550,5 +1609,69 @@ mod test {
         assert_eq!(font_style.width, 5); // Skia normal
         assert_eq!(font_style.slant, 0); // Skia upright
         assert_eq!(font_style.weight, 400); // Skia normal
+    }
+
+    #[test]
+    fn test_shifted_named_instance_index() {
+        let file_buffer =
+            fs::read(TEST_VARIABLE).expect("Font to test named instances could not be opened.");
+        let font_ref = make_font_ref(&file_buffer, 0);
+        assert!(font_ref_is_valid(&font_ref));
+        // Named instances are 1-indexed.
+        const SHIFTED_NAMED_INSTANCE_INDEX: u32 = 5 << 16;
+        const OUT_OF_BOUNDS_NAMED_INSTANCE_INDEX: u32 = 6 << 16;
+
+        let num_coords = coordinates_for_shifted_named_instance_index(
+            &font_ref,
+            SHIFTED_NAMED_INSTANCE_INDEX,
+            &mut [],
+        );
+        assert_eq!(num_coords, 2);
+
+        let mut too_small: [SkiaDesignCoordinate; 1] = Default::default();
+        let num_coords = coordinates_for_shifted_named_instance_index(
+            &font_ref,
+            SHIFTED_NAMED_INSTANCE_INDEX,
+            &mut too_small,
+        );
+        assert_eq!(num_coords, -1);
+
+        let mut received_coords: [SkiaDesignCoordinate; 2] = Default::default();
+        let num_coords = coordinates_for_shifted_named_instance_index(
+            &font_ref,
+            SHIFTED_NAMED_INSTANCE_INDEX,
+            &mut received_coords,
+        );
+        assert_eq!(num_coords, 2);
+        assert_eq!(
+            received_coords[0],
+            SkiaDesignCoordinate {
+                axis: u32::from_be_bytes([b'w', b'g', b'h', b't']),
+                value: 400.0
+            }
+        );
+        assert_eq!(
+            received_coords[1],
+            SkiaDesignCoordinate {
+                axis: u32::from_be_bytes([b'w', b'd', b't', b'h']),
+                value: 200.0
+            }
+        );
+
+        let mut too_large: [SkiaDesignCoordinate; 5] = Default::default();
+        let num_coords = coordinates_for_shifted_named_instance_index(
+            &font_ref,
+            SHIFTED_NAMED_INSTANCE_INDEX,
+            &mut too_large,
+        );
+        assert_eq!(num_coords, 2);
+
+        // Index out of bounds:
+        let num_coords = coordinates_for_shifted_named_instance_index(
+            &font_ref,
+            OUT_OF_BOUNDS_NAMED_INSTANCE_INDEX,
+            &mut [],
+        );
+        assert_eq!(num_coords, -1);
     }
 }
