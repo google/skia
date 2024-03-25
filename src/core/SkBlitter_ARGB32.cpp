@@ -609,6 +609,743 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
         }
     }
 
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LASX
+
+    // The following (left) shifts cause the top 5 bits of the mask components to
+    // line up with the corresponding components in an SkPMColor.
+    // Note that the mask's RGB16 order may differ from the SkPMColor order.
+    #define SK_R16x5_R32x5_SHIFT (SK_R32_SHIFT - SK_R16_SHIFT - SK_R16_BITS + 5)
+    #define SK_G16x5_G32x5_SHIFT (SK_G32_SHIFT - SK_G16_SHIFT - SK_G16_BITS + 5)
+    #define SK_B16x5_B32x5_SHIFT (SK_B32_SHIFT - SK_B16_SHIFT - SK_B16_BITS + 5)
+
+    #if SK_R16x5_R32x5_SHIFT == 0
+        #define SkPackedR16x5ToUnmaskedR32x5_LASX(x) (x)
+    #elif SK_R16x5_R32x5_SHIFT > 0
+        #define SkPackedR16x5ToUnmaskedR32x5_LASX(x) (__lasx_xvslli_w(x, SK_R16x5_R32x5_SHIFT))
+    #else
+        #define SkPackedR16x5ToUnmaskedR32x5_LASX(x) (__lasx_xvsrli_w(x, -SK_R16x5_R32x5_SHIFT))
+    #endif
+
+    #if SK_G16x5_G32x5_SHIFT == 0
+        #define SkPackedG16x5ToUnmaskedG32x5_LASX(x) (x)
+    #elif SK_G16x5_G32x5_SHIFT > 0
+        #define SkPackedG16x5ToUnmaskedG32x5_LASX(x) (__lasx_xvslli_w(x, SK_G16x5_G32x5_SHIFT))
+    #else
+        #define SkPackedG16x5ToUnmaskedG32x5_LASX(x) (__lasx_xvsrli_w(x, -SK_G16x5_G32x5_SHIFT))
+    #endif
+
+    #if SK_B16x5_B32x5_SHIFT == 0
+        #define SkPackedB16x5ToUnmaskedB32x5_LASX(x) (x)
+    #elif SK_B16x5_B32x5_SHIFT > 0
+        #define SkPackedB16x5ToUnmaskedB32x5_LASX(x) (__lasx_xvslli_w(x, SK_B16x5_B32x5_SHIFT))
+    #else
+        #define SkPackedB16x5ToUnmaskedB32x5_LASX(x) (__lasx_xvsrli_w(x, -SK_B16x5_B32x5_SHIFT))
+    #endif
+
+    static __m256i blend_lcd16_lasx(__m256i &src, __m256i &dst, __m256i &mask, __m256i &srcA) {
+        // In the following comments, the components of src, dst and mask are
+        // abbreviated as (s)rc, (d)st, and (m)ask. Color components are marked
+        // by an R, G, B, or A suffix. Components of one of the four pixels that
+        // are processed in parallel are marked with 0, 1, 2, and 3. "d1B", for
+        // example is the blue channel of the second destination pixel. Memory
+        // layout is shown for an ARGB byte order in a color value.
+
+        // src and srcA store 8-bit values interleaved with zeros.
+        // src  = (0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0,
+        //         0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0)
+        // srcA = (srcA, 0, srcA, 0, srcA, 0, srcA, 0,
+        //         srcA, 0, srcA, 0, srcA, 0, srcA, 0,
+        //         srcA, 0, srcA, 0, srcA, 0, srcA, 0,
+        //         srcA, 0, srcA, 0, srcA, 0, srcA, 0)
+        // mask stores 16-bit values (compressed three channels) interleaved with zeros.
+        // Lo and Hi denote the low and high bytes of a 16-bit value, respectively.
+        // mask = (m0RGBLo, m0RGBHi, 0, 0, m1RGBLo, m1RGBHi, 0, 0,
+        //         m2RGBLo, m2RGBHi, 0, 0, m3RGBLo, m3RGBHi, 0, 0,
+        //         m4RGBLo, m4RGBHi, 0, 0, m5RGBLo, m5RGBHi, 0, 0,
+        //         m6RGBLo, m6RGBHi, 0, 0, m7RGBLo, m7RGBHi, 0, 0)
+
+        __m256i xv_zero = __lasx_xvldi(0);
+
+        // Get the R,G,B of each 16bit mask pixel, we want all of them in 5 bits.
+        // r = (0, m0R, 0, 0, 0, m1R, 0, 0, 0, m2R, 0, 0, 0, m3R, 0, 0,
+        //      0, m4R, 0, 0, 0, m5R, 0, 0, 0, m6R, 0, 0, 0, m7R, 0, 0)
+        __m256i r = __lasx_xvand_v(SkPackedR16x5ToUnmaskedR32x5_LASX(mask),
+                                   __lasx_xvreplgr2vr_w(0x1F << SK_R32_SHIFT));
+
+        // g = (0, 0, m0G, 0, 0, 0, m1G, 0, 0, 0, m2G, 0, 0, 0, m3G, 0)
+        //      0, 0, m4G, 0, 0, 0, m5G, 0, 0, 0, m6G, 0, 0, 0, m7R, 0)
+        __m256i g = __lasx_xvand_v(SkPackedG16x5ToUnmaskedG32x5_LASX(mask),
+                                   __lasx_xvreplgr2vr_w(0x1F << SK_G32_SHIFT));
+
+        // b = (0, 0, 0, m0B, 0, 0, 0, m1B, 0, 0, 0, m2B, 0, 0, 0, m3B)
+        //      0, 0, 0, m4B, 0, 0, 0, m5B, 0, 0, 0, m6B, 0, 0, 0, m7B)
+        __m256i b = __lasx_xvand_v(SkPackedB16x5ToUnmaskedB32x5_LASX(mask),
+                                   __lasx_xvreplgr2vr_w(0x1F << SK_B32_SHIFT));
+
+        // a needs to be either the min or the max of the LCD coverages, depending on srcA < dstA
+        __m256i aMin = __lasx_xvmin_b(__lasx_xvslli_w(r, SK_A32_SHIFT - SK_R32_SHIFT),
+                       __lasx_xvmin_b(__lasx_xvslli_w(g, SK_A32_SHIFT - SK_G32_SHIFT),
+                                      __lasx_xvslli_w(b, SK_A32_SHIFT - SK_B32_SHIFT)));
+        __m256i aMax = __lasx_xvmax_b(__lasx_xvslli_w(r, SK_A32_SHIFT - SK_R32_SHIFT),
+                       __lasx_xvmax_b(__lasx_xvslli_w(g, SK_A32_SHIFT - SK_G32_SHIFT),
+                                      __lasx_xvslli_w(b, SK_A32_SHIFT - SK_B32_SHIFT)));
+        // srcA has been biased to [0-256], so compare srcA against (dstA+1)
+        __m256i a = __lasx_xvmskltz_w(srcA -
+                                    __lasx_xvand_v(
+                                           __lasx_xvadd_w(dst,
+                                                          __lasx_xvreplgr2vr_w(1 << SK_A32_SHIFT)),
+                                           __lasx_xvreplgr2vr_w(SK_A32_MASK)));
+        // a = if_then_else(a, aMin, aMax) == (aMin & a) | (aMax & ~a)
+        a = __lasx_xvor_v(__lasx_xvand_v(a, aMin), __lasx_xvandn_v(a, aMax));
+
+        // Pack the 8 16bit mask pixels into 8 32bit pixels, (p0, p1, p2, p3)
+        // Each component (m0R, m0G, etc.) is then a 5-bit value aligned to an
+        // 8-bit position
+        // mask = (m0A, m0R, m0G, m0B, m1R, m1R, m1G, m1B,
+        //         m2A, m2R, m2G, m2B, m3R, m3R, m3G, m3B,
+        //         m4A, m4R, m4G, m4B, m5R, m5R, m5G, m5B,
+        //         m6A, m6R, m6G, m6B, m7R, m7R, m7G, m7B)
+        mask = __lasx_xvor_v(__lasx_xvor_v(a, r), __lasx_xvor_v(g, b));
+
+        // Interleave R,G,B into the lower byte of word.
+        // i.e. split the sixteen 8-bit values from mask into two sets of sixteen
+        // 16-bit values, padded by zero.
+        __m256i maskLo, maskHi;
+        // maskLo = (m0A, 0, m0R, 0, m0G, 0, m0B, 0, m1A, 0, m1R, 0, m1G, 0, m1B, 0,
+        //           m2A, 0, m2R, 0, m2G, 0, m2B, 0, m3A, 0, m3R, 0, m3G, 0, m3B, 0)
+        maskLo = __lasx_xvilvl_b(xv_zero, mask);
+        // maskHi = (m4A, 0, m4R, 0, m4G, 0, m4B, 0, m5A, 0, m5R, 0, m5G, 0, m5B, 0,
+        //           m6A, 0, m6R, 0, m6G, 0, m6B, 0, m7A, 0, m7R, 0, m7G, 0, m7B, 0)
+        maskHi = __lasx_xvilvh_b(xv_zero, mask);
+
+        // Upscale from 0..31 to 0..32
+        // (allows to replace division by left-shift further down)
+        // Left-shift each component by 4 and add the result back to that component,
+        // mapping numbers in the range 0..15 to 0..15, and 16..31 to 17..32
+        maskLo = __lasx_xvadd_h(maskLo, __lasx_xvsrli_h(maskLo, 4));
+        maskHi = __lasx_xvadd_h(maskHi, __lasx_xvsrli_h(maskHi, 4));
+
+        // Multiply each component of maskLo and maskHi by srcA
+        maskLo = __lasx_xvmul_h(maskLo, srcA);
+        maskHi = __lasx_xvmul_h(maskHi, srcA);
+
+        // Left shift mask components by 8 (divide by 256)
+        maskLo = __lasx_xvsrli_h(maskLo, 8);
+        maskHi = __lasx_xvsrli_h(maskHi, 8);
+
+        // Interleave R,G,B into the lower byte of the word
+        // dstLo = (d0A, 0, d0R, 0, d0G, 0, d0B, 0, d1A, 0, d1R, 0, d1G, 0, d1B, 0)
+        //          d2A, 0, d2R, 0, d2G, 0, d2B, 0, d3A, 0, d3R, 0, d3G, 0, d3B, 0)
+        __m256i dstLo = __lasx_xvilvl_b(xv_zero, dst);
+        // dstLo = (d4A, 0, d4R, 0, d4G, 0, d4B, 0, d5A, 0, d5R, 0, d5G, 0, d5B, 0)
+        //          d6A, 0, d6R, 0, d6G, 0, d6B, 0, d7A, 0, d7R, 0, d7G, 0, d7B, 0)
+        __m256i dstHi = __lasx_xvilvh_b(xv_zero, dst);
+
+        // mask = (src - dst) * mask
+        maskLo = __lasx_xvmul_h(maskLo, __lasx_xvsub_h(src, dstLo));
+        maskHi = __lasx_xvmul_h(maskHi, __lasx_xvsub_h(src, dstHi));
+
+        // mask = (src - dst) * mask >> 5
+        maskLo = __lasx_xvsrai_h(maskLo, 5);
+        maskHi = __lasx_xvsrai_h(maskHi, 5);
+
+        // Add two pixels into result.
+        // result = dst + ((src - dst) * mask >> 5)
+        __m256i resultLo = __lasx_xvadd_h(dstLo, maskLo);
+        __m256i resultHi = __lasx_xvadd_h(dstHi, maskHi);
+
+        // Pack into 8 32bit dst pixels.
+        // resultLo and resultHi contain sixteen 16-bit components (four pixels) each.
+        // Merge into one LASX regsiter with 32 8-bit values (eight pixels),
+        // clamping to 255 if necessary.
+        __m256i tmpl = __lasx_xvsat_hu(resultLo, 7);
+        __m256i tmph = __lasx_xvsat_hu(resultHi, 7);
+        return __lasx_xvpickev_b(tmph, tmpl);
+    }
+
+    static __m256i blend_lcd16_opaque_lasx(__m256i &src, __m256i &dst, __m256i &mask) {
+        // In the following comments, the components of src, dst and mask are
+        // abbreviated as (s)rc, (d)st, and (m)ask. Color components are marked
+        // by an R, G, B, or A suffix. Components of one of the four pixels that
+        // are processed in parallel are marked with 0, 1, 2, and 3. "d1B", for
+        // example is the blue channel of the second destination pixel. Memory
+        // layout is shown for an ARGB byte order in a color value.
+
+        // src and srcA store 8-bit values interleaved with zeros.
+        // src  = (0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0,
+        //         0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0)
+        // mask stores 16-bit values (shown as high and low bytes) interleaved with
+        // zeros
+        // mask = (m0RGBLo, m0RGBHi, 0, 0, m1RGBLo, m1RGBHi, 0, 0,
+        //         m2RGBLo, m2RGBHi, 0, 0, m3RGBLo, m3RGBHi, 0, 0,
+        //         m4RGBLo, m4RGBHi, 0, 0, m5RGBLo, m5RGBHi, 0, 0,
+        //         m6RGBLo, m6RGBHi, 0, 0, m7RGBLo, m7RGBHi, 0, 0)
+
+        __m256i xv_zero = __lasx_xvldi(0);
+
+        // Get the R,G,B of each 16bit mask pixel, we want all of them in 5 bits.
+        // r = (0, m0R, 0, 0, 0, m1R, 0, 0, 0, m2R, 0, 0, 0, m3R, 0, 0,
+        //      0, m4R, 0, 0, 0, m5R, 0, 0, 0, m6R, 0, 0, 0, m7R, 0, 0)
+        __m256i r = __lasx_xvand_v(SkPackedR16x5ToUnmaskedR32x5_LASX(mask),
+                                   __lasx_xvreplgr2vr_w(0x1F << SK_R32_SHIFT));
+
+        // g = (0, 0, m0G, 0, 0, 0, m1G, 0, 0, 0, m2G, 0, 0, 0, m3G, 0,
+        //      0, 0, m4G, 0, 0, 0, m5G, 0, 0, 0, m6G, 0, 0, 0, m7G, 0)
+        __m256i g = __lasx_xvand_v(SkPackedG16x5ToUnmaskedG32x5_LASX(mask),
+                                   __lasx_xvreplgr2vr_w(0x1F << SK_G32_SHIFT));
+
+        // b = (0, 0, 0, m0B, 0, 0, 0, m1B, 0, 0, 0, m2B, 0, 0, 0, m3B,
+        //      0, 0, 0, m4B, 0, 0, 0, m5B, 0, 0, 0, m6B, 0, 0, 0, m7B)
+        __m256i b = __lasx_xvand_v(SkPackedB16x5ToUnmaskedB32x5_LASX(mask),
+                                   __lasx_xvreplgr2vr_w(0x1F << SK_B32_SHIFT));
+
+        // a = max(r, g, b) since opaque src alpha uses max of LCD coverages
+        __m256i a = __lasx_xvmax_b(__lasx_xvslli_w(r, SK_A32_SHIFT - SK_R32_SHIFT),
+                    __lasx_xvmax_b(__lasx_xvslli_w(g, SK_A32_SHIFT - SK_G32_SHIFT),
+                                   __lasx_xvslli_w(b, SK_A32_SHIFT - SK_B32_SHIFT)));
+
+        // Pack the 8 16bit mask pixels into 8 32bit pixels, (p0, p1, p2, p3,
+        // p4, p5, p6, p7)
+        // Each component (m0R, m0G, etc.) is then a 5-bit value aligned to an
+        // 8-bit position
+        // mask = (m0A, m0R, m0G, m0B, m1A, m1R, m1G, m1B,
+        //         m2A, m2R, m2G, m2B, m3A, m3R, m3G, m3B,
+        //         m4A, m4R, m4G, m4B, m5A, m5R, m5G, m5B,
+        //         m6A, m6R, m6G, m6B, m7A, m7R, m7G, m7B)
+        mask = __lasx_xvor_v(__lasx_xvor_v(a, r), __lasx_xvor_v(g, b));
+
+        // Interleave R,G,B into the lower byte of word.
+        // i.e. split the 32 8-bit values from mask into two sets of sixteen
+        // 16-bit values, padded by zero.
+        __m256i maskLo, maskHi;
+        // maskLo = (m0A, 0, m0R, 0, m0G, 0, m0B, 0, m1A, 0, m1R, 0, m1G, 0, m1B, 0,
+        //           m2A, 0, m2R, 0, m2G, 0, m2B, 0, m3A, 0, m3R, 0, m3G, 0, m3B, 0)
+        maskLo = __lasx_xvilvl_b(xv_zero, mask);
+        // maskHi = (m4A, 0, m4R, 0, m4G, 0, m4B, 0, m5A, 0, m5R, 0, m5G, 0, m5B, 0,
+        //           m6A, 0, m6R, 0, m6G, 0, m6B, 0, m7A, 0, m7R, 0, m7G, 0, m7B, 0)
+        maskHi = __lasx_xvilvh_b(xv_zero, mask);
+
+        // Upscale from 0..31 to 0..32
+        // (allows to replace division by left-shift further down)
+        // Left-shift each component by 4 and add the result back to that component,
+        // mapping numbers in the range 0..15 to 0..15, and 16..31 to 17..32
+        maskLo = __lasx_xvadd_h(maskLo, __lasx_xvsrli_h(maskLo, 4));
+        maskHi = __lasx_xvadd_h(maskHi, __lasx_xvsrli_h(maskHi, 4));
+
+        // Interleave R,G,B into the lower byte of the word
+        // dstLo = (d0A, 0, d0R, 0, d0G, 0, d0B, 0, d1A, 0, d1R, 0, d1G, 0, d1B, 0,
+        //          d2A, 0, d2R, 0, d2G, 0, d2B, 0, d3A, 0, d3R, 0, d3G, 0, d3B, 0)
+        __m256i dstLo = __lasx_xvilvl_b(xv_zero, dst);
+        // dstLo = (d4A, 0, d4R, 0, d4G, 0, d4B, 0, d5A, 0, d5R, 0, d5G, 0, d5B, 0,
+        // dstLo = (d6A, 0, d6R, 0, d6G, 0, d6B, 0, d7A, 0, d7R, 0, d7G, 0, d7B, 0)
+        __m256i dstHi = __lasx_xvilvh_b(xv_zero, dst);
+
+        // mask = (src - dst) * mask
+        maskLo = __lasx_xvmul_h(maskLo, __lasx_xvsub_h(src, dstLo));
+        maskHi = __lasx_xvmul_h(maskHi, __lasx_xvsub_h(src, dstHi));
+
+        // mask = (src - dst) * mask >> 5
+        maskLo = __lasx_xvsrai_h(maskLo, 5);
+        maskHi = __lasx_xvsrai_h(maskHi, 5);
+
+        // Add two pixels into result.
+        // result = dst + ((src - dst) * mask >> 5)
+        __m256i resultLo = __lasx_xvadd_h(dstLo, maskLo);
+        __m256i resultHi = __lasx_xvadd_h(dstHi, maskHi);
+
+        // Merge into one SSE regsiter with 32 8-bit values (eight pixels),
+        // clamping to 255 if necessary.
+        __m256i tmpl = __lasx_xvsat_hu(resultLo, 7);
+        __m256i tmph = __lasx_xvsat_hu(resultHi, 7);
+
+        return __lasx_xvpickev_b(tmph, tmpl);
+    }
+
+    void blit_row_lcd16(SkPMColor dst[], const uint16_t mask[], SkColor src, int width, SkPMColor) {
+        if (width <= 0) {
+            return;
+        }
+
+        int srcA = SkColorGetA(src);
+        int srcR = SkColorGetR(src);
+        int srcG = SkColorGetG(src);
+        int srcB = SkColorGetB(src);
+        __m256i xv_zero = __lasx_xvldi(0);
+
+        srcA = SkAlpha255To256(srcA);
+        if (width >= 8) {
+            SkASSERT(((size_t)dst & 0x03) == 0);
+            while (((size_t)dst & 0x0F) != 0) {
+                *dst = blend_lcd16(srcA, srcR, srcG, srcB, *dst, *mask);
+                mask++;
+                dst++;
+                width--;
+            }
+
+            __m256i *d = reinterpret_cast<__m256i*>(dst);
+            // Set alpha to 0xFF and replicate source eight times in LASX register.
+            unsigned int skpackargb32 = SkPackARGB32(0xFF, srcR, srcG, srcB);
+            __m256i src_lasx = __lasx_xvreplgr2vr_w(skpackargb32);
+            // Interleave with zeros to get two sets of eight 16-bit values.
+            src_lasx = __lasx_xvilvl_b(xv_zero, src_lasx);
+            // Set srcA_lasx to contain sixteen copies of srcA, padded with zero.
+            // src_lasx=(0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0,
+            //           0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0)
+            __m256i srcA_lasx = __lasx_xvreplgr2vr_h(srcA);
+
+            while (width >= 8) {
+                // Load eight destination pixels into dst_lasx.
+                __m256i dst_lasx = __lasx_xvld(d, 0);
+                // Load eight 16-bit masks into lower half of mask_lasx.
+                __m256i mask_lasx = __lasx_xvld(mask, 0);
+                mask_lasx = (__m256i){mask_lasx[0], 0, mask_lasx[1], 0};
+
+                int pack_cmp = __lasx_xbz_v(mask_lasx);
+                // if mask pixels are not all zero, we will blend the dst pixels
+                if (pack_cmp != 1) {
+                    // Unpack 8 16bit mask pixels to
+                    // mask_lasx = (m0RGBLo, m0RGBHi, 0, 0, m1RGBLo, m1RGBHi, 0, 0,
+                    //              m2RGBLo, m2RGBHi, 0, 0, m3RGBLo, m3RGBHi, 0, 0,
+                    //              m4RGBLo, m4RGBHi, 0, 0, m5RGBLo, m5RGBHi, 0, 0,
+                    //              m6RGBLo, m6RGBHi, 0, 0, m7RGBLo, m7RGBHi, 0, 0)
+                    mask_lasx = __lasx_xvilvl_h(xv_zero, mask_lasx);
+
+                    // Process 8 32bit dst pixels
+                    __m256i result = blend_lcd16_lasx(src_lasx, dst_lasx, mask_lasx, srcA_lasx);
+                    __lasx_xvst(result, d, 0);
+                }
+                d++;
+                mask += 8;
+                width -= 8;
+            }
+            dst = reinterpret_cast<SkPMColor*>(d);
+        }
+
+        while (width > 0) {
+            *dst = blend_lcd16(srcA, srcR, srcG, srcB, *dst, *mask);
+            mask++;
+            dst++;
+            width--;
+        }
+    }
+
+    void blit_row_lcd16_opaque(SkPMColor dst[], const uint16_t mask[],
+                               SkColor src, int width, SkPMColor opaqueDst) {
+        if (width <= 0) {
+            return;
+        }
+
+        int srcR = SkColorGetR(src);
+        int srcG = SkColorGetG(src);
+        int srcB = SkColorGetB(src);
+        __m256i xv_zero = __lasx_xvldi(0);
+
+        if (width >= 8) {
+            SkASSERT(((size_t)dst & 0x03) == 0);
+            while (((size_t)dst & 0x0F) != 0) {
+                *dst = blend_lcd16_opaque(srcR, srcG, srcB, *dst, *mask, opaqueDst);
+                mask++;
+                dst++;
+                width--;
+            }
+
+            __m256i *d = reinterpret_cast<__m256i*>(dst);
+            // Set alpha to 0xFF and replicate source four times in LASX register.
+            unsigned int sk_pack_argb32 = SkPackARGB32(0xFF, srcR, srcG, srcB);
+            __m256i src_lasx = __lasx_xvreplgr2vr_w(sk_pack_argb32);
+            // Set srcA_lasx to contain sixteen copies of srcA, padded with zero.
+            // src_lasx=(0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0,
+            //           0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0)
+            src_lasx = __lasx_xvilvl_b(xv_zero, src_lasx);
+
+            while (width >= 8) {
+                // Load eight destination pixels into dst_lasx.
+                __m256i dst_lasx = __lasx_xvld(d, 0);
+                // Load eight 16-bit masks into lower half of mask_lasx.
+                __m256i mask_lasx = __lasx_xvld(mask, 0);
+                mask_lasx = (__m256i){mask_lasx[0], 0, mask_lasx[1], 0};
+
+                int32_t pack_cmp = __lasx_xbz_v(mask_lasx);
+                // if mask pixels are not all zero, we will blend the dst pixels
+                if (pack_cmp != 1) {
+                    // Unpack 8 16bit mask pixels to
+                    // mask_lasx = (m0RGBLo, m0RGBHi, 0, 0, m1RGBLo, m1RGBHi, 0, 0,
+                    //              m2RGBLo, m2RGBHi, 0, 0, m3RGBLo, m3RGBHi, 0, 0,
+                    //              m4RGBLo, m4RGBHi, 0, 0, m5RGBLo, m5RGBHi, 0, 0,
+                    //              m6RGBLo, m6RGBHi, 0, 0, m7RGBLo, m7RGBHi, 0, 0)
+                    mask_lasx = __lasx_xvilvl_h(xv_zero, mask_lasx);
+                    // Process 8 32bit dst pixels
+                    __m256i result = blend_lcd16_opaque_lasx(src_lasx, dst_lasx, mask_lasx);
+                    __lasx_xvst(result, d, 0);
+                }
+                d++;
+                mask += 8;
+                width -= 8;
+            }
+
+            dst = reinterpret_cast<SkPMColor*>(d);
+        }
+
+        while (width > 0) {
+            *dst = blend_lcd16_opaque(srcR, srcG, srcB, *dst, *mask, opaqueDst);
+            mask++;
+            dst++;
+            width--;
+        }
+    }
+
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX
+
+    // The following (left) shifts cause the top 5 bits of the mask components to
+    // line up with the corresponding components in an SkPMColor.
+    // Note that the mask's RGB16 order may differ from the SkPMColor order.
+    #define SK_R16x5_R32x5_SHIFT (SK_R32_SHIFT - SK_R16_SHIFT - SK_R16_BITS + 5)
+    #define SK_G16x5_G32x5_SHIFT (SK_G32_SHIFT - SK_G16_SHIFT - SK_G16_BITS + 5)
+    #define SK_B16x5_B32x5_SHIFT (SK_B32_SHIFT - SK_B16_SHIFT - SK_B16_BITS + 5)
+
+    #if SK_R16x5_R32x5_SHIFT == 0
+        #define SkPackedR16x5ToUnmaskedR32x5_LSX(x) (x)
+    #elif SK_R16x5_R32x5_SHIFT > 0
+        #define SkPackedR16x5ToUnmaskedR32x5_LSX(x) (__lsx_vslli_w(x, SK_R16x5_R32x5_SHIFT))
+    #else
+        #define SkPackedR16x5ToUnmaskedR32x5_LSX(x) (__lsx_vsrli_w(x, -SK_R16x5_R32x5_SHIFT))
+    #endif
+
+    #if SK_G16x5_G32x5_SHIFT == 0
+        #define SkPackedG16x5ToUnmaskedG32x5_LSX(x) (x)
+    #elif SK_G16x5_G32x5_SHIFT > 0
+        #define SkPackedG16x5ToUnmaskedG32x5_LSX(x) (__lsx_vslli_w(x, SK_G16x5_G32x5_SHIFT))
+    #else
+        #define SkPackedG16x5ToUnmaskedG32x5_LSX(x) (__lsx_vsrli_w(x, -SK_G16x5_G32x5_SHIFT))
+    #endif
+
+    #if SK_B16x5_B32x5_SHIFT == 0
+        #define SkPackedB16x5ToUnmaskedB32x5_LSX(x) (x)
+    #elif SK_B16x5_B32x5_SHIFT > 0
+        #define SkPackedB16x5ToUnmaskedB32x5_LSX(x) (__lsx_vslli_w(x, SK_B16x5_B32x5_SHIFT))
+    #else
+        #define SkPackedB16x5ToUnmaskedB32x5_LSX(x) (__lsx_vsrli_w(x, -SK_B16x5_B32x5_SHIFT))
+    #endif
+
+    static __m128i blend_lcd16_lsx(__m128i &src, __m128i &dst, __m128i &mask, __m128i &srcA) {
+        // In the following comments, the components of src, dst and mask are
+        // abbreviated as (s)rc, (d)st, and (m)ask. Color components are marked
+        // by an R, G, B, or A suffix. Components of one of the four pixels that
+        // are processed in parallel are marked with 0, 1, 2, and 3. "d1B", for
+        // example is the blue channel of the second destination pixel. Memory
+        // layout is shown for an ARGB byte order in a color value.
+
+        // src and srcA store 8-bit values interleaved with zeros.
+        // src  = (0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0)
+        // srcA = (srcA, 0, srcA, 0, srcA, 0, srcA, 0,
+        //         srcA, 0, srcA, 0, srcA, 0, srcA, 0)
+        // mask stores 16-bit values (compressed three channels) interleaved with zeros.
+        // Lo and Hi denote the low and high bytes of a 16-bit value, respectively.
+        // mask = (m0RGBLo, m0RGBHi, 0, 0, m1RGBLo, m1RGBHi, 0, 0,
+        //         m2RGBLo, m2RGBHi, 0, 0, m3RGBLo, m3RGBHi, 0, 0)
+
+        __m128i v_zero = __lsx_vldi(0);
+
+        // Get the R,G,B of each 16bit mask pixel, we want all of them in 5 bits.
+        // r = (0, m0R, 0, 0, 0, m1R, 0, 0, 0, m2R, 0, 0, 0, m3R, 0, 0)
+        __m128i r = __lsx_vand_v(SkPackedR16x5ToUnmaskedR32x5_LSX(mask),
+                                 __lsx_vreplgr2vr_w(0x1F << SK_R32_SHIFT));
+
+        // g = (0, 0, m0G, 0, 0, 0, m1G, 0, 0, 0, m2G, 0, 0, 0, m3G, 0)
+        __m128i g = __lsx_vand_v(SkPackedG16x5ToUnmaskedG32x5_LSX(mask),
+                                 __lsx_vreplgr2vr_w(0x1F << SK_G32_SHIFT));
+
+        // b = (0, 0, 0, m0B, 0, 0, 0, m1B, 0, 0, 0, m2B, 0, 0, 0, m3B)
+        __m128i b = __lsx_vand_v(SkPackedB16x5ToUnmaskedB32x5_LSX(mask),
+                                 __lsx_vreplgr2vr_w(0x1F << SK_B32_SHIFT));
+
+        // a needs to be either the min or the max of the LCD coverages, depending on srcA < dstA
+        __m128i aMin = __lsx_vmin_b(__lsx_vslli_w(r, SK_A32_SHIFT - SK_R32_SHIFT),
+                       __lsx_vmin_b(__lsx_vslli_w(g, SK_A32_SHIFT - SK_G32_SHIFT),
+                                    __lsx_vslli_w(b, SK_A32_SHIFT - SK_B32_SHIFT)));
+        __m128i aMax = __lsx_vmax_b(__lsx_vslli_w(r, SK_A32_SHIFT - SK_R32_SHIFT),
+                       __lsx_vmax_b(__lsx_vslli_w(g, SK_A32_SHIFT - SK_G32_SHIFT),
+                                    __lsx_vslli_w(b, SK_A32_SHIFT - SK_B32_SHIFT)));
+        // srcA has been biased to [0-256], so compare srcA against (dstA+1)
+        __m128i a = __lsx_vmskltz_w(srcA -
+                                    __lsx_vand_v(
+                                          __lsx_vadd_w(dst,
+                                                       __lsx_vreplgr2vr_w(1 << SK_A32_SHIFT)),
+                                          __lsx_vreplgr2vr_w(SK_A32_MASK)));
+        // a = if_then_else(a, aMin, aMax) == (aMin & a) | (aMax & ~a)
+        a = __lsx_vor_v(__lsx_vand_v(a, aMin), __lsx_vandn_v(a, aMax));
+
+        // Pack the 4 16bit mask pixels into 4 32bit pixels, (p0, p1, p2, p3)
+        // Each component (m0R, m0G, etc.) is then a 5-bit value aligned to an
+        // 8-bit position
+        // mask = (m0A, m0R, m0G, m0B, m1A, m1R, m1G, m1B,
+        //         m2A, m2R, m2G, m2B, m3A, m3R, m3G, m3B)
+        mask = __lsx_vor_v(__lsx_vor_v(a, r), __lsx_vor_v(g, b));
+
+        // Interleave R,G,B into the lower byte of word.
+        // i.e. split the sixteen 8-bit values from mask into two sets of eight
+        // 16-bit values, padded by zero.
+        __m128i maskLo, maskHi;
+        // maskLo = (m0A, 0, m0R, 0, m0G, 0, m0B, 0, m1A, 0, m1R, 0, m1G, 0, m1B, 0)
+        maskLo = __lsx_vilvl_b(v_zero, mask);
+        // maskHi = (m2A, 0, m2R, 0, m2G, 0, m2B, 0, m3A, 0, m3R, 0, m3G, 0, m3B, 0)
+        maskHi = __lsx_vilvh_b(v_zero, mask);
+
+        // Upscale from 0..31 to 0..32
+        // (allows to replace division by left-shift further down)
+        // Left-shift each component by 4 and add the result back to that component,
+        // mapping numbers in the range 0..15 to 0..15, and 16..31 to 17..32
+        maskLo = __lsx_vadd_h(maskLo, __lsx_vsrli_h(maskLo, 4));
+        maskHi = __lsx_vadd_h(maskHi, __lsx_vsrli_h(maskHi, 4));
+
+        // Multiply each component of maskLo and maskHi by srcA
+        maskLo = __lsx_vmul_h(maskLo, srcA);
+        maskHi = __lsx_vmul_h(maskHi, srcA);
+
+        // Left shift mask components by 8 (divide by 256)
+        maskLo = __lsx_vsrli_h(maskLo, 8);
+        maskHi = __lsx_vsrli_h(maskHi, 8);
+
+        // Interleave R,G,B into the lower byte of the word
+        // dstLo = (d0A, 0, d0R, 0, d0G, 0, d0B, 0, d1A, 0, d1R, 0, d1G, 0, d1B, 0)
+        __m128i dstLo = __lsx_vilvl_b(v_zero, dst);
+        // dstLo = (d2A, 0, d2R, 0, d2G, 0, d2B, 0, d3A, 0, d3R, 0, d3G, 0, d3B, 0)
+        __m128i dstHi = __lsx_vilvh_b(v_zero, dst);
+
+        // mask = (src - dst) * mask
+        maskLo = __lsx_vmul_h(maskLo, __lsx_vsub_h(src, dstLo));
+        maskHi = __lsx_vmul_h(maskHi, __lsx_vsub_h(src, dstHi));
+
+        // mask = (src - dst) * mask >> 5
+        maskLo = __lsx_vsrai_h(maskLo, 5);
+        maskHi = __lsx_vsrai_h(maskHi, 5);
+
+        // Add two pixels into result.
+        // result = dst + ((src - dst) * mask >> 5)
+        __m128i resultLo = __lsx_vadd_h(dstLo, maskLo);
+        __m128i resultHi = __lsx_vadd_h(dstHi, maskHi);
+
+        // Pack into 4 32bit dst pixels.
+        // resultLo and resultHi contain eight 16-bit components (two pixels) each.
+        // Merge into one LSX regsiter with sixteen 8-bit values (four pixels),
+        // clamping to 255 if necessary.
+        __m128i tmpl = __lsx_vsat_hu(resultLo, 7);
+        __m128i tmph = __lsx_vsat_hu(resultHi, 7);
+        return __lsx_vpickev_b(tmph, tmpl);
+    }
+
+    static __m128i blend_lcd16_opaque_lsx(__m128i &src, __m128i &dst, __m128i &mask) {
+        // In the following comments, the components of src, dst and mask are
+        // abbreviated as (s)rc, (d)st, and (m)ask. Color components are marked
+        // by an R, G, B, or A suffix. Components of one of the four pixels that
+        // are processed in parallel are marked with 0, 1, 2, and 3. "d1B", for
+        // example is the blue channel of the second destination pixel. Memory
+        // layout is shown for an ARGB byte order in a color value.
+
+        // src and srcA store 8-bit values interleaved with zeros.
+        // src  = (0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0)
+        // mask stores 16-bit values (shown as high and low bytes) interleaved with
+        // zeros
+        // mask = (m0RGBLo, m0RGBHi, 0, 0, m1RGBLo, m1RGBHi, 0, 0,
+        //         m2RGBLo, m2RGBHi, 0, 0, m3RGBLo, m3RGBHi, 0, 0)
+
+        __m128i v_zero = __lsx_vldi(0);
+
+        // Get the R,G,B of each 16bit mask pixel, we want all of them in 5 bits.
+        // r = (0, m0R, 0, 0, 0, m1R, 0, 0, 0, m2R, 0, 0, 0, m3R, 0, 0)
+        __m128i r = __lsx_vand_v(SkPackedR16x5ToUnmaskedR32x5_LSX(mask),
+                                 __lsx_vreplgr2vr_w(0x1F << SK_R32_SHIFT));
+
+        // g = (0, 0, m0G, 0, 0, 0, m1G, 0, 0, 0, m2G, 0, 0, 0, m3G, 0)
+        __m128i g = __lsx_vand_v(SkPackedG16x5ToUnmaskedG32x5_LSX(mask),
+                                 __lsx_vreplgr2vr_w(0x1F << SK_G32_SHIFT));
+
+        // b = (0, 0, 0, m0B, 0, 0, 0, m1B, 0, 0, 0, m2B, 0, 0, 0, m3B)
+        __m128i b = __lsx_vand_v(SkPackedB16x5ToUnmaskedB32x5_LSX(mask),
+                                 __lsx_vreplgr2vr_w(0x1F << SK_B32_SHIFT));
+
+        // a = max(r, g, b) since opaque src alpha uses max of LCD coverages
+        __m128i a = __lsx_vmax_b(__lsx_vslli_w(r, SK_A32_SHIFT - SK_R32_SHIFT),
+                    __lsx_vmax_b(__lsx_vslli_w(g, SK_A32_SHIFT - SK_G32_SHIFT),
+                                 __lsx_vslli_w(b, SK_A32_SHIFT - SK_B32_SHIFT)));
+
+        // Pack the 4 16bit mask pixels into 4 32bit pixels, (p0, p1, p2, p3)
+        // Each component (m0R, m0G, etc.) is then a 5-bit value aligned to an
+        // 8-bit position
+        // mask = (m0A, m0R, m0G, m0B, m1A, m1R, m1G, m1B,
+        //         m2A, m2R, m2G, m2B, m3A, m3R, m3G, m3B)
+        mask = __lsx_vor_v(__lsx_vor_v(a, r), __lsx_vor_v(g, b));
+
+        // Interleave R,G,B into the lower byte of word.
+        // i.e. split the sixteen 8-bit values from mask into two sets of eight
+        // 16-bit values, padded by zero.
+        __m128i maskLo, maskHi;
+        // maskLo = (m0A, 0, m0R, 0, m0G, 0, m0B, 0, m1A, 0, m1R, 0, m1G, 0, m1B, 0)
+        maskLo = __lsx_vilvl_b(v_zero, mask);
+        // maskHi = (m2A, 0, m2R, 0, m2G, 0, m2B, 0, m3A, 0, m3R, 0, m3G, 0, m3B, 0)
+        maskHi = __lsx_vilvh_b(v_zero, mask);
+
+        // Upscale from 0..31 to 0..32
+        // (allows to replace division by left-shift further down)
+        // Left-shift each component by 4 and add the result back to that component,
+        // mapping numbers in the range 0..15 to 0..15, and 16..31 to 17..32
+        maskLo = __lsx_vadd_h(maskLo, __lsx_vsrli_h(maskLo, 4));
+        maskHi = __lsx_vadd_h(maskHi, __lsx_vsrli_h(maskHi, 4));
+
+        // Interleave R,G,B into the lower byte of the word
+        // dstLo = (d0A, 0, d0R, 0, d0G, 0, d0B, 0, d1A, 0, d1R, 0, d1G, 0, d1B, 0)
+        __m128i dstLo = __lsx_vilvl_b(v_zero, dst);
+        // dstLo = (d2A, 0, d2R, 0, d2G, 0, d2B, 0, d3A, 0, d3R, 0, d3G, 0, d3B, 0)
+        __m128i dstHi = __lsx_vilvh_b(v_zero, dst);
+
+        // mask = (src - dst) * mask
+        maskLo = __lsx_vmul_h(maskLo, __lsx_vsub_h(src, dstLo));
+        maskHi = __lsx_vmul_h(maskHi, __lsx_vsub_h(src, dstHi));
+
+        // mask = (src - dst) * mask >> 5
+        maskLo = __lsx_vsrai_h(maskLo, 5);
+        maskHi = __lsx_vsrai_h(maskHi, 5);
+
+        // Add two pixels into result.
+        // result = dst + ((src - dst) * mask >> 5)
+        __m128i resultLo = __lsx_vadd_h(dstLo, maskLo);
+        __m128i resultHi = __lsx_vadd_h(dstHi, maskHi);
+
+        // Merge into one LSX regsiter with sixteen 8-bit values (four pixels),
+        // clamping to 255 if necessary.
+        __m128i tmpl = __lsx_vsat_hu(resultLo, 7);
+        __m128i tmph = __lsx_vsat_hu(resultHi, 7);
+        return __lsx_vpickev_b(tmph, tmpl);
+    }
+
+    void blit_row_lcd16(SkPMColor dst[], const uint16_t mask[], SkColor src, int width, SkPMColor) {
+        if (width <= 0) {
+            return;
+        }
+
+        int srcA = SkColorGetA(src);
+        int srcR = SkColorGetR(src);
+        int srcG = SkColorGetG(src);
+        int srcB = SkColorGetB(src);
+        __m128i v_zero = __lsx_vldi(0);
+
+        srcA = SkAlpha255To256(srcA);
+        if (width >= 4) {
+            SkASSERT(((size_t)dst & 0x03) == 0);
+            while (((size_t)dst & 0x0F) != 0) {
+                *dst = blend_lcd16(srcA, srcR, srcG, srcB, *dst, *mask);
+                mask++;
+                dst++;
+                width--;
+            }
+
+            __m128i *d = reinterpret_cast<__m128i*>(dst);
+            // Set alpha to 0xFF and replicate source eight times in LSX register.
+            unsigned int skpackargb32 = SkPackARGB32(0xFF, srcR, srcG, srcB);
+            __m128i src_lsx = __lsx_vreplgr2vr_w(skpackargb32);
+            // Interleave with zeros to get two sets of eight 16-bit values.
+            src_lsx = __lsx_vilvl_b(v_zero, src_lsx);
+            // Set srcA_lsx to contain eight copies of srcA, padded with zero.
+            // src_lsx=(0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0)
+            __m128i srcA_lsx = __lsx_vreplgr2vr_h(srcA);
+
+            while (width >= 4) {
+                // Load eight destination pixels into dst_lsx.
+                __m128i dst_lsx = __lsx_vld(d, 0);
+                // Load four 16-bit masks into lower half of mask_lsx.
+                __m128i mask_lsx = __lsx_vldrepl_d((void *)mask, 0);
+                mask_lsx =  __lsx_vilvl_d(v_zero, mask_lsx);
+
+                int pack_cmp = __lsx_bz_v(mask_lsx);
+                // if mask pixels are not all zero, we will blend the dst pixels
+                if (pack_cmp != 1) {
+                    // Unpack 4 16bit mask pixels to
+                    // mask_lsx = (m0RGBLo, m0RGBHi, 0, 0, m1RGBLo, m1RGBHi, 0, 0,
+                    //             m2RGBLo, m2RGBHi, 0, 0, m3RGBLo, m3RGBHi, 0, 0)
+                    mask_lsx = __lsx_vilvl_h(v_zero, mask_lsx);
+
+                    // Process 8 32bit dst pixels
+                    __m128i result = blend_lcd16_lsx(src_lsx, dst_lsx, mask_lsx, srcA_lsx);
+                    __lsx_vst(result, d, 0);
+                }
+
+                d++;
+                mask += 4;
+                width -= 4;
+            }
+
+            dst = reinterpret_cast<SkPMColor*>(d);
+        }
+
+        while (width > 0) {
+            *dst = blend_lcd16(srcA, srcR, srcG, srcB, *dst, *mask);
+            mask++;
+            dst++;
+            width--;
+        }
+    }
+
+    void blit_row_lcd16_opaque(SkPMColor dst[], const uint16_t mask[],
+                               SkColor src, int width, SkPMColor opaqueDst) {
+        if (width <= 0) {
+            return;
+        }
+
+        int srcR = SkColorGetR(src);
+        int srcG = SkColorGetG(src);
+        int srcB = SkColorGetB(src);
+        __m128i v_zero = __lsx_vldi(0);
+
+        if (width >= 4) {
+            SkASSERT(((size_t)dst & 0x03) == 0);
+            while (((size_t)dst & 0x0F) != 0) {
+                *dst = blend_lcd16_opaque(srcR, srcG, srcB, *dst, *mask, opaqueDst);
+                mask++;
+                dst++;
+                width--;
+            }
+
+            __m128i *d = reinterpret_cast<__m128i*>(dst);
+            // Set alpha to 0xFF and replicate source four times in LSX register.
+            unsigned int sk_pack_argb32 = SkPackARGB32(0xFF, srcR, srcG, srcB);
+            __m128i src_lsx = __lsx_vreplgr2vr_w(sk_pack_argb32);
+            // Set srcA_lsx to contain eight copies of srcA, padded with zero.
+            // src_lsx=(0xFF, 0, sR, 0, sG, 0, sB, 0, 0xFF, 0, sR, 0, sG, 0, sB, 0)
+            src_lsx = __lsx_vilvl_b(v_zero, src_lsx);
+
+            while (width >= 4) {
+                // Load four destination pixels into dst_lsx.
+                __m128i dst_lsx = __lsx_vld(d, 0);
+                // Load four 16-bit masks into lower half of mask_lsx.
+                __m128i mask_lsx = __lsx_vldrepl_d((void *)(mask), 0);
+                mask_lsx =  __lsx_vilvl_d(v_zero, mask_lsx);
+
+                int pack_cmp = __lsx_bz_v(mask_lsx);
+                // if mask pixels are not all zero, we will blend the dst pixels
+                if (pack_cmp != 1) {
+                    // Unpack 4 16bit mask pixels to
+                    mask_lsx = __lsx_vilvl_h(v_zero, mask_lsx);
+
+                    // Process 8 32bit dst pixels
+                    __m128i result = blend_lcd16_opaque_lsx(src_lsx, dst_lsx, mask_lsx);
+                    __lsx_vst(result, d, 0);
+                }
+                d++;
+                mask += 4;
+                width -= 4;
+            }
+
+            dst = reinterpret_cast<SkPMColor*>(d);
+        }
+
+        while (width > 0) {
+            *dst = blend_lcd16_opaque(srcR, srcG, srcB, *dst, *mask, opaqueDst);
+            mask++;
+            dst++;
+            width--;
+        }
+    }
+
 #else
 
     static inline void blit_row_lcd16(SkPMColor dst[], const uint16_t mask[],
