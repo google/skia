@@ -173,9 +173,6 @@ void SkPath::resetFields() {
     fFillType = SkToU8(SkPathFillType::kWinding);
     this->setConvexity(SkPathConvexity::kUnknown);
     this->setFirstDirection(SkPathFirstDirection::kUnknown);
-
-    // We don't touch Android's fSourcePath.  It's used to track texture garbage collection, so we
-    // don't want to muck with it if it's been set to something non-nullptr.
 }
 
 SkPath::SkPath(const SkPath& that)
@@ -860,15 +857,17 @@ SkPath& SkPath::addRect(const SkRect &rect, SkPathDirection dir, unsigned startI
     SkDEBUGCODE(int initialVerbCount = this->countVerbs());
 
     const int kVerbs = 5; // moveTo + 3x lineTo + close
-    this->incReserve(kVerbs);
+    SkPathRef::Editor ed(&fPathRef, kVerbs, /* points */ 4);
 
     SkPath_RectPointIterator iter(rect, dir, startIndex);
+    fLastMoveToIndex = fPathRef->countPoints();
 
-    this->moveTo(iter.current());
-    this->lineTo(iter.next());
-    this->lineTo(iter.next());
-    this->lineTo(iter.next());
+    *ed.growForVerb(kMove_Verb) = iter.current();
+    *ed.growForVerb(kLine_Verb) = iter.next();
+    *ed.growForVerb(kLine_Verb) = iter.next();
+    *ed.growForVerb(kLine_Verb) = iter.next();
     this->close();
+    (void)this->dirtyAfterEdit();
 
     SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
     return *this;

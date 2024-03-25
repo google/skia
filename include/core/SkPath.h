@@ -1792,7 +1792,6 @@ private:
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.
-     *  On Android increments fGenerationID without reseting it.
      */
     void resetFields();
 
