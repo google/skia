@@ -154,8 +154,7 @@ bool Context::submit(SyncToCpu syncToCpu) {
         syncToCpu = SyncToCpu::kNo;
     }
     bool success = fQueueManager->submitToGpu();
-    fQueueManager->checkForFinishedWork(syncToCpu);
-    fMappedBufferManager->process();
+    this->checkForFinishedWork(syncToCpu);
     return success;
 }
 
@@ -777,11 +776,15 @@ Context::PixelTransferResult Context::transferPixels(const TextureProxy* proxy,
     return result;
 }
 
-
-void Context::checkAsyncWorkCompletion() {
+void Context::checkForFinishedWork(SyncToCpu syncToCpu) {
     ASSERT_SINGLE_OWNER
 
-    fQueueManager->checkForFinishedWork(SyncToCpu::kNo);
+    fQueueManager->checkForFinishedWork(syncToCpu);
+    fMappedBufferManager->process();
+}
+
+void Context::checkAsyncWorkCompletion() {
+    this->checkForFinishedWork(SyncToCpu::kNo);
 }
 
 void Context::deleteBackendTexture(const BackendTexture& texture) {
@@ -808,7 +811,6 @@ void Context::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
 
     auto purgeTime = skgpu::StdSteadyClock::now() - msNotUsed;
     fResourceProvider->purgeResourcesNotUsedSince(purgeTime);
-    fMappedBufferManager->process();
 }
 
 size_t Context::currentBudgetedBytes() const {

@@ -230,6 +230,8 @@ private:
     // require Context::Make() to return a nullptr.
     bool finishInitialization();
 
+    void checkForFinishedWork(SyncToCpu);
+
     void asyncRescaleAndReadPixelsYUV420Impl(const SkImage*,
                                              SkYUVColorSpace yuvColorSpace,
                                              bool readAlpha,
