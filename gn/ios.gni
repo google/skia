@@ -107,18 +107,26 @@ if (is_ios) {
     app_name = target_name
     gen_path = target_gen_dir
     bundle_prefix = "com.google"
+    plist_string = string_join(
+            "$0x0A",
+            [
+              "<plist version=\"1.0\">",
+              "  <dict>",
+              "    <key>CFBundleVersion</key> <string>0.1.0</string>",
+              "    <key>CFBundleShortVersionString</key> <string>0.1.0</string>",
+              "    <key>CFBundleName</key> <string>${app_name}</string>",
+              "    <key>CFBundleExecutable</key> <string>${app_name}</string>",
+              "    <key>CFBundleIdentifier</key> <string>${bundle_prefix}.${app_name}</string>",
+              "    <key>CFBundlePackageType</key> <string>APPL</string>",
+              "    <key>LSRequiresIPhoneOS</key> <true/>",
+              "    <key>UILaunchStoryboardName</key> <string>LaunchScreen</string>",
+              "  </dict>",
+              "</plist>",
+            ])
 
-    action("${app_name}_generate_info_plist") {
-      script = "//gn/gen_plist_ios.py"
-      outputs = [ "$gen_path/${app_name}_Info.plist" ]
-      args = [
-        rebase_path("$gen_path/$app_name", root_build_dir),
-        "$bundle_prefix",
-      ]
-    }
+    write_file("$gen_path/${app_name}_Info.plist", plist_string)
 
     bundle_data("${app_name}_bundle_info_plist") {
-      public_deps = [ ":${app_name}_generate_info_plist" ]
       sources = [ "$gen_path/${app_name}_Info.plist" ]
       outputs = [ "{{bundle_resources_dir}}/Info.plist" ]
     }
@@ -200,6 +208,7 @@ if (is_ios) {
         if (ios_min_target != "") {
           IPHONEOS_DEPLOYMENT_TARGET = ios_min_target
         }
+        INFOPLIST_FILE = rebase_path("${target_gen_dir}/${app_name}_Info.plist")
       }
 
       deps = [
