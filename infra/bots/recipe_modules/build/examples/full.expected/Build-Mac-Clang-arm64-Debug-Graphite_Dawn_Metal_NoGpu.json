@@ -100,7 +100,7 @@
   },
   {
     "cmd": [
-      "ninja",
+      "[START_DIR]/cache/work/skia/third_party/ninja/ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGpu/Debug"
     ],

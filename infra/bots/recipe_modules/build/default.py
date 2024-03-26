@@ -353,6 +353,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.items()))
   gn = skia_dir.join('bin', 'gn')
+  ninja = skia_dir.join('third_party', 'ninja', 'ninja')
 
   with api.context(cwd=skia_dir):
     with api.env(env):
@@ -363,7 +364,7 @@ def compile_fn(api, checkout_root, out_dir):
       if 'Fontations' in extra_tokens:
         api.run(api.step, 'gn clean',
               cmd=[gn, 'clean', out_dir])
-      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+      api.run(api.step, 'ninja', cmd=[ninja, '-C', out_dir])
       if ccache:
         api.run(api.step, 'ccache stats-end', cmd=[ccache, '-s'])
 

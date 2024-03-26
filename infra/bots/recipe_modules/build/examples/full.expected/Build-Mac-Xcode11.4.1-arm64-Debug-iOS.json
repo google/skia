@@ -98,7 +98,7 @@
   },
   {
     "cmd": [
-      "ninja",
+      "[START_DIR]/cache/work/skia/third_party/ninja/ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Xcode11.4.1-arm64-Debug-iOS/Debug"
     ],

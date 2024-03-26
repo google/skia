@@ -344,7 +344,7 @@
   },
   {
     "cmd": [
-      "ninja",
+      "[START_DIR]/skia/third_party/ninja/ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-Release-NoPatch/Release"
     ],

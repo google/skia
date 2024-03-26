@@ -59,7 +59,7 @@
   },
   {
     "cmd": [
-      "ninja",
+      "[START_DIR]\\cache\\work\\skia\\third_party\\ninja\\ninja",
       "-C",
       "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86_64-Debug-ANGLE\\Debug_x64"
     ],

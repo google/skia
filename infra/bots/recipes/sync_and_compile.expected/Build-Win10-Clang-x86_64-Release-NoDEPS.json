@@ -148,7 +148,7 @@
   },
   {
     "cmd": [
-      "ninja",
+      "[START_DIR]\\skia\\third_party\\ninja\\ninja",
       "-C",
       "[START_DIR]\\skia\\out\\Build-Win10-Clang-x86_64-Release-NoDEPS\\Release_x64"
     ],

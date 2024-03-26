@@ -42,7 +42,7 @@
   },
   {
     "cmd": [
-      "ninja",
+      "[START_DIR]\\cache\\work\\skia\\third_party\\ninja\\ninja",
       "-C",
       "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-MSVC-x86_64-Release-Graphite_Dawn_D3D12\\Release_x64"
     ],
