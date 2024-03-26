@@ -15,8 +15,9 @@ set -x
 export PATH="/SRC/recipe_bundle/depot_tools:${PATH}"
 
 cd /SRC/skia
+./bin/fetch-ninja
 ./bin/fetch-gn
 ./bin/gn gen /OUT "--args=$1"
-ninja -C /OUT
+./third_party/ninja/ninja -C /OUT
 
 chmod -R 0777 /OUT/*

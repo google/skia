@@ -1,5 +1,31 @@
 [
   {
+    "cmd": [
+      "python3",
+      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "python3",
+      "[START_DIR]/cache/work/skia/bin/fetch-ninja"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-ninja"
+  },
+  {
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
@@ -33,32 +59,6 @@
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
-  },
-  {
-    "cmd": [
-      "python3",
-      "[START_DIR]/cache/work/skia/bin/fetch-gn"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "fetch-gn"
-  },
-  {
-    "cmd": [
-      "python3",
-      "[START_DIR]/cache/work/skia/bin/fetch-ninja"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "infra_step": true,
-    "name": "fetch-ninja"
   },
   {
     "cmd": [
