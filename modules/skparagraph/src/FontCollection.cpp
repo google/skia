@@ -177,10 +177,12 @@ sk_sp<SkTypeface> FontCollection::defaultEmojiFallback(SkUnichar emojiStart,
     for (const auto& manager : this->getFontManagerOrder()) {
         std::vector<const char*> bcp47;
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-        sk_sp<SkTypeface> emojiTypeface =
-            fDefaultFontManager->matchFamilyStyle(kColorEmojiFontMac, SkFontStyle());
-        if (emojiTypeface != nullptr) {
-            return emojiTypeface;
+        if (fDefaultFontManager) {
+            sk_sp<SkTypeface> emojiTypeface =
+                fDefaultFontManager->matchFamilyStyle(kColorEmojiFontMac, SkFontStyle());
+            if (emojiTypeface != nullptr) {
+                return emojiTypeface;
+            }
         }
 #else
           bcp47.push_back(kColorEmojiLocale);
