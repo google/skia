@@ -13,9 +13,6 @@ third_party("icu_bidi") {
   ]
   public_defines = [
     "U_USING_ICU_NAMESPACE=0",
-    "U_DISABLE_RENAMING=0",
-    "U_HAVE_LIB_SUFFIX=1",
-    "U_LIB_SUFFIX_C_NAME=_skia",
     "U_DISABLE_VERSION_SUFFIX=1",
     "SK_USING_THIRD_PARTY_ICU",
   ]
@@ -23,6 +20,8 @@ third_party("icu_bidi") {
     "U_COMMON_IMPLEMENTATION",
     "U_STATIC_IMPLEMENTATION",
     "U_I18N_IMPLEMENTATION",
+    "U_HAVE_LIB_SUFFIX=1",
+    "U_LIB_SUFFIX_C_NAME=_skia",
   ]
   _src = "../externals/icu/source"
   sources = [

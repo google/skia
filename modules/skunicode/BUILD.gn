@@ -56,6 +56,7 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
 
     if (skia_use_icu) {
       sources += skia_unicode_icu_bidi_sources
+      sources += skia_unicode_bidi_full_sources
       sources += skia_unicode_icu_sources
       defines += [ "SK_UNICODE_ICU_IMPLEMENTATION" ]
 
@@ -69,8 +70,12 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
         deps += [ "//third_party/icu" ]
       }
       configs += [ "../../third_party/icu/config:no_cxx" ]
-    } else if (skia_use_client_icu || skia_use_libgrapheme) {
-      sources += skia_unicode_icu_bidi_sources
+    }
+    if (skia_use_client_icu || skia_use_libgrapheme) {
+      if (!skia_use_icu) {
+        sources += skia_unicode_icu_bidi_sources
+      }
+      sources += skia_unicode_bidi_subset_sources
       deps += [ skia_icu_bidi_third_party_dir ]
     }
 

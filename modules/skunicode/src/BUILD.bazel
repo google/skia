@@ -37,6 +37,24 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "bidi_full_srcs",
+    srcs = [
+        "SkBidiFactory_icu_full.cpp",
+        "SkBidiFactory_icu_full.h",
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+
+skia_filegroup(
+    name = "bidi_subset_srcs",
+    srcs = [
+        "SkBidiFactory_icu_subset.cpp",
+        "SkBidiFactory_icu_subset.h",
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+
+skia_filegroup(
     name = "icu_srcs",
     srcs = [
         "SkUnicode_icu.cpp",
