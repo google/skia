@@ -184,14 +184,7 @@ public:
         fBlenderOptions.assign(blenders.begin(), blenders.end());
     }
 
-    void setClipShaders(SkSpan<const sk_sp<PrecompileShader>> clipShaders) {
-        // TODO: add option for SkClipOp::kDifference behavior
-        // i.e., with a makeInvertAlpha() wrapper
-        fClipShaderOptions.reserve(clipShaders.size());
-        for (const sk_sp<PrecompileShader>& cs : clipShaders) {
-            fClipShaderOptions.emplace_back(cs ? cs->makeWithCTM() : nullptr);
-        }
-    }
+    void setClipShaders(SkSpan<const sk_sp<PrecompileShader>> clipShaders);
 
     void setDither(bool dither) { fDither = dither; }
 

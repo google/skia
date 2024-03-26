@@ -170,7 +170,8 @@ const char* to_str(ColorFilterType cf) {
 
 #define SK_ALL_TEST_CLIPS(M) \
     M(None)            \
-    M(Shader)
+    M(Shader)          \
+    M(Shader_Diff)
 
 enum class ClipType {
 #define M(type) k##type,
@@ -1046,7 +1047,11 @@ void check_draw(skiatest::Reporter* reporter,
                 break;
             case ClipType::kShader:
                 SkASSERT(clipShader);
-                canvas->clipShader(clipShader);
+                canvas->clipShader(clipShader, SkClipOp::kIntersect);
+                break;
+            case ClipType::kShader_Diff:
+                SkASSERT(clipShader);
+                canvas->clipShader(clipShader, SkClipOp::kDifference);
                 break;
         }
 
@@ -1218,14 +1223,14 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
     ClipType clips[] = {
             ClipType::kNone,
 #if EXPANDED_SET
-            // TODO: the clipOp (i.e,. SkClipOp::kDifference) also impacts the number of options!
-            // Add handling for it and a test case.
-            ClipType::kShader,
+            ClipType::kShader,        // w/ a SkClipOp::kIntersect
+            ClipType::kShader_Diff,   // w/ a SkClipOp::kDifference
 #endif
     };
 
 #if EXPANDED_SET
-    size_t kExpected = std::size(shaders) * std::size(blenders) * std::size(colorFilters);
+    size_t kExpected = std::size(shaders) * std::size(blenders) * std::size(colorFilters) *
+                       std::size(clips);
     int current = 0;
 #endif
 
@@ -1267,7 +1272,7 @@ void run_test(skiatest::Reporter* reporter,
     sk_sp<SkShader> clipShader;
     sk_sp<PrecompileShader> clipShaderOption;
 
-    if (clip == ClipType::kShader) {
+    if (clip == ClipType::kShader || clip == ClipType::kShader_Diff) {
         std::tie(clipShader, clipShaderOption) = create_clip_shader(&rand, recorder.get());
         SkASSERT(!clipShader == !clipShaderOption);
     }
@@ -1312,16 +1317,21 @@ void run_test(skiatest::Reporter* reporter,
                                                         : nullptr;
 
             // In the normal API this modification happens in SkDevice::clipShader()
-            // TODO: add SkClipOp::kDifference munging
-            sk_sp<SkShader> mungedClipShader = clipShader
+            // All clipShaders get wrapped in a CTMShader
+            sk_sp<SkShader> modifiedClipShader = clipShader
                                                    ? as_SB(clipShader)->makeWithCTM(SkMatrix::I())
                                                    : nullptr;
+            if (clip == ClipType::kShader_Diff && modifiedClipShader) {
+                // The CTMShader gets further wrapped in a ColorFilterShader for kDifference clips
+                modifiedClipShader = modifiedClipShader->makeWithColorFilter(
+                        SkColorFilters::Blend(0xFFFFFFFF, SkBlendMode::kSrcOut));
+            }
 
             auto [paintID, uData, tData] = ExtractPaintData(
                     recorder.get(), &paramsGatherer, &builder, Layout::kMetal, {},
                     PaintParams(paint,
                                 primitiveBlender,
-                                std::move(mungedClipShader),
+                                std::move(modifiedClipShader),
                                 dstReadReq,
                                 /* skipColorXform= */ false),
                     curDst,

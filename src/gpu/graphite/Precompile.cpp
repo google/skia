@@ -61,6 +61,22 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilter::makeComposed(
 }
 
 //--------------------------------------------------------------------------------------------------
+void PaintOptions::setClipShaders(SkSpan<const sk_sp<PrecompileShader>> clipShaders) {
+    // In the normal API this modification happens in SkDevice::clipShader()
+    fClipShaderOptions.reserve(2 * clipShaders.size());
+    for (const sk_sp<PrecompileShader>& cs : clipShaders) {
+        // All clipShaders get wrapped in a CTMShader ...
+        sk_sp<PrecompileShader> withCTM = cs ? cs->makeWithCTM() : nullptr;
+        // and, if it is a SkClipOp::kDifference clip, an additional ColorFilterShader
+        sk_sp<PrecompileShader> inverted =
+                withCTM ? withCTM->makeWithColorFilter(PrecompileColorFilters::Blend())
+                        : nullptr;
+
+        fClipShaderOptions.emplace_back(std::move(withCTM));
+        fClipShaderOptions.emplace_back(std::move(inverted));
+    }
+}
+
 int PaintOptions::numShaderCombinations() const {
     int numShaderCombinations = 0;
     for (const sk_sp<PrecompileShader>& s : fShaderOptions) {
