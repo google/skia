@@ -8,7 +8,7 @@
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
-      "0777",
+      "0o777",
       "[START_DIR]/skia/modules/canvaskit/build"
     ],
     "infra_step": true,
@@ -37,7 +37,7 @@
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
-      "0777",
+      "0o777",
       "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
@@ -91,7 +91,7 @@
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
-      "0777",
+      "0o777",
       "[START_DIR]/skia/modules/canvaskit/build"
     ],
     "infra_step": true,
@@ -138,7 +138,7 @@
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
-      "0777",
+      "0o777",
       "[START_DIR]/skia/modules/canvaskit/build"
     ],
     "infra_step": true,

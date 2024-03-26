@@ -27,9 +27,21 @@
       "The recipe has crashed at point 'Uncaught exception'!",
       "",
       "Traceback (most recent call last):",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/engine.py\", in run_steps",
+      "    raw_result = recipe_obj.run_steps(api, engine)",
+      "                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/recipe_deps.py\", in run_steps",
+      "    recipe_result = invoke_with_properties(",
+      "                    ^^^^^^^^^^^^^^^^^^^^^^^",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in invoke_with_properties",
+      "    return _invoke_with_properties(callable_obj, all_props, environ, prop_defs,",
+      "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+      "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in _invoke_with_properties",
+      "    return callable_obj(*props, **additional_args)",
+      "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
       "  File \"RECIPE_REPO[skia]/infra/bots/recipes/perf_skottiewasm_lottieweb.py\", line 130, in RunSteps",
       "    raise Exception('Could not recognize the buildername %s' % buildername)",
-      "Exception('Could not recognize the buildername Perf-Debian10-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized')"
+      "Exception: Could not recognize the buildername Perf-Debian10-none-GCE-CPU-AVX2-x86_64-Release-All-Unrecognized"
     ]
   },
   {

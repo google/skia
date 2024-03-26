@@ -22,7 +22,7 @@
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
-      "0777",
+      "0o777",
       "[START_DIR]/cache/work/skia/out/Build-Debian11-GCC-x86-Debug-Docker/Debug"
     ],
     "infra_step": true,
