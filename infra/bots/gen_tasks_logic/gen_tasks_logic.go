@@ -2086,7 +2086,7 @@ func (b *jobBuilder) presubmit() {
 		b.cipd(&specs.CipdPackage{
 			Name:    "infra/recipe_bundles/chromium.googlesource.com/chromium/tools/build",
 			Path:    "recipe_bundle",
-			Version: "git_revision:1a28cb094add070f4beefd052725223930d8c27a",
+			Version: "git_revision:bb122cd16700ab80bfcbd494b605dd11d4f5902d",
 		})
 	})
 }
