@@ -31,12 +31,9 @@ class Transform;
 
 class Caps;
 class ComputePathAtlas;
-class DispatchGroup;
-class DrawPass;
+class DrawTask;
 class PathAtlas;
-class RasterPathAtlas;
 class Task;
-class TextAtlasManager;
 class TextureProxy;
 class TextureProxyView;
 
@@ -88,65 +85,36 @@ public:
     // if compute path generation is not supported.
     PathAtlas* getComputePathAtlas(Recorder*);
 
-    // Ends the current DrawList being accumulated by the SDC, converting it into an optimized and
-    // immutable DrawPass. The DrawPass will be ordered after any other snapped DrawPasses or
-    // appended DrawPasses from a child SDC. A new DrawList is started to record subsequent drawing
-    // operations.
-    //
-    // TBD - Should this take a special occluder list to filter the DrawList?
-    // TBD - should this also return the task so the caller can point to it with its own
-    // dependencies? Or will that be mostly automatic based on draws and proxy refs?
-    void snapDrawPass(Recorder*);
+    // Moves all accumulated pending recorded operations (draws and uploads), and any other
+    // dependent tasks into the DrawTask currently being built.
+    void flush(Recorder*);
 
-    // TBD: snapRenderPassTask() might not need to be public, and could be spec'ed to require that
-    // snapDrawPass() must have been called first. A lot of it will depend on how the task graph is
-    // managed.
-
-    // Ends the current DrawList if needed, as in 'snapDrawPass', and moves the new DrawPass and all
-    // prior accumulated DrawPasses into a RenderPassTask that can be drawn and depended on. The
-    // caller is responsible for configuring the returned Tasks's dependencies.
-    //
-    // Returns null if there are no pending commands or draw passes to move into a task.
-    sk_sp<Task> snapRenderPassTask(Recorder*);
-
-    // Ends the current UploadList if needed, and moves the accumulated Uploads into an UploadTask
-    // that can be drawn and depended on. The caller is responsible for configuring the returned
-    // Tasks's dependencies.
-    //
-    // Returns null if there are no pending uploads to move into a task.
-    //
-    // TODO: see if we can merge transfers into this
-    sk_sp<Task> snapUploadTask(Recorder*);
-
-    // Moves all accummulated DispatchGroups into a ComputeTask and returns it. A DispatchGroup may
-    // be recorded internally as a dependency of a DrawPass (which may happen during a call to
-    // `snapDrawPass()`) or directly by the caller (e.g. as part of compute-based atlas render).
-    //
-    // The returned Task encapsulates all recorded dispatches and the caller is responsible for
-    // ensuring that the Task gets executed ahead of draws.
-    //
-    // Returns null if there are no pending dispatches to move into a task.
-    //
-    // TODO: implement DispatchGroup recording as part of snapDrawPass for geometry processing
-    // TBD: The current broad design requires that compute tasks are executed before draws. The
-    // current thinking around image filters that may operate on the result of a draw involves
-    // maintaining this order by adding a post-draw compute pass to a subsequent DrawContext. This
-    // design needs to get hashed out.
-    sk_sp<Task> snapComputeTask(Recorder*);
+    // Flushes (if needed) and completes the current DrawTask, returning it to the caller.
+    // Subsequent recorded operations will be added to a new DrawTask.
+    sk_sp<Task> snapDrawTask(Recorder*);
 
 private:
     DrawContext(sk_sp<TextureProxy>, const SkImageInfo&, const SkSurfaceProps&);
 
     // If a compute atlas was initialized, schedule its accummulated paths to be rendered.
-    void snapPathAtlasDispatches(Recorder*);
+    // void snapPathAtlasDispatches(Recorder*);
 
     sk_sp<TextureProxy> fTarget;
     SkImageInfo fImageInfo;
     const SkSurfaceProps fSurfaceProps;
 
-    // Stores the most immediately recorded draws into the SDC's surface. This list is mutable and
-    // can be appended to, or have its commands rewritten if they are inlined into a parent SDC.
+    // The in-progress DrawTask that will be snapped and returned when some external requirement
+    // must depend on the contents of this DrawContext's target. As higher-level Skia operations
+    // are recorded, it can be necessary to flush pending draws and uploads into the task list.
+    // This provides a place to reset scratch textures or buffers as their previous state will have
+    // been consumed by the flushed tasks rendering to this DrawContext's target.
+    sk_sp<DrawTask> fCurrentDrawTask;
+
+    // Stores the most immediately recorded draws and uploads into the DrawContext's target. These
+    // are collected outside of the DrawTask so that encoder switches can be minimized when
+    // flushing.
     std::unique_ptr<DrawList> fPendingDraws;
+    std::unique_ptr<UploadList> fPendingUploads;
     // Load and store information for the current pending draws.
     LoadOp fPendingLoadOp = LoadOp::kLoad;
     StoreOp fPendingStoreOp = StoreOp::kStore;
@@ -165,23 +133,6 @@ private:
     // either support one atlas texture per DrawPass or record the dispatches once per
     // RenderPassTask rather than DrawPass.
     std::unique_ptr<ComputePathAtlas> fComputePathAtlas;
-
-    // Stores previously snapped DrawPasses of this DC, or inlined child DCs whose content
-    // couldn't have been copied directly to fPendingDraws. While each DrawPass is immutable, the
-    // list of DrawPasses is not final until there is an external dependency on the SDC's content
-    // that requires it to be resolved as its own render pass (vs. inlining the SDC's passes into a
-    // parent's render pass).
-    // TODO: It will be easier to debug/understand the DrawPass structure of a context if
-    // consecutive DrawPasses to the same target are stored in a DrawPassChain. A DrawContext with
-    // multiple DrawPassChains is then clearly accumulating subpasses across multiple targets.
-    skia_private::TArray<std::unique_ptr<DrawPass>> fDrawPasses;
-
-    // Stores the most immediately recorded uploads into Textures. This list is mutable and
-    // can be appended to, or have its commands rewritten if they are inlined into a parent DC.
-    std::unique_ptr<UploadList> fPendingUploads;
-
-    // Stores all compute dispatches that have been recorded as a dependency of a draw.
-    skia_private::TArray<std::unique_ptr<DispatchGroup>> fDispatchGroups;
 };
 
 } // namespace skgpu::graphite

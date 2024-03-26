@@ -24,7 +24,7 @@ class DispatchGroup;
  */
 class ComputeTask final : public Task {
 public:
-    using DispatchGroupList = skia_private::TArray<std::unique_ptr<DispatchGroup>>;
+    using DispatchGroupList = skia_private::STArray<1, std::unique_ptr<DispatchGroup>>;
 
     static sk_sp<ComputeTask> Make(DispatchGroupList dispatchGroups);
 

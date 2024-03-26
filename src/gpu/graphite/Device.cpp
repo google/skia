@@ -598,28 +598,14 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
     std::vector<MipLevel> levels;
     levels.push_back({addr, src.rowBytes()});
 
-    this->flushPendingWorkToRecorder();
-
-    if (!fDC->recordUpload(fRecorder, fDC->refTarget(), src.info().colorInfo(),
-                           this->imageInfo().colorInfo(), levels, dstRect, nullptr)) {
-        return false;
-    }
-
-    // TODO(b/297344089): This always regenerates mipmaps on the draw target when it's drawn to.
-    // This could be wasteful if we draw to a target multiple times before reading from it with
-    // downscaling.
-    if (target->mipmapped() == Mipmapped::kYes) {
-        sk_sp<Task> uploadTask = fDC->snapUploadTask(fRecorder);
-        SkASSERT(uploadTask);
-        if (uploadTask) {
-            fRecorder->priv().add(std::move(uploadTask));
-        }
-        if (!GenerateMipmaps(fRecorder, fDC->refTarget(), fDC->colorInfo())) {
-            SKGPU_LOG_W("Device::onWritePixels: Failed to generate mipmaps for draw target");
-        }
-    }
-
-    return true;
+    // The writePixels() still respects painter's order, so flush everything to tasks before this
+    // recording the upload for the pixel data.
+    this->internalFlush();
+    // The new upload will be executed before any new draws are recorded and also ensures that
+    // the next call to flushDeviceToRecorder() will produce a non-null DrawTask. If this Device's
+    // target is mipmapped, mipmap generation tasks will be added automatically at that point.
+    return fDC->recordUpload(fRecorder, fDC->refTarget(), src.info().colorInfo(),
+                             this->imageInfo().colorInfo(), levels, dstRect, nullptr);
 }
 
 
@@ -1514,61 +1500,51 @@ void Device::flushPendingWorkToRecorder() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fRecorder);
 
-    // TODO: we may need to further split this function up since device->device drawList and
-    // DrawPass stealing will need to share some of the same logic w/o becoming a Task.
-
-    // Push any pending uploads from the atlasProvider
-    fRecorder->priv().atlasProvider()->recordUploads(fDC.get());
-
-    auto uploadTask = fDC->snapUploadTask(fRecorder);
-    if (uploadTask) {
-        fRecorder->priv().add(std::move(uploadTask));
-    }
-
-    fClip.recordDeferredClipDraws();
-
-    // Snap the render pass task before snapping the compute task because creating a DrawPass may
-    // record DispatchGroups that it depends on (e.g. to process geometry or atlas draws).
-    auto drawTask = fDC->snapRenderPassTask(fRecorder);
-    auto computeTask = fDC->snapComputeTask(fRecorder);
-    const bool addingDrawTask = SkToBool(drawTask);
-
-    // Execute the compute task before the draw task.
-    if (computeTask) {
-        fRecorder->priv().add(std::move(computeTask));
-    }
+    this->internalFlush();
+    sk_sp<Task> drawTask = fDC->snapDrawTask(fRecorder);
     if (drawTask) {
         fRecorder->priv().add(std::move(drawTask));
-    }
 
-    // TODO(b/297344089): This always regenerates mipmaps on the draw target when it's drawn to.
-    // This could be wasteful if we draw to a target multiple times before reading from it with
-    // downscaling.
-    if (addingDrawTask && fDC->target()->mipmapped() == Mipmapped::kYes) {
-        if (!GenerateMipmaps(fRecorder, fDC->refTarget(), fDC->colorInfo())) {
-            SKGPU_LOG_W("Device::flushPendingWorkToRecorder: Failed to generate mipmaps for draw "
-                        "target");
+        // TODO(b/297344089): This always regenerates mipmaps on the draw target when it's drawn to.
+        // This could be wasteful if we draw to a target multiple times before reading from it with
+        // downscaling.
+        if (fDC->target()->mipmapped() == Mipmapped::kYes) {
+            if (!GenerateMipmaps(fRecorder, fDC->refTarget(), fDC->colorInfo())) {
+                SKGPU_LOG_W("Device::flushPendingWorkToRecorder: Failed to generate mipmaps");
+            }
         }
     }
+}
 
-    // Reset accumulated state tracking since everything that it referred to has been moved into
-    // an immutable DrawPass.
+void Device::internalFlush() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    SkASSERT(fRecorder);
+
+    // Push any pending uploads from the atlas provider that pending draws reference.
+    fRecorder->priv().atlasProvider()->recordUploads(fDC.get());
+
+    // Clip shapes are depth-only draws, but aren't recorded in the DrawContext until a flush in
+    // order to determine the Z values for each element.
+    fClip.recordDeferredClipDraws();
+
+    // Flush all pending items to the internal task list and reset Device tracking state
+    fDC->flush(fRecorder);
+
     fColorDepthBoundsManager->reset();
     fDisjointStencilSet->reset();
     fCurrentDepth = DrawOrder::kClearDepth;
 
-    // Any cleanup in the AtlasProvider
+     // Any cleanup in the AtlasProvider
     fRecorder->priv().atlasProvider()->postFlush();
 }
 
 bool Device::needsFlushBeforeDraw(int numNewRenderSteps, DstReadRequirement dstReadReq) const {
     // Must also account for the elements in the clip stack that might need to be recorded.
     numNewRenderSteps += fClip.maxDeferredClipDraws() * Renderer::kMaxRenderSteps;
-    return
-            // Need flush if we don't have room to record into the current list.
-            (DrawList::kMaxRenderSteps - fDC->pendingRenderSteps()) < numNewRenderSteps ||
-            // Need flush if this draw needs to copy the dst surface for reading.
-            dstReadReq == DstReadRequirement::kTextureCopy;
+    return // Need flush if we don't have room to record into the current list.
+           (DrawList::kMaxRenderSteps - fDC->pendingRenderSteps()) < numNewRenderSteps ||
+           // Need flush if this draw needs to copy the dst surface for reading.
+           dstReadReq == DstReadRequirement::kTextureCopy;
 }
 
 void Device::drawSpecial(SkSpecialImage* special,

@@ -263,6 +263,9 @@ private:
 
     bool needsFlushBeforeDraw(int numNewDraws, DstReadRequirement) const;
 
+    // Flush internal work, such as pending clip draws and atlas uploads, into the Device's DrawTask
+    void internalFlush();
+
     Recorder* fRecorder;
     sk_sp<DrawContext> fDC;
 

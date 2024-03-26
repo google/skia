@@ -35,6 +35,7 @@ private:
     // DrawTask is modified directly by DrawContext for efficiency, but its task list will be
     // fixed once DrawContext snaps the task.
     void addTask(sk_sp<Task> task) { fChildTasks.add(std::move(task)); }
+    bool hasTasks() const { return fChildTasks.hasTasks(); }
 
     sk_sp<TextureProxy> fTarget;
     TaskList fChildTasks;

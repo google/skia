@@ -21,6 +21,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawPass.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -32,6 +33,7 @@
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/task/ComputeTask.h"
+#include "src/gpu/graphite/task/DrawTask.h"
 #include "src/gpu/graphite/task/RenderPassTask.h"
 #include "src/gpu/graphite/task/UploadTask.h"
 #include "src/gpu/graphite/text/TextAtlasManager.h"
@@ -61,17 +63,14 @@ DrawContext::DrawContext(sk_sp<TextureProxy> target,
         : fTarget(std::move(target))
         , fImageInfo(ii)
         , fSurfaceProps(props)
+        , fCurrentDrawTask(sk_make_sp<DrawTask>(fTarget))
         , fPendingDraws(std::make_unique<DrawList>())
         , fPendingUploads(std::make_unique<UploadList>()) {
     // TBD - Will probably want DrawLists (and its internal commands) to come from an arena
     // that the DC manages.
 }
 
-DrawContext::~DrawContext() {
-    // If the DC is destroyed and there are pending commands, they won't be drawn.
-    fPendingDraws.reset();
-    fDrawPasses.clear();
-}
+DrawContext::~DrawContext() = default;
 
 TextureProxyView DrawContext::readSurfaceView(const Caps* caps) {
     TextureProxy* proxy = this->target();
@@ -91,14 +90,16 @@ void DrawContext::clear(const SkColor4f& clearColor) {
     SkPMColor4f pmColor = clearColor.premul();
     fPendingClearColor = pmColor.array();
 
-    // a fullscreen clear will overwrite anything that came before, so start a new DrawList
-    // and clear any drawpasses that haven't been snapped yet
+    // A fullscreen clear will overwrite anything that came before, so start a new DrawList.
+    // NOTE: Eventually the current DrawTask should be reset, once there are no longer implicit
+    // dependencies on atlas tasks between DrawContexts. When that's resolved, the only tasks in the
+    // current DrawTask are those that directly impact the target, which becomes irrelevant with the
+    // clear op overwriting it. For now, preserve the previous tasks that might include atlas
+    // uploads that are not explicitly shared between DrawContexts.
     fPendingDraws = std::make_unique<DrawList>();
     if (fComputePathAtlas) {
         fComputePathAtlas->reset();
     }
-    fDispatchGroups.clear();
-    fDrawPasses.clear();
 }
 
 void DrawContext::recordDraw(const Renderer* renderer,
@@ -138,26 +139,93 @@ PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
     return fComputePathAtlas.get();
 }
 
-void DrawContext::snapDrawPass(Recorder* recorder) {
+void DrawContext::flush(Recorder* recorder) {
+    if (fPendingUploads->size() > 0) {
+        TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                             "# uploads", fPendingUploads->size());
+        fCurrentDrawTask->addTask(UploadTask::Make(fPendingUploads.get()));
+        // The UploadTask steals the collected upload instances, automatically resetting this list
+        SkASSERT(fPendingUploads->size() == 0);
+    }
+
+    // Generate compute dispatches that render into the atlas texture used by pending draws.
+    // TODO: Once compute atlas caching is implemented, DrawContext might not hold onto to this
+    // at which point a recordDispatch() could be added and it stores a pending dispatches list that
+    // much like how uploads are handled. In that case, Device would be responsible for triggering
+    // the recording of dispatches, but that may happen naturally in AtlasProvider::recordUploads().
+    if (fComputePathAtlas) {
+        auto dispatchGroup = fComputePathAtlas->recordDispatches(recorder);
+        fComputePathAtlas->reset();
+
+        if (dispatchGroup) {
+            // For now this check is valid as all coverage mask draws involve dispatches
+            SkASSERT(fPendingDraws->hasCoverageMaskDraws());
+
+            TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                                 "# dispatches", dispatchGroup->dispatches().size());
+            ComputeTask::DispatchGroupList dispatches;
+            dispatches.emplace_back(std::move(dispatchGroup));
+            fCurrentDrawTask->addTask(ComputeTask::Make(std::move(dispatches)));
+        } // else no pending compute work needed to be recorded
+    } // else platform doesn't support compute or atlas was never initialized.
+
     if (fPendingDraws->renderStepCount() == 0 && fPendingLoadOp != LoadOp::kClear) {
+        // Nothing will be rasterized to the target that warrants a RenderPassTask, but we preserve
+        // any added uploads or compute tasks since those could also affect the target w/o
+        // rasterizing anything directly.
         return;
     }
 
-    // Instantiate the compute pass that may render an atlas texture used by this draw pass.
-    this->snapPathAtlasDispatches(recorder);
-
-    auto pass = DrawPass::Make(recorder,
-                               std::move(fPendingDraws),
-                               fTarget,
-                               this->imageInfo(),
-                               std::make_pair(fPendingLoadOp, fPendingStoreOp),
-                               fPendingClearColor);
-    if (pass) {
-        fDrawPasses.push_back(std::move(pass));
-    }
+    // Convert the pending draws and load/store ops into a DrawPass that will be executed after
+    // the collected uploads and compute dispatches.
+    // TODO: At this point, there's only ever one DrawPass in a RenderPassTask to a target. When
+    // subpasses are implemented, they will either be collected alongside fPendingDraws or added
+    // to the RenderPassTask separately.
+    std::unique_ptr<DrawPass> pass = DrawPass::Make(recorder,
+                                                    std::move(fPendingDraws),
+                                                    fTarget,
+                                                    this->imageInfo(),
+                                                    std::make_pair(fPendingLoadOp, fPendingStoreOp),
+                                                    fPendingClearColor);
     fPendingDraws = std::make_unique<DrawList>();
     fPendingLoadOp = LoadOp::kLoad;
     fPendingStoreOp = StoreOp::kStore;
+
+    if (pass) {
+        SkASSERT(fTarget.get() == pass->target());
+
+        const Caps* caps = recorder->priv().caps();
+        auto [loadOp, storeOp] = pass->ops();
+        auto writeSwizzle = caps->getWriteSwizzle(this->colorInfo().colorType(),
+                                                  fTarget->textureInfo());
+
+        RenderPassDesc desc = RenderPassDesc::Make(caps, fTarget->textureInfo(), loadOp, storeOp,
+                                                   pass->depthStencilFlags(),
+                                                   pass->clearColor(),
+                                                   pass->requiresMSAA(),
+                                                   writeSwizzle);
+
+        RenderPassTask::DrawPassList passes;
+        passes.emplace_back(std::move(pass));
+        fCurrentDrawTask->addTask(RenderPassTask::Make(std::move(passes), desc, fTarget));
+    }
+    // else pass creation failed, DrawPass will have logged why. Don't discard the previously
+    // accumulated tasks, however, since they may represent operations on an atlas that other
+    // DrawContexts now implicitly depend on.
+}
+
+sk_sp<Task> DrawContext::snapDrawTask(Recorder* recorder) {
+    // If flush() was explicitly called earlier and no new work was recorded, this call to flush()
+    // is a no-op and shouldn't hurt performance.
+    this->flush(recorder);
+
+    if (!fCurrentDrawTask->hasTasks()) {
+        return nullptr;
+    }
+
+    sk_sp<Task> snappedTask = std::move(fCurrentDrawTask);
+    fCurrentDrawTask = sk_make_sp<DrawTask>(fTarget);
+    return snappedTask;
 }
 
 RenderPassDesc RenderPassDesc::Make(const Caps* caps,
@@ -228,75 +296,6 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
     }
 
     return desc;
-}
-
-sk_sp<Task> DrawContext::snapRenderPassTask(Recorder* recorder) {
-    this->snapDrawPass(recorder);
-    if (fDrawPasses.empty()) {
-        return nullptr;
-    }
-
-    TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
-                         "# passes", fDrawPasses.size());
-
-    const Caps* caps = recorder->priv().caps();
-
-    // TODO: At this point we would determine all the targets used by the drawPasses,
-    // build up the union of them and store them in the RenderPassDesc. However, for
-    // the moment we should have only one drawPass.
-    SkASSERT(fDrawPasses.size() == 1);
-    auto& drawPass = fDrawPasses[0];
-    const TextureInfo& targetInfo = drawPass->target()->textureInfo();
-    auto [loadOp, storeOp] = drawPass->ops();
-    auto writeSwizzle = caps->getWriteSwizzle(this->colorInfo().colorType(), targetInfo);
-
-    RenderPassDesc desc = RenderPassDesc::Make(caps, targetInfo, loadOp, storeOp,
-                                               drawPass->depthStencilFlags(),
-                                               drawPass->clearColor(),
-                                               drawPass->requiresMSAA(),
-                                               writeSwizzle);
-    sk_sp<TextureProxy> targetProxy = sk_ref_sp(fDrawPasses[0]->target());
-    return RenderPassTask::Make(std::move(fDrawPasses), desc, std::move(targetProxy));
-}
-
-sk_sp<Task> DrawContext::snapUploadTask(Recorder* recorder) {
-    if (!fPendingUploads || fPendingUploads->size() == 0) {
-        return nullptr;
-    }
-
-    TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
-                         "# uploads", fPendingUploads->size());
-    sk_sp<Task> uploadTask = UploadTask::Make(fPendingUploads.get());
-
-    fPendingUploads = std::make_unique<UploadList>();
-
-    return uploadTask;
-}
-
-sk_sp<Task> DrawContext::snapComputeTask(Recorder* recorder) {
-    if (fDispatchGroups.empty()) {
-        return nullptr;
-    }
-
-    TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
-                         "# groups", fDispatchGroups.size());
-
-    SkASSERT(fDispatchGroups.size() == 1);
-    return ComputeTask::Make(std::move(fDispatchGroups));
-}
-
-void DrawContext::snapPathAtlasDispatches(Recorder* recorder) {
-    if (!fComputePathAtlas) {
-        // Platform doesn't support compute or atlas was never initialized.
-        return;
-    }
-    auto dispatchGroup = fComputePathAtlas->recordDispatches(recorder);
-    if (dispatchGroup) {
-        // For now this check is valid as all coverage mask draws involve dispatches
-        SkASSERT(fPendingDraws->hasCoverageMaskDraws());
-        fDispatchGroups.push_back(std::move(dispatchGroup));
-    }
-    fComputePathAtlas->reset();
 }
 
 } // namespace skgpu::graphite
