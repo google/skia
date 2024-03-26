@@ -334,4 +334,24 @@ void PaintParams::toKey(const KeyContext& keyContext,
     builder->addBlock(fixedFuncBlendModeID);
 }
 
+// TODO(b/330864257): Can be deleted once keys are determined by the Device draw.
+void PaintParams::notifyImagesInUse(Recorder* recorder,
+                                    DrawContext* drawContext) const {
+    if (fShader) {
+        NotifyImagesInUse(recorder, drawContext, fShader.get());
+    }
+    if (fPrimitiveBlender) {
+        NotifyImagesInUse(recorder, drawContext, fPrimitiveBlender.get());
+    }
+    if (fColorFilter) {
+        NotifyImagesInUse(recorder, drawContext, fColorFilter.get());
+    }
+    if (fFinalBlender) {
+        NotifyImagesInUse(recorder, drawContext, fFinalBlender.get());
+    }
+    if (fClipShader) {
+        NotifyImagesInUse(recorder, drawContext, fClipShader.get());
+    }
+}
+
 } // namespace skgpu::graphite

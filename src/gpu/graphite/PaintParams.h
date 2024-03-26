@@ -18,9 +18,11 @@ class SkShader;
 
 namespace skgpu::graphite {
 
+class DrawContext;
 class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
+class Recorder;
 class TextureProxy;
 
 // TBD: If occlusion culling is eliminated as a phase, we can easily move the paint conversion
@@ -65,6 +67,8 @@ public:
     static SkColor4f Color4fPrepForDst(SkColor4f srgb, const SkColorInfo& dstColorInfo);
 
     void toKey(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
+
+    void notifyImagesInUse(Recorder*, DrawContext*) const;
 
 private:
     void addPaintColorToKey(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
