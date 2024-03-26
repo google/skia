@@ -16,6 +16,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
+#include "src/shaders/SkShaderBase.h"
 #include "tests/Test.h"
 
 static void test_bitmap(skiatest::Reporter* reporter) {
@@ -97,8 +98,28 @@ static void test_color(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !colorShader3->isOpaque());
 }
 
+static void test_matrix(skiatest::Reporter* reporter) {
+    sk_sp<SkShader> colorShader1 = SkShaders::Color(SkColorSetARGB(0,0,0,0));
+    REPORTER_ASSERT(reporter, !colorShader1->isOpaque());
+    sk_sp<SkShader> colorShader2 = SkShaders::Color(SkColorSetARGB(0xFF,0,0,0));
+    REPORTER_ASSERT(reporter, colorShader2->isOpaque());
+
+    static const SkMatrix kMatrix = SkMatrix::Scale(1,  1);
+
+    sk_sp<SkShader> lm1 = colorShader1->makeWithLocalMatrix(kMatrix);
+    REPORTER_ASSERT(reporter, !lm1->isOpaque());
+    sk_sp<SkShader> lm2 = colorShader2->makeWithLocalMatrix(kMatrix);
+    REPORTER_ASSERT(reporter, lm2->isOpaque());
+
+    sk_sp<SkShader> ctm1 = as_SB(colorShader1)->makeWithCTM(kMatrix);
+    REPORTER_ASSERT(reporter, !ctm1->isOpaque());
+    sk_sp<SkShader> ctm2 = as_SB(colorShader2)->makeWithCTM(kMatrix);
+    REPORTER_ASSERT(reporter, ctm2->isOpaque());
+}
+
 DEF_TEST(ShaderOpacity, reporter) {
     test_gradient(reporter);
     test_color(reporter);
     test_bitmap(reporter);
+    test_matrix(reporter);
 }
