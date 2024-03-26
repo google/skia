@@ -9,6 +9,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/FactoryFunctions.h"
+#include "src/gpu/graphite/FactoryFunctionsPriv.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParams.h"
@@ -44,6 +45,10 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(sk_sp<SkColo
     }
 
     return PrecompileShaders::WorkingColorSpace({ sk_ref_sp(this) }, { std::move(cs) });
+}
+
+sk_sp<PrecompileShader> PrecompileShader::makeWithCTM() {
+    return PrecompileShadersPriv::CTM({ sk_ref_sp(this) });
 }
 
 sk_sp<PrecompileColorFilter> PrecompileColorFilter::makeComposed(
@@ -89,7 +94,7 @@ int PaintOptions::numColorFilterCombinations() const {
 int PaintOptions::numBlendModeCombinations() const {
     bool bmBased = false;
     int numBlendCombos = 0;
-    for (const auto& b: fBlenderOptions) {
+    for (const sk_sp<PrecompileBlender>& b: fBlenderOptions) {
         if (b->asBlendMode().has_value()) {
             bmBased = true;
         } else {
@@ -105,12 +110,28 @@ int PaintOptions::numBlendModeCombinations() const {
     return numBlendCombos;
 }
 
+int PaintOptions::numClipShaderCombinations() const {
+    int numClipShaderCombos = 0;
+    for (const sk_sp<PrecompileShader>& cs: fClipShaderOptions) {
+        if (cs) {
+            numClipShaderCombos += cs->numChildCombinations();
+        } else {
+            ++numClipShaderCombos;
+        }
+    }
+
+    // If no clipShader options are specified we will just have the unclipped options
+    return numClipShaderCombos ? numClipShaderCombos : 1;
+}
+
+
 int PaintOptions::numCombinations() const {
     // TODO: we need to handle ImageFilters separately
     return this->numShaderCombinations() *
            this->numMaskFilterCombinations() *
            this->numColorFilterCombinations() *
-           this->numBlendModeCombinations();
+           this->numBlendModeCombinations() *
+           this->numClipShaderCombinations();
 }
 
 DstReadRequirement get_dst_read_req(const Caps* caps,
@@ -129,6 +150,7 @@ public:
                 const std::pair<sk_sp<PrecompileShader>, int>& shader,
                 const std::pair<sk_sp<PrecompileColorFilter>, int>& colorFilter,
                 bool hasPrimitiveBlender,
+                const std::pair<sk_sp<PrecompileShader>, int>& clipShader,
                 DstReadRequirement dstReadReq,
                 bool dither)
         : fOpaquePaintColor(opaquePaintColor)
@@ -136,6 +158,7 @@ public:
         , fShader(shader)
         , fColorFilter(colorFilter)
         , fHasPrimitiveBlender(hasPrimitiveBlender)
+        , fClipShader(clipShader)
         , fDstReadReq(dstReadReq)
         , fDither(dither) {
     }
@@ -161,6 +184,7 @@ private:
     std::pair<sk_sp<PrecompileShader>, int> fShader;
     std::pair<sk_sp<PrecompileColorFilter>, int> fColorFilter;
     bool fHasPrimitiveBlender;
+    std::pair<sk_sp<PrecompileShader>, int> fClipShader;
     DstReadRequirement fDstReadReq;
     bool fDither;
 };
@@ -311,6 +335,13 @@ void PaintOption::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* keyBuilder,
                         PipelineDataGatherer* gatherer) const {
     this->handleDstRead(keyContext, keyBuilder, gatherer);
+
+    if (fClipShader.first) {
+        ClipShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer);
+            fClipShader.first->priv().addToKey(keyContext, keyBuilder, gatherer,
+                                               fClipShader.second);
+        keyBuilder->endBlock();
+    }
 }
 
 void PaintOptions::createKey(const KeyContext& keyContext,
@@ -322,12 +353,16 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     SkDEBUGCODE(keyBuilder->checkReset();)
     SkASSERT(desiredCombination < this->numCombinations());
 
+    const int numClipShaderCombos = this->numClipShaderCombinations();
     const int numBlendModeCombos = this->numBlendModeCombinations();
     const int numColorFilterCombinations = this->numColorFilterCombinations();
     const int numMaskFilterCombinations = this->numMaskFilterCombinations();
 
-    const int desiredBlendCombination = desiredCombination % numBlendModeCombos;
-    int remainingCombinations = desiredCombination / numBlendModeCombos;
+    const int desiredClipShaderCombination = desiredCombination % numClipShaderCombos;
+    int remainingCombinations = desiredCombination / numClipShaderCombos;
+
+    const int desiredBlendCombination = remainingCombinations % numBlendModeCombos;
+    remainingCombinations /= numBlendModeCombos;
 
     const int desiredColorFilterCombination = remainingCombinations % numColorFilterCombinations;
     remainingCombinations /= numColorFilterCombinations;
@@ -342,6 +377,9 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     // TODO: this probably needs to be passed in just like addPrimitiveBlender
     const bool kOpaquePaintColor = true;
 
+    auto clipShader = PrecompileBase::SelectOption(fClipShaderOptions,
+                                                   desiredClipShaderCombination);
+
     auto finalBlender = PrecompileBase::SelectOption(fBlenderOptions, desiredBlendCombination);
 
     DstReadRequirement dstReadReq = get_dst_read_req(keyContext.caps(), coverage,
@@ -353,6 +391,7 @@ void PaintOptions::createKey(const KeyContext& keyContext,
                        PrecompileBase::SelectOption(fColorFilterOptions,
                                                     desiredColorFilterCombination),
                        addPrimitiveBlender,
+                       clipShader,
                        dstReadReq,
                        fDither);
 

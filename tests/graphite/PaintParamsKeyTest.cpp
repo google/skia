@@ -88,7 +88,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_random_colo
 
 enum class ShaderType {
 #define M(type) k##type,
-        SK_ALL_TEST_SHADERS(M)
+    SK_ALL_TEST_SHADERS(M)
 #undef M
 
     kLast          = kWorkingColorSpace
@@ -115,7 +115,7 @@ const char* to_str(ShaderType s) {
 // TODO: do we need to add a separable category and/or a category for dstRead requiring blends?
 enum class BlenderType {
 #define M(type) k##type,
-        SK_ALL_TEST_BLENDERS(M)
+    SK_ALL_TEST_BLENDERS(M)
 #undef M
 
     kLast = kRuntime
@@ -150,7 +150,7 @@ const char* to_str(BlenderType b) {
 
 enum class ColorFilterType {
 #define M(type) k##type,
-        SK_ALL_TEST_COLORFILTERS(M)
+    SK_ALL_TEST_COLORFILTERS(M)
 #undef M
 
     kLast = kWorkingFormat
@@ -162,6 +162,26 @@ const char* to_str(ColorFilterType cf) {
     switch (cf) {
 #define M(type) case ColorFilterType::k##type : return "ColorFilterType::k" #type;
         SK_ALL_TEST_COLORFILTERS(M)
+#undef M
+    }
+
+    SkUNREACHABLE;
+}
+
+#define SK_ALL_TEST_CLIPS(M) \
+    M(None)            \
+    M(Shader)
+
+enum class ClipType {
+#define M(type) k##type,
+    SK_ALL_TEST_CLIPS(M)
+#undef M
+};
+
+const char* to_str(ClipType c) {
+    switch (c) {
+#define M(type) case ClipType::k##type : return "ClipType::k" #type;
+        SK_ALL_TEST_CLIPS(M)
 #undef M
     }
 
@@ -229,26 +249,37 @@ sk_sp<SkColorSpace> random_colorspace(SkRandom* rand) {
     SkUNREACHABLE;
 }
 
+enum class ColorConstraint {
+    kNone,
+    kOpaque,
+    kTransparent,
+};
 
-SkColor random_opaque_color(SkRandom* rand) {
-    return 0xff000000 | rand->nextU();
+SkColor random_color(SkRandom* rand, ColorConstraint constraint) {
+    uint32_t color = rand->nextU();
+
+    switch (constraint) {
+        case ColorConstraint::kNone:        return color;
+        case ColorConstraint::kOpaque:      return 0xff000000 | color;
+        case ColorConstraint::kTransparent: return 0x80000000 | color;
+    }
+
+    SkUNREACHABLE;
 }
 
-SkColor random_color(SkRandom* rand) {
-    return 0xff000000 | rand->nextU();
-}
-
-SkColor4f random_color4f(SkRandom* rand) {
+SkColor4f random_color4f(SkRandom* rand, ColorConstraint constraint) {
     SkColor4f result = { rand->nextRangeF(0.0f, 1.0f),
                          rand->nextRangeF(0.0f, 1.0f),
                          rand->nextRangeF(0.0f, 1.0f),
                          rand->nextRangeF(0.0f, 1.0f) };
 
-    if (rand->nextBool()) {
-        result.fA = 1.0f;
+    switch (constraint) {
+        case ColorConstraint::kNone:        return result;
+        case ColorConstraint::kOpaque:      result.fA = 1.0f; return result;
+        case ColorConstraint::kTransparent: result.fA = 0.5f; return result;
     }
 
-    return result;
+    SkUNREACHABLE;
 }
 
 SkTileMode random_tilemode(SkRandom* rand) {
@@ -390,16 +421,18 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_picture_shader(SkRand
     return { s, o };
 }
 
-std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_solid_shader(SkRandom* rand) {
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_solid_shader(
+        SkRandom* rand,
+        ColorConstraint constraint = ColorConstraint::kNone) {
     sk_sp<SkShader> s;
     sk_sp<PrecompileShader> o;
 
     if (rand->nextBool()) {
-        s = SkShaders::Color(random_color(rand));
+        s = SkShaders::Color(random_color(rand, constraint));
         o = PrecompileShaders::Color();
     } else {
         sk_sp<SkColorSpace> cs = random_colorspace(rand);
-        s = SkShaders::Color(random_color4f(rand), cs);
+        s = SkShaders::Color(random_color4f(rand, constraint), cs);
         o = PrecompileShaders::Color(std::move(cs));
     }
 
@@ -408,11 +441,12 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_solid_shader(SkRandom
 
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
         SkRandom* rand,
-        SkShaderBase::GradientType type) {
+        SkShaderBase::GradientType type,
+        ColorConstraint constraint = ColorConstraint::kOpaque) {
     // TODO: fuzz the gradient parameters - esp. the number of stops & hard stops
     SkPoint pts[2] = {{-100, -100},
                       {100,  100}};
-    SkColor colors[2] = {SK_ColorRED, SK_ColorGREEN};
+    SkColor colors[2] = {random_color(rand, constraint), random_color(rand, constraint)};
     SkScalar offsets[2] = {0.0f, 1.0f};
 
     sk_sp<SkShader> s;
@@ -592,6 +626,26 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_random_shader(SkRando
     return create_shader(rand, recorder, random_shadertype(rand));
 }
 
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_clip_shader(SkRandom* rand,
+                                                                       Recorder* recorder) {
+    // The clip shader has to be transparent to be at all interesting.
+    // TODO/Note: an opaque clipShader is eliminated from the SkPaint by the normal Skia API
+    // but I'm unsure if we should bother capturing that possibility in the precompile system.
+    switch (rand->nextULessThan(5)) {
+        case 0: return create_gradient_shader(rand, SkShaderBase::GradientType::kConical,
+                                              ColorConstraint::kTransparent);
+        case 1: return create_gradient_shader(rand, SkShaderBase::GradientType::kLinear,
+                                              ColorConstraint::kTransparent);
+        case 2: return create_gradient_shader(rand, SkShaderBase::GradientType::kRadial,
+                                              ColorConstraint::kTransparent);
+        case 3: return create_solid_shader(rand, ColorConstraint::kTransparent);
+        case 4: return create_gradient_shader(rand, SkShaderBase::GradientType::kSweep,
+                                              ColorConstraint::kTransparent);
+    }
+
+    SkUNREACHABLE;
+}
+
 //--------------------------------------------------------------------------------------------------
 std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> src_blender() {
     static SkRuntimeEffect* sSrcEffect = SkMakeRuntimeEffect(
@@ -762,7 +816,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_blendmode_c
     // SkColorFilters::Blend is clever and can weed out noop color filters. Loop until we get
     // a valid color filter.
     while (!cf) {
-        cf = SkColorFilters::Blend(random_color4f(rand),
+        cf = SkColorFilters::Blend(random_color4f(rand, ColorConstraint::kNone),
                                    random_colorspace(rand),
                                    random_blend_mode(rand));
     }
@@ -894,7 +948,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
                                               BlenderType blenderType,
                                               ColorFilterType colorFilterType) {
     SkPaint paint;
-    paint.setColor(random_opaque_color(rand));
+    paint.setColor(random_color(rand, ColorConstraint::kOpaque));
 
     PaintOptions paintOptions;
 
@@ -968,6 +1022,7 @@ void check_draw(skiatest::Reporter* reporter,
                 Recorder* recorder,
                 const SkPaint& paint,
                 DrawTypeFlags dt,
+                ClipType clip, sk_sp<SkShader> clipShader,
                 const DrawData& drawData) {
     int before = context->priv().globalCache()->numGraphicsPipelines();
 
@@ -985,6 +1040,15 @@ void check_draw(skiatest::Reporter* reporter,
 
         sk_sp<SkSurface> surf = SkSurfaces::RenderTarget(recorder, ii);
         SkCanvas* canvas = surf->getCanvas();
+
+        switch (clip) {
+            case ClipType::kNone:
+                break;
+            case ClipType::kShader:
+                SkASSERT(clipShader);
+                canvas->clipShader(clipShader);
+                break;
+        }
 
         switch (dt) {
             case DrawTypeFlags::kShape:
@@ -1048,7 +1112,8 @@ void run_test(skiatest::Reporter*,
               const DrawData&,
               ShaderType,
               BlenderType,
-              ColorFilterType);
+              ColorFilterType,
+              ClipType);
 
 // This is intended to be a smoke test for the agreement between the two ways of creating a
 // PaintParamsKey:
@@ -1150,19 +1215,31 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
 #endif
     };
 
+    ClipType clips[] = {
+            ClipType::kNone,
+#if EXPANDED_SET
+            // TODO: the clipOp (i.e,. SkClipOp::kDifference) also impacts the number of options!
+            // Add handling for it and a test case.
+            ClipType::kShader,
+#endif
+    };
+
 #if EXPANDED_SET
     size_t kExpected = std::size(shaders) * std::size(blenders) * std::size(colorFilters);
     int current = 0;
 #endif
 
-    for (auto s : shaders) {
-        for (auto bm : blenders) {
+    for (auto shader : shaders) {
+        for (auto blender : blenders) {
             for (auto cf : colorFilters) {
+                for (auto clip : clips) {
 #if EXPANDED_SET
                 SkDebugf("%d/%zu\n", current, kExpected);
                 ++current;
 #endif
-                run_test(reporter, context, testContext, precompileKeyContext, drawData, s, bm, cf);
+                run_test(reporter, context, testContext, precompileKeyContext, drawData,
+                         shader, blender, cf, clip);
+                }
             }
         }
     }
@@ -1179,12 +1256,21 @@ void run_test(skiatest::Reporter* reporter,
               const DrawData& drawData,
               ShaderType s,
               BlenderType bm,
-              ColorFilterType cf) {
+              ColorFilterType cf,
+              ClipType clip) {
     SkRandom rand;
 
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+
+    sk_sp<SkShader> clipShader;
+    sk_sp<PrecompileShader> clipShaderOption;
+
+    if (clip == ClipType::kShader) {
+        std::tie(clipShader, clipShaderOption) = create_clip_shader(&rand, recorder.get());
+        SkASSERT(!clipShader == !clipShaderOption);
+    }
 
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer paramsGatherer(Layout::kMetal);
@@ -1225,16 +1311,24 @@ void run_test(skiatest::Reporter* reporter,
             sk_sp<TextureProxy> curDst = needsDstSample ? precompileKeyContext.dstTexture()
                                                         : nullptr;
 
+            // In the normal API this modification happens in SkDevice::clipShader()
+            // TODO: add SkClipOp::kDifference munging
+            sk_sp<SkShader> mungedClipShader = clipShader
+                                                   ? as_SB(clipShader)->makeWithCTM(SkMatrix::I())
+                                                   : nullptr;
+
             auto [paintID, uData, tData] = ExtractPaintData(
                     recorder.get(), &paramsGatherer, &builder, Layout::kMetal, {},
                     PaintParams(paint,
-                                std::move(primitiveBlender),
-                                /* clipShader= */nullptr,
+                                primitiveBlender,
+                                std::move(mungedClipShader),
                                 dstReadReq,
                                 /* skipColorXform= */ false),
                     curDst,
                     precompileKeyContext.dstOffset(),
                     precompileKeyContext.dstColorInfo());
+
+            paintOptions.setClipShaders({ clipShaderOption });
 
             std::vector<UniquePaintParamsID> precompileIDs;
             paintOptions.priv().buildCombinations(precompileKeyContext,
@@ -1257,7 +1351,8 @@ void run_test(skiatest::Reporter* reporter,
             auto result = std::find(precompileIDs.begin(), precompileIDs.end(), paintID);
 
             if (result == precompileIDs.end()) {
-                SkDebugf("Failure on case: %s %s %s\n", to_str(s), to_str(bm), to_str(cf));
+                SkDebugf("Failure on case: %s %s %s %s\n",
+                         to_str(s), to_str(bm), to_str(cf), to_str(clip));
             }
 
 #ifdef SK_DEBUG
@@ -1295,6 +1390,7 @@ void run_test(skiatest::Reporter* reporter,
                            recorder.get(),
                            paint,
                            dt,
+                           clip, clipShader,
                            drawData);
             }
         }

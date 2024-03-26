@@ -347,6 +347,7 @@ skia_graphite_precompile_public = []
 skia_graphite_precompile_sources = [
   "$_src/FactoryFunctions.cpp",
   "$_src/FactoryFunctions.h",
+  "$_src/FactoryFunctionsPriv.h",
   "$_src/PaintOptionsPriv.h",
   "$_src/Precompile.cpp",
   "$_src/Precompile.h",
