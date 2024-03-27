@@ -33,6 +33,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
+#include "src/gpu/DataUtils.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
@@ -237,11 +238,11 @@ static std::unique_ptr<const char[]> make_compressed_data(SkTextureCompressionTy
     for (int level = 0; level < numMipLevels; ++level) {
         // We have to do this a level at a time bc we might have a different color for
         // each level
-        GrFillInCompressedData(compression,
-                               dimensions,
-                               skgpu::Mipmapped::kNo,
-                               &data[mipMapOffsets[level]],
-                               levelColors[level]);
+        skgpu::FillInCompressedData(compression,
+                                    dimensions,
+                                    skgpu::Mipmapped::kNo,
+                                    &data[mipMapOffsets[level]],
+                                    levelColors[level]);
 
         dimensions = {std::max(1, dimensions.width() /2), std::max(1, dimensions.height()/2)};
     }

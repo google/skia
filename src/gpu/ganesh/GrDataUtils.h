@@ -9,7 +9,6 @@
 #define GrDataUtils_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkSize.h"
 #include "include/private/base/SkTArray.h"
 
 #include <array>
@@ -18,21 +17,8 @@
 class GrCPixmap;
 class GrImageInfo;
 class GrPixmap;
+struct SkISize;
 class SkPixmap;
-enum class SkTextureCompressionType;
-namespace skgpu {
-enum class Mipmapped : bool;
-}
-
-size_t GrNumBlocks(SkTextureCompressionType, SkISize baseDimensions);
-
-// Returns a value that can be used to set rowBytes for a transfer function.
-size_t GrCompressedRowBytes(SkTextureCompressionType, int w);
-
-// Return the pixel dimensions of a compressed texture. The topmost levels
-// of a compressed mipmapped texture (i.e., 1x1 or 2x2) still occupy a full
-// block and thus objectively take up more pixels (e.g., 4x4 pixels for ETC1).
-SkISize GrCompressedDimensions(SkTextureCompressionType, SkISize baseDimensions);
 
 // Compute the size of the buffer required to hold all the mipLevels of the specified type
 // of data when all rowBytes are tight.
@@ -40,12 +26,6 @@ SkISize GrCompressedDimensions(SkTextureCompressionType, SkISize baseDimensions)
 size_t GrComputeTightCombinedBufferSize(
         size_t bytesPerPixel, SkISize baseDimensions,
         skia_private::TArray<size_t>* individualMipOffsets, int mipLevelCount);
-
-void GrFillInCompressedData(SkTextureCompressionType,
-                            SkISize dimensions,
-                            skgpu::Mipmapped,
-                            char* dest,
-                            const SkColor4f& color);
 
 bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY = false);
 

@@ -1044,6 +1044,8 @@ skia_shared_gpu_sources = [
   "$_src/gpu/BlurUtils.cpp",
   "$_src/gpu/BlurUtils.h",
   "$_src/gpu/BufferWriter.h",
+  "$_src/gpu/DataUtils.cpp",
+  "$_src/gpu/DataUtils.h",
   "$_src/gpu/DitherUtils.cpp",
   "$_src/gpu/DitherUtils.h",
   "$_src/gpu/GpuRefCnt.h",

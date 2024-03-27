@@ -17,6 +17,8 @@ SHARED_FILES = [
     "BlurUtils.cpp",
     "BlurUtils.h",
     "BufferWriter.h",
+    "DataUtils.cpp",
+    "DataUtils.h",
     "DitherUtils.cpp",
     "DitherUtils.h",
     "GpuRefCnt.h",

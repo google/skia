@@ -29,6 +29,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/gpu/DataUtils.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
@@ -152,11 +153,11 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability,
             auto size = SkCompressedDataSize(compression, dimensions, nullptr, false);
             auto data = SkData::MakeUninitialized(size);
             SkColor4f color = {0, 0, 0, 0};
-            GrFillInCompressedData(compression,
-                                   dimensions,
-                                   skgpu::Mipmapped::kNo,
-                                   (char*)data->writable_data(),
-                                   color);
+            skgpu::FillInCompressedData(compression,
+                                        dimensions,
+                                        skgpu::Mipmapped::kNo,
+                                        (char*)data->writable_data(),
+                                        color);
             return rp->createCompressedTexture(dimensions,
                                                format,
                                                skgpu::Budgeted::kNo,

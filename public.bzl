@@ -783,6 +783,8 @@ BASE_SRCS_ALL = [
     "src/gpu/BlurUtils.cpp",
     "src/gpu/BlurUtils.h",
     "src/gpu/BufferWriter.h",
+    "src/gpu/DataUtils.cpp",
+    "src/gpu/DataUtils.h",
     "src/gpu/DitherUtils.cpp",
     "src/gpu/DitherUtils.h",
     "src/gpu/GpuRefCnt.h",
