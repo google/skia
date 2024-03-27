@@ -2567,6 +2567,8 @@ SKUNICODE_ICU_BUILTIN_SRCS = [
     "modules/skunicode/src/SkUnicode_icu_bidi.cpp",
     "modules/skunicode/src/SkUnicode_icu_bidi.h",
     "modules/skunicode/src/SkUnicode_icu_builtin.cpp",
+    "modules/skunicode/src/SkBidiFactory_icu_full.cpp",
+    "modules/skunicode/src/SkBidiFactory_icu_full.h",
 ]
 
 SKUNICODE_ICU_RUNTIME_SRCS = [
@@ -2576,6 +2578,8 @@ SKUNICODE_ICU_RUNTIME_SRCS = [
     "modules/skunicode/src/SkUnicode_icu_bidi.cpp",
     "modules/skunicode/src/SkUnicode_icu_bidi.h",
     "modules/skunicode/src/SkUnicode_icu_runtime.cpp",
+    "modules/skunicode/src/SkBidiFactory_icu_full.cpp",
+    "modules/skunicode/src/SkBidiFactory_icu_full.h",
 ]
 
 SKUNICODE_CLIENT_SRCS = [
@@ -2583,6 +2587,8 @@ SKUNICODE_CLIENT_SRCS = [
     "modules/skunicode/src/SkUnicode_client.cpp",
     "modules/skunicode/src/SkUnicode_icu_bidi.cpp",
     "modules/skunicode/src/SkUnicode_icu_bidi.h",
+    "modules/skunicode/src/SkBidiFactory_icu_subset.cpp",
+    "modules/skunicode/src/SkBidiFactory_icu_subset.h",
 ]
 
 SKUNICODE_HDRS = [
