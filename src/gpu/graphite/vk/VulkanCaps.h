@@ -180,13 +180,6 @@ private:
 
         // Indicates that a format is only supported if we are wrapping a texture with it.
         SkDEBUGCODE(bool fIsWrappedOnly = false;)
-
-    private:
-        bool isTexturable(VkFormatFeatureFlags) const;
-        bool isRenderable(VkFormatFeatureFlags) const;
-        bool isStorage(VkFormatFeatureFlags) const;
-        bool isTransferSrc(VkFormatFeatureFlags) const;
-        bool isTransferDst(VkFormatFeatureFlags) const;
     };
 
     // Map SkColorType to VkFormat.
