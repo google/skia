@@ -85,6 +85,13 @@ public:
 
     const Transform& localToDeviceTransform();
 
+    bool isImmutable() const { return fImmutable; }
+    void setImmutable() override {
+        // Don't abandon the recorder, we might still need to flush pending work or create copies
+        // for snapSpecialImage().
+        fImmutable = true;
+    }
+
     SkStrikeDeviceInfo strikeDeviceInfo() const override;
 
     TextureProxy* target();
@@ -285,6 +292,9 @@ private:
 
     // The DrawContext's target supports MSAA
     bool fMSAASupported = false;
+
+    // Whether or not setImmutable() has been called.
+    bool fImmutable = false;
 
     const sktext::gpu::SDFTControl fSDFTControl;
 
