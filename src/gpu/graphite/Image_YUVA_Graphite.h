@@ -72,7 +72,7 @@ private:
         return nullptr;
     }
 
-    mutable YUVATextureProxies fYUVAProxies;
+    YUVATextureProxies fYUVAProxies;
 };
 
 } // namespace skgpu::graphite

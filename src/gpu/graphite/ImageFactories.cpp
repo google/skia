@@ -272,7 +272,7 @@ sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
         }
     }
 
-    YUVATextureProxies yuvaTextureProxies(recorder,
+    YUVATextureProxies yuvaTextureProxies(recorder->priv().caps(),
                                           backendTextureInfo.yuvaInfo(),
                                           SkSpan<sk_sp<TextureProxy>>(proxies));
     SkASSERT(yuvaTextureProxies.isValid());
@@ -471,7 +471,7 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
         }
     }
 
-    YUVATextureProxies yuvaProxies(recorder,
+    YUVATextureProxies yuvaProxies(recorder->priv().caps(),
                                    pixmapsToUpload->yuvaInfo(),
                                    SkSpan<TextureProxyView>(views));
     SkASSERT(yuvaProxies.isValid());
@@ -504,7 +504,7 @@ sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
         SkASSERT(proxy);
         textureProxyViews[plane] = TextureProxyView(std::move(proxy));
     }
-    YUVATextureProxies yuvaProxies(recorder,
+    YUVATextureProxies yuvaProxies(recorder->priv().caps(),
                                    yuvaTextures.yuvaInfo(),
                                    SkSpan<TextureProxyView>(textureProxyViews));
     SkASSERT(yuvaProxies.isValid());
@@ -533,7 +533,8 @@ sk_sp<SkImage> TextureFromYUVAImages(Recorder* recorder,
             textureProxyViews[plane] = textureProxyViews[plane].makeSwizzle(skgpu::Swizzle("aaaa"));
         }
     }
-    YUVATextureProxies yuvaProxies(recorder, yuvaInfo, SkSpan<TextureProxyView>(textureProxyViews));
+    YUVATextureProxies yuvaProxies(recorder->priv().caps(),
+                                   yuvaInfo, SkSpan<TextureProxyView>(textureProxyViews));
     SkASSERT(yuvaProxies.isValid());
     return sk_make_sp<Image_YUVA>(
             kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
