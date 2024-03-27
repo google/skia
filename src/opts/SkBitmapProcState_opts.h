@@ -25,6 +25,10 @@
     #include <immintrin.h>
 #elif defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LASX
+    #include <lasxintrin.h>
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX
+    #include <lsxintrin.h>
 #endif
 
 namespace SK_OPTS_NS {
@@ -253,6 +257,175 @@ static void decode_packed_coordinates_and_weight(U32 packed, Out* v0, Out* v1, O
 
             // Pack back into 8-bit values and store.
             *colors++ = _mm_cvtsi128_si32(_mm_packus_epi16(sum, _mm_setzero_si128()));
+        }
+    }
+
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LASX
+    /*not static*/ inline
+    void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
+                                 const uint32_t* xy, int count, uint32_t* colors) {
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fBilerp);
+        SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
+        SkASSERT(s.fAlphaScale <= 256);
+
+        int y0, y1, wy;
+        decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+        auto row0 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes() ),
+             row1 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes() );
+
+        // We'll put one pixel in the low 16 16-bit lanes to line up with wy,
+        // and another in the upper 16 16-bit lanes to line up with 16 - wy.
+        __m256i allY = __lasx_xvilvl_d(__lasx_xvreplgr2vr_h(16-wy), __lasx_xvreplgr2vr_h(wy));
+
+        while (count --> 0) {
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
+
+            // Load the 4 pixels we're interpolating, in this grid:
+            //    | tl  tr |
+            //    | bl  br |
+
+            const __m256i zeros = __lasx_xvldi(0);
+            const __m256i tl = __lasx_xvinsgr2vr_w(zeros, row0[x0], 0),
+                          tr = __lasx_xvinsgr2vr_w(zeros, row0[x1], 0),
+                          bl = __lasx_xvinsgr2vr_w(zeros, row1[x0], 0),
+                          br = __lasx_xvinsgr2vr_w(zeros, row1[x1], 0);
+
+            // We want to calculate a sum of 8 pixels weighted in two directions:
+            //
+            //  sum = tl * (16-wy) * (16-wx)
+            //      + bl * (   wy) * (16-wx)
+            //      + tr * (16-wy) * (   wx)
+            //      + br * (   wy) * (   wx)
+            //
+            // (Notice top --> 16-wy, bottom --> wy, left --> 16-wx, right --> wx.)
+            //
+            // We've already prepared allY as a vector containing [wy, 16-wy] as a way
+            // to apply those y-direction weights.  So we'll start on the x-direction
+            // first, grouping into left and right halves, lined up with allY:
+            //
+            //     L = [bl, tl]
+            //     R = [br, tr]
+            //
+            //   sum = horizontalSum( allY * (L*(16-wx) + R*wx) )
+            //
+            // Rewriting that one more step, we can replace a multiply with a shift:
+            //
+            //   sum = horizontalSum( allY * (16*L + (R-L)*wx) )
+            //
+            // That's how we'll actually do this math.
+
+            __m256i L = __lasx_xvilvl_b(__lasx_xvldi(0), __lasx_xvilvl_w(tl, bl)),
+                    R = __lasx_xvilvl_b(__lasx_xvldi(0), __lasx_xvilvl_w(tr, br));
+
+            __m256i inner = __lasx_xvadd_h(__lasx_xvslli_h(L, 4),
+                                           __lasx_xvmul_h(__lasx_xvsub_h(R,L),
+                                                          __lasx_xvreplgr2vr_h(wx)));
+
+            __m256i sum_in_x = __lasx_xvmul_h(inner, allY);
+
+            // sum = horizontalSum( ... )
+            __m256i sum = __lasx_xvadd_h(sum_in_x, __lasx_xvbsrl_v(sum_in_x, 8));
+
+            // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
+            sum = __lasx_xvsrli_h(sum, 8);
+
+            if (s.fAlphaScale < 256) {
+                // Scale by alpha, which is in [0,256].
+                sum = __lasx_xvmul_h(sum, __lasx_xvreplgr2vr_h(s.fAlphaScale));
+                sum = __lasx_xvsrli_h(sum, 8);
+            }
+
+            // Pack back into 8-bit values and store.
+            *colors++ = __lasx_xvpickve2gr_w(__lasx_xvpickev_b(__lasx_xvldi(0),
+                                                               __lasx_xvsat_hu(sum, 8)), 0);
+        }
+    }
+
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX
+
+    /*not static*/ inline
+    void S32_alpha_D32_filter_DX(const SkBitmapProcState& s,
+                                 const uint32_t* xy, int count, uint32_t* colors) {
+        SkASSERT(count > 0 && colors != nullptr);
+        SkASSERT(s.fBilerp);
+        SkASSERT(kN32_SkColorType == s.fPixmap.colorType());
+        SkASSERT(s.fAlphaScale <= 256);
+
+        int y0, y1, wy;
+        decode_packed_coordinates_and_weight(*xy++, &y0, &y1, &wy);
+
+        auto row0 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y0 * s.fPixmap.rowBytes() ),
+             row1 = (const uint32_t*)( (const char*)s.fPixmap.addr() + y1 * s.fPixmap.rowBytes() );
+
+        // We'll put one pixel in the low 8 16-bit lanes to line up with wy,
+        // and another in the upper 8 16-bit lanes to line up with 16 - wy.
+        __m128i allY = __lsx_vilvl_d(__lsx_vreplgr2vr_h(16-wy), __lsx_vreplgr2vr_h(wy));
+
+        while (count --> 0) {
+            int x0, x1, wx;
+            decode_packed_coordinates_and_weight(*xy++, &x0, &x1, &wx);
+
+            // Load the 4 pixels we're interpolating, in this grid:
+            //    | tl  tr |
+            //    | bl  br |
+            const __m128i zeros = __lsx_vldi(0);
+            const __m128i tl = __lsx_vinsgr2vr_w(zeros, row0[x0], 0),
+                          tr = __lsx_vinsgr2vr_w(zeros, row0[x1], 0),
+                          bl = __lsx_vinsgr2vr_w(zeros, row1[x0], 0),
+                          br = __lsx_vinsgr2vr_w(zeros, row1[x1], 0);
+
+            // We want to calculate a sum of 8 pixels weighted in two directions:
+            //
+            //  sum = tl * (16-wy) * (16-wx)
+            //      + bl * (   wy) * (16-wx)
+            //      + tr * (16-wy) * (   wx)
+            //      + br * (   wy) * (   wx)
+            //
+            // (Notice top --> 16-wy, bottom --> wy, left --> 16-wx, right --> wx.)
+            //
+            // We've already prepared allY as a vector containing [wy, 16-wy] as a way
+            // to apply those y-direction weights.  So we'll start on the x-direction
+            // first, grouping into left and right halves, lined up with allY:
+            //
+            //     L = [bl, tl]
+            //     R = [br, tr]
+            //
+            //   sum = horizontalSum( allY * (L*(16-wx) + R*wx) )
+            //
+            // Rewriting that one more step, we can replace a multiply with a shift:
+            //
+            //   sum = horizontalSum( allY * (16*L + (R-L)*wx) )
+            //
+            // That's how we'll actually do this math.
+
+
+            __m128i L = __lsx_vilvl_b(__lsx_vldi(0), __lsx_vilvl_w(tl, bl)),
+                    R = __lsx_vilvl_b(__lsx_vldi(0), __lsx_vilvl_w(tr, br));
+
+            __m128i inner = __lsx_vadd_h(__lsx_vslli_h(L, 4),
+                                         __lsx_vmul_h(__lsx_vsub_h(R,L),
+                                                      __lsx_vreplgr2vr_h(wx)));
+
+            __m128i sum_in_x = __lsx_vmul_h(inner, allY);
+
+            // sum = horizontalSum( ... )
+            __m128i sum = __lsx_vadd_h(sum_in_x, __lsx_vbsrl_v(sum_in_x, 8));
+
+            // Get back to [0,255] by dividing by maximum weight 16x16 = 256.
+            sum = __lsx_vsrli_h(sum, 8);
+
+            if (s.fAlphaScale < 256) {
+                // Scale by alpha, which is in [0,256].
+                sum = __lsx_vmul_h(sum, __lsx_vreplgr2vr_h(s.fAlphaScale));
+                sum = __lsx_vsrli_h(sum, 8);
+            }
+
+            // Pack back into 8-bit values and store.
+            *colors++ = __lsx_vpickve2gr_w(__lsx_vpickev_b(__lsx_vldi(0),
+                                                           __lsx_vsat_hu(sum, 8)), 0);
         }
     }
 
