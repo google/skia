@@ -1014,7 +1014,8 @@ SkPath make_path() {
 struct DrawData {
     SkPath fPath;
     sk_sp<SkTextBlob> fBlob;
-    sk_sp<SkVertices> fVerts;
+    sk_sp<SkVertices> fVertsWithColors;
+    sk_sp<SkVertices> fVertsWithOutColors;
 };
 
 void check_draw(skiatest::Reporter* reporter,
@@ -1064,7 +1065,8 @@ void check_draw(skiatest::Reporter* reporter,
                 canvas->drawTextBlob(drawData.fBlob, 0, 16, paint);
                 break;
             case DrawTypeFlags::kDrawVertices:
-                canvas->drawVertices(drawData.fVerts, SkBlendMode::kDst, paint);
+                canvas->drawVertices(drawData.fVertsWithColors, SkBlendMode::kDst, paint);
+                canvas->drawVertices(drawData.fVertsWithOutColors, SkBlendMode::kDst, paint);
                 break;
             default:
                 SkASSERT(false);
@@ -1159,8 +1161,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
     SkFont font(ToolUtils::DefaultPortableTypeface(), 16);
     const char text[] = "hambur";
 
-    // TODO: add a drawVertices call w/o colors. That impacts whether the RenderSteps emit
-    // a primitive color blender
     constexpr int kNumVerts = 4;
     constexpr SkPoint kPositions[kNumVerts] { {0,0}, {0,16}, {16,16}, {16,0} };
     constexpr SkColor kColors[kNumVerts] = { SK_ColorBLUE, SK_ColorGREEN,
@@ -1171,6 +1171,8 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             SkTextBlob::MakeFromText(text, strlen(text), font),
             SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, kNumVerts,
                                  kPositions, kPositions, kColors),
+            SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, kNumVerts,
+                                 kPositions, kPositions, /* colors= */ nullptr),
     };
 
     ShaderType shaders[] = {
@@ -1284,10 +1286,14 @@ void run_test(skiatest::Reporter* reporter,
     gNeedSKPPaintOption = false;
     auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf);
 
-    for (auto dt : { DrawTypeFlags::kShape,
-                     DrawTypeFlags::kText,
-                     DrawTypeFlags::kDrawVertices }) {
+    for (DrawTypeFlags dt : { DrawTypeFlags::kShape,
+                              DrawTypeFlags::kText,
+                              DrawTypeFlags::kDrawVertices }) {
 
+        // Note: 'withPrimitiveBlender' and 'primitiveBlender' are only used in ExtractPaintData
+        // and PaintOptions::buildCombinations. Thus, as long as those two uses agree, it doesn't
+        // matter if the actual draw uses a primitive blender (i.e., those variables are only used
+        // in a local unit test independent of the follow-on Precompile/check_draw test)
         for (bool withPrimitiveBlender : { false, true }) {
 
             sk_sp<SkBlender> primitiveBlender;

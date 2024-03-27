@@ -174,18 +174,21 @@ void Precompile(Context* context, const PaintOptions& options, DrawTypeFlags dra
 
     if (drawTypes & DrawTypeFlags::kDrawVertices) {
         for (Coverage coverage : {Coverage::kNone, Coverage::kSingleChannel, Coverage::kLCD}) {
-            options.priv().buildCombinations(
-                keyContext,
-                &gatherer,
-                /* addPrimitiveBlender= */ true,
-                coverage,
-                [&](UniquePaintParamsID uniqueID) {
-                    compile(context->priv().rendererProvider(),
-                            context->priv().resourceProvider(),
-                            keyContext, uniqueID,
-                            DrawTypeFlags::kDrawVertices,
-                            renderPassDescs, /* withPrimitiveBlender= */ true, coverage);
-                });
+            // drawVertices w/ colors use a primitiveBlender while those w/o don't
+            for (bool withPrimitiveBlender : { true, false }) {
+                options.priv().buildCombinations(
+                    keyContext,
+                    &gatherer,
+                    withPrimitiveBlender,
+                    coverage,
+                    [&](UniquePaintParamsID uniqueID) {
+                        compile(context->priv().rendererProvider(),
+                                context->priv().resourceProvider(),
+                                keyContext, uniqueID,
+                                DrawTypeFlags::kDrawVertices,
+                                renderPassDescs, withPrimitiveBlender, coverage);
+                    });
+            }
         }
     }
 }
