@@ -691,6 +691,25 @@ protected:
                                        rust::Slice<uint8_t>())) {
             out_metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
         }
+        auto setMetric = [](float& dstMetric, const float srcMetric,
+                            uint32_t& flags, const SkFontMetrics::FontMetricsFlags flag)
+        {
+            if (sk_float_isnan(srcMetric)) {
+                dstMetric = 0;
+            } else {
+                dstMetric = srcMetric;
+                flags |= flag;
+            }
+        };
+        setMetric(out_metrics->fUnderlinePosition, -metrics.underline_position,
+                  out_metrics->fFlags, SkFontMetrics::kUnderlinePositionIsValid_Flag);
+        setMetric(out_metrics->fUnderlineThickness, metrics.underline_thickness,
+                  out_metrics->fFlags, SkFontMetrics::kUnderlineThicknessIsValid_Flag);
+
+        setMetric(out_metrics->fStrikeoutPosition, -metrics.strikeout_position,
+                  out_metrics->fFlags, SkFontMetrics::kStrikeoutPositionIsValid_Flag);
+        setMetric(out_metrics->fStrikeoutThickness, metrics.strikeout_thickness,
+                  out_metrics->fFlags, SkFontMetrics::kStrikeoutThicknessIsValid_Flag);
     }
 
 private:
