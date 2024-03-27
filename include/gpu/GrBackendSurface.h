@@ -210,8 +210,6 @@ public:
     std::string_view getLabel() const { return fLabel; }
     skgpu::Mipmapped mipmapped() const { return fMipmapped; }
     bool hasMipmaps() const { return fMipmapped == skgpu::Mipmapped::kYes; }
-    /** deprecated alias of hasMipmaps(). */
-    bool hasMipMaps() const { return this->hasMipmaps(); }
     GrBackendApi backend() const {return fBackend; }
     GrTextureType textureType() const { return fTextureType; }
 

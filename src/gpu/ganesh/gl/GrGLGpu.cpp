@@ -1726,7 +1726,7 @@ bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
 
     // If we have mips make sure the base level is set to 0 and the max level set to numMipLevels-1
     // so that the uploads go to the right levels.
-    if (backendTexture.hasMipMaps() && this->glCaps().mipmapLevelControlSupport()) {
+    if (backendTexture.hasMipmaps() && this->glCaps().mipmapLevelControlSupport()) {
         auto params = get_gl_texture_params(backendTexture);
         GrGLTextureParameters::NonsamplerState nonsamplerState = params->nonsamplerState();
         if (params->nonsamplerState().fBaseMipMapLevel != 0) {
