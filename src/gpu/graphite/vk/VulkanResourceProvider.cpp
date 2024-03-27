@@ -487,7 +487,8 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
     if (!importAsExternalFormat) {
         usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         if (isRenderable) {
-            usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+            // Renderable attachments can be used as input attachments if we are loading from MSAA.
+            usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
         }
     }
     VulkanTextureInfo vkTexInfo { VK_SAMPLE_COUNT_1_BIT,
