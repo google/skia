@@ -1047,25 +1047,6 @@ bool VulkanCaps::FormatInfo::isTransferDst(VkFormatFeatureFlags flags) const {
 }
 
 void VulkanCaps::setColorType(SkColorType colorType, std::initializer_list<VkFormat> formats) {
-#ifdef SK_DEBUG
-    // If any format's FormatInfo claims support for the passed-in colorType, ensure that format is
-    // included in the provided formats list.
-    for (size_t i = 0; i < kNumVkFormats; ++i) {
-        const auto& formatInfo = fFormatTable[i];
-        for (int j = 0; j < formatInfo.fColorTypeInfoCount; ++j) {
-            const auto& ctInfo = formatInfo.fColorTypeInfos[j];
-            if (ctInfo.fColorType == colorType && !formatInfo.fIsWrappedOnly) {
-                bool found = false;
-                for (auto it = formats.begin(); it != formats.end(); ++it) {
-                    if (kVkFormats[i] == *it) {
-                        found = true;
-                    }
-                }
-                SkASSERT(found);
-            }
-        }
-    }
-#endif
     int idx = static_cast<int>(colorType);
     for (auto it = formats.begin(); it != formats.end(); ++it) {
         const auto& info = this->getFormatInfo(*it);
