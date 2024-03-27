@@ -53,9 +53,6 @@ ignorelist = [
   # Temporary shims
   'GrBackendDrawableInfo.h',
   'SkMultiPictureDocument.h',
-  'GrMtlBackendContext.h',
-  'GrMtlDirectContext.h',
-  'GrMtlTypes.h',
   # Transitional
   'tools/window',
 ]

@@ -181,8 +181,6 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/gl/GrGLInterface.h",
     "include/gpu/gl/GrGLTypes.h",
     "include/gpu/mock/GrMockTypes.h",
-    "include/gpu/mtl/GrMtlBackendContext.h",
-    "include/gpu/mtl/GrMtlTypes.h",
     "include/gpu/mtl/MtlMemoryAllocator.h",
     "include/gpu/vk/GrVkBackendContext.h",
     "include/gpu/vk/GrVkExtensions.h",
