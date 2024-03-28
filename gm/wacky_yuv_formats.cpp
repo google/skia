@@ -690,10 +690,8 @@ static int create_YUV(const PlaneData& planes,
 static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaque) {
     static const char* kYUVColorSpaceNames[] = {"JPEG",     "601",      "709F",     "709L",
                                                 "2020_8F",  "2020_8L",  "2020_10F", "2020_10L",
-                                                "2020_12F", "2020_12L", "FCCF",     "FCCL",
-                                                "SMPTE240F","SMPTE240L","YDZDXF",   "YDZDXL",
-                                                "GBRF",     "GBRL",     "YCGCO_8F", "YCGCO_8L",
-                                                "YCGCO_10F","YCGCO_10L","YCGCO_12F","YCGCO_12L",
+                                                "2020_12F", "2020_12L", "YCGCO_8F", "YCGCO_8L",
+                                                "YCGCO_10F", "YCGCO_10L", "YCGCO_12F", "YCGCO_12L",
                                                 "Identity"};
     static_assert(std::size(kYUVColorSpaceNames) == kLastEnum_SkYUVColorSpace + 1);
 
