@@ -100,6 +100,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fFBFetchRequiresEnablePerSample = false;
     fSRGBWriteControl = false;
     fSkipErrorChecks = false;
+    fGetBufferSubDataSupport = false;
 
     fShaderCaps = std::make_unique<GrShaderCaps>();
 
@@ -400,6 +401,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         return SkToBool(contextFlags & GR_GL_CONTEXT_FLAG_PROTECTED_CONTENT_BIT_EXT);
     }();
 
+    if (GR_IS_GR_GL(standard) || GR_IS_GR_WEBGL(standard)) {
+        fGetBufferSubDataSupport = version >= GR_GL_VER(2, 0);
+    }
+
     /**************************************************************************
     * GrShaderCaps fields
     **************************************************************************/
@@ -557,6 +562,11 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else if (GR_IS_GR_WEBGL(standard)) {
         // explicitly removed https://www.khronos.org/registry/webgl/specs/2.0/#5.14
         fMapBufferFlags = kNone_MapFlags;
+        if (version >= GR_GL_VER(2, 0)) {
+            fTransferFromBufferToTextureSupport = true;
+            fTransferFromSurfaceToBufferSupport = true;
+            fTransferBufferType = TransferBufferType::kARB_PBO;
+        }
     }
 
     // Buffers have more restrictions in WebGL than GLES. For example,
