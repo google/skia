@@ -21,6 +21,16 @@ namespace PrecompileShadersPriv {
     sk_sp<PrecompileShader> CTM(SkSpan<const sk_sp<PrecompileShader>> wrapped);
 } // namespace PrecompileShadersPriv
 
+namespace PrecompileColorFiltersPriv {
+    // These three match those in src/core/SkColorFilterPriv
+    sk_sp<PrecompileColorFilter> Gaussian();
+
+    sk_sp<PrecompileColorFilter> ColorSpaceXform();
+
+    sk_sp<PrecompileColorFilter> WithWorkingFormat(
+            SkSpan<const sk_sp<PrecompileColorFilter>> childOptions);
+} // namespace PrecompileColorFiltersPriv
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_FactoryFunctionsPriv_DEFINED

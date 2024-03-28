@@ -33,6 +33,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/FactoryFunctions.h"
+#include "src/gpu/graphite/FactoryFunctionsPriv.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
@@ -839,7 +840,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_color_space
         SkRandom* rand) {
     return { SkColorFilterPriv::MakeColorSpaceXform(random_colorspace(rand),
                                                     random_colorspace(rand)),
-             PrecompileColorFilters::ColorSpaceXform() };
+             PrecompileColorFiltersPriv::ColorSpaceXform() };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_linear_to_srgb_colorfilter() {
@@ -862,7 +863,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_compose_col
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_gaussian_colorfilter() {
-    return { SkColorFilterPriv::MakeGaussian(), PrecompileColorFilters::Gaussian() };
+    return { SkColorFilterPriv::MakeGaussian(), PrecompileColorFiltersPriv::Gaussian() };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_table_colorfilter() {
@@ -887,7 +888,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_workingform
                                                                    &random_gamut(rand),
                                                                    &unpremul);
 
-    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::WithWorkingFormat(
+    sk_sp<PrecompileColorFilter> o = PrecompileColorFiltersPriv::WithWorkingFormat(
             { std::move(childO) });
 
     return { std::move(cf), std::move(o) };

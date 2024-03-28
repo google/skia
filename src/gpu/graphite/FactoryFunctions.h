@@ -117,40 +117,30 @@ private:
 
 //--------------------------------------------------------------------------------------------------
 // This will move to be beside SkColorFilters in include/core/SkColorFilter.h
-class PrecompileColorFilters {
-public:
-    static sk_sp<PrecompileColorFilter> Compose(SkSpan<const sk_sp<PrecompileColorFilter>> outer,
+namespace PrecompileColorFilters {
+    // -- The next 8 entries match those in include/core/SkColorFilter.h
+    SK_API sk_sp<PrecompileColorFilter> Compose(SkSpan<const sk_sp<PrecompileColorFilter>> outer,
                                                 SkSpan<const sk_sp<PrecompileColorFilter>> inner);
 
     // This encompasses both variants of SkColorFilters::Blend
-    static sk_sp<PrecompileColorFilter> Blend();
+    SK_API sk_sp<PrecompileColorFilter> Blend();
 
     // This encompasses both variants of SkColorFilters::Matrix
-    static sk_sp<PrecompileColorFilter> Matrix();
+    SK_API sk_sp<PrecompileColorFilter> Matrix();
 
     // This encompasses both variants of SkColorFilters::HSLAMatrix
-    static sk_sp<PrecompileColorFilter> HSLAMatrix();
+    SK_API sk_sp<PrecompileColorFilter> HSLAMatrix();
 
     // TODO: add Lerp
-    static sk_sp<PrecompileColorFilter> LinearToSRGBGamma();
-    static sk_sp<PrecompileColorFilter> SRGBToLinearGamma();
+    SK_API sk_sp<PrecompileColorFilter> LinearToSRGBGamma();
+    SK_API sk_sp<PrecompileColorFilter> SRGBToLinearGamma();
 
     // This encompases both variants of SkColorFilters::Table and TableARGB
-    static sk_sp<PrecompileColorFilter> Table();
+    SK_API sk_sp<PrecompileColorFilter> Table();
 
-    static sk_sp<PrecompileColorFilter> Lighting();
+    SK_API sk_sp<PrecompileColorFilter> Lighting();
 
-    // The remaining three match those in SkColorFilterPriv
-    static sk_sp<PrecompileColorFilter> Gaussian();
-
-    static sk_sp<PrecompileColorFilter> ColorSpaceXform();
-
-    static sk_sp<PrecompileColorFilter> WithWorkingFormat(
-            SkSpan<const sk_sp<PrecompileColorFilter>> childOptions);
-
-private:
-    PrecompileColorFilters() = delete;
-};
+} // namespace PrecompileColorFilters
 
 //--------------------------------------------------------------------------------------------------
 // This will move to be beside SkImageFilters in include/effects/SkImageFilters.h
