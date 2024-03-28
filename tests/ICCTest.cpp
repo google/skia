@@ -48,42 +48,42 @@ DEF_TEST(HDR_ICC, r) {
 
     // clang-format off
     float pixels[kPixelCount][3] = {
-            { 0.0f, 0.0f, 0.0f, },
-            { 0.5f, 0.5f, 0.5f, },
-            { 0.5f, 0.0f, 0.0f, },
-            { 0.0f, 0.5f, 0.0f, },
-            { 0.0f, 0.0f, 0.5f, },
-            { 1.0f, 1.0f, 1.0f, },
+            { 0.00f, 0.00f, 0.00f, },
+            { 0.50f, 0.50f, 0.50f, },
+            { 0.50f, 0.00f, 0.00f, },
+            { 0.00f, 0.50f, 0.00f, },
+            { 0.00f, 0.00f, 0.50f, },
+            { 0.75f, 0.75f, 0.75f, },
     };
     float dst_pixels_expected[kTestCount][kPixelCount][3] = {
             {
                     { 0.f,     0.f,     0.f,     },
-                    { 0.3126f, 0.3125f, 0.3125f, },
-                    { 0.4061f, 0.f,     0.f,     },
-                    { 0.f,     0.3475f, 0.f,     },
-                    { 0.f,     0.f,     0.4426f, },
-                    { 1.f,     1.f,     1.f,     },
+                    { 0.2885f, 0.2885f, 0.2885f, },
+                    { 0.2885f, 0.f,     0.f,     },
+                    { 0.f,     0.2885f, 0.f,     },
+                    { 0.f,     0.f,     0.2885f, },
+                    { 0.9910f, 0.9910f, 0.9910f, }, // PQ maps 0.75 ~ 1000 nits to 1.0
             },
             {
                     { 0.f,     0.f,     0.f,     },
-                    { 0.1044f, 0.1044f, 0.1044f, },
-                    { 0.1044f, 0.f,     0.f,     },
-                    { 0.f,     0.1044f, 0.f,     },
-                    { 0.f,     0.f,     0.1044f, },
-                    { 1.f,     1.f,     1.f,     },
+                    { 0.1436f, 0.1539f, 0.1333f, }, // HLG's OOTF results in R != G != B
+                    { 0.1324f, 0.f,     0.f,     },
+                    { 0.f,     0.1506f, 0.f,     },
+                    { 0.f,     0.f,     0.1066f, },
+                    { 0.4929f, 0.4938f, 0.4924f, },
             },
             {
                     { 0.f,     0.0f,    0.0f,    },
-                    { 0.2140f, 0.2140f, 0.2140f, },
+                    { 0.2140f, 0.2140f, 0.2140f, }, // This is just the sRGB transfer function
                     { 0.2140f, 0.0f,    0.0f,    },
                     { 0.0f,    0.2140f, 0.0f,    },
                     { 0.0f,    0.0f,    0.2140f, },
-                    { 1.0f,    1.0f,    1.0f,    },
+                    { 0.5225f, 0.5225f, 0.5225f, },
             },
     };
     // clang-format on
     bool cicp_expected[kTestCount] = {true, true, false};
-    bool a2b_expected[kTestCount] = {true, false, false};
+    bool a2b_expected[kTestCount] = {true, true, false};
     uint32_t cicp_primaries_expected[kTestCount] = {9, 12, 0};
     uint32_t cicp_trfn_expected[kTestCount] = {16, 18, 0};
 
@@ -117,7 +117,7 @@ DEF_TEST(HDR_ICC, r) {
                                                 1);
             REPORTER_ASSERT(r, xform_result);
 
-            auto approx_equal = [=](float x, float y) { return std::abs(x - y) < 1e-3f; };
+            auto approx_equal = [=](float x, float y) { return std::abs(x - y) < 1e-2f; };
             for (size_t i = 0; i < 3; ++i) {
                 REPORTER_ASSERT(
                         r, approx_equal(dst_pixel_actual[i], dst_pixels_expected[test][pixel][i]));

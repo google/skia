@@ -20,6 +20,7 @@
 #include "src/core/SkMD5.h"
 #include "src/encode/SkICCPriv.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <string>
@@ -27,7 +28,7 @@
 #include <vector>
 
 // The number of input and output channels.
-static constexpr size_t kNumChannels = 3;
+constexpr size_t kNumChannels = 3;
 
 // The D50 illuminant.
 constexpr float kD50_x = 0.9642f;
@@ -42,12 +43,20 @@ static SkFixed float_round_to_fixed(float x) {
     return sk_float_saturate2int((float)floor((double)x * SK_Fixed1 + 0.5));
 }
 
-static uint16_t float_round_to_unorm16(float x) {
-    x = x * 65535.f + 0.5;
-    if (x > 65535) return 65535;
+// Convert a float to a uInt16Number, with 0.0 mapping go 0 and 1.0 mapping to |one|.
+static uint16_t float_to_uInt16Number(float x, uint16_t one) {
+    x = x * one + 0.5;
+    if (x > one) return one;
     if (x < 0) return 0;
     return static_cast<uint16_t>(x);
 }
+
+// The uInt16Number used by curveType has 1.0 map to 0xFFFF. See section "10.6. curveType".
+constexpr uint16_t kOne16CurveType = 0xFFFF;
+
+// The uInt16Number used to encoude XYZ values has 1.0 map to 0x8000. See section "6.3.4.2 General
+// PCS encoding" and Table 11.
+constexpr uint16_t kOne16XYZ = 0x8000;
 
 struct ICCHeader {
     // Size of the profile (computed)
@@ -123,6 +132,21 @@ static sk_sp<SkData> write_xyz_tag(float x, float y, float z) {
             SkEndian_SwapBE32(float_round_to_fixed(y)),
             SkEndian_SwapBE32(float_round_to_fixed(z)),
     };
+    return SkData::MakeWithCopy(data, sizeof(data));
+}
+
+static sk_sp<SkData> write_matrix(const skcms_Matrix3x4* matrix) {
+    uint32_t data[12];
+    // See layout details in section "10.12.5 Matrix".
+    size_t k = 0;
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            data[k++] = SkEndian_SwapBE32(float_round_to_fixed(matrix->vals[i][j]));
+        }
+    }
+    for (int i = 0; i < 3; ++i) {
+        data[k++] = SkEndian_SwapBE32(float_round_to_fixed(matrix->vals[i][3]));
+    }
     return SkData::MakeWithCopy(data, sizeof(data));
 }
 
@@ -301,75 +325,20 @@ static sk_sp<SkData> write_cicp_tag(const skcms_CICP& cicp) {
     return s.detachAsData();
 }
 
-// Perform a matrix-vector multiplication. Overwrite the input vector with the result.
-static void skcms_Matrix3x3_apply(const skcms_Matrix3x3* m, float* x) {
-    float y0 = x[0] * m->vals[0][0] + x[1] * m->vals[0][1] + x[2] * m->vals[0][2];
-    float y1 = x[0] * m->vals[1][0] + x[1] * m->vals[1][1] + x[2] * m->vals[1][2];
-    float y2 = x[0] * m->vals[2][0] + x[1] * m->vals[2][1] + x[2] * m->vals[2][2];
-    x[0] = y0;
-    x[1] = y1;
-    x[2] = y2;
+constexpr float kToneMapInputMax = 1000.f / 203.f;
+constexpr float kToneMapOutputMax = 1.f;
+
+// Scalar tone map gain function.
+static float tone_map_gain(float x) {
+    // The PQ transfer function will map to the range [0, 1]. Linearly scale
+    // it up to the range [0, 1,000/203]. We will then tone map that back
+    // down to [0, 1].
+    constexpr float kToneMapA = kToneMapOutputMax / (kToneMapInputMax * kToneMapInputMax);
+    constexpr float kToneMapB = 1.f / kToneMapOutputMax;
+    return (1.f + kToneMapA * x) / (1.f + kToneMapB * x);
 }
 
-void SkICCFloatXYZD50ToGrid16Lab(const float* xyz_float, uint8_t* grid16_lab) {
-    float v[3] = {
-            xyz_float[0] / kD50_x,
-            xyz_float[1] / kD50_y,
-            xyz_float[2] / kD50_z,
-    };
-    for (size_t i = 0; i < 3; ++i) {
-        v[i] = v[i] > 0.008856f ? cbrtf(v[i]) : v[i] * 7.787f + (16 / 116.0f);
-    }
-    const float L = v[1] * 116.0f - 16.0f;
-    const float a = (v[0] - v[1]) * 500.0f;
-    const float b = (v[1] - v[2]) * 200.0f;
-    const float Lab_unorm[3] = {
-            L * (1 / 100.f),
-            (a + 128.0f) * (1 / 255.0f),
-            (b + 128.0f) * (1 / 255.0f),
-    };
-    // This will encode L=1 as 0xFFFF. This matches how skcms will interpret the
-    // table, but the spec appears to indicate that the value should be 0xFF00.
-    // https://crbug.com/skia/13807
-    for (size_t i = 0; i < 3; ++i) {
-        reinterpret_cast<uint16_t*>(grid16_lab)[i] =
-                SkEndian_SwapBE16(float_round_to_unorm16(Lab_unorm[i]));
-    }
-}
-
-void SkICCFloatToTable16(const float f, uint8_t* table_16) {
-    *reinterpret_cast<uint16_t*>(table_16) = SkEndian_SwapBE16(float_round_to_unorm16(f));
-}
-
-// Compute the tone mapping gain for luminance value L. The gain should be
-// applied after the transfer function is applied.
-float compute_tone_map_gain(const skcms_TransferFunction& fn, float L) {
-    if (L <= 0.f) {
-        return 1.f;
-    }
-    if (skcms_TransferFunction_isPQish(&fn)) {
-        // The PQ transfer function will map to the range [0, 1]. Linearly scale
-        // it up to the range [0, 10,000/203]. We will then tone map that back
-        // down to [0, 1].
-        constexpr float kInputMaxLuminance = 10000 / 203.f;
-        constexpr float kOutputMaxLuminance = 1.0;
-        L *= kInputMaxLuminance;
-
-        // Compute the tone map gain which will tone map from 10,000/203 to 1.0.
-        constexpr float kToneMapA = kOutputMaxLuminance / (kInputMaxLuminance * kInputMaxLuminance);
-        constexpr float kToneMapB = 1.f / kOutputMaxLuminance;
-        return kInputMaxLuminance * (1.f + kToneMapA * L) / (1.f + kToneMapB * L);
-    }
-    if (skcms_TransferFunction_isHLGish(&fn)) {
-        // Let Lw be the brightness of the display in nits.
-        constexpr float Lw = 203.f;
-        const float gamma = 1.2f + 0.42f * std::log(Lw / 1000.f) / std::log(10.f);
-        return std::pow(L, gamma - 1.f);
-    }
-    return 1.f;
-}
-
-// Write a lookup table based curve, potentially including tone mapping.
+// Write a lookup table based 1D curve.
 static sk_sp<SkData> write_trc_tag(const skcms_Curve& trc) {
     SkDynamicMemoryWStream s;
     if (trc.table_entries) {
@@ -404,42 +373,6 @@ static sk_sp<SkData> write_trc_tag(const skcms_Curve& trc) {
     return s.detachAsData();
 }
 
-void compute_lut_entry(const skcms_Matrix3x3& src_to_XYZD50, float rgb[3]) {
-    // Compute the matrices to convert from source to Rec2020, and from Rec2020 to XYZD50.
-    skcms_Matrix3x3 src_to_rec2020;
-    const skcms_Matrix3x3 rec2020_to_XYZD50 = SkNamedGamut::kRec2020;
-    {
-        skcms_Matrix3x3 XYZD50_to_rec2020;
-        skcms_Matrix3x3_invert(&rec2020_to_XYZD50, &XYZD50_to_rec2020);
-        src_to_rec2020 = skcms_Matrix3x3_concat(&XYZD50_to_rec2020, &src_to_XYZD50);
-    }
-
-    // Convert the source signal to linear.
-    for (size_t i = 0; i < kNumChannels; ++i) {
-        rgb[i] = skcms_TransferFunction_eval(&SkNamedTransferFn::kPQ, rgb[i]);
-    }
-
-    // Convert source gamut to Rec2020.
-    skcms_Matrix3x3_apply(&src_to_rec2020, rgb);
-
-    // Compute the luminance of the signal.
-    constexpr float kLr = 0.2627f;
-    constexpr float kLg = 0.6780f;
-    constexpr float kLb = 0.0593f;
-    float L = rgb[0] * kLr + rgb[1] * kLg + rgb[2] * kLb;
-
-    // Compute the tone map gain based on the luminance.
-    float tone_map_gain = compute_tone_map_gain(SkNamedTransferFn::kPQ, L);
-
-    // Apply the tone map gain.
-    for (size_t i = 0; i < kNumChannels; ++i) {
-        rgb[i] *= tone_map_gain;
-    }
-
-    // Convert from Rec2020-linear to XYZD50.
-    skcms_Matrix3x3_apply(&rec2020_to_XYZD50, rgb);
-}
-
 sk_sp<SkData> write_clut(const uint8_t* grid_points, const uint8_t* grid_16) {
     SkDynamicMemoryWStream s;
     for (size_t i = 0; i < 16; ++i) {
@@ -470,42 +403,65 @@ sk_sp<SkData> write_mAB_or_mBA_tag(uint32_t type,
                                    const uint8_t* grid_16,
                                    const skcms_Curve* m_curves,
                                    const skcms_Matrix3x4* matrix) {
-    const size_t b_curves_offset = 32;
-    sk_sp<SkData> b_curves_data[kNumChannels];
-    size_t clut_offset = 0;
-    sk_sp<SkData> clut;
-    size_t a_curves_offset = 0;
-    sk_sp<SkData> a_curves_data[kNumChannels];
+    size_t offset = 32;
 
     // The "B" curve is required.
+    size_t b_curves_offset = offset;
+    sk_sp<SkData> b_curves_data[kNumChannels];
     SkASSERT(b_curves);
     for (size_t i = 0; i < kNumChannels; ++i) {
         b_curves_data[i] = write_trc_tag(b_curves[i]);
         SkASSERT(b_curves_data[i]);
+        offset += b_curves_data[i]->size();
     }
 
-    // The "A" curve and CLUT are optional.
+    // The CLUT.
+    size_t clut_offset = 0;
+    sk_sp<SkData> clut;
+    if (grid_points) {
+        SkASSERT(grid_16);
+        clut_offset = offset;
+        clut = write_clut(grid_points, grid_16);
+        SkASSERT(clut);
+        offset += clut->size();
+    }
+
+    // The "A" curves.
+    size_t a_curves_offset = 0;
+    sk_sp<SkData> a_curves_data[kNumChannels];
     if (a_curves) {
         SkASSERT(grid_points);
         SkASSERT(grid_16);
-
-        clut_offset = b_curves_offset;
-        for (size_t i = 0; i < kNumChannels; ++i) {
-            clut_offset += b_curves_data[i]->size();
-        }
-        clut = write_clut(grid_points, grid_16);
-        SkASSERT(clut);
-
-        a_curves_offset = clut_offset + clut->size();
+        a_curves_offset = offset;
         for (size_t i = 0; i < kNumChannels; ++i) {
             a_curves_data[i] = write_trc_tag(a_curves[i]);
             SkASSERT(a_curves_data[i]);
+            offset += a_curves_data[i]->size();
         }
     }
 
-    // The "M" curves and matrix are not supported yet.
-    SkASSERT(!m_curves);
-    SkASSERT(!matrix);
+    // The matrix.
+    size_t matrix_offset = 0;
+    sk_sp<SkData> matrix_data;
+    if (matrix) {
+        SkASSERT(m_curves);
+        matrix_offset = offset;
+        matrix_data = write_matrix(matrix);
+        offset += matrix_data->size();
+    }
+
+    // The "M" curves.
+    size_t m_curves_offset = 0;
+    sk_sp<SkData> m_curves_data[kNumChannels];
+    if (m_curves) {
+        SkASSERT(matrix);
+        m_curves_offset = offset;
+        for (size_t i = 0; i < kNumChannels; ++i) {
+            m_curves_data[i] = write_trc_tag(m_curves[i]);
+            SkASSERT(a_curves_data[i]);
+            offset += m_curves_data[i]->size();
+        }
+    }
 
     SkDynamicMemoryWStream s;
     s.write32(SkEndian_SwapBE32(type));             // Type signature
@@ -514,20 +470,32 @@ sk_sp<SkData> write_mAB_or_mBA_tag(uint32_t type,
     s.write8(kNumChannels);                         // Output channels
     s.write16(0);                                   // Reserved
     s.write32(SkEndian_SwapBE32(b_curves_offset));  // B curve offset
-    s.write32(SkEndian_SwapBE32(0));                // Matrix offset (ignored)
-    s.write32(SkEndian_SwapBE32(0));                // M curve offset (ignored)
+    s.write32(SkEndian_SwapBE32(matrix_offset));    // Matrix offset
+    s.write32(SkEndian_SwapBE32(m_curves_offset));  // M curve offset
     s.write32(SkEndian_SwapBE32(clut_offset));      // CLUT offset
     s.write32(SkEndian_SwapBE32(a_curves_offset));  // A curve offset
     SkASSERT(s.bytesWritten() == b_curves_offset);
     for (size_t i = 0; i < kNumChannels; ++i) {
         s.write(b_curves_data[i]->data(), b_curves_data[i]->size());
     }
-    if (a_curves) {
+    if (clut) {
         SkASSERT(s.bytesWritten() == clut_offset);
         s.write(clut->data(), clut->size());
+    }
+    if (a_curves) {
         SkASSERT(s.bytesWritten() == a_curves_offset);
         for (size_t i = 0; i < kNumChannels; ++i) {
             s.write(a_curves_data[i]->data(), a_curves_data[i]->size());
+        }
+    }
+    if (matrix_data) {
+        SkASSERT(s.bytesWritten() == matrix_offset);
+        s.write(matrix_data->data(), matrix_data->size());
+    }
+    if (m_curves) {
+        SkASSERT(s.bytesWritten() == m_curves_offset);
+        for (size_t i = 0; i < kNumChannels; ++i) {
+            s.write(m_curves_data[i]->data(), m_curves_data[i]->size());
         }
     }
     return s.detachAsData();
@@ -673,8 +641,8 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* des
 sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Matrix3x3& toXYZD50) {
     skcms_ICCProfile profile;
     memset(&profile, 0, sizeof(profile));
-    std::vector<uint8_t> trc_table;
-    std::vector<uint8_t> a2b_grid;
+    std::vector<uint16_t> trc_table;
+    std::vector<uint16_t> a2b_grid;
 
     profile.data_color_space = skcms_Signature_RGB;
     profile.pcs = skcms_Signature_XYZ;
@@ -685,46 +653,36 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
         profile.toXYZD50 = toXYZD50;
     }
 
-    // Populate TRC (except for PQ).
-    if (!skcms_TransferFunction_isPQish(&fn)) {
+    // Populate the analytic TRC for sRGB-like curves.
+    if (skcms_TransferFunction_isSRGBish(&fn)) {
         profile.has_trc = true;
-        if (skcms_TransferFunction_isSRGBish(&fn)) {
-            profile.trc[0].table_entries = 0;
-            profile.trc[0].parametric = fn;
-        } else if (skcms_TransferFunction_isHLGish(&fn)) {
-            skcms_TransferFunction scaled_hlg = SkNamedTransferFn::kHLG;
-            scaled_hlg.f = 1 / 12.f - 1.f;
-            constexpr uint32_t kTrcTableSize = 65;
-            trc_table.resize(kTrcTableSize * 2);
-            for (uint32_t i = 0; i < kTrcTableSize; ++i) {
-                float x = i / (kTrcTableSize - 1.f);
-                float y = skcms_TransferFunction_eval(&scaled_hlg, x);
-                y *= compute_tone_map_gain(scaled_hlg, y);
-                SkICCFloatToTable16(y, &trc_table[2 * i]);
-            }
-
-            profile.trc[0].table_entries = kTrcTableSize;
-            profile.trc[0].table_16 = reinterpret_cast<uint8_t*>(trc_table.data());
-        }
+        profile.trc[0].table_entries = 0;
+        profile.trc[0].parametric = fn;
         memcpy(&profile.trc[1], &profile.trc[0], sizeof(profile.trc[0]));
         memcpy(&profile.trc[2], &profile.trc[0], sizeof(profile.trc[0]));
     }
 
-    // Populate A2B (PQ only).
-    if (skcms_TransferFunction_isPQish(&fn)) {
-        profile.pcs = skcms_Signature_Lab;
-
-        constexpr uint32_t kGridSize = 17;
-        profile.has_A2B = true;
-        profile.A2B.input_channels = kNumChannels;
-        profile.A2B.output_channels = kNumChannels;
-        for (size_t i = 0; i < 3; ++i) {
-            profile.A2B.input_curves[i].parametric = SkNamedTransferFn::kLinear;
-            profile.A2B.output_curves[i].parametric = SkNamedTransferFn::kLinear;
-            profile.A2B.grid_points[i] = kGridSize;
+    // Populate A2B (PQ and HLG only).
+    if (skcms_TransferFunction_isPQish(&fn) || skcms_TransferFunction_isHLGish(&fn)) {
+        // Populate a 1D per-channel curve to pre-condition before tone mapping.
+        constexpr uint32_t kTrcTableSize = 65;
+        trc_table.resize(kTrcTableSize);
+        for (uint32_t i = 0; i < kTrcTableSize; ++i) {
+            float x = i / (kTrcTableSize - 1.f);
+            if (skcms_TransferFunction_isHLGish(&fn)) {
+                // For HLG this curve is the inverse OETF and then a per-channel OOTF.
+                x = skcms_TransferFunction_eval(&SkNamedTransferFn::kHLG, x) / 12.f;
+                x *= std::pow(x, 0.2);
+            } else if (skcms_TransferFunction_isPQish(&fn)) {
+                // For PQ this is the EOTF, scaled so that 1,000 nits maps to 1.0.
+                x = 10.f * skcms_TransferFunction_eval(&SkNamedTransferFn::kPQ, x);
+            }
+            trc_table[i] = SkEndian_SwapBE16(float_to_uInt16Number(x, kOne16CurveType));
         }
 
-        a2b_grid.resize(kGridSize * kGridSize * kGridSize * kNumChannels * 2);
+        // Populate the grid with a 3D LUT that will do tone mapping.
+        constexpr uint32_t kGridSize = 9;
+        a2b_grid.resize(kGridSize * kGridSize * kGridSize * kNumChannels);
         size_t a2b_grid_index = 0;
         for (uint32_t r_index = 0; r_index < kGridSize; ++r_index) {
             for (uint32_t g_index = 0; g_index < kGridSize; ++g_index) {
@@ -734,17 +692,64 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
                             g_index / (kGridSize - 1.f),
                             b_index / (kGridSize - 1.f),
                     };
-                    compute_lut_entry(toXYZD50, rgb);
-                    SkICCFloatXYZD50ToGrid16Lab(rgb, &a2b_grid[a2b_grid_index]);
-                    a2b_grid_index += 6;
+
+                    if (skcms_TransferFunction_isHLGish(&fn)) {
+                        // Un-apply the per-channel OOTF.
+                        for (auto& c : rgb) {
+                            c = std::pow(c, 1 / 1.2);
+                        }
+                        // Re-apply the cross-channel OOTF.
+                        float Y = 0.2627f * rgb[0] + 0.6780f * rgb[1] + 0.0593f * rgb[2];
+                        for (auto& c : rgb) {
+                            c *= std::pow(Y, 0.2);
+                        }
+                    }
+
+                    // Scale 1.0 to 1,000 nits / 203 nits.
+                    for (auto& c : rgb) {
+                        c *= kToneMapInputMax;
+                    }
+
+                    // Apply tone mapping to take 1,000/203 to 1.0.
+                    {
+                        float max_rgb = std::max(std::max(rgb[0], rgb[1]), rgb[2]);
+                        for (auto& c : rgb) {
+                            c *= tone_map_gain(0.5 * (c + max_rgb));
+                            c = std::min(c, 1.f);
+                        }
+                    }
+
+                    // Write the result to the LUT.
+                    for (const auto& c : rgb) {
+                        a2b_grid[a2b_grid_index++] =
+                                SkEndian_SwapBE16(float_to_uInt16Number(c, kOne16XYZ));
+                    }
                 }
             }
         }
+
+        // Populate A2B as this tone mapping.
+        profile.has_A2B = true;
+        profile.A2B.input_channels = kNumChannels;
+        profile.A2B.output_channels = kNumChannels;
+        profile.A2B.matrix_channels = kNumChannels;
         for (size_t i = 0; i < kNumChannels; ++i) {
             profile.A2B.grid_points[i] = kGridSize;
+            // Set the input curve to convert to linear pre-OOTF space.
+            profile.A2B.input_curves[i].table_entries = kTrcTableSize;
+            profile.A2B.input_curves[i].table_16 = reinterpret_cast<uint8_t*>(trc_table.data());
+            // The output and matrix curves are the identity.
+            profile.A2B.output_curves[i].parametric = SkNamedTransferFn::kLinear;
+            profile.A2B.matrix_curves[i].parametric = SkNamedTransferFn::kLinear;
+            // Set the matrix to convert from the primaries to XYZD50.
+            for (size_t j = 0; j < 3; ++j) {
+                profile.A2B.matrix.vals[i][j] = toXYZD50.vals[i][j];
+            }
+            profile.A2B.matrix.vals[i][3] = 0.f;
         }
         profile.A2B.grid_16 = reinterpret_cast<const uint8_t*>(a2b_grid.data());
 
+        // Populate B2A as the identity.
         profile.has_B2A = true;
         profile.B2A.input_channels = kNumChannels;
         for (size_t i = 0; i < 3; ++i) {
