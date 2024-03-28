@@ -18,6 +18,10 @@
     #include <immintrin.h>
 #elif defined(SK_ARM_HAS_NEON)
     #include <arm_neon.h>
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LASX
+    #include <lasxintrin.h>
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX
+    #include <lsxintrin.h>
 #endif
 
 // This file is included in multiple translation units with different #defines set enabling
@@ -1081,6 +1085,498 @@ void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
     rgbA_to_BGRA_portable(dst, src, count);
 }
 
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LASX
+// -- LASX ----------------------------------------------------------------------------------------
+
+// Scale a byte by another.
+// Inputs are stored in 16-bit lanes, but are not larger than 8-bits.
+// (x+127)/255 == ((x+128)*257)>>16
+SI __m256i scale(__m256i x, __m256i y) {
+    const __m256i _128 = __lasx_xvreplgr2vr_h(128);
+    const __m256i _257 = __lasx_xvreplgr2vr_h(257);
+
+    // (x+127)/255 == ((x+128)*257)>>16
+    return __lasx_xvmuh_hu(__lasx_xvadd_h(__lasx_xvmul_h(x, y), _128), _257);
+}
+
+static void premul_should_swapRB(bool kSwapRB, uint32_t* dst, const uint32_t* src, int count) {
+    auto premul8 = [=](__m256i* lo, __m256i* hi) {
+        const __m256i zeros = __lasx_xvldi(0);
+        __m256i planar = __lasx_xvldi(0);
+        if (kSwapRB) {
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0d0905010e0a0602 ,0);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0f0b07030c080400 ,1);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0d0905010e0a0602 ,2);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0f0b07030c080400 ,3);
+        } else {
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0d0905010c080400 ,0);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0f0b07030e0a0602 ,1);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0d0905010c080400 ,2);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0f0b07030e0a0602 ,3);
+        }
+
+        // Swizzle the pixels to 8-bit planar.
+        *lo = __lasx_xvshuf_b(zeros, *lo, planar);      // rrrrgggg bbbbaaaa rrrrgggg bbbbaaaa
+        *hi = __lasx_xvshuf_b(zeros, *hi, planar);      // RRRRGGGG BBBBAAAA RRRRGGGG BBBBAAAA
+        __m256i rg = __lasx_xvilvl_w(*hi, *lo),         // rrrrRRRR ggggGGGG rrrrRRRR ggggGGGG
+                ba = __lasx_xvilvh_w(*hi, *lo);         // bbbbBBBB aaaaAAAA bbbbBBBB aaaaAAAA
+
+        // Unpack to 16-bit planar.
+        __m256i r = __lasx_xvilvl_b(zeros, rg),         // r_r_r_r_ R_R_R_R_ r_r_r_r_ R_R_R_R_
+                g = __lasx_xvilvh_b(zeros, rg),         // g_g_g_g_ G_G_G_G_ g_g_g_g_ G_G_G_G_
+                b = __lasx_xvilvl_b(zeros, ba),         // b_b_b_b_ B_B_B_B_ b_b_b_b_ B_B_B_B_
+                a = __lasx_xvilvh_b(zeros, ba);         // a_a_a_a_ A_A_A_A_ a_a_a_a_ A_A_A_A_
+
+        // Premultiply!
+        r = scale(r, a);
+        g = scale(g, a);
+        b = scale(b, a);
+
+        // Repack into interlaced pixels.
+        rg = __lasx_xvor_v(r, __lasx_xvslli_h(g, 8));   // rgrgrgrg RGRGRGRG rgrgrgrg RGRGRGRG
+        ba = __lasx_xvor_v(b, __lasx_xvslli_h(a, 8));   // babababa BABABABA babababa BABABABA
+        *lo = __lasx_xvilvl_h(ba, rg);                  // rgbargba rgbargba rgbargba rgbargba
+        *hi = __lasx_xvilvh_h(ba, rg);                  // RGBARGBA RGBARGBA RGBARGBA RGBARGBA
+    };
+
+    while (count >= 16) {
+        __m256i lo = __lasx_xvld(src, 0),
+                hi = __lasx_xvld(src, 32);
+
+        premul8(&lo, &hi);
+
+        __lasx_xvst(lo, dst, 0);
+        __lasx_xvst(hi, dst, 32);
+
+        src += 16;
+        dst += 16;
+        count -= 16;
+    }
+
+    if (count >= 8) {
+        __m256i lo = __lasx_xvld(src, 0),
+                hi = __lasx_xvldi(0);
+
+        premul8(&lo, &hi);
+
+        __lasx_xvst(lo, dst, 0);
+
+        src += 8;
+        dst += 8;
+        count -= 8;
+    }
+
+    // Call portable code to finish up the tail of [0,4) pixels.
+    auto proc = kSwapRB ? RGBA_to_bgrA_portable : RGBA_to_rgbA_portable;
+    proc(dst, src, count);
+}
+
+/*not static*/ inline void RGBA_to_rgbA(uint32_t* dst, const uint32_t* src, int count) {
+    premul_should_swapRB(false, dst, src, count);
+}
+
+/*not static*/ inline void RGBA_to_bgrA(uint32_t* dst, const uint32_t* src, int count) {
+    premul_should_swapRB(true, dst, src, count);
+}
+
+/*not static*/ inline void RGBA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    while (count >= 8) {
+        __m256i rgba = __lasx_xvld(src, 0);
+        __m256i bgra = __lasx_xvshuf4i_b(rgba, 0xC6);
+        __lasx_xvst(bgra, dst, 0);
+
+        src += 8;
+        dst += 8;
+        count -= 8;
+    }
+
+    RGBA_to_BGRA_portable(dst, src, count);
+}
+
+/*not static*/ inline void grayA_to_RGBA(uint32_t dst[], const uint8_t* src, int count) {
+    while (count >= 16) {
+        __m256i ga = __lasx_xvld(src, 0);
+
+        __m256i gg = __lasx_xvor_v(__lasx_xvand_v(ga, __lasx_xvreplgr2vr_h(0x00FF)),
+                                   __lasx_xvslli_h(ga, 8));
+
+        __m256i ggga_lo = __lasx_xvilvl_h(ga, gg);
+        __m256i ggga_hi = __lasx_xvilvh_h(ga, gg);
+
+        __lasx_xvst(__lasx_xvpermi_q(ggga_lo, ggga_hi, 0x02), dst, 0);
+        __lasx_xvst(__lasx_xvpermi_q(ggga_lo, ggga_hi, 0x13), dst, 32);
+
+        src += 16*2;
+        dst += 16;
+        count -= 16;
+    }
+
+    grayA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void grayA_to_rgbA(uint32_t dst[], const uint8_t* src, int count) {
+    while (count >= 16) {
+        __m256i grayA = __lasx_xvld(src, 0);
+
+        __m256i val = __lasx_xvreplgr2vr_h(0x00FF);
+
+        __m256i g0 = __lasx_xvand_v(grayA, val);
+        __m256i a0 = __lasx_xvsrli_h(grayA, 8);
+
+        // Premultiply
+        g0 = scale(g0, a0);
+
+        __m256i gg = __lasx_xvor_v(g0, __lasx_xvslli_h(g0, 8));
+        __m256i ga = __lasx_xvor_v(g0, __lasx_xvslli_h(a0, 8));
+
+        __m256i ggga_lo = __lasx_xvilvl_h(ga, gg);
+        __m256i ggga_hi = __lasx_xvilvh_h(ga, gg);
+
+        val = __lasx_xvpermi_q(ggga_lo, ggga_hi, 0x02);
+        __lasx_xvst(val, dst, 0);
+
+        val = __lasx_xvpermi_q(ggga_lo, ggga_hi, 0x13);
+        __lasx_xvst(val, dst, 32);
+
+        src += 16*2;
+        dst += 16;
+        count -= 16;
+    }
+
+    grayA_to_rgbA_portable(dst, src, count);
+}
+
+enum Format { kRGB1, kBGR1 };
+static void inverted_cmyk_to(Format format, uint32_t* dst, const uint32_t* src, int count) {
+    auto convert8 = [=](__m256i *lo, __m256i* hi) {
+        const __m256i zeros = __lasx_xvldi(0);
+        __m256i planar = __lasx_xvldi(0);
+        if (kBGR1 == format) {
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0d0905010e0a0602 ,0);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0f0b07030c080400 ,1);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0d0905010e0a0602 ,2);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0f0b07030c080400 ,3);
+        } else {
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0d0905010c080400 ,0);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0f0b07030e0a0602 ,1);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0d0905010c080400 ,2);
+            planar = __lasx_xvinsgr2vr_d(planar, 0x0f0b07030e0a0602 ,3);
+        }
+
+        // Swizzle the pixels to 8-bit planar.
+        *lo = __lasx_xvshuf_b(zeros, *lo, planar);   // ccccmmmm yyyykkkk ccccmmmm yyyykkkk
+        *hi = __lasx_xvshuf_b(zeros, *hi, planar);   // CCCCMMMM YYYYKKKK CCCCMMMM YYYYKKKK
+        __m256i cm = __lasx_xvilvl_w(*hi, *lo),      // ccccCCCC mmmmMMMM ccccCCCC mmmmMMMM
+                yk = __lasx_xvilvh_w(*hi, *lo);      // yyyyYYYY kkkkKKKK yyyyYYYY kkkkKKKK
+
+        // Unpack to 16-bit planar.
+        __m256i c = __lasx_xvilvl_b(zeros, cm),      // c_c_c_c_ C_C_C_C_ c_c_c_c_ C_C_C_C_
+                m = __lasx_xvilvh_b(zeros, cm),      // m_m_m_m_ M_M_M_M_ m_m_m_m_ M_M_M_M_
+                y = __lasx_xvilvl_b(zeros, yk),      // y_y_y_y_ Y_Y_Y_Y_ y_y_y_y_ Y_Y_Y_Y_
+                k = __lasx_xvilvh_b(zeros, yk);      // k_k_k_k_ K_K_K_K_ k_k_k_k_ K_K_K_K_
+
+        // Scale to r, g, b.
+        __m256i r = scale(c, k),
+                g = scale(m, k),
+                b = scale(y, k);
+
+        // Repack into interlaced pixels:
+        //     rg = rgrgrgrg RGRGRGRG rgrgrgrg RGRGRGRG
+        //     ba = b1b1b1b1 B1B1B1B1 b1b1b1b1 B1B1B1B1
+        __m256i rg = __lasx_xvor_v(r, __lasx_xvslli_h(g, 8)),
+                ba = __lasx_xvor_v(b, __lasx_xvreplgr2vr_h(0xff00));
+        *lo = __lasx_xvilvl_h(ba, rg);               // rgb1rgb1 rgb1rgb1 rgb1rgb1 rgb1rgb1
+        *hi = __lasx_xvilvh_h(ba, rg);               // RGB1RGB1 RGB1RGB1 RGB1RGB1 RGB1RGB1
+    };
+
+    while (count >= 16) {
+        __m256i lo = __lasx_xvld(src, 0),
+                hi = __lasx_xvld(src, 32);
+
+        convert8(&lo, &hi);
+
+        __lasx_xvst(lo, dst, 0);
+        __lasx_xvst(hi, dst, 32);
+
+        src += 16;
+        dst += 16;
+        count -= 16;
+    }
+
+    while (count >= 8) {
+        __m256i lo = __lasx_xvld(src, 0),
+                hi = __lasx_xvldi(0);
+
+        convert8(&lo, &hi);
+
+        __lasx_xvst(lo, dst, 0);
+
+        src += 8;
+        dst += 8;
+        count -= 8;
+    }
+
+    auto proc = (kBGR1 == format) ? inverted_CMYK_to_BGR1_portable : inverted_CMYK_to_RGB1_portable;
+    proc(dst, src, count);
+}
+
+/*not static*/ inline void inverted_CMYK_to_RGB1(uint32_t dst[], const uint32_t* src, int count) {
+    inverted_cmyk_to(kRGB1, dst, src, count);
+}
+
+/*not static*/ inline void inverted_CMYK_to_BGR1(uint32_t dst[], const uint32_t* src, int count) {
+    inverted_cmyk_to(kBGR1, dst, src, count);
+}
+
+/*not static*/ inline void rgbA_to_RGBA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_BGRA_portable(dst, src, count);
+}
+
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX
+// -- LSX -----------------------------------------------------------------------------------------
+
+// Scale a byte by another.
+// Inputs are stored in 16-bit lanes, but are not larger than 8-bits.
+SI __m128i scale(__m128i x, __m128i y) {
+    const __m128i _128 = __lsx_vreplgr2vr_h(128);
+    const __m128i _257 = __lsx_vreplgr2vr_h(257);
+
+    // (x+127)/255 == ((x+128)*257)>>16
+    return __lsx_vmuh_hu(__lsx_vadd_h(__lsx_vmul_h(x, y), _128), _257);
+}
+
+static void premul_should_swapRB(bool kSwapRB, uint32_t* dst, const uint32_t* src, int count) {
+
+    auto premul8 = [=](__m128i *lo, __m128i *hi){
+        const __m128i zeros = __lsx_vldi(0);
+        __m128i planar = __lsx_vldi(0);
+        if (kSwapRB) {
+            planar = __lsx_vinsgr2vr_d(planar, 0x0d0905010e0a0602, 0);
+            planar = __lsx_vinsgr2vr_d(planar, 0x0f0b07030c080400, 1);
+        } else {
+            planar = __lsx_vinsgr2vr_d(planar, 0x0d0905010c080400, 0);
+            planar = __lsx_vinsgr2vr_d(planar, 0x0f0b07030e0a0602, 1);
+        }
+
+        // Swizzle the pixels to 8-bit planar.
+        *lo = __lsx_vshuf_b(zeros, *lo, planar);             // rrrrgggg bbbbaaaa
+        *hi = __lsx_vshuf_b(zeros, *hi, planar);             // RRRRGGGG BBBBAAAA
+        __m128i rg = __lsx_vilvl_w(*hi, *lo),                // rrrrRRRR ggggGGGG
+                ba = __lsx_vilvh_w(*hi, *lo);                // bbbbBBBB aaaaAAAA
+
+        // Unpack to 16-bit planar.
+        __m128i r = __lsx_vilvl_b(zeros, rg),                 // r_r_r_r_ R_R_R_R_
+                g = __lsx_vilvh_b(zeros, rg),                 // g_g_g_g_ G_G_G_G_
+                b = __lsx_vilvl_b(zeros, ba),                 // b_b_b_b_ B_B_B_B_
+                a = __lsx_vilvh_b(zeros, ba);                 // a_a_a_a_ A_A_A_A_
+
+        // Premultiply!
+        r = scale(r, a);
+        g = scale(g, a);
+        b = scale(b, a);
+
+        // Repack into interlaced pixels.
+        rg = __lsx_vor_v(r, __lsx_vslli_h(g, 8));             // rgrgrgrg RGRGRGRG
+        ba = __lsx_vor_v(b, __lsx_vslli_h(a, 8));             // babababa BABABABA
+        *lo = __lsx_vilvl_h(ba, rg);                          // rgbargba rgbargba
+        *hi = __lsx_vilvh_h(ba, rg);                          // RGBARGBA RGBARGBA
+    };
+    while (count >= 8) {
+        __m128i lo = __lsx_vld(src ,0),
+                hi = __lsx_vld(src ,16);
+
+        premul8(&lo, &hi);
+
+        __lsx_vst(lo, dst, 0);
+        __lsx_vst(hi, dst, 16);
+
+        src += 8;
+        dst += 8;
+        count -= 8;
+    }
+
+    if (count >= 4) {
+        __m128i lo = __lsx_vld(src, 0),
+                hi = __lsx_vldi(0);
+
+        premul8(&lo, &hi);
+
+        __lsx_vst(lo, dst, 0);
+
+        src += 4;
+        dst += 4;
+        count -= 4;
+    }
+
+    // Call portable code to finish up the tail of [0,4) pixels.
+    auto proc = kSwapRB ? RGBA_to_bgrA_portable : RGBA_to_rgbA_portable;
+    proc(dst, src, count);
+}
+
+/*not static*/ inline void RGBA_to_rgbA(uint32_t* dst, const uint32_t* src, int count) {
+    premul_should_swapRB(false, dst, src, count);
+}
+
+/*not static*/ inline void RGBA_to_bgrA(uint32_t* dst, const uint32_t* src, int count) {
+    premul_should_swapRB(true, dst, src, count);
+}
+
+/*not static*/ inline void RGBA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    __m128i swapRB = __lsx_vldi(0);
+    swapRB = __lsx_vinsgr2vr_d(swapRB, 0x0704050603000102, 0);
+    swapRB = __lsx_vinsgr2vr_d(swapRB, 0x0f0c0d0e0b08090a, 1);
+
+    while (count >= 4) {
+        __m128i rgba = __lsx_vld(src, 0);
+        __m128i bgra = __lsx_vshuf4i_b(rgba, 0xC6);
+        __lsx_vst(bgra, dst, 0);
+
+        src += 4;
+        dst += 4;
+        count -= 4;
+    }
+
+    RGBA_to_BGRA_portable(dst, src, count);
+}
+
+/*not static*/ inline void grayA_to_RGBA(uint32_t dst[], const uint8_t* src, int count) {
+    while (count >= 8) {
+        __m128i ga = __lsx_vld(src, 0);
+
+        __m128i gg = __lsx_vor_v(__lsx_vand_v(ga, __lsx_vreplgr2vr_h(0x00FF)),
+                                 __lsx_vslli_h(ga, 8));
+
+        __m128i ggga_lo = __lsx_vilvl_h(ga, gg);
+        __m128i ggga_hi = __lsx_vilvh_h(ga, gg);
+
+        __lsx_vst(ggga_lo, dst, 0);
+        __lsx_vst(ggga_hi, dst, 16);
+
+        src += 8*2;
+        dst += 8;
+        count -= 8;
+    }
+
+    grayA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void grayA_to_rgbA(uint32_t dst[], const uint8_t* src, int count) {
+    while (count >= 8) {
+        __m128i grayA = __lsx_vld(src, 0);
+
+        __m128i g0 = __lsx_vand_v(grayA, __lsx_vreplgr2vr_h(0x00FF));
+        __m128i a0 = __lsx_vsrli_h(grayA, 8);
+
+        // Premultiply
+        g0 = scale(g0, a0);
+
+        __m128i gg = __lsx_vor_v(g0, __lsx_vslli_h(g0, 8));
+        __m128i ga = __lsx_vor_v(g0, __lsx_vslli_h(a0, 8));
+
+        __m128i ggga_lo = __lsx_vilvl_h(ga, gg);
+        __m128i ggga_hi = __lsx_vilvh_h(ga, gg);
+
+        __lsx_vst(ggga_lo, dst, 0);
+        __lsx_vst(ggga_hi, dst, 16);
+
+        src += 8*2;
+        dst += 8;
+        count -= 8;
+    }
+
+    grayA_to_rgbA_portable(dst, src, count);
+}
+
+enum Format { kRGB1, kBGR1 };
+static void inverted_cmyk_to(Format format, uint32_t* dst, const uint32_t* src, int count) {
+    auto convert8 = [=](__m128i *lo, __m128i* hi) {
+        const __m128i zeros = __lsx_vldi(0);
+        __m128i planar = __lsx_vldi(0);
+        if (kBGR1 == format) {
+            planar = __lsx_vinsgr2vr_d(planar, 0x0d0905010e0a0602, 0);
+            planar = __lsx_vinsgr2vr_d(planar, 0x0f0b07030c080400, 1);
+        } else {
+            planar = __lsx_vinsgr2vr_d(planar, 0x0d0905010c080400, 0);
+            planar = __lsx_vinsgr2vr_d(planar, 0x0f0b07030e0a0602, 1);
+        }
+
+        // Swizzle the pixels to 8-bit planar.
+        *lo = __lsx_vshuf_b(zeros, *lo, planar);              // ccccmmmm yyyykkkk
+        *hi = __lsx_vshuf_b(zeros, *hi, planar);              // CCCCMMMM YYYYKKKK
+        __m128i cm = __lsx_vilvl_w(*hi, *lo),                 // ccccCCCC mmmmMMMM
+                yk = __lsx_vilvh_w(*hi, *lo);                 // yyyyYYYY kkkkKKKK
+
+        // Unpack to 16-bit planar.
+        __m128i c = __lsx_vilvl_b(zeros, cm),                 // c_c_c_c_ C_C_C_C_
+                m = __lsx_vilvh_b(zeros, cm),                 // m_m_m_m_ M_M_M_M_
+                y = __lsx_vilvl_b(zeros, yk),                 // y_y_y_y_ Y_Y_Y_Y_
+                k = __lsx_vilvh_b(zeros, yk);                 // k_k_k_k_ K_K_K_K_
+
+        // Scale to r, g, b.
+        __m128i r = scale(c, k),
+                g = scale(m, k),
+                b = scale(y, k);
+
+        // Repack into interlaced pixels.
+        // rgrgrgrg RGRGRGRG
+        // b1b1b1b1 B1B1B1B1
+        __m128i rg = __lsx_vor_v(r, __lsx_vslli_h(g, 8)),
+                ba = __lsx_vor_v(b, __lsx_vreplgr2vr_h(0xff00));
+        *lo = __lsx_vilvl_h(ba, rg);                          // rgbargba rgbargba
+        *hi = __lsx_vilvl_h(ba, rg);                          // RGB1RGB1 RGB1RGB1
+    };
+
+    while (count >= 8) {
+        __m128i lo = __lsx_vld(src, 0),
+                hi = __lsx_vld(src, 16);
+
+        convert8(&lo, &hi);
+
+        __lsx_vst(lo, dst, 0);
+        __lsx_vst(hi, dst, 16);
+
+        src += 8;
+        dst += 8;
+        count -= 8;
+    }
+
+    if (count >= 4) {
+        __m128i lo = __lsx_vld(src, 0),
+                hi = __lsx_vldi(0);
+
+        convert8(&lo, &hi);
+
+        __lsx_vst(lo, dst, 0);
+
+        src += 4;
+        dst += 4;
+        count -= 4;
+    }
+
+    auto proc = (kBGR1 == format) ? inverted_CMYK_to_BGR1_portable : inverted_CMYK_to_RGB1_portable;
+    proc(dst, src, count);
+}
+
+/*not static*/ inline void inverted_CMYK_to_RGB1(uint32_t dst[], const uint32_t* src, int count) {
+    inverted_cmyk_to(kRGB1, dst, src, count);
+}
+
+/*not static*/ inline void inverted_CMYK_to_BGR1(uint32_t dst[], const uint32_t* src, int count) {
+    inverted_cmyk_to(kBGR1, dst, src, count);
+}
+
+/*not static*/ inline void rgbA_to_RGBA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_RGBA_portable(dst, src, count);
+}
+
+/*not static*/ inline void rgbA_to_BGRA(uint32_t* dst, const uint32_t* src, int count) {
+    rgbA_to_BGRA_portable(dst, src, count);
+}
+
 #else
 // -- No Opts --------------------------------------------------------------------------------------
 
@@ -1240,6 +1736,65 @@ static void gray_to_RGB1_portable(uint32_t dst[], const uint8_t* src, int count)
         }
         gray_to_RGB1_portable(dst, src, count);
     }
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LASX
+    /*not static*/ inline void gray_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
+        const __m256i alphas = __lasx_xvreplgr2vr_b(0xFF);
+        while (count >= 32) {
+            __m256i grays = __lasx_xvld(src, 0);
+
+            __m256i gg_lo = __lasx_xvilvl_b(grays, grays);
+            __m256i gg_hi = __lasx_xvilvh_b(grays, grays);
+            __m256i ga_lo = __lasx_xvilvl_b(alphas, grays);
+            __m256i ga_hi = __lasx_xvilvh_b(alphas, grays);
+
+            __m256i ggga0 = __lasx_xvilvl_h(ga_lo, gg_lo);
+            __m256i ggga1 = __lasx_xvilvh_h(ga_lo, gg_lo);
+            __m256i ggga2 = __lasx_xvilvl_h(ga_hi, gg_hi);
+            __m256i ggga3 = __lasx_xvilvh_h(ga_hi, gg_hi);
+
+            __m256i ggga_0 = __lasx_xvpermi_q(ggga0, ggga1, 0x02);
+            __m256i ggga_1 = __lasx_xvpermi_q(ggga2, ggga3, 0x02);
+            __m256i ggga_2 = __lasx_xvpermi_q(ggga0, ggga1, 0x13);
+            __m256i ggga_3 = __lasx_xvpermi_q(ggga2, ggga3, 0x13);
+
+            __lasx_xvst(ggga_0, dst,  0);
+            __lasx_xvst(ggga_1, dst, 32);
+            __lasx_xvst(ggga_2, dst, 64);
+            __lasx_xvst(ggga_3, dst, 96);
+
+            src += 32;
+            dst += 32;
+            count -= 32;
+        }
+        gray_to_RGB1_portable(dst, src, count);
+    }
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX
+    /*not static*/ inline void gray_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
+        const __m128i alphas = __lsx_vreplgr2vr_b(0xFF);
+        while (count >= 16) {
+            __m128i grays = __lsx_vld(src, 0);
+
+            __m128i gg_lo = __lsx_vilvl_b(grays, grays);
+            __m128i gg_hi = __lsx_vilvh_b(grays, grays);
+            __m128i ga_lo = __lsx_vilvl_b(alphas, grays);
+            __m128i ga_hi = __lsx_vilvh_b(alphas, grays);
+
+            __m128i ggga0 = __lsx_vilvl_h(ga_lo, gg_lo);
+            __m128i ggga1 = __lsx_vilvh_h(ga_lo, gg_lo);
+            __m128i ggga2 = __lsx_vilvl_h(ga_hi, gg_hi);
+            __m128i ggga3 = __lsx_vilvh_h(ga_hi, gg_hi);
+
+            __lsx_vst(ggga0, dst,  0);
+            __lsx_vst(ggga1, dst, 16);
+            __lsx_vst(ggga2, dst, 32);
+            __lsx_vst(ggga3, dst, 48);
+
+            src += 16;
+            dst += 16;
+            count -= 16;
+        }
+        gray_to_RGB1_portable(dst, src, count);
+    }
 #else
     void gray_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
         gray_to_RGB1_portable(dst, src, count);
@@ -1369,6 +1924,94 @@ static void RGB_to_BGR1_portable(uint32_t dst[], const uint8_t* src, int count) 
         insert_alpha_should_swaprb(false, dst, src, count);
     }
     void RGB_to_BGR1(uint32_t dst[], const uint8_t* src, int count) {
+        insert_alpha_should_swaprb(true, dst, src, count);
+    }
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LASX
+    static void insert_alpha_should_swaprb(bool kSwapRB,
+                                           uint32_t dst[], const uint8_t* src, int count) {
+        const __m256i alphaMask = __lasx_xvreplgr2vr_w(0xFF000000);
+
+        __m256i expand = __lasx_xvldi(0);
+        if (kSwapRB) {
+            expand = __lasx_xvinsgr2vr_d(expand, 0x0503040502000102, 0);
+            expand = __lasx_xvinsgr2vr_d(expand, 0x0b090a0b08060708, 1);
+            expand = __lasx_xvinsgr2vr_d(expand, 0x110f10110e0c0d0e, 2);
+            expand = __lasx_xvinsgr2vr_d(expand, 0x1715161714121314, 3);
+        } else {
+            expand = __lasx_xvinsgr2vr_d(expand, 0x0505040302020100, 0);
+            expand = __lasx_xvinsgr2vr_d(expand, 0x0b0b0a0908080706, 1);
+            expand = __lasx_xvinsgr2vr_d(expand, 0x1111100f0e0e0d0c, 2);
+            expand = __lasx_xvinsgr2vr_d(expand, 0x1717161514141312, 3);
+        }
+
+        while (count >= 8) {
+            // Load a vector.  While this actually contains 5 pixels plus an
+            // extra component, we will discard all but the first four pixels on
+            // this iteration.
+            __m256i rgb = __lasx_xvld(src, 0);
+            __m256i rgb_l = __lasx_xvpermi_d(rgb, 0x44);
+            __m256i rgb_h = __lasx_xvpermi_d(rgb, 0xEE);
+
+            // Expand the first four pixels to RGBX and then mask to RGB(FF).
+            __m256i rgba = __lasx_xvor_v(__lasx_xvshuf_b(rgb_h, rgb_l, expand), alphaMask);
+
+            // Store 8 pixels.
+            __lasx_xvst(rgba, dst, 0);
+
+            src += 4*6;
+            dst += 8;
+            count -= 8;
+        }
+
+        // Call portable code to finish up the tail of [0,4) pixels.
+        auto proc = kSwapRB ? RGB_to_BGR1_portable : RGB_to_RGB1_portable;
+        proc(dst, src, count);
+    }
+    /*not static*/ inline void RGB_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
+        insert_alpha_should_swaprb(false, dst, src, count);
+    }
+    /*not static*/ inline void RGB_to_BGR1(uint32_t dst[], const uint8_t* src, int count) {
+        insert_alpha_should_swaprb(true, dst, src, count);
+    }
+#elif SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX
+    static void insert_alpha_should_swaprb(bool kSwapRB,
+                                           uint32_t dst[], const uint8_t* src, int count) {
+        const __m128i alphaMask = __lsx_vreplgr2vr_w(0xFF000000);
+
+        __m128i expand = __lsx_vldi(0);
+        if (kSwapRB) {
+            expand = __lsx_vinsgr2vr_d(expand, 0x0503040502000102, 0);
+            expand = __lsx_vinsgr2vr_d(expand, 0x0b090a0b08060708, 1);
+        } else {
+            expand = __lsx_vinsgr2vr_d(expand, 0x0505040302020100, 0);
+            expand = __lsx_vinsgr2vr_d(expand, 0x0b0b0a0908080706, 1);
+        }
+
+        while (count >= 6) {
+            // Load a vector.  While this actually contains 5 pixels plus an
+            // extra component, we will discard all but the first four pixels on
+            // this iteration.
+            __m128i rgb = __lsx_vld(src, 0);
+
+            // Expand the first four pixels to RGBX and then mask to RGB(FF).
+            __m128i rgba = __lsx_vor_v(__lsx_vshuf_b(rgb, rgb, expand), alphaMask);
+
+            // Store 4 pixels.
+            __lsx_vst(rgba, dst, 0);
+
+            src += 4*3;
+            dst += 4;
+            count -= 4;
+        }
+
+        // Call portable code to finish up the tail of [0,4) pixels.
+        auto proc = kSwapRB ? RGB_to_BGR1_portable : RGB_to_RGB1_portable;
+        proc(dst, src, count);
+    }
+    /*not static*/ inline void RGB_to_RGB1(uint32_t dst[], const uint8_t* src, int count) {
+        insert_alpha_should_swaprb(false, dst, src, count);
+    }
+    /*not static*/ inline void RGB_to_BGR1(uint32_t dst[], const uint8_t* src, int count) {
         insert_alpha_should_swaprb(true, dst, src, count);
     }
 #else
