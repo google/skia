@@ -51,6 +51,7 @@ private:
     void onUnmap(MapType) override;
     bool onClearToZero() override;
     bool onUpdateData(const void* src, size_t offset, size_t size, bool preserve) override;
+    bool onGetData(void* dst, size_t offset, size_t size) override;
 
     void onSetLabel() override;
 

@@ -215,6 +215,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 
     if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(CopyBufferSubData);
+        GET_PROC(GetBufferSubData);
     }
 
     if (glVer >= GR_GL_VER(2,0)) {

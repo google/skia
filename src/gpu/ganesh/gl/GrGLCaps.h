@@ -515,6 +515,8 @@ public:
 
     bool clientCanDisableMultisample() const { return fClientCanDisableMultisample; }
 
+    bool getBufferSubDataSupport() const { return fGetBufferSubDataSupport; }
+
     GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override;
 
     skgpu::Swizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -630,6 +632,7 @@ private:
     bool fSRGBWriteControl : 1;
     bool fSkipErrorChecks : 1;
     bool fClientCanDisableMultisample : 1;
+    bool fGetBufferSubDataSupport: 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;

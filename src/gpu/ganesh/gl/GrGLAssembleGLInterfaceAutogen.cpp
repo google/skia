@@ -93,6 +93,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     GET_PROC(GenBuffers);
     GET_PROC(GenTextures);
     GET_PROC(GetBufferParameteriv);
+    GET_PROC(GetBufferSubData);
     GET_PROC(GetError);
     GET_PROC(GetFloatv);
     GET_PROC(GetIntegerv);

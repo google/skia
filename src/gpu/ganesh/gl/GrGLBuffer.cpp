@@ -275,6 +275,18 @@ bool GrGLBuffer::onUpdateData(const void* src, size_t offset, size_t size, bool 
     return true;
 }
 
+bool GrGLBuffer::onGetData(void* dst, size_t offset, size_t size) {
+    SkASSERT(fBufferID);
+
+    // bindbuffer handles dirty context
+    GrGLenum target = this->glGpu()->bindBuffer(fIntendedType, this);
+    if (this->glCaps().getBufferSubDataSupport()) {
+        GL_CALL(GetBufferSubData(target, offset, size, dst));
+        return true;
+    }
+    return false;
+}
+
 void GrGLBuffer::onSetLabel() {
     SkASSERT(fBufferID);
     if (!this->getLabel().empty()) {

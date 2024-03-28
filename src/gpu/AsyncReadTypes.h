@@ -153,11 +153,22 @@ public:
                            size_t rowBytes,
                            TClientMappedBufferManager<T, IDType>* manager) {
         const void* mappedData = result.fTransferBuffer->map();
+        size_t size = rowBytes*dimensions.height();
         if (!mappedData) {
-            return false;
+            sk_sp<SkData> data = SkData::MakeUninitialized(size);
+            if (!result.fTransferBuffer->getData(data->writable_data(), 0, size)) {
+                return false;
+            }
+            if (result.fPixelConverter) {
+                sk_sp<SkData> out = SkData::MakeUninitialized(size);
+                result.fPixelConverter(out->writable_data(), data->data());
+                this->addCpuPlane(std::move(out), rowBytes);
+            } else {
+                this->addCpuPlane(std::move(data), rowBytes);
+            }
+            return true;
         }
         if (result.fPixelConverter) {
-            size_t size = rowBytes*dimensions.height();
             sk_sp<SkData> data = SkData::MakeUninitialized(size);
             result.fPixelConverter(data->writable_data(), mappedData);
             this->addCpuPlane(std::move(data), rowBytes);
