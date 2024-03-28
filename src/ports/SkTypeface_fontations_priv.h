@@ -70,6 +70,7 @@ public:
                  SkCanvas& canvas,
                  SkSpan<SkColor> palette,
                  SkColor foregroundColor,
+                 bool antialias,
                  uint16_t upem);
 
     // fontations_ffi::ColorPainter interface.
@@ -134,6 +135,7 @@ private:
     SkCanvas& fCanvas;
     SkSpan<SkColor> fPalette;
     SkColor fForegroundColor;
+    bool fAntialias;
     uint16_t fUpem;
 };
 
