@@ -46,6 +46,14 @@ size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format) {
     }
 }
 
+SkTextureCompressionType DawnFormatToCompressionType(wgpu::TextureFormat format) {
+    switch (format) {
+        case wgpu::TextureFormat::ETC2RGB8Unorm: return SkTextureCompressionType::kETC2_RGB8_UNORM;
+        case wgpu::TextureFormat::BC1RGBAUnorm:  return SkTextureCompressionType::kBC1_RGBA8_UNORM;
+        default:                                 return SkTextureCompressionType::kNone;
+    }
+}
+
 uint32_t DawnFormatChannels(wgpu::TextureFormat format) {
     switch (format) {
         case wgpu::TextureFormat::RGBA8Unorm:   return kRGBA_SkColorChannelFlags;

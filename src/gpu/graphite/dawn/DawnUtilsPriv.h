@@ -8,6 +8,7 @@
 #ifndef skgpu_DawnUtilsPriv_DEFINED
 #define skgpu_DawnUtilsPriv_DEFINED
 
+#include "include/core/SkTextureCompressionType.h"
 #include "src/gpu/PipelineUtils.h"
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
@@ -41,6 +42,8 @@ namespace graphite {
 class DawnSharedContext;
 
 size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format);
+
+SkTextureCompressionType DawnFormatToCompressionType(wgpu::TextureFormat format);
 
 uint32_t DawnFormatChannels(wgpu::TextureFormat format);
 

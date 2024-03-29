@@ -15,6 +15,7 @@
 namespace skgpu::graphite {
     // Including Metal types/headers here is tricky. This is defined in MtlGraphiteUtils.mm
     size_t MtlFormatBytesPerBlock(MtlPixelFormat);
+    SkTextureCompressionType MtlFormatToCompressionType(MtlPixelFormat);
 }
 #endif
 
@@ -190,6 +191,29 @@ size_t TextureInfo::bytesPerPixel() const {
 #endif
         default:
             return 0;
+    }
+}
+
+SkTextureCompressionType TextureInfo::compressionType() const {
+    if (!this->isValid()) {
+        return SkTextureCompressionType::kNone;
+    }
+
+    switch (fBackend) {
+#ifdef SK_DAWN
+        case BackendApi::kDawn:
+            return DawnFormatToCompressionType(this->dawnTextureSpec().getViewFormat());
+#endif
+#ifdef SK_METAL
+        case BackendApi::kMetal:
+            return MtlFormatToCompressionType(this->mtlTextureSpec().fFormat);
+#endif
+#ifdef SK_VULKAN
+        case BackendApi::kVulkan:
+            return VkFormatToCompressionType(this->vulkanTextureSpec().fFormat);
+#endif
+        default:
+            return SkTextureCompressionType::kNone;
     }
 }
 

@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <string>
 
+#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/vk/VulkanInterface.h"
 
@@ -110,6 +111,15 @@ static constexpr size_t VkFormatBytesPerBlock(VkFormat vkFormat) {
         case VK_FORMAT_D32_SFLOAT_S8_UINT:        return 8;
 
         default:                                 return 0;
+    }
+}
+
+static constexpr SkTextureCompressionType VkFormatToCompressionType(VkFormat vkFormat) {
+    switch (vkFormat) {
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK: return SkTextureCompressionType::kETC2_RGB8_UNORM;
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:     return SkTextureCompressionType::kBC1_RGB8_UNORM;
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:    return SkTextureCompressionType::kBC1_RGBA8_UNORM;
+        default:                                return SkTextureCompressionType::kNone;
     }
 }
 
