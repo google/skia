@@ -6,7 +6,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_cc_library(
-    name = "sk_app",
+    name = "legacy_sk_app",
     testonly = True,
     srcs = [
         "CommandSet.cpp",
@@ -35,7 +35,7 @@ skia_cc_library(
 )
 
 skia_objc_library(
-    name = "sk_app_objc",
+    name = "legacy_sk_app_objc",
     testonly = True,
     srcs = [
         "RasterWindowContext.h",

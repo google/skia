@@ -65,7 +65,7 @@ cc_binary_with_flags(
         "//tools:registry",
         "//tools:runtime_blend_utils",
         "//tools/gpu:utils",
-        "//tools/sk_app",
+        "//tools/sk_app:legacy_sk_app",
         "//tools/skui",
         "@imgui",
     ],
