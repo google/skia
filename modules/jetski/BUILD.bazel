@@ -36,6 +36,6 @@ skia_cc_library(
     deps = [
         "//:skia_internal",
         "//modules/skottie:legacy_skottie",
-        "//tools/window",
+        "//tools/window:legacy_window",
     ],
 )

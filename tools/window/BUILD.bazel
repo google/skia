@@ -5,7 +5,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 skia_cc_library(
-    name = "window",
+    name = "legacy_window",
     testonly = True,
     srcs = [
         "RasterWindowContext.h",

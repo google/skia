@@ -27,7 +27,7 @@ skia_cc_library(
         "//tools:legacy_tool_utils",
         "//tools/skui",
         "//tools/timer:legacy_timer",
-        "//tools/window",
+        "//tools/window:legacy_window",
     ] + select({
         "@platforms//os:linux": ["//tools/sk_app/unix:deps"],
         "//conditions:default": [],
