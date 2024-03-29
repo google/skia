@@ -27,6 +27,8 @@
 #include <utility>
 #include <vector>
 
+namespace {
+
 // The number of input and output channels.
 constexpr size_t kNumChannels = 3;
 
@@ -39,12 +41,12 @@ constexpr float kD50_z = 0.8249f;
 // when going float -> fixed -> float (it has the same accuracy when going fixed -> float -> fixed).
 // The use of double is necessary to accommodate the full potential 32-bit mantissa of the 16.16
 // SkFixed value, and so avoiding rounding problems with float. Also, see the comment in SkFixed.h.
-static SkFixed float_round_to_fixed(float x) {
+SkFixed float_round_to_fixed(float x) {
     return sk_float_saturate2int((float)floor((double)x * SK_Fixed1 + 0.5));
 }
 
 // Convert a float to a uInt16Number, with 0.0 mapping go 0 and 1.0 mapping to |one|.
-static uint16_t float_to_uInt16Number(float x, uint16_t one) {
+uint16_t float_to_uInt16Number(float x, uint16_t one) {
     x = x * one + 0.5;
     if (x > one) return one;
     if (x < 0) return 0;
@@ -124,7 +126,7 @@ struct ICCHeader {
     uint32_t tag_count = 0;
 };
 
-static sk_sp<SkData> write_xyz_tag(float x, float y, float z) {
+sk_sp<SkData> write_xyz_tag(float x, float y, float z) {
     uint32_t data[] = {
             SkEndian_SwapBE32(kXYZ_PCSSpace),
             0,
@@ -135,7 +137,7 @@ static sk_sp<SkData> write_xyz_tag(float x, float y, float z) {
     return SkData::MakeWithCopy(data, sizeof(data));
 }
 
-static sk_sp<SkData> write_matrix(const skcms_Matrix3x4* matrix) {
+sk_sp<SkData> write_matrix(const skcms_Matrix3x4* matrix) {
     uint32_t data[12];
     // See layout details in section "10.12.5 Matrix".
     size_t k = 0;
@@ -150,7 +152,7 @@ static sk_sp<SkData> write_matrix(const skcms_Matrix3x4* matrix) {
     return SkData::MakeWithCopy(data, sizeof(data));
 }
 
-static bool nearly_equal(float x, float y) {
+bool nearly_equal(float x, float y) {
     // A note on why I chose this tolerance:  transfer_fn_almost_equal() uses a
     // tolerance of 0.001f, which doesn't seem to be enough to distinguish
     // between similar transfer functions, for example: gamma2.2 and sRGB.
@@ -162,8 +164,8 @@ static bool nearly_equal(float x, float y) {
     return ::fabsf(x - y) <= kTolerance;
 }
 
-static bool nearly_equal(const skcms_TransferFunction& u,
-                         const skcms_TransferFunction& v) {
+bool nearly_equal(const skcms_TransferFunction& u,
+                  const skcms_TransferFunction& v) {
     return nearly_equal(u.g, v.g)
         && nearly_equal(u.a, v.a)
         && nearly_equal(u.b, v.b)
@@ -173,7 +175,7 @@ static bool nearly_equal(const skcms_TransferFunction& u,
         && nearly_equal(u.f, v.f);
 }
 
-static bool nearly_equal(const skcms_Matrix3x3& u, const skcms_Matrix3x3& v) {
+bool nearly_equal(const skcms_Matrix3x3& u, const skcms_Matrix3x3& v) {
     for (int r = 0; r < 3; r++) {
         for (int c = 0; c < 3; c++) {
             if (!nearly_equal(u.vals[r][c], v.vals[r][c])) {
@@ -184,11 +186,11 @@ static bool nearly_equal(const skcms_Matrix3x3& u, const skcms_Matrix3x3& v) {
     return true;
 }
 
-static constexpr uint32_t kCICPPrimariesSRGB = 1;
-static constexpr uint32_t kCICPPrimariesP3 = 12;
-static constexpr uint32_t kCICPPrimariesRec2020 = 9;
+constexpr uint32_t kCICPPrimariesSRGB = 1;
+constexpr uint32_t kCICPPrimariesP3 = 12;
+constexpr uint32_t kCICPPrimariesRec2020 = 9;
 
-static uint32_t get_cicp_primaries(const skcms_Matrix3x3& toXYZD50) {
+uint32_t get_cicp_primaries(const skcms_Matrix3x3& toXYZD50) {
     if (nearly_equal(toXYZD50, SkNamedGamut::kSRGB)) {
         return kCICPPrimariesSRGB;
     } else if (nearly_equal(toXYZD50, SkNamedGamut::kDisplayP3)) {
@@ -199,13 +201,13 @@ static uint32_t get_cicp_primaries(const skcms_Matrix3x3& toXYZD50) {
     return 0;
 }
 
-static constexpr uint32_t kCICPTrfnSRGB = 1;
-static constexpr uint32_t kCICPTrfn2Dot2 = 4;
-static constexpr uint32_t kCICPTrfnLinear = 8;
-static constexpr uint32_t kCICPTrfnPQ = 16;
-static constexpr uint32_t kCICPTrfnHLG = 18;
+constexpr uint32_t kCICPTrfnSRGB = 1;
+constexpr uint32_t kCICPTrfn2Dot2 = 4;
+constexpr uint32_t kCICPTrfnLinear = 8;
+constexpr uint32_t kCICPTrfnPQ = 16;
+constexpr uint32_t kCICPTrfnHLG = 18;
 
-static uint32_t get_cicp_trfn(const skcms_TransferFunction& fn) {
+uint32_t get_cicp_trfn(const skcms_TransferFunction& fn) {
     switch (skcms_TransferFunction_getType(&fn)) {
         case skcms_TFType_Invalid:
             return 0;
@@ -231,8 +233,8 @@ static uint32_t get_cicp_trfn(const skcms_TransferFunction& fn) {
     return 0;
 }
 
-static std::string get_desc_string(const skcms_TransferFunction& fn,
-                                   const skcms_Matrix3x3& toXYZD50) {
+std::string get_desc_string(const skcms_TransferFunction& fn,
+                            const skcms_Matrix3x3& toXYZD50) {
     const uint32_t cicp_trfn = get_cicp_trfn(fn);
     const uint32_t cicp_primaries = get_cicp_primaries(toXYZD50);
 
@@ -291,7 +293,7 @@ static std::string get_desc_string(const skcms_TransferFunction& fn,
     return std::string("Google/Skia/") + digest.toHexString().c_str();
 }
 
-static sk_sp<SkData> write_text_tag(const char* text) {
+sk_sp<SkData> write_text_tag(const char* text) {
     uint32_t text_length = strlen(text);
     uint32_t header[] = {
             SkEndian_SwapBE32(kTAG_TextType),                         // Type signature
@@ -314,7 +316,7 @@ static sk_sp<SkData> write_text_tag(const char* text) {
 }
 
 // Write a CICP tag.
-static sk_sp<SkData> write_cicp_tag(const skcms_CICP& cicp) {
+sk_sp<SkData> write_cicp_tag(const skcms_CICP& cicp) {
     SkDynamicMemoryWStream s;
     s.write32(SkEndian_SwapBE32(kTAG_cicp));  // Type signature
     s.write32(0);                             // Reserved
@@ -329,7 +331,7 @@ constexpr float kToneMapInputMax = 1000.f / 203.f;
 constexpr float kToneMapOutputMax = 1.f;
 
 // Scalar tone map gain function.
-static float tone_map_gain(float x) {
+float tone_map_gain(float x) {
     // The PQ transfer function will map to the range [0, 1]. Linearly scale
     // it up to the range [0, 1,000/203]. We will then tone map that back
     // down to [0, 1].
@@ -339,7 +341,7 @@ static float tone_map_gain(float x) {
 }
 
 // Write a lookup table based 1D curve.
-static sk_sp<SkData> write_trc_tag(const skcms_Curve& trc) {
+sk_sp<SkData> write_trc_tag(const skcms_Curve& trc) {
     SkDynamicMemoryWStream s;
     if (trc.table_entries) {
         s.write32(SkEndian_SwapBE32(kTAG_CurveType));     // Type
@@ -500,6 +502,8 @@ sk_sp<SkData> write_mAB_or_mBA_tag(uint32_t type,
     }
     return s.detachAsData();
 }
+
+}  // namespace
 
 sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* desc) {
     ICCHeader header;
