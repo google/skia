@@ -41,20 +41,6 @@ static_assert(static_cast<int>(BuiltInCodeSnippetID::kLast) < kSkiaBuiltInReserv
 
 namespace {
 
-const char* get_known_rte_name(StableKey key) {
-    switch (key) {
-#define M(type) case StableKey::k##type : return "KnownRuntimeEffect_" #type;
-#define M1(type)
-#define M2(type, initializer) case StableKey::k##type : return "KnownRuntimeEffect_" #type;
-        SK_ALL_STABLEKEYS(M, M1, M2)
-#undef M2
-#undef M1
-#undef M
-    }
-
-    SkUNREACHABLE;
-}
-
 std::string get_mangled_name(const std::string& baseName, int manglingSuffix) {
     return baseName + "_" + std::to_string(manglingSuffix);
 }
@@ -1501,13 +1487,12 @@ int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect
         int index = stableKey - kSkiaKnownRuntimeEffectsStart;
 
         if (!fKnownRuntimeEffectCodeSnippets[index].fExpressionGenerator) {
-            const char* name = get_known_rte_name(static_cast<StableKey>(stableKey));
             fKnownRuntimeEffectCodeSnippets[index] = ShaderSnippet(
-                    name,
+                    "KnownRuntimeEffect",
                     this->convertUniforms(effect),
                     snippetFlags,
                     /* texturesAndSamplers= */ {},
-                    name,
+                    "KnownRuntimeEffect",
                     GenerateRuntimeShaderExpression,
                     GenerateRuntimeShaderPreamble,
                     (int)effect->children().size());
