@@ -72,6 +72,7 @@
 #endif
 
 #if defined(SK_METAL)
+#include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "src/gpu/ganesh/mtl/GrMtlCppUtil.h"
 #endif
@@ -195,7 +196,7 @@ static bool isBGRA8(const GrBackendFormat& format) {
         }
         case GrBackendApi::kMetal:
 #ifdef SK_METAL
-            return GrMtlFormatIsBGRA8(format.asMtlFormat());
+            return GrMtlFormatIsBGRA8(GrBackendFormats::AsMtlFormat(format));
 #else
             return false;
 #endif

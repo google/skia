@@ -10,6 +10,7 @@ skia_filegroup(
     srcs = [
         "GrMtlBackendContext.h",
         "GrMtlBackendSemaphore.h",
+        "GrMtlBackendSurface.h",
         "GrMtlDirectContext.h",
         "GrMtlTypes.h",
         "SkSurfaceMetal.h",

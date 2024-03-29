@@ -6,6 +6,7 @@
  */
 
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/mtl/GrMtlCaps.h"
 #include "tests/Test.h"
@@ -97,7 +98,7 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
     };
 
     for (auto combo : combinations) {
-        GrBackendFormat format = GrBackendFormat::MakeMtl(combo.fFormat);
+        GrBackendFormat format = GrBackendFormats::MakeMtl(combo.fFormat);
 
         if (!mtlCaps->isFormatTexturable(combo.fFormat)) {
             continue;
@@ -119,7 +120,7 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
                     // We must also check whether we allow rendering to the format using the
                     // color type.
                     if (!mtlCaps->isFormatAsColorTypeRenderable(
-                            combo.fColorType, GrBackendFormat::MakeMtl(combo.fFormat), 1)) {
+                                combo.fColorType, GrBackendFormats::MakeMtl(combo.fFormat), 1)) {
                         continue;
                     }
                 }

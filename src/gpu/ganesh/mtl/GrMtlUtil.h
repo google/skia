@@ -12,6 +12,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/mtl/GrMtlTypesPriv.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -103,15 +104,17 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
 id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface);
 
 static inline MTLPixelFormat GrBackendFormatAsMTLPixelFormat(const GrBackendFormat& format) {
-    return static_cast<MTLPixelFormat>(format.asMtlFormat());
+    return static_cast<MTLPixelFormat>(GrBackendFormats::AsMtlFormat(format));
 }
 
 /**
  * Maps a MTLPixelFormat into the CompressionType enum if applicable.
  */
-SkTextureCompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat);
+SkTextureCompressionType GrMtlFormatToCompressionType(MTLPixelFormat);
 
 int GrMtlFormatStencilBits(MTLPixelFormat);
+
+GrColorFormatDesc GrMtlFormatDesc(MTLPixelFormat);
 
 GR_NORETAIN_END
 

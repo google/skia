@@ -19,22 +19,12 @@
 #include "src/gpu/ganesh/d3d/GrD3DUtil.h"
 #endif
 
-#ifdef SK_METAL
-#include "src/gpu/ganesh/mtl/GrMtlCppUtil.h"
-#endif
-
 SkTextureCompressionType GrBackendFormatToCompressionType(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kOpenGL:
         case GrBackendApi::kVulkan:
+        case GrBackendApi::kMetal:
             return GrBackendSurfacePriv::GetBackendData(format)->compressionType();
-        case GrBackendApi::kMetal: {
-#ifdef SK_METAL
-            return GrMtlBackendFormatToCompressionType(format);
-#else
-            break;
-#endif
-        }
         case GrBackendApi::kDirect3D: {
 #ifdef SK_DIRECT3D
             DXGI_FORMAT dxgiFormat;
@@ -63,14 +53,8 @@ size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kOpenGL:
         case GrBackendApi::kVulkan:
+        case GrBackendApi::kMetal:
             return GrBackendSurfacePriv::GetBackendData(format)->bytesPerBlock();
-        case GrBackendApi::kMetal: {
-#ifdef SK_METAL
-            return GrMtlBackendFormatBytesPerBlock(format);
-#else
-            break;
-#endif
-        }
         case GrBackendApi::kDirect3D: {
 #ifdef SK_DIRECT3D
             DXGI_FORMAT dxgiFormat;
@@ -108,14 +92,8 @@ int GrBackendFormatStencilBits(const GrBackendFormat& format) {
     switch (format.backend()) {
         case GrBackendApi::kOpenGL:
         case GrBackendApi::kVulkan:
+        case GrBackendApi::kMetal:
             return GrBackendSurfacePriv::GetBackendData(format)->stencilBits();
-        case GrBackendApi::kMetal: {
-#ifdef SK_METAL
-            return GrMtlBackendFormatStencilBits(format);
-#else
-            break;
-#endif
-        }
         case GrBackendApi::kDirect3D: {
 #ifdef SK_DIRECT3D
             DXGI_FORMAT dxgiFormat;

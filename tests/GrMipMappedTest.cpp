@@ -71,6 +71,10 @@ class GrRenderTask;
 #include "include/gpu/d3d/GrD3DTypes.h"
 #endif
 
+#if defined(SK_METAL)
+#include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
+#endif
+
 #if defined(SK_GL)
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLTypes.h"
@@ -286,8 +290,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest,
             } else if (GrBackendApi::kMetal == genBackendTex.backend()) {
                 GrMtlTextureInfo genImageInfo;
                 GrMtlTextureInfo origImageInfo;
-                if (genBackendTex.getMtlTextureInfo(&genImageInfo) &&
-                    backendTex.getMtlTextureInfo(&origImageInfo)) {
+                if (GrBackendTextures::GetMtlTextureInfo(genBackendTex, &genImageInfo) &&
+                    GrBackendTextures::GetMtlTextureInfo(backendTex, &origImageInfo)) {
                     if (requestMipmapped == Mipmapped::kYes && betMipmapped == Mipmapped::kNo) {
                         // We did a copy so the texture IDs should be different
                         REPORTER_ASSERT(reporter, origImageInfo.fTexture != genImageInfo.fTexture);

@@ -13,6 +13,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/ganesh/mtl/GrMtlBackendContext.h"
+#include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
 #include "include/gpu/ganesh/mtl/GrMtlDirectContext.h"
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "include/gpu/ganesh/mtl/SkSurfaceMetal.h"
@@ -101,7 +102,8 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
             GrMtlTextureInfo fbInfo;
             fbInfo.fTexture.retain(currentDrawable.texture);
 
-            GrBackendRenderTarget backendRT(fWidth, fHeight, fbInfo);
+            GrBackendRenderTarget backendRT =
+                    GrBackendRenderTargets::MakeMtl(fWidth, fHeight, fbInfo);
 
             surface = SkSurfaces::WrapBackendRenderTarget(fContext.get(),
                                                           backendRT,

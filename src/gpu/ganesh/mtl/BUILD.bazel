@@ -19,6 +19,7 @@ MTL_FILES = [
     "GrMtlAttachment.h",
     "GrMtlAttachment.mm",
     "GrMtlBackendSemaphore.mm",
+    "GrMtlBackendSurface.mm",
     "GrMtlBuffer.h",
     "GrMtlBuffer.mm",
     "GrMtlCaps.h",

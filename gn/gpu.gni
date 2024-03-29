@@ -920,6 +920,7 @@ skia_direct3d_sources = [
 skia_gpu_metal_public = [
   "$_include/gpu/ganesh/mtl/GrMtlBackendContext.h",
   "$_include/gpu/ganesh/mtl/GrMtlBackendSemaphore.h",
+  "$_include/gpu/ganesh/mtl/GrMtlBackendSurface.h",
   "$_include/gpu/ganesh/mtl/GrMtlDirectContext.h",
   "$_include/gpu/ganesh/mtl/GrMtlTypes.h",
   "$_include/gpu/ganesh/mtl/SkSurfaceMetal.h",
@@ -933,6 +934,7 @@ skia_gpu_metal_private = [
   "$_src/gpu/ganesh/mtl/GrMtlAttachment.h",
   "$_src/gpu/ganesh/mtl/GrMtlAttachment.mm",
   "$_src/gpu/ganesh/mtl/GrMtlBackendSemaphore.mm",
+  "$_src/gpu/ganesh/mtl/GrMtlBackendSurface.mm",
   "$_src/gpu/ganesh/mtl/GrMtlBuffer.h",
   "$_src/gpu/ganesh/mtl/GrMtlBuffer.mm",
   "$_src/gpu/ganesh/mtl/GrMtlCaps.h",

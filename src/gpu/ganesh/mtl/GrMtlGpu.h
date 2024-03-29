@@ -270,7 +270,7 @@ private:
                                               SkISize dimensions, int numStencilSamples) override;
 
     GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
-        return GrBackendFormat::MakeMtl(this->mtlCaps().preferredStencilFormat());
+        return GrBackendFormats::MakeMtl(this->mtlCaps().preferredStencilFormat());
     }
 
     sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,

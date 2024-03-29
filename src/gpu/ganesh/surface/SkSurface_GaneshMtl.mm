@@ -9,6 +9,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "include/gpu/ganesh/mtl/SkSurfaceMetal.h"
 #include "src/core/SkSurfacePriv.h"
@@ -38,7 +39,7 @@ sk_sp<SkSurface> WrapCAMetalLayer(GrRecordingContext* rContext,
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
     CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
-    GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(metalLayer.pixelFormat);
+    GrBackendFormat backendFormat = GrBackendFormats::MakeMtl(metalLayer.pixelFormat);
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 
@@ -110,7 +111,7 @@ sk_sp<SkSurface> WrapMTKView(GrRecordingContext* rContext,
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
     MTKView* mtkView = (__bridge MTKView*)view;
-    GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(mtkView.colorPixelFormat);
+    GrBackendFormat backendFormat = GrBackendFormats::MakeMtl(mtkView.colorPixelFormat);
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 

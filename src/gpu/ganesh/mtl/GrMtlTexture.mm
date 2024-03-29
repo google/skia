@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/mtl/GrMtlTexture.h"
 
+#include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/MtlUtilsPriv.h"
@@ -133,11 +134,11 @@ GrBackendTexture GrMtlTexture::getBackendTexture() const {
                                          : skgpu::Mipmapped::kNo;
     GrMtlTextureInfo info;
     info.fTexture.reset(GrRetainPtrFromId(fTexture->mtlTexture()));
-    return GrBackendTexture(this->width(), this->height(), mipmapped, info);
+    return GrBackendTextures::MakeMtl(this->width(), this->height(), mipmapped, info);
 }
 
 GrBackendFormat GrMtlTexture::backendFormat() const {
-    return GrBackendFormat::MakeMtl(fTexture->mtlFormat());
+    return GrBackendFormats::MakeMtl(fTexture->mtlFormat());
 }
 
 void GrMtlTexture::onSetLabel() {

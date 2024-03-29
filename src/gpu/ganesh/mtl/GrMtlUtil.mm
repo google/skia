@@ -18,7 +18,6 @@
 #include "src/gpu/ganesh/mtl/GrMtlGpu.h"
 #include "src/gpu/ganesh/mtl/GrMtlRenderTarget.h"
 #include "src/gpu/ganesh/mtl/GrMtlTexture.h"
-#include "src/gpu/mtl/MtlUtilsPriv.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -231,11 +230,7 @@ GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& i
     return static_cast<GrMTLPixelFormat>(mtlTexture.pixelFormat);
 }
 
-uint32_t GrMtlFormatChannels(GrMTLPixelFormat mtlFormat) {
-    return skgpu::MtlFormatChannels((MTLPixelFormat)mtlFormat);
-}
-
-GrColorFormatDesc GrMtlFormatDesc(GrMTLPixelFormat mtlFormat)  {
+GrColorFormatDesc GrMtlFormatDesc(MTLPixelFormat mtlFormat) {
     switch (mtlFormat) {
         case MTLPixelFormatRGBA8Unorm:
             return GrColorFormatDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
@@ -284,13 +279,8 @@ GrColorFormatDesc GrMtlFormatDesc(GrMTLPixelFormat mtlFormat)  {
     }
 }
 
-SkTextureCompressionType GrMtlBackendFormatToCompressionType(const GrBackendFormat& format) {
-    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
-    return GrMtlFormatToCompressionType(mtlFormat);
-}
-
-SkTextureCompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) {
-    switch (mtlFormat) {
+SkTextureCompressionType GrMtlFormatToCompressionType(MTLPixelFormat format) {
+    switch (format) {
         case MTLPixelFormatETC2_RGB8: return SkTextureCompressionType::kETC2_RGB8_UNORM;
 #ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBC1_RGBA:  return SkTextureCompressionType::kBC1_RGBA8_UNORM;
@@ -309,32 +299,18 @@ int GrMtlTextureInfoSampleCount(const GrMtlTextureInfo& info) {
     return texture.sampleCount;
 }
 
-size_t GrMtlBackendFormatBytesPerBlock(const GrBackendFormat& format) {
-    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
-    return skgpu::MtlFormatBytesPerBlock(mtlFormat);
-}
-
-int GrMtlBackendFormatStencilBits(const GrBackendFormat& format) {
-    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
-    return GrMtlFormatStencilBits(mtlFormat);
-}
-
-int GrMtlFormatStencilBits(MTLPixelFormat mtlFormat) {
-    switch(mtlFormat) {
-     case MTLPixelFormatStencil8:
-         return 8;
-     default:
-         return 0;
+int GrMtlFormatStencilBits(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatStencil8:
+            return 8;
+        default:
+            return 0;
     }
 }
 
 #if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat) {
     return mtlFormat == MTLPixelFormatBGRA8Unorm;
-}
-
-const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
-    return skgpu::MtlFormatToString((MTLPixelFormat) mtlFormat);
 }
 #endif
 
