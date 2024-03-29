@@ -101,7 +101,9 @@ public:
      *
      * WebGL's buffer can't be mapped to client side. Use this function to get the buffer data.
      *
-     * @return returns true if the update succeeds, false otherwise.
+     * The data is always copied to client side. Will try copy from mapped if supported.
+     *
+     * @return returns true if succeeds, false otherwise.
      */
     bool getData(void* dst, size_t offset, size_t size);
 

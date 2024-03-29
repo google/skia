@@ -84,6 +84,13 @@ bool GrGpuBuffer::updateData(const void* src, size_t offset, size_t size, bool p
 }
 
 bool GrGpuBuffer::getData(void* dst, size_t offset, size_t size) {
+    const void* mapped = this->map();
+    if (mapped != nullptr) {
+        memcpy(dst, (const char*)mapped + offset, size);
+        this->unmap();
+        return true;
+    }
+
     return this->onGetData(dst, offset, size);
 }
 
