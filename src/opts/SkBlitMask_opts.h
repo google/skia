@@ -250,7 +250,7 @@ namespace SK_OPTS_NS {
                     *device = SkAlphaMulQ(pmc, SkAlpha255To256(aa))
                         + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
                 }
-                    device += 1;
+                device += 1;
             }
 
             device = (uint32_t *)((char*)device + dstRB);
