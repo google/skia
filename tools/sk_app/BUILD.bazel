@@ -34,6 +34,37 @@ skia_cc_library(
     }),
 )
 
+skia_cc_library(
+    name = "sk_app",
+    testonly = True,
+    srcs = [
+        "CommandSet.cpp",
+        "Window.cpp",
+    ] + select({
+        "@platforms//os:linux": ["//tools/sk_app/unix:srcs"],
+        "//conditions:default": [],
+        # TODO(kjlubick) add Windows/Mac support
+    }),
+    hdrs = [
+        "Application.h",
+        "CommandSet.h",
+        "Window.h",
+    ],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:core",
+        "//:ganesh_gl",
+        "//tools:tool_utils",
+        "//tools/skui",
+        "//tools/timer",
+        "//tools/window",
+    ] + select({
+        # TODO(kjlubick): These dependencies should probably be modularized and added here.
+        # "@platforms//os:linux": ["//tools/sk_app/unix:deps"],
+        "//conditions:default": [],
+    }),
+)
+
 skia_objc_library(
     name = "legacy_sk_app_objc",
     testonly = True,
