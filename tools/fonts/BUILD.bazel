@@ -76,6 +76,7 @@ skia_cc_library(
         "//bench:__subpackages__",
         "//gm:__subpackages__",
         "//tests:__subpackages__",
+        "//tools:__subpackages__",
     ],
     deps = [
         "//:core",
