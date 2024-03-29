@@ -166,12 +166,9 @@ protected:
                     {
                         subsetImg = fYUVImage->makeSubset(context, *subset);
                     }
-                    // TODO (b/283271538): Graphite doesn't support subsetting for YUV images
-                    //                     and returns nullptr. Remove this check when fixed.
-                    if (subsetImg) {
-                        paint.setShader(subsetImg->makeShader(tm, tm,
-                                                              sampling, SkMatrix::Translate(2, 2)));
-                    }
+                    SkASSERT(subsetImg);
+                    paint.setShader(subsetImg->makeShader(tm, tm,
+                                                          sampling, SkMatrix::Translate(2, 2)));
                 } else {
                     paint.setShader(fYUVImage->makeShader(tm, tm,
                                                           sampling, SkMatrix::I()));
