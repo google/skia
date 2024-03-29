@@ -71,6 +71,13 @@ public:
                               int srcY,
                               CachingHint) const = 0;
 
+#if defined(GRAPHITE_TEST_UTILS)
+    virtual bool onReadPixelsGraphite(skgpu::graphite::Recorder*,
+                                      const SkPixmap& dst,
+                                      int srcX,
+                                      int srcY) const { return false; }
+#endif
+
     virtual bool onHasMipmaps() const = 0;
     virtual bool onIsProtected() const = 0;
 

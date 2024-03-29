@@ -52,6 +52,15 @@ bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels,
 }
 #endif
 
+#if defined(GRAPHITE_TEST_UTILS)
+bool SkImage::readPixelsGraphite(skgpu::graphite::Recorder* recorder,
+                                 const SkPixmap& dst,
+                                 int srcX,
+                                 int srcY) const {
+    return as_IB(this)->onReadPixelsGraphite(recorder, dst, srcX, srcY);
+}
+#endif
+
 void SkImage::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                         const SkIRect& srcRect,
                                         RescaleGamma rescaleGamma,

@@ -10,6 +10,7 @@
 #include "bench/GpuTools.h"
 #include "gm/gm.h"
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -2967,13 +2968,42 @@ void Viewer::drawImGui() {
 
             uint32_t pixel = 0;
             SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
-            auto dContext = fWindow->directContext();
-            if (fLastImage->readPixels(dContext, info, &pixel, info.minRowBytes(), xInt, yInt)) {
+            bool didGraphiteRead = false;
+            if (is_graphite_backend_type(fBackendType)) {
+#if defined(GRAPHITE_TEST_UTILS)
+                SkBitmap bitmap;
+                bitmap.allocPixels(info);
+                SkPixmap pixels;
+                SkAssertResult(bitmap.peekPixels(&pixels));
+                didGraphiteRead = fLastImage->readPixelsGraphite(fWindow->graphiteRecorder(),
+                                                                 pixels,
+                                                                 xInt,
+                                                                 yInt);
+                pixel = *pixels.addr32();
                 ImGui::SameLine();
                 ImGui::Text("(X, Y): %d, %d RGBA: %X %X %X %X",
                             xInt, yInt,
                             SkGetPackedR32(pixel), SkGetPackedG32(pixel),
                             SkGetPackedB32(pixel), SkGetPackedA32(pixel));
+#endif
+            }
+            auto dContext = fWindow->directContext();
+            if (fLastImage->readPixels(dContext,
+                                       info,
+                                       &pixel,
+                                       info.minRowBytes(),
+                                       xInt,
+                                       yInt)) {
+                ImGui::SameLine();
+                ImGui::Text("(X, Y): %d, %d RGBA: %X %X %X %X",
+                            xInt, yInt,
+                            SkGetPackedR32(pixel), SkGetPackedG32(pixel),
+                            SkGetPackedB32(pixel), SkGetPackedA32(pixel));
+            } else {
+                if (!didGraphiteRead) {
+                    ImGui::SameLine();
+                    ImGui::Text("Failed to readPixels");
+                }
             }
 
             fImGuiLayer.skiaWidget(avail, [=, lastImage = fLastImage](SkCanvas* c) {

@@ -23,6 +23,11 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
 
+#if defined(GRAPHITE_TEST_UTILS)
+#include "include/gpu/graphite/Context.h"
+#include "src/gpu/graphite/ContextPriv.h"
+#endif
+
 namespace skgpu::graphite {
 
 Image::Image(uint32_t uniqueID,
@@ -196,3 +201,31 @@ sk_sp<TextureProxy> Image::MakePromiseImageLazyProxy(
                                   isVolatile,
                                   std::move(callback));
 }
+
+#if defined(GRAPHITE_TEST_UTILS)
+bool Image::onReadPixelsGraphite(Recorder* recorder,
+                                 const SkPixmap& dst,
+                                 int srcX,
+                                 int srcY) const {
+    if (Context* context = recorder->priv().context()) {
+        // Add all previous commands generated to the command buffer.
+        // If the client snaps later they'll only get post-read commands in their Recording,
+        // but since they're doing a readPixels in the middle that shouldn't be unexpected.
+        std::unique_ptr<Recording> recording = recorder->snap();
+        if (!recording) {
+            return false;
+        }
+        InsertRecordingInfo info;
+        info.fRecording = recording.get();
+        if (!context->insertRecording(info)) {
+            return false;
+        }
+        return context->priv().readPixels(dst,
+                                          fTextureProxyView.proxy(),
+                                          this->imageInfo(),
+                                          srcX,
+                                          srcY);
+    }
+    return false;
+}
+#endif

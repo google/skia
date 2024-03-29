@@ -53,6 +53,13 @@ public:
             SkImages::GraphitePromiseTextureReleaseProc);
     sk_sp<SkImage> makeTextureImage(Recorder*, RequiredProperties) const override;
 
+#if defined(GRAPHITE_TEST_UTILS)
+    bool onReadPixelsGraphite(Recorder*,
+                              const SkPixmap& dst,
+                              int srcX,
+                              int srcY) const override;
+#endif
+
 private:
     sk_sp<SkImage> copyImage(const SkIRect& subset, Recorder*, RequiredProperties) const;
     using Image_Base::onMakeSubset;

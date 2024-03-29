@@ -542,6 +542,13 @@ public:
                     int srcY,
                     CachingHint cachingHint = kAllow_CachingHint) const;
 
+#if defined(GRAPHITE_TEST_UTILS)
+    bool readPixelsGraphite(skgpu::graphite::Recorder*,
+                            const SkPixmap& dst,
+                            int srcX,
+                            int srcY) const;
+#endif
+
 #ifndef SK_IMAGE_READ_PIXELS_DISABLE_LEGACY_API
     /** Deprecated. Use the variants that accept a GrDirectContext. */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
