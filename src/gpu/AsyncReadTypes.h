@@ -152,30 +152,36 @@ public:
                            SkISize dimensions,
                            size_t rowBytes,
                            TClientMappedBufferManager<T, IDType>* manager) {
-        const void* mappedData = result.fTransferBuffer->map();
         size_t size = rowBytes*dimensions.height();
-        if (!mappedData) {
-            sk_sp<SkData> data = SkData::MakeUninitialized(size);
-            if (!result.fTransferBuffer->getData(data->writable_data(), 0, size)) {
+        auto doConvert = [converter{result.fPixelConverter}, size](const void* src) -> sk_sp<SkData> {
+            if (converter) {
+                sk_sp<SkData> data = SkData::MakeUninitialized(size);
+                converter(data->writable_data(), src);
+                return data;
+            }
+            return nullptr;
+        };
+
+        const void* mappedData = result.fTransferBuffer->map();
+
+        if (mappedData) {
+            if (auto converted = doConvert(mappedData)) {
+                this->addCpuPlane(std::move(converted), rowBytes);
+                result.fTransferBuffer->unmap();
+            } else {
+                manager->insert(result.fTransferBuffer);
+                this->addMappedPlane(mappedData, rowBytes, std::move(result.fTransferBuffer));
+            }
+        } else {
+            sk_sp<SkData> tmp = SkData::MakeUninitialized(size);
+            if (!result.fTransferBuffer->getData(tmp->writable_data(), 0, size)) {
                 return false;
             }
-            if (result.fPixelConverter) {
-                sk_sp<SkData> out = SkData::MakeUninitialized(size);
-                result.fPixelConverter(out->writable_data(), data->data());
-                this->addCpuPlane(std::move(out), rowBytes);
+            if (auto converted = doConvert(tmp->data())) {
+                this->addCpuPlane(std::move(converted), rowBytes);
             } else {
-                this->addCpuPlane(std::move(data), rowBytes);
+                this->addCpuPlane(std::move(tmp), rowBytes);
             }
-            return true;
-        }
-        if (result.fPixelConverter) {
-            sk_sp<SkData> data = SkData::MakeUninitialized(size);
-            result.fPixelConverter(data->writable_data(), mappedData);
-            this->addCpuPlane(std::move(data), rowBytes);
-            result.fTransferBuffer->unmap();
-        } else {
-            manager->insert(result.fTransferBuffer);
-            this->addMappedPlane(mappedData, rowBytes, std::move(result.fTransferBuffer));
         }
         return true;
     }

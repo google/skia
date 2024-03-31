@@ -103,6 +103,11 @@ public:
      *
      * The data is always copied to client side. Will try copy from mapped if supported.
      *
+     * The buffer must not be mapped.
+     *
+     * Note that buffer updates do not go through GrContext and therefore are not serialized with
+     * other operations.
+     *
      * @return returns true if succeeds, false otherwise.
      */
     bool getData(void* dst, size_t offset, size_t size);
