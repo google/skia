@@ -22,6 +22,7 @@
 #include "include/effects/SkBlenders.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkLumaColorFilter.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Image.h"
@@ -145,6 +146,7 @@ const char* to_str(BlenderType b) {
     M(HSLAMatrix)      \
     M(Lighting)        \
     M(LinearToSRGB)    \
+    M(Luma)            \
     M(Matrix)          \
     M(Runtime)         \
     M(SRGBToLinear)    \
@@ -866,6 +868,10 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_srgb_to_lin
     return { SkColorFilters::SRGBToLinearGamma(), PrecompileColorFilters::SRGBToLinearGamma() };
 }
 
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_luma_colorfilter() {
+    return { SkLumaColorFilter::Make(), PrecompileColorFilters::Luma() };
+}
+
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_compose_colorfilter(
         SkRandom* rand) {
     auto [outerCF, outerO] = create_random_colorfilter(rand);
@@ -938,6 +944,8 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_colorfilter
             return create_lighting_colorfilter();
         case ColorFilterType::kLinearToSRGB:
             return create_linear_to_srgb_colorfilter();
+        case ColorFilterType::kLuma:
+            return create_luma_colorfilter();
         case ColorFilterType::kMatrix:
             return create_matrix_colorfilter();
         case ColorFilterType::kRuntime:
@@ -1232,6 +1240,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ColorFilterType::kHSLAMatrix,
             ColorFilterType::kLighting,
             ColorFilterType::kLinearToSRGB,
+            ColorFilterType::kLuma,
             ColorFilterType::kRuntime,
             ColorFilterType::kSRGBToLinear,
             ColorFilterType::kTable,

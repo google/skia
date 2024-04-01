@@ -912,6 +912,14 @@ sk_sp<PrecompileColorFilter> PrecompileColorFiltersPriv::ColorSpaceXform() {
 }
 
 //--------------------------------------------------------------------------------------------------
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::Luma() {
+    const SkRuntimeEffect* lumaEffect =
+            GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kLuma);
+
+    return MakePrecompileColorFilter(sk_ref_sp(lumaEffect));
+}
+
+//--------------------------------------------------------------------------------------------------
 class PrecompileComposeColorFilter : public PrecompileColorFilter {
 public:
     PrecompileComposeColorFilter(SkSpan<const sk_sp<PrecompileColorFilter>> outerOptions,

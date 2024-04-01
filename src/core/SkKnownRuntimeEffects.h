@@ -44,55 +44,57 @@ static constexpr int kChromeKnownRuntimeEffectsEnd = kChromeKnownRuntimeEffectsS
 
 static constexpr int kUnknownRuntimeEffectIDStart = kChromeKnownRuntimeEffectsEnd;
 
+// All six 1DBlur* stable keys must be consecutive after 1DBlurBase and
+// there is no 1DBlur24 bc for large kernels we bin by a multiple of eight.
+// Similarly, all six 2DBlur* stable keys must be consecutive after 2DBlurBase and
+// there is no 2DBlur24 bc for large kernels we bin by a multiple of eight.
+// As for the macros:
+//   M(X) is for standard entries
+//   M1(X) is for helper values that should be skipped in a switch statement
+//   M2(X,Y) is for entries that have an initializer (Y)
+#define SK_ALL_STABLEKEYS(M, M1, M2) \
+    M2(Invalid, Start)      \
+    M1(1DBlurBase)          \
+    M2(1DBlur4, 1DBlurBase) \
+    M(1DBlur8)              \
+    M(1DBlur12)             \
+    M(1DBlur16)             \
+    M(1DBlur20)             \
+    M(1DBlur28)             \
+    M1(2DBlurBase)          \
+    M2(2DBlur4, 2DBlurBase) \
+    M(2DBlur8)              \
+    M(2DBlur12)             \
+    M(2DBlur16)             \
+    M(2DBlur20)             \
+    M(2DBlur28)             \
+    M(Blend)                \
+    M(Decal)                \
+    M(Displacement)         \
+    M(Lighting)             \
+    M(LinearMorphology)     \
+    M(Magnifier)            \
+    M(Normal)               \
+    M(SparseMorphology)     \
+    M(Arithmetic)           \
+    M(HighContrast)         \
+    M(Lerp)                 \
+    M(Luma)                 \
+    M(Overdraw)
 
 // WARNING: If any of the existing values are changed, UniqueKeys that have stably-keyed effects
 // will need to be invalidated. (Adding new values to the end of the enum should be fine though.)
 // TODO(b/238759147): add a revision number that can drive the invalidation
-// TODO(b/238759147): use an X macro to stringize this list and then known runtime effects could
-// have a real name in the SkSL instead of all being named "KnownRuntimeEffect."
 enum class StableKey : uint32_t {
     kStart =   kSkiaKnownRuntimeEffectsStart,
 
-    kInvalid = kStart,
-
-    // shaders
-    // Binned 1D Blurs
-    k1DBlurBase,
-    k1DBlur4 = k1DBlurBase, // all six 1DBlur stable keys must be consecutive after the Base
-    k1DBlur8,
-    k1DBlur12,
-    k1DBlur16,
-    k1DBlur20,
-    // For large kernels we bin by a multiple of eight (so no k1DBlur24)
-    k1DBlur28,
-
-    // Binned 2D Blurs
-    k2DBlurBase,
-    k2DBlur4 = k2DBlurBase, // all six 2DBlur stable keys must be consecutive after the Base
-    k2DBlur8,
-    k2DBlur12,
-    k2DBlur16,
-    k2DBlur20,
-    // For large kernels we bin by a multiple of eight (so no k2DBlur24)
-    k2DBlur28,
-
-    kBlend,
-    kDecal,
-    kDisplacement,
-    kLighting,
-    kLinearMorphology,
-    kMagnifier,
-    kNormal,
-    kSparseMorphology,
-
-    // blenders
-    kArithmetic,
-
-    // color filters
-    kHighContrast,
-    kLerp,
-    kLuma,
-    kOverdraw,
+#define M(type) k##type,
+#define M1(type) k##type,
+#define M2(type, initializer) k##type = k##initializer,
+    SK_ALL_STABLEKEYS(M, M1, M2)
+#undef M2
+#undef M1
+#undef M
 
     kLast =    kOverdraw,
 };
@@ -103,6 +105,8 @@ static const int kStableKeyCnt = static_cast<int>(StableKey::kLast) -
 static_assert(static_cast<int>(StableKey::kLast) < kSkiaKnownRuntimeEffectsEnd);
 
 const SkRuntimeEffect* GetKnownRuntimeEffect(StableKey);
+
+static_assert(static_cast<int>(StableKey::kInvalid)  == static_cast<int>(StableKey::kStart));
 
 static_assert(static_cast<int>(StableKey::k1DBlur4)  == static_cast<int>(StableKey::k1DBlurBase));
 static_assert(static_cast<int>(StableKey::k1DBlur8)  == static_cast<int>(StableKey::k1DBlurBase)+1);
