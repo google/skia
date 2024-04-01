@@ -77,10 +77,6 @@ public:
                                const std::vector<MipLevel>& levels,
                                const SkIRect& dstRect,
                                std::unique_ptr<ConditionalUploadContext>);
-    static UploadInstance MakeCompressed(Recorder*,
-                                         sk_sp<TextureProxy> targetProxy,
-                                         const void* data,
-                                         size_t dataSize);
     UploadInstance(UploadInstance&&);
     UploadInstance& operator=(UploadInstance&&);
     ~UploadInstance();
@@ -98,7 +94,7 @@ private:
                    size_t bytesPerPixel,
                    sk_sp<TextureProxy>,
                    std::vector<BufferTextureCopyData>,
-                   std::unique_ptr<ConditionalUploadContext> = nullptr);
+                   std::unique_ptr<ConditionalUploadContext>);
 
     const Buffer* fBuffer;
     size_t fBytesPerPixel;

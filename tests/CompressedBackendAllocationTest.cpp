@@ -34,7 +34,6 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/DataUtils.h"
-#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
@@ -143,7 +142,7 @@ static void check_compressed_mipmaps(GrRecordingContext* rContext,
         str.appendf("mip-level %d", i);
 
         check_solid_pixmap(reporter, expectedColors[i], actual2,
-                           skgpu::CompressionTypeToStr(compressionType), label, str.c_str());
+                           GrCompressionTypeToStr(compressionType), label, str.c_str());
     }
 }
 
@@ -172,7 +171,7 @@ static void check_readback(GrDirectContext* dContext, sk_sp<SkImage> img,
     REPORTER_ASSERT(reporter, result);
 
     check_solid_pixmap(reporter, expectedColor, actual,
-                       skgpu::CompressionTypeToStr(compressionType), label, "");
+                       GrCompressionTypeToStr(compressionType), label, "");
 }
 
 // Test initialization of compressed GrBackendTextures to a specific color

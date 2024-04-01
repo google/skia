@@ -31,7 +31,6 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrBackendTextureImageGenerator.h"
@@ -155,7 +154,7 @@ sk_sp<SkImage> TextureFromCompressedTexture(GrRecordingContext* context,
 
     SkTextureCompressionType type =
             GrBackendFormatToCompressionType(backendTexture.getBackendFormat());
-    SkColorType ct = skgpu::CompressionTypeToSkColorType(type);
+    SkColorType ct = GrCompressionTypeToSkColorType(type);
 
     GrSurfaceProxyView view(std::move(proxy), origin, skgpu::Swizzle::RGBA());
     return sk_make_sp<SkImage_Ganesh>(sk_ref_sp(context),
@@ -305,7 +304,7 @@ sk_sp<SkImage> TextureFromCompressedTextureData(GrDirectContext* direct,
     }
     GrSurfaceProxyView view(std::move(proxy));
 
-    SkColorType colorType = skgpu::CompressionTypeToSkColorType(type);
+    SkColorType colorType = GrCompressionTypeToSkColorType(type);
 
     return sk_make_sp<SkImage_Ganesh>(sk_ref_sp(direct),
                                       kNeedNewImageUniqueID,

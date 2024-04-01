@@ -26,7 +26,6 @@
 #endif
 
 enum class SkBlendMode;
-enum class SkTextureCompressionType;
 class SkCapabilities;
 
 namespace SkSL { struct ShaderCaps; }
@@ -90,10 +89,6 @@ public:
 
     virtual TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
                                                      Mipmapped mipmapped) const = 0;
-
-    virtual TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
-                                                        Mipmapped mipmapped,
-                                                        Protected) const = 0;
 
     virtual TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                                   Discardable discardable) const = 0;
@@ -272,12 +267,6 @@ public:
 
     bool requireOrderedRecordings() const { return fRequireOrderedRecordings; }
 
-    // When uploading to a full compressed texture do we need to pad the size out to a multiple of
-    // the block width and height.
-    bool fullCompressedUploadSizeMustAlignToBlockDims() const {
-        return fFullCompressedUploadSizeMustAlignToBlockDims;
-    }
-
     sktext::gpu::SDFTControl getSDFTControl(bool useSDFTForSmallText) const;
 
 protected:
@@ -350,7 +339,6 @@ protected:
 
     bool fComputeSupport = false;
     bool fSupportsAHardwareBufferImages = false;
-    bool fFullCompressedUploadSizeMustAlignToBlockDims = false;
 
 #if defined(GRAPHITE_TEST_UTILS)
     bool fDrawBufferCanBeMappedForReadback = true;
