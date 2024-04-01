@@ -85,6 +85,13 @@ sk_sp<PrecompileBlender> PrecompileBlender::Mode(SkBlendMode blendMode) {
     return sk_make_sp<PrecompileBlendModeBlender>(blendMode);
 }
 
+sk_sp<PrecompileBlender> PrecompileBlenders::Arithmetic() {
+    const SkRuntimeEffect* arithmeticEffect =
+            GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kArithmetic);
+
+    return MakePrecompileBlender(sk_ref_sp(arithmeticEffect));
+}
+
 //--------------------------------------------------------------------------------------------------
 class PrecompileEmptyShader : public PrecompileShader {
 public:

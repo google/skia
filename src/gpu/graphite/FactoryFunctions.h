@@ -25,6 +25,21 @@ class PrecompileShader;
 // All of these factory functions will be moved elsewhere once the pre-compile API becomes public
 
 //--------------------------------------------------------------------------------------------------
+namespace PrecompileBlenders {
+
+    // --- This call matches the SkBlenders factory in include/effects/SkBlenders.h
+    SK_API sk_sp<PrecompileBlender> Arithmetic();
+
+    // Note: the other main API SkBlender factories are:
+    //   SkBlender::Mode in include/core/SkBlender.h
+    //   SkRuntimeEffect::makeBlender in include/effects/SkRuntimeEffect.h
+    // Their precompilation correlates are:
+    //   PrecompileBlender::Mode(bm) in src/gpu/graphite/Precompile.h
+    //   MakePrecompileBlender() in src/gpu/graphite/FactoryFunctions.h
+
+} // namespace PrecompileBlenders
+
+//--------------------------------------------------------------------------------------------------
 namespace PrecompileShaders {
     // --- This block of six matches the SkShaders factories in include/core/SkShader.h
     SK_API sk_sp<PrecompileShader> Empty();
