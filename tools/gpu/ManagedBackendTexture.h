@@ -169,6 +169,14 @@ public:
             skgpu::Renderable,
             skgpu::Protected = skgpu::Protected::kNo);
 
+    static sk_sp<ManagedGraphiteTexture> MakeFromCompressedData(
+            Recorder*,
+            SkISize dimmensions,
+            SkTextureCompressionType,
+            sk_sp<SkData>,
+            skgpu::Mipmapped,
+            skgpu::Protected = skgpu::Protected::kNo);
+
     /** finished and image/surface release procs */
     static void FinishedProc(void* context, skgpu::CallbackResult);
     static void ReleaseProc(void* context);

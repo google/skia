@@ -199,11 +199,26 @@ SkISize CompressedDimensions(SkTextureCompressionType type, SkISize baseDimensio
         case SkTextureCompressionType::kETC2_RGB8_UNORM:
         case SkTextureCompressionType::kBC1_RGB8_UNORM:
         case SkTextureCompressionType::kBC1_RGBA8_UNORM: {
+            SkISize blockDims = CompressedDimensionsInBlocks(type, baseDimensions);
+            // Each BC1_RGB8_UNORM and ETC1 block has 16 pixels
+            return { 4 * blockDims.fWidth, 4 * blockDims.fHeight };
+        }
+    }
+    SkUNREACHABLE;
+}
+
+SkISize CompressedDimensionsInBlocks(SkTextureCompressionType type, SkISize baseDimensions) {
+    switch (type) {
+        case SkTextureCompressionType::kNone:
+            return baseDimensions;
+        case SkTextureCompressionType::kETC2_RGB8_UNORM:
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM: {
             int numBlocksWidth = num_4x4_blocks(baseDimensions.width());
             int numBlocksHeight = num_4x4_blocks(baseDimensions.height());
 
             // Each BC1_RGB8_UNORM and ETC1 block has 16 pixels
-            return { 4 * numBlocksWidth, 4 * numBlocksHeight };
+            return { numBlocksWidth, numBlocksHeight };
         }
     }
     SkUNREACHABLE;

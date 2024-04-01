@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/vk/VulkanCaps.h"
 
+#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
@@ -259,6 +260,47 @@ TextureInfo VulkanCaps::getTextureInfoForSampledCopy(const TextureInfo& textureI
     info.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                             VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    return info;
+}
+
+namespace {
+VkFormat format_from_compression(SkTextureCompressionType compression) {
+    switch (compression) {
+        case SkTextureCompressionType::kETC2_RGB8_UNORM:
+            return VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK;
+        case SkTextureCompressionType::kBC1_RGB8_UNORM:
+            return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM:
+            return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+        default:
+            return VK_FORMAT_UNDEFINED;
+    }
+}
+}
+
+TextureInfo VulkanCaps::getDefaultCompressedTextureInfo(SkTextureCompressionType compression,
+                                                        Mipmapped mipmapped,
+                                                        Protected isProtected) const {
+    VkFormat format = format_from_compression(compression);
+    const FormatInfo& formatInfo = this->getFormatInfo(format);
+    static constexpr int defaultSampleCount = 1;
+    if ((isProtected == Protected::kYes && !this->protectedSupport()) ||
+        !formatInfo.isTexturable(VK_IMAGE_TILING_OPTIMAL)) {
+        return {};
+    }
+
+    VulkanTextureInfo info;
+    info.fSampleCount = defaultSampleCount;
+    info.fMipmapped = mipmapped;
+    info.fFlags = (isProtected == Protected::kYes) ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+    info.fFormat = format;
+    info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+    info.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
+                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                            VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
     return info;
 }

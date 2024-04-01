@@ -14,6 +14,7 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkBlurEngine.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilterTypes.h"
@@ -433,15 +434,24 @@ sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
                                               colorInfo.makeColorType(ct));
 }
 
-
-// TODO: Make this computed size more generic to handle compressed textures
 size_t ComputeSize(SkISize dimensions,
                    const TextureInfo& info) {
-    // TODO: Should we make sure the backends return zero here if the TextureInfo is for a
-    // memoryless texture?
-    size_t bytesPerPixel = info.bytesPerPixel();
 
-    size_t colorSize = (size_t)dimensions.width() * dimensions.height() * bytesPerPixel;
+    SkTextureCompressionType compression = info.compressionType();
+
+    size_t colorSize = 0;
+
+    if (compression != SkTextureCompressionType::kNone) {
+        colorSize =  SkCompressedFormatDataSize(compression,
+                                                dimensions,
+                                                info.mipmapped() == skgpu::Mipmapped::kYes);
+    } else {
+        // TODO: Should we make sure the backends return zero here if the TextureInfo is for a
+        // memoryless texture?
+        size_t bytesPerPixel = info.bytesPerPixel();
+
+        colorSize = (size_t)dimensions.width() * dimensions.height() * bytesPerPixel;
+    }
 
     size_t finalSize = colorSize * info.numSamples();
 

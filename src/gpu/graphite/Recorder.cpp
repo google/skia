@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
@@ -16,9 +17,11 @@
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recording.h"
 
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/AtlasTypes.h"
+#include "src/gpu/DataUtils.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/BufferManager.h"
@@ -332,6 +335,45 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
                                                  mipLevels,
                                                  SkIRect::MakeSize(backendTex.dimensions()),
                                                  std::make_unique<ImageUploadContext>());
+    if (!upload.isValid()) {
+        SKGPU_LOG_E("Recorder::updateBackendTexture: Could not create UploadInstance");
+        return false;
+    }
+    sk_sp<Task> uploadTask = UploadTask::Make(std::move(upload));
+
+    // Need to flush any pending work in case it depends on this texture
+    this->priv().flushTrackedDevices();
+
+    this->priv().add(std::move(uploadTask));
+
+    return true;
+}
+
+bool Recorder::updateCompressedBackendTexture(const BackendTexture& backendTex,
+                                              const void* data,
+                                              size_t dataSize) {
+    ASSERT_SINGLE_OWNER
+
+    if (!backendTex.isValid() || backendTex.backend() != this->backend()) {
+        return false;
+    }
+
+    if (!data) {
+        return false;
+    }
+
+    sk_sp<Texture> texture = this->priv().resourceProvider()->createWrappedTexture(backendTex);
+    if (!texture) {
+        return false;
+    }
+
+    sk_sp<TextureProxy> proxy = TextureProxy::Wrap(std::move(texture));
+
+    // Add UploadTask to Recorder
+    UploadInstance upload = UploadInstance::MakeCompressed(this,
+                                                           std::move(proxy),
+                                                           data,
+                                                           dataSize);
     if (!upload.isValid()) {
         SKGPU_LOG_E("Recorder::updateBackendTexture: Could not create UploadInstance");
         return false;

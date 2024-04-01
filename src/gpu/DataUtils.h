@@ -29,6 +29,8 @@ size_t CompressedRowBytes(SkTextureCompressionType, int w);
 // block and thus objectively take up more pixels (e.g., 4x4 pixels for ETC1).
 SkISize CompressedDimensions(SkTextureCompressionType, SkISize baseDimensions);
 
+SkISize CompressedDimensionsInBlocks(SkTextureCompressionType, SkISize baseDimensions);
+
 void FillInCompressedData(SkTextureCompressionType,
                           SkISize dimensions,
                           skgpu::Mipmapped,
