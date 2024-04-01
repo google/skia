@@ -40,28 +40,6 @@ private:
     using INHERITED = Benchmark;
 };
 
-
-class EqualsMatrixBench : public MatrixBench {
-public:
-    EqualsMatrixBench() : INHERITED("equals") {}
-protected:
-    void performTest() override {
-        SkMatrix m0, m1, m2;
-
-        m0.reset();
-        m1.reset();
-        m2.reset();
-
-        // xor into a volatile prevents these comparisons from being optimized away.
-        [[maybe_unused]] volatile bool junk = false;
-        junk ^= (m0 == m1);
-        junk ^= (m1 == m2);
-        junk ^= (m2 == m0);
-    }
-private:
-    using INHERITED = MatrixBench;
-};
-
 class ScaleMatrixBench : public MatrixBench {
 public:
     ScaleMatrixBench() : INHERITED("scale") {
@@ -92,53 +70,6 @@ template <typename T> void init9(T array[9]) {
         array[i] = rand.nextSScalar1();
     }
 }
-
-class GetTypeMatrixBench : public MatrixBench {
-public:
-    GetTypeMatrixBench()
-        : INHERITED("gettype") {
-        fArray[0] = (float) fRnd.nextS();
-        fArray[1] = (float) fRnd.nextS();
-        fArray[2] = (float) fRnd.nextS();
-        fArray[3] = (float) fRnd.nextS();
-        fArray[4] = (float) fRnd.nextS();
-        fArray[5] = (float) fRnd.nextS();
-        fArray[6] = (float) fRnd.nextS();
-        fArray[7] = (float) fRnd.nextS();
-        fArray[8] = (float) fRnd.nextS();
-    }
-protected:
-    // Putting random generation of the matrix inside performTest()
-    // would help us avoid anomalous runs, but takes up 25% or
-    // more of the function time.
-    void performTest() override {
-        fMatrix.setAll(fArray[0], fArray[1], fArray[2],
-                       fArray[3], fArray[4], fArray[5],
-                       fArray[6], fArray[7], fArray[8]);
-        // xoring into a volatile prevents the compiler from optimizing these away
-        [[maybe_unused]] volatile int junk = 0;
-        junk ^= (fMatrix.getType());
-        fMatrix.dirtyMatrixTypeCache();
-        junk ^= (fMatrix.getType());
-        fMatrix.dirtyMatrixTypeCache();
-        junk ^= (fMatrix.getType());
-        fMatrix.dirtyMatrixTypeCache();
-        junk ^= (fMatrix.getType());
-        fMatrix.dirtyMatrixTypeCache();
-        junk ^= (fMatrix.getType());
-        fMatrix.dirtyMatrixTypeCache();
-        junk ^= (fMatrix.getType());
-        fMatrix.dirtyMatrixTypeCache();
-        junk ^= (fMatrix.getType());
-        fMatrix.dirtyMatrixTypeCache();
-        junk ^= (fMatrix.getType());
-    }
-private:
-    SkMatrix fMatrix;
-    float fArray[9];
-    SkRandom fRnd;
-    using INHERITED = MatrixBench;
-};
 
 class DecomposeMatrixBench : public MatrixBench {
 public:
@@ -225,9 +156,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new EqualsMatrixBench(); )
 DEF_BENCH( return new ScaleMatrixBench(); )
-DEF_BENCH( return new GetTypeMatrixBench(); )
 DEF_BENCH( return new DecomposeMatrixBench(); )
 
 DEF_BENCH( return new InvertMapRectMatrixBench("invert_maprect_identity", 0); )

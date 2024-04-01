@@ -119,7 +119,6 @@ bench_sources = [
   "$_bench/SKPAnimationBench.h",
   "$_bench/SKPBench.cpp",
   "$_bench/SKPBench.h",
-  "$_bench/ScalarBench.cpp",
   "$_bench/ShaderMaskFilterBench.cpp",
   "$_bench/ShadowBench.cpp",
   "$_bench/ShapesBench.cpp",

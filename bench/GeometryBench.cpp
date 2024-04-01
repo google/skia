@@ -35,7 +35,9 @@ protected:
      *  needed somewhere, and since this method is not const, the member fields cannot
      *  be assumed to be const before and after the call.
      */
-    virtual void virtualCallToFoilOptimizers(int n) { fVolatileInt += n; }
+    virtual void virtualCallToFoilOptimizers(int n) {
+        fVolatileInt = n;
+    }
 
 private:
     SkString fName;

@@ -18,8 +18,8 @@ struct ControlBench : public Benchmark {
         // Nothing terribly useful: force a memory read, a memory write, and some math.
         [[maybe_unused]] volatile uint32_t rand = 0;
         for (int i = 0; i < 1000*loops; i++) {
-            rand *= 1664525;
-            rand += 1013904223;
+            uint32_t val = rand * 1664525 + 1013904223;
+            rand = val;
         }
     }
 };

@@ -266,7 +266,7 @@ void DDLFuzzer::recordAndPlayDDL() {
         canvas->drawImage(fPromiseImages[j].fImage, xOffset, 0);
     }
     sk_sp<GrDeferredDisplayList> ddl = recorder.detach();
-    fGpuTaskGroup.add([=, ddl{std::move(ddl)}]{
+    fGpuTaskGroup.add([ddl{std::move(ddl)}, this] {
         bool success = skgpu::ganesh::DrawDDL(fSurface, std::move(ddl));
         if (!success) {
             fFuzz->signalBug();
@@ -278,16 +278,14 @@ void DDLFuzzer::run() {
     if (!fSurface) {
         return;
     }
-    fRecordingTaskGroup.batch(kIterationCount, [=](int i) {
-        this->recordAndPlayDDL();
-    });
+    fRecordingTaskGroup.batch(kIterationCount, [this](int i) { this->recordAndPlayDDL(); });
     fRecordingTaskGroup.wait();
 
-    fGpuTaskGroup.add([=] { fContext->flushAndSubmit(fSurface.get(), GrSyncCpu::kYes); });
+    fGpuTaskGroup.add([this] { fContext->flushAndSubmit(fSurface.get(), GrSyncCpu::kYes); });
 
     fGpuTaskGroup.wait();
 
-    fGpuTaskGroup.add([=] {
+    fGpuTaskGroup.add([this] {
         while (!fReusableTextures.empty()) {
             sk_sp<GrPromiseImageTexture> gpuTexture = std::move(fReusableTextures.front());
             fContext->deleteBackendTexture(gpuTexture->backendTexture());

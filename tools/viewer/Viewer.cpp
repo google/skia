@@ -1719,16 +1719,6 @@ void Viewer::drawSlide(SkSurface* surface) {
             break;
     }
 
-    auto make_surface = [=](int w, int h) {
-        SkSurfaceProps props(fWindow->getRequestedDisplayParams().fSurfaceProps);
-        slideCanvas->getProps(&props);
-
-        SkImageInfo info = SkImageInfo::Make(w, h, colorType, kPremul_SkAlphaType, colorSpace);
-        return Window::kRaster_BackendType == this->fBackendType
-                       ? SkSurfaces::Raster(info, &props)
-                       : slideCanvas->makeSurface(info, &props);
-    };
-
     // We need to render offscreen if we're...
     // ... in fake perspective or zooming (so we have a snapped copy of the results)
     // ... in any raster mode, because the window surface is actually GL
@@ -1741,8 +1731,15 @@ void Viewer::drawSlide(SkSurface* surface) {
         Window::kRaster_BackendType == fBackendType ||
         colorSpace != nullptr ||
         FLAGS_offscreen) {
+        SkSurfaceProps props(fWindow->getRequestedDisplayParams().fSurfaceProps);
+        slideCanvas->getProps(&props);
 
-        offscreenSurface = make_surface(fWindow->width(), fWindow->height());
+        SkImageInfo info = SkImageInfo::Make(
+                fWindow->width(), fWindow->height(), colorType, kPremul_SkAlphaType, colorSpace);
+        offscreenSurface = Window::kRaster_BackendType == this->fBackendType
+                                   ? SkSurfaces::Raster(info, &props)
+                                   : slideCanvas->makeSurface(info, &props);
+
         slideSurface = offscreenSurface.get();
         slideCanvas = offscreenSurface->getCanvas();
     }
@@ -2135,7 +2132,7 @@ void Viewer::drawImGui() {
                 ImGui::RadioButton("Direct3D", &newBackend, sk_app::Window::kDirect3D_BackendType);
 #endif
                 if (newBackend != fBackendType) {
-                    fDeferredActions.push_back([=]() {
+                    fDeferredActions.push_back([newBackend, this]() {
                         this->setBackend(static_cast<sk_app::Window::BackendType>(newBackend));
                     });
                 }
@@ -2821,7 +2818,7 @@ void Viewer::drawImGui() {
                                  : GrContextOptions::ShaderCacheStrategy::kBackendSource;
                     displayParamsChanged = true;
 
-                    fDeferredActions.push_back([=]() {
+                    fDeferredActions.push_back([doDump, this]() {
                         // Reset the cache.
                         fPersistentCache.reset();
                         sDoDeferredView = true;
@@ -2919,7 +2916,7 @@ void Viewer::drawImGui() {
             }
         }
         if (displayParamsChanged || uiParamsChanged) {
-            fDeferredActions.push_back([=]() {
+            fDeferredActions.push_back([displayParamsChanged, params, this]() {
                 if (displayParamsChanged) {
                     fWindow->setRequestedDisplayParams(params);
                 }

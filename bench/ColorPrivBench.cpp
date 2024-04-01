@@ -58,13 +58,13 @@ public:
                     const unsigned scale = fScales[j];
 
                     if (kFast && kScale) {
-                        junk ^= SkFastFourByteInterp(src, dst, scale);
+                        junk = SkFastFourByteInterp(src, dst, scale);
                     } else if (kFast) {
-                        junk ^= SkFastFourByteInterp256(src, dst, scale);
+                        junk = SkFastFourByteInterp256(src, dst, scale);
                     } else if (kScale) {
-                        junk ^= SkFourByteInterp(src, dst, scale);
+                        junk = SkFourByteInterp(src, dst, scale);
                     } else {
-                        junk ^= SkFourByteInterp256(src, dst, scale);
+                        junk = SkFourByteInterp256(src, dst, scale);
                     }
                 }
             }

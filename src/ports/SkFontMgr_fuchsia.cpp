@@ -221,7 +221,7 @@ struct TypefaceId {
     uint32_t bufferId;
     uint32_t ttcIndex;
 
-    bool operator==(TypefaceId& other) {
+    bool operator==(TypefaceId& other) const {
         return std::tie(bufferId, ttcIndex) == std::tie(other.bufferId, other.ttcIndex);
     }
 }

@@ -150,8 +150,9 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
     // function, one for the (inverse) destination transfer function, and one for the gamut xform.
     // Any combination of these may be present, although some configurations are much more likely.
 
-    auto emitTFFunc = [=](const char* name, GrGLSLProgramDataManager::UniformHandle uniform,
-                          skcms_TFType tfType) {
+    auto emitTFFunc = [this, &uniformHandler](const char* name,
+                                              GrGLSLProgramDataManager::UniformHandle uniform,
+                                              skcms_TFType tfType) {
         const GrShaderVar gTFArgs[] = { GrShaderVar("x", SkSLType::kFloat) };
         const char* coeffs = uniformHandler->getUniformCStr(uniform);
         SkString body;

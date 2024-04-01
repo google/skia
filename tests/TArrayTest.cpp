@@ -199,7 +199,7 @@ namespace {
 struct MoveOnlyInt {
     MoveOnlyInt(int i) : fInt(i) {}
     MoveOnlyInt(MoveOnlyInt&& that) : fInt(that.fInt) {}
-    bool operator==(int i) { return fInt == i; }
+    bool operator==(int i) const { return fInt == i; }
     int fInt;
 };
 } // anonymous
