@@ -46,7 +46,7 @@ public:
 
     sk_sp<SkFontStyleSet> onMatchFamily(const char familyName[]) const override;
 
-    sk_sp<SkFontStyleSet> onCreateStyleSet(int) const override { return nullptr; }
+    sk_sp<SkFontStyleSet> onCreateStyleSet(int) const override;
     sk_sp<SkTypeface> onMatchFamilyStyle(const char familyName[], const SkFontStyle& pattern) const override;
     sk_sp<SkTypeface> onMatchFamilyStyleCharacter(const char[], const SkFontStyle&,
                                                   const char*[], int,
@@ -66,9 +66,7 @@ public:
         return nullptr;
     }
 
-    sk_sp<SkTypeface> onLegacyMakeTypeface(const char[], SkFontStyle) const override {
-        return nullptr;
-    }
+    sk_sp<SkTypeface> onLegacyMakeTypeface(const char[], SkFontStyle) const override;
 
 private:
     skia_private::THashMap<SkString, sk_sp<TypefaceFontStyleSet>> fRegisteredFamilies;

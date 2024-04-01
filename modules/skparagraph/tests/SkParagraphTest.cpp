@@ -5425,7 +5425,7 @@ UNIX_ONLY_TEST(SkParagraph_NullInMiddleOfText, reporter) {
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
-    REPORTER_ASSERT(reporter, SkScalarNearlyZero(paragraph->getHeight()));
+    REPORTER_ASSERT(reporter, paragraph->getHeight() > 0);
 }
 
 // This test does not produce an image
