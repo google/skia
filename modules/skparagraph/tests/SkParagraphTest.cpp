@@ -8155,7 +8155,7 @@ UNIX_ONLY_TEST(SkParagraph_ICU_EmojiFontResolution, reporter) {
 
 #if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
 UNIX_ONLY_TEST(SkParagraph_ICU4X_EmojiFontResolution, reporter) {
-    SkParagraph_EmojiFontResolution(SkUnicodes::ICU::Make(), reporter);
+    SkParagraph_EmojiFontResolution(SkUnicodes::ICU4X::Make(), reporter);
 }
 #endif
 
