@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/private/base/SkTArray.h"
+#include "src/gpu/DataUtils.h"
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
@@ -1387,6 +1388,8 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     VulkanTextureInfo dstTextureInfo;
     dstTexture->textureInfo().getVulkanTextureInfo(&dstTextureInfo);
     size_t bytesPerBlock = VkFormatBytesPerBlock(dstTextureInfo.fFormat);
+    SkISize oneBlockDims = CompressedDimensions(dstTexture->textureInfo().compressionType(),
+                                                {1, 1});
 
     // Set up copy regions.
     TArray<VkBufferImageCopy> regions(count);
@@ -1395,7 +1398,9 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
         memset(&region, 0, sizeof(VkBufferImageCopy));
         region.bufferOffset = copyData[i].fBufferOffset;
         // copyData provides row length in bytes, but Vulkan expects bufferRowLength in texels.
-        region.bufferRowLength = (uint32_t)(copyData[i].fBufferRowBytes/bytesPerBlock);
+        // For compressed this is the number of logical pixels not the number of blocks.
+        region.bufferRowLength =
+                (uint32_t)((copyData[i].fBufferRowBytes/bytesPerBlock) * oneBlockDims.fWidth);
         region.bufferImageHeight = 0; // Tightly packed
         region.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, copyData[i].fMipLevel, 0, 1 };
         region.imageOffset = { copyData[i].fRect.left(),

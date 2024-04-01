@@ -11,8 +11,10 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/base/SkAlign.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/DataUtils.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -49,16 +51,20 @@ UploadInstance::UploadInstance(const Buffer* buffer,
 std::pair<size_t, size_t> compute_combined_buffer_size(
         const Caps* caps,
         int mipLevelCount,
-        size_t bytesPerPixel,
+        size_t bytesPerBlock,
         const SkISize& baseDimensions,
+        SkTextureCompressionType compressionType,
         TArray<std::pair<size_t, size_t>>* levelOffsetsAndRowBytes) {
     SkASSERT(levelOffsetsAndRowBytes && !levelOffsetsAndRowBytes->size());
     SkASSERT(mipLevelCount >= 1);
 
+    SkISize compressedBlockDimensions = CompressedDimensionsInBlocks(compressionType,
+                                                                     baseDimensions);
+
     size_t minTransferBufferAlignment =
-            std::max(bytesPerPixel, caps->requiredTransferBufferAlignment());
+            std::max(bytesPerBlock, caps->requiredTransferBufferAlignment());
     size_t alignedBytesPerRow =
-            caps->getAlignedTextureDataRowBytes(baseDimensions.width() * bytesPerPixel);
+            caps->getAlignedTextureDataRowBytes(compressedBlockDimensions.width() * bytesPerBlock);
 
     levelOffsetsAndRowBytes->push_back({0, alignedBytesPerRow});
     size_t combinedBufferSize = SkAlignTo(alignedBytesPerRow * baseDimensions.height(),
@@ -68,9 +74,10 @@ std::pair<size_t, size_t> compute_combined_buffer_size(
     for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; ++currentMipLevel) {
         levelDimensions = {std::max(1, levelDimensions.width() / 2),
                            std::max(1, levelDimensions.height() / 2)};
-        alignedBytesPerRow =
-                caps->getAlignedTextureDataRowBytes(levelDimensions.width() * bytesPerPixel);
-        size_t alignedSize = SkAlignTo(alignedBytesPerRow * levelDimensions.height(),
+        compressedBlockDimensions = CompressedDimensionsInBlocks(compressionType, levelDimensions);
+        alignedBytesPerRow = caps->getAlignedTextureDataRowBytes(
+                compressedBlockDimensions.width() * bytesPerBlock);
+        size_t alignedSize = SkAlignTo(alignedBytesPerRow * compressedBlockDimensions.height(),
                                        minTransferBufferAlignment);
         SkASSERT(combinedBufferSize % minTransferBufferAlignment == 0);
 
@@ -139,7 +146,12 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     TArray<std::pair<size_t, size_t>> levelOffsetsAndRowBytes(mipLevelCount);
 
     auto [combinedBufferSize, minAlignment] = compute_combined_buffer_size(
-            caps, mipLevelCount, bpp, dstRect.size(), &levelOffsetsAndRowBytes);
+            caps,
+            mipLevelCount,
+            bpp,
+            dstRect.size(),
+            SkTextureCompressionType::kNone,
+            &levelOffsetsAndRowBytes);
     SkASSERT(combinedBufferSize);
 
     UploadBufferManager* bufferMgr = recorder->priv().uploadBufferManager();
@@ -203,8 +215,10 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 
         copyData[currentMipLevel].fBufferOffset = baseOffset + mipOffset;
         copyData[currentMipLevel].fBufferRowBytes = dstRowBytes;
+        // For mipped data, the dstRect is always the full texture so we don't need to worry about
+        // modifying the TL coord as it will always be 0,0,for all levels.
         copyData[currentMipLevel].fRect = {
-            dstRect.left(), dstRect.top(), // TODO: can we recompute this for mips?
+            dstRect.left(), dstRect.top(),
             dstRect.left() + currentWidth, dstRect.top() + currentHeight
         };
         copyData[currentMipLevel].fMipLevel = currentMipLevel;
@@ -219,6 +233,95 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 
     return {bufferInfo.fBuffer, bpp, std::move(textureProxy), std::move(copyData),
             std::move(condContext)};
+}
+
+UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
+                                              sk_sp<TextureProxy> textureProxy,
+                                              const void* data,
+                                              size_t dataSize) {
+    if (!data) {
+        return {};   // no data to upload
+    }
+
+    const TextureInfo& texInfo = textureProxy->textureInfo();
+
+    const Caps* caps = recorder->priv().caps();
+    SkASSERT(caps->isTexturable(texInfo));
+
+    SkTextureCompressionType compression = texInfo.compressionType();
+    if (compression == SkTextureCompressionType::kNone) {
+        return {};
+    }
+
+    // Create a transfer buffer and fill with data.
+    skia_private::STArray<16, size_t> srcMipOffsets;
+    SkDEBUGCODE(size_t computedSize =) SkCompressedDataSize(compression,
+                                                            textureProxy->dimensions(),
+                                                            &srcMipOffsets,
+                                                            texInfo.mipmapped() == Mipmapped::kYes);
+    SkASSERT(computedSize == dataSize);
+
+    unsigned int mipLevelCount = srcMipOffsets.size();
+    size_t bytesPerBlock = SkCompressedBlockSize(compression);
+    TArray<std::pair<size_t, size_t>> levelOffsetsAndRowBytes(mipLevelCount);
+    auto [combinedBufferSize, minAlignment] = compute_combined_buffer_size(
+            caps,
+            mipLevelCount,
+            bytesPerBlock,
+            textureProxy->dimensions(),
+            compression,
+            &levelOffsetsAndRowBytes);
+    SkASSERT(combinedBufferSize);
+
+    UploadBufferManager* bufferMgr = recorder->priv().uploadBufferManager();
+    auto [writer, bufferInfo] = bufferMgr->getTextureUploadWriter(combinedBufferSize, minAlignment);
+
+    std::vector<BufferTextureCopyData> copyData(mipLevelCount);
+
+    if (!bufferInfo.fBuffer) {
+        return {};
+    }
+    size_t baseOffset = bufferInfo.fOffset;
+
+    int32_t currentWidth = textureProxy->dimensions().width();
+    int32_t currentHeight = textureProxy->dimensions().height();
+    for (unsigned int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        SkISize blockDimensions = CompressedDimensionsInBlocks(compression,
+                                                               {currentWidth, currentHeight});
+        int32_t blockHeight = blockDimensions.height();
+
+        const size_t trimRowBytes = CompressedRowBytes(compression, currentWidth);
+        const size_t srcRowBytes = trimRowBytes;
+        const auto [dstMipOffset, dstRowBytes] = levelOffsetsAndRowBytes[currentMipLevel];
+
+        // copy data into the buffer, skipping any trailing bytes
+        const void* src = SkTAddOffset<const void>(data, srcMipOffsets[currentMipLevel]);
+
+        writer.write(dstMipOffset, src, srcRowBytes, dstRowBytes, trimRowBytes, blockHeight);
+
+        int32_t copyWidth = currentWidth;
+        int32_t copyHeight = currentHeight;
+        if (caps->fullCompressedUploadSizeMustAlignToBlockDims()) {
+            SkISize oneBlockDims = CompressedDimensions(compression, {1, 1});
+            copyWidth = SkAlignTo(copyWidth, oneBlockDims.fWidth);
+            copyHeight = SkAlignTo(copyHeight, oneBlockDims.fHeight);
+        }
+
+        copyData[currentMipLevel].fBufferOffset = baseOffset + dstMipOffset;
+        copyData[currentMipLevel].fBufferRowBytes = dstRowBytes;
+        copyData[currentMipLevel].fRect = { 0, 0, copyWidth, copyHeight};
+        copyData[currentMipLevel].fMipLevel = currentMipLevel;
+
+        currentWidth = std::max(1, currentWidth / 2);
+        currentHeight = std::max(1, currentHeight / 2);
+    }
+
+    ATRACE_ANDROID_FRAMEWORK("Upload Compressed %sTexture [%ux%u]",
+                             mipLevelCount > 1 ? "MipMap " : "",
+                             textureProxy->dimensions().width(),
+                             textureProxy->dimensions().height());
+
+    return {bufferInfo.fBuffer, bytesPerBlock, std::move(textureProxy), std::move(copyData)};
 }
 
 bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {

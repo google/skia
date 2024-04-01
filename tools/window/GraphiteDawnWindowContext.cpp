@@ -140,15 +140,36 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
 
     wgpu::Adapter adapter = adapters[0].Get();
 
-    std::vector<wgpu::FeatureName> requiredFeatures;
-    requiredFeatures.push_back(wgpu::FeatureName::SurfaceCapabilities);
+    std::vector<wgpu::FeatureName> features;
+    features.push_back(wgpu::FeatureName::SurfaceCapabilities);
+    if (adapter.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled)) {
+        features.push_back(wgpu::FeatureName::MSAARenderToSingleSampled);
+    }
+    if (adapter.HasFeature(wgpu::FeatureName::TransientAttachments)) {
+        features.push_back(wgpu::FeatureName::TransientAttachments);
+    }
+    if (adapter.HasFeature(wgpu::FeatureName::Norm16TextureFormats)) {
+        features.push_back(wgpu::FeatureName::Norm16TextureFormats);
+    }
+    if (adapter.HasFeature(wgpu::FeatureName::DualSourceBlending)) {
+        features.push_back(wgpu::FeatureName::DualSourceBlending);
+    }
+    if (adapter.HasFeature(wgpu::FeatureName::FramebufferFetch)) {
+        features.push_back(wgpu::FeatureName::FramebufferFetch);
+    }
     if (adapter.HasFeature(wgpu::FeatureName::BufferMapExtendedUsages)) {
-        requiredFeatures.push_back(wgpu::FeatureName::BufferMapExtendedUsages);
+        features.push_back(wgpu::FeatureName::BufferMapExtendedUsages);
+    }
+    if (adapter.HasFeature(wgpu::FeatureName::TextureCompressionETC2)) {
+        features.push_back(wgpu::FeatureName::TextureCompressionETC2);
+    }
+    if (adapter.HasFeature(wgpu::FeatureName::TextureCompressionBC)) {
+        features.push_back(wgpu::FeatureName::TextureCompressionBC);
     }
 
     wgpu::DeviceDescriptor deviceDescriptor;
-    deviceDescriptor.requiredFeatures = requiredFeatures.data();
-    deviceDescriptor.requiredFeatureCount = requiredFeatures.size();
+    deviceDescriptor.requiredFeatures = features.data();
+    deviceDescriptor.requiredFeatureCount = features.size();
 
     auto device = adapter.CreateDevice(&deviceDescriptor);
     if (!device) {

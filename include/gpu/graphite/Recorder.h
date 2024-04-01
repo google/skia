@@ -129,6 +129,21 @@ public:
                               int numLevels);
 
     /**
+     * If possible, updates a compressed backend texture filled with the provided raw data. The
+     * client should check the return value to see if the update was successful. The client is
+     * required to insert a Recording into the Context and call `submit` to send the upload work to
+     * the gpu.
+     * If the backend texture is mip mapped, the data for all the mipmap levels must be provided.
+     * Additionally, all the miplevels must be sized correctly (please see
+     * SkMipMap::ComputeLevelSize and ComputeLevelCount).
+     * For the Vulkan backend after a successful update the layout of the created VkImage will be:
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+     */
+    bool updateCompressedBackendTexture(const BackendTexture&,
+                                        const void* data,
+                                        size_t dataSize);
+
+    /**
      * Called to delete the passed in BackendTexture. This should only be called if the
      * BackendTexture was created by calling Recorder::createBackendTexture on a Recorder that is
      * associated with the same Context. If the BackendTexture is not valid or does not match the

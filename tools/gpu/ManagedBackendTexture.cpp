@@ -257,6 +257,37 @@ sk_sp<ManagedGraphiteTexture> ManagedGraphiteTexture::MakeMipmappedFromPixmaps(
     return mbet;
 }
 
+sk_sp<ManagedGraphiteTexture> ManagedGraphiteTexture::MakeFromCompressedData(
+        Recorder* recorder,
+        SkISize dimensions,
+        SkTextureCompressionType compression,
+        sk_sp<SkData> src,
+        skgpu::Mipmapped mipmapped,
+        skgpu::Protected isProtected) {
+    sk_sp<ManagedGraphiteTexture> mbet(new ManagedGraphiteTexture);
+    mbet->fContext = recorder->priv().context();
+    const skgpu::graphite::Caps* caps = recorder->priv().caps();
+
+    skgpu::graphite::TextureInfo info = caps->getDefaultCompressedTextureInfo(compression,
+                                                                              mipmapped,
+                                                                              isProtected);
+
+    mbet->fTexture = recorder->createBackendTexture(dimensions, info);
+    if (!mbet->fTexture.isValid()) {
+        return nullptr;
+    }
+
+    recorder->addFinishInfo({mbet->releaseContext(), FinishedProc});
+
+    if (!recorder->updateCompressedBackendTexture(mbet->fTexture,
+                                                  src->data(),
+                                                  src->size())) {
+        return nullptr;
+    }
+
+    return mbet;
+}
+
 }  // namespace sk_gpu_test
 
 #endif  // SK_GRAPHITE

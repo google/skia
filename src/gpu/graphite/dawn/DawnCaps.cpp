@@ -9,6 +9,7 @@
 
 #include <algorithm>
 
+#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
@@ -45,6 +46,9 @@ static constexpr wgpu::TextureFormat kFormats[skgpu::graphite::DawnCaps::kFormat
     wgpu::TextureFormat::Depth32Float,
     wgpu::TextureFormat::Depth24PlusStencil8,
 
+    wgpu::TextureFormat::BC1RGBAUnorm,
+    wgpu::TextureFormat::ETC2RGB8Unorm,
+
     wgpu::TextureFormat::Undefined,
 };
 
@@ -60,7 +64,7 @@ bool IsMultiplanarFormat(wgpu::TextureFormat format) {
     }
 }
 #endif
-}
+}  // anonymous namespace
 
 namespace skgpu::graphite {
 
@@ -211,6 +215,41 @@ TextureInfo DawnCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInf
     info.fMipmapped = mipmapped;
     info.fUsage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst |
                   wgpu::TextureUsage::CopySrc;
+
+    return info;
+}
+
+namespace {
+wgpu::TextureFormat format_from_compression(SkTextureCompressionType compression) {
+    switch (compression) {
+        case SkTextureCompressionType::kETC2_RGB8_UNORM:
+            return wgpu::TextureFormat::ETC2RGB8Unorm;
+        case SkTextureCompressionType::kBC1_RGBA8_UNORM:
+            return wgpu::TextureFormat::BC1RGBAUnorm;
+        default:
+            return wgpu::TextureFormat::Undefined;
+    }
+}
+}
+
+TextureInfo DawnCaps::getDefaultCompressedTextureInfo(SkTextureCompressionType compression,
+                                                      Mipmapped mipmapped,
+                                                      Protected) const {
+    wgpu::TextureUsage usage = wgpu::TextureUsage::TextureBinding |
+                               wgpu::TextureUsage::CopyDst |
+                               wgpu::TextureUsage::CopySrc;
+
+    wgpu::TextureFormat format = format_from_compression(compression);
+    if (format == wgpu::TextureFormat::Undefined) {
+        return {};
+    }
+
+    DawnTextureInfo info;
+    info.fSampleCount = 1;
+    info.fMipmapped = mipmapped;
+    info.fFormat = format;
+    info.fViewFormat = format;
+    info.fUsage = usage;
 
     return info;
 }
@@ -437,6 +476,8 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
         // The implementation busy waits after popping.
         fAllowScopedErrorChecks = false;
     }
+
+    fFullCompressedUploadSizeMustAlignToBlockDims = true;
 }
 
 void DawnCaps::initShaderCaps(const wgpu::Device& device) {
@@ -653,6 +694,40 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = kR16G16_float_SkColorType;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
+    // Format: ETC2RGB8Unorm
+    {
+        if (device.HasFeature(wgpu::FeatureName::TextureCompressionETC2)) {
+            info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::ETC2RGB8Unorm)];
+            info->fFlags = FormatInfo::kTexturable_Flag;
+            info->fColorTypeInfoCount = 1;
+            info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
+            int ctIdx = 0;
+            // Format: ETC2RGB8Unorm, Surface: kRGB_888x
+            {
+                auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = kRGB_888x_SkColorType;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            }
+        }
+    }
+
+    // Format: BC1RGBAUnorm
+    {
+        if (device.HasFeature(wgpu::FeatureName::TextureCompressionBC)) {
+            info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::BC1RGBAUnorm)];
+            info->fFlags = FormatInfo::kTexturable_Flag;
+            info->fColorTypeInfoCount = 1;
+            info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
+            int ctIdx = 0;
+            // Format: BC1RGBAUnorm, Surface: kRGBA_8888
+            {
+                auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = kRGBA_8888_SkColorType;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
+            }
         }
     }
 

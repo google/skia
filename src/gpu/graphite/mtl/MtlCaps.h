@@ -30,6 +30,10 @@ public:
     TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
                                              Mipmapped mipmapped) const override;
 
+    TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
+                                                Mipmapped mipmapped,
+                                                Protected) const override;
+
     TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                           Discardable discardable) const override;
 
@@ -132,7 +136,11 @@ private:
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
     };
-    inline static constexpr size_t kNumMtlFormats = 19;
+#ifdef SK_BUILD_FOR_MAC
+    inline static constexpr size_t kNumMtlFormats = 21;
+#else
+    inline static constexpr size_t kNumMtlFormats = 20;
+#endif
 
     static size_t GetFormatIndex(MTLPixelFormat);
     FormatInfo fFormatTable[kNumMtlFormats];

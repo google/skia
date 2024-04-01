@@ -12,6 +12,7 @@
 #include "include/gpu/MutableTextureState.h"  // IWYU pragma: keep
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ganesh/GrBackendSurfacePriv.h"
 
 #ifdef SK_DIRECT3D
@@ -246,7 +247,7 @@ SkString GrBackendFormat::toStr() const {
         case GrBackendApi::kMock:
             str.append(GrColorTypeToStr(fMock.fColorType));
             str.appendf("-");
-            str.append(GrCompressionTypeToStr(fMock.fCompressionType));
+            str.append(skgpu::CompressionTypeToStr(fMock.fCompressionType));
             break;
         case GrBackendApi::kUnsupported:
             break;

@@ -36,6 +36,10 @@ public:
     TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
                                              Mipmapped mipmapped) const override;
 
+    TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
+                                                Mipmapped mipmapped,
+                                                Protected) const override;
+
     TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                           Discardable discardable) const override;
 
