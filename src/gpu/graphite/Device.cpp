@@ -272,6 +272,10 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            bool addInitialClear) {
     SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
 
+    if (!recorder) {
+        return nullptr;
+    }
+
     Protected isProtected = Protected(recorder->priv().caps()->protectedSupport());
     sk_sp<TextureProxy> target = make_draw_target(
             recorder,
