@@ -1021,9 +1021,9 @@ cc_library(
         "-Wno-unused-function",
     ],
     defines = [
-        "SK_USING_THIRD_PARTY_ICU",
-        "U_DISABLE_RENAMING=1",
         "U_USING_ICU_NAMESPACE=0",
+        "U_DISABLE_RENAMING",
+        "SK_USING_THIRD_PARTY_ICU",
     ],
     includes = [
         "source/common",

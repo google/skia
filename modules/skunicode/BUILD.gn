@@ -14,6 +14,7 @@ declare_args() {
 if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     skia_use_icu4x) {
   config("public_config") {
+    include_dirs = [ "include" ]
     defines = [ "SK_UNICODE_AVAILABLE" ]
     if (skia_use_icu) {
       defines += [ "SK_UNICODE_ICU_IMPLEMENTATION" ]
@@ -40,39 +41,24 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     }
   }
 
-  component("skunicode_core") {
+  component("skunicode") {
     check_includes = false
+    public_configs = [ ":public_config" ]
+    public = skia_unicode_public
     deps = [ "../..:skia" ]
+    defines = [ "SKUNICODE_IMPLEMENTATION=1" ]
+    sources = skia_unicode_sources
+    defines += [ "SK_UNICODE_AVAILABLE" ]
     configs += [
       "../../:skia_private",
-      "../../third_party/icu/config:no_cxx",
+      #":cpp20",
     ]
-    sources = skia_unicode_sources
-  }
 
-  if (skia_use_icu) {
-    component("skunicode_icu") {
-      check_includes = false
-      deps = [
-        ":skunicode_core",
-        "../..:skia",
-      ]
-      configs += [
-        "../../:skia_private",
-        "../../third_party/icu/config:no_cxx",
-      ]
-
-      # These are explicitly *not* public defines because we don't want them
-      # to leak to dependents.
-      defines = [
-        "SKUNICODE_IMPLEMENTATION=1",
-        "U_DISABLE_RENAMING=1",
-        "U_USING_ICU_NAMESPACE=0",
-      ]
-
-      sources = skia_unicode_icu_bidi_sources
+    if (skia_use_icu) {
+      sources += skia_unicode_icu_bidi_sources
       sources += skia_unicode_bidi_full_sources
       sources += skia_unicode_icu_sources
+      defines += [ "SK_UNICODE_ICU_IMPLEMENTATION" ]
 
       # only available for Android at the moment
       if (skia_use_runtime_icu && (is_android || is_linux)) {
@@ -83,110 +69,29 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
         sources += skia_unicode_builtin_icu_sources
         deps += [ "//third_party/icu" ]
       }
+      configs += [ "../../third_party/icu/config:no_cxx" ]
     }
-  }
-
-  if (skia_use_client_icu) {
-    component("skunicode_client_icu") {
-      check_includes = false
-      deps = [
-        ":skunicode_core",
-        "../..:skia",
-      ]
-      configs += [
-        "../../:skia_private",
-        "../../third_party/icu/config:no_cxx",
-      ]
-      defines = [
-        "SKUNICODE_IMPLEMENTATION=1",
-
-        # In order to use the bidi_subset at the same time as "full ICU", we must have
-        # compiled icu with the given defines also being set. This is to make sure the functions
-        # we call are given a suffix of "_skia" to prevent ODR violations if this "subset of ICU"
-        # is compiled alongside a full ICU build also.
-        # See https://chromium.googlesource.com/chromium/deps/icu.git/+/d94ab131bc8fef3bc17f356a628d8e4cd44d65d9/source/common/unicode/uversion.h
-        # for how these are used.
-        "U_DISABLE_RENAMING=0",
-        "U_USING_ICU_NAMESPACE=0",
-        "U_LIB_SUFFIX_C_NAME=_skia",
-        "U_HAVE_LIB_SUFFIX=1",
-        "U_DISABLE_VERSION_SUFFIX=1",
-      ]
-
-      sources = skia_unicode_icu_bidi_sources
+    if (skia_use_client_icu || skia_use_libgrapheme) {
+      if (!skia_use_icu) {
+        sources += skia_unicode_icu_bidi_sources
+      }
       sources += skia_unicode_bidi_subset_sources
-      sources += skia_unicode_client_icu_sources
       deps += [ skia_icu_bidi_third_party_dir ]
     }
-  }
 
-  if (skia_use_libgrapheme) {
-    component("skunicode_libgrapheme") {
-      check_includes = false
-      deps = [
-        ":skunicode_core",
-        "../..:skia",
-      ]
-      configs += [
-        "../../:skia_private",
-        "../../third_party/icu/config:no_cxx",
-      ]
-      defines = [
-        "SKUNICODE_IMPLEMENTATION=1",
-        "U_DISABLE_RENAMING=0",
-        "U_USING_ICU_NAMESPACE=0",
-        "U_LIB_SUFFIX_C_NAME=_skia",
-        "U_HAVE_LIB_SUFFIX=1",
-        "U_DISABLE_VERSION_SUFFIX=1",
-      ]
-
-      sources = skia_unicode_icu_bidi_sources
-      sources += skia_unicode_bidi_subset_sources
-
-      sources += skia_unicode_libgrapheme_sources
-      deps += [
-        skia_icu_bidi_third_party_dir,
-        skia_libgrapheme_third_party_dir,
-      ]
-    }
-  }
-
-  if (skia_use_icu4x) {
-    component("skunicode_icu4x") {
-      check_includes = false
-      deps = [
-        ":skunicode_core",
-        "../..:skia",
-      ]
-      configs += [
-        "../../:skia_private",
-        "../../third_party/icu/config:no_cxx",
-      ]
-      defines = [ "SKUNICODE_IMPLEMENTATION=1" ]
-
-      sources = skia_unicode_icu4x_sources
-
-      deps += [ "//third_party/icu4x" ]
-    }
-  }
-
-  group("skunicode") {
-    public_configs = [ ":public_config" ]
-    deps = [ ":skunicode_core" ]
-
-    # We have these different flavors of skunicode as independent components because
-    # we have to set different defines for different builds of ICU.
-    if (skia_use_icu) {
-      deps += [ ":skunicode_icu" ]
-    }
     if (skia_use_client_icu) {
-      deps += [ ":skunicode_client_icu" ]
+      sources += skia_unicode_client_icu_sources
+      defines += [ "SK_UNICODE_CLIENT_IMPLEMENTATION" ]
     }
     if (skia_use_libgrapheme) {
-      deps += [ ":skunicode_libgrapheme" ]
+      sources += skia_unicode_libgrapheme_sources
+      defines += [ "SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION" ]
+      deps += [ skia_libgrapheme_third_party_dir ]
     }
     if (skia_use_icu4x) {
-      deps += [ ":skunicode_icu4x" ]
+      sources += skia_unicode_icu4x_sources
+      defines += [ "SK_UNICODE_ICU4X_IMPLEMENTATION" ]
+      deps += [ "//third_party/icu4x" ]
     }
   }
 

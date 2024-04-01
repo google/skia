@@ -4,6 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+// In order to use this file, we must have compiled icu with the define
+// U_LIB_SUFFIX_C_NAME=_skia
+// so the functions we call are given a suffix of "_skia" to prevent
+// ODR violations if this "subset of ICU" is compiled alongside a full ICU build also.
+#define U_LIB_SUFFIX_C_NAME _skia
+#define U_HAVE_LIB_SUFFIX 1
+#define U_DISABLE_RENAMING 0
+
 #include "modules/skunicode/src/SkBidiFactory_icu_subset.h"
 
 #include <unicode/umachine.h>
