@@ -123,26 +123,16 @@ public:
         }
         SkString fontResources = GetResourcePath(FLAGS_paragraph_fonts[0]);
         const char* fontDir = fontResources.c_str();
-        std::vector<SkString> fonts;
         SkOSFile::Iter iter(fontDir);
 
         SkString path;
+        sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
         while (iter.next(&path)) {
             if ((false)) {
                 SkDebugf("font %s\n", path.c_str());
             }
-            // Look for a sentinel font, without which several tests will fail/crash.
-            if (path.endsWith("Roboto-Italic.ttf")) {
-                fFontsFound = true;
-            }
-            fonts.emplace_back(path);
-        }
-        SkASSERTF(fFontsFound, "--paragraph_fonts was set but didn't have the fonts we need");
-
-        sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
-        for (auto& font : fonts) {
             SkString file_path;
-            file_path.printf("%s/%s", fontDir, font.c_str());
+            file_path.printf("%s/%s", fontDir, path.c_str());
             auto stream = SkStream::MakeFromFile(file_path.c_str());
             SkASSERTF(stream, "%s not readable", file_path.c_str());
             sk_sp<SkTypeface> face = mgr->makeFromStream(std::move(stream), {});
@@ -156,13 +146,16 @@ public:
                              familyName.c_str(), face->openExistingStream(nullptr)->getLength());
                 }
                 fFontProvider->registerTypeface(std::move(face));
+                if (path.endsWith("Roboto-Italic.ttf")) {
+                    fFontsFound = true;
+                }
             } else {
                 SkDEBUGF("%s was not turned into a Typeface. Did you set --nativeFonts?\n",
                          file_path.c_str());
             }
         }
-        SkASSERTF(fFontProvider->countFamilies(),
-                  "No font families found. Did you set --nativeFonts?");
+        SkASSERTF(fFontProvider->countFamilies(), "No families found. Did you set --nativeFonts?");
+        SkASSERTF(fFontsFound, "--paragraph_fonts was set but didn't have the fonts we need");
 
         if (testOnly) {
             this->setTestFontManager(std::move(fFontProvider));
@@ -251,7 +244,7 @@ private:
 #define SKIP_IF_FONTS_NOT_FOUND(r, fontCollection)           \
     if (!fontCollection->fontsFound()) {                     \
         if (FLAGS_paragraph_fonts.size() != 0) {             \
-            ERRORF(r, "SkParagraphTests Fonts not found!");  \
+            ERRORF(r, "SkParagraphTests Fonts not found!\n");  \
         }                                                    \
         return;                                              \
     }
@@ -1596,7 +1589,7 @@ UNIX_ONLY_TEST(SkParagraph_StrutHalfLeadingSimple, reporter) {
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(firstLine.fHeight, 200.0f));
 
     // Half leading does not move the text horizontally.
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[1].rect.left(), 0, EPSILON100));
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 0, EPSILON100));
 }
 
 UNIX_ONLY_TEST(SkParagraph_StrutHalfLeadingMultiline, reporter) {
@@ -4107,11 +4100,11 @@ UNIX_ONLY_TEST(SkParagraph_EmojiParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->lines().size() == 8);
     for (auto& line : impl->lines()) {
         if (&line != impl->lines().end() - 1) {
-            REPORTER_ASSERT(reporter, line.width() == 998.25f);
+            REPORTER_ASSERT(reporter, line.width() == 998.25f, "width: %f", line.width());
         } else {
-            REPORTER_ASSERT(reporter, line.width() < 998.25f);
+            REPORTER_ASSERT(reporter, line.width() < 998.25f, "width: %f", line.width());
         }
-        REPORTER_ASSERT(reporter, line.height() == 59);
+        REPORTER_ASSERT(reporter, line.height() == 59, "height: %f", line.height());
     }
 }
 
@@ -7317,12 +7310,12 @@ UNIX_ONLY_TEST(SkParagraph_lineMetricsAfterUpdate, reporter) {
 
     std::vector<LineMetrics> lm;
     paragraph->getLineMetrics(lm);
-    REPORTER_ASSERT(reporter, lm.size() == 1);
+    REPORTER_ASSERT(reporter, lm.size() == 1, "size: %zu", lm.size());
 
     paragraph->updateFontSize(0, text.size(), 42);
     paragraph->layout(200.);
     paragraph->getLineMetrics(lm);
-    REPORTER_ASSERT(reporter, lm.size() == 2);
+    REPORTER_ASSERT(reporter, lm.size() == 2, "size: %zu", lm.size());
 }
 
 // Google logo is shown in one style (the first one)
@@ -8082,9 +8075,8 @@ UNIX_ONLY_TEST(SkParagraph_SingleDummyPlaceholder, reporter) {
 }
 
 UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
-    sk_sp<FontCollection> fontCollection = sk_make_sp<FontCollection>();
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr());
-    fontCollection->enableFontFallback();
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
 
     const char* text = "A text ending with line separator.\u2028";
     const size_t len = strlen(text);
@@ -8110,9 +8102,8 @@ UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
 }
 
 [[maybe_unused]] static void SkParagraph_EmojiFontResolution(sk_sp<SkUnicode> icu, skiatest::Reporter* reporter) {
-    auto fontCollection = sk_make_sp<FontCollection>();
-    fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr(), std::vector<SkString>());
-    fontCollection->enableFontFallback();
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
 
     const char* text = "♻️🏴󠁧󠁢󠁳󠁣󠁴󠁿";
     const char* text1 = "♻️";
@@ -8129,6 +8120,7 @@ UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
     paragraph->layout(SK_ScalarMax);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, impl->runs().size() == 1, "size: %zu", impl->runs().size());
 
     ParagraphBuilderImpl builder1(paragraph_style, fontCollection);
     builder1.pushStyle(text_style);
@@ -8137,7 +8129,7 @@ UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
     paragraph1->layout(SK_ScalarMax);
 
     auto impl1 = static_cast<ParagraphImpl*>(paragraph1.get());
-    REPORTER_ASSERT(reporter, impl1->runs().size() == 1);
+    REPORTER_ASSERT(reporter, impl1->runs().size() == 1, "size: %zu", impl1->runs().size());
     if (impl1->runs().size() == 1) {
         SkString ff;
         impl->run(0).font().getTypeface()->getFamilyName(&ff);
