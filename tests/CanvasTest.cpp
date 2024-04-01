@@ -60,6 +60,15 @@ class SkPicture;
 #include "include/docs/SkPDFDocument.h"
 #endif
 
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Surface.h"
+#endif
+
 struct ClipRectVisitor {
     skiatest::Reporter* r;
 
@@ -722,3 +731,41 @@ DEF_TEST(canvas_savelayer_destructor, reporter) {
     do_test(2, 0);
     check_pixels(SK_ColorRED);
 }
+
+// Draw a lot of rectangles with different colors. On the GPU, the different colors make this
+// relatively difficult to batch.
+void test_many_draws(skiatest::Reporter* reporter, SkSurface* surface) {
+    SkCanvas* canvas = surface->getCanvas();
+    SkPaint paint;
+    for (int i = 0; i < 10000; ++i) {
+        paint.setColor((0xFF << 24) | i);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, 1, 1), paint);
+    }
+}
+
+#if defined(SK_GANESH)
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestManyDrawsGanesh,
+                                       reporter,
+                                       contextInfo,
+                                       CtsEnforcement::kNextRelease) {
+    SkImageInfo ii = SkImageInfo::Make(SkISize::Make(1, 1),
+                                       SkColorType::kRGBA_8888_SkColorType,
+                                       SkAlphaType::kPremul_SkAlphaType);
+    GrDirectContext* context = contextInfo.directContext();
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(context, skgpu::Budgeted::kYes, ii);
+    test_many_draws(reporter, surface.get());
+}
+#endif
+
+#if defined(SK_GRAPHITE)
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(TestManyDrawsGraphite, reporter, context,
+                                         CtsEnforcement::kNextRelease) {
+    using namespace skgpu::graphite;
+    SkImageInfo ii = SkImageInfo::Make(SkISize::Make(1, 1),
+                                       SkColorType::kRGBA_8888_SkColorType,
+                                       SkAlphaType::kPremul_SkAlphaType);
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), ii);
+    test_many_draws(reporter, surface.get());
+}
+#endif

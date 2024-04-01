@@ -74,7 +74,7 @@ public:
     Index insert(const T& data) {
         Index* index = fDataToIndex.find(data);
         if (!index) {
-            SkASSERT(SkToU32(fIndexToData.size()) < kInvalidIndex - 1);
+            SkASSERT(SkToU32(fIndexToData.size()) < kInvalidIndex);
             index = fDataToIndex.set(data, (Index) fIndexToData.size());
             fIndexToData.push_back(C{data});
         }
