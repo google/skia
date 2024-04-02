@@ -249,7 +249,8 @@ sk_sp<TextureProxy> make_draw_target(const Recorder* recorder,
                               budgeted);
 }
 
-sk_sp<DrawContext> make_draw_context(sk_sp<TextureProxy> target,
+sk_sp<DrawContext> make_draw_context(const Recorder* recorder,
+                                     sk_sp<TextureProxy> target,
                                      const SkISize& dimensions,
                                      const SkColorInfo& colorInfo,
                                      const SkSurfaceProps& props) {
@@ -258,7 +259,8 @@ sk_sp<DrawContext> make_draw_context(sk_sp<TextureProxy> target,
         colorInfo.alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
-    return DrawContext::Make(std::move(target), dimensions, colorInfo, props);
+    return DrawContext::Make(recorder->priv().caps(), std::move(target),
+                             dimensions, colorInfo, props);
 }
 
 }  // anonymous namespace
@@ -310,7 +312,8 @@ sk_sp<Device> Device::Make(Recorder* recorder,
         return nullptr;
     }
 
-    sk_sp<DrawContext> dc = make_draw_context(std::move(target), deviceSize, colorInfo, props);
+    sk_sp<DrawContext> dc =
+            make_draw_context(recorder, std::move(target), deviceSize, colorInfo, props);
     if (!dc) {
         return nullptr;
     }
@@ -335,7 +338,7 @@ sk_sp<Device> Device::MakeScratch(Recorder* recorder,
     }
 
     sk_sp<DrawContext> dc =
-            make_draw_context(std::move(target), ii.dimensions(), ii.colorInfo(), props);
+            make_draw_context(recorder, std::move(target), ii.dimensions(), ii.colorInfo(), props);
     if (!dc) {
         return nullptr;
     }
@@ -1666,12 +1669,7 @@ sk_sp<skif::Backend> Device::createImageFilteringBackend(const SkSurfaceProps& s
 
 TextureProxy* Device::target() { return fDC->target(); }
 
-TextureProxyView Device::readSurfaceView() const {
-    if (!fRecorder) {
-        return {};
-    }
-    return fDC->readSurfaceView(fRecorder->priv().caps());
-}
+TextureProxyView Device::readSurfaceView() const { return fDC->readSurfaceView(); }
 
 sk_sp<sktext::gpu::Slug> Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,
                                                            const SkPaint& paint) {

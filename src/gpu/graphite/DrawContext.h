@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawTypes.h"
+#include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/task/UploadTask.h"
 
 #include <vector>
@@ -35,7 +36,6 @@ class DrawTask;
 class PathAtlas;
 class Task;
 class TextureProxy;
-class TextureProxyView;
 
 /**
  * DrawContext records draw commands into a specific Surface, via a general task graph
@@ -43,7 +43,8 @@ class TextureProxyView;
  */
 class DrawContext final : public SkRefCnt {
 public:
-    static sk_sp<DrawContext> Make(sk_sp<TextureProxy> target,
+    static sk_sp<DrawContext> Make(const Caps* caps,
+                                   sk_sp<TextureProxy> target,
                                    SkISize deviceSize,
                                    const SkColorInfo&,
                                    const SkSurfaceProps&);
@@ -56,7 +57,8 @@ public:
     const TextureProxy* target()    const { return fTarget.get(); }
     sk_sp<TextureProxy> refTarget() const { return fTarget; }
 
-    TextureProxyView readSurfaceView(const Caps*);
+    // May be null if the target is not texturable.
+    const TextureProxyView& readSurfaceView() const { return fReadView; }
 
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
@@ -94,12 +96,10 @@ public:
     sk_sp<Task> snapDrawTask(Recorder*);
 
 private:
-    DrawContext(sk_sp<TextureProxy>, const SkImageInfo&, const SkSurfaceProps&);
-
-    // If a compute atlas was initialized, schedule its accummulated paths to be rendered.
-    // void snapPathAtlasDispatches(Recorder*);
+    DrawContext(const Caps*, sk_sp<TextureProxy>, const SkImageInfo&, const SkSurfaceProps&);
 
     sk_sp<TextureProxy> fTarget;
+    TextureProxyView fReadView;
     SkImageInfo fImageInfo;
     const SkSurfaceProps fSurfaceProps;
 

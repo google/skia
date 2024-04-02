@@ -40,11 +40,15 @@
 
 namespace skgpu::graphite {
 
-sk_sp<DrawContext> DrawContext::Make(sk_sp<TextureProxy> target,
+sk_sp<DrawContext> DrawContext::Make(const Caps* caps,
+                                     sk_sp<TextureProxy> target,
                                      SkISize deviceSize,
                                      const SkColorInfo& colorInfo,
                                      const SkSurfaceProps& props) {
     if (!target) {
+        return nullptr;
+    }
+    if (!caps->isRenderable(target->textureInfo())) {
         return nullptr;
     }
 
@@ -54,10 +58,11 @@ sk_sp<DrawContext> DrawContext::Make(sk_sp<TextureProxy> target,
     SkASSERT(target->isFullyLazy() || (target->dimensions().width() >= deviceSize.width() &&
                                        target->dimensions().height() >= deviceSize.height()));
     SkImageInfo imageInfo = SkImageInfo::Make(deviceSize, colorInfo);
-    return sk_sp<DrawContext>(new DrawContext(std::move(target), imageInfo, props));
+    return sk_sp<DrawContext>(new DrawContext(caps, std::move(target), imageInfo, props));
 }
 
-DrawContext::DrawContext(sk_sp<TextureProxy> target,
+DrawContext::DrawContext(const Caps* caps,
+                         sk_sp<TextureProxy> target,
                          const SkImageInfo& ii,
                          const SkSurfaceProps& props)
         : fTarget(std::move(target))
@@ -66,24 +71,17 @@ DrawContext::DrawContext(sk_sp<TextureProxy> target,
         , fCurrentDrawTask(sk_make_sp<DrawTask>(fTarget))
         , fPendingDraws(std::make_unique<DrawList>())
         , fPendingUploads(std::make_unique<UploadList>()) {
+    if (!caps->isTexturable(fTarget->textureInfo())) {
+        fReadView = {}; // Presumably this DrawContext is rendering into a swap chain
+    } else {
+        Swizzle swizzle = caps->getReadSwizzle(ii.colorType(), fTarget->textureInfo());
+        fReadView = {fTarget, swizzle};
+    }
     // TBD - Will probably want DrawLists (and its internal commands) to come from an arena
     // that the DC manages.
 }
 
 DrawContext::~DrawContext() = default;
-
-TextureProxyView DrawContext::readSurfaceView(const Caps* caps) {
-    TextureProxy* proxy = this->target();
-
-    if (!caps->isTexturable(proxy->textureInfo())) {
-        return {};
-    }
-
-    Swizzle swizzle = caps->getReadSwizzle(this->imageInfo().colorType(),
-                                           proxy->textureInfo());
-
-    return TextureProxyView(sk_ref_sp(proxy), swizzle);
-}
 
 void DrawContext::clear(const SkColor4f& clearColor) {
     fPendingLoadOp = LoadOp::kClear;
