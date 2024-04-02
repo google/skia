@@ -1288,7 +1288,6 @@ FINAL_STAGE(store_101010x_XR, NoCtx) {
     store(dst + 4*i, cast<U32>(to_fixed(((r - min) / range) * 1023)) <<  0
                    | cast<U32>(to_fixed(((g - min) / range) * 1023)) << 10
                    | cast<U32>(to_fixed(((b - min) / range) * 1023)) << 20);
-    return;
 }
 
 FINAL_STAGE(store_1010102, NoCtx) {
