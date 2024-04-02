@@ -174,6 +174,51 @@ DEF_TEST(Bitmap, reporter) {
     test_peekpixels(reporter);
 }
 
+DEF_TEST(Bitmap_setColorSpace, r) {
+    // Make a 1x1 bitmap holding 50% gray in default colorspace.
+    SkBitmap source;
+    source.allocN32Pixels(1,1);
+    source.eraseColor(SkColorSetARGB(0xFF, 0x80, 0x80, 0x80));
+
+    // Readback should use the normal sRGB colorspace.
+    const SkImageInfo kReadbackInfo = SkImageInfo::Make(/*width=*/1,
+                                                        /*height=*/1,
+                                                        kN32_SkColorType,
+                                                        kOpaque_SkAlphaType,
+                                                        SkColorSpace::MakeSRGB());
+    // Do readback and verify that the color is gray.
+    uint8_t pixelData[4];
+    REPORTER_ASSERT(r, source.readPixels(kReadbackInfo,
+                                         pixelData,
+                                         /*dstRowBytes=*/4,
+                                         /*srcX=*/0,
+                                         /*srcY=*/0));
+    REPORTER_ASSERT(r, pixelData[0] == 0x80);
+    REPORTER_ASSERT(r, pixelData[1] == 0x80);
+    REPORTER_ASSERT(r, pixelData[2] == 0x80);
+
+    // Also check the color with getColor4f, which does not honor colorspaces.
+    uint32_t colorRGBA = source.getColor4f(0, 0).toBytes_RGBA();
+    REPORTER_ASSERT(r, colorRGBA == 0xFF808080, "RGBA=%08X", colorRGBA);
+
+    // Convert the SkBitmap's colorspace to linear.
+    source.setColorSpace(SkColorSpace::MakeSRGBLinear());
+
+    // Readback again and verify that the color is interpreted differently.
+    REPORTER_ASSERT(r, source.readPixels(kReadbackInfo,
+                                         pixelData,
+                                         /*dstRowBytes=*/4,
+                                         /*srcX=*/0,
+                                         /*srcY=*/0));
+    REPORTER_ASSERT(r, pixelData[0] == 0xBC, "R:%02X", pixelData[0]);
+    REPORTER_ASSERT(r, pixelData[1] == 0xBC, "G:%02X", pixelData[1]);
+    REPORTER_ASSERT(r, pixelData[2] == 0xBC, "B:%02X", pixelData[2]);
+
+    // Since getColor4f does not honor colorspaces, this should still contain 50% gray.
+    colorRGBA = source.getColor4f(0, 0).toBytes_RGBA();
+    REPORTER_ASSERT(r, colorRGBA == 0xFF808080, "RGBA=%08X", colorRGBA);
+}
+
 /**
  *  This test checks that getColor works for both swizzles.
  */

@@ -266,6 +266,16 @@ public:
     */
     bool setAlphaType(SkAlphaType alphaType);
 
+    /** Sets the SkColorSpace associated with this SkBitmap.
+
+        The raw pixel data is not altered by this call; no conversion is
+        performed.
+
+        This changes SkColorSpace in SkPixelRef; all bitmaps sharing SkPixelRef
+        are affected.
+    */
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace);
+
     /** Returns pixel address, the base address corresponding to the pixel origin.
 
         @return  pixel address
