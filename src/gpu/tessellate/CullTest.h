@@ -9,7 +9,10 @@
 #define skgpu_tessellate_CullTest_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "src/gpu/tessellate/Tessellation.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+#include "src/base/SkVx.h"
 
 namespace skgpu::tess {
 

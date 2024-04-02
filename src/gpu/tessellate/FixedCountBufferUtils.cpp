@@ -4,14 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
 
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkMathPriv.h"
 #include "src/gpu/BufferWriter.h"
 
 #include <array>
+#include <utility>
 
 using namespace skia_private;
 

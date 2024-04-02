@@ -9,7 +9,10 @@
 #define skgpu_tessellate_MidpointContourParser_DEFINED
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
 #include "src/core/SkPathPriv.h"
+
+#include <cstdint>
 
 namespace skgpu::tess {
 

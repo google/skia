@@ -8,10 +8,17 @@
 #ifndef skgpu_tessellate_StrokeIterator_DEFINED
 #define skgpu_tessellate_StrokeIterator_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkPathPriv.h"
+
 #include <array>
+
+class SkPath;
 
 namespace skgpu::tess {
 

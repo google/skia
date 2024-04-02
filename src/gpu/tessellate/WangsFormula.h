@@ -11,10 +11,15 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkString.h"
-#include "include/private/base/SkFloatingPoint.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkFloatBits.h"
+#include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
-#include "src/gpu/tessellate/Tessellation.h"
+
+#include <math.h>
+#include <algorithm>
+#include <cstdint>
+#include <limits>
 
 #define AI [[maybe_unused]] SK_ALWAYS_INLINE
 

@@ -42,6 +42,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/image/"
   "src/gpu/ganesh/surface/"
   "src/gpu/ganesh/text/"
+  "src/gpu/tessellate/"
   "src/image/"
   "src/pathops/"
   "src/ports/SkFontMgr_fontconfig"

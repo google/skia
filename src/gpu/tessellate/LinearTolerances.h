@@ -8,8 +8,12 @@
 #ifndef skgpu_tessellate_LinearTolerances_DEFINED
 #define skgpu_tessellate_LinearTolerances_DEFINED
 
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
+
+#include <algorithm>
 
 namespace skgpu::tess {
 

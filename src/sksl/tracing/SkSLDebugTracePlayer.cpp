@@ -237,7 +237,7 @@ bool SkSLDebugTracePlayer::execute(size_t position) {
             this->updateVariableWriteTime(slotIdx, position);
             if (fDebugTrace->fSlotInfo[slotIdx].fnReturnValue < 0) {
                 // Normal variables are associated with the current function.
-                SkASSERT(fStack.size() > 0);
+                SkASSERT(!fStack.empty());
                 fStack.rbegin()[0].fDisplayMask.set(slotIdx);
             } else {
                 // Return values are associated with the parent function (since the current function

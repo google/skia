@@ -9,7 +9,10 @@
 #define skgpu_tessellate_AffineMatrix_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "src/gpu/tessellate/Tessellation.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "src/base/SkUtils.h"
+#include "src/base/SkVx.h"
 
 namespace skgpu::tess {
 

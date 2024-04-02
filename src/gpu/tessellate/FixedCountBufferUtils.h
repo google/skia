@@ -11,6 +11,10 @@
 #include "src/gpu/tessellate/LinearTolerances.h"
 #include "src/gpu/tessellate/Tessellation.h"
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+
 namespace skgpu { struct VertexWriter; }
 
 namespace skgpu::tess {

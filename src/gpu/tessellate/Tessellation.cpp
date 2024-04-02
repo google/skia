@@ -4,16 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/tessellate/Tessellation.h"
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTArray.h"
 #include "src/base/SkUtils.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
-#include "src/gpu/BufferWriter.h"
 #include "src/gpu/tessellate/CullTest.h"
-#include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
 using namespace skia_private;

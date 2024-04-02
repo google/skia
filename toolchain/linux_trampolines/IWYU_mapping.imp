@@ -370,6 +370,8 @@
   { include: ["<__type_traits/underlying_type.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/void_t.h>", "private", "<type_traits>", "public"] },
 
+  { include: ["<__variant/monostate.h>", "private", "<variant>", "public"] },
+
   { symbol: ["std::__bit_reference", "private", "<vector>", "public"] },
   { include: ["<__bit_reference>", "private",  "<vector>", "public"] },
 

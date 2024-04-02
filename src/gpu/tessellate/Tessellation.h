@@ -12,7 +12,12 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/gpu/GrTypes.h"
-#include "src/base/SkVx.h"
+#include "include/private/base/SkAssert.h"
+
+#include <math.h>
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
 
 class SkMatrix;
 class SkPath;
