@@ -149,42 +149,14 @@ sk_sp<Texture> ResourceProvider::findOrCreateTextureWithKey(SkISize dimensions,
     return tex;
 }
 
-sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SkSamplingOptions& smplOptions,
-                                                               SkTileMode xTileMode,
-                                                               SkTileMode yTileMode) {
-    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
+sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SamplerDesc& desc) {
+    GraphiteResourceKey key = fSharedContext->caps()->makeSamplerKey(desc);
 
-    GraphiteResourceKey key;
-    {
-        constexpr int kNumTileModeBits   = SkNextLog2_portable(int(SkTileMode::kLastTileMode)+1);
-        constexpr int kNumFilterModeBits = SkNextLog2_portable(int(SkFilterMode::kLast)+1);
-        constexpr int kNumMipmapModeBits = SkNextLog2_portable(int(SkMipmapMode::kLast)+1);
-
-        constexpr int kTileModeXShift  = 0;
-        constexpr int kTileModeYShift  = kTileModeXShift  + kNumTileModeBits;
-        constexpr int kFilterModeShift = kTileModeYShift  + kNumTileModeBits;
-        constexpr int kMipmapModeShift = kFilterModeShift + kNumFilterModeBits;
-
-        static_assert(kMipmapModeShift + kNumMipmapModeBits <= 32);
-
-        // For the key we need only one uint32_t.
-        // TODO: add aniso value when used
-        static_assert(sizeof(uint32_t) == 4);
-
-        GraphiteResourceKey::Builder builder(&key, kType, 1, Shareable::kYes);
-        uint32_t myKey =
-        (static_cast<uint32_t>(xTileMode) << kTileModeXShift) |
-                     (static_cast<uint32_t>(yTileMode) << kTileModeYShift) |
-                     (static_cast<uint32_t>(smplOptions.filter) << kFilterModeShift) |
-                     (static_cast<uint32_t>(smplOptions.mipmap) << kMipmapModeShift);
-        builder[0] = myKey;
-    }
-
-    skgpu::Budgeted budgeted = skgpu::Budgeted::kYes;
-    if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
+    if (Resource* resource = fResourceCache->findAndRefResource(key, skgpu::Budgeted::kYes)) {
         return sk_sp<Sampler>(static_cast<Sampler*>(resource));
     }
-    sk_sp<Sampler> sampler = this->createSampler(smplOptions, xTileMode, yTileMode);
+
+    sk_sp<Sampler> sampler = this->createSampler(desc);
     if (!sampler) {
         return nullptr;
     }

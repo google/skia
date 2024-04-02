@@ -1405,6 +1405,18 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
     return pipelineKey;
 }
 
+GraphiteResourceKey VulkanCaps::makeSamplerKey(const SamplerDesc& samplerDesc) const {
+    GraphiteResourceKey samplerKey;
+    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
+    GraphiteResourceKey::Builder builder(&samplerKey, kType, 1, Shareable::kYes);
+
+    // TODO(b/311392779): When needed, add YCbCr info to the sampler key.
+
+    builder[0] = samplerDesc.desc();
+    builder.finish();
+    return samplerKey;
+}
+
 void VulkanCaps::buildKeyForTexture(SkISize dimensions,
                                     const TextureInfo& info,
                                     ResourceType type,

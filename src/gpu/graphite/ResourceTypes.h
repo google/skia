@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
+#include "src/base/SkMathPriv.h"
 
 namespace skgpu::graphite {
 
@@ -177,15 +178,19 @@ struct ClearBufferInfo {
 struct SamplerDesc {
     static_assert(kSkTileModeCount <= 4 && kSkFilterModeCount <= 2 && kSkMipmapModeCount <= 4);
     SamplerDesc(const SkSamplingOptions& samplingOptions, const SkTileMode tileModes[2])
-            : fDesc((static_cast<int>(tileModes[0])           << 0) |
-                    (static_cast<int>(tileModes[1])           << 2) |
-                    (static_cast<int>(samplingOptions.filter) << 4) |
-                    (static_cast<int>(samplingOptions.mipmap) << 5)) {
+            : fDesc((static_cast<int>(tileModes[0])           << kTileModeXShift)  |
+                    (static_cast<int>(tileModes[1])           << kTileModeYShift)  |
+                    (static_cast<int>(samplingOptions.filter) << kFilterModeShift) |
+                    (static_cast<int>(samplingOptions.mipmap) << kMipmapModeShift) ) {
         // Cubic sampling is handled in a shader, with the actual texture sampled by with NN,
         // but that is what a cubic SkSamplingOptions is set to if you ignore 'cubic', which let's
         // us simplify how we construct SamplerDec's from the options passed to high-level draws.
         SkASSERT(!samplingOptions.useCubic || (samplingOptions.filter == SkFilterMode::kNearest &&
                                                samplingOptions.mipmap == SkMipmapMode::kNone));
+        static_assert(kMipmapModeShift + kNumMipmapModeBits <= 32);
+        // Backend-agnostic sampler information can fit within one uint32_t.
+        // TODO: Add aniso value when used.
+        static_assert(sizeof(uint32_t) == 4);
     }
 
     SamplerDesc(const SamplerDesc&) = default;
@@ -195,6 +200,7 @@ struct SamplerDesc {
 
     SkTileMode tileModeX() const { return static_cast<SkTileMode>((fDesc >> 0) & 0b11); }
     SkTileMode tileModeY() const { return static_cast<SkTileMode>((fDesc >> 2) & 0b11); }
+    uint32_t desc() const { return fDesc; }
 
     // NOTE: returns the HW sampling options to use, so a bicubic SkSamplingOptions will become
     // nearest-neighbor sampling in HW.
@@ -207,6 +213,15 @@ struct SamplerDesc {
 
 private:
     uint32_t fDesc;
+
+    static constexpr int kNumTileModeBits   = SkNextLog2_portable(int(SkTileMode::kLastTileMode)+1);
+    static constexpr int kNumFilterModeBits = SkNextLog2_portable(int(SkFilterMode::kLast)+1);
+    static constexpr int kNumMipmapModeBits = SkNextLog2_portable(int(SkMipmapMode::kLast)+1);
+
+    static constexpr int kTileModeXShift  = 0;
+    static constexpr int kTileModeYShift  = kTileModeXShift  + kNumTileModeBits;
+    static constexpr int kFilterModeShift = kTileModeYShift  + kNumTileModeBits;
+    static constexpr int kMipmapModeShift = kFilterModeShift + kNumFilterModeBits;
 };
 
 };  // namespace skgpu::graphite

@@ -708,10 +708,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
 
     fSamplers.reserve(fSamplers.size() + fSamplerDescs.size());
     for (int i = 0; i < fSamplerDescs.size(); ++i) {
-        sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(
-                fSamplerDescs[i].samplingOptions(),
-                fSamplerDescs[i].tileModeX(),
-                fSamplerDescs[i].tileModeY());
+        sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(fSamplerDescs[i]);
         if (!sampler) {
             SKGPU_LOG_W("Failed to create sampler. Will not create renderpass!");
             return false;

@@ -47,8 +47,7 @@ bool DispatchGroup::prepareResources(ResourceProvider* resourceProvider) {
     }
 
     for (const SamplerDesc& desc : fSamplerDescs) {
-        sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(
-                desc.samplingOptions(), desc.tileModeX(), desc.tileModeY());
+        sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(desc);
         if (!sampler) {
             SKGPU_LOG_W("Failed to create sampler. Dropping dispatch group!");
             return false;

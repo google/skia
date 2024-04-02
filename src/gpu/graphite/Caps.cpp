@@ -14,6 +14,8 @@
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/core/SkBlenderBase.h"
+#include "src/gpu/graphite/GraphiteResourceKey.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/sksl/SkSLUtil.h"
 
 namespace skgpu::graphite {
@@ -65,6 +67,18 @@ bool Caps::isTexturable(const TextureInfo& info) const {
         return false;
     }
     return this->onIsTexturable(info);
+}
+
+GraphiteResourceKey Caps::makeSamplerKey(const SamplerDesc& samplerDesc) const {
+    GraphiteResourceKey samplerKey;
+    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
+    GraphiteResourceKey::Builder builder(&samplerKey, kType, /*data32Count=*/1, Shareable::kYes);
+
+    // The default impl. of this method adds no additional backend information to the key.
+    builder[0] = samplerDesc.desc();
+
+    builder.finish();
+    return samplerKey;
 }
 
 bool Caps::areColorTypeAndTextureInfoCompatible(SkColorType ct, const TextureInfo& info) const {

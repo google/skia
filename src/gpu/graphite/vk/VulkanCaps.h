@@ -53,6 +53,8 @@ public:
                                       const RenderPassDesc&) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override { return {}; }
 
+    GraphiteResourceKey makeSamplerKey(const SamplerDesc&) const override;
+
     uint32_t channelMask(const TextureInfo&) const override;
 
     bool isRenderable(const TextureInfo&) const override;

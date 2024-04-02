@@ -42,10 +42,7 @@ private:
 
     sk_sp<Texture> createTexture(SkISize, const TextureInfo&, skgpu::Budgeted) override;
     sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) override;
-
-    sk_sp<Sampler> createSampler(const SkSamplingOptions&,
-                                 SkTileMode xTileMode,
-                                 SkTileMode yTileMode) override;
+    sk_sp<Sampler> createSampler(const SamplerDesc&) override;
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
     void onDeleteBackendTexture(const BackendTexture&) override;
