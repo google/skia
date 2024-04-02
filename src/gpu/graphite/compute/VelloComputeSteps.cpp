@@ -201,6 +201,7 @@ VelloPathCountSetupStep::VelloPathCountSetupStep()
 // PathCount
 VelloPathCountStep::VelloPathCountStep()
         : VelloStep({
+                  BUFFER_BINDING(ConfigUniform, Uniform, None),
                   BUFFER_BINDING(BumpAlloc,     Storage, None),
                   BUFFER_BINDING(Lines,         ReadOnlyStorage, None),
                   BUFFER_BINDING(Path,          ReadOnlyStorage, None),
@@ -235,6 +236,7 @@ VelloPathTilingSetupStep::VelloPathTilingSetupStep()
         : VelloStep({
                   BUFFER_BINDING(BumpAlloc,     Storage, None),
                   BUFFER_BINDING(IndirectCount, Storage, None),
+                  BUFFER_BINDING(PTCL,          Storage, None),
           }) {}
 
 // PathTiling
@@ -262,18 +264,6 @@ VelloFineAreaStep::VelloFineAreaStep(SkColorType targetFormat)
                                         /*policy=*/ResourcePolicy::kNone,
                                         /*slot=*/kVelloSlot_OutputImage,
                                 },
-                                {
-                                        /*type=*/ResourceType::kReadOnlyTexture,
-                                        /*flow=*/DataFlow::kShared,
-                                        /*policy=*/ResourcePolicy::kNone,
-                                        /*slot=*/kVelloSlot_GradientImage,
-                                },
-                                {
-                                        /*type=*/ResourceType::kReadOnlyTexture,
-                                        /*flow=*/DataFlow::kShared,
-                                        /*policy=*/ResourcePolicy::kNone,
-                                        /*slot=*/kVelloSlot_ImageAtlas,
-                                },
                         }) {}
 
 VelloFineMsaa16Step::VelloFineMsaa16Step(SkColorType targetFormat)
@@ -289,24 +279,12 @@ VelloFineMsaa16Step::VelloFineMsaa16Step(SkColorType targetFormat)
                                         /*policy=*/ResourcePolicy::kNone,
                                         /*slot=*/kVelloSlot_OutputImage,
                                 },
-                                {
-                                        /*type=*/ResourceType::kReadOnlyTexture,
-                                        /*flow=*/DataFlow::kShared,
-                                        /*policy=*/ResourcePolicy::kNone,
-                                        /*slot=*/kVelloSlot_GradientImage,
-                                },
-                                {
-                                        /*type=*/ResourceType::kReadOnlyTexture,
-                                        /*flow=*/DataFlow::kShared,
-                                        /*policy=*/ResourcePolicy::kNone,
-                                        /*slot=*/kVelloSlot_ImageAtlas,
-                                },
                                 BUFFER_BINDING(MaskLUT, ReadOnlyStorage, Mapped),
                         })
         , fMaskLut(vello_cpp::build_mask_lut_16()) {}
 
 size_t VelloFineMsaa16Step::calculateBufferSize(int resourceIndex, const ResourceDesc&) const {
-    SkASSERT(resourceIndex == 7);
+    SkASSERT(resourceIndex == 5);
     return 64 * 64 * 2;
 }
 
@@ -314,7 +292,7 @@ void VelloFineMsaa16Step::prepareStorageBuffer(int resourceIndex,
                                                const ResourceDesc&,
                                                void* buffer,
                                                size_t bufferSize) const {
-    SkASSERT(resourceIndex == 7);
+    SkASSERT(resourceIndex == 5);
     SkASSERT(fMaskLut.size() == bufferSize);
     memcpy(buffer, fMaskLut.data(), fMaskLut.size());
 }

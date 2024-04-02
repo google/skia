@@ -248,22 +248,7 @@ VelloRenderer::VelloRenderer(const Caps* caps)
         // Currently fine has only one variant: on Metal this variant can operate on any floating
         // point format (so we set it to R8) but on Dawn it must use RGBA8unorm.
         : fFineArea(ComputeShaderCoverageMaskTargetFormat(caps))
-        , fFineMsaa16(ComputeShaderCoverageMaskTargetFormat(caps)) {
-    fGradientImage = TextureProxy::Make(caps,
-                                        {1, 1},
-                                        kRGBA_8888_SkColorType,
-                                        skgpu::Mipmapped::kNo,
-                                        skgpu::Protected::kNo,
-                                        skgpu::Renderable::kNo,
-                                        skgpu::Budgeted::kYes);
-    fImageAtlas = TextureProxy::Make(caps,
-                                     {1, 1},
-                                     kRGBA_8888_SkColorType,
-                                     skgpu::Mipmapped::kNo,
-                                     skgpu::Protected::kNo,
-                                     skgpu::Renderable::kNo,
-                                     skgpu::Budgeted::kYes);
-}
+        , fFineMsaa16(ComputeShaderCoverageMaskTargetFormat(caps)) {}
 
 VelloRenderer::~VelloRenderer() = default;
 
@@ -479,8 +464,6 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     builder.appendStepIndirect(&fPathTiling, indirectCountBuffer);
 
     // fine
-    builder.assignSharedTexture(fImageAtlas, kVelloSlot_ImageAtlas);
-    builder.assignSharedTexture(fGradientImage, kVelloSlot_GradientImage);
     builder.assignSharedTexture(std::move(target), kVelloSlot_OutputImage);
     const ComputeStep* fineVariant = params.fAaConfig == VelloAaConfig::kMSAA16
                                              ? static_cast<const ComputeStep*>(&fFineMsaa16)

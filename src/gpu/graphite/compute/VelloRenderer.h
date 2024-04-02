@@ -115,15 +115,6 @@ private:
     // Fine rasterization stage variants:
     VelloFineAreaStep fFineArea;
     VelloFineMsaa16Step fFineMsaa16;
-
-    // The full renderer uses an image atlas and a gradient ramp texture for image composition and
-    // gradient fills, respectively. These are currently unused, so we allocate and reuse two 1x1
-    // textures to satisfy the shader bindings.
-    //
-    // TODO: The contents of these textures will be scene dependent. Re-evaluate if/when we enable
-    // gradient fills or images.
-    sk_sp<TextureProxy> fGradientImage;
-    sk_sp<TextureProxy> fImageAtlas;
 };
 
 }  // namespace skgpu::graphite
