@@ -394,14 +394,28 @@ Device::Device(Recorder* recorder,
 }
 
 Device::~Device() {
-    if (fRecorder) {
-        this->flushPendingWorkToRecorder();
-        fRecorder->deregisterDevice(this);
-    }
+    // The Device should have been marked immutable before it's destroyed, or the Recorder was the
+    // last holder of a reference to it and de-registered the device as part of its cleanup.
+    SkASSERT(!fRecorder);
 }
 
 void Device::abandonRecorder() {
     fRecorder = nullptr;
+}
+
+void Device::setImmutable() {
+    if (fRecorder) {
+        // Push any pending work to the Recorder now. setImmutable() is only called by the
+        // destructor of a client-owned Surface, or explicitly in layer/filtering workflows. In
+        // both cases this is restricted to the Recorder's thread. This is in contrast to ~Device(),
+        // which might be called from another thread if it was linked to an Image used in multiple
+        // recorders.
+        this->flushPendingWorkToRecorder();
+        fRecorder->deregisterDevice(this);
+        // Abandoning the recorder ensures that there are no further operations that can be recorded
+        // and is relied on by Image::notifyInUse() to detect when it can unlink from a Device.
+        this->abandonRecorder();
+    }
 }
 
 const Transform& Device::localToDeviceTransform() {
@@ -532,6 +546,9 @@ TextureProxyView TextureProxyView::Copy(Recorder* recorder,
 
 bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
 #if defined(GRAPHITE_TEST_UTILS)
+    // This testing-only function should only be called before the Device has detached from its
+    // Recorder, since it's accessed via the test-held Surface.
+    SkASSERT(fRecorder);
     if (Context* context = fRecorder->priv().context()) {
         // Add all previous commands generated to the command buffer.
         // If the client snaps later they'll only get post-read commands in their Recording,
@@ -553,6 +570,7 @@ bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
 }
 
 bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
+    SkASSERT(fRecorder);
     // TODO: we may need to share this in a more central place to handle uploads
     // to backend textures
 
@@ -717,6 +735,7 @@ void Device::replaceClip(const SkIRect& rect) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void Device::drawPaint(const SkPaint& paint) {
+    SkASSERT(fRecorder);
     // We never want to do a fullscreen clear on a fully-lazy render target, because the device size
     // may be smaller than the final surface we draw to, in which case we don't want to fill the
     // entire final surface.
@@ -966,6 +985,7 @@ sktext::gpu::AtlasDrawDelegate Device::atlasDelegate() {
 void Device::onDrawGlyphRunList(SkCanvas* canvas,
                                 const sktext::GlyphRunList& glyphRunList,
                                 const SkPaint& paint) {
+    SkASSERT(fRecorder);
     fRecorder->priv().textBlobCache()->drawGlyphRunList(canvas,
                                                         this->localToDevice(),
                                                         glyphRunList,
@@ -979,6 +999,8 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                              const SkPaint& paint,
                              sk_sp<SkRefCnt> subRunStorage,
                              sktext::gpu::RendererData rendererData) {
+    SkASSERT(fRecorder);
+
     const int subRunEnd = subRun->glyphCount();
     auto regenerateDelegate = [&](sktext::gpu::GlyphVector* glyphs,
                                   int begin,
@@ -1037,7 +1059,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                           SkEnumBitMask<DrawFlags> flags,
                           sk_sp<SkBlender> primitiveBlender,
                           bool skipColorXform) {
-    SkASSERT(fRecorder && !fImmutable);
+    SkASSERT(fRecorder);
 
     if (!localToDevice.valid()) {
         // If the transform is not invertible or not finite then drawing isn't well defined.
@@ -1641,11 +1663,21 @@ sk_sp<SkSpecialImage> Device::makeSpecial(const SkImage*) {
 }
 
 sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy) {
-    this->flushPendingWorkToRecorder();
+    if (fRecorder) {
+        this->flushPendingWorkToRecorder();
+    }
 
     SkIRect finalSubset = subset;
     TextureProxyView view = this->readSurfaceView();
     if (forceCopy || !view || view.proxy()->isFullyLazy()) {
+        // snapSpecial() can be called after setImmutable() is called, but in that case it should
+        // never be a copy (that would otherwise require access to the recorder), and shouldn't be
+        // a non-readable or fully lazy proxy (since those come from client Surfaces).
+        SkASSERT(fRecorder);
+        if (!fRecorder) {
+            return nullptr;
+        }
+
         // TODO: this doesn't address the non-readable surface view case, in which view is empty and
         // createCopy will return an empty view as well.
         view = this->createCopy(&subset, Mipmapped::kNo, SkBackingFit::kApprox);
@@ -1655,6 +1687,8 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
         finalSubset = SkIRect::MakeSize(subset.size());
     }
 
+    // For non-copying "snapSpecial", the semantics are returning an image view of the surface data,
+    // and relying on higher-level draw and restore logic for the contents to make sense.
     return SkSpecialImages::MakeGraphite(finalSubset,
                                          kNeedNewImageUniqueID_SpecialImage,
                                          std::move(view),

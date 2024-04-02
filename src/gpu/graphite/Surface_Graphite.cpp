@@ -30,7 +30,12 @@ Surface::Surface(sk_sp<Device> device)
         , fDevice(std::move(device)) {
 }
 
-Surface::~Surface() {}
+Surface::~Surface() {
+    // Mark the device immutable when the Surface is destroyed to flush any pending work to the
+    // recorder and to flag the device so that any linked image views can detach from the Device
+    // when they are next drawn.
+    fDevice->setImmutable();
+}
 
 SkImageInfo Surface::imageInfo() const {
     return fDevice->imageInfo();

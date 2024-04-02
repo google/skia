@@ -127,8 +127,12 @@ Recorder::~Recorder() {
     for (int i = 0; i < fFinishedProcs.size(); ++i) {
         fFinishedProcs[i]->setFailureResult();
     }
+
     for (auto& device : fTrackedDevices) {
-        device->abandonRecorder();
+        // deregisterDevice() may have left an entry as null previously.
+        if (device) {
+            device->abandonRecorder();
+        }
     }
 #if defined(GRAPHITE_TEST_UTILS)
     if (fContext) {
@@ -236,14 +240,18 @@ SkCanvas* Recorder::makeDeferredCanvas(const SkImageInfo& imageInfo,
 
 void Recorder::registerDevice(Device* device) {
     ASSERT_SINGLE_OWNER
-    fTrackedDevices.push_back(device);
+    // By taking a ref on tracked devices, the Recorder prevents the Device from being deleted on
+    // another thread unless the Recorder has been destroyed or the device has abandoned its
+    // recorder (e.g. was marked immutable).
+    fTrackedDevices.push_back(sk_ref_sp(device));
 }
 
 void Recorder::deregisterDevice(const Device* device) {
     ASSERT_SINGLE_OWNER
-    for (auto it = fTrackedDevices.begin(); it != fTrackedDevices.end(); it++) {
-        if (*it == device) {
-            fTrackedDevices.erase(it);
+    for (sk_sp<Device>& tracked : fTrackedDevices) {
+        if (tracked.get() == device) {
+            // Don't modify the list structure of fTrackedDevices within this loop
+            tracked.reset();
             return;
         }
     }
@@ -452,9 +460,27 @@ void RecorderPriv::add(sk_sp<Task> task) {
 
 void RecorderPriv::flushTrackedDevices() {
     ASSERT_SINGLE_OWNER_PRIV
-    for (Device* device : fRecorder->fTrackedDevices) {
-        device->flushPendingWorkToRecorder();
+    for (sk_sp<Device>& device : fRecorder->fTrackedDevices) {
+        // Entries may be set to null from a call to deregisterDevice(), which will be cleaned up
+        // along with any immutable or uniquely held Devices once everything is flushed.
+        if (device) {
+            device->flushPendingWorkToRecorder();
+        }
     }
+
+    // Clean up the tracked device list
+    for (auto it = fRecorder->fTrackedDevices.begin(); it != fRecorder->fTrackedDevices.end();) {
+        Device* device = it->get();
+        if (!device || !device->recorder() || device->unique()) {
+            if (device) {
+                device->abandonRecorder(); // Keep ~Device() happy
+            }
+            it = fRecorder->fTrackedDevices.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
     // Issue next upload flush token. This is only used by the atlasing code which
     // always uses this method. Calling in Device::flushPendingWorkToRecorder may
     // miss parent device flushes, increment too often, and lead to atlas corruption.
@@ -477,10 +503,10 @@ size_t RecorderPriv::getResourceCacheLimit() const {
 }
 
 #if defined(GRAPHITE_TEST_UTILS)
-bool RecorderPriv::deviceIsRegistered(Device* device) {
+bool RecorderPriv::deviceIsRegistered(Device* device) const {
     ASSERT_SINGLE_OWNER_PRIV
-    for (auto& currentDevice : fRecorder->fTrackedDevices) {
-        if (device == currentDevice) {
+    for (const sk_sp<Device>& currentDevice : fRecorder->fTrackedDevices) {
+        if (device == currentDevice.get()) {
             return true;
         }
     }

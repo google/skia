@@ -23,6 +23,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
 
     SkImageInfo info = SkImageInfo::Make({16, 16}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
+    // Add multiple devices to later test different patterns of destruction.
     sk_sp<Device> device1 = Device::Make(recorder.get(),
                                          info,
                                          skgpu::Budgeted::kYes,
@@ -30,22 +31,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
                                          SkBackingFit::kExact,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
-
-    REPORTER_ASSERT(reporter, device1->recorder() == recorder.get());
-    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device1.get()));
-
-    Device* devPtr = device1.get();
-    device1.reset();
-    REPORTER_ASSERT(reporter, !recorder->priv().deviceIsRegistered(devPtr));
-
-    // Test adding multiple devices
-    device1 = Device::Make(recorder.get(),
-                           info,
-                           skgpu::Budgeted::kYes,
-                           Mipmapped::kNo,
-                           SkBackingFit::kExact,
-                           SkSurfaceProps(),
-                           /* addInitialClear= */ true);
     sk_sp<Device> device2 = Device::Make(recorder.get(),
                                          info,
                                          skgpu::Budgeted::kYes,
@@ -60,21 +45,47 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
                                          SkBackingFit::kExact,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
+    sk_sp<Device> device4 = Device::Make(recorder.get(),
+                                         info,
+                                         skgpu::Budgeted::kYes,
+                                         Mipmapped::kNo,
+                                         SkBackingFit::kExact,
+                                         SkSurfaceProps(),
+                                         /* addInitialClear= */ true);
     REPORTER_ASSERT(reporter, device1->recorder() == recorder.get());
     REPORTER_ASSERT(reporter, device2->recorder() == recorder.get());
     REPORTER_ASSERT(reporter, device3->recorder() == recorder.get());
+    REPORTER_ASSERT(reporter, device4->recorder() == recorder.get());
     REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device1.get()));
     REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device2.get()));
     REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device3.get()));
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device4.get()));
 
-    // Test freeing a device in the middle.
-    devPtr = device2.get();
+    // Test freeing a device in the middle, marking it as immutable as ~Surface() our FilterResult
+    // would when done with the device.
+    device2->setImmutable();
+    REPORTER_ASSERT(reporter, device2->recorder() == nullptr);
+    REPORTER_ASSERT(reporter, device2->unique()); // Only the test holds a ref now
+    REPORTER_ASSERT(reporter, !recorder->priv().deviceIsRegistered(device2.get()));
     device2.reset();
+
     REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device1.get()));
-    REPORTER_ASSERT(reporter, !recorder->priv().deviceIsRegistered(devPtr));
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device3.get()));
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device4.get()));
+
+    // Test freeing a device that wasn't marked as immutable, which should have its ref dropped
+    // automatically when the recorder flushes.
+    Device* dev4Ptr = device4.get();
+    device4.reset();
+    REPORTER_ASSERT(reporter, dev4Ptr->unique()); // The recorder holds a ref still
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(dev4Ptr));
+    recorder->priv().flushTrackedDevices(); // should delete device4 now
+    REPORTER_ASSERT(reporter, !recorder->priv().deviceIsRegistered(dev4Ptr));
+
+    REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device1.get()));
     REPORTER_ASSERT(reporter, recorder->priv().deviceIsRegistered(device3.get()));
 
-    // Delete the recorder and make sure remaining devices not longer have a valid recorder.
+    // Delete the recorder and make sure remaining devices no longer have a valid recorder.
     recorder.reset();
     REPORTER_ASSERT(reporter, device1->recorder() == nullptr);
     REPORTER_ASSERT(reporter, device3->recorder() == nullptr);
