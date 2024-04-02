@@ -255,10 +255,7 @@ namespace skiagm {
 // This is just for bootstrapping Graphite.
 class GraphiteStartGM : public GM {
 public:
-    GraphiteStartGM() {
-        this->setBGColor(SK_ColorBLACK);
-        ToolUtils::GetResourceAsBitmap("images/color_wheel.gif", &fBitmap);
-    }
+    GraphiteStartGM() = default;
 
 protected:
     static constexpr int kTileWidth = 128;
@@ -266,6 +263,11 @@ protected:
     static constexpr int kWidth = 3 * kTileWidth;
     static constexpr int kHeight = 3 * kTileHeight;
     static constexpr int kClipInset = 4;
+
+    void onOnceBeforeDraw() override {
+        this->setBGColor(SK_ColorBLACK);
+        ToolUtils::GetResourceAsBitmap("images/color_wheel.gif", &fBitmap);
+    }
 
     SkString getName() const override { return SkString("graphitestart"); }
 
