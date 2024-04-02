@@ -136,6 +136,102 @@ const float BT2020_12bit_limited_yuv_to_rgb[] = {
       1.168664f,  2.149647f, -0.000000f,  0.000000f, -1.148145f,
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
+const float FCC_full_rgb_to_yuv[] = {
+      0.300000f,  0.590000f,  0.110000f,  0.000000f,  0.000000f,
+     -0.168539f, -0.331461f,  0.500000f,  0.000000f,  0.501961f,
+      0.500000f, -0.421429f, -0.078571f,  0.000000f,  0.501961f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float FCC_full_yuv_to_rgb[] = {
+      1.000000f,  0.000000f,  1.400000f,  0.000000f, -0.702745f,
+      1.000000f, -0.331864f, -0.711864f,  0.000000f,  0.523911f,
+      1.000000f,  1.780000f,  0.000000f,  0.000000f, -0.893490f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float FCC_limited_rgb_to_yuv[] = {
+      0.257647f,  0.506706f,  0.094471f,  0.000000f,  0.062745f,
+     -0.148050f, -0.291165f,  0.439216f,  0.000000f,  0.501961f,
+      0.439216f, -0.370196f, -0.069020f,  0.000000f,  0.501961f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float FCC_limited_yuv_to_rgb[] = {
+      1.164384f, -0.000000f,  1.593750f,  0.000000f, -0.873059f,
+      1.164384f, -0.377792f, -0.810381f,  0.000000f,  0.523357f,
+      1.164384f,  2.026339f,  0.000000f,  0.000000f, -1.090202f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float SMPTE240_full_rgb_to_yuv[] = {
+      0.212000f,  0.701000f,  0.087000f,  0.000000f,  0.000000f,
+     -0.116101f, -0.383899f,  0.500000f,  0.000000f,  0.501961f,
+      0.500000f, -0.444797f, -0.055203f,  0.000000f,  0.501961f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float SMPTE240_full_yuv_to_rgb[] = {
+      1.000000f,  0.000000f,  1.576000f,  0.000000f, -0.791090f,
+      1.000000f, -0.226622f, -0.476622f,  0.000000f,  0.353001f,
+      1.000000f,  1.826000f,  0.000000f,  0.000000f, -0.916580f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float SMPTE240_limited_rgb_to_yuv[] = {
+      0.182071f,  0.602035f,  0.074718f,  0.000000f,  0.062745f,
+     -0.101987f, -0.337229f,  0.439216f,  0.000000f,  0.501961f,
+      0.439216f, -0.390724f, -0.048492f,  0.000000f,  0.501961f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float SMPTE240_limited_yuv_to_rgb[] = {
+      1.164384f, -0.000000f,  1.794107f,  0.000000f, -0.973631f,
+      1.164384f, -0.257985f, -0.542583f,  0.000000f,  0.328794f,
+      1.164384f,  2.078705f,  0.000000f,  0.000000f, -1.116488f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float YDZDX_full_rgb_to_yuv[] = {
+      0.000000f,  1.000000f,  0.000000f,  0.000000f,  0.000000f,
+      0.000000f, -0.500000f,  0.493283f,  0.000000f,  0.501961f,
+      0.500000f, -0.495951f,  0.000000f,  0.000000f,  0.501961f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float YDZDX_full_yuv_to_rgb[] = {
+      0.991902f, -0.000000f,  2.000000f,  0.000000f, -1.003922f,
+      1.000000f,  0.000000f,  0.000000f,  0.000000f,  0.000000f,
+      1.013617f,  2.027234f,  0.000000f,  0.000000f, -1.017592f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float YDZDX_limited_rgb_to_yuv[] = {
+      0.000000f,  0.858824f,  0.000000f,  0.000000f,  0.062745f,
+      0.000000f, -0.439216f,  0.433315f,  0.000000f,  0.501961f,
+      0.439216f, -0.435659f,  0.000000f,  0.000000f,  0.501961f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float YDZDX_limited_yuv_to_rgb[] = {
+      1.154954f, -0.000000f,  2.276786f,  0.000000f, -1.215325f,
+      1.164384f,  0.000000f,  0.000000f,  0.000000f, -0.073059f,
+      1.180239f,  2.307788f,  0.000000f,  0.000000f, -1.232474f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float GBR_full_rgb_to_yuv[] = {
+      0.000000f,  1.000000f,  0.000000f,  0.000000f,  0.000000f,
+      0.000000f,  0.000000f,  1.000000f,  0.000000f,  0.000000f,
+      1.000000f,  0.000000f,  0.000000f,  0.000000f,  0.000000f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float GBR_full_yuv_to_rgb[] = {
+      0.000000f,  0.000000f,  1.000000f,  0.000000f,  0.000000f,
+      1.000000f,  0.000000f,  0.000000f,  0.000000f,  0.000000f,
+      0.000000f,  1.000000f,  0.000000f,  0.000000f, -0.000000f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float GBR_limited_rgb_to_yuv[] = {
+      0.000000f,  0.858824f,  0.000000f,  0.000000f,  0.062745f,
+      0.000000f,  0.000000f,  0.858824f,  0.000000f,  0.062745f,
+      0.858824f,  0.000000f,  0.000000f,  0.000000f,  0.062745f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
+const float GBR_limited_yuv_to_rgb[] = {
+      0.000000f,  0.000000f,  1.164384f,  0.000000f, -0.073059f,
+      1.164384f,  0.000000f,  0.000000f,  0.000000f, -0.073059f,
+      0.000000f,  1.164384f,  0.000000f,  0.000000f, -0.073059f,
+      0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
+};
 const float YCgCo_8bit_full_rgb_to_yuv[] = {
       0.250000f,  0.500000f,  0.250000f,  0.000000f,  0.000000f,
      -0.250000f,  0.500000f, -0.250000f,  0.000000f,  0.501961f,
@@ -149,15 +245,15 @@ const float YCgCo_8bit_full_yuv_to_rgb[] = {
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
 const float YCgCo_8bit_limited_rgb_to_yuv[] = {
-      0.214706f,  0.429412f,  0.214706f,  0.000000f,  0.073059f,
-     -0.214706f,  0.429412f, -0.214706f,  0.000000f,  0.504155f,
-      0.429412f,  0.000000f, -0.429412f,  0.000000f,  0.504155f,
+      0.214706f,  0.429412f,  0.214706f,  0.000000f,  0.062745f,
+     -0.214706f,  0.429412f, -0.214706f,  0.000000f,  0.501961f,
+      0.429412f,  0.000000f, -0.429412f,  0.000000f,  0.501961f,
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
 const float YCgCo_8bit_limited_yuv_to_rgb[] = {
-      1.164384f, -1.164384f,  1.164384f,  0.000000f, -0.085069f,
-      1.164384f,  1.164384f,  0.000000f,  0.000000f, -0.672099f,
-      1.164384f, -1.164384f, -1.164384f,  0.000000f,  1.088991f,
+      1.164384f, -1.164384f,  1.164384f,  0.000000f, -0.073059f,
+      1.164384f,  1.164384f,  0.000000f,  0.000000f, -0.657534f,
+      1.164384f, -1.164384f, -1.164384f,  0.000000f,  1.095891f,
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
 const float YCgCo_10bit_full_rgb_to_yuv[] = {
@@ -173,15 +269,15 @@ const float YCgCo_10bit_full_yuv_to_rgb[] = {
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
 const float YCgCo_10bit_limited_rgb_to_yuv[] = {
-      0.214076f,  0.428153f,  0.214076f,  0.000000f,  0.073059f,
-     -0.214076f,  0.428153f, -0.214076f,  0.000000f,  0.501630f,
-      0.428153f,  0.000000f, -0.428153f,  0.000000f,  0.501630f,
+      0.214076f,  0.428153f,  0.214076f,  0.000000f,  0.062561f,
+     -0.214076f,  0.428153f, -0.214076f,  0.000000f,  0.500489f,
+      0.428153f,  0.000000f, -0.428153f,  0.000000f,  0.500489f,
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
 const float YCgCo_10bit_limited_yuv_to_rgb[] = {
-      1.167808f, -1.167808f,  1.167808f,  0.000000f, -0.085319f,
-      1.167808f,  1.167808f,  0.000000f,  0.000000f, -0.671127f,
-      1.167808f, -1.167808f, -1.167808f,  0.000000f,  1.086297f,
+      1.167808f, -1.167808f,  1.167808f,  0.000000f, -0.073059f,
+      1.167808f,  1.167808f,  0.000000f,  0.000000f, -0.657534f,
+      1.167808f, -1.167808f, -1.167808f,  0.000000f,  1.095890f,
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
 const float YCgCo_12bit_full_rgb_to_yuv[] = {
@@ -197,15 +293,15 @@ const float YCgCo_12bit_full_yuv_to_rgb[] = {
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
 const float YCgCo_12bit_limited_rgb_to_yuv[] = {
-      0.213919f,  0.427839f,  0.213919f,  0.000000f,  0.073059f,
-     -0.213919f,  0.427839f, -0.213919f,  0.000000f,  0.501003f,
-      0.427839f,  0.000000f, -0.427839f,  0.000000f,  0.501003f,
+      0.213919f,  0.427839f,  0.213919f,  0.000000f,  0.062515f,
+     -0.213919f,  0.427839f, -0.213919f,  0.000000f,  0.500122f,
+      0.427839f,  0.000000f, -0.427839f,  0.000000f,  0.500122f,
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
 const float YCgCo_12bit_limited_yuv_to_rgb[] = {
-      1.168664f, -1.168664f,  1.168664f,  0.000000f, -0.085382f,
-      1.168664f,  1.168664f,  0.000000f,  0.000000f, -0.670886f,
-      1.168664f, -1.168664f, -1.168664f,  0.000000f,  1.085626f,
+      1.168664f, -1.168664f,  1.168664f,  0.000000f, -0.073059f,
+      1.168664f,  1.168664f,  0.000000f,  0.000000f, -0.657534f,
+      1.168664f, -1.168664f, -1.168664f,  0.000000f,  1.095891f,
       0.000000f,  0.000000f,  0.000000f,  1.000000f,  0.000000f,
 };
 
@@ -219,12 +315,20 @@ static_assert(kBT2020_10bit_Full_SkYUVColorSpace    == 6, "");
 static_assert(kBT2020_10bit_Limited_SkYUVColorSpace == 7, "");
 static_assert(kBT2020_12bit_Full_SkYUVColorSpace    == 8, "");
 static_assert(kBT2020_12bit_Limited_SkYUVColorSpace == 9, "");
-static_assert(kYCgCo_8bit_Full_SkYUVColorSpace      == 10, "");
-static_assert(kYCgCo_8bit_Limited_SkYUVColorSpace   == 11, "");
-static_assert(kYCgCo_10bit_Full_SkYUVColorSpace     == 12, "");
-static_assert(kYCgCo_10bit_Limited_SkYUVColorSpace  == 13, "");
-static_assert(kYCgCo_12bit_Full_SkYUVColorSpace     == 14, "");
-static_assert(kYCgCo_12bit_Limited_SkYUVColorSpace  == 15, "");
+static_assert(kFCC_Full_SkYUVColorSpace             == 10, "");
+static_assert(kFCC_Limited_SkYUVColorSpace          == 11, "");
+static_assert(kSMPTE240_Full_SkYUVColorSpace        == 12, "");
+static_assert(kSMPTE240_Limited_SkYUVColorSpace     == 13, "");
+static_assert(kYDZDX_Full_SkYUVColorSpace           == 14, "");
+static_assert(kYDZDX_Limited_SkYUVColorSpace        == 15, "");
+static_assert(kGBR_Full_SkYUVColorSpace             == 16, "");
+static_assert(kGBR_Limited_SkYUVColorSpace          == 17, "");
+static_assert(kYCgCo_8bit_Full_SkYUVColorSpace      == 18, "");
+static_assert(kYCgCo_8bit_Limited_SkYUVColorSpace   == 19, "");
+static_assert(kYCgCo_10bit_Full_SkYUVColorSpace     == 20, "");
+static_assert(kYCgCo_10bit_Limited_SkYUVColorSpace  == 21, "");
+static_assert(kYCgCo_12bit_Full_SkYUVColorSpace     == 22, "");
+static_assert(kYCgCo_12bit_Limited_SkYUVColorSpace  == 23, "");
 
 const float* yuv_to_rgb_array[] = {
     JPEG_full_yuv_to_rgb,
@@ -237,6 +341,14 @@ const float* yuv_to_rgb_array[] = {
     BT2020_10bit_limited_yuv_to_rgb,
     BT2020_12bit_full_yuv_to_rgb,
     BT2020_12bit_limited_yuv_to_rgb,
+    FCC_full_yuv_to_rgb,
+    FCC_limited_yuv_to_rgb,
+    SMPTE240_full_yuv_to_rgb,
+    SMPTE240_limited_yuv_to_rgb,
+    YDZDX_full_yuv_to_rgb,
+    YDZDX_limited_yuv_to_rgb,
+    GBR_full_yuv_to_rgb,
+    GBR_limited_yuv_to_rgb,
     YCgCo_8bit_full_yuv_to_rgb,
     YCgCo_8bit_limited_yuv_to_rgb,
     YCgCo_10bit_full_yuv_to_rgb,
@@ -256,6 +368,14 @@ const float* rgb_to_yuv_array[] = {
     BT2020_10bit_limited_rgb_to_yuv,
     BT2020_12bit_full_rgb_to_yuv,
     BT2020_12bit_limited_rgb_to_yuv,
+    FCC_full_rgb_to_yuv,
+    FCC_limited_rgb_to_yuv,
+    SMPTE240_full_rgb_to_yuv,
+    SMPTE240_limited_rgb_to_yuv,
+    YDZDX_full_rgb_to_yuv,
+    YDZDX_limited_rgb_to_yuv,
+    GBR_full_rgb_to_yuv,
+    GBR_limited_rgb_to_yuv,
     YCgCo_8bit_full_rgb_to_yuv,
     YCgCo_8bit_limited_rgb_to_yuv,
     YCgCo_10bit_full_rgb_to_yuv,
@@ -348,6 +468,10 @@ const YUVCoeff gCoeff[] = {
     { 0.2627f, 0.0593f, 10, kLimited }, // kBT2020_10bit_Limited_SkYUVColorSpace
     { 0.2627f, 0.0593f, 12, kFull    }, // kBT2020_12bit_Full_SkYUVColorSpace
     { 0.2627f, 0.0593f, 12, kLimited }, // kBT2020_12bit_Limited_SkYUVColorSpace
+    { 0.3000f, 0.1100f,  8, kFull    }, // kFCC_Full_SkYUVColorSpace
+    { 0.3000f, 0.1100f,  8, kLimited }, // kFCC_Limited_SkYUVColorSpace
+    { 0.2120f, 0.0870f,  8, kFull    }, // kSMPTE240_Full_SkYUVColorSpace
+    { 0.2120f, 0.0870f,  8, kLimited }, // kSMPTE240_Limited_SkYUVColorSpace
 };
 }  // namespace
 
@@ -385,6 +509,57 @@ static void make_rgb_to_yuv_matrix_ycbcr(float mx[20], const YUVCoeff& c) {
     scale3(mx + 10, Cb * scaleUV);
 }
 
+static void make_rgb_to_yuv_matrix_ydzdx(float mx[20], Range range) {
+    const int bits = 8;
+    const float denom = static_cast<float>((1 << bits) - 1);
+    float scaleY  = 1.0f,
+          addY    = 0.0f,
+          scaleUV = 1.0f,
+          addUV   = 128 / denom;
+
+    if (range == kLimited) {
+        scaleY  = 219 / denom;
+        addY    =  16 / denom;
+        scaleUV = 224 / denom;
+    }
+
+    // YDZDX applies range correction to YUV values similar to YCbCr.
+    float m[20] = {
+          0.0f,              1.0f,             0.0f, 0.0f,  addY,  // Y
+          0.0f,             -0.5f, 0.986566f / 2.0f, 0.0f, addUV,  // DX or DZ
+          0.5f, -0.991902f / 2.0f,             0.0f, 0.0f, addUV,  // DZ or DX
+          0.0f,              0.0f,             0.0f, 1.0f,  0.0f,
+    };
+    memcpy(mx, m, sizeof(m));
+    scale3(mx +  0, scaleY );
+    scale3(mx +  5, scaleUV);
+    scale3(mx + 10, scaleUV);
+}
+
+static void make_rgb_to_yuv_matrix_gbr(float mx[20], Range range) {
+    const int bits = 8;
+    const float denom = static_cast<float>((1 << bits) - 1);
+    float scaleY   = 1.0f,
+          addY     = 0.0f;
+
+    if (range == kLimited) {
+        scaleY  = 219 / denom;
+        addY    =  16 / denom;
+    }
+
+    // GBR applies range correction to RGB values similar to YCgCo.
+    float m[20] = {
+          0.0f, 1.0f, 0.0f, 0.0f,  addY, // G
+          0.0f, 0.0f, 1.0f, 0.0f,  addY, // B
+          1.0f, 0.0f, 0.0f, 0.0f,  addY, // R
+          0.0f, 0.0f, 0.0f, 1.0f,  0.0f,
+    };
+    memcpy(mx, m, sizeof(m));
+    scale3(mx +  0, scaleY);
+    scale3(mx +  5, scaleY);
+    scale3(mx + 10, scaleY);
+}
+
 static void make_rgb_to_yuv_matrix_ycgco(float mx[20], int bits, Range range) {
     SkASSERT(bits >= 8);
     const int shift = bits - 8;
@@ -395,17 +570,17 @@ static void make_rgb_to_yuv_matrix_ycgco(float mx[20], int bits, Range range) {
 
     if (range == kLimited) {
         scaleY  = (219 << shift) / denom;
-        addY    = (16 << shift) / static_cast<float>(219 << shift);
+        addY    = ( 16 << shift) / denom;
     }
 
     float m[20] = {
-          0.25f,  0.5f,   0.25f,  0.0f,     addY,
-         -0.25f,  0.5f,  -0.25f,  0.0f,    chroma05 * scaleY + addY,
-           0.5f,  0.0f,  -0.5f,   0.0f,    chroma05 * scaleY + addY,
-           0.0f,  0.0f,   0.0f,   1.0f,     0.0f,
+          0.25f,  0.5f,   0.25f,  0.0f,  addY,
+         -0.25f,  0.5f,  -0.25f,  0.0f,  chroma05,
+           0.5f,  0.0f,  -0.5f,   0.0f,  chroma05,
+           0.0f,  0.0f,   0.0f,   1.0f,  0.0f,
     };
     memcpy(mx, m, sizeof(m));
-    scale3(mx +  0, scaleY );
+    scale3(mx +  0, scaleY);
     scale3(mx +  5, scaleY);
     scale3(mx + 10, scaleY);
 }
@@ -422,8 +597,20 @@ static void make_rgb_to_yuv_matrix(float mx[20], SkYUVColorSpace cs) {
         case kBT2020_10bit_Limited_SkYUVColorSpace:
         case kBT2020_12bit_Full_SkYUVColorSpace:
         case kBT2020_12bit_Limited_SkYUVColorSpace:
+        case kFCC_Full_SkYUVColorSpace:
+        case kFCC_Limited_SkYUVColorSpace:
+        case kSMPTE240_Full_SkYUVColorSpace:
+        case kSMPTE240_Limited_SkYUVColorSpace:
         case kIdentity_SkYUVColorSpace:
             return make_rgb_to_yuv_matrix_ycbcr(mx, gCoeff[(unsigned)cs]);
+        case kYDZDX_Full_SkYUVColorSpace:
+            return make_rgb_to_yuv_matrix_ydzdx(mx, Range::kFull);
+        case kYDZDX_Limited_SkYUVColorSpace:
+            return make_rgb_to_yuv_matrix_ydzdx(mx, Range::kLimited);
+        case kGBR_Full_SkYUVColorSpace:
+            return make_rgb_to_yuv_matrix_gbr(mx, Range::kFull);
+        case kGBR_Limited_SkYUVColorSpace:
+            return make_rgb_to_yuv_matrix_gbr(mx, Range::kLimited);
         case kYCgCo_8bit_Full_SkYUVColorSpace:
             return make_rgb_to_yuv_matrix_ycgco(mx, /*bits=*/8, Range::kFull);
         case kYCgCo_8bit_Limited_SkYUVColorSpace:
@@ -451,6 +638,14 @@ static void dump(const float m[20], SkYUVColorSpace cs, bool rgb2yuv) {
         "BT2020_10bit_limited",
         "BT2020_12bit_full",
         "BT2020_12bit_limited",
+        "FCC_full",
+        "FCC_limited",
+        "SMPTE240_full",
+        "SMPTE240_limited",
+        "YDZDX_full",
+        "YDZDX_limited",
+        "GBR_full",
+        "GBR_limited",
         "YCgCo_8bit_full",
         "YCgCo_8bit_limited",
         "YCgCo_10bit_full",
