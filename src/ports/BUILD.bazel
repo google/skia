@@ -414,3 +414,23 @@ skia_cc_library(
         "//src/ports/fontations:deps",
     ],
 )
+
+skia_cc_library(
+    name = "fontmgr_android_freetype",
+    srcs = [
+        "SkFontMgr_android.cpp",
+        "SkFontMgr_android_parser.cpp",
+    ],
+    hdrs = [
+        "SkFontMgr_android_parser.h",
+        "//include/ports:android_fontmgr_hdrs",
+    ],
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":freetype_support",
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "@expat",
+    ],
+)

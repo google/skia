@@ -50,6 +50,9 @@ skia_cc_library(
         "//tools/fonts:test_font_manager_srcs",
     ],
     hdrs = [
+        "CtsEnforcement.h",
+        "Test.h",
+        "TestType.h",
         "//tools:Resources.h",
         "//tools:ToolUtils.h",
         "//tools/flags:CommandLineFlags.h",
@@ -103,4 +106,8 @@ test_suite(
 android_unit_test(
     name = "android_math_test",
     srcs = ["MathTest.cpp"],
+    deps = [
+        ":tests_base",
+        "//:core",
+    ],
 )

@@ -74,7 +74,9 @@ def android_test(
     skia_cc_binary(
         name = test_binary,
         srcs = srcs,
-        deps = deps,
+        deps = deps + [
+            "//tools/testrunners/unit:testrunner",
+        ],
         testonly = True,  # Needed to gain access to test-only files.
     )
 
