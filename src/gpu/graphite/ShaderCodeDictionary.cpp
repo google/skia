@@ -39,6 +39,25 @@ static constexpr char kRuntimeShaderName[] = "RuntimeEffect";
 
 static_assert(static_cast<int>(BuiltInCodeSnippetID::kLast) < kSkiaBuiltInReservedCnt);
 
+// The toLinearSrgb and fromLinearSrgb RuntimeEffect intrinsics need to be able to map to and
+// from the dst color space and linearSRGB. These are the 10 uniforms needed to allow that.
+// These boil down to two copies of the kColorSpaceTransformUniforms uniforms. The first set
+// for mapping to LinearSRGB and the second set for mapping from LinearSRGB.
+static constexpr Uniform kRuntimeEffectColorSpaceTransformUniforms[] = {
+        // to LinearSRGB
+        { "flags_toLinear",          SkSLType::kInt },
+        { "srcKind_toLinear",        SkSLType::kInt },
+        { "gamutTransform_toLinear", SkSLType::kHalf3x3 },
+        { "dstKind_toLinear",        SkSLType::kInt },
+        { "csXformCoeffs_toLinear",  SkSLType::kHalf4x4 },
+        // from LinearSRGB
+        { "flags_fromLinear",          SkSLType::kInt },
+        { "srcKind_fromLinear",        SkSLType::kInt },
+        { "gamutTransform_fromLinear", SkSLType::kHalf3x3 },
+        { "dstKind_fromLinear",        SkSLType::kInt },
+        { "csXformCoeffs_fromLinear",  SkSLType::kHalf4x4 },
+};
+
 namespace {
 
 std::string get_mangled_name(const std::string& baseName, int manglingSuffix) {
@@ -1151,10 +1170,12 @@ class GraphitePipelineCallbacks : public SkSL::PipelineStage::Callbacks {
 public:
     GraphitePipelineCallbacks(const ShaderInfo& shaderInfo,
                               const ShaderNode* node,
-                              std::string* preamble)
+                              std::string* preamble,
+                              const SkRuntimeEffect* effect)
             : fShaderInfo(shaderInfo)
             , fNode(node)
-            , fPreamble(preamble) {}
+            , fPreamble(preamble)
+            , fEffect(effect) {}
 
     std::string declareUniform(const SkSL::VarDeclaration* decl) override {
         std::string result = get_mangled_name(std::string(decl->var()->name()), fNode->keyIndex());
@@ -1206,12 +1227,30 @@ public:
     }
 
     std::string toLinearSrgb(std::string color) override {
-        // TODO(skia:13508): implement to-linear-SRGB child effect
-        return color;
+        if (!SkRuntimeEffectPriv::UsesColorTransform(fEffect)) {
+            return color;
+        }
+
+        color = SkSL::String::printf("(%s).rgb1", color.c_str());
+        std::string helper = get_mangled_name("toLinearSRGB", fNode->keyIndex());
+        std::string xformedColor = SkSL::String::printf("%s(%s)",
+                                    helper.c_str(),
+                                    color.c_str());
+        return SkSL::String::printf("(%s).rgb", xformedColor.c_str());
     }
+
+
     std::string fromLinearSrgb(std::string color) override {
-        // TODO(skia:13508): implement from-linear-SRGB child effect
-        return color;
+        if (!SkRuntimeEffectPriv::UsesColorTransform(fEffect)) {
+            return color;
+        }
+
+        color = SkSL::String::printf("(%s).rgb1", color.c_str());
+        std::string helper = get_mangled_name("fromLinearSRGB", fNode->keyIndex());
+        std::string xformedColor = SkSL::String::printf("%s(%s)",
+                                                        helper.c_str(),
+                                                        color.c_str());
+        return SkSL::String::printf("(%s).rgb", xformedColor.c_str());
     }
 
     std::string getMangledName(const char* name) override {
@@ -1222,6 +1261,7 @@ private:
     const ShaderInfo& fShaderInfo;
     const ShaderNode* fNode;
     std::string* fPreamble;
+    const SkRuntimeEffect* fEffect;
 };
 
 std::string GenerateRuntimeShaderPreamble(const ShaderInfo& shaderInfo,
@@ -1240,7 +1280,42 @@ std::string GenerateRuntimeShaderPreamble(const ShaderInfo& shaderInfo,
     const SkSL::Program& program = SkRuntimeEffectPriv::Program(*effect);
 
     std::string preamble;
-    GraphitePipelineCallbacks callbacks{shaderInfo, node, &preamble};
+    if (SkRuntimeEffectPriv::UsesColorTransform(effect)) {
+        SkSL::String::appendf(
+                &preamble,
+                "half4 %s(half4 inColor) {"
+                    "return sk_color_space_transform(inColor, %s, %s, %s, %s, %s);"
+                "}",
+                get_mangled_name("toLinearSRGB", node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[0],
+                                         node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[1],
+                                         node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[2],
+                                         node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[3],
+                                         node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[4],
+                                         node->keyIndex()).c_str());
+        SkSL::String::appendf(
+                &preamble,
+                "half4 %s(half4 inColor) {"
+                    "return sk_color_space_transform(inColor, %s, %s, %s, %s, %s);"
+                "}",
+                get_mangled_name("fromLinearSRGB", node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[5],
+                                         node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[6],
+                                         node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[7],
+                                         node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[8],
+                                         node->keyIndex()).c_str(),
+                get_mangled_uniform_name(shaderInfo, kRuntimeEffectColorSpaceTransformUniforms[9],
+                                         node->keyIndex()).c_str());
+    }
+
+    GraphitePipelineCallbacks callbacks{shaderInfo, node, &preamble, effect};
     SkSL::PipelineStage::ConvertProgram(program, "coords", "inColor", "destColor", &callbacks);
     return preamble;
 }
@@ -1449,9 +1524,19 @@ SkSpan<const Uniform> ShaderCodeDictionary::convertUniforms(const SkRuntimeEffec
     using rteUniform = SkRuntimeEffect::Uniform;
     SkSpan<const rteUniform> uniforms = effect->uniforms();
 
+    int numBaseUniforms = uniforms.size();
+    int xtraUniforms = 0;
+    if (SkRuntimeEffectPriv::UsesColorTransform(effect)) {
+        xtraUniforms += std::size(kRuntimeEffectColorSpaceTransformUniforms);
+    }
+
     // Convert the SkRuntimeEffect::Uniform array into its Uniform equivalent.
-    int numUniforms = uniforms.size();
+    int numUniforms = numBaseUniforms + xtraUniforms;
     Uniform* uniformArray = fArena.makeInitializedArray<Uniform>(numUniforms, [&](int index) {
+        if (index >= numBaseUniforms) {
+            return kRuntimeEffectColorSpaceTransformUniforms[index - numBaseUniforms];
+        }
+
         const rteUniform* u;
         u = &uniforms[index];
 
