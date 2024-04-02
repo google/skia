@@ -212,7 +212,7 @@ struct alignas(2*sizeof(T)) Vec<2,T> {
 
 template <typename T>
 struct Vec<1,T> {
-    T val;
+    T val = {};
 
     SKVX_ALWAYS_INLINE Vec() = default;
     SKVX_ALWAYS_INLINE Vec(T s) : val(s) {}
