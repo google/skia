@@ -70,7 +70,7 @@ public:
     Recorder* recorder() const override { return fRecorder; }
     // This call is triggered from the Recorder on its registered Devices. It is typically called
     // when the Recorder is abandoned or deleted.
-    void abandonRecorder();
+    void abandonRecorder() { fRecorder = nullptr; }
 
     // Ensures clip elements are drawn that will clip previous draw calls, snaps all pending work
     // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
@@ -89,6 +89,24 @@ public:
     TextureProxyView readSurfaceView() const;
     // Can succeed if target is readable but not sampleable. Assumes 'subset' is contained in bounds
     sk_sp<Image> makeImageCopy(const SkIRect& subset, Budgeted, Mipmapped, SkBackingFit);
+
+    // True if this Device represents an internal renderable surface that will go out of scope
+    // before the next Recorder snap.
+    // NOTE: Currently, there are two different notions of "scratch" that are being merged together.
+    // 1. Devices whose targets are not instantiated (Device::Make).
+    // 2. Devices that are not registered with the Recorder (Surface::MakeScratch).
+    //
+    // This function reflects notion #1, since the long-term plan will be that all Devices that are
+    // not instantiated will also not be registered with the Recorder. For the time being, due to
+    // shared atlas management, layer-backing Devices need to be registered with the Recorder but
+    // are otherwise the canonical scratch device.
+    //
+    // Existing uses of Surface::MakeScratch() will migrate to using un-instantiated Devices with
+    // the requirement that if the Device's target is being returned in a client-owned object
+    // (e.g. SkImages::MakeWithFilter), that it should then be explicitly instantiated. Once scratch
+    // tasks are fully organized in a graph and not automatically appended to the root task list,
+    // this explicit instantiation will be responsible for moving the scratch tasks to the root list
+    bool isScratchDevice() const;
 
     // SkCanvas only uses drawCoverageMask w/o this staging flag, so only enable
     // mask filters in clients that have finished migrating.
