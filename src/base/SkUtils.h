@@ -44,9 +44,16 @@ namespace SkHexadecimalDigits {
 
 template <typename T, typename P>
 static SK_ALWAYS_INLINE T SK_FP_SAFE_ABI sk_unaligned_load(const P* ptr) {
-    static_assert(std::is_trivially_copyable<T>::value);
+    static_assert(std::is_trivially_copyable_v<P> || std::is_void_v<P>);
+    static_assert(std::is_trivially_copyable_v<T>);
     T val;
-    memcpy(&val, ptr, sizeof(val));
+    // gcc's class-memaccess sometimes triggers when:
+    // - `T` is trivially copyable but
+    // - `T` is non-trivial (e.g. at least one eligible default constructor is
+    //    non-trivial).
+    // Use `reinterpret_cast<const void*>` to explicit suppress this warning; a
+    // trivially copyable type is safe to memcpy from/to.
+    memcpy(&val, static_cast<const void*>(ptr), sizeof(val));
     return val;
 }
 
