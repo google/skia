@@ -1636,16 +1636,14 @@ static void notify_in_use(Recorder* recorder,
                           DrawContext*,
                           const SkImageShader* shader) {
     auto image = as_IB(shader->image());
-    if (!image->isGraphiteBacked() || image->isYUVA()) {
-        // If it's not graphite-backed, there's no pending graphite work; and for now graphite YUVA
-        // multiplanar images are not linked to surfaces or devices.
+    if (!image->isGraphiteBacked()) {
+        // If it's not graphite-backed, there's no pending graphite work.
         return;
     }
 
     // TODO(b/323887207): Once scratch devices are linked to special images and their use needs to
     // be linked to specific draw contexts, that will be passed in here.
-    // TODO: Uncomment in follow-up that adds Device tracking to Image.
-    // static_cast<Image*>(image)->notifyUseInDraw(recorder);
+    static_cast<Image_Base*>(image)->notifyInUse(recorder);
 }
 
 static void add_to_key(const KeyContext& keyContext,

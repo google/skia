@@ -82,6 +82,12 @@ sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder* recorder,
 
         image = graphiteImage;
     }
+
+    // TODO(b/323887207): Graphite's SkSpecialImage class should just wrap Image to avoid losing
+    // any linked Device. When that happens, linked devices will automatically be flushed even when
+    // it's the special image being drawn, not the originating `image`. For now, notify the original
+    static_cast<skgpu::graphite::Image_Base*>(image.get())->notifyInUse(recorder);
+
     auto [view, ct] = skgpu::graphite::AsView(recorder, image.get(), skgpu::Mipmapped::kNo);
     return MakeGraphite(subset, image->uniqueID(), std::move(view),
                         {ct, image->alphaType(), image->refColorSpace()}, props);

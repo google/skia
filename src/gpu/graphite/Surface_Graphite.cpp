@@ -27,8 +27,8 @@ namespace skgpu::graphite {
 
 Surface::Surface(sk_sp<Device> device)
         : SkSurface_Base(device->width(), device->height(), &device->surfaceProps())
-        , fDevice(std::move(device)) {
-}
+        , fDevice(std::move(device))
+        , fImageView(Image::MakeView(fDevice)) {}
 
 Surface::~Surface() {
     // Mark the device immutable when the Surface is destroyed to flush any pending work to the
@@ -64,25 +64,16 @@ sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
 
 sk_sp<SkImage> Surface::asImage() const {
     if (this->hasCachedImage()) {
-        SKGPU_LOG_W(
-                "Intermingling makeImageSnapshot and asImage calls may produce "
-                "unexpected results. Please use either the old _or_ new API.");
+        SKGPU_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
+                    "unexpected results. Please use either the old _or_ new API.");
     }
-    TextureProxyView srcView = fDevice->readSurfaceView();
-    if (!srcView) {
-        return nullptr;
-    }
-
-    return sk_sp<Image>(new Image(kNeedNewImageUniqueID,
-                                  std::move(srcView),
-                                  this->imageInfo().colorInfo()));
+    return fImageView;
 }
 
 sk_sp<SkImage> Surface::makeImageCopy(const SkIRect* subset, Mipmapped mipmapped) const {
     if (this->hasCachedImage()) {
-        SKGPU_LOG_W(
-                "Intermingling makeImageSnapshot and asImage calls may produce "
-                "unexpected results. Please use either the old _or_ new API.");
+        SKGPU_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
+                    "unexpected results. Please use either the old _or_ new API.");
     }
     TextureProxyView srcView = fDevice->createCopy(subset, mipmapped, SkBackingFit::kExact);
     if (!srcView) {

@@ -20,12 +20,21 @@ namespace skgpu {
 namespace skgpu::graphite {
 
 class Context;
+class Device;
 class Recorder;
 
 class Image final : public Image_Base {
 public:
     Image(uint32_t uniqueID, TextureProxyView, const SkColorInfo&);
     ~Image() override;
+
+    // Create an Image that wraps the Device and automatically flushes or references the Device's
+    // pending tasks when the Image is used in a draw to another canvas.
+    static sk_sp<Image> MakeView(sk_sp<Device> device);
+
+    const TextureProxyView& textureProxyView() const { return fTextureProxyView; }
+
+    SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphite; }
 
     bool onHasMipmaps() const override {
         return fTextureProxyView.proxy()->mipmapped() == skgpu::Mipmapped::kYes;
@@ -35,13 +44,11 @@ public:
         return fTextureProxyView.proxy()->isProtected();
     }
 
-    SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphite; }
-
     size_t textureSize() const override;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
-    const TextureProxyView& textureProxyView() const { return fTextureProxyView; }
+    sk_sp<SkImage> makeTextureImage(Recorder*, RequiredProperties) const override;
 
     static sk_sp<TextureProxy> MakePromiseImageLazyProxy(
             const Caps*,
@@ -51,7 +58,6 @@ public:
             SkImages::GraphitePromiseImageFulfillProc,
             sk_sp<RefCntedCallback>,
             SkImages::GraphitePromiseTextureReleaseProc);
-    sk_sp<SkImage> makeTextureImage(Recorder*, RequiredProperties) const override;
 
 #if defined(GRAPHITE_TEST_UTILS)
     bool onReadPixelsGraphite(Recorder*,

@@ -516,28 +516,9 @@ sk_sp<SkImage> TextureFromYUVAImages(Recorder* recorder,
                                      const SkYUVAInfo& yuvaInfo,
                                      SkSpan<const sk_sp<SkImage>> images,
                                      sk_sp<SkColorSpace> imageColorSpace) {
-    int numPlanes = yuvaInfo.numPlanes();
-    if ((size_t) numPlanes > images.size()) {
-        return nullptr;
-    }
-    TextureProxyView textureProxyViews[SkYUVAInfo::kMaxPlanes];
-    for (int plane = 0; plane < numPlanes; ++plane) {
-        if (as_IB(images[plane])->type() != SkImage_Base::Type::kGraphite) {
-            return nullptr;
-        }
-
-        textureProxyViews[plane] = static_cast<Image*>(images[plane].get())->textureProxyView();
-        // YUVATextureProxies expects to sample from the red channel for single-channel textures, so
-        // reset the swizzle for alpha-only textures to compensate for that
-        if (images[plane]->isAlphaOnly()) {
-            textureProxyViews[plane] = textureProxyViews[plane].makeSwizzle(skgpu::Swizzle("aaaa"));
-        }
-    }
-    YUVATextureProxies yuvaProxies(recorder->priv().caps(),
-                                   yuvaInfo, SkSpan<TextureProxyView>(textureProxyViews));
-    SkASSERT(yuvaProxies.isValid());
-    return sk_make_sp<Image_YUVA>(
-            kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
+    // This factory is just a view of the images, so does not actually trigger any work on the
+    // recorder. It is just used to provide the Caps.
+    return Image_YUVA::MakeView(recorder->priv().caps(), yuvaInfo, images, imageColorSpace);
 }
 
 }  // namespace SkImages

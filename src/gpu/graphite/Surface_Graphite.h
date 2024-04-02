@@ -16,6 +16,7 @@ namespace skgpu::graphite {
 
 class Context;
 class Device;
+class Image;
 class Recorder;
 class TextureProxy;
 
@@ -73,6 +74,7 @@ public:
 
 private:
     sk_sp<Device> fDevice;
+    sk_sp<Image>  fImageView; // the image object returned by asImage()
 
     friend void Flush(SkSurface*);
 };

@@ -467,9 +467,7 @@ sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps
 TextureProxyView Device::createCopy(const SkIRect* subset,
                                     Mipmapped mipmapped,
                                     SkBackingFit backingFit) {
-    this->flushPendingWorkToRecorder();
-
-    TextureProxyView srcView = this->readSurfaceView();
+    const TextureProxyView& srcView = this->readSurfaceView();
     if (!srcView) {
         return {};
     }
@@ -484,25 +482,23 @@ TextureProxyView Device::createCopy(const SkIRect* subset,
                                                 this->imageInfo().makeDimensions(size),
                                                 mipmapped);
 
-        auto image = sk_make_sp<Image>(kNeedNewImageUniqueID,
-                                       readSurfaceView(),
-                                       this->imageInfo().colorInfo());
+        // Any pending work is flushed automatically when this image is drawn to `surface`
+        auto image = Image::MakeView(sk_ref_sp(this));
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);
         auto pt = subset ? subset->topLeft() : SkIPoint{0, 0};
         surface->getCanvas()->drawImage(image, -pt.x(), -pt.y(), SkFilterMode::kNearest, &paint);
-
-        auto readView = static_cast<Surface*>(surface.get())->readSurfaceView();
-        if (mipmapped == Mipmapped::kYes) {
-            if (!GenerateMipmaps(fRecorder, readView.refProxy(), this->imageInfo().colorInfo())) {
-                SKGPU_LOG_W("Device::createCopy: Failed to generate mipmaps");
-            }
-        }
-
+        Flush(surface.get());
+        const TextureProxyView& readView = static_cast<Surface*>(surface.get())->readSurfaceView();
+        // TODO(b/297344089): For mipmapped surfaces, the above Flush() also generates the mipmaps.
+        // When automatic mipmap generation happens lazily on first-read, this function should
+        // explicitly trigger the one-time mipmap generation.
+        SkASSERT(readView.proxy()->mipmapped() == mipmapped);
         return readView;
     }
 
     SkIRect srcRect = subset ? *subset : SkIRect::MakeSize(this->imageInfo().dimensions());
+    this->flushPendingWorkToRecorder();
     return TextureProxyView::Copy(this->recorder(),
                                   this->imageInfo().colorInfo(),
                                   srcView,
@@ -1299,6 +1295,10 @@ void Device::drawGeometry(const Transform& localToDevice,
                                                                  clip.drawBounds());
         order.dependsOnStencil(setIndex);
     }
+
+    // TODO(b/330864257): This is an extra traversal of all paint effects, that can be avoided when
+    // the paint key itself is determined inside this function.
+    shading.notifyImagesInUse(fRecorder, fDC.get());
 
     // If an atlas path renderer was chosen, then record a single CoverageMaskShape draw.
     // The shape will be scheduled to be rendered or uploaded into the atlas during the

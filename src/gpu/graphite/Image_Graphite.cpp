@@ -18,6 +18,7 @@
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
@@ -34,10 +35,21 @@ Image::Image(uint32_t uniqueID,
              TextureProxyView view,
              const SkColorInfo& info)
     : Image_Base(SkImageInfo::Make(view.proxy()->dimensions(), info), uniqueID)
-    , fTextureProxyView(std::move(view)) {
-}
+    , fTextureProxyView(std::move(view)) {}
 
-Image::~Image() {}
+Image::~Image() = default;
+
+sk_sp<Image> Image::MakeView(sk_sp<Device> device) {
+    TextureProxyView proxy = device->readSurfaceView();
+    if (!proxy) {
+        return nullptr;
+    }
+    sk_sp<Image> view = sk_make_sp<Image>(kNeedNewImageUniqueID,
+                                          std::move(proxy),
+                                          device->imageInfo().colorInfo());
+    view->linkDevice(std::move(device));
+    return view;
+}
 
 size_t Image::textureSize() const {
     if (!fTextureProxyView.proxy()) {
@@ -83,6 +95,8 @@ sk_sp<SkImage> Image::copyImage(const SkIRect& subset,
         return nullptr;
     }
 
+    this->notifyInUse(recorder);
+
     auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
     TextureProxyView copiedView = TextureProxyView::Copy(
             recorder, this->imageInfo().colorInfo(), srcView, subset, mm, SkBackingFit::kExact);
@@ -96,9 +110,13 @@ sk_sp<SkImage> Image::copyImage(const SkIRect& subset,
 }
 
 sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
-    return sk_make_sp<Image>(kNeedNewImageUniqueID,
-                             fTextureProxyView,
-                             this->imageInfo().colorInfo().makeColorSpace(std::move(newCS)));
+    sk_sp<Image> view = sk_make_sp<Image>(kNeedNewImageUniqueID,
+                                          fTextureProxyView,
+                                          this->imageInfo().colorInfo()
+                                                           .makeColorSpace(std::move(newCS)));
+    // The new Image object shares the same texture proxy, so it should also share linked Devices
+    view->linkDevices(this);
+    return view;
 }
 
 sk_sp<SkImage> Image::makeColorTypeAndColorSpace(Recorder* recorder,
