@@ -100,6 +100,37 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
     return usageType(bufferType, accessPattern);
 }
 
+#ifdef SK_DEBUG
+bool GrGLBuffer::validBindingTarget(GrGLenum target) const {
+    if (!this->glCaps().bufferBindingRestriction()) {
+        return true;
+    }
+    /* This restriction implies that a given buffer object may contain
+     * either indices or other data, but not both.
+     */
+    if (GR_GL_ELEMENT_ARRAY_BUFFER == target) {
+        switch (this->fBindingCategory) {
+            case kUndefined_BindingCategory:
+                this->fBindingCategory = kIndexBuffer_BindingCategory;
+                [[fallthrough]];
+            case kIndexBuffer_BindingCategory:
+                return true;
+            default:
+                return false;
+        }
+    }
+    switch (this->fBindingCategory) {
+        case kUndefined_BindingCategory:
+            this->fBindingCategory = kOtherData_BindingCategory;
+            [[fallthrough]];
+        case kOtherData_BindingCategory:
+            return true;
+        default:
+            return false;
+    }
+}
+#endif // SK_DEBUG
+
 GrGLBuffer::GrGLBuffer(GrGLGpu* gpu,
                        size_t size,
                        GrGpuBufferType intendedType,
