@@ -196,8 +196,6 @@ struct YUVImageShaderBlock {
         SkMatrix fYUVtoRGBMatrix;
         SkPoint3 fYUVtoRGBTranslate;
 
-        SkColorSpaceXformSteps fSteps;
-
         // TODO: Currently these are only filled in when we're generating the key from an actual
         // SkImageShader. In the pre-compile case we will need to create Graphite promise
         // images which hold the appropriate data.
@@ -348,6 +346,7 @@ struct ColorSpaceTransformBlock {
                                 SkAlphaType srcAT,
                                 const SkColorSpace* dst,
                                 SkAlphaType dstAT);
+        ColorSpaceTransformData(const SkColorSpaceXformSteps& steps) { fSteps = steps; }
         SkColorSpaceXformSteps fSteps;
     };
 

@@ -627,8 +627,6 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
     }
     gatherer->writeHalf(imgData.fYUVtoRGBMatrix);
     gatherer->write(imgData.fYUVtoRGBTranslate);
-
-    add_color_space_uniforms(imgData.fSteps, ReadSwizzle::kRGBA, gatherer);
 }
 
 void add_cubic_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
@@ -648,8 +646,6 @@ void add_cubic_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
     }
     gatherer->writeHalf(imgData.fYUVtoRGBMatrix);
     gatherer->write(imgData.fYUVtoRGBTranslate);
-
-    add_color_space_uniforms(imgData.fSteps, ReadSwizzle::kRGBA, gatherer);
 }
 
 } // anonymous namespace
@@ -663,7 +659,6 @@ YUVImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
         , fTileModes{tileModeX, tileModeY}
         , fImgSize(imgSize)
         , fSubset(subset) {
-    SkASSERT(fSteps.flags.mask() == 0);   // By default, the colorspace should have no effect
 }
 
 void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
@@ -1525,13 +1520,6 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
     );
     imgData.fYUVtoRGBTranslate = {yuvM[4], yuvM[9], yuvM[14]};
 
-    if (!origShader->isRaw()) {
-        imgData.fSteps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
-                                                imageToDraw->alphaType(),
-                                                keyContext.dstColorInfo().colorSpace(),
-                                                keyContext.dstColorInfo().alphaType());
-    }
-
     // The YUV formats can encode their own origin including reflection and rotation,
     // so we need to wrap our block in an additional local matrix transform.
     SkMatrix originMatrix = yuvaInfo.originMatrix();
@@ -1539,11 +1527,25 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
 
     KeyContextWithLocalMatrix newContext(keyContext, originMatrix);
 
-    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, lmShaderData);
+    SkColorSpaceXformSteps steps;
+    SkASSERT(steps.flags.mask() == 0);   // By default, the colorspace should have no effect
+    if (!origShader->isRaw()) {
+        steps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
+                                       imageToDraw->alphaType(),
+                                       keyContext.dstColorInfo().colorSpace(),
+                                       keyContext.dstColorInfo().alphaType());
+    }
+    ColorSpaceTransformBlock::ColorSpaceTransformData data(steps);
 
-        YUVImageShaderBlock::AddBlock(newContext, builder, gatherer, imgData);
-
-    builder->endBlock();
+    Compose(keyContext, builder, gatherer,
+            /* addInnerToKey= */ [&]() -> void {
+                LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, lmShaderData);
+                    YUVImageShaderBlock::AddBlock(newContext, builder, gatherer, imgData);
+                builder->endBlock();
+            },
+            /* addOuterToKey= */ [&]() -> void {
+                ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, data);
+            });
 }
 
 static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swizzle& swizzle) {
