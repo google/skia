@@ -461,10 +461,8 @@ protected:
                     fontations_ffi::png_data(*bitmap_glyph);
             SkASSERT(png_data.size());
 
-            const fontations_ffi::BitmapMetrics bitmap_metrics =
+            const fontations_ffi::BitmapMetrics bitmapMetrics =
                     fontations_ffi::bitmap_metrics(*bitmap_glyph);
-
-            const bool& placement_origin_bottom_left = bitmap_metrics.placement_origin_bottom_left;
 
             std::unique_ptr<SkCodec> codec = SkPngDecoder::Decode(
                     SkData::MakeWithoutCopy(png_data.data(), png_data.size()), nullptr);
@@ -472,16 +470,45 @@ protected:
                 return mx;
             }
 
-            SkRect bounds = SkRect::MakeEmpty();
             SkImageInfo info = codec->getInfo();
-            float height_adjustment = placement_origin_bottom_left ? info.height() : 0;
 
-            bounds = SkRect::Make(info.bounds());
+            SkRect bounds = SkRect::Make(info.bounds());
             SkMatrix matrix = remainingMatrix;
-            SkScalar ratio = scale.fY / bitmap_metrics.ppem_y;
-            matrix.preScale(ratio, ratio);
-            matrix.preTranslate(bitmap_metrics.bearing_x,
-                                -bitmap_metrics.bearing_y - height_adjustment);
+
+            // We deal with two scale factors here: Scaling from font units to
+            // device pixels, and scaling the embedded PNG from its number of
+            // rows to a specific size, depending on the ppem values in the
+            // bitmap glyph information.
+            SkScalar imageToSize = scale.fY / bitmapMetrics.ppem_y;
+            float fontUnitsToSize = scale.fY / fontations_ffi::units_per_em_or_zero(fBridgeFontRef);
+
+            // Relevant for sbix only: Convert the potential restrictive size
+            // bounds back to unscaled pixels so that it can be intersected with
+            // the decompressed pixel size of the sbix image.
+            if (!std::isinf(bitmapMetrics.width) && !std::isinf(bitmapMetrics.height)) {
+                SkRect modifiedBounds =
+                        SkRect::MakeXYWH(0,
+                                         0,
+                                         bitmapMetrics.width * fontUnitsToSize / imageToSize,
+                                         bitmapMetrics.height * fontUnitsToSize / imageToSize);
+                if (modifiedBounds.isEmpty()) {
+                    bounds = SkRect::MakeEmpty();
+                } else {
+                    bounds = modifiedBounds;
+                }
+            }
+
+            // The offset from origin is given in font units, so requires a
+            // different scale factor than the scaling of the image.
+            matrix.preTranslate(bitmapMetrics.bearing_x * fontUnitsToSize,
+                                -bitmapMetrics.bearing_y * fontUnitsToSize);
+
+            matrix.preScale(imageToSize, imageToSize);
+            // For sbix bitmap glyphs, the origin is the bottom left of the image.
+            float heightAdjustment =
+                    bitmapMetrics.placement_origin_bottom_left ? bounds.height() : 0;
+            matrix.preTranslate(0, -heightAdjustment);
+
             if (this->isSubpixel()) {
                 matrix.postTranslate(SkFixedToScalar(glyph.getSubXFixed()),
                                      SkFixedToScalar(glyph.getSubYFixed()));
@@ -543,12 +570,21 @@ protected:
         }
         const fontations_ffi::BitmapMetrics bitmapMetrics =
                 fontations_ffi::bitmap_metrics(*bitmap_glyph);
-        SkScalar ratio = scale.fY / bitmapMetrics.ppem_y;
-        canvas.scale(ratio, ratio);
 
-        float height_adjustment =
+        // We need two different scale factors here, one for font units to size,
+        // one for scaling the embedded PNG, see generateMetrics() for details.
+        SkScalar imageScaleFactor = scale.fY / bitmapMetrics.ppem_y;
+
+        float fontUnitsToSize = scale.fY / fontations_ffi::units_per_em_or_zero(fBridgeFontRef);
+        canvas.translate(bitmapMetrics.bearing_x * fontUnitsToSize,
+                         -bitmapMetrics.bearing_y * fontUnitsToSize);
+        canvas.scale(imageScaleFactor, imageScaleFactor);
+        canvas.translate(bitmapMetrics.inner_bearing_x, -bitmapMetrics.inner_bearing_y);
+
+        float heightAdjustment =
                 bitmapMetrics.placement_origin_bottom_left ? glyph_image->height() : 0;
-        canvas.translate(bitmapMetrics.bearing_x, -bitmapMetrics.bearing_y - height_adjustment);
+
+        canvas.translate(0, -heightAdjustment);
 
         SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kNearest);
         canvas.drawImage(glyph_image, 0, 0, sampling);
