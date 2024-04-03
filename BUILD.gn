@@ -2210,10 +2210,10 @@ if (skia_enable_tools) {
     if (skia_tools_require_resources) {
       defines += [ "SK_TOOLS_REQUIRE_RESOURCES" ]
     }
-    deps = [
-      ":flags",
-      "modules/svg",
-    ]
+    deps = [ ":flags" ]
+    if (skia_enable_svg) {
+      deps += [ "modules/svg" ]
+    }
     public_deps = [ ":gpu_tool_utils" ]
   }
 

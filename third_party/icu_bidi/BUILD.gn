@@ -11,15 +11,15 @@ third_party("icu_bidi") {
     "../externals/icu/source/common",
     "../externals/icu/source/i18n",
   ]
-  public_defines = [
-    "U_USING_ICU_NAMESPACE=0",
-    "U_DISABLE_VERSION_SUFFIX=1",
-    "SK_USING_THIRD_PARTY_ICU",
-  ]
+  public_defines = [ "SK_USING_THIRD_PARTY_ICU" ]
   defines = [
+    "U_USING_ICU_NAMESPACE=0",
     "U_COMMON_IMPLEMENTATION",
     "U_STATIC_IMPLEMENTATION",
     "U_I18N_IMPLEMENTATION",
+
+    # See https://chromium.googlesource.com/chromium/deps/icu.git/+/d94ab131bc8fef3bc17f356a628d8e4cd44d65d9/source/common/unicode/uvernum.h#108
+    "U_DISABLE_VERSION_SUFFIX=1",
     "U_HAVE_LIB_SUFFIX=1",
     "U_LIB_SUFFIX_C_NAME=_skia",
   ]

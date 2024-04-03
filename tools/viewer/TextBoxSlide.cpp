@@ -34,6 +34,18 @@
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"
 #endif
 
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_icu.h"
+#endif
+
+#if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_libgrapheme.h"
+#endif
+
+#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_icu4x.h"
+#endif
+
 typedef std::unique_ptr<SkShaper> (*ShaperFactory)();
 
 static const char gText[] =

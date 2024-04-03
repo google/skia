@@ -4,42 +4,33 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
+#include "modules/skunicode/include/SkUnicode_icu4x.h"
 
-#include <cstdint>
-#include <memory>
-#include <unicode/umachine.h>
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "modules/skunicode/include/SkUnicode_icu4x.h"
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkUTF.h"
 
-#include <diplomat_runtime.hpp>
-
-//#include <ICU4XBidi.h>
-
+#include <ICU4XBidi.hpp>
+#include <ICU4XCaseMapper.hpp>
+#include <ICU4XCodePointMapData8.hpp>
+#include <ICU4XCodePointSetData.hpp>
 #include <ICU4XDataProvider.hpp>
 #include <ICU4XGraphemeClusterSegmenter.hpp>
 #include <ICU4XLineSegmenter.hpp>
 #include <ICU4XWordSegmenter.hpp>
-#include <ICU4XBidi.hpp>
 
-#include <cstdint>
-#include <unicode/umachine.h>
 #include <algorithm>
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include <ICU4XCodePointSetData.hpp>
-#include <ICU4XCodePointMapData8.hpp>
-#include <ICU4XCaseMapper.hpp>
 
 class SkUnicode_icu4x :  public SkUnicode {
 public:
