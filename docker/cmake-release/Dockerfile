@@ -10,7 +10,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   curl \
   clang-11 \
   build-essential \
-  cmake \
   libfreetype6-dev \
   libfontconfig-dev \
   libgl1-mesa-dev \
@@ -24,5 +23,9 @@ RUN ln -s /usr/bin/clang-11 /usr/local/bin/clang && \
 
 RUN cd /opt \
  && git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
+
+ADD https://github.com/Kitware/CMake/releases/download/v3.29.0/cmake-3.29.0-linux-x86_64.sh /tmp/install_cmake.sh
+
+RUN chmod +x /tmp/install_cmake.sh && /tmp/install_cmake.sh --skip-license
 
 ENV PATH="/opt/depot_tools:${PATH}"

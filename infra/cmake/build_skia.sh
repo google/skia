@@ -22,7 +22,8 @@ OUT="$(mktemp -d)/CMAKE"
 
 cd ${SKIA_DIR}
 ./bin/fetch-gn
-gn gen ${OUT} --args='is_debug=false' --ide=json --json-ide-script=$SKIA_DIR/gn/gn_to_cmake.py
+./bin/fetch-ninja
+./bin/gn gen ${OUT} --args='is_debug=false' --ide=json --json-ide-script=$SKIA_DIR/gn/gn_to_cmake.py --json-ide-script-args="--ninja-executable=$SKIA_DIR/third_party/ninja/ninja"
 
 cd ${OUT}
 export CC=/usr/local/bin/clang

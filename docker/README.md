@@ -63,7 +63,7 @@ For testing the image locally, the following flow can be helpful:
     # installed and configured. Also useful to get version of CMake.
     docker run -it cmake-release /bin/bash
     # Compile Skia in a local checkout with the local image
-    docker run -v $SKIA_ROOT:/SRC -v /tmp/output:/OUT cmake-release /SRC/infra/docker/cmake/build_skia.sh
+    docker run -v $SKIA_ROOT:/SRC -v /tmp/output:/OUT cmake-release /SRC/infra/cmake/build_skia.sh
 
 ## binary-size
 
