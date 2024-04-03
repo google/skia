@@ -27,10 +27,6 @@ namespace skgpu {
 class MutableTextureState;
 }
 
-#if !defined(SK_DISABLE_LEGACY_METAL_BACKEND_SURFACE) && defined(SK_METAL)
-#include "include/gpu/ganesh/mtl/GrMtlTypes.h"
-#endif
-
 #ifdef SK_DIRECT3D
 #include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
 class GrD3DResourceState;
@@ -282,15 +278,6 @@ private:
         GrD3DBackendSurfaceInfo fD3DInfo;
 #endif
     };
-
-#if !defined(SK_DISABLE_LEGACY_METAL_BACKEND_SURFACE) && defined(SK_METAL)
-public:
-    GrBackendTexture(int width,
-                     int height,
-                     skgpu::Mipmapped,
-                     const GrMtlTextureInfo& mtlInfo,
-                     std::string_view label = {});
-#endif
 };
 
 class SK_API GrBackendRenderTarget {

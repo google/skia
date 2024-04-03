@@ -221,12 +221,3 @@ bool GetMtlTextureInfo(const GrBackendRenderTarget& rt, GrMtlTextureInfo* outInf
 }
 
 }  // namespace GrBackendRenderTargets
-
-#if !defined(SK_DISABLE_LEGACY_METAL_BACKEND_SURFACE)
-GrBackendTexture::GrBackendTexture(int width, int height, skgpu::Mipmapped mipmapped,
-                                   const GrMtlTextureInfo& mtlInfo, std::string_view label)
-            : GrBackendTexture(width, height, label, mipmapped, GrBackendApi::kMetal,
-                GrTextureType::k2D, GrMtlBackendTextureData(mtlInfo)) {}
-#endif
-
-
