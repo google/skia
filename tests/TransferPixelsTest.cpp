@@ -475,9 +475,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
         gpu->submitToGpu(GrSyncCpu::kYes);
     }
 
-    if (!buffer->getData(transferData.get(), partialReadOffset, partialBufferRowBytes * kTexDims.fHeight)) {
-        ERRORF(reporter, "Could not getData");
-    }
+    if (!buffer->getData(transferData.get(), partialReadOffset, partialBufferRowBytes *
+                         kTexDims.fHeight)) { ERRORF(reporter, "Could not getData"); }
 
     transferInfo = transferInfo.makeWH(kPartialWidth, kPartialHeight);
     const char* textureDataStart =

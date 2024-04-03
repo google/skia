@@ -401,7 +401,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         return SkToBool(contextFlags & GR_GL_CONTEXT_FLAG_PROTECTED_CONTENT_BIT_EXT);
     }();
 
-    if (GR_IS_GR_GL(standard) || GR_IS_GR_WEBGL(standard)) {
+    if (GR_IS_GR_GL(standard)) {
+        fGetBufferSubDataSupport = true;
+    } else if (GR_IS_GR_WEBGL(standard)) {
         fGetBufferSubDataSupport = version >= GR_GL_VER(2, 0);
     }
 
