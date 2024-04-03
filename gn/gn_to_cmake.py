@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2016 Google Inc.
 #
@@ -14,7 +14,7 @@ gn gen out/config --ide=json --json-ide-script=../../gn/gn_to_cmake.py
 or
 
 gn gen out/config --ide=json
-python gn/gn_to_cmake.py out/config/project.json
+python3 gn/gn_to_cmake.py out/config/project.json
 
 The first is recommended, as it will auto-update.
 """
@@ -139,7 +139,7 @@ CMakeTargetType.custom = CMakeTargetType('add_custom_target', 'SOURCES',
 # See GetStringForOutputType in gn
 cmake_target_types = {
   'unknown': CMakeTargetType.custom,
-  'group': CMakeTargetType.custom,
+  'group': CMakeTargetType('add_library', 'INTERFACE', None, True),
   'executable': CMakeTargetType('add_executable', None, 'RUNTIME', True),
   'loadable_module': CMakeTargetType('add_library', 'MODULE', 'LIBRARY', True),
   'shared_library': CMakeTargetType('add_library', 'SHARED', 'LIBRARY', True),
@@ -254,7 +254,7 @@ def WriteAction(out, target, project, sources, synthetic_dependencies):
 
   script = target.properties['script']
   arguments = target.properties['args']
-  out.write('  COMMAND python "')
+  out.write('  COMMAND python3 "')
   out.write(CMakeStringEscape(project.GetAbsolutePath(script)))
   out.write('"')
   if arguments:
@@ -324,7 +324,7 @@ def WriteActionForEach(out, target, project, sources, synthetic_dependencies):
     script = target.properties['script']
     # TODO: need to expand {{xxx}} in arguments
     arguments = target.properties['args']
-    out.write('  COMMAND python "')
+    out.write('  COMMAND python3 "')
     out.write(CMakeStringEscape(project.GetAbsolutePath(script)))
     out.write('"')
     if arguments:
@@ -404,7 +404,8 @@ def WriteCopy(out, target, project, sources, synthetic_dependencies):
 
 def WriteCompilerFlags(out, target, project, sources):
   # Hack, set linker language to c if no c or cxx files present.
-  if not 'c' in sources and not 'cxx' in sources:
+  # However, cannot set LINKER_LANGUAGE on INTERFACE (with source files) until 3.19.
+  if not 'c' in sources and not 'cxx' in sources and not target.cmake_type.modifier == "INTERFACE":
     SetCurrentTargetProperty(out, 'LINKER_LANGUAGE', ['C'])
 
   # Mark uncompiled sources as uncompiled.
@@ -498,9 +499,10 @@ def WriteSourceVariables(out, target, project):
 
   all_sources = target.properties.get('sources', [])
 
-  # As of cmake 3.11 add_library must have sources. If there are
-  # no sources, add empty.cpp as the file to compile.
-  if len(all_sources) == 0:
+  # As of cmake 3.11 add_library must have sources.
+  # If there are no sources, add empty.cpp as the file to compile.
+  # Unless it's an INTERFACE, which must not have sources until 3.19.
+  if len(all_sources) == 0 and not target.cmake_type.modifier == "INTERFACE":
     all_sources.append(posixpath.join(project.build_path, 'empty.cpp'))
 
   # TODO .def files on Windows
@@ -634,6 +636,8 @@ def WriteTarget(out, target, project):
         out.write(')\n')
         system_libraries.append(system_library)
     out.write('target_link_libraries("${target}"')
+    if (target.cmake_type.modifier == "INTERFACE"):
+      out.write(' INTERFACE')
     for library in libraries:
       out.write('\n  "')
       out.write(CMakeStringEscape(library))
