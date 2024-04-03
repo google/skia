@@ -4,23 +4,15 @@ error: :9:14 error: 'uniform' storage requires that array elements are aligned t
   testArray: array<f32, 5>,
              ^^^^^^^^^^^^^
 
-:6:1 note: see layout of struct:
+:6:8 note: see layout of struct:
 /*            align(16) size(64) */ struct _GlobalUniforms {
-/* offset( 0) align(16) size(16) */   colorGreen : vec4<f32>;
-/* offset(16) align(16) size(16) */   colorRed : vec4<f32>;
-/* offset(32) align( 4) size(20) */   testArray : array<f32, 5>;
-/* offset(52) align( 1) size(12) */   // -- implicit struct size padding --;
+/* offset( 0) align(16) size(16) */   colorGreen : vec4<f32>,
+/* offset(16) align(16) size(16) */   colorRed : vec4<f32>,
+/* offset(32) align( 4) size(20) */   testArray : array<f32, 5>,
+/* offset(52) align( 1) size(12) */   // -- implicit struct size padding --
 /*                               */ };
 struct _GlobalUniforms {
-^^^^^^^^^^^^^^^^^^^^^^^^
-  colorGreen: vec4<f32>,
-^^^^^^^^^^^^^^^^^^^^^^^^
-  colorRed: vec4<f32>,
-^^^^^^^^^^^^^^^^^^^^^^
-  testArray: array<f32, 5>,
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-};
-^
+       ^^^^^^^^^^^^^^^
 
 :11:23 note: '_GlobalUniforms' used in address space 'uniform' here
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
