@@ -144,6 +144,7 @@ const char* to_str(BlenderType b) {
     M(Compose)         \
     M(Gaussian)        \
     M(HSLAMatrix)      \
+    M(Lerp)            \
     M(Lighting)        \
     M(LinearToSRGB)    \
     M(Luma)            \
@@ -820,6 +821,27 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_rt_colorfil
     return { nullptr, nullptr };
 }
 
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_lerp_colorfilter(
+        SkRandom* rand) {
+
+    auto [dst, dstO] = create_random_colorfilter(rand);
+    auto [src, srcO] = create_random_colorfilter(rand);
+    // SkColorFilters::Lerp optimizes away the case where src == dst. I don't know if it is worth
+    // capturing it in the precompilation API
+    while (src == dst) {
+        std::tie(src, srcO) = create_random_colorfilter(rand);
+    }
+
+    // TODO: SkColorFilters::Lerp will return a different colorFilter depending on the
+    // weight value and the child color filters. I don't know if that is worth capturing
+    // in the precompile API.
+    sk_sp<SkColorFilter> cf = SkColorFilters::Lerp(0.5f, std::move(dst), std::move(src));
+
+    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Lerp({ dstO }, { srcO });
+
+    return { cf, o };
+}
+
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_lighting_colorfilter() {
     // TODO: the lighting color filter factory special cases when nothing is added and converts it
     // to a blendmode color filter
@@ -940,6 +962,8 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_colorfilter
             return create_gaussian_colorfilter();
         case ColorFilterType::kHSLAMatrix:
             return create_hsla_matrix_colorfilter();
+        case ColorFilterType::kLerp:
+            return create_lerp_colorfilter(rand);
         case ColorFilterType::kLighting:
             return create_lighting_colorfilter();
         case ColorFilterType::kLinearToSRGB:
@@ -1238,6 +1262,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ColorFilterType::kCompose,
             ColorFilterType::kGaussian,
             ColorFilterType::kHSLAMatrix,
+            ColorFilterType::kLerp,
             ColorFilterType::kLighting,
             ColorFilterType::kLinearToSRGB,
             ColorFilterType::kLuma,

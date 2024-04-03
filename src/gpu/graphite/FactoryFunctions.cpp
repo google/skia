@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/FactoryFunctions.h"
 
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
 #include "src/gpu/Blend.h"
@@ -1039,6 +1040,36 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::Matrix() {
 
 sk_sp<PrecompileColorFilter> PrecompileColorFilters::HSLAMatrix() {
     return sk_make_sp<PrecompileMatrixColorFilter>();
+}
+
+//--------------------------------------------------------------------------------------------------
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::Lerp(
+        SkSpan<const sk_sp<PrecompileColorFilter>> dstOptions,
+        SkSpan<const sk_sp<PrecompileColorFilter>> srcOptions) {
+
+    if (dstOptions.empty() && srcOptions.empty()) {
+        return nullptr;
+    }
+
+    const SkRuntimeEffect* lerpEffect =
+            GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kLerp);
+
+    // Since the RuntimeEffect Precompile objects behave differently we have to manually create
+    // all the combinations here (b/332690425).
+    skia_private::TArray<std::array<const PrecompileChildPtr, 2>> combos;
+    combos.reserve(dstOptions.size() * srcOptions.size());
+    for (const sk_sp<PrecompileColorFilter>& d : dstOptions) {
+        for (const sk_sp<PrecompileColorFilter>& s : srcOptions) {
+            combos.push_back({ d, s });
+        }
+    }
+    skia_private::TArray<SkSpan<const PrecompileChildPtr>> comboSpans;
+    comboSpans.reserve(combos.size());
+    for (const std::array<const PrecompileChildPtr, 2>& combo : combos) {
+        comboSpans.push_back({ combo });
+    }
+
+    return MakePrecompileColorFilter(sk_ref_sp(lerpEffect), comboSpans);
 }
 
 //--------------------------------------------------------------------------------------------------
