@@ -526,7 +526,6 @@ void GrVkOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float,
 
     this->currentCommandBuffer()->clearAttachments(fGpu, 1, &attachment, 1, &clearRect);
     fCurrentCBIsEmpty = false;
-    return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

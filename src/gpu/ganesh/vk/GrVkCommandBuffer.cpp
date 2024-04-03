@@ -148,7 +148,7 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfD
     SkASSERT(fIsActive);
 
     // Currently we never submit a pipeline barrier without at least one memory barrier.
-    if (fBufferBarriers.size() > 0 || fImageBarriers.size() > 0) {
+    if (!fBufferBarriers.empty() || !fImageBarriers.empty()) {
         // For images we can have barriers inside of render passes but they require us to add more
         // support in subpasses which need self dependencies to have barriers inside them. Also, we
         // can never have buffer barriers inside of a render pass. For now we will just assert that
@@ -162,10 +162,10 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfD
         // counts >= 0, and in the case of >0, that the buffers are non-null. Evaluate whether this
         // change leads to a reduction in crash instances. If not, the issue may lie within the
         // driver itself and these checks can be removed.
-        if (fBufferBarriers.size() > 0 && fBufferBarriers.begin() == nullptr) {
+        if (!fBufferBarriers.empty() && fBufferBarriers.begin() == nullptr) {
             fBufferBarriers.clear(); // Sets the size to 0
         }
-        if (fImageBarriers.size() > 0 && fImageBarriers.begin() == nullptr) {
+        if (!fImageBarriers.empty() && fImageBarriers.begin() == nullptr) {
             fImageBarriers.clear(); // Sets the size to 0
         }
 
@@ -180,8 +180,8 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfD
         fSrcStageMask = 0;
         fDstStageMask = 0;
     }
-    SkASSERT(!fBufferBarriers.size());
-    SkASSERT(!fImageBarriers.size());
+    SkASSERT(fBufferBarriers.empty());
+    SkASSERT(fImageBarriers.empty());
     SkASSERT(!fBarriersByRegion);
     SkASSERT(!fSrcStageMask);
     SkASSERT(!fDstStageMask);
@@ -937,7 +937,7 @@ void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
     if (VK_NULL_HANDLE != fSubmitFence) {
         GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
     }
-    SkASSERT(!fSecondaryCommandBuffers.size());
+    SkASSERT(fSecondaryCommandBuffers.empty());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

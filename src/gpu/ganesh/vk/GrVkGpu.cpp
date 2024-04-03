@@ -403,7 +403,7 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     SkASSERT(!fCachedOpsRenderPass || !fCachedOpsRenderPass->isActive());
 
     if (!this->currentCommandBuffer()->hasWork() && kForce_SyncQueue != sync &&
-        !fSemaphoresToSignal.size() && !fSemaphoresToWaitOn.size()) {
+        fSemaphoresToSignal.empty() && fSemaphoresToWaitOn.empty()) {
         // We may have added finished procs during the flush call. Since there is no actual work
         // we are not submitting the command buffer and may never come back around to submit it.
         // Thus we call all current finished procs manually, since the work has technically

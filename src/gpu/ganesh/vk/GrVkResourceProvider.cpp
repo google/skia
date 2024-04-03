@@ -27,9 +27,9 @@ GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
 }
 
 GrVkResourceProvider::~GrVkResourceProvider() {
-    SkASSERT(0 == fRenderPassArray.size());
-    SkASSERT(0 == fExternalRenderPasses.size());
-    SkASSERT(0 == fMSAALoadPipelines.size());
+    SkASSERT(fRenderPassArray.empty());
+    SkASSERT(fExternalRenderPasses.empty());
+    SkASSERT(fMSAALoadPipelines.empty());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
 }
 
@@ -402,7 +402,7 @@ void GrVkResourceProvider::recycleDescriptorSet(const GrVkDescriptorSet* descSet
 
 GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
     GrVkCommandPool* result;
-    if (fAvailableCommandPools.size()) {
+    if (!fAvailableCommandPools.empty()) {
         result = fAvailableCommandPools.back();
         fAvailableCommandPools.pop_back();
     } else {
@@ -436,7 +436,7 @@ void GrVkResourceProvider::checkCommandBuffers() {
     // TODO: We really need to have a more robust way to protect us from client proc calls that
     // happen in the middle of us doing work. This may be just one of many potential pitfalls that
     // could happen from the client triggering GrDirectContext changes during a proc call.
-    for (int i = fActiveCommandPools.size() - 1; fActiveCommandPools.size() && i >= 0; --i) {
+    for (int i = fActiveCommandPools.size() - 1; !fActiveCommandPools.empty() && i >= 0; --i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         if (!pool->isOpen()) {
             GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
@@ -459,7 +459,7 @@ void GrVkResourceProvider::checkCommandBuffers() {
 }
 
 void GrVkResourceProvider::forceSyncAllCommandBuffers() {
-    for (int i = fActiveCommandPools.size() - 1; fActiveCommandPools.size() && i >= 0; --i) {
+    for (int i = fActiveCommandPools.size() - 1; !fActiveCommandPools.empty() && i >= 0; --i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         if (!pool->isOpen()) {
             GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();

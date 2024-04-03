@@ -289,7 +289,7 @@ bool GrVkDescriptorSetManager::isZeroSampler() const {
     if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER != fPoolManager.fDescType) {
         return false;
     }
-    if (fBindingVisibilities.size()) {
+    if (!fBindingVisibilities.empty()) {
         return false;
     }
     return true;
