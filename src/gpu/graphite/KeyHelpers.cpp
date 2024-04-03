@@ -1505,6 +1505,10 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
     // If the format has no alpha, we still need to set the proxy to something
     if (textureCount == 3) {
         imgData.fTextureProxies[3] = imgData.fTextureProxies[0];
+        // All ones will be a signal that there is no alpha.
+        for (int i = 0; i < 4; ++i) {
+            imgData.fChannelSelect[SkYUVAInfo::kA][i] = 1.0f;
+        }
     }
     float yuvM[20];
     SkColorMatrix_YUV2RGB(yuvaInfo.yuvColorSpace(), yuvM);

@@ -254,7 +254,7 @@ protected:
             graphiteContext->submit();
             while (!asyncContext.fCalled) {
                 graphiteContext->checkAsyncWorkCompletion();
-                graphiteTestContext()->tick();
+                this->graphiteTestContext()->tick();
             }
 #endif
         } else {
