@@ -155,37 +155,21 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(SkISize dimensions
 
 namespace {
 GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDescriptors) {
-    // TODO(nicolettep): Finalize & optimize key structure. Refactor to have the order of the
-    // requested descriptors be irrelevant.
-    // For now, to place some kind of upper limit on key size, limit a key to only containing
-    // information for up to 9 descriptors. This number was selected due to having a maximum of 3
-    // uniform buffer descriptors and observationally only encountering up to 6 texture/samplers for
-    // our testing use cases.
-    static const int kMaxDescriptorQuantity = 9;
-    static const int kNum32DataCnt = kMaxDescriptorQuantity;
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
+    const int num32DataCnt = requestedDescriptors.size() + 1;
+
     GraphiteResourceKey key;
-    GraphiteResourceKey::Builder builder(&key, kType, kNum32DataCnt, Shareable::kNo);
+    GraphiteResourceKey::Builder builder(&key, kType, num32DataCnt, Shareable::kNo);
 
-    if (requestedDescriptors.size() > kMaxDescriptorQuantity) {
-        SKGPU_LOG_E("%d descriptors requested, but graphite currently only supports creating"
-                    "descriptor set keys for up to %d. The key will only take the first %d into"
-                    " account.", static_cast<int>(requestedDescriptors.size()),
-                    kMaxDescriptorQuantity, kMaxDescriptorQuantity);
-    }
-
-    for (size_t i = 0; i < kNum32DataCnt; i++) {
-        if (i < requestedDescriptors.size()) {
-            // TODO: Consider making the DescriptorData struct itself just use uint16_t.
-            uint16_t smallerCount = static_cast<uint16_t>(requestedDescriptors[i].count);
-            builder[i] =  static_cast<uint8_t>(requestedDescriptors[i].type) << 24
-                          | requestedDescriptors[i].bindingIndex << 16
-                          | smallerCount;
-        } else {
-            // Populate reminaing key components with 0.
-            builder[i] = 0;
-        }
+    builder[0] = requestedDescriptors.size();
+    for (int i = 1; i < num32DataCnt; i++) {
+        const auto& currDesc = requestedDescriptors[i - 1];
+        // TODO: Consider making the DescriptorData struct itself just use uint16_t.
+        uint16_t smallerCount = static_cast<uint16_t>(currDesc.count);
+        builder[i] = static_cast<uint8_t>(currDesc.type) << 24 |
+                     currDesc.bindingIndex << 16 |
+                     smallerCount;
     }
     builder.finish();
     return key;
