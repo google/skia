@@ -1,9 +1,6 @@
 ### Compilation failed:
 
-error: :16:20 error: unresolved call target 'uintBitsToFloat'
-    let _skTemp0 = uintBitsToFloat(expectedB.x);
-                   ^^^^^^^^^^^^^^^
-
+error: Tint compilation failed.
 
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);

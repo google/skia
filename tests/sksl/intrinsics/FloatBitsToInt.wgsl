@@ -1,9 +1,6 @@
 ### Compilation failed:
 
-error: :16:20 error: unresolved call target 'floatBitsToInt'
-    let _skTemp0 = floatBitsToInt(inputVal.x);
-                   ^^^^^^^^^^^^^^
-
+error: Tint compilation failed.
 
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);

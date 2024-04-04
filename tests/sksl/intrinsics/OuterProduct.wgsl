@@ -1,9 +1,6 @@
 ### Compilation failed:
 
-error: :17:20 error: unresolved call target 'outerProduct'
-    let _skTemp0 = outerProduct(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]);
-                   ^^^^^^^^^^^^
-
+error: Tint compilation failed.
 
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);

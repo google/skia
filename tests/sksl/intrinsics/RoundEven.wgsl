@@ -1,9 +1,6 @@
 ### Compilation failed:
 
-error: :15:20 error: unresolved call target 'roundEven'
-    let _skTemp0 = roundEven(_globalUniforms.testInputs.x);
-                   ^^^^^^^^^
-
+error: Tint compilation failed.
 
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);

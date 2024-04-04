@@ -1,9 +1,6 @@
 ### Compilation failed:
 
-error: :13:20 error: unresolved call target 'findLSB'
-    let _skTemp0 = findLSB(_globalUniforms.a);
-                   ^^^^^^^
-
+error: Tint compilation failed.
 
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
