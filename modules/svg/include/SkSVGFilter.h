@@ -15,6 +15,9 @@ class SK_API SkSVGFilter final : public SkSVGHiddenContainer {
 public:
     static sk_sp<SkSVGFilter> Make() { return sk_sp<SkSVGFilter>(new SkSVGFilter()); }
 
+    /** Propagates any inherited presentation attributes in the given context. */
+    void applyProperties(SkSVGRenderContext*) const;
+
     sk_sp<SkImageFilter> buildFilterDAG(const SkSVGRenderContext&) const;
 
     SVG_ATTR(X, SkSVGLength, SkSVGLength(-10, SkSVGLength::Unit::kPercentage))
