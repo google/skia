@@ -395,7 +395,6 @@ public:
     sk_sp<SkData> getData() const override { return fData; }
     void setData(sk_sp<SkData> data);
 
-    void skipToAlign4();
     const void* getAtPos();
 
     size_t read(void* buffer, size_t size) override;
