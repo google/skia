@@ -206,7 +206,8 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
                                          VK_CHROMA_LOCATION_COSITED_EVEN,
                                          VK_FILTER_LINEAR,
                                          false,
-                                         formatProperties.linearTilingFeatures};
+                                         formatProperties.linearTilingFeatures,
+                                         /*fComponents=*/{}};
     skgpu::VulkanAlloc alloc;
     alloc.fMemory = fImageMemory;
     alloc.fOffset = 0;

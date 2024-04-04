@@ -26,15 +26,14 @@ public:
     SK_BEGIN_REQUIRE_DENSE
     struct Key {
         Key() = default;
-        Key(VkFormat vkFormat, uint64_t externalFormat, uint8_t conversionKey) {
+        Key(VkFormat vkFormat, uint64_t externalFormat, uint32_t conversionKey) {
             fVkFormat = vkFormat;
             fExternalFormat = externalFormat;
             fConversionKey = conversionKey;
         }
 
         VkFormat fVkFormat = VK_FORMAT_UNDEFINED;
-        uint8_t  fConversionKey = 0;
-        uint8_t  fPadding[3] = {0, 0, 0};
+        uint32_t fConversionKey = 0;
         uint64_t fExternalFormat = 0;
 
         bool operator==(const Key& that) const {
