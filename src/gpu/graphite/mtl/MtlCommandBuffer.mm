@@ -59,17 +59,22 @@ bool MtlCommandBuffer::setNewCommandBufferResources() {
 
 bool MtlCommandBuffer::createNewMTLCommandBuffer() {
     SkASSERT(fCommandBuffer == nil);
-    if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
-        sk_cfp<MTLCommandBufferDescriptor*> desc([[MTLCommandBufferDescriptor alloc] init]);
-        (*desc).retainedReferences = NO;
+
+    // Inserting a pool here so the autorelease occurs when we return and the
+    // only remaining ref is the retain below.
+    @autoreleasepool {
+        if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
+            sk_cfp<MTLCommandBufferDescriptor*> desc([[MTLCommandBufferDescriptor alloc] init]);
+            (*desc).retainedReferences = NO;
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
-        (*desc).errorOptions = MTLCommandBufferErrorOptionEncoderExecutionStatus;
+            (*desc).errorOptions = MTLCommandBufferErrorOptionEncoderExecutionStatus;
 #endif
-        // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
-        fCommandBuffer.reset([[fQueue commandBufferWithDescriptor:desc.get()] retain]);
-    } else {
-        // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
-        fCommandBuffer.reset([[fQueue commandBufferWithUnretainedReferences] retain]);
+            // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
+            fCommandBuffer.reset([[fQueue commandBufferWithDescriptor:desc.get()] retain]);
+        } else {
+            // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
+            fCommandBuffer.reset([[fQueue commandBufferWithUnretainedReferences] retain]);
+        }
     }
     return fCommandBuffer != nil;
 }
