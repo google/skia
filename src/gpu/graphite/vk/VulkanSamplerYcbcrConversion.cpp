@@ -73,6 +73,10 @@ GraphiteResourceKey VulkanSamplerYcbcrConversion::MakeYcbcrConversionKey(
     SkASSERT(info.fYChromaOffset               < (1u << 1));
     SkASSERT(info.fChromaFilter                < (1u << 1));
     SkASSERT(info.fForceExplicitReconstruction < (1u << 7));
+    SkASSERT(info.fComponents.r                < (1u << 3));
+    SkASSERT(info.fComponents.g                < (1u << 3));
+    SkASSERT(info.fComponents.b                < (1u << 3));
+    SkASSERT(info.fComponents.a                < (1u << 3));
 
     builder[0] = info.fFormat;
     builder[1] = (uint32_t)(info.fExternalFormat << 32);
@@ -82,7 +86,11 @@ GraphiteResourceKey VulkanSamplerYcbcrConversion::MakeYcbcrConversionKey(
                  (static_cast<uint32_t>(info.fXChromaOffset              ) <<  9) |
                  (static_cast<uint32_t>(info.fYChromaOffset              ) << 10) |
                  (static_cast<uint32_t>(info.fChromaFilter               ) << 11) |
-                 (static_cast<uint32_t>(info.fForceExplicitReconstruction) << 12) ;
+                 (static_cast<uint32_t>(info.fForceExplicitReconstruction) << 12) |
+                 (static_cast<uint32_t>(info.fComponents.r               ) << 20) |
+                 (static_cast<uint32_t>(info.fComponents.g               ) << 23) |
+                 (static_cast<uint32_t>(info.fComponents.b               ) << 26) |
+                 (static_cast<uint32_t>(info.fComponents.a               ) << 29) ;
 
     builder.finish();
     return key;

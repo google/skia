@@ -72,7 +72,11 @@ struct VulkanYcbcrConversionInfo {
                this->fXChromaOffset == that.fXChromaOffset &&
                this->fYChromaOffset == that.fYChromaOffset &&
                this->fChromaFilter == that.fChromaFilter &&
-               this->fForceExplicitReconstruction == that.fForceExplicitReconstruction;
+               this->fForceExplicitReconstruction == that.fForceExplicitReconstruction &&
+               this->fComponents.r == that.fComponents.r &&
+               this->fComponents.g == that.fComponents.g &&
+               this->fComponents.b == that.fComponents.b &&
+               this->fComponents.a == that.fComponents.a;
     }
     bool operator!=(const VulkanYcbcrConversionInfo& that) const { return !(*this == that); }
 
@@ -99,6 +103,12 @@ struct VulkanYcbcrConversionInfo {
     // For external images format features here should be those returned by a call to
     // vkAndroidHardwareBufferFormatPropertiesANDROID
     VkFormatFeatureFlags fFormatFeatures = 0;
+
+    // This is ignored when fExternalFormat is non-zero.
+    VkComponentMapping fComponents            = {VK_COMPONENT_SWIZZLE_IDENTITY,
+                                                 VK_COMPONENT_SWIZZLE_IDENTITY,
+                                                 VK_COMPONENT_SWIZZLE_IDENTITY,
+                                                 VK_COMPONENT_SWIZZLE_IDENTITY};
 };
 
 typedef void* VulkanDeviceLostContext;

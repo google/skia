@@ -46,11 +46,7 @@ void SetupSamplerYcbcrConversionInfo(VkSamplerYcbcrConversionCreateInfo* outInfo
     outInfo->format = conversionInfo.fFormat;
     outInfo->ycbcrModel = conversionInfo.fYcbcrModel;
     outInfo->ycbcrRange = conversionInfo.fYcbcrRange;
-
-    // Components is ignored for external format conversions. For all other formats identity swizzle
-    // is used. It can be added to VulkanYcbcrConversionInfo if necessary.
-    outInfo->components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
-                           VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY};
+    outInfo->components = conversionInfo.fComponents;
     outInfo->xChromaOffset = conversionInfo.fXChromaOffset;
     outInfo->yChromaOffset = conversionInfo.fYChromaOffset;
     outInfo->chromaFilter = conversionInfo.fChromaFilter;
@@ -67,6 +63,7 @@ void GetYcbcrConversionInfoFromFormatProps(
         const VkAndroidHardwareBufferFormatPropertiesANDROID& formatProps) {
     outConversionInfo->fYcbcrModel = formatProps.suggestedYcbcrModel;
     outConversionInfo->fYcbcrRange = formatProps.suggestedYcbcrRange;
+    outConversionInfo->fComponents = formatProps.samplerYcbcrConversionComponents;
     outConversionInfo->fXChromaOffset = formatProps.suggestedXChromaOffset;
     outConversionInfo->fYChromaOffset = formatProps.suggestedYChromaOffset;
     outConversionInfo->fForceExplicitReconstruction = VK_FALSE;
