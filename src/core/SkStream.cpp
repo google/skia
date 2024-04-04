@@ -337,11 +337,12 @@ void SkMemoryStream::setData(sk_sp<SkData> data) {
 size_t SkMemoryStream::read(void* buffer, size_t size) {
     size_t dataSize = fData->size();
 
+    SkASSERT(fOffset <= dataSize);
     if (size > dataSize - fOffset) {
         size = dataSize - fOffset;
     }
     if (buffer) {
-        memcpy(buffer, fData->bytes() + fOffset, size);
+        sk_careful_memcpy(buffer, fData->bytes() + fOffset, size);
     }
     fOffset += size;
     return size;

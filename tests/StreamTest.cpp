@@ -188,25 +188,28 @@ static void TestPackedUInt(skiatest::Reporter* reporter) {
 
 // Test that setting an SkMemoryStream to a nullptr data does not result in a crash when calling
 // methods that access fData.
-static void TestDereferencingData(SkMemoryStream* memStream) {
-    memStream->read(nullptr, 0);
+static void TestDereferencingData(skiatest::Reporter* reporter, SkMemoryStream* memStream) {
+    REPORTER_ASSERT(reporter, memStream->read(nullptr, 0) == 0);
+    // Reading non-zero bytes from an empty stream should cleanly read zero bytes.
+    char buf[1];
+    REPORTER_ASSERT(reporter, memStream->read(buf, sizeof(buf)) == 0);
     memStream->getMemoryBase();
     (void)memStream->getData();
 }
 
-static void TestNullData() {
+static void TestNullData(skiatest::Reporter* reporter) {
     SkMemoryStream memStream(nullptr);
-    TestDereferencingData(&memStream);
+    TestDereferencingData(reporter, &memStream);
 
     memStream.setData(nullptr);
-    TestDereferencingData(&memStream);
+    TestDereferencingData(reporter, &memStream);
 
 }
 
 DEF_TEST(Stream, reporter) {
     TestWStream(reporter);
     TestPackedUInt(reporter);
-    TestNullData();
+    TestNullData(reporter);
 }
 
 #ifndef SK_BUILD_FOR_IOS
