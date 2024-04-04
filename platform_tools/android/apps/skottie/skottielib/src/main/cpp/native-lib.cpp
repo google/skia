@@ -19,11 +19,6 @@
 #include "include/core/SkSurface.h"
 #include "include/ports/SkFontMgr_empty.h"
 
-#include <jni.h>
-#include <math.h>
-#include <string>
-#include <utility>
-
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
@@ -37,6 +32,11 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
+
+#include <jni.h>
+#include <math.h>
+#include <string>
+#include <utility>
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
@@ -86,14 +86,14 @@ extern "C" JNIEXPORT jlong
 JNICALL
 Java_org_skia_skottie_SkottieRunner_nCreateProxy(JNIEnv *env, jclass clazz) {
     sk_sp<const GrGLInterface> glInterface = GrGLInterfaces::MakeEGL();
-    if (!glInterface.get()) {
+    if (!glInterface) {
         return 0;
     }
 
     GrContextOptions options;
     options.fDisableDistanceFieldPaths = true;
     sk_sp<GrDirectContext> dContext = GrDirectContexts::MakeGL(std::move(glInterface), options);
-    if (!dContext.get()) {
+    if (!dContext) {
         return 0;
     }
 
@@ -166,7 +166,7 @@ Java_org_skia_skottie_SkottieAnimation_nCreateProxy(JNIEnv *env,
     sk_sp<SkData> data(SkData::MakeWithProc(buffer, bufferSize, release_global_jni_ref,
                                             reinterpret_cast<void*>(bufferRef)));
     std::unique_ptr<SkStream> stream = SkMemoryStream::Make(data);
-    if (!stream.get()) {
+    if (!stream) {
         // Cannot create a stream
         return 0;
     }
