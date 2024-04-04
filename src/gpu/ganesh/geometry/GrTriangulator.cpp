@@ -7,15 +7,25 @@
 
 #include "src/gpu/ganesh/geometry/GrTriangulator.h"
 
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTPin.h"
+#include "src/base/SkVx.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPointPriv.h"
 #include "src/gpu/BufferWriter.h"
+#include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrEagerVertexAllocator.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 
-#include "src/core/SkGeometry.h"
-#include "src/core/SkPointPriv.h"
-
 #include <algorithm>
+#include <cstddef>
+#include <limits>
+#include <memory>
 #include <tuple>
+#include <utility>
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 

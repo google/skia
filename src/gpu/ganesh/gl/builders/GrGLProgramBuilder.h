@@ -9,6 +9,7 @@
 #define GrGLProgramBuilder_DEFINED
 
 #include "include/gpu/GrContextOptions.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/gl/GrGLProgram.h"
 #include "src/gpu/ganesh/gl/GrGLProgramDataManager.h"

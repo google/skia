@@ -9,16 +9,24 @@
 #define GrGLSLShaderBuilder_DEFINED
 
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkTDArray.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkTArray.h"
 #include "src/base/SkTBlockList.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#include "src/sksl/SkSLString.h"
-#include "src/sksl/ir/SkSLStatement.h"
+#include "src/sksl/SkSLDefines.h"
+#include "src/sksl/ir/SkSLStatement.h"  // IWYU pragma: keep
 
-#include <stdarg.h>
+#include <cstdarg>
+#include <cstddef>
+#include <cstdint>
+#include <string>
 
 class GrGLSLColorSpaceXformHelper;
+class GrGLSLProgramBuilder;
+enum class SkBlendMode;
+enum class SkSLType : char;
 
 /**
   base class for all shaders builders

@@ -8,13 +8,16 @@
 #ifndef GrGLSLProgramDataManager_DEFINED
 #define GrGLSLProgramDataManager_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "src/gpu/ganesh/GrResourceHandle.h"
 
-class SkMatrix;
+#include <cstdint>
+
 class SkM44;
+class SkMatrix;
 
 /** Manages the resources used by a shader program.
  * The resources are objects the program uses to communicate with the

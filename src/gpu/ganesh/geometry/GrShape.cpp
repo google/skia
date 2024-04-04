@@ -10,6 +10,8 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 
+#include <algorithm>
+
 GrShape& GrShape::operator=(const GrShape& shape) {
     switch (shape.type()) {
         case Type::kEmpty:

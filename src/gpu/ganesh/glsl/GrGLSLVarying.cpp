@@ -4,10 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "src/gpu/ganesh/GrShaderCaps.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
+
+#include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
+#include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
+#include "src/sksl/SkSLGLSL.h"
 
 void GrGLSLVaryingHandler::addPassThroughAttribute(const GrShaderVar& vsVar,
                                                    const char* output,

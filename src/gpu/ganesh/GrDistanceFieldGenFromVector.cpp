@@ -4,14 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "src/core/SkDistanceFieldGen.h"
 #include "src/gpu/ganesh/GrDistanceFieldGenFromVector.h"
 
 #include "include/core/SkMatrix.h"
 #include "include/private/base/SkTPin.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"

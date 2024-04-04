@@ -8,12 +8,13 @@
 #ifndef GrGLBlend_DEFINED
 #define GrGLBlend_DEFINED
 
-#include "include/core/SkBlendMode.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 
-class GrGLSLShaderBuilder;
+#include <string>
+
 class GrGLSLUniformHandler;
 class GrProcessor;
+enum class SkBlendMode;
 
 namespace GrGLSLBlend {
 

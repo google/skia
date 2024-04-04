@@ -7,8 +7,14 @@
 #ifndef GrQuadBuffer_DEFINED
 #define GrQuadBuffer_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
+
+#include <cstdint>
+#include <cstring>
 
 template<typename T>
 class GrQuadBuffer {

@@ -8,14 +8,14 @@
 #ifndef GrAAConvexTessellator_DEFINED
 #define GrAAConvexTessellator_DEFINED
 
-#include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/core/SkPointPriv.h"
 
-class SkCanvas;
 class SkMatrix;
 class SkPath;
 
@@ -23,8 +23,6 @@ class SkPath;
 
 // device space distance which we inset / outset points in order to create the soft antialiased edge
 static const SkScalar kAntialiasingRadius = 0.5f;
-
-class GrAAConvexTessellator;
 
 // The AAConvexTessellator holds the global pool of points and the triangulation
 // that connects them. It also drives the tessellation process.

@@ -8,13 +8,16 @@
 #ifndef GrPathUtils_DEFINED
 #define GrPathUtils_DEFINED
 
-#include "include/core/SkRect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkGeometry.h"
-#include "src/core/SkPathPriv.h"
-#include "src/gpu/BufferWriter.h"
+
+#include <cstddef>
+#include <cstdint>
 
 class SkMatrix;
+enum class SkPathFirstDirection;
+struct SkRect;
 
 /**
  *  Utilities for evaluating paths.

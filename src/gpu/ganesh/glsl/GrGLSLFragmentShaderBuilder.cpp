@@ -4,12 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "src/gpu/ganesh/GrRenderTarget.h"
-#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/Blend.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 
 GrGLSLFragmentShaderBuilder::GrGLSLFragmentShaderBuilder(GrGLSLProgramBuilder* program)

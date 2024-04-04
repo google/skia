@@ -8,24 +8,32 @@
 #ifndef GrGLSLProgramBuilder_DEFINED
 #define GrGLSLProgramBuilder_DEFINED
 
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
-#include "src/sksl/SkSLCompiler.h"
 
+#include <cstdint>
+#include <memory>
+#include <string>
 #include <vector>
 
-class GrProgramDesc;
-class GrRenderTarget;
-class GrShaderVar;
+class GrBackendFormat;
 class GrGLSLVaryingHandler;
+class GrProgramDesc;
 class SkString;
+enum GrSurfaceOrigin : int;
 struct GrShaderCaps;
 
 class GrGLSLProgramBuilder {

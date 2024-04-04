@@ -7,12 +7,16 @@
 
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 
-#include "include/gpu/GrTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkUtils.h"
+#include "src/core/SkGeometry.h"
+#include "src/core/SkPathEnums.h"
 #include "src/core/SkPointPriv.h"
 #include "src/gpu/tessellate/WangsFormula.h"
+
+#include <algorithm>
 
 using namespace skia_private;
 

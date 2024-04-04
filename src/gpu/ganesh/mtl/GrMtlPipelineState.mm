@@ -19,6 +19,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlGpu.h"
 #include "src/gpu/ganesh/mtl/GrMtlRenderCommandEncoder.h"
 #include "src/gpu/ganesh/mtl/GrMtlTexture.h"
+#include "src/sksl/SkSLCompiler.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag

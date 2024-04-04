@@ -4,15 +4,20 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 
+#include <algorithm>
 #include <cmath>
 
 using float4 = skvx::float4;

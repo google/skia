@@ -4,9 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "modules/skcms/skcms.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/Swizzle.h"
@@ -14,7 +15,8 @@
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
-#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
+#include "src/sksl/SkSLGLSL.h"
 
 using namespace skia_private;
 

@@ -4,11 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "src/gpu/Blend.h"
 #include "src/gpu/ganesh/glsl/GrGLSLBlend.h"
-#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
+
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkSpan.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/Blend.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/sksl/SkSLString.h"
 
 namespace GrGLSLBlend {

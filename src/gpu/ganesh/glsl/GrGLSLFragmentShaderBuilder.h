@@ -8,13 +8,14 @@
 #ifndef GrGLSLFragmentShaderBuilder_DEFINED
 #define GrGLSLFragmentShaderBuilder_DEFINED
 
-#include "src/gpu/Blend.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrProcessor.h"
+#include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 
-class GrRenderTarget;
-class GrGLSLVarying;
+#include <cstdint>
+
+class GrGLSLProgramBuilder;
+
+namespace skgpu { enum class BlendEquation : uint8_t; }
 
 /*
  * This class is used by fragment processors to build their fragment code.

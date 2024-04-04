@@ -7,12 +7,17 @@
 
 #include "src/gpu/ganesh/geometry/GrAAConvexTessellator.h"
 
-#include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkString.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
+#include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
+
+#include <algorithm>
 
 // Next steps:
 //  add an interactive sample app slide

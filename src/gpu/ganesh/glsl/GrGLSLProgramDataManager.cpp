@@ -7,9 +7,11 @@
 
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 
-#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkMatrixPriv.h"
+
+#include <cstddef>
 
 void GrGLSLProgramDataManager::setSkMatrix(UniformHandle u, const SkMatrix& matrix) const {
     float mt[] = {

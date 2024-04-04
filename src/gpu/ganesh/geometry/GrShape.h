@@ -9,9 +9,18 @@
 #define GrShape_DEFINED
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/base/SkTypeTraits.h"
+
+#include <cstdint>
+#include <new>
+#include <type_traits>
 
 // Represents an arc along an oval boundary, or a closed wedge of the oval.
 struct GrArc {

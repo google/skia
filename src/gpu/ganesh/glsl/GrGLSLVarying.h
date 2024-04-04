@@ -8,13 +8,15 @@
 #ifndef GrGLSLVarying_DEFINED
 #define GrGLSLVarying_DEFINED
 
+#include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTBlockList.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 
-class GrGeometryProcessor;
 class GrGLSLProgramBuilder;
+class GrGeometryProcessor;
 
 #ifdef SK_DEBUG
 static bool is_matrix(SkSLType type) {

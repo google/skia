@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 
-#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 

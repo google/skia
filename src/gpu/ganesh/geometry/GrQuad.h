@@ -8,12 +8,19 @@
 #ifndef GrQuad_DEFINED
 #define GrQuad_DEFINED
 
-#include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkVx.h"
 #include "src/gpu/BufferWriter.h"
 
+#include <algorithm>
+#include <type_traits>
+
+class SkMatrix;
 enum class GrQuadAAFlags;
 
 /**

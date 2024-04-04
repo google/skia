@@ -4,22 +4,34 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 
-#include <memory>
-
-#include "src/gpu/ganesh/GrCaps.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrPipeline.h"
-#include "src/gpu/ganesh/GrRenderTarget.h"
+#include "src/gpu/ganesh/GrResourceHandle.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
-#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLString.h"
+
+#include <functional>
+#include <memory>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
+
 
 using namespace skia_private;
 
