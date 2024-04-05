@@ -10,6 +10,8 @@
 
 #include "src/image/SkSurface_Base.h"
 
+#include "include/gpu/GpuTypes.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 
 namespace skgpu::graphite {
@@ -22,18 +24,28 @@ class TextureProxy;
 
 class Surface final : public SkSurface_Base {
 public:
-    static sk_sp<SkSurface> MakeGraphite(Recorder* recorder,
-                                         const SkImageInfo& info,
-                                         skgpu::Budgeted budgeted,
-                                         Mipmapped = Mipmapped::kNo,
-                                         const SkSurfaceProps* props = nullptr);
-
+    // Convenience factory to create a Device, instantiate its target proxy and return as a Surface.
+    static sk_sp<Surface> Make(Recorder* recorder,
+                               const SkImageInfo& info,
+                               Budgeted budgeted,
+                               Mipmapped mipmapped = Mipmapped::kNo,
+                               SkBackingFit backingFit = SkBackingFit::kExact,
+                               const SkSurfaceProps* props = nullptr) {
+        return Make(recorder, info, budgeted, mipmapped, backingFit, props,
+                    /*addInitialClear=*/true, /*registerWithRecorder=*/true);
+    }
     // Make a surface that is not registered with the provided recorder. This surface should be
-    // short-lived and it must be flushed manually for its draw commands to be recorded.
-    static sk_sp<SkSurface> MakeGraphiteScratch(Recorder* recorder,
-                                                const SkImageInfo& info,
-                                                Mipmapped = Mipmapped::kNo,
-                                                const SkSurfaceProps* props = nullptr);
+    // short-lived and it must be flushed manually for its draw commands to be recorded. Most
+    // scratch surfaces will be budgeted, but if the underlying texture is being returned as a
+    // client-owned image, that may not be the case.
+    static sk_sp<Surface> MakeScratch(Recorder* recorder,
+                                      const SkImageInfo& info,
+                                      Budgeted budgeted = Budgeted::kYes,
+                                      Mipmapped mipmapped = Mipmapped::kNo,
+                                      SkBackingFit backingFit = SkBackingFit::kApprox) {
+        return Make(recorder, info, budgeted, mipmapped, backingFit,
+                    /*props=*/nullptr, /*addInitialClear=*/false, /*registerWithRecorder=*/false);
+    }
 
     Surface(sk_sp<Device>);
     ~Surface() override;
@@ -73,6 +85,17 @@ public:
     TextureProxy* backingTextureProxy() const;
 
 private:
+    // Regular and scratch surfaces differ by initial clear and if they are registered or not,
+    // otherwise are constructed the same.
+    static sk_sp<Surface> Make(Recorder* recorder,
+                               const SkImageInfo&,
+                               Budgeted,
+                               Mipmapped,
+                               SkBackingFit,
+                               const SkSurfaceProps* props,
+                               bool addInitialClear,
+                               bool registerWithRecorder);
+
     sk_sp<Device> fDevice;
     sk_sp<Image>  fImageView; // the image object returned by asImage()
 

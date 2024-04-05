@@ -43,32 +43,25 @@ class Device final : public SkDevice {
 public:
     ~Device() override;
 
-    static sk_sp<Device> Make(Recorder*,
-                              const SkImageInfo&,
-                              skgpu::Budgeted,
-                              Mipmapped,
-                              SkBackingFit,
-                              const SkSurfaceProps&,
-                              bool addInitialClear);
-    static sk_sp<Device> Make(Recorder*,
-                              sk_sp<TextureProxy>,
-                              const SkColorInfo&,
-                              const SkSurfaceProps&,
-                              bool addInitialClear);
+    // If 'registerWithRecorder' is false, it is meant to be a short-lived Device that is managed
+    // by the caller within a limited scope (such that it is guaranteed to go out of scope before
+    // the Recorder can be snapped).
     static sk_sp<Device> Make(Recorder* recorder,
                               sk_sp<TextureProxy>,
                               SkISize deviceSize,
                               const SkColorInfo&,
                               const SkSurfaceProps&,
-                              bool addInitialClear);
-
-    // Creates a device that is not registered on the provided recorder. Meant to be short-lived and
-    // managed by the caller within a single scope.
-    static sk_sp<Device> MakeScratch(Recorder* recorder,
-                                     const SkImageInfo& ii,
-                                     Mipmapped mipmapped,
-                                     const SkSurfaceProps& props,
-                                     bool addInitialClear);
+                              bool addInitialClear,
+                              bool registerWithRecorder=true);
+    // Convenience factory to create the underlying TextureProxy based on the configuration provided
+    static sk_sp<Device> Make(Recorder*,
+                              const SkImageInfo&,
+                              Budgeted,
+                              Mipmapped,
+                              SkBackingFit,
+                              const SkSurfaceProps&,
+                              bool addInitialClear,
+                              bool registerWithRecorder=true);
 
     Device* asGraphiteDevice() override { return this; }
 
@@ -184,6 +177,8 @@ public:
 private:
     class IntersectionTreeSet;
 
+    Device(Recorder*, sk_sp<DrawContext>);
+
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
 
@@ -213,8 +208,6 @@ private:
         kIgnorePathEffect = 0b010,
     };
     SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags)
-
-    Device(Recorder*, sk_sp<DrawContext>, bool addInitialClear, bool registerWithRecorder);
 
     // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
     // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.
@@ -290,6 +283,15 @@ private:
     bool fMSAASupported = false;
 
     const sktext::gpu::SDFTControl fSDFTControl;
+
+#if defined(SK_DEBUG)
+    // When not 0, this Device is an unregistered scratch device that is intended to go out of
+    // scope before the Recorder is snapped. Assuming controlling code is valid, that means the
+    // Device's recorder's next recording ID should still be the the recording ID at the time the
+    // Device was created. If not, it means the Device lived too long and may not be flushing tasks
+    // in the expected order.
+    uint32_t fScopedRecordingID = 0;
+#endif
 
     friend class ClipStack; // for recordDraw
 };

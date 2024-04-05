@@ -44,8 +44,14 @@ sk_sp<DrawContext> DrawContext::Make(const Caps* caps,
                                      sk_sp<TextureProxy> target,
                                      SkISize deviceSize,
                                      const SkColorInfo& colorInfo,
-                                     const SkSurfaceProps& props) {
+                                     const SkSurfaceProps& props,
+                                     bool addInitialClear) {
     if (!target) {
+        return nullptr;
+    }
+    // We don't render to unknown or unpremul alphatypes
+    if (colorInfo.alphaType() == kUnknown_SkAlphaType ||
+        colorInfo.alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
     if (!caps->isRenderable(target->textureInfo())) {
@@ -58,7 +64,11 @@ sk_sp<DrawContext> DrawContext::Make(const Caps* caps,
     SkASSERT(target->isFullyLazy() || (target->dimensions().width() >= deviceSize.width() &&
                                        target->dimensions().height() >= deviceSize.height()));
     SkImageInfo imageInfo = SkImageInfo::Make(deviceSize, colorInfo);
-    return sk_sp<DrawContext>(new DrawContext(caps, std::move(target), imageInfo, props));
+    sk_sp<DrawContext> dc{new DrawContext(caps, std::move(target), imageInfo, props)};
+    if (addInitialClear) {
+        dc->clear(SkColors::kTransparent);
+    }
+    return dc;
 }
 
 DrawContext::DrawContext(const Caps* caps,

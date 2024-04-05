@@ -230,76 +230,35 @@ private:
     SkSTArenaAllocWithReset<4 * sizeof(IntersectionTree)> fTreeStore;
 };
 
-namespace {
-
-sk_sp<TextureProxy> make_draw_target(const Recorder* recorder,
-                                     const SkImageInfo& ii,
-                                     Mipmapped mipmapped,
-                                     Protected isProtected,
-                                     Budgeted budgeted) {
-    if (!recorder) {
-        return nullptr;
-    }
-    return TextureProxy::Make(recorder->priv().caps(),
-                              ii.dimensions(),
-                              ii.colorType(),
-                              mipmapped,
-                              isProtected,
-                              Renderable::kYes,
-                              budgeted);
-}
-
-sk_sp<DrawContext> make_draw_context(const Recorder* recorder,
-                                     sk_sp<TextureProxy> target,
-                                     const SkISize& dimensions,
-                                     const SkColorInfo& colorInfo,
-                                     const SkSurfaceProps& props) {
-    // We don't render to unknown or unpremul alphatypes
-    if (colorInfo.alphaType() == kUnknown_SkAlphaType ||
-        colorInfo.alphaType() == kUnpremul_SkAlphaType) {
-        return nullptr;
-    }
-    return DrawContext::Make(recorder->priv().caps(), std::move(target),
-                             dimensions, colorInfo, props);
-}
-
-}  // anonymous namespace
-
 sk_sp<Device> Device::Make(Recorder* recorder,
                            const SkImageInfo& ii,
                            skgpu::Budgeted budgeted,
                            Mipmapped mipmapped,
                            SkBackingFit backingFit,
                            const SkSurfaceProps& props,
-                           bool addInitialClear) {
+                           bool addInitialClear,
+                           bool registerWithRecorder) {
     SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
-
     if (!recorder) {
         return nullptr;
     }
 
     Protected isProtected = Protected(recorder->priv().caps()->protectedSupport());
-    sk_sp<TextureProxy> target = make_draw_target(
-            recorder,
-            backingFit == SkBackingFit::kApprox ? ii.makeDimensions(GetApproxSize(ii.dimensions()))
-                                                : ii,
-            mipmapped,
-            isProtected,
-            budgeted);
-    if (!target) {
-        return nullptr;
-    }
-
-    return Make(
-            recorder, std::move(target), ii.dimensions(), ii.colorInfo(), props, addInitialClear);
-}
-
-sk_sp<Device> Device::Make(Recorder* recorder,
-                           sk_sp<TextureProxy> target,
-                           const SkColorInfo& colorInfo,
-                           const SkSurfaceProps& props,
-                           bool addInitialClear) {
-    return Make(recorder, target, target->dimensions(), colorInfo, props, addInitialClear);
+    SkISize backingDimensions = backingFit == SkBackingFit::kApprox ? GetApproxSize(ii.dimensions())
+                                                                    : ii.dimensions();
+    return Make(recorder,
+                TextureProxy::Make(recorder->priv().caps(),
+                                   backingDimensions,
+                                   ii.colorType(),
+                                   mipmapped,
+                                   isProtected,
+                                   Renderable::kYes,
+                                   budgeted),
+                ii.dimensions(),
+                ii.colorInfo(),
+                props,
+                addInitialClear,
+                registerWithRecorder);
 }
 
 sk_sp<Device> Device::Make(Recorder* recorder,
@@ -307,44 +266,32 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            SkISize deviceSize,
                            const SkColorInfo& colorInfo,
                            const SkSurfaceProps& props,
-                           bool addInitialClear) {
+                           bool addInitialClear,
+                           bool registerWithRecorder) {
     if (!recorder) {
         return nullptr;
     }
 
-    sk_sp<DrawContext> dc =
-            make_draw_context(recorder, std::move(target), deviceSize, colorInfo, props);
+    sk_sp<DrawContext> dc = DrawContext::Make(recorder->priv().caps(),
+                                              std::move(target),
+                                              deviceSize,
+                                              colorInfo,
+                                              props,
+                                              addInitialClear);
     if (!dc) {
         return nullptr;
     }
 
-    return sk_sp<Device>(
-            new Device(recorder, std::move(dc), addInitialClear, /*registerWithRecorder=*/true));
-}
-
-sk_sp<Device> Device::MakeScratch(Recorder* recorder,
-                                  const SkImageInfo& ii,
-                                  Mipmapped mipmapped,
-                                  const SkSurfaceProps& props,
-                                  bool addInitialClear) {
-    if (!recorder) {
-        return nullptr;
+    sk_sp<Device> device{new Device(recorder, std::move(dc))};
+    if (registerWithRecorder) {
+        // We don't register the device with the recorder until after the constructor has returned.
+        recorder->registerDevice(device);
+    } else {
+        // Since it's not registered, it should go out of scope before nextRecordingID() changes
+        // from what is saved to fScopedRecordingID.
+        SkDEBUGCODE(device->fScopedRecordingID = recorder->priv().nextRecordingID();)
     }
-
-    sk_sp<TextureProxy> target =
-            make_draw_target(recorder, ii, mipmapped, Protected::kNo, Budgeted::kYes);
-    if (!target) {
-        return nullptr;
-    }
-
-    sk_sp<DrawContext> dc =
-            make_draw_context(recorder, std::move(target), ii.dimensions(), ii.colorInfo(), props);
-    if (!dc) {
-        return nullptr;
-    }
-
-    return sk_sp<Device>(
-            new Device(recorder, std::move(dc), addInitialClear, /*registerWithRecorder=*/false));
+    return device;
 }
 
 // These default tuning numbers for the HybridBoundsManager were chosen from looking at performance
@@ -360,10 +307,7 @@ static constexpr int kGridCellSize = 16;
 static constexpr int kMaxBruteForceN = 64;
 static constexpr int kMaxGridSize = 32;
 
-Device::Device(Recorder* recorder,
-               sk_sp<DrawContext> dc,
-               bool addInitialClear,
-               bool registerWithRecorder)
+Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         : SkDevice(dc->imageInfo(), dc->surfaceProps())
         , fRecorder(recorder)
         , fDC(std::move(dc))
@@ -375,12 +319,6 @@ Device::Device(Recorder* recorder,
         , fCurrentDepth(DrawOrder::kClearDepth)
         , fSDFTControl(recorder->priv().caps()->getSDFTControl(false)) {
     SkASSERT(SkToBool(fDC) && SkToBool(fRecorder));
-    if (registerWithRecorder) {
-        fRecorder->registerDevice(this);
-    }
-    if (addInitialClear) {
-        fDC->clear(SkColors::kTransparent);
-    }
     if (fRecorder->priv().caps()->defaultMSAASamplesCount() > 1) {
         if (fRecorder->priv().caps()->msaaRenderToSingleSampledSupport()) {
             fMSAASupported = true;
@@ -396,15 +334,16 @@ Device::Device(Recorder* recorder,
 Device::~Device() {
     // The Device should have been marked immutable before it's destroyed, or the Recorder was the
     // last holder of a reference to it and de-registered the device as part of its cleanup.
-    // However, if the Device was not registered with the recorder (i.e. a scratch device) and that
-    // device had to be deleted before it was adopted by a surface due to some initialization error,
-    // abandonRecorder() may not have been called. In these cases there's no clean up that has to
-    // happen since nothing else is tracking the device and device itself is being destroyed so the
-    // value of fRecorder is unimportant.
-#if defined(GRAPHITE_TEST_UTILS)
-    // This is only checked when built with GRAPHITE_TEST_UTILS because that defines
-    // deviceIsRegistered(), but should be sufficient to catch issues with teardown.
-    SkASSERT(!fRecorder || !fRecorder->priv().deviceIsRegistered(this));
+    // However, if the Device was not registered with the recorder (i.e. a scratch device) we don't
+    // require that its recorder be adandoned. Scratch devices must either have been marked
+    // immutable or be destroyed before the recorder has been snapped.
+    SkASSERT(!fRecorder || fScopedRecordingID != 0);
+#if defined(SK_DEBUG)
+    if (fScopedRecordingID != 0 && fRecorder) {
+        SkASSERT(fScopedRecordingID == fRecorder->priv().nextRecordingID());
+    }
+    // else it wasn't a scratch device, or it was a scratch device that was marked immutable so its
+    // lifetime was validated when setImmutable() was called.
 #endif
 }
 
@@ -1537,6 +1476,10 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
 void Device::flushPendingWorkToRecorder() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(fRecorder);
+
+    // If this is a scratch device being flushed, it should only be flushing into the expected
+    // next recording from when the Device was first created.
+    SkASSERT(fScopedRecordingID == 0 || fScopedRecordingID == fRecorder->priv().nextRecordingID());
 
     this->internalFlush();
     sk_sp<Task> drawTask = fDC->snapDrawTask(fRecorder);

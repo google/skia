@@ -229,7 +229,7 @@ private:
     // then either deletes the SkSurface or Recorder before calling restore. For simplicity we just
     // register every device for now, but if we see extra overhead in pushing back the extra
     // pointers, we can look into only registering SkSurface Devices.
-    void registerDevice(Device*);
+    void registerDevice(sk_sp<Device>);
     void deregisterDevice(const Device*);
 
     sk_sp<SharedContext> fSharedContext;

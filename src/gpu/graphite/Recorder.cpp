@@ -238,12 +238,12 @@ SkCanvas* Recorder::makeDeferredCanvas(const SkImageInfo& imageInfo,
     return fTargetProxyCanvas.get();
 }
 
-void Recorder::registerDevice(Device* device) {
+void Recorder::registerDevice(sk_sp<Device> device) {
     ASSERT_SINGLE_OWNER
     // By taking a ref on tracked devices, the Recorder prevents the Device from being deleted on
     // another thread unless the Recorder has been destroyed or the device has abandoned its
     // recorder (e.g. was marked immutable).
-    fTrackedDevices.push_back(sk_ref_sp(device));
+    fTrackedDevices.push_back(std::move(device));
 }
 
 void Recorder::deregisterDevice(const Device* device) {
