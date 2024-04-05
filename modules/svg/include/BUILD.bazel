@@ -56,4 +56,5 @@ skia_filegroup(
         "SkSVGUse.h",
         "SkSVGValue.h",
     ],
+    visibility = ["//modules/svg:__pkg__"],
 )

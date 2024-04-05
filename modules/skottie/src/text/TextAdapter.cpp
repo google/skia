@@ -39,6 +39,7 @@
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
+#include "modules/skshaper/include/SkShaper_factory.h"
 #include "src/utils/SkJSON.h"
 
 #include <algorithm>
@@ -297,7 +298,8 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
                                      const AnimationBuilder* abuilder,
                                      sk_sp<SkFontMgr> fontmgr,
                                      sk_sp<CustomFont::GlyphCompMapper> custom_glyph_mapper,
-                                     sk_sp<Logger> logger) {
+                                     sk_sp<Logger> logger,
+                                     sk_sp<::SkShapers::Factory> factory) {
     // General text node format:
     // "t": {
     //    "a": [], // animators (see TextAnimator)
@@ -361,6 +363,7 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
     auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr),
                                                       std::move(custom_glyph_mapper),
                                                       std::move(logger),
+                                                      std::move(factory),
                                                       gGroupingMap[SkToSizeT(apg - 1)]));
 
     adapter->bind(*abuilder, jd, adapter->fText.fCurrentValue);
@@ -431,11 +434,13 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
 TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr,
                          sk_sp<CustomFont::GlyphCompMapper> custom_glyph_mapper,
                          sk_sp<Logger> logger,
+                         sk_sp<SkShapers::Factory> factory,
                          AnchorPointGrouping apg)
     : fRoot(sksg::Group::Make())
     , fFontMgr(std::move(fontmgr))
     , fCustomGlyphMapper(std::move(custom_glyph_mapper))
     , fLogger(std::move(logger))
+    , fShapingFactory(std::move(factory))
     , fAnchorPointGrouping(apg)
     , fHasBlurAnimator(false)
     , fRequiresAnchorPoint(false)
@@ -680,7 +685,8 @@ void TextAdapter::reshape() {
         fText->fLocale.isEmpty()     ? nullptr : fText->fLocale.c_str(),
         fText->fFontFamily.isEmpty() ? nullptr : fText->fFontFamily.c_str(),
     };
-    auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
+    auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr,
+        fShapingFactory);
 
     if (fLogger) {
         if (shape_result.fFragments.empty() && fText->fText.size() > 0) {

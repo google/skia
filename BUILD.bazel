@@ -201,6 +201,13 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+# TODO(kjlubick)
+# alias(
+#     name = "fontmgr_coretext",
+#     actual = "//src/ports:fontmgr_coretext",
+#     visibility = ["//visibility:public"],
+# )
+
 alias(
     name = "fontmgr_data_freetype",
     actual = "//src/ports:fontmgr_data_freetype",
@@ -231,7 +238,7 @@ alias(
 
 alias(
     name = "skshaper_core",
-    actual = "//modules/skshaper:skshaper_core",
+    actual = "//modules/skshaper:skshaper_core_and_utils",
     visibility = ["//visibility:public"],
 )
 
@@ -259,6 +266,28 @@ alias(
 alias(
     name = "skresources",
     actual = "//modules/skresources:skresources",
+    visibility = ["//visibility:public"],
+)
+
+###
+
+alias(
+    name = "svg_renderer",
+    actual = "//modules/svg:svg_renderer",
+    visibility = ["//visibility:public"],
+)
+
+###
+
+alias(
+    name = "skunicode_core",
+    actual = "//modules/skunicode:skunicode_core",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "skunicode_icu",
+    actual = "//modules/skunicode:skunicode_icu",
     visibility = ["//visibility:public"],
 )
 

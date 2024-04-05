@@ -149,6 +149,7 @@ struct RunHandler final : public SkShaper::RunHandler {
     void commitLine() override { fCommitLine = true; }
 };
 
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
 void shaper_test(skiatest::Reporter* reporter, const char* name, SkData* data) {
     skiatest::ReporterContext context(reporter, name);
     auto unicode = get_unicode();
@@ -225,7 +226,11 @@ void cluster_test(skiatest::Reporter* reporter, const char* resource) {
     shaper_test(reporter, resource, data.get());
 }
 
+#endif  // defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+
 }  // namespace
+
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
 
 DEF_TEST(Shaper_cluster_empty, r) { shaper_test(r, "empty", SkData::MakeEmpty().get()); }
 
@@ -265,3 +270,5 @@ SHAPER_TEST(myanmar)
 SHAPER_TEST(taitham)
 SHAPER_TEST(tamil)
 #undef SHAPER_TEST
+
+#endif  // #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)

@@ -8,6 +8,7 @@ exports_files_legacy()
 skia_filegroup(
     name = "private_hdrs",
     srcs = ["SkSVGTextPriv.h"],
+    visibility = ["//modules/svg:__pkg__"],
 )
 
 # This group is exported as //modules/svg/svg.gni:skia_svg_sources.
@@ -57,4 +58,5 @@ skia_filegroup(
         "SkSVGUse.cpp",
         "SkSVGValue.cpp",
     ],
+    visibility = ["//modules/svg:__pkg__"],
 )

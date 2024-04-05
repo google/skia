@@ -38,6 +38,7 @@
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "modules/skcms/skcms.h"
 #include "modules/skottie/utils/SkottieUtils.h"
+#include "modules/skshaper/utils/FactoryHelpers.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkTLazy.h"
@@ -73,23 +74,24 @@
 #include "tools/gpu/MemoryCache.h"
 
 #if defined(SK_BUILD_FOR_WIN)
-    #include "include/docs/SkXPSDocument.h"
-    #include "src/utils/win/SkAutoCoInitialize.h"
-    #include "src/utils/win/SkHRESULT.h"
-    #include "src/utils/win/SkTScopedComPtr.h"
-    #include <XpsObjectModel.h>
+#include "include/docs/SkXPSDocument.h"
+#include "src/utils/win/SkAutoCoInitialize.h"
+#include "src/utils/win/SkHRESULT.h"
+#include "src/utils/win/SkTScopedComPtr.h"
+
+#include <XpsObjectModel.h>
 #endif
 
 #if defined(SK_ENABLE_SKOTTIE)
-    #include "modules/skottie/include/Skottie.h"
-    #include "modules/skresources/include/SkResources.h"
+#include "modules/skottie/include/Skottie.h"
+#include "modules/skresources/include/SkResources.h"
 #endif
 
 #if defined(SK_ENABLE_SVG)
-    #include "include/svg/SkSVGCanvas.h"
-    #include "modules/svg/include/SkSVGDOM.h"
-    #include "modules/svg/include/SkSVGNode.h"
-    #include "src/xml/SkXMLWriter.h"
+#include "include/svg/SkSVGCanvas.h"
+#include "modules/svg/include/SkSVGDOM.h"
+#include "modules/svg/include/SkSVGNode.h"
+#include "src/xml/SkXMLWriter.h"
 #endif
 
 #if defined(SK_GRAPHITE)
@@ -1288,6 +1290,7 @@ Result SkottieSrc::draw(SkCanvas* canvas, GraphiteTestContext*) const {
         .setFontManager(ToolUtils::TestFontMgr())
         .setResourceProvider(std::move(resource_provider))
         .setPrecompInterceptor(std::move(precomp_interceptor))
+        .setTextShapingFactory(SkShapers::BestAvailable())
         .makeFromFile(fPath.c_str());
     if (!animation) {
         return Result::Fatal("Unable to parse file: %s", fPath.c_str());
@@ -1366,9 +1369,11 @@ SVGSrc::SVGSrc(Path path)
             predecode,
             ToolUtils::TestFontMgr());
 
-    fDom = SkSVGDOM::Builder().setResourceProvider(std::move(rp))
-                              .setFontManager(ToolUtils::TestFontMgr())
-                              .make(*stream);
+    fDom = SkSVGDOM::Builder()
+                   .setResourceProvider(std::move(rp))
+                   .setFontManager(ToolUtils::TestFontMgr())
+                   .setTextShapingFactory(SkShapers::BestAvailable())
+                   .make(*stream);
     if (!fDom) {
         return;
     }
@@ -2600,10 +2605,6 @@ Result ViaRuntimeBlend::draw(const Src& src,
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #ifdef TEST_VIA_SVG
-#include "include/svg/SkSVGCanvas.h"
-#include "modules/svg/include/SkSVGDOM.h"
-#include "src/xml/SkXMLWriter.h"
-
 Result ViaSVG::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
     auto size = src.size();
     return draw_to_canvas(fSink.get(), bitmap, stream, log, size,
@@ -2616,8 +2617,10 @@ Result ViaSVG::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
             return result;
         }
         std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
-        sk_sp<SkSVGDOM> dom =
-                SkSVGDOM::Builder().setFontManager(ToolUtils::TestFontMgr()).make(*rstream);
+        sk_sp<SkSVGDOM> dom = SkSVGDOM::Builder()
+                                      .setFontManager(ToolUtils::TestFontMgr())
+                                      .setTextShapingFactory(SkShapers::BestAvailable())
+                                      .make(*rstream);
         if (dom) {
             dom->setContainerSize(SkSize::Make(size));
             dom->render(canvas);

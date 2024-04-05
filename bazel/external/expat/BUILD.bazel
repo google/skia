@@ -7,7 +7,7 @@ genrule(
         "@expat_config//:expat_config.h",
     ],
     outs = [
-        # Putting this in the root of the harfbuzz directory makes it easiest to include.
+        # Putting this in the root of the expat directory makes it easiest to include.
         "include/expat_config.h",
     ],
     # $< is the one and only input file.

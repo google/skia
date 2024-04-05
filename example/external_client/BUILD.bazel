@@ -135,3 +135,43 @@ cc_binary(
         "@skia//:skresources",
     ],
 )
+
+cc_binary(
+    name = "svg_with_primitive",
+    srcs = ["src/svg_renderer.cpp"],
+    copts = ["-std=c++17"],
+    linkopts = [
+        "-lpthread",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:png_encode_codec",
+        "@skia//:skshaper_core",
+        "@skia//:svg_renderer",
+    ] + select({
+        "@platforms//os:linux": ["@skia//:fontmgr_fontconfig_freetype"],
+        "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
+        "//conditions:default": [],
+    }),
+)
+
+cc_binary(
+    name = "svg_with_harfbuzz",
+    srcs = ["src/svg_renderer.cpp"],
+    copts = ["-std=c++17"],
+    linkopts = [
+        "-lpthread",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:png_encode_codec",
+        "@skia//:skshaper_harfbuzz",
+        "@skia//:skshaper_unicode",
+        "@skia//:skunicode_icu",
+        "@skia//:svg_renderer",
+    ] + select({
+        "@platforms//os:linux": ["@skia//:fontmgr_fontconfig_freetype"],
+        "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
+        "//conditions:default": [],
+    }),
+)

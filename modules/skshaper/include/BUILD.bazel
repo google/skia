@@ -8,8 +8,10 @@ skia_filegroup(
     name = "hdrs",
     srcs = [
         "SkShaper.h",
+        "SkShaper_factory.h",
         "SkShaper_harfbuzz.h",
         "SkShaper_skunicode.h",
+        "//modules/skshaper/utils:core_hdrs",
     ],
     visibility = ["//modules/skshaper:__pkg__"],
 )
@@ -18,6 +20,7 @@ skia_filegroup(
     name = "core_hdrs",
     srcs = [
         "SkShaper.h",
+        "SkShaper_factory.h",
     ],
     visibility = ["//modules/skshaper:__pkg__"],
 )

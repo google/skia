@@ -2193,14 +2193,16 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"cpu_8888_benchmark_test":        {"//bench:cpu_8888_test", ""},
 
 	// Note: these paths are relative to the WORKSPACE in //example/external_client
-	"decode_everything": {"//:decode_everything", ""},
-	"path_combiner":     {"//:path_combiner", ""},
-	"png_decoder":       {"//:png_decoder", ""},
-	"shape_text":        {"//:shape_text", ""},
-	"use_ganesh_gl":     {"//:use_ganesh_gl", ""},
-	"use_ganesh_vulkan": {"//:use_ganesh_vulkan", ""},
-	"use_skresources":   {"//:use_skresources", ""},
-	"write_text_to_png": {"//:write_text_to_png", ""},
+	"decode_everything":  {"//:decode_everything", ""},
+	"path_combiner":      {"//:path_combiner", ""},
+	"png_decoder":        {"//:png_decoder", ""},
+	"shape_text":         {"//:shape_text", ""},
+	"svg_with_harfbuzz":  {"//:svg_with_harfbuzz", ""},
+	"svg_with_primitive": {"//:svg_with_primitive", ""},
+	"use_ganesh_gl":      {"//:use_ganesh_gl", ""},
+	"use_ganesh_vulkan":  {"//:use_ganesh_vulkan", ""},
+	"use_skresources":    {"//:use_skresources", ""},
+	"write_text_to_png":  {"//:write_text_to_png", ""},
 
 	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them
 	// under a test_suite.

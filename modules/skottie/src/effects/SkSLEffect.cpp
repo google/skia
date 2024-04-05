@@ -44,6 +44,7 @@ class InvalidationController;
 
 namespace skottie::internal {
 
+// https://g-issues.chromium.org/issues/40064011
 #if defined(SK_ENABLE_SKOTTIE_SKSLEFFECT)
 
 namespace  {

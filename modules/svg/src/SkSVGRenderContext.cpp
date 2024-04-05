@@ -152,42 +152,47 @@ SkSVGRenderContext::SkSVGRenderContext(SkCanvas* canvas,
                                        const SkSVGIDMapper& mapper,
                                        const SkSVGLengthContext& lctx,
                                        const SkSVGPresentationContext& pctx,
-                                       const OBBScope& obbs)
-    : fFontMgr(fmgr)
-    , fResourceProvider(rp)
-    , fIDMapper(mapper)
-    , fLengthContext(lctx)
-    , fPresentationContext(pctx)
-    , fCanvas(canvas)
-    , fCanvasSaveCount(canvas->getSaveCount())
-    , fOBBScope(obbs) {}
+                                       const OBBScope& obbs,
+                                       const sk_sp<SkShapers::Factory>& fact)
+        : fFontMgr(fmgr)
+        , fTextShapingFactory(fact)
+        , fResourceProvider(rp)
+        , fIDMapper(mapper)
+        , fLengthContext(lctx)
+        , fPresentationContext(pctx)
+        , fCanvas(canvas)
+        , fCanvasSaveCount(canvas->getSaveCount())
+        , fOBBScope(obbs) {}
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other)
-    : SkSVGRenderContext(other.fCanvas,
-                         other.fFontMgr,
-                         other.fResourceProvider,
-                         other.fIDMapper,
-                         *other.fLengthContext,
-                         *other.fPresentationContext,
-                         other.fOBBScope) {}
+        : SkSVGRenderContext(other.fCanvas,
+                             other.fFontMgr,
+                             other.fResourceProvider,
+                             other.fIDMapper,
+                             *other.fLengthContext,
+                             *other.fPresentationContext,
+                             other.fOBBScope,
+                             other.fTextShapingFactory) {}
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, SkCanvas* canvas)
-    : SkSVGRenderContext(canvas,
-                         other.fFontMgr,
-                         other.fResourceProvider,
-                         other.fIDMapper,
-                         *other.fLengthContext,
-                         *other.fPresentationContext,
-                         other.fOBBScope) {}
+        : SkSVGRenderContext(canvas,
+                             other.fFontMgr,
+                             other.fResourceProvider,
+                             other.fIDMapper,
+                             *other.fLengthContext,
+                             *other.fPresentationContext,
+                             other.fOBBScope,
+                             other.fTextShapingFactory) {}
 
 SkSVGRenderContext::SkSVGRenderContext(const SkSVGRenderContext& other, const SkSVGNode* node)
-    : SkSVGRenderContext(other.fCanvas,
-                         other.fFontMgr,
-                         other.fResourceProvider,
-                         other.fIDMapper,
-                         *other.fLengthContext,
-                         *other.fPresentationContext,
-                         OBBScope{node, this}) {}
+        : SkSVGRenderContext(other.fCanvas,
+                             other.fFontMgr,
+                             other.fResourceProvider,
+                             other.fIDMapper,
+                             *other.fLengthContext,
+                             *other.fPresentationContext,
+                             OBBScope{node, this},
+                             other.fTextShapingFactory) {}
 
 SkSVGRenderContext::~SkSVGRenderContext() {
     fCanvas->restoreToCount(fCanvasSaveCount);
@@ -411,7 +416,8 @@ SkTLazy<SkPaint> SkSVGRenderContext::commonPaint(const SkSVGPaint& paint_selecto
                                      fIDMapper,
                                      *fLengthContext,
                                      pctx,
-                                     fOBBScope);
+                                     fOBBScope,
+                                     fTextShapingFactory);
 
         const auto node = this->findNodeById(paint_selector.iri());
         if (!node || !node->asPaint(local_ctx, p.get())) {

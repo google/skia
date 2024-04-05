@@ -431,6 +431,7 @@ export interface CanvasKit {
     /**
      * Returns a Skottie animation built from the provided json string.
      * Requires that Skottie be compiled into CanvasKit.
+     * Note: this animation will not be able to display text or images.
      * @param json
      */
     MakeAnimation(json: string): SkottieAnimation;

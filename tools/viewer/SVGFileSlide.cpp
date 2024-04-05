@@ -11,6 +11,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkStream.h"
+#include "modules/skshaper/utils/FactoryHelpers.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGNode.h"
 #include "src/core/SkOSFile.h"
@@ -35,7 +36,10 @@ public:
             return;
         }
 
-        fDom = SkSVGDOM::Builder().setFontManager(ToolUtils::TestFontMgr()).make(svgStream);
+        fDom = SkSVGDOM::Builder()
+                       .setFontManager(ToolUtils::TestFontMgr())
+                       .setTextShapingFactory(SkShapers::BestAvailable())
+                       .make(svgStream);
         if (fDom) {
             fDom->setContainerSize(SkSize{w, h});
         }

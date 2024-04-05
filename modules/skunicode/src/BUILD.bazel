@@ -8,12 +8,14 @@ exports_files_legacy()
 skia_filegroup(
     name = "builtin_srcs",
     srcs = ["SkUnicode_icu_builtin.cpp"],
+    visibility = ["//modules/skunicode:__pkg__"],
 )
 
 # In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_runtime_icu_sources.
 skia_filegroup(
     name = "runtime_srcs",
     srcs = ["SkUnicode_icu_runtime.cpp"],
+    visibility = ["//modules/skunicode:__pkg__"],
 )
 
 # In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_common_icu_sources.
@@ -61,6 +63,15 @@ skia_filegroup(
         "SkUnicode_icupriv.h",
         ":builtin_srcs",
         # TODO(kjlubick, bungeman): add support for SkUnicode_icu_runtime.cpp
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+
+skia_filegroup(
+    name = "icu_core_srcs",
+    srcs = [
+        "SkUnicode_icu.cpp",
+        "SkUnicode_icupriv.h",
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )

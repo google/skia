@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "include/utils/SkNoDrawCanvas.h"
+#include "modules/skshaper/utils/FactoryHelpers.h"
 #include "modules/svg/src/SkSVGTextPriv.h"
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -164,7 +165,15 @@ DEF_TEST(Svg_Text_PosProvider, r) {
         SkNoDrawCanvas canvas(0, 0);
         sk_sp<SkFontMgr> fmgr = ToolUtils::TestFontMgr();
         sk_sp<skresources::ResourceProvider> rp;
-        const SkSVGRenderContext ctx(&canvas, fmgr, rp, mapper, lctx, pctx, {nullptr, nullptr});
+        sk_sp<SkShapers::Factory> shaping = SkShapers::BestAvailable();
+        const SkSVGRenderContext ctx(&canvas,
+                                     fmgr,
+                                     rp,
+                                     mapper,
+                                     lctx,
+                                     pctx,
+                                     {nullptr, nullptr},
+                                     shaping);
 
         SkSVGTextContext tctx(ctx, mock_cb);
         SkSVGTextContext::ScopedPosResolver pa(*a, lctx, &tctx, tst.offseta);

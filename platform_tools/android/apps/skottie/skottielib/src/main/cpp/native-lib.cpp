@@ -32,6 +32,7 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
+#include "modules/skshaper/utils/FactoryHelpers.h"
 
 #include <jni.h>
 #include <math.h>
@@ -186,6 +187,7 @@ Java_org_skia_skottie_SkottieAnimation_nCreateProxy(JNIEnv *env,
         // (using the above registered codecs) or base64 encoded FreeType typefaces.
         .setResourceProvider(skresources::DataURIResourceProviderProxy::Make(nullptr,
             skresources::ImageDecodeStrategy::kPreDecode, freetypeMgr))
+        .setTextShapingFactory(SkShapers::BestAvailable())
         .make(skottieAnimation->mStream.get());
     skottieAnimation->mTimeBase  = 0.0f; // force a time reset
     skottieAnimation->mDuration = 1000 * skottieAnimation->mAnimation->duration();

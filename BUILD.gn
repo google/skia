@@ -2423,6 +2423,7 @@ if (skia_enable_tools) {
         ":trace",
         "modules/skottie",
         "modules/skottie:utils",
+        "modules/skshaper",
         "modules/svg",
       ]
     }

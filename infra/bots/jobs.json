@@ -40,6 +40,8 @@
   {"name": "BazelTest-external_client-path_combiner-default-linux_x64"},
   {"name": "BazelTest-external_client-png_decoder-default-linux_x64"},
   {"name": "BazelTest-external_client-shape_text-default-linux_x64"},
+  {"name": "BazelTest-external_client-svg_with_harfbuzz-default-linux_x64"},
+  {"name": "BazelTest-external_client-svg_with_primitive-default-linux_x64"},
   {"name": "BazelTest-external_client-use_ganesh_gl-default-linux_x64"},
   {"name": "BazelTest-external_client-use_ganesh_vulkan-default-linux_x64"},
   {"name": "BazelTest-external_client-use_skresources-default-linux_x64"},

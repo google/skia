@@ -265,8 +265,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "gn/xml.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_xml_sources",
 			Rules: []string{
-				"//src/xml:xml_hdrs",
-				"//src/xml:xml_srcs",
+				"//src/xml:_xml_hdrs",
+				"//src/xml:_xml_srcs",
 			}}},
 	},
 	{GNI: "gn/gpu.gni", Vars: []exporter.GNIFileListExportDesc{
@@ -478,7 +478,9 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	}},
 	{GNI: "modules/skshaper/skshaper.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_shaper_public",
-			Rules: []string{"//modules/skshaper/include:hdrs"}},
+			Rules: []string{"//modules/skshaper/include:hdrs",
+				"//modules/skshaper/utils:core_hdrs",
+			}},
 		{Var: "skia_shaper_primitive_sources",
 			Rules: []string{"//modules/skshaper/src:base_srcs"}},
 		{Var: "skia_shaper_harfbuzz_sources",

@@ -110,6 +110,8 @@ std::unique_ptr<SkOpenTypeSVGDecoder> SkSVGOpenTypeSVGDecoder::Make(const uint8_
     }
     SkSVGDOM::Builder builder;
     builder.setResourceProvider(DataResourceProvider::Make());
+    // We shouldn't need to set this builder's font manager or shaping utils because hopefully
+    // the SVG we are decoding doesn't itself have <text> tags.
     sk_sp<SkSVGDOM> skSvg = builder.make(*stream);
     if (!skSvg) {
         return nullptr;

@@ -15,3 +15,19 @@ skia_filegroup(
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
+
+skia_filegroup(
+    name = "core_hdrs",
+    srcs = [
+        "SkUnicode.h",
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+
+skia_filegroup(
+    name = "icu_hdrs",
+    srcs = [
+        "SkUnicode_icu.h",
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)

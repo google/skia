@@ -168,7 +168,7 @@ private:
         float                                fLength = 0; // total path length
     };
 
-    void shapePendingBuffer(const SkFont&, sk_sp<SkFontMgr> fallback);
+    void shapePendingBuffer(const SkSVGRenderContext&, const SkFont&);
 
     SkRSXform computeGlyphXform(SkGlyphID, const SkFont&, const SkPoint& glyph_pos,
                                 const PositionAdjustment&) const;
@@ -184,9 +184,9 @@ private:
     // http://www.w3.org/TR/SVG11/text.html#TextLayout
     const SkSVGRenderContext&       fRenderContext; // original render context
     const ShapedTextCallback&       fCallback;
-    const std::unique_ptr<SkShaper> fShaper;
+    std::unique_ptr<SkShaper>       fShaper;
     std::vector<RunRec>             fRuns;
-    const ScopedPosResolver*        fPosResolver  = nullptr;
+    const ScopedPosResolver*        fPosResolver = nullptr;
     std::unique_ptr<PathData>       fPathData;
 
     // shaper state
@@ -206,6 +206,7 @@ private:
     SkTLazy<SkPaint>                fCurrentStroke;
 
     bool                            fPrevCharSpace = true; // WS filter state
+    bool                            fForcePrimitiveShaping = false;
 };
 
 #endif // SkSVGTextPriv_DEFINED

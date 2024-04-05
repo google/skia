@@ -30,6 +30,7 @@
 #include "modules/skottie/src/text/TextAdapter.h"
 #include "modules/sksg/include/SkSGOpacityEffect.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
+#include "modules/skshaper/include/SkShaper_factory.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/utils/SkJSON.h"
@@ -44,6 +45,10 @@
 #include <memory>
 #include <ratio>
 #include <utility>
+
+#if !defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
+#include "modules/skshaper/utils/FactoryHelpers.h"
+#endif
 
 namespace sksg {
 class Color;
@@ -136,6 +141,7 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
                                    sk_sp<PropertyObserver> pobserver, sk_sp<Logger> logger,
                                    sk_sp<MarkerObserver> mobserver, sk_sp<PrecompInterceptor> pi,
                                    sk_sp<ExpressionManager> expressionmgr,
+                                   sk_sp<SkShapers::Factory> shapingFactory,
                                    Animation::Builder::Stats* stats,
                                    const SkSize& comp_size, float duration, float framerate,
                                    uint32_t flags)
@@ -146,6 +152,7 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
     , fMarkerObserver(std::move(mobserver))
     , fPrecompInterceptor(std::move(pi))
     , fExpressionManager(std::move(expressionmgr))
+    , fShapingFactory(std::move(shapingFactory))
     , fRevalidator(sk_make_sp<SceneGraphRevalidator>())
     , fSlotManager(sk_make_sp<SlotManager>(fRevalidator))
     , fStats(stats)
@@ -295,6 +302,8 @@ void AnimationBuilder::AutoPropertyTracker::updateContext(PropertyObserver* obse
 } // namespace internal
 
 Animation::Builder::Builder(uint32_t flags) : fFlags(flags) {}
+Animation::Builder::Builder(const Builder&) = default;
+Animation::Builder::Builder(Builder&&) = default;
 Animation::Builder::~Builder() = default;
 
 Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvider> rp) {
@@ -329,6 +338,11 @@ Animation::Builder& Animation::Builder::setPrecompInterceptor(sk_sp<PrecompInter
 
 Animation::Builder& Animation::Builder::setExpressionManager(sk_sp<ExpressionManager> em) {
     fExpressionManager = std::move(em);
+    return *this;
+}
+
+Animation::Builder& Animation::Builder::setTextShapingFactory(sk_sp<SkShapers::Factory> factory) {
+    fShapingFactory = std::move(factory);
     return *this;
 }
 
@@ -400,6 +414,11 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
         return nullptr;
     }
 
+#if defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
+    auto factory = fShapingFactory ? fShapingFactory : ::SkShapers::Primitive::Factory();
+#else
+    auto factory = fShapingFactory ? fShapingFactory : ::SkShapers::BestAvailable();
+#endif
     SkASSERT(resolvedProvider);
     internal::AnimationBuilder builder(std::move(resolvedProvider), fFontMgr,
                                        std::move(fPropertyObserver),
@@ -407,6 +426,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                                        std::move(fMarkerObserver),
                                        std::move(fPrecompInterceptor),
                                        std::move(fExpressionManager),
+                                       std::move(factory),
                                        &fStats, size, duration, fps, fFlags);
     auto ainfo = builder.parse(json);
 

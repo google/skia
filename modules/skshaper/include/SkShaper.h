@@ -16,10 +16,12 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <type_traits>
+
 class SkFontStyle;
 
 #if !defined(SKSHAPER_IMPLEMENTATION)

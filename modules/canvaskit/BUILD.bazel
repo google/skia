@@ -297,7 +297,10 @@ cc_binary(
         ":enable_fonts_false": [],
     }) + select({
         ":enable_skottie_true": [
-            "//modules/skottie:skottie_harfbuzz_icu",
+            "//:skshaper_harfbuzz",
+            "//:skshaper_unicode",
+            "//:skunicode_icu",
+            "//modules/skottie",
             "//modules/skottie:utils",
         ],
         ":enable_skottie_false": [],

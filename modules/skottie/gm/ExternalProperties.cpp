@@ -13,6 +13,8 @@
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
+#include "modules/skshaper/include/SkShaper_factory.h"
+#include "modules/skshaper/utils/FactoryHelpers.h"
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
 
@@ -55,6 +57,7 @@ protected:
                             .setFontManager(ToolUtils::TestFontMgr())
                             .setResourceProvider(sk_make_sp<FakeWebFontProvider>())
                             .setPropertyObserver(fPropManager->getPropertyObserver())
+                            .setTextShapingFactory(SkShapers::BestAvailable())
                             .make(stream.get());
         }
     }

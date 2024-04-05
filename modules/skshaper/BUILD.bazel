@@ -17,7 +17,10 @@ selects.config_setting_group(
 skia_cc_library(
     name = "legacy_skshaper",
     srcs = ["//modules/skshaper/src:srcs"],
-    hdrs = ["//modules/skshaper/include:hdrs"],
+    hdrs = [
+        "//modules/skshaper/include:hdrs",
+        "//modules/skshaper/utils:core_hdrs",
+    ],
     defines = [
         "SK_SHAPER_UNICODE_AVAILABLE",
         "SK_SHAPER_PRIMITIVE_AVAILABLE",
@@ -51,17 +54,37 @@ skia_cc_library(
     srcs = [
         "//modules/skshaper/src:core_srcs",
     ],
-    hdrs = ["//modules/skshaper/include:core_hdrs"],
+    hdrs = [
+        "//modules/skshaper/include:core_hdrs",
+    ],
     defines = ["SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS"],
     features = ["layering_check"],
     local_defines = ["SKSHAPER_IMPLEMENTATION=1"],
     visibility = [
-        "//:__subpackages__",
+        "//modules/skottie:__subpackages__",
+        "//modules/svg:__subpackages__",
     ],
     deps = [
         "//:core",
         "//src/base",
         "//src/core:core_priv",
+    ],
+)
+
+# This is its own library to make it harder for Skia itself to unintentionally
+# include FactoryHelpers.h in utils
+skia_cc_library(
+    name = "skshaper_core_and_utils",
+    hdrs = [
+        "//modules/skshaper/include:core_hdrs",
+        "//modules/skshaper/utils:core_hdrs",
+    ],
+    local_defines = ["SKSHAPER_IMPLEMENTATION=1"],
+    visibility = [
+        "//:__pkg__",
+    ],
+    deps = [
+        ":skshaper_core",
     ],
 )
 
@@ -73,6 +96,7 @@ skia_cc_library(
     hdrs = [
         "//modules/skshaper/include:core_hdrs",
         "//modules/skshaper/include:harfbuzz_hdrs",
+        "//modules/skshaper/utils:core_hdrs",
     ],
     defines = [
         "SK_SHAPER_HARFBUZZ_AVAILABLE",
@@ -86,7 +110,7 @@ skia_cc_library(
     deps = [
         ":skshaper_core",
         "//:core",
-        "//modules/skunicode:skunicode_icu",  # TODO(kjlubick) make this depend on skunicode_core
+        "//modules/skunicode:skunicode_core",
         "//src/base",
         "//src/core:core_priv",
         "@harfbuzz",
@@ -101,6 +125,7 @@ skia_cc_library(
     hdrs = [
         "//modules/skshaper/include:core_hdrs",
         "//modules/skshaper/include:skunicode_hdrs",
+        "//modules/skshaper/utils:core_hdrs",
     ],
     defines = [
         "SK_SHAPER_UNICODE_AVAILABLE",
@@ -114,7 +139,7 @@ skia_cc_library(
     deps = [
         ":skshaper_core",
         "//:core",
-        "//modules/skunicode:skunicode_icu",  # TODO(kjlubick) make this depend on skunicode_core
+        "//modules/skunicode:skunicode_core",
         "//src/base",
         "//src/core:core_priv",
     ],

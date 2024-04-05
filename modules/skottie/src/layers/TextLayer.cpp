@@ -342,7 +342,8 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
                                                        this,
                                                        fFontMgr,
                                                        fCustomGlyphMapper,
-                                                       fLogger);
+                                                       fLogger,
+                                                       fShapingFactory);
 }
 
 const AnimationBuilder::FontInfo* AnimationBuilder::findFont(const SkString& font_name) const {

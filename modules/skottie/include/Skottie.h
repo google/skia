@@ -36,6 +36,8 @@ class RenderNode;
 
 } // namespace sksg
 
+namespace SkShapers { class Factory; }
+
 namespace skottie {
 
 namespace internal { class Animator; }
@@ -101,6 +103,8 @@ public:
         };
 
         explicit Builder(uint32_t flags = 0);
+        Builder(const Builder&);
+        Builder(Builder&&);
         ~Builder();
 
         struct Stats {
@@ -159,6 +163,13 @@ public:
         Builder& setExpressionManager(sk_sp<ExpressionManager>);
 
         /**
+         * Registers a factory to be used when shaping text.
+         * If unspecified, text will be shaped with primitive shaping.
+         * See //modules/skshaper/utils/FactoryHelpers.h
+         */
+        Builder& setTextShapingFactory(sk_sp<SkShapers::Factory>);
+
+        /**
          * Animation factories.
          */
         sk_sp<Animation> make(SkStream*);
@@ -180,6 +191,7 @@ public:
         sk_sp<MarkerObserver  >   fMarkerObserver;
         sk_sp<PrecompInterceptor> fPrecompInterceptor;
         sk_sp<ExpressionManager>  fExpressionManager;
+        sk_sp<SkShapers::Factory> fShapingFactory;
         sk_sp<SlotManager>        fSlotManager;
         Stats                     fStats;
     };

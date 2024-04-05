@@ -58,6 +58,7 @@ if (skia_enable_svg && skia_use_expat) {
         ":svg",
         "../..:skia",
         "../..:test",
+        "../skshaper",
       ]
     }
   }

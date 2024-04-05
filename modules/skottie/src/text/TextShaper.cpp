@@ -22,40 +22,20 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "modules/skshaper/include/SkShaper_factory.h"
+#include "modules/skunicode/include/SkUnicode.h"
 #include "src/base/SkTLazy.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
-
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
-#include "modules/skshaper/include/SkShaper_harfbuzz.h"
-#include "modules/skshaper/include/SkShaper_skunicode.h"
-#endif
-
-#if defined(SK_UNICODE_AVAILABLE)
-#include "modules/skunicode/include/SkUnicode.h"
-
-#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
-#include "modules/skunicode/include/SkUnicode_icu.h"
-#endif
-#if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
-#include "modules/skunicode/include/SkUnicode_libgrapheme.h"
-#endif
-#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
-#include "modules/skunicode/include/SkUnicode_icu4x.h"
-#endif
-
-#else
-class SkUnicode;
-#endif
-
-#if defined(SK_SHAPER_CORETEXT_AVAILABLE)
-#include "modules/skshaper/include/SkShaper_coretext.h"
-#endif
 
 #include <algorithm>
 #include <memory>
 #include <numeric>
 #include <utility>
+
+#if !defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
+#include "modules/skshaper/utils/FactoryHelpers.h"
+#endif
 
 class SkPaint;
 
@@ -69,64 +49,25 @@ static bool is_whitespace(char c) {
     return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 }
 
-// TODO(kjlubick,fmalita) Remove these defines by having clients register something or somehow
-// plumbing this all into the animation builder factories.
-#if defined(SK_UNICODE_AVAILABLE)
-sk_sp<SkUnicode> get_unicode() {
-    // Just to avoid skunicode dependency in case we don't have it at all
-    sk_sp<SkUnicode> unicode;
-#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
-    unicode = SkUnicodes::ICU::Make();
-    if (unicode) {
-        return unicode;
-    }
-#endif
-#if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
-    unicode = SkUnicodes::ICU4X::Make();
-    if (unicode) {
-        return unicode;
-    }
-#endif
-#if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
-    unicode = SkUnicodes::Libgrapheme::Make();
-    if (unicode) {
-        return unicode;
-    }
-#endif
-    SkDEBUGFAIL("Cannot make SkUnicode");
-    return nullptr;
-}
-#endif
-
-static std::unique_ptr<SkShaper> get_shaper(sk_sp<SkFontMgr> fallback) {
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
-    auto unicode = get_unicode();
-    if (!unicode) {
-        return SkShapers::Primitive::PrimitiveText();
-    }
-    if (auto shaper = SkShapers::HB::ShaperDrivenWrapper(unicode, std::move(fallback))) {
-        return shaper;
-    }
-#endif
-#if defined(SK_SHAPER_CORETEXT_AVAILABLE)
-    if (auto shaper = SkShapers::CT::CoreText()) {
-        return shaper;
-    }
-#endif
-    return SkShapers::Primitive::PrimitiveText();
-}
-
 // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
 // per-line position adjustments (for external line breaking, horizontal alignment, etc).
 class ResultBuilder final : public SkShaper::RunHandler {
 public:
-    ResultBuilder(const Shaper::TextDesc& desc, const SkRect& box, const sk_sp<SkFontMgr>& fontmgr)
+    ResultBuilder(const Shaper::TextDesc& desc, const SkRect& box, const sk_sp<SkFontMgr>& fontmgr,
+                  const sk_sp<SkShapers::Factory>& shapingFactory)
             : fDesc(desc)
             , fBox(box)
             , fHAlignFactor(HAlignFactor(fDesc.fHAlign))
             , fFont(fDesc.fTypeface, fDesc.fTextSize)
             , fFontMgr(fontmgr)
-            , fShaper(get_shaper(fontmgr)) {
+            , fShapingFactory(shapingFactory) {
+        // If the shaper callback returns null, fallback to the primitive shaper.
+        SkASSERT(fShapingFactory);
+        fShaper = fShapingFactory->makeShaper(fFontMgr);
+        if (!fShaper) {
+            fShaper = SkShapers::Primitive::PrimitiveText();
+            fShapingFactory = SkShapers::Primitive::Factory();
+        }
         fFont.setHinting(SkFontHinting::kNone);
         fFont.setSubpixel(true);
         fFont.setLinearMetrics(true);
@@ -409,25 +350,19 @@ public:
                                     lang_iter.get());
 #endif
 
-        std::unique_ptr<SkShaper::BiDiRunIterator> bidi_iter = nullptr;
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
-        auto unicode = get_unicode();
-        bidi_iter = SkShapers::unicode::BidiRunIterator(
-                unicode, start, utf8_bytes, shape_ltr ? kBidiLevelLTR : kBidiLevelRTL);
-#endif
+        std::unique_ptr<SkShaper::BiDiRunIterator> bidi_iter =
+                fShapingFactory->makeBidiRunIterator(start, utf8_bytes,
+                                                  shape_ltr ? kBidiLevelLTR : kBidiLevelRTL);
         if (!bidi_iter) {
             bidi_iter = std::make_unique<SkShaper::TrivialBiDiRunIterator>(
                     shape_ltr ? kBidiLevelLTR : kBidiLevelRTL, utf8_bytes);
         }
 
-        std::unique_ptr<SkShaper::ScriptRunIterator> scpt_iter = nullptr;
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
-        scpt_iter = SkShapers::HB::ScriptRunIterator(
-                start, utf8_bytes, SkSetFourByteTag('Z', 'z', 'z', 'z'));
-#endif
+        constexpr SkFourByteTag unknownScript = SkSetFourByteTag('Z', 'z', 'z', 'z');
+        std::unique_ptr<SkShaper::ScriptRunIterator> scpt_iter =
+                fShapingFactory->makeScriptRunIterator(start, utf8_bytes, unknownScript);
         if (!scpt_iter) {
-            scpt_iter = std::make_unique<SkShaper::TrivialScriptRunIterator>(
-                    utf8_bytes, SkSetFourByteTag('Z', 'z', 'z', 'z'));
+            scpt_iter = std::make_unique<SkShaper::TrivialScriptRunIterator>(unknownScript, utf8_bytes);
         }
 
         if (!font_iter || !bidi_iter || !scpt_iter || !lang_iter) {
@@ -550,7 +485,8 @@ private:
 
     SkFont                          fFont;
     const sk_sp<SkFontMgr>          fFontMgr;
-    const std::unique_ptr<SkShaper> fShaper;
+    std::unique_ptr<SkShaper>       fShaper;
+    sk_sp<SkShapers::Factory>       fShapingFactory;
 
     AutoSTMalloc<64, SkGlyphID>          fLineGlyphs;
     AutoSTMalloc<64, SkPoint>            fLinePos;
@@ -575,7 +511,8 @@ private:
 
 Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
                          const SkRect& box, const sk_sp<SkFontMgr>& fontmgr,
-                         SkSize* shaped_size = nullptr) {
+                         const sk_sp<SkShapers::Factory>& shapingFactory,
+                         SkSize* shaped_size) {
     const auto& is_line_break = [](SkUnichar uch) {
         // TODO: other explicit breaks?
         return uch == '\r';
@@ -586,7 +523,7 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
     const char* begin      = ptr;
     const char* end        = ptr + txt.size();
 
-    ResultBuilder rbuilder(desc, box, fontmgr);
+    ResultBuilder rbuilder(desc, box, fontmgr, shapingFactory);
     while (ptr < end) {
         if (is_line_break(SkUTF::NextUTF8(&ptr, end))) {
             rbuilder.shapeLine(line_start, ptr - 1, SkToSizeT(line_start - begin));
@@ -615,7 +552,8 @@ bool result_fits(const Shaper::Result& res, const SkSize& res_size,
 }
 
 Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc,
-                          const SkRect& box, const sk_sp<SkFontMgr>& fontmgr) {
+                          const SkRect& box, const sk_sp<SkFontMgr>& fontmgr,
+                          const sk_sp<SkShapers::Factory>& shapingFactory) {
     Shaper::Result best_result;
 
     if (box.isEmpty() || orig_desc.fTextSize <= 0) {
@@ -645,7 +583,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         desc.fAscent     = try_scale * orig_desc.fAscent;
 
         SkSize res_size = {0, 0};
-        auto res = ShapeImpl(txt, desc, box, fontmgr, &res_size);
+        auto res = ShapeImpl(txt, desc, box, fontmgr, shapingFactory, &res_size);
 
         const auto prev_scale = try_scale;
         if (!result_fits(res, res_size, box, desc)) {
@@ -681,17 +619,15 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
 // Applies capitalization rules.
 class AdjustedText {
 public:
-    AdjustedText(const SkString& txt, const Shaper::TextDesc& desc)
+    AdjustedText(const SkString& txt, const Shaper::TextDesc& desc, SkUnicode* unicode)
         : fText(txt) {
         switch (desc.fCapitalization) {
         case Shaper::Capitalization::kNone:
             break;
         case Shaper::Capitalization::kUpperCase:
-#if defined(SK_UNICODE_AVAILABLE)
-            if (auto skuni = get_unicode()) {
-                *fText.writable() = skuni->toUpper(*fText);
+            if (unicode) {
+                *fText.writable() = unicode->toUpper(*fText);
             }
-#endif
             break;
         }
     }
@@ -705,32 +641,32 @@ private:
 } // namespace
 
 Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkPoint& point,
-                             const sk_sp<SkFontMgr>& fontmgr) {
-    const AdjustedText adjText(text, desc);
+                             const sk_sp<SkFontMgr>& fontmgr, const sk_sp<SkShapers::Factory>& shapingFactory) {
+    const AdjustedText adjText(text, desc, shapingFactory->getUnicode());
 
     return (desc.fResize == ResizePolicy::kScaleToFit ||
             desc.fResize == ResizePolicy::kDownscaleToFit) // makes no sense in point mode
             ? Result()
             : ShapeImpl(adjText, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()),
-                        fontmgr);
+                        fontmgr, shapingFactory, nullptr);
 }
 
 Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkRect& box,
-                             const sk_sp<SkFontMgr>& fontmgr) {
-    const AdjustedText adjText(text, desc);
+                             const sk_sp<SkFontMgr>& fontmgr, const sk_sp<SkShapers::Factory>& shapingFactory) {
+    const AdjustedText adjText(text, desc, shapingFactory->getUnicode());
 
     switch(desc.fResize) {
     case ResizePolicy::kNone:
-        return ShapeImpl(adjText, desc, box, fontmgr);
+        return ShapeImpl(adjText, desc, box, fontmgr, shapingFactory, nullptr);
     case ResizePolicy::kScaleToFit:
-        return ShapeToFit(adjText, desc, box, fontmgr);
+        return ShapeToFit(adjText, desc, box, fontmgr, shapingFactory);
     case ResizePolicy::kDownscaleToFit: {
         SkSize size;
-        auto result = ShapeImpl(adjText, desc, box, fontmgr, &size);
+        auto result = ShapeImpl(adjText, desc, box, fontmgr, shapingFactory, &size);
 
         return result_fits(result, size, box, desc)
                 ? result
-                : ShapeToFit(adjText, desc, box, fontmgr);
+                : ShapeToFit(adjText, desc, box, fontmgr, shapingFactory);
     }
     }
 
@@ -807,5 +743,18 @@ SkRect Shaper::Result::computeVisualBounds() const {
 
     return bounds;
 }
+
+#if !defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
+Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkPoint& point,
+             const sk_sp<SkFontMgr>& fontmgr) {
+    return Shaper::Shape(text, desc, point, fontmgr, SkShapers::BestAvailable());
+}
+
+Shaper::Result Shaper::Shape(const SkString& text, const TextDesc& desc, const SkRect& box,
+             const sk_sp<SkFontMgr>& fontmgr) {
+    return Shaper::Shape(text, desc, box, fontmgr, SkShapers::BestAvailable());
+}
+
+#endif
 
 } // namespace skottie

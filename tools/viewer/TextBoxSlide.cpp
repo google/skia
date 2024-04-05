@@ -91,6 +91,7 @@ static std::unique_ptr<SkShaper::BiDiRunIterator> make_trivial_bidi(sk_sp<SkUnic
     return std::make_unique<SkShaper::TrivialBiDiRunIterator>(bidiLevel, utf8Bytes);
 }
 
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
 static std::unique_ptr<SkShaper::BiDiRunIterator> make_unicode_bidi(sk_sp<SkUnicode> unicode,
                                                                     const char* utf8,
                                                                     size_t utf8Bytes,
@@ -100,13 +101,14 @@ static std::unique_ptr<SkShaper::BiDiRunIterator> make_unicode_bidi(sk_sp<SkUnic
     }
     return make_trivial_bidi(unicode, utf8, utf8Bytes, bidiLevel);
 }
+#endif
 
 static std::unique_ptr<SkShaper::ScriptRunIterator> make_trivial_script_runner(
         const char*, size_t utf8Bytes, SkFourByteTag scriptTag) {
     return std::make_unique<SkShaper::TrivialScriptRunIterator>(scriptTag, utf8Bytes);
 }
 
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
 static std::unique_ptr<SkShaper::ScriptRunIterator> make_harfbuzz_script_runner(
         const char* utf8, size_t utf8Bytes, SkFourByteTag scriptTag) {
     std::unique_ptr<SkShaper::ScriptRunIterator> script =
@@ -156,7 +158,7 @@ private:
         paint.setColor(fg);
 
         for (int i = 9; i < 24; i += 2) {
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
             SkShapers::HB::PurgeCaches();
 #endif
             SkTextBlobBuilderRunHandler builder(gText, { margin, margin });
@@ -233,7 +235,7 @@ DEF_SLIDE(return new TextBoxSlide(SkShapers::CT::CoreText,
                                   "coretext"););
 #endif
 
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
 DEF_SLIDE(return new TextBoxSlide(
                          []() {
                              return SkShapers::HB::ShaperDrivenWrapper(get_unicode(),

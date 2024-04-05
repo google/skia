@@ -5,14 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "modules/svg/include/SkSVGDOM.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTo.h"
+#include "modules/skshaper/include/SkShaper_factory.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGCircle.h"
 #include "modules/svg/include/SkSVGClipPath.h"
-#include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGDefs.h"
 #include "modules/svg/include/SkSVGEllipse.h"
 #include "modules/svg/include/SkSVGFeBlend.h"
@@ -395,6 +397,11 @@ SkSVGDOM::Builder& SkSVGDOM::Builder::setResourceProvider(sk_sp<skresources::Res
     return *this;
 }
 
+SkSVGDOM::Builder& SkSVGDOM::Builder::setTextShapingFactory(sk_sp<SkShapers::Factory> f) {
+    fTextShapingFactory = f;
+    return *this;
+}
+
 sk_sp<SkSVGDOM> SkSVGDOM::Builder::make(SkStream& str) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
     SkDOM xmlDom;
@@ -417,20 +424,28 @@ sk_sp<SkSVGDOM> SkSVGDOM::Builder::make(SkStream& str) const {
     auto resource_provider = fResourceProvider ? fResourceProvider
                                                : sk_make_sp<NullResourceProvider>();
 
+    auto factory = fTextShapingFactory ? fTextShapingFactory : SkShapers::Primitive::Factory();
+
     return sk_sp<SkSVGDOM>(new SkSVGDOM(sk_sp<SkSVGSVG>(static_cast<SkSVGSVG*>(root.release())),
-                                        std::move(fFontMgr), std::move(resource_provider),
-                                        std::move(mapper)));
+                                        std::move(fFontMgr),
+                                        std::move(resource_provider),
+                                        std::move(mapper),
+                                        std::move(factory)));
 }
 
-SkSVGDOM::SkSVGDOM(sk_sp<SkSVGSVG> root, sk_sp<SkFontMgr> fmgr,
-                   sk_sp<skresources::ResourceProvider> rp, SkSVGIDMapper&& mapper)
-    : fRoot(std::move(root))
-    , fFontMgr(std::move(fmgr))
-    , fResourceProvider(std::move(rp))
-    , fIDMapper(std::move(mapper))
-    , fContainerSize(fRoot->intrinsicSize(SkSVGLengthContext(SkSize::Make(0, 0))))
-{
+SkSVGDOM::SkSVGDOM(sk_sp<SkSVGSVG> root,
+                   sk_sp<SkFontMgr> fmgr,
+                   sk_sp<skresources::ResourceProvider> rp,
+                   SkSVGIDMapper&& mapper,
+                   sk_sp<SkShapers::Factory> fact)
+        : fRoot(std::move(root))
+        , fFontMgr(std::move(fmgr))
+        , fTextShapingFactory(std::move(fact))
+        , fResourceProvider(std::move(rp))
+        , fIDMapper(std::move(mapper))
+        , fContainerSize(fRoot->intrinsicSize(SkSVGLengthContext(SkSize::Make(0, 0)))) {
     SkASSERT(fResourceProvider);
+    SkASSERT(fTextShapingFactory);
 }
 
 void SkSVGDOM::render(SkCanvas* canvas) const {
@@ -438,8 +453,14 @@ void SkSVGDOM::render(SkCanvas* canvas) const {
     if (fRoot) {
         SkSVGLengthContext       lctx(fContainerSize);
         SkSVGPresentationContext pctx;
-        fRoot->render(SkSVGRenderContext(canvas, fFontMgr, fResourceProvider, fIDMapper, lctx, pctx,
-                                         {nullptr, nullptr}));
+        fRoot->render(SkSVGRenderContext(canvas,
+                                         fFontMgr,
+                                         fResourceProvider,
+                                         fIDMapper,
+                                         lctx,
+                                         pctx,
+                                         {nullptr, nullptr},
+                                         fTextShapingFactory));
     }
 }
 
@@ -448,8 +469,14 @@ void SkSVGDOM::renderNode(SkCanvas* canvas, SkSVGPresentationContext& pctx, cons
 
     if (fRoot) {
         SkSVGLengthContext lctx(fContainerSize);
-        fRoot->renderNode(SkSVGRenderContext(canvas, fFontMgr, fResourceProvider, fIDMapper,
-                                             lctx, pctx, {nullptr, nullptr}),
+        fRoot->renderNode(SkSVGRenderContext(canvas,
+                                             fFontMgr,
+                                             fResourceProvider,
+                                             fIDMapper,
+                                             lctx,
+                                             pctx,
+                                             {nullptr, nullptr},
+                                             fTextShapingFactory),
                           SkSVGIRI(SkSVGIRI::Type::kLocal, SkSVGStringType(id)));
     }
 }

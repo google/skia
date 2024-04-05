@@ -12,6 +12,8 @@
 #include "include/core/SkStream.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
+#include "modules/skshaper/include/SkShaper_factory.h"
+#include "modules/skshaper/utils/FactoryHelpers.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -109,6 +111,7 @@ DEF_TEST(Skottie_Text_Style, r) {
 
     auto anim = Animation::Builder()
                     .setFontManager(fmgr)
+                    .setTextShapingFactory(SkShapers::BestAvailable())
                     .make(&stream);
 
     REPORTER_ASSERT(r, anim);
@@ -284,6 +287,7 @@ DEF_TEST(Skottie_Text_FontFamily, r) {
     auto anim = Animation::Builder()
                     .setFontManager(fmgr)
                     .setPropertyObserver(prop_observer)
+                    .setTextShapingFactory(SkShapers::BestAvailable())
                     .make(&stream);
     REPORTER_ASSERT(r, anim);
 

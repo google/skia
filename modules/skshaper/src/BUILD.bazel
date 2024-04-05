@@ -28,6 +28,7 @@ skia_filegroup(
     name = "base_srcs",
     srcs = [
         "SkShaper.cpp",
+        "SkShaper_factory.cpp",
         "SkShaper_primitive.cpp",
     ],
     visibility = [
@@ -53,6 +54,7 @@ skia_filegroup(
     name = "core_srcs",
     srcs = [
         "SkShaper.cpp",
+        "SkShaper_factory.cpp",
         "SkShaper_primitive.cpp",
     ],
     visibility = ["//modules/skshaper:__pkg__"],
