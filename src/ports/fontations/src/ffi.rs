@@ -340,7 +340,7 @@ fn get_path(
     outlines
         .0
         .as_ref()
-        .map(|outlines| {
+        .and_then(|outlines| {
             let glyph = outlines.get(GlyphId::new(glyph_id))?;
             let draw_settings = DrawSettings::unhinted(Size::new(size), &coords.normalized_coords);
 
