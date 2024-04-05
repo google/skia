@@ -129,7 +129,7 @@ parse_targets() {
     basename $LIBPATH
   done
 }
-${NINJA} -C ${BUILD_DIR} libskia.a libskshaper.a libskunicode.a \
+${NINJA} -C ${BUILD_DIR} libskia.a libskshaper.a libskunicode_core.a libskunicode_icu.a \
   $(parse_targets $GM_LIB)
 
 echo "Generating final wasm"
@@ -146,6 +146,7 @@ SKIA_DEFINES="
 -DSK_CODEC_DECODES_JPEG \
 -DSK_SHAPER_HARFBUZZ_AVAILABLE \
 -DSK_UNICODE_AVAILABLE \
+-DSK_UNICODE_ICU_IMPLEMENTATION \
 -DSK_ENABLE_SVG \
 -DSK_TRIVIAL_ABI=[[clang::trivial_abi]]"
 
@@ -217,7 +218,8 @@ EMCC_DEBUG=1 ${EMCXX} \
     $TESTS_TO_BUILD \
     $GM_LIB \
     $BUILD_DIR/libskshaper.a \
-    $BUILD_DIR/libskunicode.a \
+    $BUILD_DIR/libskunicode_core.a \
+    $BUILD_DIR/libskunicode_icu.a \
     $BUILD_DIR/libsvg.a \
     $BUILD_DIR/libskia.a \
     $BUILTIN_FONT \
