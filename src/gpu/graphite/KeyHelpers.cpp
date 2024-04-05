@@ -621,6 +621,7 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
     gatherer->write(SkTo<int>(imgData.fSampling.filter));
+    gatherer->write(SkTo<int>(imgData.fSamplingUV.filter));
 
     for (int i = 0; i < 4; ++i) {
         gatherer->writeHalf(imgData.fChannelSelect[i]);
@@ -656,6 +657,7 @@ YUVImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
                                           SkISize imgSize,
                                           SkRect subset)
         : fSampling(sampling)
+        , fSamplingUV(sampling)
         , fTileModes{tileModeX, tileModeY}
         , fImgSize(imgSize)
         , fSubset(subset) {
@@ -672,9 +674,10 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
         return;
     }
 
-    for (int i = 0; i < 4; ++i) {
-        gatherer->add(imgData.fSampling, imgData.fTileModes, imgData.fTextureProxies[i]);
-    }
+    gatherer->add(imgData.fSampling, imgData.fTileModes, imgData.fTextureProxies[0]);
+    gatherer->add(imgData.fSamplingUV, imgData.fTileModes, imgData.fTextureProxies[1]);
+    gatherer->add(imgData.fSamplingUV, imgData.fTileModes, imgData.fTextureProxies[2]);
+    gatherer->add(imgData.fSampling, imgData.fTileModes, imgData.fTextureProxies[3]);
 
     if (imgData.fSampling.useCubic) {
         add_cubic_yuv_image_uniform_data(keyContext.dict(), imgData, gatherer);
@@ -1475,7 +1478,9 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
     const YUVATextureProxies& yuvaProxies =
             static_cast<const Image_YUVA*>(imageToDraw.get())->yuvaProxies();
     const SkYUVAInfo& yuvaInfo = yuvaProxies.yuvaInfo();
-
+    // We would want to add a translation to the local matrix to handle other sitings.
+    SkASSERT(yuvaInfo.sitingX() == SkYUVAInfo::Siting::kCentered);
+    SkASSERT(yuvaInfo.sitingY() == SkYUVAInfo::Siting::kCentered);
     YUVImageShaderBlock::ImageData imgData(sampling,
                                            origShader->tileModeX(),
                                            origShader->tileModeY(),
@@ -1486,6 +1491,11 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
     }
     int textureCount = 0;
     SkYUVAInfo::YUVALocations yuvaLocations = yuvaProxies.yuvaLocations();
+    // We assume the U and V planes are the same size and have the same subsampling
+    SkASSERT(yuvaProxies.proxy(yuvaLocations[SkYUVAInfo::kU].fPlane)->dimensions() ==
+             yuvaProxies.proxy(yuvaLocations[SkYUVAInfo::kV].fPlane)->dimensions());
+    SkASSERT(yuvaInfo.planeSubsamplingFactors(yuvaLocations[SkYUVAInfo::kU].fPlane) ==
+             yuvaInfo.planeSubsamplingFactors(yuvaLocations[SkYUVAInfo::kV].fPlane));
     for (int locIndex = 0; locIndex < SkYUVAInfo::kYUVAChannelCount; ++locIndex) {
         auto [yuvPlane, yuvChannel] = yuvaLocations[locIndex];
         if (yuvPlane >= 0) {
@@ -1494,6 +1504,16 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
             imgData.fTextureProxies[locIndex] = view.refProxy();
             imgData.fChannelSelect[locIndex][static_cast<int>(yuvChannel)] = 1.0f;
             ++textureCount;
+            // V will share the sampling setup with U
+            if (locIndex == SkYUVAInfo::kU) {
+                auto [ssx, ssy] = yuvaInfo.planeSubsamplingFactors(yuvPlane);
+                if (ssx > 1 || ssy > 1) {
+                    if (imgData.fSampling.filter == SkFilterMode::kNearest) {
+                        imgData.fSamplingUV = SkSamplingOptions(SkFilterMode::kLinear,
+                                                                imgData.fSampling.mipmap);
+                    }
+                }
+            }
         }
     }
     SkASSERT(textureCount == 3 || textureCount == 4);

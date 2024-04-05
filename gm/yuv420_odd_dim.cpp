@@ -28,7 +28,8 @@
 static constexpr int kScale = 10;
 static constexpr SkISize kImageDim = {5, 5};
 
-static sk_sp<SkImage> make_image(GrRecordingContext* rContext) {
+static sk_sp<SkImage> make_image(GrRecordingContext* rContext,
+                                 skgpu::graphite::Recorder* recorder) {
     // Generate a small jpeg with odd dimensions.
     SkBitmap bmp;
     bmp.allocPixels(SkImageInfo::Make(kImageDim, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
@@ -52,7 +53,14 @@ static sk_sp<SkImage> make_image(GrRecordingContext* rContext) {
     if (!imageHelper) {
         return nullptr;
     }
-    return imageHelper->refImage(rContext, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
+#if defined(SK_GRAPHITE)
+    if (recorder) {
+        return imageHelper->refImage(recorder, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
+    } else
+#endif
+    {
+        return imageHelper->refImage(rContext, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
+    }
 }
 
 // This GM tests that the YUVA image code path in the GPU backend handles odd sized images with
@@ -60,13 +68,21 @@ static sk_sp<SkImage> make_image(GrRecordingContext* rContext) {
 DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim, canvas, errMsg,
                        kScale* kImageDim.width(), kScale* kImageDim.height()) {
     auto rContext = canvas->recordingContext();
-    if (!rContext) {
+    skgpu::graphite::Recorder* recorder = nullptr;
+#if defined(SK_GRAPHITE)
+    recorder = canvas->recorder();
+#endif
+    if (!rContext && !recorder) {
         // This GM exists to exercise GPU planar images.
         return skiagm::DrawResult::kSkip;
     }
-    auto image = make_image(rContext);
+    auto image = make_image(rContext, recorder);
     if (!image) {
-        return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
+        if (rContext) {
+            return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
+        } else {
+            return skiagm::DrawResult::kFail;
+        }
     }
     // We draw the image offscreen and then blow it up using nearest filtering by kScale.
     // This avoids skbug.com/9693
@@ -93,13 +109,21 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
                        1000,
                        500) {
     auto rContext = canvas->recordingContext();
-    if (!rContext) {
+    skgpu::graphite::Recorder* recorder = nullptr;
+#if defined(SK_GRAPHITE)
+    recorder = canvas->recorder();
+#endif
+    if (!rContext && !recorder) {
         // This GM exists to exercise GPU planar images.
         return skiagm::DrawResult::kSkip;
     }
     auto image = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
     if (!image) {
-        return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
+        if (rContext) {
+            return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
+        } else {
+            return skiagm::DrawResult::kFail;
+        }
     }
     // Make sure the image is odd dimensioned.
     int w = image->width()  & 0b1 ? image->width()  : image->width()  - 1;
@@ -115,14 +139,23 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
         planes[i]->peekPixels(&pixmaps[i]);
     }
     auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps);
-    image = SkImages::TextureFromYUVAPixmaps(canvas->recordingContext(),
-                                             yuvaPixmaps,
-                                             skgpu::Mipmapped::kYes,
-                                             /* limit to max tex size */ false,
-                                             /* color space */ nullptr);
+    auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(yuvaPixmaps);
+
+#if defined(SK_GRAPHITE)
+    if (recorder) {
+        image = lazyYUV->refImage(recorder, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
+    } else
+#endif
+    {
+        image = lazyYUV->refImage(rContext, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
+    }
     if (!image) {
         *errMsg = "Could not make YUVA image";
-        return rContext->abandoned() ? skiagm::DrawResult::kSkip : skiagm::DrawResult::kFail;
+        if (rContext) {
+            return rContext->abandoned() ? skiagm::DrawResult::kOk : skiagm::DrawResult::kFail;
+        } else {
+            return skiagm::DrawResult::kFail;
+        }
     }
     int i = 0;
     for (SkMipmapMode mm : {SkMipmapMode::kNone, SkMipmapMode::kLinear}) {

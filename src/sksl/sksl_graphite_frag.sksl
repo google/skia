@@ -353,7 +353,8 @@ $pure half4 sk_yuv_image_shader(float2 coords,
                                 float4 subset,
                                 int tileModeX,
                                 int tileModeY,
-                                int filterMode,
+                                int filterModeY,
+                                int filterModeUV,
                                 half4 channelSelectY,
                                 half4 channelSelectU,
                                 half4 channelSelectV,
@@ -364,18 +365,25 @@ $pure half4 sk_yuv_image_shader(float2 coords,
                                 sampler2D sU,
                                 sampler2D sV,
                                 sampler2D sA) {
+    // If the filter modes are different between Y and UV, this means that
+    // the base filtermode is nearest and we have to snap the coords to Y's
+    // texel centers to get the correct positions for UV.
+    if (filterModeY != filterModeUV) {
+        coords = floor(coords) + 0.5;
+    }
+
     half4 sampleColorY, sampleColorU, sampleColorV, sampleColorA;
     sampleColorY = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
-                                        filterMode, sY);
+                                        filterModeY, sY);
     sampleColorU = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
-                                        filterMode, sU);
+                                        filterModeUV, sU);
     sampleColorV = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
-                                        filterMode, sV);
+                                        filterModeUV, sV);
     if (channelSelectA == half4(1)) {
         sampleColorA = half4(0, 0, 0, 1);
     } else {
         sampleColorA = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
-                                            filterMode, sA);
+                                            filterModeY, sA);
     }
 
     return $yuv_to_rgb(sampleColorY, sampleColorU, sampleColorV, sampleColorA,
