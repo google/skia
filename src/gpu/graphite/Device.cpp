@@ -396,7 +396,16 @@ Device::Device(Recorder* recorder,
 Device::~Device() {
     // The Device should have been marked immutable before it's destroyed, or the Recorder was the
     // last holder of a reference to it and de-registered the device as part of its cleanup.
-    SkASSERT(!fRecorder);
+    // However, if the Device was not registered with the recorder (i.e. a scratch device) and that
+    // device had to be deleted before it was adopted by a surface due to some initialization error,
+    // abandonRecorder() may not have been called. In these cases there's no clean up that has to
+    // happen since nothing else is tracking the device and device itself is being destroyed so the
+    // value of fRecorder is unimportant.
+#if defined(GRAPHITE_TEST_UTILS)
+    // This is only checked when built with GRAPHITE_TEST_UTILS because that defines
+    // deviceIsRegistered(), but should be sufficient to catch issues with teardown.
+    SkASSERT(!fRecorder || !fRecorder->priv().deviceIsRegistered(this));
+#endif
 }
 
 void Device::abandonRecorder() {
