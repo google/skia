@@ -231,7 +231,7 @@ def skia_objc_library(name, copts = DEFAULT_OBJC_COPTS, **kwargs):
     deps = kwargs.get("deps", [])
     if type(sdks) != "NoneType":
         if type(sdks) != "list" or type(deps) != "list":
-            fail("skd_frameworks and deps must both be normal lists, not selects")
+            fail("sdk_frameworks and deps must both be normal lists, not selects")
     native.objc_library(name = name, copts = copts, **kwargs)
 
 # buildifier: disable=unnamed-macro

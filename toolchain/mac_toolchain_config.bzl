@@ -58,7 +58,7 @@ def _mac_toolchain_info(ctx):
             # "If the compiler has --sysroot support, then these paths should use %sysroot%
             #  rather than the include path"
             # https://bazel.build/rules/lib/cc_common#create_cc_toolchain_config_info.cxx_builtin_include_directories
-            "%sysroot%/symlinks/xcode/MacSDK/Frameworks/",
+            "%sysroot%/symlinks/xcode/MacSDK/System/Library/Frameworks/",
         ],
         # If `ctx.attr.cpu` is blank (which is declared as optional below), this config will target
         # the host CPU. Specifying a target_cpu allows this config to be used for cross compilation.
@@ -294,7 +294,7 @@ def _make_default_flags():
                     # We want -iframework so Clang hides diagnostic warnings from those header
                     # files we include. -F does not hide those.
                     "-iframework",
-                    XCODE_MACSDK_SYMLINK + "/Frameworks",
+                    XCODE_MACSDK_SYMLINK + "/System/Library/Frameworks",
                     # We do not want clang to search in absolute paths for files. This makes
                     # Bazel think we are using an outside resource and fail the compile.
                     "-no-canonical-prefixes",
@@ -355,6 +355,9 @@ def _make_default_flags():
                     # https://github.com/llvm/llvm-project/blob/d61341768cf0cff7ceeaddecc2f769b5c1b901c4/lld/MachO/InputFiles.cpp#L1418-L1420
                     "-Wl,-syslibroot",
                     XCODE_MACSDK_SYMLINK,
+                    # This path is relative to the syslibroot above, and we want lld to look in the
+                    # Frameworks symlink that was created in download_mac_toolchain.bzl.
+                    "-F/System/Library/Frameworks",
                     "-fuse-ld=lld",
                     "-std=c++17",
                     "-stdlib=libc++",
@@ -424,6 +427,13 @@ def _make_diagnostic_flags():
             enabled = False,
             flag_sets = [
                 cxx_diagnostic,
+                link_diagnostic,
+            ],
+        ),
+        feature(
+            "link_diagnostic",
+            enabled = False,
+            flag_sets = [
                 link_diagnostic,
             ],
         ),
