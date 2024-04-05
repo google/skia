@@ -1589,10 +1589,8 @@ static void add_to_key(const KeyContext& keyContext,
                                       newSampling);
     }
 
-    skgpu::Mipmapped mipmapped = (newSampling.mipmap != SkMipmapMode::kNone)
-                                     ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-
-    auto [view, _] = AsView(keyContext.recorder(), imageToDraw.get(), mipmapped);
+    auto view = AsView(imageToDraw.get());
+    SkASSERT(newSampling.mipmap == SkMipmapMode::kNone || view.mipmapped() == Mipmapped::kYes);
 
     ImageShaderBlock::ImageData imgData(shader->sampling(),
                                         shader->tileModeX(),

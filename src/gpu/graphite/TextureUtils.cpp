@@ -709,35 +709,20 @@ std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder* recorde
     return { result, sampling };
 }
 
-std::tuple<skgpu::graphite::TextureProxyView, SkColorType> AsView(Recorder* recorder,
-                                                                  const SkImage* image,
-                                                                  skgpu::Mipmapped mipmapped) {
-    if (!recorder || !image) {
+skgpu::graphite::TextureProxyView AsView(const SkImage* image) {
+    if (!image) {
         return {};
     }
-
     if (!as_IB(image)->isGraphiteBacked()) {
         return {};
     }
-    // TODO(b/238756380): YUVA not supported yet
+    // A YUVA image (even if backed by graphite textures) is not a single texture
     if (as_IB(image)->isYUVA()) {
         return {};
     }
 
     auto gi = reinterpret_cast<const skgpu::graphite::Image*>(image);
-
-    if (gi->dimensions().area() <= 1) {
-        mipmapped = skgpu::Mipmapped::kNo;
-    }
-
-    if (mipmapped == skgpu::Mipmapped::kYes &&
-        gi->textureProxyView().proxy()->mipmapped() != skgpu::Mipmapped::kYes) {
-        SKGPU_LOG_W("Graphite does not auto-generate mipmap levels");
-        return {};
-    }
-
-    SkColorType ct = gi->colorType();
-    return {gi->textureProxyView(), ct};
+    return gi->textureProxyView();
 }
 
 SkColorType ComputeShaderCoverageMaskTargetFormat(const Caps* caps) {
