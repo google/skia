@@ -13,10 +13,6 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/utils/SkShaderUtils.h"
 
-#ifdef SK_BUILD_FOR_IOS
-#import <UIKit/UIApplication.h>
-#endif
-
 namespace skgpu {
 
 bool MtlFormatIsDepthOrStencil(MTLPixelFormat format) {
