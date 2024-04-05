@@ -139,7 +139,7 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
         planes[i]->peekPixels(&pixmaps[i]);
     }
     auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps);
-    auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(yuvaPixmaps);
+    auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(yuvaPixmaps, skgpu::Mipmapped::kYes);
 
 #if defined(SK_GRAPHITE)
     if (recorder) {
