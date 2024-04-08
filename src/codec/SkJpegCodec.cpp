@@ -503,6 +503,7 @@ bool SkJpegCodec::conversionSupported(const SkImageInfo& dstInfo, bool srcIsOpaq
                 fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
             }
             break;
+        case kBGRA_10101010_XR_SkColorType:
         case kBGR_101010x_XR_SkColorType:
         case kRGBA_F16_SkColorType:
             SkASSERT(needsColorXform);

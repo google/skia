@@ -89,6 +89,7 @@ const char* colortype_name(SkColorType ct) {
         case kR16G16_float_SkColorType:       return "R16G16_float";
         case kR16G16B16A16_unorm_SkColorType: return "R16G16B16A16_unorm";
         case kR8_unorm_SkColorType:           return "R8_unorm";
+        case kBGRA_10101010_XR_SkColorType:   return "BGRA_10101010_XR";
     }
     SkUNREACHABLE;
 }
@@ -110,6 +111,7 @@ const char* colortype_depth(SkColorType ct) {
         case kRGB_101010x_SkColorType:        return "101010";
         case kBGR_101010x_SkColorType:        return "101010";
         case kBGR_101010x_XR_SkColorType:     return "101010";
+        case kBGRA_10101010_XR_SkColorType:   return "10101010";
         case kRGBA_10x6_SkColorType:          return "10101010";
         case kGray_8_SkColorType:             return "G8";
         case kRGBA_F16Norm_SkColorType:       return "F16Norm";

@@ -57,6 +57,7 @@ static constexpr int min_rgb_channel_bits(SkColorType ct) {
         case kBGR_101010x_SkColorType:        return 10;
         case kBGR_101010x_XR_SkColorType:     return 10;
         case kRGBA_10x6_SkColorType:          return 10;
+        case kBGRA_10101010_XR_SkColorType:   return 10;
         case kGray_8_SkColorType:             return 8;   // counting gray as "rgb"
         case kRGBA_F16Norm_SkColorType:       return 10;  // just counting the mantissa
         case kRGBA_F16_SkColorType:           return 10;  // just counting the mantissa
@@ -88,6 +89,7 @@ static constexpr int alpha_channel_bits(SkColorType ct) {
         case kBGR_101010x_SkColorType:        return 0;
         case kBGR_101010x_XR_SkColorType:     return 0;
         case kRGBA_10x6_SkColorType:          return 10;
+        case kBGRA_10101010_XR_SkColorType:   return 10;
         case kGray_8_SkColorType:             return 0;
         case kRGBA_F16Norm_SkColorType:       return 10;  // just counting the mantissa
         case kRGBA_F16_SkColorType:           return 10;  // just counting the mantissa
@@ -458,6 +460,7 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
                 // because there's no corresponding GrColorType, and hence it will fail
                 if (readCT == kRGB_101010x_SkColorType ||
                     readCT == kBGR_101010x_XR_SkColorType ||
+                    readCT == kBGRA_10101010_XR_SkColorType ||
                     readCT == kBGR_101010x_SkColorType) {
                     continue;
                 }

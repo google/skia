@@ -11,6 +11,7 @@
 #include "include/core/SkSize.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkHalf.h"
 #include "src/base/SkRectMemcpy.h"
@@ -204,6 +205,27 @@ static bool convert_to_alpha8(const SkImageInfo& dstInfo,       void* vdst, size
             return true;
         }
 
+        case kBGRA_10101010_XR_SkColorType: {
+            auto src64 = (const uint64_t*) src;
+            for (int y = 0; y < srcInfo.height(); y++) {
+                for (int x = 0; x < srcInfo.width(); x++) {
+                    static constexpr int64_t kZero = 384;
+                    static constexpr int64_t kRange = 510;
+                    static constexpr int64_t kMaxU8 = 0xff;
+                    static constexpr int64_t kMinU8 = 0x00;
+                    static constexpr int64_t kDivisor = kRange / kMaxU8;
+                    int64_t raw_alpha = src64[x] >> 54;
+                    // f(384) = 0
+                    // f(894) = 255
+                    int64_t alpha =
+                            SkTPin((raw_alpha - kZero) / kDivisor, kMinU8, kMaxU8);
+                    dst[x] = static_cast<uint8_t>(alpha);
+                }
+                dst = SkTAddOffset<uint8_t>(dst, dstRB);
+                src64 = SkTAddOffset<const uint64_t>(src64, srcRB);
+            }
+            return true;
+        }
         case kRGBA_10x6_SkColorType:
         case kR16G16B16A16_unorm_SkColorType: {
             auto src64 = (const uint64_t*) src;
