@@ -330,7 +330,10 @@ skia_wasm_lib("canvaskit") {
     "-sSTRICT=1",
   ]
 
-  defines = []
+  defines = [
+    "SK_FORCE_8_BYTE_ALIGNMENT",
+    "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
+  ]
   if (is_debug) {
     defines += [ "SK_DEBUG" ]
   } else {
@@ -339,13 +342,14 @@ skia_wasm_lib("canvaskit") {
   if (!is_debug && !skia_canvaskit_force_tracing) {
     defines += [ "SK_DISABLE_TRACING" ]
   }
-  defines += [
-    "SK_FORCE_8_BYTE_ALIGNMENT",
-    "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
-    "SK_SHAPER_HARFBUZZ_AVAILABLE",
-  ]
   if (skia_canvaskit_enable_embedded_font) {
     defines += [ "CK_EMBED_FONT" ]
+  }
+  if (skia_use_icu && skia_use_harfbuzz) {
+    deps += [
+      "../../modules/skshaper",
+      "../../modules/skunicode",
+    ]
   }
   if (skia_canvaskit_enable_paragraph) {
     defines += [ "CK_INCLUDE_PARAGRAPH" ]

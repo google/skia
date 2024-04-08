@@ -2616,10 +2616,17 @@ Result ViaSVG::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
         if (!result.isOk()) {
             return result;
         }
+
+        auto shapingFactory = SkShapers::BestAvailable();
+        auto fontMgr = ToolUtils::TestFontMgr();
+        // When rendering our SVGs we want to be sure we are using shaping.
+        // If we fail to make a shaper, then it can mean something like skunicode is misconfigured.
+        SkASSERT(shapingFactory->makeShaper(fontMgr));
+
         std::unique_ptr<SkStream> rstream(wstream.detachAsStream());
         sk_sp<SkSVGDOM> dom = SkSVGDOM::Builder()
-                                      .setFontManager(ToolUtils::TestFontMgr())
-                                      .setTextShapingFactory(SkShapers::BestAvailable())
+                                      .setFontManager(std::move(fontMgr))
+                                      .setTextShapingFactory(std::move(shapingFactory))
                                       .make(*rstream);
         if (dom) {
             dom->setContainerSize(SkSize::Make(size));
