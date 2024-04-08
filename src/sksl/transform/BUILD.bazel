@@ -10,6 +10,7 @@ TRANSFORM_FILES = [
     "SkSLEliminateDeadGlobalVariables.cpp",
     "SkSLEliminateDeadLocalVariables.cpp",
     "SkSLEliminateEmptyStatements.cpp",
+    "SkSLEliminateUnnecessaryBraces.cpp",
     "SkSLEliminateUnreachableCode.cpp",
     "SkSLFindAndDeclareBuiltinFunctions.cpp",
     "SkSLFindAndDeclareBuiltinStructs.cpp",

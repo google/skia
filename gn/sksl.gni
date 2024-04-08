@@ -226,6 +226,7 @@ skia_sksl_sources = [
   "$_src/sksl/transform/SkSLEliminateDeadGlobalVariables.cpp",
   "$_src/sksl/transform/SkSLEliminateDeadLocalVariables.cpp",
   "$_src/sksl/transform/SkSLEliminateEmptyStatements.cpp",
+  "$_src/sksl/transform/SkSLEliminateUnnecessaryBraces.cpp",
   "$_src/sksl/transform/SkSLEliminateUnreachableCode.cpp",
   "$_src/sksl/transform/SkSLFindAndDeclareBuiltinFunctions.cpp",
   "$_src/sksl/transform/SkSLFindAndDeclareBuiltinStructs.cpp",

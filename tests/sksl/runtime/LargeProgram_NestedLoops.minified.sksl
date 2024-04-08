@@ -1,1 +1,1 @@
-half4 main(float2 a){int b;for(int c=0;c<10;++c){for(int d=0;d<10;++d){for(int e=0;e<10;++e){for(int f=0;f<10;++f){++b;}}}}return half4(0.);}
+half4 main(float2 a){int b;for(int c=0;c<10;++c)for(int d=0;d<10;++d)for(int e=0;e<10;++e)for(int f=0;f<10;++f)++b;return half4(0.);}
