@@ -17,44 +17,36 @@
 
 namespace skgpu::graphite {
 
-class SkSpecialImage_Graphite final : public SkSpecialImage {
+class SpecialImage final : public SkSpecialImage {
 public:
-    SkSpecialImage_Graphite(const SkIRect& subset,
-                            uint32_t uniqueID,
-                            TextureProxyView view,
-                            const SkColorInfo& colorInfo,
-                            const SkSurfaceProps& props)
-            : SkSpecialImage(subset, uniqueID, colorInfo, props)
-            , fTextureProxyView(std::move(view)) {
+    SpecialImage(const SkIRect& subset, sk_sp<SkImage> image, const SkSurfaceProps& props)
+            : SkSpecialImage(subset, image->uniqueID(), image->imageInfo().colorInfo(), props)
+            , fImage(std::move(image)) {
+        SkASSERT(as_IB(fImage)->isGraphiteBacked());
     }
 
     size_t getSize() const override {
-        // TODO: return VRAM size here
-        return 0;
+        return fImage->textureSize();
     }
 
     bool isGraphiteBacked() const override { return true; }
 
-    TextureProxyView textureProxyView() const { return fTextureProxyView; }
-
     SkISize backingStoreDimensions() const override {
-        return fTextureProxyView.proxy()->dimensions();
+        return fImage->dimensions();
     }
 
     sk_sp<SkSpecialImage> onMakeBackingStoreSubset(const SkIRect& subset) const override {
-        return SkSpecialImages::MakeGraphite(subset,
-                                             this->uniqueID(),
-                                             fTextureProxyView,
-                                             this->colorInfo(),
-                                             this->props());
+        SkASSERT(fImage->bounds().contains(subset));
+        return sk_make_sp<skgpu::graphite::SpecialImage>(subset, fImage, this->props());
     }
 
-    sk_sp<SkImage> asImage() const override {
-        return sk_make_sp<Image>(this->uniqueID(), fTextureProxyView, this->colorInfo());
-    }
+    sk_sp<SkImage> asImage() const override { return fImage; }
 
 private:
-    TextureProxyView fTextureProxyView;
+    // TODO(b/299474380): SkSpecialImage is intended to go away in favor of just using SkImages
+    // and tracking the intended srcRect explicitly in skif::FilterResult. Since Graphite tracks
+    // device-linked textures via Images, the graphite special image just wraps an image.
+    sk_sp<SkImage> fImage;
 };
 
 } // namespace skgpu::graphite
@@ -65,15 +57,21 @@ sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder* recorder,
                                    const SkIRect& subset,
                                    sk_sp<SkImage> image,
                                    const SkSurfaceProps& props) {
-    if (!recorder || !image || subset.isEmpty()) {
+    // 'recorder' can be null if we're wrapping a graphite-backed image since there's no work that
+    // needs to be added. This can happen when snapping a special image from a Device that's been
+    // marked as immutable and abandoned its recorder.
+    if (!image || subset.isEmpty()) {
         return nullptr;
     }
 
     SkASSERT(image->bounds().contains(subset));
 
-    // This will work even if the image is a raster-backed image and the Recorder's
-    // client ImageProvider does a valid upload.
+    // Use the Recorder's client ImageProvider to convert to a graphite-backed image when
+    // possible, but this does not necessarily mean the provider will produce a valid image.
     if (!as_IB(image)->isGraphiteBacked()) {
+        if (!recorder) {
+            return nullptr;
+        }
         auto [graphiteImage, _] =
                 skgpu::graphite::GetGraphiteBacked(recorder, image.get(), {});
         if (!graphiteImage) {
@@ -83,37 +81,7 @@ sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder* recorder,
         image = graphiteImage;
     }
 
-    // TODO(b/323887207): Graphite's SkSpecialImage class should just wrap Image to avoid losing
-    // any linked Device. When that happens, linked devices will automatically be flushed even when
-    // it's the special image being drawn, not the originating `image`. For now, notify the original
-    static_cast<skgpu::graphite::Image_Base*>(image.get())->notifyInUse(recorder);
-    return MakeGraphite(subset,
-                        image->uniqueID(),
-                        skgpu::graphite::AsView(image.get()),
-                        image->imageInfo().colorInfo(),
-                        props);
-}
-
-sk_sp<SkSpecialImage> MakeGraphite(const SkIRect& subset,
-                                   uint32_t uniqueID,
-                                   skgpu::graphite::TextureProxyView view,
-                                   const SkColorInfo& colorInfo,
-                                   const SkSurfaceProps& props) {
-    if (!view) {
-        return nullptr;
-    }
-
-    SkASSERT(SkIRect::MakeSize(view.dimensions()).contains(subset));
-    return sk_make_sp<skgpu::graphite::SkSpecialImage_Graphite>(subset, uniqueID,
-                                                                std::move(view), colorInfo, props);
-}
-
-skgpu::graphite::TextureProxyView AsTextureProxyView(const SkSpecialImage* img) {
-    if (!img || !img->isGraphiteBacked()) {
-        return {};
-    }
-    auto grImg = static_cast<const skgpu::graphite::SkSpecialImage_Graphite*>(img);
-    return grImg->textureProxyView();
+    return sk_make_sp<skgpu::graphite::SpecialImage>(subset, std::move(image), props);
 }
 
 }  // namespace SkSpecialImages

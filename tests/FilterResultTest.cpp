@@ -880,7 +880,7 @@ private:
         if (fRecorder) {
             // Graphite backed, so use the private testing-only synchronous API
             SkASSERT(specialImage->isGraphiteBacked());
-            auto view = SkSpecialImages::AsTextureProxyView(specialImage);
+            auto view = skgpu::graphite::AsView(specialImage->asImage());
             auto proxyII = ii.makeWH(view.width(), view.height());
             SkAssertResult(fRecorder->priv().context()->priv().readPixels(
                     bm.pixmap(), view.proxy(), proxyII, srcX, srcY));

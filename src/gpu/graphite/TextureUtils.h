@@ -58,6 +58,7 @@ bool GenerateMipmaps(Recorder*, sk_sp<TextureProxy>, const SkColorInfo&);
 
 // Returns the underlying TextureProxyView if it's a non-YUVA Graphite-backed image.
 TextureProxyView AsView(const SkImage*);
+inline TextureProxyView AsView(sk_sp<SkImage> image) { return AsView(image.get()); }
 
 std::pair<sk_sp<SkImage>, SkSamplingOptions> GetGraphiteBacked(Recorder*,
                                                                const SkImage*,

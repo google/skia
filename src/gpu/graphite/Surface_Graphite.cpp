@@ -62,7 +62,7 @@ sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
     return this->makeImageCopy(subset, srcView.mipmapped());
 }
 
-sk_sp<SkImage> Surface::asImage() const {
+sk_sp<Image> Surface::asImage() const {
     if (this->hasCachedImage()) {
         SKGPU_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
                     "unexpected results. Please use either the old _or_ new API.");
@@ -70,19 +70,15 @@ sk_sp<SkImage> Surface::asImage() const {
     return fImageView;
 }
 
-sk_sp<SkImage> Surface::makeImageCopy(const SkIRect* subset, Mipmapped mipmapped) const {
+sk_sp<Image> Surface::makeImageCopy(const SkIRect* subset, Mipmapped mipmapped) const {
     if (this->hasCachedImage()) {
         SKGPU_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
                     "unexpected results. Please use either the old _or_ new API.");
     }
-    TextureProxyView srcView = fDevice->createCopy(subset, mipmapped, SkBackingFit::kExact);
-    if (!srcView) {
-        return nullptr;
-    }
 
-    return sk_sp<Image>(new Image(kNeedNewImageUniqueID,
-                                  std::move(srcView),
-                                  this->imageInfo().colorInfo()));
+    SkIRect srcRect = subset ? *subset : SkIRect::MakeSize(this->imageInfo().dimensions());
+    // NOTE: Must copy through fDevice and not fImageView if the surface's texture is not sampleable
+    return fDevice->makeImageCopy(srcRect, Budgeted::kNo, mipmapped, SkBackingFit::kExact);
 }
 
 void Surface::onWritePixels(const SkPixmap& pixmap, int x, int y) {

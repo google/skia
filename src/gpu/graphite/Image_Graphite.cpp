@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Texture.h"
 
 #if defined(GRAPHITE_TEST_UTILS)
@@ -44,6 +45,9 @@ sk_sp<Image> Image::MakeView(sk_sp<Device> device) {
     if (!proxy) {
         return nullptr;
     }
+    // NOTE: If the device was created with an approx backing fit, its SkImageInfo reports the
+    // logical dimensions, but its proxy has the approximate fit. These larger dimensions are
+    // propagated to the SkImageInfo of this image view.
     sk_sp<Image> view = sk_make_sp<Image>(kNeedNewImageUniqueID,
                                           std::move(proxy),
                                           device->imageInfo().colorInfo());
@@ -70,43 +74,77 @@ sk_sp<SkImage> Image::onMakeSubset(Recorder* recorder,
 
     // optimization : return self if the subset == our bounds and requirements met
     if (bounds == subset && (!requiredProps.fMipmapped || this->hasMipmaps())) {
-        const SkImage* image = this;
-        return sk_ref_sp(const_cast<SkImage*>(image));
+        return sk_ref_sp(this);
     }
 
-    return this->copyImage(subset, recorder, requiredProps);
+    // The copied image is not considered budgeted because this is a client-invoked API and they
+    // will own the image.
+    return this->copyImage(recorder,
+                           subset,
+                           Budgeted::kNo,
+                           requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,
+                           SkBackingFit::kExact);
 }
 
 sk_sp<SkImage> Image::makeTextureImage(Recorder* recorder, RequiredProperties requiredProps) const {
     if (!requiredProps.fMipmapped || this->hasMipmaps()) {
-        const SkImage* image = this;
-        return sk_ref_sp(const_cast<SkImage*>(image));
+        return sk_ref_sp(this);
     }
 
+    // The copied image is not considered budgeted because this is a client-invoked API and they
+    // will own the image.
     const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-    return this->copyImage(bounds, recorder, requiredProps);
+    return this->copyImage(recorder,
+                           bounds,
+                           Budgeted::kNo,
+                           requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,
+                           SkBackingFit::kExact);
 }
 
-sk_sp<SkImage> Image::copyImage(const SkIRect& subset,
-                                Recorder* recorder,
-                                RequiredProperties requiredProps) const {
+sk_sp<Image> Image::copyImage(Recorder* recorder,
+                              const SkIRect& subset,
+                              Budgeted budgeted,
+                              Mipmapped mipmapped,
+                              SkBackingFit backingFit) const {
+    SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
     const TextureProxyView& srcView = this->textureProxyView();
     if (!srcView) {
         return nullptr;
     }
 
+    // Attempt copying as a blit first.
+    const SkColorInfo& colorInfo = this->imageInfo().colorInfo();
     this->notifyInUse(recorder);
-
-    auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-    TextureProxyView copiedView = TextureProxyView::Copy(
-            recorder, this->imageInfo().colorInfo(), srcView, subset, mm, SkBackingFit::kExact);
-    if (!copiedView) {
-        return nullptr;
+    TextureProxyView copiedView = TextureProxyView::Copy(recorder,
+                                                         colorInfo,
+                                                         srcView,
+                                                         subset,
+                                                         budgeted,
+                                                         mipmapped,
+                                                         backingFit);
+    if (copiedView) {
+        return sk_make_sp<Image>(kNeedNewImageUniqueID, std::move(copiedView), colorInfo);
     }
 
-    return sk_sp<Image>(new Image(kNeedNewImageUniqueID,
-                                  std::move(copiedView),
-                                  this->imageInfo().colorInfo()));
+    // Perform the copy as a draw; since the proxy has been wrapped in an Image, it should be
+    // texturable.
+    SkASSERT(recorder->priv().caps()->isTexturable(srcView.proxy()->textureInfo()));
+
+    // The surface goes out of scope when we return, so it can be scratch, but it may or may
+    // not be budgeted depending on how the copied image is used (or returned to the client).
+    // TODO: Move copy-as-draw to the default Image_Base implementation since that handles the
+    // YUVA case entirely.
+    auto surface = Surface::MakeScratch(recorder,
+                                        this->imageInfo().makeDimensions(subset.size()),
+                                        budgeted,
+                                        mipmapped,
+                                        backingFit);
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    surface->getCanvas()->drawImage(this, -subset.left(), -subset.top(),
+                                    SkFilterMode::kNearest, &paint);
+    // And the image draw into `surface` is flushed when it goes out of scope
+    return surface->asImage();
 }
 
 sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {

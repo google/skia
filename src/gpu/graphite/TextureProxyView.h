@@ -89,10 +89,14 @@ public:
         return std::move(fProxy);
     }
 
+    // This Copy does not perform any copy-as-draw fallbacks; if 'srcView' does not support reading
+    // pixels, then this will return an empty proxy view. On success, the proxy view will be
+    // sampleable.
     static TextureProxyView Copy(Recorder*,
                                  const SkColorInfo& srcColorInfo,
                                  const TextureProxyView& srcView,
                                  SkIRect srcRect,
+                                 Budgeted,
                                  Mipmapped,
                                  SkBackingFit);
 

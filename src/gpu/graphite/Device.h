@@ -31,6 +31,7 @@ class Context;
 class DrawContext;
 enum class DstReadRequirement;
 class Geometry;
+class Image;
 class PaintParams;
 class Recorder;
 class Renderer;
@@ -74,8 +75,6 @@ public:
     // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
     void flushPendingWorkToRecorder();
 
-    TextureProxyView createCopy(const SkIRect* subset, Mipmapped, SkBackingFit);
-
     const Transform& localToDeviceTransform();
 
     // Flushes any pending work to the recorder and then deregisters and abandons the recorder.
@@ -84,7 +83,10 @@ public:
     SkStrikeDeviceInfo strikeDeviceInfo() const override;
 
     TextureProxy* target();
+    // May be null if target is not sampleable.
     TextureProxyView readSurfaceView() const;
+    // Can succeed if target is readable but not sampleable. Assumes 'subset' is contained in bounds
+    sk_sp<Image> makeImageCopy(const SkIRect& subset, Budgeted, Mipmapped, SkBackingFit);
 
     // SkCanvas only uses drawCoverageMask w/o this staging flag, so only enable
     // mask filters in clients that have finished migrating.

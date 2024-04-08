@@ -80,8 +80,8 @@ public:
     sk_sp<const SkCapabilities> onCapabilities() override;
 
     TextureProxyView readSurfaceView() const;
-    sk_sp<SkImage> asImage() const;
-    sk_sp<SkImage> makeImageCopy(const SkIRect* subset, Mipmapped) const;
+    sk_sp<Image> asImage() const;
+    sk_sp<Image> makeImageCopy(const SkIRect* subset, Mipmapped) const;
     TextureProxy* backingTextureProxy() const;
 
 private:

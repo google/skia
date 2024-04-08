@@ -32,17 +32,6 @@ sk_sp<SkSpecialImage> MakeGraphite(skgpu::graphite::Recorder*,
                                    sk_sp<SkImage>,
                                    const SkSurfaceProps&);
 
-sk_sp<SkSpecialImage> MakeGraphite(const SkIRect& subset,
-                                   uint32_t uniqueID,
-                                   skgpu::graphite::TextureProxyView,
-                                   const SkColorInfo&,
-                                   const SkSurfaceProps&);
-
-skgpu::graphite::TextureProxyView AsTextureProxyView(const SkSpecialImage*);
-inline skgpu::graphite::TextureProxyView AsTextureProxyView(sk_sp<const SkSpecialImage> img) {
-    return AsTextureProxyView(img.get());
-}
-
 }  // namespace SkSpecialImages
 
 #endif
