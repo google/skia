@@ -35,6 +35,7 @@
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/tests/SkShaperJSONWriter.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
+#include "src/base/SkTSort.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
@@ -121,20 +122,35 @@ public:
         if (FLAGS_paragraph_fonts.size() == 0) {
             return;
         }
-        SkString fontResources = GetResourcePath(FLAGS_paragraph_fonts[0]);
-        const char* fontDir = fontResources.c_str();
-        SkOSFile::Iter iter(fontDir);
-
-        SkString path;
-        sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
-        while (iter.next(&path)) {
-            if ((false)) {
-                SkDebugf("font %s\n", path.c_str());
+        TArray<SkString> paths;
+        {
+            SkString fontResources = GetResourcePath(FLAGS_paragraph_fonts[0]);
+            const char* fontDir = fontResources.c_str();
+            SkOSFile::Iter iter(fontDir);
+            SkString path;
+            while (iter.next(&path)) {
+                if ((false)) {
+                    SkDebugf("Found font file: %s\n", path.c_str());
+                }
+                SkString fullPath;
+                fullPath.printf("%s/%s", fontDir, path.c_str());
+                paths.emplace_back(fullPath);
             }
-            SkString file_path;
-            file_path.printf("%s/%s", fontDir, path.c_str());
-            auto stream = SkStream::MakeFromFile(file_path.c_str());
-            SkASSERTF(stream, "%s not readable", file_path.c_str());
+            if (paths.size()) {
+                SkTQSort(paths.begin(), paths.end(),
+                            [](const SkString& a, const SkString& b) {
+                                return strcmp(a.c_str(), b.c_str()) < 0;
+                            });
+            }
+        }
+
+        sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
+        for (auto&& path : paths) {
+            if ((false)) {
+                SkDebugf("Reading font: %s\n", path.c_str());
+            }
+            auto stream = SkStream::MakeFromFile(path.c_str());
+            SkASSERTF(stream, "%s not readable", path.c_str());
             sk_sp<SkTypeface> face = mgr->makeFromStream(std::move(stream), {});
             // Without --nativeFonts, DM will use the portable test font manager which does
             // not know how to read in fonts from bytes.
@@ -151,7 +167,7 @@ public:
                 }
             } else {
                 SkDEBUGF("%s was not turned into a Typeface. Did you set --nativeFonts?\n",
-                         file_path.c_str());
+                         path.c_str());
             }
         }
         SkASSERTF(fFontProvider->countFamilies(), "No families found. Did you set --nativeFonts?");
@@ -8084,6 +8100,9 @@ UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
     ParagraphStyle paragraph_style;
 
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    TextStyle textStyle;
+    textStyle.setFontFamilies({SkString("Roboto")});
+    builder.pushStyle(textStyle);
     builder.addText(text, len);
 
     auto paragraph = builder.Build();
@@ -8098,7 +8117,7 @@ UNIX_ONLY_TEST(SkParagraph_EndWithLineSeparator, reporter) {
             REPORTER_ASSERT(reporter, info == nullptr);
         }
     });
-    REPORTER_ASSERT(reporter, visitedCount == 3);
+    REPORTER_ASSERT(reporter, visitedCount == 3, "visitedCount: %d", visitedCount);
 }
 
 [[maybe_unused]] static void SkParagraph_EmojiFontResolution(sk_sp<SkUnicode> icu, skiatest::Reporter* reporter) {
