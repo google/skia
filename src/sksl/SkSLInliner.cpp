@@ -79,6 +79,10 @@ namespace {
 
 static constexpr int kInlinedStatementLimit = 2500;
 
+static bool is_scopeless_block(Statement* stmt) {
+    return stmt->is<Block>() && !stmt->as<Block>().isScope();
+}
+
 static std::unique_ptr<Statement>* find_parent_statement(
         const std::vector<std::unique_ptr<Statement>*>& stmtStack) {
     SkASSERT(!stmtStack.empty());
@@ -91,7 +95,7 @@ static std::unique_ptr<Statement>* find_parent_statement(
     // Anything counts as a parent statement other than a scopeless Block.
     for (; iter != stmtStack.rend(); ++iter) {
         std::unique_ptr<Statement>* stmt = *iter;
-        if (!(*stmt)->is<Block>() || (*stmt)->as<Block>().isScope()) {
+        if (!is_scopeless_block(stmt->get())) {
             return stmt;
         }
     }
@@ -136,7 +140,7 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
 
     // No changes necessary if the parent statement doesn't require a scope.
     if (!parentStmt || !(parentStmt->is<IfStatement>() || parentStmt->is<ForStatement>() ||
-                         parentStmt->is<DoStatement>())) {
+                         parentStmt->is<DoStatement>() || is_scopeless_block(parentStmt))) {
         return;
     }
 

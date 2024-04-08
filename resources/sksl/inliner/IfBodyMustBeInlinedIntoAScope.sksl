@@ -5,9 +5,30 @@ inline half4 ifBody() {
     return x;
 }
 
+inline half4 nestedIfBody() {
+    return ifBody();
+}
+
+inline bool trueCondition() {
+    return colorRed.r == 1;
+}
+
+inline bool falseCondition() {
+    return colorGreen.r == 1;
+}
+
 half4 main(float2 coords) {
-    half4 c = colorRed;
+    half4 a = colorRed, b = colorRed, c = colorRed;
+
     if (colorGreen.g == 1)
+        a = ifBody();
+
+    if (trueCondition())
+        b = nestedIfBody();
+
+    if (falseCondition()) /* no-op */;
+    else
         c = ifBody();
-    return c;
+
+    return min(min(a, b), c);
 }
