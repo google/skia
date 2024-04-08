@@ -82,7 +82,7 @@
       "RECIPE_MODULE[skia::build]/resources/copy_build_products.py",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-Release-Chromebook_GLES/Release",
       "[START_DIR]/[SWARM_OUT_DIR]/out/Release",
-      "dm,dm.exe,dm.app,nanobench.app,get_images_from_skps,get_images_from_skps.exe,nanobench,nanobench.exe,skpbench,skpbench.exe,*.so,*.dll,*.dylib,skia_launcher,skottie_tool,lib/*.so,run_testlab"
+      "dm,dm.exe,dm.app,nanobench.app,get_images_from_skps,get_images_from_skps.exe,nanobench,nanobench.exe,skpbench,skpbench.exe,*.so,*.dll,*.dylib,skottie_tool,lib/*.so,run_testlab"
     ],
     "infra_step": true,
     "name": "copy build products"
