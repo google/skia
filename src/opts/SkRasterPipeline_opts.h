@@ -259,12 +259,12 @@ namespace SK_OPTS_NS {
 
         SI F floor_(F v) {
             F roundtrip = vcvtq_f32_s32(vcvtq_s32_f32(v));
-            return roundtrip - if_then_else(roundtrip > v, F(1), F(0));
+            return roundtrip - if_then_else(roundtrip > v, F() + 1, F());
         }
 
         SI F ceil_(F v) {
             F roundtrip = vcvtq_f32_s32(vcvtq_s32_f32(v));
-            return roundtrip + if_then_else(roundtrip < v, F(1), F(0));
+            return roundtrip + if_then_else(roundtrip < v, F() + 1, F());
         }
 
         SI F sqrt_(F v) {
@@ -283,7 +283,7 @@ namespace SK_OPTS_NS {
         }
 
         SI U32 round(F v, F scale) {
-            return vcvtq_u32_f32(mad(v,scale,0.5f));
+            return vcvtq_u32_f32(mad(v, scale, F() + 0.5f));
         }
     #endif
 
