@@ -179,7 +179,7 @@ public:
         , fDither(dither) {
     }
 
-    PrecompileBlender* finalBlender() { return fFinalBlender.first.get(); }
+    const PrecompileBlender* finalBlender() const { return fFinalBlender.first.get(); }
 
     void toKey(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
 
@@ -352,12 +352,27 @@ void PaintOption::toKey(const KeyContext& keyContext,
                         PipelineDataGatherer* gatherer) const {
     this->handleDstRead(keyContext, keyBuilder, gatherer);
 
+    std::optional<SkBlendMode> finalBlendMode = this->finalBlender()
+                                                        ? this->finalBlender()->asBlendMode()
+                                                        : SkBlendMode::kSrcOver;
+    if (fDstReadReq != DstReadRequirement::kNone) {
+        // In this case the blend will have been handled by shader-based blending with the dstRead.
+        finalBlendMode = SkBlendMode::kSrc;
+    }
+
     if (fClipShader.first) {
         ClipShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer);
             fClipShader.first->priv().addToKey(keyContext, keyBuilder, gatherer,
                                                fClipShader.second);
         keyBuilder->endBlock();
     }
+
+    // Set the hardware blend mode.
+    SkASSERT(finalBlendMode);
+    BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
+            kFixedFunctionBlendModeIDOffset + static_cast<int>(*finalBlendMode));
+
+    keyBuilder->addBlock(fixedFuncBlendModeID);
 }
 
 void PaintOptions::createKey(const KeyContext& keyContext,
@@ -412,20 +427,6 @@ void PaintOptions::createKey(const KeyContext& keyContext,
                        fDither);
 
     option.toKey(keyContext, keyBuilder, gatherer);
-
-    std::optional<SkBlendMode> finalBlendMode = option.finalBlender()
-                                                        ? option.finalBlender()->asBlendMode()
-                                                        : SkBlendMode::kSrcOver;
-    if (dstReadReq != DstReadRequirement::kNone) {
-        // In this case the blend will have been handled by shader-based blending with the dstRead.
-        finalBlendMode = SkBlendMode::kSrc;
-    }
-
-    SkASSERT(finalBlendMode);
-    BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
-            kFixedFunctionBlendModeIDOffset + static_cast<int>(*finalBlendMode));
-
-    keyBuilder->addBlock(fixedFuncBlendModeID);
 }
 
 void PaintOptions::buildCombinations(
