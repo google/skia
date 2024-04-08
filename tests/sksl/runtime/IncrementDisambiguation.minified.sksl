@@ -1,0 +1,1 @@
+uniform half4 colorRed;float4 main(float2 a){half4 b=colorRed;b.y=b.w++ +b.z;b.y=b.w- --b.x;return float4(saturate(b));}

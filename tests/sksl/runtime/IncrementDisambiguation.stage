@@ -1,0 +1,8 @@
+uniform half4 colorRed;
+float4 main(float2 xy)
+{
+	half4 c = colorRed;
+	c.y = c.w++ + c.z;
+	c.y = c.w - --c.x;
+	return half4(float4(saturate(c)));
+}

@@ -74,6 +74,10 @@ static bool maybe_identifier(char c) {
     return std::isalnum(c) || c == '$' || c == '_';
 }
 
+static bool is_plus_or_minus(char c) {
+    return c == '+' || c == '-';
+}
+
 static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_list(
         SkSpan<const std::string> paths, SkSL::ProgramKind kind) {
     std::forward_list<std::unique_ptr<const SkSL::Module>> modules;
@@ -185,9 +189,18 @@ static bool generate_minified_text(std::string_view inputPath,
             out.writeText("\"\n\"");
             lineWidth = 1;
         }
-        if (maybe_identifier(lastTokenText.back()) && maybe_identifier(thisTokenText.front())) {
-            // We are about to put two alphanumeric characters side-by-side; add whitespace between
-            // the tokens.
+
+        // Detect tokens with abutting alphanumeric characters side-by-side.
+        bool adjacentIdentifiers =
+                maybe_identifier(lastTokenText.back()) && maybe_identifier(thisTokenText.front());
+
+        // Detect potentially ambiguous preincrement/postincrement operators.
+        // For instance, `x + ++y` and `x++ + y` require whitespace for differentiation.
+        bool adjacentPlusOrMinus =
+                is_plus_or_minus(lastTokenText.back()) && is_plus_or_minus(thisTokenText.front());
+
+        // Insert whitespace when it is necessary for program correctness.
+        if (adjacentIdentifiers || adjacentPlusOrMinus) {
             out.writeText(" ");
             lineWidth++;
         }

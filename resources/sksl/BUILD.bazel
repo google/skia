@@ -736,6 +736,7 @@ skia_filegroup(
         "runtime/FunctionParameterAliasingSecond.rts",
         "runtime/GLSLTypeNames.rts",
         "runtime/GlobalVariables.rts",
+        "runtime/IncrementDisambiguation.rts",
         "runtime/LargeProgram_BlocklessLoops.rts",
         "runtime/LargeProgram_FlatLoop.rts",
         "runtime/LargeProgram_Functions.rts",

@@ -1,0 +1,12 @@
+uniform half4 colorRed;
+
+float4 main(float2 xy) {
+    half4 c = colorRed;
+
+    // The minifier should preserve spaces between increment operators and addition/subtraction.
+    // If spaces are removed, the second line could parse as `c.a-- - c.r` and evaluate to zero.
+    c.g = c.a++ + c.b;  // c = {1, 1, 0, 2}
+    c.g = c.a - --c.r;  // c = {0, 2, 0, 2}
+
+    return saturate(c);
+}

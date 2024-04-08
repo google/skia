@@ -1,0 +1,24 @@
+22 instructions
+
+store_src_rg                   xy = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_4_uniforms                c = colorRed
+copy_slot_unmasked             $0 = c(3)
+copy_slot_unmasked             $1 = $0
+add_imm_float                  $1 += 0x3F800000 (1.0)
+copy_slot_unmasked             c(3) = $1
+copy_slot_unmasked             $1 = c(2)
+add_float                      $0 += $1
+copy_slot_unmasked             c(1) = $0
+copy_slot_unmasked             $0 = c(3)
+copy_slot_unmasked             $1 = c(0)
+add_imm_float                  $1 += 0xBF800000 (-1.0)
+copy_slot_unmasked             c(0) = $1
+sub_float                      $0 -= $1
+copy_slot_unmasked             c(1) = $0
+copy_4_slots_unmasked          $0..3 = c
+splat_4_constants              $4..7 = 0
+max_4_floats                   $0..3 = max($0..3, $4..7)
+splat_4_constants              $4..7 = 0x3F800000 (1.0)
+min_4_floats                   $0..3 = min($0..3, $4..7)
+load_src                       src.rgba = $0..3
