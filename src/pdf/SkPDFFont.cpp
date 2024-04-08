@@ -512,6 +512,33 @@ static SkPDFIndirectReference type3_descriptor(SkPDFDocument* doc,
 
     SkPDFDict descriptor("FontDescriptor");
     int32_t fontDescriptorFlags = kPdfSymbolic;
+
+    /** PDF32000_2008: FontFamily should be used for Type3 fonts in Tagged PDF documents. */
+    SkString familyName;
+    typeface->getFamilyName(&familyName);
+    if (!familyName.isEmpty()) {
+        descriptor.insertByteString("FontFamily", familyName);
+    }
+
+    /** PDF32000_2008: FontStretch should be used for Type3 fonts in Tagged PDF documents. */
+    static constexpr const char* stretchNames[9] = {
+        "UltraCondensed",
+        "ExtraCondensed",
+        "Condensed",
+        "SemiCondensed",
+        "Normal",
+        "SemiExpanded",
+        "Expanded",
+        "ExtraExpanded",
+        "UltraExpanded",
+    };
+    const char* stretchName = stretchNames[typeface->fontStyle().width() - 1];
+    descriptor.insertName("FontStretch", stretchName);
+
+    /** PDF32000_2008: FontWeight should be used for Type3 fonts in Tagged PDF documents. */
+    int weight = (typeface->fontStyle().weight() + 50) / 100;
+    descriptor.insertInt("FontWeight", SkTPin(weight, 1, 9) * 100);
+
     if (const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, doc)) {
         // Type3 FontDescriptor does not require all the same fields.
         descriptor.insertName("FontName", metrics->fPostScriptName);
