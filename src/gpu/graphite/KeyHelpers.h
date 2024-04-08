@@ -192,6 +192,7 @@ struct YUVImageShaderBlock {
         SkSamplingOptions fSamplingUV;
         SkTileMode fTileModes[2];
         SkISize fImgSize;
+        SkISize fImgSizeUV;  // Size of UV planes relative to Y's texel space
         SkRect fSubset;
         SkV4 fChannelSelect[4];
         SkMatrix fYUVtoRGBMatrix;

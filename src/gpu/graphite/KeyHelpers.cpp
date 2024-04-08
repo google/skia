@@ -617,6 +617,7 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kYUVImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSizeUV.width(), 1.f/imgData.fImgSizeUV.height()));
     gatherer->write(imgData.fSubset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
@@ -636,6 +637,7 @@ void add_cubic_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCubicYUVImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSizeUV.width(), 1.f/imgData.fImgSizeUV.height()));
     gatherer->write(imgData.fSubset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
@@ -660,6 +662,7 @@ YUVImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
         , fSamplingUV(sampling)
         , fTileModes{tileModeX, tileModeY}
         , fImgSize(imgSize)
+        , fImgSizeUV(imgSize)
         , fSubset(subset) {
 }
 
@@ -1504,15 +1507,21 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
             imgData.fTextureProxies[locIndex] = view.refProxy();
             imgData.fChannelSelect[locIndex][static_cast<int>(yuvChannel)] = 1.0f;
             ++textureCount;
-            // V will share the sampling setup with U
+            // V will share this size and filter data
             if (locIndex == SkYUVAInfo::kU) {
                 auto [ssx, ssy] = yuvaInfo.planeSubsamplingFactors(yuvPlane);
                 if (ssx > 1 || ssy > 1) {
+                    // We need to adjust the image size we use for sampling to reflect the
+                    // actual image size of the UV planes. However, since our coordinates
+                    // are in Y's texel space we need to scale accordingly.
+                    imgData.fImgSizeUV = {view.dimensions().width()*ssx,
+                                          view.dimensions().height()*ssy};
                     if (imgData.fSampling.filter == SkFilterMode::kNearest) {
                         imgData.fSamplingUV = SkSamplingOptions(SkFilterMode::kLinear,
                                                                 imgData.fSampling.mipmap);
                     }
                 }
+
             }
         }
     }
