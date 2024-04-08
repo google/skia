@@ -1514,11 +1514,13 @@ void WGSLCodeGenerator::write(std::string_view s) {
     if (s.empty()) {
         return;
     }
+#if defined(SK_DEBUG) || defined(SKSL_STANDALONE)
     if (fAtLineStart) {
         for (int i = 0; i < fIndentation; i++) {
             fOut->writeText("  ");
         }
     }
+#endif
     fOut->writeText(std::string(s).c_str());
     fAtLineStart = false;
 }

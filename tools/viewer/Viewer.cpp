@@ -2755,6 +2755,7 @@ void Viewer::drawImGui() {
 
 #if defined(SK_VULKAN)
                     if (isVulkan && !sksl) {
+                        // Disassemble the SPIR-V into its textual form.
                         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
                         for (auto& entry : fCachedShaders) {
                             for (int i = 0; i < kGrShaderTypeCount; ++i) {
@@ -2765,8 +2766,16 @@ void Viewer::drawImGui() {
                                 entry.fShader[i].assign(disasm);
                             }
                         }
-                    }
+                    } else
 #endif
+                    {
+                        // Reformat the SkSL with proper indentation.
+                        for (auto& entry : fCachedShaders) {
+                            for (int i = 0; i < kGrShaderTypeCount; ++i) {
+                                entry.fShader[i] = SkShaderUtils::PrettyPrint(entry.fShader[i]);
+                            }
+                        }
+                    }
                 }
 
                 // Defer actually doing the View/Apply logic so that we can trigger an Apply when we
