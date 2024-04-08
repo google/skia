@@ -320,7 +320,8 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                  "or kTrueType_Font.\n", face, fontAsset.get());
     } else {
         switch (type) {
-            case SkAdvancedTypefaceMetrics::kTrueType_Font: {
+            case SkAdvancedTypefaceMetrics::kTrueType_Font:
+            case SkAdvancedTypefaceMetrics::kCFF_Font: {
                 if (!SkToBool(metrics.fFlags &
                               SkAdvancedTypefaceMetrics::kNotSubsettable_FontFlag)) {
                     SkASSERT(font.firstGlyphID() == 1);
@@ -373,6 +374,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
             newCIDFont->insertName("Subtype", "CIDFontType0");
             break;
         case SkAdvancedTypefaceMetrics::kTrueType_Font:
+        case SkAdvancedTypefaceMetrics::kCFF_Font:
             newCIDFont->insertName("Subtype", "CIDFontType2");
             newCIDFont->insertName("CIDToGIDMap", "Identity");
             break;
@@ -708,6 +710,7 @@ void SkPDFFont::emitSubset(SkPDFDocument* doc) const {
     switch (fFontType) {
         case SkAdvancedTypefaceMetrics::kType1CID_Font:
         case SkAdvancedTypefaceMetrics::kTrueType_Font:
+        case SkAdvancedTypefaceMetrics::kCFF_Font:
             return emit_subset_type0(*this, doc);
 #ifndef SK_PDF_DO_NOT_SUPPORT_TYPE_1_FONTS
         case SkAdvancedTypefaceMetrics::kType1_Font:

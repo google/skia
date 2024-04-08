@@ -515,12 +515,15 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
         SkOTUtils::SetAdvancedTypefaceFlags(fsType, info.get());
     }
 
-    // If it's not a truetype font, mark it as 'other'. Assume that TrueType
-    // fonts always have both glyf and loca tables. At the least, this is what
-    // is needed to subset the font. CTFontCopyAttribute() does not always
-    // succeed in determining this directly.
-    if (!this->getTableSize(SkSetFourByteTag('g','l','y','f')) ||
-        !this->getTableSize(SkSetFourByteTag('l','o','c','a')))
+    // If it's not an OpenType font, mark it as 'other'. Assume that OpenType
+    // fonts always have both glyf and loca tables or a CFF table.
+    // At the least, this is what is needed to subset the font.
+    // CTFontCopyAttribute() does not always succeed in determining this directly.
+    constexpr SkFontTableTag glyf = SkSetFourByteTag('g','l','y','f');
+    constexpr SkFontTableTag loca = SkSetFourByteTag('l','o','c','a');
+    constexpr SkFontTableTag CFF  = SkSetFourByteTag('C','F','F',' ');
+    if (!((this->getTableSize(glyf) && this->getTableSize(loca)) ||
+           this->getTableSize(CFF)))
     {
         return info;
     }

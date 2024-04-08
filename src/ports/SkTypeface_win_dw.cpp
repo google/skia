@@ -660,7 +660,9 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
 
     DWRITE_FONT_FACE_TYPE fontType = fDWriteFontFace->GetType();
     if (fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE &&
-        fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION)
+        fontType != DWRITE_FONT_FACE_TYPE_CFF &&
+        fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION &&
+        fontType != DWRITE_FONT_FACE_TYPE_OPENTYPE_COLLECTION)
     {
         return info;
     }

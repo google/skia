@@ -567,7 +567,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     }
 
     info->fType = get_font_type(face);
-    if (info->fType == SkAdvancedTypefaceMetrics::kTrueType_Font &&
+    if ((info->fType == SkAdvancedTypefaceMetrics::kTrueType_Font ||
+         info->fType == SkAdvancedTypefaceMetrics::kCFF_Font) &&
         !is_opentype_font_data_standard_format(*this))
     {
         info->fFlags |= SkAdvancedTypefaceMetrics::kAltDataFormat_FontFlag;

@@ -473,7 +473,8 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() cons
             this->getFamilyName(&result->fPostScriptName);
         }
     }
-    if (result && result->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
+    if (result && (result->fType == SkAdvancedTypefaceMetrics::kTrueType_Font ||
+                   result->fType == SkAdvancedTypefaceMetrics::kCFF_Font)) {
         SkOTTableOS2::Version::V2::Type::Field fsType;
         constexpr SkFontTableTag os2Tag = SkTEndian_SwapBE32(SkOTTableOS2::TAG);
         constexpr size_t fsTypeOffset = offsetof(SkOTTableOS2::Version::V2, fsType);
