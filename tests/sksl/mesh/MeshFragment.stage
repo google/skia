@@ -2,8 +2,7 @@ struct Varyings_0
 {
 	float2 position;
 	float2 coords;
-}
-;
+};
 uniform half3x3 m;
 layout (color) uniform half4 color;
 float2 main(const Varyings_0 varyings, out half4 c)

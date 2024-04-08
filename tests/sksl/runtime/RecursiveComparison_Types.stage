@@ -4,8 +4,7 @@ struct S_0
 {
 	float f1;
 	float2 v2;
-}
-;
+};
 bool test_same_types_0(bool eq, float f1, float v2, float f3, float f4, float f5, float f6);
 bool test_diff_types_0(bool eq, float f1, float v2, float f3, float f4, float f5, float f6);
 bool test_same_types_0(bool eq, float f1, float v2, float f3, float f4, float f5, float f6)

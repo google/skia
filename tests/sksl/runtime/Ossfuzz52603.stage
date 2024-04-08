@@ -2,8 +2,7 @@ uniform half4 colorGreen;
 struct S_0 
 {
 	int f;
-}
-;
+};
 half4 main(float2 )
 {
 	return half4(colorGreen);

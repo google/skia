@@ -40,62 +40,99 @@ public:
         fInput = string.c_str();
 
         while (fLength > fIndex) {
-            /* the heart and soul of our prettification algorithm.  The rules should hopefully
-             * be self explanatory.  For '#' and '//' tokens we parse until we reach a newline.
+            /* The heart and soul of our prettification algorithm.  The rules should hopefully
+             * be self explanatory.  For '#' and '//' tokens, we parse until we reach a newline.
              *
              * For long style comments like this one, we search for the ending token.  We also
              * preserve whitespace in these comments WITH THE CAVEAT that we do the newlines
              * ourselves.  This allows us to remain in control of line numbers, and matching
-             * tabs Existing tabs in the input string are copied over too, but this will look
-             *  funny
+             * tabs.  Existing tabs in the input string are copied over too, but this will look
+             * funny.
              *
              * '{' and '}' are handled in basically the same way.  We add a newline if we aren't
-             * on a fresh line, dirty the line, then add a second newline, ie braces are always
-             * on their own lines indented properly.  The one funkiness here is structs print
-             * with the semicolon on its own line.  Its not a problem for a glsl compiler though
+             * on a fresh line, dirty the line, then add a second newline, i.e. braces are always
+             * on their own lines indented properly.
              *
-             * '(' and ')' are basically ignored, except as a sign we need to ignore ';' ala
-             * in for loops.
+             * '(' and ')' are basically ignored, except as a sign that we need to ignore ';', since
+             * we want to keep for loops on a single line.
              *
-             * ';' means add a new line
+             * ';' means add a new line.  If the previous character was a '}', we make sure that the
+             * semicolon comes directly after the brace, not on a newline.
              *
-             * '\t' and '\n' are ignored in general parsing for backwards compatability with
-             * existing shader code and we also have a special case for handling whitespace
-             * at the beginning of fresh lines.
+             * ',' doesn't add a new line, but does have special handling to ensure it is on the
+             * same line as a '}', much like the semicolon.
              *
-             * Otherwise just add the new character to the pretty string, indenting if
+             * '\t' and '\n' are ignored in general parsing for backwards compatibility with
+             * existing shader code.  We also have a special case for handling whitespace at the
+             * beginning of fresh lines.
+             *
+             * Otherwise, just add the new character to the pretty string, indenting if
              * necessary.
              */
             if (fInParseUntilNewline) {
                 this->parseUntilNewline();
-            } else if (fInParseUntil) {
+                continue;
+            }
+            if (fInParseUntil) {
                 this->parseUntil(fInParseUntilToken);
-            } else if (this->hasToken("#") || this->hasToken("//")) {
+                continue;
+            }
+            if (this->hasToken("#") || this->hasToken("//")) {
                 this->parseUntilNewline();
-            } else if (this->hasToken("/*")) {
+                continue;
+            }
+            if (this->hasToken("/*")) {
                 this->parseUntil("*/");
-            } else if ('{' == fInput[fIndex]) {
+                continue;
+            }
+            if (fInput[fIndex] == '{') {
                 this->newline();
                 this->appendChar('{');
                 fTabs++;
                 this->newline();
-            } else if ('}' == fInput[fIndex]) {
+                continue;
+            }
+            if (fInput[fIndex] == '}') {
                 fTabs--;
                 this->newline();
                 this->appendChar('}');
                 this->newline();
-            } else if (this->hasToken(")")) {
-                parensDepth--;
-            } else if (this->hasToken("(")) {
-                parensDepth++;
-            } else if (!parensDepth && this->hasToken(";")) {
-                this->newline();
-            } else if ('\t' == fInput[fIndex] || '\n' == fInput[fIndex] ||
-                        (fFreshline && ' ' == fInput[fIndex])) {
-                fIndex++;
-            } else {
-                this->appendChar(fInput[fIndex]);
+                continue;
             }
+            if (fFreshline && fInput[fIndex] == ';') {
+                this->undoNewlineAfter('}');
+                this->appendChar(fInput[fIndex]);
+                this->newline();
+                continue;
+            }
+            if (fFreshline && fInput[fIndex] == ',') {
+                this->undoNewlineAfter('}');
+                this->appendChar(fInput[fIndex]);
+                continue;
+            }
+            if (this->hasToken(")")) {
+                parensDepth--;
+                continue;
+            }
+            if (this->hasToken("(")) {
+                parensDepth++;
+                continue;
+            }
+            if (this->hasToken(")")) {
+                parensDepth--;
+                continue;
+            }
+            if (!parensDepth && this->hasToken(";")) {
+                this->newline();
+                continue;
+            }
+            if (fInput[fIndex] == '\t' || fInput[fIndex] == '\n' ||
+                (fFreshline && fInput[fIndex] == ' ')) {
+                fIndex++;
+                continue;
+            }
+
+            this->appendChar(fInput[fIndex]);
         }
 
         return fPretty;
@@ -104,7 +141,7 @@ public:
 private:
     void appendChar(char c) {
         this->tabString();
-        SkSL::String::appendf(&fPretty, "%c", fInput[fIndex++]);
+        fPretty += fInput[fIndex++];
         fFreshline = false;
     }
 
@@ -126,13 +163,13 @@ private:
 
     void parseUntilNewline() {
         while (fLength > fIndex) {
-            if ('\n' == fInput[fIndex]) {
+            if (fInput[fIndex] == '\n') {
                 fIndex++;
                 this->newline();
                 fInParseUntilNewline = false;
                 break;
             }
-            SkSL::String::appendf(&fPretty, "%c", fInput[fIndex++]);
+            fPretty += fInput[fIndex++];
             fInParseUntilNewline = true;
         }
     }
@@ -145,7 +182,7 @@ private:
             // For embedded newlines,  this code will make sure to embed the newline in the
             // pretty string, increase the linecount, and tab out the next line to the appropriate
             // place
-            if ('\n' == fInput[fIndex]) {
+            if (fInput[fIndex] == '\n') {
                 this->newline();
                 this->tabString();
                 fIndex++;
@@ -155,7 +192,7 @@ private:
                 break;
             }
             fFreshline = false;
-            SkSL::String::appendf(&fPretty, "%c", fInput[fIndex++]);
+            fPretty += fInput[fIndex++];
             fInParseUntil = true;
             fInParseUntilToken = token;
         }
@@ -165,7 +202,7 @@ private:
     void tabString() {
         if (fFreshline) {
             for (int t = 0; t < fTabs; t++) {
-                fPretty.append("\t");
+                fPretty += '\t';
             }
         }
     }
@@ -175,7 +212,18 @@ private:
     void newline() {
         if (!fFreshline) {
             fFreshline = true;
-            fPretty.append("\n");
+            fPretty += '\n';
+        }
+    }
+
+    // undoNewlineAfter() attempts to undo the effects of newline(), if the last character before
+    // the newline matches `c`.
+    void undoNewlineAfter(char c) {
+        if (fFreshline) {
+            if (fPretty.size() >= 2 && fPretty.rbegin()[0] == '\n' && fPretty.rbegin()[1] == c) {
+                fFreshline = false;
+                fPretty.pop_back();
+            }
         }
     }
 

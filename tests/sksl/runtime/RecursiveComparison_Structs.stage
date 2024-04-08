@@ -5,8 +5,7 @@ struct S_0
 	float f1;
 	float f2;
 	float f3;
-}
-;
+};
 bool test_same_structs_0(bool eq, float f1, float f2, float f3);
 bool test_diff_structs_0(bool eq, float f1, float f2, float f3);
 bool test_same_structs_0(bool eq, float f1, float f2, float f3)

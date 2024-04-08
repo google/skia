@@ -3,8 +3,7 @@ struct Varyings_0
 	float2 position;
 	float4 src;
 	float4 dst;
-}
-;
+};
 float2 main(const Varyings_0 vary)
 {
 	return float2(child_0.eval(half4(vary.src), half4(vary.dst)).xy);
