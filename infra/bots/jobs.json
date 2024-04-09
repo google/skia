@@ -29,7 +29,7 @@
     "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
   },
   {"name": "BazelTest-gm-cpu_gms-cpu_only_debug_rbe-linux_x64-NUC9i7QN_Debian11",
-    "cq_config": {"experimental": true}
+    "cq_config": {}
   },
   {"name": "BazelTest-benchmark-cpu_8888_benchmark_test-linux_rbe-linux_x64-NUC9i7QN_Debian11",
     "cq_config": {"experimental": true}
