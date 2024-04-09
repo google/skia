@@ -122,6 +122,45 @@ cc_binary(
 )
 
 cc_binary(
+    name = "use_ganesh_metal",
+    srcs = ["src/ganesh_metal.cpp"],
+    copts = ["-std=c++17"],
+    target_compatible_with = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:ios": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        ":metal_context_helper",
+        "@skia//:core",
+        "@skia//:ganesh_metal",
+    ],
+)
+
+objc_library(
+    name = "metal_context_helper",
+    srcs = ["src/metal_context_helper.mm"],
+    hdrs = ["src/metal_context_helper.h"],
+    copts = ["-std=c++17"],
+    includes = ["src"],
+    sdk_frameworks = [
+        # Without MetalKit added as a dependency, `[*device newCommandQueue]` fails
+        "MetalKit",
+        "Metal",
+    ],
+    target_compatible_with = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:ios": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        "@skia//:core",
+        "@skia//:ganesh_metal",
+        "@skia//:jpeg_encode_codec",
+    ],
+)
+
+cc_binary(
     name = "use_skresources",
     srcs = ["src/use_skresources.cpp"],
     copts = ["-std=c++17"],

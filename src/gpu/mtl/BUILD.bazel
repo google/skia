@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "skia_objc_library", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -26,4 +26,14 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = [":mtl_hdrs"],
     visibility = ["//src/gpu:__pkg__"],
+)
+
+skia_objc_library(
+    name = "gpu_mtl",
+    srcs = [":mtl_srcs"],
+    hdrs = [
+        ":mtl_hdrs",
+        "//include/gpu/mtl:public_hdrs",
+    ],
+    visibility = ["//src/gpu/ganesh/mtl:__pkg__"],
 )

@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "skia_objc_library", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -86,4 +86,32 @@ skia_filegroup(
         ":mtl_hdrs",
     ],
     visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+skia_objc_library(
+    name = "ganesh_metal",
+    srcs = [
+        ":mtl_cpp_hdrs",
+        ":mtl_hdrs",
+        ":mtl_srcs",
+    ],
+    hdrs = [
+        "//include/gpu/ganesh/mtl:public_hdrs",
+        "//include/ports:apple_hdrs",
+    ],
+    copts = ["-fobjc-arc"],
+    sdk_frameworks = [
+        "Metal",
+        "Foundation",
+    ],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu",
+        "//src/gpu/ganesh",
+        "//src/gpu/mtl:gpu_mtl",
+        "//src/sksl/codegen:metal",
+    ],
 )

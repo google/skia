@@ -15,5 +15,8 @@ skia_filegroup(
         "GrMtlTypes.h",
         "SkSurfaceMetal.h",
     ],
-    visibility = ["//include/gpu/ganesh:__pkg__"],
+    visibility = [
+        "//include/gpu/ganesh:__pkg__",
+        "//src/gpu/ganesh/mtl:__pkg__",
+    ],
 )

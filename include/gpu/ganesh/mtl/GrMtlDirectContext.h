@@ -17,11 +17,11 @@ struct GrMtlBackendContext;
 
 namespace GrDirectContexts {
 /**
- * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive until the returned
- * GrDirectContext is destroyed. This also means that any objects created with this
- * GrDirectContext (e.g. SkSurfaces, SkImages, etc.) must also be released as they may hold
- * refs on the GrDirectContext. Once all these objects and the GrDirectContext are released,
- * then it is safe to delete the vulkan objects.
+ * Makes a GrDirectContext which uses Metal as the backend. The GrMtlBackendContext contains a
+ * MTLDevice and MTLCommandQueue which should be used by the backend. These objects must
+ * have their own ref which will be released when the GrMtlBackendContext is destroyed.
+ * Ganesh will take its own ref on the objects which will be released when the GrDirectContext
+ * is destroyed.
  */
 SK_API sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&, const GrContextOptions&);
 SK_API sk_sp<GrDirectContext> MakeMetal(const GrMtlBackendContext&);

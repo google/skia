@@ -99,3 +99,12 @@ skia_filegroup(
     srcs = ["SkImageGeneratorCG.h"],
     visibility = ["//src/core:__pkg__"],
 )
+
+skia_filegroup(
+    name = "apple_hdrs",
+    srcs = [
+        "SkCFObject.h",
+        "SkImageGeneratorCG.h",
+    ],
+    visibility = ["//src/gpu/ganesh/mtl:__pkg__"],
+)
