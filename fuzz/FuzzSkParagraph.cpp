@@ -35,6 +35,7 @@
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
+#include "modules/skshaper/utils/FactoryHelpers.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
@@ -251,12 +252,17 @@ ParagraphStyle BuildParagraphStyle(Fuzz* fuzz) {
     return ps;
 }
 
+static sk_sp<SkUnicode> get_unicode() {
+    auto factory = SkShapers::BestAvailable();
+    return sk_ref_sp<SkUnicode>(factory->getUnicode());
+}
+
 }  // namespace
 
 DEF_FUZZ(SkParagraph, fuzz) {
     static sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     ParagraphStyle paragraph_style = BuildParagraphStyle(fuzz);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
 
     uint8_t iterations;
     fuzz->nextRange(&iterations, 1, MAX_TEXT_ADDITIONS);
