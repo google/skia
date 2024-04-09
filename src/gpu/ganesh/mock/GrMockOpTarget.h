@@ -8,12 +8,40 @@
 #ifndef GrMockOpTarget_DEFINED
 #define GrMockOpTarget_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDrawIndirectCommand.h"
 #include "src/gpu/ganesh/GrDstProxyView.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
+#include "src/gpu/ganesh/GrSimpleMesh.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
+class GrAtlasManager;
+class GrCaps;
+class GrDeferredUploadTarget;
+class GrGeometryProcessor;
+class GrRenderTargetProxy;
+class GrResourceProvider;
+class GrSurfaceProxy;
+class GrSurfaceProxyView;
+class GrThreadSafeCache;
+
+namespace skgpu { namespace ganesh { class SmallPathAtlasMgr; } }
+namespace sktext { namespace gpu { class StrikeCache; } }
+
 
 // This is a mock GrMeshDrawTarget implementation that just gives back pointers into
 // pre-allocated CPU buffers, rather than allocating and mapping GPU buffers.

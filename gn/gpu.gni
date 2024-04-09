@@ -457,6 +457,7 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/mock/GrMockCaps.h",
   "$_src/gpu/ganesh/mock/GrMockGpu.cpp",
   "$_src/gpu/ganesh/mock/GrMockGpu.h",
+  "$_src/gpu/ganesh/mock/GrMockOpTarget.h",
   "$_src/gpu/ganesh/mock/GrMockOpsRenderPass.h",
   "$_src/gpu/ganesh/mock/GrMockRenderTask.h",
   "$_src/gpu/ganesh/mock/GrMockSurfaceProxy.h",

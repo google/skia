@@ -8,10 +8,29 @@
 #ifndef GrMockOpsRenderPass_DEFINED
 #define GrMockOpsRenderPass_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/GrDeferredUpload.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
-
+#include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/mock/GrMockGpu.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+
+class GrBuffer;
+class GrGeometryProcessor;
+class GrGpu;
+class GrOpFlushState;
+class GrPipeline;
+class GrProgramInfo;
+class GrScissorState;
+class GrSurfaceProxy;
+enum GrSurfaceOrigin : int;
+struct SkIRect;
+struct SkRect;
 
 class GrMockOpsRenderPass : public GrOpsRenderPass {
 public:

@@ -11,6 +11,7 @@ MOCK_FILES = [
     "GrMockCaps.h",
     "GrMockGpu.cpp",
     "GrMockGpu.h",
+    "GrMockOpTarget.h",
     "GrMockOpsRenderPass.h",
     "GrMockRenderTask.h",
     "GrMockSurfaceProxy.h",

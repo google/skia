@@ -8,7 +8,19 @@
 #ifndef GrMockRenderTask_DEFINED
 #define GrMockRenderTask_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrRenderTask.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+
+#include <utility>
+
+class GrOpFlushState;
+class GrRecordingContext;
+class GrResourceAllocator;
+struct SkIRect;
 
 class GrMockRenderTask final : public GrRenderTask {
 public:
