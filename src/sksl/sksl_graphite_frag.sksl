@@ -161,7 +161,7 @@ $pure half4 $sample_image_subset(float2 pos,
                                  int tileModeX,
                                  int tileModeY,
                                  int filterMode,
-                                 float2 linearFilterUVInset,
+                                 float2 linearFilterInset,
                                  sampler2D s) {
     // Do hard-edge shader transitions to the border color for nearest-neighbor decal tiling at the
     // subset boundaries. Snap the input coordinates to nearest neighbor before comparing to the
@@ -188,7 +188,7 @@ $pure half4 $sample_image_subset(float2 pos,
     if (filterMode == $kFilterModeNearest) {
         insetClamp = float4(floor(subset.xy) + $kLinearInset, ceil(subset.zw) - $kLinearInset);
     } else {
-        insetClamp = float4(subset.xy + linearFilterUVInset.x, subset.zw - linearFilterUVInset.y);
+        insetClamp = float4(subset.xy + linearFilterInset.x, subset.zw - linearFilterInset.y);
     }
     float2 clampedPos = clamp(pos, insetClamp.xy, insetClamp.zw);
     half4 color = $sample_image(clampedPos, invImgSize, s);
@@ -353,7 +353,7 @@ $pure half4 sk_yuv_image_shader(float2 coords,
                                 float2 invImgSizeY,
                                 float2 invImgSizeUV,  // Relative to Y's coordinate space
                                 float4 subset,
-                                float2 linearFilterInset,
+                                float2 linearFilterUVInset,
                                 int tileModeX,
                                 int tileModeY,
                                 int filterModeY,
@@ -379,9 +379,9 @@ $pure half4 sk_yuv_image_shader(float2 coords,
     sampleColorY = $sample_image_subset(coords, invImgSizeY, subset, tileModeX, tileModeY,
                                         filterModeY, float2($kLinearInset), sY);
     sampleColorU = $sample_image_subset(coords, invImgSizeUV, subset, tileModeX, tileModeY,
-                                        filterModeUV, linearFilterInset, sU);
+                                        filterModeUV, linearFilterUVInset, sU);
     sampleColorV = $sample_image_subset(coords, invImgSizeUV, subset, tileModeX, tileModeY,
-                                        filterModeUV, linearFilterInset, sV);
+                                        filterModeUV, linearFilterUVInset, sV);
     if (channelSelectA == half4(1)) {
         sampleColorA = half4(0, 0, 0, 1);
     } else {
