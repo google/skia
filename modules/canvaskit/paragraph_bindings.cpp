@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "include/core/SkColor.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPictureRecorder.h"
@@ -15,14 +16,6 @@
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skunicode/include/SkUnicode.h"
-
-#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
-#include "modules/skunicode/include/SkUnicode_icu.h"
-#endif
-#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
-#include "modules/skunicode/include/SkUnicode_client.h"
-#endif
 
 #include <string>
 #include <vector>
@@ -48,18 +41,6 @@ struct SimpleFontStyle {
     SkFontStyle::Weight weight;
     SkFontStyle::Width width;
 };
-
-static sk_sp<SkUnicode> get_unicode() {
-    // For code size reasons, we prefer to use the unicode implementation first
-    // over the full ICU version.
-#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
-    return SkUnicodes::Client::Make();
-#elif defined(SK_UNICODE_ICU_IMPLEMENTATION)
-    return SkUnicodes::ICU::Make();
-#else
-    #error "Must have at least one implementation of unicode compiled in"
-#endif
-}
 
 struct SimpleTextStyle {
     WASMPointerF32 colorPtr;
@@ -556,7 +537,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                         fc->setDefaultFontManager(fontMgr);
                         fc->enableFontFallback();
                         auto ps = toParagraphStyle(style);
-                        auto pb = para::ParagraphBuilderImpl::make(ps, fc, get_unicode());
+                        auto pb = para::ParagraphBuilderImpl::make(ps, fc);
                         return std::unique_ptr<para::ParagraphBuilderImpl>(
                                 static_cast<para::ParagraphBuilderImpl*>(pb.release()));
                     }),
@@ -570,7 +551,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                         fc->setDefaultFontManager(fontProvider);
                         fc->enableFontFallback();
                         auto ps = toParagraphStyle(style);
-                        auto pb = para::ParagraphBuilderImpl::make(ps, fc, get_unicode());
+                        auto pb = para::ParagraphBuilderImpl::make(ps, fc);
                         return std::unique_ptr<para::ParagraphBuilderImpl>(
                                 static_cast<para::ParagraphBuilderImpl*>(pb.release()));
                     }),
@@ -581,7 +562,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                                          sk_sp<para::FontCollection> fontCollection)
                                               -> std::unique_ptr<para::ParagraphBuilderImpl> {
                         auto ps = toParagraphStyle(style);
-                        auto pb = para::ParagraphBuilderImpl::make(ps, fontCollection, get_unicode());
+                        auto pb = para::ParagraphBuilderImpl::make(ps, fontCollection);
                         return std::unique_ptr<para::ParagraphBuilderImpl>(
                                 static_cast<para::ParagraphBuilderImpl*>(pb.release()));
                     }),
@@ -607,7 +588,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                     pstyle.setTextStyle(style);
                 }
 
-                auto pb = para::ParagraphBuilder::make(pstyle, fc, get_unicode());
+                auto pb = para::ParagraphBuilder::make(pstyle, fc);
 
                 // tease apart the FontBlock runs
                 size_t runCount = jruns["length"].as<size_t>();

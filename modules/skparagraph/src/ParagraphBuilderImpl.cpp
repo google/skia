@@ -1,5 +1,4 @@
 // Copyright 2019 Google LLC.
-#include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
@@ -8,11 +7,10 @@
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/core/SkStringUtils.h"
 
-#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)
 #include "modules/skunicode/include/SkUnicode_icu.h"
 #endif
@@ -29,15 +27,12 @@
 #include "modules/skunicode/include/SkUnicode_client.h"
 #endif
 
-#endif  // !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
-
 #include <memory>
 #include <utility>
+#include "src/core/SkStringUtils.h"
 
 namespace skia {
 namespace textlayout {
-
-#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
 
 namespace {
 // TODO(kjlubick,jlavrova) Remove these defines by having clients register something or somehow
@@ -64,26 +59,12 @@ sk_sp<SkUnicode> get_unicode() {
 
 std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(const ParagraphStyle& style,
                                                          sk_sp<FontCollection> fontCollection) {
-    return ParagraphBuilderImpl::make(style, std::move(fontCollection), get_unicode());
+    return ParagraphBuilderImpl::make(style, std::move(fontCollection));
 }
 
 std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(const ParagraphStyle& style,
                                                              sk_sp<FontCollection> fontCollection) {
-    return std::make_unique<ParagraphBuilderImpl>(style, std::move(fontCollection), get_unicode());
-}
-
-ParagraphBuilderImpl::ParagraphBuilderImpl(
-        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection)
-        : ParagraphBuilderImpl(style, std::move(fontCollection), get_unicode())
-{ }
-
-#endif  // !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
-
-std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(const ParagraphStyle& style,
-                                                         sk_sp<FontCollection> fontCollection,
-                                                         sk_sp<SkUnicode> unicode) {
-    SkASSERT(unicode);
-    return ParagraphBuilderImpl::make(style, std::move(fontCollection), std::move(unicode));
+    return std::make_unique<ParagraphBuilderImpl>(style, std::move(fontCollection));
 }
 
 std::unique_ptr<ParagraphBuilder> ParagraphBuilderImpl::make(const ParagraphStyle& style,
@@ -111,6 +92,11 @@ ParagraphBuilderImpl::ParagraphBuilderImpl(
     SkASSERT(fFontCollection);
     startStyledBlock();
 }
+
+ParagraphBuilderImpl::ParagraphBuilderImpl(
+        const ParagraphStyle& style, sk_sp<FontCollection> fontCollection)
+        : ParagraphBuilderImpl(style, std::move(fontCollection), get_unicode())
+{ }
 
 ParagraphBuilderImpl::~ParagraphBuilderImpl() = default;
 

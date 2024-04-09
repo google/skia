@@ -333,7 +333,6 @@ skia_wasm_lib("canvaskit") {
   defines = [
     "SK_FORCE_8_BYTE_ALIGNMENT",
     "EMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0",
-    "SK_DISABLE_LEGACY_PARAGRAPH_UNICODE=1",
   ]
   if (is_debug) {
     defines += [ "SK_DEBUG" ]
