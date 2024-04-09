@@ -625,7 +625,7 @@ public:
         int desiredWrappedCombination = desiredCombination / kNumIntrinsicCombinations;
         SkASSERT(desiredWrappedCombination < fNumWrappedCombos);
 
-        auto wrapped = PrecompileBase::SelectOption(fWrapped, desiredWrappedCombination);
+        auto wrapped = PrecompileBase::SelectOption(SkSpan(fWrapped), desiredWrappedCombination);
         if (wrapped.first) {
             return wrapped.first->isConstant(wrapped.second);
         }
@@ -805,7 +805,7 @@ public:
     bool isConstant(int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumWrappedCombos);
 
-        auto wrapped = PrecompileBase::SelectOption(fWrapped, desiredCombination);
+        auto wrapped = PrecompileBase::SelectOption(SkSpan(fWrapped), desiredCombination);
         if (wrapped.first) {
             return wrapped.first->isConstant(wrapped.second);
         }

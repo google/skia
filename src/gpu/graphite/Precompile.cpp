@@ -108,19 +108,15 @@ int PaintOptions::numColorFilterCombinations() const {
 }
 
 int PaintOptions::numBlendModeCombinations() const {
-    bool bmBased = false;
-    int numBlendCombos = 0;
+    int numBlendCombos = fBlendModeOptions.size();
     for (const sk_sp<PrecompileBlender>& b: fBlenderOptions) {
-        if (b->asBlendMode().has_value()) {
-            bmBased = true;
-        } else {
-            numBlendCombos += b->numChildCombinations();
-        }
+        SkASSERT(!b->asBlendMode().has_value());
+        numBlendCombos += b->numChildCombinations();
     }
 
-    if (bmBased || !numBlendCombos) {
-        // If numBlendCombos is zero we will fallback to kSrcOver blending
-        ++numBlendCombos;
+    if (!numBlendCombos) {
+        // If the user didn't specify a blender we will fall back to kSrcOver blending
+        numBlendCombos = 1;
     }
 
     return numBlendCombos;
@@ -408,18 +404,28 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     // TODO: this probably needs to be passed in just like addPrimitiveBlender
     const bool kOpaquePaintColor = true;
 
-    auto clipShader = PrecompileBase::SelectOption(fClipShaderOptions,
+    auto clipShader = PrecompileBase::SelectOption(SkSpan(fClipShaderOptions),
                                                    desiredClipShaderCombination);
 
-    auto finalBlender = PrecompileBase::SelectOption(fBlenderOptions, desiredBlendCombination);
-
+    std::pair<sk_sp<PrecompileBlender>, int> finalBlender;
+    if (desiredBlendCombination < fBlendModeOptions.size()) {
+        finalBlender = { PrecompileBlender::Mode(fBlendModeOptions[desiredBlendCombination]), 0 };
+    } else {
+        finalBlender = PrecompileBase::SelectOption(
+                            SkSpan(fBlenderOptions),
+                            desiredBlendCombination - fBlendModeOptions.size());
+    }
+    if (!finalBlender.first) {
+        finalBlender = { PrecompileBlender::Mode(SkBlendMode::kSrcOver), 0 };
+    }
     DstReadRequirement dstReadReq = get_dst_read_req(keyContext.caps(), coverage,
                                                      finalBlender.first.get());
 
     PaintOption option(kOpaquePaintColor,
                        finalBlender,
-                       PrecompileBase::SelectOption(fShaderOptions, desiredShaderCombination),
-                       PrecompileBase::SelectOption(fColorFilterOptions,
+                       PrecompileBase::SelectOption(SkSpan(fShaderOptions),
+                                                    desiredShaderCombination),
+                       PrecompileBase::SelectOption(SkSpan(fColorFilterOptions),
                                                     desiredColorFilterCombination),
                        addPrimitiveBlender,
                        clipShader,
