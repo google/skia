@@ -1304,6 +1304,12 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         return {nullptr, nullptr};
     }
 
+    const Shape& shape = geometry.shape();
+    // We can't use this renderer if we require MSAA for an effect (i.e. clipping or stroke+fill).
+    if (!requireMSAA && is_simple_shape(shape, type)) {
+        return {renderers->analyticRRect(), nullptr};
+    }
+
     // Path rendering options. For now the strategy is very simple and not optimal:
     // I. Use tessellation if MSAA is required for an effect.
     // II: otherwise:
@@ -1316,14 +1322,6 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
 #else
     PathRendererStrategy strategy = PathRendererStrategy::kDefault;
 #endif
-
-    const Shape& shape = geometry.shape();
-    // We can't use this renderer if we require MSAA for an effect (i.e. clipping or stroke+fill).
-    if (!requireMSAA && is_simple_shape(shape, type) &&
-        (strategy == PathRendererStrategy::kDefault ||
-         strategy == PathRendererStrategy::kRasterAA)) {
-        return {renderers->analyticRRect(), nullptr};
-    }
 
     PathAtlas* pathAtlas = nullptr;
 
