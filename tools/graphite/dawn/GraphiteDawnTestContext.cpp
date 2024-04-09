@@ -22,6 +22,14 @@
 
 namespace skiatest::graphite {
 
+// TODO: http://crbug.com/dawn/2450 - Currently manually setting the device to null and calling
+//       tick/process events one last time to ensure that the device is lost accordingly at
+//       destruction. Once device lost is, by default, a spontaneous event, remove this.
+DawnTestContext::~DawnTestContext() {
+    fBackendContext.fDevice = nullptr;
+    tick();
+}
+
 std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType backend) {
     static std::unique_ptr<dawn::native::Instance> sInstance;
     static SkOnce sOnce;
