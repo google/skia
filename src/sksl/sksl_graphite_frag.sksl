@@ -161,6 +161,7 @@ $pure half4 $sample_image_subset(float2 pos,
                                  int tileModeX,
                                  int tileModeY,
                                  int filterMode,
+                                 float2 linearFilterUVInset,
                                  sampler2D s) {
     // Do hard-edge shader transitions to the border color for nearest-neighbor decal tiling at the
     // subset boundaries. Snap the input coordinates to nearest neighbor before comparing to the
@@ -187,7 +188,7 @@ $pure half4 $sample_image_subset(float2 pos,
     if (filterMode == $kFilterModeNearest) {
         insetClamp = float4(floor(subset.xy) + $kLinearInset, ceil(subset.zw) - $kLinearInset);
     } else {
-        insetClamp = float4(subset.xy + $kLinearInset, subset.zw - $kLinearInset);
+        insetClamp = float4(subset.xy + linearFilterUVInset.x, subset.zw - linearFilterUVInset.y);
     }
     float2 clampedPos = clamp(pos, insetClamp.xy, insetClamp.zw);
     half4 color = $sample_image(clampedPos, invImgSize, s);
@@ -266,7 +267,7 @@ $pure half4 $cubic_filter_image(float2 pos,
         for (int x = 0; x < 4; ++x) {
             rowColor += wx[x] * $sample_image_subset(pos + float2(x, y), invImgSize, subset,
                                                      tileModeX, tileModeY, $kFilterModeNearest,
-                                                     s);
+                                                     float2($kLinearInset), s);
         }
         color += wy[y] * rowColor;
     }
@@ -289,7 +290,7 @@ $pure half4 sk_image_shader(float2 coords,
                             half4x4 csXformCoeffs,
                             sampler2D s) {
     half4 sampleColor = $sample_image_subset(coords, invImgSize, subset, tileModeX, tileModeY,
-                                             filterMode, s);
+                                             filterMode, float2($kLinearInset), s);
     return $color_space_transform_swizzle(sampleColor, csXformFlags, csXformSrcKind,
                                           csXformGamutTransform, csXformDstKind, csXformCoeffs);
 }
@@ -352,6 +353,7 @@ $pure half4 sk_yuv_image_shader(float2 coords,
                                 float2 invImgSizeY,
                                 float2 invImgSizeUV,  // Relative to Y's coordinate space
                                 float4 subset,
+                                float2 linearFilterInset,
                                 int tileModeX,
                                 int tileModeY,
                                 int filterModeY,
@@ -375,16 +377,16 @@ $pure half4 sk_yuv_image_shader(float2 coords,
 
     half4 sampleColorY, sampleColorU, sampleColorV, sampleColorA;
     sampleColorY = $sample_image_subset(coords, invImgSizeY, subset, tileModeX, tileModeY,
-                                        filterModeY, sY);
+                                        filterModeY, float2($kLinearInset), sY);
     sampleColorU = $sample_image_subset(coords, invImgSizeUV, subset, tileModeX, tileModeY,
-                                        filterModeUV, sU);
+                                        filterModeUV, linearFilterInset, sU);
     sampleColorV = $sample_image_subset(coords, invImgSizeUV, subset, tileModeX, tileModeY,
-                                        filterModeUV, sV);
+                                        filterModeUV, linearFilterInset, sV);
     if (channelSelectA == half4(1)) {
         sampleColorA = half4(0, 0, 0, 1);
     } else {
         sampleColorA = $sample_image_subset(coords, invImgSizeY, subset, tileModeX, tileModeY,
-                                            filterModeY, sA);
+                                            filterModeY, float2($kLinearInset), sA);
     }
 
     return $yuv_to_rgb(sampleColorY, sampleColorU, sampleColorV, sampleColorA,

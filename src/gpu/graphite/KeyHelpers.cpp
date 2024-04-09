@@ -619,6 +619,7 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(SkSize::Make(1.f/imgData.fImgSizeUV.width(), 1.f/imgData.fImgSizeUV.height()));
     gatherer->write(imgData.fSubset);
+    gatherer->write(imgData.fLinearFilterUVInset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
     gatherer->write(SkTo<int>(imgData.fSampling.filter));
@@ -1516,9 +1517,22 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
                     // are in Y's texel space we need to scale accordingly.
                     imgData.fImgSizeUV = {view.dimensions().width()*ssx,
                                           view.dimensions().height()*ssy};
+                    // This promotion of nearest to linear filtering for UV planes exists to mimic
+                    // libjpeg[-turbo]'s do_fancy_upsampling option. We will filter the subsampled
+                    // plane, however we want to filter at a fixed point for each logical image
+                    // pixel to simulate nearest neighbor. In the shader we detect that the
+                    // UV filtermode doesn't match the Y filtermode, and snap to Y pixel centers.
                     if (imgData.fSampling.filter == SkFilterMode::kNearest) {
                         imgData.fSamplingUV = SkSamplingOptions(SkFilterMode::kLinear,
                                                                 imgData.fSampling.mipmap);
+                        // Consider a logical image pixel at the edge of the subset. When computing
+                        // the logical pixel color value we should use a blend of two values
+                        // from the subsampled plane. Depending on where the subset edge falls in
+                        // actual subsampled plane, one of those values may come from outside the
+                        // subset. Hence, we use this custom inset which applies the wrap mode to
+                        // the subset but allows linear filtering to read pixels from the plane
+                        // that are just outside the subset.
+                        imgData.fLinearFilterUVInset = { 1.f/(2*ssx), 1.f/(2*ssy) };
                     }
                 }
 
