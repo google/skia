@@ -14,6 +14,12 @@
 #include "src/gpu/ganesh/GrGpu.h"
 #include "tools/flags/CommandLineFlags.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Recorder.h"
+#include "src/gpu/graphite/RecorderPriv.h"
+#endif
+
 using namespace skia_private;
 
 // These CPU tile sizes are not good per se, but they are similar to what Chrome uses.
@@ -119,12 +125,28 @@ void SKPBench::onDraw(int loops, SkCanvas* canvas) {
             break;
         }
 
+        // Ensure the gpu backends don't combine ops/tasks across draw loops. Also submit each work
+        // to the gpu so we are measuring the cost of gpu submission and not amortizing one
+        // submission across all loops.
         auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
                                                  : nullptr;
-        // Ensure the GrContext doesn't combine ops across draw loops.
         if (direct) {
             direct->flushAndSubmit();
         }
+
+#if defined(SK_GRAPHITE)
+        skgpu::graphite::Recorder* recorder = canvas->recorder();
+        if (recorder) {
+            std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+            if (recording) {
+                skgpu::graphite::InsertRecordingInfo info;
+                info.fRecording = recording.get();
+                skgpu::graphite::Context* context = recorder->priv().context();
+                context->insertRecording(info);
+                context->submit();
+            }
+        }
+#endif
     }
 }
 

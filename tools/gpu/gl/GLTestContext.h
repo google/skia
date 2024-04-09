@@ -42,9 +42,6 @@ public:
 
     void testAbandon() override;
 
-    /** Wait until all GPU work is finished. */
-    void finish() override;
-
     void overrideVersion(const char* version, const char* shadingLanguageVersion);
 
     /**

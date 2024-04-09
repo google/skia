@@ -38,8 +38,6 @@ public:
 
     void testAbandon() override {}
 
-    void finish() override {}
-
     sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
         return GrDirectContext::MakeDirect3D(fD3D, options);
     }

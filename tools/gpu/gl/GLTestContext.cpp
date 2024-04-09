@@ -203,12 +203,6 @@ void GLTestContext::testAbandon() {
 #endif
 }
 
-void GLTestContext::finish() {
-    if (fGLInterface) {
-        GR_GL_CALL(fGLInterface.get(), Finish());
-    }
-}
-
 void GLTestContext::overrideVersion(const char* version, const char* shadingLanguageVersion) {
     // GrGLFunction has both a limited capture size and doesn't call a destructor when it is
     // initialized with a lambda. So here we're trusting fOriginalGLInterface will be kept alive.

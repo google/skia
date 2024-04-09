@@ -55,8 +55,6 @@ public:
 
     void testAbandon() override {}
 
-    void finish() override {}
-
     sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
         return GrDirectContexts::MakeMetal(fMtl, options);
     }

@@ -65,8 +65,6 @@ public:
 
     void testAbandon() override {}
 
-    void finish() override {}
-
     sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
         return GrDirectContexts::MakeVulkan(fVk, options);
     }

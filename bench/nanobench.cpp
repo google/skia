@@ -253,17 +253,19 @@ struct GPUTarget : public Target {
         surface.reset();
     }
 
-    void setup() override {
+    void onSetup() override {
         this->contextInfo.testContext()->makeCurrent();
-        // Make sure we're done with whatever came before.
-        this->contextInfo.testContext()->finish();
     }
     void endTiming() override {
         if (this->contextInfo.testContext()) {
             this->contextInfo.testContext()->flushAndWaitOnSync(contextInfo.directContext());
         }
     }
-    void syncCPU() override { this->contextInfo.testContext()->finish(); }
+    void submitWorkAndSyncCPU() override {
+        if (this->contextInfo.testContext()) {
+            this->contextInfo.testContext()->flushAndSyncCpu(contextInfo.directContext());
+        }
+    }
 
     bool needsFrameTiming(int* maxFrameLag) const override {
         if (!this->contextInfo.testContext()->getMaxGpuFrameLag(maxFrameLag)) {
@@ -323,8 +325,6 @@ struct GraphiteTarget : public Target {
         surface.reset();
     }
 
-    void setup() override {}
-
     void endTiming() override {
         if (context && recorder) {
             std::unique_ptr<skgpu::graphite::Recording> recording = this->recorder->snap();
@@ -333,7 +333,7 @@ struct GraphiteTarget : public Target {
             }
         }
     }
-    void syncCPU() override {
+    void submitWorkAndSyncCPU() override {
         if (context && recorder) {
             // TODO: have a way to sync work with out submitting a Recording which is currently
             // required. Probably need to get to the point where the backend command buffers are
@@ -541,7 +541,7 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
         loops = clamp_loops(loops);
 
         // Make sure we're not still timing our calibration.
-        target->syncCPU();
+        target->submitWorkAndSyncCPU();
     } else {
         loops = detect_forever_loops(loops);
     }

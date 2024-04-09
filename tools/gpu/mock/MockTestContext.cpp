@@ -22,7 +22,6 @@ public:
     GrBackendApi backend() override { return GrBackendApi::kMock; }
 
     void testAbandon() override {}
-    void finish() override {}
 
     sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
         return GrDirectContext::MakeMock(nullptr, options);

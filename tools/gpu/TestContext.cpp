@@ -58,6 +58,12 @@ void TestContext::flushAndWaitOnSync(GrDirectContext* context) {
     fCurrentFlushIdx = (fCurrentFlushIdx + 1) % std::size(fFinishTrackers);
 }
 
+void TestContext::flushAndSyncCpu(GrDirectContext* context) {
+    SkASSERT(context);
+    context->flush();
+    context->submit(GrSyncCpu::kYes);
+}
+
 void TestContext::testAbandon() {
 }
 

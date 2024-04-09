@@ -80,8 +80,8 @@ public:
      */
     virtual void testAbandon();
 
-    /** Wait until all GPU work is finished. */
-    virtual void finish() = 0;
+    /** Flush and wait until all GPU work is finished. */
+    void flushAndSyncCpu(GrDirectContext*);
 
 protected:
     bool fFenceSupport = false;
