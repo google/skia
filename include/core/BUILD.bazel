@@ -100,13 +100,6 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "legacy_draw_looper",
-    srcs = [
-        "SkDrawLooper.h",
-    ],
-)
-
-skia_filegroup(
     name = "core_hdrs",
     srcs = [
         "SkAlphaType.h",

@@ -49,10 +49,6 @@ class SkString;
 class SkTypeface;
 struct SkPoint3;
 
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-#include "include/core/SkDrawLooper.h"
-#endif
-
 class SkReadBuffer {
 public:
     SkReadBuffer() = default;
@@ -138,9 +134,6 @@ public:
         return sk_sp<T>((T*)this->readFlattenable(T::GetFlattenableType()));
     }
     sk_sp<SkColorFilter> readColorFilter() { return this->readFlattenable<SkColorFilterBase>(); }
-#ifdef SK_SUPPORT_LEGACY_DRAWLOOPER
-    sk_sp<SkDrawLooper> readDrawLooper() { return this->readFlattenable<SkDrawLooper>(); }
-#endif
     sk_sp<SkImageFilter> readImageFilter() { return this->readFlattenable<SkImageFilter_Base>(); }
     sk_sp<SkBlender> readBlender() { return this->readFlattenable<SkBlenderBase>(); }
     sk_sp<SkMaskFilter> readMaskFilter() { return this->readFlattenable<SkMaskFilterBase>(); }

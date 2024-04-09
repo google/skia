@@ -31,7 +31,7 @@ public:
         kSkColorFilter_Type,
         kSkBlender_Type,
         kSkDrawable_Type,
-        kSkDrawLooper_Type,  // no longer used internally by Skia
+        kSkDrawLooper_Type,  // no longer supported by Skia
         kSkImageFilter_Type,
         kSkMaskFilter_Type,
         kSkPathEffect_Type,

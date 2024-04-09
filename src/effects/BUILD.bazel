@@ -32,11 +32,6 @@ split_srcs_and_hdrs(
 )
 
 skia_filegroup(
-    name = "legacy_draw_looper",
-    srcs = ["SkLayerDrawLooper.cpp"],
-)
-
-skia_filegroup(
     name = "srcs",
     srcs = [
         ":effects_srcs",

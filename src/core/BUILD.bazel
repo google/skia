@@ -379,13 +379,6 @@ split_srcs_and_hdrs(
 )
 
 skia_filegroup(
-    name = "legacy_draw_looper",
-    srcs = [
-        "SkDrawLooper.cpp",
-    ],
-)
-
-skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_skslc_srcs",
