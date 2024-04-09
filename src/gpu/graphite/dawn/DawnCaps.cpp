@@ -443,6 +443,7 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 #endif
 
     fDrawBufferCanBeMapped = false;
+    fBufferMapsAreAsync = true;
 
     fComputeSupport = true;
 
@@ -453,12 +454,7 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fDrawBufferCanBeMappedForReadback = false;
 #endif
 
-#if defined(__EMSCRIPTEN__)
-    // For wasm, we use async map.
-    fBufferMapsAreAsync = true;
-#else
-    // For Dawn native, we use direct mapping.
-    fBufferMapsAreAsync = false;
+#if !defined(__EMSCRIPTEN__)
     fDrawBufferCanBeMapped =
             backendContext.fDevice.HasFeature(wgpu::FeatureName::BufferMapExtendedUsages);
 
@@ -468,7 +464,6 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fTransientAttachmentSupport =
             backendContext.fDevice.HasFeature(wgpu::FeatureName::TransientAttachments);
 #endif
-
     if (!backendContext.fTick) {
         fAllowCpuSync = false;
         // This seems paradoxical. However, if we use the async pipeline creation methods (e.g

@@ -253,7 +253,7 @@ void QueueManager::checkForFinishedWork(SyncToCpu sync) {
         // wait for the last submission to finish
         OutstandingSubmission* back = (OutstandingSubmission*)fOutstandingSubmissions.back();
         if (back) {
-            (*back)->waitUntilFinished(fSharedContext);
+            (*back)->waitUntilFinished();
         }
     }
 
@@ -263,7 +263,7 @@ void QueueManager::checkForFinishedWork(SyncToCpu sync) {
     // Repeat till we find a submission that has not finished yet (and all others afterwards are
     // also guaranteed to not have finished).
     OutstandingSubmission* front = (OutstandingSubmission*)fOutstandingSubmissions.front();
-    while (front && (*front)->isFinished(fSharedContext)) {
+    while (front && (*front)->isFinished()) {
         // Make sure we remove before deleting as deletion might try to kick off another submit
         // (though hopefully *not* in Graphite).
         fOutstandingSubmissions.pop_front();
