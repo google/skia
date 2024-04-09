@@ -241,14 +241,15 @@ void VelloScene::popClipLayer() {
     SkDEBUGCODE(fLayers--;)
 }
 
-VelloRenderer::VelloRenderer(const Caps* caps)
-        // We currently use the fine stage to rasterize a coverage mask. For full compositing, we
-        // should instantiate a second variant of fine with a different color format.
-        //
-        // Currently fine has only one variant: on Metal this variant can operate on any floating
-        // point format (so we set it to R8) but on Dawn it must use RGBA8unorm.
-        : fFineArea(ComputeShaderCoverageMaskTargetFormat(caps))
-        , fFineMsaa16(ComputeShaderCoverageMaskTargetFormat(caps)) {}
+VelloRenderer::VelloRenderer(const Caps* caps) {
+    if (ComputeShaderCoverageMaskTargetFormat(caps) == kAlpha_8_SkColorType) {
+        fFineArea = std::make_unique<VelloFineAreaAlpha8Step>();
+        fFineMsaa16 = std::make_unique<VelloFineMsaa16Alpha8Step>();
+    } else {
+        fFineArea = std::make_unique<VelloFineAreaStep>();
+        fFineMsaa16 = std::make_unique<VelloFineMsaa16Step>();
+    }
+}
 
 VelloRenderer::~VelloRenderer() = default;
 
@@ -267,7 +268,7 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
         return nullptr;
     }
 
-    // TODO: validate that the pixel format is kRGBA_8888_SkColorType.
+    // TODO: validate that the pixel format matches the pipeline layout.
     // Clamp the draw region to the target texture dimensions.
     const SkISize dims = target->dimensions();
     if (dims.isEmpty() || dims.fWidth < 0 || dims.fHeight < 0) {
@@ -465,9 +466,8 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
 
     // fine
     builder.assignSharedTexture(std::move(target), kVelloSlot_OutputImage);
-    const ComputeStep* fineVariant = params.fAaConfig == VelloAaConfig::kMSAA16
-                                             ? static_cast<const ComputeStep*>(&fFineMsaa16)
-                                             : static_cast<const ComputeStep*>(&fFineArea);
+    const ComputeStep* fineVariant =
+            params.fAaConfig == VelloAaConfig::kMSAA16 ? fFineMsaa16.get() : fFineArea.get();
     builder.appendStep(fineVariant, to_wg_size(dispatchInfo.fine));
 
     return builder.finalize();

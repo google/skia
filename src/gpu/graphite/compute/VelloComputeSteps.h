@@ -248,44 +248,73 @@ VELLO_COMPUTE_STEP(TileAlloc);
 
 #undef VELLO_COMPUTE_STEP
 
-template <vello_cpp::ShaderStage S> class VelloFineStep : public VelloStep<S> {
+template <vello_cpp::ShaderStage S, SkColorType T> class VelloFineStepBase : public VelloStep<S> {
 public:
     // We need to return a texture format for the bound textures.
     std::tuple<SkISize, SkColorType> calculateTextureParameters(
             int index, const ComputeStep::ResourceDesc&) const override {
+        SkASSERT(index == 4);
         // TODO: The texture dimensions are unknown here so this method returns 0 for the texture
         // size. In this case this field is unused since VelloRenderer assigns texture resources
         // directly to the DispatchGroupBuilder. The format must still be queried to describe the
         // ComputeStep's binding layout. This method could be improved to enable conditional
         // querying of optional/dynamic parameters.
-        return {{}, index == 4 ? fTargetFormat : kRGBA_8888_SkColorType};
+        return {{}, T};
     }
 
 protected:
-    explicit VelloFineStep(SkColorType targetFormat,
-                           SkSpan<const ComputeStep::ResourceDesc> resources)
-            : VelloStep<S>(resources), fTargetFormat(targetFormat) {}
-
-private:
-    SkColorType fTargetFormat;
+    explicit VelloFineStepBase(SkSpan<const ComputeStep::ResourceDesc> resources)
+            : VelloStep<S>(resources) {}
 };
 
-class VelloFineAreaStep final : public VelloFineStep<vello_cpp::ShaderStage::FineArea> {
+template <vello_cpp::ShaderStage S, SkColorType T>
+class VelloFineMsaa16StepBase : public VelloFineStepBase<S, T> {
 public:
-    explicit VelloFineAreaStep(SkColorType targetFormat);
-};
+    size_t calculateBufferSize(int resourceIndex, const ComputeStep::ResourceDesc&) const override {
+        SkASSERT(resourceIndex == 5);
+        return 64 * 64 * 2;  // 64x64 LUT of 16-bit masks.
+    }
 
-class VelloFineMsaa16Step final : public VelloFineStep<vello_cpp::ShaderStage::FineMsaa16> {
-public:
-    explicit VelloFineMsaa16Step(SkColorType targetFormat);
-    size_t calculateBufferSize(int resourceIndex, const ResourceDesc&) const override;
     void prepareStorageBuffer(int resourceIndex,
-                              const ResourceDesc& resource,
+                              const ComputeStep::ResourceDesc&,
                               void* buffer,
-                              size_t bufferSize) const override;
+                              size_t bufferSize) const override {
+        SkASSERT(resourceIndex == 5);
+        SkASSERT(fMaskLut.size() == bufferSize);
+        memcpy(buffer, fMaskLut.data(), fMaskLut.size());
+    }
+
+protected:
+    explicit VelloFineMsaa16StepBase(SkSpan<const ComputeStep::ResourceDesc> resources)
+            : VelloFineStepBase<S, T>(resources), fMaskLut(vello_cpp::build_mask_lut_16()) {}
 
 private:
     ::rust::Vec<uint8_t> fMaskLut;
+};
+
+class VelloFineAreaStep final
+        : public VelloFineStepBase<vello_cpp::ShaderStage::FineArea, kRGBA_8888_SkColorType> {
+public:
+    VelloFineAreaStep();
+};
+
+class VelloFineAreaAlpha8Step final
+        : public VelloFineStepBase<vello_cpp::ShaderStage::FineAreaR8, kAlpha_8_SkColorType> {
+public:
+    VelloFineAreaAlpha8Step();
+};
+
+class VelloFineMsaa16Step final : public VelloFineMsaa16StepBase<vello_cpp::ShaderStage::FineMsaa16,
+                                                                 kRGBA_8888_SkColorType> {
+public:
+    VelloFineMsaa16Step();
+};
+
+class VelloFineMsaa16Alpha8Step final
+        : public VelloFineMsaa16StepBase<vello_cpp::ShaderStage::FineMsaa16R8,
+                                         kAlpha_8_SkColorType> {
+public:
+    VelloFineMsaa16Alpha8Step();
 };
 
 }  // namespace skgpu::graphite
