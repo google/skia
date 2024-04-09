@@ -146,7 +146,7 @@ static SkPDFIndirectReference generate_page_tree(
     // into the method, have type "Page" and need a parent pointer. This method
     // builds the tree bottom up, skipping internal nodes that would have only
     // one child.
-    SkASSERT(pages.size() > 0);
+    SkASSERT(!pages.empty());
     struct PageTreeNode {
         std::unique_ptr<SkPDFDict> fNode;
         SkPDFIndirectReference fReservedRef;
@@ -361,7 +361,7 @@ void SkPDFDocument::onEndPage() {
     SkSize mediaSize = fPageDevice->imageInfo().dimensions() * fInverseRasterScale;
     std::unique_ptr<SkStreamAsset> pageContent = fPageDevice->content();
     auto resourceDict = fPageDevice->makeResourceDict();
-    SkASSERT(fPageRefs.size() > 0);
+    SkASSERT(!fPageRefs.empty());
     fPageDevice = nullptr;
 
     page->insertObject("Resources", std::move(resourceDict));

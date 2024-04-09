@@ -914,7 +914,7 @@ void OpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     GrRenderTargetProxy* targetProxy = targetSurface->asRenderTargetProxy();
 
     // Add the interval for all the writes to this OpsTasks's target
-    if (fOpChains.size()) {
+    if (!fOpChains.empty()) {
         unsigned int cur = alloc->curOp();
 
         alloc->addInterval(targetProxy, cur, cur + fOpChains.size() - 1,

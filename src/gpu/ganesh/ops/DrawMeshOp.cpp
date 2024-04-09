@@ -1189,7 +1189,7 @@ GrOp::CombineResult MeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const Gr
     }
 
     // Our specs made for vertices don't have uniforms.
-    SkASSERT(fSpecification->uniforms().size() == 0);
+    SkASSERT(fSpecification->uniforms().empty());
 
     if (!SkMeshSpecificationPriv::HasColors(*fSpecification) && fColor != that->fColor) {
         return CombineResult::kCannotCombine;

@@ -139,7 +139,7 @@ public:
     explicit SkFontStyleSet_Android(const FontFamily& family, const SkFontScanner* scanner,
                                     const bool cacheFontFiles) {
         const SkString* cannonicalFamilyName = nullptr;
-        if (family.fNames.size() > 0) {
+        if (!family.fNames.empty()) {
             cannonicalFamilyName = &family.fNames[0];
         }
         fFallbackFor = family.fFallbackFor;
@@ -452,7 +452,7 @@ private:
         if (family.fIsFallbackFont) {
             nameToFamily = &fFallbackNameToFamilyMap;
 
-            if (0 == family.fNames.size()) {
+            if (family.fNames.empty()) {
                 SkString& fallbackName = family.fNames.push_back();
                 fallbackName.printf("%.2x##fallback", familyIndex);
             }

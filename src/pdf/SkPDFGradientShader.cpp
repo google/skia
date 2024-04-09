@@ -132,7 +132,7 @@ static void interpolate_color_code(SkScalar range, SkColor beginColor, SkColor e
 
 static void write_gradient_ranges(const SkShaderBase::GradientInfo& info, SkSpan<size_t> rangeEnds,
                                   bool top, bool first, SkDynamicMemoryWStream* result) {
-    SkASSERT(rangeEnds.size() > 0);
+    SkASSERT(!rangeEnds.empty());
 
     size_t rangeEndIndex = rangeEnds[rangeEnds.size() - 1];
     SkScalar rangeEnd = info.fColorOffsets[rangeEndIndex];
