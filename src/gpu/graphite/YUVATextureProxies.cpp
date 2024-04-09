@@ -41,9 +41,13 @@ YUVATextureProxies::YUVATextureProxies(const Caps* caps,
         return;
     }
     fMipmapped = Mipmapped::kYes;
+    fProtected = Protected::kNo;
     for (int i = 0; i < n; ++i) {
         if (proxies[i]->mipmapped() == Mipmapped::kNo) {
             fMipmapped = Mipmapped::kNo;
+        }
+        if (proxies[i]->isProtected()) {
+            fProtected = Protected::kYes;
         }
         fProxies[i] = std::move(proxies[i]);
     }
@@ -62,6 +66,7 @@ YUVATextureProxies::YUVATextureProxies(const Caps* caps,
         return;
     }
     fMipmapped = Mipmapped::kYes;
+    fProtected = Protected::kNo;
     for (int i = 0; i < n; ++i) {
         if (!views[i]) {
             *this = {};
@@ -71,6 +76,9 @@ YUVATextureProxies::YUVATextureProxies(const Caps* caps,
         pixmapChannelMasks[i] = caps->channelMask(views[i].proxy()->textureInfo());
         if (views[i].proxy()->mipmapped() == Mipmapped::kNo) {
             fMipmapped = Mipmapped::kNo;
+        }
+        if (views[i].proxy()->isProtected()) {
+            fProtected = Protected::kYes;
         }
     }
     // Initial locations refer to the CPU pixmap channels.

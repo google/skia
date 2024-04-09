@@ -42,10 +42,7 @@ public:
 
     bool onHasMipmaps() const override { return fYUVAProxies.mipmapped() == Mipmapped::kYes; }
 
-    bool onIsProtected() const override {
-        // TODO: add protected content support
-        return false;
-    }
+    bool onIsProtected() const override { return fYUVAProxies.isProtected() == Protected::kYes; }
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 

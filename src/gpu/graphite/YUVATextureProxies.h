@@ -45,6 +45,9 @@ public:
     // Overall set of YUVA proxies is mip mapped if each plane is mip mapped.
     Mipmapped mipmapped() const { return fMipmapped; }
 
+    // Overall set of YUVA proxies is protected if *any* plane is protected.
+    Protected isProtected() const { return fProtected; }
+
     TextureProxy* proxy(int i) const { return fProxies[i].get(); }
 
     SkSpan<const sk_sp<TextureProxy>> proxies() const {
@@ -65,6 +68,7 @@ private:
     std::array<sk_sp<TextureProxy>, SkYUVAInfo::kMaxPlanes> fProxies;
     SkYUVAInfo fYUVAInfo;
     Mipmapped fMipmapped = Mipmapped::kNo;
+    Protected fProtected = Protected::kNo;
     SkYUVAInfo::YUVALocations fYUVALocations = {};
 };
 
