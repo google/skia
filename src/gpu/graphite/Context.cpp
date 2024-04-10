@@ -301,7 +301,7 @@ void Context::asyncReadPixels(const TextureProxy* proxy,
 
         auto swizzle = caps->getReadSwizzle(srcImageInfo.colorType(), proxy->textureInfo());
         TextureProxyView view(sk_ref_sp(proxy), swizzle);
-        auto srcImage = sk_make_sp<Image>(kNeedNewImageUniqueID, view, srcImageInfo.colorInfo());
+        auto srcImage = sk_make_sp<Image>(view, srcImageInfo.colorInfo());
 
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kSrc);

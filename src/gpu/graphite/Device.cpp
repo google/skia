@@ -428,7 +428,7 @@ sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
                                                          backingFit);
     if (!copiedView) {
         // The surface didn't support read pixels, so copy-as-draw using the image view
-        sk_sp<Image> sampleableSurface = Image::MakeView(sk_ref_sp(this));
+        sk_sp<Image> sampleableSurface = Image::WrapDevice(sk_ref_sp(this));
         if (sampleableSurface) {
             return sampleableSurface->copyImage(fRecorder, subset, budgeted, mipmapped, backingFit);
         }
@@ -436,7 +436,7 @@ sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
         return nullptr;
     }
 
-    return sk_make_sp<Image>(kNeedNewImageUniqueID, std::move(copiedView), colorInfo);
+    return sk_make_sp<Image>(std::move(copiedView), colorInfo);
 }
 
 TextureProxyView TextureProxyView::Copy(Recorder* recorder,
@@ -1630,7 +1630,7 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
         if (fRecorder) {
             this->flushPendingWorkToRecorder();
         }
-        deviceImage = Image::MakeView(sk_ref_sp(this));
+        deviceImage = Image::WrapDevice(sk_ref_sp(this));
         finalSubset = subset;
     }
 

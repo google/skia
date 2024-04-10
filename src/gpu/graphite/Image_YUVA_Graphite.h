@@ -23,18 +23,16 @@ class Recorder;
 
 class Image_YUVA final : public Image_Base {
 public:
-    Image_YUVA(uint32_t uniqueID,
-               YUVATextureProxies proxies,
-               sk_sp<SkColorSpace>);
+    Image_YUVA(YUVATextureProxies proxies, sk_sp<SkColorSpace>);
 
     ~Image_YUVA() override;
 
     // Wraps the Graphite-backed Image planes into a YUV[A] image. The returned image shares
     // textures as well as any links to Devices that might modify those textures.
-    static sk_sp<Image_YUVA> MakeView(const Caps* caps,
-                                      const SkYUVAInfo& yuvaInfo,
-                                      SkSpan<const sk_sp<SkImage>> images,
-                                      sk_sp<SkColorSpace> imageColorSpace);
+    static sk_sp<Image_YUVA> WrapImages(const Caps* caps,
+                                        const SkYUVAInfo& yuvaInfo,
+                                        SkSpan<const sk_sp<SkImage>> images,
+                                        sk_sp<SkColorSpace> imageColorSpace);
 
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphiteYUVA; }
 

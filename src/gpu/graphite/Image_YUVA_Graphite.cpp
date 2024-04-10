@@ -37,8 +37,7 @@ constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
 namespace skgpu::graphite {
 
-Image_YUVA::Image_YUVA(uint32_t uniqueID,
-                       YUVATextureProxies proxies,
+Image_YUVA::Image_YUVA(YUVATextureProxies proxies,
                        sk_sp<SkColorSpace> imageColorSpace)
         : Image_Base(SkImageInfo::Make(proxies.yuvaInfo().dimensions(),
                                        kAssumedColorType,
@@ -49,7 +48,7 @@ Image_YUVA::Image_YUVA(uint32_t uniqueID,
                                        proxies.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType
                                                                      : kOpaque_SkAlphaType,
                                        std::move(imageColorSpace)),
-                     uniqueID)
+                     kNeedNewImageUniqueID)
         , fYUVAProxies(std::move(proxies)) {
     // The caller should have checked this, just verifying.
     SkASSERT(fYUVAProxies.isValid());
@@ -57,10 +56,10 @@ Image_YUVA::Image_YUVA(uint32_t uniqueID,
 
 Image_YUVA::~Image_YUVA() = default;
 
-sk_sp<Image_YUVA> Image_YUVA::MakeView(const Caps* caps,
-                                       const SkYUVAInfo& yuvaInfo,
-                                       SkSpan<const sk_sp<SkImage>> images,
-                                       sk_sp<SkColorSpace> imageColorSpace) {
+sk_sp<Image_YUVA> Image_YUVA::WrapImages(const Caps* caps,
+                                         const SkYUVAInfo& yuvaInfo,
+                                         SkSpan<const sk_sp<SkImage>> images,
+                                         sk_sp<SkColorSpace> imageColorSpace) {
     int numPlanes = yuvaInfo.numPlanes();
     if ((size_t) numPlanes > images.size()) {
         return nullptr;
@@ -80,8 +79,8 @@ sk_sp<Image_YUVA> Image_YUVA::MakeView(const Caps* caps,
     }
     YUVATextureProxies yuvaProxies(caps, yuvaInfo, SkSpan<TextureProxyView>(textureProxyViews));
     SkASSERT(yuvaProxies.isValid());
-    sk_sp<Image_YUVA> view = sk_make_sp<Image_YUVA>(
-            kNeedNewImageUniqueID, std::move(yuvaProxies), std::move(imageColorSpace));
+    sk_sp<Image_YUVA> view = sk_make_sp<Image_YUVA>(std::move(yuvaProxies),
+                                                    std::move(imageColorSpace));
     // Unlike the other factories, this YUVA image shares the texture proxies with each plane Image,
     // so if those are linked to Devices, it must inherit those same links.
     for (int plane = 0; plane < numPlanes; ++plane) {
@@ -102,9 +101,7 @@ size_t Image_YUVA::textureSize() const {
 }
 
 sk_sp<SkImage> Image_YUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
-    sk_sp<Image_YUVA> view = sk_make_sp<Image_YUVA>(kNeedNewImageUniqueID,
-                                                    fYUVAProxies,
-                                                    std::move(newCS));
+    sk_sp<Image_YUVA> view = sk_make_sp<Image_YUVA>(fYUVAProxies, std::move(newCS));
     // The new Image object shares the same texture planes, so it should also share linked Devices
     view->linkDevices(this);
     return view;

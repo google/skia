@@ -28,7 +28,7 @@ namespace skgpu::graphite {
 Surface::Surface(sk_sp<Device> device)
         : SkSurface_Base(device->width(), device->height(), &device->surfaceProps())
         , fDevice(std::move(device))
-        , fImageView(Image::MakeView(fDevice)) {}
+        , fImageView(Image::WrapDevice(fDevice)) {}
 
 Surface::~Surface() {
     // Mark the device immutable when the Surface is destroyed to flush any pending work to the
