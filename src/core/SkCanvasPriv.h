@@ -136,8 +136,8 @@ public:
 
     AutoLayerForImageFilter(const AutoLayerForImageFilter&) = delete;
     AutoLayerForImageFilter& operator=(const AutoLayerForImageFilter&) = delete;
-    AutoLayerForImageFilter(AutoLayerForImageFilter&&) = default;
-    AutoLayerForImageFilter& operator=(AutoLayerForImageFilter&&) = default;
+    AutoLayerForImageFilter(AutoLayerForImageFilter&&);
+    AutoLayerForImageFilter& operator=(AutoLayerForImageFilter&&);
 
     ~AutoLayerForImageFilter();
 
