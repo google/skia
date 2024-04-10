@@ -2150,24 +2150,22 @@ bool SkFontScanner_FreeType::scanInstance(SkStreamAsset* stream,
                 if (axisDefinitions[i].fTag == wghtTag) {
                     // Rough validity check, is there sufficient spread and are ranges
                     // within 0-1000.
-                    int wghtRange = SkFixedToScalar(axisDefinitions[i].fMaximum) -
-                                    SkFixedToScalar(axisDefinitions[i].fMinimum);
-                    if (wghtRange > 5 && wghtRange <= 1000 &&
-                        SkFixedToScalar(axisDefinitions[i].fMaximum) <= 1000) {
-                    wghtIndex = i;
+                    SkScalar wghtRange = axisDefinitions[i].fMaximum - axisDefinitions[i].fMinimum;
+                    if (wghtRange > 5 && wghtRange <= 1000 && axisDefinitions[i].fMaximum <= 1000) {
+                        wghtIndex = i;
                     }
                 }
                 if (axisDefinitions[i].fTag == wdthTag) {
                     // Rough validity check, is there a spread and are ranges within
                     // 0-500.
-                    int widthRange = SkFixedToScalar(axisDefinitions[i].fMaximum) -
-                                     SkFixedToScalar(axisDefinitions[i].fMinimum);
-                    if (widthRange > 0 && widthRange <= 500 &&
-                        SkFixedToScalar(axisDefinitions[i].fMaximum) <= 500)
-                    wdthIndex = i;
+                    SkScalar wdthRange = axisDefinitions[i].fMaximum - axisDefinitions[i].fMinimum;
+                    if (wdthRange > 0 && wdthRange <= 500 && axisDefinitions[i].fMaximum <= 500) {
+                        wdthIndex = i;
+                    }
                 }
-                if (axisDefinitions[i].fTag == slntTag)
+                if (axisDefinitions[i].fTag == slntTag) {
                     slntIndex = i;
+                }
             }
             AutoSTMalloc<4, FT_Fixed> coords(numAxes);
             if ((wghtIndex || wdthIndex || slntIndex) &&
@@ -2188,7 +2186,7 @@ bool SkFontScanner_FreeType::scanInstance(SkStreamAsset* stream,
                     // in counter-clockwise degrees, of oblique slant from whatever
                     // the designer considers to be upright for that font design."
                     if (SkFixedToScalar(coords[*slntIndex]) < 0) {
-                    slant = SkFontStyle::kOblique_Slant;
+                        slant = SkFontStyle::kOblique_Slant;
                     }
                 }
             }
@@ -2268,9 +2266,9 @@ bool SkFontScanner_FreeType::GetAxes(FT_Face face, AxisDefinitions* axes) {
         for (FT_UInt i = 0; i < variations->num_axis; ++i) {
             const FT_Var_Axis& ftAxis = variations->axis[i];
             (*axes)[i].fTag = ftAxis.tag;
-            (*axes)[i].fMinimum = ftAxis.minimum;
-            (*axes)[i].fDefault = ftAxis.def;
-            (*axes)[i].fMaximum = ftAxis.maximum;
+            (*axes)[i].fMinimum = SkFT_FixedToScalar(ftAxis.minimum);
+            (*axes)[i].fDefault = SkFT_FixedToScalar(ftAxis.def);
+            (*axes)[i].fMaximum = SkFT_FixedToScalar(ftAxis.maximum);
         }
     }
     return true;
@@ -2285,11 +2283,11 @@ bool SkFontScanner_FreeType::GetAxes(FT_Face face, AxisDefinitions* axes) {
 {
     for (int i = 0; i < axisDefinitions.size(); ++i) {
         const AxisDefinition& axisDefinition = axisDefinitions[i];
-        const SkScalar axisMin = SkFixedToScalar(axisDefinition.fMinimum);
-        const SkScalar axisMax = SkFixedToScalar(axisDefinition.fMaximum);
+        const SkScalar axisMin = axisDefinition.fMinimum;
+        const SkScalar axisMax = axisDefinition.fMaximum;
 
         // Start with the default value.
-        axisValues[i] = axisDefinition.fDefault;
+        axisValues[i] = SkScalarToFixed(axisDefinition.fDefault);
 
         // Then the current value.
         if (current) {
