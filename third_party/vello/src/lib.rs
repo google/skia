@@ -19,8 +19,10 @@ mod ffi {
         DrawReduce,
         FineArea,
         FineMsaa16,
+        FineMsaa8,
         FineAreaR8,
         FineMsaa16R8,
+        FineMsaa8R8,
         Flatten,
         PathCount,
         PathCountSetup,
@@ -240,9 +242,10 @@ mod ffi {
         fn workgroup_counts(self: &RenderConfiguration) -> DispatchInfo;
         fn buffer_sizes(self: &RenderConfiguration) -> BufferSizes;
 
-        /// Sample mask lookup table used in MSAA modes. This data doesn't change across different
-        /// MSAAx16 renders and can be computed once.
+        /// Sample mask lookup tables used in MSAA modes. This data can be computed once and reused
+        /// across all renders.
         fn build_mask_lut_16() -> Vec<u8>;
+        fn build_mask_lut_8() -> Vec<u8>;
     }
 
     unsafe extern "C++" {
@@ -263,4 +266,8 @@ use {
 
 fn build_mask_lut_16() -> Vec<u8> {
     vello_encoding::make_mask_lut_16()
+}
+
+fn build_mask_lut_8() -> Vec<u8> {
+    vello_encoding::make_mask_lut()
 }

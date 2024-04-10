@@ -140,6 +140,8 @@ std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder*
     PathRendererStrategy strategy = recorder->priv().caps()->requestedPathRendererStrategy();
     if (strategy == PathRendererStrategy::kComputeMSAA16) {
         config = VelloAaConfig::kMSAA16;
+    } else if (strategy == PathRendererStrategy::kComputeMSAA8) {
+        config = VelloAaConfig::kMSAA8;
     }
 #endif
     return recorder->priv().rendererProvider()->velloRenderer()->renderScene(

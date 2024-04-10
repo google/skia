@@ -231,17 +231,21 @@ static DEFINE_string2(match, m, nullptr,
 #ifdef SK_ENABLE_VELLO_SHADERS
 #define COMPUTE_ANALYTIC_PATHSTRATEGY_STR ", \"compute-analytic\""
 #define COMPUTE_MSAA16_PATHSTRATEGY_STR ", \"compute-msaa16\""
+#define COMPUTE_MSAA8_PATHSTRATEGY_STR ", \"compute-msaa8\""
 #else
 #define COMPUTE_ANALYTIC_PATHSTRATEGY_STR
 #define COMPUTE_MSAA16_PATHSTRATEGY_STR
+#define COMPUTE_MSAA8_PATHSTRATEGY_STR
 #endif
-#define PATHSTRATEGY_STR_EVALUATOR(default, raster, compute_analytic, compute_msaa16, tess) \
+#define PATHSTRATEGY_STR_EVALUATOR(                                             \
+        default, raster, compute_analytic, compute_msaa16, compute_msaa8, tess) \
     default raster compute_analytic compute_msaa16 tess
 #define PATHSTRATEGY_STR                                          \
     PATHSTRATEGY_STR_EVALUATOR("\"default\"",                     \
                                "\"raster\"",                      \
                                COMPUTE_ANALYTIC_PATHSTRATEGY_STR, \
                                COMPUTE_MSAA16_PATHSTRATEGY_STR,   \
+                               COMPUTE_MSAA8_PATHSTRATEGY_STR,    \
                                "\"tessellation\"")
 
 static DEFINE_string(pathstrategy, "default",
@@ -310,6 +314,8 @@ static const char*
             return "GPU Compute AA (Analytic)";
         case Strategy::kComputeMSAA16:
             return "GPU Compute AA (16xMSAA)";
+        case Strategy::kComputeMSAA8:
+            return "GPU Compute AA (8xMSAA)";
         case Strategy::kRasterAA:
             return "CPU Raster AA";
         case Strategy::kTessellation:
@@ -329,6 +335,8 @@ static skgpu::graphite::PathRendererStrategy get_path_renderer_strategy_type(con
         return Strategy::kComputeAnalyticAA;
     } else if (0 == strcmp(str, "compute-msaa16")) {
         return Strategy::kComputeMSAA16;
+    } else if (0 == strcmp(str, "compute-msaa8")) {
+        return Strategy::kComputeMSAA8;
 #endif
     } else if (0 == strcmp(str, "tessellation")) {
         return Strategy::kTessellation;
@@ -2232,6 +2240,7 @@ void Viewer::drawImGui() {
                         PathRendererStrategy strategies[] = {
                                 PathRendererStrategy::kComputeAnalyticAA,
                                 PathRendererStrategy::kComputeMSAA16,
+                                PathRendererStrategy::kComputeMSAA8,
                                 PathRendererStrategy::kRasterAA,
                                 PathRendererStrategy::kTessellation,
                         };

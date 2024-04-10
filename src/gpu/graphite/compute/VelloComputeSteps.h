@@ -267,12 +267,12 @@ protected:
             : VelloStep<S>(resources) {}
 };
 
-template <vello_cpp::ShaderStage S, SkColorType T>
-class VelloFineMsaa16StepBase : public VelloFineStepBase<S, T> {
+template <vello_cpp::ShaderStage S, SkColorType T, ::rust::Vec<uint8_t> (*MaskLutBuilder)()>
+class VelloFineMsaaStepBase : public VelloFineStepBase<S, T> {
 public:
     size_t calculateBufferSize(int resourceIndex, const ComputeStep::ResourceDesc&) const override {
         SkASSERT(resourceIndex == 5);
-        return 64 * 64 * 2;  // 64x64 LUT of 16-bit masks.
+        return fMaskLut.size();
     }
 
     void prepareStorageBuffer(int resourceIndex,
@@ -285,8 +285,8 @@ public:
     }
 
 protected:
-    explicit VelloFineMsaa16StepBase(SkSpan<const ComputeStep::ResourceDesc> resources)
-            : VelloFineStepBase<S, T>(resources), fMaskLut(vello_cpp::build_mask_lut_16()) {}
+    explicit VelloFineMsaaStepBase(SkSpan<const ComputeStep::ResourceDesc> resources)
+            : VelloFineStepBase<S, T>(resources), fMaskLut(MaskLutBuilder()) {}
 
 private:
     ::rust::Vec<uint8_t> fMaskLut;
@@ -304,17 +304,34 @@ public:
     VelloFineAreaAlpha8Step();
 };
 
-class VelloFineMsaa16Step final : public VelloFineMsaa16StepBase<vello_cpp::ShaderStage::FineMsaa16,
-                                                                 kRGBA_8888_SkColorType> {
+class VelloFineMsaa16Step final : public VelloFineMsaaStepBase<vello_cpp::ShaderStage::FineMsaa16,
+                                                               kRGBA_8888_SkColorType,
+                                                               vello_cpp::build_mask_lut_16> {
 public:
     VelloFineMsaa16Step();
 };
 
 class VelloFineMsaa16Alpha8Step final
-        : public VelloFineMsaa16StepBase<vello_cpp::ShaderStage::FineMsaa16R8,
-                                         kAlpha_8_SkColorType> {
+        : public VelloFineMsaaStepBase<vello_cpp::ShaderStage::FineMsaa16R8,
+                                       kAlpha_8_SkColorType,
+                                       vello_cpp::build_mask_lut_16> {
 public:
     VelloFineMsaa16Alpha8Step();
+};
+
+class VelloFineMsaa8Step final : public VelloFineMsaaStepBase<vello_cpp::ShaderStage::FineMsaa8,
+                                                              kRGBA_8888_SkColorType,
+                                                              vello_cpp::build_mask_lut_8> {
+public:
+    VelloFineMsaa8Step();
+};
+
+class VelloFineMsaa8Alpha8Step final
+        : public VelloFineMsaaStepBase<vello_cpp::ShaderStage::FineMsaa8R8,
+                                       kAlpha_8_SkColorType,
+                                       vello_cpp::build_mask_lut_8> {
+public:
+    VelloFineMsaa8Alpha8Step();
 };
 
 }  // namespace skgpu::graphite

@@ -53,8 +53,10 @@ decl_shader!(DRAW_LEAF, draw_leaf);
 decl_shader!(DRAW_REDUCE, draw_reduce);
 decl_shader!(FINE_AREA, fine_area);
 decl_shader!(FINE_MSAA16, fine_msaa16);
+decl_shader!(FINE_MSAA8, fine_msaa8);
 decl_shader!(FINE_AREA_R8, fine_area_r8);
 decl_shader!(FINE_MSAA16_R8, fine_msaa16_r8);
+decl_shader!(FINE_MSAA8_R8, fine_msaa8_r8);
 decl_shader!(FLATTEN, flatten);
 decl_shader!(PATH_COUNT, path_count);
 decl_shader!(PATH_COUNT_SETUP, path_count_setup);
@@ -80,8 +82,10 @@ pub(crate) fn shader(stage: ffi::ShaderStage) -> &'static Shader {
         ffi::ShaderStage::DrawReduce => &DRAW_REDUCE,
         ffi::ShaderStage::FineArea => &FINE_AREA,
         ffi::ShaderStage::FineMsaa16 => &FINE_MSAA16,
+        ffi::ShaderStage::FineMsaa8 => &FINE_MSAA8,
         ffi::ShaderStage::FineAreaR8 => &FINE_AREA_R8,
         ffi::ShaderStage::FineMsaa16R8 => &FINE_MSAA16_R8,
+        ffi::ShaderStage::FineMsaa8R8 => &FINE_MSAA8_R8,
         ffi::ShaderStage::Flatten => &FLATTEN,
         ffi::ShaderStage::PathCount => &PATH_COUNT,
         ffi::ShaderStage::PathCountSetup => &PATH_COUNT_SETUP,

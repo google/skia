@@ -63,6 +63,7 @@ private:
 enum class VelloAaConfig {
     kAnalyticArea,
     kMSAA16,
+    kMSAA8,
 };
 
 // A VelloRenderer that is specialized for rendering coverage masks. The renderer only supports
@@ -123,6 +124,7 @@ private:
     // Fine rasterization stage variants:
     std::unique_ptr<ComputeStep> fFineArea;
     std::unique_ptr<ComputeStep> fFineMsaa16;
+    std::unique_ptr<ComputeStep> fFineMsaa8;
 };
 
 }  // namespace skgpu::graphite

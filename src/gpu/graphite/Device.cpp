@@ -1332,6 +1332,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     if (atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kCompute) &&
         (strategy == PathRendererStrategy::kComputeAnalyticAA ||
          strategy == PathRendererStrategy::kComputeMSAA16 ||
+         strategy == PathRendererStrategy::kComputeMSAA8 ||
          strategy == PathRendererStrategy::kDefault)) {
         pathAtlas = fDC->getComputePathAtlas(fRecorder);
     // Only use CPU rendered paths when multisampling is disabled
