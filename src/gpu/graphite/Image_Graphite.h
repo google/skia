@@ -32,6 +32,16 @@ public:
     // pending tasks when the Image is used in a draw to another canvas.
     static sk_sp<Image> WrapDevice(sk_sp<Device> device);
 
+    // Create an Image by copying the provided texture proxy view into a new texturable proxy.
+    // The source texture does not have to be texturable if it is blittable.
+    static sk_sp<Image> Copy(Recorder*,
+                             const TextureProxyView& srcView,
+                             const SkColorInfo&,
+                             const SkIRect& subset,
+                             Budgeted,
+                             Mipmapped,
+                             SkBackingFit);
+
     const TextureProxyView& textureProxyView() const { return fTextureProxyView; }
 
     // Always copy this image, even if 'subset' and mipmapping match this image exactly.

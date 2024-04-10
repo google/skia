@@ -40,7 +40,6 @@
 #include "src/gpu/graphite/geom/IntersectionTree.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
-#include "src/gpu/graphite/task/CopyTask.h"
 #include "src/gpu/graphite/text/TextAtlasManager.h"
 
 #include "include/core/SkColorSpace.h"
@@ -423,73 +422,7 @@ sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
                 colorInfo.colorType(), this->target()->textureInfo());
         srcView = {sk_ref_sp(this->target()), readSwizzle};
     }
-    TextureProxyView copiedView = TextureProxyView::Copy(fRecorder,
-                                                         colorInfo,
-                                                         srcView,
-                                                         subset,
-                                                         budgeted,
-                                                         mipmapped,
-                                                         backingFit);
-    if (!copiedView) {
-        // The surface didn't support read pixels, so copy-as-draw using the image view
-        sk_sp<Image> sampleableSurface = Image::WrapDevice(sk_ref_sp(this));
-        if (sampleableSurface) {
-            return sampleableSurface->copyImage(fRecorder, subset, budgeted, mipmapped, backingFit);
-        }
-        // Cannot be copied by blit nor by a draw, so cannot be done.
-        return nullptr;
-    }
-
-    return sk_make_sp<Image>(std::move(copiedView), colorInfo);
-}
-
-TextureProxyView TextureProxyView::Copy(Recorder* recorder,
-                                        const SkColorInfo& srcColorInfo,
-                                        const TextureProxyView& srcView,
-                                        SkIRect srcRect,
-                                        Budgeted budgeted,
-                                        Mipmapped mipmapped,
-                                        SkBackingFit backingFit) {
-    SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
-
-    SkASSERT(srcView.proxy()->isFullyLazy() ||
-             SkIRect::MakeSize(srcView.proxy()->dimensions()).contains(srcRect));
-
-    if (!recorder->priv().caps()->supportsReadPixels(srcView.proxy()->textureInfo())) {
-        // Caller is responsible for copy-as-draw fallbacks
-        return {};
-    }
-
-    skgpu::graphite::TextureInfo textureInfo =
-            recorder->priv().caps()->getTextureInfoForSampledCopy(srcView.proxy()->textureInfo(),
-                                                                  mipmapped);
-
-    sk_sp<TextureProxy> dest = TextureProxy::Make(
-            recorder->priv().caps(),
-            backingFit == SkBackingFit::kApprox ? GetApproxSize(srcRect.size()) : srcRect.size(),
-            textureInfo,
-            budgeted);
-    if (!dest) {
-        return {};
-    }
-
-    sk_sp<CopyTextureToTextureTask> copyTask = CopyTextureToTextureTask::Make(srcView.refProxy(),
-                                                                              srcRect,
-                                                                              dest,
-                                                                              {0, 0});
-    if (!copyTask) {
-        return {};
-    }
-
-    recorder->priv().add(std::move(copyTask));
-
-    if (mipmapped == Mipmapped::kYes) {
-        if (!GenerateMipmaps(recorder, dest, srcColorInfo)) {
-            SKGPU_LOG_W("TextureProxyView::Copy: Failed to generate mipmaps");
-        }
-    }
-
-    return { std::move(dest), srcView.swizzle() };
+    return Image::Copy(fRecorder, srcView, colorInfo, subset, budgeted, mipmapped, backingFit);
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {

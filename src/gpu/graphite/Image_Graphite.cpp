@@ -23,6 +23,8 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureUtils.h"
+#include "src/gpu/graphite/task/CopyTask.h"
 
 #if defined(GRAPHITE_TEST_UTILS)
 #include "include/gpu/graphite/Context.h"
@@ -51,6 +53,62 @@ sk_sp<Image> Image::WrapDevice(sk_sp<Device> device) {
                                            device->imageInfo().colorInfo());
     image->linkDevice(std::move(device));
     return image;
+}
+
+sk_sp<Image> Image::Copy(Recorder* recorder,
+                         const TextureProxyView& srcView,
+                         const SkColorInfo& srcColorInfo,
+                         const SkIRect& subset,
+                         Budgeted budgeted,
+                         Mipmapped mipmapped,
+                         SkBackingFit backingFit) {
+    SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
+    if (!srcView) {
+        return nullptr;
+    }
+
+    SkASSERT(srcView.proxy()->isFullyLazy() ||
+             SkIRect::MakeSize(srcView.proxy()->dimensions()).contains(subset));
+
+    if (!recorder->priv().caps()->supportsReadPixels(srcView.proxy()->textureInfo())) {
+        if (!recorder->priv().caps()->isTexturable(srcView.proxy()->textureInfo())) {
+            // The texture is not blittable nor texturable so copying cannot be done.
+            return nullptr;
+        }
+        // Copy-as-draw
+        sk_sp<Image> srcImage(new Image(srcView, srcColorInfo));
+        return CopyAsDraw(recorder, srcImage.get(), subset, budgeted, mipmapped, backingFit);
+    }
+
+
+    skgpu::graphite::TextureInfo textureInfo =
+            recorder->priv().caps()->getTextureInfoForSampledCopy(srcView.proxy()->textureInfo(),
+                                                                  mipmapped);
+
+    sk_sp<TextureProxy> dst = TextureProxy::Make(
+            recorder->priv().caps(),
+            backingFit == SkBackingFit::kApprox ? GetApproxSize(subset.size()) : subset.size(),
+            textureInfo,
+            budgeted);
+    if (!dst) {
+        return nullptr;
+    }
+
+    auto copyTask = CopyTextureToTextureTask::Make(srcView.refProxy(), subset, dst, {0, 0});
+    if (!copyTask) {
+        return nullptr;
+    }
+
+    recorder->priv().add(std::move(copyTask));
+
+    if (mipmapped == Mipmapped::kYes) {
+        if (!GenerateMipmaps(recorder, dst, srcColorInfo)) {
+            SKGPU_LOG_W("Image::Copy failed to generate mipmaps");
+            return nullptr;
+        }
+    }
+
+    return sk_sp<Image>(new Image({std::move(dst), srcView.swizzle()}, srcColorInfo));
 }
 
 size_t Image::textureSize() const {
@@ -104,30 +162,9 @@ sk_sp<Image> Image::copyImage(Recorder* recorder,
                               Budgeted budgeted,
                               Mipmapped mipmapped,
                               SkBackingFit backingFit) const {
-    SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
-    const TextureProxyView& srcView = this->textureProxyView();
-    if (!srcView) {
-        return nullptr;
-    }
-
-    // Attempt copying as a blit first.
-    const SkColorInfo& colorInfo = this->imageInfo().colorInfo();
     this->notifyInUse(recorder);
-    TextureProxyView copiedView = TextureProxyView::Copy(recorder,
-                                                         colorInfo,
-                                                         srcView,
-                                                         subset,
-                                                         budgeted,
-                                                         mipmapped,
-                                                         backingFit);
-    if (copiedView) {
-        return sk_make_sp<Image>(std::move(copiedView), colorInfo);
-    }
-
-    // Perform the copy as a draw; since the proxy has been wrapped in an Image, it should be
-    // texturable.
-    SkASSERT(recorder->priv().caps()->isTexturable(srcView.proxy()->textureInfo()));
-    return CopyAsDraw(recorder, this, subset, budgeted, mipmapped, backingFit);
+    return Image::Copy(recorder, fTextureProxyView, this->imageInfo().colorInfo(),
+                       subset, budgeted, mipmapped, backingFit);
 }
 
 sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
