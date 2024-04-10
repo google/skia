@@ -77,9 +77,9 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                                      DrawTypeFlags::kText);
     }
     fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>(bufferManager),
-                                  DrawTypeFlags::kShape);
+                                  DrawTypeFlags::kSimpleShape);
     fPerEdgeAAQuad = makeFromStep(std::make_unique<PerEdgeAAQuadRenderStep>(bufferManager),
-                                  DrawTypeFlags::kShape);
+                                  DrawTypeFlags::kSimpleShape);
     for (PrimitiveType primType : {PrimitiveType::kTriangles, PrimitiveType::kTriangleStrip}) {
         for (bool color : {false, true}) {
             for (bool texCoords : {false, true}) {

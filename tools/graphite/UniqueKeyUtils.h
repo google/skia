@@ -22,6 +22,7 @@ namespace skgpu::graphite {
     class GraphicsPipelineDesc;
     struct RenderPassDesc;
     class RendererProvider;
+    class ShaderCodeDictionary;
 }
 
 namespace UniqueKeyUtils {
@@ -31,6 +32,7 @@ void FetchUniqueKeys(skgpu::graphite::GlobalCache* globalCache,
 
 #ifdef SK_DEBUG
 void DumpDescs(const skgpu::graphite::RendererProvider*,
+               const skgpu::graphite::ShaderCodeDictionary*,
                const skgpu::graphite::GraphicsPipelineDesc&,
                const skgpu::graphite::RenderPassDesc&);
 #endif

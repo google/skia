@@ -294,7 +294,7 @@ private:
 
     std::array<const RenderStep*, kMaxRenderSteps> fSteps;
     std::string fName;
-    DrawTypeFlags fDrawTypes = DrawTypeFlags::kAll;
+    DrawTypeFlags fDrawTypes = DrawTypeFlags::kNone;
     int fStepCount;
 
     SkEnumBitMask<StepFlags> fStepFlags = StepFlags::kNone;

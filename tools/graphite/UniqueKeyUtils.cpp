@@ -70,8 +70,11 @@ void FetchUniqueKeys(GlobalCache* globalCache,
 
 #ifdef SK_DEBUG
 void DumpDescs(const RendererProvider* rendererProvider,
+               const ShaderCodeDictionary* dict,
                const GraphicsPipelineDesc& pipelineDesc,
                const RenderPassDesc& rpd) {
+    dict->lookup(pipelineDesc.paintParamsID()).dump(dict);
+
     const RenderStep* rs = rendererProvider->lookup(pipelineDesc.renderStepID());
 
     SkDebugf("GraphicsPipelineDesc: %d %s\n", pipelineDesc.paintParamsID().asUInt(), rs->name());
@@ -109,12 +112,14 @@ bool ExtractKeyDescs(Context* context,
     }
 
 #ifdef SK_DEBUG
+    const ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+
     UniqueKey newKey = caps->makeGraphicsPipelineKey(*pipelineDesc, *renderPassDesc);
     if (origKey != newKey) {
         SkDebugf("------- The UniqueKey didn't round trip!\n");
         origKey.dump("original key:");
         newKey.dump("reassembled key:");
-        DumpDescs(rendererProvider, *pipelineDesc, *renderPassDesc);
+        DumpDescs(rendererProvider, dict, *pipelineDesc, *renderPassDesc);
         SkDebugf("------------------------\n");
     }
     SkASSERT(origKey == newKey);

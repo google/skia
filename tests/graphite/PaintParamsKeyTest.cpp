@@ -16,6 +16,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
@@ -1066,6 +1067,31 @@ struct DrawData {
     sk_sp<SkVertices> fVertsWithOutColors;
 };
 
+void simple_draws(SkCanvas* canvas, const SkPaint& paint) {
+    // TODO: add some drawLine calls
+    canvas->drawRect(SkRect::MakeWH(16, 16), paint);
+    canvas->drawRRect(SkRRect::MakeOval({0, 0, 16, 16}), paint);
+    canvas->drawRRect(SkRRect::MakeRectXY({0, 0, 16, 16}, 4, 4), paint);
+
+    if (!paint.getShader() &&
+        !paint.getColorFilter() &&
+        !paint.getImageFilter() &&
+        paint.asBlendMode().has_value()) {
+        // The SkPaint reconstructed inside the drawEdgeAAQuad call needs to match 'paint' for
+        // the precompilation checks to work.
+        canvas->experimental_DrawEdgeAAQuad(SkRect::MakeWH(16, 16),
+                                            /* clip= */ nullptr,
+                                            SkCanvas::kAll_QuadAAFlags,
+                                            paint.getColor4f(),
+                                            paint.asBlendMode().value());
+    }
+}
+
+void non_simple_draws(SkCanvas* canvas, const SkPaint& paint, const DrawData& drawData) {
+    // TODO: add strokeAndFill draws here as well as a stroked non-circular rrect draw
+    canvas->drawPath(drawData.fPath, paint);
+}
+
 void check_draw(skiatest::Reporter* reporter,
                 Context* context,
                 skiatest::graphite::GraphiteTestContext* testContext,
@@ -1105,9 +1131,15 @@ void check_draw(skiatest::Reporter* reporter,
         }
 
         switch (dt) {
+            case DrawTypeFlags::kSimpleShape:
+                simple_draws(canvas, paint);
+                break;
+            case DrawTypeFlags::kNonSimpleShape:
+                non_simple_draws(canvas, paint, drawData);
+                break;
             case DrawTypeFlags::kShape:
-                canvas->drawRect(SkRect::MakeWH(16, 16), paint);
-                canvas->drawPath(drawData.fPath, paint);
+                simple_draws(canvas, paint);
+                non_simple_draws(canvas, paint, drawData);
                 break;
             case DrawTypeFlags::kText:
                 canvas->drawTextBlob(drawData.fBlob, 0, 16, paint);
@@ -1134,6 +1166,7 @@ void check_draw(skiatest::Reporter* reporter,
 #ifdef SK_DEBUG
     if (before != after) {
         const RendererProvider* rendererProvider = context->priv().rendererProvider();
+        const ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
         std::vector<skgpu::UniqueKey> afterKeys;
 
@@ -1149,7 +1182,7 @@ void check_draw(skiatest::Reporter* reporter,
 
                 SkDebugf("------- New key from draw:\n");
                 afterKey.dump("original key:");
-                UniqueKeyUtils::DumpDescs(rendererProvider,
+                UniqueKeyUtils::DumpDescs(rendererProvider, dict,
                                           originalPipelineDesc,
                                           originalRenderPassDesc);
             }
@@ -1337,7 +1370,9 @@ void run_test(skiatest::Reporter* reporter,
     gNeedSKPPaintOption = false;
     auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf);
 
-    for (DrawTypeFlags dt : { DrawTypeFlags::kShape,
+    for (DrawTypeFlags dt : { DrawTypeFlags::kSimpleShape,
+                              DrawTypeFlags::kNonSimpleShape,
+                              DrawTypeFlags::kShape,
                               DrawTypeFlags::kText,
                               DrawTypeFlags::kDrawVertices }) {
 
@@ -1427,7 +1462,7 @@ void run_test(skiatest::Reporter* reporter,
                 SkDebugf("From paint: ");
                 dump(dict, paintID);
 
-                SkDebugf("From combination builder:");
+                SkDebugf("From combination builder [%d]:", static_cast<int>(precompileIDs.size()));
                 for (auto iter : precompileIDs) {
                     dump(dict, iter);
                 }
@@ -1444,7 +1479,7 @@ void run_test(skiatest::Reporter* reporter,
                 if (gNeedSKPPaintOption) {
                     // The skp draws a rect w/ a default SkPaint
                     PaintOptions skpPaintOptions;
-                    Precompile(context, skpPaintOptions, DrawTypeFlags::kShape);
+                    Precompile(context, skpPaintOptions, DrawTypeFlags::kSimpleShape);
                 }
                 int after = context->priv().globalCache()->numGraphicsPipelines();
 

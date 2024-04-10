@@ -2317,6 +2317,7 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
 
 #ifdef SK_DEBUG
                 const RendererProvider* rendererProvider = context->priv().rendererProvider();
+                const ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
                 {
                     GraphicsPipelineDesc originalPipelineDesc;
@@ -2327,7 +2328,7 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
 
                     SkDebugf("------- Missing key from rebuilt keys:\n");
                     origKey.dump("original key:");
-                    UniqueKeyUtils::DumpDescs(rendererProvider,
+                    UniqueKeyUtils::DumpDescs(rendererProvider, dict,
                                               originalPipelineDesc,
                                               originalRenderPassDesc);
                 }
@@ -2344,7 +2345,7 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
 
                     SkDebugf("%d ----\n", count++);
                     recreatedKey.dump("recreated key:");
-                    UniqueKeyUtils::DumpDescs(rendererProvider,
+                    UniqueKeyUtils::DumpDescs(rendererProvider, dict,
                                               recreatedPipelineDesc,
                                               recreatedRenderPassDesc);
                 }
