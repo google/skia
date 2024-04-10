@@ -77,7 +77,8 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
         }
         // Copy-as-draw
         sk_sp<Image> srcImage(new Image(srcView, srcColorInfo));
-        return CopyAsDraw(recorder, srcImage.get(), subset, budgeted, mipmapped, backingFit);
+        return CopyAsDraw(recorder, srcImage.get(), subset, srcColorInfo,
+                          budgeted, mipmapped, backingFit);
     }
 
 
@@ -123,40 +124,6 @@ size_t Image::textureSize() const {
     return fTextureProxyView.proxy()->texture()->gpuMemorySize();
 }
 
-sk_sp<SkImage> Image::onMakeSubset(Recorder* recorder,
-                                   const SkIRect& subset,
-                                   RequiredProperties requiredProps) const {
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-
-    // optimization : return self if the subset == our bounds and requirements met
-    if (bounds == subset && (!requiredProps.fMipmapped || this->hasMipmaps())) {
-        return sk_ref_sp(this);
-    }
-
-    // The copied image is not considered budgeted because this is a client-invoked API and they
-    // will own the image.
-    return this->copyImage(recorder,
-                           subset,
-                           Budgeted::kNo,
-                           requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,
-                           SkBackingFit::kExact);
-}
-
-sk_sp<SkImage> Image::makeTextureImage(Recorder* recorder, RequiredProperties requiredProps) const {
-    if (!requiredProps.fMipmapped || this->hasMipmaps()) {
-        return sk_ref_sp(this);
-    }
-
-    // The copied image is not considered budgeted because this is a client-invoked API and they
-    // will own the image.
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-    return this->copyImage(recorder,
-                           bounds,
-                           Budgeted::kNo,
-                           requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,
-                           SkBackingFit::kExact);
-}
-
 sk_sp<Image> Image::copyImage(Recorder* recorder,
                               const SkIRect& subset,
                               Budgeted budgeted,
@@ -174,25 +141,6 @@ sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
     // The new Image object shares the same texture proxy, so it should also share linked Devices
     view->linkDevices(this);
     return view;
-}
-
-sk_sp<SkImage> Image::makeColorTypeAndColorSpace(Recorder* recorder,
-                                                 SkColorType targetCT,
-                                                 sk_sp<SkColorSpace> targetCS,
-                                                 RequiredProperties requiredProps) const {
-    SkAlphaType at = (this->alphaType() == kOpaque_SkAlphaType) ? kPremul_SkAlphaType
-                                                                : this->alphaType();
-
-    SkImageInfo ii = SkImageInfo::Make(this->dimensions(), targetCT, at, std::move(targetCS));
-
-    auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-    sk_sp<SkSurface> s = SkSurfaces::RenderTarget(recorder, ii, mm);
-    if (!s) {
-        return nullptr;
-    }
-
-    s->getCanvas()->drawImage(this, 0, 0);
-    return SkSurfaces::AsImage(s);
 }
 
 } // namespace skgpu::graphite

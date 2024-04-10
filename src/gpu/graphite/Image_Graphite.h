@@ -44,10 +44,6 @@ public:
 
     const TextureProxyView& textureProxyView() const { return fTextureProxyView; }
 
-    // Always copy this image, even if 'subset' and mipmapping match this image exactly.
-    sk_sp<Image> copyImage(Recorder*, const SkIRect& subset,
-                           Budgeted, Mipmapped, SkBackingFit) const;
-
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kGraphite; }
 
     bool onHasMipmaps() const override {
@@ -60,9 +56,10 @@ public:
 
     size_t textureSize() const override;
 
-    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
+    sk_sp<Image> copyImage(Recorder*, const SkIRect& subset,
+                           Budgeted, Mipmapped, SkBackingFit) const override;
 
-    sk_sp<SkImage> makeTextureImage(Recorder*, RequiredProperties) const override;
+    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
     static sk_sp<TextureProxy> MakePromiseImageLazyProxy(
             const Caps*,
@@ -81,15 +78,6 @@ public:
 #endif
 
 private:
-    sk_sp<SkImage> onMakeSubset(Recorder*, const SkIRect&, RequiredProperties) const override;
-    sk_sp<SkImage> makeColorTypeAndColorSpace(Recorder*,
-                                              SkColorType targetCT,
-                                              sk_sp<SkColorSpace> targetCS,
-                                              RequiredProperties) const override;
-
-    // Include the no-op Ganesh functions to avoid warnings about hidden virtuals.
-    using Image_Base::onMakeSubset;
-    using Image_Base::onMakeColorTypeAndColorSpace;
 
     TextureProxyView fTextureProxyView;
 };

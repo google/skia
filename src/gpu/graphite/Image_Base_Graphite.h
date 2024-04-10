@@ -31,11 +31,26 @@ public:
     // or a copy operation.
     void notifyInUse(Recorder*) const;
 
+    // Returns true if this image is linked to a device that may render their shared texture(s).
+    bool isDynamic() const;
+
+    // Always copy this image, even if 'subset' and mipmapping match this image exactly.
+    // The base implementation performs all copies as draws.
+    virtual sk_sp<Image> copyImage(Recorder*, const SkIRect& subset,
+                                   Budgeted, Mipmapped, SkBackingFit) const;
+
     // From SkImage.h
     // TODO(egdaniel) This feels wrong. Re-think how this method is used and works.
     bool isValid(GrRecordingContext*) const override { return true; }
 
     // From SkImage_Base.h
+    sk_sp<SkImage> onMakeSubset(Recorder*, const SkIRect&, RequiredProperties) const override;
+    sk_sp<SkImage> makeColorTypeAndColorSpace(Recorder*,
+                                              SkColorType targetCT,
+                                              sk_sp<SkColorSpace> targetCS,
+                                              RequiredProperties) const override;
+
+    // No-ops for Ganesh APIs
     bool onReadPixels(GrDirectContext*,
                       const SkImageInfo& dstInfo,
                       void* dstPixels,
@@ -71,13 +86,14 @@ public:
                                            ReadPixelsCallback,
                                            ReadPixelsContext) const override;
 
-    virtual sk_sp<SkImage> makeTextureImage(Recorder*, RequiredProperties) const = 0;
-
 protected:
     Image_Base(const SkImageInfo& info, uint32_t uniqueID);
 
     // Create a new flattened copy of the base image using draw operations.
-    static sk_sp<Image> CopyAsDraw(Recorder*, const Image_Base*, const SkIRect& subset,
+    static sk_sp<Image> CopyAsDraw(Recorder*,
+                                   const Image_Base*,
+                                   const SkIRect& subset,
+                                   const SkColorInfo& dstColorInfo,
                                    Budgeted, Mipmapped, SkBackingFit);
 
     // If the passed-in image is linked with Devices that modify its texture, copy the links to

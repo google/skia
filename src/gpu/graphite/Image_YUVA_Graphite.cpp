@@ -107,61 +107,6 @@ sk_sp<SkImage> Image_YUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) co
     return view;
 }
 
-sk_sp<SkImage> Image_YUVA::makeTextureImage(Recorder* recorder,
-                                            RequiredProperties requiredProps) const {
-    // Not clear if we want a flattened image here or not
-    auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-    sk_sp<SkSurface> s = SkSurfaces::RenderTarget(recorder, this->imageInfo(), mm);
-    if (!s) {
-        return nullptr;
-    }
-
-    s->getCanvas()->drawImage(this, 0, 0);
-    return SkSurfaces::AsImage(s);
-}
-
-sk_sp<SkImage> Image_YUVA::onMakeSubset(Recorder* recorder,
-                                        const SkIRect& subset,
-                                        RequiredProperties requiredProps) const {
-
-    SkImageInfo info = this->imageInfo().makeWH(subset.width(), subset.height());
-    auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-    sk_sp<SkSurface> s = SkSurfaces::RenderTarget(recorder, info, mm);
-    if (!s) {
-        return nullptr;
-    }
-
-    // Translate the subset to the origin of the destination
-    SkMatrix m = SkMatrix::Translate(-subset.x(), -subset.y());
-    SkPaint p;
-    p.setShader(SkImageShader::MakeSubset(sk_ref_sp(this),
-                                          SkRect::Make(subset),
-                                          SkTileMode::kClamp, SkTileMode::kClamp,
-                                          SkSamplingOptions(SkFilterMode::kNearest), &m));
-    s->getCanvas()->drawRect(SkRect::Make(info.bounds()), p);
-
-    return SkSurfaces::AsImage(s);
-}
-
-sk_sp<SkImage> Image_YUVA::makeColorTypeAndColorSpace(Recorder* recorder,
-                                                      SkColorType targetCT,
-                                                      sk_sp<SkColorSpace> targetCS,
-                                                      RequiredProperties requiredProps) const {
-    SkAlphaType at = (this->alphaType() == kOpaque_SkAlphaType) ? kPremul_SkAlphaType
-                                                                : this->alphaType();
-
-    SkImageInfo ii = SkImageInfo::Make(this->dimensions(), targetCT, at, std::move(targetCS));
-
-    auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-    sk_sp<SkSurface> s = SkSurfaces::RenderTarget(recorder, ii, mm);
-    if (!s) {
-        return nullptr;
-    }
-
-    s->getCanvas()->drawImage(this, 0, 0);
-    return SkSurfaces::AsImage(s);
-}
-
 }  // namespace skgpu::graphite
 
 using namespace skgpu::graphite;

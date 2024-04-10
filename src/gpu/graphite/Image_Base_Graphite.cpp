@@ -72,19 +72,45 @@ void Image_Base::notifyInUse(Recorder* recorder) const {
     }
 }
 
+bool Image_Base::isDynamic() const {
+    SkAutoSpinlock lock{fDeviceLinkLock};
+    int emptyCount = 0;
+    if (!fLinkedDevices.empty()) {
+        for (sk_sp<Device>& device : fLinkedDevices) {
+            if (!device || !device->recorder() || device->unique()) {
+                device.reset();
+                emptyCount++;
+            }
+        }
+        if (emptyCount == fLinkedDevices.size()) {
+            fLinkedDevices.clear();
+            emptyCount = 0;
+        }
+    }
+
+    return emptyCount > 0;
+}
+
 sk_sp<Image> Image_Base::CopyAsDraw(Recorder* recorder,
                                     const Image_Base* image,
                                     const SkIRect& subset,
+                                    const SkColorInfo& dstColorInfo,
                                     Budgeted budgeted,
                                     Mipmapped mipmapped,
                                     SkBackingFit backingFit) {
+    SkImageInfo dstInfo = SkImageInfo::Make(subset.size(),
+                                            dstColorInfo.makeAlphaType(kPremul_SkAlphaType));
     // The surface goes out of scope when we return, so it can be scratch, but it may or may
     // not be budgeted depending on how the copied image is used (or returned to the client).
     auto surface = Surface::MakeScratch(recorder,
-                                        image->imageInfo().makeDimensions(subset.size()),
+                                        dstInfo,
                                         budgeted,
                                         mipmapped,
                                         backingFit);
+    if (!surface) {
+        return nullptr;
+    }
+
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
     surface->getCanvas()->drawImage(image, -subset.left(), -subset.top(),
@@ -93,6 +119,58 @@ sk_sp<Image> Image_Base::CopyAsDraw(Recorder* recorder,
     return surface->asImage();
 }
 
+sk_sp<Image> Image_Base::copyImage(Recorder* recorder,
+                                   const SkIRect& subset,
+                                   Budgeted budgeted,
+                                   Mipmapped mipmapped,
+                                   SkBackingFit backingFit) const {
+    return CopyAsDraw(recorder, this, subset, this->imageInfo().colorInfo(),
+                      budgeted, mipmapped, backingFit);
+}
+
+sk_sp<SkImage> Image_Base::onMakeSubset(Recorder* recorder,
+                                        const SkIRect& subset,
+                                        RequiredProperties requiredProps) const {
+    // optimization : return self if the subset == our bounds and requirements met and the image's
+    // texture is immutable
+    if (this->bounds() == subset &&
+        (!requiredProps.fMipmapped || this->hasMipmaps()) &&
+        !this->isDynamic()) {
+        return sk_ref_sp(this);
+    }
+
+    // The copied image is not considered budgeted because this is a client-invoked API and they
+    // will own the image.
+    return this->copyImage(recorder,
+                           subset,
+                           Budgeted::kNo,
+                           requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,
+                           SkBackingFit::kExact);
+}
+
+sk_sp<SkImage> Image_Base::makeColorTypeAndColorSpace(Recorder* recorder,
+                                                      SkColorType targetCT,
+                                                      sk_sp<SkColorSpace> targetCS,
+                                                      RequiredProperties requiredProps) const {
+    SkColorInfo dstColorInfo{targetCT, this->alphaType(), std::move(targetCS)};
+    // optimization : return self if there's no color type/space change and the image's texture
+    // is immutable
+    if (this->imageInfo().colorInfo() == dstColorInfo && !this->isDynamic()) {
+        return sk_ref_sp(this);
+    }
+
+    // Use CopyAsDraw directly to perform the color space changes. The copied image is not
+    // considered budgeted because this is a client-invoked API and they will own the image.
+    return CopyAsDraw(recorder,
+                      this,
+                      this->bounds(),
+                      dstColorInfo,
+                      Budgeted::kNo,
+                      requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,
+                      SkBackingFit::kExact);
+}
+
+// Ganesh APIs are no-ops
 
 sk_sp<SkImage> Image_Base::onMakeSubset(GrDirectContext*, const SkIRect&) const {
     SKGPU_LOG_W("Cannot convert Graphite-backed image to Ganesh");
