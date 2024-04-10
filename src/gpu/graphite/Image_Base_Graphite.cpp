@@ -10,7 +10,9 @@
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Image.h"
 #include "src/gpu/graphite/Device.h"
+#include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/Surface_Graphite.h"
 
 namespace skgpu::graphite {
 
@@ -69,6 +71,28 @@ void Image_Base::notifyInUse(Recorder* recorder) const {
         }
     }
 }
+
+sk_sp<Image> Image_Base::CopyAsDraw(Recorder* recorder,
+                                    const Image_Base* image,
+                                    const SkIRect& subset,
+                                    Budgeted budgeted,
+                                    Mipmapped mipmapped,
+                                    SkBackingFit backingFit) {
+    // The surface goes out of scope when we return, so it can be scratch, but it may or may
+    // not be budgeted depending on how the copied image is used (or returned to the client).
+    auto surface = Surface::MakeScratch(recorder,
+                                        image->imageInfo().makeDimensions(subset.size()),
+                                        budgeted,
+                                        mipmapped,
+                                        backingFit);
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    surface->getCanvas()->drawImage(image, -subset.left(), -subset.top(),
+                                    SkFilterMode::kNearest, &paint);
+    // And the image draw into `surface` is flushed when it goes out of scope
+    return surface->asImage();
+}
+
 
 sk_sp<SkImage> Image_Base::onMakeSubset(GrDirectContext*, const SkIRect&) const {
     SKGPU_LOG_W("Cannot convert Graphite-backed image to Ganesh");

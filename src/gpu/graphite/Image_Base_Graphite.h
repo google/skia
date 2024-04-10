@@ -8,14 +8,18 @@
 #ifndef skgpu_graphite_Image_Base_Graphite_DEFINED
 #define skgpu_graphite_Image_Base_Graphite_DEFINED
 
+#include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkSpinlock.h"
 #include "src/image/SkImage_Base.h"
+
+enum class SkBackingFit;
 
 namespace skgpu::graphite {
 
 class Context;
 class Device;
+class Image;
 class Recorder;
 class TextureProxy;
 
@@ -71,6 +75,10 @@ public:
 
 protected:
     Image_Base(const SkImageInfo& info, uint32_t uniqueID);
+
+    // Create a new flattened copy of the base image using draw operations.
+    static sk_sp<Image> CopyAsDraw(Recorder*, const Image_Base*, const SkIRect& subset,
+                                   Budgeted, Mipmapped, SkBackingFit);
 
     // If the passed-in image is linked with Devices that modify its texture, copy the links to
     // this Image. This is used when a new Image is created that shares the same texture proxy as
