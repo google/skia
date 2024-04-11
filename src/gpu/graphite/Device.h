@@ -74,7 +74,8 @@ public:
 
     // Ensures clip elements are drawn that will clip previous draw calls, snaps all pending work
     // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
-    void flushPendingWorkToRecorder();
+    // TODO(b/333073673): Optionally pass in the Recorder that triggered the flush for validation.
+    void flushPendingWorkToRecorder(Recorder* recorder=nullptr);
 
     const Transform& localToDeviceTransform();
 
@@ -265,7 +266,11 @@ private:
     // Flush internal work, such as pending clip draws and atlas uploads, into the Device's DrawTask
     void internalFlush();
 
+    // TODO(b/333073673): Detect memory stomping over fRecorder to see if that's the cause of
+    // crashes; can be removed once the issue is resolved.
+    SkDEBUGCODE(const intptr_t fPreRecorderSentinel;)
     Recorder* fRecorder;
+    SkDEBUGCODE(const intptr_t fPostRecorderSentinel;)
     sk_sp<DrawContext> fDC;
 
     ClipStack fClip;

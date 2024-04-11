@@ -90,6 +90,8 @@ std::atomic<int> gNumTilesDrawnGraphite{0};
 
 namespace skgpu::graphite {
 
+#define ASSERT_SINGLE_OWNER SkASSERT(fRecorder); SKGPU_ASSERT_SINGLE_OWNER(fRecorder->singleOwner())
+
 namespace {
 
 const SkStrokeRec& DefaultFillStyle() {
@@ -313,7 +315,9 @@ static constexpr int kMaxGridSize = 32;
 
 Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         : SkDevice(dc->imageInfo(), dc->surfaceProps())
+        SkDEBUGCODE(, fPreRecorderSentinel(reinterpret_cast<intptr_t>(recorder) - 1))
         , fRecorder(recorder)
+        SkDEBUGCODE(, fPostRecorderSentinel(reinterpret_cast<intptr_t>(recorder) + 1))
         , fDC(std::move(dc))
         , fClip(this)
         , fColorDepthBoundsManager(std::make_unique<HybridBoundsManager>(
@@ -411,7 +415,7 @@ sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
                                    Budgeted budgeted,
                                    Mipmapped mipmapped,
                                    SkBackingFit backingFit) {
-    SkASSERT(fRecorder);
+    ASSERT_SINGLE_OWNER
     this->flushPendingWorkToRecorder();
 
     const SkColorInfo& colorInfo = this->imageInfo().colorInfo();
@@ -496,7 +500,7 @@ bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
 #if defined(GRAPHITE_TEST_UTILS)
     // This testing-only function should only be called before the Device has detached from its
     // Recorder, since it's accessed via the test-held Surface.
-    SkASSERT(fRecorder);
+    ASSERT_SINGLE_OWNER
     if (Context* context = fRecorder->priv().context()) {
         // Add all previous commands generated to the command buffer.
         // If the client snaps later they'll only get post-read commands in their Recording,
@@ -518,7 +522,7 @@ bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
 }
 
 bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
-    SkASSERT(fRecorder);
+    ASSERT_SINGLE_OWNER
     // TODO: we may need to share this in a more central place to handle uploads
     // to backend textures
 
@@ -683,7 +687,7 @@ void Device::replaceClip(const SkIRect& rect) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void Device::drawPaint(const SkPaint& paint) {
-    SkASSERT(fRecorder);
+    ASSERT_SINGLE_OWNER
     // We never want to do a fullscreen clear on a fully-lazy render target, because the device size
     // may be smaller than the final surface we draw to, in which case we don't want to fill the
     // entire final surface.
@@ -933,7 +937,7 @@ sktext::gpu::AtlasDrawDelegate Device::atlasDelegate() {
 void Device::onDrawGlyphRunList(SkCanvas* canvas,
                                 const sktext::GlyphRunList& glyphRunList,
                                 const SkPaint& paint) {
-    SkASSERT(fRecorder);
+    ASSERT_SINGLE_OWNER
     fRecorder->priv().textBlobCache()->drawGlyphRunList(canvas,
                                                         this->localToDevice(),
                                                         glyphRunList,
@@ -947,7 +951,7 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                              const SkPaint& paint,
                              sk_sp<SkRefCnt> subRunStorage,
                              sktext::gpu::RendererData rendererData) {
-    SkASSERT(fRecorder);
+    ASSERT_SINGLE_OWNER
 
     const int subRunEnd = subRun->glyphCount();
     auto regenerateDelegate = [&](sktext::gpu::GlyphVector* glyphs,
@@ -1007,7 +1011,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                           SkEnumBitMask<DrawFlags> flags,
                           sk_sp<SkBlender> primitiveBlender,
                           bool skipColorXform) {
-    SkASSERT(fRecorder);
+    ASSERT_SINGLE_OWNER
 
     if (!localToDevice.valid()) {
         // If the transform is not invertible or not finite then drawing isn't well defined.
@@ -1477,12 +1481,29 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     }
 }
 
-void Device::flushPendingWorkToRecorder() {
+void Device::flushPendingWorkToRecorder(Recorder* recorder) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    SkASSERT(fRecorder);
+
+    // Confirm sentinels match the original values set from fRecorder
+    SkDEBUGCODE(intptr_t expected = reinterpret_cast<intptr_t>(recorder ? recorder : fRecorder);)
+    SkASSERT(fPreRecorderSentinel == expected - 1);
+    SkASSERT(fPostRecorderSentinel == expected + 1);
+
+    SkASSERT(recorder == nullptr || recorder == fRecorder);
+    if (recorder && recorder != fRecorder) {
+        // TODO(b/333073673): This should not happen but if the Device were corrupted exit now
+        // to avoid further access of Device's state.
+        return;
+    }
 
     // If this is a scratch device being flushed, it should only be flushing into the expected
     // next recording from when the Device was first created.
+    SkASSERT(fRecorder);
+    // TODO(b/333073673):
+    // The only time flushPendingWorkToRecorder() is called with a non-null Recorder is from
+    // flushTrackedDevices(), so the scoped recording ID of the device should be 0 or it means a
+    // non-tracked device got added to the recorder or something has stomped the heap.
+    SkASSERT(!recorder || fScopedRecordingID == 0);
     SkASSERT(fScopedRecordingID == 0 || fScopedRecordingID == fRecorder->priv().nextRecordingID());
 
     this->internalFlush();
@@ -1503,7 +1524,7 @@ void Device::flushPendingWorkToRecorder() {
 
 void Device::internalFlush() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
-    SkASSERT(fRecorder);
+    ASSERT_SINGLE_OWNER
 
     // Push any pending uploads from the atlas provider that pending draws reference.
     fRecorder->priv().atlasProvider()->recordUploads(fDC.get());
