@@ -406,12 +406,12 @@ sk_sp<PrecompileShader> PrecompileShaders::CoordClamp(SkSpan<const sk_sp<Precomp
 // TODO: Investigate the YUV-image use case
 class PrecompileImageShader : public PrecompileShader {
 public:
-    PrecompileImageShader(bool isRaw) : fIsRaw(isRaw) {}
+    PrecompileImageShader(SkEnumBitMask<PrecompileImageShaderFlags> flags) : fFlags(flags) {}
 
 private:
-    // The ImageShader has 3 sampling/tiling variants: hardware-tiled, shader-tiled and
+    // The ImageShader has 3 potential sampling/tiling variants: hardware-tiled, shader-tiled and
     // cubic sampling (which always uses shader-tiling)
-    inline static constexpr int kNumSamplingTilingCombinations = 3;
+    inline static constexpr int kNumSamplingTilingCombos = 3;
     inline static constexpr int kCubicSampled = 2;
     inline static constexpr int kHWTiled      = 1;
     inline static constexpr int kShaderTiled  = 0;
@@ -422,11 +422,14 @@ private:
     inline static constexpr int kNonAlphaOnly = 0;
 
     int numIntrinsicCombinations() const override {
-        if (fIsRaw) {
+        int numSamplingTilingCombos =
+                (fFlags & PrecompileImageShaderFlags::kExcludeCubic) ? 2 : kNumSamplingTilingCombos;
+
+        if (fFlags & PrecompileImageShaderFlags::kExcludeAlpha) {
             // RawImageShaders don't blend alpha-only images w/ the paint color
-            return kNumSamplingTilingCombinations;
+            return numSamplingTilingCombos;
         }
-        return kNumSamplingTilingCombinations * kNumAlphaCombinations;
+        return numSamplingTilingCombos * kNumAlphaCombinations;
     }
 
     void addToKey(const KeyContext& keyContext,
@@ -437,14 +440,16 @@ private:
 
         int desiredAlphaCombo, desiredSamplingTilingCombo;
 
-        if (fIsRaw) {
+        if (fFlags & PrecompileImageShaderFlags::kExcludeAlpha) {
             desiredAlphaCombo = kNonAlphaOnly;
             desiredSamplingTilingCombo = desiredCombination;
         } else {
             desiredAlphaCombo = desiredCombination % kNumAlphaCombinations;
             desiredSamplingTilingCombo = desiredCombination / kNumAlphaCombinations;
         }
-        SkASSERT(desiredSamplingTilingCombo < kNumSamplingTilingCombinations);
+        SkDEBUGCODE(int numSamplingTilingCombos =
+            (fFlags & PrecompileImageShaderFlags::kExcludeCubic) ? 2 : kNumSamplingTilingCombos;)
+        SkASSERT(desiredSamplingTilingCombo < numSamplingTilingCombos);
 
         static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
         static constexpr SkSamplingOptions kDefaultSampling;
@@ -465,7 +470,7 @@ private:
                 kSubset, kIgnoredSwizzle);
 
         if (desiredAlphaCombo == kAlphaOnly) {
-            SkASSERT(!fIsRaw);
+            SkASSERT(!(fFlags & PrecompileImageShaderFlags::kExcludeAlpha));
 
             Blend(keyContext, builder, gatherer,
                   /* addBlendToKey= */ [&] () -> void {
@@ -482,19 +487,24 @@ private:
         }
     }
 
-    bool fIsRaw;
+    SkEnumBitMask<PrecompileImageShaderFlags> fFlags;
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::Image() {
-    constexpr bool kIsNotRaw = false;
-    return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileImageShader>(kIsNotRaw) });
+    return PrecompileShaders::LocalMatrix(
+            { sk_make_sp<PrecompileImageShader>(PrecompileImageShaderFlags::kNone) });
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::RawImage() {
-    constexpr bool kIsRaw = false;
     // Raw images do not perform color space conversion, but in Graphite, this is represented as
     // an identity color space xform, not as a distinct shader
-    return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileImageShader>(kIsRaw) });
+    return PrecompileShaders::LocalMatrix(
+            { sk_make_sp<PrecompileImageShader>(PrecompileImageShaderFlags::kExcludeAlpha) });
+}
+
+sk_sp<PrecompileShader> PrecompileShadersPriv::Image(
+        SkEnumBitMask<PrecompileImageShaderFlags> flags) {
+    return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileImageShader>(flags) });
 }
 
 //--------------------------------------------------------------------------------------------------
