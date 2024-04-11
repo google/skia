@@ -90,7 +90,15 @@ void ResourceCache::insertResource(Resource* resource) {
     // to update this check.
     SkASSERT(resource->ownership() == Ownership::kOwned);
 
-    this->processReturnedResources();
+    // The reason to call processReturnedResources here is to get an accurate accounting of our
+    // memory usage as some resources can go from unbudgeted to budgeted when they return. So we
+    // want to have them all returned before adding the budget for the new resource in case we need
+    // to purge things. However, if the new resource has a memory size of 0, then we just skip
+    // returning resources (which has overhead for each call) since the new resource won't be
+    // affecting whether we're over or under budget.
+    if (resource->gpuMemorySize() > 0) {
+        this->processReturnedResources();
+    }
 
     resource->registerWithCache(sk_ref_sp(this));
     resource->refCache();
@@ -119,11 +127,17 @@ Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key,
                                             skgpu::Budgeted budgeted) {
     ASSERT_SINGLE_OWNER
 
-    this->processReturnedResources();
-
     SkASSERT(key.isValid());
 
     Resource* resource = fResourceMap.find(key);
+    if (!resource) {
+        // The main reason to call processReturnedResources in this call is to see if there are any
+        // resources that we could match with the key. However, there is overhead into calling it.
+        // So we only call it if we first failed to find a matching resource.
+        if (this->processReturnedResources()) {
+            resource = fResourceMap.find(key);
+        }
+    }
     if (resource) {
         // All resources we pull out of the cache for use should be budgeted
         SkASSERT(resource->budgeted() == skgpu::Budgeted::kYes);
@@ -148,6 +162,12 @@ Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key,
     // using in an SkImage or SkSurface previously. However, instead of calling purgeAsNeeded in
     // processReturnedResources, we delay calling it until now so we don't end up purging a resource
     // we're looking for in this function.
+    //
+    // We could avoid calling this if we didn't return any resources from processReturnedResources.
+    // However, when not overbudget purgeAsNeeded is very cheap. When overbudget there may be some
+    // really niche usage patterns that could cause us to never actually return resources to the
+    // cache, but still be overbudget due to shared resources. So to be safe we just always call it
+    // here.
     this->purgeAsNeeded();
 
     return resource;
@@ -219,7 +239,7 @@ bool ResourceCache::returnResource(Resource* resource, LastRemovedRef removedRef
     return true;
 }
 
-void ResourceCache::processReturnedResources() {
+bool ResourceCache::processReturnedResources() {
     // We need to move the returned Resources off of the ReturnQueue before we start processing them
     // so that we can drop the fReturnMutex. When we process a Resource we may need to grab its
     // UnrefMutex. This could cause a deadlock if on another thread the Resource has the UnrefMutex
@@ -240,7 +260,7 @@ void ResourceCache::processReturnedResources() {
     }
 
     if (tempQueue.empty()) {
-        return;
+        return false;
     }
 
     // Trace after the lock has been released so we can simply record the tempQueue size.
@@ -269,6 +289,7 @@ void ResourceCache::processReturnedResources() {
         // Remove cache ref held by ReturnQueue
         resource->unrefCache();
     }
+    return true;
 }
 
 void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef removedRef) {
@@ -380,8 +401,6 @@ void ResourceCache::purgeResource(Resource* resource) {
 
 void ResourceCache::purgeAsNeeded() {
     ASSERT_SINGLE_OWNER
-
-    this->processReturnedResources();
 
     if (this->overbudget() && fProxyCache) {
         fProxyCache->freeUniquelyHeld();
@@ -700,6 +719,7 @@ int ResourceCache::numFindableResources() const {
 
 void ResourceCache::setMaxBudget(size_t bytes) {
     fMaxBytes = bytes;
+    this->processReturnedResources();
     this->purgeAsNeeded();
 }
 

@@ -116,7 +116,8 @@ private:
     void removeFromNonpurgeableArray(Resource* resource);
     void removeFromPurgeableQueue(Resource* resource);
 
-    void processReturnedResources();
+    // This will return true if any resources were actually returned to the cache
+    bool processReturnedResources();
     void returnResourceToCache(Resource*, LastRemovedRef);
 
     uint32_t getNextTimestamp();
