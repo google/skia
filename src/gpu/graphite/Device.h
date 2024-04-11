@@ -32,6 +32,7 @@ class DrawContext;
 enum class DstReadRequirement;
 class Geometry;
 class Image;
+enum class LoadOp : uint8_t;
 class PaintParams;
 class Recorder;
 class Renderer;
@@ -52,7 +53,7 @@ public:
                               SkISize deviceSize,
                               const SkColorInfo&,
                               const SkSurfaceProps&,
-                              bool addInitialClear,
+                              LoadOp initialLoadOp,
                               bool registerWithRecorder=true);
     // Convenience factory to create the underlying TextureProxy based on the configuration provided
     static sk_sp<Device> Make(Recorder*,
@@ -61,7 +62,7 @@ public:
                               Mipmapped,
                               SkBackingFit,
                               const SkSurfaceProps&,
-                              bool addInitialClear,
+                              LoadOp initialLoadOp,
                               bool registerWithRecorder=true);
 
     Device* asGraphiteDevice() override { return this; }

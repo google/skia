@@ -14,6 +14,7 @@
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/AtlasProvider.h"
+#include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -236,7 +237,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            Mipmapped mipmapped,
                            SkBackingFit backingFit,
                            const SkSurfaceProps& props,
-                           bool addInitialClear,
+                           LoadOp initialLoadOp,
                            bool registerWithRecorder) {
     SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
     if (!recorder) {
@@ -257,7 +258,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                 ii.dimensions(),
                 ii.colorInfo(),
                 props,
-                addInitialClear,
+                initialLoadOp,
                 registerWithRecorder);
 }
 
@@ -266,7 +267,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            SkISize deviceSize,
                            const SkColorInfo& colorInfo,
                            const SkSurfaceProps& props,
-                           bool addInitialClear,
+                           LoadOp initialLoadOp,
                            bool registerWithRecorder) {
     if (!recorder) {
         return nullptr;
@@ -276,11 +277,14 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                                               std::move(target),
                                               deviceSize,
                                               colorInfo,
-                                              props,
-                                              addInitialClear);
+                                              props);
     if (!dc) {
         return nullptr;
-    }
+    } else if (initialLoadOp == LoadOp::kClear) {
+        dc->clear(SkColors::kTransparent);
+    } else if (initialLoadOp == LoadOp::kDiscard) {
+        dc->discard();
+    } // else kLoad is the default initial op for a DrawContext
 
     sk_sp<Device> device{new Device(recorder, std::move(dc))};
     if (registerWithRecorder) {
@@ -384,7 +388,7 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {
         this->surfaceProps().cloneWithPixelGeometry(info.fPixelGeometry);
 
     // Skia's convention is to only clear a device if it is non-opaque.
-    bool addInitialClear = !info.fInfo.isOpaque();
+    LoadOp initialLoadOp = info.fInfo.isOpaque() ? LoadOp::kDiscard : LoadOp::kClear;
 
     return Make(fRecorder,
                 info.fInfo,
@@ -396,7 +400,7 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {
                 SkBackingFit::kExact,
 #endif
                 props,
-                addInitialClear);
+                initialLoadOp);
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& props) {
@@ -689,11 +693,11 @@ void Device::drawPaint(const SkPaint& paint) {
                 // do fullscreen clear
                 fDC->clear(*color);
                 return;
+            } else {
+                // This paint does not depend on the destination and covers the entire surface, so
+                // discard everything previously recorded and proceed with the draw.
+                fDC->discard();
             }
-            // TODO(michaelludwig): this paint doesn't depend on the destination, so we can reset
-            // the DrawContext to use a discard load op. The drawPaint will cover anything else
-            // entirely. We still need shader evaluation to get per-pixel colors (since the paint
-            // couldn't be reduced to a solid color).
         }
     }
 

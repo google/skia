@@ -31,6 +31,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "src/gpu/BlurUtils.h"
 #include "src/gpu/SkBackingFit.h"
+#include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -114,7 +115,7 @@ sk_sp<SkSpecialImage> eval_blur(skgpu::graphite::Recorder* recorder,
                                                 SkBackingFit::kExact,
 #endif
                                                 outProps,
-                                                /*addInitialClear=*/false);
+                                                skgpu::graphite::LoadOp::kDiscard);
     if (!device) {
         return nullptr;
     }
@@ -754,7 +755,7 @@ public:
                                              SkBackingFit::kExact,
 #endif
                                              props ? *props : this->surfaceProps(),
-                                             /*addInitialClear=*/false);
+                                             skgpu::graphite::LoadOp::kDiscard);
     }
 
     sk_sp<SkSpecialImage> makeImage(const SkIRect& subset, sk_sp<SkImage> image) const override {

@@ -122,7 +122,7 @@ sk_sp<Surface> Surface::Make(Recorder* recorder,
                              Mipmapped mipmapped,
                              SkBackingFit backingFit,
                              const SkSurfaceProps* props,
-                             bool addInitialClear,
+                             LoadOp initialLoadOp,
                              bool registerWithRecorder) {
     sk_sp<Device> device = Device::Make(recorder,
                                         info,
@@ -130,7 +130,7 @@ sk_sp<Surface> Surface::Make(Recorder* recorder,
                                         mipmapped,
                                         backingFit,
                                         SkSurfacePropsCopyOrDefault(props),
-                                        addInitialClear,
+                                        initialLoadOp,
                                         registerWithRecorder);
     if (!device) {
         return nullptr;
@@ -253,12 +253,13 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
 
     sk_sp<TextureProxy> proxy = TextureProxy::Wrap(std::move(texture));
     SkISize deviceSize = proxy->dimensions();
+    // Use kLoad for this device to preserve the existing contents of the wrapped backend texture.
     sk_sp<Device> device = Device::Make(recorder,
                                         std::move(proxy),
                                         deviceSize,
                                         info,
                                         SkSurfacePropsCopyOrDefault(props),
-                                        /* addInitialClear= */ false);
+                                        LoadOp::kLoad);
     return device ? sk_make_sp<Surface>(std::move(device)) : nullptr;
 }
 

@@ -228,12 +228,14 @@ SkCanvas* Recorder::makeDeferredCanvas(const SkImageInfo& imageInfo,
     }
 
     fTargetProxyData = std::make_unique<Recording::LazyProxyData>(textureInfo);
+    // Use kLoad for the initial load op since the purpose of a deferred canvas is to draw on top
+    // of an existing, late-bound texture.
     fTargetProxyDevice = Device::Make(this,
                                       fTargetProxyData->refLazyProxy(),
                                       imageInfo.dimensions(),
                                       imageInfo.colorInfo(),
                                       {},
-                                      false);
+                                      LoadOp::kLoad);
     fTargetProxyCanvas = std::make_unique<SkCanvas>(fTargetProxyDevice);
     return fTargetProxyCanvas.get();
 }

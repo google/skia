@@ -12,6 +12,7 @@
 
 #include "include/gpu/GpuTypes.h"
 #include "src/gpu/SkBackingFit.h"
+#include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 
 namespace skgpu::graphite {
@@ -32,7 +33,7 @@ public:
                                SkBackingFit backingFit = SkBackingFit::kExact,
                                const SkSurfaceProps* props = nullptr) {
         return Make(recorder, info, budgeted, mipmapped, backingFit, props,
-                    /*addInitialClear=*/true, /*registerWithRecorder=*/true);
+                    LoadOp::kClear, /*registerWithRecorder=*/true);
     }
     // Make a surface that is not registered with the provided recorder. This surface should be
     // short-lived and it must be flushed manually for its draw commands to be recorded. Most
@@ -44,7 +45,7 @@ public:
                                       Mipmapped mipmapped = Mipmapped::kNo,
                                       SkBackingFit backingFit = SkBackingFit::kApprox) {
         return Make(recorder, info, budgeted, mipmapped, backingFit,
-                    /*props=*/nullptr, /*addInitialClear=*/false, /*registerWithRecorder=*/false);
+                    /*props=*/nullptr, LoadOp::kDiscard, /*registerWithRecorder=*/false);
     }
 
     Surface(sk_sp<Device>);
@@ -93,7 +94,7 @@ private:
                                Mipmapped,
                                SkBackingFit,
                                const SkSurfaceProps* props,
-                               bool addInitialClear,
+                               LoadOp initialLoadOp,
                                bool registerWithRecorder);
 
     sk_sp<Device> fDevice;
