@@ -255,6 +255,9 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_fontations'] = 'true'
     args['skia_use_freetype'] = 'true' # we compare with freetype in tests
     args['skia_use_system_freetype2'] = 'false'
+  if 'FreeType' in extra_tokens:
+    args['skia_use_freetype'] = 'true'
+    args['skia_use_system_freetype2'] = 'false'
 
   if 'NoGpu' in extra_tokens:
     args['skia_enable_ganesh'] = 'false'
