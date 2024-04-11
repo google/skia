@@ -29,6 +29,7 @@ skia_filegroup(
         "map-shield.json",
         "red_line.skp",
         "skottie_basic_slots.json",
+        "skottie_inline_font.json",
         "test.ttc",
         "test_glyphs-glyf_colr_1.ttf",
         "text_edit.json",

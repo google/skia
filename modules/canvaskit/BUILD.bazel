@@ -293,6 +293,7 @@ cc_binary(
     ] + select({
         ":enable_fonts_true": [
             "//:fontmgr_data_freetype",
+            "//:fontmgr_empty_freetype",
             "//modules/skparagraph:skparagraph_harfbuzz_icu",
         ],
         ":enable_fonts_false": [],

@@ -112,13 +112,13 @@ if [[ $@ == *no_font* ]]; then
   ENABLE_FONT="false"
   ENABLE_EMBEDDED_FONT="false"
   GN_FONT+="skia_enable_fontmgr_custom_embedded=false skia_enable_fontmgr_custom_empty=false "
-elif [[ $@ == *no_embedded_font* ]]; then
-  echo "Omitting the built-in font(s)"
-  ENABLE_EMBEDDED_FONT="false"
-  GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_empty=true "
 else
+  if [[ $@ == *no_embedded_font* ]]; then
+    echo "Omitting the built-in font(s)"
+    ENABLE_EMBEDDED_FONT="false"
+  fi
   # Generate the font's binary file (which is covered by .gitignore)
-  GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_empty=false "
+  GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_empty=true "
 fi
 
 if [[ $@ == *no_woff2* ]]; then

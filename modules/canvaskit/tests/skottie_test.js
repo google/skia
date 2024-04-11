@@ -32,6 +32,8 @@ describe('Skottie behavior', () => {
         .then((response) => response.text());
     const editPromise = fetch('/assets/text_edit.json')
         .then((response) => response.text());
+    const inlineFontPromise = fetch('/assets/skottie_inline_font.json')
+        .then((response) => response.text());
     const notoSerifPromise = fetch('/assets/NotoSerif-Regular.ttf').then(
         (response) => response.arrayBuffer());
 
@@ -202,6 +204,22 @@ describe('Skottie behavior', () => {
         animation.render(canvas, bounds);
         animation.delete();
     }, editPromise, notoSerifPromise);
+
+    gm('skottie_inlinefont', (canvas, promises) => {
+        if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {
+            console.warn('Skipping test because not compiled with skottie');
+            return;
+        }
+        expect(promises[0]).not.toBe('NOT FOUND');
+        const bounds = CanvasKit.LTRBRect(0, 0, 600, 600);
+
+        const animation = CanvasKit.MakeManagedAnimation(promises[0]);
+        expect(animation).toBeTruthy();
+
+        animation.seek(0);
+        animation.render(canvas, bounds);
+        animation.delete();
+    }, inlineFontPromise);
 
     it('can load audio assets', (done) => {
         if (!CanvasKit.skottie || !CanvasKit.managed_skottie) {

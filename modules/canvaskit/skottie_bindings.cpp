@@ -7,6 +7,7 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
@@ -44,6 +45,10 @@
 #endif
 #if defined(SK_CODEC_DECODES_WEBP)
 #include "include/codec/SkWebpDecoder.h"
+#endif
+
+#if !defined(CK_NO_FONTS)
+#include "include/ports/SkFontMgr_empty.h"
 #endif
 
 using namespace emscripten;
@@ -789,10 +794,17 @@ EMSCRIPTEN_BINDINGS(Skottie) {
 #endif
         });
 
+        sk_sp<SkFontMgr> fontmgr;
+#if !defined(CK_NO_FONTS)
+        fontmgr = SkFontMgr_New_Custom_Empty();
+#endif
+
         return ManagedAnimation::Make(json,
                                       skresources::DataURIResourceProviderProxy::Make(
                                           SkottieAssetProvider::Make(std::move(assets),
-                                                                     std::move(soundMap))),
+                                                                     std::move(soundMap)),
+                                          skresources::ImageDecodeStrategy::kPreDecode,
+                                          std::move(fontmgr)),
                                       prop_prefix, std::move(logger));
     }));
 
