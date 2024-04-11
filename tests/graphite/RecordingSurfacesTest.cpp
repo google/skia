@@ -78,14 +78,14 @@ void run_test(skiatest::Reporter* reporter,
 #ifdef SK_DEBUG
         if (color != e.fColor) {
             SkDebugf("Wrong color\n\texpected: %f %f %f %f\n\tactual: %f %f %f %f",
-                     e.fColor.fR,
-                     e.fColor.fG,
-                     e.fColor.fB,
-                     e.fColor.fA,
                      color.fR,
                      color.fG,
                      color.fB,
-                     color.fA);
+                     color.fA,
+                     e.fColor.fR,
+                     e.fColor.fG,
+                     e.fColor.fB,
+                     e.fColor.fA);
         }
 #endif
         REPORTER_ASSERT(reporter, color == e.fColor);

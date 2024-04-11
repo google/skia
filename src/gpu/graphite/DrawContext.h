@@ -66,7 +66,6 @@ public:
     int pendingRenderSteps() const { return fPendingDraws->renderStepCount(); }
 
     void clear(const SkColor4f& clearColor);
-    void discard();
 
     void recordDraw(const Renderer* renderer,
                     const Transform& localToDevice,
@@ -118,7 +117,7 @@ private:
     std::unique_ptr<DrawList> fPendingDraws;
     std::unique_ptr<UploadList> fPendingUploads;
     // Load and store information for the current pending draws.
-    LoadOp fPendingLoadOp = LoadOp::kDiscard;
+    LoadOp fPendingLoadOp = LoadOp::kLoad;
     StoreOp fPendingStoreOp = StoreOp::kStore;
     std::array<float, 4> fPendingClearColor = { 0, 0, 0, 0 };
 

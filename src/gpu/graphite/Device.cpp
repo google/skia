@@ -689,11 +689,11 @@ void Device::drawPaint(const SkPaint& paint) {
                 // do fullscreen clear
                 fDC->clear(*color);
                 return;
-            } else {
-                // This paint does not depend on the destination and covers the entire surface, so
-                // discard everything previously recorded and proceed with the draw.
-                fDC->discard();
             }
+            // TODO(michaelludwig): this paint doesn't depend on the destination, so we can reset
+            // the DrawContext to use a discard load op. The drawPaint will cover anything else
+            // entirely. We still need shader evaluation to get per-pixel colors (since the paint
+            // couldn't be reduced to a solid color).
         }
     }
 
