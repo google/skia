@@ -117,6 +117,60 @@ DEF_TEST(TypefaceStyle, reporter) {
     }
 }
 
+DEF_TEST(TypefaceStyleVariable, reporter) {
+    using Variation = SkFontArguments::VariationPosition;
+    sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
+
+    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream("fonts/Variable.ttf"));
+    if (!stream) {
+        REPORT_FAILURE(reporter, "fonts/Variable.ttf", SkString("Cannot load resource"));
+        return;
+    }
+    sk_sp<SkTypeface> typeface(ToolUtils::TestFontMgr()->makeFromStream(stream->duplicate()));
+    if (!typeface) {
+        // Not all SkFontMgr can MakeFromStream().
+        return;
+    }
+
+    // Creating Variable.ttf without any extra parameters should have a normal font style.
+    SkFontStyle fs = typeface->fontStyle();
+    REPORTER_ASSERT(reporter, fs == SkFontStyle::Normal(),
+                    "fs: %d %d %d", fs.weight(), fs.width(), fs.slant());
+
+    // Ensure that the font supports variable stuff
+    Variation::Coordinate varPos[2];
+    int numAxes = typeface->getVariationDesignPosition(varPos, std::size(varPos));
+    if (numAxes <= 0) {
+        // Not all SkTypeface can get the variation.
+        return;
+    }
+    if (numAxes != 2) {
+        // Variable.ttf has two axes.
+        REPORTER_ASSERT(reporter, numAxes == 2);
+        return;
+    }
+
+    // If a fontmgr or typeface can do variations, ensure the variation affects the reported style.
+    const Variation::Coordinate nonDefaultPosition[] = {
+        { SkSetFourByteTag('w','g','h','t'), 200.0f },
+        { SkSetFourByteTag('w','d','t','h'), 75.0f },
+    };
+    const SkFontStyle expectedStyle(200, 3, SkFontStyle::kUpright_Slant);
+
+    SkFontArguments args;
+    args.setVariationDesignPosition(Variation{nonDefaultPosition, std::size(nonDefaultPosition)});
+
+    sk_sp<SkTypeface> nonDefaultTypeface = fm->makeFromStream(stream->duplicate(), args);
+    SkFontStyle ndfs = nonDefaultTypeface->fontStyle();
+    REPORTER_ASSERT(reporter, ndfs == expectedStyle,
+                    "ndfs: %d %d %d", ndfs.weight(), ndfs.width(), ndfs.slant());
+
+    sk_sp<SkTypeface> cloneTypeface = typeface->makeClone(args);
+    SkFontStyle cfs = cloneTypeface->fontStyle();
+    REPORTER_ASSERT(reporter, cfs == expectedStyle,
+                    "cfs: %d %d %d", cfs.weight(), cfs.width(), cfs.slant());
+}
+
 DEF_TEST(TypefacePostScriptName, reporter) {
     sk_sp<SkTypeface> typeface(ToolUtils::CreateTypefaceFromResource("fonts/Em.ttf"));
     if (!typeface) {
