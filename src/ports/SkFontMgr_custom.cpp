@@ -69,7 +69,8 @@ std::unique_ptr<SkStreamAsset> SkTypeface_File::onOpenStream(int* ttcIndex) cons
 }
 
 sk_sp<SkTypeface> SkTypeface_File::onMakeClone(const SkFontArguments& args) const {
-    std::unique_ptr<SkFontData> data = this->cloneFontData(args);
+    SkFontStyle style = this->fontStyle();
+    std::unique_ptr<SkFontData> data = this->cloneFontData(args, &style);
     if (!data) {
         return nullptr;
     }
@@ -77,10 +78,8 @@ sk_sp<SkTypeface> SkTypeface_File::onMakeClone(const SkFontArguments& args) cons
     SkString familyName;
     this->getFamilyName(&familyName);
 
-    return sk_make_sp<SkTypeface_FreeTypeStream>(std::move(data),
-                                                 familyName,
-                                                 this->fontStyle(),
-                                                 this->isFixedPitch());
+    return sk_make_sp<SkTypeface_FreeTypeStream>(
+        std::move(data), familyName, style, this->isFixedPitch());
 }
 
 std::unique_ptr<SkFontData> SkTypeface_File::onMakeFontData() const {

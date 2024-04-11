@@ -46,7 +46,7 @@ protected:
     SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch);
     ~SkTypeface_FreeType() override;
 
-    std::unique_ptr<SkFontData> cloneFontData(const SkFontArguments&) const;
+    std::unique_ptr<SkFontData> cloneFontData(const SkFontArguments&, SkFontStyle* style) const;
     std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
                                                            const SkDescriptor*) const override;
     void onFilterRec(SkScalerContextRec*) const override;
@@ -126,6 +126,7 @@ public:
             const SkFontArguments::VariationPosition position,
             SkFixed* axisValues,
             const SkString& name,
+            SkFontStyle* style,
             const SkFontArguments::VariationPosition::Coordinate* currentPosition = nullptr);
     static bool GetAxes(FT_Face face, AxisDefinitions* axes);
 private:

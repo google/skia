@@ -104,7 +104,8 @@ public:
                 this->makeStream(), fIndex, 0, fAxes.begin(), fAxes.size(), nullptr, 0);
     }
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        std::unique_ptr<SkFontData> data = this->cloneFontData(args);
+        SkFontStyle style = this->fontStyle();
+        std::unique_ptr<SkFontData> data = this->cloneFontData(args, &style);
         if (!data) {
             return nullptr;
         }
@@ -113,7 +114,7 @@ public:
                                                     fIndex,
                                                     data->getAxis(),
                                                     data->getAxisCount(),
-                                                    this->fontStyle(),
+                                                    style,
                                                     this->isFixedPitch(),
                                                     fFamilyName,
                                                     fLang,
@@ -199,7 +200,7 @@ public:
                 fontFile.fVariationDesignPosition.size()
             };
             SkFontScanner_FreeType::computeAxisValues(
-                    axisDefinitions, position, axisValues, familyName);
+                    axisDefinitions, position, axisValues, familyName, &style);
 
             fStyles.push_back().reset(new SkTypeface_AndroidSystem(
                     pathName, cacheFontFiles, ttcIndex, axisValues.get(), axisDefinitions.size(),

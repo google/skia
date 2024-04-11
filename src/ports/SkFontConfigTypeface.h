@@ -8,6 +8,7 @@
 #ifndef SkFontConfigTypeface_DEFINED
 #define SkFontConfigTypeface_DEFINED
 
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/ports/SkFontConfigInterface.h"
@@ -35,13 +36,13 @@ public:
     }
 
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        std::unique_ptr<SkFontData> data = this->cloneFontData(args);
+        SkFontStyle style = this->fontStyle();
+        std::unique_ptr<SkFontData> data = this->cloneFontData(args, &style);
         if (!data) {
             return nullptr;
         }
-        return sk_sp<SkTypeface>(
-            new SkTypeface_FreeTypeStream(std::move(data), fFamilyName,
-                                          this->fontStyle(), this->isFixedPitch()));
+        return sk_sp<SkTypeface>(new SkTypeface_FreeTypeStream(
+            std::move(data), fFamilyName, style, this->isFixedPitch()));
     }
 
 protected:
