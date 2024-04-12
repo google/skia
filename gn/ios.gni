@@ -222,8 +222,7 @@ if (is_ios) {
         deps += [ ":${app_name}_bundle_resources_and_skps" ]
       }
 
-      # should only code sign when running on a device, not the simulator
-      if (!ios_use_simulator) {
+      if (skia_ios_use_signing) {
         code_signing_script = "//gn/codesign_ios.py"
         code_signing_sources = [ "$target_gen_dir/$app_name" ]
         code_signing_outputs = [
