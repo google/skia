@@ -155,6 +155,7 @@ skia_filegroup(
         "SkMatrix22.cpp",
         "SkNWayCanvas.cpp",
         "SkOSPath.cpp",
+        "SkOrderedFontMgr.cpp",
         "SkPaintFilterCanvas.cpp",
         "SkParse.cpp",
         "SkParseColor.cpp",

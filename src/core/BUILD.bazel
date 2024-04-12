@@ -823,7 +823,6 @@ skia_cc_library(
         "//include/codec:core_hdrs",
         "//include/core:core_hdrs",
         "//include/effects:core_hdrs",
-        "//include/ports:core_hdrs",
         "//include/sksl:core_hdrs",
         "//include/utils:core_hdrs",
     ],

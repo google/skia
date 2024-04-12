@@ -102,7 +102,7 @@ split_srcs_and_hdrs(
     files = DECODE_JPEG_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "shared_jpeg_hdrs",  # needed for both encoding and decoding
     srcs = [
         "SkJpegConstants.h",
@@ -110,7 +110,7 @@ filegroup(
     visibility = ["//src/encode:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "xmp_srcs",
     srcs = [
         "SkXmp.cpp",

@@ -94,10 +94,10 @@ skia_objc_library(
         ":mtl_cpp_hdrs",
         ":mtl_hdrs",
         ":mtl_srcs",
+        "//include/ports:core_foundation_hdrs",
     ],
     hdrs = [
         "//include/gpu/ganesh/mtl:public_hdrs",
-        "//include/ports:apple_hdrs",
     ],
     copts = ["-fobjc-arc"],
     sdk_frameworks = [

@@ -87,7 +87,8 @@ cc_binary(
         "@skia//:core",
         "@skia//:fontmgr_empty_freetype",
         "@skia//:jpeg_encode_codec",
-        "@skia//:skparagraph_harfbuzz_icu",
+        "@skia//:skparagraph_harfbuzz_unicode",
+        "@skia//:skunicode_icu",
     ],
 )
 

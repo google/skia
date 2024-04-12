@@ -22,6 +22,7 @@ skia_filegroup(
 skia_filegroup(
     name = "coretext_srcs",
     srcs = ["SkShaper_coretext.cpp"],
+    visibility = ["//modules/skshaper:__pkg__"],
 )
 
 skia_filegroup(

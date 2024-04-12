@@ -17,9 +17,12 @@
 
 #ifdef SK_BUILD_FOR_IOS
 #include <CoreGraphics/CoreGraphics.h>
+#include <CoreText/CoreText.h>
 #endif
 
 #include "src/utils/mac/SkUniqueCFRef.h"
+
+struct OpszVariation;
 
 /*
  *  This function attempts to resize a CTFont without inadvertently changing

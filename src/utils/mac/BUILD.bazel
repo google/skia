@@ -1,10 +1,9 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_objc_library", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-# Not yet included in a Bazel build.
 # File group is here for exporting to utils.gni:skia_utils_sources.
 MAC_FILES = [
     "SkCGBase.h",
@@ -20,4 +19,53 @@ MAC_FILES = [
 split_srcs_and_hdrs(
     name = "core",
     files = MAC_FILES,
+)
+
+skia_objc_library(
+    name = "mac_utils_priv",
+    srcs = [
+        "SkCTFont.cpp",
+        "SkCTFontCreateExactCopy.cpp",
+        "//src/ports:typeface_mac_hdrs",
+    ],
+    hdrs = [
+        "SkCGBase.h",
+        "SkCGGeometry.h",
+        "SkCTFont.h",
+        "SkCTFontCreateExactCopy.h",
+        "SkUniqueCFRef.h",
+        "//include/utils/mac:public_hdrs",
+    ],
+    ios_frameworks = [
+        "CoreFoundation",
+        "CoreGraphics",
+        "CoreText",
+    ],
+    mac_frameworks = [
+        "ApplicationServices",
+    ],
+    visibility = ["//src/ports:__pkg__"],
+    deps = [
+        ":mac_utils",
+        "//:core",
+        "//src/base",
+    ],
+)
+
+skia_objc_library(
+    name = "mac_utils",
+    srcs = [
+        "SkCreateCGImageRef.cpp",
+        "SkUniqueCFRef.h",
+    ],
+    hdrs = [
+        "//include/utils/mac:public_hdrs",
+    ],
+    sdk_frameworks = ["CoreFoundation"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/encode:icc_encode",
+    ],
 )

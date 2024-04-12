@@ -24,7 +24,7 @@
 #endif
 
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE)
-#include "include/ports/SkFontMgr_coretext.h"
+#include "include/ports/SkFontMgr_mac_ct.h"
 #endif
 
 #include <cstdio>

@@ -23,7 +23,6 @@ load(
     _skia_cc_binary_with_flags = "skia_cc_binary_with_flags",
     _skia_cc_deps = "skia_cc_deps",
     _skia_cc_library = "skia_cc_library",
-    _skia_defines = "skia_defines",
     _skia_filegroup = "skia_filegroup",
     _skia_objc_library = "skia_objc_library",
     _split_srcs_and_hdrs = "split_srcs_and_hdrs",
@@ -49,7 +48,6 @@ skia_cc_binary = _skia_cc_binary
 skia_cc_binary_with_flags = _skia_cc_binary_with_flags
 skia_cc_deps = _skia_cc_deps
 skia_cc_library = _skia_cc_library
-skia_defines = _skia_defines
 skia_filegroup = _skia_filegroup
 skia_objc_library = _skia_objc_library
 split_srcs_and_hdrs = _split_srcs_and_hdrs

@@ -207,12 +207,11 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-# TODO(kjlubick)
-# alias(
-#     name = "fontmgr_coretext",
-#     actual = "//src/ports:fontmgr_coretext",
-#     visibility = ["//visibility:public"],
-# )
+alias(
+    name = "fontmgr_coretext",
+    actual = "//src/ports:fontmgr_coretext",
+    visibility = ["//visibility:public"],
+)
 
 alias(
     name = "fontmgr_data_freetype",
@@ -235,8 +234,8 @@ alias(
 ###
 
 alias(
-    name = "skparagraph_harfbuzz_icu",
-    actual = "//modules/skparagraph:skparagraph_harfbuzz_icu",
+    name = "skparagraph_harfbuzz_unicode",
+    actual = "//modules/skparagraph:skparagraph_harfbuzz_unicode",
     visibility = ["//visibility:public"],
 )
 
@@ -248,12 +247,11 @@ alias(
     visibility = ["//visibility:public"],
 )
 
-# TODO(kjlubick)
-# alias(
-#     name = "skshaper_coretext",
-#     actual = "//modules/skshaper:skshaper_coretext",
-#     visibility = ["//visibility:public"],
-# )
+alias(
+    name = "skshaper_coretext",
+    actual = "//modules/skshaper:skshaper_coretext",
+    visibility = ["//visibility:public"],
+)
 
 alias(
     name = "skshaper_harfbuzz",

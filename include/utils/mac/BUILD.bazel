@@ -4,11 +4,10 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-# Not yet included in a Bazel build.
-# File group is here for exporting to utils.gni:skia_utils_public.
 skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "SkCGUtils.h",
     ],
+    visibility = ["//src/utils/mac:__pkg__"],
 )

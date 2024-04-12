@@ -54,7 +54,7 @@ generate_cpp_files_for_header_list(
     headers = SHARED_GPU_HEADERS,
 )
 
-filegroup(
+skia_filegroup(
     name = "generated_base_header_cpps",
     srcs = [
         ":generated_base_header_cpps1",

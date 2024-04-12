@@ -11,8 +11,24 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "core_foundation_hdrs",
+    srcs = ["SkCFObject.h"],
+    visibility = [
+        "//src/gpu/ganesh/mtl:__pkg__",
+        "//src/ports:__pkg__",
+    ],
+)
+
+skia_filegroup(
+    name = "coretext_fontmgr_hdrs",
+    srcs = ["SkFontMgr_mac_ct.h"],
+    visibility = ["//src/ports:__pkg__"],
+)
+
+skia_filegroup(
     name = "directory_fontmgr_hdrs",
     srcs = ["SkFontMgr_directory.h"],
+    visibility = ["//src/ports:__pkg__"],
 )
 
 skia_filegroup(
@@ -95,16 +111,19 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "core_hdrs",
+    name = "imagegenerator_cg_hdrs",
     srcs = ["SkImageGeneratorCG.h"],
-    visibility = ["//src/core:__pkg__"],
+    visibility = [
+        "//src/gpu/ganesh/mtl:__pkg__",
+        "//src/ports:__pkg__",
+    ],
 )
 
 skia_filegroup(
-    name = "apple_hdrs",
-    srcs = [
-        "SkCFObject.h",
-        "SkImageGeneratorCG.h",
+    name = "mac_typeface",
+    srcs = ["SkTypeface_mac.h"],
+    visibility = [
+        "//src/gpu/ganesh/mtl:__pkg__",
+        "//src/ports:__pkg__",
     ],
-    visibility = ["//src/gpu/ganesh/mtl:__pkg__"],
 )

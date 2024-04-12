@@ -25,6 +25,7 @@
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skunicode/include/SkUnicode_icu.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -159,9 +160,14 @@ int main(int argc, char** argv) {
   paraStyle.setTextStyle(style);
   paraStyle.setTextAlign(skia::textlayout::TextAlign::kRight);
 
+  sk_sp<SkUnicode> unicode = SkUnicodes::ICU::Make();
+  if (!unicode) {
+    printf("Could not load unicode data\n");
+    return 1;
+  }
   using skia::textlayout::ParagraphBuilder;
   std::unique_ptr<ParagraphBuilder> builder =
-      ParagraphBuilder::make(paraStyle, fontCollection);
+      ParagraphBuilder::make(paraStyle, fontCollection, unicode);
   builder->addText(story);
 
   std::unique_ptr<skia::textlayout::Paragraph> paragraph = builder->Build();

@@ -8,14 +8,10 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
+#include "src/utils/mac/SkCTFontCreateExactCopy.h"
+
 #include "src/ports/SkTypeface_mac_ct.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
-
-#ifdef SK_BUILD_FOR_MAC
-#import <ApplicationServices/ApplicationServices.h>
-#endif
-
-#include "src/utils/mac/SkCTFontCreateExactCopy.h"
 
 // In macOS 10.12 and later any variation on the CGFont which has default axis value will be
 // dropped when creating the CTFont. Unfortunately, in macOS 10.15 the priority of setting

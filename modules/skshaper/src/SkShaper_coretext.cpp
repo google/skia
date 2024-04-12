@@ -81,7 +81,7 @@ public:
     }
 };
 
-static void dict_add_double(CFMutableDictionaryRef d, const void* name, double value) {
+[[maybe_unused]] static void dict_add_double(CFMutableDictionaryRef d, const void* name, double value) {
     SkUniqueCFRef<CFNumberRef> number(
             CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &value));
     CFDictionaryAddValue(d, name, number.get());
@@ -222,7 +222,7 @@ void SkShaper_CoreText::shape(const char* utf8,
                                       &kCFTypeDictionaryKeyCallBacks,
                                       &kCFTypeDictionaryValueCallBacks));
     CFDictionaryAddValue(attr.get(), kCTFontAttributeName, ctfont.get());
-    if (false) {
+    if ((false)) {
         // trying to see what these affect
         dict_add_double(attr.get(), kCTTracking_AttributeName, 1);
         dict_add_double(attr.get(), kCTKernAttributeName, 0.0);

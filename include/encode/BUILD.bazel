@@ -8,6 +8,13 @@ skia_filegroup(
     name = "encode_hdrs",
     srcs = [
         "SkEncoder.h",
+    ],
+    visibility = ["//src/encode:__pkg__"],
+)
+
+skia_filegroup(
+    name = "icc_hdrs",
+    srcs = [
         "SkICC.h",
     ],
     visibility = ["//src/encode:__pkg__"],
@@ -41,6 +48,7 @@ skia_filegroup(
     name = "public_hdrs",
     srcs = [
         ":encode_hdrs",
+        ":icc_hdrs",
         ":jpeg_hdrs",
         ":png_hdrs",
         ":webp_hdrs",
