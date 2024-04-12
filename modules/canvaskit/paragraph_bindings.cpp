@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "include/core/SkColor.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkPictureRecorder.h"
@@ -16,6 +15,14 @@
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skunicode/include/SkUnicode.h"
+
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_icu.h"
+#endif
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#include "modules/skunicode/include/SkUnicode_client.h"
+#endif
 
 #include <string>
 #include <vector>
@@ -41,6 +48,18 @@ struct SimpleFontStyle {
     SkFontStyle::Weight weight;
     SkFontStyle::Width width;
 };
+
+// TODO(jlavrova, kjlubick) This should probably be created explicitly by the client
+// (either one based on ICU data or a client explicitly made) and passed in to build().
+static sk_sp<SkUnicode> get_unicode() {
+    // For code size reasons, we prefer to use the unicode implementation first
+    // over the full ICU version.
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION)
+    return SkUnicodes::ICU::Make();
+#else
+    return nullptr;
+#endif
+}
 
 struct SimpleTextStyle {
     WASMPointerF32 colorPtr;
@@ -537,7 +556,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                         fc->setDefaultFontManager(fontMgr);
                         fc->enableFontFallback();
                         auto ps = toParagraphStyle(style);
-                        auto pb = para::ParagraphBuilderImpl::make(ps, fc);
+                        auto pb = para::ParagraphBuilderImpl::make(ps, fc, get_unicode());
                         return std::unique_ptr<para::ParagraphBuilderImpl>(
                                 static_cast<para::ParagraphBuilderImpl*>(pb.release()));
                     }),
@@ -551,7 +570,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                         fc->setDefaultFontManager(fontProvider);
                         fc->enableFontFallback();
                         auto ps = toParagraphStyle(style);
-                        auto pb = para::ParagraphBuilderImpl::make(ps, fc);
+                        auto pb = para::ParagraphBuilderImpl::make(ps, fc, get_unicode());
                         return std::unique_ptr<para::ParagraphBuilderImpl>(
                                 static_cast<para::ParagraphBuilderImpl*>(pb.release()));
                     }),
@@ -562,7 +581,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                                          sk_sp<para::FontCollection> fontCollection)
                                               -> std::unique_ptr<para::ParagraphBuilderImpl> {
                         auto ps = toParagraphStyle(style);
-                        auto pb = para::ParagraphBuilderImpl::make(ps, fontCollection);
+                        auto pb = para::ParagraphBuilderImpl::make(ps, fontCollection, get_unicode());
                         return std::unique_ptr<para::ParagraphBuilderImpl>(
                                 static_cast<para::ParagraphBuilderImpl*>(pb.release()));
                     }),
@@ -588,7 +607,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                     pstyle.setTextStyle(style);
                 }
 
-                auto pb = para::ParagraphBuilder::make(pstyle, fc);
+                auto pb = para::ParagraphBuilder::make(pstyle, fc, get_unicode());
 
                 // tease apart the FontBlock runs
                 size_t runCount = jruns["length"].as<size_t>();
@@ -632,6 +651,15 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                           return self.addText(text.c_str(), text.length());
                       }))
             .function("build", &para::ParagraphBuilderImpl::Build, allow_raw_pointers())
+            .function("build", optional_override([](para::ParagraphBuilderImpl& self) {
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+                          auto [words, graphemeBreaks, lineBreaks] = self.getClientICUData();
+                          auto text = self.getText();
+                          sk_sp<SkUnicode> clientICU = SkUnicodes::Client::Make(text, words, graphemeBreaks, lineBreaks);
+                          self.SetUnicode(clientICU);
+#endif
+                          return self.Build();
+                      }), allow_raw_pointers())
             .function("pop", &para::ParagraphBuilderImpl::pop)
             .function("reset", &para::ParagraphBuilderImpl::Reset, allow_raw_pointers())
             .function("_pushStyle", optional_override([](para::ParagraphBuilderImpl& self,
@@ -669,26 +697,35 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
             .function("_setWordsUtf8",
                       optional_override([](para::ParagraphBuilderImpl& self,
                                            WASMPointerU32 clientWords, size_t wordsNum) {
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
                       self.setWordsUtf8(convertArrayU32(clientWords, wordsNum));
+#endif
                   }))
             .function("_setWordsUtf16",
                       optional_override([](para::ParagraphBuilderImpl& self,
                                            WASMPointerU32 clientWords, size_t wordsNum) {
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
                       self.setWordsUtf16(convertArrayU32(clientWords, wordsNum));
+#endif
                   }))
             .function("_setGraphemeBreaksUtf8",
                       optional_override([](para::ParagraphBuilderImpl& self,
                                            WASMPointerU32 clientGraphemes, size_t graphemesNum) {
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
                       self.setGraphemeBreaksUtf8(convertArrayU32(clientGraphemes, graphemesNum));
+#endif
                   }))
             .function("_setGraphemeBreaksUtf16",
                       optional_override([](para::ParagraphBuilderImpl& self,
                                            WASMPointerU32 clientGraphemes, size_t graphemesNum) {
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
                       self.setGraphemeBreaksUtf16(convertArrayU32(clientGraphemes, graphemesNum));
+#endif
                   }))
             .function("_setLineBreaksUtf8",
                       optional_override([](para::ParagraphBuilderImpl& self,
                                            WASMPointerU32 clientLineBreaks, size_t lineBreaksNum) {
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
                       SkUnicode::Position* lineBreakData = reinterpret_cast<SkUnicode::Position*>(clientLineBreaks);
                       std::vector<SkUnicode::LineBreakBefore> lineBreaks;
                       for (size_t i = 0; i < lineBreaksNum; i += 2) {
@@ -701,10 +738,12 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                           }
                       }
                       self.setLineBreaksUtf8(std::move(lineBreaks));
+#endif
                   }))
             .function("_setLineBreaksUtf16",
                       optional_override([](para::ParagraphBuilderImpl& self,
                                            WASMPointerU32 clientLineBreaks, size_t lineBreaksNum) {
+#if defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
                       SkUnicode::Position* lineBreakData = reinterpret_cast<SkUnicode::Position*>(clientLineBreaks);
                       std::vector<SkUnicode::LineBreakBefore> lineBreaks;
                       for (size_t i = 0; i < lineBreaksNum; i += 2) {
@@ -717,6 +756,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                           }
                       }
                       self.setLineBreaksUtf16(std::move(lineBreaks));
+#endif
                   }));
 
     class_<para::TypefaceFontProvider, base<SkFontMgr>>("TypefaceFontProvider")

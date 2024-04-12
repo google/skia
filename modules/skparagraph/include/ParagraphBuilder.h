@@ -60,7 +60,7 @@ public:
     virtual SkSpan<char> getText() = 0;
     virtual const ParagraphStyle& getParagraphStyle() const = 0;
 
-#ifndef SK_DISABLE_LEGACY_CLIENT_UNICODE
+#if !defined(SK_DISABLE_LEGACY_CLIENT_UNICODE) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     // Mainly, support for "Client" unicode
     virtual void setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8) = 0;
     virtual void setWordsUtf16(std::vector<SkUnicode::Position> wordsUtf16) = 0;
@@ -80,7 +80,13 @@ public:
 
     // Just until we fix all the google3 code
     static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
+                                                  sk_sp<FontCollection> fontCollection,
+                                                  sk_sp<SkUnicode> unicode);
+
+#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE)
+    static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
                                                   sk_sp<FontCollection> fontCollection);
+#endif
 };
 }  // namespace textlayout
 }  // namespace skia

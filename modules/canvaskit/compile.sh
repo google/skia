@@ -146,6 +146,11 @@ if [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
   GN_SHAPER="skia_use_icu=false skia_use_harfbuzz=false"
 fi
 
+if [[ $@ == *client_unicode* ]] ; then
+  echo "Using the client-provided skunicode data and harfbuz instead of the icu-provided data"
+  GN_SHAPER="skia_use_icu=false skia_use_client_icu=true skia_use_libgrapheme=false skia_use_icu4x=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
+fi
+
 ENABLE_PARAGRAPH="true"
 if [[ $@ == *no_paragraph* ]] || [[ $@ == *primitive_shaper* ]] || [[ $@ == *no_font* ]]; then
   echo "Omitting paragraph (must have fonts and non-primitive shaper)"
