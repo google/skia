@@ -340,6 +340,40 @@ float tone_map_gain(float x) {
     return (1.f + kToneMapA * x) / (1.f + kToneMapB * x);
 }
 
+// Scalar tone map inverse function
+float tone_map_inverse(float y) {
+    constexpr float kToneMapA = kToneMapOutputMax / (kToneMapInputMax * kToneMapInputMax);
+    constexpr float kToneMapB = 1.f / kToneMapOutputMax;
+
+    // This is a quadratic equation of the form a*x*x + b*x + c = 0
+    const float a = kToneMapA;
+    const float b = (1 - kToneMapB * y);
+    const float c = -y;
+    const float discriminant = b * b - 4.f * a * c;
+    if (discriminant < 0.f) {
+        return 0.f;
+    }
+    return (-b + sqrtf(discriminant)) / (2.f * a);
+}
+
+// Evaluate PQ and HLG transfer functions without tonemapping. The maximum returned value is
+// kToneMapInputMax.
+float hdr_trfn_eval(const skcms_TransferFunction& fn, float x) {
+    if (skcms_TransferFunction_isHLGish(&fn)) {
+        // For HLG this curve is the inverse OETF and then a per-channel OOTF.
+        x = skcms_TransferFunction_eval(&SkNamedTransferFn::kHLG, x) / 12.f;
+        x *= std::pow(x, 0.2);
+    } else if (skcms_TransferFunction_isPQish(&fn)) {
+        // For PQ this is the EOTF, scaled so that 1,000 nits maps to 1.0.
+        x = 10.f * skcms_TransferFunction_eval(&SkNamedTransferFn::kPQ, x);
+        x = std::min(x, 1.f);
+    }
+
+    // Scale x so that 203 nits maps to 1.0.
+    x *= kToneMapInputMax;
+    return x;
+}
+
 // Write a lookup table based 1D curve.
 sk_sp<SkData> write_trc_tag(const skcms_Curve& trc) {
     SkDynamicMemoryWStream s;
@@ -668,24 +702,18 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
 
     // Populate A2B (PQ and HLG only).
     if (skcms_TransferFunction_isPQish(&fn) || skcms_TransferFunction_isHLGish(&fn)) {
-        // Populate a 1D per-channel curve to pre-condition before tone mapping.
+        // Populate a 1D curve to perform per-channel conversion to linear and tone mapping.
         constexpr uint32_t kTrcTableSize = 65;
         trc_table.resize(kTrcTableSize);
         for (uint32_t i = 0; i < kTrcTableSize; ++i) {
             float x = i / (kTrcTableSize - 1.f);
-            if (skcms_TransferFunction_isHLGish(&fn)) {
-                // For HLG this curve is the inverse OETF and then a per-channel OOTF.
-                x = skcms_TransferFunction_eval(&SkNamedTransferFn::kHLG, x) / 12.f;
-                x *= std::pow(x, 0.2);
-            } else if (skcms_TransferFunction_isPQish(&fn)) {
-                // For PQ this is the EOTF, scaled so that 1,000 nits maps to 1.0.
-                x = 10.f * skcms_TransferFunction_eval(&SkNamedTransferFn::kPQ, x);
-            }
+            x = hdr_trfn_eval(fn, x);
+            x *= tone_map_gain(x);
             trc_table[i] = SkEndian_SwapBE16(float_to_uInt16Number(x, kOne16CurveType));
         }
 
-        // Populate the grid with a 3D LUT that will do tone mapping.
-        constexpr uint32_t kGridSize = 9;
+        // Populate the grid with a 3D LUT to do cross-channel tone mapping.
+        constexpr uint32_t kGridSize = 11;
         a2b_grid.resize(kGridSize * kGridSize * kGridSize * kNumChannels);
         size_t a2b_grid_index = 0;
         for (uint32_t r_index = 0; r_index < kGridSize; ++r_index) {
@@ -697,21 +725,33 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
                             b_index / (kGridSize - 1.f),
                     };
 
+                    // Un-apply the per-channel tone mapping.
+                    for (auto& c : rgb) {
+                        c = tone_map_inverse(c);
+                    }
+
+                    // For HLG, mix the channels according to the OOTF.
                     if (skcms_TransferFunction_isHLGish(&fn)) {
+                        // Scale to [0, 1].
+                        for (auto& c : rgb) {
+                            c /= kToneMapInputMax;
+                        }
+
                         // Un-apply the per-channel OOTF.
                         for (auto& c : rgb) {
                             c = std::pow(c, 1 / 1.2);
                         }
+
                         // Re-apply the cross-channel OOTF.
                         float Y = 0.2627f * rgb[0] + 0.6780f * rgb[1] + 0.0593f * rgb[2];
                         for (auto& c : rgb) {
                             c *= std::pow(Y, 0.2);
                         }
-                    }
 
-                    // Scale 1.0 to 1,000 nits / 203 nits.
-                    for (auto& c : rgb) {
-                        c *= kToneMapInputMax;
+                        // Scale back up to 1.0 being 1,000/203.
+                        for (auto& c : rgb) {
+                            c *= kToneMapInputMax;
+                        }
                     }
 
                     // Apply tone mapping to take 1,000/203 to 1.0.
