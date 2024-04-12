@@ -20,7 +20,6 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkNWayCanvas.h"
-#include "src/utils/SkMultiPictureDocument.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 
 #include <algorithm>
@@ -226,20 +225,3 @@ bool Read(SkStreamSeekable* src,
     return true;
 }
 }  // namespace SkMultiPictureDocument
-
-sk_sp<SkDocument> SkMakeMultiPictureDocument(SkWStream* wStream, const SkSerialProcs* procs,
-    std::function<void(const SkPicture*)> onEndPage) {
-    return SkMultiPictureDocument::Make(wStream, procs, onEndPage);
-}
-
-int SkMultiPictureDocumentReadPageCount(SkStreamSeekable* src) {
-    return SkMultiPictureDocument::ReadPageCount(src);
-}
-
-
-bool SkMultiPictureDocumentRead(SkStreamSeekable* src,
-                                SkDocumentPage* dstArray,
-                                int dstArrayCount,
-                                const SkDeserialProcs* procs) {
-    return SkMultiPictureDocument::Read(src, dstArray, dstArrayCount, procs);
-}

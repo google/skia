@@ -229,7 +229,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_utils_chromium",
 			Rules: []string{
 				"//include/docs:multi_picture_document_hdrs",
-				"//src/utils:chromium_hdrs"}},
+			}},
 		{Var: "skia_utils_private",
 			Rules: []string{
 				"//src/utils:utils_hdrs",

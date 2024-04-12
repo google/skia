@@ -90,16 +90,6 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "chromium_hdrs",
-    # We allow chromium to use this as a diagnostic tool, but it is not
-    # part of Skia's public API. It is in its own filegroup to create
-    # a gni entry containing it.
-    srcs = [
-        "SkMultiPictureDocument.h",
-    ],
-)
-
-skia_filegroup(
     name = "srcs",
     srcs = [
         ":json_srcs",
@@ -115,7 +105,6 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
-        ":chromium_hdrs",
         ":json_hdrs",
         ":utils_hdrs",
         ":utils_skslc_hdrs",

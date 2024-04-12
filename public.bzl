@@ -1741,7 +1741,6 @@ BASE_SRCS_ALL = [
     "src/utils/SkMatrix22.cpp",
     "src/utils/SkMatrix22.h",
     "src/utils/SkMultiPictureDocument.cpp",
-    "src/utils/SkMultiPictureDocument.h",
     "src/utils/SkMultiPictureDocumentPriv.h",
     "src/utils/SkNullCanvas.cpp",
     "src/utils/SkNWayCanvas.cpp",
