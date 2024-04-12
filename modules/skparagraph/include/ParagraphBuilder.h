@@ -6,6 +6,7 @@
 #include <stack>
 #include <string>
 #include <tuple>
+#include <vector>
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
@@ -70,6 +71,11 @@ public:
 
     virtual void setLineBreaksUtf8(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf8) = 0;
     virtual void setLineBreaksUtf16(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf16) = 0;
+
+    virtual std::tuple<std::vector<SkUnicode::Position>,
+               std::vector<SkUnicode::Position>,
+               std::vector<SkUnicode::LineBreakBefore>>
+        getClientICUData() const = 0;
 
     virtual void SetUnicode(sk_sp<SkUnicode> unicode) = 0;
 #endif

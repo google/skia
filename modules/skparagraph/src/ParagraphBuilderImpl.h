@@ -79,7 +79,7 @@ public:
     std::tuple<std::vector<SkUnicode::Position>,
                std::vector<SkUnicode::Position>,
                std::vector<SkUnicode::LineBreakBefore>>
-        getClientICUData() const {
+        getClientICUData() const override {
             return { fWordsUtf16, fGraphemeBreaksUtf8, fLineBreaksUtf8 };
     }
 
