@@ -28,6 +28,15 @@ class PipelineDataGatherer;
 class PrecompileBasePriv;
 class UniquePaintParamsID;
 
+// Create the Pipelines specified by 'options' by combining the shading portion w/ the specified
+// 'drawTypes' and a stock set of RenderPass descriptors (e.g., kDepth+msaa, kDepthStencil+msaa)
+void PrecompileCombinations(Context* context,
+                            const PaintOptions& options,
+                            const KeyContext& keyContext,
+                            DrawTypeFlags drawTypes,
+                            bool withPrimitiveBlender,
+                            Coverage coverage);
+
 class PrecompileBase : public SkRefCnt {
 public:
     enum class Type {
