@@ -202,12 +202,12 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
 
     // It's an oval only if it stays a rect.
     bool rectStaysRect = matrix.rectStaysRect();
-    (*dst)->fIsOval = src.fIsOval && rectStaysRect;
-    (*dst)->fIsRRect = src.fIsRRect && rectStaysRect;
-    if ((*dst)->fIsOval || (*dst)->fIsRRect) {
+    const PathType newType = rectStaysRect ? src.fType : PathType::kGeneral;
+    (*dst)->fType = newType;
+    if (newType == PathType::kOval || newType == PathType::kRRect) {
         unsigned start = src.fRRectOrOvalStartIdx;
         bool isCCW = SkToBool(src.fRRectOrOvalIsCCW);
-        transform_dir_and_start(matrix, (*dst)->fIsRRect, &isCCW, &start);
+        transform_dir_and_start(matrix, newType == PathType::kRRect, &isCCW, &start);
         (*dst)->fRRectOrOvalIsCCW = isCCW;
         (*dst)->fRRectOrOvalStartIdx = start;
     }
@@ -230,8 +230,7 @@ void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {
         (*pathRef)->fVerbs.clear();
         (*pathRef)->fConicWeights.clear();
         (*pathRef)->fSegmentMask = 0;
-        (*pathRef)->fIsOval = false;
-        (*pathRef)->fIsRRect = false;
+        (*pathRef)->fType = PathType::kGeneral;
         SkDEBUGCODE((*pathRef)->validate();)
     } else {
         int oldVCnt = (*pathRef)->countVerbs();
@@ -284,8 +283,7 @@ void SkPathRef::copy(const SkPathRef& ref,
         fIsFinite = ref.fIsFinite;
     }
     fSegmentMask = ref.fSegmentMask;
-    fIsOval = ref.fIsOval;
-    fIsRRect = ref.fIsRRect;
+    fType = ref.fType;
     fRRectOrOvalIsCCW = ref.fRRectOrOvalIsCCW;
     fRRectOrOvalStartIdx = ref.fRRectOrOvalStartIdx;
     SkDEBUGCODE(this->validate();)
@@ -299,8 +297,7 @@ void SkPathRef::interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef*
         outValues[index] = outValues[index] * weight + inValues[index] * (1 - weight);
     }
     out->fBoundsIsDirty = true;
-    out->fIsOval = false;
-    out->fIsRRect = false;
+    out->fType = PathType::kGeneral;
 }
 
 std::tuple<SkPoint*, SkScalar*> SkPathRef::growForVerbsInPath(const SkPathRef& path) {
@@ -308,8 +305,7 @@ std::tuple<SkPoint*, SkScalar*> SkPathRef::growForVerbsInPath(const SkPathRef& p
 
     fSegmentMask |= path.fSegmentMask;
     fBoundsIsDirty = true;  // this also invalidates fIsFinite
-    fIsOval = false;
-    fIsRRect = false;
+    fType = PathType::kGeneral;
 
     if (int numVerbs = path.countVerbs()) {
         memcpy(fVerbs.push_back_n(numVerbs), path.fVerbs.begin(), numVerbs * sizeof(fVerbs[0]));
@@ -369,8 +365,7 @@ SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
     }
 
     fBoundsIsDirty = true;  // this also invalidates fIsFinite
-    fIsOval = false;
-    fIsRRect = false;
+    fType = PathType::kGeneral;
 
     memset(fVerbs.push_back_n(numVbs), verb, numVbs);
     if (SkPath::kConic_Verb == verb) {
@@ -422,8 +417,7 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
 
     fSegmentMask |= mask;
     fBoundsIsDirty = true;  // this also invalidates fIsFinite
-    fIsOval = false;
-    fIsRRect = false;
+    fType = PathType::kGeneral;
 
     fVerbs.push_back(verb);
     if (SkPath::kConic_Verb == verb) {
@@ -512,19 +506,19 @@ SkRRect SkPathRef::getRRect() const {
 }
 
 bool SkPathRef::isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const {
-        if (fIsRRect) {
-            if (rrect) {
-                *rrect = this->getRRect();
-            }
-            if (isCCW) {
-                *isCCW = SkToBool(fRRectOrOvalIsCCW);
-            }
-            if (start) {
-                *start = fRRectOrOvalStartIdx;
-            }
+    if (fType == PathType::kRRect) {
+        if (rrect) {
+            *rrect = this->getRRect();
         }
-        return SkToBool(fIsRRect);
+        if (isCCW) {
+            *isCCW = SkToBool(fRRectOrOvalIsCCW);
+        }
+        if (start) {
+            *start = fRRectOrOvalStartIdx;
+        }
     }
+    return fType == PathType::kRRect;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -614,20 +608,19 @@ uint8_t SkPathRef::Iter::peek() const {
 
 
 bool SkPathRef::isValid() const {
-    if (fIsOval || fIsRRect) {
-        // Currently we don't allow both of these to be set, even though ovals are ro
-        if (fIsOval == fIsRRect) {
-            return false;
-        }
-        if (fIsOval) {
+    switch (fType) {
+        case PathType::kGeneral:
+            break;
+        case PathType::kOval:
             if (fRRectOrOvalStartIdx >= 4) {
                 return false;
             }
-        } else {
+            break;
+        case PathType::kRRect:
             if (fRRectOrOvalStartIdx >= 8) {
                 return false;
             }
-        }
+            break;
     }
 
     if (!fBoundsIsDirty && !fBounds.isEmpty()) {

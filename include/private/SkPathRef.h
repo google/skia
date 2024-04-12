@@ -59,6 +59,12 @@ public:
     using VerbsArray = skia_private::STArray<4, uint8_t>;
     using ConicWeightsArray = skia_private::STArray<2, SkScalar>;
 
+    enum class PathType : uint8_t {
+        kGeneral,
+        kOval,
+        kRRect,
+    };
+
     SkPathRef(PointsArray points, VerbsArray verbs, ConicWeightsArray weights,
               unsigned segmentMask)
         : fPoints(std::move(points))
@@ -68,9 +74,8 @@ public:
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = 0;        // recompute
         fSegmentMask = segmentMask;
-        fIsOval = false;
-        fIsRRect = false;
-        // The next two values don't matter unless fIsOval or fIsRRect are true.
+        fType = PathType::kGeneral;
+        // The next two values don't matter unless fType is kOval or kRRect
         fRRectOrOvalIsCCW = false;
         fRRectOrOvalStartIdx = 0xAC;
         SkDEBUGCODE(fEditorsAttached.store(0);)
@@ -147,12 +152,12 @@ public:
          */
         SkPathRef* pathRef() { return fPathRef; }
 
-        void setIsOval(bool isOval, bool isCCW, unsigned start) {
-            fPathRef->setIsOval(isOval, isCCW, start);
+        void setIsOval(bool isCCW, unsigned start) {
+            fPathRef->setIsOval(isCCW, start);
         }
 
-        void setIsRRect(bool isRRect, bool isCCW, unsigned start) {
-            fPathRef->setIsRRect(isRRect, isCCW, start);
+        void setIsRRect(bool isCCW, unsigned start) {
+            fPathRef->setIsRRect(isCCW, start);
         }
 
         void setBounds(const SkRect& rect) { fPathRef->setBounds(rect); }
@@ -227,7 +232,7 @@ public:
      *              fact ovals can report false.
      */
     bool isOval(SkRect* rect, bool* isCCW, unsigned* start) const {
-        if (fIsOval) {
+        if (fType == PathType::kOval) {
             if (rect) {
                 *rect = this->getBounds();
             }
@@ -239,7 +244,7 @@ public:
             }
         }
 
-        return SkToBool(fIsOval);
+        return fType == PathType::kOval;
     }
 
     bool isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const;
@@ -356,9 +361,8 @@ private:
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = kEmptyGenID;
         fSegmentMask = 0;
-        fIsOval = false;
-        fIsRRect = false;
-        // The next two values don't matter unless fIsOval or fIsRRect are true.
+        fType = PathType::kGeneral;
+        // The next two values don't matter unless fType is kOval or kRRect
         fRRectOrOvalIsCCW = false;
         fRRectOrOvalStartIdx = 0xAC;
         if (numPoints > 0) {
@@ -427,8 +431,7 @@ private:
         fGenerationID = 0;
 
         fSegmentMask = 0;
-        fIsOval = false;
-        fIsRRect = false;
+        fType = PathType::kGeneral;
     }
 
     /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
@@ -482,14 +485,14 @@ private:
      */
     friend SkPathRef* sk_create_empty_pathref();
 
-    void setIsOval(bool isOval, bool isCCW, unsigned start) {
-        fIsOval = isOval;
+    void setIsOval(bool isCCW, unsigned start) {
+        fType = PathType::kOval;
         fRRectOrOvalIsCCW = isCCW;
         fRRectOrOvalStartIdx = SkToU8(start);
     }
 
-    void setIsRRect(bool isRRect, bool isCCW, unsigned start) {
-        fIsRRect = isRRect;
+    void setIsRRect(bool isCCW, unsigned start) {
+        fType = PathType::kRRect;
         fRRectOrOvalIsCCW = isCCW;
         fRRectOrOvalStartIdx = SkToU8(start);
     }
@@ -497,8 +500,7 @@ private:
     // called only by the editor. Note that this is not a const function.
     SkPoint* getWritablePoints() {
         SkDEBUGCODE(this->validate();)
-        fIsOval = false;
-        fIsRRect = false;
+        fType = PathType::kGeneral;
         return fPoints.begin();
     }
 
@@ -530,8 +532,7 @@ private:
     mutable uint8_t  fBoundsIsDirty;
     mutable bool     fIsFinite;    // only meaningful if bounds are valid
 
-    bool     fIsOval;
-    bool     fIsRRect;
+    PathType fType;
     // Both the circle and rrect special cases have a notion of direction and starting point
     // The next two variables store that information for either.
     bool     fRRectOrOvalIsCCW;
