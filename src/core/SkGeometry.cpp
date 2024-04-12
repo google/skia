@@ -10,6 +10,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
@@ -1781,6 +1782,9 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
     const SkPoint finalP = { x, y };
     const SkPoint& lastQ = quadrantPts[quadrant * 2];  // will already be a unit-vector
     const SkScalar dot = SkVector::DotProduct(lastQ, finalP);
+    if (SkScalarIsNaN(dot)) {
+        return 0;
+    }
     SkASSERT(0 <= dot && dot <= SK_Scalar1 + SK_ScalarNearlyZero);
 
     if (dot < 1) {
