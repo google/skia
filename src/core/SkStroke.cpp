@@ -10,6 +10,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
@@ -696,7 +697,7 @@ SkPathStroker::ReductionType SkPathStroker::CheckConicLinear(const SkConic& coni
     // SkFindConicMaxCurvature would be a better solution, once we know how to
     // implement it. Quad curvature is a reasonable substitute
     SkScalar t = SkFindQuadMaxCurvature(conic.fPts);
-    if (0 == t) {
+    if (0 == t || SkScalarIsNaN(t)) {
         return kLine_ReductionType;
     }
     conic.evalAt(t, reduction, nullptr);
