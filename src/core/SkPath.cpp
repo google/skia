@@ -518,6 +518,10 @@ bool SkPath::isRRect(SkRRect* rrect) const {
     return SkPathPriv::IsRRect(*this, rrect, nullptr, nullptr);
 }
 
+bool SkPath::isArc(SkArc* arc) const {
+    return fPathRef->isArc(arc);
+}
+
 int SkPath::countPoints() const {
     return fPathRef->countPoints();
 }
@@ -1172,10 +1176,12 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
 
     SkPoint singlePt;
 
+    bool isArc = this->hasOnlyMoveTos();
+
     // Adds a move-to to 'pt' if forceMoveTo is true. Otherwise a lineTo unless we're sufficiently
     // close to 'pt' currently. This prevents spurious lineTos when adding a series of contiguous
     // arcs from the same oval.
-    auto addPt = [&forceMoveTo, this](const SkPoint& pt) {
+    auto addPt = [&forceMoveTo, &isArc, this](const SkPoint& pt) {
         SkPoint lastPt;
         if (forceMoveTo) {
             this->moveTo(pt);
@@ -1183,6 +1189,7 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
                    !SkScalarNearlyEqual(lastPt.fX, pt.fX) ||
                    !SkScalarNearlyEqual(lastPt.fY, pt.fY)) {
             this->lineTo(pt);
+            isArc = false;
         }
     };
 
@@ -1211,6 +1218,10 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
         addPt(pt);
         for (int i = 0; i < count; ++i) {
             this->conicTo(conics[i].fPts[1], conics[i].fPts[2], conics[i].fW);
+        }
+        if (isArc) {
+            SkPathRef::Editor ed(&fPathRef);
+            ed.setIsArc({oval, startAngle, sweepAngle, false});
         }
     } else {
         addPt(singlePt);
