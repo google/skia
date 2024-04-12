@@ -659,7 +659,7 @@
   {
     "GL":    [{"min_version": [4, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_invalidate_subdata"}],
-    "GLES":  null,
+    "GLES":  [{"ext": "GL_ARB_invalidate_subdata"}],
     "WebGL": null,
 
     "functions": [
@@ -670,7 +670,8 @@
   {  // ES 3.0 adds the framebuffer functions but not the others.
     "GL":    [{"min_version": [4, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_invalidate_subdata"}],
-    "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
+    "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_invalidate_subdata"}],
     "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
 
     "functions": [

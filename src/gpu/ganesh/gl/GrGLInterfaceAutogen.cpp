@@ -744,6 +744,8 @@ bool GrGLInterface::validate() const {
 
     if ((GR_IS_GR_GL(fStandard) && (
           (glVer >= GR_GL_VER(4,3)) ||
+          fExtensions.has("GL_ARB_invalidate_subdata"))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
           fExtensions.has("GL_ARB_invalidate_subdata")))) {
         if (!fFunctions.fInvalidateBufferData ||
             !fFunctions.fInvalidateBufferSubData ||
@@ -757,7 +759,8 @@ bool GrGLInterface::validate() const {
           (glVer >= GR_GL_VER(4,3)) ||
           fExtensions.has("GL_ARB_invalidate_subdata"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
-          (glVer >= GR_GL_VER(3,0)))) ||
+          (glVer >= GR_GL_VER(3,0)) ||
+          fExtensions.has("GL_ARB_invalidate_subdata"))) ||
        (GR_IS_GR_WEBGL(fStandard) && (
           (glVer >= GR_GL_VER(2,0))))) {
         if (!fFunctions.fInvalidateFramebuffer ||
