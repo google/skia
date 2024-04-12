@@ -9,6 +9,11 @@
 #define skgpu_graphite_PathAtlas_DEFINED
 
 #include "include/core/SkStrokeRec.h"
+#include "src/base/SkTInternalLList.h"
+#include "src/core/SkTHash.h"
+#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/ResourceKey.h"
+#include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/geom/CoverageMaskShape.h"
 
 namespace skgpu::graphite {
@@ -103,6 +108,60 @@ protected:
                                            const SkStrokeRec&,
                                            skvx::half2 maskSize,
                                            skvx::half2* outPos) = 0;
+
+    // Wrapper class to manage DrawAtlas and associated caching operations
+    class DrawAtlasMgr : public AtlasGenerationCounter, public PlotEvictionCallback {
+    public:
+        const TextureProxy* findOrCreateEntry(Recorder* recorder,
+                                              const Shape& shape,
+                                              const Transform& transform,
+                                              const SkStrokeRec& strokeRec,
+                                              skvx::half2 maskSize,
+                                              skvx::half2* outPos);
+        // Adds to DrawAtlas but not the cache
+        const TextureProxy* addToAtlas(Recorder* recorder,
+                                       const Shape& shape,
+                                       const Transform& transform,
+                                       const SkStrokeRec& strokeRec,
+                                       skvx::half2 maskSize,
+                                       skvx::half2* outPos,
+                                       AtlasLocator* locator);
+        bool recordUploads(DrawContext*, Recorder*);
+        void evict(PlotLocator) override;
+        void postFlush(Recorder*);
+
+    protected:
+        DrawAtlasMgr(size_t width, size_t height,
+                     size_t plotWidth, size_t plotHeight,
+                     std::string_view label, const Caps*);
+
+        bool virtual onAddToAtlas(const Shape&,
+                                  const Transform& transform,
+                                  const SkStrokeRec&,
+                                  SkIRect shapeBounds,
+                                  const AtlasLocator&) = 0;
+
+        std::unique_ptr<DrawAtlas> fDrawAtlas;
+
+    private:
+        // Tracks whether a shape is already in the DrawAtlas, and its location in the atlas
+        struct UniqueKeyHash {
+            uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
+        };
+        using ShapeCache = skia_private::THashMap<skgpu::UniqueKey, AtlasLocator, UniqueKeyHash>;
+        ShapeCache fShapeCache;
+
+        // List of stored keys per Plot, used to invalidate cache entries.
+        // When a Plot is invalidated via evict(), we'll get its index and Page index from the
+        // PlotLocator, index into the fKeyLists array to get the ShapeKeyList for that Plot,
+        // then iterate through the list and remove entries matching those keys from the ShapeCache.
+        struct ShapeKeyEntry {
+            skgpu::UniqueKey fKey;
+            SK_DECLARE_INTERNAL_LLIST_INTERFACE(ShapeKeyEntry);
+        };
+        using ShapeKeyList = SkTInternalLList<ShapeKeyEntry>;
+        SkTDArray<ShapeKeyList> fKeyLists;
+    };
 
     // The Recorder that created and owns this Atlas.
     Recorder* fRecorder;
