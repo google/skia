@@ -133,7 +133,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "libwebp",
         build_file = ws + "//bazel/external/libwebp:BUILD.bazel",
-        commit = "2af26267cdfcb63a88e5c74a85927a12d6ca1d76",
+        commit = "ca332209cb5567c9b249c86788cb2dbf8847e760",
         remote = "https://chromium.googlesource.com/webm/libwebp.git",
     )
 
