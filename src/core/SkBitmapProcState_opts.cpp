@@ -19,6 +19,7 @@
 
 namespace SkOpts {
     DEFINE_DEFAULT(S32_alpha_D32_filter_DX);
+    DEFINE_DEFAULT(S32_alpha_D32_filter_DXDY);
 
     void Init_BitmapProcState_ssse3();
 

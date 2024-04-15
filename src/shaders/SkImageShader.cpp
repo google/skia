@@ -20,6 +20,7 @@
 #include "include/private/base/SkMath.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkBitmapProcState.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkImageInfoPriv.h"
@@ -192,8 +193,8 @@ bool SkImageShader::isOpaque() const {
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
     SkASSERT(!inv.hasPerspective());
 
-    // We only have methods for scale+translate
-    if (!inv.isScaleTranslate()) {
+    // Scale+translate methods are always present, but affine might not be.
+    if (!SkOpts::S32_alpha_D32_filter_DXDY && !inv.isScaleTranslate()) {
         return false;
     }
 
