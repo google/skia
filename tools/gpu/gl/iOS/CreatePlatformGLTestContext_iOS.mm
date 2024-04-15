@@ -6,11 +6,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/ganesh/gl/ios/GrGLMakeIOSInterface.h"
+#include "include/ports/SkCFObject.h"
 #include "tools/gpu/gl/GLTestContext.h"
+
 #import <OpenGLES/EAGL.h>
 #include <dlfcn.h>
-
-#include "include/ports/SkCFObject.h"
 
 #define EAGLCTX ((EAGLContext*)(fEAGLContext))
 
@@ -58,7 +59,7 @@ IOSGLTestContext::IOSGLTestContext(IOSGLTestContext* shareContext)
     SkScopeExit restorer(context_restorer());
     [EAGLContext setCurrentContext:fEAGLContext.get()];
 
-    sk_sp<const GrGLInterface> gl = GrGLMakeNativeInterface();
+    sk_sp<const GrGLInterface> gl = GrGLInterfaces::MakeIOS();
     if (nullptr == gl.get()) {
         SkDebugf("Failed to create gl interface");
         this->destroyGLContext();

@@ -9,6 +9,7 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/ios/WindowContextFactory_ios.h"
+#include "include/gpu/ganesh/gl/ios/GrGLMakeIOSInterface.h"
 
 #import <OpenGLES/ES3/gl.h>
 #import <UIKit/UIKit.h>
@@ -127,7 +128,7 @@ sk_sp<const GrGLInterface> GLWindowContext_ios::onInitializeContext() {
 
     glViewport(0, 0, fWidth, fHeight);
 
-    return GrGLMakeNativeInterface();
+    return GrGLInterfaces::MakeIOS();
 }
 
 void GLWindowContext_ios::onDestroyContext() {
