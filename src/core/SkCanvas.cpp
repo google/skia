@@ -11,6 +11,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlender.h"
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
@@ -27,6 +28,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTileMode.h"
@@ -42,12 +44,14 @@
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkMSAN.h"
 #include "src/core/SkBlenderBase.h"
+#include "src/core/SkBlurMaskFilterImpl.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkLatticeIter.h"
+#include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkSpecialImage.h"
@@ -2270,13 +2274,81 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
     }
 }
 
+static const SkBlurMaskFilterImpl* can_attempt_blurred_rrect_draw(const SkPaint& paint) {
+    if (paint.getPathEffect()) {
+        return nullptr;
+    }
+
+    // TODO: Once stroke-and-fill goes away, we can check the paint's style directly.
+    if (SkStrokeRec(paint).getStyle() != SkStrokeRec::kFill_Style) {
+        return nullptr;
+    }
+
+    const SkMaskFilterBase* maskFilter = as_MFB(paint.getMaskFilter());
+    if (!maskFilter || maskFilter->type() != SkMaskFilterBase::Type::kBlur) {
+        return nullptr;
+    }
+
+    const SkBlurMaskFilterImpl* blurMaskFilter =
+            static_cast<const SkBlurMaskFilterImpl*>(maskFilter);
+    if (blurMaskFilter->blurStyle() != kNormal_SkBlurStyle) {
+        return nullptr;
+    }
+
+    return blurMaskFilter;
+}
+
+std::optional<AutoLayerForImageFilter> SkCanvas::attemptBlurredRRectDraw(
+        const SkRRect& rrect, const SkPaint& paint, SkEnumBitMask<PredrawFlags> flags) {
+    SkASSERT(!(flags & PredrawFlags::kSkipMaskFilterAutoLayer));
+    const SkRect& bounds = rrect.getBounds();
+
+    if (!this->topDevice()->useDrawCoverageMaskForMaskFilters()) {
+        // Regular draw in the legacy mask filter case.
+        return this->aboutToDraw(paint, &bounds, flags);
+    }
+
+    if (!this->getTotalMatrix().isSimilarity()) {
+        // TODO: If the CTM does more than just translation, rotation, and uniform scale, then the
+        // results of analytic blurring will be different than mask filter blurring. Skip the
+        // specialized path in this case.
+        return this->aboutToDraw(paint, &bounds, flags);
+    }
+
+    const SkBlurMaskFilterImpl* blurMaskFilter = can_attempt_blurred_rrect_draw(paint);
+    if (!blurMaskFilter) {
+        // Can't attempt a specialized blurred draw, so do a regular draw.
+        return this->aboutToDraw(paint, &bounds, flags);
+    }
+
+    auto layer = this->aboutToDraw(paint, &bounds, flags | PredrawFlags::kSkipMaskFilterAutoLayer);
+    if (!layer) {
+        // predrawNotify failed.
+        return std::nullopt;
+    }
+
+    const float deviceSigma = blurMaskFilter->computeXformedSigma(this->getTotalMatrix());
+    if (this->topDevice()->drawBlurredRRect(rrect, layer->paint(), deviceSigma)) {
+        // Analytic draw was successful.
+        return std::nullopt;
+    }
+
+    // Fall back on a regular draw, adding any mask filter layer we skipped earlier. We know the
+    // paint has a mask filter here, otherwise we would have failed the can_attempt check above.
+    layer->addMaskFilterLayer(&bounds);
+    return layer;
+}
+
 void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
     SkASSERT(r.isSorted());
     if (this->internalQuickReject(r, paint)) {
         return;
     }
 
-    auto layer = this->aboutToDraw(paint, &r, PredrawFlags::kCheckForOverwrite);
+    // Returns a layer if a blurred draw is not applicable or was unsuccessful.
+    std::optional<AutoLayerForImageFilter> layer = this->attemptBlurredRRectDraw(
+            SkRRect::MakeRect(r), paint, PredrawFlags::kCheckForOverwrite);
+
     if (layer) {
         this->topDevice()->drawRect(r, layer->paint());
     }
@@ -2344,7 +2416,10 @@ void SkCanvas::onDrawOval(const SkRect& oval, const SkPaint& paint) {
         return;
     }
 
-    auto layer = this->aboutToDraw(paint, &oval);
+    // Returns a layer if a blurred draw is not applicable or was unsuccessful.
+    std::optional<AutoLayerForImageFilter> layer =
+            this->attemptBlurredRRectDraw(SkRRect::MakeOval(oval), paint, PredrawFlags::kNone);
+
     if (layer) {
         this->topDevice()->drawOval(oval, layer->paint());
     }
@@ -2382,7 +2457,10 @@ void SkCanvas::onDrawRRect(const SkRRect& rrect, const SkPaint& paint) {
         return;
     }
 
-    auto layer = this->aboutToDraw(paint, &bounds);
+    // Returns a layer if a blurred draw is not applicable or was unsuccessful.
+    std::optional<AutoLayerForImageFilter> layer =
+            this->attemptBlurredRRectDraw(rrect, paint, PredrawFlags::kNone);
+
     if (layer) {
         this->topDevice()->drawRRect(rrect, layer->paint());
     }

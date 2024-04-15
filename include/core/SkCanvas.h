@@ -2568,6 +2568,14 @@ private:
     // into the canvas' global space.
     SkRect computeDeviceClipBounds(bool outsetForAA=true) const;
 
+    // Attempt to draw a rrect with an analytic blur. If the paint does not contain a blur, or the
+    // geometry can't be drawn with an analytic blur by the device, a layer is returned for a
+    // regular draw. If the draw succeeds or predrawNotify fails, nullopt is returned indicating
+    // that nothing further should be drawn.
+    std::optional<AutoLayerForImageFilter> attemptBlurredRRectDraw(const SkRRect&,
+                                                                   const SkPaint&,
+                                                                   SkEnumBitMask<PredrawFlags>);
+
     class AutoUpdateQRBounds;
     void validateClip() const;
 

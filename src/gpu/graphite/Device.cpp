@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/private/gpu/graphite/ContextOptionsPriv.h"
 #include "src/gpu/AtlasTypes.h"
+#include "src/gpu/BlurUtils.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
@@ -48,6 +49,7 @@
 #include "include/core/SkStrokeRec.h"
 
 #include "src/core/SkBlenderBase.h"
+#include "src/core/SkBlurMaskFilterImpl.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageFilterTypes.h"
@@ -1295,6 +1297,8 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         SkASSERT(!requireMSAA && style.isFillStyle());
         // handled by specialized system, simplified from rects and round rects
         return {renderers->perEdgeAAQuad(), nullptr};
+    } else if (geometry.isRectBlur()) {
+        return {renderers->rectBlur(), nullptr};
     } else if (!geometry.isShape()) {
         // We must account for new Geometry types with specific Renderers
         return {nullptr, nullptr};
@@ -1632,6 +1636,26 @@ sk_sp<sktext::gpu::Slug> Device::convertGlyphRunListToSlug(const sktext::GlyphRu
 void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug, const SkPaint& paint) {
     auto slugImpl = static_cast<const sktext::gpu::SlugImpl*>(slug);
     slugImpl->subRuns()->draw(canvas, slugImpl->origin(), paint, slugImpl, this->atlasDelegate());
+}
+
+bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float deviceSigma) {
+    SkStrokeRec style(paint);
+    if (skgpu::BlurIsEffectivelyIdentity(deviceSigma)) {
+        this->drawGeometry(this->localToDeviceTransform(),
+                           Geometry(rrect.isRect() ? Shape(rrect.rect()) : Shape(rrect)),
+                           paint,
+                           style);
+        return true;
+    }
+
+    std::optional<RectBlurData> rectBlurData = RectBlurData::Make(
+            this->recorder(), this->localToDeviceTransform(), deviceSigma, rrect);
+    if (!rectBlurData) {
+        return false;
+    }
+
+    this->drawGeometry(this->localToDeviceTransform(), Geometry(*rectBlurData), paint, style);
+    return true;
 }
 
 } // namespace skgpu::graphite

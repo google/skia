@@ -143,9 +143,12 @@ public:
 
     const SkPaint& paint() const { return fPaint; }
 
+    // This is public so that a canvas can attempt to specially handle mask filters, specifically
+    // for blurs, and then if the attempt fails fall back on a regular draw with the same autolayer.
+    void addMaskFilterLayer(const SkRect* drawBounds);
+
 private:
     void addImageFilterLayer(const SkRect* drawBounds);
-    void addMaskFilterLayer(const SkRect* drawBounds);
 
     void addLayer(const SkPaint& restorePaint, const SkRect* drawBounds, bool coverageOnly);
 

@@ -465,6 +465,13 @@ public:
                                   const SkSamplingOptions&, const SkPaint&);
 
     /**
+     * Draw rrect with an optimized path for analytic blurs, if provided by the device.
+     */
+    virtual bool drawBlurredRRect(const SkRRect&, const SkPaint&, float deviceSigma) {
+        return false;
+    }
+
+    /**
      * Evaluate 'filter' and draw the final output into this device using 'paint'. The 'mapping'
      * defines the parameter-to-layer space transform used to evaluate the image filter on 'src',
      * and the layer-to-device space transform that is used to draw the result into this device.

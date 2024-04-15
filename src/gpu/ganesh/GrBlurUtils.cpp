@@ -46,9 +46,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkMathPriv.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkBlurMaskFilterImpl.h"
 #include "src/core/SkDraw.h"
@@ -707,53 +705,12 @@ static std::unique_ptr<GrFragmentProcessor> make_circle_blur(GrRecordingContext*
 //  Rect Blur
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO: it seems like there should be some synergy with SkBlurMask::ComputeBlurProfile
-// TODO: maybe cache this on the cpu side?
-static int create_integral_table(float sixSigma, SkBitmap* table) {
-    // Check for NaN
-    if (sk_float_isnan(sixSigma)) {
-        return 0;
-    }
-    // Avoid overflow, covers both multiplying by 2 and finding next power of 2:
-    // 2*((2^31-1)/4 + 1) = 2*(2^29-1) + 2 = 2^30 and SkNextPow2(2^30) = 2^30
-    if (sixSigma > SK_MaxS32/4 + 1) {
-        return 0;
-    }
-    // The texture we're producing represents the integral of a normal distribution over a
-    // six-sigma range centered at zero. We want enough resolution so that the linear
-    // interpolation done in texture lookup doesn't introduce noticeable artifacts. We
-    // conservatively choose to have 2 texels for each dst pixel.
-    int minWidth = 2*((int)sk_float_ceil(sixSigma));
-    // Bin by powers of 2 with a minimum so we get good profile reuse.
-    int width = std::max(SkNextPow2(minWidth), 32);
-
-    if (!table) {
-        return width;
-    }
-
-    if (!table->tryAllocPixels(SkImageInfo::MakeA8(width, 1))) {
-        return 0;
-    }
-    *table->getAddr8(0, 0) = 255;
-    const float invWidth = 1.f / width;
-    for (int i = 1; i < width - 1; ++i) {
-        float x = (i + 0.5f) * invWidth;
-        x = (-6 * x + 3) * SK_ScalarRoot2Over2;
-        float integral = 0.5f * (std::erf(x) + 1.f);
-        *table->getAddr8(i, 0) = SkToU8(sk_float_round2int(255.f * integral));
-    }
-
-    *table->getAddr8(width - 1, 0) = 0;
-    table->setImmutable();
-    return table->width();
-}
-
 static std::unique_ptr<GrFragmentProcessor> make_rect_integral_fp(GrRecordingContext* rContext,
                                                                   float sixSigma) {
     SkASSERT(!skgpu::BlurIsEffectivelyIdentity(sixSigma / 6.f));
     auto threadSafeCache = rContext->priv().threadSafeCache();
 
-    int width = create_integral_table(sixSigma, nullptr);
+    int width = skgpu::ComputeIntegralTableWidth(sixSigma);
 
     static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
     skgpu::UniqueKey key;
@@ -771,8 +728,8 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_integral_fp(GrRecordingCon
                 std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
     }
 
-    SkBitmap bitmap;
-    if (!create_integral_table(sixSigma, &bitmap)) {
+    SkBitmap bitmap = skgpu::CreateIntegralTable(sixSigma);
+    if (bitmap.empty()) {
         return {};
     }
 
@@ -1081,8 +1038,8 @@ static GrSurfaceProxyView create_mask_on_cpu(GrRecordingContext* rContext,
     std::unique_ptr<float[]> kernel(new float[kernelSize]);
     skgpu::Compute1DBlurKernel(xformedSigma, radius, SkSpan<float>(kernel.get(), kernelSize));
 
-    SkBitmap integral;
-    if (!create_integral_table(6 * xformedSigma, &integral)) {
+    SkBitmap integral = skgpu::CreateIntegralTable(6 * xformedSigma);
+    if (integral.empty()) {
         return {};
     }
 

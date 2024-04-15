@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/render/CoverageMaskRenderStep.h"
 #include "src/gpu/graphite/render/MiddleOutFanRenderStep.h"
 #include "src/gpu/graphite/render/PerEdgeAAQuadRenderStep.h"
+#include "src/gpu/graphite/render/RectBlurRenderStep.h"
 #include "src/gpu/graphite/render/SDFTextRenderStep.h"
 #include "src/gpu/graphite/render/TessellateCurvesRenderStep.h"
 #include "src/gpu/graphite/render/TessellateStrokesRenderStep.h"
@@ -80,6 +81,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                                   DrawTypeFlags::kSimpleShape);
     fPerEdgeAAQuad = makeFromStep(std::make_unique<PerEdgeAAQuadRenderStep>(bufferManager),
                                   DrawTypeFlags::kSimpleShape);
+    fRectBlur = makeFromStep(std::make_unique<RectBlurRenderStep>(), DrawTypeFlags::kSimpleShape);
     for (PrimitiveType primType : {PrimitiveType::kTriangles, PrimitiveType::kTriangleStrip}) {
         for (bool color : {false, true}) {
             for (bool texCoords : {false, true}) {

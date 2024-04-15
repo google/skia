@@ -24,6 +24,10 @@ const int $kMaskFormatA8   = 0;
 const int $kMaskFormatA565 = 1;
 const int $kMaskFormatARGB = 2;
 
+const int $kShapeTypeRect = 0;
+const int $kShapeTypeRRect = 1;
+const int $kShapeTypeCircle = 2;
+
 // Matches GrTextureEffect::kLinearInset, to make sure we don't touch an outer
 // row or column with a weight of 0 when linear filtering.
 const float $kLinearInset = 0.5 + 0.00001;
@@ -1425,4 +1429,63 @@ $pure half4 per_edge_aa_quad_coverage_fn(float4 coords,
     float2 outerDist = min(edgeDistances.xy, edgeDistances.zw);
     float c = min(outerDist.x, outerDist.y) * coords.w;
     return half4(saturate(c));
+}
+
+$pure half4 $rect_blur_coverage_fn(float2 coords,
+                                   float4 rect,
+                                   int isFast,
+                                   half invSixSigma,
+                                   sampler2D integral) {
+    half xCoverage;
+    half yCoverage;
+
+    if (bool(isFast)) {
+        // Get the smaller of the signed distance from the frag coord to the left and right
+        // edges and similar for y.
+        // The integral texture goes "backwards" (from 3*sigma to -3*sigma), So, the below
+        // computations align the left edge of the integral texture with the inset rect's
+        // edge extending outward 6 * sigma from the inset rect.
+        half2 pos = max(half2(rect.LT - coords), half2(coords - rect.RB));
+        xCoverage = sample(integral, float2(invSixSigma * pos.x, 0.5)).r;
+        yCoverage = sample(integral, float2(invSixSigma * pos.y, 0.5)).r;
+
+    } else {
+        // We just consider just the x direction here. In practice we compute x and y
+        // separately and multiply them together.
+        // We define our coord system so that the point at which we're evaluating a kernel
+        // defined by the normal distribution (K) at 0. In this coord system let L be left
+        // edge and R be the right edge of the rectangle.
+        // We can calculate C by integrating K with the half infinite ranges outside the
+        // L to R range and subtracting from 1:
+        //   C = 1 - <integral of K from from -inf to  L> - <integral of K from R to inf>
+        // K is symmetric about x=0 so:
+        //   C = 1 - <integral of K from from -inf to  L> - <integral of K from -inf to -R>
+
+        // The integral texture goes "backwards" (from 3*sigma to -3*sigma) which is
+        // factored in to the below calculations.
+        // Also, our rect uniform was pre-inset by 3 sigma from the actual rect being
+        // blurred, also factored in.
+        half4 rect = half4(half2(rect.LT - coords), half2(coords - rect.RB));
+        xCoverage = 1 - sample(integral, float2(invSixSigma * rect.L, 0.5)).r
+                      - sample(integral, float2(invSixSigma * rect.R, 0.5)).r;
+        yCoverage = 1 - sample(integral, float2(invSixSigma * rect.T, 0.5)).r
+                      - sample(integral, float2(invSixSigma * rect.B, 0.5)).r;
+    }
+
+    return half4(xCoverage * yCoverage);
+}
+
+$pure half4 blur_coverage_fn(float2 coords,
+                             float4 shapeData,
+                             int shapeType,
+                             int isFast,
+                             half invSixSigma,
+                             sampler2D s) {
+    switch (shapeType) {
+        case $kShapeTypeRect: {
+            return $rect_blur_coverage_fn(coords, shapeData, isFast, invSixSigma, s);
+        }
+        // TODO(b/238762890) Handle $kShapeTypeRRect and $kShapeTypeCircle.
+    }
+    return half4(0);
 }
