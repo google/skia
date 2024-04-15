@@ -239,7 +239,7 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
 
     fUTF8IndexForUTF16Index.clear();
     fUTF16IndexForUTF8Index.clear();
-#if !defined(SK_DISABLE_LEGACY_CLIENT_UNICODE) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+#if !defined(SK_DISABLE_LEGACY_PARAGRAPH_UNICODE) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     if (fUsingClientInfo && !fUnicode) {
         // This is the place where SkUnicode is paired with SkParagraph
         fUnicode = SkUnicodes::Client::Make(this->getText(),
