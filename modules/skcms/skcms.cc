@@ -91,9 +91,13 @@ static float exp2f_(float x) {
 
 // Not static, as it's used by some test tools.
 float powf_(float x, float y) {
-    assert (x >= 0);
-    return (x == 0) || (x == 1) ? x
-                                : exp2f_(log2f_(x) * y);
+    if (x <= 0.f) {
+        return 0.f;
+    }
+    if (x == 1.f) {
+        return 1.f;
+    }
+    return exp2f_(log2f_(x) * y);
 }
 
 static float expf_(float x) {
@@ -232,9 +236,9 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
             return sign * (x < tf->d ?       tf->c * x + tf->f
                                      : powf_(tf->a * x + tf->b, tf->g) + tf->e);
 
-        case skcms_TFType_PQish: return sign * powf_(fmaxf_(pq.A + pq.B * powf_(x, pq.C), 0)
-                                                         / (pq.D + pq.E * powf_(x, pq.C)),
-                                                     pq.F);
+        case skcms_TFType_PQish:
+            return sign *
+                   powf_((pq.A + pq.B * powf_(x, pq.C)) / (pq.D + pq.E * powf_(x, pq.C)), pq.F);
     }
     return 0;
 }
