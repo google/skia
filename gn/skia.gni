@@ -95,9 +95,6 @@ declare_args() {
   if (is_ios) {
     skia_ios_identity = ".*Google.*"
     skia_ios_profile = "Google Development"
-
-    # should only code sign when running on a device, not the simulator
-    skia_ios_use_signing = !ios_use_simulator
   }
 
   skia_build_rust_targets = false
