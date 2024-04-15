@@ -198,6 +198,8 @@ public:
         return fSlotsRoot;
     }
 
+    void parseFonts (const skjson::ObjectValue* jfonts, const skjson::ArrayValue* jchars);
+
 private:
     friend class CompositionBuilder;
     friend class CustomFont;
@@ -210,8 +212,6 @@ private:
     struct LayerInfo;
 
     void parseAssets(const skjson::ArrayValue*);
-    void parseFonts (const skjson::ObjectValue* jfonts,
-                     const skjson::ArrayValue* jchars);
 
     // Return true iff all fonts were resolved.
     bool resolveNativeTypefaces();

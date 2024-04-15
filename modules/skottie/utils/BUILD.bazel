@@ -9,6 +9,7 @@ skia_filegroup(
     srcs = [
         "SkottieUtils.h",
         "TextEditor.h",
+        "TextPreshape.h",
     ],
     visibility = ["//modules/skottie:__pkg__"],
 )
@@ -18,6 +19,16 @@ skia_filegroup(
     srcs = [
         "SkottieUtils.cpp",
         "TextEditor.cpp",
+        "TextPreshape.cpp",
     ],
     visibility = ["//modules/skottie:__pkg__"],
 )
+
+skia_filegroup(
+    name = "skottie_preshape_tool",
+    srcs = [
+        "PreshapeTool.cpp",
+    ],
+    visibility = ["//modules/skottie:__pkg__"],
+)
+

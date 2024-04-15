@@ -92,6 +92,25 @@ cc_binary_with_flags(
     ],
 )
 
+cc_binary_with_flags(
+    name = "skottie_preshape_tool",
+    testonly = True,
+    srcs = [
+        "//modules/skottie/utils:skottie_preshape_tool",
+        "//tools/flags",
+    ],
+    set_flags = {
+        "include_fontmgr": ["fontconfig_fontmgr"],
+        "use_harfbuzz": ["True"],
+        "use_icu": ["True"],
+    },
+    deps = [
+        ":legacy_skottie",
+        ":legacy_utils",
+        "//tools/gpu:utils",
+    ],
+)
+
 skia_cc_library(
     name = "skottie",
     srcs = [

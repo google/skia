@@ -44,6 +44,7 @@ if (skia_enable_skottie) {
       sources = [
         "utils/SkottieUtils.cpp",
         "utils/TextEditor.cpp",
+        "utils/TextPreshape.cpp",
       ]
       deps = [
         ":skottie",
@@ -171,6 +172,23 @@ if (skia_enable_skottie) {
         ]
       }
 
+      skia_source_set("preshape_tool") {
+        check_includes = false
+        testonly = true
+
+        configs = [ "../..:skia_private" ]
+        sources = [ "utils/PreshapeTool.cpp" ]
+
+        deps = [
+          "../..:flags",
+          "../..:skia",
+        ]
+
+        public_deps = [
+          ":skottie",
+          ":utils",
+        ]
+      }
       skia_source_set("gm") {
         check_includes = false
         testonly = true

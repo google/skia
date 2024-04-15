@@ -2368,6 +2368,9 @@ if (skia_enable_tools) {
       test_app("skottie_tool_gpu") {
         deps = [ "modules/skottie:tool_gpu" ]
       }
+      test_app("skottie_preshape_tool") {
+        deps = [ "modules/skottie:preshape_tool" ]
+      }
     }
     if (skia_enable_svg && skia_use_expat && defined(is_skia_standalone)) {
       test_app("svg_tool") {
