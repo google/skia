@@ -124,6 +124,26 @@ static void S32_alpha_D32_nofilter_DX(const SkBitmapProcState& s,
     }
 }
 
+static void S32_alpha_D32_nofilter_DXDY(const SkBitmapProcState& s,
+                                        const uint32_t* xy, int count, SkPMColor* colors) {
+    SkASSERT(count > 0 && colors != nullptr);
+    SkASSERT(!s.fBilerp);
+    SkASSERT(4 == s.fPixmap.info().bytesPerPixel());
+    SkASSERT(s.fAlphaScale <= 256);
+
+    auto src = (const char*)s.fPixmap.addr();
+    size_t rb = s.fPixmap.rowBytes();
+
+    while (count --> 0) {
+        uint32_t XY = *xy++,
+                 x  = XY & 0xffff,
+                 y  = XY >> 16;
+        SkASSERT(x < (unsigned)s.fPixmap.width ());
+        SkASSERT(y < (unsigned)s.fPixmap.height());
+        *colors++ = SkAlphaMulQ(((const SkPMColor*)(src + y*rb))[x], s.fAlphaScale);
+    }
+}
+
 SkBitmapProcState::SkBitmapProcState(const SkImage_Base* image, SkTileMode tmx, SkTileMode tmy)
     : fImage(image)
     , fTileModeX(tmx)
@@ -168,7 +188,8 @@ static bool valid_for_filtering(unsigned dimension) {
 
 bool SkBitmapProcState::init(const SkMatrix& inv, SkAlpha paintAlpha,
                              const SkSamplingOptions& sampling) {
-    SkASSERT(inv.isScaleTranslate());
+    SkASSERT(!inv.hasPerspective());
+    SkASSERT(SkOpts::S32_alpha_D32_filter_DXDY || inv.isScaleTranslate());
     SkASSERT(!sampling.isAniso());
     SkASSERT(!sampling.useCubic);
     SkASSERT(sampling.mipmap != SkMipmapMode::kLinear);
@@ -238,7 +259,8 @@ bool SkBitmapProcState::init(const SkMatrix& inv, SkAlpha paintAlpha,
  *    and may be removed.
  */
 bool SkBitmapProcState::chooseProcs() {
-    SkASSERT(fInvMatrix.isScaleTranslate());
+    SkASSERT(!fInvMatrix.hasPerspective());
+    SkASSERT(SkOpts::S32_alpha_D32_filter_DXDY || fInvMatrix.isScaleTranslate());
     SkASSERT(fPixmap.colorType() == kN32_SkColorType);
     SkASSERT(fPixmap.alphaType() == kPremul_SkAlphaType ||
              fPixmap.alphaType() == kOpaque_SkAlphaType);
@@ -255,7 +277,11 @@ bool SkBitmapProcState::chooseProcs() {
     fMatrixProc = this->chooseMatrixProc(translate_only);
     SkASSERT(fMatrixProc);
 
-    fSampleProc32 = fBilerp ? SkOpts::S32_alpha_D32_filter_DX : S32_alpha_D32_nofilter_DX;
+    if (fInvMatrix.isScaleTranslate()) {
+        fSampleProc32 = fBilerp ? SkOpts::S32_alpha_D32_filter_DX   : S32_alpha_D32_nofilter_DX  ;
+    } else {
+        fSampleProc32 = fBilerp ? SkOpts::S32_alpha_D32_filter_DXDY : S32_alpha_D32_nofilter_DXDY;
+    }
     SkASSERT(fSampleProc32);
 
     // our special-case shaderprocs

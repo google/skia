@@ -216,6 +216,8 @@ namespace SkOpts {
     // SkBitmapProcState optimized Shader, Sample, or Matrix procs.
     extern void (*S32_alpha_D32_filter_DX)(const SkBitmapProcState&,
                                            const uint32_t* xy, int count, SkPMColor*);
+    extern void (*S32_alpha_D32_filter_DXDY)(const SkBitmapProcState&,
+                                             const uint32_t* xy, int count, SkPMColor*);
 
     void Init_BitmapProcState();
 }  // namespace SkOpts
