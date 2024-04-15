@@ -845,7 +845,9 @@ void SkFontStyleSet_DirectWrite::getStyle(int index, SkFontStyle* fs, SkString* 
     HRVM(fFontFamily->GetFont(index, &font), "Could not get font.");
 
     if (fs) {
-        *fs = get_style(font.get());
+        SkTScopedComPtr<IDWriteFontFace> face;
+        HRVM(font->CreateFontFace(&face), "Could not get face.");
+        *fs = DWriteFontTypeface::GetStyle(font.get(), face.get());
     }
 
     if (styleName) {

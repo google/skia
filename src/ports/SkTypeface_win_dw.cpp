@@ -36,6 +36,68 @@
 
 using namespace skia_private;
 
+SkFontStyle DWriteFontTypeface::GetStyle(IDWriteFont* font, IDWriteFontFace* fontFace) {
+    int weight = font->GetWeight();
+    int width = font->GetStretch();
+    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
+    switch (font->GetStyle()) {
+        case DWRITE_FONT_STYLE_NORMAL: slant = SkFontStyle::kUpright_Slant; break;
+        case DWRITE_FONT_STYLE_OBLIQUE: slant = SkFontStyle::kOblique_Slant; break;
+        case DWRITE_FONT_STYLE_ITALIC: slant = SkFontStyle::kItalic_Slant; break;
+        default: SkASSERT(false); break;
+    }
+
+#if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
+    [&weight, &width, &slant, fontFace]() -> void {
+        SkTScopedComPtr<IDWriteFontFace5> fontFace5;
+        if (FAILED(fontFace->QueryInterface(&fontFace5))) {
+            return;
+        }
+        if (!fontFace5->HasVariations()) {
+            return;
+        }
+
+        UINT32 fontAxisCount = fontFace5->GetFontAxisValueCount();
+        SkTScopedComPtr<IDWriteFontResource> fontResource;
+        HRV(fontFace5->GetFontResource(&fontResource));
+
+        AutoSTMalloc<8, DWRITE_FONT_AXIS_VALUE> fontAxisValue(fontAxisCount);
+        HRV(fontFace5->GetFontAxisValues(fontAxisValue.get(), fontAxisCount));
+        for (UINT32 axisIndex = 0; axisIndex < fontAxisCount; ++axisIndex) {
+            if (fontAxisValue[axisIndex].axisTag == DWRITE_FONT_AXIS_TAG_WEIGHT) {
+               weight = fontAxisValue[axisIndex].value;
+            }
+            if (fontAxisValue[axisIndex].axisTag == DWRITE_FONT_AXIS_TAG_WIDTH) {
+                SkScalar wdthValue = fontAxisValue[axisIndex].value;
+                width = SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(wdthValue);
+            }
+            if (fontAxisValue[axisIndex].axisTag == DWRITE_FONT_AXIS_TAG_SLANT &&
+                slant != SkFontStyle::kItalic_Slant)
+            {
+                if (fontAxisValue[axisIndex].value == 0) {
+                    slant = SkFontStyle::kUpright_Slant;
+                } else {
+                    slant = SkFontStyle::kOblique_Slant;
+                }
+            }
+        }
+    }();
+#endif
+    return SkFontStyle(weight, width, slant);
+}
+
+sk_sp<DWriteFontTypeface> DWriteFontTypeface::Make(
+    IDWriteFactory* factory,
+    IDWriteFontFace* fontFace,
+    IDWriteFont* font,
+    IDWriteFontFamily* fontFamily,
+    sk_sp<Loaders> loaders,
+    const SkFontArguments::Palette& palette)
+{
+    return sk_sp<DWriteFontTypeface>(new DWriteFontTypeface(
+        GetStyle(font, fontFace), factory, fontFace, font, fontFamily, std::move(loaders), palette));
+}
+
 HRESULT DWriteFontTypeface::initializePalette() {
     if (!fIsColorFont) {
         return S_OK;

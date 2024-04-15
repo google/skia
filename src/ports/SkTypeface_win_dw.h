@@ -35,19 +35,6 @@ struct SkScalerContextRec;
 interface IDWriteFontFace4;
 interface IDWriteFontFace7;
 
-static SkFontStyle get_style(IDWriteFont* font) {
-    int weight = font->GetWeight();
-    int width = font->GetStretch();
-    SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
-    switch (font->GetStyle()) {
-        case DWRITE_FONT_STYLE_NORMAL: slant = SkFontStyle::kUpright_Slant; break;
-        case DWRITE_FONT_STYLE_OBLIQUE: slant = SkFontStyle::kOblique_Slant; break;
-        case DWRITE_FONT_STYLE_ITALIC: slant = SkFontStyle::kItalic_Slant; break;
-        default: SkASSERT(false); break;
-    }
-    return SkFontStyle(weight, width, slant);
-}
-
 class DWriteFontTypeface : public SkTypeface {
 public:
     struct Loaders : public SkNVRefCnt<Loaders> {
@@ -111,17 +98,14 @@ public:
     std::unique_ptr<SkColor[]> fPalette;
     std::unique_ptr<DWRITE_COLOR_F[]> fDWPalette;
 
+    static SkFontStyle GetStyle(IDWriteFont* font, IDWriteFontFace* fontFace);
     static sk_sp<DWriteFontTypeface> Make(
         IDWriteFactory* factory,
         IDWriteFontFace* fontFace,
         IDWriteFont* font,
         IDWriteFontFamily* fontFamily,
         sk_sp<Loaders> loaders,
-        const SkFontArguments::Palette& palette)
-    {
-        return sk_sp<DWriteFontTypeface>(new DWriteFontTypeface(
-            get_style(font), factory, fontFace, font, fontFamily, std::move(loaders), palette));
-    }
+        const SkFontArguments::Palette& palette);
 
 protected:
     void weak_dispose() const override {
