@@ -60,7 +60,6 @@ sk_sp<SkUnicode> get_unicode() {
         return unicode;
     }
 #endif
-    SkDEBUGFAIL("Cannot make SkUnicode");
     return nullptr;
 }
 }  // namespace
@@ -97,8 +96,13 @@ public:
         auto collection = sk_make_sp<skia::textlayout::FontCollection>();
         collection->setDefaultFontManager(std::move(fontmgr));
 
+        auto unicode = get_unicode();
+        if (!unicode) {
+            fPara = nullptr;
+            return;
+        }
         auto builder = skia::textlayout::ParagraphBuilderImpl::make(
-                paraStyle, collection, get_unicode());
+                paraStyle, collection, unicode);
         if (nullptr == builder) {
             fPara = nullptr;
             return;

@@ -249,7 +249,7 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
     }
 #endif
 
-    SkASSERT(fUnicode);
+    SkASSERT_RELEASE(fUnicode);
     return std::make_unique<ParagraphImpl>(
             fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection, fUnicode);
 }
