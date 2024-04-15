@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkDocument.h"
 #include "include/core/SkImageFilter.h"
@@ -730,6 +731,24 @@ DEF_TEST(canvas_savelayer_destructor, reporter) {
     // implementation (crbug.com/1238731)
     do_test(2, 0);
     check_pixels(SK_ColorRED);
+}
+
+DEF_TEST(Canvas_saveLayer_colorSpace, reporter) {
+    SkColor pixels[1];
+    const SkImageInfo info = SkImageInfo::MakeN32(1, 1, kOpaque_SkAlphaType);
+    SkPixmap pm(info, pixels, sizeof(SkColor));
+
+    auto surf = SkSurfaces::WrapPixels(pm);
+    auto canvas = surf->getCanvas();
+
+    sk_sp<SkColorSpace> cs = SkColorSpace::MakeSRGB()->makeColorSpin();
+    canvas->saveLayer(SkCanvas::SaveLayerRec(nullptr, nullptr, nullptr, cs.get(), 0));
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    canvas->drawPaint(paint);
+    canvas->restore();
+
+    REPORTER_ASSERT(reporter, pm.getColor(0, 0) == SK_ColorBLUE);
 }
 
 // Draw a lot of rectangles with different colors. On the GPU, the different colors make this

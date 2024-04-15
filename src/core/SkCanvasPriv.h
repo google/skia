@@ -79,7 +79,7 @@ public:
                                                       SkCanvas::SaveLayerFlags saveLayerFlags,
                                                       SkCanvas::FilterSpan filters = {}) {
         return SkCanvas::SaveLayerRec(
-                bounds, paint, backdrop, backdropScale, saveLayerFlags, filters);
+                bounds, paint, backdrop, nullptr, backdropScale, saveLayerFlags, filters);
     }
 
     static SkScalar GetBackdropScaleFactor(const SkCanvas::SaveLayerRec& rec) {

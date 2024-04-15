@@ -228,7 +228,8 @@ sk_sp<SkDevice> SkPDFDevice::createDevice(const CreateInfo& cinfo, const SkPaint
 
     // TODO: It may be possible to express some filters natively using PDF
     // to improve quality and file size (https://bug.skia.org/3043)
-    if (layerPaint && (layerPaint->getImageFilter() || layerPaint->getColorFilter())) {
+    if ((layerPaint && (layerPaint->getImageFilter() || layerPaint->getColorFilter()))
+        || !cinfo.fInfo.colorSpace()->isSRGB()) {
         // need to return a raster device, which we will detect in drawDevice()
         return SkBitmapDevice::Create(cinfo.fInfo,
                                       SkSurfaceProps());

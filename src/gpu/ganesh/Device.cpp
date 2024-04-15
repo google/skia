@@ -1426,7 +1426,7 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& cinfo, const SkPaint*) {
     auto sdc = SurfaceDrawContext::MakeWithFallback(
             fContext.get(),
             SkColorTypeToGrColorType(cinfo.fInfo.colorType()),
-            fSurfaceDrawContext->colorInfo().refColorSpace(),
+            cinfo.fInfo.refColorSpace(),
             SkBackingFit::kApprox,
             cinfo.fInfo.dimensions(),
             props,
