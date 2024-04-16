@@ -148,6 +148,12 @@ SkBitmap CreateIntegralTable(float sixSigma);
 // Returns the width of an integral table we will create for the given 6*sigma.
 int ComputeIntegralTableWidth(float sixSigma);
 
+// Creates a profile of a blurred circle.
+SkBitmap CreateCircleProfile(float sigma, float radius, int profileWidth);
+
+// Creates a half plane approximation profile of a blurred circle.
+SkBitmap CreateHalfPlaneProfile(int profileWidth);
+
 } // namespace skgpu
 
 #endif // skgpu_BlurUtils_DEFINED
