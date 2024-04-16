@@ -157,6 +157,8 @@ WEBP_SRCS = [
     "src/utils/huffman_encode_utils.h",
     "src/utils/huffman_utils.c",
     "src/utils/huffman_utils.h",
+    "src/utils/palette.c",
+    "src/utils/palette.h",
     "src/utils/quant_levels_dec_utils.c",
     "src/utils/quant_levels_dec_utils.h",
     "src/utils/quant_levels_utils.c",

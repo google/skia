@@ -171,6 +171,7 @@ if (skia_use_system_libwebp) {
       "../externals/libwebp/src/utils/filters_utils.c",
       "../externals/libwebp/src/utils/huffman_encode_utils.c",
       "../externals/libwebp/src/utils/huffman_utils.c",
+      "../externals/libwebp/src/utils/palette.c",
       "../externals/libwebp/src/utils/quant_levels_dec_utils.c",
       "../externals/libwebp/src/utils/quant_levels_utils.c",
       "../externals/libwebp/src/utils/random_utils.c",
