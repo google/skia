@@ -1439,6 +1439,25 @@ void Device::flushPendingWorkToRecorder(Recorder* recorder) {
     SkASSERT(!recorder || fScopedRecordingID == 0);
     SkASSERT(fScopedRecordingID == 0 || fScopedRecordingID == fRecorder->priv().nextRecordingID());
 
+    // TODO(b/330864257):  flushPendingWorkToRecorder() can be recursively called if this Device
+    // recorded a picture shader draw and during a flush (triggered by snap or automatically from
+    // reaching limits), the picture shader will be rendered to a new device. If that picture drawn
+    // to the temporary device fills up an atlas it can trigger the global
+    // recorder->flushTrackedDevices(), which will then encounter this device that is already in
+    // the midst of flushing. To avoid crashing we only actually flush the first time this is called
+    // and set a bit to early-out on any recursive calls.
+    // This is not an ideal solution since the temporary Device's flush-the-world may have reset
+    // atlas entries that the current Device's flushed draws will reference. But at this stage it's
+    // not possible to split the already recorded draws into a before-list and an after-list that
+    // can reference the old and new contents of the atlas. While avoiding the crash, this may cause
+    // incorrect accesses to a shared atlas. Once paint data is extracted at draw time, picture
+    // shaders will be resolved outside of flushes and then this will be fixed automatically.
+    if (fIsFlushing) {
+        return;
+    } else {
+        fIsFlushing = true;
+    }
+
     this->internalFlush();
     sk_sp<Task> drawTask = fDC->snapDrawTask(fRecorder);
     if (drawTask) {
@@ -1453,6 +1472,8 @@ void Device::flushPendingWorkToRecorder(Recorder* recorder) {
             }
         }
     }
+
+    fIsFlushing = false;
 }
 
 void Device::internalFlush() {

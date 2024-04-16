@@ -310,6 +310,9 @@ private:
     // The DrawContext's target supports MSAA
     bool fMSAASupported = false;
 
+    // TODO(b/330864257): Clean up once flushPendingWorkToRecorder() doesn't have to be re-entrant
+    bool fIsFlushing = false;
+
     const sktext::gpu::SDFTControl fSDFTControl;
 
 #if defined(SK_DEBUG)

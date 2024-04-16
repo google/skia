@@ -16,7 +16,6 @@
 #include "include/private/base/SkTArray.h"
 
 #include <chrono>
-#include <vector>
 
 struct AHardwareBuffer;
 class SkCanvas;
@@ -242,7 +241,13 @@ private:
     std::unique_ptr<TextureDataCache> fTextureDataCache;
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;
     std::unique_ptr<UploadBufferManager> fUploadBufferManager;
-    std::vector<sk_sp<Device>> fTrackedDevices;
+
+    // Iterating over tracked devices in flushTrackedDevices() needs to be re-entrant and support
+    // additions to fTrackedDevices if registerDevice() is triggered by a temporary device during
+    // flushing. Removals are handled by setting elements to null; final clean up is handled at the
+    // end of the initial call to flushTrackedDevices().
+    skia_private::TArray<sk_sp<Device>> fTrackedDevices;
+    int fFlushingDevicesIndex = -1;
 
     uint32_t fUniqueID;  // Needed for MessageBox handling for text
     uint32_t fNextRecordingID = 1;
