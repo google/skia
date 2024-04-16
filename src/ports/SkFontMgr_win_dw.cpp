@@ -947,12 +947,4 @@ sk_sp<SkFontMgr> SkFontMgr_New_DirectWrite(IDWriteFactory* factory,
                                              defaultFamilyName, defaultFamilyNameLen);
 }
 
-#include "include/ports/SkFontMgr_indirect.h"
-sk_sp<SkFontMgr> SkFontMgr_New_DirectWriteRenderer(sk_sp<SkRemotableFontMgr> proxy) {
-    sk_sp<SkFontMgr> impl(SkFontMgr_New_DirectWrite());
-    if (!impl) {
-        return nullptr;
-    }
-    return sk_make_sp<SkFontMgr_Indirect>(std::move(impl), std::move(proxy));
-}
 #endif//defined(SK_BUILD_FOR_WIN)
