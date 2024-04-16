@@ -1218,16 +1218,6 @@ sk_sp<PrecompileColorFilter> PrecompileColorFiltersPriv::WithWorkingFormat(
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
-// TODO: need to figure out how we're going to decompose ImageFilters
-sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blur() {
-    return nullptr; // sk_make_sp<PrecompileImageFilter>();
-}
-
-sk_sp<PrecompileImageFilter> PrecompileImageFilters::Image() {
-    return nullptr; // sk_make_sp<PrecompileImageFilter>();
-}
-
-//--------------------------------------------------------------------------------------------------
 PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileShader> s) : fChild(std::move(s)) {}
 PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileColorFilter> cf)
         : fChild(std::move(cf)) {

@@ -1435,9 +1435,13 @@ void run_test(skiatest::Reporter* reporter,
             std::vector<UniquePaintParamsID> precompileIDs;
             paintOptions.priv().buildCombinations(precompileKeyContext,
                                                   &precompileGatherer,
+                                                  DrawTypeFlags::kNone,
                                                   withPrimitiveBlender,
                                                   coverage,
-                                                  [&](UniquePaintParamsID id) {
+                                                  [&precompileIDs](UniquePaintParamsID id,
+                                                                   DrawTypeFlags,
+                                                                   bool /* withPrimitiveBlender */,
+                                                                   Coverage) {
                                                       precompileIDs.push_back(id);
                                                   });
 

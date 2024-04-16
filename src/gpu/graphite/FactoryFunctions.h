@@ -18,7 +18,6 @@ namespace skgpu::graphite {
 class PrecompileBase;
 class PrecompileBlender;
 class PrecompileColorFilter;
-class PrecompileImageFilter;
 class PrecompileMaskFilter;
 class PrecompileShader;
 
@@ -160,21 +159,6 @@ namespace PrecompileColorFilters {
     SK_API sk_sp<PrecompileColorFilter> Lighting();
 
 } // namespace PrecompileColorFilters
-
-//--------------------------------------------------------------------------------------------------
-// This will move to be beside SkImageFilters in include/effects/SkImageFilters.h
-class PrecompileImageFilters {
-public:
-    static sk_sp<PrecompileImageFilter> Blur();
-    static sk_sp<PrecompileImageFilter> Image();
-    // TODO: Arithmetic, Blend (2 kinds), ColorFilter, Compose, DisplacementMap,
-    // DropShadow, DropShadowOnly, Magnifier, MatrixConvolution, MatrixTransform, Merge, Offset,
-    // Picture, Runtime, Shader, Tile, Dilate, Erode, DistantLitDiffuse, PointLitDiffuse,
-    // SpotLitDiffuse, DistantLitSpecular, PointLitSpecular, SpotLitSpecular
-
-private:
-    PrecompileImageFilters() = delete;
-};
 
 //--------------------------------------------------------------------------------------------------
 // Object that allows passing a SkPrecompileShader, SkPrecompileColorFilter or

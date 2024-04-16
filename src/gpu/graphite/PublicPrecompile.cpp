@@ -33,7 +33,7 @@ void compile(const RendererProvider* rendererProvider,
              const KeyContext& keyContext,
              UniquePaintParamsID uniqueID,
              DrawTypeFlags drawTypes,
-             SkSpan<RenderPassDesc> renderPassDescs,
+             SkSpan<const RenderPassDesc> renderPassDescs,
              bool withPrimitiveBlender,
              Coverage coverage) {
     for (const Renderer* r : rendererProvider->renderers()) {
@@ -152,7 +152,7 @@ void PrecompileCombinations(Context* context,
     // actual RenderPassDescKey.
     // TODO: if all of the Renderers associated w/ the requested drawTypes require MSAA we
     // do not need to generate the combinations w/ the non-MSAA RenderPassDescs.
-    RenderPassDesc renderPassDescs[] = {
+    const RenderPassDesc renderPassDescs[] = {
         RenderPassDesc::Make(caps,
                              info,
                              LoadOp::kClear,
@@ -190,14 +190,21 @@ void PrecompileCombinations(Context* context,
     options.priv().buildCombinations(
         keyContext,
         &gatherer,
+        drawTypes,
         withPrimitiveBlender,
         coverage,
-        [&](UniquePaintParamsID uniqueID) {
-            compile(context->priv().rendererProvider(),
-                    context->priv().resourceProvider(),
-                    keyContext, uniqueID,
-                    drawTypes,
-                    renderPassDescs, withPrimitiveBlender, coverage);
+        [context, &keyContext, &renderPassDescs](UniquePaintParamsID uniqueID,
+                                                 DrawTypeFlags drawTypes,
+                                                 bool withPrimitiveBlender,
+                                                 Coverage coverage) {
+               compile(context->priv().rendererProvider(),
+                       context->priv().resourceProvider(),
+                       keyContext,
+                       uniqueID,
+                       drawTypes,
+                       renderPassDescs,
+                       withPrimitiveBlender,
+                       coverage);
         });
 }
 
