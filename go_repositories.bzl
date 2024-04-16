@@ -477,6 +477,19 @@ def go_repositories():
         version = "v1.0.0",
     )
     go_repository(
+        name = "com_github_google_go_replayers_grpcreplay",
+        importpath = "github.com/google/go-replayers/grpcreplay",
+        sum = "h1:S5+I3zYyZ+GQz68OfbURDdt/+cSMqCK1wrvNx7WBzTE=",
+        version = "v1.1.0",
+    )
+    go_repository(
+        name = "com_github_google_go_replayers_httpreplay",
+        importpath = "github.com/google/go-replayers/httpreplay",
+        sum = "h1:VM1wEyyjaoU53BwrOnaf9VhAyQQEEioJvFYxYcLRKzk=",
+        version = "v1.2.0",
+    )
+
+    go_repository(
         name = "com_github_google_gofuzz",
         importpath = "github.com/google/gofuzz",
         sum = "h1:xRy4A+RhZaiKjJ1bPfwQ8sedCA+YS2YcCHW6ec7JMi0=",
@@ -2670,8 +2683,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:zyjIo+uAWECScxrYJA3Z6Emq9nvnXg5ry0ymj6CjRXQ=",
-        version = "v0.0.0-20240413045223-f184d1bfa242",
+        sum = "h1:24le+ft/sQoq6dlQCFs3+LzCQIXgEPSVNtbWwcy/FoI=",
+        version = "v0.0.0-20240415234647-80097301710b",
     )
     go_repository(
         name = "org_uber_go_atomic",
