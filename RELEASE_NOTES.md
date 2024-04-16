@@ -2,6 +2,52 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 125
+-------------
+  * The size of the GPU memory cache budget can now be queried using member `maxBudgetedBytes` of `skgpu::graphite::Context` and `skgpu::graphite::Recorder`.
+  * Added `skgpu::graphite::Context::maxTextureSize()`, which exposes the maximum
+    texture dimension supported by the underlying backend.
+  * Using a MTLBinaryArchive to pre-load the MSL shader cache is no longer
+    supported in Ganesh, and the fBinaryArchive member of GrMtlBackendContext
+    has been removed.
+  * The `sksl-minify` tool can now eliminate unnecessary braces. For instance,
+    given the following SkSL code:
+
+    ```
+    if (condition) {
+        return 1;
+    } else {
+        return 2;
+    }
+    ```
+
+    The minifier will now emit:
+
+    ```
+    if(a)return 1;else return 2;
+    ```
+  * Added `SkBitmap::setColorSpace`. This API allows the colorspace of an existing
+    `SkBitmap` to be reinterpreted. The pixel data backing the bitmap will be left
+    as-is. The colorspace will be honored when the bitmap is accessed via APIs which
+    support colorspace conversion, like `readPixels`.
+  * `SkDrawLooper` has been removed completely from Skia. It was previously deprecated.
+  * Metal-specific constructors and methods have been removed from `GrBackendFormat`,
+    `GrBackendTexture`, and `GrBackendRenderTarget` and moved to
+    `include/gpu/ganesh/mtl/GrMtlBackendSurface.h`
+  * By default, //modules/skottie and //modules/svg will use primitive text shaping.
+    Clients that wish to use harfbuzz/icu for more correct shaping will need to
+    use one of the builders and call `setTextShapingFactory` with a newly-created
+    `SkShapers::Factory` implementation during construction.
+
+    For ease of configuration, `modules/skshaper/utils/FactoryHelpers.h` can be used
+    to provide this, but only if the client is depending on the correct skshaper
+    and skunicode modules (which should set defines such as `SK_SHAPER_HARFBUZZ_AVAILABLE`).
+
+    For example `builder.setTextShapingFactory(SkShapers::BestAvailable())` will use
+    Harfbuzz or CoreText for shaping if they were compiled in to the clients binary.
+
+* * *
+
 Milestone 124
 -------------
   * `SkColorFilter::filterColor` is now deprecated and will eventually be removed in favor of `filterColor4f`.
