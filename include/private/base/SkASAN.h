@@ -30,13 +30,15 @@ extern "C" {
 // Code that implements bespoke allocation arenas can poison the entire arena on creation, then
 // unpoison chunks of arena memory as they are parceled out. Consider leaving gaps between blocks
 // to detect buffer overrun.
-static inline void sk_asan_poison_memory_region(void const volatile *addr, size_t size) {
+static inline void sk_asan_poison_memory_region([[maybe_unused]] void const volatile* addr,
+                                                [[maybe_unused]] size_t size) {
 #ifdef SK_SANITIZE_ADDRESS
     __asan_poison_memory_region(addr, size);
 #endif
 }
 
-static inline void sk_asan_unpoison_memory_region(void const volatile *addr, size_t size) {
+static inline void sk_asan_unpoison_memory_region([[maybe_unused]] void const volatile* addr,
+                                                  [[maybe_unused]] size_t size) {
 #ifdef SK_SANITIZE_ADDRESS
     __asan_unpoison_memory_region(addr, size);
 #endif
