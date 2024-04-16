@@ -64,12 +64,12 @@ private:
     bool            fHasAttachedToTexture;
 
 #ifdef SK_DEBUG
-    enum BindingCategory {
-      kUndefined_BindingCategory,
-      kIndexBuffer_BindingCategory,
-      kOtherData_BindingCategory,
+    enum class BindingCategory {
+      kUndefined,
+      kIndexBuffer,
+      kOtherData,
     };
-    mutable BindingCategory fBindingCategory;
+  mutable BindingCategory fBindingCategory = BindingCategory::kUndefined;
 #endif // SK_DEBUG
 
     using INHERITED = GrGpuBuffer;

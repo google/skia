@@ -109,21 +109,21 @@ bool GrGLBuffer::validBindingTarget(GrGLenum target) const {
      * either indices or other data, but not both.
      */
     if (GR_GL_ELEMENT_ARRAY_BUFFER == target) {
-        switch (this->fBindingCategory) {
-            case kUndefined_BindingCategory:
-                this->fBindingCategory = kIndexBuffer_BindingCategory;
+        switch (fBindingCategory) {
+            case BindingCategory::kUndefined:
+                fBindingCategory = BindingCategory::kIndexBuffer;
                 [[fallthrough]];
-            case kIndexBuffer_BindingCategory:
+            case BindingCategory::kIndexBuffer:
                 return true;
             default:
                 return false;
         }
     }
-    switch (this->fBindingCategory) {
-        case kUndefined_BindingCategory:
-            this->fBindingCategory = kOtherData_BindingCategory;
+    switch (fBindingCategory) {
+        case BindingCategory::kUndefined:
+            fBindingCategory = BindingCategory::kOtherData;
             [[fallthrough]];
-        case kOtherData_BindingCategory:
+        case BindingCategory::kOtherData:
             return true;
         default:
             return false;
