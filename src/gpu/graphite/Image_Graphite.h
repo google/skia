@@ -10,7 +10,6 @@
 
 #include "src/gpu/graphite/Image_Base_Graphite.h"
 
-#include "include/gpu/graphite/Image.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 
 namespace skgpu {
@@ -60,15 +59,6 @@ public:
                            Budgeted, Mipmapped, SkBackingFit) const override;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
-
-    static sk_sp<TextureProxy> MakePromiseImageLazyProxy(
-            const Caps*,
-            SkISize dimensions,
-            TextureInfo,
-            Volatile,
-            SkImages::GraphitePromiseImageFulfillProc,
-            sk_sp<RefCntedCallback>,
-            SkImages::GraphitePromiseTextureReleaseProc);
 
 #if defined(GRAPHITE_TEST_UTILS)
     bool onReadPixelsGraphite(Recorder*,

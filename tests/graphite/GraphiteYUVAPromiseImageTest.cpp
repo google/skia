@@ -190,7 +190,7 @@ struct TestCtx {
     PromiseImageChecker fPromiseImageChecker;
     SkImages::GraphitePromiseImageContext fImageContext = &fPromiseImageChecker;
     PromiseTextureChecker fPromiseTextureCheckers[4];
-    SkImages::GraphitePromiseTextureContext fTextureContexts[4] = {
+    SkImages::GraphitePromiseTextureFulfillContext fTextureContexts[4] = {
         &fPromiseTextureCheckers[0],
         &fPromiseTextureCheckers[1],
         &fPromiseTextureCheckers[2],

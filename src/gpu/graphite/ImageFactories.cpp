@@ -156,7 +156,7 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
                                   const SkColorInfo& colorInfo,
                                   skgpu::Origin origin,
                                   Volatile isVolatile,
-                                  GraphitePromiseImageFulfillProc fulfillProc,
+                                  GraphitePromiseTextureFulfillProc fulfillProc,
                                   GraphitePromiseImageReleaseProc imageReleaseProc,
                                   GraphitePromiseTextureReleaseProc textureReleaseProc,
                                   GraphitePromiseImageContext imageContext) {
@@ -183,13 +183,15 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
         return nullptr;
     }
 
-    sk_sp<TextureProxy> proxy = Image::MakePromiseImageLazyProxy(caps,
-                                                                 dimensions,
-                                                                 textureInfo,
-                                                                 isVolatile,
-                                                                 fulfillProc,
-                                                                 std::move(releaseHelper),
-                                                                 textureReleaseProc);
+    // Non-YUVA promise images use the 'imageContext' for both the release proc and fulfill proc.
+    sk_sp<TextureProxy> proxy = MakePromiseImageLazyProxy(caps,
+                                                          dimensions,
+                                                          textureInfo,
+                                                          isVolatile,
+                                                          std::move(releaseHelper),
+                                                          fulfillProc,
+                                                          imageContext,
+                                                          textureReleaseProc);
     if (!proxy) {
         return nullptr;
     }
@@ -204,7 +206,7 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
                                   const TextureInfo& textureInfo,
                                   const SkColorInfo& colorInfo,
                                   Volatile isVolatile,
-                                  GraphitePromiseImageFulfillProc fulfillProc,
+                                  GraphitePromiseTextureFulfillProc fulfillProc,
                                   GraphitePromiseImageReleaseProc imageReleaseProc,
                                   GraphitePromiseTextureReleaseProc textureReleaseProc,
                                   GraphitePromiseImageContext imageContext) {
@@ -224,11 +226,11 @@ sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
                                       const YUVABackendTextureInfo& backendTextureInfo,
                                       sk_sp<SkColorSpace> imageColorSpace,
                                       skgpu::graphite::Volatile isVolatile,
-                                      GraphitePromiseImageYUVAFulfillProc fulfillProc,
+                                      GraphitePromiseTextureFulfillProc fulfillProc,
                                       GraphitePromiseImageReleaseProc imageReleaseProc,
                                       GraphitePromiseTextureReleaseProc textureReleaseProc,
                                       GraphitePromiseImageContext imageContext,
-                                      GraphitePromiseTextureContext textureContexts[]) {
+                                      GraphitePromiseTextureFulfillContext planeContexts[]) {
     // Our contract is that we will always call the _image_ release proc even on failure.
     // We use the helper to convey the imageContext, so we need to ensure Make doesn't fail.
     imageReleaseProc = imageReleaseProc ? imageReleaseProc : [](void*) {};
@@ -259,14 +261,14 @@ sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
     // Make a lazy proxy for each plane
     sk_sp<TextureProxy> proxies[4];
     for (int p = 0; p < numPlanes; ++p) {
-        proxies[p] = Image_YUVA::MakePromiseImageLazyProxy(recorder->priv().caps(),
-                                                           planeDimensions[p],
-                                                           backendTextureInfo.planeTextureInfo(p),
-                                                           isVolatile,
-                                                           fulfillProc,
-                                                           releaseHelper,
-                                                           textureContexts[p],
-                                                           textureReleaseProc);
+        proxies[p] = MakePromiseImageLazyProxy(recorder->priv().caps(),
+                                               planeDimensions[p],
+                                               backendTextureInfo.planeTextureInfo(p),
+                                               isVolatile,
+                                               releaseHelper,
+                                               fulfillProc,
+                                               planeContexts[p],
+                                               textureReleaseProc);
         if (!proxies[p]) {
             return nullptr;
         }

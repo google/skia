@@ -18,8 +18,6 @@
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
-#include "include/gpu/graphite/YUVABackendTextures.h"
-#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
@@ -108,88 +106,3 @@ sk_sp<SkImage> Image_YUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) co
 }
 
 }  // namespace skgpu::graphite
-
-using namespace skgpu::graphite;
-using SkImages::GraphitePromiseImageYUVAFulfillProc;
-using SkImages::GraphitePromiseTextureContext;
-using SkImages::GraphitePromiseTextureReleaseProc;
-
-sk_sp<TextureProxy> Image_YUVA::MakePromiseImageLazyProxy(
-        const Caps* caps,
-        SkISize dimensions,
-        TextureInfo textureInfo,
-        Volatile isVolatile,
-        GraphitePromiseImageYUVAFulfillProc fulfillProc,
-        sk_sp<skgpu::RefCntedCallback> releaseHelper,
-        GraphitePromiseTextureContext textureContext,
-        GraphitePromiseTextureReleaseProc textureReleaseProc) {
-    SkASSERT(!dimensions.isEmpty());
-    SkASSERT(releaseHelper);
-
-    if (!fulfillProc) {
-        return nullptr;
-    }
-
-    /**
-     * This class is the lazy instantiation callback for promise images. It manages calling the
-     * client's Fulfill, ImageRelease, and TextureRelease procs.
-     */
-    class PromiseLazyInstantiateCallback {
-    public:
-        PromiseLazyInstantiateCallback(GraphitePromiseImageYUVAFulfillProc fulfillProc,
-                                       sk_sp<skgpu::RefCntedCallback> releaseHelper,
-                                       GraphitePromiseTextureContext textureContext,
-                                       GraphitePromiseTextureReleaseProc textureReleaseProc)
-                : fFulfillProc(fulfillProc)
-                , fReleaseHelper(std::move(releaseHelper))
-                , fTextureContext(textureContext)
-                , fTextureReleaseProc(textureReleaseProc) {
-        }
-        PromiseLazyInstantiateCallback(PromiseLazyInstantiateCallback&&) = default;
-        PromiseLazyInstantiateCallback(const PromiseLazyInstantiateCallback&) {
-            // Because we get wrapped in std::function we must be copyable. But we should never
-            // be copied.
-            SkASSERT(false);
-        }
-        PromiseLazyInstantiateCallback& operator=(PromiseLazyInstantiateCallback&&) = default;
-        PromiseLazyInstantiateCallback& operator=(const PromiseLazyInstantiateCallback&) {
-            SkASSERT(false);
-            return *this;
-        }
-
-        sk_sp<Texture> operator()(ResourceProvider* resourceProvider) {
-
-            auto [ backendTexture, textureReleaseCtx ] = fFulfillProc(fTextureContext);
-            if (!backendTexture.isValid()) {
-                SKGPU_LOG_W("FulFill Proc failed");
-                return nullptr;
-            }
-
-            sk_sp<RefCntedCallback> textureReleaseCB = RefCntedCallback::Make(fTextureReleaseProc,
-                                                                              textureReleaseCtx);
-
-            sk_sp<Texture> texture = resourceProvider->createWrappedTexture(backendTexture);
-            if (!texture) {
-                SKGPU_LOG_W("Texture creation failed");
-                return nullptr;
-            }
-
-            texture->setReleaseCallback(std::move(textureReleaseCB));
-            return texture;
-        }
-
-    private:
-        GraphitePromiseImageYUVAFulfillProc fFulfillProc;
-        sk_sp<skgpu::RefCntedCallback> fReleaseHelper;
-        GraphitePromiseTextureContext  fTextureContext;
-        GraphitePromiseTextureReleaseProc fTextureReleaseProc;
-
-    } callback(fulfillProc, std::move(releaseHelper), textureContext, textureReleaseProc);
-
-    return TextureProxy::MakeLazy(caps,
-                                  dimensions,
-                                  textureInfo,
-                                  skgpu::Budgeted::kNo,  // This is destined for a user's SkImage
-                                  isVolatile,
-                                  std::move(callback));
-}
