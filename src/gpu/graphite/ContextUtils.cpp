@@ -542,12 +542,13 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
                                UniquePaintParamsID paintID,
                                bool useStorageBuffers,
                                skgpu::Swizzle writeSwizzle) {
-    if (!paintID.isValid()) {
-        // TODO: we should return the error shader code here
-        return {};
-    }
-
     FragSkSLInfo result;
+    result.fLabel = step->name();
+
+    if (!paintID.isValid()) {
+        // Depth-only draw so no fragment shader to compile
+        return result;
+    }
 
     const char* shadingSsboIndex =
             useStorageBuffers && step->performsShading() ? "shadingSsboIndex" : nullptr;
@@ -566,6 +567,9 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
     // that changes the HW blending choice to handle analytic coverage.
     result.fBlendInfo = shaderInfo.blendInfo();
     result.fRequiresLocalCoords = shaderInfo.needsLocalCoords();
+
+    result.fLabel +=  " + ";
+    result.fLabel += shaderInfo.label();
 
     return result;
 }

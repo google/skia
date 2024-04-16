@@ -175,7 +175,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     GraphicsPipeline::PipelineInfo* pipelineInfoPtr = nullptr;
 #endif
     return MtlGraphicsPipeline::Make(this->mtlSharedContext(),
-                                     step->name(),
+                                     fsSkSLInfo.fLabel,
                                      {vsLibrary.get(), "vertexMain"},
                                      step->vertexAttributes(),
                                      step->instanceAttributes(),

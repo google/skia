@@ -316,7 +316,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     }
 
     wgpu::RenderPipelineDescriptor descriptor;
-    descriptor.label = step->name();
+    descriptor.label = fsSkSLInfo.fLabel.c_str();
 
     // Fragment state
     skgpu::BlendEquation equation = blendInfo.fEquation;
@@ -422,7 +422,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
         wgpu::PipelineLayoutDescriptor layoutDesc;
 #if defined(SK_DEBUG)
-        layoutDesc.label = step->name();
+        layoutDesc.label = fsSkSLInfo.fLabel.c_str();
 #endif
         layoutDesc.bindGroupLayoutCount =
             hasFragmentSamplers ? groupLayouts.size() : groupLayouts.size() - 1;

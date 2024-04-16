@@ -190,6 +190,8 @@ public:
 
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
+    std::string_view label() const { return fLabel; }
+
     std::string toSkSL(const Caps* caps,
                        const RenderStep* step,
                        bool useStorageBuffers,
@@ -215,6 +217,7 @@ private:
     SkBlendMode fBlendMode = SkBlendMode::kClear;
     skgpu::BlendInfo fBlendInfo;
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;
+    std::string fLabel;
 };
 
 // ShaderCodeDictionary is a thread-safe dictionary of ShaderSnippets to code IDs for use with

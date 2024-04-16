@@ -20,6 +20,7 @@
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/SharedContext.h"
@@ -27,6 +28,18 @@
 #include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::graphite {
+
+// These are only used when tracing is enabled at compile time.
+[[maybe_unused]] static const char* render_step_name(const SharedContext* ctx,
+                                                     const GraphicsPipelineDesc& desc) {
+    return ctx->rendererProvider()->lookup(desc.renderStepID())->name();
+}
+
+[[maybe_unused]] static SkString paint_desc(const SharedContext* ctx,
+                                            const GraphicsPipelineDesc& desc) {
+    const ShaderCodeDictionary* dict = ctx->shaderCodeDictionary();
+    return dict->lookup(desc.paintParamsID()).toString(dict);
+}
 
 ResourceProvider::ResourceProvider(SharedContext* sharedContext,
                                    SingleOwner* singleOwner,
@@ -53,7 +66,11 @@ sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
         // threads. If this happens, GlobalCache returns the first-through-gate pipeline and we
         // discard the redundant pipeline. While this is wasted effort in the rare event of a race,
         // it allows pipeline creation to be performed without locking the global cache.
-        TRACE_EVENT0_ALWAYS("skia.shaders", "createGraphicsPipeline");
+        // NOTE: The parameters to TRACE_EVENT are only evaluated inside an if-block when the
+        // category is enabled.
+        TRACE_EVENT2("skia.shaders", "createGraphicsPipeline",
+                     "renderstep", TRACE_STR_STATIC(render_step_name(fSharedContext, pipelineDesc)),
+                     "paint", TRACE_STR_COPY(paint_desc(fSharedContext, pipelineDesc).c_str()));
         pipeline = this->createGraphicsPipeline(runtimeDict, pipelineDesc, renderPassDesc);
         if (pipeline) {
             // TODO: Should we store a null pipeline if we failed to create one so that subsequent

@@ -58,10 +58,9 @@ public:
     // a fixed function blend (with 1 child being the main effect)).
     SkSpan<const ShaderNode*> getRootNodes(const ShaderCodeDictionary*, SkArenaAlloc*) const;
 
-#if defined(GRAPHITE_TEST_UTILS)
-    // Converts the key to a structured list of snippet names for debugging purposes.
+    // Converts the key to a structured list of snippet names for debugging or labeling purposes.
     SkString toString(const ShaderCodeDictionary* dict) const;
-#endif
+
 #ifdef SK_DEBUG
     void dump(const ShaderCodeDictionary*) const;
 #endif

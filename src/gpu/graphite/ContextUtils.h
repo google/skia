@@ -48,6 +48,9 @@ struct VertSkSLInfo {
 struct FragSkSLInfo {
     std::string fSkSL;
     BlendInfo fBlendInfo;
+
+    std::string fLabel;
+
     bool fRequiresLocalCoords = false;
     int fNumTexturesAndSamplers = 0;
     int fNumPaintUniforms = 0;
