@@ -517,17 +517,17 @@ private:
 
     mutable SkRect   fBounds;
 
-    PointsArray fPoints;
-    VerbsArray fVerbs;
-    ConicWeightsArray fConicWeights;
-
     enum {
         kEmptyGenID = 1, // GenID reserved for path ref with zero points and zero verbs.
     };
     mutable uint32_t    fGenerationID;
-    SkDEBUGCODE(std::atomic<int> fEditorsAttached;) // assert only one editor in use at any time.
-
     SkIDChangeListener::List fGenIDChangeListeners;
+
+    PointsArray fPoints;
+    VerbsArray fVerbs;
+    ConicWeightsArray fConicWeights;
+
+    SkDEBUGCODE(std::atomic<int> fEditorsAttached;) // assert only one editor in use at any time.
 
     mutable uint8_t  fBoundsIsDirty;
     mutable bool     fIsFinite;    // only meaningful if bounds are valid
