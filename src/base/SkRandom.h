@@ -53,7 +53,7 @@ public:
      *  Returns value [0...1) as an IEEE float
      */
     float nextF() {
-        int floatint = 0x3f800000 | (int)(this->nextU() >> 9);
+        uint32_t floatint = 0x3f800000 | (this->nextU() >> 9);
         float f = SkBits2Float(floatint) - 1.0f;
         return f;
     }
