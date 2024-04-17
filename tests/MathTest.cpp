@@ -814,38 +814,3 @@ DEF_TEST(DoubleSaturate32, reporter) {
     }
 
 #endif
-
-DEF_TEST(unit_floats, r) {
-    // pick a non-trivial, non-pow-2 value, to test the loop
-    float v[13];
-    constexpr int N = std::size(v);
-
-    // empty array reports true
-    REPORTER_ASSERT(r, sk_floats_are_unit(v, 0));
-
-    SkRandom rand;
-    for (int outer = 0; outer < 1000; ++outer) {
-        // check some good values
-        for (int i = 0; i < N; ++i) {
-            v[i] = rand.nextUScalar1();
-        }
-        const int index = rand.nextU() % N;
-
-        REPORTER_ASSERT(r, sk_floats_are_unit(v, N));
-        v[index] = -0.f;
-        REPORTER_ASSERT(r, sk_floats_are_unit(v, N));
-        v[index] = 1.0f;
-        REPORTER_ASSERT(r, sk_floats_are_unit(v, N));
-
-        // check some bad values
-        const float non_norms[] = {
-            1.0000001f, 2, SK_ScalarInfinity, SK_ScalarNaN
-        };
-        for (float bad : non_norms) {
-            v[index] = bad;
-            REPORTER_ASSERT(r, !sk_floats_are_unit(v, N));
-            v[index] = -bad;
-            REPORTER_ASSERT(r, !sk_floats_are_unit(v, N));
-        }
-    }
-}

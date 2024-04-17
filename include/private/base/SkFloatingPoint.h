@@ -14,7 +14,6 @@
 
 #include <cmath>
 #include <cstdint>
-#include <cstring>
 #include <limits>
 
 inline constexpr float SK_FloatSqrt2 = 1.41421356f;
@@ -148,10 +147,6 @@ static constexpr float sk_float_midpoint(float a, float b) {
     // Use double math to avoid underflow and overflow.
     return static_cast<float>(0.5 * (static_cast<double>(a) + b));
 }
-
-// Returns false if any of the floats are outside the range [0...1].
-// Returns true if count is 0.
-bool sk_floats_are_unit(const float array[], size_t count);
 
 static inline float sk_float_rsqrt_portable(float x) { return 1.0f / sk_float_sqrt(x); }
 static inline float sk_float_rsqrt         (float x) { return 1.0f / sk_float_sqrt(x); }
