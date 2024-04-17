@@ -18,14 +18,14 @@ class VulkanExtensions;
 
 // The VkBackendContext contains all of the base Vk objects needed by the skia Vulkan context.
 struct SK_API VulkanBackendContext {
-    VkInstance                       fInstance;
-    VkPhysicalDevice                 fPhysicalDevice;
-    VkDevice                         fDevice;
-    VkQueue                          fQueue;
-    uint32_t                         fGraphicsQueueIndex;
+    VkInstance                       fInstance = VK_NULL_HANDLE;
+    VkPhysicalDevice                 fPhysicalDevice = VK_NULL_HANDLE;
+    VkDevice                         fDevice = VK_NULL_HANDLE;
+    VkQueue                          fQueue = VK_NULL_HANDLE;
+    uint32_t                         fGraphicsQueueIndex = 0;
     // The max api version set here should match the value set in VkApplicationInfo::apiVersion when
     // then VkInstance was created.
-    uint32_t                         fMaxAPIVersion;
+    uint32_t                         fMaxAPIVersion = 0;
     const skgpu::VulkanExtensions*   fVkExtensions = nullptr;
     // The client can create their VkDevice with either a VkPhysicalDeviceFeatures or
     // VkPhysicalDeviceFeatures2 struct, thus we have to support taking both. The
@@ -38,7 +38,7 @@ struct SK_API VulkanBackendContext {
     // for allocating Vulkan resources that use VkDeviceMemory.
     sk_sp<VulkanMemoryAllocator>     fMemoryAllocator;
     skgpu::VulkanGetProc             fGetProc;
-    Protected                        fProtectedContext;
+    Protected                        fProtectedContext = Protected::kNo;
     // Optional callback which will be invoked if a VK_ERROR_DEVICE_LOST error code is received from
     // the driver. Debug information from the driver will be provided to the callback if the
     // VK_EXT_device_fault extension is supported and enabled (VkPhysicalDeviceFaultFeaturesEXT must
