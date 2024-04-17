@@ -92,19 +92,22 @@ protected:
     // Templated so that it can create subclasses directly.
     template<typename W>
     W makeOffset(size_t offsetInBytes) const {
-        this->validate(offsetInBytes);
-        void* p = SkTAddOffset<void>(fPtr, offsetInBytes);
-        Mark end{SkDEBUGCODE(fEnd)};
-        SkDEBUGCODE(fEnd = Mark(p);)
-        return W{p, end};
+        if (this->validate(offsetInBytes)) {
+            void* p = SkTAddOffset<void>(fPtr, offsetInBytes);
+            Mark end{SkDEBUGCODE(fEnd)};
+            SkDEBUGCODE(fEnd = Mark(p);)
+            return W{p, end};
+        } else {
+            return W{nullptr, 0};
+        }
     }
 
-    void validate(size_t bytesToWrite) const {
+    bool validate(size_t bytesToWrite) const {
         // If the buffer writer had an end marked, make sure we're not crossing it.
         // Ideally, all creators of BufferWriters mark the end, but a lot of legacy code is not set
         // up to easily do this.
-        SkASSERT(fPtr || bytesToWrite == 0);
-        SkASSERT(!fEnd || Mark(fPtr, bytesToWrite) <= fEnd);
+        SkASSERT(!fPtr || !fEnd || Mark(fPtr, bytesToWrite) <= fEnd);
+        return fPtr != nullptr;
     }
 
 protected:
@@ -276,9 +279,10 @@ private:
 template <typename T>
 inline VertexWriter& operator<<(VertexWriter& w, const T& val) {
     static_assert(std::is_trivially_copyable<T>::value, "");
-    w.validate(sizeof(T));
-    memcpy(w.fPtr, &val, sizeof(T));
-    w = w.makeOffset(sizeof(T));
+    if (w.validate(sizeof(T))) {
+        memcpy(w.fPtr, &val, sizeof(T));
+        w = w.makeOffset(sizeof(T));
+    }
     return w;
 }
 
@@ -300,9 +304,10 @@ inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::Skip<T>& va
 template <typename T>
 inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::ArrayDesc<T>& array) {
     static_assert(std::is_trivially_copyable<T>::value, "");
-    w.validate(array.fCount * sizeof(T));
-    memcpy(w.fPtr, array.fArray, array.fCount * sizeof(T));
-    w = w.makeOffset(sizeof(T) * array.fCount);
+    if (w.validate(array.fCount * sizeof(T))) {
+        memcpy(w.fPtr, array.fArray, array.fCount * sizeof(T));
+        w = w.makeOffset(sizeof(T) * array.fCount);
+    }
     return w;
 }
 
@@ -316,9 +321,10 @@ inline VertexWriter& operator<<(VertexWriter& w, const VertexWriter::RepeatDesc<
 
 template <>
 [[maybe_unused]] inline VertexWriter& operator<<(VertexWriter& w, const skvx::float4& vector) {
-    w.validate(sizeof(vector));
-    vector.store(w.fPtr);
-    w = w.makeOffset(sizeof(vector));
+    if (w.validate(sizeof(vector))) {
+        vector.store(w.fPtr);
+        w = w.makeOffset(sizeof(vector));
+    }
     return w;
 }
 
@@ -398,18 +404,20 @@ struct IndexWriter : public BufferWriter {
 
     void writeArray(const uint16_t* array, int count) {
         size_t arraySize = count * sizeof(uint16_t);
-        this->validate(arraySize);
-        memcpy(fPtr, array, arraySize);
-        fPtr = SkTAddOffset<void>(fPtr, arraySize);
+        if (this->validate(arraySize)) {
+            memcpy(fPtr, array, arraySize);
+            fPtr = SkTAddOffset<void>(fPtr, arraySize);
+        }
     }
 
     friend IndexWriter& operator<<(IndexWriter& w, uint16_t val);
 };
 
 inline IndexWriter& operator<<(IndexWriter& w, uint16_t val) {
-    w.validate(sizeof(uint16_t));
-    memcpy(w.fPtr, &val, sizeof(uint16_t));
-    w = w.makeOffset(1);
+    if (w.validate(sizeof(uint16_t))) {
+        memcpy(w.fPtr, &val, sizeof(uint16_t));
+        w = w.makeOffset(1);
+    }
     return w;
 }
 
@@ -436,13 +444,15 @@ struct UniformWriter : public BufferWriter {
     }
 
     void write(const void* src, size_t bytes) {
-        this->validate(bytes);
-        memcpy(fPtr, src, bytes);
-        fPtr = SkTAddOffset<void>(fPtr, bytes);
+        if (this->validate(bytes)) {
+            memcpy(fPtr, src, bytes);
+            fPtr = SkTAddOffset<void>(fPtr, bytes);
+        }
     }
     void skipBytes(size_t bytes) {
-        this->validate(bytes);
-        fPtr = SkTAddOffset<void>(fPtr, bytes);
+        if (this->validate(bytes)) {
+            fPtr = SkTAddOffset<void>(fPtr, bytes);
+        }
     }
 };
 
@@ -466,18 +476,20 @@ struct TextureUploadWriter : public BufferWriter {
     // `srcRowBytes` wide, and the written block is `dstRowBytes` wide and `rowCount` bytes tall.
     void write(size_t offset, const void* src, size_t srcRowBytes, size_t dstRowBytes,
                size_t trimRowBytes, int rowCount) {
-        this->validate(dstRowBytes * rowCount);
-        void* dst = SkTAddOffset<void>(fPtr, offset);
-        SkRectMemcpy(dst, dstRowBytes, src, srcRowBytes, trimRowBytes, rowCount);
+        if (this->validate(dstRowBytes * rowCount)) {
+            void* dst = SkTAddOffset<void>(fPtr, offset);
+            SkRectMemcpy(dst, dstRowBytes, src, srcRowBytes, trimRowBytes, rowCount);
+        }
     }
 
     void convertAndWrite(size_t offset,
                          const SkImageInfo& srcInfo, const void* src, size_t srcRowBytes,
                          const SkImageInfo& dstInfo, size_t dstRowBytes) {
         SkASSERT(srcInfo.width() == dstInfo.width() && srcInfo.height() == dstInfo.height());
-        this->validate(dstRowBytes * dstInfo.height());
-        void* dst = SkTAddOffset<void>(fPtr, offset);
-        SkAssertResult(SkConvertPixels(dstInfo, dst, dstRowBytes, srcInfo, src, srcRowBytes));
+        if (this->validate(dstRowBytes * dstInfo.height())) {
+            void* dst = SkTAddOffset<void>(fPtr, offset);
+            SkAssertResult(SkConvertPixels(dstInfo, dst, dstRowBytes, srcInfo, src, srcRowBytes));
+        }
     }
 
     // Writes a block of image data to the upload buffer. It converts src data of RGB_888x
