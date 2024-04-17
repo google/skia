@@ -56,7 +56,7 @@ struct VulkanTextureSpec {
     SkString toString() const {
         return SkStringPrintf(
                 "flags=0x%08X,format=%d,imageTiling=%d,imageUsageFlags=0x%08X,sharingMode=%d,"
-                "aspectMask=%d",
+                "aspectMask=%u",
                 fFlags,
                 fFormat,
                 fImageTiling,

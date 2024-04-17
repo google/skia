@@ -73,7 +73,7 @@ struct MtlTextureSpec {
     }
 
     SkString toString() const {
-        return SkStringPrintf("format=%u,usage=0x%04X,storageMode=%d,framebufferOnly=%d",
+        return SkStringPrintf("format=%u,usage=0x%04X,storageMode=%u,framebufferOnly=%d",
                               fFormat,
                               fUsage,
                               fStorageMode,

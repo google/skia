@@ -55,7 +55,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
     VkSampleCountFlagBits vkSamples;
     if (!SampleCountToVkSampleCount(info.numSamples(), &vkSamples)) {
         SKGPU_LOG_E("Failed creating VkImage because we could not covert the number of samples: "
-                    "%d to a VkSampleCountFlagBits.", info.numSamples());
+                    "%u to a VkSampleCountFlagBits.", info.numSamples());
         return false;
     }
 

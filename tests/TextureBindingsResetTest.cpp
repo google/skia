@@ -92,7 +92,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(TextureBindingsResetTest,
                 GrGLint boundID = -1;
                 GL(GetIntegerv(target.fQuery, &boundID));
                 if (boundID != (int) claimedIDs[i] && boundID != 0) {
-                    ERRORF(reporter, "Unit %d, target 0x%04x has ID %d bound. Expected %d or 0.", u,
+                    ERRORF(reporter, "Unit %d, target 0x%04x has ID %d bound. Expected %u or 0.", u,
                            target.fName, boundID, claimedIDs[i]);
                     return;
                 }

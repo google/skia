@@ -239,7 +239,7 @@ DEF_TEST(UnpremulSimulatingRP, reporter) {
             const float invA = SK_OPTS_NS::reciprocal_alpha(normalizedA);
             const uint32_t actual = SK_OPTS_NS::unpremul_simulating_RP(invA, c);
             if (actual != expected) {
-                SkDebugf("a: %d c: %d expected: %d actual: %d\n", a, c, expected, actual);
+                SkDebugf("a: %u c: %u expected: %u actual: %u\n", a, c, expected, actual);
             }
             REPORTER_ASSERT(reporter, actual == expected);
         }

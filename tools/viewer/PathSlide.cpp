@@ -61,7 +61,7 @@ static void test_cubic2() {
         SkDebugf("[%g %g %g %g] [%x %x %x %x]\n",
                 SkScalarToDouble(r.fLeft), SkScalarToDouble(r.fTop),
                 SkScalarToDouble(r.fRight), SkScalarToDouble(r.fBottom),
-                ir.fLeft, ir.fTop, ir.fRight, ir.fBottom);
+                (uint32_t)ir.fLeft, (uint32_t)ir.fTop, (uint32_t)ir.fRight, (uint32_t)ir.fBottom);
     }
 
     SkBitmap bitmap;

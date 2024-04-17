@@ -77,7 +77,7 @@ void DumpDescs(const RendererProvider* rendererProvider,
 
     const RenderStep* rs = rendererProvider->lookup(pipelineDesc.renderStepID());
 
-    SkDebugf("GraphicsPipelineDesc: %d %s\n", pipelineDesc.paintParamsID().asUInt(), rs->name());
+    SkDebugf("GraphicsPipelineDesc: %u %s\n", pipelineDesc.paintParamsID().asUInt(), rs->name());
 
     SkDebugf("RenderPassDesc:\n");
     dump_attachment("   colorAttach:", rpd.fColorAttachment);
@@ -86,9 +86,9 @@ void DumpDescs(const RendererProvider* rendererProvider,
     dump_attachment("   colorResolveAttach:", rpd.fColorResolveAttachment);
     dump_attachment("   depthStencilAttach:", rpd.fDepthStencilAttachment);
     SkDebugf("   clearDepth: %.2f\n"
-             "   stencilClear: %d\n"
+             "   stencilClear: %u\n"
              "   writeStencil: %s\n"
-             "   sampleCount: %d\n",
+             "   sampleCount: %u\n",
              rpd.fClearDepth,
              rpd.fClearStencil,
              rpd.fWriteSwizzle.asString().c_str(),

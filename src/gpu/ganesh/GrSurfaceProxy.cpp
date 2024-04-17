@@ -394,7 +394,7 @@ GrInternalSurfaceFlags GrSurfaceProxy::testingOnly_getFlags() const {
 SkString GrSurfaceProxy::dump() const {
     SkString tmp;
 
-    tmp.appendf("proxyID: %d - surfaceID: %d",
+    tmp.appendf("proxyID: %u - surfaceID: %u",
                 this->uniqueID().asUInt(),
                 this->peekSurface() ? this->peekSurface()->uniqueID().asUInt()
                                     : -1);

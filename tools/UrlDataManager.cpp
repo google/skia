@@ -26,7 +26,7 @@ SkString UrlDataManager::addData(SkData* data, const char* contentType) {
     urlData = new UrlData;
     urlData->fData.reset(SkRef(data));
     urlData->fContentType.set(contentType);
-    urlData->fUrl.appendf("%s/%d", fRootUrl.c_str(), fDataId++);
+    urlData->fUrl.appendf("%s/%u", fRootUrl.c_str(), fDataId++);
 
     fCache.add(urlData);
 

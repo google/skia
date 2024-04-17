@@ -63,14 +63,14 @@ void SkTextBlobTrace::DumpTrace(const std::vector<SkTextBlobTrace::Record>& trac
         || p.getMaskFilter() != nullptr
         || p.getPathEffect() != nullptr;
 
-        SkDebugf("Blob %d ( %g %g ) %d\n  ",
+        SkDebugf("Blob %u ( %g %g ) %d\n  ",
                 blob->uniqueID(), record.offset.x(), record.offset.y(), weirdPaint);
         SkTextBlobRunIterator iter(blob);
         int runNumber = 0;
         while (!iter.done()) {
             SkDebugf("Run %d\n    ", runNumber);
             SkFont font = iter.font();
-            SkDebugf("Font %d %g %g %g %d %d %d\n    ",
+            SkDebugf("Font %u %g %g %g %d %d %d\n    ",
                     font.getTypeface()->uniqueID(),
                     font.getSize(),
                     font.getScaleX(),

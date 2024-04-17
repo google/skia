@@ -85,7 +85,7 @@ std::string BitmapTextRenderStep::texturesAndSamplersSkSL(
 
     for (unsigned int i = 0; i < kNumTextAtlasTextures; ++i) {
         result += EmitSamplerLayout(bindingReqs, nextBindingIndex);
-        SkSL::String::appendf(&result, " sampler2D text_atlas_%d;\n", i);
+        SkSL::String::appendf(&result, " sampler2D text_atlas_%u;\n", i);
     }
 
     return result;

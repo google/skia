@@ -2018,7 +2018,7 @@ void SkPath::dumpArrays(SkWStream* wStream, bool dumpAsHex) const {
     auto bool_str = [](bool v) { return v ? "true" : "false"; };
 
     builder.appendf("// fBoundsIsDirty = %s\n", bool_str(fPathRef->fBoundsIsDirty));
-    builder.appendf("// fGenerationID = %d\n", fPathRef->fGenerationID);
+    builder.appendf("// fGenerationID = %u\n", fPathRef->fGenerationID);
     builder.appendf("// fSegmentMask = %d\n", fPathRef->fSegmentMask);
 
     const char* gTypeStrs[] = {

@@ -131,7 +131,7 @@ struct SkPackedGlyphID {
 
     SkString shortDump() const {
         SkString str;
-        str.appendf("0x%x|%1d|%1d", this->glyphID(),
+        str.appendf("0x%x|%1u|%1u", this->glyphID(),
                                     this->subPixelField(kSubPixelX),
                                     this->subPixelField(kSubPixelY));
         return str;

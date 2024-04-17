@@ -134,12 +134,12 @@ protected:
         if (!this->isValid()) {
             SkDebugf("Invalid Key\n");
         } else {
-            SkDebugf("hash: %d ", this->hash());
-            SkDebugf("domain: %d ", this->domain());
+            SkDebugf("hash: %u ", this->hash());
+            SkDebugf("domain: %u ", this->domain());
             SkDebugf("size: %zuB ", this->internalSize());
             size_t dataCount = this->internalSize() / sizeof(uint32_t) - kMetaDataCnt;
             for (size_t i = 0; i < dataCount; ++i) {
-                SkDebugf("%d ", fKey[SkTo<int>(kMetaDataCnt+i)]);
+                SkDebugf("%u ", fKey[SkTo<int>(kMetaDataCnt+i)]);
             }
             SkDebugf("\n");
         }

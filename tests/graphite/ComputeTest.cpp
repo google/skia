@@ -1597,7 +1597,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
             map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
     REPORTER_ASSERT(reporter,
                     result == kExpectedCount,
-                    "expected '%d', found '%d'",
+                    "expected '%u', found '%u'",
                     kExpectedCount,
                     result);
 }
@@ -1741,12 +1741,12 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
     const uint32_t secondHalfCount = ssboData[1];
     REPORTER_ASSERT(reporter,
                     firstHalfCount == kExpectedCount,
-                    "expected '%d', found '%d'",
+                    "expected '%u', found '%u'",
                     kExpectedCount,
                     firstHalfCount);
     REPORTER_ASSERT(reporter,
                     secondHalfCount == kExpectedCount,
-                    "expected '%d', found '%d'",
+                    "expected '%u', found '%u'",
                     kExpectedCount,
                     secondHalfCount);
 }
@@ -2258,7 +2258,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_IndirectDispatch,
             map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
     REPORTER_ASSERT(reporter,
                     result == kExpectedCount,
-                    "expected '%d', found '%d'",
+                    "expected '%u', found '%u'",
                     kExpectedCount,
                     result);
 }
@@ -2381,7 +2381,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_NativeShaderSourceMetal,
             map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
     REPORTER_ASSERT(reporter,
                     result == kExpectedCount,
-                    "expected '%d', found '%d'",
+                    "expected '%u', found '%u'",
                     kExpectedCount,
                     result);
 }
@@ -2511,7 +2511,7 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(Compute_WorkgroupBufferDescMetal,
             map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
     REPORTER_ASSERT(reporter,
                     result == kExpectedCount,
-                    "expected '%d', found '%d'",
+                    "expected '%u', found '%u'",
                     kExpectedCount,
                     result);
 }
@@ -2634,7 +2634,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(Compute_NativeShaderSourceWGSL, reporter, con
             map_buffer(context, testContext, buffer.get(), info.fOffset))[0];
     REPORTER_ASSERT(reporter,
                     result == kExpectedCount,
-                    "expected '%d', found '%d'",
+                    "expected '%u', found '%u'",
                     kExpectedCount,
                     result);
 }

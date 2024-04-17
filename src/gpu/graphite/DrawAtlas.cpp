@@ -313,7 +313,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
         // if there are any in the first pages that the last page can safely upload to.
         for (uint32_t pageIndex = 0; pageIndex < lastPageIndex; ++pageIndex) {
             if constexpr (kDumpAtlasData) {
-                SkDebugf("page %d: ", pageIndex);
+                SkDebugf("page %u: ", pageIndex);
             }
 
             plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
@@ -350,7 +350,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
         plotIter.init(fPages[lastPageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
         unsigned int usedPlots = 0;
         if constexpr (kDumpAtlasData) {
-            SkDebugf("page %d: ", lastPageIndex);
+            SkDebugf("page %u: ", lastPageIndex);
         }
         while (Plot* plot = plotIter.get()) {
             // Update number of flushes since plot was last used
@@ -405,7 +405,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
         // If none of the plots in the last page have been used recently, delete it.
         if (!usedPlots) {
             if constexpr (kDumpAtlasData) {
-                SkDebugf("delete %d\n", fNumActivePages-1);
+                SkDebugf("delete %u\n", fNumActivePages-1);
             }
 
             this->deactivateLastPage();
@@ -464,7 +464,7 @@ bool DrawAtlas::activateNewPage(Recorder* recorder) {
     }
 
     if constexpr (kDumpAtlasData) {
-        SkDebugf("activated page#: %d\n", fNumActivePages);
+        SkDebugf("activated page#: %u\n", fNumActivePages);
     }
 
     ++fNumActivePages;

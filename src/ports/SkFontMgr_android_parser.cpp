@@ -191,10 +191,10 @@ static const TagHandler axisHandler = {
                         if (file.fVariationDesignPosition[j].axis == axisTag) {
                             axisTagIsValid = false;
                             SK_FONTCONFIGPARSER_WARNING("'%c%c%c%c' axis specified more than once",
-                                                        (axisTag >> 24) & 0xFF,
-                                                        (axisTag >> 16) & 0xFF,
-                                                        (axisTag >>  8) & 0xFF,
-                                                        (axisTag      ) & 0xFF);
+                                                        (char)((axisTag >> 24) & 0xFF),
+                                                        (char)((axisTag >> 16) & 0xFF),
+                                                        (char)((axisTag >>  8) & 0xFF),
+                                                        (char)((axisTag      ) & 0xFF));
                         }
                     }
                 } else {

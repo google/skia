@@ -455,7 +455,7 @@ private:
 
             if (family.fNames.empty()) {
                 SkString& fallbackName = family.fNames.push_back();
-                fallbackName.printf("%.2x##fallback", familyIndex);
+                fallbackName.printf("%.2x##fallback", (uint32_t)familyIndex);
             }
         }
 

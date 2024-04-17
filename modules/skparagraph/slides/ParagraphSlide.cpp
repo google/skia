@@ -1179,7 +1179,7 @@ public:
             if (hitRects.size() >= 1 && hitRects[0].rect.width() > 0) {
             } else {
                 if (this->isVerbose()) {
-                    SkDebugf("+[%d:%d): Bad\n", query.fX, query.fY);
+                    SkDebugf("+[%u:%u): Bad\n", query.fX, query.fY);
                 }
             }
         }
@@ -1191,7 +1191,7 @@ public:
             if (missRects.empty()) {
             } else {
                 if (this->isVerbose()) {
-                    SkDebugf("-[%d:%d): Bad\n", query.fX, query.fY);
+                    SkDebugf("-[%u:%u): Bad\n", query.fX, query.fY);
                 }
             }
         }

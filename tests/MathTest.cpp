@@ -40,7 +40,7 @@ static void test_clz(skiatest::Reporter* reporter) {
         mask >>= (mask & 31);
         int intri = SkCLZ(mask);
         int porta = SkCLZ_portable(mask);
-        REPORTER_ASSERT(reporter, intri == porta, "mask:%d intri:%d porta:%d", mask, intri, porta);
+        REPORTER_ASSERT(reporter, intri == porta, "mask:%u intri:%d porta:%d", mask, intri, porta);
     }
 }
 
@@ -59,7 +59,7 @@ static void test_ctz(skiatest::Reporter* reporter) {
         mask >>= (mask & 31);
         int intri = SkCTZ(mask);
         int porta = SkCTZ_portable(mask);
-        REPORTER_ASSERT(reporter, intri == porta, "mask:%d intri:%d porta:%d", mask, intri, porta);
+        REPORTER_ASSERT(reporter, intri == porta, "mask:%u intri:%d porta:%d", mask, intri, porta);
     }
 }
 
@@ -560,8 +560,8 @@ DEF_TEST(Math, reporter) {
             check = SK_MinS32;
         }
         if (result != (int32_t)check) {
-            ERRORF(reporter, "\nFixed Divide: %8x / %8x -> %8x %8" PRIx64 "\n", numer, denom,
-                   result, check);
+            ERRORF(reporter, "\nFixed Divide: %8x / %8x -> %8x %8" PRIx64 "\n",
+                   (uint32_t)numer, (uint32_t)denom, (uint32_t)result, (uint64_t)check);
         }
         REPORTER_ASSERT(reporter, result == (int32_t)check);
     }

@@ -227,7 +227,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
         currentHeight = std::max(1, currentHeight / 2);
     }
 
-    ATRACE_ANDROID_FRAMEWORK("Upload %sTexture [%ux%u]",
+    ATRACE_ANDROID_FRAMEWORK("Upload %sTexture [%dx%d]",
                              mipLevelCount > 1 ? "MipMap " : "",
                              dstRect.width(), dstRect.height());
 
@@ -316,7 +316,7 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
         currentHeight = std::max(1, currentHeight / 2);
     }
 
-    ATRACE_ANDROID_FRAMEWORK("Upload Compressed %sTexture [%ux%u]",
+    ATRACE_ANDROID_FRAMEWORK("Upload Compressed %sTexture [%dx%d]",
                              mipLevelCount > 1 ? "MipMap " : "",
                              textureProxy->dimensions().width(),
                              textureProxy->dimensions().height());

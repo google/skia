@@ -292,10 +292,10 @@ DEF_TEST(TypefaceAxes, reporter) {
             }
             REPORTER_ASSERT(reporter, actualFound,
                 "Actual axis '%c%c%c%c' with value '%f' not expected",
-                (actual[actualIdx].axis >> 24) & 0xFF,
-                (actual[actualIdx].axis >> 16) & 0xFF,
-                (actual[actualIdx].axis >>  8) & 0xFF,
-                (actual[actualIdx].axis      ) & 0xFF,
+                (char)((actual[actualIdx].axis >> 24) & 0xFF),
+                (char)((actual[actualIdx].axis >> 16) & 0xFF),
+                (char)((actual[actualIdx].axis >>  8) & 0xFF),
+                (char)((actual[actualIdx].axis      ) & 0xFF),
                 SkScalarToDouble(actual[actualIdx].value));
         }
     };
@@ -495,10 +495,10 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
             }
             REPORTER_ASSERT(reporter, actualFound,
                 "Actual axis '%c%c%c%c' with min %f max %f default %f hidden %s not expected",
-                (actual[actualIdx].tag >> 24) & 0xFF,
-                (actual[actualIdx].tag >> 16) & 0xFF,
-                (actual[actualIdx].tag >>  8) & 0xFF,
-                (actual[actualIdx].tag      ) & 0xFF,
+                (char)((actual[actualIdx].tag >> 24) & 0xFF),
+                (char)((actual[actualIdx].tag >> 16) & 0xFF),
+                (char)((actual[actualIdx].tag >>  8) & 0xFF),
+                (char)((actual[actualIdx].tag      ) & 0xFF),
                 actual[actualIdx].min,
                 actual[actualIdx].def,
                 actual[actualIdx].max,

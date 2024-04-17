@@ -193,8 +193,8 @@ int main(int argc, char** argv) {
     {
         writer.beginObject("failures");
         {
-            for(const auto& failure : gSkpToUnknownCount) {
-                SkDebugf("%s %d\n", failure.first.c_str(), failure.second);
+            for (const auto& failure : gSkpToUnknownCount) {
+                SkDebugf("%s %u\n", failure.first.c_str(), failure.second);
                 totalFailures += failure.second;
                 writer.appendU32(failure.first.c_str(), failure.second);
             }
@@ -206,18 +206,17 @@ int main(int argc, char** argv) {
         writer.beginObject("unsupported");
         {
             for (const auto& unsupported : gSkpToUnsupportedCount) {
-                SkDebugf("%s %d\n", unsupported.first.c_str(), unsupported.second);
+                SkDebugf("%s %u\n", unsupported.first.c_str(), unsupported.second);
                 totalUnsupported += unsupported.second;
                 writer.appendHexU32(unsupported.first.c_str(), unsupported.second);
             }
-
         }
         writer.endObject();
         writer.appendU32("totalUnsupported", totalUnsupported);
 #endif
 
         writer.appendS32("totalSuccesses", gKnown);
-        SkDebugf("%d known, %d failures, %d unsupported\n",
+        SkDebugf("%d known, %u failures, %u unsupported\n",
                  gKnown, totalFailures, totalUnsupported);
     }
     writer.endObject();

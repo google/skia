@@ -395,7 +395,7 @@ SkTypeface_FreeType::FaceRec::Make(const SkTypeface_FreeType* typeface) {
         FT_Face rawFace;
         FT_Error err = FT_Open_Face(gFTLibrary->library(), &args, data->getIndex(), &rawFace);
         if (err) {
-            SK_TRACEFTR(err, "unable to open font '%x'", typeface->uniqueID());
+            SK_TRACEFTR(err, "unable to open font '%x'", (uint32_t)typeface->uniqueID());
             return nullptr;
         }
         rec->fFace.reset(rawFace);

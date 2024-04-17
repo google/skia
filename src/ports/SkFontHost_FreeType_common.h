@@ -25,7 +25,7 @@ typedef signed long FT_Pos;
 #ifdef SK_DEBUG
 const char* SkTraceFtrGetError(int);
 #define SK_TRACEFTR(ERR, MSG, ...) \
-    SkDebugf("%s:%d:1: error: 0x%x '%s' " MSG "\n", __FILE__, __LINE__, ERR, \
+    SkDebugf("%s:%d:1: error: 0x%x '%s' " MSG "\n", __FILE__, __LINE__, (uint32_t)ERR, \
             SkTraceFtrGetError((int)(ERR)), __VA_ARGS__)
 #else
 #define SK_TRACEFTR(ERR, ...) do { sk_ignore_unused_variable(ERR); } while (false)

@@ -106,11 +106,11 @@ static void DumpFiles(const FontFamily& fontFamily) {
         SkDebugf("  file (%d) %s#%d", ffi.fWeight, ffi.fFileName.c_str(), ffi.fIndex);
         for (const auto& coordinate : ffi.fVariationDesignPosition) {
             SkDebugf(" @'%c%c%c%c'=%f",
-                        (coordinate.axis >> 24) & 0xFF,
-                        (coordinate.axis >> 16) & 0xFF,
-                        (coordinate.axis >>  8) & 0xFF,
-                        (coordinate.axis      ) & 0xFF,
-                        coordinate.value);
+                     (char)((coordinate.axis >> 24) & 0xFF),
+                     (char)((coordinate.axis >> 16) & 0xFF),
+                     (char)((coordinate.axis >> 8) & 0xFF),
+                     (char)((coordinate.axis) & 0xFF),
+                     coordinate.value);
         }
         SkDebugf("\n");
     }

@@ -82,8 +82,8 @@ void SkFont::dump() const {
     SkDebugf("skewx %g\n", fSkewX);
     SkDebugf("scalex %g\n", fScaleX);
     SkDebugf("flags 0x%X\n", fFlags);
-    SkDebugf("edging %d\n", (unsigned)fEdging);
-    SkDebugf("hinting %d\n", (unsigned)fHinting);
+    SkDebugf("edging %u\n", (unsigned)fEdging);
+    SkDebugf("hinting %u\n", (unsigned)fHinting);
 }
 
 void SkFont::setTypeface(sk_sp<SkTypeface> tf) {

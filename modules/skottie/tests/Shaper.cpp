@@ -200,13 +200,13 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
             const auto expected_t = text_box.top() + v_diff * talign.topFactor;
             REPORTER_ASSERT(reporter,
                             std::fabs(shape_bounds.top() - expected_t) < tsize.tolerance,
-                            "%f %f %f %f %d", shape_bounds.top(), expected_t, tsize.tolerance,
+                            "%f %f %f %f %u", shape_bounds.top(), expected_t, tsize.tolerance,
                                               tsize.text_size, SkToU32(talign.align));
 
             const auto expected_b = text_box.bottom() - v_diff * (1 - talign.topFactor);
             REPORTER_ASSERT(reporter,
                             std::fabs(shape_bounds.bottom() - expected_b) < tsize.tolerance,
-                            "%f %f %f %f %d", shape_bounds.bottom(), expected_b, tsize.tolerance,
+                            "%f %f %f %f %u", shape_bounds.bottom(), expected_b, tsize.tolerance,
                                               tsize.text_size, SkToU32(talign.align));
         }
     }

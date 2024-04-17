@@ -370,7 +370,7 @@ private:
 
 #if defined(GR_TEST_UTILS)
     SkString onDumpInfo() const override {
-        SkString str = SkStringPrintf("# draws: %u\n", fQuads.count());
+        SkString str = SkStringPrintf("# draws: %d\n", fQuads.count());
         str.appendf("Device quad type: %u, local quad type: %u\n",
                     (uint32_t) fQuads.deviceQuadType(), (uint32_t) fQuads.localQuadType());
         str += fHelper.dumpInfo();

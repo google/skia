@@ -202,7 +202,7 @@ std::string get_ssbo_fields(SkSpan<const Uniform> uniforms,
 
         SkSL::String::appendf(&result, "    %s %s", SkSLTypeString(u.type()), uniformName.c_str());
         if (u.count()) {
-            SkSL::String::appendf(&result, "[%u]", u.count());
+            SkSL::String::appendf(&result, "[%d]", u.count());
         }
         result.append(";\n");
     }
@@ -347,7 +347,7 @@ std::string EmitUniformsFromStorageBuffer(const char* bufferNamePrefix,
     for (const Uniform& u : uniforms) {
         SkSL::String::appendf(&result, "%s %s", SkSLTypeString(u.type()), u.name());
         if (u.count()) {
-            SkSL::String::appendf(&result, "[%u]", u.count());
+            SkSL::String::appendf(&result, "[%d]", u.count());
         }
         SkSL::String::appendf(
                 &result, " = %sUniformData[%s].%s;\n", bufferNamePrefix, ssboIndex, u.name());

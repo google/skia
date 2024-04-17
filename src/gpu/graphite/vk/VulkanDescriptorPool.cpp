@@ -32,7 +32,7 @@ sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext
     for (size_t i = 0; i < requestedDescCounts.size(); i++) {
         SkASSERT(requestedDescCounts[i].count > 0);
         if (requestedDescCounts[i].count > kMaxNumDescriptors) {
-            SkDebugf("The number of descriptors requested, %d, exceeds the maximum allowed (%d).\n",
+            SkDebugf("The number of descriptors requested, %u, exceeds the maximum allowed (%d).\n",
                      requestedDescCounts[i].count,
                      kMaxNumDescriptors);
             return nullptr;

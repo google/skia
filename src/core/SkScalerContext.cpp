@@ -97,7 +97,7 @@ SkScalerContext::SkScalerContext(sk_sp<SkTypeface> typeface, const SkScalerConte
     , fPreBlend(fMaskFilter ? SkMaskGamma::PreBlend() : SkScalerContext::GetMaskPreBlend(fRec))
 {
     if constexpr (kSkScalerContextDumpRec) {
-        SkDebugf("SkScalerContext checksum %x count %d length %d\n",
+        SkDebugf("SkScalerContext checksum %x count %u length %u\n",
                  desc->getChecksum(), desc->getCount(), desc->getLength());
         SkDebugf("%s", fRec.dump().c_str());
         SkDebugf("  effects %p\n", desc->findEntry(kEffects_SkDescriptorTag, nullptr));

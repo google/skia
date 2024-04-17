@@ -16,15 +16,15 @@
 #include <cstdint>
 #include <string>
 
-int highBits(uint32_t rv) {
+uint32_t highBits(uint32_t rv) {
     return (rv >> 18) & ((1 << 14) - 1);
 }
 
-int middleBits(uint32_t rv) {
+uint32_t middleBits(uint32_t rv) {
     return (rv >> 14) & ((1 << 4) - 1);
 }
 
-int lowBits(uint32_t rv) {
+uint32_t lowBits(uint32_t rv) {
     return rv & ((1 << 14) - 1);
 }
 
@@ -247,9 +247,9 @@ DEF_TEST(MatrixProcs_unpack_int, r) {
     struct TestCase {
         std::string name;
         uint32_t input;
-        int expectedLowerBound;
-        int expectedLerp;
-        int expectedUpperBound;
+        uint32_t expectedLowerBound;
+        uint32_t expectedLerp;
+        uint32_t expectedUpperBound;
     };
     // These are selected from earlier tests to make sure the packed values unpack correctly.
     TestCase tests[] = {
@@ -266,7 +266,7 @@ DEF_TEST(MatrixProcs_unpack_int, r) {
 
     for (size_t i = 0; i < NUM_TESTS; i++) {
         TestCase tc = tests[i];
-        int lower, upper, lerp;
+        uint32_t lower, upper, lerp;
         sktests::decode_packed_coordinates_and_weight(tc.input, &lower, &upper, &lerp);
 
         REPORTER_ASSERT(r, lower == tc.expectedLowerBound,

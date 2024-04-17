@@ -103,7 +103,7 @@ static ptrdiff_t last_line_length(const SkString& str) {
 }
 
 static void output_fixed(SkScalar num, int emSize, SkString* out) {
-    int hex = (int) (num * 65536 / emSize);
+    uint32_t hex = (uint32_t)(num * 65536 / emSize);
     out->appendf("0x%08x,", hex);
     *out += (int) last_line_length(*out) >= kMaxLineLength ? '\n' : ' ';
 }

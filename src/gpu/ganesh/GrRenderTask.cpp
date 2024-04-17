@@ -320,7 +320,7 @@ void GrRenderTask::dump(const SkString& label,
     SkDebugf("%s%s --------------------------------------------------------------\n",
              indent.c_str(),
              label.c_str());
-    SkDebugf("%s%s task - renderTaskID: %d\n", indent.c_str(), this->name(), fUniqueID);
+    SkDebugf("%s%s task - renderTaskID: %u\n", indent.c_str(), this->name(), fUniqueID);
 
     if (!fTargets.empty()) {
         SkDebugf("%sTargets: \n", indent.c_str());
@@ -334,13 +334,13 @@ void GrRenderTask::dump(const SkString& label,
     if (printDependencies) {
         SkDebugf("%sI rely On (%d): ", indent.c_str(), fDependencies.size());
         for (int i = 0; i < fDependencies.size(); ++i) {
-            SkDebugf("%d, ", fDependencies[i]->fUniqueID);
+            SkDebugf("%u, ", fDependencies[i]->fUniqueID);
         }
         SkDebugf("\n");
 
         SkDebugf("%s(%d) Rely On Me: ", indent.c_str(), fDependents.size());
         for (int i = 0; i < fDependents.size(); ++i) {
-            SkDebugf("%d, ", fDependents[i]->fUniqueID);
+            SkDebugf("%u, ", fDependents[i]->fUniqueID);
         }
         SkDebugf("\n");
     }

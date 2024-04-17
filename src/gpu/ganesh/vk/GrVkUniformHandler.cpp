@@ -362,7 +362,7 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         if (visibility & localUniform.fVisibility) {
             if (SkSLTypeCanBeUniformValue(localUniform.fVariable.getType())) {
                 Layout layout = fUsePushConstants ? kStd430Layout : kStd140Layout;
-                uniformsString.appendf("layout(offset=%d) ", localUniform.fOffsets[layout]);
+                uniformsString.appendf("layout(offset=%u) ", localUniform.fOffsets[layout]);
                 localUniform.fVariable.appendDecl(fProgramBuilder->shaderCaps(), &uniformsString);
                 uniformsString.append(";\n");
             }

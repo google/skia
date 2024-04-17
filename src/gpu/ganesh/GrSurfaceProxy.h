@@ -367,7 +367,7 @@ public:
 #ifdef SK_DEBUG
     void validate(GrContext_Base*) const;
     SkString getDebugName() {
-        return fDebugName.isEmpty() ? SkStringPrintf("%d", this->uniqueID().asUInt()) : fDebugName;
+        return fDebugName.isEmpty() ? SkStringPrintf("%u", this->uniqueID().asUInt()) : fDebugName;
     }
     void setDebugName(SkString name) { fDebugName = std::move(name); }
 #endif

@@ -84,7 +84,7 @@ std::string SDFTextRenderStep::texturesAndSamplersSkSL(
 
     for (unsigned int i = 0; i < kNumSDFAtlasTextures; ++i) {
         result += EmitSamplerLayout(bindingReqs, nextBindingIndex);
-        SkSL::String::appendf(&result, " sampler2D sdf_atlas_%d;\n", i);
+        SkSL::String::appendf(&result, " sampler2D sdf_atlas_%u;\n", i);
     }
 
     return result;

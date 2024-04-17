@@ -283,7 +283,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxyFromBitmap(const SkBitmap& bit
         return nullptr;
     }
 
-    ATRACE_ANDROID_FRAMEWORK("Upload %sTexture [%ux%u]",
+    ATRACE_ANDROID_FRAMEWORK("Upload %sTexture [%dx%d]",
                              skgpu::Mipmapped::kYes == mipmapped ? "MipMap " : "",
                              bitmap.width(),
                              bitmap.height());

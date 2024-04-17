@@ -75,7 +75,7 @@ sk_sp<SkImage> SkSharingDeserialContext::deserializeImage(
     if (length == sizeof(fid)) {
         memcpy(&fid, data, sizeof(fid));
         if (fid >= context->fImages.size()) {
-            SkDebugf("Cannot deserialize using id, We do not have the data for image %d.\n", fid);
+            SkDebugf("Cannot deserialize using id, We do not have the data for image %u.\n", fid);
             return nullptr;
         }
         return context->fImages[fid];

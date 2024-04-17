@@ -306,7 +306,7 @@ void SkStrike::dumpMemoryStatistics(SkTraceMemoryDump* dump) const {
         }
     }
 
-    SkString dumpName = SkStringPrintf("%s/%s_%d/%p",
+    SkString dumpName = SkStringPrintf("%s/%s_%u/%p",
                                        SkStrikeCache::kGlyphCacheDumpName,
                                        fontName.c_str(),
                                        rec.fTypefaceID,

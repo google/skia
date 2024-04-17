@@ -45,7 +45,7 @@ DEF_TEST(srgb_roundtrip, r) {
 
     for (int i = 0; i < 256; i++) {
         if (reds[i] != (uint32_t)i) {
-            ERRORF(r, "%d doesn't round trip, %d", i, reds[i]);
+            ERRORF(r, "%d doesn't round trip, %u", i, reds[i]);
         }
     }
 }

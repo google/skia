@@ -203,7 +203,7 @@ GrGLSLUniformHandler::UniformHandle GrMtlUniformHandler::internalAddUniformArray
     uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, &fCurrentUBOMaxAlignment,
                                              type, arrayCount);
     SkString layoutQualifier;
-    layoutQualifier.appendf("offset=%d", offset);
+    layoutQualifier.appendf("offset=%u", offset);
 
     // When outputing the GLSL, only the outer uniform block will get the Uniform modifier. Thus
     // we set the modifier to none for all uniforms declared inside the block.

@@ -36,7 +36,7 @@ static bool check_read(skiatest::Reporter* reporter, const SkBitmap& bitmap) {
         const uint32_t srcPixel = *bitmap.getAddr32(x, 0);
         if (srcPixel != SK_ColorGREEN) {
             ERRORF(reporter, "Expected color of Green, but got 0x%08x, at pixel (%d, 0).",
-                   x, srcPixel);
+                   srcPixel, x);
             result = false;
         }
     }

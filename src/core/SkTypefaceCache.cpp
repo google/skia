@@ -99,7 +99,7 @@ static bool DumpProc(SkTypeface* face, void* ctx) {
     face->getFamilyName(&n);
     SkFontStyle s = face->fontStyle();
     SkTypefaceID id = face->uniqueID();
-    SkDebugf("SkTypefaceCache: face %p typefaceID %d weight %d width %d style %d name %s\n",
+    SkDebugf("SkTypefaceCache: face %p typefaceID %u weight %d width %d style %d name %s\n",
              face, id, s.weight(), s.width(), s.slant(), n.c_str());
     return false;
 }

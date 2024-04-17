@@ -20,9 +20,9 @@ static GrSurfaceProxy* first_target(GrRenderTask* task) { return task->target(0)
 #ifdef SK_DEBUG
 [[maybe_unused]] static SkString describe_task(GrRenderTask* t) {
     if (GrSurfaceProxy* target = first_target(t)) {
-        return SkStringPrintf("%s(%d)", target->getDebugName().c_str(), t->uniqueID());
+        return SkStringPrintf("%s(%u)", target->getDebugName().c_str(), t->uniqueID());
     } else {
-        return SkStringPrintf("%d", t->uniqueID());
+        return SkStringPrintf("%u", t->uniqueID());
     }
 }
 
