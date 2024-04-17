@@ -19,7 +19,7 @@
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
-      "0o777",
+      "0777",
       "[START_DIR]"
     ],
     "infra_step": true,
@@ -150,7 +150,7 @@
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
-      "0o777",
+      "0777",
       "[START_DIR]/tmp"
     ],
     "infra_step": true,
