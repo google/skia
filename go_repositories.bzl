@@ -505,8 +505,8 @@ def go_repositories():
     go_repository(
         name = "com_github_google_martian_v3",
         importpath = "github.com/google/martian/v3",
-        sum = "h1:IqNFLAmvJOgVlpdEBiQbDc2EwKW77amAycfTuWKdfvw=",
-        version = "v3.3.2",
+        sum = "h1:h4YaJSE986q8iYHs6xbfHJ2tIq+TRwcM/DAl/yML2ic=",
+        version = "v3.3.3-0.20220816151257-0f7e6797a04d",
     )
     go_repository(
         name = "com_github_google_pprof",
@@ -2683,8 +2683,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:24le+ft/sQoq6dlQCFs3+LzCQIXgEPSVNtbWwcy/FoI=",
-        version = "v0.0.0-20240415234647-80097301710b",
+        sum = "h1:+mn8CvJWz72GChL1YuDhT4YC9zenjaxzQ7FIha/sFB4=",
+        version = "v0.0.0-20240416175206-61056bfd26b3",
     )
     go_repository(
         name = "org_uber_go_atomic",
