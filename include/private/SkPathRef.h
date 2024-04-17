@@ -511,10 +511,6 @@ private:
 
     void callGenIDChangeListeners();
 
-    enum {
-        kMinSize = 256,
-    };
-
     mutable SkRect   fBounds;
 
     enum {
