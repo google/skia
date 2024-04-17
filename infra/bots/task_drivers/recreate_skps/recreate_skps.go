@@ -13,10 +13,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"go.skia.org/infra/go/common"
 	"go.skia.org/infra/go/depot_tools"
 	"go.skia.org/infra/go/exec"
 	"go.skia.org/infra/go/gerrit"
+	"go.skia.org/infra/go/git"
 	"go.skia.org/infra/go/git/git_common"
+	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/go/sklog"
 	"go.skia.org/infra/promk/go/pushgateway"
 	"go.skia.org/infra/task_driver/go/lib/auth_steps"
@@ -191,36 +194,22 @@ func main() {
 	defer func() {
 		_ = os_steps.RemoveAll(ctx, tmp)
 	}()
-	recipesCfgFile := filepath.Join(skiaDir, "infra", "config", "recipes.cfg")
 
 	// Check out depot_tools at the exact revision expected by tests (defined in recipes.cfg), and
 	// make it available to tests by by adding it to the PATH.
 	var depotToolsDir string
 	if err := td.Do(ctx, td.Props("Check out depot_tools"), func(ctx context.Context) error {
 		var err error
-		depotToolsDir, err = depot_tools.Sync(ctx, tmp, recipesCfgFile)
+		co, err := git.NewCheckout(ctx, common.REPO_DEPOT_TOOLS, tmp)
+		if err != nil {
+			return skerr.Wrap(err)
+		}
+		depotToolsDir = co.Dir()
 		return err
 	}); err != nil {
 		td.Fatal(ctx, err)
 	}
-
-	// Hack warning: Sync depot tools to HEAD because of problems syncing chrome
-	// due to submodule-related failures on older depot tools revisions
-	// (b/303291416). Updating depot tools via recipes.cfg was risky because
-	// recipes.cfg has not been updated in years and other tasks may break if that
-	// was done. We may move away from recipes in the future anyway.
-	depotToolsUpdateCommand := &exec.Command{
-		Name: filepath.Join(depotToolsDir, "update_depot_tools"),
-		Dir:  skiaDir,
-		Env: []string{
-			fmt.Sprintf("PATH=%s:%s", os.Getenv("PATH"), depotToolsDir),
-		},
-	}
-	if err := exec.Run(ctx, depotToolsUpdateCommand); err != nil {
-		td.Fatal(ctx, err)
-	}
-
-	ctx = td.WithEnv(ctx, []string{"PATH=%(PATH)s:" + depotToolsDir})
+	ctx = td.WithEnv(ctx, depot_tools.Env(depotToolsDir))
 
 	// Sync Chrome.
 	if !*skipSync {

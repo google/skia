@@ -11,10 +11,13 @@ go_library(
     importpath = "go.skia.org/skia/infra/bots/task_drivers/recreate_skps",
     visibility = ["//visibility:private"],
     deps = [
+        "@org_skia_go_infra//go/common",
         "@org_skia_go_infra//go/depot_tools",
         "@org_skia_go_infra//go/exec",
         "@org_skia_go_infra//go/gerrit",
+        "@org_skia_go_infra//go/git",
         "@org_skia_go_infra//go/git/git_common",
+        "@org_skia_go_infra//go/skerr",
         "@org_skia_go_infra//go/sklog",
         "@org_skia_go_infra//promk/go/pushgateway",
         "@org_skia_go_infra//task_driver/go/lib/auth_steps",
