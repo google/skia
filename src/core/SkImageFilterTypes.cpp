@@ -39,6 +39,7 @@
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace skif {
 
@@ -327,10 +328,10 @@ SkIRect Mapping::map<SkIRect>(const SkIRect& geom, const SkMatrix& matrix) {
         double r = (double)matrix.getScaleX()*geom.fRight  + (double)matrix.getTranslateX();
         double t = (double)matrix.getScaleY()*geom.fTop    + (double)matrix.getTranslateY();
         double b = (double)matrix.getScaleY()*geom.fBottom + (double)matrix.getTranslateY();
-        return {sk_double_saturate2int(sk_double_floor(std::min(l, r) + kRoundEpsilon)),
-                sk_double_saturate2int(sk_double_floor(std::min(t, b) + kRoundEpsilon)),
-                sk_double_saturate2int(sk_double_ceil(std::max(l, r)  - kRoundEpsilon)),
-                sk_double_saturate2int(sk_double_ceil(std::max(t, b)  - kRoundEpsilon))};
+        return {sk_double_saturate2int(std::floor(std::min(l, r) + kRoundEpsilon)),
+                sk_double_saturate2int(std::floor(std::min(t, b) + kRoundEpsilon)),
+                sk_double_saturate2int(std::ceil(std::max(l, r)  - kRoundEpsilon)),
+                sk_double_saturate2int(std::ceil(std::max(t, b)  - kRoundEpsilon))};
     } else {
         return RoundOut(matrix.mapRect(SkRect::Make(geom)));
     }
@@ -490,10 +491,10 @@ bool LayerSpace<SkMatrix>::inverseMapRect(const LayerSpace<SkIRect>& rect,
         double t = (rect.top()    - (double)fData.getTranslateY()) / (double)fData.getScaleY();
         double b = (rect.bottom() - (double)fData.getTranslateY()) / (double)fData.getScaleY();
 
-        SkIRect mapped{sk_double_saturate2int(sk_double_floor(std::min(l, r) + kRoundEpsilon)),
-                       sk_double_saturate2int(sk_double_floor(std::min(t, b) + kRoundEpsilon)),
-                       sk_double_saturate2int(sk_double_ceil(std::max(l, r)  - kRoundEpsilon)),
-                       sk_double_saturate2int(sk_double_ceil(std::max(t, b)  - kRoundEpsilon))};
+        SkIRect mapped{sk_double_saturate2int(std::floor(std::min(l, r) + kRoundEpsilon)),
+                       sk_double_saturate2int(std::floor(std::min(t, b) + kRoundEpsilon)),
+                       sk_double_saturate2int(std::ceil(std::max(l, r)  - kRoundEpsilon)),
+                       sk_double_saturate2int(std::ceil(std::max(t, b)  - kRoundEpsilon))};
         *out = LayerSpace<SkIRect>(mapped);
         return true;
     } else {

@@ -60,7 +60,7 @@ void Compute2DBlurKernel(SkSize sigma,
         xTerm = xTerm * xTerm * sigmaXDenom;
         for (int y = 0; y < height; y++) {
             float yTerm = static_cast<float>(y - radius.height());
-            float xyTerm = sk_float_exp(-(xTerm + yTerm * yTerm * sigmaYDenom));
+            float xyTerm = std::exp(-(xTerm + yTerm * yTerm * sigmaYDenom));
             // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
             // is dropped here, since we renormalize the kernel below.
             kernel[y * width + x] = xyTerm;
@@ -287,7 +287,7 @@ int ComputeIntegralTableWidth(float sixSigma) {
     // six-sigma range centered at zero. We want enough resolution so that the linear
     // interpolation done in texture lookup doesn't introduce noticeable artifacts. We
     // conservatively choose to have 2 texels for each dst pixel.
-    int minWidth = 2 * ((int)sk_float_ceil(sixSigma));
+    int minWidth = 2 * ((int)std::ceil(sixSigma));
     // Bin by powers of 2 with a minimum so we get good profile reuse.
     return std::max(SkNextPow2(minWidth), 32);
 }

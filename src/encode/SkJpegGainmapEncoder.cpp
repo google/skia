@@ -29,14 +29,14 @@ static bool is_single_channel(SkColor4f c) { return c.fR == c.fG && c.fG == c.fB
 // Generate the XMP metadata for an HDRGM file.
 sk_sp<SkData> get_hdrgm_xmp_data(const SkGainmapInfo& gainmapInfo) {
     SkDynamicMemoryWStream s;
-    const float kLog2 = sk_float_log(2.f);
-    const SkColor4f gainMapMin = {sk_float_log(gainmapInfo.fGainmapRatioMin.fR) / kLog2,
-                                  sk_float_log(gainmapInfo.fGainmapRatioMin.fG) / kLog2,
-                                  sk_float_log(gainmapInfo.fGainmapRatioMin.fB) / kLog2,
+    const float kLog2 = std::log(2.f);
+    const SkColor4f gainMapMin = {std::log(gainmapInfo.fGainmapRatioMin.fR) / kLog2,
+                                  std::log(gainmapInfo.fGainmapRatioMin.fG) / kLog2,
+                                  std::log(gainmapInfo.fGainmapRatioMin.fB) / kLog2,
                                   1.f};
-    const SkColor4f gainMapMax = {sk_float_log(gainmapInfo.fGainmapRatioMax.fR) / kLog2,
-                                  sk_float_log(gainmapInfo.fGainmapRatioMax.fG) / kLog2,
-                                  sk_float_log(gainmapInfo.fGainmapRatioMax.fB) / kLog2,
+    const SkColor4f gainMapMax = {std::log(gainmapInfo.fGainmapRatioMax.fR) / kLog2,
+                                  std::log(gainmapInfo.fGainmapRatioMax.fG) / kLog2,
+                                  std::log(gainmapInfo.fGainmapRatioMax.fB) / kLog2,
                                   1.f};
     const SkColor4f gamma = {1.f / gainmapInfo.fGainmapGamma.fR,
                              1.f / gainmapInfo.fGainmapGamma.fG,
@@ -96,8 +96,8 @@ sk_sp<SkData> get_hdrgm_xmp_data(const SkGainmapInfo& gainmapInfo) {
     maybe_write_scalar_attr("hdrgm:Gamma", gamma);
     maybe_write_scalar_attr("hdrgm:OffsetSDR", gainmapInfo.fEpsilonSdr);
     maybe_write_scalar_attr("hdrgm:OffsetHDR", gainmapInfo.fEpsilonHdr);
-    write_scalar_attr("hdrgm:HDRCapacityMin", sk_float_log(gainmapInfo.fDisplayRatioSdr) / kLog2);
-    write_scalar_attr("hdrgm:HDRCapacityMax", sk_float_log(gainmapInfo.fDisplayRatioHdr) / kLog2);
+    write_scalar_attr("hdrgm:HDRCapacityMin", std::log(gainmapInfo.fDisplayRatioSdr) / kLog2);
+    write_scalar_attr("hdrgm:HDRCapacityMax", std::log(gainmapInfo.fDisplayRatioHdr) / kLog2);
     switch (gainmapInfo.fBaseImageType) {
         case SkGainmapInfo::BaseImageType::kSDR:
             s.writeText("        hdrgm:BaseRenditionIsHDR=\"False\">\n");

@@ -202,7 +202,7 @@ float SkMipmap::ComputeLevel(SkSize scaleSize) {
     // Ideally we'd pick the smaller scale, to match Ganesh.  But ignoring one of the
     // scales can produce some atrocious results, so for now we use the geometric mean.
     // (https://bugs.chromium.org/p/skia/issues/detail?id=4863)
-    const float scale = sk_float_sqrt(scaleSize.width() * scaleSize.height());
+    const float scale = std::sqrt(scaleSize.width() * scaleSize.height());
 #endif
 
     if (scale >= SK_Scalar1 || scale <= 0 || !SkScalarIsFinite(scale)) {

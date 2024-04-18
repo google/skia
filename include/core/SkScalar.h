@@ -27,30 +27,30 @@ typedef float SkScalar;
 #define SK_ScalarNegativeInfinity   SK_FloatNegativeInfinity
 #define SK_ScalarNaN                SK_FloatNaN
 
-#define SkScalarFloorToScalar(x)    sk_float_floor(x)
-#define SkScalarCeilToScalar(x)     sk_float_ceil(x)
+#define SkScalarFloorToScalar(x)    std::floor(x)
+#define SkScalarCeilToScalar(x)     std::ceil(x)
 #define SkScalarRoundToScalar(x)    sk_float_round(x)
-#define SkScalarTruncToScalar(x)    sk_float_trunc(x)
+#define SkScalarTruncToScalar(x)    std::trunc(x)
 
 #define SkScalarFloorToInt(x)       sk_float_floor2int(x)
 #define SkScalarCeilToInt(x)        sk_float_ceil2int(x)
 #define SkScalarRoundToInt(x)       sk_float_round2int(x)
 
-#define SkScalarAbs(x)              sk_float_abs(x)
-#define SkScalarCopySign(x, y)      sk_float_copysign(x, y)
-#define SkScalarMod(x, y)           sk_float_mod(x,y)
-#define SkScalarSqrt(x)             sk_float_sqrt(x)
-#define SkScalarPow(b, e)           sk_float_pow(b, e)
+#define SkScalarAbs(x)              std::fabs(x)
+#define SkScalarCopySign(x, y)      std::copysign(x, y)
+#define SkScalarMod(x, y)           std::fmod(x,y)
+#define SkScalarSqrt(x)             std::sqrt(x)
+#define SkScalarPow(b, e)           std::pow(b, e)
 
-#define SkScalarSin(radians)        (float)sk_float_sin(radians)
-#define SkScalarCos(radians)        (float)sk_float_cos(radians)
-#define SkScalarTan(radians)        (float)sk_float_tan(radians)
-#define SkScalarASin(val)           (float)sk_float_asin(val)
-#define SkScalarACos(val)           (float)sk_float_acos(val)
-#define SkScalarATan2(y, x)         (float)sk_float_atan2(y,x)
-#define SkScalarExp(x)              (float)sk_float_exp(x)
-#define SkScalarLog(x)              (float)sk_float_log(x)
-#define SkScalarLog2(x)             (float)sk_float_log2(x)
+#define SkScalarSin(radians)        ((float)std::sin(radians))
+#define SkScalarCos(radians)        ((float)std::cos(radians))
+#define SkScalarTan(radians)        ((float)std::tan(radians))
+#define SkScalarASin(val)           ((float)std::asin(val))
+#define SkScalarACos(val)           ((float)std::acos(val))
+#define SkScalarATan2(y, x)         ((float)std::atan2(y,x))
+#define SkScalarExp(x)              ((float)std::exp(x))
+#define SkScalarLog(x)              ((float)std::log(x))
+#define SkScalarLog2(x)             ((float)std::log2(x))
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

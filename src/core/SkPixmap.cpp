@@ -258,7 +258,7 @@ SkColor SkPixmap::getColor(int x, int y) const {
         case kSRGBA_8888_SkColorType: {
             auto srgb_to_linear = [](float x) {
                 return (x <= 0.04045f) ? x * (1 / 12.92f)
-                                       : sk_float_pow(x * (1 / 1.055f) + (0.055f / 1.055f), 2.4f);
+                                       : std::pow(x * (1 / 1.055f) + (0.055f / 1.055f), 2.4f);
             };
 
             uint32_t value = *this->addr32(x, y);
@@ -462,7 +462,7 @@ SkColor4f SkPixmap::getColor4f(int x, int y) const {
         case kSRGBA_8888_SkColorType: {
             auto srgb_to_linear = [](float x) {
                 return (x <= 0.04045f) ? x * (1 / 12.92f)
-                                       : sk_float_pow(x * (1 / 1.055f) + (0.055f / 1.055f), 2.4f);
+                                       : std::pow(x * (1 / 1.055f) + (0.055f / 1.055f), 2.4f);
             };
 
             uint32_t value = *this->addr32(x, y);

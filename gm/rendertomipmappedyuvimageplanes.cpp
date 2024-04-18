@@ -126,7 +126,7 @@ protected:
             canvas->drawImageRect(yuvaImage.get(),
                                   dstRect,
                                   SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear));
-            canvas->translate(sk_float_ceil(dstRect.width()), 0);
+            canvas->translate(std::ceil(dstRect.width()), 0);
         }
         return DrawResult::kOk;
     }

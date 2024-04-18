@@ -27,6 +27,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
 #include <algorithm>
+#include <cmath>
 #include <utility>
 
 enum SkAlphaType : int;
@@ -144,7 +145,7 @@ GrTextureEffect::Sampling::Sampling(const GrSurfaceProxy& proxy,
         r.fShaderSubset = subset;
         bool domainIsSafe = false;
         if (filter == Filter::kNearest) {
-            Span isubset{sk_float_floor(subset.fA), sk_float_ceil(subset.fB)};
+            Span isubset{std::floor(subset.fA), std::ceil(subset.fB)};
             if (domain.fA > isubset.fA && domain.fB < isubset.fB) {
                 domainIsSafe = true;
             }

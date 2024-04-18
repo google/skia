@@ -390,7 +390,7 @@ static float unit_discretize(float value, float scale) {
     if (value == 1) {
         return 1;
     } else {
-        return sk_float_floor(value * scale + 0.5f) / scale;
+        return std::floor(value * scale + 0.5f) / scale;
     }
 }
 

@@ -63,8 +63,8 @@ using ColorType = skgpu::ganesh::QuadPerEdgeAA::ColorType;
 SkSize axis_aligned_quad_size(const GrQuad& quad) {
     SkASSERT(quad.quadType() == GrQuad::Type::kAxisAligned);
     // Simplification of regular edge length equation, since it's axis aligned and can avoid sqrt
-    float dw = sk_float_abs(quad.x(2) - quad.x(0)) + sk_float_abs(quad.y(2) - quad.y(0));
-    float dh = sk_float_abs(quad.x(1) - quad.x(0)) + sk_float_abs(quad.y(1) - quad.y(0));
+    float dw = std::fabs(quad.x(2) - quad.x(0)) + std::fabs(quad.y(2) - quad.y(0));
+    float dh = std::fabs(quad.x(1) - quad.x(0)) + std::fabs(quad.y(1) - quad.y(0));
     return {dw, dh};
 }
 

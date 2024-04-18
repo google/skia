@@ -7,7 +7,6 @@
 
 #include "include/core/SkCubicMap.h"
 
-#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
 #include "src/base/SkVx.h"
 
@@ -34,7 +33,7 @@ static float cubic_solver(float A, float B, float C, float D) {
     for (; iters < MAX_ITERS; ++iters) {
         SkASSERT(valid(t));
         float f = eval_poly(t, A, B, C, D);        // f   = At^3 + Bt^2 + Ct + D
-        if (sk_float_abs(f) <= 0.00005f) {
+        if (std::fabs(f) <= 0.00005f) {
             break;
         }
         float fp = eval_poly(t, 3*A, 2*B, C);      // f'  = 3At^2 + 2Bt + C
@@ -70,7 +69,7 @@ float SkCubicMap::computeYFromX(float x) const {
     }
     float t;
     if (fType == kCubeRoot_Type) {
-        t = sk_float_pow(x / fCoeff[0].fX, 1.0f / 3);
+        t = std::pow(x / fCoeff[0].fX, 1.0f / 3);
     } else {
         t = compute_t_from_x(fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, x);
     }
@@ -83,7 +82,7 @@ float SkCubicMap::computeYFromX(float x) const {
 }
 
 static inline bool coeff_nearly_zero(float delta) {
-    return sk_float_abs(delta) <= 0.0000001f;
+    return std::fabs(delta) <= 0.0000001f;
 }
 
 SkCubicMap::SkCubicMap(SkPoint p1, SkPoint p2) {

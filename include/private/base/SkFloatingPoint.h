@@ -19,24 +19,6 @@ inline constexpr float SK_FloatSqrt2 = 1.41421356f;
 inline constexpr float SK_FloatPI    = 3.14159265f;
 inline constexpr double SK_DoublePI  = 3.14159265358979323846264338327950288;
 
-static inline float sk_float_sqrt(float x) { return std::sqrt(x); }
-static inline float sk_float_sin(float x) { return std::sin(x); }
-static inline float sk_float_cos(float x) { return std::cos(x); }
-static inline float sk_float_tan(float x) { return std::tan(x); }
-static inline float sk_float_floor(float x) { return std::floor(x); }
-static inline float sk_float_ceil(float x) { return std::ceil(x); }
-static inline float sk_float_trunc(float x) { return std::trunc(x); }
-static inline float sk_float_acos(float x) { return std::acos(x); }
-static inline float sk_float_asin(float x) { return std::asin(x); }
-static inline float sk_float_atan2(float y, float x) { return std::atan2(y,x); }
-static inline float sk_float_abs(float x) { return std::fabs(x); }
-static inline float sk_float_copysign(float x, float y) { return std::copysign(x, y); }
-static inline float sk_float_mod(float x, float y) { return std::fmod(x,y); }
-static inline float sk_float_pow(float x, float y) { return std::pow(x, y); }
-static inline float sk_float_exp(float x) { return std::exp(x); }
-static inline float sk_float_log(float x) { return std::log(x); }
-static inline float sk_float_log2(float x) { return std::log2(x); }
-
 static constexpr int sk_float_sgn(float x) {
     return (0.0f < x) - (x < 0.0f);
 }
@@ -97,20 +79,18 @@ static constexpr int64_t sk_float_saturate2int64(float x) {
     return (int64_t)x;
 }
 
-#define sk_float_floor2int(x)   sk_float_saturate2int(sk_float_floor(x))
+#define sk_float_floor2int(x)   sk_float_saturate2int(std::floor(x))
 #define sk_float_round2int(x)   sk_float_saturate2int(sk_float_round(x))
-#define sk_float_ceil2int(x)    sk_float_saturate2int(sk_float_ceil(x))
+#define sk_float_ceil2int(x)    sk_float_saturate2int(std::ceil(x))
 
-#define sk_float_floor2int_no_saturate(x)   (int)sk_float_floor(x)
-#define sk_float_round2int_no_saturate(x)   (int)sk_float_round(x)
-#define sk_float_ceil2int_no_saturate(x)    (int)sk_float_ceil(x)
+#define sk_float_floor2int_no_saturate(x)   ((int)std::floor(x))
+#define sk_float_round2int_no_saturate(x)   ((int)sk_float_round(x))
+#define sk_float_ceil2int_no_saturate(x)    ((int)std::ceil(x))
 
-#define sk_double_floor(x)          floor(x)
-#define sk_double_round(x)          floor((x) + 0.5)
-#define sk_double_ceil(x)           ceil(x)
-#define sk_double_floor2int(x)      (int)sk_double_floor(x)
-#define sk_double_round2int(x)      (int)sk_double_round(x)
-#define sk_double_ceil2int(x)       (int)sk_double_ceil(x)
+#define sk_double_round(x)          (std::floor((x) + 0.5))
+#define sk_double_floor2int(x)      ((int)std::floor(x))
+#define sk_double_round2int(x)      ((int)std::round(x))
+#define sk_double_ceil2int(x)       ((int)std::ceil(x))
 
 // Cast double to float, ignoring any warning about too-large finite values being cast to float.
 // Clang thinks this is undefined, but it's actually implementation defined to return either
@@ -132,8 +112,8 @@ static constexpr float sk_float_midpoint(float a, float b) {
     return static_cast<float>(0.5 * (static_cast<double>(a) + b));
 }
 
-static inline float sk_float_rsqrt_portable(float x) { return 1.0f / sk_float_sqrt(x); }
-static inline float sk_float_rsqrt         (float x) { return 1.0f / sk_float_sqrt(x); }
+static inline float sk_float_rsqrt_portable(float x) { return 1.0f / std::sqrt(x); }
+static inline float sk_float_rsqrt         (float x) { return 1.0f / std::sqrt(x); }
 
 // IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not,
 // so we have a helper that suppresses the possible undefined-behavior warnings.

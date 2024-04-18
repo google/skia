@@ -56,7 +56,7 @@ static skcms_TransferFunction compute_transfer(AVColorTransferCharacteristic t) 
     }
 
     skcms_TransferFunction linear_to_encoded = {
-        av->gamma, sk_float_pow(av->alpha, 1/av->gamma), 0, av->delta, av->beta, 1 - av->alpha, 0,
+        av->gamma, std::pow(av->alpha, 1/av->gamma), 0, av->delta, av->beta, 1 - av->alpha, 0,
     };
     skcms_TransferFunction encoded_to_linear;
     bool success = skcms_TransferFunction_invert(&linear_to_encoded, &encoded_to_linear);

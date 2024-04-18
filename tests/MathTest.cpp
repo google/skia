@@ -76,7 +76,7 @@ static float fast_floor(float x) {
 }
 
 static float std_floor(float x) {
-    return sk_float_floor(x);
+    return std::floor(x);
 }
 
 static void test_floor_value(skiatest::Reporter* reporter, float value) {
@@ -173,7 +173,7 @@ static void check_length(skiatest::Reporter* reporter,
                          const SkPoint& p, SkScalar targetLen) {
     float x = SkScalarToFloat(p.fX);
     float y = SkScalarToFloat(p.fY);
-    float len = sk_float_sqrt(x*x + y*y);
+    float len = std::sqrt(x*x + y*y);
 
     len /= SkScalarToFloat(targetLen);
 
@@ -181,7 +181,7 @@ static void check_length(skiatest::Reporter* reporter,
 }
 
 static void unittest_isfinite(skiatest::Reporter* reporter) {
-    float nan = sk_float_asin(2);
+    float nan = std::asin(2);
     float inf = SK_ScalarInfinity;
     float big = 3.40282e+038f;
 
@@ -263,9 +263,9 @@ static void test_rsqrt(skiatest::Reporter* reporter, RSqrtFn rsqrt) {
     // test close to 0 up to 1
     float input = 0.000001f;
     for (int i = 0; i < 1000; ++i) {
-        float exact = 1.0f/sk_float_sqrt(input);
+        float exact = 1.0f/std::sqrt(input);
         float estimate = rsqrt(input);
-        float relativeError = sk_float_abs(exact - estimate)/exact;
+        float relativeError = std::fabs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 0.001f;
     }
@@ -273,9 +273,9 @@ static void test_rsqrt(skiatest::Reporter* reporter, RSqrtFn rsqrt) {
     // test 1 to ~100
     input = 1.0f;
     for (int i = 0; i < 1000; ++i) {
-        float exact = 1.0f/sk_float_sqrt(input);
+        float exact = 1.0f/std::sqrt(input);
         float estimate = rsqrt(input);
-        float relativeError = sk_float_abs(exact - estimate)/exact;
+        float relativeError = std::fabs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 0.01f;
     }
@@ -283,9 +283,9 @@ static void test_rsqrt(skiatest::Reporter* reporter, RSqrtFn rsqrt) {
     // test some big numbers
     input = 1000000.0f;
     for (int i = 0; i < 100; ++i) {
-        float exact = 1.0f/sk_float_sqrt(input);
+        float exact = 1.0f/std::sqrt(input);
         float estimate = rsqrt(input);
-        float relativeError = sk_float_abs(exact - estimate)/exact;
+        float relativeError = std::fabs(exact - estimate)/exact;
         REPORTER_ASSERT(reporter, relativeError <= maxRelativeError);
         input += 754326.f;
     }
@@ -344,7 +344,7 @@ static void test_copysign(skiatest::Reporter* reporter) {
         float x = (float)gTriples[i];
         float y = (float)gTriples[i+1];
         float expected = (float)gTriples[i+2];
-        REPORTER_ASSERT(reporter, sk_float_copysign(x, y) == expected);
+        REPORTER_ASSERT(reporter, std::copysign(x, y) == expected);
     }
 
     SkRandom rand;

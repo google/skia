@@ -80,7 +80,7 @@ DEF_TEST(SkRasterPipelineOpts_Sin, r) {
     constexpr float kTolerance = 0.000875f;
     for (float rad = -5*Pi; rad <= 5*Pi; rad += 0.1f) {
         F result = SK_OPTS_NS::sin_(F_(rad));
-        F expected = F_(sk_float_sin(rad));
+        F expected = F_(std::sin(rad));
         F delta = SK_OPTS_NS::abs_(expected - result);
 
         REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
@@ -92,7 +92,7 @@ DEF_TEST(SkRasterPipelineOpts_Cos, r) {
     constexpr float kTolerance = 0.000875f;
     for (float rad = -5*Pi; rad <= 5*Pi; rad += 0.1f) {
         F result = SK_OPTS_NS::cos_(F_(rad));
-        F expected = F_(sk_float_cos(rad));
+        F expected = F_(std::cos(rad));
         F delta = SK_OPTS_NS::abs_(expected - result);
 
         REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
@@ -110,7 +110,7 @@ DEF_TEST(SkRasterPipelineOpts_Tan, r) {
     for (float period : {0.0f, -3*Pi, 3*Pi}) {
         for (float rad = -Pi/2 + kEpsilon; rad <= Pi/2 - kEpsilon; rad += 0.01f) {
             F result = SK_OPTS_NS::tan_(F_(rad + period));
-            F expected = F_(sk_float_tan(rad));
+            F expected = F_(std::tan(rad));
             F delta = SK_OPTS_NS::abs_(expected - result);
 
             REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
@@ -156,7 +156,7 @@ DEF_TEST(SkRasterPipelineOpts_Atan2, r) {
     for (float y = -3.0f; y <= 3.0f; y += 0.1f) {
         for (float x = -3.0f; x <= 3.0f; x += 0.1f) {
             F result = SK_OPTS_NS::atan2_(F_(y), F_(x));
-            F expected = F_(sk_float_atan2(y, x));
+            F expected = F_(std::atan2(y, x));
             F delta = SK_OPTS_NS::abs_(expected - result);
 
             REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));

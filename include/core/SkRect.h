@@ -1257,14 +1257,14 @@ public:
 
     /** Sets SkRect by discarding the fractional portion of fLeft and fTop; and rounding
         up fRight and fBottom, using
-        (sk_float_floor(fLeft), sk_float_floor(fTop),
-         sk_float_ceil(fRight), sk_float_ceil(fBottom)).
+        (std::floor(fLeft), std::floor(fTop),
+         std::ceil(fRight), std::ceil(fBottom)).
 
         @param dst  storage for SkRect
     */
     void roundOut(SkRect* dst) const {
-        dst->setLTRB(sk_float_floor(fLeft), sk_float_floor(fTop),
-                     sk_float_ceil(fRight), sk_float_ceil(fBottom));
+        dst->setLTRB(std::floor(fLeft), std::floor(fTop),
+                     std::ceil(fRight), std::ceil(fBottom));
     }
 
     /** Sets SkRect by rounding up fLeft and fTop; and discarding the fractional portion

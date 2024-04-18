@@ -346,7 +346,7 @@ SkM44 SkM44::Perspective(float near, float far, float angle) {
     float denomInv = sk_ieee_float_divide(1, far - near);
     float halfAngle = angle * 0.5f;
     SkASSERT(halfAngle != 0);
-    float cot = sk_ieee_float_divide(1, sk_float_tan(halfAngle));
+    float cot = sk_ieee_float_divide(1, std::tan(halfAngle));
 
     SkM44 m;
     m.setRC(0, 0, cot);

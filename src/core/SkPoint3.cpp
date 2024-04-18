@@ -7,8 +7,6 @@
 
 #include "include/core/SkPoint3.h"
 
-#include "include/private/base/SkFloatingPoint.h"
-
 #include <cmath>
 
 // Returns the square of the Euclidian distance to (x,y,z).
@@ -30,7 +28,7 @@ static inline bool is_length_nearly_zero(float x, float y, float z, float *lengt
 SkScalar SkPoint3::Length(SkScalar x, SkScalar y, SkScalar z) {
     float magSq = get_length_squared(x, y, z);
     if (SkScalarIsFinite(magSq)) {
-        return sk_float_sqrt(magSq);
+        return std::sqrt(magSq);
     } else {
         double xx = x;
         double yy = y;

@@ -174,15 +174,15 @@ public:
             0xffe01040, 0xff10c030, 0xff744cba, 0xffe05010
         };
         fColor = kColors[circle];
-        fLineWidth = sk_float_pow(random->nextF(), 12) * 20 + 3;
+        fLineWidth = std::pow(random->nextF(), 12) * 20 + 3;
         fOmega = random->nextF() * 3 + 0.2f;
         float theta = random->nextRangeF(0, 2*SK_ScalarPI);
-        fCosTheta = sk_float_cos(theta);
-        fSinTheta = sk_float_sin(theta);
+        fCosTheta = std::cos(theta);
+        fSinTheta = std::sin(theta);
         fStart = params.fCircleCenters[circle] + SkPoint::Make(params.fCircleRadius * fCosTheta,
                                                                params.fCircleRadius * fSinTheta);
         fLength = params.fLineMinimum;
-        fLength += sk_float_pow(random->nextF(), 8) * params.fLineLengthMaximum;
+        fLength += std::pow(random->nextF(), 8) * params.fLineLengthMaximum;
         fSegmentDirection = random->nextF() > 0.5 ? -1 : 1;
     }
 
@@ -203,7 +203,7 @@ public:
     }
 
     void animate(double nanos) override {
-        fLength += sk_float_sin(time_counter_value(nanos, 100) * fOmega);
+        fLength += std::sin(time_counter_value(nanos, 100) * fOmega);
     }
 
 private:
@@ -240,8 +240,8 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorWHITE);
 
-        float dx = fTwoFifthsSizeX * sk_float_cos(fCurrentAngle);
-        float dy = fTwoFifthsSizeX * sk_float_sin(fCurrentAngle);
+        float dx = fTwoFifthsSizeX * std::cos(fCurrentAngle);
+        float dy = fTwoFifthsSizeX * std::sin(fCurrentAngle);
 
         float colorStopStep = SkScalarInterp(-.1f, .1f, fCurrentGradientStep);
         int brightnessStep = SkScalarRoundToInt(SkScalarInterp(32, 64, fCurrentGradientStep));
@@ -303,7 +303,7 @@ public:
 
     bool animate(double nanos) override {
         fCurrentAngle = time_fractional_value(nanos, 3000) * SK_ScalarPI * 2;
-        fCurrentGradientStep = 0.5f + 0.5f * sk_float_sin(
+        fCurrentGradientStep = 0.5f + 0.5f * std::sin(
                                        time_fractional_value(nanos, 5000) * SK_ScalarPI * 2);
 
         this->Stage::animate(nanos);
@@ -344,7 +344,7 @@ public:
 
         fPoint = SkPoint::Make(distanceX * (randX + (randY % 2) / 2), distanceY * (randY + 0.5f));
 
-        fRadius = 20 + sk_float_pow(random->nextF(), 5) * (std::min(distanceX, distanceY) / 1.8f);
+        fRadius = 20 + std::pow(random->nextF(), 5) * (std::min(distanceX, distanceY) / 1.8f);
         fStartAngle = random->nextRangeF(0, 2*SK_ScalarPI);
         fEndAngle = random->nextRangeF(0, 2*SK_ScalarPI);
         fOmega = (random->nextF() - 0.5f) * 0.3f;
@@ -355,7 +355,7 @@ public:
         SkColor bonusColor = bonusColors[(randX + sk_float_ceil2int(randY * 0.5f)) % 3];
         int colorIndex = random->nextRangeU(0, 3);
         fColor = colorIndex == 3 ? bonusColor : baseColors[colorIndex];
-        fLineWidth = 1 + sk_float_pow(random->nextF(), 5) * 30;
+        fLineWidth = 1 + std::pow(random->nextF(), 5) * 30;
         fDoStroke = random->nextRangeU(0, 3) != 0;
     }
 
@@ -461,7 +461,7 @@ public:
         };
         fColor = kColors[random->nextRangeU(0, 6)];
 
-        fWidth = sk_float_pow(random->nextF(), 5) * 20 + 1;
+        fWidth = std::pow(random->nextF(), 5) * 20 + 1;
         fIsSplit = random->nextBool();
 
         this->setEndPoint(random, size, prev);

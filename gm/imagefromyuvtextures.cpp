@@ -309,16 +309,16 @@ protected:
                     canvas->save();
                         canvas->scale(scale, scale);
                         auto s1 = draw(this->getYUVAImage(imageIndex++), sampling);
-                        yuvAndRefH = kPad + sk_float_ceil(scale * s1.height());
+                        yuvAndRefH = kPad + std::ceil(scale * s1.height());
                     canvas->restore();
                     canvas->save();
                         canvas->translate(0, yuvAndRefH);
                         canvas->scale(scale, scale);
                         auto s2 = draw(fReferenceImage.get(), sampling);
-                        yuvAndRefH += sk_float_ceil(scale * s2.height());
+                        yuvAndRefH += std::ceil(scale * s2.height());
                     canvas->restore();
 
-                    float thisW = sk_float_ceil(scale * std::max(s1.width(), s2.width()));
+                    float thisW = std::ceil(scale * std::max(s1.width(), s2.width()));
 
                     SkPaint outline;
                     outline.setColor(SK_ColorBLACK);

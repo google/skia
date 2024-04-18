@@ -119,7 +119,7 @@ public:
 protected:
     void performTest(float* SK_RESTRICT dst, const float* SK_RESTRICT src, int count) override {
         for (int i = 0; i < count; ++i) {
-            dst[i] = 1.0f / sk_float_sqrt(src[i]);
+            dst[i] = 1.0f / std::sqrt(src[i]);
         }
     }
 private:
@@ -350,7 +350,7 @@ protected:
         } else {
             for (int j = 0; j < loops; ++j) {
                 for (int i = 0; i < ARRAY; ++i) {
-                    accum += sk_float_floor(data[i]);
+                    accum += std::floor(data[i]);
                 }
                 this->process(accum);
             }

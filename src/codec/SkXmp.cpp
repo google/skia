@@ -12,11 +12,11 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkGainmapInfo.h"
-#include "include/private/base/SkFloatingPoint.h"
 #include "include/utils/SkParse.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/xml/SkDOM.h"
 
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -551,7 +551,7 @@ bool SkXmpImpl::getGainmapInfoHDRGainMap(SkGainmapInfo* info) const {
 
     // This node will often have StoredFormat and NativeFormat children that have inner text that
     // specifies the integer 'L008' (also known as kCVPixelFormatType_OneComponent8).
-    const float kRatioMax = sk_float_exp(1.f);
+    const float kRatioMax = std::exp(1.f);
     info->fGainmapRatioMin = {1.f, 1.f, 1.f, 1.f};
     info->fGainmapRatioMax = {kRatioMax, kRatioMax, kRatioMax, 1.f};
     info->fGainmapGamma = {1.f, 1.f, 1.f, 1.f};
@@ -606,20 +606,20 @@ bool SkXmpImpl::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     get_attr_float(dom, node, hdrgmPrefix, "HDRCapacityMax", &hdrCapacityMax);
 
     // Translate all parameters to SkGainmapInfo's expected format.
-    const float kLog2 = sk_float_log(2.f);
-    outGainmapInfo->fGainmapRatioMin = {sk_float_exp(gainMapMin.fR * kLog2),
-                                        sk_float_exp(gainMapMin.fG * kLog2),
-                                        sk_float_exp(gainMapMin.fB * kLog2),
+    const float kLog2 = std::log(2.f);
+    outGainmapInfo->fGainmapRatioMin = {std::exp(gainMapMin.fR * kLog2),
+                                        std::exp(gainMapMin.fG * kLog2),
+                                        std::exp(gainMapMin.fB * kLog2),
                                         1.f};
-    outGainmapInfo->fGainmapRatioMax = {sk_float_exp(gainMapMax.fR * kLog2),
-                                        sk_float_exp(gainMapMax.fG * kLog2),
-                                        sk_float_exp(gainMapMax.fB * kLog2),
+    outGainmapInfo->fGainmapRatioMax = {std::exp(gainMapMax.fR * kLog2),
+                                        std::exp(gainMapMax.fG * kLog2),
+                                        std::exp(gainMapMax.fB * kLog2),
                                         1.f};
     outGainmapInfo->fGainmapGamma = {1.f / gamma.fR, 1.f / gamma.fG, 1.f / gamma.fB, 1.f};
     outGainmapInfo->fEpsilonSdr = offsetSdr;
     outGainmapInfo->fEpsilonHdr = offsetHdr;
-    outGainmapInfo->fDisplayRatioSdr = sk_float_exp(hdrCapacityMin * kLog2);
-    outGainmapInfo->fDisplayRatioHdr = sk_float_exp(hdrCapacityMax * kLog2);
+    outGainmapInfo->fDisplayRatioSdr = std::exp(hdrCapacityMin * kLog2);
+    outGainmapInfo->fDisplayRatioHdr = std::exp(hdrCapacityMax * kLog2);
     if (baseRenditionIsHDR) {
         outGainmapInfo->fBaseImageType = SkGainmapInfo::BaseImageType::kHDR;
     } else {

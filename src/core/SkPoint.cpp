@@ -79,7 +79,7 @@ float SkPoint::Normalize(SkPoint* pt) {
 float SkPoint::Length(float dx, float dy) {
     float mag2 = dx * dx + dy * dy;
     if (std::isfinite(mag2)) {
-        return sk_float_sqrt(mag2);
+        return std::sqrt(mag2);
     } else {
         double xx = dx;
         double yy = dy;
