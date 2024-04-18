@@ -64,7 +64,7 @@
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
-      "0777",
+      "0o777",
       "results_dir"
     ],
     "infra_step": true,

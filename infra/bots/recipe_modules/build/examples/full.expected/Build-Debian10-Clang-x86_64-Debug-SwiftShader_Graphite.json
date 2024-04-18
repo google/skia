@@ -52,7 +52,7 @@
       "/path/to/tmp/json",
       "ensure-directory",
       "--mode",
-      "0777",
+      "0o777",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-x86_64-Debug-SwiftShader_Graphite/Debug/swiftshader_out"
     ],
     "infra_step": true,
