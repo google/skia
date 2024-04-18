@@ -6,7 +6,7 @@ REG_FIDDLE(Surface_notifyContentWillChange, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(1, 1));
     for (int i = 0; i < 3; ++i) {
-        SkDebugf("surface generationID: %d\n", surface->generationID());
+        SkDebugf("surface generationID: %u\n", surface->generationID());
         if (0 == i) {
             surface->getCanvas()->drawColor(SK_ColorBLACK);
         } else {

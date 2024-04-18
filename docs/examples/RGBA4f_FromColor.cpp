@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     SkColor4f color4f = SkColor4f::FromColor(argb);
     SkDebugf("red=%g green=%g blue=%g alpha=%g\n", color4f.fR, color4f.fG, color4f.fB, color4f.fA);
     SkColor fromColor4f = color4f.toSkColor();
-    SkDebugf("red=%d green=%d blue=%d alpha=%d\n", SkColorGetR(fromColor4f),
+    SkDebugf("red=%u green=%u blue=%u alpha=%u\n", SkColorGetR(fromColor4f),
              SkColorGetG(fromColor4f), SkColorGetB(fromColor4f), SkColorGetA(fromColor4f));
 }
 }  // END FIDDLE

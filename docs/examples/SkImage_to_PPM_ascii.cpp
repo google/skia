@@ -29,7 +29,7 @@ sk_sp<SkData> Encode_PPM_A(const SkPixmap& src) {
         for (int x = 0; x < src.height(); ++x) {
             char buffer[13];
             SkColor c = src.getColor(x, y);
-            int n = snprintf(buffer, sizeof(buffer), "%d %d %d\n", SkColorGetR(c),
+            int n = snprintf(buffer, sizeof(buffer), "%u %u %u\n", SkColorGetR(c),
                              SkColorGetG(c), SkColorGetB(c));
             if (n < 6 || n + 1 > (int)sizeof(buffer)) {
                 return nullptr;

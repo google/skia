@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     float red = 0.07f, green = 0.13f, blue = 0.32f, alpha = 0.17f;
     SkColor4f color4f = { red, green, blue, alpha };
     SkColor argb = color4f.toSkColor();
-    SkDebugf("red=%d green=%d blue=%d alpha=%d\n", SkColorGetR(argb),
+    SkDebugf("red=%u green=%u blue=%u alpha=%u\n", SkColorGetR(argb),
              SkColorGetG(argb), SkColorGetB(argb), SkColorGetA(argb));
     SkColor4f fromSkColor = SkColor4f::FromColor(argb);
     SkDebugf("red=%g green=%g blue=%g alpha=%g\n", fromSkColor.fR, fromSkColor.fG,

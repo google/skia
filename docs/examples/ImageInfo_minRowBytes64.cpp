@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
         uint64_t minRowBytes = imageInfo.minRowBytes64();
         bool widthTooLarge = (uint64_t) (int32_t) minRowBytes != minRowBytes;
         SkDebugf("RGBA_F16 width %d (0x%08x) %s\n",
-                width, width, widthTooLarge ? "too large" : "OK");
+                 width, (unsigned int)width, widthTooLarge ? "too large" : "OK");
     }
 }
 }  // END FIDDLE
