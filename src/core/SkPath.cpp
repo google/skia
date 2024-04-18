@@ -3280,11 +3280,11 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
                                    SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect) {
     SkASSERT(!oval.isEmpty());
     SkASSERT(sweepAngle);
-#if defined(SK_BUILD_FOR_FUZZER)
-    if (sweepAngle > 3600.0f || sweepAngle < -3600.0f) {
-        return;
+    // We cap the number of total rotations. This keeps the resulting paths simpler. More important,
+    // it prevents values so large that the loops below never terminate (once ULP > 360).
+    if (SkScalarAbs(sweepAngle) > 3600.0f) {
+        sweepAngle = std::copysign(3600.0f, sweepAngle) + std::fmod(sweepAngle, 360.0f);
     }
-#endif
     path->reset();
     path->setIsVolatile(true);
     path->setFillType(SkPathFillType::kWinding);
