@@ -157,6 +157,17 @@ debs_to_install = [
         "sha256": "e478f2709d8474165bb664de42e16950c391f30eaa55bc9b3573281d83a29daf",
         "url": "https://ftp.debian.org/debian/pool/main/g/gcc-10/libgcc-s1_10.2.1-6_amd64.deb",
     },
+    # needed for EGL support
+    {
+        # From https://packages.debian.org/bullseye/amd64/libegl-dev/download
+        "sha256": "2847662b23487d5b1e467bca8cc8753baa880f794744a9b492c978bd5514b286",
+        "url": "http://ftp.debian.org/debian/pool/main/libg/libglvnd/libegl-dev_1.3.2-1_amd64.deb",
+    },
+    {
+        # https://packages.debian.org/bullseye/amd64/libgles-dev/download
+        "sha256": "969e9197d8b8a36780f9b5d86f7c3066cdfef9dd7cdc3aee59a1870415c53578",
+        "url": "http://ftp.debian.org/debian/pool/main/libg/libglvnd/libgles-dev_1.3.2-1_amd64.deb",
+    },
 ]
 
 def _download_and_extract_deb(ctx, deb, sha256, prefix, output = ""):

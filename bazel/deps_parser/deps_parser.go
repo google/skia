@@ -93,6 +93,10 @@ This is done automatically via:
 	contents := strings.Split(string(b), "\n")
 
 	outputFile, count, err := parseDEPSFile(contents, *workspaceFile)
+	if err != nil {
+		fmt.Printf("Parsing error %s\n", err)
+		os.Exit(1)
+	}
 	if err := os.Rename(outputFile, *genBzlFile); err != nil {
 		fmt.Printf("Could not write from %s to %s: %s\n", outputFile, *depsFile, err)
 		os.Exit(1)

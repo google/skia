@@ -5,4 +5,4 @@
  * found in the LICENSE file.
  */
 // TODO(kjlubick, egdaniel) remove these shim files after clients migrated
-#include "include/gpu/ganesh/gl/glx/GrGLMakeEGLInterface.h"
+#include "include/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.h"

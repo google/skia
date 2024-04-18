@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
 
 licenses(["notice"])
 
@@ -14,5 +14,23 @@ skia_filegroup(
     visibility = [
         "//src/gpu/ganesh/gl:__pkg__",
         "//tools/gpu/gl/egl:__pkg__",
+    ],
+)
+
+skia_cc_library(
+    name = "egl_factory",
+    srcs = [
+        "GrGLMakeEGLInterface.cpp",
+    ],
+    hdrs = [
+        "//include/gpu/ganesh/gl/egl:public_hdrs",
+    ],
+    defines = ["SK_DISABLE_LEGACY_EGLINTERFACE_FACTORY"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//:ganesh_gl",
+        "//bazel/external/egl",
+        "//bazel/external/glesv2",
     ],
 )
