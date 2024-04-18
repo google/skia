@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
-#include "include/private/base/SkFloatBits.h"
+#include "src/base/SkFloatBits.h"
 
 // Outsetting of very thin, nearly line, quads for AA would go haywire and draw far outside of the
 // quad. Artifacts seemed to occur more when coord values are large, hence the large GM size. At the

@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
-#include "include/private/base/SkFloatBits.h"
+#include "src/base/SkFloatBits.h"
 
 // This quad would, depending on which aa flags are used, would degenerate when inset. We'd replace
 // and duplicate some of the inset points to make a triangle. However, one of the triangle points

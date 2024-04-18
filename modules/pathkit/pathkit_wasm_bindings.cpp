@@ -17,9 +17,9 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/utils/SkParsePath.h"
+#include "src/base/SkFloatBits.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkPathPriv.h"
 

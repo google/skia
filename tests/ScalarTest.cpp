@@ -9,9 +9,9 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkFloatBits.h"
 #include "tests/Test.h"
 
 #include <array>

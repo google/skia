@@ -12,7 +12,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkFloatBits.h"
+#include "src/base/SkFloatBits.h"
 #include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
 

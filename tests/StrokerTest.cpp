@@ -12,7 +12,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
-#include "include/private/base/SkFloatBits.h"
+#include "src/base/SkFloatBits.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkStrokerPriv.h"

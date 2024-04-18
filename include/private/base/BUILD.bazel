@@ -25,7 +25,6 @@ IWYU_HDRS = [
     "SkDebug.h",
     "SkFeatures.h",
     "SkFixed.h",
-    "SkFloatBits.h",
     "SkLoadUserConfig.h",
     "SkMacros.h",
     "SkMath.h",

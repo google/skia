@@ -9,8 +9,8 @@
 
 #include "include/core/SkString.h"
 #include "include/private/base/SkAssert.h"
-#include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkFloatBits.h"
 #include "src/base/SkUTF.h"
 
 #include <cstring>
