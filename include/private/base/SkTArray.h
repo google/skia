@@ -698,9 +698,15 @@ template <typename T, bool M> static inline void swap(TArray<T, M>& a, TArray<T,
 }
 
 // Subclass of TArray that contains a pre-allocated memory block for the array.
-template <int N, typename T, bool MEM_MOVE = sk_is_trivially_relocatable_v<T>>
-class STArray : private SkAlignedSTStorage<N,T>, public TArray<T, MEM_MOVE> {
-    static_assert(N > 0);
+template <int Nreq, typename T, bool MEM_MOVE = sk_is_trivially_relocatable_v<T>>
+class STArray : private SkAlignedSTStorage<SkContainerAllocator::RoundUp<T>(Nreq), T>,
+                public TArray<T, MEM_MOVE> {
+    // We round up the requested array size to the next capacity multiple.
+    // This space would likely otherwise go to waste.
+    static constexpr int N = SkContainerAllocator::RoundUp<T>(Nreq);
+    static_assert(Nreq > 0);
+    static_assert(N >= Nreq);
+
     using Storage = SkAlignedSTStorage<N,T>;
 
 public:
