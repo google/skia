@@ -9,7 +9,5 @@ skia_filegroup(
     srcs = ["GrGLMakeGLXInterface.h"],
     visibility = [
         "//include/gpu/gl:__pkg__",
-        "//src/gpu/ganesh/gl/glx:__pkg__",
-        "//tools/gpu/gl/glx:__pkg__",
     ],
 )

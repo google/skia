@@ -7,7 +7,7 @@
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
-#include "include/gpu/gl/glx/GrGLMakeGLXInterface.h"
+#include "include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 // Define this to get a prototype for glXGetProcAddress on some systems

@@ -9,7 +9,7 @@ skia_filegroup(
     srcs = [
         "CreatePlatformGLTestContext_glx.cpp",
         # This is easier than making a TEST_UTIL version //:ganesh_glx_factory
-        "//include/gpu/gl/glx:public_hdrs",
+        "//include/gpu/ganesh/gl/glx:public_hdrs",
         "//src/gpu/ganesh/gl/glx:srcs",
     ],
     visibility = ["//tools/gpu/gl:__pkg__"],

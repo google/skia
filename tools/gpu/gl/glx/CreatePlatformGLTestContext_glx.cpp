@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/gl/glx/GrGLMakeGLXInterface.h"
+#include "include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h"
 #include "include/private/base/SkOnce.h"
 #include "tools/gpu/gl/GLTestContext.h"
 

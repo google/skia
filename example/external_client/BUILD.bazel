@@ -98,14 +98,37 @@ cc_binary(
     copts = ["-std=c++17"],
     linkopts = [
         "-lpthread",
-        "-lGL",
-        "-lX11",
-    ],
+    ] + select(
+        {
+            "@platforms//os:linux": [
+                "-lGL",
+                "-lX11",
+            ],
+            "//conditions:default": [],
+        },
+    ),
     deps = [
         "@skia//:core",
         "@skia//:ganesh_gl",
-        "@skia//:ganesh_glx_factory",
         "@skia//:webp_encode_codec",
+    ] + select({
+        "@platforms//os:linux": ["@skia//:ganesh_glx_factory"],
+        "@platforms//os:macos": [
+            ":gl_context_helper",
+            "@skia//:ganesh_gl_mac_factory",
+        ],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+)
+
+objc_library(
+    name = "gl_context_helper",
+    srcs = ["src/gl_context_helper.mm"],
+    hdrs = ["src/gl_context_helper.h"],
+    copts = ["-DGL_SILENCE_DEPRECATION"],
+    includes = ["src"],
+    sdk_frameworks = [
+        "OpenGL",
     ],
 )
 

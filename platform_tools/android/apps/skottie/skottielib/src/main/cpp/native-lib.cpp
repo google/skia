@@ -27,7 +27,7 @@
 #include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
-#include "include/gpu/gl/egl/GrGLMakeEGLInterface.h"
+#include "include/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.h"
 
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skresources/include/SkResources.h"

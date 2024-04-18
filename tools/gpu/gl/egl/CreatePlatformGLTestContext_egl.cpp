@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/gl/egl/GrGLMakeEGLInterface.h"
+#include "include/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tools/gpu/gl/GLTestContext.h"

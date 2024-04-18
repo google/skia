@@ -6,8 +6,8 @@ exports_files_legacy()
 
 skia_filegroup(
     name = "public_hdrs",
-    srcs = ["GrGLMakeEpoxyEGLInterface.h"],
+    srcs = ["GrGLMakeMacInterface.h"],
     visibility = [
-        "//include/gpu/gl:__pkg__",
+        "//src/gpu/ganesh/gl/mac:__pkg__",
     ],
 )

@@ -6,6 +6,9 @@
 #   //include/gpu/d3d/BUILD.bazel
 #   //include/gpu/ganesh/BUILD.bazel
 #   //include/gpu/ganesh/gl/BUILD.bazel
+#   //include/gpu/ganesh/gl/egl/BUILD.bazel
+#   //include/gpu/ganesh/gl/epoxy/BUILD.bazel
+#   //include/gpu/ganesh/gl/glx/BUILD.bazel
 #   //include/gpu/ganesh/mtl/BUILD.bazel
 #   //include/gpu/ganesh/vk/BUILD.bazel
 #   //include/gpu/gl/BUILD.bazel
@@ -993,6 +996,9 @@ skia_gpu_metal_cpp = [
 #  //include/gpu/gl/egl:public_hdrs
 #  //include/gpu/gl/epoxy:public_hdrs
 #  //include/gpu/gl/glx:public_hdrs
+#  //include/gpu/ganesh/gl/egl:public_hdrs
+#  //include/gpu/ganesh/gl/epoxy:public_hdrs
+#  //include/gpu/ganesh/gl/glx:public_hdrs
 #  //src/gpu/ganesh/gl/android:srcs
 #  //src/gpu/ganesh/gl/egl:srcs
 #  //src/gpu/ganesh/gl/epoxy:srcs
@@ -1001,6 +1007,9 @@ skia_gpu_metal_cpp = [
 #  //src/gpu/ganesh/gl/mac:srcs
 #  //src/gpu/ganesh/gl/win:srcs
 skia_native_gpu_sources = [
+  "$_include/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.h",
+  "$_include/gpu/ganesh/gl/epoxy/GrGLMakeEpoxyEGLInterface.h",
+  "$_include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h",
   "$_include/gpu/gl/egl/GrGLMakeEGLInterface.h",
   "$_include/gpu/gl/epoxy/GrGLMakeEpoxyEGLInterface.h",
   "$_include/gpu/gl/glx/GrGLMakeGLXInterface.h",

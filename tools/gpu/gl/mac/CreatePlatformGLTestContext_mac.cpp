@@ -7,6 +7,7 @@
  */
 #include "include/core/SkTypes.h"
 
+#include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
 #include <OpenGL/OpenGL.h>
@@ -82,7 +83,7 @@ MacGLTestContext::MacGLTestContext(MacGLTestContext* shareContext)
     SkScopeExit restorer(context_restorer());
     CGLSetCurrentContext(fContext);
 
-    auto gl = GrGLMakeNativeInterface();
+    auto gl = GrGLInterfaces::MakeMac();
     if (!gl) {
         SkDebugf("Context could not create GL interface.\n");
         this->destroyGLContext();

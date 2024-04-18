@@ -19,7 +19,7 @@ skia_cc_library(
         "GrGLMakeEpoxyEGLInterface.cpp",
     ],
     hdrs = [
-        "//include/gpu/gl/epoxy:public_hdrs",
+        "//include/gpu/ganesh/gl/epoxy:public_hdrs",
     ],
     linkopts = ["-lepoxy"],
     visibility = ["//:__pkg__"],

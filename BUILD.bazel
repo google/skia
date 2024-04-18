@@ -102,14 +102,20 @@ alias(
 )
 
 alias(
+    name = "ganesh_gl_epoxy_factory",
+    actual = "//src/gpu/ganesh/gl/epoxy:epoxy_factory",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "ganesh_glx_factory",
     actual = "//src/gpu/ganesh/gl/glx:glx_factory",
     visibility = ["//visibility:public"],
 )
 
 alias(
-    name = "ganesh_epoxy_factory",
-    actual = "//src/gpu/ganesh/gl/epoxy:epoxy_factory",
+    name = "ganesh_gl_mac_factory",
+    actual = "//src/gpu/ganesh/gl/mac:mac_factory",
     visibility = ["//visibility:public"],
 )
 

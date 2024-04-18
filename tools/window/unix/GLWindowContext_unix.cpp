@@ -9,7 +9,7 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/unix/WindowContextFactory_unix.h"
-#include "include/gpu/gl/glx/GrGLMakeGLXInterface.h"
+#include "include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h"
 
 #include <GL/gl.h>
 

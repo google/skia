@@ -13,6 +13,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/mac/WindowContextFactory_mac.h"
+#include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
 
 #include <OpenGL/gl.h>
 
@@ -146,7 +147,7 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     SkImageInfo info = SkImageInfo::Make(fWidth, fHeight, fDisplayParams.fColorType,
                                          kPremul_SkAlphaType, fDisplayParams.fColorSpace);
     fBackbufferSurface = SkSurfaces::Raster(info);
-    return GrGLMakeNativeInterface();
+    return GrGLInterfaces::MakeMac();
 }
 
 sk_sp<SkSurface> RasterWindowContext_mac::getBackbufferSurface() { return fBackbufferSurface; }

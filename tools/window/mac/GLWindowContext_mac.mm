@@ -9,6 +9,7 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/mac/WindowContextFactory_mac.h"
+#include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
 
 #include <OpenGL/gl.h>
 #include <Cocoa/Cocoa.h>
@@ -106,7 +107,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     fHeight = fMainView.bounds.size.height * backingScaleFactor;
     glViewport(0, 0, fWidth, fHeight);
 
-    return GrGLMakeNativeInterface();
+    return GrGLInterfaces::MakeMac();
 }
 
 void GLWindowContext_mac::onDestroyContext() {

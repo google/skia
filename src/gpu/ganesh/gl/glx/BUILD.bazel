@@ -22,7 +22,7 @@ skia_cc_library(
         "GrGLMakeGLXInterface.cpp",
     ],
     hdrs = [
-        "//include/gpu/gl/glx:public_hdrs",
+        "//include/gpu/ganesh/gl/glx:public_hdrs",
     ],
     defines = ["SK_DISABLE_LEGACY_GLXINTERFACE_FACTORY"],
     visibility = ["//:__pkg__"],
