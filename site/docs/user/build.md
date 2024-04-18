@@ -294,7 +294,7 @@ bin/gn gen out/iossim-intel --args='target_os="ios" target_cpu="x64"'
 
 By default this will also package (and for non-simulator devices, sign) iOS test binaries.
 If you wish to skip signing (for testing compilation alone, for example), you can disable it by
-setting 'skia_ios_use_signing' to 'false'.
+setting `skia_ios_use_signing` to `false`.
 
 When signing, the build defaults to a Google signing identity and provisioning profile.
 To use a different one
