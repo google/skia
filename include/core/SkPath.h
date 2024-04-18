@@ -137,6 +137,18 @@ public:
     */
     ~SkPath();
 
+    /** Returns a copy of this path in the current state. */
+    SkPath snapshot() const {
+        return *this;
+    }
+
+    /** Returns a copy of this path in the current state, and resets the path to empty. */
+    SkPath detach() {
+        SkPath result = *this;
+        this->reset();
+        return result;
+    }
+
     /** Constructs a copy of an existing path.
         SkPath assignment makes two paths identical by value. Internally, assignment
         shares pointer values. The underlying verb array, SkPoint array and weights
