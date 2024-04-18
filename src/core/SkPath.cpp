@@ -3760,7 +3760,7 @@ struct SkHalfPlane {
         b *= dscale;
         c *= dscale;
         // check if we're not finite, or normal is zero-length
-        if (!sk_float_isfinite(a) || !sk_float_isfinite(b) || !sk_float_isfinite(c) ||
+        if (!std::isfinite(a) || !std::isfinite(b) || !std::isfinite(c) ||
             (a == 0 && b == 0)) {
             fA = fB = 0;
             fC = SK_Scalar1;

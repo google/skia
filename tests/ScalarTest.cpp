@@ -97,7 +97,7 @@ static bool isFinite_int(float x) {
 }
 
 static bool isFinite_float(float x) {
-    return SkToBool(sk_float_isfinite(x));
+    return SkToBool(std::isfinite(x));
 }
 
 static bool isFinite_mulzero(float x) {
@@ -128,9 +128,9 @@ enum FloatClass {
 static void test_floatclass(skiatest::Reporter* reporter, float value, FloatClass fc) {
     // our sk_float_is... function may return int instead of bool,
     // hence the double ! to turn it into a bool
-    REPORTER_ASSERT(reporter, !!sk_float_isfinite(value) == (fc == kFinite));
-    REPORTER_ASSERT(reporter, !!sk_float_isinf(value) == (fc == kInfinite));
-    REPORTER_ASSERT(reporter, !!sk_float_isnan(value) == (fc == kNaN));
+    REPORTER_ASSERT(reporter, !!std::isfinite(value) == (fc == kFinite));
+    REPORTER_ASSERT(reporter, !!std::isinf(value)    == (fc == kInfinite));
+    REPORTER_ASSERT(reporter, !!std::isnan(value)    == (fc == kNaN));
 }
 
 #if defined _WIN32

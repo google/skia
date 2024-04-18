@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/base/SkFixed.h"
+#include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkSemaphore.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"

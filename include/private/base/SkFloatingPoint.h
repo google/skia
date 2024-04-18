@@ -9,7 +9,6 @@
 #define SkFloatingPoint_DEFINED
 
 #include "include/private/base/SkAttributes.h"
-#include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkMath.h"
 
 #include <cmath>
@@ -55,14 +54,6 @@ static constexpr float sk_float_radians_to_degrees(float radians) {
 // as floatf(x + .5f), they would be 1 higher than expected.
 #define sk_float_round(x) (float)sk_double_round((double)(x))
 
-static inline bool sk_float_isfinite(float x) {
-    return SkFloatBits_IsFinite(SkFloat2Bits(x));
-}
-
-static inline bool sk_floats_are_finite(float a, float b) {
-    return sk_float_isfinite(a) && sk_float_isfinite(b);
-}
-
 static inline bool sk_floats_are_finite(const float array[], int count) {
     float prod = 0;
     for (int i = 0; i < count; ++i) {
@@ -71,13 +62,6 @@ static inline bool sk_floats_are_finite(const float array[], int count) {
     // At this point, prod will either be NaN or 0
     return prod == 0;   // if prod is NaN, this check will return false
 }
-
-static inline bool sk_float_isinf(float x) {
-    return SkFloatBits_IsInf(SkFloat2Bits(x));
-}
-
-static constexpr bool sk_float_isnan(float x) { return x != x; }
-static constexpr bool sk_double_isnan(double x) { return x != x; }
 
 inline constexpr int SK_MaxS32FitsInFloat = 2147483520;
 inline constexpr int SK_MinS32FitsInFloat = -SK_MaxS32FitsInFloat;
@@ -151,16 +135,12 @@ static constexpr float sk_float_midpoint(float a, float b) {
 static inline float sk_float_rsqrt_portable(float x) { return 1.0f / sk_float_sqrt(x); }
 static inline float sk_float_rsqrt         (float x) { return 1.0f / sk_float_sqrt(x); }
 
-// The number of significant digits to print.
-inline constexpr int SK_FLT_DECIMAL_DIG = std::numeric_limits<float>::max_digits10;
-
 // IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not,
 // so we have a helper that suppresses the possible undefined-behavior warnings.
 #ifdef SK_BUILD_FOR_WIN
-#pragma warning( push )
-#pragma warning( disable : 4723)
+#pragma warning(push)
+#pragma warning(disable : 4723)
 #endif
-// Your function
 SK_NO_SANITIZE("float-divide-by-zero")
 static constexpr float sk_ieee_float_divide(float numer, float denom) {
     return numer / denom;
@@ -174,11 +154,6 @@ static constexpr double sk_ieee_double_divide(double numer, double denom) {
 #pragma warning( pop )
 #endif
 
-// Return a*b + c.
-static inline float sk_fmaf(float a, float b, float c) {
-    return std::fma(a, b, c);
-}
-
 // Returns true iff the provided number is within a small epsilon of 0.
 bool sk_double_nearly_zero(double a);
 
@@ -188,6 +163,6 @@ bool sk_double_nearly_zero(double a);
 // * infinity and any other number - returns false.
 //
 // ulp is an initialism for Units in the Last Place.
-bool sk_doubles_nearly_equal_ulps(double a, double b, uint8_t maxUlpsDiff=16);
+bool sk_doubles_nearly_equal_ulps(double a, double b, uint8_t maxUlpsDiff = 16);
 
 #endif

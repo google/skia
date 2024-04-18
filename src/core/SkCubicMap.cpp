@@ -12,12 +12,13 @@
 #include "src/base/SkVx.h"
 
 #include <algorithm>
+#include <cmath>
 
 static float eval_poly(float t, float b) { return b; }
 
 template <typename... Rest>
 static float eval_poly(float t, float m, float b, Rest... rest) {
-    return eval_poly(t, sk_fmaf(m, t, b), rest...);
+    return eval_poly(t, std::fma(m, t, b), rest...);
 }
 
 static float cubic_solver(float A, float B, float C, float D) {
@@ -40,7 +41,7 @@ static float cubic_solver(float A, float B, float C, float D) {
         float fpp = eval_poly(t, 3*A + 3*A, 2*B);  // f'' = 6At + 2B
 
         float numer = 2 * fp * f;
-        float denom = sk_fmaf(2 * fp, fp, -(f * fpp));
+        float denom = std::fma(2 * fp, fp, -(f * fpp));
 
         t -= numer / denom;
     }

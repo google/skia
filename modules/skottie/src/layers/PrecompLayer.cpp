@@ -25,6 +25,7 @@
 #include "src/base/SkTLazy.h"
 #include "src/utils/SkJSON.h"
 
+#include <cmath>
 #include <utility>
 
 class SkMatrix;
@@ -225,7 +226,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
         auto time_mapper = sk_make_sp<CompTimeMapper>(local_scope->release(),
                                                       std::move(time_remapper),
                                                       t_bias,
-                                                      sk_float_isfinite(t_scale) ? t_scale : 0);
+                                                      std::isfinite(t_scale) ? t_scale : 0);
 
         fCurrentAnimatorScope->push_back(std::move(time_mapper));
     }

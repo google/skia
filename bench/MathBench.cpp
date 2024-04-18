@@ -187,10 +187,6 @@ static bool isFinite_int(float x) {
     return exponent != 0xFF;
 }
 
-static bool isFinite_float(float x) {
-    return SkToBool(sk_float_isfinite(x));
-}
-
 static bool isFinite_mulzero(float x) {
     float y = x * 0;
     return y == y;
@@ -198,10 +194,6 @@ static bool isFinite_mulzero(float x) {
 
 static bool isfinite_and_int(const float data[4]) {
     return  isFinite_int(data[0]) && isFinite_int(data[1]) && isFinite_int(data[2]) && isFinite_int(data[3]);
-}
-
-static bool isfinite_and_float(const float data[4]) {
-    return  isFinite_float(data[0]) && isFinite_float(data[1]) && isFinite_float(data[2]) && isFinite_float(data[3]);
 }
 
 static bool isfinite_and_mulzero(const float data[4]) {
@@ -212,10 +204,6 @@ static bool isfinite_and_mulzero(const float data[4]) {
 
 static bool isfinite_plus_int(const float data[4]) {
     return  isFinite_int(mulzeroadd(data));
-}
-
-static bool isfinite_plus_float(const float data[4]) {
-    return  !sk_float_isnan(mulzeroadd(data));
 }
 
 static bool isfinite_plus_mulzero(const float data[4]) {
@@ -232,10 +220,8 @@ static const struct {
     const char*     fName;
 } gRec[] = {
     MAKEREC(isfinite_and_int),
-    MAKEREC(isfinite_and_float),
     MAKEREC(isfinite_and_mulzero),
     MAKEREC(isfinite_plus_int),
-    MAKEREC(isfinite_plus_float),
     MAKEREC(isfinite_plus_mulzero),
 };
 

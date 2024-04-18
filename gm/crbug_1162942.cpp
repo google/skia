@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
+#include "include/private/base/SkFloatBits.h"
 
 // This tests a scenario where when the 2D projection of a perspective quad is inset we degenerate
 // the inset 2d geometry to a triangle because an inset vertex crosses the opposite edge. When we

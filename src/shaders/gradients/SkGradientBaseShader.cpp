@@ -391,7 +391,7 @@ void SkGradientBaseShader::AppendGradientFillStages(SkRasterPipeline* p,
                 SkASSERT(t_l <= t_r);
                 if (t_l < t_r) {
                     float c_scale = sk_ieee_float_divide(1, t_r - t_l);
-                    if (sk_float_isfinite(c_scale)) {
+                    if (std::isfinite(c_scale)) {
                         init_stop_pos(ctx, stopCount, t_l, c_scale, c_l, c_r);
                         stopCount += 1;
                     }

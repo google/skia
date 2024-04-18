@@ -74,7 +74,7 @@ static bool are_equal(skiatest::Reporter* reporter,
                 float bVal = b.get(i);
                 int aValI = float_bits(aVal);
                 int bValI = float_bits(bVal);
-                if (sk_float_isnan(aVal) && aValI == bValI) {
+                if (std::isnan(aVal) && aValI == bValI) {
                     foundNaN = true;
                 } else {
                     REPORTER_ASSERT(reporter, aVal == bVal && aValI == bValI);

@@ -14,7 +14,7 @@
 // and increase code size. Performance critical code is likely already using skvx directly, and
 // they will be inlined where performance vs. code size is worth it.
 SkHalf SkFloatToHalf(float f) {
-    if (sk_float_isnan(f)) {
+    if (std::isnan(f)) {
         return SK_HalfNaN;
     } else {
         return to_half(skvx::Vec<1,float>(f))[0];

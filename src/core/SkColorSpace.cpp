@@ -7,12 +7,12 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkColorSpacePriv.h"
 
+#include <cmath>
 #include <cstring>
 
 bool SkColorSpacePrimaries::toXYZD50(skcms_Matrix3x3* toXYZ_D50) const {
@@ -305,7 +305,7 @@ bool SkColorSpace::Equals(const SkColorSpace* x, const SkColorSpace* y) {
         // even returns true more often than those two OR'd together   (two different NaNs).
         auto equiv = [](float X, float Y) {
             return (X==Y)
-                || (sk_float_isnan(X) && sk_float_isnan(Y));
+                || (std::isnan(X) && std::isnan(Y));
         };
 
         for (int i = 0; i < 7; i++) {

@@ -731,7 +731,7 @@ protected:
         auto setMetric = [](float& dstMetric, const float srcMetric,
                             uint32_t& flags, const SkFontMetrics::FontMetricsFlags flag)
         {
-            if (sk_float_isnan(srcMetric)) {
+            if (std::isnan(srcMetric)) {
                 dstMetric = 0;
             } else {
                 dstMetric = srcMetric;
