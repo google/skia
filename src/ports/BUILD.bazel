@@ -414,7 +414,7 @@ skia_cc_library(
     ],
     defines = ["SK_FONTMGR_FREETYPE_DIRECTORY_AVAILABLE"],
     features = ["layering_check"],
-    visibility = ["//__pkg__"],
+    visibility = ["//:__pkg__"],
     deps = [
         ":freetype_support",
         "//:core",
