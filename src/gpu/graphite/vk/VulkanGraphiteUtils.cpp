@@ -55,7 +55,7 @@ VkShaderModule createVulkanShaderModule(const VulkanSharedContext* context,
 
     VkShaderModule shaderModule;
     VkResult result;
-    VULKAN_CALL_RESULT(context->interface(),
+    VULKAN_CALL_RESULT(context,
                        result,
                        CreateShaderModule(context->device(),
                                           &moduleCreateInfo,
@@ -96,12 +96,10 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext* ctxt,
     layoutCreateInfo.pBindings = &bindingLayouts.front();
 
     VkResult result;
-    VULKAN_CALL_RESULT(ctxt->interface(),
-                       result,
-                       CreateDescriptorSetLayout(ctxt->device(),
-                                                 &layoutCreateInfo,
-                                                 nullptr,
-                                                 outLayout));
+    VULKAN_CALL_RESULT(
+            ctxt,
+            result,
+            CreateDescriptorSetLayout(ctxt->device(), &layoutCreateInfo, nullptr, outLayout));
     if (result != VK_SUCCESS) {
         SkDebugf("Failed to create VkDescriptorSetLayout\n");
         outLayout = VK_NULL_HANDLE;

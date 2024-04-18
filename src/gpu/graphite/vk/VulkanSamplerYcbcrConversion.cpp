@@ -46,11 +46,10 @@ sk_sp<VulkanSamplerYcbcrConversion> VulkanSamplerYcbcrConversion::Make(
 
     VkSamplerYcbcrConversion conversion;
     VkResult result;
-    VULKAN_CALL_RESULT(context->interface(), result,
-                       CreateSamplerYcbcrConversion(context->device(),
-                                                    &ycbcrCreateInfo,
-                                                    nullptr,
-                                                    &conversion));
+    VULKAN_CALL_RESULT(context,
+                       result,
+                       CreateSamplerYcbcrConversion(
+                               context->device(), &ycbcrCreateInfo, nullptr, &conversion));
     if (result != VK_SUCCESS) {
         return nullptr;
     }

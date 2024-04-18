@@ -284,7 +284,7 @@ VkPipelineCache VulkanResourceProvider::pipelineCache() {
         createInfo.initialDataSize = 0;
         createInfo.pInitialData = nullptr;
         VkResult result;
-        VULKAN_CALL_RESULT(this->vulkanSharedContext()->interface(),
+        VULKAN_CALL_RESULT(this->vulkanSharedContext(),
                            result,
                            CreatePipelineCache(this->vulkanSharedContext()->device(),
                                                &createInfo,

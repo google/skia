@@ -92,13 +92,12 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
         initialLayout                        // initialLayout
     };
 
-    auto interface = sharedContext->interface();
     auto device = sharedContext->device();
 
     VkImage image = VK_NULL_HANDLE;
     VkResult result;
-    VULKAN_CALL_RESULT(interface, result,
-                       CreateImage(device, &imageCreateInfo, nullptr, &image));
+    VULKAN_CALL_RESULT(
+            sharedContext, result, CreateImage(device, &imageCreateInfo, nullptr, &image));
     if (result != VK_SUCCESS) {
         SKGPU_LOG_E("Failed call to vkCreateImage with error: %d", result);
         return false;
@@ -119,7 +118,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
                                                useLazyAllocation,
                                                checkResult,
                                                &outInfo->fMemoryAlloc)) {
-        VULKAN_CALL(interface, DestroyImage(device, image, nullptr));
+        VULKAN_CALL(sharedContext->interface(), DestroyImage(device, image, nullptr));
         return false;
     }
 
@@ -130,13 +129,14 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
         return false;
     }
 
-    VULKAN_CALL_RESULT(interface, result, BindImageMemory(device,
-                                                          image,
-                                                          outInfo->fMemoryAlloc.fMemory,
-                                                          outInfo->fMemoryAlloc.fOffset));
+    VULKAN_CALL_RESULT(
+            sharedContext,
+            result,
+            BindImageMemory(
+                    device, image, outInfo->fMemoryAlloc.fMemory, outInfo->fMemoryAlloc.fOffset));
     if (result != VK_SUCCESS) {
         skgpu::VulkanMemory::FreeImageMemory(allocator, outInfo->fMemoryAlloc);
-        VULKAN_CALL(interface, DestroyImage(device, image, nullptr));
+        VULKAN_CALL(sharedContext->interface(), DestroyImage(device, image, nullptr));
         return false;
     }
 
@@ -222,11 +222,10 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
 
     // Enable the following block on new devices to test that their lazy images stay at 0 memory use
 #if 0
-    auto interface = sharedContext->interface();
     auto device = sharedContext->device();
     if (fAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag) {
         VkDeviceSize size;
-        VULKAN_CALL(interface, GetDeviceMemoryCommitment(device, fAlloc.fMemory, &size));
+        VULKAN_CALL(sharedContext->interface(), GetDeviceMemoryCommitment(device, fAlloc.fMemory, &size));
 
         SkDebugf("Lazy Image. This: %p, image: %d, size: %d\n", this, fImage, size);
     }

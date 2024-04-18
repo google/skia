@@ -89,7 +89,8 @@ sk_sp<VulkanSampler> VulkanSampler::Make(const VulkanSharedContext* sharedContex
 
     VkSampler sampler;
     VkResult result;
-    VULKAN_CALL_RESULT(sharedContext->interface(), result,
+    VULKAN_CALL_RESULT(sharedContext,
+                       result,
                        CreateSampler(sharedContext->device(), &samplerInfo, nullptr, &sampler));
     if (result != VK_SUCCESS) {
         return nullptr;

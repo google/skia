@@ -16,31 +16,32 @@
 
 #include <string>
 
-// Helper macros to call functions on the VulkanInterface
+// Helper macros to call functions on the VulkanInterface without checking for errors. Note: This
+// cannot require a VulkanSharedContext because driver calls are needed before the shared context
+// has been initialized.
 #define VULKAN_CALL(IFACE, X) (IFACE)->fFunctions.f##X
 
-// TODO: This needs to add checks for device lost on calls. See Ganesh version
-#define VULKAN_LOG_IF_NOT_SUCCESS(RESULT, X, ...)                                       \
-    do {                                                                                \
-        if (RESULT != VK_SUCCESS) {                                                     \
-            SkDebugf("Failed vulkan call. Error: %d, " X "\n", RESULT, ##__VA_ARGS__);  \
-        }                                                                               \
+// Must be called before checkVkResult, since this does not log if the VulkanSharedContext is
+// already considering the device to be lost.
+#define VULKAN_LOG_IF_NOT_SUCCESS(SHARED_CONTEXT, RESULT, X, ...)                      \
+    do {                                                                               \
+        if (RESULT != VK_SUCCESS && !(SHARED_CONTEXT)->isDeviceLost()) {               \
+            SkDebugf("Failed vulkan call. Error: %d, " X "\n", RESULT, ##__VA_ARGS__); \
+        }                                                                              \
     } while (false)
 
-// TODO: This needs to add checks for device lost on calls. See Ganesh version
-#define VULKAN_CALL_RESULT(IFACE, RESULT, X)                               \
-    do {                                                                   \
-        (RESULT) = VULKAN_CALL(IFACE, X);                                  \
-        SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT);  \
-        if (RESULT != VK_SUCCESS) {                                        \
-            SKGPU_LOG_E("Failed vulkan call. Error: %d," #X "\n", RESULT); \
-        }                                                                  \
+#define VULKAN_CALL_RESULT(SHARED_CONTEXT, RESULT, X)                     \
+    do {                                                                  \
+        (RESULT) = VULKAN_CALL((SHARED_CONTEXT)->interface(), X);         \
+        SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
+        VULKAN_LOG_IF_NOT_SUCCESS(SHARED_CONTEXT, RESULT, #X);            \
+        (SHARED_CONTEXT)->checkVkResult(RESULT);                          \
     } while (false)
 
 // same as VULKAN_CALL but checks for success
-#define VULKAN_CALL_ERRCHECK(IFACE, X)                   \
-    VkResult SK_MACRO_APPEND_LINE(ret);                  \
-    VULKAN_CALL_RESULT(IFACE, SK_MACRO_APPEND_LINE(ret), X)
+#define VULKAN_CALL_ERRCHECK(SHARED_CONTEXT, X) \
+    VkResult SK_MACRO_APPEND_LINE(ret);         \
+    VULKAN_CALL_RESULT(SHARED_CONTEXT, SK_MACRO_APPEND_LINE(ret), X)
 
 #define VULKAN_CALL_RESULT_NOCHECK(IFACE, RESULT, X) \
     do {                                             \

@@ -964,16 +964,20 @@ void VulkanCaps::SupportedSampleCounts::initSampleCounts(const skgpu::VulkanInte
     VkImageFormatProperties properties;
 
     VkResult result;
-    VULKAN_CALL_RESULT(interface, result,
-                       GetPhysicalDeviceImageFormatProperties(physDev,
-                                                              format,
-                                                              VK_IMAGE_TYPE_2D,
-                                                              VK_IMAGE_TILING_OPTIMAL,
-                                                              usage,
-                                                              0,  // createFlags
-                                                              &properties));
+    // VULKAN_CALL_RESULT requires a VulkanSharedContext for tracking DEVICE_LOST, but VulkanCaps
+    // are initialized before a VulkanSharedContext is available. The _NOCHECK variant only requires
+    // a VulkanInterface, so we can use that and log failures manually.
+    VULKAN_CALL_RESULT_NOCHECK(interface,
+                               result,
+                               GetPhysicalDeviceImageFormatProperties(physDev,
+                                                                      format,
+                                                                      VK_IMAGE_TYPE_2D,
+                                                                      VK_IMAGE_TILING_OPTIMAL,
+                                                                      usage,
+                                                                      0,  // createFlags
+                                                                      &properties));
     if (result != VK_SUCCESS) {
-        SKGPU_LOG_W("Vulkan call GetPhysicalDeviceImageFormatProperties failed");
+        SKGPU_LOG_W("Vulkan call GetPhysicalDeviceImageFormatProperties failed: %d", result);
         return;
     }
 

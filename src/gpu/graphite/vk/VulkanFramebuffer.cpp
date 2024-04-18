@@ -15,11 +15,10 @@ sk_sp<VulkanFramebuffer> VulkanFramebuffer::Make(const VulkanSharedContext* cont
                                                  const VkFramebufferCreateInfo& framebufferInfo) {
     VkFramebuffer framebuffer;
     VkResult result;
-    VULKAN_CALL_RESULT(context->interface(), result,
-                       CreateFramebuffer(context->device(),
-                                         &framebufferInfo,
-                                         nullptr,
-                                         &framebuffer));
+    VULKAN_CALL_RESULT(
+            context,
+            result,
+            CreateFramebuffer(context->device(), &framebufferInfo, nullptr, &framebuffer));
     if (result != VK_SUCCESS) {
         return nullptr;
     }

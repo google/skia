@@ -24,11 +24,8 @@ sk_sp<VulkanDescriptorSet> VulkanDescriptorSet::Make(const VulkanSharedContext* 
     dsAllocateInfo.pSetLayouts = pool->descSetLayout();
 
     VkResult result;
-    VULKAN_CALL_RESULT(ctxt->interface(),
-                       result,
-                       AllocateDescriptorSets(ctxt->device(),
-                                              &dsAllocateInfo,
-                                              &descSet));
+    VULKAN_CALL_RESULT(
+            ctxt, result, AllocateDescriptorSets(ctxt->device(), &dsAllocateInfo, &descSet));
     if (result != VK_SUCCESS) {
         return nullptr;
     }

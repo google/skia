@@ -405,9 +405,11 @@ bool GraphiteVulkanWindowContext::createBuffers(VkFormat format,
     for (uint32_t i = 0; i < fImageCount + 1; ++i) {
         fBackbuffers[i].fImageIndex = -1;
         VkResult result;
-        VULKAN_CALL_RESULT(fInterface, result,
-                           CreateSemaphore(fDevice, &semaphoreInfo, nullptr,
-                                           &fBackbuffers[i].fRenderSemaphore));
+        VULKAN_CALL_RESULT_NOCHECK(
+                fInterface,
+                result,
+                CreateSemaphore(
+                        fDevice, &semaphoreInfo, nullptr, &fBackbuffers[i].fRenderSemaphore));
     }
     fCurrentBackbufferIndex = fImageCount;
 
@@ -512,8 +514,8 @@ sk_sp<SkSurface> GraphiteVulkanWindowContext::getBackbufferSurface() {
     semaphoreInfo.pNext = nullptr;
     semaphoreInfo.flags = 0;
     VkResult result;
-    VULKAN_CALL_RESULT(fInterface, result,
-                       CreateSemaphore(fDevice, &semaphoreInfo, nullptr, &fWaitSemaphore));
+    VULKAN_CALL_RESULT_NOCHECK(
+            fInterface, result, CreateSemaphore(fDevice, &semaphoreInfo, nullptr, &fWaitSemaphore));
 
     // acquire the image
     VkResult res = fAcquireNextImageKHR(fDevice, fSwapchain, UINT64_MAX,

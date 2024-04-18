@@ -67,7 +67,8 @@ std::unique_ptr<const VulkanImageView> VulkanImageView::Make(
     };
 
     VkResult result;
-    VULKAN_CALL_RESULT(sharedCtx->interface(), result,
+    VULKAN_CALL_RESULT(sharedCtx,
+                       result,
                        CreateImageView(sharedCtx->device(), &viewInfo, nullptr, &imageView));
     if (result != VK_SUCCESS) {
         return nullptr;

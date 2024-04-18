@@ -550,7 +550,7 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
 
     VkResult result;
     VkPipelineLayout layout;
-    VULKAN_CALL_RESULT(sharedContext->interface(),
+    VULKAN_CALL_RESULT(sharedContext,
                        result,
                        CreatePipelineLayout(sharedContext->device(),
                                             &layoutCreateInfo,
@@ -751,7 +751,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     VkResult result;
     {
         TRACE_EVENT0_ALWAYS("skia.shaders", "VkCreateGraphicsPipeline");
-        VULKAN_CALL_RESULT(sharedContext->interface(),
+        VULKAN_CALL_RESULT(sharedContext,
                            result,
                            CreateGraphicsPipelines(sharedContext->device(),
                                                    pipelineCache,
@@ -954,7 +954,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
     {
         TRACE_EVENT0_ALWAYS("skia.shaders", "CreateGraphicsPipeline");
         SkASSERT(pipelineCache != VK_NULL_HANDLE);
-        VULKAN_CALL_RESULT(sharedContext->interface(),
+        VULKAN_CALL_RESULT(sharedContext,
                            result,
                            CreateGraphicsPipelines(sharedContext->device(),
                                                    pipelineCache,
