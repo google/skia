@@ -37,12 +37,10 @@ UploadInstance::~UploadInstance() = default;
 UploadInstance::UploadInstance(const Buffer* buffer,
                                size_t bytesPerPixel,
                                sk_sp<TextureProxy> textureProxy,
-                               std::vector<BufferTextureCopyData> copyData,
                                std::unique_ptr<ConditionalUploadContext> condContext)
         : fBuffer(buffer)
         , fBytesPerPixel(bytesPerPixel)
         , fTextureProxy(textureProxy)
-        , fCopyData(copyData)
         , fConditionalContext(std::move(condContext)) {}
 
 // Returns total buffer size to allocate, and required offset alignment of that allocation.
@@ -94,7 +92,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
                                     sk_sp<TextureProxy> textureProxy,
                                     const SkColorInfo& srcColorInfo,
                                     const SkColorInfo& dstColorInfo,
-                                    const std::vector<MipLevel>& levels,
+                                    SkSpan<const MipLevel> levels,
                                     const SkIRect& dstRect,
                                     std::unique_ptr<ConditionalUploadContext> condContext) {
     const Caps* caps = recorder->priv().caps();
@@ -118,17 +116,17 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 #endif
 
     if (dstRect.isEmpty()) {
-        return {};
+        return Invalid();
     }
 
     if (mipLevelCount == 1 && !levels[0].fPixels) {
-        return {};   // no data to upload
+        return Invalid();   // no data to upload
     }
 
     for (unsigned int i = 0; i < mipLevelCount; ++i) {
         // We do not allow any gaps in the mip data
         if (!levels[i].fPixels) {
-            return {};
+            return Invalid();
         }
     }
 
@@ -139,7 +137,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
                                                 textureProxy->textureInfo(),
                                                 srcColorInfo.colorType());
     if (supportedColorType == kUnknown_SkColorType) {
-        return {};
+        return Invalid();
     }
 
     const size_t bpp = isRGB888Format ? 3 : SkColorTypeBytesPerPixel(supportedColorType);
@@ -156,14 +154,15 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 
     UploadBufferManager* bufferMgr = recorder->priv().uploadBufferManager();
     auto [writer, bufferInfo] = bufferMgr->getTextureUploadWriter(combinedBufferSize, minAlignment);
-
-    std::vector<BufferTextureCopyData> copyData(mipLevelCount);
-
     if (!bufferInfo.fBuffer) {
-        return {};
+        SKGPU_LOG_W("Failed to get write-mapped buffer for texture upload of size %zu",
+                    combinedBufferSize);
+        return Invalid();
     }
-    size_t baseOffset = bufferInfo.fOffset;
 
+    UploadInstance upload{bufferInfo.fBuffer, bpp, std::move(textureProxy), std::move(condContext)};
+
+    // Fill in copy data
     int32_t currentWidth = dstRect.width();
     int32_t currentHeight = dstRect.height();
     bool needsConversion = (srcColorInfo != dstColorInfo);
@@ -213,15 +212,14 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
             writer.write(mipOffset, src, srcRowBytes, dstRowBytes, trimRowBytes, currentHeight);
         }
 
-        copyData[currentMipLevel].fBufferOffset = baseOffset + mipOffset;
-        copyData[currentMipLevel].fBufferRowBytes = dstRowBytes;
         // For mipped data, the dstRect is always the full texture so we don't need to worry about
         // modifying the TL coord as it will always be 0,0,for all levels.
-        copyData[currentMipLevel].fRect = {
-            dstRect.left(), dstRect.top(),
-            dstRect.left() + currentWidth, dstRect.top() + currentHeight
-        };
-        copyData[currentMipLevel].fMipLevel = currentMipLevel;
+        upload.fCopyData.push_back({
+            /*fBufferOffset=*/bufferInfo.fOffset + mipOffset,
+            /*fBufferRowBytes=*/dstRowBytes,
+            /*fRect=*/SkIRect::MakeXYWH(dstRect.left(), dstRect.top(), currentWidth, currentHeight),
+            /*fMipmapLevel=*/currentMipLevel
+        });
 
         currentWidth = std::max(1, currentWidth / 2);
         currentHeight = std::max(1, currentHeight / 2);
@@ -231,8 +229,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
                              mipLevelCount > 1 ? "MipMap " : "",
                              dstRect.width(), dstRect.height());
 
-    return {bufferInfo.fBuffer, bpp, std::move(textureProxy), std::move(copyData),
-            std::move(condContext)};
+    return upload;
 }
 
 UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
@@ -240,7 +237,7 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
                                               const void* data,
                                               size_t dataSize) {
     if (!data) {
-        return {};   // no data to upload
+        return Invalid();   // no data to upload
     }
 
     const TextureInfo& texInfo = textureProxy->textureInfo();
@@ -250,13 +247,14 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
 
     SkTextureCompressionType compression = texInfo.compressionType();
     if (compression == SkTextureCompressionType::kNone) {
-        return {};
+        return Invalid();
     }
 
     // Create a transfer buffer and fill with data.
+    const SkISize dimensions = textureProxy->dimensions();
     skia_private::STArray<16, size_t> srcMipOffsets;
     SkDEBUGCODE(size_t computedSize =) SkCompressedDataSize(compression,
-                                                            textureProxy->dimensions(),
+                                                            dimensions,
                                                             &srcMipOffsets,
                                                             texInfo.mipmapped() == Mipmapped::kYes);
     SkASSERT(computedSize == dataSize);
@@ -268,7 +266,7 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
             caps,
             mipLevelCount,
             bytesPerBlock,
-            textureProxy->dimensions(),
+            dimensions,
             compression,
             &levelOffsetsAndRowBytes);
     SkASSERT(combinedBufferSize);
@@ -279,12 +277,16 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
     std::vector<BufferTextureCopyData> copyData(mipLevelCount);
 
     if (!bufferInfo.fBuffer) {
-        return {};
+        SKGPU_LOG_W("Failed to get write-mapped buffer for texture upload of size %zu",
+                    combinedBufferSize);
+        return Invalid();
     }
-    size_t baseOffset = bufferInfo.fOffset;
 
-    int32_t currentWidth = textureProxy->dimensions().width();
-    int32_t currentHeight = textureProxy->dimensions().height();
+    UploadInstance upload{bufferInfo.fBuffer, bytesPerBlock, std::move(textureProxy)};
+
+    // Fill in copy data
+    int32_t currentWidth = dimensions.width();
+    int32_t currentHeight = dimensions.height();
     for (unsigned int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         SkISize blockDimensions = CompressedDimensionsInBlocks(compression,
                                                                {currentWidth, currentHeight});
@@ -307,10 +309,12 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
             copyHeight = SkAlignTo(copyHeight, oneBlockDims.fHeight);
         }
 
-        copyData[currentMipLevel].fBufferOffset = baseOffset + dstMipOffset;
-        copyData[currentMipLevel].fBufferRowBytes = dstRowBytes;
-        copyData[currentMipLevel].fRect = { 0, 0, copyWidth, copyHeight};
-        copyData[currentMipLevel].fMipLevel = currentMipLevel;
+        upload.fCopyData.push_back({
+            /*fBufferOffset=*/bufferInfo.fOffset + dstMipOffset,
+            /*fBufferRowBytes=*/dstRowBytes,
+            /*fRect=*/SkIRect::MakeXYWH(0, 0, copyWidth, copyHeight),
+            /*fMipLevel=*/currentMipLevel
+        });
 
         currentWidth = std::max(1, currentWidth / 2);
         currentHeight = std::max(1, currentHeight / 2);
@@ -318,10 +322,10 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
 
     ATRACE_ANDROID_FRAMEWORK("Upload Compressed %sTexture [%dx%d]",
                              mipLevelCount > 1 ? "MipMap " : "",
-                             textureProxy->dimensions().width(),
-                             textureProxy->dimensions().height());
+                             dimensions.width(),
+                             dimensions.height());
 
-    return {bufferInfo.fBuffer, bytesPerBlock, std::move(textureProxy), std::move(copyData)};
+    return upload;
 }
 
 bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {
@@ -336,13 +340,15 @@ bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {
     return true;
 }
 
-void UploadInstance::addCommand(Context* context,
+bool UploadInstance::addCommand(Context* context,
                                 CommandBuffer* commandBuffer,
                                 Task::ReplayTargetData replayData) const {
     SkASSERT(fTextureProxy && fTextureProxy->isInstantiated());
 
     if (fConditionalContext && !fConditionalContext->needsUpload(context)) {
-        return;
+        // Assume that if a conditional context says to dynamically not upload that another
+        // time through the tasks should try to upload again.
+        return true;
     }
 
     if (fTextureProxy->texture() != replayData.fTarget) {
@@ -350,7 +356,6 @@ void UploadInstance::addCommand(Context* context,
         // UploadBufferManager, which will transfer ownership in transferToCommandBuffer.
         commandBuffer->copyBufferToTexture(
                 fBuffer, fTextureProxy->refTexture(), fCopyData.data(), fCopyData.size());
-
     } else {
         // Here we assume that multiple copies in a single UploadInstance are always used for
         // mipmaps of a single image, and that we won't ever copy to a replay target with mipmaps.
@@ -360,7 +365,9 @@ void UploadInstance::addCommand(Context* context,
         dstRect.offset(replayData.fTranslation);
         SkIRect croppedDstRect = dstRect;
         if (!croppedDstRect.intersect(SkIRect::MakeSize(fTextureProxy->dimensions()))) {
-            return;
+            // The replay translation can change on each insert, so subsequent replays may
+            // actually intersect the copy rect.
+            return true;
         }
 
         BufferTextureCopyData transformedCopyData = copyData;
@@ -373,9 +380,9 @@ void UploadInstance::addCommand(Context* context,
                 fBuffer, fTextureProxy->refTexture(), &transformedCopyData, 1);
     }
 
-    if (fConditionalContext) {
-        fConditionalContext->uploadSubmitted();
-    }
+    // Let the conditional context return false if the upload should not happen anymore. If there's
+    // no context assume that the upload should always be executed on replay.
+    return !fConditionalContext || fConditionalContext->uploadSubmitted();
 }
 
 //---------------------------------------------------------------------------
@@ -384,7 +391,7 @@ bool UploadList::recordUpload(Recorder* recorder,
                               sk_sp<TextureProxy> textureProxy,
                               const SkColorInfo& srcColorInfo,
                               const SkColorInfo& dstColorInfo,
-                              const std::vector<MipLevel>& levels,
+                              SkSpan<const MipLevel> levels,
                               const SkIRect& dstRect,
                               std::unique_ptr<ConditionalUploadContext> condContext) {
     UploadInstance instance = UploadInstance::Make(recorder, std::move(textureProxy),
@@ -401,7 +408,10 @@ bool UploadList::recordUpload(Recorder* recorder,
 //---------------------------------------------------------------------------
 
 sk_sp<UploadTask> UploadTask::Make(UploadList* uploadList) {
-    SkASSERT(uploadList && uploadList->fInstances.size() > 0);
+    SkASSERT(uploadList);
+    if (!uploadList->size()) {
+        return nullptr;
+    }
     return sk_sp<UploadTask>(new UploadTask(std::move(uploadList->fInstances)));
 }
 
@@ -412,7 +422,8 @@ sk_sp<UploadTask> UploadTask::Make(UploadInstance instance) {
     return sk_sp<UploadTask>(new UploadTask(std::move(instance)));
 }
 
-UploadTask::UploadTask(std::vector<UploadInstance> instances) : fInstances(std::move(instances)) {}
+UploadTask::UploadTask(skia_private::TArray<UploadInstance>&& instances)
+        : fInstances(std::move(instances)) {}
 
 UploadTask::UploadTask(UploadInstance instance) {
     fInstances.emplace_back(std::move(instance));
@@ -422,7 +433,9 @@ UploadTask::~UploadTask() {}
 
 bool UploadTask::prepareResources(ResourceProvider* resourceProvider,
                                   const RuntimeEffectDictionary*) {
-    for (unsigned int i = 0; i < fInstances.size(); ++i) {
+    for (int i = 0; i < fInstances.size(); ++i) {
+        // No upload should be invalidated before prepareResources() is called.
+        SkASSERT(fInstances[i].isValid());
         if (!fInstances[i].prepareResources(resourceProvider)) {
             return false;
         }
@@ -434,10 +447,17 @@ bool UploadTask::prepareResources(ResourceProvider* resourceProvider,
 bool UploadTask::addCommands(Context* context,
                              CommandBuffer* commandBuffer,
                              ReplayTargetData replayData) {
-    for (unsigned int i = 0; i < fInstances.size(); ++i) {
-        fInstances[i].addCommand(context, commandBuffer, replayData);
+    for (int i = 0; i < fInstances.size(); ++i) {
+        if (!fInstances[i].isValid()) {
+            continue;
+        }
+        if (!fInstances[i].addCommand(context, commandBuffer, replayData)) {
+            fInstances[i] = UploadInstance::Invalid();
+        }
     }
 
+    // TODO(b/332681367): Once tasks can be discarded, if all upload instances are discarded then
+    // the task can be discarded.
     return true;
 }
 

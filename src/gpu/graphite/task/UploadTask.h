@@ -10,17 +10,17 @@
 
 #include "src/gpu/graphite/task/Task.h"
 
-#include <memory>
-#include <vector>
-
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkTArray.h"
+#include "src/gpu/graphite/CommandTypes.h"
+
+#include <memory>
 
 namespace skgpu::graphite {
 
 class Buffer;
-struct BufferTextureCopyData;
 class Recorder;
 class TextureProxy;
 
@@ -38,9 +38,13 @@ class ConditionalUploadContext {
 public:
     virtual ~ConditionalUploadContext() {}
 
-    virtual bool needsUpload(Context*) const = 0;
+    // Return true if the upload needs to occur; false if it should be skipped this time.
+    virtual bool needsUpload(Context*) = 0;
 
-    virtual void uploadSubmitted() {}
+    // Return true if the upload should be kept in the task (and possibly re-executed on replay
+    // depending on needsUpload()'s return value), or false if it should be discarded and never
+    // attempt to be uploaded on any replay.
+    virtual bool uploadSubmitted() { return true; }
 };
 
 /**
@@ -52,16 +56,11 @@ class ImageUploadContext : public ConditionalUploadContext {
 public:
     ~ImageUploadContext() override {}
 
-    bool needsUpload(Context* context) const override {
-        return fNeedsUpload;
-    }
+    // Always upload, since it will be discarded right afterwards
+    bool needsUpload(Context*) override { return true; }
 
-    void uploadSubmitted() override {
-        fNeedsUpload = false;
-    }
-
-private:
-    bool fNeedsUpload = true;
+    // Always return false so the upload instance is discarded after the first execution
+    bool uploadSubmitted() override { return false; }
 };
 
 /**
@@ -74,13 +73,16 @@ public:
                                sk_sp<TextureProxy> targetProxy,
                                const SkColorInfo& srcColorInfo,
                                const SkColorInfo& dstColorInfo,
-                               const std::vector<MipLevel>& levels,
+                               SkSpan<const MipLevel> levels,
                                const SkIRect& dstRect,
                                std::unique_ptr<ConditionalUploadContext>);
     static UploadInstance MakeCompressed(Recorder*,
                                          sk_sp<TextureProxy> targetProxy,
                                          const void* data,
                                          size_t dataSize);
+
+    static UploadInstance Invalid() { return {}; }
+
     UploadInstance(UploadInstance&&);
     UploadInstance& operator=(UploadInstance&&);
     ~UploadInstance();
@@ -89,21 +91,25 @@ public:
 
     bool prepareResources(ResourceProvider*);
 
-    // Adds upload command to the given CommandBuffer
-    void addCommand(Context*, CommandBuffer*, Task::ReplayTargetData) const;
+    // Adds upload command to the given CommandBuffer, returns false if the instance should be
+    // discarded.
+    // TODO(b/332681367): In a follow-up CL, tasks will add a status enum for success, discard,
+    // and fail, which will make this clearer. Current code assumes this cannot fail so we can use
+    // a boolean for the discard case and assume success otherwise.
+    bool addCommand(Context*, CommandBuffer*, Task::ReplayTargetData) const;
 
 private:
     UploadInstance();
+    // Copy data is appended directly after the object is created
     UploadInstance(const Buffer*,
                    size_t bytesPerPixel,
                    sk_sp<TextureProxy>,
-                   std::vector<BufferTextureCopyData>,
                    std::unique_ptr<ConditionalUploadContext> = nullptr);
 
     const Buffer* fBuffer;
     size_t fBytesPerPixel;
     sk_sp<TextureProxy> fTextureProxy;
-    std::vector<BufferTextureCopyData> fCopyData;
+    skia_private::STArray<1, BufferTextureCopyData> fCopyData;
     std::unique_ptr<ConditionalUploadContext> fConditionalContext;
 };
 
@@ -122,7 +128,7 @@ public:
                       sk_sp<TextureProxy> targetProxy,
                       const SkColorInfo& srcColorInfo,
                       const SkColorInfo& dstColorInfo,
-                      const std::vector<MipLevel>& levels,
+                      SkSpan<const MipLevel> levels,
                       const SkIRect& dstRect,
                       std::unique_ptr<ConditionalUploadContext>);
 
@@ -131,7 +137,7 @@ public:
 private:
     friend class UploadTask;
 
-    std::vector<UploadInstance> fInstances;
+    skia_private::STArray<1, UploadInstance> fInstances;
 };
 
 /*
@@ -152,10 +158,10 @@ public:
     bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
-    UploadTask(std::vector<UploadInstance>);
+    UploadTask(skia_private::TArray<UploadInstance>&&);
     UploadTask(UploadInstance);
 
-    std::vector<UploadInstance> fInstances;
+    skia_private::STArray<1, UploadInstance> fInstances;
 };
 
 } // namespace skgpu::graphite
