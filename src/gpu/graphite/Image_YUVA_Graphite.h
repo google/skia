@@ -22,6 +22,13 @@ public:
 
     ~Image_YUVA() override;
 
+    // Create an Image_YUVA by interpreting the multiple 'planes' using 'yuvaInfo'. If the info
+    // or provided plane proxies do not produce a valid mulitplane image, null is returned.
+    static sk_sp<Image_YUVA> Make(const Caps* caps,
+                                  const SkYUVAInfo& yuvaInfo,
+                                  SkSpan<TextureProxyView> planes,
+                                  sk_sp<SkColorSpace> imageColorSpace);
+
     // Wraps the Graphite-backed Image planes into a YUV[A] image. The returned image shares
     // textures as well as any links to Devices that might modify those textures.
     static sk_sp<Image_YUVA> WrapImages(const Caps* caps,

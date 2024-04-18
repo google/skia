@@ -35,16 +35,18 @@ constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
 namespace skgpu::graphite {
 
+static SkAlphaType yuva_alpha_type(const SkYUVAInfo& yuvaInfo) {
+    // If an alpha channel is present we always use kPremul. This is because, although the planar
+    // data is always un-premul, the final interleaved RGBA sample produced in the shader is premul
+    // (and similar if flattened).
+    return yuvaInfo.hasAlpha() ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
+}
+
 Image_YUVA::Image_YUVA(YUVATextureProxies proxies,
                        sk_sp<SkColorSpace> imageColorSpace)
         : Image_Base(SkImageInfo::Make(proxies.yuvaInfo().dimensions(),
                                        kAssumedColorType,
-                                       // If an alpha channel is present we always use kPremul. This
-                                       // is because, although the planar data is always un-premul,
-                                       // the final interleaved RGBA sample produced in the shader
-                                       // is premul (and similar if flattened).
-                                       proxies.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType
-                                                                     : kOpaque_SkAlphaType,
+                                       yuva_alpha_type(proxies.yuvaInfo()),
                                        std::move(imageColorSpace)),
                      kNeedNewImageUniqueID)
         , fYUVAProxies(std::move(proxies)) {
@@ -54,38 +56,58 @@ Image_YUVA::Image_YUVA(YUVATextureProxies proxies,
 
 Image_YUVA::~Image_YUVA() = default;
 
+sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
+                                   const SkYUVAInfo& yuvaInfo,
+                                   SkSpan<TextureProxyView> planes,
+                                   sk_sp<SkColorSpace> imageColorSpace) {
+    if (!yuvaInfo.isValid()) {
+        return nullptr;
+    }
+    SkImageInfo info = SkImageInfo::Make(
+            yuvaInfo.dimensions(), kAssumedColorType, yuva_alpha_type(yuvaInfo), imageColorSpace);
+    if (!SkImageInfoIsValid(info)) {
+        return nullptr;
+    }
+
+    YUVATextureProxies yuvaTextureProxies(caps, yuvaInfo, planes);
+    if (!yuvaTextureProxies.isValid()) {
+        return nullptr;
+    }
+    return sk_make_sp<Image_YUVA>(std::move(yuvaTextureProxies), std::move(imageColorSpace));
+}
+
 sk_sp<Image_YUVA> Image_YUVA::WrapImages(const Caps* caps,
                                          const SkYUVAInfo& yuvaInfo,
                                          SkSpan<const sk_sp<SkImage>> images,
                                          sk_sp<SkColorSpace> imageColorSpace) {
-    int numPlanes = yuvaInfo.numPlanes();
-    if ((size_t) numPlanes > images.size()) {
+    if (SkTo<int>(images.size()) < yuvaInfo.numPlanes()) {
         return nullptr;
     }
-    TextureProxyView textureProxyViews[SkYUVAInfo::kMaxPlanes];
-    for (int plane = 0; plane < numPlanes; ++plane) {
-        if (as_IB(images[plane])->type() != SkImage_Base::Type::kGraphite) {
+
+    TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
+    for (int i = 0; i < yuvaInfo.numPlanes(); ++i) {
+        planes[i] = AsView(images[i]);
+        if (!planes[i]) {
+            // A null image, or not graphite-backed, or not backed by a single texture.
             return nullptr;
         }
-
-        textureProxyViews[plane] = static_cast<Image*>(images[plane].get())->textureProxyView();
-        // YUVATextureProxies expects to sample from the red channel for single-channel textures, so
-        // reset the swizzle for alpha-only textures to compensate for that
-        if (images[plane]->isAlphaOnly()) {
-            textureProxyViews[plane] = textureProxyViews[plane].makeSwizzle(skgpu::Swizzle("aaaa"));
+        // YUVATextureProxies expects to sample from the red channel for single-channel
+        // textures, so reset the swizzle for alpha-only textures to compensate for that
+        if (images[i]->isAlphaOnly()) {
+            planes[i] = planes[i].makeSwizzle(Swizzle("aaaa"));
         }
     }
-    YUVATextureProxies yuvaProxies(caps, yuvaInfo, SkSpan<TextureProxyView>(textureProxyViews));
-    SkASSERT(yuvaProxies.isValid());
-    sk_sp<Image_YUVA> view = sk_make_sp<Image_YUVA>(std::move(yuvaProxies),
-                                                    std::move(imageColorSpace));
-    // Unlike the other factories, this YUVA image shares the texture proxies with each plane Image,
-    // so if those are linked to Devices, it must inherit those same links.
-    for (int plane = 0; plane < numPlanes; ++plane) {
-        SkASSERT(as_IB(images[plane])->isGraphiteBacked());
-        view->linkDevices(static_cast<Image_Base*>(images[plane].get()));
+
+    sk_sp<Image_YUVA> image = Make(caps, yuvaInfo, SkSpan(planes), std::move(imageColorSpace));
+    if (image) {
+        // Unlike the other factories, this YUVA image shares the texture proxies with each plane
+        // Image, so if those are linked to Devices, it must inherit those same links.
+        for (int plane = 0; plane < yuvaInfo.numPlanes(); ++plane) {
+            SkASSERT(as_IB(images[plane])->isGraphiteBacked());
+            image->linkDevices(static_cast<Image_Base*>(images[plane].get()));
+        }
     }
-    return view;
+    return image;
 }
 
 size_t Image_YUVA::textureSize() const {

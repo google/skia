@@ -233,52 +233,32 @@ sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
                                       GraphitePromiseTextureFulfillContext planeContexts[]) {
     // Our contract is that we will always call the _image_ release proc even on failure.
     // We use the helper to convey the imageContext, so we need to ensure Make doesn't fail.
-    imageReleaseProc = imageReleaseProc ? imageReleaseProc : [](void*) {};
     auto releaseHelper = skgpu::RefCntedCallback::Make(imageReleaseProc, imageContext);
-
-    if (!backendTextureInfo.isValid()) {
-        return nullptr;
-    }
-
     if (!recorder) {
-        SKGPU_LOG_W("Null Recorder");
         return nullptr;
     }
-
+    // Precompute the dimensions for all promise texture planes
     SkISize planeDimensions[SkYUVAInfo::kMaxPlanes];
-    int numPlanes = backendTextureInfo.yuvaInfo().planeDimensions(planeDimensions);
-
-    SkAlphaType at =
-            backendTextureInfo.yuvaInfo().hasAlpha() ? kPremul_SkAlphaType : kOpaque_SkAlphaType;
-    SkImageInfo info = SkImageInfo::Make(
-            backendTextureInfo.yuvaInfo().dimensions(),
-            kRGBA_8888_SkColorType, at, imageColorSpace);
-    if (!SkImageInfoIsValid(info)) {
-        SKGPU_LOG_W("Invalid SkImageInfo");
+    if (!backendTextureInfo.yuvaInfo().planeDimensions(planeDimensions)) {
         return nullptr;
     }
 
-    // Make a lazy proxy for each plane
-    sk_sp<TextureProxy> proxies[4];
-    for (int p = 0; p < numPlanes; ++p) {
-        proxies[p] = MakePromiseImageLazyProxy(recorder->priv().caps(),
-                                               planeDimensions[p],
-                                               backendTextureInfo.planeTextureInfo(p),
-                                               isVolatile,
-                                               releaseHelper,
-                                               fulfillProc,
-                                               planeContexts[p],
-                                               textureReleaseProc);
-        if (!proxies[p]) {
-            return nullptr;
-        }
+    TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
+    for (int i = 0; i < backendTextureInfo.numPlanes(); ++i) {
+        sk_sp<TextureProxy> lazyProxy = MakePromiseImageLazyProxy(
+                recorder->priv().caps(),
+                planeDimensions[i],
+                backendTextureInfo.planeTextureInfo(i),
+                isVolatile,
+                releaseHelper,
+                fulfillProc,
+                planeContexts[i],
+                textureReleaseProc);
+        // Promise YUVA images assume the default rgba swizzle.
+        planes[i] = TextureProxyView(std::move(lazyProxy));
     }
-
-    YUVATextureProxies yuvaTextureProxies(recorder->priv().caps(),
-                                          backendTextureInfo.yuvaInfo(),
-                                          SkSpan<sk_sp<TextureProxy>>(proxies));
-    SkASSERT(yuvaTextureProxies.isValid());
-    return sk_make_sp<Image_YUVA>(std::move(yuvaTextureProxies), std::move(imageColorSpace));
+    return Image_YUVA::Make(recorder->priv().caps(), backendTextureInfo.yuvaInfo(),
+                            SkSpan(planes), std::move(imageColorSpace));
 }
 
 sk_sp<SkImage> SubsetTextureFrom(skgpu::graphite::Recorder* recorder,
@@ -418,18 +398,11 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
         return nullptr;
     }
 
-    if (!pixmaps.isValid()) {
-        return nullptr;
-    }
+    // Determine if we have to resize the pixmaps
+    const int maxTextureSize = recorder->priv().caps()->maxTextureSize();
+    const int maxDim = std::max(pixmaps.yuvaInfo().width(), pixmaps.yuvaInfo().height());
 
-    // Resize the pixmaps if necessary.
-    int numPlanes = pixmaps.numPlanes();
-    int maxTextureSize = recorder->priv().caps()->maxTextureSize();
-    int maxDim = std::max(pixmaps.yuvaInfo().width(), pixmaps.yuvaInfo().height());
-
-    SkYUVAPixmaps tempPixmaps;
-    const SkYUVAPixmaps* pixmapsToUpload = &pixmaps;
-    // We assume no plane is larger than the image size (and at least one plane is as big).
+    SkYUVAPixmapInfo finalInfo = pixmaps.pixmapsInfo();
     if (maxDim > maxTextureSize) {
         if (!limitToMaxTextureSize) {
             return nullptr;
@@ -438,43 +411,34 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
         SkISize newDimensions = {
                 std::min(static_cast<int>(pixmaps.yuvaInfo().width() * scale), maxTextureSize),
                 std::min(static_cast<int>(pixmaps.yuvaInfo().height() * scale), maxTextureSize)};
-        SkYUVAInfo newInfo = pixmaps.yuvaInfo().makeDimensions(newDimensions);
-        SkYUVAPixmapInfo newPixmapInfo(newInfo, pixmaps.dataType(), /*rowBytes=*/nullptr);
-        tempPixmaps = SkYUVAPixmaps::Allocate(newPixmapInfo);
-        if (!tempPixmaps.isValid()) {
-            return nullptr;
-        }
-        SkSamplingOptions sampling(SkFilterMode::kLinear);
-        for (int i = 0; i < numPlanes; ++i) {
-            if (!pixmaps.plane(i).scalePixels(tempPixmaps.plane(i), sampling)) {
+        finalInfo = SkYUVAPixmapInfo(pixmaps.yuvaInfo().makeDimensions(newDimensions),
+                                     pixmaps.dataType(),
+                                     /*rowBytes=*/nullptr);
+    }
+
+    auto mipmapped = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
+    TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
+    for (int i = 0; i < finalInfo.yuvaInfo().numPlanes(); ++i) {
+        SkBitmap bmp;
+        if (maxDim > maxTextureSize) {
+            // Rescale the data before uploading
+            if (!bmp.tryAllocPixels(finalInfo.planeInfo(i)) ||
+                !pixmaps.plane(i).scalePixels(bmp.pixmap(), SkFilterMode::kLinear)) {
+                return nullptr;
+            }
+        } else {
+            // Use original data to upload
+            if (!bmp.installPixels(pixmaps.plane(i))) {
                 return nullptr;
             }
         }
-        pixmapsToUpload = &tempPixmaps;
-    }
 
-    // Convert to texture proxies.
-    TextureProxyView views[SkYUVAInfo::kMaxPlanes];
-    for (int i = 0; i < numPlanes; ++i) {
-        // Turn the pixmap into a TextureProxy
-        SkBitmap bmp;
-        bmp.installPixels(pixmapsToUpload->plane(i));
-        auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-        std::tie(views[i], std::ignore) = MakeBitmapProxyView(recorder,
-                                                              bmp,
-                                                              /*mipmapsIn=*/nullptr,
-                                                              mm,
-                                                              skgpu::Budgeted::kNo);
-        if (!views[i]) {
-            return nullptr;
-        }
+        auto [view, _] = MakeBitmapProxyView(recorder, bmp, /*mipmapsIn=*/nullptr,
+                                             mipmapped,  skgpu::Budgeted::kNo);
+        planes[i] = std::move(view);
     }
-
-    YUVATextureProxies yuvaProxies(recorder->priv().caps(),
-                                   pixmapsToUpload->yuvaInfo(),
-                                   SkSpan<TextureProxyView>(views));
-    SkASSERT(yuvaProxies.isValid());
-    return sk_make_sp<Image_YUVA>(std::move(yuvaProxies), std::move(imageColorSpace));
+    return Image_YUVA::Make(recorder->priv().caps(), finalInfo.yuvaInfo(),
+                            SkSpan(planes), std::move(imageColorSpace));
 }
 
 sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
@@ -487,26 +451,20 @@ sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
         return nullptr;
     }
 
-    int numPlanes = yuvaTextures.yuvaInfo().numPlanes();
-    TextureProxyView textureProxyViews[SkYUVAInfo::kMaxPlanes];
-    for (int plane = 0; plane < numPlanes; ++plane) {
+    TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
+    for (int i = 0; i < yuvaTextures.yuvaInfo().numPlanes(); ++i) {
         sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(
-                yuvaTextures.planeTexture(plane));
+                yuvaTextures.planeTexture(i));
         if (!texture) {
-            SKGPU_LOG_W("Texture creation failed");
+            SKGPU_LOG_W("Failed to wrap backend texture for YUVA plane %d", i);
             return nullptr;
         }
         texture->setReleaseCallback(releaseHelper);
-
-        sk_sp<TextureProxy> proxy = TextureProxy::Wrap(std::move(texture));
-        SkASSERT(proxy);
-        textureProxyViews[plane] = TextureProxyView(std::move(proxy));
+        planes[i] = TextureProxyView(TextureProxy::Wrap(std::move(texture)));
     }
-    YUVATextureProxies yuvaProxies(recorder->priv().caps(),
-                                   yuvaTextures.yuvaInfo(),
-                                   SkSpan<TextureProxyView>(textureProxyViews));
-    SkASSERT(yuvaProxies.isValid());
-    return sk_make_sp<Image_YUVA>(std::move(yuvaProxies), std::move(imageColorSpace));
+
+    return Image_YUVA::Make(recorder->priv().caps(), yuvaTextures.yuvaInfo(),
+                            SkSpan(planes), std::move(imageColorSpace));
 }
 
 sk_sp<SkImage> TextureFromYUVAImages(Recorder* recorder,
