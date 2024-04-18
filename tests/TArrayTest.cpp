@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/base/SkASAN.h"  // IWYU pragma: keep
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkRandom.h"
 #include "tests/Test.h"
@@ -529,3 +530,56 @@ DEF_TEST(TArray_BoundsCheck, reporter) {
     v[0];
 #endif
 }
+
+#if defined(SK_SANITIZE_ADDRESS)
+
+template <typename Array>
+static void verify_poison(skiatest::Reporter* r, const Array& array) {
+    int allocated = array.size() * sizeof(typename Array::value_type);
+    int capacity = array.capacity() * sizeof(typename Array::value_type);
+    const std::byte* data = reinterpret_cast<const std::byte*>(array.data());
+
+    for (int index = 0; index < allocated; ++index) {
+        REPORTER_ASSERT(r, !sk_asan_address_is_poisoned(data + index));
+    }
+
+    // ASAN user poisoning is conservative for ranges that are smaller than eight bytes long.
+    // We guarantee this alignment via SkContainerAllocator (because kCapacityMultiple == 8).
+    // https://github.com/google/sanitizers/wiki/AddressSanitizerAlgorithm#mapping
+    REPORTER_ASSERT(r, capacity >= 8);
+    for (int index = allocated; index < capacity; ++index) {
+        REPORTER_ASSERT(r, sk_asan_address_is_poisoned(data + index));
+    }
+}
+
+template <typename Array>
+static void test_poison(skiatest::Reporter* reporter) {
+    Array array;
+
+    for (int index = 0; index < 20; ++index) {
+        array.emplace_back();
+        verify_poison(reporter, array);
+    }
+
+    for (int index = 0; index < 20; ++index) {
+        array.pop_back();
+        verify_poison(reporter, array);
+    }
+
+    for (int index = 0; index < 20; ++index) {
+        array.reserve(array.capacity() + 3);
+        verify_poison(reporter, array);
+    }
+
+    array.clear();
+    verify_poison(reporter, array);
+}
+
+DEF_TEST(TArray_ASAN_poisoning, reporter) {
+    test_poison<TArray<int>>(reporter);
+    test_poison<STArray<1, double>>(reporter);
+    test_poison<STArray<2, char>>(reporter);
+    test_poison<STArray<16, TestClass>>(reporter);
+}
+
+#endif

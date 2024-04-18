@@ -24,6 +24,7 @@
 extern "C" {
     void __asan_poison_memory_region(void const volatile *addr, size_t size);
     void __asan_unpoison_memory_region(void const volatile *addr, size_t size);
+    int __asan_address_is_poisoned(void const volatile *addr);
 }
 #endif
 
@@ -41,6 +42,14 @@ static inline void sk_asan_unpoison_memory_region([[maybe_unused]] void const vo
                                                   [[maybe_unused]] size_t size) {
 #ifdef SK_SANITIZE_ADDRESS
     __asan_unpoison_memory_region(addr, size);
+#endif
+}
+
+static inline int sk_asan_address_is_poisoned([[maybe_unused]] void const volatile* addr) {
+#ifdef SK_SANITIZE_ADDRESS
+    return __asan_address_is_poisoned(addr);
+#else
+    return 0;
 #endif
 }
 
