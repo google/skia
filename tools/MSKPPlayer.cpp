@@ -12,13 +12,13 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
+#include "include/docs/SkMultiPictureDocument.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/base/SkTArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkStringUtils.h"
-#include "include/docs/SkMultiPictureDocument.h"
 #include "tools/SkSharingProc.h"
 
 using namespace skia_private;
