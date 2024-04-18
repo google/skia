@@ -592,8 +592,6 @@ DEF_BENCH( return new IsFiniteBench(0); )
 DEF_BENCH( return new IsFiniteBench(1); )
 DEF_BENCH( return new IsFiniteBench(2); )
 DEF_BENCH( return new IsFiniteBench(3); )
-DEF_BENCH( return new IsFiniteBench(4); )
-DEF_BENCH( return new IsFiniteBench(5); )
 
 DEF_BENCH( return new FloorBench(false); )
 DEF_BENCH( return new FloorBench(true); )
