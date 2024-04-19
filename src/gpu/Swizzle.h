@@ -45,11 +45,11 @@ public:
     /** 4 char null terminated string consisting only of chars 'r', 'g', 'b', 'a', '0', and '1'. */
     SkString asString() const;
 
-    constexpr char operator[](int i) const {
-        SkASSERT(i >= 0 && i < 4);
-        int idx = (fKey >> (4 * i)) & 0xfU;
-        return IToC(idx);
-    }
+    constexpr char operator[](int i) const { return IToC(this->channelIndex(i)); }
+
+    // Returns a new swizzle that moves the swizzle component in index i to index 0 (e.g. "R") and
+    // sets all other channels to 0. For a swizzle `s`, this is constructing "s[i]000".
+    constexpr Swizzle selectChannelInR(int i) const;
 
     /** Applies this swizzle to the input color and returns the swizzled color. */
     constexpr std::array<float, 4> applyTo(std::array<float, 4> color) const;
@@ -75,6 +75,11 @@ private:
 
     explicit constexpr Swizzle(uint16_t key) : fKey(key) {}
 
+    constexpr int channelIndex(int i) const {
+        SkASSERT(i >= 0 && i < 4);
+        return (fKey >> (4*i)) & 0xfU;
+    }
+
     static constexpr float ComponentIndexToFloat(std::array<float, 4>, size_t idx);
     static constexpr int CToI(char c);
     static constexpr char IToC(int idx);
@@ -87,6 +92,11 @@ private:
 constexpr Swizzle::Swizzle(const char c[4])
         : fKey(static_cast<uint16_t>((CToI(c[0]) << 0) | (CToI(c[1]) << 4) | (CToI(c[2]) << 8) |
                                      (CToI(c[3]) << 12))) {}
+
+constexpr Swizzle Swizzle::selectChannelInR(int i) const {
+    return Swizzle(static_cast<uint16_t>((this->channelIndex(i) << 0) | (CToI('0') << 4) |
+                                         (CToI('0') << 8) | (CToI('0') << 12)));
+}
 
 constexpr std::array<float, 4> Swizzle::applyTo(std::array<float, 4> color) const {
     uint32_t key = fKey;
