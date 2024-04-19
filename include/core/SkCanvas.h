@@ -8,6 +8,7 @@
 #ifndef SkCanvas_DEFINED
 #define SkCanvas_DEFINED
 
+#include "include/core/SkArc.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
@@ -1467,6 +1468,27 @@ public:
     */
     void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                  bool useCenter, const SkPaint& paint);
+
+    /** Draws arc using clip, SkMatrix, and SkPaint paint.
+
+        Arc is part of oval bounded by oval, sweeping from startAngle to startAngle plus
+        sweepAngle. startAngle and sweepAngle are in degrees.
+
+        startAngle of zero places start point at the right middle edge of oval.
+        A positive sweepAngle places arc end point clockwise from start point;
+        a negative sweepAngle places arc end point counterclockwise from start point.
+        sweepAngle may exceed 360 degrees, a full circle.
+        If useCenter is true, draw a wedge that includes lines from oval
+        center to arc end points. If useCenter is false, draw arc between end points.
+
+        If SkRect oval is empty or sweepAngle is zero, nothing is drawn.
+
+        @param arc    SkArc specifying oval, startAngle, sweepAngle, and useCenter
+        @param paint  SkPaint stroke or fill, blend, color, and so on, used to draw
+    */
+    void drawArc(const SkArc& arc, const SkPaint& paint) {
+        this->drawArc(arc.fOval, arc.fStartAngle, arc.fSweepAngle, arc.fUseCenter, paint);
+    }
 
     /** Draws SkRRect bounded by SkRect rect, with corner radii (rx, ry) using clip,
         SkMatrix, and SkPaint paint.

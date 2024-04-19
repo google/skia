@@ -27,6 +27,7 @@ _include = get_path_info("../include", "abspath")
 skia_core_public = [
   "$_include/core/SkAlphaType.h",
   "$_include/core/SkAnnotation.h",
+  "$_include/core/SkArc.h",
   "$_include/core/SkBBHFactory.h",
   "$_include/core/SkBitmap.h",
   "$_include/core/SkBlendMode.h",

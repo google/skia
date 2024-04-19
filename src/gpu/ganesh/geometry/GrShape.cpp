@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/geometry/GrShape.h"
 
+#include "include/core/SkScalar.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 

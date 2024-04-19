@@ -26,6 +26,7 @@ SKIA_PUBLIC_HDRS = [
     "include/config/SkUserConfig.h",
     "include/core/SkAlphaType.h",
     "include/core/SkAnnotation.h",
+    "include/core/SkArc.h",
     "include/core/SkBBHFactory.h",
     "include/core/SkBitmap.h",
     "include/core/SkBlendMode.h",

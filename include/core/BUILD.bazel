@@ -9,6 +9,7 @@ skia_filegroup(
     srcs = [
         "SkAlphaType.h",
         "SkAnnotation.h",
+        "SkArc.h",
         "SkBBHFactory.h",
         "SkBitmap.h",
         "SkBlendMode.h",
@@ -104,6 +105,7 @@ skia_filegroup(
     srcs = [
         "SkAlphaType.h",
         "SkAnnotation.h",
+        "SkArc.h",
         "SkBBHFactory.h",
         "SkBitmap.h",
         "SkBlendMode.h",

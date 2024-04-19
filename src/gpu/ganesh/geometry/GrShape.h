@@ -8,12 +8,12 @@
 #ifndef GrShape_DEFINED
 #define GrShape_DEFINED
 
+#include "include/core/SkArc.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/base/SkTypeTraits.h"
@@ -21,14 +21,6 @@
 #include <cstdint>
 #include <new>
 #include <type_traits>
-
-// Represents an arc along an oval boundary, or a closed wedge of the oval.
-struct GrArc {
-    SkRect   fOval;       // The sorted, bounding box defining the oval the arc is traced along
-    SkScalar fStartAngle; // In degrees
-    SkScalar fSweepAngle; // In degrees
-    bool     fUseCenter;  // True if the arc includes the center point of the oval
-};
 
 // Represents a line segment between two points.
 struct GrLineSegment {
@@ -75,7 +67,7 @@ public:
     explicit GrShape(const SkRect& rect) { this->setRect(rect); }
     explicit GrShape(const SkRRect& rrect) { this->setRRect(rrect); }
     explicit GrShape(const SkPath& path) { this->setPath(path); }
-    explicit GrShape(const GrArc& arc) { this->setArc(arc); }
+    explicit GrShape(const SkArc& arc) { this->setArc(arc); }
     explicit GrShape(const GrLineSegment& line){ this->setLine(line); }
 
     GrShape(const GrShape& shape) { *this = shape; }
@@ -148,8 +140,8 @@ public:
     SkPath& path() { SkASSERT(this->isPath()); return fPath; }
     const SkPath& path() const { SkASSERT(this->isPath()); return fPath; }
 
-    GrArc& arc() { SkASSERT(this->isArc()); return fArc; }
-    const GrArc& arc() const { SkASSERT(this->isArc()); return fArc; }
+    SkArc& arc() { SkASSERT(this->isArc()); return fArc; }
+    const SkArc& arc() const { SkASSERT(this->isArc()); return fArc; }
 
     GrLineSegment& line() { SkASSERT(this->isLine()); return fLine; }
     const GrLineSegment& line() const { SkASSERT(this->isLine()); return fLine; }
@@ -172,7 +164,7 @@ public:
         this->reset(Type::kRRect);
         fRRect = rrect;
     }
-    void setArc(const GrArc& arc) {
+    void setArc(const SkArc& arc) {
         this->reset(Type::kArc);
         fArc = arc;
     }
@@ -279,7 +271,7 @@ private:
         SkRect        fRect;
         SkRRect       fRRect;
         SkPath        fPath;
-        GrArc         fArc;
+        SkArc         fArc;
         GrLineSegment fLine;
     };
 

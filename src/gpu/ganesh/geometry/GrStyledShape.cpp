@@ -6,6 +6,7 @@
  */
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 
+#include "include/core/SkArc.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPoint.h"
@@ -160,8 +161,8 @@ int GrStyledShape::unstyledKeySize() const {
             count += SkRRect::kSizeInMemory / sizeof(uint32_t);
             break;
         case GrShape::Type::kArc:
-            static_assert(0 == sizeof(GrArc) % sizeof(uint32_t));
-            count += sizeof(GrArc) / sizeof(uint32_t);
+            static_assert(0 == sizeof(SkArc) % sizeof(uint32_t));
+            count += sizeof(SkArc) / sizeof(uint32_t);
             break;
         case GrShape::Type::kLine:
             static_assert(0 == sizeof(GrLineSegment) % sizeof(uint32_t));
@@ -232,7 +233,7 @@ void GrStyledShape::writeUnstyledKey(uint32_t* key) const {
             case GrShape::Type::kArc:
                 // Write dense floats first
                 memcpy(key, &fShape.arc(), sizeof(SkRect) + 2 * sizeof(float));
-                key += (sizeof(GrArc) / sizeof(uint32_t) - 1);
+                key += (sizeof(SkArc) / sizeof(uint32_t) - 1);
                 // Then write the final bool as an int, to make sure upper bits are set
                 *key++ = fShape.arc().fUseCenter ? 1 : 0;
                 break;
