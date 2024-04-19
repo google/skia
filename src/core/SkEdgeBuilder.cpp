@@ -13,6 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFixed.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
@@ -320,7 +321,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
 
             while ((verb = clipper->next(pts)) != SkPath::kDone_Verb) {
                 const int count = SkPathPriv::PtsInIter(verb);
-                if (!SkScalarsAreFinite(&pts[0].fX, count*2)) {
+                if (!SkIsFinite(&pts[0].fX, count*2)) {
                     rec->fIsFinite = false;
                     return;
                 }

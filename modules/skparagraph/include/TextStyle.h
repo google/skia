@@ -22,14 +22,14 @@ namespace skia {
 namespace textlayout {
 
 static inline bool nearlyZero(SkScalar x, SkScalar tolerance = SK_ScalarNearlyZero) {
-    if (SkScalarIsFinite(x)) {
+    if (SkIsFinite(x)) {
         return SkScalarNearlyZero(x, tolerance);
     }
     return false;
 }
 
 static inline bool nearlyEqual(SkScalar x, SkScalar y, SkScalar tolerance = SK_ScalarNearlyZero) {
-    if (SkScalarIsFinite(x) && SkScalarIsFinite(x)) {
+    if (SkIsFinite(x, y)) {
         return SkScalarNearlyEqual(x, y, tolerance);
     }
     // Inf == Inf, anything else is false

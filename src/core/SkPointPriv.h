@@ -20,13 +20,13 @@ public:
     };
 
     static bool AreFinite(const SkPoint array[], int count) {
-        return SkScalarsAreFinite(&array[0].fX, count << 1);
+        return SkIsFinite(&array[0].fX, count << 1);
     }
 
     static const SkScalar* AsScalars(const SkPoint& pt) { return &pt.fX; }
 
     static bool CanNormalize(SkScalar dx, SkScalar dy) {
-        return SkScalarsAreFinite(dx, dy) && (dx || dy);
+        return SkIsFinite(dx, dy) && (dx || dy);
     }
 
     static SkScalar DistanceToLineBetweenSqd(const SkPoint& pt, const SkPoint& a,

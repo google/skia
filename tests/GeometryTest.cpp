@@ -267,7 +267,7 @@ static void test_conic_to_quads(skiatest::Reporter* reporter) {
         do {
             w *= 2;
             test_this_conic_to_quad(reporter, pts, w);
-        } while (SkScalarIsFinite(w));
+        } while (SkIsFinite(w));
         test_this_conic_to_quad(reporter, pts, SK_ScalarNaN);
     }
 }

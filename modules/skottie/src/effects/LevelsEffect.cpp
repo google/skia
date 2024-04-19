@@ -97,7 +97,7 @@ struct ChannelMapper {
 
         for (size_t i = 0; i < 256; ++i) {
             const auto out = out_0 + dOut * std::pow(std::max(t, 0.0f), g);
-            SkASSERT(!SkScalarIsNaN(out));
+            SkASSERT(!SkIsNaN(out));
 
             lut_storage[i] = static_cast<uint8_t>(std::round(SkTPin(out, clip[0], clip[1]) * 255));
 

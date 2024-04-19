@@ -24,6 +24,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTLogic.h"
@@ -1449,7 +1450,7 @@ prepare_for_SDFT_drawing(StrikeForGPU* strike,
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
     for (const auto [glyphID, pos] : source) {
-        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+        if (!SkIsFinite(pos.x(), pos.y())) {
             continue;
         }
 
@@ -1503,7 +1504,7 @@ prepare_for_direct_mask_drawing(StrikeForGPU* strike,
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
     for (auto [glyphID, pos] : source) {
-        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+        if (!SkIsFinite(pos.x(), pos.y())) {
             continue;
         }
 
@@ -1546,7 +1547,7 @@ prepare_for_mask_drawing(StrikeForGPU* strike,
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
     for (auto [glyphID, pos] : source) {
-        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+        if (!SkIsFinite(pos.x(), pos.y())) {
             continue;
         }
 
@@ -1583,7 +1584,7 @@ prepare_for_path_drawing(StrikeForGPU* strike,
     int rejectedSize = 0;
     StrikeMutationMonitor m{strike};
     for (const auto [glyphID, pos] : source) {
-        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+        if (!SkIsFinite(pos.x(), pos.y())) {
             continue;
         }
 
@@ -1611,7 +1612,7 @@ std::tuple<SkZip<const SkGlyphID, const SkPoint>, SkZip<SkGlyphID, SkPoint>>
     int rejectedSize = 0;
     StrikeMutationMonitor m{strike};
     for (const auto [glyphID, pos] : source) {
-        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+        if (!SkIsFinite(pos.x(), pos.y())) {
             continue;
         }
 
@@ -1888,7 +1889,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 SkPoint center = glyphRunList.sourceBounds().center();
                 SkScalar maxAreaScale = SkMatrixPriv::DifferentialAreaScale(creationMatrix, center);
                 SkScalar perspectiveFactor = 1;
-                if (SkScalarIsFinite(maxAreaScale) && !SkScalarNearlyZero(maxAreaScale)) {
+                if (SkIsFinite(maxAreaScale) && !SkScalarNearlyZero(maxAreaScale)) {
                     perspectiveFactor = SkScalarSqrt(maxAreaScale);
                 }
 

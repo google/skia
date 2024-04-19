@@ -19,6 +19,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTemplates.h"
@@ -369,7 +370,7 @@ SkScalar SkFontPriv::ApproximateTransformedTextSize(const SkFont& font, const Sk
     } else {
         // approximate the scale since we can't get it directly from the matrix
         SkScalar maxScaleSq = SkMatrixPriv::DifferentialAreaScale(matrix, textLocation);
-        if (SkScalarIsFinite(maxScaleSq) && !SkScalarNearlyZero(maxScaleSq)) {
+        if (SkIsFinite(maxScaleSq) && !SkScalarNearlyZero(maxScaleSq)) {
             return font.getSize() * SkScalarSqrt(maxScaleSq);
         } else {
             return -font.getSize();

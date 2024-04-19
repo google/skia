@@ -335,7 +335,7 @@ void SkDraw::drawVertices(const SkVertices* vertices,
         dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
         fCTM->mapHomogeneousPoints(dev3, info.positions(), vertexCount);
         // similar to the bounds check for 2d points (below)
-        if (!SkScalarsAreFinite((const SkScalar*)dev3, vertexCount * 3)) {
+        if (!SkIsFinite((const SkScalar*)dev3, vertexCount * 3)) {
             return;
         }
     } else {

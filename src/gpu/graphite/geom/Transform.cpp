@@ -231,7 +231,7 @@ float Transform::localAARadius(const Rect& bounds) const {
     // transformation moves between [1,max/min] so using 1/min as the local AA radius ensures that
     // the post-transformed point is at least 1px away from the original.
     float aaRadius = sk_ieee_float_divide(1.f, min);
-    if (std::isfinite(aaRadius)) {
+    if (SkIsFinite(aaRadius)) {
         return aaRadius;
     } else {
         return SK_FloatInfinity;

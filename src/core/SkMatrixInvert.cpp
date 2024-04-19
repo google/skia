@@ -25,7 +25,7 @@ SkScalar SkInvert2x2Matrix(const SkScalar inMatrix[4], SkScalar outMatrix[4]) {
         outMatrix[3] =  a00 * invdet;
         // If 1/det overflows to infinity (i.e. det is denormalized) or any of the inverted matrix
         // values is non-finite, return zero to indicate a non-invertible matrix.
-        if (!SkScalarsAreFinite(outMatrix, 4)) {
+        if (!SkIsFinite(outMatrix, 4)) {
             determinant = 0.0f;
         }
     }
@@ -62,7 +62,7 @@ SkScalar SkInvert3x3Matrix(const SkScalar inMatrix[9], SkScalar outMatrix[9]) {
         outMatrix[8] = ( a11 * a00 - a01 * a10) * invdet;
         // If 1/det overflows to infinity (i.e. det is denormalized) or any of the inverted matrix
         // values is non-finite, return zero to indicate a non-invertible matrix.
-        if (!SkScalarsAreFinite(outMatrix, 9)) {
+        if (!SkIsFinite(outMatrix, 9)) {
             determinant = 0.0f;
         }
     }
@@ -136,7 +136,7 @@ SkScalar SkInvert4x4Matrix(const SkScalar inMatrix[16], SkScalar outMatrix[16]) 
 
         // If 1/det overflows to infinity (i.e. det is denormalized) or any of the inverted matrix
         // values is non-finite, return zero to indicate a non-invertible matrix.
-        if (!SkScalarsAreFinite(outMatrix, 16)) {
+        if (!SkIsFinite(outMatrix, 16)) {
             determinant = 0.0f;
         }
     }

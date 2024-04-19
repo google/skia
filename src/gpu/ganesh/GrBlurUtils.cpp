@@ -424,7 +424,7 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
                                                                   float* solidRadius,
                                                                   float* textureRadius) {
     float circleR = circle.width() / 2.0f;
-    if (!std::isfinite(circleR) || circleR < SK_ScalarNearlyZero) {
+    if (!SkIsFinite(circleR) || circleR < SK_ScalarNearlyZero) {
         return nullptr;
     }
 

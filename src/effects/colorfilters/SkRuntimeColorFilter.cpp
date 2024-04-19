@@ -13,7 +13,6 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkData.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkLumaColorFilter.h"
 #include "include/effects/SkOverdrawColorFilter.h"
@@ -21,6 +20,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
@@ -120,7 +120,7 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
     if (!cf0 && !cf1) {
         return nullptr;
     }
-    if (SkScalarIsNaN(weight)) {
+    if (SkIsNaN(weight)) {
         return nullptr;
     }
 

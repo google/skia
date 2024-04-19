@@ -120,7 +120,7 @@ bool center_of_mass(const SegmentArray& segments, SkPoint* c) {
         // undo the translate of p0 to the origin.
         *c = center + p0;
     }
-    return !SkScalarIsNaN(c->fX) && !SkScalarIsNaN(c->fY) && c->isFinite();
+    return !SkIsNaN(c->fX) && !SkIsNaN(c->fY) && c->isFinite();
 }
 
 bool compute_vectors(SegmentArray* segments,

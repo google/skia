@@ -119,7 +119,7 @@ static bool valid_input(
     if (tileSize && !(tileSize->width() >= 0 && tileSize->height() >= 0)) {
         return false;
     }
-    if (!SkScalarIsFinite(seed)) {
+    if (!SkIsFinite(seed)) {
         return false;
     }
     return true;

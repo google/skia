@@ -14,16 +14,14 @@
 #include "include/core/SkData.h"
 #include "include/core/SkScalar.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkKnownRuntimeEffects.h"
 
 sk_sp<SkBlender> SkBlenders::Arithmetic(float k1, float k2, float k3, float k4,
                                         bool enforcePremul) {
     using namespace SkKnownRuntimeEffects;
 
-    if (!SkScalarIsFinite(k1) ||
-        !SkScalarIsFinite(k2) ||
-        !SkScalarIsFinite(k3) ||
-        !SkScalarIsFinite(k4)) {
+    if (!SkIsFinite(k1, k2) || !SkIsFinite(k3, k4)) {
         return nullptr;
     }
 

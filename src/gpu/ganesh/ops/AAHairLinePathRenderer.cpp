@@ -514,7 +514,7 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
 
     SkScalar wInv = normA.fX * normB.fY - normA.fY * normB.fX;
     wInv = sk_ieee_float_divide(1.0f, wInv);
-    if (!SkScalarIsFinite(wInv)) {
+    if (!SkIsFinite(wInv)) {
         // lines are parallel, pick the point in between
         *result = (ptA + ptB)*SK_ScalarHalf;
         *result += normA;

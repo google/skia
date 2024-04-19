@@ -56,7 +56,7 @@ public:
     static inline Transform Translate(float x, float y) {
         if (x == 0.f && y == 0.f) {
             return Identity();
-        } else if (SkScalarsAreFinite(x, y)) {
+        } else if (SkIsFinite(x, y)) {
             return Transform(SkM44::Translate(x, y), SkM44::Translate(-x, -y),
                              Type::kSimpleRectStaysRect, 1.f, 1.f);
         } else {

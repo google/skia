@@ -2971,7 +2971,7 @@ DEF_TEST(SkRasterPipeline_tail, r) {
             }
             for (int j = i; j < 4; j++) {
                 for (auto f : buffer[j]) {
-                    REPORTER_ASSERT(r, SkScalarIsNaN(f));
+                    REPORTER_ASSERT(r, SkIsNaN(f));
                 }
             }
         }

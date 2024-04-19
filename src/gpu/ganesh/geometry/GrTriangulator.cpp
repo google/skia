@@ -10,6 +10,7 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTPin.h"
 #include "src/base/SkVx.h"
@@ -519,8 +520,7 @@ void GrTriangulator::generateCubicPoints(const SkPoint& p0, const SkPoint& p1, c
                                          int pointsLeft) const {
     SkScalar d1 = SkPointPriv::DistanceToLineSegmentBetweenSqd(p1, p0, p3);
     SkScalar d2 = SkPointPriv::DistanceToLineSegmentBetweenSqd(p2, p0, p3);
-    if (pointsLeft < 2 || (d1 < tolSqd && d2 < tolSqd) ||
-        !SkScalarIsFinite(d1) || !SkScalarIsFinite(d2)) {
+    if (pointsLeft < 2 || (d1 < tolSqd && d2 < tolSqd) || !SkIsFinite(d1, d2)) {
         this->appendPointToContour(p3, contour);
         return;
     }

@@ -9,6 +9,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
@@ -217,7 +218,7 @@ bool SkOpEdgeBuilder::walk() {
                         if (SkChopQuadAtMaxCurvature(pointsPtr, pair) == 1) {
                             goto addOneQuad;
                         }
-                        if (!SkScalarsAreFinite(&pair[0].fX, std::size(pair) * 2)) {
+                        if (!SkIsFinite(&pair[0].fX, std::size(pair) * 2)) {
                             return false;
                         }
                         for (unsigned index = 0; index < std::size(pair); ++index) {

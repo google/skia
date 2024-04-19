@@ -370,7 +370,7 @@ static void check_pdf_scalar_serialization(
         ERRORF(reporter, "unscannable result: %s", floatString);
         return;
     }
-    if (std::isfinite(inputFloat) && roundTripFloat != inputFloat) {
+    if (SkIsFinite(inputFloat) && roundTripFloat != inputFloat) {
         ERRORF(reporter, "roundTripFloat (%.9g) != inputFloat (%.9g)",
                roundTripFloat, inputFloat);
     }

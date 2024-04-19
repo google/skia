@@ -21,6 +21,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
@@ -75,7 +76,7 @@ struct Vector {
     Vector(SkScalar x, SkScalar y) : fX(x), fY(y) {}
     explicit Vector(const SkVector& v) : fX(v.fX), fY(v.fY) {}
 
-    bool isFinite() const { return SkScalarsAreFinite(fX, fY); }
+    bool isFinite() const { return SkIsFinite(fX, fY); }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -437,7 +437,7 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
 
     }
 
-    if (!SkScalarIsFinite(distance)) {
+    if (!SkIsFinite(distance)) {
         return nullptr;
     }
     if (fSegments.empty()) {
@@ -605,7 +605,7 @@ const SkContourMeasure::Segment* SkContourMeasure::distanceToSegment( SkScalar d
 }
 
 bool SkContourMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tangent) const {
-    if (SkScalarIsNaN(distance)) {
+    if (SkIsNaN(distance)) {
         return false;
     }
 
@@ -621,7 +621,7 @@ bool SkContourMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tang
 
     SkScalar        t;
     const Segment*  seg = this->distanceToSegment(distance, &t);
-    if (SkScalarIsNaN(t)) {
+    if (SkIsNaN(t)) {
         return false;
     }
 
@@ -672,11 +672,11 @@ bool SkContourMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
     SkPoint  p;
     SkScalar startT, stopT;
     const Segment* seg = this->distanceToSegment(startD, &startT);
-    if (!SkScalarIsFinite(startT)) {
+    if (!SkIsFinite(startT)) {
         return false;
     }
     const Segment* stopSeg = this->distanceToSegment(stopD, &stopT);
-    if (!SkScalarIsFinite(stopT)) {
+    if (!SkIsFinite(stopT)) {
         return false;
     }
     SkASSERT(seg <= stopSeg);

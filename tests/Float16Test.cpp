@@ -49,7 +49,7 @@ DEF_TEST(FloatToHalf, r) {
 #endif
 
         float f = SkBits2Float(bits);
-        if (SkScalarIsNaN(f)) {
+        if (SkIsNaN(f)) {
 #ifndef SK_DEBUG
             // We want float->half and half->float to play well with infinities and max
             // representable values in the 16-bit precision, but NaNs should have been caught ahead
@@ -146,8 +146,8 @@ DEF_TEST(HalfToFloat, r) {
         } else if (e16 == kF16_Exp) {
             if (m16 != 0) {
                 // A NaN stays NaN
-                REPORTER_ASSERT(r, SkScalarIsNaN(actual2));
-                REPORTER_ASSERT(r, SkScalarIsNaN(actual4));
+                REPORTER_ASSERT(r, SkIsNaN(actual2));
+                REPORTER_ASSERT(r, SkIsNaN(actual4));
             } else {
                 // +/- infinity stays infinite
                 if (s16) {

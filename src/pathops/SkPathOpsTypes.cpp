@@ -40,7 +40,7 @@ static bool equal_ulps_no_normal_check(float a, float b, int epsilon, int depsil
 }
 
 static bool equal_ulps_pin(float a, float b, int epsilon, int depsilon) {
-    if (!SkScalarIsFinite(a) || !SkScalarIsFinite(b)) {
+    if (!SkIsFinite(a, b)) {
         return false;
     }
     if (arguments_denormalized(a, b, depsilon)) {
@@ -70,7 +70,7 @@ static bool not_equal_ulps(float a, float b, int epsilon) {
 }
 
 static bool not_equal_ulps_pin(float a, float b, int epsilon) {
-    if (!SkScalarIsFinite(a) || !SkScalarIsFinite(b)) {
+    if (!SkIsFinite(a, b)) {
         return false;
     }
     if (arguments_denormalized(a, b, epsilon)) {

@@ -64,7 +64,7 @@ int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
     }
 
     SkScalar r = numer / denom;
-    if (SkScalarIsNaN(r)) {
+    if (SkIsNaN(r)) {
         return 0;
     }
     SkASSERTF(r >= 0 && r < SK_Scalar1, "numer %f, denom %f, r %f", numer, denom, r);
@@ -108,7 +108,7 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]) {
     }
     dr = sqrt(dr);
     SkScalar R = SkDoubleToScalar(dr);
-    if (!SkScalarIsFinite(R)) {
+    if (!SkIsFinite(R)) {
         return return_check_zero(0);
     }
 
@@ -360,7 +360,7 @@ SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]) {
         return 1;
     }
     SkScalar t = numer / denom;
-    SkASSERT((0 <= t && t < 1) || SkScalarIsNaN(t));
+    SkASSERT((0 <= t && t < 1) || SkIsNaN(t));
     return t;
 }
 
@@ -1322,7 +1322,7 @@ bool SkConic::chopAt(SkScalar t, SkConic dst[2]) const {
     dst[1].fW = tmp2[2].fZ / root;
     SkASSERT(sizeof(dst[0]) == sizeof(SkScalar) * 7);
     SkASSERT(0 == offsetof(SkConic, fPts[0].fX));
-    return SkScalarsAreFinite(&dst[0].fPts[0].fX, 7 * 2);
+    return SkIsFinite(&dst[0].fPts[0].fX, 7 * 2);
 }
 
 void SkConic::chopAt(SkScalar t1, SkScalar t2, SkConic* dst) const {
@@ -1486,7 +1486,7 @@ bool SkConic::asQuadTol(SkScalar tol) const {
 #define kMaxConicToQuadPOW2     5
 
 int SkConic::computeQuadPOW2(SkScalar tol) const {
-    if (tol < 0 || !SkScalarIsFinite(tol) || !SkPointPriv::AreFinite(fPts, 3)) {
+    if (tol < 0 || !SkIsFinite(tol) || !SkPointPriv::AreFinite(fPts, 3)) {
         return 0;
     }
 
@@ -1782,7 +1782,7 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
     const SkPoint finalP = { x, y };
     const SkPoint& lastQ = quadrantPts[quadrant * 2];  // will already be a unit-vector
     const SkScalar dot = SkVector::DotProduct(lastQ, finalP);
-    if (SkScalarIsNaN(dot)) {
+    if (SkIsNaN(dot)) {
         return 0;
     }
     SkASSERT(0 <= dot && dot <= SK_Scalar1 + SK_ScalarNearlyZero);

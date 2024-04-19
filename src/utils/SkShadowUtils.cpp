@@ -22,6 +22,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkIDChangeListener.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
@@ -586,7 +587,7 @@ bool SkShadowUtils::GetLocalBounds(const SkMatrix& ctm, const SkPath& path,
 
 static bool validate_rec(const SkDrawShadowRec& rec) {
     return rec.fLightPos.isFinite() && rec.fZPlaneParams.isFinite() &&
-           SkScalarIsFinite(rec.fLightRadius);
+           SkIsFinite(rec.fLightRadius);
 }
 
 void SkDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {

@@ -19,6 +19,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkImageInfoPriv.h"
@@ -191,7 +192,7 @@ SkPictureShader::CachedImageInfo SkPictureShader::CachedImageInfo::Make(
         if (!totalM.decomposeScale(&size, nullptr)) {
             SkPoint center = {bounds.centerX(), bounds.centerY()};
             SkScalar area = SkMatrixPriv::DifferentialAreaScale(totalM, center);
-            if (!SkScalarIsFinite(area) || SkScalarNearlyZero(area)) {
+            if (!SkIsFinite(area) || SkScalarNearlyZero(area)) {
                 size = {1, 1};  // ill-conditioned matrix
             } else {
                 size.fWidth = size.fHeight = SkScalarSqrt(area);

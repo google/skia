@@ -288,7 +288,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto maxLines = parent->paragraphStyle().getMaxLines();
     auto align = parent->paragraphStyle().effective_align();
     auto unlimitedLines = maxLines == std::numeric_limits<size_t>::max();
-    auto endlessLine = !SkScalarIsFinite(maxWidth);
+    auto endlessLine = !SkIsFinite(maxWidth);
     auto hasEllipsis = parent->paragraphStyle().ellipsized();
 
     auto disableFirstAscent = parent->paragraphStyle().getTextHeightBehavior() & TextHeightBehavior::kDisableFirstAscent;

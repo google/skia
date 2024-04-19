@@ -63,23 +63,17 @@ typedef float SkScalar;
 #define SkScalarToDouble(x)     static_cast<double>(x)
 #define SkDoubleToScalar(x)     sk_double_to_float(x)
 
-static inline bool SkScalarIsNaN(SkScalar x) { return x != x; }
+// DEPRECATED: use std::isnan instead.
+static inline bool SkScalarIsNaN(SkScalar x) { return SkIsNaN(x); }
 
-/** Returns true if x is not NaN and not infinite
- */
-static inline bool SkScalarIsFinite(SkScalar x) { return std::isfinite(x); }
+// DEPRECATED: use std::isfinite instead.
+static inline bool SkScalarIsFinite(SkScalar x) { return SkIsFinite(x); }
 
-static inline bool SkScalarsAreFinite(SkScalar a, SkScalar b) {
-    // Subtracting a value from itself will result in zero, except for NAN or ±Inf, which make NAN.
-    // A NAN is not equal to any value, so a NAN or ±Inf in either `a` or `b` will cause the
-    // comparison to evaluate as false.
-    // If both `a` and `b` are finite, the comparison will reduce to `0 == 0`, which is true.
-    return (a - a) == (b - b);
-}
+// DEPRECATED: use std::isfinite instead.
+static inline bool SkScalarsAreFinite(SkScalar a, SkScalar b) { return SkIsFinite(a, b); }
 
-static inline bool SkScalarsAreFinite(const SkScalar array[], int count) {
-    return sk_floats_are_finite(array, count);
-}
+// DEPRECATED: use std::isfinite instead.
+static inline bool SkScalarsAreFinite(const SkScalar p[], int n) { return SkIsFinite(p, n); }
 
 /** Returns the fractional part of the scalar. */
 static inline SkScalar SkScalarFraction(SkScalar x) {

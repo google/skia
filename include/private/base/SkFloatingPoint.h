@@ -36,13 +36,54 @@ static constexpr float sk_float_radians_to_degrees(float radians) {
 // as floatf(x + .5f), they would be 1 higher than expected.
 #define sk_float_round(x) (float)sk_double_round((double)(x))
 
-static inline bool sk_floats_are_finite(const float array[], int count) {
-    float prod = 0;
+static inline bool SkIsNaN(float x) {
+    return x != x;
+}
+
+static inline bool SkIsNaN(double x) {
+    return x != x;
+}
+
+// Subtracting a value from itself will result in zero, except for NAN or ±Inf, which make NAN.
+// This generates better code than `std::isfinite` when building with clang-cl (April 2024).
+static inline bool SkIsFinite(float x) {
+    return (x - x) == 0;
+}
+
+static inline bool SkIsFinite(double x) {
+    return (x - x) == 0;
+}
+
+// Subtracting a value from itself will result in zero, except for NAN or ±Inf, which make NAN.
+// A NAN is not equal to any value, so a NAN or ±Inf in either `a` or `b` will cause the
+// comparison to evaluate as false.
+// If both `a` and `b` are finite, the comparison will reduce to `0 == 0`, which is true.
+static inline bool SkIsFinite(float a, float b) {
+    return (a - a) == (b - b);
+}
+
+static inline bool SkIsFinite(double a, double b) {
+    return (a - a) == (b - b);
+}
+
+// Multiplying a group of values against zero will result in zero at each iteration, except for
+// NAN or ±Inf, which will result in NAN and continue resulting in NAN for the rest of the loop.
+static inline bool SkIsFinite(const float array[], int count) {
+    float prod = 0.0f;
     for (int i = 0; i < count; ++i) {
         prod *= array[i];
     }
-    // At this point, prod will either be NaN or 0
-    return prod == 0;   // if prod is NaN, this check will return false
+    // At this point, prod will either be NaN or 0.
+    return prod == 0.0f;
+}
+
+static inline bool SkIsFinite(const double array[], int count) {
+    double prod = 0.0;
+    for (int i = 0; i < count; ++i) {
+        prod *= array[i];
+    }
+    // At this point, prod will either be NaN or 0.
+    return prod == 0.0;
 }
 
 inline constexpr int SK_MaxS32FitsInFloat = 2147483520;

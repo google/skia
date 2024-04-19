@@ -14,6 +14,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 
+#include <cmath>
 #include <cstdint>
 
 class SkPath;
@@ -37,11 +38,11 @@ public:
     SkStroke(const SkPaint&);
     SkStroke(const SkPaint&, SkScalar width);   // width overrides paint.getStrokeWidth()
 
-    SkPaint::Cap    getCap() const { return (SkPaint::Cap)fCap; }
-    void        setCap(SkPaint::Cap);
+    SkPaint::Cap getCap() const { return (SkPaint::Cap)fCap; }
+    void         setCap(SkPaint::Cap);
 
-    SkPaint::Join   getJoin() const { return (SkPaint::Join)fJoin; }
-    void        setJoin(SkPaint::Join);
+    SkPaint::Join getJoin() const { return (SkPaint::Join)fJoin; }
+    void          setJoin(SkPaint::Join);
 
     void    setMiterLimit(SkScalar);
     void    setWidth(SkScalar);
@@ -59,7 +60,7 @@ public:
      */
     SkScalar getResScale() const { return fResScale; }
     void setResScale(SkScalar rs) {
-        SkASSERT(rs > 0 && SkScalarIsFinite(rs));
+        SkASSERT(rs > 0 && std::isfinite(rs));
         fResScale = rs;
     }
 

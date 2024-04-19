@@ -98,7 +98,7 @@ void decompose_transform(const SkMatrix& transform, SkPoint representativePoint,
         // Perspective, which has a non-uniform scaling effect on the filter. Pick a single scale
         // factor that best matches where the filter will be evaluated.
         SkScalar approxScale = SkMatrixPriv::DifferentialAreaScale(transform, representativePoint);
-        if (SkScalarIsFinite(approxScale) && !SkScalarNearlyZero(approxScale)) {
+        if (SkIsFinite(approxScale) && !SkScalarNearlyZero(approxScale)) {
             // Now take the sqrt to go from an area scale factor to a scaling per X and Y
             approxScale = SkScalarSqrt(approxScale);
         } else {

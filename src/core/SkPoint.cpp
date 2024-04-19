@@ -53,7 +53,7 @@ template <bool use_rsqrt> bool set_point_length(SkPoint* pt, float x, float y, f
     x *= dscale;
     y *= dscale;
     // check if we're not finite, or we're zero-length
-    if (!std::isfinite(x) || !std::isfinite(y) || (x == 0 && y == 0)) {
+    if (!SkIsFinite(x, y) || (x == 0 && y == 0)) {
         pt->set(0, 0);
         return false;
     }
@@ -78,7 +78,7 @@ float SkPoint::Normalize(SkPoint* pt) {
 
 float SkPoint::Length(float dx, float dy) {
     float mag2 = dx * dx + dy * dy;
-    if (std::isfinite(mag2)) {
+    if (SkIsFinite(mag2)) {
         return std::sqrt(mag2);
     } else {
         double xx = dx;
@@ -117,7 +117,7 @@ float SkPointPriv::DistanceToLineBetweenSqd(const SkPoint& pt, const SkPoint& a,
     temp *= det;
     // It's possible we have a degenerate line vector, or we're so far away it looks degenerate
     // In this case, return squared distance to point A.
-    if (!std::isfinite(temp)) {
+    if (!SkIsFinite(temp)) {
         return LengthSqd(v);
     }
     return temp;
@@ -160,7 +160,7 @@ float SkPointPriv::DistanceToLineSegmentBetweenSqd(const SkPoint& pt, const SkPo
         temp *= det;
         // It's possible we have a degenerate segment, or we're so far away it looks degenerate
         // In this case, return squared distance to point A.
-        if (!std::isfinite(temp)) {
+        if (!SkIsFinite(temp)) {
             return LengthSqd(v);
         }
         return temp;

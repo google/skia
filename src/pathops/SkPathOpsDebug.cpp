@@ -415,22 +415,22 @@ void SkPathOpsDebug::CheckHealth(SkOpContourHead* contourList) {
         if (glitch.fOppEndSpan) {
             SkDebugf(" oppEndSpan=%d", glitch.fOppEndSpan->debugID());
         }
-        if (!SkScalarIsNaN(glitch.fStartT)) {
+        if (!SkIsNaN(glitch.fStartT)) {
             SkDebugf(" startT=%g", glitch.fStartT);
         }
-        if (!SkScalarIsNaN(glitch.fEndT)) {
+        if (!SkIsNaN(glitch.fEndT)) {
             SkDebugf(" endT=%g", glitch.fEndT);
         }
         if (glitch.fOppSegment) {
             SkDebugf(" segment=%d", glitch.fOppSegment->debugID());
         }
-        if (!SkScalarIsNaN(glitch.fOppStartT)) {
+        if (!SkIsNaN(glitch.fOppStartT)) {
             SkDebugf(" oppStartT=%g", glitch.fOppStartT);
         }
-        if (!SkScalarIsNaN(glitch.fOppEndT)) {
+        if (!SkIsNaN(glitch.fOppEndT)) {
             SkDebugf(" oppEndT=%g", glitch.fOppEndT);
         }
-        if (!SkScalarIsNaN(glitch.fPt.fX) || !SkScalarIsNaN(glitch.fPt.fY)) {
+        if (!SkIsNaN(glitch.fPt.fX) || !SkIsNaN(glitch.fPt.fY)) {
             SkDebugf(" pt=%g,%g", glitch.fPt.fX, glitch.fPt.fY);
         }
         DumpGlitchType(glitch.fType);

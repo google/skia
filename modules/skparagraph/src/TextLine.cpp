@@ -783,7 +783,7 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
         return result;
     } else if (run->isPlaceholder()) {
         result.fTextShift = runOffsetInLine;
-        if (SkScalarIsFinite(run->fFontMetrics.fAscent)) {
+        if (SkIsFinite(run->fFontMetrics.fAscent)) {
           result.clip = SkRect::MakeXYWH(runOffsetInLine,
                                          sizes().runTop(run, this->fAscentStyle),
                                          run->advance().fX,

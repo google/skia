@@ -697,7 +697,7 @@ SkPathStroker::ReductionType SkPathStroker::CheckConicLinear(const SkConic& coni
     // SkFindConicMaxCurvature would be a better solution, once we know how to
     // implement it. Quad curvature is a reasonable substitute
     SkScalar t = SkFindQuadMaxCurvature(conic.fPts);
-    if (0 == t || SkScalarIsNaN(t)) {
+    if (0 == t || SkIsNaN(t)) {
         return kLine_ReductionType;
     }
     conic.evalAt(t, reduction, nullptr);
@@ -925,7 +925,7 @@ SkPathStroker::ResultType SkPathStroker::intersectRay(SkQuadConstruct* quadPts,
              byLen  * axLen         -   ayLen          * bxLen         ( == denom )
      */
     SkScalar denom = aLen.cross(bLen);
-    if (denom == 0 || !SkScalarIsFinite(denom)) {
+    if (denom == 0 || !SkIsFinite(denom)) {
         quadPts->fOppositeTangents = aLen.dot(bLen) < 0;
         return STROKER_RESULT(kDegenerate_ResultType, depth, quadPts, "denom == 0");
     }
@@ -1183,7 +1183,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
             }
         }
     }
-    if (!SkScalarIsFinite(quadPts->fQuad[2].fX) || !SkScalarIsFinite(quadPts->fQuad[2].fY)) {
+    if (!SkIsFinite(quadPts->fQuad[2].fX) || !SkIsFinite(quadPts->fQuad[2].fY)) {
         DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
         return false;  // just abort if projected quad isn't representable
     }

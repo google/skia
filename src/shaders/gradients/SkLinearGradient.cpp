@@ -14,6 +14,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -96,7 +97,7 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
                                              SkTileMode mode,
                                              const Interpolation& interpolation,
                                              const SkMatrix* localMatrix) {
-    if (!pts || !SkScalarIsFinite((pts[1] - pts[0]).length())) {
+    if (!pts || !SkIsFinite((pts[1] - pts[0]).length())) {
         return nullptr;
     }
     if (!SkGradientBaseShader::ValidGradient(colors, colorCount, mode, interpolation)) {

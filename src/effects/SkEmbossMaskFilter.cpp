@@ -12,6 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -24,7 +25,7 @@
 #include <cstring>
 
 sk_sp<SkMaskFilter> SkEmbossMaskFilter::Make(SkScalar blurSigma, const Light& light) {
-    if (!SkScalarIsFinite(blurSigma) || blurSigma <= 0) {
+    if (!SkIsFinite(blurSigma) || blurSigma <= 0) {
         return nullptr;
     }
 
@@ -66,7 +67,7 @@ SkEmbossMaskFilter::SkEmbossMaskFilter(SkScalar blurSigma, const Light& light)
     : fLight(light), fBlurSigma(blurSigma)
 {
     SkASSERT(fBlurSigma > 0);
-    SkASSERT(SkScalarsAreFinite(fLight.fDirection, 3));
+    SkASSERT(SkIsFinite(fLight.fDirection, 3));
 }
 
 SkMask::Format SkEmbossMaskFilter::getFormat() const {

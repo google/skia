@@ -13,6 +13,7 @@
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFixed.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkSafe32.h"
 #include "src/base/SkMathPriv.h"
@@ -278,7 +279,7 @@ static void hair_quad(const SkPoint pts[3], const SkRegion* clip,
 }
 
 static SkRect compute_nocheck_quad_bounds(const SkPoint pts[3]) {
-    SkASSERT(SkScalarsAreFinite(&pts[0].fX, 6));
+    SkASSERT(SkIsFinite(&pts[0].fX, 6));
 
     float2 min = float2::Load(pts);
     float2 max = min;
@@ -411,7 +412,7 @@ static void hair_cubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bl
 }
 
 static SkRect compute_nocheck_cubic_bounds(const SkPoint pts[4]) {
-    SkASSERT(SkScalarsAreFinite(&pts[0].fX, 8));
+    SkASSERT(SkIsFinite(&pts[0].fX, 8));
 
     float2 min = float2::Load(pts);
     float2 max = min;

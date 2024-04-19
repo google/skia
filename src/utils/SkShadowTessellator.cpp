@@ -293,7 +293,7 @@ bool SkBaseShadowTessellator::computeConvexShadow(SkScalar inset, SkScalar outse
             // if the umbra would collapse, we back off a bit on inner blur and adjust the alpha
             auto newInset = SkScalarSqrt(minDistSq) - kTolerance;
             auto ratio = 128 * (newInset / inset + 1);
-            SkASSERT(SkScalarIsFinite(ratio));
+            SkASSERT(SkIsFinite(ratio));
             // they aren't PMColors, but the interpolation algorithm is the same
             umbraColor = SkPMLerp(kUmbraColor, kPenumbraColor, (unsigned)ratio);
             inset = newInset;
@@ -936,7 +936,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     if (!this->computePathPolygon(path, ctm)) {
         return;
     }
-    if (fPathPolygon.size() < 3 || !SkScalarIsFinite(fArea)) {
+    if (fPathPolygon.size() < 3 || !SkIsFinite(fArea)) {
         fSucceeded = true; // We don't want to try to blur these cases, so we will
                            // return an empty SkVertices instead.
         return;
@@ -1037,7 +1037,7 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     if (!this->computeClipAndPathPolygons(path, ctm, shadowTransform)) {
         return;
     }
-    if (fClipPolygon.size() < 3 || fPathPolygon.size() < 3 || !SkScalarIsFinite(fArea)) {
+    if (fClipPolygon.size() < 3 || fPathPolygon.size() < 3 || !SkIsFinite(fArea)) {
         fSucceeded = true; // We don't want to try to blur these cases, so we will
                            // return an empty SkVertices instead.
         return;
@@ -1179,7 +1179,7 @@ sk_sp<SkVertices> SkShadowTessellator::MakeSpot(const SkPath& path, const SkMatr
                                                 bool directional) {
     if (!ctm.mapRect(path.getBounds()).isFinite() || !zPlane.isFinite() ||
         !lightPos.isFinite() || !(lightPos.fZ >= SK_ScalarNearlyZero) ||
-        !SkScalarIsFinite(lightRadius) || !(lightRadius >= SK_ScalarNearlyZero)) {
+        !SkIsFinite(lightRadius) || !(lightRadius >= SK_ScalarNearlyZero)) {
         return nullptr;
     }
     SkSpotShadowTessellator spotTess(path, ctm, zPlane, lightPos, lightRadius, transparent,

@@ -95,7 +95,7 @@ struct SkDVector {
     }
 
     bool isFinite() const {
-        return std::isfinite(fX) && std::isfinite(fY);
+        return SkIsFinite(fX, fY);
     }
 };
 

@@ -17,6 +17,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -248,7 +249,7 @@ SkScalar SkPath1DPathEffectImpl::next(SkPath* dst, SkScalar distance,
 
 sk_sp<SkPathEffect> SkPath1DPathEffect::Make(const SkPath& path, SkScalar advance, SkScalar phase,
                                              Style style) {
-    if (advance <= 0 || !SkScalarIsFinite(advance) || !SkScalarIsFinite(phase) || path.isEmpty()) {
+    if (advance <= 0 || !SkIsFinite(advance, phase) || path.isEmpty()) {
         return nullptr;
     }
     return sk_sp<SkPathEffect>(new SkPath1DPathEffectImpl(path, advance, phase, style));

@@ -97,7 +97,7 @@ static bool isFinite_int(float x) {
 }
 
 static bool isFinite_float(float x) {
-    return SkToBool(std::isfinite(x));
+    return SkToBool(SkIsFinite(x));
 }
 
 static bool isFinite_mulzero(float x) {
@@ -128,16 +128,16 @@ enum FloatClass {
 static void test_floatclass(skiatest::Reporter* reporter, float value, FloatClass fc) {
     // our sk_float_is... function may return int instead of bool,
     // hence the double ! to turn it into a bool
-    REPORTER_ASSERT(reporter, !!std::isfinite(value) == (fc == kFinite));
-    REPORTER_ASSERT(reporter, !!std::isinf(value)    == (fc == kInfinite));
-    REPORTER_ASSERT(reporter, !!std::isnan(value)    == (fc == kNaN));
+    REPORTER_ASSERT(reporter, !!SkIsFinite(value) == (fc == kFinite));
+    REPORTER_ASSERT(reporter, !!std::isinf(value) == (fc == kInfinite));
+    REPORTER_ASSERT(reporter, !!SkIsNaN(value)    == (fc == kNaN));
 }
 
 #if defined _WIN32
-#pragma warning ( push )
+#pragma warning(push)
 // we are intentionally causing an overflow here
 //      (warning C4756: overflow in constant arithmetic)
-#pragma warning ( disable : 4756 )
+#pragma warning(disable : 4756)
 #endif
 
 static void test_isfinite(skiatest::Reporter* reporter) {

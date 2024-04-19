@@ -50,7 +50,7 @@ static bool intersect(const SkPoint& p0, const SkPoint& n0,
         return false;
     }
     *t = (v.fX * n1.fY - v.fY * n1.fX) / perpDot;
-    return SkScalarIsFinite(*t);
+    return SkIsFinite(*t);
 }
 
 // This is a special case version of intersect where we have the vector
@@ -64,7 +64,7 @@ static bool perp_intersect(const SkPoint& p0, const SkPoint& n0,
         return false;
     }
     *t = v.dot(perp) / perpDot;
-    return SkScalarIsFinite(*t);
+    return SkIsFinite(*t);
 }
 
 static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {

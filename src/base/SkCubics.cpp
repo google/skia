@@ -78,7 +78,7 @@ int SkCubics::RootsReal(double A, double B, double C, double D, double solution[
     // If one of R2 Q3 is infinite or nan, subtracting them will also be infinite/nan.
     // If both are infinite or nan, the subtraction will be nan.
     // In either case, we have no finite roots.
-    if (!std::isfinite(R2MinusQ3)) {
+    if (!SkIsFinite(R2MinusQ3)) {
         return 0;
     }
     double adiv3 = a / 3;
@@ -180,7 +180,7 @@ static double binary_search(double A, double B, double C, double D, double start
         return start;
     }
     double right = SkCubics::EvalAt(A, B, C, D, stop);
-    if (!std::isfinite(left) || !std::isfinite(right)) {
+    if (!SkIsFinite(left, right)) {
         return -1; // Not going to deal with one or more endpoints being non-finite.
     }
     if ((left > 0 && right > 0) || (left < 0 && right < 0)) {
@@ -207,7 +207,7 @@ static double binary_search(double A, double B, double C, double D, double start
 
 int SkCubics::BinarySearchRootsValidT(double A, double B, double C, double D,
                                       double solution[3]) {
-    if (!std::isfinite(A) || !std::isfinite(B) || !std::isfinite(C) || !std::isfinite(D)) {
+    if (!SkIsFinite(A, B) || !SkIsFinite(C, D)) {
         return 0;
     }
     double regions[4] = {0, 0, 0, 1};

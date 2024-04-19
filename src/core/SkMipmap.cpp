@@ -205,13 +205,13 @@ float SkMipmap::ComputeLevel(SkSize scaleSize) {
     const float scale = std::sqrt(scaleSize.width() * scaleSize.height());
 #endif
 
-    if (scale >= SK_Scalar1 || scale <= 0 || !SkScalarIsFinite(scale)) {
+    if (scale >= SK_Scalar1 || scale <= 0 || !SkIsFinite(scale)) {
         return -1;
     }
 
     // The -0.5 bias here is to emulate GPU's sharpen mipmap option.
     float L = std::max(-SkScalarLog2(scale) - 0.5f, 0.f);
-    if (!SkScalarIsFinite(L)) {
+    if (!SkIsFinite(L)) {
         return -1;
     }
     return L;

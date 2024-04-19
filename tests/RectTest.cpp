@@ -167,18 +167,18 @@ DEF_TEST(Rect_whOverflow, reporter) {
     const SkRect r = { -big, -big, big, big };
 
     REPORTER_ASSERT(reporter, r.isFinite());
-    REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.width()));
-    REPORTER_ASSERT(reporter, !SkScalarIsFinite(r.height()));
+    REPORTER_ASSERT(reporter, !SkIsFinite(r.width()));
+    REPORTER_ASSERT(reporter, !SkIsFinite(r.height()));
 
     // ensure we can compute center even when the width/height might overflow
-    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerX()));
-    REPORTER_ASSERT(reporter, SkScalarIsFinite(r.centerY()));
+    REPORTER_ASSERT(reporter, SkIsFinite(r.centerX()));
+    REPORTER_ASSERT(reporter, SkIsFinite(r.centerY()));
 
 
     // ensure we can compute halfWidth and halfHeight even when width/height might overflow,
     // i.e. for use computing the radii filling a rectangle.
-    REPORTER_ASSERT(reporter, SkScalarIsFinite(SkRectPriv::HalfWidth(r)));
-    REPORTER_ASSERT(reporter, SkScalarIsFinite(SkRectPriv::HalfHeight(r)));
+    REPORTER_ASSERT(reporter, SkIsFinite(SkRectPriv::HalfWidth(r)));
+    REPORTER_ASSERT(reporter, SkIsFinite(SkRectPriv::HalfHeight(r)));
 }
 
 DEF_TEST(Rect_subtract, reporter) {

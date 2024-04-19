@@ -20,6 +20,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -281,19 +282,16 @@ sk_sp<SkImageFilter> make_lighting(const Light& light,
                                    const SkImageFilters::CropRect& cropRect) {
     // According to the spec, ks and kd can be any non-negative number:
     // http://www.w3.org/TR/SVG/filters.html#feSpecularLightingElement
-    if (!SkScalarIsFinite(material.fK) || material.fK < 0.f ||
-        !SkScalarIsFinite(material.fShininess) ||
-        !SkScalarIsFinite(ZValue(material.fSurfaceDepth))) {
+    if (!SkIsFinite(material.fK) || material.fK < 0.f ||
+        !SkIsFinite(material.fShininess, ZValue(material.fSurfaceDepth))) {
         return nullptr;
     }
 
     // Ensure light values are finite, and the cosine should be between -1 and 1
     if (!SkPoint(light.fLocationXY).isFinite() ||
-        !SkScalarIsFinite(ZValue(light.fLocationZ)) ||
         !skif::Vector(light.fDirectionXY).isFinite() ||
-        !SkScalarIsFinite(ZValue(light.fDirectionZ)) ||
-        !SkScalarIsFinite(light.fFalloffExponent) ||
-        !SkScalarIsFinite(light.fCosCutoffAngle) ||
+        !SkIsFinite(ZValue(light.fLocationZ), ZValue(light.fDirectionZ)) ||
+        !SkIsFinite(light.fFalloffExponent, light.fCosCutoffAngle) ||
         light.fCosCutoffAngle < -1.f || light.fCosCutoffAngle > 1.f) {
         return nullptr;
     }

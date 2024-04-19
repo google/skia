@@ -709,18 +709,7 @@ struct SK_API SkRect {
         @return  true if no member is infinite or NaN
     */
     bool isFinite() const {
-        float accum = 0;
-        accum *= fLeft;
-        accum *= fTop;
-        accum *= fRight;
-        accum *= fBottom;
-
-        // accum is either NaN or it is finite (zero).
-        SkASSERT(0 == accum || std::isnan(accum));
-
-        // value==value will be true iff value is not NaN
-        // TODO: is it faster to say !accum or accum==accum?
-        return !std::isnan(accum);
+        return SkIsFinite(fLeft, fTop) && SkIsFinite(fRight, fBottom);
     }
 
     /** Returns left edge of SkRect, if sorted. Call isSorted() to see if SkRect is valid.

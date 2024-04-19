@@ -16,6 +16,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
@@ -272,7 +273,7 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
         // otherwise cause the results->fPoints allocation below to OOM.
         // Cap it to a sane value.
         SkScalar numIntervals = len2 / fIntervalLength;
-        if (!SkScalarIsFinite(numIntervals) || numIntervals > SkDashPath::kMaxDashCount) {
+        if (!SkIsFinite(numIntervals) || numIntervals > SkDashPath::kMaxDashCount) {
             return false;
         }
         int numMidPoints = SkScalarFloorToInt(numIntervals);

@@ -141,7 +141,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         floorWidth = SkScalarFloorToScalar(floorWidth);
     }
 
-    if ((!SkScalarIsFinite(rawWidth) || fLongestLine <= floorWidth) &&
+    if ((!SkIsFinite(rawWidth) || fLongestLine <= floorWidth) &&
         fState >= kLineBroken &&
          fLines.size() == 1 && fLines.front().ellipsis() == nullptr) {
         // Most common case: one line of text (and one line is never justified, so no cluster shifts)
@@ -672,7 +672,7 @@ void ParagraphImpl::formatLines(SkScalar maxWidth) {
     const bool isLeftAligned = effectiveAlign == TextAlign::kLeft
         || (effectiveAlign == TextAlign::kJustify && fParagraphStyle.getTextDirection() == TextDirection::kLtr);
 
-    if (!SkScalarIsFinite(maxWidth) && !isLeftAligned) {
+    if (!SkIsFinite(maxWidth) && !isLeftAligned) {
         // Special case: clean all text in case of maxWidth == INF & align != left
         // We had to go through shaping though because we need all the measurement numbers
         fLines.clear();

@@ -90,7 +90,7 @@ bool SkMatrixColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaqu
 ///////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkColorFilter> MakeMatrix(const float array[20], SkMatrixColorFilter::Domain domain) {
-    if (!sk_floats_are_finite(array, 20)) {
+    if (!SkIsFinite(array, 20)) {
         return nullptr;
     }
     return sk_make_sp<SkMatrixColorFilter>(array, domain);

@@ -143,7 +143,7 @@ static void draw_scale_factors(SkCanvas* canvas, const skif::Mapping& mapping, c
                 SkPoint(mapping.paramToLayer(skif::ParameterSpace<SkPoint>(testPoints[i]))));
         SkColor4f color = {0.f, 0.f, 0.f, 1.f};
 
-        if (SkScalarIsFinite(scale)) {
+        if (SkIsFinite(scale)) {
             float logScale = SkScalarLog2(scale);
             for (int j = 0; j <= kStopCount; ++j) {
                 if (j == kStopCount) {

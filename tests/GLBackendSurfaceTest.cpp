@@ -38,7 +38,7 @@
 struct GrContextOptions;
 
 static bool sampler_params_invalid(const GrGLTextureParameters& parameters) {
-    return SkScalarIsNaN(parameters.samplerOverriddenState().fMaxLOD);
+    return SkIsNaN(parameters.samplerOverriddenState().fMaxLOD);
 }
 
 static bool nonsampler_params_invalid(const GrGLTextureParameters& parameters) {

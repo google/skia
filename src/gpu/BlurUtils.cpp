@@ -274,8 +274,8 @@ SkBitmap CreateIntegralTable(float sixSigma) {
 }
 
 int ComputeIntegralTableWidth(float sixSigma) {
-    // Check for NaN
-    if (std::isnan(sixSigma)) {
+    // Check for NaN/infinity
+    if (!SkIsFinite(sixSigma)) {
         return 0;
     }
     // Avoid overflow, covers both multiplying by 2 and finding next power of 2:

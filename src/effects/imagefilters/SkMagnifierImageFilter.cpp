@@ -21,6 +21,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkKnownRuntimeEffects.h"
@@ -85,8 +86,8 @@ sk_sp<SkImageFilter> SkImageFilters::Magnifier(const SkRect& lensBounds,
                                                sk_sp<SkImageFilter> input,
                                                const CropRect& cropRect) {
     if (lensBounds.isEmpty() || !lensBounds.isFinite() ||
-        zoomAmount <= 0.f || !SkScalarIsFinite(zoomAmount) ||
-        inset < 0.f || !SkScalarIsFinite(inset)) {
+        zoomAmount <= 0.f || inset < 0.f ||
+        !SkIsFinite(zoomAmount, inset)) {
         return nullptr; // invalid
     }
     // The magnifier automatically restricts its output based on the size of the image it receives

@@ -9,7 +9,7 @@
 #define SkPoint_DEFINED
 
 #include "include/private/base/SkAPI.h"
-#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkSafe32.h"
 
 #include <cmath>
@@ -410,16 +410,7 @@ struct SK_API SkPoint {
         @return  true for values other than infinities and NaN
     */
     bool isFinite() const {
-        float accum = 0;
-        accum *= fX;
-        accum *= fY;
-
-        // accum is either NaN or it is finite (zero).
-        SkASSERT(0 == accum || std::isnan(accum));
-
-        // value==value will be true iff value is not NaN
-        // TODO: is it faster to say !accum or accum==accum?
-        return !std::isnan(accum);
+        return SkIsFinite(fX, fY);
     }
 
     /** Returns true if SkPoint is equivalent to SkPoint constructed from (x, y).

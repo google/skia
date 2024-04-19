@@ -6001,8 +6001,8 @@ DEF_TEST_DISABLED(SkParagraph_PlaceholderHeightInf, reporter) {
     paragraph->paint(canvas.get(), 0, 0);
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-    REPORTER_ASSERT(reporter, SkScalarIsFinite(impl->getPicture()->cullRect().height()));
-    REPORTER_ASSERT(reporter, SkScalarIsFinite(impl->getPicture()->cullRect().width()));
+    REPORTER_ASSERT(reporter, SkIsFinite(impl->getPicture()->cullRect().height()));
+    REPORTER_ASSERT(reporter, SkIsFinite(impl->getPicture()->cullRect().width()));
 }
 
 UNIX_ONLY_TEST(SkParagraph_LineMetricsTextAlign, reporter) {

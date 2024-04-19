@@ -27,6 +27,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkBlitter_A8.h"
@@ -532,7 +533,7 @@ void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 void sk_register_blur_maskfilter_createproc() { SK_REGISTER_FLATTENABLE(SkBlurMaskFilterImpl); }
 
 sk_sp<SkMaskFilter> SkMaskFilter::MakeBlur(SkBlurStyle style, SkScalar sigma, bool respectCTM) {
-    if (SkScalarIsFinite(sigma) && sigma > 0) {
+    if (SkIsFinite(sigma) && sigma > 0) {
         return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, respectCTM));
     }
     return nullptr;

@@ -754,7 +754,7 @@ SkPath& SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     // check for <= 0 or NaN with this test
     if (!(w > 0)) {
         this->lineTo(x2, y2);
-    } else if (!SkScalarIsFinite(w)) {
+    } else if (!SkIsFinite(w)) {
         this->lineTo(x1, y1);
         this->lineTo(x2, y2);
     } else if (SK_Scalar1 == w) {
@@ -1309,7 +1309,7 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
     int segments = SkScalarCeilToInt(SkScalarAbs(thetaArc / (2 * SK_ScalarPI / 3)));
     SkScalar thetaWidth = thetaArc / segments;
     SkScalar t = SkScalarTan(0.5f * thetaWidth);
-    if (!SkScalarIsFinite(t)) {
+    if (!SkIsFinite(t)) {
         return *this;
     }
     SkScalar startTheta = theta1;
@@ -1807,8 +1807,8 @@ SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
         // A special case: if both points are NaN, SkPoint::operation== returns
         // false, but the iterator expects that they are treated as the same.
         // (consider SkPoint is a 2-dimension float point).
-        if (SkScalarIsNaN(fLastPt.fX) || SkScalarIsNaN(fLastPt.fY) ||
-            SkScalarIsNaN(fMoveTo.fX) || SkScalarIsNaN(fMoveTo.fY)) {
+        if (SkIsNaN(fLastPt.fX) || SkIsNaN(fLastPt.fY) ||
+            SkIsNaN(fMoveTo.fX) || SkIsNaN(fMoveTo.fY)) {
             return kClose_Verb;
         }
 
@@ -2225,7 +2225,7 @@ struct Convexicator {
 private:
     DirChange directionChange(const SkVector& curVec) {
         SkScalar cross = SkPoint::CrossProduct(fLastVec, curVec);
-        if (!SkScalarIsFinite(cross)) {
+        if (!SkIsFinite(cross)) {
                 return kUnknown_DirChange;
         }
         if (cross == 0) {
@@ -3760,7 +3760,7 @@ struct SkHalfPlane {
         b *= dscale;
         c *= dscale;
         // check if we're not finite, or normal is zero-length
-        if (!std::isfinite(a) || !std::isfinite(b) || !std::isfinite(c) ||
+        if (!SkIsFinite(a, b) || !SkIsFinite(c) ||
             (a == 0 && b == 0)) {
             fA = fB = 0;
             fC = SK_Scalar1;

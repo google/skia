@@ -35,6 +35,7 @@
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
@@ -2076,7 +2077,7 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 static bool fillable(const SkRect& r) {
     SkScalar w = r.width();
     SkScalar h = r.height();
-    return SkScalarIsFinite(w) && w > 0 && SkScalarIsFinite(h) && h > 0;
+    return SkIsFinite(w, h) && w > 0 && h > 0;
 }
 
 static SkPaint clean_paint_for_lattice(const SkPaint* paint) {

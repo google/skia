@@ -111,7 +111,7 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
     if (1 == colorCount) {
         return SkShaders::Color(colors[0], std::move(colorSpace));
     }
-    if (!SkScalarIsFinite(startAngle) || !SkScalarIsFinite(endAngle) || startAngle > endAngle) {
+    if (!SkIsFinite(startAngle, endAngle) || startAngle > endAngle) {
         return nullptr;
     }
     if (localMatrix && !localMatrix->invert(nullptr)) {

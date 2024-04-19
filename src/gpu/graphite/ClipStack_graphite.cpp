@@ -1114,7 +1114,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     }
 
     auto origSize = geometry.bounds().size();
-    if (!std::isfinite(origSize.x()) || !std::isfinite(origSize.y())) {
+    if (!SkIsFinite(origSize.x(), origSize.y())) {
         // Discard all non-finite geometry as if it were clipped out
         return kClippedOut;
     }
@@ -1141,7 +1141,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     // Some renderers make the drawn area larger than the geometry for anti-aliasing
     float rendererOutset = outsetBoundsForAA ? localToDevice.localAARadius(styledShape->bounds())
                                              : 0.f;
-    if (!SkScalarIsFinite(rendererOutset)) {
+    if (!SkIsFinite(rendererOutset)) {
         transformedShapeBounds = deviceBounds;
         infiniteBounds = true;
     } else {

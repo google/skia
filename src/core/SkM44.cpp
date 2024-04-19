@@ -278,7 +278,7 @@ SkM44& SkM44::setRotateUnitSinCos(SkV3 axis, SkScalar sinAngle, SkScalar cosAngl
 
 SkM44& SkM44::setRotate(SkV3 axis, SkScalar radians) {
     SkScalar len = axis.length();
-    if (len > 0 && SkScalarIsFinite(len)) {
+    if (len > 0 && SkIsFinite(len)) {
         this->setRotateUnit(axis * (SK_Scalar1 / len), radians);
     } else {
         this->setIdentity();

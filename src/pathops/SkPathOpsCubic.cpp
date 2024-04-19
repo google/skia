@@ -6,6 +6,7 @@
  */
 #include "src/pathops/SkPathOpsCubic.h"
 
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkTSort.h"
@@ -728,7 +729,7 @@ bool SkDCubic::toFloatPoints(SkPoint* pts) const {
             cubic[index] = 0;
         }
     }
-    return SkScalarsAreFinite(&pts->fX, kPointCount * 2);
+    return SkIsFinite(&pts->fX, kPointCount * 2);
 }
 
 double SkDCubic::top(const SkDCubic& dCurve, double startT, double endT, SkDPoint*topPt) const {

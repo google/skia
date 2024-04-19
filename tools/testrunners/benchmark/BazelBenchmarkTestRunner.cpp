@@ -274,7 +274,7 @@ public:
                 // https://skia.googlesource.com/skia/+/a063eaeaf1e09e4d6f42e0f44a5723622a46d21c/bench/ResultsWriter.h#51.
                 //
                 // Don't record if NaN or Inf.
-                if (std::isfinite(singleMeasurement.measurement)) {
+                if (SkIsFinite(singleMeasurement.measurement)) {
                     fJson.beginObject();
                     fJson.appendCString("value", singleMeasurement.value.c_str());
                     fJson.appendDoubleDigits("measurement", singleMeasurement.measurement, 16);

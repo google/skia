@@ -126,7 +126,7 @@ DEF_TEST(BitCastDoubleRoundTrip, reporter) {
     {
         uint64_t bits = sk_bit_cast<uint64_t>((double) INFINITY);
         double output = sk_bit_cast<double>(bits);
-        REPORTER_ASSERT(reporter, !std::isfinite(output), "%.16f is not infinity", output);
+        REPORTER_ASSERT(reporter, !SkIsFinite(output), "%.16f is not infinity", output);
     }
 }
 

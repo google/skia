@@ -100,8 +100,9 @@ public:
             accum *= fY[i];
             accum *= fW[i];
         }
-        SkASSERT(0 == accum || SkScalarIsNaN(accum));
-        return !SkScalarIsNaN(accum);
+        SkASSERT(0 == accum || SkIsNaN(accum));
+
+        return accum == 0.0f;
     }
 
     float x(int i) const { return fX[i]; }

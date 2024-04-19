@@ -159,7 +159,7 @@ static SkScalar approx_arc_length(const SkPoint points[], int count) {
     for (int i = 0; i < count - 1; i++) {
         arcLength += SkPoint::Distance(points[i], points[i + 1]);
     }
-    return SkScalarIsFinite(arcLength) ? arcLength : -1;
+    return SkIsFinite(arcLength) ? arcLength : -1;
 }
 
 static SkScalar bilerp(SkScalar tx, SkScalar ty, SkScalar c00, SkScalar c10, SkScalar c01,
