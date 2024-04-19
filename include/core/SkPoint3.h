@@ -114,7 +114,7 @@ struct SK_API SkPoint3 {
      @return  true for values other than infinities and NaN
      */
     bool isFinite() const {
-        return SkIsFinite(fX, fY) && SkIsFinite(fZ);
+        return SkIsFinite(fX, fY, fZ);
     }
 
     /** Returns the dot product of a and b, treating them as 3D vectors

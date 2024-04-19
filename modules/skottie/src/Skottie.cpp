@@ -403,7 +403,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                duration = sk_ieee_float_divide(outPoint - inPoint, fps);
 
     if (size.isEmpty() || version.isEmpty() || fps <= 0 ||
-        !SkIsFinite(inPoint, outPoint) || !SkIsFinite(duration)) {
+        !SkIsFinite(inPoint, outPoint, duration)) {
         if (fLogger) {
             const auto msg = SkStringPrintf(
                          "Invalid animation params (version: %s, size: [%f %f], frame rate: %f, "

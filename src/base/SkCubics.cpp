@@ -207,7 +207,7 @@ static double binary_search(double A, double B, double C, double D, double start
 
 int SkCubics::BinarySearchRootsValidT(double A, double B, double C, double D,
                                       double solution[3]) {
-    if (!SkIsFinite(A, B) || !SkIsFinite(C, D)) {
+    if (!SkIsFinite(A, B, C, D)) {
         return 0;
     }
     double regions[4] = {0, 0, 0, 1};

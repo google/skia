@@ -1183,7 +1183,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
             }
         }
     }
-    if (!SkIsFinite(quadPts->fQuad[2].fX) || !SkIsFinite(quadPts->fQuad[2].fY)) {
+    if (!SkIsFinite(quadPts->fQuad[2].fX, quadPts->fQuad[2].fY)) {
         DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
         return false;  // just abort if projected quad isn't representable
     }

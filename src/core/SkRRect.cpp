@@ -118,7 +118,7 @@ void SkRRect::setNinePatch(const SkRect& rect, SkScalar leftRad, SkScalar topRad
         return;
     }
 
-    if (!SkIsFinite(leftRad, topRad) || !SkIsFinite(rightRad, bottomRad)) {
+    if (!SkIsFinite(leftRad, topRad, rightRad, bottomRad)) {
         this->setRect(rect);    // devolve into a simple rect
         return;
     }

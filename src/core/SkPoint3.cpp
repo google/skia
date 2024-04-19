@@ -71,7 +71,7 @@ bool SkPoint3::normalize() {
     fX *= scale;
     fY *= scale;
     fZ *= scale;
-    if (!SkIsFinite(fX, fY) || !SkIsFinite(fZ)) {
+    if (!SkIsFinite(fX, fY, fZ)) {
         this->set(0, 0, 0);
         return false;
     }

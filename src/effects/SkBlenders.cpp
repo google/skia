@@ -21,7 +21,7 @@ sk_sp<SkBlender> SkBlenders::Arithmetic(float k1, float k2, float k3, float k4,
                                         bool enforcePremul) {
     using namespace SkKnownRuntimeEffects;
 
-    if (!SkIsFinite(k1, k2) || !SkIsFinite(k3, k4)) {
+    if (!SkIsFinite(k1, k2, k3, k4)) {
         return nullptr;
     }
 

@@ -182,10 +182,11 @@ static void check_length(skiatest::Reporter* reporter,
 
 template <typename T>
 static void unittest_isfinite(skiatest::Reporter* reporter) {
+    const T zero = T(0);
+    const T plain = T(123);
     const T inf = std::numeric_limits<T>::infinity();
     const T big = std::numeric_limits<T>::max();
-    const T nan = inf * 0;
-    const T zero = 0;
+    const T nan = inf * zero;
 
     REPORTER_ASSERT(reporter, !SkIsNaN(inf));
     REPORTER_ASSERT(reporter, !SkIsNaN(-inf));
@@ -201,6 +202,21 @@ static void unittest_isfinite(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter,  SkIsFinite(big));
     REPORTER_ASSERT(reporter,  SkIsFinite(-big));
     REPORTER_ASSERT(reporter,  SkIsFinite(zero));
+
+    // SkIsFinite supports testing multiple values at once.
+    REPORTER_ASSERT(reporter, !SkIsFinite(inf, plain));
+    REPORTER_ASSERT(reporter, !SkIsFinite(plain, -inf));
+    REPORTER_ASSERT(reporter, !SkIsFinite(nan, plain));
+    REPORTER_ASSERT(reporter,  SkIsFinite(plain, big));
+    REPORTER_ASSERT(reporter,  SkIsFinite(-big, plain));
+    REPORTER_ASSERT(reporter,  SkIsFinite(plain, zero));
+
+    REPORTER_ASSERT(reporter, !SkIsFinite(inf, plain, plain));
+    REPORTER_ASSERT(reporter, !SkIsFinite(plain, -inf, plain));
+    REPORTER_ASSERT(reporter, !SkIsFinite(plain, plain, nan));
+    REPORTER_ASSERT(reporter,  SkIsFinite(big, plain, plain));
+    REPORTER_ASSERT(reporter,  SkIsFinite(plain, -big, plain));
+    REPORTER_ASSERT(reporter,  SkIsFinite(plain, plain, zero));
 }
 
 static void unittest_half(skiatest::Reporter* reporter) {

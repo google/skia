@@ -709,7 +709,7 @@ struct SK_API SkRect {
         @return  true if no member is infinite or NaN
     */
     bool isFinite() const {
-        return SkIsFinite(fLeft, fTop) && SkIsFinite(fRight, fBottom);
+        return SkIsFinite(fLeft, fTop, fRight, fBottom);
     }
 
     /** Returns left edge of SkRect, if sorted. Call isSorted() to see if SkRect is valid.

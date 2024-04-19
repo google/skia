@@ -2226,7 +2226,7 @@ private:
     DirChange directionChange(const SkVector& curVec) {
         SkScalar cross = SkPoint::CrossProduct(fLastVec, curVec);
         if (!SkIsFinite(cross)) {
-                return kUnknown_DirChange;
+            return kUnknown_DirChange;
         }
         if (cross == 0) {
             return fLastVec.dot(curVec) < 0 ? kBackwards_DirChange : kStraight_DirChange;
@@ -3760,7 +3760,7 @@ struct SkHalfPlane {
         b *= dscale;
         c *= dscale;
         // check if we're not finite, or normal is zero-length
-        if (!SkIsFinite(a, b) || !SkIsFinite(c) ||
+        if (!SkIsFinite(a, b, c) ||
             (a == 0 && b == 0)) {
             fA = fB = 0;
             fC = SK_Scalar1;

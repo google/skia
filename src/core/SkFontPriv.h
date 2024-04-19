@@ -76,9 +76,7 @@ public:
                                                    const SkPoint& textLocation);
 
     static bool IsFinite(const SkFont& font) {
-        return SkIsFinite(font.getSize()) &&
-               SkIsFinite(font.getScaleX()) &&
-               SkIsFinite(font.getSkewX());
+        return SkIsFinite(font.getSize(), font.getScaleX(), font.getSkewX());
     }
 
     // Returns the number of elements (characters or glyphs) in the array.

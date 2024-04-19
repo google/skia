@@ -1563,7 +1563,7 @@ bool SkMatrix::decomposeScale(SkSize* scale, SkMatrix* remaining) const {
 
     const SkScalar sx = SkVector::Length(this->getScaleX(), this->getSkewY());
     const SkScalar sy = SkVector::Length(this->getSkewX(), this->getScaleY());
-    if (!SkIsFinite(sx) || !SkIsFinite(sy) ||
+    if (!SkIsFinite(sx, sy) ||
         SkScalarNearlyZero(sx) || SkScalarNearlyZero(sy)) {
         return false;
     }

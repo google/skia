@@ -282,16 +282,15 @@ sk_sp<SkImageFilter> make_lighting(const Light& light,
                                    const SkImageFilters::CropRect& cropRect) {
     // According to the spec, ks and kd can be any non-negative number:
     // http://www.w3.org/TR/SVG/filters.html#feSpecularLightingElement
-    if (!SkIsFinite(material.fK) || material.fK < 0.f ||
-        !SkIsFinite(material.fShininess, ZValue(material.fSurfaceDepth))) {
+    if (!SkIsFinite(material.fK, material.fShininess, ZValue(material.fSurfaceDepth)) ||
+        material.fK < 0.f) {
         return nullptr;
     }
 
     // Ensure light values are finite, and the cosine should be between -1 and 1
-    if (!SkPoint(light.fLocationXY).isFinite() ||
-        !skif::Vector(light.fDirectionXY).isFinite() ||
-        !SkIsFinite(ZValue(light.fLocationZ), ZValue(light.fDirectionZ)) ||
-        !SkIsFinite(light.fFalloffExponent, light.fCosCutoffAngle) ||
+    if (!SkPoint(light.fLocationXY).isFinite() || !skif::Vector(light.fDirectionXY).isFinite() ||
+        !SkIsFinite(light.fFalloffExponent, light.fCosCutoffAngle,
+                    ZValue(light.fLocationZ), ZValue(light.fDirectionZ)) ||
         light.fCosCutoffAngle < -1.f || light.fCosCutoffAngle > 1.f) {
         return nullptr;
     }

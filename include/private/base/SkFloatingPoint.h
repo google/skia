@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <type_traits>
 
 inline constexpr float SK_FloatSqrt2 = 1.41421356f;
 inline constexpr float SK_FloatPI    = 3.14159265f;
@@ -36,54 +37,32 @@ static constexpr float sk_float_radians_to_degrees(float radians) {
 // as floatf(x + .5f), they would be 1 higher than expected.
 #define sk_float_round(x) (float)sk_double_round((double)(x))
 
-static inline bool SkIsNaN(float x) {
-    return x != x;
-}
-
-static inline bool SkIsNaN(double x) {
+template <typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+static inline bool SkIsNaN(T x) {
     return x != x;
 }
 
 // Subtracting a value from itself will result in zero, except for NAN or ±Inf, which make NAN.
+// Multiplying a group of values against zero will result in zero for each product, except for
+// NAN or ±Inf, which will result in NAN and continue resulting in NAN for the rest of the elements.
 // This generates better code than `std::isfinite` when building with clang-cl (April 2024).
-static inline bool SkIsFinite(float x) {
-    return (x - x) == 0;
+template <typename T, typename... Pack, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+static inline bool SkIsFinite(T x, Pack... values) {
+    T prod = x - x;
+    prod = (prod * ... * values);
+    // At this point, `prod` will either be NaN or 0.
+    return prod == prod;
 }
 
-static inline bool SkIsFinite(double x) {
-    return (x - x) == 0;
-}
-
-// Subtracting a value from itself will result in zero, except for NAN or ±Inf, which make NAN.
-// A NAN is not equal to any value, so a NAN or ±Inf in either `a` or `b` will cause the
-// comparison to evaluate as false.
-// If both `a` and `b` are finite, the comparison will reduce to `0 == 0`, which is true.
-static inline bool SkIsFinite(float a, float b) {
-    return (a - a) == (b - b);
-}
-
-static inline bool SkIsFinite(double a, double b) {
-    return (a - a) == (b - b);
-}
-
-// Multiplying a group of values against zero will result in zero at each iteration, except for
-// NAN or ±Inf, which will result in NAN and continue resulting in NAN for the rest of the loop.
-static inline bool SkIsFinite(const float array[], int count) {
-    float prod = 0.0f;
-    for (int i = 0; i < count; ++i) {
+template <typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
+static inline bool SkIsFinite(const T array[], int count) {
+    T x = array[0];
+    T prod = x - x;
+    for (int i = 1; i < count; ++i) {
         prod *= array[i];
     }
-    // At this point, prod will either be NaN or 0.
-    return prod == 0.0f;
-}
-
-static inline bool SkIsFinite(const double array[], int count) {
-    double prod = 0.0;
-    for (int i = 0; i < count; ++i) {
-        prod *= array[i];
-    }
-    // At this point, prod will either be NaN or 0.
-    return prod == 0.0;
+    // At this point, `prod` will either be NaN or 0.
+    return prod == prod;
 }
 
 inline constexpr int SK_MaxS32FitsInFloat = 2147483520;
