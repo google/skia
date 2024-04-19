@@ -115,64 +115,79 @@ std::u16string straight(const std::string& text) {
 }
 
 class ResourceFontCollection : public FontCollection {
+    static const std::vector<sk_sp<SkTypeface>>& getTypefaces() {
+        static std::vector<sk_sp<SkTypeface>> typefaces = []() -> std::vector<sk_sp<SkTypeface>> {
+            if (FLAGS_paragraph_fonts.size() == 0) {
+                return {};
+            }
+            TArray<SkString> paths;
+            {
+                SkString fontResources = GetResourcePath(FLAGS_paragraph_fonts[0]);
+                const char* fontDir = fontResources.c_str();
+                SkOSFile::Iter iter(fontDir);
+                SkString path;
+                while (iter.next(&path)) {
+                    if ((false)) {
+                        SkDebugf("Found font file: %s\n", path.c_str());
+                    }
+                    SkString fullPath;
+                    fullPath.printf("%s/%s", fontDir, path.c_str());
+                    paths.emplace_back(fullPath);
+                }
+                if (paths.size()) {
+                    SkTQSort(paths.begin(), paths.end(),
+                             [](const SkString& a, const SkString& b) {
+                                 return strcmp(a.c_str(), b.c_str()) < 0;
+                             });
+                }
+            }
+
+            sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
+            std::vector<sk_sp<SkTypeface>> typefaces;
+            bool fontsFound = false;
+            for (auto&& path : paths) {
+                if ((false)) {
+                    SkDebugf("Reading font: %s\n", path.c_str());
+                }
+                auto stream = SkStream::MakeFromFile(path.c_str());
+                SkASSERTF(stream, "%s not readable", path.c_str());
+                sk_sp<SkTypeface> typeface = mgr->makeFromStream(std::move(stream), {});
+                // Without --nativeFonts, DM will use the portable test font manager which does
+                // not know how to read in fonts from bytes.
+                if (typeface) {
+                    if ((false)) {
+                        SkString familyName;
+                        typeface->getFamilyName(&familyName);
+                        SkDebugf("Creating: %s size: %zu\n",
+                                 familyName.c_str(),
+                                 typeface->openExistingStream(nullptr)->getLength());
+                    }
+                    if (path.endsWith("Roboto-Italic.ttf")) {
+                        fontsFound = true;
+                    }
+                    typefaces.emplace_back(std::move(typeface));
+                } else {
+                    SkDEBUGF("%s was not turned into a Typeface. Did you set --nativeFonts?\n",
+                             path.c_str());
+                }
+            }
+            SkASSERTF_RELEASE(typefaces.size(), "--paragraph_fonts set but no fonts found."
+                                                "Did you set --nativeFonts?");
+            SkASSERTF_RELEASE(fontsFound, "--paragraph_fonts set but Roboto-Italic.ttf not found");
+            return typefaces;
+        }();
+        return typefaces;
+    }
 public:
     ResourceFontCollection(bool testOnly = false)
             : fFontsFound(false)
             , fResolvedFonts(0)
             , fFontProvider(sk_make_sp<TypefaceFontProvider>()) {
-        if (FLAGS_paragraph_fonts.size() == 0) {
-            return;
+        const std::vector<sk_sp<SkTypeface>>& typefaces = getTypefaces();
+        fFontsFound = !typefaces.empty();
+        for (auto&& typeface : typefaces) {
+            fFontProvider->registerTypeface(typeface);
         }
-        TArray<SkString> paths;
-        {
-            SkString fontResources = GetResourcePath(FLAGS_paragraph_fonts[0]);
-            const char* fontDir = fontResources.c_str();
-            SkOSFile::Iter iter(fontDir);
-            SkString path;
-            while (iter.next(&path)) {
-                if ((false)) {
-                    SkDebugf("Found font file: %s\n", path.c_str());
-                }
-                SkString fullPath;
-                fullPath.printf("%s/%s", fontDir, path.c_str());
-                paths.emplace_back(fullPath);
-            }
-            if (paths.size()) {
-                SkTQSort(paths.begin(), paths.end(),
-                            [](const SkString& a, const SkString& b) {
-                                return strcmp(a.c_str(), b.c_str()) < 0;
-                            });
-            }
-        }
-
-        sk_sp<SkFontMgr> mgr = ToolUtils::TestFontMgr();
-        for (auto&& path : paths) {
-            if ((false)) {
-                SkDebugf("Reading font: %s\n", path.c_str());
-            }
-            auto stream = SkStream::MakeFromFile(path.c_str());
-            SkASSERTF(stream, "%s not readable", path.c_str());
-            sk_sp<SkTypeface> face = mgr->makeFromStream(std::move(stream), {});
-            // Without --nativeFonts, DM will use the portable test font manager which does
-            // not know how to read in fonts from bytes.
-            if (face) {
-                if ((false)) {
-                    SkString familyName;
-                    face->getFamilyName(&familyName);
-                    SkDebugf("Registering: %s size: %zu\n",
-                             familyName.c_str(), face->openExistingStream(nullptr)->getLength());
-                }
-                fFontProvider->registerTypeface(std::move(face));
-                if (path.endsWith("Roboto-Italic.ttf")) {
-                    fFontsFound = true;
-                }
-            } else {
-                SkDEBUGF("%s was not turned into a Typeface. Did you set --nativeFonts?\n",
-                         path.c_str());
-            }
-        }
-        SkASSERTF(fFontProvider->countFamilies(), "No families found. Did you set --nativeFonts?");
-        SkASSERTF(fFontsFound, "--paragraph_fonts was set but didn't have the fonts we need");
 
         if (testOnly) {
             this->setTestFontManager(std::move(fFontProvider));
