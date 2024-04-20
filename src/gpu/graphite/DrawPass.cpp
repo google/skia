@@ -217,7 +217,7 @@ public:
     // by GraphicsPipelineCache::Index and possibly the UniformCache::Index (when not using SSBOs).
     // When using SSBOs, the buffer is the same for all UniformCache::Indices that share the same
     // pipeline (and is stored in index 0).
-    void writeUniforms(DrawBufferManager* bufferMgr) {
+    bool writeUniforms(DrawBufferManager* bufferMgr) {
         for (UniformCache& cache : fPerPipelineCaches) {
             if (cache.empty()) {
                 continue;
@@ -232,6 +232,9 @@ public:
             auto [writer, bufferInfo] =
                     fUseStorageBuffers ? bufferMgr->getSsboWriter(udbSize * cache.size())
                                        : bufferMgr->getUniformWriter(udbSize * cache.size());
+            if (!writer) {
+                return false; // Early out if buffer mapping failed
+            }
 
             uint32_t bindingSize;
             if (fUseStorageBuffers) {
@@ -257,6 +260,8 @@ public:
                 } // else keep bufferInfo pointing to the start of the array
             }
         }
+
+        return true;
     }
 
     // Updates the current tracked pipeline and uniform index and returns whether or not
@@ -479,6 +484,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     UniformDataCache geometryUniformDataCache;
     TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
     DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
+    if (bufferMgr->hasMappingFailed()) {
+        SKGPU_LOG_W("Buffer mapping has already failed; dropping draw pass!");
+        return nullptr;
+    }
 
     GraphicsPipelineCache pipelineCache;
 
@@ -572,8 +581,12 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         drawPass->fRequiresMSAA |= draw.fRenderer->requiresMSAA();
     }
 
-    geometryUniformTracker.writeUniforms(bufferMgr);
-    shadingUniformTracker.writeUniforms(bufferMgr);
+    if (!geometryUniformTracker.writeUniforms(bufferMgr) ||
+        !shadingUniformTracker.writeUniforms(bufferMgr)) {
+        // The necessary uniform data couldn't be written to the GPU, so the DrawPass is invalid.
+        // Early out now since the next Recording snap will fail.
+        return nullptr;
+    }
 
     // TODO: Explore sorting algorithms; in all likelihood this will be mostly sorted already, so
     // algorithms that approach O(n) in that condition may be favorable. Alternatively, could
@@ -655,6 +668,11 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                         : key.shadingUniformIndex();
         skvx::ushort2 ssboIndices = {SkToU16(geometrySsboIndex), SkToU16(shadingSsboIndex)};
         renderStep.writeVertices(&drawWriter, draw.fDrawParams, ssboIndices);
+
+        if (bufferMgr->hasMappingFailed()) {
+            SKGPU_LOG_W("Failed to write necessary vertex/instance data for DrawPass, dropping!");
+            return nullptr;
+        }
     }
     // Finish recording draw calls for any collected data at the end of the loop
     drawWriter.flush();

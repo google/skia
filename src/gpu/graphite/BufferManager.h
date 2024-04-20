@@ -18,7 +18,6 @@
 
 #include <array>
 #include <tuple>
-#include <vector>
 
 namespace skgpu::graphite {
 
@@ -102,14 +101,18 @@ public:
     DrawBufferManager(ResourceProvider*, const Caps*, UploadBufferManager*);
     ~DrawBufferManager();
 
-    std::tuple<VertexWriter, BindBufferInfo> getVertexWriter(size_t requiredBytes);
-    std::tuple<IndexWriter, BindBufferInfo> getIndexWriter(size_t requiredBytes);
-    std::tuple<UniformWriter, BindBufferInfo> getUniformWriter(size_t requiredBytes);
-    std::tuple<UniformWriter, BindBufferInfo> getSsboWriter(size_t requiredBytes);
+    // Let possible users check if the manager is already in a bad mapping state and skip any extra
+    // work that will be wasted because the next Recording snap will fail.
+    bool hasMappingFailed() const { return fMappingFailed; }
+
+    std::pair<VertexWriter, BindBufferInfo> getVertexWriter(size_t requiredBytes);
+    std::pair<IndexWriter, BindBufferInfo> getIndexWriter(size_t requiredBytes);
+    std::pair<UniformWriter, BindBufferInfo> getUniformWriter(size_t requiredBytes);
+    std::pair<UniformWriter, BindBufferInfo> getSsboWriter(size_t requiredBytes);
 
     // Return a pointer to a mapped storage buffer suballocation without a specific data writer.
-    std::tuple<void*, BindBufferInfo> getUniformPointer(size_t requiredBytes);
-    std::tuple<void*, BindBufferInfo> getStoragePointer(size_t requiredBytes);
+    std::pair<void* /* mappedPtr */, BindBufferInfo> getUniformPointer(size_t requiredBytes);
+    std::pair<void* /* mappedPtr */, BindBufferInfo> getStoragePointer(size_t requiredBytes);
 
     // Utilities that return an unmapped buffer suballocation for a particular usage. These buffers
     // are intended to be only accessed by the GPU and are not intended for CPU data uploads.
@@ -144,7 +147,8 @@ public:
         return SkAlignTo(dataSize, fCurrentBuffers[kUniformBufferIndex].fStartAlignment);
     }
 
-    // Finalizes all buffers and transfers ownership of them to a Recording.
+    // Finalizes all buffers and transfers ownership of them to a Recording. Should not call if
+    // hasMappingFailed() returns true.
     void transferToRecording(Recording*);
 
 private:
@@ -163,14 +167,17 @@ private:
         void* fTransferMapPtr = nullptr;
         size_t fOffset = 0;
     };
-    std::pair<void*, BindBufferInfo> prepareMappedBindBuffer(BufferInfo* info,
-                                                             size_t requiredBytes);
+    std::pair<void* /*mappedPtr*/, BindBufferInfo> prepareMappedBindBuffer(BufferInfo* info,
+                                                                           size_t requiredBytes);
     BindBufferInfo prepareBindBuffer(BufferInfo* info,
                                      size_t requiredBytes,
                                      bool supportCpuUpload = false,
                                      ClearBuffer cleared = ClearBuffer::kNo);
 
     sk_sp<Buffer> findReusableSbo(size_t bufferSize);
+
+    // Marks manager in a failed state, unmaps any previously collected buffers.
+    void onFailedBuffer();
 
     ResourceProvider* const fResourceProvider;
     const Caps* const fCaps;
@@ -187,7 +194,7 @@ private:
     std::array<BufferInfo, 8> fCurrentBuffers;
 
     // Vector of buffer and transfer buffer pairs.
-    std::vector<std::pair<sk_sp<Buffer>, BindBufferInfo>> fUsedBuffers;
+    skia_private::TArray<std::pair<sk_sp<Buffer>, BindBufferInfo>> fUsedBuffers;
 
     // List of buffer regions that were requested to be cleared at the time of allocation.
     skia_private::TArray<ClearBufferInfo> fClearList;
@@ -199,6 +206,10 @@ private:
     // VERTEX|INDEX|UNIFORM|STORAGE) to reduce buffer usage on platforms like Dawn where
     // host-written data always go through a copy via transfer buffer.
     skia_private::TArray<sk_sp<Buffer>> fReusableScratchStorageBuffers;
+
+    // If mapping failed on Buffers created/managed by this DrawBufferManager or by the mapped
+    // transfer buffers from the UploadManager, remember so that the next Recording will fail.
+    bool fMappingFailed = false;
 };
 
 /**
@@ -264,12 +275,15 @@ private:
 
     ResourceProvider* const fResourceProvider;
     UploadBufferManager fUploadManager;
+    const size_t fRequiredTransferAlignment;
 
     // The source data that's copied into a final GPU-private buffer
     BufferInfo fVertexBufferInfo;
     BufferInfo fIndexBufferInfo;
 
-    const size_t fRequiredTransferAlignment;
+    // If mapping failed on Buffers created/managed by this StaticBufferManager or by the mapped
+    // transfer buffers from the UploadManager, remember so that finalize() will fail.
+    bool fMappingFailed = false;
 };
 
 } // namespace skgpu::graphite

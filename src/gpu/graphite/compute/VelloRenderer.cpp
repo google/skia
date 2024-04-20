@@ -293,13 +293,13 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
 
     size_t uboSize = config->config_uniform_buffer_size();
     auto [uboPtr, configBuf] = bufMgr->getUniformPointer(uboSize);
-    if (!config->write_config_uniform_buffer(to_slice(uboPtr, uboSize))) {
+    if (!uboPtr || !config->write_config_uniform_buffer(to_slice(uboPtr, uboSize))) {
         return nullptr;
     }
 
     size_t sceneSize = config->scene_buffer_size();
     auto [scenePtr, sceneBuf] = bufMgr->getStoragePointer(sceneSize);
-    if (!config->write_scene_buffer(to_slice(scenePtr, sceneSize))) {
+    if (!scenePtr || !config->write_scene_buffer(to_slice(scenePtr, sceneSize))) {
         return nullptr;
     }
 
