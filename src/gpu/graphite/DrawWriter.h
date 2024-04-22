@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_DrawWriter_DEFINED
 #define skgpu_graphite_DrawWriter_DEFINED
 
+#include "src/base/SkAutoMalloc.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawTypes.h"
@@ -50,6 +51,10 @@ class List;
  *        instances.append(n) << ...;
  *  - fixed vertex, index, and instance data           ->
  *        writer.drawIndexedInstanced(vertices, indices, indexCount, instances, instanceCount)
+ *
+ * NOTE: DrawWriter automatically handles failures to find or create a GPU buffer or map it to
+ * be writable. All returned VertexWriters will have a non-null pointer to write to, even if it will
+ * be discarded due to GPU failure at Recorder::snap() time.
  */
 class DrawWriter {
 public:
@@ -191,6 +196,8 @@ private:
     DrawPassCommands::List* fCommandList;
     DrawBufferManager* fManager;
 
+    SkAutoMalloc fFailureStorage; // storage address for VertexWriter when GPU buffer mapping fails
+
     // Pipeline state matching currently bound pipeline
     PrimitiveType fPrimitiveType;
     size_t fVertexStride;
@@ -295,10 +302,19 @@ protected:
         SkASSERT(count > 0);
         this->reserve(count);
 
+        const size_t size = count * fStride;
+        if (!fNextWriter) SK_UNLIKELY {
+            // If the GPU mapped buffer failed, ensure we have a sufficiently large CPU address to
+            // write to so that RenderSteps don't have to worry about error handling. The Recording
+            // will fail since the map failure is tracked by BufferManager.
+            return VertexWriter(fDrawer.fFailureStorage.reset(size, SkAutoMalloc::kReuse_OnShrink),
+                                size);
+        }
+
         SkASSERT(fReservedCount >= count);
         fReservedCount -= count;
         fDrawer.fPendingCount += count;
-        return std::exchange(fNextWriter, fNextWriter.makeOffset(count * fStride));
+        return std::exchange(fNextWriter, fNextWriter.makeOffset(size));
     }
 };
 

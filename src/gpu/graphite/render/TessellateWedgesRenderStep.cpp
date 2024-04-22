@@ -87,11 +87,15 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(std::string_view variantN
     // problems, we can modify StaticBufferManager to de-duplicate requests.
     const size_t vertexSize = FixedCountWedges::VertexBufferSize();
     auto vertexData = bufferManager->getVertexWriter(vertexSize, &fVertexBuffer);
-    FixedCountWedges::WriteVertexBuffer(std::move(vertexData), vertexSize);
+    if (vertexData) {
+        FixedCountWedges::WriteVertexBuffer(std::move(vertexData), vertexSize);
+    } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 
     const size_t indexSize = FixedCountWedges::IndexBufferSize();
     auto indexData = bufferManager->getIndexWriter(indexSize, &fIndexBuffer);
-    FixedCountWedges::WriteIndexBuffer(std::move(indexData), indexSize);
+    if (indexData) {
+        FixedCountWedges::WriteIndexBuffer(std::move(indexData), indexSize);
+    } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 }
 
 TessellateWedgesRenderStep::~TessellateWedgesRenderStep() {}

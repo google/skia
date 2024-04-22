@@ -283,7 +283,9 @@ static void write_index_buffer(VertexWriter writer) {
         kTL+6 // close
     };
 
-    writer << kIndices;
+    if (writer) {
+        writer << kIndices;
+    } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 }
 
 static void write_vertex_buffer(VertexWriter writer) {
@@ -327,10 +329,12 @@ static void write_vertex_buffer(VertexWriter writer) {
         { {1.0f, 0.0f}, {1.0f, 0.0f}, kInset,  kCenter },
     };
 
-    writer << kCornerTemplate  // TL
-           << kCornerTemplate  // TR
-           << kCornerTemplate  // BR
-           << kCornerTemplate; // BL
+    if (writer) {
+        writer << kCornerTemplate  // TL
+               << kCornerTemplate  // TR
+               << kCornerTemplate  // BR
+               << kCornerTemplate; // BL
+    } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 }
 
 AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferManager)

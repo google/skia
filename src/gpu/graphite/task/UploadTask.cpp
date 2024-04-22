@@ -154,7 +154,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 
     UploadBufferManager* bufferMgr = recorder->priv().uploadBufferManager();
     auto [writer, bufferInfo] = bufferMgr->getTextureUploadWriter(combinedBufferSize, minAlignment);
-    if (!bufferInfo.fBuffer) {
+    if (!writer) {
         SKGPU_LOG_W("Failed to get write-mapped buffer for texture upload of size %zu",
                     combinedBufferSize);
         return Invalid();

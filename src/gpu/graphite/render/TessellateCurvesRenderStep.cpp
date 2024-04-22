@@ -81,11 +81,15 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd,
     // problems, we can modify StaticBufferManager to de-duplicate requests.
     const size_t vertexSize = FixedCountCurves::VertexBufferSize();
     auto vertexData = bufferManager->getVertexWriter(vertexSize, &fVertexBuffer);
-    FixedCountCurves::WriteVertexBuffer(std::move(vertexData), vertexSize);
+    if (vertexData) {
+        FixedCountCurves::WriteVertexBuffer(std::move(vertexData), vertexSize);
+    } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 
     const size_t indexSize = FixedCountCurves::IndexBufferSize();
     auto indexData = bufferManager->getIndexWriter(indexSize, &fIndexBuffer);
-    FixedCountCurves::WriteIndexBuffer(std::move(indexData), indexSize);
+    if (indexData) {
+        FixedCountCurves::WriteIndexBuffer(std::move(indexData), indexSize);
+    } // ""
 }
 
 TessellateCurvesRenderStep::~TessellateCurvesRenderStep() {}
