@@ -1,6 +1,10 @@
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 load("//bazel:macros.bzl", "exports_files_legacy", "wasm_cc_binary")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
 licenses(["notice"])
 
 exports_files_legacy()

@@ -318,6 +318,12 @@ def _CheckBazelBUILDFiles(input_api, output_api):
              'Add "skia_cc_library" to load("//bazel:macros.bzl", ...)')
             % affected_file_path
           ))
+        if 'default_applicable_licenses' not in contents:
+          # See https://opensource.google/documentation/reference/thirdparty/new_license_rules
+          results.append(output_api.PresubmitError(
+            ('%s needs to have\npackage(default_applicable_licenses = ["//:license"])\n'+
+             'to comply with G3 policies') % affected_file_path
+          ))
   return results
 
 

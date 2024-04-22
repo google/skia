@@ -16,6 +16,7 @@ load("//bazel:flags.bzl", "selects")
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_cc_library", "skia_filegroup")
 
 package(
+    default_applicable_licenses = ["//:license"],
     features = [
         # While the OPTS_HDRS are already pulled in as textual_headers,
         # any implicit dependency on the system headers also needs to be textual.

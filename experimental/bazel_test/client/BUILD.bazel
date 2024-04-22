@@ -1,7 +1,5 @@
 load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers")
 
-package(features = ["layering_check"])
-
 cc_library(
     name = "client_lib",
     srcs = [
@@ -10,6 +8,7 @@ cc_library(
     ],
     hdrs = ["gizmo.h"],
     copts = ["-Wno-pragma-once-outside-header"],
+    features = ["layering_check"],
     deps = [
         "//experimental/bazel_test/base",
         "//experimental/bazel_test/core",
@@ -19,6 +18,7 @@ cc_library(
 cc_binary(
     name = "client",
     srcs = ["main.cpp"],
+    features = ["layering_check"],
     deps = [":client_lib"],
 )
 

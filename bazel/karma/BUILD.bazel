@@ -1,6 +1,10 @@
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
 load("//bazel:macros.bzl", "exports_files_legacy")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
 licenses(["notice"])
 
 exports_files_legacy()

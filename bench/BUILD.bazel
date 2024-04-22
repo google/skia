@@ -8,6 +8,10 @@ load(
 )
 load("//tools/testrunners/benchmark:android_benchmark_test.bzl", "android_benchmark_test")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
 licenses(["notice"])
 
 exports_files_legacy()

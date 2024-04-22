@@ -2,6 +2,10 @@ load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_
 load("//tools/testrunners/gm:android_gm_test.bzl", "android_gm_test")
 load(":png_codec.bzl", "png_codec_tests")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
 licenses(["notice"])
 
 exports_files_legacy()

@@ -453,6 +453,7 @@ func GenTasks(cfg *Config) {
 			"skia/.bazelrc",
 			"skia/.bazelversion",
 			"skia/BUILD.bazel",
+			"skia/LICENSE", // Referred to by default_applicable_licenses
 			"skia/WORKSPACE.bazel",
 			"skia/bazel",
 			"skia/defines.bzl",
@@ -566,8 +567,10 @@ func GenTasks(cfg *Config) {
 			"skia/.bazelrc",
 			"skia/.bazelversion",
 			"skia/BUILD.bazel",
+			"skia/LICENSE",
 			"skia/WORKSPACE.bazel",
 			"skia/bazel",
+			"skia/defines.bzl",
 			"skia/go_repositories.bzl",
 			"skia/include/config", // There's a WORKSPACE.bazel in here
 			"skia/requirements.txt",

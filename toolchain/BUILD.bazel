@@ -4,6 +4,10 @@ load(":linux_amd64_toolchain_config.bzl", "provide_linux_amd64_toolchain_config"
 load(":mac_toolchain_config.bzl", "provide_mac_toolchain_config")
 load(":ndk_linux_arm64_toolchain_config.bzl", "ndk_cc_toolchain_config")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
 licenses(["notice"])
 
 exports_files_legacy()

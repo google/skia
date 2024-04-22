@@ -1,6 +1,10 @@
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary_with_flags", "skia_cc_library", "skia_filegroup")
 load(":compile_sksl.bzl", "compile_sksl")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
 licenses(["notice"])
 
 exports_files_legacy()

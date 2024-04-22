@@ -5,6 +5,10 @@ load(
     "skia_filegroup",
 )
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
 licenses(["notice"])
 
 exports_files_legacy()

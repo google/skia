@@ -1,3 +1,7 @@
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
 licenses(["notice"])
 # TODO(kjlubick) remove this after G3 rolls
 

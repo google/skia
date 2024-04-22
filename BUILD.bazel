@@ -1,11 +1,24 @@
 load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
 load("//bazel:gen_compile_flags_txt_linux_amd64.bzl", "gen_compile_flags_txt_linux_amd64")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_objc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
+load("@rules_license//rules:license.bzl", "license")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+# https://opensource.google/documentation/reference/thirdparty/new_license_rules
+# https://github.com/bazelbuild/rules_license/blob/bcffeb0c481d178cbee69bdc7e23ef22d3a087b1/rules/license.bzl
+license(
+    name = "license",
+    license_kinds = ["@rules_license//licenses/generic:notice"],
+    license_text = "LICENSE",
+)
 
 licenses(["notice"])
 
-exports_files_legacy()
+exports_files(["LICENSE"])
 
 # All the mm files from the Skia library are rolled up to this objc library since cc_library
 # ignores mm files. This private library is then deps'ed into the public and internal versions

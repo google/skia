@@ -1,9 +1,12 @@
 load("//bazel:flags.bzl", "bool_flag", "selects", "string_flag_with_values")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
 licenses(["notice"])
 
 # @platforms is found at https://github.com/bazelbuild/platforms
-package(default_visibility = ["//:__subpackages__"])
 
 config_setting(
     name = "linux_x64",
