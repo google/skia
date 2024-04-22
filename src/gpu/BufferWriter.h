@@ -476,7 +476,7 @@ struct TextureUploadWriter : public BufferWriter {
     // `srcRowBytes` wide, and the written block is `dstRowBytes` wide and `rowCount` bytes tall.
     void write(size_t offset, const void* src, size_t srcRowBytes, size_t dstRowBytes,
                size_t trimRowBytes, int rowCount) {
-        if (this->validate(dstRowBytes * rowCount)) {
+        if (this->validate(offset + dstRowBytes * rowCount)) {
             void* dst = SkTAddOffset<void>(fPtr, offset);
             SkRectMemcpy(dst, dstRowBytes, src, srcRowBytes, trimRowBytes, rowCount);
         }
@@ -486,7 +486,7 @@ struct TextureUploadWriter : public BufferWriter {
                          const SkImageInfo& srcInfo, const void* src, size_t srcRowBytes,
                          const SkImageInfo& dstInfo, size_t dstRowBytes) {
         SkASSERT(srcInfo.width() == dstInfo.width() && srcInfo.height() == dstInfo.height());
-        if (this->validate(dstRowBytes * dstInfo.height())) {
+        if (this->validate(offset + dstRowBytes * dstInfo.height())) {
             void* dst = SkTAddOffset<void>(fPtr, offset);
             SkAssertResult(SkConvertPixels(dstInfo, dst, dstRowBytes, srcInfo, src, srcRowBytes));
         }
@@ -496,16 +496,18 @@ struct TextureUploadWriter : public BufferWriter {
     // colorType into a 3 channel RGB_888 format.
     void writeRGBFromRGBx(size_t offset, const void* src, size_t srcRowBytes, size_t dstRowBytes,
                           int rowPixels, int rowCount) {
-        void* dst = SkTAddOffset<void>(fPtr, offset);
-        auto* sRow = reinterpret_cast<const char*>(src);
-        auto* dRow = reinterpret_cast<char*>(dst);
+        if (this->validate(offset + dstRowBytes * rowCount)) {
+            void* dst = SkTAddOffset<void>(fPtr, offset);
+            auto* sRow = reinterpret_cast<const char*>(src);
+            auto* dRow = reinterpret_cast<char*>(dst);
 
-        for (int y = 0; y < rowCount; ++y) {
-            for (int x = 0; x < rowPixels; ++x) {
-                memcpy(dRow + 3*x, sRow+4*x, 3);
+            for (int y = 0; y < rowCount; ++y) {
+                for (int x = 0; x < rowPixels; ++x) {
+                    memcpy(dRow + 3*x, sRow+4*x, 3);
+                }
+                sRow += srcRowBytes;
+                dRow += dstRowBytes;
             }
-            sRow += srcRowBytes;
-            dRow += dstRowBytes;
         }
     }
 };

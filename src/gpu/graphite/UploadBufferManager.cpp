@@ -77,6 +77,7 @@ std::tuple<void*/*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInfo
                 kReusedBufferSize, BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
         fReusedBufferOffset = 0;
         if (!fReusedBuffer || !fReusedBuffer->map()) {
+            fReusedBuffer = nullptr;
             return {nullptr, BindBufferInfo()};
         }
     }
