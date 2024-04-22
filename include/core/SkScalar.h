@@ -63,18 +63,6 @@ typedef float SkScalar;
 #define SkScalarToDouble(x)     static_cast<double>(x)
 #define SkDoubleToScalar(x)     sk_double_to_float(x)
 
-// DEPRECATED: use std::isnan instead.
-static inline bool SkScalarIsNaN(SkScalar x) { return SkIsNaN(x); }
-
-// DEPRECATED: use std::isfinite instead.
-static inline bool SkScalarIsFinite(SkScalar x) { return SkIsFinite(x); }
-
-// DEPRECATED: use std::isfinite instead.
-static inline bool SkScalarsAreFinite(SkScalar a, SkScalar b) { return SkIsFinite(a, b); }
-
-// DEPRECATED: use std::isfinite instead.
-static inline bool SkScalarsAreFinite(const SkScalar p[], int n) { return SkIsFinite(p, n); }
-
 /** Returns the fractional part of the scalar. */
 static inline SkScalar SkScalarFraction(SkScalar x) {
     return x - SkScalarTruncToScalar(x);
