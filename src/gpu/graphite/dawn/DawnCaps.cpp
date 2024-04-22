@@ -532,11 +532,13 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
     // Format: R8Unorm
     {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::R8Unorm)];
-        info->fFlags = FormatInfo::kAllFlags;
 #if !defined(__EMSCRIPTEN__)
+        info->fFlags = FormatInfo::kAllFlags;
         if (!device.HasFeature(wgpu::FeatureName::R8UnormStorage)) {
             info->fFlags &= ~FormatInfo::kStorage_Flag;
         }
+#else
+        info->fFlags = FormatInfo::kAllFlags & ~FormatInfo::kStorage_Flag;
 #endif
         info->fColorTypeInfoCount = 3;
         info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
