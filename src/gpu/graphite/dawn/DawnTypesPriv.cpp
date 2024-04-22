@@ -10,7 +10,7 @@
 namespace skgpu::graphite {
 
 SkString DawnTextureSpec::toString() const {
-    return SkStringPrintf("format=0x%08X,viewFormat=0x%08X,usage=0x%08X,aspect=0x%08X,slice=%d",
+    return SkStringPrintf("format=0x%08X,viewFormat=0x%08X,usage=0x%08X,aspect=0x%08X,slice=%u",
                           static_cast<unsigned int>(fFormat),
                           static_cast<unsigned int>(fViewFormat),
                           static_cast<unsigned int>(fUsage),
