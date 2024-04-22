@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/geom/RectBlurData.h"
+#include "src/gpu/graphite/geom/AnalyticBlurMask.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkMatrix.h"
@@ -20,10 +20,10 @@
 
 namespace skgpu::graphite {
 
-std::optional<RectBlurData> RectBlurData::Make(Recorder* recorder,
-                                               const Transform& localToDeviceTransform,
-                                               float deviceSigma,
-                                               const SkRRect& srcRRect) {
+std::optional<AnalyticBlurMask> AnalyticBlurMask::Make(Recorder* recorder,
+                                                       const Transform& localToDeviceTransform,
+                                                       float deviceSigma,
+                                                       const SkRRect& srcRRect) {
     // TODO: Implement SkMatrix functionality used below for Transform.
     SkMatrix localToDevice = localToDeviceTransform;
 
@@ -45,10 +45,10 @@ std::optional<RectBlurData> RectBlurData::Make(Recorder* recorder,
     }
 }
 
-std::optional<RectBlurData> RectBlurData::MakeRect(Recorder* recorder,
-                                                   const SkMatrix& localToDevice,
-                                                   float devSigma,
-                                                   const SkRect& srcRect) {
+std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRect(Recorder* recorder,
+                                                           const SkMatrix& localToDevice,
+                                                           float devSigma,
+                                                           const SkRect& srcRect) {
     SkASSERT(srcRect.isSorted());
 
     SkRect devRect;
@@ -133,13 +133,13 @@ std::optional<RectBlurData> RectBlurData::MakeRect(Recorder* recorder,
     }
     const Rect drawBounds = srcRect.makeOutset(outsetX, outsetY);
 
-    return RectBlurData(drawBounds,
-                        SkM44(devToScaledShape),
-                        shapeData,
-                        ShapeType::kRect,
-                        isFast,
-                        invSixSigma,
-                        integral);
+    return AnalyticBlurMask(drawBounds,
+                            SkM44(devToScaledShape),
+                            shapeData,
+                            ShapeType::kRect,
+                            isFast,
+                            invSixSigma,
+                            integral);
 }
 
 }  // namespace skgpu::graphite

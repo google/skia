@@ -71,7 +71,7 @@ public:
     // Per-edge AA quadrilaterals
     const Renderer* perEdgeAAQuad() const { return &fPerEdgeAAQuad; }
 
-    const Renderer* rectBlur() const { return &fRectBlur; }
+    const Renderer* analyticBlur() const { return &fAnalyticBlur; }
 
     // TODO: May need to add support for inverse filled strokes (need to check SVG spec if this is a
     // real thing).
@@ -120,7 +120,7 @@ private:
     Renderer fAnalyticRRect;
     Renderer fPerEdgeAAQuad;
 
-    Renderer fRectBlur;
+    Renderer fAnalyticBlur;
 
     Renderer fVertices[kVerticesCount];
 

@@ -5,17 +5,17 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_render_RectBlurRenderStep_DEFINED
-#define skgpu_graphite_render_RectBlurRenderStep_DEFINED
+#ifndef skgpu_graphite_render_AnalyticBlurRenderStep_DEFINED
+#define skgpu_graphite_render_AnalyticBlurRenderStep_DEFINED
 
 #include "src/gpu/graphite/Renderer.h"
 
 namespace skgpu::graphite {
 
-class RectBlurRenderStep final : public RenderStep {
+class AnalyticBlurRenderStep final : public RenderStep {
 public:
-    RectBlurRenderStep();
-    ~RectBlurRenderStep() override = default;
+    AnalyticBlurRenderStep();
+    ~AnalyticBlurRenderStep() override = default;
 
     std::string vertexSkSL() const override;
     std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,
@@ -28,4 +28,4 @@ public:
 
 }  // namespace skgpu::graphite
 
-#endif  // skgpu_render_RectBlurRenderStep_DEFINED
+#endif  // skgpu_render_AnalyticBlurRenderStep_DEFINED

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_geom_RectBlurData_DEFINED
-#define skgpu_graphite_geom_RectBlurData_DEFINED
+#ifndef skgpu_graphite_geom_AnalyticBlurMask_DEFINED
+#define skgpu_graphite_geom_AnalyticBlurMask_DEFINED
 
 #include "include/core/SkM44.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -23,9 +23,10 @@ class Recorder;
 class Transform;
 
 /**
- * RectBlurData holds the shader inputs used to do an analytic blur over rects, rrects, or circles.
+ * AnalyticBlurMask holds the shader inputs used to do an analytic blur over rects, rrects, or
+ * circles.
  */
-class RectBlurData {
+class AnalyticBlurMask {
 public:
     enum class ShapeType {
         kRect,
@@ -34,18 +35,18 @@ public:
     };
 
     static_assert(0 == static_cast<int>(ShapeType::kRect),
-                  "Blur shader code depends on RectBlurData::ShapeType");
+                  "Blur shader code depends on AnalyticBlurMask::ShapeType");
     static_assert(1 == static_cast<int>(ShapeType::kRRect),
-                  "Blur shader code depends on RectBlurData::ShapeType");
+                  "Blur shader code depends on AnalyticBlurMask::ShapeType");
     static_assert(2 == static_cast<int>(ShapeType::kCircle),
-                  "Blur shader code depends on RectBlurData::ShapeType");
+                  "Blur shader code depends on AnalyticBlurMask::ShapeType");
 
-    RectBlurData() = delete;
+    AnalyticBlurMask() = delete;
 
-    static std::optional<RectBlurData> Make(Recorder*,
-                                            const Transform& localToDevice,
-                                            float deviceSigma,
-                                            const SkRRect& srcRRect);
+    static std::optional<AnalyticBlurMask> Make(Recorder*,
+                                                const Transform& localToDevice,
+                                                float deviceSigma,
+                                                const SkRRect& srcRRect);
 
     const Rect& drawBounds() const { return fDrawBounds; }
     const SkM44& deviceToScaledShape() const { return fDevToScaledShape; }
@@ -56,13 +57,13 @@ public:
     sk_sp<TextureProxy> refProxy() const { return fProxy; }
 
 private:
-    RectBlurData(const Rect& drawBounds,
-                 const SkM44& devToScaledShape,
-                 const Rect& shapeData,
-                 ShapeType shapeType,
-                 bool isFast,
-                 float invSixSigma,
-                 sk_sp<TextureProxy> proxy)
+    AnalyticBlurMask(const Rect& drawBounds,
+                     const SkM44& devToScaledShape,
+                     const Rect& shapeData,
+                     ShapeType shapeType,
+                     bool isFast,
+                     float invSixSigma,
+                     sk_sp<TextureProxy> proxy)
             : fDrawBounds(drawBounds)
             , fDevToScaledShape(devToScaledShape)
             , fShapeData(shapeData)
@@ -71,10 +72,10 @@ private:
             , fInvSixSigma(invSixSigma)
             , fProxy(std::move(proxy)) {}
 
-    static std::optional<RectBlurData> MakeRect(Recorder*,
-                                                const SkMatrix& localToDevice,
-                                                float devSigma,
-                                                const SkRect& srcRect);
+    static std::optional<AnalyticBlurMask> MakeRect(Recorder*,
+                                                    const SkMatrix& localToDevice,
+                                                    float devSigma,
+                                                    const SkRect& srcRect);
 
     // Draw bounds in local space.
     Rect fDrawBounds;
@@ -95,4 +96,4 @@ private:
 
 }  // namespace skgpu::graphite
 
-#endif  // skgpu_graphite_geom_RectBlurData_DEFINED
+#endif  // skgpu_graphite_geom_AnalyticBlurMask_DEFINED

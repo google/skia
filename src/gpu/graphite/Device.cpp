@@ -1297,8 +1297,8 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         SkASSERT(!requireMSAA && style.isFillStyle());
         // handled by specialized system, simplified from rects and round rects
         return {renderers->perEdgeAAQuad(), nullptr};
-    } else if (geometry.isRectBlur()) {
-        return {renderers->rectBlur(), nullptr};
+    } else if (geometry.isAnalyticBlur()) {
+        return {renderers->analyticBlur(), nullptr};
     } else if (!geometry.isShape()) {
         // We must account for new Geometry types with specific Renderers
         return {nullptr, nullptr};
@@ -1684,13 +1684,13 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
         return true;
     }
 
-    std::optional<RectBlurData> rectBlurData = RectBlurData::Make(
+    std::optional<AnalyticBlurMask> analyticBlur = AnalyticBlurMask::Make(
             this->recorder(), this->localToDeviceTransform(), deviceSigma, rrect);
-    if (!rectBlurData) {
+    if (!analyticBlur) {
         return false;
     }
 
-    this->drawGeometry(this->localToDeviceTransform(), Geometry(*rectBlurData), paint, style);
+    this->drawGeometry(this->localToDeviceTransform(), Geometry(*analyticBlur), paint, style);
     return true;
 }
 
