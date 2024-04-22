@@ -123,13 +123,16 @@ std::pair<wgpu::TextureView, wgpu::TextureView> DawnTexture::CreateTextureViews(
         const wgpu::Texture& texture, const TextureInfo& info) {
     const auto aspect = info.dawnTextureSpec().fAspect;
     if (aspect == wgpu::TextureAspect::All) {
-        wgpu::TextureView sampleTextureView = texture.CreateView();
+        wgpu::TextureViewDescriptor viewDesc = {};
+        viewDesc.dimension = wgpu::TextureViewDimension::e2D;
+        viewDesc.baseArrayLayer = info.dawnTextureSpec().fSlice;
+        viewDesc.arrayLayerCount = 1;
+        wgpu::TextureView sampleTextureView = texture.CreateView(&viewDesc);
         wgpu::TextureView renderTextureView;
         if (info.mipmapped() == Mipmapped::kYes) {
-            wgpu::TextureViewDescriptor renderViewDesc = {};
-            renderViewDesc.baseMipLevel = 0;
-            renderViewDesc.mipLevelCount = 1;
-            renderTextureView = texture.CreateView(&renderViewDesc);
+            viewDesc.baseMipLevel = 0;
+            viewDesc.mipLevelCount = 1;
+            renderTextureView = texture.CreateView(&viewDesc);
         } else {
             renderTextureView = sampleTextureView;
         }
@@ -146,7 +149,10 @@ std::pair<wgpu::TextureView, wgpu::TextureView> DawnTexture::CreateTextureViews(
     wgpu::TextureView planeTextureView;
     wgpu::TextureViewDescriptor planeViewDesc = {};
     planeViewDesc.format = info.dawnTextureSpec().fViewFormat;
+    planeViewDesc.dimension = wgpu::TextureViewDimension::e2D;
     planeViewDesc.aspect = aspect;
+    planeViewDesc.baseArrayLayer = info.dawnTextureSpec().fSlice;
+    planeViewDesc.arrayLayerCount = 1;
     planeTextureView = texture.CreateView(&planeViewDesc);
     return {planeTextureView, planeTextureView};
 #endif

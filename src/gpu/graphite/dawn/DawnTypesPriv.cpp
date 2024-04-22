@@ -10,11 +10,12 @@
 namespace skgpu::graphite {
 
 SkString DawnTextureSpec::toString() const {
-    return SkStringPrintf("format=0x%08X,viewFormat=0x%08X,usage=0x%08X,aspect=0x%08X",
+    return SkStringPrintf("format=0x%08X,viewFormat=0x%08X,usage=0x%08X,aspect=0x%08X,slice=%d",
                           static_cast<unsigned int>(fFormat),
                           static_cast<unsigned int>(fViewFormat),
                           static_cast<unsigned int>(fUsage),
-                          static_cast<unsigned int>(fAspect));
+                          static_cast<unsigned int>(fAspect),
+                          fSlice);
 }
 
 DawnTextureInfo DawnTextureInfoFromWGPUTexture(WGPUTexture texture) {
@@ -25,7 +26,7 @@ DawnTextureInfo DawnTextureInfoFromWGPUTexture(WGPUTexture texture) {
             /*format=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
             /*viewFormat=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
             static_cast<wgpu::TextureUsage>(wgpuTextureGetUsage(texture)),
-            wgpu::TextureAspect::All);
+            wgpu::TextureAspect::All, /*slice=*/0);
 }
 
 DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,

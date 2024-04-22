@@ -19,11 +19,13 @@ struct DawnTextureSpec {
             : fFormat(info.fFormat)
             , fViewFormat(info.fViewFormat)
             , fUsage(info.fUsage)
-            , fAspect(info.fAspect) {}
+            , fAspect(info.fAspect)
+            , fSlice(info.fSlice) {}
 
     bool operator==(const DawnTextureSpec& that) const {
         return fUsage == that.fUsage && fFormat == that.fFormat &&
-               fViewFormat == that.fViewFormat && fAspect == that.fAspect;
+               fViewFormat == that.fViewFormat && fAspect == that.fAspect &&
+               fSlice == that.fSlice;
     }
 
     bool isCompatible(const DawnTextureSpec& that) const {
@@ -45,6 +47,7 @@ struct DawnTextureSpec {
     wgpu::TextureFormat fViewFormat = wgpu::TextureFormat::Undefined;
     wgpu::TextureUsage fUsage = wgpu::TextureUsage::None;
     wgpu::TextureAspect fAspect = wgpu::TextureAspect::All;
+    uint32_t fSlice = 0;
 };
 
 DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,
