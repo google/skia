@@ -433,6 +433,7 @@ SkBitmap CreateCircleProfile(float sigma, float radius, int profileWidth) {
     // Ensure the tail of the Gaussian goes to zero.
     profile[numSteps - 1] = 0;
 
+    bitmap.setImmutable();
     return bitmap;
 }
 
@@ -470,6 +471,7 @@ SkBitmap CreateHalfPlaneProfile(int profileWidth) {
     // Ensure the tail of the Gaussian goes to zero.
     profile[profileWidth - 1] = 0;
 
+    bitmap.setImmutable();
     return bitmap;
 }
 

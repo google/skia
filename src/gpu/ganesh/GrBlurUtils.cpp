@@ -485,7 +485,6 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
         SkScalar scale = kProfileTextureWidth / *textureRadius;
         bm = skgpu::CreateCircleProfile(sigma * scale, circleR * scale, kProfileTextureWidth);
     }
-    bm.setImmutable();
 
     profileView = std::get<0>(GrMakeUncachedBitmapProxyView(rContext, bm));
     if (!profileView) {
