@@ -1472,7 +1472,14 @@ void Device::flushPendingWorkToRecorder(Recorder* recorder) {
     } else {
         // Non-scratch devices do not need to point back to the last snapped task since they are
         // always added to the root task list.
-        SkASSERT(!fLastTask);
+        // TODO: It is currently possible for scratch devices to be flushed and instantiated before
+        // their work is finished, meaning they will produce additional tasks to be included in
+        // a follow-up Recording: https://chat.google.com/room/AAAA2HlH94I/YU0XdFqX2Uw.
+        // However, in this case they no longer appear scratch because the first Recording
+        // instantiated the targets. When scratch devices are not actually registered with the
+        // Recorder and are only included when they are drawn (e.g. restored), we should be able to
+        // assert that `fLastTask` is null.
+        fLastTask = nullptr;
     }
 
     if (drawTask) {
