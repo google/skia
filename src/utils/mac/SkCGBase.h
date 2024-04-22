@@ -25,11 +25,11 @@
 // Skia extensions for types in CGBase.h
 
 static inline CGFloat SkScalarToCGFloat(SkScalar scalar) {
-    return CGFLOAT_IS_DOUBLE ? SkScalarToDouble(scalar) : SkScalarToFloat(scalar);
+    return CGFLOAT_IS_DOUBLE ? SkScalarToDouble(scalar) : scalar;
 }
 
 static inline SkScalar SkScalarFromCGFloat(CGFloat cgFloat) {
-    return CGFLOAT_IS_DOUBLE ? SkDoubleToScalar(cgFloat) : SkFloatToScalar(cgFloat);
+    return CGFLOAT_IS_DOUBLE ? SkDoubleToScalar(cgFloat) : cgFloat;
 }
 
 static inline float SkFloatFromCGFloat(CGFloat cgFloat) {

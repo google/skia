@@ -389,7 +389,7 @@ static bool can_filter_mask(const SkMaskFilterBase* maskFilter,
     }
 
     if (maskRect) {
-        float sigma3 = 3 * SkScalarToFloat(xformedSigma);
+        float sigma3 = 3 * xformedSigma;
 
         // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.
         SkIRect clipRect = clipBounds.makeOutset(sigma3, sigma3);

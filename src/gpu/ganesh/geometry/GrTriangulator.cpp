@@ -136,8 +136,8 @@ void GrTriangulator::VertexList::remove(Vertex* v) {
 // Round to nearest quarter-pixel. This is used for screenspace tessellation.
 
 static inline void round(SkPoint* p) {
-    p->fX = SkScalarRoundToScalar(p->fX * SkFloatToScalar(4.0f)) * SkFloatToScalar(0.25f);
-    p->fY = SkScalarRoundToScalar(p->fY * SkFloatToScalar(4.0f)) * SkFloatToScalar(0.25f);
+    p->fX = SkScalarRoundToScalar(p->fX * 4.0f) * 0.25f;
+    p->fY = SkScalarRoundToScalar(p->fY * 4.0f) * 0.25f;
 }
 
 static inline SkScalar double_to_clamped_scalar(double d) {

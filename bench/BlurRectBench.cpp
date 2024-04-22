@@ -81,7 +81,7 @@ class BlurRectDirectBench: public BlurRectBench {
         SkString name;
 
         if (SkScalarFraction(rad) != 0) {
-            name.printf("blurrect_direct_%.2f", SkScalarToFloat(rad));
+            name.printf("blurrect_direct_%.2f", rad);
         } else {
             name.printf("blurrect_direct_%d", SkScalarRoundToInt(rad));
         }
@@ -133,7 +133,7 @@ public:
         SkString name;
 
         if (SkScalarFraction(rad) != 0) {
-            name.printf("blurrect_boxfilter_%.2f", SkScalarToFloat(rad));
+            name.printf("blurrect_boxfilter_%.2f", rad);
         } else {
             name.printf("blurrect_boxfilter_%d", SkScalarRoundToInt(rad));
         }
@@ -161,7 +161,7 @@ public:
         SkString name;
 
         if (SkScalarFraction(rad) != 0) {
-            name.printf("blurrect_gaussian_%.2f", SkScalarToFloat(rad));
+            name.printf("blurrect_gaussian_%.2f", rad);
         } else {
             name.printf("blurrect_gaussian_%d", SkScalarRoundToInt(rad));
         }

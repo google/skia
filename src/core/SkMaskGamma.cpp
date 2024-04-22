@@ -88,7 +88,7 @@ void SkTMaskGamma_build_correcting_lut(uint8_t table[256], U8CPU srcI, SkScalar 
     const float linDst = dstConvert.toLuma(dstGamma, dst);
 
     //Contrast value tapers off to 0 as the src luminance becomes white
-    const float adjustedContrast = SkScalarToFloat(contrast) * linDst;
+    const float adjustedContrast = contrast * linDst;
 
     //Remove discontinuity and instability when src is close to dst.
     //The value 1/256 is arbitrary and appears to contain the instability.

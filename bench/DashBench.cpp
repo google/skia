@@ -215,7 +215,7 @@ class DashLineBench : public Benchmark {
 
 public:
     DashLineBench(SkScalar width, bool isRound)  {
-        fName.printf("dashline_%g_%s", SkScalarToFloat(width), isRound ? "circle" : "square");
+        fName.printf("dashline_%g_%s", width, isRound ? "circle" : "square");
         fStrokeWidth = width;
         fIsRound = isRound;
 

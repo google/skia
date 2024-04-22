@@ -69,10 +69,10 @@ public:
       , fSigmaX(sigmaX)
       , fSigmaY(sigmaY) {
         fName.printf("blur_image_filter_%s%s%s_%.2f_%.2f",
-            fIsSmall ? "small" : "large",
-            fIsCropped ? "_cropped" : "",
-            fIsExpanded ? "_expanded" : "",
-            SkScalarToFloat(sigmaX), SkScalarToFloat(sigmaY));
+                     fIsSmall ? "small" : "large",
+                     fIsCropped ? "_cropped" : "",
+                     fIsExpanded ? "_expanded" : "",
+                     sigmaX, sigmaY);
         SkASSERT(!fIsExpanded || fIsCropped); // never want expansion w/o cropping
     }
 

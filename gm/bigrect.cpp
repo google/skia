@@ -102,8 +102,7 @@ DEF_SIMPLE_GM(bigrect, canvas, 325, 125) {
                 paint.setAntiAlias(false);
             }
 
-            const SkScalar big = SkFloatToScalar(sizes[j]);
-            draw_big_rect(canvas, big, paint);
+            draw_big_rect(canvas, sizes[j], paint);
             canvas->restore();
         }
     }

@@ -85,7 +85,7 @@ inline void AppendColorComponentF(float value, SkWStream* wStream) {
 
 inline void AppendScalar(SkScalar value, SkWStream* stream) {
     char result[kMaximumSkFloatToDecimalLength];
-    size_t len = SkFloatToDecimal(SkScalarToFloat(value), result);
+    size_t len = SkFloatToDecimal(value, result);
     SkASSERT(len < kMaximumSkFloatToDecimalLength);
     stream->write(result, len);
 }

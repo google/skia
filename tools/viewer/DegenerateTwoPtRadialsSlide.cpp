@@ -57,7 +57,7 @@ public:
         SkScalar t = SK_Scalar1 * 100;
         draw_gradient2(canvas, SkRect::MakeXYWH(l, t, w, h), delta);
         SkString txt;
-        txt.appendf("gap at \"tangent\" pt = %f", SkScalarToFloat(delta));
+        txt.appendf("gap at \"tangent\" pt = %f", delta);
         canvas->drawString(txt,
                            l + w / 2 + w * DELTA_SCALE * delta,
                            t + h + SK_Scalar1 * 10,

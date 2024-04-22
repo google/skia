@@ -171,11 +171,11 @@ static void test_blend31() {
 
 static void check_length(skiatest::Reporter* reporter,
                          const SkPoint& p, SkScalar targetLen) {
-    float x = SkScalarToFloat(p.fX);
-    float y = SkScalarToFloat(p.fY);
+    float x = p.fX;
+    float y = p.fY;
     float len = std::sqrt(x*x + y*y);
 
-    len /= SkScalarToFloat(targetLen);
+    len /= targetLen;
 
     REPORTER_ASSERT(reporter, len > 0.999f && len < 1.001f);
 }
