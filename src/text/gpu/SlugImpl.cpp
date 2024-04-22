@@ -45,18 +45,22 @@ void SlugImpl::doFlatten(SkWriteBuffer& buffer) const {
 
 sk_sp<Slug> SlugImpl::MakeFromBuffer(SkReadBuffer& buffer, const SkStrikeClient* client) {
     SkRect sourceBounds = buffer.readRect();
-    if (!buffer.validate(!sourceBounds.isEmpty())) { return nullptr; }
+    if (!buffer.validate(!sourceBounds.isEmpty())) {
+        return nullptr;
+    }
     SkPoint origin = buffer.readPoint();
     int allocSizeHint = gpu::SubRunContainer::AllocSizeHintFromBuffer(buffer);
 
     auto [initializer, _, alloc] =
             SubRunAllocator::AllocateClassMemoryAndArena<SlugImpl>(allocSizeHint);
 
-    gpu::SubRunContainerOwner container = gpu::SubRunContainer::MakeFromBufferInAlloc(buffer, client, &alloc);
+    gpu::SubRunContainerOwner container =
+            gpu::SubRunContainer::MakeFromBufferInAlloc(buffer, client, &alloc);
 
     // Something went wrong while reading.
-    SkASSERT(buffer.isValid());
-    if (!buffer.isValid()) { return nullptr;}
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
 
     return sk_sp<SlugImpl>(
             initializer.initialize(std::move(alloc), std::move(container), sourceBounds, origin));
