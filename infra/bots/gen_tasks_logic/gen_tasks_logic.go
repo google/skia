@@ -2405,11 +2405,11 @@ func (b *jobBuilder) bazelTest() {
 			// the bazel-bin directory, which we receive a subset of as a CAS input.
 			command := strings.ReplaceAll(labelAndSavedOutputDir.label, "//", "")
 			command = strings.ReplaceAll(command, ":", "/")
-			command = filepath.Join(OUTPUT_BAZEL, command)
+			command = path.Join(OUTPUT_BAZEL, command)
 
 			// The test's working directory will be its runfiles directory, which simulates the behavior of
 			// the "bazel run" command.
-			commandWorkDir := filepath.Join(command+".runfiles", "skia")
+			commandWorkDir := path.Join(command+".runfiles", "skia")
 
 			cmd = append(cmd,
 				"--command="+command,

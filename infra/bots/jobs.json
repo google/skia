@@ -445,7 +445,6 @@
   {"name": "Perf-Debian10-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release-All"},
   {"name": "Perf-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All"},
   {"name": "Perf-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-Vulkan"},
-  {"name": "Perf-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-Graphite_Dawn_Vulkan"},
   {"name": "Perf-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-Graphite_Native_Vulkan"},
   {"name": "Perf-Debian11-Clang-NUC9i7QN-CPU-AVX2-x86_64-OptimizeForSize-All"},
   {"name": "Perf-Debian11-Clang-NUC9i7QN-CPU-AVX2-x86_64-OptimizeForSize-All-SkottieTracing"},
