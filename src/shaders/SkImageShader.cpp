@@ -20,7 +20,6 @@
 #include "include/private/base/SkMath.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkBitmapProcState.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkImageInfoPriv.h"
@@ -193,17 +192,10 @@ bool SkImageShader::isOpaque() const {
 static bool legacy_shader_can_handle(const SkMatrix& inv) {
     SkASSERT(!inv.hasPerspective());
 
-#if defined(SK_IGNORE_FAST_ROTATED_BLITTER)
     // We only have methods for scale+translate
     if (!inv.isScaleTranslate()) {
         return false;
     }
-#else
-    // Scale+translate methods are always present, but affine might not be.
-    if (!SkOpts::S32_alpha_D32_filter_DXDY && !inv.isScaleTranslate()) {
-        return false;
-    }
-#endif
 
     // legacy code uses SkFixed 32.32, so ensure the inverse doesn't map device coordinates
     // out of range.
