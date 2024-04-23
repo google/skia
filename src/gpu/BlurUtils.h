@@ -15,6 +15,7 @@
 #include <array>
 
 class SkBitmap;
+class SkRRect;
 class SkRuntimeEffect;
 struct SkV4;
 
@@ -153,6 +154,10 @@ SkBitmap CreateCircleProfile(float sigma, float radius, int profileWidth);
 
 // Creates a half plane approximation profile of a blurred circle.
 SkBitmap CreateHalfPlaneProfile(int profileWidth);
+
+// Creates a blurred rounded rectangle mask. 'rrectToDraw' is the original rrect centered within
+// bounds defined by 'dimensions', which encompass the entire blurred rrect.
+SkBitmap CreateRRectBlurMask(const SkRRect& rrectToDraw, const SkISize& dimensions, float sigma);
 
 } // namespace skgpu
 
