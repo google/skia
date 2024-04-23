@@ -122,6 +122,11 @@ struct Test {
                     proc, nullptr, nullptr, nullptr, nullptr};
     }
 
+    static Test MakeCPUSerial(const char* name, CPUTestProc proc) {
+        return Test{name, TestType::kCPUSerial, CtsEnforcement::kNever,
+                    proc, nullptr, nullptr, nullptr, nullptr};
+    }
+
     static Test MakeGanesh(const char* name,
                            CtsEnforcement ctsEnforcement,
                            GaneshTestProc proc,
@@ -160,7 +165,8 @@ struct Test {
     }
 
     void cpu(skiatest::Reporter* r) const {
-        SkASSERT(this->fTestType == TestType::kCPU);
+        SkASSERT(this->fTestType == TestType::kCPU ||
+                 this->fTestType == TestType::kCPUSerial);
         TRACE_EVENT1("test_cpu", TRACE_FUNC, "name", this->fName/*these are static*/);
         this->fCPUProc(r);
     }
@@ -312,6 +318,11 @@ using skiatest::Test;
 #else
     #define UNIX_ONLY_TEST DEF_TEST_DISABLED
 #endif
+
+#define DEF_SERIAL_TEST(name, reporter)                                                 \
+    static void test_##name(skiatest::Reporter*);                                       \
+    skiatest::TestRegistry name##TestRegistry(Test::MakeCPUSerial(#name, test_##name)); \
+    void test_##name(skiatest::Reporter* reporter)
 
 #define DEF_GRAPHITE_TEST(name, reporter, ctsEnforcement)                                \
     static void test_##name(skiatest::Reporter*);                                        \

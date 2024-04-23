@@ -11,7 +11,10 @@
 
 namespace skiatest {
 
-enum class TestType : uint8_t { kCPU, kGanesh, kGraphite };
+// kCPU tests run in parallel; kCPUSerial do not and are executed before any
+// other parallel work starts. GPU tests always run serially with respect to
+// each other, but in parallel with kCPU tests.
+enum class TestType : uint8_t { kCPU, kCPUSerial, kGanesh, kGraphite };
 
 }
 

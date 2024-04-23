@@ -1468,6 +1468,7 @@ struct Task {
 // Unit tests don't fit so well into the Src/Sink model, so we give them special treatment.
 
 static SkTDArray<skiatest::Test>* gCPUTests = new SkTDArray<skiatest::Test>;
+static SkTDArray<skiatest::Test>* gCPUSerialTests = new SkTDArray<skiatest::Test>;
 static SkTDArray<skiatest::Test>* gGaneshTests = new SkTDArray<skiatest::Test>;
 static SkTDArray<skiatest::Test>* gGraphiteTests = new SkTDArray<skiatest::Test>;
 
@@ -1488,6 +1489,8 @@ static void gather_tests() {
             gGraphiteTests->push_back(test);
         } else if (test.fTestType == TestType::kCPU && FLAGS_cpu) {
             gCPUTests->push_back(test);
+        } else if (test.fTestType == TestType::kCPUSerial && FLAGS_cpu) {
+            gCPUSerialTests->push_back(test);
         }
     }
 }
@@ -1616,7 +1619,8 @@ int main(int argc, char** argv) {
         return 1;
     }
     gather_tests();
-    int testCount = gCPUTests->size() + gGaneshTests->size() + gGraphiteTests->size();
+    int testCount = gCPUTests->size() + gCPUSerialTests->size() +
+                    gGaneshTests->size() + gGraphiteTests->size();
     gPending = gSrcs->size() * gSinks->size() + testCount;
     gTotalCounts = gPending;
     gLastUpdate = SkTime::GetNSecs();
@@ -1625,6 +1629,9 @@ int main(int argc, char** argv) {
          gPending);
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
+    // However, execute all CPU-serial tests first so that they don't have races with parallel tests
+    for (skiatest::Test& test : *gCPUSerialTests) { run_cpu_test(test); }
+
     SkTaskGroup parallel;
     TArray<Task> serial;
 
