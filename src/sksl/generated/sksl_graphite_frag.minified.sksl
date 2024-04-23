@@ -218,7 +218,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 "(b.xy-a),half2(a-b.zw));f=(1.-sample(e,float2(float(d*h.x),.5)).x)-sample(e"
 ",float2(float(d*h.z),.5)).x;g=(1.-sample(e,float2(float(d*h.y),.5)).x)-sample"
 "(e,float2(float(d*h.w),.5)).x;}return half4(f*g);}$pure half4 $H(float2 a,float4"
-" b,sampler2D c){float d=b.z;float e=b.w;half2 f=half2((a-b.xy)*e);float g=float"
-"(length(f))+(.5-d)*e;return sample(c,float2(g,.5)).xxxx;}$pure half4 blur_coverage_fn"
+" b,sampler2D c){float d=b.z;float e=b.w;half2 f=half2((a-b.xy)*d);float g=float"
+"(length(f))-e;return sample(c,float2(g,.5)).xxxx;}$pure half4 blur_coverage_fn"
 "(float2 a,float4 b,int c,int d,half e,sampler2D f){switch(c){case 0:{return"
 " $G(a,b,d,e,f);}case 2:{return $H(a,b,f);}}return half4(0.);}";
