@@ -93,10 +93,7 @@ public:
 
     // Adds upload command to the given CommandBuffer, returns false if the instance should be
     // discarded.
-    // TODO(b/332681367): In a follow-up CL, tasks will add a status enum for success, discard,
-    // and fail, which will make this clearer. Current code assumes this cannot fail so we can use
-    // a boolean for the discard case and assume success otherwise.
-    bool addCommand(Context*, CommandBuffer*, Task::ReplayTargetData) const;
+    Task::Status addCommand(Context*, CommandBuffer*, Task::ReplayTargetData) const;
 
 private:
     UploadInstance();
@@ -153,9 +150,9 @@ public:
 
     ~UploadTask() override;
 
-    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
+    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+    Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     UploadTask(skia_private::TArray<UploadInstance>&&);

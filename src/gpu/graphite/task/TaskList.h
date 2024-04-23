@@ -25,13 +25,20 @@ public:
     void add(sk_sp<Task> task) { fTasks.emplace_back(std::move(task)); }
     void reset() { fTasks.clear(); }
 
+    int size() const { return fTasks.size(); }
     bool hasTasks() const { return !fTasks.empty(); }
 
-    // Returns true on success; false on failure
-    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*);
-    bool addCommands(Context*, CommandBuffer*, Task::ReplayTargetData);
+    // Returns kSuccess if no child task failed and at least one child didn't return kDiscard.
+    // Returns kDiscard if all children were discarded.
+    // Returns kFail if any child failed.
+    // Automatically removes tasks from its list if they return kDiscard.
+    Task::Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*);
+    Task::Status addCommands(Context*, CommandBuffer*, Task::ReplayTargetData);
 
 private:
+    template <typename Fn> // (Task*)->Status
+    Task::Status visitTasks(Fn);
+
     skia_private::TArray<sk_sp<Task>> fTasks;
 };
 

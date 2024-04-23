@@ -22,11 +22,11 @@ public:
     static sk_sp<ClearBuffersTask> Make(skia_private::TArray<ClearBufferInfo>);
     ~ClearBuffersTask() override;
 
-    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override {
-        return true;
+    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override {
+        return Status::kSuccess;
     }
 
-    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+    Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     explicit ClearBuffersTask(skia_private::TArray<ClearBufferInfo> clearList)

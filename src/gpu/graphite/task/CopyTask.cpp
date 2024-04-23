@@ -44,12 +44,19 @@ CopyBufferToBufferTask::CopyBufferToBufferTask(const Buffer* srcBuffer,
 
 CopyBufferToBufferTask::~CopyBufferToBufferTask() = default;
 
-bool CopyBufferToBufferTask::prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) {
-    return true;
+Task::Status CopyBufferToBufferTask::prepareResources(ResourceProvider*,
+                                                      const RuntimeEffectDictionary*) {
+    return Status::kSuccess;
 }
 
-bool CopyBufferToBufferTask::addCommands(Context*, CommandBuffer* commandBuffer, ReplayTargetData) {
-    return commandBuffer->copyBufferToBuffer(fSrcBuffer, fSrcOffset, fDstBuffer, fDstOffset, fSize);
+Task::Status CopyBufferToBufferTask::addCommands(Context*,
+                                                 CommandBuffer* commandBuffer,
+                                                 ReplayTargetData) {
+    if (commandBuffer->copyBufferToBuffer(fSrcBuffer, fSrcOffset, fDstBuffer, fDstOffset, fSize)) {
+        return Status::kSuccess;
+    } else {
+        return Status::kFail;
+    }
 }
 
 sk_sp<CopyTextureToBufferTask> CopyTextureToBufferTask::Make(sk_sp<TextureProxy> textureProxy,
@@ -78,27 +85,33 @@ CopyTextureToBufferTask::CopyTextureToBufferTask(sk_sp<TextureProxy> textureProx
 
 CopyTextureToBufferTask::~CopyTextureToBufferTask() {}
 
-bool CopyTextureToBufferTask::prepareResources(ResourceProvider* resourceProvider,
-                                               const RuntimeEffectDictionary*) {
+Task::Status CopyTextureToBufferTask::prepareResources(ResourceProvider* resourceProvider,
+                                                       const RuntimeEffectDictionary*) {
     if (!fTextureProxy) {
         SKGPU_LOG_E("No texture proxy specified for CopyTextureToBufferTask");
-        return false;
+        return Status::kFail;
     }
     if (!TextureProxy::InstantiateIfNotLazy(resourceProvider, fTextureProxy.get())) {
         SKGPU_LOG_E("Could not instantiate texture proxy for CopyTextureToBufferTask!");
-        return false;
+        return Status::kFail;
     }
-    return true;
+    return Status::kSuccess;
 }
 
-bool CopyTextureToBufferTask::addCommands(Context*,
-                                          CommandBuffer* commandBuffer,
-                                          ReplayTargetData) {
-    return commandBuffer->copyTextureToBuffer(fTextureProxy->refTexture(),
-                                              fSrcRect,
-                                              std::move(fBuffer),
-                                              fBufferOffset,
-                                              fBufferRowBytes);
+Task::Status CopyTextureToBufferTask::addCommands(Context*,
+                                                  CommandBuffer* commandBuffer,
+                                                  ReplayTargetData) {
+    if (commandBuffer->copyTextureToBuffer(fTextureProxy->refTexture(),
+                                           fSrcRect,
+                                           std::move(fBuffer),
+                                           fBufferOffset,
+                                           fBufferRowBytes)) {
+        // TODO(b/332681367): CopyTextureToBuffer is currently only used for readback operations,
+        // which are a one-time event. Should this just default to returning kDiscard?
+        return Status::kSuccess;
+    } else {
+        return Status::kFail;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,35 +141,43 @@ CopyTextureToTextureTask::CopyTextureToTextureTask(sk_sp<TextureProxy> srcProxy,
 
 CopyTextureToTextureTask::~CopyTextureToTextureTask() {}
 
-bool CopyTextureToTextureTask::prepareResources(ResourceProvider* resourceProvider,
-                                                const RuntimeEffectDictionary*) {
+Task::Status CopyTextureToTextureTask::prepareResources(ResourceProvider* resourceProvider,
+                                                        const RuntimeEffectDictionary*) {
     if (!fSrcProxy) {
         SKGPU_LOG_E("No src texture proxy specified for CopyTextureToTextureTask");
-        return false;
+        return Status::kFail;
     }
     if (!TextureProxy::InstantiateIfNotLazy(resourceProvider, fSrcProxy.get())) {
         SKGPU_LOG_E("Could not instantiate src texture proxy for CopyTextureToTextureTask!");
-        return false;
+        return Status::kFail;
     }
     if (!fDstProxy) {
         SKGPU_LOG_E("No dst texture proxy specified for CopyTextureToTextureTask");
-        return false;
+        return Status::kFail;
     }
     if (!TextureProxy::InstantiateIfNotLazy(resourceProvider, fDstProxy.get())) {
         SKGPU_LOG_E("Could not instantiate dst texture proxy for CopyTextureToTextureTask!");
-        return false;
+        return Status::kFail;
     }
-    return true;
+    return Status::kSuccess;
 }
 
-bool CopyTextureToTextureTask::addCommands(Context*,
-                                           CommandBuffer* commandBuffer,
-                                           ReplayTargetData) {
-    return commandBuffer->copyTextureToTexture(fSrcProxy->refTexture(),
-                                               fSrcRect,
-                                               fDstProxy->refTexture(),
-                                               fDstPoint,
-                                               fDstLevel);
+Task::Status CopyTextureToTextureTask::addCommands(Context*,
+                                                   CommandBuffer* commandBuffer,
+                                                   ReplayTargetData) {
+
+    if (commandBuffer->copyTextureToTexture(fSrcProxy->refTexture(),
+                                            fSrcRect,
+                                            fDstProxy->refTexture(),
+                                            fDstPoint,
+                                            fDstLevel)) {
+        // TODO(b/332681367): The calling context should be able to specify whether or not this copy
+        // is a repeatable operation (e.g. dst readback copy for blending) or one time (e.g. client
+        // asked for a copy of an image or surface).
+        return Status::kSuccess;
+    } else {
+        return Status::kFail;
+    }
 }
 
 } // namespace skgpu::graphite

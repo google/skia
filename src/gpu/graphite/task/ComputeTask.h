@@ -10,6 +10,7 @@
 
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/task/Task.h"
+#include "src/gpu/graphite/task/TaskList.h"
 
 #include <memory>
 
@@ -30,8 +31,8 @@ public:
 
     ~ComputeTask() override;
 
-    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
-    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
+    Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     explicit ComputeTask(DispatchGroupList dispatchGroups);

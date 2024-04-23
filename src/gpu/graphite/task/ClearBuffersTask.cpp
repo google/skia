@@ -17,12 +17,14 @@ sk_sp<ClearBuffersTask> ClearBuffersTask::Make(skia_private::TArray<ClearBufferI
 
 ClearBuffersTask::~ClearBuffersTask(){};
 
-bool ClearBuffersTask::addCommands(Context*, CommandBuffer* commandBuffer, ReplayTargetData) {
+Task::Status ClearBuffersTask::addCommands(Context*,
+                                           CommandBuffer* commandBuffer,
+                                           ReplayTargetData) {
     bool result = true;
     for (const auto& c : fClearList) {
         result &= commandBuffer->clearBuffer(c.fBuffer, c.fOffset, c.fSize);
     }
-    return result;
+    return result ? Status::kSuccess : Status::kFail;
 }
 
 }  // namespace skgpu::graphite

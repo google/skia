@@ -26,11 +26,11 @@ public:
     static sk_sp<SynchronizeToCpuTask> Make(sk_sp<Buffer>);
     ~SynchronizeToCpuTask() override;
 
-    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override {
-        return true;
+    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override {
+        return Status::kSuccess;
     }
 
-    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+    Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     explicit SynchronizeToCpuTask(sk_sp<Buffer> buffer) : fBuffer(std::move(buffer)) {}

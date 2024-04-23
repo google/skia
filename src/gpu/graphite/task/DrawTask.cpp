@@ -15,14 +15,14 @@ DrawTask::DrawTask(sk_sp<TextureProxy> target) : fTarget(std::move(target)) {}
 
 DrawTask::~DrawTask() = default;
 
-bool DrawTask::prepareResources(ResourceProvider* resourceProvider,
-                                const RuntimeEffectDictionary* rteDict) {
+Task::Status DrawTask::prepareResources(ResourceProvider* resourceProvider,
+                                        const RuntimeEffectDictionary* rteDict) {
     return fChildTasks.prepareResources(resourceProvider, rteDict);
 }
 
-bool DrawTask::addCommands(Context* ctx,
-                           CommandBuffer* commandBuffer,
-                           ReplayTargetData replayTarget) {
+Task::Status DrawTask::addCommands(Context* ctx,
+                                   CommandBuffer* commandBuffer,
+                                   ReplayTargetData replayTarget) {
     return fChildTasks.addCommands(ctx, commandBuffer, replayTarget);
 }
 

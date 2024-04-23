@@ -180,7 +180,7 @@ bool QueueManager::addTask(Task* task,
         return false;
     }
 
-    if (!task->addCommands(context, fCurrentCommandBuffer.get(), {})) {
+    if (task->addCommands(context, fCurrentCommandBuffer.get(), {}) == Task::Status::kFail) {
         SKGPU_LOG_E("Adding Task commands to the CommandBuffer has failed");
         return false;
     }

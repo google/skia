@@ -10,30 +10,44 @@
 
 namespace skgpu::graphite {
 
-bool TaskList::prepareResources(ResourceProvider* resourceProvider,
-                                 const RuntimeEffectDictionary* runtimeDict) {
-    TRACE_EVENT1("skia.gpu", TRACE_FUNC, "# tasks", fTasks.size());
-    for (const auto& task: fTasks) {
-        if (!task->prepareResources(resourceProvider, runtimeDict)) {
-            return false;
+using Status = Task::Status;
+
+template <typename Fn>
+Status TaskList::visitTasks(Fn fn) {
+    int discardCount = 0;
+    for (sk_sp<Task>& task: fTasks) {
+        if (!task) {
+            discardCount++;
+            continue; // Skip over discarded tasks
+        }
+
+        Status status = fn(task.get());
+        if (status == Status::kFail) {
+            return Status::kFail;
+        } else if (status == Status::kDiscard) {
+            task.reset();
+            discardCount++;
         }
     }
 
-    return true;
+    return discardCount == fTasks.size() ? Status::kDiscard : Status::kSuccess;
 }
 
-bool TaskList::addCommands(Context* context,
-                            CommandBuffer* commandBuffer,
-                            Task::ReplayTargetData replayData) {
+Status TaskList::prepareResources(ResourceProvider* resourceProvider,
+                                  const RuntimeEffectDictionary* runtimeDict) {
     TRACE_EVENT1("skia.gpu", TRACE_FUNC, "# tasks", fTasks.size());
+    return this->visitTasks([&](Task* task) {
+        return task->prepareResources(resourceProvider, runtimeDict);
+    });
+}
 
-    for (const auto& task: fTasks) {
-        if (!task->addCommands(context, commandBuffer, replayData)) {
-            return false;
-        }
-    }
-
-    return true;
+Status TaskList::addCommands(Context* context,
+                             CommandBuffer* commandBuffer,
+                             Task::ReplayTargetData replayData) {
+    TRACE_EVENT1("skia.gpu", TRACE_FUNC, "# tasks", fTasks.size());
+    return this->visitTasks([&](Task* task) {
+        return task->addCommands(context, commandBuffer, replayData);
+    });
 }
 
 } // namespace skgpu::graphite

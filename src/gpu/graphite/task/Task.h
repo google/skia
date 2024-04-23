@@ -27,12 +27,29 @@ public:
         SkIVector fTranslation;
     };
 
+    enum class Status {
+        // The task step (prepareResources or addCommands) succeeded, proceed to the next task.
+        // If the Recording is replayed, this task should be executed again.
+        kSuccess,
+        // The task step succeeded, but it was a one-time-only operation and should be removed from
+        // the task list. If this is returned from prepareResources(), the task is removed before
+        // addCommands() will ever be called. If this is returned from addCommands(), it will not
+        // be part of any replayed Recording, but any added commands from the first call will be
+        // executed once.
+        //
+        // NOTE: If a task step needs to be conditionally processed but repeatable, it should
+        // internally skip work and still return kSuccess instead of kDiscard.
+        kDiscard,
+        // The step failed and cannot be recovered so the Recording is invalidated.
+        kFail
+    };
+
     // Instantiate and prepare any Resources that must happen while the Task is still on the
     // Recorder.
-    virtual bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) = 0;
+    virtual Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) = 0;
 
     // Returns true on success; false on failure.
-    virtual bool addCommands(Context*, CommandBuffer*, ReplayTargetData) = 0;
+    virtual Status addCommands(Context*, CommandBuffer*, ReplayTargetData) = 0;
 };
 
 } // namespace skgpu::graphite

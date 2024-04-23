@@ -27,23 +27,29 @@ ComputeTask::ComputeTask(DispatchGroupList dispatchGroups)
 
 ComputeTask::~ComputeTask() = default;
 
-bool ComputeTask::prepareResources(ResourceProvider* provider, const RuntimeEffectDictionary* rtd) {
-    for (const auto& child : fChildTasks) {
+Task::Status ComputeTask::prepareResources(ResourceProvider* provider,
+                                           const RuntimeEffectDictionary* rtd) {
+    for (auto& child : fChildTasks) {
         if (child) {
-            child->prepareResources(provider, rtd);
+            Status status = child->prepareResources(provider, rtd);
+            if (status == Status::kFail) {
+                return Status::kFail;
+            } else if (status == Status::kDiscard) {
+                child.reset();
+            }
         }
     }
     for (const auto& group : fDispatchGroups) {
         if (!group->prepareResources(provider)) {
-            return false;
+            return Status::kFail;
         }
     }
-    return true;
+    return Status::kSuccess;
 }
 
-bool ComputeTask::addCommands(Context* ctx, CommandBuffer* commandBuffer, ReplayTargetData rtd) {
+Task::Status ComputeTask::addCommands(Context* ctx, CommandBuffer* commandBuffer, ReplayTargetData rtd) {
     if (fDispatchGroups.empty()) {
-        return true;
+        return Status::kDiscard;
     }
     SkASSERT(fDispatchGroups.size() == fChildTasks.size());
     const std::unique_ptr<DispatchGroup>* currentSpanPtr = &fDispatchGroups[0];
@@ -56,19 +62,24 @@ bool ComputeTask::addCommands(Context* ctx, CommandBuffer* commandBuffer, Replay
         if (child) {
             if (currentSpanSize > 0u) {
                 if (!commandBuffer->addComputePass({currentSpanPtr, currentSpanSize})) {
-                    return false;
+                    return Status::kFail;
                 }
                 currentSpanPtr = &fDispatchGroups[i];
                 currentSpanSize = 0u;
             }
-            if (!child->addCommands(ctx, commandBuffer, rtd)) {
-                return false;
+
+            Status status = child->addCommands(ctx, commandBuffer, rtd);
+            if (status == Status::kFail) {
+                return Status::kFail;
+            } else if (status == Status::kDiscard) {
+                fChildTasks[i].reset();
             }
         }
         currentSpanSize++;
     }
-    return currentSpanSize == 0u ||
-           commandBuffer->addComputePass({currentSpanPtr, currentSpanSize});
+    return (currentSpanSize == 0u ||
+            commandBuffer->addComputePass({currentSpanPtr, currentSpanSize})) ? Status::kSuccess
+                                                                              : Status::kFail;
 }
 
 }  // namespace skgpu::graphite

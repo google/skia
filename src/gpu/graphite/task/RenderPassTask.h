@@ -32,9 +32,9 @@ public:
 
     ~RenderPassTask() override;
 
-    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
+    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+    Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     RenderPassTask(DrawPassList, const RenderPassDesc&, sk_sp<TextureProxy> target);

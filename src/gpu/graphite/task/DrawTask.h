@@ -25,9 +25,9 @@ public:
     explicit DrawTask(sk_sp<TextureProxy> target);
     ~DrawTask() override;
 
-    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
+    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+    Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
     friend class DrawContext; // for "addTask"

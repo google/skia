@@ -18,8 +18,11 @@ sk_sp<SynchronizeToCpuTask> SynchronizeToCpuTask::Make(sk_sp<Buffer> buffer) {
 
 SynchronizeToCpuTask::~SynchronizeToCpuTask() {}
 
-bool SynchronizeToCpuTask::addCommands(Context*, CommandBuffer* commandBuffer, ReplayTargetData) {
-    return commandBuffer->synchronizeBufferToCpu(std::move(fBuffer));
+Task::Status SynchronizeToCpuTask::addCommands(Context*,
+                                               CommandBuffer* commandBuffer,
+                                               ReplayTargetData) {
+    return commandBuffer->synchronizeBufferToCpu(std::move(fBuffer)) ? Status::kSuccess
+                                                                     : Status::kFail;
 }
 
 }  // namespace skgpu::graphite
