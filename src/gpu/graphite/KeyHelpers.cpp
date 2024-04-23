@@ -54,7 +54,6 @@
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/Uniform.h"
 #include "src/gpu/graphite/UniformManager.h"
-#include "src/gpu/graphite/YUVATextureProxies.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkBlendShader.h"
 #include "src/shaders/SkColorFilterShader.h"
@@ -1479,9 +1478,8 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
                                  SkSamplingOptions sampling) {
     SkASSERT(!imageToDraw->isAlphaOnly());
 
-    const YUVATextureProxies& yuvaProxies =
-            static_cast<const Image_YUVA*>(imageToDraw.get())->yuvaProxies();
-    const SkYUVAInfo& yuvaInfo = yuvaProxies.yuvaInfo();
+    const Image_YUVA* yuvaImage = static_cast<const Image_YUVA*>(imageToDraw.get());
+    const SkYUVAInfo& yuvaInfo = yuvaImage->yuvaInfo();
     // We would want to add a translation to the local matrix to handle other sitings.
     SkASSERT(yuvaInfo.sitingX() == SkYUVAInfo::Siting::kCentered);
     SkASSERT(yuvaInfo.sitingY() == SkYUVAInfo::Siting::kCentered);
@@ -1490,64 +1488,56 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
                                            origShader->tileModeY(),
                                            imageToDraw->dimensions(),
                                            origShader->subset());
-    for (int i = 0; i < SkYUVAInfo::kYUVAChannelCount; ++i) {
-        memset(&imgData.fChannelSelect[i], 0, sizeof(SkV4));
-    }
-    int textureCount = 0;
-    SkYUVAInfo::YUVALocations yuvaLocations = yuvaProxies.yuvaLocations();
-    // We assume the U and V planes are the same size and have the same subsampling
-    SkASSERT(yuvaProxies.proxy(yuvaLocations[SkYUVAInfo::kU].fPlane)->dimensions() ==
-             yuvaProxies.proxy(yuvaLocations[SkYUVAInfo::kV].fPlane)->dimensions());
-    SkASSERT(yuvaInfo.planeSubsamplingFactors(yuvaLocations[SkYUVAInfo::kU].fPlane) ==
-             yuvaInfo.planeSubsamplingFactors(yuvaLocations[SkYUVAInfo::kV].fPlane));
     for (int locIndex = 0; locIndex < SkYUVAInfo::kYUVAChannelCount; ++locIndex) {
-        auto [yuvPlane, yuvChannel] = yuvaLocations[locIndex];
-        if (yuvPlane >= 0) {
-            SkASSERT(locIndex == textureCount);
-            TextureProxyView view = yuvaProxies.makeView(yuvPlane);
+        const TextureProxyView& view = yuvaImage->proxyView(locIndex);
+        if (view) {
             imgData.fTextureProxies[locIndex] = view.refProxy();
-            imgData.fChannelSelect[locIndex][static_cast<int>(yuvChannel)] = 1.0f;
-            ++textureCount;
-            // V will share this size and filter data
-            if (locIndex == SkYUVAInfo::kU) {
-                auto [ssx, ssy] = yuvaInfo.planeSubsamplingFactors(yuvPlane);
-                if (ssx > 1 || ssy > 1) {
-                    // We need to adjust the image size we use for sampling to reflect the
-                    // actual image size of the UV planes. However, since our coordinates
-                    // are in Y's texel space we need to scale accordingly.
-                    imgData.fImgSizeUV = {view.dimensions().width()*ssx,
-                                          view.dimensions().height()*ssy};
-                    // This promotion of nearest to linear filtering for UV planes exists to mimic
-                    // libjpeg[-turbo]'s do_fancy_upsampling option. We will filter the subsampled
-                    // plane, however we want to filter at a fixed point for each logical image
-                    // pixel to simulate nearest neighbor. In the shader we detect that the
-                    // UV filtermode doesn't match the Y filtermode, and snap to Y pixel centers.
-                    if (imgData.fSampling.filter == SkFilterMode::kNearest) {
-                        imgData.fSamplingUV = SkSamplingOptions(SkFilterMode::kLinear,
-                                                                imgData.fSampling.mipmap);
-                        // Consider a logical image pixel at the edge of the subset. When computing
-                        // the logical pixel color value we should use a blend of two values
-                        // from the subsampled plane. Depending on where the subset edge falls in
-                        // actual subsampled plane, one of those values may come from outside the
-                        // subset. Hence, we use this custom inset which applies the wrap mode to
-                        // the subset but allows linear filtering to read pixels from the plane
-                        // that are just outside the subset.
-                        imgData.fLinearFilterUVInset = { 1.f/(2*ssx), 1.f/(2*ssy) };
-                    }
-                }
-
+            // The view's swizzle has the data channel for the YUVA location in all slots, so read
+            // the 0th slot to determine fChannelSelect
+            switch(view.swizzle()[0]) {
+                case 'r': imgData.fChannelSelect[locIndex] = {1.f, 0.f, 0.f, 0.f}; break;
+                case 'g': imgData.fChannelSelect[locIndex] = {0.f, 1.f, 0.f, 0.f}; break;
+                case 'b': imgData.fChannelSelect[locIndex] = {0.f, 0.f, 1.f, 0.f}; break;
+                case 'a': imgData.fChannelSelect[locIndex] = {0.f, 0.f, 0.f, 1.f}; break;
+                default:
+                    imgData.fChannelSelect[locIndex] = {0.f, 0.f, 0.f, 0.f};
+                    SkDEBUGFAILF("Unexpected swizzle for YUVA data: %c", view.swizzle()[0]);
+                    break;
             }
+        } else {
+            // Only the A proxy view should be null, in which case we bind the Y proxy view to
+            // pass validation and send all 1s for the channel selection to signal opaque alpha.
+            SkASSERT(locIndex == 3);
+            imgData.fTextureProxies[locIndex] = yuvaImage->proxyView(SkYUVAInfo::kY).refProxy();
+            imgData.fChannelSelect[locIndex] = {1.f, 1.f, 1.f, 1.f};
         }
     }
-    SkASSERT(textureCount == 3 || textureCount == 4);
-    // If the format has no alpha, we still need to set the proxy to something
-    if (textureCount == 3) {
-        imgData.fTextureProxies[3] = imgData.fTextureProxies[0];
-        // All ones will be a signal that there is no alpha.
-        for (int i = 0; i < 4; ++i) {
-            imgData.fChannelSelect[SkYUVAInfo::kA][i] = 1.0f;
+
+    auto [ssx, ssy] = yuvaImage->uvSubsampleFactors();
+    if (ssx > 1 || ssy > 1) {
+        // We need to adjust the image size we use for sampling to reflect the actual image size of
+        // the UV planes. However, since our coordinates are in Y's texel space we need to scale
+        // accordingly.
+        const TextureProxyView& view = yuvaImage->proxyView(SkYUVAInfo::kU);
+        imgData.fImgSizeUV = {view.dimensions().width()*ssx, view.dimensions().height()*ssy};
+        // This promotion of nearest to linear filtering for UV planes exists to mimic
+        // libjpeg[-turbo]'s do_fancy_upsampling option. We will filter the subsampled plane,
+        // however we want to filter at a fixed point for each logical image pixel to simulate
+        // nearest neighbor. In the shader we detect that the UV filtermode doesn't match the Y
+        // filtermode, and snap to Y pixel centers.
+        if (imgData.fSampling.filter == SkFilterMode::kNearest) {
+            imgData.fSamplingUV = SkSamplingOptions(SkFilterMode::kLinear,
+                                                    imgData.fSampling.mipmap);
+            // Consider a logical image pixel at the edge of the subset. When computing the logical
+            // pixel color value we should use a blend of two values from the subsampled plane.
+            // Depending on where the subset edge falls in actual subsampled plane, one of those
+            // values may come from outside the subset. Hence, we use this custom inset which
+            // applies the wrap mode to the subset but allows linear filtering to read pixels from
+            // the plane that are just outside the subset.
+            imgData.fLinearFilterUVInset = { 1.f/(2*ssx), 1.f/(2*ssy) };
         }
     }
+
     float yuvM[20];
     SkColorMatrix_YUV2RGB(yuvaInfo.yuvColorSpace(), yuvM);
     // We drop the fourth column entirely since the transformation

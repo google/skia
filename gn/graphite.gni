@@ -151,8 +151,6 @@ skia_graphite_sources = [
   "$_src/UploadBufferManager.cpp",
   "$_src/UploadBufferManager.h",
   "$_src/YUVABackendTextures.cpp",
-  "$_src/YUVATextureProxies.cpp",
-  "$_src/YUVATextureProxies.h",
   "$_src/compute/ComputeStep.cpp",
   "$_src/compute/ComputeStep.h",
   "$_src/compute/DispatchGroup.cpp",
