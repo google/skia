@@ -649,7 +649,7 @@ void Device::drawPaint(const SkPaint& paint) {
                        Geometry(Shape(localCoveringBounds)),
                        paint,
                        DefaultFillStyle(),
-                       DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
+                       DrawFlags::kIgnorePathEffect);
 }
 
 void Device::drawRect(const SkRect& r, const SkPaint& paint) {
@@ -664,7 +664,7 @@ void Device::drawVertices(const SkVertices* vertices, sk_sp<SkBlender> blender,
                        Geometry(sk_ref_sp(vertices)),
                        paint,
                        DefaultFillStyle(),
-                       DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter,
+                       DrawFlags::kIgnorePathEffect,
                        std::move(blender),
                        skipColorXform);
 }
@@ -780,7 +780,7 @@ void Device::drawEdgeAAQuad(const SkRect& rect,
                        Geometry(quad),
                        solidColorPaint,
                        DefaultFillStyle(),
-                       DrawFlags::kIgnoreMaskFilter | DrawFlags::kIgnorePathEffect);
+                       DrawFlags::kIgnorePathEffect);
 }
 
 void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
@@ -920,7 +920,7 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                                                    rendererData)),
                                subRunPaint,
                                DefaultFillStyle(),
-                               DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
+                               DrawFlags::kIgnorePathEffect);
         }
         subRunCursor += glyphsRegenerated;
 
@@ -951,7 +951,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     }
 
     // Heavy weight paint options like path effects, mask filters, and stroke-and-fill style are
-    // applied on the CPU by generating a new shape and recursing on drawShape() with updated flags
+    // applied on the CPU by generating a new shape and recursing on drawGeometry with updated flags
     if (!(flags & DrawFlags::kIgnorePathEffect) && paint.getPathEffect()) {
         // Apply the path effect before anything else, which if we are applying here, means that we
         // are dealing with a Shape. drawVertices (and a SkVertices geometry) should pass in
@@ -990,16 +990,6 @@ void Device::drawGeometry(const Transform& localToDevice,
         }
     }
 
-    if (!(flags & DrawFlags::kIgnoreMaskFilter) && paint.getMaskFilter()) {
-        // TODO: Handle mask filters, ignored for the sprint.
-        // TODO: Could this be handled by SkCanvas by drawing a mask, blurring, and then sampling
-        // with a rect draw? What about fast paths for rrect blur masks...
-        this->drawGeometry(localToDevice, geometry, paint, style,
-                           flags | DrawFlags::kIgnoreMaskFilter, std::move(primitiveBlender),
-                           skipColorXform);
-        return;
-    }
-
     // TODO: The tessellating and atlas path renderers haven't implemented perspective yet, so
     // transform to device space so we draw something approximately correct (barring local coord
     // issues).
@@ -1017,11 +1007,10 @@ void Device::drawGeometry(const Transform& localToDevice,
     // consider snapping stroke width and/or adjusting geometry for hairlines). This pixel snapping
     // math should be consistent with how non-AA clip [r]rects are handled.
 
-    // If we got here, then path effects and mask filters should have been handled and the style
-    // should be fill or stroke/hairline. Stroke-and-fill is not handled by DrawContext, but is
-    // emulated here by drawing twice--one stroke and one fill--using the same depth value.
+    // If we got here, then path effects should have been handled and the style should be fill or
+    // stroke/hairline. Stroke-and-fill is not handled by DrawContext, but is emulated here by
+    // drawing twice--one stroke and one fill--using the same depth value.
     SkASSERT(!SkToBool(paint.getPathEffect()) || (flags & DrawFlags::kIgnorePathEffect));
-    SkASSERT(!SkToBool(paint.getMaskFilter()) || (flags & DrawFlags::kIgnoreMaskFilter));
 
     // TODO: Some renderer decisions could depend on the clip (see PathAtlas::addShape for
     // one workaround) so we should figure out how to remove this circular dependency.
@@ -1557,7 +1546,7 @@ void Device::drawSpecial(SkSpecialImage* special,
                        Geometry(Shape(dst)),
                        paintWithShader,
                        DefaultFillStyle(),
-                       DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
+                       DrawFlags::kIgnorePathEffect);
 }
 
 void Device::drawCoverageMask(const SkSpecialImage* mask,
@@ -1603,7 +1592,7 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
                        Geometry(maskShape),
                        paint,
                        DefaultFillStyle(),
-                       DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
+                       DrawFlags::kIgnorePathEffect);
 }
 
 sk_sp<SkSpecialImage> Device::makeSpecial(const SkBitmap&) {

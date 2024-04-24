@@ -221,19 +221,18 @@ private:
     sk_sp<skif::Backend> createImageFilteringBackend(const SkSurfaceProps& surfaceProps,
                                                      SkColorType colorType) const override;
 
-    // DrawFlags alters the effects used by drawShape.
+    // DrawFlags alters the effects used by drawGeometry.
+    //
+    // There is no kIgnoreMaskFilter flag because the Device always ignores the mask filter -- the
+    // mask filter should be handled by the SkCanvas, either with an auto mask filter layer or
+    // being converted to an analytic blur draw.
     enum class DrawFlags : unsigned {
         kNone             = 0b000,
 
-        // Any SkMaskFilter on the SkPaint passed into drawGeometry() is ignored.
-        // - drawPaint, drawVertices, drawAtlas
-        // - drawShape after it's applied the mask filter.
-        kIgnoreMaskFilter = 0b001,
-
         // Any SkPathEffect on the SkPaint passed into drawGeometry() is ignored.
         // - drawPaint, drawImageLattice, drawImageRect, drawEdgeAAImageSet, drawVertices, drawAtlas
-        // - drawShape after it's applied the path effect.
-        kIgnorePathEffect = 0b010,
+        // - drawGeometry after it's applied the path effect.
+        kIgnorePathEffect = 0b001,
     };
     SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags)
 
