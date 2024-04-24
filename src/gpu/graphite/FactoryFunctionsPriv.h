@@ -22,6 +22,11 @@ enum class PrecompileImageShaderFlags {
 };
 SK_MAKE_BITMASK_OPS(PrecompileImageShaderFlags)
 
+enum class PrecompileLocalMatrixFlags {
+    kNone,
+    kSkipElision,
+};
+
 //--------------------------------------------------------------------------------------------------
 namespace PrecompileShadersPriv {
     sk_sp<PrecompileShader> Blur(sk_sp<PrecompileShader> child);
@@ -31,6 +36,18 @@ namespace PrecompileShadersPriv {
     sk_sp<PrecompileShader> CTM(SkSpan<const sk_sp<PrecompileShader>> wrapped);
 
     sk_sp<PrecompileShader> Image(SkEnumBitMask<PrecompileImageShaderFlags>);
+
+    // These factory variants should be used when the existence or non-existence of the local matrix
+    // is known. If 'withLM' is true only the LMShader-wrapped shader will be created while, when
+    // 'withLM' is false, no LMShader will wrap the base shader.
+    sk_sp<PrecompileShader> LinearGradient(bool withLM);
+    sk_sp<PrecompileShader> RadialGradient(bool withLM);
+    sk_sp<PrecompileShader> TwoPointConicalGradient(bool withLM);
+    sk_sp<PrecompileShader> SweepGradient(bool withLM);
+    sk_sp<PrecompileShader> Picture(bool withLM);
+
+    sk_sp<PrecompileShader> LocalMatrix(SkSpan<const sk_sp<PrecompileShader>> wrapped,
+                                        PrecompileLocalMatrixFlags);
 
 } // namespace PrecompileShadersPriv
 

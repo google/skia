@@ -24,10 +24,6 @@ SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
 }
 
 sk_sp<SkShader> SkShader::makeWithLocalMatrix(const SkMatrix& localMatrix) const {
-    if (localMatrix.isIdentity()) {
-        return sk_ref_sp(const_cast<SkShader*>(this));
-    }
-
     const SkMatrix* lm = &localMatrix;
 
     sk_sp<SkShader> baseShader;

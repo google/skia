@@ -49,11 +49,9 @@ static sk_sp<SkShader> make_shader1(SkScalar shaderScale) {
                                                         SkTileMode::kMirror, 0,
                                                         &localMatrix);
     // Throw in a couple of local matrix wrappers for good measure.
-    return shaderScale == 1
-        ? grad
-        : sk_make_sp<SkLocalMatrixShader>(
-              sk_make_sp<SkLocalMatrixShader>(std::move(grad), SkMatrix::Translate(-10, 0)),
-              SkMatrix::Translate(10, 0));
+    return shaderScale == 1 ? grad
+                            : grad->makeWithLocalMatrix(SkMatrix::Translate(-10, 0))
+                                       ->makeWithLocalMatrix(SkMatrix::Translate(10, 0));
 }
 
 static sk_sp<SkShader> make_shader2() {

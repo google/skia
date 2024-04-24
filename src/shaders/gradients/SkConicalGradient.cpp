@@ -153,9 +153,12 @@ SkShaderBase::GradientType SkConicalGradient::asGradient(GradientInfo* info,
 
 sk_sp<SkFlattenable> SkConicalGradient::CreateProc(SkReadBuffer& buffer) {
     DescriptorScope desc;
-    SkMatrix legacyLocalMatrix;
+    SkMatrix legacyLocalMatrix, *lmPtr = nullptr;
     if (!desc.unflatten(buffer, &legacyLocalMatrix)) {
         return nullptr;
+    }
+    if (!legacyLocalMatrix.isIdentity()) {
+        lmPtr = &legacyLocalMatrix;
     }
     SkPoint c1 = buffer.readPoint();
     SkPoint c2 = buffer.readPoint();
@@ -175,7 +178,7 @@ sk_sp<SkFlattenable> SkConicalGradient::CreateProc(SkReadBuffer& buffer) {
                                                  desc.fColorCount,
                                                  desc.fTileMode,
                                                  desc.fInterpolation,
-                                                 &legacyLocalMatrix);
+                                                 lmPtr);
 }
 
 void SkConicalGradient::flatten(SkWriteBuffer& buffer) const {
