@@ -19,14 +19,19 @@ class MtlSharedContext;
 
 class MtlBuffer : public Buffer {
 public:
-    static sk_sp<Buffer> Make(const MtlSharedContext*, size_t size, BufferType type, AccessPattern);
+    static sk_sp<Buffer> Make(const MtlSharedContext*,
+                              size_t size,
+                              BufferType type,
+                              AccessPattern,
+                              std::string_view label);
 
     id<MTLBuffer> mtlBuffer() const { return fBuffer.get(); }
 
 private:
     MtlBuffer(const MtlSharedContext*,
               size_t size,
-              sk_cfp<id<MTLBuffer>>);
+              sk_cfp<id<MTLBuffer>>,
+              std::string_view label);
 
     void onMap() override;
     void onUnmap() override;

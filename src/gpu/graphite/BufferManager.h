@@ -168,9 +168,11 @@ private:
         size_t fOffset = 0;
     };
     std::pair<void* /*mappedPtr*/, BindBufferInfo> prepareMappedBindBuffer(BufferInfo* info,
-                                                                           size_t requiredBytes);
+                                                                           size_t requiredBytes,
+                                                                           std::string_view label);
     BindBufferInfo prepareBindBuffer(BufferInfo* info,
                                      size_t requiredBytes,
+                                     std::string_view label,
                                      bool supportCpuUpload = false,
                                      ClearBuffer cleared = ClearBuffer::kNo);
 
@@ -258,7 +260,8 @@ private:
         bool createAndUpdateBindings(ResourceProvider*,
                                      Context*,
                                      QueueManager*,
-                                     GlobalCache*) const;
+                                     GlobalCache*,
+                                     std::string_view label) const;
         void reset() {
             fData.clear();
             fTotalRequiredBytes = 0;

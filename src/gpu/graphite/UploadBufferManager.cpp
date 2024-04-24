@@ -28,7 +28,9 @@ UploadBufferManager::~UploadBufferManager() {}
 
 std::tuple<TextureUploadWriter, BindBufferInfo> UploadBufferManager::getTextureUploadWriter(
         size_t requiredBytes, size_t requiredAlignment) {
-    auto[bufferMapPtr, bindInfo] = this->makeBindInfo(requiredBytes, requiredAlignment);
+    auto[bufferMapPtr, bindInfo] = this->makeBindInfo(requiredBytes,
+                                                      requiredAlignment,
+                                                      "TextureUploadBuffer");
     if (!bufferMapPtr) {
         return {TextureUploadWriter(), BindBufferInfo()};
     }
@@ -37,7 +39,7 @@ std::tuple<TextureUploadWriter, BindBufferInfo> UploadBufferManager::getTextureU
 }
 
 std::tuple<void*/*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInfo(
-        size_t requiredBytes, size_t requiredAlignment) {
+        size_t requiredBytes, size_t requiredAlignment, std::string_view label) {
     if (!requiredBytes) {
         return {nullptr, BindBufferInfo()};
     }
@@ -46,8 +48,10 @@ std::tuple<void*/*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInfo
     requiredBytes = SkAlignTo(requiredBytes, requiredAlignment);
     if (requiredBytes > kReusedBufferSize) {
         // Create a dedicated buffer for this request.
-        sk_sp<Buffer> buffer = fResourceProvider->findOrCreateBuffer(
-                requiredBytes, BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
+        sk_sp<Buffer> buffer = fResourceProvider->findOrCreateBuffer(requiredBytes,
+                                                                     BufferType::kXferCpuToGpu,
+                                                                     AccessPattern::kHostVisible,
+                                                                     std::move(label));
         void* bufferMapPtr = buffer ? buffer->map() : nullptr;
         if (!bufferMapPtr) {
             // Unlike [Draw|Static]BufferManager, the UploadManager does not track if any buffer
@@ -73,8 +77,10 @@ std::tuple<void*/*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInfo
     }
 
     if (!fReusedBuffer) {
-        fReusedBuffer = fResourceProvider->findOrCreateBuffer(
-                kReusedBufferSize, BufferType::kXferCpuToGpu, AccessPattern::kHostVisible);
+        fReusedBuffer = fResourceProvider->findOrCreateBuffer(kReusedBufferSize,
+                                                              BufferType::kXferCpuToGpu,
+                                                              AccessPattern::kHostVisible,
+                                                              std::move(label));
         fReusedBufferOffset = 0;
         if (!fReusedBuffer || !fReusedBuffer->map()) {
             fReusedBuffer = nullptr;

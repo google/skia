@@ -154,7 +154,8 @@ std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(
     sk_sp<Buffer> intrinsicConstantBuffer = VulkanBuffer::Make(this,
                                                                alignedIntrinsicConstantSize,
                                                                BufferType::kUniform,
-                                                               AccessPattern::kGpuOnly);
+                                                               AccessPattern::kGpuOnly,
+                                                               "IntrinsicConstantBuffer");
     if (!intrinsicConstantBuffer) {
         SKGPU_LOG_E("Failed to create intrinsic constant uniform buffer");
         return nullptr;
@@ -168,7 +169,8 @@ std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(
             VulkanBuffer::Make(this,
                                VulkanResourceProvider::kLoadMSAAVertexBufferSize,
                                BufferType::kVertex,
-                               AccessPattern::kGpuOnly);
+                               AccessPattern::kGpuOnly,
+                               "LoadMSAAVertexBuffer");
     if (!loadMSAAVertexBuffer) {
         SKGPU_LOG_E("Failed to create vertex buffer for loading MSAA from resolve");
         return nullptr;

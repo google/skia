@@ -8,12 +8,13 @@
 #ifndef skgpu_graphite_UploadBufferManager_DEFINED
 #define skgpu_graphite_UploadBufferManager_DEFINED
 
-#include <tuple>
-#include <vector>
-
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/DrawTypes.h"
+
+#include <string_view>
+#include <tuple>
+#include <vector>
 
 namespace skgpu::graphite {
 
@@ -41,7 +42,8 @@ private:
 
 
     std::tuple<void*/*mappedPtr*/, BindBufferInfo> makeBindInfo(size_t requiredBytes,
-                                                                size_t requiredAlignment);
+                                                                size_t requiredAlignment,
+                                                                std::string_view label);
 
     ResourceProvider* fResourceProvider;
 

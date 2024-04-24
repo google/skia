@@ -68,7 +68,10 @@ public:
     sk_sp<Texture> findOrCreateDiscardableMSAAAttachment(SkISize dimensions,
                                                          const TextureInfo&);
 
-    sk_sp<Buffer> findOrCreateBuffer(size_t size, BufferType type, AccessPattern);
+    sk_sp<Buffer> findOrCreateBuffer(size_t size,
+                                     BufferType type,
+                                     AccessPattern,
+                                     std::string_view label);
 
     sk_sp<Sampler> findOrCreateCompatibleSampler(const SamplerDesc&);
 
@@ -119,7 +122,10 @@ private:
                                                            const RenderPassDesc&) = 0;
     virtual sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&, skgpu::Budgeted) = 0;
-    virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) = 0;
+    virtual sk_sp<Buffer> createBuffer(size_t size,
+                                       BufferType type,
+                                       AccessPattern,
+                                       std::string_view label) = 0;
     virtual sk_sp<Sampler> createSampler(const SamplerDesc&) = 0;
 
     sk_sp<Texture> findOrCreateTextureWithKey(SkISize dimensions,

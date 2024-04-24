@@ -30,7 +30,8 @@ static const char* kBufferTypeNames[kBufferTypeCount] = {
 sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
                                    size_t size,
                                    BufferType type,
-                                   AccessPattern accessPattern) {
+                                   AccessPattern accessPattern,
+                                   std::string_view label) {
     if (size <= 0) {
         return nullptr;
     }
@@ -96,17 +97,23 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         SkASSERT(mappedAtCreationPtr);
     }
 
-    return sk_sp<DawnBuffer>(
-            new DawnBuffer(sharedContext, size, std::move(buffer), type, mappedAtCreationPtr));
+    return sk_sp<DawnBuffer>(new DawnBuffer(sharedContext,
+                                            size,
+                                            std::move(buffer),
+                                            type,
+                                            mappedAtCreationPtr,
+                                            std::move(label)));
 }
 
 DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
                        size_t size,
                        wgpu::Buffer buffer,
                        BufferType type,
-                       void* mappedAtCreationPtr)
+                       void* mappedAtCreationPtr,
+                       std::string_view label)
         : Buffer(sharedContext,
                  size,
+                 std::move(label),
                  /*commandBufferRefsAsUsageRefs=*/buffer.GetUsage() & wgpu::BufferUsage::MapWrite)
         , fBuffer(std::move(buffer))
         , fType(type) {

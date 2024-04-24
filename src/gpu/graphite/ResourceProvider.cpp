@@ -185,7 +185,8 @@ sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SamplerDesc
 
 sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
                                                    BufferType type,
-                                                   AccessPattern accessPattern) {
+                                                   AccessPattern accessPattern,
+                                                   std::string_view label) {
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
     GraphiteResourceKey key;
@@ -216,9 +217,10 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
 
     skgpu::Budgeted budgeted = skgpu::Budgeted::kYes;
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
+        resource->setLabel(std::move(label));
         return sk_sp<Buffer>(static_cast<Buffer*>(resource));
     }
-    auto buffer = this->createBuffer(size, type, accessPattern);
+    auto buffer = this->createBuffer(size, type, accessPattern, std::move(label));
     if (!buffer) {
         return nullptr;
     }

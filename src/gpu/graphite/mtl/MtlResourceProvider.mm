@@ -245,8 +245,9 @@ sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& t
 
 sk_sp<Buffer> MtlResourceProvider::createBuffer(size_t size,
                                                 BufferType type,
-                                                AccessPattern accessPattern) {
-    return MtlBuffer::Make(this->mtlSharedContext(), size, type, accessPattern);
+                                                AccessPattern accessPattern,
+                                                std::string_view label) {
+    return MtlBuffer::Make(this->mtlSharedContext(), size, type, accessPattern, std::move(label));
 }
 
 sk_sp<Sampler> MtlResourceProvider::createSampler(const SamplerDesc& samplerDesc) {

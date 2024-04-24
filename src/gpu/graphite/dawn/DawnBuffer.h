@@ -25,7 +25,8 @@ public:
     static sk_sp<DawnBuffer> Make(const DawnSharedContext*,
                                   size_t size,
                                   BufferType type,
-                                  AccessPattern);
+                                  AccessPattern,
+                                  std::string_view label);
 
     bool isUnmappable() const override;
 
@@ -36,7 +37,8 @@ private:
                size_t size,
                wgpu::Buffer,
                BufferType,
-               void* mapAtCreationPtr);
+               void* mapAtCreationPtr,
+               std::string_view label);
 
 #if defined(__EMSCRIPTEN__)
     void prepareForReturnToCache(const std::function<void()>& takeRef) override;
