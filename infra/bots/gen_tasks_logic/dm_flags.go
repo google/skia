@@ -904,13 +904,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "test", ALL, "InitialTextureClear")
 	}
 
-	if b.model("Pixel3") {
-		// skbug.com/10546
-		skip("vkddl", "gm", ALL, "compressed_textures_nmof")
-		skip("vkddl", "gm", ALL, "compressed_textures_npot")
-		skip("vkddl", "gm", ALL, "compressed_textures")
-	}
-
 	if b.model("TecnoSpark3Pro", "Wembley") {
 		// skbug.com/9421
 		skip(ALL, "test", ALL, "InitialTextureClear")

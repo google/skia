@@ -275,10 +275,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~^path_text$")
 		match = append(match, "~^path_text_clipped_uncached$")
 	}
-	if b.model("Pixel3") && b.extraConfig("Vulkan") {
-		// skia:9972
-		match = append(match, "~^path_text_clipped_uncached$")
-	}
 
 	if b.model("Wembley") {
 		// These tests spin forever on the Wembley.

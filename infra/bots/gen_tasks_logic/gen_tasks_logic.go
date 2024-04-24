@@ -1009,14 +1009,13 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			} else if b.isLinux() {
 				gpu, ok := map[string]string{
 					// Intel drivers come from CIPD, so no need to specify the version here.
-					"IntelBayTrail": "8086:0f31",
-					"IntelHD2000":   "8086:0102",
-					"IntelHD405":    "8086:22b1",
-					"IntelIris640":  "8086:5926",
-					"QuadroP400":    "10de:1cb3-510.60.02",
-					"RTX3060":       "10de:2489-470.182.03",
-					"IntelIrisXe":   "8086:9a49",
-					"RadeonVega6":   "1002:1636",
+					"IntelHD2000":  "8086:0102",
+					"IntelHD405":   "8086:22b1",
+					"IntelIris640": "8086:5926",
+					"QuadroP400":   "10de:1cb3-510.60.02",
+					"RTX3060":      "10de:2489-470.182.03",
+					"IntelIrisXe":  "8086:9a49",
+					"RadeonVega6":  "1002:1636",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Ubuntu GPU mapping.", b.parts["cpu_or_gpu_value"])
