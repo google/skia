@@ -57,7 +57,9 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(DrawPassTestFailedDstCopy,
                                                         target,
                                                         targetInfo,
                                                         {LoadOp::kClear, StoreOp::kStore},
-                                                        {0.0f, 0.0f, 0.0f, 0.0f});
+                                                        {0.0f, 0.0f, 0.0f, 0.0f},
+                                                        /*dstCopy=*/nullptr,
+                                                        /*dstCopyOffset=*/{0,0});
 
     // Make sure creating the draw pass failed.
     REPORTER_ASSERT(reporter, !drawPass);

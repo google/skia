@@ -34,6 +34,7 @@
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/task/ComputeTask.h"
+#include "src/gpu/graphite/task/CopyTask.h"
 #include "src/gpu/graphite/task/DrawTask.h"
 #include "src/gpu/graphite/task/RenderPassTask.h"
 #include "src/gpu/graphite/task/UploadTask.h"
@@ -221,16 +222,39 @@ void DrawContext::flush(Recorder* recorder) {
     }
 
     // Convert the pending draws and load/store ops into a DrawPass that will be executed after
-    // the collected uploads and compute dispatches.
+    // the collected uploads and compute dispatches. If there's a dst readback copy required it
+    // inserts a CopyTextureToTexture task before the RenderPassTask.
     // TODO: At this point, there's only ever one DrawPass in a RenderPassTask to a target. When
     // subpasses are implemented, they will either be collected alongside fPendingDraws or added
     // to the RenderPassTask separately.
+    sk_sp<TextureProxy> dstCopy;
+    SkIRect dstCopyPixelBounds = SkIRect::MakeEmpty();
+    if (!fPendingDraws->dstCopyBounds().isEmptyNegativeOrNaN()) {
+        TRACE_EVENT_INSTANT0("skia.gpu", "DrawPass requires dst copy", TRACE_EVENT_SCOPE_THREAD);
+
+        dstCopyPixelBounds = fPendingDraws->dstCopyBounds().makeRoundOut().asSkIRect();
+
+        // TODO: Right now this assert is ensuring that the dstCopy will be texturable since it
+        // uses the same texture info as fTarget. Ideally, if fTarget were not texturable but
+        // still readable, we would perform a fallback to a compatible texturable info. We also
+        // should decide whether or not a copy-as-draw fallback is necessary here too. All of
+        // this is handled inside Image::Copy() except we would need it to expose the task in
+        // order to link it correctly.
+        SkASSERT(recorder->priv().caps()->isTexturable(fTarget->textureInfo()));
+        dstCopy = TextureProxy::Make(recorder->priv().caps(),
+                                     recorder->priv().resourceProvider(),
+                                     dstCopyPixelBounds.size(),
+                                     fTarget->textureInfo(),
+                                     skgpu::Budgeted::kYes);
+    }
     std::unique_ptr<DrawPass> pass = DrawPass::Make(recorder,
                                                     std::move(fPendingDraws),
                                                     fTarget,
                                                     this->imageInfo(),
                                                     std::make_pair(fPendingLoadOp, fPendingStoreOp),
-                                                    fPendingClearColor);
+                                                    fPendingClearColor,
+                                                    dstCopy,
+                                                    dstCopyPixelBounds.topLeft());
     fPendingDraws = std::make_unique<DrawList>();
     // Now that there is content drawn to the target, that content must be loaded on any subsequent
     // render pass.
@@ -239,6 +263,12 @@ void DrawContext::flush(Recorder* recorder) {
 
     if (pass) {
         SkASSERT(fTarget.get() == pass->target());
+
+        if (dstCopy) {
+            // Add the copy task to initialize dstCopy before the render pass task.
+            fCurrentDrawTask->addTask(CopyTextureToTextureTask::Make(
+                    fTarget, dstCopyPixelBounds, dstCopy, /*dstPoint=*/{0, 0}));
+        }
 
         const Caps* caps = recorder->priv().caps();
         auto [loadOp, storeOp] = pass->ops();
