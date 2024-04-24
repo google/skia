@@ -8,7 +8,8 @@
 #include "include/core/SkCanvas.h"
 #include "modules/svg/include/SkSVGEllipse.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
+#include "modules/svg/include/SkSVGTypes.h"
+#include "modules/svg/src/SkSVGRectPriv.h"
 
 SkSVGEllipse::SkSVGEllipse() : INHERITED(SkSVGTag::kEllipse) {}
 
@@ -23,9 +24,15 @@ bool SkSVGEllipse::parseAndSetAttribute(const char* n, const char* v) {
 SkRect SkSVGEllipse::resolve(const SkSVGLengthContext& lctx) const {
     const auto cx = lctx.resolve(fCx, SkSVGLengthContext::LengthType::kHorizontal);
     const auto cy = lctx.resolve(fCy, SkSVGLengthContext::LengthType::kVertical);
-    const auto rx = lctx.resolve(fRx, SkSVGLengthContext::LengthType::kHorizontal);
-    const auto ry = lctx.resolve(fRy, SkSVGLengthContext::LengthType::kVertical);
 
+    // https://www.w3.org/TR/SVG2/shapes.html#EllipseElement
+    //
+    // An auto value for either rx or ry is converted to a used value, following the rules given
+    // above for rectangles (but without any clamping based on width or height).
+    const auto [ rx, ry ] = ResolveOptionalRadii(fRx, fRy, lctx);
+
+    // A computed value of zero for either dimension, or a computed value of auto for both
+    // dimensions, disables rendering of the element.
     return (rx > 0 && ry > 0)
         ? SkRect::MakeXYWH(cx - rx, cy - ry, rx * 2, ry * 2)
         : SkRect::MakeEmpty();

@@ -98,6 +98,7 @@ skia_svg_sources = [
   "$_modules/svg/src/SkSVGPoly.cpp",
   "$_modules/svg/src/SkSVGRadialGradient.cpp",
   "$_modules/svg/src/SkSVGRect.cpp",
+  "$_modules/svg/src/SkSVGRectPriv.h",
   "$_modules/svg/src/SkSVGRenderContext.cpp",
   "$_modules/svg/src/SkSVGSVG.cpp",
   "$_modules/svg/src/SkSVGShape.cpp",
