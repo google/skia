@@ -352,6 +352,7 @@ skia_cc_library(
         "SkFontMgr_android_parser.h",
         "//include/ports:android_fontmgr_hdrs",
     ],
+    defines = ["SK_FONTMGR_ANDROID_AVAILABLE"],
     visibility = ["//:__pkg__"],
     deps = [
         ":freetype_support",
