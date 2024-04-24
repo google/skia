@@ -677,9 +677,13 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
         return;
     }
 
+    SkTileMode uvTileModes[2] = { imgData.fTileModes[0] == SkTileMode::kDecal
+                                          ? SkTileMode::kClamp : imgData.fTileModes[0],
+                                  imgData.fTileModes[1] == SkTileMode::kDecal
+                                          ? SkTileMode::kClamp : imgData.fTileModes[1] };
     gatherer->add(imgData.fSampling, imgData.fTileModes, imgData.fTextureProxies[0]);
-    gatherer->add(imgData.fSamplingUV, imgData.fTileModes, imgData.fTextureProxies[1]);
-    gatherer->add(imgData.fSamplingUV, imgData.fTileModes, imgData.fTextureProxies[2]);
+    gatherer->add(imgData.fSamplingUV, uvTileModes, imgData.fTextureProxies[1]);
+    gatherer->add(imgData.fSamplingUV, uvTileModes, imgData.fTextureProxies[2]);
     gatherer->add(imgData.fSampling, imgData.fTileModes, imgData.fTextureProxies[3]);
 
     if (imgData.fSampling.useCubic) {
@@ -1533,9 +1537,20 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
             // Depending on where the subset edge falls in actual subsampled plane, one of those
             // values may come from outside the subset. Hence, we use this custom inset which
             // applies the wrap mode to the subset but allows linear filtering to read pixels from
-            // the plane that are just outside the subset.
-            imgData.fLinearFilterUVInset = { 1.f/(2*ssx), 1.f/(2*ssy) };
+            // that are just outside the subset. We only want to apply this offset in non-decal
+            // modes, or when the image view size is not a multiple of the UV subsampling factor.
+            if (imgData.fTileModes[0] != SkTileMode::kDecal ||
+                view.dimensions().width()*ssx > yuvaInfo.width()) {
+                imgData.fLinearFilterUVInset.fX = 1.f/(2*ssx);
+            }
+            if (imgData.fTileModes[1] != SkTileMode::kDecal ||
+                view.dimensions().height()*ssy > yuvaInfo.height()) {
+                imgData.fLinearFilterUVInset.fY = 1.f/(2*ssy);
+            }
         }
+        // Need to scale this just like we scale the image size
+        imgData.fLinearFilterUVInset = {imgData.fLinearFilterUVInset.fX*ssx,
+                                        imgData.fLinearFilterUVInset.fY*ssy};
     }
 
     float yuvM[20];
