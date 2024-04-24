@@ -329,10 +329,9 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
 }
 
 bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {
-    if (!fTextureProxy) {
-        SKGPU_LOG_E("No texture proxy specified for UploadTask");
-        return false;
-    }
+    // While most uploads are to already instantiated proxies (e.g. for client-created texture
+    // images) it is possible that writePixels() was issued as the first operation on a scratch
+    // Device, or that this is the first upload to the raster or text atlas proxies.
     if (!TextureProxy::InstantiateIfNotLazy(resourceProvider, fTextureProxy.get())) {
         SKGPU_LOG_E("Could not instantiate texture proxy for UploadTask!");
         return false;
