@@ -46,6 +46,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(DrawPassTestFailedDstCopy,
     const SkImageInfo targetInfo = SkImageInfo::Make(targetSize, targetColorType, targetAlphaType);
     sk_sp<TextureProxy> target = TextureProxy::Make(
             caps,
+            recorder->priv().resourceProvider(),
             targetSize,
             caps->getDefaultSampledTextureInfo(
                     targetColorType, Mipmapped::kNo, Protected::kNo, Renderable::kYes),

@@ -362,8 +362,10 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             SkASSERT(!size.isEmpty());
             SkASSERT(colorType != kUnknown_SkColorType);
 
-            sk_sp<TextureProxy> texture = TextureProxy::MakeStorage(
-                    fRecorder->priv().caps(), size, colorType, skgpu::Budgeted::kYes);
+            auto textureInfo = fRecorder->priv().caps()->getDefaultStorageTextureInfo(colorType);
+            sk_sp<TextureProxy> texture = TextureProxy::Make(
+                    fRecorder->priv().caps(), fRecorder->priv().resourceProvider(),
+                    size, textureInfo, skgpu::Budgeted::kYes);
             if (texture) {
                 fObj->fTextures.push_back(std::move(texture));
                 result = TextureIndex{fObj->fTextures.size() - 1u};

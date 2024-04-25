@@ -59,24 +59,21 @@ sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
         return iter->second;
     }
 
-    sk_sp<TextureProxy> proxy;
-    if (requireStorageUsage) {
-        proxy = TextureProxy::MakeStorage(recorder->priv().caps(),
-                                          SkISize::Make(int32_t(width), int32_t(height)),
-                                          colorType,
-                                          skgpu::Budgeted::kYes);
-    } else {
-        // We currently only make the distinction between a storage texture (written by a
-        // compute pass) and a plain sampleable texture (written via upload) that won't be
-        // used as a render attachment.
-        proxy = TextureProxy::Make(recorder->priv().caps(),
-                                   SkISize::Make(int32_t(width), int32_t(height)),
-                                   colorType,
-                                   skgpu::Mipmapped::kNo,
-                                   recorder->priv().isProtected(),
-                                   skgpu::Renderable::kNo,
-                                   skgpu::Budgeted::kYes);
-    }
+    // We currently only make the distinction between a storage texture (written by a
+    // compute pass) and a plain sampleable texture (written via upload) that won't be
+    // used as a render attachment.
+    const Caps* caps = recorder->priv().caps();
+    auto textureInfo = requireStorageUsage
+            ? caps->getDefaultStorageTextureInfo(colorType)
+            : caps->getDefaultSampledTextureInfo(colorType,
+                                                 Mipmapped::kNo,
+                                                 recorder->priv().isProtected(),
+                                                 Renderable::kNo);
+    sk_sp<TextureProxy> proxy = TextureProxy::Make(caps,
+                                                   recorder->priv().resourceProvider(),
+                                                   SkISize::Make((int32_t) width, (int32_t) height),
+                                                   textureInfo,
+                                                   Budgeted::kYes);
     if (!proxy) {
         return nullptr;
     }

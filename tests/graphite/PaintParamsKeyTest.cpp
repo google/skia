@@ -1327,13 +1327,18 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
 
     std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
 
+    auto dstTexInfo = context->priv().caps()->getDefaultSampledTextureInfo(
+            kRGBA_8888_SkColorType,
+            skgpu::Mipmapped::kNo,
+            skgpu::Protected::kNo,
+            skgpu::Renderable::kNo);
+    // Use Budgeted::kYes to avoid instantiating the proxy immediately; this test doesn't need
+    // a full resource.
     sk_sp<TextureProxy> fakeDstTexture = TextureProxy::Make(context->priv().caps(),
+                                                            context->priv().resourceProvider(),
                                                             SkISize::Make(1, 1),
-                                                            kRGBA_8888_SkColorType,
-                                                            skgpu::Mipmapped::kNo,
-                                                            skgpu::Protected::kNo,
-                                                            skgpu::Renderable::kYes,
-                                                            skgpu::Budgeted::kNo);
+                                                            dstTexInfo,
+                                                            skgpu::Budgeted::kYes);
     constexpr SkIPoint kFakeDstOffset = SkIPoint::Make(0, 0);
 
     KeyContext precompileKeyContext(context->priv().caps(),

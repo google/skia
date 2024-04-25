@@ -86,6 +86,7 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
 
     sk_sp<TextureProxy> dst = TextureProxy::Make(
             recorder->priv().caps(),
+            recorder->priv().resourceProvider(),
             backingFit == SkBackingFit::kApprox ? GetApproxSize(subset.size()) : subset.size(),
             textureInfo,
             budgeted);

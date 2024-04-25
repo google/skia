@@ -247,17 +247,17 @@ sk_sp<Device> Device::Make(Recorder* recorder,
         return nullptr;
     }
 
-    Protected isProtected = Protected(recorder->priv().caps()->protectedSupport());
+    const Caps* caps = recorder->priv().caps();
     SkISize backingDimensions = backingFit == SkBackingFit::kApprox ? GetApproxSize(ii.dimensions())
                                                                     : ii.dimensions();
+    auto textureInfo = caps->getDefaultSampledTextureInfo(ii.colorType(),
+                                                          mipmapped,
+                                                          recorder->priv().isProtected(),
+                                                          Renderable::kYes);
+
     return Make(recorder,
-                TextureProxy::Make(recorder->priv().caps(),
-                                   backingDimensions,
-                                   ii.colorType(),
-                                   mipmapped,
-                                   isProtected,
-                                   Renderable::kYes,
-                                   budgeted),
+                TextureProxy::Make(caps, recorder->priv().resourceProvider(),
+                                   backingDimensions, textureInfo, budgeted),
                 ii.dimensions(),
                 ii.colorInfo(),
                 props,

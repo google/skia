@@ -318,13 +318,17 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                     /* dstTexture= */ nullptr,
                                     /* dstOffset= */ {0, 0});
 
+    auto dstTexInfo = recorder->priv().caps()->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
+                                                                            skgpu::Mipmapped::kNo,
+                                                                            skgpu::Protected::kNo,
+                                                                            skgpu::Renderable::kNo);
+    // Use Budgeted::kYes to avoid immediately instantiating the TextureProxy. This test doesn't
+    // require full resources.
     sk_sp<TextureProxy> fakeDstTexture = TextureProxy::Make(recorder->priv().caps(),
+                                                            recorder->priv().resourceProvider(),
                                                             SkISize::Make(1, 1),
-                                                            kRGBA_8888_SkColorType,
-                                                            skgpu::Mipmapped::kNo,
-                                                            skgpu::Protected::kNo,
-                                                            skgpu::Renderable::kYes,
-                                                            skgpu::Budgeted::kNo);
+                                                            dstTexInfo,
+                                                            skgpu::Budgeted::kYes);
     constexpr SkIPoint fakeDstOffset = SkIPoint::Make(0, 0);
 
     DrawTypeFlags kDrawType = DrawTypeFlags::kShape;

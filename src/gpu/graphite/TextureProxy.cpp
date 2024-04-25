@@ -7,8 +7,10 @@
 
 #include "src/gpu/graphite/TextureProxy.h"
 
+#include "include/gpu/graphite/Recorder.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureUtils.h"
@@ -129,6 +131,7 @@ const Texture* TextureProxy::texture() const {
 }
 
 sk_sp<TextureProxy> TextureProxy::Make(const Caps* caps,
+                                       ResourceProvider* resourceProvider,
                                        SkISize dimensions,
                                        const TextureInfo& textureInfo,
                                        skgpu::Budgeted budgeted) {
@@ -139,22 +142,15 @@ sk_sp<TextureProxy> TextureProxy::Make(const Caps* caps,
         return nullptr;
     }
 
-    return sk_sp<TextureProxy>(new TextureProxy(dimensions, textureInfo, budgeted));
-}
-
-sk_sp<TextureProxy> TextureProxy::Make(const Caps* caps,
-                                       SkISize dimensions,
-                                       SkColorType colorType,
-                                       Mipmapped mipmapped,
-                                       Protected isProtected,
-                                       Renderable renderable,
-                                       skgpu::Budgeted budgeted) {
-    TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(colorType,
-                                                                 mipmapped,
-                                                                 isProtected,
-                                                                 renderable);
-
-    return Make(caps, dimensions, textureInfo, budgeted);
+    sk_sp<TextureProxy> proxy{new TextureProxy(dimensions, textureInfo, budgeted)};
+    if (budgeted == Budgeted::kNo) {
+        // Instantiate immediately to avoid races later on if the client starts to use the wrapping
+        // object on multiple threads.
+        if (!proxy->instantiate(resourceProvider)) {
+            return nullptr;
+        }
+    }
+    return proxy;
 }
 
 sk_sp<TextureProxy> TextureProxy::MakeLazy(const Caps* caps,
@@ -182,15 +178,6 @@ sk_sp<TextureProxy> TextureProxy::MakeFullyLazy(const TextureInfo& textureInfo,
 
     return sk_sp<TextureProxy>(new TextureProxy(
             SkISize::Make(-1, -1), textureInfo, budgeted, isVolatile, std::move(callback)));
-}
-
-sk_sp<TextureProxy> TextureProxy::MakeStorage(const Caps* caps,
-                                              SkISize dimensions,
-                                              SkColorType colorType,
-                                              skgpu::Budgeted budgeted) {
-    TextureInfo textureInfo = caps->getDefaultStorageTextureInfo(colorType);
-
-    return Make(caps, dimensions, textureInfo, budgeted);
 }
 
 sk_sp<TextureProxy> TextureProxy::Wrap(sk_sp<Texture> texture) {

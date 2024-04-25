@@ -937,12 +937,14 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
         }
     }
 
+    auto texInfo = context->priv().caps()->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
+                                                                        skgpu::Mipmapped::kNo,
+                                                                        skgpu::Protected::kNo,
+                                                                        skgpu::Renderable::kNo);
     sk_sp<TextureProxy> srcProxy = TextureProxy::Make(context->priv().caps(),
+                                                      recorder->priv().resourceProvider(),
                                                       {kDim, kDim},
-                                                      kRGBA_8888_SkColorType,
-                                                      skgpu::Mipmapped::kNo,
-                                                      skgpu::Protected::kNo,
-                                                      skgpu::Renderable::kNo,
+                                                      texInfo,
                                                       skgpu::Budgeted::kNo);
     MipLevel mipLevel;
     mipLevel.fPixels = srcPixels.addr();
