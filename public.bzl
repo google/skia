@@ -2739,6 +2739,7 @@ SVG_LIB_SRCS = [
     "modules/svg/src/SkSVGPoly.cpp",
     "modules/svg/src/SkSVGRadialGradient.cpp",
     "modules/svg/src/SkSVGRect.cpp",
+    "modules/svg/src/SkSVGRectPriv.h",
     "modules/svg/src/SkSVGRenderContext.cpp",
     "modules/svg/src/SkSVGShape.cpp",
     "modules/svg/src/SkSVGStop.cpp",
