@@ -30,8 +30,7 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithLocalMatrix() {
         return sk_ref_sp(this);
     }
 
-    return PrecompileShadersPriv::LocalMatrix({ sk_ref_sp(this) },
-                                              PrecompileLocalMatrixFlags::kSkipElision);
+    return PrecompileShaders::LocalMatrix({ sk_ref_sp(this) });
 }
 
 sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(sk_sp<PrecompileColorFilter> cf) {
