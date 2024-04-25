@@ -22,6 +22,7 @@ wgpu::ShaderModule CreateNoopFragment(const wgpu::Device& device) {
             "fn main() {}\n";
     wgpu::ShaderModuleDescriptor smDesc;
     smDesc.nextInChain = &wgslDesc;
+    smDesc.label = "no-op";
     auto fsModule = device.CreateShaderModule(&smDesc);
     return fsModule;
 }

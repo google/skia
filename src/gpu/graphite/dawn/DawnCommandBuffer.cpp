@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/dawn/DawnCommandBuffer.h"
 
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/dawn/DawnBuffer.h"

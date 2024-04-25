@@ -13,10 +13,10 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/base/SkTArray.h"
 
-#include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawTypes.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/task/UploadTask.h"
 

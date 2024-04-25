@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
@@ -531,6 +532,10 @@ VertSkSLInfo BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
     sksl += "}";
 
     result.fSkSL = std::move(sksl);
+    result.fLabel = step->name();
+    if (defineLocalCoordsVarying) {
+        result.fLabel += " (w/ local coords)";
+    }
 
     return result;
 }
@@ -543,11 +548,9 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
                                bool useStorageBuffers,
                                skgpu::Swizzle writeSwizzle) {
     FragSkSLInfo result;
-    result.fLabel = step->name();
-
     if (!paintID.isValid()) {
         // Depth-only draw so no fragment shader to compile
-        return result;
+        return {};
     }
 
     const char* shadingSsboIndex =
@@ -568,10 +571,25 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
     result.fBlendInfo = shaderInfo.blendInfo();
     result.fRequiresLocalCoords = shaderInfo.needsLocalCoords();
 
-    result.fLabel +=  " + ";
-    result.fLabel += shaderInfo.label();
+    result.fLabel = writeSwizzle.asString().c_str();
+    result.fLabel += " + ";
+    result.fLabel = step->name();
+    result.fLabel += " + ";
+    result.fLabel += dict->idToString(paintID).c_str();
 
     return result;
+}
+
+std::string GetPipelineLabel(const ShaderCodeDictionary* dict,
+                             const RenderPassDesc& renderPassDesc,
+                             const RenderStep* renderStep,
+                             UniquePaintParamsID paintID) {
+    std::string label = renderPassDesc.toString().c_str(); // includes the write swizzle
+    label += " + ";
+    label += renderStep->name();
+    label += " + ";
+    label += dict->idToString(paintID).c_str(); // will be "(empty)" for depth-only draws
+    return label;
 }
 
 std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step) {

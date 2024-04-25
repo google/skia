@@ -8,53 +8,14 @@
 #include "tools/graphite/UniqueKeyUtils.h"
 
 #include "src/gpu/ResourceKey.h"
-#include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 
 using namespace skgpu::graphite;
 using namespace skgpu;
-
-#ifdef SK_DEBUG
-
-namespace {
-
-const char* to_str(LoadOp op) {
-    switch (op) {
-        case LoadOp::kLoad:    return "kLoad";
-        case LoadOp::kClear:   return "kClear";
-        case LoadOp::kDiscard: return "kDiscard";
-    }
-
-    SkUNREACHABLE;
-}
-
-const char* to_str(StoreOp op) {
-    switch (op) {
-        case StoreOp::kStore:   return "kStore";
-        case StoreOp::kDiscard: return "kDiscard";
-    }
-
-    SkUNREACHABLE;
-}
-
-void dump_attachment(const char* label, const AttachmentDesc& attachment) {
-    if (attachment.fTextureInfo.isValid()) {
-        SkDebugf("%s %s loadOp: %s storeOp: %s\n",
-                 label,
-                 attachment.fTextureInfo.toString().c_str(),
-                 to_str(attachment.fLoadOp),
-                 to_str(attachment.fStoreOp));
-    } else {
-        SkDebugf("%s invalid attachment\n", label);
-    }
-}
-
-} // anonymous namespace
-
-#endif // SK_DEBUG
 
 
 namespace UniqueKeyUtils {
@@ -73,22 +34,21 @@ void DumpDescs(const RendererProvider* rendererProvider,
                const ShaderCodeDictionary* dict,
                const GraphicsPipelineDesc& pipelineDesc,
                const RenderPassDesc& rpd) {
-    dict->lookup(pipelineDesc.paintParamsID()).dump(dict);
-
     const RenderStep* rs = rendererProvider->lookup(pipelineDesc.renderStepID());
-
     SkDebugf("GraphicsPipelineDesc: %u %s\n", pipelineDesc.paintParamsID().asUInt(), rs->name());
 
+    dict->lookup(pipelineDesc.paintParamsID()).dump(dict);
+
     SkDebugf("RenderPassDesc:\n");
-    dump_attachment("   colorAttach:", rpd.fColorAttachment);
-    SkDebugf("   clearColor: %.2f %.2f %.2f %.2f\n",
-             rpd.fClearColor[0], rpd.fClearColor[1], rpd.fClearColor[2], rpd.fClearColor[3]);
-    dump_attachment("   colorResolveAttach:", rpd.fColorResolveAttachment);
-    dump_attachment("   depthStencilAttach:", rpd.fDepthStencilAttachment);
-    SkDebugf("   clearDepth: %.2f\n"
+    SkDebugf("   colorAttach: %s\n", rpd.fColorAttachment.toString().c_str());
+    SkDebugf("   colorResolveAttach: %s\n", rpd.fColorResolveAttachment.toString().c_str());
+    SkDebugf("   depthStencilAttach: %s\n", rpd.fDepthStencilAttachment.toString().c_str());
+    SkDebugf("   clearColor: %.2f %.2f %.2f %.2f\n"
+             "   clearDepth: %.2f\n"
              "   stencilClear: %u\n"
-             "   writeStencil: %s\n"
+             "   writeSwizzle: %s\n"
              "   sampleCount: %u\n",
+             rpd.fClearColor[0], rpd.fClearColor[1], rpd.fClearColor[2], rpd.fClearColor[3],
              rpd.fClearDepth,
              rpd.fClearStencil,
              rpd.fWriteSwizzle.asString().c_str(),

@@ -113,6 +113,7 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/PublicPrecompile.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "tools/graphite/UniqueKeyUtils.h"
 #endif // SK_ENABLE_PRECOMPILE

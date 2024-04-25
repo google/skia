@@ -13,7 +13,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkEnumBitMask.h"
-#include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/DrawCommands.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"

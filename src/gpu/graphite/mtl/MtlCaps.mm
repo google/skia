@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/mtl/MtlGraphiteUtilsPriv.h"

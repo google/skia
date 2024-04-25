@@ -16,10 +16,12 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/Sampler.h"
@@ -29,19 +31,16 @@
 
 namespace skgpu::graphite {
 
-// These are only used when tracing is enabled at compile time.
-[[maybe_unused]] static const char* render_step_name(const SharedContext* ctx,
-                                                     const GraphicsPipelineDesc& desc) {
-    return ctx->rendererProvider()->lookup(desc.renderStepID())->name();
-}
-
-[[maybe_unused]] static SkString paint_desc(const SharedContext* ctx,
-                                            const GraphicsPipelineDesc& desc) {
+// This is only used when tracing is enabled at compile time.
+[[maybe_unused]] static std::string to_str(const SharedContext* ctx,
+                                           const GraphicsPipelineDesc& gpDesc,
+                                           const RenderPassDesc& rpDesc) {
     const ShaderCodeDictionary* dict = ctx->shaderCodeDictionary();
-    return dict->lookup(desc.paintParamsID()).toString(dict);
+    const RenderStep* step = ctx->rendererProvider()->lookup(gpDesc.renderStepID());
+    return GetPipelineLabel(dict, rpDesc, step, gpDesc.paintParamsID());
 }
 
-ResourceProvider::ResourceProvider(SharedContext* sharedContext,
+ResourceProvider::ResourceProvider(SharedContext* sharedContext,\
                                    SingleOwner* singleOwner,
                                    uint32_t recorderID,
                                    size_t resourceBudget)
@@ -68,9 +67,8 @@ sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
         // it allows pipeline creation to be performed without locking the global cache.
         // NOTE: The parameters to TRACE_EVENT are only evaluated inside an if-block when the
         // category is enabled.
-        TRACE_EVENT2("skia.shaders", "createGraphicsPipeline",
-                     "renderstep", TRACE_STR_STATIC(render_step_name(fSharedContext, pipelineDesc)),
-                     "paint", TRACE_STR_COPY(paint_desc(fSharedContext, pipelineDesc).c_str()));
+        TRACE_EVENT1("skia.shaders", "createGraphicsPipeline", "desc",
+                     TRACE_STR_COPY(to_str(fSharedContext, pipelineDesc, renderPassDesc).c_str()));
         pipeline = this->createGraphicsPipeline(runtimeDict, pipelineDesc, renderPassDesc);
         if (pipeline) {
             // TODO: Should we store a null pipeline if we failed to create one so that subsequent

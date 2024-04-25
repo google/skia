@@ -47,6 +47,7 @@
 #include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PublicPrecompile.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"

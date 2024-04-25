@@ -194,7 +194,6 @@ ShaderInfo::ShaderInfo(UniquePaintParamsID id,
     PaintParamsKey key = dict->lookup(id);
     SkASSERT(key.isValid()); // invalid keys should have been caught by invalid paint ID earlier
 
-    fLabel = std::string(key.toString(dict).c_str());
     fRootNodes = key.getRootNodes(dict, &fShaderNodeAlloc);
     // Aggregate snippet requirements across root nodes and look for fixed-function blend IDs in
     // the root to initialize the HW blend info.

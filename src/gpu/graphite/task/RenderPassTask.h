@@ -9,6 +9,7 @@
 #define skgpu_graphite_task_RenderPassTask_DEFINED
 
 #include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/task/Task.h"
 
 namespace skgpu::graphite {

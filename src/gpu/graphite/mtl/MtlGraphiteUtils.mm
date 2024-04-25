@@ -69,6 +69,7 @@ SkEnumBitMask<DepthStencilFlags> MtlFormatToDepthStencilFlags(MTLPixelFormat for
 }
 
 sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
+                                               std::string_view label,
                                                std::string_view msl,
                                                ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
@@ -108,6 +109,11 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
         return nil;
     }
 
+    NSString* nsLabel = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(label.data())
+                                                       length:label.size()
+                                                     encoding:NSUTF8StringEncoding
+                                                 freeWhenDone:NO];
+    compiledLibrary.get().label = nsLabel;
     return compiledLibrary;
 }
 

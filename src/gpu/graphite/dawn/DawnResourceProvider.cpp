@@ -8,8 +8,10 @@
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
 
 #include "include/gpu/graphite/BackendTexture.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkAlign.h"
 #include "src/gpu/graphite/ComputePipeline.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
 #include "src/gpu/graphite/dawn/DawnComputePipeline.h"
 #include "src/gpu/graphite/dawn/DawnErrorChecker.h"

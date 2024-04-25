@@ -12,7 +12,7 @@
 
 #include "include/gpu/GpuTypes.h"
 #include "src/gpu/SkBackingFit.h"
-#include "src/gpu/graphite/AttachmentTypes.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 
 namespace skgpu::graphite {

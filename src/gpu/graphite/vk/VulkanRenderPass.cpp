@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/vk/VulkanRenderPass.h"
 
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"

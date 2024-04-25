@@ -41,6 +41,7 @@ static ShaderInfo compile_shader_module(const DawnSharedContext* sharedContext,
     if (step->supportsNativeShader()) {
         auto nativeShader = step->nativeShaderSource(ComputeStep::NativeShaderFormat::kWGSL);
         if (!DawnCompileWGSLShaderModule(sharedContext,
+                                         step->name(),
                                          std::string(nativeShader.fSource),
                                          &info.fModule,
                                          errorHandler)) {
@@ -60,7 +61,8 @@ static ShaderInfo compile_shader_module(const DawnSharedContext* sharedContext,
                               &wgsl,
                               &interface,
                               errorHandler)) {
-            if (!DawnCompileWGSLShaderModule(sharedContext, wgsl, &info.fModule, errorHandler)) {
+            if (!DawnCompileWGSLShaderModule(sharedContext, step->name(), wgsl,
+                                             &info.fModule, errorHandler)) {
                 return {};
             }
             info.fEntryPoint = "main";

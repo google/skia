@@ -190,8 +190,6 @@ public:
 
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
-    std::string_view label() const { return fLabel; }
-
     std::string toSkSL(const Caps* caps,
                        const RenderStep* step,
                        bool useStorageBuffers,
@@ -217,7 +215,6 @@ private:
     SkBlendMode fBlendMode = SkBlendMode::kClear;
     skgpu::BlendInfo fBlendInfo;
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;
-    std::string fLabel;
 };
 
 // ShaderCodeDictionary is a thread-safe dictionary of ShaderSnippets to code IDs for use with
@@ -231,6 +228,10 @@ public:
     UniquePaintParamsID findOrCreate(PaintParamsKeyBuilder*) SK_EXCLUDES(fSpinLock);
 
     PaintParamsKey lookup(UniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
+
+    SkString idToString(UniquePaintParamsID id) const {
+        return this->lookup(id).toString(this);
+    }
 
     SkSpan<const Uniform> getUniforms(BuiltInCodeSnippetID) const;
     SkEnumBitMask<SnippetRequirementFlags> getSnippetRequirementFlags(

@@ -34,6 +34,7 @@ bool DawnFormatIsStencil(wgpu::TextureFormat);
 wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
 
 bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
+                                 const char* label,
                                  const std::string& wgsl,
                                  wgpu::ShaderModule* module,
                                  ShaderErrorHandler*);

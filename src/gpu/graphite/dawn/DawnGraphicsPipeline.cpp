@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
@@ -269,11 +270,12 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     // Some steps just render depth buffer but not color buffer, so the fragment
     // shader is null.
+    UniquePaintParamsID paintID = pipelineDesc.paintParamsID();
     FragSkSLInfo fsSkSLInfo = BuildFragmentSkSL(&caps,
                                                 sharedContext->shaderCodeDictionary(),
                                                 runtimeDict,
                                                 step,
-                                                pipelineDesc.paintParamsID(),
+                                                paintID,
                                                 useStorageBuffers,
                                                 renderPassDesc.fWriteSwizzle);
     std::string& fsSkSL = fsSkSLInfo.fSkSL;
@@ -292,7 +294,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                errorHandler)) {
             return {};
         }
-        if (!DawnCompileWGSLShaderModule(sharedContext, fsCode, &fsModule, errorHandler)) {
+        if (!DawnCompileWGSLShaderModule(sharedContext, fsSkSLInfo.fLabel.c_str(), fsCode,
+                                         &fsModule, errorHandler)) {
             return {};
         }
     }
@@ -311,12 +314,15 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                            errorHandler)) {
         return {};
     }
-    if (!DawnCompileWGSLShaderModule(sharedContext, vsCode, &vsModule, errorHandler)) {
+    if (!DawnCompileWGSLShaderModule(sharedContext, vsSkSLInfo.fLabel.c_str(), vsCode,
+                                     &vsModule, errorHandler)) {
         return {};
     }
 
+    std::string pipelineLabel =
+            GetPipelineLabel(sharedContext->shaderCodeDictionary(), renderPassDesc, step, paintID);
     wgpu::RenderPipelineDescriptor descriptor;
-    descriptor.label = fsSkSLInfo.fLabel.c_str();
+    descriptor.label = pipelineLabel.c_str();
 
     // Fragment state
     skgpu::BlendEquation equation = blendInfo.fEquation;
@@ -409,7 +415,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
                 wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
 #if defined(SK_DEBUG)
-                groupLayoutDesc.label = step->name();
+                groupLayoutDesc.label = vsSkSLInfo.fLabel.c_str();
 #endif
                 groupLayoutDesc.entryCount = entries.size();
                 groupLayoutDesc.entries = entries.data();

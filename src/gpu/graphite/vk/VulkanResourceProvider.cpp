@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"

@@ -14,6 +14,7 @@
 #include "src/gpu/DataUtils.h"
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"

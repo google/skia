@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/mtl/MtlUtilsPriv.h"

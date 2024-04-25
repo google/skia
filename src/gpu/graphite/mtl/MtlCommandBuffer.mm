@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/BackendSemaphore.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/mtl/MtlBlitCommandEncoder.h"

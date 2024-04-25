@@ -28,6 +28,29 @@ enum class DepthStencilFlags : int {
 SK_MAKE_BITMASK_OPS(DepthStencilFlags)
 
 /**
+ * This enum is used to specify the load operation to be used when a RenderPass begins execution
+ */
+enum class LoadOp : uint8_t {
+    kLoad,
+    kClear,
+    kDiscard,
+
+    kLast = kDiscard
+};
+inline static constexpr int kLoadOpCount = (int)(LoadOp::kLast) + 1;
+
+/**
+ * This enum is used to specify the store operation to be used when a RenderPass ends execution.
+ */
+enum class StoreOp : uint8_t {
+    kStore,
+    kDiscard,
+
+    kLast = kDiscard
+};
+inline static constexpr int kStoreOpCount = (int)(StoreOp::kLast) + 1;
+
+/**
  * What a GPU buffer will be used for
  */
 enum class BufferType : int {
