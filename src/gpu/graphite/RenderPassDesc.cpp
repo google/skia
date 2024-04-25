@@ -15,9 +15,9 @@ namespace {
 
 const char* to_str(LoadOp op) {
     switch (op) {
-        case LoadOp::kLoad:    return "kLoad";
-        case LoadOp::kClear:   return "kClear";
-        case LoadOp::kDiscard: return "kDiscard";
+        case LoadOp::kLoad:    return "load";
+        case LoadOp::kClear:   return "clear";
+        case LoadOp::kDiscard: return "discard";
     }
 
     SkUNREACHABLE;
@@ -25,8 +25,8 @@ const char* to_str(LoadOp op) {
 
 const char* to_str(StoreOp op) {
     switch (op) {
-        case StoreOp::kStore:   return "kStore";
-        case StoreOp::kDiscard: return "kDiscard";
+        case StoreOp::kStore:   return "store";
+        case StoreOp::kDiscard: return "discard";
     }
 
     SkUNREACHABLE;
