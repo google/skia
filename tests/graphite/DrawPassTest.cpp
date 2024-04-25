@@ -49,8 +49,9 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(DrawPassTestFailedDstCopy,
             recorder->priv().resourceProvider(),
             targetSize,
             caps->getDefaultSampledTextureInfo(
-                    targetColorType, Mipmapped::kNo, Protected::kNo, Renderable::kYes),
-            Budgeted::kNo);
+                    targetColorType, Mipmapped::kNo,
+                    recorder->priv().isProtected(), Renderable::kYes),
+            Budgeted::kYes);
     std::unique_ptr<DrawPass> drawPass = DrawPass::Make(recorder.get(),
                                                         std::move(drawList),
                                                         target,
