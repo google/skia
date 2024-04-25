@@ -293,7 +293,7 @@ void SkPathRef::copy(const SkPathRef& ref,
     fArcOval = ref.fArcOval;
     fArcStartAngle = ref.fArcStartAngle;
     fArcSweepAngle = ref.fArcSweepAngle;
-    fArcUseCenter = ref.fArcUseCenter;
+    fArcType = ref.fArcType;
     SkDEBUGCODE(this->validate();)
 }
 

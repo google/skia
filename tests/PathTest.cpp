@@ -2468,7 +2468,7 @@ static void test_isArc(skiatest::Reporter* reporter) {
                                 oval == arc.fOval &&
                                 startAngle == arc.fStartAngle &&
                                 sweepAngle == arc.fSweepAngle &&
-                                !arc.fUseCenter);
+                                !arc.isWedge());
 
                 // Apply some mutation. All of these should cause the path to no longer be an arc:
                 switch (mutator) {

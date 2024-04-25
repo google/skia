@@ -1483,11 +1483,11 @@ public:
 
         If SkRect oval is empty or sweepAngle is zero, nothing is drawn.
 
-        @param arc    SkArc specifying oval, startAngle, sweepAngle, and useCenter
+        @param arc    SkArc specifying oval, startAngle, sweepAngle, and arc-vs-wedge
         @param paint  SkPaint stroke or fill, blend, color, and so on, used to draw
     */
     void drawArc(const SkArc& arc, const SkPaint& paint) {
-        this->drawArc(arc.fOval, arc.fStartAngle, arc.fSweepAngle, arc.fUseCenter, paint);
+        this->drawArc(arc.fOval, arc.fStartAngle, arc.fSweepAngle, arc.isWedge(), paint);
     }
 
     /** Draws SkRRect bounded by SkRect rect, with corner radii (rx, ry) using clip,

@@ -10,6 +10,7 @@
 #if defined(SK_ENABLE_SVG)
 
 #include "include/codec/SkEncodedImageFormat.h"
+#include "include/core/SkArc.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -1345,7 +1346,7 @@ public:
         SkPath path;
         bool fillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
         SkPathPriv::CreateDrawArcPath(
-                &path, oval, startAngle, sweepAngle, useCenter, fillNoPathEffect);
+                &path, SkArc::Make(oval, startAngle, sweepAngle, useCenter), fillNoPathEffect);
         this->drawPath(path, paint);
     }
 

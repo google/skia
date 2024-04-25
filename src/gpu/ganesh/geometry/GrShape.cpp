@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/geometry/GrShape.h"
 
+#include "include/core/SkArc.h"
 #include "include/core/SkScalar.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
@@ -103,7 +104,7 @@ bool GrShape::simplifyArc(unsigned flags) {
 
     // Arcs can simplify to rrects, lines, points, or empty; regardless of what it simplifies to
     // it was closed if went through the center point.
-    bool wasClosed = fArc.fUseCenter;
+    bool wasClosed = fArc.isWedge();
     if (fArc.fOval.isEmpty() || !fArc.fSweepAngle) {
         if (flags & kSimpleFill_Flag) {
             // Go straight to empty, since the other degenerate shapes all have 0 area anyway.
@@ -114,7 +115,7 @@ bool GrShape::simplifyArc(unsigned flags) {
             SkPoint start = {center.fX + 0.5f * fArc.fOval.width() * SkScalarCos(startRad),
                                 center.fY + 0.5f * fArc.fOval.height() * SkScalarSin(startRad)};
             // Either just the starting point, or a line from the center to the start
-            if (fArc.fUseCenter) {
+            if (fArc.isWedge()) {
                 this->simplifyLine(center, start, flags);
              } else {
                 this->simplifyPoint(start, flags);
@@ -126,8 +127,9 @@ bool GrShape::simplifyArc(unsigned flags) {
             this->setType(Type::kEmpty);
         }
     } else {
-        if ((flags & kSimpleFill_Flag) || ((flags & kIgnoreWinding_Flag) && !fArc.fUseCenter)) {
-             // Eligible to turn into an oval if it sweeps a full circle
+        if ((flags & kSimpleFill_Flag) ||
+            ((flags & kIgnoreWinding_Flag) && !fArc.isWedge())) {
+            // Eligible to turn into an oval if it sweeps a full circle
             if (fArc.fSweepAngle <= -360.f || fArc.fSweepAngle >= 360.f) {
                 this->simplifyRRect(SkRRect::MakeOval(fArc.fOval),
                                     kDefaultDir, kDefaultStart, flags);
@@ -297,7 +299,7 @@ bool GrShape::conservativeContains(const SkRect& rect) const {
         case Type::kPath:
             return fPath.conservativelyContainsRect(rect);
         case Type::kArc:
-            if (fArc.fUseCenter) {
+            if (fArc.fType == SkArc::Type::kWedge) {
                 SkPath arc;
                 this->asPath(&arc);
                 return arc.conservativelyContainsRect(rect);
@@ -335,7 +337,7 @@ bool GrShape::closed() const {
             // SkPath doesn't keep track of the closed status of each contour.
             return SkPathPriv::IsClosedSingleContour(fPath);
         case Type::kArc:
-            return fArc.fUseCenter;
+            return fArc.fType == SkArc::Type::kWedge;
         case Type::kPoint: // fall through
         case Type::kLine:
             return false;
@@ -354,7 +356,7 @@ bool GrShape::convex(bool simpleFill) const {
             // Convex paths may only have one contour hence isLastContourClosed() is sufficient.
             return (simpleFill || fPath.isLastContourClosed()) && fPath.isConvex();
         case Type::kArc:
-            return SkPathPriv::DrawArcIsConvex(fArc.fSweepAngle, fArc.fUseCenter, simpleFill);
+            return SkPathPriv::DrawArcIsConvex(fArc.fSweepAngle, fArc.fType, simpleFill);
         case Type::kPoint: // fall through
         case Type::kLine:
             return false;
@@ -405,7 +407,7 @@ uint32_t GrShape::segmentMask() const {
         case Type::kPath:
             return fPath.getSegmentMasks();
         case Type::kArc:
-            if (fArc.fUseCenter) {
+            if (fArc.fType == SkArc::Type::kWedge) {
                 return SkPath::kConic_SegmentMask | SkPath::kLine_SegmentMask;
             } else {
                 return SkPath::kConic_SegmentMask;
@@ -449,8 +451,7 @@ void GrShape::asPath(SkPath* out, bool simpleFill) const {
             *out = fPath;
             return;
         case Type::kArc:
-            SkPathPriv::CreateDrawArcPath(out, fArc.fOval, fArc.fStartAngle, fArc.fSweepAngle,
-                                          fArc.fUseCenter, simpleFill);
+            SkPathPriv::CreateDrawArcPath(out, fArc, simpleFill);
             // CreateDrawArcPath resets the output path and configures its fill type, so we just
             // have to ensure invertedness is correct.
             if (fInverted) {

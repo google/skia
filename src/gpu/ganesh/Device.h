@@ -16,7 +16,6 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
-#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
@@ -60,6 +59,7 @@ enum class GrColorType;
 enum class SkBackingFit;
 enum class SkBlendMode;
 enum class SkTileMode;
+struct SkArc;
 struct SkDrawShadowRec;
 struct SkISize;
 struct SkPoint;
@@ -185,8 +185,7 @@ public:
     void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) override;
     void drawRegion(const SkRegion& r, const SkPaint& paint) override;
     void drawOval(const SkRect& oval, const SkPaint& paint) override;
-    void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
-                 bool useCenter, const SkPaint& paint) override;
+    void drawArc(const SkArc& arc, const SkPaint& paint) override;
     void drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) override;
 
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;

@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 
+#include "include/core/SkArc.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkTypes.h"
@@ -1419,10 +1420,7 @@ void SurfaceDrawContext::drawArc(const GrClip* clip,
                                  GrPaint&& paint,
                                  GrAA aa,
                                  const SkMatrix& viewMatrix,
-                                 const SkRect& oval,
-                                 SkScalar startAngle,
-                                 SkScalar sweepAngle,
-                                 bool useCenter,
+                                 const SkArc& arc,
                                  const GrStyle& style) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
@@ -1438,10 +1436,10 @@ void SurfaceDrawContext::drawArc(const GrClip* clip,
         GrOp::Owner op = GrOvalOpFactory::MakeArcOp(fContext,
                                                     std::move(paint),
                                                     viewMatrix,
-                                                    oval,
-                                                    startAngle,
-                                                    sweepAngle,
-                                                    useCenter,
+                                                    arc.fOval,
+                                                    arc.fStartAngle,
+                                                    arc.fSweepAngle,
+                                                    arc.isWedge(),
                                                     style,
                                                     shaderCaps);
         if (op) {
@@ -1451,9 +1449,11 @@ void SurfaceDrawContext::drawArc(const GrClip* clip,
         assert_alive(paint);
     }
 #endif
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
-                                     GrStyledShape::MakeArc(oval, startAngle, sweepAngle, useCenter,
-                                                            style, DoSimplify::kNo));
+    this->drawShapeUsingPathRenderer(clip,
+                                     std::move(paint),
+                                     aa,
+                                     viewMatrix,
+                                     GrStyledShape::MakeArc(arc, style, DoSimplify::kNo));
 }
 
 void SurfaceDrawContext::drawImageLattice(const GrClip* clip,

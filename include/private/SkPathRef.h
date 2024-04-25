@@ -82,7 +82,7 @@ public:
         fRRectOrOvalStartIdx = 0xAC;
         fArcOval.setEmpty();
         fArcStartAngle = fArcSweepAngle = 0.0f;
-        fArcUseCenter = false;
+        fArcType = SkArc::Type::kArc;
         SkDEBUGCODE(fEditorsAttached.store(0);)
 
         this->computeBounds();  // do this now, before we worry about multiple owners/threads
@@ -261,10 +261,7 @@ public:
     bool isArc(SkArc* arc) const {
         if (fType == PathType::kArc) {
             if (arc) {
-                arc->fOval = fArcOval;
-                arc->fStartAngle = fArcStartAngle;
-                arc->fSweepAngle = fArcSweepAngle;
-                arc->fUseCenter = fArcUseCenter;
+                *arc = SkArc::Make(fArcOval, fArcStartAngle, fArcSweepAngle, fArcType);
             }
         }
 
@@ -389,7 +386,7 @@ private:
         fRRectOrOvalStartIdx = 0xAC;
         fArcOval.setEmpty();
         fArcStartAngle = fArcSweepAngle = 0.0f;
-        fArcUseCenter = false;
+        fArcType = SkArc::Type::kArc;
         if (numPoints > 0) {
             fPoints.reserve_exact(numPoints);
         }
@@ -527,7 +524,7 @@ private:
         fArcOval = arc.fOval;
         fArcStartAngle = arc.fStartAngle;
         fArcSweepAngle = arc.fSweepAngle;
-        fArcUseCenter = arc.fUseCenter;
+        fArcType = arc.fType;
     }
 
     // called only by the editor. Note that this is not a const function.
@@ -569,10 +566,10 @@ private:
     uint8_t  fSegmentMask;
     // If the path is an arc, these four variables store that information.
     // We should just store an SkArc, but alignment would cost us 8 more bytes.
-    bool     fArcUseCenter;
-    SkRect   fArcOval;
-    SkScalar fArcStartAngle;
-    SkScalar fArcSweepAngle;
+    SkArc::Type fArcType;
+    SkRect      fArcOval;
+    SkScalar    fArcStartAngle;
+    SkScalar    fArcSweepAngle;
 
     friend class PathRefTest_Private;
     friend class ForceIsRRect_Private; // unit test isRRect

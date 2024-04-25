@@ -235,7 +235,7 @@ void GrStyledShape::writeUnstyledKey(uint32_t* key) const {
                 memcpy(key, &fShape.arc(), sizeof(SkRect) + 2 * sizeof(float));
                 key += (sizeof(SkArc) / sizeof(uint32_t) - 1);
                 // Then write the final bool as an int, to make sure upper bits are set
-                *key++ = fShape.arc().fUseCenter ? 1 : 0;
+                *key++ = fShape.arc().isWedge() ? 1 : 0;
                 break;
             case GrShape::Type::kLine:
                 memcpy(key, &fShape.line(), sizeof(GrLineSegment));
@@ -314,11 +314,12 @@ void GrStyledShape::addGenIDChangeListener(sk_sp<SkIDChangeListener> listener) c
     }
 }
 
-GrStyledShape GrStyledShape::MakeArc(const SkRect& oval, SkScalar startAngleDegrees,
-                                     SkScalar sweepAngleDegrees, bool useCenter,
-                                     const GrStyle& style, DoSimplify doSimplify) {
+GrStyledShape GrStyledShape::MakeArc(const SkArc& arc,
+                                     const GrStyle& style,
+                                     DoSimplify doSimplify) {
     GrStyledShape result;
-    result.fShape.setArc({oval.makeSorted(), startAngleDegrees, sweepAngleDegrees, useCenter});
+    result.fShape.setArc(
+            SkArc::Make(arc.fOval.makeSorted(), arc.fStartAngle, arc.fSweepAngle, arc.fType));
     result.fStyle = style;
     if (doSimplify == DoSimplify::kYes) {
         result.simplify();

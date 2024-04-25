@@ -20,7 +20,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkSamplingOptions.h"
-#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSurfaceProps.h"
@@ -34,6 +33,7 @@
 #include <cstdint>
 #include <utility>
 
+struct SkArc;
 class SkBitmap;
 class SkColorSpace;
 class SkMesh;
@@ -342,8 +342,7 @@ public:
     virtual void drawOval(const SkRect& oval,
                           const SkPaint& paint) = 0;
     /** By the time this is called we know that abs(sweepAngle) is in the range [0, 360). */
-    virtual void drawArc(const SkRect& oval, SkScalar startAngle,
-                         SkScalar sweepAngle, bool useCenter, const SkPaint& paint);
+    virtual void drawArc(const SkArc& arc, const SkPaint& paint);
     virtual void drawRRect(const SkRRect& rr,
                            const SkPaint& paint) = 0;
 

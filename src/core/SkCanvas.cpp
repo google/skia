@@ -2423,7 +2423,8 @@ void SkCanvas::onDrawArc(const SkRect& oval, SkScalar startAngle,
 
     auto layer = this->aboutToDraw(paint, &oval);
     if (layer) {
-        this->topDevice()->drawArc(oval, startAngle, sweepAngle, useCenter, layer->paint());
+        this->topDevice()->drawArc(SkArc::Make(oval, startAngle, sweepAngle, useCenter),
+                                   layer->paint());
     }
 }
 

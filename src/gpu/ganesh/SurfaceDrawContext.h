@@ -464,10 +464,7 @@ public:
                  GrPaint&& paint,
                  GrAA,
                  const SkMatrix& viewMatrix,
-                 const SkRect& oval,
-                 SkScalar startAngle,
-                 SkScalar sweepAngle,
-                 bool useCenter,
+                 const SkArc& arc,
                  const GrStyle& style);
 
     /**
