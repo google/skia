@@ -514,6 +514,10 @@ skia_objc_library(
         "CoreText",
     ],
     mac_frameworks = ["ApplicationServices"],
+    visibility = [
+        "//:__pkg__",
+        "//modules/skshaper:__pkg__",
+    ],
     deps = [
         "//:core",
         "//src/base",

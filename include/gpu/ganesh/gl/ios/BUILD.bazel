@@ -12,6 +12,6 @@ skia_filegroup(
     name = "public_hdrs",
     srcs = ["GrGLMakeIOSInterface.h"],
     visibility = [
-        "//src/gpu/ganesh/gl/ios:__pkg__",
+        "//src/gpu/ganesh/gl/iOS:__pkg__",
     ],
 )

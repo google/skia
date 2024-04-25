@@ -329,6 +329,9 @@ skia_cc_library(
     hdrs = PRIVATE_CODEC_HEADERS,
     features = ["layering_check"],
     local_defines = ["SK_DISABLE_LEGACY_INIT_DECODERS"],
+    visibility = [
+        "//src/ports:__pkg__",
+    ],
     deps = [
         "//modules/skcms",
         "//src/base",

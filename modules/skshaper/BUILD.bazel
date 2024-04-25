@@ -122,6 +122,8 @@ skia_objc_library(
         "//:core",
         "//src/base",
         "//src/core:core_priv",
+        "//src/ports:coretext_typeface",
+        "//src/utils/mac:mac_utils_priv",
     ],
 )
 

@@ -48,7 +48,10 @@ skia_objc_library(
     mac_frameworks = [
         "ApplicationServices",
     ],
-    visibility = ["//src/ports:__pkg__"],
+    visibility = [
+        "//modules/skshaper:__pkg__",
+        "//src/ports:__pkg__",
+    ],
     deps = [
         ":mac_utils",
         "//:core",

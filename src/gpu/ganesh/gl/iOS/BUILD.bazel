@@ -18,7 +18,7 @@ skia_filegroup(
 skia_cc_library(
     name = "ios_factory",
     srcs = [
-        "GrGLMakeNativeInterface_ios.cpp",
+        "GrGLMakeNativeInterface_iOS.cpp",
     ],
     hdrs = [
         "//include/gpu/ganesh/gl/ios:public_hdrs",
