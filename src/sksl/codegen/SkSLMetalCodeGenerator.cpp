@@ -262,6 +262,9 @@ protected:
 
     void writeSwizzle(const Swizzle& swizzle);
 
+    // Returns `floatCxR(1.0, 1.0, 1.0, 1.0, ...)`.
+    std::string splatMatrixOf1(const Type& type);
+
     // Splats a scalar expression across a matrix of arbitrary size.
     void writeNumberAsMatrix(const Expression& expr, const Type& matrixType);
 
@@ -2090,23 +2093,26 @@ void MetalCodeGenerator::writeEqualityHelpers(const Type& leftType, const Type& 
     }
 }
 
+std::string MetalCodeGenerator::splatMatrixOf1(const Type& type) {
+    std::string str = this->typeName(type) + '(';
+
+    auto separator = SkSL::String::Separator();
+    for (int index = type.slotCount(); index--;) {
+        str += separator();
+        str += "1.0";
+    }
+
+    return str + ')';
+}
+
 void MetalCodeGenerator::writeNumberAsMatrix(const Expression& expr, const Type& matrixType) {
     SkASSERT(expr.type().isNumber());
     SkASSERT(matrixType.isMatrix());
 
     // Componentwise multiply the scalar against a matrix of the desired size which contains all 1s.
     this->write("(");
-    this->writeType(matrixType);
-    this->write("(");
-
-    const char* separator = "";
-    for (int index = matrixType.slotCount(); index--;) {
-        this->write(separator);
-        this->write("1.0");
-        separator = ", ";
-    }
-
-    this->write(") * ");
+    this->write(this->splatMatrixOf1(matrixType));
+    this->write(" * ");
     this->writeExpression(expr, Precedence::kMultiplicative);
     this->write(")");
 }
@@ -2221,28 +2227,48 @@ void MetalCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
 
 void MetalCodeGenerator::writePrefixExpression(const PrefixExpression& p,
                                                Precedence parentPrecedence) {
-    // According to the MSL specification, the arithmetic unary operators (+ and –) do not act
-    // upon matrix type operands. We treat the unary "+" as a no-op for all operands.
     const Operator op = p.getOperator();
-    if (op.kind() == Operator::Kind::PLUS) {
-        this->writeExpression(*p.operand(), Precedence::kPrefix);
-        return;
-    }
+    switch (op.kind()) {
+        case Operator::Kind::PLUS:
+            // According to the MSL specification, the arithmetic unary operators (+ and –) do not
+            // act upon matrix-typed operands. We treat the unary "+" as a no-op for all operands.
+            this->writeExpression(*p.operand(), Precedence::kPrefix);
+            return;
 
-    if (op.kind() == Operator::Kind::MINUS && p.operand()->type().isMatrix()) {
-        // Transform the unary "-" on a matrix type to a multiplication by -1.
-        this->write(p.type().componentType().highPrecision() ? "(-1.0 * "
-                                                             : "(-1.0h * ");
-        this->writeExpression(*p.operand(), Precedence::kMultiplicative);
-        this->write(")");
-        return;
+        case Operator::Kind::MINUS:
+            // Transform the unary `-` on a matrix type to a multiplication by -1.
+            if (p.operand()->type().isMatrix()) {
+                this->write(p.type().componentType().highPrecision() ? "(-1.0 * "
+                                                                     : "(-1.0h * ");
+                this->writeExpression(*p.operand(), Precedence::kMultiplicative);
+                this->write(")");
+                return;
+            }
+            break;
+
+        case Operator::Kind::PLUSPLUS:
+        case Operator::Kind::MINUSMINUS:
+            if (p.operand()->type().isMatrix()) {
+                // Transform `++x` or `--x` on a matrix type to `mat += T(1.0, ...)` or
+                // `mat -= T(1.0, ...)`.
+                this->write("(");
+                this->writeExpression(*p.operand(), Precedence::kAssignment);
+                this->write(op.kind() == Operator::Kind::PLUSPLUS ? " += " : " -= ");
+                this->write(this->splatMatrixOf1(p.operand()->type()));
+                this->write(")");
+                return;
+            }
+            break;
+
+        default:
+            break;
     }
 
     if (Precedence::kPrefix >= parentPrecedence) {
         this->write("(");
     }
 
-    this->write(p.getOperator().tightOperatorName());
+    this->write(op.tightOperatorName());
     this->writeExpression(*p.operand(), Precedence::kPrefix);
 
     if (Precedence::kPrefix >= parentPrecedence) {
@@ -2252,11 +2278,39 @@ void MetalCodeGenerator::writePrefixExpression(const PrefixExpression& p,
 
 void MetalCodeGenerator::writePostfixExpression(const PostfixExpression& p,
                                                 Precedence parentPrecedence) {
+    const Operator op = p.getOperator();
+    switch (op.kind()) {
+        case Operator::Kind::PLUSPLUS:
+        case Operator::Kind::MINUSMINUS:
+            if (p.operand()->type().isMatrix()) {
+                // We need to transform `x++` or `x--` into `+=` and `-=` on a matrix.
+                // Unfortunately, that requires making a temporary copy of the old value and
+                // emitting a sequence expression: `((temp = mat), (mat += T(1.0, ...)), temp)`.
+                std::string tempMatrix = this->getTempVariable(p.operand()->type());
+                this->write("((");
+                this->write(tempMatrix);
+                this->write(" = ");
+                this->writeExpression(*p.operand(), Precedence::kAssignment);
+                this->write("), (");
+                this->writeExpression(*p.operand(), Precedence::kAssignment);
+                this->write(op.kind() == Operator::Kind::PLUSPLUS ? " += " : " -= ");
+                this->write(this->splatMatrixOf1(p.operand()->type()));
+                this->write("), ");
+                this->write(tempMatrix);
+                this->write(")");
+                return;
+            }
+            break;
+
+        default:
+            break;
+    }
+
     if (Precedence::kPostfix >= parentPrecedence) {
         this->write("(");
     }
     this->writeExpression(*p.operand(), Precedence::kPostfix);
-    this->write(p.getOperator().tightOperatorName());
+    this->write(op.tightOperatorName());
     if (Precedence::kPostfix >= parentPrecedence) {
         this->write(")");
     }
