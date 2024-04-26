@@ -106,7 +106,7 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
 
 SkString RenderPassDesc::toString() const {
     // This intentionally includes the fixed state that impacts pipeline compilation
-    return SkStringPrintf("RP(color: %s, resolve: %s, ds: %s, samples: %d, swizzle: %s)",
+    return SkStringPrintf("RP(color: %s, resolve: %s, ds: %s, samples: %u, swizzle: %s)",
                           fColorAttachment.toString().c_str(),
                           fColorResolveAttachment.toString().c_str(),
                           fDepthStencilAttachment.toString().c_str(),
