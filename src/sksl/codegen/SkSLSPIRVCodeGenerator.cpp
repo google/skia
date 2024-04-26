@@ -284,13 +284,17 @@ private:
      */
     skia_private::TArray<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
 
+    /**
+     * Given a SpvId of a scalar, splats it across the passed-in type (scalar, vector or matrix) and
+     * returns the SpvId of the new value.
+     */
+    SpvId splat(const Type& type, SpvId id, OutputStream& out);
+
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
     SpvId writeAtomicIntrinsic(const FunctionCall& c,
                                SpecialIntrinsic kind,
                                SpvId resultId,
                                OutputStream& out);
-
-    SpvId writeScalarToMatrixSplat(const Type& matrixType, SpvId scalarId, OutputStream& out);
 
     SpvId castScalarToFloat(SpvId inputId, const Type& inputType, const Type& outputType,
                             OutputStream& out);
@@ -1317,7 +1321,7 @@ SpvId SPIRVCodeGenerator::writeOpConstant(const Type& type, int32_t valueBits) {
 
 SpvId SPIRVCodeGenerator::writeOpConstantComposite(const Type& type,
                                                    const TArray<SpvId>& values) {
-    SkASSERT(values.size() == (type.isStruct() ? (int)type.fields().size() : type.columns()));
+    SkASSERT(values.size() == (type.isStruct() ? SkToInt(type.fields().size()) : type.columns()));
 
     Words words;
     words.push_back(this->getType(type));
@@ -2868,13 +2872,9 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, O
 }
 
 SpvId SPIRVCodeGenerator::writeConstructorSplat(const ConstructorSplat& c, OutputStream& out) {
-    // Write the splat argument.
+    // Write the splat argument as a scalar, then splat it.
     SpvId argument = this->writeExpression(*c.argument(), out);
-
-    // Generate a OpCompositeConstruct which repeats the argument N times.
-    STArray<4, SpvId> values;
-    values.push_back_n(/*n=*/c.type().columns(), /*t=*/argument);
-    return this->writeOpCompositeConstruct(c.type(), values, out);
+    return this->splat(c.type(), argument, out);
 }
 
 SpvId SPIRVCodeGenerator::writeCompositeConstructor(const AnyConstructor& c, OutputStream& out) {
@@ -3655,19 +3655,30 @@ SpvId SPIRVCodeGenerator::writeReciprocal(const Type& type, SpvId value, OutputS
     return reciprocal;
 }
 
-SpvId SPIRVCodeGenerator::writeScalarToMatrixSplat(const Type& matrixType,
-                                                   SpvId scalarId,
-                                                   OutputStream& out) {
-    // Splat the scalar into a vector.
-    const Type& vectorType = matrixType.columnType(fContext);
-    STArray<4, SpvId> vecArguments;
-    vecArguments.push_back_n(/*n=*/matrixType.rows(), /*t=*/scalarId);
-    SpvId vectorId = this->writeOpCompositeConstruct(vectorType, vecArguments, out);
+SpvId SPIRVCodeGenerator::splat(const Type& type, SpvId id, OutputStream& out) {
+    if (type.isScalar()) {
+        // Scalars require no additional work; we can return the passed-in ID as is.
+    } else {
+        SkASSERT(type.isVector() || type.isMatrix());
+        bool isMatrix = type.isMatrix();
 
-    // Splat the vector into a matrix.
-    STArray<4, SpvId> matArguments;
-    matArguments.push_back_n(/*n=*/matrixType.columns(), /*t=*/vectorId);
-    return this->writeOpCompositeConstruct(matrixType, matArguments, out);
+        // Splat the input scalar across a vector.
+        int vectorSize = (isMatrix ? type.rows() : type.columns());
+        const Type& vectorType = type.componentType().toCompound(fContext, vectorSize, /*rows=*/1);
+
+        STArray<4, SpvId> values;
+        values.push_back_n(/*n=*/vectorSize, /*t=*/id);
+        id = this->writeOpCompositeConstruct(vectorType, values, out);
+
+        if (isMatrix) {
+            // Splat the newly-synthesized vector into a matrix.
+            STArray<4, SpvId> matArguments;
+            matArguments.push_back_n(/*n=*/type.columns(), /*t=*/id);
+            id = this->writeOpCompositeConstruct(type, matArguments, out);
+        }
+    }
+
+    return id;
 }
 
 static bool types_match(const Type& a, const Type& b) {
@@ -3795,7 +3806,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                 SkASSERT(rightType.isScalar());
 
                 // Splat rhs across an entire matrix so we can reuse the matrix-op-matrix path.
-                SpvId rhsMatrix = this->writeScalarToMatrixSplat(leftType, rhs, out);
+                SpvId rhsMatrix = this->splat(leftType, rhs, out);
 
                 // Perform this operation as matrix-op-matrix.
                 return this->writeBinaryExpression(leftType, lhs, op, leftType, rhsMatrix,
@@ -3820,7 +3831,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
                 SkASSERT(leftType.isScalar());
 
                 // Splat lhs across an entire matrix so we can reuse the matrix-op-matrix path.
-                SpvId lhsMatrix = this->writeScalarToMatrixSplat(rightType, lhs, out);
+                SpvId lhsMatrix = this->splat(rightType, lhs, out);
 
                 // Perform this operation as matrix-op-matrix.
                 return this->writeBinaryExpression(rightType, lhsMatrix, op, rightType, rhs,
@@ -4185,20 +4196,28 @@ SpvId SPIRVCodeGenerator::writePrefixExpression(const PrefixExpression& p, Outpu
     switch (p.getOperator().kind()) {
         case Operator::Kind::PLUS:
             return this->writeExpression(*p.operand(), out);
+
         case Operator::Kind::PLUSPLUS: {
             std::unique_ptr<LValue> lv = this->getLValue(*p.operand(), out);
-            SpvId one = this->writeLiteral(1.0, type);
-            SpvId result = this->writeBinaryOperation(type, type, lv->load(out), one,
-                                                      SpvOpFAdd, SpvOpIAdd, SpvOpIAdd, SpvOpUndef,
-                                                      out);
+            SpvId one = this->writeLiteral(1.0, type.componentType());
+            one = this->splat(type, one, out);
+            SpvId result = this->writeBinaryOperationComponentwiseIfMatrix(type, type,
+                                                                           lv->load(out), one,
+                                                                           SpvOpFAdd, SpvOpIAdd,
+                                                                           SpvOpIAdd, SpvOpUndef,
+                                                                           out);
             lv->store(result, out);
             return result;
         }
         case Operator::Kind::MINUSMINUS: {
             std::unique_ptr<LValue> lv = this->getLValue(*p.operand(), out);
-            SpvId one = this->writeLiteral(1.0, type);
-            SpvId result = this->writeBinaryOperation(type, type, lv->load(out), one, SpvOpFSub,
-                                                      SpvOpISub, SpvOpISub, SpvOpUndef, out);
+            SpvId one = this->writeLiteral(1.0, type.componentType());
+            one = this->splat(type, one, out);
+            SpvId result = this->writeBinaryOperationComponentwiseIfMatrix(type, type,
+                                                                           lv->load(out), one,
+                                                                           SpvOpFSub, SpvOpISub,
+                                                                           SpvOpISub, SpvOpUndef,
+                                                                           out);
             lv->store(result, out);
             return result;
         }
@@ -4226,17 +4245,22 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
     const Type& type = p.type();
     std::unique_ptr<LValue> lv = this->getLValue(*p.operand(), out);
     SpvId result = lv->load(out);
-    SpvId one = this->writeLiteral(1.0, type);
+    SpvId one = this->writeLiteral(1.0, type.componentType());
+    one = this->splat(type, one, out);
     switch (p.getOperator().kind()) {
         case Operator::Kind::PLUSPLUS: {
-            SpvId temp = this->writeBinaryOperation(type, type, result, one, SpvOpFAdd,
-                                                    SpvOpIAdd, SpvOpIAdd, SpvOpUndef, out);
+            SpvId temp = this->writeBinaryOperationComponentwiseIfMatrix(type, type, result, one,
+                                                                         SpvOpFAdd, SpvOpIAdd,
+                                                                         SpvOpIAdd, SpvOpUndef,
+                                                                         out);
             lv->store(temp, out);
             return result;
         }
         case Operator::Kind::MINUSMINUS: {
-            SpvId temp = this->writeBinaryOperation(type, type, result, one, SpvOpFSub,
-                                                    SpvOpISub, SpvOpISub, SpvOpUndef, out);
+            SpvId temp = this->writeBinaryOperationComponentwiseIfMatrix(type, type, result, one,
+                                                                         SpvOpFSub, SpvOpISub,
+                                                                         SpvOpISub, SpvOpUndef,
+                                                                         out);
             lv->store(temp, out);
             return result;
         }
