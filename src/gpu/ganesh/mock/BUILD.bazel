@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -39,4 +39,14 @@ skia_filegroup(
     name = "private_hdrs",
     srcs = [":mock_hdrs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],
+)
+
+skia_cc_library(
+    name = "ganesh_mock",
+    hdrs = [
+        "//include/gpu/mock:public_hdrs",
+    ],
+    deps = [
+        "//src/gpu/ganesh",
+    ],
 )
