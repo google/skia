@@ -113,7 +113,7 @@ def compile_fn(api, checkout_root, out_dir):
     # Copied from
     # https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#322
     with api.step.nest('ensure xcode') as step_result:
-      step_result.presentation.step_text = (
+      step_result.step_summary_text = (
           'Ensuring Xcode version %s in %s' % (
               XCODE_BUILD_VERSION, xcode_app_path))
       install_xcode_cmd = [

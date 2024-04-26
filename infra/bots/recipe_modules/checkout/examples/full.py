@@ -28,7 +28,7 @@ def RunSteps(api):
     api.checkout.bot_update(
         checkout_root=checkout_root)
   else:
-    api.checkout.git(checkout_root=api.path['start_dir'])
+    api.checkout.git(checkout_root=api.path.start_dir)
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
 
@@ -47,7 +47,7 @@ def GenTests(api):
                      patch_ref='refs/changes/89/456789/12',
                      patch_repo='https://skia.googlesource.com/skia.git',
                      patch_storage='gerrit') +
-      api.path.exists(api.path['start_dir'].join('skp_output'))
+      api.path.exists(api.path.start_dir.join('skp_output'))
   )
 
   buildername = 'Build-Debian10-Clang-x86_64-Release'

@@ -38,8 +38,8 @@ def perf_steps(api):
   """Run DM on lottie files with tracing turned on and then parse the output."""
   api.flavor.create_clean_device_dir(
         api.flavor.device_dirs.dm_dir)
-  lotties_host = api.path['start_dir'].join('lotties_with_assets')
-  lotties_device = api.path['start_dir'].join('lotties_with_assets')
+  lotties_host = api.path.start_dir.join('lotties_with_assets')
+  lotties_device = api.path.start_dir.join('lotties_with_assets')
   if 'Android' in api.vars.builder_cfg.get('extra_config'):
     # Due to http://b/72366966 and the fact that CIPD symlinks files in by default, we ran into
     # a strange "Function not implemented" error when trying to copy folders that contained

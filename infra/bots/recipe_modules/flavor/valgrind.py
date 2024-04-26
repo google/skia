@@ -12,7 +12,7 @@ from . import default
 class ValgrindFlavor(default.DefaultFlavor):
   def __init__(self, m, app_name):
     super(ValgrindFlavor, self).__init__(m, app_name)
-    self._suppressions_file = self.m.path['start_dir'].join(
+    self._suppressions_file = self.m.path.start_dir.join(
         'skia', 'tools', 'valgrind.supp')
     self._valgrind_cipd_dir = self.m.vars.workdir.join('valgrind')
     self._valgrind_fake_dir = self._valgrind_cipd_dir

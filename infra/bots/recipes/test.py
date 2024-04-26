@@ -47,7 +47,7 @@ def test_steps(api):
   use_hash_file = False
   if do_upload:
     host_dm_dir = str(api.flavor.host_dirs.dm_dir)
-    api.flavor.create_clean_host_dir(api.path['start_dir'].join('test'))
+    api.flavor.create_clean_host_dir(api.path.start_dir.join('test'))
     device_dm_dir = str(api.flavor.device_dirs.dm_dir)
     if host_dm_dir != device_dm_dir:
       api.flavor.create_clean_device_dir(device_dm_dir)
@@ -186,14 +186,14 @@ def GenTests(api):
       api.test(builder) +
       api.properties(**props) +
       api.path.exists(
-          api.path['start_dir'].join('skia'),
-          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-          api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
+          api.path.start_dir.join('skia'),
+          api.path.start_dir.join('skia', 'infra', 'bots', 'assets',
+                                  'skimage', 'VERSION'),
+          api.path.start_dir.join('skia', 'infra', 'bots', 'assets',
+                                  'skp', 'VERSION'),
+          api.path.start_dir.join('skia', 'infra', 'bots', 'assets',
+                                  'svg', 'VERSION'),
+          api.path.start_dir.join('tmp', 'uninteresting_hashes.txt')
       ) +
       api.step_data('get swarming bot id',
           stdout=api.raw_io.output('skia-bot-123')) +

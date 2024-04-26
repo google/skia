@@ -85,9 +85,9 @@ LOTTIE_WEB_CANVAS_EXCLUDE = LOTTIE_WEB_EXCLUDE + [
 def RunSteps(api):
   api.vars.setup()
   api.flavor.setup(None)
-  checkout_root = api.path['start_dir']
+  checkout_root = api.path.start_dir
   buildername = api.properties['buildername']
-  node_path = api.path['start_dir'].join('node', 'node', 'bin', 'node')
+  node_path = api.path.start_dir.join('node', 'node', 'bin', 'node')
   lottie_files = api.file.listdir(
       'list lottie files', api.flavor.host_dirs.lotties_dir,
       test_data=['lottie1.json', 'lottie2.json', 'lottie3.json', 'LICENSE'])
@@ -133,7 +133,7 @@ def RunSteps(api):
     perf_app_cmd.append('--use_gpu')
 
   # Install prerequisites.
-  env_prefixes = {'PATH': [api.path['start_dir'].join('node', 'node', 'bin')]}
+  env_prefixes = {'PATH': [api.path.start_dir.join('node', 'node', 'bin')]}
   with api.context(cwd=perf_app_dir, env_prefixes=env_prefixes):
     api.step('npm install', cmd=['npm', 'install'])
 

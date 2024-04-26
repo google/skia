@@ -32,7 +32,7 @@ def RunSteps(api):
   repo_name = api.properties['repository'].split('/')[-1]
   if repo_name.endswith('.git'):
     repo_name = repo_name[:-len('.git')]
-  repo_root = api.path['start_dir'].join(repo_name)
+  repo_root = api.path.start_dir.join(repo_name)
   infra_tests = repo_root.join('infra', 'bots', 'infra_tests.py')
 
   # Merge the default environment with the Go environment.
@@ -49,7 +49,7 @@ def RunSteps(api):
 
   git_init(api, repo_root, env)
   if repo_name != 'skia':
-    git_init(api, api.path['start_dir'].join('skia'), env)
+    git_init(api, api.path.start_dir.join('skia'), env)
 
   with api.context(cwd=repo_root, env=env):
     # Unfortunately, the recipe tests are flaky due to file removal on Windows.

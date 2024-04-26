@@ -29,7 +29,7 @@
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
-      "@@@STEP_TEXT@Ensuring Xcode version 12c33 in [START_DIR]/cache/Xcode.app@@@"
+      "@@@STEP_SUMMARY_TEXT@Ensuring Xcode version 12c33 in [START_DIR]/cache/Xcode.app@@@"
     ]
   },
   {

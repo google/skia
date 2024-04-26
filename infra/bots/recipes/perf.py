@@ -148,11 +148,11 @@ def GenTests(api):
       api.test(builder) +
       api.properties(**props) +
       api.path.exists(
-          api.path['start_dir'].join('skia'),
-          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
+          api.path.start_dir.join('skia'),
+          api.path.start_dir.join('skia', 'infra', 'bots', 'assets',
+                                  'skimage', 'VERSION'),
+          api.path.start_dir.join('skia', 'infra', 'bots', 'assets',
+                                  'skp', 'VERSION'),
       ) +
       api.step_data('get swarming bot id',
           stdout=api.raw_io.output('skia-bot-123')) +

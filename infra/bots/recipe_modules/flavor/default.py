@@ -42,15 +42,15 @@ class DefaultFlavor(object):
         bin_dir=self.m.vars.build_dir,
         dm_dir=self.m.vars.swarming_out_dir,
         perf_data_dir=self.m.vars.swarming_out_dir,
-        resource_dir=self.m.path['start_dir'].join('skia', 'resources'),
-        images_dir=self.m.path['start_dir'].join('skimage'),
-        fonts_dir=self.m.path['start_dir'].join('googlefonts_testdata', 'data'),
-        lotties_dir=self.m.path['start_dir'].join('lottie-samples'),
-        skp_dir=self.m.path['start_dir'].join('skp'),
-        svg_dir=self.m.path['start_dir'].join('svg'),
-        mskp_dir=self.m.path['start_dir'].join('mskp'),
+        resource_dir=self.m.path.start_dir.join('skia', 'resources'),
+        images_dir=self.m.path.start_dir.join('skimage'),
+        fonts_dir=self.m.path.start_dir.join('googlefonts_testdata', 'data'),
+        lotties_dir=self.m.path.start_dir.join('lottie-samples'),
+        skp_dir=self.m.path.start_dir.join('skp'),
+        svg_dir=self.m.path.start_dir.join('svg'),
+        mskp_dir=self.m.path.start_dir.join('mskp'),
         tmp_dir=self.m.vars.tmp_dir,
-        texttraces_dir=self.m.path['start_dir'].join('text_blob_traces'))
+        texttraces_dir=self.m.path.start_dir.join('text_blob_traces'))
     self.host_dirs = self.device_dirs
 
   def device_path_join(self, *args):
@@ -219,7 +219,7 @@ class DefaultFlavor(object):
       # Convert path objects or placeholders into strings such that they can
       # be passed to symbolize_stack_trace.py
       args = [workdir] + [str(x) for x in cmd]
-      with self.m.context(cwd=self.m.path['start_dir'].join('skia'), env=env):
+      with self.m.context(cwd=self.m.path.start_dir.join('skia'), env=env):
         self._py('symbolized %s' % name,
                  self.module.resource('symbolize_stack_trace.py'),
                  args=args,

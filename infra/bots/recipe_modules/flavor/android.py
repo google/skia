@@ -139,7 +139,7 @@ class AndroidFlavor(default.DefaultFlavor):
     def wait_for_device(attempt):
       return self._wait_for_device(title, attempt)
 
-    with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
+    with self.m.context(cwd=self.m.path.start_dir.join('skia')):
       with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
         return self.m.run.with_retry(self.m.step, title, attempts,
                                      cmd=[self.ADB_BINARY]+list(cmd),

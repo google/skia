@@ -30,7 +30,7 @@ def RunSteps(api):
   api.vars.setup()
   revision = api.properties['revision']
 
-  results_dir = api.path['start_dir'].join('test')
+  results_dir = api.path.start_dir.join('test')
 
   # Upload the images. It is *vital* that the images are uploaded first
   # so they exist whenever the json is processed.

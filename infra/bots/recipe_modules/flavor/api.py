@@ -70,7 +70,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     self._f = self.get_flavor(self.m.vars, app_name)
     self.device_dirs = self._f.device_dirs
     self.host_dirs = self._f.host_dirs
-    self._skia_dir = self.m.path['start_dir'].join('skia')
+    self._skia_dir = self.m.path.start_dir.join('skia')
 
   def step(self, name, cmd, **kwargs):
     return self._f.step(name, cmd, **kwargs)
@@ -108,7 +108,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     # TODO(borenet): Only copy files which have changed.
     if resources:
       self.copy_directory_contents_to_device(
-          self.m.path['start_dir'].join('skia', 'resources'),
+          self.m.path.start_dir.join('skia', 'resources'),
           self.device_dirs.resource_dir)
 
     if skps:

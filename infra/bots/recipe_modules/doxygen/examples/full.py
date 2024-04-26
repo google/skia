@@ -14,7 +14,7 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
-  api.doxygen.generate_and_upload(api.path['start_dir'])
+  api.doxygen.generate_and_upload(api.path.start_dir)
 
 
 def GenTests(api):

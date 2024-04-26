@@ -165,7 +165,7 @@ def analyze_web_file(api, checkout_root, out_dir, files):
 # Get the raw size and a few metrics from bloaty
 def analyze_cpp_lib(api, checkout_root, out_dir, files):
   (keystr, propstr) = keys_and_props(api)
-  bloaty_exe = api.path['start_dir'].join('bloaty', 'bloaty')
+  bloaty_exe = api.path.start_dir.join('bloaty', 'bloaty')
 
   for f in files:
     skia_dir = checkout_root.join('skia')
@@ -193,7 +193,7 @@ def analyze_cpp_lib(api, checkout_root, out_dir, files):
 # Get the size of skia in flutter and a few metrics from bloaty
 def analyze_flutter_lib(api, checkout_root, out_dir, files):
   (keystr, propstr) = keys_and_props(api)
-  bloaty_exe = api.path['start_dir'].join('bloaty', 'bloaty')
+  bloaty_exe = api.path.start_dir.join('bloaty', 'bloaty')
 
   for f in files:
 
@@ -232,7 +232,7 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
 # Get the size of skia in flutter and a few metrics from bloaty
 def analyze_wasm_file(api, checkout_root, out_dir, files):
   (keystr, propstr) = keys_and_props(api)
-  bloaty_exe = api.path['start_dir'].join('bloaty', 'bloaty')
+  bloaty_exe = api.path.start_dir.join('bloaty', 'bloaty')
 
   for f in files:
 

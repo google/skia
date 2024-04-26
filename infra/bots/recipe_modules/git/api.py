@@ -13,7 +13,7 @@ class GitApi(recipe_api.RecipeApi):
     Requires the infra/git and infra/tools/git CIPD packages to be installed
     in the 'git' relative path.
     """
-    git_dir = self.m.path['start_dir'].join('git')
+    git_dir = self.m.path.start_dir.join('git')
     git_bin = git_dir.join('bin')
     return self.m.env({'PATH': self.m.path.pathsep.join(
         [str(git_dir), str(git_bin), '%(PATH)s'])})

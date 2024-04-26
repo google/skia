@@ -70,7 +70,7 @@ class iOSFlavor(default.DefaultFlavor):
 
     if 'ImageSignature' not in image_info_out:
       image_pkgs = self.m.file.glob_paths('locate ios-dev-image package',
-                                          self.m.path['start_dir'],
+                                          self.m.path.start_dir,
                                           'ios-dev-image*',
                                           test_data=['ios-dev-image-13.2'])
       if len(image_pkgs) != 1:
@@ -133,7 +133,7 @@ class iOSFlavor(default.DefaultFlavor):
 
   def _run_ios_script(self, script, first, *rest):
     with self.context():
-      full = self.m.path['start_dir'].join(
+      full = self.m.path.start_dir.join(
           'skia', 'platform_tools', 'ios', 'bin', 'ios_' + script)
       self.m.run(self.m.step,
                  name = '%s %s' % (script, first),
@@ -158,7 +158,7 @@ class iOSFlavor(default.DefaultFlavor):
 
   def read_file_on_device(self, path, **kwargs):
     with self.context():
-      full = self.m.path['start_dir'].join(
+      full = self.m.path.start_dir.join(
           'skia', 'platform_tools', 'ios', 'bin', 'ios_cat_file')
       rv = self.m.run(self.m.step,
                       name = 'cat_file %s' % path,

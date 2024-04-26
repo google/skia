@@ -29,7 +29,7 @@ INNER_KARMA_SCRIPT = 'skia/infra/pathkit/test_pathkit.sh'
 def RunSteps(api):
   api.vars.setup()
   api.flavor.setup("dm")
-  checkout_root = api.path['start_dir']
+  checkout_root = api.path.start_dir
   out_dir = api.vars.swarming_out_dir
 
   # The karma script is configured to look in ./npm-(asmjs|wasm)/bin/test/ for

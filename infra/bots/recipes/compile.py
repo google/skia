@@ -26,7 +26,7 @@ DEPS = [
 def RunSteps(api):
   api.vars.setup()
 
-  checkout_root = api.path['start_dir']
+  checkout_root = api.path.start_dir
   out_dir = api.vars.cache_dir.join(
       'work', 'skia', 'out', api.vars.builder_name, api.vars.configuration)
 

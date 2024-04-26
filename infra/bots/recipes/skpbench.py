@@ -28,7 +28,7 @@ ADB_BINARY = 'adb.1.0.35'
 
 
 def _run(api, title, *cmd, **kwargs):
-  with api.context(cwd=api.path['start_dir'].join('skia')):
+  with api.context(cwd=api.path.start_dir.join('skia')):
     return api.run(api.step, title, cmd=list(cmd), **kwargs)
 
 
@@ -192,9 +192,9 @@ def GenTests(api):
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.path.exists(
-          api.path['start_dir'].join('skia'),
-          api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
+          api.path.start_dir.join('skia'),
+          api.path.start_dir.join('skia', 'infra', 'bots', 'assets',
+                                  'skp', 'VERSION'),
       ) +
       api.step_data('get swarming bot id',
           stdout=api.raw_io.output('skia-bot-123')) +
@@ -215,9 +215,9 @@ def GenTests(api):
                    swarm_out_dir='[SWARM_OUT_DIR]',
                    dont_reduce_ops_task_splitting='true') +
     api.path.exists(
-        api.path['start_dir'].join('skia'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                   'skp', 'VERSION'),
+        api.path.start_dir.join('skia'),
+        api.path.start_dir.join('skia', 'infra', 'bots', 'assets',
+                                'skp', 'VERSION'),
     ) +
     api.step_data('get swarming bot id',
         stdout=api.raw_io.output('skia-bot-123')) +

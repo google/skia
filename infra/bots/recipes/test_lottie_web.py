@@ -29,7 +29,7 @@ LOTTIECAP_SCRIPT = 'skia/infra/lottiecap/docker/lottiecap_gold.sh'
 def RunSteps(api):
   api.vars.setup()
   api.flavor.setup("dm")
-  checkout_root = api.path['start_dir']
+  checkout_root = api.path.start_dir
   out_dir = api.vars.swarming_out_dir
   lottie_files_src = api.vars.workdir.join('lottie-samples')
   lottie_files_dir = '/tmp/lottie_files'

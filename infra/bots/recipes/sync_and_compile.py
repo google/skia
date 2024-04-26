@@ -35,10 +35,10 @@ def RunSteps(api):
 
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
-    checkout_root = api.path['start_dir']
+    checkout_root = api.path.start_dir
   if 'NoPatch' in api.vars.builder_name:
     skip_patch = True
-    checkout_root = api.path['start_dir']
+    checkout_root = api.path.start_dir
 
     # If we are running on the CI (post submit), we want to do a diff with the
     # previous commit. To do this, we use gitiles to look up the current
@@ -84,8 +84,8 @@ def RunSteps(api):
       #
       # [1] https://chromium.googlesource.com/infra/luci/recipes-py.git/+/cfdb92cc6933d8f72c2340233ba03b602b447507/recipe_modules/file/api.py#146
       # [2] https://docs.python.org/3/library/shutil.html#shutil.copytree
-      src = api.path['start_dir'].join('k', 'skia')
-      dst = api.path['start_dir'].join('skia')
+      src = api.path.start_dir.join('k', 'skia')
+      dst = api.path.start_dir.join('skia')
       script = api.infra.resource('copytree.py')
       api.step(
           name='copy Skia repository checkout from %s to %s' % (src, dst),
