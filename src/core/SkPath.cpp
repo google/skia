@@ -1016,11 +1016,17 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, SkPathDirection dir, unsigned sta
         const bool startsWithConic = ((startIndex & 1) == (dir == SkPathDirection::kCW));
         const SkScalar weight = SK_ScalarRoot2Over2;
 
-        SkDEBUGCODE(int initialVerbCount = this->countVerbs());
+        SkDEBUGCODE(int initialVerbCount = fPathRef->countVerbs());
+        SkDEBUGCODE(int initialPointCount = fPathRef->countPoints());
+        SkDEBUGCODE(int initialWeightCount = fPathRef->countWeights());
         const int kVerbs = startsWithConic
             ? 9   // moveTo + 4x conicTo + 3x lineTo + close
             : 10; // moveTo + 4x lineTo + 4x conicTo + close
-        this->incReserve(kVerbs);
+        const int kPoints = startsWithConic
+            ? 12  // moveTo (1) + 4x conicTo (2) + 3x lineTo (1) + close
+            : 13; // moveTo (1) + 4x lineTo (1) + 4x conicTo (2) + close
+        const int kWeights = 4; // 4x conicTo
+        this->incReserve(kPoints, kVerbs, kWeights);
 
         SkPath_RRectPointIterator rrectIter(rrect, dir, startIndex);
         // Corner iterator indices follow the collapsed radii model,
@@ -1049,7 +1055,9 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, SkPathDirection dir, unsigned sta
             ed.setIsRRect(dir == SkPathDirection::kCCW, startIndex % 8);
         }
 
-        SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
+        SkASSERT(fPathRef->countVerbs() == initialVerbCount + kVerbs);
+        SkASSERT(fPathRef->countPoints() == initialPointCount + kPoints);
+        SkASSERT(fPathRef->countWeights() == initialWeightCount + kWeights);
     }
 
     SkDEBUGCODE(fPathRef->validate();)
@@ -1123,9 +1131,13 @@ SkPath& SkPath::addOval(const SkRect &oval, SkPathDirection dir, unsigned startP
     SkAutoDisableDirectionCheck addc(this);
     SkAutoPathBoundsUpdate apbu(this, oval);
 
-    SkDEBUGCODE(int initialVerbCount = this->countVerbs());
+    SkDEBUGCODE(int initialVerbCount = fPathRef->countVerbs());
+    SkDEBUGCODE(int initialPointCount = fPathRef->countPoints());
+    SkDEBUGCODE(int initialWeightCount = fPathRef->countWeights());
     const int kVerbs = 6; // moveTo + 4x conicTo + close
-    this->incReserve(kVerbs);
+    const int kPoints = 9;
+    const int kWeights = 4;
+    this->incReserve(kPoints, kVerbs, kWeights);
 
     SkPath_OvalPointIterator ovalIter(oval, dir, startPointIndex);
     // The corner iterator pts are tracking "behind" the oval/radii pts.
@@ -1138,7 +1150,9 @@ SkPath& SkPath::addOval(const SkRect &oval, SkPathDirection dir, unsigned startP
     }
     this->close();
 
-    SkASSERT(this->countVerbs() == initialVerbCount + kVerbs);
+    SkASSERT(fPathRef->countVerbs() == initialVerbCount + kVerbs);
+    SkASSERT(fPathRef->countPoints() == initialPointCount + kPoints);
+    SkASSERT(fPathRef->countWeights() == initialWeightCount + kWeights);
 
     if (isOval) {
         SkPathRef::Editor ed(&fPathRef);
