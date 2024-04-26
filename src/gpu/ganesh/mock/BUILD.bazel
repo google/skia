@@ -46,6 +46,7 @@ skia_cc_library(
     hdrs = [
         "//include/gpu/mock:public_hdrs",
     ],
+    visibility = ["//:__pkg__"],
     deps = [
         "//src/gpu/ganesh",
     ],
