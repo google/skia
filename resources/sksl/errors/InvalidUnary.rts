@@ -1,18 +1,18 @@
 struct Foo { float x; } bar;
 
-void preincrement_matrix()  { float4x4 x = float4x4(1); ++x; }
-void predecrement_vector()  { float3 x = float3(1); --x; }
-void postincrement_matrix() { float4x4 x = float4x4(1); x++; }
-void postdecrement_vector() { float3 x = float3(1); x--; }
+void preincrement_array()   { float    x[1]; ++x; }
+void predecrement_array()   { int3     x[2]; --x; }
+void postincrement_array()  { float4x4 x[3]; x++; }
+void postdecrement_bool()   { bool     x = true; x--; }
 void not_integer()          { int x = !12; }
 void positive_struct()      { Foo x = +bar; }
 void negative_struct()      { Foo x = -bar; }
 
 /*%%*
-'++' cannot operate on 'float4x4'
-'--' cannot operate on 'float3'
-'++' cannot operate on 'float4x4'
-'--' cannot operate on 'float3'
+'++' cannot operate on 'float[1]'
+'--' cannot operate on 'int3[2]'
+'++' cannot operate on 'float4x4[3]'
+'--' cannot operate on 'bool'
 '!' cannot operate on 'int'
 '+' cannot operate on 'Foo'
 '-' cannot operate on 'Foo'

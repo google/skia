@@ -254,7 +254,7 @@ std::unique_ptr<Expression> PrefixExpression::Convert(const Context& context,
 
         case Operator::Kind::PLUSPLUS:
         case Operator::Kind::MINUSMINUS:
-            if (!baseType.isNumber()) {
+            if (baseType.isArray() || !baseType.componentType().isNumber()) {
                 context.fErrors->error(pos,
                                        "'" + std::string(op.tightOperatorName()) +
                                        "' cannot operate on '" + baseType.displayName() + "'");
@@ -323,7 +323,8 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context,
 
         case Operator::Kind::PLUSPLUS:
         case Operator::Kind::MINUSMINUS:
-            SkASSERT(baseType.isNumber());
+            SkASSERT(!baseType.isArray());
+            SkASSERT(baseType.componentType().isNumber());
             SkASSERT(Analysis::IsAssignable(*base));
             break;
 

@@ -21,10 +21,9 @@ std::unique_ptr<Expression> PostfixExpression::Convert(const Context& context,
                                                        Position pos,
                                                        std::unique_ptr<Expression> base,
                                                        Operator op) {
-    const Type& baseType = base->type();
-    if (!baseType.isNumber()) {
+    if (base->type().isArray() || !base->type().componentType().isNumber()) {
         context.fErrors->error(pos, "'" + std::string(op.tightOperatorName()) +
-                                    "' cannot operate on '" + baseType.displayName() + "'");
+                                    "' cannot operate on '" + base->type().displayName() + "'");
         return nullptr;
     }
     if (!Analysis::UpdateVariableRefKind(base.get(), VariableRefKind::kReadWrite,
@@ -38,7 +37,7 @@ std::unique_ptr<Expression> PostfixExpression::Make(const Context& context,
                                                     Position pos,
                                                     std::unique_ptr<Expression> base,
                                                     Operator op) {
-    SkASSERT(base->type().isNumber());
+    SkASSERT(!base->type().isArray() && base->type().componentType().isNumber());
     SkASSERT(Analysis::IsAssignable(*base));
     return std::make_unique<PostfixExpression>(pos, std::move(base), op);
 }

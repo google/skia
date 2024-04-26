@@ -31,6 +31,32 @@ half4 main(float2) {
     --f2.x;
     ok = ok && (f2.x == 0.5);
 
+    // Prefix ++ and -- (vector float).
+    ++f2;
+    ok = ok && (f2 == float2(1.5));
+    ok = ok && (++f2 == float2(2.5));
+    ok = ok && (--f2 == float2(1.5));
+    --f2;
+    ok = ok && (f2 == float2(0.5));
+
+    // Prefix ++ and -- (vector int).
+    int4 i4 = int4(7, 8, 9, 10);
+    ++i4;
+    ok = ok && (i4 == int4(8, 9, 10, 11));
+    ok = ok && (++i4 == int4(9, 10, 11, 12));
+    ok = ok && (--i4 == int4(8, 9, 10, 11));
+    --i4;
+    ok = ok && (i4 == int4(7, 8, 9, 10));
+
+    // Prefix ++ and -- (matrix).
+    float3x3 m3x3 = float3x3(1, 2, 3, 4, 5, 6, 7, 8, 9);
+    ++m3x3;
+    ok = ok && (m3x3 == float3x3(2, 3, 4, 5, 6, 7, 8, 9, 10));
+    ok = ok && (++m3x3 == float3x3(3, 4, 5, 6, 7, 8, 9, 10, 11));
+    ok = ok && (--m3x3 == float3x3(2, 3, 4, 5, 6, 7, 8, 9, 10));
+    --m3x3;
+    ok = ok && (m3x3 == float3x3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+
     // Prefix '!'
     ok = ok && !(colorGreen.r == 1.0);
 
