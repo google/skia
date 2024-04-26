@@ -1535,15 +1535,37 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
             // Consider a logical image pixel at the edge of the subset. When computing the logical
             // pixel color value we should use a blend of two values from the subsampled plane.
             // Depending on where the subset edge falls in actual subsampled plane, one of those
-            // values may come from outside the subset. Hence, we use this custom inset which
-            // applies the wrap mode to the subset but allows linear filtering to read pixels from
-            // that are just outside the subset.
-            imgData.fLinearFilterUVInset.fX = 1.f/(2*ssx);
-            imgData.fLinearFilterUVInset.fY = 1.f/(2*ssy);
+            // values may come from outside the subset. Hence, we will use the default inset
+            // in Y texel space of 1/2. This applies the wrap mode to the subset but allows
+            // linear filtering to read pixels that are just outside the subset.
+            imgData.fLinearFilterUVInset.fX = 0.5f;
+            imgData.fLinearFilterUVInset.fY = 0.5f;
+        } else if (imgData.fSampling.filter == SkFilterMode::kLinear) {
+            // We need to inset so that we aren't sampling outside the subset, but no farther.
+            // Start by mapping the subset to UV texel space
+            float scaleX = 1.f/ssx;
+            float scaleY = 1.f/ssy;
+            SkRect subsetUV = {imgData.fSubset.fLeft  *scaleX,
+                               imgData.fSubset.fTop   *scaleY,
+                               imgData.fSubset.fRight *scaleX,
+                               imgData.fSubset.fBottom*scaleY};
+            // Round to UV texel borders
+            SkIRect iSubsetUV = subsetUV.roundOut();
+            // Inset in UV and map back to Y texel space. This gives us the largest possible
+            // inset rectangle that will not sample outside of the subset texels in UV space.
+            SkRect insetRectUV = {(iSubsetUV.fLeft  +0.5f)*ssx,
+                                  (iSubsetUV.fTop   +0.5f)*ssy,
+                                  (iSubsetUV.fRight -0.5f)*ssx,
+                                  (iSubsetUV.fBottom-0.5f)*ssy};
+            // Compute intersection with original inset
+            SkRect insetRect = imgData.fSubset.makeOutset(-0.5f, -0.5f);
+            (void) insetRect.intersect(insetRectUV);
+            // Compute max inset values to ensure we always remain within the subset.
+            imgData.fLinearFilterUVInset = {std::max(insetRect.fLeft - imgData.fSubset.fLeft,
+                                                     imgData.fSubset.fRight - insetRect.fRight),
+                                            std::max(insetRect.fTop - imgData.fSubset.fTop,
+                                                     imgData.fSubset.fBottom - insetRect.fBottom)};
         }
-        // Need to scale this just like we scale the image size
-        imgData.fLinearFilterUVInset = {imgData.fLinearFilterUVInset.fX*ssx,
-                                        imgData.fLinearFilterUVInset.fY*ssy};
     }
 
     float yuvM[20];
