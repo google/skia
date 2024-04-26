@@ -15,18 +15,6 @@
 
 namespace skgpu::graphite {
 
-static const char* kBufferTypeNames[kBufferTypeCount] = {
-        "Vertex",
-        "Index",
-        "Xfer CPU to GPU",
-        "Xfer GPU to CPU",
-        "Uniform",
-        "Storage",
-        "Indirect",
-        "VertexStorage",
-        "IndexStorage",
-};
-
 sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
                                    size_t size,
                                    BufferType type,
@@ -39,35 +27,35 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
     wgpu::BufferUsage usage = wgpu::BufferUsage::None;
 
     switch (type) {
-    case BufferType::kVertex:
-        usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst;
-        break;
-    case BufferType::kIndex:
-        usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::CopyDst;
-        break;
-    case BufferType::kXferCpuToGpu:
-        usage = wgpu::BufferUsage::CopySrc | wgpu::BufferUsage::MapWrite;
-        break;
-    case BufferType::kXferGpuToCpu:
-        usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead;
-        break;
-    case BufferType::kUniform:
-        usage = wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst;
-        break;
-    case BufferType::kStorage:
-        usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst |
-                wgpu::BufferUsage::CopySrc;
-        break;
-    case BufferType::kIndirect:
-        usage = wgpu::BufferUsage::Indirect | wgpu::BufferUsage::Storage |
-                wgpu::BufferUsage::CopyDst;
-        break;
-    case BufferType::kVertexStorage:
-        usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::Storage;
-        break;
-    case BufferType::kIndexStorage:
-        usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::Storage;
-        break;
+        case BufferType::kVertex:
+            usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::CopyDst;
+            break;
+        case BufferType::kIndex:
+            usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::CopyDst;
+            break;
+        case BufferType::kXferCpuToGpu:
+            usage = wgpu::BufferUsage::CopySrc | wgpu::BufferUsage::MapWrite;
+            break;
+        case BufferType::kXferGpuToCpu:
+            usage = wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::MapRead;
+            break;
+        case BufferType::kUniform:
+            usage = wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst;
+            break;
+        case BufferType::kStorage:
+            usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst |
+                    wgpu::BufferUsage::CopySrc;
+            break;
+        case BufferType::kIndirect:
+            usage = wgpu::BufferUsage::Indirect | wgpu::BufferUsage::Storage |
+                    wgpu::BufferUsage::CopyDst;
+            break;
+        case BufferType::kVertexStorage:
+            usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::Storage;
+            break;
+        case BufferType::kIndexStorage:
+            usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::Storage;
+            break;
     }
 
     if (sharedContext->caps()->drawBufferCanBeMapped() &&
@@ -77,9 +65,6 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
     }
 
     wgpu::BufferDescriptor desc;
-#ifdef SK_DEBUG
-    desc.label = kBufferTypeNames[static_cast<int>(type)];
-#endif
     desc.usage = usage;
     desc.size  = size;
     // Specifying mappedAtCreation avoids clearing the buffer on the GPU which can cause MapAsync to
@@ -100,7 +85,6 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
     return sk_sp<DawnBuffer>(new DawnBuffer(sharedContext,
                                             size,
                                             std::move(buffer),
-                                            type,
                                             mappedAtCreationPtr,
                                             std::move(label)));
 }
@@ -108,15 +92,13 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
 DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
                        size_t size,
                        wgpu::Buffer buffer,
-                       BufferType type,
                        void* mappedAtCreationPtr,
                        std::string_view label)
         : Buffer(sharedContext,
                  size,
                  std::move(label),
                  /*commandBufferRefsAsUsageRefs=*/buffer.GetUsage() & wgpu::BufferUsage::MapWrite)
-        , fBuffer(std::move(buffer))
-        , fType(type) {
+        , fBuffer(std::move(buffer)) {
     fMapPtr = mappedAtCreationPtr;
 }
 
@@ -320,11 +302,9 @@ void DawnBuffer::freeGpuData() {
     }
 }
 
-void DawnBuffer::onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
-                                         const char* dumpName) const {
-    Buffer::onDumpMemoryStatistics(traceMemoryDump, dumpName);
-    traceMemoryDump->dumpStringValue(
-            dumpName, "backend_label", kBufferTypeNames[static_cast<int>(fType)]);
+void DawnBuffer::setBackendLabel(char const* label) {
+    SkASSERT(label);
+    fBuffer.SetLabel(label);
 }
 
 } // namespace skgpu::graphite

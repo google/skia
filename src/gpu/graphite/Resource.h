@@ -135,8 +135,11 @@ public:
     // when reusing a scratch Texture we can change the label to match callers current use.
     void setLabel(std::string_view label) {
         fLabel = label;
-        // TODO: call into subclasses to allow them to set the label on actual GPU objects if they
-        // want to.
+
+        if (!label.empty()) {
+            const std::string fullLabel = "Skia_" + fLabel;
+            this->setBackendLabel(fullLabel.c_str());
+        }
     }
 
     // Tests whether a object has been abandoned or released. All objects will be in this state
@@ -186,12 +189,6 @@ protected:
 
     const SharedContext* sharedContext() const { return fSharedContext; }
 
-    // Overridden to free GPU resources in the backend API.
-    virtual void freeGpuData() = 0;
-
-    // Overridden to call any release callbacks, if necessary
-    virtual void invokeReleaseProc() {}
-
     // Overridden to add extra information to the memory dump.
     virtual void onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
                                         const char* dumpName) const {}
@@ -202,10 +199,14 @@ protected:
     }
 #endif
 
-    void setDeleteASAP() { fDeleteASAP = DeleteASAP::kYes; }
-
 private:
     friend class ProxyCache; // for setDeleteASAP and updateAccessTime
+
+    // Overridden to free GPU resources in the backend API.
+    virtual void freeGpuData() = 0;
+
+    // Overridden to call any release callbacks, if necessary
+    virtual void invokeReleaseProc() {}
 
     enum class DeleteASAP : bool {
         kNo = false,
@@ -213,6 +214,7 @@ private:
     };
 
     DeleteASAP shouldDeleteASAP() const { return fDeleteASAP; }
+    void setDeleteASAP() { fDeleteASAP = DeleteASAP::kYes; }
 
     // In the ResourceCache this is called whenever a Resource is moved into the purgeableQueue. It
     // may also be called by the ProxyCache to track the time on Resources it is holding on to.
@@ -222,6 +224,8 @@ private:
     skgpu::StdSteadyClock::time_point lastAccessTime() const {
         return fLastAccess;
     }
+
+    virtual void setBackendLabel(char const* label) {}
 
     ////////////////////////////////////////////////////////////////////////////
     // The following set of functions are only meant to be called by the ResourceCache. We don't

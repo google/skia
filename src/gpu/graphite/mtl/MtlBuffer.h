@@ -38,6 +38,8 @@ private:
 
     void freeGpuData() override;
 
+    void setBackendLabel(char const* label) override;
+
     sk_cfp<id<MTLBuffer>> fBuffer;
 };
 

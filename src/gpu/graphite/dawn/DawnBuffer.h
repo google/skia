@@ -36,7 +36,6 @@ private:
     DawnBuffer(const DawnSharedContext*,
                size_t size,
                wgpu::Buffer,
-               BufferType,
                void* mapAtCreationPtr,
                std::string_view label);
 
@@ -51,15 +50,13 @@ private:
 
     void freeGpuData() override;
 
-    void onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
-                                const char* dumpName) const override;
-
     const DawnSharedContext* dawnSharedContext() const {
         return static_cast<const DawnSharedContext*>(this->sharedContext());
     }
 
+    void setBackendLabel(char const* label) override;
+
     wgpu::Buffer fBuffer;
-    const BufferType fType;
     SkMutex fAsyncMutex;
     skia_private::TArray<sk_sp<RefCntedCallback>> fAsyncMapCallbacks SK_GUARDED_BY(fAsyncMutex);
 };

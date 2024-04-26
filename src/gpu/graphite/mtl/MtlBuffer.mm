@@ -12,22 +12,6 @@
 
 namespace skgpu::graphite {
 
-// TODO: Remove this once we get all graphite labels full plumbed with options to set them on
-// the backend objects
-#ifdef SK_ENABLE_MTL_DEBUG_INFO
-NSString* kBufferTypeNames[kBufferTypeCount] = {
-        @"Vertex",
-        @"Index",
-        @"Xfer CPU to GPU",
-        @"Xfer GPU to CPU",
-        @"Uniform",
-        @"Storage",
-        @"Indirect",
-        @"VertexStorage",
-        @"IndexStorage",
-};
-#endif
-
 sk_sp<Buffer> MtlBuffer::Make(const MtlSharedContext* sharedContext,
                               size_t size,
                               BufferType type,
@@ -58,9 +42,6 @@ sk_sp<Buffer> MtlBuffer::Make(const MtlSharedContext* sharedContext,
 
     sk_cfp<id<MTLBuffer>> buffer([sharedContext->device() newBufferWithLength:size
                                                                       options:options]);
-#ifdef SK_ENABLE_MTL_DEBUG_INFO
-    (*buffer).label = kBufferTypeNames[(int)type];
-#endif
 
     return sk_sp<Buffer>(new MtlBuffer(sharedContext,
                                        size,
@@ -99,6 +80,12 @@ void MtlBuffer::onUnmap() {
 
 void MtlBuffer::freeGpuData() {
     fBuffer.reset();
+}
+
+void MtlBuffer::setBackendLabel(char const* label) {
+    SkASSERT(label);
+    NSString* labelStr = @(label);
+    this->mtlBuffer().label = labelStr;
 }
 
 } // namespace skgpu::graphite
