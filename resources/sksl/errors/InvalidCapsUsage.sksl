@@ -1,0 +1,11 @@
+int x;
+
+void func() {
+    // The fuzzer discovered that `sk_Caps` could exist in a finalized program if it was part of a
+    // sequence-expression having side effects. (crbug.com/oss-fuzz/68347)
+    x += 1, sk_Caps;
+}
+
+/*%%*
+invalid expression
+*%%*/

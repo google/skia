@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLErrorReporter.h"
@@ -32,6 +33,13 @@ bool Expression::isIncomplete(const Context& context) const {
             context.fErrors->error(fPosition.after(),
                                    "expected '(' to begin constructor invocation");
             return true;
+
+        case Kind::kVariableReference:
+            if (this->type().matches(*context.fTypes.fSkCaps)) {
+                context.fErrors->error(fPosition, "invalid expression");
+                return true;
+            }
+            return false;
 
         default:
             return false;

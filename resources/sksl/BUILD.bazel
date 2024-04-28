@@ -305,6 +305,7 @@ skia_filegroup(
         "errors/InvalidBackendBindingFlagsMetal.sksl",
         "errors/InvalidBackendBindingFlagsSPIRV.sksl",
         "errors/InvalidBackendBindingFlagsWGSL.sksl",
+        "errors/InvalidCapsUsage.sksl",
         "errors/InvalidComputeMainParameters.compute",
         "errors/InvalidComputeMainReturn.compute",
         "errors/InvalidExtensionDirective.sksl",
