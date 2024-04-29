@@ -27,6 +27,13 @@ struct SkArc {
     SkScalar sweepAngle() const { return fSweepAngle; }
     bool isWedge() const { return fType == Type::kWedge; }
 
+    friend bool operator==(const SkArc& a, const SkArc& b) {
+        return a.fOval == b.fOval && a.fStartAngle == b.fStartAngle &&
+               a.fSweepAngle == b.fSweepAngle && a.fType == b.fType;
+    }
+
+    friend bool operator!=(const SkArc& a, const SkArc& b) { return !(a == b); }
+
     // Preferred factory that explicitly states which type of arc
     static SkArc Make(const SkRect& oval,
                       SkScalar startAngleDegrees,
