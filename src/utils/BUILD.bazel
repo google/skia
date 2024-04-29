@@ -192,7 +192,6 @@ skia_cc_library(
     name = "multi_picture_document",
     srcs = [
         "SkMultiPictureDocument.cpp",
-        "SkMultiPictureDocument.h",
         "SkMultiPictureDocumentPriv.h",
     ],
     hdrs = [
