@@ -73,7 +73,11 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::Make(Recorder* recorder,
         return MakeCircle(recorder, localToDevice, deviceSigma, srcRect, devRect);
     }
 
-    // TODO(b/238762890) Support analytic blurring with rrects.
+    if (devRRectIsValid && SkRRectPriv::IsSimpleCircular(devRRect) &&
+        localToDevice.isScaleTranslate()) {
+        return MakeRRect(recorder, localToDevice, deviceSigma, srcRRect, devRRect);
+    }
+
     return std::nullopt;
 }
 
@@ -157,10 +161,9 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRect(Recorder* recorder,
 
     return AnalyticBlurMask(*drawBounds,
                             SkM44(devToScaledShape),
-                            shapeData,
                             ShapeType::kRect,
-                            isFast,
-                            invSixSigma,
+                            shapeData,
+                            {static_cast<float>(isFast), invSixSigma},
                             integral);
 }
 
@@ -233,11 +236,80 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeCircle(Recorder* recorder,
     constexpr float kUnusedBlurData = 0.0f;
     return AnalyticBlurMask(*drawBounds,
                             SkM44(),
-                            shapeData,
                             ShapeType::kCircle,
-                            kUnusedBlurData,
-                            kUnusedBlurData,
+                            shapeData,
+                            {kUnusedBlurData, kUnusedBlurData},
                             profile);
+}
+
+std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRRect(Recorder* recorder,
+                                                            const SkMatrix& localToDevice,
+                                                            float devSigma,
+                                                            const SkRRect& srcRRect,
+                                                            const SkRRect& devRRect) {
+    const int devBlurRadius = 3 * SkScalarCeilToInt(devSigma - 1.0f / 6.0f);
+
+    const SkVector& devRadiiUL = devRRect.radii(SkRRect::kUpperLeft_Corner);
+    const SkVector& devRadiiUR = devRRect.radii(SkRRect::kUpperRight_Corner);
+    const SkVector& devRadiiLR = devRRect.radii(SkRRect::kLowerRight_Corner);
+    const SkVector& devRadiiLL = devRRect.radii(SkRRect::kLowerLeft_Corner);
+
+    const int devLeft = SkScalarCeilToInt(std::max<float>(devRadiiUL.fX, devRadiiLL.fX));
+    const int devTop = SkScalarCeilToInt(std::max<float>(devRadiiUL.fY, devRadiiUR.fY));
+    const int devRight = SkScalarCeilToInt(std::max<float>(devRadiiUR.fX, devRadiiLR.fX));
+    const int devBot = SkScalarCeilToInt(std::max<float>(devRadiiLL.fY, devRadiiLR.fY));
+
+    // This is a conservative check for nine-patchability.
+    const SkRect& devOrig = devRRect.getBounds();
+    if (devOrig.fLeft + devLeft + devBlurRadius >= devOrig.fRight - devRight - devBlurRadius ||
+        devOrig.fTop + devTop + devBlurRadius >= devOrig.fBottom - devBot - devBlurRadius) {
+        return std::nullopt;
+    }
+
+    const int newRRWidth = 2 * devBlurRadius + devLeft + devRight + 1;
+    const int newRRHeight = 2 * devBlurRadius + devTop + devBot + 1;
+
+    const SkRect newRect = SkRect::MakeXYWH(SkIntToScalar(devBlurRadius),
+                                            SkIntToScalar(devBlurRadius),
+                                            SkIntToScalar(newRRWidth),
+                                            SkIntToScalar(newRRHeight));
+    SkVector newRadii[4];
+    newRadii[0] = {SkScalarCeilToScalar(devRadiiUL.fX), SkScalarCeilToScalar(devRadiiUL.fY)};
+    newRadii[1] = {SkScalarCeilToScalar(devRadiiUR.fX), SkScalarCeilToScalar(devRadiiUR.fY)};
+    newRadii[2] = {SkScalarCeilToScalar(devRadiiLR.fX), SkScalarCeilToScalar(devRadiiLR.fY)};
+    newRadii[3] = {SkScalarCeilToScalar(devRadiiLL.fX), SkScalarCeilToScalar(devRadiiLL.fY)};
+
+    SkRRect rrectToDraw;
+    rrectToDraw.setRectRadii(newRect, newRadii);
+    const SkISize dimensions =
+            SkISize::Make(newRRWidth + 2 * devBlurRadius, newRRHeight + 2 * devBlurRadius);
+    SkBitmap ninePatchBitmap = skgpu::CreateRRectBlurMask(rrectToDraw, dimensions, devSigma);
+    if (ninePatchBitmap.empty()) {
+        return std::nullopt;
+    }
+
+    sk_sp<TextureProxy> ninePatch = RecorderPriv::CreateCachedProxy(recorder, ninePatchBitmap);
+    if (!ninePatch) {
+        return std::nullopt;
+    }
+
+    const float blurRadius = 3.0f * SkScalarCeilToScalar(devSigma - 1.0f / 6.0f);
+    const float edgeSize = 2.0f * blurRadius + SkRRectPriv::GetSimpleRadii(devRRect).fX + 0.5f;
+    const Rect shapeData = devRRect.rect().makeOutset(blurRadius, blurRadius);
+
+    // Determine how much to outset the draw bounds to ensure we hit pixels within 3*sigma.
+    std::optional<Rect> drawBounds = outset_bounds(localToDevice, devSigma, srcRRect.rect());
+    if (!drawBounds) {
+        return std::nullopt;
+    }
+
+    constexpr float kUnusedBlurData = 0.0f;
+    return AnalyticBlurMask(*drawBounds,
+                            SkM44(),
+                            ShapeType::kRRect,
+                            shapeData,
+                            {edgeSize, kUnusedBlurData},
+                            ninePatch);
 }
 
 }  // namespace skgpu::graphite
