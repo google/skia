@@ -320,11 +320,19 @@ skia_filegroup(
     visibility = ["//src/core:__pkg__"],
 )
 
-skia_filegroup(
+skia_cc_library(
     name = "fontmgr_custom",
     srcs = [
         "SkFontMgr_custom.cpp",
+    ],
+    hdrs = [
         "SkFontMgr_custom.h",
+    ],
+    deps = [
+        ":freetype_support",
+        "//src/base",
+        "//src/core",
+        "//src/core:core_priv",
     ],
 )
 
@@ -392,7 +400,6 @@ skia_cc_library(
     name = "fontmgr_data_freetype",
     srcs = [
         "SkFontMgr_custom_embedded.cpp",
-        ":fontmgr_custom",
     ],
     hdrs = [
         "//include/ports:data_fontmgr_hdrs",
@@ -401,6 +408,7 @@ skia_cc_library(
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = [
+        ":fontmgr_custom",
         ":freetype_support",
         "//:core",
         "//src/base",
@@ -412,7 +420,6 @@ skia_cc_library(
     name = "fontmgr_directory_freetype",
     srcs = [
         "SkFontMgr_custom_directory.cpp",
-        ":fontmgr_custom",
     ],
     hdrs = [
         "//include/ports:directory_fontmgr_hdrs",
@@ -421,6 +428,7 @@ skia_cc_library(
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = [
+        ":fontmgr_custom",
         ":freetype_support",
         "//:core",
         "//src/base",
@@ -432,7 +440,6 @@ skia_cc_library(
     name = "fontmgr_empty_freetype",
     srcs = [
         "SkFontMgr_custom_empty.cpp",
-        ":fontmgr_custom",
     ],
     hdrs = [
         "//include/ports:empty_fontmgr_hdrs",
@@ -441,6 +448,7 @@ skia_cc_library(
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = [
+        ":fontmgr_custom",
         ":freetype_support",
         "//:core",
         "//src/base",

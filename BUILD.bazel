@@ -252,6 +252,12 @@ alias(
 )
 
 alias(
+    name = "fontmgr_directory_freetype",
+    actual = "//src/ports:fontmgr_directory_freetype",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "fontmgr_fontconfig_freetype",
     actual = "//src/ports:fontmgr_fontconfig_freetype",
     visibility = ["//visibility:public"],

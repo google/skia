@@ -70,9 +70,11 @@ cc_binary(
     ],
     deps = [
         "@skia//:core",
-        "@skia//:fontmgr_fontconfig_freetype",
         "@skia//:png_encode_codec",
-    ],
+    ] + select({
+        "@platforms//os:linux": ["@skia//:fontmgr_fontconfig_freetype"],
+        "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
+    }),
 )
 
 cc_binary(
