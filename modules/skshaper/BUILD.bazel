@@ -152,6 +152,10 @@ skia_cc_library(
         "//modules/skunicode:skunicode_core",
         "//src/base",
         "//src/core:core_priv",
+    ] +
+    # We have this harfbuzz dependency all by itself because we need to turn this into a
+    # select statement when rolling into G3.
+    [
         "@harfbuzz",
     ],
 )
