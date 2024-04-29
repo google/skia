@@ -1064,20 +1064,7 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, SkPathDirection dir, unsigned sta
     return *this;
 }
 
-bool SkPath::hasOnlyMoveTos() const {
-    int count = fPathRef->countVerbs();
-    const uint8_t* verbs = fPathRef->verbsBegin();
-    for (int i = 0; i < count; ++i) {
-        if (*verbs == kLine_Verb ||
-            *verbs == kQuad_Verb ||
-            *verbs == kConic_Verb ||
-            *verbs == kCubic_Verb) {
-            return false;
-        }
-        ++verbs;
-    }
-    return true;
-}
+bool SkPath::hasOnlyMoveTos() const { return this->getSegmentMasks() == 0; }
 
 bool SkPath::isZeroLengthSincePoint(int startPtIndex) const {
     int count = fPathRef->countPoints() - startPtIndex;
