@@ -9,13 +9,14 @@
 #define SKSL_SWIZZLE
 
 #include "include/core/SkTypes.h"
-#include "src/sksl/SkSLDefines.h"
+#include "src/base/SkFixedArray.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <cstdint>
+#include <initializer_list>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -38,6 +39,11 @@ enum Type : int8_t {
 };
 
 }  // namespace SwizzleComponent
+
+/**
+ * Represents the components of a vector swizzle.
+ */
+using ComponentArray = skia_private::FixedArray<4, int8_t>;
 
 /**
  * Represents a vector swizzle operation such as 'float3(1, 2, 3).zyx'.

@@ -23,6 +23,7 @@ IWYU_HDRS = [
     "SkBitmaskEnum.h",
     "SkEndian.h",
     "SkEnumBitMask.h",
+    "SkFixedArray.h",
     "SkFloatBits.h",
     "SkLeanWindows.h",
     "SkMSAN.h",

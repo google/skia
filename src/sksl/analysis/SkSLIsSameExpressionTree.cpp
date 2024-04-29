@@ -7,9 +7,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTArray.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"

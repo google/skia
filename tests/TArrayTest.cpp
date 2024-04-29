@@ -7,6 +7,7 @@
 
 #include "include/private/base/SkASAN.h"  // IWYU pragma: keep
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkFixedArray.h"
 #include "src/base/SkRandom.h"
 #include "tests/Test.h"
 
@@ -88,7 +89,8 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
     // { 0, 3, 2 }
 }
 
-template <typename T> static void test_construction(skiatest::Reporter* reporter) {
+template <typename T>
+static void test_construction(skiatest::Reporter* reporter, bool hasMoveSemantics = true) {
     using ValueType = typename T::value_type;
 
     // No arguments: Creates an empty array with no initial storage.
@@ -119,7 +121,9 @@ template <typename T> static void test_construction(skiatest::Reporter* reporter
 
     // Another array, &&: Moves one array to another.
     T arrayMove(std::move(arrayInitial));
-    REPORTER_ASSERT(reporter, arrayInitial.empty()); // NOLINT(bugprone-use-after-move)
+    if (hasMoveSemantics) {
+        REPORTER_ASSERT(reporter, arrayInitial.empty()); // NOLINT(bugprone-use-after-move)
+    }
     REPORTER_ASSERT(reporter, arrayMove.size() == 3);
     REPORTER_ASSERT(reporter, arrayMove[0] == ValueType{1});
     REPORTER_ASSERT(reporter, arrayMove[1] == ValueType{2});
@@ -394,6 +398,11 @@ DEF_TEST(TArray_SelfAssignment, reporter) {
     test_self_assignment<STArray<3, unsigned short>>(reporter);
 }
 
+DEF_TEST(FixedArray_SelfAssignment, reporter) {
+    test_self_assignment<FixedArray<1, int>>(reporter);
+    test_self_assignment<FixedArray<4, unsigned short>>(reporter);
+}
+
 template <typename ArrayType>
 static void test_comparison(skiatest::Reporter* reporter) {
     using T = typename ArrayType::value_type;
@@ -440,6 +449,12 @@ DEF_TEST(TArray_Comparison, reporter) {
     test_comparison<STArray<5, char>>(reporter);
     test_comparison<STArray<7, TestClass>>(reporter);
     test_comparison<STArray<10, float>>(reporter);
+}
+
+DEF_TEST(FixedArray_Comparison, reporter) {
+    test_comparison<FixedArray<15, int>>(reporter);
+    test_comparison<FixedArray<20, char>>(reporter);
+    test_comparison<FixedArray<25, float>>(reporter);
 }
 
 template <typename Array> static void test_array_reserve(skiatest::Reporter* reporter,
@@ -534,6 +549,12 @@ DEF_TEST(TArray_Basic, reporter) {
     TestTSet_basic<TArray<TestClass, false>>(reporter);
 }
 
+DEF_TEST(FixedArray_Basic, reporter) {
+    TestTSet_basic<FixedArray<5, char>>(reporter);
+    TestTSet_basic<FixedArray<7, int>>(reporter);
+    TestTSet_basic<FixedArray<100, double>>(reporter);
+}
+
 DEF_TEST(TArray_Reserve, reporter) {
     test_reserve<TArray<int>>(reporter);
     test_reserve<STArray<1, int>>(reporter);
@@ -556,11 +577,23 @@ DEF_TEST(TArray_Construction, reporter) {
     test_construction<STArray<10, float>>(reporter);
 }
 
+DEF_TEST(FixedArray_Construction, reporter) {
+    test_construction<FixedArray<15, int>>(reporter, /*hasMoveSemantics=*/false);
+    test_construction<FixedArray<20, char>>(reporter, /*hasMoveSemantics=*/false);
+    test_construction<FixedArray<25, float>>(reporter, /*hasMoveSemantics=*/false);
+}
+
 DEF_TEST(TArray_InnerPush, reporter) {
     test_inner_push<TArray<int>>(reporter);
     test_inner_push<STArray<1, int>>(reporter);
     test_inner_push<STArray<99, int>>(reporter);
     test_inner_push<STArray<200, int>>(reporter);
+}
+
+DEF_TEST(FixedArray_InnerPush, reporter) {
+    test_inner_push<FixedArray<101, int>>(reporter);
+    test_inner_push<FixedArray<150, short>>(reporter);
+    test_inner_push<FixedArray<250, double>>(reporter);
 }
 
 DEF_TEST(TArray_InnerEmplace, reporter) {

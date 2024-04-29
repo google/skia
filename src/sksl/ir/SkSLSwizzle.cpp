@@ -12,6 +12,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLString.h"
@@ -22,8 +23,8 @@
 #include "src/sksl/ir/SkSLLiteral.h"
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <optional>
 
 using namespace skia_private;

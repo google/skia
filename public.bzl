@@ -317,6 +317,7 @@ BASE_SRCS_ALL = [
     "src/base/SkDeque.cpp",
     "src/base/SkEndian.h",
     "src/base/SkEnumBitMask.h",
+    "src/base/SkFixedArray.h",
     "src/base/SkFloatBits.h",
     "src/base/SkFloatingPoint.cpp",
     "src/base/SkHalf.cpp",

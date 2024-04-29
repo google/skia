@@ -207,6 +207,7 @@ skia_core_sources = [
   "$_src/base/SkDeque.cpp",
   "$_src/base/SkEndian.h",
   "$_src/base/SkEnumBitMask.h",
+  "$_src/base/SkFixedArray.h",
   "$_src/base/SkFloatBits.h",
   "$_src/base/SkFloatingPoint.cpp",
   "$_src/base/SkHalf.cpp",
