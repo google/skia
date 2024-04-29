@@ -10,6 +10,8 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -306,3 +308,42 @@ private:
 DEF_GM( return new OvalGM; )
 
 }  // namespace skiagm
+
+DEF_SIMPLE_GM(open_ovals, canvas, 225, 110) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    const SkRect rect = SkRect::MakeWH(50, 100);
+    const SkPathDirection dir = SkPathDirection::kCW;
+    const int start = 1;
+
+    // We stroke several open ovals to see how they behave
+    canvas->translate(5, 5);
+
+    auto doRow = [&](const SkPath& p) {
+        canvas->drawPath(p, paint);
+        canvas->translate(55, 0);
+    };
+
+    // Default case (left open) looks like an oval
+    SkPath path;
+    path.addOpenOval(rect, dir, start);
+    doRow(path);
+
+    // Closing makes us technically be an oval, but should look the same
+    path.close();
+    doRow(path);
+
+    // Moving before the oval adds a line to the start
+    path.reset();
+    path.moveTo(rect.center());
+    path.addOpenOval(rect, dir, start);
+    doRow(path);
+
+    // Similarly, lineTo after the oval starts from the start/end point
+    path.reset();
+    path.addOpenOval(rect, dir, start);
+    path.lineTo(rect.center());
+    doRow(path);
+}

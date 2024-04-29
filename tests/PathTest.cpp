@@ -3747,6 +3747,70 @@ static void test_oval(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 1 == start);
 }
 
+static void test_open_oval(skiatest::Reporter* reporter) {
+    SkRect rect;
+    SkMatrix m;
+    SkPath path;
+    unsigned start = 0;
+    SkPathDirection dir = SkPathDirection::kCCW;
+
+    rect = SkRect::MakeWH(SkIntToScalar(30), SkIntToScalar(50));
+    path.addOpenOval(rect, SkPathDirection::kCW, /*start=*/1);
+
+    // Open ovals are not ovals...
+    REPORTER_ASSERT(reporter, !path.isOval(nullptr));
+    // ... until they're closed
+    path.close();
+    REPORTER_ASSERT(reporter, path.isOval(nullptr));
+
+    // We can transform an open oval before closing it
+    path.reset();
+    path.addOpenOval(rect, SkPathDirection::kCW, /*start=*/1);
+
+    m.setRotate(SkIntToScalar(90));
+    SkPath tmp;
+    path.transform(m, &tmp);
+    // an oval rotated 90 degrees is still an oval. The start index changes from 1 to 2. Direction
+    // is unchanged.
+    REPORTER_ASSERT(reporter, !tmp.isOval(nullptr));
+    tmp.close();
+    REPORTER_ASSERT(reporter, SkPathPriv::IsOval(tmp, nullptr, &dir, &start));
+    REPORTER_ASSERT(reporter, 2 == start);
+    REPORTER_ASSERT(reporter, SkPathDirection::kCW == dir);
+
+    m.reset();
+    m.setRotate(SkIntToScalar(30));
+    tmp.reset();
+    path.transform(m, &tmp);
+    // an open oval rotated 30 degrees does not become an oval when closed
+    tmp.close();
+    REPORTER_ASSERT(reporter, !tmp.isOval(nullptr));
+
+    // Calling moveTo before addOpenOval does not result in an oval
+    path.reset();
+    path.moveTo(0, 0);
+    path.addOpenOval(rect, SkPathDirection::kCW, /*start=*/1);
+    path.close();
+    REPORTER_ASSERT(reporter, !path.isOval(nullptr));
+
+    // Moving (or any other verb) before the close also does not result in an oval
+    path.reset();
+    path.addOpenOval(rect, SkPathDirection::kCW, /*start=*/1);
+    path.moveTo(0, 0);
+    path.close();
+    REPORTER_ASSERT(reporter, !path.isOval(nullptr));
+
+    // copy path before closing
+    path.reset();
+    tmp.reset();
+    tmp.addOpenOval(rect, SkPathDirection::kCW, /*start=*/1);
+    path = tmp;
+    path.close();
+    REPORTER_ASSERT(reporter, SkPathPriv::IsOval(path, nullptr, &dir, &start));
+    REPORTER_ASSERT(reporter, SkPathDirection::kCW == dir);
+    REPORTER_ASSERT(reporter, 1 == start);
+}
+
 static void test_empty(skiatest::Reporter* reporter, const SkPath& p) {
     SkPath  empty;
 
@@ -5108,6 +5172,7 @@ DEF_TEST(Paths, reporter) {
     test_range_iter(reporter);
     test_circle(reporter);
     test_oval(reporter);
+    test_open_oval(reporter);
     test_strokerec(reporter);
     test_addPoly(reporter);
     test_isfinite(reporter);
