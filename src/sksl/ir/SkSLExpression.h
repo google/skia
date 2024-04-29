@@ -41,7 +41,7 @@ public:
         return (Kind)fKind;
     }
 
-    virtual const Type& type() const {
+    const Type& type() const {
         return *fType;
     }
 
