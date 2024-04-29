@@ -10,6 +10,6 @@ void not_an_array()   { S s; s.f[0]; }
 type 'S' does not have a field named 'missing'
 not a function
 type mismatch: '=' cannot operate on 'float', 'bool3'
-invalid swizzle component 'm'
+too many components in swizzle mask
 expected array, but found 'float'
 *%%*/

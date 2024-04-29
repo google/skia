@@ -57,20 +57,14 @@ public:
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);
     }
 
-    // Swizzle::Convert permits component arrays containing ZERO or ONE, does typechecking, reports
+    // Swizzle::Convert permits component strings containing ZERO or ONE, does typechecking, reports
     // errors via ErrorReporter, and returns an expression that combines constructors and native
     // swizzles (comprised solely of X/Y/W/Z).
     static std::unique_ptr<Expression> Convert(const Context& context,
                                                Position pos,
                                                Position maskPos,
                                                std::unique_ptr<Expression> base,
-                                               ComponentArray inComponents);
-
-    static std::unique_ptr<Expression> Convert(const Context& context,
-                                               Position pos,
-                                               Position maskPos,
-                                               std::unique_ptr<Expression> base,
-                                               std::string_view maskString);
+                                               std::string_view componentString);
 
     // Swizzle::Make does not permit ZERO or ONE in the component array, just X/Y/Z/W; errors are
     // reported via ASSERT.

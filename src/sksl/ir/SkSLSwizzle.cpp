@@ -246,10 +246,18 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                                              Position pos,
                                              Position maskPos,
                                              std::unique_ptr<Expression> base,
-                                             std::string_view maskString) {
+                                             std::string_view componentString) {
+    if (componentString.size() > 4) {
+        context.fErrors->error(Position::Range(maskPos.startOffset() + 4,
+                                               maskPos.endOffset()),
+                               "too many components in swizzle mask");
+        return nullptr;
+    }
+
+    // Convert the component string into an equivalent array.
     ComponentArray components;
-    for (size_t i = 0; i < maskString.length(); ++i) {
-        char field = maskString[i];
+    for (size_t i = 0; i < componentString.length(); ++i) {
+        char field = componentString[i];
         switch (field) {
             case '0': components.push_back(SwizzleComponent::ZERO); break;
             case '1': components.push_back(SwizzleComponent::ONE);  break;
@@ -276,28 +284,9 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 return nullptr;
         }
     }
-    return Convert(context, pos, maskPos, std::move(base), std::move(components));
-}
 
-// Swizzles are complicated due to constant components. The most difficult case is a mask like
-// '.x1w0'. A naive approach might turn that into 'float4(base.x, 1, base.w, 0)', but that evaluates
-// 'base' twice. We instead group the swizzle mask ('xw') and constants ('1, 0') together and use a
-// secondary swizzle to put them back into the right order, so in this case we end up with
-// 'float4(base.xw, 1, 0).xzyw'.
-std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
-                                             Position pos,
-                                             Position maskPos,
-                                             std::unique_ptr<Expression> base,
-                                             ComponentArray inComponents) {
-    if (inComponents.size() > 4) {
-        context.fErrors->error(Position::Range(maskPos.startOffset() + 4,
-                                               maskPos.endOffset()),
-                               "too many components in swizzle mask");
-        return nullptr;
-    }
-
-    if (!validate_swizzle_domain(inComponents)) {
-        context.fErrors->error(maskPos, "invalid swizzle mask '" + MaskString(inComponents) + "'");
+    if (!validate_swizzle_domain(components)) {
+        context.fErrors->error(maskPos, "invalid swizzle mask '" + MaskString(components) + "'");
         return nullptr;
     }
 
@@ -311,8 +300,8 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
 
     ComponentArray maskComponents;
     bool foundXYZW = false;
-    for (int i = 0; i < inComponents.size(); ++i) {
-        switch (inComponents[i]) {
+    for (int i = 0; i < components.size(); ++i) {
+        switch (components[i]) {
             case SwizzleComponent::ZERO:
             case SwizzleComponent::ONE:
                 // Skip over constant fields for now.
@@ -359,7 +348,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
                 context.fErrors->error(Position::Range(maskPos.startOffset() + i,
                                                        maskPos.startOffset() + i + 1),
                                        String::printf("invalid swizzle component '%c'",
-                                                      mask_char(inComponents[i])));
+                                                      mask_char(components[i])));
                 return nullptr;
         }
     }
@@ -375,6 +364,12 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
         return nullptr;
     }
 
+    // Swizzles are complicated due to constant components. The most difficult case is a mask like
+    // '.x1w0'. A naive approach might turn that into 'float4(base.x, 1, base.w, 0)', but that
+    // evaluates 'base' twice. We instead group the swizzle mask ('xw') and constants ('1, 0')
+    // together and use a secondary swizzle to put them back into the right order, so in this case
+    // we end up with 'float4(base.xw, 1, 0).xzyw'.
+    //
     // First, we need a vector expression that is the non-constant portion of the swizzle, packed:
     //   scalar.xxx  -> type3(scalar)
     //   scalar.x0x0 -> type2(scalar)
@@ -383,7 +378,7 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     std::unique_ptr<Expression> expr = Swizzle::Make(context, pos, std::move(base), maskComponents);
 
     // If we have processed the entire swizzle, we're done.
-    if (maskComponents.size() == inComponents.size()) {
+    if (maskComponents.size() == components.size()) {
         return expr;
     }
 
@@ -409,8 +404,8 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     int constantFieldIdx = maskComponents.size();
     int constantZeroIdx = -1, constantOneIdx = -1;
 
-    for (int i = 0; i < inComponents.size(); i++) {
-        switch (inComponents[i]) {
+    for (int i = 0; i < components.size(); i++) {
+        switch (components[i]) {
             case SwizzleComponent::ZERO:
                 if (constantZeroIdx == -1) {
                     // Synthesize a '0' argument at the end of the constructor.
