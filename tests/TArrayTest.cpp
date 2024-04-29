@@ -17,7 +17,7 @@
 
 using namespace skia_private;
 
-// This class is used to test SkTArray's behavior with classes containing a vtable.
+// This class is used to test TArray's behavior with classes containing a vtable.
 
 namespace {
 
@@ -30,6 +30,7 @@ public:
     virtual ~TestClass() {}
 
     bool operator==(const TestClass& c) const { return value == c.value; }
+    bool operator!=(const TestClass& c) const { return value != c.value; }
 
     int value = 0;
 };
@@ -38,9 +39,10 @@ public:
 
 // Tests the TArray<T> class template.
 
-template <typename T, bool MEM_MOVE>
+template <typename ArrayType>
 static void TestTSet_basic(skiatest::Reporter* reporter) {
-    TArray<T, MEM_MOVE> a;
+    using T = typename ArrayType::value_type;
+    ArrayType a;
 
     // Starts empty.
     REPORTER_ASSERT(reporter, a.empty());
@@ -144,10 +146,10 @@ template <typename T> static void test_construction(skiatest::Reporter* reporter
 }
 
 template <typename T, typename U>
-static void test_skstarray_compatibility(skiatest::Reporter* reporter) {
-    // We expect SkTArrays of the same type to be copyable and movable, even when:
-    // - one side is an SkTArray, and the other side is an SkSTArray
-    // - both sides are SkSTArray, but each side has a different internal capacity
+static void test_starray_compatibility(skiatest::Reporter* reporter) {
+    // We expect TArrays of the same type to be copyable and movable, even when:
+    // - one side is an TArray, and the other side is an STArray
+    // - both sides are STArray, but each side has a different internal capacity
     T tArray;
     tArray.push_back(1);
     tArray.push_back(2);
@@ -238,7 +240,7 @@ template <typename T> static void test_swap(skiatest::Reporter* reporter,
     }}
 }
 
-static void test_swap(skiatest::Reporter* reporter) {
+DEF_TEST(TArray_Swap, reporter) {
     static constexpr int kSizes[] = {0, 1, 5, 10, 15, 20, 25};
 
     TArray<int> arr;
@@ -297,7 +299,7 @@ template <typename T> static void test_array_move(skiatest::Reporter* reporter,
     }}
 }
 
-static void test_array_move(skiatest::Reporter* reporter) {
+DEF_TEST(TArray_Move, reporter) {
     static constexpr int kSizes[] = {0, 1, 5, 10, 15, 20, 25};
 
     TArray<int> arr;
@@ -315,7 +317,7 @@ static void test_array_move(skiatest::Reporter* reporter) {
     test_array_move<MoveOnlyInt>(reporter, arraysMoi, kSizes);
 }
 
-void test_unnecessary_alloc(skiatest::Reporter* reporter) {
+DEF_TEST(TArray_NoUnnecessaryAllocs, reporter) {
     {
         TArray<int> a;
         REPORTER_ASSERT(reporter, a.capacity() == 0);
@@ -373,17 +375,71 @@ void test_unnecessary_alloc(skiatest::Reporter* reporter) {
     }
 }
 
+template <typename ArrayType>
 static void test_self_assignment(skiatest::Reporter* reporter) {
-    TArray<int> a;
+    ArrayType a;
     a.push_back(1);
     REPORTER_ASSERT(reporter, !a.empty());
     REPORTER_ASSERT(reporter, a.size() == 1);
     REPORTER_ASSERT(reporter, a[0] == 1);
 
-    a = static_cast<decltype(a)&>(a);
+    a = static_cast<ArrayType&>(a);
     REPORTER_ASSERT(reporter, !a.empty());
     REPORTER_ASSERT(reporter, a.size() == 1);
     REPORTER_ASSERT(reporter, a[0] == 1);
+}
+
+DEF_TEST(TArray_SelfAssignment, reporter) {
+    test_self_assignment<TArray<int>>(reporter);
+    test_self_assignment<STArray<3, unsigned short>>(reporter);
+}
+
+template <typename ArrayType>
+static void test_comparison(skiatest::Reporter* reporter) {
+    using T = typename ArrayType::value_type;
+    ArrayType a, b;
+
+    // Empty arrays.
+    REPORTER_ASSERT(reporter, a == b);
+    REPORTER_ASSERT(reporter, !(a != b));
+
+    // Arrays with identical contents.
+    for (int x = 0; x < 10; ++x) {
+        a.push_back(T(x));
+        b.push_back(T(x));
+        REPORTER_ASSERT(reporter, a == b);
+        REPORTER_ASSERT(reporter, !(a != b));
+    }
+
+    // Arrays with differing sizes.
+    for (int x = 0; x < 10; ++x) {
+        a.pop_back();
+        REPORTER_ASSERT(reporter, a != b);
+        REPORTER_ASSERT(reporter, b != a);
+        REPORTER_ASSERT(reporter, !(a == b));
+        REPORTER_ASSERT(reporter, !(b == a));
+    }
+
+    // Arrays with differing contents.
+    a = b;
+    for (int x = 0; x < 10; ++x) {
+        a[x] = T(x + 100);
+        REPORTER_ASSERT(reporter, a != b);
+        REPORTER_ASSERT(reporter, b != a);
+        REPORTER_ASSERT(reporter, !(a == b));
+        REPORTER_ASSERT(reporter, !(b == a));
+        a[x] = T(x);
+    }
+}
+
+DEF_TEST(TArray_Comparison, reporter) {
+    test_comparison<TArray<int>>(reporter);
+    test_comparison<TArray<double>>(reporter);
+    test_comparison<TArray<TestClass>>(reporter);
+    test_comparison<STArray<1, int>>(reporter);
+    test_comparison<STArray<5, char>>(reporter);
+    test_comparison<STArray<7, TestClass>>(reporter);
+    test_comparison<STArray<10, float>>(reporter);
 }
 
 template <typename Array> static void test_array_reserve(skiatest::Reporter* reporter,
@@ -469,21 +525,16 @@ static void test_inner_emplace(skiatest::Reporter* reporter) {
                     }));
 }
 
-DEF_TEST(TArray, reporter) {
+DEF_TEST(TArray_Basic, reporter) {
     // ints are POD types and can work with either MEM_MOVE=true or false.
-    TestTSet_basic<int, true>(reporter);
-    TestTSet_basic<int, false>(reporter);
+    TestTSet_basic<TArray<int, true>>(reporter);
+    TestTSet_basic<TArray<int, false>>(reporter);
 
     // TestClass has a vtable and can only work with MEM_MOVE=false.
-    TestTSet_basic<TestClass, false>(reporter);
+    TestTSet_basic<TArray<TestClass, false>>(reporter);
+}
 
-    test_swap(reporter);
-    test_array_move(reporter);
-
-    test_unnecessary_alloc(reporter);
-
-    test_self_assignment(reporter);
-
+DEF_TEST(TArray_Reserve, reporter) {
     test_reserve<TArray<int>>(reporter);
     test_reserve<STArray<1, int>>(reporter);
     test_reserve<STArray<2, int>>(reporter);
@@ -493,7 +544,9 @@ DEF_TEST(TArray, reporter) {
     test_reserve<STArray<1, TestClass>>(reporter);
     test_reserve<STArray<2, TestClass>>(reporter);
     test_reserve<STArray<16, TestClass>>(reporter);
+}
 
+DEF_TEST(TArray_Construction, reporter) {
     test_construction<TArray<int>>(reporter);
     test_construction<TArray<double>>(reporter);
     test_construction<TArray<TestClass>>(reporter);
@@ -501,27 +554,33 @@ DEF_TEST(TArray, reporter) {
     test_construction<STArray<5, char>>(reporter);
     test_construction<STArray<7, TestClass>>(reporter);
     test_construction<STArray<10, float>>(reporter);
+}
 
+DEF_TEST(TArray_InnerPush, reporter) {
     test_inner_push<TArray<int>>(reporter);
     test_inner_push<STArray<1, int>>(reporter);
     test_inner_push<STArray<99, int>>(reporter);
     test_inner_push<STArray<200, int>>(reporter);
+}
 
+DEF_TEST(TArray_InnerEmplace, reporter) {
     test_inner_emplace<TArray<EmplaceStruct>>(reporter);
     test_inner_emplace<STArray<1, EmplaceStruct>>(reporter);
     test_inner_emplace<STArray<99, EmplaceStruct>>(reporter);
     test_inner_emplace<STArray<200, EmplaceStruct>>(reporter);
+}
 
-    test_skstarray_compatibility<STArray<1, int>, TArray<int>>(reporter);
-    test_skstarray_compatibility<STArray<5, char>, TArray<char>>(reporter);
-    test_skstarray_compatibility<STArray<10, float>, TArray<float>>(reporter);
-    test_skstarray_compatibility<TArray<int>, STArray<1, int>>(reporter);
-    test_skstarray_compatibility<TArray<char>, STArray<5, char>>(reporter);
-    test_skstarray_compatibility<TArray<float>, STArray<10, float>>(reporter);
-    test_skstarray_compatibility<STArray<10, uint8_t>, STArray<1, uint8_t>>(reporter);
-    test_skstarray_compatibility<STArray<1, long>, STArray<10, long>>(reporter);
-    test_skstarray_compatibility<STArray<3, double>, STArray<4, double>>(reporter);
-    test_skstarray_compatibility<STArray<2, short>, STArray<1, short>>(reporter);
+DEF_TEST(TArray_STArrayCompatibility, reporter) {
+    test_starray_compatibility<STArray<1, int>, TArray<int>>(reporter);
+    test_starray_compatibility<STArray<5, char>, TArray<char>>(reporter);
+    test_starray_compatibility<STArray<10, float>, TArray<float>>(reporter);
+    test_starray_compatibility<TArray<int>, STArray<1, int>>(reporter);
+    test_starray_compatibility<TArray<char>, STArray<5, char>>(reporter);
+    test_starray_compatibility<TArray<float>, STArray<10, float>>(reporter);
+    test_starray_compatibility<STArray<10, uint8_t>, STArray<1, uint8_t>>(reporter);
+    test_starray_compatibility<STArray<1, long>, STArray<10, long>>(reporter);
+    test_starray_compatibility<STArray<3, double>, STArray<4, double>>(reporter);
+    test_starray_compatibility<STArray<2, short>, STArray<1, short>>(reporter);
 }
 
 DEF_TEST(TArray_BoundsCheck, reporter) {
@@ -575,7 +634,7 @@ static void test_poison(skiatest::Reporter* reporter) {
     verify_poison(reporter, array);
 }
 
-DEF_TEST(TArray_ASAN_poisoning, reporter) {
+DEF_TEST(TArray_ASANPoisoning, reporter) {
     test_poison<TArray<int>>(reporter);
     test_poison<STArray<1, double>>(reporter);
     test_poison<STArray<2, char>>(reporter);
