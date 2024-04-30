@@ -415,9 +415,9 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         float maxParametricEdgeID = min(numParametricSegments - 1.0, combinedEdgeID);
         float negAbsRadsPerSegment = -abs(radsPerSegment);
         float maxRotation0 = (1.0 + combinedEdgeID) * abs(radsPerSegment);
-        for (int exp = 5 /*max resolve level*/ - 1; exp >= 0; --exp) {
-            // Test the parametric edge at lastParametricEdgeID + 2^exp.
-            float testParametricID = lastParametricEdgeID + exp2(float(exp));
+        for (float exp = 32.0; exp >= 1.0; exp *= 0.5) {
+            // Test the parametric edge at lastParametricEdgeID + (32, 16, 8, 4, 2, 1).
+            float testParametricID = lastParametricEdgeID + exp;
             if (testParametricID <= maxParametricEdgeID) {
                 float2 testTan = fma(float2(testParametricID), A, B_);
                 testTan = fma(float2(testParametricID), testTan, C_);
