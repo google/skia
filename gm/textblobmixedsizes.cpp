@@ -111,7 +111,10 @@ protected:
         if (fUseDFT) {
             // Create a new Canvas to enable DFT
             auto ctx = inputCanvas->recordingContext();
-            SkISize size = getISize();
+            SkISize size = this->getISize();
+            if (!inputCanvas->getBaseLayerSize().isEmpty()) {
+                size = inputCanvas->getBaseLayerSize();
+            }
             sk_sp<SkColorSpace> colorSpace = inputCanvas->imageInfo().refColorSpace();
             SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(),
                                                     kPremul_SkAlphaType, colorSpace);

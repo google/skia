@@ -56,7 +56,10 @@ protected:
 
         // set up offscreen rendering with distance field text
         auto ctx = inputCanvas->recordingContext();
-        SkISize size = getISize();
+        SkISize size = this->getISize();
+        if (!inputCanvas->getBaseLayerSize().isEmpty()) {
+            size = inputCanvas->getBaseLayerSize();
+        }
         SkImageInfo info = SkImageInfo::MakeN32(size.width(), size.height(), kPremul_SkAlphaType,
                                                 inputCanvas->imageInfo().refColorSpace());
         SkSurfaceProps inputProps;

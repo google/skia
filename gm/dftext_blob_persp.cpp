@@ -83,7 +83,7 @@ protected:
             for (auto pm : {PerspMode::kNone, PerspMode::kX, PerspMode::kY, PerspMode::kXY}) {
                 for (auto& blob : fBlobs) {
                     for (bool clip : {false, true}) {
-                        canvas->save();
+                        SkAutoCanvasRestore acr(canvas, true);
                         SkScalar w = blob->bounds().width();
                         SkScalar h = blob->bounds().height();
                         if (clip) {
@@ -94,7 +94,6 @@ protected:
                         this->drawBlob(canvas, blob.get(), SK_ColorBLACK, x, y + h, pm, twm);
                         x += w + 20.f;
                         maxH = std::max(h, maxH);
-                        canvas->restore();
                     }
                 }
                 x = 0;
