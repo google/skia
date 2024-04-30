@@ -166,21 +166,20 @@ private:
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
-            fragBuilder->codeAppend("half2 dist_grad = half2(float2(dFdx(distance), "
-                                                                   "dFdy(distance)));");
+            fragBuilder->codeAppend("half2 dist_grad = half2(dFdx(distance), dFdy(distance));");
             // the length of the gradient may be 0, so we need to check for this
             // this also compensates for the Adreno, which likes to drop tiles on division by 0
-            fragBuilder->codeAppend("half dg_len2 = dot(dist_grad, dist_grad);");
-            fragBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-            fragBuilder->codeAppend("dist_grad = half2(0.7071, 0.7071);");
-            fragBuilder->codeAppend("} else {");
-            fragBuilder->codeAppend("dist_grad = dist_grad*half(inversesqrt(dg_len2));");
-            fragBuilder->codeAppend("}");
+            fragBuilder->codeAppend("half dg_len2 = dot(dist_grad, dist_grad);"
+                                    "if (dg_len2 < 0.0001) {"
+                                        "dist_grad = half2(0.7071, 0.7071);"
+                                    "} else {"
+                                        "dist_grad = dist_grad*half(inversesqrt(dg_len2));"
+                                    "}");
 
-            fragBuilder->codeAppendf("half2 Jdx = half2(dFdx(%s));", st.fsIn());
-            fragBuilder->codeAppendf("half2 Jdy = half2(dFdy(%s));", st.fsIn());
-            fragBuilder->codeAppend("half2 grad = half2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
-            fragBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
+            fragBuilder->codeAppendf("half4 jacobian = half4(dFdx(%s), dFdy(%s));",
+                                     st.fsIn(), st.fsIn());
+            fragBuilder->codeAppend("half2 grad = half2(dot(dist_grad, jacobian.xz),"
+                                                       "dot(dist_grad, jacobian.yw));");
 
             // this gives us a smooth step across approximately one fragment
             fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
@@ -442,17 +441,17 @@ private:
                                                             "dFdy(distance));");
             // the length of the gradient may be 0, so we need to check for this
             // this also compensates for the Adreno, which likes to drop tiles on division by 0
-            fragBuilder->codeAppend("half dg_len2 = dot(dist_grad, dist_grad);");
-            fragBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-            fragBuilder->codeAppend("dist_grad = half2(0.7071, 0.7071);");
-            fragBuilder->codeAppend("} else {");
-            fragBuilder->codeAppend("dist_grad = dist_grad*half(inversesqrt(dg_len2));");
-            fragBuilder->codeAppend("}");
+            fragBuilder->codeAppend("half dg_len2 = dot(dist_grad, dist_grad);"
+                                    "if (dg_len2 < 0.0001) {"
+                                        "dist_grad = half2(0.7071, 0.7071);"
+                                    "} else {"
+                                        "dist_grad = dist_grad*half(inversesqrt(dg_len2));"
+                                    "}");
 
-            fragBuilder->codeAppendf("half2 Jdx = half2(dFdx(%s));", st.fsIn());
-            fragBuilder->codeAppendf("half2 Jdy = half2(dFdy(%s));", st.fsIn());
-            fragBuilder->codeAppend("half2 grad = half2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
-            fragBuilder->codeAppend("                   dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
+            fragBuilder->codeAppendf("half4 jacobian = half4(dFdx(%s), dFdy(%s));",
+                                     st.fsIn(), st.fsIn());
+            fragBuilder->codeAppend("half2 grad = half2(dot(dist_grad, jacobian.xz),"
+                                                       "dot(dist_grad, jacobian.yw));");
 
             // this gives us a smooth step across approximately one fragment
             fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
@@ -694,9 +693,8 @@ private:
         } else {
             fragBuilder->codeAppendf("half2 st = half2(%s);\n", st.fsIn());
 
-            fragBuilder->codeAppend("half2 Jdx = half2(dFdx(st));");
-            fragBuilder->codeAppend("half2 Jdy = half2(dFdy(st));");
-            fragBuilder->codeAppendf("half2 offset = half2(half(%s))*Jdx;", delta.fsIn());
+            fragBuilder->codeAppend("half4 jacobian = half4(dFdx(st), dFdy(st));");
+            fragBuilder->codeAppendf("half2 offset = half2(%s)*jacobian.xy;", delta.fsIn());
         }
 
         // sample the texture by index
@@ -745,18 +743,17 @@ private:
             // For general transforms, to determine the amount of correction we multiply a unit
             // vector pointing along the SDF gradient direction by the Jacobian of the st coords
             // (which is the inverse transform for this fragment) and take the length of the result.
-            fragBuilder->codeAppend("half2 dist_grad = half2(half(dFdx(distance.r)), "
-                                                            "half(dFdy(distance.r)));");
+            fragBuilder->codeAppend("half2 dist_grad = half2(dFdx(distance.r), dFdy(distance.r));");
             // the length of the gradient may be 0, so we need to check for this
             // this also compensates for the Adreno, which likes to drop tiles on division by 0
-            fragBuilder->codeAppend("half dg_len2 = dot(dist_grad, dist_grad);");
-            fragBuilder->codeAppend("if (dg_len2 < 0.0001) {");
-            fragBuilder->codeAppend("dist_grad = half2(0.7071, 0.7071);");
-            fragBuilder->codeAppend("} else {");
-            fragBuilder->codeAppend("dist_grad = dist_grad*half(inversesqrt(dg_len2));");
-            fragBuilder->codeAppend("}");
-            fragBuilder->codeAppend("half2 grad = half2(dist_grad.x*Jdx.x + dist_grad.y*Jdy.x,");
-            fragBuilder->codeAppend("                 dist_grad.x*Jdx.y + dist_grad.y*Jdy.y);");
+            fragBuilder->codeAppend("half dg_len2 = dot(dist_grad, dist_grad);"
+                                    "if (dg_len2 < 0.0001) {"
+                                        "dist_grad = half2(0.7071, 0.7071);"
+                                    "} else {"
+                                        "dist_grad = dist_grad*half(inversesqrt(dg_len2));"
+                                    "}"
+                                    "half2 grad = half2(dot(dist_grad, jacobian.xz),"
+                                                       "dot(dist_grad, jacobian.yw));");
 
             // this gives us a smooth step across approximately one fragment
             fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");

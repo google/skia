@@ -1242,10 +1242,9 @@ $pure half4 sdf_text_coverage_fn(half texColor,
                                     : half2(0.7071);
 
     // Computing the Jacobian and multiplying by the gradient.
-    half2 Jdx = half2(dFdx(unormTexCoords));
-    half2 Jdy = half2(dFdy(unormTexCoords));
-    half2 grad = half2(dist_grad.x * Jdx.x + dist_grad.y * Jdy.x,
-                       dist_grad.x * Jdx.y + dist_grad.y * Jdy.y);
+    half4 jacobian = half4(dFdx(unormTexCoords), dFdy(unormTexCoords));
+    half2 grad = half2(dot(dist_grad, jacobian.xz),
+                       dot(dist_grad, jacobian.yw));
 
     // This gives us a smooth step across approximately one fragment.
     half afwidth = 0.65 * length(grad);
