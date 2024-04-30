@@ -1,1 +1,867 @@
-{"assets":[],"ddd":0,"fr":60,"h":500,"ip":0,"layers":[{"ao":0,"bm":0,"ddd":0,"ef":[{"ef":[{"ix":1,"mn":"ADBE HUE SATURATION-0002","nm":"Channel Control","ty":7,"v":{"a":0,"ix":1,"k":1}},{},{"ix":3,"mn":"ADBE HUE SATURATION-0004","nm":"Master Hue","ty":0,"v":{"a":1,"ix":3,"k":[{"s":0,"t":0},{"s":360,"t":300}]}},{"ix":4,"mn":"ADBE HUE SATURATION-0005","nm":"Master Saturation","ty":0,"v":{"a":0,"ix":4,"k":0}},{"ix":5,"mn":"ADBE HUE SATURATION-0006","nm":"Master Lightness","ty":0,"v":{"a":0,"ix":5,"k":0}},{"ix":6,"mn":"ADBE HUE SATURATION-0007","nm":"Colorize","ty":7,"v":{"a":0,"ix":6,"k":0}},{"ix":7,"mn":"ADBE HUE SATURATION-0008","nm":"Colorize Hue","ty":0,"v":{"a":0,"ix":7,"k":0}},{"ix":8,"mn":"ADBE HUE SATURATION-0009","nm":"Colorize Saturation","ty":0,"v":{"a":0,"ix":8,"k":25}},{"ix":9,"mn":"ADBE HUE SATURATION-0010","nm":"Colorize Lightness","ty":0,"v":{"a":0,"ix":9,"k":0}}],"en":1,"ix":1,"mn":"ADBE HUE SATURATION","nm":"Hue/Saturation","np":11,"ty":5}],"ind":1,"ip":0,"ks":{"a":{"a":0,"ix":1,"k":[0,0,0],"l":2},"o":{"a":0,"ix":11,"k":100},"p":{"a":0,"ix":2,"k":[250,250,0],"l":2},"r":{"a":0,"ix":10,"k":0},"s":{"a":0,"ix":6,"k":[100,100,100],"l":2}},"nm":"hue","op":300,"shapes":[{"d":1,"hd":false,"mn":"ADBE Vector Shape - Rect","nm":"Rectangle Path 1","p":{"a":0,"ix":3,"k":[0,-200]},"r":{"a":0,"ix":4,"k":0},"s":{"a":0,"ix":2,"k":[450,50]},"ty":"rc"},{"bm":0,"e":{"a":0,"ix":6,"k":[200,0]},"g":{"k":{"a":0,"ix":9,"k":[0.001,0.753,0.251,0.502,0.125,0.627,0.502,0.376,0.25,0.502,0.753,0.251,0.375,0.376,0.627,0.502,0.5,0.251,0.502,0.753,0.625,0.376,0.502,0.502,0.75,0.502,0.502,0.251,0.875,0.376,0.314,0.251,1,0.251,0.125,0.251,0,1,0.25,1,0.5,1,0.625,0.75,0.75,0.5,0.875,0.75,1,1]},"p":9},"hd":false,"mn":"ADBE Vector Graphic - G-Fill","nm":"Gradient Fill 1","o":{"a":0,"ix":10,"k":100},"r":1,"s":{"a":0,"ix":5,"k":[-200,0]},"t":1,"ty":"gf"}],"sr":1,"st":0,"ty":4},{"ao":0,"bm":0,"ddd":0,"ef":[{"ef":[{"ix":1,"mn":"ADBE HUE SATURATION-0002","nm":"Channel Control","ty":7,"v":{"a":0,"ix":1,"k":1}},{},{"ix":3,"mn":"ADBE HUE SATURATION-0004","nm":"Master Hue","ty":0,"v":{"a":0,"ix":3,"k":0}},{"ix":4,"mn":"ADBE HUE SATURATION-0005","nm":"Master Saturation","ty":0,"v":{"a":1,"ix":4,"k":[{"s":0,"t":0},{"s":100,"t":75},{"s":-100,"t":225},{"s":0,"t":300}]}},{"ix":5,"mn":"ADBE HUE SATURATION-0006","nm":"Master Lightness","ty":0,"v":{"a":0,"ix":5,"k":0}},{"ix":6,"mn":"ADBE HUE SATURATION-0007","nm":"Colorize","ty":7,"v":{"a":0,"ix":6,"k":0}},{"ix":7,"mn":"ADBE HUE SATURATION-0008","nm":"Colorize Hue","ty":0,"v":{"a":0,"ix":7,"k":0}},{"ix":8,"mn":"ADBE HUE SATURATION-0009","nm":"Colorize Saturation","ty":0,"v":{"a":0,"ix":8,"k":25}},{"ix":9,"mn":"ADBE HUE SATURATION-0010","nm":"Colorize Lightness","ty":0,"v":{"a":0,"ix":9,"k":0}}],"en":1,"ix":1,"mn":"ADBE HUE SATURATION","nm":"Hue/Saturation","np":11,"ty":5}],"ind":2,"ip":0,"ks":{"a":{"a":0,"ix":1,"k":[0,0,0],"l":2},"o":{"a":0,"ix":11,"k":100},"p":{"a":0,"ix":2,"k":[250,330,0],"l":2},"r":{"a":0,"ix":10,"k":0},"s":{"a":0,"ix":6,"k":[100,100,100],"l":2}},"nm":"sat","op":300,"shapes":[{"d":1,"hd":false,"mn":"ADBE Vector Shape - Rect","nm":"Rectangle Path 1","p":{"a":0,"ix":3,"k":[0,-200]},"r":{"a":0,"ix":4,"k":0},"s":{"a":0,"ix":2,"k":[450,50]},"ty":"rc"},{"bm":0,"e":{"a":0,"ix":6,"k":[200,0]},"g":{"k":{"a":0,"ix":9,"k":[0.001,0.753,0.251,0.502,0.125,0.627,0.502,0.376,0.25,0.502,0.753,0.251,0.375,0.376,0.627,0.502,0.5,0.251,0.502,0.753,0.625,0.376,0.502,0.502,0.75,0.502,0.502,0.251,0.875,0.376,0.314,0.251,1,0.251,0.125,0.251,0,1,0.25,1,0.5,1,0.625,0.75,0.75,0.5,0.875,0.75,1,1]},"p":9},"hd":false,"mn":"ADBE Vector Graphic - G-Fill","nm":"Gradient Fill 1","o":{"a":0,"ix":10,"k":100},"r":1,"s":{"a":0,"ix":5,"k":[-200,0]},"t":1,"ty":"gf"}],"sr":1,"st":0,"ty":4},{"ao":0,"bm":0,"ddd":0,"ef":[{"ef":[{"ix":1,"mn":"ADBE HUE SATURATION-0002","nm":"Channel Control","ty":7,"v":{"a":0,"ix":1,"k":1}},{},{"ix":3,"mn":"ADBE HUE SATURATION-0004","nm":"Master Hue","ty":0,"v":{"a":0,"ix":3,"k":0}},{"ix":4,"mn":"ADBE HUE SATURATION-0005","nm":"Master Saturation","ty":0,"v":{"a":0,"ix":4,"k":0}},{"ix":5,"mn":"ADBE HUE SATURATION-0006","nm":"Master Lightness","ty":0,"v":{"a":1,"ix":5,"k":[{"s":0,"t":0},{"s":100,"t":75},{"s":-100,"t":225},{"s":0,"t":300}]}},{"ix":6,"mn":"ADBE HUE SATURATION-0007","nm":"Colorize","ty":7,"v":{"a":0,"ix":6,"k":0}},{"ix":7,"mn":"ADBE HUE SATURATION-0008","nm":"Colorize Hue","ty":0,"v":{"a":0,"ix":7,"k":0}},{"ix":8,"mn":"ADBE HUE SATURATION-0009","nm":"Colorize Saturation","ty":0,"v":{"a":0,"ix":8,"k":25}},{"ix":9,"mn":"ADBE HUE SATURATION-0010","nm":"Colorize Lightness","ty":0,"v":{"a":0,"ix":9,"k":0}}],"en":1,"ix":1,"mn":"ADBE HUE SATURATION","nm":"Hue/Saturation","np":11,"ty":5}],"ind":3,"ip":0,"ks":{"a":{"a":0,"ix":1,"k":[0,0,0],"l":2},"o":{"a":0,"ix":11,"k":100},"p":{"a":0,"ix":2,"k":[250,410,0],"l":2},"r":{"a":0,"ix":10,"k":0},"s":{"a":0,"ix":6,"k":[100,100,100],"l":2}},"nm":"lightness","op":300,"shapes":[{"d":1,"hd":false,"mn":"ADBE Vector Shape - Rect","nm":"Rectangle Path 1","p":{"a":0,"ix":3,"k":[0,-200]},"r":{"a":0,"ix":4,"k":0},"s":{"a":0,"ix":2,"k":[450,50]},"ty":"rc"},{"bm":0,"e":{"a":0,"ix":6,"k":[200,0]},"g":{"k":{"a":0,"ix":9,"k":[0.001,0.753,0.251,0.502,0.125,0.627,0.502,0.376,0.25,0.502,0.753,0.251,0.375,0.376,0.627,0.502,0.5,0.251,0.502,0.753,0.625,0.376,0.502,0.502,0.75,0.502,0.502,0.251,0.875,0.376,0.314,0.251,1,0.251,0.125,0.251,0,1,0.25,1,0.5,1,0.625,0.75,0.75,0.5,0.875,0.75,1,1]},"p":9},"hd":false,"mn":"ADBE Vector Graphic - G-Fill","nm":"Gradient Fill 1","o":{"a":0,"ix":10,"k":100},"r":1,"s":{"a":0,"ix":5,"k":[-200,0]},"t":1,"ty":"gf"}],"sr":1,"st":0,"ty":4},{"ao":0,"bm":0,"ddd":0,"ef":[{"ef":[{"ix":1,"mn":"ADBE HUE SATURATION-0002","nm":"Channel Control","ty":7,"v":{"a":0,"ix":1,"k":1}},{},{"ix":3,"mn":"ADBE HUE SATURATION-0004","nm":"Master Hue","ty":0,"v":{"a":1,"ix":3,"k":[{"s":0,"t":0},{"s":360,"t":300}]}},{"ix":4,"mn":"ADBE HUE SATURATION-0005","nm":"Master Saturation","ty":0,"v":{"a":1,"ix":4,"k":[{"s":0,"t":0},{"s":100,"t":75},{"s":-100,"t":225},{"s":0,"t":300}]}},{"ix":5,"mn":"ADBE HUE SATURATION-0006","nm":"Master Lightness","ty":0,"v":{"a":0,"ix":5,"k":0}},{"ix":6,"mn":"ADBE HUE SATURATION-0007","nm":"Colorize","ty":7,"v":{"a":0,"ix":6,"k":0}},{"ix":7,"mn":"ADBE HUE SATURATION-0008","nm":"Colorize Hue","ty":0,"v":{"a":0,"ix":7,"k":0}},{"ix":8,"mn":"ADBE HUE SATURATION-0009","nm":"Colorize Saturation","ty":0,"v":{"a":0,"ix":8,"k":25}},{"ix":9,"mn":"ADBE HUE SATURATION-0010","nm":"Colorize Lightness","ty":0,"v":{"a":0,"ix":9,"k":0}}],"en":1,"ix":1,"mn":"ADBE HUE SATURATION","nm":"Hue/Saturation","np":11,"ty":5}],"ind":4,"ip":0,"ks":{"a":{"a":0,"ix":1,"k":[0,0,0],"l":2},"o":{"a":0,"ix":11,"k":100},"p":{"a":0,"ix":2,"k":[250,490,0],"l":2},"r":{"a":0,"ix":10,"k":0},"s":{"a":0,"ix":6,"k":[100,100,100],"l":2}},"nm":"hue sat","op":300,"shapes":[{"d":1,"hd":false,"mn":"ADBE Vector Shape - Rect","nm":"Rectangle Path 1","p":{"a":0,"ix":3,"k":[0,-200]},"r":{"a":0,"ix":4,"k":0},"s":{"a":0,"ix":2,"k":[450,50]},"ty":"rc"},{"bm":0,"e":{"a":0,"ix":6,"k":[200,0]},"g":{"k":{"a":0,"ix":9,"k":[0.001,0.753,0.251,0.502,0.125,0.627,0.502,0.376,0.25,0.502,0.753,0.251,0.375,0.376,0.627,0.502,0.5,0.251,0.502,0.753,0.625,0.376,0.502,0.502,0.75,0.502,0.502,0.251,0.875,0.376,0.314,0.251,1,0.251,0.125,0.251,0,1,0.25,1,0.5,1,0.625,0.75,0.75,0.5,0.875,0.75,1,1]},"p":9},"hd":false,"mn":"ADBE Vector Graphic - G-Fill","nm":"Gradient Fill 1","o":{"a":0,"ix":10,"k":100},"r":1,"s":{"a":0,"ix":5,"k":[-200,0]},"t":1,"ty":"gf"}],"sr":1,"st":0,"ty":4},{"ao":0,"bm":0,"ddd":0,"ef":[{"ef":[{"ix":1,"mn":"ADBE HUE SATURATION-0002","nm":"Channel Control","ty":7,"v":{"a":0,"ix":1,"k":1}},{},{"ix":3,"mn":"ADBE HUE SATURATION-0004","nm":"Master Hue","ty":0,"v":{"a":0,"ix":3,"k":0}},{"ix":4,"mn":"ADBE HUE SATURATION-0005","nm":"Master Saturation","ty":0,"v":{"a":1,"ix":4,"k":[{"s":0,"t":0},{"s":100,"t":75},{"s":-100,"t":225},{"s":0,"t":300}]}},{"ix":5,"mn":"ADBE HUE SATURATION-0006","nm":"Master Lightness","ty":0,"v":{"a":1,"ix":5,"k":[{"s":0,"t":0},{"s":75,"t":75},{"s":-75,"t":225},{"s":0,"t":300}]}},{"ix":6,"mn":"ADBE HUE SATURATION-0007","nm":"Colorize","ty":7,"v":{"a":0,"ix":6,"k":0}},{"ix":7,"mn":"ADBE HUE SATURATION-0008","nm":"Colorize Hue","ty":0,"v":{"a":0,"ix":7,"k":0}},{"ix":8,"mn":"ADBE HUE SATURATION-0009","nm":"Colorize Saturation","ty":0,"v":{"a":0,"ix":8,"k":25}},{"ix":9,"mn":"ADBE HUE SATURATION-0010","nm":"Colorize Lightness","ty":0,"v":{"a":0,"ix":9,"k":0}}],"en":1,"ix":1,"mn":"ADBE HUE SATURATION","nm":"  ","np":11,"ty":5}],"ind":5,"ip":0,"ks":{"a":{"a":0,"ix":1,"k":[0,0,0],"l":2},"o":{"a":0,"ix":11,"k":100},"p":{"a":0,"ix":2,"k":[250,570,0],"l":2},"r":{"a":0,"ix":10,"k":0},"s":{"a":0,"ix":6,"k":[100,100,100],"l":2}},"nm":"sat lightness","op":300,"shapes":[{"d":1,"hd":false,"mn":"ADBE Vector Shape - Rect","nm":"Rectangle Path 1","p":{"a":0,"ix":3,"k":[0,-200]},"r":{"a":0,"ix":4,"k":0},"s":{"a":0,"ix":2,"k":[450,50]},"ty":"rc"},{"bm":0,"e":{"a":0,"ix":6,"k":[200,0]},"g":{"k":{"a":0,"ix":9,"k":[0.001,0.753,0.251,0.502,0.125,0.627,0.502,0.376,0.25,0.502,0.753,0.251,0.375,0.376,0.627,0.502,0.5,0.251,0.502,0.753,0.625,0.376,0.502,0.502,0.75,0.502,0.502,0.251,0.875,0.376,0.314,0.251,1,0.251,0.125,0.251,0,1,0.25,1,0.5,1,0.625,0.75,0.75,0.5,0.875,0.75,1,1]},"p":9},"hd":false,"mn":"ADBE Vector Graphic - G-Fill","nm":"Gradient Fill 1","o":{"a":0,"ix":10,"k":100},"r":1,"s":{"a":0,"ix":5,"k":[-200,0]},"t":1,"ty":"gf"}],"sr":1,"st":0,"ty":4},{"ao":0,"bm":0,"ddd":0,"ef":[{"ef":[{"ix":1,"mn":"ADBE HUE SATURATION-0002","nm":"Channel Control","ty":7,"v":{"a":0,"ix":1,"k":1}},{},{"ix":3,"mn":"ADBE HUE SATURATION-0004","nm":"Master Hue","ty":0,"v":{"a":1,"ix":3,"k":[{"s":0,"t":0},{"s":360,"t":300}]}},{"ix":4,"mn":"ADBE HUE SATURATION-0005","nm":"Master Saturation","ty":0,"v":{"a":0,"ix":4,"k":0}},{"ix":5,"mn":"ADBE HUE SATURATION-0006","nm":"Master Lightness","ty":0,"v":{"a":1,"ix":5,"k":[{"s":0,"t":0},{"s":75,"t":75},{"s":-75,"t":225},{"s":0,"t":300}]}},{"ix":6,"mn":"ADBE HUE SATURATION-0007","nm":"Colorize","ty":7,"v":{"a":0,"ix":6,"k":0}},{"ix":7,"mn":"ADBE HUE SATURATION-0008","nm":"Colorize Hue","ty":0,"v":{"a":0,"ix":7,"k":0}},{"ix":8,"mn":"ADBE HUE SATURATION-0009","nm":"Colorize Saturation","ty":0,"v":{"a":0,"ix":8,"k":25}},{"ix":9,"mn":"ADBE HUE SATURATION-0010","nm":"Colorize Lightness","ty":0,"v":{"a":0,"ix":9,"k":0}}],"en":1,"ix":1,"mn":"ADBE HUE SATURATION","nm":"Hue/Saturation","np":11,"ty":5}],"ind":6,"ip":0,"ks":{"a":{"a":0,"ix":1,"k":[0,0,0],"l":2},"o":{"a":0,"ix":11,"k":100},"p":{"a":0,"ix":2,"k":[250,649,0],"l":2},"r":{"a":0,"ix":10,"k":0},"s":{"a":0,"ix":6,"k":[100,100,100],"l":2}},"nm":"hue lightness","op":300,"shapes":[{"d":1,"hd":false,"mn":"ADBE Vector Shape - Rect","nm":"Rectangle Path 1","p":{"a":0,"ix":3,"k":[0,-200]},"r":{"a":0,"ix":4,"k":0},"s":{"a":0,"ix":2,"k":[450,50]},"ty":"rc"},{"bm":0,"e":{"a":0,"ix":6,"k":[200,0]},"g":{"k":{"a":0,"ix":9,"k":[0.001,0.753,0.251,0.502,0.125,0.627,0.502,0.376,0.25,0.502,0.753,0.251,0.375,0.376,0.627,0.502,0.5,0.251,0.502,0.753,0.625,0.376,0.502,0.502,0.75,0.502,0.502,0.251,0.875,0.376,0.314,0.251,1,0.251,0.125,0.251,0,1,0.25,1,0.5,1,0.625,0.75,0.75,0.5,0.875,0.75,1,1]},"p":9},"hd":false,"mn":"ADBE Vector Graphic - G-Fill","nm":"Gradient Fill 1","o":{"a":0,"ix":10,"k":100},"r":1,"s":{"a":0,"ix":5,"k":[-200,0]},"t":1,"ty":"gf"}],"sr":1,"st":0,"ty":4},{"ao":0,"bm":0,"ddd":0,"ind":8,"ip":0,"ks":{"a":{"a":0,"ix":1,"k":[250,250,0],"l":2},"o":{"a":0,"ix":11,"k":100},"p":{"a":0,"ix":2,"k":[250,250,0],"l":2},"r":{"a":0,"ix":10,"k":0},"s":{"a":0,"ix":6,"k":[100,100,100],"l":2}},"nm":"White Solid 1","op":300,"sc":"#ffffff","sh":500,"sr":1,"st":0,"sw":500,"ty":1}],"markers":[],"nm":"hue-saturation","op":300,"v":"5.7.11","w":500}
+{
+  "assets": [],
+  "ddd": 0,
+  "fr": 60,
+  "h": 500,
+  "ip": 0,
+  "layers": [
+    {
+      "ao": 0,
+      "bm": 0,
+      "ddd": 0,
+      "ef": [
+        {
+          "ef": [
+            {
+              "ix": 1,
+              "mn": "ADBE HUE SATURATION-0002",
+              "nm": "Channel Control",
+              "ty": 7,
+              "v": { "a": 0, "ix": 1, "k": 1 }
+            },
+            {},
+            {
+              "ix": 3,
+              "mn": "ADBE HUE SATURATION-0004",
+              "nm": "Master Hue",
+              "ty": 0,
+              "v": {
+                "a": 1,
+                "ix": 3,
+                "k": [
+                  { "s": 0, "t": 0 },
+                  { "s": 360, "t": 300 }
+                ]
+              }
+            },
+            {
+              "ix": 4,
+              "mn": "ADBE HUE SATURATION-0005",
+              "nm": "Master Saturation",
+              "ty": 0,
+              "v": { "a": 0, "ix": 4, "k": 0 }
+            },
+            {
+              "ix": 5,
+              "mn": "ADBE HUE SATURATION-0006",
+              "nm": "Master Lightness",
+              "ty": 0,
+              "v": { "a": 0, "ix": 5, "k": 0 }
+            },
+            {
+              "ix": 6,
+              "mn": "ADBE HUE SATURATION-0007",
+              "nm": "Colorize",
+              "ty": 7,
+              "v": { "a": 0, "ix": 6, "k": 0 }
+            },
+            {
+              "ix": 7,
+              "mn": "ADBE HUE SATURATION-0008",
+              "nm": "Colorize Hue",
+              "ty": 0,
+              "v": { "a": 0, "ix": 7, "k": 0 }
+            },
+            {
+              "ix": 8,
+              "mn": "ADBE HUE SATURATION-0009",
+              "nm": "Colorize Saturation",
+              "ty": 0,
+              "v": { "a": 0, "ix": 8, "k": 25 }
+            },
+            {
+              "ix": 9,
+              "mn": "ADBE HUE SATURATION-0010",
+              "nm": "Colorize Lightness",
+              "ty": 0,
+              "v": { "a": 0, "ix": 9, "k": 0 }
+            }
+          ],
+          "en": 1,
+          "ix": 1,
+          "mn": "ADBE HUE SATURATION",
+          "nm": "Hue/Saturation",
+          "np": 11,
+          "ty": 5
+        }
+      ],
+      "ind": 1,
+      "ip": 0,
+      "ks": {
+        "a": { "a": 0, "ix": 1, "k": [0, 0, 0], "l": 2 },
+        "o": { "a": 0, "ix": 11, "k": 100 },
+        "p": { "a": 0, "ix": 2, "k": [250, 250, 0], "l": 2 },
+        "r": { "a": 0, "ix": 10, "k": 0 },
+        "s": { "a": 0, "ix": 6, "k": [100, 100, 100], "l": 2 }
+      },
+      "nm": "hue",
+      "op": 300,
+      "shapes": [
+        {
+          "d": 1,
+          "hd": false,
+          "mn": "ADBE Vector Shape - Rect",
+          "nm": "Rectangle Path 1",
+          "p": { "a": 0, "ix": 3, "k": [0, -200] },
+          "r": { "a": 0, "ix": 4, "k": 0 },
+          "s": { "a": 0, "ix": 2, "k": [450, 50] },
+          "ty": "rc"
+        },
+        {
+          "bm": 0,
+          "e": { "a": 0, "ix": 6, "k": [200, 0] },
+          "g": {
+            "k": {
+              "a": 0,
+              "ix": 9,
+              "k": [
+                0.001, 0.753, 0.251, 0.502, 0.125, 0.627, 0.502, 0.376, 0.25,
+                0.502, 0.753, 0.251, 0.375, 0.376, 0.627, 0.502, 0.5, 0.251,
+                0.502, 0.753, 0.625, 0.376, 0.502, 0.502, 0.75, 0.502, 0.502,
+                0.251, 0.875, 0.376, 0.314, 0.251, 1, 0.251, 0.125, 0.251, 0, 1,
+                0.25, 1, 0.5, 1, 0.625, 0.75, 0.75, 0.5, 0.875, 0.75, 1, 1
+              ]
+            },
+            "p": 9
+          },
+          "hd": false,
+          "mn": "ADBE Vector Graphic - G-Fill",
+          "nm": "Gradient Fill 1",
+          "o": { "a": 0, "ix": 10, "k": 100 },
+          "r": 1,
+          "s": { "a": 0, "ix": 5, "k": [-200, 0] },
+          "t": 1,
+          "ty": "gf"
+        }
+      ],
+      "sr": 1,
+      "st": 0,
+      "ty": 4
+    },
+    {
+      "ao": 0,
+      "bm": 0,
+      "ddd": 0,
+      "ef": [
+        {
+          "ef": [
+            {
+              "ix": 1,
+              "mn": "ADBE HUE SATURATION-0002",
+              "nm": "Channel Control",
+              "ty": 7,
+              "v": { "a": 0, "ix": 1, "k": 1 }
+            },
+            {},
+            {
+              "ix": 3,
+              "mn": "ADBE HUE SATURATION-0004",
+              "nm": "Master Hue",
+              "ty": 0,
+              "v": { "a": 0, "ix": 3, "k": 0 }
+            },
+            {
+              "ix": 4,
+              "mn": "ADBE HUE SATURATION-0005",
+              "nm": "Master Saturation",
+              "ty": 0,
+              "v": {
+                "a": 1,
+                "ix": 4,
+                "k": [
+                  { "s": 0, "t": 0 },
+                  { "s": 100, "t": 75 },
+                  { "s": -100, "t": 225 },
+                  { "s": 0, "t": 300 }
+                ]
+              }
+            },
+            {
+              "ix": 5,
+              "mn": "ADBE HUE SATURATION-0006",
+              "nm": "Master Lightness",
+              "ty": 0,
+              "v": { "a": 0, "ix": 5, "k": 0 }
+            },
+            {
+              "ix": 6,
+              "mn": "ADBE HUE SATURATION-0007",
+              "nm": "Colorize",
+              "ty": 7,
+              "v": { "a": 0, "ix": 6, "k": 0 }
+            },
+            {
+              "ix": 7,
+              "mn": "ADBE HUE SATURATION-0008",
+              "nm": "Colorize Hue",
+              "ty": 0,
+              "v": { "a": 0, "ix": 7, "k": 0 }
+            },
+            {
+              "ix": 8,
+              "mn": "ADBE HUE SATURATION-0009",
+              "nm": "Colorize Saturation",
+              "ty": 0,
+              "v": { "a": 0, "ix": 8, "k": 25 }
+            },
+            {
+              "ix": 9,
+              "mn": "ADBE HUE SATURATION-0010",
+              "nm": "Colorize Lightness",
+              "ty": 0,
+              "v": { "a": 0, "ix": 9, "k": 0 }
+            }
+          ],
+          "en": 1,
+          "ix": 1,
+          "mn": "ADBE HUE SATURATION",
+          "nm": "Hue/Saturation",
+          "np": 11,
+          "ty": 5
+        }
+      ],
+      "ind": 2,
+      "ip": 0,
+      "ks": {
+        "a": { "a": 0, "ix": 1, "k": [0, 0, 0], "l": 2 },
+        "o": { "a": 0, "ix": 11, "k": 100 },
+        "p": { "a": 0, "ix": 2, "k": [250, 330, 0], "l": 2 },
+        "r": { "a": 0, "ix": 10, "k": 0 },
+        "s": { "a": 0, "ix": 6, "k": [100, 100, 100], "l": 2 }
+      },
+      "nm": "sat",
+      "op": 300,
+      "shapes": [
+        {
+          "d": 1,
+          "hd": false,
+          "mn": "ADBE Vector Shape - Rect",
+          "nm": "Rectangle Path 1",
+          "p": { "a": 0, "ix": 3, "k": [0, -200] },
+          "r": { "a": 0, "ix": 4, "k": 0 },
+          "s": { "a": 0, "ix": 2, "k": [450, 50] },
+          "ty": "rc"
+        },
+        {
+          "bm": 0,
+          "e": { "a": 0, "ix": 6, "k": [200, 0] },
+          "g": {
+            "k": {
+              "a": 0,
+              "ix": 9,
+              "k": [
+                0.001, 0.753, 0.251, 0.502, 0.125, 0.627, 0.502, 0.376, 0.25,
+                0.502, 0.753, 0.251, 0.375, 0.376, 0.627, 0.502, 0.5, 0.251,
+                0.502, 0.753, 0.625, 0.376, 0.502, 0.502, 0.75, 0.502, 0.502,
+                0.251, 0.875, 0.376, 0.314, 0.251, 1, 0.251, 0.125, 0.251, 0, 1,
+                0.25, 1, 0.5, 1, 0.625, 0.75, 0.75, 0.5, 0.875, 0.75, 1, 1
+              ]
+            },
+            "p": 9
+          },
+          "hd": false,
+          "mn": "ADBE Vector Graphic - G-Fill",
+          "nm": "Gradient Fill 1",
+          "o": { "a": 0, "ix": 10, "k": 100 },
+          "r": 1,
+          "s": { "a": 0, "ix": 5, "k": [-200, 0] },
+          "t": 1,
+          "ty": "gf"
+        }
+      ],
+      "sr": 1,
+      "st": 0,
+      "ty": 4
+    },
+    {
+      "ao": 0,
+      "bm": 0,
+      "ddd": 0,
+      "ef": [
+        {
+          "ef": [
+            {
+              "ix": 1,
+              "mn": "ADBE HUE SATURATION-0002",
+              "nm": "Channel Control",
+              "ty": 7,
+              "v": { "a": 0, "ix": 1, "k": 1 }
+            },
+            {},
+            {
+              "ix": 3,
+              "mn": "ADBE HUE SATURATION-0004",
+              "nm": "Master Hue",
+              "ty": 0,
+              "v": { "a": 0, "ix": 3, "k": 0 }
+            },
+            {
+              "ix": 4,
+              "mn": "ADBE HUE SATURATION-0005",
+              "nm": "Master Saturation",
+              "ty": 0,
+              "v": { "a": 0, "ix": 4, "k": 0 }
+            },
+            {
+              "ix": 5,
+              "mn": "ADBE HUE SATURATION-0006",
+              "nm": "Master Lightness",
+              "ty": 0,
+              "v": {
+                "a": 1,
+                "ix": 5,
+                "k": [
+                  { "s": 0, "t": 0 },
+                  { "s": 100, "t": 75 },
+                  { "s": -100, "t": 225 },
+                  { "s": 0, "t": 300 }
+                ]
+              }
+            },
+            {
+              "ix": 6,
+              "mn": "ADBE HUE SATURATION-0007",
+              "nm": "Colorize",
+              "ty": 7,
+              "v": { "a": 0, "ix": 6, "k": 0 }
+            },
+            {
+              "ix": 7,
+              "mn": "ADBE HUE SATURATION-0008",
+              "nm": "Colorize Hue",
+              "ty": 0,
+              "v": { "a": 0, "ix": 7, "k": 0 }
+            },
+            {
+              "ix": 8,
+              "mn": "ADBE HUE SATURATION-0009",
+              "nm": "Colorize Saturation",
+              "ty": 0,
+              "v": { "a": 0, "ix": 8, "k": 25 }
+            },
+            {
+              "ix": 9,
+              "mn": "ADBE HUE SATURATION-0010",
+              "nm": "Colorize Lightness",
+              "ty": 0,
+              "v": { "a": 0, "ix": 9, "k": 0 }
+            }
+          ],
+          "en": 1,
+          "ix": 1,
+          "mn": "ADBE HUE SATURATION",
+          "nm": "Hue/Saturation",
+          "np": 11,
+          "ty": 5
+        }
+      ],
+      "ind": 3,
+      "ip": 0,
+      "ks": {
+        "a": { "a": 0, "ix": 1, "k": [0, 0, 0], "l": 2 },
+        "o": { "a": 0, "ix": 11, "k": 100 },
+        "p": { "a": 0, "ix": 2, "k": [250, 410, 0], "l": 2 },
+        "r": { "a": 0, "ix": 10, "k": 0 },
+        "s": { "a": 0, "ix": 6, "k": [100, 100, 100], "l": 2 }
+      },
+      "nm": "lightness",
+      "op": 300,
+      "shapes": [
+        {
+          "d": 1,
+          "hd": false,
+          "mn": "ADBE Vector Shape - Rect",
+          "nm": "Rectangle Path 1",
+          "p": { "a": 0, "ix": 3, "k": [0, -200] },
+          "r": { "a": 0, "ix": 4, "k": 0 },
+          "s": { "a": 0, "ix": 2, "k": [450, 50] },
+          "ty": "rc"
+        },
+        {
+          "bm": 0,
+          "e": { "a": 0, "ix": 6, "k": [200, 0] },
+          "g": {
+            "k": {
+              "a": 0,
+              "ix": 9,
+              "k": [
+                0.001, 0.753, 0.251, 0.502, 0.125, 0.627, 0.502, 0.376, 0.25,
+                0.502, 0.753, 0.251, 0.375, 0.376, 0.627, 0.502, 0.5, 0.251,
+                0.502, 0.753, 0.625, 0.376, 0.502, 0.502, 0.75, 0.502, 0.502,
+                0.251, 0.875, 0.376, 0.314, 0.251, 1, 0.251, 0.125, 0.251, 0, 1,
+                0.25, 1, 0.5, 1, 0.625, 0.75, 0.75, 0.5, 0.875, 0.75, 1, 1
+              ]
+            },
+            "p": 9
+          },
+          "hd": false,
+          "mn": "ADBE Vector Graphic - G-Fill",
+          "nm": "Gradient Fill 1",
+          "o": { "a": 0, "ix": 10, "k": 100 },
+          "r": 1,
+          "s": { "a": 0, "ix": 5, "k": [-200, 0] },
+          "t": 1,
+          "ty": "gf"
+        }
+      ],
+      "sr": 1,
+      "st": 0,
+      "ty": 4
+    },
+    {
+      "ao": 0,
+      "bm": 0,
+      "ddd": 0,
+      "ef": [
+        {
+          "ef": [
+            {
+              "ix": 1,
+              "mn": "ADBE HUE SATURATION-0002",
+              "nm": "Channel Control",
+              "ty": 7,
+              "v": { "a": 0, "ix": 1, "k": 1 }
+            },
+            {},
+            {
+              "ix": 3,
+              "mn": "ADBE HUE SATURATION-0004",
+              "nm": "Master Hue",
+              "ty": 0,
+              "v": {
+                "a": 1,
+                "ix": 3,
+                "k": [
+                  { "s": 0, "t": 0 },
+                  { "s": 360, "t": 300 }
+                ]
+              }
+            },
+            {
+              "ix": 4,
+              "mn": "ADBE HUE SATURATION-0005",
+              "nm": "Master Saturation",
+              "ty": 0,
+              "v": {
+                "a": 1,
+                "ix": 4,
+                "k": [
+                  { "s": 0, "t": 0 },
+                  { "s": 100, "t": 75 },
+                  { "s": -100, "t": 225 },
+                  { "s": 0, "t": 300 }
+                ]
+              }
+            },
+            {
+              "ix": 5,
+              "mn": "ADBE HUE SATURATION-0006",
+              "nm": "Master Lightness",
+              "ty": 0,
+              "v": { "a": 0, "ix": 5, "k": 0 }
+            },
+            {
+              "ix": 6,
+              "mn": "ADBE HUE SATURATION-0007",
+              "nm": "Colorize",
+              "ty": 7,
+              "v": { "a": 0, "ix": 6, "k": 0 }
+            },
+            {
+              "ix": 7,
+              "mn": "ADBE HUE SATURATION-0008",
+              "nm": "Colorize Hue",
+              "ty": 0,
+              "v": { "a": 0, "ix": 7, "k": 0 }
+            },
+            {
+              "ix": 8,
+              "mn": "ADBE HUE SATURATION-0009",
+              "nm": "Colorize Saturation",
+              "ty": 0,
+              "v": { "a": 0, "ix": 8, "k": 25 }
+            },
+            {
+              "ix": 9,
+              "mn": "ADBE HUE SATURATION-0010",
+              "nm": "Colorize Lightness",
+              "ty": 0,
+              "v": { "a": 0, "ix": 9, "k": 0 }
+            }
+          ],
+          "en": 1,
+          "ix": 1,
+          "mn": "ADBE HUE SATURATION",
+          "nm": "Hue/Saturation",
+          "np": 11,
+          "ty": 5
+        }
+      ],
+      "ind": 4,
+      "ip": 0,
+      "ks": {
+        "a": { "a": 0, "ix": 1, "k": [0, 0, 0], "l": 2 },
+        "o": { "a": 0, "ix": 11, "k": 100 },
+        "p": { "a": 0, "ix": 2, "k": [250, 490, 0], "l": 2 },
+        "r": { "a": 0, "ix": 10, "k": 0 },
+        "s": { "a": 0, "ix": 6, "k": [100, 100, 100], "l": 2 }
+      },
+      "nm": "hue sat",
+      "op": 300,
+      "shapes": [
+        {
+          "d": 1,
+          "hd": false,
+          "mn": "ADBE Vector Shape - Rect",
+          "nm": "Rectangle Path 1",
+          "p": { "a": 0, "ix": 3, "k": [0, -200] },
+          "r": { "a": 0, "ix": 4, "k": 0 },
+          "s": { "a": 0, "ix": 2, "k": [450, 50] },
+          "ty": "rc"
+        },
+        {
+          "bm": 0,
+          "e": { "a": 0, "ix": 6, "k": [200, 0] },
+          "g": {
+            "k": {
+              "a": 0,
+              "ix": 9,
+              "k": [
+                0.001, 0.753, 0.251, 0.502, 0.125, 0.627, 0.502, 0.376, 0.25,
+                0.502, 0.753, 0.251, 0.375, 0.376, 0.627, 0.502, 0.5, 0.251,
+                0.502, 0.753, 0.625, 0.376, 0.502, 0.502, 0.75, 0.502, 0.502,
+                0.251, 0.875, 0.376, 0.314, 0.251, 1, 0.251, 0.125, 0.251, 0, 1,
+                0.25, 1, 0.5, 1, 0.625, 0.75, 0.75, 0.5, 0.875, 0.75, 1, 1
+              ]
+            },
+            "p": 9
+          },
+          "hd": false,
+          "mn": "ADBE Vector Graphic - G-Fill",
+          "nm": "Gradient Fill 1",
+          "o": { "a": 0, "ix": 10, "k": 100 },
+          "r": 1,
+          "s": { "a": 0, "ix": 5, "k": [-200, 0] },
+          "t": 1,
+          "ty": "gf"
+        }
+      ],
+      "sr": 1,
+      "st": 0,
+      "ty": 4
+    },
+    {
+      "ao": 0,
+      "bm": 0,
+      "ddd": 0,
+      "ef": [
+        {
+          "ef": [
+            {
+              "ix": 1,
+              "mn": "ADBE HUE SATURATION-0002",
+              "nm": "Channel Control",
+              "ty": 7,
+              "v": { "a": 0, "ix": 1, "k": 1 }
+            },
+            {},
+            {
+              "ix": 3,
+              "mn": "ADBE HUE SATURATION-0004",
+              "nm": "Master Hue",
+              "ty": 0,
+              "v": { "a": 0, "ix": 3, "k": 0 }
+            },
+            {
+              "ix": 4,
+              "mn": "ADBE HUE SATURATION-0005",
+              "nm": "Master Saturation",
+              "ty": 0,
+              "v": {
+                "a": 1,
+                "ix": 4,
+                "k": [
+                  { "s": 0, "t": 0 },
+                  { "s": 100, "t": 75 },
+                  { "s": -100, "t": 225 },
+                  { "s": 0, "t": 300 }
+                ]
+              }
+            },
+            {
+              "ix": 5,
+              "mn": "ADBE HUE SATURATION-0006",
+              "nm": "Master Lightness",
+              "ty": 0,
+              "v": {
+                "a": 1,
+                "ix": 5,
+                "k": [
+                  { "s": 0, "t": 0 },
+                  { "s": 75, "t": 75 },
+                  { "s": -75, "t": 225 },
+                  { "s": 0, "t": 300 }
+                ]
+              }
+            },
+            {
+              "ix": 6,
+              "mn": "ADBE HUE SATURATION-0007",
+              "nm": "Colorize",
+              "ty": 7,
+              "v": { "a": 0, "ix": 6, "k": 0 }
+            },
+            {
+              "ix": 7,
+              "mn": "ADBE HUE SATURATION-0008",
+              "nm": "Colorize Hue",
+              "ty": 0,
+              "v": { "a": 0, "ix": 7, "k": 0 }
+            },
+            {
+              "ix": 8,
+              "mn": "ADBE HUE SATURATION-0009",
+              "nm": "Colorize Saturation",
+              "ty": 0,
+              "v": { "a": 0, "ix": 8, "k": 25 }
+            },
+            {
+              "ix": 9,
+              "mn": "ADBE HUE SATURATION-0010",
+              "nm": "Colorize Lightness",
+              "ty": 0,
+              "v": { "a": 0, "ix": 9, "k": 0 }
+            }
+          ],
+          "en": 1,
+          "ix": 1,
+          "mn": "ADBE HUE SATURATION",
+          "nm": "  ",
+          "np": 11,
+          "ty": 5
+        }
+      ],
+      "ind": 5,
+      "ip": 0,
+      "ks": {
+        "a": { "a": 0, "ix": 1, "k": [0, 0, 0], "l": 2 },
+        "o": { "a": 0, "ix": 11, "k": 100 },
+        "p": { "a": 0, "ix": 2, "k": [250, 570, 0], "l": 2 },
+        "r": { "a": 0, "ix": 10, "k": 0 },
+        "s": { "a": 0, "ix": 6, "k": [100, 100, 100], "l": 2 }
+      },
+      "nm": "sat lightness",
+      "op": 300,
+      "shapes": [
+        {
+          "d": 1,
+          "hd": false,
+          "mn": "ADBE Vector Shape - Rect",
+          "nm": "Rectangle Path 1",
+          "p": { "a": 0, "ix": 3, "k": [0, -200] },
+          "r": { "a": 0, "ix": 4, "k": 0 },
+          "s": { "a": 0, "ix": 2, "k": [450, 50] },
+          "ty": "rc"
+        },
+        {
+          "bm": 0,
+          "e": { "a": 0, "ix": 6, "k": [200, 0] },
+          "g": {
+            "k": {
+              "a": 0,
+              "ix": 9,
+              "k": [
+                0.001, 0.753, 0.251, 0.502, 0.125, 0.627, 0.502, 0.376, 0.25,
+                0.502, 0.753, 0.251, 0.375, 0.376, 0.627, 0.502, 0.5, 0.251,
+                0.502, 0.753, 0.625, 0.376, 0.502, 0.502, 0.75, 0.502, 0.502,
+                0.251, 0.875, 0.376, 0.314, 0.251, 1, 0.251, 0.125, 0.251, 0, 1,
+                0.25, 1, 0.5, 1, 0.625, 0.75, 0.75, 0.5, 0.875, 0.75, 1, 1
+              ]
+            },
+            "p": 9
+          },
+          "hd": false,
+          "mn": "ADBE Vector Graphic - G-Fill",
+          "nm": "Gradient Fill 1",
+          "o": { "a": 0, "ix": 10, "k": 100 },
+          "r": 1,
+          "s": { "a": 0, "ix": 5, "k": [-200, 0] },
+          "t": 1,
+          "ty": "gf"
+        }
+      ],
+      "sr": 1,
+      "st": 0,
+      "ty": 4
+    },
+    {
+      "ao": 0,
+      "bm": 0,
+      "ddd": 0,
+      "ef": [
+        {
+          "ef": [
+            {
+              "ix": 1,
+              "mn": "ADBE HUE SATURATION-0002",
+              "nm": "Channel Control",
+              "ty": 7,
+              "v": { "a": 0, "ix": 1, "k": 1 }
+            },
+            {},
+            {
+              "ix": 3,
+              "mn": "ADBE HUE SATURATION-0004",
+              "nm": "Master Hue",
+              "ty": 0,
+              "v": {
+                "a": 1,
+                "ix": 3,
+                "k": [
+                  { "s": 0, "t": 0 },
+                  { "s": 360, "t": 300 }
+                ]
+              }
+            },
+            {
+              "ix": 4,
+              "mn": "ADBE HUE SATURATION-0005",
+              "nm": "Master Saturation",
+              "ty": 0,
+              "v": { "a": 0, "ix": 4, "k": 0 }
+            },
+            {
+              "ix": 5,
+              "mn": "ADBE HUE SATURATION-0006",
+              "nm": "Master Lightness",
+              "ty": 0,
+              "v": {
+                "a": 1,
+                "ix": 5,
+                "k": [
+                  { "s": 0, "t": 0 },
+                  { "s": 75, "t": 75 },
+                  { "s": -75, "t": 225 },
+                  { "s": 0, "t": 300 }
+                ]
+              }
+            },
+            {
+              "ix": 6,
+              "mn": "ADBE HUE SATURATION-0007",
+              "nm": "Colorize",
+              "ty": 7,
+              "v": { "a": 0, "ix": 6, "k": 0 }
+            },
+            {
+              "ix": 7,
+              "mn": "ADBE HUE SATURATION-0008",
+              "nm": "Colorize Hue",
+              "ty": 0,
+              "v": { "a": 0, "ix": 7, "k": 0 }
+            },
+            {
+              "ix": 8,
+              "mn": "ADBE HUE SATURATION-0009",
+              "nm": "Colorize Saturation",
+              "ty": 0,
+              "v": { "a": 0, "ix": 8, "k": 25 }
+            },
+            {
+              "ix": 9,
+              "mn": "ADBE HUE SATURATION-0010",
+              "nm": "Colorize Lightness",
+              "ty": 0,
+              "v": { "a": 0, "ix": 9, "k": 0 }
+            }
+          ],
+          "en": 1,
+          "ix": 1,
+          "mn": "ADBE HUE SATURATION",
+          "nm": "Hue/Saturation",
+          "np": 11,
+          "ty": 5
+        }
+      ],
+      "ind": 6,
+      "ip": 0,
+      "ks": {
+        "a": { "a": 0, "ix": 1, "k": [0, 0, 0], "l": 2 },
+        "o": { "a": 0, "ix": 11, "k": 100 },
+        "p": { "a": 0, "ix": 2, "k": [250, 649, 0], "l": 2 },
+        "r": { "a": 0, "ix": 10, "k": 0 },
+        "s": { "a": 0, "ix": 6, "k": [100, 100, 100], "l": 2 }
+      },
+      "nm": "hue lightness",
+      "op": 300,
+      "shapes": [
+        {
+          "d": 1,
+          "hd": false,
+          "mn": "ADBE Vector Shape - Rect",
+          "nm": "Rectangle Path 1",
+          "p": { "a": 0, "ix": 3, "k": [0, -200] },
+          "r": { "a": 0, "ix": 4, "k": 0 },
+          "s": { "a": 0, "ix": 2, "k": [450, 50] },
+          "ty": "rc"
+        },
+        {
+          "bm": 0,
+          "e": { "a": 0, "ix": 6, "k": [200, 0] },
+          "g": {
+            "k": {
+              "a": 0,
+              "ix": 9,
+              "k": [
+                0.001, 0.753, 0.251, 0.502, 0.125, 0.627, 0.502, 0.376, 0.25,
+                0.502, 0.753, 0.251, 0.375, 0.376, 0.627, 0.502, 0.5, 0.251,
+                0.502, 0.753, 0.625, 0.376, 0.502, 0.502, 0.75, 0.502, 0.502,
+                0.251, 0.875, 0.376, 0.314, 0.251, 1, 0.251, 0.125, 0.251, 0, 1,
+                0.25, 1, 0.5, 1, 0.625, 0.75, 0.75, 0.5, 0.875, 0.75, 1, 1
+              ]
+            },
+            "p": 9
+          },
+          "hd": false,
+          "mn": "ADBE Vector Graphic - G-Fill",
+          "nm": "Gradient Fill 1",
+          "o": { "a": 0, "ix": 10, "k": 100 },
+          "r": 1,
+          "s": { "a": 0, "ix": 5, "k": [-200, 0] },
+          "t": 1,
+          "ty": "gf"
+        }
+      ],
+      "sr": 1,
+      "st": 0,
+      "ty": 4
+    },
+    {
+      "ao": 0,
+      "bm": 0,
+      "ddd": 0,
+      "ind": 8,
+      "ip": 0,
+      "ks": {
+        "a": { "a": 0, "ix": 1, "k": [250, 250, 0], "l": 2 },
+        "o": { "a": 0, "ix": 11, "k": 100 },
+        "p": { "a": 0, "ix": 2, "k": [250, 250, 0], "l": 2 },
+        "r": { "a": 0, "ix": 10, "k": 0 },
+        "s": { "a": 0, "ix": 6, "k": [100, 100, 100], "l": 2 }
+      },
+      "nm": "White Solid 1",
+      "op": 300,
+      "sc": "#ffffff",
+      "sh": 500,
+      "sr": 1,
+      "st": 0,
+      "sw": 500,
+      "ty": 1
+    }
+  ],
+  "markers": [],
+  "nm": "hue-saturation",
+  "op": 300,
+  "v": "5.7.11",
+  "w": 500
+}

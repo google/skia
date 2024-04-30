@@ -1,1 +1,3470 @@
-{"v":"5.6.3","fr":60,"ip":0,"op":601,"w":500,"h":500,"nm":"prolevels","ddd":0,"assets":[{"id":"comp_0","layers":[{"ddd":0,"ind":1,"ty":4,"nm":"Shape Layer 1","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[250,250,0],"ix":2},"a":{"a":0,"k":[0,0,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"shapes":[{"ty":"gr","it":[{"d":1,"ty":"el","s":{"a":0,"k":[200,200],"ix":2},"p":{"a":0,"k":[100,0],"ix":3},"nm":"Ellipse Path 1","mn":"ADBE Vector Shape - Ellipse","hd":false},{"ty":"fl","c":{"a":0,"k":[0,1,0.250980407,1],"ix":4},"o":{"a":0,"k":75,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"t":600,"s":[360]}],"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 3","np":2,"cix":2,"bm":0,"ix":1,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ty":"sr","sy":1,"d":1,"pt":{"a":0,"k":5,"ix":3},"p":{"a":0,"k":[0,0],"ix":4},"r":{"a":0,"k":0,"ix":5},"ir":{"a":0,"k":50,"ix":6},"is":{"a":0,"k":0,"ix":8},"or":{"a":0,"k":162,"ix":7},"os":{"a":0,"k":0,"ix":9},"ix":1,"nm":"Polystar Path 1","mn":"ADBE Vector Shape - Star","hd":false},{"ty":"fl","c":{"a":0,"k":[1,0.250980407,0,1],"ix":4},"o":{"a":0,"k":75,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"t":600,"s":[720]}],"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 1","np":2,"cix":2,"bm":0,"ix":2,"mn":"ADBE Vector Group","hd":false},{"ty":"gr","it":[{"ty":"rc","d":1,"s":{"a":0,"k":[175,175],"ix":2},"p":{"a":0,"k":[-90,0],"ix":3},"r":{"a":0,"k":0,"ix":4},"nm":"Rectangle Path 1","mn":"ADBE Vector Shape - Rect","hd":false},{"ty":"fl","c":{"a":0,"k":[0.250980407,0,1,1],"ix":4},"o":{"a":0,"k":75,"ix":5},"r":1,"bm":0,"nm":"Fill 1","mn":"ADBE Vector Graphic - Fill","hd":false},{"ty":"tr","p":{"a":0,"k":[0,0],"ix":2},"a":{"a":0,"k":[0,0],"ix":1},"s":{"a":0,"k":[100,100],"ix":3},"r":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"t":600,"s":[-360]}],"ix":6},"o":{"a":0,"k":100,"ix":7},"sk":{"a":0,"k":0,"ix":4},"sa":{"a":0,"k":0,"ix":5},"nm":"Transform"}],"nm":"Group 2","np":2,"cix":2,"bm":0,"ix":3,"mn":"ADBE Vector Group","hd":false}],"ip":0,"op":601,"st":0,"bm":0}]}],"layers":[{"ddd":0,"ind":1,"ty":0,"nm":"rgb w/ invert","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[83,83,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[33,33,100],"ix":6}},"ao":0,"ef":[{"ty":24,"nm":"Levels (Individual Controls)","np":41,"mn":"ADBE Pro Levels2","ix":1,"en":1,"ef":[{"ty":7,"nm":"Channel:","mn":"ADBE Pro Levels2-0001","ix":1,"v":{"a":0,"k":1,"ix":1}},{},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0003","ix":3,"v":0},{"ty":0,"nm":"Input Black","mn":"ADBE Pro Levels2-0004","ix":4,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[-1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[2.008]},{"t":600,"s":[-1]}],"ix":4}},{"ty":0,"nm":"Input White","mn":"ADBE Pro Levels2-0005","ix":5,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[2.008]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[-1]},{"t":600,"s":[2.008]}],"ix":5}},{"ty":0,"nm":"Gamma","mn":"ADBE Pro Levels2-0006","ix":6,"v":{"a":0,"k":1,"ix":6}},{"ty":0,"nm":"Output Black","mn":"ADBE Pro Levels2-0007","ix":7,"v":{"a":0,"k":0,"ix":7}},{"ty":0,"nm":"Output White","mn":"ADBE Pro Levels2-0008","ix":8,"v":{"a":0,"k":1,"ix":8}},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0009","ix":9,"v":0},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0010","ix":10,"v":0},{"ty":0,"nm":"Red Input Black","mn":"ADBE Pro Levels2-0011","ix":11,"v":{"a":0,"k":0,"ix":11}},{"ty":0,"nm":"Red Input White","mn":"ADBE Pro Levels2-0012","ix":12,"v":{"a":0,"k":1,"ix":12}},{"ty":0,"nm":"Red Gamma","mn":"ADBE Pro Levels2-0013","ix":13,"v":{"a":0,"k":1,"ix":13}},{"ty":0,"nm":"Red Output Black","mn":"ADBE Pro Levels2-0014","ix":14,"v":{"a":0,"k":0,"ix":14}},{"ty":0,"nm":"Red Output White","mn":"ADBE Pro Levels2-0015","ix":15,"v":{"a":0,"k":1,"ix":15}},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0016","ix":16,"v":0},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0017","ix":17,"v":0},{"ty":0,"nm":"Green Input Black","mn":"ADBE Pro Levels2-0018","ix":18,"v":{"a":0,"k":0,"ix":18}},{"ty":0,"nm":"Green Input White","mn":"ADBE Pro Levels2-0019","ix":19,"v":{"a":0,"k":1,"ix":19}},{"ty":0,"nm":"Green Gamma","mn":"ADBE Pro Levels2-0020","ix":20,"v":{"a":0,"k":1,"ix":20}},{"ty":0,"nm":"Green Output Black","mn":"ADBE Pro Levels2-0021","ix":21,"v":{"a":0,"k":0,"ix":21}},{"ty":0,"nm":"Green Output White","mn":"ADBE Pro Levels2-0022","ix":22,"v":{"a":0,"k":1,"ix":22}},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0023","ix":23,"v":0},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0024","ix":24,"v":0},{"ty":0,"nm":"Blue Input Black","mn":"ADBE Pro Levels2-0025","ix":25,"v":{"a":0,"k":0,"ix":25}},{"ty":0,"nm":"Blue Input White","mn":"ADBE Pro Levels2-0026","ix":26,"v":{"a":0,"k":1,"ix":26}},{"ty":0,"nm":"Blue Gamma","mn":"ADBE Pro Levels2-0027","ix":27,"v":{"a":0,"k":1,"ix":27}},{"ty":0,"nm":"Blue Output Black","mn":"ADBE Pro Levels2-0028","ix":28,"v":{"a":0,"k":0,"ix":28}},{"ty":0,"nm":"Blue Output White","mn":"ADBE Pro Levels2-0029","ix":29,"v":{"a":0,"k":1,"ix":29}},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0030","ix":30,"v":0},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0031","ix":31,"v":0},{"ty":0,"nm":"Alpha Input Black","mn":"ADBE Pro Levels2-0032","ix":32,"v":{"a":0,"k":0,"ix":32}},{"ty":0,"nm":"Alpha Input White","mn":"ADBE Pro Levels2-0033","ix":33,"v":{"a":0,"k":1,"ix":33}},{"ty":0,"nm":"Alpha Gamma","mn":"ADBE Pro Levels2-0034","ix":34,"v":{"a":0,"k":1,"ix":34}},{"ty":0,"nm":"Alpha Output Black","mn":"ADBE Pro Levels2-0035","ix":35,"v":{"a":0,"k":0,"ix":35}},{"ty":0,"nm":"Alpha Output White","mn":"ADBE Pro Levels2-0036","ix":36,"v":{"a":0,"k":1,"ix":36}},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0037","ix":37,"v":0},{"ty":7,"nm":"Clip To Output Black","mn":"ADBE Pro Levels2-0038","ix":38,"v":{"a":0,"k":3,"ix":38}},{"ty":7,"nm":"Clip To Output White","mn":"ADBE Pro Levels2-0039","ix":39,"v":{"a":0,"k":3,"ix":39}}]}],"w":500,"h":500,"ip":0,"op":601,"st":0,"bm":0},{"ddd":0,"ind":2,"ty":0,"nm":"rgb + compose","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[250,83,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[33,33,100],"ix":6}},"ao":0,"ef":[{"ty":24,"nm":"Levels (Individual Controls)","np":41,"mn":"ADBE Pro Levels2","ix":1,"en":1,"ef":[{"ty":7,"nm":"Channel:","mn":"ADBE Pro Levels2-0001","ix":1,"v":{"a":0,"k":1,"ix":1}},{},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0003","ix":3,"v":0},{"ty":0,"nm":"Input Black","mn":"ADBE Pro Levels2-0004","ix":4,"v":{"a":0,"k":0,"ix":4}},{"ty":0,"nm":"Input White","mn":"ADBE Pro Levels2-0005","ix":5,"v":{"a":0,"k":0.502,"ix":5}},{"ty":0,"nm":"Gamma","mn":"ADBE Pro Levels2-0006","ix":6,"v":{"a":0,"k":1,"ix":6}},{"ty":0,"nm":"Output Black","mn":"ADBE Pro Levels2-0007","ix":7,"v":{"a":0,"k":0,"ix":7}},{"ty":0,"nm":"Output White","mn":"ADBE Pro Levels2-0008","ix":8,"v":{"a":0,"k":1,"ix":8}},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0009","ix":9,"v":0},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0010","ix":10,"v":0},{"ty":0,"nm":"Red Input Black","mn":"ADBE Pro Levels2-0011","ix":11,"v":{"a":0,"k":0,"ix":11}},{"ty":0,"nm":"Red Input White","mn":"ADBE Pro Levels2-0012","ix":12,"v":{"a":0,"k":1,"ix":12}},{"ty":0,"nm":"Red Gamma","mn":"ADBE Pro Levels2-0013","ix":13,"v":{"a":0,"k":1,"ix":13}},{"ty":0,"nm":"Red Output Black","mn":"ADBE Pro Levels2-0014","ix":14,"v":{"a":0,"k":0,"ix":14}},{"ty":0,"nm":"Red Output White","mn":"ADBE Pro Levels2-0015","ix":15,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0.502]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0]},{"t":600,"s":[0.502]}],"ix":15}},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0016","ix":16,"v":0},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0017","ix":17,"v":0},{"ty":0,"nm":"Green Input Black","mn":"ADBE Pro Levels2-0018","ix":18,"v":{"a":0,"k":0,"ix":18}},{"ty":0,"nm":"Green Input White","mn":"ADBE Pro Levels2-0019","ix":19,"v":{"a":0,"k":1,"ix":19}},{"ty":0,"nm":"Green Gamma","mn":"ADBE Pro Levels2-0020","ix":20,"v":{"a":0,"k":1,"ix":20}},{"ty":0,"nm":"Green Output Black","mn":"ADBE Pro Levels2-0021","ix":21,"v":{"a":0,"k":0,"ix":21}},{"ty":0,"nm":"Green Output White","mn":"ADBE Pro Levels2-0022","ix":22,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":150,"s":[0]},{"t":300,"s":[1]}],"ix":22}},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0023","ix":23,"v":0},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0024","ix":24,"v":0},{"ty":0,"nm":"Blue Input Black","mn":"ADBE Pro Levels2-0025","ix":25,"v":{"a":0,"k":0,"ix":25}},{"ty":0,"nm":"Blue Input White","mn":"ADBE Pro Levels2-0026","ix":26,"v":{"a":0,"k":1,"ix":26}},{"ty":0,"nm":"Blue Gamma","mn":"ADBE Pro Levels2-0027","ix":27,"v":{"a":0,"k":1,"ix":27}},{"ty":0,"nm":"Blue Output Black","mn":"ADBE Pro Levels2-0028","ix":28,"v":{"a":0,"k":0,"ix":28}},{"ty":0,"nm":"Blue Output White","mn":"ADBE Pro Levels2-0029","ix":29,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":450,"s":[0]},{"t":600,"s":[1]}],"ix":29}},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0030","ix":30,"v":0},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0031","ix":31,"v":0},{"ty":0,"nm":"Alpha Input Black","mn":"ADBE Pro Levels2-0032","ix":32,"v":{"a":0,"k":0,"ix":32}},{"ty":0,"nm":"Alpha Input White","mn":"ADBE Pro Levels2-0033","ix":33,"v":{"a":0,"k":1,"ix":33}},{"ty":0,"nm":"Alpha Gamma","mn":"ADBE Pro Levels2-0034","ix":34,"v":{"a":0,"k":1,"ix":34}},{"ty":0,"nm":"Alpha Output Black","mn":"ADBE Pro Levels2-0035","ix":35,"v":{"a":0,"k":0,"ix":35}},{"ty":0,"nm":"Alpha Output White","mn":"ADBE Pro Levels2-0036","ix":36,"v":{"a":0,"k":1,"ix":36}},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0037","ix":37,"v":0},{"ty":7,"nm":"Clip To Output Black","mn":"ADBE Pro Levels2-0038","ix":38,"v":{"a":0,"k":3,"ix":38}},{"ty":7,"nm":"Clip To Output White","mn":"ADBE Pro Levels2-0039","ix":39,"v":{"a":0,"k":3,"ix":39}}]}],"w":500,"h":500,"ip":0,"op":601,"st":0,"bm":0},{"ddd":0,"ind":3,"ty":0,"nm":"gamma + compose","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[417,83,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[33,33,100],"ix":6}},"ao":0,"ef":[{"ty":24,"nm":"Levels (Individual Controls)","np":41,"mn":"ADBE Pro Levels2","ix":1,"en":1,"ef":[{"ty":7,"nm":"Channel:","mn":"ADBE Pro Levels2-0001","ix":1,"v":{"a":0,"k":1,"ix":1}},{},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0003","ix":3,"v":0},{"ty":0,"nm":"Input Black","mn":"ADBE Pro Levels2-0004","ix":4,"v":{"a":0,"k":0,"ix":4}},{"ty":0,"nm":"Input White","mn":"ADBE Pro Levels2-0005","ix":5,"v":{"a":0,"k":1,"ix":5}},{"ty":0,"nm":"Gamma","mn":"ADBE Pro Levels2-0006","ix":6,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[3]},{"t":600,"s":[0]}],"ix":6}},{"ty":0,"nm":"Output Black","mn":"ADBE Pro Levels2-0007","ix":7,"v":{"a":0,"k":0,"ix":7}},{"ty":0,"nm":"Output White","mn":"ADBE Pro Levels2-0008","ix":8,"v":{"a":0,"k":1,"ix":8}},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0009","ix":9,"v":0},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0010","ix":10,"v":0},{"ty":0,"nm":"Red Input Black","mn":"ADBE Pro Levels2-0011","ix":11,"v":{"a":0,"k":0,"ix":11}},{"ty":0,"nm":"Red Input White","mn":"ADBE Pro Levels2-0012","ix":12,"v":{"a":0,"k":1,"ix":12}},{"ty":0,"nm":"Red Gamma","mn":"ADBE Pro Levels2-0013","ix":13,"v":{"a":0,"k":3,"ix":13}},{"ty":0,"nm":"Red Output Black","mn":"ADBE Pro Levels2-0014","ix":14,"v":{"a":0,"k":0,"ix":14}},{"ty":0,"nm":"Red Output White","mn":"ADBE Pro Levels2-0015","ix":15,"v":{"a":0,"k":1,"ix":15}},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0016","ix":16,"v":0},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0017","ix":17,"v":0},{"ty":0,"nm":"Green Input Black","mn":"ADBE Pro Levels2-0018","ix":18,"v":{"a":0,"k":0,"ix":18}},{"ty":0,"nm":"Green Input White","mn":"ADBE Pro Levels2-0019","ix":19,"v":{"a":0,"k":1,"ix":19}},{"ty":0,"nm":"Green Gamma","mn":"ADBE Pro Levels2-0020","ix":20,"v":{"a":0,"k":0.5,"ix":20}},{"ty":0,"nm":"Green Output Black","mn":"ADBE Pro Levels2-0021","ix":21,"v":{"a":0,"k":0,"ix":21}},{"ty":0,"nm":"Green Output White","mn":"ADBE Pro Levels2-0022","ix":22,"v":{"a":0,"k":1,"ix":22}},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0023","ix":23,"v":0},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0024","ix":24,"v":0},{"ty":0,"nm":"Blue Input Black","mn":"ADBE Pro Levels2-0025","ix":25,"v":{"a":0,"k":0,"ix":25}},{"ty":0,"nm":"Blue Input White","mn":"ADBE Pro Levels2-0026","ix":26,"v":{"a":0,"k":1,"ix":26}},{"ty":0,"nm":"Blue Gamma","mn":"ADBE Pro Levels2-0027","ix":27,"v":{"a":0,"k":1.5,"ix":27}},{"ty":0,"nm":"Blue Output Black","mn":"ADBE Pro Levels2-0028","ix":28,"v":{"a":0,"k":0,"ix":28}},{"ty":0,"nm":"Blue Output White","mn":"ADBE Pro Levels2-0029","ix":29,"v":{"a":0,"k":1,"ix":29}},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0030","ix":30,"v":0},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0031","ix":31,"v":0},{"ty":0,"nm":"Alpha Input Black","mn":"ADBE Pro Levels2-0032","ix":32,"v":{"a":0,"k":0,"ix":32}},{"ty":0,"nm":"Alpha Input White","mn":"ADBE Pro Levels2-0033","ix":33,"v":{"a":0,"k":1,"ix":33}},{"ty":0,"nm":"Alpha Gamma","mn":"ADBE Pro Levels2-0034","ix":34,"v":{"a":0,"k":1,"ix":34}},{"ty":0,"nm":"Alpha Output Black","mn":"ADBE Pro Levels2-0035","ix":35,"v":{"a":0,"k":0,"ix":35}},{"ty":0,"nm":"Alpha Output White","mn":"ADBE Pro Levels2-0036","ix":36,"v":{"a":0,"k":1,"ix":36}},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0037","ix":37,"v":0},{"ty":7,"nm":"Clip To Output Black","mn":"ADBE Pro Levels2-0038","ix":38,"v":{"a":0,"k":3,"ix":38}},{"ty":7,"nm":"Clip To Output White","mn":"ADBE Pro Levels2-0039","ix":39,"v":{"a":0,"k":3,"ix":39}}]}],"w":500,"h":500,"ip":0,"op":601,"st":0,"bm":0},{"ddd":0,"ind":4,"ty":0,"nm":"r","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[83,250,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[33,33,100],"ix":6}},"ao":0,"ef":[{"ty":24,"nm":"Levels (Individual Controls)","np":41,"mn":"ADBE Pro Levels2","ix":1,"en":1,"ef":[{"ty":7,"nm":"Channel:","mn":"ADBE Pro Levels2-0001","ix":1,"v":{"a":0,"k":1,"ix":1}},{},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0003","ix":3,"v":0},{"ty":0,"nm":"Input Black","mn":"ADBE Pro Levels2-0004","ix":4,"v":{"a":0,"k":0,"ix":4}},{"ty":0,"nm":"Input White","mn":"ADBE Pro Levels2-0005","ix":5,"v":{"a":0,"k":1,"ix":5}},{"ty":0,"nm":"Gamma","mn":"ADBE Pro Levels2-0006","ix":6,"v":{"a":0,"k":1,"ix":6}},{"ty":0,"nm":"Output Black","mn":"ADBE Pro Levels2-0007","ix":7,"v":{"a":0,"k":0,"ix":7}},{"ty":0,"nm":"Output White","mn":"ADBE Pro Levels2-0008","ix":8,"v":{"a":0,"k":1,"ix":8}},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0009","ix":9,"v":0},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0010","ix":10,"v":0},{"ty":0,"nm":"Red Input Black","mn":"ADBE Pro Levels2-0011","ix":11,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[1]},{"t":600,"s":[0]}],"ix":11}},{"ty":0,"nm":"Red Input White","mn":"ADBE Pro Levels2-0012","ix":12,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0]},{"t":600,"s":[1]}],"ix":12}},{"ty":0,"nm":"Red Gamma","mn":"ADBE Pro Levels2-0013","ix":13,"v":{"a":0,"k":1,"ix":13}},{"ty":0,"nm":"Red Output Black","mn":"ADBE Pro Levels2-0014","ix":14,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.502]},{"t":600,"s":[0]}],"ix":14}},{"ty":0,"nm":"Red Output White","mn":"ADBE Pro Levels2-0015","ix":15,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.502]},{"t":600,"s":[1]}],"ix":15}},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0016","ix":16,"v":0},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0017","ix":17,"v":0},{"ty":0,"nm":"Green Input Black","mn":"ADBE Pro Levels2-0018","ix":18,"v":{"a":0,"k":0,"ix":18}},{"ty":0,"nm":"Green Input White","mn":"ADBE Pro Levels2-0019","ix":19,"v":{"a":0,"k":1,"ix":19}},{"ty":0,"nm":"Green Gamma","mn":"ADBE Pro Levels2-0020","ix":20,"v":{"a":0,"k":1,"ix":20}},{"ty":0,"nm":"Green Output Black","mn":"ADBE Pro Levels2-0021","ix":21,"v":{"a":0,"k":0,"ix":21}},{"ty":0,"nm":"Green Output White","mn":"ADBE Pro Levels2-0022","ix":22,"v":{"a":0,"k":1,"ix":22}},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0023","ix":23,"v":0},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0024","ix":24,"v":0},{"ty":0,"nm":"Blue Input Black","mn":"ADBE Pro Levels2-0025","ix":25,"v":{"a":0,"k":0,"ix":25}},{"ty":0,"nm":"Blue Input White","mn":"ADBE Pro Levels2-0026","ix":26,"v":{"a":0,"k":1,"ix":26}},{"ty":0,"nm":"Blue Gamma","mn":"ADBE Pro Levels2-0027","ix":27,"v":{"a":0,"k":1,"ix":27}},{"ty":0,"nm":"Blue Output Black","mn":"ADBE Pro Levels2-0028","ix":28,"v":{"a":0,"k":0,"ix":28}},{"ty":0,"nm":"Blue Output White","mn":"ADBE Pro Levels2-0029","ix":29,"v":{"a":0,"k":1,"ix":29}},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0030","ix":30,"v":0},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0031","ix":31,"v":0},{"ty":0,"nm":"Alpha Input Black","mn":"ADBE Pro Levels2-0032","ix":32,"v":{"a":0,"k":0,"ix":32}},{"ty":0,"nm":"Alpha Input White","mn":"ADBE Pro Levels2-0033","ix":33,"v":{"a":0,"k":1,"ix":33}},{"ty":0,"nm":"Alpha Gamma","mn":"ADBE Pro Levels2-0034","ix":34,"v":{"a":0,"k":1,"ix":34}},{"ty":0,"nm":"Alpha Output Black","mn":"ADBE Pro Levels2-0035","ix":35,"v":{"a":0,"k":0,"ix":35}},{"ty":0,"nm":"Alpha Output White","mn":"ADBE Pro Levels2-0036","ix":36,"v":{"a":0,"k":1,"ix":36}},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0037","ix":37,"v":0},{"ty":7,"nm":"Clip To Output Black","mn":"ADBE Pro Levels2-0038","ix":38,"v":{"a":0,"k":3,"ix":38}},{"ty":7,"nm":"Clip To Output White","mn":"ADBE Pro Levels2-0039","ix":39,"v":{"a":0,"k":3,"ix":39}}]}],"w":500,"h":500,"ip":0,"op":601,"st":0,"bm":0},{"ddd":0,"ind":5,"ty":0,"nm":"g","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[250,250,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[33,33,100],"ix":6}},"ao":0,"ef":[{"ty":24,"nm":"Levels (Individual Controls)","np":41,"mn":"ADBE Pro Levels2","ix":1,"en":1,"ef":[{"ty":7,"nm":"Channel:","mn":"ADBE Pro Levels2-0001","ix":1,"v":{"a":0,"k":1,"ix":1}},{},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0003","ix":3,"v":0},{"ty":0,"nm":"Input Black","mn":"ADBE Pro Levels2-0004","ix":4,"v":{"a":0,"k":0,"ix":4}},{"ty":0,"nm":"Input White","mn":"ADBE Pro Levels2-0005","ix":5,"v":{"a":0,"k":1,"ix":5}},{"ty":0,"nm":"Gamma","mn":"ADBE Pro Levels2-0006","ix":6,"v":{"a":0,"k":1,"ix":6}},{"ty":0,"nm":"Output Black","mn":"ADBE Pro Levels2-0007","ix":7,"v":{"a":0,"k":0,"ix":7}},{"ty":0,"nm":"Output White","mn":"ADBE Pro Levels2-0008","ix":8,"v":{"a":0,"k":1,"ix":8}},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0009","ix":9,"v":0},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0010","ix":10,"v":0},{"ty":0,"nm":"Red Input Black","mn":"ADBE Pro Levels2-0011","ix":11,"v":{"a":0,"k":0,"ix":11}},{"ty":0,"nm":"Red Input White","mn":"ADBE Pro Levels2-0012","ix":12,"v":{"a":0,"k":1,"ix":12}},{"ty":0,"nm":"Red Gamma","mn":"ADBE Pro Levels2-0013","ix":13,"v":{"a":0,"k":1,"ix":13}},{"ty":0,"nm":"Red Output Black","mn":"ADBE Pro Levels2-0014","ix":14,"v":{"a":0,"k":0,"ix":14}},{"ty":0,"nm":"Red Output White","mn":"ADBE Pro Levels2-0015","ix":15,"v":{"a":0,"k":1,"ix":15}},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0016","ix":16,"v":0},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0017","ix":17,"v":0},{"ty":0,"nm":"Green Input Black","mn":"ADBE Pro Levels2-0018","ix":18,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[1]},{"t":600,"s":[0]}],"ix":18}},{"ty":0,"nm":"Green Input White","mn":"ADBE Pro Levels2-0019","ix":19,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0]},{"t":600,"s":[1]}],"ix":19}},{"ty":0,"nm":"Green Gamma","mn":"ADBE Pro Levels2-0020","ix":20,"v":{"a":0,"k":1,"ix":20}},{"ty":0,"nm":"Green Output Black","mn":"ADBE Pro Levels2-0021","ix":21,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.502]},{"t":600,"s":[0]}],"ix":21}},{"ty":0,"nm":"Green Output White","mn":"ADBE Pro Levels2-0022","ix":22,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.502]},{"t":600,"s":[1]}],"ix":22}},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0023","ix":23,"v":0},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0024","ix":24,"v":0},{"ty":0,"nm":"Blue Input Black","mn":"ADBE Pro Levels2-0025","ix":25,"v":{"a":0,"k":0,"ix":25}},{"ty":0,"nm":"Blue Input White","mn":"ADBE Pro Levels2-0026","ix":26,"v":{"a":0,"k":1,"ix":26}},{"ty":0,"nm":"Blue Gamma","mn":"ADBE Pro Levels2-0027","ix":27,"v":{"a":0,"k":1,"ix":27}},{"ty":0,"nm":"Blue Output Black","mn":"ADBE Pro Levels2-0028","ix":28,"v":{"a":0,"k":0,"ix":28}},{"ty":0,"nm":"Blue Output White","mn":"ADBE Pro Levels2-0029","ix":29,"v":{"a":0,"k":1,"ix":29}},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0030","ix":30,"v":0},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0031","ix":31,"v":0},{"ty":0,"nm":"Alpha Input Black","mn":"ADBE Pro Levels2-0032","ix":32,"v":{"a":0,"k":0,"ix":32}},{"ty":0,"nm":"Alpha Input White","mn":"ADBE Pro Levels2-0033","ix":33,"v":{"a":0,"k":1,"ix":33}},{"ty":0,"nm":"Alpha Gamma","mn":"ADBE Pro Levels2-0034","ix":34,"v":{"a":0,"k":1,"ix":34}},{"ty":0,"nm":"Alpha Output Black","mn":"ADBE Pro Levels2-0035","ix":35,"v":{"a":0,"k":0,"ix":35}},{"ty":0,"nm":"Alpha Output White","mn":"ADBE Pro Levels2-0036","ix":36,"v":{"a":0,"k":1,"ix":36}},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0037","ix":37,"v":0},{"ty":7,"nm":"Clip To Output Black","mn":"ADBE Pro Levels2-0038","ix":38,"v":{"a":0,"k":3,"ix":38}},{"ty":7,"nm":"Clip To Output White","mn":"ADBE Pro Levels2-0039","ix":39,"v":{"a":0,"k":3,"ix":39}}]}],"w":500,"h":500,"ip":0,"op":601,"st":0,"bm":0},{"ddd":0,"ind":6,"ty":0,"nm":"b","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[417,250,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[33,33,100],"ix":6}},"ao":0,"ef":[{"ty":24,"nm":"Levels (Individual Controls)","np":41,"mn":"ADBE Pro Levels2","ix":1,"en":1,"ef":[{"ty":7,"nm":"Channel:","mn":"ADBE Pro Levels2-0001","ix":1,"v":{"a":0,"k":1,"ix":1}},{},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0003","ix":3,"v":0},{"ty":0,"nm":"Input Black","mn":"ADBE Pro Levels2-0004","ix":4,"v":{"a":0,"k":0,"ix":4}},{"ty":0,"nm":"Input White","mn":"ADBE Pro Levels2-0005","ix":5,"v":{"a":0,"k":1,"ix":5}},{"ty":0,"nm":"Gamma","mn":"ADBE Pro Levels2-0006","ix":6,"v":{"a":0,"k":1,"ix":6}},{"ty":0,"nm":"Output Black","mn":"ADBE Pro Levels2-0007","ix":7,"v":{"a":0,"k":0,"ix":7}},{"ty":0,"nm":"Output White","mn":"ADBE Pro Levels2-0008","ix":8,"v":{"a":0,"k":1,"ix":8}},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0009","ix":9,"v":0},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0010","ix":10,"v":0},{"ty":0,"nm":"Red Input Black","mn":"ADBE Pro Levels2-0011","ix":11,"v":{"a":0,"k":0,"ix":11}},{"ty":0,"nm":"Red Input White","mn":"ADBE Pro Levels2-0012","ix":12,"v":{"a":0,"k":1,"ix":12}},{"ty":0,"nm":"Red Gamma","mn":"ADBE Pro Levels2-0013","ix":13,"v":{"a":0,"k":1,"ix":13}},{"ty":0,"nm":"Red Output Black","mn":"ADBE Pro Levels2-0014","ix":14,"v":{"a":0,"k":0,"ix":14}},{"ty":0,"nm":"Red Output White","mn":"ADBE Pro Levels2-0015","ix":15,"v":{"a":0,"k":1,"ix":15}},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0016","ix":16,"v":0},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0017","ix":17,"v":0},{"ty":0,"nm":"Green Input Black","mn":"ADBE Pro Levels2-0018","ix":18,"v":{"a":0,"k":0,"ix":18}},{"ty":0,"nm":"Green Input White","mn":"ADBE Pro Levels2-0019","ix":19,"v":{"a":0,"k":1,"ix":19}},{"ty":0,"nm":"Green Gamma","mn":"ADBE Pro Levels2-0020","ix":20,"v":{"a":0,"k":1,"ix":20}},{"ty":0,"nm":"Green Output Black","mn":"ADBE Pro Levels2-0021","ix":21,"v":{"a":0,"k":0,"ix":21}},{"ty":0,"nm":"Green Output White","mn":"ADBE Pro Levels2-0022","ix":22,"v":{"a":0,"k":1,"ix":22}},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0023","ix":23,"v":0},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0024","ix":24,"v":0},{"ty":0,"nm":"Blue Input Black","mn":"ADBE Pro Levels2-0025","ix":25,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[1]},{"t":600,"s":[0]}],"ix":25}},{"ty":0,"nm":"Blue Input White","mn":"ADBE Pro Levels2-0026","ix":26,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0]},{"t":600,"s":[1]}],"ix":26}},{"ty":0,"nm":"Blue Gamma","mn":"ADBE Pro Levels2-0027","ix":27,"v":{"a":0,"k":1,"ix":27}},{"ty":0,"nm":"Blue Output Black","mn":"ADBE Pro Levels2-0028","ix":28,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.502]},{"t":600,"s":[0]}],"ix":28}},{"ty":0,"nm":"Blue Output White","mn":"ADBE Pro Levels2-0029","ix":29,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.502]},{"t":600,"s":[1]}],"ix":29}},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0030","ix":30,"v":0},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0031","ix":31,"v":0},{"ty":0,"nm":"Alpha Input Black","mn":"ADBE Pro Levels2-0032","ix":32,"v":{"a":0,"k":0,"ix":32}},{"ty":0,"nm":"Alpha Input White","mn":"ADBE Pro Levels2-0033","ix":33,"v":{"a":0,"k":1,"ix":33}},{"ty":0,"nm":"Alpha Gamma","mn":"ADBE Pro Levels2-0034","ix":34,"v":{"a":0,"k":1,"ix":34}},{"ty":0,"nm":"Alpha Output Black","mn":"ADBE Pro Levels2-0035","ix":35,"v":{"a":0,"k":0,"ix":35}},{"ty":0,"nm":"Alpha Output White","mn":"ADBE Pro Levels2-0036","ix":36,"v":{"a":0,"k":1,"ix":36}},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0037","ix":37,"v":0},{"ty":7,"nm":"Clip To Output Black","mn":"ADBE Pro Levels2-0038","ix":38,"v":{"a":0,"k":3,"ix":38}},{"ty":7,"nm":"Clip To Output White","mn":"ADBE Pro Levels2-0039","ix":39,"v":{"a":0,"k":3,"ix":39}}]}],"w":500,"h":500,"ip":0,"op":601,"st":0,"bm":0},{"ddd":0,"ind":7,"ty":0,"nm":"a","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[83,417,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[33,33,100],"ix":6}},"ao":0,"ef":[{"ty":24,"nm":"Levels (Individual Controls)","np":41,"mn":"ADBE Pro Levels2","ix":1,"en":1,"ef":[{"ty":7,"nm":"Channel:","mn":"ADBE Pro Levels2-0001","ix":1,"v":{"a":0,"k":1,"ix":1}},{},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0003","ix":3,"v":0},{"ty":0,"nm":"Input Black","mn":"ADBE Pro Levels2-0004","ix":4,"v":{"a":0,"k":0,"ix":4}},{"ty":0,"nm":"Input White","mn":"ADBE Pro Levels2-0005","ix":5,"v":{"a":0,"k":1,"ix":5}},{"ty":0,"nm":"Gamma","mn":"ADBE Pro Levels2-0006","ix":6,"v":{"a":0,"k":1,"ix":6}},{"ty":0,"nm":"Output Black","mn":"ADBE Pro Levels2-0007","ix":7,"v":{"a":0,"k":0,"ix":7}},{"ty":0,"nm":"Output White","mn":"ADBE Pro Levels2-0008","ix":8,"v":{"a":0,"k":1,"ix":8}},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0009","ix":9,"v":0},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0010","ix":10,"v":0},{"ty":0,"nm":"Red Input Black","mn":"ADBE Pro Levels2-0011","ix":11,"v":{"a":0,"k":0,"ix":11}},{"ty":0,"nm":"Red Input White","mn":"ADBE Pro Levels2-0012","ix":12,"v":{"a":0,"k":1,"ix":12}},{"ty":0,"nm":"Red Gamma","mn":"ADBE Pro Levels2-0013","ix":13,"v":{"a":0,"k":1,"ix":13}},{"ty":0,"nm":"Red Output Black","mn":"ADBE Pro Levels2-0014","ix":14,"v":{"a":0,"k":0,"ix":14}},{"ty":0,"nm":"Red Output White","mn":"ADBE Pro Levels2-0015","ix":15,"v":{"a":0,"k":1,"ix":15}},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0016","ix":16,"v":0},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0017","ix":17,"v":0},{"ty":0,"nm":"Green Input Black","mn":"ADBE Pro Levels2-0018","ix":18,"v":{"a":0,"k":0,"ix":18}},{"ty":0,"nm":"Green Input White","mn":"ADBE Pro Levels2-0019","ix":19,"v":{"a":0,"k":1,"ix":19}},{"ty":0,"nm":"Green Gamma","mn":"ADBE Pro Levels2-0020","ix":20,"v":{"a":0,"k":1,"ix":20}},{"ty":0,"nm":"Green Output Black","mn":"ADBE Pro Levels2-0021","ix":21,"v":{"a":0,"k":0,"ix":21}},{"ty":0,"nm":"Green Output White","mn":"ADBE Pro Levels2-0022","ix":22,"v":{"a":0,"k":1,"ix":22}},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0023","ix":23,"v":0},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0024","ix":24,"v":0},{"ty":0,"nm":"Blue Input Black","mn":"ADBE Pro Levels2-0025","ix":25,"v":{"a":0,"k":0,"ix":25}},{"ty":0,"nm":"Blue Input White","mn":"ADBE Pro Levels2-0026","ix":26,"v":{"a":0,"k":1,"ix":26}},{"ty":0,"nm":"Blue Gamma","mn":"ADBE Pro Levels2-0027","ix":27,"v":{"a":0,"k":1,"ix":27}},{"ty":0,"nm":"Blue Output Black","mn":"ADBE Pro Levels2-0028","ix":28,"v":{"a":0,"k":0,"ix":28}},{"ty":0,"nm":"Blue Output White","mn":"ADBE Pro Levels2-0029","ix":29,"v":{"a":0,"k":1,"ix":29}},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0030","ix":30,"v":0},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0031","ix":31,"v":0},{"ty":0,"nm":"Alpha Input Black","mn":"ADBE Pro Levels2-0032","ix":32,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[1]},{"t":600,"s":[0]}],"ix":32}},{"ty":0,"nm":"Alpha Input White","mn":"ADBE Pro Levels2-0033","ix":33,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0]},{"t":600,"s":[1]}],"ix":33}},{"ty":0,"nm":"Alpha Gamma","mn":"ADBE Pro Levels2-0034","ix":34,"v":{"a":0,"k":1,"ix":34}},{"ty":0,"nm":"Alpha Output Black","mn":"ADBE Pro Levels2-0035","ix":35,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.502]},{"t":600,"s":[0]}],"ix":35}},{"ty":0,"nm":"Alpha Output White","mn":"ADBE Pro Levels2-0036","ix":36,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.502]},{"t":600,"s":[1]}],"ix":36}},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0037","ix":37,"v":0},{"ty":7,"nm":"Clip To Output Black","mn":"ADBE Pro Levels2-0038","ix":38,"v":{"a":0,"k":3,"ix":38}},{"ty":7,"nm":"Clip To Output White","mn":"ADBE Pro Levels2-0039","ix":39,"v":{"a":0,"k":3,"ix":39}}]}],"w":500,"h":500,"ip":0,"op":601,"st":0,"bm":0},{"ddd":0,"ind":8,"ty":0,"nm":"a/gamma","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[250,417,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[33,33,100],"ix":6}},"ao":0,"ef":[{"ty":24,"nm":"Levels (Individual Controls)","np":41,"mn":"ADBE Pro Levels2","ix":1,"en":1,"ef":[{"ty":7,"nm":"Channel:","mn":"ADBE Pro Levels2-0001","ix":1,"v":{"a":0,"k":1,"ix":1}},{},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0003","ix":3,"v":0},{"ty":0,"nm":"Input Black","mn":"ADBE Pro Levels2-0004","ix":4,"v":{"a":0,"k":0,"ix":4}},{"ty":0,"nm":"Input White","mn":"ADBE Pro Levels2-0005","ix":5,"v":{"a":0,"k":1,"ix":5}},{"ty":0,"nm":"Gamma","mn":"ADBE Pro Levels2-0006","ix":6,"v":{"a":0,"k":1,"ix":6}},{"ty":0,"nm":"Output Black","mn":"ADBE Pro Levels2-0007","ix":7,"v":{"a":0,"k":0,"ix":7}},{"ty":0,"nm":"Output White","mn":"ADBE Pro Levels2-0008","ix":8,"v":{"a":0,"k":1,"ix":8}},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0009","ix":9,"v":0},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0010","ix":10,"v":0},{"ty":0,"nm":"Red Input Black","mn":"ADBE Pro Levels2-0011","ix":11,"v":{"a":0,"k":0,"ix":11}},{"ty":0,"nm":"Red Input White","mn":"ADBE Pro Levels2-0012","ix":12,"v":{"a":0,"k":1,"ix":12}},{"ty":0,"nm":"Red Gamma","mn":"ADBE Pro Levels2-0013","ix":13,"v":{"a":0,"k":1,"ix":13}},{"ty":0,"nm":"Red Output Black","mn":"ADBE Pro Levels2-0014","ix":14,"v":{"a":0,"k":0,"ix":14}},{"ty":0,"nm":"Red Output White","mn":"ADBE Pro Levels2-0015","ix":15,"v":{"a":0,"k":1,"ix":15}},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0016","ix":16,"v":0},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0017","ix":17,"v":0},{"ty":0,"nm":"Green Input Black","mn":"ADBE Pro Levels2-0018","ix":18,"v":{"a":0,"k":0,"ix":18}},{"ty":0,"nm":"Green Input White","mn":"ADBE Pro Levels2-0019","ix":19,"v":{"a":0,"k":1,"ix":19}},{"ty":0,"nm":"Green Gamma","mn":"ADBE Pro Levels2-0020","ix":20,"v":{"a":0,"k":1,"ix":20}},{"ty":0,"nm":"Green Output Black","mn":"ADBE Pro Levels2-0021","ix":21,"v":{"a":0,"k":0,"ix":21}},{"ty":0,"nm":"Green Output White","mn":"ADBE Pro Levels2-0022","ix":22,"v":{"a":0,"k":1,"ix":22}},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0023","ix":23,"v":0},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0024","ix":24,"v":0},{"ty":0,"nm":"Blue Input Black","mn":"ADBE Pro Levels2-0025","ix":25,"v":{"a":0,"k":0,"ix":25}},{"ty":0,"nm":"Blue Input White","mn":"ADBE Pro Levels2-0026","ix":26,"v":{"a":0,"k":1,"ix":26}},{"ty":0,"nm":"Blue Gamma","mn":"ADBE Pro Levels2-0027","ix":27,"v":{"a":0,"k":1,"ix":27}},{"ty":0,"nm":"Blue Output Black","mn":"ADBE Pro Levels2-0028","ix":28,"v":{"a":0,"k":0,"ix":28}},{"ty":0,"nm":"Blue Output White","mn":"ADBE Pro Levels2-0029","ix":29,"v":{"a":0,"k":1,"ix":29}},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0030","ix":30,"v":0},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0031","ix":31,"v":0},{"ty":0,"nm":"Alpha Input Black","mn":"ADBE Pro Levels2-0032","ix":32,"v":{"a":0,"k":0,"ix":32}},{"ty":0,"nm":"Alpha Input White","mn":"ADBE Pro Levels2-0033","ix":33,"v":{"a":0,"k":1,"ix":33}},{"ty":0,"nm":"Alpha Gamma","mn":"ADBE Pro Levels2-0034","ix":34,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[1.5]},{"t":600,"s":[0]}],"ix":34}},{"ty":0,"nm":"Alpha Output Black","mn":"ADBE Pro Levels2-0035","ix":35,"v":{"a":0,"k":0,"ix":35}},{"ty":0,"nm":"Alpha Output White","mn":"ADBE Pro Levels2-0036","ix":36,"v":{"a":0,"k":1,"ix":36}},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0037","ix":37,"v":0},{"ty":7,"nm":"Clip To Output Black","mn":"ADBE Pro Levels2-0038","ix":38,"v":{"a":0,"k":3,"ix":38}},{"ty":7,"nm":"Clip To Output White","mn":"ADBE Pro Levels2-0039","ix":39,"v":{"a":0,"k":3,"ix":39}}]}],"w":500,"h":500,"ip":0,"op":601,"st":0,"bm":0},{"ddd":0,"ind":9,"ty":0,"nm":"chaos","refId":"comp_0","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[417,417,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[33,33,100],"ix":6}},"ao":0,"ef":[{"ty":24,"nm":"Levels (Individual Controls)","np":41,"mn":"ADBE Pro Levels2","ix":1,"en":1,"ef":[{"ty":7,"nm":"Channel:","mn":"ADBE Pro Levels2-0001","ix":1,"v":{"a":0,"k":1,"ix":1}},{},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0003","ix":3,"v":0},{"ty":0,"nm":"Input Black","mn":"ADBE Pro Levels2-0004","ix":4,"v":{"a":0,"k":-0.251,"ix":4}},{"ty":0,"nm":"Input White","mn":"ADBE Pro Levels2-0005","ix":5,"v":{"a":0,"k":0.753,"ix":5}},{"ty":0,"nm":"Gamma","mn":"ADBE Pro Levels2-0006","ix":6,"v":{"a":0,"k":0.44,"ix":6}},{"ty":0,"nm":"Output Black","mn":"ADBE Pro Levels2-0007","ix":7,"v":{"a":0,"k":0.23,"ix":7}},{"ty":0,"nm":"Output White","mn":"ADBE Pro Levels2-0008","ix":8,"v":{"a":0,"k":1,"ix":8}},{"ty":6,"nm":"RGB","mn":"ADBE Pro Levels2-0009","ix":9,"v":0},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0010","ix":10,"v":0},{"ty":0,"nm":"Red Input Black","mn":"ADBE Pro Levels2-0011","ix":11,"v":{"a":0,"k":0,"ix":11}},{"ty":0,"nm":"Red Input White","mn":"ADBE Pro Levels2-0012","ix":12,"v":{"a":0,"k":1,"ix":12}},{"ty":0,"nm":"Red Gamma","mn":"ADBE Pro Levels2-0013","ix":13,"v":{"a":0,"k":1,"ix":13}},{"ty":0,"nm":"Red Output Black","mn":"ADBE Pro Levels2-0014","ix":14,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":301,"s":[2.008]},{"t":600,"s":[0]}],"ix":14}},{"ty":0,"nm":"Red Output White","mn":"ADBE Pro Levels2-0015","ix":15,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":301,"s":[-1]},{"t":600,"s":[1]}],"ix":15}},{"ty":6,"nm":"Red","mn":"ADBE Pro Levels2-0016","ix":16,"v":0},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0017","ix":17,"v":0},{"ty":0,"nm":"Green Input Black","mn":"ADBE Pro Levels2-0018","ix":18,"v":{"a":0,"k":0,"ix":18}},{"ty":0,"nm":"Green Input White","mn":"ADBE Pro Levels2-0019","ix":19,"v":{"a":0,"k":1,"ix":19}},{"ty":0,"nm":"Green Gamma","mn":"ADBE Pro Levels2-0020","ix":20,"v":{"a":0,"k":1,"ix":20}},{"ty":0,"nm":"Green Output Black","mn":"ADBE Pro Levels2-0021","ix":21,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":301,"s":[0.753]},{"t":600,"s":[0]}],"ix":21}},{"ty":0,"nm":"Green Output White","mn":"ADBE Pro Levels2-0022","ix":22,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":301,"s":[0.753]},{"t":600,"s":[1]}],"ix":22}},{"ty":6,"nm":"Green","mn":"ADBE Pro Levels2-0023","ix":23,"v":0},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0024","ix":24,"v":0},{"ty":0,"nm":"Blue Input Black","mn":"ADBE Pro Levels2-0025","ix":25,"v":{"a":0,"k":0,"ix":25}},{"ty":0,"nm":"Blue Input White","mn":"ADBE Pro Levels2-0026","ix":26,"v":{"a":0,"k":1,"ix":26}},{"ty":0,"nm":"Blue Gamma","mn":"ADBE Pro Levels2-0027","ix":27,"v":{"a":0,"k":1,"ix":27}},{"ty":0,"nm":"Blue Output Black","mn":"ADBE Pro Levels2-0028","ix":28,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[0]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.251]},{"t":600,"s":[0]}],"ix":28}},{"ty":0,"nm":"Blue Output White","mn":"ADBE Pro Levels2-0029","ix":29,"v":{"a":1,"k":[{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":0,"s":[1]},{"i":{"x":[0.833],"y":[0.833]},"o":{"x":[0.167],"y":[0.167]},"t":300,"s":[0.251]},{"t":600,"s":[1]}],"ix":29}},{"ty":6,"nm":"Blue","mn":"ADBE Pro Levels2-0030","ix":30,"v":0},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0031","ix":31,"v":0},{"ty":0,"nm":"Alpha Input Black","mn":"ADBE Pro Levels2-0032","ix":32,"v":{"a":0,"k":0,"ix":32}},{"ty":0,"nm":"Alpha Input White","mn":"ADBE Pro Levels2-0033","ix":33,"v":{"a":0,"k":1,"ix":33}},{"ty":0,"nm":"Alpha Gamma","mn":"ADBE Pro Levels2-0034","ix":34,"v":{"a":0,"k":3,"ix":34}},{"ty":0,"nm":"Alpha Output Black","mn":"ADBE Pro Levels2-0035","ix":35,"v":{"a":0,"k":0,"ix":35}},{"ty":0,"nm":"Alpha Output White","mn":"ADBE Pro Levels2-0036","ix":36,"v":{"a":0,"k":1,"ix":36}},{"ty":6,"nm":"Alpha","mn":"ADBE Pro Levels2-0037","ix":37,"v":0},{"ty":7,"nm":"Clip To Output Black","mn":"ADBE Pro Levels2-0038","ix":38,"v":{"a":0,"k":3,"ix":38}},{"ty":7,"nm":"Clip To Output White","mn":"ADBE Pro Levels2-0039","ix":39,"v":{"a":0,"k":3,"ix":39}}]}],"w":500,"h":500,"ip":0,"op":601,"st":0,"bm":0},{"ddd":0,"ind":10,"ty":1,"nm":"White Solid 2","sr":1,"ks":{"o":{"a":0,"k":100,"ix":11},"r":{"a":0,"k":0,"ix":10},"p":{"a":0,"k":[250,250,0],"ix":2},"a":{"a":0,"k":[250,250,0],"ix":1},"s":{"a":0,"k":[100,100,100],"ix":6}},"ao":0,"sw":500,"sh":500,"sc":"#ffffff","ip":0,"op":601,"st":0,"bm":0}],"markers":[]}
+{
+  "v": "5.6.3",
+  "fr": 60,
+  "ip": 0,
+  "op": 601,
+  "w": 500,
+  "h": 500,
+  "nm": "prolevels",
+  "ddd": 0,
+  "assets": [
+    {
+      "id": "comp_0",
+      "layers": [
+        {
+          "ddd": 0,
+          "ind": 1,
+          "ty": 4,
+          "nm": "Shape Layer 1",
+          "sr": 1,
+          "ks": {
+            "o": { "a": 0, "k": 100, "ix": 11 },
+            "r": { "a": 0, "k": 0, "ix": 10 },
+            "p": { "a": 0, "k": [250, 250, 0], "ix": 2 },
+            "a": { "a": 0, "k": [0, 0, 0], "ix": 1 },
+            "s": { "a": 0, "k": [100, 100, 100], "ix": 6 }
+          },
+          "ao": 0,
+          "shapes": [
+            {
+              "ty": "gr",
+              "it": [
+                {
+                  "d": 1,
+                  "ty": "el",
+                  "s": { "a": 0, "k": [200, 200], "ix": 2 },
+                  "p": { "a": 0, "k": [100, 0], "ix": 3 },
+                  "nm": "Ellipse Path 1",
+                  "mn": "ADBE Vector Shape - Ellipse",
+                  "hd": false
+                },
+                {
+                  "ty": "fl",
+                  "c": { "a": 0, "k": [0, 1, 0.250980407, 1], "ix": 4 },
+                  "o": { "a": 0, "k": 75, "ix": 5 },
+                  "r": 1,
+                  "bm": 0,
+                  "nm": "Fill 1",
+                  "mn": "ADBE Vector Graphic - Fill",
+                  "hd": false
+                },
+                {
+                  "ty": "tr",
+                  "p": { "a": 0, "k": [0, 0], "ix": 2 },
+                  "a": { "a": 0, "k": [0, 0], "ix": 1 },
+                  "s": { "a": 0, "k": [100, 100], "ix": 3 },
+                  "r": {
+                    "a": 1,
+                    "k": [
+                      {
+                        "i": { "x": [0.833], "y": [0.833] },
+                        "o": { "x": [0.167], "y": [0.167] },
+                        "t": 0,
+                        "s": [0]
+                      },
+                      { "t": 600, "s": [360] }
+                    ],
+                    "ix": 6
+                  },
+                  "o": { "a": 0, "k": 100, "ix": 7 },
+                  "sk": { "a": 0, "k": 0, "ix": 4 },
+                  "sa": { "a": 0, "k": 0, "ix": 5 },
+                  "nm": "Transform"
+                }
+              ],
+              "nm": "Group 3",
+              "np": 2,
+              "cix": 2,
+              "bm": 0,
+              "ix": 1,
+              "mn": "ADBE Vector Group",
+              "hd": false
+            },
+            {
+              "ty": "gr",
+              "it": [
+                {
+                  "ty": "sr",
+                  "sy": 1,
+                  "d": 1,
+                  "pt": { "a": 0, "k": 5, "ix": 3 },
+                  "p": { "a": 0, "k": [0, 0], "ix": 4 },
+                  "r": { "a": 0, "k": 0, "ix": 5 },
+                  "ir": { "a": 0, "k": 50, "ix": 6 },
+                  "is": { "a": 0, "k": 0, "ix": 8 },
+                  "or": { "a": 0, "k": 162, "ix": 7 },
+                  "os": { "a": 0, "k": 0, "ix": 9 },
+                  "ix": 1,
+                  "nm": "Polystar Path 1",
+                  "mn": "ADBE Vector Shape - Star",
+                  "hd": false
+                },
+                {
+                  "ty": "fl",
+                  "c": { "a": 0, "k": [1, 0.250980407, 0, 1], "ix": 4 },
+                  "o": { "a": 0, "k": 75, "ix": 5 },
+                  "r": 1,
+                  "bm": 0,
+                  "nm": "Fill 1",
+                  "mn": "ADBE Vector Graphic - Fill",
+                  "hd": false
+                },
+                {
+                  "ty": "tr",
+                  "p": { "a": 0, "k": [0, 0], "ix": 2 },
+                  "a": { "a": 0, "k": [0, 0], "ix": 1 },
+                  "s": { "a": 0, "k": [100, 100], "ix": 3 },
+                  "r": {
+                    "a": 1,
+                    "k": [
+                      {
+                        "i": { "x": [0.833], "y": [0.833] },
+                        "o": { "x": [0.167], "y": [0.167] },
+                        "t": 0,
+                        "s": [0]
+                      },
+                      { "t": 600, "s": [720] }
+                    ],
+                    "ix": 6
+                  },
+                  "o": { "a": 0, "k": 100, "ix": 7 },
+                  "sk": { "a": 0, "k": 0, "ix": 4 },
+                  "sa": { "a": 0, "k": 0, "ix": 5 },
+                  "nm": "Transform"
+                }
+              ],
+              "nm": "Group 1",
+              "np": 2,
+              "cix": 2,
+              "bm": 0,
+              "ix": 2,
+              "mn": "ADBE Vector Group",
+              "hd": false
+            },
+            {
+              "ty": "gr",
+              "it": [
+                {
+                  "ty": "rc",
+                  "d": 1,
+                  "s": { "a": 0, "k": [175, 175], "ix": 2 },
+                  "p": { "a": 0, "k": [-90, 0], "ix": 3 },
+                  "r": { "a": 0, "k": 0, "ix": 4 },
+                  "nm": "Rectangle Path 1",
+                  "mn": "ADBE Vector Shape - Rect",
+                  "hd": false
+                },
+                {
+                  "ty": "fl",
+                  "c": { "a": 0, "k": [0.250980407, 0, 1, 1], "ix": 4 },
+                  "o": { "a": 0, "k": 75, "ix": 5 },
+                  "r": 1,
+                  "bm": 0,
+                  "nm": "Fill 1",
+                  "mn": "ADBE Vector Graphic - Fill",
+                  "hd": false
+                },
+                {
+                  "ty": "tr",
+                  "p": { "a": 0, "k": [0, 0], "ix": 2 },
+                  "a": { "a": 0, "k": [0, 0], "ix": 1 },
+                  "s": { "a": 0, "k": [100, 100], "ix": 3 },
+                  "r": {
+                    "a": 1,
+                    "k": [
+                      {
+                        "i": { "x": [0.833], "y": [0.833] },
+                        "o": { "x": [0.167], "y": [0.167] },
+                        "t": 0,
+                        "s": [0]
+                      },
+                      { "t": 600, "s": [-360] }
+                    ],
+                    "ix": 6
+                  },
+                  "o": { "a": 0, "k": 100, "ix": 7 },
+                  "sk": { "a": 0, "k": 0, "ix": 4 },
+                  "sa": { "a": 0, "k": 0, "ix": 5 },
+                  "nm": "Transform"
+                }
+              ],
+              "nm": "Group 2",
+              "np": 2,
+              "cix": 2,
+              "bm": 0,
+              "ix": 3,
+              "mn": "ADBE Vector Group",
+              "hd": false
+            }
+          ],
+          "ip": 0,
+          "op": 601,
+          "st": 0,
+          "bm": 0
+        }
+      ]
+    }
+  ],
+  "layers": [
+    {
+      "ddd": 0,
+      "ind": 1,
+      "ty": 0,
+      "nm": "rgb w/ invert",
+      "refId": "comp_0",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [83, 83, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [33, 33, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "ef": [
+        {
+          "ty": 24,
+          "nm": "Levels (Individual Controls)",
+          "np": 41,
+          "mn": "ADBE Pro Levels2",
+          "ix": 1,
+          "en": 1,
+          "ef": [
+            {
+              "ty": 7,
+              "nm": "Channel:",
+              "mn": "ADBE Pro Levels2-0001",
+              "ix": 1,
+              "v": { "a": 0, "k": 1, "ix": 1 }
+            },
+            {},
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0003",
+              "ix": 3,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Input Black",
+              "mn": "ADBE Pro Levels2-0004",
+              "ix": 4,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [-1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [2.008]
+                  },
+                  { "t": 600, "s": [-1] }
+                ],
+                "ix": 4
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Input White",
+              "mn": "ADBE Pro Levels2-0005",
+              "ix": 5,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [2.008]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [-1]
+                  },
+                  { "t": 600, "s": [2.008] }
+                ],
+                "ix": 5
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Gamma",
+              "mn": "ADBE Pro Levels2-0006",
+              "ix": 6,
+              "v": { "a": 0, "k": 1, "ix": 6 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output Black",
+              "mn": "ADBE Pro Levels2-0007",
+              "ix": 7,
+              "v": { "a": 0, "k": 0, "ix": 7 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output White",
+              "mn": "ADBE Pro Levels2-0008",
+              "ix": 8,
+              "v": { "a": 0, "k": 1, "ix": 8 }
+            },
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0009",
+              "ix": 9,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0010",
+              "ix": 10,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input Black",
+              "mn": "ADBE Pro Levels2-0011",
+              "ix": 11,
+              "v": { "a": 0, "k": 0, "ix": 11 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input White",
+              "mn": "ADBE Pro Levels2-0012",
+              "ix": 12,
+              "v": { "a": 0, "k": 1, "ix": 12 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Gamma",
+              "mn": "ADBE Pro Levels2-0013",
+              "ix": 13,
+              "v": { "a": 0, "k": 1, "ix": 13 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output Black",
+              "mn": "ADBE Pro Levels2-0014",
+              "ix": 14,
+              "v": { "a": 0, "k": 0, "ix": 14 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output White",
+              "mn": "ADBE Pro Levels2-0015",
+              "ix": 15,
+              "v": { "a": 0, "k": 1, "ix": 15 }
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0016",
+              "ix": 16,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0017",
+              "ix": 17,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input Black",
+              "mn": "ADBE Pro Levels2-0018",
+              "ix": 18,
+              "v": { "a": 0, "k": 0, "ix": 18 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input White",
+              "mn": "ADBE Pro Levels2-0019",
+              "ix": 19,
+              "v": { "a": 0, "k": 1, "ix": 19 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Gamma",
+              "mn": "ADBE Pro Levels2-0020",
+              "ix": 20,
+              "v": { "a": 0, "k": 1, "ix": 20 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output Black",
+              "mn": "ADBE Pro Levels2-0021",
+              "ix": 21,
+              "v": { "a": 0, "k": 0, "ix": 21 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output White",
+              "mn": "ADBE Pro Levels2-0022",
+              "ix": 22,
+              "v": { "a": 0, "k": 1, "ix": 22 }
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0023",
+              "ix": 23,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0024",
+              "ix": 24,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input Black",
+              "mn": "ADBE Pro Levels2-0025",
+              "ix": 25,
+              "v": { "a": 0, "k": 0, "ix": 25 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input White",
+              "mn": "ADBE Pro Levels2-0026",
+              "ix": 26,
+              "v": { "a": 0, "k": 1, "ix": 26 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Gamma",
+              "mn": "ADBE Pro Levels2-0027",
+              "ix": 27,
+              "v": { "a": 0, "k": 1, "ix": 27 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output Black",
+              "mn": "ADBE Pro Levels2-0028",
+              "ix": 28,
+              "v": { "a": 0, "k": 0, "ix": 28 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output White",
+              "mn": "ADBE Pro Levels2-0029",
+              "ix": 29,
+              "v": { "a": 0, "k": 1, "ix": 29 }
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0030",
+              "ix": 30,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0031",
+              "ix": 31,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input Black",
+              "mn": "ADBE Pro Levels2-0032",
+              "ix": 32,
+              "v": { "a": 0, "k": 0, "ix": 32 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input White",
+              "mn": "ADBE Pro Levels2-0033",
+              "ix": 33,
+              "v": { "a": 0, "k": 1, "ix": 33 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Gamma",
+              "mn": "ADBE Pro Levels2-0034",
+              "ix": 34,
+              "v": { "a": 0, "k": 1, "ix": 34 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output Black",
+              "mn": "ADBE Pro Levels2-0035",
+              "ix": 35,
+              "v": { "a": 0, "k": 0, "ix": 35 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output White",
+              "mn": "ADBE Pro Levels2-0036",
+              "ix": 36,
+              "v": { "a": 0, "k": 1, "ix": 36 }
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0037",
+              "ix": 37,
+              "v": 0
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output Black",
+              "mn": "ADBE Pro Levels2-0038",
+              "ix": 38,
+              "v": { "a": 0, "k": 3, "ix": 38 }
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output White",
+              "mn": "ADBE Pro Levels2-0039",
+              "ix": 39,
+              "v": { "a": 0, "k": 3, "ix": 39 }
+            }
+          ]
+        }
+      ],
+      "w": 500,
+      "h": 500,
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 2,
+      "ty": 0,
+      "nm": "rgb + compose",
+      "refId": "comp_0",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [250, 83, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [33, 33, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "ef": [
+        {
+          "ty": 24,
+          "nm": "Levels (Individual Controls)",
+          "np": 41,
+          "mn": "ADBE Pro Levels2",
+          "ix": 1,
+          "en": 1,
+          "ef": [
+            {
+              "ty": 7,
+              "nm": "Channel:",
+              "mn": "ADBE Pro Levels2-0001",
+              "ix": 1,
+              "v": { "a": 0, "k": 1, "ix": 1 }
+            },
+            {},
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0003",
+              "ix": 3,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Input Black",
+              "mn": "ADBE Pro Levels2-0004",
+              "ix": 4,
+              "v": { "a": 0, "k": 0, "ix": 4 }
+            },
+            {
+              "ty": 0,
+              "nm": "Input White",
+              "mn": "ADBE Pro Levels2-0005",
+              "ix": 5,
+              "v": { "a": 0, "k": 0.502, "ix": 5 }
+            },
+            {
+              "ty": 0,
+              "nm": "Gamma",
+              "mn": "ADBE Pro Levels2-0006",
+              "ix": 6,
+              "v": { "a": 0, "k": 1, "ix": 6 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output Black",
+              "mn": "ADBE Pro Levels2-0007",
+              "ix": 7,
+              "v": { "a": 0, "k": 0, "ix": 7 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output White",
+              "mn": "ADBE Pro Levels2-0008",
+              "ix": 8,
+              "v": { "a": 0, "k": 1, "ix": 8 }
+            },
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0009",
+              "ix": 9,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0010",
+              "ix": 10,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input Black",
+              "mn": "ADBE Pro Levels2-0011",
+              "ix": 11,
+              "v": { "a": 0, "k": 0, "ix": 11 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input White",
+              "mn": "ADBE Pro Levels2-0012",
+              "ix": 12,
+              "v": { "a": 0, "k": 1, "ix": 12 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Gamma",
+              "mn": "ADBE Pro Levels2-0013",
+              "ix": 13,
+              "v": { "a": 0, "k": 1, "ix": 13 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output Black",
+              "mn": "ADBE Pro Levels2-0014",
+              "ix": 14,
+              "v": { "a": 0, "k": 0, "ix": 14 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output White",
+              "mn": "ADBE Pro Levels2-0015",
+              "ix": 15,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0.502]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0]
+                  },
+                  { "t": 600, "s": [0.502] }
+                ],
+                "ix": 15
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0016",
+              "ix": 16,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0017",
+              "ix": 17,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input Black",
+              "mn": "ADBE Pro Levels2-0018",
+              "ix": 18,
+              "v": { "a": 0, "k": 0, "ix": 18 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input White",
+              "mn": "ADBE Pro Levels2-0019",
+              "ix": 19,
+              "v": { "a": 0, "k": 1, "ix": 19 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Gamma",
+              "mn": "ADBE Pro Levels2-0020",
+              "ix": 20,
+              "v": { "a": 0, "k": 1, "ix": 20 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output Black",
+              "mn": "ADBE Pro Levels2-0021",
+              "ix": 21,
+              "v": { "a": 0, "k": 0, "ix": 21 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output White",
+              "mn": "ADBE Pro Levels2-0022",
+              "ix": 22,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 150,
+                    "s": [0]
+                  },
+                  { "t": 300, "s": [1] }
+                ],
+                "ix": 22
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0023",
+              "ix": 23,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0024",
+              "ix": 24,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input Black",
+              "mn": "ADBE Pro Levels2-0025",
+              "ix": 25,
+              "v": { "a": 0, "k": 0, "ix": 25 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input White",
+              "mn": "ADBE Pro Levels2-0026",
+              "ix": 26,
+              "v": { "a": 0, "k": 1, "ix": 26 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Gamma",
+              "mn": "ADBE Pro Levels2-0027",
+              "ix": 27,
+              "v": { "a": 0, "k": 1, "ix": 27 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output Black",
+              "mn": "ADBE Pro Levels2-0028",
+              "ix": 28,
+              "v": { "a": 0, "k": 0, "ix": 28 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output White",
+              "mn": "ADBE Pro Levels2-0029",
+              "ix": 29,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 450,
+                    "s": [0]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 29
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0030",
+              "ix": 30,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0031",
+              "ix": 31,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input Black",
+              "mn": "ADBE Pro Levels2-0032",
+              "ix": 32,
+              "v": { "a": 0, "k": 0, "ix": 32 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input White",
+              "mn": "ADBE Pro Levels2-0033",
+              "ix": 33,
+              "v": { "a": 0, "k": 1, "ix": 33 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Gamma",
+              "mn": "ADBE Pro Levels2-0034",
+              "ix": 34,
+              "v": { "a": 0, "k": 1, "ix": 34 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output Black",
+              "mn": "ADBE Pro Levels2-0035",
+              "ix": 35,
+              "v": { "a": 0, "k": 0, "ix": 35 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output White",
+              "mn": "ADBE Pro Levels2-0036",
+              "ix": 36,
+              "v": { "a": 0, "k": 1, "ix": 36 }
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0037",
+              "ix": 37,
+              "v": 0
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output Black",
+              "mn": "ADBE Pro Levels2-0038",
+              "ix": 38,
+              "v": { "a": 0, "k": 3, "ix": 38 }
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output White",
+              "mn": "ADBE Pro Levels2-0039",
+              "ix": 39,
+              "v": { "a": 0, "k": 3, "ix": 39 }
+            }
+          ]
+        }
+      ],
+      "w": 500,
+      "h": 500,
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 3,
+      "ty": 0,
+      "nm": "gamma + compose",
+      "refId": "comp_0",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [417, 83, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [33, 33, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "ef": [
+        {
+          "ty": 24,
+          "nm": "Levels (Individual Controls)",
+          "np": 41,
+          "mn": "ADBE Pro Levels2",
+          "ix": 1,
+          "en": 1,
+          "ef": [
+            {
+              "ty": 7,
+              "nm": "Channel:",
+              "mn": "ADBE Pro Levels2-0001",
+              "ix": 1,
+              "v": { "a": 0, "k": 1, "ix": 1 }
+            },
+            {},
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0003",
+              "ix": 3,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Input Black",
+              "mn": "ADBE Pro Levels2-0004",
+              "ix": 4,
+              "v": { "a": 0, "k": 0, "ix": 4 }
+            },
+            {
+              "ty": 0,
+              "nm": "Input White",
+              "mn": "ADBE Pro Levels2-0005",
+              "ix": 5,
+              "v": { "a": 0, "k": 1, "ix": 5 }
+            },
+            {
+              "ty": 0,
+              "nm": "Gamma",
+              "mn": "ADBE Pro Levels2-0006",
+              "ix": 6,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [3]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 6
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Output Black",
+              "mn": "ADBE Pro Levels2-0007",
+              "ix": 7,
+              "v": { "a": 0, "k": 0, "ix": 7 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output White",
+              "mn": "ADBE Pro Levels2-0008",
+              "ix": 8,
+              "v": { "a": 0, "k": 1, "ix": 8 }
+            },
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0009",
+              "ix": 9,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0010",
+              "ix": 10,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input Black",
+              "mn": "ADBE Pro Levels2-0011",
+              "ix": 11,
+              "v": { "a": 0, "k": 0, "ix": 11 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input White",
+              "mn": "ADBE Pro Levels2-0012",
+              "ix": 12,
+              "v": { "a": 0, "k": 1, "ix": 12 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Gamma",
+              "mn": "ADBE Pro Levels2-0013",
+              "ix": 13,
+              "v": { "a": 0, "k": 3, "ix": 13 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output Black",
+              "mn": "ADBE Pro Levels2-0014",
+              "ix": 14,
+              "v": { "a": 0, "k": 0, "ix": 14 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output White",
+              "mn": "ADBE Pro Levels2-0015",
+              "ix": 15,
+              "v": { "a": 0, "k": 1, "ix": 15 }
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0016",
+              "ix": 16,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0017",
+              "ix": 17,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input Black",
+              "mn": "ADBE Pro Levels2-0018",
+              "ix": 18,
+              "v": { "a": 0, "k": 0, "ix": 18 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input White",
+              "mn": "ADBE Pro Levels2-0019",
+              "ix": 19,
+              "v": { "a": 0, "k": 1, "ix": 19 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Gamma",
+              "mn": "ADBE Pro Levels2-0020",
+              "ix": 20,
+              "v": { "a": 0, "k": 0.5, "ix": 20 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output Black",
+              "mn": "ADBE Pro Levels2-0021",
+              "ix": 21,
+              "v": { "a": 0, "k": 0, "ix": 21 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output White",
+              "mn": "ADBE Pro Levels2-0022",
+              "ix": 22,
+              "v": { "a": 0, "k": 1, "ix": 22 }
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0023",
+              "ix": 23,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0024",
+              "ix": 24,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input Black",
+              "mn": "ADBE Pro Levels2-0025",
+              "ix": 25,
+              "v": { "a": 0, "k": 0, "ix": 25 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input White",
+              "mn": "ADBE Pro Levels2-0026",
+              "ix": 26,
+              "v": { "a": 0, "k": 1, "ix": 26 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Gamma",
+              "mn": "ADBE Pro Levels2-0027",
+              "ix": 27,
+              "v": { "a": 0, "k": 1.5, "ix": 27 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output Black",
+              "mn": "ADBE Pro Levels2-0028",
+              "ix": 28,
+              "v": { "a": 0, "k": 0, "ix": 28 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output White",
+              "mn": "ADBE Pro Levels2-0029",
+              "ix": 29,
+              "v": { "a": 0, "k": 1, "ix": 29 }
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0030",
+              "ix": 30,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0031",
+              "ix": 31,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input Black",
+              "mn": "ADBE Pro Levels2-0032",
+              "ix": 32,
+              "v": { "a": 0, "k": 0, "ix": 32 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input White",
+              "mn": "ADBE Pro Levels2-0033",
+              "ix": 33,
+              "v": { "a": 0, "k": 1, "ix": 33 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Gamma",
+              "mn": "ADBE Pro Levels2-0034",
+              "ix": 34,
+              "v": { "a": 0, "k": 1, "ix": 34 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output Black",
+              "mn": "ADBE Pro Levels2-0035",
+              "ix": 35,
+              "v": { "a": 0, "k": 0, "ix": 35 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output White",
+              "mn": "ADBE Pro Levels2-0036",
+              "ix": 36,
+              "v": { "a": 0, "k": 1, "ix": 36 }
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0037",
+              "ix": 37,
+              "v": 0
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output Black",
+              "mn": "ADBE Pro Levels2-0038",
+              "ix": 38,
+              "v": { "a": 0, "k": 3, "ix": 38 }
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output White",
+              "mn": "ADBE Pro Levels2-0039",
+              "ix": 39,
+              "v": { "a": 0, "k": 3, "ix": 39 }
+            }
+          ]
+        }
+      ],
+      "w": 500,
+      "h": 500,
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 4,
+      "ty": 0,
+      "nm": "r",
+      "refId": "comp_0",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [83, 250, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [33, 33, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "ef": [
+        {
+          "ty": 24,
+          "nm": "Levels (Individual Controls)",
+          "np": 41,
+          "mn": "ADBE Pro Levels2",
+          "ix": 1,
+          "en": 1,
+          "ef": [
+            {
+              "ty": 7,
+              "nm": "Channel:",
+              "mn": "ADBE Pro Levels2-0001",
+              "ix": 1,
+              "v": { "a": 0, "k": 1, "ix": 1 }
+            },
+            {},
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0003",
+              "ix": 3,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Input Black",
+              "mn": "ADBE Pro Levels2-0004",
+              "ix": 4,
+              "v": { "a": 0, "k": 0, "ix": 4 }
+            },
+            {
+              "ty": 0,
+              "nm": "Input White",
+              "mn": "ADBE Pro Levels2-0005",
+              "ix": 5,
+              "v": { "a": 0, "k": 1, "ix": 5 }
+            },
+            {
+              "ty": 0,
+              "nm": "Gamma",
+              "mn": "ADBE Pro Levels2-0006",
+              "ix": 6,
+              "v": { "a": 0, "k": 1, "ix": 6 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output Black",
+              "mn": "ADBE Pro Levels2-0007",
+              "ix": 7,
+              "v": { "a": 0, "k": 0, "ix": 7 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output White",
+              "mn": "ADBE Pro Levels2-0008",
+              "ix": 8,
+              "v": { "a": 0, "k": 1, "ix": 8 }
+            },
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0009",
+              "ix": 9,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0010",
+              "ix": 10,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input Black",
+              "mn": "ADBE Pro Levels2-0011",
+              "ix": 11,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [1]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 11
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input White",
+              "mn": "ADBE Pro Levels2-0012",
+              "ix": 12,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 12
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Gamma",
+              "mn": "ADBE Pro Levels2-0013",
+              "ix": 13,
+              "v": { "a": 0, "k": 1, "ix": 13 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output Black",
+              "mn": "ADBE Pro Levels2-0014",
+              "ix": 14,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.502]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 14
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output White",
+              "mn": "ADBE Pro Levels2-0015",
+              "ix": 15,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.502]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 15
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0016",
+              "ix": 16,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0017",
+              "ix": 17,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input Black",
+              "mn": "ADBE Pro Levels2-0018",
+              "ix": 18,
+              "v": { "a": 0, "k": 0, "ix": 18 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input White",
+              "mn": "ADBE Pro Levels2-0019",
+              "ix": 19,
+              "v": { "a": 0, "k": 1, "ix": 19 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Gamma",
+              "mn": "ADBE Pro Levels2-0020",
+              "ix": 20,
+              "v": { "a": 0, "k": 1, "ix": 20 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output Black",
+              "mn": "ADBE Pro Levels2-0021",
+              "ix": 21,
+              "v": { "a": 0, "k": 0, "ix": 21 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output White",
+              "mn": "ADBE Pro Levels2-0022",
+              "ix": 22,
+              "v": { "a": 0, "k": 1, "ix": 22 }
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0023",
+              "ix": 23,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0024",
+              "ix": 24,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input Black",
+              "mn": "ADBE Pro Levels2-0025",
+              "ix": 25,
+              "v": { "a": 0, "k": 0, "ix": 25 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input White",
+              "mn": "ADBE Pro Levels2-0026",
+              "ix": 26,
+              "v": { "a": 0, "k": 1, "ix": 26 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Gamma",
+              "mn": "ADBE Pro Levels2-0027",
+              "ix": 27,
+              "v": { "a": 0, "k": 1, "ix": 27 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output Black",
+              "mn": "ADBE Pro Levels2-0028",
+              "ix": 28,
+              "v": { "a": 0, "k": 0, "ix": 28 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output White",
+              "mn": "ADBE Pro Levels2-0029",
+              "ix": 29,
+              "v": { "a": 0, "k": 1, "ix": 29 }
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0030",
+              "ix": 30,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0031",
+              "ix": 31,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input Black",
+              "mn": "ADBE Pro Levels2-0032",
+              "ix": 32,
+              "v": { "a": 0, "k": 0, "ix": 32 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input White",
+              "mn": "ADBE Pro Levels2-0033",
+              "ix": 33,
+              "v": { "a": 0, "k": 1, "ix": 33 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Gamma",
+              "mn": "ADBE Pro Levels2-0034",
+              "ix": 34,
+              "v": { "a": 0, "k": 1, "ix": 34 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output Black",
+              "mn": "ADBE Pro Levels2-0035",
+              "ix": 35,
+              "v": { "a": 0, "k": 0, "ix": 35 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output White",
+              "mn": "ADBE Pro Levels2-0036",
+              "ix": 36,
+              "v": { "a": 0, "k": 1, "ix": 36 }
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0037",
+              "ix": 37,
+              "v": 0
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output Black",
+              "mn": "ADBE Pro Levels2-0038",
+              "ix": 38,
+              "v": { "a": 0, "k": 3, "ix": 38 }
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output White",
+              "mn": "ADBE Pro Levels2-0039",
+              "ix": 39,
+              "v": { "a": 0, "k": 3, "ix": 39 }
+            }
+          ]
+        }
+      ],
+      "w": 500,
+      "h": 500,
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 5,
+      "ty": 0,
+      "nm": "g",
+      "refId": "comp_0",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [250, 250, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [33, 33, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "ef": [
+        {
+          "ty": 24,
+          "nm": "Levels (Individual Controls)",
+          "np": 41,
+          "mn": "ADBE Pro Levels2",
+          "ix": 1,
+          "en": 1,
+          "ef": [
+            {
+              "ty": 7,
+              "nm": "Channel:",
+              "mn": "ADBE Pro Levels2-0001",
+              "ix": 1,
+              "v": { "a": 0, "k": 1, "ix": 1 }
+            },
+            {},
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0003",
+              "ix": 3,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Input Black",
+              "mn": "ADBE Pro Levels2-0004",
+              "ix": 4,
+              "v": { "a": 0, "k": 0, "ix": 4 }
+            },
+            {
+              "ty": 0,
+              "nm": "Input White",
+              "mn": "ADBE Pro Levels2-0005",
+              "ix": 5,
+              "v": { "a": 0, "k": 1, "ix": 5 }
+            },
+            {
+              "ty": 0,
+              "nm": "Gamma",
+              "mn": "ADBE Pro Levels2-0006",
+              "ix": 6,
+              "v": { "a": 0, "k": 1, "ix": 6 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output Black",
+              "mn": "ADBE Pro Levels2-0007",
+              "ix": 7,
+              "v": { "a": 0, "k": 0, "ix": 7 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output White",
+              "mn": "ADBE Pro Levels2-0008",
+              "ix": 8,
+              "v": { "a": 0, "k": 1, "ix": 8 }
+            },
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0009",
+              "ix": 9,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0010",
+              "ix": 10,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input Black",
+              "mn": "ADBE Pro Levels2-0011",
+              "ix": 11,
+              "v": { "a": 0, "k": 0, "ix": 11 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input White",
+              "mn": "ADBE Pro Levels2-0012",
+              "ix": 12,
+              "v": { "a": 0, "k": 1, "ix": 12 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Gamma",
+              "mn": "ADBE Pro Levels2-0013",
+              "ix": 13,
+              "v": { "a": 0, "k": 1, "ix": 13 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output Black",
+              "mn": "ADBE Pro Levels2-0014",
+              "ix": 14,
+              "v": { "a": 0, "k": 0, "ix": 14 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output White",
+              "mn": "ADBE Pro Levels2-0015",
+              "ix": 15,
+              "v": { "a": 0, "k": 1, "ix": 15 }
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0016",
+              "ix": 16,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0017",
+              "ix": 17,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input Black",
+              "mn": "ADBE Pro Levels2-0018",
+              "ix": 18,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [1]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 18
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input White",
+              "mn": "ADBE Pro Levels2-0019",
+              "ix": 19,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 19
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Gamma",
+              "mn": "ADBE Pro Levels2-0020",
+              "ix": 20,
+              "v": { "a": 0, "k": 1, "ix": 20 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output Black",
+              "mn": "ADBE Pro Levels2-0021",
+              "ix": 21,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.502]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 21
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output White",
+              "mn": "ADBE Pro Levels2-0022",
+              "ix": 22,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.502]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 22
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0023",
+              "ix": 23,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0024",
+              "ix": 24,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input Black",
+              "mn": "ADBE Pro Levels2-0025",
+              "ix": 25,
+              "v": { "a": 0, "k": 0, "ix": 25 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input White",
+              "mn": "ADBE Pro Levels2-0026",
+              "ix": 26,
+              "v": { "a": 0, "k": 1, "ix": 26 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Gamma",
+              "mn": "ADBE Pro Levels2-0027",
+              "ix": 27,
+              "v": { "a": 0, "k": 1, "ix": 27 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output Black",
+              "mn": "ADBE Pro Levels2-0028",
+              "ix": 28,
+              "v": { "a": 0, "k": 0, "ix": 28 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output White",
+              "mn": "ADBE Pro Levels2-0029",
+              "ix": 29,
+              "v": { "a": 0, "k": 1, "ix": 29 }
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0030",
+              "ix": 30,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0031",
+              "ix": 31,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input Black",
+              "mn": "ADBE Pro Levels2-0032",
+              "ix": 32,
+              "v": { "a": 0, "k": 0, "ix": 32 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input White",
+              "mn": "ADBE Pro Levels2-0033",
+              "ix": 33,
+              "v": { "a": 0, "k": 1, "ix": 33 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Gamma",
+              "mn": "ADBE Pro Levels2-0034",
+              "ix": 34,
+              "v": { "a": 0, "k": 1, "ix": 34 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output Black",
+              "mn": "ADBE Pro Levels2-0035",
+              "ix": 35,
+              "v": { "a": 0, "k": 0, "ix": 35 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output White",
+              "mn": "ADBE Pro Levels2-0036",
+              "ix": 36,
+              "v": { "a": 0, "k": 1, "ix": 36 }
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0037",
+              "ix": 37,
+              "v": 0
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output Black",
+              "mn": "ADBE Pro Levels2-0038",
+              "ix": 38,
+              "v": { "a": 0, "k": 3, "ix": 38 }
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output White",
+              "mn": "ADBE Pro Levels2-0039",
+              "ix": 39,
+              "v": { "a": 0, "k": 3, "ix": 39 }
+            }
+          ]
+        }
+      ],
+      "w": 500,
+      "h": 500,
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 6,
+      "ty": 0,
+      "nm": "b",
+      "refId": "comp_0",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [417, 250, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [33, 33, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "ef": [
+        {
+          "ty": 24,
+          "nm": "Levels (Individual Controls)",
+          "np": 41,
+          "mn": "ADBE Pro Levels2",
+          "ix": 1,
+          "en": 1,
+          "ef": [
+            {
+              "ty": 7,
+              "nm": "Channel:",
+              "mn": "ADBE Pro Levels2-0001",
+              "ix": 1,
+              "v": { "a": 0, "k": 1, "ix": 1 }
+            },
+            {},
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0003",
+              "ix": 3,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Input Black",
+              "mn": "ADBE Pro Levels2-0004",
+              "ix": 4,
+              "v": { "a": 0, "k": 0, "ix": 4 }
+            },
+            {
+              "ty": 0,
+              "nm": "Input White",
+              "mn": "ADBE Pro Levels2-0005",
+              "ix": 5,
+              "v": { "a": 0, "k": 1, "ix": 5 }
+            },
+            {
+              "ty": 0,
+              "nm": "Gamma",
+              "mn": "ADBE Pro Levels2-0006",
+              "ix": 6,
+              "v": { "a": 0, "k": 1, "ix": 6 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output Black",
+              "mn": "ADBE Pro Levels2-0007",
+              "ix": 7,
+              "v": { "a": 0, "k": 0, "ix": 7 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output White",
+              "mn": "ADBE Pro Levels2-0008",
+              "ix": 8,
+              "v": { "a": 0, "k": 1, "ix": 8 }
+            },
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0009",
+              "ix": 9,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0010",
+              "ix": 10,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input Black",
+              "mn": "ADBE Pro Levels2-0011",
+              "ix": 11,
+              "v": { "a": 0, "k": 0, "ix": 11 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input White",
+              "mn": "ADBE Pro Levels2-0012",
+              "ix": 12,
+              "v": { "a": 0, "k": 1, "ix": 12 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Gamma",
+              "mn": "ADBE Pro Levels2-0013",
+              "ix": 13,
+              "v": { "a": 0, "k": 1, "ix": 13 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output Black",
+              "mn": "ADBE Pro Levels2-0014",
+              "ix": 14,
+              "v": { "a": 0, "k": 0, "ix": 14 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output White",
+              "mn": "ADBE Pro Levels2-0015",
+              "ix": 15,
+              "v": { "a": 0, "k": 1, "ix": 15 }
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0016",
+              "ix": 16,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0017",
+              "ix": 17,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input Black",
+              "mn": "ADBE Pro Levels2-0018",
+              "ix": 18,
+              "v": { "a": 0, "k": 0, "ix": 18 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input White",
+              "mn": "ADBE Pro Levels2-0019",
+              "ix": 19,
+              "v": { "a": 0, "k": 1, "ix": 19 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Gamma",
+              "mn": "ADBE Pro Levels2-0020",
+              "ix": 20,
+              "v": { "a": 0, "k": 1, "ix": 20 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output Black",
+              "mn": "ADBE Pro Levels2-0021",
+              "ix": 21,
+              "v": { "a": 0, "k": 0, "ix": 21 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output White",
+              "mn": "ADBE Pro Levels2-0022",
+              "ix": 22,
+              "v": { "a": 0, "k": 1, "ix": 22 }
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0023",
+              "ix": 23,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0024",
+              "ix": 24,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input Black",
+              "mn": "ADBE Pro Levels2-0025",
+              "ix": 25,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [1]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 25
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input White",
+              "mn": "ADBE Pro Levels2-0026",
+              "ix": 26,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 26
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Gamma",
+              "mn": "ADBE Pro Levels2-0027",
+              "ix": 27,
+              "v": { "a": 0, "k": 1, "ix": 27 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output Black",
+              "mn": "ADBE Pro Levels2-0028",
+              "ix": 28,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.502]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 28
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output White",
+              "mn": "ADBE Pro Levels2-0029",
+              "ix": 29,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.502]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 29
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0030",
+              "ix": 30,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0031",
+              "ix": 31,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input Black",
+              "mn": "ADBE Pro Levels2-0032",
+              "ix": 32,
+              "v": { "a": 0, "k": 0, "ix": 32 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input White",
+              "mn": "ADBE Pro Levels2-0033",
+              "ix": 33,
+              "v": { "a": 0, "k": 1, "ix": 33 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Gamma",
+              "mn": "ADBE Pro Levels2-0034",
+              "ix": 34,
+              "v": { "a": 0, "k": 1, "ix": 34 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output Black",
+              "mn": "ADBE Pro Levels2-0035",
+              "ix": 35,
+              "v": { "a": 0, "k": 0, "ix": 35 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output White",
+              "mn": "ADBE Pro Levels2-0036",
+              "ix": 36,
+              "v": { "a": 0, "k": 1, "ix": 36 }
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0037",
+              "ix": 37,
+              "v": 0
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output Black",
+              "mn": "ADBE Pro Levels2-0038",
+              "ix": 38,
+              "v": { "a": 0, "k": 3, "ix": 38 }
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output White",
+              "mn": "ADBE Pro Levels2-0039",
+              "ix": 39,
+              "v": { "a": 0, "k": 3, "ix": 39 }
+            }
+          ]
+        }
+      ],
+      "w": 500,
+      "h": 500,
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 7,
+      "ty": 0,
+      "nm": "a",
+      "refId": "comp_0",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [83, 417, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [33, 33, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "ef": [
+        {
+          "ty": 24,
+          "nm": "Levels (Individual Controls)",
+          "np": 41,
+          "mn": "ADBE Pro Levels2",
+          "ix": 1,
+          "en": 1,
+          "ef": [
+            {
+              "ty": 7,
+              "nm": "Channel:",
+              "mn": "ADBE Pro Levels2-0001",
+              "ix": 1,
+              "v": { "a": 0, "k": 1, "ix": 1 }
+            },
+            {},
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0003",
+              "ix": 3,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Input Black",
+              "mn": "ADBE Pro Levels2-0004",
+              "ix": 4,
+              "v": { "a": 0, "k": 0, "ix": 4 }
+            },
+            {
+              "ty": 0,
+              "nm": "Input White",
+              "mn": "ADBE Pro Levels2-0005",
+              "ix": 5,
+              "v": { "a": 0, "k": 1, "ix": 5 }
+            },
+            {
+              "ty": 0,
+              "nm": "Gamma",
+              "mn": "ADBE Pro Levels2-0006",
+              "ix": 6,
+              "v": { "a": 0, "k": 1, "ix": 6 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output Black",
+              "mn": "ADBE Pro Levels2-0007",
+              "ix": 7,
+              "v": { "a": 0, "k": 0, "ix": 7 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output White",
+              "mn": "ADBE Pro Levels2-0008",
+              "ix": 8,
+              "v": { "a": 0, "k": 1, "ix": 8 }
+            },
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0009",
+              "ix": 9,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0010",
+              "ix": 10,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input Black",
+              "mn": "ADBE Pro Levels2-0011",
+              "ix": 11,
+              "v": { "a": 0, "k": 0, "ix": 11 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input White",
+              "mn": "ADBE Pro Levels2-0012",
+              "ix": 12,
+              "v": { "a": 0, "k": 1, "ix": 12 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Gamma",
+              "mn": "ADBE Pro Levels2-0013",
+              "ix": 13,
+              "v": { "a": 0, "k": 1, "ix": 13 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output Black",
+              "mn": "ADBE Pro Levels2-0014",
+              "ix": 14,
+              "v": { "a": 0, "k": 0, "ix": 14 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output White",
+              "mn": "ADBE Pro Levels2-0015",
+              "ix": 15,
+              "v": { "a": 0, "k": 1, "ix": 15 }
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0016",
+              "ix": 16,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0017",
+              "ix": 17,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input Black",
+              "mn": "ADBE Pro Levels2-0018",
+              "ix": 18,
+              "v": { "a": 0, "k": 0, "ix": 18 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input White",
+              "mn": "ADBE Pro Levels2-0019",
+              "ix": 19,
+              "v": { "a": 0, "k": 1, "ix": 19 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Gamma",
+              "mn": "ADBE Pro Levels2-0020",
+              "ix": 20,
+              "v": { "a": 0, "k": 1, "ix": 20 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output Black",
+              "mn": "ADBE Pro Levels2-0021",
+              "ix": 21,
+              "v": { "a": 0, "k": 0, "ix": 21 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output White",
+              "mn": "ADBE Pro Levels2-0022",
+              "ix": 22,
+              "v": { "a": 0, "k": 1, "ix": 22 }
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0023",
+              "ix": 23,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0024",
+              "ix": 24,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input Black",
+              "mn": "ADBE Pro Levels2-0025",
+              "ix": 25,
+              "v": { "a": 0, "k": 0, "ix": 25 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input White",
+              "mn": "ADBE Pro Levels2-0026",
+              "ix": 26,
+              "v": { "a": 0, "k": 1, "ix": 26 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Gamma",
+              "mn": "ADBE Pro Levels2-0027",
+              "ix": 27,
+              "v": { "a": 0, "k": 1, "ix": 27 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output Black",
+              "mn": "ADBE Pro Levels2-0028",
+              "ix": 28,
+              "v": { "a": 0, "k": 0, "ix": 28 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output White",
+              "mn": "ADBE Pro Levels2-0029",
+              "ix": 29,
+              "v": { "a": 0, "k": 1, "ix": 29 }
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0030",
+              "ix": 30,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0031",
+              "ix": 31,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input Black",
+              "mn": "ADBE Pro Levels2-0032",
+              "ix": 32,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [1]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 32
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input White",
+              "mn": "ADBE Pro Levels2-0033",
+              "ix": 33,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 33
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Gamma",
+              "mn": "ADBE Pro Levels2-0034",
+              "ix": 34,
+              "v": { "a": 0, "k": 1, "ix": 34 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output Black",
+              "mn": "ADBE Pro Levels2-0035",
+              "ix": 35,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.502]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 35
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output White",
+              "mn": "ADBE Pro Levels2-0036",
+              "ix": 36,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.502]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 36
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0037",
+              "ix": 37,
+              "v": 0
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output Black",
+              "mn": "ADBE Pro Levels2-0038",
+              "ix": 38,
+              "v": { "a": 0, "k": 3, "ix": 38 }
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output White",
+              "mn": "ADBE Pro Levels2-0039",
+              "ix": 39,
+              "v": { "a": 0, "k": 3, "ix": 39 }
+            }
+          ]
+        }
+      ],
+      "w": 500,
+      "h": 500,
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 8,
+      "ty": 0,
+      "nm": "a/gamma",
+      "refId": "comp_0",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [250, 417, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [33, 33, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "ef": [
+        {
+          "ty": 24,
+          "nm": "Levels (Individual Controls)",
+          "np": 41,
+          "mn": "ADBE Pro Levels2",
+          "ix": 1,
+          "en": 1,
+          "ef": [
+            {
+              "ty": 7,
+              "nm": "Channel:",
+              "mn": "ADBE Pro Levels2-0001",
+              "ix": 1,
+              "v": { "a": 0, "k": 1, "ix": 1 }
+            },
+            {},
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0003",
+              "ix": 3,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Input Black",
+              "mn": "ADBE Pro Levels2-0004",
+              "ix": 4,
+              "v": { "a": 0, "k": 0, "ix": 4 }
+            },
+            {
+              "ty": 0,
+              "nm": "Input White",
+              "mn": "ADBE Pro Levels2-0005",
+              "ix": 5,
+              "v": { "a": 0, "k": 1, "ix": 5 }
+            },
+            {
+              "ty": 0,
+              "nm": "Gamma",
+              "mn": "ADBE Pro Levels2-0006",
+              "ix": 6,
+              "v": { "a": 0, "k": 1, "ix": 6 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output Black",
+              "mn": "ADBE Pro Levels2-0007",
+              "ix": 7,
+              "v": { "a": 0, "k": 0, "ix": 7 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output White",
+              "mn": "ADBE Pro Levels2-0008",
+              "ix": 8,
+              "v": { "a": 0, "k": 1, "ix": 8 }
+            },
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0009",
+              "ix": 9,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0010",
+              "ix": 10,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input Black",
+              "mn": "ADBE Pro Levels2-0011",
+              "ix": 11,
+              "v": { "a": 0, "k": 0, "ix": 11 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input White",
+              "mn": "ADBE Pro Levels2-0012",
+              "ix": 12,
+              "v": { "a": 0, "k": 1, "ix": 12 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Gamma",
+              "mn": "ADBE Pro Levels2-0013",
+              "ix": 13,
+              "v": { "a": 0, "k": 1, "ix": 13 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output Black",
+              "mn": "ADBE Pro Levels2-0014",
+              "ix": 14,
+              "v": { "a": 0, "k": 0, "ix": 14 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output White",
+              "mn": "ADBE Pro Levels2-0015",
+              "ix": 15,
+              "v": { "a": 0, "k": 1, "ix": 15 }
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0016",
+              "ix": 16,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0017",
+              "ix": 17,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input Black",
+              "mn": "ADBE Pro Levels2-0018",
+              "ix": 18,
+              "v": { "a": 0, "k": 0, "ix": 18 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input White",
+              "mn": "ADBE Pro Levels2-0019",
+              "ix": 19,
+              "v": { "a": 0, "k": 1, "ix": 19 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Gamma",
+              "mn": "ADBE Pro Levels2-0020",
+              "ix": 20,
+              "v": { "a": 0, "k": 1, "ix": 20 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output Black",
+              "mn": "ADBE Pro Levels2-0021",
+              "ix": 21,
+              "v": { "a": 0, "k": 0, "ix": 21 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output White",
+              "mn": "ADBE Pro Levels2-0022",
+              "ix": 22,
+              "v": { "a": 0, "k": 1, "ix": 22 }
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0023",
+              "ix": 23,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0024",
+              "ix": 24,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input Black",
+              "mn": "ADBE Pro Levels2-0025",
+              "ix": 25,
+              "v": { "a": 0, "k": 0, "ix": 25 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input White",
+              "mn": "ADBE Pro Levels2-0026",
+              "ix": 26,
+              "v": { "a": 0, "k": 1, "ix": 26 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Gamma",
+              "mn": "ADBE Pro Levels2-0027",
+              "ix": 27,
+              "v": { "a": 0, "k": 1, "ix": 27 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output Black",
+              "mn": "ADBE Pro Levels2-0028",
+              "ix": 28,
+              "v": { "a": 0, "k": 0, "ix": 28 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output White",
+              "mn": "ADBE Pro Levels2-0029",
+              "ix": 29,
+              "v": { "a": 0, "k": 1, "ix": 29 }
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0030",
+              "ix": 30,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0031",
+              "ix": 31,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input Black",
+              "mn": "ADBE Pro Levels2-0032",
+              "ix": 32,
+              "v": { "a": 0, "k": 0, "ix": 32 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input White",
+              "mn": "ADBE Pro Levels2-0033",
+              "ix": 33,
+              "v": { "a": 0, "k": 1, "ix": 33 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Gamma",
+              "mn": "ADBE Pro Levels2-0034",
+              "ix": 34,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [1.5]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 34
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output Black",
+              "mn": "ADBE Pro Levels2-0035",
+              "ix": 35,
+              "v": { "a": 0, "k": 0, "ix": 35 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output White",
+              "mn": "ADBE Pro Levels2-0036",
+              "ix": 36,
+              "v": { "a": 0, "k": 1, "ix": 36 }
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0037",
+              "ix": 37,
+              "v": 0
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output Black",
+              "mn": "ADBE Pro Levels2-0038",
+              "ix": 38,
+              "v": { "a": 0, "k": 3, "ix": 38 }
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output White",
+              "mn": "ADBE Pro Levels2-0039",
+              "ix": 39,
+              "v": { "a": 0, "k": 3, "ix": 39 }
+            }
+          ]
+        }
+      ],
+      "w": 500,
+      "h": 500,
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 9,
+      "ty": 0,
+      "nm": "chaos",
+      "refId": "comp_0",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [417, 417, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [33, 33, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "ef": [
+        {
+          "ty": 24,
+          "nm": "Levels (Individual Controls)",
+          "np": 41,
+          "mn": "ADBE Pro Levels2",
+          "ix": 1,
+          "en": 1,
+          "ef": [
+            {
+              "ty": 7,
+              "nm": "Channel:",
+              "mn": "ADBE Pro Levels2-0001",
+              "ix": 1,
+              "v": { "a": 0, "k": 1, "ix": 1 }
+            },
+            {},
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0003",
+              "ix": 3,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Input Black",
+              "mn": "ADBE Pro Levels2-0004",
+              "ix": 4,
+              "v": { "a": 0, "k": -0.251, "ix": 4 }
+            },
+            {
+              "ty": 0,
+              "nm": "Input White",
+              "mn": "ADBE Pro Levels2-0005",
+              "ix": 5,
+              "v": { "a": 0, "k": 0.753, "ix": 5 }
+            },
+            {
+              "ty": 0,
+              "nm": "Gamma",
+              "mn": "ADBE Pro Levels2-0006",
+              "ix": 6,
+              "v": { "a": 0, "k": 0.44, "ix": 6 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output Black",
+              "mn": "ADBE Pro Levels2-0007",
+              "ix": 7,
+              "v": { "a": 0, "k": 0.23, "ix": 7 }
+            },
+            {
+              "ty": 0,
+              "nm": "Output White",
+              "mn": "ADBE Pro Levels2-0008",
+              "ix": 8,
+              "v": { "a": 0, "k": 1, "ix": 8 }
+            },
+            {
+              "ty": 6,
+              "nm": "RGB",
+              "mn": "ADBE Pro Levels2-0009",
+              "ix": 9,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0010",
+              "ix": 10,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input Black",
+              "mn": "ADBE Pro Levels2-0011",
+              "ix": 11,
+              "v": { "a": 0, "k": 0, "ix": 11 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Input White",
+              "mn": "ADBE Pro Levels2-0012",
+              "ix": 12,
+              "v": { "a": 0, "k": 1, "ix": 12 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Gamma",
+              "mn": "ADBE Pro Levels2-0013",
+              "ix": 13,
+              "v": { "a": 0, "k": 1, "ix": 13 }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output Black",
+              "mn": "ADBE Pro Levels2-0014",
+              "ix": 14,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 301,
+                    "s": [2.008]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 14
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Red Output White",
+              "mn": "ADBE Pro Levels2-0015",
+              "ix": 15,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 301,
+                    "s": [-1]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 15
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Red",
+              "mn": "ADBE Pro Levels2-0016",
+              "ix": 16,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0017",
+              "ix": 17,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input Black",
+              "mn": "ADBE Pro Levels2-0018",
+              "ix": 18,
+              "v": { "a": 0, "k": 0, "ix": 18 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Input White",
+              "mn": "ADBE Pro Levels2-0019",
+              "ix": 19,
+              "v": { "a": 0, "k": 1, "ix": 19 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Gamma",
+              "mn": "ADBE Pro Levels2-0020",
+              "ix": 20,
+              "v": { "a": 0, "k": 1, "ix": 20 }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output Black",
+              "mn": "ADBE Pro Levels2-0021",
+              "ix": 21,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 301,
+                    "s": [0.753]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 21
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Green Output White",
+              "mn": "ADBE Pro Levels2-0022",
+              "ix": 22,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 301,
+                    "s": [0.753]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 22
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Green",
+              "mn": "ADBE Pro Levels2-0023",
+              "ix": 23,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0024",
+              "ix": 24,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input Black",
+              "mn": "ADBE Pro Levels2-0025",
+              "ix": 25,
+              "v": { "a": 0, "k": 0, "ix": 25 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Input White",
+              "mn": "ADBE Pro Levels2-0026",
+              "ix": 26,
+              "v": { "a": 0, "k": 1, "ix": 26 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Gamma",
+              "mn": "ADBE Pro Levels2-0027",
+              "ix": 27,
+              "v": { "a": 0, "k": 1, "ix": 27 }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output Black",
+              "mn": "ADBE Pro Levels2-0028",
+              "ix": 28,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [0]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.251]
+                  },
+                  { "t": 600, "s": [0] }
+                ],
+                "ix": 28
+              }
+            },
+            {
+              "ty": 0,
+              "nm": "Blue Output White",
+              "mn": "ADBE Pro Levels2-0029",
+              "ix": 29,
+              "v": {
+                "a": 1,
+                "k": [
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 0,
+                    "s": [1]
+                  },
+                  {
+                    "i": { "x": [0.833], "y": [0.833] },
+                    "o": { "x": [0.167], "y": [0.167] },
+                    "t": 300,
+                    "s": [0.251]
+                  },
+                  { "t": 600, "s": [1] }
+                ],
+                "ix": 29
+              }
+            },
+            {
+              "ty": 6,
+              "nm": "Blue",
+              "mn": "ADBE Pro Levels2-0030",
+              "ix": 30,
+              "v": 0
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0031",
+              "ix": 31,
+              "v": 0
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input Black",
+              "mn": "ADBE Pro Levels2-0032",
+              "ix": 32,
+              "v": { "a": 0, "k": 0, "ix": 32 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Input White",
+              "mn": "ADBE Pro Levels2-0033",
+              "ix": 33,
+              "v": { "a": 0, "k": 1, "ix": 33 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Gamma",
+              "mn": "ADBE Pro Levels2-0034",
+              "ix": 34,
+              "v": { "a": 0, "k": 3, "ix": 34 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output Black",
+              "mn": "ADBE Pro Levels2-0035",
+              "ix": 35,
+              "v": { "a": 0, "k": 0, "ix": 35 }
+            },
+            {
+              "ty": 0,
+              "nm": "Alpha Output White",
+              "mn": "ADBE Pro Levels2-0036",
+              "ix": 36,
+              "v": { "a": 0, "k": 1, "ix": 36 }
+            },
+            {
+              "ty": 6,
+              "nm": "Alpha",
+              "mn": "ADBE Pro Levels2-0037",
+              "ix": 37,
+              "v": 0
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output Black",
+              "mn": "ADBE Pro Levels2-0038",
+              "ix": 38,
+              "v": { "a": 0, "k": 3, "ix": 38 }
+            },
+            {
+              "ty": 7,
+              "nm": "Clip To Output White",
+              "mn": "ADBE Pro Levels2-0039",
+              "ix": 39,
+              "v": { "a": 0, "k": 3, "ix": 39 }
+            }
+          ]
+        }
+      ],
+      "w": 500,
+      "h": 500,
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    },
+    {
+      "ddd": 0,
+      "ind": 10,
+      "ty": 1,
+      "nm": "White Solid 2",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100, "ix": 11 },
+        "r": { "a": 0, "k": 0, "ix": 10 },
+        "p": { "a": 0, "k": [250, 250, 0], "ix": 2 },
+        "a": { "a": 0, "k": [250, 250, 0], "ix": 1 },
+        "s": { "a": 0, "k": [100, 100, 100], "ix": 6 }
+      },
+      "ao": 0,
+      "sw": 500,
+      "sh": 500,
+      "sc": "#ffffff",
+      "ip": 0,
+      "op": 601,
+      "st": 0,
+      "bm": 0
+    }
+  ],
+  "markers": []
+}
