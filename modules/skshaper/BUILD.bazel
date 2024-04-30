@@ -16,7 +16,12 @@ selects.config_setting_group(
     ],
 )
 
-# TODO(kjlubick,bungeman) delete skshaper (uses legacy non-modular build)
+# TODO(kjlubick,bungeman) delete legacy_skshaper (uses legacy non-modular build)
+
+skia_cc_library(
+    name = "legacy_harfbuzz",
+    deps = ["@harfbuzz"],
+)
 
 skia_cc_library(
     name = "legacy_skshaper",
@@ -47,7 +52,7 @@ skia_cc_library(
         "//modules/skunicode:legacy_skunicode",
     ] + select({
         ":use_harfbuzz_shaper": [
-            "@harfbuzz",
+            ":legacy_harfbuzz",
         ],
         "//conditions:default": [],
     }),
