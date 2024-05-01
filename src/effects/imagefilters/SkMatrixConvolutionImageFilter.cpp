@@ -32,7 +32,6 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkThreadAnnotations.h"
-#include "src/base/SkMathPriv.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -62,9 +61,15 @@ namespace {
 // is >= 2048 (e.g., 8x256, 16x128, ...) so that should be a pretty good upper limit for what
 // is being seen in the wild.
 static constexpr int kMaxKernelSize = 256;
+static_assert(kMaxKernelSize % 4 == 0, "Must be a multiple of 4");
 // The uniform-based kernel shader can store 28 values in any order layout (28x1, 1x25, 5x5, and
 // smaller orders like 3x3 or 5x4, etc.), but must be a multiple of 4 for better packing in std140.
 static constexpr int kMaxUniformKernelSize = 28;
+// The texture-based implementation has two levels: a medium size version and one at the
+// maximum kernel size. In either case, the texture is a 1D array that can hold any
+// width/height combination that fits within it.
+static constexpr int kMediumKernelSize = 64;
+static_assert(kMediumKernelSize <= kMaxKernelSize, "Medium kernel size must be <= max size");
 
 SkBitmap create_kernel_bitmap(const SkISize& kernelSize, const float* kernel,
                               float* innerGain, float* innerBias);
@@ -163,6 +168,12 @@ skif::LayerSpace<SkIRect> adjust(const skif::LayerSpace<SkIRect>& rect,
     return skif::LayerSpace<SkIRect>(adjusted);
 }
 
+// The bitmap-based filter has two size options: medium and max
+int quantize_kernel_size(int kernelSize) {
+    SkASSERT(kernelSize > kMaxUniformKernelSize);  // otherwise we would be in the uniform case
+    return kernelSize <= kMediumKernelSize ? kMediumKernelSize : kMaxKernelSize;
+}
+
 SkBitmap create_kernel_bitmap(const SkISize& kernelSize, const float* kernel,
                               float* innerGain, float* innerBias) {
     int length = kernelSize.fWidth * kernelSize.fHeight;
@@ -172,6 +183,8 @@ SkBitmap create_kernel_bitmap(const SkISize& kernelSize, const float* kernel,
         *innerBias = 0.f;
         return {};
     }
+
+    const int quantizedKernelSize = quantize_kernel_size(length);
 
     // The convolution kernel is "big". The SVG spec has no upper limit on what's supported so
     // store the kernel in a SkBitmap that will be uploaded to a data texture. We could
@@ -204,25 +217,25 @@ SkBitmap create_kernel_bitmap(const SkISize& kernelSize, const float* kernel,
     }
 
     SkBitmap kernelBM;
-    if (!kernelBM.tryAllocPixels(SkImageInfo::Make(kernelSize,
+    if (!kernelBM.tryAllocPixels(SkImageInfo::Make({ quantizedKernelSize, 1 },
                                                    kAlpha_8_SkColorType,
                                                    kPremul_SkAlphaType))) {
         // OOM so return an empty bitmap, which will be detected later on in onFilterImage().
         return {};
     }
 
-    for (int y = 0; y < kernelSize.fHeight; ++y) {
-        for (int x = 0; x < kernelSize.fWidth; ++x) {
-            int i = y * kernelSize.fWidth + x;
-            *kernelBM.getAddr8(x, y) = SkScalarRoundToInt(255 * (kernel[i] - min) / *innerGain);
-        }
+    for (int i = 0; i < length; ++i) {
+        *kernelBM.getAddr8(i, 0) = SkScalarRoundToInt(255 * (kernel[i] - min) / *innerGain);
+    }
+    for (int i = length; i < quantizedKernelSize; ++i) {
+        *kernelBM.getAddr8(i, 0) = 0;
     }
 
     kernelBM.setImmutable();
     return kernelBM;
 }
 
-} // end namespace
+} // anonymous namespace
 
 sk_sp<SkImageFilter> SkImageFilters::MatrixConvolution(const SkISize& kernelSize,
                                                        const SkScalar kernel[],
@@ -427,46 +440,46 @@ static sk_sp<SkRuntimeEffect> get_runtime_effect(int texWidth, int texHeight) {
     // The texture-backed kernel creates shaders with quantized upper bounds on the kernel size and
     // then stored in a thread-safe LRU cache.
     static SkMutex cacheLock;
-    static SkLRUCache<SkISize, sk_sp<SkRuntimeEffect>>
+    static SkLRUCache<int, sk_sp<SkRuntimeEffect>>
             textureShaderCache SK_GUARDED_BY(cacheLock) {/*maxCount=*/5};
-    static const auto makeTextureEffect = [](SkISize maxKernelSize) {
+    static const auto makeTextureEffect = [](int maxTextureKernelSize) {
         return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-            SkStringPrintf("const int kMaxKernelWidth = %d;"
-                           "const int kMaxKernelHeight = %d;"
+            SkStringPrintf("const int kMaxTextureKernelSize = %d;"
                            "uniform shader kernel;"
                            "uniform half2 innerGainAndBias;"
                            "%s" // kHeaderSkSL
-                                   "for (int y = 0; y < kMaxKernelHeight; ++y) {"
-                                       "if (y >= size.y) { break; }"
-                                       "for (int x = 0; x < kMaxKernelWidth; ++x) {"
-                                           "if (x >= size.x) { break; }"
+                               "int2 kernelPos = int2(0);"
+                               "for (int i = 0; i < kMaxTextureKernelSize; ++i) {"
+                                   "if (kernelPos.y >= size.y) { break; }"
 
-                                           "int2 kernelPos = int2(x,y);"
-                                           "half k = kernel.eval(half2(kernelPos) + 0.5).a;"
-                                           "k = k * innerGainAndBias.x + innerGainAndBias.y;"
-                                           "%s" // kAccumulateSkSL
-                                       "}"
+                                   "half k = kernel.eval(half2(half(i) + 0.5, 0.5)).a;"
+                                   "k = k * innerGainAndBias.x + innerGainAndBias.y;"
+                                   "%s" // kAccumulateSkSL
+
+                                   "kernelPos.x += 1;"
+                                   "if (kernelPos.x >= size.x) {"
+                                       "kernelPos.x = 0;"
+                                       "kernelPos.y += 1;"
                                    "}"
-                               "%s", // kFooterSkSL
-                               maxKernelSize.fWidth, maxKernelSize.fHeight,
-                               kHeaderSkSL, kAccumulateSkSL, kFooterSkSL).c_str());
+                               "}"
+                           "%s", // kFooterSkSL
+                           maxTextureKernelSize,
+                           kHeaderSkSL, kAccumulateSkSL, kFooterSkSL).c_str());
     };
 
 
     if (texWidth == 0 && texHeight == 0) {
         return sk_ref_sp(uniformEffect);
     } else {
-        static_assert(kMaxKernelSize % 4 == 0, "Must be a multiple of 4");
-        SkASSERT(SkSafeMath::Mul(texWidth, texHeight) <= kMaxKernelSize);
-        const SkISize key = {SkNextPow2(texWidth), SkNextPow2(texHeight)};
+        int quantizedKernelSize = quantize_kernel_size(texWidth * texHeight);
 
         SkAutoMutexExclusive acquire{cacheLock};
-        sk_sp<SkRuntimeEffect>* effect = textureShaderCache.find(key);
+        sk_sp<SkRuntimeEffect>* effect = textureShaderCache.find(quantizedKernelSize);
         if (!effect) {
             // Adopt the raw pointer returned by makeTextureEffect so that it will be deleted if
             // it's removed from the LRU cache.
-            sk_sp<SkRuntimeEffect> newEffect{makeTextureEffect(key)};
-            effect = textureShaderCache.insert(key, std::move(newEffect));
+            sk_sp<SkRuntimeEffect> newEffect{makeTextureEffect(quantizedKernelSize)};
+            effect = textureShaderCache.insert(quantizedKernelSize, std::move(newEffect));
         }
 
         return *effect;
