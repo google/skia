@@ -241,6 +241,10 @@ void VelloScene::popClipLayer() {
     SkDEBUGCODE(fLayers--;)
 }
 
+void VelloScene::append(const VelloScene& other) {
+    fEncoding->append(*other.fEncoding);
+}
+
 VelloRenderer::VelloRenderer(const Caps* caps) {
     if (ComputeShaderCoverageMaskTargetFormat(caps) == kAlpha_8_SkColorType) {
         fFineArea = std::make_unique<VelloFineAreaAlpha8Step>();

@@ -226,6 +226,7 @@ mod ffi {
         );
         fn begin_clip(self: &mut Encoding, transform: Affine, path_iter: Pin<&mut PathIterator>);
         fn end_clip(self: &mut Encoding);
+        fn append(self: &mut Encoding, other: &Encoding);
         fn prepare_render(
             self: &Encoding,
             width: u32,

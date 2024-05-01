@@ -49,6 +49,8 @@ public:
     void pushClipLayer(const SkPath& shape, const Transform& transform);
     void popClipLayer();
 
+    void append(const VelloScene& other);
+
 private:
     friend class VelloRenderer;
 

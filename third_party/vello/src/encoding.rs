@@ -85,6 +85,10 @@ impl Encoding {
         self.encoding.encode_end_clip();
     }
 
+    pub fn append(&mut self, other: &Encoding) {
+        self.encoding.append(&other.encoding, &None);
+    }
+
     pub fn prepare_render(
         &self,
         width: u32,
