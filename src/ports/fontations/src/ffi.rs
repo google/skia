@@ -1137,8 +1137,8 @@ mod bitmap {
                         return Some(Box::new(BridgeBitmapGlyph {
                             data: Some(BitmapPixelData::PngData(png_buffer)),
                             metrics: FfiBitmapMetrics {
-                                bearing_x,
-                                bearing_y,
+                                inner_bearing_x: bearing_x,
+                                inner_bearing_y: bearing_y,
                                 ppem_x: cblc_glyph.ppem_x as f32,
                                 ppem_y: cblc_glyph.ppem_y as f32,
                                 width: f32::INFINITY,
@@ -1267,6 +1267,7 @@ mod ffi {
         // those here from `inner_bearing_*` to account for CoreText behavior in
         // SBIX placement. Where the sbix originOffsetX/Y are applied only
         // within the bounds. Specified in font units.
+        // 0 for CBDT, CBLC.
         bearing_x: f32,
         bearing_y: f32,
         // Scale factors to scale image to 1em.
@@ -1280,9 +1281,8 @@ mod ffi {
         // f32::INFINITY.
         width: f32,
         height: f32,
-        // For SBIX, specified as a pixel value, to be scaled by `ppem_*` as an
+        // Specified as a pixel value, to be scaled by `ppem_*` as an
         // offset applied to placing the image within the bounds rectangle.
-        // 0 for CBDT, CBLC.
         inner_bearing_x: f32,
         inner_bearing_y: f32,
     }
