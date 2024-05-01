@@ -31,10 +31,9 @@ protected:
     void onOnceBeforeDraw() override {
         {
             SkPathBuilder lineAngles;
-            enum {
-                kNumAngles = 15,
-                kRadius = 40,
-            };
+            constexpr int kNumAngles = 15;
+            constexpr int kRadius = 40;
+
             for (int i = 0; i < kNumAngles; ++i) {
                 SkScalar angle = SK_ScalarPI * SkIntToScalar(i) / kNumAngles;
                 SkScalar x = kRadius * SkScalarCos(angle);

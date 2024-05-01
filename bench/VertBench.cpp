@@ -32,14 +32,13 @@ enum VertFlags {
 
 class VertBench : public Benchmark {
     SkString fName;
-    enum {
-        W = 64*2,
-        H = 48*2,
-        ROW = 20,
-        COL = 20,
-        PTS = (ROW + 1) * (COL + 1),
-        IDX = ROW * COL * 6,
-    };
+
+    static constexpr int W = 64*2;
+    static constexpr int H = 48*2;
+    static constexpr int ROW = 20;
+    static constexpr int COL = 20;
+    static constexpr int PTS = (ROW + 1) * (COL + 1);
+    static constexpr int IDX = ROW * COL * 6;
 
     sk_sp<SkShader> fShader;
     SkPoint fPts[PTS], fTex[PTS];
@@ -164,11 +163,10 @@ enum AtlasFlags {
 class AtlasBench : public Benchmark {
     unsigned fFlags;
     SkString fName;
-    enum {
-        W = 640,
-        H = 480,
-        N = 10*1000,
-    };
+
+    static constexpr int W = 640;
+    static constexpr int H = 480;
+    static constexpr int N = 10*1000;
 
     sk_sp<SkImage>  fAtlas;
     SkRSXform       fXforms[N];

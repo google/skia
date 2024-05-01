@@ -222,10 +222,8 @@ private:
         }
     }
 
-    enum {
-        kBenchWidth = 1000,
-        kBenchHeight = 1000
-    };
+    static constexpr int kBenchWidth = 1000;
+    static constexpr int kBenchHeight = 1000;
 
     struct ShapeInfo {
         SkMatrix   fMatrix;

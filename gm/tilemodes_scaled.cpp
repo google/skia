@@ -70,10 +70,8 @@ public:
     SkBitmap    fTexture[std::size(gColorTypes)];
 
 protected:
-    enum {
-        kPOTSize = 4,
-        kNPOTSize = 3,
-    };
+    static constexpr int kPOTSize = 4;
+    static constexpr int kNPOTSize = 3;
 
     SkString getName() const override {
         SkString name("scaled_tilemodes");

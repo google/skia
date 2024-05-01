@@ -71,11 +71,9 @@ static sk_sp<SkImage> make_atlas(int atlasSize, int cellSize) {
 }
 
 class DrawAtlasDrawable : public SkDrawable {
-    enum {
-        kMaxScale = 2,
-        kCellSize = 32,
-        kAtlasSize = 512,
-    };
+    static constexpr int kMaxScale = 2;
+    static constexpr int kCellSize = 32;
+    static constexpr int kAtlasSize = 512;
 
     struct Rec {
         SkPoint     fCenter;

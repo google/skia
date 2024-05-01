@@ -23,18 +23,15 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
-enum {
-    kXfermodeCount = (int)SkBlendMode::kLastMode + 1 + 1,   // extra for arith
-    kShapeSize = 22,
-    kShapeSpacing = 36,
-    kShapeTypeSpacing = 4 * kShapeSpacing / 3,
-    kPaintSpacing = 4 * kShapeTypeSpacing,
-    kLabelSpacing = 3 * kShapeSize,
-    kMargin = kShapeSpacing / 2,
-    kXfermodeTypeSpacing = kLabelSpacing + 2 * kPaintSpacing + kShapeTypeSpacing,
-    kTitleSpacing = 3 * kShapeSpacing / 4,
-    kSubtitleSpacing = 5 * kShapeSpacing / 8
-};
+constexpr int kShapeSize = 22;
+constexpr int kShapeSpacing = 36;
+constexpr int kShapeTypeSpacing = 4 * kShapeSpacing / 3;
+constexpr int kPaintSpacing = 4 * kShapeTypeSpacing;
+constexpr int kLabelSpacing = 3 * kShapeSize;
+constexpr int kMargin = kShapeSpacing / 2;
+constexpr int kXfermodeTypeSpacing = kLabelSpacing + 2 * kPaintSpacing + kShapeTypeSpacing;
+constexpr int kTitleSpacing = 3 * kShapeSpacing / 4;
+constexpr int kSubtitleSpacing = 5 * kShapeSpacing / 8;
 
 constexpr SkColor kBGColor = 0xc8d2b887;
 

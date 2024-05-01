@@ -47,11 +47,10 @@ protected:
     }
 
 private:
-    enum {
-        W = 640,
-        H = 480,
-        N = 300,
-    };
+    static constexpr int W = 640;
+    static constexpr int H = 480;
+    static constexpr int N = 300;
+
     SkRect  fRects[N];
     SkColor fColors[N];
     bool fInit;

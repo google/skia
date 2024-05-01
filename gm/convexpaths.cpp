@@ -78,10 +78,9 @@ class ConvexPathsGM : public skiagm::GM {
                                        SkPathDirection::kCW));
 
         // large number of points
-        enum {
-            kLength = 100,
-            kPtsPerSide = (1 << 12),
-        };
+        static constexpr int kLength = 100;
+        static constexpr int kPtsPerSide = (1 << 12);
+
         b.moveTo(0, 0);
         for (int i = 1; i < kPtsPerSide; ++i) { // skip the first point due to moveTo.
             b.lineTo(kLength * SkIntToScalar(i) / kPtsPerSide, 0);
