@@ -81,6 +81,7 @@ public:
 #if defined(GRAPHITE_TEST_UTILS)
     bool deviceIsRegistered(Device*) const;
     ResourceCache* resourceCache() { return fRecorder->fResourceProvider->resourceCache(); }
+    SharedContext* sharedContext() { return fRecorder->fSharedContext.get(); }
     // used by the Context that created this Recorder to set a back pointer
     void setContext(Context*);
     Context* context() { return fRecorder->fContext; }
