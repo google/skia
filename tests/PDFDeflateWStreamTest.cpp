@@ -23,11 +23,11 @@
 #include <cstdint>
 #include <memory>
 
+#include "zlib.h"
+
 using namespace skia_private;
 
 namespace {
-
-#include "zlib.h"
 
 // Different zlib implementations use different T.
 // We've seen size_t and unsigned.
