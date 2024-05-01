@@ -488,6 +488,8 @@ public:
     std::pair<const void*, SkIRect> prepareForUpload();
     void resetRects();
 
+    void markFullIfUsed() { fIsFull = !fDirtyRect.isEmpty(); }
+
     /**
      * Create a clone of this plot. The cloned plot will take the place of the current plot in
      * the atlas
@@ -529,6 +531,7 @@ private:
     const SkColorType fColorType;
     const size_t fBytesPerPixel;
     SkIRect fDirtyRect;  // area in the Plot that needs to be uploaded
+    bool fIsFull;
     SkDEBUGCODE(bool fDirty;)
 };
 

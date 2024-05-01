@@ -34,6 +34,7 @@ Plot::Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCount
         , fOffset(SkIPoint16::Make(fX * fWidth, fY * fHeight))
         , fColorType(colorType)
         , fBytesPerPixel(bpp)
+        , fIsFull(false)
 #ifdef SK_DEBUG
         , fDirty(false)
 #endif
@@ -120,7 +121,7 @@ void Plot::copySubImage(const AtlasLocator& al, const void* image) {
 }
 
 bool Plot::addSubImage(int width, int height, const void* image, AtlasLocator* atlasLocator) {
-    if (!this->addRect(width, height, atlasLocator)) {
+    if (fIsFull || !this->addRect(width, height, atlasLocator)) {
         return false;
     }
     this->copySubImage(*atlasLocator, image);
@@ -150,6 +151,7 @@ std::pair<const void*, SkIRect> Plot::prepareForUpload() {
     offsetRect = fDirtyRect.makeOffset(fOffset.fX, fOffset.fY);
 
     fDirtyRect.setEmpty();
+    fIsFull = false;
     SkDEBUGCODE(fDirty = false);
 
     return { dataPtr, offsetRect };
@@ -168,6 +170,7 @@ void Plot::resetRects() {
     }
 
     fDirtyRect.setEmpty();
+    fIsFull = false;
     SkDEBUGCODE(fDirty = false;)
 }
 

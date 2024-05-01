@@ -153,6 +153,10 @@ public:
 
     void compact(AtlasToken startTokenForNextFlush);
 
+    // Mark all plots with any content as full. Used only with Vello because it can't do
+    // new renders to a texture without a clear.
+    void markUsedPlotsAsFull();
+
     void evictAllPlots();
 
     uint32_t maxPages() const {

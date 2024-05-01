@@ -502,6 +502,17 @@ inline void DrawAtlas::deactivateLastPage() {
     --fNumActivePages;
 }
 
+void DrawAtlas::markUsedPlotsAsFull() {
+    PlotList::Iter plotIter;
+    for (uint32_t pageIndex = 0; pageIndex < fNumActivePages; ++pageIndex) {
+        plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+        while (Plot* plot = plotIter.get()) {
+            plot->markFullIfUsed();
+            plotIter.next();
+        }
+    }
+}
+
 void DrawAtlas::evictAllPlots() {
     PlotList::Iter plotIter;
     for (uint32_t pageIndex = 0; pageIndex < fNumActivePages; ++pageIndex) {
