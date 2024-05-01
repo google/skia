@@ -976,8 +976,8 @@ public:
         fCallback.call<void>("freeSrc");
     }
 
-    std::unique_ptr<GrExternalTexture> generateExternalTexture(
-            GrRecordingContext* ctx, skgpu::Mipmapped mipmapped) override {
+    std::unique_ptr<GrExternalTexture> generateExternalTexture(GrRecordingContext* ctx,
+                                                               skgpu::Mipmapped) override {
         GrGLTextureInfo glInfo;
 
         // This callback is defined in webgl.js
@@ -988,8 +988,11 @@ public:
         glInfo.fFormat = GR_GL_RGBA8;
         glInfo.fTarget = GR_GL_TEXTURE_2D;
 
-        auto backendTexture =
-                GrBackendTextures::MakeGL(fInfo.width(), fInfo.height(), mipmapped, glInfo);
+        // These textures are unlikely to actually have mipmaps generated (we might even be on
+        // WebGL 1, where Skia doesn't support mipmapping at all). Therefore, we ignore any request
+        // for mipmapping here. See: b/338095525
+        auto backendTexture = GrBackendTextures::MakeGL(
+                fInfo.width(), fInfo.height(), skgpu::Mipmapped::kNo, glInfo);
 
         // In order to bind the image source to the texture, makeTexture has changed which
         // texture is "in focus" for the WebGL context.
