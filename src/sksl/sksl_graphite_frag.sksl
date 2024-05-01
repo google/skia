@@ -1402,14 +1402,13 @@ $pure half4 analytic_rrect_coverage_fn(float4 coords,
 
             d.y = -max(innerDist.x, innerDist.y);
             if (strokeParams.x > 0.0) {
-                float strokeDim = min(strokeWidth.x, strokeWidth.y);
-                if (innerDist.y >= -0.5 && strokeWidth.y > strokeDim) {
-                    strokeDim = strokeWidth.y;
-                }
-                if (innerDist.x >= -0.5 && strokeWidth.x > strokeDim) {
-                    strokeDim = strokeWidth.x;
-                }
-                scale = min(strokeDim, 1.0);
+                float narrowStroke = min(strokeWidth.x, strokeWidth.y);
+                // On an axis where innerDist >= -0.5, allow strokeWidth.x/y to be preserved as-is.
+                // On an axis where innerDist < -0.5, use the smaller of strokeWidth.x/y.
+                float2 strokeDim = mix(float2(narrowStroke), strokeWidth,
+                                       greaterThanEqual(innerDist, float2(-0.5)));
+                // Preserve the wider axis from the above calculation.
+                scale = saturate(max(strokeDim.x, strokeDim.y));
                 bias = coverage_bias(scale);
             } else {
                 // A hairline, so scale and bias should both be 1
