@@ -311,7 +311,13 @@ bool DawnBuffer::isUnmappable() const {
 }
 
 void DawnBuffer::freeGpuData() {
-    fBuffer = nullptr;
+    if (fBuffer) {
+        // Explicitly destroy the buffer since it might be ref'd by cached bind groups which are
+        // not immediately cleaned up. Graphite should already guarantee that all command buffers
+        // using this buffer (indirectly via BindGroups) are already completed.
+        fBuffer.Destroy();
+        fBuffer = nullptr;
+    }
 }
 
 void DawnBuffer::onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
