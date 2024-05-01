@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/ComputePathAtlas.h"
 
 #include "include/gpu/graphite/Recorder.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Log.h"
@@ -107,7 +108,8 @@ class VelloComputePathAtlas final : public ComputePathAtlas {
 public:
     explicit VelloComputePathAtlas(Recorder* recorder) : ComputePathAtlas(recorder) {}
     // Record the compute dispatches that will draw the atlas contents.
-    std::unique_ptr<DispatchGroup> recordDispatches(Recorder* recorder) const override;
+    bool recordDispatches(Recorder* recorder,
+                          ComputeTask::DispatchGroupList* dispatches) const override;
 
 private:
     const TextureProxy* onAddShape(const Shape&,
@@ -117,20 +119,21 @@ private:
                                    skvx::half2* outPos) override;
     void onReset() override {
         fScene.reset();
-        fOccuppiedWidth = fOccuppiedHeight = 0;
+        fOccupiedWidth = fOccupiedHeight = 0;
     }
 
     // Contains the encoded scene buffer data that serves as the input to a vello compute pass.
     VelloScene fScene;
 
-    // Occuppied bounds of the atlas
-    uint32_t fOccuppiedWidth = 0;
-    uint32_t fOccuppiedHeight = 0;
+    // Occupied bounds of the atlas
+    uint32_t fOccupiedWidth = 0;
+    uint32_t fOccupiedHeight = 0;
 };
 
-std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder* recorder) const {
+bool VelloComputePathAtlas::recordDispatches(Recorder* recorder,
+                                             ComputeTask::DispatchGroupList* dispatches) const {
     if (!this->texture()) {
-        return nullptr;
+        return false;
     }
 
     SkASSERT(recorder && recorder == fRecorder);
@@ -144,11 +147,19 @@ std::unique_ptr<DispatchGroup> VelloComputePathAtlas::recordDispatches(Recorder*
         config = VelloAaConfig::kMSAA8;
     }
 #endif
-    return recorder->priv().rendererProvider()->velloRenderer()->renderScene(
-            {fOccuppiedWidth, fOccuppiedHeight, SkColors::kBlack, config},
-            fScene,
-            sk_ref_sp(this->texture()),
-            recorder);
+    std::unique_ptr<DispatchGroup> dispatchGroup =
+            recorder->priv().rendererProvider()->velloRenderer()->renderScene(
+                {fOccupiedWidth, fOccupiedHeight, SkColors::kBlack, config},
+                fScene,
+                sk_ref_sp(this->texture()),
+                recorder);
+    if (!dispatchGroup) {
+        return false;
+    }
+    TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                         "# dispatches", dispatchGroup->dispatches().size());
+    dispatches->emplace_back(std::move(dispatchGroup));
+    return true;
 }
 
 const TextureProxy* VelloComputePathAtlas::onAddShape(
@@ -177,8 +188,8 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
     // Restrict the render to the occupied area of the atlas, including entry padding so that the
     // padded row/column is cleared when Vello renders.
     Rect atlasBounds = Rect::XYWH(skvx::float2(iPos.x(), iPos.y()), skvx::cast<float>(maskSize));
-    fOccuppiedWidth = std::max(fOccuppiedWidth, (uint32_t)atlasBounds.right() + kEntryPadding);
-    fOccuppiedHeight = std::max(fOccuppiedHeight, (uint32_t)atlasBounds.bot() + kEntryPadding);
+    fOccupiedWidth = std::max(fOccupiedWidth, (uint32_t)atlasBounds.right() + kEntryPadding);
+    fOccupiedHeight = std::max(fOccupiedHeight, (uint32_t)atlasBounds.bot() + kEntryPadding);
 
     // TODO(b/283876964): Apply clips here. Initially we'll need to encode the clip stack repeatedly
     // for each shape since the full vello renderer treats clips and their affected draws as a

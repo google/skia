@@ -9,6 +9,7 @@
 #define skgpu_graphite_ComputePathAtlas_DEFINED
 
 #include "src/gpu/graphite/PathAtlas.h"
+#include "src/gpu/graphite/task/ComputeTask.h"
 
 #include "src/gpu/RectanizerSkyline.h"
 
@@ -38,7 +39,8 @@ public:
     // Returns the currently preferred ComputePathAtlas implementation.
     static std::unique_ptr<ComputePathAtlas> CreateDefault(Recorder*);
 
-    virtual std::unique_ptr<DispatchGroup> recordDispatches(Recorder*) const = 0;
+    virtual bool recordDispatches(Recorder*,
+                                  ComputeTask::DispatchGroupList* dispatches) const = 0;
 
     // Clear all scheduled atlas draws and free up atlas allocations, if necessary. After this call
     // the atlas can be considered cleared and available for new shape insertions. However this

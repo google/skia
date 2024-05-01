@@ -199,19 +199,15 @@ void DrawContext::flush(Recorder* recorder) {
     // much like how uploads are handled. In that case, Device would be responsible for triggering
     // the recording of dispatches, but that may happen naturally in AtlasProvider::recordUploads().
     if (fComputePathAtlas) {
-        auto dispatchGroup = fComputePathAtlas->recordDispatches(recorder);
-        fComputePathAtlas->reset();
-
-        if (dispatchGroup) {
+        ComputeTask::DispatchGroupList dispatches;
+        if (fComputePathAtlas->recordDispatches(recorder, &dispatches)) {
             // For now this check is valid as all coverage mask draws involve dispatches
             SkASSERT(fPendingDraws->hasCoverageMaskDraws());
 
-            TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
-                                 "# dispatches", dispatchGroup->dispatches().size());
-            ComputeTask::DispatchGroupList dispatches;
-            dispatches.emplace_back(std::move(dispatchGroup));
             fCurrentDrawTask->addTask(ComputeTask::Make(std::move(dispatches)));
         } // else no pending compute work needed to be recorded
+
+        fComputePathAtlas->reset();
     } // else platform doesn't support compute or atlas was never initialized.
 
     if (fPendingDraws->renderStepCount() == 0 && fPendingLoadOp != LoadOp::kClear) {
