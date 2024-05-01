@@ -1440,6 +1440,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
     TESS_LOG("simplifying complex polygons\n");
 
     int initialNumEdges = fNumEdges;
+    int numSelfIntersections = 0;
 
     EdgeList activeEdges;
     auto result = SimplifyResult::kAlreadySimple;
@@ -1452,6 +1453,12 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
         // renderers enabled and with the triangulator's maxVerbCount set to the Chrome value is
         // 17x.
         if (fNumEdges > 170*initialNumEdges) {
+            return SimplifyResult::kFailed;
+        }
+
+        // In pathological cases, a path can intersect itself millions of times. After 500,000
+        // self-intersections are found, reject the path.
+        if (numSelfIntersections > 500000) {
             return SimplifyResult::kFailed;
         }
 
@@ -1471,12 +1478,14 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
                             leftEnclosingEdge, edge, &activeEdges, &v, mesh, c);
                     if (l == BoolFail::kFail) {
                         return SimplifyResult::kFailed;
-                    } else if (l == BoolFail::kFalse) {
+                    }
+                    if (l == BoolFail::kFalse) {
                         BoolFail r = this->checkForIntersection(
                                 edge, rightEnclosingEdge, &activeEdges, &v, mesh, c);
                         if (r == BoolFail::kFail) {
                             return SimplifyResult::kFailed;
-                        } else if (r == BoolFail::kFalse) {
+                        }
+                        if (r == BoolFail::kFalse) {
                             // Neither l and r are both false.
                             continue;
                         }
@@ -1485,6 +1494,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
                     // Either l or r are true.
                     result = SimplifyResult::kFoundSelfIntersection;
                     restartChecks = true;
+                    ++numSelfIntersections;
                     break;
                 }  // for
             } else {
@@ -1496,8 +1506,8 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
                 if (bf == BoolFail::kTrue) {
                     result = SimplifyResult::kFoundSelfIntersection;
                     restartChecks = true;
+                    ++numSelfIntersections;
                 }
-
             }
         } while (restartChecks);
 #ifdef SK_DEBUG
