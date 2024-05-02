@@ -262,6 +262,11 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~top25desk_ebay_com.skp_1.1")
 		match = append(match, "~top25desk_ebay.skp_1.1")
 	}
+	if b.gpu("Tegra3") {
+		// skbug.com/338376730
+		match = append(match, "~GM_matrixconvolution_bigger")
+		match = append(match, "~GM_matrixconvolution_biggest")
+	}
 	if b.extraConfig("Vulkan") && b.gpu("GTX660") {
 		// skia:8523 skia:9271
 		match = append(match, "~compositing_images")
