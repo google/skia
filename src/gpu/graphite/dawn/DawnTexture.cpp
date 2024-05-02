@@ -106,12 +106,14 @@ DawnTexture::DawnTexture(const DawnSharedContext* sharedContext,
                          wgpu::Texture texture,
                          wgpu::TextureView sampleTextureView,
                          wgpu::TextureView renderTextureView,
+                         std::string_view label,
                          Ownership ownership,
                          skgpu::Budgeted budgeted)
         : Texture(sharedContext,
                   dimensions,
                   info,
                   /*mutableState=*/nullptr,
+                  std::move(label),
                   ownership,
                   budgeted)
         , fTexture(std::move(texture))
@@ -161,6 +163,7 @@ std::pair<wgpu::TextureView, wgpu::TextureView> DawnTexture::CreateTextureViews(
 sk_sp<Texture> DawnTexture::Make(const DawnSharedContext* sharedContext,
                                  SkISize dimensions,
                                  const TextureInfo& info,
+                                 std::string_view label,
                                  skgpu::Budgeted budgeted) {
     auto texture = MakeDawnTexture(sharedContext, dimensions, info);
     if (!texture) {
@@ -173,6 +176,7 @@ sk_sp<Texture> DawnTexture::Make(const DawnSharedContext* sharedContext,
                                           std::move(texture),
                                           std::move(sampleTextureView),
                                           std::move(renderTextureView),
+                                          std::move(label),
                                           Ownership::kOwned,
                                           budgeted));
 }
@@ -180,7 +184,8 @@ sk_sp<Texture> DawnTexture::Make(const DawnSharedContext* sharedContext,
 sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                         SkISize dimensions,
                                         const TextureInfo& info,
-                                        wgpu::Texture texture) {
+                                        wgpu::Texture texture,
+                                        std::string_view label) {
     if (!texture) {
         SKGPU_LOG_E("No valid texture passed into MakeWrapped\n");
         return {};
@@ -193,6 +198,7 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                           std::move(texture),
                                           std::move(sampleTextureView),
                                           std::move(renderTextureView),
+                                          std::move(label),
                                           Ownership::kWrapped,
                                           skgpu::Budgeted::kNo));
 }
@@ -200,7 +206,8 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
 sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                         SkISize dimensions,
                                         const TextureInfo& info,
-                                        const wgpu::TextureView& textureView) {
+                                        const wgpu::TextureView& textureView,
+                                        std::string_view label) {
     if (!textureView) {
         SKGPU_LOG_E("No valid texture view passed into MakeWrapped\n");
         return {};
@@ -211,6 +218,7 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                           /*texture=*/nullptr,
                                           /*sampleTextureView=*/textureView,
                                           /*renderTextureView=*/textureView,
+                                          std::move(label),
                                           Ownership::kWrapped,
                                           skgpu::Budgeted::kNo));
 }

@@ -106,7 +106,12 @@ sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
     // Scratch textures are not shareable
     fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kNo, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key, budgeted);
+    // TODO: Update this function to take a more specific label for the scratch texture
+    return this->findOrCreateTextureWithKey(dimensions,
+                                            info,
+                                            key,
+                                            "ScratchTexture",
+                                            budgeted);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dimensions,
@@ -121,7 +126,11 @@ sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dime
     // stomping on each other's data.
     fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key, skgpu::Budgeted::kYes);
+    return this->findOrCreateTextureWithKey(dimensions,
+                                            info,
+                                            key,
+                                            "DepthStencilAttachment",
+                                            skgpu::Budgeted::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize dimensions,
@@ -138,22 +147,28 @@ sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize d
     // render pass.
     fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key, skgpu::Budgeted::kYes);
+    return this->findOrCreateTextureWithKey(dimensions,
+                                            info,
+                                            key,
+                                            "DiscardableMSAAAttachment",
+                                            skgpu::Budgeted::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateTextureWithKey(SkISize dimensions,
                                                             const TextureInfo& info,
                                                             const GraphiteResourceKey& key,
+                                                            std::string_view label,
                                                             skgpu::Budgeted budgeted) {
     // If the resource is shareable it should be budgeted since it shouldn't be backing any client
     // owned object.
     SkASSERT(key.shareable() == Shareable::kNo || budgeted == skgpu::Budgeted::kYes);
 
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
+        resource->setLabel(label);
         return sk_sp<Texture>(static_cast<Texture*>(resource));
     }
 
-    auto tex = this->createTexture(dimensions, info, budgeted);
+    auto tex = this->createTexture(dimensions, info, std::move(label), budgeted);
     if (!tex) {
         return nullptr;
     }

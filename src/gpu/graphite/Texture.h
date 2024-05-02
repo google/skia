@@ -44,6 +44,7 @@ protected:
             SkISize dimensions,
             const TextureInfo& info,
             sk_sp<MutableTextureState> mutableState,
+            std::string_view label,
             Ownership,
             skgpu::Budgeted);
 

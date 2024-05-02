@@ -41,6 +41,7 @@ public:
                                const VulkanResourceProvider*,
                                SkISize dimensions,
                                const TextureInfo&,
+                               std::string_view label,
                                skgpu::Budgeted);
 
     static sk_sp<Texture> MakeWrapped(const VulkanSharedContext*,
@@ -49,7 +50,8 @@ public:
                                       const TextureInfo&,
                                       sk_sp<MutableTextureState>,
                                       VkImage,
-                                      const VulkanAlloc&);
+                                      const VulkanAlloc&,
+                                      std::string_view label);
 
     ~VulkanTexture() override {}
 
@@ -96,6 +98,7 @@ private:
                   sk_sp<MutableTextureState>,
                   VkImage,
                   const VulkanAlloc&,
+                  std::string_view label,
                   Ownership,
                   skgpu::Budgeted,
                   sk_sp<VulkanSamplerYcbcrConversion>);

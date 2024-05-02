@@ -88,7 +88,8 @@ sk_sp<Texture> VulkanResourceProvider::createWrappedTexture(const BackendTexture
                                       texture.info(),
                                       texture.getMutableState(),
                                       texture.getVkImage(),
-                                      /*alloc=*/{}); // Skia does not own wrapped texture memory
+                                      /*alloc=*/{},  // Skia does not own wrapped texture memory
+                                      "WrappedTexture");
 }
 
 sk_sp<Buffer> VulkanResourceProvider::refIntrinsicConstantBuffer() const {
@@ -117,9 +118,16 @@ sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const Compu
     return nullptr;
 }
 
-sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size, const TextureInfo& info,
+sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size,
+                                                     const TextureInfo& info,
+                                                     std::string_view label,
                                                      skgpu::Budgeted budgeted) {
-    return VulkanTexture::Make(this->vulkanSharedContext(), this, size, info, budgeted);
+    return VulkanTexture::Make(this->vulkanSharedContext(),
+                               this,
+                               size,
+                               info,
+                               std::move(label),
+                               budgeted);
 }
 
 sk_sp<Buffer> VulkanResourceProvider::createBuffer(size_t size,

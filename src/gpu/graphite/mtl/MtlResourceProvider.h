@@ -40,7 +40,10 @@ private:
                                                    const RenderPassDesc&) override;
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
 
-    sk_sp<Texture> createTexture(SkISize, const TextureInfo&, skgpu::Budgeted) override;
+    sk_sp<Texture> createTexture(SkISize,
+                                 const TextureInfo&,
+                                 std::string_view label,
+                                 skgpu::Budgeted) override;
     sk_sp<Buffer> createBuffer(size_t size,
                                BufferType type,
                                AccessPattern,
