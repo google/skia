@@ -4138,7 +4138,12 @@ UNIX_ONLY_TEST(SkParagraph_EmojiParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->lines().size() == 8);
     for (auto& line : impl->lines()) {
         if (&line != impl->lines().end() - 1) {
-            REPORTER_ASSERT(reporter, line.width() == 998.25f, "width: %f", line.width());
+            // The actual value is 50_size / 109_ppemX * 136_advance = ~62.385319
+            // FreeType reports advances in 24.6 fixed point, so each is 62.390625
+            REPORTER_ASSERT(reporter,
+                            line.width() == 998.25f ||
+                            (998.1 < line.width() && line.width() < 998.2),
+                            "width: %f", line.width());
         } else {
             REPORTER_ASSERT(reporter, line.width() < 998.25f, "width: %f", line.width());
         }

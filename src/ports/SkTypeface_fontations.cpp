@@ -515,6 +515,10 @@ protected:
             }
             matrix.mapRect(&bounds);
             mx.bounds = SkRect::Make(bounds.roundOut());
+
+            if (SkIsFinite(bitmapMetrics.advance)) {
+                mx.advance = matrix.mapVector(bitmapMetrics.advance, 0);
+            }
         } else {
             // TODO: Retrieve from read_fonts and Skrifa - TrueType bbox or from path with
             // hinting?

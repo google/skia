@@ -1110,25 +1110,28 @@ mod bitmap {
                         data: Some(BitmapPixelData::PngData(sbix_glyph.glyph_data.data())),
                         metrics: FfiBitmapMetrics {
                             bearing_x: glyf_left_side_bearing,
-                            inner_bearing_x: sbix_glyph.glyph_data.origin_offset_x() as f32,
                             bearing_y: glyf_bb.y_min as f32,
+                            inner_bearing_x: sbix_glyph.glyph_data.origin_offset_x() as f32,
                             inner_bearing_y: sbix_glyph.glyph_data.origin_offset_y() as f32,
                             width: glyf_bb.x_max as f32 - glyf_bb.x_min as f32,
                             height: glyf_bb.y_max as f32 - glyf_bb.y_min as f32,
                             ppem_x: sbix_glyph.ppem as f32,
                             ppem_y: sbix_glyph.ppem as f32,
                             placement_origin_bottom_left: true,
+                            advance: f32::NAN,
                         },
                     }));
                 } else if let Some(cblc_glyph) = cblc_glyph(font, glyph_id, Some(font_size)) {
-                    let (bearing_x, bearing_y) = match cblc_glyph.bitmap_data.metrics {
+                    let (bearing_x, bearing_y, advance) = match cblc_glyph.bitmap_data.metrics {
                         BitmapMetrics::Small(small_metrics) => (
                             small_metrics.bearing_x() as f32,
                             small_metrics.bearing_y() as f32,
+                            small_metrics.advance as f32,
                         ),
                         BitmapMetrics::Big(big_metrics) => (
                             big_metrics.hori_bearing_x() as f32,
                             big_metrics.hori_bearing_y() as f32,
+                            big_metrics.hori_advance as f32,
                         ),
                     };
                     if let BitmapContent::Data(BitmapDataFormat::Png, png_buffer) =
@@ -1137,13 +1140,16 @@ mod bitmap {
                         return Some(Box::new(BridgeBitmapGlyph {
                             data: Some(BitmapPixelData::PngData(png_buffer)),
                             metrics: FfiBitmapMetrics {
+                                bearing_x: 0.0,
+                                bearing_y: 0.0,
                                 inner_bearing_x: bearing_x,
                                 inner_bearing_y: bearing_y,
-                                ppem_x: cblc_glyph.ppem_x as f32,
-                                ppem_y: cblc_glyph.ppem_y as f32,
                                 width: f32::INFINITY,
                                 height: f32::INFINITY,
-                                ..Default::default()
+                                ppem_x: cblc_glyph.ppem_x as f32,
+                                ppem_y: cblc_glyph.ppem_y as f32,
+                                placement_origin_bottom_left: false,
+                                advance: advance,
                             },
                         }));
                     }
@@ -1285,6 +1291,8 @@ mod ffi {
         // offset applied to placing the image within the bounds rectangle.
         inner_bearing_x: f32,
         inner_bearing_y: f32,
+        // Some, but not all, bitmap glyphs have a special bitmap advance
+        advance: f32,
     }
 
     extern "Rust" {
