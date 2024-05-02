@@ -108,7 +108,7 @@
 //
 // When adding a new category it's likely best to add both "new_category" and "new_category.always",
 // though not strictly required. "new_category.always" is used internally when "new_category" is
-// given to TRACE_EVENT0_ALWAYS macros, which are used for core events that should always show up in
+// given to TRACE_EVENTx_ALWAYS macros, which are used for core events that should always show up in
 // traces for the Android framework. Adding both to begin with will likely reduce churn if/when
 // "new_category" is used across both normal tracing macros and _ALWAYS variants in the future, but
 // it's not a strict requirement.
@@ -132,7 +132,7 @@ PERFETTO_DEFINE_CATEGORIES(
     perfetto::Category("test_cpu"),
     perfetto::Category("test_ganesh"),
     perfetto::Category("test_graphite"),
-    // ".always" variants are currently required for any category used in TRACE_EVENT0_ALWAYS.
+    // ".always" variants are currently required for any category used in TRACE_EVENTx_ALWAYS.
     perfetto::Category("GM.always").SetTags("skia.always"),
     perfetto::Category("skia.always").SetTags("skia.always"),
     perfetto::Category("skia.android.always").SetTags("skia.always"),
@@ -234,9 +234,11 @@ static inline void sk_noop(Args...) {}
     #define ATRACE_ANDROID_FRAMEWORK(fmt, ...) TRACE_EMPTY_FMT(fmt, ##__VA_ARGS__)
     #define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...) TRACE_EMPTY_FMT(fmt, ##__VA_ARGS__)
     #define TRACE_EVENT0(cg, n) TRACE_EMPTY(cg, n)
-    #define TRACE_EVENT0_ALWAYS(cg, n) TRACE_EMPTY(cg, n)
     #define TRACE_EVENT1(cg, n, a1n, a1v) TRACE_EMPTY(cg, n, a1n, a1v)
     #define TRACE_EVENT2(cg, n, a1n, a1v, a2n, a2v) TRACE_EMPTY(cg, n, a1n, a1v, a2n, a2v)
+    #define TRACE_EVENT0_ALWAYS(cg, n) TRACE_EMPTY(cg, n)
+    #define TRACE_EVENT1_ALWAYS(cg, n, a1n, a1v) TRACE_EMPTY(cg, n, a1n, a1v)
+    #define TRACE_EVENT2_ALWAYS(cg, n, a1n, a1v, a2n, a2v) TRACE_EMPTY(cg, n, a1n, a1v, a2n, a2v)
     #define TRACE_EVENT_INSTANT0(cg, n, scope) TRACE_EMPTY(cg, n, scope)
     #define TRACE_EVENT_INSTANT1(cg, n, scope, a1n, a1v) TRACE_EMPTY(cg, n, scope, a1n, a1v)
     #define TRACE_EVENT_INSTANT2(cg, n, scope, a1n, a1v, a2n, a2v)  \
@@ -263,6 +265,25 @@ namespace skia_private {
         return str;
     }
 
+    // WrapTraceArgInStdString serves a similar purpose to UnboxPerfettoString, but also accepts
+    // numeric values that are often used as trace arguments. This necessitates always wrapping the
+    // argument in a new std::string, instead of just passing along/unboxing an existing C-style
+    // string. This comes at a slight cost, and should only be used for trace slice arguments but
+    // not slice names, where UnboxPerfettoString should be used instead.
+    template<typename T>
+    inline std::string WrapTraceArgInStdString(const T numeric) {
+        return std::to_string(numeric);
+    }
+    inline std::string WrapTraceArgInStdString(const ::perfetto::DynamicString& str) {
+        return std::string(str.value);
+    }
+    inline std::string WrapTraceArgInStdString(const ::perfetto::StaticString& str) {
+        return std::string(str.value);
+    }
+    inline std::string WrapTraceArgInStdString(const char* str) {
+        return std::string(str);
+    }
+
     constexpr bool StrEndsWithAndLongerThan(const char* str, const char* suffix) {
         auto strView = std::basic_string_view(str);
         auto suffixView = std::basic_string_view(suffix);
@@ -280,10 +301,89 @@ namespace skia_private {
 #define SK_PERFETTO_INTERNAL_CONCAT(a, b) SK_PERFETTO_INTERNAL_CONCAT2(a, b)
 #define SK_PERFETTO_UID(prefix) SK_PERFETTO_INTERNAL_CONCAT(prefix, __LINE__)
 
+// Used by SK_INTERNAL_ATRACE_ARGS_BEGIN and SK_INTERNAL_ATRACE_ARGS_END to select which overloaded
+// macro to use depending on how many __VA_ARGS__ are present. The number of __VA_ARGS__ piped in
+// from this macro caller's parent caller determines which macro name given by the caller ends up in
+// the macro_name slot here. See usage for nuance.
+#define SK_INTERNAL_GET_ATRACE_ARGS_MACRO(_0, _1a, _1b, _2a, _2b, macro_name, ...) macro_name
+
+#define SK_INTERNAL_ATRACE_ARGS_BEGIN_0(name) \
+    ATRACE_BEGIN(::skia_private::UnboxPerfettoString(name));
+
+#define SK_INTERNAL_ATRACE_ARGS_BEGIN_1(name, arg1_name, arg1_val)                 \
+    char SK_PERFETTO_UID(skTraceStrBuf1)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE]; \
+    snprintf(SK_PERFETTO_UID(skTraceStrBuf1),                                      \
+             SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE,                              \
+             "^(%s: %s)",                                                          \
+             ::skia_private::UnboxPerfettoString(arg1_name),                       \
+             ::skia_private::WrapTraceArgInStdString(arg1_val).c_str());           \
+    ATRACE_BEGIN(::skia_private::UnboxPerfettoString(name));                       \
+    ATRACE_BEGIN(SK_PERFETTO_UID(skTraceStrBuf1));
+
+#define SK_INTERNAL_ATRACE_ARGS_BEGIN_2(                                           \
+        name, arg1_name, arg1_val, arg2_name, arg2_val, ...)                       \
+    char SK_PERFETTO_UID(skTraceStrBuf1)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE]; \
+    char SK_PERFETTO_UID(skTraceStrBuf2)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE]; \
+    snprintf(SK_PERFETTO_UID(skTraceStrBuf1),                                      \
+             SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE,                              \
+             "^(%s: %s)",                                                          \
+             ::skia_private::UnboxPerfettoString(arg1_name),                       \
+             ::skia_private::WrapTraceArgInStdString(arg1_val).c_str());           \
+    snprintf(SK_PERFETTO_UID(skTraceStrBuf2),                                      \
+             SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE,                              \
+            "^(%s: %s)",                                                           \
+             ::skia_private::UnboxPerfettoString(arg2_name),                       \
+             ::skia_private::WrapTraceArgInStdString(arg2_val).c_str());           \
+    ATRACE_BEGIN(::skia_private::UnboxPerfettoString(name));                       \
+    ATRACE_BEGIN(SK_PERFETTO_UID(skTraceStrBuf1));                                 \
+    ATRACE_BEGIN(SK_PERFETTO_UID(skTraceStrBuf2));
+
+// Will map to either the 0, 1, or 2 argument variant of this macro, which will trigger an
+// ATRACE_BEGIN event for the slice name, and one for each argument <name, value> pair. The caller
+// must ensure each of these 1-3 slices are properly terminated with 1-3 matching ATRACE_END events.
+#define SK_INTERNAL_ATRACE_ARGS_BEGIN(slice_name, ...)                 \
+    SK_INTERNAL_GET_ATRACE_ARGS_MACRO(0,                               \
+                                      ##__VA_ARGS__,                   \
+                                      SK_INTERNAL_ATRACE_ARGS_BEGIN_2, \
+                                      0,                               \
+                                      SK_INTERNAL_ATRACE_ARGS_BEGIN_1, \
+                                      0,                               \
+                                      SK_INTERNAL_ATRACE_ARGS_BEGIN_0) \
+    (slice_name, ##__VA_ARGS__)
+
+#define SK_INTERNAL_ATRACE_ARGS_END_2(arg1_name, arg1_val, arg2_name, arg2_val, ...) \
+    ATRACE_END();                                                                    \
+    ATRACE_END();                                                                    \
+    ATRACE_END();
+
+#define SK_INTERNAL_ATRACE_ARGS_END_1(arg1_name, arg1_val) \
+    ATRACE_END();                                          \
+    ATRACE_END();
+
+#define SK_INTERNAL_ATRACE_ARGS_END_0() \
+    ATRACE_END();
+
+// Will map to either the 0, 1, or 2 argument variant of this macro, which will trigger an
+// ATRACE_END event for the slice name, and one for each argument <name, value> pair. The caller
+// must ensure each of these 1-3 slices already existed from 1-3 matching ATRACE_BEGIN events.
+#define SK_INTERNAL_ATRACE_ARGS_END(...)                             \
+    SK_INTERNAL_GET_ATRACE_ARGS_MACRO(0,                             \
+                                      ##__VA_ARGS__,                 \
+                                      SK_INTERNAL_ATRACE_ARGS_END_2, \
+                                      0,                             \
+                                      SK_INTERNAL_ATRACE_ARGS_END_1, \
+                                      0,                             \
+                                      SK_INTERNAL_ATRACE_ARGS_END_0) \
+    (__VA_ARGS__)
+
 // Assuming there is an active tracing session, this call will create a trace event if tracing is
 // enabled (with SkAndroidFrameworkTraceUtil::setEnableTracing(true)) or if force_always_trace is
 // true. The event goes through ATrace by default, but can be routed to Perfetto instead by calling
 // SkAndroidFrameworkTraceUtil::setUsePerfettoTrackEvents(true).
+//
+// If ATrace is used, then additional sub-events will be created for each trace event argument
+// <name, value> pair (up to a max of two argument pairs). If Perfetto is used, then any arguments
+// will be associated with a single event.
 //
 // If force_always_trace = true, then the caller *must* append the ".always" suffix to the provided
 // category. This allows Perfetto tracing sessions to optionally filter to just the "skia.always"
@@ -305,7 +405,7 @@ namespace skia_private {
                     if (SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents()) {             \
                         TRACE_EVENT_END(category);                                              \
                     } else {                                                                    \
-                        ATRACE_END();                                                           \
+                        SK_INTERNAL_ATRACE_ARGS_END(__VA_ARGS__);                               \
                     }                                                                           \
                 }                                                                               \
             }                                                                                   \
@@ -319,25 +419,31 @@ namespace skia_private {
     } SK_PERFETTO_UID(scoped_event) {                                                           \
         [&]() {                                                                                 \
             static_assert(!force_always_trace ||                                                \
-                        ::skia_private::StrEndsWithAndLongerThan(category, ".always"),         \
+                        ::skia_private::StrEndsWithAndLongerThan(category, ".always"),          \
                     "[force_always_trace == true] requires [category] to end in '.always'");    \
             if (force_always_trace ||                                                           \
                     CC_UNLIKELY(SkAndroidFrameworkTraceUtil::getEnableTracing())) {             \
                 if (SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents()) {                 \
                     TRACE_EVENT_BEGIN(category, name, ##__VA_ARGS__);                           \
                 } else {                                                                        \
-                    ATRACE_BEGIN(::skia_private::UnboxPerfettoString(name));                   \
+                    SK_INTERNAL_ATRACE_ARGS_BEGIN(name, ##__VA_ARGS__);                         \
                 }                                                                               \
             }                                                                                   \
             return 0;                                                                           \
         }()                                                                                     \
     }
 
-// Records an event with the current tracing backend, if overall Skia tracing is also enabled.
+// Records an event with the current tracing backend if overall tracing is enabled, and Skia's
+// "broad" tracing is enabled with SkAndroidFrameworkTraceUtil::setEnableTracing(true).
 #define TRACE_EVENT_ATRACE_OR_PERFETTO(category, name, ...)                     \
     TRACE_EVENT_ATRACE_OR_PERFETTO_FORCEABLE(                                   \
             /* force_always_trace = */ false, category, name, ##__VA_ARGS__)
 
+// Traces a formatted string if overall tracing is enabled, and Skia's "broad" tracing is enabled
+// with SkAndroidFrameworkTraceUtil::setEnableTracing(true).
+// No-op outside of Android framework builds.
+// WARNING: this macro expands to a multi-line statement, and must not be used in a single line
+// control statement!
 #define ATRACE_ANDROID_FRAMEWORK(fmt, ...)                                                  \
     char SK_PERFETTO_UID(skTraceStrBuf)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE];           \
     if (SkAndroidFrameworkTraceUtil::getEnableTracing()) {                                  \
@@ -346,24 +452,50 @@ namespace skia_private {
     }                                                                                       \
     TRACE_EVENT0("skia.android", TRACE_STR_COPY(SK_PERFETTO_UID(skTraceStrBuf)))
 
+// Traces a formatted string as long as overall tracing is enabled, even if Skia's "broad" tracing
+// is disabled.
+// No-op outside of Android framework builds.
+// WARNING: this macro expands to a multi-line statement, and must not be used in a single line
+// control statement!
 #define ATRACE_ANDROID_FRAMEWORK_ALWAYS(fmt, ...)                                           \
     char SK_PERFETTO_UID(skTraceStrBuf)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE];           \
     snprintf(SK_PERFETTO_UID(skTraceStrBuf), SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE,       \
              fmt, ##__VA_ARGS__);                                                           \
     TRACE_EVENT0_ALWAYS("skia.android", TRACE_STR_COPY(SK_PERFETTO_UID(skTraceStrBuf)))
 
-// Records a pair of begin and end events called "name" for the current scope, with 0, 1 or 2
-// associated arguments. Note that ATrace does not support trace arguments, so they are only
-// recorded when Perfetto is set as the current tracing backend.
+// Records a pair of begin and end events called "name" (with 0-2 associated arguments) for the
+// current scope as long as overall tracing is enabled, and Skia's "broad" tracing is enabled with
+// SkAndroidFrameworkTraceUtil::setEnableTracing(true).
+// Note that ATrace does not natively support trace arguments, so arguments are recorded as separate
+// sub-events when ATrace is set as the current tracing backend. The Perfetto tracing backend
+// associates any arguments with a single event / slice.
 #define TRACE_EVENT0(category_group, name) \
     TRACE_EVENT_ATRACE_OR_PERFETTO(category_group, name)
-// Note: ".always" suffix appended to category_group in TRACE_EVENT0_ALWAYS.
-#define TRACE_EVENT0_ALWAYS(category_group, name) TRACE_EVENT_ATRACE_OR_PERFETTO_FORCEABLE( \
-        /* force_always_trace = */ true, category_group ".always", name)
 #define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) \
     TRACE_EVENT_ATRACE_OR_PERFETTO(category_group, name, arg1_name, arg1_val)
 #define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) \
     TRACE_EVENT_ATRACE_OR_PERFETTO(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val)
+
+// Records a pair of begin and end events called "name" (with 0-2 associated arguments) for the
+// current scope as long as overall tracing is enabled, even if Skia's "broad" tracing is disabled.
+// Note that ATrace does not natively support trace arguments, so arguments are recorded as separate
+// sub-events when ATrace is set as the current tracing backend. The Perfetto tracing backend
+// associates any arguments with a single event / slice.
+// Note: the ".always" suffix is appended to category_group in _ALWAYS trace event macro variants.
+#define TRACE_EVENT0_ALWAYS(category_group, name) \
+    TRACE_EVENT_ATRACE_OR_PERFETTO_FORCEABLE(     \
+            /* force_always_trace = */ true, category_group ".always", name)
+#define TRACE_EVENT1_ALWAYS(category_group, name, arg1_name, arg1_val) \
+    TRACE_EVENT_ATRACE_OR_PERFETTO_FORCEABLE(                          \
+            /* force_always_trace = */ true, category_group ".always", name, arg1_name, arg1_val)
+#define TRACE_EVENT2_ALWAYS(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) \
+    TRACE_EVENT_ATRACE_OR_PERFETTO_FORCEABLE(/* force_always_trace = */ true,               \
+                                             category_group ".always",                      \
+                                             name,                                          \
+                                             arg1_name,                                     \
+                                             arg1_val,                                      \
+                                             arg2_name,                                     \
+                                             arg2_val)
 
 // Records a single event called "name" immediately, with 0, 1 or 2 associated arguments.
 // Note that ATrace does not support trace arguments, so they are only recorded when Perfetto is set
@@ -433,13 +565,19 @@ namespace skia_private {
 #define TRACE_EVENT0(category_group, name) \
   INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name)
 
-#define TRACE_EVENT0_ALWAYS(category_group, name) \
-  INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name)
-
 #define TRACE_EVENT1(category_group, name, arg1_name, arg1_val) \
   INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name, arg1_name, arg1_val)
 
 #define TRACE_EVENT2(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) \
+  INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val)
+
+#define TRACE_EVENT0_ALWAYS(category_group, name) \
+  INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name)
+
+#define TRACE_EVENT1_ALWAYS(category_group, name, arg1_name, arg1_val) \
+  INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name, arg1_name, arg1_val)
+
+#define TRACE_EVENT2_ALWAYS(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val) \
   INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name, arg1_name, arg1_val, arg2_name, arg2_val)
 
 // Records a single event called "name" immediately, with 0, 1 or 2 associated arguments. If the
