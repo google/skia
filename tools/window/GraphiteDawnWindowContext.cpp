@@ -124,17 +124,17 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     DawnProcTable backendProcs = dawn::native::GetProcs();
     dawnProcSetProcs(&backendProcs);
 
-    static constexpr const char* kToggles[] = {
+    static constexpr const char* kAdapterToggles[] = {
         "allow_unsafe_apis",  // Needed for dual-source blending, BufferMapExtendedUsages.
         "use_user_defined_labels_in_backend",
     };
-    wgpu::DawnTogglesDescriptor togglesDesc;
-    togglesDesc.enabledToggleCount  = std::size(kToggles);
-    togglesDesc.enabledToggles      = kToggles;
+    wgpu::DawnTogglesDescriptor adapterTogglesDesc;
+    adapterTogglesDesc.enabledToggleCount  = std::size(kAdapterToggles);
+    adapterTogglesDesc.enabledToggles      = kAdapterToggles;
 
     wgpu::RequestAdapterOptions adapterOptions;
     adapterOptions.backendType = type;
-    adapterOptions.nextInChain = &togglesDesc;
+    adapterOptions.nextInChain = &adapterTogglesDesc;
 
     std::vector<dawn::native::Adapter> adapters = fInstance->EnumerateAdapters(&adapterOptions);
     if (adapters.empty()) {
@@ -182,6 +182,21 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
                 SK_ABORT("Device lost: %s\n", message);
             }
         };
+
+    wgpu::DawnTogglesDescriptor deviceTogglesDesc;
+
+    if (fDisplayParams.fDisableTintSymbolRenaming) {
+        static constexpr const char* kOptionalDeviceToggles[] = {
+            "disable_symbol_renaming",
+        };
+        deviceTogglesDesc.enabledToggleCount = std::size(kOptionalDeviceToggles);
+        deviceTogglesDesc.enabledToggles     = kOptionalDeviceToggles;
+
+        // Insert the toggles descriptor ahead of any existing entries in the chain that might have
+        // been added above.
+        deviceTogglesDesc.nextInChain = deviceDescriptor.nextInChain;
+        deviceDescriptor.nextInChain  = &deviceTogglesDesc;
+    }
 
     auto device = adapter.CreateDevice(&deviceDescriptor);
     if (!device) {

@@ -61,6 +61,9 @@ struct DisplayParams {
     GrContextOptions       fGrContextOptions;
 #if defined(SK_GRAPHITE)
     GraphiteContextOptions fGraphiteContextOptions;
+#if defined(SK_DAWN)
+    bool fDisableTintSymbolRenaming = false;
+#endif
 #endif
     SkSurfaceProps         fSurfaceProps;
     bool                   fDisableVsync;
