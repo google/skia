@@ -151,32 +151,59 @@ DEF_TEST(TypefaceStyleVariable, reporter) {
     }
 
     // If a fontmgr or typeface can do variations, ensure the variation affects the reported style.
-    const Variation::Coordinate nonDefaultPosition[] = {
-        { SkSetFourByteTag('w','g','h','t'), 200.0f },
-        { SkSetFourByteTag('w','d','t','h'), 75.0f },
+    struct TestCase {
+        std::vector<Variation::Coordinate> position;
+        SkFontStyle expected;
+
+        // On Mac10.15 and earlier, the wdth affected the style using the old gx ranges.
+        // On macOS 11 and later, the wdth affects the style using the new OpenType ranges.
+        // Allow old CoreText to report the wrong width values.
+        SkFontStyle mac1015expected;
+    } testCases[] = {
+      // In range but non-default
+      { {{ SkSetFourByteTag('w','g','h','t'), 200.0f },
+         { SkSetFourByteTag('w','d','t','h'), 75.0f  }},
+        {200, 3, SkFontStyle::kUpright_Slant},
+        {200, 9, SkFontStyle::kUpright_Slant}},
+
+      // Out of range low, should clamp
+      { {{ SkSetFourByteTag('w','g','h','t'), 0.0f },
+         { SkSetFourByteTag('w','d','t','h'), 75.0f  }},
+        {100, 3, SkFontStyle::kUpright_Slant},
+        {100, 9, SkFontStyle::kUpright_Slant}},
+
+      // Out of range high, should clamp
+      { {{ SkSetFourByteTag('w','g','h','t'), 10000.0f },
+         { SkSetFourByteTag('w','d','t','h'), 75.0f  }},
+        {900, 3, SkFontStyle::kUpright_Slant},
+        {900, 9, SkFontStyle::kUpright_Slant}},
     };
-    const SkFontStyle expectedStyle(200, 3, SkFontStyle::kUpright_Slant);
 
-    // On Mac10.15 and earlier, the wdth affected the style using the old gx ranges.
-    // On macOS 11 and later, the wdth affects the style using the new OpenType ranges.
-    // Allow old CoreText to report the wrong width values.
-#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
-    SkFontStyle mac1015style(200, 9, SkFontStyle::kUpright_Slant);
+    auto runTest = [&fm, &typeface, &stream, &reporter](TestCase& test){
+        static const constexpr bool isMac =
+#if defined(SK_BUILD_FOR_MAC)
+            true;
 #else
-    SkFontStyle mac1015style = expectedStyle;
+            false;
 #endif
-    SkFontArguments args;
-    args.setVariationDesignPosition(Variation{nonDefaultPosition, std::size(nonDefaultPosition)});
+        SkFontArguments args;
+        args.setVariationDesignPosition(Variation{test.position.data(), (int)test.position.size()});
 
-    sk_sp<SkTypeface> nonDefaultTypeface = fm->makeFromStream(stream->duplicate(), args);
-    SkFontStyle ndfs = nonDefaultTypeface->fontStyle();
-    REPORTER_ASSERT(reporter, ndfs == expectedStyle || ndfs == mac1015style,
-                    "ndfs: %d %d %d", ndfs.weight(), ndfs.width(), ndfs.slant());
+        sk_sp<SkTypeface> nonDefaultTypeface = fm->makeFromStream(stream->duplicate(), args);
+        SkFontStyle ndfs = nonDefaultTypeface->fontStyle();
+        REPORTER_ASSERT(reporter, ndfs == test.expected || (isMac && ndfs == test.mac1015expected),
+                        "ndfs: %d %d %d", ndfs.weight(), ndfs.width(), ndfs.slant());
 
-    sk_sp<SkTypeface> cloneTypeface = typeface->makeClone(args);
-    SkFontStyle cfs = cloneTypeface->fontStyle();
-    REPORTER_ASSERT(reporter, cfs == expectedStyle || cfs == mac1015style,
-                    "cfs: %d %d %d", cfs.weight(), cfs.width(), cfs.slant());
+        sk_sp<SkTypeface> cloneTypeface = typeface->makeClone(args);
+        SkFontStyle cfs = cloneTypeface->fontStyle();
+        REPORTER_ASSERT(reporter, cfs == test.expected || (isMac && cfs == test.mac1015expected),
+                        "cfs: %d %d %d", cfs.weight(), cfs.width(), cfs.slant());
+
+    };
+
+    for (auto&& testCase : testCases) {
+        runTest(testCase);
+    }
 }
 
 DEF_TEST(TypefacePostScriptName, reporter) {
