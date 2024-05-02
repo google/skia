@@ -199,6 +199,9 @@ protected:
     }
 #endif
 
+    // Needed to be protected for DawnBuffer emscripten prepareForReturnToCache
+    void setDeleteASAP() { fDeleteASAP = DeleteASAP::kYes; }
+
 private:
     friend class ProxyCache; // for setDeleteASAP and updateAccessTime
 
@@ -214,7 +217,6 @@ private:
     };
 
     DeleteASAP shouldDeleteASAP() const { return fDeleteASAP; }
-    void setDeleteASAP() { fDeleteASAP = DeleteASAP::kYes; }
 
     // In the ResourceCache this is called whenever a Resource is moved into the purgeableQueue. It
     // may also be called by the ProxyCache to track the time on Resources it is holding on to.
