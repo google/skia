@@ -75,6 +75,7 @@ std::pair<const Renderer*, std::optional<PathAtlas::MaskAndOrigin>> PathAtlas::a
 
 PathAtlas::DrawAtlasMgr::DrawAtlasMgr(size_t width, size_t height,
                                       size_t plotWidth, size_t plotHeight,
+                                      DrawAtlas::UseStorageTextures useStorageTextures,
                                       std::string_view label,
                                       const Caps* caps) {
     static constexpr SkColorType colorType = kAlpha_8_SkColorType;
@@ -83,11 +84,12 @@ PathAtlas::DrawAtlasMgr::DrawAtlasMgr(size_t width, size_t height,
                                  SkColorTypeBytesPerPixel(colorType),
                                  width, height,
                                  plotWidth, plotHeight,
-                                 this,
+                                 /*generationCounter=*/this,
                                  caps->allowMultipleAtlasTextures() ?
                                          DrawAtlas::AllowMultitexturing::kYes :
                                          DrawAtlas::AllowMultitexturing::kNo,
-                                 this,
+                                 useStorageTextures,
+                                 /*evictor=*/this,
                                  label);
     SkASSERT(fDrawAtlas);
     fKeyLists.resize(fDrawAtlas->numPlots() * fDrawAtlas->maxPages());

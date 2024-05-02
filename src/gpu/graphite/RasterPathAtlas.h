@@ -47,6 +47,7 @@ private:
                        size_t plotWidth, size_t plotHeight,
                        const Caps* caps)
             : PathAtlas::DrawAtlasMgr(width, height, plotWidth, plotHeight,
+                                      DrawAtlas::UseStorageTextures::kNo,
                                       /*label=*/"RasterPathAtlas", caps) {}
 
     protected:

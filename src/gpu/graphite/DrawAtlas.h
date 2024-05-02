@@ -55,6 +55,9 @@ public:
     /** Is the atlas allowed to use more than one texture? */
     enum class AllowMultitexturing : bool { kNo, kYes };
 
+    /** Should the atlas use storage textures? */
+    enum class UseStorageTextures : bool { kNo, kYes };
+
     /**
      * Returns a DrawAtlas.
      *  @param ct                  The colorType which this atlas will store.
@@ -65,7 +68,9 @@ public:
      *  @param plotWidth           The height of each plot. height/plotHeight should be an integer.
      *  @param atlasGeneration     A pointer to the context's generation counter.
      *  @param allowMultitexturing Can the atlas use more than one texture.
+     *  @param useStorageTextures  Should the atlas use storage textures.
      *  @param evictor             A pointer to an eviction callback class.
+     *  @param label               Label for texture resources.
      *
      *  @return                    An initialized DrawAtlas, or nullptr if creation fails.
      */
@@ -74,6 +79,7 @@ public:
                                            int plotWidth, int plotHeight,
                                            AtlasGenerationCounter* generationCounter,
                                            AllowMultitexturing allowMultitexturing,
+                                           UseStorageTextures useStorageTextures,
                                            PlotEvictionCallback* evictor,
                                            std::string_view label);
 
@@ -167,9 +173,12 @@ public:
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
-    DrawAtlas(SkColorType, size_t bpp, int width, int height, int plotWidth, int plotHeight,
+    DrawAtlas(SkColorType, size_t bpp,
+              int width, int height, int plotWidth, int plotHeight,
               AtlasGenerationCounter* generationCounter,
-              AllowMultitexturing allowMultitexturing, std::string_view label);
+              AllowMultitexturing allowMultitexturing,
+              UseStorageTextures useStorageTextures,
+              std::string_view label);
 
     bool addRectToPage(unsigned int pageIdx, int width, int height, AtlasLocator*);
 
@@ -216,6 +225,7 @@ private:
     int                   fPlotWidth;
     int                   fPlotHeight;
     unsigned int          fNumPlots;
+    UseStorageTextures    fUseStorageTextures;
     const std::string     fLabel;
     uint32_t              fAtlasID;   // unique identifier for this atlas
 

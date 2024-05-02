@@ -281,9 +281,10 @@ bool TextAtlasManager::initAtlas(MaskFormat format) {
                                           SkColorTypeBytesPerPixel(colorType),
                                           atlasDimensions.width(), atlasDimensions.height(),
                                           plotDimensions.width(), plotDimensions.height(),
-                                          this,
+                                          /*generationCounter=*/this,
                                           fAllowMultitexturing,
-                                          nullptr,
+                                          DrawAtlas::UseStorageTextures::kNo,
+                                          /*evictor=*/nullptr,
                                           /*label=*/"TextAtlas");
         if (!fAtlases[index]) {
             return false;

@@ -53,11 +53,12 @@ std::unique_ptr<DrawAtlas> DrawAtlas::Make(SkColorType colorType, size_t bpp, in
                                            int height, int plotWidth, int plotHeight,
                                            AtlasGenerationCounter* generationCounter,
                                            AllowMultitexturing allowMultitexturing,
+                                           UseStorageTextures useStorageTextures,
                                            PlotEvictionCallback* evictor,
                                            std::string_view label) {
     std::unique_ptr<DrawAtlas> atlas(new DrawAtlas(colorType, bpp, width, height,
                                                    plotWidth, plotHeight, generationCounter,
-                                                   allowMultitexturing, label));
+                                                   allowMultitexturing, useStorageTextures, label));
 
     if (evictor != nullptr) {
         atlas->fEvictionCallbacks.emplace_back(evictor);
@@ -76,20 +77,23 @@ static uint32_t next_id() {
 }
 DrawAtlas::DrawAtlas(SkColorType colorType, size_t bpp, int width, int height,
                      int plotWidth, int plotHeight, AtlasGenerationCounter* generationCounter,
-                     AllowMultitexturing allowMultitexturing, std::string_view label)
+                     AllowMultitexturing allowMultitexturing,
+                     UseStorageTextures useStorageTextures,
+                     std::string_view label)
         : fColorType(colorType)
         , fBytesPerPixel(bpp)
         , fTextureWidth(width)
         , fTextureHeight(height)
         , fPlotWidth(plotWidth)
         , fPlotHeight(plotHeight)
+        , fUseStorageTextures(useStorageTextures)
         , fLabel(label)
         , fAtlasID(next_id())
         , fGenerationCounter(generationCounter)
         , fAtlasGeneration(fGenerationCounter->next())
         , fPrevFlushToken(AtlasToken::InvalidToken())
         , fFlushesSinceLastUse(0)
-        , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ?
+        , fMaxPages(allowMultitexturing == AllowMultitexturing::kYes ?
                             PlotLocator::kMaxMultitexturePages : 1)
         , fNumActivePages(0) {
     int numPlotsX = width/plotWidth;
@@ -442,7 +446,6 @@ bool DrawAtlas::createPages(AtlasGenerationCounter* generationCounter) {
                 ++currPlot;
             }
         }
-
     }
 
     return true;
@@ -453,10 +456,12 @@ bool DrawAtlas::activateNewPage(Recorder* recorder) {
     SkASSERT(!fProxies[fNumActivePages]);
 
     const Caps* caps = recorder->priv().caps();
-    auto textureInfo = caps->getDefaultSampledTextureInfo(fColorType,
-                                                          Mipmapped::kNo,
-                                                          recorder->priv().isProtected(),
-                                                          Renderable::kNo);
+    auto textureInfo = fUseStorageTextures == UseStorageTextures::kYes
+                               ? caps->getDefaultStorageTextureInfo(fColorType)
+                               : caps->getDefaultSampledTextureInfo(fColorType,
+                                                                    Mipmapped::kNo,
+                                                                    recorder->priv().isProtected(),
+                                                                    Renderable::kNo);
     fProxies[fNumActivePages] = TextureProxy::Make(caps,
                                                    recorder->priv().resourceProvider(),
                                                    {fTextureWidth, fTextureHeight},
