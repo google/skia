@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     SkColor colors[3] = {SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN};
     canvas->drawVertices(
             SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, pts, nullptr, colors),
-            SkBlendMode::kSrcOver, p);
+            SkBlendMode::kDst, p);
 
     canvas->translate(120, 0);
 
@@ -19,6 +19,6 @@ void draw(SkCanvas* canvas) {
     SkPoint texs[3] = {{0, 0}, {0, 128}, {64, 256}};
     canvas->drawVertices(
             SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode, 3, pts, texs, nullptr),
-            SkBlendMode::kSrcOver, p);
+            SkBlendMode::kDst, p);
 }
 }  // END FIDDLE
