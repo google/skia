@@ -269,11 +269,10 @@ TextureInfo DawnCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampled
     info.fViewFormat = singleSpec.fFormat;
     info.fUsage       = wgpu::TextureUsage::RenderAttachment;
 
-#if !defined(__EMSCRIPTEN__)
-    if (fTransientAttachmentSupport && discardable == Discardable::kYes) {
-        info.fUsage |= wgpu::TextureUsage::TransientAttachment;
+    if (fSupportedTransientAttachmentUsage != wgpu::TextureUsage::None &&
+        discardable == Discardable::kYes) {
+        info.fUsage |= fSupportedTransientAttachmentUsage;
     }
-#endif
 
     return info;
 }
@@ -289,11 +288,9 @@ TextureInfo DawnCaps::getDefaultDepthStencilTextureInfo(
     info.fViewFormat = info.fFormat;
     info.fUsage       = wgpu::TextureUsage::RenderAttachment;
 
-#if !defined(__EMSCRIPTEN__)
-    if (fTransientAttachmentSupport) {
-        info.fUsage |= wgpu::TextureUsage::TransientAttachment;
+    if (fSupportedTransientAttachmentUsage != wgpu::TextureUsage::None) {
+        info.fUsage |= fSupportedTransientAttachmentUsage;
     }
-#endif
 
     return info;
 }
@@ -466,8 +463,12 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fMSAARenderToSingleSampledSupport =
             backendContext.fDevice.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled);
 
-    fTransientAttachmentSupport =
-            backendContext.fDevice.HasFeature(wgpu::FeatureName::TransientAttachments);
+    if (backendContext.fDevice.HasFeature(wgpu::FeatureName::TransientAttachments)) {
+        fSupportedTransientAttachmentUsage = wgpu::TextureUsage::TransientAttachment;
+    }
+    if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture)) {
+        fSupportedResolveTextureLoadOp = wgpu::LoadOp::ExpandResolveTexture;
+    }
 #endif
 
     if (!backendContext.fTick) {
