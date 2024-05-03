@@ -11,6 +11,10 @@
 #include "include/private/base/SkTFitsIn.h"
 #include "src/base/SkUTF.h"
 
+#include <unicode/ubidi.h>
+#include <unicode/umachine.h>
+#include <unicode/utypes.h>
+
 #include <cstdint>
 #include <memory>
 #include <string>

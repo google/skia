@@ -8,7 +8,7 @@ load("//toolchain:download_toolchains.bzl", "download_toolchains_for_skia")
 
 download_toolchains_for_skia("clang_linux_amd64", "clang_mac", "ndk_linux_amd64")
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("//bazel:gcs_mirror.bzl", "gcs_mirror_url")
 
 # See https://github.com/emscripten-core/emsdk/tree/85d27a4a2a60d591613a305b14ae438c2bb3ce11/bazel#setup-instructions
@@ -614,6 +614,42 @@ cipd_install(
     # From https://chrome-infra-packages.appspot.com/p/skia/bots/skimage/+/sRladEfUAXeYIBD3Pt3ke0Fd08vtYVLrg4IASKk5F6YC
     sha256 = "b1195a7447d40177982010f73edde47b415dd3cbed6152eb83820048a93917a6",
     tag = "version:47",
+)
+
+http_file(
+    name = "buildifier_linux_x64",
+    downloaded_file_path = "buildifier",
+    executable = True,
+    sha256 = "be63db12899f48600bad94051123b1fd7b5251e7661b9168582ce52396132e92",
+    urls = gcs_mirror_url(
+        ext = "",
+        sha256 = "be63db12899f48600bad94051123b1fd7b5251e7661b9168582ce52396132e92",
+        url = "https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildifier-linux-amd64",
+    ),
+)
+
+http_file(
+    name = "buildifier_macos_arm64",
+    downloaded_file_path = "buildifier",
+    executable = True,
+    sha256 = "fa07ba0d20165917ca4cc7609f9b19a8a4392898148b7babdf6bb2a7dd963f05",
+    urls = gcs_mirror_url(
+        ext = "",
+        sha256 = "fa07ba0d20165917ca4cc7609f9b19a8a4392898148b7babdf6bb2a7dd963f05",
+        url = "https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildifier-darwin-arm64",
+    ),
+)
+
+http_file(
+    name = "buildifier_macos_x64",
+    downloaded_file_path = "buildifier",
+    executable = True,
+    sha256 = "eeb47b2de27f60efe549348b183fac24eae80f1479e8b06cac0799c486df5bed",
+    urls = gcs_mirror_url(
+        ext = "",
+        sha256 = "eeb47b2de27f60efe549348b183fac24eae80f1479e8b06cac0799c486df5bed",
+        url = "https://github.com/bazelbuild/buildtools/releases/download/v6.4.0/buildifier-darwin-amd64",
+    ),
 )
 
 ##################################

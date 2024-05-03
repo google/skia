@@ -9,6 +9,11 @@ go_library(
 
 go_binary(
     name = "deps_parser",
+    data = select({
+        "//bazel/common_config_settings:linux_x64": ["@buildifier_linux_x64//file"],
+        "//bazel/common_config_settings:mac_arm64": ["@buildifier_macos_arm64//file"],
+        "//bazel/common_config_settings:mac_x64": ["@buildifier_macos_x64//file"],
+    }),
     embed = [":deps_parser_lib"],
     visibility = ["//visibility:public"],
 )
