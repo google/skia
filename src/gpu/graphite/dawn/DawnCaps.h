@@ -26,6 +26,7 @@ public:
 
     bool useAsyncPipelineCreation() const { return fUseAsyncPipelineCreation; }
     bool allowScopedErrorChecks() const { return fAllowScopedErrorChecks; }
+    bool resolveTextureCanBeLoaded() const { return fLoadResolveTextureSupport; }
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                              Mipmapped mipmapped,
@@ -125,6 +126,7 @@ private:
 
 #if !defined(__EMSCRIPTEN__)
     bool fTransientAttachmentSupport = false;
+    bool fLoadResolveTextureSupport = false;
 #endif
 
     bool fUseAsyncPipelineCreation = true;

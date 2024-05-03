@@ -162,6 +162,9 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     if (adapter.HasFeature(wgpu::FeatureName::R8UnormStorage)) {
         features.push_back(wgpu::FeatureName::R8UnormStorage);
     }
+    if (adapter.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture)) {
+        features.push_back(wgpu::FeatureName::DawnLoadResolveTexture);
+    }
 
     wgpu::DeviceDescriptor deviceDescriptor;
     deviceDescriptor.requiredFeatures = features.data();
