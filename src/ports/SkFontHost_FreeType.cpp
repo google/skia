@@ -2353,7 +2353,7 @@ bool SkFontScanner_FreeType::GetAxes(FT_Face face, AxisDefinitions* axes) {
                     width = SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(wdthValue);
                 }
             }
-            if (axisDefinition.fTag == slntTag) {
+            if (axisDefinition.fTag == slntTag && slant != SkFontStyle::kItalic_Slant) {
                 // https://docs.microsoft.com/en-us/typography/opentype/spec/dvaraxistag_slnt
                 // "Scale interpretation: Values can be interpreted as the angle,
                 // in counter-clockwise degrees, of oblique slant from whatever
