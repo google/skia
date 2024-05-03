@@ -63,7 +63,7 @@ public:
 
 protected:
     SkRect         fRects[kRectCount];
-    sk_sp<SkImage> fImages[kImageCount];
+    sk_sp<SkImage> fImages[kImageCount > 0 ? kImageCount : 1];
     SkColor4f      fColors[kRectCount];
     SkString       fName;
 
