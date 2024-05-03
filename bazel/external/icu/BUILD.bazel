@@ -1095,3 +1095,13 @@ cc_library(
     }),
     visibility = ["//visibility:public"],
 )
+
+cc_library(
+    name = "icu_headers",
+    hdrs = ICU_HDRS,
+    includes = [
+        "source/common",
+        "source/i18n",
+    ],
+    visibility = ["//visibility:public"],
+)

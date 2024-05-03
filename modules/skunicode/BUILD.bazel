@@ -83,6 +83,8 @@ skia_cc_library(
         "//:core",
         "//src/base",
         "//src/core:core_priv",
-        "@icu",
-    ],
+    ] + select({
+        "@platforms//os:android": ["@icu//:icu_headers"],
+        "//conditions:default": ["@icu"],
+    }),
 )
