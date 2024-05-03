@@ -31,7 +31,9 @@ public:
 
     ~CopyBufferToBufferTask() override;
 
-    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
+    Status prepareResources(ResourceProvider*,
+                            ScratchResourceManager*,
+                            const RuntimeEffectDictionary*) override;
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
@@ -59,7 +61,9 @@ public:
 
     ~CopyTextureToBufferTask() override;
 
-    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
+    Status prepareResources(ResourceProvider*,
+                            ScratchResourceManager*,
+                            const RuntimeEffectDictionary*) override;
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
@@ -87,7 +91,9 @@ public:
 
     ~CopyTextureToTextureTask() override;
 
-    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
+    Status prepareResources(ResourceProvider*,
+                            ScratchResourceManager*,
+                            const RuntimeEffectDictionary*) override;
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 

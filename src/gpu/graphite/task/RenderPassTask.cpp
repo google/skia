@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/ScratchResourceManager.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
 
@@ -49,8 +50,10 @@ RenderPassTask::RenderPassTask(DrawPassList passes,
 RenderPassTask::~RenderPassTask() = default;
 
 Task::Status RenderPassTask::prepareResources(ResourceProvider* resourceProvider,
+                                              ScratchResourceManager* scratchManager,
                                               const RuntimeEffectDictionary* runtimeDict) {
     SkASSERT(fTarget);
+    // TODO: Use the scratch resource manager to instantiate the target
     if (!TextureProxy::InstantiateIfNotLazy(resourceProvider, fTarget.get())) {
         SKGPU_LOG_W("Failed to instantiate RenderPassTask target. Will not create renderpass!");
         SKGPU_LOG_W("Dimensions are (%d, %d).",
@@ -65,6 +68,12 @@ Task::Status RenderPassTask::prepareResources(ResourceProvider* resourceProvider
             return Status::kFail;
         }
     }
+
+    // Once all internal resources have been prepared and instantiated, reclaim any pending returns
+    // from the scratch manager, since at the equivalent point in the task graph's addCommands()
+    // phase, the renderpass will have sampled from any scratch textures and their contents no
+    // longer have to be preserved.
+    scratchManager->notifyResourcesConsumed();
     return Status::kSuccess;
 }
 

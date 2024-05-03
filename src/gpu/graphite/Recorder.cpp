@@ -40,6 +40,7 @@
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
+#include "src/gpu/graphite/ScratchResourceManager.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
@@ -174,11 +175,16 @@ std::unique_ptr<Recording> Recorder::snap() {
         fTargetProxyCanvas.reset();
     }
 
+    // The scratch resources only need to be tracked until prepareResources() is finished, so
+    // Recorder doesn't hold a persistent manager and it can be deleted when snap() returns.
+    ScratchResourceManager scratchManager{fResourceProvider.get()};
+
     // In both the "task failed" case and the "everything is discarded" case, there's no work that
     // needs to be done in insertRecording(). However, we use nullptr as a failure signal, so
     // kDiscard will return a non-null Recording that has no tasks in it.
     if (fDrawBufferManager->hasMappingFailed() ||
         fRootTaskList->prepareResources(fResourceProvider.get(),
+                                        &scratchManager,
                                         fRuntimeEffectDict.get()) == Task::Status::kFail) {
         // Leaving 'fTrackedDevices' alone since they were flushed earlier and could still be
         // attached to extant SkSurfaces.

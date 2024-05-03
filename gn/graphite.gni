@@ -130,6 +130,8 @@ skia_graphite_sources = [
   "$_src/RuntimeEffectDictionary.h",
   "$_src/Sampler.cpp",
   "$_src/Sampler.h",
+  "$_src/ScratchResourceManager.cpp",
+  "$_src/ScratchResourceManager.h",
   "$_src/ShaderCodeDictionary.cpp",
   "$_src/ShaderCodeDictionary.h",
   "$_src/SharedContext.cpp",

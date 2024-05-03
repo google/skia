@@ -17,6 +17,7 @@ class CommandBuffer;
 class Context;
 class ResourceProvider;
 class RuntimeEffectDictionary;
+class ScratchResourceManager;
 class Texture;
 
 class Task : public SkRefCnt {
@@ -46,7 +47,9 @@ public:
 
     // Instantiate and prepare any Resources that must happen while the Task is still on the
     // Recorder.
-    virtual Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) = 0;
+    virtual Status prepareResources(ResourceProvider*,
+                                    ScratchResourceManager*,
+                                    const RuntimeEffectDictionary*) = 0;
 
     // Returns true on success; false on failure.
     virtual Status addCommands(Context*, CommandBuffer*, ReplayTargetData) = 0;

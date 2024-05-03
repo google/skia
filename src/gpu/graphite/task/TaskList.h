@@ -16,6 +16,7 @@ namespace skgpu::graphite {
 class CommandBuffer;
 class Context;
 class ResourceProvider;
+class ScratchResourceManager;
 
 class TaskList {
 public:
@@ -32,7 +33,9 @@ public:
     // Returns kDiscard if all children were discarded.
     // Returns kFail if any child failed.
     // Automatically removes tasks from its list if they return kDiscard.
-    Task::Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*);
+    Task::Status prepareResources(ResourceProvider*,
+                                  ScratchResourceManager*,
+                                  const RuntimeEffectDictionary*);
     Task::Status addCommands(Context*, CommandBuffer*, Task::ReplayTargetData);
 
 private:

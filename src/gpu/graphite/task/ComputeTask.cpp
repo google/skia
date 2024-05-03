@@ -28,10 +28,11 @@ ComputeTask::ComputeTask(DispatchGroupList dispatchGroups)
 ComputeTask::~ComputeTask() = default;
 
 Task::Status ComputeTask::prepareResources(ResourceProvider* provider,
+                                           ScratchResourceManager* scratchManager,
                                            const RuntimeEffectDictionary* rtd) {
     for (auto& child : fChildTasks) {
         if (child) {
-            Status status = child->prepareResources(provider, rtd);
+            Status status = child->prepareResources(provider, scratchManager, rtd);
             if (status == Status::kFail) {
                 return Status::kFail;
             } else if (status == Status::kDiscard) {
@@ -40,6 +41,7 @@ Task::Status ComputeTask::prepareResources(ResourceProvider* provider,
         }
     }
     for (const auto& group : fDispatchGroups) {
+        // TODO: Allow ComputeTasks to instantiate with scratch textures and return them.
         if (!group->prepareResources(provider)) {
             return Status::kFail;
         }
@@ -47,7 +49,9 @@ Task::Status ComputeTask::prepareResources(ResourceProvider* provider,
     return Status::kSuccess;
 }
 
-Task::Status ComputeTask::addCommands(Context* ctx, CommandBuffer* commandBuffer, ReplayTargetData rtd) {
+Task::Status ComputeTask::addCommands(Context* ctx,
+                                      CommandBuffer* commandBuffer,
+                                      ReplayTargetData rtd) {
     if (fDispatchGroups.empty()) {
         return Status::kDiscard;
     }

@@ -150,7 +150,9 @@ public:
 
     ~UploadTask() override;
 
-    Status prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
+    Status prepareResources(ResourceProvider*,
+                            ScratchResourceManager*,
+                            const RuntimeEffectDictionary*) override;
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 

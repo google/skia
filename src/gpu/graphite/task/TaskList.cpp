@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/task/TaskList.h"
+
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/graphite/ScratchResourceManager.h"
 
 namespace skgpu::graphite {
 
@@ -34,11 +36,15 @@ Status TaskList::visitTasks(Fn fn) {
 }
 
 Status TaskList::prepareResources(ResourceProvider* resourceProvider,
+                                  ScratchResourceManager* scratchManager,
                                   const RuntimeEffectDictionary* runtimeDict) {
     TRACE_EVENT1("skia.gpu", TRACE_FUNC, "# tasks", fTasks.size());
-    return this->visitTasks([&](Task* task) {
-        return task->prepareResources(resourceProvider, runtimeDict);
+    scratchManager->pushScope();
+    Status status = this->visitTasks([&](Task* task) {
+        return task->prepareResources(resourceProvider, scratchManager, runtimeDict);
     });
+    scratchManager->popScope();
+    return status;
 }
 
 Status TaskList::addCommands(Context* context,

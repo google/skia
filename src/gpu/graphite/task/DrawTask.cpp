@@ -16,8 +16,11 @@ DrawTask::DrawTask(sk_sp<TextureProxy> target) : fTarget(std::move(target)) {}
 DrawTask::~DrawTask() = default;
 
 Task::Status DrawTask::prepareResources(ResourceProvider* resourceProvider,
+                                        ScratchResourceManager* scratchManager,
                                         const RuntimeEffectDictionary* rteDict) {
-    return fChildTasks.prepareResources(resourceProvider, rteDict);
+    // TODO: Add pending listeners to decrement pending read counts of the target and return the
+    // target to the scratch manager when it reaches 0.
+    return fChildTasks.prepareResources(resourceProvider, scratchManager, rteDict);
 }
 
 Task::Status DrawTask::addCommands(Context* ctx,
