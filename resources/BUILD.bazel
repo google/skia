@@ -157,7 +157,6 @@ skia_filegroup(
         "images/grayscale.png",
         "images/half-transparent-white-pixel.png",
         "images/half-transparent-white-pixel.webp",
-        "images/hdrgm.jpg",
         "images/icc-v2-gbr.jpg",
         "images/iconstrip.png",
         "images/index8.png",

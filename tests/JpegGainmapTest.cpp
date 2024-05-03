@@ -479,14 +479,6 @@ DEF_TEST(AndroidCodec_jpegGainmapDecode, r) {
              std::exp(1.f),
              1.f,
              2.71828f},
-            {"images/hdrgm.jpg",
-             SkISize::Make(188, 250),
-             0xFFE9E9E9,
-             0xFFAAAAAA,
-             std::exp(-2.209409f),
-             std::exp(2.209409f),
-             1.f,
-             9.110335f},
     };
 
     TestStream::Type kStreamTypes[] = {
