@@ -502,8 +502,9 @@ protected:
             // different scale factor than the scaling of the image.
             matrix.preTranslate(bitmapMetrics.bearing_x * fontUnitsToSize,
                                 -bitmapMetrics.bearing_y * fontUnitsToSize);
-
             matrix.preScale(imageToSize, imageToSize);
+            matrix.preTranslate(bitmapMetrics.inner_bearing_x, -bitmapMetrics.inner_bearing_y);
+
             // For sbix bitmap glyphs, the origin is the bottom left of the image.
             float heightAdjustment =
                     bitmapMetrics.placement_origin_bottom_left ? bounds.height() : 0;
