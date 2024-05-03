@@ -1148,8 +1148,6 @@ mod bitmap {
                             bearing_y: glyf_bb.y_min as f32,
                             inner_bearing_x: sbix_glyph.glyph_data.origin_offset_x() as f32,
                             inner_bearing_y: sbix_glyph.glyph_data.origin_offset_y() as f32,
-                            width: glyf_bb.x_max as f32 - glyf_bb.x_min as f32,
-                            height: glyf_bb.y_max as f32 - glyf_bb.y_min as f32,
                             ppem_x: sbix_glyph.ppem as f32,
                             ppem_y: sbix_glyph.ppem as f32,
                             placement_origin_bottom_left: true,
@@ -1179,8 +1177,6 @@ mod bitmap {
                                 bearing_y: 0.0,
                                 inner_bearing_x: bearing_x,
                                 inner_bearing_y: bearing_y,
-                                width: f32::INFINITY,
-                                height: f32::INFINITY,
                                 ppem_x: cblc_glyph.ppem_x as f32,
                                 ppem_y: cblc_glyph.ppem_y as f32,
                                 placement_origin_bottom_left: false,
@@ -1317,11 +1313,6 @@ mod ffi {
         // Account for the fact that Sbix and CBDT/CBLC have a different origin
         // definition.
         placement_origin_bottom_left: bool,
-        // For SBIX, width and height in font units as determined from maximum x
-        // and y values from the corresponding contour glyph.  For CBDT, set to
-        // f32::INFINITY.
-        width: f32,
-        height: f32,
         // Specified as a pixel value, to be scaled by `ppem_*` as an
         // offset applied to placing the image within the bounds rectangle.
         inner_bearing_x: f32,

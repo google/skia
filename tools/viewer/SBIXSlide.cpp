@@ -11,7 +11,6 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTypeface.h"
-#include "include/ports/SkFontMgr_empty.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkTime.h"
 #include "src/sfnt/SkOTTable_glyf.h"
@@ -25,6 +24,13 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
+
+#if defined(SK_FONTMGR_FREETYPE_EMPTY_AVAILABLE)
+#include "include/ports/SkFontMgr_empty.h"
+#endif
+#if defined(SK_FONTMGR_FONTATIONS_AVAILABLE)
+#include "include/ports/SkFontMgr_Fontations.h"
+#endif
 
 namespace {
 
@@ -82,7 +88,13 @@ public:
 
     void load(SkScalar w, SkScalar h) override {
         fFontMgr.emplace_back(ToolUtils::TestFontMgr());
-        //fFontMgr.emplace_back(SkFontMgr_New_Custom_Empty());
+#if defined(SK_FONTMGR_FREETYPE_EMPTY_AVAILABLE)
+        fFontMgr.emplace_back(SkFontMgr_New_Custom_Empty());
+#endif
+#if defined(SK_FONTMGR_FONTATIONS_AVAILABLE)
+        fFontMgr.emplace_back(SkFontMgr_New_Fontations_Empty());
+#endif
+
         // GetResourceAsData may be backed by a read only file mapping.
         // For sanity always make a copy.
         fSBIXData = GetResourceAsData(kFontFile);
