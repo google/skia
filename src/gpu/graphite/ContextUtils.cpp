@@ -584,7 +584,7 @@ std::string GetPipelineLabel(const ShaderCodeDictionary* dict,
                              const RenderPassDesc& renderPassDesc,
                              const RenderStep* renderStep,
                              UniquePaintParamsID paintID) {
-    std::string label = renderPassDesc.toString().c_str(); // includes the write swizzle
+    std::string label = renderPassDesc.toPipelineLabel().c_str(); // includes the write swizzle
     label += " + ";
     label += renderStep->name();
     label += " + ";

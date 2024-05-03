@@ -54,6 +54,8 @@ struct RenderPassDesc {
     uint32_t fSampleCount;
 
     SkString toString() const;
+    // Only includes fixed state relevant to pipeline creation
+    SkString toPipelineLabel() const;
 
     // TODO:
     // * bounds (TBD whether exact bounds vs. granular)

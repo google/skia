@@ -164,11 +164,36 @@ SkString TextureInfo::toString() const {
             break;
     }
     ret.appendf("bytesPerPixel=%zu,sampleCount=%u,mipmapped=%d,protected=%d)",
-                bytesPerPixel(),
+                this->bytesPerPixel(),
                 fSampleCount,
                 static_cast<int>(fMipmapped),
                 static_cast<int>(fProtected));
     return ret;
+}
+
+SkString TextureInfo::toRPAttachmentString() const {
+    // For renderpass attachments, the string will contain the view format and sample count only
+    switch (fBackend) {
+#ifdef SK_DAWN
+        case BackendApi::kDawn:
+            return SkStringPrintf("Dawn(f=%u,s=%u)",
+                                  static_cast<unsigned int>(fDawnSpec.fViewFormat), fSampleCount);
+#endif
+#ifdef SK_METAL
+        case BackendApi::kMetal:
+            return SkStringPrintf("Metal(f=%u,s=%u)",
+                                  static_cast<unsigned int>(fMtlSpec.fFormat), fSampleCount);
+#endif
+#ifdef SK_VULKAN
+        case BackendApi::kVulkan:
+            return SkStringPrintf("Vulkan(f%u,s=%u)",
+                                  static_cast<unsigned int>(fVkSpec.fFormat), fSampleCount);
+#endif
+        case BackendApi::kMock:
+            return SkStringPrintf("Mock(s=%u)", fSampleCount);
+        default:
+            return SkString("Invalid");
+    }
 }
 
 size_t TextureInfo::bytesPerPixel() const {

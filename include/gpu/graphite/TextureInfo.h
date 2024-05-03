@@ -105,7 +105,10 @@ public:
 #endif
 
     bool isCompatible(const TextureInfo& that) const;
+    // Return a string containing the full description of this TextureInfo.
     SkString toString() const;
+    // Return a string containing only the info relevant for its use as a RenderPass attachment.
+    SkString toRPAttachmentString() const;
 
 private:
     friend size_t ComputeSize(SkISize dimensions, const TextureInfo&);  // for bytesPerPixel
