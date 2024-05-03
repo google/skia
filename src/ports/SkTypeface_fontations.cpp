@@ -114,13 +114,6 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
         return nullptr;
     }
 
-    SkFontStyle style;
-    fontations_ffi::BridgeFontStyle fontStyle;
-    if (fontations_ffi::get_font_style(*bridgeFontRef, fontStyle)) {
-        style = SkFontStyle(fontStyle.weight,
-                            fontStyle.width,
-                            static_cast<SkFontStyle::Slant>(fontStyle.slant));
-    }
     rust::Box<fontations_ffi::BridgeMappingIndex> mappingIndex =
             fontations_ffi::make_mapping_index(*bridgeFontRef);
 
@@ -159,6 +152,13 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
 
     rust::Box<fontations_ffi::BridgeNormalizedCoords> normalizedCoords =
             make_normalized_coords(*bridgeFontRef, variationPosition);
+    SkFontStyle style;
+    fontations_ffi::BridgeFontStyle fontStyle;
+    if (fontations_ffi::get_font_style(*bridgeFontRef, *normalizedCoords, fontStyle)) {
+        style = SkFontStyle(fontStyle.weight,
+                            fontStyle.width,
+                            static_cast<SkFontStyle::Slant>(fontStyle.slant));
+    }
     rust::Box<fontations_ffi::BridgeOutlineCollection> outlines =
             fontations_ffi::get_outline_collection(*bridgeFontRef);
 
@@ -859,7 +859,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Fontations::onGetAdvancedM
     }
 
     fontations_ffi::BridgeFontStyle fontStyle;
-    if (fontations_ffi::get_font_style(*fBridgeFontRef, fontStyle)) {
+    if (fontations_ffi::get_font_style(*fBridgeFontRef, *fBridgeNormalizedCoords, fontStyle)) {
         if (fontStyle.slant == SkFontStyle::Slant::kItalic_Slant) {
             info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
         }

@@ -809,18 +809,23 @@ fn num_color_stops(color_stops: &BridgeColorStops) -> usize {
     color_stops.num_stops
 }
 
-fn get_font_style(font_ref: &BridgeFontRef, style: &mut BridgeFontStyle) -> bool {
+#[allow(non_upper_case_globals)]
+fn get_font_style(
+    font_ref: &BridgeFontRef,
+    coords: &BridgeNormalizedCoords,
+    style: &mut BridgeFontStyle
+) -> bool {
     font_ref
         .with_font(|f| {
             let attrs = f.attributes();
-            let skia_weight = attrs.weight.value().round() as i32;
-            let skia_slant = match attrs.style {
+            let mut skia_weight = attrs.weight.value().round() as i32;
+            let mut skia_slant = match attrs.style {
                 Style::Normal => 0,
                 Style::Italic => 1,
                 _ => 2, /* kOblique_Slant */
             };
-            //1-9 map to 0.5, 0.625, 0.75, 0.875, 1.0, 1.125, 1.25, 1.5, 2.0
-            let skia_width = match attrs.stretch.ratio() {
+            //0.5, 0.625, 0.75, 0.875, 1.0, 1.125, 1.25, 1.5, 2.0 map to 1-9
+            let mut skia_width = match attrs.stretch.ratio() {
                 x if x <= 0.5625 => 1,
                 x if x <= 0.6875 => 2,
                 x if x <= 0.8125 => 3,
@@ -831,6 +836,36 @@ fn get_font_style(font_ref: &BridgeFontRef, style: &mut BridgeFontStyle) -> bool
                 x if x <= 1.7500 => 8,
                 _ => 9,
             };
+
+            const wght: Tag = Tag::new(b"wght");
+            const wdth: Tag = Tag::new(b"wdth");
+            const slnt: Tag = Tag::new(b"slnt");
+
+            for user_coord in coords.filtered_user_coords.iter() {
+                match user_coord.selector {
+                    wght => skia_weight = user_coord.value.round() as i32,
+                    // 50, 62.5, 75, 87.5, 100, 112.5, 125, 150, 200 map to 1-9
+                    wdth => skia_width = match user_coord.value {
+                        x if x <=  56.25 => 1,
+                        x if x <=  68.75 => 2,
+                        x if x <=  81.25 => 3,
+                        x if x <=  93.75 => 4,
+                        x if x <= 106.25 => 5,
+                        x if x <= 118.75 => 6,
+                        x if x <= 137.50 => 7,
+                        x if x <= 175.00 => 8,
+                        _ => 9,
+                    },
+                    slnt => skia_slant = if skia_slant == 1 /* kItalic_Slant */ {
+                                             skia_slant
+                                         } else if user_coord.value == 0.0 {
+                                             0 /* kUpright_Slant */
+                                         } else {
+                                             2 /* kOblique_Slant */
+                                         },
+                    _ => (),
+                }
+            }
 
             *style = BridgeFontStyle {
                 weight: skia_weight,
@@ -1434,7 +1469,11 @@ mod ffi {
         fn next_color_stop(color_stops: &mut BridgeColorStops, stop: &mut ColorStop) -> bool;
         fn num_color_stops(color_stops: &BridgeColorStops) -> usize;
 
-        fn get_font_style(font_ref: &BridgeFontRef, font_style: &mut BridgeFontStyle) -> bool;
+        fn get_font_style(
+            font_ref: &BridgeFontRef,
+            coords: &BridgeNormalizedCoords,
+            font_style: &mut BridgeFontStyle
+        ) -> bool;
 
         // Additional low-level access functions needed for generateAdvancedMetrics().
         fn is_embeddable(font_ref: &BridgeFontRef) -> bool;

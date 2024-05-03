@@ -75,8 +75,11 @@ bool SkFontScanner_Fontations::scanInstance(SkStreamAsset* stream,
     }
 
     if (style != nullptr) {
+        rust::Slice<const fontations_ffi::SkiaDesignCoordinate> coordinates;
+        rust::Box<fontations_ffi::BridgeNormalizedCoords> normalizedCoords =
+            resolve_into_normalized_coords(*fontRef, coordinates);
         fontations_ffi::BridgeFontStyle fontStyle;
-        if (fontations_ffi::get_font_style(*fontRef, fontStyle)) {
+        if (fontations_ffi::get_font_style(*fontRef, *normalizedCoords, fontStyle)) {
             *style = SkFontStyle(fontStyle.weight, fontStyle.width,  (SkFontStyle::Slant)fontStyle.slant);
         } else {
             *style = SkFontStyle::Normal();
