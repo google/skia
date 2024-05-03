@@ -54,12 +54,7 @@ sk_sp<SkSurface> Surface::onNewSurface(const SkImageInfo& ii) {
 }
 
 sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
-    TextureProxyView srcView = fDevice->readSurfaceView();
-    if (!srcView) {
-        return nullptr;
-    }
-
-    return this->makeImageCopy(subset, srcView.mipmapped());
+    return this->makeImageCopy(subset, fDevice->target()->mipmapped());
 }
 
 sk_sp<Image> Surface::asImage() const {
