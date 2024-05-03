@@ -362,6 +362,20 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     colorTarget.writeMask = blendInfo.fWritesColor && hasFragmentSkSL ? wgpu::ColorWriteMask::All
                                                                       : wgpu::ColorWriteMask::None;
 
+#if !defined(__EMSCRIPTEN__)
+    const bool loadMsaaFromResolve =
+            renderPassDesc.fColorResolveAttachment.fTextureInfo.isValid() &&
+            renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
+    // Special case: a render pass loading resolve texture requires additional settings for the
+    // pipeline to make it compatible.
+    wgpu::ColorTargetStateExpandResolveTextureDawn pipelineMSAALoadResolveTextureDesc;
+    if (loadMsaaFromResolve && sharedContext->dawnCaps()->resolveTextureLoadOp().has_value()) {
+        SkASSERT(device.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture));
+        colorTarget.nextInChain = &pipelineMSAALoadResolveTextureDesc;
+        pipelineMSAALoadResolveTextureDesc.enabled = true;
+    }
+#endif
+
     wgpu::FragmentState fragment;
     // Dawn doesn't allow having a color attachment but without fragment shader, so have to use a
     // noop fragment shader, if fragment shader is null.
@@ -508,7 +522,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     // Other state
     descriptor.primitive.frontFace = wgpu::FrontFace::CCW;
     descriptor.primitive.cullMode = wgpu::CullMode::None;
-    switch(step->primitiveType()) {
+    switch (step->primitiveType()) {
         case PrimitiveType::kTriangles:
             descriptor.primitive.topology = wgpu::PrimitiveTopology::TriangleList;
             break;
@@ -523,24 +537,6 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     // Multisampled state
     descriptor.multisample.count = renderPassDesc.fSampleCount;
-    [[maybe_unused]] bool isMSAARenderToSingleSampled =
-            renderPassDesc.fSampleCount > 1 &&
-            renderPassDesc.fColorAttachment.fTextureInfo.isValid() &&
-            renderPassDesc.fColorAttachment.fTextureInfo.numSamples() == 1;
-#if defined(__EMSCRIPTEN__)
-    SkASSERT(!isMSAARenderToSingleSampled);
-#else
-    wgpu::DawnMultisampleStateRenderToSingleSampled pipelineMSAARenderToSingleSampledDesc;
-    if (isMSAARenderToSingleSampled) {
-        // If render pass is multi sampled but the color attachment is single sampled, we need
-        // to activate multisampled render to single sampled feature for this graphics pipeline.
-        SkASSERT(device.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled));
-
-        descriptor.multisample.nextInChain = &pipelineMSAARenderToSingleSampledDesc;
-        pipelineMSAARenderToSingleSampledDesc.enabled = true;
-    }
-#endif
-
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
 
