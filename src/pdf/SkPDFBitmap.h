@@ -8,7 +8,10 @@
 #define SkPDFBitmap_DEFINED
 
 #include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
 #include "src/core/SkChecksum.h"
+
+#include <cstdint>
 
 class SkCodec;
 class SkImage;

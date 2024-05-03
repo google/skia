@@ -5,9 +5,13 @@
  * found in the LICENSE file.
  */
 
-
 #include "src/pdf/SkPDFFormXObject.h"
+
+#include "include/core/SkMatrix.h"
+#include "include/core/SkStream.h"
 #include "src/pdf/SkPDFUtils.h"
+
+#include <utility>
 
 SkPDFIndirectReference SkPDFMakeFormXObject(SkPDFDocument* doc,
                                             std::unique_ptr<SkStreamAsset> content,

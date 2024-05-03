@@ -8,13 +8,12 @@
 #ifndef SkPDFResourceDict_DEFINED
 #define SkPDFResourceDict_DEFINED
 
-#include "src/pdf/SkPDFFont.h"
-
+#include <memory>
 #include <vector>
 
 class SkPDFDict;
-class SkPDFObject;
 class SkWStream;
+struct SkPDFIndirectReference;
 
 enum class SkPDFResourceType {
     kExtGState = 0,

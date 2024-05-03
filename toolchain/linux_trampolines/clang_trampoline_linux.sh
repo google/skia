@@ -45,6 +45,7 @@ supported_files_or_dirs=(
   "src/gpu/tessellate/"
   "src/image/"
   "src/pathops/"
+  "src/pdf/"
   "src/ports/SkFontMgr_fontconfig"
   "src/shaders/"
   "src/sksl/"

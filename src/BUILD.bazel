@@ -194,5 +194,8 @@ generate_cpp_files_for_headers(
         "src/gpu/tessellate/StrokeIterator.h",
         "src/gpu/tessellate/WangsFormula.h",
         "src/image/SkImageGeneratorPriv.h",
+        "src/pdf/SkBitmapKey.h",
+        "src/pdf/SkPDFDocumentPriv.h",
+        "src/pdf/SkUUID.h",
     ],
 )

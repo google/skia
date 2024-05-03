@@ -9,6 +9,8 @@
 
 #include "include/core/SkRect.h"
 
+#include <cstdint>
+
 struct SkBitmapKey {
     SkIRect fSubset;
     uint32_t fID;

@@ -7,7 +7,13 @@
 
 #include "src/pdf/SkKeyedImage.h"
 
+#include "include/core/SkBitmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
 #include "src/image/SkImage_Base.h"
+
+#include <utility>
 
 SkBitmapKey SkBitmapKeyFromImage(const SkImage* image) {
     if (!image) {

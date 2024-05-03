@@ -7,9 +7,15 @@
 
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
 
+#include "include/core/SkStream.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkUTF.h"
+#include "src/pdf/SkPDFGlyphUse.h"
 #include "src/pdf/SkPDFUtils.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <vector>
 
 static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
                                     bool multibyte) {

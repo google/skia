@@ -472,4 +472,6 @@
   { include: ["\"modules/skcms/src/skcms_public.h\"", "private", "\"modules/skcms/skcms.h\"", "public"] },
 
   { include: ["\"jmorecfg.h\"", "private", "\"jpeglib.h\"", "public"] },
+
+  { include: ["\"chromeconf.h\"", "private", "\"zlib.h\"", "public"] },
 ]

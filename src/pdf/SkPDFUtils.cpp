@@ -5,27 +5,34 @@
  * found in the LICENSE file.
  */
 
-#include "src/pdf/SkPDFUtils.h"
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
-#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/docs/SkPDFDocument.h"
 #include "include/private/base/SkFixed.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/pdf/SkPDFResourceDict.h"
 #include "src/pdf/SkPDFTypes.h"
+#include "src/pdf/SkPDFUtils.h"
+
+#include <algorithm>
+#include <ctime>
+#include <utility>
 
 #if defined(SK_BUILD_FOR_WIN)
 #include "src/base/SkLeanWindows.h"
 #endif
-
-#include <cmath>
-#include <ctime>
 
 const char* SkPDFUtils::BlendModeName(SkBlendMode mode) {
     // PDF32000.book section 11.3.5 "Blend Mode"

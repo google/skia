@@ -8,30 +8,20 @@
 #ifndef SkPDFTypes_DEFINED
 #define SkPDFTypes_DEFINED
 
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTo.h"
-#include "src/core/SkTHash.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
-#include <new>
-#include <type_traits>
 #include <utility>
 #include <vector>
-#include <memory>
 
-class SkData;
-class SkPDFArray;
-
-class SkPDFDict;
 class SkPDFDocument;
-class SkPDFObject;
 class SkPDFUnion;
 class SkStreamAsset;
 class SkString;
 class SkWStream;
-struct SkPDFObjectSerializer;
 
 struct SkPDFIndirectReference {
     int fValue = -1;

@@ -8,11 +8,14 @@
 #ifndef SkPDFMetadata_DEFINED
 #define SkPDFMetadata_DEFINED
 
-#include "include/docs/SkPDFDocument.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkUUID.h"
 
-class SkPDFObject;
+#include <memory>
+
+class SkPDFDocument;
+
+namespace SkPDF { struct Metadata; }
 
 namespace SkPDFMetadata {
 std::unique_ptr<SkPDFObject> MakeDocumentInformationDict(const SkPDF::Metadata&);

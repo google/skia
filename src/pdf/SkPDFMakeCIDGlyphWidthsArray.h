@@ -7,8 +7,10 @@
 #ifndef SkPDFMakeCIDGlyphWidthsArray_DEFINED
 #define SkPDFMakeCIDGlyphWidthsArray_DEFINED
 
-#include "src/pdf/SkPDFTypes.h"
+#include <cstdint>
+#include <memory>
 
+class SkPDFArray;
 class SkPDFGlyphUse;
 class SkTypeface;
 

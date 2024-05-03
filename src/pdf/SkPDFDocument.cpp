@@ -6,20 +6,43 @@
  */
 
 #include "include/docs/SkPDFDocument.h"
-#include "src/pdf/SkPDFDocumentPriv.h"
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/docs/SkPDFDocument.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkSemaphore.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkThreadAnnotations.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkUTF.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkTHash.h"
+#include "src/pdf/SkBitmapKey.h"
+#include "src/pdf/SkPDFBitmap.h"
 #include "src/pdf/SkPDFDevice.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFFont.h"
 #include "src/pdf/SkPDFGradientShader.h"
 #include "src/pdf/SkPDFGraphicState.h"
+#include "src/pdf/SkPDFMetadata.h"
 #include "src/pdf/SkPDFShader.h"
 #include "src/pdf/SkPDFTag.h"
+#include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUtils.h"
+#include "src/pdf/SkUUID.h"
 
+#include <algorithm>
+#include <atomic>
+#include <cstddef>
+#include <new>
 #include <utility>
 
 // For use in SkCanvas::drawAnnotation

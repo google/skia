@@ -9,7 +9,10 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkClipStack.h"
 
+#include <cstdint>
+
 class SkDynamicMemoryWStream;
+struct SkIRect;
 
 // It is important to not confuse SkPDFGraphicStackState with SkPDFGraphicState, the
 // later being our representation of an object in the PDF file.

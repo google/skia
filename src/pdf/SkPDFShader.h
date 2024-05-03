@@ -4,21 +4,21 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef SkPDFShader_DEFINED
 #define SkPDFShader_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkShader.h"
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMacros.h"
+#include "src/core/SkChecksum.h"
 #include "src/pdf/SkBitmapKey.h"
 #include "src/pdf/SkPDFTypes.h"
 
-
 class SkPDFDocument;
-class SkMatrix;
-struct SkIRect;
+class SkShader;
+enum class SkTileMode;
 
 /** Make a PDF shader for the passed SkShader. If the SkShader is invalid in
  *  some way, returns nullptr.

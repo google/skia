@@ -10,6 +10,9 @@
 #define SkFlate_DEFINED
 
 #include "include/core/SkStream.h"
+#include <cstddef>
+
+#include <memory>
 
 /**
   * Wrap a stream in this class to compress the information written to

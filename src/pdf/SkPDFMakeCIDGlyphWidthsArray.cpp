@@ -7,13 +7,18 @@
 
 #include "src/pdf/SkPDFMakeCIDGlyphWidthsArray.h"
 
-#include "include/core/SkPaint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkStrike.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/pdf/SkPDFGlyphUse.h"
+#include "src/pdf/SkPDFTypes.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <utility>
 #include <vector>
 
 namespace {

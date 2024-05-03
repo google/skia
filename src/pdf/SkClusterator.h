@@ -8,7 +8,6 @@
 #define SkClusterator_DEFINED
 
 #include <cstdint>
-#include <vector>
 
 namespace sktext {
 class GlyphRun;

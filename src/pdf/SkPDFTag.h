@@ -8,14 +8,20 @@
 #ifndef SkPDFTag_DEFINED
 #define SkPDFTag_DEFINED
 
+#include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkTHash.h"
+#include "src/pdf/SkPDFTypes.h"
+
+#include <cstddef>
+#include <vector>
 
 class SkPDFDocument;
-struct SkPDFIndirectReference;
 struct SkPDFTagNode;
+struct SkPoint;
 
 class SkPDFTagTree {
 public:

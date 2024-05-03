@@ -588,7 +588,6 @@
 #include "docs/examples/Path_swap.cpp"
 #include "docs/examples/Path_transform.cpp"
 #include "docs/examples/Path_transform_2.cpp"
-#include "docs/examples/Path_updateBoundsCache.cpp"
 #include "docs/examples/Path_writeToMemory.cpp"
 #include "docs/examples/Picture_AbortCallback_abort.cpp"
 #include "docs/examples/Picture_MakeFromData.cpp"

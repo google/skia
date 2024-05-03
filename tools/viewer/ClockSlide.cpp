@@ -7,6 +7,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
+#include "include/docs/SkPDFDocument.h"
 #include "src/base/SkRandom.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "tools/viewer/Slide.h"

@@ -7,15 +7,22 @@
 
 #include "src/pdf/SkPDFMetadata.h"
 
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/docs/SkPDFDocument.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
-#include "src/base/SkUTF.h"
+#include "src/base/SkTime.h"
 #include "src/base/SkUtils.h"
 #include "src/core/SkMD5.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUtils.h"
 
+#include <cstdint>
+#include <cstring>
 #include <utility>
+class SkPDFDocument;
 
 static constexpr SkPDF::DateTime kZeroTime = {0, 0, 0, 0, 0, 0, 0, 0};
 

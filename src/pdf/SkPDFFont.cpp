@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "src/pdf/SkPDFFont.h"
+
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
+#include "include/core/SkDrawable.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
@@ -24,11 +29,13 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkUTF.h"
+#include "src/core/SkDevice.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkImagePriv.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
@@ -37,7 +44,6 @@
 #include "src/pdf/SkPDFBitmap.h"
 #include "src/pdf/SkPDFDevice.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
-#include "src/pdf/SkPDFFont.h"
 #include "src/pdf/SkPDFFormXObject.h"
 #include "src/pdf/SkPDFMakeCIDGlyphWidthsArray.h"
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
@@ -46,6 +52,8 @@
 #include "src/pdf/SkPDFUtils.h"
 
 #include <limits.h>
+#include <algorithm>
+#include <cstddef>
 #include <initializer_list>
 #include <memory>
 #include <utility>

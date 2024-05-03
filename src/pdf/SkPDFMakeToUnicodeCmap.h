@@ -7,8 +7,13 @@
 #ifndef SkPDFMakeToUnicodeCmap_DEFINED
 #define SkPDFMakeToUnicodeCmap_DEFINED
 
-#include "include/core/SkStream.h"
-#include "src/pdf/SkPDFFont.h"
+#include "include/core/SkTypes.h"
+
+#include <memory>
+
+class SkDynamicMemoryWStream;
+class SkPDFGlyphUse;
+class SkStreamAsset;
 
 std::unique_ptr<SkStreamAsset> SkPDFMakeToUnicodeCmap(
         const SkUnichar* glyphToUnicode,

@@ -5,8 +5,10 @@
 
 #if defined(SK_PDF_USE_HARFBUZZ_SUBSET)
 
+#include "include/core/SkData.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
+#include "src/pdf/SkPDFGlyphUse.h"
 #include "src/utils/SkCallableTraits.h"
 
 #include "hb.h"  // NO_G3_REWRITE

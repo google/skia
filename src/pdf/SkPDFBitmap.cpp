@@ -8,24 +8,42 @@
 #include "src/pdf/SkPDFBitmap.h"
 
 #include "include/codec/SkCodec.h"
-#include "include/codec/SkEncodedImageFormat.h"
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/codec/SkJpegDecoder.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
+#include "include/docs/SkPDFDocument.h"
 #include "include/encode/SkICC.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/private/SkColorData.h"
+#include "include/private/SkEncodedInfo.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkImageInfoPriv.h"
+#include "modules/skcms/skcms.h"
+#include "src/core/SkTHash.h"
 #include "src/pdf/SkDeflate.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUnion.h"
-#include "src/pdf/SkPDFUtils.h"
 
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <utility>
 
 /*static*/ const SkEncodedInfo& SkPDFBitmap::GetEncodedInfo(SkCodec& codec) {
     return codec.getEncodedInfo();

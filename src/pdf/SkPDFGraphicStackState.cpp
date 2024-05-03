@@ -3,8 +3,14 @@
 
 #include "src/pdf/SkPDFGraphicStackState.h"
 
+#include "include/core/SkClipOp.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkStream.h"
 #include "include/pathops/SkPathOps.h"
+#include "include/private/base/SkAssert.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "src/utils/SkClipStackUtils.h"
 

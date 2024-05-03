@@ -9,11 +9,16 @@
 #ifndef SkPDFGraphicState_DEFINED
 #define SkPDFGraphicState_DEFINED
 
+#include "include/core/SkScalar.h"
 #include "include/private/base/SkMacros.h"
+#include "src/core/SkChecksum.h"
 #include "src/pdf/SkPDFTypes.h"
 
-class SkPaint;
+#include <cstdint>
+#include <cstring>
 
+class SkPDFDocument;
+class SkPaint;
 
 /** \class SkPDFGraphicState
     SkPaint objects roughly correspond to graphic state dictionaries that can

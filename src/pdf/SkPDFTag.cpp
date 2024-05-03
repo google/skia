@@ -5,8 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFTag.h"
+
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+
+#include <algorithm>
+#include <memory>
+#include <utility>
 
 using namespace skia_private;
 

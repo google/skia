@@ -3,12 +3,32 @@
 
 #include "src/pdf/SkPDFType1Font.h"
 
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkStrike.h"
+#include "src/base/SkBitmaskEnum.h"
+#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/core/SkTHash.h"
+#include "src/pdf/SkPDFDocumentPriv.h"
+#include "src/pdf/SkPDFFont.h"
+#include "src/pdf/SkPDFTypes.h"
 
 #include <ctype.h>
+#include <cstdint>
+#include <cstring>
+#include <memory>
+#include <utility>
+#include <vector>
 
 using namespace skia_private;
 

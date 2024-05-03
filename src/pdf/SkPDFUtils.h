@@ -7,21 +7,33 @@
 #ifndef SkPDFUtils_DEFINED
 #define SkPDFUtils_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
-#include "include/core/SkShader.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
-#include "include/docs/SkPDFDocument.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "src/base/SkUTF.h"
 #include "src/base/SkUtils.h"
-#include "src/pdf/SkPDFTypes.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/utils/SkFloatToDecimal.h"
 
+#include <cstdint>
+#include <cstring>
+#include <memory>
+
 class SkBitmap;
-class SkMatrix;
+class SkImage;
 class SkPDFArray;
+class SkPDFDict;
+class SkPath;
+class SkShader;
+enum class SkBlendMode;
+enum class SkPathFillType;
 struct SkRect;
+
+namespace SkPDF { struct DateTime; }
 
 template <typename T>
 bool SkPackedArrayEqual(T* u, T* v, size_t n) {
@@ -36,11 +48,11 @@ bool SkPackedArrayEqual(T* u, T* v, size_t n) {
 #define PRINT_NOT_IMPL(str)
 #endif
 
-#define NOT_IMPLEMENTED(condition, assert)                         \
+#define NOT_IMPLEMENTED(condition, assertion)                      \
     do {                                                           \
         if ((bool)(condition)) {                                   \
             PRINT_NOT_IMPL("NOT_IMPLEMENTED: " #condition "\n");   \
-            SkDEBUGCODE(SkASSERT(!assert);)                        \
+            SkDEBUGCODE(SkASSERT(!assertion);)                     \
         }                                                          \
     } while (0)
 
