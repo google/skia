@@ -1111,7 +1111,6 @@ optional("jpeg_decode") {
   sources = [
     "src/codec/SkJpegCodec.cpp",
     "src/codec/SkJpegDecoderMgr.cpp",
-    "src/codec/SkJpegMetadataDecoderImpl.cpp",
     "src/codec/SkJpegSourceMgr.cpp",
     "src/codec/SkJpegUtility.cpp",
   ]

@@ -1832,8 +1832,6 @@ CODEC_SRCS_LIMITED = [
     "src/codec/SkJpegCodec.h",
     "src/codec/SkJpegDecoderMgr.cpp",
     "src/codec/SkJpegDecoderMgr.h",
-    "src/codec/SkJpegMetadataDecoderImpl.cpp",
-    "src/codec/SkJpegMetadataDecoderImpl.h",
     "src/codec/SkJpegPriv.h",
     "src/codec/SkJpegSourceMgr.cpp",
     "src/codec/SkJpegSourceMgr.h",
