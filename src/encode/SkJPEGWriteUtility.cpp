@@ -64,9 +64,9 @@ skjpeg_destination_mgr::skjpeg_destination_mgr(SkWStream* stream) : fStream(stre
 }
 
 void skjpeg_error_exit(j_common_ptr cinfo) {
-    skjpeg_error_mgr* error = (skjpeg_error_mgr*)cinfo->err;
+    skjpeg_error_mgr* error = static_cast<skjpeg_error_mgr*>(cinfo->err);
 
-    (*error->output_message) (cinfo);
+    (*error->output_message)(cinfo);
 
     /* Let the memory manager delete any temp files before we die */
     jpeg_destroy(cinfo);

@@ -25,8 +25,8 @@ extern "C" {
 void skjpeg_err_exit(j_common_ptr dinfo) {
     // Simply return to Skia client code
     // JpegDecoderMgr will take care of freeing memory
-    skjpeg_error_mgr* error = (skjpeg_error_mgr*) dinfo->err;
-    (*error->output_message) (dinfo);
+    skjpeg_error_mgr* error = static_cast<skjpeg_error_mgr*>(dinfo->err);
+    (*error->output_message)(dinfo);
     if (error->fStack[0] == nullptr) {
         SK_ABORT("JPEG error with no jmp_buf set.");
     }

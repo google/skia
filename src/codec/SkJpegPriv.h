@@ -25,7 +25,7 @@ extern "C" {
 /*
  * Error handling struct
  */
-struct skjpeg_error_mgr : jpeg_error_mgr {
+struct skjpeg_error_mgr : public jpeg_error_mgr {
     class AutoPushJmpBuf {
     public:
         AutoPushJmpBuf(skjpeg_error_mgr* mgr) : fMgr(mgr) { fMgr->push(&fJmpBuf); }
@@ -36,6 +36,11 @@ struct skjpeg_error_mgr : jpeg_error_mgr {
         skjpeg_error_mgr* const fMgr;
         jmp_buf fJmpBuf;
     };
+
+      // When libjpeg initializes the fields of a `jpeg_error_mgr` (in `jpeg_std_error`), it
+      // leaves the msg_parm fields uninitialized. This is safe, but confuses MSAN, so we
+      // explicitly zero out the structure when constructing it. (crbug.com/oss-fuzz/68691)
+    skjpeg_error_mgr() : jpeg_error_mgr({}) {}
 
     void push(jmp_buf* j) {
         SkASSERT(fStack[3] == nullptr);  // if we assert here, the stack has overflowed

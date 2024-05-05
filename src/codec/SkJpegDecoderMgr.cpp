@@ -91,7 +91,7 @@ SkJpegSourceMgr* JpegDecoderMgr::getSourceMgr() {
 
 JpegDecoderMgr::JpegDecoderMgr(SkStream* stream)
         : fSrcMgr(SkJpegSourceMgr::Make(stream)), fInit(false) {
-    // Error manager must be set before any calls to libjeg in order to handle failures
+    // An error manager must be set before any calls to libjpeg, in order to handle failures.
     fDInfo.err = jpeg_std_error(&fErrorMgr);
     fErrorMgr.error_exit = skjpeg_err_exit;
 }
