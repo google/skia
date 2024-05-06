@@ -2624,6 +2624,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzImageFilterDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzIncrementalImage.cpp",
       "fuzz/oss_fuzz/FuzzJSON.cpp",
+      "fuzz/oss_fuzz/FuzzParsePath.cpp",
       "fuzz/oss_fuzz/FuzzPathDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzRegionSetPath.cpp",
@@ -3411,6 +3412,11 @@ if (skia_enable_tools) {
 
     libfuzzer_app("skcolorspace") {
       sources = [ "fuzz/oss_fuzz/FuzzColorspace.cpp" ]
+      deps = []
+    }
+
+    libfuzzer_app("parse_path") {
+      sources = [ "fuzz/oss_fuzz/FuzzParsePath.cpp" ]
       deps = []
     }
   }

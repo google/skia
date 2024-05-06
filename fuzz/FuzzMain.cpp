@@ -90,6 +90,7 @@ static void fuzz_image_decode(const sk_sp<SkData>&);
 static void fuzz_image_decode_incremental(const sk_sp<SkData>&);
 static void fuzz_img(const sk_sp<SkData>&, uint8_t, uint8_t);
 static void fuzz_json(const sk_sp<SkData>&);
+static void fuzz_parse_path(const sk_sp<SkData>&);
 static void fuzz_path_deserialize(const sk_sp<SkData>&);
 static void fuzz_region_deserialize(const sk_sp<SkData>&);
 static void fuzz_region_set_path(const sk_sp<SkData>&);
@@ -215,6 +216,10 @@ static int fuzz_file(const SkString& path, SkString type) {
     }
     if (type.equals("json")) {
         fuzz_json(std::move(bytes));
+        return 0;
+    }
+    if (type.equals("parse_path")) {
+        fuzz_parse_path(std::move(bytes));
         return 0;
     }
     if (type.equals("path_deserialize")) {
@@ -752,6 +757,13 @@ void FuzzColorspace(const uint8_t *data, size_t size);
 static void fuzz_color_deserialize(const sk_sp<SkData>& data) {
     FuzzColorspace(data->bytes(), data->size());
     SkDebugf("[terminated] Finished SkColorspace\n");
+}
+
+void FuzzParsePath(const uint8_t *data, size_t size);
+
+static void fuzz_parse_path(const sk_sp<SkData>& data) {
+    FuzzParsePath(data->bytes(), data->size());
+    SkDebugf("[terminated] parse_path didn't crash!\n");
 }
 
 void FuzzPathDeserialize(const uint8_t *data, size_t size);
