@@ -38,7 +38,7 @@ static constexpr float sk_float_radians_to_degrees(float radians) {
 #define sk_float_round(x) (float)sk_double_round((double)(x))
 
 template <typename T, std::enable_if_t<std::is_floating_point_v<T>, bool> = true>
-static inline bool SkIsNaN(T x) {
+static inline constexpr bool SkIsNaN(T x) {
     return x != x;
 }
 
@@ -72,10 +72,22 @@ inline constexpr int SK_MinS32FitsInFloat = -SK_MaxS32FitsInFloat;
 inline constexpr int64_t SK_MaxS64FitsInFloat = SK_MaxS64 >> (63-24) << (63-24);
 inline constexpr int64_t SK_MinS64FitsInFloat = -SK_MaxS64FitsInFloat;
 
+// sk_[float|double]_saturate2int are written to return their maximum values when passed NaN.
+// MSVC 19.38+ has a bug with this implementation, leading to incorrect results:
+// https://developercommunity.visualstudio.com/t/Optimizer-incorrectly-handles-NaN-floati/10654403
+//
+// We inject an explicit NaN test on MSVC to work around the problem.
+#if defined(_MSC_VER) && !defined(__clang__)
+    #define SK_CHECK_NAN(resultVal) if (SkIsNaN(x)) { return resultVal; }
+#else
+    #define SK_CHECK_NAN(resultVal)
+#endif
+
 /**
  *  Return the closest int for the given float. Returns SK_MaxS32FitsInFloat for NaN.
  */
 static constexpr int sk_float_saturate2int(float x) {
+    SK_CHECK_NAN(SK_MaxS32FitsInFloat)
     x = x < SK_MaxS32FitsInFloat ? x : SK_MaxS32FitsInFloat;
     x = x > SK_MinS32FitsInFloat ? x : SK_MinS32FitsInFloat;
     return (int)x;
@@ -85,6 +97,7 @@ static constexpr int sk_float_saturate2int(float x) {
  *  Return the closest int for the given double. Returns SK_MaxS32 for NaN.
  */
 static constexpr int sk_double_saturate2int(double x) {
+    SK_CHECK_NAN(SK_MaxS32)
     x = x < SK_MaxS32 ? x : SK_MaxS32;
     x = x > SK_MinS32 ? x : SK_MinS32;
     return (int)x;
@@ -94,10 +107,13 @@ static constexpr int sk_double_saturate2int(double x) {
  *  Return the closest int64_t for the given float. Returns SK_MaxS64FitsInFloat for NaN.
  */
 static constexpr int64_t sk_float_saturate2int64(float x) {
+    SK_CHECK_NAN(SK_MaxS64FitsInFloat)
     x = x < SK_MaxS64FitsInFloat ? x : SK_MaxS64FitsInFloat;
     x = x > SK_MinS64FitsInFloat ? x : SK_MinS64FitsInFloat;
     return (int64_t)x;
 }
+
+#undef SK_CHECK_NAN
 
 #define sk_float_floor2int(x)   sk_float_saturate2int(std::floor(x))
 #define sk_float_round2int(x)   sk_float_saturate2int(sk_float_round(x))
