@@ -2,6 +2,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 _src = "../externals/icu/source"
+
+declare_args() {
+  skia_use_system_icu = is_official_build && !is_wasm
+}
+
 icu_sources = [
   "$_src/common/appendable.cpp",
   "$_src/common/bmpset.cpp",
