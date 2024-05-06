@@ -438,6 +438,10 @@ config("warnings") {
       "/wd4275",  # non dll-interface class 'base' used as base for
                   # dll-interface class 'derived'
 
+      # This triggers incorrectly in SkColor.h. See also:
+      # https://developercommunity.visualstudio.com/t/incorrect-divide-by-0-warning-c4723/1703482
+      "/wd4723",  # potential divide by 0
+
       # It'd be nice to fix these and turn this on:
       "/wd5041",  # out-of-line definition for constexpr static data member is
                   # not needed and is deprecated in C++17
@@ -445,6 +449,7 @@ config("warnings") {
     if (is_clang) {
       cflags += [
         "-Wno-unused-parameter",  # Re-enabled for header sources
+        "-Wno-switch-default",  # Warns even when all enum values are covered
       ]
     }
   } else {

@@ -21,8 +21,8 @@ import utils
 
 
 # Copied from https://cs.chromium.org/chromium/src/tools/clang/scripts/update.py
-CLANG_REVISION = 'llvmorg-15-init-8945-g3d7da810'
-CLANG_SUB_REVISION = 2
+CLANG_REVISION = 'llvmorg-18-init-17730-gf670112a'
+CLANG_SUB_REVISION = 5
 
 PACKAGE_VERSION = '%s-%s' % (CLANG_REVISION, CLANG_SUB_REVISION)
 
