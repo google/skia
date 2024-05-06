@@ -5,6 +5,6 @@
     "express": "^4.16.3",
     "lottie-web": "5.2.1",
     "node-fetch": "^2.2.0",
-    "puppeteer": "~1.6.2"
+    "puppeteer": "~22.7.1"
   }
 }
