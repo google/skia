@@ -297,24 +297,25 @@ static sk_sp<SkImage> generate_picture_texture(skgpu::graphite::Recorder* record
                                                const SkImageInfo& info,
                                                SkImage::RequiredProperties requiredProps) {
     auto mm = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
-    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder, info, mm, img->props());
+    // Use a non-budgeted surface since the image wrapping the surface's texture will be owned by
+    // the client.
+    sk_sp<Surface> surface = Surface::Make(recorder,
+                                           info,
+                                           "LazySkImagePictureTexture",
+                                           skgpu::Budgeted::kNo,
+                                           mm,
+                                           SkBackingFit::kExact,
+                                           img->props());
+
     if (!surface) {
         SKGPU_LOG_E("Failed to create Surface");
         return nullptr;
     }
 
     img->replay(surface->getCanvas());
-
-    if (requiredProps.fMipmapped) {
-        skgpu::graphite::Flush(surface);
-        sk_sp<TextureProxy> texture =
-                static_cast<Surface*>(surface.get())->readSurfaceView().refProxy();
-        if (!GenerateMipmaps(recorder, std::move(texture), info.colorInfo())) {
-            SKGPU_LOG_W("Failed to create mipmaps for texture from SkPicture");
-        }
-    }
-
-    return SkSurfaces::AsImage(surface);
+    // If the surface was created with mipmaps, they will be automatically generated when flushing
+    // the tasks when 'surface' goes out of scope.
+    return surface->asImage();
 }
 
 /*
