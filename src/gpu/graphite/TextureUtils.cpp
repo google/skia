@@ -552,6 +552,19 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
     TRACE_EVENT_INSTANT2("skia.gpu", "RescaleImage Dst", TRACE_EVENT_SCOPE_THREAD,
                          "width", dstInfo.width(), "height", dstInfo.height());
 
+    // RescaleImage() should only be called when we already know that srcImage is graphite-backed
+    SkASSERT(srcImage && as_IB(srcImage)->isGraphiteBacked());
+
+    // For now this needs to be texturable because we can't depend on copies to scale.
+    // NOTE: srcView may be empty if srcImage is YUVA.
+    const TextureProxyView srcView = AsView(srcImage);
+    if (srcView && !recorder->priv().caps()->isTexturable(srcView.proxy()->textureInfo())) {
+        // With the current definition of SkImage, this shouldn't happen. If we allow non-texturable
+        // formats for compute, we'll need to copy to a texturable format.
+        SkASSERT(false);
+        return nullptr;
+    }
+
     // make a Surface matching dstInfo to rescale into
     SkSurfaceProps surfaceProps = {};
     sk_sp<SkSurface> dst = make_renderable_scratch_surface(recorder, dstInfo, &surfaceProps);
@@ -562,19 +575,6 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
     SkRect srcRect = SkRect::Make(srcIRect);
     SkRect dstRect = SkRect::Make(dstInfo.dimensions());
 
-    // Get backing texture information for source Image.
-    // For now this needs to be texturable because we can't depend on copies to scale.
-    auto srcGraphiteImage = reinterpret_cast<const graphite::Image*>(srcImage);
-
-    const TextureProxyView& imageView = srcGraphiteImage->textureProxyView();
-    if (!imageView.proxy()) {
-        // With the current definition of SkImage, this shouldn't happen.
-        // If we allow non-texturable formats for compute, we'll need to
-        // copy to a texturable format.
-        SkASSERT(false);
-        return nullptr;
-    }
-
     SkISize finalSize = SkISize::Make(dstRect.width(), dstRect.height());
     if (finalSize == srcIRect.size()) {
         rescaleGamma = Image::RescaleGamma::kSrc;
@@ -583,12 +583,12 @@ sk_sp<SkImage> RescaleImage(Recorder* recorder,
 
     // Within a rescaling pass tempInput is read from and tempOutput is written to.
     // At the end of the pass tempOutput's texture is wrapped and assigned to tempInput.
-    const SkImageInfo& srcImageInfo = srcImage->imageInfo();
-    sk_sp<SkImage> tempInput(new Image(imageView, srcImageInfo.colorInfo()));
+    sk_sp<SkImage> tempInput = sk_ref_sp(srcImage);
     sk_sp<SkSurface> tempOutput;
 
     // Assume we should ignore the rescale linear request if the surface has no color space since
     // it's unclear how we'd linearize from an unknown color space.
+    const SkImageInfo& srcImageInfo = srcImage->imageInfo();
     if (rescaleGamma == Image::RescaleGamma::kLinear &&
         srcImageInfo.colorSpace() &&
         !srcImageInfo.colorSpace()->gammaIsLinear()) {
