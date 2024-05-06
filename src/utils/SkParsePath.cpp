@@ -228,12 +228,6 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                 path.close();
                 c = first;
                 break;
-            case '~': {
-                SkPoint args[2];
-                data = find_points(data, args, 2, false, nullptr);
-                path.moveTo(args[0].fX, args[0].fY);
-                path.lineTo(args[1].fX, args[1].fY);
-            } break;
             default:
                 return false;
         }
