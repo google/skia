@@ -35,10 +35,14 @@ public:
     static std::unique_ptr<SkXmp> Make(sk_sp<SkData> xmpStandard, sk_sp<SkData> xmpExtended);
 
     // Extract HDRGM gainmap parameters.
-    virtual bool getGainmapInfoHDRGM(SkGainmapInfo* info) const = 0;
+    // TODO(b/338342146): Remove this once all callers are removed.
+    bool getGainmapInfoHDRGM(SkGainmapInfo* info) const { return getGainmapInfoAdobe(info); }
 
-    // Extract HDRGainMap gainmap parameters.
-    virtual bool getGainmapInfoHDRGainMap(SkGainmapInfo* info) const = 0;
+    // Extract gainmap parameters from http://ns.adobe.com/hdr-gain-map/1.0/.
+    virtual bool getGainmapInfoAdobe(SkGainmapInfo* info) const = 0;
+
+    // Extract Apple gainmap parameters.
+    virtual bool getGainmapInfoApple(SkGainmapInfo* info) const = 0;
 
     // If this includes GContainer metadata and the GContainer contains an item with semantic
     // GainMap and Mime of image/jpeg, then return true, and populate |offset| and |size| with

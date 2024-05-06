@@ -354,8 +354,8 @@ class SkXmpImpl final : public SkXmp {
 public:
     SkXmpImpl() = default;
 
-    bool getGainmapInfoHDRGM(SkGainmapInfo* info) const override;
-    bool getGainmapInfoHDRGainMap(SkGainmapInfo* info) const override;
+    bool getGainmapInfoAdobe(SkGainmapInfo* info) const override;
+    bool getGainmapInfoApple(SkGainmapInfo* info) const override;
     bool getContainerGainmapLocation(size_t* offset, size_t* size) const override;
     const char* getExtendedXmpGuid() const override;
     // Parse the given xmp data and store it into either the standard (main) DOM or the extended
@@ -516,7 +516,7 @@ bool SkXmpImpl::getContainerGainmapLocation(size_t* outOffset, size_t* outSize) 
 }
 
 // Return true if the specified XMP metadata identifies this image as an HDR gainmap.
-bool SkXmpImpl::getGainmapInfoHDRGainMap(SkGainmapInfo* info) const {
+bool SkXmpImpl::getGainmapInfoApple(SkGainmapInfo* info) const {
     // Find a node that matches the requested namespaces and URIs.
     const char* namespaces[2] = {nullptr, nullptr};
     const char* uris[2] = {"http://ns.apple.com/pixeldatainfo/1.0/",
@@ -563,7 +563,7 @@ bool SkXmpImpl::getGainmapInfoHDRGainMap(SkGainmapInfo* info) const {
     return true;
 }
 
-bool SkXmpImpl::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
+bool SkXmpImpl::getGainmapInfoAdobe(SkGainmapInfo* outGainmapInfo) const {
     // Find a node that matches the requested namespace and URI.
     const char* namespaces[1] = {nullptr};
     const char* uris[1] = {"http://ns.adobe.com/hdr-gain-map/1.0/"};
@@ -606,6 +606,9 @@ bool SkXmpImpl::getGainmapInfoHDRGM(SkGainmapInfo* outGainmapInfo) const {
     get_attr_float(dom, node, hdrgmPrefix, "HDRCapacityMax", &hdrCapacityMax);
 
     // Translate all parameters to SkGainmapInfo's expected format.
+    if (!outGainmapInfo) {
+        return true;
+    }
     const float kLog2 = std::log(2.f);
     outGainmapInfo->fGainmapRatioMin = {std::exp(gainMapMin.fR * kLog2),
                                         std::exp(gainMapMin.fG * kLog2),

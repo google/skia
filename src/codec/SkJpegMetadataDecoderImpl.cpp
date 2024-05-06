@@ -30,10 +30,9 @@ struct SkGainmapInfo;
 #endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
 
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
-// Collect and parse the primary and extended XMP metadata.
-static std::unique_ptr<SkXmp> get_xmp_metadata(const SkJpegMarkerList& markerList) {
+std::unique_ptr<SkXmp> SkJpegMetadataDecoderImpl::getXmpMetadata() const {
     std::vector<sk_sp<SkData>> decoderApp1Params;
-    for (const auto& marker : markerList) {
+    for (const auto& marker : fMarkerList) {
         if (marker.fMarker == kXMPMarker) {
             decoderApp1Params.push_back(marker.fData);
         }
@@ -95,7 +94,7 @@ static std::unique_ptr<SkJpegMultiPictureParameters> find_mp_params(
 static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
                             size_t offset,
                             size_t size,
-                            bool base_image_has_hdrgm,
+                            bool baseImageHasAdobeXmp,
                             SkGainmapInfo& outInfo,
                             sk_sp<SkData>& outData) {
     // Extract the SkData for this image.
@@ -106,45 +105,28 @@ static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
         return false;
     }
 
-    // Scan through the image up to the StartOfScan. We'll be searching for the XMP metadata.
-    SkJpegSegmentScanner scan(kJpegMarkerStartOfScan);
-    scan.onBytes(imageData->data(), imageData->size());
-    if (scan.hadError() || !scan.isDone()) {
-        SkCodecPrintf("Failed to scan header of MP image.\n");
-        return false;
-    }
-
-    // Collect the potential XMP segments and build the XMP.
-    std::vector<sk_sp<SkData>> app1Params;
-    for (const auto& segment : scan.getSegments()) {
-        if (segment.marker != kXMPMarker) {
-            continue;
-        }
-        auto parameters = SkJpegSegmentScanner::GetParameters(imageData.get(), segment);
-        if (!parameters) {
-            continue;
-        }
-        app1Params.push_back(std::move(parameters));
-    }
-    auto xmp = SkJpegMakeXmp(app1Params);
+    // Parse the potential gainmap image's metadata.
+    SkJpegMetadataDecoderImpl metadataDecoder(imageData);
+    auto xmp = metadataDecoder.getXmpMetadata();
     if (!xmp) {
         return false;
     }
 
     // Check if this image identifies itself as a gainmap.
-    bool did_populate_info = false;
+    bool didPopulateInfo = false;
     SkGainmapInfo info;
 
-    // Check for HDRGM only if the base image specified hdrgm:Version="1.0".
-    did_populate_info = base_image_has_hdrgm && xmp->getGainmapInfoHDRGM(&info);
+    // Check for Adobe gainmap metadata only if the base image specified hdrgm:Version="1.0".
+    didPopulateInfo = baseImageHasAdobeXmp && xmp->getGainmapInfoAdobe(&info);
 
-    // Next, check HDRGainMap. This does not require anything specific from the base image.
-    if (!did_populate_info) {
-        did_populate_info = xmp->getGainmapInfoHDRGainMap(&info);
+    // Next try for Apple gain map metadata. This does not require anything specific from the base
+    // image.
+    if (!didPopulateInfo) {
+        didPopulateInfo = xmp->getGainmapInfoApple(&info);
     }
 
     // If none of the formats identified itself as a gainmap and populated |info| then fail.
-    if (!did_populate_info) {
+    if (!didPopulateInfo) {
         return false;
     }
 
@@ -157,20 +139,16 @@ static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
     }
     return true;
 }
+#endif
 
-static bool get_gainmap_info(const SkJpegMarkerList& markerList,
-                             SkJpegSourceMgr* sourceMgr,
-                             SkGainmapInfo& outInfo,
-                             sk_sp<SkData>& outData) {
-    // All non-ISO formats require XMP metadata. Extract it now.
-    std::unique_ptr<SkXmp> xmp = get_xmp_metadata(markerList);
+bool SkJpegMetadataDecoderImpl::findGainmapImage(SkJpegSourceMgr* sourceMgr,
+                                                 sk_sp<SkData>& outData,
+                                                 SkGainmapInfo& outInfo) const {
+#ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
+    auto xmp = getXmpMetadata();
 
-    // Let |base_image_info| be the HDRGM gainmap information found in the base image (if any).
-    SkGainmapInfo base_image_info;
-
-    // Set |base_image_has_hdrgm| to be true if the base image has HDRGM XMP metadata that includes
-    // the a Version 1.0 attribute.
-    const bool base_image_has_hdrgm = xmp && xmp->getGainmapInfoHDRGM(&base_image_info);
+    // Determine if Adobe HDR gain map is indicated in the base image.
+    bool adobeGainmapPresent = xmp && xmp->getGainmapInfoAdobe(nullptr);
 
     // Attempt to locate the gainmap from the container XMP.
     size_t containerGainmapOffset = 0;
@@ -187,7 +165,7 @@ static bool get_gainmap_info(const SkJpegMarkerList& markerList,
 
     // Attempt to find MultiPicture parameters.
     SkJpegSegment mpParamsSegment;
-    auto mpParams = find_mp_params(markerList, sourceMgr, &mpParamsSegment);
+    auto mpParams = find_mp_params(fMarkerList, sourceMgr, &mpParamsSegment);
 
     // First, search through the Multi-Picture images.
     if (mpParams) {
@@ -199,7 +177,7 @@ static bool get_gainmap_info(const SkJpegMarkerList& markerList,
             if (extract_gainmap(sourceMgr,
                                 mpImageOffset,
                                 mpImageSize,
-                                base_image_has_hdrgm,
+                                adobeGainmapPresent,
                                 outInfo,
                                 outData)) {
                 // If the GContainer also suggested an offset and size, assert that we found the
@@ -218,17 +196,16 @@ static bool get_gainmap_info(const SkJpegMarkerList& markerList,
         if (extract_gainmap(sourceMgr,
                             containerGainmapOffset,
                             containerGainmapSize,
-                            base_image_has_hdrgm,
+                            adobeGainmapPresent,
                             outInfo,
                             outData)) {
             return true;
         }
         SkCodecPrintf("Failed to extract container-specified gainmap.\n");
     }
-
+#endif
     return false;
 }
-#endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
 
 /**
  * Return true if the specified SkJpegMarker has marker |targetMarker| and begins with the specified
@@ -400,6 +377,28 @@ static sk_sp<SkData> read_metadata(const SkJpegMarkerList& markerList,
 SkJpegMetadataDecoderImpl::SkJpegMetadataDecoderImpl(SkJpegMarkerList markerList)
         : fMarkerList(std::move(markerList)) {}
 
+SkJpegMetadataDecoderImpl::SkJpegMetadataDecoderImpl(sk_sp<SkData> data) {
+#ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
+    SkJpegSegmentScanner scan(kJpegMarkerStartOfScan);
+    scan.onBytes(data->data(), data->size());
+    if (scan.hadError() || !scan.isDone()) {
+        SkCodecPrintf("Failed to scan header of MP image.\n");
+        return;
+    }
+    for (const auto& segment : scan.getSegments()) {
+        // Save the APP1 and APP2 parameters (which includes Exif, XMP, ICC, and MPF).
+        if (segment.marker != kJpegMarkerAPP0 + 1 && segment.marker != kJpegMarkerAPP0 + 2) {
+            continue;
+        }
+        auto parameters = SkJpegSegmentScanner::GetParameters(data.get(), segment);
+        if (!parameters) {
+            continue;
+        }
+        fMarkerList.emplace_back(segment.marker, std::move(parameters));
+    }
+#endif
+}
+
 sk_sp<SkData> SkJpegMetadataDecoderImpl::getExifMetadata(bool copyData) const {
     return read_metadata(fMarkerList,
                          kExifMarker,
@@ -424,16 +423,6 @@ bool SkJpegMetadataDecoderImpl::mightHaveGainmapImage() const {
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
     // All supported gainmap formats require MPF. Reject images that do not have MPF.
     return find_mp_params(fMarkerList, nullptr, nullptr) != nullptr;
-#else
-    return false;
-#endif
-}
-
-bool SkJpegMetadataDecoderImpl::findGainmapImage(SkJpegSourceMgr* sourceMgr,
-                                                 sk_sp<SkData>& outGainmapImageData,
-                                                 SkGainmapInfo& outGainmapInfo) const {
-#ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
-    return get_gainmap_info(fMarkerList, sourceMgr, outGainmapInfo, outGainmapImageData);
 #else
     return false;
 #endif
