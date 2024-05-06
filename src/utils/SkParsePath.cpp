@@ -243,17 +243,6 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void write_scalar(SkWStream* stream, SkScalar value) {
-    // https://stackoverflow.com/a/52045523 (this includes space for a null terminator)
-    constexpr size_t kMaxFloatLength = 16 + 1;
-    char buffer[kMaxFloatLength];
-    int len = snprintf(buffer, kMaxFloatLength, "%g", value);
-    SkASSERT(len >= 0); // This would be negative if we could not turn value into a string.
-    SkASSERT(len <= (int)kMaxFloatLength); // If this asserts, we need a larger buffer.
-    char* stop = buffer + len;
-    stream->write(buffer, stop - buffer);
-}
-
 SkString SkParsePath::ToSVGString(const SkPath& path, PathEncoding encoding) {
     SkDynamicMemoryWStream  stream;
 
@@ -270,9 +259,9 @@ SkString SkParsePath::ToSVGString(const SkPath& path, PathEncoding encoding) {
             if (i > 0) {
                 stream.write(" ", 1);
             }
-            write_scalar(&stream, pt.fX);
+            stream.writeScalarAsText(pt.fX);
             stream.write(" ", 1);
-            write_scalar(&stream, pt.fY);
+            stream.writeScalarAsText(pt.fY);
         }
 
         SkASSERT(count > 0);
