@@ -70,12 +70,27 @@ DEF_TEST(ParsePath, reporter) {
     test_to_from(reporter, p);
 }
 
-DEF_TEST(ParsePath_invalid, r) {
+static void testInvalidPath(skiatest::Reporter* reporter, const std::string& name,
+                            const std::string& input) {
+    skiatest::ReporterContext subtest(reporter, name);
     SkPath path;
-    // This is an invalid SVG string, but the test verifies that we do not
-    // crash.
-    bool success = SkParsePath::FromSVGString("M 5", &path);
-    REPORTER_ASSERT(r, !success);
+    bool success = SkParsePath::FromSVGString(input.c_str(), &path);
+    REPORTER_ASSERT(reporter, !success);
+    // We should not modify the input path on a failure.
+    REPORTER_ASSERT(reporter, path.isEmpty());
+}
+
+DEF_TEST(ParsePath_InvalidDoesNotCrash, r) {
+    testInvalidPath(r, "empty move", "M");
+    testInvalidPath(r, "partial move", "M 5");
+    testInvalidPath(r, "partial vertical line", "V"); // oss-fuzz:68723
+    testInvalidPath(r, "partial horizontal line", "H");
+    testInvalidPath(r, "partial cubic", "C 1 2");
+    testInvalidPath(r, "partial continued cubic", "S 6 7");
+    testInvalidPath(r, "partial quad", "Q 3 4 5");
+    testInvalidPath(r, "partial continued quad", "T");
+    testInvalidPath(r, "partial arc", "A 1 2 3 4 5 6");
+    testInvalidPath(r, "partial ~", "~ 7 6 5");
 }
 
 DEF_TEST(ParsePathOptionalCommand, r) {

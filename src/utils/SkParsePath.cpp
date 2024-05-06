@@ -59,6 +59,8 @@ static const char* skip_sep(const char str[]) {
     return str;
 }
 
+// If unable to read count points from str into value, this will return nullptr
+// to signal the failure. Otherwise, it will return the next offset to read from.
 static const char* find_points(const char str[], SkPoint value[], int count,
                                bool isRelative, SkPoint* relative) {
     str = SkParse::FindScalars(str, &value[0].fX, count * 2);
@@ -71,6 +73,8 @@ static const char* find_points(const char str[], SkPoint value[], int count,
     return str;
 }
 
+// If unable to read a scalar from str into value, this will return nullptr
+// to signal the failure. Otherwise, it will return the next offset to read from.
 static const char* find_scalar(const char str[], SkScalar* value,
                                bool isRelative, SkScalar relative) {
     str = SkParse::FindScalar(str, value);
@@ -101,11 +105,18 @@ static const char* find_flag(const char str[], bool* value) {
 }
 
 bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
+    // We will write all data to this local path and only write it
+    // to result if the whole parsing succeeds.
     SkPath path;
     SkPoint first = {0, 0};
     SkPoint c = {0, 0};
     SkPoint lastc = {0, 0};
-    SkPoint points[3];
+    // We will use find_points and find_scalar to read into these.
+    // There might not be enough data to fill them, so to avoid
+    // MSAN warnings about using uninitialized bytes, we initialize
+    // them there.
+    SkPoint points[3] = {};
+    SkScalar scratch = 0;
     char op = '\0';
     char previousOp = '\0';
     bool relative = false;
@@ -136,34 +147,39 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
             data = skip_sep(data);
         }
         switch (op) {
-            case 'M':
+            case 'M':  // Move
                 data = find_points(data, points, 1, relative, &c);
+                // find_points might have failed, so this might be the
+                // previous point. However, data will be set to nullptr
+                // if it failed, so we will check this at the top of the loop.
                 path.moveTo(points[0]);
                 previousOp = '\0';
                 op = 'L';
                 c = points[0];
                 break;
-            case 'L':
+            case 'L':  // Line
                 data = find_points(data, points, 1, relative, &c);
                 path.lineTo(points[0]);
                 c = points[0];
                 break;
-            case 'H': {
-                SkScalar x;
-                data = find_scalar(data, &x, relative, c.fX);
-                path.lineTo(x, c.fY);
-                c.fX = x;
-            } break;
-            case 'V': {
-                SkScalar y;
-                data = find_scalar(data, &y, relative, c.fY);
-                path.lineTo(c.fX, y);
-                c.fY = y;
-            } break;
-            case 'C':
+            case 'H':  // Horizontal Line
+                data = find_scalar(data, &scratch, relative, c.fX);
+                // Similarly, if there wasn't a scalar to read, data will
+                // be set to nullptr and this lineTo is bogus but will
+                // be ultimately ignored when the next time through the loop
+                // detects that and bails out.
+                path.lineTo(scratch, c.fY);
+                c.fX = scratch;
+                break;
+            case 'V':  // Vertical Line
+                data = find_scalar(data, &scratch, relative, c.fY);
+                path.lineTo(c.fX, scratch);
+                c.fY = scratch;
+                break;
+            case 'C':  // Cubic Bezier Curve
                 data = find_points(data, points, 3, relative, &c);
                 goto cubicCommon;
-            case 'S':
+            case 'S':  // Continued "Smooth" Cubic Bezier Curve
                 data = find_points(data, &points[1], 2, relative, &c);
                 points[0] = c;
                 if (previousOp == 'C' || previousOp == 'S') {
@@ -178,7 +194,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
             case 'Q':  // Quadratic Bezier Curve
                 data = find_points(data, points, 2, relative, &c);
                 goto quadraticCommon;
-            case 'T':
+            case 'T':  // Continued Quadratic Bezier Curve
                 data = find_points(data, &points[1], 1, relative, &c);
                 points[0] = c;
                 if (previousOp == 'Q' || previousOp == 'T') {
@@ -190,7 +206,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                 lastc = points[0];
                 c = points[1];
                 break;
-            case 'A': {
+            case 'A': {  // Arc (Elliptical)
                 SkPoint radii;
                 SkScalar angle;
                 bool largeArc, sweep;
@@ -208,7 +224,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                     path.getLastPt(&c);
                 }
                 } break;
-            case 'Z':
+            case 'Z':  // Close Path
                 path.close();
                 c = first;
                 break;
