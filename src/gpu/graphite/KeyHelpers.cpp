@@ -49,6 +49,7 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
+#include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
@@ -1841,12 +1842,38 @@ static void add_to_key(const KeyContext& keyContext,
         return;
     }
 
+    // NOTE: While this is intended to be a "scratch" surface, we don't use MakeScratch() because
+    // the SkPicture could contain arbitrary operations that rely on the Recorder's atlases, which
+    // means the Surface's device has to participate in flushing when the atlas fills up.
+    // TODO: Can this be an approx-fit image that's generated?
     // TODO: right now we're explicitly not caching here. We could expand the ImageProvider
     // API to include already Graphite-backed images, add a Recorder-local cache or add
     // rendered-picture images to the global cache.
-    sk_sp<SkImage> img = info.makeImage(
-            SkSurfaces::RenderTarget(recorder, info.imageInfo, skgpu::Mipmapped::kNo, &info.props),
-            shader->picture().get());
+    sk_sp<Surface> surface = Surface::Make(recorder,
+                                           info.imageInfo,
+                                           Budgeted::kYes,
+                                           Mipmapped::kNo,
+                                           SkBackingFit::kExact,
+                                           &info.props);
+    if (!surface) {
+        SKGPU_LOG_W("Could not create surface to render PictureShader");
+        builder->addBlock(BuiltInCodeSnippetID::kError);
+        return;
+    }
+
+    // NOTE: Don't call CachedImageInfo::makeImage() since that uses the legacy makeImageSnapshot()
+    // API, which results in an extra texture copy on a Graphite Surface.
+    surface->getCanvas()->concat(info.matrixForDraw);
+    surface->getCanvas()->drawPicture(shader->picture().get());
+    sk_sp<SkImage> img = SkSurfaces::AsImage(std::move(surface));
+    if (!img) {
+        SKGPU_LOG_W("Couldn't create SkImage for PictureShader");
+        builder->addBlock(BuiltInCodeSnippetID::kError);
+        return;
+    }
+    // TODO: 'img' did not exist when notify_in_use() was called, but ideally the DrawTask to render
+    // into 'surface' would be a child of the current device. While we push all tasks to the root
+    // list this works out okay, but will need to be addressed before we move off that system.
     if (!img) {
         SKGPU_LOG_W("Couldn't create SkImage for PictureShader");
         builder->addBlock(BuiltInCodeSnippetID::kError);
