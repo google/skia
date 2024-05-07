@@ -668,7 +668,7 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kApiLevel_T) {
+                                       CtsEnforcement::kApiLevel_V) {
     using Surface = sk_sp<SkSurface>;
     auto reader = std::function<GpuReadSrcFn<Surface>>(
             [](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {
