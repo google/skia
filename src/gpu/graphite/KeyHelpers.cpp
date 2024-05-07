@@ -1855,6 +1855,7 @@ static void add_to_key(const KeyContext& keyContext,
     // rendered-picture images to the global cache.
     sk_sp<Surface> surface = Surface::Make(recorder,
                                            info.imageInfo,
+                                           "PictureShaderTexture",
                                            Budgeted::kYes,
                                            Mipmapped::kNo,
                                            SkBackingFit::kExact,
