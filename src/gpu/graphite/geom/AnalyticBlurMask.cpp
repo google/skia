@@ -73,10 +73,12 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::Make(Recorder* recorder,
         return MakeCircle(recorder, localToDevice, deviceSigma, srcRect, devRect);
     }
 
-    if (devRRectIsValid && SkRRectPriv::IsSimpleCircular(devRRect) &&
-        localToDevice.isScaleTranslate()) {
-        return MakeRRect(recorder, localToDevice, deviceSigma, srcRRect, devRRect);
-    }
+    // TODO(b/338032240) When this is enabled on Chrome we see regressions in some cases (see
+    // b/337908722). Profiling shows that most of the time is spent creating a blur mask on the CPU.
+    // if (devRRectIsValid && SkRRectPriv::IsSimpleCircular(devRRect) &&
+    //     localToDevice.isScaleTranslate()) {
+    //     return MakeRRect(recorder, localToDevice, deviceSigma, srcRRect, devRRect);
+    // }
 
     return std::nullopt;
 }
