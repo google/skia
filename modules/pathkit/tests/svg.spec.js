@@ -50,7 +50,7 @@ describe('PathKit\'s SVG Behavior', function() {
             let path = PathKit.FromCmds(cmds);
 
             let svgStr = path.toSVGString();
-            expect(svgStr).toEqual('M9.37088e-26 2.0003L795 5L595 295L5 295L9.37088e-26 2.0003Z');
+            expect(svgStr).toEqual('M9.3708787e-26 2.0002966L795 5L595 295L5 295L9.3708787e-26 2.0002966Z');
             path.delete();
             done();
         }));
