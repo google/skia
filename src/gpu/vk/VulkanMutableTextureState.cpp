@@ -10,6 +10,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/MutableTextureState.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "src/gpu/MutableTextureStatePriv.h"
 #include "src/gpu/vk/VulkanMutableTextureStatePriv.h"
 

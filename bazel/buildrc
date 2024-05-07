@@ -192,22 +192,7 @@ build:skottie_container --config=ck_full_webgl2_release \
 # only needed in release mode. Thus our C++ debug includes should be a superset of the
 # release includes.
 build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
-                   --compilation_mode=dbg --keep_going \
-                   --with_gl_standard=gl_standard --gpu_backend=gl_ganesh \
-                   --gpu_backend=vulkan_ganesh \
-                   --enable_gpu_test_utils \
-                   --include_fontmgr=custom_directory_fontmgr --include_fontmgr=custom_embedded_fontmgr \
-                   --include_fontmgr=custom_empty_fontmgr \
-                   --include_decoder=avif_decode_codec --include_decoder=gif_decode_codec \
-                   --include_decoder=jpeg_decode_codec --include_decoder=jxl_decode_codec \
-                   --include_decoder=png_decode_codec --include_decoder=raw_decode_codec \
-                   --include_decoder=webp_decode_codec \
-                   --include_encoder=jpeg_encode_codec --include_encoder=png_encode_codec \
-                   --include_encoder=webp_encode_codec \
-                   --with_harfbuzz --with_icu \
-                   --enable_svg_canvas --enable_pdf_backend \
-                   --compile_generated_cpp_files_for_headers
-
+                   --compilation_mode=dbg --keep_going
 
 build:use_linux_rbe_pool --config=linux_rbe --remote_download_minimal
 

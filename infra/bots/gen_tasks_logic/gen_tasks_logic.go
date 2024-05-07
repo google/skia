@@ -2179,16 +2179,17 @@ type labelAndSavedOutputDir struct {
 // label or "target pattern" https://bazel.build/docs/build#specifying-build-targets
 // The reason we need this mapping is because Buildbucket build names cannot have / or : in them.
 var shorthandToLabel = map[string]labelAndSavedOutputDir{
-	"base":                           {"//src/base:base", ""},
+	"all_tests":                      {"//tests:linux_rbe_tests", ""},
+	"core":                           {"//:core", ""},
+	"cpu_8888_benchmark_test":        {"//bench:cpu_8888_test", ""},
+	"cpu_gms":                        {"//gm:cpu_gm_tests", ""},
+	"experimental_bazel_test_client": {"//experimental/bazel_test/client:client_lib", ""},
+	"full_library":                   {"//tools:full_build", ""},
+	"ganesh_gl":                      {"//:ganesh_gl", ""},
+	"hello_bazel_world_test":         {"//gm:hello_bazel_world_test", ""},
 	"modules_canvaskit":              {"//modules/canvaskit:canvaskit", ""},
 	"modules_canvaskit_js_tests":     {"//modules/canvaskit:canvaskit_js_tests", ""},
-	"skia_public":                    {"//:skia_public", ""},
 	"skottie_tool_gpu":               {"//modules/skottie:skottie_tool_gpu", ""},
-	"all_tests":                      {"//tests:linux_rbe_tests", ""},
-	"experimental_bazel_test_client": {"//experimental/bazel_test/client:client_lib", ""},
-	"cpu_gms":                        {"//gm:cpu_gm_tests", ""},
-	"hello_bazel_world_test":         {"//gm:hello_bazel_world_test", ""},
-	"cpu_8888_benchmark_test":        {"//bench:cpu_8888_test", ""},
 
 	// Note: these paths are relative to the WORKSPACE in //example/external_client
 	"decode_everything":  {"//:decode_everything", ""},

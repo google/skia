@@ -13,6 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAPI.h"
+#include "include/private/base/SkDebug.h"
 
 class SkMatrix;
 class SkPath;

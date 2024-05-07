@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -74,5 +74,12 @@ skia_filegroup(
     srcs = [":image_srcs"],
     visibility = [
         "//src/core:__pkg__",
+    ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        "SkImageGeneratorPriv.h",
     ],
 )

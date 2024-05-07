@@ -177,11 +177,11 @@ skia_cc_library(
     visibility = ["//tools:__subpackages__"],
     deps = [
         "//:core",
-        "//include/third_party/vulkan",
         "//src/base",
         "//src/core:core_priv",
         "//src/gpu",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/sksl/codegen:spirv",
+        "@vulkan_headers",
     ],
 )

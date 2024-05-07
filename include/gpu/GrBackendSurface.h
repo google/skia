@@ -12,11 +12,11 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/mock/GrMockTypes.h"
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkAnySubclass.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-
-#include "include/gpu/mock/GrMockTypes.h"
 
 enum class SkTextureCompressionType;
 class GrBackendFormatData;

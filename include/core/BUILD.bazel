@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -210,4 +210,26 @@ skia_filegroup(
         "SkTypes.h",
     ],
     visibility = ["//src/opts:__pkg__"],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        # All headers listed here will have a .cpp file generated that is a copy of the header file
+        # just with a .cpp suffix so Bazel will try to compile it.
+        # This allows us to run IWYU on these files.
+        "SkAlphaType.h",
+        "SkBlendMode.h",
+        "SkBlurTypes.h",
+        "SkCoverageMode.h",
+        "SkFontStyle.h",
+        "SkFontTypes.h",
+        "SkPathTypes.h",
+        "SkRefCnt.h",
+        "SkScalar.h",
+        "SkSerialProcs.h",
+        "SkShader.h",
+        "SkSize.h",
+        "SkTypes.h",
+    ],
 )

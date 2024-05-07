@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -70,5 +70,14 @@ skia_filegroup(
     ],
     visibility = [
         "//src/core:__pkg__",
+    ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        "SkGradientShader.h",
+        "SkImageFilters.h",
+        "SkPerlinNoiseShader.h",
     ],
 )

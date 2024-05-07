@@ -43,7 +43,6 @@ skia_cc_library(
     name = "skia_public",
     srcs = [
         "//include:private_hdrs",
-        "//include:srcs",
         "//src:private_hdrs",
         "//src:srcs",
     ],
@@ -65,7 +64,6 @@ skia_cc_library(
 skia_cc_library(
     name = "skia_internal",
     srcs = [
-        "//include:srcs",
         "//src:srcs",
     ],
     hdrs = [

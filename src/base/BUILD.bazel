@@ -1,7 +1,7 @@
 load(
     "//bazel:skia_rules.bzl",
     "exports_files_legacy",
-    "generate_cpp_files_for_header_list",
+    "generate_cpp_files_for_headers",
     "skia_cc_library",
     "skia_filegroup",
 )
@@ -68,12 +68,6 @@ skia_filegroup(
     ],
 )
 
-generate_cpp_files_for_header_list(
-    name = "generated_base_header_cpps",
-    headers = IWYU_HDRS,
-    visibility = ["//src:__pkg__"],
-)
-
 # In a separate file group because these files are exported to sksl.gni:skslc_deps.
 skia_filegroup(
     name = "skslc_srcs",
@@ -120,13 +114,7 @@ skia_cc_library(
     srcs = [
         ":srcs",
         "//src/ports:base_srcs",
-    ] + select({
-        "//bazel/common_config_settings:compile_generated_cpp_files_for_headers_true": [
-            ":generated_base_header_cpps",
-            "//include/private/base:generated_base_header_cpps",
-        ],
-        "//conditions:default": [],
-    }),
+    ],
     hdrs = [
         ":private_hdrs",
         "//include/private/base:private_hdrs",
@@ -140,4 +128,9 @@ skia_cc_library(
         "//tools:__subpackages__",
     ],
     deps = ["@skia_user_config//:user_config"],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = IWYU_HDRS,
 )

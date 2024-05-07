@@ -1,20 +1,18 @@
 [
-  {"name": "BazelBuild-base-release-linux_x64",
-    "cq_config": {}
-  },
-  {"name": "BazelBuild-base-enforce_iwyu-linux_x64",
-    "cq_config": {}
-  },
   {"name": "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64",
     "cq_config": {}
   },
-  {"name": "BazelBuild-skia_public-enforce_iwyu-linux_x64",
+  {"name": "BazelBuild-full_library-enforce_iwyu-linux_x64",
     "cq_config": {}
   },
   {"name": "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64",
     "cq_config": {}
   },
-  {"name": "BazelBuild-skia_public-release-linux_x64"},
+  {"name": "BazelBuild-full_library-release-linux_x64",
+    "cq_config": {}
+  },
+  {"name": "BazelBuild-core-release-linux_x64"},
+  {"name": "BazelBuild-ganesh_gl-release-linux_x64"},
   {"name": "BazelBuild-all_tests-debug-linux_x64"},
   {"name": "BazelBuild-all_tests-release-linux_x64",
     "cq_config": {}

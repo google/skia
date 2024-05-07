@@ -12,12 +12,10 @@ load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 load(
     "//bazel:generate_cpp_files_for_headers.bzl",
-    _generate_cpp_files_for_header_list = "generate_cpp_files_for_header_list",
     _generate_cpp_files_for_headers = "generate_cpp_files_for_headers",
 )
 
 generate_cpp_files_for_headers = _generate_cpp_files_for_headers
-generate_cpp_files_for_header_list = _generate_cpp_files_for_header_list
 
 def select_multi(values_map, default_cases = None):
     """select() but allowing multiple matches of the keys.

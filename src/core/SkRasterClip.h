@@ -13,6 +13,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "src/core/SkAAClip.h"
 

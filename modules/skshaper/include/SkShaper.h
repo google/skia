@@ -9,7 +9,6 @@
 #define SkShaper_DEFINED
 
 #include "include/core/SkFont.h"
-#include "include/core/SkFontMgr.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -23,6 +22,12 @@
 #include <type_traits>
 
 class SkFontStyle;
+
+#if defined(SK_DISABLE_LEGACY_SKSHAPER_FUNCTIONS)
+class SkFontMgr;
+#else
+#include "include/core/SkFontMgr.h"
+#endif
 
 #if !defined(SKSHAPER_IMPLEMENTATION)
     #define SKSHAPER_IMPLEMENTATION 0

@@ -190,12 +190,6 @@ string_flag_with_values(
 )
 
 bool_flag(
-    # This is necessary because Bazel provides no way to compile header files on their own
-    name = "compile_generated_cpp_files_for_headers",
-    default = False,
-)
-
-bool_flag(
     name = "enable_effect_serialization",
     default = True,
 )

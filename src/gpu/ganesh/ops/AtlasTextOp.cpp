@@ -9,11 +9,9 @@
 
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkMaskGamma.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrBufferAllocPool.h"
@@ -39,6 +37,11 @@
 #include "src/text/gpu/DistanceFieldAdjustTable.h"
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SubRunContainer.h"
+
+#if defined(SK_GAMMA_APPLY_TO_A8)
+#include "include/private/base/SkCPUTypes.h"
+#include "src/core/SkMaskGamma.h"
+#endif
 
 #include <algorithm>
 #include <functional>
@@ -514,7 +517,7 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                    GrSamplerState::Filter::kLinear, widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
-#ifdef SK_GAMMA_APPLY_TO_A8
+#if defined(SK_GAMMA_APPLY_TO_A8)
         float correction = 0;
         if (this->maskType() != MaskType::kAliasedDistanceField) {
             U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT,

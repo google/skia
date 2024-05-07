@@ -89,7 +89,6 @@ build --flag_alias=disable_build_for_debugger=no//bazel/common_config_settings:b
 # Flags used by Skia tools, not to be used by clients
 build --flag_alias=disable_gpu_test_utils=no//src/gpu:enable_gpu_test_utils
 build --flag_alias=enable_gpu_test_utils=//src/gpu:enable_gpu_test_utils
-build --flag_alias=compile_generated_cpp_files_for_headers=//bazel/common_config_settings:compile_generated_cpp_files_for_headers
 build --flag_alias=adb_platform=//tools/testrunners/common/android/adb_test_runner:adb_platform
 
 # Public CanvasKit flags

@@ -8,6 +8,7 @@
 #ifndef SkResourceCache_DEFINED
 #define SkResourceCache_DEFINED
 
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkMessageBus.h"
 
 #include <cstddef>

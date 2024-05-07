@@ -18,6 +18,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"

@@ -1,5 +1,5 @@
 load("//bazel:flags.bzl", "bool_flag")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -182,7 +182,10 @@ skia_cc_library(
         "SK_GL",
     ],
     features = ["layering_check"],
-    visibility = ["//tools:__subpackages__"],
+    visibility = [
+        "//modules/skottie:__pkg__",
+        "//tools:__subpackages__",
+    ],
     deps = [
         "//:core",
         "//src/base",
@@ -190,5 +193,12 @@ skia_cc_library(
         "//src/gpu",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/sksl/codegen:glsl",
+    ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        "GrGLBackendSurfacePriv.h",
     ],
 )

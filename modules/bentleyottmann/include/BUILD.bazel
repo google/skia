@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -23,32 +23,4 @@ skia_filegroup(
         "SweepLine.h",
     ],
     visibility = ["//modules/bentleyottmann:__pkg__"],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = select({
-        # These sources are not checked in - Bazel generates them dynamically. We only want to
-        # generate and compile them when we are doing compile-time analysis, e.g. IWYU.
-        "//bazel/common_config_settings:compile_generated_cpp_files_for_headers_true": [
-            ":generated_srcs",
-        ],
-        # If filegroups are empty and used in a cc_library, Bazel throws an error. So we have to
-        # put something here.
-        "//conditions:default": [":hdrs"],
-    }),
-    visibility = ["//:__pkg__"],
-)
-
-generate_cpp_files_for_headers(
-    name = "generated_srcs",
-    headers = [
-        ":hdrs",
-    ],
-    # All headers listed here (using paths relative to the Skia root) will have a .cpp file
-    # generated that is a copy of the header file just with a .cpp suffix so Bazel will try to
-    # compile it. This allows us to run IWYU on these files.
-    to_generate = [
-        "modules/bentleyottmann/include/EventQueueInterface.h",
-    ],
 )

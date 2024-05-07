@@ -18,6 +18,7 @@
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "include/gpu/gl/GrGLInterface.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"

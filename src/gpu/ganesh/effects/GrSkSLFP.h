@@ -13,6 +13,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "src/base/SkVx.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/GrFragmentProcessor.h"

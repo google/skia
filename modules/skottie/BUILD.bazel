@@ -1,4 +1,3 @@
-load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary", "skia_cc_library")
 
 package(
@@ -46,7 +45,6 @@ skia_cc_binary(
     testonly = True,
     srcs = [
         "//modules/skottie/src:skottie_tool",
-        "//tools/flags",
     ],
     defines = ["CPU_ONLY"],
     features = ["layering_check"],
@@ -65,54 +63,62 @@ skia_cc_binary(
         "//modules/skunicode:skunicode_icu",
         "//src/base",
         "//src/core:core_priv",
+        "//tools/flags:cmd_flags",
     ],
 )
 
-cc_binary_with_flags(
+skia_cc_binary(
     name = "skottie_tool_gpu",
     testonly = True,
     srcs = [
         "//modules/skottie/src:skottie_tool",
-        "//tools/flags",
     ],
     defines = ["GPU_ONLY"],
-    set_flags = {
-        "enable_gpu_test_utils": ["True"],
-        "include_fontmgr": ["custom_empty_fontmgr"],
-        "gpu_backend": ["gl_ganesh"],
-        "include_decoder": [
-            "jpeg_decode_codec",
-            "png_decode_codec",
-            "webp_decode_codec",
-        ],
-        "use_harfbuzz": ["True"],
-        "use_icu": ["True"],
-        "with_gl_standard": ["gl_standard"],
-    },
+    features = ["layering_check"],
     deps = [
-        ":legacy_skottie",
-        ":legacy_utils",
-        "//tools/gpu:utils",
+        ":skottie",
+        ":utils",
+        "//:core",
+        "//:fontmgr_empty_freetype",
+        "//:jpeg_decode_codec",
+        "//:png_decode_codec",
+        "//:png_encode_codec",
+        "//:webp_decode_codec",
+        "//modules/skresources",
+        "//modules/skshaper:skshaper_harfbuzz",
+        "//modules/skshaper:skshaper_unicode",
+        "//modules/skunicode:skunicode_icu",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//tools/flags:cmd_flags",
+        "//tools/gpu:ganesh_gl_utils",
     ],
 )
 
-cc_binary_with_flags(
+skia_cc_binary(
     name = "skottie_preshape_tool",
     testonly = True,
     srcs = [
         "//modules/skottie/utils:skottie_preshape_tool",
-        "//tools/flags",
     ],
-    set_flags = {
-        "include_fontmgr": ["fontconfig_fontmgr"],
-        "use_harfbuzz": ["True"],
-        "use_icu": ["True"],
-    },
+    features = ["layering_check"],
     deps = [
-        ":legacy_skottie",
-        ":legacy_utils",
-        "//tools/gpu:utils",
-    ],
+        ":skottie",
+        ":utils",
+        "//:core",
+        "//modules/skresources",
+        "//modules/skshaper:skshaper_harfbuzz",
+        "//modules/skshaper:skshaper_unicode",
+        "//modules/skunicode:skunicode_icu",
+        "//src/base",
+        "//src/core:core_priv",
+        "//tools/flags:cmd_flags",
+    ] + select({
+        "@platforms//os:linux": ["//:fontmgr_fontconfig_freetype"],
+        "@platforms//os:macos": ["//:fontmgr_coretext"],
+        "//conditions:default": ["//:fontmgr_empty_freetype"],
+    }),
 )
 
 skia_cc_library(

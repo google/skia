@@ -14,9 +14,11 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/private/base/SkDebug.h"
 #include "src/base/SkZip.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkMask.h"
+
 #include <cstddef>
 
 class SkArenaAlloc;

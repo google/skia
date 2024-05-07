@@ -10,6 +10,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"

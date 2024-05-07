@@ -6,14 +6,15 @@
  */
 
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFixed.h"
 #include "include/private/base/SkMath.h"
-#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBlitter.h"

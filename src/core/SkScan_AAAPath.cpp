@@ -11,6 +11,7 @@
 #include "include/core/SkRect.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFixed.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkSafe32.h"

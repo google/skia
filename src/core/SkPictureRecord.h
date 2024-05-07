@@ -24,6 +24,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"

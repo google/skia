@@ -48,6 +48,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/chromium/Slug.h"  // IWYU pragma: keep

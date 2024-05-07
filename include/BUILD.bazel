@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -43,64 +43,5 @@ skia_filegroup(
     visibility = [
         "//:__pkg__",
         "//src/opts:__pkg__",
-    ],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = select({
-        # These sources are not checked in - Bazel generates them dynamically. We only want to
-        # generate and compile them when we are doing compile-time analysis, e.g. IWYU.
-        "//bazel/common_config_settings:compile_generated_cpp_files_for_headers_true": [
-            ":generated_srcs",
-        ],
-        # If filegroups are empty and used in a cc_library, Bazel throws an error. So we have to
-        # put something here.
-        "//conditions:default": [":private_hdrs"],
-    }),
-    visibility = ["//:__pkg__"],
-)
-
-generate_cpp_files_for_headers(
-    name = "generated_srcs",
-    headers = [
-        ":public_hdrs",
-        ":private_hdrs",
-    ],
-    # All headers listed here (using paths relative to the Skia root) will have a .cpp file
-    # generated that is a copy of the header file just with a .cpp suffix so Bazel will try to
-    # compile it. This allows us to run IWYU on these files.
-    to_generate = [
-        "include/core/SkAlphaType.h",
-        "include/core/SkBlendMode.h",
-        "include/core/SkBlurTypes.h",
-        "include/core/SkCoverageMode.h",
-        "include/core/SkFontStyle.h",
-        "include/core/SkFontTypes.h",
-        "include/core/SkPathTypes.h",
-        "include/core/SkRefCnt.h",
-        "include/core/SkScalar.h",
-        "include/core/SkSerialProcs.h",
-        "include/core/SkShader.h",
-        "include/core/SkSize.h",
-        "include/core/SkTypes.h",
-        "include/effects/SkGradientShader.h",
-        "include/effects/SkImageFilters.h",
-        "include/effects/SkPerlinNoiseShader.h",
-        "include/encode/SkEncoder.h",
-        "include/encode/SkJpegEncoder.h",
-        "include/encode/SkPngEncoder.h",
-        "include/encode/SkWebpEncoder.h",
-        "include/gpu/GrTypes.h",
-        "include/gpu/MutableTextureState.h",
-        "include/gpu/ganesh/GrExternalTextureGenerator.h",
-        "include/gpu/ganesh/SkImageGanesh.h",
-        "include/gpu/ganesh/SkMeshGanesh.h",
-        "include/gpu/ganesh/SkSurfaceGanesh.h",
-        "include/private/SkIDChangeListener.h",
-        "include/private/SkWeakRefCnt.h",
-        "include/private/gpu/ganesh/GrTextureGenerator.h",
-        "include/private/gpu/ganesh/GrTypesPriv.h",
-        "include/private/chromium/SkImageChromium.h",
     ],
 )

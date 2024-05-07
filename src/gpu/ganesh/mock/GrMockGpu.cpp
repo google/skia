@@ -7,6 +7,7 @@
 #include "src/gpu/ganesh/mock/GrMockGpu.h"
 
 #include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMath.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"

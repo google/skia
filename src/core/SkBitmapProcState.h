@@ -16,6 +16,7 @@
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFixed.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkMatrixPriv.h"

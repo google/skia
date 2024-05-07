@@ -15,19 +15,29 @@
         "BazelBuild-android_math_test-for_android_arm64_release-linux_x64"
       ]
     },
-    "BazelBuild-base-enforce_iwyu-linux_x64": {
+    "BazelBuild-core-release-linux_x64": {
       "tasks": [
-        "BazelBuild-base-enforce_iwyu-linux_x64"
-      ]
-    },
-    "BazelBuild-base-release-linux_x64": {
-      "tasks": [
-        "BazelBuild-base-release-linux_x64"
+        "BazelBuild-core-release-linux_x64"
       ]
     },
     "BazelBuild-cpu_8888_benchmark_android_test-for_android_arm64_release-linux_x64": {
       "tasks": [
         "BazelBuild-cpu_8888_benchmark_android_test-for_android_arm64_release-linux_x64"
+      ]
+    },
+    "BazelBuild-full_library-enforce_iwyu-linux_x64": {
+      "tasks": [
+        "BazelBuild-full_library-enforce_iwyu-linux_x64"
+      ]
+    },
+    "BazelBuild-full_library-release-linux_x64": {
+      "tasks": [
+        "BazelBuild-full_library-release-linux_x64"
+      ]
+    },
+    "BazelBuild-ganesh_gl-release-linux_x64": {
+      "tasks": [
+        "BazelBuild-ganesh_gl-release-linux_x64"
       ]
     },
     "BazelBuild-hello_bazel_world_android_test-for_android_arm64_release-linux_x64": {
@@ -38,16 +48,6 @@
     "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64": {
       "tasks": [
         "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64"
-      ]
-    },
-    "BazelBuild-skia_public-enforce_iwyu-linux_x64": {
-      "tasks": [
-        "BazelBuild-skia_public-enforce_iwyu-linux_x64"
-      ]
-    },
-    "BazelBuild-skia_public-release-linux_x64": {
-      "tasks": [
-        "BazelBuild-skia_public-release-linux_x64"
       ]
     },
     "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64": {
@@ -3774,7 +3774,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "BazelBuild-base-enforce_iwyu-linux_x64": {
+    "BazelBuild-core-release-linux_x64": {
       "casSpec": "bazel",
       "cipd_packages": [
         {
@@ -3792,51 +3792,8 @@
         "bazel_build_task_driver/bazel_build",
         "--project_id=skia-swarming-bots",
         "--task_id=<(TASK_ID)",
-        "--task_name=BazelBuild-base-enforce_iwyu-linux_x64",
-        "--bazel_label=//src/base:base",
-        "--bazel_config=enforce_iwyu",
-        "--bazel_cache_dir=/mnt/pd0/bazel_cache",
-        "--workdir=.",
-        "--bazel_arg=--config=for_linux_x64_with_rbe",
-        "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "bazelisk_linux_amd64"
-        ]
-      },
-      "idempotent": true,
-      "max_attempts": 1,
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "BazelBuild-base-release-linux_x64": {
-      "casSpec": "bazel",
-      "cipd_packages": [
-        {
-          "name": "skia/bots/bazel_build_task_driver",
-          "path": "bazel_build_task_driver",
-          "version": "version:2"
-        },
-        {
-          "name": "skia/bots/bazelisk_linux_amd64",
-          "path": "bazelisk_linux_amd64",
-          "version": "version:0"
-        }
-      ],
-      "command": [
-        "bazel_build_task_driver/bazel_build",
-        "--project_id=skia-swarming-bots",
-        "--task_id=<(TASK_ID)",
-        "--task_name=BazelBuild-base-release-linux_x64",
-        "--bazel_label=//src/base:base",
+        "--task_name=BazelBuild-core-release-linux_x64",
+        "--bazel_label=//:core",
         "--bazel_config=release",
         "--bazel_cache_dir=/mnt/pd0/bazel_cache",
         "--workdir=.",
@@ -3909,6 +3866,135 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
+    "BazelBuild-full_library-enforce_iwyu-linux_x64": {
+      "casSpec": "bazel",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/bazel_build_task_driver",
+          "path": "bazel_build_task_driver",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/bazelisk_linux_amd64",
+          "path": "bazelisk_linux_amd64",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "bazel_build_task_driver/bazel_build",
+        "--project_id=skia-swarming-bots",
+        "--task_id=<(TASK_ID)",
+        "--task_name=BazelBuild-full_library-enforce_iwyu-linux_x64",
+        "--bazel_label=//tools:full_build",
+        "--bazel_config=enforce_iwyu",
+        "--bazel_cache_dir=/mnt/pd0/bazel_cache",
+        "--workdir=.",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
+        "--bazel_arg=--jobs=100",
+        "--bazel_arg=--remote_download_minimal"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-standard-16",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "bazelisk_linux_amd64"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "BazelBuild-full_library-release-linux_x64": {
+      "casSpec": "bazel",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/bazel_build_task_driver",
+          "path": "bazel_build_task_driver",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/bazelisk_linux_amd64",
+          "path": "bazelisk_linux_amd64",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "bazel_build_task_driver/bazel_build",
+        "--project_id=skia-swarming-bots",
+        "--task_id=<(TASK_ID)",
+        "--task_name=BazelBuild-full_library-release-linux_x64",
+        "--bazel_label=//tools:full_build",
+        "--bazel_config=release",
+        "--bazel_cache_dir=/mnt/pd0/bazel_cache",
+        "--workdir=.",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
+        "--bazel_arg=--jobs=100",
+        "--bazel_arg=--remote_download_minimal"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-standard-16",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "bazelisk_linux_amd64"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "BazelBuild-ganesh_gl-release-linux_x64": {
+      "casSpec": "bazel",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/bazel_build_task_driver",
+          "path": "bazel_build_task_driver",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/bazelisk_linux_amd64",
+          "path": "bazelisk_linux_amd64",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "bazel_build_task_driver/bazel_build",
+        "--project_id=skia-swarming-bots",
+        "--task_id=<(TASK_ID)",
+        "--task_name=BazelBuild-ganesh_gl-release-linux_x64",
+        "--bazel_label=//:ganesh_gl",
+        "--bazel_config=release",
+        "--bazel_cache_dir=/mnt/pd0/bazel_cache",
+        "--workdir=.",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
+        "--bazel_arg=--jobs=100",
+        "--bazel_arg=--remote_download_minimal"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-standard-16",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "bazelisk_linux_amd64"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
     "BazelBuild-hello_bazel_world_android_test-for_android_arm64_release-linux_x64": {
       "casSpec": "bazel",
       "cipd_packages": [
@@ -3979,92 +4065,6 @@
         "--task_name=BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64",
         "--bazel_label=//modules/canvaskit:canvaskit",
         "--bazel_config=ck_full_webgl2_debug",
-        "--bazel_cache_dir=/mnt/pd0/bazel_cache",
-        "--workdir=.",
-        "--bazel_arg=--config=for_linux_x64_with_rbe",
-        "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "bazelisk_linux_amd64"
-        ]
-      },
-      "idempotent": true,
-      "max_attempts": 1,
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "BazelBuild-skia_public-enforce_iwyu-linux_x64": {
-      "casSpec": "bazel",
-      "cipd_packages": [
-        {
-          "name": "skia/bots/bazel_build_task_driver",
-          "path": "bazel_build_task_driver",
-          "version": "version:2"
-        },
-        {
-          "name": "skia/bots/bazelisk_linux_amd64",
-          "path": "bazelisk_linux_amd64",
-          "version": "version:0"
-        }
-      ],
-      "command": [
-        "bazel_build_task_driver/bazel_build",
-        "--project_id=skia-swarming-bots",
-        "--task_id=<(TASK_ID)",
-        "--task_name=BazelBuild-skia_public-enforce_iwyu-linux_x64",
-        "--bazel_label=//:skia_public",
-        "--bazel_config=enforce_iwyu",
-        "--bazel_cache_dir=/mnt/pd0/bazel_cache",
-        "--workdir=.",
-        "--bazel_arg=--config=for_linux_x64_with_rbe",
-        "--bazel_arg=--jobs=100",
-        "--bazel_arg=--remote_download_minimal"
-      ],
-      "dimensions": [
-        "cpu:x86-64-Haswell_GCE",
-        "gpu:none",
-        "machine_type:n1-standard-16",
-        "os:Debian-10.3",
-        "pool:Skia"
-      ],
-      "env_prefixes": {
-        "PATH": [
-          "bazelisk_linux_amd64"
-        ]
-      },
-      "idempotent": true,
-      "max_attempts": 1,
-      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
-    },
-    "BazelBuild-skia_public-release-linux_x64": {
-      "casSpec": "bazel",
-      "cipd_packages": [
-        {
-          "name": "skia/bots/bazel_build_task_driver",
-          "path": "bazel_build_task_driver",
-          "version": "version:2"
-        },
-        {
-          "name": "skia/bots/bazelisk_linux_amd64",
-          "path": "bazelisk_linux_amd64",
-          "version": "version:0"
-        }
-      ],
-      "command": [
-        "bazel_build_task_driver/bazel_build",
-        "--project_id=skia-swarming-bots",
-        "--task_id=<(TASK_ID)",
-        "--task_name=BazelBuild-skia_public-release-linux_x64",
-        "--bazel_label=//:skia_public",
-        "--bazel_config=release",
         "--bazel_cache_dir=/mnt/pd0/bazel_cache",
         "--workdir=.",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
@@ -88727,10 +88727,9 @@
   },
   "commit_queue": {
     "BazelBuild-all_tests-release-linux_x64": {},
-    "BazelBuild-base-enforce_iwyu-linux_x64": {},
-    "BazelBuild-base-release-linux_x64": {},
+    "BazelBuild-full_library-enforce_iwyu-linux_x64": {},
+    "BazelBuild-full_library-release-linux_x64": {},
     "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64": {},
-    "BazelBuild-skia_public-enforce_iwyu-linux_x64": {},
     "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64": {},
     "BazelTest-benchmark-cpu_8888_benchmark_test-linux_rbe-linux_x64-NUC9i7QN_Debian11": {
       "experimental": true

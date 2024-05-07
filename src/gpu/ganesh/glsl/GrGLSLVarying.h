@@ -10,6 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTBlockList.h"
 #include "src/core/SkSLTypeShared.h"

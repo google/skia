@@ -2,7 +2,6 @@ load("//bazel:flags.bzl", "selects")
 load(
     "//bazel:skia_rules.bzl",
     "exports_files_legacy",
-    "generate_cpp_files_for_headers",
     "skia_cc_deps",
     "skia_filegroup",
 )
@@ -57,11 +56,6 @@ skia_filegroup(
         "//conditions:default": [],
     }) + select({
         "//src/lazy:enable_discardable_memory_true": ["//src/lazy:srcs"],
-        "//conditions:default": [],
-    }) + select({
-        "//bazel/common_config_settings:compile_generated_cpp_files_for_headers_true": [
-            ":generated_srcs",
-        ],
         "//conditions:default": [],
     }) + select({
         ":android_with_ganesh_backend": ["//src/image:android_srcs"],
@@ -140,62 +134,4 @@ skia_cc_deps(
         "//src/pdf:enable_pdf_backend_true": ["//src/pdf:deps"],
         "//conditions:default": [],
     }),
-)
-
-generate_cpp_files_for_headers(
-    name = "generated_srcs",
-    headers = [
-        ":private_hdrs",
-    ],
-    # All headers listed here (using paths relative to the Skia root) will have a .cpp file
-    # generated that is a copy of the header file just with a .cpp suffix so Bazel will try to
-    # compile it. This allows us to run IWYU on these files.
-    to_generate = [
-        "src/codec/SkPixmapUtilsPriv.h",
-        "src/codec/SkScalingCodec.h",
-        "src/core/SkAdvancedTypefaceMetrics.h",
-        "src/core/SkColorSpacePriv.h",
-        "src/core/SkCoreBlitters.h",
-        "src/core/SkDrawProcs.h",
-        "src/core/SkMatrixPriv.h",
-        "src/core/SkPathPriv.h",
-        "src/core/SkRuntimeEffectPriv.h",
-        "src/encode/SkICCPriv.h",
-        "src/encode/SkImageEncoderFns.h",
-        "src/encode/SkImageEncoderPriv.h",
-        "src/gpu/AsyncReadTypes.h",
-        "src/gpu/BufferWriter.h",
-        "src/gpu/GpuRefCnt.h",
-        "src/gpu/GpuTypesPriv.h",
-        "src/gpu/KeyBuilder.h",
-        "src/gpu/MutableTextureStatePriv.h",
-        "src/gpu/SkRenderEngineAbortf.h",
-        "src/gpu/SwizzlePriv.h",
-        "src/gpu/ganesh/GrBackendSemaphorePriv.h",
-        "src/gpu/ganesh/GrBackendSurfacePriv.h",
-        "src/gpu/ganesh/GrClip.h",
-        "src/gpu/ganesh/geometry/GrInnerFanTriangulator.h",
-        "src/gpu/ganesh/geometry/GrQuadBuffer.h",
-        "src/gpu/ganesh/gl/GrGLBackendSurfacePriv.h",
-        "src/gpu/ganesh/mock/GrMockAttachment.h",
-        "src/gpu/ganesh/mock/GrMockBuffer.h",
-        "src/gpu/ganesh/mock/GrMockOpsRenderPass.h",
-        "src/gpu/ganesh/mock/GrMockOpTarget.h",
-        "src/gpu/ganesh/mock/GrMockRenderTask.h",
-        "src/gpu/ganesh/mock/GrMockSurfaceProxy.h",
-        "src/gpu/ganesh/mock/GrMockTexture.h",
-        "src/gpu/ganesh/mock/GrMockTypesPriv.h",
-        "src/gpu/tessellate/AffineMatrix.h",
-        "src/gpu/tessellate/CullTest.h",
-        "src/gpu/tessellate/LinearTolerances.h",
-        "src/gpu/tessellate/MiddleOutPolygonTriangulator.h",
-        "src/gpu/tessellate/MidpointContourParser.h",
-        "src/gpu/tessellate/PatchWriter.h",
-        "src/gpu/tessellate/StrokeIterator.h",
-        "src/gpu/tessellate/WangsFormula.h",
-        "src/image/SkImageGeneratorPriv.h",
-        "src/pdf/SkBitmapKey.h",
-        "src/pdf/SkPDFDocumentPriv.h",
-        "src/pdf/SkUUID.h",
-    ],
 )

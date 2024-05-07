@@ -14,6 +14,7 @@
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkBlitter.h"
 #include <cstdint>
+#include "include/private/base/SkDebug.h"
 
 class SkPath;
 class SkRegion;

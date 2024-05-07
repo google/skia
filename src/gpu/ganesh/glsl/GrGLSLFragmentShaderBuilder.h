@@ -9,6 +9,7 @@
 #define GrGLSLFragmentShaderBuilder_DEFINED
 
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 
 #include <cstdint>

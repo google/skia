@@ -287,3 +287,71 @@ genrule(
     cmd = "echo '%s' > $@" % _GENERATE_WORKAROUNDS,
     tools = [":build_workaround_header"],
 )
+
+skia_cc_library(
+    name = "full_build",
+    testonly = True,
+    srcs = [
+        # These are *not* skia_cc_library targets because we'd have to set the deps
+        # for them, which is redundent. Thus we just compile them as a list of files
+        # and the deps specified below should be sufficient for them.
+        "//include/core:headers_to_compile",
+        "//include/effects:headers_to_compile",
+        "//include/encode:headers_to_compile",
+        "//include/gpu/ganesh:headers_to_compile",
+        "//include/gpu:headers_to_compile",
+        "//include/private/base:headers_to_compile",
+        "//include/private/chromium:headers_to_compile",
+        "//include/private/gpu/ganesh:headers_to_compile",
+        "//include/private:headers_to_compile",
+        "//src/base:headers_to_compile",
+        "//src/codec:headers_to_compile",
+        "//src/core:headers_to_compile",
+        "//src/encode:headers_to_compile",
+        "//src/gpu/ganesh/geometry:headers_to_compile",
+        "//src/gpu/ganesh/mock:headers_to_compile",
+        "//src/gpu/ganesh:headers_to_compile",
+        "//src/gpu/tessellate:headers_to_compile",
+        "//src/gpu:headers_to_compile",
+        #"//src/pdf:headers_to_compile", # TODO(kjlubick) add module for pdf
+    ],
+    copts = [
+        # Since we are generating .cpp files for headers, some variables/functions which
+        # were properly declared static could be mis-interpreted to be unused. We don't
+        # want to fail on that. Therefore, we do not want warnings about those unused
+        # things to be flagged.
+        "-Wno-unused-function",
+        "-Wno-unused-template",
+        "-Wno-unused-const-variable",
+    ],
+    # This is not intended to be used for tests or anything, just for IWYU
+    visibility = ["//visibility:private"],
+    deps = [
+        "//:bmp_decode_codec",
+        "//:core",
+        "//:fontmgr_data_freetype",
+        "//:fontmgr_directory_freetype",
+        "//:fontmgr_empty_freetype",
+        "//:gif_decode_codec",
+        "//:ico_decode_codec",
+        "//:jpeg_decode_codec",
+        "//:jpeg_encode_codec",
+        "//:jpegxl_decode_codec",
+        "//:pathops",
+        "//:png_decode_codec",
+        "//:png_encode_codec",
+        "//:skparagraph_harfbuzz_unicode",
+        "//:skresources",
+        "//:skshaper_core",
+        "//:skshaper_harfbuzz",
+        "//:skshaper_unicode",
+        "//:skunicode_core",
+        "//:skunicode_icu",
+        "//:svg_renderer",
+        "//:wbmp_decode_codec",
+        "//:webp_decode_codec",
+        "//:webp_encode_codec",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+    ],
+)

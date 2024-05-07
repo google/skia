@@ -1,5 +1,5 @@
 load("//bazel:flags.bzl", "bool_flag", "selects", "string_flag_with_values")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "select_multi", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -226,5 +226,19 @@ skia_cc_library(
         "//:core",
         "//src/base",
         "//src/core:core_priv",
+    ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        "AsyncReadTypes.h",
+        "BufferWriter.h",
+        "GpuRefCnt.h",
+        "GpuTypesPriv.h",
+        "KeyBuilder.h",
+        "MutableTextureStatePriv.h",
+        "SkRenderEngineAbortf.h",
+        "SwizzlePriv.h",
     ],
 )

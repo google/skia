@@ -2,6 +2,7 @@ load("//bazel:flags.bzl", "selects", "string_flag_with_values")
 load(
     "//bazel:skia_rules.bzl",
     "exports_files_legacy",
+    "generate_cpp_files_for_headers",
     "select_multi",
     "skia_cc_deps",
     "skia_cc_library",
@@ -631,5 +632,13 @@ skia_cc_library(
         "//src/core",
         "//src/core:core_priv",
         "@libwebp",
+    ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        "SkPixmapUtilsPriv.h",
+        "SkScalingCodec.h",
     ],
 )

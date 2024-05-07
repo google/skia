@@ -13,6 +13,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/private/base/SkDebug.h"
 
 /** This class is initialized with a clip rectangle, and then can be fed quads,
     which must already be monotonic in Y.

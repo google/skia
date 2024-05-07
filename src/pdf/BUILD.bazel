@@ -1,5 +1,5 @@
 load("//bazel:flags.bzl", "bool_flag", "selects")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -121,4 +121,13 @@ skia_cc_deps(
         ":uses_harfbuzz": ["@harfbuzz"],
         "//conditions:default": [],
     }),
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        "SkBitmapKey.h",
+        "SkPDFDocumentPriv.h",
+        "SkUUID.h",
+    ],
 )

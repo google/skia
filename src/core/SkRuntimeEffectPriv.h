@@ -14,6 +14,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkEffectPriv.h"

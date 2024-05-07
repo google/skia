@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_header_list", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -48,25 +48,6 @@ IWYU_HDRS = [
     "SkTypeTraits.h",
 ]
 
-generate_cpp_files_for_header_list(
-    name = "generated_base_header_cpps1",
-    headers = IWYU_HDRS,
-)
-
-generate_cpp_files_for_header_list(
-    name = "generated_base_header_cpps2",
-    headers = SHARED_GPU_HEADERS,
-)
-
-skia_filegroup(
-    name = "generated_base_header_cpps",
-    srcs = [
-        ":generated_base_header_cpps1",
-        ":generated_base_header_cpps2",
-    ],
-    visibility = ["//src/base:__pkg__"],
-)
-
 skia_filegroup(
     name = "private_hdrs",
     srcs = IWYU_HDRS + [
@@ -84,4 +65,9 @@ skia_filegroup(
         "//src/base:__pkg__",
         "//src/opts:__pkg__",
     ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = IWYU_HDRS + SHARED_GPU_HEADERS,
 )
