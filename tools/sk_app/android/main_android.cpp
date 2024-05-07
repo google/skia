@@ -38,28 +38,17 @@ void android_main(struct android_app* state) {
                                                            state));
 
     // loop waiting for stuff to do.
-    while (1) {
-        // Read all pending events.
-        int ident;
-        int events;
-        struct android_poll_source* source;
+    while (!state->destroyRequested) {
+        struct android_poll_source* source = nullptr;
+        auto result = ALooper_pollOnce(-1, nullptr, nullptr, (void**)&source);
 
-        // block forever waiting for events.
-        while ((ident=ALooper_pollAll(-1, nullptr, &events,
-                (void**)&source)) >= 0) {
-
-            // Process this event.
-            if (source != nullptr) {
-                source->process(state, source);
-            }
-
-            // Check if we are exiting.
-            if (state->destroyRequested != 0) {
-                return;
-            }
-
-            vkApp->onIdle();
+        if (result == ALOOPER_POLL_ERROR) {
+            SkDEBUGFAIL("ALooper_pollOnce returned an error");
         }
+        if (source != nullptr) {
+            source->process(state, source);
+        }
+        vkApp->onIdle();
     }
 }
 //END_INCLUDE(all)
