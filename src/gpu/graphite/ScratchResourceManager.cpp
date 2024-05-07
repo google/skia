@@ -21,7 +21,8 @@ ScratchResourceManager::ScratchResourceManager(ResourceProvider* resourceProvide
 ScratchResourceManager::~ScratchResourceManager() = default;
 
 sk_sp<Texture> ScratchResourceManager::getScratchTexture(SkISize dimensions,
-                                                         const TextureInfo& info) {
+                                                         const TextureInfo& info,
+                                                         std::string_view label) {
     for (ScratchTexture& st : fScratchTextures) {
         if (!st.fAvailable) { continue; }
 
@@ -37,7 +38,7 @@ sk_sp<Texture> ScratchResourceManager::getScratchTexture(SkISize dimensions,
     // No texture was available so go out to the resource provider, which will hopefully find a
     // cached resource that was freed up from a previous recording (or create a new one, if not).
     sk_sp<Texture> newScratchTexture = fResourceProvider->findOrCreateScratchTexture(
-            dimensions, info, Budgeted::kYes);
+            dimensions, info, std::move(label), Budgeted::kYes);
     if (newScratchTexture) {
         fScratchTextures.push_back({newScratchTexture, /*fAvailable=*/false});
     }

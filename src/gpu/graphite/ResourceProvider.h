@@ -59,7 +59,10 @@ public:
 
     sk_sp<ComputePipeline> findOrCreateComputePipeline(const ComputePipelineDesc&);
 
-    sk_sp<Texture> findOrCreateScratchTexture(SkISize, const TextureInfo&, skgpu::Budgeted);
+    sk_sp<Texture> findOrCreateScratchTexture(SkISize,
+                                              const TextureInfo&,
+                                              std::string_view label,
+                                              skgpu::Budgeted);
     // TODO: Consider having this take a label that is provided by the client. If we do this,
     // should we be setting the label on the backend object or do we assume the client already did
     // that if they wanted to?

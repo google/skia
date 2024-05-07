@@ -59,7 +59,8 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
                          const SkIRect& subset,
                          Budgeted budgeted,
                          Mipmapped mipmapped,
-                         SkBackingFit backingFit) {
+                         SkBackingFit backingFit,
+                         std::string_view label) {
     SkASSERT(!(mipmapped == Mipmapped::kYes && backingFit == SkBackingFit::kApprox));
     if (!srcView) {
         return nullptr;
@@ -76,7 +77,7 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
         // Copy-as-draw
         sk_sp<Image> srcImage(new Image(srcView, srcColorInfo));
         return CopyAsDraw(recorder, srcImage.get(), subset, srcColorInfo,
-                          budgeted, mipmapped, backingFit);
+                          budgeted, mipmapped, backingFit, std::move(label));
     }
 
 
@@ -89,6 +90,7 @@ sk_sp<Image> Image::Copy(Recorder* recorder,
             recorder->priv().resourceProvider(),
             backingFit == SkBackingFit::kApprox ? GetApproxSize(subset.size()) : subset.size(),
             textureInfo,
+            std::move(label),
             budgeted);
     if (!dst) {
         return nullptr;
@@ -127,10 +129,11 @@ sk_sp<Image> Image::copyImage(Recorder* recorder,
                               const SkIRect& subset,
                               Budgeted budgeted,
                               Mipmapped mipmapped,
-                              SkBackingFit backingFit) const {
+                              SkBackingFit backingFit,
+                              std::string_view label) const {
     this->notifyInUse(recorder);
     return Image::Copy(recorder, fTextureProxyView, this->imageInfo().colorInfo(),
-                       subset, budgeted, mipmapped, backingFit);
+                       subset, budgeted, mipmapped, backingFit, std::move(label));
 }
 
 sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {

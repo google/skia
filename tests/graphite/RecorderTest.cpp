@@ -30,28 +30,32 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context,
                                          Mipmapped::kNo,
                                          SkBackingFit::kExact,
                                          SkSurfaceProps(),
-                                         LoadOp::kClear);
+                                         LoadOp::kClear,
+                                         "RecorderTestTexture");
     sk_sp<Device> device2 = Device::Make(recorder.get(),
                                          info,
                                          skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
                                          SkBackingFit::kExact,
                                          SkSurfaceProps(),
-                                         LoadOp::kClear);
+                                         LoadOp::kClear,
+                                         "RecorderTestTexture");
     sk_sp<Device> device3 = Device::Make(recorder.get(),
                                          info,
                                          skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
                                          SkBackingFit::kExact,
                                          SkSurfaceProps(),
-                                         LoadOp::kClear);
+                                         LoadOp::kClear,
+                                         "RecorderTestTexture");
     sk_sp<Device> device4 = Device::Make(recorder.get(),
                                          info,
                                          skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
                                          SkBackingFit::kExact,
                                          SkSurfaceProps(),
-                                         LoadOp::kClear);
+                                         LoadOp::kClear,
+                                         "RecorderTestTexture");
     REPORTER_ASSERT(reporter, device1->recorder() == recorder.get());
     REPORTER_ASSERT(reporter, device2->recorder() == recorder.get());
     REPORTER_ASSERT(reporter, device3->recorder() == recorder.get());

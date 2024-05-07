@@ -64,6 +64,7 @@ public:
                               SkBackingFit,
                               const SkSurfaceProps&,
                               LoadOp initialLoadOp,
+                              std::string_view label,
                               bool registerWithRecorder=true);
 
     Device* asGraphiteDevice() override { return this; }

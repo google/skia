@@ -13,6 +13,8 @@
 #include "src/base/SkSpinlock.h"
 #include "src/image/SkImage_Base.h"
 
+#include <string_view>
+
 enum class SkBackingFit;
 
 namespace skgpu::graphite {
@@ -36,8 +38,12 @@ public:
 
     // Always copy this image, even if 'subset' and mipmapping match this image exactly.
     // The base implementation performs all copies as draws.
-    virtual sk_sp<Image> copyImage(Recorder*, const SkIRect& subset,
-                                   Budgeted, Mipmapped, SkBackingFit) const;
+    virtual sk_sp<Image> copyImage(Recorder*,
+                                   const SkIRect& subset,
+                                   Budgeted,
+                                   Mipmapped,
+                                   SkBackingFit,
+                                   std::string_view label) const;
 
     // From SkImage.h
     // TODO(egdaniel) This feels wrong. Re-think how this method is used and works.
@@ -94,7 +100,10 @@ protected:
                                    const Image_Base*,
                                    const SkIRect& subset,
                                    const SkColorInfo& dstColorInfo,
-                                   Budgeted, Mipmapped, SkBackingFit);
+                                   Budgeted,
+                                   Mipmapped,
+                                   SkBackingFit,
+                                   std::string_view label);
 
     // If the passed-in image is linked with Devices that modify its texture, copy the links to
     // this Image. This is used when a new Image is created that shares the same texture proxy as

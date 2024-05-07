@@ -328,6 +328,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                                             recorder->priv().resourceProvider(),
                                                             SkISize::Make(1, 1),
                                                             dstTexInfo,
+                                                            "FuzzPrecompileFakeDstTexture",
                                                             skgpu::Budgeted::kYes);
     constexpr SkIPoint fakeDstOffset = SkIPoint::Make(0, 0);
 

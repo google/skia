@@ -97,6 +97,7 @@ sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(
 
 sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
                                                             const TextureInfo& info,
+                                                            std::string_view label,
                                                             skgpu::Budgeted budgeted) {
     SkASSERT(info.isValid());
 
@@ -106,11 +107,10 @@ sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
     // Scratch textures are not shareable
     fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kNo, &key);
 
-    // TODO: Update this function to take a more specific label for the scratch texture
     return this->findOrCreateTextureWithKey(dimensions,
                                             info,
                                             key,
-                                            "ScratchTexture",
+                                            std::move(label),
                                             budgeted);
 }
 

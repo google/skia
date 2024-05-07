@@ -171,7 +171,8 @@ void AddDitherBlock(const KeyContext& keyContext,
                     SkColorType ct) {
     static const SkBitmap gLUT = skgpu::MakeDitherLUT();
 
-    sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), gLUT);
+    sk_sp<TextureProxy> proxy = RecorderPriv::CreateCachedProxy(keyContext.recorder(), gLUT,
+                                                                "DitherLUT");
     if (keyContext.recorder() && !proxy) {
         SKGPU_LOG_W("Couldn't create dither shader's LUT");
         builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);

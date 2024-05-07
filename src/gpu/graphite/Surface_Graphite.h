@@ -28,11 +28,12 @@ public:
     // Convenience factory to create a Device, instantiate its target proxy and return as a Surface.
     static sk_sp<Surface> Make(Recorder* recorder,
                                const SkImageInfo& info,
+                               std::string_view label,
                                Budgeted budgeted,
                                Mipmapped mipmapped = Mipmapped::kNo,
                                SkBackingFit backingFit = SkBackingFit::kExact,
                                const SkSurfaceProps* props = nullptr) {
-        return Make(recorder, info, budgeted, mipmapped, backingFit, props,
+        return Make(recorder, info, std::move(label), budgeted, mipmapped, backingFit, props,
                     LoadOp::kClear, /*registerWithRecorder=*/true);
     }
     // Make a surface that is not registered with the provided recorder. This surface should be
@@ -41,10 +42,11 @@ public:
     // client-owned image, that may not be the case.
     static sk_sp<Surface> MakeScratch(Recorder* recorder,
                                       const SkImageInfo& info,
+                                      std::string_view label,
                                       Budgeted budgeted = Budgeted::kYes,
                                       Mipmapped mipmapped = Mipmapped::kNo,
                                       SkBackingFit backingFit = SkBackingFit::kApprox) {
-        return Make(recorder, info, budgeted, mipmapped, backingFit,
+        return Make(recorder, info, std::move(label), budgeted, mipmapped, backingFit,
                     /*props=*/nullptr, LoadOp::kDiscard, /*registerWithRecorder=*/false);
     }
 
@@ -90,6 +92,7 @@ private:
     // otherwise are constructed the same.
     static sk_sp<Surface> Make(Recorder* recorder,
                                const SkImageInfo&,
+                               std::string_view label,
                                Budgeted,
                                Mipmapped,
                                SkBackingFit,

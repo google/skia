@@ -130,7 +130,8 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRect(Recorder* recorder,
         return std::nullopt;
     }
 
-    sk_sp<TextureProxy> integral = RecorderPriv::CreateCachedProxy(recorder, integralBitmap);
+    sk_sp<TextureProxy> integral = RecorderPriv::CreateCachedProxy(recorder, integralBitmap,
+                                                                   "BlurredRectIntegralTable");
     if (!integral) {
         return std::nullopt;
     }
@@ -211,7 +212,8 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeCircle(Recorder* recorder,
         return std::nullopt;
     }
 
-    sk_sp<TextureProxy> profile = RecorderPriv::CreateCachedProxy(recorder, profileBitmap);
+    sk_sp<TextureProxy> profile = RecorderPriv::CreateCachedProxy(recorder, profileBitmap,
+                                                                  "BlurredCircleIntegralTable");
     if (!profile) {
         return std::nullopt;
     }
@@ -288,7 +290,8 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRRect(Recorder* recorder,
         return std::nullopt;
     }
 
-    sk_sp<TextureProxy> ninePatch = RecorderPriv::CreateCachedProxy(recorder, ninePatchBitmap);
+    sk_sp<TextureProxy> ninePatch = RecorderPriv::CreateCachedProxy(recorder, ninePatchBitmap,
+                                                                    "BlurredRRectNinePatch");
     if (!ninePatch) {
         return std::nullopt;
     }

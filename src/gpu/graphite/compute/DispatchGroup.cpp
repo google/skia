@@ -365,7 +365,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             auto textureInfo = fRecorder->priv().caps()->getDefaultStorageTextureInfo(colorType);
             sk_sp<TextureProxy> texture = TextureProxy::Make(
                     fRecorder->priv().caps(), fRecorder->priv().resourceProvider(),
-                    size, textureInfo, skgpu::Budgeted::kYes);
+                    size, textureInfo, "DispatchWriteOnlyStorageTexture", skgpu::Budgeted::kYes);
             if (texture) {
                 fObj->fTextures.push_back(std::move(texture));
                 result = TextureIndex{fObj->fTextures.size() - 1u};

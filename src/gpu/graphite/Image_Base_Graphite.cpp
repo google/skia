@@ -97,13 +97,15 @@ sk_sp<Image> Image_Base::CopyAsDraw(Recorder* recorder,
                                     const SkColorInfo& dstColorInfo,
                                     Budgeted budgeted,
                                     Mipmapped mipmapped,
-                                    SkBackingFit backingFit) {
+                                    SkBackingFit backingFit,
+                                    std::string_view label) {
     SkImageInfo dstInfo = SkImageInfo::Make(subset.size(),
                                             dstColorInfo.makeAlphaType(kPremul_SkAlphaType));
     // The surface goes out of scope when we return, so it can be scratch, but it may or may
     // not be budgeted depending on how the copied image is used (or returned to the client).
     auto surface = Surface::MakeScratch(recorder,
                                         dstInfo,
+                                        std::move(label),
                                         budgeted,
                                         mipmapped,
                                         backingFit);
@@ -123,9 +125,10 @@ sk_sp<Image> Image_Base::copyImage(Recorder* recorder,
                                    const SkIRect& subset,
                                    Budgeted budgeted,
                                    Mipmapped mipmapped,
-                                   SkBackingFit backingFit) const {
+                                   SkBackingFit backingFit,
+                                   std::string_view label) const {
     return CopyAsDraw(recorder, this, subset, this->imageInfo().colorInfo(),
-                      budgeted, mipmapped, backingFit);
+                      budgeted, mipmapped, backingFit, std::move(label));
 }
 
 sk_sp<SkImage> Image_Base::onMakeSubset(Recorder* recorder,
@@ -145,7 +148,8 @@ sk_sp<SkImage> Image_Base::onMakeSubset(Recorder* recorder,
                            subset,
                            Budgeted::kNo,
                            requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,
-                           SkBackingFit::kExact);
+                           SkBackingFit::kExact,
+                           "ImageSubsetTexture");
 }
 
 sk_sp<SkImage> Image_Base::makeColorTypeAndColorSpace(Recorder* recorder,
@@ -167,7 +171,8 @@ sk_sp<SkImage> Image_Base::makeColorTypeAndColorSpace(Recorder* recorder,
                       dstColorInfo,
                       Budgeted::kNo,
                       requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,
-                      SkBackingFit::kExact);
+                      SkBackingFit::kExact,
+                      "ImageMakeCTandCSTexture");
 }
 
 // Ganesh APIs are no-ops

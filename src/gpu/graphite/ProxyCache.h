@@ -36,7 +36,10 @@ public:
     ProxyCache(uint32_t recorderID);
     ~ProxyCache();
 
-    sk_sp<TextureProxy> findOrCreateCachedProxy(Recorder*, const SkBitmap&, Mipmapped);
+    sk_sp<TextureProxy> findOrCreateCachedProxy(Recorder*,
+                                                const SkBitmap&,
+                                                Mipmapped,
+                                                std::string_view label);
 
     void purgeAll();
 

@@ -241,6 +241,7 @@ void DrawContext::flush(Recorder* recorder) {
                                      recorder->priv().resourceProvider(),
                                      dstCopyPixelBounds.size(),
                                      fTarget->textureInfo(),
+                                     "DstCopyTexture",
                                      skgpu::Budgeted::kYes);
     }
     std::unique_ptr<DrawPass> pass = DrawPass::Make(recorder,

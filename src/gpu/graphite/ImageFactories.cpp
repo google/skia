@@ -352,7 +352,8 @@ static sk_sp<SkImage> make_texture_image_from_lazy(skgpu::graphite::Recorder* re
                                                    bitmap,
                                                    nullptr,
                                                    skgpu::Budgeted::kNo,
-                                                   requiredProps);
+                                                   requiredProps,
+                                                   "LazySkImageBitmapTexture");
         }
     }
 
@@ -379,7 +380,8 @@ sk_sp<SkImage> TextureFromImage(skgpu::graphite::Recorder* recorder,
                                                raster->bitmap(),
                                                raster->refMips(),
                                                skgpu::Budgeted::kNo,
-                                               requiredProps);
+                                               requiredProps,
+                                               "RasterBitmapTexture");
     }
     if (ib->isLazyGenerated()) {
         return make_texture_image_from_lazy(
@@ -434,7 +436,8 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
         }
 
         auto [view, _] = MakeBitmapProxyView(recorder, bmp, /*mipmapsIn=*/nullptr,
-                                             mipmapped,  skgpu::Budgeted::kNo);
+                                             mipmapped,  skgpu::Budgeted::kNo,
+                                             "YUVRasterBitmapTexture");
         planes[i] = std::move(view);
     }
     return Image_YUVA::Make(recorder->priv().caps(), finalInfo.yuvaInfo(),

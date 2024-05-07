@@ -1338,6 +1338,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
                                                             context->priv().resourceProvider(),
                                                             SkISize::Make(1, 1),
                                                             dstTexInfo,
+                                                            "PaintParamsKeyTestFakeDstTexture",
                                                             skgpu::Budgeted::kYes);
     constexpr SkIPoint kFakeDstOffset = SkIPoint::Make(0, 0);
 

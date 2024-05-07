@@ -74,7 +74,8 @@ uint32_t ProxyCache::UniqueKeyHash::operator()(const skgpu::UniqueKey& key) cons
 
 sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
                                                         const SkBitmap& bitmap,
-                                                        Mipmapped mipmapped) {
+                                                        Mipmapped mipmapped,
+                                                        std::string_view label) {
     this->processInvalidKeyMsgs();
 
     if (bitmap.dimensions().area() <= 1) {
@@ -103,8 +104,8 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
         return *cached;
     }
 
-    auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr,
-                                            mipmapped, skgpu::Budgeted::kYes);
+    auto [ view, ct ] = MakeBitmapProxyView(recorder,bitmap, nullptr, mipmapped,
+                                            skgpu::Budgeted::kYes, std::move(label));
     if (view) {
         auto listener = make_unique_key_invalidation_listener(key, recorder->priv().uniqueID());
         bitmap.pixelRef()->addGenIDChangeListener(std::move(listener));

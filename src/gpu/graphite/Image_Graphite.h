@@ -39,7 +39,8 @@ public:
                              const SkIRect& subset,
                              Budgeted,
                              Mipmapped,
-                             SkBackingFit);
+                             SkBackingFit,
+                             std::string_view label);
 
     const TextureProxyView& textureProxyView() const { return fTextureProxyView; }
 
@@ -55,8 +56,12 @@ public:
 
     size_t textureSize() const override;
 
-    sk_sp<Image> copyImage(Recorder*, const SkIRect& subset,
-                           Budgeted, Mipmapped, SkBackingFit) const override;
+    sk_sp<Image> copyImage(Recorder*,
+                           const SkIRect& subset,
+                           Budgeted,
+                           Mipmapped,
+                           SkBackingFit,
+                           std::string_view label) const override;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
