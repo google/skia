@@ -17,7 +17,7 @@
 #include <cstdint>
 #include <cstring>
 
-#include "zlib.h"
+#include "zlib.h"  // NO_G3_REWRITE
 
 namespace {
 
