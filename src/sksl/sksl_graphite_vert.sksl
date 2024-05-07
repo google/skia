@@ -278,7 +278,7 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
     if (joinType >= 0 /*Is the join not a round type?*/) {
         // Bevel(0) and miter(+) joins get 1 and 2 segments respectively.
         // +2 because we emit the beginning and ending edges twice (see above comments).
-        numEdgesInJoin = sign(joinType) + 1 + 2;
+        numEdgesInJoin = sign(joinType) + (1 + 2);
     } else {
         float2 prevTan = $robust_normalize_diff(p0, lastControlPoint);
         float joinRads = acos($cosine_between_unit_vectors(prevTan, tan0));
