@@ -192,7 +192,7 @@ $pure half4 $sample_image_subset(float2 pos,
     if (filterMode == $kFilterModeNearest) {
         insetClamp = float4(floor(subset.xy) + $kLinearInset, ceil(subset.zw) - $kLinearInset);
     } else {
-        insetClamp = float4(subset.xy + linearFilterInset, subset.zw - linearFilterInset);
+        insetClamp = float4(subset.xy + linearFilterInset.x, subset.zw - linearFilterInset.y);
     }
     float2 clampedPos = clamp(pos, insetClamp.xy, insetClamp.zw);
     half4 color = $sample_image(clampedPos, invImgSize, s);
