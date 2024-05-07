@@ -966,7 +966,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
             fSharedContext)->vulkanCaps().maxUniformBufferRange();
 
     for (int i = 0; i < descriptors.size(); i++) {
-        int descriptorBindingIndex = descriptors.at(i).bindingIndex;
+        int descriptorBindingIndex = descriptors.at(i).fBindingIndex;
         SkASSERT(static_cast<unsigned long>(descriptorBindingIndex)
                     < fUniformBuffersToBind.size());
         if (fUniformBuffersToBind[descriptorBindingIndex].fBuffer) {
@@ -986,8 +986,8 @@ void VulkanCommandBuffer::bindUniformBuffers() {
             writeInfo.dstSet = *set->descriptorSet();
             writeInfo.dstBinding = descriptorBindingIndex;
             writeInfo.dstArrayElement = 0;
-            writeInfo.descriptorCount = descriptors.at(i).count;
-            writeInfo.descriptorType = DsTypeEnumToVkDs(descriptors.at(i).type);
+            writeInfo.descriptorCount = descriptors.at(i).fCount;
+            writeInfo.descriptorType = DsTypeEnumToVkDs(descriptors.at(i).fType);
             writeInfo.pImageInfo = nullptr;
             writeInfo.pBufferInfo = &bufferInfo;
             writeInfo.pTexelBufferView = nullptr;
@@ -1102,7 +1102,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
     TArray<DescriptorData> descriptors(command.fNumTexSamplers);
     for (int i = 0; i < command.fNumTexSamplers; i++) {
         descriptors.push_back({DescriptorType::kCombinedTextureSampler,
-                               /*descCount=*/1,
+                               /*count=*/1,
                                /*bindingIdx=*/i,
                                PipelineStageFlags::kFragmentShader});
     }
@@ -1155,12 +1155,11 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
         writeInfo.pTexelBufferView = nullptr;
     }
 
-    VULKAN_CALL(fSharedContext->interface(),
-            UpdateDescriptorSets(fSharedContext->device(),
-                                    command.fNumTexSamplers,
-                                    &writeDescriptorSets[0],
-                                    /*descriptorCopyCount=*/0,
-                                    /*pDescriptorCopies=*/nullptr));
+    VULKAN_CALL(fSharedContext->interface(), UpdateDescriptorSets(fSharedContext->device(),
+                                                                  command.fNumTexSamplers,
+                                                                  &writeDescriptorSets[0],
+                                                                  /*descriptorCopyCount=*/0,
+                                                                  /*pDescriptorCopies=*/nullptr));
 
     // Store the updated descriptor set to be actually bound later on. This avoids binding and
     // potentially having to re-bind in cases where earlier descriptor sets change while going

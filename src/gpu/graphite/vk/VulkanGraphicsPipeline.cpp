@@ -522,7 +522,7 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
         skia_private::TArray<DescriptorData> textureSamplerDescs(numTextureSamplers);
         for (int i = 0; i < numTextureSamplers; i++) {
             textureSamplerDescs.push_back({DescriptorType::kCombinedTextureSampler,
-                                            /*descCount=*/1,
+                                            /*count=*/1,
                                             /*bindingIdx=*/i,
                                             PipelineStageFlags::kFragmentShader});
         }

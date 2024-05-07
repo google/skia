@@ -180,9 +180,9 @@ GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDe
     for (int i = 1; i < num32DataCnt; i++) {
         const auto& currDesc = requestedDescriptors[i - 1];
         // TODO: Consider making the DescriptorData struct itself just use uint16_t.
-        uint16_t smallerCount = static_cast<uint16_t>(currDesc.count);
-        builder[i] = static_cast<uint8_t>(currDesc.type) << 24 |
-                     currDesc.bindingIndex << 16 |
+        uint16_t smallerCount = static_cast<uint16_t>(currDesc.fCount);
+        builder[i] = static_cast<uint8_t>(currDesc.fType) << 24 |
+                     currDesc.fBindingIndex << 16 |
                      smallerCount;
     }
     builder.finish();

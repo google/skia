@@ -30,19 +30,19 @@ sk_sp<VulkanDescriptorPool> VulkanDescriptorPool::Make(const VulkanSharedContext
     // highly unexpected for us to exceed this limit in practice.
     skia_private::STArray<kDescriptorTypeCount, VkDescriptorPoolSize> poolSizes;
     for (size_t i = 0; i < requestedDescCounts.size(); i++) {
-        SkASSERT(requestedDescCounts[i].count > 0);
-        if (requestedDescCounts[i].count > kMaxNumDescriptors) {
-            SkDebugf("The number of descriptors requested, %u, exceeds the maximum allowed (%d).\n",
-                     requestedDescCounts[i].count,
+        SkASSERT(requestedDescCounts[i].fCount > 0);
+        if (requestedDescCounts[i].fCount > kMaxNumDescriptors) {
+            SkDebugf("The number of descriptors requested, %d, exceeds the maximum allowed (%d).\n",
+                     requestedDescCounts[i].fCount,
                      kMaxNumDescriptors);
             return nullptr;
         }
         VkDescriptorPoolSize& poolSize = poolSizes.push_back();
         memset(&poolSize, 0, sizeof(VkDescriptorPoolSize));
         // Map each DescriptorSetType to the appropriate backend VkDescriptorType
-        poolSize.type = DsTypeEnumToVkDs(requestedDescCounts[i].type);
+        poolSize.type = DsTypeEnumToVkDs(requestedDescCounts[i].fType);
         // Create a pool large enough to accommodate the maximum possible number of descriptor sets
-        poolSize.descriptorCount = requestedDescCounts[i].count * kMaxNumSets;
+        poolSize.descriptorCount = requestedDescCounts[i].fCount * kMaxNumSets;
     }
 
     VkDescriptorPoolCreateInfo createInfo;

@@ -51,17 +51,17 @@ public:
     inline static constexpr unsigned int kNumInputBuffers = 2;
 
     inline static const DescriptorData kIntrinsicUniformBufferDescriptor = {
-            DescriptorType::kUniformBuffer, /*descCount=*/1,
+            DescriptorType::kUniformBuffer, /*count=*/1,
             kIntrinsicUniformBufferIndex,
             PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader};
 
     inline static const DescriptorData kRenderStepUniformDescriptor = {
-            DescriptorType::kUniformBuffer, /*descCount=*/1,
+            DescriptorType::kUniformBuffer, /*count=*/1,
             kRenderStepUniformBufferIndex,
             PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader};
 
     inline static const DescriptorData kPaintUniformDescriptor = {
-            DescriptorType::kUniformBuffer, /*descCount=*/1,
+            DescriptorType::kUniformBuffer, /*count=*/1,
             kPaintUniformBufferIndex,
             PipelineStageFlags::kFragmentShader};
 
@@ -69,7 +69,7 @@ public:
     // binding index will always be 0.
     inline static constexpr unsigned int kInputAttachmentBindingIndex = 0;
     inline static const DescriptorData kInputAttachmentDescriptor = {
-            DescriptorType::kInputAttachment, /*descCount=*/1,
+            DescriptorType::kInputAttachment, /*count=*/1,
             kInputAttachmentBindingIndex,
             PipelineStageFlags::kFragmentShader};
 
