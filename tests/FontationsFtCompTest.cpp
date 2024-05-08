@@ -46,15 +46,10 @@ bool textBlobsAllPathsEqual(sk_sp<const SkTextBlob> blobA,
             sk_sp<SkData> dataB = streamB.detachAsData();
             if (dataA->size() != dataB->size() ||
                 memcmp(dataA->data(), dataB->data(), dataA->size() - 1)) {
-                SkDebugf(
-                        "Different path in font %s for glyph index: %d glyph id: %d, data sizes "
-                        "%ld "
-                        "vs %ld\n",
-                        fontName.c_str(),
-                        i,
-                        runAInfo.glyphs[i],
-                        dataA->size(),
-                        dataB->size());
+                SkDebugf("Different path in font %s for glyph index: %d glyph id: %d, data sizes "
+                         "%zu vs %zu\n",
+                         fontName.c_str(), i, runAInfo.glyphs[i],
+                         dataA->size(), dataB->size());
                 std::string fontationsPath(reinterpret_cast<const char*>(dataA->bytes()),
                                            dataA->size());
                 std::string freetypePath(reinterpret_cast<const char*>(dataB->bytes()),
