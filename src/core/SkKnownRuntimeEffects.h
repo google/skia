@@ -74,6 +74,9 @@ static constexpr int kUnknownRuntimeEffectIDStart = kChromeKnownRuntimeEffectsEn
     M(Lighting)             \
     M(LinearMorphology)     \
     M(Magnifier)            \
+    M(MatrixConvUniforms)   \
+    M(MatrixConvTexSm)      \
+    M(MatrixConvTexLg)      \
     M(Normal)               \
     M(SparseMorphology)     \
     M(Arithmetic)           \
