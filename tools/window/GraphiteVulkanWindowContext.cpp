@@ -558,6 +558,8 @@ void GraphiteVulkanWindowContext::onSwapBuffers() {
 
     BackbufferInfo* backbuffer = fBackbuffers + fCurrentBackbufferIndex;
 
+    // Rather than using snapRecordingAndSubmit we explicitly do that work here
+    // so we can set up the swapchain semaphores.
     std::unique_ptr<skgpu::graphite::Recording> recording = fGraphiteRecorder->snap();
     if (recording) {
         skgpu::graphite::InsertRecordingInfo info;

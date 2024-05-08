@@ -1820,7 +1820,13 @@ void Viewer::drawSlide(SkSurface* surface) {
 
     // Force a flush so we can time that, too
     fStatsLayer.beginTiming(fFlushTimer);
-    skgpu::FlushAndSubmit(slideSurface);
+#if defined(SK_GANESH)
+    skgpu::ganesh::FlushAndSubmit(slideSurface);
+#endif
+#if defined(SK_GRAPHITE)
+    skgpu::graphite::Flush(slideSurface);
+    fWindow->snapRecordingAndSubmit();
+#endif
     fStatsLayer.endTiming(fFlushTimer);
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas

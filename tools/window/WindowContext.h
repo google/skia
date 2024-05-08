@@ -46,6 +46,7 @@ public:
 #if defined(SK_GRAPHITE)
     skgpu::graphite::Context* graphiteContext() const { return fGraphiteContext.get(); }
     skgpu::graphite::Recorder* graphiteRecorder() const { return fGraphiteRecorder.get(); }
+    void snapRecordingAndSubmit();
 #endif
 
     int width() const { return fWidth; }

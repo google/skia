@@ -164,6 +164,11 @@ public:
     skgpu::graphite::Context* graphiteContext() const;
     skgpu::graphite::Recorder* graphiteRecorder() const;
 
+#if defined(SK_GRAPHITE)
+    // Will snap a Recording and submit to the Context if using Graphite
+    void snapRecordingAndSubmit();
+#endif
+
 protected:
     Window();
 

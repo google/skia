@@ -100,17 +100,7 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
 }
 
 void GraphiteDawnWindowContext::onSwapBuffers() {
-    if (fGraphiteContext) {
-        SkASSERT(fGraphiteRecorder);
-        std::unique_ptr<skgpu::graphite::Recording> recording = fGraphiteRecorder->snap();
-        if (recording) {
-            skgpu::graphite::InsertRecordingInfo info;
-            info.fRecording = recording.get();
-            fGraphiteContext->insertRecording(info);
-            fGraphiteContext->submit(skgpu::graphite::SyncToCpu::kNo);
-        }
-    }
-
+    this->snapRecordingAndSubmit();
     fSwapChain.Present();
 }
 
