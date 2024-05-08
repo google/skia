@@ -736,8 +736,31 @@ void Device::drawRRect(const SkRRect& rr, const SkPaint& paint) {
 }
 
 void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
-    // TODO: If we do try to inspect the path, it should happen here and possibly after computing
-    // the path effect. Alternatively, all that should be handled in SkCanvas.
+    // Alternatively, we could move this analysis to SkCanvas. Also, we could consider applying the
+    // path effect, being careful about starting point and direction.
+    if (!paint.getPathEffect() && !path.isInverseFillType()) {
+        if (SkRect oval; path.isOval(&oval)) {
+            this->drawGeometry(this->localToDeviceTransform(),
+                               Geometry(Shape(SkRRect::MakeOval(oval))),
+                               paint,
+                               SkStrokeRec(paint));
+            return;
+        }
+        if (SkRRect rrect; path.isRRect(&rrect)) {
+            this->drawGeometry(this->localToDeviceTransform(),
+                               Geometry(Shape(rrect)),
+                               paint,
+                               SkStrokeRec(paint));
+            return;
+        }
+        if (SkRect rect; paint.getStyle() == SkPaint::kFill_Style && path.isRect(&rect)) {
+            this->drawGeometry(this->localToDeviceTransform(),
+                               Geometry(Shape(rect)),
+                               paint,
+                               SkStrokeRec(paint));
+            return;
+        }
+    }
     this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(path)),
                        paint, SkStrokeRec(paint));
 }
