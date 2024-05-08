@@ -177,6 +177,14 @@ bool DrawContext::recordUpload(Recorder* recorder,
                                          std::move(condContext));
 }
 
+void DrawContext::recordDependency(sk_sp<Task> task) {
+    SkASSERT(task);
+    // Adding `task` to the current DrawTask directly means that it will execute after any previous
+    // dependent tasks and after any previous calls to flush(), but everything else that's being
+    // collected on the DrawContext will execute after `task` once the next flush() is performed.
+    fCurrentDrawTask->addTask(std::move(task));
+}
+
 PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
     if (!fComputePathAtlas) {
         fComputePathAtlas = recorder->priv().atlasProvider()->createComputePathAtlas(recorder);

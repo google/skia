@@ -83,6 +83,10 @@ public:
                       const SkIRect& dstRect,
                       std::unique_ptr<ConditionalUploadContext>);
 
+    // Add a Task that will be executed *before* any of the pending draws and uploads are
+    // executed as part of the next flush(). Dependency
+    void recordDependency(sk_sp<Task>);
+
     // Returns the transient path atlas that uses compute to accumulate coverage masks for atlas
     // draws recorded to this SDC. The atlas gets created lazily upon request. Returns nullptr
     // if compute path generation is not supported.

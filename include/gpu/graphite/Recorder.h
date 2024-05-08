@@ -44,6 +44,7 @@ class DrawBufferManager;
 class GlobalCache;
 class ImageProvider;
 class ProxyCache;
+class ProxyReadCountMap;
 class RecorderPriv;
 class ResourceProvider;
 class RuntimeEffectDictionary;
@@ -241,6 +242,7 @@ private:
     std::unique_ptr<TextureDataCache> fTextureDataCache;
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;
     std::unique_ptr<UploadBufferManager> fUploadBufferManager;
+    std::unique_ptr<ProxyReadCountMap> fProxyReadCounts;
 
     // Iterating over tracked devices in flushTrackedDevices() needs to be re-entrant and support
     // additions to fTrackedDevices if registerDevice() is triggered by a temporary device during

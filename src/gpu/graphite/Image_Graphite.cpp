@@ -131,7 +131,7 @@ sk_sp<Image> Image::copyImage(Recorder* recorder,
                               Mipmapped mipmapped,
                               SkBackingFit backingFit,
                               std::string_view label) const {
-    this->notifyInUse(recorder);
+    this->notifyInUse(recorder, /*drawContext=*/nullptr);
     return Image::Copy(recorder, fTextureProxyView, this->imageInfo().colorInfo(),
                        subset, budgeted, mipmapped, backingFit, std::move(label));
 }

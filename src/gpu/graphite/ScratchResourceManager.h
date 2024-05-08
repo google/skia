@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkTHash.h"
 
 #include <string_view>
 
@@ -20,6 +21,39 @@ class Resource;
 class ResourceProvider;
 class Texture;
 class TextureInfo;
+class TextureProxy;
+
+// NOTE: This is temporary while atlas management requires flushing an entire Recorder. That
+// can break a scratch Device into multiple DrawTasks and the proxy read count needs to count
+// all reads regardless of which DrawTask is referenced. Once scratch devices only produce a
+// single DrawTask, DrawTask can hold the pending read count directly.
+class ProxyReadCountMap {
+public:
+    ProxyReadCountMap() = default;
+
+    void increment(const TextureProxy* proxy) {
+        int* count = fCounts.find(proxy);
+        if (!count) {
+            count = fCounts.set(proxy, 0);
+        }
+        (*count)++;
+    }
+
+    bool decrement(const TextureProxy* proxy) {
+        int* count = fCounts.find(proxy);
+        SkASSERT(count && *count > 0);
+        (*count)--;
+        return *count == 0;
+    }
+
+    int get(const TextureProxy* proxy) const {
+        const int* count = fCounts.find(proxy);
+        return count ? *count : 0;
+    }
+
+private:
+    skia_private::THashMap<const TextureProxy*, int> fCounts;
+};
 
 /**
  * ScratchResourceManager helps coordinate the reuse of resources *within* a Recording that would
@@ -40,7 +74,8 @@ class TextureInfo;
  */
 class ScratchResourceManager {
 public:
-    explicit ScratchResourceManager(ResourceProvider* resourceProvider);
+    ScratchResourceManager(ResourceProvider* resourceProvider,
+                           std::unique_ptr<ProxyReadCountMap>);
     ~ScratchResourceManager();
 
     // Get a scratch texture with the given size and texture info. The returned texture will
@@ -125,6 +160,16 @@ public:
     // live for as long as the prepareResources() phase of snapping a Recording.
     void markResourceInUse(PendingUseListener* listener);
 
+    // Temporary access to the proxy read counts stored in the ScratchResourceManager
+    int pendingReadCount(const TextureProxy* proxy) const {
+        return fProxyReadCounts->get(proxy);
+    }
+
+    // Returns true if the read count reached zero; must only be called if it was > 0 previously.
+    bool removePendingRead(const TextureProxy* proxy) {
+        return fProxyReadCounts->decrement(proxy);
+    }
+
 private:
     struct ScratchTexture {
         sk_sp<Texture> fTexture;
@@ -143,6 +188,8 @@ private:
     // This single list is organized into a stack of sublists by using null pointers to mark the
     // start of a new scope.
     skia_private::TArray<PendingUseListener*> fListenerStack;
+
+    std::unique_ptr<ProxyReadCountMap> fProxyReadCounts;
 };
 
 } // namespace skgpu::graphite

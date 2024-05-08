@@ -10,12 +10,16 @@
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureProxy.h"
 
 namespace skgpu::graphite {
 
-ScratchResourceManager::ScratchResourceManager(ResourceProvider* resourceProvider)
-        : fResourceProvider(resourceProvider) {
+ScratchResourceManager::ScratchResourceManager(ResourceProvider* resourceProvider,
+                                               std::unique_ptr<ProxyReadCountMap> proxyCounts)
+        : fResourceProvider(resourceProvider)
+        , fProxyReadCounts(std::move(proxyCounts)) {
     SkASSERT(resourceProvider);
+    SkASSERT(fProxyReadCounts);
 }
 
 ScratchResourceManager::~ScratchResourceManager() = default;

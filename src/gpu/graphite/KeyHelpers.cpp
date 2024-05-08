@@ -1657,9 +1657,11 @@ static void add_to_key(const KeyContext& keyContext,
         // DrawContext memory can be surprisingly high. b/338453542.
         // TODO (b/330864257): Once paint keys are extracted at draw time, AddToKey() will be
         // fully responsible for notifyInUse() calls and then we can simply always call this on
-        // `imageToDraw`.
+        // `imageToDraw`. The DrawContext that samples the image will also be available to AddToKey
+        // so we won't have to pass in nullptr.
         SkASSERT(as_IB(imageToDraw)->isGraphiteBacked());
-        static_cast<Image_Base*>(imageToDraw.get())->notifyInUse(keyContext.recorder());
+        static_cast<Image_Base*>(imageToDraw.get())->notifyInUse(keyContext.recorder(),
+                                                                 /*drawContext=*/nullptr);
     }
     if (as_IB(imageToDraw)->isYUVA()) {
         return add_yuv_image_to_key(keyContext,
@@ -1712,7 +1714,7 @@ static void add_to_key(const KeyContext& keyContext,
     ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
 }
 static void notify_in_use(Recorder* recorder,
-                          DrawContext*,
+                          DrawContext* drawContext,
                           const SkImageShader* shader) {
     auto image = as_IB(shader->image());
     if (!image->isGraphiteBacked()) {
@@ -1720,9 +1722,7 @@ static void notify_in_use(Recorder* recorder,
         return;
     }
 
-    // TODO(b/323887207): Once scratch devices are linked to special images and their use needs to
-    // be linked to specific draw contexts, that will be passed in here.
-    static_cast<Image_Base*>(image)->notifyInUse(recorder);
+    static_cast<Image_Base*>(image)->notifyInUse(recorder, drawContext);
 }
 
 static void add_to_key(const KeyContext& keyContext,
