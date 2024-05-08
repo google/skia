@@ -60,34 +60,6 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlSharedContext* shared
     (*desc).storageMode = (MTLStorageMode)mtlSpec.fStorageMode;
 
     sk_cfp<id<MTLTexture>> texture([sharedContext->device() newTextureWithDescriptor:desc.get()]);
-#ifdef SK_ENABLE_MTL_DEBUG_INFO
-    if (mtlSpec.fUsage & MTLTextureUsageRenderTarget) {
-        if (MtlFormatIsDepthOrStencil((MTLPixelFormat)mtlSpec.fFormat)) {
-            (*texture).label = @"DepthStencil";
-        } else {
-            if (info.numSamples() > 1) {
-                if (mtlSpec.fUsage & MTLTextureUsageShaderRead) {
-                    (*texture).label = @"MSAA SampledTexture-ColorAttachment";
-                } else {
-                    (*texture).label = @"MSAA ColorAttachment";
-                }
-            } else {
-                if (mtlSpec.fUsage & MTLTextureUsageShaderRead) {
-                    (*texture).label = @"SampledTexture-ColorAttachment";
-                } else {
-                    (*texture).label = @"ColorAttachment";
-                }
-            }
-        }
-    } else if (mtlSpec.fUsage & MTLTextureUsageShaderWrite) {
-        SkASSERT(mtlSpec.fUsage & MTLTextureUsageShaderRead);
-        (*texture).label = @"StorageTexture";
-    } else {
-        SkASSERT(mtlSpec.fUsage & MTLTextureUsageShaderRead);
-        (*texture).label = @"SampledTexture";
-    }
-#endif
-
     return texture;
 }
 
@@ -142,6 +114,15 @@ sk_sp<Texture> MtlTexture::MakeWrapped(const MtlSharedContext* sharedContext,
 
 void MtlTexture::freeGpuData() {
     fTexture.reset();
+}
+
+
+void MtlTexture::setBackendLabel(char const* label) {
+    SkASSERT(label);
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    NSString* labelStr = @(label);
+    this->mtlTexture().label = labelStr;
+#endif
 }
 
 } // namespace skgpu::graphite

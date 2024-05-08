@@ -18,33 +18,6 @@
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 
 namespace skgpu::graphite {
-namespace {
-const char* texture_info_to_label(const TextureInfo& info,
-                                  const DawnTextureSpec& dawnSpec) {
-    if (dawnSpec.fUsage & wgpu::TextureUsage::RenderAttachment) {
-        if (DawnFormatIsDepthOrStencil(dawnSpec.fFormat)) {
-            return "DepthStencil";
-        } else {
-            if (info.numSamples() > 1) {
-                if (dawnSpec.fUsage & wgpu::TextureUsage::TextureBinding) {
-                    return "MSAA SampledTexture-ColorAttachment";
-                } else {
-                    return "MSAA ColorAttachment";
-                }
-            } else {
-                if (dawnSpec.fUsage & wgpu::TextureUsage::TextureBinding) {
-                    return "SampledTexture-ColorAttachment";
-                } else {
-                    return "ColorAttachment";
-                }
-            }
-        }
-    } else {
-        SkASSERT(dawnSpec.fUsage & wgpu::TextureUsage::TextureBinding);
-        return "SampledTexture";
-    }
-}
-}
 
 wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContext,
                                            SkISize dimensions,
@@ -78,9 +51,6 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
     }
 
     wgpu::TextureDescriptor desc;
-#ifdef SK_DEBUG
-    desc.label                      = texture_info_to_label(info, dawnSpec);
-#endif
     desc.usage                      = dawnSpec.fUsage;
     desc.dimension                  = wgpu::TextureDimension::e2D;
     desc.size.width                 = dimensions.width();
@@ -235,13 +205,11 @@ void DawnTexture::freeGpuData() {
     fRenderTextureView = nullptr;
 }
 
-void DawnTexture::onDumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump,
-                                         const char* dumpName) const {
-    Texture::onDumpMemoryStatistics(traceMemoryDump, dumpName);
-    traceMemoryDump->dumpStringValue(
-            dumpName,
-            "backend_label",
-            texture_info_to_label(this->textureInfo(), this->textureInfo().dawnTextureSpec()));
+void DawnTexture::setBackendLabel(char const* label) {
+    SkASSERT(label);
+#ifdef SK_DEBUG
+    fTexture.SetLabel(label);
+#endif
 }
 
 } // namespace skgpu::graphite

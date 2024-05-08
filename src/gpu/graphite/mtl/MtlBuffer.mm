@@ -84,8 +84,10 @@ void MtlBuffer::freeGpuData() {
 
 void MtlBuffer::setBackendLabel(char const* label) {
     SkASSERT(label);
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
     NSString* labelStr = @(label);
     this->mtlBuffer().label = labelStr;
+#endif
 }
 
 } // namespace skgpu::graphite
