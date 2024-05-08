@@ -96,16 +96,6 @@ public:
 protected:
     Image_Base(const SkImageInfo& info, uint32_t uniqueID);
 
-    // Create a new flattened copy of the base image using draw operations.
-    static sk_sp<Image> CopyAsDraw(Recorder*,
-                                   const Image_Base*,
-                                   const SkIRect& subset,
-                                   const SkColorInfo& dstColorInfo,
-                                   Budgeted,
-                                   Mipmapped,
-                                   SkBackingFit,
-                                   std::string_view label);
-
     // If the passed-in image is linked with Devices that modify its texture, copy the links to
     // this Image. This is used when a new Image is created that shares the same texture proxy as
     // a dynamic image. This can only be called before the Image has been returned from a factory.

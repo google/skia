@@ -554,6 +554,41 @@ size_t ComputeSize(SkISize dimensions,
     return finalSize;
 }
 
+sk_sp<Image> CopyAsDraw(Recorder* recorder,
+                        const SkImage* image,
+                        const SkIRect& subset,
+                        const SkColorInfo& dstColorInfo,
+                        Budgeted budgeted,
+                        Mipmapped mipmapped,
+                        SkBackingFit backingFit,
+                        std::string_view label) {
+    SkColorType ct = recorder->priv().caps()->getRenderableColorType(dstColorInfo.colorType());
+    if (ct == kUnknown_SkColorType) {
+        return nullptr;
+    }
+    SkImageInfo dstInfo = SkImageInfo::Make(subset.size(),
+                                            dstColorInfo.makeColorType(ct)
+                                                        .makeAlphaType(kPremul_SkAlphaType));
+    // The surface goes out of scope when we return, so it can be scratch, but it may or may
+    // not be budgeted depending on how the copied image is used (or returned to the client).
+    auto surface = Surface::MakeScratch(recorder,
+                                        dstInfo,
+                                        std::move(label),
+                                        budgeted,
+                                        mipmapped,
+                                        backingFit);
+    if (!surface) {
+        return nullptr;
+    }
+
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    surface->getCanvas()->drawImage(image, -subset.left(), -subset.top(),
+                                    SkFilterMode::kNearest, &paint);
+    // And the image draw into `surface` is flushed when it goes out of scope
+    return surface->asImage();
+}
+
 sk_sp<SkImage> RescaleImage(Recorder* recorder,
                             const SkImage* srcImage,
                             SkIRect srcIRect,
