@@ -28,8 +28,6 @@ sk_sp<Texture> ScratchResourceManager::getScratchTexture(SkISize dimensions,
                                                          const TextureInfo& info,
                                                          std::string_view label) {
     for (ScratchTexture& st : fScratchTextures) {
-        if (!st.fAvailable) { continue; }
-
         if (st.fAvailable &&
             st.fTexture->dimensions() == dimensions &&
             st.fTexture->textureInfo() == info) {
