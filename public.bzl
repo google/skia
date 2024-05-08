@@ -764,7 +764,6 @@ BASE_SRCS_ALL = [
     "src/effects/imagefilters/SkLightingImageFilter.cpp",
     "src/effects/imagefilters/SkMagnifierImageFilter.cpp",
     "src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
-    "src/effects/imagefilters/SkMatrixConvolutionImageFilter.h",
     "src/effects/imagefilters/SkMatrixTransformImageFilter.cpp",
     "src/effects/imagefilters/SkMergeImageFilter.cpp",
     "src/effects/imagefilters/SkMorphologyImageFilter.cpp",
