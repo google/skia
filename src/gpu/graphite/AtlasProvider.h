@@ -52,7 +52,8 @@ public:
     // glyph rendering. This TextAtlasManager is always available.
     TextAtlasManager* textAtlasManager() const { return fTextAtlasManager.get(); }
 
-    // Returns whether a particular atlas type is available
+    // Returns whether a particular atlas type is available. Currently PathAtlasFlags::kRaster is
+    // always supported.
     bool isAvailable(PathAtlasFlags atlasType) const {
         return SkToBool(fPathAtlasFlags & atlasType);
     }

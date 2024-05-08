@@ -182,6 +182,13 @@ bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
                                   SkRRectPriv::AllCornersCircular(shape.rrect()))));
 }
 
+bool use_compute_atlas_when_available(PathRendererStrategy strategy) {
+    return strategy == PathRendererStrategy::kComputeAnalyticAA ||
+           strategy == PathRendererStrategy::kComputeMSAA16 ||
+           strategy == PathRendererStrategy::kComputeMSAA8 ||
+           strategy == PathRendererStrategy::kDefault;
+}
+
 } // anonymous namespace
 
 /**
@@ -1328,9 +1335,11 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     // Path rendering options. For now the strategy is very simple and not optimal:
     // I. Use tessellation if MSAA is required for an effect.
     // II: otherwise:
-    //    1. Always use compute AA if supported unless it was excluded by ContextOptions.
-    //    2. Use CPU raster AA if hardware MSAA is disabled or it was explicitly requested by
-    //       ContextOptions.
+    //    1. Always use compute AA if supported unless it was excluded by ContextOptions or the
+    //       compute renderer cannot render the shape efficiently yet (based on the result of
+    //       `isSuitableForAtlasing`).
+    //    2. Fall back to CPU raster AA if hardware MSAA is disabled or it was explicitly requested
+    //       via ContextOptions.
     //    3. Otherwise use tessellation.
 #if defined(GRAPHITE_TEST_UTILS)
     PathRendererStrategy strategy = fRecorder->priv().caps()->requestedPathRendererStrategy();
@@ -1339,44 +1348,44 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
 #endif
 
     PathAtlas* pathAtlas = nullptr;
+    AtlasProvider* atlasProvider = fRecorder->priv().atlasProvider();
 
     // Prefer compute atlas draws if supported. This currently implicitly filters out clip draws as
     // they require MSAA. Eventually we may want to route clip shapes to the atlas as well but not
     // if hardware MSAA is required.
-    AtlasProvider* atlasProvider = fRecorder->priv().atlasProvider();
+    Rect drawBounds = localToDevice.mapRect(shape.bounds());
     if (atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kCompute) &&
-        (strategy == PathRendererStrategy::kComputeAnalyticAA ||
-         strategy == PathRendererStrategy::kComputeMSAA16 ||
-         strategy == PathRendererStrategy::kComputeMSAA8 ||
-         strategy == PathRendererStrategy::kDefault)) {
-        pathAtlas = fDC->getComputePathAtlas(fRecorder);
-    // Only use CPU rendered paths when multisampling is disabled
-    // TODO: enable other uses of the software path renderer
-    } else if (atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster) &&
-               (strategy == PathRendererStrategy::kRasterAA ||
-                (strategy == PathRendererStrategy::kDefault && !fMSAASupported))) {
-        pathAtlas = atlasProvider->getRasterPathAtlas();
-    }
+        use_compute_atlas_when_available(strategy)) {
+        PathAtlas* atlas = fDC->getComputePathAtlas(fRecorder);
+        SkASSERT(atlas);
 
-    // Use an atlas only if an MSAA technique isn't required.
-    if (!requireMSAA && pathAtlas) {
-        // Don't use a coverage mask renderer if the shape is too large for the atlas such that it
-        // cannot be efficiently rasterized. The only exception is if hardware MSAA is not supported
-        // as a fallback or one of the atlas strategies was explicitly requested.
+        // Don't use the compute renderer if it can't handle the shape efficiently.
         //
-        // If the hardware doesn't support MSAA and anti-aliasing is required, then we always render
-        // paths with atlasing.
-        if (!fMSAASupported || strategy != PathRendererStrategy::kDefault) {
-            return {nullptr, pathAtlas};
-        }
-
         // Use the conservative clip bounds for a rough estimate of the mask size (this avoids
         // having to evaluate the entire clip stack before choosing the renderer as it will have to
         // get evaluated again if we fall back to a different renderer).
-        Rect drawBounds = localToDevice.mapRect(shape.bounds());
-        if (pathAtlas->isSuitableForAtlasing(drawBounds, fClip.conservativeBounds())) {
-            return {nullptr, pathAtlas};
+        if (atlas->isSuitableForAtlasing(drawBounds, fClip.conservativeBounds())) {
+            pathAtlas = atlas;
         }
+    }
+
+    // Fall back to CPU rendered paths when multisampling is disabled and the compute atlas is not
+    // available.
+    // TODO: enable other uses of the software path renderer
+    if (!pathAtlas && atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster) &&
+        (strategy == PathRendererStrategy::kRasterAA ||
+         (strategy == PathRendererStrategy::kDefault && !fMSAASupported))) {
+        PathAtlas* atlas = atlasProvider->getRasterPathAtlas();
+        SkASSERT(atlas);
+        if (atlas->isSuitableForAtlasing(drawBounds, fClip.conservativeBounds())) {
+            pathAtlas = atlas;
+        }
+    }
+
+    if (!requireMSAA && pathAtlas) {
+        // If we got here it means that we should draw with an atlas renderer if we can and avoid
+        // resorting to one of the tessellating techniques.
+        return {nullptr, pathAtlas};
     }
 
     // If we got here, it requires tessellated path rendering or an MSAA technique applied to a
@@ -1406,7 +1415,6 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         // would be pretty trivial to spin up.
         return {renderers->convexTessellatedWedges(), nullptr};
     } else {
-        Rect drawBounds = localToDevice.mapRect(shape.bounds());
         drawBounds.intersect(fClip.conservativeBounds());
         const bool preferWedges =
                 // If the draw bounds don't intersect with the clip stack's conservative bounds,
