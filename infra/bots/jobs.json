@@ -32,7 +32,6 @@
   {"name": "BazelTest-benchmark-cpu_8888_benchmark_test-linux_rbe-linux_x64-NUC9i7QN_Debian11",
     "cq_config": {"experimental": true}
   },
-  {"name": "BazelTest-toolchain_layering_check-experimental_bazel_test_client-release-linux_x64"},
   {"name": "BazelTest-cpu_tests-all_go_tests-linux_rbe-linux_x64"},
   {"name": "BazelTest-external_client-decode_everything-default-linux_x64"},
   {"name": "BazelTest-external_client-path_combiner-default-linux_x64"},

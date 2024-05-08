@@ -2183,7 +2183,6 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"core":                           {"//:core", ""},
 	"cpu_8888_benchmark_test":        {"//bench:cpu_8888_test", ""},
 	"cpu_gms":                        {"//gm:cpu_gm_tests", ""},
-	"experimental_bazel_test_client": {"//experimental/bazel_test/client:client_lib", ""},
 	"full_library":                   {"//tools:full_build", ""},
 	"ganesh_gl":                      {"//:ganesh_gl", ""},
 	"hello_bazel_world_test":         {"//gm:hello_bazel_world_test", ""},

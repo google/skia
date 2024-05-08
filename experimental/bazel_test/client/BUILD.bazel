@@ -25,5 +25,4 @@ cc_binary(
 generate_cpp_files_for_headers(
     name = "compile_headers_please",
     headers = ["gizmo.h"],
-    to_generate = ["experimental/bazel_test/client/gizmo.h"],
 )
