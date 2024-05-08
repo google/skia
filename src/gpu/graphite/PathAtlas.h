@@ -88,8 +88,17 @@ public:
     /**
      * Returns true if a path coverage mask with the given device-space bounds is sufficiently
      * small to benefit from atlasing without causing too many atlas renders.
+     *
+     * `transformedShapeBounds` represents the device-space bounds of the coverage mask shape
+     * unrestricted by clip and viewport bounds.
+     *
+     * `clipBounds` represents the conservative bounding box of the union of the clip stack that
+     * should apply to the shape.
      */
-    virtual bool isSuitableForAtlasing(const Rect& transformedShapeBounds) const { return true; }
+    virtual bool isSuitableForAtlasing(const Rect& transformedShapeBounds,
+                                       const Rect& clipBounds) const {
+        return true;
+    }
 
     uint32_t width() const { return fWidth; }
     uint32_t height() const { return fHeight; }

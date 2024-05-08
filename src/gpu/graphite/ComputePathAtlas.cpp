@@ -28,6 +28,9 @@ namespace {
 // TODO: This is the maximum target dimension that vello can handle today
 constexpr uint16_t kComputeAtlasDim = 4096;
 
+// Coordinate size that is too large for vello to handle efficiently.
+constexpr float kCoordinateThreshold = 1e10;
+
 }  // namespace
 
 ComputePathAtlas::ComputePathAtlas(Recorder* recorder)
@@ -47,8 +50,10 @@ bool ComputePathAtlas::initializeTextureIfNeeded() {
     return fTexture != nullptr;
 }
 
-bool ComputePathAtlas::isSuitableForAtlasing(const Rect& transformedShapeBounds) const {
-    Rect maskBounds = transformedShapeBounds.makeRoundOut();
+bool ComputePathAtlas::isSuitableForAtlasing(const Rect& transformedShapeBounds,
+                                             const Rect& clipBounds) const {
+    Rect shapeBounds = transformedShapeBounds.makeRoundOut();
+    Rect maskBounds = shapeBounds.makeIntersect(clipBounds);
     skvx::float2 maskSize = maskBounds.size();
     float width = maskSize.x(), height = maskSize.y();
 
@@ -68,7 +73,18 @@ bool ComputePathAtlas::isSuitableForAtlasing(const Rect& transformedShapeBounds)
     //
     // 2. Implement a compressed "sparse" mask rendering scheme to render paths with a large
     // bounding box using less texture space.
-    return (width * height) <= (1024 * 512);
+    if (width * height > 1024 * 512) {
+        return false;
+    }
+
+    // Reject pathological shapes that vello can't handle efficiently yet.
+    skvx::float2 unclippedSize = shapeBounds.size();
+    if (std::fabs(unclippedSize.x()) > kCoordinateThreshold ||
+        std::fabs(unclippedSize.y()) > kCoordinateThreshold) {
+        return false;
+    }
+
+    return true;
 }
 
 const TextureProxy* ComputePathAtlas::addRect(skvx::half2 maskSize,

@@ -1374,8 +1374,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         // having to evaluate the entire clip stack before choosing the renderer as it will have to
         // get evaluated again if we fall back to a different renderer).
         Rect drawBounds = localToDevice.mapRect(shape.bounds());
-        drawBounds.intersect(fClip.conservativeBounds());
-        if (pathAtlas->isSuitableForAtlasing(drawBounds)) {
+        if (pathAtlas->isSuitableForAtlasing(drawBounds, fClip.conservativeBounds())) {
             return {nullptr, pathAtlas};
         }
     }

@@ -54,7 +54,8 @@ protected:
     const TextureProxy* texture() const { return fTexture.get(); }
     const TextureProxy* addRect(skvx::half2 maskSize,
                                 SkIPoint16* outPos);
-    bool isSuitableForAtlasing(const Rect& transformedShapeBounds) const override;
+    bool isSuitableForAtlasing(const Rect& transformedShapeBounds,
+                               const Rect& clipBounds) const override;
 
     virtual void onReset() = 0;
 
