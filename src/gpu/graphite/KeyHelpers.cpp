@@ -1871,11 +1871,6 @@ static void add_to_key(const KeyContext& keyContext,
     surface->getCanvas()->concat(info.matrixForDraw);
     surface->getCanvas()->drawPicture(shader->picture().get());
     sk_sp<SkImage> img = SkSurfaces::AsImage(std::move(surface));
-    if (!img) {
-        SKGPU_LOG_W("Couldn't create SkImage for PictureShader");
-        builder->addBlock(BuiltInCodeSnippetID::kError);
-        return;
-    }
     // TODO: 'img' did not exist when notify_in_use() was called, but ideally the DrawTask to render
     // into 'surface' would be a child of the current device. While we push all tasks to the root
     // list this works out okay, but will need to be addressed before we move off that system.
