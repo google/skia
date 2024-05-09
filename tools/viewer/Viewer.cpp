@@ -1807,6 +1807,10 @@ void Viewer::drawSlide(SkSurface* surface) {
             fSlides[fCurrentSlide]->draw(slideCanvas);
         }
     }
+#if defined(SK_GRAPHITE)
+    // Finish flushing Tasks to Recorder
+    skgpu::graphite::Flush(slideSurface);
+#endif
     fStatsLayer.endTiming(fPaintTimer);
     slideCanvas->restoreToCount(count);
 
@@ -1824,7 +1828,6 @@ void Viewer::drawSlide(SkSurface* surface) {
     skgpu::ganesh::FlushAndSubmit(slideSurface);
 #endif
 #if defined(SK_GRAPHITE)
-    skgpu::graphite::Flush(slideSurface);
     fWindow->snapRecordingAndSubmit();
 #endif
     fStatsLayer.endTiming(fFlushTimer);
