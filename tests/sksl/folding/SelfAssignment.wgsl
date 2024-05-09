@@ -12,7 +12,7 @@ struct S {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var x: vec4<f32> = vec4<f32>(3.0, 2.0, 1.0, 0.0);
-    x = vec4<f32>((x.zyx), x.w).xyzw;
+    x = vec4<f32>((x.zyx), x.w);
     var s: S;
     s.i = 2.0;
     s.j = 2.0;

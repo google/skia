@@ -29,7 +29,7 @@ fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
     R_array[_skTemp5].y = R_array[_skTemp5].y * 4.0;
     let _skTemp6 = Z_i();
     let _skTemp7 = _skTemp6;
-    R_array[_skTemp7] = vec4<f32>((R_array[_skTemp7].yzw * mat3x3<f32>(0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5)), R_array[_skTemp7].x).wxyz;
+    R_array[_skTemp7] = vec4<f32>(R_array[_skTemp7].x, (R_array[_skTemp7].yzw * mat3x3<f32>(0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5)));
     let _skTemp8 = Z_i();
     let _skTemp9 = _skTemp8;
     R_array[_skTemp9] = (R_array[_skTemp9].zywx + vec4<f32>(0.25, 0.0, 0.0, 0.75)).wyxz;

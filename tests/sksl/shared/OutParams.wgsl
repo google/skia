@@ -191,7 +191,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     i4 = _skTemp22;
     var _skTemp23: vec3<i32>;
     out_int3_vi3(&_skTemp23);
-    i4 = vec4<i32>((_skTemp23), i4.w).xyzw;
+    i4 = vec4<i32>((_skTemp23), i4.w);
     var _skTemp24: i32;
     out_int_vi(&_skTemp24);
     i2.y = _skTemp24;
@@ -213,7 +213,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     f4 = _skTemp28;
     var _skTemp29: vec2<f32>;
     out_float2_vf2(&_skTemp29);
-    f3 = vec3<f32>((_skTemp29), f3.z).xyz;
+    f3 = vec3<f32>((_skTemp29), f3.z);
     var _skTemp30: f32;
     out_float_vf(&_skTemp30);
     f2.x = _skTemp30;

@@ -19,7 +19,7 @@ fn test4x4_b() -> bool {
       loop {
         {
           matrix[index] = vec4<f32>((values.xw), matrix[index].yz).yzwx;
-          matrix[index] = vec4<f32>((values.yz), matrix[index].xw).zyxw;
+          matrix[index] = vec4<f32>(matrix[index].xw, (values.yz)).xwzy;
           values = values + 4.0;
         }
         continuing {

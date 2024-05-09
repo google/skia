@@ -101,6 +101,9 @@ public:
     // Converts an array of swizzle components into a string.
     static std::string MaskString(const ComponentArray& inComponents);
 
+    // Returns true if a swizzle keeps each component in its original position.
+    static bool IsIdentity(const ComponentArray& components);
+
 private:
     Swizzle(Position pos, const Type* type, std::unique_ptr<Expression> base,
             const ComponentArray& components)

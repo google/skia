@@ -20,7 +20,7 @@ fn func_vh4(color: ptr<function, vec4<f32>>) {
     let _skTemp1 = swizzle_lvalue_h2hhh2h(1.0, 2.0, &_skTemp0, 5.0);
     (*color) = vec4<f32>((_skTemp0), (*color).yw).xzyw;
     var t: vec2<f32> = _skTemp1;
-    (*color) = vec4<f32>((t), (*color).xz).zxwy;
+    (*color) = vec4<f32>((*color).xz, (t)).xzyw;
   }
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {

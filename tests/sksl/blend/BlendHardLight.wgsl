@@ -25,7 +25,7 @@ fn blend_overlay_h4h4h4(src: vec4<f32>, dst: vec4<f32>) -> vec4<f32> {
     let _skTemp2 = blend_overlay_component_Qhh2h2(src.yw, dst.yw);
     let _skTemp3 = blend_overlay_component_Qhh2h2(src.zw, dst.zw);
     var result: vec4<f32> = vec4<f32>(_skTemp1, _skTemp2, _skTemp3, src.w + (1.0 - src.w) * dst.w);
-    result = vec4<f32>((result.xyz + (dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w))), result.w).xyzw;
+    result = vec4<f32>((result.xyz + (dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w))), result.w);
     return result;
   }
 }

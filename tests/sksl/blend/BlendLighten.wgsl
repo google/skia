@@ -12,7 +12,7 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
     var _0_result: vec4<f32> = _globalUniforms.src + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst;
     let _skTemp0 = max(_0_result.xyz, (1.0 - _globalUniforms.dst.w) * _globalUniforms.src.xyz + _globalUniforms.dst.xyz);
-    _0_result = vec4<f32>((_skTemp0), _0_result.w).xyzw;
+    _0_result = vec4<f32>((_skTemp0), _0_result.w);
     (*_stageOut).sk_FragColor = _0_result;
   }
 }

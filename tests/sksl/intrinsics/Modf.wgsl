@@ -21,12 +21,12 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     fraction.x = _skTemp0.fract;
     ok.x = (whole.x == 2.0) && (fraction.x == 0.5);
     let _skTemp1 = modf(value.xy);
-    whole = vec4<f32>((_skTemp1.whole), whole.zw).xyzw;
-    fraction = vec4<f32>((_skTemp1.fract), fraction.zw).xyzw;
+    whole = vec4<f32>((_skTemp1.whole), whole.zw);
+    fraction = vec4<f32>((_skTemp1.fract), fraction.zw);
     ok.y = all(whole.xy == vec2<f32>(2.0, -2.0)) && all(fraction.xy == vec2<f32>(0.5, -0.5));
     let _skTemp2 = modf(value.xyz);
-    whole = vec4<f32>((_skTemp2.whole), whole.w).xyzw;
-    fraction = vec4<f32>((_skTemp2.fract), fraction.w).xyzw;
+    whole = vec4<f32>((_skTemp2.whole), whole.w);
+    fraction = vec4<f32>((_skTemp2.fract), fraction.w);
     ok.z = all(whole.xyz == vec3<f32>(2.0, -2.0, 8.0)) && all(fraction.xyz == vec3<f32>(0.5, -0.5, 0.0));
     let _skTemp3 = modf(value);
     whole = _skTemp3.whole;

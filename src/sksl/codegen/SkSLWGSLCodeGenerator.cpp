@@ -1194,17 +1194,36 @@ public:
         }
 
         // The reintegration swizzle needs to move the components back into their proper slots.
-        // First, place the new-value components into the proper slots.
         fReintegrationSwizzle.resize(fullSlotCount);
-        for (int index = 0; index < fComponents.size(); ++index) {
-            fReintegrationSwizzle[fComponents[index]] = index;
-        }
-        // Then, refill the untouched slots with the original values.
-        int originalValueComponentIndex = fComponents.size();
-        for (int index = 0; index < fullSlotCount; ++index) {
-            if (!used[index]) {
-                fReintegrationSwizzle[index] = originalValueComponentIndex++;
+        int reintegrateIndex = 0;
+
+        // This refills the untouched slots with the original values.
+        auto refillUntouchedSlots = [&] {
+            for (int index = 0; index < fullSlotCount; ++index) {
+                if (!used[index]) {
+                    fReintegrationSwizzle[index] = reintegrateIndex++;
+                }
             }
+        };
+
+        // This places the new-value components into the proper slots.
+        auto insertNewValuesIntoSlots = [&] {
+            for (int index = 0; index < fComponents.size(); ++index) {
+                fReintegrationSwizzle[fComponents[index]] = reintegrateIndex++;
+            }
+        };
+
+        // When reintegrating the untouched and new values, if the `x` slot is overwritten, we
+        // reintegrate the new value first. Otherwise, we reintegrate the original value first.
+        // This increases our odds of getting an identity swizzle for the reintegration.
+        if (used[0]) {
+            fReintegrateNewValueFirst = true;
+            insertNewValuesIntoSlots();
+            refillUntouchedSlots();
+        } else {
+            fReintegrateNewValueFirst = false;
+            refillUntouchedSlots();
+            insertNewValuesIntoSlots();
         }
     }
 
@@ -1218,25 +1237,42 @@ public:
         result += " = ";
 
         if (fUntouchedComponents.empty()) {
-            // `(new_value).wzyx;`
+            // `(new_value);`
             result += '(';
             result += value;
-            result += ").";
-            result += Swizzle::MaskString(fReintegrationSwizzle);
-        } else {
+            result += ")";
+        } else if (fReintegrateNewValueFirst) {
             // `vec4<f32>((new_value), `
             result += to_wgsl_type(fContext, fType);
             result += "((";
             result += value;
             result += "), ";
 
-            // `variable.yz).xzwy;`
+            // `variable.yz)`
             result += fName;
             result += '.';
             result += Swizzle::MaskString(fUntouchedComponents);
-            result += ").";
+            result += ')';
+        } else {
+            // `vec4<f32>(variable.yz`
+            result += to_wgsl_type(fContext, fType);
+            result += '(';
+            result += fName;
+            result += '.';
+            result += Swizzle::MaskString(fUntouchedComponents);
+
+            // `, (new_value))`
+            result += ", (";
+            result += value;
+            result += "))";
+        }
+
+        if (!Swizzle::IsIdentity(fReintegrationSwizzle)) {
+            // `.wzyx`
+            result += '.';
             result += Swizzle::MaskString(fReintegrationSwizzle);
         }
+
         return result + ';';
     }
 
@@ -1247,6 +1283,7 @@ private:
     ComponentArray fComponents;
     ComponentArray fUntouchedComponents;
     ComponentArray fReintegrationSwizzle;
+    bool fReintegrateNewValueFirst = false;
 };
 
 bool WGSLCodeGenerator::generateCode() {

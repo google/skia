@@ -20,8 +20,8 @@ fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
     result.x = _skTemp2;
     let _skTemp3 = refract(_globalUniforms.d, _globalUniforms.e, _globalUniforms.c);
     result = _skTemp3;
-    result = vec4<f32>((vec2<f32>(0.5, -0.8660254)), result.zw).xyzw;
-    result = vec4<f32>((vec3<f32>(0.5, 0.0, -0.8660254)), result.w).xyzw;
+    result = vec4<f32>((vec2<f32>(0.5, -0.8660254)), result.zw);
+    result = vec4<f32>((vec3<f32>(0.5, 0.0, -0.8660254)), result.w);
     result = vec4<f32>(0.5, 0.0, 0.0, -0.8660254);
     return result;
   }

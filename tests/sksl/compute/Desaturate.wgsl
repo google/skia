@@ -14,7 +14,7 @@ fn _skslMain(_stageIn: CSIn) {
         let _skTemp2 = _stageIn.sk_GlobalInvocationID.xy;
         var _0_color: vec4<f32> = textureLoad(src, _skTemp2, 0);
         let _skTemp3 = dot(_0_color.xyz, vec3<f32>(0.22, 0.67, 0.11));
-        _0_color = vec4<f32>((vec3<f32>(_skTemp3)), _0_color.w).xyzw;
+        _0_color = vec4<f32>((vec3<f32>(_skTemp3)), _0_color.w);
         textureStore(dest, _stageIn.sk_GlobalInvocationID.xy, _0_color);
       }
     }

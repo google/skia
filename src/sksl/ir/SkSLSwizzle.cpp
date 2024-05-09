@@ -438,6 +438,15 @@ std::unique_ptr<Expression> Swizzle::Convert(const Context& context,
     return Swizzle::Make(context, pos, std::move(expr), swizzleComponents);
 }
 
+bool Swizzle::IsIdentity(const ComponentArray& components) {
+    for (int index = 0; index < components.size(); ++index) {
+        if (components[index] != index) {
+            return false;
+        }
+    }
+    return true;
+}
+
 std::unique_ptr<Expression> Swizzle::Make(const Context& context,
                                           Position pos,
                                           std::unique_ptr<Expression> expr,
@@ -463,19 +472,10 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
                                       std::move(expr));
     }
 
-    // Detect identity swizzles like `color.rgba` and optimize it away.
-    if (components.size() == exprType.columns()) {
-        bool identity = true;
-        for (int i = 0; i < components.size(); ++i) {
-            if (components[i] != i) {
-                identity = false;
-                break;
-            }
-        }
-        if (identity) {
-            expr->fPosition = pos;
-            return expr;
-        }
+    // Detect identity swizzles like `color.rgba` and optimize them away.
+    if (components.size() == exprType.columns() && IsIdentity(components)) {
+        expr->fPosition = pos;
+        return expr;
     }
 
     // Optimize swizzles of swizzles, e.g. replace `foo.argb.rggg` with `foo.arrr`.
