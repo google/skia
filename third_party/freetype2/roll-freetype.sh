@@ -5,6 +5,13 @@ FT_GIT_REF="origin/master"
 FT_GIT_DIR="third_party/externals/freetype"
 FT_BUILD_DIR="$(dirname -- "$0")"
 
+notshallow() {
+  STEP="check ${FT_GIT_DIR} not shallow"
+  if $(git -C "${FT_GIT_DIR}" rev-parse --is-shallow-repository); then
+    return 1
+  fi
+}
+
 previousrev() {
   STEP="original revision" &&
   FT_PREVIOUS_REV=$(git grep "${FT_GIT_REPO}" HEAD~1 -- DEPS | sed 's!.*'${FT_GIT_REPO}'@\([[:xdigit:]]\{40\}\).*!\1!')
@@ -52,6 +59,7 @@ ${FT_GIT_REPO}/+log/${FT_PREVIOUS_REV}..${FT_NEXT_REV}
 Disable: treat-URL-as-trailer"
 }
 
+notshallow &&
 previousrev &&
 nextrev &&
 rolldeps "$@" &&
