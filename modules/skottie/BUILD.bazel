@@ -47,16 +47,15 @@ skia_cc_binary(
         "//modules/skottie/src:skottie_tool",
     ],
     defines = ["CPU_ONLY"],
-    features = ["layering_check"],
     deps = [
         ":skottie",
-        ":utils",
         "//:core",
         "//:fontmgr_empty_freetype",
         "//:jpeg_decode_codec",
         "//:png_decode_codec",
         "//:png_encode_codec",
         "//:webp_decode_codec",
+        "//modules/skottie/utils:skottie_utils",
         "//modules/skresources",
         "//modules/skshaper:skshaper_harfbuzz",
         "//modules/skshaper:skshaper_unicode",
@@ -74,16 +73,15 @@ skia_cc_binary(
         "//modules/skottie/src:skottie_tool",
     ],
     defines = ["GPU_ONLY"],
-    features = ["layering_check"],
     deps = [
         ":skottie",
-        ":utils",
         "//:core",
         "//:fontmgr_empty_freetype",
         "//:jpeg_decode_codec",
         "//:png_decode_codec",
         "//:png_encode_codec",
         "//:webp_decode_codec",
+        "//modules/skottie/utils:skottie_utils",
         "//modules/skresources",
         "//modules/skshaper:skshaper_harfbuzz",
         "//modules/skshaper:skshaper_unicode",
@@ -102,11 +100,11 @@ skia_cc_binary(
     srcs = [
         "//modules/skottie/utils:skottie_preshape_tool",
     ],
-    features = ["layering_check"],
     deps = [
         ":skottie",
-        ":utils",
         "//:core",
+        "//modules/skottie/utils:skottie_utils",
+        "//modules/skottie/utils:text_preshape",
         "//modules/skresources",
         "//modules/skshaper:skshaper_harfbuzz",
         "//modules/skshaper:skshaper_unicode",
@@ -124,6 +122,7 @@ skia_cc_binary(
 skia_cc_library(
     name = "skottie",
     srcs = [
+        "//modules/skottie/src:private_hdrs",
         "//modules/skottie/src:srcs",
     ],
     hdrs = ["//modules/skottie/include:hdrs"],
@@ -150,15 +149,14 @@ skia_cc_library(
 )
 
 skia_cc_library(
-    name = "utils",
-    srcs = ["//modules/skottie/utils:srcs"],
-    hdrs = ["//modules/skottie/utils:hdrs"],
-    visibility = ["//modules/canvaskit:__pkg__"],
-    deps = [
-        ":skottie",
-        "//:core",
-        "//tools/skui",
+    name = "skottie_priv",
+    hdrs = [
+        "//modules/skottie/include:hdrs",
+        "//modules/skottie/src:private_hdrs",
+        "//modules/skottie/src/text:private_hdrs",
     ],
+    visibility = ["//modules/skottie/utils:__pkg__"],
+    deps = [":skottie"],
 )
 
 # A tiny subset of Skottie, exposing text-shaping related functions

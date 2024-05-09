@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -8,31 +8,49 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+CORE_FILES = [
+    "Adapter.h",
+    "BlendModes.cpp",
+    "Camera.cpp",
+    "Camera.h",
+    "Composition.cpp",
+    "Composition.h",
+    "Layer.cpp",
+    "Layer.h",
+    "Path.cpp",
+    "Skottie.cpp",
+    "SkottieJson.cpp",
+    "SkottieJson.h",
+    "SkottiePriv.h",
+    "SkottieProperty.cpp",
+    "SkottieValue.h",
+    "SlotManager.cpp",
+    "Transform.cpp",
+    "Transform.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
+)
+
 skia_filegroup(
     name = "srcs",
     srcs = [
-        "Adapter.h",
-        "BlendModes.cpp",
-        "Camera.cpp",
-        "Camera.h",
-        "Composition.cpp",
-        "Composition.h",
-        "Layer.cpp",
-        "Layer.h",
-        "Path.cpp",
-        "Skottie.cpp",
-        "SkottieJson.cpp",
-        "SkottieJson.h",
-        "SkottiePriv.h",
-        "SkottieProperty.cpp",
-        "SkottieValue.h",
-        "SlotManager.cpp",
-        "Transform.cpp",
-        "Transform.h",
+        ":core_srcs",
+        ":private_hdrs",  # TODO(kjlubick) Remove after making G3 explicitly use this
         "//modules/skottie/src/animator:srcs",
         "//modules/skottie/src/effects:srcs",
         "//modules/skottie/src/layers:srcs",
         "//modules/skottie/src/text:srcs_without_textshaper",
+    ],
+    visibility = ["//modules/skottie:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [
+        ":core_hdrs",
     ],
     visibility = ["//modules/skottie:__pkg__"],
 )

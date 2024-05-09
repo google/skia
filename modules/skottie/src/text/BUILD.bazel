@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -8,40 +8,40 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+TEXT_FILES = [
+    "Font.cpp",
+    "Font.h",
+    "RangeSelector.cpp",
+    "RangeSelector.h",
+    "TextAdapter.cpp",
+    "TextAdapter.h",
+    "TextAnimator.cpp",
+    "TextAnimator.h",
+    "TextValue.cpp",
+    "TextValue.h",
+    # TextShaper.cpp is explicitly not here
+]
+
+split_srcs_and_hdrs(
+    name = "text",
+    files = TEXT_FILES,
+)
+
 skia_filegroup(
-    name = "srcs",
+    name = "srcs_without_textshaper",
     srcs = [
-        "Font.cpp",
-        "Font.h",
-        "RangeSelector.cpp",
-        "RangeSelector.h",
-        "TextAdapter.cpp",
-        "TextAdapter.h",
-        "TextAnimator.cpp",
-        "TextAnimator.h",
-        "TextShaper.cpp",
-        "TextValue.cpp",
-        "TextValue.h",
+        ":text_hdrs",  # TODO(kjlubick) Remove after making G3 explicitly use this
+        ":text_srcs",
     ],
     visibility = ["//modules/skottie/src:__pkg__"],
 )
 
-# TODO(kjlubick) delete this after fixing G3
 skia_filegroup(
-    name = "srcs_without_textshaper",
+    name = "private_hdrs",
     srcs = [
-        "Font.cpp",
-        "Font.h",
-        "RangeSelector.cpp",
-        "RangeSelector.h",
-        "TextAdapter.cpp",
-        "TextAdapter.h",
-        "TextAnimator.cpp",
-        "TextAnimator.h",
-        "TextValue.cpp",
-        "TextValue.h",
+        ":text_hdrs",
     ],
-    visibility = ["//modules/skottie/src:__pkg__"],
+    visibility = ["//modules/skottie:__pkg__"],
 )
 
 skia_filegroup(
