@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/ScratchResourceManager.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureUtils.h"
 
@@ -116,13 +117,30 @@ bool TextureProxy::lazyInstantiate(ResourceProvider* resourceProvider) {
 }
 
 bool TextureProxy::InstantiateIfNotLazy(ResourceProvider* resourceProvider,
-                                            TextureProxy* textureProxy) {
+                                        TextureProxy* textureProxy) {
     if (textureProxy->isLazy()) {
         return true;
     }
 
     return textureProxy->instantiate(resourceProvider);
 }
+
+bool TextureProxy::InstantiateIfNotLazy(ScratchResourceManager* scratchManager,
+                                        TextureProxy* textureProxy) {
+    if (textureProxy->isLazy() || textureProxy->isInstantiated()) {
+        return true;
+    }
+
+    textureProxy->fTexture = scratchManager->getScratchTexture(textureProxy->dimensions(),
+                                                               textureProxy->textureInfo(),
+                                                               textureProxy->fLabel);
+    if (!textureProxy->fTexture) {
+        return false;
+    }
+    SkDEBUGCODE(textureProxy->validateTexture(textureProxy->fTexture.get()));
+    return true;
+}
+
 
 void TextureProxy::deinstantiate() {
     SkASSERT(fVolatile == Volatile::kYes && SkToBool(fLazyInstantiateCallback));

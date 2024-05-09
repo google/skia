@@ -22,6 +22,7 @@ namespace skgpu::graphite {
 class Caps;
 class Recorder;
 class ResourceProvider;
+class ScratchResourceManager;
 class Texture;
 
 class TextureProxy : public SkRefCnt {
@@ -57,8 +58,21 @@ public:
     /*
      * For Lazy proxies this will return true. Otherwise, it will return the result of
      * calling instantiate on the texture proxy.
+     *
+     * DEPRECATED: Eventually all un-instantiated non-lazy proxies should use the
+     *             ScratchResourceManager function instead of the ResourceProvider directly.
      */
     static bool InstantiateIfNotLazy(ResourceProvider*, TextureProxy*);
+
+    /*
+     * Instantiate any scratch proxy (not already instantiated and not lazy) by using a texture
+     * from the ScratchResourceManager. When possible, this will be a texture that has been returned
+     * for reuse by a prior task. Lazy proxies and already instantiated proxies will return true.
+     *
+     * False is returned if instantiation fails.
+     */
+    static bool InstantiateIfNotLazy(ScratchResourceManager*, TextureProxy*);
+
     bool isInstantiated() const { return SkToBool(fTexture); }
     void deinstantiate();
     sk_sp<Texture> refTexture() const;
