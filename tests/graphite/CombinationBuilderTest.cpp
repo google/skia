@@ -337,7 +337,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
                           /* dstTexture= */ nullptr,
                           /* dstOffset= */ {0, 0});
 
-    PipelineDataGatherer gatherer(Layout::kMetal);
+    PipelineDataGatherer gatherer(context->priv().caps(), Layout::kMetal);
 
     empty_test(keyContext, &gatherer, reporter);
     no_shader_option_test(keyContext, &gatherer, reporter);

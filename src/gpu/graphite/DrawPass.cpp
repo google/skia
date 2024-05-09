@@ -487,7 +487,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     // The initial layout we pass here is not important as it will be re-assigned when writing
     // shading and geometry uniforms below.
-    PipelineDataGatherer gatherer(uniformLayout);
+    PipelineDataGatherer gatherer(recorder->priv().caps(), uniformLayout);
 
     std::vector<SortKey> keys;
     keys.reserve(draws->renderStepCount());

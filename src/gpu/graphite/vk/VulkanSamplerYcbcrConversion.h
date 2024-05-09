@@ -23,10 +23,15 @@ namespace skgpu::graphite {
 
 class VulkanSharedContext;
 
+// TODO(b/339614071): Consider changing this class to not be a Resource that we cache and share. It
+// is relatively small, so it may make more sense to simply have each texture that requires a
+// conversion store its own even if it is duplicated.
 class VulkanSamplerYcbcrConversion : public Resource {
 public:
     static sk_sp<VulkanSamplerYcbcrConversion> Make(const VulkanSharedContext*,
                                                     const VulkanYcbcrConversionInfo&);
+
+    // Return a fully-formed GraphiteResourceKey that represents the conversion from conversion info
     static GraphiteResourceKey MakeYcbcrConversionKey(const VulkanSharedContext*,
                                                       const VulkanYcbcrConversionInfo&);
 

@@ -1608,7 +1608,7 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
     TextureDataBlock tdb;
     // NOTE: CoverageMaskRenderStep controls the final sampling options; this texture data block
     // serves only to keep the mask alive so the sampling passed to add() doesn't matter.
-    tdb.add(SkFilterMode::kLinear, kClamp, maskProxyView.refProxy());
+    tdb.add(fRecorder->priv().caps(), SkFilterMode::kLinear, kClamp, maskProxyView.refProxy());
     fRecorder->priv().textureDataCache()->insert(tdb);
 
     // CoverageMaskShape() wraps a Shape when it's used as a PathAtlas, but in this case the

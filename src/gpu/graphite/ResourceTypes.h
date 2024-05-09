@@ -195,35 +195,62 @@ struct ClearBufferInfo {
     operator bool() const { return SkToBool(fBuffer); }
 };
 
+struct ImmutableSamplerInfo {
+    // If the sampler requires YCbCr conversion, backends can place that information here.
+    // In order to fit within SamplerDesc's uint32 desc field, backends can only utilize up to
+    // kMaxNumConversionInfoBits bits.
+    uint32_t fNonFormatYcbcrConversionInfo = 0;
+    // fFormat represents known OR external format numerical representation.
+    uint64_t fFormat = 0;
+    // If sampling from an external format, those format features can be stored here since we cannot
+    // simply query an external format's features later on.
+    uint32_t fFormatFeatures = 0;
+};
+
+
 /**
  * Struct used to describe how a Texture/TextureProxy/TextureProxyView is sampled.
  */
 struct SamplerDesc {
     static_assert(kSkTileModeCount <= 4 && kSkFilterModeCount <= 2 && kSkMipmapModeCount <= 4);
-    SamplerDesc(const SkSamplingOptions& samplingOptions, const SkTileMode tileModes[2])
-            : fDesc((static_cast<int>(tileModes[0])           << kTileModeXShift)  |
-                    (static_cast<int>(tileModes[1])           << kTileModeYShift)  |
-                    (static_cast<int>(samplingOptions.filter) << kFilterModeShift) |
-                    (static_cast<int>(samplingOptions.mipmap) << kMipmapModeShift) ) {
+
+    SamplerDesc(const SkSamplingOptions& samplingOptions,
+                const SkTileMode tileModes[2],
+                const ImmutableSamplerInfo info = {})
+            : fDesc((static_cast<int>(tileModes[0])               << kTileModeXShift           ) |
+                    (static_cast<int>(tileModes[1])               << kTileModeYShift           ) |
+                    (static_cast<int>(samplingOptions.filter)     << kFilterModeShift          ) |
+                    (static_cast<int>(samplingOptions.mipmap)     << kMipmapModeShift          ) |
+                    (info.fNonFormatYcbcrConversionInfo           << kImmutableSamplerInfoShift) )
+            , fFormatFeatures(info.fFormatFeatures)
+            , fFormat(info.fFormat) {
+
         // Cubic sampling is handled in a shader, with the actual texture sampled by with NN,
         // but that is what a cubic SkSamplingOptions is set to if you ignore 'cubic', which let's
         // us simplify how we construct SamplerDec's from the options passed to high-level draws.
         SkASSERT(!samplingOptions.useCubic || (samplingOptions.filter == SkFilterMode::kNearest &&
                                                samplingOptions.mipmap == SkMipmapMode::kNone));
-        static_assert(kMipmapModeShift + kNumMipmapModeBits <= 32);
-        // Backend-agnostic sampler information can fit within one uint32_t.
+
         // TODO: Add aniso value when used.
-        static_assert(sizeof(uint32_t) == 4);
+
+        // Assert that fYcbcrConversionInfo does not exceed kMaxNumConversionInfoBits such that
+        // the conversion information can fit within an uint32.
+        SkASSERT(info.fNonFormatYcbcrConversionInfo >> kMaxNumConversionInfoBits == 0);
     }
 
     SamplerDesc(const SamplerDesc&) = default;
 
-    bool operator==(const SamplerDesc& o) const { return o.fDesc == fDesc; }
-    bool operator!=(const SamplerDesc& o) const { return o.fDesc != fDesc; }
+    bool operator==(const SamplerDesc& o) const {
+        return o.fDesc == fDesc && o.fFormat == fFormat && o.fFormatFeatures == fFormatFeatures;
+    }
 
-    SkTileMode tileModeX() const { return static_cast<SkTileMode>((fDesc >> 0) & 0b11); }
-    SkTileMode tileModeY() const { return static_cast<SkTileMode>((fDesc >> 2) & 0b11); }
-    uint32_t desc() const { return fDesc; }
+    bool operator!=(const SamplerDesc& o) const { return !(*this == o); }
+
+    SkTileMode tileModeX()      const { return static_cast<SkTileMode>((fDesc >> 0) & 0b11); }
+    SkTileMode tileModeY()      const { return static_cast<SkTileMode>((fDesc >> 2) & 0b11); }
+    uint32_t   desc()           const { return fDesc;                                        }
+    uint32_t   formatFeatures() const { return fFormatFeatures;                              }
+    uint64_t   format()         const { return fFormat;                                      }
 
     // NOTE: returns the HW sampling options to use, so a bicubic SkSamplingOptions will become
     // nearest-neighbor sampling in HW.
@@ -234,17 +261,28 @@ struct SamplerDesc {
         return SkSamplingOptions(filter, mipmap);
     }
 
-private:
-    uint32_t fDesc;
-
+    // These are public such that backends can bitshift data in order to determine whatever
+    // sampler qualities they need from fDesc.
     static constexpr int kNumTileModeBits   = SkNextLog2_portable(int(SkTileMode::kLastTileMode)+1);
     static constexpr int kNumFilterModeBits = SkNextLog2_portable(int(SkFilterMode::kLast)+1);
     static constexpr int kNumMipmapModeBits = SkNextLog2_portable(int(SkMipmapMode::kLast)+1);
+    static constexpr int kMaxNumConversionInfoBits =
+            32 - kNumFilterModeBits - kNumMipmapModeBits - kNumTileModeBits;
 
-    static constexpr int kTileModeXShift  = 0;
-    static constexpr int kTileModeYShift  = kTileModeXShift  + kNumTileModeBits;
-    static constexpr int kFilterModeShift = kTileModeYShift  + kNumTileModeBits;
-    static constexpr int kMipmapModeShift = kFilterModeShift + kNumFilterModeBits;
+    static constexpr int kTileModeXShift            = 0;
+    static constexpr int kTileModeYShift            = kTileModeXShift  + kNumTileModeBits;
+    static constexpr int kFilterModeShift           = kTileModeYShift  + kNumTileModeBits;
+    static constexpr int kMipmapModeShift           = kFilterModeShift + kNumFilterModeBits;
+    static constexpr int kImmutableSamplerInfoShift = kMipmapModeShift + kNumMipmapModeBits;
+
+private:
+    // Note: The order of these member attributes matters to keep unique object representation
+    // such that SkGoodHash can be used to hash SamplerDesc objects.
+    uint32_t fDesc;
+    // Data fields populated by backend Caps which store texture format information (needed for
+    // YCbCr sampling). Only relevant when using immutable samplers. Otherwise, can be ignored.
+    uint32_t fFormatFeatures = 0;
+    uint64_t fFormat = 0;
 };
 
 };  // namespace skgpu::graphite
