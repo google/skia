@@ -224,7 +224,7 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
         }
 
         if (ident >= 0) {
-            SkDebugf("Unhandled ALooper_pollAll ident=%d !", ident);
+            SkDebugf("Unhandled ALooper_pollOnce ident=%d !", ident);
         } else {
             skiaAndroidApp->fApp->onIdle();
         }
