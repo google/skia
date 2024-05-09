@@ -16,4 +16,6 @@ class SkTypeface;
  */
 sk_sp<SkData> SkPDFSubsetFont(const SkTypeface& typeface, const SkPDFGlyphUse& glyphUsage);
 
+bool SkPDFCanSubsetTableBasedFonts();
+
 #endif  // SkPDFSubsetFont_DEFINED

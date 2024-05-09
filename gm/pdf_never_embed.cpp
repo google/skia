@@ -9,9 +9,11 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontMgr.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
@@ -77,4 +79,50 @@ DEF_SIMPLE_GM(pdf_crbug_772685, canvas, 612, 792) {
     canvas->clipRect({-1, -1, 613, 793}, false);
     canvas->translate(0, -816);
     canvas->drawRect({0, 0, 1224, 1500}, SkPaint());
+}
+
+// See https://issues.skia.org/issues/40045290
+// This has two uses. The first is to simply show the behavior of the various font managers.
+// The second is to test the behavior of the PDF subsetter for OpenType fonts which are table based.
+DEF_SIMPLE_GM_CAN_FAIL(pdf_table_based_subset, canvas, errorMsg, 512, 128) {
+    SkPaint p;
+
+    sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
+    SkASSERT_RELEASE(fm);
+
+    auto makeTypeface = [&fm](const char* resource, bool useStream) -> sk_sp<SkTypeface> {
+        sk_sp<SkTypeface> tf = fm->makeFromStream(GetResourceAsStream(resource, useStream), 0);
+        if (!tf) {
+            tf = ToolUtils::DefaultPortableTypeface();
+        }
+        return tf;
+    };
+    sk_sp<SkTypeface> typefaces[] = {
+        makeTypeface("fonts/SpiderSymbol.ttf", false),
+        makeTypeface("fonts/SpiderSymbol.ttf", true),
+        makeTypeface("fonts/SpiderSymbol.woff", false),
+        makeTypeface("fonts/SpiderSymbol.woff", true),
+        makeTypeface("fonts/SpiderSymbol.woff2", false),
+        makeTypeface("fonts/SpiderSymbol.woff2", true),
+    };
+
+    SkPoint o = SkPoint::Make(10, 10);
+    const unsigned char text[4] = {0xF0, 0x9F, 0x95, 0xB7};
+    const uint32_t cluster = 0;
+    const SkUnichar spiderCodePoint = 0xf021;
+    for (auto&& tf : typefaces) {
+        SkFont font(tf, 60);
+        SkGlyphID g = font.unicharToGlyph(spiderCodePoint);
+        if (g == 0) {
+            // Avoid adding glyph 0 since it can be difficult to tell apart from the default.
+            g = font.unicharToGlyph('S');
+        }
+        SkRect bounds = font.getBounds(g, &p);
+
+        SkPoint pt = SkPoint::Make(-bounds.left(), -bounds.top());
+        canvas->drawGlyphs({&g, 1}, {&pt, 1}, {&cluster, 1}, (const char(&)[4])text, o, font, p);
+        o.offset(bounds.width() + 10, 0);
+    }
+
+    return skiagm::DrawResult::kOk;
 }
