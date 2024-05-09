@@ -73,6 +73,20 @@ struct SkGainmapInfo {
     BaseImageType fBaseImageType = BaseImageType::kSDR;
 
     /**
+     *  The type of the gainmap image. If the type is kApple, then the gainmap image was originally
+     *  encoded according to the specification at [0], and can be converted to the kDefault type by
+     *  applying the transformation described at [1].
+     *  [0] https://developer.apple.com/documentation/appkit/images_and_pdf/
+     *      applying_apple_hdr_effect_to_your_photos
+     *  [1] https://docs.google.com/document/d/1iUpYAThVV_FuDdeiO3t0vnlfoA1ryq0WfGS9FuydwKc
+     */
+    enum class Type {
+        kDefault,
+        kApple,
+    };
+    Type fType = Type::kDefault;
+
+    /**
      * If specified, color space to apply the gainmap in, otherwise the base image's color space
      * is used. Only the color primaries are used, the transfer function is irrelevant.
      */
@@ -89,12 +103,6 @@ struct SkGainmapInfo {
                                     other.fGainmapMathColorSpace.get());
     }
     inline bool operator!=(const SkGainmapInfo& other) const { return !(*this == other); }
-
-    // TODO(ccameron): Remove these parameters once we are certain they are not used in Android.
-    enum class Type {
-        kDefault,
-    };
-    Type fType = Type::kDefault;
 };
 
 #endif

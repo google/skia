@@ -355,7 +355,7 @@ public:
     SkXmpImpl() = default;
 
     bool getGainmapInfoAdobe(SkGainmapInfo* info) const override;
-    bool getGainmapInfoApple(SkGainmapInfo* info) const override;
+    bool getGainmapInfoApple(float exifHdrHeadroom, SkGainmapInfo* info) const override;
     bool getContainerGainmapLocation(size_t* offset, size_t* size) const override;
     const char* getExtendedXmpGuid() const override;
     // Parse the given xmp data and store it into either the standard (main) DOM or the extended
@@ -516,7 +516,7 @@ bool SkXmpImpl::getContainerGainmapLocation(size_t* outOffset, size_t* outSize) 
 }
 
 // Return true if the specified XMP metadata identifies this image as an HDR gainmap.
-bool SkXmpImpl::getGainmapInfoApple(SkGainmapInfo* info) const {
+bool SkXmpImpl::getGainmapInfoApple(float exifHdrHeadroom, SkGainmapInfo* info) const {
     // Find a node that matches the requested namespaces and URIs.
     const char* namespaces[2] = {nullptr, nullptr};
     const char* uris[2] = {"http://ns.apple.com/pixeldatainfo/1.0/",
@@ -539,27 +539,32 @@ bool SkXmpImpl::getGainmapInfoApple(SkGainmapInfo* info) const {
         return false;
     }
 
+    // Require that the gainmap version be present, but do not require a specific version.
     int32_t version = 0;
     if (!get_attr_int32(dom, node, hdrGainMapPrefix, "HDRGainMapVersion", &version)) {
         SkCodecPrintf("Did not find HDRGainMapVersion.\n");
         return false;
     }
-    if (version != 65536) {
-        SkCodecPrintf("HDRGainMapVersion was not 65536.\n");
-        return false;
+
+    // If the XMP also specifies a HDRGainMapHeadroom parameter, then prefer that parameter to the
+    // parameter specified in the base image Exif.
+    float hdrHeadroom = exifHdrHeadroom;
+    float xmpHdrHeadroom = 0.f;
+    if (get_attr_float(dom, node, hdrGainMapPrefix, "HDRGainMapHeadroom", &xmpHdrHeadroom)) {
+        hdrHeadroom = xmpHdrHeadroom;
     }
 
     // This node will often have StoredFormat and NativeFormat children that have inner text that
     // specifies the integer 'L008' (also known as kCVPixelFormatType_OneComponent8).
-    const float kRatioMax = std::exp(1.f);
     info->fGainmapRatioMin = {1.f, 1.f, 1.f, 1.f};
-    info->fGainmapRatioMax = {kRatioMax, kRatioMax, kRatioMax, 1.f};
+    info->fGainmapRatioMax = {hdrHeadroom, hdrHeadroom, hdrHeadroom, 1.f};
     info->fGainmapGamma = {1.f, 1.f, 1.f, 1.f};
     info->fEpsilonSdr = {0.f, 0.f, 0.f, 1.f};
     info->fEpsilonHdr = {0.f, 0.f, 0.f, 1.f};
     info->fDisplayRatioSdr = 1.f;
-    info->fDisplayRatioHdr = kRatioMax;
+    info->fDisplayRatioHdr = hdrHeadroom;
     info->fBaseImageType = SkGainmapInfo::BaseImageType::kSDR;
+    info->fType = SkGainmapInfo::Type::kApple;
     return true;
 }
 

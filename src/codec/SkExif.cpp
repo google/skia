@@ -71,7 +71,8 @@ static bool get_maker_note_hdr_headroom(sk_sp<SkData> data, float* hdrHeadroom) 
                 break;
         }
     }
-    if (!hasMaker33 || !hasMaker48) {
+    // Many images have a maker33 but not a maker48. Treat them as having maker48 of 0.
+    if (!hasMaker33) {
         return false;
     }
     float stops = 0.f;
@@ -93,6 +94,9 @@ static bool get_maker_note_hdr_headroom(sk_sp<SkData> data, float* hdrHeadroom) 
 }
 
 SkExifMetadata::SkExifMetadata(sk_sp<SkData> data) : fData(std::move(data)) {
+    if (!fData) {
+        return;
+    }
     bool littleEndian = false;
     uint32_t ifdOffset = 0;
     if (!SkTiffImageFileDirectory::ParseHeader(fData.get(), &littleEndian, &ifdOffset)) {

@@ -475,10 +475,18 @@ DEF_TEST(AndroidCodec_jpegGainmapDecode, r) {
              SkISize::Make(1512, 2016),
              0xFF3B3B3B,
              0xFF101010,
-             std::exp(0.f),
-             std::exp(1.f),
              1.f,
-             2.71828f},
+             3.482202f,
+             1.f,
+             3.482202f},
+            {"images/iphone_15.jpeg",
+             SkISize::Make(2016, 1512),
+             0xFF5C5C5C,
+             0xFF656565,
+             1.f,
+             3.755272f,
+             1.f,
+             3.755272f},
     };
 
     TestStream::Type kStreamTypes[] = {
@@ -696,6 +704,10 @@ DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
 
     // Decode an MPF-based gainmap image.
     decode_all(r, GetResourceAsStream(path), baseBitmap[0], gainmapBitmap[0], gainmapInfo[0]);
+
+    // This test was written before SkGainmapShader added support for kApple type. Strip the
+    // type out.
+    gainmapInfo[0].fType = SkGainmapInfo::Type::kDefault;
 
     constexpr float kEpsilon = 1e-2f;
     {
