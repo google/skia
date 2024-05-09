@@ -66,9 +66,9 @@ private:
                         int height);
     void endRenderPass();
 
-    void addDrawPass(const DrawPass*);
+    bool addDrawPass(const DrawPass*);
 
-    void bindGraphicsPipeline(const GraphicsPipeline*);
+    bool bindGraphicsPipeline(const GraphicsPipeline*);
     void setBlendConstants(float* blendConstants);
 
     void bindUniformBuffer(const BindUniformBufferInfo& info, UniformSlot);

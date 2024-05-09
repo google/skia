@@ -244,7 +244,21 @@ static wgpu::BlendOperation blend_equation_to_dawn_blend_op(skgpu::BlendEquation
     return gTable[(int)equation];
 }
 
+struct AsyncPipelineCreationBase {
+    wgpu::RenderPipeline fRenderPipeline;
+    bool fFinished = false;
+};
+
 } // anonymous namespace
+
+#if defined(__EMSCRIPTEN__)
+// For wasm, we don't use async compilation.
+struct DawnGraphicsPipeline::AsyncPipelineCreation : public AsyncPipelineCreationBase {};
+#else
+struct DawnGraphicsPipeline::AsyncPipelineCreation : public AsyncPipelineCreationBase {
+    wgpu::Future fFuture;
+};
+#endif
 
 // static
 sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* sharedContext,
@@ -530,27 +544,46 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
 
-    auto asyncCreation = std::make_unique<AsyncPipelineCreation>(sharedContext);
+    auto asyncCreation = std::make_unique<AsyncPipelineCreation>();
 
     if (caps.useAsyncPipelineCreation()) {
-        device.CreateRenderPipelineAsync(
-                &descriptor,
-                [](WGPUCreatePipelineAsyncStatus status,
-                   WGPURenderPipeline pipeline,
-                   char const* message,
-                   void* userdata) {
-                    AsyncPipelineCreation* arg = static_cast<AsyncPipelineCreation*>(userdata);
+#if defined(__EMSCRIPTEN__)
+        // We shouldn't use CreateRenderPipelineAsync in wasm.
+        SKGPU_LOG_F("CreateRenderPipelineAsync shouldn't be used in WASM");
+#else
+        wgpu::CreateRenderPipelineAsyncCallbackInfo callbackInfo{};
+        callbackInfo.mode = wgpu::CallbackMode::WaitAnyOnly;
+        callbackInfo.userdata = asyncCreation.get();
+        callbackInfo.callback = [](WGPUCreatePipelineAsyncStatus status,
+                                   WGPURenderPipeline pipeline,
+                                   char const* message,
+                                   void* userdata) {
+            auto* arg = static_cast<AsyncPipelineCreation*>(userdata);
 
-                    if (status != WGPUCreatePipelineAsyncStatus_Success) {
-                        SKGPU_LOG_E("Failed to create render pipeline (%d): %s", status, message);
-                        arg->set(nullptr);
-                    } else {
-                        arg->set(wgpu::RenderPipeline::Acquire(pipeline));
-                    }
-                },
-                asyncCreation.get());
+            if (status != WGPUCreatePipelineAsyncStatus_Success) {
+                SKGPU_LOG_E("Failed to create render pipeline (%d): %s", status, message);
+                // invalidate AsyncPipelineCreation pointer to signal that this pipeline has failed.
+                arg->fRenderPipeline = nullptr;
+            } else {
+                arg->fRenderPipeline = wgpu::RenderPipeline::Acquire(pipeline);
+            }
+
+            arg->fFinished = true;
+        };
+
+        asyncCreation->fFuture = device.CreateRenderPipelineAsync(&descriptor, callbackInfo);
+#endif
     } else {
-        asyncCreation->set(device.CreateRenderPipeline(&descriptor));
+        std::optional<DawnErrorChecker> errorChecker;
+        if (sharedContext->dawnCaps()->allowScopedErrorChecks()) {
+            errorChecker.emplace(sharedContext);
+        }
+        asyncCreation->fRenderPipeline = device.CreateRenderPipeline(&descriptor);
+        asyncCreation->fFinished = true;
+
+        if (errorChecker.has_value() && errorChecker->popErrorScopes() != DawnErrorType::kNoError) {
+            asyncCreation->fRenderPipeline = nullptr;
+        }
     }
 #if defined(GRAPHITE_TEST_UTILS)
     GraphicsPipeline::PipelineInfo pipelineInfo = {pipelineDesc.renderStepID(),
@@ -594,15 +627,42 @@ DawnGraphicsPipeline::DawnGraphicsPipeline(const skgpu::graphite::SharedContext*
         , fHasPaintUniforms(hasPaintUniforms)
         , fNumFragmentTexturesAndSamplers(numFragmentTexturesAndSamplers) {}
 
+DawnGraphicsPipeline::~DawnGraphicsPipeline() {
+    this->freeGpuData();
+}
+
 void DawnGraphicsPipeline::freeGpuData() {
+    // Wait for async creation to finish before we can destroy this object.
+    (void)this->dawnRenderPipeline();
     fAsyncPipelineCreation = nullptr;
 }
 
 const wgpu::RenderPipeline& DawnGraphicsPipeline::dawnRenderPipeline() const {
-    if (auto pipeline = fAsyncPipelineCreation->getIfReady()) {
-        return *pipeline;
+    if (!fAsyncPipelineCreation) {
+        static const wgpu::RenderPipeline kNullPipeline = nullptr;
+        return kNullPipeline;
     }
-    return fAsyncPipelineCreation->waitAndGet();
+    if (fAsyncPipelineCreation->fFinished) {
+        return fAsyncPipelineCreation->fRenderPipeline;
+    }
+#if defined(__EMSCRIPTEN__)
+    // We shouldn't use CreateRenderPipelineAsync in wasm.
+    SKGPU_LOG_F("CreateRenderPipelineAsync shouldn't be used in WASM");
+#else
+    wgpu::FutureWaitInfo waitInfo{};
+    waitInfo.future = fAsyncPipelineCreation->fFuture;
+    const auto& instance = static_cast<const DawnSharedContext*>(sharedContext())
+                                   ->device()
+                                   .GetAdapter()
+                                   .GetInstance();
+
+    [[maybe_unused]] auto status =
+            instance.WaitAny(1, &waitInfo, /*timeoutNS=*/std::numeric_limits<uint64_t>::max());
+    SkASSERT(status == wgpu::WaitStatus::Success);
+    SkASSERT(waitInfo.completed);
+#endif
+
+    return fAsyncPipelineCreation->fRenderPipeline;
 }
 
 } // namespace skgpu::graphite
