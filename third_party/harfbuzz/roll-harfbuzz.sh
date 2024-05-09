@@ -71,7 +71,7 @@ check_all_files_are_categorized() {
     done &&
 
     GN_SOURCE_DUPLICATES=$(sort ${HB_BUILD_DIR_REL}/BUILD.gn | uniq -d | grep -oE "\"\\\$_src/[^\"]+\"")
-    if [ ! -z ${GN_SOURCE_DUPLICATES} ]; then
+    if [ -n "${GN_SOURCE_DUPLICATES}" ]; then
       echo "Is listed more than once in BUILD.gn:" &&
       echo ${GN_SOURCE_DUPLICATES}
     fi
