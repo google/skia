@@ -53,8 +53,7 @@ Task::Status RenderPassTask::prepareResources(ResourceProvider* resourceProvider
                                               ScratchResourceManager* scratchManager,
                                               const RuntimeEffectDictionary* runtimeDict) {
     SkASSERT(fTarget);
-    // TODO: Use the scratch resource manager to instantiate the target
-    if (!TextureProxy::InstantiateIfNotLazy(resourceProvider, fTarget.get())) {
+    if (!TextureProxy::InstantiateIfNotLazy(scratchManager, fTarget.get())) {
         SKGPU_LOG_W("Failed to instantiate RenderPassTask target. Will not create renderpass!");
         SKGPU_LOG_W("Dimensions are (%d, %d).",
                     fTarget->dimensions().width(), fTarget->dimensions().height());

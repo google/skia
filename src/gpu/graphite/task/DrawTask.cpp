@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/task/DrawTask.h"
 
 #include "src/gpu/graphite/ScratchResourceManager.h"
+#include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
 
 namespace skgpu::graphite {
@@ -57,9 +58,7 @@ void DrawTask::onUseCompleted(ScratchResourceManager* scratchManager) {
     SkASSERT(!fTarget->isLazy() && fTarget->isInstantiated());
     SkASSERT(scratchManager->pendingReadCount(fTarget.get()) > 0);
     if (scratchManager->removePendingRead(fTarget.get())) {
-        // TODO: Uncomment this when the RenderPassTask actually uses the scratch manager. For now
-        // DrawTask is doing the read counts and task clean up without any texture reuse.
-        // scratchManager->returnResource(fTarget->texture());
+        scratchManager->returnTexture(fTarget->refTexture());
     }
 }
 
