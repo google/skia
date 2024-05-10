@@ -29,6 +29,7 @@ class ComputeStep;
 enum class Coverage;
 class DrawParams;
 enum class DstReadRequirement;
+class Geometry;
 class GraphicsPipelineDesc;
 class PaintParams;
 class PipelineDataGatherer;
@@ -62,16 +63,17 @@ struct FragSkSLInfo {
     int fPaintUniformsTotalBytes = 0;
 };
 
-std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*>
-ExtractPaintData(Recorder*,
-                 PipelineDataGatherer* gatherer,
-                 PaintParamsKeyBuilder* builder,
-                 const Layout layout,
-                 const SkM44& local2Dev,
-                 const PaintParams&,
-                 sk_sp<TextureProxy> dstTexture,
-                 SkIPoint dstOffset,
-                 const SkColorInfo& targetColorInfo);
+std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*> ExtractPaintData(
+        Recorder*,
+        PipelineDataGatherer* gatherer,
+        PaintParamsKeyBuilder* builder,
+        const Layout layout,
+        const SkM44& local2Dev,
+        const PaintParams&,
+        const Geometry& geometry,
+        sk_sp<TextureProxy> dstTexture,
+        SkIPoint dstOffset,
+        const SkColorInfo& targetColorInfo);
 
 std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepData(
         UniformDataCache* uniformDataCache,

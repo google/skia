@@ -511,6 +511,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                      uniformLayout,
                                      draw.fDrawParams.transform(),
                                      draw.fPaintParams.value(),
+                                     draw.fDrawParams.geometry(),
                                      curDst,
                                      dstCopyOffset,
                                      targetInfo.colorInfo());
