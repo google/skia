@@ -217,10 +217,22 @@ protected:
                             diffBitmap.allocPixels(copyImageInfo, 0);
                             highlightDiffBitmap.allocPixels(copyImageInfo, 0);
 
-                            canvas->readPixels(
+                            // comparePixels only handles 4 bpp
+                            if (fontationsBitmap.bytesPerPixel() != 4 ||
+                                freetypeBitmap.bytesPerPixel() != 4)
+                            {
+                                break;
+                            }
+
+                            const bool fontationsRead = canvas->readPixels(
                                     fontationsBitmap, copyBoxFontations.x(), copyBoxFontations.y());
-                            canvas->readPixels(
+                            const bool freetypeRead = canvas->readPixels(
                                     freetypeBitmap, copyBoxFreetype.x(), copyBoxFreetype.y());
+
+                            // readPixels may fail
+                            if (!fontationsRead || !freetypeRead) {
+                                break;
+                            }
 
                             comparePixels(fontationsBitmap,
                                           freetypeBitmap,
