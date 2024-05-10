@@ -468,9 +468,6 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 
     fTransientAttachmentSupport =
             backendContext.fDevice.HasFeature(wgpu::FeatureName::TransientAttachments);
-
-    fLoadResolveTextureSupport =
-            backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture);
 #endif
 
     if (!backendContext.fTick) {

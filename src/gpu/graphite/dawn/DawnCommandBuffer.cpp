@@ -200,18 +200,8 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
             SkASSERT(wgpuColorAttachment.storeOp == wgpu::StoreOp::Discard);
 
             // But it also means we have to load the resolve texture into the MSAA color attachment
-            if (renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad)
-            {
-#if !defined(__EMSCRIPTEN__)
-                if (fSharedContext->dawnCaps()->resolveTextureCanBeLoaded()) {
-                    wgpuColorAttachment.loadOp = wgpu::LoadOp::ExpandResolveTexture;
-                } else
-#endif
-                {
-                    // No Dawn built-in support, we need to manually load the resolve texture.
-                    loadMSAAFromResolveExplicitly = true;
-                }
-            }
+            loadMSAAFromResolveExplicitly =
+                    renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
             // TODO: If the color resolve texture is read-only we can use a private (vs. memoryless)
             // msaa attachment that's coupled to the framebuffer and the StoreAndMultisampleResolve
             // action instead of loading as a draw.
