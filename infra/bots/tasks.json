@@ -34989,12 +34989,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -35076,12 +35076,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -35168,12 +35168,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -35260,12 +35260,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -35347,12 +35347,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -35434,12 +35434,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "perf"
@@ -54783,12 +54783,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -54887,12 +54887,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -54986,12 +54986,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -55079,12 +55079,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 1,
       "outputs": [
         "test"
@@ -55171,12 +55171,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 1,
       "outputs": [
         "test"
@@ -55269,12 +55269,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -55368,12 +55368,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -55467,12 +55467,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -55566,12 +55566,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -55665,12 +55665,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "test"
@@ -55764,12 +55764,12 @@
           "cache/vpython3"
         ]
       },
-      "execution_timeout_ns": 14400000000000,
+      "execution_timeout_ns": 1800000000000,
       "expiration_ns": 72000000000000,
       "extra_tags": {
         "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
       },
-      "io_timeout_ns": 14400000000000,
+      "io_timeout_ns": 1800000000000,
       "max_attempts": 2,
       "outputs": [
         "test"

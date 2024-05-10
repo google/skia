@@ -1814,6 +1814,8 @@ func (b *jobBuilder) dm() {
 		} else if b.arch("x86") && b.debug() {
 			// skia:6737
 			b.timeout(6 * time.Hour)
+		} else if b.matchOs("Mac11") {
+			b.timeout(30 * time.Minute)
 		}
 		b.maybeAddIosDevImage()
 	})
@@ -2022,7 +2024,11 @@ func (b *jobBuilder) perf() {
 		} else if b.parts["arch"] == "x86" && b.parts["configuration"] == "Debug" {
 			// skia:6737
 			b.timeout(6 * time.Hour)
-		} else if b.extraConfig("LottieWeb", "SkottieWASM") {
+		} else if b.matchOs("Mac11") {
+			b.timeout(30 * time.Minute)
+		}
+
+		if b.extraConfig("LottieWeb", "SkottieWASM") {
 			b.asset("node", "lottie-samples")
 		} else if b.matchExtraConfig("SkottieTracing") {
 			b.needsLottiesWithAssets()
