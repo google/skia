@@ -28,3 +28,5 @@ GrMtlFramebuffer::GrMtlFramebuffer(sk_sp<GrMtlAttachment> colorAttachment,
         , fResolveAttachment(std::move(resolveAttachment))
         , fStencilAttachment(std::move(stencilAttachment)) {
 }
+
+GrMtlFramebuffer::~GrMtlFramebuffer() = default;

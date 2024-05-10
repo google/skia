@@ -160,6 +160,7 @@ filegroup(
             "symlinks/xcode/MacSDK/System/Library/Frameworks/IOKit.Framework/**",
             "symlinks/xcode/MacSDK/System/Library/Frameworks/IOSurface.Framework/**",
             "symlinks/xcode/MacSDK/System/Library/Frameworks/Metal.Framework/**",
+            "symlinks/xcode/MacSDK/System/Library/Frameworks/MetalKit.Framework/**",
             "symlinks/xcode/MacSDK/System/Library/Frameworks/OpenGL.Framework/**",
             "symlinks/xcode/MacSDK/System/Library/Frameworks/QuartzCore.Framework/**",
             "symlinks/xcode/MacSDK/System/Library/Frameworks/Security.Framework/**",

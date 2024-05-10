@@ -40,4 +40,9 @@ skia_objc_library(
         "//include/gpu/mtl:public_hdrs",
     ],
     visibility = ["//src/gpu/ganesh/mtl:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/gpu",
+        "//src/sksl/codegen:metal",
+    ],
 )

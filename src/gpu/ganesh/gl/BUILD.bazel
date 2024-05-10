@@ -145,7 +145,6 @@ skia_cc_library(
     ],
     defines = [
         "SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE",
-        "SK_GANESH",
         "SK_GL",
     ],
     features = ["layering_check"],
@@ -178,7 +177,6 @@ skia_cc_library(
     defines = [
         "SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE",
         "GR_TEST_UTILS",
-        "SK_GANESH",
         "SK_GL",
     ],
     features = ["layering_check"],

@@ -22,7 +22,10 @@ split_srcs_and_hdrs(
 skia_filegroup(
     name = "mtl_objc_srcs",
     srcs = ["SkSurface_GaneshMtl.mm"],
-    visibility = ["//src/gpu/ganesh:__pkg__"],
+    visibility = [
+        "//src/gpu/ganesh:__pkg__",
+        "//src/gpu/ganesh/mtl:__pkg__",
+    ],
 )
 
 skia_filegroup(

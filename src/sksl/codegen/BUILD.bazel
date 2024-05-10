@@ -147,7 +147,10 @@ skia_cc_library(
     ],
     hdrs = ["SkSLMetalCodeGenerator.h"],
     features = ["layering_check"],
-    visibility = ["//src/gpu/ganesh/mtl:__pkg__"],
+    visibility = [
+        "//src/gpu/ganesh/mtl:__pkg__",
+        "//src/gpu/mtl:__pkg__",
+    ],
     deps = [
         ":gpu",
         "//:core",

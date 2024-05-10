@@ -15,6 +15,7 @@ skia_filegroup(
     ],
     visibility = [
         "//include/gpu:__pkg__",
+        "//src/gpu/ganesh/mtl:__pkg__",
         "//src/gpu/mtl:__pkg__",
     ],
 )

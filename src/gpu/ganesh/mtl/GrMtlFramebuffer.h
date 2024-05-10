@@ -29,7 +29,7 @@ private:
                      sk_sp<GrMtlAttachment> resolveAttachment,
                      sk_sp<GrMtlAttachment> stencilAttachment);
 
-    ~GrMtlFramebuffer() override {}
+    ~GrMtlFramebuffer() override;
 
     sk_sp<GrMtlAttachment> fColorAttachment;
     sk_sp<GrMtlAttachment> fResolveAttachment;

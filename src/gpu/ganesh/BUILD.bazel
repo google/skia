@@ -394,6 +394,7 @@ skia_cc_library(
         "//src/gpu/ganesh/mock:private_hdrs",
         "//include/gpu/mock:public_hdrs",
     ],
+    defines = ["SK_GANESH"],
     features = ["layering_check"],
     local_defines = ["SK_USE_LEGACY_GANESH_TEXT_APIS"],
     visibility = [
@@ -455,7 +456,10 @@ skia_cc_library(
         "//src/gpu/ganesh/mock:private_hdrs",
         "//include/gpu/mock:public_hdrs",
     ],
-    defines = ["GR_TEST_UTILS"],
+    defines = [
+        "GR_TEST_UTILS",
+        "SK_GANESH",
+    ],
     features = ["layering_check"],
     local_defines = ["SK_USE_LEGACY_GANESH_TEXT_APIS"],
     visibility = [
