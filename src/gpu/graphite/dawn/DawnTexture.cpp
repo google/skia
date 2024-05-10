@@ -207,9 +207,9 @@ void DawnTexture::freeGpuData() {
 
 void DawnTexture::setBackendLabel(char const* label) {
     SkASSERT(label);
-#ifdef SK_DEBUG
-    fTexture.SetLabel(label);
-#endif
+    if (sharedContext()->caps()->setBackendLabels()) {
+        fTexture.SetLabel(label);
+    }
 }
 
 } // namespace skgpu::graphite

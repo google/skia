@@ -81,29 +81,17 @@ sk_sp<DawnSampler> DawnSampler::Make(const DawnSharedContext* sharedContext,
     desc.maxAnisotropy = 1;
     desc.compare       = wgpu::CompareFunction::Undefined;
 
-#ifdef SK_DEBUG
-    static const char* tileModeLabels[] = {
-        "Clamp",
-        "Repeat",
-        "Mirror",
-        "Decal"
-    };
-    static const char* minMagFilterLabels[] = {
-        "Nearest",
-        "Linear"
-    };
-    static const char* mipFilterLabels[] = {
-        "MipNone",
-        "MipNearest",
-        "MipLinear"
-    };
     std::string label;
-    label.append("X").append(tileModeLabels[static_cast<int>(xTileMode)]);
-    label.append("Y").append(tileModeLabels[static_cast<int>(yTileMode)]);
-    label.append(minMagFilterLabels[static_cast<int>(samplingOptions.filter)]);
-    label.append(mipFilterLabels[static_cast<int>(samplingOptions.mipmap)]);
-    desc.label = label.c_str();
-#endif
+    if (sharedContext->caps()->setBackendLabels()) {
+        static const char* tileModeLabels[] = {"Clamp", "Repeat", "Mirror", "Decal"};
+        static const char* minMagFilterLabels[] = {"Nearest", "Linear"};
+        static const char* mipFilterLabels[] = {"MipNone", "MipNearest", "MipLinear"};
+        label.append("X").append(tileModeLabels[static_cast<int>(xTileMode)]);
+        label.append("Y").append(tileModeLabels[static_cast<int>(yTileMode)]);
+        label.append(minMagFilterLabels[static_cast<int>(samplingOptions.filter)]);
+        label.append(mipFilterLabels[static_cast<int>(samplingOptions.mipmap)]);
+        desc.label = label.c_str();
+    }
 
     auto sampler = sharedContext->device().CreateSampler(&desc);
     if (!sampler) {

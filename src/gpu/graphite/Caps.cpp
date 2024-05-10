@@ -53,6 +53,7 @@ void Caps::finishInitialization(const ContextOptions& options) {
     if (options.fDisableCachedGlyphUploads) {
         fRequireOrderedRecordings = true;
     }
+    fSetBackendLabels = options.fSetBackendLabels;
 }
 
 sk_sp<SkCapabilities> Caps::capabilities() const { return fCapabilities; }

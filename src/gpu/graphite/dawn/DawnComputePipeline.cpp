@@ -163,7 +163,9 @@ sk_sp<DawnComputePipeline> DawnComputePipeline::Make(const DawnSharedContext* sh
     }
 
     wgpu::PipelineLayoutDescriptor pipelineLayoutDesc;
-    pipelineLayoutDesc.label = step->name();
+    if (sharedContext->caps()->setBackendLabels()) {
+        pipelineLayoutDesc.label = step->name();
+    }
     pipelineLayoutDesc.bindGroupLayoutCount = 1;
     pipelineLayoutDesc.bindGroupLayouts = &bindGroupLayout;
     wgpu::PipelineLayout layout = device.CreatePipelineLayout(&pipelineLayoutDesc);
@@ -172,6 +174,7 @@ sk_sp<DawnComputePipeline> DawnComputePipeline::Make(const DawnSharedContext* sh
     }
 
     wgpu::ComputePipelineDescriptor descriptor;
+    // Always set the label for pipelines, dawn may need it for tracing.
     descriptor.label = step->name();
     descriptor.compute.module = std::move(shaderModule);
     descriptor.compute.entryPoint = entryPointName.c_str();

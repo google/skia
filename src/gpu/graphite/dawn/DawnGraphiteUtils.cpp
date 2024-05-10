@@ -153,7 +153,9 @@ bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
 
     wgpu::ShaderModuleDescriptor desc;
     desc.nextInChain = &wgslDesc;
-    desc.label = label;
+    if (sharedContext->caps()->setBackendLabels()) {
+        desc.label = label;
+    }
 
     *module = sharedContext->device().CreateShaderModule(&desc);
 
