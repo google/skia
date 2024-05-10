@@ -192,7 +192,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "vello",
         build_file = ws + "//bazel/external/vello:BUILD.bazel",
-        commit = "6c1e8b815b1ed5d2437e5c8b8a36a144307ac97b",
+        commit = "6938a2893d6a2ba658709d1d04720f6c6033700f",
         remote = "https://skia.googlesource.com/external/github.com/linebender/vello.git",
     )
 

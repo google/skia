@@ -221,6 +221,7 @@ VelloPathCountStep::VelloPathCountStep()
 VelloBackdropDynStep::VelloBackdropDynStep()
         : VelloStep({
                   BUFFER_BINDING(ConfigUniform, Uniform, None),
+                  BUFFER_BINDING(BumpAlloc,     Storage, None),
                   BUFFER_BINDING(Path, ReadOnlyStorage, None),
                   BUFFER_BINDING(Tile, Storage, None),
           }) {}
