@@ -21,6 +21,7 @@ public:
         switch (node->tag()) {
             case SkSVGTag::kFeBlend:
             case SkSVGTag::kFeColorMatrix:
+            case SkSVGTag::kFeComponentTransfer:
             case SkSVGTag::kFeComposite:
             case SkSVGTag::kFeDiffuseLighting:
             case SkSVGTag::kFeDisplacementMap:
