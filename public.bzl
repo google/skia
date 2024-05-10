@@ -2726,6 +2726,7 @@ SVG_LIB_SRCS = [
     "modules/svg/src/SkSVGFeImage.cpp",
     "modules/svg/src/SkSVGFeLighting.cpp",
     "modules/svg/src/SkSVGFeLightSource.cpp",
+    "modules/svg/src/SkSVGFeMerge.cpp",
     "modules/svg/src/SkSVGFeMorphology.cpp",
     "modules/svg/src/SkSVGFeOffset.cpp",
     "modules/svg/src/SkSVGFeTurbulence.cpp",
