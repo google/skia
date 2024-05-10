@@ -2979,6 +2979,11 @@
         "Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts"
       ]
     },
+    "Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts_PDF": {
+      "tasks": [
+        "Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts_PDF"
+      ]
+    },
     "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_FakeWGPU": {
       "tasks": [
         "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_FakeWGPU"
@@ -57237,6 +57242,110 @@
         "${ISOLATED_OUTDIR}",
         "test",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AppleM1\\\",\\\"extra_config\\\",\\\"NativeFonts\\\",\\\"model\\\",\\\"MacMini9.1\\\",\\\"os\\\",\\\"Mac13\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--skip\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImageTest_Ganesh\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nativeFonts\\\",\\\"--paragraph_fonts\\\",\\\"extra_fonts\\\",\\\"--norun_paragraph_tests_needing_system_fonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://gold.skia.org/json/v1/hashes\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Mac-Clang-arm64-Debug",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:arm64-64-Apple_M1",
+        "os:Mac-13",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "gsutil/gsutil",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts_PDF": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/mac-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:2@3.11.7.chromium.31"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fc7aae42258c8c0d0e38a72989cacbd36de98cc7"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:fc7aae42258c8c0d0e38a72989cacbd36de98cc7"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:fc7aae42258c8c0d0e38a72989cacbd36de98cc7"
+        },
+        {
+          "name": "skia/bots/gsutil",
+          "path": "gsutil",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:448"
+        },
+        {
+          "name": "skia/bots/skparagraph",
+          "path": "skia/resources/extra_fonts",
+          "version": "version:4"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts_PDF\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Debug\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AppleM1\\\",\\\"extra_config\\\",\\\"NativeFonts_PDF\\\",\\\"model\\\",\\\"MacMini9.1\\\",\\\"os\\\",\\\"Mac13\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--rasterize_pdf\\\",\\\"--config\\\",\\\"pdf\\\",\\\"--src\\\",\\\"gm\\\",\\\"skp\\\",\\\"--skip\\\",\\\"pdf\\\",\\\"gm\\\",\\\"_\\\",\\\"lattice2\\\",\\\"pdf\\\",\\\"gm\\\",\\\"_\\\",\\\"hairmodes\\\",\\\"pdf\\\",\\\"gm\\\",\\\"_\\\",\\\"longpathdash\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgba32abf.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24prof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rgb24lprof.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"8bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"4bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"32bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"24bpp-pixeldata-cropped.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"frame_larger_than_image.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc2.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc3.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc4.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc5.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc6.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc7.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc8.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc9.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc10.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc11.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc12.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc13.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc14.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.png\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"incInterlaced.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc1.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"inc0.gif\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"butterfly.gif\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImageTest_Ganesh\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"testimgari.jpg\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle8-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"rle4-height-negative.bmp\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nativeFonts\\\",\\\"--paragraph_fonts\\\",\\\"extra_fonts\\\",\\\"--norun_paragraph_tests_needing_system_fonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts_PDF\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://gold.skia.org/json/v1/hashes\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
         "skia"
       ],
       "dependencies": [

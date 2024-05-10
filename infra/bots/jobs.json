@@ -724,6 +724,7 @@
   {"name": "Test-Mac12-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal"},
   {"name": "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
   {"name": "Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts"},
+  {"name": "Test-Mac13-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All-NativeFonts_PDF"},
   {"name": "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-NativeFonts"},
   {"name": "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_Vello",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*"]}
