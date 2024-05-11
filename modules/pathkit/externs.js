@@ -41,17 +41,20 @@ var PathKit = {
 		_addPath: function(path, scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2) {},
 		_arc: function(x, y, radius, startAngle, endAngle, ccw) {},
 		_arcTo: function(x1, y1, x2, y2, radius) {},
+		_asWinding: function() {},
 		_dash: function(on, off, phase) {},
 		_close: function() {},
 		_conicTo: function(x1, y1, x2, y2, w) {},
 		copy: function() {},
 		_cubicTo: function(cp1x, cp1y, cp2x, cp2y, x, y) {},
 		_ellipse: function(x, y, radiusX, radiusY, rotation, startAngle, endAngle, ccw) {},
+		_isEmpty: function() {},
 		_lineTo: function(x1, y1) {},
 		_moveTo: function(x1, y1) {},
 		_op: function(otherPath, op) {},
 		_quadTo: function(cpx, cpy, x, y) {},
 		_rect: function(x, y, w, h) {},
+		_reverseAddPath: function(path) {},
 		_simplify: function() {},
 		_stroke: function(opts) {},
 		_trim: function(startT, stopT, isComplement) {},
@@ -89,6 +92,7 @@ CubicMap.prototype.computePtFromT = function(t) {};
 PathKit.SkPath.prototype.addPath = function() {};
 PathKit.SkPath.prototype.arc = function(x, y, radius, startAngle, endAngle, ccw) {};
 PathKit.SkPath.prototype.arcTo = function(x1, y1, x2, y2, radius) {};
+PathKit.SkPath.prototype.asWinding = function() {};
 PathKit.SkPath.prototype.bezierCurveTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {};
 PathKit.SkPath.prototype.close = function() {};
 PathKit.SkPath.prototype.closePath = function() {};
@@ -96,12 +100,14 @@ PathKit.SkPath.prototype.conicTo = function(x1, y1, x2, y2, w) {};
 PathKit.SkPath.prototype.cubicTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {};
 PathKit.SkPath.prototype.dash = function(on, off, phase) {};
 PathKit.SkPath.prototype.ellipse = function(x, y, radiusX, radiusY, rotation, startAngle, endAngle, ccw) {};
+PathKit.SkPath.prototype.isEmpty = function() {};
 PathKit.SkPath.prototype.lineTo = function(x, y) {};
 PathKit.SkPath.prototype.moveTo = function(x, y) {};
 PathKit.SkPath.prototype.op = function(otherPath, op) {};
 PathKit.SkPath.prototype.quadTo = function(x1, y1, x2, y2) {};
 PathKit.SkPath.prototype.quadraticCurveTo = function(x1, y1, x2, y2) {};
 PathKit.SkPath.prototype.rect = function(x, y, w, h) {};
+PathKit.SkPath.prototype.reverseAddPath = function() {};
 PathKit.SkPath.prototype.simplify = function() {};
 PathKit.SkPath.prototype.stroke = function(opts) {};
 PathKit.SkPath.prototype.transform = function() {};

@@ -45,6 +45,11 @@
       return this;
     };
 
+    PathKit.SkPath.prototype.reverseAddPath = function() {
+      this._reverseAddPath(arguments[0]);
+      return this;
+    };
+
     // ccw (counter clock wise) is optional and defaults to false.
     PathKit.SkPath.prototype.arc = function(x, y, radius, startAngle, endAngle, ccw) {
       this._arc(x, y, radius, startAngle, endAngle, !!ccw);
@@ -133,6 +138,17 @@
         return this;
       }
       return null;
+    };
+
+    PathKit.SkPath.prototype.asWinding = function() {
+      if (this._asWinding()) {
+        return this;
+      }
+      return null;
+    }
+
+    PathKit.SkPath.prototype.isEmpty = function() {
+      return this._isEmpty();
     };
 
     PathKit.SkPath.prototype.stroke = function(opts) {
