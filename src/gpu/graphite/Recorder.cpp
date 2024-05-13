@@ -255,12 +255,6 @@ void Recorder::registerDevice(sk_sp<Device> device) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(device);
-#if defined(SK_DEBUG)
-    // TODO(b/333073673): Confirm the device isn't already in the tracked list
-    for (const sk_sp<Device>& tracked : fTrackedDevices) {
-        SkASSERT(tracked.get() != device.get());
-    }
-#endif
 
     // By taking a ref on tracked devices, the Recorder prevents the Device from being deleted on
     // another thread unless the Recorder has been destroyed or the device has abandoned its
@@ -277,13 +271,6 @@ void Recorder::deregisterDevice(const Device* device) {
             break;
         }
     }
-
-#if defined(SK_DEBUG)
-    // TODO(b/333073673): Confirm that the device is not in the tracked list anymore.
-    for (const sk_sp<Device>& tracked : fTrackedDevices) {
-        SkASSERT(tracked.get() != device);
-    }
-#endif
 }
 
 BackendTexture Recorder::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
@@ -516,7 +503,7 @@ void RecorderPriv::flushTrackedDevices() {
         // along with any immutable or uniquely held Devices once everything is flushed.
         Device* device = fRecorder->fTrackedDevices[fRecorder->fFlushingDevicesIndex].get();
         if (device) {
-            device->flushPendingWorkToRecorder(fRecorder);
+            device->flushPendingWorkToRecorder();
         }
     }
 
