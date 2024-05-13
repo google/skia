@@ -26,6 +26,12 @@ struct DawnTextureInfo {
     wgpu::TextureAspect fAspect = wgpu::TextureAspect::All;
     uint32_t fSlice = 0;
 
+    // The descriptor of the YCbCr info (if any) for this texture. Dawn's YCbCr
+    // sampling will be used for this texture if this info is set. Setting the
+    // info is supported only on Android and only if using Vulkan as the
+    // underlying GPU driver.
+    wgpu::YCbCrVkDescriptor fYcbcrVkDescriptor = {};
+
     wgpu::TextureFormat getViewFormat() const {
         return fViewFormat != wgpu::TextureFormat::Undefined ? fViewFormat : fFormat;
     }
@@ -50,13 +56,30 @@ struct DawnTextureInfo {
                     wgpu::TextureUsage usage,
                     wgpu::TextureAspect aspect,
                     uint32_t slice)
+            : DawnTextureInfo(sampleCount,
+                              mipmapped,
+                              format,
+                              viewFormat,
+                              usage,
+                              aspect,
+                              slice,
+                              /*yCbCrVkDescriptor=*/{}) {}
+    DawnTextureInfo(uint32_t sampleCount,
+                    Mipmapped mipmapped,
+                    wgpu::TextureFormat format,
+                    wgpu::TextureFormat viewFormat,
+                    wgpu::TextureUsage usage,
+                    wgpu::TextureAspect aspect,
+                    uint32_t slice,
+                    wgpu::YCbCrVkDescriptor ycbcrVkDescriptor)
             : fSampleCount(sampleCount)
             , fMipmapped(mipmapped)
             , fFormat(format)
             , fViewFormat(viewFormat)
             , fUsage(usage)
             , fAspect(aspect)
-            , fSlice(slice) {}
+            , fSlice(slice)
+            , fYcbcrVkDescriptor(ycbcrVkDescriptor) {}
 };
 
 } // namespace skgpu::graphite
