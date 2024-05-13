@@ -20,8 +20,8 @@
 namespace skgpu::graphite {
 
 AtlasProvider::PathAtlasFlagsBitMask AtlasProvider::QueryPathAtlasSupport(const Caps* caps) {
-    // The raster-backend path atlas is always supported.
-    PathAtlasFlagsBitMask flags = PathAtlasFlags::kRaster;
+    PathAtlasFlagsBitMask flags = PathAtlasFlags::kNone;
+    flags |= PathAtlasFlags::kRaster;
     if (RendererProvider::IsVelloRendererSupported(caps)) {
         flags |= PathAtlasFlags::kCompute;
     }
