@@ -43,6 +43,7 @@ skia_codec_core = [
   "$_src/codec/SkColorPalette.h",
   "$_src/codec/SkExif.cpp",
   "$_src/codec/SkFrameHolder.h",
+  "$_src/codec/SkGainmapInfo.cpp",
   "$_src/codec/SkImageGenerator_FromEncoded.cpp",
   "$_src/codec/SkMaskSwizzler.cpp",
   "$_src/codec/SkMaskSwizzler.h",
