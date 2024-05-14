@@ -171,7 +171,9 @@
   {"name": "Build-Debian10-EMCC-asmjs-Debug-PathKit"},
   {"name": "Build-Debian10-EMCC-asmjs-Release-PathKit"},
   {"name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit"},
-  {"name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit_WebGPU"},
+  {"name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit_WebGPU",
+    "cq_config": {}
+  },
   {"name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit_CPU"},
   {"name": "Build-Debian10-EMCC-wasm-Debug-PathKit"},
   {"name": "Build-Debian10-EMCC-wasm-Release-CanvasKit"},
