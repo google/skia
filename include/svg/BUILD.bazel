@@ -13,5 +13,8 @@ skia_filegroup(
     srcs = [
         "SkSVGCanvas.h",
     ],
-    visibility = ["//include:__pkg__"],
+    visibility = [
+        "//include:__pkg__",
+        "//src/svg:__pkg__",
+    ],
 )

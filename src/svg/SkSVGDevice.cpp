@@ -64,10 +64,8 @@
 
 using namespace skia_private;
 
-#if defined(SK_GANESH)
-class SkMesh;
-#endif
 class SkBlender;
+class SkMesh;
 class SkVertices;
 struct SkSamplingOptions;
 

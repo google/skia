@@ -1,5 +1,5 @@
 load("//bazel:flags.bzl", "bool_flag")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -29,4 +29,26 @@ skia_filegroup(
         "SkSVGDevice.h",
     ],
     visibility = ["//src:__pkg__"],
+)
+
+skia_cc_library(
+    name = "svg",
+    srcs = [
+        "SkSVGCanvas.cpp",
+        "SkSVGDevice.cpp",
+        "SkSVGDevice.h",
+    ],
+    hdrs = [
+        "//include/svg:public_hdrs",
+    ],
+    defines = ["SK_ENABLE_SVG"],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//:png_encode_codec",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/xml",
+    ],
 )

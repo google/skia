@@ -8,6 +8,7 @@
 #ifndef GrMtlFramebuffer_DEFINED
 #define GrMtlFramebuffer_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
