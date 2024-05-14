@@ -1827,7 +1827,6 @@ CODEC_SRCS_LIMITED = [
     "src/codec/SkEncodedInfo.cpp",
     "src/codec/SkExif.cpp",
     "src/codec/SkFrameHolder.h",
-    "src/codec/SkGainmapInfo.cpp",
     "src/codec/SkImageGenerator_FromEncoded.cpp",
     "src/codec/SkJpegCodec.cpp",
     "src/codec/SkJpegCodec.h",
