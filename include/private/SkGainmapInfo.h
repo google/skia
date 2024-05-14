@@ -10,6 +10,8 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkRefCnt.h"
+class SkData;
 
 /**
  *  Gainmap rendering parameters. Suppose our display has HDR to SDR ratio of H and we wish to
@@ -92,13 +94,38 @@ struct SkGainmapInfo {
      */
     sk_sp<SkColorSpace> fGainmapMathColorSpace = nullptr;
 
+    /**
+     * If |data| contains an ISO 21496-1 version that is supported, return true. Otherwise return
+     * false.
+     */
+    static bool ParseVersion(const SkData* data);
+
+    /**
+     * If |data| constains ISO 21496-1 metadata then parse that metadata then use it to populate
+     * |info| and return true, otherwise return false. If |data| indicates that that the base image
+     * color space primaries should be used for gainmap application then set
+     * |fGainmapMathColorSpace| to nullptr, otherwise set |fGainmapMathColorSpace| to sRGB (the
+     * default, to be overwritten by the image decoder).
+     */
+    static bool Parse(const SkData* data, SkGainmapInfo& info);
+
+    /**
+     * Serialize an ISO 21496-1 version 0 blob containing only the version structure.
+     */
+    static sk_sp<SkData> SerializeVersion();
+
+    /**
+     * Serialize an ISO 21496-1 version 0 blob containing this' gainmap parameters.
+     */
+    sk_sp<SkData> serialize() const;
+
     inline bool operator==(const SkGainmapInfo& other) const {
         return fGainmapRatioMin == other.fGainmapRatioMin &&
                fGainmapRatioMax == other.fGainmapRatioMax && fGainmapGamma == other.fGainmapGamma &&
                fEpsilonSdr == other.fEpsilonSdr && fEpsilonHdr == other.fEpsilonHdr &&
                fDisplayRatioSdr == other.fDisplayRatioSdr &&
                fDisplayRatioHdr == other.fDisplayRatioHdr &&
-               fBaseImageType == other.fBaseImageType &&
+               fBaseImageType == other.fBaseImageType && fType == other.fType &&
                SkColorSpace::Equals(fGainmapMathColorSpace.get(),
                                     other.fGainmapMathColorSpace.get());
     }
