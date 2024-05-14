@@ -18,8 +18,7 @@ namespace skgpu::graphite {
 sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
                                    size_t size,
                                    BufferType type,
-                                   AccessPattern accessPattern,
-                                   std::string_view label) {
+                                   AccessPattern accessPattern) {
     if (size <= 0) {
         return nullptr;
     }
@@ -82,21 +81,16 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         SkASSERT(mappedAtCreationPtr);
     }
 
-    return sk_sp<DawnBuffer>(new DawnBuffer(sharedContext,
-                                            size,
-                                            std::move(buffer),
-                                            mappedAtCreationPtr,
-                                            std::move(label)));
+    return sk_sp<DawnBuffer>(
+            new DawnBuffer(sharedContext, size, std::move(buffer), mappedAtCreationPtr));
 }
 
 DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
                        size_t size,
                        wgpu::Buffer buffer,
-                       void* mappedAtCreationPtr,
-                       std::string_view label)
+                       void* mappedAtCreationPtr)
         : Buffer(sharedContext,
                  size,
-                 std::move(label),
                  /*commandBufferRefsAsUsageRefs=*/buffer.GetUsage() & wgpu::BufferUsage::MapWrite)
         , fBuffer(std::move(buffer)) {
     fMapPtr = mappedAtCreationPtr;

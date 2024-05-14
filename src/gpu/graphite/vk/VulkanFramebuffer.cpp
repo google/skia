@@ -29,11 +29,9 @@ VulkanFramebuffer::VulkanFramebuffer(const VulkanSharedContext* context, VkFrame
         : Resource(context,
                    Ownership::kOwned,
                    skgpu::Budgeted::kYes,
-                   /*gpuMemorySize=*/0,
-                   /*label=*/"VulkanFramebuffer")
+                   /*gpuMemorySize=*/0)
         , fSharedContext(context)
-        , fFramebuffer(framebuffer) {
-}
+        , fFramebuffer(framebuffer) {}
 
 void VulkanFramebuffer::freeGpuData() {
     VULKAN_CALL(fSharedContext->interface(),

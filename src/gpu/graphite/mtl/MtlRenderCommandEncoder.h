@@ -262,8 +262,7 @@ private:
             : Resource(sharedContext,
                        Ownership::kOwned,
                        skgpu::Budgeted::kYes,
-                       /*gpuMemorySize=*/0,
-                       /*label=*/"MtlRenderCommandEncoder")
+                       /*gpuMemorySize=*/0)
             , fCommandEncoder(std::move(encoder)) {
         for (int i = 0; i < kMaxExpectedBuffers; i++) {
             fCurrentVertexBuffer[i] = nil;

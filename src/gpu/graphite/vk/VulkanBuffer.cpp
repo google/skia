@@ -17,8 +17,7 @@ namespace skgpu::graphite {
 sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
                                  size_t size,
                                  BufferType type,
-                                 AccessPattern accessPattern,
-                                 std::string_view label) {
+                                 AccessPattern accessPattern) {
     if (size <= 0) {
         return nullptr;
     }
@@ -138,14 +137,8 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
         return nullptr;
     }
 
-    return sk_sp<Buffer>(new VulkanBuffer(sharedContext,
-                                          size,
-                                          type,
-                                          accessPattern,
-                                          std::move(buffer),
-                                          alloc,
-                                          bufInfo.usage,
-                                          std::move(label)));
+    return sk_sp<Buffer>(new VulkanBuffer(
+            sharedContext, size, type, accessPattern, std::move(buffer), alloc, bufInfo.usage));
 }
 
 VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
@@ -154,9 +147,8 @@ VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
                            AccessPattern accessPattern,
                            VkBuffer buffer,
                            const skgpu::VulkanAlloc& alloc,
-                           const VkBufferUsageFlags usageFlags,
-                           std::string_view label)
-        : Buffer(sharedContext, size, std::move(label))
+                           const VkBufferUsageFlags usageFlags)
+        : Buffer(sharedContext, size)
         , fBuffer(std::move(buffer))
         , fAlloc(alloc)
         , fBufferUsageFlags(usageFlags)
