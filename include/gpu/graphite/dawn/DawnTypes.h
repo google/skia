@@ -26,17 +26,20 @@ struct DawnTextureInfo {
     wgpu::TextureAspect fAspect = wgpu::TextureAspect::All;
     uint32_t fSlice = 0;
 
+#if !defined(__EMSCRIPTEN__)
     // The descriptor of the YCbCr info (if any) for this texture. Dawn's YCbCr
     // sampling will be used for this texture if this info is set. Setting the
     // info is supported only on Android and only if using Vulkan as the
     // underlying GPU driver.
     wgpu::YCbCrVkDescriptor fYcbcrVkDescriptor = {};
+#endif
 
     wgpu::TextureFormat getViewFormat() const {
         return fViewFormat != wgpu::TextureFormat::Undefined ? fViewFormat : fFormat;
     }
 
     DawnTextureInfo() = default;
+
     DawnTextureInfo(uint32_t sampleCount,
                     Mipmapped mipmapped,
                     wgpu::TextureFormat format,
@@ -49,6 +52,7 @@ struct DawnTextureInfo {
                               usage,
                               aspect,
                               /*slice=*/0) {}
+
     DawnTextureInfo(uint32_t sampleCount,
                     Mipmapped mipmapped,
                     wgpu::TextureFormat format,
@@ -56,14 +60,15 @@ struct DawnTextureInfo {
                     wgpu::TextureUsage usage,
                     wgpu::TextureAspect aspect,
                     uint32_t slice)
-            : DawnTextureInfo(sampleCount,
-                              mipmapped,
-                              format,
-                              viewFormat,
-                              usage,
-                              aspect,
-                              slice,
-                              /*yCbCrVkDescriptor=*/{}) {}
+            : fSampleCount(sampleCount)
+            , fMipmapped(mipmapped)
+            , fFormat(format)
+            , fViewFormat(viewFormat)
+            , fUsage(usage)
+            , fAspect(aspect)
+            , fSlice(slice) {}
+
+#if !defined(__EMSCRIPTEN__)
     DawnTextureInfo(uint32_t sampleCount,
                     Mipmapped mipmapped,
                     wgpu::TextureFormat format,
@@ -80,6 +85,7 @@ struct DawnTextureInfo {
             , fAspect(aspect)
             , fSlice(slice)
             , fYcbcrVkDescriptor(ycbcrVkDescriptor) {}
+#endif
 };
 
 } // namespace skgpu::graphite
