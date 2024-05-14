@@ -120,11 +120,7 @@ sk_sp<SkSpecialImage> eval_blur(Recorder* recorder,
                                outII,
                                Budgeted::kYes,
                                Mipmapped::kNo,
-#if defined(GRAPHITE_USE_APPROX_FIT_FOR_FILTERS)
                                SkBackingFit::kApprox,
-#else
-                               SkBackingFit::kExact,
-#endif
                                outProps,
                                LoadOp::kDiscard,
                                "EvalBlurTexture");
@@ -884,11 +880,7 @@ public:
                                              imageInfo,
                                              skgpu::Budgeted::kYes,
                                              skgpu::Mipmapped::kNo,
-#if defined(GRAPHITE_USE_APPROX_FIT_FOR_FILTERS)
                                              SkBackingFit::kApprox,
-#else
-                                             SkBackingFit::kExact,
-#endif
                                              props ? *props : this->surfaceProps(),
                                              skgpu::graphite::LoadOp::kDiscard,
                                              "ImageFilterResult");

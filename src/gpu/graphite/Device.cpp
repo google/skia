@@ -394,11 +394,7 @@ sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {
                 info.fInfo,
                 skgpu::Budgeted::kYes,
                 Mipmapped::kNo,
-#if defined(GRAPHITE_USE_APPROX_FIT_FOR_FILTERS)
                 SkBackingFit::kApprox,
-#else
-                SkBackingFit::kExact,
-#endif
                 props,
                 initialLoadOp,
                 "ChildDevice");
