@@ -26,6 +26,7 @@ skia_effects_imagefilter_sources = [
   "$_src/effects/imagefilters/SkLightingImageFilter.cpp",
   "$_src/effects/imagefilters/SkMagnifierImageFilter.cpp",
   "$_src/effects/imagefilters/SkMatrixConvolutionImageFilter.cpp",
+  "$_src/effects/imagefilters/SkMatrixConvolutionImageFilter.h",
   "$_src/effects/imagefilters/SkMatrixTransformImageFilter.cpp",
   "$_src/effects/imagefilters/SkMergeImageFilter.cpp",
   "$_src/effects/imagefilters/SkMorphologyImageFilter.cpp",
