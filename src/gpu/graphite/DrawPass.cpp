@@ -681,8 +681,9 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         SkASSERT(fSampledTextures[i]->textureInfo().isValid());
         // Tasks should have been ordered to instantiate any scratch textures already, or any
         // client-owned image will have been instantiated at creation.
-        SkASSERT(fSampledTextures[i]->isInstantiated() ||
-                 fSampledTextures[i]->isLazy());
+        SkASSERTF(fSampledTextures[i]->isInstantiated() ||
+                  fSampledTextures[i]->isLazy(),
+                  "proxy label = %s", fSampledTextures[i]->label());
     }
 #endif
 

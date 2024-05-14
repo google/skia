@@ -37,6 +37,8 @@ public:
     SkISize dimensions() const;
     const TextureInfo& textureInfo() const { return fInfo; }
 
+    const char* label() const { return fLabel.c_str(); }
+
     bool isLazy() const;
     bool isFullyLazy() const;
     bool isVolatile() const;
