@@ -2,6 +2,34 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 126
+-------------
+  * Skia's internal array class (`skia_private::TArray<T>`) now protects its unused capacity when
+    [Address Sanitizer (ASAN)](https://clang.llvm.org/docs/AddressSanitizer.html) is enabled. Code which
+    inadvertently writes past the end of a Skia internal structure is now more likely to trigger an ASAN
+    error.
+  * `SkFloat2Bits` and `SkBits2Float` have been removed from the Skia public headers. These were always
+    private API (since they lived in `/include/private`) but they had leaked into some example code, and
+    tended to be available once a handful of Skia headers were #included.
+  * SkSL now allows the ++ and -- operators on vector and matrix variables.
+
+    Previously, attempting to use these operators on a vector or matrix would lead to an error. This was
+    a violation of the GLSL expression rules (5.9): "The arithmetic unary operators negate (-), post-
+    and pre-increment and decrement (-- and ++) operate on integer or floating-point values (including
+    vectors and matrices)."
+  * `SkScalarIsFinite`, `SkScalarsAreFinite`, and `SkScalarIsNaN` have been removed from the Skia API.
+    These calls can be replaced with the functionally-equivalent `std::isfinite` and `std::isnan`.
+  * Clients can explicitly make a Ganesh GL backend for iOS with
+    `GrGLInterfaces::MakeIOS` from `include/gpu/ganesh/gl/ios/GrGLMakeIOSInterface.h`
+  * Clients can explicitly make a Ganesh GL backend for Mac with
+    `GrGLInterfaces::MakeMac` from `include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h`
+  * The following headers have been relocated (notice "ganesh" in the filepath):
+     - include/gpu/gl/egl/GrGLMakeEGLInterface.h -> include/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.h
+     - include/gpu/gl/glx/GrGLMakeGLXInterface.h -> include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h
+     - include/gpu/gl/epoxy/GrGLMakeEpoxyEGLInterface.h -> include/gpu/ganesh/gl/epoxy/GrGLMakeEpoxyEGLInterface.h
+
+* * *
+
 Milestone 125
 -------------
   * The size of the GPU memory cache budget can now be queried using member `maxBudgetedBytes` of `skgpu::graphite::Context` and `skgpu::graphite::Recorder`.
