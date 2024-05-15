@@ -437,10 +437,12 @@ VulkanRenderPass::VulkanRenderPass(const VulkanSharedContext* context,
         : Resource(context,
                    Ownership::kOwned,
                    skgpu::Budgeted::kYes,
-                   /*gpuMemorySize=*/0)
+                   /*gpuMemorySize=*/0,
+                   /*label=*/"VulkanRenderPass")
         , fSharedContext(context)
-        , fRenderPass(renderPass)
-        , fGranularity(granularity) {}
+        , fRenderPass (renderPass)
+        , fGranularity (granularity) {
+}
 
 void VulkanRenderPass::freeGpuData() {
     VULKAN_CALL(fSharedContext->interface(),

@@ -82,19 +82,14 @@ const VulkanSharedContext* VulkanResourceProvider::vulkanSharedContext() const {
 }
 
 sk_sp<Texture> VulkanResourceProvider::createWrappedTexture(const BackendTexture& texture) {
-    sk_sp<Texture> wrappedTexture =
-            VulkanTexture::MakeWrapped(this->vulkanSharedContext(),
-                                       this,
-                                       texture.dimensions(),
-                                       texture.info(),
-                                       texture.getMutableState(),
-                                       texture.getVkImage(),
-                                       /*alloc=*/{}  // Skia does not own wrapped texture memory
-            );
-    if (wrappedTexture) {
-        wrappedTexture->setLabel("WrappedTexture");
-    }
-    return wrappedTexture;
+    return VulkanTexture::MakeWrapped(this->vulkanSharedContext(),
+                                      this,
+                                      texture.dimensions(),
+                                      texture.info(),
+                                      texture.getMutableState(),
+                                      texture.getVkImage(),
+                                      /*alloc=*/{},  // Skia does not own wrapped texture memory
+                                      "WrappedTexture");
 }
 
 sk_sp<Buffer> VulkanResourceProvider::refIntrinsicConstantBuffer() const {
@@ -125,18 +120,25 @@ sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const Compu
 
 sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size,
                                                      const TextureInfo& info,
+                                                     std::string_view label,
                                                      skgpu::Budgeted budgeted) {
     return VulkanTexture::Make(this->vulkanSharedContext(),
                                this,
                                size,
                                info,
+                               std::move(label),
                                budgeted);
 }
 
 sk_sp<Buffer> VulkanResourceProvider::createBuffer(size_t size,
                                                    BufferType type,
-                                                   AccessPattern accessPattern) {
-    return VulkanBuffer::Make(this->vulkanSharedContext(), size, type, accessPattern);
+                                                   AccessPattern accessPattern,
+                                                   std::string_view label) {
+    return VulkanBuffer::Make(this->vulkanSharedContext(),
+                              size,
+                              type,
+                              accessPattern,
+                              std::move(label));
 }
 
 sk_sp<Sampler> VulkanResourceProvider::createSampler(const SamplerDesc& samplerDesc) {

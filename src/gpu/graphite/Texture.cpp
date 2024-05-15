@@ -16,13 +16,19 @@
 
 namespace skgpu::graphite {
 
+
 Texture::Texture(const SharedContext* sharedContext,
                  SkISize dimensions,
                  const TextureInfo& info,
                  sk_sp<MutableTextureState> mutableState,
+                 std::string_view label,
                  Ownership ownership,
                  skgpu::Budgeted budgeted)
-        : Resource(sharedContext, ownership, budgeted, ComputeSize(dimensions, info))
+        : Resource(sharedContext,
+                   ownership,
+                   budgeted,
+                   ComputeSize(dimensions, info),
+                   std::move(label))
         , fDimensions(dimensions)
         , fInfo(info)
         , fMutableState(std::move(mutableState)) {}

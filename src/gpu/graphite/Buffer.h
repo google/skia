@@ -37,11 +37,13 @@ public:
 protected:
     Buffer(const SharedContext* sharedContext,
            size_t size,
+           std::string_view label,
            bool commandBufferRefsAsUsageRefs = false)
             : Resource(sharedContext,
                        Ownership::kOwned,
                        skgpu::Budgeted::kYes,
                        size,
+                       std::move(label),
                        /*commandBufferRefsAsUsageRefs=*/commandBufferRefsAsUsageRefs)
             , fSize(size) {}
 

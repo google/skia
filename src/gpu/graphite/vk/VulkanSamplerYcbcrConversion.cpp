@@ -82,13 +82,14 @@ GraphiteResourceKey VulkanSamplerYcbcrConversion::MakeYcbcrConversionKey(
     return key;
 }
 
-VulkanSamplerYcbcrConversion::VulkanSamplerYcbcrConversion(const VulkanSharedContext* context,
-                                                           VkSamplerYcbcrConversion ycbcrConversion)
+VulkanSamplerYcbcrConversion::VulkanSamplerYcbcrConversion(
+        const VulkanSharedContext* context, VkSamplerYcbcrConversion ycbcrConversion)
         : Resource(context,
                    Ownership::kOwned,
                    skgpu::Budgeted::kNo,
-                   /*gpuMemorySize=*/0)
-        , fYcbcrConversion(ycbcrConversion) {}
+                   /*gpuMemorySize=*/0,
+                   /*label=*/"VulkanSamplerYcbcrConversion")
+        , fYcbcrConversion (ycbcrConversion) {}
 
 void VulkanSamplerYcbcrConversion::freeGpuData() {
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());

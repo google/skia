@@ -130,7 +130,8 @@ private:
             : Resource(sharedContext,
                        Ownership::kOwned,
                        skgpu::Budgeted::kYes,
-                       /*gpuMemorySize=*/0)
+                       /*gpuMemorySize=*/0,
+                       /*label=*/"MtlComputeCommandEncoder")
             , fCommandEncoder(std::move(encoder)) {
         for (int i = 0; i < kMaxExpectedBuffers; i++) {
             fBuffers[i] = nil;

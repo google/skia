@@ -150,6 +150,7 @@ sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
                                    const VulkanResourceProvider* resourceProvider,
                                    SkISize dimensions,
                                    const TextureInfo& info,
+                                   std::string_view label,
                                    skgpu::Budgeted budgeted) {
     CreatedImageInfo imageInfo;
     if (!MakeVkImage(sharedContext, dimensions, info, &imageInfo)) {
@@ -164,6 +165,7 @@ sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
                                             std::move(imageInfo.fMutableState),
                                             imageInfo.fImage,
                                             imageInfo.fMemoryAlloc,
+                                            std::move(label),
                                             Ownership::kOwned,
                                             budgeted,
                                             std::move(ycbcrConversion)));
@@ -175,7 +177,8 @@ sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedConte
                                           const TextureInfo& info,
                                           sk_sp<MutableTextureState> mutableState,
                                           VkImage image,
-                                          const VulkanAlloc& alloc) {
+                                          const VulkanAlloc& alloc,
+                                          std::string_view label) {
     auto ycbcrConversion = resourceProvider->findOrCreateCompatibleSamplerYcbcrConversion(
             info.vulkanTextureSpec().fYcbcrConversionInfo);
 
@@ -185,6 +188,7 @@ sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedConte
                                             std::move(mutableState),
                                             image,
                                             alloc,
+                                            std::move(label),
                                             Ownership::kWrapped,
                                             skgpu::Budgeted::kNo,
                                             std::move(ycbcrConversion)));
@@ -310,10 +314,17 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
                              sk_sp<MutableTextureState> mutableState,
                              VkImage image,
                              const VulkanAlloc& alloc,
+                             std::string_view label,
                              Ownership ownership,
                              skgpu::Budgeted budgeted,
                              sk_sp<VulkanSamplerYcbcrConversion> ycbcrConversion)
-        : Texture(sharedContext, dimensions, info, std::move(mutableState), ownership, budgeted)
+        : Texture(sharedContext,
+                  dimensions,
+                  info,
+                  std::move(mutableState),
+                  std::move(label),
+                  ownership,
+                  budgeted)
         , fImage(image)
         , fMemoryAlloc(alloc)
         , fSamplerYcbcrConversion(std::move(ycbcrConversion)) {}

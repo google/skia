@@ -136,7 +136,7 @@ public:
     void setLabel(std::string_view label) {
         fLabel = label;
 
-        if (!fLabel.empty()) {
+        if (!label.empty()) {
             const std::string fullLabel = "Skia_" + fLabel;
             this->setBackendLabel(fullLabel.c_str());
         }
@@ -183,6 +183,7 @@ protected:
              Ownership,
              skgpu::Budgeted,
              size_t gpuMemorySize,
+             std::string_view label,
              bool commandBufferRefsAsUsageRefs = false);
     virtual ~Resource();
 
