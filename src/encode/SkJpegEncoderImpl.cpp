@@ -256,13 +256,11 @@ bool SkJpegEncoderMgr::setParams(const SkYUVAPixmapInfo& srcInfo,
     return true;
 }
 
-std::unique_ptr<SkEncoder> SkJpegEncoderImpl::Make(
-        SkWStream* dst,
-        const SkPixmap* src,
-        const SkYUVAPixmaps* srcYUVA,
-        const SkColorSpace* srcYUVAColorSpace,
-        const SkJpegEncoder::Options& options,
-        const SkJpegMetadataEncoder::SegmentList& metadataSegments) {
+static std::unique_ptr<SkEncoder> Make(SkWStream* dst,
+                                       const SkPixmap* src,
+                                       const SkYUVAPixmaps* srcYUVA,
+                                       const SkColorSpace* srcYUVAColorSpace,
+                                       const SkJpegEncoder::Options& options) {
     // Exactly one of |src| or |srcYUVA| should be specified.
     if (srcYUVA) {
         SkASSERT(!src);
@@ -296,11 +294,33 @@ std::unique_ptr<SkEncoder> SkJpegEncoderImpl::Make(
     jpeg_set_quality(encoderMgr->cinfo(), options.fQuality, TRUE);
     jpeg_start_compress(encoderMgr->cinfo(), TRUE);
 
-    for (const auto& segment : metadataSegments) {
-        jpeg_write_marker(encoderMgr->cinfo(),
-                          segment.fMarker,
-                          segment.fParameters->bytes(),
-                          segment.fParameters->size());
+    // Write XMP metadata. This will only write the standard XMP segment.
+    // TODO(ccameron): Split this into a standard and extended XMP segment if needed.
+    if (options.xmpMetadata) {
+        SkDynamicMemoryWStream s;
+        s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
+        s.write(options.xmpMetadata->data(), options.xmpMetadata->size());
+        auto data = s.detachAsData();
+        jpeg_write_marker(encoderMgr->cinfo(), kXMPMarker, data->bytes(), data->size());
+    }
+
+    // Write the ICC profile.
+    // TODO(ccameron): This limits ICC profile size to a single segment's parameters (less than
+    // 64k). Split larger profiles into more segments.
+    sk_sp<SkData> icc = icc_from_color_space(srcYUVA ? srcYUVAColorSpace : src->colorSpace(),
+                                             options.fICCProfile,
+                                             options.fICCProfileDescription);
+    if (icc) {
+        // Create a contiguous block of memory with the icc signature followed by the profile.
+        sk_sp<SkData> markerData = SkData::MakeUninitialized(kICCMarkerHeaderSize + icc->size());
+        uint8_t* ptr = (uint8_t*)markerData->writable_data();
+        memcpy(ptr, kICCSig, sizeof(kICCSig));
+        ptr += sizeof(kICCSig);
+        *ptr++ = 1;  // This is the first marker.
+        *ptr++ = 1;  // Out of one total markers.
+        memcpy(ptr, icc->data(), icc->size());
+
+        jpeg_write_marker(encoderMgr->cinfo(), kICCMarker, markerData->bytes(), markerData->size());
     }
 
     if (srcYUVA) {
@@ -402,55 +422,14 @@ sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& op
 }
 
 std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src, const Options& options) {
-    SkJpegMetadataEncoder::SegmentList metadataSegments;
-    SkJpegMetadataEncoder::AppendXMPStandard(metadataSegments, options.xmpMetadata);
-    SkJpegMetadataEncoder::AppendICC(metadataSegments, options, src.colorSpace());
-    return SkJpegEncoderImpl::Make(dst, &src, nullptr, nullptr, options, metadataSegments);
+    return Make(dst, &src, nullptr, nullptr, options);
 }
 
 std::unique_ptr<SkEncoder> Make(SkWStream* dst,
                                 const SkYUVAPixmaps& src,
                                 const SkColorSpace* srcColorSpace,
                                 const Options& options) {
-    SkJpegMetadataEncoder::SegmentList metadataSegments;
-    SkJpegMetadataEncoder::AppendXMPStandard(metadataSegments, options.xmpMetadata);
-    SkJpegMetadataEncoder::AppendICC(metadataSegments, options, srcColorSpace);
-    return SkJpegEncoderImpl::Make(dst, nullptr, &src, srcColorSpace, options, metadataSegments);
+    return Make(dst, nullptr, &src, srcColorSpace, options);
 }
 
 }  // namespace SkJpegEncoder
-
-namespace SkJpegMetadataEncoder {
-
-void AppendICC(SegmentList& segmentList,
-               const SkJpegEncoder::Options& options,
-               const SkColorSpace* colorSpace) {
-    sk_sp<SkData> icc =
-            icc_from_color_space(colorSpace, options.fICCProfile, options.fICCProfileDescription);
-    if (!icc) {
-        return;
-    }
-
-    // TODO(ccameron): This limits ICC profile size to a single segment's parameters (less than
-    // 64k). Split larger profiles into more segments.
-    SkDynamicMemoryWStream s;
-    s.write(kICCSig, sizeof(kICCSig));
-    s.write8(1);  // This is the first marker.
-    s.write8(1);  // Out of one total markers.
-    s.write(icc->data(), icc->size());
-    segmentList.emplace_back(kICCMarker, s.detachAsData());
-}
-
-void AppendXMPStandard(SegmentList& segmentList, const SkData* xmpMetadata) {
-    if (!xmpMetadata) {
-        return;
-    }
-
-    // TODO(ccameron): Split this into a standard and extended XMP segment if needed.
-    SkDynamicMemoryWStream s;
-    s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
-    s.write(xmpMetadata->data(), xmpMetadata->size());
-    segmentList.emplace_back(kXMPMarker, s.detachAsData());
-}
-
-}  // namespace SkJpegMetadataEncoder
