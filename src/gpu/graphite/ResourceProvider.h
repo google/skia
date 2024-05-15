@@ -129,12 +129,8 @@ private:
     virtual sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize,
                                          const TextureInfo&,
-                                         std::string_view label,
                                          skgpu::Budgeted) = 0;
-    virtual sk_sp<Buffer> createBuffer(size_t size,
-                                       BufferType type,
-                                       AccessPattern,
-                                       std::string_view label) = 0;
+    virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) = 0;
     virtual sk_sp<Sampler> createSampler(const SamplerDesc&) = 0;
 
     sk_sp<Texture> findOrCreateTextureWithKey(SkISize dimensions,

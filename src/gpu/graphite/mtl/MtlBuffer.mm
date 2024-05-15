@@ -15,8 +15,7 @@ namespace skgpu::graphite {
 sk_sp<Buffer> MtlBuffer::Make(const MtlSharedContext* sharedContext,
                               size_t size,
                               BufferType type,
-                              AccessPattern accessPattern,
-                              std::string_view label) {
+                              AccessPattern accessPattern) {
     if (size <= 0) {
         return nullptr;
     }
@@ -43,18 +42,13 @@ sk_sp<Buffer> MtlBuffer::Make(const MtlSharedContext* sharedContext,
     sk_cfp<id<MTLBuffer>> buffer([sharedContext->device() newBufferWithLength:size
                                                                       options:options]);
 
-    return sk_sp<Buffer>(new MtlBuffer(sharedContext,
-                                       size,
-                                       std::move(buffer),
-                                       std::move(label)));
+    return sk_sp<Buffer>(new MtlBuffer(sharedContext, size, std::move(buffer)));
 }
 
 MtlBuffer::MtlBuffer(const MtlSharedContext* sharedContext,
                      size_t size,
-                     sk_cfp<id<MTLBuffer>> buffer,
-                     std::string_view label)
-        : Buffer(sharedContext, size, std::move(label))
-        , fBuffer(std::move(buffer)) {}
+                     sk_cfp<id<MTLBuffer>> buffer)
+        : Buffer(sharedContext, size), fBuffer(std::move(buffer)) {}
 
 void MtlBuffer::onMap() {
     SkASSERT(fBuffer);

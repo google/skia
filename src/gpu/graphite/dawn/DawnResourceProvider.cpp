@@ -220,19 +220,25 @@ sk_sp<Texture> DawnResourceProvider::createWrappedTexture(const BackendTexture& 
         return {};
     }
 
+    sk_sp<Texture> wrappedTexture;
+    std::string_view label;
     if (dawnTexture) {
-        return DawnTexture::MakeWrapped(this->dawnSharedContext(),
-                                        texture.dimensions(),
-                                        texture.info(),
-                                        std::move(dawnTexture),
-                                        "WrappedTexture");
+        wrappedTexture = DawnTexture::MakeWrapped(this->dawnSharedContext(),
+                                                  texture.dimensions(),
+                                                  texture.info(),
+                                                  std::move(dawnTexture));
+        label = "WrappedTexture";
     } else {
-        return DawnTexture::MakeWrapped(this->dawnSharedContext(),
-                                        texture.dimensions(),
-                                        texture.info(),
-                                        std::move(dawnTextureView),
-                                        "WrappedTextureView");
+        wrappedTexture = DawnTexture::MakeWrapped(this->dawnSharedContext(),
+                                                  texture.dimensions(),
+                                                  texture.info(),
+                                                  std::move(dawnTextureView));
+        label = "WrappedTextureView";
     }
+    if (wrappedTexture) {
+        wrappedTexture->setLabel(std::move(label));
+    }
+    return wrappedTexture;
 }
 
 sk_sp<DawnTexture> DawnResourceProvider::findOrCreateDiscardableMSAALoadTexture(
@@ -278,24 +284,17 @@ sk_sp<ComputePipeline> DawnResourceProvider::createComputePipeline(
 
 sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions,
                                                    const TextureInfo& info,
-                                                   std::string_view label,
                                                    skgpu::Budgeted budgeted) {
     return DawnTexture::Make(this->dawnSharedContext(),
                              dimensions,
                              info,
-                             std::move(label),
                              budgeted);
 }
 
 sk_sp<Buffer> DawnResourceProvider::createBuffer(size_t size,
                                                  BufferType type,
-                                                 AccessPattern accessPattern,
-                                                 std::string_view label) {
-    return DawnBuffer::Make(this->dawnSharedContext(),
-                            size,
-                            type,
-                            accessPattern,
-                            std::move(label));
+                                                 AccessPattern accessPattern) {
+    return DawnBuffer::Make(this->dawnSharedContext(), size, type, accessPattern);
 }
 
 sk_sp<Sampler> DawnResourceProvider::createSampler(const SamplerDesc& samplerDesc) {

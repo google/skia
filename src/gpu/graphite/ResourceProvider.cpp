@@ -164,16 +164,17 @@ sk_sp<Texture> ResourceProvider::findOrCreateTextureWithKey(SkISize dimensions,
     SkASSERT(key.shareable() == Shareable::kNo || budgeted == skgpu::Budgeted::kYes);
 
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
-        resource->setLabel(label);
+        resource->setLabel(std::move(label));
         return sk_sp<Texture>(static_cast<Texture*>(resource));
     }
 
-    auto tex = this->createTexture(dimensions, info, std::move(label), budgeted);
+    auto tex = this->createTexture(dimensions, info, budgeted);
     if (!tex) {
         return nullptr;
     }
 
     tex->setKey(key);
+    tex->setLabel(std::move(label));
     fResourceCache->insertResource(tex.get());
 
     return tex;
@@ -233,12 +234,13 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         resource->setLabel(std::move(label));
         return sk_sp<Buffer>(static_cast<Buffer*>(resource));
     }
-    auto buffer = this->createBuffer(size, type, accessPattern, std::move(label));
+    auto buffer = this->createBuffer(size, type, accessPattern);
     if (!buffer) {
         return nullptr;
     }
 
     buffer->setKey(key);
+    buffer->setLabel(std::move(label));
     fResourceCache->insertResource(buffer.get());
     return buffer;
 }

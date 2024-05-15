@@ -76,14 +76,12 @@ DawnTexture::DawnTexture(const DawnSharedContext* sharedContext,
                          wgpu::Texture texture,
                          wgpu::TextureView sampleTextureView,
                          wgpu::TextureView renderTextureView,
-                         std::string_view label,
                          Ownership ownership,
                          skgpu::Budgeted budgeted)
         : Texture(sharedContext,
                   dimensions,
                   info,
                   /*mutableState=*/nullptr,
-                  std::move(label),
                   ownership,
                   budgeted)
         , fTexture(std::move(texture))
@@ -133,7 +131,6 @@ std::pair<wgpu::TextureView, wgpu::TextureView> DawnTexture::CreateTextureViews(
 sk_sp<Texture> DawnTexture::Make(const DawnSharedContext* sharedContext,
                                  SkISize dimensions,
                                  const TextureInfo& info,
-                                 std::string_view label,
                                  skgpu::Budgeted budgeted) {
     auto texture = MakeDawnTexture(sharedContext, dimensions, info);
     if (!texture) {
@@ -146,7 +143,6 @@ sk_sp<Texture> DawnTexture::Make(const DawnSharedContext* sharedContext,
                                           std::move(texture),
                                           std::move(sampleTextureView),
                                           std::move(renderTextureView),
-                                          std::move(label),
                                           Ownership::kOwned,
                                           budgeted));
 }
@@ -154,8 +150,7 @@ sk_sp<Texture> DawnTexture::Make(const DawnSharedContext* sharedContext,
 sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                         SkISize dimensions,
                                         const TextureInfo& info,
-                                        wgpu::Texture texture,
-                                        std::string_view label) {
+                                        wgpu::Texture texture) {
     if (!texture) {
         SKGPU_LOG_E("No valid texture passed into MakeWrapped\n");
         return {};
@@ -168,7 +163,6 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                           std::move(texture),
                                           std::move(sampleTextureView),
                                           std::move(renderTextureView),
-                                          std::move(label),
                                           Ownership::kWrapped,
                                           skgpu::Budgeted::kNo));
 }
@@ -176,8 +170,7 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
 sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                         SkISize dimensions,
                                         const TextureInfo& info,
-                                        const wgpu::TextureView& textureView,
-                                        std::string_view label) {
+                                        const wgpu::TextureView& textureView) {
     if (!textureView) {
         SKGPU_LOG_E("No valid texture view passed into MakeWrapped\n");
         return {};
@@ -188,7 +181,6 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
                                           /*texture=*/nullptr,
                                           /*sampleTextureView=*/textureView,
                                           /*renderTextureView=*/textureView,
-                                          std::move(label),
                                           Ownership::kWrapped,
                                           skgpu::Budgeted::kNo));
 }
@@ -206,11 +198,22 @@ void DawnTexture::freeGpuData() {
 }
 
 void DawnTexture::setBackendLabel(char const* label) {
+    if (!sharedContext()->caps()->setBackendLabels()) {
+        return;
+    }
     SkASSERT(label);
-    // We need to check fTexture here in case the DawnTexture was only created with a view and not
-    // the real texture.
-    if (fTexture && sharedContext()->caps()->setBackendLabels()) {
+    // Wrapped texture views won't have an associated texture here.
+    if (fTexture) {
         fTexture.SetLabel(label);
+    }
+    // But we always have the texture views available.
+    SkASSERT(fSampleTextureView);
+    SkASSERT(fRenderTextureView);
+    if (fSampleTextureView.Get() == fRenderTextureView.Get()) {
+        fSampleTextureView.SetLabel(SkStringPrintf("%s_%s", label, "_TextureView").c_str());
+    } else {
+        fSampleTextureView.SetLabel(SkStringPrintf("%s_%s", label, "_SampleTextureView").c_str());
+        fRenderTextureView.SetLabel(SkStringPrintf("%s_%s", label, "_RenderTextureView").c_str());
     }
 }
 

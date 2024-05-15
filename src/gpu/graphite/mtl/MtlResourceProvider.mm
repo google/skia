@@ -241,9 +241,8 @@ sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(
 
 sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,
                                                   const TextureInfo& info,
-                                                  std::string_view label,
                                                   skgpu::Budgeted budgeted) {
-    return MtlTexture::Make(this->mtlSharedContext(), dimensions, info, std::move(label), budgeted);
+    return MtlTexture::Make(this->mtlSharedContext(), dimensions, info, budgeted);
 }
 
 sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& texture) {
@@ -252,18 +251,18 @@ sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& t
         return nullptr;
     }
     sk_cfp<id<MTLTexture>> mtlTexture = sk_ret_cfp((id<MTLTexture>)mtlHandleTexture);
-    return MtlTexture::MakeWrapped(this->mtlSharedContext(),
-                                   texture.dimensions(),
-                                   texture.info(),
-                                   std::move(mtlTexture),
-                                   "WrappedTexture");
+    sk_sp<Texture> wrappedTexture = MtlTexture::MakeWrapped(
+            this->mtlSharedContext(), texture.dimensions(), texture.info(), std::move(mtlTexture));
+    if (wrappedTexture) {
+        wrappedTexture->setLabel("WrappedTexture");
+    }
+    return wrappedTexture;
 }
 
 sk_sp<Buffer> MtlResourceProvider::createBuffer(size_t size,
                                                 BufferType type,
-                                                AccessPattern accessPattern,
-                                                std::string_view label) {
-    return MtlBuffer::Make(this->mtlSharedContext(), size, type, accessPattern, std::move(label));
+                                                AccessPattern accessPattern) {
+    return MtlBuffer::Make(this->mtlSharedContext(), size, type, accessPattern);
 }
 
 sk_sp<Sampler> MtlResourceProvider::createSampler(const SamplerDesc& samplerDesc) {
