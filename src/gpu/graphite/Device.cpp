@@ -929,6 +929,10 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                 subRunPaint.setColor(SK_ColorWHITE);
                 subRunPaint.setAlphaf(paint.getAlphaf());
             }
+
+            bool useGammaCorrectDistanceTable =
+                    this->imageInfo().colorSpace() &&
+                    this->imageInfo().colorSpace()->gammaIsLinear();
             this->drawGeometry(localToDevice,
                                Geometry(SubRunData(subRun,
                                                    subRunStorage,
@@ -936,6 +940,8 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                                                    this->localToDeviceTransform().inverse(),
                                                    subRunCursor,
                                                    glyphsRegenerated,
+                                                   SkPaintPriv::ComputeLuminanceColor(subRunPaint),
+                                                   useGammaCorrectDistanceTable,
                                                    fRecorder,
                                                    rendererData)),
                                subRunPaint,

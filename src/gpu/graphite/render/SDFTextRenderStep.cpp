@@ -18,8 +18,14 @@
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/text/TextAtlasManager.h"
 #include "src/sksl/SkSLString.h"
+#include "src/text/gpu/DistanceFieldAdjustTable.h"
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/VertexFiller.h"
+
+#if defined(SK_GAMMA_APPLY_TO_A8)
+#include "include/private/base/SkCPUTypes.h"
+#include "src/core/SkMaskGamma.h"
+#endif
 
 namespace skgpu::graphite {
 
@@ -142,9 +148,18 @@ void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                    1.f/proxies[0]->dimensions().height()};
     gatherer->write(atlasDimensionsInverse);
 
-    // TODO: get this from DistanceFieldAdjustTable and luminance color (set in SubRunData?)
-    float gammaCorrection = 0.f;
-    gatherer->write(gammaCorrection);
+    static constexpr int kDistanceAdjustLumShift = 5;
+    float gammaAdjustment = 0;
+    // TODO: generate LCD adjustment
+#if defined(SK_GAMMA_APPLY_TO_A8)
+    auto dfAdjustTable = sktext::gpu::DistanceFieldAdjustTable::Get();
+    // TODO: don't do this for aliased text
+    U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT,
+                                                        subRunData.luminanceColor());
+    gammaAdjustment = dfAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
+                                                   subRunData.useGammaCorrectDistanceTable());
+#endif
+    gatherer->write(gammaAdjustment);
 
     // write textures and samplers
     const SkSamplingOptions kSamplingOptions(SkFilterMode::kLinear);
