@@ -19,6 +19,7 @@
 #include "src/sfnt/SkOTTable_hmtx.h"
 #include "src/sfnt/SkOTTable_loca.h"
 #include "src/sfnt/SkOTTable_maxp.h"
+#include "src/sfnt/SkOTTable_sbix.h"
 #include "src/sfnt/SkSFNTHeader.h"
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -41,6 +42,7 @@ constexpr SkScalar kFontSize = 200;
 
 constexpr char kFontFile[] = "fonts/sbix_uncompressed_flags.ttf";
 constexpr SkGlyphID kGlyphID = 2;
+constexpr uint16_t kStrikeIndex = 2;
 
 //constexpr char kFontFile[] = "fonts/HangingS.ttf";
 //constexpr SkGlyphID kGlyphID = 4;
@@ -66,16 +68,18 @@ struct SBIXSlide : public ClickHandlerSlide {
     struct Point {
         SkPoint location;
         SkColor color;
-    } fPts[4] = {
+    } fPts[5] = {
         {{0, 0}, SK_ColorBLACK }, // glyph x/y min
         {{0, 0}, SK_ColorWHITE }, // glyph x/y max
         {{0, 20}, SK_ColorGREEN }, // lsb (x only, y ignored)
         {{0, 0}, SK_ColorBLUE }, // first point of glyph contour
+        {{0, 0}, SK_ColorRED }, // sbix glyph data's origin offset
     };
     static constexpr const int kGlyfXYMin = 0;
     static constexpr const int kGlyfXYMax = 1;
     static constexpr const int kGlyfLSB = 2;
     static constexpr const int kGlyfFirstPoint = 3;
+    static constexpr const int kOriginOffset = 4;
 
     std::vector<sk_sp<SkFontMgr>> fFontMgr;
     std::vector<SkFont> fFonts;
@@ -156,16 +160,17 @@ protected:
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         x -= DX;
         y -= DY;
-        for (size_t i = 0; i < std::size(fPts); ++i) {
-            if (hittest(fPts[i].location, x, y)) {
-                return new PtClick((int)i);
+        // Look for hit in opposite of paint order
+        for (auto&& pt = std::rbegin(fPts); pt != std::rend(fPts); ++pt) {
+            if (hittest(pt->location, x, y)) {
+                return new PtClick(&*pt);
             }
         }
         return nullptr;
     }
 
     bool onClick(Click* click) override {
-        fPts[((PtClick*)click)->fIndex].location.set(click->fCurr.fX - DX, click->fCurr.fY - DY);
+        ((PtClick*)click)->fPt->location.set(click->fCurr.fX - DX, click->fCurr.fY - DY);
         fDirty = true;
         return true;
     }
@@ -173,8 +178,8 @@ protected:
 private:
     class PtClick : public Click {
     public:
-        int fIndex;
-        PtClick(int index) : fIndex(index) {}
+        Point* fPt;
+        PtClick(Point* pt) : fPt(pt) {}
     };
 
     sk_sp<SkData> updateSBIXData(SkData* originalData, bool setPts) {
@@ -194,6 +199,7 @@ private:
         SkSFNTHeader::TableDirectoryEntry* hmtxTableEntry = nullptr;
         SkSFNTHeader::TableDirectoryEntry* locaTableEntry = nullptr;
         SkSFNTHeader::TableDirectoryEntry* maxpTableEntry = nullptr;
+        SkSFNTHeader::TableDirectoryEntry* sbixTableEntry = nullptr;
         int numTables = SkEndian_SwapBE16(sfntHeader->numTables);
         for (int tableEntryIndex = 0; tableEntryIndex < numTables; ++tableEntryIndex) {
             if (SkOTTableGlyph::TAG == tableEntry[tableEntryIndex].tag) {
@@ -213,6 +219,9 @@ private:
             }
             if (SkOTTableMaximumProfile::TAG == tableEntry[tableEntryIndex].tag) {
                 maxpTableEntry = tableEntry + tableEntryIndex;
+            }
+            if (SkOTTableStandardBitmapGraphics::TAG == tableEntry[tableEntryIndex].tag) {
+                sbixTableEntry = tableEntry + tableEntryIndex;
             }
         }
         SkASSERT_RELEASE(glyfTableEntry);
@@ -253,15 +262,42 @@ private:
         int emSize = SkEndian_SwapBE16(headTable->unitsPerEm);
         SkScalar toEm = emSize / kFontSize;
 
+        if (sbixTableEntry) {
+            size_t sbixTableOffset = SkEndian_SwapBE32(sbixTableEntry->offset);
+            SkOTTableStandardBitmapGraphics* sbixTable =
+                    SkTAddOffset<SkOTTableStandardBitmapGraphics>(sfntHeader, sbixTableOffset);
+
+            uint32_t numStrikes = SkEndian_SwapBE32(sbixTable->numStrikes);
+            SkASSERT_RELEASE(kStrikeIndex < numStrikes);
+
+            uint32_t strikeOffset = SkEndian_SwapBE32(sbixTable->strikeOffset(kStrikeIndex));
+            SkOTTableStandardBitmapGraphics::Strike* strike =
+                    SkTAddOffset<SkOTTableStandardBitmapGraphics::Strike>(sbixTable, strikeOffset);
+            uint16_t strikePpem = SkEndian_SwapBE16(strike->ppem);
+            SkScalar toStrikeEm = strikePpem / kFontSize;
+            uint32_t glyphDataOffset = SkEndian_SwapBE32(strike->glyphDataOffset(kGlyphID));
+            uint32_t glyphDataOffsetNext = SkEndian_SwapBE32(strike->glyphDataOffset(kGlyphID+1));
+            SkASSERT_RELEASE(glyphDataOffset < glyphDataOffsetNext);
+            SkOTTableStandardBitmapGraphics::GlyphData* glyphData =
+                    SkTAddOffset<SkOTTableStandardBitmapGraphics::GlyphData>(strike, glyphDataOffset);
+            if (setPts) {
+                fPts[kOriginOffset].location.set((int16_t)SkEndian_SwapBE16(glyphData->originOffsetX) /  toStrikeEm,
+                                                 (int16_t)SkEndian_SwapBE16(glyphData->originOffsetY) / -toStrikeEm);
+            } else {
+                glyphData->originOffsetX = SkEndian_SwapBE16(sk_float_saturate2int16( fPts[kOriginOffset].location.x()*toStrikeEm));
+                glyphData->originOffsetY = SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[kOriginOffset].location.y()*toStrikeEm));
+            }
+        }
+
         SkOTTableGlyph::Iterator glyphIter(*glyfTable, *locaTable, headTable->indexToLocFormat);
         glyphIter.advance(kGlyphID);
         SkOTTableGlyphData* glyphData = glyphIter.next();
         if (glyphData) {
             if (setPts) {
                 fPts[kGlyfXYMin].location.set((int16_t)SkEndian_SwapBE16(glyphData->xMin) /  toEm,
-                                     (int16_t)SkEndian_SwapBE16(glyphData->yMin) / -toEm);
+                                              (int16_t)SkEndian_SwapBE16(glyphData->yMin) / -toEm);
                 fPts[kGlyfXYMax].location.set((int16_t)SkEndian_SwapBE16(glyphData->xMax) /  toEm,
-                                     (int16_t)SkEndian_SwapBE16(glyphData->yMax) / -toEm);
+                                              (int16_t)SkEndian_SwapBE16(glyphData->yMax) / -toEm);
             } else {
                 glyphData->xMin = SkEndian_SwapBE16(sk_float_saturate2int16( fPts[kGlyfXYMin].location.x()*toEm));
                 glyphData->yMin = SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[kGlyfXYMin].location.y()*toEm));

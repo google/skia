@@ -1430,6 +1430,7 @@ BASE_SRCS_ALL = [
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTTable_name.h",
     "src/sfnt/SkOTTable_post.h",
+    "src/sfnt/SkOTTable_sbix.h",
     "src/sfnt/SkOTUtils.cpp",
     "src/sfnt/SkOTUtils.h",
     "src/sfnt/SkPanose.h",

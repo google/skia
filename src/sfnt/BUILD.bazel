@@ -34,6 +34,7 @@ SFNT_FILES = [
     "SkOTTable_name.cpp",
     "SkOTTable_name.h",
     "SkOTTable_post.h",
+    "SkOTTable_sbix.h",
     "SkOTUtils.cpp",
     "SkOTUtils.h",
     "SkPanose.h",
