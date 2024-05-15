@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RasterPathUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -122,38 +123,68 @@ void ComputePathAtlas::reset() {
  */
 class VelloComputePathAtlas final : public ComputePathAtlas {
 public:
-    explicit VelloComputePathAtlas(Recorder* recorder) : ComputePathAtlas(recorder) {}
+    explicit VelloComputePathAtlas(Recorder* recorder)
+        : ComputePathAtlas(recorder)
+        , fCachedAtlasMgr(fWidth, fHeight, recorder->priv().caps()) {}
     // Record the compute dispatches that will draw the atlas contents.
-    bool recordDispatches(Recorder* recorder,
-                          ComputeTask::DispatchGroupList* dispatches) const override;
+    bool recordDispatches(Recorder*, ComputeTask::DispatchGroupList*) const override;
 
 private:
     const TextureProxy* onAddShape(const Shape&,
-                                   const Transform& transform,
+                                   const Transform&,
                                    const SkStrokeRec&,
                                    skvx::half2 maskSize,
                                    skvx::half2* outPos) override;
     void onReset() override {
-        fScene.reset();
-        fOccupiedWidth = fOccupiedHeight = 0;
+        fCachedAtlasMgr.onReset();
+
+        fUncachedScene.reset();
+        fUncachedOccupiedArea = { 0, 0 };
     }
+
+    class VelloAtlasMgr : public PathAtlas::DrawAtlasMgr {
+    public:
+        VelloAtlasMgr(size_t width, size_t height, const Caps* caps)
+            : PathAtlas::DrawAtlasMgr(width, height, width, height,
+                                      DrawAtlas::UseStorageTextures::kYes,
+                                      /*label=*/"VelloPathAtlas", caps) {}
+
+        bool recordDispatches(Recorder* recorder, ComputeTask::DispatchGroupList* dispatches) const;
+
+        void onReset() {
+            fDrawAtlas->markUsedPlotsAsFull();
+            for (int i = 0; i < PlotLocator::kMaxMultitexturePages; ++i) {
+                fScenes[i].reset();
+                fOccupiedAreas[i] = {0, 0};
+            }
+        }
+
+    protected:
+        bool onAddToAtlas(const Shape&,
+                          const Transform& transform,
+                          const SkStrokeRec&,
+                          SkIRect shapeBounds,
+                          const AtlasLocator&) override;
+
+    private:
+        VelloScene fScenes[PlotLocator::kMaxMultitexturePages];
+        SkISize fOccupiedAreas[PlotLocator::kMaxMultitexturePages] = {
+            {0, 0}, {0, 0}, {0, 0}, {0, 0}
+        };
+    };
+
+    VelloAtlasMgr fCachedAtlasMgr;
 
     // Contains the encoded scene buffer data that serves as the input to a vello compute pass.
-    VelloScene fScene;
+    // For the uncached atlas.
+    VelloScene fUncachedScene;
 
-    // Occupied bounds of the atlas
-    uint32_t fOccupiedWidth = 0;
-    uint32_t fOccupiedHeight = 0;
+    // Occupied bounds of the uncached atlas
+    SkISize fUncachedOccupiedArea = { 0, 0 };
 };
 
-bool VelloComputePathAtlas::recordDispatches(Recorder* recorder,
-                                             ComputeTask::DispatchGroupList* dispatches) const {
-    if (!this->texture()) {
-        return false;
-    }
-
-    SkASSERT(recorder && recorder == fRecorder);
-    // Unless the analytic area AA mode unless caps say otherwise.
+static VelloAaConfig get_vello_aa_config(Recorder* recorder) {
+    // Use the analytic area AA mode unless caps say otherwise.
     VelloAaConfig config = VelloAaConfig::kAnalyticArea;
 #if defined(GRAPHITE_TEST_UTILS)
     PathRendererStrategy strategy = recorder->priv().caps()->requestedPathRendererStrategy();
@@ -163,49 +194,35 @@ bool VelloComputePathAtlas::recordDispatches(Recorder* recorder,
         config = VelloAaConfig::kMSAA8;
     }
 #endif
-    std::unique_ptr<DispatchGroup> dispatchGroup =
-            recorder->priv().rendererProvider()->velloRenderer()->renderScene(
-                {fOccupiedWidth, fOccupiedHeight, SkColors::kBlack, config},
-                fScene,
-                sk_ref_sp(this->texture()),
-                recorder);
-    if (!dispatchGroup) {
-        return false;
-    }
-    TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
-                         "# dispatches", dispatchGroup->dispatches().size());
-    dispatches->emplace_back(std::move(dispatchGroup));
-    return true;
+
+    return config;
 }
 
-const TextureProxy* VelloComputePathAtlas::onAddShape(
-        const Shape& shape,
-        const Transform& transform,
-        const SkStrokeRec& style,
-        skvx::half2 maskSize,
-        skvx::half2* outPos) {
-    SkIPoint16 iPos;
-    const TextureProxy* texProxy = this->addRect(maskSize, &iPos);
-    if (!texProxy) {
-        return nullptr;
-    }
-    *outPos = skvx::half2(iPos.x(), iPos.y());
-    // If the mask is empty, just return.
-    // TODO: This may not be needed if we can handle clipped out bounds with inverse fills
-    // another way. See PathAtlas::addShape().
-    if (!all(maskSize)) {
-        return texProxy;
-    }
+static std::unique_ptr<DispatchGroup> render_vello_scene(Recorder* recorder,
+                                                         sk_sp<TextureProxy> texture,
+                                                         const VelloScene& scene,
+                                                         SkISize occupiedArea,
+                                                         VelloAaConfig config) {
+    return recorder->priv().rendererProvider()->velloRenderer()->renderScene(
+                {(uint32_t)occupiedArea.width(),
+                 (uint32_t)occupiedArea.height(),
+                 SkColors::kBlack,
+                 config},
+                scene,
+                std::move(texture),
+                recorder);
+}
 
-    // TODO: The compute renderer doesn't support perspective yet. We assume that the path has been
-    // appropriately transformed in that case.
-    SkASSERT(transform.type() != Transform::Type::kPerspective);
-
-    // Restrict the render to the occupied area of the atlas, including entry padding so that the
-    // padded row/column is cleared when Vello renders.
-    Rect atlasBounds = Rect::XYWH(skvx::float2(iPos.x(), iPos.y()), skvx::cast<float>(maskSize));
-    fOccupiedWidth = std::max(fOccupiedWidth, (uint32_t)atlasBounds.right() + kEntryPadding);
-    fOccupiedHeight = std::max(fOccupiedHeight, (uint32_t)atlasBounds.bot() + kEntryPadding);
+static void add_shape_to_scene(const Shape& shape,
+                               const Transform& transform,
+                               const SkStrokeRec& style,
+                               Rect atlasBounds,
+                               VelloScene* scene,
+                               SkISize* occupiedArea) {
+    occupiedArea->fWidth = std::max(occupiedArea->fWidth,
+                                    (int)atlasBounds.right() + PathAtlas::kEntryPadding);
+    occupiedArea->fHeight = std::max(occupiedArea->fHeight,
+                                     (int)atlasBounds.bot() + PathAtlas::kEntryPadding);
 
     // TODO(b/283876964): Apply clips here. Initially we'll need to encode the clip stack repeatedly
     // for each shape since the full vello renderer treats clips and their affected draws as a
@@ -221,7 +238,7 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
     // Clip the mask to the bounds of the atlas slot, which are already inset by 1px relative to
     // the bounds that the Rectanizer assigned.
     SkPath clipRect = SkPath::Rect(atlasBounds.asSkRect());
-    fScene.pushClipLayer(clipRect, Transform::Identity());
+    scene->pushClipLayer(clipRect, Transform::Identity());
 
     // The atlas transform of the shape is the linear-components (scale, rotation, skew) of
     // `localToDevice` translated by the top-left offset of `atlasBounds`.
@@ -251,19 +268,151 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
             float transformedWidth = 1.0f / atlasTransform.maxScaleFactor();
             SkStrokeRec adjustedStyle(style);
             adjustedStyle.setStrokeStyle(transformedWidth);
-            fScene.solidStroke(devicePath, color, adjustedStyle, atlasTransform);
+            scene->solidStroke(devicePath, color, adjustedStyle, atlasTransform);
         } else {
-            fScene.solidStroke(devicePath, SkColors::kRed, style, atlasTransform);
+            scene->solidStroke(devicePath, SkColors::kRed, style, atlasTransform);
         }
     }
     if (styleType == SkStrokeRec::kFill_Style || styleType == SkStrokeRec::kStrokeAndFill_Style) {
-        fScene.solidFill(devicePath, SkColors::kRed, shape.fillType(), atlasTransform);
+        scene->solidFill(devicePath, SkColors::kRed, shape.fillType(), atlasTransform);
     }
 
-    fScene.popClipLayer();
+    scene->popClipLayer();
+}
+
+bool VelloComputePathAtlas::recordDispatches(Recorder* recorder,
+                                             ComputeTask::DispatchGroupList* dispatches) const {
+    bool addedDispatches = fCachedAtlasMgr.recordDispatches(recorder, dispatches);
+
+    if (this->texture() && !fUncachedOccupiedArea.isEmpty()) {
+        SkASSERT(recorder && recorder == fRecorder);
+
+        VelloAaConfig config = get_vello_aa_config(recorder);
+        std::unique_ptr<DispatchGroup> dispatchGroup =
+                render_vello_scene(recorder,
+                                   sk_ref_sp(this->texture()),
+                                   fUncachedScene,
+                                   fUncachedOccupiedArea,
+                                   config);
+        if (dispatchGroup) {
+            TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                                 "# dispatches", dispatchGroup->dispatches().size());
+            dispatches->emplace_back(std::move(dispatchGroup));
+            return true;
+        } else {
+            SKGPU_LOG_E("VelloComputePathAtlas:: Failed to create dispatch group.");
+        }
+    }
+
+    return addedDispatches;
+}
+
+const TextureProxy* VelloComputePathAtlas::onAddShape(
+        const Shape& shape,
+        const Transform& transform,
+        const SkStrokeRec& style,
+        skvx::half2 maskSize,
+        skvx::half2* outPos) {
+
+    skgpu::UniqueKey maskKey;
+    bool hasKey = shape.hasKey();
+    if (hasKey) {
+        // Try to locate or add to cached DrawAtlas
+        const TextureProxy* proxy = fCachedAtlasMgr.findOrCreateEntry(fRecorder,
+                                                                      shape,
+                                                                      transform,
+                                                                      style,
+                                                                      maskSize,
+                                                                      outPos);
+        if (proxy) {
+            return proxy;
+        }
+    }
+
+    // Try to add to uncached texture
+    SkIPoint16 iPos;
+    const TextureProxy* texProxy = this->addRect(maskSize, &iPos);
+    if (!texProxy) {
+        return nullptr;
+    }
+    *outPos = skvx::half2(iPos.x(), iPos.y());
+    // If the mask is empty, just return.
+    // TODO: This may not be needed if we can handle clipped out bounds with inverse fills
+    // another way. See PathAtlas::addShape().
+    if (!all(maskSize)) {
+        return texProxy;
+    }
+
+    // TODO: The compute renderer doesn't support perspective yet. We assume that the path has been
+    // appropriately transformed in that case.
+    SkASSERT(transform.type() != Transform::Type::kPerspective);
+
+    // Restrict the render to the occupied area of the atlas, including entry padding so that the
+    // padded row/column is cleared when Vello renders.
+    Rect atlasBounds = Rect::XYWH(skvx::float2(iPos.x(), iPos.y()), skvx::cast<float>(maskSize));
+
+    add_shape_to_scene(shape, transform, style, atlasBounds,
+                       &fUncachedScene, &fUncachedOccupiedArea);
 
     return texProxy;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+bool VelloComputePathAtlas::VelloAtlasMgr::onAddToAtlas(const Shape& shape,
+                                                        const Transform& transform,
+                                                        const SkStrokeRec& style,
+                                                        SkIRect shapeBounds,
+                                                        const AtlasLocator& locator) {
+    uint32_t index = locator.pageIndex();
+    const TextureProxy* texProxy = fDrawAtlas->getProxies()[index].get();
+    if (!texProxy) {
+        return false;
+    }
+
+    // TODO: The compute renderer doesn't support perspective yet. We assume that the path has been
+    // appropriately transformed in that case.
+    SkASSERT(transform.type() != Transform::Type::kPerspective);
+
+    // Restrict the render to the occupied area of the atlas, including entry padding so that the
+    // padded row/column is cleared when Vello renders.
+    SkIPoint iPos = locator.topLeft();
+    Rect atlasBounds = Rect::XYWH(skvx::float2(iPos.x() + kEntryPadding, iPos.y() + kEntryPadding),
+                                  skvx::float2(shapeBounds.width(), shapeBounds.height()));
+
+    add_shape_to_scene(shape, transform, style, atlasBounds,
+                       &fScenes[index], &fOccupiedAreas[index]);
+
+    return true;
+}
+
+bool VelloComputePathAtlas::VelloAtlasMgr::recordDispatches(
+        Recorder* recorder, ComputeTask::DispatchGroupList* dispatches) const {
+    SkASSERT(recorder);
+    VelloAaConfig config = get_vello_aa_config(recorder);
+
+    bool addedDispatches = false;
+    for (int i = 0; i < 4; ++i) {
+        if (!fOccupiedAreas[i].isEmpty()) {
+            std::unique_ptr<DispatchGroup> dispatchGroup =
+                    render_vello_scene(recorder,
+                                       fDrawAtlas->getProxies()[i],
+                                       fScenes[i],
+                                       fOccupiedAreas[i],
+                                       config);
+            if (dispatchGroup) {
+                TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                                     "# dispatches", dispatchGroup->dispatches().size());
+                dispatches->emplace_back(std::move(dispatchGroup));
+                addedDispatches = true;
+            } else {
+                SKGPU_LOG_E("VelloComputePathAtlas:: Failed to create dispatch group.");
+            }
+        }
+    }
+    return addedDispatches;
+}
+
 
 #endif  // SK_ENABLE_VELLO_SHADERS
 

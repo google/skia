@@ -49,6 +49,11 @@ public:
 
     using MaskAndOrigin = std::pair<CoverageMaskShape, SkIPoint>;
 
+    // Subclasses should ensure that the recorded masks have this much padding around each entry.
+    // PathAtlas passes in un-padded sizes to onAddShape and assumes that padding has been included
+    // in the outPos value.
+    static constexpr int kEntryPadding = 1;
+
     /**
      * Searches the atlas for a slot that can fit a coverage mask for a clipped shape with the given
      * bounds in device coordinates and submits the mask to be drawn into the found atlas region.
@@ -104,11 +109,6 @@ public:
     uint32_t height() const { return fHeight; }
 
 protected:
-    // Subclasses should ensure that the recorded masks have this much padding around each entry.
-    // PathAtlas passes in un-padded sizes to onAddShape and assumes that padding has been included
-    // in the outPos value.
-    static constexpr int kEntryPadding = 1;
-
     // The 'transform' has been adjusted to draw the Shape into a logical image from (0,0) to
     // 'maskSize'. The actual rendering into the returned TextureProxy will need to be further
     // translated by the value written to 'outPos', which is the responsibility of subclasses.
