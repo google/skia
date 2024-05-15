@@ -207,7 +207,9 @@ void DawnTexture::freeGpuData() {
 
 void DawnTexture::setBackendLabel(char const* label) {
     SkASSERT(label);
-    if (sharedContext()->caps()->setBackendLabels()) {
+    // We need to check fTexture here in case the DawnTexture was only created with a view and not
+    // the real texture.
+    if (fTexture && sharedContext()->caps()->setBackendLabels()) {
         fTexture.SetLabel(label);
     }
 }
