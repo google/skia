@@ -7,19 +7,3 @@ package(
 licenses(["notice"])
 
 exports_files_legacy()
-
-android_library(
-    name = "jetski",
-    srcs = glob(
-        ["src/main/java/org/skia/jetski/*.java"],
-        allow_empty = False,
-    ),
-    custom_package = "org.skia.jetski",
-    manifest = "src/main/AndroidManifest.xml",
-    resource_files = ["src/main/res/values/attrs.xml"],
-    visibility = [],
-    deps = [
-        "//modules/jetski:jetski_jni",
-        "@maven//:androidx_annotation_annotation",
-    ],
-)

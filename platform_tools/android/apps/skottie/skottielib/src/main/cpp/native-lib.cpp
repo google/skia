@@ -187,7 +187,7 @@ Java_org_skia_skottie_SkottieAnimation_nCreateProxy(JNIEnv *env,
         // (using the above registered codecs) or base64 encoded FreeType typefaces.
         .setResourceProvider(skresources::DataURIResourceProviderProxy::Make(nullptr,
             skresources::ImageDecodeStrategy::kPreDecode, freetypeMgr))
-        .setTextShapingFactory(SkShapers::BestAvailable())
+        .setTextShapingFactory(sk_make_sp<SkShapers::HarfbuzzFactory>())
         .make(skottieAnimation->mStream.get());
     skottieAnimation->mTimeBase  = 0.0f; // force a time reset
     skottieAnimation->mDuration = 1000 * skottieAnimation->mAnimation->duration();

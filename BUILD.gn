@@ -2743,6 +2743,8 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         "modules/skottie",
+        "modules/skshaper",
+        "modules/skunicode",
       ]
     }
 
