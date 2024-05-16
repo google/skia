@@ -55,9 +55,11 @@ using namespace skia_private;
 
 class SkDescriptor;
 
-TestSVGTypeface::TestSVGTypeface(const char* name, const SkFontStyle& style,
-                                 int upem, const SkFontMetrics& fontMetrics,
-                                 SkSpan<const SkSVGTestTypefaceGlyphData> data)
+TestSVGTypeface::TestSVGTypeface(const char*                              name,
+                                 int                                      upem,
+                                 const SkFontMetrics&                     fontMetrics,
+                                 SkSpan<const SkSVGTestTypefaceGlyphData> data,
+                                 const SkFontStyle&                       style)
         : SkTypeface(style, false)
         , fName(name)
         , fUpem(upem)
@@ -363,7 +365,7 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Default() {
     metrics.fStrikeoutPosition  = -400;
 
     return sk_sp<TestSVGTypeface>(
-        new DefaultTypeface("Emoji", SkFontStyle::Normal(), 1000, metrics, glyphs));
+        new DefaultTypeface("Emoji", 1000, metrics, glyphs, SkFontStyle::Normal()));
 }
 
 class PlanetTypeface : public TestSVGTypeface {
@@ -439,7 +441,7 @@ sk_sp<TestSVGTypeface> TestSVGTypeface::Planets() {
     metrics.fStrikeoutPosition  = -80;
 
     return sk_sp<TestSVGTypeface>(
-        new PlanetTypeface("Planets", SkFontStyle::Normal(), 200, metrics, glyphs));
+        new PlanetTypeface("Planets", 200, metrics, glyphs, SkFontStyle::Normal()));
 }
 
 void TestSVGTypeface::exportTtxCommon(SkWStream*                out,
@@ -747,14 +749,6 @@ void TestSVGTypeface::exportTtxCommon(SkWStream*                out,
             "    <namerecord nameID=\"2\" platformID=\"3\" platEncID=\"1\" langID=\"0x409\">\n");
     out->writeText("      Regular\n");
     out->writeText("    </namerecord>\n");
-        out->writeText(
-            "    <namerecord nameID=\"6\" platformID=\"3\" platEncID=\"1\" langID=\"0x409\">\n");
-    out->writeText("      ");
-    out->writeText(fName.c_str());
-    out->writeText("_");
-    out->writeText(type);
-    out->writeText("\n");
-    out->writeText("    </namerecord>\n");
     out->writeText("  </name>\n");
 
     out->writeText("  <post>\n");
@@ -995,22 +989,6 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
  * a bit which is supposed to control this, but it cannot be relied on.) So
  * make the glyph contour a degenerate line with points at the edge of the
  * bounding box of the glyph.
- *
- * See the SBIX slide in viewer for how positioning and bounds work. CoreText sbix is buggy in the
- * way it applies the glyf bbox values (only to one side).
- * The bbox in DWrite is ((0, 0),(png.width, png.height)) + originOffset
- * The bbox in FreeType is ((0, 0),(png.width, png.height)) + (lsb, bbox.yMin) + originOffset.
- * The bbox in CoreText is ((lsb, bbox.yMin), (lsb + bbox.xMax - bbox.xMin, bbox.yMax))
- * In FreeType and DWrite the originOffsetX/Y apply to the bitmap and bounds.
- * In CoreText the originOffsetX/Y apply only to the bitmap (and not the bounds).
- *
- * The only way to create a compatibly positioned sbix bitmap glyph is to set
- * lsb = 0, bbox = ((0,0),png.size), originOffset = (0,0) and pad the png with transparent pixels.
- * This of course can only move the image up and to the right.
- *
- * To work with just CoreText and FreeType 2.12.0+ (DWrite having no offset)
- * lsb = x, bbox = ((0, y),(png.width, png.height + y)), originOffset = (0,0)
- * Which this does, since DWrite should be adding the lsb and bbox.yMin.
  */
 void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes) const {
     out->writeText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -1026,30 +1004,32 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
         const TestSVGTypeface::Glyph& glyphData = this->fGlyphs[i];
 
         SkSize containerSize = glyphData.size();
-        SkRect  bounds = SkRect::MakeXYWH(glyphData.fOrigin.fX, -glyphData.fOrigin.fY,
-                                          containerSize.fWidth, containerSize.fHeight);
+        SkRect  bounds  = SkRect::MakeXYWH(glyphData.fOrigin.fX,
+                                         -glyphData.fOrigin.fY,
+                                         containerSize.fWidth,
+                                         containerSize.fHeight);
         SkIRect ibounds = bounds.roundOut();
         out->writeText("    <TTGlyph name=\"glyf");
         out->writeHexAsText(i, 4);
         out->writeText("\" xMin=\"");
-        out->writeDecAsText(/*ibounds.fLeft*/0); //hmtx::lsb already has this from common
+        out->writeDecAsText(ibounds.fLeft);
         out->writeText("\" yMin=\"");
         out->writeDecAsText(-ibounds.fBottom);
         out->writeText("\" xMax=\"");
-        out->writeDecAsText(ibounds.fRight - ibounds.fLeft);
+        out->writeDecAsText(ibounds.fRight);
         out->writeText("\" yMax=\"");
         out->writeDecAsText(-ibounds.fTop);
         out->writeText("\">\n");
         out->writeText("      <contour>\n");
         out->writeText("        <pt x=\"");
-        out->writeDecAsText(/*ibounds.fLeft*/0);
+        out->writeDecAsText(ibounds.fLeft);
         out->writeText("\" y=\"");
         out->writeDecAsText(-ibounds.fBottom);
         out->writeText("\" on=\"1\"/>\n");
         out->writeText("      </contour>\n");
         out->writeText("      <contour>\n");
         out->writeText("        <pt x=\"");
-        out->writeDecAsText(ibounds.fRight - ibounds.fLeft);
+        out->writeDecAsText(ibounds.fRight);
         out->writeText("\" y=\"");
         out->writeDecAsText(-ibounds.fTop);
         out->writeText("\" on=\"1\"/>\n");
@@ -1099,14 +1079,32 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
             sk_sp<SkImage> image = surface->makeImageSnapshot();
             sk_sp<SkData> data = SkPngEncoder::Encode(nullptr, image.get(), {});
 
+            // The originOffset values are difficult to use as DirectWrite and FreeType interpret
+            // the origin to be the initial glyph position on the baseline, but CoreGraphics
+            // interprets the origin to be the lower left of the cbox of the outline in the 'glyf'
+            // table.
+            //#define SK_SBIX_LIKE_FT
+            //#define SK_SBIX_LIKE_DW
             out->writeText("      <glyph name=\"glyf");
             out->writeHexAsText(i, 4);
-
+            out->writeText("\" graphicType=\"png \" originOffsetX=\"");
+#if defined(SK_SBIX_LIKE_FT) || defined(SK_SBIX_LIKE_DW)
+            out->writeDecAsText(bounds.fLeft);
+#else
+            out->writeDecAsText(0);
+#endif
             // DirectWrite and CoreGraphics use positive values of originOffsetY to push the
             // image visually up (but from different origins).
-            // FreeType used positive values to push the image down until 2.12.0.
-            // However, in a bitmap only font there is little reason for these to not be zero.
-            out->writeText("\" graphicType=\"png \" originOffsetX=\"0\" originOffsetY=\"0\">\n");
+            // FreeType uses positive values to push the image down.
+            out->writeText("\" originOffsetY=\"");
+#if defined(SK_SBIX_LIKE_FT)
+            out->writeScalarAsText(bounds.fBottom);
+#elif defined(SK_SBIX_LIKE_DW)
+            out->writeScalarAsText(-bounds.fBottom);
+#else
+            out->writeDecAsText(0);
+#endif
+            out->writeText("\">\n");
 
             out->writeText("        <hexdata>");
             uint8_t const* bytes = data->bytes();

@@ -124,9 +124,11 @@ protected:
     }
 
 private:
-    TestSVGTypeface(const char* name, const SkFontStyle& style,
-                    int upem, const SkFontMetrics& metrics,
-                    SkSpan<const SkSVGTestTypefaceGlyphData> data);
+    TestSVGTypeface(const char*                              name,
+                    int                                      upem,
+                    const SkFontMetrics&                     metrics,
+                    SkSpan<const SkSVGTestTypefaceGlyphData> data,
+                    const SkFontStyle&                       style);
     struct Glyph {
         Glyph();
         ~Glyph();
@@ -149,11 +151,11 @@ private:
         mutable sk_sp<SkSVGDOM> fSvg;
     };
 
-    const SkString fName;
-    const int fUpem;
-    const SkFontMetrics fFontMetrics;
-    const std::unique_ptr<Glyph[]> fGlyphs;
-    const int fGlyphCount;
+    SkString                         fName;
+    int                              fUpem;
+    const SkFontMetrics              fFontMetrics;
+    std::unique_ptr<Glyph[]>         fGlyphs;
+    int                              fGlyphCount;
     skia_private::THashMap<SkUnichar, SkGlyphID> fCMap;
     friend class SkTestSVGScalerContext;
 };
