@@ -24,12 +24,15 @@ public:
         delete[] fGammaCorrectTable;
     }
 
-    SkScalar getAdjustment(int i, bool useGammaCorrectTable) const {
-        return useGammaCorrectTable ? fGammaCorrectTable[i] : fTable[i];
+    SkScalar getAdjustment(int lum, bool useGammaCorrectTable) const {
+        lum >>= kDistanceAdjustLumShift;
+        return useGammaCorrectTable ? fGammaCorrectTable[lum] : fTable[lum];
     }
 
 private:
     DistanceFieldAdjustTable();
+
+    static constexpr int kDistanceAdjustLumShift = 5;
 
     SkScalar* fTable;
     SkScalar* fGammaCorrectTable;

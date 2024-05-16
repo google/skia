@@ -496,20 +496,16 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                    const SkMatrix& localMatrix,
                                                    const GrSurfaceProxyView* views,
                                                    unsigned int numActiveViews) const {
-    static constexpr int kDistanceAdjustLumShift = 5;
     auto dfAdjustTable = sktext::gpu::DistanceFieldAdjustTable::Get();
 
     // see if we need to create a new effect
     if (this->isLCD()) {
-        float redCorrection = dfAdjustTable->getAdjustment(
-                SkColorGetR(fLuminanceColor) >> kDistanceAdjustLumShift,
-                fUseGammaCorrectDistanceTable);
-        float greenCorrection = dfAdjustTable->getAdjustment(
-                SkColorGetG(fLuminanceColor) >> kDistanceAdjustLumShift,
-                fUseGammaCorrectDistanceTable);
-        float blueCorrection = dfAdjustTable->getAdjustment(
-                SkColorGetB(fLuminanceColor) >> kDistanceAdjustLumShift,
-                fUseGammaCorrectDistanceTable);
+        float redCorrection = dfAdjustTable->getAdjustment(SkColorGetR(fLuminanceColor),
+                                                           fUseGammaCorrectDistanceTable);
+        float greenCorrection = dfAdjustTable->getAdjustment(SkColorGetG(fLuminanceColor),
+                                                             fUseGammaCorrectDistanceTable);
+        float blueCorrection = dfAdjustTable->getAdjustment(SkColorGetB(fLuminanceColor),
+                                                            fUseGammaCorrectDistanceTable);
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
@@ -520,10 +516,8 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 #if defined(SK_GAMMA_APPLY_TO_A8)
         float correction = 0;
         if (this->maskType() != MaskType::kAliasedDistanceField) {
-            U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT,
-                                                                fLuminanceColor);
-            correction = dfAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
-                                                      fUseGammaCorrectDistanceTable);
+            U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT, fLuminanceColor);
+            correction = dfAdjustTable->getAdjustment(lum, fUseGammaCorrectDistanceTable);
         }
         return GrDistanceFieldA8TextGeoProc::Make(arena, caps, views, numActiveViews,
                                                   GrSamplerState::Filter::kLinear, correction,
