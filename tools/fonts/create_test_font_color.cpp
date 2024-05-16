@@ -46,8 +46,7 @@ int main(int argc, char** argv) {
     unsigned small[] = { 8, 16 };
 
     export_ttx(TestSVGTypeface::Default(), SkString(), SkSpan(usual), SkSpan(usual));
-    export_ttx(
-            TestSVGTypeface::Planets(), SkString("planet"), SkSpan(small), SkSpan(usual));
+    export_ttx(TestSVGTypeface::Planets(), SkString("planet"), SkSpan(small), SkSpan(usual));
 
     return 0;
 }
