@@ -54,8 +54,12 @@ public:
         return std::unique_ptr<SkJpegEncoderMgr>(new SkJpegEncoderMgr(stream));
     }
 
-    bool setParams(const SkImageInfo& srcInfo, const SkJpegEncoder::Options& options);
-    bool setParams(const SkYUVAPixmapInfo& srcInfo, const SkJpegEncoder::Options& options);
+    bool initializeRGB(const SkImageInfo&,
+                       const SkJpegEncoder::Options&,
+                       const SkJpegMetadataEncoder::SegmentList&);
+    bool initializeYUV(const SkYUVAPixmapInfo&,
+                       const SkJpegEncoder::Options&,
+                       const SkJpegMetadataEncoder::SegmentList&);
 
     jpeg_compress_struct* cinfo() { return &fCInfo; }
 
@@ -72,6 +76,7 @@ private:
         jpeg_create_compress(&fCInfo);
         fCInfo.dest = &fDstMgr;
     }
+    void initializeCommon(const SkJpegEncoder::Options&, const SkJpegMetadataEncoder::SegmentList&);
 
     jpeg_compress_struct fCInfo;
     skjpeg_error_mgr fErrMgr;
@@ -79,8 +84,9 @@ private:
     transform_scanline_proc fProc;
 };
 
-bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo,
-                                 const SkJpegEncoder::Options& options) {
+bool SkJpegEncoderMgr::initializeRGB(const SkImageInfo& srcInfo,
+                                     const SkJpegEncoder::Options& options,
+                                     const SkJpegMetadataEncoder::SegmentList& metadataSegments) {
     auto chooseProc8888 = [&]() {
         if (kUnpremul_SkAlphaType == srcInfo.alphaType() &&
             options.fAlphaOption == SkJpegEncoder::AlphaOption::kBlendOnBlack) {
@@ -171,26 +177,23 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo,
         }
     }
 
-    // Tells libjpeg-turbo to compute optimal Huffman coding tables
-    // for the image.  This improves compression at the cost of
-    // slower encode performance.
-    fCInfo.optimize_coding = TRUE;
+    initializeCommon(options, metadataSegments);
     return true;
 }
 
 // Convert a row of an SkYUVAPixmaps to a row of Y,U,V triples.
 // TODO(ccameron): This is horribly inefficient.
-static void yuva_copy_row(const SkYUVAPixmaps* src, int row, uint8_t* dst) {
-    int width = src->plane(0).width();
-    switch (src->yuvaInfo().planeConfig()) {
+static void yuva_copy_row(const SkYUVAPixmaps& src, int row, uint8_t* dst) {
+    int width = src.plane(0).width();
+    switch (src.yuvaInfo().planeConfig()) {
         case SkYUVAInfo::PlaneConfig::kY_U_V: {
-            auto [ssWidthU, ssHeightU] = src->yuvaInfo().planeSubsamplingFactors(1);
-            auto [ssWidthV, ssHeightV] = src->yuvaInfo().planeSubsamplingFactors(2);
-            const uint8_t* srcY = reinterpret_cast<const uint8_t*>(src->plane(0).addr(0, row));
+            auto [ssWidthU, ssHeightU] = src.yuvaInfo().planeSubsamplingFactors(1);
+            auto [ssWidthV, ssHeightV] = src.yuvaInfo().planeSubsamplingFactors(2);
+            const uint8_t* srcY = reinterpret_cast<const uint8_t*>(src.plane(0).addr(0, row));
             const uint8_t* srcU =
-                    reinterpret_cast<const uint8_t*>(src->plane(1).addr(0, row / ssHeightU));
+                    reinterpret_cast<const uint8_t*>(src.plane(1).addr(0, row / ssHeightU));
             const uint8_t* srcV =
-                    reinterpret_cast<const uint8_t*>(src->plane(2).addr(0, row / ssHeightV));
+                    reinterpret_cast<const uint8_t*>(src.plane(2).addr(0, row / ssHeightV));
             for (int col = 0; col < width; ++col) {
                 dst[3 * col + 0] = srcY[col];
                 dst[3 * col + 1] = srcU[col / ssWidthU];
@@ -199,10 +202,10 @@ static void yuva_copy_row(const SkYUVAPixmaps* src, int row, uint8_t* dst) {
             break;
         }
         case SkYUVAInfo::PlaneConfig::kY_UV: {
-            auto [ssWidthUV, ssHeightUV] = src->yuvaInfo().planeSubsamplingFactors(1);
-            const uint8_t* srcY = reinterpret_cast<const uint8_t*>(src->plane(0).addr(0, row));
+            auto [ssWidthUV, ssHeightUV] = src.yuvaInfo().planeSubsamplingFactors(1);
+            const uint8_t* srcY = reinterpret_cast<const uint8_t*>(src.plane(0).addr(0, row));
             const uint8_t* srcUV =
-                    reinterpret_cast<const uint8_t*>(src->plane(1).addr(0, row / ssHeightUV));
+                    reinterpret_cast<const uint8_t*>(src.plane(1).addr(0, row / ssHeightUV));
             for (int col = 0; col < width; ++col) {
                 dst[3 * col + 0] = srcY[col];
                 dst[3 * col + 1] = srcUV[2 * (col / ssWidthUV) + 0];
@@ -215,8 +218,9 @@ static void yuva_copy_row(const SkYUVAPixmaps* src, int row, uint8_t* dst) {
     }
 }
 
-bool SkJpegEncoderMgr::setParams(const SkYUVAPixmapInfo& srcInfo,
-                                 const SkJpegEncoder::Options& options) {
+bool SkJpegEncoderMgr::initializeYUV(const SkYUVAPixmapInfo& srcInfo,
+                                     const SkJpegEncoder::Options& options,
+                                     const SkJpegMetadataEncoder::SegmentList& metadataSegments) {
     fCInfo.image_width = srcInfo.yuvaInfo().width();
     fCInfo.image_height = srcInfo.yuvaInfo().height();
     fCInfo.in_color_space = JCS_YCbCr;
@@ -252,81 +256,69 @@ bool SkJpegEncoderMgr::setParams(const SkYUVAPixmapInfo& srcInfo,
     fCInfo.comp_info[0].h_samp_factor = ssHoriz;
     fCInfo.comp_info[0].v_samp_factor = ssVert;
 
-    fCInfo.optimize_coding = TRUE;
+    initializeCommon(options, metadataSegments);
     return true;
 }
 
-static std::unique_ptr<SkEncoder> Make(SkWStream* dst,
-                                       const SkPixmap* src,
-                                       const SkYUVAPixmaps* srcYUVA,
-                                       const SkColorSpace* srcYUVAColorSpace,
-                                       const SkJpegEncoder::Options& options) {
-    // Exactly one of |src| or |srcYUVA| should be specified.
-    if (srcYUVA) {
-        SkASSERT(!src);
-        if (!srcYUVA->isValid()) {
-            return nullptr;
-        }
-    } else {
-        SkASSERT(src);
-        if (!src || !SkPixmapIsValid(*src)) {
-            return nullptr;
-        }
+void SkJpegEncoderMgr::initializeCommon(
+        const SkJpegEncoder::Options& options,
+        const SkJpegMetadataEncoder::SegmentList& metadataSegments) {
+    // Tells libjpeg-turbo to compute optimal Huffman coding tables
+    // for the image.  This improves compression at the cost of
+    // slower encode performance.
+    fCInfo.optimize_coding = TRUE;
+
+    jpeg_set_quality(&fCInfo, options.fQuality, TRUE);
+    jpeg_start_compress(&fCInfo, TRUE);
+
+    for (const auto& segment : metadataSegments) {
+        jpeg_write_marker(&fCInfo,
+                          segment.fMarker,
+                          segment.fParameters->bytes(),
+                          segment.fParameters->size());
     }
+}
 
+std::unique_ptr<SkEncoder> SkJpegEncoderImpl::MakeYUV(
+        SkWStream* dst,
+        const SkYUVAPixmaps& srcYUVA,
+        const SkColorSpace* srcYUVAColorSpace,
+        const SkJpegEncoder::Options& options,
+        const SkJpegMetadataEncoder::SegmentList& metadataSegments) {
+    if (!srcYUVA.isValid()) {
+        return nullptr;
+    }
     std::unique_ptr<SkJpegEncoderMgr> encoderMgr = SkJpegEncoderMgr::Make(dst);
-
     skjpeg_error_mgr::AutoPushJmpBuf jmp(encoderMgr->errorMgr());
     if (setjmp(jmp)) {
         return nullptr;
     }
 
-    if (srcYUVA) {
-        if (!encoderMgr->setParams(srcYUVA->pixmapsInfo(), options)) {
-            return nullptr;
-        }
-    } else {
-        if (!encoderMgr->setParams(src->info(), options)) {
-            return nullptr;
-        }
+    if (!encoderMgr->initializeYUV(srcYUVA.pixmapsInfo(), options, metadataSegments)) {
+        return nullptr;
+    }
+    return std::unique_ptr<SkJpegEncoderImpl>(
+            new SkJpegEncoderImpl(std::move(encoderMgr), srcYUVA));
+}
+
+std::unique_ptr<SkEncoder> SkJpegEncoderImpl::MakeRGB(
+        SkWStream* dst,
+        const SkPixmap& src,
+        const SkJpegEncoder::Options& options,
+        const SkJpegMetadataEncoder::SegmentList& metadataSegments) {
+    if (!SkPixmapIsValid(src)) {
+        return nullptr;
+    }
+    std::unique_ptr<SkJpegEncoderMgr> encoderMgr = SkJpegEncoderMgr::Make(dst);
+    skjpeg_error_mgr::AutoPushJmpBuf jmp(encoderMgr->errorMgr());
+    if (setjmp(jmp)) {
+        return nullptr;
     }
 
-    jpeg_set_quality(encoderMgr->cinfo(), options.fQuality, TRUE);
-    jpeg_start_compress(encoderMgr->cinfo(), TRUE);
-
-    // Write XMP metadata. This will only write the standard XMP segment.
-    // TODO(ccameron): Split this into a standard and extended XMP segment if needed.
-    if (options.xmpMetadata) {
-        SkDynamicMemoryWStream s;
-        s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
-        s.write(options.xmpMetadata->data(), options.xmpMetadata->size());
-        auto data = s.detachAsData();
-        jpeg_write_marker(encoderMgr->cinfo(), kXMPMarker, data->bytes(), data->size());
+    if (!encoderMgr->initializeRGB(src.info(), options, metadataSegments)) {
+        return nullptr;
     }
-
-    // Write the ICC profile.
-    // TODO(ccameron): This limits ICC profile size to a single segment's parameters (less than
-    // 64k). Split larger profiles into more segments.
-    sk_sp<SkData> icc = icc_from_color_space(srcYUVA ? srcYUVAColorSpace : src->colorSpace(),
-                                             options.fICCProfile,
-                                             options.fICCProfileDescription);
-    if (icc) {
-        // Create a contiguous block of memory with the icc signature followed by the profile.
-        sk_sp<SkData> markerData = SkData::MakeUninitialized(kICCMarkerHeaderSize + icc->size());
-        uint8_t* ptr = (uint8_t*)markerData->writable_data();
-        memcpy(ptr, kICCSig, sizeof(kICCSig));
-        ptr += sizeof(kICCSig);
-        *ptr++ = 1;  // This is the first marker.
-        *ptr++ = 1;  // Out of one total markers.
-        memcpy(ptr, icc->data(), icc->size());
-
-        jpeg_write_marker(encoderMgr->cinfo(), kICCMarker, markerData->bytes(), markerData->size());
-    }
-
-    if (srcYUVA) {
-        return std::make_unique<SkJpegEncoderImpl>(std::move(encoderMgr), srcYUVA);
-    }
-    return std::make_unique<SkJpegEncoderImpl>(std::move(encoderMgr), *src);
+    return std::unique_ptr<SkJpegEncoderImpl>(new SkJpegEncoderImpl(std::move(encoderMgr), src));
 }
 
 SkJpegEncoderImpl::SkJpegEncoderImpl(std::unique_ptr<SkJpegEncoderMgr> encoderMgr,
@@ -336,8 +328,8 @@ SkJpegEncoderImpl::SkJpegEncoderImpl(std::unique_ptr<SkJpegEncoderMgr> encoderMg
         , fEncoderMgr(std::move(encoderMgr)) {}
 
 SkJpegEncoderImpl::SkJpegEncoderImpl(std::unique_ptr<SkJpegEncoderMgr> encoderMgr,
-                                     const SkYUVAPixmaps* src)
-        : SkEncoder(src->plane(0), encoderMgr->cinfo()->input_components * src->yuvaInfo().width())
+                                     const SkYUVAPixmaps& src)
+        : SkEncoder(src.plane(0), encoderMgr->cinfo()->input_components * src.yuvaInfo().width())
         , fEncoderMgr(std::move(encoderMgr))
         , fSrcYUVA(src) {}
 
@@ -352,7 +344,7 @@ bool SkJpegEncoderImpl::onEncodeRows(int numRows) {
     if (fSrcYUVA) {
         // TODO(ccameron): Consider using jpeg_write_raw_data, to avoid having to re-pack the data.
         for (int i = 0; i < numRows; i++) {
-            yuva_copy_row(fSrcYUVA, fCurrRow + i, fStorage.get());
+            yuva_copy_row(*fSrcYUVA, fCurrRow + i, fStorage.get());
             JSAMPLE* jpegSrcRow = fStorage.get();
             jpeg_write_scanlines(fEncoderMgr->cinfo(), &jpegSrcRow, 1);
         }
@@ -422,14 +414,55 @@ sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& op
 }
 
 std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src, const Options& options) {
-    return Make(dst, &src, nullptr, nullptr, options);
+    SkJpegMetadataEncoder::SegmentList metadataSegments;
+    SkJpegMetadataEncoder::AppendXMPStandard(metadataSegments, options.xmpMetadata);
+    SkJpegMetadataEncoder::AppendICC(metadataSegments, options, src.colorSpace());
+    return SkJpegEncoderImpl::MakeRGB(dst, src, options, metadataSegments);
 }
 
 std::unique_ptr<SkEncoder> Make(SkWStream* dst,
                                 const SkYUVAPixmaps& src,
                                 const SkColorSpace* srcColorSpace,
                                 const Options& options) {
-    return Make(dst, nullptr, &src, srcColorSpace, options);
+    SkJpegMetadataEncoder::SegmentList metadataSegments;
+    SkJpegMetadataEncoder::AppendXMPStandard(metadataSegments, options.xmpMetadata);
+    SkJpegMetadataEncoder::AppendICC(metadataSegments, options, srcColorSpace);
+    return SkJpegEncoderImpl::MakeYUV(dst, src, srcColorSpace, options, metadataSegments);
 }
 
 }  // namespace SkJpegEncoder
+
+namespace SkJpegMetadataEncoder {
+
+void AppendICC(SegmentList& segmentList,
+               const SkJpegEncoder::Options& options,
+               const SkColorSpace* colorSpace) {
+    sk_sp<SkData> icc =
+            icc_from_color_space(colorSpace, options.fICCProfile, options.fICCProfileDescription);
+    if (!icc) {
+        return;
+    }
+
+    // TODO(ccameron): This limits ICC profile size to a single segment's parameters (less than
+    // 64k). Split larger profiles into more segments.
+    SkDynamicMemoryWStream s;
+    s.write(kICCSig, sizeof(kICCSig));
+    s.write8(1);  // This is the first marker.
+    s.write8(1);  // Out of one total markers.
+    s.write(icc->data(), icc->size());
+    segmentList.emplace_back(kICCMarker, s.detachAsData());
+}
+
+void AppendXMPStandard(SegmentList& segmentList, const SkData* xmpMetadata) {
+    if (!xmpMetadata) {
+        return;
+    }
+
+    // TODO(ccameron): Split this into a standard and extended XMP segment if needed.
+    SkDynamicMemoryWStream s;
+    s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
+    s.write(xmpMetadata->data(), xmpMetadata->size());
+    segmentList.emplace_back(kXMPMarker, s.detachAsData());
+}
+
+}  // namespace SkJpegMetadataEncoder
