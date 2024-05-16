@@ -11,6 +11,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/codec/SkCodec.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
@@ -62,6 +64,20 @@ struct ImageInfoNoColorspace {
 // TODO(kjlubick) Should this handle colorspace
 ImageInfoNoColorspace toImageInfoNoColorspace(const SkImageInfo& ii) {
   return (ImageInfoNoColorspace){ii.width(), ii.height(), ii.colorType(), ii.alphaType()};
+}
+
+static sk_sp<SkImage> deserializeImage(sk_sp<SkData> data, std::optional<SkAlphaType>, void*) {
+  std::unique_ptr<SkCodec> codec = DecodeImageData(std::move(data));
+  if (!codec) {
+    SkDebugf("Could not decode an image\n");
+    return nullptr;
+  }
+  sk_sp<SkImage> img = std::get<0>(codec->getImage());
+  if (!img) {
+    SkDebugf("Could not make an image from a codec\n");
+    return nullptr;
+  }
+  return img;
 }
 
 
@@ -376,8 +392,10 @@ class SkpDebugPlayer {
       // Loads a single frame (traditional) skp file from the provided data stream and returns
       // a newly allocated DebugCanvas initialized with the SkPicture that was in the file.
       std::unique_ptr<DebugCanvas> loadSingleFrame(SkMemoryStream* stream) {
+        SkDeserialProcs procs;
+        procs.fImageDataProc = deserializeImage;
         // note overloaded = operator that actually does a move
-        sk_sp<SkPicture> picture = SkPicture::MakeFromStream(stream);
+        sk_sp<SkPicture> picture = SkPicture::MakeFromStream(stream, &procs);
         if (!picture) {
           SkDebugf("Unable to deserialze frame.\n");
           return nullptr;
