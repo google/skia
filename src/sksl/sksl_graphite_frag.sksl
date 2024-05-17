@@ -623,8 +623,14 @@ $pure float2 $sweep_grad_layout(float2 centerParam, float biasParam, float scale
     // (sqrt(x^2 + y^2) + x) as the second parameter to atan2 in these cases. We let the device
     // handle the undefined behavior if the second parameter is 0, instead of doing the divide
     // ourselves and calling atan with the quotient.
-    float angle = sk_Caps.atan2ImplementedAsAtanYOverX ? 2 * atan(-pos.y, length(pos) - pos.x)
-                                                       : atan(-pos.y, -pos.x);
+    float angle;
+    if(sk_Caps.atan2ImplementedAsAtanYOverX) { 
+        angle = 2 * atan(-pos.y, length(pos) - pos.x);
+    } else {
+        // Hardcode pi/2 for the angle when x == 0, to avoid undefined behavior in this
+        // case. This hasn't proven to be necessary in the atan workaround case.
+        angle = pos.x != 0.0 ? atan(-pos.y, -pos.x) : sign(pos.y) * -1.5707963267949;
+    }
 
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     float t = (angle * 0.1591549430918 + 0.5 + biasParam) * scaleParam;
