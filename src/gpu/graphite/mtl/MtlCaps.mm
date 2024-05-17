@@ -37,115 +37,6 @@ MtlCaps::MtlCaps(const id<MTLDevice> device, const ContextOptions& options)
     this->finishInitialization(options);
 }
 
-// translates from older MTLFeatureSet interface to MTLGPUFamily interface
-bool MtlCaps::GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
-// MTLFeatureSet is deprecated for newer versions of the SDK
-#if SKGPU_GRAPHITE_METAL_SDK_VERSION < 300
-
-#if defined(SK_BUILD_FOR_MAC)
-    // Apple Silicon is only available in later OSes
-    *gpuFamily = GPUFamily::kMac;
-    // Mac OSX 14
-    if (@available(macOS 10.14, *)) {
-        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily2_v1]) {
-            *group = 2;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily1_v4]) {
-            *group = 1;
-            return true;
-        }
-    }
-    // Mac OSX 13
-    if (@available(macOS 10.13, *)) {
-        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily1_v3]) {
-            *group = 1;
-            return true;
-        }
-    }
-    // Mac OSX 12
-    if (@available(macOS 10.12, *)) {
-        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily1_v2]) {
-            *group = 1;
-            return true;
-        }
-    }
-    // Mac OSX 11
-    if (@available(macOS 10.11, *)) {
-        if ([device supportsFeatureSet:MTLFeatureSet_macOS_GPUFamily1_v1]) {
-            *group = 1;
-            return true;
-        }
-    }
-#elif defined(SK_BUILD_FOR_IOS)
-    // TODO: support tvOS
-   *gpuFamily = GPUFamily::kApple;
-    // iOS 12
-    if (@available(iOS 12.0, tvOS 12.0, *)) {
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily5_v1]) {
-            *group = 5;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily4_v2]) {
-            *group = 4;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v4]) {
-            *group = 3;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v5]) {
-            *group = 2;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v5]) {
-            *group = 1;
-            return true;
-        }
-    }
-    // iOS 11
-    if (@available(iOS 11.0, tvOS 11.0, *)) {
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily4_v1]) {
-            *group = 4;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v3]) {
-            *group = 3;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v4]) {
-            *group = 2;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v4]) {
-            *group = 1;
-            return true;
-        }
-    }
-    // iOS 10
-    if (@available(iOS 10.0, tvOS 10.0, *)) {
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v2]) {
-            *group = 3;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily2_v3]) {
-            *group = 2;
-            return true;
-        }
-        if ([device supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily1_v3]) {
-            *group = 1;
-            return true;
-        }
-    }
-    // We don't support earlier OSes
-#endif
-
-#endif // SKGPU_GRAPHITE_METAL_SDK_VERSION < 300
-
-    // No supported GPU families were found
-    return false;
-}
-
 bool MtlCaps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group) {
 #if SKGPU_GRAPHITE_METAL_SDK_VERSION >= 220
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
@@ -223,10 +114,6 @@ bool MtlCaps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* grou
 void MtlCaps::initGPUFamily(id<MTLDevice> device) {
     if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
         if (GetGPUFamily(device, &fGPUFamily, &fFamilyGroup)) {
-            return;
-        }
-    } else {
-        if (GetGPUFamilyFromFeatureSet(device, &fGPUFamily, &fFamilyGroup)) {
             return;
         }
     }

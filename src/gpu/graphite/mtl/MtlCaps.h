@@ -82,8 +82,6 @@ private:
         kApple,
     };
     static bool GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group);
-    static bool GetGPUFamilyFromFeatureSet(id<MTLDevice> device, GPUFamily* gpuFamily,
-                                           int* group);
 
     MTLPixelFormat getFormatFromColorType(SkColorType colorType) const {
         int idx = static_cast<int>(colorType);
