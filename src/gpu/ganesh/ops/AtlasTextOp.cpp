@@ -490,7 +490,6 @@ GrOp::CombineResult AtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, con
 }
 
 #if !defined(SK_DISABLE_SDF_TEXT)
-// TODO trying to figure out why lcd is so whack
 GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                    const GrShaderCaps& caps,
                                                    const SkMatrix& localMatrix,

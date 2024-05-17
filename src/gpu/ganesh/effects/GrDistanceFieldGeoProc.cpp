@@ -652,6 +652,7 @@ private:
 
         GrGLSLVarying delta(SkSLType::kFloat);
         varyingHandler->addVarying("Delta", &delta);
+        // TODO: change Delta to float2 and set y to handle vertical pixel geometry
         if (dfTexEffect.fFlags & kBGR_DistanceFieldEffectFlag) {
             vertBuilder->codeAppendf("%s = -%s.x/3.0;", delta.vsOut(), atlasDimensionsInvName);
         } else {
@@ -698,24 +699,9 @@ private:
         }
 
         // sample the texture by index
-        fragBuilder->codeAppend("half4 texColor;");
-        append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
-                                   texIdx, "uv", "texColor");
-
-        // green is distance to uv center
         fragBuilder->codeAppend("half3 distance;");
-        fragBuilder->codeAppend("distance.y = texColor.r;");
-        // red is distance to left offset
-        fragBuilder->codeAppend("half2 uv_adjusted = half2(uv) - offset;");
-        append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
-                                   texIdx, "uv_adjusted", "texColor");
-        fragBuilder->codeAppend("distance.x = texColor.r;");
-        // blue is distance to right offset
-        fragBuilder->codeAppend("uv_adjusted = half2(uv) + offset;");
-        append_multitexture_lookup(args, dfTexEffect.numTextureSamplers(),
-                                   texIdx, "uv_adjusted", "texColor");
-        fragBuilder->codeAppend("distance.z = texColor.r;");
-
+        append_multitexture_lookup_lcd(args, dfTexEffect.numTextureSamplers(),
+                                       texIdx, "uv", "offset", "distance");
         fragBuilder->codeAppend("distance = "
            "half3(" SK_DistanceFieldMultiplier ")*(distance - half3(" SK_DistanceFieldThreshold"));");
 
