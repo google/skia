@@ -137,6 +137,7 @@ private:
     SkColor fForegroundColor;
     bool fAntialias;
     uint16_t fUpem;
+    static const rust::Box<fontations_ffi::BridgeHintingInstance> fNoHintingInstance;
 };
 
 /** Tracks transforms and clips to compute a bounding box without drawing pixels. */
@@ -197,6 +198,7 @@ private:
 
     uint16_t fUpem;
     SkRect fBounds;
+    static const rust::Box<fontations_ffi::BridgeHintingInstance> fNoHintingInstance;
 };
 
 }  // namespace sk_fontations
