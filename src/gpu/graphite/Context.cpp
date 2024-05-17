@@ -287,19 +287,19 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
         if (!recorder) {
             recorder = this->makeRecorder();
         }
-        // TODO: Historically this was kExact fit, but it should be able to be kApprox.
         sk_sp<SkImage> flattened = CopyAsDraw(recorder.get(),
                                             params.fSrcImage,
                                             params.fSrcRect,
                                             params.fDstImageInfo.colorInfo(),
                                             Budgeted::kYes,
                                             Mipmapped::kNo,
-                                            SkBackingFit::kExact,
+                                            SkBackingFit::kApprox,
                                             "AsyncReadPixelsFallbackTexture");
         if (!flattened) {
             SKGPU_LOG_W("AsyncRead failed because copy-as-drawing into a readable format failed");
             return params.fail();
         }
+        // Use the original fSrcRect and not flattened's size since it's approx-fit.
         return this->asyncReadPixels(std::move(recorder),
                                      params.withNewSource(flattened.get(),
                                      SkIRect::MakeSize(params.fSrcRect.size())));
@@ -440,14 +440,12 @@ void Context::asyncReadPixelsYUV420(std::unique_ptr<Recorder> recorder,
                          float rgb2yuv[20],
                          const SkMatrix& texMatrix,
                          PixelTransferResult* result) {
-        // TODO: Can these be approx-fit surfaces and still be copied into buffers without accessing
-        // the extra row bytes?
         sk_sp<Surface> dstSurface = Surface::MakeScratch(recorder.get(),
                                                          planeInfo,
                                                          std::move(label),
                                                          Budgeted::kYes,
                                                          Mipmapped::kNo,
-                                                         SkBackingFit::kExact);
+                                                         SkBackingFit::kApprox);
         if (!dstSurface) {
             return false;
         }
@@ -473,11 +471,12 @@ void Context::asyncReadPixelsYUV420(std::unique_ptr<Recorder> recorder,
         // Manually flush the surface before transferPixels() is called to ensure the rendering
         // operations run before the CopyTextureToBuffer task.
         Flush(dstSurface);
+        // Must use planeInfo.bounds() for srcRect since dstSurface is kApprox-fit.
         *result = this->transferPixels(recorder.get(),
                                        dstSurface->backingTextureProxy(),
                                        dstSurface->imageInfo().colorInfo(),
                                        planeInfo.colorInfo(),
-                                       dstSurface->imageInfo().bounds());
+                                       planeInfo.bounds());
         return SkToBool(result->fTransferBuffer);
     };
 
