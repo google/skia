@@ -2207,6 +2207,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"use_ganesh_vulkan":  {"//:use_ganesh_vulkan", ""},
 	"use_skresources":    {"//:use_skresources", ""},
 	"write_text_to_png":  {"//:write_text_to_png", ""},
+	"write_to_pdf":       {"//:write_to_pdf", ""},
 
 	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them
 	// under a test_suite.

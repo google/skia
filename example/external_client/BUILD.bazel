@@ -240,3 +240,20 @@ cc_binary(
         "//conditions:default": [],
     }),
 )
+
+cc_binary(
+    name = "write_to_pdf",
+    srcs = ["src/write_to_pdf.cpp"],
+    copts = ["-std=c++17"],
+    linkopts = [
+        "-lpthread",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:pdf_writer",
+    ] + select({
+        "@platforms//os:linux": ["@skia//:fontmgr_fontconfig_freetype"],
+        "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
+        "//conditions:default": [],
+    }),
+)

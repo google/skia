@@ -4,7 +4,6 @@
 #define SkPDFSubsetFont_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/docs/SkPDFDocument.h"
 
 class SkData;
 class SkPDFGlyphUse;

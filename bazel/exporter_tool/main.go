@@ -152,8 +152,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{"//include/docs:public_hdrs"}},
 		{Var: "skia_pdf_sources",
 			Rules: []string{
-				"//src/pdf:pdf_hdrs",
-				"//src/pdf:pdf_srcs",
+				"//src/pdf:_pdf_hdrs",
+				"//src/pdf:_pdf_srcs",
 			}},
 		{Var: "skia_pdf_jpeginfo_lib",
 			Rules: []string{"//src/pdf:jpeg_info_libjpeg"}},

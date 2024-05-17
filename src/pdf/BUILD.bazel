@@ -59,7 +59,7 @@ PDF_FILES = [
 ]
 
 split_srcs_and_hdrs(
-    name = "pdf",
+    name = "_pdf",
     files = PDF_FILES,
 )
 
@@ -78,7 +78,7 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
-        ":pdf_srcs",
+        ":_pdf_srcs",
     ],
     visibility = ["//src:__pkg__"],
 )
@@ -86,7 +86,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
-        ":pdf_hdrs",
+        ":_pdf_hdrs",
     ],
     visibility = ["//src:__pkg__"],
 )
@@ -134,6 +134,35 @@ generate_cpp_files_for_headers(
     headers = [
         "SkBitmapKey.h",
         "SkPDFDocumentPriv.h",
+        "SkPDFUnion.h",
         "SkUUID.h",
+    ],
+)
+
+skia_cc_library(
+    name = "pdf",
+    srcs = [
+        ":_pdf_hdrs",
+        ":_pdf_srcs",
+    ],
+    hdrs = [
+        "//include/docs:pdf_hdrs",
+    ],
+    local_defines = ["SK_PDF_USE_HARFBUZZ_SUBSET"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//:jpeg_decode_codec",
+        "//:jpeg_encode_codec",
+        "//:pathops",
+        "//src/core:core_priv",
+        "//src/utils:clip_stack_utils",
+        "//src/utils:float_to_decimal",
+        "@zlib_skia//:zlib",
+    ] +
+    # We have this harfbuzz dependency all by itself because we need to turn this into a
+    # select statement when rolling into G3.
+    [
+        "@harfbuzz",
     ],
 )

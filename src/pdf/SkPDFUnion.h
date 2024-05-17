@@ -3,7 +3,17 @@
 #ifndef SkPDFUnion_DEFINED
 #define SkPDFUnion_DEFINED
 
-#include "src/pdf/SkPDFTypes.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/private/base/SkTo.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
+class SkPDFObject;
+class SkWStream;
+struct SkPDFIndirectReference;
 
 /**
    A SkPDFUnion is a non-virtualized implementation of the

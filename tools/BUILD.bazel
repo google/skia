@@ -313,7 +313,7 @@ skia_cc_library(
         "//src/gpu/ganesh:headers_to_compile",
         "//src/gpu/tessellate:headers_to_compile",
         "//src/gpu:headers_to_compile",
-        #"//src/pdf:headers_to_compile", # TODO(kjlubick) add module for pdf
+        "//src/pdf:headers_to_compile",
     ],
     copts = [
         # Since we are generating .cpp files for headers, some variables/functions which
@@ -338,6 +338,7 @@ skia_cc_library(
         "//:jpeg_encode_codec",
         "//:jpegxl_decode_codec",
         "//:pathops",
+        "//:pdf_writer",
         "//:png_decode_codec",
         "//:png_encode_codec",
         "//:skparagraph_harfbuzz_unicode",
@@ -348,6 +349,7 @@ skia_cc_library(
         "//:skunicode_core",
         "//:skunicode_icu",
         "//:svg_renderer",
+        "//:svg_writer",
         "//:wbmp_decode_codec",
         "//:webp_decode_codec",
         "//:webp_encode_codec",

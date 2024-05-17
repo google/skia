@@ -386,7 +386,11 @@ skia_objc_library(
         "CoreGraphics",
         "CoreFoundation",
     ],
-    mac_frameworks = ["ApplicationServices"],
+    mac_frameworks = [
+        "ApplicationServices",
+        "CoreFoundation",
+        "CoreText",
+    ],
     visibility = ["//:__pkg__"],
     deps = [
         ":coretext_typeface",

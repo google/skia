@@ -29,3 +29,9 @@ skia_filegroup(
     }),  # TODO(kjlubick) XPSDocument
     visibility = ["//include:__pkg__"],
 )
+
+skia_filegroup(
+    name = "pdf_hdrs",
+    srcs = ["SkPDFDocument.h"],
+    visibility = ["//src/pdf:__pkg__"],
+)

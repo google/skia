@@ -8,13 +8,18 @@
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/pdf/SkPDFGlyphUse.h"
-#include "src/utils/SkCallableTraits.h"
 
 #include "hb.h"  // NO_G3_REWRITE
 #include "hb-subset.h"  // NO_G3_REWRITE
+
+#include <cstddef>
+#include <memory>
+#include <utility>
 
 namespace {
 

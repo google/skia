@@ -270,6 +270,14 @@ alias(
 ###
 
 alias(
+    name = "pdf_writer",
+    actual = "//src/pdf:pdf",
+    visibility = ["//visibility:public"],
+)
+
+###
+
+alias(
     name = "skparagraph_harfbuzz_unicode",
     actual = "//modules/skparagraph:skparagraph_harfbuzz_unicode",
     visibility = ["//visibility:public"],

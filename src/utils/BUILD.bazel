@@ -205,3 +205,36 @@ skia_cc_library(
         "//src/base",
     ],
 )
+
+skia_cc_library(
+    name = "float_to_decimal",
+    srcs = [
+        "SkFloatToDecimal.cpp",
+    ],
+    hdrs = [
+        "SkFloatToDecimal.h",
+    ],
+    visibility = [
+        "//src/pdf:__pkg__",
+    ],
+    deps = [
+        "//:core",
+    ],
+)
+
+skia_cc_library(
+    name = "clip_stack_utils",
+    srcs = [
+        "SkClipStackUtils.cpp",
+    ],
+    hdrs = [
+        "SkClipStackUtils.h",
+    ],
+    visibility = [
+        "//src/pdf:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//:pathops",
+    ],
+)

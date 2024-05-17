@@ -10,6 +10,7 @@
 
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "src/pdf/SkPDFUnion.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -18,7 +19,6 @@
 #include <vector>
 
 class SkPDFDocument;
-class SkPDFUnion;
 class SkStreamAsset;
 class SkString;
 class SkWStream;

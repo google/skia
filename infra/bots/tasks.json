@@ -130,6 +130,11 @@
         "BazelTest-external_client-write_text_to_png-default-linux_x64"
       ]
     },
+    "BazelTest-external_client-write_to_pdf-default-linux_x64": {
+      "tasks": [
+        "BazelTest-external_client-write_to_pdf-default-linux_x64"
+      ]
+    },
     "BazelTest-gm-cpu_gms-cpu_only_debug_rbe-linux_x64-NUC9i7QN_Debian11": {
       "tasks": [
         "BazelTest-gm-cpu_gms-cpu_only_debug_rbe-linux_x64-NUC9i7QN_Debian11"
@@ -4976,6 +4981,72 @@
         "--task_name=BazelTest-external_client-write_text_to_png-default-linux_x64",
         "--workdir=.",
         "--bazel_label=//:write_text_to_png",
+        "--path_in_skia=example/external_client",
+        "--bazel_cache_dir=/mnt/pd0/bazel_cache"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BuildTaskDrivers_linux_amd64"
+      ],
+      "dimensions": [
+        "docker_installed:true",
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-standard-16",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "environment": {
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "CLOUDSDK_PYTHON": [
+          "cipd_bin_packages/cpython3/bin/python3"
+        ],
+        "PATH": [
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "bazelisk_linux_amd64"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "BazelTest-external_client-write_to_pdf-default-linux_x64": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "bazel",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:2@3.11.7.chromium.31"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:1d9a0e2aa6d4a0a037e6ee8a6aba588c613660a6"
+        },
+        {
+          "name": "skia/bots/bazelisk_linux_amd64",
+          "path": "bazelisk_linux_amd64",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "./external_client",
+        "--project_id=skia-swarming-bots",
+        "--task_id=<(TASK_ID)",
+        "--task_name=BazelTest-external_client-write_to_pdf-default-linux_x64",
+        "--workdir=.",
+        "--bazel_label=//:write_to_pdf",
         "--path_in_skia=example/external_client",
         "--bazel_cache_dir=/mnt/pd0/bazel_cache"
       ],

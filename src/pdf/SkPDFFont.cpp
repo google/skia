@@ -27,8 +27,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/core/SkTypes.h"
-#include "include/docs/SkPDFDocument.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
