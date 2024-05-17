@@ -8,6 +8,7 @@
 #ifndef SkLocalMatrixShader_DEFINED
 #define SkLocalMatrixShader_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
@@ -64,6 +65,8 @@ protected:
 #endif
 
     SkImage* onIsAImage(SkMatrix* matrix, SkTileMode* mode) const override;
+
+    bool onAsLuminanceColor(SkColor4f*) const override;
 
     bool appendStages(const SkStageRec&, const SkShaders::MatrixRec&) const override;
 

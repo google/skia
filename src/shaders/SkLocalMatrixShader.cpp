@@ -58,6 +58,10 @@ SkImage* SkLocalMatrixShader::onIsAImage(SkMatrix* outMatrix, SkTileMode* mode) 
     return image;
 }
 
+bool SkLocalMatrixShader::onAsLuminanceColor(SkColor4f* color) const {
+    return as_SB(fWrappedShader)->asLuminanceColor(color);
+}
+
 bool SkLocalMatrixShader::appendStages(const SkStageRec& rec,
                                        const SkShaders::MatrixRec& mRec) const {
     return as_SB(fWrappedShader)->appendStages(rec, mRec.concat(fLocalMatrix));
