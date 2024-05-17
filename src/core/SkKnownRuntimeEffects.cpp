@@ -100,9 +100,9 @@ enum class MatrixConvolutionImpl {
 //    and large variants w/ the actual kernel size uploaded as a uniform.
 SkRuntimeEffect* make_matrix_conv_effect(MatrixConvolutionImpl impl,
                                          const SkRuntimeEffect::Options& options) {
-    // While the loop structure and uniforms are different, pieces of the algorithm are common and
+    // While the uniforms and kernel access are different, pieces of the algorithm are common and
     // defined statically for re-use in the two shaders:
-    static const char* kHeaderSkSL =
+    static const char* kHeaderAndBeginLoopSkSL =
         "uniform int2 size;"
         "uniform int2 offset;"
         "uniform half2 gainAndBias;"
@@ -112,10 +112,13 @@ SkRuntimeEffect* make_matrix_conv_effect(MatrixConvolutionImpl impl,
 
         "half4 main(float2 coord) {"
             "half4 sum = half4(0);"
-            "half origAlpha = 0;";
+            "half origAlpha = 0;"
+            "int2 kernelPos = int2(0);"
+            "for (int i = 0; i < kMaxKernelSize; ++i) {"
+                "if (kernelPos.y >= size.y) { break; }";
 
-    // Used in the inner loop to accumulate convolution sum
-    static const char* kAccumulateSkSL =
+    // Used in the inner loop to accumulate convolution sum and increment the kernel position
+    static const char* kAccumulateAndIncrementSkSL =
                 "half4 c = child.eval(coord + half2(kernelPos) - half2(offset));"
                 "if (convolveAlpha == 0) {"
                     // When not convolving alpha, remember the original alpha for actual sample
@@ -125,10 +128,16 @@ SkRuntimeEffect* make_matrix_conv_effect(MatrixConvolutionImpl impl,
                     "}"
                     "c = unpremul(c);"
                 "}"
-                "sum += c*k;";
+                "sum += c*k;"
+                "kernelPos.x += 1;"
+                "if (kernelPos.x >= size.x) {"
+                    "kernelPos.x = 0;"
+                    "kernelPos.y += 1;"
+                "}";
 
-    // Used after the loop to calculate final color
-    static const char* kFooterSkSL =
+    // Closes the loop and calculates final color
+    static const char* kCloseLoopAndFooterSkSL =
+            "}"
             "half4 color = sum*gainAndBias.x + gainAndBias.y;"
             "if (convolveAlpha == 0) {"
                 // Reset the alpha to the original and convert to premul RGB
@@ -144,61 +153,41 @@ SkRuntimeEffect* make_matrix_conv_effect(MatrixConvolutionImpl impl,
 
     static const auto makeTextureEffect = [](int maxTextureKernelSize,
                                              const SkRuntimeEffect::Options& options) {
-        return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-            SkStringPrintf("const int kMaxTextureKernelSize = %d;"
-                           "uniform shader kernel;"
-                           "uniform half2 innerGainAndBias;"
-                           "%s" // kHeaderSkSL
-                               "int2 kernelPos = int2(0);"
-                               "for (int i = 0; i < kMaxTextureKernelSize; ++i) {"
-                                   "if (kernelPos.y >= size.y) { break; }"
-
-                                   "half k = kernel.eval(half2(half(i) + 0.5, 0.5)).a;"
-                                   "k = k * innerGainAndBias.x + innerGainAndBias.y;"
-                                   "%s" // kAccumulateSkSL
-
-                                   "kernelPos.x += 1;"
-                                   "if (kernelPos.x >= size.x) {"
-                                       "kernelPos.x = 0;"
-                                       "kernelPos.y += 1;"
-                                   "}"
-                               "}"
-                           "%s", // kFooterSkSL
-                           maxTextureKernelSize,
-                           kHeaderSkSL, kAccumulateSkSL, kFooterSkSL).c_str(),
-                           options);
+        return SkMakeRuntimeEffect(
+                        SkRuntimeEffect::MakeForShader,
+                        SkStringPrintf("const int kMaxKernelSize = %d;"
+                                       "uniform shader kernel;"
+                                       "uniform half2 innerGainAndBias;"
+                                       "%s" // kHeaderAndBeginLoopSkSL
+                                               "half k = kernel.eval(half2(half(i) + 0.5, 0.5)).a;"
+                                               "k = k * innerGainAndBias.x + innerGainAndBias.y;"
+                                               "%s" // kAccumulateAndIncrementSkSL
+                                       "%s", // kCloseLoopAndFooterSkSL
+                                       maxTextureKernelSize,
+                                       kHeaderAndBeginLoopSkSL,
+                                       kAccumulateAndIncrementSkSL,
+                                       kCloseLoopAndFooterSkSL).c_str(),
+                        options);
     };
 
     switch (impl) {
         case MatrixConvolutionImpl::kUniformBased: {
             return SkMakeRuntimeEffect(
                         SkRuntimeEffect::MakeForShader,
-                        SkStringPrintf("const int kMaxUniformKernelSize = %d / 4;"
-                                       "uniform half4 kernel[kMaxUniformKernelSize];"
-                                       "%s" // kHeaderSkSL
-                                            "int2 kernelPos = int2(0);"
-                                            "for (int i = 0; i < kMaxUniformKernelSize; ++i) {"
-                                                "if (kernelPos.y >= size.y) { break; }"
-
+                        SkStringPrintf("const int kMaxKernelSize = %d / 4;"
+                                       "uniform half4 kernel[kMaxKernelSize];"
+                                       "%s" // kHeaderAndBeginLoopSkSL
                                                 "half4 k4 = kernel[i];"
                                                 "for (int j = 0; j < 4; ++j) {"
                                                     "if (kernelPos.y >= size.y) { break; }"
                                                     "half k = k4[j];"
-                                                    "%s" // kAccumulateSkSL
-
-                                                    // The 1D index has to be "constant", so
-                                                    // reconstruct 2D coords instead of a more
-                                                    // conventional double for-loop and i=y*w+x
-                                                    "kernelPos.x += 1;"
-                                                    "if (kernelPos.x >= size.x) {"
-                                                        "kernelPos.x = 0;"
-                                                        "kernelPos.y += 1;"
-                                                    "}"
+                                                    "%s" // kAccumulateAndIncrementSkSL
                                                 "}"
-                                            "}"
-                                        "%s", // kFooterSkSL
-                                        MatrixConvolutionImageFilter::kMaxUniformKernelSize,
-                                        kHeaderSkSL, kAccumulateSkSL, kFooterSkSL).c_str(),
+                                       "%s", // kCloseLoopAndFooterSkSL
+                                       MatrixConvolutionImageFilter::kMaxUniformKernelSize,
+                                       kHeaderAndBeginLoopSkSL,
+                                       kAccumulateAndIncrementSkSL,
+                                       kCloseLoopAndFooterSkSL).c_str(),
                         options);
         }
         case MatrixConvolutionImpl::kTextureBasedSm:
