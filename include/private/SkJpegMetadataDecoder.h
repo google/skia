@@ -62,6 +62,13 @@ public:
     virtual sk_sp<SkData> getICCProfileData(bool copyData) const = 0;
 
     /**
+     * Return the ISO 21496-1 metadata, if any, and nullptr otherwise. If |copyData| is false,
+     * then the returned SkData may directly reference the data provided when this object was
+     * created.
+     */
+    virtual sk_sp<SkData> getISOGainmapMetadata(bool copyData) const = 0;
+
+    /**
      * Return true if there is a possibility that this image contains a gainmap image.
      */
     virtual bool mightHaveGainmapImage() const = 0;

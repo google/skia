@@ -95,6 +95,11 @@ struct SkGainmapInfo {
     sk_sp<SkColorSpace> fGainmapMathColorSpace = nullptr;
 
     /**
+     * Return true if this can be encoded as an UltraHDR v1 image.
+     */
+    bool isUltraHDRv1Compatible() const;
+
+    /**
      * If |data| contains an ISO 21496-1 version that is supported, return true. Otherwise return
      * false.
      */

@@ -40,6 +40,7 @@ public:
     // SkJpegMetadataDecoder implementation:
     sk_sp<SkData> getExifMetadata(bool copyData) const override;
     sk_sp<SkData> getICCProfileData(bool copyData) const override;
+    sk_sp<SkData> getISOGainmapMetadata(bool copyData) const override;
     bool mightHaveGainmapImage() const override;
     bool findGainmapImage(sk_sp<SkData> baseImageData,
                           sk_sp<SkData>& outGainmapImageData,
