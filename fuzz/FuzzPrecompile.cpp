@@ -85,12 +85,6 @@ SkPath make_path() {
     return path.detach();
 }
 
-#ifdef SK_DEBUG
-void dump(ShaderCodeDictionary* dict, UniquePaintParamsID id) {
-    dict->lookup(id).dump(dict);
-}
-#endif
-
 //--------------------------------------------------------------------------------------------------
 // color spaces
 
@@ -397,11 +391,11 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
 #ifdef SK_DEBUG
     if (result == precompileIDs.end()) {
         SkDebugf("From paint: ");
-        dump(dict, paintID);
+        dict->dump(paintID);
 
         SkDebugf("From combination builder:");
         for (auto iter : precompileIDs) {
-            dump(dict, iter);
+            dict->dump(iter);
         }
     }
 #endif

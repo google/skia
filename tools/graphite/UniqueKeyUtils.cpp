@@ -37,7 +37,7 @@ void DumpDescs(const RendererProvider* rendererProvider,
     const RenderStep* rs = rendererProvider->lookup(pipelineDesc.renderStepID());
     SkDebugf("GraphicsPipelineDesc: %u %s\n", pipelineDesc.paintParamsID().asUInt(), rs->name());
 
-    dict->lookup(pipelineDesc.paintParamsID()).dump(dict);
+    dict->dump(pipelineDesc.paintParamsID());
 
     SkDebugf("RenderPassDesc:\n");
     SkDebugf("   colorAttach: %s\n", rpd.fColorAttachment.toString().c_str());

@@ -241,6 +241,8 @@ public:
 
 #if defined(SK_DEBUG)
     bool isValidID(int snippetID) const SK_EXCLUDES(fSpinLock);
+
+    void dump(UniquePaintParamsID) const;
 #endif
 
     // This method can return nullptr

@@ -24,6 +24,7 @@ namespace skgpu::graphite {
 
 class ShaderCodeDictionary;
 class ShaderNode;
+class UniquePaintParamsID;
 
 // This class is a compact representation of the shader needed to implement a given
 // PaintParams. Its structure is a series of nodes where each node consists of:
@@ -62,7 +63,7 @@ public:
     SkString toString(const ShaderCodeDictionary* dict) const;
 
 #ifdef SK_DEBUG
-    void dump(const ShaderCodeDictionary*) const;
+    void dump(const ShaderCodeDictionary*, UniquePaintParamsID) const;
 #endif
 
     bool operator==(const PaintParamsKey& that) const {

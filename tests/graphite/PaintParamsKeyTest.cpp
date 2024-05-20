@@ -1213,12 +1213,6 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
     return { paint, paintOptions };
 }
 
-#ifdef SK_DEBUG
-void dump(ShaderCodeDictionary* dict, UniquePaintParamsID id) {
-    dict->lookup(id).dump(dict);
-}
-#endif
-
 SkPath make_path() {
     SkPathBuilder path;
     path.moveTo(0, 0);
@@ -1673,11 +1667,11 @@ void run_test(skiatest::Reporter* reporter,
 #ifdef SK_DEBUG
             if (result == precompileIDs.end()) {
                 SkDebugf("From paint: ");
-                dump(dict, paintID);
+                dict->dump(paintID);
 
                 SkDebugf("From combination builder [%d]:", static_cast<int>(precompileIDs.size()));
                 for (auto iter : precompileIDs) {
-                    dump(dict, iter);
+                    dict->dump(iter);
                 }
             }
 #endif
