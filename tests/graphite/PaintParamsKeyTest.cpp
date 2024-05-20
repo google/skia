@@ -10,8 +10,10 @@
 #if defined(SK_GRAPHITE)
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPicture.h"
@@ -111,6 +113,30 @@ const char* to_str(ShaderType s) {
     switch (s) {
 #define M(type) case ShaderType::k##type : return "ShaderType::k" #type;
         SK_ALL_TEST_SHADERS(M)
+#undef M
+    }
+
+    SkUNREACHABLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+#define SK_ALL_TEST_MASKFILTERS(M) \
+    M(None)                        \
+    M(Blur)
+
+enum class MaskFilterType {
+#define M(type) k##type,
+    SK_ALL_TEST_MASKFILTERS(M)
+#undef M
+
+    kLast = kBlur
+};
+
+const char* to_str(MaskFilterType mf) {
+    switch (mf) {
+#define M(type) case MaskFilterType::k##type : return "MaskFilterType::k" #type;
+        SK_ALL_TEST_MASKFILTERS(M)
 #undef M
     }
 
@@ -1083,12 +1109,46 @@ std::pair<sk_sp<SkImageFilter>, SkEnumBitMask<PrecompileImageFilters>>
     return create_image_filter(rand, random_imagefiltertype(rand));
 }
 
+std::pair<sk_sp<SkMaskFilter>, sk_sp<PrecompileMaskFilter>> create_blur_maskfilter(SkRandom* rand) {
+    SkBlurStyle style;
+    switch (rand->nextULessThan(4)) {
+        case 0:  style = kNormal_SkBlurStyle; break;
+        case 1:  style = kSolid_SkBlurStyle;  break;
+        case 2:  style = kOuter_SkBlurStyle;  break;
+        case 3:  [[fallthrough]];
+        default: style = kInner_SkBlurStyle;  break;
+    }
+
+    float sigma = 1.0f;
+    switch (rand->nextULessThan(2)) {
+        case 0:  sigma = 1.0f; break;
+        case 1:  sigma = 2.0f; break;
+        case 2:  [[fallthrough]];
+        default: sigma = 5.0f; break;
+    }
+
+    bool respectCTM = rand->nextBool();
+
+    return { SkMaskFilter::MakeBlur(style, sigma, respectCTM), PrecompileMaskFilters::Blur() };
+}
+
+std::pair<sk_sp<SkMaskFilter>, sk_sp<PrecompileMaskFilter>> create_maskfilter(SkRandom* rand,
+                                                                              MaskFilterType type) {
+    switch (type) {
+        case MaskFilterType::kNone: return {nullptr, nullptr};
+        case MaskFilterType::kBlur: return create_blur_maskfilter(rand);
+    }
+
+    SkUNREACHABLE;
+}
+
 //--------------------------------------------------------------------------------------------------
 std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
                                               Recorder* recorder,
                                               ShaderType shaderType,
                                               BlenderType blenderType,
                                               ColorFilterType colorFilterType,
+                                              MaskFilterType maskFilterType,
                                               ImageFilterType imageFilterType) {
     SkPaint paint;
     paint.setColor(random_color(rand, ColorConstraint::kOpaque));
@@ -1112,6 +1172,16 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
         if (cf) {
             paint.setColorFilter(std::move(cf));
             paintOptions.setColorFilters({o});
+        }
+    }
+
+    {
+        auto [mf, o] = create_maskfilter(rand, maskFilterType);
+        SkASSERT(!mf == !o);
+
+        if (mf) {
+            paint.setMaskFilter(std::move(mf));
+            paintOptions.setMaskFilters({o});
         }
     }
 
@@ -1305,8 +1375,9 @@ void run_test(skiatest::Reporter*,
               ShaderType,
               BlenderType,
               ColorFilterType,
-              ClipType,
-              ImageFilterType);
+              MaskFilterType,
+              ImageFilterType,
+              ClipType);
 
 // This is intended to be a smoke test for the agreement between the two ways of creating a
 // PaintParamsKey:
@@ -1417,11 +1488,10 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
 #endif
     };
 
-    ClipType clips[] = {
-            ClipType::kNone,
+    MaskFilterType maskFilters[] = {
+            MaskFilterType::kNone,
 #if EXPANDED_SET
-            ClipType::kShader,        // w/ a SkClipOp::kIntersect
-            ClipType::kShader_Diff,   // w/ a SkClipOp::kDifference
+            MaskFilterType::kBlur,
 #endif
     };
 
@@ -1432,23 +1502,34 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
 #endif
     };
 
+    ClipType clips[] = {
+            ClipType::kNone,
+#if EXPANDED_SET
+            ClipType::kShader,        // w/ a SkClipOp::kIntersect
+            ClipType::kShader_Diff,   // w/ a SkClipOp::kDifference
+#endif
+    };
+
 #if EXPANDED_SET
     size_t kExpected = std::size(shaders) * std::size(blenders) * std::size(colorFilters) *
-                       std::size(clips) * std::size(imageFilters);
+                       std::size(maskFilters) * std::size(imageFilters) * std::size(clips);
     int current = 0;
 #endif
 
     for (auto shader : shaders) {
         for (auto blender : blenders) {
             for (auto cf : colorFilters) {
-                for (auto clip : clips) {
+                for (auto mf : maskFilters) {
                     for (auto imageFilter : imageFilters) {
+                        for (auto clip : clips) {
 #if EXPANDED_SET
-                        SkDebugf("%d/%zu\n", current, kExpected);
-                        ++current;
+                            SkDebugf("%d/%zu\n", current, kExpected);
+                            ++current;
 #endif
-                        run_test(reporter, context, testContext, precompileKeyContext, drawData,
-                                 shader, blender, cf, clip, imageFilter);
+
+                            run_test(reporter, context, testContext, precompileKeyContext,
+                                     drawData, shader, blender, cf, mf, imageFilter, clip);
+                        }
                     }
                 }
             }
@@ -1468,8 +1549,9 @@ void run_test(skiatest::Reporter* reporter,
               ShaderType s,
               BlenderType bm,
               ColorFilterType cf,
-              ClipType clip,
-              ImageFilterType imageFilter) {
+              MaskFilterType mf,
+              ImageFilterType imageFilter,
+              ClipType clip) {
     SkRandom rand;
 
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
@@ -1489,7 +1571,7 @@ void run_test(skiatest::Reporter* reporter,
     PipelineDataGatherer precompileGatherer(recorder->priv().caps(), Layout::kMetal);
 
     gNeedSKPPaintOption = false;
-    auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf, imageFilter);
+    auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf, mf, imageFilter);
 
     for (DrawTypeFlags dt : { DrawTypeFlags::kSimpleShape,
                               DrawTypeFlags::kNonSimpleShape,
@@ -1583,8 +1665,9 @@ void run_test(skiatest::Reporter* reporter,
             auto result = std::find(precompileIDs.begin(), precompileIDs.end(), paintID);
 
             if (result == precompileIDs.end()) {
-                SkDebugf("Failure on case: %s %s %s %s %s\n",
-                         to_str(s), to_str(bm), to_str(cf), to_str(clip), to_str(imageFilter));
+                SkDebugf("Failure on case: %s %s %s %s %s %s\n",
+                         to_str(s), to_str(bm), to_str(cf), to_str(clip), to_str(mf),
+                         to_str(imageFilter));
             }
 
 #ifdef SK_DEBUG
@@ -1622,7 +1705,8 @@ void run_test(skiatest::Reporter* reporter,
                            recorder.get(),
                            paint,
                            dt,
-                           clip, clipShader,
+                           clip,
+                           clipShader,
                            drawData);
             }
         }

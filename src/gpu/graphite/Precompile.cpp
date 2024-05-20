@@ -439,12 +439,13 @@ void PaintOptions::createKey(const KeyContext& keyContext,
 
 namespace {
 
-void create_blur_pipelines(const KeyContext& keyContext,
-                           PipelineDataGatherer* gatherer,
-                           const PaintOptions::ProcessCombination& processCombination) {
+void create_blur_imagefilter_pipelines(const KeyContext& keyContext,
+                                       PipelineDataGatherer* gatherer,
+                                       const PaintOptions::ProcessCombination& processCombination) {
     PaintOptions blurPaintOptions, imagePaintOptions;
 
-    // For blurs we know we don't have alpha-only textures and don't need cubic filtering.
+    // For blur imagefilters we know we don't have alpha-only textures and don't need cubic
+    // filtering.
     sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
             PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
 
@@ -494,7 +495,7 @@ void PaintOptions::buildCombinations(
                               processCombination);
 
         if (fImageFilterOptions & PrecompileImageFilters::kBlur) {
-            create_blur_pipelines(keyContext, gatherer, processCombination);
+            create_blur_imagefilter_pipelines(keyContext, gatherer, processCombination);
         }
     } else {
         int numCombinations = this->numCombinations();

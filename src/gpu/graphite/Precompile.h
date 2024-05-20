@@ -175,6 +175,11 @@ public:
 
     void setMaskFilters(SkSpan<const sk_sp<PrecompileMaskFilter>> maskFilters) {
         fMaskFilterOptions.assign(maskFilters.begin(), maskFilters.end());
+        if (fMaskFilterOptions.size()) {
+            // Currently Graphite only supports BlurMaskFilters which are implemented
+            // via BlurImageFiltering
+            fImageFilterOptions |= PrecompileImageFilters::kBlur;
+        }
     }
 
     void setColorFilters(SkSpan<const sk_sp<PrecompileColorFilter>> colorFilters) {
