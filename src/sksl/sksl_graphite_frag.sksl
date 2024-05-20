@@ -603,28 +603,23 @@ half4 $colorize_grad_tex(sampler2D colorsAndOffsetsSampler, int numStops, float2
     }
 }
 
-$pure float2 $linear_grad_layout(float2 point0Param, float2 point1Param, float2 pos) {
-    pos -= point0Param;
-    float2 delta = point1Param - point0Param;
-    float t = dot(pos, delta) / dot(delta, delta);
+$pure float2 $linear_grad_layout(float2 pos) {
+    return float2(pos.x, 1);
+}
+
+$pure float2 $radial_grad_layout(float2 pos) {
+    float t = length(pos);
     return float2(t, 1);
 }
 
-$pure float2 $radial_grad_layout(float2 centerParam, float radiusParam, float2 pos) {
-    float t = distance(pos, centerParam) / radiusParam;
-    return float2(t, 1);
-}
-
-$pure float2 $sweep_grad_layout(float2 centerParam, float biasParam, float scaleParam, float2 pos) {
-    pos -= centerParam;
-
+$pure float2 $sweep_grad_layout(float biasParam, float scaleParam, float2 pos) {
     // Some devices incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
     // atan2(y,x) = 2 * atan(y / (sqrt(x^2 + y^2) + x)). To work around this we pass in
     // (sqrt(x^2 + y^2) + x) as the second parameter to atan2 in these cases. We let the device
     // handle the undefined behavior if the second parameter is 0, instead of doing the divide
     // ourselves and calling atan with the quotient.
     float angle;
-    if(sk_Caps.atan2ImplementedAsAtanYOverX) { 
+    if (sk_Caps.atan2ImplementedAsAtanYOverX) {
         angle = 2 * atan(-pos.y, length(pos) - pos.x);
     } else {
         // Hardcode pi/2 for the angle when x == 0, to avoid undefined behavior in this
@@ -635,20 +630,6 @@ $pure float2 $sweep_grad_layout(float2 centerParam, float biasParam, float scale
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     float t = (angle * 0.1591549430918 + 0.5 + biasParam) * scaleParam;
     return float2(t, 1);
-}
-
-$pure float3x3 $map_to_unit_x(float2 p0, float2 p1) {
-    // Returns a matrix that maps [p0, p1] to [(0, 0), (1, 0)]. Results are undefined if p0 = p1.
-    // From skia/src/core/SkMatrix.cpp, SkMatrix::setPolyToPoly.
-    return float3x3(
-        0, -1,  0,
-        1,  0,  0,
-        0,  0,  1
-    ) * inverse(float3x3(
-        p1.y - p0.y, p0.x - p1.x, 0,
-        p1.x - p0.x, p1.y - p0.y, 0,
-               p0.x,        p0.y, 1
-    ));
 }
 
 $pure float2 $conical_grad_layout(float2 point0Param,
@@ -673,25 +654,26 @@ $pure float2 $conical_grad_layout(float2 point0Param,
             return float2(0, -1);
         }
 
-        float scale = 1 / dRadius;
-        float scaleSign = sign(dRadius);
-        float bias = radius0Param / dRadius;
+        float minRadius = min(radius0Param, radius1Param);
+        float maxRadius = max(radius0Param, radius1Param);
+        float bias = minRadius / maxRadius;
 
-        float2 pt = (pos - point0Param) * scale;
-        float t = length(pt) * scaleSign - bias;
+        float t = (length(pos) - bias) / (1 - bias);
+        if (radius1Param < radius0Param) {
+          t = 1 - t;
+        }
+
         return float2(t, 1);
 
     } else if (strip) {
-        float3x3 transform = $map_to_unit_x(point0Param, point1Param);
         float r = radius0Param / dCenter;
         float r_2 = r * r;
 
-        float2 pt = (transform * pos.xy1).xy;
-        float t = r_2 - pt.y * pt.y;
+        float t = r_2 - pos.y * pos.y;
         if (t < 0) {
             return float2(0, -1);
         }
-        t = pt.x + sqrt(t);
+        t = pos.x + sqrt(t);
         return float2(t, 1);
 
     } else {
@@ -707,47 +689,27 @@ $pure float2 $conical_grad_layout(float2 point0Param,
             f = 0;
         }
 
-        // Apply mapping from [Cf, C1] to unit x, and apply the precalculations from steps 3 and 4,
-        // all in the same transformation.
-        float2 Cf = mix(point0Param, point1Param, f);
-        float3x3 transform = $map_to_unit_x(Cf, point1Param);
-
-        float scaleX = abs(1 - f);
-        float scaleY = scaleX;
+        // Steps 3 and 4 precomputed in gradient matrix on cpu-side.
+        // Continue with step 5 onward.
         float r1 = abs(radius1Param - radius0Param) / dCenter;
         bool isFocalOnCircle = abs(r1 - 1) < SK_ScalarNearlyZero;
-        if (isFocalOnCircle) {
-            scaleX *= 0.5;
-            scaleY *= 0.5;
-        } else {
-            scaleX *= r1 / (r1 * r1 - 1);
-            scaleY /= sqrt(abs(r1 * r1 - 1));
-        }
-        transform = float3x3(
-            scaleX, 0, 0,
-            0, scaleY, 0,
-            0, 0, 1
-        ) * transform;
 
-        float2 pt = (transform * pos.xy1).xy;
-
-        // Continue with step 5 onward.
         float invR1 = 1 / r1;
         float dRadiusSign = sign(1 - f);
         bool isWellBehaved = !isFocalOnCircle && r1 > 1;
 
         float x_t = -1;
         if (isFocalOnCircle) {
-            x_t = dot(pt, pt) / pt.x;
+            x_t = dot(pos, pos) / pos.x;
         } else if (isWellBehaved) {
-            x_t = length(pt) - pt.x * invR1;
+            x_t = length(pos) - pos.x * invR1;
         } else {
-            float temp = pt.x * pt.x - pt.y * pt.y;
+            float temp = pos.x * pos.x - pos.y * pos.y;
             if (temp >= 0) {
                 if (isSwapped || dRadiusSign < 0) {
-                    x_t = -sqrt(temp) - pt.x * invR1;
+                    x_t = -sqrt(temp) - pos.x * invR1;
                 } else {
-                    x_t = sqrt(temp) - pt.x * invR1;
+                    x_t = sqrt(temp) - pos.x * invR1;
                 }
             }
         }
@@ -767,12 +729,10 @@ $pure float2 $conical_grad_layout(float2 point0Param,
 $pure half4 sk_linear_grad_4_shader(float2 coords,
                                     float4 colorsParam[4],
                                     float4 offsetsParam,
-                                    float2 point0Param,
-                                    float2 point1Param,
                                     int tileMode,
                                     int colorSpace,
                                     int doUnpremul) {
-    float2 t = $linear_grad_layout(point0Param, point1Param, coords);
+    float2 t = $linear_grad_layout(coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_4(colorsParam, offsetsParam, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
@@ -781,26 +741,22 @@ $pure half4 sk_linear_grad_4_shader(float2 coords,
 $pure half4 sk_linear_grad_8_shader(float2 coords,
                                     float4 colorsParam[8],
                                     float4 offsetsParam[2],
-                                    float2 point0Param,
-                                    float2 point1Param,
                                     int tileMode,
                                     int colorSpace,
                                     int doUnpremul) {
-    float2 t = $linear_grad_layout(point0Param, point1Param, coords);
+    float2 t = $linear_grad_layout(coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_8(colorsParam, offsetsParam, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
 }
 
 $pure half4 sk_linear_grad_tex_shader(float2 coords,
-                                      float2 point0Param,
-                                      float2 point1Param,
                                       int numStops,
                                       int tileMode,
                                       int colorSpace,
                                       int doUnpremul,
                                       sampler2D colorAndOffsetSampler) {
-    float2 t = $linear_grad_layout(point0Param, point1Param, coords);
+    float2 t = $linear_grad_layout(coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_tex(colorAndOffsetSampler, numStops, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
@@ -809,12 +765,10 @@ $pure half4 sk_linear_grad_tex_shader(float2 coords,
 $pure half4 sk_radial_grad_4_shader(float2 coords,
                                     float4 colorsParam[4],
                                     float4 offsetsParam,
-                                    float2 centerParam,
-                                    float radiusParam,
                                     int tileMode,
                                     int colorSpace,
                                     int doUnpremul) {
-    float2 t = $radial_grad_layout(centerParam, radiusParam, coords);
+    float2 t = $radial_grad_layout(coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_4(colorsParam, offsetsParam, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
@@ -823,26 +777,22 @@ $pure half4 sk_radial_grad_4_shader(float2 coords,
 $pure half4 sk_radial_grad_8_shader(float2 coords,
                                     float4 colorsParam[8],
                                     float4 offsetsParam[2],
-                                    float2 centerParam,
-                                    float radiusParam,
                                     int tileMode,
                                     int colorSpace,
                                     int doUnpremul) {
-    float2 t = $radial_grad_layout(centerParam, radiusParam, coords);
+    float2 t = $radial_grad_layout(coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_8(colorsParam, offsetsParam, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
 }
 
 $pure half4 sk_radial_grad_tex_shader(float2 coords,
-                                      float2 centerParam,
-                                      float radiusParam,
                                       int numStops,
                                       int tileMode,
                                       int colorSpace,
                                       int doUnpremul,
                                       sampler2D colorAndOffsetSampler) {
-    float2 t = $radial_grad_layout(centerParam, radiusParam, coords);
+    float2 t = $radial_grad_layout(coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_tex(colorAndOffsetSampler, numStops, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
@@ -851,13 +801,12 @@ $pure half4 sk_radial_grad_tex_shader(float2 coords,
 $pure half4 sk_sweep_grad_4_shader(float2 coords,
                                    float4 colorsParam[4],
                                    float4 offsetsParam,
-                                   float2 centerParam,
                                    float biasParam,
                                    float scaleParam,
                                    int tileMode,
                                    int colorSpace,
                                    int doUnpremul) {
-    float2 t = $sweep_grad_layout(centerParam, biasParam, scaleParam, coords);
+    float2 t = $sweep_grad_layout(biasParam, scaleParam, coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_4(colorsParam, offsetsParam, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
@@ -866,20 +815,18 @@ $pure half4 sk_sweep_grad_4_shader(float2 coords,
 $pure half4 sk_sweep_grad_8_shader(float2 coords,
                                    float4 colorsParam[8],
                                    float4 offsetsParam[2],
-                                   float2 centerParam,
                                    float biasParam,
                                    float scaleParam,
                                    int tileMode,
                                    int colorSpace,
                                    int doUnpremul) {
-    float2 t = $sweep_grad_layout(centerParam, biasParam, scaleParam, coords);
+    float2 t = $sweep_grad_layout(biasParam, scaleParam, coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_8(colorsParam, offsetsParam, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
 }
 
 $pure half4 sk_sweep_grad_tex_shader(float2 coords,
-                                     float2 centerParam,
                                      float biasParam,
                                      float scaleParam,
                                      int numStops,
@@ -887,7 +834,7 @@ $pure half4 sk_sweep_grad_tex_shader(float2 coords,
                                      int colorSpace,
                                      int doUnpremul,
                                      sampler2D colorAndOffsetSampler) {
-    float2 t = $sweep_grad_layout(centerParam, biasParam, scaleParam, coords);
+    float2 t = $sweep_grad_layout(biasParam, scaleParam, coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_tex(colorAndOffsetSampler, numStops, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);

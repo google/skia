@@ -32,16 +32,13 @@ namespace PrecompileShadersPriv {
 
     sk_sp<PrecompileShader> Image(SkEnumBitMask<PrecompileImageShaderFlags>);
 
-    // These factory variants should be used when the existence or non-existence of the local matrix
+    // This factory variant should be used when the existence or non-existence of the local matrix
     // is known. If 'withLM' is true only the LMShader-wrapped shader will be created while, when
     // 'withLM' is false, no LMShader will wrap the base shader.
-    sk_sp<PrecompileShader> LinearGradient(bool withLM);
-    sk_sp<PrecompileShader> RadialGradient(bool withLM);
-    sk_sp<PrecompileShader> TwoPointConicalGradient(bool withLM);
-    sk_sp<PrecompileShader> SweepGradient(bool withLM);
     sk_sp<PrecompileShader> Picture(bool withLM);
 
-    // TODO: this factory function should go away (c.f. b/336810091)
+    // TODO: this factory function should go away (it is only used by the PrecompileShaders::Picture
+    // entry point now).
     sk_sp<PrecompileShader> LocalMatrixBothVariants(SkSpan<const sk_sp<PrecompileShader>> wrapped);
 
 } // namespace PrecompileShadersPriv

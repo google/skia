@@ -237,8 +237,6 @@ void add_linear_gradient_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     add_gradient_preamble(gradData, gatherer);
-    gatherer->write(gradData.fPoints[0]);
-    gatherer->write(gradData.fPoints[1]);
     add_gradient_postamble(gradData, gatherer);
 };
 
@@ -249,8 +247,6 @@ void add_radial_gradient_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     add_gradient_preamble(gradData, gatherer);
-    gatherer->write(gradData.fPoints[0]);
-    gatherer->write(gradData.fRadii[0]);
     add_gradient_postamble(gradData, gatherer);
 };
 
@@ -261,7 +257,6 @@ void add_sweep_gradient_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     add_gradient_preamble(gradData, gatherer);
-    gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fBias);
     gatherer->write(gradData.fScale);
     add_gradient_postamble(gradData, gatherer);
@@ -1774,6 +1769,14 @@ static void add_to_key(const KeyContext& keyContext,
                 matrix.setTranslateY(view.height());
             }
         }
+    } else if(as_SB(wrappedShader)->type() == SkShaderBase::ShaderType::kGradientBase) {
+        auto gradShader = static_cast<const SkGradientBaseShader*>(wrappedShader);
+        auto gradMatrix = gradShader->getGradientMatrix();
+
+        SkMatrix invGradMatrix;
+        SkAssertResult(gradMatrix.invert(&invGradMatrix));
+
+        matrix.postConcat(invGradMatrix);
     }
 
     matrix.postConcat(shader->localMatrix());
@@ -1783,7 +1786,7 @@ static void add_to_key(const KeyContext& keyContext,
 
     LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, lmShaderData);
 
-        AddToKey(newContext, builder, gatherer, wrappedShader);
+    AddToKey(newContext, builder, gatherer, wrappedShader);
 
     builder->endBlock();
 }

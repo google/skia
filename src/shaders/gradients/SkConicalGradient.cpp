@@ -21,7 +21,6 @@
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/shaders/SkLocalMatrixShader.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
@@ -103,8 +102,10 @@ sk_sp<SkShader> SkConicalGradient::Create(const SkPoint& c0,
             return nullptr;
         }
     }
-    return SkLocalMatrixShader::MakeWrapped<SkConicalGradient>(
-            localMatrix, c0, r0, c1, r1, desc, gradientType, gradientMatrix, focalData);
+
+    sk_sp<SkShader> s = sk_make_sp<SkConicalGradient>(
+            c0, r0, c1, r1, desc, gradientType, gradientMatrix, focalData);
+    return s->makeWithLocalMatrix(localMatrix ? *localMatrix : SkMatrix::I());
 }
 
 SkConicalGradient::SkConicalGradient(const SkPoint& start,

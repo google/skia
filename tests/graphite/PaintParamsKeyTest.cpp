@@ -538,24 +538,24 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
     switch (type) {
         case SkShaderBase::GradientType::kLinear:
             s = SkGradientShader::MakeLinear(pts, colors, offsets, 2, tm, flags, lmPtr);
-            o = PrecompileShadersPriv::LinearGradient(SkToBool(lmPtr));
+            o = PrecompileShaders::LinearGradient();
             break;
         case SkShaderBase::GradientType::kRadial:
             s = SkGradientShader::MakeRadial({0, 0}, 100, colors, offsets, 2, tm, flags, lmPtr);
-            o = PrecompileShadersPriv::RadialGradient(SkToBool(lmPtr));
+            o = PrecompileShaders::RadialGradient();
             break;
         case SkShaderBase::GradientType::kSweep:
             s = SkGradientShader::MakeSweep(0, 0, colors, offsets, 2, tm,
                                             /* startAngle= */ 0, /* endAngle= */ 359,
                                             flags, lmPtr);
-            o = PrecompileShadersPriv::SweepGradient(SkToBool(lmPtr));
+            o = PrecompileShaders::SweepGradient();
             break;
         case SkShaderBase::GradientType::kConical:
             s = SkGradientShader::MakeTwoPointConical({100, 100}, 100,
                                                       {-100, -100}, 100,
                                                       colors, offsets, 2,
                                                       tm, flags, lmPtr);
-            o = PrecompileShadersPriv::TwoPointConicalGradient(SkToBool(lmPtr));
+            o = PrecompileShaders::TwoPointConicalGradient();
             break;
         case SkShaderBase::GradientType::kNone:
             SkDEBUGFAIL("Gradient shader says its type is none");

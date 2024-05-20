@@ -13,7 +13,6 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/FactoryFunctions.h"
-#include "src/gpu/graphite/FactoryFunctionsPriv.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/PipelineData.h"
@@ -107,8 +106,8 @@ void no_blend_mode_option_test(const KeyContext& keyContext,
 void big_test(const KeyContext& keyContext,
               PipelineDataGatherer* gatherer,
               skiatest::Reporter* reporter) {
-    // paintOptions (256)
-    //  |- sweepGrad_0 (4) | blendShader_0 (60)
+    // paintOptions (248)
+    //  |- sweepGrad_0 (2) | blendShader_0 (60)
     //  |                     0: kSrc (1)
     //  |                     1: (dsts) linearGrad_0 (2) | solid_0 (1)
     //  |                     2: (srcs) linearGrad_1 (2) | blendShader_1 (18)
@@ -131,15 +130,15 @@ void big_test(const KeyContext& keyContext,
     auto blendShader_0 = PrecompileShaders::Blend(
                                 SkSpan<SkBlendMode>(blendModes),                // std::array
                                 {                                               // initializer_list
-                                    PrecompileShadersPriv::LinearGradient(/* withLM= */ true),
+                                    PrecompileShaders::LinearGradient(),
                                     PrecompileShaders::Color()
                                 },
                                 {
-                                    PrecompileShadersPriv::LinearGradient(/* withLM= */ true),
+                                    PrecompileShaders::LinearGradient(),
                                     PrecompileShaders::Blend(
                                             SkSpan<SkBlendMode>(moreBlendModes),// std::vector
                                             {
-                                                PrecompileShadersPriv::RadialGradient(/* withLM= */ true),
+                                                PrecompileShaders::RadialGradient(),
                                                 PrecompileShaders::Color()
                                             },
                                             {
@@ -159,7 +158,7 @@ void big_test(const KeyContext& keyContext,
     // now, blend modes
     paintOptions.setBlendModes(evenMoreBlendModes);                             // c array
 
-    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 256,
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 248,
                     "Actual # of combinations %d", paintOptions.priv().numCombinations());
 
     std::vector<UniquePaintParamsID> precompileIDs;
@@ -175,7 +174,7 @@ void big_test(const KeyContext& keyContext,
                                                                precompileIDs.push_back(id);
                                                            });
 
-    SkASSERT(precompileIDs.size() == 256);
+    SkASSERT(precompileIDs.size() == 248);
 }
 
 template <typename T>

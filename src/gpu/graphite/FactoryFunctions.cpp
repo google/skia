@@ -605,61 +605,25 @@ private:
 sk_sp<PrecompileShader> PrecompileShaders::LinearGradient() {
     sk_sp<PrecompileShader> s =
             sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kLinear);
-    return PrecompileShadersPriv::LocalMatrixBothVariants({ std::move(s) });
-}
-
-sk_sp<PrecompileShader> PrecompileShadersPriv::LinearGradient(bool withLM) {
-    sk_sp<PrecompileShader> s =
-            sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kLinear);
-    if (withLM) {
-        return PrecompileShaders::LocalMatrix({ std::move(s) });
-    }
-    return s;
+    return PrecompileShaders::LocalMatrix({ std::move(s) });
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::RadialGradient() {
     sk_sp<PrecompileShader> s =
             sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kRadial);
-    return PrecompileShadersPriv::LocalMatrixBothVariants({ std::move(s) });
-}
-
-sk_sp<PrecompileShader> PrecompileShadersPriv::RadialGradient(bool withLM) {
-    sk_sp<PrecompileShader> s =
-            sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kRadial);
-    if (withLM) {
-        return PrecompileShaders::LocalMatrix({ std::move(s) });
-    }
-    return s;
+    return PrecompileShaders::LocalMatrix({ std::move(s) });
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::SweepGradient() {
     sk_sp<PrecompileShader> s =
             sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kSweep);
-    return PrecompileShadersPriv::LocalMatrixBothVariants({ std::move(s) });
-}
-
-sk_sp<PrecompileShader> PrecompileShadersPriv::SweepGradient(bool withLM) {
-    sk_sp<PrecompileShader> s =
-            sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kSweep);
-    if (withLM) {
-        return PrecompileShaders::LocalMatrix({ std::move(s) });
-    }
-    return s;
+    return PrecompileShaders::LocalMatrix({ std::move(s) });
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient() {
     sk_sp<PrecompileShader> s =
             sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kConical);
-    return PrecompileShadersPriv::LocalMatrixBothVariants({ std::move(s) });
-}
-
-sk_sp<PrecompileShader> PrecompileShadersPriv::TwoPointConicalGradient(bool withLM) {
-    sk_sp<PrecompileShader> s =
-            sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kConical);
-    if (withLM) {
-        return PrecompileShaders::LocalMatrix({ std::move(s) });
-    }
-    return s;
+    return PrecompileShaders::LocalMatrix({ std::move(s) });
 }
 
 //--------------------------------------------------------------------------------------------------
