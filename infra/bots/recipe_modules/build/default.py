@@ -128,12 +128,18 @@ def compile_fn(api, checkout_root, out_dir):
       api.step('select xcode', [
           'sudo', 'xcode-select', '-switch', xcode_app_path])
       if 'iOS' in extra_tokens:
-        # Our current min-spec for Skia is iOS 11
-        env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
-        args['ios_min_target'] = '"11.0"'
+        if compiler == 'Xcode11.4.1':
+          # Ganesh has a lower minimum iOS version than Graphite but there are dedicated jobs that
+          # test with the lower SDK.
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+          args['ios_min_target'] = '"11.0"'
+        else:
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+          args['ios_min_target'] = '"13.0"'
+
       else:
-        # We have some bots on 10.13.
-        env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
+        # We have some machines on 10.15.
+        env['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
 
   # ccache + clang-tidy.sh chokes on the argument list.
   if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5' or os == 'Mac10.15.7') and 'Tidy' not in extra_tokens:

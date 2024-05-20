@@ -72,7 +72,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "IPHONEOS_DEPLOYMENT_TARGET": "11.0",
+      "IPHONEOS_DEPLOYMENT_TARGET": "13.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ccache stats-start"
@@ -82,7 +82,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Debug-iOS/Debug",
-      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=12c33\", \"-O1\"] ios_min_target=\"11.0\" link_pool_depth=2 skia_ios_identity=\".*83FNP.*\" skia_ios_profile=\"[START_DIR]/provisioning_profile_ios/Upstream_Testing_Provisioning_Profile.mobileprovision\" skia_use_client_icu=true skia_use_libgrapheme=true target_cpu=\"arm64\" target_os=\"ios\" werror=true"
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=12c33\", \"-O1\"] ios_min_target=\"13.0\" link_pool_depth=2 skia_ios_identity=\".*83FNP.*\" skia_ios_profile=\"[START_DIR]/provisioning_profile_ios/Upstream_Testing_Provisioning_Profile.mobileprovision\" skia_use_client_icu=true skia_use_libgrapheme=true target_cpu=\"arm64\" target_os=\"ios\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -91,7 +91,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "IPHONEOS_DEPLOYMENT_TARGET": "11.0",
+      "IPHONEOS_DEPLOYMENT_TARGET": "13.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
@@ -109,7 +109,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "IPHONEOS_DEPLOYMENT_TARGET": "11.0",
+      "IPHONEOS_DEPLOYMENT_TARGET": "13.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
@@ -126,7 +126,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "IPHONEOS_DEPLOYMENT_TARGET": "11.0",
+      "IPHONEOS_DEPLOYMENT_TARGET": "13.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ccache stats-end"
