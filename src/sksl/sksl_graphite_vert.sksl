@@ -472,7 +472,7 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         float _5qa = -.5*q*a;
         float2 root = (abs(fma(q,q,_5qa)) < abs(fma(a,c,_5qa))) ? float2(q,a) : float2(c,q);
         float radialT = (root.t != 0.0) ? root.s / root.t : 0.0;
-        radialT = clamp(radialT, 0.0, 1.0);
+        radialT = saturate(radialT);
 
         if (lastRadialEdgeID == 0.0) {
             // The root finder above can become unstable when lastRadialEdgeID == 0 (e.g., if
@@ -590,11 +590,11 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
             yRadii = xRadii; // regular strokes are circular
             strokeParams = xRadiiOrFlags.zw;
 
-            if (strokeParams.y < 0.0) {
-                joinScale = kRoundScale; // the stroke radius rounds rectangular corners
-            }  else if (strokeParams.y == 0.0) {
-                joinScale = kBevelScale;
-            } // else stay mitered
+            // `sign(strokeParams.y)` evaluates to kMiterScale (1.0) when the
+            // input is positive, and kBevelScale (0.0) when it is zero.
+            // kRoundScale uses the stroke radius to round rectangular corners.
+            joinScale = (strokeParams.y < 0.0) ? kRoundScale
+                                               : sign(strokeParams.y);
         }
     } else if (any(greaterThan(xRadiiOrFlags, float4(0.0)))) {
         // Filled round rect
@@ -774,7 +774,7 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
         float2 nx = cornerAspectRatio.x * edgeAANormal.x * perp(-yAxis) * J;
         float2 ny = cornerAspectRatio.y * edgeAANormal.y * perp( xAxis) * J;
 
-        bool isMidVertex = edgeAANormal.x != 0.0 && edgeAANormal.y != 0.0;
+        bool isMidVertex = all(notEqual(edgeAANormal, float2(0)));
         if (joinScale == kMiterScale && isMidVertex) {
             // Produce a bisecting vector in device space.
             nx = normalize(nx);
@@ -933,7 +933,7 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
         float2 nx = edgeAANormal.x * perp(-yAxis) * J;
         float2 ny = edgeAANormal.y * perp( xAxis) * J;
 
-        bool isMidVertex = edgeAANormal.x != 0.0 && edgeAANormal.y != 0.0;
+        bool isMidVertex = all(notEqual(edgeAANormal, float2(0)));
         if (isMidVertex) {
             // Produce a bisecting vector in device space.
             nx = normalize(nx);
