@@ -212,11 +212,14 @@ sk_sp<SkImage> AsImageCopy(sk_sp<const SkSurface> surface,
 sk_sp<SkSurface> RenderTarget(Recorder* recorder,
                               const SkImageInfo& info,
                               skgpu::Mipmapped mipmapped,
-                              const SkSurfaceProps* props) {
+                              const SkSurfaceProps* props,
+                              std::string_view label) {
+    if (label.empty()) {
+        label = "SkSurfaceRenderTarget";
+    }
     // The client is getting the ref on this surface so it must be unbudgeted.
-    return skgpu::graphite::Surface::Make(recorder, info, "SkSurfaceRenderTarget",
-                                          skgpu::Budgeted::kNo, mipmapped, SkBackingFit::kExact,
-                                          props);
+    return skgpu::graphite::Surface::Make(recorder, info, std::move(label), skgpu::Budgeted::kNo,
+                                          mipmapped, SkBackingFit::kExact, props);
 }
 
 sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
@@ -225,7 +228,8 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
                                     sk_sp<SkColorSpace> cs,
                                     const SkSurfaceProps* props,
                                     TextureReleaseProc releaseP,
-                                    ReleaseContext releaseC) {
+                                    ReleaseContext releaseC,
+                                    std::string_view label) {
     auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
 
     if (!recorder) {
@@ -243,7 +247,12 @@ sk_sp<SkSurface> WrapBackendTexture(Recorder* recorder,
         return nullptr;
     }
 
-    sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(backendTex);
+    if (label.empty()) {
+        label = "SkSurfaceWrappedTexture";
+    }
+
+    sk_sp<Texture> texture =
+            recorder->priv().resourceProvider()->createWrappedTexture(backendTex, std::move(label));
     if (!texture) {
         return nullptr;
     }

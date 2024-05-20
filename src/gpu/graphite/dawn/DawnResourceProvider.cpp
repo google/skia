@@ -210,7 +210,7 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
     return pipeline;
 }
 
-sk_sp<Texture> DawnResourceProvider::createWrappedTexture(const BackendTexture& texture) {
+sk_sp<Texture> DawnResourceProvider::onCreateWrappedTexture(const BackendTexture& texture) {
     // Convert to smart pointers. wgpu::Texture* constructor will increment the ref count.
     wgpu::Texture dawnTexture         = texture.getDawnTexturePtr();
     wgpu::TextureView dawnTextureView = texture.getDawnTextureViewPtr();
@@ -220,25 +220,17 @@ sk_sp<Texture> DawnResourceProvider::createWrappedTexture(const BackendTexture& 
         return {};
     }
 
-    sk_sp<Texture> wrappedTexture;
-    std::string_view label;
     if (dawnTexture) {
-        wrappedTexture = DawnTexture::MakeWrapped(this->dawnSharedContext(),
-                                                  texture.dimensions(),
-                                                  texture.info(),
-                                                  std::move(dawnTexture));
-        label = "WrappedTexture";
+        return DawnTexture::MakeWrapped(this->dawnSharedContext(),
+                                        texture.dimensions(),
+                                        texture.info(),
+                                        std::move(dawnTexture));
     } else {
-        wrappedTexture = DawnTexture::MakeWrapped(this->dawnSharedContext(),
-                                                  texture.dimensions(),
-                                                  texture.info(),
-                                                  std::move(dawnTextureView));
-        label = "WrappedTextureView";
+        return DawnTexture::MakeWrapped(this->dawnSharedContext(),
+                                        texture.dimensions(),
+                                        texture.info(),
+                                        std::move(dawnTextureView));
     }
-    if (wrappedTexture) {
-        wrappedTexture->setLabel(std::move(label));
-    }
-    return wrappedTexture;
 }
 
 sk_sp<DawnTexture> DawnResourceProvider::findOrCreateDiscardableMSAALoadTexture(

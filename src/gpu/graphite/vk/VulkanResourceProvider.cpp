@@ -81,20 +81,14 @@ const VulkanSharedContext* VulkanResourceProvider::vulkanSharedContext() const {
     return static_cast<const VulkanSharedContext*>(fSharedContext);
 }
 
-sk_sp<Texture> VulkanResourceProvider::createWrappedTexture(const BackendTexture& texture) {
-    sk_sp<Texture> wrappedTexture =
-            VulkanTexture::MakeWrapped(this->vulkanSharedContext(),
-                                       this,
-                                       texture.dimensions(),
-                                       texture.info(),
-                                       texture.getMutableState(),
-                                       texture.getVkImage(),
-                                       /*alloc=*/{}  // Skia does not own wrapped texture memory
-            );
-    if (wrappedTexture) {
-        wrappedTexture->setLabel("WrappedTexture");
-    }
-    return wrappedTexture;
+sk_sp<Texture> VulkanResourceProvider::onCreateWrappedTexture(const BackendTexture& texture) {
+    return VulkanTexture::MakeWrapped(this->vulkanSharedContext(),
+                                      this,
+                                      texture.dimensions(),
+                                      texture.info(),
+                                      texture.getMutableState(),
+                                      texture.getVkImage(),
+                                      /*alloc=*/{}  /*Skia does not own wrapped texture memory*/);
 }
 
 sk_sp<Buffer> VulkanResourceProvider::refIntrinsicConstantBuffer() const {

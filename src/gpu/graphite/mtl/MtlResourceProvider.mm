@@ -245,18 +245,14 @@ sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,
     return MtlTexture::Make(this->mtlSharedContext(), dimensions, info, budgeted);
 }
 
-sk_sp<Texture> MtlResourceProvider::createWrappedTexture(const BackendTexture& texture) {
+sk_sp<Texture> MtlResourceProvider::onCreateWrappedTexture(const BackendTexture& texture) {
     CFTypeRef mtlHandleTexture = texture.getMtlTexture();
     if (!mtlHandleTexture) {
         return nullptr;
     }
     sk_cfp<id<MTLTexture>> mtlTexture = sk_ret_cfp((id<MTLTexture>)mtlHandleTexture);
-    sk_sp<Texture> wrappedTexture = MtlTexture::MakeWrapped(
-            this->mtlSharedContext(), texture.dimensions(), texture.info(), std::move(mtlTexture));
-    if (wrappedTexture) {
-        wrappedTexture->setLabel("WrappedTexture");
-    }
-    return wrappedTexture;
+    return MtlTexture::MakeWrapped(this->mtlSharedContext(), texture.dimensions(), texture.info(),
+                                   std::move(mtlTexture));
 }
 
 sk_sp<Buffer> MtlResourceProvider::createBuffer(size_t size,

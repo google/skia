@@ -321,11 +321,13 @@ public:
     PromiseLazyInstantiateCallback(sk_sp<RefCntedCallback> releaseHelper,
                                    GraphitePromiseTextureFulfillProc fulfillProc,
                                    GraphitePromiseTextureFulfillContext fulfillContext,
-                                   GraphitePromiseTextureReleaseProc textureReleaseProc)
+                                   GraphitePromiseTextureReleaseProc textureReleaseProc,
+                                   std::string_view label)
             : fReleaseHelper(std::move(releaseHelper))
             , fFulfillProc(fulfillProc)
             , fFulfillContext(fulfillContext)
-            , fTextureReleaseProc(textureReleaseProc) {
+            , fTextureReleaseProc(textureReleaseProc)
+            , fLabel(label) {
     }
     PromiseLazyInstantiateCallback(PromiseLazyInstantiateCallback&&) = default;
     PromiseLazyInstantiateCallback(const PromiseLazyInstantiateCallback&) {
@@ -350,12 +352,12 @@ public:
         sk_sp<RefCntedCallback> textureReleaseCB = RefCntedCallback::Make(fTextureReleaseProc,
                                                                           textureReleaseCtx);
 
-        sk_sp<Texture> texture = resourceProvider->createWrappedTexture(backendTexture);
+        sk_sp<Texture> texture = resourceProvider->createWrappedTexture(backendTexture,
+                                                                        std::move(fLabel));
         if (!texture) {
             SKGPU_LOG_W("Failed to wrap BackendTexture returned by fulfill proc");
             return nullptr;
         }
-
         texture->setReleaseCallback(std::move(textureReleaseCB));
         return texture;
     }
@@ -365,6 +367,7 @@ private:
     GraphitePromiseTextureFulfillProc fFulfillProc;
     GraphitePromiseTextureFulfillContext fFulfillContext;
     GraphitePromiseTextureReleaseProc fTextureReleaseProc;
+    std::string fLabel;
 };
 
 } // anonymous namespace
@@ -494,7 +497,7 @@ sk_sp<TextureProxy> MakePromiseImageLazyProxy(
     }
 
     PromiseLazyInstantiateCallback callback{std::move(releaseHelper), fulfillProc,
-                                            fulfillContext, textureReleaseProc};
+                                            fulfillContext, textureReleaseProc, "PromiseImage"};
     // Proxies for promise images are assumed to always be destined for a client's SkImage so
     // are never considered budgeted.
     return TextureProxy::MakeLazy(caps, dimensions, textureInfo, Budgeted::kNo, isVolatile,

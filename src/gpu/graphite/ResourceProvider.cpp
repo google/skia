@@ -180,6 +180,15 @@ sk_sp<Texture> ResourceProvider::findOrCreateTextureWithKey(SkISize dimensions,
     return tex;
 }
 
+sk_sp<Texture> ResourceProvider::createWrappedTexture(const BackendTexture& backendTexture,
+                                                      std::string_view label) {
+    sk_sp<Texture> texture = this->onCreateWrappedTexture(backendTexture);
+    if (texture) {
+        texture->setLabel(std::move(label));
+    }
+    return texture;
+}
+
 sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SamplerDesc& samplerDesc) {
     GraphiteResourceKey key = fSharedContext->caps()->makeSamplerKey(samplerDesc);
 

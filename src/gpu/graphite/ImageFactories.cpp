@@ -85,7 +85,8 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
         return nullptr;
     }
 
-    sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(backendTex);
+    sk_sp<Texture> texture =
+            recorder->priv().resourceProvider()->createWrappedTexture(backendTex, "WrappedImage");
     if (!texture) {
         SKGPU_LOG_W("Texture creation failed");
         return nullptr;
@@ -458,7 +459,7 @@ sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
     TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < yuvaTextures.yuvaInfo().numPlanes(); ++i) {
         sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(
-                yuvaTextures.planeTexture(i));
+                yuvaTextures.planeTexture(i), "WrappedYUVPlane");
         if (!texture) {
             SKGPU_LOG_W("Failed to wrap backend texture for YUVA plane %d", i);
             return nullptr;
