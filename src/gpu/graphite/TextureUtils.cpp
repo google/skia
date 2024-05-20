@@ -488,7 +488,8 @@ sk_sp<TextureProxy> MakePromiseImageLazyProxy(
         sk_sp<RefCntedCallback> releaseHelper,
         GraphitePromiseTextureFulfillProc fulfillProc,
         GraphitePromiseTextureFulfillContext fulfillContext,
-        GraphitePromiseTextureReleaseProc textureReleaseProc) {
+        GraphitePromiseTextureReleaseProc textureReleaseProc,
+        std::string_view label) {
     SkASSERT(!dimensions.isEmpty());
     SkASSERT(releaseHelper);
 
@@ -497,7 +498,7 @@ sk_sp<TextureProxy> MakePromiseImageLazyProxy(
     }
 
     PromiseLazyInstantiateCallback callback{std::move(releaseHelper), fulfillProc,
-                                            fulfillContext, textureReleaseProc, "PromiseImage"};
+                                            fulfillContext, textureReleaseProc, std::move(label)};
     // Proxies for promise images are assumed to always be destined for a client's SkImage so
     // are never considered budgeted.
     return TextureProxy::MakeLazy(caps, dimensions, textureInfo, Budgeted::kNo, isVolatile,

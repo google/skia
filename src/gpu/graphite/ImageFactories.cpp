@@ -39,6 +39,8 @@
 #include "src/image/SkImage_Picture.h"
 #include "src/image/SkImage_Raster.h"
 
+#include <string>
+
 namespace SkImages {
 
 using namespace skgpu::graphite;
@@ -70,7 +72,8 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                            skgpu::Origin origin,
                            GenerateMipmapsFromBase genMipmaps,
                            TextureReleaseProc releaseP,
-                           ReleaseContext releaseC) {
+                           ReleaseContext releaseC,
+                           std::string_view label) {
     auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
 
     if (!recorder) {
@@ -85,8 +88,12 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
         return nullptr;
     }
 
+    if (label.empty()) {
+        label = "WrappedImage";
+    }
+
     sk_sp<Texture> texture =
-            recorder->priv().resourceProvider()->createWrappedTexture(backendTex, "WrappedImage");
+            recorder->priv().resourceProvider()->createWrappedTexture(backendTex, std::move(label));
     if (!texture) {
         SKGPU_LOG_W("Texture creation failed");
         return nullptr;
@@ -121,7 +128,8 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                            sk_sp<SkColorSpace> cs,
                            skgpu::Origin origin,
                            TextureReleaseProc releaseP,
-                           ReleaseContext releaseC) {
+                           ReleaseContext releaseC,
+                           std::string_view label) {
     return WrapTexture(recorder,
                        backendTex,
                        ct,
@@ -130,7 +138,8 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                        origin,
                        SkImages::GenerateMipmapsFromBase::kNo,
                        releaseP,
-                       releaseC);
+                       releaseC,
+                       std::move(label));
 }
 
 sk_sp<SkImage> WrapTexture(Recorder* recorder,
@@ -139,7 +148,8 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                            SkAlphaType at,
                            sk_sp<SkColorSpace> cs,
                            TextureReleaseProc releaseP,
-                           ReleaseContext releaseC) {
+                           ReleaseContext releaseC,
+                           std::string_view label) {
     return WrapTexture(recorder,
                        backendTex,
                        ct,
@@ -148,7 +158,8 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                        skgpu::Origin::kTopLeft,
                        SkImages::GenerateMipmapsFromBase::kNo,
                        releaseP,
-                       releaseC);
+                       releaseC,
+                       std::move(label));
 }
 
 sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
@@ -160,7 +171,8 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
                                   GraphitePromiseTextureFulfillProc fulfillProc,
                                   GraphitePromiseImageReleaseProc imageReleaseProc,
                                   GraphitePromiseTextureReleaseProc textureReleaseProc,
-                                  GraphitePromiseImageContext imageContext) {
+                                  GraphitePromiseImageContext imageContext,
+                                  std::string_view label) {
     // Our contract is that we will always call the _image_ release proc even on failure.
     // We use the helper to convey the imageContext, so we need to ensure Make doesn't fail.
     imageReleaseProc = imageReleaseProc ? imageReleaseProc : [](void*) {};
@@ -192,7 +204,8 @@ sk_sp<SkImage> PromiseTextureFrom(Recorder* recorder,
                                                           std::move(releaseHelper),
                                                           fulfillProc,
                                                           imageContext,
-                                                          textureReleaseProc);
+                                                          textureReleaseProc,
+                                                          std::move(label));
     if (!proxy) {
         return nullptr;
     }
@@ -231,7 +244,8 @@ sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
                                       GraphitePromiseImageReleaseProc imageReleaseProc,
                                       GraphitePromiseTextureReleaseProc textureReleaseProc,
                                       GraphitePromiseImageContext imageContext,
-                                      GraphitePromiseTextureFulfillContext planeContexts[]) {
+                                      GraphitePromiseTextureFulfillContext planeContexts[],
+                                      std::string_view label) {
     // Our contract is that we will always call the _image_ release proc even on failure.
     // We use the helper to convey the imageContext, so we need to ensure Make doesn't fail.
     auto releaseHelper = skgpu::RefCntedCallback::Make(imageReleaseProc, imageContext);
@@ -244,6 +258,13 @@ sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
         return nullptr;
     }
 
+    std::string labelStr(label);
+    if (labelStr.empty()) {
+        labelStr = "Wrapped_PromiseYUVPlane";
+    } else {
+        labelStr += "_PromiseYUVPlane";
+    }
+
     TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < backendTextureInfo.numPlanes(); ++i) {
         sk_sp<TextureProxy> lazyProxy = MakePromiseImageLazyProxy(
@@ -254,7 +275,8 @@ sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder* recorder,
                 releaseHelper,
                 fulfillProc,
                 planeContexts[i],
-                textureReleaseProc);
+                textureReleaseProc,
+                labelStr);
         // Promise YUVA images assume the default rgba swizzle.
         planes[i] = TextureProxyView(std::move(lazyProxy));
     }
@@ -397,7 +419,8 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
                                       const SkYUVAPixmaps& pixmaps,
                                       SkImage::RequiredProperties requiredProps,
                                       bool limitToMaxTextureSize,
-                                      sk_sp<SkColorSpace> imageColorSpace) {
+                                      sk_sp<SkColorSpace> imageColorSpace,
+                                      std::string_view label) {
     if (!recorder) {
         return nullptr;
     }
@@ -420,6 +443,13 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
                                      /*rowBytes=*/nullptr);
     }
 
+    std::string labelStr(label);
+    if (labelStr.empty()) {
+        labelStr = "YUVRasterBitmapPlane";
+    } else {
+        labelStr += "_YUVBitmapPlane";
+    }
+
     auto mipmapped = requiredProps.fMipmapped ? skgpu::Mipmapped::kYes : skgpu::Mipmapped::kNo;
     TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < finalInfo.yuvaInfo().numPlanes(); ++i) {
@@ -439,7 +469,7 @@ sk_sp<SkImage> TextureFromYUVAPixmaps(Recorder* recorder,
 
         auto [view, _] = MakeBitmapProxyView(recorder, bmp, /*mipmapsIn=*/nullptr,
                                              mipmapped,  skgpu::Budgeted::kNo,
-                                             "YUVRasterBitmapTexture");
+                                             labelStr);
         planes[i] = std::move(view);
     }
     return Image_YUVA::Make(recorder->priv().caps(), finalInfo.yuvaInfo(),
@@ -450,16 +480,24 @@ sk_sp<SkImage> TextureFromYUVATextures(Recorder* recorder,
                                        const YUVABackendTextures& yuvaTextures,
                                        sk_sp<SkColorSpace> imageColorSpace,
                                        TextureReleaseProc releaseP,
-                                       ReleaseContext releaseC) {
+                                       ReleaseContext releaseC,
+                                       std::string_view label) {
     auto releaseHelper = skgpu::RefCntedCallback::Make(releaseP, releaseC);
     if (!recorder) {
         return nullptr;
     }
 
+    std::string labelStr(label);
+    if (labelStr.empty()) {
+        labelStr = "Wrapped_YUVPlane";
+    } else {
+        labelStr += "_YUVPlane";
+    }
+
     TextureProxyView planes[SkYUVAInfo::kMaxPlanes];
     for (int i = 0; i < yuvaTextures.yuvaInfo().numPlanes(); ++i) {
         sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(
-                yuvaTextures.planeTexture(i), "WrappedYUVPlane");
+                yuvaTextures.planeTexture(i), labelStr);
         if (!texture) {
             SKGPU_LOG_W("Failed to wrap backend texture for YUVA plane %d", i);
             return nullptr;

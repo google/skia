@@ -52,7 +52,8 @@ sk_sp<TextureProxy> MakePromiseImageLazyProxy(const Caps*,
                                               sk_sp<skgpu::RefCntedCallback> releaseHelper,
                                               SkImages::GraphitePromiseTextureFulfillProc,
                                               SkImages::GraphitePromiseTextureFulfillContext,
-                                              SkImages::GraphitePromiseTextureReleaseProc);
+                                              SkImages::GraphitePromiseTextureReleaseProc,
+                                              std::string_view label);
 
 sk_sp<SkImage> MakeFromBitmap(Recorder*,
                               const SkColorInfo&,

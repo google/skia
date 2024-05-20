@@ -14,6 +14,8 @@
 #include "include/core/SkSpan.h"
 #include "include/gpu/GpuTypes.h"
 
+#include <string_view>
+
 class SkYUVAInfo;
 class SkYUVAPixmaps;
 struct SkIRect;
@@ -79,7 +81,8 @@ SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
                                   skgpu::Origin origin,
                                   GenerateMipmapsFromBase generateMipmapsFromBase,
                                   TextureReleaseProc = nullptr,
-                                  ReleaseContext = nullptr);
+                                  ReleaseContext = nullptr,
+                                  std::string_view label = {});
 
 SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
                                   const skgpu::graphite::BackendTexture&,
@@ -88,7 +91,8 @@ SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
                                   sk_sp<SkColorSpace> colorSpace,
                                   skgpu::Origin origin,
                                   TextureReleaseProc = nullptr,
-                                  ReleaseContext = nullptr);
+                                  ReleaseContext = nullptr,
+                                  std::string_view label = {});
 
 SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
                                   const skgpu::graphite::BackendTexture&,
@@ -96,7 +100,8 @@ SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
                                   SkAlphaType alphaType,
                                   sk_sp<SkColorSpace> colorSpace,
                                   TextureReleaseProc = nullptr,
-                                  ReleaseContext = nullptr);
+                                  ReleaseContext = nullptr,
+                                  std::string_view label = {});
 
 #if !defined(SK_DISABLE_LEGACY_GRAPHITE_IMAGES)
 inline sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder* recorder,
@@ -175,7 +180,8 @@ SK_API sk_sp<SkImage> PromiseTextureFrom(skgpu::graphite::Recorder*,
                                          GraphitePromiseTextureFulfillProc,
                                          GraphitePromiseImageReleaseProc,
                                          GraphitePromiseTextureReleaseProc,
-                                         GraphitePromiseImageContext);
+                                         GraphitePromiseImageContext,
+                                         std::string_view label = {});
 
 SK_API sk_sp<SkImage> PromiseTextureFrom(skgpu::graphite::Recorder*,
                                          SkISize dimensions,
@@ -219,7 +225,8 @@ SK_API sk_sp<SkImage> PromiseTextureFromYUVA(skgpu::graphite::Recorder*,
                                              GraphitePromiseImageReleaseProc,
                                              GraphitePromiseTextureReleaseProc,
                                              GraphitePromiseImageContext imageContext,
-                                             GraphitePromiseTextureFulfillContext planeContexts[]);
+                                             GraphitePromiseTextureFulfillContext planeContexts[],
+                                             std::string_view label = {});
 
 
 /** Returns an SkImage backed by a Graphite texture, using the provided Recorder for creation and
@@ -275,7 +282,8 @@ SK_API sk_sp<SkImage> TextureFromYUVAPixmaps(skgpu::graphite::Recorder*,
                                              const SkYUVAPixmaps& pixmaps,
                                              SkImage::RequiredProperties = {},
                                              bool limitToMaxTextureSize = false,
-                                             sk_sp<SkColorSpace> imgColorSpace = nullptr);
+                                             sk_sp<SkColorSpace> imgColorSpace = nullptr,
+                                             std::string_view label = {});
 
 /** Creates an SkImage from YUV[A] planar textures associated with the recorder.
      @param recorder            The recorder.
@@ -292,7 +300,8 @@ SK_API sk_sp<SkImage> TextureFromYUVATextures(
         const skgpu::graphite::YUVABackendTextures& yuvaBackendTextures,
         sk_sp<SkColorSpace> imageColorSpace,
         TextureReleaseProc = nullptr,
-        ReleaseContext = nullptr);
+        ReleaseContext = nullptr,
+        std::string_view label = {});
 
 /** Creates an SkImage from YUV[A] planar SkImages associated with the recorder.
 
