@@ -593,13 +593,17 @@ void TextAdapter::buildDomainMaps(const Shaper::Result& shape_result) {
     // TODO: use ICU for building the word map?
     for (; i  < shape_result.fFragments.size(); ++i) {
         const auto& frag = shape_result.fFragments[i];
+        const bool is_new_line = frag.fLineIndex != line;
 
-        if (frag.fIsWhitespace) {
+        if (frag.fIsWhitespace || is_new_line) {
+            // Both whitespace and new lines break words.
             if (in_word) {
                 in_word = false;
                 fMaps.fWordsMap.push_back({word_start, i - word_start, word_advance, word_ascent});
             }
-        } else {
+        }
+
+        if (!frag.fIsWhitespace) {
             fMaps.fNonWhitespaceMap.push_back({i, 1, 0, 0});
 
             if (!in_word) {
@@ -612,7 +616,7 @@ void TextAdapter::buildDomainMaps(const Shaper::Result& shape_result) {
             word_ascent   = std::min(word_ascent, frag.fAscent); // negative ascent
         }
 
-        if (frag.fLineIndex != line) {
+        if (is_new_line) {
             SkASSERT(frag.fLineIndex == line + 1);
             fMaps.fLinesMap.push_back({line_start, i - line_start, line_advance, line_ascent});
             line = frag.fLineIndex;
