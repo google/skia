@@ -180,43 +180,19 @@ static sk_sp<SkData> get_mpf_segment(const SkJpegMultiPictureParameters& mpParam
     return s.detachAsData();
 }
 
-static sk_sp<SkData> get_iso_gainmap_segment_params(sk_sp<SkData> data) {
-    SkDynamicMemoryWStream s;
-    s.write(kISOGainmapSig, sizeof(kISOGainmapSig));
-    s.write(data->data(), data->size());
-    return s.detachAsData();
-}
-
 bool SkJpegGainmapEncoder::EncodeHDRGM(SkWStream* dst,
                                        const SkPixmap& base,
                                        const SkJpegEncoder::Options& baseOptions,
                                        const SkPixmap& gainmap,
                                        const SkJpegEncoder::Options& gainmapOptions,
                                        const SkGainmapInfo& gainmapInfo) {
-    bool includeUltraHDRv1 = gainmapInfo.isUltraHDRv1Compatible();
-
     // Encode the gainmap image.
     sk_sp<SkData> gainmapData;
     {
         SkJpegMetadataEncoder::SegmentList metadataSegments;
+        SkJpegMetadataEncoder::AppendXMPStandard(metadataSegments,
+                                                 get_gainmap_image_xmp_metadata(gainmapInfo).get());
 
-        // Add XMP metadata.
-        if (includeUltraHDRv1) {
-            SkJpegMetadataEncoder::AppendXMPStandard(
-                    metadataSegments, get_gainmap_image_xmp_metadata(gainmapInfo).get());
-        }
-
-        // Include the ICC profile of the alternate color space, if it is used.
-        if (gainmapInfo.fGainmapMathColorSpace) {
-            SkJpegMetadataEncoder::AppendICC(
-                    metadataSegments, gainmapOptions, gainmapInfo.fGainmapMathColorSpace.get());
-        }
-
-        // Add the ISO 21946-1 metadata.
-        metadataSegments.emplace_back(kISOGainmapMarker,
-                                      get_iso_gainmap_segment_params(gainmapInfo.serialize()));
-
-        // Encode the gainmap image.
         gainmapData = encode_to_data(gainmap, gainmapOptions, metadataSegments);
         if (!gainmapData) {
             SkCodecPrintf("Failed to encode gainmap image.\n");
@@ -228,23 +204,11 @@ bool SkJpegGainmapEncoder::EncodeHDRGM(SkWStream* dst,
     sk_sp<SkData> baseData;
     {
         SkJpegMetadataEncoder::SegmentList metadataSegments;
-
-        // Include XMP.
-        if (includeUltraHDRv1) {
-            SkJpegMetadataEncoder::AppendXMPStandard(
-                    metadataSegments,
-                    get_base_image_xmp_metadata(static_cast<int32_t>(gainmapData->size())).get());
-        }
-
-        // Include ICC profile metadata.
+        SkJpegMetadataEncoder::AppendXMPStandard(
+                metadataSegments,
+                get_base_image_xmp_metadata(static_cast<int32_t>(gainmapData->size())).get());
         SkJpegMetadataEncoder::AppendICC(metadataSegments, baseOptions, base.colorSpace());
 
-        // Include the ISO 21946-1 version metadata.
-        metadataSegments.emplace_back(
-                kISOGainmapMarker,
-                get_iso_gainmap_segment_params(SkGainmapInfo::SerializeVersion()));
-
-        // Encode the base image.
         baseData = encode_to_data(base, baseOptions, metadataSegments);
         if (!baseData) {
             SkCodecPrintf("Failed to encode base image.\n");

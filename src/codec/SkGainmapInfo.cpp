@@ -219,19 +219,6 @@ static bool read_iso_gainmap_info(SkStream* s, SkGainmapInfo& info) {
     return true;
 }
 
-bool SkGainmapInfo::isUltraHDRv1Compatible() const {
-    // UltraHDR v1 supports having the base image be HDR in theory, but it is largely
-    // untested.
-    if (fBaseImageType == BaseImageType::kHDR) {
-        return false;
-    }
-    // UltraHDR v1 doesn't support a non-base gainmap math color space.
-    if (fGainmapMathColorSpace) {
-        return false;
-    }
-    return true;
-}
-
 bool SkGainmapInfo::ParseVersion(const SkData* data) {
     if (!data) {
         return false;
