@@ -278,8 +278,8 @@ alias(
 ###
 
 alias(
-    name = "skparagraph_harfbuzz_unicode",
-    actual = "//modules/skparagraph:skparagraph_harfbuzz_unicode",
+    name = "skparagraph_harfbuzz_skunicode",
+    actual = "//modules/skparagraph:skparagraph_harfbuzz_skunicode",
     visibility = ["//visibility:public"],
 )
 

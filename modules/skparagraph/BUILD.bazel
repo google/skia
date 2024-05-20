@@ -44,7 +44,7 @@ skia_cc_library(
 )
 
 skia_cc_library(
-    name = "skparagraph_harfbuzz_unicode",
+    name = "skparagraph_harfbuzz_skunicode",
     srcs = ["//modules/skparagraph/src:srcs"],
     hdrs = ["//modules/skparagraph/include:hdrs"],
     defines = ["SK_DISABLE_LEGACY_PARAGRAPH_UNICODE"],
@@ -60,4 +60,10 @@ skia_cc_library(
         "//src/base",
         "//src/core:core_priv",
     ],
+)
+
+# TODO(kjlubick) Remove after G3 roll
+alias(
+    name = "skparagraph_harfbuzz_unicode",
+    actual = ":skparagraph_harfbuzz_skunicode",
 )

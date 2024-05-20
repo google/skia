@@ -341,7 +341,7 @@ skia_cc_library(
         "//:pdf_writer",
         "//:png_decode_codec",
         "//:png_encode_codec",
-        "//:skparagraph_harfbuzz_unicode",
+        "//:skparagraph_harfbuzz_skunicode",
         "//:skresources",
         "//:skshaper_core",
         "//:skshaper_harfbuzz",
