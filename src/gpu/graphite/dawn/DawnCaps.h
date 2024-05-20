@@ -27,11 +27,6 @@ public:
     bool useAsyncPipelineCreation() const { return fUseAsyncPipelineCreation; }
     bool allowScopedErrorChecks() const { return fAllowScopedErrorChecks; }
 
-    // If this has no value then loading the resolve texture via a LoadOp is not supported.
-    std::optional<wgpu::LoadOp> resolveTextureLoadOp() const {
-        return fSupportedResolveTextureLoadOp;
-    }
-
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                              Mipmapped mipmapped,
                                              Protected,
@@ -128,11 +123,9 @@ private:
     wgpu::TextureFormat fColorTypeToFormatTable[kSkColorTypeCnt];
     void setColorType(SkColorType, std::initializer_list<wgpu::TextureFormat> formats);
 
-    // When supported, this value will hold the TransientAttachment usage symbol that is only
-    // defined in Dawn native builds and not EMSCRIPTEN but this avoids having to #define guard it.
-    wgpu::TextureUsage fSupportedTransientAttachmentUsage = wgpu::TextureUsage::None;
-    // When supported this holds the ExpandResolveTexture load op, otherwise holds no value.
-    std::optional<wgpu::LoadOp> fSupportedResolveTextureLoadOp;
+#if !defined(__EMSCRIPTEN__)
+    bool fTransientAttachmentSupport = false;
+#endif
 
     bool fUseAsyncPipelineCreation = true;
     bool fAllowScopedErrorChecks = true;
