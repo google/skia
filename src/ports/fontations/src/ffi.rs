@@ -13,7 +13,7 @@ use skrifa::{
     color::{Brush, ColorGlyphFormat, ColorPainter, Transform},
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
-    outline::DrawSettings,
+    outline::{DrawSettings, HintingInstance, LcdLayout},
     setting::VariationSetting,
     string::{LocalizedStrings, StringId},
     MetadataProvider, OutlineGlyphCollection, Tag,
@@ -31,6 +31,58 @@ fn make_mapping_index<'a>(font_ref: &'a BridgeFontRef) -> Box<BridgeMappingIndex
     font_ref
         .with_font(|f| Some(Box::new(BridgeMappingIndex(MappingIndex::new(f)))))
         .unwrap()
+}
+
+unsafe fn no_hinting_instance<'a>() -> Box<BridgeHintingInstance> {
+    Box::new(BridgeHintingInstance(None))
+}
+
+unsafe fn make_hinting_instance<'a>(
+    outlines: &BridgeOutlineCollection,
+    size: f32,
+    coords: &BridgeNormalizedCoords,
+    do_lcd_antialiasing: bool,
+    lcd_orientation_vertical: bool,
+    preserve_linear_metrics: bool,
+) -> Box<BridgeHintingInstance> {
+    let hinting_instance = match &outlines.0 {
+        Some(outlines) => {
+            let lcd_subpixel = match (do_lcd_antialiasing, lcd_orientation_vertical) {
+                (true, false) => Some(LcdLayout::Horizontal),
+                (true, true) => Some(LcdLayout::Vertical),
+                _ => None,
+            };
+            HintingInstance::new(
+                outlines,
+                Size::new(size),
+                &coords.normalized_coords,
+                skrifa::outline::HintingMode::Smooth {
+                    lcd_subpixel,
+                    preserve_linear_metrics,
+                },
+            )
+            .ok()
+        }
+        _ => None,
+    };
+    Box::new(BridgeHintingInstance(hinting_instance))
+}
+
+unsafe fn make_mono_hinting_instance<'a>(
+    outlines: &BridgeOutlineCollection,
+    size: f32,
+    coords: &BridgeNormalizedCoords,
+) -> Box<BridgeHintingInstance> {
+    let hinting_instance = outlines.0.as_ref().and_then(|outlines| {
+        HintingInstance::new(
+            outlines,
+            Size::new(size),
+            &coords.normalized_coords,
+            skrifa::outline::HintingMode::Strong,
+        )
+        .ok()
+    });
+    Box::new(BridgeHintingInstance(hinting_instance))
 }
 
 fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, map: &BridgeMappingIndex, codepoint: u32) -> u16 {
@@ -334,6 +386,7 @@ fn get_path(
     glyph_id: u16,
     size: f32,
     coords: &BridgeNormalizedCoords,
+    hinting_instance: &BridgeHintingInstance,
     path_wrapper: Pin<&mut PathWrapper>,
     scaler_metrics: &mut BridgeScalerMetrics,
 ) -> bool {
@@ -342,7 +395,11 @@ fn get_path(
         .as_ref()
         .and_then(|outlines| {
             let glyph = outlines.get(GlyphId::new(glyph_id))?;
-            let draw_settings = DrawSettings::unhinted(Size::new(size), &coords.normalized_coords);
+
+            let draw_settings = match &hinting_instance.0 {
+                Some(instance) => DrawSettings::hinted(instance, false),
+                _ => DrawSettings::unhinted(Size::new(size), &coords.normalized_coords),
+            };
 
             let mut pen_dump = PathWrapperPen { path_wrapper };
             match glyph.draw(draw_settings, &mut pen_dump) {
@@ -813,7 +870,7 @@ fn num_color_stops(color_stops: &BridgeColorStops) -> usize {
 fn get_font_style(
     font_ref: &BridgeFontRef,
     coords: &BridgeNormalizedCoords,
-    style: &mut BridgeFontStyle
+    style: &mut BridgeFontStyle,
 ) -> bool {
     font_ref
         .with_font(|f| {
@@ -1203,6 +1260,7 @@ mod bitmap {
 }
 
 pub struct BridgeMappingIndex(MappingIndex);
+pub struct BridgeHintingInstance(Option<HintingInstance>);
 
 #[cxx::bridge(namespace = "fontations_ffi")]
 mod ffi {
@@ -1345,6 +1403,23 @@ mod ffi {
 
         type BridgeMappingIndex;
         unsafe fn make_mapping_index<'a>(font_ref: &'a BridgeFontRef) -> Box<BridgeMappingIndex>;
+
+        type BridgeHintingInstance;
+        unsafe fn make_hinting_instance<'a>(
+            outlines: &BridgeOutlineCollection,
+            size: f32,
+            coords: &BridgeNormalizedCoords,
+            do_lcd_antialiasing: bool,
+            lcd_orientation_vertical: bool,
+            preserve_linear_metrics: bool,
+        ) -> Box<BridgeHintingInstance>;
+        unsafe fn make_mono_hinting_instance<'a>(
+            outlines: &BridgeOutlineCollection,
+            size: f32,
+            coords: &BridgeNormalizedCoords,
+        ) -> Box<BridgeHintingInstance>;
+        unsafe fn no_hinting_instance<'a>() -> Box<BridgeHintingInstance>;
+
         fn lookup_glyph_or_zero(
             font_ref: &BridgeFontRef,
             map: &BridgeMappingIndex,
@@ -1356,6 +1431,7 @@ mod ffi {
             glyph_id: u16,
             size: f32,
             coords: &BridgeNormalizedCoords,
+            hinting_instance: &BridgeHintingInstance,
             path_wrapper: Pin<&mut PathWrapper>,
             scaler_metrics: &mut BridgeScalerMetrics,
         ) -> bool;
@@ -1463,7 +1539,7 @@ mod ffi {
         fn get_font_style(
             font_ref: &BridgeFontRef,
             coords: &BridgeNormalizedCoords,
-            font_style: &mut BridgeFontStyle
+            font_style: &mut BridgeFontStyle,
         ) -> bool;
 
         // Additional low-level access functions needed for generateAdvancedMetrics().
