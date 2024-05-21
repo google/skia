@@ -173,12 +173,10 @@ sk_sp<sktext::StrikeForGPU> SkStrikeSpec::findOrCreateScopedStrike(
 }
 
 sk_sp<SkStrike> SkStrikeSpec::findOrCreateStrike() const {
-    SkScalerContextEffects effects{fPathEffect.get(), fMaskFilter.get()};
     return SkStrikeCache::GlobalStrikeCache()->findOrCreateStrike(*this);
 }
 
 sk_sp<SkStrike> SkStrikeSpec::findOrCreateStrike(SkStrikeCache* cache) const {
-    SkScalerContextEffects effects{fPathEffect.get(), fMaskFilter.get()};
     return cache->findOrCreateStrike(*this);
 }
 
