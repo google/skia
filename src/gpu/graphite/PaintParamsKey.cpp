@@ -178,7 +178,7 @@ void PaintParamsKey::dump(const ShaderCodeDictionary* dict, UniquePaintParamsID 
     const int keySize = SkTo<int>(fData.size());
 
     SkDebugf("--------------------------------------\n");
-    SkDebugf("%d PaintParamsKey (keySize: %d):\n", id.asUInt(), keySize);
+    SkDebugf("%u PaintParamsKey (keySize: %d):\n", id.asUInt(), keySize);
 
     int currentIndex = 0;
     while (currentIndex < keySize) {
