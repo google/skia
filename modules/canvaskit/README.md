@@ -6,7 +6,7 @@ CanvasKit has no other external source dependencies.
 
 ## Compiling with GN
 To build with GN, you need to have followed the instructions to download Skia and its deps
-<https://skia.org/user/download>.
+<https://skia.org/docs/user/download>.
 
 To compile CanvasKit, you will first need to [download and activate `emscripten`][1] using the
 script in `//bin/activate-emsdk` (or `//tools/git-sync-deps` which also calls activate-emsdk).
