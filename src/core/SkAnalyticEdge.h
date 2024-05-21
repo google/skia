@@ -29,10 +29,6 @@ struct SkAnalyticEdge {
     SkAnalyticEdge* fNext;
     SkAnalyticEdge* fPrev;
 
-    // During aaa_walk_edges, if this edge is a left edge,
-    // then fRiteE is its corresponding right edge. Otherwise it's nullptr.
-    SkAnalyticEdge* fRiteE;
-
     SkFixed fX;
     SkFixed fDX;
     SkFixed fUpperX;        // The x value when y = fUpperY
@@ -41,10 +37,6 @@ struct SkAnalyticEdge {
     SkFixed fLowerY;        // The lower bound of y (our edge is from y = fUpperY to y = fLowerY)
     SkFixed fDY;            // abs(1/fDX); may be SK_MaxS32 when fDX is close to 0.
                             // fDY is only used for blitting trapezoids.
-
-    SkFixed fSavedX;        // For deferred blitting
-    SkFixed fSavedY;        // For deferred blitting
-    SkFixed fSavedDY;       // For deferred blitting
 
     Type    fEdgeType;      // Remembers the *initial* edge type
 
@@ -79,12 +71,6 @@ struct SkAnalyticEdge {
         SkASSERT(fDX == 0 || y - fY == SK_Fixed1 >> yShift);
         fY = y;
         fX += fDX >> yShift;
-    }
-
-    inline void saveXY(SkFixed x, SkFixed y, SkFixed dY) {
-        fSavedX = x;
-        fSavedY = y;
-        fSavedDY = dY;
     }
 
     bool setLine(const SkPoint& p0, const SkPoint& p1);

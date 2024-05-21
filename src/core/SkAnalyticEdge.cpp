@@ -153,8 +153,6 @@ static inline SkFixed quick_div(SkFDot6 a, SkFDot6 b) {
 }
 
 bool SkAnalyticEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
-    fRiteE = nullptr;
-
     // We must set X/Y using the same way (e.g., times 4, to FDot6, then to Fixed) as Quads/Cubics.
     // Otherwise the order of the edge might be wrong due to precision limit.
     const int accuracy = kDefaultAccuracy;
@@ -264,8 +262,6 @@ bool SkAnalyticEdge::update(SkFixed last_y, bool sortY) {
 }
 
 bool SkAnalyticQuadraticEdge::setQuadratic(const SkPoint pts[3]) {
-    fRiteE = nullptr;
-
     if (!fQEdge.setQuadraticWithoutUpdate(pts, kDefaultAccuracy)) {
         return false;
     }
@@ -354,8 +350,6 @@ bool SkAnalyticQuadraticEdge::updateQuadratic() {
 }
 
 bool SkAnalyticCubicEdge::setCubic(const SkPoint pts[4], bool sortY) {
-    fRiteE = nullptr;
-
     if (!fCEdge.setCubicWithoutUpdate(pts, kDefaultAccuracy, sortY)) {
         return false;
     }
