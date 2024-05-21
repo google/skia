@@ -20,6 +20,8 @@ class SkMaskFilter;
     Applies a table lookup on each of the alpha values in the mask.
     Helper methods create some common tables (e.g. gamma, clipping)
  */
+// (DEPRECATED) These factory functions are deprecated. The TableMaskFilter will be
+// removed entirely in an upcoming release of Skia.
 class SK_API SkTableMaskFilter {
 public:
     /** Utility that sets the gamma table

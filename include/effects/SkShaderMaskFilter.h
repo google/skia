@@ -14,6 +14,8 @@
 class SkMaskFilter;
 class SkShader;
 
+// (DEPRECATED) This factory function is deprecated. ShaderMaskFilters will be deleted entirely
+// in an upcoming Skia release.
 class SK_API SkShaderMaskFilter {
 public:
     static sk_sp<SkMaskFilter> Make(sk_sp<SkShader> shader);
