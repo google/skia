@@ -54,6 +54,8 @@ public:
     const wgpu::BindGroup& findOrCreateSingleTextureSamplerBindGroup(const DawnSampler* sampler,
                                                                      const DawnTexture* texture);
 
+    const sk_sp<DawnBuffer>& getOrCreateIntrinsicConstantBuffer();
+
 private:
     sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
                                                    const GraphicsPipelineDesc&,
@@ -80,6 +82,8 @@ private:
     wgpu::BindGroupLayout fSingleTextureSamplerBindGroupLayout;
 
     wgpu::Buffer fNullBuffer;
+
+    sk_sp<DawnBuffer> fIntrinsicConstantBuffer;
 
     struct UniqueKeyHash {
         uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }

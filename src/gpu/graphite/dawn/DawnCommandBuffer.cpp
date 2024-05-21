@@ -38,10 +38,6 @@ constexpr int kIntrinsicConstantAlignedSize =
 // allocate a fixed size buffer to hold the intrinsics constants. If we overflow we allocate another
 // buffer.
 constexpr int kNumSlotsForIntrinsicConstantBuffer = 8;
-#else
-// Dawn has an in-band WriteBuffer command, so we can just keep overwriting the same slot between
-// render passes. Zero indicates this behavior.
-constexpr int kNumSlotsForIntrinsicConstantBuffer = 0;
 #endif
 
 }  // namespace
@@ -673,35 +669,6 @@ void DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
     const float invTwoH = 2.f / viewport.height();
     const IntrinsicConstant rtAdjust = {invTwoW, -invTwoH, -1.f - x * invTwoW, 1.f + y * invTwoH};
 
-    bool needNewBuffer = !fIntrinsicConstantBuffer;
-    if (!needNewBuffer && kNumSlotsForIntrinsicConstantBuffer > 0) {
-        needNewBuffer = (fIntrinsicConstantBufferSlotsUsed == kNumSlotsForIntrinsicConstantBuffer);
-    }
-
-    if (needNewBuffer) {
-        size_t bufferSize;
-
-        if constexpr (kNumSlotsForIntrinsicConstantBuffer > 1) {
-            // With multipule slots in the one constant buffer, each slot must be bindable,
-            // slot's offset must be aligned.
-            bufferSize = kIntrinsicConstantAlignedSize * kNumSlotsForIntrinsicConstantBuffer;
-        } else {
-            // For single slot case, the slot offset is always 0.
-            bufferSize = sizeof(IntrinsicConstant);
-        }
-
-        fIntrinsicConstantBuffer =
-                fResourceProvider->findOrCreateDawnBuffer(bufferSize,
-                                                          BufferType::kUniform,
-                                                          AccessPattern::kGpuOnly,
-                                                          "InstrinsicConstantBuffer");
-
-        fIntrinsicConstantBufferSlotsUsed = 0;
-        SkASSERT(fIntrinsicConstantBuffer);
-
-        this->trackResource(fIntrinsicConstantBuffer);
-    }
-
     // TODO: https://b.corp.google.com/issues/259267703
     // Make updating intrinsic constants faster. Metal has setVertexBytes method
     // to quickly sending intrinsic constants to vertex shader without any buffer. But Dawn doesn't
@@ -710,22 +677,37 @@ void DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
     SkASSERT(!fActiveRenderPassEncoder);
     SkASSERT(!fActiveComputePassEncoder);
 
-    if constexpr (kNumSlotsForIntrinsicConstantBuffer > 0) {
-        uint64_t offset = fIntrinsicConstantBufferSlotsUsed * kIntrinsicConstantAlignedSize;
-        fSharedContext->queue().WriteBuffer(fIntrinsicConstantBuffer->dawnBuffer(),
-                                            offset,
-                                            &rtAdjust,
-                                            sizeof(rtAdjust));
-        fIntrinsicConstantBufferSlotsUsed++;
-    } else {
 #if !defined(__EMSCRIPTEN__)
-        fCommandEncoder.WriteBuffer(fIntrinsicConstantBuffer->dawnBuffer(),
-                                    0,
-                                    reinterpret_cast<const uint8_t*>(rtAdjust),
-                                    sizeof(rtAdjust));
-#endif
-        fIntrinsicConstantBufferSlotsUsed = 1;
+    if (!fIntrinsicConstantBuffer) {
+        fIntrinsicConstantBuffer = fResourceProvider->getOrCreateIntrinsicConstantBuffer();
+        SkASSERT(fIntrinsicConstantBuffer);
+        SkASSERT(fIntrinsicConstantBuffer->size() == sizeof(IntrinsicConstant));
+        this->trackResource(fIntrinsicConstantBuffer);
     }
+    fCommandEncoder.WriteBuffer(fIntrinsicConstantBuffer->dawnBuffer(),
+                                0,
+                                reinterpret_cast<const uint8_t*>(rtAdjust),
+                                sizeof(rtAdjust));
+    fIntrinsicConstantBufferSlotsUsed = 1;
+#else   // defined(__EMSCRIPTEN__)
+    if (!fIntrinsicConstantBuffer ||
+        fIntrinsicConstantBufferSlotsUsed == kNumSlotsForIntrinsicConstantBuffer) {
+        size_t bufferSize = kIntrinsicConstantAlignedSize * kNumSlotsForIntrinsicConstantBuffer;
+        fIntrinsicConstantBuffer =
+                fResourceProvider->findOrCreateDawnBuffer(bufferSize,
+                                                          BufferType::kUniform,
+                                                          AccessPattern::kGpuOnly,
+                                                          "IntrinsicConstantBuffer");
+
+        fIntrinsicConstantBufferSlotsUsed = 0;
+        SkASSERT(fIntrinsicConstantBuffer);
+        this->trackResource(fIntrinsicConstantBuffer);
+    }
+    uint64_t offset = fIntrinsicConstantBufferSlotsUsed * kIntrinsicConstantAlignedSize;
+    fSharedContext->queue().WriteBuffer(
+            fIntrinsicConstantBuffer->dawnBuffer(), offset, &rtAdjust, sizeof(rtAdjust));
+    fIntrinsicConstantBufferSlotsUsed++;
+#endif  // defined(__EMSCRIPTEN__)
 }
 
 void DawnCommandBuffer::setViewport(const SkRect& viewport) {
