@@ -132,13 +132,25 @@ BackendApi Context::backend() const { return fSharedContext->backend(); }
 std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) {
     ASSERT_SINGLE_OWNER
 
-    auto recorder = std::unique_ptr<Recorder>(new Recorder(fSharedContext, options));
+    // This is a client-owned Recorder so pass a null context so it creates its own ResourceProvider
+    auto recorder = std::unique_ptr<Recorder>(new Recorder(fSharedContext, options, nullptr));
 #if defined(GRAPHITE_TEST_UTILS)
     if (fStoreContextRefInRecorder) {
         recorder->priv().setContext(this);
     }
 #endif
     return recorder;
+}
+
+std::unique_ptr<Recorder> Context::makeInternalRecorder() const {
+    ASSERT_SINGLE_OWNER
+
+    // Unlike makeRecorder(), this Recorder is meant to be short-lived and go
+    // away before a Context public API function returns to the caller. As such
+    // it shares the Context's resource provider (no separate budget) and does
+    // not get tracked. The internal drawing performed with an internal recorder
+    // should not require a client image provider.
+    return std::unique_ptr<Recorder>(new Recorder(fSharedContext, {}, this));
 }
 
 bool Context::insertRecording(const InsertRecordingInfo& info) {
@@ -214,7 +226,7 @@ void Context::asyncRescaleAndReadImpl(ReadFn Context::* asyncRead,
     }
 
     // Make a recorder to collect the rescale drawing commands and the copy commands
-    std::unique_ptr<Recorder> recorder = this->makeRecorder();
+    std::unique_ptr<Recorder> recorder = this->makeInternalRecorder();
     sk_sp<SkImage> scaledImage = RescaleImage(recorder.get(),
                                               params.fSrcImage,
                                               params.fSrcRect,
@@ -285,7 +297,7 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
         // This is either a YUVA image (null view) or the texture can't be read directly, so
         // perform a draw into a compatible texture format and/or flatten any YUVA planes to RGBA.
         if (!recorder) {
-            recorder = this->makeRecorder();
+            recorder = this->makeInternalRecorder();
         }
         sk_sp<SkImage> flattened = CopyAsDraw(recorder.get(),
                                             params.fSrcImage,
@@ -431,7 +443,7 @@ void Context::asyncReadPixelsYUV420(std::unique_ptr<Recorder> recorder,
 
     // The planes are always extracted via drawing, so create the Recorder if there isn't one yet.
     if (!recorder) {
-        recorder = this->makeRecorder();
+        recorder = this->makeInternalRecorder();
     }
 
     // copyPlane renders the source image into an A8 image and sets up a transfer stored in 'result'

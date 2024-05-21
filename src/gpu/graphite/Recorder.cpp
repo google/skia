@@ -94,7 +94,9 @@ static uint32_t next_id() {
     return id;
 }
 
-Recorder::Recorder(sk_sp<SharedContext> sharedContext, const RecorderOptions& options)
+Recorder::Recorder(sk_sp<SharedContext> sharedContext,
+                   const RecorderOptions& options,
+                   const Context* context)
         : fSharedContext(std::move(sharedContext))
         , fRuntimeEffectDict(std::make_unique<RuntimeEffectDictionary>())
         , fRootTaskList(new TaskList)
@@ -111,12 +113,18 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext, const RecorderOptions& op
         fClientImageProvider = DefaultImageProvider::Make();
     }
 
-    fResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner(),
-                                                             fUniqueID,
-                                                             options.fGpuBudgetInBytes);
-    fUploadBufferManager = std::make_unique<UploadBufferManager>(fResourceProvider.get(),
+    if (context) {
+        fOwnedResourceProvider = nullptr;
+        fResourceProvider = context->priv().resourceProvider();
+    } else {
+        fOwnedResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner(),
+                                                                    fUniqueID,
+                                                                    options.fGpuBudgetInBytes);
+        fResourceProvider = fOwnedResourceProvider.get();
+    }
+    fUploadBufferManager = std::make_unique<UploadBufferManager>(fResourceProvider,
                                                                  fSharedContext->caps());
-    fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider.get(),
+    fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider,
                                                              fSharedContext->caps(),
                                                              fUploadBufferManager.get());
 
@@ -178,19 +186,19 @@ std::unique_ptr<Recording> Recorder::snap() {
 
     // The scratch resources only need to be tracked until prepareResources() is finished, so
     // Recorder doesn't hold a persistent manager and it can be deleted when snap() returns.
-    ScratchResourceManager scratchManager{fResourceProvider.get(), std::move(fProxyReadCounts)};
+    ScratchResourceManager scratchManager{fResourceProvider, std::move(fProxyReadCounts)};
     fProxyReadCounts = std::make_unique<ProxyReadCountMap>();
 
     // In both the "task failed" case and the "everything is discarded" case, there's no work that
     // needs to be done in insertRecording(). However, we use nullptr as a failure signal, so
     // kDiscard will return a non-null Recording that has no tasks in it.
     if (fDrawBufferManager->hasMappingFailed() ||
-        fRootTaskList->prepareResources(fResourceProvider.get(),
+        fRootTaskList->prepareResources(fResourceProvider,
                                         &scratchManager,
                                         fRuntimeEffectDict.get()) == Task::Status::kFail) {
         // Leaving 'fTrackedDevices' alone since they were flushed earlier and could still be
         // attached to extant SkSurfaces.
-        fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider.get(),
+        fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider,
                                                                  fSharedContext->caps(),
                                                                  fUploadBufferManager.get());
         fTextureDataCache = std::make_unique<TextureDataCache>();

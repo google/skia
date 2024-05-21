@@ -232,6 +232,8 @@ private:
 
     void checkForFinishedWork(SyncToCpu);
 
+    std::unique_ptr<Recorder> makeInternalRecorder() const;
+
     template <typename SrcPixels> struct AsyncParams;
 
     template <typename ReadFn, typename... ExtraArgs>

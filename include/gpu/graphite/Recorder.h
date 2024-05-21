@@ -207,7 +207,9 @@ private:
     friend class Device; // For registering and deregistering Devices;
     friend class RecorderPriv; // for ctor and hidden methods
 
-    Recorder(sk_sp<SharedContext>, const RecorderOptions&);
+    // If Context is non-null, the Recorder will use the Context's resource provider
+    // instead of creating its own.
+    Recorder(sk_sp<SharedContext>, const RecorderOptions&, const Context*);
 
     SingleOwner* singleOwner() const { return &fSingleOwner; }
 
@@ -233,7 +235,8 @@ private:
     void deregisterDevice(const Device*);
 
     sk_sp<SharedContext> fSharedContext;
-    std::unique_ptr<ResourceProvider> fResourceProvider;
+    ResourceProvider* fResourceProvider; // May point to the Context's resource provider
+    std::unique_ptr<ResourceProvider> fOwnedResourceProvider; // May be null
     std::unique_ptr<RuntimeEffectDictionary> fRuntimeEffectDict;
 
     // NOTE: These are stored by pointer to allow them to be forward declared.
