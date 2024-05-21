@@ -1925,8 +1925,12 @@ static void aaa_fill_path(const SkPath& path,
     } else {
         // Only use deferred blitting if there are many edges.
         bool useDeferred =
+#if defined(SK_USE_LEGACY_DEFERRED_BLIT)
                 count >
                 (SkFixedFloorToInt(tailEdge.fPrev->fLowerY - headEdge.fNext->fUpperY) + 1) * 4;
+#else
+                false;
+#endif
 
         // We skip intersection computation if there are many points which probably already
         // give us enough fractional scan lines.
