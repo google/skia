@@ -145,9 +145,17 @@ bool SurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoin
     if (readFlag == GrCaps::SurfaceReadPixelsSupport::kCopyToTexture2D || canvas2DFastPath) {
         std::unique_ptr<SurfaceContext> tempCtx;
         if (this->asTextureProxy()) {
-            GrColorType colorType = (canvas2DFastPath || srcIsCompressed)
-                                            ? GrColorType::kRGBA_8888
-                                            : this->colorInfo().colorType();
+            GrColorType colorType = this->colorInfo().colorType();
+            if (canvas2DFastPath || srcIsCompressed) {
+                colorType = GrColorType::kRGBA_8888;
+            } else {
+                GrBackendFormat backendFormat =
+                        caps->getDefaultBackendFormat(colorType, GrRenderable::kYes);
+                if (!backendFormat.isValid()) {
+                    colorType = GrColorType::kRGBA_8888;
+                }
+            }
+
             SkAlphaType alphaType = canvas2DFastPath ? dst.alphaType()
                                                      : this->colorInfo().alphaType();
             GrImageInfo tempInfo(colorType,
