@@ -66,4 +66,7 @@ skia_cc_library(
 alias(
     name = "skparagraph_harfbuzz_unicode",
     actual = ":skparagraph_harfbuzz_skunicode",
+    visibility = [
+        "//:__subpackages__",
+    ],
 )
