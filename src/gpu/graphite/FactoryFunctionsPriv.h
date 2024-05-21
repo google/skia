@@ -27,7 +27,8 @@ namespace PrecompileShadersPriv {
     sk_sp<PrecompileShader> Blur(sk_sp<PrecompileShader> child);
 
     // TODO: This, technically, doesn't need to take an SkSpan since it is only called from
-    // PrecompileShader::makeWithCTM. Leaving it be for now in case the usage is revised.
+    // PaintOptions::setClipShaders with a single PrecompileShader. Leaving it be for now in case
+    // the usage is revised.
     sk_sp<PrecompileShader> CTM(SkSpan<const sk_sp<PrecompileShader>> wrapped);
 
     sk_sp<PrecompileShader> Image(SkEnumBitMask<PrecompileImageShaderFlags>);

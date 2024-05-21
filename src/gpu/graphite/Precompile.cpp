@@ -49,10 +49,6 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(sk_sp<SkColo
     return PrecompileShaders::WorkingColorSpace({ sk_ref_sp(this) }, { std::move(cs) });
 }
 
-sk_sp<PrecompileShader> PrecompileShader::makeWithCTM() {
-    return PrecompileShadersPriv::CTM({ sk_ref_sp(this) });
-}
-
 sk_sp<PrecompileColorFilter> PrecompileColorFilter::makeComposed(
         sk_sp<PrecompileColorFilter> inner) const {
     if (!inner) {
@@ -68,7 +64,7 @@ void PaintOptions::setClipShaders(SkSpan<const sk_sp<PrecompileShader>> clipShad
     fClipShaderOptions.reserve(2 * clipShaders.size());
     for (const sk_sp<PrecompileShader>& cs : clipShaders) {
         // All clipShaders get wrapped in a CTMShader ...
-        sk_sp<PrecompileShader> withCTM = cs ? cs->makeWithCTM() : nullptr;
+        sk_sp<PrecompileShader> withCTM = cs ? PrecompileShadersPriv::CTM({ cs }) : nullptr;
         // and, if it is a SkClipOp::kDifference clip, an additional ColorFilterShader
         sk_sp<PrecompileShader> inverted =
                 withCTM ? withCTM->makeWithColorFilter(PrecompileColorFilters::Blend())

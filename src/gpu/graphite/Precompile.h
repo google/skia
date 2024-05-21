@@ -133,8 +133,6 @@ public:
     sk_sp<PrecompileShader> makeWithColorFilter(sk_sp<PrecompileColorFilter>);
 
     sk_sp<PrecompileShader> makeWithWorkingColorSpace(sk_sp<SkColorSpace>);
-
-    sk_sp<PrecompileShader> makeWithCTM();
 };
 
 class PrecompileMaskFilter : public PrecompileBase {
