@@ -41,33 +41,6 @@ std::unique_ptr<Context> MakeMetal(const MtlBackendContext& backendContext,
 
 } // namespace ContextFactory
 
-MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags> mask) {
-    // TODO: Decide if we want to change this to always return a combined depth and stencil format
-    // to allow more sharing of depth stencil allocations.
-    if (mask == DepthStencilFlags::kDepth) {
-        // MTLPixelFormatDepth16Unorm is also a universally supported option here
-        return MTLPixelFormatDepth32Float;
-    } else if (mask == DepthStencilFlags::kStencil) {
-        return MTLPixelFormatStencil8;
-    } else if (mask == DepthStencilFlags::kDepthStencil) {
-        // MTLPixelFormatDepth24Unorm_Stencil8 is supported on Mac family GPUs.
-        return MTLPixelFormatDepth32Float_Stencil8;
-    }
-    SkASSERT(false);
-    return MTLPixelFormatInvalid;
-}
-
-SkEnumBitMask<DepthStencilFlags> MtlFormatToDepthStencilFlags(MTLPixelFormat format) {
-    switch (format) {
-        case MTLPixelFormatDepth32Float:          return DepthStencilFlags::kDepth;
-        case MTLPixelFormatStencil8:              return DepthStencilFlags::kStencil;
-        case MTLPixelFormatDepth32Float_Stencil8: return DepthStencilFlags::kDepthStencil;
-        default:                                  return DepthStencilFlags::kNone;
-    }
-
-    SkUNREACHABLE;
-}
-
 sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
                                                std::string_view label,
                                                std::string_view msl,

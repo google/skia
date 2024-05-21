@@ -20,10 +20,8 @@ class ShaderErrorHandler;
 }
 
 namespace skgpu::graphite {
-class MtlSharedContext;
 
-MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
-SkEnumBitMask<DepthStencilFlags> MtlFormatToDepthStencilFlags(MTLPixelFormat);
+class MtlSharedContext;
 
 sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
                                                std::string_view label,

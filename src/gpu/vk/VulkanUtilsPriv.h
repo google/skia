@@ -71,6 +71,8 @@ static constexpr uint32_t VkFormatChannels(VkFormat vkFormat) {
         case VK_FORMAT_R16G16B16A16_UNORM:       return kRGBA_SkColorChannelFlags;
         case VK_FORMAT_R16G16_SFLOAT:            return kRG_SkColorChannelFlags;
         case VK_FORMAT_S8_UINT:                  return 0;
+        case VK_FORMAT_D16_UNORM:                return 0;
+        case VK_FORMAT_D32_SFLOAT:               return 0;
         case VK_FORMAT_D24_UNORM_S8_UINT:        return 0;
         case VK_FORMAT_D32_SFLOAT_S8_UINT:       return 0;
         default:                                 return 0;
@@ -107,10 +109,12 @@ static constexpr size_t VkFormatBytesPerBlock(VkFormat vkFormat) {
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:  return 3;
         case VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16: return 6;
         case VK_FORMAT_S8_UINT:                   return 1;
+        case VK_FORMAT_D16_UNORM:                 return 2;
+        case VK_FORMAT_D32_SFLOAT:                return 4;
         case VK_FORMAT_D24_UNORM_S8_UINT:         return 4;
         case VK_FORMAT_D32_SFLOAT_S8_UINT:        return 8;
 
-        default:                                 return 0;
+        default:                                  return 0;
     }
 }
 
@@ -136,6 +140,8 @@ static constexpr int VkFormatIsStencil(VkFormat format) {
 
 static constexpr int VkFormatIsDepth(VkFormat format) {
     switch (format) {
+        case VK_FORMAT_D16_UNORM:
+        case VK_FORMAT_D32_SFLOAT:
         case VK_FORMAT_D24_UNORM_S8_UINT:
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
             return true;
@@ -257,6 +263,8 @@ static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
         case VK_FORMAT_R16G16B16A16_UNORM:       return "R16G16B16A16_UNORM";
         case VK_FORMAT_R16G16_SFLOAT:            return "R16G16_SFLOAT";
         case VK_FORMAT_S8_UINT:                  return "S8_UINT";
+        case VK_FORMAT_D16_UNORM:                return "D16_UNORM";
+        case VK_FORMAT_D32_SFLOAT:               return "D32_SFLOAT";
         case VK_FORMAT_D24_UNORM_S8_UINT:        return "D24_UNORM_S8_UINT";
         case VK_FORMAT_D32_SFLOAT_S8_UINT:       return "D32_SFLOAT_S8_UINT";
 

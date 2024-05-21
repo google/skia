@@ -18,7 +18,11 @@ namespace skgpu {
 bool MtlFormatIsDepthOrStencil(MTLPixelFormat format) {
     switch (format) {
         case MTLPixelFormatStencil8: // fallthrough
+        case MTLPixelFormatDepth16Unorm:
         case MTLPixelFormatDepth32Float:
+#if defined(SK_BUILD_FOR_MAC)
+        case MTLPixelFormatDepth24Unorm_Stencil8:
+#endif
         case MTLPixelFormatDepth32Float_Stencil8:
             return true;
         default:
@@ -28,7 +32,11 @@ bool MtlFormatIsDepthOrStencil(MTLPixelFormat format) {
 
 bool MtlFormatIsDepth(MTLPixelFormat format) {
     switch (format) {
+        case MTLPixelFormatDepth16Unorm:
         case MTLPixelFormatDepth32Float:
+#if defined(SK_BUILD_FOR_MAC)
+        case MTLPixelFormatDepth24Unorm_Stencil8:
+#endif
         case MTLPixelFormatDepth32Float_Stencil8:
             return true;
         default:
@@ -39,6 +47,9 @@ bool MtlFormatIsDepth(MTLPixelFormat format) {
 bool MtlFormatIsStencil(MTLPixelFormat format) {
     switch (format) {
         case MTLPixelFormatStencil8: // fallthrough
+#if defined(SK_BUILD_FOR_MAC)
+        case MTLPixelFormatDepth24Unorm_Stencil8:
+#endif
         case MTLPixelFormatDepth32Float_Stencil8:
             return true;
         default:

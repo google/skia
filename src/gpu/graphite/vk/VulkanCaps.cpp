@@ -211,6 +211,8 @@ static constexpr VkFormat kVkFormats[] = {
 // These are all the valid depth/stencil formats that we support in Skia.
 static constexpr VkFormat kDepthStencilVkFormats[] = {
     VK_FORMAT_S8_UINT,
+    VK_FORMAT_D16_UNORM,
+    VK_FORMAT_D32_SFLOAT,
     VK_FORMAT_D24_UNORM_S8_UINT,
     VK_FORMAT_D32_SFLOAT_S8_UINT,
 };
@@ -932,6 +934,26 @@ void VulkanCaps::initDepthStencilFormatTable(const skgpu::VulkanInterface* inter
         if (info.fFormatProperties.optimalTilingFeatures &
             VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
             set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[stencilFlags.value()], format);
+        }
+    }
+    // Format: VK_FORMAT_D16_UNORM
+    {
+        constexpr VkFormat format = VK_FORMAT_D16_UNORM;
+        auto& info = this->getDepthStencilFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        if (info.fFormatProperties.optimalTilingFeatures &
+            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
+        }
+    }
+    // Format: VK_FORMAT_D32_SFLOAT
+    {
+        constexpr VkFormat format = VK_FORMAT_D32_SFLOAT;
+        auto& info = this->getDepthStencilFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+        if (info.fFormatProperties.optimalTilingFeatures &
+            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
         }
     }
     // Format: VK_FORMAT_D24_UNORM_S8_UINT

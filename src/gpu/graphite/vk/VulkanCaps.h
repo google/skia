@@ -220,7 +220,7 @@ private:
     VkFormat getFormatFromDepthStencilFlags(const SkEnumBitMask<DepthStencilFlags>& flags) const;
 
     // Map depth/stencil VkFormats to DepthStencilFormatInfo.
-    static const size_t kNumDepthStencilVkFormats = 3;
+    static const size_t kNumDepthStencilVkFormats = 5;
     DepthStencilFormatInfo fDepthStencilFormatTable[kNumDepthStencilVkFormats];
 
     DepthStencilFormatInfo& getDepthStencilFormatInfo(VkFormat);

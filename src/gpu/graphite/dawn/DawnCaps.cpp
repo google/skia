@@ -44,6 +44,7 @@ static constexpr wgpu::TextureFormat kFormats[skgpu::graphite::DawnCaps::kFormat
     wgpu::TextureFormat::RG16Float,
 
     wgpu::TextureFormat::Stencil8,
+    wgpu::TextureFormat::Depth16Unorm,
     wgpu::TextureFormat::Depth32Float,
     wgpu::TextureFormat::Depth24PlusStencil8,
 
@@ -750,6 +751,13 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
     // Format: Stencil8
     {
         info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::Stencil8)];
+        info->fFlags = FormatInfo::kMSAA_Flag;
+        info->fColorTypeInfoCount = 0;
+    }
+
+    // Format: Depth16UNorm
+    {
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::Depth16Unorm)];
         info->fFlags = FormatInfo::kMSAA_Flag;
         info->fColorTypeInfoCount = 0;
     }

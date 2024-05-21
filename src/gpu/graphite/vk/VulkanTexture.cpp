@@ -194,6 +194,10 @@ VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
     switch (format) {
         case VK_FORMAT_S8_UINT:
             return VK_IMAGE_ASPECT_STENCIL_BIT;
+        case VK_FORMAT_D16_UNORM:
+            [[fallthrough]];
+        case VK_FORMAT_D32_SFLOAT:
+            return VK_IMAGE_ASPECT_DEPTH_BIT;
         case VK_FORMAT_D24_UNORM_S8_UINT:
             [[fallthrough]];
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
