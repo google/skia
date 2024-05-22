@@ -48,10 +48,11 @@ static sk_sp<SkShader> make_shader() {
 
 static sk_sp<SkSurface> make_surface(GrRecordingContext* ctx,
                                      const SkImageInfo& info,
+                                     uint32_t flags,
                                      SkPixelGeometry geo,
                                      SkScalar contrast,
                                      SkScalar gamma) {
-    SkSurfaceProps props(0, geo, contrast, gamma);
+    SkSurfaceProps props(flags, geo, contrast, gamma);
     if (ctx) {
         return SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
     } else {
@@ -78,7 +79,7 @@ static void test_draw(SkCanvas* canvas, const char label[]) {
 
 class SurfacePropsGM : public skiagm::GM {
 public:
-    SurfacePropsGM() {
+    SurfacePropsGM(uint32_t flags) : fFlags(flags) {
         recs = {
                 {kUnknown_SkPixelGeometry,
                  "Unknown geometry, default contrast/gamma",
@@ -108,7 +109,10 @@ public:
     }
 
 protected:
-    SkString getName() const override { return SkString("surfaceprops"); }
+    SkString getName() const override {
+        return SkStringPrintf("surfaceprops%s",
+                              fFlags != 0 ? "_df" : "");
+    }
 
     SkISize getISize() override { return SkISize::Make(W, H * recs.size()); }
 
@@ -121,7 +125,7 @@ protected:
         SkScalar x = 0;
         SkScalar y = 0;
         for (const auto& rec : recs) {
-            auto surface(make_surface(ctx, info, rec.fGeo, rec.fContrast, rec.fGamma));
+            auto surface(make_surface(ctx, info, fFlags, rec.fGeo, rec.fContrast, rec.fGamma));
             if (!surface) {
                 SkDebugf("failed to create surface! label: %s", rec.fLabel);
                 continue;
@@ -141,9 +145,12 @@ private:
     };
     std::vector<SurfacePropsInput> recs;
 
+    uint32_t fFlags;
+
     using INHERITED = GM;
 };
-DEF_GM( return new SurfacePropsGM )
+DEF_GM( return new SurfacePropsGM(0); )
+DEF_GM( return new SurfacePropsGM(SkSurfaceProps::kUseDeviceIndependentFonts_Flag); )
 
 #ifdef SK_DEBUG
 static bool equal(const SkSurfaceProps& a, const SkSurfaceProps& b) {
