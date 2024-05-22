@@ -90,6 +90,9 @@ public:
 static SkUniqueCFRef<CTFontRef> create_ctfont_from_font(const SkFont& font) {
     auto typeface = font.getTypeface();
     auto ctfont = SkTypeface_GetCTFontRef(typeface);
+    if (!ctfont) {
+        return nullptr;
+    }
     return SkUniqueCFRef<CTFontRef>(
             CTFontCreateCopyWithAttributes(ctfont, font.getSize(), nullptr, nullptr));
 }
@@ -204,7 +207,6 @@ void SkShaper_CoreText::shape(const char* utf8,
         fontRuns.consume();
         font = fontRuns.currentFont();
     }
-    SkASSERT(font.getTypeface());
 
     SkUniqueCFRef<CFStringRef> textString(
             CFStringCreateWithBytes(kCFAllocatorDefault, (const uint8_t*)utf8, utf8Bytes,
@@ -216,6 +218,9 @@ void SkShaper_CoreText::shape(const char* utf8,
     }
 
     SkUniqueCFRef<CTFontRef> ctfont = create_ctfont_from_font(font);
+    if (!ctfont) {
+        return;
+    }
 
     SkUniqueCFRef<CFMutableDictionaryRef> attr(
             CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
