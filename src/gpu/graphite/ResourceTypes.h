@@ -222,8 +222,8 @@ struct SamplerDesc {
                     (static_cast<int>(samplingOptions.filter)     << kFilterModeShift          ) |
                     (static_cast<int>(samplingOptions.mipmap)     << kMipmapModeShift          ) |
                     (info.fNonFormatYcbcrConversionInfo           << kImmutableSamplerInfoShift) )
-            , fFormatFeatures(info.fFormatFeatures)
-            , fFormat(info.fFormat) {
+            , fFormat(info.fFormat)
+            , fExternalFormatMostSignificantBits(info.fFormat >> 32) {
 
         // Cubic sampling is handled in a shader, with the actual texture sampled by with NN,
         // but that is what a cubic SkSamplingOptions is set to if you ignore 'cubic', which let's
@@ -241,16 +241,17 @@ struct SamplerDesc {
     SamplerDesc(const SamplerDesc&) = default;
 
     bool operator==(const SamplerDesc& o) const {
-        return o.fDesc == fDesc && o.fFormat == fFormat && o.fFormatFeatures == fFormatFeatures;
+        return o.fDesc == fDesc && o.fFormat == fFormat &&
+               o.fExternalFormatMostSignificantBits == fExternalFormatMostSignificantBits;
     }
 
     bool operator!=(const SamplerDesc& o) const { return !(*this == o); }
 
-    SkTileMode tileModeX()      const { return static_cast<SkTileMode>((fDesc >> 0) & 0b11); }
-    SkTileMode tileModeY()      const { return static_cast<SkTileMode>((fDesc >> 2) & 0b11); }
-    uint32_t   desc()           const { return fDesc;                                        }
-    uint32_t   formatFeatures() const { return fFormatFeatures;                              }
-    uint64_t   format()         const { return fFormat;                                      }
+    SkTileMode tileModeX()          const { return static_cast<SkTileMode>((fDesc >> 0) & 0b11); }
+    SkTileMode tileModeY()          const { return static_cast<SkTileMode>((fDesc >> 2) & 0b11); }
+    uint32_t   desc()               const { return fDesc;                                        }
+    uint32_t   format()             const { return fFormat;                                      }
+    uint32_t   externalFormatMSBs() const { return fExternalFormatMostSignificantBits;           }
 
     // NOTE: returns the HW sampling options to use, so a bicubic SkSamplingOptions will become
     // nearest-neighbor sampling in HW.
@@ -279,10 +280,15 @@ private:
     // Note: The order of these member attributes matters to keep unique object representation
     // such that SkGoodHash can be used to hash SamplerDesc objects.
     uint32_t fDesc;
+
     // Data fields populated by backend Caps which store texture format information (needed for
     // YCbCr sampling). Only relevant when using immutable samplers. Otherwise, can be ignored.
-    uint32_t fFormatFeatures = 0;
-    uint64_t fFormat = 0;
+    // Known formats only require a uint32, but external formats can be up to a uint64. We store
+    // this as two separate uint32s such that has_unique_object_representation can be true, allowing
+    // this structure to be easily hashed using SkGoodHash. So, external formats can be represented
+    // with (fExternalFormatMostSignificantBits << 32) | fFormat.
+    uint32_t fFormat = 0;
+    uint32_t fExternalFormatMostSignificantBits = 0;
 };
 
 };  // namespace skgpu::graphite

@@ -31,14 +31,21 @@ public:
     static sk_sp<VulkanSamplerYcbcrConversion> Make(const VulkanSharedContext*,
                                                     const VulkanYcbcrConversionInfo&);
 
+    static sk_sp<VulkanSamplerYcbcrConversion> Make(const VulkanSharedContext*,
+                                                    uint32_t nonFormatInfo,
+                                                    uint64_t format);
+
     // Return a fully-formed GraphiteResourceKey that represents the conversion from conversion info
     static GraphiteResourceKey MakeYcbcrConversionKey(const VulkanSharedContext*,
                                                       const VulkanYcbcrConversionInfo&);
 
+    // Return a fully-formed GraphiteResourceKey that represents a YCbCr conversion by extracting
+    // relevant information from a SamplerDesc.
+    static GraphiteResourceKey GetKeyFromSamplerDesc(const SamplerDesc& samplerDesc);
+
     VkSamplerYcbcrConversion ycbcrConversion() const { return fYcbcrConversion; }
 
     const char* getResourceType() const override { return "Vulkan Sampler YCbCr Conversion"; }
-
 
 private:
     VulkanSamplerYcbcrConversion(const VulkanSharedContext*, VkSamplerYcbcrConversion);

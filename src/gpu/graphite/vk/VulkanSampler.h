@@ -22,22 +22,24 @@ namespace skgpu::graphite {
 class VulkanSampler : public Sampler {
 public:
     static sk_sp<VulkanSampler> Make(const VulkanSharedContext*,
-                                     const SkSamplingOptions& samplingOptions,
+                                     const SkSamplingOptions&,
                                      SkTileMode xTileMode,
-                                     SkTileMode yTileMode);
+                                     SkTileMode yTileMode,
+                                     sk_sp<VulkanSamplerYcbcrConversion> ycbcrConversion = nullptr);
 
     ~VulkanSampler() override {}
 
     VkSampler vkSampler() const { return fSampler; }
 
+    const VulkanSamplerYcbcrConversion* ycbcrConversion() const { return fYcbcrConversion.get(); }
+
 private:
-    VulkanSampler(const VulkanSharedContext*, VkSampler);
+    VulkanSampler(const VulkanSharedContext*, VkSampler, sk_sp<VulkanSamplerYcbcrConversion>);
 
     void freeGpuData() override;
 
     VkSampler fSampler;
-    // TODO: Add YCbCr conversion information to this class.
-    //sk_sp<VulkanSamplerYcbcrConversion> fYcbcrConversion;
+    sk_sp<VulkanSamplerYcbcrConversion> fYcbcrConversion;
 };
 
 } // namepsace skgpu::graphite

@@ -14,9 +14,11 @@
 namespace skgpu::graphite {
 
 VulkanSampler::VulkanSampler(const VulkanSharedContext* sharedContext,
-                             VkSampler sampler)
+                             VkSampler sampler,
+                             sk_sp<VulkanSamplerYcbcrConversion> ycbcrConversion)
         : Sampler(sharedContext)
-        , fSampler(sampler) {}
+        , fSampler(sampler)
+        , fYcbcrConversion(ycbcrConversion) {}
 
 static VkSamplerAddressMode tile_mode_to_vk_sampler_address(SkTileMode tileMode) {
     switch (tileMode) {
@@ -32,13 +34,18 @@ static VkSamplerAddressMode tile_mode_to_vk_sampler_address(SkTileMode tileMode)
     SkUNREACHABLE;
 }
 
-sk_sp<VulkanSampler> VulkanSampler::Make(const VulkanSharedContext* sharedContext,
-                                         const SkSamplingOptions& samplingOptions,
-                                         SkTileMode xTileMode,
-                                         SkTileMode yTileMode) {
+sk_sp<VulkanSampler> VulkanSampler::Make(
+        const VulkanSharedContext* sharedContext,
+        const SkSamplingOptions& samplingOptions,
+        SkTileMode xTileMode,
+        SkTileMode yTileMode,
+        sk_sp<VulkanSamplerYcbcrConversion> ycbcrConversion) {
+
     VkSamplerCreateInfo samplerInfo;
     memset(&samplerInfo, 0, sizeof(VkSamplerCreateInfo));
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    // TODO(b/311392779): If a ycbcrConversion is passed in, assign pNext to
+    // VkSamplerYcbcrConversion.
     samplerInfo.pNext = nullptr;
     samplerInfo.flags = 0;
 
@@ -83,10 +90,6 @@ sk_sp<VulkanSampler> VulkanSampler::Make(const VulkanSharedContext* sharedContex
     samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
-    // TODO: Add VkSamplerYcbcrConversion support by adding YCbCr conversion information to the
-    // graphite-level sampler key. Currently, the ResourceProvider only generates a key based on
-    // samplingOptions and tileModes.
-
     VkSampler sampler;
     VkResult result;
     VULKAN_CALL_RESULT(sharedContext,
@@ -96,7 +99,7 @@ sk_sp<VulkanSampler> VulkanSampler::Make(const VulkanSharedContext* sharedContex
         return nullptr;
     }
 
-    return sk_sp<VulkanSampler>(new VulkanSampler(sharedContext, sampler));
+    return sk_sp<VulkanSampler>(new VulkanSampler(sharedContext, sampler, ycbcrConversion));
 }
 
 void VulkanSampler::freeGpuData() {
