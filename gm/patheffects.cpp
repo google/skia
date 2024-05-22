@@ -23,7 +23,6 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/pathops/SkPathOps.h"
 
 #include <initializer_list>
 

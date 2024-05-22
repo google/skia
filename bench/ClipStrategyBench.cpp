@@ -8,7 +8,6 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
-#include "include/pathops/SkPathOps.h"
 
 class ClipStrategyBench : public Benchmark {
 public:

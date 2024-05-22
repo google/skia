@@ -115,7 +115,6 @@ DEF_GM( return new PathOpsInverseGM; )
 
 }  // namespace skiagm
 
-#include "include/pathops/SkPathOps.h"
 #include "include/utils/SkParsePath.h"
 
 DEF_SIMPLE_GM(pathops_skbug_10155, canvas, 256, 256) {
