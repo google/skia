@@ -1368,6 +1368,14 @@ static void check_intersection(const SkAnalyticEdge* edge, SkFixed nextY, SkFixe
     }
 }
 
+#if !defined(SK_USE_LEGACY_DEFERRED_BLIT)
+static void check_intersection_fwd(const SkAnalyticEdge* edge, SkFixed nextY, SkFixed* nextNextY) {
+    if (edge->fNext->fNext && edge->fX + edge->fDX > edge->fNext->fX + edge->fNext->fDX) {
+        *nextNextY = nextY + (SK_Fixed1 >> SkAnalyticEdge::kDefaultAccuracy);
+    }
+}
+#endif
+
 static void insert_new_edges(SkAnalyticEdge* newEdge, SkFixed y, SkFixed* nextNextY) {
     if (newEdge->fUpperY > y) {
         update_next_next_y(newEdge->fUpperY, y, nextNextY);
@@ -1403,6 +1411,9 @@ static void insert_new_edges(SkAnalyticEdge* newEdge, SkFixed y, SkFixed* nextNe
         insert_edge_after(newEdge, start);
     nextEdge:
         check_intersection(newEdge, y, nextNextY);
+#if !defined(SK_USE_LEGACY_DEFERRED_BLIT)
+        check_intersection_fwd(newEdge, y, nextNextY);
+#endif
         update_next_next_y(newEdge->fLowerY, y, nextNextY);
         start   = newEdge;
         newEdge = next;
