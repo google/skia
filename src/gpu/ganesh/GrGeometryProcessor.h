@@ -452,6 +452,9 @@ private:
     // node that shares the same coordinates. This allows multiple FPs in a subtree to share a
     // varying.
     std::unordered_map<const GrFragmentProcessor*, TransformInfo> fTransformVaryingsMap;
+
+    // Move back into collectTransforms when /std=c++20 can be used with msvc.
+    enum class BaseCoord { kNone, kLocal, kPosition };
 };
 
 ///////////////////////////////////////////////////////////////////////////

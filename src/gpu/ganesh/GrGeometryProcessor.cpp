@@ -114,8 +114,6 @@ ProgramImpl::FPCoordsMap ProgramImpl::collectTransforms(GrGLSLVertexBuilder* vb,
              positionVar.getType() == SkSLType::kFloat3 ||
              positionVar.getType() == SkSLType::kVoid);
 
-    enum class BaseCoord { kNone, kLocal, kPosition };
-
     auto baseLocalCoordFSVar = [&, baseLocalCoordVarying = GrGLSLVarying()]() mutable {
         if (localCoordsShader == kFragment_GrShaderType) {
             return localCoordsVar;
