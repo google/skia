@@ -40,7 +40,7 @@ public:
 
     bool operator==(const GraphiteResourceKey& that) const {
         bool result = this->ResourceKey::operator==(that);
-        SkASSERT(result == (fShareable == that.fShareable));
+        SkASSERT(!result || (result == (fShareable == that.fShareable)));
         return result;
     }
     bool operator!=(const GraphiteResourceKey& that) const {
