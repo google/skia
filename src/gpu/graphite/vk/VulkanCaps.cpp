@@ -938,12 +938,19 @@ void VulkanCaps::initDepthStencilFormatTable(const skgpu::VulkanInterface* inter
     }
     // Format: VK_FORMAT_D16_UNORM
     {
-        constexpr VkFormat format = VK_FORMAT_D16_UNORM;
-        auto& info = this->getDepthStencilFormatInfo(format);
-        info.init(interface, physDev, properties, format);
-        if (info.fFormatProperties.optimalTilingFeatures &
-            VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-            set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
+        // Qualcomm drivers will report OUT_OF_HOST_MEMORY when binding memory to a VkImage with
+        // D16_UNORM in a protected context. Using D32_SFLOAT succeeds, so clearly it's not actually
+        // out of memory. D16_UNORM appears to function correctly in unprotected contexts.
+        const bool disableD16InProtected = this->protectedSupport() &&
+                                           kQualcomm_VkVendor == properties.vendorID;
+        if (!disableD16InProtected) {
+            constexpr VkFormat format = VK_FORMAT_D16_UNORM;
+            auto& info = this->getDepthStencilFormatInfo(format);
+            info.init(interface, physDev, properties, format);
+            if (info.fFormatProperties.optimalTilingFeatures &
+                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+                set_ds_flags_to_format(fDepthStencilFlagsToFormatTable[depthFlags.value()], format);
+            }
         }
     }
     // Format: VK_FORMAT_D32_SFLOAT
