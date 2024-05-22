@@ -1020,11 +1020,31 @@ sk_sp<PrecompileColorFilter> PrecompileColorFiltersPriv::ColorSpaceXform() {
 }
 
 //--------------------------------------------------------------------------------------------------
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::HighContrast() {
+    const SkRuntimeEffect* highContrastEffect =
+            GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kHighContrast);
+
+    sk_sp<PrecompileColorFilter> cf = MakePrecompileColorFilter(sk_ref_sp(highContrastEffect));
+    if (!cf) {
+        return nullptr;
+    }
+    return PrecompileColorFiltersPriv::WithWorkingFormat({ std::move(cf) });
+}
+
+//--------------------------------------------------------------------------------------------------
 sk_sp<PrecompileColorFilter> PrecompileColorFilters::Luma() {
     const SkRuntimeEffect* lumaEffect =
             GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kLuma);
 
     return MakePrecompileColorFilter(sk_ref_sp(lumaEffect));
+}
+
+//--------------------------------------------------------------------------------------------------
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::Overdraw() {
+    const SkRuntimeEffect* overdrawEffect =
+            GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kOverdraw);
+
+    return MakePrecompileColorFilter(sk_ref_sp(overdrawEffect));
 }
 
 //--------------------------------------------------------------------------------------------------

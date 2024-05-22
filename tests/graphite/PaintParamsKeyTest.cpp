@@ -25,8 +25,10 @@
 #include "include/effects/SkBlenders.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkHighContrastFilter.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkLumaColorFilter.h"
+#include "include/effects/SkOverdrawColorFilter.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Image.h"
@@ -182,12 +184,14 @@ const char* to_str(BlenderType b) {
     M(ColorSpaceXform) \
     M(Compose)         \
     M(Gaussian)        \
+    M(HighContrast)    \
     M(HSLAMatrix)      \
     M(Lerp)            \
     M(Lighting)        \
     M(LinearToSRGB)    \
     M(Luma)            \
     M(Matrix)          \
+    M(Overdraw)        \
     M(Runtime)         \
     M(SRGBToLinear)    \
     M(Table)           \
@@ -991,8 +995,29 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_srgb_to_lin
     return { SkColorFilters::SRGBToLinearGamma(), PrecompileColorFilters::SRGBToLinearGamma() };
 }
 
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_high_contrast_colorfilter() {
+    SkHighContrastConfig config(/* grayscale= */ false,
+                                SkHighContrastConfig::InvertStyle::kInvertBrightness,
+                                /* contrast= */ 0.5f);
+    return { SkHighContrastFilter::Make(config), PrecompileColorFilters::HighContrast() };
+}
+
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_luma_colorfilter() {
     return { SkLumaColorFilter::Make(), PrecompileColorFilters::Luma() };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_overdraw_colorfilter() {
+    // Black to red heat map gradation
+    static const SkColor kColors[SkOverdrawColorFilter::kNumColors] = {
+        SK_ColorBLACK,
+        SK_ColorBLUE,
+        SK_ColorCYAN,
+        SK_ColorGREEN,
+        SK_ColorYELLOW,
+        SK_ColorRED
+    };
+
+    return { SkOverdrawColorFilter::MakeWithSkColors(kColors), PrecompileColorFilters::Overdraw() };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_compose_colorfilter(
@@ -1061,6 +1086,8 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_colorfilter
             return create_compose_colorfilter(rand);
         case ColorFilterType::kGaussian:
             return create_gaussian_colorfilter();
+        case ColorFilterType::kHighContrast:
+            return create_high_contrast_colorfilter();
         case ColorFilterType::kHSLAMatrix:
             return create_hsla_matrix_colorfilter();
         case ColorFilterType::kLerp:
@@ -1073,6 +1100,8 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_colorfilter
             return create_luma_colorfilter();
         case ColorFilterType::kMatrix:
             return create_matrix_colorfilter();
+        case ColorFilterType::kOverdraw:
+            return create_overdraw_colorfilter();
         case ColorFilterType::kRuntime:
             return create_rt_colorfilter(rand);
         case ColorFilterType::kSRGBToLinear:
@@ -1496,11 +1525,13 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ColorFilterType::kColorSpaceXform,
             ColorFilterType::kCompose,
             ColorFilterType::kGaussian,
+            ColorFilterType::kHighContrast,
             ColorFilterType::kHSLAMatrix,
             ColorFilterType::kLerp,
             ColorFilterType::kLighting,
             ColorFilterType::kLinearToSRGB,
             ColorFilterType::kLuma,
+            ColorFilterType::kOverdraw,
             ColorFilterType::kRuntime,
             ColorFilterType::kSRGBToLinear,
             ColorFilterType::kTable,

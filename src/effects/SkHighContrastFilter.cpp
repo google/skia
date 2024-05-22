@@ -15,7 +15,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkTPin.h"
-#include "modules/skcms/skcms.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
 
@@ -43,9 +42,10 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
     const SkRuntimeEffect* highContrastEffect =
             GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kHighContrast);
 
-    skcms_TransferFunction linear = SkNamedTransferFn::kLinear;
-    SkAlphaType          unpremul = kUnpremul_SkAlphaType;
+    const SkAlphaType kUnpremul = kUnpremul_SkAlphaType;
     return SkColorFilterPriv::WithWorkingFormat(
             highContrastEffect->makeColorFilter(SkData::MakeWithCopy(&uniforms,sizeof(uniforms))),
-            &linear, nullptr/*use dst gamut*/, &unpremul);
+            &SkNamedTransferFn::kLinear,
+            /* gamut= */ nullptr,           // use the dst gamut
+            &kUnpremul);
 }
