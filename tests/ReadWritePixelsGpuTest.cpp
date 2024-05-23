@@ -373,17 +373,17 @@ static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
                 numer += 1;
             }
             int rgbBits = std::min({min_rgb_channel_bits(readCT), min_rgb_channel_bits(srcCT), 8});
-            float tol = numer / (1 << rgbBits);
+            float tol = (rgbBits == 0) ? 1.f : numer / ((1 << rgbBits) - 1);
             // Swiftshader is producing alpha errors with 16-bit UNORM. We choose to always allow
             // a small tolerance:
-            float alphaTol = 1.f / (1 << 10);
+            float alphaTol = 1.f / ((1 << 10) - 1);
             if (readAT != kOpaque_SkAlphaType && srcAT != kOpaque_SkAlphaType) {
                 // Alpha can also get squashed down to 8 bits going through an intermediate
                 // color format.
                 const int alphaBits = std::min({alpha_channel_bits(readCT),
                                                 alpha_channel_bits(srcCT),
                                                 8});
-                alphaTol = 2.f / (1 << alphaBits);
+                alphaTol = (alphaBits == 0) ? 1.f : 2.f / ((1 << alphaBits) - 1);
             }
 
             const float tols[4] = {tol, tol, tol, alphaTol};
@@ -1039,7 +1039,7 @@ static void gpu_write_pixels_test_driver(skiatest::Reporter* reporter,
         // Sometimes wider types go through 8bit unorm intermediates because of API
         // restrictions.
         int rgbBits = std::min({min_rgb_channel_bits(writeCT), min_rgb_channel_bits(dstCT), 8});
-        float tol = 2.f/(1 << rgbBits);
+        float tol = (rgbBits == 0) ? 1.f : 2.f / ((1 << rgbBits) - 1);
         float alphaTol = 0;
         if (writeAT != kOpaque_SkAlphaType && dstAT != kOpaque_SkAlphaType) {
             // Alpha can also get squashed down to 8 bits going through an intermediate
@@ -1047,7 +1047,7 @@ static void gpu_write_pixels_test_driver(skiatest::Reporter* reporter,
             const int alphaBits = std::min({alpha_channel_bits(writeCT),
                                             alpha_channel_bits(dstCT),
                                             8});
-            alphaTol = 2.f/(1 << alphaBits);
+            alphaTol = (alphaBits == 0) ? 1.f : 2.f / ((1 << alphaBits) - 1);
         }
 
         const float tols[4] = {tol, tol, tol, alphaTol};
