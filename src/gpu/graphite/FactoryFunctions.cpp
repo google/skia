@@ -947,6 +947,10 @@ sk_sp<PrecompileShader> PrecompileShadersPriv::Blur(sk_sp<PrecompileShader> wrap
 }
 
 //--------------------------------------------------------------------------------------------------
+// This class doesn't actually add any combinations to a given PaintOptions' combinatorics.
+// Its mere presence triggers the precompilation of the BlurImageFilter's Shaders.
+// TODO(b/342413572): the analytic blurmasks are triggered off of the simple DrawType thus
+// over-generate when a simple draw doesn't have a blur mask.
 class PrecompileBlurMaskFilter : public PrecompileMaskFilter {
 public:
     PrecompileBlurMaskFilter() {}
@@ -957,9 +961,6 @@ private:
                   PipelineDataGatherer* gatherer,
                   int desiredCombination) const override {
         SkASSERT(desiredCombination == 0);
-
-        // TODO: need to add a BlurMaskFilter Block. This is somewhat blocked on figuring out
-        // what we're going to do with the Blur system.
     }
 };
 

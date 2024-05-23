@@ -85,16 +85,6 @@ int PaintOptions::numShaderCombinations() const {
     return numShaderCombinations ? numShaderCombinations : 1;
 }
 
-int PaintOptions::numMaskFilterCombinations() const {
-    int numMaskFilterCombinations = 0;
-    for (const sk_sp<PrecompileMaskFilter>& mf : fMaskFilterOptions) {
-        numMaskFilterCombinations += mf->numCombinations();
-    }
-
-    // If no mask filter options are specified we will use the geometry's coverage
-    return numMaskFilterCombinations ? numMaskFilterCombinations : 1;
-}
-
 int PaintOptions::numColorFilterCombinations() const {
     int numColorFilterCombinations = 0;
     for (const sk_sp<PrecompileColorFilter>& cf : fColorFilterOptions) {
@@ -138,7 +128,6 @@ int PaintOptions::numClipShaderCombinations() const {
 int PaintOptions::numCombinations() const {
     // TODO: we need to handle ImageFilters separately
     return this->numShaderCombinations() *
-           this->numMaskFilterCombinations() *
            this->numColorFilterCombinations() *
            this->numBlendModeCombinations() *
            this->numClipShaderCombinations();
@@ -381,7 +370,6 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     const int numClipShaderCombos = this->numClipShaderCombinations();
     const int numBlendModeCombos = this->numBlendModeCombinations();
     const int numColorFilterCombinations = this->numColorFilterCombinations();
-    const int numMaskFilterCombinations = this->numMaskFilterCombinations();
 
     const int desiredClipShaderCombination = desiredCombination % numClipShaderCombos;
     int remainingCombinations = desiredCombination / numClipShaderCombos;
@@ -391,10 +379,6 @@ void PaintOptions::createKey(const KeyContext& keyContext,
 
     const int desiredColorFilterCombination = remainingCombinations % numColorFilterCombinations;
     remainingCombinations /= numColorFilterCombinations;
-
-    [[maybe_unused]] const int desiredMaskFilterCombination =
-                                             remainingCombinations % numMaskFilterCombinations;
-    remainingCombinations /= numMaskFilterCombinations;
 
     const int desiredShaderCombination = remainingCombinations;
     SkASSERT(desiredShaderCombination < this->numShaderCombinations());
