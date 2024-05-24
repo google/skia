@@ -22,9 +22,6 @@ skia_cc_library(
         # https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/issues/299
         "-Wno-implicit-fallthrough",
     ],
-    includes = [
-        ".",
-    ],
     textual_hdrs = [
         "VulkanMemoryAllocatorWrapper.h",
     ],

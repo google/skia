@@ -50,13 +50,16 @@
 #include "src/gpu/ganesh/vk/GrVkSemaphore.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "src/gpu/ganesh/vk/GrVkTextureRenderTarget.h"
-#include "src/gpu/vk/VulkanAMDMemoryAllocator.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/gpu/vk/VulkanMemory.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
+
+#if defined(SK_USE_VMA)
+#include "src/gpu/vk/VulkanAMDMemoryAllocator.h"
+#endif
 
 using namespace skia_private;
 
@@ -187,6 +190,7 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
     }
 
     sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
+#if defined(SK_USE_VMA)
     if (!memoryAllocator) {
         // We were not given a memory allocator at creation
         memoryAllocator = skgpu::VulkanAMDMemoryAllocator::Make(backendContext.fInstance,
@@ -195,8 +199,9 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                                                                 physDevVersion,
                                                                 backendContext.fVkExtensions,
                                                                 interface.get(),
-                                                                /*=threadSafe=*/false);
+                                                                skgpu::ThreadSafe::kNo);
     }
+#endif
     if (!memoryAllocator) {
         SkDEBUGFAIL("No supplied vulkan memory allocator and unable to create one internally.");
         return nullptr;

@@ -13,27 +13,26 @@
 
 namespace skgpu {
 
-#ifndef SK_USE_VMA
-sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
-         VkInstance instance,
-         VkPhysicalDevice physicalDevice,
-         VkDevice device,
-         uint32_t physicalDeviceVersion,
-         const VulkanExtensions* extensions,
-         const VulkanInterface* interface,
-         bool threadSafe) {
+#if !defined(SK_USE_VMA)
+sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(VkInstance,
+                                                            VkPhysicalDevice,
+                                                            VkDevice,
+                                                            uint32_t,
+                                                            const VulkanExtensions*,
+                                                            const VulkanInterface*,
+                                                            ThreadSafe) {
     return nullptr;
 }
+
 #else
 
-sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
-        VkInstance instance,
-        VkPhysicalDevice physicalDevice,
-        VkDevice device,
-        uint32_t physicalDeviceVersion,
-        const VulkanExtensions* extensions,
-        const VulkanInterface* interface,
-        bool threadSafe) {
+sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(VkInstance instance,
+                                                            VkPhysicalDevice physicalDevice,
+                                                            VkDevice device,
+                                                            uint32_t physicalDeviceVersion,
+                                                            const VulkanExtensions* extensions,
+                                                            const VulkanInterface* interface,
+                                                            ThreadSafe threadSafe) {
 #define SKGPU_COPY_FUNCTION(NAME) functions.vk##NAME = interface->fFunctions.f##NAME
 #define SKGPU_COPY_FUNCTION_KHR(NAME) functions.vk##NAME##KHR = interface->fFunctions.f##NAME
 
@@ -71,7 +70,7 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
 
     VmaAllocatorCreateInfo info;
     info.flags = 0;
-    if (!threadSafe) {
+    if (threadSafe == ThreadSafe::kNo) {
         info.flags |= VMA_ALLOCATOR_CREATE_EXTERNALLY_SYNCHRONIZED_BIT;
     }
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||

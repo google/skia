@@ -9,6 +9,7 @@ licenses(["notice"])
 exports_files_legacy()
 
 VK_FILES = [
+    # TODO(kjlubick, egdaniel) Break these out into a module.
     "VulkanAMDMemoryAllocator.cpp",
     "VulkanAMDMemoryAllocator.h",
     "VulkanExtensions.cpp",
