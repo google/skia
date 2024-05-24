@@ -30,6 +30,9 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Surface.h"
+#endif
 #include "include/utils/SkTextUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -47,12 +50,18 @@ static sk_sp<SkShader> make_shader() {
 }
 
 static sk_sp<SkSurface> make_surface(GrRecordingContext* ctx,
+                                     skgpu::graphite::Recorder* recorder,
                                      const SkImageInfo& info,
                                      uint32_t flags,
                                      SkPixelGeometry geo,
                                      SkScalar contrast,
                                      SkScalar gamma) {
     SkSurfaceProps props(flags, geo, contrast, gamma);
+#if defined(SK_GRAPHITE)
+    if (recorder) {
+            return SkSurfaces::RenderTarget(recorder, info, skgpu::Mipmapped::kNo, &props);
+    } else
+#endif
     if (ctx) {
         return SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
     } else {
@@ -118,6 +127,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         auto ctx = canvas->recordingContext();
+        auto recorder = canvas->recorder();
 
         // must be opaque to have a hope of testing LCD text
         const SkImageInfo info = SkImageInfo::MakeN32(W, H, kOpaque_SkAlphaType);
@@ -125,7 +135,8 @@ protected:
         SkScalar x = 0;
         SkScalar y = 0;
         for (const auto& rec : recs) {
-            auto surface(make_surface(ctx, info, fFlags, rec.fGeo, rec.fContrast, rec.fGamma));
+            auto surface(make_surface(ctx, recorder, info, fFlags, rec.fGeo, rec.fContrast,
+                                      rec.fGamma));
             if (!surface) {
                 SkDebugf("failed to create surface! label: %s", rec.fLabel);
                 continue;
