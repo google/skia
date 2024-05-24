@@ -10,6 +10,9 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "src/base/SkEndian.h"
+
+#include <cstdint>
 
 class SkData;
 
@@ -38,6 +41,15 @@ public:
 
 private:
     size_t fBytesWritten = 0;
+};
+
+/** A SkDynamicMemoryWStream that provides helper functions for writing big-endian data. */
+class SkDynamicMemoryEndianWStream final : public SkDynamicMemoryWStream {
+public:
+    // Write the specified value as big-endian.
+    bool writeU16BE(uint16_t value) { return write16(SkEndian_SwapBE16(value)); }
+    bool writeU32BE(uint32_t value) { return write32(SkEndian_SwapBE32(value)); }
+    bool writeS32BE(int32_t value) { return write32(SkEndian_SwapBE32(value)); }
 };
 
 // If the stream supports identifying the current position and total length, this returns

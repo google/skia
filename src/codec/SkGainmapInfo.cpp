@@ -13,6 +13,7 @@
 #include "include/core/SkStream.h"
 #include "src/base/SkEndian.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/core/SkStreamPriv.h"
 
 #include <cmath>
 #include <cstdint>
@@ -23,41 +24,26 @@ constexpr uint8_t kIsMultiChannelMask = (1u << 7);
 constexpr uint8_t kUseBaseColourSpaceMask = (1u << 6);
 }  // namespace
 
-static void write_u16_be(SkWStream* s, uint16_t value) {
-    value = SkEndian_SwapBE16(value);
-    s->write16(value);
-}
-
-static void write_u32_be(SkWStream* s, uint32_t value) {
-    value = SkEndian_SwapBE32(value);
-    s->write32(value);
-}
-
-static void write_s32_be(SkWStream* s, int32_t value) {
-    value = SkEndian_SwapBE32(value);
-    s->write32(value);
-}
-
-static void write_rational_be(SkWStream* s, float x) {
+static void write_rational_be(SkDynamicMemoryEndianWStream& s, float x) {
     // TODO(b/338342146): Select denominator to get maximum precision and robustness.
     uint32_t denominator = 0x10000000;
     if (std::abs(x) > 1.f) {
         denominator = 0x1000;
     }
     int32_t numerator = static_cast<int32_t>(std::llround(static_cast<double>(x) * denominator));
-    write_s32_be(s, numerator);
-    write_u32_be(s, denominator);
+    s.writeS32BE(numerator);
+    s.writeU32BE(denominator);
 }
 
-static void write_positive_rational_be(SkWStream* s, float x) {
+static void write_positive_rational_be(SkDynamicMemoryEndianWStream& s, float x) {
     // TODO(b/338342146): Select denominator to get maximum precision and robustness.
     uint32_t denominator = 0x10000000;
     if (x > 1.f) {
         denominator = 0x1000;
     }
     uint32_t numerator = static_cast<uint32_t>(std::llround(static_cast<double>(x) * denominator));
-    write_u32_be(s, numerator);
-    write_u32_be(s, denominator);
+    s.writeU32BE(numerator);
+    s.writeU32BE(denominator);
 }
 
 static bool read_u16_be(SkStream* s, uint16_t* value) {
@@ -249,19 +235,19 @@ bool SkGainmapInfo::Parse(const SkData* data, SkGainmapInfo& info) {
 }
 
 sk_sp<SkData> SkGainmapInfo::SerializeVersion() {
-    SkDynamicMemoryWStream s;
-    write_u16_be(&s, 0);  // Minimum reader version
-    write_u16_be(&s, 0);  // Writer version
+    SkDynamicMemoryEndianWStream s;
+    s.writeU16BE(0);  // Minimum reader version
+    s.writeU16BE(0);  // Writer version
     return s.detachAsData();
 }
 
 static bool is_single_channel(SkColor4f c) { return c.fR == c.fG && c.fG == c.fB; };
 
 sk_sp<SkData> SkGainmapInfo::serialize() const {
-    SkDynamicMemoryWStream s;
+    SkDynamicMemoryEndianWStream s;
     // Version.
-    write_u16_be(&s, 0);  // Minimum reader version
-    write_u16_be(&s, 0);  // Writer version
+    s.writeU16BE(0);  // Minimum reader version
+    s.writeU16BE(0);  // Writer version
 
     // Flags.
     bool all_single_channel = is_single_channel(fGainmapRatioMin) &&
@@ -280,28 +266,28 @@ sk_sp<SkData> SkGainmapInfo::serialize() const {
     // Base and altr headroom.
     switch (fBaseImageType) {
         case SkGainmapInfo::BaseImageType::kSDR:
-            write_positive_rational_be(&s, std::log2(fDisplayRatioSdr));
-            write_positive_rational_be(&s, std::log2(fDisplayRatioHdr));
+            write_positive_rational_be(s, std::log2(fDisplayRatioSdr));
+            write_positive_rational_be(s, std::log2(fDisplayRatioHdr));
             break;
         case SkGainmapInfo::BaseImageType::kHDR:
-            write_positive_rational_be(&s, std::log2(fDisplayRatioHdr));
-            write_positive_rational_be(&s, std::log2(fDisplayRatioSdr));
+            write_positive_rational_be(s, std::log2(fDisplayRatioHdr));
+            write_positive_rational_be(s, std::log2(fDisplayRatioSdr));
             break;
     }
 
     // Per-channel information.
     for (int i = 0; i < (all_single_channel ? 1 : 3); ++i) {
-        write_rational_be(&s, std::log2(fGainmapRatioMin[i]));
-        write_rational_be(&s, std::log2(fGainmapRatioMax[i]));
-        write_positive_rational_be(&s, 1.f / fGainmapGamma[i]);
+        write_rational_be(s, std::log2(fGainmapRatioMin[i]));
+        write_rational_be(s, std::log2(fGainmapRatioMax[i]));
+        write_positive_rational_be(s, 1.f / fGainmapGamma[i]);
         switch (fBaseImageType) {
             case SkGainmapInfo::BaseImageType::kSDR:
-                write_rational_be(&s, fEpsilonSdr[i]);
-                write_rational_be(&s, fEpsilonHdr[i]);
+                write_rational_be(s, fEpsilonSdr[i]);
+                write_rational_be(s, fEpsilonHdr[i]);
                 break;
             case SkGainmapInfo::BaseImageType::kHDR:
-                write_rational_be(&s, fEpsilonHdr[i]);
-                write_rational_be(&s, fEpsilonSdr[i]);
+                write_rational_be(s, fEpsilonHdr[i]);
+                write_rational_be(s, fEpsilonSdr[i]);
                 break;
         }
     }
