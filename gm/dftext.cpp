@@ -28,6 +28,9 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Surface.h"
+#endif
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "tools/ToolUtils.h"
@@ -56,6 +59,9 @@ protected:
 
         // set up offscreen rendering with distance field text
         auto ctx = inputCanvas->recordingContext();
+#if defined(SK_GRAPHITE)
+        auto recorder = inputCanvas->recorder();
+#endif
         SkISize size = this->getISize();
         if (!inputCanvas->getBaseLayerSize().isEmpty()) {
             size = inputCanvas->getBaseLayerSize();
@@ -66,7 +72,15 @@ protected:
         inputCanvas->getProps(&inputProps);
         SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag | inputProps.flags(),
                              inputProps.pixelGeometry());
-        auto surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props));
+        sk_sp<SkSurface> surface;
+#if defined(SK_GRAPHITE)
+        if (recorder) {
+            surface = SkSurfaces::RenderTarget(recorder, info, skgpu::Mipmapped::kNo, &props);
+        } else
+#endif
+        {
+            surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
+        }
         SkCanvas* canvas = surface ? surface->getCanvas() : inputCanvas;
         // init our new canvas with the old canvas's matrix
         canvas->setMatrix(inputCanvas->getLocalToDeviceAs3x3());

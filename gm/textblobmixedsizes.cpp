@@ -27,6 +27,9 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Surface.h"
+#endif
 #include "src/base/SkRandom.h"
 #include "src/core/SkBlurMask.h"
 #include "tools/Resources.h"
@@ -111,6 +114,9 @@ protected:
         if (fUseDFT) {
             // Create a new Canvas to enable DFT
             auto ctx = inputCanvas->recordingContext();
+#if defined(SK_GRAPHITE)
+            auto recorder = inputCanvas->recorder();
+#endif
             SkISize size = this->getISize();
             if (!inputCanvas->getBaseLayerSize().isEmpty()) {
                 size = inputCanvas->getBaseLayerSize();
@@ -123,7 +129,14 @@ protected:
             SkSurfaceProps props(
                     SkSurfaceProps::kUseDeviceIndependentFonts_Flag | inputProps.flags(),
                     inputProps.pixelGeometry());
-            surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
+#if defined(SK_GRAPHITE)
+            if (recorder) {
+                surface = SkSurfaces::RenderTarget(recorder, info, skgpu::Mipmapped::kNo, &props);
+            } else
+#endif
+            {
+                surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
+            }
             canvas = surface ? surface->getCanvas() : inputCanvas;
             // init our new canvas with the old canvas's matrix
             canvas->setMatrix(inputCanvas->getTotalMatrix());
