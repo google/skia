@@ -234,7 +234,7 @@ size_t multi_picture_params_serialized_size(size_t numberOfImages) {
 
 sk_sp<SkData> SkJpegMultiPictureParameters::serialize() const {
     // Write the MPF signature.
-    SkDynamicMemoryEndianWStream s;
+    SkDynamicMemoryWStream s;
     if (!s.write(kMpfSig, sizeof(kMpfSig))) {
         SkCodecPrintf("Failed to write signature.\n");
         return nullptr;
@@ -251,40 +251,40 @@ sk_sp<SkData> SkJpegMultiPictureParameters::serialize() const {
     // Set the Index IFD offset be the position after the endianness value and this offset.
     constexpr uint32_t indexIfdOffset =
             static_cast<uint16_t>(sizeof(kMpBigEndian) + sizeof(uint32_t));
-    s.writeU32BE(indexIfdOffset);
+    SkWStreamWriteU32BE(&s, indexIfdOffset);
 
     // We will write 3 tags (version, number of images, MP entries).
     constexpr uint32_t numberOfTags = 3;
-    s.writeU16BE(numberOfTags);
+    SkWStreamWriteU16BE(&s, numberOfTags);
 
     // Write the version tag.
-    s.writeU16BE(kVersionTag);
-    s.writeU16BE(kTypeUndefined);
-    s.writeU32BE(kVersionCount);
+    SkWStreamWriteU16BE(&s, kVersionTag);
+    SkWStreamWriteU16BE(&s, kTypeUndefined);
+    SkWStreamWriteU32BE(&s, kVersionCount);
     if (!s.write(kVersionExpected, kVersionSize)) {
         SkCodecPrintf("Failed to write version.\n");
         return nullptr;
     }
 
     // Write the number of images.
-    s.writeU16BE(kNumberOfImagesTag);
-    s.writeU16BE(kTypeUnsignedLong);
-    s.writeU32BE(kNumberOfImagesCount);
-    s.writeU32BE(numberOfImages);
+    SkWStreamWriteU16BE(&s, kNumberOfImagesTag);
+    SkWStreamWriteU16BE(&s, kTypeUnsignedLong);
+    SkWStreamWriteU32BE(&s, kNumberOfImagesCount);
+    SkWStreamWriteU32BE(&s, numberOfImages);
 
     // Write the MP entries.
-    s.writeU16BE(kMPEntryTag);
-    s.writeU16BE(kTypeUndefined);
-    s.writeU32BE(kMPEntrySize * numberOfImages);
+    SkWStreamWriteU16BE(&s, kMPEntryTag);
+    SkWStreamWriteU16BE(&s, kTypeUndefined);
+    SkWStreamWriteU32BE(&s, kMPEntrySize * numberOfImages);
     const uint32_t mpEntryOffset =
             static_cast<uint32_t>(s.bytesWritten() -  // The bytes written so far
                                   sizeof(kMpfSig) +   // Excluding the MPF signature
                                   sizeof(uint32_t) +  // The 4 bytes for this offset
                                   sizeof(uint32_t));  // The 4 bytes for the attribute IFD offset.
-    s.writeU32BE(mpEntryOffset);
+    SkWStreamWriteU32BE(&s, mpEntryOffset);
 
     // Write the attribute IFD offset (zero because we don't write it).
-    s.writeU32BE(0);
+    SkWStreamWriteU32BE(&s, 0);
 
     // Write the MP entries.
     for (size_t i = 0; i < images.size(); ++i) {
@@ -295,12 +295,12 @@ sk_sp<SkData> SkJpegMultiPictureParameters::serialize() const {
             attribute |= kMPEntryAttributeTypePrimary;
         }
 
-        s.writeU32BE(attribute);
-        s.writeU32BE(image.size);
-        s.writeU32BE(image.dataOffset);
+        SkWStreamWriteU32BE(&s, attribute);
+        SkWStreamWriteU32BE(&s, image.size);
+        SkWStreamWriteU32BE(&s, image.dataOffset);
         // Dependent image 1 and 2 entries are zero.
-        s.writeU16BE(0);
-        s.writeU16BE(0);
+        SkWStreamWriteU16BE(&s, 0);
+        SkWStreamWriteU16BE(&s, 0);
     }
 
     SkASSERT(s.bytesWritten() == multi_picture_params_serialized_size(images.size()));

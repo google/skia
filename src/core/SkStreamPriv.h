@@ -43,14 +43,23 @@ private:
     size_t fBytesWritten = 0;
 };
 
-/** A SkDynamicMemoryWStream that provides helper functions for writing big-endian data. */
-class SkDynamicMemoryEndianWStream final : public SkDynamicMemoryWStream {
-public:
-    // Write the specified value as big-endian.
-    bool writeU16BE(uint16_t value) { return write16(SkEndian_SwapBE16(value)); }
-    bool writeU32BE(uint32_t value) { return write32(SkEndian_SwapBE32(value)); }
-    bool writeS32BE(int32_t value) { return write32(SkEndian_SwapBE32(value)); }
-};
+/**
+ * Helper functions to write big-endian values to a stream.
+ */
+inline bool SkWStreamWriteU16BE(SkWStream* s, uint16_t value) {
+    value = SkEndian_SwapBE16(value);
+    return s->write(&value, sizeof(value));
+}
+
+inline bool SkWStreamWriteU32BE(SkWStream* s, uint32_t value) {
+    value = SkEndian_SwapBE32(value);
+    return s->write(&value, sizeof(value));
+}
+
+inline bool SkWStreamWriteS32BE(SkWStream* s, int32_t value) {
+    value = SkEndian_SwapBE32(value);
+    return s->write(&value, sizeof(value));
+}
 
 // If the stream supports identifying the current position and total length, this returns
 // true if there are not enough bytes in the stream to fulfill a read of the given length.

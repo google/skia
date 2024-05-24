@@ -24,26 +24,26 @@ constexpr uint8_t kIsMultiChannelMask = (1u << 7);
 constexpr uint8_t kUseBaseColourSpaceMask = (1u << 6);
 }  // namespace
 
-static void write_rational_be(SkDynamicMemoryEndianWStream& s, float x) {
+static void write_rational_be(SkDynamicMemoryWStream& s, float x) {
     // TODO(b/338342146): Select denominator to get maximum precision and robustness.
     uint32_t denominator = 0x10000000;
     if (std::abs(x) > 1.f) {
         denominator = 0x1000;
     }
     int32_t numerator = static_cast<int32_t>(std::llround(static_cast<double>(x) * denominator));
-    s.writeS32BE(numerator);
-    s.writeU32BE(denominator);
+    SkWStreamWriteS32BE(&s, numerator);
+    SkWStreamWriteU32BE(&s, denominator);
 }
 
-static void write_positive_rational_be(SkDynamicMemoryEndianWStream& s, float x) {
+static void write_positive_rational_be(SkDynamicMemoryWStream& s, float x) {
     // TODO(b/338342146): Select denominator to get maximum precision and robustness.
     uint32_t denominator = 0x10000000;
     if (x > 1.f) {
         denominator = 0x1000;
     }
     uint32_t numerator = static_cast<uint32_t>(std::llround(static_cast<double>(x) * denominator));
-    s.writeU32BE(numerator);
-    s.writeU32BE(denominator);
+    SkWStreamWriteU32BE(&s, numerator);
+    SkWStreamWriteU32BE(&s, denominator);
 }
 
 static bool read_u16_be(SkStream* s, uint16_t* value) {
@@ -235,19 +235,19 @@ bool SkGainmapInfo::Parse(const SkData* data, SkGainmapInfo& info) {
 }
 
 sk_sp<SkData> SkGainmapInfo::SerializeVersion() {
-    SkDynamicMemoryEndianWStream s;
-    s.writeU16BE(0);  // Minimum reader version
-    s.writeU16BE(0);  // Writer version
+    SkDynamicMemoryWStream s;
+    SkWStreamWriteU16BE(&s, 0);  // Minimum reader version
+    SkWStreamWriteU16BE(&s, 0);  // Writer version
     return s.detachAsData();
 }
 
 static bool is_single_channel(SkColor4f c) { return c.fR == c.fG && c.fG == c.fB; };
 
 sk_sp<SkData> SkGainmapInfo::serialize() const {
-    SkDynamicMemoryEndianWStream s;
+    SkDynamicMemoryWStream s;
     // Version.
-    s.writeU16BE(0);  // Minimum reader version
-    s.writeU16BE(0);  // Writer version
+    SkWStreamWriteU16BE(&s, 0);  // Minimum reader version
+    SkWStreamWriteU16BE(&s, 0);  // Writer version
 
     // Flags.
     bool all_single_channel = is_single_channel(fGainmapRatioMin) &&

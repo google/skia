@@ -305,7 +305,7 @@ sk_sp<SkData> write_text_tag(const char* text) {
             SkEndian_SwapBE32(2 * text_length),                       // Length of string in bytes
             SkEndian_SwapBE32(28),                                    // Offset of string
     };
-    SkDynamicMemoryEndianWStream s;
+    SkDynamicMemoryWStream s;
     s.write(header, sizeof(header));
     for (size_t i = 0; i < text_length; i++) {
         // Convert ASCII to big-endian UTF-16.
@@ -318,9 +318,9 @@ sk_sp<SkData> write_text_tag(const char* text) {
 
 // Write a CICP tag.
 sk_sp<SkData> write_cicp_tag(const skcms_CICP& cicp) {
-    SkDynamicMemoryEndianWStream s;
-    s.writeU32BE(kTAG_cicp);                  // Type signature
-    s.writeU32BE(0);                          // Reserved
+    SkDynamicMemoryWStream s;
+    SkWStreamWriteU32BE(&s, kTAG_cicp);       // Type signature
+    SkWStreamWriteU32BE(&s, 0);               // Reserved
     s.write8(cicp.color_primaries);           // Color primaries
     s.write8(cicp.transfer_characteristics);  // Transfer characteristics
     s.write8(cicp.matrix_coefficients);       // RGB matrix
@@ -377,35 +377,35 @@ float hdr_trfn_eval(const skcms_TransferFunction& fn, float x) {
 
 // Write a lookup table based 1D curve.
 sk_sp<SkData> write_trc_tag(const skcms_Curve& trc) {
-    SkDynamicMemoryEndianWStream s;
+    SkDynamicMemoryWStream s;
     if (trc.table_entries) {
-        s.writeU32BE(kTAG_CurveType);     // Type
-        s.writeU32BE(0);                  // Reserved
-        s.writeU32BE(trc.table_entries);  // Value count
+        SkWStreamWriteU32BE(&s, kTAG_CurveType);     // Type
+        SkWStreamWriteU32BE(&s, 0);                  // Reserved
+        SkWStreamWriteU32BE(&s, trc.table_entries);  // Value count
         for (uint32_t i = 0; i < trc.table_entries; ++i) {
             uint16_t value = reinterpret_cast<const uint16_t*>(trc.table_16)[i];
             s.write16(value);
         }
     } else {
-        s.writeU32BE(kTAG_ParaCurveType);                  // Type
+        SkWStreamWriteU32BE(&s, kTAG_ParaCurveType);       // Type
         s.write32(0);                                      // Reserved
         const auto& fn = trc.parametric;
         SkASSERT(skcms_TransferFunction_isSRGBish(&fn));
         if (fn.a == 1.f && fn.b == 0.f && fn.c == 0.f && fn.d == 0.f && fn.e == 0.f &&
             fn.f == 0.f) {
-            s.writeU16BE(kExponential_ParaCurveType);
-            s.writeU16BE(0);
-            s.writeU32BE(float_round_to_fixed(fn.g));
+            SkWStreamWriteU16BE(&s, kExponential_ParaCurveType);
+            SkWStreamWriteU16BE(&s, 0);
+            SkWStreamWriteU32BE(&s, float_round_to_fixed(fn.g));
         } else {
-            s.writeU16BE(kGABCDEF_ParaCurveType);
-            s.writeU16BE(0);
-            s.writeU32BE(float_round_to_fixed(fn.g));
-            s.writeU32BE(float_round_to_fixed(fn.a));
-            s.writeU32BE(float_round_to_fixed(fn.b));
-            s.writeU32BE(float_round_to_fixed(fn.c));
-            s.writeU32BE(float_round_to_fixed(fn.d));
-            s.writeU32BE(float_round_to_fixed(fn.e));
-            s.writeU32BE(float_round_to_fixed(fn.f));
+            SkWStreamWriteU16BE(&s, kGABCDEF_ParaCurveType);
+            SkWStreamWriteU16BE(&s, 0);
+            SkWStreamWriteU32BE(&s, float_round_to_fixed(fn.g));
+            SkWStreamWriteU32BE(&s, float_round_to_fixed(fn.a));
+            SkWStreamWriteU32BE(&s, float_round_to_fixed(fn.b));
+            SkWStreamWriteU32BE(&s, float_round_to_fixed(fn.c));
+            SkWStreamWriteU32BE(&s, float_round_to_fixed(fn.d));
+            SkWStreamWriteU32BE(&s, float_round_to_fixed(fn.e));
+            SkWStreamWriteU32BE(&s, float_round_to_fixed(fn.f));
         }
     }
     s.padToAlign4();
@@ -502,17 +502,17 @@ sk_sp<SkData> write_mAB_or_mBA_tag(uint32_t type,
         }
     }
 
-    SkDynamicMemoryEndianWStream s;
-    s.writeU32BE(type);             // Type signature
+    SkDynamicMemoryWStream s;
+    SkWStreamWriteU32BE(&s, type);  // Type signature
     s.write32(0);                   // Reserved
     s.write8(kNumChannels);         // Input channels
     s.write8(kNumChannels);         // Output channels
     s.write16(0);                   // Reserved
-    s.writeU32BE(b_curves_offset);  // B curve offset
-    s.writeU32BE(matrix_offset);    // Matrix offset
-    s.writeU32BE(m_curves_offset);  // M curve offset
-    s.writeU32BE(clut_offset);      // CLUT offset
-    s.writeU32BE(a_curves_offset);  // A curve offset
+    SkWStreamWriteU32BE(&s, b_curves_offset);  // B curve offset
+    SkWStreamWriteU32BE(&s, matrix_offset);    // Matrix offset
+    SkWStreamWriteU32BE(&s, m_curves_offset);  // M curve offset
+    SkWStreamWriteU32BE(&s, clut_offset);      // CLUT offset
+    SkWStreamWriteU32BE(&s, a_curves_offset);  // A curve offset
     SkASSERT(s.bytesWritten() == b_curves_offset);
     for (size_t i = 0; i < kNumChannels; ++i) {
         s.write(b_curves_data[i]->data(), b_curves_data[i]->size());
