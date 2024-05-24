@@ -185,27 +185,13 @@ struct Context::AsyncParams {
         if (!fSrcImage) {
             return false;
         }
-        // SkImage handling. If we used AsyncParams<Image_Base> the is_same_v guard
-        // wouldn't be necessary, but then all of the public functions would have to
-        // handle checking for if the SkImage was graphite-backed.
-        if constexpr (std::is_same_v<SrcPixels, SkImage>) {
-            if (!as_IB(fSrcImage)->isGraphiteBacked() ||
-                static_cast<const Image_Base*>(fSrcImage)->isProtected()) {
-                return false;
-            }
-        } else {
-            if (fSrcImage->isProtected()) {
-                return false;
-            }
+        if (fSrcImage->isProtected()) {
+            return false;
         }
-
         if (!SkIRect::MakeSize(fSrcImage->dimensions()).contains(fSrcRect)) {
             return false;
         }
         if (!SkImageInfoIsValid(fDstImageInfo)) {
-            return false;
-        }
-        if (fSrcImage->isProtected()) {
             return false;
         }
         return true;
@@ -817,17 +803,30 @@ bool ContextPriv::readPixels(const SkPixmap& pm,
         bool fCalled = false;
         std::unique_ptr<const SkImage::AsyncReadResult> fResult;
     } asyncContext;
-    fContext->asyncReadTexture(/*recorder=*/nullptr,
-                               {textureProxy,
-                                rect,
-                                pm.info(),
-                                [](void* c, std::unique_ptr<const SkImage::AsyncReadResult> out) {
-                                    auto context = static_cast<AsyncContext*>(c);
-                                    context->fResult = std::move(out);
-                                    context->fCalled = true;
-                                },
-                                &asyncContext},
-                                srcImageInfo.colorInfo());
+
+    auto asyncCallback = [](void* c, std::unique_ptr<const SkImage::AsyncReadResult> out) {
+        auto context = static_cast<AsyncContext*>(c);
+        context->fResult = std::move(out);
+        context->fCalled = true;
+    };
+
+    const SkColorInfo& srcColorInfo = srcImageInfo.colorInfo();
+
+    // This is roughly equivalent to the logic taken in asyncRescaleAndRead(SkSurface) to either
+    // try the image-based readback (with copy-as-draw fallbacks) or read the texture directly
+    // if it supports reading.
+    if (!fContext->fSharedContext->caps()->supportsReadPixels(textureProxy->textureInfo())) {
+        // Since this is a synchronous testing-only API, callers should have flushed any pending
+        // work that modifies this texture proxy already. This means we don't have to worry about
+        // re-wrapping the proxy in a new Image (that wouldn't tbe connected to any Device, etc.).
+        sk_sp<SkImage> image{new Image(TextureProxyView(sk_ref_sp(textureProxy)), srcColorInfo)};
+        fContext->asyncReadPixels(/*recorder=*/nullptr,
+                                  {image.get(), rect, pm.info(), asyncCallback, &asyncContext});
+    } else {
+        fContext->asyncReadTexture(/*recorder=*/nullptr,
+                                   {textureProxy, rect, pm.info(), asyncCallback, &asyncContext},
+                                   srcImageInfo.colorInfo());
+    }
 
     if (fContext->fSharedContext->caps()->allowCpuSync()) {
         fContext->submit(SyncToCpu::kYes);
