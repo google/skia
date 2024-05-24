@@ -204,6 +204,10 @@ void ApplyQuadTo(SkPath& p, SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) 
     p.quadTo(x1, y1, x2, y2);
 }
 
+bool EMSCRIPTEN_KEEPALIVE IsEmpty(const SkPath& path) {
+    return path.isEmpty();
+}
+
 
 
 //========================================================================================
@@ -233,6 +237,10 @@ SkPathOrNull EMSCRIPTEN_KEEPALIVE FromSVGString(std::string str) {
 
 bool EMSCRIPTEN_KEEPALIVE ApplySimplify(SkPath& path) {
     return Simplify(path, &path);
+}
+
+bool EMSCRIPTEN_KEEPALIVE ApplyAsWinding(SkPath& path) {
+    return AsWinding(path, &path);
 }
 
 bool EMSCRIPTEN_KEEPALIVE ApplyPathOp(SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
@@ -342,6 +350,11 @@ void ApplyAddPath(SkPath& orig, const SkPath& newPath,
                                    pers0 , pers1 , pers2);
     orig.addPath(newPath, m);
 }
+
+void ApplyReverseAddPath(SkPath& orig, const SkPath& newPath) {
+    orig.reverseAddPath(newPath);
+}
+
 
 JSString GetFillTypeString(const SkPath& path) {
     if (path.getFillType() == SkPathFillType::kWinding) {
@@ -478,6 +491,7 @@ EMSCRIPTEN_BINDINGS(skia) {
 
         // Path2D API
         .function("_addPath", &ApplyAddPath)
+        .function("_reverseAddPath", &ApplyReverseAddPath)
         // 3 additional overloads of addPath are handled in JS bindings
         .function("_arc", &ApplyAddArc)
         .function("_arcTo", &ApplyArcTo)
@@ -493,6 +507,7 @@ EMSCRIPTEN_BINDINGS(skia) {
         // "quadraticCurveTo" alias handled in JS bindings
         .function("_quadTo", &ApplyQuadTo)
         .function("_rect", &ApplyAddRect)
+        .function("_isEmpty", &IsEmpty)
 
         // Extra features
         .function("setFillType", select_overload<void(SkPathFillType)>(&SkPath::setFillType))
@@ -514,6 +529,7 @@ EMSCRIPTEN_BINDINGS(skia) {
 
         // PathOps
         .function("_simplify", &ApplySimplify)
+        .function("_asWinding", &ApplyAsWinding)
         .function("_op", &ApplyPathOp)
 
         // Exporting
