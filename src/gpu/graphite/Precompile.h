@@ -159,6 +159,7 @@ public:
 enum class PrecompileImageFilters : uint32_t {
     kNone = 0x0,
     kBlur = 0x1,
+    kMorphology = 0x2,
 };
 SK_MAKE_BITMASK_OPS(PrecompileImageFilters)
 
@@ -190,7 +191,8 @@ public:
         fImageFilterOptions = options;
     }
 
-    void setBlendModes(SkSpan<SkBlendMode> blendModes) {
+    void setBlendModes(SkSpan<const SkBlendMode> blendModes) {
+        fBlendModeOptions.clear();
         fBlendModeOptions.append(blendModes.size(), blendModes.data());
     }
     void setBlenders(SkSpan<const sk_sp<PrecompileBlender>> blenders) {
@@ -201,6 +203,17 @@ public:
                 fBlenderOptions.push_back(b);
             }
         }
+    }
+    void addBlendMode(SkBlendMode bm) {
+        fBlendModeOptions.push_back(bm);
+    }
+
+    SkSpan<const SkBlendMode> blendModes() const {
+        return SkSpan<const SkBlendMode>(fBlendModeOptions.data(),
+                                         fBlendModeOptions.size());
+    }
+    SkSpan<const sk_sp<PrecompileBlender>> blenders() const {
+        return SkSpan<const sk_sp<PrecompileBlender>>(fBlenderOptions);
     }
 
     void setClipShaders(SkSpan<const sk_sp<PrecompileShader>> clipShaders);

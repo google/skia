@@ -947,6 +947,53 @@ sk_sp<PrecompileShader> PrecompileShadersPriv::Blur(sk_sp<PrecompileShader> wrap
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileMorphologyShader : public PrecompileShader {
+public:
+    PrecompileMorphologyShader(sk_sp<PrecompileShader> wrapped,
+                               SkKnownRuntimeEffects::StableKey stableKey)
+            : fWrapped(std::move(wrapped))
+            , fStableKey(stableKey) {
+        fNumWrappedCombos = fWrapped->numCombinations();
+        SkASSERT(stableKey == SkKnownRuntimeEffects::StableKey::kLinearMorphology ||
+                 stableKey == SkKnownRuntimeEffects::StableKey::kSparseMorphology);
+    }
+
+private:
+    int numChildCombinations() const override { return fNumWrappedCombos; }
+
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination < fNumWrappedCombos);
+
+        const SkRuntimeEffect* fEffect = GetKnownRuntimeEffect(fStableKey);
+
+        KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
+
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(fEffect) });
+            fWrapped->priv().addToKey(childContext, builder, gatherer, desiredCombination);
+        builder->endBlock();
+    }
+
+    sk_sp<PrecompileShader> fWrapped;
+    int fNumWrappedCombos;
+    SkKnownRuntimeEffects::StableKey fStableKey;
+};
+
+sk_sp<PrecompileShader> PrecompileShadersPriv::LinearMorphology(sk_sp<PrecompileShader> wrapped) {
+    return sk_make_sp<PrecompileMorphologyShader>(
+            std::move(wrapped),
+            SkKnownRuntimeEffects::StableKey::kLinearMorphology);
+}
+
+sk_sp<PrecompileShader> PrecompileShadersPriv::SparseMorphology(sk_sp<PrecompileShader> wrapped) {
+    return sk_make_sp<PrecompileMorphologyShader>(
+            std::move(wrapped),
+            SkKnownRuntimeEffects::StableKey::kSparseMorphology);
+}
+
+//--------------------------------------------------------------------------------------------------
 // This class doesn't actually add any combinations to a given PaintOptions' combinatorics.
 // Its mere presence triggers the precompilation of the BlurImageFilter's Shaders.
 // TODO(b/342413572): the analytic blurmasks are triggered off of the simple DrawType thus

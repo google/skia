@@ -148,7 +148,7 @@ void big_test(const KeyContext& keyContext,
 
     paintOptions.setShaders({ sweepGrad_0, blendShader_0 });
 
-    SkBlendMode evenMoreBlendModes[] = {
+    static const SkBlendMode kEvenMoreBlendModes[] = {
         SkBlendMode::kSrcOver,
         SkBlendMode::kSrc,
         SkBlendMode::kDstOver,
@@ -156,7 +156,7 @@ void big_test(const KeyContext& keyContext,
     };
 
     // now, blend modes
-    paintOptions.setBlendModes(evenMoreBlendModes);                             // c array
+    paintOptions.setBlendModes(kEvenMoreBlendModes);                             // c array
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 248,
                     "Actual # of combinations %d", paintOptions.priv().numCombinations());

@@ -24,7 +24,11 @@ SK_MAKE_BITMASK_OPS(PrecompileImageShaderFlags)
 
 //--------------------------------------------------------------------------------------------------
 namespace PrecompileShadersPriv {
-    sk_sp<PrecompileShader> Blur(sk_sp<PrecompileShader> child);
+    sk_sp<PrecompileShader> Blur(sk_sp<PrecompileShader> wrapped);
+
+    sk_sp<PrecompileShader> LinearMorphology(sk_sp<PrecompileShader> wrapped);
+
+    sk_sp<PrecompileShader> SparseMorphology(sk_sp<PrecompileShader> wrapped);
 
     // TODO: This, technically, doesn't need to take an SkSpan since it is only called from
     // PaintOptions::setClipShaders with a single PrecompileShader. Leaving it be for now in case

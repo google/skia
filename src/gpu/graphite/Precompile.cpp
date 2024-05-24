@@ -419,23 +419,42 @@ void PaintOptions::createKey(const KeyContext& keyContext,
 
 namespace {
 
+void create_image_drawing_pipelines(const KeyContext& keyContext,
+                                    PipelineDataGatherer* gatherer,
+                                    const PaintOptions::ProcessCombination& processCombination,
+                                    const PaintOptions& orig) {
+    PaintOptions imagePaintOptions;
+
+    // For imagefilters we know we don't have alpha-only textures and don't need cubic filtering.
+    sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
+            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
+
+    imagePaintOptions.setShaders({ imageShader });
+    imagePaintOptions.setBlendModes(orig.blendModes());
+    imagePaintOptions.setBlenders(orig.blenders());
+
+    imagePaintOptions.priv().buildCombinations(keyContext,
+                                               gatherer,
+                                               DrawTypeFlags::kSimpleShape,
+                                               /* withPrimitiveBlender= */ false,
+                                               Coverage::kSingleChannel,
+                                               processCombination);
+}
+
 void create_blur_imagefilter_pipelines(const KeyContext& keyContext,
                                        PipelineDataGatherer* gatherer,
                                        const PaintOptions::ProcessCombination& processCombination) {
-    PaintOptions blurPaintOptions, imagePaintOptions;
+
+    PaintOptions blurPaintOptions;
 
     // For blur imagefilters we know we don't have alpha-only textures and don't need cubic
     // filtering.
     sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
             PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
 
-    SkBlendMode blurBlendModes[] = { SkBlendMode::kSrc };
+    static const SkBlendMode kBlurBlendModes[] = { SkBlendMode::kSrc };
     blurPaintOptions.setShaders({ PrecompileShadersPriv::Blur(imageShader) });
-    blurPaintOptions.setBlendModes(blurBlendModes);
-
-    SkBlendMode imageBlendModes[] = { SkBlendMode::kSrc, SkBlendMode::kDstOut };
-    imagePaintOptions.setShaders({ imageShader });
-    imagePaintOptions.setBlendModes(imageBlendModes);
+    blurPaintOptions.setBlendModes(kBlurBlendModes);
 
     blurPaintOptions.priv().buildCombinations(keyContext,
                                               gatherer,
@@ -443,12 +462,47 @@ void create_blur_imagefilter_pipelines(const KeyContext& keyContext,
                                               /* withPrimitiveBlender= */ false,
                                               Coverage::kSingleChannel,
                                               processCombination);
-    imagePaintOptions.priv().buildCombinations(keyContext,
-                                               gatherer,
-                                               DrawTypeFlags::kSimpleShape,
-                                               /* withPrimitiveBlender= */ false,
-                                               Coverage::kSingleChannel,
-                                               processCombination);
+}
+
+void create_morphology_imagefilter_pipelines(
+        const KeyContext& keyContext,
+        PipelineDataGatherer* gatherer,
+        const PaintOptions::ProcessCombination& processCombination) {
+
+    // For morphology imagefilters we know we don't have alpha-only textures and don't need cubic
+    // filtering.
+    sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
+            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
+
+    {
+        PaintOptions sparse;
+
+        static const SkBlendMode kBlendModes[] = { SkBlendMode::kSrc };
+        sparse.setShaders({ PrecompileShadersPriv::SparseMorphology(imageShader) });
+        sparse.setBlendModes(kBlendModes);
+
+        sparse.priv().buildCombinations(keyContext,
+                                        gatherer,
+                                        DrawTypeFlags::kSimpleShape,
+                                        /* withPrimitiveBlender= */ false,
+                                        Coverage::kSingleChannel,
+                                        processCombination);
+    }
+
+    {
+        PaintOptions linear;
+
+        static const SkBlendMode kBlendModes[] = { SkBlendMode::kSrcOver };
+        linear.setShaders({ PrecompileShadersPriv::LinearMorphology(std::move(imageShader)) });
+        linear.setBlendModes(kBlendModes);
+
+        linear.priv().buildCombinations(keyContext,
+                                        gatherer,
+                                        DrawTypeFlags::kSimpleShape,
+                                        /* withPrimitiveBlender= */ false,
+                                        Coverage::kSingleChannel,
+                                        processCombination);
+    }
 }
 
 } // anonymous namespace
@@ -466,16 +520,20 @@ void PaintOptions::buildCombinations(
     if (fImageFilterOptions != PrecompileImageFilters::kNone) {
         PaintOptions tmp = *this;
 
-        // When image filtering the original blend mode is taken over by the restore paint
+        // When image filtering, the original blend mode is taken over by the restore paint
         tmp.setImageFilters(PrecompileImageFilters::kNone);
-        SkBlendMode newDrawBlendMode[] = { SkBlendMode::kSrcOver };
-        tmp.setBlendModes(newDrawBlendMode);
+        tmp.addBlendMode(SkBlendMode::kSrcOver);
 
         tmp.buildCombinations(keyContext, gatherer, drawTypes, withPrimitiveBlender, coverage,
                               processCombination);
 
+        create_image_drawing_pipelines(keyContext, gatherer, processCombination, *this);
+
         if (fImageFilterOptions & PrecompileImageFilters::kBlur) {
             create_blur_imagefilter_pipelines(keyContext, gatherer, processCombination);
+        }
+        if (fImageFilterOptions & PrecompileImageFilters::kMorphology) {
+            create_morphology_imagefilter_pipelines(keyContext, gatherer, processCombination);
         }
     } else {
         int numCombinations = this->numCombinations();
