@@ -1,17 +1,18 @@
+diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 struct _GlobalUniforms {
   colorRed: vec4<f32>,
   colorGreen: vec4<f32>,
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 const kZero: i32 = 0;
-fn return_loop_ii(_skParam0: i32) -> i32 {
-  let five = _skParam0;
+fn return_loop_ii(five: i32) -> i32 {
   {
     {
       var i: i32 = kZero;
       loop {
         {
-          if (i == five) {
+          if i == five {
             {
               return i;
             }
@@ -27,15 +28,14 @@ fn return_loop_ii(_skParam0: i32) -> i32 {
   }
 }
 const kTen: i32 = 10;
-fn continue_loop_ii(_skParam0: i32) -> i32 {
-  let five = _skParam0;
+fn continue_loop_ii(five: i32) -> i32 {
   {
     var sum: i32 = 0;
     {
       var i: i32 = 0;
       loop {
         {
-          if (i < five) {
+          if i < five {
             {
               continue;
             }
@@ -51,8 +51,7 @@ fn continue_loop_ii(_skParam0: i32) -> i32 {
     return sum;
   }
 }
-fn break_loop_ii(_skParam0: i32) -> i32 {
-  let five = _skParam0;
+fn break_loop_ii(five: i32) -> i32 {
   {
     var sum: i32 = 0;
     const kOne: i32 = 1;
@@ -60,7 +59,7 @@ fn break_loop_ii(_skParam0: i32) -> i32 {
       var i: i32 = 0;
       loop {
         {
-          if (i > five) {
+          if i > five {
             {
               break;
             }
@@ -78,7 +77,19 @@ fn break_loop_ii(_skParam0: i32) -> i32 {
 }
 fn loop_operator_le_b() -> bool {
   {
-    var result: vec4<i32> = vec4<i32>(9);
+    var result: vec4<i32> = vec4<i32>(8);
+    {
+      var i: i32 = 0;
+      loop {
+        {
+          result = result + vec4<i32>(1);
+        }
+        continuing {
+          i = i + i32(1);
+          break if i > 0;
+        }
+      }
+    }
     {
       var i: i32 = 1;
       loop {
@@ -96,7 +107,19 @@ fn loop_operator_le_b() -> bool {
 }
 fn loop_operator_lt_b() -> bool {
   {
-    var result: vec4<i32> = vec4<i32>(9);
+    var result: vec4<i32> = vec4<i32>(8);
+    {
+      var i: i32 = 0;
+      loop {
+        {
+          result = result + vec4<i32>(1);
+        }
+        continuing {
+          i = i + i32(1);
+          break if i >= 1;
+        }
+      }
+    }
     {
       var i: i32 = 1;
       loop {
@@ -114,7 +137,19 @@ fn loop_operator_lt_b() -> bool {
 }
 fn loop_operator_ge_b() -> bool {
   {
-    var result: vec4<i32> = vec4<i32>(9);
+    var result: vec4<i32> = vec4<i32>(8);
+    {
+      var i: i32 = 0;
+      loop {
+        {
+          result = result + vec4<i32>(1);
+        }
+        continuing {
+          i = i - i32(1);
+          break if i < 0;
+        }
+      }
+    }
     {
       var i: i32 = 3;
       loop {
@@ -132,7 +167,19 @@ fn loop_operator_ge_b() -> bool {
 }
 fn loop_operator_gt_b() -> bool {
   {
-    var result: vec4<i32> = vec4<i32>(9);
+    var result: vec4<i32> = vec4<i32>(8);
+    {
+      var i: i32 = 1;
+      loop {
+        {
+          result = result + vec4<i32>(1);
+        }
+        continuing {
+          i = i - i32(1);
+          break if i <= 0;
+        }
+      }
+    }
     {
       var i: i32 = 3;
       loop {
@@ -150,7 +197,19 @@ fn loop_operator_gt_b() -> bool {
 }
 fn loop_operator_ne_b() -> bool {
   {
-    var result: vec4<i32> = vec4<i32>(9);
+    var result: vec4<i32> = vec4<i32>(8);
+    {
+      var i: i32 = 1;
+      loop {
+        {
+          result = result + vec4<i32>(1);
+        }
+        continuing {
+          i = i + i32(1);
+          break if i == 2;
+        }
+      }
+    }
     {
       var i: i32 = 1;
       loop {
@@ -184,8 +243,7 @@ fn loop_operator_eq_b() -> bool {
     return all(result == vec4<i32>(9, 9, 9, 1));
   }
 }
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
-  let pos = _skParam0;
+fn _skslMain(pos: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = clamp(pos.x, f32(_globalUniforms.colorGreen.y), f32(_globalUniforms.colorGreen.w));
     var five: i32 = i32(_skTemp0) * 5;
@@ -201,13 +259,13 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp10 = return_loop_ii(five);
     if _skTemp10 == 5 {
       let _skTemp11 = continue_loop_ii(five);
-      _skTemp9 = _skTemp11 == 35;
+      _skTemp9 = (_skTemp11 == 35);
     } else {
       _skTemp9 = false;
     }
     if _skTemp9 {
       let _skTemp12 = break_loop_ii(5);
-      _skTemp8 = _skTemp12 == 15;
+      _skTemp8 = (_skTemp12 == 15);
     } else {
       _skTemp8 = false;
     }
@@ -255,6 +313,6 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return _skTemp1;
   }
 }
-@fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
-  return main(_coords);
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+  return _skslMain(_coords);
 }

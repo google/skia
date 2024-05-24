@@ -1,5 +1,6 @@
-fn d_vi(_skParam0: ptr<function, i32>) {
-  let i = _skParam0;
+diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
+fn d_vi(i: ptr<function, i32>) {
   {
     {
       var x: i32 = 0;
@@ -13,8 +14,7 @@ fn d_vi(_skParam0: ptr<function, i32>) {
     }
   }
 }
-fn c_vi(_skParam0: ptr<function, i32>) {
-  let i = _skParam0;
+fn c_vi(i: ptr<function, i32>) {
   {
     {
       var x: i32 = 0;
@@ -30,8 +30,7 @@ fn c_vi(_skParam0: ptr<function, i32>) {
     }
   }
 }
-fn b_vi(_skParam0: ptr<function, i32>) {
-  let i = _skParam0;
+fn b_vi(i: ptr<function, i32>) {
   {
     {
       var x: i32 = 0;
@@ -47,8 +46,7 @@ fn b_vi(_skParam0: ptr<function, i32>) {
     }
   }
 }
-fn a_vi(_skParam0: ptr<function, i32>) {
-  let i = _skParam0;
+fn a_vi(i: ptr<function, i32>) {
   {
     {
       var x: i32 = 0;
@@ -64,8 +62,7 @@ fn a_vi(_skParam0: ptr<function, i32>) {
     }
   }
 }
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
-  let xy = _skParam0;
+fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
   {
     var i: i32 = 0;
     var _skTemp3: i32 = i;
@@ -74,6 +71,6 @@ fn main(_skParam0: vec2<f32>) -> vec4<f32> {
     return vec4<f32>(0.0);
   }
 }
-@fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
-  return main(_coords);
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+  return _skslMain(_coords);
 }

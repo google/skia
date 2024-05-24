@@ -1,11 +1,12 @@
+diagnostic(off, derivative_uniformity);
+diagnostic(off, chromium.unreachable_code);
 var<private> f: f32;
-fn main(_skParam0: vec2<f32>) -> vec4<f32> {
-  let coords = _skParam0;
+fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var fv: vec4<f32> = vec4<f32>(f);
     return fv;
   }
 }
-@fragment fn runtimeShaderMain(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
-  return main(_coords);
+@fragment fn main(@location(0) _coords: vec2<f32>) -> @location(0) vec4<f32> {
+  return _skslMain(_coords);
 }
