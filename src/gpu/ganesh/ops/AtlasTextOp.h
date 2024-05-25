@@ -126,8 +126,9 @@ public:
         kAliasedDistanceField,
         kGrayscaleDistanceField,
         kLCDDistanceField,
+        kLCDBGRDistanceField,
 
-        kLast = kLCDDistanceField
+        kLast = kLCDBGRDistanceField
 #else
         kLast = kColorBitmap
 #endif
@@ -218,6 +219,7 @@ private:
             case MaskType::kAliasedDistanceField:
             case MaskType::kGrayscaleDistanceField:
             case MaskType::kLCDDistanceField:
+            case MaskType::kLCDBGRDistanceField:
 #endif
                 return skgpu::MaskFormat::kA8;
         }
@@ -229,12 +231,14 @@ private:
     bool usesDistanceFields() const {
         return MaskType::kAliasedDistanceField == this->maskType() ||
                MaskType::kGrayscaleDistanceField == this->maskType() ||
-               MaskType::kLCDDistanceField == this->maskType();
+               MaskType::kLCDDistanceField == this->maskType() ||
+               MaskType::kLCDBGRDistanceField == this->maskType();
     }
 
     bool isLCD() const {
         return MaskType::kLCDCoverage == this->maskType() ||
-               MaskType::kLCDDistanceField == this->maskType();
+               MaskType::kLCDDistanceField == this->maskType() ||
+               MaskType::kLCDBGRDistanceField == this->maskType();
     }
 #else
     bool isLCD() const {

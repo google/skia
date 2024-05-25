@@ -1076,11 +1076,13 @@ static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameter
         bool isAntiAliased) {
     const GrColorInfo& colorInfo = sdc.colorInfo();
     const SkSurfaceProps& props = sdc.surfaceProps();
+    bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
+    bool isLCD = useLCDText && SkPixelGeometryIsH(props.pixelGeometry());
     using MT = AtlasTextOp::MaskType;
-    bool isLCD = useLCDText && props.pixelGeometry() != kUnknown_SkPixelGeometry;
     MT maskType = !isAntiAliased ? MT::kAliasedDistanceField
-                  : isLCD ? MT::kLCDDistanceField
-                          : MT::kGrayscaleDistanceField;
+                  : isLCD ? (isBGR ? MT::kLCDBGRDistanceField
+                                          : MT::kLCDDistanceField)
+                                 : MT::kGrayscaleDistanceField;
 
     bool useGammaCorrectDistanceTable = colorInfo.isLinearlyBlended();
     uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
@@ -1090,11 +1092,8 @@ static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameter
     DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
 
     if (isLCD) {
-        bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
-        bool isV = SkPixelGeometryIsV(props.pixelGeometry());
         DFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
-        DFGPFlags |= isBGR ? kBGR_DistanceFieldEffectFlag : 0;
-        DFGPFlags |= isV ? kPortrait_DistanceFieldEffectFlag : 0;
+        DFGPFlags |= MT::kLCDBGRDistanceField == maskType ? kBGR_DistanceFieldEffectFlag : 0;
     }
     return {maskType, DFGPFlags, useGammaCorrectDistanceTable};
 }
