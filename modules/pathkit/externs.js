@@ -70,6 +70,25 @@ var PathKit = {
 		MITER: {},
 		ROUND: {},
 		BEVEL: {},
+	},
+
+	SkPoint: {
+		_set: function(x, y) {},
+		_normalize: function() {},
+		_scale: function(s) {},
+		_offset: function(dx, dy) {},
+		_negate: function() {},
+	},
+
+	SkPathMeasure:{
+		_setPath: function(path, forceClosed) {},
+		_getPosTan: function(distance, position, tangent) {},
+	},
+
+	MatrixFlag: {
+		GET_POSITION: {},
+		GET_TANGENT: {},
+		GET_POS_AND_TAN: {},
 	}
 };
 
@@ -112,3 +131,12 @@ PathKit.SkPath.prototype.simplify = function() {};
 PathKit.SkPath.prototype.stroke = function(opts) {};
 PathKit.SkPath.prototype.transform = function() {};
 PathKit.SkPath.prototype.trim = function(startT, stopT, isComplement) {};
+
+PathKit.SkPathMeasure.prototype.setPath = function() {};
+PathKit.SkPathMeasure.prototype.getPosTan = function() {};
+
+PathKit.SkPoint.prototype.set = function(x, y) {};
+PathKit.SkPoint.prototype.normalize = function() {};
+PathKit.SkPoint.prototype.scale = function(s) {};
+PathKit.SkPoint.prototype.offset = function(dx, dy) {};
+PathKit.SkPoint.prototype.negate = function() {};
