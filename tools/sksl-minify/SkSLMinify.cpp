@@ -237,6 +237,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
     bool isVert = find_boolean_flag(&args, "--vert");
     bool isCompute = find_boolean_flag(&args, "--compute");
     bool isShader = find_boolean_flag(&args, "--shader");
+    bool isPrivateShader = find_boolean_flag(&args, "--privshader");
     bool isColorFilter = find_boolean_flag(&args, "--colorfilter");
     bool isBlender = find_boolean_flag(&args, "--blender");
     bool isMeshFrag = find_boolean_flag(&args, "--meshfrag");
@@ -260,6 +261,8 @@ static ResultCode process_command(SkSpan<std::string> args) {
         gProgramKind = SkSL::ProgramKind::kMeshFragment;
     } else if (isMeshVert) {
         gProgramKind = SkSL::ProgramKind::kMeshVertex;
+    } else if (isPrivateShader) {
+        gProgramKind = SkSL::ProgramKind::kPrivateRuntimeShader;
     } else {
         // Default case, if no option is specified.
         gProgramKind = SkSL::ProgramKind::kRuntimeShader;

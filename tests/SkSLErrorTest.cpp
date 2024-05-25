@@ -201,6 +201,15 @@ DEF_TEST(SkSLRuntimeShaderErrorTest, r) {
     });
 }
 
+DEF_TEST(SkSLPrivateRuntimeShaderErrorTest, r) {
+    iterate_dir("sksl/errors/", ".privrts", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kPrivateRuntimeShader);
+    });
+    iterate_dir("sksl/runtime_errors/", ".privrts", [&](const char* path) {
+        test_expect_fail(r, path, SkSL::ProgramKind::kPrivateRuntimeShader);
+    });
+}
+
 DEF_TEST(SkSLRuntimeColorFilterErrorTest, r) {
     iterate_dir("sksl/runtime_errors/", ".rtcf", [&](const char* path) {
         test_expect_fail(r, path, SkSL::ProgramKind::kRuntimeColorFilter);

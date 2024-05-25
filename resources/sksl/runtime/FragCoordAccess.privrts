@@ -1,0 +1,6 @@
+// This test is mirrored in `runtime_errors/FragCoordAccess.rts`, where we demonstrate that
+// sk_FragCoord access is disallowed in a non-private Runtime Shader.
+
+float4 main(float2 xy) {
+    return float4(sk_FragCoord);
+}

@@ -16,17 +16,18 @@ batchMinify = False
 sksl_minify = sys.argv[1]
 shared_module = sys.argv[2]
 public_module = sys.argv[3]
-input_root_dir = sys.argv[4]
-output_root_dir = sys.argv[5]
+rt_shader_module = sys.argv[4]
+input_root_dir = sys.argv[5]
+output_root_dir = sys.argv[6]
 # The last arg is a file containing a space seperated list of filenames
-input_file = sys.argv[6]
+input_file = sys.argv[7]
 with open(input_file, 'r') as reader:
     all_inputs = shlex.split(reader.read())
 
 inputs = []
 for file in all_inputs:
-    if (file.endswith(".rts") or file.endswith(".rtcf") or file.endswith(".rtb") or
-        file.endswith(".mfrag") or file.endswith(".mvert")):
+    if (file.endswith(".rts") or file.endswith(".privrts") or file.endswith(".rtcf") or
+        file.endswith(".rtb") or file.endswith(".mfrag") or file.endswith(".mvert")):
         inputs.append(file)
 
 def executeWorklist(input, worklist):
@@ -62,6 +63,8 @@ for input in inputs:
 
     if ext == '.rts':
         worklist.write("--shader\n")
+    elif ext == '.privrts':
+        worklist.write("--privshader\n")
     elif ext == '.rtcf':
         worklist.write("--colorfilter\n")
     elif ext == '.rtb':
@@ -70,8 +73,11 @@ for input in inputs:
         worklist.write("--meshfrag\n")
     elif ext == '.mvert':
         worklist.write("--meshvert\n")
+
     worklist.write(target + ".minified.sksl\n")
     worklist.write(input + "\n")
+    if ext == '.privrts':
+        worklist.write(rt_shader_module + "\n")
     worklist.write(public_module + "\n")
     worklist.write(shared_module + "\n\n")
 

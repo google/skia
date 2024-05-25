@@ -1,0 +1,7 @@
+5 instructions
+
+store_src_rg                   xy = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+store_device_xy01              sk_FragCoord = DeviceCoords.xy01
+copy_4_slots_unmasked          $0..3 = sk_FragCoord
+load_src                       src.rgba = $0..3

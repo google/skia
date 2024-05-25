@@ -113,6 +113,7 @@ result = subprocess.run([
     sksl_minify_exe,
     "src/sksl/sksl_shared.sksl",
     "src/sksl/sksl_public.sksl",
+    "src/sksl/sksl_rt_shader.sksl",
     "resources",
     "tests",
     test_inputs,

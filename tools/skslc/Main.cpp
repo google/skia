@@ -558,9 +558,11 @@ static ResultCode process_command(SkSpan<std::string> args) {
         kind = SkSL::ProgramKind::kRuntimeColorFilter;
     } else if (skstd::ends_with(inputPath, ".rts")) {
         kind = SkSL::ProgramKind::kRuntimeShader;
+    } else if (skstd::ends_with(inputPath, ".privrts")) {
+        kind = SkSL::ProgramKind::kPrivateRuntimeShader;
     } else {
         printf("input filename must end in '.vert', '.frag', '.mvert', '.mfrag', '.compute', "
-               "'.rtb', '.rtcf', '.rts' or '.sksl'\n");
+               "'.rtb', '.rtcf', '.rts', '.privrts', or '.sksl'\n");
         return ResultCode::kInputError;
     }
 
