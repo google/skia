@@ -327,22 +327,23 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         // edge and lands one edge at the very end of the join. (The duplicated final edge will
         // actually come from the section of our strip that belongs to the stroke.)
         combinedEdgeID += numRadialSegments + 1;
-        // We normally restrict the join on one side of the junction, but if the tangents are
-        // nearly equivalent this could theoretically result in bad seaming and/or cracks on the
-        // side we don't put it on. If the tangents are nearly equivalent then we leave the join
-        // double-sided.
-        float sinEpsilon = 1e-2;  // ~= sin(180deg / 3000)
-        bool tangentsNearlyParallel =
-                (abs(turn) * inversesqrt(dot(tan0, tan0) * dot(tan1, tan1))) < sinEpsilon;
-        if (!tangentsNearlyParallel || dot(tan0, tan1) < 0) {
-            // There are two edges colocated at the beginning. Leave the first one double sided
-            // for seaming with the previous stroke. (The double sided edge at the end will
-            // actually come from the section of our strip that belongs to the stroke.)
-            if (combinedEdgeID >= 0) {
+        if (combinedEdgeID < 0) {
+            combinedEdgeID = 0;
+        } else {
+            // We normally restrict the join on one side of the junction, but if the tangents are
+            // nearly equivalent this could theoretically result in bad seaming and/or cracks on the
+            // side we don't put it on. If the tangents are nearly equivalent then we leave the join
+            // double-sided.
+            const float sinEpsilon = 1e-2;  // ~= sin(180deg / 3000)
+            bool tangentsNearlyParallel =
+                    (abs(turn) * inversesqrt(dot(tan0, tan0) * dot(tan1, tan1))) < sinEpsilon;
+            if (!tangentsNearlyParallel || dot(tan0, tan1) < 0) {
+                // There are two edges colocated at the beginning. Leave the first one double sided
+                // for seaming with the previous stroke. (The double sided edge at the end will
+                // actually come from the section of our strip that belongs to the stroke.)
                 strokeOutset = (turn < 0) ? min(strokeOutset, 0) : max(strokeOutset, 0);
             }
         }
-        combinedEdgeID = max(combinedEdgeID, 0);
     } else {
         // We belong to the stroke. Unless numRadialSegmentsPerRadian is incredibly high,
         // clamping to maxCombinedSegments will be a no-op because the draw call was invoked with
@@ -471,14 +472,12 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         // nearest .5.
         float _5qa = -.5*q*a;
         float2 root = (abs(fma(q,q,_5qa)) < abs(fma(a,c,_5qa))) ? float2(q,a) : float2(c,q);
-        float radialT = (root.t != 0.0) ? root.s / root.t : 0.0;
-        radialT = saturate(radialT);
 
-        if (lastRadialEdgeID == 0.0) {
-            // The root finder above can become unstable when lastRadialEdgeID == 0 (e.g., if
-            // there are roots at exatly 0 and 1 both). radialT should always == 0 in this case.
-            radialT = 0.0;
-        }
+        // The root finder above can become unstable when lastRadialEdgeID == 0 (e.g., if there are
+        // roots at exatly 0 and 1 both). radialT should always equal 0 in this case.
+        float radialT = (lastRadialEdgeID != 0.0 && root.t != 0.0)
+                            ? saturate(root.s / root.t)
+                            : 0.0;
 
         // Now that we've identified the T values of the last parametric and radial edges, our final
         // T value for combinedEdgeID is whichever is larger.
