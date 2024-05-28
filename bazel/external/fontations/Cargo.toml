@@ -8,10 +8,10 @@ version = "0.1.0"
 
 [dependencies]
 read-fonts = "0.19"
-font-types = "0.5.2"
-skrifa = "0.19"
-bytemuck = "1.15"
-cxx = "1.0.120"
+font-types = "0.5"
+skrifa = "0.19.2"
+bytemuck = "1.16"
+cxx = "1.0"
 
 [lib]
 name = "fontations_ffi"
