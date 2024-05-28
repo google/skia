@@ -375,7 +375,6 @@ DEF_TEST(HashSetCopyCounter, r) {
     REPORTER_ASSERT(r, globalCounter == 5);
 }
 
-
 DEF_TEST(HashFindOrNull, r) {
     struct Entry {
         int key = 0;
@@ -445,4 +444,48 @@ DEF_TEST(HashTableGrowsAndShrinks, r) {
         s.   add(2); check_count_cap(2,4);
         s.remove(2); check_count_cap(1,4);
     }
+}
+
+DEF_TEST(HashMapSwap, r) {
+    // Swap two maps.
+    THashMap<int, std::string_view> a{{1, "one"}, {2, "two"}, {3, "three"}, {4, "four"}};
+    THashMap<int, std::string_view> b{{1, "ichi"}, {2, "ni"}, {3, "san"}};
+
+    a.swap(b);
+    REPORTER_ASSERT(r, a.count() == 3);
+    REPORTER_ASSERT(r, a[1] == "ichi");
+    REPORTER_ASSERT(r, a[2] == "ni");
+    REPORTER_ASSERT(r, a[3] == "san");
+
+    REPORTER_ASSERT(r, b.count() == 4);
+    REPORTER_ASSERT(r, b[1] == "one");
+    REPORTER_ASSERT(r, b[2] == "two");
+    REPORTER_ASSERT(r, b[3] == "three");
+    REPORTER_ASSERT(r, b[4] == "four");
+
+    // Swap with an rvalue.
+    a.swap(THashMap<int, std::string_view>());
+    REPORTER_ASSERT(r, a.empty());
+}
+
+DEF_TEST(HashSetSwap, r) {
+    // Swap two maps.
+    THashSet<std::string_view> a{"one", "two", "three", "four"};
+    THashSet<std::string_view> b{"ichi", "ni", "san"};
+
+    a.swap(b);
+    REPORTER_ASSERT(r, a.count() == 3);
+    REPORTER_ASSERT(r, a.contains("ichi"));
+    REPORTER_ASSERT(r, a.contains("ni"));
+    REPORTER_ASSERT(r, a.contains("san"));
+
+    REPORTER_ASSERT(r, b.count() == 4);
+    REPORTER_ASSERT(r, b.contains("one"));
+    REPORTER_ASSERT(r, b.contains("two"));
+    REPORTER_ASSERT(r, b.contains("three"));
+    REPORTER_ASSERT(r, b.contains("four"));
+
+    // Swap with an rvalue.
+    a.swap(THashSet<std::string_view>());
+    REPORTER_ASSERT(r, a.empty());
 }

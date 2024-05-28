@@ -73,6 +73,17 @@ public:
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fCapacity * sizeof(Slot); }
 
+    // Exchange two hash tables.
+    void swap(THashTable& that) {
+        std::swap(fCount, that.fCount);
+        std::swap(fCapacity, that.fCapacity);
+        std::swap(fSlots, that.fSlots);
+    }
+
+    void swap(THashTable&& that) {
+        *this = std::move(that);
+    }
+
     // !!!!!!!!!!!!!!!!!                 CAUTION                   !!!!!!!!!!!!!!!!!
     // set(), find() and foreach() all allow mutable access to table entries.
     // If you change an entry so that it no longer has the same key, all hell
@@ -465,6 +476,10 @@ public:
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
 
+    // Exchange two hash maps.
+    void swap(THashMap& that) { fTable.swap(that.fTable); }
+    void swap(THashMap&& that) { fTable.swap(that.fTable); }
+
     // N.B. The pointers returned by set() and find() are valid only until the next call to set().
 
     // Set key to val in the table, replacing any previous value with the same key.
@@ -568,6 +583,10 @@ public:
 
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
+
+    // Exchange two hash sets.
+    void swap(THashSet& that) { fTable.swap(that.fTable); }
+    void swap(THashSet&& that) { fTable.swap(that.fTable); }
 
     // Copy an item into the set.
     void add(T item) { fTable.set(std::move(item)); }
