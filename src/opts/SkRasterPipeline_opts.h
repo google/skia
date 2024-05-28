@@ -2069,11 +2069,19 @@ STAGE(dither, const float* rate) {
     // Scale that dither to [0,1), then (-0.5,+0.5), here using 63/128 = 0.4921875 as 0.5-epsilon.
     // We want to make sure our dither is less than 0.5 in either direction to keep exact values
     // like 0 and 1 unchanged after rounding.
+#ifndef SK_DISABLE_MAD_IN_RASTER_PIPELINE
+    F dither = mad(cast(M), 2/128.0f, -63/128.0f);
+
+    r = mad(dither, *rate, r);
+    g = mad(dither, *rate, g);
+    b = mad(dither, *rate, b);
+#else
     F dither = cast(M) * (2/128.0f) - (63/128.0f);
 
     r += *rate*dither;
     g += *rate*dither;
     b += *rate*dither;
+#endif
 
     r = max(0.0f, min(r, a));
     g = max(0.0f, min(g, a));
@@ -2171,7 +2179,23 @@ STAGE(store_dst, float* ptr) {
 SI F inv(F x) { return 1.0f - x; }
 SI F two(F x) { return x + x; }
 
+#ifndef SK_DISABLE_MAD_IN_RASTER_PIPELINE
+BLEND_MODE(clear)    { return F0; }
+BLEND_MODE(srcatop)  { return mad(s, da, d*inv(sa)); }
+BLEND_MODE(dstatop)  { return mad(d, sa, s*inv(da)); }
+BLEND_MODE(srcin)    { return s * da; }
+BLEND_MODE(dstin)    { return d * sa; }
+BLEND_MODE(srcout)   { return s * inv(da); }
+BLEND_MODE(dstout)   { return d * inv(sa); }
+BLEND_MODE(srcover)  { return mad(d, inv(sa), s); }
+BLEND_MODE(dstover)  { return mad(s, inv(da), d); }
 
+BLEND_MODE(modulate) { return s*d; }
+BLEND_MODE(multiply) { return mad(s, d, mad(s, inv(da), d*inv(sa))); }
+BLEND_MODE(plus_)    { return min(s + d, 1.0f); }  // We can clamp to either 1 or sa.
+BLEND_MODE(screen)   { return nmad(s, d, s + d); }
+BLEND_MODE(xor_)     { return mad(s, inv(da), d*inv(sa)); }
+#else
 BLEND_MODE(clear)    { return F0; }
 BLEND_MODE(srcatop)  { return s*da + d*inv(sa); }
 BLEND_MODE(dstatop)  { return d*sa + s*inv(da); }
@@ -2187,6 +2211,8 @@ BLEND_MODE(multiply) { return s*inv(da) + d*inv(sa) + s*d; }
 BLEND_MODE(plus_)    { return min(s + d, 1.0f); }  // We can clamp to either 1 or sa.
 BLEND_MODE(screen)   { return s + d - s*d; }
 BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
+#endif
+
 #undef BLEND_MODE
 
 // Most other blend modes apply the same logic to colors, and srcover to alpha.
@@ -2563,7 +2589,11 @@ STAGE(css_hcl_to_lab, NoCtx) {
 }
 
 SI F mod_(F x, float y) {
+#ifndef SK_DISABLE_MAD_IN_RASTER_PIPELINE
+    return nmad(y, floor_(x * (1 / y)), x);
+#else
     return x - y * floor_(x * (1 / y));
+#endif
 }
 
 struct RGB { F r, g, b; };
@@ -4650,7 +4680,11 @@ SI void pow_fn(F* dst, F* src) {
 }
 
 SI void mod_fn(F* dst, F* src) {
+#ifndef SK_DISABLE_MAD_IN_RASTER_PIPELINE
+    *dst = nmad(*src, floor_(*dst / *src), *dst);
+#else
     *dst = *dst - *src * floor_(*dst / *src);
+#endif
 }
 
 #define DECLARE_N_WAY_BINARY_FLOAT(name)                                \
