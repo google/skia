@@ -27,7 +27,7 @@ class VulkanFramebuffer;
 class VulkanGraphicsPipeline;
 class VulkanRenderPass;
 class VulkanSharedContext;
-class VulkanSamplerYcbcrConversion;
+class VulkanYcbcrConversion;
 
 class VulkanResourceProvider final : public ResourceProvider {
 public:
@@ -47,7 +47,7 @@ public:
 
     const Buffer* loadMSAAVertexBuffer() const;
 
-    sk_sp<VulkanSamplerYcbcrConversion> findOrCreateCompatibleYcbcrConversion(
+    sk_sp<VulkanYcbcrConversion> findOrCreateCompatibleYcbcrConversion(
             const VulkanYcbcrConversionInfo& ycbcrInfo) const;
 
 private:

@@ -316,11 +316,11 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
                              const VulkanAlloc& alloc,
                              Ownership ownership,
                              skgpu::Budgeted budgeted,
-                             sk_sp<VulkanSamplerYcbcrConversion> ycbcrConversion)
+                             sk_sp<VulkanYcbcrConversion> ycbcrConversion)
         : Texture(sharedContext, dimensions, info, std::move(mutableState), ownership, budgeted)
         , fImage(image)
         , fMemoryAlloc(alloc)
-        , fSamplerYcbcrConversion(std::move(ycbcrConversion)) {}
+        , fYcbcrConversion(std::move(ycbcrConversion)) {}
 
 void VulkanTexture::freeGpuData() {
     // Need to delete any ImageViews first
@@ -421,7 +421,7 @@ const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage)
                                            vkTexInfo.fFormat,
                                            usage,
                                            miplevels,
-                                           fSamplerYcbcrConversion);
+                                           fYcbcrConversion);
     return fImageViews.push_back(std::move(imageView)).get();
 }
 

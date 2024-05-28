@@ -21,8 +21,8 @@
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/vk/VulkanRenderPass.h"
-#include "src/gpu/graphite/vk/VulkanSamplerYcbcrConversion.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
+#include "src/gpu/graphite/vk/VulkanYcbcrConversion.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #ifdef SK_BUILD_FOR_ANDROID

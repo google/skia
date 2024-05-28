@@ -98,13 +98,13 @@ private:
                   const VulkanAlloc&,
                   Ownership,
                   skgpu::Budgeted,
-                  sk_sp<VulkanSamplerYcbcrConversion>);
+                  sk_sp<VulkanYcbcrConversion>);
 
     void freeGpuData() override;
 
     VkImage fImage;
     VulkanAlloc fMemoryAlloc;
-    sk_sp<VulkanSamplerYcbcrConversion> fSamplerYcbcrConversion;
+    sk_sp<VulkanYcbcrConversion> fYcbcrConversion;
 
     mutable skia_private::STArray<2, std::unique_ptr<const VulkanImageView>> fImageViews;
 };

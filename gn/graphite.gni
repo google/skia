@@ -334,12 +334,12 @@ skia_graphite_vk_sources = [
   "$_src/vk/VulkanResourceProvider.h",
   "$_src/vk/VulkanSampler.cpp",
   "$_src/vk/VulkanSampler.h",
-  "$_src/vk/VulkanSamplerYcbcrConversion.cpp",
-  "$_src/vk/VulkanSamplerYcbcrConversion.h",
   "$_src/vk/VulkanSharedContext.cpp",
   "$_src/vk/VulkanSharedContext.h",
   "$_src/vk/VulkanTexture.cpp",
   "$_src/vk/VulkanTexture.h",
+  "$_src/vk/VulkanYcbcrConversion.cpp",
+  "$_src/vk/VulkanYcbcrConversion.h",
 ]
 
 skia_graphite_vello_sources = [

@@ -10,7 +10,7 @@
 
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/Resource.h"
-#include "src/gpu/graphite/vk/VulkanSamplerYcbcrConversion.h"
+#include "src/gpu/graphite/vk/VulkanYcbcrConversion.h"
 
 namespace skgpu::graphite {
 
@@ -36,21 +36,20 @@ public:
             VkFormat format,
             Usage usage,
             uint32_t miplevels,
-            sk_sp<VulkanSamplerYcbcrConversion>);
+            sk_sp<VulkanYcbcrConversion>);
     ~VulkanImageView();
 
     VkImageView imageView() const { return fImageView; }
     Usage usage() const { return fUsage; }
 
 private:
-    VulkanImageView(const VulkanSharedContext*, VkImageView, Usage,
-                    sk_sp<VulkanSamplerYcbcrConversion>);
+    VulkanImageView(const VulkanSharedContext*, VkImageView, Usage, sk_sp<VulkanYcbcrConversion>);
 
     // Since we're not derived from Resource we need to store the context for deletion later
     const VulkanSharedContext* fSharedContext;
     VkImageView  fImageView;
     Usage fUsage;
-    sk_sp<VulkanSamplerYcbcrConversion> fYcbcrConversion;
+    sk_sp<VulkanYcbcrConversion> fYcbcrConversion;
 };
 
 }  // namespace skgpu::graphite

@@ -9,8 +9,8 @@
 
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/vk/VulkanResourceProvider.h"
-#include "src/gpu/graphite/vk/VulkanSamplerYcbcrConversion.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
+#include "src/gpu/graphite/vk/VulkanYcbcrConversion.h"
 
 namespace skgpu::graphite {
 
@@ -20,7 +20,7 @@ std::unique_ptr<const VulkanImageView> VulkanImageView::Make(
         VkFormat format,
         Usage usage,
         uint32_t miplevels,
-        sk_sp<VulkanSamplerYcbcrConversion> ycbcrConversion) {
+        sk_sp<VulkanYcbcrConversion> ycbcrConversion) {
 
     void* pNext = nullptr;
     VkSamplerYcbcrConversionInfo conversionInfo;
@@ -85,11 +85,11 @@ std::unique_ptr<const VulkanImageView> VulkanImageView::Make(
 VulkanImageView::VulkanImageView(const VulkanSharedContext* sharedContext,
                                  VkImageView imageView,
                                  Usage usage,
-                                 sk_sp<VulkanSamplerYcbcrConversion> samplerConversion)
+                                 sk_sp<VulkanYcbcrConversion> ycbcrConversion)
     : fSharedContext(sharedContext)
     , fImageView(imageView)
     , fUsage(usage)
-    , fYcbcrConversion(std::move(samplerConversion)) {}
+    , fYcbcrConversion(std::move(ycbcrConversion)) {}
 
 VulkanImageView::~VulkanImageView() {
     VULKAN_CALL(fSharedContext->interface(),

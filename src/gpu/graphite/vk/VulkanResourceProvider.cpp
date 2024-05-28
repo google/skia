@@ -26,9 +26,9 @@
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 #include "src/gpu/graphite/vk/VulkanRenderPass.h"
 #include "src/gpu/graphite/vk/VulkanSampler.h"
-#include "src/gpu/graphite/vk/VulkanSamplerYcbcrConversion.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanTexture.h"
+#include "src/gpu/graphite/vk/VulkanYcbcrConversion.h"
 #include "src/gpu/vk/VulkanMemory.h"
 #include "src/sksl/SkSLCompiler.h"
 
@@ -134,20 +134,18 @@ sk_sp<Buffer> VulkanResourceProvider::createBuffer(size_t size,
 }
 
 sk_sp<Sampler> VulkanResourceProvider::createSampler(const SamplerDesc& samplerDesc) {
-    sk_sp<VulkanSamplerYcbcrConversion> ycbcrConversion = nullptr;
+    sk_sp<VulkanYcbcrConversion> ycbcrConversion = nullptr;
 
     // Non-zero conversion information means the sampler utilizes a ycbcr conversion.
     bool usesYcbcrConversion = (samplerDesc.desc() >> SamplerDesc::kImmutableSamplerInfoShift) != 0;
     if (usesYcbcrConversion) {
-        GraphiteResourceKey ycbcrKey =
-                VulkanSamplerYcbcrConversion::GetKeyFromSamplerDesc(samplerDesc);
-
+        GraphiteResourceKey ycbcrKey = VulkanYcbcrConversion::GetKeyFromSamplerDesc(samplerDesc);
         if (Resource* resource = fResourceCache->findAndRefResource(ycbcrKey,
                                                                     skgpu::Budgeted::kYes)) {
-            ycbcrConversion = sk_sp<VulkanSamplerYcbcrConversion>(
-                    static_cast<VulkanSamplerYcbcrConversion*>(resource));
+            ycbcrConversion =
+                    sk_sp<VulkanYcbcrConversion>(static_cast<VulkanYcbcrConversion*>(resource));
         } else {
-            ycbcrConversion = VulkanSamplerYcbcrConversion::Make(
+            ycbcrConversion = VulkanYcbcrConversion::Make(
                     this->vulkanSharedContext(),
                     static_cast<uint32_t>(
                             samplerDesc.desc() >> SamplerDesc::kImmutableSamplerInfoShift),
@@ -377,22 +375,20 @@ void VulkanResourceProvider::onDeleteBackendTexture(const BackendTexture& textur
     }
 }
 
-sk_sp<VulkanSamplerYcbcrConversion> VulkanResourceProvider::findOrCreateCompatibleYcbcrConversion(
+sk_sp<VulkanYcbcrConversion> VulkanResourceProvider::findOrCreateCompatibleYcbcrConversion(
         const VulkanYcbcrConversionInfo& ycbcrInfo) const {
     if (!ycbcrInfo.isValid()) {
         return nullptr;
     }
-    auto ycbcrConversionKey = VulkanSamplerYcbcrConversion::MakeYcbcrConversionKey(
-            this->vulkanSharedContext(), ycbcrInfo);
+    GraphiteResourceKey ycbcrConversionKey =
+            VulkanYcbcrConversion::MakeYcbcrConversionKey(this->vulkanSharedContext(), ycbcrInfo);
 
     if (Resource* resource = fResourceCache->findAndRefResource(ycbcrConversionKey,
                                                                 skgpu::Budgeted::kYes)) {
-        return sk_sp<VulkanSamplerYcbcrConversion>(
-                static_cast<VulkanSamplerYcbcrConversion*>(resource));
+        return sk_sp<VulkanYcbcrConversion>(static_cast<VulkanYcbcrConversion*>(resource));
     }
 
-    auto ycbcrConversion = VulkanSamplerYcbcrConversion::Make(this->vulkanSharedContext(),
-                                                              ycbcrInfo);
+    auto ycbcrConversion = VulkanYcbcrConversion::Make(this->vulkanSharedContext(), ycbcrInfo);
     if (!ycbcrConversion) {
         return nullptr;
     }
