@@ -1,0 +1,27 @@
+/*#pragma settings RewriteSwitchStatements*/
+
+uniform half4 colorGreen, colorRed;
+
+bool switch_fallthrough_groups(int value) {
+    bool ok = false;
+    switch (value) {
+        case -1: ok = false;
+        case  0: return false;
+
+        case  1: ok = true;
+        case  2:
+        case  3: break;
+
+        case  4: ok = false;
+        case  5:
+        case  6:
+        case  7:
+        default: break;
+    }
+    return ok;
+}
+
+half4 main(float2 coords) {
+    int x = int(colorGreen.g);
+    return switch_fallthrough_groups(x) ? colorGreen : colorRed;
+}
