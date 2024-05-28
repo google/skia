@@ -320,8 +320,9 @@ private:
     inline static constexpr int kRow4Y = 5*kBlockSpacing + 4*kBlockSize;
 
     inline static constexpr int kSmallSize = 6;
-    // This must be at least as large as the GM width and height so that a surface can be made.
-    inline static constexpr int kMaxTextureSize = 1000;
+    // This must be at least as large as the GM width and height so that a surface can be made, and
+    // a power-of-2 to account for any approx-fitting that the backend may perform.
+    inline static constexpr int kMaxTextureSize = 1024;
 
     SkString fShortName;
     sk_sp<SkImage> fBigImage;
