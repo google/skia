@@ -11,6 +11,8 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
+#include "src/core/SkLRUCache.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/graphite/DescriptorData.h"
 
 #ifdef  SK_BUILD_FOR_ANDROID
@@ -84,6 +86,10 @@ private:
 
     sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<DescriptorData>);
 
+    sk_sp<VulkanDescriptorSet> findOrCreateUniformBuffersDescriptorSet(
+            SkSpan<DescriptorData> requestedDescriptors,
+            SkSpan<BindUniformBufferInfo> bindUniformBufferInfo);
+
     sk_sp<VulkanGraphicsPipeline> findOrCreateLoadMSAAPipeline(const RenderPassDesc&);
 
     // Find or create a compatible (needed when creating a framebuffer and graphics pipeline) or
@@ -118,6 +124,12 @@ private:
     VkShaderModule fMSAALoadFragShaderModule = VK_NULL_HANDLE;
     VkPipelineShaderStageCreateInfo fMSAALoadShaderStageInfo[2];
     VkPipelineLayout fMSAALoadPipelineLayout = VK_NULL_HANDLE;
+
+    struct UniqueKeyHash {
+        uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
+    };
+    using DescriptorSetCache = SkLRUCache<UniqueKey, sk_sp<VulkanDescriptorSet>, UniqueKeyHash>;
+    DescriptorSetCache fUniformBufferDescSetCache;
 };
 
 } // namespace skgpu::graphite

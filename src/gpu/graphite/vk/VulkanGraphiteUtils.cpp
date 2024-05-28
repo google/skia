@@ -110,7 +110,7 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext* ctxt,
 VkDescriptorType DsTypeEnumToVkDs(DescriptorType type) {
     switch (type) {
         case DescriptorType::kUniformBuffer:
-            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
         case DescriptorType::kTextureSampler:
             return VK_DESCRIPTOR_TYPE_SAMPLER;
         case DescriptorType::kTexture:

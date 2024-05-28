@@ -34,18 +34,6 @@ namespace skgpu::graphite {
 
 class VulkanDescriptorSet;
 
-namespace { // anonymous namespace
-
-uint64_t clamp_ubo_binding_size(const uint64_t& offset,
-                                const uint64_t& bufferSize,
-                                const uint64_t& maxSize) {
-    SkASSERT(offset <= bufferSize);
-    auto remainSize = bufferSize - offset;
-    return remainSize > maxSize ? maxSize : remainSize;
-}
-
-} // anonymous namespace
-
 std::unique_ptr<VulkanCommandBuffer> VulkanCommandBuffer::Make(
         const VulkanSharedContext* sharedContext,
         VulkanResourceProvider* resourceProvider) {
@@ -134,7 +122,7 @@ void VulkanCommandBuffer::onResetCommandBuffer() {
     fBoundIndirectBufferOffset = 0;
     fTextureSamplerDescSetToBind = VK_NULL_HANDLE;
     fNumTextureSamplers = 0;
-    fUniformBuffersToBind.fill({nullptr, 0});
+    fUniformBuffersToBind.fill({});
     for (int i = 0; i < 4; ++i) {
         fCachedBlendConstant[i] = -1.0;
     }
@@ -381,8 +369,9 @@ void VulkanCommandBuffer::updateRtAdjustUniform(const SkRect& viewport) {
             static_cast<VulkanBuffer*>(intrinsicUniformBuffer.get());
     SkASSERT(intrinsicVulkanBuffer);
 
-    fUniformBuffersToBind[VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex] =
-            {intrinsicUniformBuffer.get(), /*offset=*/0};
+    fUniformBuffersToBind[VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex] = {
+            {intrinsicUniformBuffer.get(), /*offset=*/0},
+            VulkanResourceProvider::kIntrinsicConstantSize};
 
     this->updateBuffer(intrinsicVulkanBuffer,
                        &rtAdjust,
@@ -910,7 +899,8 @@ void VulkanCommandBuffer::setBlendConstants(float* blendConstants) {
     }
 }
 
-void VulkanCommandBuffer::recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot slot) {
+void VulkanCommandBuffer::recordBufferBindingInfo(const BindUniformBufferInfo& info,
+                                                  UniformSlot slot) {
     unsigned int bufferIndex = 0;
     switch (slot) {
         case UniformSlot::kRenderStep:
@@ -948,73 +938,38 @@ void VulkanCommandBuffer::bindUniformBuffers() {
     STArray<VulkanGraphicsPipeline::kNumUniformBuffers, DescriptorData> descriptors;
     descriptors.push_back(VulkanGraphicsPipeline::kIntrinsicUniformBufferDescriptor);
     if (fActiveGraphicsPipeline->hasStepUniforms() &&
-            fUniformBuffersToBind[VulkanGraphicsPipeline::kRenderStepUniformBufferIndex].fBuffer) {
+        fUniformBuffersToBind[VulkanGraphicsPipeline::kRenderStepUniformBufferIndex].fBuffer) {
         descriptors.push_back(VulkanGraphicsPipeline::kRenderStepUniformDescriptor);
     }
     if (fActiveGraphicsPipeline->hasFragmentUniforms() &&
-            fUniformBuffersToBind[VulkanGraphicsPipeline::kPaintUniformBufferIndex].fBuffer) {
+        fUniformBuffersToBind[VulkanGraphicsPipeline::kPaintUniformBufferIndex].fBuffer) {
         descriptors.push_back(VulkanGraphicsPipeline::kPaintUniformDescriptor);
     }
-    sk_sp<VulkanDescriptorSet> set = fResourceProvider->findOrCreateDescriptorSet(
-            SkSpan<DescriptorData>{&descriptors.front(), descriptors.size()});
 
-    if (!set) {
-        SKGPU_LOG_E("Unable to find or create descriptor set");
+    sk_sp<VulkanDescriptorSet> descSet = fResourceProvider->findOrCreateUniformBuffersDescriptorSet(
+            descriptors, fUniformBuffersToBind);
+    if (!descSet) {
+        SKGPU_LOG_E("Unable to find or create uniform descriptor set");
         return;
     }
-    static uint64_t maxUniformBufferRange = static_cast<const VulkanSharedContext*>(
-            fSharedContext)->vulkanCaps().maxUniformBufferRange();
-
+    skia_private::AutoSTMalloc<3, uint32_t> dynamicOffsets(descriptors.size());
     for (int i = 0; i < descriptors.size(); i++) {
-        int descriptorBindingIndex = descriptors.at(i).fBindingIndex;
-        SkASSERT(static_cast<unsigned long>(descriptorBindingIndex)
-                    < fUniformBuffersToBind.size());
-        if (fUniformBuffersToBind[descriptorBindingIndex].fBuffer) {
-            VkDescriptorBufferInfo bufferInfo;
-            memset(&bufferInfo, 0, sizeof(VkDescriptorBufferInfo));
-            auto vulkanBuffer = static_cast<const VulkanBuffer*>(
-                    fUniformBuffersToBind[descriptorBindingIndex].fBuffer);
-            bufferInfo.buffer = vulkanBuffer->vkBuffer();
-            bufferInfo.offset = fUniformBuffersToBind[descriptorBindingIndex].fOffset;
-            bufferInfo.range = clamp_ubo_binding_size(bufferInfo.offset, vulkanBuffer->size(),
-                                                      maxUniformBufferRange);
-
-            VkWriteDescriptorSet writeInfo;
-            memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
-            writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            writeInfo.pNext = nullptr;
-            writeInfo.dstSet = *set->descriptorSet();
-            writeInfo.dstBinding = descriptorBindingIndex;
-            writeInfo.dstArrayElement = 0;
-            writeInfo.descriptorCount = descriptors.at(i).fCount;
-            writeInfo.descriptorType = DsTypeEnumToVkDs(descriptors.at(i).fType);
-            writeInfo.pImageInfo = nullptr;
-            writeInfo.pBufferInfo = &bufferInfo;
-            writeInfo.pTexelBufferView = nullptr;
-
-            // TODO(b/293925059): Migrate to updating all the uniform descriptors with one driver
-            // call. Calling UpdateDescriptorSets once to encapsulate updates to all uniform
-            // descriptors would be ideal, but that led to issues with draws where all the UBOs
-            // within that set would unexpectedly be assigned the same offset. Updating them one at
-            // a time within this loop works in the meantime but is suboptimal.
-            VULKAN_CALL(fSharedContext->interface(),
-                        UpdateDescriptorSets(fSharedContext->device(),
-                                            /*descriptorWriteCount=*/1,
-                                            &writeInfo,
-                                            /*descriptorCopyCount=*/0,
-                                            /*pDescriptorCopies=*/nullptr));
-        }
+        int descriptorBindingIndex = descriptors[i].fBindingIndex;
+        SkASSERT(static_cast<unsigned long>(descriptorBindingIndex) < fUniformBuffersToBind.size());
+        const auto& bindInfo = fUniformBuffersToBind[descriptorBindingIndex];
+        dynamicOffsets[i] = bindInfo.fOffset;
     }
+
     VULKAN_CALL(fSharedContext->interface(),
                 CmdBindDescriptorSets(fPrimaryCommandBuffer,
                                       VK_PIPELINE_BIND_POINT_GRAPHICS,
                                       fActiveGraphicsPipeline->layout(),
                                       VulkanGraphicsPipeline::kUniformBufferDescSetIndex,
                                       /*setCount=*/1,
-                                      set->descriptorSet(),
-                                      /*dynamicOffsetCount=*/0,
-                                      /*dynamicOffsets=*/nullptr));
-    this->trackResource(std::move(set));
+                                      descSet->descriptorSet(),
+                                      descriptors.size(),
+                                      dynamicOffsets.get()));
+    this->trackResource(std::move(descSet));
 }
 
 void VulkanCommandBuffer::bindDrawBuffers(const BindBufferInfo& vertices,
