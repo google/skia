@@ -1,6 +1,9 @@
 # Dockerfile for building Skia in release mode, using 3rd party libs from DEPS, with SwiftShader.
 FROM gcr.io/skia-public/skia-build-tools:latest
 
+# Sometimes update_depot_tools fails (e.g. from a pre-goma-deletion commit).
+RUN cd /tmp/depot_tools && git pull && update_depot_tools
+
 RUN cd /tmp \
   && git clone https://swiftshader.googlesource.com/SwiftShader swiftshader
 
@@ -30,10 +33,18 @@ RUN if [ ! -z "${PATCH_REF}" ] ; then cd /tmp/skia/skia \
     && git checkout FETCH_HEAD \
     && git rebase ${HASH}; fi
 
+# Check out skia but delete large third_party checkouts we don't actually need
+# to keep the docker image smaller.
 RUN cd /tmp/skia/skia \
   && gclient sync \
   && ./bin/fetch-gn \
-  && ./bin/fetch-ninja
+  && ./bin/fetch-ninja \
+  && rm -r third_party/externals/dawn \
+           third_party/externals/icu4x \
+           third_party/externals/opengl-registry \
+           third_party/externals/perfetto \
+           third_party/externals/swiftshader \
+           third_party/externals/unicodetools
 
 # Write args.gn.
 RUN mkdir -p /tmp/skia/skia/out/Static
@@ -42,6 +53,10 @@ cc = "clang"  \n\
 cxx = "clang++"  \n\
 skia_use_egl = true  \n\
 is_debug = false  \n\
+skia_enable_fontmgr_fontconfig = true \n\
+skia_use_perfetto = false \n\
+skia_use_libgrapheme = false \n\
+skia_use_icu4x = false \n\
 skia_use_system_freetype2 = false  \n\
 link_pool_depth=2  \n\
 extra_cflags = [  \n\
@@ -66,3 +81,7 @@ RUN chown -R skia:skia .
 # obj is readable only by the skia user. It needs additional
 # permissions to be accessible for CI (see https://review.skia.org/487217).
 RUN chmod 755 -R out/Static/obj
+
+FROM gcr.io/skia-public/skia-build-tools:latest
+COPY --from=0 /tmp/skia/skia /tmp/skia/skia
+WORKDIR /tmp/skia/skia
