@@ -967,11 +967,11 @@ private:
                   int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumWrappedCombos);
 
-        const SkRuntimeEffect* fEffect = GetKnownRuntimeEffect(fStableKey);
+        const SkRuntimeEffect* effect = GetKnownRuntimeEffect(fStableKey);
 
         KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(fEffect) });
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(effect) });
             fWrapped->priv().addToKey(childContext, builder, gatherer, desiredCombination);
         builder->endBlock();
     }
@@ -991,6 +991,47 @@ sk_sp<PrecompileShader> PrecompileShadersPriv::SparseMorphology(sk_sp<Precompile
     return sk_make_sp<PrecompileMorphologyShader>(
             std::move(wrapped),
             SkKnownRuntimeEffects::StableKey::kSparseMorphology);
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileLightingShader : public PrecompileShader {
+public:
+    PrecompileLightingShader(sk_sp<PrecompileShader> wrapped)
+            : fWrapped(std::move(wrapped)) {
+        fNumWrappedCombos = fWrapped->numCombinations();
+    }
+
+private:
+    int numChildCombinations() const override { return fNumWrappedCombos; }
+
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+        SkASSERT(desiredCombination < fNumWrappedCombos);
+
+        const SkRuntimeEffect* normalEffect =
+                GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kNormal);
+        const SkRuntimeEffect* lightingEffect =
+                GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kLighting);
+
+        KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
+
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer,
+                                       { sk_ref_sp(lightingEffect) });
+            RuntimeEffectBlock::BeginBlock(childContext, builder, gatherer,
+                                           { sk_ref_sp(normalEffect) });
+                fWrapped->priv().addToKey(childContext, builder, gatherer, desiredCombination);
+            builder->endBlock();
+        builder->endBlock();
+    }
+
+    sk_sp<PrecompileShader> fWrapped;
+    int fNumWrappedCombos;
+};
+
+sk_sp<PrecompileShader> PrecompileShadersPriv::Lighting(sk_sp<PrecompileShader> wrapped) {
+    return sk_make_sp<PrecompileLightingShader>(std::move(wrapped));
 }
 
 //--------------------------------------------------------------------------------------------------

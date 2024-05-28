@@ -245,6 +245,7 @@ const char* to_str(ClipType c) {
 #define SK_ALL_TEST_IMAGE_FILTERS(M) \
     M(None)            \
     M(Blur)            \
+    M(Lighting)        \
     M(Morphology)
 
 enum class ImageFilterType {
@@ -1142,17 +1143,72 @@ sk_sp<SkImageFilter> blur_imagefilter(SkRandom* rand,
     return blurIF;
 }
 
+sk_sp<SkImageFilter> lighting_imagefilter(
+        SkRandom* rand,
+        SkEnumBitMask<PrecompileImageFilters>* imageFilterMask) {
+    static constexpr SkPoint3 kLocation{10.0f, 2.0f, 30.0f};
+    static constexpr SkPoint3 kTarget{0, 0, 0};
+    static constexpr SkPoint3 kDirection{0, 1, 0};
+
+    *imageFilterMask |= PrecompileImageFilters::kLighting;
+
+    int option = rand->nextULessThan(6);
+    switch (option) {
+        case 0:
+            return SkImageFilters::DistantLitDiffuse(kDirection, SK_ColorRED,
+                                                     /* surfaceScale= */ 1.0f,
+                                                     /* kd= */ 0.5f,
+                                                     /* input= */ nullptr);
+        case 1:
+            return SkImageFilters::PointLitDiffuse(kLocation, SK_ColorGREEN,
+                                                   /* surfaceScale= */ 1.0f,
+                                                   /* kd= */ 0.5f,
+                                                   /* input= */ nullptr);
+        case 2:
+            return SkImageFilters::SpotLitDiffuse(kLocation, kTarget,
+                                                  /* falloffExponent= */ 2.0f,
+                                                  /* cutoffAngle= */ 30.0f,
+                                                  SK_ColorBLUE,
+                                                  /* surfaceScale= */ 1.0f,
+                                                  /* kd= */ 0.5f,
+                                                  /* input= */ nullptr);
+        case 3:
+            return SkImageFilters::DistantLitSpecular(kDirection, SK_ColorCYAN,
+                                                      /* surfaceScale= */ 1.0f,
+                                                      /* ks= */ 0.5f,
+                                                      /* shininess= */ 2.0f,
+                                                      /* input= */ nullptr);
+        case 4:
+            return SkImageFilters::PointLitSpecular(kLocation, SK_ColorMAGENTA,
+                                                    /* surfaceScale= */ 1.0f,
+                                                    /* ks= */ 0.5f,
+                                                    /* shininess= */ 2.0f,
+                                                    /* input= */ nullptr);
+        case 5:
+            return SkImageFilters::SpotLitSpecular(kLocation, kTarget,
+                                                   /* falloffExponent= */ 2.0f,
+                                                   /* cutoffAngle= */ 30.0f,
+                                                   SK_ColorYELLOW,
+                                                   /* surfaceScale= */ 1.0f,
+                                                   /* ks= */ 4.0f,
+                                                   /* shininess= */ 0.5f,
+                                                   /* input= */ nullptr);
+    }
+
+    SkUNREACHABLE;
+}
+
 sk_sp<SkImageFilter> morphology_imagefilter(
         SkRandom* rand,
         SkEnumBitMask<PrecompileImageFilters>* imageFilterMask) {
-    float radX = 2.0f, radY = 4.0f;
+    static constexpr float kRadX = 2.0f, kRadY = 4.0f;
 
     sk_sp<SkImageFilter> morphologyIF;
 
     if (rand->nextBool()) {
-        morphologyIF = SkImageFilters::Erode(radX, radY, /* input= */ nullptr);
+        morphologyIF = SkImageFilters::Erode(kRadX, kRadY, /* input= */ nullptr);
     } else {
-        morphologyIF = SkImageFilters::Dilate(radX, radY, /* input= */ nullptr);
+        morphologyIF = SkImageFilters::Dilate(kRadX, kRadY, /* input= */ nullptr);
     }
     SkASSERT(morphologyIF);
     *imageFilterMask |= PrecompileImageFilters::kMorphology;
@@ -1172,6 +1228,9 @@ std::pair<sk_sp<SkImageFilter>, SkEnumBitMask<PrecompileImageFilters>> create_im
             break;
         case ImageFilterType::kBlur:
             imgFilter = blur_imagefilter(rand, &imageFilterMask);
+            break;
+        case ImageFilterType::kLighting:
+            imgFilter = lighting_imagefilter(rand, &imageFilterMask);
             break;
         case ImageFilterType::kMorphology:
             imgFilter = morphology_imagefilter(rand, &imageFilterMask);
@@ -1573,6 +1632,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ImageFilterType::kNone,
 #if EXPANDED_SET
             ImageFilterType::kBlur,
+            ImageFilterType::kLighting,
             ImageFilterType::kMorphology,
 #endif
     };
