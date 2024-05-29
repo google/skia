@@ -24,20 +24,19 @@ DECLARE_SKMESSAGEBUS_MESSAGE(skgpu::UniqueKeyInvalidatedMsg_Graphite, uint32_t,
 
 namespace {
 
-void make_bitmap_key(skgpu::UniqueKey* key, const SkBitmap& bm, skgpu::Mipmapped mipmapped) {
+void make_bitmap_key(skgpu::UniqueKey* key, const SkBitmap& bm) {
     SkASSERT(key);
 
     SkIPoint origin = bm.pixelRefOrigin();
     SkIRect subset = SkIRect::MakePtSize(origin, bm.dimensions());
 
     static const skgpu::UniqueKey::Domain kProxyCacheDomain = skgpu::UniqueKey::GenerateDomain();
-    skgpu::UniqueKey::Builder builder(key, kProxyCacheDomain, 6, "ProxyCache");
+    skgpu::UniqueKey::Builder builder(key, kProxyCacheDomain, 5, "ProxyCache");
     builder[0] = bm.pixelRef()->getGenerationID();
     builder[1] = subset.fLeft;
     builder[2] = subset.fTop;
     builder[3] = subset.fRight;
     builder[4] = subset.fBottom;
-    builder[5] = SkToBool(mipmapped);
 }
 
 sk_sp<SkIDChangeListener> make_unique_key_invalidation_listener(const skgpu::UniqueKey& key,
@@ -74,28 +73,11 @@ uint32_t ProxyCache::UniqueKeyHash::operator()(const skgpu::UniqueKey& key) cons
 
 sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
                                                         const SkBitmap& bitmap,
-                                                        Mipmapped mipmapped,
                                                         std::string_view label) {
     this->processInvalidKeyMsgs();
 
-    if (bitmap.dimensions().area() <= 1) {
-        mipmapped = skgpu::Mipmapped::kNo;
-    }
-
     skgpu::UniqueKey key;
-
-    if (mipmapped == Mipmapped::kNo) {
-        make_bitmap_key(&key, bitmap, Mipmapped::kYes);
-
-        if (sk_sp<TextureProxy>* cached = fCache.find(key)) {
-            if (Resource* resource = (*cached)->texture(); resource) {
-                resource->updateAccessTime();
-            }
-            return *cached;
-        }
-    }
-
-    make_bitmap_key(&key, bitmap, mipmapped);
+    make_bitmap_key(&key, bitmap);
 
     if (sk_sp<TextureProxy>* cached = fCache.find(key)) {
         if (Resource* resource = (*cached)->texture(); resource) {
@@ -104,7 +86,7 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
         return *cached;
     }
 
-    auto [ view, ct ] = MakeBitmapProxyView(recorder,bitmap, nullptr, mipmapped,
+    auto [ view, ct ] = MakeBitmapProxyView(recorder,bitmap, nullptr, Mipmapped::kNo,
                                             skgpu::Budgeted::kYes, std::move(label));
     if (view) {
         auto listener = make_unique_key_invalidation_listener(key, recorder->priv().uniqueID());
@@ -175,11 +157,11 @@ int ProxyCache::numCached() const {
     return fCache.count();
 }
 
-sk_sp<TextureProxy> ProxyCache::find(const SkBitmap& bitmap, Mipmapped mipmapped) {
+sk_sp<TextureProxy> ProxyCache::find(const SkBitmap& bitmap) {
 
     skgpu::UniqueKey key;
 
-    make_bitmap_key(&key, bitmap, mipmapped);
+    make_bitmap_key(&key, bitmap);
 
     if (sk_sp<TextureProxy>* cached = fCache.find(key)) {
         return *cached;

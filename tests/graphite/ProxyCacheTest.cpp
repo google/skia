@@ -43,7 +43,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest1, r, context, CtsEnforcement::
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
 
     sk_sp<TextureProxy> proxy = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                    Mipmapped::kNo,
                                                                     "ProxyCacheTestTexture");
 
     REPORTER_ASSERT(r, proxyCache->numCached() == 1);
@@ -74,10 +73,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest2, r, context, CtsEnforcement::
     REPORTER_ASSERT(r, proxyCache2->numCached() == 0);
 
     sk_sp<TextureProxy> proxy1 = proxyCache1->findOrCreateCachedProxy(recorder1.get(), bitmap,
-                                                                      Mipmapped::kNo,
                                                                       "ProxyCacheTestTexture");
     sk_sp<TextureProxy> proxy2 = proxyCache2->findOrCreateCachedProxy(recorder2.get(), bitmap,
-                                                                      Mipmapped::kNo,
                                                                       "ProxyCacheTestTexture");
 
     REPORTER_ASSERT(r, proxyCache1->numCached() == 1);
@@ -90,55 +87,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest2, r, context, CtsEnforcement::
 
     REPORTER_ASSERT(r, proxyCache1->numCached() == 0);
     REPORTER_ASSERT(r, proxyCache2->numCached() == 0);
-}
-
-// This test exercises mipmap selectivity of the ProxyCache. Mipmapped and non-mipmapped version
-// of the same bitmap are keyed differently. Requesting a non-mipmapped version will
-// return a mipmapped version, if it exists.
-DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest3, r, context, CtsEnforcement::kNextRelease) {
-    std::unique_ptr<Recorder> recorder = context->makeRecorder();
-    ProxyCache* proxyCache = recorder->priv().proxyCache();
-
-    SkBitmap bitmap;
-    bool success = ToolUtils::GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
-    REPORTER_ASSERT(r, success);
-    if (!success) {
-        return;
-    }
-
-    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
-
-    sk_sp<TextureProxy> nonMipmapped = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                           Mipmapped::kNo,
-                                                                           "ProxyCacheTestTexture");
-    REPORTER_ASSERT(r, nonMipmapped->mipmapped() == Mipmapped::kNo);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
-
-    sk_sp<TextureProxy> test = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                   Mipmapped::kNo,
-                                                                   "ProxyCacheTestTexture");
-    REPORTER_ASSERT(r, nonMipmapped == test);
-    REPORTER_ASSERT(r, proxyCache->numCached() == 1);
-
-    sk_sp<TextureProxy> mipmapped = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap,
-                                                                        Mipmapped::kYes,
-                                                                        "ProxyCacheTestTexture");
-    REPORTER_ASSERT(r, mipmapped->mipmapped() == Mipmapped::kYes);
-    REPORTER_ASSERT(r, mipmapped != nonMipmapped);
-
-    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
-
-    test = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap, Mipmapped::kNo,
-                                               "ProxyCacheTestTexture");
-    REPORTER_ASSERT(r, mipmapped == test);
-
-    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
-
-    test = proxyCache->findOrCreateCachedProxy(recorder.get(), bitmap, Mipmapped::kYes,
-                                               "ProxyCacheTestTexture");
-    REPORTER_ASSERT(r, mipmapped == test);
-
-    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
 }
 
 namespace {
@@ -173,7 +121,7 @@ ProxyCacheSetup setup_test(Context* context,
 
     REPORTER_ASSERT(r, proxyCache->numCached() == 0);
 
-    setup.fProxy1 = proxyCache->findOrCreateCachedProxy(recorder, setup.fBitmap1, Mipmapped::kNo,
+    setup.fProxy1 = proxyCache->findOrCreateCachedProxy(recorder, setup.fBitmap1,
                                                         "ProxyCacheTestTexture");
     REPORTER_ASSERT(r, proxyCache->numCached() == 1);
 
@@ -188,7 +136,7 @@ ProxyCacheSetup setup_test(Context* context,
     setup.fTimeBetweenProxyCreation = skgpu::StdSteadyClock::now();
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
-    setup.fProxy2 = proxyCache->findOrCreateCachedProxy(recorder, setup.fBitmap2, Mipmapped::kNo,
+    setup.fProxy2 = proxyCache->findOrCreateCachedProxy(recorder, setup.fBitmap2,
                                                         "ProxyCacheTestTexture");
     REPORTER_ASSERT(r, proxyCache->numCached() == 2);
 
@@ -260,7 +208,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest5,
     REPORTER_ASSERT(r, setup.fProxy1->texture()->testingShouldDeleteASAP());
     REPORTER_ASSERT(r, !setup.fProxy2->texture()->testingShouldDeleteASAP());
 
-    sk_sp<TextureProxy> test = proxyCache->find(setup.fBitmap1, Mipmapped::kNo);
+    sk_sp<TextureProxy> test = proxyCache->find(setup.fBitmap1);
     REPORTER_ASSERT(r, !test);   // proxy1 should've been purged
 
     proxyCache->forcePurgeProxiesNotUsedSince(setup.fTimeAfterAllProxyCreation);
@@ -291,7 +239,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest6,
 
     // update proxy1's timestamp
     sk_sp<TextureProxy> test = proxyCache->findOrCreateCachedProxy(recorder.get(), setup.fBitmap1,
-                                                                   Mipmapped::kNo,
                                                                    "ProxyCacheTestTexture");
     REPORTER_ASSERT(r, test == setup.fProxy1);
 
@@ -308,7 +255,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest6,
     REPORTER_ASSERT(r, !setup.fProxy1->texture()->testingShouldDeleteASAP());
     REPORTER_ASSERT(r, setup.fProxy2->texture()->testingShouldDeleteASAP());
 
-    test = proxyCache->find(setup.fBitmap2, Mipmapped::kNo);
+    test = proxyCache->find(setup.fBitmap2);
     REPORTER_ASSERT(r, !test);   // proxy2 should've been purged
 
     proxyCache->forcePurgeProxiesNotUsedSince(timeAfterProxy1Update);
@@ -369,21 +316,21 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest8,
     proxyCache->forceProcessInvalidKeyMsgs();
 
     // unreffing fProxy1 and forcing message processing shouldn't purge proxy1 from the cache
-    sk_sp<TextureProxy> test = proxyCache->find(setup.fBitmap1, Mipmapped::kNo);
+    sk_sp<TextureProxy> test = proxyCache->find(setup.fBitmap1);
     REPORTER_ASSERT(r, test);
     test.reset();
 
     resourceCache->forcePurgeAsNeeded();
 
     REPORTER_ASSERT(r, proxyCache->numCached() == 1);
-    test = proxyCache->find(setup.fBitmap1, Mipmapped::kNo);
+    test = proxyCache->find(setup.fBitmap1);
     REPORTER_ASSERT(r, !test);   // proxy1 should've been purged
 
     setup.fProxy2.reset();
     proxyCache->forceProcessInvalidKeyMsgs();
 
     // unreffing fProxy2 and forcing message processing shouldn't purge proxy2 from the cache
-    test = proxyCache->find(setup.fBitmap2, Mipmapped::kNo);
+    test = proxyCache->find(setup.fBitmap2);
     REPORTER_ASSERT(r, test);
     test.reset();
 

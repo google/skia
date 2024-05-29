@@ -27,10 +27,9 @@ class Recorder;
 class TextureProxy;
 
 // This class encapsulates the _internal_ Recorder-local caching of utility proxies.
-// TODO:
-//   Add purgeProxiesNotUsedSince method
-//   Link into Context purging system
-//   Add unit tests
+// For simplicity it does not support generating mipmapped cached proxies. Internal utility data
+// does not typically require mipmapping, and unlike Ganesh, the internal proxy cache is not used
+// for uploaded client-provided bitmaps (which may require generating mipmaps).
 class ProxyCache {
 public:
     ProxyCache(uint32_t recorderID);
@@ -38,14 +37,13 @@ public:
 
     sk_sp<TextureProxy> findOrCreateCachedProxy(Recorder*,
                                                 const SkBitmap&,
-                                                Mipmapped,
                                                 std::string_view label);
 
     void purgeAll();
 
 #if defined(GRAPHITE_TEST_UTILS)
     int numCached() const;
-    sk_sp<TextureProxy> find(const SkBitmap&, Mipmapped);
+    sk_sp<TextureProxy> find(const SkBitmap&);
     void forceProcessInvalidKeyMsgs();
     void forceFreeUniquelyHeld();
     void forcePurgeProxiesNotUsedSince(skgpu::StdSteadyClock::time_point purgeTime);

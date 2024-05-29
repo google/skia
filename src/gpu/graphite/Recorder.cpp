@@ -543,14 +543,14 @@ void RecorderPriv::flushTrackedDevices() {
 
 sk_sp<TextureProxy> RecorderPriv::CreateCachedProxy(Recorder* recorder,
                                                     const SkBitmap& bitmap,
-                                                    std::string_view label,
-                                                    Mipmapped mipmapped) {
+                                                    std::string_view label) {
     SkASSERT(!bitmap.isNull());
 
     if (!recorder) {
         return nullptr;
     }
-    return recorder->priv().proxyCache()->findOrCreateCachedProxy(recorder, bitmap, mipmapped,
+    return recorder->priv().proxyCache()->findOrCreateCachedProxy(recorder,
+                                                                  bitmap,
                                                                   std::move(label));
 }
 
