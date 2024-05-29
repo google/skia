@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 
+#include "include/core/SkColorType.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkMalloc.h"
@@ -26,8 +27,6 @@
 
 #include <cstring>
 #include <tuple>
-
-enum SkColorType : int;
 
 using Glyph = sktext::gpu::Glyph;
 using MaskFormat = skgpu::MaskFormat;
@@ -130,17 +129,28 @@ static void get_packed_glyph_image(
         };
         constexpr int a565Bpp = MaskFormatBytesPerPixel(MaskFormat::kA565);
         constexpr int argbBpp = MaskFormatBytesPerPixel(MaskFormat::kARGB);
+        constexpr bool kBGRAIsNative = kN32_SkColorType == kBGRA_8888_SkColorType;
         char* dstRow = (char*)dst;
         for (int y = 0; y < height; y++) {
             dst = dstRow;
             for (int x = 0; x < width; x++) {
                 uint16_t color565 = 0;
                 memcpy(&color565, src, a565Bpp);
-                uint32_t colorRGBA = GrColorPackRGBA(masks.getRed(color565),
-                                                     masks.getGreen(color565),
-                                                     masks.getBlue(color565),
-                                                     0xFF);
-                memcpy(dst, &colorRGBA, argbBpp);
+                uint32_t color8888;
+                // On Windows (and possibly others), font data is stored as BGR.
+                // So we need to swizzle the data to reflect that.
+                if (kBGRAIsNative) {
+                    color8888 = GrColorPackRGBA(masks.getBlue(color565),
+                                                masks.getGreen(color565),
+                                                masks.getRed(color565),
+                                                0xFF);
+                } else {
+                    color8888 = GrColorPackRGBA(masks.getRed(color565),
+                                                masks.getGreen(color565),
+                                                masks.getBlue(color565),
+                                                0xFF);
+                }
+                memcpy(dst, &color8888, argbBpp);
                 src = (const char*)src + a565Bpp;
                 dst = (char*)dst + argbBpp;
             }
