@@ -128,8 +128,7 @@ public:
     }
 
     static bool IsShaderTilingExpected(const skif::Context& ctx,
-                                       const skif::FilterResult& image,
-                                       bool rescaling) {
+                                       const skif::FilterResult& image) {
         if (image.tileMode() == SkTileMode::kClamp) {
             return false;
         }
@@ -138,9 +137,7 @@ public:
             return false;
         }
         auto analysis = image.analyzeBounds(ctx.desiredOutput());
-        if (!(analysis & BoundsAnalysis::kHasLayerFillingEffect) &&
-             (image.tileMode() == SkTileMode::kRepeat || image.tileMode() == SkTileMode::kMirror ||
-              (image.tileMode() == SkTileMode::kDecal && !rescaling))) {
+        if (!(analysis & BoundsAnalysis::kHasLayerFillingEffect)) {
             return false;
         }
 
@@ -148,30 +145,23 @@ public:
         // be used if the image isn't HW tileable; OR it's a decal tile mode without transparent
         // padding that can't be drawn directly (in this case hasLayerFillingEffect implies a
         // color filter that has to evaluate the decal'ed sampling).
-        // TODO(b/323886180): Rescaling with decal images does not draw directly but should, so it
-        // will eventually avoid the expensive decal shader.
         return true;
     }
 
     static bool IsShaderClampingExpected(const skif::Context& ctx,
-                                         const skif::FilterResult& image,
-                                         bool rescaling) {
+                                         const skif::FilterResult& image) {
         auto analysis = image.analyzeBounds(ctx.desiredOutput());
-        if (analysis & BoundsAnalysis::kHasLayerFillingEffect ||
-            (image.tileMode() == SkTileMode::kDecal && rescaling)) {
+        if (analysis & BoundsAnalysis::kHasLayerFillingEffect) {
             // The image won't be drawn directly so some form of shader is needed. The faster clamp
             // can be used when clamping explicitly or decal-with-transparent-padding.
-            // TODO(b/323886180): Once rescaling can draw decals directly, decal-with-transparent
-            // padding should only need clamping when there's a layer-filling color filter as well.
             if (image.tileMode() == SkTileMode::kClamp ||
                 (image.tileMode() == SkTileMode::kDecal &&
                  image.fBoundary == FilterResult::PixelBoundary::kTransparent)) {
                 return true;
             } else {
-                // These cases should be covered by the more expensive shader tiling, but if we
-                // are rescaling with a deferrable tile mode, it can still be converted to a clamp.
-                SkASSERT(IsShaderTilingExpected(ctx, image, rescaling));
-                return rescaling;
+                // These cases should be covered by the more expensive shader tiling.
+                SkASSERT(IsShaderTilingExpected(ctx, image));
+                return false;
             }
         }
         // If we got here, it will be drawn directly but a clamp can be needed if the data outside
@@ -329,26 +319,33 @@ public:
     const SkSamplingOptions& expectedSampling() const { return fExpectedSampling; }
     SkTileMode expectedTileMode() const { return fExpectedTileMode; }
     const SkColorFilter* expectedColorFilter() const { return fExpectedColorFilter.get(); }
-    bool isRescaling() const { return std::holds_alternative<RescaleParams>(fAction); }
 
-    int expectedOffscreenSurfaces() const {
+    std::vector<int> expectedOffscreenSurfaces(SkTileMode srcTileMode) const {
         if (fExpectation != Expect::kNewImage) {
-            return 0;
+            return {0};
         }
         if (auto* s = std::get_if<RescaleParams>(&fAction)) {
             float minScale = std::min(s->fScale.width(), s->fScale.height());
             if (minScale >= 1.f - 0.001f) {
-                return 1;
+                return {1};
             } else {
                 int steps = 0;
                 do {
                     steps++;
                     minScale *= 2.f;
-                } while(minScale < 0.8f);
-                return steps;
+                } while(minScale < 0.9f);
+
+
+                // Rescaling periodic tiling may require scaling further than the value stored in
+                // the action to hit pixel integer bounds, which may trigger one more pass.
+                if (srcTileMode == SkTileMode::kRepeat || srcTileMode == SkTileMode::kMirror) {
+                    return {steps, steps + 1};
+                } else {
+                    return {steps};
+                }
             }
         } else {
-            return 1;
+            return {1};
         }
     }
 
@@ -456,8 +453,11 @@ public:
             } else if (auto* s = std::get_if<RescaleParams>(&fAction)) {
                 // Don't redraw with an identity scale since sampling errors creep in on some GPUs
                 if (s->fScale.width() != 1.f || s->fScale.height() != 1.f) {
-                    SkISize lowResSize = {sk_float_ceil2int(source->width() * s->fScale.width()),
-                                        sk_float_ceil2int(source->height() * s->fScale.height())};
+                    int origSrcWidth = source->width();
+                    int origSrcHeight = source->height();
+                    SkISize lowResSize = {sk_float_ceil2int(origSrcWidth * s->fScale.width()),
+                                          sk_float_ceil2int(origSrcHeight * s->fScale.height())};
+
                     while (source->width() != lowResSize.width() ||
                         source->height() != lowResSize.height()) {
                         float sx = std::max(0.5f, lowResSize.width() / (float) source->width());
@@ -477,7 +477,8 @@ public:
                     sampling = SkFilterMode::kLinear;
                     tileMode = SkTileMode::kClamp;
                     canvas.translate(origin.x(), origin.y());
-                    canvas.scale(1.f / s->fScale.width(), 1.f / s->fScale.height());
+                    canvas.scale(origSrcWidth / (float) source->width(),
+                                 origSrcHeight / (float) source->height());
                     origin = LayerSpace<SkIPoint>({0, 0});
                 }
             }
@@ -770,6 +771,7 @@ private:
             const int totalCount = expected.width() * expected.height();
             const float percentError = 100.f * errorCount / (float) totalCount;
             const bool approxMatch = percentError <= allowedPercentImageDiff;
+
             REPORTER_ASSERT(fReporter, approxMatch,
                             "%d pixels were too different from %d total (%f %% vs. %f %%)",
                             errorCount, totalCount, percentError, allowedPercentImageDiff);
@@ -1133,7 +1135,9 @@ public:
                 correctedExpectation = Expect::kEmptyImage;
             }
 
-            int numOffscreenSurfaces = fActions[i].expectedOffscreenSurfaces();
+            std::vector<int> allowedOffscreenSurfaces =
+                    fActions[i].expectedOffscreenSurfaces(source.tileMode());
+
             int actualShaderDraws = stats.fNumShaderBasedTilingDraws + stats.fNumShaderClampedDraws;
             int expectedShaderTiledDraws = 0;
             bool actualNewImage = output.image() &&
@@ -1142,7 +1146,9 @@ public:
                 case Expect::kNewImage:
                     REPORTER_ASSERT(fRunner, actualNewImage);
                     if (source && !source.image()->isExactFit()) {
-                        expectedShaderTiledDraws = numOffscreenSurfaces;
+                        // Even if we're rescaling and making multiple surfaces, shader tiling
+                        // should only ever be needed on the first step.
+                        expectedShaderTiledDraws = std::min(1, allowedOffscreenSurfaces[0]);
                     }
                     break;
                 case Expect::kDeferredImage:
@@ -1153,20 +1159,22 @@ public:
                     break;
             }
             // Verify stats behavior for the current action
-            REPORTER_ASSERT(fRunner, numOffscreenSurfaces == stats.fNumOffscreenSurfaces,
-                            "expected %d, got %d",
-                            numOffscreenSurfaces, stats.fNumOffscreenSurfaces);
+            REPORTER_ASSERT(fRunner,
+                            find(allowedOffscreenSurfaces.begin(),
+                                 allowedOffscreenSurfaces.end(),
+                                 stats.fNumOffscreenSurfaces) != allowedOffscreenSurfaces.end(),
+                            "expected %d or %d, got %d",
+                            allowedOffscreenSurfaces[0],
+                            allowedOffscreenSurfaces.size() > 1 ? allowedOffscreenSurfaces[1] : -1,
+                            stats.fNumOffscreenSurfaces);
             REPORTER_ASSERT(fRunner, actualShaderDraws <= expectedShaderTiledDraws,
                             "expected %d+%d <= %d",
                             stats.fNumShaderBasedTilingDraws, stats.fNumShaderClampedDraws,
                             expectedShaderTiledDraws);
-            const bool rescaling = fActions[i].isRescaling();
             REPORTER_ASSERT(fRunner, stats.fNumShaderBasedTilingDraws == 0 ||
-                                     FilterResultTestAccess::IsShaderTilingExpected(
-                                            ctx, source, rescaling));
+                                     FilterResultTestAccess::IsShaderTilingExpected(ctx, source));
             REPORTER_ASSERT(fRunner, stats.fNumShaderClampedDraws == 0 ||
-                                     FilterResultTestAccess::IsShaderClampingExpected(
-                                            ctx, source, rescaling));
+                                     FilterResultTestAccess::IsShaderClampingExpected(ctx, source));
 
             // Validate layer bounds and sampling when we expect a new or deferred image
             if (output.image()) {
@@ -2293,16 +2301,12 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
         // Similarly, the allowed transparent border tolerance must be increased for kDecal tests
         // because the expected image's content is expanded by a larger and larger factor during its
         // upscale.
-
-        // kDecal tiling is applied during the downsample by writing a transparent buffer, so the
-        // tile mode can simplify to kClamp (which is more efficient for shader-based tiling).
-        const SkTileMode expectedTileMode = tm == SkTileMode::kDecal ? SkTileMode::kClamp : tm;
         TestCase(r, "1-step rescale preserves tile mode",
                  kDefaultMaxAllowedPercentImageDiff,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({0.5f, 0.5f}, Expect::kNewImage, expectedTileMode)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
         const bool periodic = tm == SkTileMode::kRepeat || tm == SkTileMode::kMirror;
@@ -2312,25 +2316,23 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 2 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({0.25f, 0.25f}, Expect::kNewImage, expectedTileMode)
+                .rescale({0.25f, 0.25f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
         TestCase(r, "2-step rescale with near-identity elision",
-                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 37.46f
-                                                                      : periodic ? 73.85 : 52.2f,
-                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 6 : 0)
+                 /*allowedPercentImageDiff=*/periodic ? 17.75f : 41.52f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 8 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({0.22f, 0.22f}, Expect::kNewImage, expectedTileMode)
+                .rescale({0.23f, 0.23f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
         TestCase(r, "3-step rescale preserves tile mode",
-                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 49.f
-                                                                      : periodic ? 90.5f : 71.f,
+                 /*allowedPercentImageDiff=*/periodic ? 56.3f : 51.3f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 10 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({0.155f, 0.155f}, Expect::kNewImage, expectedTileMode)
+                .rescale({0.155f, 0.155f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
         // Non-uniform scales
@@ -2354,29 +2356,28 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({1.f, 0.5f}, Expect::kNewImage, expectedTileMode)
+                .rescale({1.f, 0.5f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "Near-identity X axis, 1-step Y axis preserves tile mode",
                  /*allowedPercentImageDiff=*/tm == SkTileMode::kMirror ? 1.7f : 1.f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({kNearlyIdentity.width(), 0.5f}, Expect::kNewImage, expectedTileMode)
+                .rescale({kNearlyIdentity.width(), 0.5f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "Identity X axis, 2-step Y axis preserves tile mode",
                  /*allowedPercentImageDiff=*/3.1f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 2 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({1.f, 0.25f}, Expect::kNewImage, expectedTileMode)
+                .rescale({1.f, 0.25f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "1-step X axis, 2-step Y axis preserves tile mode",
-                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 22.f
-                                                                      : periodic ? 55.f : 29.5f,
+                 /*allowedPercentImageDiff=*/periodic ? 23.1f : 17.22f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({.55f, 0.27f}, Expect::kNewImage, expectedTileMode)
+                .rescale({.55f, 0.27f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
         TestCase(r, "1-step X axis, identity Y axis preserves tile mode",
@@ -2384,29 +2385,28 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({0.5f, 1.f}, Expect::kNewImage, expectedTileMode)
+                .rescale({0.5f, 1.f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "1-step X axis, near-identity Y axis preserves tile mode",
                  /*allowedPercentImageDiff=*/tm == SkTileMode::kMirror ? 1.7f : 1.f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({0.5f, kNearlyIdentity.height()}, Expect::kNewImage, expectedTileMode)
+                .rescale({0.5f, kNearlyIdentity.height()}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "2-step X axis, identity Y axis preserves tile mode",
                  /*allowedPercentImageDiff=*/3.1f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 2 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({0.25f, 1.f}, Expect::kNewImage, expectedTileMode)
+                .rescale({0.25f, 1.f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "2-step X axis, 1-step Y axis preserves tile mode",
-                 /*allowedPercentImageDiff=*/tm == SkTileMode::kDecal ? 22.f
-                                                                      : periodic ? 55.f : 29.5f,
+                 /*allowedPercentImageDiff=*/periodic ? 14.9f : 13.61f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
-                .rescale({.27f, 0.55f}, Expect::kNewImage, expectedTileMode)
+                .rescale({.27f, 0.55f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
         // Chained decal tile modes don't create the circumstances of interest.
@@ -2420,7 +2420,7 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
                 .applyCrop({4, 4, 76, 76}, SkTileMode::kDecal, Expect::kDeferredImage,
                            /*expectedTileMode=*/tm)
-                .rescale({0.5f, 0.5f}, Expect::kNewImage, /*expectedTileMode=*/SkTileMode::kClamp)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, /*expectedTileMode=*/SkTileMode::kDecal)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
     }
 }
@@ -2439,7 +2439,7 @@ DEF_TEST_SUITE(RescaleWithTransform, r,
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
                 .applyTransform(SkMatrix::RotateDeg(45.f, {16.f, 16.f}), Expect::kDeferredImage)
-                .rescale({1.f, 1.f}, Expect::kNewImage, SkTileMode::kClamp)
+                .rescale({1.f, 1.f}, Expect::kNewImage, SkTileMode::kDecal)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
         TestCase(r, "Near-identity rescale defers integer translation",
@@ -2455,26 +2455,27 @@ DEF_TEST_SUITE(RescaleWithTransform, r,
                 .source({0, 0, 50, 50})
                 .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
                 .applyTransform(SkMatrix::RotateDeg(15.f, {25.f, 25.f}), Expect::kDeferredImage)
-                .rescale(kNearlyIdentity, Expect::kNewImage, SkTileMode::kClamp)
+                .rescale(kNearlyIdentity, Expect::kNewImage, SkTileMode::kDecal)
                 .run(/*requestedOutput=*/{-5, -5, 55, 55});
 
+        const bool periodic = tm == SkTileMode::kRepeat || tm == SkTileMode::kMirror;
+
         TestCase(r, "1-step rescale applies complex transform in first step",
-                 kDefaultMaxAllowedPercentImageDiff,
+                 /*allowedPercentImageDiff=*/periodic ? 1.1f : kDefaultMaxAllowedPercentImageDiff,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
                 .applyTransform(SkMatrix::RotateDeg(45.f, {16.f, 16.f}), Expect::kDeferredImage)
-                .rescale({0.5f, 0.5f}, Expect::kNewImage, SkTileMode::kClamp)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, SkTileMode::kDecal)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
-        const bool periodic = tm == SkTileMode::kRepeat || tm == SkTileMode::kMirror;
         TestCase(r, "2-step rescale applies complex transform",
-                 /*allowedPercentImageDiff=*/periodic ? 6.80f : 1.61f,
+                 /*allowedPercentImageDiff=*/periodic ? 10.05f: 3.7f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 4 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
                 .applyTransform(SkMatrix::RotateDeg(45.f, {16.f, 16.f}), Expect::kDeferredImage)
-                .rescale({0.25f, 0.25f}, Expect::kNewImage, /*expectedTileMode=*/SkTileMode::kClamp)
+                .rescale({0.25f, 0.25f}, Expect::kNewImage, /*expectedTileMode=*/SkTileMode::kDecal)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
     }
 }
@@ -2482,16 +2483,11 @@ DEF_TEST_SUITE(RescaleWithTransform, r,
 DEF_TEST_SUITE(RescaleWithColorFilter, r,
                CtsEnforcement::kNextRelease, CtsEnforcement::kNextRelease) {
     for (SkTileMode tm : kTileModes) {
-        // The color filter (simple and transparency-affecting) should be applied with a 1px
-        // boundary around the rest of the image being rescaled when decal-tiled, so its result is
-        // clamped tiled instead (vs. having to prepare and scale a larger, flood-filled image).
-        SkTileMode expectedTileMode = tm == SkTileMode::kDecal ? SkTileMode::kClamp : tm;
-
         TestCase(r, "Identity rescale applies color filter but defers tile mode")
                 .source({0, 0, 50, 50})
                 .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
                 .applyColorFilter(alpha_modulate(0.5f), Expect::kDeferredImage)
-                .rescale({1.f, 1.f}, Expect::kNewImage, expectedTileMode)
+                .rescale({1.f, 1.f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{-5, -5, 55, 55});
 
         TestCase(r, "Near-identity rescale applies color filter but defers tile mode",
@@ -2500,7 +2496,7 @@ DEF_TEST_SUITE(RescaleWithColorFilter, r,
                 .source({0, 0, 50, 50})
                 .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
                 .applyColorFilter(alpha_modulate(0.5f), Expect::kDeferredImage)
-                .rescale(kNearlyIdentity, Expect::kNewImage, expectedTileMode)
+                .rescale(kNearlyIdentity, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{-5, -5, 55, 55});
 
         TestCase(r, "Rescale applies color filter but defers tile mode",
@@ -2509,9 +2505,13 @@ DEF_TEST_SUITE(RescaleWithColorFilter, r,
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
                 .applyColorFilter(alpha_modulate(0.75f), Expect::kDeferredImage)
-                .rescale({0.5f, 0.5f}, Expect::kNewImage, expectedTileMode)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
 
+        // The color filter (simple and transparency-affecting) should be applied with a 1px
+        // boundary around the rest of the image being rescaled when decal-tiled, so its result is
+        // clamped tiled instead (vs. having to prepare and scale a larger, flood-filled image).
+        SkTileMode expectedTileMode = tm == SkTileMode::kDecal ? SkTileMode::kClamp : tm;
         TestCase(r, "Rescale applies transparency-affecting color filter but defers tile mode")
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
