@@ -737,6 +737,7 @@ skia_filegroup(
         "runtime/FunctionParameterAliasingFirst.rts",
         "runtime/FunctionParameterAliasingSecond.rts",
         "runtime/GLSLTypeNames.rts",
+        "runtime/GLSLTypeNamesES3.rts",
         "runtime/GlobalVariables.rts",
         "runtime/IncrementDisambiguation.rts",
         "runtime/LargeProgram_BlocklessLoops.rts",
@@ -1127,6 +1128,7 @@ skia_filegroup(
     name = "sksl_wgsl_tests",
     srcs = [
         "runtime/GLSLTypeNames.rts",
+        "runtime/GLSLTypeNamesES3.rts",
         "runtime/GlobalVariables.rts",
         "runtime/LargeProgram_BlocklessLoops.rts",
         "runtime/LargeProgram_FlatLoop.rts",

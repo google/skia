@@ -1,3 +1,10 @@
+void m23() { mat2x3 x; }
+void m24() { mat2x4 x; }
+void m32() { mat3x2 x; }
+void m34() { mat3x4 x; }
+void m42() { mat4x2 x; }
+void m43() { mat4x3 x; }
+
 void f23() { float2x3 x; }
 void f24() { float2x4 x; }
 void f32() { float3x2 x; }
@@ -16,6 +23,10 @@ void u()   { uint x; }
 void u2()  { uint2 x; }
 void u3()  { uint3 x; }
 void u4()  { uint4 x; }
+
+void uv2()  { uvec2 x; }
+void uv3()  { uvec3 x; }
+void uv4()  { uvec4 x; }
 
 void us()  { ushort x; }
 void us2() { ushort2 x; }
@@ -43,6 +54,12 @@ void access_us4() { ushort4 var; var.x; }
 void access_aus() { ushort var[2]; var[0].x; }
 
 /*%%*
+type 'mat2x3' is not supported
+type 'mat2x4' is not supported
+type 'mat3x2' is not supported
+type 'mat3x4' is not supported
+type 'mat4x2' is not supported
+type 'mat4x3' is not supported
 type 'float2x3' is not supported
 type 'float2x4' is not supported
 type 'float3x2' is not supported
@@ -59,6 +76,9 @@ type 'uint' is not supported
 type 'uint2' is not supported
 type 'uint3' is not supported
 type 'uint4' is not supported
+type 'uvec2' is not supported
+type 'uvec3' is not supported
+type 'uvec4' is not supported
 type 'ushort' is not supported
 type 'ushort2' is not supported
 type 'ushort3' is not supported

@@ -1,0 +1,17 @@
+// Ensure that GLSL type aliases compile without error
+#version 300
+
+float f;
+uint u;
+
+vec4 main(vec2 coords) {
+    uvec2 uv2 = uvec2(u, u);
+    uvec3 uv3 = uvec3(uv2, u);
+    uvec4 uv4 = uvec4(uv3, u);
+
+    mat2x4 m2 = mat2x4(mat2x3(mat2x2(f)));
+    mat3x4 m3 = mat3x4(mat3x3(mat3x2(f)));
+    mat4x4 m4 = mat4x4(mat4x3(mat4x2(f)));
+
+    return vec4(uv4) * m2[0] * m3[0] * m4[0];
+}

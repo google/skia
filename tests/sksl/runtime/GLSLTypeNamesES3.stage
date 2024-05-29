@@ -1,0 +1,12 @@
+float f_0;
+uint u_0;
+float4 main(float2 coords)
+{
+	uint2 uv2 = uint2(u_0);
+	uint3 uv3 = uint3(uv2, u_0);
+	uint4 uv4 = uint4(uv3, u_0);
+	float2x4 m2 = float2x4(float2x3(float2x2(f_0)));
+	float3x4 m3 = float3x4(float3x3(float3x2(f_0)));
+	float4x4 m4 = float4x4(float4x3(float4x2(f_0)));
+	return half4(((float4(uv4) * m2[0]) * m3[0]) * m4[0]);
+}

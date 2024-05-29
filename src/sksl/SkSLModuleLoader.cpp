@@ -267,6 +267,10 @@ void ModuleLoader::addPublicTypeAliases(const SkSL::Module* module) {
     symbols->addWithoutOwnershipOrDie(types.fIVec3.get());
     symbols->addWithoutOwnershipOrDie(types.fIVec4.get());
 
+    symbols->addWithoutOwnershipOrDie(types.fUVec2.get());
+    symbols->addWithoutOwnershipOrDie(types.fUVec3.get());
+    symbols->addWithoutOwnershipOrDie(types.fUVec4.get());
+
     symbols->addWithoutOwnershipOrDie(types.fBVec2.get());
     symbols->addWithoutOwnershipOrDie(types.fBVec3.get());
     symbols->addWithoutOwnershipOrDie(types.fBVec4.get());
