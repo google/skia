@@ -206,7 +206,6 @@ GrProcessorSet::Analysis AtlasTextOp::finalize(const GrCaps& caps,
         case MaskType::kLCDCoverage:
 #if !defined(SK_DISABLE_SDF_TEXT)
         case MaskType::kLCDDistanceField:
-        case MaskType::kLCDBGRDistanceField:
 #endif
             coverage = GrProcessorAnalysisCoverage::kLCD;
             break;

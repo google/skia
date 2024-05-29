@@ -652,11 +652,18 @@ private:
 
         GrGLSLVarying delta(SkSLType::kFloat);
         varyingHandler->addVarying("Delta", &delta);
-        // TODO: change Delta to float2 and set y to handle vertical pixel geometry
-        if (dfTexEffect.fFlags & kBGR_DistanceFieldEffectFlag) {
-            vertBuilder->codeAppendf("%s = -%s.x/3.0;", delta.vsOut(), atlasDimensionsInvName);
+        if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
+            if (dfTexEffect.fFlags & kBGR_DistanceFieldEffectFlag) {
+                vertBuilder->codeAppendf("%s = -%s.y/3.0;", delta.vsOut(), atlasDimensionsInvName);
+            } else {
+                vertBuilder->codeAppendf("%s = %s.y/3.0;", delta.vsOut(), atlasDimensionsInvName);
+            }
         } else {
-            vertBuilder->codeAppendf("%s = %s.x/3.0;", delta.vsOut(), atlasDimensionsInvName);
+            if (dfTexEffect.fFlags & kBGR_DistanceFieldEffectFlag) {
+                vertBuilder->codeAppendf("%s = -%s.x/3.0;", delta.vsOut(), atlasDimensionsInvName);
+            } else {
+                vertBuilder->codeAppendf("%s = %s.x/3.0;", delta.vsOut(), atlasDimensionsInvName);
+            }
         }
 
         // add frag shader code
@@ -675,8 +682,13 @@ private:
             } else {
                 fragBuilder->codeAppendf("half st_grad_len = half(abs(dFdx(%s.x)));", st.fsIn());
             }
-            fragBuilder->codeAppendf("half2 offset = half2(half(st_grad_len*%s), 0.0);",
-                                     delta.fsIn());
+            if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
+                fragBuilder->codeAppendf("half2 offset = half2(0.0, half(st_grad_len*%s));",
+                                         delta.fsIn());
+            } else {
+                fragBuilder->codeAppendf("half2 offset = half2(half(st_grad_len*%s), 0.0);",
+                                         delta.fsIn());
+            }
         } else if (isSimilarity) {
             // For a similarity matrix with rotation, the gradient will not be aligned
             // with the texel coordinate axes, so we need to calculate it.
@@ -684,18 +696,31 @@ private:
                 // We use dFdy instead and rotate -90 degrees to get the gradient in the x
                 // direction.
                 fragBuilder->codeAppendf("half2 st_grad = half2(dFdy(%s));", st.fsIn());
-                fragBuilder->codeAppendf("half2 offset = half2(%s*float2(st_grad.y, -st_grad.x));",
-                                         delta.fsIn());
+                if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
+                    fragBuilder->codeAppendf("half2 offset = half2(%s)*st_grad;", delta.fsIn());
+                } else {
+                    fragBuilder->codeAppendf(
+                            "half2 offset = half2(%s*float2(st_grad.y,-st_grad.x));", delta.fsIn());
+                }
             } else {
                 fragBuilder->codeAppendf("half2 st_grad = half2(dFdx(%s));", st.fsIn());
-                fragBuilder->codeAppendf("half2 offset = half(%s)*st_grad;", delta.fsIn());
+                if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
+                    fragBuilder->codeAppendf(
+                            "half2 offset = half2(%s*float2(-st_grad.y,st_grad.x));", delta.fsIn());
+                } else {
+                    fragBuilder->codeAppendf("half2 offset = half(%s)*st_grad;", delta.fsIn());
+                }
             }
             fragBuilder->codeAppend("half st_grad_len = length(st_grad);");
         } else {
             fragBuilder->codeAppendf("half2 st = half2(%s);\n", st.fsIn());
 
             fragBuilder->codeAppend("half4 jacobian = half4(dFdx(st), dFdy(st));");
-            fragBuilder->codeAppendf("half2 offset = half2(%s)*jacobian.xy;", delta.fsIn());
+            if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
+                fragBuilder->codeAppendf("half2 offset = half2(%s)*jacobian.zw;", delta.fsIn());
+            } else {
+                fragBuilder->codeAppendf("half2 offset = half2(%s)*jacobian.xy;", delta.fsIn());
+            }
         }
 
         // sample the texture by index
