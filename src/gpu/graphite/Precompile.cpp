@@ -464,6 +464,28 @@ void create_blur_imagefilter_pipelines(const KeyContext& keyContext,
                                               processCombination);
 }
 
+void create_displacement_imagefilter_pipelines(
+        const KeyContext& keyContext,
+        PipelineDataGatherer* gatherer,
+        const PaintOptions::ProcessCombination& processCombination) {
+
+    PaintOptions displacement;
+
+    // For displacement imagefilters we know we don't have alpha-only textures and don't need cubic
+    // filtering.
+    sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
+            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
+
+    displacement.setShaders({ PrecompileShadersPriv::Displacement(imageShader, imageShader) });
+
+    displacement.priv().buildCombinations(keyContext,
+                                          gatherer,
+                                          DrawTypeFlags::kSimpleShape,
+                                          /* withPrimitiveBlender= */ false,
+                                          Coverage::kSingleChannel,
+                                          processCombination);
+}
+
 void create_lighting_imagefilter_pipelines(
         const KeyContext& keyContext,
         PipelineDataGatherer* gatherer,
@@ -552,6 +574,9 @@ void PaintOptions::buildCombinations(
 
         if (fImageFilterOptions & PrecompileImageFilters::kBlur) {
             create_blur_imagefilter_pipelines(keyContext, gatherer, processCombination);
+        }
+        if (fImageFilterOptions & PrecompileImageFilters::kDisplacement) {
+            create_displacement_imagefilter_pipelines(keyContext, gatherer, processCombination);
         }
         if (fImageFilterOptions & PrecompileImageFilters::kLighting) {
             create_lighting_imagefilter_pipelines(keyContext, gatherer, processCombination);

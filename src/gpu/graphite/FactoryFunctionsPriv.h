@@ -26,6 +26,9 @@ SK_MAKE_BITMASK_OPS(PrecompileImageShaderFlags)
 namespace PrecompileShadersPriv {
     sk_sp<PrecompileShader> Blur(sk_sp<PrecompileShader> wrapped);
 
+    sk_sp<PrecompileShader> Displacement(sk_sp<PrecompileShader> displacement,
+                                         sk_sp<PrecompileShader> color);
+
     sk_sp<PrecompileShader> Lighting(sk_sp<PrecompileShader> wrapped);
 
     sk_sp<PrecompileShader> LinearMorphology(sk_sp<PrecompileShader> wrapped);
