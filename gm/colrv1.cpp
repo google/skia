@@ -144,6 +144,7 @@ protected:
         for (SkScalar textSize : kTextSizes) {
             font.setSize(textSize);
             font.getMetrics(&metrics);
+            font.setHinting(SkFontHinting::kNone);
             SkScalar y_shift = -(metrics.fAscent + metrics.fDescent + metrics.fLeading) * 1.2;
             y += y_shift;
             paint.setColor(*paint_color_iterator);
