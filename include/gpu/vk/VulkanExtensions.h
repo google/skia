@@ -10,7 +10,13 @@
 
 #include "include/core/SkString.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkAPI.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+
+#include <cstdint>
+#include <cstring>
 
 namespace skgpu {
 
@@ -37,10 +43,10 @@ public:
 
         struct Less {
             bool operator()(const Info& a, const SkString& b) const {
-                return strcmp(a.fName.c_str(), b.c_str()) < 0;
+                return std::strcmp(a.fName.c_str(), b.c_str()) < 0;
             }
             bool operator()(const SkString& a, const VulkanExtensions::Info& b) const {
-                return strcmp(a.c_str(), b.fName.c_str()) < 0;
+                return std::strcmp(a.c_str(), b.fName.c_str()) < 0;
             }
         };
     };

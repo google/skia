@@ -312,6 +312,7 @@ skia_cc_library(
         "//src/gpu/ganesh/mock:headers_to_compile",
         "//src/gpu/ganesh:headers_to_compile",
         "//src/gpu/tessellate:headers_to_compile",
+        "//src/gpu/vk:headers_to_compile",
         "//src/gpu:headers_to_compile",
         "//src/pdf:headers_to_compile",
     ],

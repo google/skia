@@ -25,7 +25,12 @@ fi
 
 supported_files_or_dirs=(
   "gm/"
-  "include/private/base/"
+  "include/core/"
+  "include/effects/"
+  "include/encode/"
+  "include/gpu/ganesh/gen/"
+  "include/gpu/gen/"
+  "include/private/"
   "modules/bentleyottmann/"
   "modules/skottie/"
   "modules/sksg/"
@@ -33,16 +38,20 @@ supported_files_or_dirs=(
   "modules/skunicode/"
   "src/base/"
   "src/codec/"
+  "src/core/"
   "src/effects/"
   "src/encode/"
   "src/gpu/ganesh/effects/"
-  "src/gpu/ganesh/mock/"
+  "src/gpu/ganesh/gen/"
   "src/gpu/ganesh/geometry/"
   "src/gpu/ganesh/glsl/"
   "src/gpu/ganesh/image/"
+  "src/gpu/ganesh/mock/"
   "src/gpu/ganesh/surface/"
   "src/gpu/ganesh/text/"
   "src/gpu/tessellate/"
+  "src/gpu/gen/"
+  "src/gpu/vk/"
   "src/image/"
   "src/pathops/"
   "src/pdf/"
@@ -55,7 +64,6 @@ supported_files_or_dirs=(
   "tests/"
   "tools/debugger/"
   "tools/viewer/"
-  "src/core/"
   "src/gpu/A"
   "src/gpu/B"
   "src/gpu/C"
@@ -111,8 +119,6 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/tessellate/StrokeTessellator.cpp"
   "src/gpu/ganesh/vk/GrVkContextThread"
   "src/gpu/ganesh/vk/GrVkDirectContext.cpp"
-  "src/gpu/vk/VulkanMutableTextureState.cpp"
-  "src/pdf/SkJpeg"
   "tools/DecodeUtils.cpp"
   "tools/EncodeUtils.cpp"
   "tools/GpuToolUtils.cpp"
@@ -120,10 +126,6 @@ supported_files_or_dirs=(
   "tools/SvgPathExtractor.cpp"
   "tools/ToolUtils.cpp"
   "tools/fonts/FontToolUtils.cpp"
-
-  # See //bazel/generate_cpp_files_for_headers.bzl and //include/BUILD.bazel for more.
-  "include/gen/"
-  "src/gen/"
 )
 
 excluded_files=(
@@ -137,6 +139,8 @@ excluded_files=(
   "src/core/SkM44.cpp"
   "src/core/SkPixmap.cpp"
   "modules/skottie/src/effects/MotionBlurEffect.cpp"
+# This file sets and checks for defines in a way that confuses IWYU
+  "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorWrapper.cpp"
 )
 
 function opted_in_to_IWYU_checks() {

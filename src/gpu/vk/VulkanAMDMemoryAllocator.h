@@ -10,6 +10,12 @@
 
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorWrapper.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+
+#include <cstdint>
+#include <utility>
 
 namespace skgpu {
 

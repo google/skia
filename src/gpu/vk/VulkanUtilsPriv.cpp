@@ -7,6 +7,9 @@
 
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
+#include "include/private/base/SkDebug.h"
+#include "src/gpu/vk/VulkanInterface.h"
+
 #include <vector>
 
 namespace skgpu {

@@ -9,8 +9,10 @@
 #define skgpu_VulkanInterface_DEFINED
 
 #include "include/core/SkRefCnt.h"
-
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+
+#include <cstdint>
 
 namespace skgpu {
 

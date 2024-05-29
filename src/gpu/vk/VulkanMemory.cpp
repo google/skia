@@ -5,9 +5,14 @@
 * found in the LICENSE file.
 */
 
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/vk/VulkanMemoryAllocator.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/vk/VulkanMemory.h"
 
-#include "include/gpu/vk/VulkanMemoryAllocator.h"
+#include <cstdint>
+#include <cstring>
 
 namespace skgpu {
 
@@ -123,7 +128,7 @@ void VulkanMemory::GetNonCoherentMappedMemoryRange(const VulkanAlloc& alloc,
     SkASSERT(0 == (size & (alignment-1)));
 #endif
 
-    memset(range, 0, sizeof(VkMappedMemoryRange));
+    std::memset(range, 0, sizeof(VkMappedMemoryRange));
     range->sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
     range->memory = alloc.fMemory;
     range->offset = offset;

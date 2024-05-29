@@ -8,20 +8,21 @@
 #ifndef skgpu_VulkanUtilsPriv_DEFINED
 #define skgpu_VulkanUtilsPriv_DEFINED
 
-#include <cstdint>
-#include <string>
-
+#include "include/core/SkColor.h"
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/vk/VulkanTypes.h"
-#include "src/gpu/vk/VulkanInterface.h"
-
-#include "include/core/SkColor.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/PipelineUtils.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <android/hardware_buffer.h>
 #endif
+
+#include <cstdint>
+#include <string>
+#include <cstddef>
 
 namespace SkSL {
 
@@ -35,6 +36,7 @@ struct ShaderCaps;
 namespace skgpu {
 
 class ShaderErrorHandler;
+struct VulkanInterface;
 
 inline bool SkSLToSPIRV(const SkSL::ShaderCaps* caps,
                         const std::string& sksl,
