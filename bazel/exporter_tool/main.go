@@ -416,6 +416,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//include/private/gpu/vk:private_hdrs",
 				"//src/gpu/vk:vk_hdrs",
 				"//src/gpu/vk:vk_srcs"}},
+		{Var: "skia_vma_sources",
+			Rules: []string{
+				"//src/gpu/vk:vma_srcs",
+				"//src/gpu/vk:vma_hdrs"}},
 		{Var: "skia_shared_mtl_sources",
 			Rules: []string{
 				"//include/gpu/mtl:public_hdrs",

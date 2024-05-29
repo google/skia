@@ -13,19 +13,6 @@
 
 namespace skgpu {
 
-#if !defined(SK_USE_VMA)
-sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(VkInstance,
-                                                            VkPhysicalDevice,
-                                                            VkDevice,
-                                                            uint32_t,
-                                                            const VulkanExtensions*,
-                                                            const VulkanInterface*,
-                                                            ThreadSafe) {
-    return nullptr;
-}
-
-#else
-
 sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(VkInstance instance,
                                                             VkPhysicalDevice physicalDevice,
                                                             VkDevice device,
@@ -273,7 +260,5 @@ std::pair<uint64_t, uint64_t> VulkanAMDMemoryAllocator::totalAllocatedAndUsedMem
     vmaCalculateStatistics(fAllocator, &stats);
     return {stats.total.statistics.blockBytes, stats.total.statistics.allocationBytes};
 }
-
-#endif // SK_USE_VMA
 
 } // namespace skgpu

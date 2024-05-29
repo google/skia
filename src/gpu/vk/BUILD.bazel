@@ -9,9 +9,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 VK_FILES = [
-    # TODO(kjlubick, egdaniel) Break these out into a module.
-    "VulkanAMDMemoryAllocator.cpp",
-    "VulkanAMDMemoryAllocator.h",
     "VulkanExtensions.cpp",
     "VulkanInterface.cpp",
     "VulkanInterface.h",
@@ -30,7 +27,10 @@ split_srcs_and_hdrs(
 
 skia_filegroup(
     name = "srcs",
-    srcs = [":vk_srcs"],
+    srcs = [
+        ":vk_srcs",
+        ":vma_srcs",
+    ],
     visibility = [
         "//src/gpu:__pkg__",
         "//src/gpu/ganesh/vk:__pkg__",
@@ -39,7 +39,10 @@ skia_filegroup(
 
 skia_filegroup(
     name = "private_hdrs",
-    srcs = [":vk_hdrs"],
+    srcs = [
+        ":vk_hdrs",
+        ":vma_hdrs",
+    ],
     visibility = [
         "//src/gpu:__pkg__",
         "//src/gpu/ganesh/vk:__pkg__",
@@ -53,4 +56,30 @@ skia_cc_deps(
         "//src/gpu:vulkan_with_vma": ["//third_party/vulkanmemoryallocator"],
         "//conditions:default": [],
     }),
+)
+
+skia_filegroup(
+    name = "headers_to_compile",
+    srcs = ["VulkanMutableTextureStatePriv.h"],
+    visibility = ["//tools:__pkg__"],
+)
+
+skia_filegroup(
+    name = "vma_hdrs",
+    srcs = [
+        "VulkanAMDMemoryAllocator.h",
+    ],
+    visibility = [
+        "//src/gpu/ganesh/vk:__pkg__",
+    ],
+)
+
+skia_filegroup(
+    name = "vma_srcs",
+    srcs = [
+        "VulkanAMDMemoryAllocator.cpp",
+    ],
+    visibility = [
+        "//src/gpu/ganesh/vk:__pkg__",
+    ],
 )
