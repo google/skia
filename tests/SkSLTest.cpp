@@ -302,7 +302,10 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
         }
 
         // Switch fallthrough has some issues on iOS.
-        disables["SwitchWithFallthrough"].push_back({_, "OpenGL", GPU, kiOS});
+        for (const char* test : {"SwitchWithFallthrough",
+                                 "SwitchWithFallthroughGroups"}) {
+            disables[test].push_back({_, "OpenGL", GPU, kiOS});
+        }
 
         // - ARM ----------------------------------------------------------------------------------
         // Mali 400 is a very old driver its share of quirks, particularly in relation to matrices.
