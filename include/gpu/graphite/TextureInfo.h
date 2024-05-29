@@ -140,6 +140,7 @@ private:
 
 #ifdef SK_VULKAN
     friend class VulkanCaps;
+    friend class VulkanResourceProvider;
     friend class VulkanTexture;
     const VulkanTextureSpec& vulkanTextureSpec() const {
         SkASSERT(fValid && fBackend == BackendApi::kVulkan);
