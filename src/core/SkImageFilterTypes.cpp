@@ -1676,7 +1676,9 @@ FilterResult FilterResult::MakeFromPicture(const Context& ctx,
     // for layers that are still axis-aligned?
     SkSurfaceProps props = ctx.backend()->surfaceProps()
                                          .cloneWithPixelGeometry(kUnknown_SkPixelGeometry);
-    AutoSurface surface{ctx, dstBounds, PixelBoundary::kTransparent,
+    // TODO(b/329700315): The SkPicture may contain dithered content, which would be affected by any
+    // boundary padding. Until we can control the dither origin, force it to have no padding.
+    AutoSurface surface{ctx, dstBounds, PixelBoundary::kUnknown,
                         /*renderInParameterSpace=*/true, &props};
     if (surface) {
         surface->clipRect(SkRect(cullRect));
@@ -1689,8 +1691,12 @@ FilterResult FilterResult::MakeFromShader(const Context& ctx,
                                           sk_sp<SkShader> shader,
                                           bool dither) {
     SkASSERT(shader);
-    AutoSurface surface{ctx, ctx.desiredOutput(), PixelBoundary::kTransparent,
-                        /*renderInParameterSpace=*/true};
+
+    // TODO(b/329700315): Using a boundary other than unknown shifts the origin of dithering, which
+    // complicates layout test validation in chrome. Until we can control the dither origin,
+    // force dithered shader FilterResults to have no padding.
+    PixelBoundary boundary = dither ? PixelBoundary::kUnknown : PixelBoundary::kTransparent;
+    AutoSurface surface{ctx, ctx.desiredOutput(), boundary, /*renderInParameterSpace=*/true};
     if (surface) {
         SkPaint paint;
         paint.setShader(shader);
