@@ -617,7 +617,10 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
 
     // Start to assemble VulkanTextureInfo which is needed later on to create the VkImage but can
     // sooner help us query VulkanCaps for certain format feature support.
-    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL; // TODO: Query for tiling mode.
+    // TODO: Allow client to pass in tiling mode. For external formats, this is required to be
+    // optimal. For AHB that have a known Vulkan format, we can query VulkanCaps to determine if
+    // optimal is a valid decision given the format features.
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
     VkImageCreateFlags imgCreateflags = isProtectedContent ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     // When importing as an external format the image usage can only be VK_IMAGE_USAGE_SAMPLED_BIT.

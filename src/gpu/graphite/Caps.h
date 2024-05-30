@@ -328,9 +328,17 @@ protected:
         }
     }
 
-    // ColorTypeInfo for a specific format.
-    // Used in format tables.
+    // ColorTypeInfo for a specific format. Used in format tables.
     struct ColorTypeInfo {
+        ColorTypeInfo() = default;
+        ColorTypeInfo(SkColorType ct, SkColorType transferCt, uint32_t flags,
+                      skgpu::Swizzle readSwizzle, skgpu::Swizzle writeSwizzle)
+                : fColorType(ct)
+                , fTransferColorType(transferCt)
+                , fFlags(flags)
+                , fReadSwizzle(readSwizzle)
+                , fWriteSwizzle(writeSwizzle) {}
+
         SkColorType fColorType = kUnknown_SkColorType;
         SkColorType fTransferColorType = kUnknown_SkColorType;
         enum {

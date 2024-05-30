@@ -230,6 +230,13 @@ private:
     uint64_t fMaxUniformBufferRange;
     VkPhysicalDeviceMemoryProperties2 fPhysicalDeviceMemoryProperties2;
 
+    // ColorTypeInfo struct for use w/ external formats.
+    const ColorTypeInfo fExternalFormatColorTypeInfo = {SkColorType::kRGBA_8888_SkColorType,
+                                                        SkColorType::kRGBA_8888_SkColorType,
+                                                        /*flags=*/0,
+                                                        skgpu::Swizzle::RGBA(),
+                                                        skgpu::Swizzle::RGBA()};
+
     // Various bools to define whether certain Vulkan features are supported.
     bool fSupportsMemorylessAttachments = false;
     bool fSupportsYcbcrConversion = false;
