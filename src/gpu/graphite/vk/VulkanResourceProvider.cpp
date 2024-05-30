@@ -292,21 +292,23 @@ UniqueKey make_ubo_bind_group_key(SkSpan<DescriptorData> requestedDescriptors,
                 &uniqueKey, kBufferBindGroupDomain, 6, "GraphicsPipelineBufferDescSet");
 
         for (uint32_t i = 0; i < VulkanGraphicsPipeline::kNumUniformBuffers; ++i) {
-            if (i < requestedDescriptors.size()) {
-                int descriptorBindingIndex = requestedDescriptors[i].fBindingIndex;
-                SkASSERT(static_cast<unsigned long>(descriptorBindingIndex) <
-                         bindUniformBufferInfo.size());
-                const auto& bindInfo = bindUniformBufferInfo[descriptorBindingIndex];
-                const VulkanBuffer* boundBuffer =
-                        static_cast<const VulkanBuffer*>(bindInfo.fBuffer);
-                SkASSERT(boundBuffer);
-                const uint32_t bindingSize = bindInfo.fBindingSize;
-                builder[2 * i] = boundBuffer->uniqueID().asUInt();
-                builder[2 * i + 1] = bindingSize;
-            } else {
-                builder[2 * i] = 0;
-                builder[2 * i + 1] = 0;
-            }
+            builder[2 * i] = 0;
+            builder[2 * i + 1] = 0;
+        }
+
+        for (uint32_t i = 0; i < requestedDescriptors.size(); ++i) {
+            int descriptorBindingIndex = requestedDescriptors[i].fBindingIndex;
+            SkASSERT(static_cast<unsigned long>(descriptorBindingIndex) <
+                        bindUniformBufferInfo.size());
+            SkASSERT(static_cast<unsigned long>(descriptorBindingIndex) <
+                     VulkanGraphicsPipeline::kNumUniformBuffers);
+            const auto& bindInfo = bindUniformBufferInfo[descriptorBindingIndex];
+            const VulkanBuffer* boundBuffer =
+                    static_cast<const VulkanBuffer*>(bindInfo.fBuffer);
+            SkASSERT(boundBuffer);
+            const uint32_t bindingSize = bindInfo.fBindingSize;
+            builder[2 * descriptorBindingIndex] = boundBuffer->uniqueID().asUInt();
+            builder[2 * descriptorBindingIndex + 1] = bindingSize;
         }
 
         builder.finish();
