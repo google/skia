@@ -138,6 +138,11 @@ bool Window_mac::attach(BackendType attachType) {
         case kVulkan_BackendType:
             fWindowContext = MakeVulkanForMac(info, fRequestedDisplayParams);
             break;
+#if defined(SK_GRAPHITE)
+        case kGraphiteVulkan_BackendType:
+            fWindowContext = nullptr;
+            return false;
+#endif
 #endif
 #ifdef SK_METAL
         case kMetal_BackendType:

@@ -171,7 +171,8 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     deviceDescriptor.requiredFeatureCount = features.size();
     deviceDescriptor.deviceLostCallbackInfo.callback =
         [](WGPUDeviceImpl *const *, WGPUDeviceLostReason reason, const char* message, void*) {
-            if (reason != WGPUDeviceLostReason_Destroyed) {
+            if (reason != WGPUDeviceLostReason_Destroyed &&
+                reason != WGPUDeviceLostReason_InstanceDropped) {
                 SK_ABORT("Device lost: %s\n", message);
             }
         };
