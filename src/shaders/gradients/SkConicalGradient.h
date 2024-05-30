@@ -50,6 +50,10 @@ public:
 
     enum class Type { kRadial, kStrip, kFocal };
 
+    static bool MapToUnitX(const SkPoint& startCenter,
+                           const SkPoint& endCenter,
+                           SkMatrix* dstMatrix);
+
     static sk_sp<SkShader> Create(const SkPoint& start,
                                   SkScalar startRadius,
                                   const SkPoint& end,

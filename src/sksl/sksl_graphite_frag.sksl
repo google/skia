@@ -632,97 +632,49 @@ $pure float2 $sweep_grad_layout(float biasParam, float scaleParam, float2 pos) {
     return float2(t, 1);
 }
 
-$pure float2 $conical_grad_layout(float2 point0Param,
-                                  float2 point1Param,
-                                  float radius0Param,
-                                  float radius1Param,
+$pure float2 $conical_grad_layout(float radius0,
+                                  float dRadius,
+                                  float a,
+                                  float invA,
                                   float2 pos) {
-    const float SK_ScalarNearlyZero = 1.0 / (1 << 12);
-    float dCenter = distance(point0Param, point1Param);
-    float dRadius = radius1Param - radius0Param;
-
-    // Degenerate case: a radial gradient (p0 = p1).
-    bool radial = dCenter < SK_ScalarNearlyZero;
-
-    // Degenerate case: a strip with bandwidth 2r (r0 = r1).
-    bool strip = abs(dRadius) < SK_ScalarNearlyZero;
-
-    if (radial) {
-        if (strip) {
-            // The start and end inputs are the same in both position and radius.
-            // We don't expect to see this input, but just in case we avoid dividing by zero.
-            return float2(0, -1);
-        }
-
-        float minRadius = min(radius0Param, radius1Param);
-        float maxRadius = max(radius0Param, radius1Param);
-        float bias = minRadius / maxRadius;
-
-        float t = (length(pos) - bias) / (1 - bias);
-        if (radius1Param < radius0Param) {
-          t = 1 - t;
-        }
+    // When writing uniform values, if the gradient is radial, we encode a == 0 and since
+    // the linear edge case is when a == 0, we differentiate the radial case with invA == 1.
+    if (a == 0 && invA == 1) {
+        // Radial case
+        float t = length(pos) * dRadius - radius0;
 
         return float2(t, 1);
-
-    } else if (strip) {
-        float r = radius0Param / dCenter;
-        float r_2 = r * r;
-
-        float t = r_2 - pos.y * pos.y;
-        if (t < 0) {
-            return float2(0, -1);
-        }
-        t = pos.x + sqrt(t);
-        return float2(t, 1);
-
     } else {
-        // See https://skia.org/docs/dev/design/conical/ for details on how this algorithm works.
-        // Calculate f and swap inputs if necessary (steps 1 and 2).
-        float f = radius0Param / (radius0Param - radius1Param);
+        // Focal/strip case.
+        float c = dot(pos, pos) - radius0 * radius0;
+        float b = -2 * (dRadius * radius0 + pos.x);
 
-        bool isSwapped = abs(f - 1) < SK_ScalarNearlyZero;
-        if (isSwapped) {
-            float2 tmpPt = point0Param;
-            point0Param = point1Param;
-            point1Param = tmpPt;
-            f = 0;
-        }
+        float t;
+        if (a == 0) {
+            // Linear case, both circles intersect as exactly one point
+            // with the focal point sitting on that point.
 
-        // Steps 3 and 4 precomputed in gradient matrix on cpu-side.
-        // Continue with step 5 onward.
-        float r1 = abs(radius1Param - radius0Param) / dCenter;
-        bool isFocalOnCircle = abs(r1 - 1) < SK_ScalarNearlyZero;
-
-        float invR1 = 1 / r1;
-        float dRadiusSign = sign(1 - f);
-        bool isWellBehaved = !isFocalOnCircle && r1 > 1;
-
-        float x_t = -1;
-        if (isFocalOnCircle) {
-            x_t = dot(pos, pos) / pos.x;
-        } else if (isWellBehaved) {
-            x_t = length(pos) - pos.x * invR1;
+            // It is highly unlikely that b and c would be 0 resulting in NaN, if b == 0 due to
+            // a specific translation, it would result is +/-Inf which propogates the sign to
+            // isValid resulting in how the pixel is expected to look.
+            t = -c / b;
         } else {
-            float temp = pos.x * pos.x - pos.y * pos.y;
-            if (temp >= 0) {
-                if (isSwapped || dRadiusSign < 0) {
-                    x_t = -sqrt(temp) - pos.x * invR1;
-                } else {
-                    x_t = sqrt(temp) - pos.x * invR1;
-                }
+            // Quadratic case
+            float d = b*b - 4*a*c;
+            if (d < 0) {
+                return float2(0, -1);
             }
+
+            // T should be as large as possible, so when one circle fully encloses the other,
+            // the sign will be positive or negative depending on the sign of dRadius.
+            // When this isn't the case and they form a cone, the sign will always be positive.
+            float sign = sign(1 - dRadius);
+            t = invA * (-b + sign * sqrt(d));
         }
 
-        if (!isWellBehaved && x_t < 0) {
-            return float2(0, -1);
-        }
-
-        float t = f + dRadiusSign * x_t;
-        if (isSwapped) {
-            t = 1 - t;
-        }
-        return float2(t, 1);
+        // Interpolated radius must be positive.
+        float isValid = sign(t * dRadius + radius0);
+        return float2(t, isValid);
     }
 }
 
@@ -843,14 +795,14 @@ $pure half4 sk_sweep_grad_tex_shader(float2 coords,
 $pure half4 sk_conical_grad_4_shader(float2 coords,
                                      float4 colorsParam[4],
                                      float4 offsetsParam,
-                                     float2 point0Param,
-                                     float2 point1Param,
                                      float radius0Param,
-                                     float radius1Param,
+                                     float dRadiusParam,
+                                     float aParam,
+                                     float invAParam,
                                      int tileMode,
                                      int colorSpace,
                                      int doUnpremul) {
-    float2 t = $conical_grad_layout(point0Param, point1Param, radius0Param, radius1Param, coords);
+    float2 t = $conical_grad_layout(radius0Param, dRadiusParam, aParam, invAParam, coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_4(colorsParam, offsetsParam, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
@@ -859,30 +811,30 @@ $pure half4 sk_conical_grad_4_shader(float2 coords,
 $pure half4 sk_conical_grad_8_shader(float2 coords,
                                      float4 colorsParam[8],
                                      float4 offsetsParam[2],
-                                     float2 point0Param,
-                                     float2 point1Param,
                                      float radius0Param,
-                                     float radius1Param,
+                                     float dRadiusParam,
+                                     float aParam,
+                                     float invAParam,
                                      int tileMode,
                                      int colorSpace,
                                      int doUnpremul) {
-    float2 t = $conical_grad_layout(point0Param, point1Param, radius0Param, radius1Param, coords);
+    float2 t = $conical_grad_layout(radius0Param, dRadiusParam, aParam, invAParam, coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_8(colorsParam, offsetsParam, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
 }
 
 $pure half4 sk_conical_grad_tex_shader(float2 coords,
-                                       float2 point0Param,
-                                       float2 point1Param,
                                        float radius0Param,
-                                       float radius1Param,
+                                       float dRadiusParam,
+                                       float aParam,
+                                       float invAParam,
                                        int numStops,
                                        int tileMode,
                                        int colorSpace,
                                        int doUnpremul,
                                        sampler2D colorAndOffsetSampler) {
-    float2 t = $conical_grad_layout(point0Param, point1Param, radius0Param, radius1Param, coords);
+    float2 t = $conical_grad_layout(radius0Param, dRadiusParam, aParam, invAParam, coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_tex(colorAndOffsetSampler, numStops, t);
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);

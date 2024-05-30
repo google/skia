@@ -62,6 +62,15 @@ bool SkConicalGradient::FocalData::set(SkScalar r0, SkScalar r1, SkMatrix* matri
     return true;
 }
 
+bool SkConicalGradient::MapToUnitX(const SkPoint &startCenter,
+                                   const SkPoint &endCenter,
+                                   SkMatrix* dstMatrix) {
+    const SkPoint centers[2] = { startCenter, endCenter };
+    const SkPoint unitvec[2] = { {0, 0}, {1, 0} };
+
+    return dstMatrix->setPolyToPoly(centers, unitvec, 2);
+}
+
 sk_sp<SkShader> SkConicalGradient::Create(const SkPoint& c0,
                                           SkScalar r0,
                                           const SkPoint& c1,
@@ -84,10 +93,7 @@ sk_sp<SkShader> SkConicalGradient::Create(const SkPoint& c0,
 
         gradientType = Type::kRadial;
     } else {
-        const SkPoint centers[2] = { c0    , c1     };
-        const SkPoint unitvec[2] = { {0, 0}, {1, 0} };
-
-        if (!gradientMatrix.setPolyToPoly(centers, unitvec, 2)) {
+        if (!MapToUnitX(c0, c1, &gradientMatrix)) {
             // Degenerate case.
             return nullptr;
         }

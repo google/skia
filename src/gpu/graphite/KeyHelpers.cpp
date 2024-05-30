@@ -268,11 +268,32 @@ void add_conical_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                        PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
 
+    float dRadius = gradData.fRadii[1] - gradData.fRadii[0];
+    bool isRadial = SkPoint::Distance(gradData.fPoints[1], gradData.fPoints[0])
+                                      < SK_ScalarNearlyZero;
+
+    // When a == 0, encode invA == 1 for radial case, and invA == 0 for linear edge case.
+    float a = 0;
+    float invA = 1;
+    if (!isRadial) {
+        a = 1 - dRadius * dRadius;
+        if (std::abs(a) > SK_ScalarNearlyZero) {
+            invA = 1.0 / (2.0 * a);
+        } else {
+            a = 0;
+            invA = 0;
+        }
+    } else {
+        // Since radius0 is being scaled by 1 / dRadius, and the original radius
+        // is always positive, this gives us the original sign of dRadius.
+        dRadius = gradData.fRadii[0] > 0 ? 1 : -1;
+    }
+
     add_gradient_preamble(gradData, gatherer);
-    gatherer->write(gradData.fPoints[0]);
-    gatherer->write(gradData.fPoints[1]);
     gatherer->write(gradData.fRadii[0]);
-    gatherer->write(gradData.fRadii[1]);
+    gatherer->write(dRadius);
+    gatherer->write(a);
+    gatherer->write(invA);
     add_gradient_postamble(gradData, gatherer);
 };
 
@@ -1753,7 +1774,8 @@ static void add_to_key(const KeyContext& keyContext,
     // Fold the texture's origin flip into the local matrix so that the image shader doesn't need
     // additional state
     SkMatrix matrix;
-    if (as_SB(wrappedShader)->type() == SkShaderBase::ShaderType::kImage) {
+    SkShaderBase* wrappedShaderBase = as_SB(wrappedShader);
+    if (wrappedShaderBase->type() == SkShaderBase::ShaderType::kImage) {
         auto imgShader = static_cast<const SkImageShader*>(wrappedShader);
         // If the image is not graphite backed then we can assume the origin will be TopLeft as we
         // require that in the ImageProvider utility. Also Graphite YUV images are assumed to be
@@ -1769,9 +1791,29 @@ static void add_to_key(const KeyContext& keyContext,
                 matrix.setTranslateY(view.height());
             }
         }
-    } else if(as_SB(wrappedShader)->type() == SkShaderBase::ShaderType::kGradientBase) {
+    } else if (wrappedShaderBase->type() == SkShaderBase::ShaderType::kGradientBase) {
         auto gradShader = static_cast<const SkGradientBaseShader*>(wrappedShader);
         auto gradMatrix = gradShader->getGradientMatrix();
+
+        // Override the conical gradient matrix since graphite uses a different algorithm
+        // than the ganesh and raster backends.
+        if (gradShader->asGradient() == SkShaderBase::GradientType::kConical) {
+            auto conicalShader = static_cast<const SkConicalGradient*>(gradShader);
+
+            SkMatrix conicalMatrix;
+            if (conicalShader->getType() == SkConicalGradient::Type::kRadial) {
+                SkPoint center = conicalShader->getStartCenter();
+                conicalMatrix.postTranslate(-center.fX, -center.fY);
+
+                float scale = sk_ieee_float_divide(1, conicalShader->getDiffRadius());
+                conicalMatrix.postScale(scale, scale);
+            } else {
+                SkAssertResult(SkConicalGradient::MapToUnitX(conicalShader->getStartCenter(),
+                                                             conicalShader->getEndCenter(),
+                                                             &conicalMatrix));
+            }
+            gradMatrix = conicalMatrix;
+        }
 
         SkMatrix invGradMatrix;
         SkAssertResult(gradMatrix.invert(&invGradMatrix));
@@ -2160,14 +2202,27 @@ static void add_gradient_to_key(const KeyContext& keyContext,
                                 PaintParamsKeyBuilder* builder,
                                 PipelineDataGatherer* gatherer,
                                 const SkConicalGradient* shader) {
+    SkScalar r0 = shader->getStartRadius();
+    SkScalar r1 = shader->getEndRadius();
+
+    if (shader->getType() != SkConicalGradient::Type::kRadial) {
+        // Since we map the centers to be (0,0) and (1,0) in the gradient matrix,
+        // there is a scale of 1/distance-between-centers that has to be applied to the radii.
+        r0 /= shader->getCenterX1();
+        r1 /= shader->getCenterX1();
+    } else {
+        r0 /= shader->getDiffRadius();
+        r1 /= shader->getDiffRadius();
+    }
+
     add_gradient_to_key(keyContext,
                         builder,
                         gatherer,
                         shader,
                         shader->getStartCenter(),
                         shader->getEndCenter(),
-                        shader->getStartRadius(),
-                        shader->getEndRadius(),
+                        r0,
+                        r1,
                         0.0f,
                         0.0f);
 }
