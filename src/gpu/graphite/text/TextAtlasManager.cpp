@@ -128,28 +128,18 @@ static void get_packed_glyph_image(
         };
         constexpr int a565Bpp = MaskFormatBytesPerPixel(MaskFormat::kA565);
         constexpr int argbBpp = MaskFormatBytesPerPixel(MaskFormat::kARGB);
-        constexpr bool kBGRAIsNative = kN32_SkColorType == kBGRA_8888_SkColorType;
         char* dstRow = (char*)dst;
         for (int y = 0; y < height; y++) {
             dst = dstRow;
             for (int x = 0; x < width; x++) {
                 uint16_t color565 = 0;
                 memcpy(&color565, src, a565Bpp);
-                uint32_t color8888;
-                // On Windows (and possibly others), font data is stored as BGR.
-                // So we need to swizzle the data to reflect that.
-                if (kBGRAIsNative) {
-                    color8888 = masks.getBlue(color565) |
-                                (masks.getGreen(color565) << 8) |
-                                (masks.getRed(color565) << 16) |
-                                (0xFF << 24);
-                } else {
-                    color8888 = masks.getRed(color565) |
-                                (masks.getGreen(color565) << 8) |
-                                (masks.getBlue(color565) << 16) |
-                                (0xFF << 24);
-                }
-                memcpy(dst, &color8888, argbBpp);
+                // TODO: create Graphite version of GrColorPackRGBA?
+                uint32_t colorRGBA = masks.getRed(color565) |
+                                     (masks.getGreen(color565) << 8) |
+                                     (masks.getBlue(color565) << 16) |
+                                     (0xFF << 24);
+                memcpy(dst, &colorRGBA, argbBpp);
                 src = (const char*)src + a565Bpp;
                 dst = (      char*)dst + argbBpp;
             }
