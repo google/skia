@@ -31,6 +31,6 @@ bool GrVkContextThreadSafeProxy::isValidCharacterizationForVulkan(
 
     const GrVkCaps* vkCaps = (const GrVkCaps*)caps.get();
 
-    // The protection status of the characterization and the context need to match
+    // The potection status of the characterization and the context need to match
     return isProtected == GrProtected(vkCaps->supportsProtectedContent());
 }
