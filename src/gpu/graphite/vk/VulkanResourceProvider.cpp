@@ -151,7 +151,7 @@ sk_sp<Sampler> VulkanResourceProvider::createSampler(const SamplerDesc& samplerD
                     this->vulkanSharedContext(),
                     static_cast<uint32_t>(
                             samplerDesc.desc() >> SamplerDesc::kImmutableSamplerInfoShift),
-                    samplerDesc.format());
+                    (uint64_t)(samplerDesc.externalFormatMSBs()) << 32 | samplerDesc.format());
             SkASSERT(ycbcrConversion);
 
             ycbcrConversion->setKey(ycbcrKey);

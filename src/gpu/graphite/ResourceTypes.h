@@ -202,9 +202,6 @@ struct ImmutableSamplerInfo {
     uint32_t fNonFormatYcbcrConversionInfo = 0;
     // fFormat represents known OR external format numerical representation.
     uint64_t fFormat = 0;
-    // If sampling from an external format, those format features can be stored here since we cannot
-    // simply query an external format's features later on.
-    uint32_t fFormatFeatures = 0;
 };
 
 
