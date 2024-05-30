@@ -30,6 +30,13 @@ skia_cc_library(
         "//include/gpu/ganesh/gl/egl:public_hdrs",
     ],
     defines = ["SK_DISABLE_LEGACY_EGLINTERFACE_FACTORY"],
+    linkopts = select({
+        "@platforms//os:android": [
+            "-lEGL",
+            "-lGLESv2",
+        ],
+        "//conditions:default": [],
+    }),
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
