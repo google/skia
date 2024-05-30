@@ -478,7 +478,7 @@ public:
 
     // Exchange two hash maps.
     void swap(THashMap& that) { fTable.swap(that.fTable); }
-    void swap(THashMap&& that) { fTable.swap(that.fTable); }
+    void swap(THashMap&& that) { fTable.swap(std::move(that.fTable)); }
 
     // N.B. The pointers returned by set() and find() are valid only until the next call to set().
 
@@ -586,7 +586,7 @@ public:
 
     // Exchange two hash sets.
     void swap(THashSet& that) { fTable.swap(that.fTable); }
-    void swap(THashSet&& that) { fTable.swap(that.fTable); }
+    void swap(THashSet&& that) { fTable.swap(std::move(that.fTable)); }
 
     // Copy an item into the set.
     void add(T item) { fTable.set(std::move(item)); }
