@@ -298,13 +298,11 @@ UniqueKey make_ubo_bind_group_key(SkSpan<DescriptorData> requestedDescriptors,
 
         for (uint32_t i = 0; i < requestedDescriptors.size(); ++i) {
             int descriptorBindingIndex = requestedDescriptors[i].fBindingIndex;
-            SkASSERT(static_cast<unsigned long>(descriptorBindingIndex) <
-                        bindUniformBufferInfo.size());
-            SkASSERT(static_cast<unsigned long>(descriptorBindingIndex) <
+            SkASSERT(SkTo<unsigned long>(descriptorBindingIndex) < bindUniformBufferInfo.size());
+            SkASSERT(SkTo<unsigned long>(descriptorBindingIndex) <
                      VulkanGraphicsPipeline::kNumUniformBuffers);
             const auto& bindInfo = bindUniformBufferInfo[descriptorBindingIndex];
-            const VulkanBuffer* boundBuffer =
-                    static_cast<const VulkanBuffer*>(bindInfo.fBuffer);
+            const VulkanBuffer* boundBuffer = static_cast<const VulkanBuffer*>(bindInfo.fBuffer);
             SkASSERT(boundBuffer);
             const uint32_t bindingSize = bindInfo.fBindingSize;
             builder[2 * descriptorBindingIndex] = boundBuffer->uniqueID().asUInt();
@@ -323,7 +321,7 @@ void update_uniform_descriptor_set(SkSpan<DescriptorData> requestedDescriptors,
                                    const VulkanSharedContext* sharedContext) {
     for (size_t i = 0; i < requestedDescriptors.size(); i++) {
         int descriptorBindingIndex = requestedDescriptors[i].fBindingIndex;
-        SkASSERT(static_cast<unsigned long>(descriptorBindingIndex) < bindUniformBufferInfo.size());
+        SkASSERT(SkTo<unsigned long>(descriptorBindingIndex) < bindUniformBufferInfo.size());
         const auto& bindInfo = bindUniformBufferInfo[descriptorBindingIndex];
         if (bindInfo.fBuffer) {
 #if defined(SK_DEBUG)
