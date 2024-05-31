@@ -2595,12 +2595,6 @@ private:
                                      SkEnumBitMask<PredrawFlags>) const;
 
     /**
-     *  Returns true if the paint's imagefilter can be invoked directly, without needed a layer.
-     */
-    bool canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const SkSamplingOptions&,
-                               const SkPaint&);
-
-    /**
      *  Returns true if the clip (for any active layer) contains antialiasing.
      *  If the clip is empty, this will return false.
      */

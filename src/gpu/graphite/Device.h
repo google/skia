@@ -112,11 +112,7 @@ public:
     // Only used for scratch devices.
     sk_sp<Task> lastDrawTask() const;
 
-    // SkCanvas only uses drawCoverageMask w/o this staging flag, so only enable
-    // mask filters in clients that have finished migrating.
-#if !defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
     bool useDrawCoverageMaskForMaskFilters() const override { return true; }
-#endif
 
     // Clipping
     void pushClipStack() override { fClip.save(); }

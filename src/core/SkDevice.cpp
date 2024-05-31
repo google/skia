@@ -331,7 +331,7 @@ void SkDevice::drawDevice(SkDevice* device,
                           const SkPaint& paint) {
     sk_sp<SkSpecialImage> deviceImage = device->snapSpecial();
     if (deviceImage) {
-#if defined(SK_DONT_PAD_LAYER_IMAGES) || defined(SK_RESOLVE_FILTERS_BEFORE_RESTORE)
+#if defined(SK_DONT_PAD_LAYER_IMAGES)
         this->drawSpecial(deviceImage.get(), device->getRelativeTransform(*this), sampling, paint);
 #else
         // SkCanvas only calls drawDevice() when there are no filters (so the transform is pixel
