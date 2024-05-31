@@ -507,6 +507,13 @@ sk_sp<PrecompileShader> PrecompileShadersPriv::Image(
     return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileImageShader>(flags) });
 }
 
+sk_sp<PrecompileShader> PrecompileShadersPriv::RawImage(
+        SkEnumBitMask<PrecompileImageShaderFlags> flags) {
+    return PrecompileShaders::LocalMatrix(
+            { sk_make_sp<PrecompileImageShader>(flags |
+                                                PrecompileImageShaderFlags::kExcludeAlpha) });
+}
+
 //--------------------------------------------------------------------------------------------------
 class PrecompileYUVImageShader : public PrecompileShader {
 public:
@@ -944,6 +951,81 @@ private:
 
 sk_sp<PrecompileShader> PrecompileShadersPriv::Blur(sk_sp<PrecompileShader> wrapped) {
     return sk_make_sp<PrecompileBlurShader>(std::move(wrapped));
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileMatrixConvolutionShader : public PrecompileShader {
+public:
+    PrecompileMatrixConvolutionShader(sk_sp<PrecompileShader> wrapped)
+            : fWrapped(std::move(wrapped)) {
+        fNumWrappedCombos = fWrapped->numCombinations();
+
+        // When the matrix convolution ImageFilter uses a texture we know it will only ever
+        // be SkFilterMode::kNearest and SkTileMode::kClamp.
+        // TODO: add a PrecompileImageShaderFlags to further limit the raw image shader
+        // combinations. Right now we're getting two combinations for the raw shader
+        // (sk_image_shader and sk_hw_image_shader).
+        fRawImageShader =
+                PrecompileShadersPriv::RawImage(PrecompileImageShaderFlags::kExcludeCubic);
+        fNumRawImageShaderCombos = fRawImageShader->numCombinations();
+    }
+
+private:
+    int numIntrinsicCombinations() const override {
+        // The uniform version only has one option but the two texture-based versions will
+        // have as many combinations as the raw image shader.
+        return 1 + 2 * fNumRawImageShaderCombos;
+    }
+
+    int numChildCombinations() const override { return fNumWrappedCombos; }
+
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const override {
+
+        int desiredTextureCombination = 0;
+
+        const int desiredWrappedCombination = desiredCombination % fNumWrappedCombos;
+        int remainingCombinations = desiredCombination / fNumWrappedCombos;
+
+        SkKnownRuntimeEffects::StableKey stableKey = SkKnownRuntimeEffects::StableKey::kInvalid;
+        if (remainingCombinations == 0) {
+            stableKey = SkKnownRuntimeEffects::StableKey::kMatrixConvUniforms;
+        } else {
+            static constexpr SkKnownRuntimeEffects::StableKey kTextureBasedStableKeys[] = {
+                    SkKnownRuntimeEffects::StableKey::kMatrixConvTexSm,
+                    SkKnownRuntimeEffects::StableKey::kMatrixConvTexLg,
+            };
+
+            --remainingCombinations;
+            stableKey = kTextureBasedStableKeys[remainingCombinations % 2];
+            desiredTextureCombination = remainingCombinations / 2;
+            SkASSERT(desiredTextureCombination < fNumRawImageShaderCombos);
+        }
+
+        const SkRuntimeEffect* fEffect = GetKnownRuntimeEffect(stableKey);
+
+        KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
+
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(fEffect) });
+            fWrapped->priv().addToKey(childContext, builder, gatherer, desiredWrappedCombination);
+            if (stableKey != SkKnownRuntimeEffects::StableKey::kMatrixConvUniforms) {
+                fRawImageShader->priv().addToKey(childContext, builder, gatherer,
+                                                 desiredTextureCombination);
+            }
+        builder->endBlock();
+    }
+
+    sk_sp<PrecompileShader> fWrapped;
+    int fNumWrappedCombos;
+    sk_sp<PrecompileShader> fRawImageShader;
+    int fNumRawImageShaderCombos;
+};
+
+sk_sp<PrecompileShader> PrecompileShadersPriv::MatrixConvolution(
+        sk_sp<skgpu::graphite::PrecompileShader> wrapped) {
+    return sk_make_sp<PrecompileMatrixConvolutionShader>(std::move(wrapped));
 }
 
 //--------------------------------------------------------------------------------------------------

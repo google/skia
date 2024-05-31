@@ -248,6 +248,7 @@ const char* to_str(ClipType c) {
     M(Blur)              \
     M(Displacement)      \
     M(Lighting)          \
+    M(MatrixConvolution) \
     M(Morphology)
 
 enum class ImageFilterType {
@@ -1227,6 +1228,38 @@ sk_sp<SkImageFilter> lighting_imagefilter(
     SkUNREACHABLE;
 }
 
+sk_sp<SkImageFilter> matrix_convolution_imagefilter(
+        SkRandom* rand,
+        SkEnumBitMask<PrecompileImageFilters>* imageFilterMask) {
+
+    int kernelSize = 1;
+
+    int option = rand->nextULessThan(3);
+    switch (option) {
+        case 0: kernelSize = 3;  break;
+        case 1: kernelSize = 7;  break;
+        case 2: kernelSize = 11; break;
+    }
+
+    int center = (kernelSize * kernelSize - 1) / 2;
+    std::vector<float> kernel(kernelSize * kernelSize, SkIntToScalar(1));
+    kernel[center] = 2.0f - kernelSize * kernelSize;
+
+    sk_sp<SkImageFilter> matrixConvIF;
+    matrixConvIF = SkImageFilters::MatrixConvolution({ kernelSize, kernelSize },
+                                                     /* kernel= */ kernel.data(),
+                                                     /* gain= */ 0.3f,
+                                                     /* bias= */ 100.0f,
+                                                     /* kernelOffset= */ { 1, 1 },
+                                                     SkTileMode::kMirror,
+                                                     /* convolveAlpha= */ false,
+                                                     /* input= */ nullptr);
+    SkASSERT(matrixConvIF);
+    *imageFilterMask |= PrecompileImageFilters::kMatrixConvolution;
+
+    return matrixConvIF;
+}
+
 sk_sp<SkImageFilter> morphology_imagefilter(
         SkRandom* rand,
         SkEnumBitMask<PrecompileImageFilters>* imageFilterMask) {
@@ -1264,6 +1297,9 @@ std::pair<sk_sp<SkImageFilter>, SkEnumBitMask<PrecompileImageFilters>> create_im
             break;
         case ImageFilterType::kLighting:
             imgFilter = lighting_imagefilter(rand, &imageFilterMask);
+            break;
+        case ImageFilterType::kMatrixConvolution:
+            imgFilter = matrix_convolution_imagefilter(rand, &imageFilterMask);
             break;
         case ImageFilterType::kMorphology:
             imgFilter = morphology_imagefilter(rand, &imageFilterMask);
@@ -1669,6 +1705,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ImageFilterType::kBlur,
             ImageFilterType::kDisplacement,
             ImageFilterType::kLighting,
+            ImageFilterType::kMatrixConvolution,
             ImageFilterType::kMorphology,
 #endif
     };

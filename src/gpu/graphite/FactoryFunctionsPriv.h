@@ -31,6 +31,8 @@ namespace PrecompileShadersPriv {
 
     sk_sp<PrecompileShader> Lighting(sk_sp<PrecompileShader> wrapped);
 
+    sk_sp<PrecompileShader> MatrixConvolution(sk_sp<PrecompileShader> wrapped);
+
     sk_sp<PrecompileShader> LinearMorphology(sk_sp<PrecompileShader> wrapped);
 
     sk_sp<PrecompileShader> SparseMorphology(sk_sp<PrecompileShader> wrapped);
@@ -41,6 +43,8 @@ namespace PrecompileShadersPriv {
     sk_sp<PrecompileShader> CTM(SkSpan<const sk_sp<PrecompileShader>> wrapped);
 
     sk_sp<PrecompileShader> Image(SkEnumBitMask<PrecompileImageShaderFlags>);
+
+    sk_sp<PrecompileShader> RawImage(SkEnumBitMask<PrecompileImageShaderFlags>);
 
     // This factory variant should be used when the existence or non-existence of the local matrix
     // is known. If 'withLM' is true only the LMShader-wrapped shader will be created while, when

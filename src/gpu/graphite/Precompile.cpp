@@ -507,6 +507,28 @@ void create_lighting_imagefilter_pipelines(
                                       processCombination);
 }
 
+void create_matrix_convolution_imagefilter_pipelines(
+        const KeyContext& keyContext,
+        PipelineDataGatherer* gatherer,
+        const PaintOptions::ProcessCombination& processCombination) {
+
+    PaintOptions matrixConv;
+
+    // For matrix convolution imagefilters we know we don't have alpha-only textures and don't
+    // need cubic filtering.
+    sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
+            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
+
+    matrixConv.setShaders({ PrecompileShadersPriv::MatrixConvolution(imageShader) });
+
+    matrixConv.priv().buildCombinations(keyContext,
+                                        gatherer,
+                                        DrawTypeFlags::kSimpleShape,
+                                        /* withPrimitiveBlender= */ false,
+                                        Coverage::kSingleChannel,
+                                        processCombination);
+}
+
 void create_morphology_imagefilter_pipelines(
         const KeyContext& keyContext,
         PipelineDataGatherer* gatherer,
@@ -580,6 +602,10 @@ void PaintOptions::buildCombinations(
         }
         if (fImageFilterOptions & PrecompileImageFilters::kLighting) {
             create_lighting_imagefilter_pipelines(keyContext, gatherer, processCombination);
+        }
+        if (fImageFilterOptions & PrecompileImageFilters::kMatrixConvolution) {
+            create_matrix_convolution_imagefilter_pipelines(keyContext, gatherer,
+                                                            processCombination);
         }
         if (fImageFilterOptions & PrecompileImageFilters::kMorphology) {
             create_morphology_imagefilter_pipelines(keyContext, gatherer, processCombination);
