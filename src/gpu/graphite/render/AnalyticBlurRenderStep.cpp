@@ -26,7 +26,7 @@ AnalyticBlurRenderStep::AnalyticBlurRenderStep()
                       {"blurData", SkSLType::kHalf2},
                       {"shapeType", SkSLType::kInt},
                       {"depth", SkSLType::kFloat}},
-                     PrimitiveType::kTriangleStrip,
+                     PrimitiveType::kTriangles,
                      kDirectDepthGreaterPass,
                      /*vertexAttrs=*/
                      {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
@@ -63,10 +63,12 @@ void AnalyticBlurRenderStep::writeVertices(DrawWriter* writer,
                                            skvx::ushort2 ssboIndices) const {
     const Rect& r = params.geometry().analyticBlurMask().drawBounds();
     DrawWriter::Vertices verts{*writer};
-    verts.append(4) << skvx::float2(r.left(), r.top()) << ssboIndices
+    verts.append(6) << skvx::float2(r.left(), r.top()) << ssboIndices
                     << skvx::float2(r.right(), r.top()) << ssboIndices
                     << skvx::float2(r.left(), r.bot()) << ssboIndices
-                    << skvx::float2(r.right(), r.bot()) << ssboIndices;
+                    << skvx::float2(r.right(), r.top()) << ssboIndices
+                    << skvx::float2(r.right(), r.bot()) << ssboIndices
+                    << skvx::float2(r.left(), r.bot()) << ssboIndices;
 }
 
 void AnalyticBlurRenderStep::writeUniformsAndTextures(const DrawParams& params,

@@ -557,7 +557,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_integral_fp(GrRecordingCon
                 std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
     }
 
-    SkBitmap bitmap = skgpu::CreateIntegralTable(sixSigma);
+    SkBitmap bitmap = skgpu::CreateIntegralTable(width);
     if (bitmap.empty()) {
         return {};
     }

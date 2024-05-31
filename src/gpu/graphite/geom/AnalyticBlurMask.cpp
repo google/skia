@@ -14,6 +14,7 @@
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/BlurUtils.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 #include "src/sksl/SkSLUtil.h"
@@ -125,13 +126,20 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRect(Recorder* recorder,
     }
 
     const float sixSigma = 6.0f * devSigma;
-    SkBitmap integralBitmap = skgpu::CreateIntegralTable(sixSigma);
-    if (integralBitmap.empty()) {
-        return std::nullopt;
+    const int tableWidth = ComputeIntegralTableWidth(sixSigma);
+    UniqueKey key;
+    {
+        static const UniqueKey::Domain kRectBlurDomain = UniqueKey::GenerateDomain();
+        UniqueKey::Builder builder(&key, kRectBlurDomain, 1, "BlurredRectIntegralTable");
+        builder[0] = tableWidth;
     }
+    sk_sp<TextureProxy> integral = recorder->priv().proxyCache()->findOrCreateCachedProxy(
+            recorder, key, &tableWidth,
+            [](const void* context) {
+                int tableWidth = *static_cast<const int*>(context);
+                return CreateIntegralTable(tableWidth);
+            });
 
-    sk_sp<TextureProxy> integral = RecorderPriv::CreateCachedProxy(recorder, integralBitmap,
-                                                                   "BlurredRectIntegralTable");
     if (!integral) {
         return std::nullopt;
     }

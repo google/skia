@@ -252,12 +252,10 @@ const SkRuntimeEffect* GetBlur2DEffect(const SkISize& radii) {
 ///////////////////////////////////////////////////////////////////////////////
 
 // TODO: it seems like there should be some synergy with SkBlurMask::ComputeBlurProfile
-// TODO: maybe cache this on the cpu side?
-SkBitmap CreateIntegralTable(float sixSigma) {
+SkBitmap CreateIntegralTable(int width) {
     SkBitmap table;
 
-    int width = ComputeIntegralTableWidth(sixSigma);
-    if (width == 0) {
+    if (width <= 0) {
         return table;
     }
 

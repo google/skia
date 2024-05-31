@@ -144,7 +144,7 @@ void Compute1DBlurLinearKernel(float sigma,
 
 // Calculates the integral table for an analytic rectangle blur. The integral values are stored in
 // the red channel of the provided bitmap, which will be 1D with a 1-pixel height.
-SkBitmap CreateIntegralTable(float sixSigma);
+SkBitmap CreateIntegralTable(int width);
 
 // Returns the width of an integral table we will create for the given 6*sigma.
 int ComputeIntegralTableWidth(float sixSigma);
