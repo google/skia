@@ -331,9 +331,6 @@ void SkDevice::drawDevice(SkDevice* device,
                           const SkPaint& paint) {
     sk_sp<SkSpecialImage> deviceImage = device->snapSpecial();
     if (deviceImage) {
-#if defined(SK_DONT_PAD_LAYER_IMAGES)
-        this->drawSpecial(deviceImage.get(), device->getRelativeTransform(*this), sampling, paint);
-#else
         // SkCanvas only calls drawDevice() when there are no filters (so the transform is pixel
         // aligned). As such it can be drawn without clamping.
         SkMatrix relativeTransform = device->getRelativeTransform(*this);
@@ -344,7 +341,6 @@ void SkDevice::drawDevice(SkDevice* device,
         this->drawSpecial(deviceImage.get(), relativeTransform, sampling, paint,
                           strict ? SkCanvas::kStrict_SrcRectConstraint
                                  : SkCanvas::kFast_SrcRectConstraint);
-#endif
     }
 }
 

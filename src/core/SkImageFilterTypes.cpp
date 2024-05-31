@@ -530,11 +530,7 @@ public:
                 bool renderInParameterSpace,
                 const SkSurfaceProps* props = nullptr)
             : fDstBounds(dstBounds)
-#if defined(SK_DONT_PAD_LAYER_IMAGES)
-            , fBoundary(PixelBoundary::kUnknown) {
-#else
             , fBoundary(boundary) {
-#endif
         // We don't intersect by ctx.desiredOutput() and only use the Context to make the surface.
         // It is assumed the caller has already accounted for the desired output, or it's a
         // situation where the desired output shouldn't apply (e.g. this surface will be transformed
