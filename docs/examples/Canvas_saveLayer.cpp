@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=42318b18d403e17e07a541652da91ee2
 REG_FIDDLE(Canvas_saveLayer, 256, 128, false, 0) {
 #include "include/effects/SkImageFilters.h"
 

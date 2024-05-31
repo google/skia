@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=af3adcbea7b58bf90298ca5e0ea93030
 REG_FIDDLE(Bitmap_setAlphaType, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     const char* colors[] = { "Unknown", "Alpha_8", "RGB_565", "ARGB_4444", "RGBA_8888", "RGB_888x",

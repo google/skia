@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=67b6609471a3f1ed0f4b1657004cdecb
 REG_FIDDLE(Surface_MakeRenderTarget, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);

@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=bc9c7ea424d10bbcd1e5a88770d4794e
 REG_FIDDLE(Alpha_Constants_a, 256, 128, false, 1) {
 void draw(SkCanvas* canvas) {
     std::vector<int32_t> srcPixels;

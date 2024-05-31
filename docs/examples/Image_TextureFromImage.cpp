@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=eeec9e07e604b44d0208899a2fe5bef5
 REG_FIDDLE(Image_TextureFromImage, 256, 256, false, 5) {
 void draw(SkCanvas* canvas) {
     auto dContext = GrAsDirectContext(canvas->recordingContext());

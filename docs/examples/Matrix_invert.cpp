@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=0e03cd9f154603ed4b21ca56d69dae44
 REG_FIDDLE(Matrix_invert, 256, 128, false, 0) {
 void draw(SkCanvas* canvas) {
     const SkPoint src[] = { { 10, 120}, {120, 120}, {120, 10}, {  10, 10} };

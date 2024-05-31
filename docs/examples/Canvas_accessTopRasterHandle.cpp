@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "tools/fiddle/examples.h"
-// HASH=4486d0c0b22ad2931db130f42da4c80c
 REG_FIDDLE(Canvas_accessTopRasterHandle, 256, 256, true, 0) {
 static void DeleteCallback(void*, void* context) {
     delete (char*) context;

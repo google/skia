@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=ead6bdcf2ae77ec19a1c5a96f5b31af8
 REG_FIDDLE(IRect_setLTRB, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkIRect rect1 = {3, 4, 1, 2};

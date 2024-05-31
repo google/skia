@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=a8b8bd4bfe968e2c63085f867665227f
 REG_FIDDLE(Image_isLazyGenerated_a, 256, 80, false, 0) {
 class TestImageGenerator : public SkImageGenerator {
 public:

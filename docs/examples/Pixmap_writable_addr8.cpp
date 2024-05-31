@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=809284db136748208b3efc31cd89de29
 REG_FIDDLE(Pixmap_writable_addr8, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     uint8_t storage[][5] = {{ 0,   0,  64,   0,  0},

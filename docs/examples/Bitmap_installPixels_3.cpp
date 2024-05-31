@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=6e2a8c9358b34aebd2ec586815fe9d3a
 REG_FIDDLE(Bitmap_installPixels_3, 256, 64, false, 0) {
 void draw(SkCanvas* canvas) {
     uint8_t storage[][5] = {{ 0xCA, 0xDA, 0xCA, 0xC9, 0xA3 },

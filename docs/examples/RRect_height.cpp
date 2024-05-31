@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
 #include <cfloat>
-// HASH=5a3eb1755164a7becec33cec6e6eca31
 REG_FIDDLE(RRect_height, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkRRect unsorted = SkRRect::MakeRect({ 15, 25, 10, 20 });

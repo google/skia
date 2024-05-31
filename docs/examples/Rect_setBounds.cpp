@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=cf0da15f48aa54fd1889e7f913601710
 REG_FIDDLE(Rect_setBounds, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint points[] = {{3, 4}, {1, 2}, {5, 6}, {SK_ScalarNaN, 8}};

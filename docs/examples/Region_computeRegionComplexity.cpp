@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=c4984fefdcecdd1090be160f80939d87
 REG_FIDDLE(Region_computeRegionComplexity, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* label, const SkRegion& region) -> void {

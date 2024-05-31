@@ -1,7 +1,6 @@
 // Copyright 2019 Google LLC.
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 #include "tools/fiddle/examples.h"
-// HASH=3fdac2b2f48bd227d2e74234c260bc8e
 REG_FIDDLE(Modulate, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     auto drawSquare = [=](int dx, int dy, SkBlendMode mode, const char* label) -> void {
