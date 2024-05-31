@@ -647,7 +647,7 @@ $pure float2 $conical_grad_layout(float radius0,
     } else {
         // Focal/strip case.
         float c = dot(pos, pos) - radius0 * radius0;
-        float b = -2 * (dRadius * radius0 + pos.x);
+        float negB = 2 * (dRadius * radius0 + pos.x);
 
         float t;
         if (a == 0) {
@@ -657,10 +657,10 @@ $pure float2 $conical_grad_layout(float radius0,
             // It is highly unlikely that b and c would be 0 resulting in NaN, if b == 0 due to
             // a specific translation, it would result is +/-Inf which propogates the sign to
             // isValid resulting in how the pixel is expected to look.
-            t = -c / b;
+            t = c / negB;
         } else {
             // Quadratic case
-            float d = b*b - 4*a*c;
+            float d = negB*negB - 4*a*c;
             if (d < 0) {
                 return float2(0, -1);
             }
@@ -668,8 +668,8 @@ $pure float2 $conical_grad_layout(float radius0,
             // T should be as large as possible, so when one circle fully encloses the other,
             // the sign will be positive or negative depending on the sign of dRadius.
             // When this isn't the case and they form a cone, the sign will always be positive.
-            float sign = sign(1 - dRadius);
-            t = invA * (-b + sign * sqrt(d));
+            float quadSign = sign(1 - dRadius);
+            t = invA * (negB + quadSign * sqrt(d));
         }
 
         // Interpolated radius must be positive.
