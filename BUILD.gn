@@ -3023,21 +3023,6 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac)) {
-    test_app("HelloWorld") {
-      sources = [ "example/HelloWorld.cpp" ]
-      libs = []
-
-      deps = [
-        ":flags",
-        ":gpu_tool_utils",
-        ":sk_app",
-        ":skia",
-        ":tool_utils",
-      ]
-    }
-  }
-
   if (skia_use_vulkan) {
     test_app("VulkanBasic") {
       # Bots and even devs may not have Vulkan headers, so put
