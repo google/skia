@@ -409,4 +409,84 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest9,
     REPORTER_ASSERT(r, resourceCache->topOfPurgeableQueue() == nullptr);
 }
 
+static sk_sp<TextureProxy> find_or_create_by_key(Recorder* recorder, int id, bool* regenerated) {
+    *regenerated = false;
+
+    skgpu::UniqueKey key;
+    {
+        static const skgpu::UniqueKey::Domain kTestDomain = UniqueKey::GenerateDomain();
+        UniqueKey::Builder builder(&key, kTestDomain, 1, "TestExplicitKey");
+        builder[0] = id;
+    }
+
+    struct Context {
+        int id;
+        bool* regenerated;
+    } params { id, regenerated };
+
+    return recorder->priv().proxyCache()->findOrCreateCachedProxy(
+            recorder, key, &params,
+            [](const void* context) {
+                const Context* params = static_cast<const Context*>(context);
+                *params->regenerated = true;
+
+                SkBitmap bm;
+                if (params->id == 1) {
+                    if (!ToolUtils::GetResourceAsBitmap("images/mandrill_32.png", &bm)) {
+                        return SkBitmap();
+                    }
+                } else if (!ToolUtils::GetResourceAsBitmap("images/mandrill_64.png", &bm)) {
+                    return SkBitmap();
+                }
+                return bm;
+            });
+}
+
+// Verify that the ProxyCache's explicit keying only generates the bitmaps as needed.
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ProxyCacheTest10,
+                                               r,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNextRelease) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ProxyCache* proxyCache = recorder->priv().proxyCache();
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
+
+    bool regenerated;
+    sk_sp<TextureProxy> proxy1 = find_or_create_by_key(recorder.get(), 1, &regenerated);
+    REPORTER_ASSERT(r, proxy1 && proxy1->dimensions().width() == 32);
+    REPORTER_ASSERT(r, regenerated);
+
+    sk_sp<TextureProxy> proxy2 = find_or_create_by_key(recorder.get(), 2, &regenerated);
+    REPORTER_ASSERT(r, proxy2 && proxy2->dimensions().width() == 64);
+    REPORTER_ASSERT(r, regenerated);
+
+    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
+
+    // These cached proxies shouldn't be deleted because we hold local refs still
+    proxyCache->forceFreeUniquelyHeld();
+    REPORTER_ASSERT(r, proxyCache->numCached() == 2);
+
+    // Cache hit should not invoke the bitmap generation function.
+    sk_sp<TextureProxy> proxy1b = find_or_create_by_key(recorder.get(), 1, &regenerated);
+    REPORTER_ASSERT(r, proxy1.get() == proxy1b.get());
+    REPORTER_ASSERT(r, !regenerated);
+
+    proxy1.reset();
+    proxy1b.reset();
+    proxy2.reset();
+    (void) recorder->snap(); // Dump pending commands to release internal refs to the cached proxies
+
+    // Now the cache should clean the cache entries up
+    proxyCache->forceFreeUniquelyHeld();
+    REPORTER_ASSERT(r, proxyCache->numCached() == 0);
+
+    // And regeneration functions as expected
+    proxy1 = find_or_create_by_key(recorder.get(), 1, &regenerated);
+    REPORTER_ASSERT(r, proxy1 && proxy1->dimensions().width() == 32);
+    REPORTER_ASSERT(r, regenerated);
+}
+
 }  // namespace skgpu::graphite

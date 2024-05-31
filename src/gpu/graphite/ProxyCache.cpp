@@ -67,31 +67,51 @@ ProxyCache::ProxyCache(uint32_t recorderID) : fInvalidUniqueKeyInbox(recorderID)
 
 ProxyCache::~ProxyCache() {}
 
-uint32_t ProxyCache::UniqueKeyHash::operator()(const skgpu::UniqueKey& key) const {
+uint32_t ProxyCache::UniqueKeyHash::operator()(const UniqueKey& key) const {
     return key.hash();
 }
 
 sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
                                                         const SkBitmap& bitmap,
                                                         std::string_view label) {
-    this->processInvalidKeyMsgs();
 
     skgpu::UniqueKey key;
     make_bitmap_key(&key, bitmap);
+    return this->findOrCreateCachedProxy(
+            recorder, key, &bitmap,
+            [](const void* context) { return *static_cast<const SkBitmap*>(context); },
+            label);
+}
+
+sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
+                                                        const UniqueKey& key,
+                                                        BitmapGeneratorContext context,
+                                                        BitmapGeneratorFn generator,
+                                                        std::string_view label) {
+    this->processInvalidKeyMsgs();
 
     if (sk_sp<TextureProxy>* cached = fCache.find(key)) {
-        if (Resource* resource = (*cached)->texture(); resource) {
+        if (Resource* resource = (*cached)->texture()) {
             resource->updateAccessTime();
         }
         return *cached;
     }
 
-    auto [ view, ct ] = MakeBitmapProxyView(recorder,bitmap, nullptr, Mipmapped::kNo,
-                                            skgpu::Budgeted::kYes, std::move(label));
+    SkBitmap bitmap = generator(context);
+    if (bitmap.empty()) {
+        return nullptr;
+    }
+    auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr, Mipmapped::kNo,
+                                            Budgeted::kYes, label.empty() ? key.tag() : label);
     if (view) {
-        auto listener = make_unique_key_invalidation_listener(key, recorder->priv().uniqueID());
-        bitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
-
+        // Since if the bitmap is held by more than just this function call (e.g. it likely came
+        // from findOrCreateCachedProxy() that takes an existing SkBitmap), it's worth adding a
+        // listener to remove them from the cache automatically when no one holds on to it anymore.
+        const bool addListener = !bitmap.pixelRef()->unique();
+        if (addListener) {
+            auto listener = make_unique_key_invalidation_listener(key, recorder->priv().uniqueID());
+            bitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
+        }
         fCache.set(key, view.refProxy());
     }
     return view.refProxy();
