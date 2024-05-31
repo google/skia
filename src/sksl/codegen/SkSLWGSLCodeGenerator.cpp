@@ -4259,7 +4259,7 @@ void WGSLCodeGenerator::writeEnables() {
         this->writeLine("enable chromium_experimental_framebuffer_fetch;");
     }
     if (fProgram.fInterface.fOutputSecondaryColor) {
-        this->writeLine("enable chromium_internal_dual_source_blending;");
+        this->writeLine("enable dual_source_blending;");
     }
 }
 
