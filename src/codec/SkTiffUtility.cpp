@@ -64,6 +64,7 @@ static const uint8_t* get_entry_address(const SkData* data,
 static bool validate_ifd(const SkData* data,
                          bool littleEndian,
                          uint32_t ifdOffset,
+                         bool allowTruncated,
                          uint16_t* outNumEntries,
                          uint32_t* outNextIfdOffset) {
     const uint8_t* dataCurrent = data->bytes();
@@ -91,6 +92,13 @@ static bool validate_ifd(const SkData* data,
         SkCodecPrintf("Insufficient space (%u) to store all %u entries.\n",
                       static_cast<uint32_t>(data->size()),
                       numEntries);
+        if (allowTruncated) {
+            // Set the number of entries to the number of entries that can be fully read, and set
+            // the next IFD offset to 0 (indicating that there is no next IFD).
+            *outNumEntries = dataSize / kSizeEntry;
+            *outNextIfdOffset = 0;
+            return true;
+        }
         return false;
     }
 
@@ -104,6 +112,11 @@ static bool validate_ifd(const SkData* data,
     // Read the next IFD offset.
     if (dataSize < kSizeLong) {
         SkCodecPrintf("Insufficient space to store next IFD offset.\n");
+        if (allowTruncated) {
+            // Set the next IFD offset to 0 (indicating that there is no next IFD).
+            *outNextIfdOffset = 0;
+            return true;
+        }
         return false;
     }
 
@@ -133,10 +146,11 @@ bool SkTiffImageFileDirectory::ParseHeader(const SkData* data,
 }
 
 std::unique_ptr<SkTiffImageFileDirectory> SkTiffImageFileDirectory::MakeFromOffset(
-        sk_sp<SkData> data, bool littleEndian, uint32_t ifdOffset) {
+        sk_sp<SkData> data, bool littleEndian, uint32_t ifdOffset, bool allowTruncated) {
     uint16_t numEntries = 0;
     uint32_t nextOffset = 0;
-    if (!validate_ifd(data.get(), littleEndian, ifdOffset, &numEntries, &nextOffset)) {
+    if (!validate_ifd(
+                data.get(), littleEndian, ifdOffset, allowTruncated, &numEntries, &nextOffset)) {
         SkCodecPrintf("Failed to validate IFD.\n");
         return nullptr;
     }

@@ -98,8 +98,7 @@ static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
                             size_t size,
                             bool baseImageHasIsoVersion,
                             bool baseImageHasAdobeXmp,
-                            bool baseImageHasAppleExif,
-                            float baseImageAppleHdrHeadroom,
+                            std::optional<float> baseImageAppleHdrHeadroom,
                             SkGainmapInfo& outInfo,
                             sk_sp<SkData>& outData) {
     // Extract the SkData for this image.
@@ -147,8 +146,8 @@ static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
 
         // Next try for Apple gain map metadata. This does not require anything specific from the
         // base image.
-        if (!didPopulateInfo && baseImageHasAppleExif) {
-            didPopulateInfo = xmp->getGainmapInfoApple(baseImageAppleHdrHeadroom, &info);
+        if (!didPopulateInfo && baseImageAppleHdrHeadroom.has_value()) {
+            didPopulateInfo = xmp->getGainmapInfoApple(baseImageAppleHdrHeadroom.value(), &info);
         }
     }
 
@@ -172,16 +171,13 @@ bool SkJpegMetadataDecoderImpl::findGainmapImage(SkJpegSourceMgr* sourceMgr,
                                                  sk_sp<SkData>& outData,
                                                  SkGainmapInfo& outInfo) const {
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
-    SkExifMetadata baseExif(getExifMetadata(/*copyData=*/false));
+    SkExif::Metadata baseExif;
+    SkExif::Parse(baseExif, getExifMetadata(/*copyData=*/false).get());
     auto xmp = getXmpMetadata();
 
     // Determine if a support ISO 21496-1 gain map version is present in the base image.
     bool isoGainmapPresent =
             SkGainmapInfo::ParseVersion(getISOGainmapMetadata(/*copyData=*/false).get());
-
-    // Determine if Apple HDR headroom is indicated in the base image.
-    float appleHdrHeadroom = 1.f;
-    bool appleHdrHeadroomPresent = baseExif.getHdrHeadroom(&appleHdrHeadroom);
 
     // Determine if Adobe HDR gain map is indicated in the base image.
     bool adobeGainmapPresent = xmp && xmp->getGainmapInfoAdobe(nullptr);
@@ -215,8 +211,7 @@ bool SkJpegMetadataDecoderImpl::findGainmapImage(SkJpegSourceMgr* sourceMgr,
                                 mpImageSize,
                                 isoGainmapPresent,
                                 adobeGainmapPresent,
-                                appleHdrHeadroomPresent,
-                                appleHdrHeadroom,
+                                baseExif.fHdrHeadroom,
                                 outInfo,
                                 outData)) {
                 // If the GContainer also suggested an offset and size, assert that we found the
@@ -237,8 +232,7 @@ bool SkJpegMetadataDecoderImpl::findGainmapImage(SkJpegSourceMgr* sourceMgr,
                             containerGainmapSize,
                             /*baseImageHasIsoVersion=*/false,
                             adobeGainmapPresent,
-                            /*baseImageHasAppleExif=*/false,
-                            /*baseImageAppleHdrHeadroom=*/1.0,
+                            /*baseImageAppleHdrHeadroom=*/std::nullopt,
                             outInfo,
                             outData)) {
             return true;

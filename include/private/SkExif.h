@@ -9,94 +9,47 @@
 #define SkExif_DEFINED
 
 #include "include/codec/SkEncodedOrigin.h"
-#include "include/core/SkData.h"
-#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAPI.h"
 
 #include <cstdint>
+#include <optional>
 
-class SK_API SkExifMetadata {
-public:
-    /*
-     * Parse the metadata specified in |data|.
-     */
-    SkExifMetadata(const sk_sp<SkData> data);
+class SkData;
 
-    /*
-     * If the image encoded origin is specified, populate |out| and return true. Otherwise return
-     * false.
-     */
-    bool getOrigin(SkEncodedOrigin* out) const {
-        if (fOriginPresent && out) *out = fOriginValue;
-        return fOriginPresent;
-    }
+namespace SkExif {
 
-    /*
-     * If the HDR headroom is specified, populate |out| and return true. Otherwise return false.
-     */
-    bool getHdrHeadroom(float* out) const {
-        if (fHdrHeadroomPresent && out) *out = fHdrHeadroomValue;
-        return fHdrHeadroomPresent;
-    }
+// Tag values that are parsed by Parse and stored in Metadata.
+static constexpr uint16_t kOriginTag = 0x112;
+static constexpr uint16_t kResolutionUnitTag = 0x0128;
+static constexpr uint16_t kXResolutionTag = 0x011a;
+static constexpr uint16_t kYResolutionTag = 0x011b;
+static constexpr uint16_t kPixelXDimensionTag = 0xa002;
+static constexpr uint16_t kPixelYDimensionTag = 0xa003;
 
-    /*
-     * If resolution unit, x, or y is specified, populate |out| and return true. Otherwise return
-     * false.
-     */
-    bool getResolutionUnit(uint16_t* out) const {
-        if (fResolutionUnitPresent && out) *out = fResolutionUnitValue;
-        return fResolutionUnitPresent;
-    }
-    bool getXResolution(float* out) const {
-        if (fXResolutionPresent && out) *out = fXResolutionValue;
-        return fXResolutionPresent;
-    }
-    bool getYResolution(float* out) const {
-        if (fYResolutionPresent && out) *out = fYResolutionValue;
-        return fYResolutionPresent;
-    }
-
-    /*
-     * If pixel dimension x or y is specified, populate |out| and return true. Otherwise return
-     * false.
-     */
-    bool getPixelXDimension(uint32_t* out) const {
-        if (fPixelXDimensionPresent && out) *out = fPixelXDimensionValue;
-        return fPixelXDimensionPresent;
-    }
-    bool getPixelYDimension(uint32_t* out) const {
-        if (fPixelYDimensionPresent && out) *out = fPixelYDimensionValue;
-        return fPixelYDimensionPresent;
-    }
-
-private:
-    // Helper functions and constants for parsing the data.
-    void parseIfd(uint32_t ifdOffset, bool littleEndian, bool isRoot);
-
-    // The input data.
-    const sk_sp<SkData> fData;
-
-    // The origin property.
-    bool fOriginPresent = false;
-    SkEncodedOrigin fOriginValue = kTopLeft_SkEncodedOrigin;
+struct Metadata {
+    // The image orientation.
+    std::optional<SkEncodedOrigin> fOrigin;
 
     // The HDR headroom property.
-    bool fHdrHeadroomPresent = false;
-    float fHdrHeadroomValue = 1.f;
+    // https://developer.apple.com/documentation/appkit/images_and_pdf/applying_apple_hdr_effect_to_your_photos
+    std::optional<float> fHdrHeadroom;
 
     // Resolution.
-    bool fResolutionUnitPresent = false;
-    uint16_t fResolutionUnitValue = 0;
-    bool fXResolutionPresent = false;
-    float fXResolutionValue = 0;
-    bool fYResolutionPresent = false;
-    float fYResolutionValue = 0;
+    std::optional<uint16_t> fResolutionUnit;
+    std::optional<float> fXResolution;
+    std::optional<float> fYResolution;
 
     // Size in pixels.
-    bool fPixelXDimensionPresent = false;
-    uint32_t fPixelXDimensionValue = 0;
-    bool fPixelYDimensionPresent = false;
-    uint32_t fPixelYDimensionValue = 0;
+    std::optional<uint32_t> fPixelXDimension;
+    std::optional<uint32_t> fPixelYDimension;
 };
+
+/*
+ * Parse the metadata specified in |data| and write them to |metadata|. Stop only at an
+ * unrecoverable error (allow truncated input).
+ */
+void SK_API Parse(Metadata& metadata, const SkData* data);
+
+}  // namespace SkExif
 
 #endif

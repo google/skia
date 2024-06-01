@@ -30,11 +30,13 @@ public:
 
     /*
      * Create an object for parsing an IFD at offset |ifdOffset| inside |data| which has endianness
-     * indicated by |littleEndian|.
+     * indicated by |littleEndian|. If |allowTruncated| is true, then parse as much of |data| as is
+     * possible, otherwise reject any incomplete IFDs.
      */
     static std::unique_ptr<SkTiffImageFileDirectory> MakeFromOffset(sk_sp<SkData> data,
                                                                     bool littleEndian,
-                                                                    uint32_t ifdOffset);
+                                                                    uint32_t ifdOffset,
+                                                                    bool allowTruncated = false);
 
     /*
      * Return the number of entries.
