@@ -1,0 +1,21 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+uniform half4 colorWhite;
+float4 main(float2 )
+{
+	half4 result = colorGreen;
+	bool trueCondition = bool(colorGreen.y);
+	bool falseCondition = bool(colorGreen.x);
+	if (trueCondition) 
+	{
+		if (falseCondition) 
+		{
+			result = colorRed;
+		}
+	}
+	else 
+	{
+		result = colorRed;
+	}
+	return half4(float4(result));
+}

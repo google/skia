@@ -1,0 +1,26 @@
+24 instructions
+
+store_src_rg                   v0..1 = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_4_uniforms                result = colorGreen
+copy_uniform                   $0 = colorGreen(1)
+cmpne_imm_float                $0 = notEqual($0, 0)
+copy_slot_unmasked             trueCondition = $0
+copy_uniform                   $0 = colorGreen(0)
+cmpne_imm_float                $0 = notEqual($0, 0)
+copy_slot_unmasked             falseCondition = $0
+store_condition_mask           $0 = CondMask
+copy_slot_unmasked             $1 = trueCondition
+merge_condition_mask           CondMask = $0 & $1
+store_condition_mask           $2 = CondMask
+copy_slot_unmasked             $3 = falseCondition
+merge_condition_mask           CondMask = $2 & $3
+copy_4_uniforms                $4..7 = colorRed
+copy_4_slots_masked            result = Mask($4..7)
+load_condition_mask            CondMask = $2
+merge_inv_condition_mask       CondMask = $0 & ~$1
+copy_4_uniforms                $2..5 = colorRed
+copy_4_slots_masked            result = Mask($2..5)
+load_condition_mask            CondMask = $0
+copy_4_slots_unmasked          $0..3 = result
+load_src                       src.rgba = $0..3
