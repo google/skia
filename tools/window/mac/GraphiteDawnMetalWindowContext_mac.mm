@@ -89,11 +89,7 @@ bool GraphiteDawnMetalWindowContext_mac::onInitializeContext() {
     return true;
 }
 
-void GraphiteDawnMetalWindowContext_mac::onDestroyContext() {
-    fMetalLayer = nil;
-    fMainView.layer = nil;
-    fMainView.wantsLayer = NO;
-}
+void GraphiteDawnMetalWindowContext_mac::onDestroyContext() {}
 
 void GraphiteDawnMetalWindowContext_mac::resize(int w, int h) {
     if (!this->resizeInternal()) {
