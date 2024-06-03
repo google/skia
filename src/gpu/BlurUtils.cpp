@@ -548,7 +548,8 @@ SkBitmap CreateRRectBlurMask(const SkRRect& rrectToDraw, const SkISize& dimensio
     std::unique_ptr<float[]> kernel(new float[kernelSize]);
     skgpu::Compute1DBlurKernel(sigma, radius, SkSpan<float>(kernel.get(), kernelSize));
 
-    SkBitmap integral = CreateIntegralTable(6.0f * sigma);
+    const int tableWidth = ComputeIntegralTableWidth(6.0f * sigma);
+    SkBitmap integral = CreateIntegralTable(tableWidth);
     if (integral.empty()) {
         return {};
     }
