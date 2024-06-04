@@ -26,6 +26,7 @@ namespace skcms_private {
     M(load_8888)          \
     M(load_1010102)       \
     M(load_101010x_XR)    \
+    M(load_10101010_XR)   \
     M(load_161616LE)      \
     M(load_16161616LE)    \
     M(load_161616BE)      \
