@@ -2945,6 +2945,7 @@ if (skia_enable_tools) {
         "tools/viewer/TimingSlide.cpp",
         "tools/viewer/TouchGesture.cpp",
         "tools/viewer/TouchGesture.h",
+        "tools/viewer/TypefaceSlide.cpp",
         "tools/viewer/VariableWidthStrokerSlide.cpp",
         "tools/viewer/Viewer.cpp",
         "tools/viewer/Viewer.h",

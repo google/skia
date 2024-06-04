@@ -1398,10 +1398,10 @@ void Viewer::setupCurrentSlide() {
 void Viewer::changeZoomLevel(float delta) {
     fZoomLevel += delta;
     fZoomLevel = SkTPin(fZoomLevel, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
-    this->preTouchMatrixChanged();
+    this->updateGestureTransLimit();
 }
 
-void Viewer::preTouchMatrixChanged() {
+void Viewer::updateGestureTransLimit() {
     // Update the trans limit as the transform changes.
     const SkRect slideBounds = SkRect::Make(this->currentSlideSize());
     const SkRect windowRect = SkRect::MakeIWH(fWindow->width(), fWindow->height());
@@ -1863,6 +1863,9 @@ void Viewer::drawSlide(SkSurface* surface) {
         paint.setColor(0x40FFFF00);
         canvas->drawRect(r, paint);
     }
+
+    // Allow drawing to update the slide bounds.
+    this->updateGestureTransLimit();
 }
 
 void Viewer::onBackendCreated() {
@@ -2316,7 +2319,7 @@ void Viewer::drawImGui() {
 
             if (ImGui::CollapsingHeader("Transform")) {
                 if (ImGui::Checkbox("Apply Backing Scale", &fApplyBackingScale)) {
-                    this->preTouchMatrixChanged();
+                    this->updateGestureTransLimit();
                     this->onResize(fWindow->width(), fWindow->height());
                     // This changes how we manipulate the canvas transform, it's not changing the
                     // window's actual parameters.
@@ -2326,33 +2329,33 @@ void Viewer::drawImGui() {
                 float zoom = fZoomLevel;
                 if (ImGui::SliderFloat("Zoom", &zoom, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL)) {
                     fZoomLevel = zoom;
-                    this->preTouchMatrixChanged();
+                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                 }
                 float deg = fRotation;
                 if (ImGui::SliderFloat("Rotate", &deg, -30, 360, "%.3f deg")) {
                     fRotation = deg;
-                    this->preTouchMatrixChanged();
+                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                 }
                 if (ImGui::CollapsingHeader("Subpixel offset", ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
                     if (ImGui_DragLocation(&fOffset)) {
-                        this->preTouchMatrixChanged();
+                        this->updateGestureTransLimit();
                         uiParamsChanged = true;
                     }
                 } else if (fOffset != SkVector{0.5f, 0.5f}) {
-                    this->preTouchMatrixChanged();
+                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                     fOffset = {0.5f, 0.5f};
                 }
                 int perspectiveMode = static_cast<int>(fPerspectiveMode);
                 if (ImGui::Combo("Perspective", &perspectiveMode, "Off\0Real\0Fake\0\0")) {
                     fPerspectiveMode = static_cast<PerspectiveMode>(perspectiveMode);
-                    this->preTouchMatrixChanged();
+                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                 }
                 if (perspectiveMode != kPerspective_Off && ImGui_DragQuad(fPerspectivePoints)) {
-                    this->preTouchMatrixChanged();
+                    this->updateGestureTransLimit();
                     uiParamsChanged = true;
                 }
             }

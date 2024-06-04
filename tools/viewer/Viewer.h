@@ -166,7 +166,7 @@ private:
     void drawImGui();
 
     void changeZoomLevel(float delta);
-    void preTouchMatrixChanged();
+    void updateGestureTransLimit();
     SkMatrix computePreTouchMatrix();
     SkMatrix computePerspectiveMatrix();
     SkMatrix computeMatrix();
