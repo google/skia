@@ -327,17 +327,46 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRRect(Recorder* recorder,
     newRadii[2] = {SkScalarCeilToScalar(devRadiiLR.fX), SkScalarCeilToScalar(devRadiiLR.fY)};
     newRadii[3] = {SkScalarCeilToScalar(devRadiiLL.fX), SkScalarCeilToScalar(devRadiiLL.fY)};
 
-    SkRRect rrectToDraw;
-    rrectToDraw.setRectRadii(newRect, newRadii);
-    const SkISize dimensions =
-            SkISize::Make(newRRWidth + 2 * devBlurRadius, newRRHeight + 2 * devBlurRadius);
-    SkBitmap ninePatchBitmap = skgpu::CreateRRectBlurMask(rrectToDraw, dimensions, devSigma);
-    if (ninePatchBitmap.empty()) {
-        return std::nullopt;
-    }
+    // NOTE: SkRRect does not satisfy std::has_unique_object_representation because NaN's in float
+    // values violate that, but all SkRRects that get here will be finite so it's not really a
+    // an issue for hashing the data directly.
+    SK_BEGIN_REQUIRE_DENSE
+    struct DerivedParams {
+        SkRRect fRRectToDraw;
+        SkISize fDimensions;
+        float   fDevSigma;
+    } params;
+    SK_END_REQUIRE_DENSE
 
-    sk_sp<TextureProxy> ninePatch = RecorderPriv::CreateCachedProxy(recorder, ninePatchBitmap,
-                                                                    "BlurredRRectNinePatch");
+    params.fRRectToDraw.setRectRadii(newRect, newRadii);
+    params.fDimensions =
+            SkISize::Make(newRRWidth + 2 * devBlurRadius, newRRHeight + 2 * devBlurRadius);
+    params.fDevSigma = devSigma;
+
+    // TODO(b/343684954, b/338032240): This is just generating a blurred rrect mask image on the CPU
+    // and uploading it. We should either generate them on the GPU and cache them here, or if we
+    // have a general-purpose blur mask cache, then there's no reason rrects couldn't just use that
+    // since this "analytic" blur isn't actually simplifying work like the circle and rect case.
+    // That would also allow us to support arbitrary blurred rrects and not just ninepatch rrects.
+    static const UniqueKey::Domain kRRectBlurDomain = UniqueKey::GenerateDomain();
+    UniqueKey key;
+    {
+        static constexpr int kKeySize = sizeof(DerivedParams) / sizeof(uint32_t);
+        static_assert(SkIsAlign4(sizeof(DerivedParams)));
+        // TODO: We should discretize the sigma to perceptibly meaningful changes to the table,
+        // as well as the underlying the round rect geometry.
+        UniqueKey::Builder builder(&key, kRRectBlurDomain, kKeySize, "BlurredRRectNinePatch");
+        memcpy(&builder[0], &params, sizeof(DerivedParams));
+    }
+    sk_sp<TextureProxy> ninePatch = recorder->priv().proxyCache()->findOrCreateCachedProxy(
+            recorder, key, &params,
+            [](const void* context) {
+                const DerivedParams* params = static_cast<const DerivedParams*>(context);
+                return CreateRRectBlurMask(params->fRRectToDraw,
+                                           params->fDimensions,
+                                           params->fDevSigma);
+            });
+
     if (!ninePatch) {
         return std::nullopt;
     }
