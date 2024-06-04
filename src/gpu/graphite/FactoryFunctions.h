@@ -127,6 +127,14 @@ namespace PrecompileImageFilters {
             SkSpan<const sk_sp<PrecompileColorFilter>> colorFilterOptions,
             sk_sp<PrecompileImageFilter> input);
 
+    // This is the Precompile correlate to all of SkImageFilters::
+    //      DistantLitDiffuse,  PointLitDiffuse,  SpotLitDiffuse
+    //      DistantLitSpecular, PointLitSpecular, SpotLitSpecular
+    SK_API sk_sp<PrecompileImageFilter> Lighting(sk_sp<PrecompileImageFilter> input);
+
+    // This is the Precompile correlate to SkImageFilters::Erode and SkImageFilters::Dilate
+    SK_API sk_sp<PrecompileImageFilter> Morphology(sk_sp<PrecompileImageFilter> input);
+
 } // namespace PrecompileImageFilters
 
 //--------------------------------------------------------------------------------------------------

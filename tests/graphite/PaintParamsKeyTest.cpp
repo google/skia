@@ -1183,19 +1183,17 @@ std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> colorfilter_imagef
 
     sk_sp<SkImageFilter> cfIF = SkImageFilters::ColorFilter(std::move(cf), /* input= */ nullptr);
     sk_sp<PrecompileImageFilter> cfIFO = PrecompileImageFilters::ColorFilter({ std::move(o)},
-                                                                             /* input= */ {});
+                                                                             /* input= */ nullptr);
 
     return { std::move(cfIF), std::move(cfIFO) };
 }
 
 std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> lighting_imagefilter(
-        SkRandom* rand,
-        SkEnumBitMask<PrecompileImageFilterFlags>* imageFilterMask) {
+        SkRandom* rand) {
     static constexpr SkPoint3 kLocation{10.0f, 2.0f, 30.0f};
     static constexpr SkPoint3 kTarget{0, 0, 0};
     static constexpr SkPoint3 kDirection{0, 1, 0};
 
-    *imageFilterMask |= PrecompileImageFilterFlags::kLighting;
     sk_sp<SkImageFilter> lightingIF;
 
     int option = rand->nextULessThan(6);
@@ -1247,7 +1245,8 @@ std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> lighting_imagefilt
             break;
     }
 
-    return { std::move(lightingIF), nullptr };
+    sk_sp<PrecompileImageFilter> lightingO = PrecompileImageFilters::Lighting(/* input= */ nullptr);
+    return { std::move(lightingIF), std::move(lightingO) };
 }
 
 std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>>  matrix_convolution_imagefilter(
@@ -1283,8 +1282,7 @@ std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>>  matrix_convolutio
 }
 
 std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> morphology_imagefilter(
-        SkRandom* rand,
-        SkEnumBitMask<PrecompileImageFilterFlags>* imageFilterMask) {
+        SkRandom* rand) {
     static constexpr float kRadX = 2.0f, kRadY = 4.0f;
 
     sk_sp<SkImageFilter> morphologyIF;
@@ -1295,9 +1293,9 @@ std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> morphology_imagefi
         morphologyIF = SkImageFilters::Dilate(kRadX, kRadY, /* input= */ nullptr);
     }
     SkASSERT(morphologyIF);
-    *imageFilterMask |= PrecompileImageFilterFlags::kMorphology;
+    sk_sp<PrecompileImageFilter> option = PrecompileImageFilters::Morphology(/* input= */ nullptr);
 
-    return { std::move(morphologyIF), nullptr };
+    return { std::move(morphologyIF), std::move(option) };
 }
 
 std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> create_image_filter(
@@ -1316,11 +1314,11 @@ std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> create_image_filte
         case ImageFilterType::kDisplacement:
             return displacement_imagefilter(recorder, rand, imageFilterMask);
         case ImageFilterType::kLighting:
-            return lighting_imagefilter(rand, imageFilterMask);
+            return lighting_imagefilter(rand);
         case ImageFilterType::kMatrixConvolution:
             return matrix_convolution_imagefilter(rand, imageFilterMask);
         case ImageFilterType::kMorphology:
-            return morphology_imagefilter(rand, imageFilterMask);
+            return morphology_imagefilter(rand);
     }
 
     SkUNREACHABLE;

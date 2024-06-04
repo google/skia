@@ -1217,6 +1217,95 @@ sk_sp<PrecompileImageFilter> PrecompileImageFilters::ColorFilter(
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileLightingImageFilter : public PrecompileImageFilter {
+public:
+    PrecompileLightingImageFilter(SkSpan<sk_sp<PrecompileImageFilter>> inputs)
+            : PrecompileImageFilter(std::move(inputs)) {
+    }
+
+private:
+    void onCreatePipelines(
+            const KeyContext& keyContext,
+            PipelineDataGatherer* gatherer,
+            const PaintOptions::ProcessCombination& processCombination) const override {
+
+        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
+                PrecompileImageShaderFlags::kExcludeAlpha |
+                PrecompileImageShaderFlags::kExcludeCubic);
+
+        PaintOptions lighting;
+        lighting.setShaders({ PrecompileShadersPriv::Lighting(std::move(imageShader)) });
+
+        lighting.priv().buildCombinations(keyContext,
+                                          gatherer,
+                                          DrawTypeFlags::kSimpleShape,
+                                          /* withPrimitiveBlender= */ false,
+                                          Coverage::kSingleChannel,
+                                          processCombination);
+    }
+};
+
+sk_sp<PrecompileImageFilter> PrecompileImageFilters::Lighting(
+            sk_sp<PrecompileImageFilter> input) {
+    return sk_make_sp<PrecompileLightingImageFilter>(SkSpan(&input, 1));
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileMorphologyImageFilter : public PrecompileImageFilter {
+public:
+    PrecompileMorphologyImageFilter(SkSpan<sk_sp<PrecompileImageFilter>> inputs)
+            : PrecompileImageFilter(std::move(inputs)) {
+    }
+
+private:
+    void onCreatePipelines(
+            const KeyContext& keyContext,
+            PipelineDataGatherer* gatherer,
+            const PaintOptions::ProcessCombination& processCombination) const override {
+
+        // For morphology imagefilters we know we don't have alpha-only textures and don't need
+        // cubic filtering.
+        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
+            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
+
+        {
+            PaintOptions sparse;
+
+            static const SkBlendMode kBlendModes[] = { SkBlendMode::kSrc };
+            sparse.setShaders({ PrecompileShadersPriv::SparseMorphology(imageShader) });
+            sparse.setBlendModes(kBlendModes);
+
+            sparse.priv().buildCombinations(keyContext,
+                                            gatherer,
+                                            DrawTypeFlags::kSimpleShape,
+                                            /* withPrimitiveBlender= */ false,
+                                            Coverage::kSingleChannel,
+                                            processCombination);
+        }
+
+        {
+            PaintOptions linear;
+
+            static const SkBlendMode kBlendModes[] = { SkBlendMode::kSrcOver };
+            linear.setShaders({ PrecompileShadersPriv::LinearMorphology(std::move(imageShader)) });
+            linear.setBlendModes(kBlendModes);
+
+            linear.priv().buildCombinations(keyContext,
+                                            gatherer,
+                                            DrawTypeFlags::kSimpleShape,
+                                            /* withPrimitiveBlender= */ false,
+                                            Coverage::kSingleChannel,
+                                            processCombination);
+        }
+    }
+};
+
+sk_sp<PrecompileImageFilter> PrecompileImageFilters::Morphology(
+        sk_sp<PrecompileImageFilter> input) {
+    return sk_make_sp<PrecompileMorphologyImageFilter>(SkSpan(&input, 1));
+}
+
+//--------------------------------------------------------------------------------------------------
 // This class doesn't actually add any combinations to a given PaintOptions' combinatorics.
 // Its mere presence triggers the precompilation of the BlurImageFilter's Shaders.
 // TODO(b/342413572): the analytic blurmasks are triggered off of the simple DrawType thus

@@ -157,12 +157,10 @@ public:
 };
 
 enum class PrecompileImageFilterFlags : uint32_t {
-    kNone              = 0x00,
-    kBlur              = 0x01,
-    kDisplacement      = 0x02,
-    kLighting          = 0x04,
-    kMatrixConvolution = 0x08,
-    kMorphology        = 0x10,
+    kNone              = 0x0,
+    kBlur              = 0x1,
+    kDisplacement      = 0x2,
+    kMatrixConvolution = 0x4,
 };
 SK_MAKE_BITMASK_OPS(PrecompileImageFilterFlags)
 
@@ -200,6 +198,9 @@ public:
     }
     SkSpan<const sk_sp<PrecompileColorFilter>> colorFilters() const {
         return SkSpan<const sk_sp<PrecompileColorFilter>>(fColorFilterOptions);
+    }
+    void addColorFilter(sk_sp<PrecompileColorFilter> cf) {
+        fColorFilterOptions.push_back(std::move(cf));
     }
 
     void setBlendModes(SkSpan<const SkBlendMode> blendModes) {
