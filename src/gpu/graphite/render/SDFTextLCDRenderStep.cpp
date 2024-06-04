@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/render/SDFTextRenderStep.h"
+#include "src/gpu/graphite/render/SDFTextLCDRenderStep.h"
 
 #include "include/core/SkM44.h"
 #include "include/gpu/graphite/Recorder.h"
@@ -36,10 +36,11 @@ constexpr int kNumSDFAtlasTextures = 4;
 
 }  // namespace
 
-SDFTextRenderStep::SDFTextRenderStep()
-        : RenderStep("SDFTextRenderStep",
+SDFTextLCDRenderStep::SDFTextLCDRenderStep()
+        : RenderStep("SDFTextLCDRenderStep",
                      "",
-                     Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
+                     Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage |
+                     Flags::kLCDCoverage,
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
                                    {"deviceToLocal", SkSLType::kFloat4x4},
                                    {"atlasSizeInv", SkSLType::kFloat2},
@@ -60,9 +61,9 @@ SDFTextRenderStep::SDFTextRenderStep()
                       {"textureCoords", SkSLType::kFloat2},
                       {"texIndex", SkSLType::kFloat}}) {}
 
-SDFTextRenderStep::~SDFTextRenderStep() {}
+SDFTextLCDRenderStep::~SDFTextLCDRenderStep() {}
 
-std::string SDFTextRenderStep::vertexSkSL() const {
+std::string SDFTextLCDRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "texIndex = half(indexAndFlags.x);"
@@ -80,7 +81,7 @@ std::string SDFTextRenderStep::vertexSkSL() const {
                                                "stepLocalCoords);";
 }
 
-std::string SDFTextRenderStep::texturesAndSamplersSkSL(
+std::string SDFTextLCDRenderStep::texturesAndSamplersSkSL(
         const ResourceBindingRequirements& bindingReqs, int* nextBindingIndex) const {
     std::string result;
 
@@ -92,7 +93,7 @@ std::string SDFTextRenderStep::texturesAndSamplersSkSL(
     return result;
 }
 
-const char* SDFTextRenderStep::fragmentCoverageSkSL() const {
+const char* SDFTextLCDRenderStep::fragmentCoverageSkSL() const {
     // The returned SkSL must write its coverage into a 'half4 outputCoverage' variable (defined in
     // the calling code) with the actual coverage splatted out into all four channels.
 
@@ -112,9 +113,9 @@ const char* SDFTextRenderStep::fragmentCoverageSkSL() const {
                                                  "unormTexCoords);";
 }
 
-void SDFTextRenderStep::writeVertices(DrawWriter* dw,
-                                      const DrawParams& params,
-                                      skvx::ushort2 ssboIndices) const {
+void SDFTextLCDRenderStep::writeVertices(DrawWriter* dw,
+                                         const DrawParams& params,
+                                         skvx::ushort2 ssboIndices) const {
     const SubRunData& subRunData = params.geometry().subRunData();
     subRunData.subRun()->vertexFiller().fillInstanceData(dw,
                                                          subRunData.startGlyphIndex(),
@@ -125,8 +126,8 @@ void SDFTextRenderStep::writeVertices(DrawWriter* dw,
                                                          params.order().depthAsFloat());
 }
 
-void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                 PipelineDataGatherer* gatherer) const {
+void SDFTextLCDRenderStep::writeUniformsAndTextures(const DrawParams& params,
+                                                    PipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     const SubRunData& subRunData = params.geometry().subRunData();

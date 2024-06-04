@@ -1,12 +1,12 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_render_SDFTextRenderStep_DEFINED
-#define skgpu_graphite_render_SDFTextRenderStep_DEFINED
+#ifndef skgpu_graphite_render_SDFTextLCDRenderStep_DEFINED
+#define skgpu_graphite_render_SDFTextLCDRenderStep_DEFINED
 
 #include "src/gpu/graphite/Renderer.h"
 
@@ -14,11 +14,11 @@ namespace skgpu { enum class MaskFormat; }
 
 namespace skgpu::graphite {
 
-class SDFTextRenderStep final : public RenderStep {
+class SDFTextLCDRenderStep final : public RenderStep {
 public:
-    SDFTextRenderStep();
+    SDFTextLCDRenderStep();
 
-    ~SDFTextRenderStep() override;
+    ~SDFTextLCDRenderStep() override;
 
     std::string vertexSkSL() const override;
     std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,
@@ -31,4 +31,4 @@ public:
 
 }  // namespace skgpu::graphite
 
-#endif // skgpu_graphite_render_SDFTextRenderStep_DEFINED
+#endif // skgpu_graphite_render_SDFTextLCDRenderStep_DEFINED

@@ -189,6 +189,8 @@ skia_graphite_sources = [
   "$_src/render/MiddleOutFanRenderStep.h",
   "$_src/render/PerEdgeAAQuadRenderStep.cpp",
   "$_src/render/PerEdgeAAQuadRenderStep.h",
+  "$_src/render/SDFTextLCDRenderStep.cpp",
+  "$_src/render/SDFTextLCDRenderStep.h",
   "$_src/render/SDFTextRenderStep.cpp",
   "$_src/render/SDFTextRenderStep.h",
   "$_src/render/TessellateCurvesRenderStep.cpp",

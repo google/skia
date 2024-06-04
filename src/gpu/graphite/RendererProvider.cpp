@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/render/CoverageMaskRenderStep.h"
 #include "src/gpu/graphite/render/MiddleOutFanRenderStep.h"
 #include "src/gpu/graphite/render/PerEdgeAAQuadRenderStep.h"
+#include "src/gpu/graphite/render/SDFTextLCDRenderStep.h"
 #include "src/gpu/graphite/render/SDFTextRenderStep.h"
 #include "src/gpu/graphite/render/TessellateCurvesRenderStep.h"
 #include "src/gpu/graphite/render/TessellateStrokesRenderStep.h"
@@ -74,8 +75,10 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     for (bool lcd : {false, true}) {
         fBitmapText[lcd] = makeFromStep(std::make_unique<BitmapTextRenderStep>(lcd),
                                         DrawTypeFlags::kText);
-        fSDFText[lcd] = makeFromStep(std::make_unique<SDFTextRenderStep>(lcd),
-                                     DrawTypeFlags::kText);
+        fSDFText[lcd] = lcd ? makeFromStep(std::make_unique<SDFTextLCDRenderStep>(),
+                                           DrawTypeFlags::kText)
+                            : makeFromStep(std::make_unique<SDFTextRenderStep>(),
+                                           DrawTypeFlags::kText);
     }
     fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>(bufferManager),
                                   DrawTypeFlags::kSimpleShape);
