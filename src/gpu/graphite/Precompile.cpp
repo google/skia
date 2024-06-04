@@ -88,7 +88,11 @@ int PaintOptions::numShaderCombinations() const {
 int PaintOptions::numColorFilterCombinations() const {
     int numColorFilterCombinations = 0;
     for (const sk_sp<PrecompileColorFilter>& cf : fColorFilterOptions) {
-        numColorFilterCombinations += cf->numCombinations();
+        if (!cf) {
+            ++numColorFilterCombinations;
+        } else {
+            numColorFilterCombinations += cf->numCombinations();
+        }
     }
 
     // If no color filter options are specified we will use the unmodified result color
@@ -432,6 +436,7 @@ void create_image_drawing_pipelines(const KeyContext& keyContext,
     imagePaintOptions.setShaders({ imageShader });
     imagePaintOptions.setBlendModes(orig.blendModes());
     imagePaintOptions.setBlenders(orig.blenders());
+    imagePaintOptions.setColorFilters(orig.colorFilters());
 
     imagePaintOptions.priv().buildCombinations(keyContext,
                                                gatherer,
@@ -582,33 +587,74 @@ void PaintOptions::buildCombinations(
 
     PaintParamsKeyBuilder builder(keyContext.dict());
 
-    if (fImageFilterOptions != PrecompileImageFilters::kNone) {
+    if (fImageFilterFlags != PrecompileImageFilterFlags::kNone || !fImageFilterOptions.empty()) {
+        // TODO: split this out into a create_restore_draw_pipelines method
         PaintOptions tmp = *this;
 
         // When image filtering, the original blend mode is taken over by the restore paint
-        tmp.setImageFilters(PrecompileImageFilters::kNone);
+        tmp.setImageFilterFlags(PrecompileImageFilterFlags::kNone);
+        tmp.setImageFilters({});
         tmp.addBlendMode(SkBlendMode::kSrcOver);
+
+        if (!fImageFilterOptions.empty()) {
+            std::vector<sk_sp<PrecompileColorFilter>> newCFs(tmp.fColorFilterOptions.begin(),
+                                                             tmp.fColorFilterOptions.end());
+            if (newCFs.empty()) {
+                // TODO: I (robertphillips) believe this is unnecessary and is just a result of the
+                // base SkPaint generated in the PaintParamsKeyTest not correctly taking CFIFs into
+                // account.
+                newCFs.push_back(nullptr);
+            }
+
+            // As in SkCanvasPriv::ImageToColorFilter, we fuse CFIFs into the base draw's CFs.
+            // TODO: in SkCanvasPriv::ImageToColorFilter this fusing of CFIFs and CFs is skipped
+            // when there is a maskfilter. For now we over-generate.
+            for (const sk_sp<PrecompileImageFilter>& o : fImageFilterOptions) {
+                // This double level of precompilation options is a bit much. Perhaps we shouldn't
+                // allow precompilation image filters to have internal options (e.g., color filter
+                // options).
+                SkSpan<const sk_sp<PrecompileColorFilter>> iFCFs = o->colorFilterOptions();
+                for (const sk_sp<PrecompileColorFilter>& iFCF : iFCFs) {
+                    if (!tmp.fColorFilterOptions.empty()) {
+                        for (const sk_sp<PrecompileColorFilter>& cf : tmp.fColorFilterOptions) {
+                            // TODO: if a CFIF was fully handled here it should be removed from the
+                            // later loop over fImageFilterOptions. For now we over-generate.
+                            sk_sp<PrecompileColorFilter> newCF = iFCF->makeComposed(cf);
+                            newCFs.push_back(std::move(newCF));
+                        }
+                    } else {
+                        newCFs.push_back(iFCF);
+                    }
+                }
+            }
+
+            tmp.setColorFilters(newCFs);
+        }
 
         tmp.buildCombinations(keyContext, gatherer, drawTypes, withPrimitiveBlender, coverage,
                               processCombination);
 
         create_image_drawing_pipelines(keyContext, gatherer, processCombination, *this);
 
-        if (fImageFilterOptions & PrecompileImageFilters::kBlur) {
+        if (fImageFilterFlags & PrecompileImageFilterFlags::kBlur) {
             create_blur_imagefilter_pipelines(keyContext, gatherer, processCombination);
         }
-        if (fImageFilterOptions & PrecompileImageFilters::kDisplacement) {
+        if (fImageFilterFlags & PrecompileImageFilterFlags::kDisplacement) {
             create_displacement_imagefilter_pipelines(keyContext, gatherer, processCombination);
         }
-        if (fImageFilterOptions & PrecompileImageFilters::kLighting) {
+        if (fImageFilterFlags & PrecompileImageFilterFlags::kLighting) {
             create_lighting_imagefilter_pipelines(keyContext, gatherer, processCombination);
         }
-        if (fImageFilterOptions & PrecompileImageFilters::kMatrixConvolution) {
+        if (fImageFilterFlags & PrecompileImageFilterFlags::kMatrixConvolution) {
             create_matrix_convolution_imagefilter_pipelines(keyContext, gatherer,
                                                             processCombination);
         }
-        if (fImageFilterOptions & PrecompileImageFilters::kMorphology) {
+        if (fImageFilterFlags & PrecompileImageFilterFlags::kMorphology) {
             create_morphology_imagefilter_pipelines(keyContext, gatherer, processCombination);
+        }
+
+        for (const sk_sp<PrecompileImageFilter>& o : fImageFilterOptions) {
+            o->createPipelines(keyContext, gatherer, processCombination);
         }
     } else {
         int numCombinations = this->numCombinations();

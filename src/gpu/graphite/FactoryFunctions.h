@@ -18,6 +18,7 @@ namespace skgpu::graphite {
 class PrecompileBase;
 class PrecompileBlender;
 class PrecompileColorFilter;
+class PrecompileImageFilter;
 class PrecompileMaskFilter;
 class PrecompileShader;
 
@@ -116,18 +117,26 @@ namespace PrecompileShaders {
 
 } // namespace PrecompileShaders
 
+namespace PrecompileImageFilters {
+    // This is the Precompile correlate to SkImageFilters::ColorFilter.
+    // Note: In order to make analysis tractable we only allow options for the internals of an
+    // ImageFilter but not in the structure of the DAG.
+    // TODO: Should we have a CropRect parameter or force clients to explicitly create
+    // a crop PrecompileImageFilter?
+    SK_API sk_sp<PrecompileImageFilter> ColorFilter(
+            SkSpan<const sk_sp<PrecompileColorFilter>> colorFilterOptions,
+            sk_sp<PrecompileImageFilter> input);
+
+} // namespace PrecompileImageFilters
+
 //--------------------------------------------------------------------------------------------------
 // Initially this will go next to SkMaskFilter in include/core/SkMaskFilter.h but the
 // SkMaskFilter::MakeBlur factory should be split out or removed. This namespace will follow
 // where ever that factory goes.
-class PrecompileMaskFilters {
-public:
+namespace PrecompileMaskFilters {
     // TODO: change SkMaskFilter::MakeBlur to match this and SkImageFilters::Blur (skbug.com/13441)
-    static sk_sp<PrecompileMaskFilter> Blur();
-
-private:
-    PrecompileMaskFilters() = delete;
-};
+    SK_API sk_sp<PrecompileMaskFilter> Blur();
+} // namespace PrecompileMaskFilters
 
 //--------------------------------------------------------------------------------------------------
 // This will move to be beside SkColorFilters in include/core/SkColorFilter.h

@@ -14,11 +14,13 @@
 #include "src/gpu/graphite/FactoryFunctionsPriv.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PrecompileBasePriv.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
+#include "src/gpu/graphite/Renderer.h"
 #include "src/shaders/SkShaderBase.h"
 
 namespace skgpu::graphite {
@@ -1163,6 +1165,55 @@ private:
 
 sk_sp<PrecompileShader> PrecompileShadersPriv::Lighting(sk_sp<PrecompileShader> wrapped) {
     return sk_make_sp<PrecompileLightingShader>(std::move(wrapped));
+}
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+class PrecompileColorFilterImageFilter : public PrecompileImageFilter {
+public:
+    PrecompileColorFilterImageFilter(SkSpan<const sk_sp<PrecompileColorFilter>> colorFilterOptions,
+                                     SkSpan<sk_sp<PrecompileImageFilter>> inputs)
+            : PrecompileImageFilter(std::move(inputs))
+            , fColorFilterOptions(colorFilterOptions.begin(), colorFilterOptions.end()) {
+    }
+
+private:
+    SkSpan<const sk_sp<PrecompileColorFilter>> onColorFilterOptions() const override {
+        return fColorFilterOptions;
+    }
+
+    void onCreatePipelines(
+            const KeyContext& keyContext,
+            PipelineDataGatherer* gatherer,
+            const PaintOptions::ProcessCombination& processCombination) const override {
+        PaintOptions paintOptions;
+
+        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
+                PrecompileImageShaderFlags::kExcludeAlpha |
+                PrecompileImageShaderFlags::kExcludeCubic);
+
+        static const SkBlendMode kBlendModes[] = { SkBlendMode::kDstOut };
+        paintOptions.setShaders({ std::move(imageShader) });
+        paintOptions.setColorFilters(fColorFilterOptions);
+        paintOptions.setBlendModes(kBlendModes);
+
+        paintOptions.priv().buildCombinations(keyContext,
+                                              gatherer,
+                                              DrawTypeFlags::kSimpleShape,
+                                              /* withPrimitiveBlender= */ false,
+                                              Coverage::kSingleChannel,
+                                              processCombination);
+    }
+
+    std::vector<sk_sp<PrecompileColorFilter>> fColorFilterOptions;
+};
+
+sk_sp<PrecompileImageFilter> PrecompileImageFilters::ColorFilter(
+        SkSpan<const sk_sp<PrecompileColorFilter>> colorFilterOptions,
+        sk_sp<PrecompileImageFilter> input) {
+    // TODO: handle the merging of colorFilters as in SkImageFilters::ColorFilter
+    return sk_make_sp<PrecompileColorFilterImageFilter>(std::move(colorFilterOptions),
+                                                        SkSpan(&input, 1));
 }
 
 //--------------------------------------------------------------------------------------------------
