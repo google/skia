@@ -1111,6 +1111,35 @@ $pure half4 sample_indexed_atlas(float2 textureCoords,
     }
 }
 
+$pure half3 $sample_indexed_atlas_lcd(float2 textureCoords,
+                                      int atlasIndex,
+                                      half2 offset,
+                                      sampler2D atlas0,
+                                      sampler2D atlas1,
+                                      sampler2D atlas2,
+                                      sampler2D atlas3) {
+    half3 distance = half3(1);
+    switch (atlasIndex) {
+        case 1:
+            distance.x = sample(atlas1, half2(textureCoords) - offset).r;
+            distance.y = sample(atlas1, textureCoords).r;
+            distance.z = sample(atlas1, half2(textureCoords) + offset).r;
+        case 2:
+            distance.x = sample(atlas2, half2(textureCoords) - offset).r;
+            distance.y = sample(atlas2, textureCoords).r;
+            distance.z = sample(atlas2, half2(textureCoords) + offset).r;
+        case 3:
+            distance.x = sample(atlas3, half2(textureCoords) - offset).r;
+            distance.y = sample(atlas3, textureCoords).r;
+            distance.z = sample(atlas3, half2(textureCoords) + offset).r;
+        default:
+            distance.x = sample(atlas0, half2(textureCoords) - offset).r;
+            distance.y = sample(atlas0, textureCoords).r;
+            distance.z = sample(atlas0, half2(textureCoords) + offset).r;
+    }
+    return distance;
+}
+
 $pure half4 bitmap_text_coverage_fn(half4 texColor, int maskFormat) {
     return (maskFormat == $kMaskFormatA8) ? texColor.rrrr
                                           : texColor;
@@ -1156,6 +1185,62 @@ $pure half4 sdf_text_coverage_fn(half texColor,
 
     // TODO: handle aliased and sRGB rendering
     return half4(smoothstep(-afwidth, afwidth, dist));
+}
+
+$pure half4 sdf_text_lcd_coverage_fn(float2 textureCoords,
+                                     half2 pixelGeometryDelta,
+                                     half3 distAdjust,
+                                     float2 unormTexCoords,
+                                     float texIndex,
+                                     sampler2D atlas0,
+                                     sampler2D atlas1,
+                                     sampler2D atlas2,
+                                     sampler2D atlas3) {
+    // TODO: To minimize the number of shaders generated this is the full affine shader.
+    // For best performance it may be worth creating the uniform scale shader as well,
+    // as that's the most common case.
+
+    half4 jacobian = half4(dFdx(unormTexCoords), dFdy(unormTexCoords));
+    half2 offset = half2(dot(pixelGeometryDelta, jacobian.xz),
+                         dot(pixelGeometryDelta, jacobian.yw));
+
+    half3 distance = $sample_indexed_atlas_lcd(textureCoords,
+                                               int(texIndex),
+                                               offset,
+                                               atlas0,
+                                               atlas1,
+                                               atlas2,
+                                               atlas3);
+    // The distance field is constructed as uchar8_t values, so that the zero value is at 128,
+    // and the supported range of distances is [-4 * 127/128, 4].
+    // Hence to convert to floats our multiplier (width of the range) is 4 * 255/128 = 7.96875
+    // and zero threshold is 128/255 = 0.50196078431.
+    half3 dist = half3(7.96875) * (distance - half3(0.50196078431));
+
+    // We may further adjust the distance for gamma correction.
+    dist -= distAdjust;
+
+    // After the distance is unpacked, we need to correct it by a factor dependent on the
+    // current transformation. For general transforms, to determine the amount of correction
+    // we multiply a unit vector pointing along the SDF gradient direction by the Jacobian of
+    // unormTexCoords (which is the inverse transform for this fragment) and take the length of
+    // the result.
+    half2 dist_grad = half2(dFdx(dist.g), dFdy(dist.g));
+    half dg_len2 = dot(dist_grad, dist_grad);
+
+    // The length of the gradient may be near 0, so we need to check for that. This also
+    // compensates for the Adreno, which likes to drop tiles on division by 0.
+    dist_grad = (dg_len2 >= 0.0001) ? dist_grad * inversesqrt(dg_len2)
+                                    : half2(0.7071);
+
+    // Multiplying the Jacobian by the gradient.
+    half2 grad = half2(dot(dist_grad, jacobian.xz), dot(dist_grad, jacobian.yw));
+
+    // This gives us a smooth step across approximately one fragment.
+    half afwidth = 0.65 * length(grad);
+
+    // TODO: handle aliased and sRGB rendering
+    return half4(smoothstep(half3(-afwidth), half3(afwidth), dist), 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

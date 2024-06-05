@@ -9,6 +9,8 @@
 
 #include "include/core/SkM44.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/base/SkCPUTypes.h"
+#include "src/core/SkMaskGamma.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawParams.h"
@@ -21,11 +23,6 @@
 #include "src/text/gpu/DistanceFieldAdjustTable.h"
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/VertexFiller.h"
-
-#if defined(SK_GAMMA_APPLY_TO_A8)
-#include "include/private/base/SkCPUTypes.h"
-#include "src/core/SkMaskGamma.h"
-#endif
 
 namespace skgpu::graphite {
 
@@ -44,7 +41,8 @@ SDFTextLCDRenderStep::SDFTextLCDRenderStep()
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
                                    {"deviceToLocal", SkSLType::kFloat4x4},
                                    {"atlasSizeInv", SkSLType::kFloat2},
-                                   {"distAdjust", SkSLType::kFloat}},
+                                   {"pixelGeometryDelta", SkSLType::kHalf2},
+                                   {"distAdjust", SkSLType::kHalf3}},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGEqualPass,
                      /*vertexAttrs=*/ {},
@@ -103,14 +101,15 @@ const char* SDFTextLCDRenderStep::fragmentCoverageSkSL() const {
     // TODO: Need to add 565 support.
     // TODO: Need aliased and possibly sRGB support.
     static_assert(kNumSDFAtlasTextures == 4);
-    return "outputCoverage = sdf_text_coverage_fn(sample_indexed_atlas(textureCoords, "
-                                                                      "int(texIndex), "
-                                                                      "sdf_atlas_0, "
-                                                                      "sdf_atlas_1, "
-                                                                      "sdf_atlas_2, "
-                                                                      "sdf_atlas_3).r, "
-                                                 "half(distAdjust), "
-                                                 "unormTexCoords);";
+    return "outputCoverage = sdf_text_lcd_coverage_fn(textureCoords, "
+                                                     "pixelGeometryDelta, "
+                                                     "distAdjust, "
+                                                     "unormTexCoords, "
+                                                     "texIndex, "
+                                                     "sdf_atlas_0, "
+                                                     "sdf_atlas_1, "
+                                                     "sdf_atlas_2, "
+                                                     "sdf_atlas_3);";
 }
 
 void SDFTextLCDRenderStep::writeVertices(DrawWriter* dw,
@@ -145,16 +144,28 @@ void SDFTextLCDRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                    1.f/proxies[0]->dimensions().height()};
     gatherer->write(atlasDimensionsInverse);
 
-    float gammaAdjustment = 0;
-    // TODO: generate LCD adjustment
-#if defined(SK_GAMMA_APPLY_TO_A8)
+    // compute and write pixelGeometry vector
+    SkV2 pixelGeometryDelta = {0, 0};
+    if (SkPixelGeometryIsH(subRunData.pixelGeometry())) {
+        pixelGeometryDelta = {1.f/(3*proxies[0]->dimensions().width()), 0};
+    } else if (SkPixelGeometryIsV(subRunData.pixelGeometry())) {
+        pixelGeometryDelta = {0, 1.f/(3*proxies[0]->dimensions().height())};
+    }
+    if (SkPixelGeometryIsBGR(subRunData.pixelGeometry())) {
+        pixelGeometryDelta = -pixelGeometryDelta;
+    }
+    gatherer->writeHalf(pixelGeometryDelta);
+
+    // compute and write gamma adjustment
     auto dfAdjustTable = sktext::gpu::DistanceFieldAdjustTable::Get();
-    // TODO: don't do this for aliased text
-    U8CPU lum = SkColorSpaceLuminance::computeLuminance(SK_GAMMA_EXPONENT,
-                                                        subRunData.luminanceColor());
-    gammaAdjustment = dfAdjustTable->getAdjustment(lum, subRunData.useGammaCorrectDistanceTable());
-#endif
-    gatherer->write(gammaAdjustment);
+    float redCorrection = dfAdjustTable->getAdjustment(SkColorGetR(subRunData.luminanceColor()),
+                                                       subRunData.useGammaCorrectDistanceTable());
+    float greenCorrection = dfAdjustTable->getAdjustment(SkColorGetG(subRunData.luminanceColor()),
+                                                         subRunData.useGammaCorrectDistanceTable());
+    float blueCorrection = dfAdjustTable->getAdjustment(SkColorGetB(subRunData.luminanceColor()),
+                                                        subRunData.useGammaCorrectDistanceTable());
+    SkPoint3 gammaAdjustment = {redCorrection, greenCorrection, blueCorrection};
+    gatherer->writeHalf(gammaAdjustment);
 
     // write textures and samplers
     const SkSamplingOptions kSamplingOptions(SkFilterMode::kLinear);
