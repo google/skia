@@ -135,10 +135,7 @@ public:
     sk_sp<PrecompileShader> makeWithWorkingColorSpace(sk_sp<SkColorSpace>);
 };
 
-class PrecompileMaskFilter : public PrecompileBase {
-public:
-    PrecompileMaskFilter() : PrecompileBase(Type::kMaskFilter) {}
-};
+
 
 class PrecompileColorFilter : public PrecompileBase {
 public:
@@ -156,17 +153,10 @@ public:
     static sk_sp<PrecompileBlender> Mode(SkBlendMode);
 };
 
-enum class PrecompileImageFilterFlags : uint32_t {
-    kNone              = 0x0,
-    kBlur              = 0x1,
-    kDisplacement      = 0x2,
-    kMatrixConvolution = 0x4,
-};
-SK_MAKE_BITMASK_OPS(PrecompileImageFilterFlags)
-
 //--------------------------------------------------------------------------------------------------
 class PaintOptionsPriv;
 class PrecompileImageFilter;
+class PrecompileMaskFilter;
 
 class PaintOptions {
 public:
@@ -178,19 +168,8 @@ public:
         fImageFilterOptions.assign(imageFilters.begin(), imageFilters.end());
     }
 
-    void setImageFilterFlags(SkEnumBitMask<PrecompileImageFilterFlags> flags) {
-        fImageFilterFlags = flags;
-    }
-
     void setMaskFilters(SkSpan<const sk_sp<PrecompileMaskFilter>> maskFilters) {
-        for (const sk_sp<PrecompileMaskFilter>& mf : maskFilters) {
-            if (mf) {
-                // Currently Graphite only supports BlurMaskFilters which are implemented
-                // via BlurImageFiltering
-                fImageFilterFlags |= PrecompileImageFilterFlags::kBlur;
-                break;
-            }
-        }
+        fMaskFilterOptions.assign(maskFilters.begin(), maskFilters.end());
     }
 
     void setColorFilters(SkSpan<const sk_sp<PrecompileColorFilter>> colorFilters) {
@@ -273,8 +252,8 @@ private:
     skia_private::TArray<sk_sp<PrecompileBlender>> fBlenderOptions;
     std::vector<sk_sp<PrecompileShader>> fClipShaderOptions;
 
-    SkEnumBitMask<PrecompileImageFilterFlags> fImageFilterFlags = PrecompileImageFilterFlags::kNone;
     std::vector<sk_sp<PrecompileImageFilter>> fImageFilterOptions;
+    std::vector<sk_sp<PrecompileMaskFilter>> fMaskFilterOptions;
 
     bool fDither = false;
 };
@@ -348,6 +327,28 @@ private:
     }
 
     skia_private::AutoSTArray<2, sk_sp<PrecompileImageFilter>> fInputs;
+};
+
+class PrecompileMaskFilter : public PrecompileBase {
+public:
+    PrecompileMaskFilter() : PrecompileBase(Type::kMaskFilter) {}
+
+private:
+    friend class PaintOptions;  // for createPipelines() access
+
+    // The PrecompileMaskFilter classes do not use the PrecompileBase::addToKey virtual since
+    // they, in general, do not themselves contribute to a given SkPaint/Pipeline but, rather,
+    // create separate SkPaints/Pipelines from whole cloth (in createPipelines).
+    void addToKey(const KeyContext& keyContext,
+                  PaintParamsKeyBuilder* builder,
+                  PipelineDataGatherer* gatherer,
+                  int desiredCombination) const final {
+        SkASSERT(false);
+    }
+
+    virtual void createPipelines(const KeyContext&,
+                                 PipelineDataGatherer*,
+                                 const PaintOptions::ProcessCombination&) const = 0;
 };
 
 } // namespace skgpu::graphite

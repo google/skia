@@ -447,73 +447,6 @@ void create_image_drawing_pipelines(const KeyContext& keyContext,
                                                processCombination);
 }
 
-void create_blur_imagefilter_pipelines(const KeyContext& keyContext,
-                                       PipelineDataGatherer* gatherer,
-                                       const PaintOptions::ProcessCombination& processCombination) {
-
-    PaintOptions blurPaintOptions;
-
-    // For blur imagefilters we know we don't have alpha-only textures and don't need cubic
-    // filtering.
-    sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
-
-    static const SkBlendMode kBlurBlendModes[] = { SkBlendMode::kSrc };
-    blurPaintOptions.setShaders({ PrecompileShadersPriv::Blur(imageShader) });
-    blurPaintOptions.setBlendModes(kBlurBlendModes);
-
-    blurPaintOptions.priv().buildCombinations(keyContext,
-                                              gatherer,
-                                              DrawTypeFlags::kSimpleShape,
-                                              /* withPrimitiveBlender= */ false,
-                                              Coverage::kSingleChannel,
-                                              processCombination);
-}
-
-void create_displacement_imagefilter_pipelines(
-        const KeyContext& keyContext,
-        PipelineDataGatherer* gatherer,
-        const PaintOptions::ProcessCombination& processCombination) {
-
-    PaintOptions displacement;
-
-    // For displacement imagefilters we know we don't have alpha-only textures and don't need cubic
-    // filtering.
-    sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
-
-    displacement.setShaders({ PrecompileShadersPriv::Displacement(imageShader, imageShader) });
-
-    displacement.priv().buildCombinations(keyContext,
-                                          gatherer,
-                                          DrawTypeFlags::kSimpleShape,
-                                          /* withPrimitiveBlender= */ false,
-                                          Coverage::kSingleChannel,
-                                          processCombination);
-}
-
-void create_matrix_convolution_imagefilter_pipelines(
-        const KeyContext& keyContext,
-        PipelineDataGatherer* gatherer,
-        const PaintOptions::ProcessCombination& processCombination) {
-
-    PaintOptions matrixConv;
-
-    // For matrix convolution imagefilters we know we don't have alpha-only textures and don't
-    // need cubic filtering.
-    sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
-
-    matrixConv.setShaders({ PrecompileShadersPriv::MatrixConvolution(imageShader) });
-
-    matrixConv.priv().buildCombinations(keyContext,
-                                        gatherer,
-                                        DrawTypeFlags::kSimpleShape,
-                                        /* withPrimitiveBlender= */ false,
-                                        Coverage::kSingleChannel,
-                                        processCombination);
-}
-
 } // anonymous namespace
 
 void PaintOptions::buildCombinations(
@@ -526,13 +459,13 @@ void PaintOptions::buildCombinations(
 
     PaintParamsKeyBuilder builder(keyContext.dict());
 
-    if (fImageFilterFlags != PrecompileImageFilterFlags::kNone || !fImageFilterOptions.empty()) {
+    if (!fImageFilterOptions.empty() || !fMaskFilterOptions.empty()) {
         // TODO: split this out into a create_restore_draw_pipelines method
         PaintOptions tmp = *this;
 
         // When image filtering, the original blend mode is taken over by the restore paint
-        tmp.setImageFilterFlags(PrecompileImageFilterFlags::kNone);
         tmp.setImageFilters({});
+        tmp.setMaskFilters({});
         tmp.addBlendMode(SkBlendMode::kSrcOver);
 
         if (!fImageFilterOptions.empty()) {
@@ -575,18 +508,10 @@ void PaintOptions::buildCombinations(
 
         create_image_drawing_pipelines(keyContext, gatherer, processCombination, *this);
 
-        if (fImageFilterFlags & PrecompileImageFilterFlags::kBlur) {
-            create_blur_imagefilter_pipelines(keyContext, gatherer, processCombination);
-        }
-        if (fImageFilterFlags & PrecompileImageFilterFlags::kDisplacement) {
-            create_displacement_imagefilter_pipelines(keyContext, gatherer, processCombination);
-        }
-        if (fImageFilterFlags & PrecompileImageFilterFlags::kMatrixConvolution) {
-            create_matrix_convolution_imagefilter_pipelines(keyContext, gatherer,
-                                                            processCombination);
-        }
-
         for (const sk_sp<PrecompileImageFilter>& o : fImageFilterOptions) {
+            o->createPipelines(keyContext, gatherer, processCombination);
+        }
+        for (const sk_sp<PrecompileMaskFilter>& o : fMaskFilterOptions) {
             o->createPipelines(keyContext, gatherer, processCombination);
         }
     } else {

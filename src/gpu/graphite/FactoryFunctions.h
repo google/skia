@@ -118,6 +118,9 @@ namespace PrecompileShaders {
 } // namespace PrecompileShaders
 
 namespace PrecompileImageFilters {
+    // This is the Precompile correlate to the two SkImageFilters::Blur factories
+    SK_API sk_sp<PrecompileImageFilter> Blur(sk_sp<PrecompileImageFilter> input);
+
     // This is the Precompile correlate to SkImageFilters::ColorFilter.
     // Note: In order to make analysis tractable we only allow options for the internals of an
     // ImageFilter but not in the structure of the DAG.
@@ -127,10 +130,16 @@ namespace PrecompileImageFilters {
             SkSpan<const sk_sp<PrecompileColorFilter>> colorFilterOptions,
             sk_sp<PrecompileImageFilter> input);
 
+    // This is the Precompile correlate to SkImageFilters::DisplacementMap
+    SK_API sk_sp<PrecompileImageFilter> DisplacementMap(sk_sp<PrecompileImageFilter> input);
+
     // This is the Precompile correlate to all of SkImageFilters::
     //      DistantLitDiffuse,  PointLitDiffuse,  SpotLitDiffuse
     //      DistantLitSpecular, PointLitSpecular, SpotLitSpecular
     SK_API sk_sp<PrecompileImageFilter> Lighting(sk_sp<PrecompileImageFilter> input);
+
+    // This is the Precompile correlate to SkImageFilters::MatrixConvolution
+    SK_API sk_sp<PrecompileImageFilter> MatrixConvolution(sk_sp<PrecompileImageFilter> input);
 
     // This is the Precompile correlate to SkImageFilters::Erode and SkImageFilters::Dilate
     SK_API sk_sp<PrecompileImageFilter> Morphology(sk_sp<PrecompileImageFilter> input);
