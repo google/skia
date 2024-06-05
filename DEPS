@@ -59,10 +59,10 @@ deps = {
   "third_party/externals/vulkanmemoryallocator"  : "https://chromium.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator@a6bfc237255a6bac1513f7c1ebde6d8aed6b5191",
   # vulkan-deps is a meta-repo containing several interdependent Khronos Vulkan repositories.
   # When the vulkan-deps revision is updated, those repos (spirv-*, vulkan-*) should be updated as well.
-  "third_party/externals/vulkan-deps"            : "https://chromium.googlesource.com/vulkan-deps@a58be9cfb9b6b42d7e47a045f36200119a59edcd",
+  "third_party/externals/vulkan-deps"            : "https://chromium.googlesource.com/vulkan-deps@5562cb7a09dfd0243c0334e570d73af034ac3494",
   "third_party/externals/spirv-cross"            : "https://chromium.googlesource.com/external/github.com/KhronosGroup/SPIRV-Cross@b8fcf307f1f347089e3c46eb4451d27f32ebc8d3",
-  "third_party/externals/spirv-headers"          : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@ff2afc3afc48dff4eec2a10f0212402a80708e38",
-  "third_party/externals/spirv-tools"            : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@6a2bdeee75eb35e5349c6993d33c9afe30237d79",
+  "third_party/externals/spirv-headers"          : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git@fbf2402969ed9aec34a8f8b4f5afab342319f07b",
+  "third_party/externals/spirv-tools"            : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@9db5b5ec19444dba6720afe165b1bd6ce08fb4bf",
   "third_party/externals/vello"                  : "https://skia.googlesource.com/external/github.com/linebender/vello.git@6938a2893d6a2ba658709d1d04720f6c6033700f",
   "third_party/externals/vulkan-headers"         : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers@192d051db3382e213f8bd9d8048fc9eaa78ed6ab",
   "third_party/externals/vulkan-tools"           : "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools@d67a9d3a394e11c1c4c0f480124f5b7925cb1b4d",
