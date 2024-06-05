@@ -9,8 +9,8 @@
 #define GrVkGpu_DEFINED
 
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
-#include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanBackendContext.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrStagingBufferManager.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
@@ -41,7 +41,7 @@ struct VulkanInterface;
 
 class GrVkGpu : public GrGpu {
 public:
-    static std::unique_ptr<GrGpu> Make(const GrVkBackendContext&,
+    static std::unique_ptr<GrGpu> Make(const skgpu::VulkanBackendContext&,
                                        const GrContextOptions&,
                                        GrDirectContext*);
 
@@ -208,7 +208,7 @@ private:
     };
 
     GrVkGpu(GrDirectContext*,
-            const GrVkBackendContext&,
+            const skgpu::VulkanBackendContext&,
             const sk_sp<GrVkCaps> caps,
             sk_sp<const skgpu::VulkanInterface>,
             uint32_t instanceVersion,

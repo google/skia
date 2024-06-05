@@ -57,7 +57,7 @@ void VulkanWindowContext::initializeContext() {
     // any config code here (particularly for msaa)?
 
     PFN_vkGetInstanceProcAddr getInstanceProc = fGetInstanceProcAddr;
-    GrVkBackendContext backendContext;
+    skgpu::VulkanBackendContext backendContext;
     skgpu::VulkanExtensions extensions;
     VkPhysicalDeviceFeatures2 features;
     if (!sk_gpu_test::CreateVkBackendContext(getInstanceProc, &backendContext, &extensions,

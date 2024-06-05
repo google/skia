@@ -30,6 +30,7 @@ supported_files_or_dirs=(
   "include/encode/"
   "include/gpu/ganesh/gen/"
   "include/gpu/gen/"
+  "include/gpu/vk/gen/"
   "include/private/"
   "modules/bentleyottmann/"
   "modules/skottie/"

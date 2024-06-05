@@ -8,9 +8,7 @@
 #ifndef skgpu_VulkanMutableTextureStatePriv_DEFINED
 #define skgpu_VulkanMutableTextureStatePriv_DEFINED
 
-#include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
-#include "src/gpu/MutableTextureStatePriv.h"
 
 #include <cstdint>
 

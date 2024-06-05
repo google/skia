@@ -16,12 +16,12 @@
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 
 namespace GrDirectContexts {
-sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext& backendContext) {
+sk_sp<GrDirectContext> MakeVulkan(const skgpu::VulkanBackendContext& backendContext) {
     GrContextOptions defaultOptions;
     return MakeVulkan(backendContext, defaultOptions);
 }
 
-sk_sp<GrDirectContext> MakeVulkan(const GrVkBackendContext& backendContext,
+sk_sp<GrDirectContext> MakeVulkan(const skgpu::VulkanBackendContext& backendContext,
                                   const GrContextOptions& options) {
     auto direct = GrDirectContextPriv::Make(
             GrBackendApi::kVulkan, options, sk_make_sp<GrVkContextThreadSafeProxy>(options));

@@ -50,17 +50,15 @@ extra_cflags = [ "-D", "SK_GPU_TOOLS_VK_LIBRARY_NAME=$(SKIA_DIR)/third_party/ext
 Using the Vulkan Backend
 ------------------------
 
-To create a GrContext that is backed by Vulkan the client creates a Vulkan device and queue, initializes a GrVkBackendContext to describe the context, and then calls GrContext::MakeVulkan:
+To create a GrContext that is backed by Vulkan the client creates a Vulkan device and queue, initializes a skgpu::VulkanBackendContext to describe the context, and then calls GrDirectContexts::MakeVulkan:
 
 <!--?prettify lang=c++?-->
-    sk_sp<GrVkBackendContext> vkContext = new GrVkBackendContext;
+    skgpu::VulkanBackendContext vkContext;
     vkBackendContext.fInstance = vkInstance;
     vkBackendContext.fPhysicalDevice = vkPhysDevice;
     ...
-    vkBackendContext.fInterface.reset(GrVkCreateInterface(instance, vkPhysDevice, extensionFlags);
-    ...
 
-    sk_sp<GrContext> context = GrContext::MakeVulkan(vkBackendContext);
+    sk_sp<GrContext> context = GrDirectContexts::MakeVulkan::MakeVulkan(vkBackendContext);
 
 When using the Vulkan backend, GrVkImageInfo is used to construct GrBackendTexture
 and GrBackendRenderTarget objects that in turn are used to create SkSurface and SkImage

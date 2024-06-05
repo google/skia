@@ -11,7 +11,9 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/vk/GrVkDirectContext.h"
+#include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 extern bool gCreateProtectedContext;
@@ -21,7 +23,7 @@ namespace {
 class VkTestContextImpl : public sk_gpu_test::VkTestContext {
 public:
     static VkTestContext* Create(VkTestContext* sharedContext) {
-        GrVkBackendContext backendContext;
+        skgpu::VulkanBackendContext backendContext;
         skgpu::VulkanExtensions* extensions;
         VkPhysicalDeviceFeatures2* features;
         bool ownsContext = true;
@@ -103,13 +105,17 @@ protected:
     }
 
 private:
-    VkTestContextImpl(const GrVkBackendContext& backendContext,
+    VkTestContextImpl(const skgpu::VulkanBackendContext& backendContext,
                       const skgpu::VulkanExtensions* extensions,
                       VkPhysicalDeviceFeatures2* features,
                       bool ownsContext,
                       VkDebugReportCallbackEXT debugCallback,
                       PFN_vkDestroyDebugReportCallbackEXT destroyCallback)
-            : VkTestContext(backendContext, extensions, features, ownsContext, debugCallback,
+            : VkTestContext(backendContext,
+                            extensions,
+                            features,
+                            ownsContext,
+                            debugCallback,
                             destroyCallback) {
         fFenceSupport = true;
     }

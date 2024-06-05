@@ -11,7 +11,8 @@
 
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/VulkanBackendContext.h"
+#include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "tests/TestType.h"
 #include "tools/gpu/ProtectedUtils.h"
 #include "tools/gpu/vk/VkTestUtils.h"
@@ -83,9 +84,7 @@ protected:
             return false;
         }
 
-        GrVkBackendContext gr;
-        sk_gpu_test::ConvertBackendContext(fBackendContext, &gr);
-        fDirectContext = GrDirectContexts::MakeVulkan(gr);
+        fDirectContext = GrDirectContexts::MakeVulkan(fBackendContext);
         if (!fDirectContext) {
             return false;
         }

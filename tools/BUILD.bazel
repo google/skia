@@ -300,6 +300,7 @@ skia_cc_library(
         "//include/encode:headers_to_compile",
         "//include/gpu/ganesh:headers_to_compile",
         "//include/gpu:headers_to_compile",
+        "//include/gpu/vk:headers_to_compile",
         "//include/private/base:headers_to_compile",
         "//include/private/chromium:headers_to_compile",
         "//include/private/gpu/ganesh:headers_to_compile",

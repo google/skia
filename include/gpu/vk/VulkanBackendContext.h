@@ -8,9 +8,14 @@
 #ifndef skgpu_VulkanBackendContext_DEFINED
 #define skgpu_VulkanBackendContext_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkAPI.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+
+#include <cstdint>
 
 namespace skgpu {
 
@@ -47,6 +52,6 @@ struct SK_API VulkanBackendContext {
     skgpu::VulkanDeviceLostProc      fDeviceLostProc = nullptr;
 };
 
-} // namespace skgpu::graphite
+}  // namespace skgpu
 
 #endif // skgpu_VulkanBackendContext_DEFINED

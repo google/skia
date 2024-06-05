@@ -19,7 +19,9 @@
 #include "tools/gpu/gl/GLTestContext.h"
 #endif
 
-struct GrVkBackendContext;
+namespace skgpu {
+struct VulkanBackendContext;
+}
 
 namespace sk_gpu_test {
 class ContextInfo;

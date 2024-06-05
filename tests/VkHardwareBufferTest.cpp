@@ -26,8 +26,9 @@
 #include "include/gpu/ganesh/vk/GrVkBackendSemaphore.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/ganesh/vk/GrVkDirectContext.h"
-#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -525,7 +526,7 @@ private:
 
     VkDevice fDevice = VK_NULL_HANDLE;
 
-    GrVkBackendContext fBackendContext;
+    skgpu::VulkanBackendContext fBackendContext;
     sk_sp<GrDirectContext> fDirectContext;
 };
 

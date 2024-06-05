@@ -12,6 +12,7 @@
 #include "include/private/gpu/vk/SkiaVulkan.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <vector>

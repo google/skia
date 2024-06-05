@@ -30,7 +30,6 @@
 #if defined(__GLIBC__)
 #include <execinfo.h>
 #endif
-#include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/base/SkAutoMalloc.h"
@@ -456,50 +455,6 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc, VkInstance inst,
     }
     return true;
     // If we want to disable any extension features do so here.
-}
-
-// TODO: remove once GrVkBackendContext is deprecated (skbug.com/309785258)
-void ConvertBackendContext(const skgpu::VulkanBackendContext& newStyle,
-                           GrVkBackendContext* oldStyle) {
-    oldStyle->fInstance = newStyle.fInstance;
-    oldStyle->fPhysicalDevice = newStyle.fPhysicalDevice;
-    oldStyle->fDevice = newStyle.fDevice;
-    oldStyle->fQueue = newStyle.fQueue;
-    oldStyle->fGraphicsQueueIndex = newStyle.fGraphicsQueueIndex;
-    oldStyle->fMaxAPIVersion = newStyle.fMaxAPIVersion;
-    oldStyle->fVkExtensions = newStyle.fVkExtensions;
-    oldStyle->fDeviceFeatures = newStyle.fDeviceFeatures;
-    oldStyle->fDeviceFeatures2 = newStyle.fDeviceFeatures2;
-    oldStyle->fMemoryAllocator = newStyle.fMemoryAllocator;
-    oldStyle->fGetProc = newStyle.fGetProc;
-    oldStyle->fProtectedContext = newStyle.fProtectedContext;
-}
-
-// TODO: remove once GrVkBackendContext is deprecated (skbug.com/309785258)
-bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
-                            GrVkBackendContext* ctx,
-                            skgpu::VulkanExtensions* extensions,
-                            VkPhysicalDeviceFeatures2* features,
-                            VkDebugReportCallbackEXT* debugCallback,
-                            uint32_t* presentQueueIndexPtr,
-                            const CanPresentFn& canPresent,
-                            bool isProtected) {
-    skgpu::VulkanBackendContext skgpuCtx;
-    if (!CreateVkBackendContext(getInstProc,
-                                &skgpuCtx,
-                                extensions,
-                                features,
-                                debugCallback,
-                                presentQueueIndexPtr,
-                                canPresent,
-                                isProtected)) {
-        return false;
-    }
-
-    SkASSERT(skgpuCtx.fProtectedContext == skgpu::Protected(isProtected));
-
-    ConvertBackendContext(skgpuCtx, ctx);
-    return true;
 }
 
 bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,

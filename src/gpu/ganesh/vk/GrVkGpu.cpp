@@ -15,6 +15,7 @@
 #include "include/gpu/ganesh/vk/GrVkBackendSemaphore.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkRectMemcpy.h"
@@ -66,7 +67,7 @@ using namespace skia_private;
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RESULT(this, RET, X)
 
-std::unique_ptr<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
+std::unique_ptr<GrGpu> GrVkGpu::Make(const skgpu::VulkanBackendContext& backendContext,
                                      const GrContextOptions& options,
                                      GrDirectContext* direct) {
     if (backendContext.fInstance == VK_NULL_HANDLE ||
@@ -203,7 +204,7 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkGpu::GrVkGpu(GrDirectContext* direct,
-                 const GrVkBackendContext& backendContext,
+                 const skgpu::VulkanBackendContext& backendContext,
                  sk_sp<GrVkCaps> caps,
                  sk_sp<const skgpu::VulkanInterface> interface,
                  uint32_t instanceVersion,
