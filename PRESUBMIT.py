@@ -327,29 +327,6 @@ def _CheckBazelBUILDFiles(input_api, output_api):
   return results
 
 
-def _CheckPublicBzl(input_api, output_api):
-  """Reminds devs to add/remove files from public.bzl."""
-  results = []
-  public_bzl = ''
-  with open('public.bzl', 'r', encoding='utf-8') as f:
-    public_bzl = f.read().strip()
-  for affected_file in input_api.AffectedFiles(include_deletes=True):
-    # action is A for newly added, D for newly deleted, M for modified
-    action = affected_file.Action()
-    affected_file_path = affected_file.LocalPath()
-    if ((affected_file_path.startswith("include") or affected_file_path.startswith("src")) and
-        (affected_file_path.endswith(".cpp") or affected_file_path.endswith(".h") or
-         affected_file_path.endswith(".mm"))):
-      affected_file_path = '"' + affected_file_path + '"'
-      if action == "D" and affected_file_path in public_bzl:
-        results.append(output_api.PresubmitError(
-              "Need to delete %s from public.bzl (or rename it)" % affected_file_path))
-      elif action == "A" and affected_file_path not in public_bzl:
-        results.append(output_api.PresubmitPromptWarning(
-              "You may need to add %s to public.bzl" % affected_file_path))
-  return results
-
-
 def _RunCommandAndCheckGitDiff(output_api, command):
   """Run an arbitrary command. Fail if it produces any diffs."""
   command_str = ' '.join(command)
@@ -583,9 +560,6 @@ def CheckChangeOnUpload(input_api, output_api):
   results.extend(_InfraTests(input_api, output_api))
   results.extend(_CheckTopReleaseNotesChanged(input_api, output_api))
   results.extend(_CheckReleaseNotesForPublicAPI(input_api, output_api))
-  # Only check public.bzl on upload because new files are likely to be a source
-  # of false positives and we don't want to unnecessarily block commits.
-  results.extend(_CheckPublicBzl(input_api, output_api))
   # Buildifier might not be on the CI machines.
   results.extend(_CheckBuildifier(input_api, output_api))
   # We don't want this to block the CQ (for now).
