@@ -104,11 +104,24 @@ declare_args() {
   skia_enable_skshaper_tests = skia_enable_skshaper
 }`
 
+const portsFooter = `
+skia_fontations_path_bridge_sources = [
+  "$_src/ports/fontations/src/skpath_bridge.h"
+]
+
+skia_fontations_bridge_sources = [
+  "$_src/ports/fontations/src/ffi.rs"
+]
+
+skia_fontations_bridge_root = "$_src/ports/fontations/src/ffi.rs"
+`
+
 // Map of GNI file names to footer text to be appended to the end of the file.
 var footerMap = map[string]string{
 	"gn/core.gni":                   coreGNIFooter,
 	"gn/sksl_tests.gni":             skslTestsFooter,
 	"modules/skshaper/skshaper.gni": skshaperFooter,
+	"gn/ports.gni":                  portsFooter,
 }
 
 // Match variable definition of a list in a *.gni file. For example:

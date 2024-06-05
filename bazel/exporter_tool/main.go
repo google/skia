@@ -147,6 +147,120 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/effects/imagefilters:srcs",
 			}}},
 	},
+	{GNI: "gn/ports.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_ports_sources",
+			Rules: []string{
+				"//src/ports:global_init",
+				"//src/ports:osfile",
+			}},
+		{Var: "skia_ports_freetype_sources",
+			Rules: []string{
+				"//src/ports:typeface_freetype",
+				"//src/ports:typeface_freetype_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_android_public",
+			Rules: []string{
+				"//include/ports:android_fontmgr_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_android_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_android_hdrs",
+				"//src/ports:fontmgr_android_srcs",
+			}},
+		{Var: "skia_ports_fontmgr_custom_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_custom_hdrs",
+				"//src/ports:fontmgr_custom_srcs",
+			}},
+		{Var: "skia_ports_fontmgr_coretext_public",
+			Rules: []string{
+				"//include/ports:mac_typeface",
+				"//include/ports:coretext_fontmgr_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_coretext_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_coretext_srcs",
+				"//src/ports:typeface_mac_srcs",
+				"//src/ports:typeface_mac_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_directory_public",
+			Rules: []string{
+				"//include/ports:directory_fontmgr_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_directory_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_custom_directory",
+			}},
+		{Var: "skia_ports_fontmgr_embedded_public",
+			Rules: []string{
+				"//include/ports:data_fontmgr_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_embedded_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_custom_embedded",
+			}},
+		{Var: "skia_ports_fontmgr_empty_public",
+			Rules: []string{
+				"//include/ports:empty_fontmgr_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_empty_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_custom_empty",
+			}},
+		{Var: "skia_ports_fontmgr_fontconfig_public",
+			Rules: []string{
+				"//include/ports:fontconfig_fontmgr_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_fontconfig_sources",
+			Rules: []string{
+				"//src/ports:legacy_fontmgr_fontconfig",
+			}},
+		{Var: "skia_ports_fontmgr_fontations_public",
+			Rules: []string{
+				"//include/ports:fontmgr_fontations_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_fontations_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_fontations_empty_srcs",
+			}},
+		{Var: "skia_ports_fontmgr_fuchsia_public",
+			Rules: []string{
+				"//include/ports:fuchsia_fontmgr_hdrs",
+			}},
+		{Var: "skia_ports_fontmgr_fuchsia_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_fuchsia_srcs",
+			}},
+		{Var: "skia_ports_typeface_fontations_sources",
+			Rules: []string{
+				"//src/ports:typeface_fontations_hdrs",
+				"//src/ports:typeface_fontations_srcs",
+			}},
+		{Var: "skia_ports_windows_sources",
+			Rules: []string{
+				"//src/ports:osfile_win",
+			}},
+		{Var: "skia_ports_windows_fonts_public",
+			Rules: []string{
+				"//include/ports:typeface_windows_hdrs",
+			}},
+		{Var: "skia_ports_windows_fonts_sources",
+			Rules: []string{
+				"//src/ports:windows_fonts_srcs",
+			}},
+		{Var: "skia_ports_fci_public",
+			Rules: []string{
+				"//include/ports:fci_fontmgr_hdrs",
+			}},
+		{Var: "skia_ports_fci_sources",
+			Rules: []string{
+				"//src/ports:fontconfig_interface_srcs",
+			}},
+		{Var: "skia_ports_fonthost_win_sources",
+			Rules: []string{
+				"//src/ports:fonthost_win_srcs",
+			}},
+	}},
 	{GNI: "gn/pdf.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_pdf_public",
 			Rules: []string{"//include/docs:public_hdrs"}},

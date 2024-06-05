@@ -54,6 +54,11 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "fuchsia_fontmgr_hdrs",
+    srcs = ["SkFontMgr_fuchsia.h"],
+)
+
+skia_filegroup(
     name = "fci_fontmgr_hdrs",
     srcs = [
         "SkFontConfigInterface.h",
@@ -70,6 +75,12 @@ skia_filegroup(
 skia_filegroup(
     name = "fontmgr_fontations_hdrs",
     srcs = ["SkFontMgr_Fontations.h"],
+    visibility = ["//src/ports:__pkg__"],
+)
+
+skia_filegroup(
+    name = "typeface_windows_hdrs",
+    srcs = ["SkTypeface_win.h"],
     visibility = ["//src/ports:__pkg__"],
 )
 
@@ -103,7 +114,7 @@ skia_filegroup(
         "//conditions:default": [],
     }) + select({
         "@platforms//os:macos": ["SkTypeface_mac.h"],
-        "@platforms//os:windows": ["SkTypeface_win.h"],
+        "@platforms//os:windows": [":typeface_windows_hdrs"],
         "//conditions:default": [],
     }) + select({
         "//bazel/common_config_settings:use_fontations_true": [

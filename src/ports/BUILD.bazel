@@ -47,8 +47,8 @@ skia_filegroup(
     name = "typeface_fontations",
     srcs = select({
         "//bazel/common_config_settings:use_fontations_true": [
-            "SkTypeface_fontations.cpp",
-            "SkTypeface_fontations_priv.h",
+            ":typeface_fontations_hdrs",
+            ":typeface_fontations_srcs",
         ],
         "//conditions:default": [],
     }),
@@ -58,7 +58,10 @@ skia_filegroup(
     name = "fontmgr",
     srcs = select_multi(
         {
-            "//bazel/common_config_settings:android_fontmgr": [":fontmgr_android"],
+            "//bazel/common_config_settings:android_fontmgr": [
+                ":fontmgr_android_srcs",
+                ":typeface_freetype",
+            ],
             "//bazel/common_config_settings:custom_directory_fontmgr": [":fontmgr_custom_directory"],
             "//bazel/common_config_settings:custom_embedded_fontmgr": [":fontmgr_custom_embedded"],
             "//bazel/common_config_settings:custom_empty_fontmgr": [":fontmgr_custom_empty"],
@@ -71,11 +74,10 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "fontmgr_android",
+    name = "fontmgr_android_srcs",
     srcs = [
         "SkFontMgr_android.cpp",
         "SkFontMgr_android_parser.cpp",
-        ":typeface_freetype",
     ],
 )
 
@@ -135,11 +137,19 @@ skia_filegroup(
 skia_filegroup(
     name = "fontmgr_fci",
     srcs = [
+        ":fontconfig_interface_srcs",
+        ":typeface_freetype",
+    ],
+)
+
+skia_filegroup(
+    name = "fontconfig_interface_srcs",
+    srcs = [
         "SkFontConfigInterface.cpp",
         "SkFontConfigInterface_direct.cpp",
         "SkFontConfigInterface_direct_factory.cpp",
+        "SkFontConfigTypeface.h",
         "SkFontMgr_FontConfigInterface.cpp",
-        ":typeface_freetype",
     ],
 )
 
@@ -152,13 +162,13 @@ skia_filegroup(
 skia_filegroup(
     name = "osfile_platform",
     srcs = select({
-        "@platforms//os:windows": ["SkOSFile_win.cpp"],
+        "@platforms//os:windows": [":osfile_win"],
         "@platforms//os:ios": [
             "SkOSFile_ios.h",
-            "SkOSFile_posix.cpp",
+            ":osfile_posix",
             "//include/ports:core_foundation_hdrs",
         ],
-        "//conditions:default": ["SkOSFile_posix.cpp"],
+        "//conditions:default": [":osfile_posix"],
     }),
 )
 
@@ -169,6 +179,16 @@ skia_filegroup(
         ":osfile_platform",
     ],
     visibility = ["//tools/skslc:__pkg__"],
+)
+
+skia_filegroup(
+    name = "osfile_posix",
+    srcs = ["SkOSFile_posix.cpp"],
+)
+
+skia_filegroup(
+    name = "osfile_win",
+    srcs = ["SkOSFile_win.cpp"],
 )
 
 skia_filegroup(
@@ -235,7 +255,7 @@ skia_filegroup(
     }) + select({
         "//bazel/common_config_settings:use_fontations_true": [
             "SkFontScanner_fontations.h",
-            "SkTypeface_fontations_priv.h",
+            ":typeface_fontations_hdrs",
         ],
         "//conditions:default": [],
     }),
@@ -320,14 +340,24 @@ skia_filegroup(
     visibility = ["//src/core:__pkg__"],
 )
 
-skia_cc_library(
-    name = "fontmgr_custom",
+skia_filegroup(
+    name = "fontmgr_custom_srcs",
     srcs = [
         "SkFontMgr_custom.cpp",
     ],
-    hdrs = [
+)
+
+skia_filegroup(
+    name = "fontmgr_custom_hdrs",
+    srcs = [
         "SkFontMgr_custom.h",
     ],
+)
+
+skia_cc_library(
+    name = "fontmgr_custom",
+    srcs = [":fontmgr_custom_srcs"],
+    hdrs = [":fontmgr_custom_hdrs"],
     deps = [
         ":freetype_support",
         "//src/base",
@@ -353,11 +383,10 @@ skia_cc_library(
 skia_cc_library(
     name = "fontmgr_android_freetype",
     srcs = [
-        "SkFontMgr_android.cpp",
-        "SkFontMgr_android_parser.cpp",
+        ":fontmgr_android_srcs",
     ],
     hdrs = [
-        "SkFontMgr_android_parser.h",
+        ":fontmgr_android_hdrs",
         "//include/ports:android_fontmgr_hdrs",
     ],
     defines = ["SK_FONTMGR_ANDROID_AVAILABLE"],
@@ -371,10 +400,15 @@ skia_cc_library(
     ],
 )
 
+skia_filegroup(
+    name = "fontmgr_coretext_srcs",
+    srcs = ["SkFontMgr_mac_ct.cpp"],
+)
+
 skia_objc_library(
     name = "fontmgr_coretext",
     srcs = [
-        "SkFontMgr_mac_ct.cpp",
+        ":fontmgr_coretext_srcs",
     ],
     hdrs = [
         "//include/ports:coretext_fontmgr_hdrs",
@@ -460,11 +494,28 @@ skia_cc_library(
     ],
 )
 
-skia_cc_library(
-    name = "fontmgr_fontations_empty",
+skia_filegroup(
+    name = "typeface_fontations_hdrs",
+    srcs = ["SkTypeface_fontations_priv.h"],
+)
+
+skia_filegroup(
+    name = "typeface_fontations_srcs",
+    srcs = ["SkTypeface_fontations.cpp"],
+)
+
+skia_filegroup(
+    name = "fontmgr_fontations_empty_srcs",
     srcs = [
         "SkFontMgr_fontations_empty.cpp",
         "SkFontMgr_fontations_empty.h",
+    ],
+)
+
+skia_cc_library(
+    name = "fontmgr_fontations_empty",
+    srcs = [
+        ":fontmgr_fontations_empty_srcs",
         ":typeface_fontations",
         "//include/ports:typeface_fontations_hdrs",
     ],
@@ -508,15 +559,22 @@ skia_filegroup(
     visibility = ["//src/utils/mac:__pkg__"],
 )
 
-skia_objc_library(
-    name = "coretext_typeface",
+skia_filegroup(
+    name = "typeface_mac_srcs",
     srcs = [
         "SkScalerContext_mac_ct.cpp",
         "SkScalerContext_mac_ct.h",
         "SkTypeface_mac_ct.cpp",
     ],
+)
+
+skia_objc_library(
+    name = "coretext_typeface",
+    srcs = [
+        ":typeface_mac_srcs",
+    ],
     hdrs = [
-        "SkTypeface_mac_ct.h",
+        ":typeface_mac_hdrs",
         "//include/ports:mac_typeface",
     ],
     features = ["layering_check"],
@@ -561,4 +619,25 @@ skia_objc_library(
         "//src/core:core_priv",
         "//src/utils/mac:mac_utils_priv",
     ],
+)
+
+skia_filegroup(
+    name = "windows_fonts_srcs",
+    srcs = [
+        "SkFontMgr_win_dw.cpp",
+        "SkScalerContext_win_dw.cpp",
+        "SkScalerContext_win_dw.h",
+        "SkTypeface_win_dw.cpp",
+        "SkTypeface_win_dw.h",
+    ],
+)
+
+skia_filegroup(
+    name = "fontmgr_fuchsia_srcs",
+    srcs = ["SkFontMgr_fuchsia.cpp"],
+)
+
+skia_filegroup(
+    name = "fonthost_win_srcs",
+    srcs = ["SkFontHost_win.cpp"],
 )
