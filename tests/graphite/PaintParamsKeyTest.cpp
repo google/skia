@@ -1180,9 +1180,18 @@ std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> colorfilter_imagef
 
     auto [cf, o] = create_random_colorfilter(rand);
 
-    sk_sp<SkImageFilter> cfIF = SkImageFilters::ColorFilter(std::move(cf), /* input= */ nullptr);
-    sk_sp<PrecompileImageFilter> cfIFO = PrecompileImageFilters::ColorFilter({ std::move(o)},
-                                                                             /* input= */ nullptr);
+    sk_sp<SkImageFilter> inputIF;
+    sk_sp<PrecompileImageFilter> inputO;
+    if (rand->nextBool()) {
+        // Exercise color filter collapsing in the factories
+        auto [cf2, o2] = create_random_colorfilter(rand);
+        inputIF = SkImageFilters::ColorFilter(std::move(cf2), /* input= */ nullptr);
+        inputO = PrecompileImageFilters::ColorFilter(std::move(o2), /* input= */ nullptr);
+    }
+
+    sk_sp<SkImageFilter> cfIF = SkImageFilters::ColorFilter(std::move(cf), std::move(inputIF));
+    sk_sp<PrecompileImageFilter> cfIFO = PrecompileImageFilters::ColorFilter(std::move(o),
+                                                                             std::move(inputO));
 
     return { std::move(cfIF), std::move(cfIFO) };
 }

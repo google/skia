@@ -482,20 +482,17 @@ void PaintOptions::buildCombinations(
             // TODO: in SkCanvasPriv::ImageToColorFilter this fusing of CFIFs and CFs is skipped
             // when there is a maskfilter. For now we over-generate.
             for (const sk_sp<PrecompileImageFilter>& o : fImageFilterOptions) {
-                // This double level of precompilation options is a bit much. Perhaps we shouldn't
-                // allow precompilation image filters to have internal options (e.g., color filter
-                // options).
-                SkSpan<const sk_sp<PrecompileColorFilter>> iFCFs = o->colorFilterOptions();
-                for (const sk_sp<PrecompileColorFilter>& iFCF : iFCFs) {
+                sk_sp<PrecompileColorFilter> imageFiltersCF = o ? o->asAColorFilter() : nullptr;
+                if (imageFiltersCF) {
                     if (!tmp.fColorFilterOptions.empty()) {
                         for (const sk_sp<PrecompileColorFilter>& cf : tmp.fColorFilterOptions) {
                             // TODO: if a CFIF was fully handled here it should be removed from the
                             // later loop over fImageFilterOptions. For now we over-generate.
-                            sk_sp<PrecompileColorFilter> newCF = iFCF->makeComposed(cf);
+                            sk_sp<PrecompileColorFilter> newCF = imageFiltersCF->makeComposed(cf);
                             newCFs.push_back(std::move(newCF));
                         }
                     } else {
-                        newCFs.push_back(iFCF);
+                        newCFs.push_back(imageFiltersCF);
                     }
                 }
             }
