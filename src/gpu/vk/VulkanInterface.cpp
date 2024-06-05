@@ -4,10 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/gpu/vk/VulkanInterface.h"
 
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
-#include "src/gpu/vk/VulkanInterface.h"
 
 #include <functional>
 
@@ -29,6 +30,8 @@ VulkanInterface::VulkanInterface(VulkanGetProc getProc,
     if (getProc == nullptr) {
         return;
     }
+    SkASSERT(extensions);
+
     // Global/Loader Procs.
     ACQUIRE_PROC(CreateInstance, VK_NULL_HANDLE, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateInstanceExtensionProperties, VK_NULL_HANDLE, VK_NULL_HANDLE);

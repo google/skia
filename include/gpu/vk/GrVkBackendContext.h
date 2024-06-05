@@ -43,42 +43,33 @@ struct VkPhysicalDeviceFeatures2;
 // (either by deleting the struct or manually releasing the refs) before the underlying vulkan
 // device and instance are destroyed.
 struct SK_API GrVkBackendContext {
-    VkInstance                          fInstance = VK_NULL_HANDLE;
-    VkPhysicalDevice                    fPhysicalDevice = VK_NULL_HANDLE;
-    VkDevice                            fDevice = VK_NULL_HANDLE;
-    VkQueue                             fQueue = VK_NULL_HANDLE;
-    uint32_t                            fGraphicsQueueIndex = 0;
-    uint32_t                            fMinAPIVersion = 0; // Deprecated. Use fInstanceVersion
-                                                            // instead.
-    uint32_t                            fInstanceVersion = 0; // Deprecated. Use fMaxApiVersion
+    VkInstance fInstance = VK_NULL_HANDLE;
+    VkPhysicalDevice fPhysicalDevice = VK_NULL_HANDLE;
+    VkDevice fDevice = VK_NULL_HANDLE;
+    VkQueue fQueue = VK_NULL_HANDLE;
+    uint32_t fGraphicsQueueIndex = 0;
     // The max api version set here should match the value set in VkApplicationInfo::apiVersion when
     // then VkInstance was created.
-    uint32_t                            fMaxAPIVersion = 0;
-    uint32_t                            fExtensions = 0; // Deprecated. Use fVkExtensions instead.
-    const skgpu::VulkanExtensions*      fVkExtensions = nullptr;
-    uint32_t                            fFeatures = 0; // Deprecated. Use fDeviceFeatures[2]
-                                                       // instead.
+    uint32_t fMaxAPIVersion = 0;
+    const skgpu::VulkanExtensions* fVkExtensions = nullptr;
     // The client can create their VkDevice with either a VkPhysicalDeviceFeatures or
     // VkPhysicalDeviceFeatures2 struct, thus we have to support taking both. The
     // VkPhysicalDeviceFeatures2 struct is needed so we know if the client enabled any extension
     // specific features. If fDeviceFeatures2 is not null then we ignore fDeviceFeatures. If both
     // fDeviceFeatures and fDeviceFeatures2 are null we will assume no features are enabled.
-    const VkPhysicalDeviceFeatures*     fDeviceFeatures = nullptr;
-    const VkPhysicalDeviceFeatures2*    fDeviceFeatures2 = nullptr;
+    const VkPhysicalDeviceFeatures* fDeviceFeatures = nullptr;
+    const VkPhysicalDeviceFeatures2* fDeviceFeatures2 = nullptr;
+    // Optional. The client may provide an inplementation of a VulkanMemoryAllocator for Skia to use
+    // for allocating Vulkan resources that use VkDeviceMemory.
     sk_sp<skgpu::VulkanMemoryAllocator> fMemoryAllocator;
-    skgpu::VulkanGetProc                fGetProc = nullptr;
-    // This is deprecated and should be set to false. The client is responsible for managing the
-    // lifetime of the VkInstance and VkDevice objects.
-    bool                                fOwnsInstanceAndDevice = false;
-    // Indicates that we are working with protected content and all CommandPool and Queue operations
-    // should be done in a protected context.
-    skgpu::Protected                    fProtectedContext = skgpu::Protected::kNo;
+    skgpu::VulkanGetProc fGetProc;
+    skgpu::Protected fProtectedContext = skgpu::Protected::kNo;
     // Optional callback which will be invoked if a VK_ERROR_DEVICE_LOST error code is received from
     // the driver. Debug information from the driver will be provided to the callback if the
     // VK_EXT_device_fault extension is supported and enabled (VkPhysicalDeviceFaultFeaturesEXT must
     // be in the pNext chain of VkDeviceCreateInfo).
-    skgpu::VulkanDeviceLostContext      fDeviceLostContext = nullptr;
-    skgpu::VulkanDeviceLostProc         fDeviceLostProc = nullptr;
+    skgpu::VulkanDeviceLostContext fDeviceLostContext = nullptr;
+    skgpu::VulkanDeviceLostProc fDeviceLostProc = nullptr;
 };
 
 #endif

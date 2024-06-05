@@ -93,8 +93,11 @@ void VulkanWindowContext::initializeContext() {
     localGetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &physDeviceProperties);
     uint32_t physDevVersion = physDeviceProperties.apiVersion;
 
-    fInterface.reset(new skgpu::VulkanInterface(backendContext.fGetProc, fInstance, fDevice,
-                                                backendContext.fInstanceVersion, physDevVersion,
+    fInterface.reset(new skgpu::VulkanInterface(backendContext.fGetProc,
+                                                fInstance,
+                                                fDevice,
+                                                backendContext.fMaxAPIVersion,
+                                                physDevVersion,
                                                 &extensions));
 
     GET_PROC(DestroyInstance);
