@@ -577,6 +577,13 @@ def go_repositories():
         version = "v1.17.2",
     )
     go_repository(
+        name = "com_github_gopherjs_gopherwasm",
+        importpath = "github.com/gopherjs/gopherwasm",
+        sum = "h1:32nge/RlujS1Im4HNCJPp0NbBOAeBXFuT1KonUuLl+Y=",
+        version = "v1.0.0",
+    )
+
+    go_repository(
         name = "com_github_gorhill_cronexpr",
         importpath = "github.com/gorhill/cronexpr",
         sum = "h1:f0n1xnMSmBLzVfsMMvriDyA75NB/oBgILX2GcHXIQzY=",
@@ -1136,6 +1143,13 @@ def go_repositories():
         sum = "h1:nrzqCb7j9cDFj2coyLNLaZuJTLjWjlaz6nvTvIwycIU=",
         version = "v2.0.6",
     )
+    go_repository(
+        name = "com_github_peterh_liner",
+        importpath = "github.com/peterh/liner",
+        sum = "h1:f+aAedNJA6uk7+6rXsYBnhdo4Xux7ESLe+kcuVUF5os=",
+        version = "v1.1.0",
+    )
+
     go_repository(
         name = "com_github_pierrec_lz4_v4",
         importpath = "github.com/pierrec/lz4/v4",
@@ -2659,8 +2673,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:dFNrDUqOpa6GGCToeQNdPyFD9dfstdqhD/b6SoXeBG8=",
-        version = "v0.0.0-20240604041524-2d509f23bc91",
+        sum = "h1:+SJpKwpYp38a772LjpIif1db3jfyM1vUeUAl8E/L4eY=",
+        version = "v0.0.0-20240604201311-b157149cf60a",
     )
     go_repository(
         name = "org_uber_go_atomic",
