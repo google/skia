@@ -123,10 +123,10 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrConvexPolyEffect::onMakeProg
                                                                  cpe.fEdgeCount,
                                                                  &edgeArrayName);
             GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-            fragBuilder->codeAppend("half alpha = 1.0;\n"
-                                    "half edge;\n");
+            fragBuilder->codeAppend("float alpha = 1.0;\n"
+                                    "float edge;\n");
             for (int i = 0; i < cpe.fEdgeCount; ++i) {
-                fragBuilder->codeAppendf("edge = dot(%s[%d], half3(sk_FragCoord.xy1));\n",
+                fragBuilder->codeAppendf("edge = dot(float3(%s[%d]), sk_FragCoord.xy1);\n",
                                          edgeArrayName, i);
                 if (GrClipEdgeTypeIsAA(cpe.fEdgeType)) {
                     fragBuilder->codeAppend("alpha *= saturate(edge);\n");
@@ -141,7 +141,7 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrConvexPolyEffect::onMakeProg
 
             SkString inputSample = this->invokeChild(/*childIndex=*/0, args);
 
-            fragBuilder->codeAppendf("return %s * alpha;\n", inputSample.c_str());
+            fragBuilder->codeAppendf("return %s * half(alpha);\n", inputSample.c_str());
         }
 
     private:
