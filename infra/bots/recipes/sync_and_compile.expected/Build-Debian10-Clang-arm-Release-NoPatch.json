@@ -202,7 +202,6 @@
       "@@@STEP_LOG_LINE@json.output@      \"revision\": \"d2231a340fd47b47d61d0f99a188e46e6aabba0a\"@@@",
       "@@@STEP_LOG_LINE@json.output@    }@@@",
       "@@@STEP_LOG_LINE@json.output@  },@@@",
-      "@@@STEP_LOG_LINE@json.output@  \"patch_failure\": false,@@@",
       "@@@STEP_LOG_LINE@json.output@  \"patch_root\": \"skia\",@@@",
       "@@@STEP_LOG_LINE@json.output@  \"properties\": {@@@",
       "@@@STEP_LOG_LINE@json.output@    \"got_revision\": \"d2231a340fd47b47d61d0f99a188e46e6aabba0a\",@@@",
