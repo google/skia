@@ -184,3 +184,13 @@ which can be downloaded with
     git clone https://skia.googlesource.com/buildbot
 
 See further instructions in buildbot/debugger-app/README.md.
+
+## Capturing SKPs
+
+### Chromium
+
+See https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/saving-skp-s-from-chromium/
+
+### Android
+
+See [How to capture an SKP file from the Android framework](/docs/dev/tools/android-capture).
