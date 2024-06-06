@@ -4547,7 +4547,7 @@ static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl, std:
     // Enable the WGSL optional features that Skia might rely on.
     tint::wgsl::reader::Options options;
     for (auto extension : {tint::wgsl::Extension::kChromiumExperimentalPixelLocal,
-                           tint::wgsl::Extension::kChromiumInternalDualSourceBlending}) {
+                           tint::wgsl::Extension::kDualSourceBlending}) {
         options.allowed_features.extensions.insert(extension);
     }
 
