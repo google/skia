@@ -547,27 +547,23 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
         // We shouldn't use CreateRenderPipelineAsync in wasm.
         SKGPU_LOG_F("CreateRenderPipelineAsync shouldn't be used in WASM");
 #else
-        wgpu::CreateRenderPipelineAsyncCallbackInfo callbackInfo{};
-        callbackInfo.mode = wgpu::CallbackMode::WaitAnyOnly;
-        callbackInfo.userdata = asyncCreation.get();
-        callbackInfo.callback = [](WGPUCreatePipelineAsyncStatus status,
-                                   WGPURenderPipeline pipeline,
-                                   char const* message,
-                                   void* userdata) {
-            auto* arg = static_cast<AsyncPipelineCreation*>(userdata);
+        asyncCreation->fFuture = device.CreateRenderPipelineAsync(
+                &descriptor,
+                wgpu::CallbackMode::WaitAnyOnly,
+                [asyncCreationPtr = asyncCreation.get()](wgpu::CreatePipelineAsyncStatus status,
+                                                         wgpu::RenderPipeline pipeline,
+                                                         char const* message) {
+                    if (status != wgpu::CreatePipelineAsyncStatus::Success) {
+                        SKGPU_LOG_E("Failed to create render pipeline (%d): %s", status, message);
+                        // invalidate AsyncPipelineCreation pointer to signal that this pipeline has
+                        // failed.
+                        asyncCreationPtr->fRenderPipeline = nullptr;
+                    } else {
+                        asyncCreationPtr->fRenderPipeline = std::move(pipeline);
+                    }
 
-            if (status != WGPUCreatePipelineAsyncStatus_Success) {
-                SKGPU_LOG_E("Failed to create render pipeline (%d): %s", status, message);
-                // invalidate AsyncPipelineCreation pointer to signal that this pipeline has failed.
-                arg->fRenderPipeline = nullptr;
-            } else {
-                arg->fRenderPipeline = wgpu::RenderPipeline::Acquire(pipeline);
-            }
-
-            arg->fFinished = true;
-        };
-
-        asyncCreation->fFuture = device.CreateRenderPipelineAsync(&descriptor, callbackInfo);
+                    asyncCreationPtr->fFinished = true;
+                });
 #endif
     } else {
         std::optional<DawnErrorChecker> errorChecker;

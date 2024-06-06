@@ -91,7 +91,8 @@ wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlag
     return wgpu::TextureFormat::Undefined;
 }
 
-static bool check_shader_module(wgpu::ShaderModule* module,
+static bool check_shader_module([[maybe_unused]] const DawnSharedContext* sharedContext,
+                                wgpu::ShaderModule* module,
                                 const char* shaderText,
                                 ShaderErrorHandler* errorHandler) {
     // Prior to emsdk 3.1.51 wgpu::ShaderModule::GetCompilationInfo is unimplemented.
@@ -141,7 +142,29 @@ static bool check_shader_module(wgpu::ShaderModule* module,
     Handler handler;
     handler.fShaderText = shaderText;
     handler.fErrorHandler = errorHandler;
+#if defined(__EMSCRIPTEN__)
+    // Deprecated function.
     module->GetCompilationInfo(&Handler::Fn, &handler);
+#else
+    // New API.
+    wgpu::FutureWaitInfo waitInfo{};
+    waitInfo.future = module->GetCompilationInfo(
+            wgpu::CallbackMode::WaitAnyOnly,
+            [handlerPtr = &handler](wgpu::CompilationInfoRequestStatus status,
+                                    const wgpu::CompilationInfo* info) {
+                Handler::Fn(static_cast<WGPUCompilationInfoRequestStatus>(status),
+                            reinterpret_cast<const WGPUCompilationInfo*>(info),
+                            handlerPtr);
+            });
+
+    const auto& instance = static_cast<const DawnSharedContext*>(sharedContext)
+                                   ->device()
+                                   .GetAdapter()
+                                   .GetInstance();
+    [[maybe_unused]] auto status =
+            instance.WaitAny(1, &waitInfo, /*timeoutNS=*/std::numeric_limits<uint64_t>::max());
+    SkASSERT(status == wgpu::WaitStatus::Success);
+#endif  // defined(__EMSCRIPTEN__)
 
     return handler.fSuccess;
 #endif
@@ -163,7 +186,7 @@ bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
 
     *module = sharedContext->device().CreateShaderModule(&desc);
 
-    return check_shader_module(module, wgsl.c_str(), errorHandler);
+    return check_shader_module(sharedContext, module, wgsl.c_str(), errorHandler);
 }
 
 } // namespace skgpu::graphite

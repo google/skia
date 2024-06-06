@@ -176,20 +176,16 @@ void DawnBuffer::onMap() {
     // Use wgpu::Future and WaitAny with timeout=0 to trigger callback immediately.
     // This should work because our resource tracking mechanism should make sure that
     // the buffer is free of any GPU use at this point.
-    wgpu::BufferMapCallbackInfo callbackInfo{};
-    callbackInfo.mode = wgpu::CallbackMode::WaitAnyOnly;
-    callbackInfo.userdata = this;
-    callbackInfo.callback = [](WGPUBufferMapAsyncStatus s, void* userData) {
-        auto buffer = static_cast<DawnBuffer*>(userData);
-        buffer->mapCallback(s);
-    };
-
     wgpu::FutureWaitInfo mapWaitInfo{};
 
-    mapWaitInfo.future = fBuffer.MapAsync(isWrite ? wgpu::MapMode::Write : wgpu::MapMode::Read,
-                                          0,
-                                          fBuffer.GetSize(),
-                                          callbackInfo);
+    mapWaitInfo.future =
+            fBuffer.MapAsync(isWrite ? wgpu::MapMode::Write : wgpu::MapMode::Read,
+                             0,
+                             fBuffer.GetSize(),
+                             wgpu::CallbackMode::WaitAnyOnly,
+                             [this](wgpu::MapAsyncStatus s, const char*) {
+                                 this->mapCallback(static_cast<WGPUBufferMapAsyncStatus>(s));
+                             });
 
     wgpu::Device device = static_cast<const DawnSharedContext*>(sharedContext())->device();
     wgpu::Instance instance = device.GetAdapter().GetInstance();

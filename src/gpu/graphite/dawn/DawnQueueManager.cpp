@@ -75,11 +75,8 @@ private:
 DawnWorkSubmissionWithFuture::DawnWorkSubmissionWithFuture(std::unique_ptr<CommandBuffer> cmdBuffer,
                                                            DawnQueueManager* queueManager)
         : GpuWorkSubmission(std::move(cmdBuffer), queueManager) {
-    wgpu::QueueWorkDoneCallbackInfo callbackInfo{};
-    callbackInfo.mode = wgpu::CallbackMode::WaitAnyOnly;
-    callbackInfo.callback = [](WGPUQueueWorkDoneStatus, void*) {};
-
-    fSubmittedWorkDoneFuture = queueManager->dawnQueue().OnSubmittedWorkDone(callbackInfo);
+    fSubmittedWorkDoneFuture = queueManager->dawnQueue().OnSubmittedWorkDone(
+            wgpu::CallbackMode::WaitAnyOnly, [](wgpu::QueueWorkDoneStatus) {});
 }
 
 bool DawnWorkSubmissionWithFuture::onIsFinished(const SharedContext* sharedContext) {
