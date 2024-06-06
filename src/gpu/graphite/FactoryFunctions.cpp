@@ -1169,6 +1169,80 @@ sk_sp<PrecompileShader> PrecompileShadersPriv::Lighting(sk_sp<PrecompileShader> 
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
+class PrecompileBlendFilterImageFilter : public PrecompileImageFilter {
+public:
+    PrecompileBlendFilterImageFilter(sk_sp<PrecompileBlender> blender,
+                                     SkSpan<sk_sp<PrecompileImageFilter>> inputs)
+            : PrecompileImageFilter(std::move(inputs))
+            , fBlender(std::move(blender)) {
+    }
+
+private:
+    void onCreatePipelines(
+            const KeyContext& keyContext,
+            PipelineDataGatherer* gatherer,
+            const PaintOptions::ProcessCombination& processCombination) const override {
+
+        PaintOptions paintOptions;
+
+        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
+                PrecompileImageShaderFlags::kExcludeAlpha |
+                PrecompileImageShaderFlags::kExcludeCubic);
+
+        sk_sp<PrecompileShader> blendShader = PrecompileShaders::Blend(
+                SkSpan<const sk_sp<PrecompileBlender>>(&fBlender, 1),
+                { imageShader },
+                { imageShader });
+
+        paintOptions.setShaders({ std::move(blendShader) });
+
+        paintOptions.priv().buildCombinations(keyContext,
+                                              gatherer,
+                                              DrawTypeFlags::kSimpleShape,
+                                              /* withPrimitiveBlender= */ false,
+                                              Coverage::kSingleChannel,
+                                              processCombination);
+    }
+
+    sk_sp<PrecompileBlender> fBlender;
+};
+
+sk_sp<PrecompileImageFilter> PrecompileImageFilters::Arithmetic(
+        sk_sp<PrecompileImageFilter> background,
+        sk_sp<PrecompileImageFilter> foreground) {
+    return Blend(PrecompileBlenders::Arithmetic(), std::move(background), std::move(foreground));
+}
+
+sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blend(
+        SkBlendMode bm,
+        sk_sp<PrecompileImageFilter> background,
+        sk_sp<PrecompileImageFilter> foreground) {
+    return Blend(PrecompileBlender::Mode(bm), std::move(background), std::move(foreground));
+}
+
+sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blend(
+        sk_sp<PrecompileBlender> blender,
+        sk_sp<PrecompileImageFilter> background,
+        sk_sp<PrecompileImageFilter> foreground) {
+
+    if (!blender) {
+        blender = PrecompileBlender::Mode(SkBlendMode::kSrcOver);
+    }
+
+    if (std::optional<SkBlendMode> bm = blender->asBlendMode()) {
+        if (bm == SkBlendMode::kSrc) {
+            return foreground;
+        } else if (bm == SkBlendMode::kDst) {
+            return background;
+        } else if (bm == SkBlendMode::kClear) {
+            return nullptr; // TODO: actually return PrecompileImageFilters::Empty
+        }
+    }
+
+    sk_sp<PrecompileImageFilter> inputs[2] = { std::move(background), std::move(foreground) };
+    return sk_make_sp<PrecompileBlendFilterImageFilter>(std::move(blender), inputs);
+}
+
 namespace {
 
 void create_blur_imagefilter_pipelines(const KeyContext& keyContext,

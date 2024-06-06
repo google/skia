@@ -122,6 +122,20 @@ namespace PrecompileShaders {
 // Note: In order to make analysis more tractable we don't allow options for the internals of an
 // ImageFilter nor in the structure of the DAG.
 namespace PrecompileImageFilters {
+    // This is the Precompile correlate to SkImageFilters::Arithmetic
+    SK_API sk_sp<PrecompileImageFilter> Arithmetic(sk_sp<PrecompileImageFilter> background,
+                                                   sk_sp<PrecompileImageFilter> foreground);
+
+    // This is the Precompile correlate to SkImageFilters::Blend(SkBlendMode, ...)
+    SK_API sk_sp<PrecompileImageFilter> Blend(SkBlendMode bm,
+                                              sk_sp<PrecompileImageFilter> background,
+                                              sk_sp<PrecompileImageFilter> foreground);
+
+    // This is the Precompile correlate to SkImageFilters::Blend(sk_sp<SkBlender>, ...)
+    SK_API sk_sp<PrecompileImageFilter> Blend(sk_sp<PrecompileBlender> blender,
+                                              sk_sp<PrecompileImageFilter> background,
+                                              sk_sp<PrecompileImageFilter> foreground);
+
     // This is the Precompile correlate to the two SkImageFilters::Blur factories
     SK_API sk_sp<PrecompileImageFilter> Blur(sk_sp<PrecompileImageFilter> input);
 

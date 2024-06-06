@@ -177,6 +177,8 @@ const char* to_str(BlenderType b) {
     SkUNREACHABLE;
 }
 
+std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_blender(SkRandom*, BlenderType);
+
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
 #define SK_ALL_TEST_COLORFILTERS(M) \
@@ -245,6 +247,9 @@ const char* to_str(ClipType c) {
 //--------------------------------------------------------------------------------------------------
 #define SK_ALL_TEST_IMAGE_FILTERS(M) \
     M(None)              \
+    M(Arithmetic)        \
+    M(BlendMode)         \
+    M(RuntimeBlender)    \
     M(Blur)              \
     M(ColorFilter)       \
     M(Displacement)      \
@@ -1129,6 +1134,52 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_random_colo
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
+std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> arithmetic_imagefilter(
+        SkRandom* /* rand */) {
+
+    sk_sp<SkImageFilter> arithmeticIF = SkImageFilters::Arithmetic(/* k1= */ 0.5f,
+                                                                   /* k2= */ 0.5f,
+                                                                   /* k3= */ 0.5f,
+                                                                   /* k4= */ 0.5f,
+                                                                   /* enforcePMColor= */ false,
+                                                                   /* background= */ nullptr,
+                                                                   /* foreground= */ nullptr);
+    sk_sp<PrecompileImageFilter> option = PrecompileImageFilters::Arithmetic(
+            /* background= */ nullptr,
+            /* foreground= */ nullptr);
+
+    return { std::move(arithmeticIF), std::move(option) };
+}
+
+std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> blendmode_imagefilter(
+        SkRandom* rand) {
+
+    SkBlendMode bm = random_blend_mode(rand);
+    sk_sp<SkImageFilter> blendIF = SkImageFilters::Blend(bm,
+                                                         /* background= */ nullptr,
+                                                         /* foreground= */ nullptr);
+    sk_sp<PrecompileImageFilter> blendO = PrecompileImageFilters::Blend(
+            bm,
+            /* background= */ nullptr,
+            /* foreground= */ nullptr);
+
+    return { std::move(blendIF), std::move(blendO) };
+}
+
+std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> runtime_blender_imagefilter(
+        SkRandom* rand) {
+
+    auto [blender, blenderO] = create_blender(rand, BlenderType::kRuntime);
+    sk_sp<SkImageFilter> blenderIF = SkImageFilters::Blend(std::move(blender),
+                                                           /* background= */ nullptr,
+                                                           /* foreground= */ nullptr);
+    sk_sp<PrecompileImageFilter> option = PrecompileImageFilters::Blend(std::move(blenderO),
+                                                                        /* background= */ nullptr,
+                                                                        /* foreground= */ nullptr);
+
+    return { std::move(blenderIF), std::move(option) };
+}
+
 std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> blur_imagefilter(
         SkRandom* rand) {
 
@@ -1314,6 +1365,12 @@ std::pair<sk_sp<SkImageFilter>, sk_sp<PrecompileImageFilter>> create_image_filte
     switch (type) {
         case ImageFilterType::kNone:
             return {};
+        case ImageFilterType::kArithmetic:
+            return arithmetic_imagefilter(rand);
+        case ImageFilterType::kBlendMode:
+            return blendmode_imagefilter(rand);
+        case ImageFilterType::kRuntimeBlender:
+            return runtime_blender_imagefilter(rand);
         case ImageFilterType::kBlur:
             return blur_imagefilter(rand);
         case ImageFilterType::kColorFilter:
@@ -1723,6 +1780,9 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
     ImageFilterType imageFilters[] = {
             ImageFilterType::kNone,
 #if EXPANDED_SET
+            ImageFilterType::kArithmetic,
+            ImageFilterType::kBlendMode,
+            ImageFilterType::kRuntimeBlender,
             ImageFilterType::kBlur,
             ImageFilterType::kColorFilter,
             ImageFilterType::kDisplacement,
