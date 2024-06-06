@@ -853,6 +853,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fStatsLayer.setDisplayScale((fZoomUI ? 2.0f : 1.0f) * fWindow->scaleFactor());
         fWindow->inval();
     });
+    fCommands.addCommand('=', "Transform", "Apply Backing Scale", [this]() {
+        fApplyBackingScale = !fApplyBackingScale;
+        fWindow->inval();
+    });
     fCommands.addCommand('$', "ViaSerialize", "Toggle ViaSerialize", [this]() {
         fDrawViaSerialize = !fDrawViaSerialize;
         this->updateTitle();
