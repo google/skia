@@ -554,7 +554,9 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
                                                          wgpu::RenderPipeline pipeline,
                                                          char const* message) {
                     if (status != wgpu::CreatePipelineAsyncStatus::Success) {
-                        SKGPU_LOG_E("Failed to create render pipeline (%d): %s", status, message);
+                        SKGPU_LOG_E("Failed to create render pipeline (%d): %s",
+                                    static_cast<int>(status),
+                                    message);
                         // invalidate AsyncPipelineCreation pointer to signal that this pipeline has
                         // failed.
                         asyncCreationPtr->fRenderPipeline = nullptr;
