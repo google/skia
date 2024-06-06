@@ -12,10 +12,10 @@ added and they will be served correctly and referenced from within Markdown
 files.
 
 When preparing for a code review of site docs you can get a preview of how the
-page will render by visiting the skia.org site and add a query parameter `cl`
-with the value of the Reitveld issue id:
+page will render by visiting the [Gerrit issue](https://skia-review.googlesource.com/c/skia/+/862957/####)
+and clicking the eye icon to the left of the file:
 
-    https://skia.org/path/to/markdown-file?cl=REITVELD_ISSUE_NUMBER
+<img src="../eye_icon.png" style="display: inline-block;" />
 
 See the [Docsy documentation](https://www.docsy.dev/docs/) for more details on
 how to configure and use docsy. For example the
