@@ -445,11 +445,12 @@ public:
             return false;
         }
         *path = std::move(pathWrapper).into_inner();
-        if (scalerMetrics.has_overlaps) {
-            // See SkScalerContext_FreeType_Base::generateGlyphPath.
-            Simplify(*path, path);
-            AsWinding(*path, path);
-        }
+
+        // See https://issues.skia.org/345178242 for details:
+        // The FreeType backend performs a path simplification here based on the
+        // equivalent of what we have here as scalerMetrics.has_overlaps
+        // Since PathOps::Simplify fails or at times produces incorrect simplified
+        // contours, skip that step here.
         return true;
     }
 
