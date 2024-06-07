@@ -10,7 +10,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkClipOp.h"
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorSpace.h" // IWYU pragma: keep
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
@@ -18,7 +18,6 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkShader.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkAssert.h"
@@ -252,25 +251,92 @@ const SkRuntimeEffect* SkShaderBlurAlgorithm::GetBlur2DEffect(const SkISize& rad
                          static_cast<uint32_t>(SkKnownRuntimeEffects::StableKey::k2DBlurBase)));
 }
 
-sk_sp<SkSpecialImage> SkShaderBlurAlgorithm::renderBlur(sk_sp<SkShader> blurEffect,
-                                                        const SkIRect& dstRect,
-                                                        SkColorType colorType,
-                                                        sk_sp<SkColorSpace> colorSpace) const {
+sk_sp<SkSpecialImage> SkShaderBlurAlgorithm::renderBlur(SkRuntimeShaderBuilder* blurEffectBuilder,
+                                                        SkFilterMode filter,
+                                                        SkISize radii,
+                                                        sk_sp<SkSpecialImage> input,
+                                                        const SkIRect& srcRect,
+                                                        SkTileMode tileMode,
+                                                        const SkIRect& dstRect) const {
     SkImageInfo outII = SkImageInfo::Make({dstRect.width(), dstRect.height()},
-                                          colorType, kPremul_SkAlphaType, std::move(colorSpace));
+                                          input->colorType(),
+                                          kPremul_SkAlphaType,
+                                          input->colorInfo().refColorSpace());
     sk_sp<SkDevice> device = this->makeDevice(outII);
     if (!device) {
         return nullptr;
     }
 
-    // TODO(b/294102201): This is very much like AutoSurface in SkImageFilterTypes.cpp
     SkIRect subset = SkIRect::MakeSize(dstRect.size());
     device->clipRect(SkRect::Make(subset), SkClipOp::kIntersect, /*aa=*/false);
     device->setLocalToDevice(SkM44::Translate(-dstRect.left(), -dstRect.top()));
+
+    // renderBlur() will either mix multiple fast and strict draws to cover dstRect, or will issue
+    // a single strict draw. While the SkShader object changes (really just strict mode), the rest
+    // of the SkPaint remains the same.
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);
-    paint.setShader(std::move(blurEffect));
-    device->drawPaint(paint);
+
+    SkIRect safeSrcRect = srcRect.makeInset(radii.width(), radii.height());
+    SkIRect fastDstRect = dstRect;
+
+    // Only consider the safeSrcRect for shader-based tiling if the original srcRect is different
+    // from the backing store dimensions; when they match the full image we can use HW tiling.
+    if (srcRect != SkIRect::MakeSize(input->backingStoreDimensions())) {
+        if (fastDstRect.intersect(safeSrcRect)) {
+            // If the area of the non-clamping shader is small, it's better to just issue a single
+            // draw that performs shader tiling over the whole dst.
+            if (fastDstRect.width() * fastDstRect.height() < 128 * 128) {
+                fastDstRect.setEmpty();
+            }
+        } else {
+            fastDstRect.setEmpty();
+        }
+    }
+
+    if (!fastDstRect.isEmpty()) {
+        // Fill as much as possible without adding shader tiling logic to each blur sample,
+        // switching to clamp tiling if we aren't in this block due to HW tiling.
+        SkIRect untiledSrcRect = srcRect.makeInset(1, 1);
+        SkTileMode fastTileMode = untiledSrcRect.contains(fastDstRect) ? SkTileMode::kClamp
+                                                                       : tileMode;
+        blurEffectBuilder->child("child") = input->asShader(
+                fastTileMode, filter, SkMatrix::I(), /*strict=*/false);
+        paint.setShader(blurEffectBuilder->makeShader());
+        device->drawRect(SkRect::Make(fastDstRect), paint);
+    }
+
+    // Switch to a strict shader if there are remaining pixels to fill
+    if (fastDstRect != dstRect) {
+        blurEffectBuilder->child("child") = input->makeSubset(srcRect)->asShader(
+                tileMode, filter, SkMatrix::Translate(srcRect.left(), srcRect.top()));
+        paint.setShader(blurEffectBuilder->makeShader());
+    }
+
+    if (fastDstRect.isEmpty()) {
+        // Fill the entire dst with the strict shader
+        device->drawRect(SkRect::Make(dstRect), paint);
+    } else if (fastDstRect != dstRect) {
+        // There will be up to four additional strict draws to fill in the border. The left and
+        // right sides will span the full height of the dst rect. The top and bottom will span
+        // the just the width of the fast interior. Strict border draws with zero width/height
+        // are skipped.
+        auto drawBorder = [&](const SkIRect& r) {
+            if (!r.isEmpty()) {
+                device->drawRect(SkRect::Make(r), paint);
+            }
+        };
+
+        drawBorder({dstRect.left(),      dstRect.top(),
+                    fastDstRect.left(),  dstRect.bottom()});   // Left, spanning full height
+        drawBorder({fastDstRect.right(), dstRect.top(),
+                    dstRect.right(),     dstRect.bottom()});   // Right, spanning full height
+        drawBorder({fastDstRect.left(),  dstRect.top(),
+                    fastDstRect.right(), fastDstRect.top()});  // Top, spanning inner width
+        drawBorder({fastDstRect.left(),  fastDstRect.bottom(),
+                    fastDstRect.right(), dstRect.bottom()});   // Bottom, spanning inner width
+    }
+
     return device->snapSpecial(subset);
 }
 
@@ -288,14 +354,10 @@ sk_sp<SkSpecialImage> SkShaderBlurAlgorithm::evalBlur2D(SkSize sigma,
     SkRuntimeShaderBuilder builder{sk_ref_sp(GetBlur2DEffect(radii))};
     builder.uniform("kernel") = kernel;
     builder.uniform("offsets") = offsets;
-    // TODO(b/294102201): This is very much like FilterResult::asShader()...
-    builder.child("child") =
-            input->makeSubset(srcRect)->asShader(tileMode,
-                                                 SkFilterMode::kNearest,
-                                                 SkMatrix::Translate(srcRect.left(),srcRect.top()));
-
-    return this->renderBlur(builder.makeShader(), dstRect,
-                            input->colorType(), input->colorInfo().refColorSpace());
+    // NOTE: renderBlur() will configure the "child" shader as needed. The 2D blur effect only
+    // requires nearest-neighbor filtering.
+    return this->renderBlur(&builder, SkFilterMode::kNearest, radii,
+                            std::move(input), srcRect, tileMode, dstRect);
 }
 
 sk_sp<SkSpecialImage> SkShaderBlurAlgorithm::evalBlur1D(float sigma,
@@ -311,14 +373,11 @@ sk_sp<SkSpecialImage> SkShaderBlurAlgorithm::evalBlur1D(float sigma,
     SkRuntimeShaderBuilder builder{sk_ref_sp(GetLinearBlur1DEffect(radius))};
     builder.uniform("offsetsAndKernel") = offsetsAndKernel;
     builder.uniform("dir") = dir;
-    // TODO(b/294102201): This is very much like FilterResult::asShader()...
-    builder.child("child") =
-            input->makeSubset(srcRect)->asShader(tileMode,
-                                                 SkFilterMode::kLinear,
-                                                 SkMatrix::Translate(srcRect.left(),srcRect.top()));
-
-    return this->renderBlur(builder.makeShader(), dstRect,
-                            input->colorType(), input->colorInfo().refColorSpace());
+    // NOTE: renderBlur() will configure the "child" shader as needed. The 1D blur effect requires
+    // linear filtering. Reconstruct the appropriate "2D" radii inset value from 'dir'.
+    SkISize radii{dir.x ? radius : 0, dir.y ? radius : 0};
+    return this->renderBlur(&builder, SkFilterMode::kLinear, radii,
+                            std::move(input), srcRect, tileMode, dstRect);
 }
 
 sk_sp<SkSpecialImage> SkShaderBlurAlgorithm::blur(SkSize sigma,
