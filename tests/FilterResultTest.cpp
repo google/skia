@@ -127,6 +127,16 @@ public:
                SkScalarIsInt(m.getTranslateY());
     }
 
+    static std::optional<std::pair<float, float>> DeferredScaleFactors(
+            const skif::FilterResult& image) {
+        float scaleFactors[2];
+        if (SkMatrix(image.fTransform).getMinMaxScales(scaleFactors)) {
+            return {{scaleFactors[0], scaleFactors[1]}};
+        } else {
+            return {};
+        }
+    }
+
     static bool IsShaderTilingExpected(const skif::Context& ctx,
                                        const skif::FilterResult& image) {
         if (image.tileMode() == SkTileMode::kClamp) {
@@ -320,7 +330,7 @@ public:
     SkTileMode expectedTileMode() const { return fExpectedTileMode; }
     const SkColorFilter* expectedColorFilter() const { return fExpectedColorFilter.get(); }
 
-    std::vector<int> expectedOffscreenSurfaces(SkTileMode srcTileMode) const {
+    std::vector<int> expectedOffscreenSurfaces(const FilterResult& source) const {
         if (fExpectation != Expect::kNewImage) {
             return {0};
         }
@@ -329,7 +339,12 @@ public:
             if (minScale >= 1.f - 0.001f) {
                 return {1};
             } else {
+                auto deferredScale = FilterResultTestAccess::DeferredScaleFactors(source);
                 int steps = 0;
+                if (deferredScale && std::get<0>(*deferredScale) <= 0.9f) {
+                    steps++;
+                }
+
                 do {
                     steps++;
                     minScale *= 2.f;
@@ -338,6 +353,7 @@ public:
 
                 // Rescaling periodic tiling may require scaling further than the value stored in
                 // the action to hit pixel integer bounds, which may trigger one more pass.
+                SkTileMode srcTileMode = source.tileMode();
                 if (srcTileMode == SkTileMode::kRepeat || srcTileMode == SkTileMode::kMirror) {
                     return {steps, steps + 1};
                 } else {
@@ -1136,7 +1152,7 @@ public:
             }
 
             std::vector<int> allowedOffscreenSurfaces =
-                    fActions[i].expectedOffscreenSurfaces(source.tileMode());
+                    fActions[i].expectedOffscreenSurfaces(source);
 
             int actualShaderDraws = stats.fNumShaderBasedTilingDraws + stats.fNumShaderClampedDraws;
             int expectedShaderTiledDraws = 0;
@@ -2458,6 +2474,22 @@ DEF_TEST_SUITE(RescaleWithTransform, r,
                 .rescale(kNearlyIdentity, Expect::kNewImage, SkTileMode::kDecal)
                 .run(/*requestedOutput=*/{-5, -5, 55, 55});
 
+        TestCase(r, "Identity rescale with deferred scale applies transform in first step")
+                .source({0, 0, 50, 50})
+                .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::Scale(0.4f, 0.4f), Expect::kDeferredImage)
+                .rescale({1.f, 1.f}, Expect::kNewImage, SkTileMode::kDecal)
+                .run(/*requestedOutput=*/{-10, -10, 30, 30});
+
+        TestCase(r, "Near-identity rescale with deferred scale applies transform in first step",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({0, 0, 50, 50})
+                .applyCrop({0, 0, 50, 50}, tm, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::Scale(0.4f, 0.4f), Expect::kDeferredImage)
+                .rescale(kNearlyIdentity, Expect::kNewImage, SkTileMode::kDecal)
+                .run(/*requestedOutput=*/{-10, -10, 30, 30});
+
         const bool periodic = tm == SkTileMode::kRepeat || tm == SkTileMode::kMirror;
 
         TestCase(r, "1-step rescale applies complex transform in first step",
@@ -2476,6 +2508,27 @@ DEF_TEST_SUITE(RescaleWithTransform, r,
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
                 .applyTransform(SkMatrix::RotateDeg(45.f, {16.f, 16.f}), Expect::kDeferredImage)
                 .rescale({0.25f, 0.25f}, Expect::kNewImage, /*expectedTileMode=*/SkTileMode::kDecal)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        // W/o resolving the deferred transform, the first rescale step could end up with a scale
+        // that's much less than 1/2 and sampling would miss a lot of data.
+        TestCase(r, "Rescale with deferred downscale applies transform before first step",
+                 kDefaultMaxAllowedPercentImageDiff,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 1 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::Scale(0.4f, 0.4f), Expect::kDeferredImage)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, /*expectedTileMode=*/SkTileMode::kDecal)
+                .run(/*requestedOutput=*/{0, 0, 80, 80});
+
+        // But for upscaling, it doesn't contribute to such sampling errors.
+        TestCase(r, "Rescale with deferred upscale applies transform with first step",
+                 /*allowedPercentImageDiff=*/2.55f,
+                 /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 3 : 0)
+                .source({16, 16, 64, 64})
+                .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
+                .applyTransform(SkMatrix::Scale(1.5f, 1.5f), Expect::kDeferredImage)
+                .rescale({0.5f, 0.5f}, Expect::kNewImage, /*expectedTileMode=*/SkTileMode::kDecal)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
     }
 }

@@ -1660,6 +1660,30 @@ FilterResult FilterResult::rescale(const Context& ctx,
         return {};
     }
 
+    // If we made it here, at least one iteration is required, even if xSteps and ySteps are 0.
+    FilterResult image = *this;
+    if (!pixelAligned && (xSteps > 0 || ySteps > 0)) {
+        // If the source image has a deferred transform with a downscaling factor, we don't want to
+        // necessarily compose the first rescale step's transform with it because we will then be
+        // missing pixels in the bilinear filtering and create sampling artifacts during animations.
+        LayerSpace<SkSize> netScale = image.fTransform.mapSize(scale);
+        int nextXSteps = downscale_step_count(netScale.width());
+        int nextYSteps = downscale_step_count(netScale.height());
+        // We only need to resolve the deferred transform if the rescaling along an axis is not
+        // near identity (steps > 0). If it's near identity, there's no real difference in sampling
+        // between resolving here and deferring it to the first rescale iteration.
+        if ((xSteps > 0 && nextXSteps > xSteps) || (ySteps > 0 && nextYSteps > ySteps)) {
+            // Resolve the deferred transform. We don't just fold the deferred scale factor into
+            // the rescaling steps because, for better or worse, the deferred transform does not
+            // otherwise participate in progressive scaling so we should be consistent.
+            image = image.resolve(ctx, srcRect);
+            if (!cfBorder) {
+                // This sets the resolved image to match either kDecal or the deferred tile mode.
+                image.fTileMode = tileMode;
+            } // else leave it as kDecal when cfBorder is true
+        }
+    }
+
     // To avoid incurring error from rounding up the dimensions at every step, the logical size of
     // the image is tracked in floats through the whole process; rounding to integers is only done
     // to produce a conservative pixel buffer and clamp-tiling is used so that partially covered
@@ -1694,11 +1718,7 @@ FilterResult FilterResult::rescale(const Context& ctx,
         // Recompute how many steps are needed, as we may need to do one more step from the round-in
         xSteps = downscale_step_count(finalScaleX);
         ySteps = downscale_step_count(finalScaleY);
-    }
 
-    // If we made it here, at least one iteration is required, even if xSteps and ySteps are 0.
-    FilterResult image = *this;
-    if (deferPeriodicTiling) {
         // The periodic tiling effect will be manually rendered into the lower resolution image so
         // that clamp tiling can be used at each decimation.
         image.fTileMode = SkTileMode::kClamp;
