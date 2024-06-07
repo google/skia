@@ -176,10 +176,9 @@ private:
                                         "dist_grad = dist_grad*half(inversesqrt(dg_len2));"
                                     "}");
 
-            fragBuilder->codeAppendf("half4 jacobian = half4(dFdx(%s), dFdy(%s));",
+            fragBuilder->codeAppendf("float2x2 jacobian = float2x2(dFdx(%s), dFdy(%s));",
                                      st.fsIn(), st.fsIn());
-            fragBuilder->codeAppend("half2 grad = half2(dot(dist_grad, jacobian.xz),"
-                                                       "dot(dist_grad, jacobian.yw));");
+            fragBuilder->codeAppend("half2 grad = half2(jacobian * dist_grad);");
 
             // this gives us a smooth step across approximately one fragment
             fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
@@ -448,10 +447,9 @@ private:
                                         "dist_grad = dist_grad*half(inversesqrt(dg_len2));"
                                     "}");
 
-            fragBuilder->codeAppendf("half4 jacobian = half4(dFdx(%s), dFdy(%s));",
+            fragBuilder->codeAppendf("float2x2 jacobian = float2x2(dFdx(%s), dFdy(%s));",
                                      st.fsIn(), st.fsIn());
-            fragBuilder->codeAppend("half2 grad = half2(dot(dist_grad, jacobian.xz),"
-                                                       "dot(dist_grad, jacobian.yw));");
+            fragBuilder->codeAppend("half2 grad = half2(jacobian * dist_grad);");
 
             // this gives us a smooth step across approximately one fragment
             fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
@@ -715,11 +713,13 @@ private:
         } else {
             fragBuilder->codeAppendf("half2 st = half2(%s);\n", st.fsIn());
 
-            fragBuilder->codeAppend("half4 jacobian = half4(dFdx(st), dFdy(st));");
+            fragBuilder->codeAppend("float2x2 jacobian = float2x2(dFdx(st), dFdy(st));");
             if (dfTexEffect.fFlags & kPortrait_DistanceFieldEffectFlag) {
-                fragBuilder->codeAppendf("half2 offset = half2(%s)*jacobian.zw;", delta.fsIn());
+                fragBuilder->codeAppendf("half2 offset = half2(jacobian * half2(0, %s));",
+                                         delta.fsIn());
             } else {
-                fragBuilder->codeAppendf("half2 offset = half2(%s)*jacobian.xy;", delta.fsIn());
+                fragBuilder->codeAppendf("half2 offset = half2(jacobian * half2(%s, 0));",
+                                         delta.fsIn());
             }
         }
 
@@ -763,8 +763,7 @@ private:
                                     "} else {"
                                         "dist_grad = dist_grad*half(inversesqrt(dg_len2));"
                                     "}"
-                                    "half2 grad = half2(dot(dist_grad, jacobian.xz),"
-                                                       "dot(dist_grad, jacobian.yw));");
+                                    "half2 grad = half2(jacobian * dist_grad);");
 
             // this gives us a smooth step across approximately one fragment
             fragBuilder->codeAppend("afwidth = " SK_DistanceFieldAAFactor "*length(grad);");
