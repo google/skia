@@ -55,6 +55,21 @@ skia_filegroup(
     visibility = ["//tools/sksl-minify:__pkg__"],
 )
 
+# Two separate groups, for selecting implementation (and for exporting to sksl.gni)
+skia_filegroup(
+    name = "sksl_skslc_module_srcs",
+    srcs = [
+        "SkSLModuleDataFile.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "sksl_default_module_srcs",
+    srcs = [
+        "SkSLModuleDataDefault.cpp",
+    ],
+)
+
 SKSL_SRCS = [
     "SkSLAnalysis.cpp",
     "SkSLAnalysis.h",
@@ -81,6 +96,7 @@ SKSL_SRCS = [
     "SkSLMangler.h",
     "SkSLMemoryLayout.h",
     "SkSLMemoryPool.h",
+    "SkSLModuleData.h",
     "SkSLModuleLoader.cpp",
     "SkSLModuleLoader.h",
     "SkSLOperator.cpp",
@@ -146,7 +162,14 @@ skia_filegroup(
         "//src/sksl/ir:srcs",
         "//src/sksl/tracing:srcs",
         "//src/sksl/transform:srcs",
-    ],
+    ] + select({
+        "//src/sksl:enable_skslc_true": [
+            ":sksl_skslc_module_srcs",
+        ],
+        "//conditions:default": [
+            ":sksl_default_module_srcs",
+        ],
+    }),
     visibility = ["//src:__pkg__"],
 )
 
@@ -194,7 +217,14 @@ skia_filegroup(
         "//src/sksl/ir:srcs",
         "//src/sksl/tracing:core_srcs",
         "//src/sksl/transform:srcs",
-    ],
+    ] + select({
+        "//src/sksl:enable_skslc_true": [
+            ":sksl_skslc_module_srcs",
+        ],
+        "//conditions:default": [
+            ":sksl_default_module_srcs",
+        ],
+    }),
     visibility = ["//src/core:__pkg__"],
 )
 

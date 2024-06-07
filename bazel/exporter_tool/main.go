@@ -292,6 +292,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/sksl/transform:transform_srcs",
 				"//src/sksl:sksl_hdrs",
 				"//src/sksl:sksl_srcs",
+				"//src/sksl:sksl_default_module_srcs",
+			}},
+		{Var: "skia_sksl_default_module_sources",
+			Rules: []string{
+				"//src/sksl:sksl_default_module_srcs",
 			}},
 		{Var: "skia_sksl_tracing_sources",
 			Rules: []string{
@@ -312,6 +317,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh:core_skslc_srcs",
 				"//src/ports:malloc",
 				"//src/ports:osfile",
+				"//src/sksl:sksl_skslc_module_srcs",
 				"//src/utils:utils_skslc_hdrs",
 				"//src/utils:utils_skslc_srcs",
 				"//src/utils:json_srcs",
