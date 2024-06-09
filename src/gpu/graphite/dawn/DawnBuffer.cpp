@@ -60,7 +60,11 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
     if (sharedContext->caps()->drawBufferCanBeMapped() &&
         accessPattern == AccessPattern::kHostVisible &&
         type != BufferType::kXferGpuToCpu) {
+        // If the buffer is intended to be mappabe, add MapWrite usage and remove
+        // CopyDst.
+        // We don't want to allow both CPU and GPU to write to the same buffer.
         usage |= wgpu::BufferUsage::MapWrite;
+        usage &= ~wgpu::BufferUsage::CopyDst;
     }
 
     wgpu::BufferDescriptor desc;
