@@ -604,7 +604,11 @@ half4 $colorize_grad_tex(sampler2D colorsAndOffsetsSampler, int numStops, float2
 }
 
 $pure float2 $linear_grad_layout(float2 pos) {
-    return float2(pos.x, 1);
+    // Add small epsilon since when the gradient is horizontally or vertically aligned,
+    // pixels along the same column or row can have slightly different interpolated t values
+    // causing pixels to choose the wrong offset when colorizing. This helps ensure pixels 
+    // along the same column or row choose the same gradient offsets.
+    return float2(pos.x + 0.00001, 1);
 }
 
 $pure float2 $radial_grad_layout(float2 pos) {
