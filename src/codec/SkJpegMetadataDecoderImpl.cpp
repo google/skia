@@ -202,7 +202,7 @@ bool SkJpegMetadataDecoderImpl::findGainmapImage(SkJpegSourceMgr* sourceMgr,
     // First, search through the Multi-Picture images.
     if (mpParams) {
         for (size_t mpImageIndex = 1; mpImageIndex < mpParams->images.size(); ++mpImageIndex) {
-            size_t mpImageOffset = SkJpegMultiPictureParameters::GetAbsoluteOffset(
+            size_t mpImageOffset = SkJpegMultiPictureParameters::GetImageAbsoluteOffset(
                     mpParams->images[mpImageIndex].dataOffset, mpParamsSegment.offset);
             size_t mpImageSize = mpParams->images[mpImageIndex].size;
 

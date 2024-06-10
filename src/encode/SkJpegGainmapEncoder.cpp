@@ -265,84 +265,76 @@ bool SkJpegGainmapEncoder::MakeMPF(SkWStream* dst, const SkData** images, size_t
         return true;
     }
 
-    // Create a scan of the primary image.
-    SkJpegSegmentScanner primaryScan;
-    primaryScan.onBytes(images[0]->data(), images[0]->size());
-    if (!primaryScan.isDone()) {
-        SkCodecPrintf("Failed to scan encoded primary image header.\n");
-        return false;
+    // Compute the offset into the first individual image where we will write the MP parameters.
+    size_t mpSegmentOffset = 0;
+    {
+        // Scan the image until StartOfScan marker.
+        SkJpegSegmentScanner scan(kJpegMarkerStartOfScan);
+        scan.onBytes(images[0]->data(), images[0]->size());
+        if (!scan.isDone()) {
+            SkCodecPrintf("Failed to scan image header.\n");
+            return false;
+        }
+
+        // We'll insert the MPF segment just before the StartOfScan.
+        // TODO(b/338342146): This is technically not compliant. See 5.1. Basic MP File Structure,
+        // which indicates "The MP Extensions are specified in the APP2 marker segment which follows
+        // immediately after the Exif Attributes in the APP1 marker segment except as specified in
+        // section 7". We currently do not include Exif metadata in encoded files yet.
+        mpSegmentOffset = scan.getSegments().back().offset;
     }
 
-    // Copy the primary image up to its StartOfScan, then insert the MPF segment, then copy the rest
-    // of the primary image, and all other images.
-    size_t bytesRead = 0;
-    size_t bytesWritten = 0;
-    for (const auto& segment : primaryScan.getSegments()) {
-        // Write all ECD before this segment.
-        {
-            size_t ecdBytesToWrite = segment.offset - bytesRead;
-            if (!dst->write(images[0]->bytes() + bytesRead, ecdBytesToWrite)) {
-                SkCodecPrintf("Failed to write entropy coded data.\n");
-                return false;
+    // Populate the MP parameters (image sizes and offsets).
+    SkJpegMultiPictureParameters mpParams;
+    {
+        mpParams.images.resize(imageCount);
+        size_t cumulativeSize = 0;
+        for (size_t i = 0; i < imageCount; ++i) {
+            size_t imageSize = images[i]->size();
+            if (i == 0) {
+                // Add the size of the MPF segment to the first individual image. Note that the
+                // contents of get_mpf_segment() are incorrect (because we don't have the right
+                // offset values), but the size is correct.
+                imageSize += static_cast<uint32_t>(get_mpf_segment(mpParams)->size());
             }
-            bytesWritten += ecdBytesToWrite;
-            bytesRead = segment.offset;
+
+            mpParams.images[i].dataOffset = SkJpegMultiPictureParameters::GetImageDataOffset(
+                    cumulativeSize, mpSegmentOffset);
+            mpParams.images[i].size = static_cast<uint32_t>(imageSize);
+            cumulativeSize += imageSize;
+        }
+    }
+
+    // Write the first individual image.
+    {
+        auto image = images[0];
+
+        // Write up to the MP segment.
+        if (!dst->write(image->bytes(), mpSegmentOffset)) {
+            SkCodecPrintf("Failed to write image header.\n");
+            return false;
         }
 
-        // If this isn't a StartOfScan, write just the segment.
-        if (segment.marker != kJpegMarkerStartOfScan) {
-            const size_t bytesToWrite = kJpegMarkerCodeSize + segment.parameterLength;
-            if (!dst->write(images[0]->bytes() + bytesRead, bytesToWrite)) {
-                SkCodecPrintf("Failed to copy segment.\n");
-                return false;
-            }
-            bytesWritten += bytesToWrite;
-            bytesRead += bytesToWrite;
-            continue;
-        }
-
-        // We're now at the StartOfScan.
-        const size_t bytesRemaining = images[0]->size() - bytesRead;
-
-        // Compute the MPF offsets for the images.
-        SkJpegMultiPictureParameters mpParams;
-        {
-            mpParams.images.resize(imageCount);
-            const size_t mpSegmentSize = kJpegMarkerCodeSize + kJpegSegmentParameterLengthSize +
-                                         mpParams.serialize()->size();
-            mpParams.images[0].size =
-                    static_cast<uint32_t>(bytesWritten + mpSegmentSize + bytesRemaining);
-            uint32_t offset =
-                    static_cast<uint32_t>(bytesRemaining + mpSegmentSize - kJpegMarkerCodeSize -
-                                          kJpegSegmentParameterLengthSize - sizeof(kMpfSig));
-            for (size_t i = 1; i < imageCount; ++i) {
-                mpParams.images[i].dataOffset = offset;
-                mpParams.images[i].size = static_cast<uint32_t>(images[i]->size());
-                offset += mpParams.images[i].size;
-            }
-        }
-
-        // Write the MPF segment.
+        // Write the MP segment.
         auto mpfSegment = get_mpf_segment(mpParams);
         if (!dst->write(mpfSegment->data(), mpfSegment->size())) {
             SkCodecPrintf("Failed to write MPF segment.\n");
             return false;
         }
 
-        // Write the rest of the primary file.
-        if (!dst->write(images[0]->bytes() + bytesRead, bytesRemaining)) {
-            SkCodecPrintf("Failed to write remainder of primary image.\n");
+        // Write the rest of the image.
+        if (!dst->write(image->bytes() + mpSegmentOffset, image->size() - mpSegmentOffset)) {
+            SkCodecPrintf("Failed to write image body.\n");
             return false;
         }
-        bytesRead += bytesRemaining;
-        SkASSERT(bytesRead == images[0]->size());
-        break;
     }
 
-    // Write the remaining files.
+    // Write the non-first individual images.
     for (size_t i = 1; i < imageCount; ++i) {
-        if (!dst->write(images[i]->data(), images[i]->size())) {
-            SkCodecPrintf("Failed to write auxiliary image.\n");
+        auto image = images[i];
+        if (!dst->write(image->bytes(), image->size())) {
+            SkCodecPrintf("Failed to write image body.\n");
+            return false;
         }
     }
     return true;

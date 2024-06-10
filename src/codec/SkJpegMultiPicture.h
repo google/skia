@@ -57,7 +57,15 @@ struct SkJpegMultiPictureParameters {
      * parameters, given the absolute offset of the MPF segment (the offset of the {0xFF, 0xE2}
      * marker from the start of the image.
      */
-    static size_t GetAbsoluteOffset(uint32_t dataOffset, size_t mpSegmentOffset);
+    static size_t GetImageAbsoluteOffset(uint32_t dataOffset, size_t mpSegmentOffset);
+
+    /*
+     * Compute the data offset (as stored in the multi-picture params) for an image given its
+     * absolute offset (from the start of the first individual image), and the absolute offset
+     * of the MPF segment in the first individual image. This will return 0 for an image at
+     * absolute offset 0.
+     */
+    static uint32_t GetImageDataOffset(size_t imageAbsoluteOffset, size_t mpSegmentOffset);
 };
 
 #endif

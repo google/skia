@@ -307,15 +307,27 @@ sk_sp<SkData> SkJpegMultiPictureParameters::serialize() const {
     return s.detachAsData();
 }
 
-size_t SkJpegMultiPictureParameters::GetAbsoluteOffset(uint32_t dataOffset,
-                                                       size_t mpSegmentOffset) {
+static size_t mp_header_absolute_offset(size_t mpSegmentOffset) {
+    return mpSegmentOffset +                  // The offset to the segment's marker
+           kJpegMarkerCodeSize +              // The marker itself
+           kJpegSegmentParameterLengthSize +  // The segment parameter length
+           sizeof(kMpfSig);                   // The {'M','P','F',0} signature
+}
+
+size_t SkJpegMultiPictureParameters::GetImageAbsoluteOffset(uint32_t dataOffset,
+                                                            size_t mpSegmentOffset) {
     // The value of zero is used by the primary image.
     if (dataOffset == 0) {
         return 0;
     }
-    return mpSegmentOffset +                  // The offset to the marker
-           kJpegMarkerCodeSize +              // The marker itself
-           kJpegSegmentParameterLengthSize +  // The parameter length
-           sizeof(kMpfSig) +                  // The signature
-           dataOffset;
+    return mp_header_absolute_offset(mpSegmentOffset) + dataOffset;
+}
+
+uint32_t SkJpegMultiPictureParameters::GetImageDataOffset(size_t imageAbsoluteOffset,
+                                                          size_t mpSegmentOffset) {
+    // The value of zero is used by the primary image.
+    if (imageAbsoluteOffset == 0) {
+        return 0;
+    }
+    return static_cast<uint32_t>(imageAbsoluteOffset - mp_header_absolute_offset(mpSegmentOffset));
 }

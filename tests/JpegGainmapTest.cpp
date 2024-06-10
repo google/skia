@@ -451,8 +451,8 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
                 continue;
             }
             auto imageData = sourceMgr->getSubsetData(
-                    SkJpegMultiPictureParameters::GetAbsoluteOffset(mpParams->images[i].dataOffset,
-                                                                    mpParamsSegment.offset),
+                    SkJpegMultiPictureParameters::GetImageAbsoluteOffset(
+                            mpParams->images[i].dataOffset, mpParamsSegment.offset),
                     mpParams->images[i].size);
             REPORTER_ASSERT(r, imageData);
 
