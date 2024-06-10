@@ -117,23 +117,17 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_readPixelsFromSurfaces, reporter, ctx
         return;
     }
 
-    for (bool isProtected : { true, false }) {
-        if (!isProtected && GrBackendApi::kVulkan == dContext->backend()) {
-            continue;
-        }
-
-        sk_sp<SkSurface> surface = ProtectedUtils::CreateProtectedSkSurface(dContext,
-                                                                            { kSize, kSize },
-                                                                            /* textureable= */ true,
-                                                                            isProtected);
-        if (!surface) {
-            continue;
-        }
-
-        SkBitmap readback;
-        readback.allocPixels(surface->imageInfo());
-        REPORTER_ASSERT(reporter, isProtected != surface->readPixels(readback, 0, 0));
+    sk_sp<SkSurface> surface = ProtectedUtils::CreateProtectedSkSurface(dContext,
+                                                                        { kSize, kSize },
+                                                                        /* textureable= */ true,
+                                                                        /* isProtected= */ true);
+    if (!surface) {
+        return;
     }
+
+    SkBitmap readback;
+    readback.allocPixels(surface->imageInfo());
+    REPORTER_ASSERT(reporter, !surface->readPixels(readback, 0, 0));
 }
 
 namespace {
@@ -161,32 +155,26 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(Protected_asyncRescaleAndReadPixelsFromSurfaces
         return;
     }
 
-    for (bool isProtected : { true, false }) {
-        if (!isProtected && GrBackendApi::kVulkan == dContext->backend()) {
-            continue;
-        }
-
-        sk_sp<SkSurface> surface = ProtectedUtils::CreateProtectedSkSurface(dContext,
-                                                                            { kSize, kSize },
-                                                                            /* textureable= */ true,
-                                                                            isProtected);
-        if (!surface) {
-            continue;
-        }
-
-        AsyncContext cbContext;
-
-        surface->asyncRescaleAndReadPixels(surface->imageInfo(),
-                                           SkIRect::MakeWH(surface->width(), surface->height()),
-                                           SkSurface::RescaleGamma::kSrc,
-                                           SkSurface::RescaleMode::kNearest,
-                                           async_callback, &cbContext);
-        dContext->submit();
-        while (!cbContext.fCalled) {
-            dContext->checkAsyncWorkCompletion();
-        }
-        REPORTER_ASSERT(reporter, isProtected != SkToBool(cbContext.fResult));
+    sk_sp<SkSurface> surface = ProtectedUtils::CreateProtectedSkSurface(dContext,
+                                                                        { kSize, kSize },
+                                                                        /* textureable= */ true,
+                                                                        /* isProtected= */ true);
+    if (!surface) {
+        return;
     }
+
+    AsyncContext cbContext;
+
+    surface->asyncRescaleAndReadPixels(surface->imageInfo(),
+                                       SkIRect::MakeWH(surface->width(), surface->height()),
+                                       SkSurface::RescaleGamma::kSrc,
+                                       SkSurface::RescaleMode::kNearest,
+                                       async_callback, &cbContext);
+    dContext->submit();
+    while (!cbContext.fCalled) {
+        dContext->checkAsyncWorkCompletion();
+    }
+    REPORTER_ASSERT(reporter, !cbContext.fResult);
 }
 
 #endif  // defined(SK_GANESH)

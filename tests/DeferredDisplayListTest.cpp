@@ -118,9 +118,9 @@ static bool is_compatible(const GrSurfaceCharacterization& gsc, const GrBackendT
 
 class SurfaceParameters {
 public:
-    static const int kNumParams      = 13;
+    static const int kNumParams      = 12;
     static const int kFBO0Count      = 9;
-    static const int kVkSCBCount     = 12;
+    static const int kVkSCBCount     = 11;
 
     SurfaceParameters(GrRecordingContext* rContext)
             : fBackend(rContext->backend())
@@ -138,16 +138,17 @@ public:
             , fIsProtected(skgpu::Protected::kNo)
             , fVkRTSupportsInputAttachment(false)
             , fForVulkanSecondaryCommandBuffer(false) {
-#ifdef SK_VULKAN
-        if (rContext->backend() == GrBackendApi::kVulkan) {
-            auto vkCaps = static_cast<const GrVkCaps*>(rContext->priv().caps());
-            fCanBeProtected = vkCaps->supportsProtectedContent();
+        const GrCaps* caps = rContext->priv().caps();
+
+        if (rContext->backend() == GrBackendApi::kOpenGL ||
+            rContext->backend() == GrBackendApi::kVulkan) {
+            fCanBeProtected = caps->supportsProtectedContent();
             if (fCanBeProtected) {
                 fIsProtected = skgpu::Protected::kYes;
             }
         }
-#endif
-        if (!rContext->priv().caps()->mipmapSupport()) {
+
+        if (!caps->mipmapSupport()) {
             fShouldCreateMipMaps = skgpu::Mipmapped::kNo;
         }
     }
@@ -227,11 +228,6 @@ public:
             set(fIsTextureable, false);
             break;
         case 11:
-            if (fCanBeProtected) {
-                set(fIsProtected, skgpu::Protected(!static_cast<bool>(fIsProtected)));
-            }
-            break;
-        case 12:
             if (GrBackendApi::kVulkan == fBackend) {
                 set(fForVulkanSecondaryCommandBuffer, true);
                 set(fUsesGLFBO0, false);
@@ -299,7 +295,7 @@ public:
             GrGLFramebufferInfo fboInfo;
             fboInfo.fFBOID = 0;
             fboInfo.fFormat = GR_GL_RGBA8;
-            fboInfo.fProtected = skgpu::Protected::kNo;
+            fboInfo.fProtected = fIsProtected;
             static constexpr int kStencilBits = 8;
             GrBackendRenderTarget backendRT =
                     GrBackendRenderTargets::MakeGL(fWidth, fHeight, 1, kStencilBits, fboInfo);
