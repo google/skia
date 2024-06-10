@@ -325,7 +325,15 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
                 int nextPt = pointCount;
                 segmentCount++;
 
-                if (SkPathVerb::kConic == verb) {
+                if (prevPt == pts[nextPt]) {
+                    // A pre-condition to getting here is that the path is convex, so if a
+                    // verb's start and end points are the same, it means it's the only
+                    // verb in the contour (and the only contour). While it's possible for
+                    // such a single verb to be a convex curve, we do not have any non-zero
+                    // length edges to conservatively test against without splitting or
+                    // evaluating the curve. For simplicity, just reject the rectangle.
+                    return false;
+                } else if (SkPathVerb::kConic == verb) {
                     SkConic orig;
                     orig.set(pts, *weight);
                     SkPoint quadPts[5];

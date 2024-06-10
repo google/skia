@@ -2097,6 +2097,20 @@ static void test_conservativelyContains(skiatest::Reporter* reporter) {
     path.reset();
     REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(1,1)));
     REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(0,0)));
+
+    path.reset();
+    path.moveTo(50, 50);
+    path.cubicTo(0, 0, 100, 0, 50, 50);
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(100, 100)));
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(30, 30)));
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(1,1)));
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(0,0)));
+
+    path.reset();
+    path.moveTo(50, 50);
+    path.quadTo(100, 100, 50, 50);
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(1,1)));
+    REPORTER_ASSERT(reporter, !path.conservativelyContainsRect(SkRect::MakeWH(0,0)));
 }
 
 static void test_isRect_open_close(skiatest::Reporter* reporter) {
