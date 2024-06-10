@@ -1890,6 +1890,10 @@ void Viewer::onPaint(SkSurface* surface) {
 
 void Viewer::onResize(int width, int height) {
     if (fCurrentSlide >= 0) {
+        // Resizing can reset the context on some backends so just tear it all down.
+        // We'll rebuild these resources on the next draw.
+        fSlides[fCurrentSlide]->gpuTeardown();
+
         SkScalar scaleFactor = 1.0;
         if (fApplyBackingScale) {
             scaleFactor = fWindow->scaleFactor();
