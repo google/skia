@@ -1146,7 +1146,7 @@ $pure half4 bitmap_text_coverage_fn(half4 texColor, int maskFormat) {
 }
 
 $pure half4 sdf_text_coverage_fn(half texColor,
-                                 half gammaDistAdjust,
+                                 half2 gammaParams,
                                  float2 unormTexCoords) {
     // TODO: To minimize the number of shaders generated this is the full affine shader.
     // For best performance it may be worth creating the uniform scale shader as well,
@@ -1160,7 +1160,7 @@ $pure half4 sdf_text_coverage_fn(half texColor,
     half dist = 7.96875 * (texColor - 0.50196078431);
 
     // We may further adjust the distance for gamma correction.
-    dist -= gammaDistAdjust;
+    dist -= gammaParams.x;
 
     // After the distance is unpacked, we need to correct it by a factor dependent on the
     // current transformation. For general transforms, to determine the amount of correction
@@ -1182,13 +1182,20 @@ $pure half4 sdf_text_coverage_fn(half texColor,
     // This gives us a smooth step across approximately one fragment.
     half approxFragWidth = 0.65 * length(grad);
 
-    // TODO: handle aliased and sRGB rendering
-    return half4(smoothstep(-approxFragWidth, approxFragWidth, dist));
+    // TODO: handle aliased rendering
+    if (gammaParams.y > 0) {
+        // The smoothstep falloff compensates for the non-linear sRGB response curve. If we are
+        // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want
+        // distance mapped linearly to coverage, so use a linear step:
+        return half4(saturate((dist + approxFragWidth) / (2.0 * approxFragWidth)));
+    } else {
+        return half4(smoothstep(-approxFragWidth, approxFragWidth, dist));
+    }
 }
 
 $pure half4 sdf_text_lcd_coverage_fn(float2 textureCoords,
                                      half2 pixelGeometryDelta,
-                                     half3 gammaDistAdjust,
+                                     half4 gammaParams,
                                      float2 unormTexCoords,
                                      float texIndex,
                                      sampler2D atlas0,
@@ -1216,7 +1223,7 @@ $pure half4 sdf_text_lcd_coverage_fn(float2 textureCoords,
     half3 dist = half3(7.96875) * (distance - half3(0.50196078431));
 
     // We may further adjust the distance for gamma correction.
-    dist -= gammaDistAdjust;
+    dist -= gammaParams.xyz;
 
     // After the distance is unpacked, we need to correct it by a factor dependent on the
     // current transformation. For general transforms, to determine the amount of correction
@@ -1235,10 +1242,17 @@ $pure half4 sdf_text_lcd_coverage_fn(float2 textureCoords,
     half2 grad = half2(jacobian * dist_grad);
 
     // This gives us a smooth step across approximately one fragment.
-    half approxFragWidth = 0.65 * length(grad);
+    half3 approxFragWidth = half3(0.65 * length(grad));
 
-    // TODO: handle aliased and sRGB rendering
-    return half4(smoothstep(half3(-approxFragWidth), half3(approxFragWidth), dist), 1);
+    // TODO: handle aliased rendering
+    if (gammaParams.w > 0) {
+        // The smoothstep falloff compensates for the non-linear sRGB response curve. If we are
+        // doing gamma-correct rendering (to an sRGB or F16 buffer), then we actually want
+        // distance mapped linearly to coverage, so use a linear step:
+        return half4(saturate((dist + approxFragWidth / (2.0 * approxFragWidth))), 1);
+    } else {
+        return half4(smoothstep(half3(-approxFragWidth), half3(approxFragWidth), dist), 1);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
