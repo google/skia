@@ -906,11 +906,11 @@ STAGE(load_10101010_XR, NoCtx) {
     static constexpr float min = -0.752941f;
     static constexpr float max = 1.25098f;
     static constexpr float range = max - min;
-    U64 rgba = load<U64>(src + 8*i);
-    r = cast<F>((rgba >>  0) & 0x3ff) * (1/1023.0f) * range + min;
-    g = cast<F>((rgba >> 16) & 0x3ff) * (1/1023.0f) * range + min;
-    b = cast<F>((rgba >> 32) & 0x3ff) * (1/1023.0f) * range + min;
-    a = cast<F>((rgba >> 48) & 0x3ff) * (1/1023.0f) * range + min;
+    U64 rgba = load<U64>(src + 8 * i);
+    r = cast<F>((rgba >>  (0+6)) & 0x3ff) * (1/1023.0f) * range + min;
+    g = cast<F>((rgba >> (16+6)) & 0x3ff) * (1/1023.0f) * range + min;
+    b = cast<F>((rgba >> (32+6)) & 0x3ff) * (1/1023.0f) * range + min;
+    a = cast<F>((rgba >> (48+6)) & 0x3ff) * (1/1023.0f) * range + min;
 }
 
 STAGE(load_161616LE, NoCtx) {
