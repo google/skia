@@ -2,6 +2,25 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 127
+-------------
+  * SkSL now properly recognizes the types `uvec2`, `uvec3` or `uvec4`.
+
+    Unsigned types are not supported in Runtime Effects, as they did not exist in GLSL ES2; however,
+    SkSL should still recognize these typenames and reject them if they are used in a program.
+    That is, we should not allow `uvec3` to be used as a variable or function name. We will now properly
+    detect and reject this as an error.
+  * The following deprecated fields have been removed from `GrVkBackendContext`:
+     - `fMinAPIVersion`. Use `fMaxAPIVersion` instead.
+     - `fInstanceVersion`. Use `fMaxAPIVersion` instead.
+     - `fFeatures`. Use `fDeviceFeatures` or `fDeviceFeatures2` instead.
+     - `fOwnsInstanceAndDevice`. No replacement, as it had no effect.
+
+    `GrVkBackendContext` is now an alias for `skgpu::VulkanBackendContext`. Clients should use the latter, as the former will be eventually removed.
+  * SkShaderMaskFilters and SkTableMaskFilters have been deprecated. They will be removed entirely in an upcoming Skia release.
+
+* * *
+
 Milestone 126
 -------------
   * Skia's internal array class (`skia_private::TArray<T>`) now protects its unused capacity when
