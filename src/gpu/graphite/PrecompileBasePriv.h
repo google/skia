@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_PrecompileBasePriv_DEFINED
 #define skgpu_graphite_PrecompileBasePriv_DEFINED
 
-#include "src/gpu/graphite/Precompile.h"
+#include "src/gpu/graphite/PrecompileInternal.h"
 
 namespace skgpu::graphite {
 

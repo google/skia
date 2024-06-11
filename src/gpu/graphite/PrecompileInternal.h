@@ -5,12 +5,13 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_Precompile_DEFINED
-#define skgpu_graphite_Precompile_DEFINED
+#ifndef skgpu_graphite_PrecompileInternal_DEFINED
+#define skgpu_graphite_PrecompileInternal_DEFINED
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
+#include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 
@@ -154,110 +155,6 @@ public:
 };
 
 //--------------------------------------------------------------------------------------------------
-class PaintOptionsPriv;
-class PrecompileImageFilter;
-class PrecompileMaskFilter;
-
-class PaintOptions {
-public:
-    void setShaders(SkSpan<const sk_sp<PrecompileShader>> shaders) {
-        fShaderOptions.assign(shaders.begin(), shaders.end());
-    }
-
-    void setImageFilters(SkSpan<const sk_sp<PrecompileImageFilter>> imageFilters) {
-        fImageFilterOptions.assign(imageFilters.begin(), imageFilters.end());
-    }
-
-    void setMaskFilters(SkSpan<const sk_sp<PrecompileMaskFilter>> maskFilters) {
-        fMaskFilterOptions.assign(maskFilters.begin(), maskFilters.end());
-    }
-
-    void setColorFilters(SkSpan<const sk_sp<PrecompileColorFilter>> colorFilters) {
-        fColorFilterOptions.assign(colorFilters.begin(), colorFilters.end());
-    }
-    SkSpan<const sk_sp<PrecompileColorFilter>> colorFilters() const {
-        return SkSpan<const sk_sp<PrecompileColorFilter>>(fColorFilterOptions);
-    }
-    void addColorFilter(sk_sp<PrecompileColorFilter> cf) {
-        fColorFilterOptions.push_back(std::move(cf));
-    }
-
-    void setBlendModes(SkSpan<const SkBlendMode> blendModes) {
-        fBlendModeOptions.clear();
-        fBlendModeOptions.append(blendModes.size(), blendModes.data());
-    }
-    void setBlenders(SkSpan<const sk_sp<PrecompileBlender>> blenders) {
-        for (const sk_sp<PrecompileBlender>& b: blenders) {
-            if (b->asBlendMode().has_value()) {
-                fBlendModeOptions.push_back(b->asBlendMode().value());
-            } else {
-                fBlenderOptions.push_back(b);
-            }
-        }
-    }
-    void addBlendMode(SkBlendMode bm) {
-        fBlendModeOptions.push_back(bm);
-    }
-
-    SkSpan<const SkBlendMode> blendModes() const {
-        return SkSpan<const SkBlendMode>(fBlendModeOptions.data(),
-                                         fBlendModeOptions.size());
-    }
-    SkSpan<const sk_sp<PrecompileBlender>> blenders() const {
-        return SkSpan<const sk_sp<PrecompileBlender>>(fBlenderOptions);
-    }
-
-    void setClipShaders(SkSpan<const sk_sp<PrecompileShader>> clipShaders);
-
-    void setDither(bool dither) { fDither = dither; }
-
-    typedef std::function<void(UniquePaintParamsID id,
-                               DrawTypeFlags,
-                               bool withPrimitiveBlender,
-                               Coverage)> ProcessCombination;
-
-    // Provides access to functions that aren't part of the public API.
-    PaintOptionsPriv priv();
-    const PaintOptionsPriv priv() const;  // NOLINT(readability-const-return-type)
-
-private:
-    friend class PaintOptionsPriv;
-
-    int numShaderCombinations() const;
-    int numColorFilterCombinations() const;
-    // TODO: need to decompose imagefilters into component draws
-    int numBlendModeCombinations() const;
-    int numClipShaderCombinations() const;
-
-    int numCombinations() const;
-    // 'desiredCombination' must be less than the result of the numCombinations call
-    void createKey(const KeyContext&,
-                   PaintParamsKeyBuilder*,
-                   PipelineDataGatherer*,
-                   int desiredCombination,
-                   bool addPrimitiveBlender,
-                   Coverage coverage) const;
-
-    void buildCombinations(
-        const KeyContext&,
-        PipelineDataGatherer*,
-        DrawTypeFlags drawTypes,
-        bool addPrimitiveBlender,
-        Coverage coverage,
-        const ProcessCombination& processCombination) const;
-
-    std::vector<sk_sp<PrecompileShader>> fShaderOptions;
-    std::vector<sk_sp<PrecompileColorFilter>> fColorFilterOptions;
-    SkTDArray<SkBlendMode> fBlendModeOptions;
-    skia_private::TArray<sk_sp<PrecompileBlender>> fBlenderOptions;
-    std::vector<sk_sp<PrecompileShader>> fClipShaderOptions;
-
-    std::vector<sk_sp<PrecompileImageFilter>> fImageFilterOptions;
-    std::vector<sk_sp<PrecompileMaskFilter>> fMaskFilterOptions;
-
-    bool fDither = false;
-};
-
 class PrecompileImageFilter : public PrecompileBase {
 public:
     virtual sk_sp<PrecompileColorFilter> isColorFilterNode() const { return nullptr; }
@@ -309,11 +206,11 @@ private:
 
     virtual void onCreatePipelines(const KeyContext&,
                                    PipelineDataGatherer*,
-                                   const PaintOptions::ProcessCombination&) const = 0;
+                                   const PaintOptionsPriv::ProcessCombination&) const = 0;
 
     void createPipelines(const KeyContext& keyContext,
                          PipelineDataGatherer* gatherer,
-                         const PaintOptions::ProcessCombination& processCombination) {
+                         const PaintOptionsPriv::ProcessCombination& processCombination) {
         // TODO: we will want to mark already visited nodes to prevent loops and track
         // already created Pipelines so we don't over-generate too much (e.g., if a DAG
         // has multiple blurs we don't want to keep trying to create all the blur pipelines).
@@ -348,9 +245,9 @@ private:
 
     virtual void createPipelines(const KeyContext&,
                                  PipelineDataGatherer*,
-                                 const PaintOptions::ProcessCombination&) const = 0;
+                                 const PaintOptionsPriv::ProcessCombination&) const = 0;
 };
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_Precompile_DEFINED
+#endif // skgpu_graphite_PrecompileInternal_DEFINED

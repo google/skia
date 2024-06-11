@@ -351,7 +351,10 @@ skia_graphite_vello_sources = [
   "$_src/compute/VelloRenderer.h",
 ]
 
-skia_graphite_precompile_public = []
+skia_graphite_precompile_public = [
+  "$_include/precompile/Precompile.h",
+  "$_include/precompile/PaintOptions.h",
+]
 
 skia_graphite_precompile_sources = [
   "$_src/FactoryFunctions.cpp",
@@ -359,8 +362,8 @@ skia_graphite_precompile_sources = [
   "$_src/FactoryFunctionsPriv.h",
   "$_src/PaintOptionsPriv.h",
   "$_src/Precompile.cpp",
-  "$_src/Precompile.h",
   "$_src/PrecompileBasePriv.h",
+  "$_src/PrecompileInternal.h",
   "$_src/PublicPrecompile.cpp",
   "$_src/PublicPrecompile.h",
 ]

@@ -17,8 +17,8 @@
 #include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PrecompileBasePriv.h"
+#include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/shaders/SkShaderBase.h"
@@ -1181,7 +1181,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
-            const PaintOptions::ProcessCombination& processCombination) const override {
+            const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         PaintOptions paintOptions;
 
@@ -1245,9 +1245,10 @@ sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blend(
 
 namespace {
 
-void create_blur_imagefilter_pipelines(const KeyContext& keyContext,
-                                       PipelineDataGatherer* gatherer,
-                                       const PaintOptions::ProcessCombination& processCombination) {
+void create_blur_imagefilter_pipelines(
+        const KeyContext& keyContext,
+        PipelineDataGatherer* gatherer,
+        const PaintOptionsPriv::ProcessCombination& processCombination) {
 
     PaintOptions blurPaintOptions;
 
@@ -1280,7 +1281,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
-            const PaintOptions::ProcessCombination& processCombination) const override {
+            const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         create_blur_imagefilter_pipelines(keyContext, gatherer, processCombination);
     }
@@ -1308,7 +1309,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
-            const PaintOptions::ProcessCombination& processCombination) const override {
+            const PaintOptionsPriv::ProcessCombination& processCombination) const override {
         PaintOptions paintOptions;
 
         sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
@@ -1361,7 +1362,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
-            const PaintOptions::ProcessCombination& processCombination) const override {
+            const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         PaintOptions displacement;
 
@@ -1398,7 +1399,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
-            const PaintOptions::ProcessCombination& processCombination) const override {
+            const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
                 PrecompileImageShaderFlags::kExcludeAlpha |
@@ -1432,7 +1433,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
-            const PaintOptions::ProcessCombination& processCombination) const override {
+            const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         PaintOptions matrixConv;
 
@@ -1469,7 +1470,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
-            const PaintOptions::ProcessCombination& processCombination) const override {
+            const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         // For morphology imagefilters we know we don't have alpha-only textures and don't need
         // cubic filtering.
@@ -1524,7 +1525,7 @@ private:
     void createPipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
-            const PaintOptions::ProcessCombination& processCombination) const override {
+            const PaintOptionsPriv::ProcessCombination& processCombination) const override {
         create_blur_imagefilter_pipelines(keyContext, gatherer, processCombination);
     }
 };

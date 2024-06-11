@@ -20,17 +20,6 @@ class PaintOptions;
 struct RenderPassDesc;
 class RuntimeEffectDictionary;
 
-/**
- * Precompilation allows clients to create pipelines ahead of time based on what they expect
- * to draw. This can reduce performance hitches, due to inline compilation, during the actual
- * drawing. Graphite will always be able to perform an inline compilation if some SkPaint
- * combination was omitted from precompilation.
- *
- *   @param context        the Context to which the actual draws will be submitted
- *   @param paintOptions   captures a set of SkPaints that will be drawn
- *   @param drawTypes      communicates which primitives those paints will be drawn with
- */
-void Precompile(Context*, const PaintOptions&, DrawTypeFlags = kMostCommon);
 
 /*
  * TODO: Rather than passing in a pipelineDesc and renderPassDesc we need to add an

@@ -15,8 +15,8 @@
 #include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PrecompileBasePriv.h"
+#include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
@@ -99,7 +99,7 @@ int PaintOptions::numColorFilterCombinations() const {
     return numColorFilterCombinations ? numColorFilterCombinations : 1;
 }
 
-int PaintOptions::numBlendModeCombinations() const {
+int PaintOptions::numBlendCombinations() const {
     int numBlendCombos = fBlendModeOptions.size();
     for (const sk_sp<PrecompileBlender>& b: fBlenderOptions) {
         SkASSERT(!b->asBlendMode().has_value());
@@ -130,10 +130,9 @@ int PaintOptions::numClipShaderCombinations() const {
 
 
 int PaintOptions::numCombinations() const {
-    // TODO: we need to handle ImageFilters separately
     return this->numShaderCombinations() *
            this->numColorFilterCombinations() *
-           this->numBlendModeCombinations() *
+           this->numBlendCombinations() *
            this->numClipShaderCombinations();
 }
 
@@ -372,7 +371,7 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     SkASSERT(desiredCombination < this->numCombinations());
 
     const int numClipShaderCombos = this->numClipShaderCombinations();
-    const int numBlendModeCombos = this->numBlendModeCombinations();
+    const int numBlendModeCombos = this->numBlendCombinations();
     const int numColorFilterCombinations = this->numColorFilterCombinations();
 
     const int desiredClipShaderCombination = desiredCombination % numClipShaderCombos;
@@ -425,7 +424,7 @@ namespace {
 
 void create_image_drawing_pipelines(const KeyContext& keyContext,
                                     PipelineDataGatherer* gatherer,
-                                    const PaintOptions::ProcessCombination& processCombination,
+                                    const PaintOptionsPriv::ProcessCombination& processCombination,
                                     const PaintOptions& orig) {
     PaintOptions imagePaintOptions;
 
@@ -434,10 +433,10 @@ void create_image_drawing_pipelines(const KeyContext& keyContext,
             PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
 
     imagePaintOptions.setShaders({ imageShader });
-    imagePaintOptions.setBlendModes(orig.blendModes());
-    imagePaintOptions.setBlenders(orig.blenders());
-    imagePaintOptions.setColorFilters(orig.colorFilters());
-    imagePaintOptions.addColorFilter(nullptr);
+    imagePaintOptions.setBlendModes(orig.getBlendModes());
+    imagePaintOptions.setBlenders(orig.getBlenders());
+    imagePaintOptions.setColorFilters(orig.getColorFilters());
+    imagePaintOptions.priv().addColorFilter(nullptr);
 
     imagePaintOptions.priv().buildCombinations(keyContext,
                                                gatherer,
@@ -448,6 +447,50 @@ void create_image_drawing_pipelines(const KeyContext& keyContext,
 }
 
 } // anonymous namespace
+
+PaintOptions::PaintOptions() = default;
+PaintOptions::PaintOptions(const PaintOptions&) = default;
+PaintOptions::~PaintOptions() = default;
+PaintOptions& PaintOptions::operator=(const PaintOptions&) = default;
+
+void PaintOptions::setShaders(SkSpan<const sk_sp<PrecompileShader>> shaders) {
+    fShaderOptions.clear();
+    fShaderOptions.push_back_n(shaders.size(), shaders.data());
+}
+
+void PaintOptions::setImageFilters(SkSpan<const sk_sp<PrecompileImageFilter>> imageFilters) {
+    fImageFilterOptions.clear();
+    fImageFilterOptions.push_back_n(imageFilters.size(), imageFilters.data());
+}
+
+void PaintOptions::setMaskFilters(SkSpan<const sk_sp<PrecompileMaskFilter>> maskFilters) {
+    fMaskFilterOptions.clear();
+    fMaskFilterOptions.push_back_n(maskFilters.size(), maskFilters.data());
+}
+
+void PaintOptions::setColorFilters(SkSpan<const sk_sp<PrecompileColorFilter>> colorFilters) {
+    fColorFilterOptions.clear();
+    fColorFilterOptions.push_back_n(colorFilters.size(), colorFilters.data());
+}
+
+void PaintOptions::setBlendModes(SkSpan<const SkBlendMode> blendModes) {
+    fBlendModeOptions.clear();
+    fBlendModeOptions.push_back_n(blendModes.size(), blendModes.data());
+}
+
+void PaintOptions::addColorFilter(sk_sp<PrecompileColorFilter> cf) {
+    fColorFilterOptions.push_back(std::move(cf));
+}
+
+void PaintOptions::setBlenders(SkSpan<const sk_sp<PrecompileBlender>> blenders) {
+    for (const sk_sp<PrecompileBlender>& b: blenders) {
+        if (b->asBlendMode().has_value()) {
+            fBlendModeOptions.push_back(b->asBlendMode().value());
+        } else {
+            fBlenderOptions.push_back(b);
+        }
+    }
+}
 
 void PaintOptions::buildCombinations(
         const KeyContext& keyContext,

@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_PaintOptionsPriv_DEFINED
 #define skgpu_graphite_PaintOptionsPriv_DEFINED
 
-#include "src/gpu/graphite/Precompile.h"
+#include "include/gpu/graphite/precompile/PaintOptions.h"
 
 namespace skgpu::graphite {
 
@@ -19,6 +19,16 @@ class ShaderCodeDictionary;
     data members or virtual methods. */
 class PaintOptionsPriv {
 public:
+    using ProcessCombination = PaintOptions::ProcessCombination;
+
+    void addColorFilter(sk_sp<PrecompileColorFilter> cf) {
+        fPaintOptions->addColorFilter(std::move(cf));
+    }
+
+    void setClipShaders(SkSpan<const sk_sp<PrecompileShader>> clipShaders) {
+        fPaintOptions->setClipShaders(std::move(clipShaders));
+    }
+
     int numCombinations() const {
         return fPaintOptions->numCombinations();
     }
@@ -29,7 +39,7 @@ public:
             DrawTypeFlags drawTypes,
             bool withPrimitiveBlender,
             Coverage coverage,
-            const PaintOptions::ProcessCombination& processCombination) const {
+            const ProcessCombination& processCombination) const {
         fPaintOptions->buildCombinations(
                 keyContext, gatherer, drawTypes, withPrimitiveBlender, coverage, processCombination);
     }

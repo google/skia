@@ -16,7 +16,7 @@
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/PipelineData.h"
-#include "src/gpu/graphite/Precompile.h"
+#include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 

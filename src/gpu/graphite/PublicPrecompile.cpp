@@ -9,6 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
+#include "include/gpu/graphite/precompile/Precompile.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -17,6 +18,7 @@
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintOptionsPriv.h"
+#include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RendererProvider.h"
