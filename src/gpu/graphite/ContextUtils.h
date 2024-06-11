@@ -61,6 +61,7 @@ struct FragSkSLInfo {
     int fNumPaintUniforms = 0;
     int fRenderStepUniformsTotalBytes = 0;
     int fPaintUniformsTotalBytes = 0;
+    bool fHasGradientBuffer = false;
 };
 
 std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*> ExtractPaintData(

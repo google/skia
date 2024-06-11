@@ -515,7 +515,7 @@ $export $pure half3 $css_hwb_to_srgb(half3 hwb) {
  * (it might be sRGB, linear sRGB, or linear XYZ). The actual space is what's stored
  * in the gradient/SkColor4fXformer's fIntermediateColorSpace.
  */
-$export $pure half4 $interpolated_to_rgb_unpremul(half4 color, int colorSpace, int doUnpremul) {
+$export $pure half4 interpolated_to_rgb_unpremul(half4 color, int colorSpace, int doUnpremul) {
     const int kDestination   = 0;
     const int kSRGBLinear    = 1;
     const int kLab           = 2;

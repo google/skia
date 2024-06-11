@@ -175,7 +175,7 @@ static constexpr char SKSL_MINIFIED_sksl_shared[] =
 "-1.,1.);}$export $pure half3 $css_hwb_to_srgb(half3 hwb){hwb.yz*=.01;if(hwb"
 ".y+hwb.z>=1.){half gray=hwb.y/(hwb.y+hwb.z);return half3(gray);}half3 rgb=$css_hsl_to_srgb"
 "(half3(hwb.x,100.,50.));rgb*=(1.-hwb.y)-hwb.z;rgb+=hwb.y;return rgb;}$export"
-" $pure half4 $interpolated_to_rgb_unpremul(half4 color,int colorSpace,int doUnpremul"
+" $pure half4 interpolated_to_rgb_unpremul(half4 color,int colorSpace,int doUnpremul"
 "){if(bool(doUnpremul))switch(colorSpace){case 2:;case 3:;case 4:color=unpremul"
 "(color);break;case 5:;case 6:;case 7:;case 9:;case 10:color=$unpremul_polar"
 "(color);break;}switch(colorSpace){case 2:color.xyz=$css_lab_to_xyz(color.xyz"

@@ -254,7 +254,7 @@ public:
     }
 
 private:
-    inline static constexpr int kMaxExpectedBuffers = 5;
+    inline static constexpr int kMaxExpectedBuffers = 6;
     inline static constexpr int kMaxExpectedTextures = 16;
 
     MtlRenderCommandEncoder(const SharedContext* sharedContext,

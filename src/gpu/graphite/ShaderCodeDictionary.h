@@ -62,6 +62,7 @@ enum class SnippetRequirementFlags : uint32_t {
     kPriorStageOutput = 0x2,  // AKA the "input" color, or the "src" argument for a blender
     kBlenderDstColor = 0x4,  // The "dst" argument for a blender
     kSurfaceColor = 0x8,
+    kGradientBuffer = 0x10,
 };
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags)
 
@@ -197,6 +198,7 @@ public:
                        int* numPaintUniforms,
                        int* renderStepUniformTotalBytes,
                        int* paintUniformsTotalBytes,
+                       bool* hasGradientBuffer,
                        Swizzle writeSwizzle);
 
 private:

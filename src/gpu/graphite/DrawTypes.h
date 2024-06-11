@@ -139,6 +139,8 @@ enum class UniformSlot {
     kRenderStep,
     // Meant for uniforms that are defined and used by the paint parameters (ie SkPaint subset)
     kPaint,
+    // Meant for gradient storage buffer.
+    kGradient
 };
 
 /*

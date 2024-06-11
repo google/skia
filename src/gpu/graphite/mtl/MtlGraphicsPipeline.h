@@ -36,6 +36,7 @@ public:
     inline static constexpr unsigned int kPaintUniformBufferIndex = 2;
     inline static constexpr unsigned int kVertexBufferIndex = 3;
     inline static constexpr unsigned int kInstanceBufferIndex = 4;
+    inline static constexpr unsigned int kGradientBufferIndex = 5;
 
     using MSLFunction = std::pair<id<MTLLibrary>, std::string>;
     static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,

@@ -98,7 +98,7 @@ wgpu::RenderPipeline create_blit_render_pipeline(const DawnSharedContext* shared
 }
 
 UniqueKey make_ubo_bind_group_key(
-        const std::array<std::pair<const DawnBuffer*, uint32_t>, 3>& boundBuffersAndSizes) {
+        const std::array<std::pair<const DawnBuffer*, uint32_t>, 4>& boundBuffersAndSizes) {
     static const UniqueKey::Domain kBufferBindGroupDomain = UniqueKey::GenerateDomain();
 
     UniqueKey uniqueKey;
@@ -106,10 +106,10 @@ UniqueKey make_ubo_bind_group_key(
         // Each entry in the bind group needs 2 uint32_t in the key:
         //  - buffer's unique ID: 32 bits.
         //  - buffer's binding size: 32 bits.
-        // We need total of 3 entries in the uniform buffer bind group.
+        // We need total of 4 entries in the uniform buffer bind group.
         // Unused entries will be assigned zero values.
         UniqueKey::Builder builder(
-                &uniqueKey, kBufferBindGroupDomain, 6, "GraphicsPipelineBufferBindGroup");
+                &uniqueKey, kBufferBindGroupDomain, 8, "GraphicsPipelineBufferBindGroup");
 
         for (uint32_t i = 0; i < boundBuffersAndSizes.size(); ++i) {
             const DawnBuffer* boundBuffer = boundBuffersAndSizes[i].first;
@@ -343,7 +343,7 @@ const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBind
         return fUniformBuffersBindGroupLayout;
     }
 
-    std::array<wgpu::BindGroupLayoutEntry, 3> entries;
+    std::array<wgpu::BindGroupLayoutEntry, 4> entries;
     entries[0].binding = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
     entries[0].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
     entries[0].buffer.type = wgpu::BufferBindingType::Uniform;
@@ -365,6 +365,17 @@ const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBind
                                      : wgpu::BufferBindingType::Uniform;
     entries[2].buffer.hasDynamicOffset = true;
     entries[2].buffer.minBindingSize = 0;
+
+    // Gradient buffer will only be used when storage buffers are preferred, else large
+    // gradients use a texture fallback, set binding type as a uniform when not in use to
+    // satisfy any binding type restricions for non-supported ssbo devices.
+    entries[3].binding = DawnGraphicsPipeline::kGradientBufferIndex;
+    entries[3].visibility = wgpu::ShaderStage::Fragment;
+    entries[3].buffer.type = fSharedContext->caps()->storageBufferPreferred()
+                                     ? wgpu::BufferBindingType::ReadOnlyStorage
+                                     : wgpu::BufferBindingType::Uniform;
+    entries[3].buffer.hasDynamicOffset = true;
+    entries[3].buffer.minBindingSize = 0;
 
     wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
     if (fSharedContext->caps()->setBackendLabels()) {
@@ -441,7 +452,7 @@ const sk_sp<DawnBuffer>& DawnResourceProvider::getOrCreateIntrinsicConstantBuffe
 }
 
 const wgpu::BindGroup& DawnResourceProvider::findOrCreateUniformBuffersBindGroup(
-        const std::array<std::pair<const DawnBuffer*, uint32_t>, 3>& boundBuffersAndSizes) {
+        const std::array<std::pair<const DawnBuffer*, uint32_t>, 4>& boundBuffersAndSizes) {
     auto key = make_ubo_bind_group_key(boundBuffersAndSizes);
     auto* existingBindGroup = fUniformBufferBindGroupCache.find(key);
     if (existingBindGroup) {
@@ -450,12 +461,13 @@ const wgpu::BindGroup& DawnResourceProvider::findOrCreateUniformBuffersBindGroup
     }
 
     // Translate to wgpu::BindGroupDescriptor
-    std::array<wgpu::BindGroupEntry, 3> entries;
+    std::array<wgpu::BindGroupEntry, 4> entries;
 
     constexpr uint32_t kBindingIndices[] = {
         DawnGraphicsPipeline::kIntrinsicUniformBufferIndex,
         DawnGraphicsPipeline::kRenderStepUniformBufferIndex,
         DawnGraphicsPipeline::kPaintUniformBufferIndex,
+        DawnGraphicsPipeline::kGradientBufferIndex,
     };
 
     for (uint32_t i = 0; i < boundBuffersAndSizes.size(); ++i) {

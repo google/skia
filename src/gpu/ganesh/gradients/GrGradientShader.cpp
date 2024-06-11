@@ -706,7 +706,7 @@ static std::unique_ptr<GrFragmentProcessor> make_interpolated_to_dst(
         "uniform int do_unpremul;"   // specialized
 
         "half4 main(half4 color) {"
-            "return $interpolated_to_rgb_unpremul(color, colorSpace, do_unpremul);"
+            "return interpolated_to_rgb_unpremul(color, colorSpace, do_unpremul);"
         "}"
     );
 

@@ -124,9 +124,23 @@ public:
 
     bool hasUniforms() const { return fUniformManager.size(); }
 
+    bool hasGradientBufferData() const { return !fGradientStorage.empty(); }
+
+    SkSpan<const float> gradientBufferData() const { return fGradientStorage; }
+
     // Returns the uniform data written so far. Will automatically pad the end of the data as needed
     // to the overall required alignment, and so should only be called when all writing is done.
     UniformDataBlock finishUniformDataBlock() { return fUniformManager.finishUniformDataBlock(); }
+
+    // Allocates the data for the requested number of stops and returns the
+    // pointer and buffer index offset the data will begin at.
+    std::pair<float*, int> allocateGradientData(int size) {
+        int lastSize = fGradientStorage.size();
+        fGradientStorage.resize(lastSize + size);
+        float* startPtr = fGradientStorage.begin() + lastSize;
+
+        return std::make_pair(startPtr, lastSize);
+    }
 
 private:
 #ifdef SK_DEBUG
@@ -139,6 +153,8 @@ private:
     const Caps* const fCaps;
     TextureDataBlock  fTextureDataBlock;
     UniformManager    fUniformManager;
+
+    SkTDArray<float>  fGradientStorage;
 };
 
 #ifdef SK_DEBUG

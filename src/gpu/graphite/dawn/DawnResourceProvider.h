@@ -48,7 +48,7 @@ public:
     // - Render step uniforms.
     // - Paint uniforms.
     const wgpu::BindGroup& findOrCreateUniformBuffersBindGroup(
-            const std::array<std::pair<const DawnBuffer*, uint32_t>, 3>& boundBuffersAndSizes);
+            const std::array<std::pair<const DawnBuffer*, uint32_t>, 4>& boundBuffersAndSizes);
 
     // Find or create a bind group containing the given sampler & texture.
     const wgpu::BindGroup& findOrCreateSingleTextureSamplerBindGroup(const DawnSampler* sampler,

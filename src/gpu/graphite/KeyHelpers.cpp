@@ -80,6 +80,8 @@
 #include "src/shaders/gradients/SkRadialGradient.h"
 #include "src/shaders/gradients/SkSweepGradient.h"
 
+using namespace skia_private;
+
 #define VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID) \
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, dict->getUniforms(codeSnippetID));)
 
@@ -205,6 +207,7 @@ void add_gradient_preamble(const GradientShaderBlocks::GradientData& gradData,
 //   colorSpace
 //   doUnPremul
 void add_gradient_postamble(const GradientShaderBlocks::GradientData& gradData,
+                            int bufferOffset,
                             PipelineDataGatherer* gatherer) {
     using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
 
@@ -223,6 +226,9 @@ void add_gradient_postamble(const GradientShaderBlocks::GradientData& gradData,
 
     if (gradData.fNumStops > kInternalStopLimit) {
         gatherer->write(gradData.fNumStops);
+        if (gradData.fUseStorageBuffer) {
+            gatherer->write(bufferOffset);
+        }
     }
 
     gatherer->write(static_cast<int>(gradData.fTM));
@@ -233,38 +239,42 @@ void add_gradient_postamble(const GradientShaderBlocks::GradientData& gradData,
 void add_linear_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                       BuiltInCodeSnippetID codeSnippetID,
                                       const GradientShaderBlocks::GradientData& gradData,
+                                      int bufferOffset,
                                       PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     add_gradient_preamble(gradData, gatherer);
-    add_gradient_postamble(gradData, gatherer);
+    add_gradient_postamble(gradData, bufferOffset, gatherer);
 };
 
 void add_radial_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                       BuiltInCodeSnippetID codeSnippetID,
                                       const GradientShaderBlocks::GradientData& gradData,
+                                      int bufferOffset,
                                       PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     add_gradient_preamble(gradData, gatherer);
-    add_gradient_postamble(gradData, gatherer);
+    add_gradient_postamble(gradData, bufferOffset, gatherer);
 };
 
 void add_sweep_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                      BuiltInCodeSnippetID codeSnippetID,
                                      const GradientShaderBlocks::GradientData& gradData,
+                                     int bufferOffset,
                                      PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     add_gradient_preamble(gradData, gatherer);
     gatherer->write(gradData.fBias);
     gatherer->write(gradData.fScale);
-    add_gradient_postamble(gradData, gatherer);
+    add_gradient_postamble(gradData, bufferOffset, gatherer);
 };
 
 void add_conical_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                        BuiltInCodeSnippetID codeSnippetID,
                                        const GradientShaderBlocks::GradientData& gradData,
+                                       int bufferOffset,
                                        PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
 
@@ -294,10 +304,34 @@ void add_conical_gradient_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(dRadius);
     gatherer->write(a);
     gatherer->write(invA);
-    add_gradient_postamble(gradData, gatherer);
+    add_gradient_postamble(gradData, bufferOffset, gatherer);
 };
 
 } // anonymous namespace
+
+// Writes the color and offset data directly in the gatherer gradient buffer and returns the
+// offset the data begins at in the buffer.
+static int write_color_and_offset_bufdata(int numStops,
+                                           const SkPMColor4f* colors,
+                                           const float* offsets,
+                                           PipelineDataGatherer* gatherer) {
+    auto [dstData, bufferOffset] = gatherer->allocateGradientData(numStops * 5);
+    for (int i = 0; i < numStops; i++) {
+        SkColor4f unpremulColor = colors[i].unpremul();
+
+        float offset = offsets ? offsets[i] : SkIntToFloat(i) / (numStops - 1);
+        SkASSERT(offset >= 0.0f && offset <= 1.0f);
+
+        int dataIndex = i * 5;
+        dstData[dataIndex] = offset;
+        dstData[dataIndex + 1] = unpremulColor.fR;
+        dstData[dataIndex + 2] = unpremulColor.fG;
+        dstData[dataIndex + 3] = unpremulColor.fB;
+        dstData[dataIndex + 4] = unpremulColor.fA;
+    }
+
+    return bufferOffset;
+}
 
 GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type, int numStops)
         : fType(type)
@@ -320,12 +354,16 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
                                                  const SkPMColor4f* colors,
                                                  const float* offsets,
                                                  sk_sp<TextureProxy> colorsAndOffsetsProxy,
+                                                 bool useStorageBuffer,
                                                  const SkGradientShader::Interpolation& interp)
         : fType(type)
         , fBias(bias)
         , fScale(scale)
         , fTM(tm)
         , fNumStops(numStops)
+        , fUseStorageBuffer(useStorageBuffer)
+        , fSrcColors(colors)
+        , fSrcOffsets(offsets)
         , fInterpolation(interp) {
     SkASSERT(fNumStops >= 1);
 
@@ -352,8 +390,10 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
             rawOffsets[i] = rawOffsets[fNumStops-1];
         }
     } else {
-        fColorsAndOffsetsProxy = std::move(colorsAndOffsetsProxy);
-        SkASSERT(fColorsAndOffsetsProxy);
+        if (!fUseStorageBuffer) {
+            fColorsAndOffsetsProxy = std::move(colorsAndOffsetsProxy);
+            SkASSERT(fColorsAndOffsetsProxy);
+        }
     }
 }
 
@@ -363,12 +403,19 @@ void GradientShaderBlocks::AddBlock(const KeyContext& keyContext,
                                     const GradientData& gradData) {
     auto dict = keyContext.dict();
 
+    int bufferOffset = 0;
     if (gradData.fNumStops > GradientData::kNumInternalStorageStops && gatherer) {
-        SkASSERT(gradData.fColorsAndOffsetsProxy);
+        if (gradData.fUseStorageBuffer) {
+            bufferOffset = write_color_and_offset_bufdata(gradData.fNumStops,
+                                                          gradData.fSrcColors,
+                                                          gradData.fSrcOffsets,
+                                                          gatherer);
+        } else {
+            SkASSERT(gradData.fColorsAndOffsetsProxy);
 
-        static constexpr SkSamplingOptions kNearest(SkFilterMode::kNearest, SkMipmapMode::kNone);
-        static constexpr SkTileMode kClampTiling[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
-        gatherer->add(kNearest, kClampTiling, gradData.fColorsAndOffsetsProxy);
+            static constexpr SkTileMode kClampTiling[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
+            gatherer->add(SkFilterMode::kNearest, kClampTiling, gradData.fColorsAndOffsetsProxy);
+        }
     }
 
     BuiltInCodeSnippetID codeSnippetID = BuiltInCodeSnippetID::kSolidColorShader;
@@ -377,29 +424,37 @@ void GradientShaderBlocks::AddBlock(const KeyContext& keyContext,
             codeSnippetID =
                     gradData.fNumStops <= 4 ? BuiltInCodeSnippetID::kLinearGradientShader4
                     : gradData.fNumStops <= 8 ? BuiltInCodeSnippetID::kLinearGradientShader8
-                                              : BuiltInCodeSnippetID::kLinearGradientShaderTexture;
-            add_linear_gradient_uniform_data(dict, codeSnippetID, gradData, gatherer);
+                        : gradData.fUseStorageBuffer
+                            ? BuiltInCodeSnippetID::kLinearGradientShaderBuffer
+                            : BuiltInCodeSnippetID::kLinearGradientShaderTexture;
+            add_linear_gradient_uniform_data(dict, codeSnippetID, gradData, bufferOffset, gatherer);
             break;
         case SkShaderBase::GradientType::kRadial:
             codeSnippetID =
                     gradData.fNumStops <= 4 ? BuiltInCodeSnippetID::kRadialGradientShader4
                     : gradData.fNumStops <= 8 ? BuiltInCodeSnippetID::kRadialGradientShader8
-                                              : BuiltInCodeSnippetID::kRadialGradientShaderTexture;
-            add_radial_gradient_uniform_data(dict, codeSnippetID, gradData, gatherer);
+                        : gradData.fUseStorageBuffer
+                            ? BuiltInCodeSnippetID::kRadialGradientShaderBuffer
+                            : BuiltInCodeSnippetID::kRadialGradientShaderTexture;
+            add_radial_gradient_uniform_data(dict, codeSnippetID, gradData, bufferOffset, gatherer);
             break;
         case SkShaderBase::GradientType::kSweep:
             codeSnippetID =
                     gradData.fNumStops <= 4 ? BuiltInCodeSnippetID::kSweepGradientShader4
                     : gradData.fNumStops <= 8 ? BuiltInCodeSnippetID::kSweepGradientShader8
-                                              : BuiltInCodeSnippetID::kSweepGradientShaderTexture;
-            add_sweep_gradient_uniform_data(dict, codeSnippetID, gradData, gatherer);
+                        : gradData.fUseStorageBuffer
+                            ? BuiltInCodeSnippetID::kSweepGradientShaderBuffer
+                            : BuiltInCodeSnippetID::kSweepGradientShaderTexture;
+            add_sweep_gradient_uniform_data(dict, codeSnippetID, gradData, bufferOffset, gatherer);
             break;
         case SkShaderBase::GradientType::kConical:
             codeSnippetID =
                     gradData.fNumStops <= 4 ? BuiltInCodeSnippetID::kConicalGradientShader4
                     : gradData.fNumStops <= 8 ? BuiltInCodeSnippetID::kConicalGradientShader8
-                                              : BuiltInCodeSnippetID::kConicalGradientShaderTexture;
-            add_conical_gradient_uniform_data(dict, codeSnippetID, gradData, gatherer);
+                        : gradData.fUseStorageBuffer
+                            ? BuiltInCodeSnippetID::kConicalGradientShaderBuffer
+                            : BuiltInCodeSnippetID::kConicalGradientShaderTexture;
+            add_conical_gradient_uniform_data(dict, codeSnippetID, gradData, bufferOffset, gatherer);
             break;
         case SkShaderBase::GradientType::kNone:
         default:
@@ -2155,7 +2210,10 @@ static void add_gradient_to_key(const KeyContext& keyContext,
 
     sk_sp<TextureProxy> proxy;
 
-    if (colorCount > GradientShaderBlocks::GradientData::kNumInternalStorageStops) {
+    bool useStorageBuffer = keyContext.caps()->storageBufferSupport() &&
+                                keyContext.caps()->storageBufferPreferred();
+    if (colorCount > GradientShaderBlocks::GradientData::kNumInternalStorageStops
+            && !useStorageBuffer) {
         if (shader->cachedBitmap().empty()) {
             SkBitmap colorsAndOffsetsBitmap =
                     create_color_and_offset_bitmap(colorCount, colors, positions);
@@ -2188,6 +2246,7 @@ static void add_gradient_to_key(const KeyContext& keyContext,
                                             colors,
                                             positions,
                                             std::move(proxy),
+                                            useStorageBuffer,
                                             shader->getInterpolation());
 
     make_interpolated_to_dst(keyContext,

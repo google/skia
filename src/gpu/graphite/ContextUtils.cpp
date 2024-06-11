@@ -573,6 +573,7 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
                                      &result.fNumPaintUniforms,
                                      &result.fRenderStepUniformsTotalBytes,
                                      &result.fPaintUniformsTotalBytes,
+                                     &result.fHasGradientBuffer,
                                      writeSwizzle);
 
     // Extract blend info after integrating the RenderStep into the final fragment shader in case

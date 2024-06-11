@@ -492,6 +492,9 @@ void MtlCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot
         case UniformSlot::kPaint:
             bufferIndex = MtlGraphicsPipeline::kPaintUniformBufferIndex;
             break;
+        case UniformSlot::kGradient:
+            bufferIndex = MtlGraphicsPipeline::kGradientBufferIndex;
+            break;
     }
 
     fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, info.fOffset, bufferIndex);

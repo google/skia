@@ -46,7 +46,8 @@ public:
     inline static constexpr unsigned int kIntrinsicUniformBufferIndex = 0;
     inline static constexpr unsigned int kRenderStepUniformBufferIndex = 1;
     inline static constexpr unsigned int kPaintUniformBufferIndex = 2;
-    inline static constexpr unsigned int kNumUniformBuffers = 3;
+    inline static constexpr unsigned int kGradientBufferIndex = 3;
+    inline static constexpr unsigned int kNumUniformBuffers = 4;
 
     inline static constexpr unsigned int kVertexBufferIndex = 0;
     inline static constexpr unsigned int kInstanceBufferIndex = 1;
@@ -64,6 +65,7 @@ public:
     PrimitiveType primitiveType() const { return fPrimitiveType; }
     bool hasStepUniforms() const { return fHasStepUniforms; }
     bool hasPaintUniforms() const { return fHasPaintUniforms; }
+    bool hasGradientBuffer() const { return fHasGradientBuffer; }
     int numTexturesAndSamplers() const { return fNumFragmentTexturesAndSamplers; }
     const wgpu::RenderPipeline& dawnRenderPipeline() const;
 
@@ -81,6 +83,7 @@ private:
                          uint32_t refValue,
                          bool hasStepUniforms,
                          bool hasPaintUniforms,
+                         bool hasGradientBuffer,
                          int numFragmentTexturesAndSamplers);
 
     void freeGpuData() override;
@@ -91,6 +94,7 @@ private:
     const uint32_t fStencilReferenceValue;
     const bool fHasStepUniforms;
     const bool fHasPaintUniforms;
+    const bool fHasGradientBuffer;
     const int fNumFragmentTexturesAndSamplers;
 };
 
