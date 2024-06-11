@@ -1288,7 +1288,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	// Pixel4XL on the tree is still on Android 10 (Q), and the vulkan drivers
 	// crash during this GM. It works correctly on newer versions of Android.
-	if b.extraConfig("Vulkan") && b.model("Pixel4XL") {
+	// The Pixel3a is also failing on this GM with an invalid return value from
+	// vkCreateGraphicPipelines.
+	if b.extraConfig("Vulkan") && (b.model("Pixel4XL") || b.model("Pixel3a")) {
 		skip("vk", "gm", ALL, "custommesh_cs_uniforms")
 	}
 
