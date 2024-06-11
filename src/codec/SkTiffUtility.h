@@ -15,11 +15,32 @@
 #include <cstdint>
 #include <memory>
 
+namespace SkTiff {
+
+// Constants for endian signature.
+inline constexpr size_t kEndianSize = 4;
+inline constexpr uint8_t kEndianBig[kEndianSize] = {'M', 'M', 0, 42};
+inline constexpr uint8_t kEndianLittle[kEndianSize] = {'I', 'I', 42, 0};
+
+// Constants for types.
+inline constexpr uint16_t kTypeUnsignedByte = 1;
+inline constexpr uint16_t kTypeAsciiString = 2;
+inline constexpr uint16_t kTypeUnsignedShort = 3;
+inline constexpr uint16_t kTypeUnsignedLong = 4;
+inline constexpr uint16_t kTypeUnsignedRational = 5;
+inline constexpr uint16_t kTypeSignedByte = 6;
+inline constexpr uint16_t kTypeUndefined = 7;
+inline constexpr uint16_t kTypeSignedShort = 8;
+inline constexpr uint16_t kTypeSignedLong = 9;
+inline constexpr uint16_t kTypeSignedRational = 10;
+inline constexpr uint16_t kTypeSingleFloat = 11;
+inline constexpr uint16_t kTypeDoubleFloat = 12;
+
 /*
  * Helper function for parsing a Tiff Image File Directory (IFD) structure. This structure is used
  * by EXIF tags, multi-picture, and maker note metadata.
  */
-class SkTiffImageFileDirectory {
+class ImageFileDirectory {
 public:
     /*
      * Parse |data| to read the endian-ness into |outLittleEndian| and the IFD offset into
@@ -33,10 +54,10 @@ public:
      * indicated by |littleEndian|. If |allowTruncated| is true, then parse as much of |data| as is
      * possible, otherwise reject any incomplete IFDs.
      */
-    static std::unique_ptr<SkTiffImageFileDirectory> MakeFromOffset(sk_sp<SkData> data,
-                                                                    bool littleEndian,
-                                                                    uint32_t ifdOffset,
-                                                                    bool allowTruncated = false);
+    static std::unique_ptr<ImageFileDirectory> MakeFromOffset(sk_sp<SkData> data,
+                                                              bool littleEndian,
+                                                              uint32_t ifdOffset,
+                                                              bool allowTruncated = false);
 
     /*
      * Return the number of entries.
@@ -78,27 +99,14 @@ public:
     sk_sp<SkData> getEntryUndefinedData(uint16_t entryIndex) const;
 
 private:
-    static constexpr uint16_t kTypeUnsignedByte = 1;
-    static constexpr uint16_t kTypeAsciiString = 2;
-    static constexpr uint16_t kTypeUnsignedShort = 3;
-    static constexpr uint16_t kTypeUnsignedLong = 4;
-    static constexpr uint16_t kTypeUnsignedRational = 5;
-    static constexpr uint16_t kTypeSignedByte = 6;
-    static constexpr uint16_t kTypeUndefined = 7;
-    static constexpr uint16_t kTypeSignedShort = 8;
-    static constexpr uint16_t kTypeSignedLong = 9;
-    static constexpr uint16_t kTypeSignedRational = 10;
-    static constexpr uint16_t kTypeSingleFloat = 11;
-    static constexpr uint16_t kTypeDoubleFloat = 12;
-
     static bool IsValidType(uint16_t type);
     static size_t BytesForType(uint16_t type);
 
-    SkTiffImageFileDirectory(sk_sp<SkData> data,
-                             bool littleEndian,
-                             uint32_t offset,
-                             uint16_t ifdNumEntries,
-                             uint32_t ifdNextOffset);
+    ImageFileDirectory(sk_sp<SkData> data,
+                       bool littleEndian,
+                       uint32_t offset,
+                       uint16_t ifdNumEntries,
+                       uint32_t ifdNextOffset);
 
     /*
      * Return the tag, type, count, and data for the specified entry. Return false if the type
@@ -134,5 +142,7 @@ private:
     // The offset of the next IFD (read from the next 4 bytes after the IFD entries).
     const uint32_t fNextIfdOffset;
 };
+
+}  // namespace SkTiff
 
 #endif

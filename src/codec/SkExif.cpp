@@ -35,8 +35,8 @@ static std::optional<float> get_maker_note_hdr_headroom(sk_sp<SkData> data) {
     if (memcmp(data->data(), kSig, sizeof(kSig)) != 0) {
         return std::nullopt;
     }
-    auto ifd =
-            SkTiffImageFileDirectory::MakeFromOffset(std::move(data), kLittleEndian, sizeof(kSig));
+    auto ifd = SkTiff::ImageFileDirectory::MakeFromOffset(
+            std::move(data), kLittleEndian, sizeof(kSig));
     if (!ifd) {
         return std::nullopt;
     }
@@ -86,7 +86,7 @@ static std::optional<float> get_maker_note_hdr_headroom(sk_sp<SkData> data) {
 
 static void parse_ifd(Metadata& exif,
                       sk_sp<SkData> data,
-                      std::unique_ptr<SkTiffImageFileDirectory> ifd,
+                      std::unique_ptr<SkTiff::ImageFileDirectory> ifd,
                       bool littleEndian,
                       bool isRoot) {
     if (!ifd) {
@@ -113,7 +113,7 @@ static void parse_ifd(Metadata& exif,
             case kSubIFDOffsetTag: {
                 uint32_t subIfdOffset = 0;
                 if (isRoot && ifd->getEntryUnsignedLong(i, 1, &subIfdOffset)) {
-                    auto subIfd = SkTiffImageFileDirectory::MakeFromOffset(
+                    auto subIfd = SkTiff::ImageFileDirectory::MakeFromOffset(
                             data, littleEndian, subIfdOffset, /*allowTruncated=*/true);
                     parse_ifd(exif,
                               data,
@@ -182,9 +182,9 @@ static void parse_ifd(Metadata& exif,
 void Parse(Metadata& metadata, const SkData* data) {
     bool littleEndian = false;
     uint32_t ifdOffset = 0;
-    if (data && SkTiffImageFileDirectory::ParseHeader(data, &littleEndian, &ifdOffset)) {
+    if (data && SkTiff::ImageFileDirectory::ParseHeader(data, &littleEndian, &ifdOffset)) {
         auto dataRef = SkData::MakeWithoutCopy(data->data(), data->size());
-        auto ifd = SkTiffImageFileDirectory::MakeFromOffset(
+        auto ifd = SkTiff::ImageFileDirectory::MakeFromOffset(
                 dataRef, littleEndian, ifdOffset, /*allowTruncated=*/true);
         parse_ifd(metadata, std::move(dataRef), std::move(ifd), littleEndian, /*isRoot=*/true);
     }

@@ -18,12 +18,6 @@
 
 #include <cstring>
 
-constexpr size_t kMpEndianSize = 4;
-constexpr uint8_t kMpBigEndian[kMpEndianSize] = {0x4D, 0x4D, 0x00, 0x2A};
-
-constexpr uint16_t kTypeUnsignedLong = 0x4;
-constexpr uint16_t kTypeUndefined = 0x7;
-
 constexpr uint16_t kVersionTag = 0xB000;
 constexpr uint32_t kVersionCount = 4;
 constexpr size_t kVersionSize = 4;
@@ -65,13 +59,13 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegMultiPictureParameters::Make
     // structure), and read the Index IFD offset.
     bool littleEndian = false;
     uint32_t ifdOffset = 0;
-    if (!SkTiffImageFileDirectory::ParseHeader(ifdData.get(), &littleEndian, &ifdOffset)) {
+    if (!SkTiff::ImageFileDirectory::ParseHeader(ifdData.get(), &littleEndian, &ifdOffset)) {
         SkCodecPrintf("Failed to parse endian-ness and index IFD offset.\n");
         return nullptr;
     }
 
     // Create the Index Image File Directory (Index IFD).
-    auto ifd = SkTiffImageFileDirectory::MakeFromOffset(ifdData, littleEndian, ifdOffset);
+    auto ifd = SkTiff::ImageFileDirectory::MakeFromOffset(ifdData, littleEndian, ifdOffset);
     if (!ifd) {
         SkCodecPrintf("Failed to create MP Index IFD offset.\n");
         return nullptr;
@@ -225,13 +219,13 @@ sk_sp<SkData> SkJpegMultiPictureParameters::serialize(uint32_t individualImageNu
     s.write(kMpfSig, sizeof(kMpfSig));
 
     // We will always write as big-endian.
-    s.write(kMpBigEndian, kMpEndianSize);
+    s.write(SkTiff::kEndianBig, sizeof(SkTiff::kEndianBig));
 
     // Set the first IFD offset be the position after the endianness value and this offset. This
     // will be the MP Index IFD for the first individual image and the MP Attribute IFD for all
     // other images.
-    constexpr uint32_t firstIfdOffset = sizeof(kMpBigEndian) +  // Endian-ness
-                                        sizeof(uint32_t);       // Index IFD offset
+    constexpr uint32_t firstIfdOffset = sizeof(SkTiff::kEndianBig) +  // Endian-ness
+                                        sizeof(uint32_t);             // Index IFD offset
     SkWStreamWriteU32BE(&s, firstIfdOffset);
     SkASSERT(s.bytesWritten() - sizeof(kMpfSig) == firstIfdOffset);
 
@@ -250,20 +244,20 @@ sk_sp<SkData> SkJpegMultiPictureParameters::serialize(uint32_t individualImageNu
 
     // Write the version.
     SkWStreamWriteU16BE(&s, kVersionTag);
-    SkWStreamWriteU16BE(&s, kTypeUndefined);
+    SkWStreamWriteU16BE(&s, SkTiff::kTypeUndefined);
     SkWStreamWriteU32BE(&s, kVersionCount);
     s.write(kVersionExpected, kVersionSize);
 
     if (individualImageNumber == 0) {
         // Write the number of images.
         SkWStreamWriteU16BE(&s, kNumberOfImagesTag);
-        SkWStreamWriteU16BE(&s, kTypeUnsignedLong);
+        SkWStreamWriteU16BE(&s, SkTiff::kTypeUnsignedLong);
         SkWStreamWriteU32BE(&s, kNumberOfImagesCount);
         SkWStreamWriteU32BE(&s, numberOfImages);
 
         // Write the MP entries tag.
         SkWStreamWriteU16BE(&s, kMPEntryTag);
-        SkWStreamWriteU16BE(&s, kTypeUndefined);
+        SkWStreamWriteU16BE(&s, SkTiff::kTypeUndefined);
         const uint32_t mpEntriesSize = kMPEntrySize * numberOfImages;
         SkWStreamWriteU32BE(&s, mpEntriesSize);
         const uint32_t mpEntryOffset = static_cast<uint32_t>(

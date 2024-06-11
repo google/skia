@@ -913,7 +913,7 @@ static sk_sp<SkData> get_mp_image(sk_sp<SkData> imageData, size_t imageNumber) {
             mpParams->images[imageNumber].size);
 }
 
-static std::unique_ptr<SkTiffImageFileDirectory> get_mpf_ifd(sk_sp<SkData> imageData) {
+static std::unique_ptr<SkTiff::ImageFileDirectory> get_mpf_ifd(sk_sp<SkData> imageData) {
     SkMemoryStream stream(imageData);
     auto sourceMgr = SkJpegSourceMgr::Make(&stream);
     for (const auto& segment : sourceMgr->getAllSegments()) {
@@ -933,10 +933,10 @@ static std::unique_ptr<SkTiffImageFileDirectory> get_mpf_ifd(sk_sp<SkData> image
 
         bool littleEndian = false;
         uint32_t ifdOffset = 0;
-        if (!SkTiffImageFileDirectory::ParseHeader(ifdData.get(), &littleEndian, &ifdOffset)) {
+        if (!SkTiff::ImageFileDirectory::ParseHeader(ifdData.get(), &littleEndian, &ifdOffset)) {
             return nullptr;
         }
-        return SkTiffImageFileDirectory::MakeFromOffset(ifdData, littleEndian, ifdOffset);
+        return SkTiff::ImageFileDirectory::MakeFromOffset(ifdData, littleEndian, ifdOffset);
     }
     return nullptr;
 }
