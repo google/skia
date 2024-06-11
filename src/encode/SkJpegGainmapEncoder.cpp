@@ -168,9 +168,10 @@ static sk_sp<SkData> encode_to_data(const SkPixmap& pm,
     return encodeStream.detachAsData();
 }
 
-static sk_sp<SkData> get_mpf_segment(const SkJpegMultiPictureParameters& mpParams) {
+static sk_sp<SkData> get_mpf_segment(const SkJpegMultiPictureParameters& mpParams,
+                                     size_t imageNumber) {
     SkDynamicMemoryWStream s;
-    auto segmentParameters = mpParams.serialize();
+    auto segmentParameters = mpParams.serialize(static_cast<uint32_t>(imageNumber));
     const size_t mpParameterLength = kJpegSegmentParameterLengthSize + segmentParameters->size();
     s.write8(0xFF);
     s.write8(kMpfMarker);
@@ -231,9 +232,13 @@ bool SkJpegGainmapEncoder::EncodeHDRGM(SkWStream* dst,
 
         // Include XMP.
         if (includeUltraHDRv1) {
+            // Add to the gainmap image size the size of the MPF segment for image 1 of a 2-image
+            // file.
+            SkJpegMultiPictureParameters mpParams(2);
+            size_t gainmapImageSize = gainmapData->size() + get_mpf_segment(mpParams, 1)->size();
             SkJpegMetadataEncoder::AppendXMPStandard(
                     metadataSegments,
-                    get_base_image_xmp_metadata(static_cast<int32_t>(gainmapData->size())).get());
+                    get_base_image_xmp_metadata(static_cast<int32_t>(gainmapImageSize)).get());
         }
 
         // Include ICC profile metadata.
@@ -265,12 +270,12 @@ bool SkJpegGainmapEncoder::MakeMPF(SkWStream* dst, const SkData** images, size_t
         return true;
     }
 
-    // Compute the offset into the first individual image where we will write the MP parameters.
-    size_t mpSegmentOffset = 0;
-    {
+    // Compute the offset into the each image where we will write the MP parameters.
+    std::vector<size_t> mpSegmentOffsets(imageCount);
+    for (size_t i = 0; i < imageCount; ++i) {
         // Scan the image until StartOfScan marker.
         SkJpegSegmentScanner scan(kJpegMarkerStartOfScan);
-        scan.onBytes(images[0]->data(), images[0]->size());
+        scan.onBytes(images[i]->data(), images[i]->size());
         if (!scan.isDone()) {
             SkCodecPrintf("Failed to scan image header.\n");
             return false;
@@ -281,61 +286,45 @@ bool SkJpegGainmapEncoder::MakeMPF(SkWStream* dst, const SkData** images, size_t
         // which indicates "The MP Extensions are specified in the APP2 marker segment which follows
         // immediately after the Exif Attributes in the APP1 marker segment except as specified in
         // section 7". We currently do not include Exif metadata in encoded files yet.
-        mpSegmentOffset = scan.getSegments().back().offset;
+        mpSegmentOffsets[i] = scan.getSegments().back().offset;
     }
 
     // Populate the MP parameters (image sizes and offsets).
-    SkJpegMultiPictureParameters mpParams;
-    {
-        mpParams.images.resize(imageCount);
-        size_t cumulativeSize = 0;
-        for (size_t i = 0; i < imageCount; ++i) {
-            size_t imageSize = images[i]->size();
-            if (i == 0) {
-                // Add the size of the MPF segment to the first individual image. Note that the
-                // contents of get_mpf_segment() are incorrect (because we don't have the right
-                // offset values), but the size is correct.
-                imageSize += static_cast<uint32_t>(get_mpf_segment(mpParams)->size());
-            }
-
-            mpParams.images[i].dataOffset = SkJpegMultiPictureParameters::GetImageDataOffset(
-                    cumulativeSize, mpSegmentOffset);
-            mpParams.images[i].size = static_cast<uint32_t>(imageSize);
-            cumulativeSize += imageSize;
-        }
+    SkJpegMultiPictureParameters mpParams(imageCount);
+    size_t cumulativeSize = 0;
+    for (size_t i = 0; i < imageCount; ++i) {
+        // Add the size of the MPF segment to image size. Note that the contents of
+        // get_mpf_segment() are incorrect (because we don't have the right offset values), but
+        // the size is correct.
+        const size_t imageSize = images[i]->size() + get_mpf_segment(mpParams, i)->size();
+        mpParams.images[i].dataOffset = SkJpegMultiPictureParameters::GetImageDataOffset(
+                cumulativeSize, mpSegmentOffsets[0]);
+        mpParams.images[i].size = static_cast<uint32_t>(imageSize);
+        cumulativeSize += imageSize;
     }
 
-    // Write the first individual image.
-    {
-        auto image = images[0];
-
+    // Write the images.
+    for (size_t i = 0; i < imageCount; ++i) {
         // Write up to the MP segment.
-        if (!dst->write(image->bytes(), mpSegmentOffset)) {
+        if (!dst->write(images[i]->bytes(), mpSegmentOffsets[i])) {
             SkCodecPrintf("Failed to write image header.\n");
             return false;
         }
 
         // Write the MP segment.
-        auto mpfSegment = get_mpf_segment(mpParams);
+        auto mpfSegment = get_mpf_segment(mpParams, i);
         if (!dst->write(mpfSegment->data(), mpfSegment->size())) {
             SkCodecPrintf("Failed to write MPF segment.\n");
             return false;
         }
 
         // Write the rest of the image.
-        if (!dst->write(image->bytes() + mpSegmentOffset, image->size() - mpSegmentOffset)) {
+        if (!dst->write(images[i]->bytes() + mpSegmentOffsets[i],
+                        images[i]->size() - mpSegmentOffsets[i])) {
             SkCodecPrintf("Failed to write image body.\n");
             return false;
         }
     }
 
-    // Write the non-first individual images.
-    for (size_t i = 1; i < imageCount; ++i) {
-        auto image = images[i];
-        if (!dst->write(image->bytes(), image->size())) {
-            SkCodecPrintf("Failed to write image body.\n");
-            return false;
-        }
-    }
     return true;
 }

@@ -23,6 +23,8 @@ class SkData;
  * offset parameters from the images in the Index Image File Directory.
  */
 struct SkJpegMultiPictureParameters {
+    explicit SkJpegMultiPictureParameters(size_t numberOfImages) : images(numberOfImages) {}
+
     // An individual image.
     struct Image {
         // The size of the image in bytes.
@@ -46,11 +48,11 @@ struct SkJpegMultiPictureParameters {
             const sk_sp<const SkData>& segmentParameters);
 
     /*
-     * Serialize Jpeg Multi-Picture Format parameters into a segment. This segment will start with
-     * the {'M', 'P', 'F', 0} signature (it will not include the segment marker or parameter
-     * length).
+     * Serialize Jpeg Multi-Picture Format segment parameters for the indicated individual image.
+     * This segment will start with the {'M', 'P', 'F', 0} signature (it will not include the
+     * segment marker or parameter length).
      */
-    sk_sp<SkData> serialize() const;
+    sk_sp<SkData> serialize(uint32_t individualImageNumber) const;
 
     /*
      * Compute the absolute offset (from the start of the image) for the offset in the multi-picture
