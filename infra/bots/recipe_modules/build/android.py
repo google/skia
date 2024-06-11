@@ -107,7 +107,6 @@ def compile_fn(api, checkout_root, out_dir):
 ANDROID_BUILD_PRODUCTS_LIST = [
   'dm',
   'nanobench',
-  'skpbench',
   # The following only exists when building for OptimizeForSize
   # This is the only target we currently measure: skbug.com/13657
   'skottie_tool_gpu',

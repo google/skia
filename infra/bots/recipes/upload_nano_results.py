@@ -31,7 +31,7 @@ def RunSteps(api):
         '*.json',
         test_data=['nanobench_abc123.json'])
   if len(results) != 1:  # pragma: nocover
-    raise Exception('Unable to find nanobench or skpbench JSON file!')
+    raise Exception('Unable to find nanobench JSON file!')
 
   src = results[0]
   basename = api.path.basename(src)

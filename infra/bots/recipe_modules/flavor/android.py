@@ -36,7 +36,6 @@ class AndroidFlavor(default.DefaultFlavor):
         lotties_dir    = android_data_dir + 'lotties',
         skp_dir        = android_data_dir + 'skps',
         svg_dir        = android_data_dir + 'svgs',
-        mskp_dir       = android_data_dir + 'mskp',
         tmp_dir        = android_data_dir,
         texttraces_dir = android_data_dir + 'text_blob_traces')
 

@@ -85890,19 +85890,6 @@
         "^(.*\\/)*\\.git(\\/.*)*$"
       ]
     },
-    "skpbench": {
-      "root": "..",
-      "paths": [
-        "skia/.vpython3",
-        "skia/infra/bots/assets",
-        "skia/infra/bots/run_recipe.py",
-        "skia/tools/skpbench",
-        "skia/tools/valgrind.supp"
-      ],
-      "excludes": [
-        "^(.*\\/)*\\.git(\\/.*)*$"
-      ]
-    },
     "task-drivers": {
       "root": "..",
       "paths": [

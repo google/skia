@@ -16,8 +16,6 @@ DEFAULT_BUILD_PRODUCTS = [
   'get_images_from_skps.exe',
   'nanobench',
   'nanobench.exe',
-  'skpbench',
-  'skpbench.exe',
   '*.so',
   '*.dll',
   '*.dylib',

@@ -76,7 +76,7 @@
       "RECIPE_MODULE[skia::build]\\resources\\copy_build_products.py",
       "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-arm64-Release-Android\\Release",
       "[START_DIR]\\[SWARM_OUT_DIR]\\out\\Release",
-      "dm,nanobench,skpbench,skottie_tool_gpu"
+      "dm,nanobench,skottie_tool_gpu"
     ],
     "infra_step": true,
     "name": "copy build products"
