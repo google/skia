@@ -16,6 +16,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 
@@ -23,7 +24,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <tuple>
-#include <utility>
 
 class SkMatrix;
 class SkRRect;
@@ -68,11 +68,11 @@ public:
         kArc,
     };
 
-    SkPathRef(PointsArray points, VerbsArray verbs, ConicWeightsArray weights,
-              unsigned segmentMask)
-        : fPoints(std::move(points))
-        , fVerbs(std::move(verbs))
-        , fConicWeights(std::move(weights))
+    SkPathRef(SkSpan<const SkPoint> points, SkSpan<const uint8_t> verbs,
+              SkSpan<const SkScalar> weights, unsigned segmentMask)
+        : fPoints(points)
+        , fVerbs(verbs)
+        , fConicWeights(weights)
     {
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = 0;        // recompute

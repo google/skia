@@ -79,6 +79,11 @@ public:
     }
 
     /**
+     * Creates a TArray by copying contents from an SkSpan. The new array will be heap allocated.
+     */
+    TArray(SkSpan<const T> data) : TArray(data.begin(), static_cast<int>(data.size())) {}
+
+    /**
      * Creates a TArray by copying contents of an initializer list.
      */
     TArray(std::initializer_list<T> data) : TArray(data.begin(), data.size()) {}
@@ -541,6 +546,11 @@ protected:
             : TArray{storage, size} {
         this->copy(array);
     }
+    template <int InitialCapacity>
+    TArray(SkSpan<const T> data, SkAlignedSTStorage<InitialCapacity, T>* storage)
+            : TArray{storage, static_cast<int>(data.size())} {
+        this->copy(data.begin());
+    }
 
 private:
     // Growth factors for checkRealloc.
@@ -759,6 +769,10 @@ public:
     STArray(const T* array, int count)
         : Storage{}
         , TArray<T, MEM_MOVE>{array, count, this} {}
+
+    STArray(SkSpan<const T> data)
+        : Storage{}
+        , TArray<T, MEM_MOVE>{data, this} {}
 
     STArray(std::initializer_list<T> data)
         : STArray{data.begin(), SkToInt(data.size())} {}

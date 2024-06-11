@@ -152,23 +152,6 @@ sk_sp<SkData> SkPath::serialize() const {
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // reading
 
-size_t SkPath::readFromMemory(const void* storage, size_t length) {
-    SkRBuffer buffer(storage, length);
-    uint32_t packed;
-    if (!buffer.readU32(&packed)) {
-        return 0;
-    }
-    unsigned version = extract_version(packed);
-    if (version < kMin_Version || version > kCurrent_Version) {
-        return 0;
-    }
-
-    if (version == kJustPublicData_Version || version == kVerbsAreStoredForward_Version) {
-        return this->readFromMemory_EQ4Or5(storage, length);
-    }
-    return 0;
-}
-
 size_t SkPath::readAsRRect(const void* storage, size_t length) {
     SkRBuffer buffer(storage, length);
     uint32_t packed;
@@ -207,16 +190,18 @@ size_t SkPath::readAsRRect(const void* storage, size_t length) {
     return buffer.pos();
 }
 
-size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
+size_t SkPath::readFromMemory(const void* storage, size_t length) {
     SkRBuffer buffer(storage, length);
     uint32_t packed;
     if (!buffer.readU32(&packed)) {
         return 0;
     }
+    unsigned version = extract_version(packed);
 
-    bool verbsAreReversed = true;
-    if (extract_version(packed) == kVerbsAreStoredForward_Version) {
-        verbsAreReversed = false;
+    const bool verbsAreForward = (version == kVerbsAreStoredForward_Version);
+    if (!verbsAreForward && version != kJustPublicData_Version) SK_UNLIKELY {
+        // Old/unsupported version.
+        return 0;
     }
 
     switch (extract_serializationtype(packed)) {
@@ -228,22 +213,25 @@ size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
             return 0;
     }
 
-    int32_t pts, cnx, vbs;
-    if (!buffer.readS32(&pts) || !buffer.readS32(&cnx) || !buffer.readS32(&vbs)) {
+    // To minimize the number of reads done a structure with the counts is used.
+    struct {
+      int32_t pts, cnx, vbs;
+    } counts;
+    if (!buffer.read(&counts, sizeof(counts))) {
         return 0;
     }
 
-    const SkPoint* points = buffer.skipCount<SkPoint>(pts);
-    const SkScalar* conics = buffer.skipCount<SkScalar>(cnx);
-    const uint8_t* verbs = buffer.skipCount<uint8_t>(vbs);
+    const SkPoint* points = buffer.skipCount<SkPoint>(counts.pts);
+    const SkScalar* conics = buffer.skipCount<SkScalar>(counts.cnx);
+    const uint8_t* verbs = buffer.skipCount<uint8_t>(counts.vbs);
     buffer.skipToAlign4();
     if (!buffer.isValid()) {
         return 0;
     }
     SkASSERT(buffer.pos() <= length);
 
-    if (vbs == 0) {
-        if (pts == 0 && cnx == 0) {
+    if (counts.vbs == 0) {
+        if (counts.pts == 0 && counts.cnx == 0) {
             reset();
             setFillType(extract_filltype(packed));
             return buffer.pos();
@@ -253,19 +241,19 @@ size_t SkPath::readFromMemory_EQ4Or5(const void* storage, size_t length) {
     }
 
     SkAutoMalloc reversedStorage;
-    if (verbsAreReversed) {
-      uint8_t* tmpVerbs = (uint8_t*)reversedStorage.reset(vbs);
-        for (int i = 0; i < vbs; ++i) {
-            tmpVerbs[i] = verbs[vbs - i - 1];
+    if (!verbsAreForward) SK_UNLIKELY {
+      uint8_t* tmpVerbs = (uint8_t*)reversedStorage.reset(counts.vbs);
+        for (int i = 0; i < counts.vbs; ++i) {
+            tmpVerbs[i] = verbs[counts.vbs - i - 1];
         }
         verbs = tmpVerbs;
     }
 
-    SkPathVerbAnalysis analysis = sk_path_analyze_verbs(verbs, vbs);
-    if (!analysis.valid || analysis.points != pts || analysis.weights != cnx) {
+    SkPathVerbAnalysis analysis = sk_path_analyze_verbs(verbs, counts.vbs);
+    if (!analysis.valid || analysis.points != counts.pts || analysis.weights != counts.cnx) {
         return 0;
     }
-    *this = SkPathPriv::MakePath(analysis, points, verbs, vbs, conics,
+    *this = SkPathPriv::MakePath(analysis, points, verbs, counts.vbs, conics,
                                  extract_filltype(packed), false);
     return buffer.pos();
 }
