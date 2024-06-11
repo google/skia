@@ -83,7 +83,6 @@ template<> /*static*/ inline U8CPU sk_t_scale255<8>(U8CPU base) {
 template <int R_LUM_BITS, int G_LUM_BITS, int B_LUM_BITS> class SkTMaskPreBlend;
 
 void SkTMaskGamma_build_correcting_lut(uint8_t table[256], U8CPU srcI, SkScalar contrast,
-                                       const SkColorSpaceLuminance& srcConvert, SkScalar srcGamma,
                                        const SkColorSpaceLuminance& dstConvert, SkScalar dstGamma);
 
 /**
@@ -110,16 +109,13 @@ public:
      *
      * @param contrast A value in the range [0.0, 1.0] which indicates the
      *                 amount of artificial contrast to add.
-     * @param paint The color space in which the paint color was chosen.
      * @param device The color space of the target device.
      */
-    SkTMaskGamma(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma) : fIsLinear(false) {
-        const SkColorSpaceLuminance& paintConvert = SkColorSpaceLuminance::Fetch(paintGamma);
+    SkTMaskGamma(SkScalar contrast, SkScalar deviceGamma) : fIsLinear(false) {
         const SkColorSpaceLuminance& deviceConvert = SkColorSpaceLuminance::Fetch(deviceGamma);
         for (U8CPU i = 0; i < (1 << MAX_LUM_BITS); ++i) {
             U8CPU lum = sk_t_scale255<MAX_LUM_BITS>(i);
             SkTMaskGamma_build_correcting_lut(fGammaTables[i], lum, contrast,
-                                              paintConvert, paintGamma,
                                               deviceConvert, deviceGamma);
         }
     }

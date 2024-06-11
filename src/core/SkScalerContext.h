@@ -73,28 +73,20 @@ private:
     //These describe the parameters to create (uniquely identify) the pre-blend.
     uint32_t      fLumBits;
     uint8_t       fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
-    uint8_t       fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+    const uint8_t fReservedAlign2{0};
     uint8_t       fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
     const uint8_t fReservedAlign{0};
 
 public:
 
     SkScalar getDeviceGamma() const {
+        sk_ignore_unused_variable(fReservedAlign2);
         return SkIntToScalar(fDeviceGamma) / (1 << 6);
     }
     void setDeviceGamma(SkScalar dg) {
         SkASSERT(SkSurfaceProps::kMinGammaInclusive <= dg &&
                  dg < SkIntToScalar(SkSurfaceProps::kMaxGammaExclusive));
         fDeviceGamma = SkScalarFloorToInt(dg * (1 << 6));
-    }
-
-    SkScalar getPaintGamma() const {
-        return SkIntToScalar(fPaintGamma) / (1 << 6);
-    }
-    void setPaintGamma(SkScalar pg) {
-        SkASSERT(SkSurfaceProps::kMinGammaInclusive <= pg &&
-                 pg < SkIntToScalar(SkSurfaceProps::kMaxGammaExclusive));
-        fPaintGamma = SkScalarFloorToInt(pg * (1 << 6));
     }
 
     SkScalar getContrast() const {
@@ -113,7 +105,6 @@ public:
      */
     void ignoreGamma() {
         setLuminanceColor(SK_ColorTRANSPARENT);
-        setPaintGamma(SK_Scalar1);
         setDeviceGamma(SK_Scalar1);
     }
 
@@ -148,8 +139,8 @@ public:
                    fPost2x2[0][1], fPost2x2[1][0], fPost2x2[1][1]);
         msg.appendf("      frame %g miter %g format %d join %d cap %d flags %#hx\n",
                    fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
-        msg.appendf("      lum bits %x, device gamma %d, paint gamma %d contrast %d\n", fLumBits,
-                    fDeviceGamma, fPaintGamma, fContrast);
+        msg.appendf("      lum bits %x, device gamma %d, contrast %d\n", fLumBits,
+                    fDeviceGamma, fContrast);
         msg.appendf("      foreground color %x\n", fForegroundColor);
         return msg;
     }
@@ -309,7 +300,7 @@ public:
 
     /** Return the size in bytes of the associated gamma lookup table
      */
-    static size_t GetGammaLUTSize(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
+    static size_t GetGammaLUTSize(SkScalar contrast, SkScalar deviceGamma,
                                   int* width, int* height);
 
     /** Get the associated gamma lookup table. The 'data' pointer must point to pre-allocated
@@ -317,8 +308,7 @@ public:
      *
      *  If the lookup table hasn't been initialized (e.g., it's linear), this will return false.
      */
-    static bool   GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, SkScalar deviceGamma,
-                                  uint8_t* data);
+    static bool GetGammaLUTData(SkScalar contrast, SkScalar deviceGamma, uint8_t* data);
 
     static void MakeRecAndEffects(const SkFont& font, const SkPaint& paint,
                                   const SkSurfaceProps& surfaceProps,
