@@ -7,6 +7,7 @@
 
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 
+#include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/FactoryFunctionsPriv.h"
@@ -17,6 +18,8 @@
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/precompile/PaintOption.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
+#include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
+#include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
 
 namespace skgpu::graphite {
 
@@ -56,8 +59,8 @@ void PaintOptions::setBlendModes(SkSpan<const SkBlendMode> blendModes) {
 
 void PaintOptions::setBlenders(SkSpan<const sk_sp<PrecompileBlender>> blenders) {
     for (const sk_sp<PrecompileBlender>& b: blenders) {
-        if (b->asBlendMode().has_value()) {
-            fBlendModeOptions.push_back(b->asBlendMode().value());
+        if (b->priv().asBlendMode().has_value()) {
+            fBlendModeOptions.push_back(b->priv().asBlendMode().value());
         } else {
             fBlenderOptions.push_back(b);
         }
@@ -107,8 +110,8 @@ int PaintOptions::numColorFilterCombinations() const {
 int PaintOptions::numBlendCombinations() const {
     int numBlendCombos = fBlendModeOptions.size();
     for (const sk_sp<PrecompileBlender>& b: fBlenderOptions) {
-        SkASSERT(!b->asBlendMode().has_value());
-        numBlendCombos += b->numChildCombinations();
+        SkASSERT(!b->priv().asBlendMode().has_value());
+        numBlendCombos += b->priv().numChildCombinations();
     }
 
     if (!numBlendCombos) {
@@ -123,7 +126,7 @@ int PaintOptions::numClipShaderCombinations() const {
     int numClipShaderCombos = 0;
     for (const sk_sp<PrecompileShader>& cs: fClipShaderOptions) {
         if (cs) {
-            numClipShaderCombos += cs->numChildCombinations();
+            numClipShaderCombos += cs->priv().numChildCombinations();
         } else {
             ++numClipShaderCombos;
         }
@@ -146,7 +149,7 @@ DstReadRequirement get_dst_read_req(const Caps* caps,
                                     Coverage coverage,
                                     PrecompileBlender* blender) {
     if (blender) {
-        return GetDstReadRequirement(caps, blender->asBlendMode(), coverage);
+        return GetDstReadRequirement(caps, blender->priv().asBlendMode(), coverage);
     }
     return GetDstReadRequirement(caps, SkBlendMode::kSrcOver, coverage);
 }
@@ -186,14 +189,14 @@ void PaintOptions::createKey(const KeyContext& keyContext,
 
     std::pair<sk_sp<PrecompileBlender>, int> finalBlender;
     if (desiredBlendCombination < fBlendModeOptions.size()) {
-        finalBlender = { PrecompileBlender::Mode(fBlendModeOptions[desiredBlendCombination]), 0 };
+        finalBlender = { PrecompileBlenders::Mode(fBlendModeOptions[desiredBlendCombination]), 0 };
     } else {
         finalBlender = PrecompileBase::SelectOption(
                             SkSpan(fBlenderOptions),
                             desiredBlendCombination - fBlendModeOptions.size());
     }
     if (!finalBlender.first) {
-        finalBlender = { PrecompileBlender::Mode(SkBlendMode::kSrcOver), 0 };
+        finalBlender = { PrecompileBlenders::Mode(SkBlendMode::kSrcOver), 0 };
     }
     DstReadRequirement dstReadReq = get_dst_read_req(keyContext.caps(), coverage,
                                                      finalBlender.first.get());

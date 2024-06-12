@@ -8,12 +8,14 @@
 #include "src/gpu/graphite/precompile/PaintOption.h"
 
 #include "include/core/SkBlender.h"
+#include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/PrecompileBasePriv.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
+#include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
+#include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
 
 namespace skgpu::graphite {
 
@@ -23,7 +25,7 @@ void PaintOption::toKey(const KeyContext& keyContext,
     this->handleDstRead(keyContext, keyBuilder, gatherer);
 
     std::optional<SkBlendMode> finalBlendMode = this->finalBlender()
-                                                        ? this->finalBlender()->asBlendMode()
+                                                        ? this->finalBlender()->priv().asBlendMode()
                                                         : SkBlendMode::kSrcOver;
     if (fDstReadReq != DstReadRequirement::kNone) {
         // In this case the blend will have been handled by shader-based blending with the dstRead.

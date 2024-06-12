@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/FactoryFunctions.h"
 
+#include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
@@ -16,11 +17,12 @@
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/PrecompileBasePriv.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
+#include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
+#include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
 #include "src/shaders/SkShaderBase.h"
 
 namespace skgpu::graphite {
@@ -84,15 +86,17 @@ private:
     SkBlendMode fBlendMode;
 };
 
-sk_sp<PrecompileBlender> PrecompileBlender::Mode(SkBlendMode blendMode) {
-    return sk_make_sp<PrecompileBlendModeBlender>(blendMode);
-}
+PrecompileBlender::~PrecompileBlender() = default;
 
 sk_sp<PrecompileBlender> PrecompileBlenders::Arithmetic() {
     const SkRuntimeEffect* arithmeticEffect =
             GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kArithmetic);
 
     return MakePrecompileBlender(sk_ref_sp(arithmeticEffect));
+}
+
+sk_sp<PrecompileBlender> PrecompileBlenders::Mode(SkBlendMode blendMode) {
+    return sk_make_sp<PrecompileBlendModeBlender>(blendMode);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -194,7 +198,7 @@ public:
 
         fNumBlenderCombos = 0;
         for (const auto& rt : fRuntimeBlendEffects) {
-            fNumBlenderCombos += rt->numCombinations();
+            fNumBlenderCombos += rt->priv().numCombinations();
         }
         if (needsPorterDuffBased) {
             ++fNumBlenderCombos;
@@ -207,12 +211,12 @@ public:
 
         fNumDstCombos = 0;
         for (const auto& d : fDstOptions) {
-            fNumDstCombos += d->numCombinations();
+            fNumDstCombos += d->priv().numCombinations();
         }
 
         fNumSrcCombos = 0;
         for (const auto& s : fSrcOptions) {
-            fNumSrcCombos += s->numCombinations();
+            fNumSrcCombos += s->priv().numCombinations();
         }
 
         if (needsPorterDuffBased) {
@@ -315,8 +319,8 @@ sk_sp<PrecompileShader> PrecompileShaders::Blend(
     for (const auto& b : blenders) {
         if (!b) {
             needsPorterDuffBased = true; // fall back to kSrcOver
-        } else if (b->asBlendMode().has_value()) {
-            SkBlendMode bm = b->asBlendMode().value();
+        } else if (b->priv().asBlendMode().has_value()) {
+            SkBlendMode bm = b->priv().asBlendMode().value();
 
             SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(bm);
             if (!coeffs.empty()) {
@@ -371,7 +375,7 @@ public:
             : fShaders(shaders.begin(), shaders.end()) {
         fNumShaderCombos = 0;
         for (const auto& s : fShaders) {
-            fNumShaderCombos += s->numCombinations();
+            fNumShaderCombos += s->priv().numCombinations();
         }
     }
 
@@ -652,7 +656,7 @@ public:
             , fFlags(flags) {
         fNumWrappedCombos = 0;
         for (const auto& s : fWrapped) {
-            fNumWrappedCombos += s->numCombinations();
+            fNumWrappedCombos += s->priv().numCombinations();
         }
     }
 
@@ -748,11 +752,11 @@ public:
             , fColorFilters(colorFilters.begin(), colorFilters.end()) {
         fNumShaderCombos = 0;
         for (const auto& s : fShaders) {
-            fNumShaderCombos += s->numCombinations();
+            fNumShaderCombos += s->priv().numCombinations();
         }
         fNumColorFilterCombos = 0;
         for (const auto& cf : fColorFilters) {
-            fNumColorFilterCombos += cf->numCombinations();
+            fNumColorFilterCombos += cf->priv().numCombinations();
         }
     }
 
@@ -801,7 +805,7 @@ public:
             , fColorSpaces(colorSpaces.begin(), colorSpaces.end()) {
         fNumShaderCombos = 0;
         for (const auto& s : fShaders) {
-            fNumShaderCombos += s->numCombinations();
+            fNumShaderCombos += s->priv().numCombinations();
         }
     }
 
@@ -861,7 +865,7 @@ public:
             : fWrapped(wrapped.begin(), wrapped.end()) {
         fNumWrappedCombos = 0;
         for (const auto& s : fWrapped) {
-            fNumWrappedCombos += s->numCombinations();
+            fNumWrappedCombos += s->priv().numCombinations();
         }
     }
 
@@ -907,7 +911,7 @@ class PrecompileBlurShader : public PrecompileShader {
 public:
     PrecompileBlurShader(sk_sp<PrecompileShader> wrapped)
             : fWrapped(std::move(wrapped)) {
-        fNumWrappedCombos = fWrapped->numCombinations();
+        fNumWrappedCombos = fWrapped->priv().numCombinations();
     }
 
 private:
@@ -960,7 +964,7 @@ class PrecompileMatrixConvolutionShader : public PrecompileShader {
 public:
     PrecompileMatrixConvolutionShader(sk_sp<PrecompileShader> wrapped)
             : fWrapped(std::move(wrapped)) {
-        fNumWrappedCombos = fWrapped->numCombinations();
+        fNumWrappedCombos = fWrapped->priv().numCombinations();
 
         // When the matrix convolution ImageFilter uses a texture we know it will only ever
         // be SkFilterMode::kNearest and SkTileMode::kClamp.
@@ -969,7 +973,7 @@ public:
         // (sk_image_shader and sk_hw_image_shader).
         fRawImageShader =
                 PrecompileShadersPriv::RawImage(PrecompileImageShaderFlags::kExcludeCubic);
-        fNumRawImageShaderCombos = fRawImageShader->numCombinations();
+        fNumRawImageShaderCombos = fRawImageShader->priv().numCombinations();
     }
 
 private:
@@ -1037,7 +1041,7 @@ public:
                                SkKnownRuntimeEffects::StableKey stableKey)
             : fWrapped(std::move(wrapped))
             , fStableKey(stableKey) {
-        fNumWrappedCombos = fWrapped->numCombinations();
+        fNumWrappedCombos = fWrapped->priv().numCombinations();
         SkASSERT(stableKey == SkKnownRuntimeEffects::StableKey::kLinearMorphology ||
                  stableKey == SkKnownRuntimeEffects::StableKey::kSparseMorphology);
     }
@@ -1084,8 +1088,8 @@ public:
                                  sk_sp<PrecompileShader> color)
             : fDisplacement(std::move(displacement))
             , fColor(std::move(color)) {
-        fNumDisplacementCombos = fDisplacement->numCombinations();
-        fNumColorCombos = fColor->numCombinations();
+        fNumDisplacementCombos = fDisplacement->priv().numCombinations();
+        fNumColorCombos = fColor->priv().numCombinations();
     }
 
 private:
@@ -1131,7 +1135,7 @@ class PrecompileLightingShader : public PrecompileShader {
 public:
     PrecompileLightingShader(sk_sp<PrecompileShader> wrapped)
             : fWrapped(std::move(wrapped)) {
-        fNumWrappedCombos = fWrapped->numCombinations();
+        fNumWrappedCombos = fWrapped->priv().numCombinations();
     }
 
 private:
@@ -1217,7 +1221,7 @@ sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blend(
         SkBlendMode bm,
         sk_sp<PrecompileImageFilter> background,
         sk_sp<PrecompileImageFilter> foreground) {
-    return Blend(PrecompileBlender::Mode(bm), std::move(background), std::move(foreground));
+    return Blend(PrecompileBlenders::Mode(bm), std::move(background), std::move(foreground));
 }
 
 sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blend(
@@ -1226,10 +1230,10 @@ sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blend(
         sk_sp<PrecompileImageFilter> foreground) {
 
     if (!blender) {
-        blender = PrecompileBlender::Mode(SkBlendMode::kSrcOver);
+        blender = PrecompileBlenders::Mode(SkBlendMode::kSrcOver);
     }
 
-    if (std::optional<SkBlendMode> bm = blender->asBlendMode()) {
+    if (std::optional<SkBlendMode> bm = blender->priv().asBlendMode()) {
         if (bm == SkBlendMode::kSrc) {
             return foreground;
         } else if (bm == SkBlendMode::kDst) {
@@ -1624,12 +1628,12 @@ public:
 
         fNumOuterCombos = 0;
         for (const auto& outerOption : fOuterOptions) {
-            fNumOuterCombos += outerOption ? outerOption->numCombinations() : 1;
+            fNumOuterCombos += outerOption ? outerOption->priv().numCombinations() : 1;
         }
 
         fNumInnerCombos = 0;
         for (const auto& innerOption : fInnerOptions) {
-            fNumInnerCombos += innerOption ? innerOption->numCombinations() : 1;
+            fNumInnerCombos += innerOption ? innerOption->priv().numCombinations() : 1;
         }
     }
 
@@ -1797,7 +1801,7 @@ public:
 
         fNumChildCombos = 0;
         for (const auto& childOption : fChildOptions) {
-            fNumChildCombos += childOption->numCombinations();
+            fNumChildCombos += childOption->priv().numCombinations();
         }
     }
 
@@ -1902,7 +1906,7 @@ int num_options_in_set(const std::vector<PrecompileChildPtr>& optionSet) {
     for (const PrecompileChildPtr& childOption : optionSet) {
         // A missing child will fall back to a passthrough object
         if (childOption.base()) {
-            numOptions *= childOption.base()->numCombinations();
+            numOptions *= childOption.base()->priv().numCombinations();
         }
     }
 
@@ -1927,7 +1931,7 @@ void add_children_to_key(const KeyContext& keyContext,
     for (size_t index = 0; index < optionSet.size(); ++index) {
         const PrecompileChildPtr& childOption = optionSet[index];
 
-        const int numChildCombos = childOption.base() ? childOption.base()->numCombinations()
+        const int numChildCombos = childOption.base() ? childOption.base()->priv().numCombinations()
                                                       : 1;
         const int curCombo = remainingCombinations % numChildCombos;
         remainingCombinations /= numChildCombos;
