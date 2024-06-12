@@ -924,15 +924,15 @@ skif::FilterResult SkBlurImageFilter::onFilterImage(const skif::Context& ctx) co
     SkASSERT(sigma.width() >= 0.f && sigma.width() <= kMaxSigma &&
              sigma.height() >= 0.f && sigma.height() <= kMaxSigma);
 
-    // TODO: This is equivalent to what Builder::blur() calculates under the hood, but is calculated
-    // *before* we apply any legacy tile mode since the legacy tiling did not actually cause the
-    // output to extend fully.
-    skif::LayerSpace<SkIRect> maxOutput =
-            this->kernelBounds(ctx.mapping(), childOutput.layerBounds(), gpuBacked);
-    if (!maxOutput.intersect(ctx.desiredOutput())) {
-        return {};
+    // By default, FilterResult::blur() will calculate a more optimal output automatically, so
+    // convey the original output to it.
+    skif::LayerSpace<SkIRect> maxOutput = ctx.desiredOutput();
+    if (!gpuBacked || fLegacyTileMode != SkTileMode::kDecal) {
+        maxOutput = this->kernelBounds(ctx.mapping(), childOutput.layerBounds(), gpuBacked);
+        if (!maxOutput.intersect(ctx.desiredOutput())) {
+            return {};
+        }
     }
-
     if (fLegacyTileMode != SkTileMode::kDecal) {
         // Legacy tiling applied to the input image when there was no explicit crop rect. Use the
         // child's output image's layer bounds as the crop rectangle to adjust the edge tile mode

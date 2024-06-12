@@ -108,6 +108,8 @@ bool valid_client_provided_image(const SkImage* clientProvided,
     return true;
 }
 
+#if defined(SK_USE_LEGACY_BLUR_GRAPHITE)
+
 sk_sp<SkSpecialImage> eval_blur(Recorder* recorder,
                                 sk_sp<SkShader> blurEffect,
                                 const SkIRect& dstRect,
@@ -314,6 +316,8 @@ sk_sp<SkSpecialImage> blur_impl(Recorder* recorder,
                                              outProps);
     }
 }
+
+#endif // SK_USE_LEGACY_BLUR_GRAPHITE
 
 // This class is the lazy instantiation callback for promise images. It manages calling the
 // client's Fulfill, ImageRelease, and TextureRelease procs.
@@ -867,7 +871,14 @@ namespace {
 // TODO(michaelludwig): The skgpu::BlurUtils effects will be migrated to src/core to implement a
 // shader BlurEngine that can be shared by rastr, Ganesh, and Graphite. This is blocked by having
 // skif::FilterResult handle the resizing to the max supported sigma.
-class GraphiteBackend : public Backend, private SkBlurEngine, private SkBlurEngine::Algorithm {
+class GraphiteBackend :
+        public Backend,
+#if defined(SK_USE_LEGACY_BLUR_GRAPHITE)
+        private SkBlurEngine::Algorithm,
+#else
+        private SkShaderBlurAlgorithm,
+#endif
+        private SkBlurEngine {
 public:
 
     GraphiteBackend(skgpu::graphite::Recorder* recorder,
@@ -923,10 +934,9 @@ public:
         return this;
     }
 
+#if defined(SK_USE_LEGACY_BLUR_GRAPHITE)
     // SkBlurEngine::Algorithm
     float maxSigma() const override {
-        // TODO: When FilterResult handles rescaling externally, change this to
-        // skgpu::kMaxLinearBlurSigma.
         return SK_ScalarInfinity;
     }
 
@@ -944,6 +954,22 @@ public:
         return skgpu::graphite::blur_impl(fRecorder, sigma, std::move(src), srcRect, tileMode,
                                           dstRect, sk_ref_sp(cs), this->surfaceProps());
     }
+#else
+    bool useLegacyFilterResultBlur() const override { return false; }
+
+    // SkShaderBlurAlgorithm
+    sk_sp<SkDevice> makeDevice(const SkImageInfo& imageInfo) const override {
+        return skgpu::graphite::Device::Make(fRecorder,
+                                             imageInfo,
+                                             skgpu::Budgeted::kYes,
+                                             skgpu::Mipmapped::kNo,
+                                             SkBackingFit::kApprox,
+                                             this->surfaceProps(),
+                                             skgpu::graphite::LoadOp::kDiscard,
+                                             "EvalBlurTexture");
+    }
+
+#endif
 
 private:
     skgpu::graphite::Recorder* fRecorder;

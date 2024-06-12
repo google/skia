@@ -19,6 +19,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMath.h"
@@ -27,6 +28,7 @@
 #include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkSpecialImage.h"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -343,10 +345,27 @@ sk_sp<SkSpecialImage> SkShaderBlurAlgorithm::blur(SkSize sigma,
         SkIRect intermediateDstRect = dstRect;
         if (radiusX > 0) {
             if (radiusY > 0) {
-                // Outset the output size of dstRect by the radius required for the next Y pass
-                intermediateDstRect.outset(0, radiusY);
-                if (!intermediateDstRect.intersect(srcRect.makeOutset(radiusX, radiusY))) {
-                    return nullptr;
+                // May need to maintain extra rows above and below 'dstRect' for the follow-up pass.
+                if (tileMode == SkTileMode::kRepeat || tileMode == SkTileMode::kMirror) {
+                    // If the srcRect and dstRect are aligned, then we don't need extra rows since
+                    // the periodic tiling on srcRect is the same for the intermediate. If they
+                    // are not aligned, then outset by the Y radius.
+                    const int period = srcRect.height() * (tileMode == SkTileMode::kMirror ? 2 : 1);
+                    if (std::abs(dstRect.fTop - srcRect.fTop) % period != 0 ||
+                        dstRect.height() != srcRect.height()) {
+                        intermediateDstRect.outset(0, radiusY);
+                    }
+                } else {
+                    // For clamp and decal tiling, we outset by the Y radius up to what's available
+                    // from the srcRect. Anything beyond that is identical to tiling the
+                    // intermediate dst image directly.
+                    intermediateDstRect.outset(0, radiusY);
+                    intermediateDstRect.fTop = std::max(intermediateDstRect.fTop, srcRect.fTop);
+                    intermediateDstRect.fBottom =
+                            std::min(intermediateDstRect.fBottom, srcRect.fBottom);
+                    if (intermediateDstRect.fTop >= intermediateDstRect.fBottom) {
+                        return nullptr;
+                    }
                 }
             }
 
