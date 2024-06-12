@@ -1805,11 +1805,12 @@ mod test {
         let file_buffer = fs::read(TEST_CONDENSED_BOLD_ITALIC)
             .expect("Font to test font styles could not be opened.");
         let font_ref = make_font_ref(&file_buffer, 0);
+        let coords = resolve_into_normalized_coords(&font_ref, &[]);
         assert!(font_ref_is_valid(&font_ref));
 
         let mut font_style = BridgeFontStyle::default();
 
-        if get_font_style(font_ref.as_ref(), &mut font_style) {
+        if get_font_style(font_ref.as_ref(), &coords, &mut font_style) {
             assert_eq!(font_style.width, 5); // The font should have condenced width attribute but
                                              // it's condenced itself so we have the normal width
             assert_eq!(font_style.slant, 1); // Skia italic
@@ -1824,11 +1825,12 @@ mod test {
         let file_buffer =
             fs::read(TEST_VARIABLE).expect("Font to test font styles could not be opened.");
         let font_ref = make_font_ref(&file_buffer, 0);
+        let coords = resolve_into_normalized_coords(&font_ref, &[]);
         assert!(font_ref_is_valid(&font_ref));
 
         let mut font_style = BridgeFontStyle::default();
 
-        assert!(get_font_style(font_ref.as_ref(), &mut font_style));
+        assert!(get_font_style(font_ref.as_ref(), &coords, &mut font_style));
         assert_eq!(font_style.width, 5); // Skia normal
         assert_eq!(font_style.slant, 0); // Skia upright
         assert_eq!(font_style.weight, 400); // Skia normal
