@@ -117,27 +117,41 @@ static SkMutex& mask_gamma_cache_mutex() {
 }
 
 static SkMaskGamma* gLinearMaskGamma = nullptr;
+static SkMaskGamma* gDefaultMaskGamma = nullptr;
 static SkMaskGamma* gMaskGamma = nullptr;
-static SkScalar gContrast = SK_ScalarMin;
-static SkScalar gDeviceGamma = SK_ScalarMin;
+static uint8_t gContrast = 0;
+static uint8_t gGamma = 0;
 
 /**
  * The caller must hold the mask_gamma_cache_mutex() and continue to hold it until
  * the returned SkMaskGamma pointer is refed or forgotten.
  */
-static const SkMaskGamma& cached_mask_gamma(SkScalar contrast, SkScalar deviceGamma) {
+const SkMaskGamma& SkScalerContextRec::CachedMaskGamma(uint8_t contrast, uint8_t gamma) {
     mask_gamma_cache_mutex().assertHeld();
-    if (0 == contrast && SK_Scalar1 == deviceGamma) {
+
+    constexpr uint8_t contrast0 = InternalContrastFromExternal(0);
+    constexpr uint8_t gamma1 = InternalGammaFromExternal(1);
+    if (contrast0 == contrast && gamma1 == gamma) {
         if (nullptr == gLinearMaskGamma) {
             gLinearMaskGamma = new SkMaskGamma;
         }
         return *gLinearMaskGamma;
     }
-    if (gContrast != contrast || gDeviceGamma != deviceGamma) {
+    constexpr uint8_t defaultContrast = InternalContrastFromExternal(SK_GAMMA_CONTRAST);
+    constexpr uint8_t defaultGamma = InternalGammaFromExternal(SK_GAMMA_EXPONENT);
+    if (defaultContrast == contrast && defaultGamma == gamma) {
+        if (!gDefaultMaskGamma) {
+            gDefaultMaskGamma = new SkMaskGamma(ExternalContrastFromInternal(contrast),
+                                                ExternalGammaFromInternal(gamma));
+        }
+        return *gDefaultMaskGamma;
+    }
+    if (!gMaskGamma || gContrast != contrast || gGamma != gamma) {
         SkSafeUnref(gMaskGamma);
-        gMaskGamma = new SkMaskGamma(contrast, deviceGamma);
+        gMaskGamma = new SkMaskGamma(ExternalContrastFromInternal(contrast),
+                                     ExternalGammaFromInternal(gamma));
         gContrast = contrast;
-        gDeviceGamma = deviceGamma;
+        gGamma = gamma;
     }
     return *gMaskGamma;
 }
@@ -148,7 +162,7 @@ static const SkMaskGamma& cached_mask_gamma(SkScalar contrast, SkScalar deviceGa
 SkMaskGamma::PreBlend SkScalerContext::GetMaskPreBlend(const SkScalerContextRec& rec) {
     SkAutoMutexExclusive ama(mask_gamma_cache_mutex());
 
-    const SkMaskGamma& maskGamma = cached_mask_gamma(rec.getContrast(), rec.getDeviceGamma());
+    const SkMaskGamma& maskGamma = rec.cachedMaskGamma();
 
     // TODO: remove CanonicalColor when we to fix up Chrome layout tests.
     return maskGamma.preBlend(rec.getLuminanceColor());
@@ -157,7 +171,9 @@ SkMaskGamma::PreBlend SkScalerContext::GetMaskPreBlend(const SkScalerContextRec&
 size_t SkScalerContext::GetGammaLUTSize(SkScalar contrast, SkScalar deviceGamma,
                                         int* width, int* height) {
     SkAutoMutexExclusive ama(mask_gamma_cache_mutex());
-    const SkMaskGamma& maskGamma = cached_mask_gamma(contrast, deviceGamma);
+    const SkMaskGamma& maskGamma = SkScalerContextRec::CachedMaskGamma(
+            SkScalerContextRec::InternalContrastFromExternal(contrast),
+            SkScalerContextRec::InternalGammaFromExternal(deviceGamma));
 
     maskGamma.getGammaTableDimensions(width, height);
     size_t size = (*width)*(*height)*sizeof(uint8_t);
@@ -167,7 +183,9 @@ size_t SkScalerContext::GetGammaLUTSize(SkScalar contrast, SkScalar deviceGamma,
 
 bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar deviceGamma, uint8_t* data) {
     SkAutoMutexExclusive ama(mask_gamma_cache_mutex());
-    const SkMaskGamma& maskGamma = cached_mask_gamma(contrast, deviceGamma);
+    const SkMaskGamma& maskGamma = SkScalerContextRec::CachedMaskGamma(
+            SkScalerContextRec::InternalContrastFromExternal(contrast),
+            SkScalerContextRec::InternalGammaFromExternal(deviceGamma));
     const uint8_t* gammaTables = maskGamma.getGammaTables();
     if (!gammaTables) {
         return false;

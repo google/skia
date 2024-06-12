@@ -42,6 +42,13 @@ class SkPathEffect;
 enum class SkFontHinting;
 struct SkFontMetrics;
 
+//The following typedef hides from the rest of the implementation the number of
+//most significant bits to consider when creating mask gamma tables. Two bits
+//per channel was chosen as a balance between fidelity (more bits) and cache
+//sizes (fewer bits). Three bits per channel was chosen when #303942; (used by
+//the Chrome UI) turned out too green.
+typedef SkTMaskGamma<3, 3, 3> SkMaskGamma;
+
 enum class SkScalerContextFlags : uint32_t {
     kNone                      = 0,
     kFakeGamma                 = 1 << 0,
@@ -77,26 +84,38 @@ private:
     uint8_t       fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
     const uint8_t fReservedAlign{0};
 
+    static constexpr SkScalar ExternalGammaFromInternal(uint8_t g) {
+        return SkIntToScalar(g) / (1 << 6);
+    }
+    static constexpr uint8_t InternalGammaFromExternal(SkScalar g) {
+        // C++23 use constexpr std::floor
+        return static_cast<uint8_t>(g * (1 << 6));
+    }
+    static constexpr SkScalar ExternalContrastFromInternal(uint8_t c) {
+        return SkIntToScalar(c) / ((1 << 8) - 1);
+    }
+    static constexpr uint8_t InternalContrastFromExternal(SkScalar c) {
+        // C++23 use constexpr std::round
+        return static_cast<uint8_t>((c * ((1 << 8) - 1)) + 0.5f);
+    }
 public:
-
-    SkScalar getDeviceGamma() const {
+    void setDeviceGamma(SkScalar g) {
         sk_ignore_unused_variable(fReservedAlign2);
-        return SkIntToScalar(fDeviceGamma) / (1 << 6);
-    }
-    void setDeviceGamma(SkScalar dg) {
-        SkASSERT(SkSurfaceProps::kMinGammaInclusive <= dg &&
-                 dg < SkIntToScalar(SkSurfaceProps::kMaxGammaExclusive));
-        fDeviceGamma = SkScalarFloorToInt(dg * (1 << 6));
+        SkASSERT(SkSurfaceProps::kMinGammaInclusive <= g &&
+                 g < SkIntToScalar(SkSurfaceProps::kMaxGammaExclusive));
+        fDeviceGamma = InternalGammaFromExternal(g);
     }
 
-    SkScalar getContrast() const {
-        sk_ignore_unused_variable(fReservedAlign);
-        return SkIntToScalar(fContrast) / ((1 << 8) - 1);
-    }
     void setContrast(SkScalar c) {
+        sk_ignore_unused_variable(fReservedAlign);
         SkASSERT(SkSurfaceProps::kMinContrastInclusive <= c &&
                  c <= SkIntToScalar(SkSurfaceProps::kMaxContrastInclusive));
-        fContrast = SkScalarRoundToInt(c * ((1 << 8) - 1));
+        fContrast = InternalContrastFromExternal(c);
+    }
+
+    static const SkMaskGamma& CachedMaskGamma(uint8_t contrast, uint8_t gamma);
+    const SkMaskGamma& cachedMaskGamma() const {
+        return CachedMaskGamma(fContrast, fDeviceGamma);
     }
 
     /**
@@ -229,13 +248,6 @@ struct SkScalerContextEffects {
     SkPathEffect*   fPathEffect;
     SkMaskFilter*   fMaskFilter;
 };
-
-//The following typedef hides from the rest of the implementation the number of
-//most significant bits to consider when creating mask gamma tables. Two bits
-//per channel was chosen as a balance between fidelity (more bits) and cache
-//sizes (fewer bits). Three bits per channel was chosen when #303942; (used by
-//the Chrome UI) turned out too green.
-typedef SkTMaskGamma<3, 3, 3> SkMaskGamma;
 
 class SkScalerContext {
 public:
