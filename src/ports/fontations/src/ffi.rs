@@ -4,8 +4,8 @@ use ffi::{FillLinearParams, FillRadialParams};
 // in the LICENSE file.
 use font_types::{BoundingBox, GlyphId, Pen};
 use read_fonts::{
-    tables::colr::CompositeMode, tables::os2::SelectionFlags, FileRef, FontRef, ReadError,
-    TableProvider,
+    tables::{colr::CompositeMode, cpal::Cpal, os2::SelectionFlags},
+    FileRef, FontRef, ReadError, TableProvider,
 };
 use skrifa::{
     attribute::Style,
@@ -578,25 +578,30 @@ fn resolve_palette(
     base_palette: u16,
     palette_overrides: &[PaletteOverride],
 ) -> Vec<u32> {
-    font_ref
-        .with_font(|f| {
-            let cpal = f.cpal().ok()?;
-
-            let start_index: usize = cpal
-                .color_record_indices()
-                .get(usize::from(base_palette))?
-                .get()
-                .into();
-            let num_entries: usize = cpal.num_palette_entries().into();
-
-            let color_records = cpal.color_records_array()?.ok()?;
-            let mut palette: Vec<u32> = color_records
+    let cpal_to_vector = |cpal: &Cpal, palette_index| -> Option<Vec<u32>> {
+        let start_index: usize = cpal
+            .color_record_indices()
+            .get(usize::from(palette_index))?
+            .get()
+            .into();
+        let num_entries: usize = cpal.num_palette_entries().into();
+        let color_records = cpal.color_records_array()?.ok()?;
+        Some(
+            color_records
                 .get(start_index..start_index + num_entries)?
                 .iter()
                 .map(|record| {
                     u32::from_be_bytes([record.alpha, record.red, record.green, record.blue])
                 })
-                .collect();
+                .collect(),
+        )
+    };
+
+    font_ref
+        .with_font(|f| {
+            let cpal = f.cpal().ok()?;
+
+            let mut palette = cpal_to_vector(&cpal, base_palette).or(cpal_to_vector(&cpal, 0))?;
 
             for override_entry in palette_overrides {
                 let index = override_entry.index as usize;
@@ -1712,7 +1717,8 @@ mod test {
     use crate::{
         coordinates_for_shifted_named_instance_index,
         ffi::{BridgeFontStyle, PaletteOverride, SkiaDesignCoordinate},
-        font_or_collection, font_ref_is_valid, get_font_style, make_font_ref, resolve_palette,
+        font_or_collection, font_ref_is_valid, get_font_style, make_font_ref,
+        resolve_into_normalized_coords, resolve_palette,
     };
     use std::fs;
 
@@ -1773,9 +1779,20 @@ mod test {
             (palette[11], palette[12], palette[13],),
             (0xff68c7e8, 0xffffdc01, 0xff808080)
         );
+    }
 
-        let no_palette = resolve_palette(&font_ref, 10, &out_of_bounds_overrides);
-        assert_eq!(no_palette.len(), 0);
+    #[test]
+    fn test_default_palette_for_invalid_index() {
+        let file_buffer =
+            fs::read(TEST_FONT_FILENAME).expect("COLRv0/v1 test font could not be opened.");
+        let font_ref = make_font_ref(&file_buffer, 0);
+        assert!(font_ref_is_valid(&font_ref));
+        let palette = resolve_palette(&font_ref, 65535, &[]);
+        assert_eq!(palette.len(), 14);
+        assert_eq!(
+            (palette[0], palette[6], palette[13],),
+            (0xFFFF0000, 0xFFEE82EE, 0xFF808080)
+        );
     }
 
     #[test]
