@@ -14,6 +14,8 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 
+#include <functional>
+
 namespace skgpu::graphite {
 
 class PrecompileBlender;

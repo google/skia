@@ -17,7 +17,6 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
@@ -25,6 +24,7 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
 
 namespace {
 

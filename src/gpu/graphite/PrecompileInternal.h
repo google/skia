@@ -14,6 +14,7 @@
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
+#include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
 
 #include <functional>
 #include <optional>
@@ -24,6 +25,7 @@ class SkRuntimeEffect;
 namespace skgpu::graphite {
 
 enum class Coverage;
+class Context;
 class KeyContext;
 class PipelineDataGatherer;
 class PrecompileBasePriv;
