@@ -647,9 +647,8 @@ static void blit_single_alpha(AdditiveBlitter* blitter,
                               SkAlpha alpha,
                               SkAlpha fullAlpha,
                               SkAlpha* maskRow,
-                              bool isUsingMask,
                               bool noRealBlitter) {
-    if (isUsingMask) {
+    if (maskRow) {
         if (fullAlpha == 0xFF && !noRealBlitter) {  // noRealBlitter is needed for concave paths
             maskRow[x] = alpha;
         } else {
@@ -671,9 +670,8 @@ static void blit_two_alphas(AdditiveBlitter* blitter,
                             SkAlpha a2,
                             SkAlpha fullAlpha,
                             SkAlpha* maskRow,
-                            bool isUsingMask,
                             bool noRealBlitter) {
-    if (isUsingMask) {
+    if (maskRow) {
         safely_add_alpha(&maskRow[x], a1);
         safely_add_alpha(&maskRow[x + 1], a2);
     } else {
@@ -692,9 +690,8 @@ static void blit_full_alpha(AdditiveBlitter* blitter,
                             int len,
                             SkAlpha fullAlpha,
                             SkAlpha* maskRow,
-                            bool isUsingMask,
                             bool noRealBlitter) {
-    if (isUsingMask) {
+    if (maskRow) {
         for (int i = 0; i < len; ++i) {
             safely_add_alpha(&maskRow[x + i], fullAlpha);
         }
@@ -717,21 +714,13 @@ static void blit_aaa_trapezoid_row(AdditiveBlitter* blitter,
                                    SkFixed          rDY,
                                    SkAlpha          fullAlpha,
                                    SkAlpha*         maskRow,
-                                   bool             isUsingMask,
                                    bool             noRealBlitter) {
     int L = SkFixedFloorToInt(ul), R = SkFixedCeilToInt(lr);
     int len = R - L;
 
     if (len == 1) {
         SkAlpha alpha = trapezoid_to_alpha(ur - ul, lr - ll);
-        blit_single_alpha(blitter,
-                          y,
-                          L,
-                          alpha,
-                          fullAlpha,
-                          maskRow,
-                          isUsingMask,
-                          noRealBlitter);
+        blit_single_alpha(blitter, y, L, alpha, fullAlpha, maskRow, noRealBlitter);
         return;
     }
 
@@ -796,7 +785,7 @@ static void blit_aaa_trapezoid_row(AdditiveBlitter* blitter,
         }
     }
 
-    if (isUsingMask) {
+    if (maskRow) {
         for (int i = 0; i < len; ++i) {
             safely_add_alpha(&maskRow[L + i], alphas[i]);
         }
@@ -824,8 +813,7 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
                                SkFixed rDY,
                                SkAlpha fullAlpha,
                                SkAlpha* maskRow,
-                               bool isUsingMask,
-                               bool noRealBlitter = false) {
+                               bool noRealBlitter) {
     SkASSERT(lDY >= 0 && rDY >= 0);  // We should only send in the absolte value
 
     if (ul > ur) {
@@ -866,7 +854,6 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
                                   alpha,
                                   fullAlpha,
                                   maskRow,
-                                  isUsingMask,
                                   noRealBlitter);
             } else if (len == 2) {
                 SkFixed first  = joinLeft - SK_Fixed1 - ul;
@@ -880,7 +867,6 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
                                 a2,
                                 fullAlpha,
                                 maskRow,
-                                isUsingMask,
                                 noRealBlitter);
             } else {
                 blit_aaa_trapezoid_row(blitter,
@@ -893,7 +879,6 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
                                        SK_MaxS32,
                                        fullAlpha,
                                        maskRow,
-                                       isUsingMask,
                                        noRealBlitter);
             }
         }
@@ -906,7 +891,6 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
                             SkFixedFloorToInt(joinRite - joinLeft),
                             fullAlpha,
                             maskRow,
-                            isUsingMask,
                             noRealBlitter);
         }
         if (lr > joinRite) {
@@ -919,7 +903,6 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
                                   alpha,
                                   fullAlpha,
                                   maskRow,
-                                  isUsingMask,
                                   noRealBlitter);
             } else if (len == 2) {
                 SkFixed first  = joinRite + SK_Fixed1 - ur;
@@ -933,7 +916,6 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
                                 a2,
                                 fullAlpha,
                                 maskRow,
-                                isUsingMask,
                                 noRealBlitter);
             } else {
                 blit_aaa_trapezoid_row(blitter,
@@ -946,7 +928,6 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
                                        rDY,
                                        fullAlpha,
                                        maskRow,
-                                       isUsingMask,
                                        noRealBlitter);
             }
         }
@@ -961,7 +942,6 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
                                rDY,
                                fullAlpha,
                                maskRow,
-                               isUsingMask,
                                noRealBlitter);
     }
 }
@@ -1226,10 +1206,9 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
 
             // If we're using mask blitter, we advance the mask row in this function
             // to save some "if" condition checks.
-            SkAlpha* maskRow = nullptr;
-            if (isUsingMask) {
-                maskRow = static_cast<MaskAdditiveBlitter*>(blitter)->getRow(y >> 16);
-            }
+            SkAlpha* maskRow = isUsingMask
+                                       ? static_cast<MaskAdditiveBlitter*>(blitter)->getRow(y >> 16)
+                                       : nullptr;
 
             // Instead of writing one loop that handles both partial-row blit_trapezoid_row
             // and full-row trapezoid_row together, we use the following 3-stage flow to
@@ -1255,7 +1234,7 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
                                        riteE->fDY,
                                        get_partial_alpha(0xFF, dY),
                                        maskRow,
-                                       isUsingMask);
+                                       /*noRealBlitter=*/false);
                     blitter->flush_if_y_changed(y, nextY);
                     left = nextLeft;
                     rite = nextRite;
@@ -1281,7 +1260,7 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
                                        riteE->fDY,
                                        0xFF,
                                        maskRow,
-                                       isUsingMask);
+                                       /*noRealBlitter=*/false);
                     blitter->flush_if_y_changed(y, nextY);
                     left = nextLeft;
                     rite = nextRite;
@@ -1312,7 +1291,7 @@ static void aaa_walk_convex_edges(SkAnalyticEdge*  prevHead,
                                riteE->fDY,
                                get_partial_alpha(0xFF, dY),
                                maskRow,
-                               isUsingMask);
+                               /*noRealBlitter=*/false);
             blitter->flush_if_y_changed(y, local_bot_fixed);
             left = nextLeft;
             rite = nextRite;
@@ -1470,7 +1449,6 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
                         width,
                         fixed_to_alpha(y - SkIntToFixed(start_y)),
                         maskRow,
-                        isUsingMask,
                         false);
     }
 
@@ -1501,10 +1479,10 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
 
         // If we're using mask blitter, we advance the mask row in this function
         // to save some "if" condition checks.
-        SkAlpha* maskRow = nullptr;
-        if (isUsingMask) {
-            maskRow = static_cast<MaskAdditiveBlitter*>(blitter)->getRow(SkFixedFloorToInt(y));
-        }
+        SkAlpha* maskRow =
+                isUsingMask
+                        ? static_cast<MaskAdditiveBlitter*>(blitter)->getRow(SkFixedFloorToInt(y))
+                        : nullptr;
 
         SkASSERT(currE->fPrev == prevHead);
         validate_edges_for_y(currE, y);
@@ -1541,7 +1519,6 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
                         currE->fDY,
                         fullAlpha,
                         maskRow,
-                        isUsingMask,
                         noRealBlitter || (fullAlpha == 0xFF &&
                                           (edges_too_close(prevRite, left, leftE->fX) ||
                                            edges_too_close(currE, currE->fNext, nextY))));
@@ -1610,7 +1587,6 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
                                0,
                                fullAlpha,
                                maskRow,
-                               isUsingMask,
                                noRealBlitter || (fullAlpha == 0xFF &&
                                                  edges_too_close(leftE->fPrev, leftE, nextY)));
         }
