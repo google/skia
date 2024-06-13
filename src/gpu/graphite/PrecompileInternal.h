@@ -40,32 +40,6 @@ void PrecompileCombinations(Context* context,
                             Coverage coverage);
 
 //--------------------------------------------------------------------------------------------------
-
-template<typename T>
-std::pair<sk_sp<T>, int> PrecompileBase::SelectOption(SkSpan<const sk_sp<T>> options,
-                                                      int desiredOption) {
-    for (const sk_sp<T>& option : options) {
-        if (desiredOption < (option ? option->numCombinations() : 1)) {
-            return { option, desiredOption };
-        }
-        desiredOption -= option ? option->numCombinations() : 1;
-    }
-    return { nullptr, 0 };
-}
-
-template<typename T>
-void PrecompileBase::AddToKey(const KeyContext& keyContext,
-                              PaintParamsKeyBuilder* builder,
-                              PipelineDataGatherer* gatherer,
-                              SkSpan<const sk_sp<T>> options,
-                              int desiredOption) {
-    auto [option, childOptions] = SelectOption(options, desiredOption);
-    if (option) {
-        option->priv().addToKey(keyContext, builder, gatherer, childOptions);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 class PrecompileColorFilter;
 
 class PrecompileShader : public PrecompileBase {

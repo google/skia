@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/precompile/PaintOption.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
+#include "src/gpu/graphite/precompile/PrecompileBaseComplete.h"
 #include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
 #include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
 
