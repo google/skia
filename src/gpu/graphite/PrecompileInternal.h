@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/gpu/graphite/precompile/PrecompileBase.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
 
 #include <functional>

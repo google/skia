@@ -16,13 +16,13 @@ namespace skgpu::graphite {
 PrecompileBlender::~PrecompileBlender() = default;
 
 //--------------------------------------------------------------------------------------------------
-class PrecompileBlendModeBlender : public PrecompileBlender {
+class PrecompileBlendModeBlender final : public PrecompileBlender {
 public:
     PrecompileBlendModeBlender(SkBlendMode blendMode) : fBlendMode(blendMode) {}
 
+protected:
     std::optional<SkBlendMode> asBlendMode() const final { return fBlendMode; }
 
-private:
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
@@ -32,19 +32,20 @@ private:
         AddModeBlend(keyContext, builder, gatherer, fBlendMode);
     }
 
+private:
     SkBlendMode fBlendMode;
 };
 
+sk_sp<PrecompileBlender> PrecompileBlenders::Mode(SkBlendMode blendMode) {
+    return sk_make_sp<PrecompileBlendModeBlender>(blendMode);
+}
+
+//--------------------------------------------------------------------------------------------------
 sk_sp<PrecompileBlender> PrecompileBlenders::Arithmetic() {
     const SkRuntimeEffect* arithmeticEffect =
             GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kArithmetic);
 
     return MakePrecompileBlender(sk_ref_sp(arithmeticEffect));
 }
-
-sk_sp<PrecompileBlender> PrecompileBlenders::Mode(SkBlendMode blendMode) {
-    return sk_make_sp<PrecompileBlendModeBlender>(blendMode);
-}
-
 
 } // namespace skgpu::graphite
