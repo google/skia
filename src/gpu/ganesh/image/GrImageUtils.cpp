@@ -13,10 +13,8 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
-#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
-#include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
@@ -38,12 +36,10 @@
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkSamplingPriv.h"
-#include "src/core/SkSpecialImage.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/Device.h"
-#include "src/gpu/ganesh/GrBlurUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
@@ -57,7 +53,6 @@
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
@@ -78,6 +73,16 @@ class SkDevice;
 class SkMatrix;
 class SkSurfaceProps;
 enum SkColorType : int;
+
+#if defined(SK_USE_LEGACY_BLUR_GANESH)
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "src/core/SkSpecialImage.h"
+#include "src/gpu/ganesh/GrBlurUtils.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
+#else
+class SkSpecialImage;
+#endif
 
 namespace skgpu::ganesh {
 
@@ -729,7 +734,14 @@ namespace skif {
 
 namespace {
 
-class GaneshBackend : public Backend, private SkBlurEngine, private SkBlurEngine::Algorithm {
+class GaneshBackend :
+        public Backend,
+#if defined(SK_USE_LEGACY_BLUR_GANESH)
+        private SkBlurEngine::Algorithm,
+#else
+        private SkShaderBlurAlgorithm,
+#endif
+        private SkBlurEngine {
 public:
 
     GaneshBackend(sk_sp<GrRecordingContext> context,
@@ -799,6 +811,19 @@ public:
         return this;
     }
 
+#if defined(SK_USE_LEGACY_BLUR_GANESH)
+    // NOTE: When SK_USE_LEGACY_BLUR_GANESH is defined, `useLegacyFilterResultBlur()` returns true,
+    // so FilterResult::blur() will resolve all tiling in the original image space before calling
+    // into this function that routes to GrBlurUtils::GaussianBlur to perform the rescaling and
+    // blurring. It is possible ot restore original GrBlurUtils performance by just having
+    // `useLegacyFilterResultBlur()` return false but still reporting a max sigma of infinity and
+    // advertising support for all tile modes.
+    //
+    // Since all clients are currently rebased on the intermediate "legacy" blur approach, the ideal
+    // step would be to just migrate them to the SkShaderBlurAlgorithm variant instead of first
+    // going back to pure GrBlurUtils. But if needed for cherry-picking to old releases, the
+    // original GrBlurUtils behavior can be achieved quikly.
+
     // SkBlurEngine::Algorithm
     float maxSigma() const override {
         // GrBlurUtils handles resizing at the moment
@@ -842,6 +867,23 @@ public:
                                                     sdc->colorInfo(),
                                                     this->surfaceProps());
     }
+#else
+    bool useLegacyFilterResultBlur() const override { return false; }
+
+    // SkShaderBlurAlgorithm
+    sk_sp<SkDevice> makeDevice(const SkImageInfo& imageInfo) const override {
+        return fContext->priv().createDevice(skgpu::Budgeted::kYes,
+                                             imageInfo,
+                                             SkBackingFit::kApprox,
+                                             1,
+                                             skgpu::Mipmapped::kNo,
+                                             GrProtected::kNo,
+                                             fOrigin,
+                                             this->surfaceProps(),
+                                             skgpu::ganesh::Device::InitContents::kUninit);
+    }
+
+#endif
 
 private:
     sk_sp<GrRecordingContext> fContext;
