@@ -74,8 +74,6 @@ private:
     friend class PaintOptions;  // for access to SelectOption
     friend class PrecompileBasePriv;
 
-    virtual bool isALocalMatrixShader() const { return false; }
-
     Type fType;
 };
 

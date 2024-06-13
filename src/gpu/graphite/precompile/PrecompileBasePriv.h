@@ -25,10 +25,6 @@ public:
         return fPrecompileBase->numCombinations();
     }
 
-    bool isALocalMatrixShader() const {
-        return fPrecompileBase->isALocalMatrixShader();
-    }
-
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,

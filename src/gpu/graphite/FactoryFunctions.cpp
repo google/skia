@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/FactoryFunctions.h"
 
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
+#include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
@@ -24,6 +25,7 @@
 #include "src/gpu/graphite/precompile/PrecompileBaseComplete.h"
 #include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
 #include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
+#include "src/gpu/graphite/precompile/PrecompileShaderPriv.h"
 #include "src/shaders/SkShaderBase.h"
 
 namespace skgpu::graphite {
@@ -310,7 +312,7 @@ sk_sp<PrecompileShader> PrecompileShaders::Blend(
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::Blend(
-        SkSpan<SkBlendMode> blendModes,
+        SkSpan<const SkBlendMode> blendModes,
         SkSpan<const sk_sp<PrecompileShader>> dsts,
         SkSpan<const sk_sp<PrecompileShader>> srcs) {
 
@@ -632,14 +634,15 @@ public:
 
         /*
          * Regardless of whether the LocalMatrixShader elides itself or not, we always want
-         * the Constantness of the wrapped shader.
+         * the Constant-ness of the wrapped shader.
          */
         int desiredWrappedCombination = desiredCombination / kNumIntrinsicCombinations;
         SkASSERT(desiredWrappedCombination < fNumWrappedCombos);
 
-        auto wrapped = PrecompileBase::SelectOption(SkSpan(fWrapped), desiredWrappedCombination);
+        std::pair<sk_sp<PrecompileShader>, int> wrapped =
+                PrecompileBase::SelectOption(SkSpan(fWrapped), desiredWrappedCombination);
         if (wrapped.first) {
-            return wrapped.first->isConstant(wrapped.second);
+            return wrapped.first->priv().isConstant(wrapped.second);
         }
 
         return false;
@@ -839,9 +842,10 @@ public:
     bool isConstant(int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumWrappedCombos);
 
-        auto wrapped = PrecompileBase::SelectOption(SkSpan(fWrapped), desiredCombination);
+        std::pair<sk_sp<PrecompileShader>, int> wrapped =
+                PrecompileBase::SelectOption(SkSpan(fWrapped), desiredCombination);
         if (wrapped.first) {
-            return wrapped.first->isConstant(wrapped.second);
+            return wrapped.first->priv().isConstant(wrapped.second);
         }
 
         return false;

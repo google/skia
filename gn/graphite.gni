@@ -355,6 +355,7 @@ skia_graphite_precompile_public = [
   "$_include/precompile/Precompile.h",
   "$_include/precompile/PrecompileBase.h",
   "$_include/precompile/PrecompileBlender.h",
+  "$_include/precompile/PrecompileShader.h",
   "$_include/precompile/PaintOptions.h",
 ]
 
@@ -374,4 +375,5 @@ skia_graphite_precompile_sources = [
   "$_src/precompile/PrecompileBasePriv.h",
   "$_src/precompile/PrecompileBlender.cpp",
   "$_src/precompile/PrecompileBlenderPriv.h",
+  "$_src/precompile/PrecompileShaderPriv.h",
 ]

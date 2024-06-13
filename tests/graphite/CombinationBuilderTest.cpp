@@ -12,6 +12,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
+#include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/FactoryFunctions.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -103,7 +104,7 @@ void big_test(const KeyContext& keyContext,
 
     // Second top-level option (blendShader_0)
     auto blendShader_0 = PrecompileShaders::Blend(
-                                SkSpan<SkBlendMode>(blendModes),                // std::array
+                                SkSpan<const SkBlendMode>(blendModes),          // std::array
                                 {                                               // initializer_list
                                     PrecompileShaders::LinearGradient(),
                                     PrecompileShaders::Color()
@@ -111,7 +112,7 @@ void big_test(const KeyContext& keyContext,
                                 {
                                     PrecompileShaders::LinearGradient(),
                                     PrecompileShaders::Blend(
-                                            SkSpan<SkBlendMode>(moreBlendModes),// std::vector
+                                            SkSpan<const SkBlendMode>(moreBlendModes),// std::vector
                                             {
                                                 PrecompileShaders::RadialGradient(),
                                                 PrecompileShaders::Color()

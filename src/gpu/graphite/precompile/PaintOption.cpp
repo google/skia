@@ -9,6 +9,7 @@
 
 #include "include/core/SkBlender.h"
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
+#include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParams.h"
@@ -16,6 +17,7 @@
 #include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
 #include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
+#include "src/gpu/graphite/precompile/PrecompileShaderPriv.h"
 
 namespace skgpu::graphite {
 
@@ -140,7 +142,7 @@ bool PaintOption::shouldDither(SkColorType dstCT) const {
     }
 
     // Otherwise, dither is only needed for non-const paints.
-    return fShader.first && !fShader.first->isConstant(fShader.second);
+    return fShader.first && !fShader.first->priv().isConstant(fShader.second);
 }
 
 void PaintOption::handleDithering(const KeyContext& keyContext,

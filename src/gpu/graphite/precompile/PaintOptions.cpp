@@ -8,6 +8,7 @@
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
+#include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/FactoryFunctionsPriv.h"
@@ -21,6 +22,7 @@
 #include "src/gpu/graphite/precompile/PrecompileBaseComplete.h"
 #include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
 #include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
+#include "src/gpu/graphite/precompile/PrecompileShaderPriv.h"
 
 namespace skgpu::graphite {
 

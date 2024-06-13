@@ -19,7 +19,7 @@ class PrecompileBlenderPriv {
 public:
     std::optional<SkBlendMode> asBlendMode() const { return fPrecompileBlender->asBlendMode(); }
 
-    // The remaining methods make this a viable replacement for PrecompileBlenderPriv
+    // The remaining methods make this a viable standin for PrecompileBasePriv
     int numChildCombinations() const { return fPrecompileBlender->numChildCombinations(); }
 
     int numCombinations() const { return fPrecompileBlender->numCombinations(); }

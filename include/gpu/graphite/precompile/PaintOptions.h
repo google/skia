@@ -47,7 +47,7 @@ class UniquePaintParamsID;
     To be concrete, if a PaintOptions object had two shader options and two blender options,
     four combinations would be precompiled.
 */
-class PaintOptions {
+class SK_API PaintOptions {
 public:
     /** Constructs a PaintOptions object with default values. It is equivalent to a default
      *  initialized SkPaint.

@@ -13,7 +13,6 @@
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/gpu/graphite/precompile/PrecompileBase.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTDArray.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
 
 #include <functional>
@@ -40,22 +39,6 @@ void PrecompileCombinations(Context* context,
                             Coverage coverage);
 
 //--------------------------------------------------------------------------------------------------
-class PrecompileColorFilter;
-
-class PrecompileShader : public PrecompileBase {
-public:
-    PrecompileShader() : PrecompileBase(Type::kShader) {}
-
-    virtual bool isConstant(int desiredCombination) const { return false; }
-
-    sk_sp<PrecompileShader> makeWithLocalMatrix();
-
-    sk_sp<PrecompileShader> makeWithColorFilter(sk_sp<PrecompileColorFilter>);
-
-    sk_sp<PrecompileShader> makeWithWorkingColorSpace(sk_sp<SkColorSpace>);
-};
-
-
 
 class PrecompileColorFilter : public PrecompileBase {
 public:
