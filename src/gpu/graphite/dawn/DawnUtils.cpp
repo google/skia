@@ -41,6 +41,11 @@ size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format) {
 #if !defined(__EMSCRIPTEN__)
         case wgpu::TextureFormat::R16Unorm:              return 2;
         case wgpu::TextureFormat::RG16Unorm:             return 4;
+        // Note: We don't actually know the size of external formats, so this
+        // is an arbitrary value. We will see external formats only in wrapped
+        // SkImages, so this won't impact Skia's internal budgeting.
+        case wgpu::TextureFormat::External:
+            return 4;
 #endif
         default:
             SkUNREACHABLE;
