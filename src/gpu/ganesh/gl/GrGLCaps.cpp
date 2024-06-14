@@ -4660,15 +4660,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
          ctxInfo.webglRenderer() == GrGLRenderer::kAdreno630)) {
         fFlushBeforeWritePixels = true;
     }
-    // b/269561251
-    // PowerVR B-Series over ANGLE and passthrough command decoder has similar text atlas glitches
-    // to those seen on Adreno WebGL on the validating decoder (notably that case was fine on
-    // the passthrough decoder). Directly running on the device works correctly, so see if this
-    // around avoids the issue.
-    if (ctxInfo.angleBackend() != GrGLANGLEBackend::kUnknown &&
-        ctxInfo.angleRenderer() == GrGLRenderer::kPowerVRBSeries) {
-        fFlushBeforeWritePixels = true;
-    }
     // crbug.com/1395777
     // There appears to be a driver bug in GLSL program linking on Mali 400 and 450 devices with
     // driver version 2.1.199xx that causes the copy-as-draw programs in GrGLGpu to fail. The crash
