@@ -395,14 +395,14 @@ std::pair<SkColorType, bool /*isRGBFormat*/> DawnCaps::supportedReadPixelsColorT
 }
 
 void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextOptions& options) {
-    // GetAdapter() is not available in WASM and there's no way to get AdapterProperties off of
+    // GetAdapter() is not available in WASM and there's no way to get AdapterInfo off of
     // the WGPUDevice directly.
 #if !defined(__EMSCRIPTEN__)
-    wgpu::AdapterProperties props;
-    backendContext.fDevice.GetAdapter().GetProperties(&props);
+    wgpu::AdapterInfo info;
+    backendContext.fDevice.GetAdapter().GetInfo(&info);
 
 #if defined(GRAPHITE_TEST_UTILS)
-    this->setDeviceName(props.name);
+    this->setDeviceName(info.device);
 #endif
 #endif // defined(__EMSCRIPTEN__)
 
@@ -435,8 +435,8 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 
 #if !defined(__EMSCRIPTEN__)
     // TODO(b/318817249): SSBOs trigger FXC compiler failures when attempting to unroll loops
-    fStorageBufferSupport = props.backendType != wgpu::BackendType::D3D11;
-    fStorageBufferPreferred = props.backendType != wgpu::BackendType::D3D11;
+    fStorageBufferSupport = info.backendType != wgpu::BackendType::D3D11;
+    fStorageBufferPreferred = info.backendType != wgpu::BackendType::D3D11;
 #else
     // WASM doesn't provide a way to query the backend, so can't tell if we are on d3d11 or not.
     // Pessimistically assume we could be. Once b/318817249 is fixed, this can go away and SSBOs
