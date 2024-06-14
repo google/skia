@@ -57,6 +57,7 @@ supported_files_or_dirs=(
   "src/pathops/"
   "src/pdf/"
   "src/ports/SkFontMgr_fontconfig"
+  "src/ports/SkFontMgr_fontations"
   "src/shaders/"
   "src/sksl/"
   "src/svg/"

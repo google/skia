@@ -506,10 +506,7 @@ skia_filegroup(
 
 skia_filegroup(
     name = "fontmgr_fontations_empty_srcs",
-    srcs = [
-        "SkFontMgr_fontations_empty.cpp",
-        "SkFontMgr_fontations_empty.h",
-    ],
+    srcs = ["SkFontMgr_fontations_empty.cpp"],
 )
 
 skia_cc_library(
