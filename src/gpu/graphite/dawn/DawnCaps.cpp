@@ -407,15 +407,18 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 #endif // defined(__EMSCRIPTEN__)
 
     wgpu::SupportedLimits limits;
-
+#if defined(__EMSCRIPTEN__)
+    // TODO(crbug.com/42241199): Update Emscripten path with when webgpu.h in Emscripten is updated.
     [[maybe_unused]] bool limitsSucceeded = backendContext.fDevice.GetLimits(&limits);
+#if (__EMSCRIPTEN_major__ > 3 || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ > 1) || \
+     (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ > 50))
     // In Emscripten this always "fails" until
     // https://github.com/emscripten-core/emscripten/pull/20808, which was first included in 3.1.51.
-#if !defined(__EMSCRIPTEN__)                                     || \
-        (__EMSCRIPTEN_major__ >  3                               || \
-        (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ >  1) || \
-        (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ > 50))
     SkASSERT(limitsSucceeded);
+#endif
+#else
+    [[maybe_unused]] wgpu::Status status = backendContext.fDevice.GetLimits(&limits);
+    SkASSERT(status == wgpu::Status::Success);
 #endif
 
     fMaxTextureSize = limits.limits.maxTextureDimension2D;
