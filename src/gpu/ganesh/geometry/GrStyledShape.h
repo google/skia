@@ -158,7 +158,7 @@ public:
     }
 
     /** Returns the unstyled geometry as a rrect if possible. */
-    bool asRRect(SkRRect* rrect, SkPathDirection* dir, unsigned* start, bool* inverted) const;
+    bool asRRect(SkRRect* rrect, bool* inverted) const;
 
     /**
      * If the unstyled shape is a straight line segment, returns true and sets pts to the endpoints.

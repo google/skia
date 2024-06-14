@@ -1767,7 +1767,7 @@ bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,
                                       shape.style().strokeRec());
                 return true;
             }
-        } else if (shape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
+        } else if (shape.asRRect(&rrect, &inverted) && !inverted) {
             if (rrect.isRect()) {
                 this->drawRect(clip, std::move(*paint), aa, viewMatrix, rrect.rect(),
                                &shape.style());

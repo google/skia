@@ -361,7 +361,7 @@ public:
     void writeKey(void* key) const {
         fShapeForKey.writeUnstyledKey(reinterpret_cast<uint32_t*>(key));
     }
-    bool isRRect(SkRRect* rrect) { return fShapeForKey.asRRect(rrect, nullptr, nullptr, nullptr); }
+    bool isRRect(SkRRect* rrect) { return fShapeForKey.asRRect(rrect, nullptr); }
 #else
     int keyBytes() const { return -1; }
     void writeKey(void* key) const { SK_ABORT("Should never be called"); }

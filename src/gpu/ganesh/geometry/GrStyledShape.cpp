@@ -434,79 +434,13 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
     this->setInheritedKey(*parentForKey, apply, scale);
 }
 
-bool GrStyledShape::asRRect(SkRRect* rrect, SkPathDirection* dir, unsigned* start,
-                            bool* inverted) const {
+bool GrStyledShape::asRRect(SkRRect* rrect, bool* inverted) const {
     if (!fShape.isRRect() && !fShape.isRect()) {
         return false;
     }
 
-    // Validity check here, if we don't have a path effect on the style, we should have passed
-    // appropriate flags to GrShape::simplify() to have reset these parameters.
-    SkASSERT(fStyle.hasPathEffect() || (fShape.dir() == GrShape::kDefaultDir &&
-                                        fShape.startIndex() == GrShape::kDefaultStart));
-
-    // If the shape is a regular rect, map to round rect winding parameters, including accounting
-    // for the automatic sorting of edges that SkRRect::MakeRect() performs.
-    if (fShape.isRect()) {
-        if (rrect) {
-            *rrect = SkRRect::MakeRect(fShape.rect());
-        }
-        // Don't bother mapping these if we don't have a path effect, however.
-        if (!fStyle.hasPathEffect()) {
-            if (dir) {
-                *dir = GrShape::kDefaultDir;
-            }
-            if (start) {
-                *start = GrShape::kDefaultStart;
-            }
-        } else {
-            // In SkPath a rect starts at index 0 by default. This is the top left corner. However,
-            // we store rects as rrects. RRects don't preserve the invertedness, but rather sort the
-            // rect edges. Thus, we may need to modify the rrect's start index and direction.
-            SkPathDirection rectDir = fShape.dir();
-            unsigned rectStart = fShape.startIndex();
-
-            if (fShape.rect().fLeft > fShape.rect().fRight) {
-                // Toggle direction, and modify index by mapping through the array
-                static const unsigned kMapping[] = {1, 0, 3, 2};
-                rectDir = rectDir == SkPathDirection::kCCW ? SkPathDirection::kCW
-                                                           : SkPathDirection::kCCW;
-                rectStart = kMapping[rectStart];
-            }
-            if (fShape.rect().fTop > fShape.rect().fBottom) {
-                // Toggle direction and map index by 3 - start
-                // NOTE: if we earlier flipped for X as well, this results in no net direction
-                // change and effectively flipping the start index to the diagonal corners of the
-                // rect (matching what we'd expect for a rect with both X and Y flipped).
-                rectDir = rectDir == SkPathDirection::kCCW ? SkPathDirection::kCW
-                                                           : SkPathDirection::kCCW;
-                rectStart = 3 - rectStart;
-            }
-
-            if (dir) {
-                *dir = rectDir;
-            }
-            if (start) {
-                // Convert to round rect indexing
-                *start = 2 * rectStart;
-            }
-        }
-    } else {
-        // Straight forward export
-        if (rrect) {
-            *rrect = fShape.rrect();
-        }
-        if (dir) {
-            *dir = fShape.dir();
-        }
-        if (start) {
-            *start = fShape.startIndex();
-            // Canonicalize the index if the rrect is an oval, which GrShape doesn't treat special
-            // but we do for dashing placement
-            if (fShape.rrect().isOval()) {
-                *start &= 0b110;
-            }
-        }
+    if (rrect) {
+        *rrect = fShape.isRect() ? SkRRect::MakeRect(fShape.rect()) : fShape.rrect();
     }
 
     if (inverted) {

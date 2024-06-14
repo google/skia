@@ -1036,7 +1036,7 @@ static bool direct_filter_mask(GrRecordingContext* context,
 
     SkRRect srcRRect;
     bool inverted;
-    if (!shape.asRRect(&srcRRect, nullptr, nullptr, &inverted) || inverted) {
+    if (!shape.asRRect(&srcRRect, &inverted) || inverted) {
         return false;
     }
 
