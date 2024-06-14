@@ -62,7 +62,7 @@ public:
                             GraphiteResourceKey*) const override;
     uint64_t getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const;
 
-    static constexpr size_t kFormatCnt = 17;
+    static constexpr size_t kFormatCnt = 18;
 
 private:
     const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;

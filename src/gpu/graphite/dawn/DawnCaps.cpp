@@ -28,30 +28,34 @@ namespace {
 // These are all the valid wgpu::TextureFormat that we currently support in Skia.
 // They are roughly ordered from most frequently used to least to improve lookup times in arrays.
 static constexpr wgpu::TextureFormat kFormats[skgpu::graphite::DawnCaps::kFormatCnt] = {
-    wgpu::TextureFormat::RGBA8Unorm,
-    wgpu::TextureFormat::R8Unorm,
+        wgpu::TextureFormat::RGBA8Unorm,
+        wgpu::TextureFormat::R8Unorm,
 #if !defined(__EMSCRIPTEN__)
-    wgpu::TextureFormat::R16Unorm,
+        wgpu::TextureFormat::R16Unorm,
 #endif
-    wgpu::TextureFormat::BGRA8Unorm,
-    wgpu::TextureFormat::RGBA16Float,
-    wgpu::TextureFormat::R16Float,
-    wgpu::TextureFormat::RG8Unorm,
+        wgpu::TextureFormat::BGRA8Unorm,
+        wgpu::TextureFormat::RGBA16Float,
+        wgpu::TextureFormat::R16Float,
+        wgpu::TextureFormat::RG8Unorm,
 #if !defined(__EMSCRIPTEN__)
-    wgpu::TextureFormat::RG16Unorm,
+        wgpu::TextureFormat::RG16Unorm,
 #endif
-    wgpu::TextureFormat::RGB10A2Unorm,
-    wgpu::TextureFormat::RG16Float,
+        wgpu::TextureFormat::RGB10A2Unorm,
+        wgpu::TextureFormat::RG16Float,
 
-    wgpu::TextureFormat::Stencil8,
-    wgpu::TextureFormat::Depth16Unorm,
-    wgpu::TextureFormat::Depth32Float,
-    wgpu::TextureFormat::Depth24PlusStencil8,
+        wgpu::TextureFormat::Stencil8,
+        wgpu::TextureFormat::Depth16Unorm,
+        wgpu::TextureFormat::Depth32Float,
+        wgpu::TextureFormat::Depth24PlusStencil8,
 
-    wgpu::TextureFormat::BC1RGBAUnorm,
-    wgpu::TextureFormat::ETC2RGB8Unorm,
+        wgpu::TextureFormat::BC1RGBAUnorm,
+        wgpu::TextureFormat::ETC2RGB8Unorm,
 
-    wgpu::TextureFormat::Undefined,
+#if !defined(__EMSCRIPTEN__)
+        wgpu::TextureFormat::External,
+#endif
+
+        wgpu::TextureFormat::Undefined,
 };
 
 #if !defined(__EMSCRIPTEN__)
@@ -776,6 +780,22 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         info->fFlags = FormatInfo::kMSAA_Flag;
         info->fColorTypeInfoCount = 0;
     }
+
+#if !defined(__EMSCRIPTEN__)
+    // Format: External
+    {
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::External)];
+        info->fFlags = FormatInfo::kTexturable_Flag;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
+        int ctIdx = 0;
+        // Format: External, Surface: kRGBA_8888
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kRGBA_8888_SkColorType;
+        }
+    }
+#endif
 
     // Format: Undefined
     {
