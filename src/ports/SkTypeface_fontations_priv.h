@@ -68,7 +68,7 @@ public:
     ColorPainter() = delete;
     ColorPainter(SkFontationsScalerContext& scaler_context,
                  SkCanvas& canvas,
-                 SkSpan<SkColor> palette,
+                 SkSpan<const SkColor> palette,
                  SkColor foregroundColor,
                  bool antialias,
                  uint16_t upem);
@@ -133,7 +133,7 @@ private:
                                SkMatrix* = nullptr);
     SkFontationsScalerContext& fScalerContext;
     SkCanvas& fCanvas;
-    SkSpan<SkColor> fPalette;
+    SkSpan<const SkColor> fPalette;
     SkColor fForegroundColor;
     bool fAntialias;
     uint16_t fUpem;
@@ -219,8 +219,8 @@ public:
         return *fBridgeNormalizedCoords;
     }
     const fontations_ffi::BridgeOutlineCollection& getOutlines() { return *fOutlines; }
-    SkSpan<SkColor> getPalette() {
-        return SkSpan<SkColor>(reinterpret_cast<SkColor*>(fPalette.data()), fPalette.size());
+    SkSpan<const SkColor> getPalette() const {
+        return SkSpan(reinterpret_cast<const SkColor*>(fPalette.data()), fPalette.size());
     }
 
     static constexpr SkTypeface::FactoryId FactoryId = SkSetFourByteTag('f', 'n', 't', 'a');

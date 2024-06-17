@@ -463,6 +463,29 @@ static sk_sp<SkTypeface> makeDistortableWithNonDefaultAxes(skiatest::Reporter* r
     return typeface;
 }
 
+static sk_sp<SkTypeface> makeColrWithNonDefaultPalette(skiatest::Reporter* reporter) {
+    std::unique_ptr<SkStreamAsset> colr(GetResourceAsStream("fonts/colr.ttf"));
+    if (!colr) {
+        REPORT_FAILURE(reporter, "colr", SkString());
+        return nullptr;
+    }
+
+    const SkFontArguments::Palette::Override paletteOverride[] = {
+        { 1, SK_ColorGRAY },
+    };
+    SkFontArguments params;
+    params.setPalette({0, paletteOverride, std::size(paletteOverride)});
+
+    sk_sp<SkFontMgr> fm = ToolUtils::TestFontMgr();
+
+    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(colr), params);
+    if (!typeface) {
+        return nullptr;  // Not all SkFontMgr can makeFromStream().
+    }
+
+    return typeface;
+}
+
 static void TestPictureTypefaceSerialization(const SkSerialProcs* serial_procs,
                                              const SkDeserialProcs* deserial_procs,
                                              skiatest::Reporter* reporter) {
@@ -470,7 +493,7 @@ static void TestPictureTypefaceSerialization(const SkSerialProcs* serial_procs,
         // Load typeface from file to test CreateFromFile with index.
         auto typeface = ToolUtils::CreateTypefaceFromResource("fonts/test.ttc", 1);
         if (!typeface) {
-            INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
+            INFOF(reporter, "Could not run test because test.ttc not found.");
         } else {
             serialize_and_compare_typeface(std::move(typeface), "A!", serial_procs, deserial_procs,
                                            reporter);
@@ -481,9 +504,20 @@ static void TestPictureTypefaceSerialization(const SkSerialProcs* serial_procs,
         // Load typeface as stream to create with axis settings.
         auto typeface = makeDistortableWithNonDefaultAxes(reporter);
         if (!typeface) {
-            INFOF(reporter, "Could not run fontstream test because Distortable.ttf not created.");
+            INFOF(reporter, "Could not run test because Distortable.ttf not created.");
         } else {
             serialize_and_compare_typeface(std::move(typeface), "ab", serial_procs,
+                                            deserial_procs, reporter);
+        }
+    }
+
+    {
+        // Load typeface as stream to create with palette settings.
+        auto typeface = makeColrWithNonDefaultPalette(reporter);
+        if (!typeface) {
+            INFOF(reporter, "Could not run test because colr.ttf not created.");
+        } else {
+            serialize_and_compare_typeface(std::move(typeface), "😀♢", serial_procs,
                                             deserial_procs, reporter);
         }
     }

@@ -847,7 +847,7 @@ private:
     const fontations_ffi::BridgeFontRef& fBridgeFontRef;
     const fontations_ffi::BridgeNormalizedCoords& fBridgeNormalizedCoords;
     const fontations_ffi::BridgeOutlineCollection& fOutlines;
-    const SkSpan<SkColor> fPalette;
+    const SkSpan<const SkColor> fPalette;
     rust::Box<fontations_ffi::BridgeHintingInstance> fHintingInstance;
     bool fDoLinearMetrics = false;
 
@@ -973,6 +973,17 @@ void SkTypeface_Fontations::onGetFontDescriptor(SkFontDescriptor* desc, bool* se
     desc->setFamilyName(familyName.c_str());
     desc->setStyle(this->fontStyle());
     desc->setFactoryId(FactoryId);
+
+    // TODO: keep the index to emit here
+    desc->setPaletteIndex(0);
+    SkSpan<const SkColor> palette = getPalette();
+    // TODO: omit override when palette[n] == CPAL[paletteIndex][n]
+    size_t paletteOverrideCount = palette.size();
+    auto overrides = desc->setPaletteEntryOverrides(paletteOverrideCount);
+    for (size_t i = 0; i < paletteOverrideCount; ++i) {
+        overrides[i] = {(uint16_t)i, palette[i]};
+    }
+
     *serialize = true;
 }
 
@@ -1023,7 +1034,7 @@ const uint16_t kForegroundColorPaletteIndex = 0xFFFF;
 
 void populateStopsAndColors(std::vector<SkScalar>& dest_stops,
                             std::vector<SkColor4f>& dest_colors,
-                            const SkSpan<SkColor>& palette,
+                            const SkSpan<const SkColor>& palette,
                             SkColor foregroundColor,
                             fontations_ffi::BridgeColorStops& color_stops) {
     SkASSERT(dest_stops.size() == 0);
@@ -1177,7 +1188,7 @@ inline SkTileMode ToSkTileMode(uint8_t extendMode) {
 
 ColorPainter::ColorPainter(SkFontationsScalerContext& scaler_context,
                            SkCanvas& canvas,
-                           SkSpan<SkColor> palette,
+                           SkSpan<const SkColor> palette,
                            SkColor foregroundColor,
                            bool antialias,
                            uint16_t upem)
