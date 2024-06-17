@@ -14,6 +14,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
@@ -218,7 +219,12 @@ RenderNode::ScopedRenderContext::setFilterIsolation(const SkRect& bounds, const 
     if (filter) {
         SkPaint layer_paint;
         fCtx.modulatePaint(ctm, &layer_paint);
-
+        // shaders and image filters are not composable, so we convert the shader to an
+        // image filter and blend them together
+        if (layer_paint.getShader()) {
+            filter = SkImageFilters::Blend(SkBlendMode::kSrcIn, std::move(filter),
+            SkImageFilters::Shader(layer_paint.refShader()));
+        }
         SkASSERT(!layer_paint.getImageFilter());
         layer_paint.setImageFilter(std::move(filter));
         fCanvas->saveLayer(bounds, &layer_paint);
