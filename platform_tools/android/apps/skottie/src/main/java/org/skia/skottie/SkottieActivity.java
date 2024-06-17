@@ -50,8 +50,11 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
         mCellWidth = 0;
         mCellHeight = 0;
 
-        int rawAssets[] = {
-                R.raw.star, R.raw.movie_loading, R.raw.uk,  R.raw.white_material_wave_loading
+        int[] rawAssets = {
+            R.raw.star,
+            R.raw.movie_loading,
+            R.raw.uk,
+            R.raw.white_material_wave_loading
         };
 
         for (int resId : rawAssets) {
@@ -109,7 +112,8 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
             //deflate active view
             SkottieView oldView = mAnimations.get(mInflatedIndex);
             if (oldView != null) {
-                int row = mInflatedIndex / mColumnCount, column = mInflatedIndex % mColumnCount;
+                int row    = mInflatedIndex / mColumnCount;
+                int column = mInflatedIndex % mColumnCount;
                 addView(oldView, row, column, false);
             }
             mInflatedIndex = -1;
@@ -145,7 +149,8 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
     private void refreshGrid() {
         mGrid.removeAllViews();
         int currentRaw = 0;
-        int row = 0, column = 0;
+        int row = 0;
+        int column = 0;
         for (SkottieView view : mAnimations) {
             addView(view, row, column, true);
             column++;
@@ -186,7 +191,8 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
         if (animations < mRowCount * mColumnCount) {
             SkottieView view = new SkottieView(this);
             view.setSource(this, uri);
-            int row = animations / mColumnCount, column = animations % mColumnCount;
+            int row    = animations / mColumnCount;
+            int column = animations % mColumnCount;
             mAnimations.add(view);
             mAnimationFiles.add(uri);
             view.setOnClickListener(new View.OnClickListener(){
@@ -281,7 +287,7 @@ public class SkottieActivity extends Activity implements View.OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == PICK_FILE_REQUEST) if (data != null) {
+            if (requestCode == PICK_FILE_REQUEST && data != null) {
                 //no data present
                 Uri uri = data.getData();
 
