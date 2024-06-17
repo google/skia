@@ -726,6 +726,20 @@ void add_cubic_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(imgData.fYUVtoRGBTranslate);
 }
 
+void add_hw_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
+                                   const YUVImageShaderBlock::ImageData& imgData,
+                                   PipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWYUVImageShader)
+
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSizeUV.width(), 1.f/imgData.fImgSizeUV.height()));
+    for (int i = 0; i < 4; ++i) {
+        gatherer->writeHalf(imgData.fChannelSelect[i]);
+    }
+    gatherer->writeHalf(imgData.fYUVtoRGBMatrix);
+    gatherer->write(imgData.fYUVtoRGBTranslate);
+}
+
 } // anonymous namespace
 
 YUVImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
@@ -741,6 +755,26 @@ YUVImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
         , fSubset(subset) {
 }
 
+static bool can_do_yuv_tiling_in_hw(const Caps* caps,
+                                    const YUVImageShaderBlock::ImageData& imgData) {
+    if (!caps->clampToBorderSupport() && (imgData.fTileModes[0] == SkTileMode::kDecal ||
+                                          imgData.fTileModes[1] == SkTileMode::kDecal)) {
+        return false;
+    }
+    // We depend on the subset code to handle cases where the UV dimensions times the
+    // subsample factors are not equal to the Y dimensions.
+    if (imgData.fImgSize != imgData.fImgSizeUV) {
+        return false;
+    }
+    // For nearest filtering when the Y texture size is larger than the UV texture size,
+    // we use linear filtering for the UV texture. In this case we also adjust pixel centers
+    // which may affect dependent texture reads.
+    if (imgData.fSampling.filter != imgData.fSamplingUV.filter) {
+        return false;
+    }
+    return imgData.fSubset.contains(SkRect::Make(imgData.fImgSize));
+}
+
 void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
                                    PaintParamsKeyBuilder* builder,
                                    PipelineDataGatherer* gatherer,
@@ -752,6 +786,9 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
         return;
     }
 
+    const Caps* caps = keyContext.caps();
+    const bool doTilingInHw = !imgData.fSampling.useCubic && can_do_yuv_tiling_in_hw(caps, imgData);
+
     SkTileMode uvTileModes[2] = { imgData.fTileModes[0] == SkTileMode::kDecal
                                           ? SkTileMode::kClamp : imgData.fTileModes[0],
                                   imgData.fTileModes[1] == SkTileMode::kDecal
@@ -761,7 +798,10 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
     gatherer->add(imgData.fSamplingUV, uvTileModes, imgData.fTextureProxies[2]);
     gatherer->add(imgData.fSampling, imgData.fTileModes, imgData.fTextureProxies[3]);
 
-    if (imgData.fSampling.useCubic) {
+    if (doTilingInHw) {
+        add_hw_yuv_image_uniform_data(keyContext.dict(), imgData, gatherer);
+        builder->addBlock(BuiltInCodeSnippetID::kHWYUVImageShader);
+    } else if (imgData.fSampling.useCubic) {
         add_cubic_yuv_image_uniform_data(keyContext.dict(), imgData, gatherer);
         builder->addBlock(BuiltInCodeSnippetID::kCubicYUVImageShader);
     } else {

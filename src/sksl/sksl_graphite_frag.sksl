@@ -440,6 +440,34 @@ $pure half4 sk_cubic_yuv_image_shader(float2 coords,
                        yuvToRGBMatrix, yuvToRGBTranslate);
 }
 
+$pure half4 sk_hw_yuv_image_shader(float2 coords,
+                                   float2 invImgSizeY,
+                                   float2 invImgSizeUV,  // Relative to Y's coordinate space
+                                   half4 channelSelectY,
+                                   half4 channelSelectU,
+                                   half4 channelSelectV,
+                                   half4 channelSelectA,
+                                   half3x3 yuvToRGBMatrix,
+                                   float3 yuvToRGBTranslate,
+                                   sampler2D sY,
+                                   sampler2D sU,
+                                   sampler2D sV,
+                                   sampler2D sA) {
+    half4 sampleColorY, sampleColorU, sampleColorV, sampleColorA;
+    sampleColorY = $sample_image(coords, invImgSizeY, sY);
+    sampleColorU = $sample_image(coords, invImgSizeUV, sU);
+    sampleColorV = $sample_image(coords, invImgSizeUV, sV);
+    if (channelSelectA == half4(1)) {
+        sampleColorA = half4(0, 0, 0, 1);
+    } else {
+        sampleColorA = $sample_image(coords, invImgSizeY, sA);
+    }
+
+    return $yuv_to_rgb(sampleColorY, sampleColorU, sampleColorV, sampleColorA,
+                       channelSelectY, channelSelectU, channelSelectV, channelSelectA,
+                       yuvToRGBMatrix, yuvToRGBTranslate);
+}
+
 $pure half4 sk_dither_shader(half4 colorIn,
                              float2 coords,
                              half range,
