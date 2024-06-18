@@ -10,8 +10,8 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn flatten_compound_constructor_b() -> bool {
   {
-    var x: vec4<i32> = vec4<i32>(vec3<i32>(vec2<i32>(1, 2), 3), 4);
-    var y: vec4<i32> = vec4<i32>(1, vec3<i32>(2, vec2<i32>(3, 4)));
+    const x: vec4<i32> = vec4<i32>(vec3<i32>(vec2<i32>(1, 2), 3), 4);
+    const y: vec4<i32> = vec4<i32>(1, vec3<i32>(2, vec2<i32>(3, 4)));
     return all(x == y);
   }
 }
@@ -46,7 +46,7 @@ fn eliminate_empty_if_else_b() -> bool {
 }
 fn eliminate_empty_else_b() -> bool {
   {
-    var check: bool = true;
+    const check: bool = true;
     if check {
       {
         return true;
@@ -60,13 +60,13 @@ fn eliminate_empty_else_b() -> bool {
 }
 fn flatten_matching_ternary_b() -> bool {
   {
-    var check: bool = true;
+    const check: bool = true;
     return select(true, true, check);
   }
 }
 fn flatten_expr_without_side_effects_b() -> bool {
   {
-    var check: bool = true;
+    const check: bool = true;
     return check;
   }
 }

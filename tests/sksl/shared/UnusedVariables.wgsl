@@ -11,7 +11,7 @@ fn userfunc_ff(v: f32) -> f32 {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var b: f32 = 2.0;
-    var c: f32 = 3.0;
+    const c: f32 = 3.0;
     b = 2.0;
     b = c + 77.0;
     let _skTemp0 = sin(c + 77.0);

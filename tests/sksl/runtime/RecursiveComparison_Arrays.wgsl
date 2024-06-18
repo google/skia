@@ -7,7 +7,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn test_same_arrays_bbfff(eq: bool, f1: f32, f2: f32, f3: f32) -> bool {
   {
-    var one: f32 = f32(_globalUniforms.colorGreen.x + 1.0);
+    let one: f32 = f32(_globalUniforms.colorGreen.x + 1.0);
     var a: array<f32, 3>;
     a[0] = f1;
     a[1] = f2;
@@ -27,7 +27,7 @@ fn test_same_arrays_bbfff(eq: bool, f1: f32, f2: f32, f3: f32) -> bool {
 }
 fn test_diff_arrays_bbfff(eq: bool, f1: f32, f2: f32, f3: f32) -> bool {
   {
-    var two: f32 = f32(_globalUniforms.colorGreen.x + 2.0);
+    let two: f32 = f32(_globalUniforms.colorGreen.x + 2.0);
     var a: array<f32, 3>;
     a[0] = f1;
     a[1] = f2;
@@ -47,16 +47,16 @@ fn test_diff_arrays_bbfff(eq: bool, f1: f32, f2: f32, f3: f32) -> bool {
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var NAN1: f32 = f32(_globalUniforms.colorGreen.x / _globalUniforms.colorGreen.z);
-    var NAN2: f32 = f32(_globalUniforms.colorGreen.z / _globalUniforms.colorGreen.x);
-    var ZP: f32 = f32(_globalUniforms.colorGreen.x * _globalUniforms.colorGreen.z);
-    var ZM: f32 = f32(-_globalUniforms.colorGreen.x * _globalUniforms.colorGreen.z);
-    var F42: f32 = f32(_globalUniforms.colorGreen.y * 42.0);
-    var F43: f32 = f32(_globalUniforms.colorGreen.y * 43.0);
-    var F44: f32 = f32(_globalUniforms.colorGreen.y * 44.0);
-    var EQ: bool = true;
-    var NE: bool = false;
-    var _0_one: f32 = f32(_globalUniforms.colorGreen.x + 1.0);
+    let NAN1: f32 = f32(_globalUniforms.colorGreen.x / _globalUniforms.colorGreen.z);
+    let NAN2: f32 = f32(_globalUniforms.colorGreen.z / _globalUniforms.colorGreen.x);
+    let ZP: f32 = f32(_globalUniforms.colorGreen.x * _globalUniforms.colorGreen.z);
+    let ZM: f32 = f32(-_globalUniforms.colorGreen.x * _globalUniforms.colorGreen.z);
+    let F42: f32 = f32(_globalUniforms.colorGreen.y * 42.0);
+    let F43: f32 = f32(_globalUniforms.colorGreen.y * 43.0);
+    let F44: f32 = f32(_globalUniforms.colorGreen.y * 44.0);
+    const EQ: bool = true;
+    const NE: bool = false;
+    let _0_one: f32 = f32(_globalUniforms.colorGreen.x + 1.0);
     var _1_a: array<f32, 3>;
     _1_a[0] = F42;
     _1_a[1] = ZM;

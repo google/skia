@@ -17,11 +17,11 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     x = (x - x) + ((y * x) * x) * (y - x);
     y = (x / y) / x;
     z = ((((z / 2) % 3) << 4) >> 2) << 1;
-    var b: bool = ((x > 4.0) == (x < 2.0)) || ((2.0 >= _globalUniforms.unknownInput) && (y <= x));
-    var c: bool = _globalUniforms.unknownInput > 2.0;
-    var d: bool = b != c;
-    var e: bool = b && c;
-    var f: bool = b || c;
+    let b: bool = ((x > 4.0) == (x < 2.0)) || ((2.0 >= _globalUniforms.unknownInput) && (y <= x));
+    let c: bool = _globalUniforms.unknownInput > 2.0;
+    let d: bool = b != c;
+    let e: bool = b && c;
+    let f: bool = b || c;
     x = x + 12.0;
     x = x - 12.0;
     y = y * 0.1;

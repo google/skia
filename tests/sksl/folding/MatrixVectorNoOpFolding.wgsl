@@ -142,7 +142,7 @@ fn test_no_op_vec4_X_mat4_b() -> bool {
     let _skTemp5 = _globalUniforms.testMatrix2x2[1];
     let _skTemp6 = _globalUniforms.testMatrix2x2[0];
     let _skTemp7 = _globalUniforms.testMatrix2x2[1];
-    var testMatrix4x4: mat4x4<f32> = mat4x4<f32>(_skTemp0[0], _skTemp0[1], _skTemp1[0], _skTemp1[1], _skTemp2[0], _skTemp2[1], _skTemp3[0], _skTemp3[1], _skTemp4[0], _skTemp4[1], _skTemp5[0], _skTemp5[1], _skTemp6[0], _skTemp6[1], _skTemp7[0], _skTemp7[1]);
+    let testMatrix4x4: mat4x4<f32> = mat4x4<f32>(_skTemp0[0], _skTemp0[1], _skTemp1[0], _skTemp1[1], _skTemp2[0], _skTemp2[1], _skTemp3[0], _skTemp3[1], _skTemp4[0], _skTemp4[1], _skTemp5[0], _skTemp5[1], _skTemp6[0], _skTemp6[1], _skTemp7[0], _skTemp7[1]);
     var v: vec4<f32>;
     var vv: vec4<f32> = vec4<f32>(0.0);
     vv = vec4<f32>(0.0);

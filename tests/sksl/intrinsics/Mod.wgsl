@@ -12,8 +12,8 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var expectedA: vec4<f32> = vec4<f32>(0.75, 0.0, 0.75, 0.25);
-    var expectedB: vec4<f32> = vec4<f32>(0.25, 0.0, 0.75, 1.0);
+    const expectedA: vec4<f32> = vec4<f32>(0.75, 0.0, 0.75, 0.25);
+    const expectedB: vec4<f32> = vec4<f32>(0.25, 0.0, 0.75, 1.0);
     let _skTemp0 = _globalUniforms.testInputs.x;
     let _skTemp1 = _skTemp0 - 1.0 * floor(_skTemp0 / 1.0);
     let _skTemp2 = _globalUniforms.testInputs.xy;

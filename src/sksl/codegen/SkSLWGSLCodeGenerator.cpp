@@ -312,7 +312,7 @@ private:
 
     // Writes a scratch let-variable into the program, gives it the value of `expr`, and returns its
     // name (e.g. `_skTemp123`).
-    std::string writeScratchLet(const std::string& expr);
+    std::string writeScratchLet(const std::string& expr, bool isCompileTimeConstant = false);
     std::string writeScratchLet(const Expression& expr, Precedence parentPrecedence);
 
     // Converts `expr` into a string and returns a scratch let-variable associated with the
@@ -2387,12 +2387,13 @@ void WGSLCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
             varDecl.value() ? this->assembleExpression(*varDecl.value(), Precedence::kAssignment)
                             : std::string();
 
-    if (varDecl.var()->modifierFlags().isConst()) {
+    if (varDecl.var()->modifierFlags().isConst() ||
+        (fProgram.fUsage->get(*varDecl.var()).fWrite == 1 && varDecl.value())) {
         // Use `const` at global scope, or if the value is a compile-time constant.
-        SkASSERTF(varDecl.value(), "a constant variable must specify a value");
-        this->write((!fAtFunctionScope || Analysis::IsCompileTimeConstant(*varDecl.value()))
-                            ? "const "
-                            : "let ");
+        SkASSERTF(varDecl.value(), "an immutable variable must specify a value");
+        const bool useConst =
+                !fAtFunctionScope || Analysis::IsCompileTimeConstant(*varDecl.value());
+        this->write(useConst ? "const " : "let ");
     } else {
         this->write("var ");
     }
@@ -3663,9 +3664,10 @@ std::string WGSLCodeGenerator::writeScratchVar(const Type& type, const std::stri
     return scratchVarName;
 }
 
-std::string WGSLCodeGenerator::writeScratchLet(const std::string& expr) {
+std::string WGSLCodeGenerator::writeScratchLet(const std::string& expr,
+                                               bool isCompileTimeConstant) {
     std::string scratchVarName = "_skTemp" + std::to_string(fScratchCount++);
-    this->write(fAtFunctionScope ? "let " : "const ");
+    this->write(fAtFunctionScope && !isCompileTimeConstant ? "let " : "const ");
     this->write(scratchVarName);
     this->write(" = ");
     this->write(expr);
@@ -3681,8 +3683,9 @@ std::string WGSLCodeGenerator::writeScratchLet(const Expression& expr,
 std::string WGSLCodeGenerator::writeNontrivialScratchLet(const Expression& expr,
                                                          Precedence parentPrecedence) {
     std::string result = this->assembleExpression(expr, parentPrecedence);
-    return is_nontrivial_expression(expr) ? this->writeScratchLet(result)
-                                          : result;
+    return is_nontrivial_expression(expr)
+                   ? this->writeScratchLet(result, Analysis::IsCompileTimeConstant(expr))
+                   : result;
 }
 
 std::string WGSLCodeGenerator::assembleTernaryExpression(const TernaryExpression& t,
@@ -3915,8 +3918,7 @@ std::string WGSLCodeGenerator::assembleConstructorDiagonalMatrix(
 
 std::string WGSLCodeGenerator::assembleConstructorMatrixResize(
         const ConstructorMatrixResize& ctor) {
-    std::string source = this->writeScratchLet(this->assembleExpression(*ctor.argument(),
-                                                                        Precedence::kSequence));
+    std::string source = this->writeNontrivialScratchLet(*ctor.argument(), Precedence::kSequence);
     int columns = ctor.type().columns();
     int rows = ctor.type().rows();
     int sourceColumns = ctor.argument()->type().columns();

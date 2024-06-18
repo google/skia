@@ -10,43 +10,43 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn test_eq_half_b() -> bool {
   {
-    var ok: bool = true;
+    const ok: bool = true;
     return ok;
   }
 }
 fn test_matrix_op_matrix_float_b() -> bool {
   {
-    var ok: bool = true;
+    const ok: bool = true;
     return ok;
   }
 }
 fn test_matrix_op_matrix_half_b() -> bool {
   {
-    var ok: bool = true;
+    const ok: bool = true;
     return ok;
   }
 }
 fn test_vector_op_matrix_float_b() -> bool {
   {
-    var ok: bool = true;
+    const ok: bool = true;
     return ok;
   }
 }
 fn test_vector_op_matrix_half_b() -> bool {
   {
-    var ok: bool = true;
+    const ok: bool = true;
     return ok;
   }
 }
 fn test_matrix_op_vector_float_b() -> bool {
   {
-    var ok: bool = true;
+    const ok: bool = true;
     return ok;
   }
 }
 fn test_matrix_op_vector_half_b() -> bool {
   {
-    var ok: bool = true;
+    const ok: bool = true;
     return ok;
   }
 }

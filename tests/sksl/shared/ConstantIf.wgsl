@@ -13,7 +13,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     var a: i32 = 0;
     var b: i32 = 0;
     var c: i32 = 0;
-    var d: i32 = 0;
+    const d: i32 = 0;
     a = 1;
     b = 2;
     c = 5;

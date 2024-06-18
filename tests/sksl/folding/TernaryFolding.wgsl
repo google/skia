@@ -13,14 +13,14 @@ fn do_side_effect_bb(x: ptr<function, bool>) -> bool {
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var ok: bool = true;
-    var green: vec4<f32> = _globalUniforms.colorGreen;
-    var red: vec4<f32> = _globalUniforms.colorRed;
+    const ok: bool = true;
+    let green: vec4<f32> = _globalUniforms.colorGreen;
+    let red: vec4<f32> = _globalUniforms.colorRed;
     var param: bool = false;
     var _skTemp0: bool;
     let _skTemp1 = do_side_effect_bb(&_skTemp0);
     param = _skTemp0;
-    var call: bool = true;
+    let call: bool = true;
     return select(red, green, vec4<bool>((ok && param) && call));
   }
 }

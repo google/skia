@@ -241,7 +241,7 @@ fn fallthrough_with_loop_continue_bi(x: i32) -> bool {
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var x: i32 = i32(_globalUniforms.colorGreen.y);
+    let x: i32 = i32(_globalUniforms.colorGreen.y);
     var _skTemp2: vec4<f32>;
     var _skTemp3: bool;
     var _skTemp4: bool;

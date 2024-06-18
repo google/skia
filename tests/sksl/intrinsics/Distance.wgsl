@@ -12,7 +12,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var expected: vec4<f32> = vec4<f32>(3.0, 3.0, 5.0, 13.0);
+    const expected: vec4<f32> = vec4<f32>(3.0, 3.0, 5.0, 13.0);
     let _skTemp0 = distance(_globalUniforms.pos1.x, _globalUniforms.pos2.x);
     let _skTemp1 = distance(_globalUniforms.pos1.xy, _globalUniforms.pos2.xy);
     let _skTemp2 = distance(_globalUniforms.pos1.xyz, _globalUniforms.pos2.xyz);

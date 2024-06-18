@@ -140,7 +140,7 @@ fn do_while_loop_with_break_in_switch_bi(x: i32) -> bool {
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var x: i32 = i32(_globalUniforms.colorGreen.y);
+    let x: i32 = i32(_globalUniforms.colorGreen.y);
     var _0_val: i32 = 0;
     var _1_i: i32 = 0;
     switch x {

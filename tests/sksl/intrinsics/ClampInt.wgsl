@@ -11,10 +11,10 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var intValues: vec4<i32> = vec4<i32>(_globalUniforms.testInputs * 100.0);
-    var expectedA: vec4<i32> = vec4<i32>(-100, 0, 75, 100);
+    let intValues: vec4<i32> = vec4<i32>(_globalUniforms.testInputs * 100.0);
+    const expectedA: vec4<i32> = vec4<i32>(-100, 0, 75, 100);
     const clampLow: vec4<i32> = vec4<i32>(-100, -200, -200, 100);
-    var expectedB: vec4<i32> = vec4<i32>(-100, 0, 50, 225);
+    const expectedB: vec4<i32> = vec4<i32>(-100, 0, 50, 225);
     const clampHigh: vec4<i32> = vec4<i32>(100, 200, 50, 300);
     let _skTemp0 = clamp(intValues.x, -100, 100);
     let _skTemp1 = clamp(intValues.xy, vec2<i32>(-100), vec2<i32>(100));

@@ -13,8 +13,8 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var intGreen: vec4<i32> = vec4<i32>(_globalUniforms.colorGreen * 100.0);
-    var intRed: vec4<i32> = vec4<i32>(_globalUniforms.colorRed * 100.0);
+    let intGreen: vec4<i32> = vec4<i32>(_globalUniforms.colorGreen * 100.0);
+    let intRed: vec4<i32> = vec4<i32>(_globalUniforms.colorRed * 100.0);
     let _skTemp0 = select(intGreen.x, intRed.x, false);
     let _skTemp1 = select(intGreen.xy, intRed.xy, vec2<bool>(false));
     let _skTemp2 = select(intGreen.xyz, intRed.xyz, vec3<bool>(false));

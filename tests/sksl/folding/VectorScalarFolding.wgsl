@@ -35,7 +35,7 @@ fn test_int_b() -> bool {
     ok = ok && all(x == vec4<i32>(200, 100, 50, 25));
     x = vec4<i32>(6);
     ok = ok && all(x == vec4<i32>(6));
-    var unknown: i32 = i32(_globalUniforms.unknownInput);
+    let unknown: i32 = i32(_globalUniforms.unknownInput);
     x = vec4<i32>(unknown);
     ok = ok && all(x == vec4<i32>(unknown));
     x = vec4<i32>(0);
@@ -108,7 +108,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     _0_ok = _0_ok && all(_1_x == vec4<f32>(2.0, 1.0, 0.5, 0.25));
     _1_x = vec4<f32>(6.0);
     _0_ok = _0_ok && all(_1_x == vec4<f32>(6.0));
-    var _2_unknown: f32 = _globalUniforms.unknownInput;
+    let _2_unknown: f32 = _globalUniforms.unknownInput;
     _1_x = vec4<f32>(_2_unknown);
     _0_ok = _0_ok && all(_1_x == vec4<f32>(_2_unknown));
     _1_x = vec4<f32>(0.0);

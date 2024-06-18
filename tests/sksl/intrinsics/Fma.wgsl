@@ -15,11 +15,11 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var one: f32 = _globalUniforms.testArray[0];
-    var two: f32 = _globalUniforms.testArray[1];
-    var three: f32 = _globalUniforms.testArray[2];
-    var four: f32 = f32(_globalUniforms.testArray[3]);
-    var five: f32 = f32(_globalUniforms.testArray[4]);
+    let one: f32 = _globalUniforms.testArray[0];
+    let two: f32 = _globalUniforms.testArray[1];
+    let three: f32 = _globalUniforms.testArray[2];
+    let four: f32 = f32(_globalUniforms.testArray[3]);
+    let five: f32 = f32(_globalUniforms.testArray[4]);
     let _skTemp0 = fma(one, two, three);
     let _skTemp1 = fma(f32(three), four, five);
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>((_skTemp0 == 5.0) && (_skTemp1 == 17.0)));

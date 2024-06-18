@@ -12,9 +12,9 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const constGreen: vec4<f32> = vec4<f32>(0.0, 1.0, 0.0, 1.0);
-    var expectedA: vec4<f32> = vec4<f32>(0.0, 0.0, 1.0, 1.0);
-    var expectedB: vec4<f32> = vec4<f32>(1.0, 1.0, 0.0, 0.0);
-    var expectedC: vec4<f32> = vec4<f32>(0.0, 1.0, 1.0, 1.0);
+    const expectedA: vec4<f32> = vec4<f32>(0.0, 0.0, 1.0, 1.0);
+    const expectedB: vec4<f32> = vec4<f32>(1.0, 1.0, 0.0, 0.0);
+    const expectedC: vec4<f32> = vec4<f32>(0.0, 1.0, 1.0, 1.0);
     let _skTemp0 = step(0.5, _globalUniforms.testInputs.x);
     let _skTemp1 = step(vec2<f32>(0.5), _globalUniforms.testInputs.xy);
     let _skTemp2 = step(vec3<f32>(0.5), _globalUniforms.testInputs.xyz);

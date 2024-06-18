@@ -58,7 +58,7 @@ fn switch_fallthrough_groups_bi(value: i32) -> bool {
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var x: i32 = i32(_globalUniforms.colorGreen.y);
+    let x: i32 = i32(_globalUniforms.colorGreen.y);
     var _skTemp3: vec4<f32>;
     let _skTemp4 = switch_fallthrough_groups_bi(x);
     if _skTemp4 {

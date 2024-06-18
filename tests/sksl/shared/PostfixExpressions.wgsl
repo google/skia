@@ -137,29 +137,29 @@ fn _skslMain(c: vec2<f32>) -> vec4<f32> {
       let _skTemp21 = m3x3;
       m3x3 = m3x3 + mat3x3<f32>(1, 1, 1, 1, 1, 1, 1, 1, 1);
       let _skTemp22 = _skTemp21;
-      let _skTemp23 = mat3x3<f32>(2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0);
+      const _skTemp23 = mat3x3<f32>(2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0);
       _skTemp20 = (all(_skTemp22[0] == _skTemp23[0]) && all(_skTemp22[1] == _skTemp23[1]) && all(_skTemp22[2] == _skTemp23[2]));
     } else {
       _skTemp20 = false;
     }
     ok = _skTemp20;
-    let _skTemp24 = mat3x3<f32>(3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0);
+    const _skTemp24 = mat3x3<f32>(3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0);
     ok = ok && (all(m3x3[0] == _skTemp24[0]) && all(m3x3[1] == _skTemp24[1]) && all(m3x3[2] == _skTemp24[2]));
     var _skTemp25: bool;
     if ok {
       let _skTemp26 = m3x3;
       m3x3 = m3x3 - mat3x3<f32>(1, 1, 1, 1, 1, 1, 1, 1, 1);
       let _skTemp27 = _skTemp26;
-      let _skTemp28 = mat3x3<f32>(3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0);
+      const _skTemp28 = mat3x3<f32>(3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0);
       _skTemp25 = (all(_skTemp27[0] == _skTemp28[0]) && all(_skTemp27[1] == _skTemp28[1]) && all(_skTemp27[2] == _skTemp28[2]));
     } else {
       _skTemp25 = false;
     }
     ok = _skTemp25;
-    let _skTemp29 = mat3x3<f32>(2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0);
+    const _skTemp29 = mat3x3<f32>(2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0);
     ok = ok && (all(m3x3[0] == _skTemp29[0]) && all(m3x3[1] == _skTemp29[1]) && all(m3x3[2] == _skTemp29[2]));
     m3x3 = m3x3 - mat3x3<f32>(1, 1, 1, 1, 1, 1, 1, 1, 1);
-    let _skTemp30 = mat3x3<f32>(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
+    const _skTemp30 = mat3x3<f32>(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
     ok = ok && (all(m3x3[0] == _skTemp30[0]) && all(m3x3[1] == _skTemp30[1]) && all(m3x3[2] == _skTemp30[2]));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
   }

@@ -18,10 +18,10 @@ fn soft_light_component_Qhh2h2(s: vec2<f32>, d: vec2<f32>) -> f32 {
     } else {
       if (4.0 * d.x) <= d.y {
         {
-          var DSqd: f32 = d.x * d.x;
-          var DCub: f32 = DSqd * d.x;
-          var DaSqd: f32 = d.y * d.y;
-          var DaCub: f32 = DaSqd * d.y;
+          let DSqd: f32 = d.x * d.x;
+          let DCub: f32 = DSqd * d.x;
+          let DaSqd: f32 = d.y * d.y;
+          let DaCub: f32 = DaSqd * d.y;
           return (((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x) / (DaSqd + sk_PrivkGuardedDivideEpsilon);
         }
       } else {

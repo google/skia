@@ -204,7 +204,7 @@ fn loop_operator_eq_b() -> bool {
 fn _skslMain(pos: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = clamp(pos.x, f32(_globalUniforms.colorGreen.y), f32(_globalUniforms.colorGreen.w));
-    var five: f32 = _skTemp0 * 5.0;
+    let five: f32 = _skTemp0 * 5.0;
     var _skTemp1: vec4<f32>;
     var _skTemp2: bool;
     var _skTemp3: bool;

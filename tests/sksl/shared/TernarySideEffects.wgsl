@@ -80,7 +80,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     } else {
       _skTemp8 = b;
     }
-    var c: bool = _skTemp8;
+    let c: bool = _skTemp8;
     var _skTemp9: vec4<f32>;
     if c {
       _skTemp9 = _globalUniforms.colorRed;

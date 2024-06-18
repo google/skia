@@ -12,7 +12,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn test3x3_b() -> bool {
   {
-    var matrix: mat3x3<f32> = _globalUniforms.testMatrix3x3;
+    let matrix: mat3x3<f32> = _globalUniforms.testMatrix3x3;
     var expected: vec3<f32> = vec3<f32>(1.0, 2.0, 3.0);
     {
       var index: i32 = 0;
@@ -36,7 +36,7 @@ fn test3x3_b() -> bool {
 }
 fn test4x4_b() -> bool {
   {
-    var matrix: mat4x4<f32> = _globalUniforms.testMatrix4x4;
+    let matrix: mat4x4<f32> = _globalUniforms.testMatrix4x4;
     var expected: vec4<f32> = vec4<f32>(1.0, 2.0, 3.0, 4.0);
     {
       var index: i32 = 0;

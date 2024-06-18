@@ -11,7 +11,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var expected: vec4<i32> = vec4<i32>(-1, 0, 0, 1);
+    const expected: vec4<i32> = vec4<i32>(-1, 0, 0, 1);
     let _skTemp0 = sign(i32(_globalUniforms.testInputs.x));
     let _skTemp1 = sign(vec2<i32>(_globalUniforms.testInputs.xy));
     let _skTemp2 = sign(vec3<i32>(_globalUniforms.testInputs.xyz));

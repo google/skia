@@ -13,7 +13,7 @@ const TEN: i32 = 10;
 const MATRIXFIVE: mat4x4<f32> = mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0);
 fn verify_const_globals_biih44(seven: i32, ten: i32, matrixFive: mat4x4<f32>) -> bool {
   {
-    let _skTemp0 = mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0);
+    const _skTemp0 = mat4x4<f32>(5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 5.0);
     return ((seven == 7) && (ten == 10)) && (all(matrixFive[0] == _skTemp0[0]) && all(matrixFive[1] == _skTemp0[1]) && all(matrixFive[2] == _skTemp0[2]) && all(matrixFive[3] == _skTemp0[3]));
   }
 }

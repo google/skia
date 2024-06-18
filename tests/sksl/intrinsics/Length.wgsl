@@ -11,8 +11,8 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var inputVal: vec4<f32> = _globalUniforms.testMatrix2x2 + vec4<f32>(2.0, -2.0, 1.0, 8.0);
-    var expected: vec4<f32> = vec4<f32>(3.0, 3.0, 5.0, 13.0);
+    let inputVal: vec4<f32> = _globalUniforms.testMatrix2x2 + vec4<f32>(2.0, -2.0, 1.0, 8.0);
+    const expected: vec4<f32> = vec4<f32>(3.0, 3.0, 5.0, 13.0);
     const allowedDelta: f32 = 0.05;
     let _skTemp0 = length(inputVal.x);
     let _skTemp1 = abs(_skTemp0 - expected.x);

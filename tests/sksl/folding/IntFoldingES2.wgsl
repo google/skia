@@ -8,7 +8,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var _0_unknown: i32 = i32(_globalUniforms.unknownInput);
+    let _0_unknown: i32 = i32(_globalUniforms.unknownInput);
     var _1_ok: bool = true;
     var _2_x: i32 = 34;
     _1_ok = _1_ok && (_2_x == 34);

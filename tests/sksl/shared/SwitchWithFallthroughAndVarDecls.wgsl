@@ -34,7 +34,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
           }
           if _skTemp1 || _skTemp0 == 3 {
             {
-              var d: f32 = f32(b);
+              let d: f32 = f32(b);
               c = i32(d);
             }
             _skTemp1 = true;  // fallthrough

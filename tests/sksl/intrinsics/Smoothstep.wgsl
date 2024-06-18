@@ -12,8 +12,8 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     const constVal: vec4<f32> = vec4<f32>(-1.25, 0.0, 0.75, 2.25);
-    var expectedA: vec4<f32> = vec4<f32>(0.0, 0.0, 0.84375, 1.0);
-    var expectedB: vec4<f32> = vec4<f32>(1.0, 0.0, 1.0, 1.0);
+    const expectedA: vec4<f32> = vec4<f32>(0.0, 0.0, 0.84375, 1.0);
+    const expectedB: vec4<f32> = vec4<f32>(1.0, 0.0, 1.0, 1.0);
     let _skTemp0 = smoothstep(_globalUniforms.colorRed.y, _globalUniforms.colorGreen.y, -1.25);
     let _skTemp1 = smoothstep(vec2<f32>(_globalUniforms.colorRed.y), vec2<f32>(_globalUniforms.colorGreen.y), vec2<f32>(-1.25, 0.0));
     let _skTemp2 = smoothstep(vec3<f32>(_globalUniforms.colorRed.y), vec3<f32>(_globalUniforms.colorGreen.y), vec3<f32>(-1.25, 0.0, 0.75));
