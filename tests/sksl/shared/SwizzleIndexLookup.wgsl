@@ -17,7 +17,7 @@ fn test3x3_b() -> bool {
       var c: i32 = 0;
       loop {
         {
-          let vec: vec3<f32> = _globalUniforms.testMatrix3x3[c];
+          var vec: vec3<f32> = _globalUniforms.testMatrix3x3[c];
           {
             var r: i32 = 0;
             loop {
@@ -52,7 +52,7 @@ fn test4x4_b() -> bool {
       var c: i32 = 0;
       loop {
         {
-          let vec: vec4<f32> = _globalUniforms.testMatrix4x4[c];
+          var vec: vec4<f32> = _globalUniforms.testMatrix4x4[c];
           {
             var r: i32 = 0;
             loop {

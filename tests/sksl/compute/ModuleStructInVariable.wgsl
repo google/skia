@@ -10,7 +10,7 @@ var<workgroup> outY: i32;
 var<workgroup> outZ: i32;
 fn _skslMain() {
   {
-    const args: IndirectDispatchArgs = IndirectDispatchArgs(1, 2, 3);
+    var args: IndirectDispatchArgs = IndirectDispatchArgs(1, 2, 3);
     outX = args.x;
     outY = args.y;
     outZ = args.z;

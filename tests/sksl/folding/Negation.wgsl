@@ -7,7 +7,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn test_ivec_b() -> bool {
   {
-    const one: i32 = 1;
+    var one: i32 = 1;
     const two: i32 = 2;
     var ok: bool = true;
     ok = ok && all((-vec2<i32>(-one, one + one)) == (-vec2<i32>(one - two, 2)));
@@ -16,13 +16,13 @@ fn test_ivec_b() -> bool {
 }
 fn test_mat_b() -> bool {
   {
-    const ok: bool = true;
+    var ok: bool = true;
     return ok;
   }
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    const _4_ok: bool = true;
+    var _4_ok: bool = true;
     var _skTemp0: vec4<f32>;
     var _skTemp1: bool;
     var _skTemp2: bool;

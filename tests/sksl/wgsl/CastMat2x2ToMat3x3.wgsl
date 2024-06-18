@@ -1,7 +1,3 @@
-### Compilation failed:
-
-error: Tint compilation failed.
-
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
 struct FSOut {
@@ -9,9 +5,9 @@ struct FSOut {
 };
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
-    const a: mat3x3<f32> = mat3x3<f32>(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
+    var a: mat3x3<f32> = mat3x3<f32>(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
     let _skTemp0 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
-    const b: mat3x3<f32> = mat3x3<f32>(_skTemp0[0][0], _skTemp0[0][1], 0.0, _skTemp0[1][0], _skTemp0[1][1], 0.0, 0.0, 0.0, 1.0);
+    var b: mat3x3<f32> = mat3x3<f32>(_skTemp0[0][0], _skTemp0[0][1], 0.0, _skTemp0[1][0], _skTemp0[1][1], 0.0, 0.0, 0.0, 1.0);
     (*_stageOut).sk_FragColor.x = f32(select(1, 0, all(a[0] == b[0])));
   }
 }
@@ -20,5 +16,3 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
   _skslMain(&_stageOut);
   return _stageOut;
 }
-
-1 error

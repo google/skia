@@ -20,10 +20,10 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     h22 = mat2x2<f32>(0.0, 5.0, 10.0, 15.0);
     let _skTemp2 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
     let _skTemp3 = mat2x2<f32>(_globalUniforms.testMatrix2x2[0] * _skTemp2[0], _globalUniforms.testMatrix2x2[1] * _skTemp2[1]);
-    let f22: mat2x2<f32> = _skTemp3;
+    var f22: mat2x2<f32> = _skTemp3;
     let _skTemp4 = mat3x3<f32>(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0);
     let _skTemp5 = mat3x3<f32>(_globalUniforms.testMatrix3x3[0] * _skTemp4[0], _globalUniforms.testMatrix3x3[1] * _skTemp4[1], _globalUniforms.testMatrix3x3[2] * _skTemp4[2]);
-    let h33: mat3x3<f32> = _skTemp5;
+    var h33: mat3x3<f32> = _skTemp5;
     let _skTemp6 = mat2x2<f32>(0.0, 5.0, 10.0, 15.0);
     let _skTemp7 = mat2x2<f32>(1.0, 0.0, 0.0, 4.0);
     let _skTemp8 = mat3x3<f32>(2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0);
