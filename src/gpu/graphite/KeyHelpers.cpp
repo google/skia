@@ -75,7 +75,6 @@
 #include "src/shaders/SkTriColorShader.h"
 #include "src/shaders/SkWorkingColorSpaceShader.h"
 #include "src/shaders/gradients/SkConicalGradient.h"
-#include "src/shaders/gradients/SkGradientBaseShader.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
 #include "src/shaders/gradients/SkRadialGradient.h"
 #include "src/shaders/gradients/SkSweepGradient.h"
@@ -314,20 +313,25 @@ void add_conical_gradient_uniform_data(const ShaderCodeDictionary* dict,
 static int write_color_and_offset_bufdata(int numStops,
                                            const SkPMColor4f* colors,
                                            const float* offsets,
+                                           const SkGradientBaseShader* shader,
                                            PipelineDataGatherer* gatherer) {
-    auto [dstData, bufferOffset] = gatherer->allocateGradientData(numStops * 5);
-    for (int i = 0; i < numStops; i++) {
-        SkColor4f unpremulColor = colors[i].unpremul();
+    auto [dstData, bufferOffset] = gatherer->allocateGradientData(numStops, shader);
 
-        float offset = offsets ? offsets[i] : SkIntToFloat(i) / (numStops - 1);
-        SkASSERT(offset >= 0.0f && offset <= 1.0f);
+    if (dstData) {
+        // Data doesn't already exist so we need to write it.
+        for (int i = 0; i < numStops; i++) {
+            SkColor4f unpremulColor = colors[i].unpremul();
 
-        int dataIndex = i * 5;
-        dstData[dataIndex] = offset;
-        dstData[dataIndex + 1] = unpremulColor.fR;
-        dstData[dataIndex + 2] = unpremulColor.fG;
-        dstData[dataIndex + 3] = unpremulColor.fB;
-        dstData[dataIndex + 4] = unpremulColor.fA;
+            float offset = offsets ? offsets[i] : SkIntToFloat(i) / (numStops - 1);
+            SkASSERT(offset >= 0.0f && offset <= 1.0f);
+
+            int dataIndex = i * 5;
+            dstData[dataIndex] = offset;
+            dstData[dataIndex + 1] = unpremulColor.fR;
+            dstData[dataIndex + 2] = unpremulColor.fG;
+            dstData[dataIndex + 3] = unpremulColor.fB;
+            dstData[dataIndex + 4] = unpremulColor.fA;
+        }
     }
 
     return bufferOffset;
@@ -353,6 +357,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
                                                  int numStops,
                                                  const SkPMColor4f* colors,
                                                  const float* offsets,
+                                                 const SkGradientBaseShader* shader,
                                                  sk_sp<TextureProxy> colorsAndOffsetsProxy,
                                                  bool useStorageBuffer,
                                                  const SkGradientShader::Interpolation& interp)
@@ -364,6 +369,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
         , fUseStorageBuffer(useStorageBuffer)
         , fSrcColors(colors)
         , fSrcOffsets(offsets)
+        , fSrcShader(shader)
         , fInterpolation(interp) {
     SkASSERT(fNumStops >= 1);
 
@@ -409,6 +415,7 @@ void GradientShaderBlocks::AddBlock(const KeyContext& keyContext,
             bufferOffset = write_color_and_offset_bufdata(gradData.fNumStops,
                                                           gradData.fSrcColors,
                                                           gradData.fSrcOffsets,
+                                                          gradData.fSrcShader,
                                                           gatherer);
         } else {
             SkASSERT(gradData.fColorsAndOffsetsProxy);
@@ -2285,6 +2292,7 @@ static void add_gradient_to_key(const KeyContext& keyContext,
                                             colorCount,
                                             colors,
                                             positions,
+                                            shader,
                                             std::move(proxy),
                                             useStorageBuffer,
                                             shader->getInterpolation());

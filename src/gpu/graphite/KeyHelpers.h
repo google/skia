@@ -23,6 +23,7 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/shaders/SkShaderBase.h"
+#include "src/shaders/gradients/SkGradientBaseShader.h"
 
 class SkColorFilter;
 class SkData;
@@ -103,6 +104,7 @@ struct GradientShaderBlocks {
                      int numStops,
                      const SkPMColor4f* colors,
                      const float* offsets,
+                     const SkGradientBaseShader* shader,
                      sk_sp<TextureProxy> colorsAndOffsetsProxy,
                      bool useStorageBuffer,
                      const SkGradientShader::Interpolation&);
@@ -134,6 +136,7 @@ struct GradientShaderBlocks {
         sk_sp<TextureProxy>           fColorsAndOffsetsProxy;
         const SkPMColor4f*            fSrcColors;
         const float*                  fSrcOffsets;
+        const SkGradientBaseShader*   fSrcShader;
 
         SkGradientShader::Interpolation fInterpolation;
     };
