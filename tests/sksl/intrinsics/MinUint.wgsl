@@ -12,10 +12,10 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = abs(_globalUniforms.testInputs);
-    var uintValues: vec4<u32> = vec4<u32>(_skTemp0 * 100.0);
-    var uintGreen: vec4<u32> = vec4<u32>(_globalUniforms.colorGreen * 100.0);
-    var expectedA: vec4<u32> = vec4<u32>(50u, 0u, 50u, 50u);
-    var expectedB: vec4<u32> = vec4<u32>(0u, 0u, 0u, 100u);
+    let uintValues: vec4<u32> = vec4<u32>(_skTemp0 * 100.0);
+    let uintGreen: vec4<u32> = vec4<u32>(_globalUniforms.colorGreen * 100.0);
+    const expectedA: vec4<u32> = vec4<u32>(50u, 0u, 50u, 50u);
+    const expectedB: vec4<u32> = vec4<u32>(0u, 0u, 0u, 100u);
     let _skTemp1 = min(uintValues.x, 50u);
     let _skTemp2 = min(uintValues.xy, vec2<u32>(50u));
     let _skTemp3 = min(uintValues.xyz, vec3<u32>(50u));

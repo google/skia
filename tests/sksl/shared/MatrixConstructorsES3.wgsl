@@ -11,7 +11,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var f4: vec4<f32> = vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]);
+    let f4: vec4<f32> = vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]);
     let _skTemp0 = f4.xy;
     let _skTemp1 = mat2x3<f32>(f4[0], f4[1], f4[2], f4[3], _skTemp0[0], _skTemp0[1]);
     let _skTemp2 = mat2x3<f32>(1.0, 2.0, 3.0, 4.0, 1.0, 2.0);

@@ -22,15 +22,15 @@ struct result {
 fn _skslMain(_stageIn: CSIn) {
   {
     _storage0.sizes[2] = vec2<i32>(_storage0.sizes[0].x, _storage0.sizes[1].y);
-    var resultCell: vec2<i32> = vec2<i32>(i32(_stageIn.sk_GlobalInvocationID.x), i32(_stageIn.sk_GlobalInvocationID.y));
+    let resultCell: vec2<i32> = vec2<i32>(i32(_stageIn.sk_GlobalInvocationID.x), i32(_stageIn.sk_GlobalInvocationID.y));
     var result: f32 = 0.0;
     {
       var i: i32 = 0;
       loop {
         if i < _storage0.sizes[0].y {
           {
-            var a: i32 = i + resultCell.x * _storage0.sizes[0].y;
-            var b: i32 = resultCell.y + i * _storage0.sizes[1].y;
+            let a: i32 = i + resultCell.x * _storage0.sizes[0].y;
+            let b: i32 = resultCell.y + i * _storage0.sizes[1].y;
             result = result + _storage1.data1[a] * _storage2.data2[b];
           }
         } else {
@@ -41,7 +41,7 @@ fn _skslMain(_stageIn: CSIn) {
         }
       }
     }
-    var index: i32 = resultCell.y + resultCell.x * _storage0.sizes[1].y;
+    let index: i32 = resultCell.y + resultCell.x * _storage0.sizes[1].y;
     _storage3.resultData[index] = result;
   }
 }

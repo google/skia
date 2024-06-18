@@ -11,7 +11,7 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     var ok: bool = true;
-    var TRUE: bool = bool(_globalUniforms.colorGreen.y);
+    let TRUE: bool = bool(_globalUniforms.colorGreen.y);
     ok = ok && (1 == i32(TRUE));
     ok = ok && (1.0 == f32(TRUE));
     ok = ok && TRUE;

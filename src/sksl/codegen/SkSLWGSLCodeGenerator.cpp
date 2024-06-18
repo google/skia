@@ -2387,9 +2387,10 @@ void WGSLCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
             varDecl.value() ? this->assembleExpression(*varDecl.value(), Precedence::kAssignment)
                             : std::string();
 
-    if (varDecl.var()->modifierFlags().isConst()) {
+    if (varDecl.var()->modifierFlags().isConst() ||
+        (fProgram.fUsage->get(*varDecl.var()).fWrite == 1 && varDecl.value())) {
         // Use `const` at global scope, or if the value is a compile-time constant.
-        SkASSERTF(varDecl.value(), "a constant variable must specify a value");
+        SkASSERTF(varDecl.value(), "an immutable variable must specify a value");
         this->write((!fAtFunctionScope || Analysis::IsCompileTimeConstant(*varDecl.value()))
                             ? "const "
                             : "let ");

@@ -13,8 +13,8 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var expectedBW: vec4<f32> = vec4<f32>(0.5, 0.5, 0.5, 1.0);
-    var expectedWT: vec4<f32> = vec4<f32>(1.0, 0.5, 1.0, 2.25);
+    const expectedBW: vec4<f32> = vec4<f32>(0.5, 0.5, 0.5, 1.0);
+    const expectedWT: vec4<f32> = vec4<f32>(1.0, 0.5, 1.0, 2.25);
     let _skTemp0 = mix(_globalUniforms.colorGreen, _globalUniforms.colorRed, vec4<f32>(0.0));
     let _skTemp1 = mix(_globalUniforms.colorGreen, _globalUniforms.colorRed, vec4<f32>(0.25));
     let _skTemp2 = mix(_globalUniforms.colorGreen, _globalUniforms.colorRed, vec4<f32>(0.75));

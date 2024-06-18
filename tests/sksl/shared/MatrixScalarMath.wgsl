@@ -14,7 +14,7 @@ const star: i32 = 3;
 const slash: i32 = 4;
 fn test_bifffff22(op: i32, m11: f32, m12: f32, m21: f32, m22: f32, expected: mat2x2<f32>) -> bool {
   {
-    var one: f32 = f32(_globalUniforms.colorRed.x);
+    let one: f32 = f32(_globalUniforms.colorRed.x);
     var m2: mat2x2<f32> = mat2x2<f32>(m11 * one, m12 * one, m21 * one, m22 * one);
     switch op {
       case 1 {
@@ -40,11 +40,11 @@ fn test_bifffff22(op: i32, m11: f32, m12: f32, m21: f32, m22: f32, expected: mat
 }
 fn divisionTest_b() -> bool {
   {
-    var ten: f32 = f32(_globalUniforms.colorRed.x * 10.0);
+    let ten: f32 = f32(_globalUniforms.colorRed.x * 10.0);
     let _skTemp0 = vec2<f32>(ten);
     let _skTemp1 = vec2<f32>(ten);
     var mat: mat2x2<f32> = mat2x2<f32>(_skTemp0[0], _skTemp0[1], _skTemp1[0], _skTemp1[1]);
-    var div: mat2x2<f32> = mat * (1.0 / _globalUniforms.testInputs.x);
+    let div: mat2x2<f32> = mat * (1.0 / _globalUniforms.testInputs.x);
     mat = mat * (1.0 / _globalUniforms.testInputs.x);
     let _skTemp2 = abs(vec4<f32>(div[0], div[1]) + vec4<f32>(8.0));
     let _skTemp3 = all((_skTemp2 < vec4<f32>(0.01)));
@@ -55,12 +55,12 @@ fn divisionTest_b() -> bool {
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var f1: f32 = f32(_globalUniforms.colorGreen.y);
-    var f2: f32 = f32(2.0 * _globalUniforms.colorGreen.y);
-    var f3: f32 = f32(3.0 * _globalUniforms.colorGreen.y);
-    var f4: f32 = f32(4.0 * _globalUniforms.colorGreen.y);
-    var _0_expected: mat2x2<f32> = mat2x2<f32>(f1 + 1.0, f2 + 1.0, f3 + 1.0, f4 + 1.0);
-    var _1_one: f32 = f32(_globalUniforms.colorRed.x);
+    let f1: f32 = f32(_globalUniforms.colorGreen.y);
+    let f2: f32 = f32(2.0 * _globalUniforms.colorGreen.y);
+    let f3: f32 = f32(3.0 * _globalUniforms.colorGreen.y);
+    let f4: f32 = f32(4.0 * _globalUniforms.colorGreen.y);
+    let _0_expected: mat2x2<f32> = mat2x2<f32>(f1 + 1.0, f2 + 1.0, f3 + 1.0, f4 + 1.0);
+    let _1_one: f32 = f32(_globalUniforms.colorRed.x);
     var _2_m2: mat2x2<f32> = mat2x2<f32>(f1 * _1_one, f2 * _1_one, f3 * _1_one, f4 * _1_one);
     {
       _2_m2 = mat2x2<f32>(1.0 + _2_m2[0], 1.0 + _2_m2[1]);

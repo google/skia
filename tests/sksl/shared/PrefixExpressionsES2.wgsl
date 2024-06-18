@@ -149,7 +149,7 @@ fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp18 = mat2x2<f32>(-1.0, -2.0, -3.0, -4.0);
     let _skTemp19 = (-1.0 * _globalUniforms.testMatrix2x2);
     ok = ok && (all(_skTemp18[0] == _skTemp19[0]) && all(_skTemp18[1] == _skTemp19[1]));
-    var iv: vec2<i32> = vec2<i32>(i, -i);
+    let iv: vec2<i32> = vec2<i32>(i, -i);
     ok = ok && ((-i) == -5);
     ok = ok && all((-iv) == vec2<i32>(-5, 5));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));

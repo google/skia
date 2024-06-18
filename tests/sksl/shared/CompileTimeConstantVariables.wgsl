@@ -17,7 +17,7 @@ fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
   {
     const kLocalFloatConstant: f32 = 3.14;
     let kLocalFloatConstantAlias: f32 = kLocalFloatConstant;
-    var integerInput: i32 = i32(_globalUniforms.colorGreen.y);
+    let integerInput: i32 = i32(_globalUniforms.colorGreen.y);
     if integerInput == kConstant {
       {
         return vec4<f32>(2.14);

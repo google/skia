@@ -13,8 +13,8 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var FTFT: vec4<bool> = vec4<bool>(_globalUniforms.colorGreen);
-    var TFTF: vec4<bool> = FTFT.wzyx;
+    let FTFT: vec4<bool> = vec4<bool>(_globalUniforms.colorGreen);
+    let TFTF: vec4<bool> = FTFT.wzyx;
     let _skTemp0 = select(_globalUniforms.colorBlack.x, _globalUniforms.colorWhite.x, FTFT.x);
     let _skTemp1 = select(_globalUniforms.colorBlack.xy, _globalUniforms.colorWhite.xy, FTFT.xy);
     let _skTemp2 = select(_globalUniforms.colorBlack.xyz, _globalUniforms.colorWhite.xyz, FTFT.xyz);

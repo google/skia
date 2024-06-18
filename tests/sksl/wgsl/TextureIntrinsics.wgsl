@@ -5,11 +5,11 @@ diagnostic(off, chromium.unreachable_code);
 fn fill_texture_vTT(passedInTexRGBA: texture_storage_2d<rgba8unorm, write>, passedInTexRed: texture_2d<f32>) {
   {
     let _skTemp0 = vec2<u32>(0u);
-    var red: vec4<f32> = textureLoad(passedInTexRed, _skTemp0, 0);
+    let red: vec4<f32> = textureLoad(passedInTexRed, _skTemp0, 0);
     let _skTemp1 = textureDimensions(passedInTexRGBA);
-    var sizeX: u32 = _skTemp1.x;
+    let sizeX: u32 = _skTemp1.x;
     let _skTemp2 = textureDimensions(passedInTexRGBA);
-    var sizeY: u32 = _skTemp2.y;
+    let sizeY: u32 = _skTemp2.y;
     var coords: vec2<u32>;
     {
       coords.y = 0u;

@@ -16,7 +16,7 @@ fn _skslMain(_skParam0: vec2<f32>) -> vec4<f32> {
     let _skTemp0 = negativeVal;
     let _skTemp1 = sqrt(_skTemp0);
     coords = _skTemp1.xy;
-    var inputVal: vec4<f32> = vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]) + vec4<f32>(0.0, 2.0, 6.0, 12.0);
+    let inputVal: vec4<f32> = vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1]) + vec4<f32>(0.0, 2.0, 6.0, 12.0);
     const expected: vec4<f32> = vec4<f32>(1.0, 2.0, 3.0, 4.0);
     const allowedDelta: vec4<f32> = vec4<f32>(0.05);
     let _skTemp2 = sqrt(inputVal.x);

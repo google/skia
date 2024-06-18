@@ -10,7 +10,7 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var value: vec4<f32> = vec4<f32>(2.5, -2.5, 8.0, -0.125);
+    const value: vec4<f32> = vec4<f32>(2.5, -2.5, 8.0, -0.125);
     const expectedWhole: vec4<f32> = vec4<f32>(2.0, -2.0, 8.0, 0.0);
     const expectedFraction: vec4<f32> = vec4<f32>(0.5, -0.5, 0.0, -0.125);
     var ok: vec4<bool> = vec4<bool>(false);

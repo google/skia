@@ -12,9 +12,9 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = pack2x16float(_globalUniforms.testInputs.xy);
-    var xy: u32 = _skTemp0;
+    let xy: u32 = _skTemp0;
     let _skTemp1 = pack2x16float(_globalUniforms.testInputs.zw);
-    var zw: u32 = _skTemp1;
+    let zw: u32 = _skTemp1;
     let _skTemp2 = unpack2x16float(xy);
     let _skTemp3 = unpack2x16float(zw);
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(all(_skTemp2 == vec2<f32>(-1.25, 0.0)) && all(_skTemp3 == vec2<f32>(0.75, 2.25))));

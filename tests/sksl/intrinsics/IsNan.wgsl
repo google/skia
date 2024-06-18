@@ -15,8 +15,8 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var valueIsNaN: vec4<f32> = 0.0 / _globalUniforms.testInputs.yyyy;
-    var valueIsNumber: vec4<f32> = 1.0 / _globalUniforms.testInputs;
+    let valueIsNaN: vec4<f32> = 0.0 / _globalUniforms.testInputs.yyyy;
+    let valueIsNumber: vec4<f32> = 1.0 / _globalUniforms.testInputs;
     let _skTemp0 = isnan(valueIsNaN.x);
     let _skTemp1 = isnan(valueIsNaN.xy);
     let _skTemp2 = all(_skTemp1);

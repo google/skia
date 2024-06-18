@@ -21,10 +21,10 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     _0_ok = _0_ok && (any(_globalUniforms.testMatrix2x2[0] != _skTemp2[0]) || any(_globalUniforms.testMatrix2x2[1] != _skTemp2[1]));
     let _skTemp3 = mat3x3<f32>(9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0);
     _0_ok = _0_ok && (any(_globalUniforms.testMatrix3x3[0] != _skTemp3[0]) || any(_globalUniforms.testMatrix3x3[1] != _skTemp3[1]) || any(_globalUniforms.testMatrix3x3[2] != _skTemp3[2]));
-    var _1_zero: f32 = f32(_globalUniforms.colorGreen.x);
-    var _2_one: f32 = f32(_globalUniforms.colorGreen.y);
-    var _3_two: f32 = 2.0 * _2_one;
-    var _4_nine: f32 = 9.0 * _2_one;
+    let _1_zero: f32 = f32(_globalUniforms.colorGreen.x);
+    let _2_one: f32 = f32(_globalUniforms.colorGreen.y);
+    let _3_two: f32 = 2.0 * _2_one;
+    let _4_nine: f32 = 9.0 * _2_one;
     let _skTemp4 = mat2x2<f32>(_2_one, _1_zero, _1_zero, _2_one);
     let _skTemp5 = mat2x2<f32>(1.0, 0.0, 0.0, 1.0);
     _0_ok = _0_ok && (all(_skTemp4[0] == _skTemp5[0]) && all(_skTemp4[1] == _skTemp5[1]));
@@ -100,7 +100,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     _0_ok = _0_ok && all((vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_2_one)) == vec4<f32>(1.0, 2.0, 3.0, 4.0));
     _0_ok = _0_ok && all((vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_2_one)) == vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])));
     _0_ok = _0_ok && all((vec4<f32>(vec4<f32>(_globalUniforms.testMatrix2x2[0], _globalUniforms.testMatrix2x2[1])) * vec4<f32>(_1_zero)) == vec4<f32>(0.0));
-    var _5_m: mat3x3<f32> = mat3x3<f32>(_2_one, _3_two, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, _4_nine);
+    let _5_m: mat3x3<f32> = mat3x3<f32>(_2_one, _3_two, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, _4_nine);
     _0_ok = _0_ok && all(_5_m[0] == vec3<f32>(1.0, 2.0, 3.0));
     _0_ok = _0_ok && all(_5_m[1] == vec3<f32>(4.0, 5.0, 6.0));
     _0_ok = _0_ok && all(_5_m[2] == vec3<f32>(7.0, 8.0, 9.0));

@@ -15,16 +15,16 @@ fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = 1e+30;
     let _skTemp1 = select(-1.0, 1.0, _skTemp0 * 1e+30 < 0);
-    var huge: f32 = f32(_skTemp1);
+    let huge: f32 = f32(_skTemp1);
     let _skTemp2 = vec2<f32>(1.0);
     let _skTemp3 = faceForward(_skTemp2, vec2<f32>(1e+30), vec2<f32>(1e+30));
-    var huge2: vec2<f32> = _skTemp3;
+    let huge2: vec2<f32> = _skTemp3;
     let _skTemp4 = vec3<f32>(1.0);
     let _skTemp5 = faceForward(_skTemp4, vec3<f32>(1e+30), vec3<f32>(1e+30));
-    var huge3: vec3<f32> = _skTemp5;
+    let huge3: vec3<f32> = _skTemp5;
     let _skTemp6 = vec4<f32>(1.0);
     let _skTemp7 = faceForward(_skTemp6, vec4<f32>(1e+30), vec4<f32>(1e+30));
-    var huge4: vec4<f32> = _skTemp7;
+    let huge4: vec4<f32> = _skTemp7;
     var expectedPos: vec4<f32> = vec4<f32>(vec4<f32>(huge) + huge2.xxxx);
     var expectedNeg: vec4<f32> = vec4<f32>(huge3.xxxx + huge4.xxxx);
     expectedPos = vec4<f32>(1.0, 2.0, 3.0, 4.0);

@@ -12,9 +12,9 @@ struct _GlobalUniforms {
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
     let _skTemp0 = pack2x16snorm(_globalUniforms.testInputs.xy);
-    var xy: u32 = _skTemp0;
+    let xy: u32 = _skTemp0;
     let _skTemp1 = pack2x16snorm(_globalUniforms.testInputs.zw);
-    var zw: u32 = _skTemp1;
+    let zw: u32 = _skTemp1;
     const tolerance: vec2<f32> = vec2<f32>(0.015625);
     let _skTemp2 = unpack2x16snorm(xy);
     let _skTemp3 = abs(_skTemp2 - vec2<f32>(-1.0, 0.0));

@@ -25,10 +25,10 @@ fn MatrixEffect_Stage1_c0_c0_h4h4f2(_input: vec4<f32>, _coords: vec2<f32>) -> ve
     var _2_subsetCoord: vec2<f32>;
     _2_subsetCoord.x = _1_inCoord.x;
     _2_subsetCoord.y = _1_inCoord.y;
-    var _3_clampedCoord: vec2<f32> = _2_subsetCoord;
+    let _3_clampedCoord: vec2<f32> = _2_subsetCoord;
     var _4_textureColor: vec4<f32> = textureSample(uTextureSampler_0_Stage1_Texture, uTextureSampler_0_Stage1_Sampler, _3_clampedCoord * _uniform0.unorm_Stage1_c0_c0_c0.zw);
     let _skTemp3 = floor(_1_inCoord.x + 0.001);
-    var _5_snappedX: f32 = _skTemp3 + 0.5;
+    let _5_snappedX: f32 = _skTemp3 + 0.5;
     if (_5_snappedX < _uniform0.usubset_Stage1_c0_c0_c0.x) || (_5_snappedX > _uniform0.usubset_Stage1_c0_c0_c0.z) {
       {
         _4_textureColor = _uniform0.uborder_Stage1_c0_c0_c0;
@@ -149,7 +149,7 @@ fn _skslMain(_stageIn: FSIn, _stageOut: ptr<function, FSOut>) {
     _6_output = _6_output + _skTemp28 * _uniform0.uKernel_Stage1_c0[6].x;
     _7_coord = _7_coord + vec2<f32>(_uniform0.uIncrement_Stage1_c0);
     _6_output = _6_output * outputColor_Stage0;
-    var output_Stage1: vec4<f32> = _6_output;
+    let output_Stage1: vec4<f32> = _6_output;
     {
       (*_stageOut).sk_FragColor = output_Stage1 * outputCoverage_Stage0;
     }

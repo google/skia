@@ -14,9 +14,9 @@ fn IsEqual_bh4h4(x: vec4<f32>, y: vec4<f32>) -> bool {
 }
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var colorBlue: vec4<f32> = vec4<f32>(0.0, 0.0, _globalUniforms.colorWhite.zw);
-    var colorGreen: vec4<f32> = vec4<f32>(0.0, _globalUniforms.colorWhite.y, 0.0, _globalUniforms.colorWhite.w);
-    var colorRed: vec4<f32> = vec4<f32>(_globalUniforms.colorWhite.x, 0.0, 0.0, _globalUniforms.colorWhite.w);
+    let colorBlue: vec4<f32> = vec4<f32>(0.0, 0.0, _globalUniforms.colorWhite.zw);
+    let colorGreen: vec4<f32> = vec4<f32>(0.0, _globalUniforms.colorWhite.y, 0.0, _globalUniforms.colorWhite.w);
+    let colorRed: vec4<f32> = vec4<f32>(_globalUniforms.colorWhite.x, 0.0, 0.0, _globalUniforms.colorWhite.w);
     var _skTemp0: vec4<f32>;
     let _skTemp1 = IsEqual_bh4h4(_globalUniforms.colorWhite, colorBlue);
     if !_skTemp1 {
@@ -38,7 +38,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
       }
       _skTemp0 = _skTemp4;
     }
-    var result: vec4<f32> = _skTemp0;
+    let result: vec4<f32> = _skTemp0;
     var _skTemp6: vec4<f32>;
     let _skTemp7 = IsEqual_bh4h4(colorRed, colorBlue);
     if _skTemp7 {

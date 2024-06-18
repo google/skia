@@ -16,9 +16,9 @@ fn _skslMain(xy: vec2<f32>) -> vec4<f32> {
     let _skTemp1 = 9.968786e+08 - 2 * _skTemp0 * 9.968786e+08 * _skTemp0;
     var expectedX: f32 = _skTemp1;
     expectedX = -49.0;
-    var expectedXY: vec2<f32> = vec2<f32>(-169.0, 202.0);
-    var expectedXYZ: vec3<f32> = vec3<f32>(-379.0, 454.0, -529.0);
-    var expectedXYZW: vec4<f32> = vec4<f32>(-699.0, 838.0, -977.0, 1116.0);
+    const expectedXY: vec2<f32> = vec2<f32>(-169.0, 202.0);
+    const expectedXYZ: vec3<f32> = vec3<f32>(-379.0, 454.0, -529.0);
+    const expectedXYZW: vec4<f32> = vec4<f32>(-699.0, 838.0, -977.0, 1116.0);
     let _skTemp2 = _globalUniforms.I.x;
     let _skTemp3 = _globalUniforms.N.x;
     let _skTemp4 = _skTemp2 - 2 * _skTemp3 * _skTemp2 * _skTemp3;

@@ -19,7 +19,7 @@ fn store_vIf(i: u32, value: f32) {
 }
 fn _skslMain(_stageIn: CSIn) {
   {
-    var id: u32 = _stageIn.sk_GlobalInvocationID.x;
+    let id: u32 = _stageIn.sk_GlobalInvocationID.x;
     var rd_id: u32;
     var wr_id: u32;
     var mask: u32;

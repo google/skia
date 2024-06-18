@@ -13,12 +13,12 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
     let _skTemp0 = mat2x4<f32>(9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0);
     let _skTemp1 = mat2x4<f32>(_globalUniforms.colorRed[0], _globalUniforms.colorRed[1], _globalUniforms.colorRed[2], _globalUniforms.colorRed[3], _globalUniforms.colorGreen[0], _globalUniforms.colorGreen[1], _globalUniforms.colorGreen[2], _globalUniforms.colorGreen[3]);
     let _skTemp2 = mat2x4<f32>(_skTemp0[0] * _skTemp1[0], _skTemp0[1] * _skTemp1[1]);
-    var h24: mat2x4<f32> = _skTemp2;
+    let h24: mat2x4<f32> = _skTemp2;
     let _skTemp3 = mat4x2<f32>(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0);
     let _skTemp4 = mat4x2<f32>(_globalUniforms.colorRed[0], _globalUniforms.colorRed[1], _globalUniforms.colorRed[2], _globalUniforms.colorRed[3], _globalUniforms.colorGreen[0], _globalUniforms.colorGreen[1], _globalUniforms.colorGreen[2], _globalUniforms.colorGreen[3]);
     let _skTemp5 = mat4x2<f32>(_skTemp3[0] * _skTemp4[0], _skTemp3[1] * _skTemp4[1], _skTemp3[2] * _skTemp4[2], _skTemp3[3] * _skTemp4[3]);
-    var h42: mat4x2<f32> = _skTemp5;
-    var f43: mat4x3<f32> = mat4x3<f32>(12.0, 22.0, 30.0, 36.0, 40.0, 42.0, 42.0, 40.0, 36.0, 30.0, 22.0, 12.0);
+    let h42: mat4x2<f32> = _skTemp5;
+    const f43: mat4x3<f32> = mat4x3<f32>(12.0, 22.0, 30.0, 36.0, 40.0, 42.0, 42.0, 40.0, 36.0, 30.0, 22.0, 12.0);
     let _skTemp6 = mat2x4<f32>(9.0, 0.0, 0.0, 9.0, 0.0, 9.0, 0.0, 9.0);
     let _skTemp7 = mat4x2<f32>(1.0, 0.0, 0.0, 4.0, 0.0, 6.0, 0.0, 8.0);
     let _skTemp8 = mat4x3<f32>(12.0, 22.0, 30.0, 36.0, 40.0, 42.0, 42.0, 40.0, 36.0, 30.0, 22.0, 12.0);

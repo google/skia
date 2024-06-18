@@ -9,8 +9,8 @@ struct _GlobalUniforms {
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
   {
-    var zero: i32 = i32(_globalUniforms.colorGreen.x);
-    var one: i32 = i32(_globalUniforms.colorGreen.y);
+    let zero: i32 = i32(_globalUniforms.colorGreen.x);
+    let one: i32 = i32(_globalUniforms.colorGreen.y);
     {
       var x: i32 = zero;
       loop {
