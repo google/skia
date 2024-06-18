@@ -86,6 +86,10 @@ bool SkFontScanner_Fontations::scanInstance(SkStreamAsset* stream,
         }
     }
 
+    if (isFixedPitch != nullptr) {
+        *isFixedPitch = false;  // TODO
+    }
+
     return true;
 }
 
