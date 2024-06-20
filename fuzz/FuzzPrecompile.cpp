@@ -19,6 +19,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
+#include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/gpu/graphite/ContextPriv.h"

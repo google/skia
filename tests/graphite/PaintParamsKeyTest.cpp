@@ -36,6 +36,7 @@
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
+#include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkBlenderBase.h"

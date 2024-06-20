@@ -82,43 +82,6 @@ namespace PrecompileMaskFilters {
 } // namespace PrecompileMaskFilters
 
 //--------------------------------------------------------------------------------------------------
-// This will move to be beside SkColorFilters in include/core/SkColorFilter.h
-namespace PrecompileColorFilters {
-    // -- The next 9 entries match those in include/core/SkColorFilter.h
-    SK_API sk_sp<PrecompileColorFilter> Compose(SkSpan<const sk_sp<PrecompileColorFilter>> outer,
-                                                SkSpan<const sk_sp<PrecompileColorFilter>> inner);
-
-    // This encompasses both variants of SkColorFilters::Blend
-    SK_API sk_sp<PrecompileColorFilter> Blend();
-
-    // This encompasses both variants of SkColorFilters::Matrix
-    SK_API sk_sp<PrecompileColorFilter> Matrix();
-
-    // This encompasses both variants of SkColorFilters::HSLAMatrix
-    SK_API sk_sp<PrecompileColorFilter> HSLAMatrix();
-
-    SK_API sk_sp<PrecompileColorFilter> LinearToSRGBGamma();
-    SK_API sk_sp<PrecompileColorFilter> SRGBToLinearGamma();
-    SK_API sk_sp<PrecompileColorFilter> Lerp(SkSpan<const sk_sp<PrecompileColorFilter>> dstOptions,
-                                             SkSpan<const sk_sp<PrecompileColorFilter>> srcOptions);
-
-    // This encompases both variants of SkColorFilters::Table and TableARGB
-    SK_API sk_sp<PrecompileColorFilter> Table();
-
-    SK_API sk_sp<PrecompileColorFilter> Lighting();
-
-    // This matches the main API's factory in include/effects/SkHighContrastFilter.h
-    SK_API sk_sp<PrecompileColorFilter> HighContrast();
-
-    // This matches the main API's factory in include/effects/SkLumaColorFilter.h
-    SK_API sk_sp<PrecompileColorFilter> Luma();
-
-    // This matches the main API's factory in include/effects/SkOverdrawColorFilter.h
-    SK_API sk_sp<PrecompileColorFilter> Overdraw();
-
-} // namespace PrecompileColorFilters
-
-//--------------------------------------------------------------------------------------------------
 // Object that allows passing a SkPrecompileShader, SkPrecompileColorFilter or
 // SkPrecompileBlender as a child
 //

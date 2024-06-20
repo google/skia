@@ -10,6 +10,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/gpu/graphite/precompile/PrecompileBase.h"
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
+#include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
@@ -96,6 +97,23 @@ private:
 
 sk_sp<PrecompileShader> PrecompileShaders::YUVImage() {
     return sk_make_sp<PrecompileYUVImageShader>();
+}
+
+//--------------------------------------------------------------------------------------------------
+sk_sp<PrecompileColorFilter> PrecompileImageFilter::asAColorFilter() const {
+    sk_sp<PrecompileColorFilter> tmp = this->isColorFilterNode();
+    if (!tmp) {
+        return nullptr;
+    }
+    SkASSERT(this->countInputs() == 1);
+    if (this->getInput(0)) {
+        return nullptr;
+    }
+    // TODO: as in SkImageFilter::asAColorFilter, handle the special case of
+    // affectsTransparentBlack. This is tricky for precompilation since we don't,
+    // necessarily, have all the parameters of the ColorFilter in order to evaluate
+    // filterColor4f(SkColors::kTransparent) - the normal API's implementation.
+    return tmp;
 }
 
 //--------------------------------------------------------------------------------------------------

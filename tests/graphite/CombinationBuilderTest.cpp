@@ -12,6 +12,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
+#include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/FactoryFunctions.h"

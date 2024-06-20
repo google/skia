@@ -40,15 +40,6 @@ void PrecompileCombinations(Context* context,
                             Coverage coverage);
 
 //--------------------------------------------------------------------------------------------------
-
-class PrecompileColorFilter : public PrecompileBase {
-public:
-    PrecompileColorFilter() : PrecompileBase(Type::kColorFilter) {}
-
-    sk_sp<PrecompileColorFilter> makeComposed(sk_sp<PrecompileColorFilter> inner) const;
-};
-
-//--------------------------------------------------------------------------------------------------
 class PrecompileImageFilter : public PrecompileBase {
 public:
     virtual sk_sp<PrecompileColorFilter> isColorFilterNode() const { return nullptr; }
@@ -82,21 +73,7 @@ private:
         SkASSERT(false);
     }
 
-    sk_sp<PrecompileColorFilter> asAColorFilter() const {
-        sk_sp<PrecompileColorFilter> tmp = this->isColorFilterNode();
-        if (!tmp) {
-            return nullptr;
-        }
-        SkASSERT(this->countInputs() == 1);
-        if (this->getInput(0)) {
-            return nullptr;
-        }
-        // TODO: as in SkImageFilter::asAColorFilter, handle the special case of
-        // affectsTransparentBlack. This is tricky for precompilation since we don't,
-        // necessarily, have all the parameters of the ColorFilter in order to evaluate
-        // filterColor4f(SkColors::kTransparent) - the normal API's implementation.
-        return tmp;
-    }
+    sk_sp<PrecompileColorFilter> asAColorFilter() const;
 
     virtual void onCreatePipelines(const KeyContext&,
                                    PipelineDataGatherer*,

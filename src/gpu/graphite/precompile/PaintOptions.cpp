@@ -8,6 +8,7 @@
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
+#include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -324,6 +325,10 @@ void PaintOptions::buildCombinations(
             processCombination(paintID, drawTypes, withPrimitiveBlender, coverage);
         }
     }
+}
+
+void PaintOptionsPriv::addColorFilter(sk_sp<PrecompileColorFilter> cf) {
+    fPaintOptions->addColorFilter(std::move(cf));
 }
 
 } // namespace skgpu::graphite
