@@ -376,6 +376,7 @@ skia_graphite_precompile_sources = [
   "$_src/precompile/PrecompileBlender.cpp",
   "$_src/precompile/PrecompileBlenderPriv.h",
   "$_src/precompile/PrecompileColorFilter.cpp",
+  "$_src/precompile/PrecompileColorFiltersPriv.h",
   "$_src/precompile/PrecompileShader.cpp",
   "$_src/precompile/PrecompileShaderPriv.h",
 ]
