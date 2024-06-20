@@ -546,9 +546,9 @@ sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient() {
 
 //--------------------------------------------------------------------------------------------------
 // The PictureShader ultimately turns into an SkImageShader optionally wrapped in a
-// LocalMatrixShader. The PrecompileImageShader already captures that use case so just reuse it.
-// Note that this means each precompile PictureShader will add 24 combinations:
-//    2 (pictureshader LM) x 2 (imageShader LM) x 6 (imageShader variations)
+// LocalMatrixShader.
+// Note that this means each precompile PictureShader will add 12 combinations:
+//    2 (pictureshader LM) x 6 (imageShader variations)
 sk_sp<PrecompileShader> PrecompileShaders::Picture() {
     // Note: We don't need to consider the PrecompileYUVImageShader since the image
     // being drawn was created internally by Skia (as non-YUV).

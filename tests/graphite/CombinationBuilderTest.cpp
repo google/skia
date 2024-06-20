@@ -29,6 +29,18 @@ using namespace::skgpu::graphite;
 
 namespace {
 
+// colorfilters
+static constexpr int kExpectedBlendColorFilterCombos = 1;
+
+// shaders
+static constexpr int kExpectedSolidColorCombos = 1;
+static constexpr int kExpectedGradientCombos = 3;
+static constexpr int kExpectedImageCombos = 6;
+static constexpr int kExpectedPerlinNoiseCombos = 1;
+static constexpr int kExpectedPictureCombos = 12;
+static constexpr int kExpectedRawImageCombos = 3;
+
+
 // A default kSrcOver blend mode will be supplied if no other blend options are added
 void no_blend_mode_option_test(const KeyContext& keyContext,
                                PipelineDataGatherer* gatherer,
@@ -301,6 +313,168 @@ void runtime_effect_test(const KeyContext& keyContext,
     SkASSERT(precompileIDs.size() == 8);
 }
 
+// Exercise all the PrecompileBlenders factories
+void blend_subtest(const KeyContext& keyContext,
+                   PipelineDataGatherer* gatherer,
+                   skiatest::Reporter* reporter) {
+    // The BlendMode PrecompileBlender only ever has 1 combination
+    {
+        PaintOptions paintOptions;
+        paintOptions.setBlenders({ PrecompileBlenders::Mode(SkBlendMode::kColorDodge) });
+
+        run_test(keyContext, gatherer, reporter, paintOptions, /* expectedNumOptions= */ 1);
+    }
+
+    // Specifying the BlendMode PrecompileBlender by SkBlendMode should also only ever
+    // yield 1 combination.
+    {
+        PaintOptions paintOptions;
+        paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+
+        run_test(keyContext, gatherer, reporter, paintOptions, /* expectedNumOptions= */ 1);
+    }
+
+    // The Arithmetic PrecompileBlender only ever has 1 combination
+    {
+        PaintOptions paintOptions;
+        paintOptions.setBlenders({ PrecompileBlenders::Arithmetic() });
+
+        run_test(keyContext, gatherer, reporter, paintOptions, /* expectedNumOptions= */ 1);
+    }
+}
+
+// Exercise all the PrecompileShaders factories
+void shader_subtest(const KeyContext& keyContext,
+                    PipelineDataGatherer* gatherer,
+                    skiatest::Reporter* reporter) {
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders({ PrecompileShaders::Empty() });
+
+        run_test(keyContext, gatherer, reporter, paintOptions, /* expectedNumOptions= */ 1);
+    }
+
+    // The solid color shader only ever generates one combination. Because it is constant
+    // everywhere it can cause other shaders to be elided (e.g., the LocalMatrix shader -
+    // see the LocalMatrix test(s) below).
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders({ PrecompileShaders::Color() });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ kExpectedSolidColorCombos);
+    }
+
+    // In general, the blend shader generates the product of the options in each of its slots.
+    // The rules for how many combinations the SkBlendModes yield are:
+    //   all Porter-Duff SkBlendModes collapse to one option (see SkBlendMode::kLastCoeffMode)
+    //   all non-Porter-Duff SkBlendModes collapse to a second option
+    {
+        const SkBlendMode kBlendModes[] = {
+                SkBlendMode::kScreen,    // Porter-Duff
+                SkBlendMode::kSrcOut,    // Porter-Duff
+                SkBlendMode::kDarken,    // non-Porter-Duff
+                SkBlendMode::kHardLight, // non-Porter-Duff
+        };
+        PaintOptions paintOptions;
+        paintOptions.setShaders(
+                { PrecompileShaders::Blend(SkSpan<const SkBlendMode>(kBlendModes),
+                                           { PrecompileShaders::Color() },
+                                           { PrecompileShaders::MakeFractalNoise() }) });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ 2 *  // both Porter-Duff and non-Porter-Duff
+                                           kExpectedSolidColorCombos *
+                                           kExpectedPerlinNoiseCombos);
+    }
+
+    // The ImageShaders have 6 combinations (3 sampling/tiling x 2 alpha/non-alpha)
+    // The CoordClamp shader doesn't add any additional combinations to its wrapped shader.
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders({ PrecompileShaders::CoordClamp({ PrecompileShaders::Image() }) });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ kExpectedImageCombos);
+    }
+
+    // RawImageShaders only have 3 combinations (since they never incorporate alpha)
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders({ PrecompileShaders::RawImage() });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ kExpectedRawImageCombos);
+    }
+
+    // Each Perlin noise shader only has one combination
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders({ PrecompileShaders::MakeFractalNoise(),
+                                  PrecompileShaders::MakeTurbulence() });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ kExpectedPerlinNoiseCombos + kExpectedPerlinNoiseCombos);
+    }
+
+    // Each gradient shader generates 3 combinations
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders({ PrecompileShaders::LinearGradient(),
+                                  PrecompileShaders::RadialGradient(),
+                                  PrecompileShaders::TwoPointConicalGradient(),
+                                  PrecompileShaders::SweepGradient() });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ kExpectedGradientCombos + kExpectedGradientCombos +
+                                           kExpectedGradientCombos + kExpectedGradientCombos);
+    }
+
+    // Each picture shader generates 12 combinations:
+    //    2 (pictureShader LM) x 6 (imageShader variations)
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders({ PrecompileShaders::Picture() });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ kExpectedPictureCombos);
+    }
+
+    // In general, the local matrix shader just generates however many options its wrapped
+    // shader generates.
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders(
+                { PrecompileShaders::LocalMatrix({ PrecompileShaders::LinearGradient() }) });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ kExpectedGradientCombos);
+    }
+
+    // The ColorFilter shader just creates the cross product of its child options
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders(
+                { PrecompileShaders::ColorFilter({ PrecompileShaders::LinearGradient() },
+                                                 { PrecompileColorFilters::Blend() }) });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ kExpectedGradientCombos *
+                                           kExpectedBlendColorFilterCombos);
+    }
+
+    {
+        PaintOptions paintOptions;
+        paintOptions.setShaders(
+                { PrecompileShaders::WorkingColorSpace({ PrecompileShaders::LinearGradient() },
+                                                       { SkColorSpace::MakeSRGBLinear() }) });
+
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 /* expectedNumOptions= */ kExpectedGradientCombos *
+                                           1 /* only one colorSpace */);
+    }
+}
+
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
@@ -327,32 +501,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
         run_test(keyContext, &gatherer, reporter, paintOptions, /* expectedNumOptions= */ 1);
     }
 
-    // The BlendMode PrecompileBlender only ever has 1 combination
-    {
-        PaintOptions paintOptions;
-        paintOptions.setBlenders({ PrecompileBlenders::Mode(SkBlendMode::kColorDodge) });
-
-        run_test(keyContext, &gatherer, reporter, paintOptions, /* expectedNumOptions= */ 1);
-    }
-
-    // Specifying the BlendMode PrecompileBlender by SkBlendMode should also only ever
-    // yield 1 combination.
-    {
-        SkBlendMode blendModes[] = { SkBlendMode::kSrcOver };
-
-        PaintOptions paintOptions;
-        paintOptions.setBlendModes(blendModes);
-
-        run_test(keyContext, &gatherer, reporter, paintOptions, /* expectedNumOptions= */ 1);
-    }
-
-    // The Arithmetic PrecompileBlender only ever has 1 combination
-    {
-        PaintOptions paintOptions;
-        paintOptions.setBlenders({ PrecompileBlenders::Arithmetic() });
-
-        run_test(keyContext, &gatherer, reporter, paintOptions, /* expectedNumOptions= */ 1);
-    }
+    blend_subtest(keyContext, &gatherer, reporter);
+    shader_subtest(keyContext, &gatherer, reporter);
 
     no_blend_mode_option_test(keyContext, &gatherer, reporter);
     big_test(keyContext, &gatherer, reporter);
