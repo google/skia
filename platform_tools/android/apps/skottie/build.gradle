@@ -41,4 +41,5 @@ android {
 
     productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan {}; }
 
+    namespace 'org.skia.skottie'
 }

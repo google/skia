@@ -31,6 +31,8 @@ android {
     flavorDimensions "base"
     productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
     setupSkiaLibraryBuild(project, libraryVariants, "libjetski")
+
+    namespace 'org.skia.jetski'
 }
 
 ext {

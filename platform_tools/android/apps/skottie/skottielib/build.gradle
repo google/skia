@@ -28,6 +28,7 @@ android {
     productFlavors { arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
     setupSkiaLibraryBuild(project, libraryVariants, "libskottie_android")
 
+    namespace 'org.skia.skottielib'
 }
 
 dependencies {

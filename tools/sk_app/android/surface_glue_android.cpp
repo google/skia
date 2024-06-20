@@ -218,7 +218,7 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
                                                skiaAndroidApp);
 
     while (true) {
-        int ident = 0;
+        int ident = ALOOPER_POLL_CALLBACK;
         while (ident == ALOOPER_POLL_CALLBACK) {
             ident = ALooper_pollOnce(0, nullptr, nullptr, nullptr);
         }

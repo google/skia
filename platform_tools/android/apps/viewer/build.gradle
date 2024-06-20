@@ -28,4 +28,6 @@ android {
     productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
 
     setupSkiaLibraryBuild(project, applicationVariants, "libviewer")
+
+    namespace 'org.skia.viewer'
 }
