@@ -10,6 +10,7 @@ is_skia_standalone = true
 declare_args() {
   is_official_build = false
   is_component_build = false
+  use_libfuzzer = false
   ndk = ""
 
   # Android 5.0, Lollipop
