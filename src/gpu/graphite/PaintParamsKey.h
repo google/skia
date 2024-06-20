@@ -19,11 +19,15 @@
 #include <cstring> // for memcmp
 
 class SkArenaAlloc;
+struct SkSamplingOptions;
+enum class SkTileMode;
 
 namespace skgpu::graphite {
 
+class Caps;
 class ShaderCodeDictionary;
 class ShaderNode;
+class TextureProxy;
 class UniquePaintParamsID;
 
 // This class is a compact representation of the shader needed to implement a given
@@ -43,7 +47,7 @@ public:
     ~PaintParamsKey() = default;
     PaintParamsKey& operator=(const PaintParamsKey&) = default;
 
-    static constexpr PaintParamsKey Invalid() { return PaintParamsKey(SkSpan<const int32_t>()); }
+    static constexpr PaintParamsKey Invalid() { return PaintParamsKey(SkSpan<const uint32_t>()); }
     bool isValid() const { return !fData.empty(); }
 
     // Return a PaintParamsKey whose data is owned by the provided arena and is not attached to
@@ -59,8 +63,9 @@ public:
     // a fixed function blend (with 1 child being the main effect)).
     SkSpan<const ShaderNode*> getRootNodes(const ShaderCodeDictionary*, SkArenaAlloc*) const;
 
-    // Converts the key to a structured list of snippet names for debugging or labeling purposes.
-    SkString toString(const ShaderCodeDictionary* dict) const;
+    // Converts the key to a structured list of snippet information for debugging or labeling
+    // purposes.
+    SkString toString(const ShaderCodeDictionary* dict, bool includeData) const;
 
 #ifdef SK_DEBUG
     void dump(const ShaderCodeDictionary*, UniquePaintParamsID) const;
@@ -81,7 +86,7 @@ public:
 private:
     friend class PaintParamsKeyBuilder;   // for the parented-data ctor
 
-    constexpr PaintParamsKey(SkSpan<const int32_t> span) : fData(span) {}
+    constexpr PaintParamsKey(SkSpan<const uint32_t> span) : fData(span) {}
 
     // Returns null if the node or any of its children have an invalid snippet ID. Recursively
     // creates a node and all of its children, incrementing 'currentIndex' by the total number of
@@ -91,8 +96,8 @@ private:
                                  SkArenaAlloc* arena) const;
 
     // The memory referenced in 'fData' is always owned by someone else. It either shares the span
-    // of from the Builder, or clone() puts the span in an arena.
-    SkSpan<const int32_t> fData;
+    // from the Builder, or clone() puts the span in an arena.
+    SkSpan<const uint32_t> fData;
 };
 
 // The PaintParamsKeyBuilder and the PaintParamsKeys snapped from it share the same
@@ -137,6 +142,12 @@ public:
         this->endBlock();
     }
 
+    void addData(SkSpan<const uint32_t> data) {
+        // First push the data size followed by the actual data.
+        fData.push_back(data.size());
+        fData.push_back_n(data.size(), data.begin());
+    }
+
 private:
     friend class AutoLockBuilderAsKey; // for lockAsKey() and unlock()
 
@@ -162,7 +173,7 @@ private:
 
     // The data array uses clear() on unlock so that it's underlying storage and repeated use of the
     // builder will hit a high-water mark and avoid lots of allocations when recording draws.
-    skia_private::TArray<int32_t> fData;
+    skia_private::TArray<uint32_t> fData;
 
 #ifdef SK_DEBUG
     void pushStack(int32_t codeSnippetID);

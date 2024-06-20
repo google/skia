@@ -62,6 +62,7 @@ struct FragSkSLInfo {
     int fRenderStepUniformsTotalBytes = 0;
     int fPaintUniformsTotalBytes = 0;
     bool fHasGradientBuffer = false;
+    skia_private::TArray<uint32_t> fData = {};
 };
 
 std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*> ExtractPaintData(
@@ -91,6 +92,8 @@ VertSkSLInfo BuildVertexSkSL(const ResourceBindingRequirements&,
                              bool defineShadingSsboIndexVarying,
                              bool defineLocalCoordsVarying);
 
+// TODO(b/347072931): Refactor to return std::unique_ptr<ShaderInfo> instead such that snippet
+// data can remain tied to its snippet ID.
 FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
                                const ShaderCodeDictionary*,
                                const RuntimeEffectDictionary*,

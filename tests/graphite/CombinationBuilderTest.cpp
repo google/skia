@@ -312,7 +312,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
                           /* dstTexture= */ nullptr,
                           /* dstOffset= */ {0, 0});
 
-    PipelineDataGatherer gatherer(context->priv().caps(), Layout::kMetal);
+    PipelineDataGatherer gatherer(Layout::kMetal);
 
     // The default PaintOptions should create a single combination with a solid color shader and
     // kSrcOver blending

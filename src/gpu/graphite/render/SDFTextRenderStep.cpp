@@ -160,11 +160,11 @@ void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
     const SkSamplingOptions kSamplingOptions(SkFilterMode::kLinear);
     constexpr SkTileMode kTileModes[2] = { SkTileMode::kClamp, SkTileMode::kClamp };
     for (unsigned int i = 0; i < numProxies; ++i) {
-        gatherer->add(kSamplingOptions, kTileModes, proxies[i]);
+        gatherer->add(proxies[i], {kSamplingOptions, kTileModes});
     }
     // If the atlas has less than 4 active proxies we still need to set up samplers for the shader.
     for (unsigned int i = numProxies; i < kNumSDFAtlasTextures; ++i) {
-        gatherer->add(kSamplingOptions, kTileModes, proxies[0]);
+        gatherer->add(proxies[0], {kSamplingOptions, kTileModes});
     }
 }
 

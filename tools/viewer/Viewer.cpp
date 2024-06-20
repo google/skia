@@ -2766,7 +2766,7 @@ void Viewer::drawImGui() {
                             entry.fKeyString = SkStringPrintf("#%-3d RenderStep: %u, Paint: ",
                                                               index++,
                                                               pipelineInfo.fRenderStepID);
-                            entry.fKeyString.append(paintKey.toString(dict));
+                            entry.fKeyString.append(paintKey.toString(dict, /*includeData=*/true));
 
                             if (sksl) {
                                 entry.fShader[kVertex_GrShaderType] =

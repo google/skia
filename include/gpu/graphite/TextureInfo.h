@@ -142,6 +142,9 @@ private:
     friend class VulkanCaps;
     friend class VulkanResourceProvider;
     friend class VulkanTexture;
+    // For querying texture for YCbCr information when generating a PaintParamsKey
+    friend class PaintParamsKey;
+
     const VulkanTextureSpec& vulkanTextureSpec() const {
         SkASSERT(fValid && fBackend == BackendApi::kVulkan);
         return fVkSpec;

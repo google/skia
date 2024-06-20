@@ -705,6 +705,9 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                 &pipelineShaderStages[1]);
     }
 
+    // TODO(b/347070730): Analyze fsSkSLInfo.fData to see if we have any immutable samplers which
+    // should be a part of the pipeline layout.
+
     // TODO: Query RenderPassDesc for input attachment information. For now, we only use one for
     // loading MSAA from resolve so we can simply pass in 0 when not doing that.
     VkPipelineLayout pipelineLayout = setup_pipeline_layout(sharedContext,

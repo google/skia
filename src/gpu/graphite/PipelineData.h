@@ -67,14 +67,8 @@ public:
     bool operator!=(const TextureDataBlock& other) const { return !(*this == other);  }
     uint32_t hash() const;
 
-    void add(const Caps* caps,
-             const SkSamplingOptions& sampling,
-             const SkTileMode tileModes[2],
-             sk_sp<TextureProxy> proxy) {
-        // Before relinquishing ownership of the proxy, query Caps to gather any relevant sampler
-        // conversion information for the SamplerDesc.
-        ImmutableSamplerInfo info = caps->getImmutableSamplerInfo(proxy);
-        fTextureData.push_back({std::move(proxy), SamplerDesc{sampling, tileModes, info}});
+    void add(sk_sp<TextureProxy> proxy, const SamplerDesc& samplerDesc) {
+        fTextureData.push_back({std::move(proxy), samplerDesc});
     }
 
     void reset() {
@@ -96,17 +90,15 @@ private:
 // obviously, vastly complicate uniform accumulation.
 class PipelineDataGatherer {
 public:
-    PipelineDataGatherer(const Caps* caps, Layout layout);
+    PipelineDataGatherer(Layout layout);
 
     void resetWithNewLayout(Layout layout);
 
     // Check that the gatherer has been reset to its initial state prior to collecting new data.
     SkDEBUGCODE(void checkReset();)
 
-    void add(const SkSamplingOptions& sampling,
-             const SkTileMode tileModes[2],
-             sk_sp<TextureProxy> proxy) {
-        fTextureDataBlock.add(fCaps, sampling, tileModes, std::move(proxy));
+    void add(sk_sp<TextureProxy> proxy, const SamplerDesc& samplerDesc) {
+        fTextureDataBlock.add(std::move(proxy), samplerDesc);
     }
     bool hasTextures() const { return !fTextureDataBlock.empty(); }
 
@@ -168,7 +160,6 @@ private:
     void doneWithExpectedUniforms() { fUniformManager.doneWithExpectedUniforms(); }
 #endif // SK_DEBUG
 
-    const Caps* const fCaps;
     TextureDataBlock  fTextureDataBlock;
     UniformManager    fUniformManager;
 

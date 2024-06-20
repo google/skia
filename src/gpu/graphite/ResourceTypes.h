@@ -9,6 +9,7 @@
 #define skgpu_graphite_ResourceTypes_DEFINED
 
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/private/base/SkTo.h"
@@ -234,7 +235,7 @@ struct SamplerDesc {
         // the conversion information can fit within an uint32.
         SkASSERT(info.fNonFormatYcbcrConversionInfo >> kMaxNumConversionInfoBits == 0);
     }
-
+    SamplerDesc() = default;
     SamplerDesc(const SamplerDesc&) = default;
 
     bool operator==(const SamplerDesc& o) const {
@@ -249,6 +250,8 @@ struct SamplerDesc {
     uint32_t   desc()               const { return fDesc;                                        }
     uint32_t   format()             const { return fFormat;                                      }
     uint32_t   externalFormatMSBs() const { return fExternalFormatMostSignificantBits;           }
+    bool       isImmutable()        const { return (fDesc >> kImmutableSamplerInfoShift) != 0;   }
+    bool       usesExternalFormat() const { return (fDesc >> kImmutableSamplerInfoShift) & 0b1;  }
 
     // NOTE: returns the HW sampling options to use, so a bicubic SkSamplingOptions will become
     // nearest-neighbor sampling in HW.
@@ -257,6 +260,11 @@ struct SamplerDesc {
         SkFilterMode filter = static_cast<SkFilterMode>((fDesc >> 4) & 0b01);
         SkMipmapMode mipmap = static_cast<SkMipmapMode>((fDesc >> 5) & 0b11);
         return SkSamplingOptions(filter, mipmap);
+    }
+
+    SkSpan<const uint32_t> asSpan() const {
+        // Span length depends upon whether the sampler is immutable and if it uses a known format
+        return {&fDesc, 1 + this->isImmutable() + this->usesExternalFormat()};
     }
 
     // These are public such that backends can bitshift data in order to determine whatever

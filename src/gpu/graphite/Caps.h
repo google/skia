@@ -122,7 +122,7 @@ public:
 
     // Backends can optionally override this method to return meaningful sampler conversion info.
     // By default, simply return a default ImmutableSamplerInfo.
-    virtual ImmutableSamplerInfo getImmutableSamplerInfo(sk_sp<TextureProxy> proxy) const {
+    virtual ImmutableSamplerInfo getImmutableSamplerInfo(const TextureProxy*) const {
         return {};
     }
 

@@ -9,6 +9,7 @@
 
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkStringView.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
@@ -52,7 +53,7 @@ void PaintParamsKeyBuilder::popStack() {
 // PaintParamsKey
 
 PaintParamsKey PaintParamsKey::clone(SkArenaAlloc* arena) const {
-    int32_t* newData = arena->makeArrayDefault<int32_t>(fData.size());
+    uint32_t* newData = arena->makeArrayDefault<uint32_t>(fData.size());
     memcpy(newData, fData.data(), fData.size_bytes());
     return PaintParamsKey({newData, fData.size()});
 }
@@ -71,6 +72,23 @@ const ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
         return nullptr;
     }
 
+    SkSpan<const uint32_t> dataSpan = {};
+    if (entry->storesData()) {
+        // Gather any additional data that should be passed into ShaderNode creation. If the next
+        // entry is 0, that simply indicates there is no embedded data to store. Iterate
+        // currentIndex past the stored data length entry.
+        const int storedDataLengthIdx = (*currentIndex)++;
+        SkASSERT(storedDataLengthIdx < SkTo<int>(fData.size()));
+        const int dataLength = fData[storedDataLengthIdx];
+        SkASSERT(storedDataLengthIdx + dataLength < SkTo<int>(fData.size()));
+
+        if (dataLength) {
+            dataSpan = fData.subspan(storedDataLengthIdx + 1, dataLength);
+            // Iterate past the length of data
+            *currentIndex += dataLength;
+        }
+    }
+
     const ShaderNode** childArray = arena->makeArray<const ShaderNode*>(entry->fNumChildren);
     for (int i = 0; i < entry->fNumChildren; ++i) {
         const ShaderNode* child = this->createNode(dict, currentIndex, arena);
@@ -80,7 +98,11 @@ const ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
         childArray[i] = child;
     }
 
-    return arena->make<ShaderNode>(entry, SkSpan(childArray, entry->fNumChildren), id, index);
+    return arena->make<ShaderNode>(entry,
+                                   SkSpan(childArray, entry->fNumChildren),
+                                   id,
+                                   index,
+                                   dataSpan);
 }
 
 SkSpan<const ShaderNode*> PaintParamsKey::getRootNodes(const ShaderCodeDictionary* dict,
@@ -110,11 +132,12 @@ SkSpan<const ShaderNode*> PaintParamsKey::getRootNodes(const ShaderCodeDictionar
 
 static int key_to_string(SkString* str,
                          const ShaderCodeDictionary* dict,
-                         SkSpan<const int32_t> keyData,
-                         int currentIndex) {
+                         SkSpan<const uint32_t> keyData,
+                         int currentIndex,
+                         bool includeData) {
     SkASSERT(currentIndex < SkTo<int>(keyData.size()));
 
-    int32_t id = keyData[currentIndex++];
+    uint32_t id = keyData[currentIndex++];
     auto entry = dict->getEntry(id);
     if (!entry) {
         str->append("UnknownCodeSnippetID:");
@@ -129,10 +152,31 @@ static int key_to_string(SkString* str,
     }
     str->append(name);
 
+    if (entry->storesData()) {
+        SkASSERT(currentIndex + 1 < SkTo<int>(keyData.size()));
+        const int dataLength = keyData[currentIndex++];
+        SkASSERT(currentIndex + dataLength < SkTo<int>(keyData.size()));
+
+        str->append(" fData(size: ");
+        str->appendU32(dataLength);
+        str->append(")");
+
+        if (includeData) {
+            str->append(":[");
+            for (int i = 0; i < dataLength; i++) {
+                str->append(" ");
+                str->appendU32(keyData[currentIndex + i]);
+            }
+            str->append(" ]");
+        }
+
+        currentIndex += dataLength;
+    }
+
     if (entry->fNumChildren > 0) {
         str->append(" [ ");
         for (int i = 0; i < entry->fNumChildren; ++i) {
-            currentIndex = key_to_string(str, dict, keyData, currentIndex);
+            currentIndex = key_to_string(str, dict, keyData, currentIndex, includeData);
         }
         str->append("]");
     }
@@ -141,11 +185,11 @@ static int key_to_string(SkString* str,
     return currentIndex;
 }
 
-SkString PaintParamsKey::toString(const ShaderCodeDictionary* dict) const {
+SkString PaintParamsKey::toString(const ShaderCodeDictionary* dict, bool includeData) const {
     SkString str;
     const int keySize = SkTo<int>(fData.size());
-    for (int currentIndex = 0; currentIndex < keySize; ) {
-        currentIndex = key_to_string(&str, dict, fData, currentIndex);
+    for (int currentIndex = 0; currentIndex < keySize;) {
+        currentIndex = key_to_string(&str, dict, fData, currentIndex, includeData);
     }
     return str.isEmpty() ? SkString("(empty)") : str;
 }
@@ -153,7 +197,7 @@ SkString PaintParamsKey::toString(const ShaderCodeDictionary* dict) const {
 #ifdef SK_DEBUG
 
 static int dump_node(const ShaderCodeDictionary* dict,
-                     SkSpan<const int32_t> keyData,
+                     SkSpan<const uint32_t> keyData,
                      int currentIndex,
                      int indent) {
     SkASSERT(currentIndex < SkTo<int>(keyData.size()));
@@ -170,6 +214,24 @@ static int dump_node(const ShaderCodeDictionary* dict,
     SkDebugf("[%d] %s\n", id, entry->fStaticFunctionName);
     for (int i = 0; i < entry->fNumChildren; ++i) {
         currentIndex = dump_node(dict, keyData, currentIndex, indent + 1);
+    }
+
+    if (entry->storesData()) {
+        SkASSERT(currentIndex < SkTo<int>(keyData.size()));
+        const int dataLength = keyData[currentIndex++];
+        SkASSERT(currentIndex + dataLength < SkTo<int>(keyData.size()));
+        SkDebugf("%*c", (2 * indent + 1), ' ');
+        SkDebugf("Snippet data (size: %i): ", dataLength);
+
+        if (dataLength == 0) {
+            SkDebugf("0 (no data)\n");
+        } else {
+            for (int i = currentIndex; i < dataLength; i++) {
+                SkDebugf( "%d ", keyData[currentIndex + i]);
+            }
+            SkDebugf("\n");
+            currentIndex += dataLength;
+        }
     }
     return currentIndex;
 }

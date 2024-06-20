@@ -12,8 +12,8 @@
 
 namespace skgpu::graphite {
 
-PipelineDataGatherer::PipelineDataGatherer(const Caps* caps, Layout layout)
-        : fCaps(caps), fUniformManager(layout) {}
+PipelineDataGatherer::PipelineDataGatherer(Layout layout)
+        : fUniformManager(layout) {}
 
 void PipelineDataGatherer::resetWithNewLayout(Layout layout) {
     fUniformManager.resetWithNewLayout(layout);

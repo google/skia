@@ -335,8 +335,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                                                     : Layout::kStd140;
 
     PaintParamsKeyBuilder builder(dict);
-    PipelineDataGatherer gatherer(recorder->priv().caps(), layout);
-
+    PipelineDataGatherer gatherer(layout);
 
     auto [paint, paintOptions] = create_random_paint(fuzz, depth);
 
