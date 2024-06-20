@@ -92,7 +92,7 @@ struct GradientShaderBlocks {
         // This ctor is used during pre-compilation when we don't have enough information to
         // extract uniform data. However, we must be able to provide enough data to make all the
         // relevant decisions about which code snippets to use.
-        GradientData(SkShaderBase::GradientType, int numStops);
+        GradientData(SkShaderBase::GradientType, int numStops, bool useStorageBuffer);
 
         // This ctor is used when extracting information from PaintParams. It must provide
         // enough data to generate the uniform data the selected code snippet will require.

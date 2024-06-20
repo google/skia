@@ -316,7 +316,6 @@ static int write_color_and_offset_bufdata(int numStops,
                                            const SkGradientBaseShader* shader,
                                            PipelineDataGatherer* gatherer) {
     auto [dstData, bufferOffset] = gatherer->allocateGradientData(numStops, shader);
-
     if (dstData) {
         // Data doesn't already exist so we need to write it.
         for (int i = 0; i < numStops; i++) {
@@ -337,14 +336,19 @@ static int write_color_and_offset_bufdata(int numStops,
     return bufferOffset;
 }
 
-GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type, int numStops)
+GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type,
+                                                 int numStops,
+                                                 bool useStorageBuffer)
         : fType(type)
         , fPoints{{0.0f, 0.0f}, {0.0f, 0.0f}}
         , fRadii{0.0f, 0.0f}
         , fBias(0.0f)
         , fScale(0.0f)
         , fTM(SkTileMode::kClamp)
-        , fNumStops(numStops) {
+        , fNumStops(numStops)
+        , fUseStorageBuffer(useStorageBuffer)
+        , fSrcColors(nullptr)
+        , fSrcOffsets(nullptr) {
     sk_bzero(fColors, sizeof(fColors));
     sk_bzero(fOffsets, sizeof(fOffsets));
 }
@@ -410,7 +414,7 @@ void GradientShaderBlocks::AddBlock(const KeyContext& keyContext,
     auto dict = keyContext.dict();
 
     int bufferOffset = 0;
-    if (gradData.fNumStops > GradientData::kNumInternalStorageStops && gatherer) {
+    if (gradData.fNumStops > GradientData::kNumInternalStorageStops && keyContext.recorder()) {
         if (gradData.fUseStorageBuffer) {
             bufferOffset = write_color_and_offset_bufdata(gradData.fNumStops,
                                                           gradData.fSrcColors,
@@ -2273,7 +2277,7 @@ static void add_gradient_to_key(const KeyContext& keyContext,
     sk_sp<TextureProxy> proxy;
 
     bool useStorageBuffer = keyContext.caps()->storageBufferSupport() &&
-                                keyContext.caps()->storageBufferPreferred();
+                            keyContext.caps()->storageBufferPreferred();
     if (colorCount > GradientShaderBlocks::GradientData::kNumInternalStorageStops
             && !useStorageBuffer) {
         if (shader->cachedBitmap().empty()) {

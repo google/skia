@@ -477,10 +477,11 @@ public:
 
 private:
     /*
-     * The gradients currently have two specializations based on the number of stops.
+     * The gradients currently have three specializations based on the number of stops.
      */
-    inline static constexpr int kNumStopVariants = 2;
-    inline static constexpr int kStopVariants[kNumStopVariants] = { 4, 8 };
+    inline static constexpr int kNumStopVariants = 3;
+    inline static constexpr int kStopVariants[kNumStopVariants] =
+            { 4, 8, GradientShaderBlocks::GradientData::kNumInternalStorageStops+1 };
 
     int numIntrinsicCombinations() const override {
         return kNumStopVariants;
@@ -495,7 +496,12 @@ private:
         SkASSERT(intrinsicCombination < kNumStopVariants);
         SkASSERT(childCombination == 0);
 
-        GradientShaderBlocks::GradientData gradData(fType, kStopVariants[intrinsicCombination]);
+        bool useStorageBuffer = keyContext.caps()->storageBufferSupport() &&
+                                keyContext.caps()->storageBufferPreferred();
+
+        GradientShaderBlocks::GradientData gradData(fType,
+                                                    kStopVariants[intrinsicCombination],
+                                                    useStorageBuffer);
 
         constexpr SkAlphaType kAlphaType = kPremul_SkAlphaType;
         ColorSpaceTransformBlock::ColorSpaceTransformData csData(sk_srgb_singleton(), kAlphaType,
