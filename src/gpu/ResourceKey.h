@@ -387,6 +387,51 @@ static inline bool SkShouldPostMessageToBus(const UniqueKeyInvalidatedMsg_Graphi
     return msg.recorderID() == msgBusUniqueID;
 }
 
+/**
+ * This is a special key that doesn't have domain and can only be used in a dedicated cache.
+ * Unlike UniqueKey & ScratchKey, this key has compile time size (in number of uint32_t)
+ * and doesn't need dynamic allocations. In comparison, UniqueKey & ScratchKey will need
+ * dynamic allocation if a key is larger than 6 uint32_ts.
+ */
+template <size_t SizeInUInt32>
+class FixedSizeKey {
+public:
+    uint32_t hash() const { return fHash; }
+
+    bool operator==(const FixedSizeKey& that) const {
+        return fHash == that.fHash &&
+               0 == memcmp(fPackedData, that.fPackedData, sizeof(fPackedData));
+    }
+
+    class Builder {
+    public:
+        Builder(FixedSizeKey* key) : fKey(key) {}
+
+        void finish() {
+            SkASSERT(fKey);
+            fKey->fHash = ResourceKeyHash(fKey->fPackedData, sizeof(fKey->fPackedData));
+            fKey = nullptr;
+        }
+
+        uint32_t& operator[](int dataIdx) {
+            SkASSERT(fKey);
+            SkASSERT(SkToU32(dataIdx) < SizeInUInt32);
+            return fKey->fPackedData[dataIdx];
+        }
+
+    private:
+        FixedSizeKey* fKey = nullptr;
+    };
+
+    struct Hash {
+        uint32_t operator()(const FixedSizeKey& key) const { return key.hash(); }
+    };
+
+private:
+    uint32_t fHash = 0;
+    uint32_t fPackedData[SizeInUInt32] = {};
+};
+
 } // namespace skgpu
 
 #endif // skgpu_ResourceKey_DEFINED
