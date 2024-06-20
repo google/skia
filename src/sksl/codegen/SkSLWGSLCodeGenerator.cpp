@@ -45,10 +45,12 @@
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
+#include "src/sksl/ir/SkSLFieldSymbol.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLIRHelpers.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -3285,6 +3287,16 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
 
         case k_unpackUnorm4x8_IntrinsicKind:
             return this->assembleSimpleIntrinsic("unpack4x8unorm", call);
+
+        case k_loadFloatBuffer_IntrinsicKind: {
+            auto indexExpression = IRHelpers::LoadFloatBuffer(
+                                        fContext,
+                                        fCaps,
+                                        call.position(),
+                                        call.arguments()[0]->clone());
+
+            return this->assembleExpression(*indexExpression, Precedence::kExpression);
+        }
 
         case k_clamp_IntrinsicKind:
         case k_max_IntrinsicKind:

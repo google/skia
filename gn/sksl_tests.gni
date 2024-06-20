@@ -529,6 +529,7 @@ sksl_shared_tests = [
   "intrinsics/Length.sksl",
   "intrinsics/LessThan.sksl",
   "intrinsics/LessThanEqual.sksl",
+  "intrinsics/LoadFloatBuffer.sksl",
   "intrinsics/Log.sksl",
   "intrinsics/Log2.sksl",
   "intrinsics/MatrixCompMultES2.sksl",

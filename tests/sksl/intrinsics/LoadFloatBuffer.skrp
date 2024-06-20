@@ -1,0 +1,15 @@
+### Compilation failed:
+
+error: 2: unsized arrays are not permitted here
+    float floatData[];
+                    ^
+error: 1: interface blocks are not allowed in this kind of program
+layout(set=0, binding=0) buffer FloatBuffer {
+                                ^^^^^^^^^^^
+error: 8: unknown identifier 'loadFloatBuffer'
+    f = loadFloatBuffer(0);
+        ^^^^^^^^^^^^^^^
+error: 11: 'main' parameter must be 'float2' or 'vec2'
+half4 main() {
+^^^^^^^^^^^^
+4 errors

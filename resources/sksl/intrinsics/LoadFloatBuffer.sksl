@@ -1,0 +1,17 @@
+layout(set=0, binding=0) buffer FloatBuffer {
+    float floatData[];
+};
+
+// Avoid inlining so we can correctly test the intrinsic `loadFloatBuffer` adds the
+// Global requirement to this function in metal.
+void avoidInline(out float f) {
+    f = loadFloatBuffer(0);
+}
+
+half4 main() {
+    float f = 0;
+
+    avoidInline(f);
+
+    return half4(f);
+}

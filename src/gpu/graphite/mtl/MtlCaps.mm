@@ -213,6 +213,8 @@ void MtlCaps::initShaderCaps() {
 
     // Metal uses IEEE floats so assuming those values here.
     shaderCaps->fFloatIs32Bits = true;
+
+    shaderCaps->fFloatBufferArrayName = "fsGradientBuffer";
 }
 
 // Define this so we can use it to initialize arrays and work around

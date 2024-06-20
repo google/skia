@@ -24,6 +24,7 @@
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanYcbcrConversion.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
+#include "src/sksl/SkSLUtil.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>
@@ -155,6 +156,8 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     if (extensions->hasExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME, 1)) {
         fSupportsDeviceFaultInfo = true;
     }
+
+    fShaderCaps->fFloatBufferArrayName = "fsGradientBuffer";
 
     // Note that format table initialization should be performed at the end of this method to ensure
     // all capability determinations are completed prior to populating the format tables.

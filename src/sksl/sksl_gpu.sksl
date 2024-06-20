@@ -40,6 +40,8 @@ $pure half4 sampleLod(sampler2D s, float3 P, float lod);
 
 $pure half4 sampleGrad(sampler2D s, float2, float2 dPdx, float2 dPdy);
 
+$pure float loadFloatBuffer(int index);
+
 // Currently we do not support the generic types of loading subpassInput so we have some explicit
 // versions that we currently use
 $pure half4 subpassLoad(subpassInput subpass);
