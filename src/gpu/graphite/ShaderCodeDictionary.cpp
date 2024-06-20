@@ -1090,7 +1090,7 @@ static constexpr Uniform kYUVImageShaderUniforms[] = {
         { "channelSelectV",        SkSLType::kHalf4 },
         { "channelSelectA",        SkSLType::kHalf4 },
         { "yuvToRGBMatrix",        SkSLType::kHalf3x3 },
-        { "yuvToRGBTranslate",     SkSLType::kFloat3 },
+        { "yuvToRGBTranslate",     SkSLType::kHalf3 },
 };
 
 static constexpr Uniform kCubicYUVImageShaderUniforms[] = {
@@ -1105,7 +1105,7 @@ static constexpr Uniform kCubicYUVImageShaderUniforms[] = {
         { "channelSelectV",        SkSLType::kHalf4 },
         { "channelSelectA",        SkSLType::kHalf4 },
         { "yuvToRGBMatrix",        SkSLType::kHalf3x3 },
-        { "yuvToRGBTranslate",     SkSLType::kFloat3 },
+        { "yuvToRGBTranslate",     SkSLType::kHalf3 },
 };
 
 static constexpr Uniform kHWYUVImageShaderUniforms[] = {
@@ -1116,7 +1116,7 @@ static constexpr Uniform kHWYUVImageShaderUniforms[] = {
         { "channelSelectV",        SkSLType::kHalf4 },
         { "channelSelectA",        SkSLType::kHalf4 },
         { "yuvToRGBMatrix",        SkSLType::kHalf3x3 },
-        { "yuvToRGBTranslate",     SkSLType::kFloat3 },
+        { "yuvToRGBTranslate",     SkSLType::kHalf3 },
 };
 
 static constexpr TextureAndSampler kYUVISTexturesAndSamplers[] = {

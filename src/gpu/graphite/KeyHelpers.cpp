@@ -729,7 +729,7 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
         gatherer->writeHalf(imgData.fChannelSelect[i]);
     }
     gatherer->writeHalf(imgData.fYUVtoRGBMatrix);
-    gatherer->write(imgData.fYUVtoRGBTranslate);
+    gatherer->writeHalf(imgData.fYUVtoRGBTranslate);
 }
 
 void add_cubic_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
@@ -749,7 +749,7 @@ void add_cubic_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
         gatherer->writeHalf(imgData.fChannelSelect[i]);
     }
     gatherer->writeHalf(imgData.fYUVtoRGBMatrix);
-    gatherer->write(imgData.fYUVtoRGBTranslate);
+    gatherer->writeHalf(imgData.fYUVtoRGBTranslate);
 }
 
 void add_hw_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
@@ -763,7 +763,7 @@ void add_hw_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
         gatherer->writeHalf(imgData.fChannelSelect[i]);
     }
     gatherer->writeHalf(imgData.fYUVtoRGBMatrix);
-    gatherer->write(imgData.fYUVtoRGBTranslate);
+    gatherer->writeHalf(imgData.fYUVtoRGBTranslate);
 }
 
 } // anonymous namespace
