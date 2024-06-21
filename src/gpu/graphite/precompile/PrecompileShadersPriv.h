@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_FactoryFunctionsPriv_DEFINED
-#define skgpu_graphite_FactoryFunctionsPriv_DEFINED
+#ifndef skgpu_graphite_precompile_PrecompileShadersPriv_DEFINED
+#define skgpu_graphite_precompile_PrecompileShadersPriv_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "src/base/SkEnumBitMask.h"
-#include "src/gpu/graphite/FactoryFunctions.h"
 
 namespace skgpu::graphite {
 
@@ -24,6 +24,7 @@ SK_MAKE_BITMASK_OPS(PrecompileImageShaderFlags)
 
 //--------------------------------------------------------------------------------------------------
 namespace PrecompileShadersPriv {
+    // -- The first 6 factories are used to implement ImageFilters
     sk_sp<PrecompileShader> Blur(sk_sp<PrecompileShader> wrapped);
 
     sk_sp<PrecompileShader> Displacement(sk_sp<PrecompileShader> displacement,
@@ -42,6 +43,8 @@ namespace PrecompileShadersPriv {
     // the usage is revised.
     sk_sp<PrecompileShader> CTM(SkSpan<const sk_sp<PrecompileShader>> wrapped);
 
+    // The remaining factories are special cases used to reduce the combinatorics of the
+    // precompilation system.
     sk_sp<PrecompileShader> Image(SkEnumBitMask<PrecompileImageShaderFlags>);
 
     sk_sp<PrecompileShader> RawImage(SkEnumBitMask<PrecompileImageShaderFlags>);
@@ -59,4 +62,4 @@ namespace PrecompileShadersPriv {
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_FactoryFunctionsPriv_DEFINED
+#endif // skgpu_graphite_precompile_PrecompileShadersPriv_DEFINED
