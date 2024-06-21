@@ -26,9 +26,6 @@ skia_filegroup(
 skia_filegroup(
     name = "ganesh_public_hdrs",
     srcs = [
-        "GrVkBackendContext.h",
-        "GrVkExtensions.h",
-        "GrVkMemoryAllocator.h",
         "GrVkTypes.h",
     ],
 )

@@ -12,10 +12,6 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
 
-using GrVkBackendMemory = skgpu::VulkanBackendMemory;
-using GrVkAlloc = skgpu::VulkanAlloc;
-using GrVkYcbcrConversionInfo = skgpu::VulkanYcbcrConversionInfo;
-
 /*
  * When wrapping a GrBackendTexture or GrBackendRendenderTarget, the fCurrentQueueFamily should
  * either be VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_EXTERNAL, or VK_QUEUE_FAMILY_FOREIGN_EXT. If
@@ -57,8 +53,6 @@ struct GrVkImageInfo {
         return equal;
     }
 };
-
-using GrVkGetProc = skgpu::VulkanGetProc;
 
 /**
  * This object is wrapped in a GrBackendDrawableInfo and passed in as an argument to
