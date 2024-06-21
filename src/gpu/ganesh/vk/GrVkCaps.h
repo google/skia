@@ -8,7 +8,7 @@
 #ifndef GrVkCaps_DEFINED
 #define GrVkCaps_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -431,7 +431,7 @@ private:
 
     VkFormat fPreferredStencilFormat;
 
-    skia_private::STArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
+    skia_private::STArray<1, skgpu::VulkanYcbcrConversionInfo> fYcbcrInfos;
 
     bool fMustSyncCommandBuffersWithQueue = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;

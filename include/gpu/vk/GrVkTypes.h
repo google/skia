@@ -23,20 +23,20 @@ using GrVkYcbcrConversionInfo = skgpu::VulkanYcbcrConversionInfo;
  * queue index passed into Skia.
  */
 struct GrVkImageInfo {
-    VkImage                  fImage = VK_NULL_HANDLE;
-    skgpu::VulkanAlloc       fAlloc;
-    VkImageTiling            fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    VkImageLayout            fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    VkFormat                 fFormat = VK_FORMAT_UNDEFINED;
-    VkImageUsageFlags        fImageUsageFlags = 0;
-    uint32_t                 fSampleCount = 1;
-    uint32_t                 fLevelCount = 0;
-    uint32_t                 fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
-    skgpu::Protected         fProtected = skgpu::Protected::kNo;
-    GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
-    VkSharingMode            fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    VkImage                           fImage = VK_NULL_HANDLE;
+    skgpu::VulkanAlloc                fAlloc;
+    VkImageTiling                     fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+    VkImageLayout                     fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkFormat                          fFormat = VK_FORMAT_UNDEFINED;
+    VkImageUsageFlags                 fImageUsageFlags = 0;
+    uint32_t                          fSampleCount = 1;
+    uint32_t                          fLevelCount = 0;
+    uint32_t                          fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+    skgpu::Protected                  fProtected = skgpu::Protected::kNo;
+    skgpu::VulkanYcbcrConversionInfo  fYcbcrConversionInfo;
+    VkSharingMode                     fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    bool                     fPartOfSwapchainOrAndroidWindow = false;
+    bool                              fPartOfSwapchainOrAndroidWindow = false;
 #endif
 
     bool operator==(const GrVkImageInfo& that) const {
@@ -100,7 +100,7 @@ struct GrVkSurfaceInfo {
     VkImageTiling fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     VkFormat fFormat = VK_FORMAT_UNDEFINED;
     VkImageUsageFlags fImageUsageFlags = 0;
-    GrVkYcbcrConversionInfo fYcbcrConversionInfo;
+    skgpu::VulkanYcbcrConversionInfo fYcbcrConversionInfo;
     VkSharingMode fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 };
 

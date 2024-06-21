@@ -9,6 +9,7 @@
 #define GrVkSampler_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "src/core/SkChecksum.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 #include "src/gpu/ganesh/vk/GrVkSamplerYcbcrConversion.h"
@@ -21,7 +22,9 @@ class GrVkGpu;
 
 class GrVkSampler : public GrVkManagedResource {
 public:
-    static GrVkSampler* Create(GrVkGpu* gpu, GrSamplerState, const GrVkYcbcrConversionInfo&);
+    static GrVkSampler* Create(GrVkGpu* gpu,
+                               GrSamplerState,
+                               const skgpu::VulkanYcbcrConversionInfo&);
 
     VkSampler sampler() const { return fSampler; }
     const VkSampler* samplerPtr() const { return &fSampler; }
@@ -44,7 +47,7 @@ public:
     SK_END_REQUIRE_DENSE
 
     // Helpers for hashing GrVkSampler
-    static Key GenerateKey(GrSamplerState, const GrVkYcbcrConversionInfo&);
+    static Key GenerateKey(GrSamplerState, const skgpu::VulkanYcbcrConversionInfo&);
 
     static const Key& GetKey(const GrVkSampler& sampler) { return sampler.fKey; }
     static uint32_t Hash(const Key& key) {

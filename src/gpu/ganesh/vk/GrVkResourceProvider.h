@@ -8,7 +8,7 @@
 #ifndef GrVkResourceProvider_DEFINED
 #define GrVkResourceProvider_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkTInternalLList.h"
@@ -128,14 +128,14 @@ public:
     GrVkDescriptorPool* findOrCreateCompatibleDescriptorPool(VkDescriptorType type, uint32_t count);
 
     // Finds or creates a compatible GrVkSampler based on the GrSamplerState and
-    // GrVkYcbcrConversionInfo. The refcount is incremented and a pointer returned.
+    // skgpu::VulkanYcbcrConversionInfo. The refcount is incremented and a pointer returned.
     GrVkSampler* findOrCreateCompatibleSampler(GrSamplerState,
-                                               const GrVkYcbcrConversionInfo& ycbcrInfo);
+                                               const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo);
 
     // Finds or creates a compatible GrVkSamplerYcbcrConversion based on the GrSamplerState and
-    // GrVkYcbcrConversionInfo. The refcount is incremented and a pointer returned.
+    // skgpu::VulkanYcbcrConversionInfo. The refcount is incremented and a pointer returned.
     GrVkSamplerYcbcrConversion* findOrCreateCompatibleSamplerYcbcrConversion(
-            const GrVkYcbcrConversionInfo& ycbcrInfo);
+            const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo);
 
     GrVkPipelineState* findOrCreateCompatiblePipelineState(
             GrRenderTarget*,

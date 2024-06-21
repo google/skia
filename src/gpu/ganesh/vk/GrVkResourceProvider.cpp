@@ -225,7 +225,7 @@ GrVkDescriptorPool* GrVkResourceProvider::findOrCreateCompatibleDescriptorPool(
 }
 
 GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(
-        GrSamplerState params, const GrVkYcbcrConversionInfo& ycbcrInfo) {
+        GrSamplerState params, const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo) {
     GrVkSampler* sampler = fSamplers.find(GrVkSampler::GenerateKey(params, ycbcrInfo));
     if (!sampler) {
         sampler = GrVkSampler::Create(fGpu, params, ycbcrInfo);
@@ -240,7 +240,7 @@ GrVkSampler* GrVkResourceProvider::findOrCreateCompatibleSampler(
 }
 
 GrVkSamplerYcbcrConversion* GrVkResourceProvider::findOrCreateCompatibleSamplerYcbcrConversion(
-        const GrVkYcbcrConversionInfo& ycbcrInfo) {
+        const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo) {
     GrVkSamplerYcbcrConversion* ycbcrConversion =
             fYcbcrConversions.find(GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo));
     if (!ycbcrConversion) {

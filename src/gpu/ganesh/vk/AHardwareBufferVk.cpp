@@ -12,6 +12,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
@@ -100,7 +101,7 @@ GrBackendFormat GetVulkanBackendFormat(GrDirectContext* dContext, AHardwareBuffe
         return GrBackendFormat();
     }
 
-    GrVkYcbcrConversionInfo ycbcrConversion;
+    skgpu::VulkanYcbcrConversionInfo ycbcrConversion;
     GetYcbcrConversionInfoFromFormatProps(&ycbcrConversion, hwbFormatProps);
 
     return GrBackendFormats::MakeVk(ycbcrConversion);
@@ -193,7 +194,7 @@ static GrBackendTexture make_vk_backend_texture(
     externalFormat.pNext = nullptr;
     externalFormat.externalFormat = 0;  // If this is zero it is as if we aren't using this struct.
 
-    const GrVkYcbcrConversionInfo* ycbcrConversion =
+    const skgpu::VulkanYcbcrConversionInfo* ycbcrConversion =
             GrBackendFormats::GetVkYcbcrConversionInfo(grBackendFormat);
     if (!ycbcrConversion) {
         return GrBackendTexture();

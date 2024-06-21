@@ -10,7 +10,7 @@
 
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "src/core/SkChecksum.h"
 
 #include <cinttypes>
@@ -19,7 +19,8 @@ class GrVkGpu;
 
 class GrVkSamplerYcbcrConversion : public GrVkManagedResource {
 public:
-    static GrVkSamplerYcbcrConversion* Create(GrVkGpu* gpu, const GrVkYcbcrConversionInfo&);
+    static GrVkSamplerYcbcrConversion* Create(GrVkGpu* gpu,
+                                              const skgpu::VulkanYcbcrConversionInfo&);
 
     VkSamplerYcbcrConversion ycbcrConversion() const { return fYcbcrConversion; }
 
@@ -45,7 +46,7 @@ public:
     SK_END_REQUIRE_DENSE
 
     // Helpers for hashing GrVkSamplerYcbcrConversion
-    static Key GenerateKey(const GrVkYcbcrConversionInfo& ycbcrInfo);
+    static Key GenerateKey(const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo);
 
     static const Key& GetKey(const GrVkSamplerYcbcrConversion& ycbcrConversion) {
         return ycbcrConversion.fKey;

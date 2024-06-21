@@ -14,6 +14,7 @@
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -30,11 +31,13 @@
 
 class GrVkBackendFormatData final : public GrBackendFormatData {
 public:
-    GrVkBackendFormatData(VkFormat format, const GrVkYcbcrConversionInfo& ycbcrInfo)
+    GrVkBackendFormatData(VkFormat format, const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo)
             : fFormat(format), fYcbcrConversionInfo(ycbcrInfo) {}
 
     VkFormat asVkFormat() const { return fFormat; }
-    const GrVkYcbcrConversionInfo* getYcbcrConversionInfo() const { return &fYcbcrConversionInfo; }
+    const skgpu::VulkanYcbcrConversionInfo* getYcbcrConversionInfo() const {
+        return &fYcbcrConversionInfo;
+    }
 
 private:
     SkTextureCompressionType compressionType() const override {
@@ -91,7 +94,7 @@ private:
         // If we have a ycbcr we remove it from the backend format and set the VkFormat to
         // R8G8B8A8_UNORM
         if (fYcbcrConversionInfo.isValid()) {
-            fYcbcrConversionInfo = GrVkYcbcrConversionInfo();
+            fYcbcrConversionInfo = skgpu::VulkanYcbcrConversionInfo();
             fFormat = VK_FORMAT_R8G8B8A8_UNORM;
         }
     }
@@ -101,7 +104,7 @@ private:
 #endif
 
     VkFormat fFormat;
-    GrVkYcbcrConversionInfo fYcbcrConversionInfo;
+    skgpu::VulkanYcbcrConversionInfo fYcbcrConversionInfo;
 };
 
 static const GrVkBackendFormatData* get_and_cast_data(const GrBackendFormat& format) {
@@ -116,10 +119,11 @@ GrBackendFormat MakeVk(VkFormat format, bool willUseDRMFormatModifiers) {
     return GrBackendSurfacePriv::MakeGrBackendFormat(
             GrTextureType::k2D,
             GrBackendApi::kVulkan,
-            GrVkBackendFormatData(format, GrVkYcbcrConversionInfo{}));
+            GrVkBackendFormatData(format, skgpu::VulkanYcbcrConversionInfo{}));
 }
 
-GrBackendFormat MakeVk(const GrVkYcbcrConversionInfo& ycbcrInfo, bool willUseDRMFormatModifiers) {
+GrBackendFormat MakeVk(const skgpu::VulkanYcbcrConversionInfo& ycbcrInfo,
+                       bool willUseDRMFormatModifiers) {
     SkASSERT(ycbcrInfo.isValid());
     GrTextureType textureType =
             ((ycbcrInfo.isValid() && ycbcrInfo.fExternalFormat) || willUseDRMFormatModifiers)
@@ -142,7 +146,7 @@ bool AsVkFormat(const GrBackendFormat& format, VkFormat* vkFormat) {
     return false;
 }
 
-const GrVkYcbcrConversionInfo* GetVkYcbcrConversionInfo(const GrBackendFormat& format) {
+const skgpu::VulkanYcbcrConversionInfo* GetVkYcbcrConversionInfo(const GrBackendFormat& format) {
     if (format.isValid() && format.backend() == GrBackendApi::kVulkan) {
         const GrVkBackendFormatData* data = get_and_cast_data(format);
         SkASSERT(data);

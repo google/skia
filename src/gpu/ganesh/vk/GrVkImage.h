@@ -14,6 +14,7 @@
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/GpuRefCnt.h"
 #include "src/gpu/ganesh/GrAttachment.h"
@@ -91,7 +92,7 @@ public:
         return GrBackendFormats::MakeVk(this->imageFormat(), usesDRMModifier);
     }
     uint32_t mipLevels() const { return fInfo.fLevelCount; }
-    const GrVkYcbcrConversionInfo& ycbcrConversionInfo() const {
+    const skgpu::VulkanYcbcrConversionInfo& ycbcrConversionInfo() const {
         // Should only be called when we have a real fResource object, i.e. never when being used as
         // a RT in an external secondary command buffer.
         SkASSERT(fResource);
