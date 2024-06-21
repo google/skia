@@ -721,17 +721,21 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     }
 
     DWRITE_FONT_FACE_TYPE fontType = fDWriteFontFace->GetType();
-    if (fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE &&
-        fontType != DWRITE_FONT_FACE_TYPE_CFF &&
-        fontType != DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION &&
-        fontType != DWRITE_FONT_FACE_TYPE_OPENTYPE_COLLECTION)
+    if (fontType == DWRITE_FONT_FACE_TYPE_TRUETYPE ||
+        fontType == DWRITE_FONT_FACE_TYPE_TRUETYPE_COLLECTION)
     {
+        info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
+    } else if (fontType == DWRITE_FONT_FACE_TYPE_CFF ||
+               fontType == DWRITE_FONT_FACE_TYPE_OPENTYPE_COLLECTION)
+    {
+        info->fType = SkAdvancedTypefaceMetrics::kCFF_Font;
+    } else {
         return info;
     }
 
-    // Simulated fonts aren't really TrueType fonts.
-    if (fDWriteFontFace->GetSimulations() == DWRITE_FONT_SIMULATIONS_NONE) {
-        info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
+    // Simulated fonts aren't really OpenType fonts.
+    if (fDWriteFontFace->GetSimulations() != DWRITE_FONT_SIMULATIONS_NONE) {
+        info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
     }
 
     AutoTDWriteTable<SkOTTableHead> headTable(fDWriteFontFace.get());

@@ -537,13 +537,14 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Mac::onGetAdvancedMetrics(
     constexpr SkFontTableTag glyf = SkSetFourByteTag('g','l','y','f');
     constexpr SkFontTableTag loca = SkSetFourByteTag('l','o','c','a');
     constexpr SkFontTableTag CFF  = SkSetFourByteTag('C','F','F',' ');
-    if (!((this->getTableSize(glyf) && this->getTableSize(loca)) ||
-           this->getTableSize(CFF)))
-    {
+    if (this->getTableSize(glyf) && this->getTableSize(loca)) {
+        info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
+    } else if (this->getTableSize(CFF)) {
+        info->fType = SkAdvancedTypefaceMetrics::kCFF_Font;
+    } else {
         return info;
     }
 
-    info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     CTFontSymbolicTraits symbolicTraits = CTFontGetSymbolicTraits(ctFont.get());
     if (symbolicTraits & kCTFontMonoSpaceTrait) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
