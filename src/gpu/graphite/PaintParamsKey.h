@@ -144,6 +144,7 @@ public:
 
     void addData(SkSpan<const uint32_t> data) {
         // First push the data size followed by the actual data.
+        SkDEBUGCODE(this->validateData(data.size()));
         fData.push_back(data.size());
         fData.push_back_n(data.size(), data.begin());
     }
@@ -177,6 +178,7 @@ private:
 
 #ifdef SK_DEBUG
     void pushStack(int32_t codeSnippetID);
+    void validateData(size_t dataSize);
     void popStack();
 
     // Information about the current block being written
@@ -184,6 +186,7 @@ private:
         int fCodeSnippetID;
         int fNumExpectedChildren;
         int fNumActualChildren = 0;
+        int fDataSize = -1;
     };
 
     const ShaderCodeDictionary* fDict;

@@ -41,9 +41,21 @@ void PaintParamsKeyBuilder::pushStack(int32_t codeSnippetID) {
     fStack.push_back({codeSnippetID, snippet->fNumChildren});
 }
 
+void PaintParamsKeyBuilder::validateData(size_t dataSize) {
+    SkASSERT(!fStack.empty()); // addData() called within code snippet block
+
+    const ShaderSnippet* snippet = fDict->getEntry(fStack.back().fCodeSnippetID);
+    SkASSERT(snippet->storesData()); // addData() only called for ShaderSnippets that support it
+    SkASSERT(fStack.back().fDataSize < 0); // And only called once
+    fStack.back().fDataSize = SkTo<int>(dataSize);
+}
+
 void PaintParamsKeyBuilder::popStack() {
     SkASSERT(!fStack.empty());
     SkASSERT(fStack.back().fNumActualChildren == fStack.back().fNumExpectedChildren);
+    const bool expectsData = fDict->getEntry(fStack.back().fCodeSnippetID)->storesData();
+    const bool hasData = fStack.back().fDataSize >= 0;
+    SkASSERT(expectsData == hasData);
     fStack.pop_back();
 }
 

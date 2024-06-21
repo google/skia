@@ -685,13 +685,13 @@ void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
 
     if (doTilingInHw) {
         add_hw_image_uniform_data(keyContext.dict(), imgData, gatherer);
-        builder->addBlock(BuiltInCodeSnippetID::kHWImageShader);
+        builder->beginBlock(BuiltInCodeSnippetID::kHWImageShader);
     } else if (imgData.fSampling.useCubic) {
         add_cubic_image_uniform_data(keyContext.dict(), imgData, gatherer);
-        builder->addBlock(BuiltInCodeSnippetID::kCubicImageShader);
+        builder->beginBlock(BuiltInCodeSnippetID::kCubicImageShader);
     } else {
         add_image_uniform_data(keyContext.dict(), imgData, gatherer);
-        builder->addBlock(BuiltInCodeSnippetID::kImageShader);
+        builder->beginBlock(BuiltInCodeSnippetID::kImageShader);
     }
 
     static constexpr SkTileMode kDefaultTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
@@ -704,6 +704,8 @@ void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
                              info};
     gatherer->add(imgData.fTextureProxy, samplerDesc);
     add_sampler_data_to_key(builder, samplerDesc);
+
+    builder->endBlock();
 }
 
 //--------------------------------------------------------------------------------------------------
