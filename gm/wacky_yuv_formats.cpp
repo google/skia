@@ -229,8 +229,12 @@ const SkYUVColorSpace color_space_array[] = {
     kRec709_Limited_SkYUVColorSpace,
     kBT2020_8bit_Full_SkYUVColorSpace,          //!< describes UHDTV range, non-constant-luminance
     kBT2020_8bit_Limited_SkYUVColorSpace,
+    kBT2020_10bit_Full_SkYUVColorSpace,
     kBT2020_10bit_Limited_SkYUVColorSpace,
     kBT2020_12bit_Full_SkYUVColorSpace,
+    kBT2020_12bit_Limited_SkYUVColorSpace,
+    kBT2020_16bit_Full_SkYUVColorSpace,
+    kBT2020_16bit_Limited_SkYUVColorSpace,
     kFCC_Limited_SkYUVColorSpace,               //!< describes FCC range
     kSMPTE240_Limited_SkYUVColorSpace,          //!< describes SMPTE240M range
     kYDZDX_Limited_SkYUVColorSpace,             //!< describes YDZDX range
@@ -238,8 +242,11 @@ const SkYUVColorSpace color_space_array[] = {
     kYCgCo_8bit_Full_SkYUVColorSpace,           //!< describes YCgCo matrix
     kYCgCo_8bit_Limited_SkYUVColorSpace,
     kYCgCo_10bit_Full_SkYUVColorSpace,
+    kYCgCo_10bit_Limited_SkYUVColorSpace,
     kYCgCo_12bit_Full_SkYUVColorSpace,
     kYCgCo_12bit_Limited_SkYUVColorSpace,
+    kYCgCo_16bit_Full_SkYUVColorSpace,
+    kYCgCo_16bit_Limited_SkYUVColorSpace,
     kIdentity_SkYUVColorSpace
 };
 
@@ -710,11 +717,12 @@ static int create_YUV(const PlaneData& planes,
 }
 
 static void draw_col_label(SkCanvas* canvas, int x, int yuvColorSpace, bool opaque) {
-    static const char* kYUVColorSpaceNames[] = {"JPEG",     "601",      "709F",     "709L",
-                                                "2020_8F",  "2020_8L",  "2020_10L", "2020_12F",
-                                                "FCCL",     "SMPTE240L","YDZDXL",   "GBRL",
-                                                "YCGCO_8F", "YCGCO_8L", "YCGCO_10F","YCGCO_12F",
-                                                "YCGCO_12L","Identity"};
+    static const char* kYUVColorSpaceNames[] = {
+            "JPEG",      "601",       "709F",      "709L",      "2020_8F",
+            "2020_8L",   "2020_10F",  "2020_10L",  "2020_12F",  "2020_12L",
+            "2020_16F",  "2020_16L",  "FCCL",      "SMPTE240L", "YDZDXL",
+            "GBRL",      "YCGCO_8F",  "YCGCO_8L",  "YCGCO_10F", "YCGCO_10L",
+            "YCGCO_12F", "YCGCO_12L", "YCGCO_16F", "YCGCO_16L", "Identity"};
     static_assert(std::size(kYUVColorSpaceNames) == std::size(color_space_array));
 
     SkPaint paint;

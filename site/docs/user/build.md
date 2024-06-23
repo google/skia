@@ -113,7 +113,7 @@ To pull new changes and rebuild:
 
 ```
 git pull
-python tools/git-sync-deps
+python3 tools/git-sync-deps
 ninja -C out/Static
 ```
 
