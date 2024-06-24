@@ -907,7 +907,9 @@ public:
     }
 
     void gpuTeardown() override {
-        reinterpret_cast<BouncingTaggedImagesStage*>(fStage.get())->reset();
+        if (fStage) {
+            reinterpret_cast<BouncingTaggedImagesStage*>(fStage.get())->reset();
+        }
     }
 };
 
