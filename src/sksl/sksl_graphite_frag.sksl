@@ -697,7 +697,7 @@ half4 $colorize_grad_buf(int bufferOffset, int numStops, float2 t) {
 $pure float2 $linear_grad_layout(float2 pos) {
     // Add small epsilon since when the gradient is horizontally or vertically aligned,
     // pixels along the same column or row can have slightly different interpolated t values
-    // causing pixels to choose the wrong offset when colorizing. This helps ensure pixels 
+    // causing pixels to choose the wrong offset when colorizing. This helps ensure pixels
     // along the same column or row choose the same gradient offsets.
     return float2(pos.x + 0.00001, 1);
 }
@@ -982,8 +982,7 @@ $pure half4 sk_conical_grad_buf_shader(float2 coords,
                                        int bufferOffset,
                                        int tileMode,
                                        int colorSpace,
-                                       int doUnpremul,
-                                       sampler2D colorAndOffsetSampler) {
+                                       int doUnpremul) {
     float2 t = $conical_grad_layout(radius0Param, dRadiusParam, aParam, invAParam, coords);
     t = $tile_grad(tileMode, t);
     half4 color = $colorize_grad_buf(bufferOffset, numStops, t);
