@@ -128,6 +128,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     desc.requiredFeatureCount  = features.size();
     desc.requiredFeatures      = features.data();
     desc.nextInChain           = &togglesDesc;
+    desc.deviceLostCallbackInfo.mode = wgpu::CallbackMode::AllowSpontaneous;
     desc.deviceLostCallbackInfo.callback =
         [](WGPUDeviceImpl *const *, WGPUDeviceLostReason reason, const char* message, void*) {
             if (reason != WGPUDeviceLostReason_Destroyed) {
