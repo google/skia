@@ -290,7 +290,7 @@ static void swizzle_gray_to_n32(
     src += offset;
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     for (int x = 0; x < dstWidth; x++) {
-        dst[x] = SkPackARGB32NoCheck(0xFF, *src, *src, *src);
+        dst[x] = SkPackARGB32(0xFF, *src, *src, *src);
         src += deltaSrc;
     }
 }
@@ -329,7 +329,7 @@ static void swizzle_grayalpha_to_n32_unpremul(
     src += offset;
     SkPMColor* dst32 = (SkPMColor*) dst;
     for (int x = 0; x < width; x++) {
-        dst32[x] = SkPackARGB32NoCheck(src[1], src[0], src[0], src[0]);
+        dst32[x] = SkPackARGB32(src[1], src[0], src[0], src[0]);
         src += deltaSrc;
     }
 }
@@ -355,7 +355,7 @@ static void swizzle_grayalpha_to_n32_premul(
     SkPMColor* dst32 = (SkPMColor*) dst;
     for (int x = 0; x < width; x++) {
         uint8_t pmgray = SkMulDiv255Round(src[1], src[0]);
-        dst32[x] = SkPackARGB32NoCheck(src[1], pmgray, pmgray, pmgray);
+        dst32[x] = SkPackARGB32(src[1], pmgray, pmgray, pmgray);
         src += deltaSrc;
     }
 }

@@ -446,7 +446,7 @@ DEF_SIMPLE_GM(scalepixels_unpremul, canvas, 1080, 280) {
     pm.alloc(info);
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            *pm.writable_addr32(x, y) = SkPackARGB32NoCheck(0, (y << 4) | y, (x << 4) | x, 0xFF);
+            *pm.writable_addr32(x, y) = SkPackARGB32(0, (y << 4) | y, (x << 4) | x, 0xFF);
         }
     }
     SkAutoPixmapStorage pm2;

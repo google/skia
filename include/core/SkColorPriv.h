@@ -100,22 +100,20 @@ static inline U8CPU SkUnitScalarClampToByte(SkScalar x) {
 #define SkB32Assert(b)  SkASSERT((unsigned)(b) <= SK_B32_MASK)
 
 /**
- *  Pack the components into a SkPMColor, checking (in the debug version) that
- *  the components are 0..255, and are already premultiplied (i.e. alpha >= color)
+ *  Pack the components into a SkPMColor
  */
 static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     SkA32Assert(a);
-    SkASSERT(r <= a);
-    SkASSERT(g <= a);
-    SkASSERT(b <= a);
+    SkR32Assert(r);
+    SkG32Assert(g);
+    SkB32Assert(b);
 
     return (a << SK_A32_SHIFT) | (r << SK_R32_SHIFT) |
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
 }
 
 /**
- *  Same as SkPackARGB32, but this version guarantees to not check that the
- *  values are premultiplied in the debug version.
+ *  Legacy "NoCheck" version of SkPackARGB32. Remove this once all callers are updated.
  */
 static inline SkPMColor SkPackARGB32NoCheck(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     return (a << SK_A32_SHIFT) | (r << SK_R32_SHIFT) |
