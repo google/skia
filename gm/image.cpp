@@ -203,7 +203,7 @@ static void draw_pixmap(SkCanvas* canvas, const SkPixmap& pmap) {
     canvas->drawImage(bitmap.asImage(), 0, 0);
 }
 
-static void show_scaled_pixels(SkCanvas* canvas, SkImage* image) {
+static void show_scaled_pixels(SkCanvas* canvas, SkImage* image, bool useImageScaling) {
     SkAutoCanvasRestore acr(canvas, true);
 
     canvas->drawImage(image, 0, 0);
@@ -220,8 +220,14 @@ static void show_scaled_pixels(SkCanvas* canvas, SkImage* image) {
     for (auto ch : chints) {
         canvas->save();
         for (auto s : gSamplings) {
-            if (image->scalePixels(storage, s, ch)) {
-                draw_pixmap(canvas, storage);
+            if (useImageScaling) {
+                if (auto scaled = image->makeScaled(info, s)) {
+                    canvas->drawImage(scaled, 0, 0);
+                }
+            } else {
+                if (image->scalePixels(storage, s, ch)) {
+                    draw_pixmap(canvas, storage);
+                }
             }
             canvas->translate(70, 0);
         }
@@ -287,10 +293,16 @@ typedef sk_sp<SkImage> (*ImageMakerProc)(const SkImageInfo&,
 
 class ScalePixelsGM : public skiagm::GM {
 public:
-    ScalePixelsGM() {}
+    ScalePixelsGM(bool useImageScaling) : fUseImageScaling(useImageScaling) {}
 
 protected:
-    SkString getName() const override { return SkString("scale-pixels"); }
+    SkString getName() const override {
+        auto str = SkString("scale-pixels");
+        if (fUseImageScaling) {
+            str += "-via-image";
+        }
+        return str;
+    }
 
     SkISize getISize() override { return SkISize::Make(960, 1200); }
 
@@ -303,7 +315,7 @@ protected:
         for (auto& proc : procs) {
             sk_sp<SkImage> image(proc(info, canvas->recordingContext(), draw_contents));
             if (image) {
-                show_scaled_pixels(canvas, image.get());
+                show_scaled_pixels(canvas, image.get(), fUseImageScaling);
             }
             canvas->translate(0, 120);
         }
@@ -311,8 +323,10 @@ protected:
 
 private:
     using INHERITED = skiagm::GM;
+    bool fUseImageScaling;
 };
-DEF_GM( return new ScalePixelsGM; )
+DEF_GM( return new ScalePixelsGM(false); )
+DEF_GM( return new ScalePixelsGM(true); )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

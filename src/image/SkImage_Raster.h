@@ -27,6 +27,7 @@ class GrRecordingContext;
 class SkColorSpace;
 class SkData;
 class SkPixmap;
+class SkSurface;
 enum SkColorType : int;
 struct SkIRect;
 struct SkImageInfo;
@@ -54,6 +55,8 @@ public:
     sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
                                 const SkIRect&,
                                 RequiredProperties) const override;
+
+    sk_sp<SkSurface> onMakeSurface(skgpu::graphite::Recorder*, const SkImageInfo&) const override;
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 

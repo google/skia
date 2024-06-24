@@ -8,9 +8,13 @@
 #include "include/core/SkImage.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkColorSpacePriv.h"
@@ -42,6 +46,30 @@ bool SkImage::peekPixels(SkPixmap* pm) const {
 bool SkImage::readPixels(GrDirectContext* dContext, const SkImageInfo& dstInfo, void* dstPixels,
                          size_t dstRowBytes, int srcX, int srcY, CachingHint chint) const {
     return as_IB(this)->onReadPixels(dContext, dstInfo, dstPixels, dstRowBytes, srcX, srcY, chint);
+}
+
+sk_sp<SkImage> SkImage::makeScaled(skgpu::graphite::Recorder* recorder,
+                                   const SkImageInfo& newInfo,
+                                   const SkSamplingOptions& sampling) const {
+    if (!SkImageInfoIsValid(newInfo)) {
+        return nullptr;
+    }
+    if (newInfo == this->imageInfo()) {
+        return sk_ref_sp(this);
+    }
+
+    auto surf = as_IB(this)->onMakeSurface(recorder, newInfo);
+    if (!surf) {
+        return nullptr;
+    }
+
+    SkPaint paint;
+    paint.setBlendMode(SkBlendMode::kSrc);
+    surf->getCanvas()->drawImageRect(this,
+                                     SkRect::MakeIWH(newInfo.width(), newInfo.height()),
+                                     sampling,
+                                     &paint);
+    return surf->makeImageSnapshot();
 }
 
 #ifndef SK_IMAGE_READ_PIXELS_DISABLE_LEGACY_API

@@ -32,6 +32,7 @@ class SkBitmap;
 class SkColorSpace;
 class SkImage;
 class SkMatrix;
+class SkSurface;
 enum GrSurfaceOrigin : int;
 enum SkAlphaType : int;
 enum SkColorType : int;
@@ -67,6 +68,8 @@ public:
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const final;
 
     sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect& subset) const final;
+
+    sk_sp<SkSurface> onMakeSurface(skgpu::graphite::Recorder*, const SkImageInfo&) const override;
 
     bool onReadPixels(GrDirectContext* dContext,
                       const SkImageInfo& dstInfo,

@@ -10,6 +10,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Surface.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/Image_Graphite.h"
@@ -192,6 +193,13 @@ sk_sp<SkImage> Image_Base::onMakeSubset(Recorder* recorder,
                            requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,
                            SkBackingFit::kExact,
                            label);
+}
+
+sk_sp<SkSurface> Image_Base::onMakeSurface(Recorder* recorder, const SkImageInfo& info) const {
+    if (!recorder) {
+        return nullptr;
+    }
+    return SkSurfaces::RenderTarget(recorder, info);
 }
 
 sk_sp<SkImage> Image_Base::makeColorTypeAndColorSpace(Recorder* recorder,

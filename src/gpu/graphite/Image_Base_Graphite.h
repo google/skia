@@ -72,6 +72,8 @@ public:
 
     sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
 
+    sk_sp<SkSurface> onMakeSurface(Recorder*, const SkImageInfo&) const override;
+
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
                                                 sk_sp<SkColorSpace>,
                                                 GrDirectContext*) const override;
