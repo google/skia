@@ -12,6 +12,7 @@
 
 namespace SkSL {
 
+enum class PrettyPrint : bool;
 class OutputStream;
 struct Program;
 struct ShaderCaps;
@@ -19,6 +20,7 @@ struct ShaderCaps;
 /**
  * Converts a Program into Metal code.
  */
+bool ToMetal(Program& program, const ShaderCaps* caps, OutputStream& out, PrettyPrint);
 bool ToMetal(Program& program, const ShaderCaps* caps, OutputStream& out);
 bool ToMetal(Program& program, const ShaderCaps* caps, std::string* out);
 

@@ -4,15 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "include/core/SkStream.h"
 #include "src/base/SkStringView.h"
+#include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/codegen/SkSLCodeGenTypes.h"
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLHLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
@@ -20,7 +21,9 @@
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
+#include "src/sksl/codegen/SkSLSPIRVValidator.h"
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLWGSLValidator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -36,16 +39,18 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#if defined(SK_COMPILE_WITH_GN)
+namespace SkOpts {
+    size_t raster_pipeline_highp_stride = 1;
+}
+
 void SkDebugf(const char format[], ...) {
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);
     va_end(args);
 }
-
-namespace SkOpts {
-    size_t raster_pipeline_highp_stride = 1;
-}
+#endif
 
 static std::unique_ptr<SkWStream> as_SkWStream(SkSL::OutputStream& s) {
     struct Adapter : public SkWStream {
@@ -633,7 +638,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
                                  const SkSL::ShaderCaps* shaderCaps,
                                  SkSL::Program& program,
                                  SkSL::OutputStream& out) {
-            return SkSL::ToSPIRV(program, shaderCaps, out);
+            return SkSL::ToSPIRV(program, shaderCaps, out, SkSL::ValidateSPIRVAndDissassemble);
         });
     } else if (skstd::ends_with(outputPath, ".asm.frag") ||
                skstd::ends_with(outputPath, ".asm.vert") ||
@@ -645,7 +650,10 @@ static ResultCode process_command(SkSpan<std::string> args) {
                    SkSL::OutputStream& out) {
                     // Compile program to SPIR-V assembly in a string-stream.
                     SkSL::StringStream assembly;
-                    if (!SkSL::ToSPIRV(program, shaderCaps, assembly)) {
+                    if (!SkSL::ToSPIRV(program,
+                                       shaderCaps,
+                                       assembly,
+                                       SkSL::ValidateSPIRVAndDissassemble)) {
                         return false;
                     }
                     // Convert the string-stream to a SPIR-V disassembly.
@@ -665,29 +673,38 @@ static ResultCode process_command(SkSpan<std::string> args) {
                     return true;
                 });
     } else if (skstd::ends_with(outputPath, ".glsl")) {
-        return compileProgram(
-                [](SkSL::Compiler& compiler,
-                   const SkSL::ShaderCaps* shaderCaps,
-                   SkSL::Program& program,
-                   SkSL::OutputStream& out) { return SkSL::ToGLSL(program, shaderCaps, out); });
+        return compileProgram([](SkSL::Compiler& compiler,
+                                 const SkSL::ShaderCaps* shaderCaps,
+                                 SkSL::Program& program,
+                                 SkSL::OutputStream& out) {
+            return SkSL::ToGLSL(program, shaderCaps, out, SkSL::PrettyPrint::kYes);
+        });
     } else if (skstd::ends_with(outputPath, ".metal")) {
-        return compileProgram(
-                [](SkSL::Compiler& compiler,
-                   const SkSL::ShaderCaps* shaderCaps,
-                   SkSL::Program& program,
-                   SkSL::OutputStream& out) { return SkSL::ToMetal(program, shaderCaps, out); });
+        return compileProgram([](SkSL::Compiler& compiler,
+                                 const SkSL::ShaderCaps* shaderCaps,
+                                 SkSL::Program& program,
+                                 SkSL::OutputStream& out) {
+            return SkSL::ToMetal(program, shaderCaps, out, SkSL::PrettyPrint::kYes);
+        });
     } else if (skstd::ends_with(outputPath, ".hlsl")) {
-        return compileProgram(
-                [](SkSL::Compiler& compiler,
-                   const SkSL::ShaderCaps* shaderCaps,
-                   SkSL::Program& program,
-                   SkSL::OutputStream& out) { return SkSL::ToHLSL(program, shaderCaps, out); });
+        return compileProgram([](SkSL::Compiler& compiler,
+                                 const SkSL::ShaderCaps* shaderCaps,
+                                 SkSL::Program& program,
+                                 SkSL::OutputStream& out) {
+            return SkSL::ToHLSL(program, shaderCaps, out, SkSL::ValidateSPIRVAndDissassemble);
+        });
     } else if (skstd::ends_with(outputPath, ".wgsl")) {
-        return compileProgram(
-                [](SkSL::Compiler& compiler,
-                   const SkSL::ShaderCaps* shaderCaps,
-                   SkSL::Program& program,
-                   SkSL::OutputStream& out) { return SkSL::ToWGSL(program, shaderCaps, out); });
+        return compileProgram([](SkSL::Compiler& compiler,
+                                 const SkSL::ShaderCaps* shaderCaps,
+                                 SkSL::Program& program,
+                                 SkSL::OutputStream& out) {
+            return SkSL::ToWGSL(program,
+                                shaderCaps,
+                                out,
+                                SkSL::PrettyPrint::kYes,
+                                SkSL::IncludeSyntheticCode::kYes,
+                                SkSL::ValidateWGSL);
+        });
     } else if (skstd::ends_with(outputPath, ".skrp")) {
         settings.fMaxVersionAllowed = SkSL::Version::k300;
         return compileProgramAsRuntimeShader([&](SkSL::Compiler& compiler,

@@ -4,11 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/sksl/SkSLModuleData.h"
 
 #include "include/core/SkString.h"
-#include "src/sksl/SkSLModuleData.h"
+#include "src/utils/SkGetExecutablePath.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/SkGetExecutablePath.h"
 
 #include <fstream>
 

@@ -9,7 +9,6 @@ in their WORKSPACE.bazel file.
 
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS", "DEFAULT_OBJC_COPTS")
 load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
-load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 load(
     "//bazel:generate_cpp_files_for_headers.bzl",
     _generate_cpp_files_for_headers = "generate_cpp_files_for_headers",
@@ -129,20 +128,6 @@ def skia_cc_test(name, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **kwa
         **kwargs: All the normal arguments that cc_binary takes.
     """
     native.cc_test(name = name, copts = copts, linkopts = linkopts, **kwargs)
-
-def skia_cc_binary_with_flags(
-        name,
-        copts = DEFAULT_COPTS,
-        linkopts = DEFAULT_LINKOPTS,
-        set_flags = None,
-        **kwargs):
-    cc_binary_with_flags(
-        name = name,
-        copts = copts,
-        linkopts = linkopts,
-        set_flags = set_flags,
-        **kwargs
-    )
 
 def skia_cc_library(name, copts = DEFAULT_COPTS, local_defines = [], **kwargs):
     """A wrapper around cc_library for Skia C++ libraries.

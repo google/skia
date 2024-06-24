@@ -19,7 +19,6 @@ load(
     _generate_cpp_files_for_headers = "generate_cpp_files_for_headers",
     _select_multi = "select_multi",
     _skia_cc_binary = "skia_cc_binary",
-    _skia_cc_binary_with_flags = "skia_cc_binary_with_flags",
     _skia_cc_deps = "skia_cc_deps",
     _skia_cc_library = "skia_cc_library",
     _skia_filegroup = "skia_filegroup",
@@ -43,7 +42,6 @@ generate_cpp_files_for_headers = _generate_cpp_files_for_headers
 exports_files_legacy = _exports_files_legacy
 select_multi = _select_multi
 skia_cc_binary = _skia_cc_binary
-skia_cc_binary_with_flags = _skia_cc_binary_with_flags
 skia_cc_deps = _skia_cc_deps
 skia_cc_library = _skia_cc_library
 skia_filegroup = _skia_filegroup

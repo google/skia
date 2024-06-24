@@ -1,3 +1,4 @@
+load("//bazel:flags.bzl", "bool_flag")
 load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
@@ -809,6 +810,14 @@ skia_filegroup(
     srcs = ["SkBlitBWMaskTemplate.h"],
 )
 
+# When running skslc or sksl-minify, we don't want to use the compiled-in SkSL sources
+# because that causes a dependency cycle. This flag lets us instead load the sources
+# from disk to break the cycle and affect the files we want.
+bool_flag(
+    name = "load_sksl_from_disk",
+    default = False,
+)
+
 skia_cc_library(
     name = "core",
     srcs = [
@@ -824,7 +833,10 @@ skia_cc_library(
         "//src/sksl/codegen:rasterpipeline_srcs",
         "//src/text:core_srcs",
         "//src/utils:core_srcs",
-    ],
+    ] + select({
+        ":load_sksl_from_disk_true": ["//src/sksl:sksl_skslc_module_srcs"],
+        ":load_sksl_from_disk_false": ["//src/sksl:sksl_default_module_srcs"],
+    }),
     hdrs = [
         "//include/codec:core_hdrs",
         "//include/core:core_hdrs",
@@ -850,7 +862,10 @@ skia_cc_library(
         "//src/base",
         "//src/opts",
         "//src/sksl:generated_sksl",
-    ],
+    ] + select({
+        ":load_sksl_from_disk_true": ["//src/utils:get_executable_path"],
+        ":load_sksl_from_disk_false": [],
+    }),
 )
 
 skia_cc_library(

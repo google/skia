@@ -33,6 +33,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
+#include "src/sksl/codegen/SkSLCodeGenTypes.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -88,12 +89,6 @@
 #include <string>
 #include <string_view>
 #include <utility>
-
-#ifdef SK_ENABLE_WGSL_VALIDATION
-#include "tint/tint.h"
-#include "src/tint/lang/wgsl/reader/options.h"
-#include "src/tint/lang/wgsl/extension.h"
-#endif
 
 using namespace skia_private;
 
@@ -168,13 +163,16 @@ public:
     WGSLCodeGenerator(const Context* context,
                       const ShaderCaps* caps,
                       const Program* program,
-                      OutputStream* out)
-            : INHERITED(context, caps, program, out) {}
+                      OutputStream* out,
+                      PrettyPrint pp,
+                      IncludeSyntheticCode isc)
+            : CodeGenerator(context, caps, program, out)
+            , fPrettyPrint(pp)
+            , fGenSyntheticCode(isc) {}
 
     bool generateCode() override;
 
 private:
-    using INHERITED = CodeGenerator;
     using Precedence = OperatorPrecedence;
 
     // Called by generateCode() as the first step.
@@ -387,6 +385,8 @@ private:
     bool fWrittenInverse2 = false;
     bool fWrittenInverse3 = false;
     bool fWrittenInverse4 = false;
+    PrettyPrint fPrettyPrint;
+    IncludeSyntheticCode fGenSyntheticCode;
 
     // These fields control uniform polyfill support in cases where WGSL and std140 disagree.
     // In std140 layout, matrices need to be represented as arrays of @size(16)-aligned vectors, and
@@ -996,7 +996,7 @@ private:
     bool visitProgramElement(const ProgramElement& p) override {
         // Only visit the program that matches the requested function.
         if (p.is<FunctionDefinition>() && &p.as<FunctionDefinition>().declaration() == fFunction) {
-            return INHERITED::visitProgramElement(p);
+            return ProgramVisitor::visitProgramElement(p);
         }
         // Continue visiting other program elements.
         return false;
@@ -1043,15 +1043,13 @@ private:
                 fDeps |= calleeDeps;
             }
         }
-        return INHERITED::visitExpression(e);
+        return ProgramVisitor::visitExpression(e);
     }
 
     const Program* const fProgram;
     const FunctionDeclaration* const fFunction;
     DepsMap* const fDependencyMap;
     Deps fDeps = WGSLFunctionDependency::kNone;
-
-    using INHERITED = ProgramVisitor;
 };
 
 WGSLCodeGenerator::ProgramRequirements resolve_program_requirements(const Program* program) {
@@ -1553,13 +1551,11 @@ void WGSLCodeGenerator::write(std::string_view s) {
     if (s.empty()) {
         return;
     }
-#if defined(SK_DEBUG) || defined(SKSL_STANDALONE)
-    if (fAtLineStart) {
+    if (fAtLineStart && fPrettyPrint == PrettyPrint::kYes) {
         for (int i = 0; i < fIndentation; i++) {
             fOut->writeText("  ");
         }
     }
-#endif
     fOut->writeText(std::string(s).c_str());
     fAtLineStart = false;
 }
@@ -1797,8 +1793,8 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     SkASSERT(main.declaration().isMain());
     const ProgramKind programKind = fProgram.fConfig->fKind;
 
-#if defined(SKSL_STANDALONE)
-    if (ProgramConfig::IsRuntimeShader(programKind)) {
+    if (fGenSyntheticCode == IncludeSyntheticCode::kYes &&
+        ProgramConfig::IsRuntimeShader(programKind)) {
         // Synthesize a basic entrypoint which just calls straight through to main.
         // This is only used by skslc and just needs to pass the WGSL validator; Skia won't ever
         // emit functions like this.
@@ -1810,7 +1806,6 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         this->writeLine("}");
         return;
     }
-#endif
 
     // The input and output parameters for a vertex/fragment stage entry point function have the
     // FSIn/FSOut/VSIn/VSOut/CSIn struct types that have been synthesized in generateCode(). An
@@ -1863,18 +1858,16 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         this->writeLine("Out;");
     }
 
-#if defined(SKSL_STANDALONE)
     // We are compiling a Runtime Effect as a fragment shader, for testing purposes. We assign the
     // result from _skslMain into sk_FragColor if the user-defined main returns a color. This
     // doesn't actually matter, but it is more indicative of what a real program would do.
     // `addImplicitFragColorWrite` from Transform::FindAndDeclareBuiltinVariables has already
     // injected sk_FragColor into our stage outputs even if it wasn't explicitly referenced.
-    if (ProgramConfig::IsFragment(programKind)) {
+    if (fGenSyntheticCode == IncludeSyntheticCode::kYes && ProgramConfig::IsFragment(programKind)) {
         if (main.declaration().returnType().matches(*fContext.fTypes.fHalf4)) {
             this->write("_stageOut.sk_FragColor = ");
         }
     }
-#endif
 
     // Generate a function call to the user-defined main.
     this->write("_skslMain(");
@@ -1891,21 +1884,22 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
         }
     }
 
-#if defined(SKSL_STANDALONE)
-    if (const Variable* v = main.declaration().getMainCoordsParameter()) {
-        // We are compiling a Runtime Effect as a fragment shader, for testing purposes.
-        // We need to synthesize a coordinates parameter, but the coordinates don't matter.
-        SkASSERT(ProgramConfig::IsFragment(programKind));
-        const Type& type = v->type();
-        if (!type.matches(*fContext.fTypes.fFloat2)) {
-            fContext.fErrors->error(main.fPosition, "main function has unsupported parameter: " +
-                                                    type.description());
-            return;
+    if (fGenSyntheticCode == IncludeSyntheticCode::kYes) {
+        if (const Variable* v = main.declaration().getMainCoordsParameter()) {
+            // We are compiling a Runtime Effect as a fragment shader, for testing purposes.
+            // We need to synthesize a coordinates parameter, but the coordinates don't matter.
+            SkASSERT(ProgramConfig::IsFragment(programKind));
+            const Type& type = v->type();
+            if (!type.matches(*fContext.fTypes.fFloat2)) {
+                fContext.fErrors->error(
+                        main.fPosition,
+                        "main function has unsupported parameter: " + type.description());
+                return;
+            }
+            this->write(separator());
+            this->write("/*fragcoord*/ vec2<f32>()");
         }
-        this->write(separator());
-        this->write("/*fragcoord*/ vec2<f32>()");
     }
-#endif
 
     this->writeLine(");");
 
@@ -4556,69 +4550,46 @@ bool WGSLCodeGenerator::writeFunctionDependencyParams(const FunctionDeclaration&
     return true;
 }
 
-#if defined(SK_ENABLE_WGSL_VALIDATION)
-static bool validate_wgsl(ErrorReporter& reporter, const std::string& wgsl, std::string* warnings) {
-    // Enable the WGSL optional features that Skia might rely on.
-    tint::wgsl::reader::Options options;
-    for (auto extension : {tint::wgsl::Extension::kChromiumExperimentalPixelLocal,
-                           tint::wgsl::Extension::kDualSourceBlending}) {
-        options.allowed_features.extensions.insert(extension);
-    }
-
-    // Verify that the WGSL we produced is valid.
-    tint::Source::File srcFile("", wgsl);
-    tint::Program program(tint::wgsl::reader::Parse(&srcFile, options));
-
-    if (program.Diagnostics().ContainsErrors()) {
-        // The program isn't valid WGSL.
-#if defined(SKSL_STANDALONE)
-        reporter.error(Position(), std::string("Tint compilation failed.\n\n") + wgsl);
-#else
-        // In debug, report the error via SkDEBUGFAIL. We also append the generated program for
-        // ease of debugging.
-        tint::diag::Formatter diagFormatter;
-        std::string diagOutput = diagFormatter.Format(program.Diagnostics()).Plain();
-        diagOutput += "\n";
-        diagOutput += wgsl;
-        SkDEBUGFAILF("%s", diagOutput.c_str());
-#endif
-        return false;
-    }
-
-    if (!program.Diagnostics().empty()) {
-        // The program contains warnings. Report them as-is.
-        tint::diag::Formatter diagFormatter;
-        *warnings = diagFormatter.Format(program.Diagnostics()).Plain();
-    }
-    return true;
-}
-#endif  // defined(SK_ENABLE_WGSL_VALIDATION)
-
-bool ToWGSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
+bool ToWGSL(Program& program,
+            const ShaderCaps* caps,
+            OutputStream& out,
+            PrettyPrint pp,
+            IncludeSyntheticCode isc,
+            ValidateWGSLProc validateWGSL) {
     TRACE_EVENT0("skia.shaders", "SkSL::ToWGSL");
     SkASSERT(caps != nullptr);
 
     program.fContext->fErrors->setSource(*program.fSource);
-#ifdef SK_ENABLE_WGSL_VALIDATION
-    StringStream wgsl;
-    WGSLCodeGenerator cg(program.fContext.get(), caps, &program, &wgsl);
-    bool result = cg.generateCode();
-    if (result) {
-        std::string wgslString = wgsl.str();
-        std::string warnings;
-        result = validate_wgsl(*program.fContext->fErrors, wgslString, &warnings);
-        if (!warnings.empty()) {
-            out.writeText("/* Tint reported warnings. */\n\n");
+    bool result;
+    if (validateWGSL) {
+        StringStream wgsl;
+        WGSLCodeGenerator cg(program.fContext.get(), caps, &program, &wgsl, pp, isc);
+        result = cg.generateCode();
+        if (result) {
+            std::string_view wgslBytes = wgsl.str();
+            std::string warnings;
+            result = validateWGSL(*program.fContext->fErrors, wgslBytes, &warnings);
+            if (!warnings.empty()) {
+                out.writeText("/* Tint reported warnings. */\n\n");
+            }
+            out.write(wgslBytes.data(), wgslBytes.size());
         }
-        out.writeString(wgslString);
+    } else {
+        WGSLCodeGenerator cg(program.fContext.get(), caps, &program, &out, pp, isc);
+        result = cg.generateCode();
     }
-#else
-    WGSLCodeGenerator cg(program.fContext.get(), caps, &program, &out);
-    bool result = cg.generateCode();
-#endif
     program.fContext->fErrors->setSource(std::string_view());
 
     return result;
+}
+
+bool ToWGSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
+#if defined(SK_DEBUG)
+    constexpr PrettyPrint defaultPrintOpts = PrettyPrint::kYes;
+#else
+    constexpr PrettyPrint defaultPrintOpts = PrettyPrint::kNo;
+#endif
+    return ToWGSL(program, caps, out, defaultPrintOpts, IncludeSyntheticCode::kNo, nullptr);
 }
 
 bool ToWGSL(Program& program, const ShaderCaps* caps, std::string* out) {

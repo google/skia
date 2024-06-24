@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "tools/SkGetExecutablePath.h"
-#include <cstddef>
+#include "src/utils/SkGetExecutablePath.h"
+
 #include <linux/limits.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <cstddef>
 
 // Note that /proc/self/exe is Linux-specific; this won't work on other UNIX systems.
 

@@ -556,11 +556,11 @@ if (skia_compile_modules) {
     ]
     libs = []
     if (is_win) {
-      sources += [ "tools/SkGetExecutablePath_win.cpp" ]
+      sources += [ "src/utils/SkGetExecutablePath_win.cpp" ]
     } else if (is_mac || is_ios) {
-      sources += [ "tools/SkGetExecutablePath_mac.cpp" ]
+      sources += [ "src/utils/SkGetExecutablePath_mac.cpp" ]
     } else if (is_linux || is_android) {
-      sources += [ "tools/SkGetExecutablePath_linux.cpp" ]
+      sources += [ "src/utils/SkGetExecutablePath_linux.cpp" ]
     }
     if (is_win) {
       sources += skia_ports_windows_sources
@@ -568,9 +568,8 @@ if (skia_compile_modules) {
       sources += [ "src/ports/SkOSFile_posix.cpp" ]
       libs += [ "dl" ]
     }
-    sources += skia_sksl_sources
-    sources += skia_sksl_gpu_sources
-    sources -= skia_sksl_default_module_sources
+    sources += skia_sksl_core_sources
+    sources += skia_sksl_codegen_sources
     include_dirs = [ "." ]
     deps = [ ":run_sksllex" ]
   }
@@ -674,9 +673,7 @@ if (skia_compile_sksl_tests) {
     defines = [
       "SKSL_STANDALONE",
       "SK_DISABLE_TRACING",
-      "SK_ENABLE_SPIRV_CROSS",
-      "SK_ENABLE_SPIRV_VALIDATION",
-      "SK_ENABLE_WGSL_VALIDATION",
+      "SK_COMPILE_WITH_GN",
     ]
     sources = skslc_deps
     sources += [
@@ -686,11 +683,11 @@ if (skia_compile_sksl_tests) {
     ]
     libs = []
     if (is_win) {
-      sources += [ "tools/SkGetExecutablePath_win.cpp" ]
+      sources += [ "src/utils/SkGetExecutablePath_win.cpp" ]
     } else if (is_mac || is_ios) {
-      sources += [ "tools/SkGetExecutablePath_mac.cpp" ]
+      sources += [ "src/utils/SkGetExecutablePath_mac.cpp" ]
     } else if (is_linux || is_android) {
-      sources += [ "tools/SkGetExecutablePath_linux.cpp" ]
+      sources += [ "src/utils/SkGetExecutablePath_linux.cpp" ]
     }
     if (is_win) {
       sources += skia_ports_windows_sources
@@ -698,10 +695,13 @@ if (skia_compile_sksl_tests) {
       sources += [ "src/ports/SkOSFile_posix.cpp" ]
       libs += [ "dl" ]
     }
-    sources += skia_sksl_sources
-    sources += skia_sksl_gpu_sources
+    sources += skia_sksl_codegen_sources
+    sources += skia_sksl_core_sources
+    sources += skia_sksl_hlsl_sources
+    sources += skia_sksl_pipeline_sources
     sources += skia_sksl_tracing_sources
-    sources -= skia_sksl_default_module_sources
+    sources += skia_sksl_validate_spirv_sources
+    sources += skia_sksl_validate_wgsl_sources
     include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
@@ -845,7 +845,9 @@ optional("gpu_shared") {
   public_deps = []
   frameworks = []
 
-  sources = skia_shared_gpu_sources + skia_sksl_gpu_sources
+  sources = skia_shared_gpu_sources
+  sources += skia_sksl_pipeline_sources
+  sources += skia_sksl_codegen_sources
 
   if (skia_use_dawn) {
     public_defines += [ "SK_DAWN" ]
@@ -876,9 +878,7 @@ optional("gpu_shared") {
   }
 
   if (skia_use_direct3d) {
-    # Must be defined when 'skia_sksl_gpu_sources' is built, even if the rest of skia_use_direct3d
-    # is handled only in the 'gpu' component.
-    public_defines += [ "SK_ENABLE_SPIRV_CROSS" ]
+    sources += skia_sksl_hlsl_sources
     deps += [ "//third_party/spirv-cross:spirv_cross" ]
   }
 
@@ -1466,7 +1466,8 @@ skia_component("skia") {
   sources += skia_codec_core
   sources += skia_codec_decode_bmp
   sources += skia_encode_srcs
-  sources += skia_sksl_sources
+  sources += skia_sksl_core_sources
+  sources += skia_sksl_default_module_sources
   sources += skia_sksl_tracing_sources
   sources += skia_ports_sources
   sources += [
@@ -2768,7 +2769,6 @@ if (skia_enable_tools) {
 
     if (is_android) {
       sources += [
-        "tools/SkGetExecutablePath_linux.cpp",
         "tools/sk_app/android/Window_android.cpp",
         "tools/sk_app/android/Window_android.h",
         "tools/sk_app/android/main_android.cpp",
@@ -2778,7 +2778,6 @@ if (skia_enable_tools) {
       libs += [ "android" ]
     } else if (is_linux) {
       sources += [
-        "tools/SkGetExecutablePath_linux.cpp",
         "tools/sk_app/unix/Window_unix.cpp",
         "tools/sk_app/unix/Window_unix.h",
         "tools/sk_app/unix/keysym2ucs.c",
@@ -2791,14 +2790,12 @@ if (skia_enable_tools) {
       ]
     } else if (is_win) {
       sources += [
-        "tools/SkGetExecutablePath_win.cpp",
         "tools/sk_app/win/Window_win.cpp",
         "tools/sk_app/win/Window_win.h",
         "tools/sk_app/win/main_win.cpp",
       ]
     } else if (is_mac) {
       sources += [
-        "tools/SkGetExecutablePath_mac.cpp",
         "tools/sk_app/mac/Window_mac.h",
         "tools/sk_app/mac/Window_mac.mm",
         "tools/sk_app/mac/main_mac.mm",
@@ -2810,7 +2807,6 @@ if (skia_enable_tools) {
       ]
     } else if (is_ios) {
       sources += [
-        "tools/SkGetExecutablePath_mac.cpp",
         "tools/sk_app/ios/Window_ios.h",
         "tools/sk_app/ios/Window_ios.mm",
         "tools/sk_app/ios/main_ios.mm",

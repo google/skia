@@ -12,11 +12,13 @@
 
 namespace SkSL {
 
+enum class PrettyPrint : bool;
 class OutputStream;
 struct Program;
 struct ShaderCaps;
 
 /** Converts a Program into GLSL code. */
+bool ToGLSL(Program& program, const ShaderCaps* caps, OutputStream& out, PrettyPrint);
 bool ToGLSL(Program& program, const ShaderCaps* caps, OutputStream& out);
 bool ToGLSL(Program& program, const ShaderCaps* caps, std::string* out);
 

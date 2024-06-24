@@ -13,6 +13,7 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVtoHLSL.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -23,25 +24,28 @@
 
 namespace SkSL {
 
-bool ToHLSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
+bool ToHLSL(Program& program,
+            const ShaderCaps* caps,
+            OutputStream& out,
+            ValidateSPIRVProc validateSPIRV) {
     TRACE_EVENT0("skia.shaders", "SkSL::ToHLSL");
     std::string hlsl;
-    if (!ToHLSL(program, caps, &hlsl)) {
+    if (!ToHLSL(program, caps, &hlsl, validateSPIRV)) {
         return false;
     }
     out.writeString(hlsl);
     return true;
 }
 
-bool ToHLSL(Program& program, const ShaderCaps* caps, std::string* out) {
+bool ToHLSL(Program& program,
+            const ShaderCaps* caps,
+            std::string* out,
+            ValidateSPIRVProc validateSPIRV) {
     std::string spirv;
-    if (!ToSPIRV(program, caps, &spirv)) {
+    if (!ToSPIRV(program, caps, &spirv, validateSPIRV)) {
         return false;
     }
-    if (!SPIRVtoHLSL(spirv, out)) {
-        program.fContext->fErrors->error(Position(), "HLSL cross-compilation not enabled");
-        return false;
-    }
+    SPIRVtoHLSL(spirv, out);
     return true;
 }
 

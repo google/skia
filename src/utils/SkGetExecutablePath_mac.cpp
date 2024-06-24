@@ -5,7 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "tools/SkGetExecutablePath.h"
+#include "src/utils/SkGetExecutablePath.h"
+
 #include <mach-o/dyld.h>
 
 std::string SkGetExecutablePath() {

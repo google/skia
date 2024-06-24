@@ -12,13 +12,28 @@
 
 namespace SkSL {
 
+class ErrorReporter;
 class OutputStream;
+enum class PrettyPrint : bool;
 struct Program;
 struct ShaderCaps;
+
+enum class IncludeSyntheticCode : bool {
+    kNo = false,
+    kYes = true,
+};
+
+using ValidateWGSLProc = bool (*)(ErrorReporter&, std::string_view wgsl, std::string* warnings);
 
 /**
  * Convert a Program into WGSL code.
  */
+bool ToWGSL(Program& program,
+            const ShaderCaps* caps,
+            OutputStream& out,
+            PrettyPrint,
+            IncludeSyntheticCode,
+            ValidateWGSLProc);
 bool ToWGSL(Program& program, const ShaderCaps* caps, OutputStream& out);
 bool ToWGSL(Program& program, const ShaderCaps* caps, std::string* out);
 

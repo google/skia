@@ -31,15 +31,6 @@ GENERAL_DEFINES = [
     ],
     "//conditions:default": [],
 }) + select({
-    "//src/sksl:enable_skslc_true": [
-        "SKSL_STANDALONE",
-        "SK_DISABLE_TRACING",
-        "SK_ENABLE_SPIRV_CROSS",
-        "SK_ENABLE_SPIRV_VALIDATION",
-        "SK_ENABLE_WGSL_VALIDATION",
-    ],
-    "//conditions:default": [],
-}) + select({
     "//src/pdf:enable_pdf_backend_true": ["SK_SUPPORT_PDF"],
     "//conditions:default": [],
 }) + select({

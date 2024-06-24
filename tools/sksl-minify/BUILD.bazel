@@ -1,5 +1,5 @@
 load("//bazel:macros.bzl", "py_binary")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary_with_flags")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -37,15 +37,12 @@ py_binary(
     tags = ["no-remote"],
 )
 
-skia_cc_binary_with_flags(
+skia_cc_binary(
     name = "sksl_minify",
     srcs = ["SkSLMinify.cpp"],
-    set_flags = {
-        "enable_skslc": ["True"],
-    },
     deps = [
-        "//:skia_internal",
-        "//tools:get_executable_path",
+        "//:core",
+        "//src/utils:get_executable_path",
         "//tools/skslc:process_worklist",
     ],
 )
@@ -126,10 +123,17 @@ if result.returncode != 0:
 
 genrule(
     name = "create_sksl_minify_tests_script",
+    # By putting sksl_minify in srcs, this will be compiled for
+    # the target platform, not the exec platform. This shouldn't
+    # cause any problems unless the outputs of the minifying are
+    # used as the inputs to another step, because then cross-compiling
+    # would break (as we would be unable to, for example, run the
+    # "compiled for android sksl_minify" on the exec machine that
+    # is running the Python script.
+    srcs = [":sksl_minify"],
     outs = ["sksl_minify_tests.py"],
     cmd = "echo '%s' > $@" % _SKSL_MINIFY_TESTS,
     tools = [
-        ":sksl_minify",
         ":test_input_list.txt",
         "//gn:minify_sksl_tests",
     ],

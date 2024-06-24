@@ -17,8 +17,8 @@
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/transform/SkSLTransform.h"
+#include "src/utils/SkGetExecutablePath.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/SkGetExecutablePath.h"
 #include "tools/skslc/ProcessWorklist.h"
 
 #include <cctype>

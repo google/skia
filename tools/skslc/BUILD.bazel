@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary_with_flags", "skia_cc_library", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary", "skia_cc_library", "skia_filegroup")
 load(":compile_sksl.bzl", "compile_sksl")
 
 package(
@@ -9,17 +9,22 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-skia_cc_binary_with_flags(
+skia_cc_binary(
     name = "skslc",
     srcs = [
         "Main.cpp",
     ],
-    set_flags = {
-        "enable_skslc": ["True"],
-    },
     deps = [
         ":process_worklist",
-        "//:skia_internal",
+        "//:core",
+        "//src/sksl/codegen:glsl",
+        "//src/sksl/codegen:gpu",
+        "//src/sksl/codegen:hlsl",
+        "//src/sksl/codegen:metal",
+        "//src/sksl/codegen:spirv",
+        "//src/sksl/codegen:spirv_validator",
+        "//src/sksl/codegen:wgsl",
+        "//src/sksl/codegen:wgsl_validator",
         "@spirv_tools",
     ],
 )
@@ -29,7 +34,7 @@ skia_cc_library(
     srcs = ["ProcessWorklist.cpp"],
     hdrs = ["ProcessWorklist.h"],
     visibility = ["//tools/sksl-minify:__pkg__"],
-    deps = ["//:skia_internal"],
+    deps = ["//:core"],
 )
 
 skia_filegroup(
@@ -41,7 +46,7 @@ skia_filegroup(
 )
 
 # Invoke these using:
-#     bazel run //tools/skslc:compile_glsl_tests
+#     bazel run //tools/skslc:compile_glsl_tests --config=compile_sksl
 compile_sksl(
     name = "glsl_tests",
     inputs = ":glsl_tests_with_settings",
@@ -131,10 +136,18 @@ sys.exit(result.returncode)
 
 genrule(
     name = "create_sksl_compile_tests_script",
+    # By putting skslc in srcs, this will be compiled for
+    # the target platform, not the exec platform. Importantly, this means that the
+    # Bazel config (e.g. no_config) will properly be applied to it. This shouldn't
+    # cause any problems unless the outputs of the compilation are
+    # used as the inputs to another step, because then cross-compiling
+    # would break (as we would be unable to, for example, run the
+    # "compiled for android skslc" on the exec machine that
+    # is running the Python script.
+    srcs = [":skslc"],
     outs = ["sksl_compile_tests.py"],
     cmd = "echo '%s' > $@" % _SKSL_COMPILE_TESTS,
     tools = [
-        ":skslc",
         "//gn:compile_sksl_tests",
     ],
 )

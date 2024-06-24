@@ -61,6 +61,7 @@ skia_filegroup(
     srcs = [
         "SkSLModuleDataFile.cpp",
     ],
+    visibility = ["//src/core:__pkg__"],
 )
 
 skia_filegroup(
@@ -68,6 +69,7 @@ skia_filegroup(
     srcs = [
         "SkSLModuleDataDefault.cpp",
     ],
+    visibility = ["//src/core:__pkg__"],
 )
 
 SKSL_SRCS = [
@@ -143,33 +145,21 @@ selects.config_setting_group(
     name = "use_sksl_gpu_srcs",
     match_any = [
         "//src/gpu:has_ganesh_backend",
-        ":enable_skslc_true",
     ],
     visibility = ["//:__subpackages__"],
-)
-
-bool_flag(
-    name = "enable_skslc",
-    default = False,
 )
 
 skia_filegroup(
     name = "srcs",
     srcs = [
+        ":sksl_default_module_srcs",
         ":sksl_srcs",
         "//src/sksl/analysis:srcs",
         "//src/sksl/codegen:srcs",
         "//src/sksl/ir:srcs",
         "//src/sksl/tracing:srcs",
         "//src/sksl/transform:srcs",
-    ] + select({
-        "//src/sksl:enable_skslc_true": [
-            ":sksl_skslc_module_srcs",
-        ],
-        "//conditions:default": [
-            ":sksl_default_module_srcs",
-        ],
-    }),
+    ],
     visibility = ["//src:__pkg__"],
 )
 
@@ -197,16 +187,7 @@ skia_cc_deps(
     visibility = ["//src:__pkg__"],
     deps = [
         "//src/sksl/codegen:deps",
-    ] + select({
-        "//src/sksl:enable_skslc_true": [
-            "//tools:get_executable_path",
-            "@dawn//:tint",
-            "@dawn//src/tint/lang/wgsl",
-            "@dawn//src/tint/lang/wgsl/reader",
-            "@spirv_tools",
-        ],
-        "//conditions:default": [],
-    }),
+    ],
 )
 
 skia_filegroup(
@@ -217,14 +198,7 @@ skia_filegroup(
         "//src/sksl/ir:srcs",
         "//src/sksl/tracing:core_srcs",
         "//src/sksl/transform:srcs",
-    ] + select({
-        "//src/sksl:enable_skslc_true": [
-            ":sksl_skslc_module_srcs",
-        ],
-        "//conditions:default": [
-            ":sksl_default_module_srcs",
-        ],
-    }),
+    ],
     visibility = ["//src/core:__pkg__"],
 )
 
