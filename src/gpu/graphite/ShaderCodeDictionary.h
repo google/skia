@@ -88,21 +88,26 @@ struct ShaderSnippet {
     ShaderSnippet() = default;
 
     ShaderSnippet(const char* name,
-                  SkSpan<const Uniform> uniforms,
+                  const char* staticFn,
                   SkEnumBitMask<SnippetRequirementFlags> snippetRequirementFlags,
-                  SkSpan<const TextureAndSampler> texturesAndSamplers,
-                  const char* functionName,
-                  GenerateExpressionForSnippetFn expressionGenerator,
-                  GeneratePreambleForSnippetFn preambleGenerator,
-                  int numChildren)
-        : fName(name)
-        , fUniforms(uniforms)
-        , fSnippetRequirementFlags(snippetRequirementFlags)
-        , fTexturesAndSamplers(texturesAndSamplers)
-        , fStaticFunctionName(functionName)
-        , fExpressionGenerator(expressionGenerator)
-        , fPreambleGenerator(preambleGenerator)
-        , fNumChildren(numChildren) {}
+                  SkSpan<const Uniform> uniforms,
+                  SkSpan<const TextureAndSampler> textures = {},
+                  GenerateExpressionForSnippetFn expressionGenerator = nullptr,
+                  GeneratePreambleForSnippetFn preambleGenerator = nullptr,
+                  int numChildren = 0)
+            : fName(name)
+            , fStaticFunctionName(staticFn)
+            , fSnippetRequirementFlags(snippetRequirementFlags)
+            , fUniforms(uniforms)
+            , fTexturesAndSamplers(textures)
+            , fNumChildren(numChildren)
+            , fExpressionGenerator(expressionGenerator)
+            , fPreambleGenerator(preambleGenerator) {
+        // Must always provide a name; static function is not optional if using the default (null)
+        // generation logic.
+        SkASSERT(name);
+        SkASSERT(staticFn || expressionGenerator || preambleGenerator);
+    }
 
     bool needsLocalCoords() const {
         return SkToBool(fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords);
@@ -118,13 +123,17 @@ struct ShaderSnippet {
     }
 
     const char* fName = nullptr;
-    SkSpan<const Uniform> fUniforms;
-    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags{SnippetRequirementFlags::kNone};
-    SkSpan<const TextureAndSampler> fTexturesAndSamplers;
     const char* fStaticFunctionName = nullptr;
+
+    // The features and args that this shader snippet requires in order to be invoked
+    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags{SnippetRequirementFlags::kNone};
+
+    skia_private::TArray<Uniform> fUniforms;
+    skia_private::TArray<TextureAndSampler> fTexturesAndSamplers;
+
+    int fNumChildren = 0;
     GenerateExpressionForSnippetFn fExpressionGenerator = nullptr;
     GeneratePreambleForSnippetFn fPreambleGenerator = nullptr;
-    int fNumChildren = 0;
 };
 
 // ShaderNodes organize snippets into an effect tree, and provide random access to the dynamically
@@ -275,14 +284,11 @@ public:
 
     int findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect);
 
-#if defined(GRAPHITE_TEST_UTILS)
-    int addRuntimeEffectSnippet(const char* name) SK_EXCLUDES(fSpinLock);
-#endif
-
 private:
     const char* addTextToArena(std::string_view text);
 
     SkSpan<const Uniform> convertUniforms(const SkRuntimeEffect* effect);
+    ShaderSnippet convertRuntimeEffect(const SkRuntimeEffect* effect, const char* name);
 
     std::array<ShaderSnippet, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
 
@@ -291,7 +297,7 @@ private:
 
     // The value returned from 'getEntry' must be stable so, hold the user-defined code snippet
     // entries as pointers.
-    using RuntimeEffectArray = skia_private::TArray<std::unique_ptr<ShaderSnippet>>;
+    using RuntimeEffectArray = skia_private::TArray<ShaderSnippet>;
     RuntimeEffectArray fUserDefinedCodeSnippets SK_GUARDED_BY(fSpinLock);
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?

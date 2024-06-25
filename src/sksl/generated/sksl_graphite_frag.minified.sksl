@@ -162,7 +162,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 "=sample(c,float2(float(b.z),float(i)));half2 n=d;half o=dot((j.yw+j.xz*f)*2."
 "-1.,n);n.x-=1.;half p=dot((k.yw+k.xz*f)*2.-1.,n);half q=mix(o,p,e.x);n.y-=1."
 ";p=dot((l.yw+l.xz*f)*2.-1.,n);n.x+=1.;o=dot((m.yw+m.xz*f)*2.-1.,n);half r=mix"
-"(o,p,e.x);g[h]=mix(q,r,e.y);}return g;}$pure half4 perlin_noise_shader(float2"
+"(o,p,e.x);g[h]=mix(q,r,e.y);}return g;}$pure half4 sk_perlin_noise_shader(float2"
 " a,float2 b,float2 c,int d,int e,int f,sampler2D g,sampler2D h){half2 k=half2"
 "((a+.5)*b);half4 l=half4(0.);half2 m=half2(c);half n=1.;for(int o=0;o<e;++o"
 "){half4 p=$A(k,m,f,g);half4 q=$B(k,p,h);if(d!=0)q=abs(q);l+=q*n;k*=half2(2."
