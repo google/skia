@@ -1603,9 +1603,9 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDitherShader] = {
-            /*name=*/"DitherShader",
-            /*staticFn=*/"sk_dither_shader",
-            SnippetRequirementFlags::kPriorStageOutput | SnippetRequirementFlags::kLocalCoords,
+            /*name=*/"Dither",
+            /*staticFn=*/"sk_dither",
+            SnippetRequirementFlags::kPriorStageOutput,
             /*uniforms=*/{ { "range", SkSLType::kHalf } },
             /*textures=*/{ { "ditherLUT" } }
     };

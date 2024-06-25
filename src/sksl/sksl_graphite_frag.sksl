@@ -473,13 +473,10 @@ $pure half4 sk_hw_yuv_image_shader(float2 coords,
                        yuvToRGBMatrix, yuvToRGBTranslate);
 }
 
-$pure half4 sk_dither_shader(half4 colorIn,
-                             float2 coords,
-                             half range,
-                             sampler2D lut) {
+$pure half4 sk_dither(half4 colorIn, half range, sampler2D lut) {
     const float kImgSize = 8;
 
-    half value = sample(lut, coords / kImgSize).r - 0.5; // undo the bias in the table
+    half value = sample(lut, sk_FragCoord.xy / kImgSize).r - 0.5; // undo the bias in the table
     // For each color channel, add the random offset to the channel value and then clamp
     // between 0 and alpha to keep the color premultiplied.
     return half4(clamp(colorIn.rgb + value * range, 0.0, colorIn.a), colorIn.a);
