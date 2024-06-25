@@ -30,15 +30,22 @@ using namespace::skgpu::graphite;
 namespace {
 
 // colorfilters
-static constexpr int kExpectedBlendColorFilterCombos = 1;
+static constexpr int kExpectedBlendCFCombos = 1;
+static constexpr int kExpectedColorSpaceCFCombos = 1;
+static constexpr int kExpectedHighContrastCFCombos = 1;
+static constexpr int kExpectedLightingCFCombos = 1;
+static constexpr int kExpectedLumaCFCombos = 1;
+static constexpr int kExpectedMatrixCFCombos = 1;
+static constexpr int kExpectedOverdrawCFCombos = 1;
+static constexpr int kExpectedTableCFCombos = 1;
 
 // shaders
-static constexpr int kExpectedSolidColorCombos = 1;
 static constexpr int kExpectedGradientCombos = 3;
 static constexpr int kExpectedImageCombos = 6;
 static constexpr int kExpectedPerlinNoiseCombos = 1;
 static constexpr int kExpectedPictureCombos = 12;
 static constexpr int kExpectedRawImageCombos = 3;
+static constexpr int kExpectedSolidColorCombos = 1;
 
 
 // A default kSrcOver blend mode will be supplied if no other blend options are added
@@ -459,8 +466,7 @@ void shader_subtest(const KeyContext& keyContext,
                                                  { PrecompileColorFilters::Blend() }) });
 
         run_test(keyContext, gatherer, reporter, paintOptions,
-                 /* expectedNumOptions= */ kExpectedGradientCombos *
-                                           kExpectedBlendColorFilterCombos);
+                 /* expectedNumOptions= */ kExpectedGradientCombos * kExpectedBlendCFCombos);
     }
 
     {
@@ -472,6 +478,73 @@ void shader_subtest(const KeyContext& keyContext,
         run_test(keyContext, gatherer, reporter, paintOptions,
                  /* expectedNumOptions= */ kExpectedGradientCombos *
                                            1 /* only one colorSpace */);
+    }
+}
+
+// Exercise all the PrecompileColorFilters factories. The impact of colorfilters on the number
+// of combinations is very predictable. Except for the Compose and Lerp color filters, all the
+// color filters only ever have one combination. The Compose and Lerp color filters also just
+// simply generate the cross product of their children.
+void colorfilter_subtest(const KeyContext& keyContext,
+                         PipelineDataGatherer* gatherer,
+                         skiatest::Reporter* reporter) {
+
+
+    {
+        // The compose colorfilter just generates the cross product of its children.
+        static constexpr int kExpectedNumOptions =
+                kExpectedTableCFCombos * (kExpectedHighContrastCFCombos + kExpectedLumaCFCombos) +
+                kExpectedLightingCFCombos * (kExpectedHighContrastCFCombos + kExpectedLumaCFCombos);
+
+        PaintOptions paintOptions;
+        paintOptions.setColorFilters(
+            { PrecompileColorFilters::Compose(
+                    { PrecompileColorFilters::Table(), PrecompileColorFilters::Lighting() },
+                    { PrecompileColorFilters::HighContrast(), PrecompileColorFilters::Luma() }) });
+
+        run_test(keyContext, gatherer, reporter, paintOptions, kExpectedNumOptions);
+    }
+
+    {
+        PaintOptions paintOptions;
+        paintOptions.setColorFilters({ PrecompileColorFilters::Blend() });
+
+        run_test(keyContext, gatherer, reporter, paintOptions, kExpectedBlendCFCombos);
+    }
+
+    {
+        PaintOptions paintOptions;
+        paintOptions.setColorFilters({ PrecompileColorFilters::Matrix(),
+                                       PrecompileColorFilters::HSLAMatrix() });
+
+        // HSLAMatrix and Matrix map to the same color filter
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 kExpectedMatrixCFCombos + kExpectedMatrixCFCombos);
+    }
+
+    {
+        PaintOptions paintOptions;
+        paintOptions.setColorFilters({ PrecompileColorFilters::LinearToSRGBGamma(),
+                                       PrecompileColorFilters::SRGBToLinearGamma() });
+
+        // LinearToSRGB and SRGBToLinear both map to the colorspace colorfilter
+        run_test(keyContext, gatherer, reporter, paintOptions,
+                 kExpectedColorSpaceCFCombos + kExpectedColorSpaceCFCombos);
+    }
+
+    {
+        // The lerp colorfilter just generates the cross product of its children.
+        static constexpr int kExpectedNumOptions =
+                kExpectedMatrixCFCombos * (kExpectedBlendCFCombos + kExpectedOverdrawCFCombos) +
+                kExpectedLumaCFCombos * (kExpectedBlendCFCombos + kExpectedOverdrawCFCombos);
+
+        PaintOptions paintOptions;
+        paintOptions.setColorFilters(
+            { PrecompileColorFilters::Lerp(
+                    { PrecompileColorFilters::Matrix(), PrecompileColorFilters::Luma() },
+                    { PrecompileColorFilters::Blend(), PrecompileColorFilters::Overdraw() }) });
+
+        run_test(keyContext, gatherer, reporter, paintOptions, kExpectedNumOptions);
     }
 }
 
@@ -503,6 +576,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
 
     blend_subtest(keyContext, &gatherer, reporter);
     shader_subtest(keyContext, &gatherer, reporter);
+    colorfilter_subtest(keyContext, &gatherer, reporter);
 
     no_blend_mode_option_test(keyContext, &gatherer, reporter);
     big_test(keyContext, &gatherer, reporter);
