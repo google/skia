@@ -44,7 +44,7 @@ installed with `depot_tools`.
     # fetch skia
     cd skia
     python3 tools/git-sync-deps
-    python3 bin/fetch-ninja
+    bin/fetch-ninja
 
 ## Getting started with Skia
 

@@ -76,8 +76,6 @@ enum SkYUVColorSpace : int {
     kBT2020_10bit_Limited_SkYUVColorSpace,
     kBT2020_12bit_Full_SkYUVColorSpace,
     kBT2020_12bit_Limited_SkYUVColorSpace,
-    kBT2020_16bit_Full_SkYUVColorSpace,
-    kBT2020_16bit_Limited_SkYUVColorSpace,
     kFCC_Full_SkYUVColorSpace,                  //!< describes FCC range
     kFCC_Limited_SkYUVColorSpace,
     kSMPTE240_Full_SkYUVColorSpace,             //!< describes SMPTE240M range
@@ -92,8 +90,6 @@ enum SkYUVColorSpace : int {
     kYCgCo_10bit_Limited_SkYUVColorSpace,
     kYCgCo_12bit_Full_SkYUVColorSpace,
     kYCgCo_12bit_Limited_SkYUVColorSpace,
-    kYCgCo_16bit_Full_SkYUVColorSpace,
-    kYCgCo_16bit_Limited_SkYUVColorSpace,
     kIdentity_SkYUVColorSpace,                  //!< maps Y->R, U->G, V->B
 
     kLastEnum_SkYUVColorSpace = kIdentity_SkYUVColorSpace, //!< last valid value
