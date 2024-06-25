@@ -101,6 +101,8 @@ enum SkYUVColorSpace : int {
     kBT2020_SkYUVColorSpace = kBT2020_8bit_Limited_SkYUVColorSpace,
 };
 
+SK_API bool SkYUVColorSpaceIsLimitedRange(SkYUVColorSpace cs);
+
 /** \struct SkColorInfo
     Describes pixel and encoding. SkImageInfo can be created from SkColorInfo by
     providing dimensions.
