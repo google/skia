@@ -227,19 +227,19 @@ def _RegenerateAllExamplesCPP(input_api, output_api):
              for f in input_api.AffectedFiles()):
     return []
   command_str = 'tools/fiddle/make_all_examples_cpp.py'
-  cmd = ['python3', command_str]
-  if 0 != subprocess.call(cmd):
+  cmd = ['python3', command_str, '--print-diff']
+  proc = subprocess.run(cmd, capture_output=True)
+  if proc.returncode != 0:
     return [output_api.PresubmitError('`%s` failed' % ' '.join(cmd))]
 
   results = []
-  git_diff_output = input_api.subprocess.check_output(
-      ['git', 'diff', '--no-ext-diff'])
-  if git_diff_output:
+  diff_output = proc.stdout.decode('utf-8').strip()
+  if diff_output:
     results += [output_api.PresubmitError(
         'Diffs found after running "%s":\n\n%s\n'
         'Please commit or discard the above changes.' % (
             command_str,
-            git_diff_output,
+            diff_output,
         )
     )]
   return results
