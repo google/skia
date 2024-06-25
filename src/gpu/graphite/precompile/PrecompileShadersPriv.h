@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "src/base/SkEnumBitMask.h"
+#include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
 
 namespace skgpu::graphite {
 
@@ -59,6 +60,15 @@ namespace PrecompileShadersPriv {
     sk_sp<PrecompileShader> LocalMatrixBothVariants(SkSpan<const sk_sp<PrecompileShader>> wrapped);
 
 } // namespace PrecompileShadersPriv
+
+namespace PrecompileImageFiltersPriv {
+
+    // Used by both the BlurMaskFilter and the BlurImageFilter
+    void CreateBlurImageFilterPipelines(const KeyContext&,
+                                        PipelineDataGatherer*,
+                                        const PaintOptionsPriv::ProcessCombination&);
+
+} // namespace PrecompileImageFiltersPriv
 
 } // namespace skgpu::graphite
 

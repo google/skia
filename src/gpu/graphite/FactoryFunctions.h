@@ -73,15 +73,6 @@ namespace PrecompileImageFilters {
 } // namespace PrecompileImageFilters
 
 //--------------------------------------------------------------------------------------------------
-// Initially this will go next to SkMaskFilter in include/core/SkMaskFilter.h but the
-// SkMaskFilter::MakeBlur factory should be split out or removed. This namespace will follow
-// where ever that factory goes.
-namespace PrecompileMaskFilters {
-    // TODO: change SkMaskFilter::MakeBlur to match this and SkImageFilters::Blur (skbug.com/13441)
-    SK_API sk_sp<PrecompileMaskFilter> Blur();
-} // namespace PrecompileMaskFilters
-
-//--------------------------------------------------------------------------------------------------
 // Object that allows passing a SkPrecompileShader, SkPrecompileColorFilter or
 // SkPrecompileBlender as a child
 //

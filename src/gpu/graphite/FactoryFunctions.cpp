@@ -176,9 +176,9 @@ sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blend(
     return sk_make_sp<PrecompileBlendFilterImageFilter>(std::move(blender), inputs);
 }
 
-namespace {
+namespace PrecompileImageFiltersPriv {
 
-void create_blur_imagefilter_pipelines(
+void CreateBlurImageFilterPipelines(
         const KeyContext& keyContext,
         PipelineDataGatherer* gatherer,
         const PaintOptionsPriv::ProcessCombination& processCombination) {
@@ -202,7 +202,7 @@ void create_blur_imagefilter_pipelines(
                                               processCombination);
 }
 
-} // anonymous namespace
+} // namespace PrecompileImageFiltersPriv
 
 class PrecompileBlurImageFilter : public PrecompileImageFilter {
 public:
@@ -216,7 +216,8 @@ private:
             PipelineDataGatherer* gatherer,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
-        create_blur_imagefilter_pipelines(keyContext, gatherer, processCombination);
+        PrecompileImageFiltersPriv::CreateBlurImageFilterPipelines(keyContext, gatherer,
+                                                                   processCombination);
     }
 };
 
@@ -446,28 +447,6 @@ sk_sp<PrecompileImageFilter> PrecompileImageFilters::Morphology(
         sk_sp<PrecompileImageFilter> input) {
     return sk_make_sp<PrecompileMorphologyImageFilter>(SkSpan(&input, 1));
 }
-
-//--------------------------------------------------------------------------------------------------
-// TODO(b/342413572): the analytic blurmasks are triggered off of the simple DrawType thus
-// over-generate when a simple draw doesn't have a blur mask.
-class PrecompileBlurMaskFilter : public PrecompileMaskFilter {
-public:
-    PrecompileBlurMaskFilter() {}
-
-private:
-    void createPipelines(
-            const KeyContext& keyContext,
-            PipelineDataGatherer* gatherer,
-            const PaintOptionsPriv::ProcessCombination& processCombination) const override {
-        create_blur_imagefilter_pipelines(keyContext, gatherer, processCombination);
-    }
-};
-
-sk_sp<PrecompileMaskFilter> PrecompileMaskFilters::Blur() {
-    return sk_make_sp<PrecompileBlurMaskFilter>();
-}
-
-//--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------

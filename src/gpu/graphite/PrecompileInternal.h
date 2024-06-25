@@ -97,28 +97,6 @@ private:
     skia_private::AutoSTArray<2, sk_sp<PrecompileImageFilter>> fInputs;
 };
 
-class PrecompileMaskFilter : public PrecompileBase {
-public:
-    PrecompileMaskFilter() : PrecompileBase(Type::kMaskFilter) {}
-
-private:
-    friend class PaintOptions;  // for createPipelines() access
-
-    // The PrecompileMaskFilter classes do not use the PrecompileBase::addToKey virtual since
-    // they, in general, do not themselves contribute to a given SkPaint/Pipeline but, rather,
-    // create separate SkPaints/Pipelines from whole cloth (in createPipelines).
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const final {
-        SkASSERT(false);
-    }
-
-    virtual void createPipelines(const KeyContext&,
-                                 PipelineDataGatherer*,
-                                 const PaintOptionsPriv::ProcessCombination&) const = 0;
-};
-
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_PrecompileInternal_DEFINED
