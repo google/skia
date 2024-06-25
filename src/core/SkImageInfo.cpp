@@ -58,6 +58,7 @@ bool SkYUVColorSpaceIsLimitedRange(SkYUVColorSpace cs) {
         case kBT2020_8bit_Limited_SkYUVColorSpace:
         case kBT2020_10bit_Limited_SkYUVColorSpace:
         case kBT2020_12bit_Limited_SkYUVColorSpace:
+        case kBT2020_16bit_Limited_SkYUVColorSpace:
         case kFCC_Limited_SkYUVColorSpace:
         case kSMPTE240_Limited_SkYUVColorSpace:
         case kYDZDX_Limited_SkYUVColorSpace:
@@ -65,6 +66,7 @@ bool SkYUVColorSpaceIsLimitedRange(SkYUVColorSpace cs) {
         case kYCgCo_8bit_Limited_SkYUVColorSpace:
         case kYCgCo_10bit_Limited_SkYUVColorSpace:
         case kYCgCo_12bit_Limited_SkYUVColorSpace:
+        case kYCgCo_16bit_Limited_SkYUVColorSpace:
             return true;
 
         case kJPEG_Full_SkYUVColorSpace:
@@ -72,6 +74,7 @@ bool SkYUVColorSpaceIsLimitedRange(SkYUVColorSpace cs) {
         case kBT2020_8bit_Full_SkYUVColorSpace:
         case kBT2020_10bit_Full_SkYUVColorSpace:
         case kBT2020_12bit_Full_SkYUVColorSpace:
+        case kBT2020_16bit_Full_SkYUVColorSpace:
         case kFCC_Full_SkYUVColorSpace:
         case kSMPTE240_Full_SkYUVColorSpace:
         case kYDZDX_Full_SkYUVColorSpace:
@@ -79,6 +82,7 @@ bool SkYUVColorSpaceIsLimitedRange(SkYUVColorSpace cs) {
         case kYCgCo_8bit_Full_SkYUVColorSpace:
         case kYCgCo_10bit_Full_SkYUVColorSpace:
         case kYCgCo_12bit_Full_SkYUVColorSpace:
+        case kYCgCo_16bit_Full_SkYUVColorSpace:
         case kIdentity_SkYUVColorSpace:
             return false;
 
