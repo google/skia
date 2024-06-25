@@ -331,11 +331,7 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         // potentially a better fix is described here: bug.skia.org/7445
         if (src.isRect(nullptr) && src.isLastContourClosed() && is_even(initialDashIndex)) {
             SkScalar pathLength = SkPathMeasure(src, false, rec->getResScale()).getLength();
-#if defined(SK_LEGACY_RECT_DASHING_BUG)
-            SkScalar endPhase = SkScalarMod(pathLength + initialDashLength, intervalLength);
-#else
             SkScalar endPhase = SkScalarMod(pathLength + startPhase, intervalLength);
-#endif
             int index = 0;
             while (endPhase > intervals[index]) {
                 endPhase -= intervals[index++];
