@@ -83,6 +83,25 @@ bool GrGpuBuffer::updateData(const void* src, size_t offset, size_t size, bool p
     return this->onUpdateData(src, offset, size, preserve);
 }
 
+bool GrGpuBuffer::getData(void* dst, size_t offset, size_t size) {
+    SkASSERT(!this->isMapped());
+    SkASSERT(size > 0 && offset + size <= fSizeInBytes);
+    SkASSERT(dst);
+
+    if (this->wasDestroyed()) {
+        return false;
+    }
+
+    const void* mapped = this->map();
+    if (mapped != nullptr) {
+        memcpy(dst, (const char*)mapped + offset, size);
+        this->unmap();
+        return true;
+    }
+
+    return this->onGetData(dst, offset, size);
+}
+
 void GrGpuBuffer::ComputeScratchKeyForDynamicBuffer(size_t size,
                                                     GrGpuBufferType intendedType,
                                                     skgpu::ScratchKey* key) {

@@ -165,6 +165,7 @@ public:
         GrGLFunction<GrGLGenTexturesFn> fGenTextures;
         GrGLFunction<GrGLGenVertexArraysFn> fGenVertexArrays;
         GrGLFunction<GrGLGetBufferParameterivFn> fGetBufferParameteriv;
+        GrGLFunction<GrGLGetBufferSubDataFn> fGetBufferSubData;
         GrGLFunction<GrGLGetErrorFn> fGetError;
         GrGLFunction<GrGLGetFramebufferAttachmentParameterivFn> fGetFramebufferAttachmentParameteriv;
         GrGLFunction<GrGLGetFloatvFn> fGetFloatv;

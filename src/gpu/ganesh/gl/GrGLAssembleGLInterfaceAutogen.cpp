@@ -151,6 +151,8 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     GET_PROC(DrawBuffer);
     GET_PROC(PolygonMode);
 
+    GET_PROC(GetBufferSubData);
+
     if (glVer >= GR_GL_VER(3,0)) {
         GET_PROC(GetStringi);
     }

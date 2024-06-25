@@ -95,6 +95,7 @@ using GrGLGenSamplersFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei count, GrGLuint
 using GrGLGenTexturesFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, GrGLuint* textures);
 using GrGLGenVertexArraysFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsizei n, GrGLuint* arrays);
 using GrGLGetBufferParameterivFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLenum pname, GrGLint* params);
+using GrGLGetBufferSubDataFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLintptr offset, GrGLsizeiptr size, GrGLvoid* data);
 using GrGLGetErrorFn = GrGLenum GR_GL_FUNCTION_TYPE();
 using GrGLGetFramebufferAttachmentParameterivFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum target, GrGLenum attachment, GrGLenum pname, GrGLint* params);
 using GrGLGetFloatvFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLenum pname, GrGLfloat* params);

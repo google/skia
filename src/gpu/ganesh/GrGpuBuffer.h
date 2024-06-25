@@ -96,6 +96,22 @@ public:
      */
     bool updateData(const void* src, size_t offset, size_t size, bool preserve);
 
+    /**
+     * Get the buffer data.
+     *
+     * WebGL's buffer can't be mapped to client side. Use this function to get the buffer data.
+     *
+     * The data is always copied to client side. Will try copy from mapped if supported.
+     *
+     * The buffer must not be mapped.
+     *
+     * Note that buffer updates do not go through GrContext and therefore are not serialized with
+     * other operations.
+     *
+     * @return returns true if succeeds, false otherwise.
+     */
+    bool getData(void* dst, size_t offset, size_t size);
+
     GrGpuBufferType intendedType() const { return fIntendedType; }
 
 protected:
@@ -129,6 +145,7 @@ private:
     virtual void onUnmap(MapType) = 0;
     virtual bool onClearToZero() = 0;
     virtual bool onUpdateData(const void* src, size_t offset, size_t size, bool preserve) = 0;
+    virtual bool onGetData(void* dst, size_t offset, size_t size) { return false; }
 
     size_t onGpuMemorySize() const override { return fSizeInBytes; }
     void onSetLabel() override{}
