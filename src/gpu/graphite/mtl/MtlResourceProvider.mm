@@ -124,7 +124,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
 
     const RenderStep* step =
             fSharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
-    const bool useStorageBuffers = fSharedContext->caps()->storageBufferPreferred();
+    const bool useStorageBuffers = fSharedContext->caps()->storageBufferSupport();
 
     UniquePaintParamsID paintID = pipelineDesc.paintParamsID();
     FragSkSLInfo fsSkSLInfo = BuildFragmentSkSL(fSharedContext->caps(),

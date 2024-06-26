@@ -603,7 +603,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
 
     const RenderStep* step = sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
-    const bool useStorageBuffers = sharedContext->caps()->storageBufferPreferred();
+    const bool useStorageBuffers = sharedContext->caps()->storageBufferSupport();
 
     if (step->vertexAttributes().size() + step->instanceAttributes().size() >
         sharedContext->vulkanCaps().maxVertexAttributes()) {

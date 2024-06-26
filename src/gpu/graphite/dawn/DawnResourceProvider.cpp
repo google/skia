@@ -350,7 +350,7 @@ const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBind
 
     entries[1].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
     entries[1].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
-    entries[1].buffer.type = fSharedContext->caps()->storageBufferPreferred()
+    entries[1].buffer.type = fSharedContext->caps()->storageBufferSupport()
                                      ? wgpu::BufferBindingType::ReadOnlyStorage
                                      : wgpu::BufferBindingType::Uniform;
     entries[1].buffer.hasDynamicOffset = true;
@@ -358,7 +358,7 @@ const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBind
 
     entries[2].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
     entries[2].visibility = wgpu::ShaderStage::Fragment;
-    entries[2].buffer.type = fSharedContext->caps()->storageBufferPreferred()
+    entries[2].buffer.type = fSharedContext->caps()->storageBufferSupport()
                                      ? wgpu::BufferBindingType::ReadOnlyStorage
                                      : wgpu::BufferBindingType::Uniform;
     entries[2].buffer.hasDynamicOffset = true;
@@ -369,7 +369,7 @@ const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBind
     // satisfy any binding type restricions for non-supported ssbo devices.
     entries[3].binding = DawnGraphicsPipeline::kGradientBufferIndex;
     entries[3].visibility = wgpu::ShaderStage::Fragment;
-    entries[3].buffer.type = fSharedContext->caps()->storageBufferPreferred()
+    entries[3].buffer.type = fSharedContext->caps()->storageBufferSupport()
                                      ? wgpu::BufferBindingType::ReadOnlyStorage
                                      : wgpu::BufferBindingType::Uniform;
     entries[3].buffer.hasDynamicOffset = true;

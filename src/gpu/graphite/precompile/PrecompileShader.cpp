@@ -497,8 +497,7 @@ private:
         SkASSERT(intrinsicCombination < kNumStopVariants);
         SkASSERT(childCombination == 0);
 
-        bool useStorageBuffer = keyContext.caps()->storageBufferSupport() &&
-                                keyContext.caps()->storageBufferPreferred();
+        bool useStorageBuffer = keyContext.caps()->storageBufferSupport();
 
         GradientShaderBlocks::GradientData gradData(fType,
                                                     kStopVariants[intrinsicCombination],

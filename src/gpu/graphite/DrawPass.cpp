@@ -506,7 +506,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     GraphicsPipelineCache pipelineCache;
 
     // Geometry uniforms are currently always UBO-backed.
-    const bool useStorageBuffers = recorder->priv().caps()->storageBufferPreferred();
+    const bool useStorageBuffers = recorder->priv().caps()->storageBufferSupport();
     const ResourceBindingRequirements& bindingReqs =
             recorder->priv().caps()->resourceBindingRequirements();
     Layout uniformLayout =
