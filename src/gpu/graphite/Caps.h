@@ -59,6 +59,11 @@ struct ResourceBindingRequirements {
 
     // Whether buffer, texture, and sampler resource bindings use distinct index ranges.
     bool fDistinctIndexRanges = false;
+
+    int fIntrinsicBufferBinding = -1;
+    int fRenderStepBufferBinding = -1;
+    int fPaintParamsBufferBinding = -1;
+    int fGradientBufferBinding = -1;
 };
 
 enum class DstReadRequirement {

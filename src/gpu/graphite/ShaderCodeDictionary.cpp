@@ -436,15 +436,13 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                                         defineLocalCoordsVarying);
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
-    // TODO: replace hard-coded bufferIDs with the backend's step and paint uniform-buffer indices.
-    // TODO: The use of these indices is Metal-specific. We should replace these functions with
-    // API-independent ones.
     const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
     if (hasStepUniforms) {
         if (useStepStorageBuffer) {
-            preamble += EmitRenderStepStorageBuffer(/*bufferID=*/1, step->uniforms());
+            preamble += EmitRenderStepStorageBuffer(bindingReqs.fRenderStepBufferBinding,
+                                                    step->uniforms());
         } else {
-            preamble += EmitRenderStepUniforms(/*bufferID=*/1,
+            preamble += EmitRenderStepUniforms(bindingReqs.fRenderStepBufferBinding,
                                                bindingReqs.fUniformBufferLayout,
                                                step->uniforms(),
                                                renderStepUniformTotalBytes);
@@ -453,13 +451,13 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
 
     bool wrotePaintColor = false;
     if (useShadingStorageBuffer) {
-        preamble += EmitPaintParamsStorageBuffer(/*bufferID=*/2,
+        preamble += EmitPaintParamsStorageBuffer(bindingReqs.fPaintParamsBufferBinding,
                                                  fRootNodes,
                                                  numPaintUniforms,
                                                  &wrotePaintColor);
         SkSL::String::appendf(&preamble, "uint %s;\n", this->ssboIndex());
     } else {
-        preamble += EmitPaintParamsUniforms(/*bufferID=*/2,
+        preamble += EmitPaintParamsUniforms(bindingReqs.fPaintParamsBufferBinding,
                                             bindingReqs.fUniformBufferLayout,
                                             fRootNodes,
                                             numPaintUniforms,
@@ -470,14 +468,12 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     if (useGradientStorageBuffer) {
         SkASSERT(caps->storageBufferSupport());
 
-        // In metal the vertex and instance buffer occupy slots 3 and 4 so we use slot 5 in that
-        // case. In dawn and vulkan that is not the case so we can occupy slot 3, and those two
-        // apis also do separate texture/sampler bindings.
-        int binding = bindingReqs.fSeparateTextureAndSamplerBinding ? 3 : 5;
         SkSL::String::appendf(&preamble,
                               "layout (binding=%d) readonly buffer FSGradientBuffer {\n"
                               "    float %s[];\n"
-                              "};\n", binding, caps->shaderCaps()->fFloatBufferArrayName);
+                              "};\n",
+                              bindingReqs.fGradientBufferBinding,
+                              caps->shaderCaps()->fFloatBufferArrayName);
         *hasGradientBuffer = true;
     }
 
