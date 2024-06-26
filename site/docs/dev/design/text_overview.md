@@ -28,7 +28,7 @@ Part of this complexity lies in language and alphabets themselves, and part is d
 
 ## Language and Alphabets
 
-### "The office 建造 is in München."
+### "The office 大楼 is in München."
 
 This simple sentence is illustrative of some of the richness (i.e. complexity) of displaying text. Some examples
 - The 'ffi" in office (or possibly just the "fi") **could** be drawn with a specialized form called a [ligature](https://en.wikipedia.org/wiki/Ligature_(writing)).
