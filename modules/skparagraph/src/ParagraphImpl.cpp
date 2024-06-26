@@ -1420,12 +1420,16 @@ void ParagraphImpl::extendedVisit(const ExtendedVisitor& visitor) {
                     STArray<128, uint32_t> clusterStorage;
                     const uint32_t* clusterPtr = run->clusterIndexes().data();
                     if (run->fClusterStart > 0) {
-                        clusterStorage.reset(context.size);
-                        for (size_t i = 0; i < context.size; ++i) {
-                          clusterStorage[i] =
-                              run->fClusterStart + run->fClusterIndexes[i];
+                        if (context.size > 0) {
+                            clusterStorage.reset(context.size);
+                            for (size_t i = 0; i < context.size; ++i) {
+                                clusterStorage[i] =
+                                        run->fClusterStart + run->fClusterIndexes[i];
+                            }
+                            clusterPtr = &clusterStorage[0];
+                        } else {
+                            clusterPtr = nullptr;
                         }
-                        clusterPtr = &clusterStorage[0];
                     }
                     const Paragraph::ExtendedVisitorInfo info = {
                         run->font(),
