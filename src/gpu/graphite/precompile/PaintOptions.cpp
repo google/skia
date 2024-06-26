@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
+#include "include/gpu/graphite/precompile/PrecompileImageFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileMaskFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/gpu/graphite/Caps.h"

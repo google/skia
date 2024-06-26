@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/precompile/PrecompileBase.h"
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
+#include "include/gpu/graphite/precompile/PrecompileImageFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
@@ -23,6 +24,7 @@
 #include "src/gpu/graphite/precompile/PrecompileBaseComplete.h"
 #include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
 #include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
+#include "src/gpu/graphite/precompile/PrecompileImageFilterPriv.h"
 #include "src/gpu/graphite/precompile/PrecompileShaderPriv.h"
 #include "src/gpu/graphite/precompile/PrecompileShadersPriv.h"
 
@@ -82,23 +84,6 @@ private:
 
 sk_sp<PrecompileShader> PrecompileShaders::YUVImage() {
     return sk_make_sp<PrecompileYUVImageShader>();
-}
-
-//--------------------------------------------------------------------------------------------------
-sk_sp<PrecompileColorFilter> PrecompileImageFilter::asAColorFilter() const {
-    sk_sp<PrecompileColorFilter> tmp = this->isColorFilterNode();
-    if (!tmp) {
-        return nullptr;
-    }
-    SkASSERT(this->countInputs() == 1);
-    if (this->getInput(0)) {
-        return nullptr;
-    }
-    // TODO: as in SkImageFilter::asAColorFilter, handle the special case of
-    // affectsTransparentBlack. This is tricky for precompilation since we don't,
-    // necessarily, have all the parameters of the ColorFilter in order to evaluate
-    // filterColor4f(SkColors::kTransparent) - the normal API's implementation.
-    return tmp;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,10 +255,10 @@ sk_sp<PrecompileImageFilter> PrecompileImageFilters::ColorFilter(
         sk_sp<PrecompileColorFilter> colorFilter,
         sk_sp<PrecompileImageFilter> input) {
     if (colorFilter && input) {
-        sk_sp<PrecompileColorFilter> inputCF = input->isColorFilterNode();
+        sk_sp<PrecompileColorFilter> inputCF = input->priv().isColorFilterNode();
         if (inputCF) {
             colorFilter = colorFilter->makeComposed(std::move(inputCF));
-            input = sk_ref_sp(input->getInput(0));
+            input = sk_ref_sp(input->priv().getInput(0));
         }
     }
 
