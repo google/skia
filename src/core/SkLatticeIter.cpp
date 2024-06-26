@@ -20,7 +20,7 @@
 static bool valid_divs(const int* divs, int count, int start, int end) {
     int prev = start - 1;
     for (int i = 0; i < count; i++) {
-        if (prev >= divs[i] || divs[i] >= end) {
+        if (prev >= divs[i] || divs[i] > end) {
             return false;
         }
         prev = divs[i];

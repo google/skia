@@ -376,3 +376,31 @@ DEF_SIMPLE_GM_BG(lattice_alpha, canvas, 120, 120, SK_ColorWHITE) {
     canvas->drawImageLattice(image.get(), lattice, SkRect::MakeWH(120, 120),
                              SkFilterMode::kNearest, &paint);
 }
+
+static sk_sp<SkImage> make_symmetry_test_image() {
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(8, 8));
+    auto canvas = surface->getCanvas();
+    canvas->drawColor(SK_ColorBLUE);
+    SkPaint p;
+    p.setColor(SK_ColorGREEN);
+    canvas->drawRect(SkRect::MakeXYWH(2, 2, 4, 4), p);
+    return surface->makeImageSnapshot();
+}
+
+// b/349428795 : A nine-patch should be able to have zero-sized regions on either end. Before
+// fixing the bug, it only worked on the left/top, leading to non-symmetric results in this GM.
+// Correct rendering is for each row to be symmetric.
+DEF_SIMPLE_GM(ninepatch_edge_case_349428795, canvas, 500, 150) {
+    auto nine = make_symmetry_test_image();
+
+    for (int i = -1; i < 6; i++) {
+        canvas->drawImageNine(nine.get(),
+                              SkIRect::MakeXYWH(i, 2, 4, 4),
+                              SkRect::MakeXYWH(i * 70 + 80, 10, 64, 64),
+                              SkFilterMode::kLinear);
+        canvas->drawImageNine(nine.get(),
+                              SkIRect::MakeXYWH(2, i, 4, 4),
+                              SkRect::MakeXYWH(i * 70 + 80, 80, 64, 64),
+                              SkFilterMode::kLinear);
+    }
+}
