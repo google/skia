@@ -405,6 +405,7 @@ cc_library_shared {
 
 android_test {
     name: "CtsSkQPTestCases",
+    team: "trendy_team_android_core_graphics_stack",
     defaults: ["cts_defaults"],
     test_suites: [
         "general-tests",
