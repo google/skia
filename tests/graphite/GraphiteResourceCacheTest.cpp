@@ -521,6 +521,19 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteZeroSizedResourcesTest, reporter, con
     REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue()->gpuMemorySize() == 0);
 }
 
+// Depending on the granularity of the clock for a given device, in the
+// GraphitePurgeNotUsedSinceResourcesTest we may end up with times that are all equal which messes
+// up the expected behavior of the purge calls. So this helper forces us to return a new time that
+// is different from a previous one.
+skgpu::StdSteadyClock::time_point force_newer_timepoint(
+        const skgpu::StdSteadyClock::time_point& prevTime) {
+    auto time = skgpu::StdSteadyClock::now();
+    while (time <= prevTime) {
+        time = skgpu::StdSteadyClock::now();
+    }
+    return time;
+}
+
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeNotUsedSinceResourcesTest, reporter, context,
                                    CtsEnforcement::kNextRelease) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
@@ -541,7 +554,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeNotUsedSinceResourcesTest, repor
 
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
 
-    auto afterTime = skgpu::StdSteadyClock::now();
+    auto afterTime = force_newer_timepoint(skgpu::StdSteadyClock::now());
 
     // purging beforeTime should not get rid of the resource
     resourceCache->purgeResourcesNotUsedSince(beforeTime);
@@ -559,14 +572,14 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeNotUsedSinceResourcesTest, repor
                                                        resourceCache,
                                                        /*gpuMemorySize=*/1);
 
-    auto betweenTime = skgpu::StdSteadyClock::now();
+    auto betweenTime = force_newer_timepoint(skgpu::StdSteadyClock::now());
 
     Resource* resourcePtr2 = add_new_purgeable_resource(reporter,
                                                         sharedContext,
                                                         resourceCache,
                                                         /*gpuMemorySize=*/1);
 
-    afterTime = skgpu::StdSteadyClock::now();
+    afterTime = force_newer_timepoint(skgpu::StdSteadyClock::now());
 
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
     REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resourcePtr1));
@@ -592,7 +605,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeNotUsedSinceResourcesTest, repor
 
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
 
-    afterTime = skgpu::StdSteadyClock::now();
+    afterTime = force_newer_timepoint(skgpu::StdSteadyClock::now());
     resourceCache->purgeResourcesNotUsedSince(afterTime);
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
     REPORTER_ASSERT(reporter, !resourceCache->testingInPurgeableQueue(resourcePtr));
@@ -605,7 +618,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeNotUsedSinceResourcesTest, repor
     REPORTER_ASSERT(reporter, resourceCache->testingInPurgeableQueue(resourcePtr));
 
     // Now it should be purged since it is already purgeable
-    resourceCache->purgeResourcesNotUsedSince(skgpu::StdSteadyClock::now());
+    resourceCache->purgeResourcesNotUsedSince(force_newer_timepoint(skgpu::StdSteadyClock::now()));
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
 }
 

@@ -427,7 +427,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				// Crashes and failures
 				// https://skbug.com/14105
 				skip(ALL, "test", ALL, "BackendTextureTest")
-				skip(ALL, "test", ALL, "GraphitePurgeNotUsedSinceResourcesTest")
 				skip(ALL, "test", ALL, "PaintParamsKeyTest")
 
 				if b.matchOs("Win10") || b.matchGpu("MaliG78", "Adreno620", "QuadroP400") {
@@ -457,7 +456,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					skip(ALL, "test", ALL, "DeviceTestVertexTransparency")
 					skip(ALL, "test", ALL, "GraphitePromiseImageMultipleImgUses")
 					skip(ALL, "test", ALL, "GraphitePromiseImageRecorderLoss")
-					skip(ALL, "test", ALL, "GraphitePurgeNotUsedSinceResourcesTest")
 					skip(ALL, "test", ALL, "GraphiteTextureProxyTest")
 					skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageMultipleImgUses")
 					skip(ALL, "test", ALL, "GraphiteYUVAPromiseImageRecorderLoss")
