@@ -4,8 +4,8 @@ load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 load("@rules_rust//rust:defs.bzl", "rust_library")
 
 # The vello repository is organized as a workspace where the vello_shaders and vello_encoding crates
-# live in //vello/crates/shaders and //vello/crates/encoding, respectively. The WGSL shader source
-# files themselves live outside the crates directory in //vello/shader.
+# live in //vello/vello_shaders and //vello/vello_encoding, respectively. The WGSL shader source
+# files live under //vello/vello_shaders/shader.
 #
 # Normally we would simply list the following dependencies in our Cargo.toml file and Bazel's
 # `crates_repository` rule would automatically create targets for both crates that could be compiled
@@ -14,16 +14,20 @@ load("@rules_rust//rust:defs.bzl", "rust_library")
 #    vello_shaders = { git = "https://skia.googlesource.com/external/github.com/linebender/vello", rev = "123456" }
 #    vello_encoding = { git = "https://skia.googlesource.com/external/github.com/linebender/vello", rev = "123456" }
 #
-# However, Bazel's restrictions on external repositories around accessing files in a parent
-# directory via relative path are not compatible with Vello's shader organization and the way
-# the vello_shader build script locates shader files for pre-compilation. For that reason, we
-# define our own Bazel rules here that run the build script with an environment variable that points
-# at the repository root to help it locate the shaders.
+# However, using that setup I (armansito@) haven't found a good way to both:
+#
+#    (a) Conditionally toggle the "wgsl" and "msl" cargo features for these libraries. Bazel wants
+#        config settings and cargo features to be declared by the relevant library rules and not
+#        consumers of that library;
+#    (b) Support local iteration using a cargo "path" dependency.
+#
+# Until we find a way around these limitations, we maintain our own build rules for the vello crates
+# here.
 
 rust_library(
     name = "vello_encoding",
     srcs = glob(
-        include = ["crates/encoding/src/**/*.rs"],
+        include = ["vello_encoding/src/**/*.rs"],
         allow_empty = False,
     ),
     crate_features = ["bump_estimate"],
@@ -44,7 +48,7 @@ config_setting(
 )
 
 # Pass `--define VELLO_WGSL_SHADERS=true` to Bazel to bundle the vello shaders in their native
-# WebGPU Shading Language..
+# WebGPU Shading Language.
 config_setting(
     name = "wgsl_shaders",
     values = {
@@ -55,7 +59,7 @@ config_setting(
 rust_library(
     name = "vello_shaders",
     srcs = glob(
-        include = ["crates/shaders/src/**/*.rs"],
+        include = ["vello_shaders/src/**/*.rs"],
         allow_empty = False,
     ),
     crate_features = select({
@@ -72,10 +76,10 @@ rust_library(
 cargo_build_script(
     name = "vello_shaders_build_script",
     srcs = [
-        "crates/shaders/build.rs",
+        "vello_shaders/build.rs",
     ],
     build_script_env = {
-        "WORKSPACE_MANIFEST_FILE": "$(location Cargo.toml)",
+        "UNSTABLE_BAZEL_VELLO_SHADERS_CRATE_MANIFEST_PATH": "$(execpath vello_shaders/Cargo.toml)",
     },
     crate_features = select({
         ":msl_shaders": ["msl"],
@@ -86,14 +90,15 @@ cargo_build_script(
     }),
     data = glob(
         include = [
-            "Cargo.toml",  # Used to obtain WORKSPACE_MANIFEST_FILE
-            "crates/shaders/src/compile/mod.rs",
-            "crates/shaders/src/compile/msl.rs",
-            "crates/shaders/src/compile/permutations.rs",
-            "crates/shaders/src/compile/preprocess.rs",
-            "crates/shaders/src/types.rs",
-            "shader/permutations",
-            "shader/**/*.wgsl",
+            # This is needed to define BAZEL_CRATE_MANIFEST_PATH above.
+            "vello_shaders/Cargo.toml",
+            "vello_shaders/src/compile/mod.rs",
+            "vello_shaders/src/compile/msl.rs",
+            "vello_shaders/src/compile/permutations.rs",
+            "vello_shaders/src/compile/preprocess.rs",
+            "vello_shaders/src/types.rs",
+            "vello_shaders/shader/permutations",
+            "vello_shaders/shader/**/*.wgsl",
         ],
         allow_empty = False,
     ),

@@ -11,10 +11,10 @@ edition = "2021"
 version = "0.1.0"
 
 [dependencies]
-bytemuck = { version = "1.12.1", features = ["derive"] }
-naga = { version = "0.19.2", features = ["wgsl-in", "msl-out"] }
-peniko = "0.1.0"
+bytemuck = { version = "1.16.0", features = ["derive"] }
+naga = { version = "0.20.0", features = ["wgsl-in", "msl-out"] }
+peniko = "0.1.1"
 regex = "1.8.1"
-thiserror = "1.0.40"
+thiserror = "1.0.60"
 
 [lib]
