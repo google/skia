@@ -223,13 +223,13 @@ if (is_ios) {
       }
 
       if (skia_ios_use_signing) {
-        code_signing_script = "//gn/codesign_ios.py"
-        code_signing_sources = [ "$target_gen_dir/$app_name" ]
-        code_signing_outputs = [
+        post_processing_script = "//gn/codesign_ios.py"
+        post_processing_sources = [ "$target_gen_dir/$app_name" ]
+        post_processing_outputs = [
           "$bundle_root_dir/_CodeSignature/CodeResources",
           "$bundle_root_dir/embedded.mobileprovision",
         ]
-        code_signing_args = [
+        post_processing_args = [
           rebase_path("$bundle_root_dir", root_build_dir),
           skia_ios_identity,
           skia_ios_profile,
