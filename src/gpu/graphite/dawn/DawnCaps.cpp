@@ -445,8 +445,11 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fResourceBindingReqs.fGradientBufferBinding = DawnGraphicsPipeline::kGradientBufferIndex;
 
 #if !defined(__EMSCRIPTEN__)
-    // TODO(b/318817249): SSBOs trigger FXC compiler failures when attempting to unroll loops
-    fStorageBufferSupport = info.backendType != wgpu::BackendType::D3D11;
+    // TODO(b/318817249): In D3D11, SSBOs trigger FXC compiler failures when attempting to unroll
+    // loops.
+    fStorageBufferSupport = info.backendType != wgpu::BackendType::D3D11 &&
+                            info.backendType != wgpu::BackendType::OpenGL &&
+                            info.backendType != wgpu::BackendType::OpenGLES;
 #else
     // WASM doesn't provide a way to query the backend, so can't tell if we are on d3d11 or not.
     // Pessimistically assume we could be. Once b/318817249 is fixed, this can go away and SSBOs

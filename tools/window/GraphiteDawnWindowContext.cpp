@@ -124,6 +124,8 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
 
     wgpu::RequestAdapterOptions adapterOptions;
     adapterOptions.backendType = type;
+    adapterOptions.compatibilityMode =
+            type == wgpu::BackendType::OpenGL || type == wgpu::BackendType::OpenGLES;
     adapterOptions.nextInChain = &adapterTogglesDesc;
 
     std::vector<dawn::native::Adapter> adapters = fInstance->EnumerateAdapters(&adapterOptions);
