@@ -926,8 +926,15 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.model("Wembley") {
 		// These tests run forever or use too many resources on the Wembley.
 		skip(ALL, "gm", ALL, "wacky_yuv_formats")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_cs")
 		skip(ALL, "gm", ALL, "wacky_yuv_formats_cubic")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_domain")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_fromimages")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_frompixmaps")
 		skip(ALL, "gm", ALL, "wacky_yuv_formats_imggen")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_limited")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_limited_cs")
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_limited_fromimages")
 	}
 
 	if b.os("iOS") {
