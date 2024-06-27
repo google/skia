@@ -1264,7 +1264,9 @@ if (skia_use_fontations) {
       # right thing but may not be the right build configuration in the long run.
       bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
     }
-    if (!is_debug) {
+    if (is_debug) {
+      bazel_args += [ "--compilation_mode=dbg" ]
+    } else {
       bazel_args += [ "--compilation_mode=opt" ]
     }
     script = "gn/bazel_build.py"
@@ -1289,7 +1291,9 @@ if (skia_use_fontations) {
       # right thing but may not be the right build configuration in the long run.
       bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
     }
-    if (!is_debug) {
+    if (is_debug) {
+      bazel_args += [ "--compilation_mode=dbg" ]
+    } else {
       bazel_args += [ "--compilation_mode=opt" ]
     }
     script = "gn/bazel_build.py"
