@@ -723,7 +723,7 @@ config("optimize") {
           "-fno-PIE",
           "-fno-pie",
         ]
-        ldflags += [ "-nopie" ]
+        ldflags += [ "-no-pie" ]
       }
     } else {
       cflags = [ "-O3" ]
