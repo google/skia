@@ -114,14 +114,10 @@ sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
-    auto compatibleRenderPass =
-            this->findOrCreateRenderPass(renderPassDesc, /*compatibleOnly=*/true);
-    return VulkanGraphicsPipeline::Make(this->vulkanSharedContext(),
+    return VulkanGraphicsPipeline::Make(this,
                                         runtimeDict,
                                         pipelineDesc,
-                                        renderPassDesc,
-                                        compatibleRenderPass,
-                                        this->pipelineCache());
+                                        renderPassDesc);
 }
 
 sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const ComputePipelineDesc&) {
@@ -178,9 +174,7 @@ sk_sp<Sampler> VulkanResourceProvider::createSampler(const SamplerDesc& samplerD
     }
 
     return VulkanSampler::Make(this->vulkanSharedContext(),
-                               samplerDesc.samplingOptions(),
-                               samplerDesc.tileModeX(),
-                               samplerDesc.tileModeY(),
+                               samplerDesc,
                                std::move(ycbcrConversion));
 }
 
@@ -207,20 +201,32 @@ namespace {
 GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDescriptors) {
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
-    const int num32DataCnt = requestedDescriptors.size() + 1;
+    // The number of int32s needed for a key can depend on whether we use immutable samplers or not.
+    // So, accumulte key data while passing through to check for that quantity and simply copy
+    // into builder afterwards.
+    skia_private::TArray<uint32_t> keyData (requestedDescriptors.size() + 1);
+
+    keyData.push_back(requestedDescriptors.size());
+    for (const DescriptorData& desc : requestedDescriptors) {
+        keyData.push_back(static_cast<uint8_t>(desc.fType) << 24 |
+                          desc.fBindingIndex << 16 |
+                          static_cast<uint16_t>(desc.fCount));
+        if (desc.fImmutableSampler) {
+            const VulkanSampler* sampler =
+                    static_cast<const VulkanSampler*>(desc.fImmutableSampler);
+            SkASSERT(sampler);
+            keyData.push_back_n(sampler->samplerDesc().asSpan().size(),
+                                sampler->samplerDesc().asSpan().data());
+        }
+    }
 
     GraphiteResourceKey key;
-    GraphiteResourceKey::Builder builder(&key, kType, num32DataCnt, Shareable::kNo);
+    GraphiteResourceKey::Builder builder(&key, kType, keyData.size(), Shareable::kNo);
 
-    builder[0] = requestedDescriptors.size();
-    for (int i = 1; i < num32DataCnt; i++) {
-        const auto& currDesc = requestedDescriptors[i - 1];
-        // TODO: Consider making the DescriptorData struct itself just use uint16_t.
-        uint16_t smallerCount = static_cast<uint16_t>(currDesc.fCount);
-        builder[i] = static_cast<uint8_t>(currDesc.fType) << 24 |
-                     currDesc.fBindingIndex << 16 |
-                     smallerCount;
+    for (int i = 0; i < keyData.size(); i++) {
+        builder[i] = keyData[i];
     }
+
     builder.finish();
     return key;
 }
@@ -676,6 +682,7 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
                         "format properties.\n");
             return {};
         }
+        vkTexInfo.fYcbcrConversionInfo = ycbcrInfo;
         externalFormat.externalFormat = hwbFormatProps.externalFormat;
     }
     const VkExternalMemoryImageCreateInfo externalMemoryImageInfo{

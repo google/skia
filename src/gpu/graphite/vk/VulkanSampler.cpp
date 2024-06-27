@@ -14,9 +14,11 @@
 namespace skgpu::graphite {
 
 VulkanSampler::VulkanSampler(const VulkanSharedContext* sharedContext,
+                             const SamplerDesc& desc,
                              VkSampler sampler,
                              sk_sp<VulkanYcbcrConversion> ycbcrConversion)
         : Sampler(sharedContext)
+        , fDesc(desc)
         , fSampler(sampler)
         , fYcbcrConversion(ycbcrConversion) {}
 
@@ -36,21 +38,26 @@ static VkSamplerAddressMode tile_mode_to_vk_sampler_address(SkTileMode tileMode)
 
 sk_sp<VulkanSampler> VulkanSampler::Make(
         const VulkanSharedContext* sharedContext,
-        const SkSamplingOptions& samplingOptions,
-        SkTileMode xTileMode,
-        SkTileMode yTileMode,
+        const SamplerDesc& desc,
         sk_sp<VulkanYcbcrConversion> ycbcrConversion) {
-
     VkSamplerCreateInfo samplerInfo;
     memset(&samplerInfo, 0, sizeof(VkSamplerCreateInfo));
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    // TODO(b/311392779): If a ycbcrConversion is passed in, assign pNext to
-    // VkSamplerYcbcrConversion.
-    samplerInfo.pNext = nullptr;
+
+    void* pNext = nullptr;
+    VkSamplerYcbcrConversionInfo conversionInfo;
+    if (ycbcrConversion) {
+        conversionInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO;
+        conversionInfo.pNext = nullptr;
+        conversionInfo.conversion = ycbcrConversion->ycbcrConversion();
+        pNext = &conversionInfo;
+    }
+
+    samplerInfo.pNext = pNext;
     samplerInfo.flags = 0;
 
     VkFilter minMagFilter = [&] {
-        switch (samplingOptions.filter) {
+        switch (desc.samplingOptions().filter) {
             case SkFilterMode::kNearest: return VK_FILTER_NEAREST;
             case SkFilterMode::kLinear:  return VK_FILTER_LINEAR;
         }
@@ -58,7 +65,7 @@ sk_sp<VulkanSampler> VulkanSampler::Make(
     }();
 
     VkSamplerMipmapMode mipmapMode = [&] {
-      switch (samplingOptions.mipmap) {
+      switch (desc.samplingOptions().mipmap) {
           // There is no disable mode. We use max level to disable mip mapping.
           // It may make more sense to use NEAREST for kNone but Chrome pixel tests have
           // been dependent on subtle rendering differences introduced by switching this.
@@ -72,8 +79,8 @@ sk_sp<VulkanSampler> VulkanSampler::Make(
     samplerInfo.magFilter = minMagFilter;
     samplerInfo.minFilter = minMagFilter;
     samplerInfo.mipmapMode = mipmapMode;
-    samplerInfo.addressModeU = tile_mode_to_vk_sampler_address(xTileMode);
-    samplerInfo.addressModeV = tile_mode_to_vk_sampler_address(yTileMode);
+    samplerInfo.addressModeU = tile_mode_to_vk_sampler_address(desc.tileModeX());
+    samplerInfo.addressModeV = tile_mode_to_vk_sampler_address(desc.tileModeY());
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
     samplerInfo.mipLodBias = 0;
     samplerInfo.anisotropyEnable = VK_FALSE;
@@ -86,7 +93,8 @@ sk_sp<VulkanSampler> VulkanSampler::Make(
     // level mip). If the filters weren't the same we could set min = 0 and max = 0.25 to force
     // the minFilter on mip level 0.
     samplerInfo.minLod = 0;
-    samplerInfo.maxLod = (samplingOptions.mipmap == SkMipmapMode::kNone) ? 0.0f : VK_LOD_CLAMP_NONE;
+    samplerInfo.maxLod = (desc.samplingOptions().mipmap == SkMipmapMode::kNone) ? 0.0f
+                                                                                : VK_LOD_CLAMP_NONE;
     samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
 
@@ -100,6 +108,7 @@ sk_sp<VulkanSampler> VulkanSampler::Make(
     }
 
     return sk_sp<VulkanSampler>(new VulkanSampler(sharedContext,
+                                                  desc,
                                                   sampler,
                                                   std::move(ycbcrConversion)));
 }

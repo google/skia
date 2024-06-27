@@ -11,10 +11,12 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
+#include "src/gpu/graphite/vk/VulkanSampler.h"
 
 namespace SkSL {
     class Compiler;
@@ -25,6 +27,7 @@ namespace skgpu::graphite {
 class Attribute;
 class GraphicsPipelineDesc;
 class RuntimeEffectDictionary;
+class VulkanResourceProvider;
 class VulkanSharedContext;
 struct RenderPassDesc;
 class TextureInfo;
@@ -73,12 +76,10 @@ public:
             kInputAttachmentBindingIndex,
             PipelineStageFlags::kFragmentShader};
 
-    static sk_sp<VulkanGraphicsPipeline> Make(const VulkanSharedContext*,
+    static sk_sp<VulkanGraphicsPipeline> Make(VulkanResourceProvider*,
                                               const RuntimeEffectDictionary*,
                                               const GraphicsPipelineDesc&,
-                                              const RenderPassDesc&,
-                                              const sk_sp<VulkanRenderPass>& compatibleRenderPass,
-                                              VkPipelineCache);
+                                              const RenderPassDesc&);
 
     static sk_sp<VulkanGraphicsPipeline> MakeLoadMSAAPipeline(
             const VulkanSharedContext*,
@@ -121,7 +122,8 @@ private:
                            bool hasFragmentUniforms,
                            bool hasStepUniforms,
                            int numTextureSamplers,
-                           bool ownsPipelineLayout);
+                           bool ownsPipelineLayout,
+                           skia_private::TArray<sk_sp<VulkanSampler>> immutableSamplers);
 
     void freeGpuData() override;
 
@@ -131,6 +133,9 @@ private:
     bool fHasStepUniforms = false;
     int fNumTextureSamplers = 0;
     bool fOwnsPipelineLayout = true;
+
+    // Hold a ref to immutable samplers used such that their lifetime is properly managed.
+    const skia_private::TArray<sk_sp<VulkanSampler>> fImmutableSamplers;
 };
 
 } // namespace skgpu::graphite

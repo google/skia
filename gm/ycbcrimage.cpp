@@ -90,26 +90,20 @@ protected:
 
         SkASSERT(!fYCbCrImage);
 
-        // TODO(b/311392779): Once graphite supports YCbCr sampling, actually create the image and
-        // return either DrawResult::Ok or DrawResult::kFail. For now, clean up the helper and
-        // texture manually.
-        recorder->deleteBackendTexture(ycbcrHelper->backendTexture());
+        fYCbCrImage = SkImages::WrapTexture(recorder,
+                                            ycbcrHelper->backendTexture(),
+                                            kRGB_888x_SkColorType,
+                                            kPremul_SkAlphaType,
+                                            /*colorSpace=*/nullptr,
+                                            release_ycbcrhelper,
+                                            ycbcrHelper.get());
+        SkASSERT(fYCbCrImage);
         ycbcrHelper.release();
-        return skiagm::DrawResult::kSkip;
-        // fYCbCrImage = SkImages::WrapTexture(recorder,
-        //                                     ycbcrHelper->backendTexture(),
-        //                                     kRGB_888x_SkColorType,
-        //                                     kPremul_SkAlphaType,
-        //                                     /*colorSpace=*/nullptr,
-        //                                     release_ycbcrhelper,
-        //                                     ycbcrHelper.get());
-        // SkASSERT(fYCbCrImage);
-        // ycbcrHelper.release();
-        // if (!fYCbCrImage) {
-        //     *errorMsg = "Failed to create I420 SkImage.";
-        //     return DrawResult::kFail;
-        // }
-        // return DrawResult::kOk;
+        if (!fYCbCrImage) {
+            *errorMsg = "Failed to create I420 SkImage.";
+            return DrawResult::kFail;
+        }
+        return DrawResult::kOk;
     }
 #endif // SK_GRAPHITE
 

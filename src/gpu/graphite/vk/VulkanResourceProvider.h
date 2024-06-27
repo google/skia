@@ -103,6 +103,7 @@ private:
     VkPipelineCache pipelineCache();
 
     friend class VulkanCommandBuffer;
+    friend class VulkanGraphicsPipeline;
     VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 
     // Each render pass will need buffer space to record rtAdjust information. To minimize costly
