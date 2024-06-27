@@ -923,6 +923,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "gm", ALL, "async_rescale_and_read")
 	}
 
+	if b.model("Wembley") {
+		// These tests run forever on the Wembley.
+		skip(ALL, "gm", ALL, "wacky_yuv_formats_cubic")
+	}
+
 	if b.os("iOS") {
 		skip(glPrefix, "skp", ALL, ALL)
 	}
