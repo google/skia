@@ -6,7 +6,6 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 cc_binary(
     name = "path_combiner",
     srcs = ["src/path_main.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-fuse-ld=lld",
         "-lpthread",
@@ -25,7 +24,6 @@ cc_library(
 cc_binary(
     name = "png_decoder",
     srcs = ["src/decode_png_main.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-fuse-ld=lld",
         "-lpthread",
@@ -39,7 +37,6 @@ cc_binary(
 cc_binary(
     name = "decode_everything",
     srcs = ["src/decode_everything.cpp"],
-    copts = ["-std=c++17"],
     linkopts = select({
         "@platforms//os:linux": [
             "-fuse-ld=lld",
@@ -63,7 +60,6 @@ cc_binary(
 cc_binary(
     name = "write_text_to_png",
     srcs = ["src/write_text_to_png.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-fuse-ld=lld",
         "-lpthread",
@@ -80,7 +76,6 @@ cc_binary(
 cc_binary(
     name = "shape_text",
     srcs = ["src/shape_text.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-fuse-ld=lld",
         "-lpthread",
@@ -97,7 +92,6 @@ cc_binary(
 cc_binary(
     name = "use_ganesh_gl",
     srcs = ["src/ganesh_gl.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-lpthread",
     ] + select(
@@ -137,7 +131,6 @@ objc_library(
 cc_binary(
     name = "use_ganesh_vulkan",
     srcs = ["src/ganesh_vulkan.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-lpthread",
     ],
@@ -150,7 +143,6 @@ cc_binary(
 cc_binary(
     name = "use_ganesh_metal",
     srcs = ["src/ganesh_metal.cpp"],
-    copts = ["-std=c++17"],
     target_compatible_with = select({
         "@platforms//os:macos": [],
         "@platforms//os:ios": [],
@@ -167,7 +159,6 @@ objc_library(
     name = "metal_context_helper",
     srcs = ["src/metal_context_helper.mm"],
     hdrs = ["src/metal_context_helper.h"],
-    copts = ["-std=c++17"],
     includes = ["src"],
     sdk_frameworks = [
         # Without MetalKit added as a dependency, `[*device newCommandQueue]` fails
@@ -189,7 +180,6 @@ objc_library(
 cc_binary(
     name = "use_skresources",
     srcs = ["src/use_skresources.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-lpthread",
     ],
@@ -204,7 +194,6 @@ cc_binary(
 cc_binary(
     name = "svg_with_primitive",
     srcs = ["src/svg_renderer.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-lpthread",
     ],
@@ -223,7 +212,6 @@ cc_binary(
 cc_binary(
     name = "svg_with_harfbuzz",
     srcs = ["src/svg_renderer.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-lpthread",
     ],
@@ -244,7 +232,6 @@ cc_binary(
 cc_binary(
     name = "write_to_pdf",
     srcs = ["src/write_to_pdf.cpp"],
-    copts = ["-std=c++17"],
     linkopts = [
         "-lpthread",
     ],

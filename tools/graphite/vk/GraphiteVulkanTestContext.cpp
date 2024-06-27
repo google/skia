@@ -104,7 +104,7 @@ std::unique_ptr<skgpu::graphite::Context> VulkanTestContext::makeContext(
     }
     // Needed to make synchronous readPixels work
     revisedContextOptions.fOptionsPriv->fStoreContextRefInRecorder = true;
-
+    SkASSERT(fVulkan.fMemoryAllocator);
     return skgpu::graphite::ContextFactory::MakeVulkan(fVulkan, revisedContextOptions);
 }
 

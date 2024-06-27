@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -21,27 +21,26 @@ VK_FILES = [
 ]
 
 split_srcs_and_hdrs(
-    name = "vk",
+    name = "_vk",
     files = VK_FILES,
 )
 
 skia_filegroup(
     name = "srcs",
     srcs = [
-        ":vk_srcs",
-        ":vma_srcs",
+        ":_vk_srcs",
+        "//src/gpu/vk/vulkanmemoryallocator:vma_srcs",
     ],
     visibility = [
         "//src/gpu:__pkg__",
-        "//src/gpu/ganesh/vk:__pkg__",
     ],
 )
 
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
-        ":vk_hdrs",
-        ":vma_hdrs",
+        ":_vk_hdrs",
+        "//src/gpu/vk/vulkanmemoryallocator:vma_hdrs",
     ],
     visibility = [
         "//src/gpu:__pkg__",
@@ -65,22 +64,29 @@ generate_cpp_files_for_headers(
     ],
 )
 
-skia_filegroup(
-    name = "vma_hdrs",
+skia_cc_library(
+    name = "vk",
     srcs = [
-        "VulkanAMDMemoryAllocator.h",
+        ":_vk_srcs",
+        "//include/private/gpu/vk:private_hdrs",
     ],
+    hdrs = [
+        ":_vk_hdrs",
+        "//include/gpu/vk:public_hdrs",
+    ],
+    defines = [
+        "SK_USE_EXTERNAL_VULKAN_HEADERS",
+    ],
+    features = ["layering_check"],
     visibility = [
         "//src/gpu/ganesh/vk:__pkg__",
+        "//src/gpu/vk/vulkanmemoryallocator:__pkg__",
     ],
-)
-
-skia_filegroup(
-    name = "vma_srcs",
-    srcs = [
-        "VulkanAMDMemoryAllocator.cpp",
-    ],
-    visibility = [
-        "//src/gpu/ganesh/vk:__pkg__",
+    deps = [
+        "//:core",
+        "//include/third_party/vulkan",
+        "//src/base",
+        "//src/gpu",
+        "//src/sksl/codegen:spirv",
     ],
 )

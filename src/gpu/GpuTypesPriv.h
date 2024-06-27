@@ -16,6 +16,11 @@
 
 namespace skgpu {
 
+enum class ThreadSafe : bool {
+    kNo = false,
+    kYes = true,
+};
+
 // The old libstdc++ uses the draft name "monotonic_clock" rather than "steady_clock". This might
 // not actually be monotonic, depending on how libstdc++ was built. However, this is only currently
 // used for idle resource purging so it shouldn't cause a correctness problem.

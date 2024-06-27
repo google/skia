@@ -84,6 +84,7 @@ protected:
             return false;
         }
 
+        SkASSERT(fBackendContext.fMemoryAllocator);
         fDirectContext = GrDirectContexts::MakeVulkan(fBackendContext);
         if (!fDirectContext) {
             return false;

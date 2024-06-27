@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -11,7 +11,12 @@ exports_files_legacy()
 skia_cc_library(
     name = "vulkanmemoryallocator",
     srcs = [
+        "VulkanAMDMemoryAllocator.cpp",
+        "VulkanAMDMemoryAllocator.h",
         "VulkanMemoryAllocatorWrapper.cpp",
+    ],
+    hdrs = [
+        "VulkanMemoryAllocatorPriv.h",
     ],
     copts = [
         # Because `copts` options don't propagate up the stack, some static errors in
@@ -25,9 +30,50 @@ skia_cc_library(
     textual_hdrs = [
         "VulkanMemoryAllocatorWrapper.h",
     ],
-    visibility = ["//:__subpackages__"],
+    visibility = [
+        # We explicitly do not want to expose this as a public module because we cannot
+        # really have a one-size-fits-all allocator nor one that is runtime-configurable.
+        "//tools:__subpackages__",
+        "//src/gpu/vk:__pkg__",
+    ],
     deps = [
+        "//:core",
         "//include/third_party/vulkan",
+        "//src/base",
+        "//src/gpu/vk",
         "@vulkanmemoryallocator//:hdrs",
+    ],
+)
+
+# TODO(kjlubick) remove this when SK_USE_VMA is deleted
+skia_cc_library(
+    name = "vulkanmemoryallocator_priv",
+    hdrs = [
+        "VulkanAMDMemoryAllocator.h",
+        "VulkanMemoryAllocatorPriv.h",
+    ],
+    visibility = [
+        "//src/gpu/ganesh/vk:__pkg__",  # TODO(kjlubick) remove when this is not built in
+    ],
+    deps = [":vulkanmemoryallocator"],
+)
+
+skia_filegroup(
+    name = "vma_hdrs",
+    srcs = [
+        "VulkanAMDMemoryAllocator.h",
+    ],
+    visibility = [
+        "//src/gpu/vk:__pkg__",
+    ],
+)
+
+skia_filegroup(
+    name = "vma_srcs",
+    srcs = [
+        "VulkanAMDMemoryAllocator.cpp",
+    ],
+    visibility = [
+        "//src/gpu/vk:__pkg__",
     ],
 )

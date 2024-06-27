@@ -7,9 +7,11 @@
 
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
+#include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/private/base/SkDebug.h"
 #include "src/gpu/vk/VulkanInterface.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace skgpu {
@@ -278,6 +280,61 @@ void InvokeDeviceLostCallback(const skgpu::VulkanInterface* vulkanInterface,
                    addressInfos,
                    vendorInfos,
                    vendorBinaryData);
+}
+
+sk_sp<skgpu::VulkanInterface> MakeInterface(const skgpu::VulkanBackendContext& context,
+                                            const skgpu::VulkanExtensions* extOverride,
+                                            uint32_t* instanceVersionOut,
+                                            uint32_t* physDevVersionOut) {
+    if (!extOverride) {
+        extOverride = context.fVkExtensions;
+    }
+    SkASSERT(extOverride);
+    PFN_vkEnumerateInstanceVersion localEnumerateInstanceVersion =
+            reinterpret_cast<PFN_vkEnumerateInstanceVersion>(
+                    context.fGetProc("vkEnumerateInstanceVersion", VK_NULL_HANDLE, VK_NULL_HANDLE));
+    uint32_t instanceVersion = 0;
+    if (!localEnumerateInstanceVersion) {
+        instanceVersion = VK_MAKE_VERSION(1, 0, 0);
+    } else {
+        VkResult err = localEnumerateInstanceVersion(&instanceVersion);
+        if (err) {
+            return nullptr;
+        }
+    }
+
+    PFN_vkGetPhysicalDeviceProperties localGetPhysicalDeviceProperties =
+            reinterpret_cast<PFN_vkGetPhysicalDeviceProperties>(context.fGetProc(
+                    "vkGetPhysicalDeviceProperties", context.fInstance, VK_NULL_HANDLE));
+
+    if (!localGetPhysicalDeviceProperties) {
+        return nullptr;
+    }
+    VkPhysicalDeviceProperties physDeviceProperties;
+    localGetPhysicalDeviceProperties(context.fPhysicalDevice, &physDeviceProperties);
+    uint32_t physDevVersion = physDeviceProperties.apiVersion;
+
+    uint32_t apiVersion = context.fMaxAPIVersion ? context.fMaxAPIVersion : instanceVersion;
+
+    instanceVersion = std::min(instanceVersion, apiVersion);
+    physDevVersion = std::min(physDevVersion, apiVersion);
+
+    sk_sp<skgpu::VulkanInterface> interface(new skgpu::VulkanInterface(context.fGetProc,
+                                                                       context.fInstance,
+                                                                       context.fDevice,
+                                                                       instanceVersion,
+                                                                       physDevVersion,
+                                                                       extOverride));
+    if (!interface->validate(instanceVersion, physDevVersion, extOverride)) {
+        return nullptr;
+    }
+    if (physDevVersionOut) {
+        *physDevVersionOut = physDevVersion;
+    }
+    if (instanceVersionOut) {
+        *instanceVersionOut = instanceVersion;
+    }
+    return interface;
 }
 
 } // namespace skgpu

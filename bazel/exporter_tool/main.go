@@ -551,12 +551,12 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_shared_vk_sources",
 			Rules: []string{
 				"//include/private/gpu/vk:private_hdrs",
-				"//src/gpu/vk:vk_hdrs",
-				"//src/gpu/vk:vk_srcs"}},
+				"//src/gpu/vk:_vk_hdrs",
+				"//src/gpu/vk:_vk_srcs"}},
 		{Var: "skia_vma_sources",
 			Rules: []string{
-				"//src/gpu/vk:vma_srcs",
-				"//src/gpu/vk:vma_hdrs"}},
+				"//src/gpu/vk/vulkanmemoryallocator:vma_srcs",
+				"//src/gpu/vk/vulkanmemoryallocator:vma_hdrs"}},
 		{Var: "skia_shared_mtl_sources",
 			Rules: []string{
 				"//include/gpu/mtl:public_hdrs",

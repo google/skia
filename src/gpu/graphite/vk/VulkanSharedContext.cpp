@@ -7,9 +7,12 @@
 
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
+#include "include/gpu/vk/VulkanExtensions.h"
 #include "include/private/base/SkMutex.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"
@@ -19,7 +22,7 @@
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #if defined(SK_USE_VMA)
-#include "src/gpu/vk/VulkanAMDMemoryAllocator.h"
+#include "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorPriv.h"
 #endif
 
 namespace skgpu::graphite {
@@ -40,49 +43,18 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
                     "on the VulkanBackendContext");
         return nullptr;
     }
-
-    PFN_vkEnumerateInstanceVersion localEnumerateInstanceVersion =
-            reinterpret_cast<PFN_vkEnumerateInstanceVersion>(
-                    context.fGetProc("vkEnumerateInstanceVersion", VK_NULL_HANDLE, VK_NULL_HANDLE));
-    uint32_t instanceVersion = 0;
-    if (!localEnumerateInstanceVersion) {
-        instanceVersion = VK_MAKE_VERSION(1, 0, 0);
-    } else {
-        VkResult err = localEnumerateInstanceVersion(&instanceVersion);
-        if (err) {
-            SKGPU_LOG_E("Failed to enumerate instance version. Err: %d\n", err);
-            return nullptr;
-        }
+    // If no extensions are provided, make sure we don't have a null dereference downstream.
+    skgpu::VulkanExtensions noExtensions;
+    const skgpu::VulkanExtensions* extensions = &noExtensions;
+    if (context.fVkExtensions) {
+        extensions = context.fVkExtensions;
     }
 
-    PFN_vkGetPhysicalDeviceProperties localGetPhysicalDeviceProperties =
-            reinterpret_cast<PFN_vkGetPhysicalDeviceProperties>(
-                    context.fGetProc("vkGetPhysicalDeviceProperties",
-                                      context.fInstance,
-                                      VK_NULL_HANDLE));
-
-    if (!localGetPhysicalDeviceProperties) {
-        SKGPU_LOG_E("Failed to get function pointer to vkGetPhysicalDeviceProperties.");
-        return nullptr;
-    }
-    VkPhysicalDeviceProperties physDeviceProperties;
-    localGetPhysicalDeviceProperties(context.fPhysicalDevice, &physDeviceProperties);
-    uint32_t physDevVersion = physDeviceProperties.apiVersion;
-
-    uint32_t apiVersion = context.fMaxAPIVersion ? context.fMaxAPIVersion : instanceVersion;
-
-    instanceVersion = std::min(instanceVersion, apiVersion);
-    physDevVersion = std::min(physDevVersion, apiVersion);
-
-    sk_sp<const skgpu::VulkanInterface> interface(
-            new skgpu::VulkanInterface(context.fGetProc,
-                                       context.fInstance,
-                                       context.fDevice,
-                                       instanceVersion,
-                                       physDevVersion,
-                                       context.fVkExtensions));
-    if (!interface->validate(instanceVersion, physDevVersion, context.fVkExtensions)) {
-        SKGPU_LOG_E("Failed to validate VulkanInterface.");
+    uint32_t physDevVersion = 0;
+    sk_sp<const skgpu::VulkanInterface> interface =
+            skgpu::MakeInterface(context, extensions, &physDevVersion, nullptr);
+    if (!interface) {
+        SKGPU_LOG_E("Failed to create VulkanInterface.");
         return nullptr;
     }
 
@@ -103,7 +75,7 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
                                                           context.fPhysicalDevice,
                                                           physDevVersion,
                                                           featuresPtr,
-                                                          context.fVkExtensions,
+                                                          extensions,
                                                           context.fProtectedContext));
 
     sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator = context.fMemoryAllocator;
@@ -113,13 +85,7 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
         skgpu::ThreadSafe threadSafe = options.fClientWillExternallySynchronizeAllThreads
                                                ? skgpu::ThreadSafe::kNo
                                                : skgpu::ThreadSafe::kYes;
-        memoryAllocator = skgpu::VulkanAMDMemoryAllocator::Make(context.fInstance,
-                                                                context.fPhysicalDevice,
-                                                                context.fDevice,
-                                                                physDevVersion,
-                                                                context.fVkExtensions,
-                                                                interface.get(),
-                                                                threadSafe);
+        memoryAllocator = skgpu::VulkanMemoryAllocators::Make(context, threadSafe);
     }
 #endif
     if (!memoryAllocator) {

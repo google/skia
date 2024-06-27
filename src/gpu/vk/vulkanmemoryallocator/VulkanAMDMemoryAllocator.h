@@ -8,11 +8,11 @@
 #ifndef skgpu_VulkanAMDMemoryAllocator_DEFINED
 #define skgpu_VulkanAMDMemoryAllocator_DEFINED
 
-#include "include/gpu/vk/VulkanMemoryAllocator.h"
-#include "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorWrapper.h"
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorWrapper.h"
 
 #include <cstdint>
 #include <utility>
@@ -20,12 +20,8 @@
 namespace skgpu {
 
 class VulkanExtensions;
+enum class ThreadSafe : bool;
 struct VulkanInterface;
-
-enum class ThreadSafe : bool {
-    kNo = false,
-    kYes = true,
-};
 
 class VulkanAMDMemoryAllocator : public VulkanMemoryAllocator {
 public:
@@ -39,7 +35,8 @@ public:
 
     ~VulkanAMDMemoryAllocator() override;
 
-    VkResult allocateImageMemory(VkImage image, uint32_t allocationPropertyFlags,
+    VkResult allocateImageMemory(VkImage image,
+                                 uint32_t allocationPropertyFlags,
                                  skgpu::VulkanBackendMemory*) override;
 
     VkResult allocateBufferMemory(VkBuffer buffer,
@@ -54,9 +51,11 @@ public:
     VkResult mapMemory(const VulkanBackendMemory&, void** data) override;
     void unmapMemory(const VulkanBackendMemory&) override;
 
-    VkResult flushMemory(const VulkanBackendMemory&, VkDeviceSize offset,
+    VkResult flushMemory(const VulkanBackendMemory&,
+                         VkDeviceSize offset,
                          VkDeviceSize size) override;
-    VkResult invalidateMemory(const VulkanBackendMemory&, VkDeviceSize offset,
+    VkResult invalidateMemory(const VulkanBackendMemory&,
+                              VkDeviceSize offset,
                               VkDeviceSize size) override;
 
     std::pair<uint64_t, uint64_t> totalAllocatedAndUsedMemory() const override;
@@ -67,6 +66,6 @@ private:
     VmaAllocator fAllocator;
 };
 
-} // namespace skgpu
+}  // namespace skgpu
 
-#endif // skgpu_VulkanAMDMemoryAllocator_DEFINED
+#endif  // skgpu_VulkanAMDMemoryAllocator_DEFINED

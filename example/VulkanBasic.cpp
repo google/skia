@@ -18,6 +18,12 @@
 #include "include/gpu/ganesh/vk/GrVkDirectContext.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
+#include "include/gpu/vk/VulkanMemoryAllocator.h"
+
+// These are private files. Clients would need to look at these and implement
+// similar solutions.
+#include "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorPriv.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 #include <string.h>
@@ -78,6 +84,9 @@ int main(int argc, char** argv) {
         ACQUIRE_INST_VK_PROC(DestroyDebugReportCallbackEXT);
     }
     ACQUIRE_INST_VK_PROC(DestroyDevice);
+
+    backendContext.fMemoryAllocator =
+            skgpu::VulkanMemoryAllocators::Make(backendContext, skgpu::ThreadSafe::kNo);
 
     // Create a GrDirectContext with our VulkanBackendContext
     sk_sp<GrDirectContext> context = GrDirectContexts::MakeVulkan(backendContext);

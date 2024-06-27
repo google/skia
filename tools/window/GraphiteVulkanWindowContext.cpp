@@ -26,6 +26,7 @@
 #include "src/base/SkAutoMalloc.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/vk/VulkanInterface.h"
+#include "src/gpu/vk/vulkanmemoryallocator/VulkanAMDMemoryAllocator.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
