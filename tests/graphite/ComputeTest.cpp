@@ -773,9 +773,9 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTexture,
                                               testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
+    // For this test we allocate a 8x8 tile which is written to by a single workgroup of the same
     // size.
-    constexpr uint32_t kDim = 16;
+    constexpr uint32_t kDim = 8;
 
     class TestComputeStep : public ComputeStep {
     public:
@@ -875,9 +875,9 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
                                               testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
+    // For this test we allocate a 8x8 tile which is written to by a single workgroup of the same
     // size.
-    constexpr uint32_t kDim = 16;
+    constexpr uint32_t kDim = 8;
 
     class TestComputeStep : public ComputeStep {
     public:
@@ -1031,9 +1031,9 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ReadOnlyStorageBuffer,
                                               testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
+    // For this test we allocate a 8x8 tile which is written to by a single workgroup of the same
     // size.
-    constexpr uint32_t kDim = 16;
+    constexpr uint32_t kDim = 8;
 
     class TestComputeStep : public ComputeStep {
     public:
@@ -1061,7 +1061,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ReadOnlyStorageBuffer,
         std::string computeSkSL() const override {
             return R"(
                 void main() {
-                    uint ix = sk_LocalInvocationID.y * 16 + sk_LocalInvocationID.x;
+                    uint ix = sk_LocalInvocationID.y * 8 + sk_LocalInvocationID.x;
                     uint value = in_data[ix];
                     half4 splat = half4(
                         half(value & 0xFF),
@@ -1175,9 +1175,9 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureMultipleComp
                                               testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    // For this test we allocate a 16x16 tile which is written to by a single workgroup of the same
+    // For this test we allocate a 8x8 tile which is written to by a single workgroup of the same
     // size.
-    constexpr uint32_t kDim = 16;
+    constexpr uint32_t kDim = 8;
 
     // Writes to a texture in slot 0.
     class TestComputeStep1 : public ComputeStep {
@@ -1322,11 +1322,11 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture,
                                               testContext) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    // The first ComputeStep initializes a 16x16 texture with a checkerboard pattern of alternating
+    // The first ComputeStep initializes a 8x8 texture with a checkerboard pattern of alternating
     // red and black pixels. The second ComputeStep downsamples this texture into a 4x4 using
     // bilinear filtering at pixel borders, intentionally averaging the values of each 4x4 tile in
     // the source texture, and writes the result to the destination texture.
-    constexpr uint32_t kSrcDim = 16;
+    constexpr uint32_t kSrcDim = 8;
     constexpr uint32_t kDstDim = 4;
 
     class TestComputeStep1 : public ComputeStep {
@@ -1495,7 +1495,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsTest,
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     constexpr uint32_t kWorkgroupCount = 32;
-    constexpr uint32_t kWorkgroupSize = 256;
+    constexpr uint32_t kWorkgroupSize = 128;
 
     class TestComputeStep : public ComputeStep {
     public:
@@ -1625,7 +1625,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     constexpr uint32_t kWorkgroupCount = 32;
-    constexpr uint32_t kWorkgroupSize = 256;
+    constexpr uint32_t kWorkgroupSize = 128;
 
     class TestComputeStep : public ComputeStep {
     public:
@@ -1654,7 +1654,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_AtomicOperationsOverArrayA
         // and workgroup address spaces.
         std::string computeSkSL() const override {
             return R"(
-                const uint WORKGROUP_SIZE = 256;
+                const uint WORKGROUP_SIZE = 128;
 
                 workgroup atomicUint localCounts[2];
 
@@ -2531,7 +2531,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(Compute_NativeShaderSourceWGSL, reporter, con
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     constexpr uint32_t kWorkgroupCount = 32;
-    constexpr uint32_t kWorkgroupSize = 256;  // The WebGPU default workgroup size limit is 256
+    // The WebGPU compat default workgroup size limit is 128.
+    constexpr uint32_t kWorkgroupSize = 128;
 
     class TestComputeStep : public ComputeStep {
     public:
@@ -2557,7 +2558,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(Compute_NativeShaderSourceWGSL, reporter, con
 
                 var<workgroup> localCounter: atomic<u32>;
 
-                @compute @workgroup_size(256)
+                @compute @workgroup_size(128)
                 fn atomicCount(@builtin(local_invocation_id) localId: vec3u) {
                     // Initialize the local counter.
                     if localId.x == 0u {
