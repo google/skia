@@ -444,40 +444,7 @@ shuffle                        $2..8 = ($2..8)[6 0 1 6 2 3 7]
 }
 
 DEF_TEST(RasterPipelineBuilderBranches, r) {
-#if SK_HAS_MUSTTAIL
-    // We have guaranteed tail-calling, and don't need to rewind the stack.
-    static constexpr char kExpectationWithKnownExecutionMask[] =
-R"(jump                           jump +9 (label 3 at #10)
-label                          label 0
-copy_constant                  v0 = 0
-label                          label 0x00000001
-copy_constant                  v1 = 0
-jump                           jump -4 (label 0 at #2)
-label                          label 0x00000002
-copy_constant                  v2 = 0
-jump                           jump -7 (label 0 at #2)
-label                          label 0x00000003
-branch_if_no_active_lanes_eq   branch -4 (label 2 at #7) if no lanes of v2 == 0
-branch_if_no_active_lanes_eq   branch -10 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
-)";
-    static constexpr char kExpectationWithExecutionMaskWrites[] =
-R"(jump                           jump +10 (label 3 at #11)
-label                          label 0
-copy_constant                  v0 = 0
-label                          label 0x00000001
-copy_constant                  v1 = 0
-branch_if_no_lanes_active      branch_if_no_lanes_active -2 (label 1 at #4)
-branch_if_all_lanes_active     branch_if_all_lanes_active -5 (label 0 at #2)
-label                          label 0x00000002
-copy_constant                  v2 = 0
-branch_if_any_lanes_active     branch_if_any_lanes_active -8 (label 0 at #2)
-label                          label 0x00000003
-branch_if_no_active_lanes_eq   branch -4 (label 2 at #8) if no lanes of v2 == 0
-branch_if_no_active_lanes_eq   branch -11 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
-)";
-#else
-    // We don't have guaranteed tail-calling, so we rewind the stack immediately before any backward
-    // branches.
+    // We rewind the stack immediately before any backward branches.
     static constexpr char kExpectationWithKnownExecutionMask[] =
 R"(jump                           jump +11 (label 3 at #12)
 label                          label 0
@@ -516,7 +483,6 @@ branch_if_no_active_lanes_eq   branch -6 (label 2 at #10) if no lanes of v2 == 0
 stack_rewind
 branch_if_no_active_lanes_eq   branch -16 (label 0 at #2) if no lanes of v2 == 0x00000001 (1.401298e-45)
 )";
-#endif
 
     for (bool enableExecutionMaskWrites : {false, true}) {
         // Create a very simple nonsense program.
@@ -808,14 +774,8 @@ DEF_TEST(RasterPipelineBuilderAutomaticStackRewinding, r) {
                                                                 /*numImmutableSlots=*/0);
     sk_sp<SkData> dump = get_program_dump(*program);
 
-#if SK_HAS_MUSTTAIL
-    // We have guaranteed tail-calling, so we never use `stack_rewind`.
-    REPORTER_ASSERT(r, !skstd::contains(as_string_view(dump), "stack_rewind"));
-#else
-    // We can't guarantee tail-calling, so we should automatically insert `stack_rewind` stages into
-    // long programs.
+    // We automatically insert `stack_rewind` stages into long programs.
     REPORTER_ASSERT(r, skstd::contains(as_string_view(dump), "stack_rewind"));
-#endif
 }
 
 DEF_TEST(RasterPipelineBuilderTraceOps, r) {

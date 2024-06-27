@@ -1622,9 +1622,7 @@ void Program::appendAdjacentMultiSlotTernaryOp(TArray<Stage>* pipeline, SkArenaA
 }
 
 void Program::appendStackRewind(TArray<Stage>* pipeline) const {
-#if defined(SKSL_STANDALONE) || !SK_HAS_MUSTTAIL
     pipeline->push_back({ProgramOp::stack_rewind, nullptr});
-#endif
 }
 
 static void* context_bit_pun(intptr_t val) {
