@@ -44,6 +44,7 @@
 #include "tools/fonts/FontToolUtils.h"
 
 #if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #endif
 
@@ -221,7 +222,7 @@ static void show_scaled_pixels(SkCanvas* canvas, SkImage* image, bool useImageSc
         canvas->save();
         for (auto s : gSamplings) {
             if (useImageScaling) {
-                if (auto scaled = image->makeScaled(info, s)) {
+                if (auto scaled = image->makeScaled(canvas->recorder() ,info, s)) {
                     canvas->drawImage(scaled, 0, 0);
                 }
             } else {
@@ -245,6 +246,7 @@ static void draw_contents(SkCanvas* canvas) {
 
 static sk_sp<SkImage> make_raster(const SkImageInfo& info,
                                   GrRecordingContext*,
+                                  skgpu::graphite::Recorder*,
                                   void (*draw)(SkCanvas*)) {
     auto surface(SkSurfaces::Raster(info));
     draw(surface->getCanvas());
@@ -253,6 +255,7 @@ static sk_sp<SkImage> make_raster(const SkImageInfo& info,
 
 static sk_sp<SkImage> make_picture(const SkImageInfo& info,
                                    GrRecordingContext*,
+                                   skgpu::graphite::Recorder*,
                                    void (*draw)(SkCanvas*)) {
     SkPictureRecorder recorder;
     draw(recorder.beginRecording(SkRect::MakeIWH(info.width(), info.height())));
@@ -266,19 +269,25 @@ static sk_sp<SkImage> make_picture(const SkImageInfo& info,
 
 static sk_sp<SkImage> make_codec(const SkImageInfo& info,
                                  GrRecordingContext*,
+                                 skgpu::graphite::Recorder*,
                                  void (*draw)(SkCanvas*)) {
-    sk_sp<SkImage> image(make_raster(info, nullptr, draw));
+    sk_sp<SkImage> image(make_raster(info, nullptr, nullptr, draw));
     return SkImages::DeferredFromEncodedData(SkPngEncoder::Encode(nullptr, image.get(), {}));
 }
 
 static sk_sp<SkImage> make_gpu(const SkImageInfo& info,
                                GrRecordingContext* ctx,
+                               skgpu::graphite::Recorder* recorder,
                                void (*draw)(SkCanvas*)) {
-    if (!ctx) {
-        return nullptr;
+    sk_sp<SkSurface> surface;
+    if (ctx) {
+        surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info);
     }
-
-    auto surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info));
+#if defined(SK_GRAPHITE)
+    if (recorder) {
+        surface = SkSurfaces::RenderTarget(recorder, info);
+    }
+#endif
     if (!surface) {
         return nullptr;
     }
@@ -289,6 +298,7 @@ static sk_sp<SkImage> make_gpu(const SkImageInfo& info,
 
 typedef sk_sp<SkImage> (*ImageMakerProc)(const SkImageInfo&,
                                          GrRecordingContext*,
+                                         skgpu::graphite::Recorder*,
                                          void (*)(SkCanvas*));
 
 class ScalePixelsGM : public skiagm::GM {
@@ -313,7 +323,8 @@ protected:
             make_codec, make_raster, make_picture, make_codec, make_gpu,
         };
         for (auto& proc : procs) {
-            sk_sp<SkImage> image(proc(info, canvas->recordingContext(), draw_contents));
+            sk_sp<SkImage> image(
+                    proc(info, canvas->recordingContext(), canvas->recorder(), draw_contents));
             if (image) {
                 show_scaled_pixels(canvas, image.get(), fUseImageScaling);
             }
