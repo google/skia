@@ -1589,6 +1589,20 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
                            { "samplerA" }}
     };
 
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kHWYUVNoSwizzleImageShader] = {
+            /*name=*/"HWYUVImageShader",
+            /*staticFn=*/"sk_hw_yuv_no_swizzle_image_shader",
+            SnippetRequirementFlags::kLocalCoords,
+            /*uniforms=*/{ { "invImgSizeY",              SkSLType::kFloat2 },
+                           { "invImgSizeUV",             SkSLType::kFloat2 }, // Relative to Y space
+                           { "yuvToRGBMatrix",           SkSLType::kHalf3x3 },
+                           { "yuvToRGBXlateAlphaParams", SkSLType::kHalf4 } },
+            /*textures=*/ {{ "samplerY" },
+                           { "samplerU" },
+                           { "samplerV" },
+                           { "samplerA" }}
+    };
+
     // Like the local matrix shader, this is a no-op if the child doesn't need coords
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCoordClampShader] = {
             /*name=*/"CoordClampShader",

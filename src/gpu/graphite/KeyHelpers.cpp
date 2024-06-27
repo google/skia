@@ -768,6 +768,23 @@ void add_hw_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->writeHalf(imgData.fYUVtoRGBTranslate);
 }
 
+void add_hw_yuv_no_swizzle_image_uniform_data(const ShaderCodeDictionary* dict,
+                                              const YUVImageShaderBlock::ImageData& imgData,
+                                              PipelineDataGatherer* gatherer) {
+    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWYUVNoSwizzleImageShader)
+
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
+    gatherer->write(SkSize::Make(1.f/imgData.fImgSizeUV.width(), 1.f/imgData.fImgSizeUV.height()));
+    gatherer->writeHalf(imgData.fYUVtoRGBMatrix);
+    SkV4 yuvToRGBXlateAlphaParam = {
+        imgData.fYUVtoRGBTranslate.fX,
+        imgData.fYUVtoRGBTranslate.fY,
+        imgData.fYUVtoRGBTranslate.fZ,
+        imgData.fAlphaParam
+    };
+    gatherer->writeHalf(yuvToRGBXlateAlphaParam);
+}
+
 } // anonymous namespace
 
 YUVImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
@@ -803,6 +820,18 @@ static bool can_do_yuv_tiling_in_hw(const Caps* caps,
     return imgData.fSubset.contains(SkRect::Make(imgData.fImgSize));
 }
 
+static bool no_yuv_swizzle(const YUVImageShaderBlock::ImageData& imgData) {
+    // Y_U_V or U_Y_V format, reading from R channel for each texture
+    if (imgData.fChannelSelect[0].x == 1 &&
+        imgData.fChannelSelect[1].x == 1 &&
+        imgData.fChannelSelect[2].x == 1 &&
+        imgData.fChannelSelect[3].x == 1) {
+        return true;
+    }
+
+    return false;
+}
+
 void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
                                    PaintParamsKeyBuilder* builder,
                                    PipelineDataGatherer* gatherer,
@@ -816,6 +845,7 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
 
     const Caps* caps = keyContext.caps();
     const bool doTilingInHw = !imgData.fSampling.useCubic && can_do_yuv_tiling_in_hw(caps, imgData);
+    const bool noYUVSwizzle = no_yuv_swizzle(imgData);
 
     SkTileMode uvTileModes[2] = { imgData.fTileModes[0] == SkTileMode::kDecal
                                           ? SkTileMode::kClamp : imgData.fTileModes[0],
@@ -826,7 +856,10 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
     gatherer->add(imgData.fTextureProxies[2], {imgData.fSamplingUV, uvTileModes});
     gatherer->add(imgData.fTextureProxies[3], {imgData.fSampling, imgData.fTileModes});
 
-    if (doTilingInHw) {
+    if (doTilingInHw && noYUVSwizzle) {
+        add_hw_yuv_no_swizzle_image_uniform_data(keyContext.dict(), imgData, gatherer);
+        builder->addBlock(BuiltInCodeSnippetID::kHWYUVNoSwizzleImageShader);
+    } else if (doTilingInHw) {
         add_hw_yuv_image_uniform_data(keyContext.dict(), imgData, gatherer);
         builder->addBlock(BuiltInCodeSnippetID::kHWYUVImageShader);
     } else if (imgData.fSampling.useCubic) {
@@ -1659,6 +1692,8 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
             SkASSERT(locIndex == 3);
             imgData.fTextureProxies[locIndex] = yuvaImage->proxyView(SkYUVAInfo::kY).refProxy();
             imgData.fChannelSelect[locIndex] = {1.f, 1.f, 1.f, 1.f};
+            // For the hardcoded sampling no-swizzle case, we use this to set constant alpha
+            imgData.fAlphaParam = 1;
         }
     }
 

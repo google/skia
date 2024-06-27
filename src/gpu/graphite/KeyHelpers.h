@@ -207,6 +207,7 @@ struct YUVImageShaderBlock {
         SkRect fSubset;
         SkPoint fLinearFilterUVInset = { 0.50001f, 0.50001f };
         SkV4 fChannelSelect[4];
+        float fAlphaParam = 0;
         SkMatrix fYUVtoRGBMatrix;
         SkPoint3 fYUVtoRGBTranslate;
 
