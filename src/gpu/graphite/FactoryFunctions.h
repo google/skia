@@ -8,7 +8,6 @@
 #ifndef skgpu_graphite_FactoryFunctions_DEFINED
 #define skgpu_graphite_FactoryFunctions_DEFINED
 
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/effects/SkRuntimeEffect.h"
@@ -21,8 +20,6 @@ class PrecompileColorFilter;
 class PrecompileImageFilter;
 class PrecompileMaskFilter;
 class PrecompileShader;
-
-// All of these factory functions will be moved elsewhere once the pre-compile API becomes public
 
 namespace PrecompileShaders {
     // ??

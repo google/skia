@@ -61,15 +61,6 @@ namespace PrecompileShadersPriv {
 
 } // namespace PrecompileShadersPriv
 
-namespace PrecompileImageFiltersPriv {
-
-    // Used by both the BlurMaskFilter and the BlurImageFilter
-    void CreateBlurImageFilterPipelines(const KeyContext&,
-                                        PipelineDataGatherer*,
-                                        const PaintOptionsPriv::ProcessCombination&);
-
-} // namespace PrecompileImageFiltersPriv
-
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_precompile_PrecompileShadersPriv_DEFINED

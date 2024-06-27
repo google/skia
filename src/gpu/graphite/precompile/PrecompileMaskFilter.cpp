@@ -10,7 +10,7 @@
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
-#include "src/gpu/graphite/precompile/PrecompileShadersPriv.h"
+#include "src/gpu/graphite/precompile/PrecompileImageFiltersPriv.h"
 
 namespace skgpu::graphite {
 

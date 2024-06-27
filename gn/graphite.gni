@@ -380,6 +380,7 @@ skia_graphite_precompile_sources = [
   "$_src/precompile/PrecompileColorFiltersPriv.h",
   "$_src/precompile/PrecompileImageFilter.cpp",
   "$_src/precompile/PrecompileImageFilterPriv.h",
+  "$_src/precompile/PrecompileImageFiltersPriv.h",
   "$_src/precompile/PrecompileMaskFilter.cpp",
   "$_src/precompile/PrecompileShader.cpp",
   "$_src/precompile/PrecompileShaderPriv.h",
