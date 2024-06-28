@@ -946,10 +946,9 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
             auto [bounds, localToDevice] = subRun->vertexFiller().boundsAndDeviceMatrix(
                                                    this->localToDeviceTransform(), drawOrigin);
             SkPaint subRunPaint = paint;
-            // For color emoji, only the paint alpha affects the final color
+            // For color emoji, shaders don't affect the final color
             if (subRun->maskFormat() == skgpu::MaskFormat::kARGB) {
-                subRunPaint.setColor(SK_ColorWHITE);
-                subRunPaint.setAlphaf(paint.getAlphaf());
+                subRunPaint.setShader(nullptr);
             }
 
             bool useGammaCorrectDistanceTable =
@@ -969,7 +968,8 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                                                    rendererData)),
                                subRunPaint,
                                DefaultFillStyle(),
-                               DrawFlags::kIgnorePathEffect);
+                               DrawFlags::kIgnorePathEffect,
+                               SkBlender::Mode(SkBlendMode::kDstIn));
         }
         subRunCursor += glyphsRegenerated;
 
@@ -1320,7 +1320,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         SkASSERT(!requireMSAA);
         sktext::gpu::RendererData rendererData = geometry.subRunData().rendererData();
         if (!rendererData.isSDF) {
-            return {renderers->bitmapText(rendererData.isLCD), nullptr};
+            return {renderers->bitmapText(rendererData.isLCD, rendererData.maskFormat), nullptr};
         }
         // Even though the SkPaint can request subpixel rendering, we still need to match
         // this with the pixel geometry.

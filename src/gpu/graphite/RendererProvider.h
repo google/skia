@@ -10,6 +10,7 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkVertices.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Renderer.h"
 
 #include <vector>
@@ -54,8 +55,15 @@ public:
     // Coverage mask rendering
     const Renderer* coverageMask() const { return &fCoverageMask; }
 
-    // Atlas'ed text rendering
-    const Renderer* bitmapText(bool useLCDText) const { return &fBitmapText[useLCDText]; }
+    // Atlased text rendering
+    const Renderer* bitmapText(bool useLCDText, skgpu::MaskFormat format) const {
+        // We use 565 here to represent all LCD rendering, regardless of texture format
+        if (useLCDText) {
+            return &fBitmapText[(int)skgpu::MaskFormat::kA565];
+        }
+        SkASSERT(format != skgpu::MaskFormat::kA565);
+        return &fBitmapText[(int)format];
+    }
     const Renderer* sdfText(bool useLCDText) const { return &fSDFText[useLCDText]; }
 
     // Mesh rendering
@@ -114,7 +122,7 @@ private:
 
     Renderer fCoverageMask;
 
-    Renderer fBitmapText[2];  // bool isLCD
+    Renderer fBitmapText[3];  // int variant
     Renderer fSDFText[2]; // bool isLCD
 
     Renderer fAnalyticRRect;

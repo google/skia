@@ -63,6 +63,7 @@ using RegenerateAtlasDelegate = std::function<std::tuple<bool, int>(GlyphVector*
 struct RendererData {
     bool isSDF = false;
     bool isLCD = false;
+    skgpu::MaskFormat maskFormat;
 };
 
 // -- AtlasSubRun --------------------------------------------------------------------------------
