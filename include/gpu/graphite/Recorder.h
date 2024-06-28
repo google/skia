@@ -89,6 +89,11 @@ public:
     const ImageProvider* clientImageProvider() const { return fClientImageProvider.get(); }
 
     /**
+     * Gets the maximum supported texture size.
+     */
+    int maxTextureSize() const;
+
+    /**
      * Creates a new backend gpu texture matching the dimensions and TextureInfo. If an invalid
      * TextureInfo or a TextureInfo Skia can't support is passed in, this will return an invalid
      * BackendTexture. Thus the client should check isValid on the returned BackendTexture to know

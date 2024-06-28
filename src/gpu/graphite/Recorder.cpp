@@ -281,6 +281,10 @@ void Recorder::deregisterDevice(const Device* device) {
     }
 }
 
+int Recorder::maxTextureSize() const {
+    return this->priv().caps()->maxTextureSize();
+}
+
 BackendTexture Recorder::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
     ASSERT_SINGLE_OWNER
 
