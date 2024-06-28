@@ -96,6 +96,16 @@ std::string get_mangled_sampler_name(const TextureAndSampler& tex, int manglingS
     return tex.name() + std::string("_") + std::to_string(manglingSuffix);
 }
 
+std::string get_mangled_struct_reference(const ShaderInfo& shaderInfo,
+                                         const ShaderNode* node) {
+    SkASSERT(node->entry()->fUniformStructName);
+    std::string result = "node_" + std::to_string(node->keyIndex()); // Field holding the struct
+    if (shaderInfo.ssboIndex()) {
+        result = EmitStorageBufferAccess("fs", shaderInfo.ssboIndex(), result.c_str());
+    }
+    return result;
+}
+
 std::string stitch_csv(SkSpan<const std::string> args) {
     std::string code = "";
     const char* separator = "";
@@ -139,11 +149,18 @@ void append_uniforms(TArray<std::string>* list,
                      const ShaderNode* node,
                      SkSpan<const std::string> childOutputs) {
     const ShaderSnippet* entry = node->entry();
-    // The uniforms are in the global scope, so just pass in the ones bound to 'node'
-    for (int i = 0; i < entry->fUniforms.size(); ++i) {
-        list->push_back(get_mangled_uniform_name(shaderInfo,
-                                                 entry->fUniforms[i],
-                                                 node->keyIndex()));
+
+    if (entry->fUniformStructName) {
+        // The node's uniforms are aggregated in a sub-struct within the global uniforms so we just
+        // need to append a reference to the node's instance
+        list->push_back(get_mangled_struct_reference(shaderInfo, node));
+    } else {
+        // The uniforms are in the global scope, so just pass in the ones bound to 'node'
+        for (int i = 0; i < entry->fUniforms.size(); ++i) {
+            list->push_back(get_mangled_uniform_name(shaderInfo,
+                                                     entry->fUniforms[i],
+                                                     node->keyIndex()));
+        }
     }
 
     // Append samplers
@@ -1100,6 +1117,8 @@ ShaderSnippet ShaderCodeDictionary::convertRuntimeEffect(const SkRuntimeEffect* 
         snippetFlags |= SnippetRequirementFlags::kBlenderDstColor;  // dst
     }
 
+    // TODO: We can have the custom runtime effect preamble generator define structs for its
+    // uniforms if it has a lot of uniforms, and then calculate the required alignment here.
     return ShaderSnippet(name,
                          /*staticFn=*/nullptr,
                          snippetFlags,
@@ -1148,7 +1167,8 @@ int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect
     return newCodeSnippetID;
 }
 
-ShaderCodeDictionary::ShaderCodeDictionary() {
+ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
+        : fLayout(layout) {
     // The 0th index is reserved as invalid
     fIDToPaintKey.push_back(PaintParamsKey::Invalid());
 
@@ -1648,6 +1668,22 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
                 SnippetRequirementFlags::kBlenderDstColor,
                 /*uniforms=*/{}
         };
+    }
+
+    // Complete layout calculations for builtin snippets
+    for (int i = 0; i < kBuiltInCodeSnippetIDCount; ++i) {
+        ShaderSnippet& snippet = fBuiltInCodeSnippets[i];
+        SkASSERT(snippet.fName); // Should not have missed a built-in
+
+        if (snippet.fUniformStructName) {
+            UniformOffsetCalculator offsetCalculator{fLayout, 0};
+            for (int j = 0; j < snippet.fUniforms.size(); ++j) {
+                SkASSERT(!snippet.fUniforms[j].isPaintColor()); // paint color shouldn't be embedded
+                offsetCalculator.advanceOffset(snippet.fUniforms[j].type(),
+                                               snippet.fUniforms[j].count());
+            }
+            snippet.fRequiredAlignment = offsetCalculator.requiredAlignment();
+        }
     }
 }
 

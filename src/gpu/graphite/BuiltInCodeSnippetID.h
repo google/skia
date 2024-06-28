@@ -53,7 +53,6 @@ enum class BuiltInCodeSnippetID : int32_t {
     kCoordClampShader,
     kDitherShader,
     kPerlinNoiseShader,
-    kRuntimeShader,
 
     // SkColorFilter code snippets
     kMatrixColorFilter,

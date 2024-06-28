@@ -174,6 +174,8 @@ std::string get_node_uniforms(Layout layout,
     SkSpan<const Uniform> uniforms = node->entry()->fUniforms;
 
     if (!uniforms.empty()) {
+        // TODO: Generate a single field pointing to a struct instance of the given type.
+        SkASSERT(!node->entry()->fUniformStructName);
         SkSL::String::appendf(&result, "// %d - %s uniforms\n",
                               node->keyIndex(), node->entry()->fName);
         result += get_uniforms(layout, uniforms, offset, node->keyIndex(), wrotePaintColor);
@@ -223,6 +225,8 @@ std::string get_node_ssbo_fields(const ShaderNode* node, bool* wrotePaintColor) 
     SkSpan<const Uniform> uniforms = node->entry()->fUniforms;
 
     if (!uniforms.empty()) {
+        // TODO: Generate a single field pointing to a struct instance of the given type.
+        SkASSERT(!node->entry()->fUniformStructName);
         SkSL::String::appendf(&result, "// %d - %s uniforms\n",
                               node->keyIndex(), node->entry()->fName);
 
@@ -269,6 +273,8 @@ std::string EmitPaintParamsUniforms(int bufferID,
 
     std::string result = get_uniform_header(bufferID, "FS");
     for (const ShaderNode* n : nodes) {
+        // TODO: Generate a single field pointing to a struct instance of the given type.
+        SkASSERT(!n->entry()->fUniformStructName);
         result += get_node_uniforms(layout, n, &offset, wrotePaintColor);
     }
     result.append("};\n\n");

@@ -23,6 +23,7 @@
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/Uniform.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
 
@@ -125,6 +126,14 @@ struct ShaderSnippet {
 
     // The features and args that this shader snippet requires in order to be invoked
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags{SnippetRequirementFlags::kNone};
+
+    // If not null, the list of uniforms in `fUniforms` describes an existing struct type declared
+    // in the Graphite modules with the given name. Instead of inlining the each uniform in the
+    // top-level interface block or aggregate struct, there will be a single member of this struct's
+    // type.
+    const char* fUniformStructName = nullptr;
+    // If the uniforms are being embedded as a sub-struct, this is the required starting alignment.
+    int fRequiredAlignment = -1;
 
     skia_private::TArray<Uniform> fUniforms;
     skia_private::TArray<TextureAndSampler> fTexturesAndSamplers;
@@ -261,7 +270,7 @@ private:
 // SkRuntimeEffect, including de-duplicating equivalent SkRuntimeEffect objects.
 class ShaderCodeDictionary {
 public:
-    ShaderCodeDictionary();
+    ShaderCodeDictionary(Layout layout);
 
     UniquePaintParamsID findOrCreate(PaintParamsKeyBuilder*) SK_EXCLUDES(fSpinLock);
 
@@ -296,6 +305,8 @@ private:
 
     SkSpan<const Uniform> convertUniforms(const SkRuntimeEffect* effect);
     ShaderSnippet convertRuntimeEffect(const SkRuntimeEffect* effect, const char* name);
+
+    const Layout fLayout;
 
     std::array<ShaderSnippet, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
 
