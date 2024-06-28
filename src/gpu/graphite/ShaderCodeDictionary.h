@@ -226,9 +226,7 @@ public:
                        const RenderStep* step,
                        bool useStorageBuffers,
                        int* numTexturesAndSamplersUsed,
-                       int* numPaintUniforms,
-                       int* renderStepUniformTotalBytes,
-                       int* paintUniformsTotalBytes,
+                       bool* hasPaintUniforms,
                        bool* hasGradientBuffer,
                        Swizzle writeSwizzle);
 
