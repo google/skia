@@ -96,86 +96,87 @@ std::string get_mangled_sampler_name(const TextureAndSampler& tex, int manglingS
     return tex.name() + std::string("_") + std::to_string(manglingSuffix);
 }
 
-std::string append_default_snippet_arguments(const ShaderInfo& shaderInfo,
-                                             const ShaderNode* node,
-                                             const ShaderSnippet::Args& args,
-                                             SkSpan<const std::string> childOutputs) {
-    std::string code = "(";
-
+std::string stitch_csv(SkSpan<const std::string> args) {
+    std::string code = "";
     const char* separator = "";
-
-    const ShaderSnippet* entry = node->entry();
-
-    // Append prior-stage output color.
-    if (entry->needsPriorStageOutput()) {
-        code += args.fPriorStageOutput;
-        separator = ", ";
-    }
-
-    // Append blender destination color.
-    if (entry->needsBlenderDstColor()) {
+    for (const std::string& arg : args) {
         code += separator;
-        code += args.fBlenderDstColor;
+        code += arg;
         separator = ", ";
     }
-
-    // Append fragment coordinates.
-    if (entry->needsLocalCoords()) {
-        code += separator;
-        code += args.fFragCoord;
-        separator = ", ";
-    }
-
-    // Append uniform names.
-    for (int i = 0; i < entry->fUniforms.size(); ++i) {
-        code += separator;
-        separator = ", ";
-        code += get_mangled_uniform_name(shaderInfo, entry->fUniforms[i], node->keyIndex());
-    }
-
-    // Append samplers.
-    for (int i = 0; i < entry->fTexturesAndSamplers.size(); ++i) {
-        code += separator;
-        code += get_mangled_sampler_name(entry->fTexturesAndSamplers[i], node->keyIndex());
-        separator = ", ";
-    }
-
-    // Append child output names.
-    for (const std::string& childOutputVar : childOutputs) {
-        code += separator;
-        separator = ", ";
-        code += childOutputVar;
-    }
-    code.push_back(')');
 
     return code;
 }
 
+static const ShaderSnippet::Args kDefaultArgs{"inColor", "destColor", "pos"};
+
+// If 'args' is null, the generated list is assumed to be for parameter declarations. If it's non
+// null, it is assumed to be the expressions to invoke the default signature.
+void append_defaults(TArray<std::string>* list,
+                     const ShaderNode* node,
+                     const ShaderSnippet::Args* args) {
+    // Use the node's aggregate required flags so that the provided dynamic variables propagate
+    // to the child nodes that require them.
+    if (node->requiredFlags() & SnippetRequirementFlags::kPriorStageOutput) {
+        list->push_back(args ? args->fPriorStageOutput.c_str() : "half4 inColor");
+    }
+    if (node->requiredFlags() & SnippetRequirementFlags::kBlenderDstColor) {
+        list->push_back(args ? args->fBlenderDstColor.c_str() : "half4 destColor");
+    }
+    if (node->requiredFlags() & SnippetRequirementFlags::kLocalCoords) {
+        list->push_back(args ? args->fFragCoord.c_str() : "float2 pos");
+    }
+}
+
+void append_uniforms(TArray<std::string>* list,
+                     const ShaderInfo& shaderInfo,
+                     const ShaderNode* node,
+                     SkSpan<const std::string> childOutputs) {
+    const ShaderSnippet* entry = node->entry();
+    // The uniforms are in the global scope, so just pass in the ones bound to 'node'
+    for (int i = 0; i < entry->fUniforms.size(); ++i) {
+        list->push_back(get_mangled_uniform_name(shaderInfo,
+                                                 entry->fUniforms[i],
+                                                 node->keyIndex()));
+    }
+
+    // Append samplers
+    for (int i = 0; i < entry->fTexturesAndSamplers.size(); ++i) {
+        list->push_back(get_mangled_sampler_name(entry->fTexturesAndSamplers[i], node->keyIndex()));
+    }
+
+    // Append child output names.
+    if (!childOutputs.empty()) {
+        list->push_back_n(childOutputs.size(), childOutputs.data());
+    }
+}
+
 // If we have no children, the default expression just calls a built-in snippet with the signature:
-//     half4 BuiltinFunctionName(/* default snippet arguments */);
-//
+//     half4 BuiltinFunctionName(/* required variable inputs (e.g. float2 pos) */,
+//                               /* all uniforms as parameters (bound to node's values) */) { ... }
 // If we do have children, we will have created a glue function in the preamble and that is called
 // instead. Its signature looks like this:
-//     half4 BuiltinFunctionName_N(half4 inColor, half4 destColor, float2 pos);
-
+//     half4 SnippetName_N(/* required variable inputs (e.g. float2 pos) */) { ... }
 std::string generate_default_expression(const ShaderInfo& shaderInfo,
                                         const ShaderNode* node,
                                         const ShaderSnippet::Args& args) {
-    if (node->numChildren() == 0) {
-        // We don't have any children; return an expression which invokes the snippet directly.
-        return node->entry()->fStaticFunctionName +
-               append_default_snippet_arguments(shaderInfo, node, args, /*childOutputs=*/{});
+    std::string fnName;
+    STArray<3, std::string> params; // 1-2 inputs and a uniform struct or texture
+
+    if (node->numChildren() == 0 && node->entry()->fStaticFunctionName) {
+        // We didn't generate a helper function in the preamble, so add uniforms to the parameter
+        // list and call the static function directly.
+        fnName = node->entry()->fStaticFunctionName;
+        append_defaults(&params, node, &args);
+        append_uniforms(&params, shaderInfo, node, /*childOutputs=*/{});
     } else {
-        // Return an expression which invokes the helper function from the preamble.
-        std::string helperFnName =
-                get_mangled_name(node->entry()->fName, node->keyIndex());
-        return SkSL::String::printf(
-                "%s(%.*s, %.*s, %.*s)",
-                helperFnName.c_str(),
-                (int)args.fPriorStageOutput.size(), args.fPriorStageOutput.data(),
-                (int)args.fBlenderDstColor.size(),  args.fBlenderDstColor.data(),
-                (int)args.fFragCoord.size(),        args.fFragCoord.data());
+        // Invoke the generated helper function added to the preamble, which will handle invoking
+        // any children and appending their values to the rest of the static fn's arguments.
+        fnName = get_mangled_name(node->entry()->fName, node->keyIndex());
+        append_defaults(&params, node, &args);
     }
+
+    return SkSL::String::printf("%s(%s)", fnName.c_str(), stitch_csv(params).c_str());
 }
 
 // Returns an expression to invoke this entry.
@@ -208,49 +209,56 @@ std::string emit_glue_code_for_entry(const ShaderInfo& shaderInfo,
     return outputVar;
 }
 
-std::string emit_helper_function(const ShaderInfo& shaderInfo,
-                                 const ShaderNode* node) {
-    // Create a helper function that invokes each of the children, then calls the entry's snippet
-    // and passes all the child outputs along as arguments.
+// Emit a declaration for a helper function that represents the ShaderNode (named using the node's
+// mangled name). The dynamic parameters are declared to match kDefaultArgs. The returned string
+// can either be followed by a "{ body }" to fully define it or a ";" for a forward declaration.
+std::string emit_helper_declaration(const ShaderInfo& shaderInfo, const ShaderNode* node) {
     const ShaderSnippet* entry = node->entry();
     std::string helperFnName = get_mangled_name(entry->fName, node->keyIndex());
-    std::string helperFn = SkSL::String::printf(
-            "half4 %s(half4 inColor, half4 destColor, float2 pos) {",
-            helperFnName.c_str());
-    TArray<std::string> childOutputVarNames;
-    const ShaderSnippet::Args args = {"inColor", "destColor", "pos"};
-    for (const ShaderNode* child : node->children()) {
-        // Emit glue code into our helper function body (i.e. lifting the child execution up front
-        // so their outputs can be passed to the static module function for the node's snippet).
-        childOutputVarNames.push_back(emit_glue_code_for_entry(shaderInfo, child, args, &helperFn));
-    }
 
-    // Finally, invoke the snippet from the helper function, passing uniforms and child outputs.
-    std::string snippetArgList = append_default_snippet_arguments(shaderInfo, node,
-                                                                  args, childOutputVarNames);
-    SkSL::String::appendf(&helperFn,
-                              "return %s%s;"
-                          "}",
-                          entry->fStaticFunctionName, snippetArgList.c_str());
-    return helperFn;
+    STArray<3, std::string> params;
+    append_defaults(&params, node, /*args=*/nullptr); // null args emits declarations
+
+    return SkSL::String::printf("half4 %s(%s)", helperFnName.c_str(), stitch_csv(params).c_str());
 }
 
 // If we have no children, we don't need to add anything into the preamble.
 // If we have child entries, we create a function in the preamble with a signature of:
-//     half4 BuiltinFunctionName_N(half4 inColor, half4 destColor, float2 pos) { ... }
+//     half4 SnippetName_N(/* required variable inputs (e.g. float2 pos) */) { ... }
 // This function invokes each child in sequence, and then calls the built-in function, passing all
 // uniforms and child outputs along:
-//     half4 BuiltinFunctionName(/* all uniforms as parameters */,
+//     half4 BuiltinFunctionName(/* required variable inputs (e.g. float2 pos) */,
+//                               /* all uniforms as parameters */,
 //                               /* all child output variable names as parameters */);
 std::string generate_default_preamble(const ShaderInfo& shaderInfo,
                                       const ShaderNode* node) {
-    if (node->numChildren() > 0) {
-        // Create a helper function which invokes all the child snippets.
-        return emit_helper_function(shaderInfo, node);
-    } else {
-        // We don't need a helper function
+    if (node->numChildren() == 0) {
+        // We don't need a helper function to wrap the snippet's static function
         return "";
     }
+
+    std::string code = emit_helper_declaration(shaderInfo, node) + " {";
+
+    // Invoke each child with unmodified input values and collect in a list of local variables
+    STArray<2, std::string> childOutputVarNames;
+    for (const ShaderNode* child : node->children()) {
+        // Emit glue code into our helper function body (i.e. lifting the child execution up front
+        // so their outputs can be passed to the static module function for the node's snippet).
+        childOutputVarNames.push_back(
+                emit_glue_code_for_entry(shaderInfo, child, kDefaultArgs, &code));
+    }
+
+    // Finally, invoke the snippet from the helper function, passing uniforms and child outputs.
+    STArray<3, std::string> params;
+    append_defaults(&params, node, &kDefaultArgs);
+    append_uniforms(&params, shaderInfo, node, childOutputVarNames);
+
+    SkSL::String::appendf(&code,
+                              "return %s(%s);"
+                          "}",
+                          node->entry()->fStaticFunctionName,
+                          stitch_csv(params).c_str());
+    return code;
 }
 
 // Walk the node tree and generate all preambles, accumulating into 'preamble'.
@@ -501,9 +509,6 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     emit_preambles(*this, fRootNodes, /*treeLabel=*/"", &preamble);
 
     std::string mainBody = "void main() {";
-    // Set initial color. This will typically be optimized out by SkSL in favor of the paint
-    // specifying a color with a solid color shader.
-    mainBody += "half4 initialColor = half4(0);";
 
     if (useShadingStorageBuffer) {
         SkSL::String::appendf(&mainBody,
@@ -520,13 +525,19 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     // and keep it to apply later during coverage calculation.
     const ShaderNode* clipShaderNode = nullptr;
 
+    // Using kDefaultArgs as the initial value means it will refer to undefined variables, but the
+    // root nodes should--at most--be depending on the coordinate when "needsLocalCoords" is true.
+    // If the PaintParamsKey violates that structure, this will produce SkSL compile errors.
+    ShaderSnippet::Args args = kDefaultArgs;
+    args.fFragCoord = "localCoordsVar"; // the varying added in EmitVaryings()
+    // TODO(b/349997190): The paint root node should not depend on any prior stage's output, but
+    // it can happen with how SkEmptyShader is currently mapped to `sk_passthrough`. In this case
+    // it requires that prior stage color to be transparent black. When SkEmptyShader can instead
+    // cause the draw to be skipped, this can go away.
+    args.fPriorStageOutput = "half4(0)";
+
     // Emit shader main body code, invoking each root node's expression, forwarding the previous
     // node's output to the next.
-    static constexpr char kUnusedDstColor[] = "half4(1)";
-    static constexpr char kUnusedLocalCoords[] = "float2(0)";
-    ShaderSnippet::Args args = {"initialColor",
-                                kUnusedDstColor,
-                                this->needsLocalCoords() ? "localCoordsVar" : kUnusedLocalCoords};
     for (const ShaderNode* node : fRootNodes) {
         if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kClipShader) {
             SkASSERT(!clipShaderNode);
@@ -561,8 +572,13 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
         mainBody += step->fragmentCoverageSkSL();
 
         if (clipShaderNode) {
+            // The clip shader node is invoked with fragment coords, not local coords like the main
+            // shading root node.
+            // TODO: The actual clipShaderNode can go away once we can enforce that a PaintParamsKey
+            // has only 1-2 roots and the 2nd root is always the clip node.
+            args.fFragCoord = "sk_FragCoord.xy";
             std::string clipShaderOutput =
-                    emit_glue_code_for_entry(*this, clipShaderNode, args, &mainBody);
+                    emit_glue_code_for_entry(*this, clipShaderNode->child(0), args, &mainBody);
             SkSL::String::appendf(&mainBody, "outputCoverage *= %s.a;", clipShaderOutput.c_str());
         }
 
@@ -712,67 +728,32 @@ const ShaderSnippet* ShaderCodeDictionary::getEntry(int codeSnippetID) const {
 //--------------------------------------------------------------------------------------------------
 namespace {
 
-std::string GenerateDstReadSampleExpression(const ShaderInfo& shaderInfo,
-                                            const ShaderNode* node,
-                                            const ShaderSnippet::Args& args) {
-    const ShaderSnippet* entry = node->entry();
-    std::string sampler =
-            get_mangled_sampler_name(entry->fTexturesAndSamplers[0], node->keyIndex());
-    std::string coords =
-            get_mangled_uniform_name(shaderInfo, entry->fUniforms[0], node->keyIndex());
-    std::string helperFnName = get_mangled_name(entry->fName, node->keyIndex());
-
-    return SkSL::String::printf("%s(%s, %s)",
-                                helperFnName.c_str(),
-                                coords.c_str(),
-                                sampler.c_str());
-}
-
+// NOTE: The dst-read snippets have 0 children and could be described by a static module function
+// except that for now they need to stash the read surfaceColor in a global variable. Instead of
+// generating a mangled preamble helper function, these preambles just add a "static" function
+// that can be called with the default expression generator. Since there should only ever be one
+// dst-read snippet in a paint, the lack of mangling will detect if that property is violated.
 std::string GenerateDstReadSamplePreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
-    std::string helperFnName = get_mangled_name(node->entry()->fName, node->keyIndex());
-
     return SkSL::String::printf(
             "half4 surfaceColor;"  // we save off the original dstRead color to combine w/ coverage
             "half4 %s(float4 coords, sampler2D dstSampler) {"
                 "surfaceColor = sample(dstSampler, (sk_FragCoord.xy - coords.xy) * coords.zw);"
                 "return surfaceColor;"
             "}",
-            helperFnName.c_str());
-}
-
-//--------------------------------------------------------------------------------------------------
-std::string GenerateDstReadFetchExpression(const ShaderInfo& shaderInfo,
-                                           const ShaderNode* node,
-                                           const ShaderSnippet::Args& args) {
-    std::string helperFnName = get_mangled_name(node->entry()->fName, node->keyIndex());
-
-    return SkSL::String::printf("%s()", helperFnName.c_str());
+            node->entry()->fStaticFunctionName);
 }
 
 std::string GenerateDstReadFetchPreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
-    std::string helperFnName = get_mangled_name(node->entry()->fName, node->keyIndex());
-
     return SkSL::String::printf(
             "half4 surfaceColor;"  // we save off the original dstRead color to combine w/ coverage
             "half4 %s() {"
                 "surfaceColor = sk_LastFragColor;"
                 "return surfaceColor;"
             "}",
-            helperFnName.c_str());
+            node->entry()->fStaticFunctionName);
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumClipShaderChildren = 1;
-
-std::string GenerateClipShaderExpression(const ShaderInfo& shaderInfo,
-                                         const ShaderNode* node,
-                                         const ShaderSnippet::Args& args) {
-    SkASSERT(node->numChildren() == kNumClipShaderChildren);
-    static constexpr char kUnusedSrcColor[] = "half4(1)";
-    static constexpr char kUnusedDstColor[] = "half4(1)";
-    return emit_expression_for_entry(
-            shaderInfo, node->child(0), {kUnusedSrcColor, kUnusedDstColor, "sk_FragCoord.xy"});
-}
 
 std::string GenerateClipShaderPreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
     // No preamble is used for clip shaders. The child shader is called directly with sk_FragCoord.
@@ -780,96 +761,83 @@ std::string GenerateClipShaderPreamble(const ShaderInfo& shaderInfo, const Shade
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumLocalMatrixShaderChildren = 1;
+static constexpr int kNumCoordinateManipulateChildren = 1;
 
-// Create a helper function that multiplies coordinates by a local matrix, invokes the child
-// entry with those updated coordinates, and returns the result. This helper function meets the
-// requirements for use with GenerateDefaultExpression, so there's no need to have a separate
+// Create a helper function that manipulates the coordinates passed into a child. The specific
+// manipulation is pre-determined by the code id (local matrix or clamp). This helper function meets
+// the requirements for use with GenerateDefaultExpression, so there's no need to have a separate
 // special GenerateLocalMatrixExpression.
-std::string GenerateLocalMatrixPreamble(const ShaderInfo& shaderInfo,
-                                        const ShaderNode* node) {
-    SkASSERT(node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShader);
-    SkASSERT(node->numChildren() == kNumLocalMatrixShaderChildren);
+// TODO: This is effectively GenerateComposePreamble except that 'node' is counting as the inner.
+std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
+                                              const ShaderNode* node) {
+    SkASSERT(node->numChildren() == kNumCoordinateManipulateChildren);
 
-    // Get the child's evaluation expression.
-    static constexpr char kUnusedDestColor[] = "half4(1)";
-    std::string childExpr = emit_expression_for_entry(shaderInfo, node->child(0),
-                                                      {"inColor", kUnusedDestColor, "coords"});
-    std::string localMatrixUni =
-            get_mangled_uniform_name(shaderInfo, node->entry()->fUniforms[0], node->keyIndex());
 
-    std::string helperFnName = get_mangled_name(node->entry()->fName, node->keyIndex());
-    return SkSL::String::printf("half4 %s(half4 inColor, half4 destColor, float2 coords) {"
-                                    "coords = (%s * coords.xy01).xy;"
-                                    "return %s;"
-                                "}",
-                                helperFnName.c_str(),
-                                localMatrixUni.c_str(),
-                                childExpr.c_str());
+    ShaderSnippet::Args localArgs = kDefaultArgs;
+    if (node->child(0)->requiredFlags() & SnippetRequirementFlags::kLocalCoords) {
+        std::string controlUni =
+                get_mangled_uniform_name(shaderInfo, node->entry()->fUniforms[0], node->keyIndex());
+
+        if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShader) {
+            localArgs.fFragCoord = SkSL::String::printf("(%s * %s.xy01).xy",
+                                                        controlUni.c_str(),
+                                                        kDefaultArgs.fFragCoord.c_str());
+        } else {
+            SkASSERT(node->codeSnippetId() == (int) BuiltInCodeSnippetID::kCoordClampShader);
+            localArgs.fFragCoord = SkSL::String::printf("clamp(%s, %s.LT, %s.RB)",
+                                                        kDefaultArgs.fFragCoord.c_str(),
+                                                        controlUni.c_str(), controlUni.c_str());
+        }
+    } // else this is a no-op
+
+    std::string decl = emit_helper_declaration(shaderInfo, node);
+    std::string invokeChild = emit_expression_for_entry(shaderInfo, node->child(0), localArgs);
+    return SkSL::String::printf("%s { return %s; }", decl.c_str(), invokeChild.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumCoordClampShaderChildren = 1;
 
-// Create a helper function that clamps the local coords to the subset, invokes the child
-// entry with those updated coordinates, and returns the result. This helper function meets the
-// requirements for use with GenerateDefaultExpression, so there's no need to have a separate
-// special GenerateCoordClampExpression.
-// TODO: this has a lot of overlap with GenerateLocalMatrixPreamble
-std::string GenerateCoordClampPreamble(const ShaderInfo& shaderInfo,
-                                       const ShaderNode* node) {
-    SkASSERT(node->codeSnippetId() == (int) BuiltInCodeSnippetID::kCoordClampShader);
-    SkASSERT(node->numChildren() == kNumCoordClampShaderChildren);
+// Compose N-1 children into the Nth child, must have at least two children. The ith child provides
+// the value for the ith enabled ShaderSnippet::Arg.
+std::string GenerateComposePreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
+    SkASSERT(node->numChildren() >= 2);
 
-    // Get the child's evaluation expression.
-    static constexpr char kUnusedDestColor[] = "half4(1)";
-    std::string childExpr = emit_expression_for_entry(shaderInfo, node->child(0),
-                                                      {"inColor", kUnusedDestColor, "coords"});
+    const ShaderNode* outer = node->child(node->numChildren() - 1);
 
-    std::string subsetUni =
-            get_mangled_uniform_name(shaderInfo, node->entry()->fUniforms[0], node->keyIndex());
+#if defined(SK_DEBUG)
+    const int numOuterParameters =
+            SkToBool((outer->requiredFlags() & SnippetRequirementFlags::kPriorStageOutput)) +
+            SkToBool((outer->requiredFlags() & SnippetRequirementFlags::kBlenderDstColor)) +
+            SkToBool((outer->requiredFlags() & SnippetRequirementFlags::kLocalCoords));
+    SkASSERT(node->numChildren() == numOuterParameters + 1);
+#endif
 
-    std::string helperFnName = get_mangled_name(node->entry()->fName, node->keyIndex());
-    return SkSL::String::printf("half4 %s(half4 inColor, half4 destColor, float2 coords) {"
-                                    "coords = clamp(coords, %s.LT, %s.RB);"
-                                    "return %s;"
-                                "}",
-                                helperFnName.c_str(),
-                                subsetUni.c_str(),
-                                subsetUni.c_str(),
-                                childExpr.c_str());
+    ShaderSnippet::Args outerArgs = kDefaultArgs;
+    int child = 0;
+    if (outer->requiredFlags() & SnippetRequirementFlags::kLocalCoords) {
+        outerArgs.fFragCoord =
+                emit_expression_for_entry(shaderInfo, node->child(child++), kDefaultArgs);
+    }
+    if (outer->requiredFlags() & SnippetRequirementFlags::kPriorStageOutput) {
+        outerArgs.fPriorStageOutput =
+                emit_expression_for_entry(shaderInfo, node->child(child++), kDefaultArgs);
+    }
+    if (outer->requiredFlags() & SnippetRequirementFlags::kBlenderDstColor) {
+        outerArgs.fBlenderDstColor =
+                emit_expression_for_entry(shaderInfo, node->child(child++), kDefaultArgs);
+    }
+
+    std::string decl = emit_helper_declaration(shaderInfo, node);
+    std::string invokeOuter = emit_expression_for_entry(shaderInfo, outer, outerArgs);
+    return SkSL::String::printf("%s { return %s; }", decl.c_str(), invokeOuter.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumBlendShaderChildren = 3;
 
-std::string GenerateBlendShaderPreamble(const ShaderInfo& shaderInfo,
-                                        const ShaderNode* node) {
-    // Children are src, dst, and blender
-    SkASSERT(node->numChildren() == 3);
-
-    // Create a helper function that invokes the src and dst children, then calls the blend child
-    // with the src and dst results.
-    std::string helperFn = SkSL::String::printf(
-            "half4 %s(half4 inColor, half4 destColor, float2 pos) {",
-            get_mangled_name(node->entry()->fName, node->keyIndex()).c_str());
-
-    // Get src and dst colors.
-    const ShaderSnippet::Args args = {"inColor", "destColor", "pos"};
-    std::string srcVar = emit_glue_code_for_entry(shaderInfo, node->child(0), args, &helperFn);
-    std::string dstVar = emit_glue_code_for_entry(shaderInfo, node->child(1), args, &helperFn);
-
-    // Do the blend.
-    static constexpr char kUnusedLocalCoords[] = "float2(0)";
-
-    std::string blendResultVar = emit_glue_code_for_entry(
-            shaderInfo, node->child(2), {srcVar, dstVar, kUnusedLocalCoords}, &helperFn);
-
-    SkSL::String::appendf(&helperFn,
-                              "return %s;"
-                          "}",
-                          blendResultVar.c_str());
-    return helperFn;
+std::string GeneratePrimitiveColorExpression(const ShaderInfo&,
+                                             const ShaderNode* node,
+                                             const ShaderSnippet::Args&) {
+    return "primitiveColor";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -895,12 +863,10 @@ public:
     void defineFunction(const char* decl, const char* body, bool isMain) override {
         if (isMain) {
             SkSL::String::appendf(
-                 fPreamble,
-                 "half4 %s(half4 inColor, half4 destColor, float2 coords) {"
-                     "%s"
-                 "}",
-                 get_mangled_name(fNode->entry()->fName, fNode->keyIndex()).c_str(),
-                 body);
+                    fPreamble,
+                    "%s { %s }",
+                    emit_helper_declaration(fShaderInfo, fNode).c_str(),
+                    body);
         } else {
             SkSL::String::appendf(fPreamble, "%s {%s}\n", decl, body);
         }
@@ -919,18 +885,22 @@ public:
     }
 
     std::string sampleShader(int index, std::string coords) override {
-        return emit_expression_for_entry(fShaderInfo, fNode->child(index),
-                                         {"inColor", "destColor", coords});
+        ShaderSnippet::Args args = kDefaultArgs;
+        args.fFragCoord = coords;
+        return emit_expression_for_entry(fShaderInfo, fNode->child(index), args);
     }
 
     std::string sampleColorFilter(int index, std::string color) override {
-        return emit_expression_for_entry(fShaderInfo, fNode->child(index),
-                                         {color, "destColor", "coords"});
+        ShaderSnippet::Args args = kDefaultArgs;
+        args.fPriorStageOutput = color;
+        return emit_expression_for_entry(fShaderInfo, fNode->child(index), args);
     }
 
     std::string sampleBlender(int index, std::string src, std::string dst) override {
-        return emit_expression_for_entry(fShaderInfo, fNode->child(index),
-                                         {src, dst, "coords"});
+        ShaderSnippet::Args args = kDefaultArgs;
+        args.fPriorStageOutput = src;
+        args.fBlenderDstColor = dst;
+        return emit_expression_for_entry(fShaderInfo, fNode->child(index), args);
     }
 
     std::string toLinearSrgb(std::string color) override {
@@ -1023,57 +993,13 @@ std::string GenerateRuntimeShaderPreamble(const ShaderInfo& shaderInfo,
     }
 
     GraphitePipelineCallbacks callbacks{shaderInfo, node, &preamble, effect};
-    SkSL::PipelineStage::ConvertProgram(program, "coords", "inColor", "destColor", &callbacks);
+    SkSL::PipelineStage::ConvertProgram(program,
+                                        kDefaultArgs.fFragCoord.c_str(),
+                                        kDefaultArgs.fPriorStageOutput.c_str(),
+                                        kDefaultArgs.fBlenderDstColor.c_str(),
+                                        &callbacks);
     return preamble;
 }
-
-std::string GenerateRuntimeShaderExpression(const ShaderInfo& shaderInfo,
-                                            const ShaderNode* node,
-                                            const ShaderSnippet::Args& args) {
-    return SkSL::String::printf(
-            "%s(%.*s, %.*s, %.*s)",
-            get_mangled_name(node->entry()->fName, node->keyIndex()).c_str(),
-            (int)args.fPriorStageOutput.size(), args.fPriorStageOutput.data(),
-            (int)args.fBlenderDstColor.size(),  args.fBlenderDstColor.data(),
-            (int)args.fFragCoord.size(),        args.fFragCoord.data());
-}
-
-//--------------------------------------------------------------------------------------------------
-static constexpr int kNumComposeChildren = 2;
-
-// Compose two children, assuming the first child is the innermost.
-std::string GenerateNestedChildrenPreamble(const ShaderInfo& shaderInfo,
-                                           const ShaderNode* node) {
-    SkASSERT(node->numChildren() == kNumComposeChildren);
-
-    // Evaluate inner child.
-    static constexpr char kUnusedDestColor[] = "half4(1)";
-    std::string innerColor = emit_expression_for_entry(shaderInfo, node->child(0),
-                                                       {"inColor", kUnusedDestColor, "coords"});
-
-    // Evaluate outer child.
-    std::string outerColor = emit_expression_for_entry(shaderInfo, node->child(1),
-                                                       {innerColor, kUnusedDestColor, "coords"});
-
-    // Create a helper function that invokes the inner expression, then passes that result to the
-    // outer expression, and returns the composed result.
-    std::string helperFnName = get_mangled_name(node->entry()->fName, node->keyIndex());
-    return SkSL::String::printf("half4 %s(half4 inColor, half4 destColor, float2 coords) {"
-                                    "return %s;"
-                                "}",
-                                helperFnName.c_str(),
-                                outerColor.c_str());
-}
-
-//--------------------------------------------------------------------------------------------------
-
-std::string GeneratePrimitiveColorExpression(const ShaderInfo&,
-                                             const ShaderNode* node,
-                                             const ShaderSnippet::Args&) {
-    return "primitiveColor";
-}
-
-//--------------------------------------------------------------------------------------------------
 
 } // anonymous namespace
 
@@ -1202,7 +1128,7 @@ ShaderSnippet ShaderCodeDictionary::convertRuntimeEffect(const SkRuntimeEffect* 
                          snippetFlags,
                          this->convertUniforms(effect),
                          /*textures=*/{},
-                         GenerateRuntimeShaderExpression,
+                         /*expressionGenerator=*/nullptr,
                          GenerateRuntimeShaderPreamble,
                          (int) effect->children().size());
 }
@@ -1471,12 +1397,12 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLocalMatrixShader] = {
             /*name=*/"LocalMatrixShader",
             /*staticFn=*/nullptr,
-            SnippetRequirementFlags::kLocalCoords,
+            SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },
             /*textures=*/{},
             /*expressionGenerator=*/nullptr,
-            GenerateLocalMatrixPreamble,
-            /*numChildren=*/kNumLocalMatrixShaderChildren
+            GenerateCoordManipulationPreamble,
+            /*numChildren=*/kNumCoordinateManipulateChildren
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kImageShader] = {
@@ -1611,8 +1537,8 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             /*uniforms=*/{ { "subset", SkSLType::kFloat4 } },
             /*textures=*/{},
             /*expressionGenerator=*/nullptr,
-            GenerateCoordClampPreamble,
-            /*numChildren=*/kNumCoordClampShaderChildren
+            GenerateCoordManipulationPreamble,
+            /*numChildren=*/kNumCoordinateManipulateChildren
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDitherShader] = {
@@ -1677,8 +1603,8 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             /*uniforms=*/{},
             /*textures=*/{},
             /*expressionGenerator=*/nullptr,
-            GenerateBlendShaderPreamble,
-            /*numChildren=*/kNumBlendShaderChildren
+            GenerateComposePreamble,
+            /*numChildren=*/3
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCoeffBlender] = {
             /*name=*/"CoeffBlender",
@@ -1704,20 +1630,20 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstReadSample] = {
             /*name=*/"DstReadSample",
-            /*staticFn=*/nullptr,
+            /*staticFn=*/"$dst_read_sample", // "static" function injected by custom preamble
             SnippetRequirementFlags::kSurfaceColor,
             /*uniforms=*/{ {"dstOffsetAndInvWH", SkSLType::kFloat4} },
             /*textures=*/{ {"dstCopy"} },
-            GenerateDstReadSampleExpression,
+            /*expressionGenerator=*/nullptr,
             GenerateDstReadSamplePreamble,
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstReadFetch] = {
             /*name=*/"DstReadFetch",
-            /*staticFn=*/nullptr,
+            /*staticFn=*/"$dst_read_fetch", // "static" function injected by custom preamble
             SnippetRequirementFlags::kSurfaceColor,
             /*uniforms=*/{},
             /*textures=*/{},
-            GenerateDstReadFetchExpression,
+            /*expressionGenerator=*/nullptr,
             GenerateDstReadFetchPreamble,
     };
 
@@ -1727,9 +1653,9 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
             /*textures=*/{},
-            GenerateClipShaderExpression,
+            /*expressionGenerator=*/nullptr,
             GenerateClipShaderPreamble,
-            /*numChildren=*/kNumClipShaderChildren
+            /*numChildren=*/1
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCompose] = {
@@ -1739,8 +1665,8 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             /*uniforms=*/{},
             /*textures=*/{},
             /*expressionGenerator=*/nullptr,
-            GenerateNestedChildrenPreamble,
-            /*numChildren=*/kNumComposeChildren
+            GenerateComposePreamble,
+            /*numChildren=*/2
     };
 
     // Fixed-function blend mode snippets are all the same, their functionality is entirely defined

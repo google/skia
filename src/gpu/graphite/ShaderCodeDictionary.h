@@ -155,10 +155,22 @@ public:
             , fRequiredFlags(snippet->fSnippetRequirementFlags)
             , fData(data) {
         SkASSERT(children.size() == (size_t) fEntry->fNumChildren);
-        // TODO: RuntimeEffects can actually mask off requirements if they invoke a child with
-        // explicit arguments.
+
+        const bool isCompose = codeID == (int) BuiltInCodeSnippetID::kCompose ||
+                               codeID == (int) BuiltInCodeSnippetID::kBlendShader;
         for (const ShaderNode* child : children) {
-            fRequiredFlags |= child->requiredFlags();
+            // Runtime effects invoke children with explicit parameters so those requirements never
+            // need to propagate to the root. Similarly, compose only needs to propagate the
+            // variable parameters for the inner children.
+            SkEnumBitMask<SnippetRequirementFlags> mask = SnippetRequirementFlags::kNone;
+            if (codeID >= kBuiltInCodeSnippetIDCount || (isCompose && child == children.back())) {
+                // Only mask off the variable arguments; any special behaviors always propagate.
+                mask = SnippetRequirementFlags::kLocalCoords |
+                       SnippetRequirementFlags::kPriorStageOutput |
+                       SnippetRequirementFlags::kBlenderDstColor;
+            }
+
+            fRequiredFlags |= (child->requiredFlags() & ~mask);
         }
         // Data should only be provided if the snippet has the kStoresData flag.
         SkASSERT(fData.empty() || snippet->storesData());
