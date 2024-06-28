@@ -171,13 +171,19 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     wgpu::DeviceDescriptor deviceDescriptor;
     deviceDescriptor.requiredFeatures = features.data();
     deviceDescriptor.requiredFeatureCount = features.size();
-    deviceDescriptor.deviceLostCallbackInfo.callback =
-        [](WGPUDeviceImpl *const *, WGPUDeviceLostReason reason, const char* message, void*) {
-            if (reason != WGPUDeviceLostReason_Destroyed &&
-                reason != WGPUDeviceLostReason_InstanceDropped) {
-                SK_ABORT("Device lost: %s\n", message);
-            }
-        };
+    deviceDescriptor.SetDeviceLostCallback(
+            wgpu::CallbackMode::AllowSpontaneous,
+            [](const wgpu::Device&, wgpu::DeviceLostReason reason, const char* message) {
+                if (reason != wgpu::DeviceLostReason::Destroyed &&
+                    reason != wgpu::DeviceLostReason::InstanceDropped) {
+                    SK_ABORT("Device lost: %s\n", message);
+                }
+            });
+    deviceDescriptor.SetUncapturedErrorCallback(
+            [](const wgpu::Device&, wgpu::ErrorType, const char* message) {
+                SkDebugf("Device error: %s\n", message);
+                SkASSERT(false);
+            });
 
     wgpu::DawnTogglesDescriptor deviceTogglesDesc;
 
@@ -199,12 +205,6 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
         return nullptr;
     }
 
-    device.SetUncapturedErrorCallback(
-            [](WGPUErrorType type, const char* message, void*) {
-                SkDebugf("Device error: %s\n", message);
-                SkASSERT(false);
-            },
-            nullptr);
     return device;
 }
 
