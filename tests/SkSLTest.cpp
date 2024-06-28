@@ -403,6 +403,11 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
                                  "SwizzleIndexStore"}) {
             disables[test].push_back({regex(ADRENO "[3456]"), _, _, kAndroid});
         }
+        for (const char* test : {"SwitchWithFallthroughGroups",
+                                 "SwizzleIndexLookup",
+                                 "SwizzleIndexStore"}) {
+            disables[test].push_back({regex(ADRENO "[7]"), _, _, kAndroid});
+        }
 
         // Older Adreno 5/6xx drivers report a pipeline error or silently fail when handling inouts.
         for (const char* test : {"VoidInSequenceExpressions",  // b/295217166
