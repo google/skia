@@ -126,6 +126,12 @@ void append_defaults(TArray<std::string>* list,
     if (node->requiredFlags() & SnippetRequirementFlags::kLocalCoords) {
         list->push_back(args ? args->fFragCoord.c_str() : "float2 pos");
     }
+
+    // Special variables and/or "global" scope variables that have to propagate
+    // through the node tree.
+    if (node->requiredFlags() & SnippetRequirementFlags::kPrimitiveColor) {
+        list->push_back(args ? "primitiveColor" : "half4 primitiveColor");
+    }
 }
 
 void append_uniforms(TArray<std::string>* list,
@@ -157,9 +163,9 @@ void append_uniforms(TArray<std::string>* list,
 // If we do have children, we will have created a glue function in the preamble and that is called
 // instead. Its signature looks like this:
 //     half4 SnippetName_N(/* required variable inputs (e.g. float2 pos) */) { ... }
-std::string generate_default_expression(const ShaderInfo& shaderInfo,
-                                        const ShaderNode* node,
-                                        const ShaderSnippet::Args& args) {
+std::string invoke_node(const ShaderInfo& shaderInfo,
+                        const ShaderNode* node,
+                        const ShaderSnippet::Args& args) {
     std::string fnName;
     STArray<3, std::string> params; // 1-2 inputs and a uniform struct or texture
 
@@ -179,25 +185,14 @@ std::string generate_default_expression(const ShaderInfo& shaderInfo,
     return SkSL::String::printf("%s(%s)", fnName.c_str(), stitch_csv(params).c_str());
 }
 
-// Returns an expression to invoke this entry.
-std::string emit_expression_for_entry(const ShaderInfo& shaderInfo,
-                                      const ShaderNode* node,
-                                      ShaderSnippet::Args args) {
-    if (node->entry()->fExpressionGenerator) {
-        return node->entry()->fExpressionGenerator(shaderInfo, node, args);
-    } else {
-        return generate_default_expression(shaderInfo, node, args);
-    }
-}
-
 // Emit the glue code needed to invoke a single static helper isolated within its own scope.
 // Glue code will assign the resulting color into a variable `half4 outColor%d`, where the %d is
 // filled in with 'node->keyIndex()'.
-std::string emit_glue_code_for_entry(const ShaderInfo& shaderInfo,
-                                     const ShaderNode* node,
-                                     const ShaderSnippet::Args& args,
-                                     std::string* funcBody) {
-    std::string expr = emit_expression_for_entry(shaderInfo, node, args);
+std::string invoke_and_assign_node(const ShaderInfo& shaderInfo,
+                                   const ShaderNode* node,
+                                   const ShaderSnippet::Args& args,
+                                   std::string* funcBody) {
+    std::string expr = invoke_node(shaderInfo, node, args);
     std::string outputVar = get_mangled_name("outColor", node->keyIndex());
     SkSL::String::appendf(funcBody,
                           "// [%d] %s\n"
@@ -245,7 +240,7 @@ std::string generate_default_preamble(const ShaderInfo& shaderInfo,
         // Emit glue code into our helper function body (i.e. lifting the child execution up front
         // so their outputs can be passed to the static module function for the node's snippet).
         childOutputVarNames.push_back(
-                emit_glue_code_for_entry(shaderInfo, child, kDefaultArgs, &code));
+                invoke_and_assign_node(shaderInfo, child, kDefaultArgs, &code));
     }
 
     // Finally, invoke the snippet from the helper function, passing uniforms and child outputs.
@@ -497,12 +492,6 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
         }
     }
 
-    if (step->emitsPrimitiveColor()) {
-        // TODO: Define this in the main body, and then pass it down into snippets like we do with
-        // the local coordinates varying.
-        preamble += "half4 primitiveColor;";
-    }
-
     // Emit preamble declarations and helper functions required for snippets. In the default case
     // this adds functions that bind a node's specific mangled uniforms to the snippet's
     // implementation in the SkSL modules.
@@ -518,7 +507,10 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     }
 
     if (step->emitsPrimitiveColor()) {
+        mainBody += "half4 primitiveColor;";
         mainBody += step->fragmentColorSkSL();
+    } else {
+        SkASSERT(!(fRootNodes[0]->requiredFlags() & SnippetRequirementFlags::kPrimitiveColor));
     }
 
     // While looping through root nodes to emit shader code, skip the clip shader node if it's found
@@ -548,7 +540,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
         // blend parenting issue w/in the key
         if (node->codeSnippetId() >= kBuiltInCodeSnippetIDCount ||
             node->codeSnippetId() < kFixedFunctionBlendModeIDOffset) {
-            args.fPriorStageOutput = emit_glue_code_for_entry(*this, node, args, &mainBody);
+            args.fPriorStageOutput = invoke_and_assign_node(*this, node, args, &mainBody);
         }
     }
 
@@ -578,7 +570,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
             // has only 1-2 roots and the 2nd root is always the clip node.
             args.fFragCoord = "sk_FragCoord.xy";
             std::string clipShaderOutput =
-                    emit_glue_code_for_entry(*this, clipShaderNode->child(0), args, &mainBody);
+                    invoke_and_assign_node(*this, clipShaderNode->child(0), args, &mainBody);
             SkSL::String::appendf(&mainBody, "outputCoverage *= %s.a;", clipShaderOutput.c_str());
         }
 
@@ -791,7 +783,7 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
     } // else this is a no-op
 
     std::string decl = emit_helper_declaration(shaderInfo, node);
-    std::string invokeChild = emit_expression_for_entry(shaderInfo, node->child(0), localArgs);
+    std::string invokeChild = invoke_node(shaderInfo, node->child(0), localArgs);
     return SkSL::String::printf("%s { return %s; }", decl.c_str(), invokeChild.c_str());
 }
 
@@ -815,29 +807,18 @@ std::string GenerateComposePreamble(const ShaderInfo& shaderInfo, const ShaderNo
     ShaderSnippet::Args outerArgs = kDefaultArgs;
     int child = 0;
     if (outer->requiredFlags() & SnippetRequirementFlags::kLocalCoords) {
-        outerArgs.fFragCoord =
-                emit_expression_for_entry(shaderInfo, node->child(child++), kDefaultArgs);
+        outerArgs.fFragCoord = invoke_node(shaderInfo, node->child(child++), kDefaultArgs);
     }
     if (outer->requiredFlags() & SnippetRequirementFlags::kPriorStageOutput) {
-        outerArgs.fPriorStageOutput =
-                emit_expression_for_entry(shaderInfo, node->child(child++), kDefaultArgs);
+        outerArgs.fPriorStageOutput = invoke_node(shaderInfo, node->child(child++), kDefaultArgs);
     }
     if (outer->requiredFlags() & SnippetRequirementFlags::kBlenderDstColor) {
-        outerArgs.fBlenderDstColor =
-                emit_expression_for_entry(shaderInfo, node->child(child++), kDefaultArgs);
+        outerArgs.fBlenderDstColor = invoke_node(shaderInfo, node->child(child++), kDefaultArgs);
     }
 
     std::string decl = emit_helper_declaration(shaderInfo, node);
-    std::string invokeOuter = emit_expression_for_entry(shaderInfo, outer, outerArgs);
+    std::string invokeOuter = invoke_node(shaderInfo, outer, outerArgs);
     return SkSL::String::printf("%s { return %s; }", decl.c_str(), invokeOuter.c_str());
-}
-
-//--------------------------------------------------------------------------------------------------
-
-std::string GeneratePrimitiveColorExpression(const ShaderInfo&,
-                                             const ShaderNode* node,
-                                             const ShaderSnippet::Args&) {
-    return "primitiveColor";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -887,20 +868,20 @@ public:
     std::string sampleShader(int index, std::string coords) override {
         ShaderSnippet::Args args = kDefaultArgs;
         args.fFragCoord = coords;
-        return emit_expression_for_entry(fShaderInfo, fNode->child(index), args);
+        return invoke_node(fShaderInfo, fNode->child(index), args);
     }
 
     std::string sampleColorFilter(int index, std::string color) override {
         ShaderSnippet::Args args = kDefaultArgs;
         args.fPriorStageOutput = color;
-        return emit_expression_for_entry(fShaderInfo, fNode->child(index), args);
+        return invoke_node(fShaderInfo, fNode->child(index), args);
     }
 
     std::string sampleBlender(int index, std::string src, std::string dst) override {
         ShaderSnippet::Args args = kDefaultArgs;
         args.fPriorStageOutput = src;
         args.fBlenderDstColor = dst;
-        return emit_expression_for_entry(fShaderInfo, fNode->child(index), args);
+        return invoke_node(fShaderInfo, fNode->child(index), args);
     }
 
     std::string toLinearSrgb(std::string color) override {
@@ -1128,7 +1109,6 @@ ShaderSnippet ShaderCodeDictionary::convertRuntimeEffect(const SkRuntimeEffect* 
                          snippetFlags,
                          this->convertUniforms(effect),
                          /*textures=*/{},
-                         /*expressionGenerator=*/nullptr,
                          GenerateRuntimeShaderPreamble,
                          (int) effect->children().size());
 }
@@ -1142,7 +1122,7 @@ int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect
 
         int index = stableKey - kSkiaKnownRuntimeEffectsStart;
 
-        if (!fKnownRuntimeEffectCodeSnippets[index].fExpressionGenerator) {
+        if (!fKnownRuntimeEffectCodeSnippets[index].fPreambleGenerator) {
             const char* name = get_known_rte_name(static_cast<StableKey>(stableKey));
             fKnownRuntimeEffectCodeSnippets[index] = this->convertRuntimeEffect(effect, name);
         }
@@ -1400,7 +1380,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },
             /*textures=*/{},
-            /*expressionGenerator=*/nullptr,
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1536,7 +1515,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "subset", SkSLType::kFloat4 } },
             /*textures=*/{},
-            /*expressionGenerator=*/nullptr,
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1602,7 +1580,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
             /*textures=*/{},
-            /*expressionGenerator=*/nullptr,
             GenerateComposePreamble,
             /*numChildren=*/3
     };
@@ -1621,11 +1598,10 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColor] = {
             /*name=*/"PrimitiveColor",
-            /*staticFn=*/nullptr,
-            SnippetRequirementFlags::kNone,
+            /*staticFn=*/"sk_passthrough",
+            SnippetRequirementFlags::kPrimitiveColor,
             /*uniforms=*/{},
-            /*textures=*/{},
-            GeneratePrimitiveColorExpression
+            /*textures=*/{}
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstReadSample] = {
@@ -1634,7 +1610,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kSurfaceColor,
             /*uniforms=*/{ {"dstOffsetAndInvWH", SkSLType::kFloat4} },
             /*textures=*/{ {"dstCopy"} },
-            /*expressionGenerator=*/nullptr,
             GenerateDstReadSamplePreamble,
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstReadFetch] = {
@@ -1643,7 +1618,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kSurfaceColor,
             /*uniforms=*/{},
             /*textures=*/{},
-            /*expressionGenerator=*/nullptr,
             GenerateDstReadFetchPreamble,
     };
 
@@ -1653,7 +1627,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
             /*textures=*/{},
-            /*expressionGenerator=*/nullptr,
             GenerateClipShaderPreamble,
             /*numChildren=*/1
     };
@@ -1664,7 +1637,6 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
             /*textures=*/{},
-            /*expressionGenerator=*/nullptr,
             GenerateComposePreamble,
             /*numChildren=*/2
     };

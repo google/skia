@@ -58,12 +58,15 @@ private:
 
 enum class SnippetRequirementFlags : uint32_t {
     kNone             = 0x0,
+    // Signature of the ShaderNode
     kLocalCoords      = 0x1,
     kPriorStageOutput = 0x2,  // AKA the "input" color, or the "src" argument for a blender
     kBlenderDstColor  = 0x4,  // The "dst" argument for a blender
+    // Special values and/or behaviors required for the snippet
     kSurfaceColor     = 0x8,
-    kGradientBuffer   = 0x10,
-    kStoresData       = 0x20, // Indicates that the node stores numerical data
+    kPrimitiveColor   = 0x10,
+    kGradientBuffer   = 0x20,
+    kStoresData       = 0x40, // Indicates that the node stores numerical data
 };
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags)
 
@@ -81,9 +84,6 @@ struct ShaderSnippet {
         std::string fBlenderDstColor;
         std::string fFragCoord;
     };
-    using GenerateExpressionForSnippetFn = std::string (*)(const ShaderInfo& shaderInfo,
-                                                           const ShaderNode*,
-                                                           const Args& args);
 
     ShaderSnippet() = default;
 
@@ -92,7 +92,6 @@ struct ShaderSnippet {
                   SkEnumBitMask<SnippetRequirementFlags> snippetRequirementFlags,
                   SkSpan<const Uniform> uniforms,
                   SkSpan<const TextureAndSampler> textures = {},
-                  GenerateExpressionForSnippetFn expressionGenerator = nullptr,
                   GeneratePreambleForSnippetFn preambleGenerator = nullptr,
                   int numChildren = 0)
             : fName(name)
@@ -101,12 +100,11 @@ struct ShaderSnippet {
             , fUniforms(uniforms)
             , fTexturesAndSamplers(textures)
             , fNumChildren(numChildren)
-            , fExpressionGenerator(expressionGenerator)
             , fPreambleGenerator(preambleGenerator) {
         // Must always provide a name; static function is not optional if using the default (null)
         // generation logic.
         SkASSERT(name);
-        SkASSERT(staticFn || expressionGenerator || preambleGenerator);
+        SkASSERT(staticFn || preambleGenerator);
     }
 
     bool needsLocalCoords() const {
@@ -132,7 +130,6 @@ struct ShaderSnippet {
     skia_private::TArray<TextureAndSampler> fTexturesAndSamplers;
 
     int fNumChildren = 0;
-    GenerateExpressionForSnippetFn fExpressionGenerator = nullptr;
     GeneratePreambleForSnippetFn fPreambleGenerator = nullptr;
 };
 
