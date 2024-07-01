@@ -279,7 +279,6 @@ sk_sp<VulkanMemoryAllocator> Make(const skgpu::VulkanBackendContext& backendCont
     SkASSERT(backendContext.fDevice != VK_NULL_HANDLE);
     SkASSERT(backendContext.fQueue != VK_NULL_HANDLE);
     SkASSERT(backendContext.fGetProc);
-    SkASSERT(backendContext.fVkExtensions);
 
     skgpu::VulkanExtensions ext;
     const skgpu::VulkanExtensions* extensions = &ext;
