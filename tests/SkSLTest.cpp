@@ -510,12 +510,6 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
 
         disables["LoopFloat"].push_back({regex("Intel.*(Iris|6000)"), _, _, kMac});  // b/40043507
 
-        // - Samsung ------------------------------------------------------------------------------
-        // Swizzled-index store is broken on Samsung GPU. (b/349274975)
-        for (const char* test : {"SwizzleIndexStore"}) {
-            disables[test].push_back({regex("Samsung"), "OpenGLES", _, kAndroid});
-        }
-
         #undef ADRENO
         #undef NVIDIA
 
