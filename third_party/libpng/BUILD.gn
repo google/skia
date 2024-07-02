@@ -55,5 +55,12 @@ if (skia_use_system_libpng) {
         "../externals/libpng/intel/intel_init.c",
       ]
     }
+
+    if (current_cpu == "loong64") {
+      sources += [
+        "../externals/libpng/loongarch/filter_lsx_intrinsics.c",
+        "../externals/libpng/loongarch/loongarch_lsx_init.c",
+      ]
+    }
   }
 }
