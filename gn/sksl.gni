@@ -345,8 +345,3 @@ skslc_deps = [
   "$_src/utils/SkShaderUtils.cpp",
   "$_src/utils/SkShaderUtils.h",
 ]
-
-# TODO(kjlubick) remove after migrating Chromium and Flutter
-skia_sksl_gpu_sources = skia_sksl_pipeline_sources + skia_sksl_codegen_sources
-
-skia_sksl_sources = skia_sksl_core_sources + skia_sksl_default_module_sources

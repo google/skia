@@ -95,13 +95,6 @@ sksl_stage_tests_sources =
 
 sksl_minify_tests_sources = sksl_folding_tests + sksl_mesh_tests + sksl_rte_tests`
 
-const skslFooter = `
-# TODO(kjlubick) remove after migrating Chromium and Flutter
-skia_sksl_gpu_sources = skia_sksl_pipeline_sources + skia_sksl_codegen_sources
-
-skia_sksl_sources = skia_sksl_core_sources + skia_sksl_default_module_sources
-`
-
 // The footer written to modules/skshaper/skshaper.gni.
 const skshaperFooter = `
 declare_args() {
@@ -127,7 +120,6 @@ skia_fontations_bridge_root = "$_src/ports/fontations/src/ffi.rs"
 var footerMap = map[string]string{
 	"gn/core.gni":                   coreGNIFooter,
 	"gn/ports.gni":                  portsFooter,
-	"gn/sksl.gni":                   skslFooter,
 	"gn/sksl_tests.gni":             skslTestsFooter,
 	"modules/skshaper/skshaper.gni": skshaperFooter,
 }
