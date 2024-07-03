@@ -63,7 +63,7 @@ own shader code, you don't use `sample`. Instead, the `shader` object has a
 `.eval()` method. Regardless, Skia has simple methods for creating an `SkShader`
 from an `SkImage`, so it's easy to use images in your runtime effects:
 
-<fiddle-embed-sk name='a998917a6e0cdf5cb3a06fe9d9630af3'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_EvaluatingImageShader'></fiddle-embed-sk>
 
 Because the object you bind and evaluate is an `SkShader`, you can directly use
 any Skia shader, without necessarily turning it into an image (texture) first.
@@ -72,12 +72,12 @@ texture created to hold the gradient. Skia generates a single fragment shader
 that computes the gradient color, samples from the image's texture, and then
 multiplies the two together:
 
-<fiddle-embed-sk name='7085607d39028050efb91c0fe6131210'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_EvaluatingTwoShaders'></fiddle-embed-sk>
 
 Of course, you can even invoke another runtime effect, allowing you to combine
 shader snippets dynamically:
 
-<fiddle-embed-sk name='d2648c424e41cdd700330b7196283766'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_EvaluatingNestedShaders'></fiddle-embed-sk>
 
 ---
 
@@ -99,7 +99,7 @@ passed to you, the scale is correct. However, if you want to adjust those
 coordinates (to do some kind of re-mapping of the image), remember that the
 coordinates are scaled up to the dimensions of the image:
 
-<fiddle-embed-sk name='30a9eb3750ceaa3b88342938ee353071'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_CoordinateSpaces'></fiddle-embed-sk>
 
 ---
 
@@ -123,7 +123,7 @@ if the destination surface were in some other color space, this automatic conver
 is desirable, because it ensures content looks consistently correct on any user's
 screen.
 
-<fiddle-embed-sk name='555684b3908afcaaefd37d5f859ceb17'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_ColorSpaces'></fiddle-embed-sk>
 
 ### Uniforms
 
@@ -165,7 +165,7 @@ that is actually what you want when working with uniform colors. By labeling uni
 colors this way, your source colors (that you place in uniforms) will represent the
 same, consistent color regardless of the color space of the destination surface.
 
-<fiddle-embed-sk name='4f9365db3b8a52f767c57484eb6cad29'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_Uniforms'></fiddle-embed-sk>
 
 ### Raw Image Shaders
 
@@ -189,7 +189,7 @@ transformed to the working color space. This alters the normals, incorrectly.
 For the final draw, we use a raw image shader, which returns the original
 normals, ignoring the working color space.
 
-<fiddle-embed-sk name='d91814fd4dc87a46c0ab4a0587260718'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_RawImageShaders'></fiddle-embed-sk>
 
 ### Working In a Known Color Space
 
@@ -219,7 +219,7 @@ for example.
 Here's an example showing a sphere, with lighting math being done in the default
 working space (sRGB), and again with the math done in a linear space:
 
-<fiddle-embed-sk name='9e52c269cf3d47e5957e74d21288dd59'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_LinearSRGB'></fiddle-embed-sk>
 
 ---
 
@@ -253,7 +253,7 @@ The image below demonstrates this: properly premultiplied colors produce a smoot
 gradient as alpha decreases. Unpremultipled colors cause the gradient to display
 incorrectly, becoming too bright and shifting hue as the alpha changes.
 
-<fiddle-embed-sk name='91a25662aab86b212b946cb4df8b12ca'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_PremultipliedAlpha'></fiddle-embed-sk>
 
 ---
 
@@ -266,7 +266,7 @@ and deletes unreferenced code.
 As an example, here is the previous demo in its minified form. The shader code is reduced to
 approximately half of its original size, while displaying the exact same result.
 
-<fiddle-embed-sk name='a6edbedab51be34f74b15c26e276ecc1'></fiddle-embed-sk>
+<fiddle-embed-sk name='@SkSL_MinifiedSkSL'></fiddle-embed-sk>
 
 To enable this tool, add `skia_compile_modules = true` to your gn argument list. (At the command
 line, type `gn args out/yourbuild` to access the arguments, or edit the file `out/yourbuild/args.gn`
