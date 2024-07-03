@@ -104,8 +104,8 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     }
 
     // The tessellating path renderers that use stencil can share the cover steps.
-    auto coverFill = std::make_unique<CoverBoundsRenderStep>(false);
-    auto coverInverse = std::make_unique<CoverBoundsRenderStep>(true);
+    auto coverFill = std::make_unique<CoverBoundsRenderStep>("regular-cover", kRegularCoverPass);
+    auto coverInverse = std::make_unique<CoverBoundsRenderStep>("inverse-cover", kInverseCoverPass);
 
     for (bool evenOdd : {false, true}) {
         // These steps can be shared by regular and inverse fills

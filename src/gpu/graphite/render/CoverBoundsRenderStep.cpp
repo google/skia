@@ -14,21 +14,20 @@
 
 namespace skgpu::graphite {
 
-CoverBoundsRenderStep::CoverBoundsRenderStep(bool inverseFill)
+CoverBoundsRenderStep::CoverBoundsRenderStep(const char* tag, DepthStencilSettings dsSettings)
         : RenderStep("CoverBoundsRenderStep",
-                     inverseFill ? "inverse" : "regular",
+                     tag,
                      Flags::kPerformsShading,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     inverseFill ? kInverseCoverPass : kRegularCoverPass,
+                     dsSettings,
                      /*vertexAttrs=*/  {},
                      /*instanceAttrs=*/{{"bounds", VertexAttribType::kFloat4, SkSLType::kFloat4},
                                         {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
                                         {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2},
                                         {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                                         {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                                        {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}})
-        , fInverseFill(inverseFill) {}
+                                        {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}}) {}
 
 CoverBoundsRenderStep::~CoverBoundsRenderStep() {}
 
@@ -50,7 +49,7 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
 
     skvx::float4 bounds;
     const SkM44* m;
-    if (fInverseFill) {
+    if (params.geometry().isShape() && params.geometry().shape().inverted()) {
         // Normally all bounding boxes are sorted such that l<r and t<b. We upload an inverted
         // rectangle [r,b,l,t] when it's an inverse fill to encode that the bounds are already in
         // device space and then use the inverse of the transform to compute local coordinates.

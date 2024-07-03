@@ -14,7 +14,7 @@ namespace skgpu::graphite {
 
 class CoverBoundsRenderStep final : public RenderStep {
 public:
-    CoverBoundsRenderStep(bool inverseFill);
+    CoverBoundsRenderStep(const char* tag, DepthStencilSettings dsSettings);
 
     ~CoverBoundsRenderStep() override;
 
@@ -23,7 +23,6 @@ public:
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:
-    const bool fInverseFill;
 };
 
 }  // namespace skgpu::graphite
