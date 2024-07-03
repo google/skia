@@ -102,9 +102,7 @@ def compile_fn(api, checkout_root, out_dir):
     # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
     # Use lowercase letters.
     # https://chrome-infra-packages.appspot.com/p/infra_internal/ios/xcode
-    XCODE_BUILD_VERSION = '15f31d'
-    if compiler == 'Xcode11.4.1':
-      XCODE_BUILD_VERSION = '11e503a'
+    XCODE_BUILD_VERSION = '15f31d' # Xcode 15.4
     extra_cflags.append(
         '-DREBUILD_IF_CHANGED_xcode_build_version=%s' % XCODE_BUILD_VERSION)
     mac_toolchain_cmd = api.vars.workdir.join(
@@ -128,11 +126,11 @@ def compile_fn(api, checkout_root, out_dir):
       api.step('select xcode', [
           'sudo', 'xcode-select', '-switch', xcode_app_path])
       if 'iOS' in extra_tokens:
-        if compiler == 'Xcode11.4.1':
+        if 'iOS12' in extra_tokens:
           # Ganesh has a lower minimum iOS version than Graphite but there are dedicated jobs that
           # test with the lower SDK.
-          env['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
-          args['ios_min_target'] = '"11.0"'
+          env['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+          args['ios_min_target'] = '"12.0"'
         else:
           env['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
           args['ios_min_target'] = '"13.0"'

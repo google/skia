@@ -18,6 +18,9 @@
 static bool ios_get_path_in_bundle(const char path[], SkString* result) {
     // Get a reference to the main bundle
     CFBundleRef mainBundle = CFBundleGetMainBundle();
+    if (!mainBundle) {
+        return false;
+    }
 
     // Get a reference to the file's URL
     // Use this to normalize the path
@@ -25,7 +28,9 @@ static bool ios_get_path_in_bundle(const char path[], SkString* result) {
                                                                      (const UInt8*)path,
                                                                      strlen(path),
                                                                      /*isDirectory=*/false));
+
     sk_cfp<CFStringRef> pathRef(CFURLCopyFileSystemPath(pathURL.get(), kCFURLPOSIXPathStyle));
+
     // We use "data" as our subdirectory to match {{bundle_resources_dir}}/data in GN
     // Unfortunately "resources" is not a valid top-level name in iOS, so we push it one level down
     sk_cfp<CFURLRef> fileURL(CFBundleCopyResourceURL(mainBundle, pathRef.get(),

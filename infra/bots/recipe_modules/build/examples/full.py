@@ -83,7 +83,7 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Metal',
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Dawn_Metal',
   'Build-Mac-Clang-x86_64-Release-Graphite_Native_Metal_Vello',
-  'Build-Mac-Xcode11.4.1-arm64-Debug-iOS',
+  'Build-Mac-Clang-arm64-Debug-iOS_iOS12',
   'Build-Mac-Clang-x86_64-Debug-ASAN',
   'Build-Mac-Clang-x86_64-Debug-Metal',
   'Build-Win-Clang-arm64-Release-Android',
