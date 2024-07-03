@@ -9,7 +9,6 @@
 #define SkTHash_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "src/base/SkMathPriv.h"
 #include "src/core/SkChecksum.h"
 
 #include <initializer_list>
@@ -162,12 +161,7 @@ public:
     // Hash tables will automatically resize themselves when set() and remove() are called, but
     // resize() can be called to manually grow capacity before a bulk insertion.
     void resize(int capacity) {
-        // We must have enough capacity to hold every key.
         SkASSERT(capacity >= fCount);
-        // `capacity` must be a power of two, because we use `hash & (capacity-1)` to look up keys
-        // in the table (since this is faster than a modulo).
-        SkASSERT((capacity & (capacity - 1)) == 0);
-
         int oldCapacity = fCapacity;
         SkDEBUGCODE(int oldCount = fCount);
 
@@ -464,9 +458,7 @@ public:
     };
 
     THashMap(std::initializer_list<Pair> pairs) {
-        int capacity = pairs.size() >= 4 ? SkNextPow2(pairs.size() * 4 / 3)
-                                         : 4;
-        fTable.resize(capacity);
+        fTable.resize(pairs.size() * 5 / 3);
         for (const Pair& p : pairs) {
             fTable.set(p);
         }
@@ -574,9 +566,7 @@ public:
 
     // Construct with an initializer list of Ts.
     THashSet(std::initializer_list<T> vals) {
-        int capacity = vals.size() >= 4 ? SkNextPow2(vals.size() * 4 / 3)
-                                        : 4;
-        fTable.resize(capacity);
+        fTable.resize(vals.size() * 5 / 3);
         for (const T& val : vals) {
             fTable.set(val);
         }
