@@ -171,8 +171,10 @@ static_assert( 0 == SkCLZ_portable(~0U));
             _BitScanReverse(&index, mask);
             // Suppress this bogus /analyze warning. The check for non-zero
             // guarantees that _BitScanReverse will succeed.
+            #pragma warning(push)
             #pragma warning(suppress : 6102) // Using 'index' from failed function call
-            return index ^ 0x1F;
+            return static_cast<int>(index ^ 0x1F);
+            #pragma warning(pop)
         } else {
             return 32;
         }
@@ -209,8 +211,10 @@ static_assert( 0 == SkCTZ_portable(~0U));
             _BitScanForward(&index, mask);
             // Suppress this bogus /analyze warning. The check for non-zero
             // guarantees that _BitScanReverse will succeed.
+            #pragma warning(push)
             #pragma warning(suppress : 6102) // Using 'index' from failed function call
-            return index;
+            return static_cast<int>(index);
+            #pragma warning(pop)
         } else {
             return 32;
         }
