@@ -7,4 +7,5 @@ void draw(SkCanvas* canvas) {
                                        SkNamedGamut::kRec2020);
   canvas->drawImage(image, 0, 0);
   canvas->drawImage(image->reinterpretColorSpace(rec2020), 256, 0);
-}}  // END FIDDLE
+}
+}  // END FIDDLE

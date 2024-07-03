@@ -64,4 +64,5 @@ void draw(SkCanvas* canvas) {
   paint.setShader(builder.makeShader());
   surface->getCanvas()->drawPaint(paint);
   canvas->drawImage(surface->makeImageSnapshot(), 256, 0);
-}}  // END FIDDLE
+}
+}  // END FIDDLE

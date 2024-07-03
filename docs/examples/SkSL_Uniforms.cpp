@@ -35,4 +35,5 @@ void draw(SkCanvas* canvas) {
 
   // Draw our offscreen image back to the original canvas:
   canvas->drawImage(surface->makeImageSnapshot(), 0, 0);
-}}  // END FIDDLE
+}
+}  // END FIDDLE

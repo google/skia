@@ -30,4 +30,5 @@ void draw(SkCanvas* canvas) {
   SkPaint p;
   p.setShader(myShader);
   canvas->drawPaint(p);
-}}  // END FIDDLE
+}
+}  // END FIDDLE

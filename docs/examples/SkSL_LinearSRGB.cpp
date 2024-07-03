@@ -42,4 +42,5 @@ void draw(SkCanvas* canvas) {
   paint.setShader(builder.makeShader());
   canvas->translate(128, 0);
   canvas->drawRect({0,0,128,128}, paint);
-}}  // END FIDDLE
+}
+}  // END FIDDLE
