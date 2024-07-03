@@ -102,7 +102,6 @@ SkString SkCFTypeIDDescription(CFTypeID id) {
 template<typename CF> CFTypeID SkCFGetTypeID();
 #define SK_GETCFTYPEID(cf) \
 template<> CFTypeID SkCFGetTypeID<cf##Ref>() { return cf##GetTypeID(); }
-SK_GETCFTYPEID(CFArray);
 SK_GETCFTYPEID(CFBoolean);
 SK_GETCFTYPEID(CFDictionary);
 SK_GETCFTYPEID(CFNumber);
@@ -745,16 +744,6 @@ bool SkTypeface_Mac::onGlyphMaskNeedsCurrentColor() const {
 
 CFArrayRef SkTypeface_Mac::getVariationAxes() const {
     fInitVariationAxes([this]{
-        // Prefer kCTFontVariationAxesAttribute, faster since it doesn't localize axis names.
-        SkUniqueCFRef<CTFontDescriptorRef> desc(CTFontCopyFontDescriptor(fFontRef.get()));
-        SkUniqueCFRef<CFTypeRef> cf(
-                CTFontDescriptorCopyAttribute(desc.get(), kCTFontVariationAxesAttribute));
-        CFArrayRef array;
-        if (cf && SkCFDynamicCast(cf.get(), &array, "Axes")) {
-            fVariationAxes.reset(array);
-            cf.release();
-            return;
-        }
         fVariationAxes.reset(CTFontCopyVariationAxes(fFontRef.get()));
     });
     return fVariationAxes.get();
