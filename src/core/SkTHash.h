@@ -142,11 +142,11 @@ public:
                 return false;
             }
             if (hash == s.fHash && key == Traits::GetKey(*s)) {
-               this->removeSlot(index);
-               if (4 * fCount <= fCapacity && fCapacity > 4) {
-                   this->resize(fCapacity / 2);
-               }
-               return true;
+                this->removeSlot(index);
+                if (4 * fCount <= fCapacity && fCapacity > 4) {
+                    this->resize(fCapacity / 2);
+                }
+                return true;
             }
             index = this->next(index);
         }
@@ -183,6 +183,22 @@ public:
             }
         }
         SkASSERT(fCount == oldCount);
+    }
+
+    // Reserve extra capacity. This only grows capacity; requests to shrink are ignored.
+    // We assume that the passed-in value represents the number of items that the caller wants to
+    // store in the table. The passed-in value is adjusted to honor the following rules:
+    // - Hash tables must have a power-of-two capacity.
+    // - Hash tables grow when they exceed 3/4 capacity, not when they are full.
+    void reserve(int n) {
+        int newCapacity = SkNextPow2(n);
+        if (n * 4 > newCapacity * 3) {
+            newCapacity *= 2;
+        }
+
+        if (newCapacity > fCapacity) {
+            this->resize(newCapacity);
+        }
     }
 
     // Call fn on every entry in the table.  You may mutate the entries, but be very careful.
@@ -484,6 +500,9 @@ public:
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
 
+    // Reserve extra capacity.
+    void reserve(int n) { fTable.reserve(n); }
+
     // Exchange two hash maps.
     void swap(THashMap& that) { fTable.swap(that.fTable); }
     void swap(THashMap&& that) { fTable.swap(std::move(that.fTable)); }
@@ -593,6 +612,9 @@ public:
 
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
+
+    // Reserve extra capacity.
+    void reserve(int n) { fTable.reserve(n); }
 
     // Exchange two hash sets.
     void swap(THashSet& that) { fTable.swap(that.fTable); }

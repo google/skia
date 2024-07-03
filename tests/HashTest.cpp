@@ -399,26 +399,54 @@ DEF_TEST(HashFindOrNull, r) {
 DEF_TEST(HashTableGrowsAndShrinks, r) {
     THashSet<int> s;
     auto check_count_cap = [&](int count, int cap) {
-        REPORTER_ASSERT(r, s.count() == count);
-        REPORTER_ASSERT(r, s.approxBytesUsed() == (sizeof(int) + sizeof(uint32_t)) * cap);
+        REPORTER_ASSERT(r, s.count() == count,
+                        "Expected: %d. Actual: %d.", count, s.count());
+
+        size_t expectedCapacityBytes = (sizeof(int) + sizeof(uint32_t)) * cap;
+        REPORTER_ASSERT(r, s.approxBytesUsed() == expectedCapacityBytes,
+                        "Expected: %zu. Actual: %zu.", expectedCapacityBytes, s.approxBytesUsed());
     };
 
     // Add and remove some elements to test basic growth and shrink patterns.
-                 check_count_cap(0,0);
-    s.add(1);    check_count_cap(1,4);
-    s.add(2);    check_count_cap(2,4);
-    s.add(3);    check_count_cap(3,4);
-    s.add(4);    check_count_cap(4,8);
+                 check_count_cap(0, 0);
+    s.add(1);    check_count_cap(1, 4);
+    s.add(2);    check_count_cap(2, 4);
+    s.add(3);    check_count_cap(3, 4);
+    s.add(4);    check_count_cap(4, 8);
 
-    s.remove(4); check_count_cap(3,8);
-    s.remove(3); check_count_cap(2,4);
-    s.remove(2); check_count_cap(1,4);
-    s.remove(1); check_count_cap(0,4);
+    s.remove(4); check_count_cap(3, 8);
+    s.remove(3); check_count_cap(2, 4);
+    s.remove(2); check_count_cap(1, 4);
+    s.remove(1); check_count_cap(0, 4);
 
-    s.add(1);    check_count_cap(1,4);
-    s.add(2);    check_count_cap(2,4);
-    s.add(3);    check_count_cap(3,4);
-    s.add(4);    check_count_cap(4,8);
+    s.add(1);    check_count_cap(1, 4);
+    s.add(2);    check_count_cap(2, 4);
+    s.add(3);    check_count_cap(3, 4);
+    s.add(4);    check_count_cap(4, 8);
+
+    // Test that reserve() will preallocate space, rounded up to 2^n.
+    s.reserve(40);  check_count_cap(4, 64);
+    s.reserve(48);  check_count_cap(4, 64);
+    s.reserve(49);  check_count_cap(4, 128);
+
+    // Test that reserve() will not shrink the capacity.
+    s.reserve(48);  check_count_cap(4, 128);
+    s.reserve(12);  check_count_cap(4, 128);
+    s.reserve(1);   check_count_cap(4, 128);
+
+    // Test that adding elements will maintain the reserved capacity.
+    s.add(5);       check_count_cap(5, 128);
+    s.add(6);       check_count_cap(6, 128);
+    s.add(7);       check_count_cap(7, 128);
+    s.add(8);       check_count_cap(8, 128);
+
+    // Removing elements, on the other hand, _will_ allow the container to shrink.
+    s.remove(4);    check_count_cap(7, 64);
+    s.remove(5);    check_count_cap(6, 32);
+    s.remove(6);    check_count_cap(5, 16);
+    s.remove(7);    check_count_cap(4, 8);
+    s.remove(8);    check_count_cap(3, 8);
+    s.add(4);       check_count_cap(4, 8);
 
     // Add and remove single elements repeatedly to test hysteresis
     // avoids reallocating these small tables all the time.
