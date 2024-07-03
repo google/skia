@@ -1600,7 +1600,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             /*name=*/"PrimitiveColor",
             /*staticFn=*/"sk_passthrough",
             SnippetRequirementFlags::kPrimitiveColor,
-            /*uniforms=*/{},
+            /*uniforms=*/{ /* TODO: add colorspace info */ },
             /*textures=*/{}
     };
 

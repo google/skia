@@ -1089,6 +1089,27 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
 }
 
 //--------------------------------------------------------------------------------------------------
+namespace {
+
+void add_primitive_color_uniform_data(
+        const ShaderCodeDictionary* dict,
+        PipelineDataGatherer* gatherer) {
+
+    // VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kPrimitiveColor);
+    // TODO: add colorspace uniforms
+}
+
+}  // anonymous namespace
+
+void PrimitiveColorBlock::AddBlock(const KeyContext& keyContext,
+                                   PaintParamsKeyBuilder* builder,
+                                   PipelineDataGatherer* gatherer) {
+    add_primitive_color_uniform_data(keyContext.dict(), gatherer);
+
+    builder->addBlock(BuiltInCodeSnippetID::kPrimitiveColor);
+}
+
+//--------------------------------------------------------------------------------------------------
 
 void AddBlendModeColorFilter(const KeyContext& keyContext,
                              PaintParamsKeyBuilder* builder,

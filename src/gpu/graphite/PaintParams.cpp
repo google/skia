@@ -211,7 +211,7 @@ void PaintParams::handlePrimitiveColor(const KeyContext& keyContext,
                   this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
               },
               /* addDstToKey= */ [&]() -> void {
-                  keyBuilder->addBlock(BuiltInCodeSnippetID::kPrimitiveColor);
+                  PrimitiveColorBlock::AddBlock(keyContext, keyBuilder, gatherer);
               });
     } else {
         this->addPaintColorToKey(keyContext, keyBuilder, gatherer);

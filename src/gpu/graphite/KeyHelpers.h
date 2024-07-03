@@ -371,6 +371,12 @@ struct ColorSpaceTransformBlock {
                          const ColorSpaceTransformData&);
 };
 
+struct PrimitiveColorBlock {
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*);
+};
+
 /**
  * Blend mode color filters blend their input (as the dst color) with some given color (supplied
  * via a uniform) as the src color.
