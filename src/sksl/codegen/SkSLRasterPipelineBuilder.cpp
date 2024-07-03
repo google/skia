@@ -1823,7 +1823,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
     }
 
     // Track labels that we have reached in processing.
-    THashMap<int, int> labelToInstructionIndexMap;
+    TArray<int> labelToInstructionIndex;
+    labelToInstructionIndex.push_back_n(fNumLabels, -1);
 
     int mostRecentInvocationInstructionIdx = 0;
 
@@ -1831,8 +1832,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
         // If we have already encountered the label associated with this branch, this is a
         // backwards branch. Add a stack-rewind immediately before the branch to ensure that
         // long-running loops don't use an unbounded amount of stack space.
-        if (const int* labelInstructionIdxPtr = labelToInstructionIndexMap.find(labelID)) {
-            int labelInstructionIdx = *labelInstructionIdxPtr;
+        int labelInstructionIdx = labelToInstructionIndex[labelID];
+        if (labelInstructionIdx >= 0) {
             if (mostRecentInvocationInstructionIdx > labelInstructionIdx) {
                 // The backwards-branch range includes an external invocation to another shader,
                 // color filter, blender, or colorspace conversion. In this case, we always emit a
@@ -1883,7 +1884,8 @@ void Program::makeStages(TArray<Stage>* pipeline,
             case BuilderOp::label: {
                 intptr_t labelID = inst.fImmA;
                 SkASSERT(labelID >= 0 && labelID < fNumLabels);
-                labelToInstructionIndexMap[labelID] = instructionIdx;
+                SkASSERT(labelToInstructionIndex[labelID] == -1);
+                labelToInstructionIndex[labelID] = instructionIdx;
                 pipeline->push_back({ProgramOp::label, context_bit_pun(labelID)});
                 break;
             }

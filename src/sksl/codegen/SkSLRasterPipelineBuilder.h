@@ -288,7 +288,7 @@ private:
     int fNumUniformSlots = 0;
     int fNumImmutableSlots = 0;
     int fNumTempStackSlots = 0;
-    [[maybe_unused]] int fNumLabels = 0;
+    int fNumLabels = 0;
     StackDepths fTempStackMaxDepths;
     DebugTracePriv* fDebugTrace = nullptr;
     std::unique_ptr<SkSL::TraceHook> fTraceHook;
