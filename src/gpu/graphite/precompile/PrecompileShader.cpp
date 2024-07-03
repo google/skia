@@ -31,7 +31,7 @@ namespace skgpu::graphite {
 
 PrecompileShader::~PrecompileShader() = default;
 
-sk_sp<PrecompileShader> PrecompileShader::makeWithLocalMatrix() {
+sk_sp<PrecompileShader> PrecompileShader::makeWithLocalMatrix() const {
     if (this->priv().isALocalMatrixShader()) {
         // SkShader::makeWithLocalMatrix collapses chains of localMatrix shaders so we need to
         // follow suit here
@@ -41,7 +41,8 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithLocalMatrix() {
     return PrecompileShaders::LocalMatrix({ sk_ref_sp(this) });
 }
 
-sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(sk_sp<PrecompileColorFilter> cf) {
+sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(
+        sk_sp<PrecompileColorFilter> cf) const {
     if (!cf) {
         return sk_ref_sp(this);
     }
@@ -49,7 +50,7 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(sk_sp<PrecompileCo
     return PrecompileShaders::ColorFilter({ sk_ref_sp(this) }, { std::move(cf) });
 }
 
-sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(sk_sp<SkColorSpace> cs) {
+sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(sk_sp<SkColorSpace> cs) const {
     if (!cs) {
         return sk_ref_sp(this);
     }

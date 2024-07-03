@@ -36,7 +36,7 @@ public:
      *  one could call:
      *     sk_sp<PrecompileShader> combinedOptions = LocalMatrix({ source1, source2 });
      */
-    sk_sp<PrecompileShader> makeWithLocalMatrix();
+    sk_sp<PrecompileShader> makeWithLocalMatrix() const;
 
     /**
      *  This is the Precompile correlate to SkShader::makeWithColorFilter.
@@ -52,7 +52,7 @@ public:
      *     sk_sp<PrecompileShader> combinedOptions = ColorFilter({ source1, source2 },
      *                                                           { colorFilter });
      */
-    sk_sp<PrecompileShader> makeWithColorFilter(sk_sp<PrecompileColorFilter>);
+    sk_sp<PrecompileShader> makeWithColorFilter(sk_sp<PrecompileColorFilter>) const;
 
     /**
      *  This is the Precompile correlate to SkShader::makeWithWorkingColorSpace.
@@ -69,7 +69,7 @@ public:
      *     sk_sp<PrecompileShader> combinedOptions = WorkingColorSpace({ source1, source2 },
      *                                                                 { colorSpace });
      */
-    sk_sp<PrecompileShader> makeWithWorkingColorSpace(sk_sp<SkColorSpace>);
+    sk_sp<PrecompileShader> makeWithWorkingColorSpace(sk_sp<SkColorSpace>) const;
 
     // Provides access to functions that aren't part of the public API.
     PrecompileShaderPriv priv();
