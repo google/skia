@@ -291,6 +291,7 @@ gm_sources = [
   "$_gm/pathinterior.cpp",
   "$_gm/pathmaskcache.cpp",
   "$_gm/pathmeasure.cpp",
+  "$_gm/pathopsblend.cpp",
   "$_gm/pathopsinverse.cpp",
   "$_gm/pathreverse.cpp",
   "$_gm/pdf_never_embed.cpp",
