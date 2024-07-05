@@ -21,4 +21,5 @@ import("xps.gni")
 skia_opts = {
   hsw_sources = hsw
   skx_sources = skx
+  lasx_sources = lasx
 }

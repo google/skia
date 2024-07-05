@@ -167,6 +167,7 @@ template("opts") {
 }
 
 is_x86 = current_cpu == "x64" || current_cpu == "x86"
+is_loong64 = current_cpu == "loong64"
 
 opts("hsw") {
   enabled = is_x86
@@ -186,6 +187,12 @@ opts("skx") {
   } else {
     cflags = [ "-march=skylake-avx512" ]
   }
+}
+
+opts("lasx") {
+  enabled = is_loong64
+  sources = skia_opts.lasx_sources
+  cflags = [ "-mlasx" ]
 }
 
 # Any feature of Skia that requires third-party code should be optional and use this template.
@@ -1448,6 +1455,7 @@ skia_component("skia") {
     ":hsw",
     ":jpeg_decode",
     ":jpegxl_decode",
+    ":lasx",
     ":minify_sksl",
     ":ndk_images",
     ":png_decode",

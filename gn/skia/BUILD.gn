@@ -170,7 +170,6 @@ config("default") {
   } else if (current_cpu == "loong64") {
     cflags += [
       "-mlsx",
-      "-mlasx",
       "-Wno-switch-default",
     ]
   }

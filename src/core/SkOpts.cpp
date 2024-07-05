@@ -46,6 +46,7 @@ namespace SkOpts {
     // Each Init_foo() is defined in src/opts/SkOpts_foo.cpp.
     void Init_hsw();
     void Init_skx();
+    void Init_lasx();
 
     static bool init() {
     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
@@ -59,6 +60,10 @@ namespace SkOpts {
             if (SkCpu::Supports(SkCpu::SKX)) { Init_skx(); }
         #endif
 
+    #elif defined(SK_CPU_LOONGARCH)
+        #if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
+            if (SkCpu::Supports(SkCpu::LOONGARCH_ASX)) { Init_lasx(); }
+        #endif
     #endif
         return true;
     }

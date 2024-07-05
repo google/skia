@@ -22,6 +22,7 @@ namespace SkOpts {
     DEFINE_DEFAULT(blit_row_s32a_opaque);
 
     void Init_BlitRow_hsw();
+    void Init_BlitRow_lasx();
 
     static bool init() {
     #if defined(SK_ENABLE_OPTIMIZE_SIZE)
@@ -29,6 +30,10 @@ namespace SkOpts {
     #elif defined(SK_CPU_X86)
         #if SK_CPU_SSE_LEVEL < SK_CPU_SSE_LEVEL_AVX2
             if (SkCpu::Supports(SkCpu::HSW)) { Init_BlitRow_hsw(); }
+        #endif
+    #elif defined(SK_CPU_LOONGARCH)
+        #if SK_CPU_LSX_LEVEL < SK_CPU_LSX_LEVEL_LASX
+            if (SkCpu::Supports(SkCpu::LOONGARCH_ASX)) { Init_BlitRow_lasx(); }
         #endif
     #endif
       return true;

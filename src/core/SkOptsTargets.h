@@ -13,4 +13,6 @@
 #define SK_OPTS_TARGET_AVX     0x02
 #define SK_OPTS_TARGET_HSW     0x04
 
+#define SK_OPTS_TARGET_LASX    0x08
+
 #endif
