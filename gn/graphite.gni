@@ -24,7 +24,6 @@ skia_graphite_public = [
 ]
 
 skia_graphite_sources = [
-  "$_include_private/ContextOptionsPriv.h",
   "$_src/AtlasProvider.cpp",
   "$_src/AtlasProvider.h",
   "$_src/Attribute.h",
@@ -50,6 +49,7 @@ skia_graphite_sources = [
   "$_src/ComputePipeline.h",
   "$_src/ComputeTypes.h",
   "$_src/Context.cpp",
+  "$_src/ContextOptionsPriv.h",
   "$_src/ContextPriv.h",
   "$_src/ContextUtils.cpp",
   "$_src/ContextUtils.h",

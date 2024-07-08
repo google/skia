@@ -13,7 +13,7 @@
 #include "src/gpu/graphite/SharedContext.h"
 
 #if defined(GRAPHITE_TEST_UTILS)
-#include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#include "src/gpu/graphite/ContextOptionsPriv.h"
 #endif
 
 namespace skgpu::graphite {

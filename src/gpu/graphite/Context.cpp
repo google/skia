@@ -56,7 +56,7 @@
 #include "src/image/SkSurface_Base.h"
 
 #if defined(GRAPHITE_TEST_UTILS)
-#include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#include "src/gpu/graphite/ContextOptionsPriv.h"
 #if defined(SK_DAWN)
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE

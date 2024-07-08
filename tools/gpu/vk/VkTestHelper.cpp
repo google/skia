@@ -25,7 +25,7 @@
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
-#include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#include "src/gpu/graphite/ContextOptionsPriv.h"
 #endif
 
 #define ACQUIRE_INST_VK_PROC(name)                                                               \

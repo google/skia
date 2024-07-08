@@ -33,7 +33,7 @@
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/ContextOptions.h"
-#include "include/private/gpu/graphite/ContextOptionsPriv.h"
+#include "src/gpu/graphite/ContextOptionsPriv.h"
 #endif
 
 /** Creates an image with two one-pixel wide borders around a checkerboard. The checkerboard is 2x2
