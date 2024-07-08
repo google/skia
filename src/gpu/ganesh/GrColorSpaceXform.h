@@ -8,18 +8,18 @@
 #ifndef GrColorSpaceXform_DEFINED
 #define GrColorSpaceXform_DEFINED
 
-#include "include/core/SkAlphaType.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <memory>
 
 class GrColorInfo;
 class SkColorSpace;
+enum SkAlphaType : int;
 struct GrShaderCaps;
 
 namespace skgpu { class KeyBuilder; }

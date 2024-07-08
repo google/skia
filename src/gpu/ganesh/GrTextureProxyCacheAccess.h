@@ -10,6 +10,12 @@
 
 #include "src/gpu/ganesh/GrTextureProxy.h"
 
+class GrProxyProvider;
+
+namespace skgpu {
+class UniqueKey;
+}
+
 /**
  * This class allows GrResourceCache increased privileged access to GrTextureProxy objects.
  */

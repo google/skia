@@ -10,6 +10,14 @@
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrResourceAllocator.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+
+#include <algorithm>
+#include <utility>
+
+class GrDrawingManager;
+class GrRecordingContext;
+class GrSurface;
 
 sk_sp<GrRenderTask> GrWritePixelsTask::Make(GrDrawingManager* dm,
                                             sk_sp<GrSurfaceProxy> dst,

@@ -6,8 +6,14 @@
  */
 
 #include "src/gpu/ganesh/gl/GrGLGLSL.h"
+
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "src/sksl/SkSLGLSL.h"
+
+#include <algorithm>
+#include <cstdint>
 
 bool GrGLGetGLSLGeneration(const GrGLDriverInfo& info, SkSL::GLSLGeneration* generation) {
     SkASSERT(generation);

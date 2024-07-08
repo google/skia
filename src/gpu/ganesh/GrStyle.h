@@ -9,10 +9,22 @@
 #define GrStyle_DEFINED
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkPathEffectBase.h"
+
+#include <cstdint>
+#include <utility>
+
+class SkPath;
 
 /**
  * Represents the various ways that a GrStyledShape can be styled. It has fill/stroking information

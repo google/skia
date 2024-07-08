@@ -15,8 +15,14 @@ const ASSEMBLE_INTERFACE_GL_ES = `/*
  * be overwritten.
  */
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/gl/GrGLAssembleHelpers.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/gl/GrGLExtensions.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 #define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)
@@ -92,8 +98,14 @@ const ASSEMBLE_INTERFACE_GL = `/*
  * be overwritten.
  */
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/gl/GrGLAssembleHelpers.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/gl/GrGLExtensions.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 #define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)
@@ -158,16 +170,18 @@ const ASSEMBLE_INTERFACE_WEBGL = `/*
  * Make edits to tools/gpu/gl/interface/templates.go or they will
  * be overwritten.
  */
-
-#include "include/gpu/gl/GrGLAssembleHelpers.h"
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 #if SK_DISABLE_WEBGL_INTERFACE || !defined(__EMSCRIPTEN__)
+struct GrGLInterface;
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
     return nullptr;
 }
 #else
+
+#include "include/gpu/gl/GrGLAssembleHelpers.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 // Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/GLES3
 #define GL_GLEXT_PROTOTYPES
@@ -216,11 +230,14 @@ const VALIDATE_INTERFACE = `/*
  * be overwritten.
  */
 
+#include "include/gpu/gl/GrGLConfig.h"
 #include "include/gpu/gl/GrGLExtensions.h"
+#include "include/gpu/gl/GrGLFunctions.h"
 #include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
-
-#include <stdio.h>
 
 GrGLInterface::GrGLInterface() {
     fStandard = kNone_GrGLStandard;

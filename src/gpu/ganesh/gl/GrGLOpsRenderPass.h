@@ -4,18 +4,34 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef GrGLOpsRenderPass_DEFINED
 #define GrGLOpsRenderPass_DEFINED
 
-#include "src/gpu/ganesh/GrOpsRenderPass.h"
-
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkDebug.h"
+#include "src/gpu/ganesh/GrDeferredUpload.h"
+#include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
+#include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
-#include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 
-class GrGLGpu;
-class GrGLRenderTarget;
+#include <array>
+#include <cstddef>
+#include <cstdint>
+
+class GrBuffer;
+class GrGLAttribArrayState;
+class GrGpu;
+class GrPipeline;
+class GrProgramInfo;
+class GrRenderTarget;
+class GrScissorState;
+class GrSurfaceProxy;
+enum GrSurfaceOrigin : int;
+enum class GrPrimitiveRestart : bool;
+enum class GrPrimitiveType : uint8_t;
 
 class GrGLOpsRenderPass : public GrOpsRenderPass {
 /**

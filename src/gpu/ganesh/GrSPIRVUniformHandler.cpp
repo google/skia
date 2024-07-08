@@ -4,11 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/GrSPIRVUniformHandler.h"
 
+#include "include/core/SkString.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/base/SkAssert.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/GrUtil.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
+
+#include <string.h>
+#include <algorithm>
+#include <utility>
+
+class GrProcessor;
+struct GrShaderCaps;
 
 GrSPIRVUniformHandler::GrSPIRVUniformHandler(GrGLSLProgramBuilder* program)
     : INHERITED(program)

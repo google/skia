@@ -8,11 +8,17 @@
 #ifndef GrRingBuffer_DEFINED
 #define GrRingBuffer_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMath.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <vector>
 
 class GrGpu;
+enum class GrGpuBufferType;
 
 /**
  * A wrapper for a GPU buffer that allocates slices in a continuous ring.

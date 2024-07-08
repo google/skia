@@ -8,10 +8,21 @@
 #ifndef GrGLMtlAttachment_DEFINED
 #define GrGLMtlAttachment_DEFINED
 
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 
+#include <string_view>
+
 class GrGLGpu;
+class GrGpu;
+class SkString;
+class SkTraceMemoryDump;
 
 class GrGLAttachment : public GrAttachment {
 public:

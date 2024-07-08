@@ -4,20 +4,31 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 
+#include "include/core/SkPathTypes.h"
+#include "include/private/base/SkAlignedStorage.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkOnce.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/ResourceKey.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/tessellate/VertexChunkPatchAllocator.h"
 #include "src/gpu/tessellate/AffineMatrix.h"
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
-#include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"
+#include "src/gpu/tessellate/LinearTolerances.h"
 #include "src/gpu/tessellate/MidpointContourParser.h"
 #include "src/gpu/tessellate/PatchWriter.h"
 #include "src/gpu/tessellate/WangsFormula.h"
+
+#include <utility>
 
 namespace skgpu::ganesh {
 

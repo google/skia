@@ -12,6 +12,8 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkSLTypeShared.h"
 
+#include <cstdint>
+
 class GrStyle;
 class SkMatrix;
 

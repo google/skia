@@ -20,6 +20,7 @@
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSimpleMesh.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/GrUtil.h"
@@ -587,6 +588,9 @@ private:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if defined(GR_TEST_UTILS)
+
+#include "src/base/SkRandom.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 
 GR_DRAW_OP_TEST_DEFINE(DefaultPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

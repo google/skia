@@ -4,18 +4,30 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef GrTessellationShader_DEFINED
 #define GrTessellationShader_DEFINED
 
+#include "include/core/SkMatrix.h"
+#include "include/private/SkColorData.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 
-class SkArenaAlloc;
+#include <cstdint>
 
- // This is a common base class for shaders in the GPU tessellator.
+class GrAppliedClip;
+class GrCaps;
+class GrDstProxyView;
+class GrPipeline;
+class GrProcessorSet;
+class GrSurfaceProxyView;
+enum class GrAAType : unsigned int;
+enum class GrLoadOp;
+enum class GrPrimitiveType : uint8_t;
+enum class GrXferBarrierFlags;
+struct GrUserStencilSettings;
+
+// This is a common base class for shaders in the GPU tessellator.
 class GrTessellationShader : public GrGeometryProcessor {
 public:
     GrTessellationShader(ClassID classID, GrPrimitiveType primitiveType,

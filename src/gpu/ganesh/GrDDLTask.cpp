@@ -7,10 +7,21 @@
 
 #include "src/gpu/ganesh/GrDDLTask.h"
 
+#include "include/core/SkString.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/chromium/GrDeferredDisplayList.h"
 #include "src/gpu/ganesh/GrDeferredDisplayListPriv.h"
+#include "src/gpu/ganesh/GrDrawingManager.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrResourceAllocator.h"
+
+#include <utility>
+
+class GrOpFlushState;
+class GrRecordingContext;
+class GrSurfaceProxy;
+struct SkIRect;
 
 GrDDLTask::GrDDLTask(GrDrawingManager* drawingMgr,
                      sk_sp<GrRenderTargetProxy> ddlTarget,

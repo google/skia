@@ -8,8 +8,13 @@
 #ifndef VertexChunkPatchAllocator_DEFINED
 #define VertexChunkPatchAllocator_DEFINED
 
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/LinearTolerances.h"
+
+#include <cstddef>
+
+class GrMeshDrawTarget;
 
 namespace skgpu::ganesh {
 

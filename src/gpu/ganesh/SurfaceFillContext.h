@@ -4,13 +4,38 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef SurfaceFillContext_DEFINED
 #define SurfaceFillContext_DEFINED
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkDebug.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
-
+#include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/OpsTask.h"
+
+#include <array>
+#include <memory>
+#include <utility>
+
+class GrPaint;
+class GrRecordingContext;
+class GrRenderTask;
+class SkArenaAlloc;
+struct SkIPoint;
+
+namespace sktext::gpu {
+class SubRunAllocator;
+}
 
 namespace skgpu::ganesh {
 

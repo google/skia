@@ -8,26 +8,51 @@
 #ifndef GrDirectContextPriv_DEFINED
 #define GrDirectContextPriv_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/AtlasTypes.h"
-#include "src/gpu/ganesh/Device.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
-class GrAtlasManager;
-class GrBackendFormat;
-class GrBackendRenderTarget;
-class GrImageInfo;
-class GrMemoryPool;
-class GrOnFlushCallbackObject;
-class GrRenderTargetProxy;
-class GrSemaphore;
-class GrSurfaceProxy;
+#include <cstddef>
+#include <memory>
+#include <utility>
 
+class GrAtlasManager;
+class GrClientMappedBufferManager;
 class GrDeferredDisplayList;
+class GrFragmentProcessor;
+class GrOnFlushCallbackObject;
+class GrProgramDesc;
+class GrProgramInfo;
+class GrRenderTargetProxy;
+class GrResourceCache;
+class GrResourceProvider;
+class GrSurfaceProxy;
+class SkImage;
+class SkString;
 class SkTaskGroup;
+enum class GrBackendApi : unsigned int;
+enum class GrSemaphoresSubmitted : bool;
+struct GrFlushInfo;
+
+namespace skgpu {
+class MutableTextureState;
+enum class MaskFormat : int;
+namespace ganesh {
+class SmallPathAtlasMgr;
+}
+}  // namespace skgpu
+namespace sktext {
+namespace gpu {
+class StrikeCache;
+}
+}  // namespace sktext
 
 /** Class that adds methods to GrDirectContext that are only intended for use internal to Skia.
     This class is purely a privileged window into GrDirectContext. It should never have additional

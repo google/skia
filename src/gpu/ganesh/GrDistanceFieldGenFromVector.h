@@ -10,9 +10,12 @@
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
-#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+
+#include <cstddef>
 
 class SkMatrix;
+class SkPath;
 
 /** Given a vector path, generate the associated distance field.
 

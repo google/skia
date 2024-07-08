@@ -8,10 +8,25 @@
 #ifndef AtlasInstancedHelper_DEFINED
 #define AtlasInstancedHelper_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+
+class GrGLSLProgramDataManager;
+class GrShaderVar;
+
+namespace skgpu {
+class KeyBuilder;
+struct VertexWriter;
+}  // namespace skgpu
 
 namespace skgpu::ganesh {
 

@@ -6,6 +6,8 @@
  */
 
 #include "src/gpu/ganesh/gl/GrGLFinishCallbacks.h"
+
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 
 GrGLFinishCallbacks::GrGLFinishCallbacks(GrGLGpu* gpu) : fGpu(gpu) {}

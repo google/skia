@@ -8,9 +8,15 @@
 #ifndef GrDstProxyView_DEFINED
 #define GrDstProxyView_DEFINED
 
-#include "include/gpu/GrTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/private/base/SkTypeTraits.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+
+#include <type_traits>
+#include <utility>
+
+class GrSurfaceProxy;
 
 /**
  * GrDstProxyView holds a texture containing the destination pixel values, and an integer-coordinate

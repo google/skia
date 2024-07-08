@@ -5,20 +5,21 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef GrPaint_DEFINED
 #define GrPaint_DEFINED
 
-#include "include/core/SkBlendMode.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
-#include "src/base/SkTLazy.h"
-#include "src/gpu/ganesh/GrColor.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 
-class GrTextureProxy;
+#include <memory>
+#include <utility>
+
 class GrXPFactory;
+enum class SkBlendMode;
 
 /**
  * The paint describes how color and coverage are computed at each pixel by GrContext draw

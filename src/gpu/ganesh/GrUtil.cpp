@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/GrUtil.h"
 
+#include "include/core/SkStrokeRec.h"
 #include "src/core/SkDrawProcs.h"
 #include "src/gpu/ganesh/GrStyle.h"
 

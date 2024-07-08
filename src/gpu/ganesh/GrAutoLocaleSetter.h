@@ -8,7 +8,7 @@
 #ifndef GrAutoLocaleSetter_DEFINED
 #define GrAutoLocaleSetter_DEFINED
 
-#include "include/gpu/GrTypes.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkNoncopyable.h"
 
 #if defined(SK_BUILD_FOR_WIN)

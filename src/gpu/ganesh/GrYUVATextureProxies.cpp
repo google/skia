@@ -7,7 +7,16 @@
 
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 
+#include "include/core/SkColor.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 
 #ifdef SK_DEBUG
 static int num_channels(uint32_t channelFlags) {

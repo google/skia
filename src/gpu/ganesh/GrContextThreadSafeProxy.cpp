@@ -7,17 +7,18 @@
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
 
-#include "include/core/SkTextureCompressionType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
-#include "src/gpu/ganesh/GrBaseContextPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
-#include "src/gpu/ganesh/effects/GrSkSLFP.h"
-#include "src/gpu/ganesh/surface/SkSurface_Ganesh.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 #include <memory>
+#include <utility>
 
 static uint32_t next_id() {
     static std::atomic<uint32_t> nextID{1};

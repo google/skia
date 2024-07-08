@@ -12,22 +12,25 @@
 
 #if defined(GR_TEST_UTILS)
 
+#include "include/core/SkString.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTArray.h"
-#include "src/base/SkArenaAlloc.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/GrTestUtils.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"  // IWYU pragma: keep
 
+#include <memory>
 #include <tuple>
 
 class GrCaps;
-class GrFragmentProcessor;
 class GrGeometryProcessor;
 class GrProcessorTestData;
 class GrProxyProvider;
-class GrTexture;
+class GrRecordingContext;
 class GrXPFactory;
-class SkMatrix;
+class SkArenaAlloc;
+class SkRandom;
+enum SkAlphaType : int;
+enum class GrColorType;
 
 namespace GrProcessorUnitTest {
 
@@ -77,9 +80,6 @@ private:
     std::unique_ptr<SkArenaAlloc> fArena;
     std::unique_ptr<GrFragmentProcessor> fInputFP;
 };
-
-class GrProcessor;
-class GrTexture;
 
 template <class ProcessorSmartPtr>
 class GrProcessorTestFactory : private SkNoncopyable {

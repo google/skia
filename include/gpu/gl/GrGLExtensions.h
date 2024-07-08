@@ -10,11 +10,12 @@
 
 #include "include/core/SkString.h"
 #include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkAPI.h"
 #include "include/private/base/SkTArray.h"
 
 #include <utility>
 
-struct GrGLInterface;
 class SkJSONWriter;
 
 /**

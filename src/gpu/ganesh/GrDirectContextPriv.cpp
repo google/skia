@@ -7,32 +7,57 @@
 
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SingleOwner.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/chromium/GrDeferredDisplayList.h"
 #include "src/core/SkRuntimeEffectPriv.h"
-#include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/GrAuditTrail.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrGpu.h"
-#include "src/gpu/ganesh/GrMemoryPool.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrPixmap.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrResourceCache.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/ganesh/GrTracing.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
 #include "src/gpu/ganesh/text/GrAtlasManager.h"
 #include "src/image/SkImage_Base.h"
-#include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
-using namespace  skia_private;
+#include <algorithm>
+#include <cstdint>
+#include <tuple>
+
+class GrProgramDesc;
+class GrProgramInfo;
+
+using namespace skia_private;
 using MaskFormat = skgpu::MaskFormat;
 
 #define ASSERT_OWNED_PROXY(P) \

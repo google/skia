@@ -7,8 +7,13 @@
 
 #include "src/gpu/ganesh/GrRenderTaskCluster.h"
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrRenderTask.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 
 using namespace skia_private;
 

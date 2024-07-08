@@ -8,11 +8,13 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
 #include "src/gpu/ganesh/GrAppliedClip.h"
+#include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/geometry/GrRect.h"
+#include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 
 GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(GrProcessorSet* processorSet,
                                                    GrAAType aaType,

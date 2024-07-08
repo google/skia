@@ -9,17 +9,17 @@
 
 #include "include/core/SkString.h"
 #include "modules/skcms/skcms.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLColorSpaceXformHelper.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include <string.h>
+
+#include <cstring>
 #include <utility>
 
 class GrGLSLProgramDataManager;
 class GrGLSLUniformHandler;
+enum SkAlphaType : int;
 struct GrShaderCaps;
 
 sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkAlphaType srcAT,

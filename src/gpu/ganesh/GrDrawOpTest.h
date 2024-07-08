@@ -8,22 +8,20 @@
 #ifndef GrDrawOpTest_DEFINED
 #define GrDrawOpTest_DEFINED
 
-#include "include/core/SkRefCnt.h"
-#include "src/gpu/ganesh/GrTestUtils.h"
+#include "include/core/SkTypes.h"
 
 #if defined(GR_TEST_UTILS)
 
 class GrContext_Base;
-class GrDrawOp;
 class GrPaint;
-class GrRecordingContext;
+struct GrUserStencilSettings;
+class SkRandom;
+
 namespace skgpu {
 namespace ganesh {
 class SurfaceDrawContext;
 }
 }  // namespace skgpu
-struct GrUserStencilSettings;
-class SkRandom;
 
 /**  This function draws a randomly configured GrDrawOp for testing purposes. */
 void GrDrawRandomOp(SkRandom*, skgpu::ganesh::SurfaceDrawContext*, GrPaint&&);

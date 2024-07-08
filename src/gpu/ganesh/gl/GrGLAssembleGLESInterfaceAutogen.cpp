@@ -9,8 +9,14 @@
  * be overwritten.
  */
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/gl/GrGLAssembleHelpers.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/gl/GrGLExtensions.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 #define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)

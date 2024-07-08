@@ -8,16 +8,23 @@
 #ifndef GrResourceAllocator_DEFINED
 #define GrResourceAllocator_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkTHash.h"
-
+#include "src/core/SkTMultiMap.h"
+#include "src/gpu/ResourceKey.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrHashMapWithCache.h"
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 
-#include "src/base/SkArenaAlloc.h"
-#include "src/core/SkTMultiMap.h"
+#include <cstdint>
 
 class GrDirectContext;
+class GrResourceProvider;
 
 // Print out explicit allocation information
 #define GR_ALLOCATION_SPEW 0

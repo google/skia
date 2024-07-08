@@ -8,19 +8,26 @@
 #ifndef GrSWMaskHelper_DEFINED
 #define GrSWMaskHelper_DEFINED
 
-#include "include/core/SkMatrix.h"
-#include "include/core/SkRegion.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkDrawBase.h"
 #include "src/core/SkRasterClip.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
+#include <cstdint>
+
+class GrRecordingContext;
 class GrShape;
 class GrStyledShape;
-class GrRecordingContext;
-class GrTextureProxy;
+class SkMatrix;
+class SkRRect;
+enum class GrAA : bool;
+enum class SkBackingFit;
+struct SkIRect;
+struct SkRect;
 
 /**
  * The GrSWMaskHelper helps generate clip masks using the software rendering

@@ -9,8 +9,21 @@
 #define GrSPIRVUniformHandler_DEFINED
 
 #include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTBlockList.h"
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+
+#include <cstdint>
+
+class GrBackendFormat;
+class GrGLSLProgramBuilder;
+class GrProcessor;
+class GrShaderVar;
+class SkString;
+enum class SkSLType : char;
+struct GrShaderCaps;
 
 /*
  * This class can be used for basic SPIR-V uniform handling. It will make a single uniform buffer

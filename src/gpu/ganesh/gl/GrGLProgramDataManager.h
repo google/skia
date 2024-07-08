@@ -9,16 +9,17 @@
 #define GrGLProgramDataManager_DEFINED
 
 #include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTArray.h"
 #include "src/base/SkTBlockList.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
-#include "include/private/base/SkTArray.h"
+#include <cstdint>
 
 class GrGLGpu;
-class SkMatrix;
-class GrGLProgram;
+enum class SkSLType : char;
 
 /** Manages the resources used by a shader program.
  * The resources are objects the program uses to communicate with the

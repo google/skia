@@ -7,10 +7,17 @@
 
 #include "src/gpu/ganesh/GrCopyRenderTask.h"
 
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrResourceAllocator.h"
+#include "src/gpu/ganesh/GrSurface.h"
+
+#include <utility>
+
+class GrDrawingManager;
+class GrRecordingContext;
 
 sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
                                            sk_sp<GrSurfaceProxy> dst,

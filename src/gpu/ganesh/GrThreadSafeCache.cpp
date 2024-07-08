@@ -7,15 +7,30 @@
 
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/GpuTypesPriv.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"  // IWYU pragma: keep
 #include "src/gpu/ganesh/GrResourceCache.h"
+#include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrTexture.h"
+
+#include <chrono>
+#include <functional>
+
+class GrResourceProvider;
+class SkData;
+enum class SkBackingFit;
 
 GrThreadSafeCache::VertexData::~VertexData () {
     this->reset();

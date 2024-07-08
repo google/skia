@@ -8,11 +8,14 @@
 #ifndef GrSimpleMesh_DEFINED
 #define GrSimpleMesh_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrBuffer.h"
-#include "src/gpu/ganesh/GrGpuBuffer.h"
-#include "src/gpu/ganesh/GrOpsRenderPass.h"
 
-class GrGeometryProcessor;
+#include <cstdint>
+#include <utility>
 
 /**
  * Used to communicate simple (non-instanced, direct) draws from GrOp to GrOpsRenderPass.

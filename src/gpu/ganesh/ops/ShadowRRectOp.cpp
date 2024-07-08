@@ -18,6 +18,7 @@
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrShadowGeoProc.h"
+#include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
 using namespace skia_private;
@@ -751,7 +752,9 @@ GrOp::Owner Make(GrRecordingContext* context,
 
 #if defined(GR_TEST_UTILS)
 
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 
 GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     // We may choose matrix and inset values that cause the factory to fail. We loop until we find

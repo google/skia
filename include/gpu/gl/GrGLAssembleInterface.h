@@ -7,6 +7,7 @@
 #ifndef GrGLAssembleInterface_DEFINED
 #define GrGLAssembleInterface_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/private/base/SkAPI.h"
 

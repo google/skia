@@ -8,7 +8,10 @@
 #ifndef GrTextureProxyPriv_DEFINED
 #define GrTextureProxyPriv_DEFINED
 
+#include "include/private/base/SkTo.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+
+#include <memory>
 
 class GrDeferredProxyUploader;
 class GrOpFlushState;

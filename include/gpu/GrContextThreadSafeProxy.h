@@ -8,13 +8,16 @@
 #ifndef GrContextThreadSafeProxy_DEFINED
 #define GrContextThreadSafeProxy_DEFINED
 
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrTypes.h"
 
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 
 class GrBackendFormat;
 class GrCaps;
@@ -23,7 +26,9 @@ class GrSurfaceCharacterization;
 class GrThreadSafeCache;
 class GrThreadSafePipelineBuilder;
 class SkSurfaceProps;
+enum SkColorType : int;
 enum class SkTextureCompressionType;
+struct SkImageInfo;
 
 namespace sktext::gpu { class TextBlobRedrawCoordinator; }
 

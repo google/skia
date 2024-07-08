@@ -4,15 +4,25 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef GrGLTextureRenderTarget_DEFINED
 #define GrGLTextureRenderTarget_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
 
+#include <cstddef>
+#include <string_view>
+
 class GrGLGpu;
+class GrGLTextureParameters;
+class SkTraceMemoryDump;
+enum class GrMipmapStatus;
+enum class GrWrapCacheable : bool;
+namespace skgpu {
+enum class Budgeted : bool;
+}
 
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives bogus warnings about inheriting asTexture/asRenderTarget via dominance.

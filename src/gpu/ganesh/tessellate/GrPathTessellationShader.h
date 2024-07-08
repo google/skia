@@ -4,12 +4,31 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef GrPathTessellationShader_DEFINED
 #define GrPathTessellationShader_DEFINED
 
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrUserStencilSettings.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
-#include "src/gpu/tessellate/Tessellation.h"
+
+#include <cstddef>
+
+class GrAppliedHardClip;
+class GrGLSLProgramDataManager;
+class GrGLSLVaryingHandler;
+class GrGLSLVertexBuilder;
+class SkArenaAlloc;
+class SkMatrix;
+struct GrShaderCaps;
+
+namespace skgpu::tess {
+enum class PatchAttribs;
+}
 
 // This is the base class for shaders in the GPU tessellator that fill paths.
 class GrPathTessellationShader : public GrTessellationShader {

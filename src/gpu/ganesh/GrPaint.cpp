@@ -6,10 +6,10 @@
  */
 
 #include "src/gpu/ganesh/GrPaint.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
+
+#include "include/core/SkBlendMode.h"
 #include "src/gpu/ganesh/effects/GrCoverageSetOpXP.h"
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
-#include "src/gpu/ganesh/effects/GrTextureEffect.h"
 
 GrPaint::GrPaint(const GrPaint& that)
         : fXPFactory(that.fXPFactory)

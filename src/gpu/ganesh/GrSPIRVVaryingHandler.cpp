@@ -7,6 +7,11 @@
 
 #include "src/gpu/ganesh/GrSPIRVVaryingHandler.h"
 
+#include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
+
 /** Returns the number of locations take up by a given SkSLType. We assume that all
     scalar values are 32 bits. */
 static inline int sksltype_to_location_size(SkSLType type) {

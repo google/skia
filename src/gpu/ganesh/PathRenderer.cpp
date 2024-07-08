@@ -4,19 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/PathRenderer.h"
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/core/SkDrawProcs.h"
-#include "src/gpu/ganesh/GrCaps.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
-#include "src/gpu/ganesh/geometry/GrStyledShape.h"
-#ifdef SK_DEBUG
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#endif
+#include "src/gpu/ganesh/geometry/GrStyledShape.h"
+
+#include <utility>
 
 namespace skgpu::ganesh {
 

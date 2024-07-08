@@ -8,12 +8,14 @@
 #ifndef GrDeferredUpload_DEFINED
 #define GrDeferredUpload_DEFINED
 
-#include <functional>
-#include "include/gpu/GrTypes.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/AtlasTypes.h"
 
+#include <cstddef>
+#include <functional>
+
 class GrTextureProxy;
+enum class GrColorType;
+struct SkIRect;
 
 /**
  * A word about deferred uploads and tokens: Ops should usually schedule their uploads to occur at

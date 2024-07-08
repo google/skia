@@ -6,11 +6,14 @@
  */
 
 #include "include/gpu/gl/GrGLExtensions.h"
+
+#include "include/private/base/SkAssert.h"
+#include "src/base/SkTSearch.h"
+#include "src/base/SkTSort.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
-#include "src/base/SkTSearch.h"
-#include "src/base/SkTSort.h"
+#include <cstring>
 
 using namespace skia_private;
 

@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/GrFixedClip.h"
 
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 
 SkIRect GrFixedClip::getConservativeBounds() const {

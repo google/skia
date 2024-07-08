@@ -22,7 +22,7 @@
 
 #include "include/core/SkTypes.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 enum GrDriverBugWorkaroundType {

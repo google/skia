@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/GrWaitRenderTask.h"
 
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrResourceAllocator.h"

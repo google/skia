@@ -10,6 +10,9 @@
 
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+
+#include <cstddef>
+#include <utility>
 #include <vector>
 
 class GrGpu;

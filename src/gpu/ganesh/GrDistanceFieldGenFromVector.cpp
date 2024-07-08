@@ -7,7 +7,15 @@
 #include "src/gpu/ganesh/GrDistanceFieldGenFromVector.h"
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkGeometry.h"
@@ -15,6 +23,9 @@
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
+
+#include <algorithm>
+#include <cmath>
 
 using namespace skia_private;
 

@@ -4,19 +4,25 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #include "src/gpu/ganesh/gradients/GrGradientBitmapCache.h"
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/base/SkFloatBits.h"
-#include "src/base/SkHalf.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
-#include <functional>
+#include <cstdint>
+#include <cstring>
 
 using namespace skia_private;
 

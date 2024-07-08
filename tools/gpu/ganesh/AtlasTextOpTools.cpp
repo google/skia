@@ -21,6 +21,7 @@
 #if defined(GR_TEST_UTILS)
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 #endif
 
 namespace skgpu::ganesh {

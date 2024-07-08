@@ -8,16 +8,20 @@
 #ifndef PathTessellator_DEFINED
 #define PathTessellator_DEFINED
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkColorData.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrVertexChunkArray.h"
 #include "src/gpu/ganesh/geometry/GrInnerFanTriangulator.h"
-#include "src/gpu/tessellate/FixedCountBufferUtils.h"
 #include "src/gpu/tessellate/Tessellation.h"
+
+#include <tuple>
 
 class GrMeshDrawTarget;
 class GrOpFlushState;
-class SkPath;
 
 namespace skgpu::ganesh {
 

@@ -8,9 +8,20 @@
 #ifndef GrBufferUpdateRenderTask_DEFINED
 #define GrBufferUpdateRenderTask_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrRenderTask.h"
 
+#include <cstddef>
+
 class GrGpuBuffer;
+class GrOpFlushState;
+class GrRecordingContext;
+class GrResourceAllocator;
+class GrSurfaceProxy;
+class SkData;
+struct SkIRect;
 
 class GrBufferUpdateRenderTask final : public GrRenderTask {
 public:

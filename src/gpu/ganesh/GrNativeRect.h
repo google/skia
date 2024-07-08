@@ -4,14 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
-
 #ifndef GrNativeRect_DEFINED
 #define GrNativeRect_DEFINED
 
 #include "include/core/SkRect.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
+
+#include <cstddef>
+#include <cstring>
 
 /**
  * Helper struct for dealing with bottom-up surface origins (bottom-up instead of top-down).

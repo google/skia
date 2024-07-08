@@ -553,6 +553,9 @@ private:
 
 #if defined(GR_TEST_UTILS)
 
+#include "src/base/SkRandom.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
+
 GR_DRAW_OP_TEST_DEFINE(TriangulatingPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
     const SkPath& path = GrTest::TestPath(random);

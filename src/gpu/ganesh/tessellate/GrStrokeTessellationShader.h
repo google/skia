@@ -4,15 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef GrStrokeTessellationShader_DEFINED
 #define GrStrokeTessellationShader_DEFINED
 
-#include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
-
 #include "include/core/SkStrokeRec.h"
-#include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkTArray.h"
+#include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 #include "src/gpu/tessellate/Tessellation.h"
+
+#include <memory>
+
+class SkMatrix;
+struct GrShaderCaps;
+
+namespace skgpu {
+class KeyBuilder;
+}
 
 // Tessellates a batch of stroke patches directly to the canvas. Tessellated stroking works by
 // creating stroke-width, orthogonal edges at set locations along the curve and then connecting them

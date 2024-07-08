@@ -7,9 +7,10 @@
 
 #include "src/gpu/ganesh/GrBufferUpdateRenderTask.h"
 
-#include "src/gpu/ganesh/GrGpu.h"
-#include "src/gpu/ganesh/GrOpFlushState.h"
-#include "src/gpu/ganesh/GrResourceAllocator.h"
+#include "include/core/SkData.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
+
+#include <utility>
 
 sk_sp<GrRenderTask> GrBufferUpdateRenderTask::Make(sk_sp<SkData> src,
                                                    sk_sp<GrGpuBuffer> dst,

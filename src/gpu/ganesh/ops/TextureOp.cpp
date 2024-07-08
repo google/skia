@@ -47,7 +47,9 @@
 #include "src/gpu/ganesh/ops/TextureOp.h"
 
 #if defined(GR_TEST_UTILS)
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 #endif
 
 using namespace skgpu::ganesh;

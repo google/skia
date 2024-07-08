@@ -8,6 +8,8 @@
 #define GrGLAssembleHelpers_DEFINED
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLTypes.h"
 
 void GrGetEGLQueryAndDisplay(GrEGLQueryStringFn** queryString, GrEGLDisplay* display,
                              void* ctx, GrGLGetProc get);

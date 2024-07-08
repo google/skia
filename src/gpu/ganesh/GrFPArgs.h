@@ -8,8 +8,7 @@
 #ifndef GrFPArgs_DEFINED
 #define GrFPArgs_DEFINED
 
-#include "include/core/SkMatrix.h"
-#include "src/shaders/SkShaderBase.h"
+#include "include/private/base/SkAssert.h"
 
 class GrColorInfo;
 class GrRecordingContext;

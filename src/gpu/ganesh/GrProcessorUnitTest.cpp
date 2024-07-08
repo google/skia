@@ -7,18 +7,22 @@
 
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 
-#include <memory>
-
-#include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
-
-using namespace skia_private;
-
 #if defined(GR_TEST_UTILS)
 
-class GrGeometryProcessor;
+#include "include/gpu/GrRecordingContext.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkRandom.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+
+#include <cstdint>
+#include <memory>
+#include <utility>
+
+using namespace skia_private;
 
 GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
                                          int maxTreeDepth, int numViews, const ViewInfo views[])

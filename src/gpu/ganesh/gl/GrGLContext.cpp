@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "src/gpu/ganesh/gl/GrGLGLSL.h"
+#include "src/sksl/SkSLGLSL.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>

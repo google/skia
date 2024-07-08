@@ -8,13 +8,16 @@
 #ifndef GrAuditTrail_DEFINED
 #define GrAuditTrail_DEFINED
 
-#include "include/gpu/GrTypes.h"
-
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+
+#include <cstdint>
+#include <memory>
 
 class GrOp;
 class SkJSONWriter;

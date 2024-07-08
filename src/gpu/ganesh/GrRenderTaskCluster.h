@@ -8,9 +8,9 @@
 #ifndef GrRenderTaskCluster_DEFINED
 #define GrRenderTaskCluster_DEFINED
 
-#include "include/core/SkRefCnt.h"
+#include "include/core/SkRefCnt.h"  // IWYU pragma: keep
 #include "include/core/SkSpan.h"
-#include "src/base/SkTInternalLList.h"
+#include "src/base/SkTInternalLList.h"  // IWYU pragma: keep
 
 class GrRenderTask;
 

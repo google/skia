@@ -9,6 +9,8 @@
 
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 
+#include <algorithm>
+
 GrVertexChunkBuilder::~GrVertexChunkBuilder() {
     if (!fChunks->empty()) {
         fTarget->putBackVertices(fCurrChunkVertexCapacity - fCurrChunkVertexCount, fStride);

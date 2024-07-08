@@ -4,20 +4,30 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/GrSWMaskHelper.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBlitter_A8.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/SurfaceContext.h"
+#include "src/gpu/ganesh/geometry/GrShape.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
+
+#include <cstddef>
+#include <tuple>
 
 static SkPaint get_paint(GrAA aa, uint8_t alpha) {
     SkPaint paint;

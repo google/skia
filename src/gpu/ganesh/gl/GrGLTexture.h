@@ -4,18 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef GrGLTexture_DEFINED
 #define GrGLTexture_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
-#include "src/gpu/ganesh/GrGpu.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/gl/GrGLTypesPriv.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
+
+#include <string_view>
 
 class GrGLGpu;
+class SkTraceMemoryDump;
 
 class GrGLTexture : public GrTexture {
 public:

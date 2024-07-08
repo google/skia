@@ -9,11 +9,17 @@
 #define GrVertexChunkArray_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTypeTraits.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrBuffer.h"
+
+#include <cstddef>
+#include <type_traits>
+#include <utility>
 
 class GrMeshDrawTarget;
 

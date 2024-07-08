@@ -4,9 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "include/gpu/gl/GrGLAssembleHelpers.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
+
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 void GrGetEGLQueryAndDisplay(GrEGLQueryStringFn** queryString, GrEGLDisplay* display,
                              void* ctx, GrGLGetProc get) {

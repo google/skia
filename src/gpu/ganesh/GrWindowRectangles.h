@@ -9,7 +9,11 @@
 #define GrWindowRectangles_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrNonAtomicRef.h"
+
+#include <cstring>
 
 class GrWindowRectangles {
 public:

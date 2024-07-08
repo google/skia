@@ -8,24 +8,30 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
-#include "include/core/SkSurface.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkTHash.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrBufferAllocPool.h"
-#include "src/gpu/ganesh/GrDeferredUpload.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrHashMapWithCache.h"
-#include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/PathRenderer.h"
 #include "src/gpu/ganesh/PathRendererChain.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <vector>
 
 // Enabling this will print out which path renderers are being chosen
 #define GR_PATH_RENDERER_SPEW 0
 
 class GrArenas;
 class GrDeferredDisplayList;
+class GrDirectContext;
 class GrGpuBuffer;
 class GrOnFlushCallbackObject;
 class GrOpFlushState;
@@ -36,8 +42,22 @@ class GrResourceAllocator;
 class GrSemaphore;
 class GrSurfaceProxyView;
 class GrTextureResolveRenderTask;
+class SkData;
+enum GrSurfaceOrigin : int;
+enum class GrColorType;
+enum class GrSemaphoresSubmitted : bool;
+enum class GrSyncCpu : bool;
+struct GrFlushInfo;
+struct GrMipLevel;
+struct SkIRect;
+
+namespace SkSurfaces {
+enum class BackendSurfaceAccess;
+}
 namespace skgpu {
+class MutableTextureState;
 namespace ganesh {
+class AtlasPathRenderer;
 class OpsTask;
 class SoftwarePathRenderer;
 }  // namespace ganesh

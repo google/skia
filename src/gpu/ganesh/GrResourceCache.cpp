@@ -6,24 +6,27 @@
  */
 
 #include "src/gpu/ganesh/GrResourceCache.h"
-#include <atomic>
-#include <vector>
+
+#include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/base/SingleOwner.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkMathPriv.h"
 #include "src/base/SkRandom.h"
-#include "src/base/SkScopeExit.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkMessageBus.h"
-#include "src/gpu/ganesh/GrCaps.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuResourceCacheAccess.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/GrTextureProxyCacheAccess.h"
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
-#include "src/gpu/ganesh/GrTracing.h"
-#include "src/gpu/ganesh/SkGr.h"
+
+#include <algorithm>
+#include <chrono>
+#include <cstring>
+#include <vector>
 
 using namespace skia_private;
 

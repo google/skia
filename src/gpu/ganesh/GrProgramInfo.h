@@ -8,11 +8,20 @@
 #ifndef GrProgramInfo_DEFINED
 #define GrProgramInfo_DEFINED
 
-#include "include/gpu/GrTypes.h"
-#include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrUserStencilSettings.h"
 
+#include <cstdint>
+
+class GrGeometryProcessor;
 class GrStencilSettings;
+class GrSurfaceProxyView;
+enum GrSurfaceOrigin : int;
+enum class GrXferBarrierFlags;
 
 class GrProgramInfo {
 public:

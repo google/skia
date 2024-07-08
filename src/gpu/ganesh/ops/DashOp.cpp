@@ -33,6 +33,14 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
+#if defined(GR_TEST_UTILS)
+
+#include "src/base/SkRandom.h"
+#include "src/gpu/ganesh/GrDrawOpTest.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
+
+#endif
+
 using namespace skia_private;
 
 using AAMode = skgpu::ganesh::DashOp::AAMode;
@@ -1227,8 +1235,6 @@ bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style, const SkMatrix&
 } // namespace skgpu::ganesh::DashOp
 
 #if defined(GR_TEST_UTILS)
-
-#include "src/gpu/ganesh/GrDrawOpTest.h"
 
 GR_DRAW_OP_TEST_DEFINE(DashOpImpl) {
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);

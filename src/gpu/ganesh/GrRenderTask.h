@@ -9,21 +9,32 @@
 #define GrRenderTask_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTInternalLList.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/GrTextureResolveManager.h"
 
-class GrMockRenderTask;
+#include <cstdint>
+
+class GrDrawingManager;
 class GrOpFlushState;
+class GrRecordingContext;
 class GrResourceAllocator;
+class GrSurfaceProxy;
+class GrTextureProxy;
+class GrTextureResolveManager;
 class GrTextureResolveRenderTask;
-namespace skgpu {
-namespace ganesh {
+class SkString;
+struct SkIRect;
+namespace skgpu::ganesh {
 class OpsTask;
 }
-}  // namespace skgpu
 
 // This class abstracts a task that targets a single GrSurfaceProxy, participates in the
 // GrDrawingManager's DAG, and implements the onExecute method to modify its target proxy's

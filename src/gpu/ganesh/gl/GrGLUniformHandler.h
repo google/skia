@@ -8,12 +8,25 @@
 #ifndef GrGLUniformHandler_DEFINED
 #define GrGLUniformHandler_DEFINED
 
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/gl/GrGLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
-#include <vector>
+#include <cstdint>
 
+class GrBackendFormat;
 class GrGLCaps;
+class GrGLGpu;
+class GrGLSLProgramBuilder;
+class GrProcessor;
+class SkString;
+enum class SkSLType : char;
+struct GrShaderCaps;
 
 class GrGLUniformHandler : public GrGLSLUniformHandler {
 public:

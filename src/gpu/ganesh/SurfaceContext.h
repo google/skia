@@ -11,28 +11,41 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSamplingOptions.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkDebug.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/gpu/ganesh/GrDataUtils.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPixmap.h"
-#include "src/gpu/ganesh/GrRenderTargetProxy.h"
-#include "src/gpu/ganesh/GrRenderTask.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"  // IWYU pragma: keep
+#include "src/gpu/ganesh/GrRenderTask.h"         // IWYU pragma: keep
+#include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"  // IWYU pragma: keep
 
+#include <cstddef>
+#include <functional>
+#include <memory>
+#include <utility>
+
+class GrCaps;
+class GrDirectContext;
 class GrDrawingManager;
 class GrRecordingContext;
-class GrRenderTargetProxy;
-class GrSurface;
-class GrSurfaceProxy;
-class GrTextureProxy;
+class GrRecordingContextPriv;
+class SkColorSpace;
+enum GrSurfaceOrigin : int;
+enum SkColorType : int;
+enum SkYUVColorSpace : int;
+enum class GrColorType;
 struct SkIPoint;
-struct SkIRect;
+struct SkImageInfo;
 
 namespace skgpu {
 class SingleOwner;
+enum class Mipmapped : bool;
 }
 
 namespace skgpu::ganesh {

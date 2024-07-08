@@ -12,24 +12,30 @@
 
 #if defined(GR_TEST_UTILS)
 
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/base/SkMacros.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/base/SkRandom.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
-#include "src/shaders/SkShaderBase.h"
+
+#include <cstdint>
+#include <memory>
 
 class GrColorInfo;
 class GrColorSpaceXform;
 class GrProcessorTestData;
 class GrStyle;
+class SkColorSpace;
 class SkMatrix;
 class SkPath;
 class SkRRect;
+class SkRandom;
 struct SkRect;
 
 namespace GrTest {

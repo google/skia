@@ -4,23 +4,26 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/GrProgramDesc.h"
 
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkChecksum.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
-#include "src/gpu/ganesh/GrRenderTarget.h"
-#include "src/gpu/ganesh/GrShaderCaps.h"
-#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
+
+enum GrSurfaceOrigin : int;
 
 enum {
     kSamplerOrImageTypeKeyBits = 4

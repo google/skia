@@ -7,11 +7,22 @@
 
 #include "src/gpu/ganesh/gl/GrGLBuffer.h"
 
+#include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/gl/GrGLFunctions.h"
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
+#include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
+
+#include <cstdint>
+#include <cstring>
+#include <string>
 
 #define GL_CALL(X) GR_GL_CALL(this->glGpu()->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glGpu()->glInterface(), RET, X)

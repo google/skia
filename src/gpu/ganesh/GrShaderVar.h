@@ -9,8 +9,11 @@
 #define GrShaderVar_DEFINED
 
 #include "include/core/SkString.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkSLTypeShared.h"
+
+#include <string.h>
+#include <utility>
 
 struct GrShaderCaps;
 

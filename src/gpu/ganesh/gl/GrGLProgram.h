@@ -4,11 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
@@ -16,13 +19,17 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
+#include <cstddef>
+#include <memory>
 #include <vector>
 
+class GrGLGpu;
 class GrPipeline;
-class GrGeometryProcessor;
 class GrProgramInfo;
 class GrRenderTarget;
-class GrTextureProxy;
+class GrSurfaceProxy;
+enum GrSurfaceOrigin : int;
+enum class SkSLType : char;
 
 /**
  * This class manages a GPU program and records per-program information. It also records the vertex

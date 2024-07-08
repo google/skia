@@ -8,12 +8,14 @@
 #ifndef GrUniformDataManager_DEFINED
 #define GrUniformDataManager_DEFINED
 
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTArray.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 
-#include "include/private/base/SkTArray.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/base/SkAutoMalloc.h"
-#include "src/core/SkSLTypeShared.h"
+#include <cstdint>
+
+enum class SkSLType : char;
 
 /**
  * Subclass of GrGLSLProgramDataManager used to store uniforms for a program in a CPU buffer that

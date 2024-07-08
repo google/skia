@@ -8,9 +8,14 @@
 #ifndef GrGeometryProcessor_DEFINED
 #define GrGeometryProcessor_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/Swizzle.h"
-#include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
@@ -20,12 +25,19 @@
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <optional>
+#include <tuple>
 #include <unordered_map>
 
 class GrGLSLFPFragmentBuilder;
-class GrGLSLVaryingHandler;
-class GrGLSLUniformHandler;
 class GrGLSLVertexBuilder;
+class GrPipeline;
+namespace skgpu {
+class KeyBuilder;
+}
 
 /**
  * The GrGeometryProcessor represents some kind of geometric primitive.  This includes the shape

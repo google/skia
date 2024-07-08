@@ -4,15 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h"
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
-#include "include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
+#include "include/private/base/SkAssert.h"
 
 // Define this to get a prototype for glXGetProcAddress on some systems
 #define GLX_GLXEXT_PROTOTYPES 1
+#include <GL/gl.h>
 #include <GL/glx.h>
+#include <string.h>
 
 static GrGLFuncPtr glx_get(void* ctx, const char name[]) {
     // Avoid calling glXGetProcAddress() for EGL procs.

@@ -8,11 +8,19 @@
 #ifndef GrSurfaceProxyPriv_DEFINED
 #define GrSurfaceProxyPriv_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 
-#include "src/gpu/SkBackingFit.h"
+#include <utility>
 
+class GrCaps;
 class GrResourceProvider;
+namespace skgpu {
+class ScratchKey;
+}
 
 /** Class that adds methods to GrSurfaceProxy that are only intended for use internal to Skia.
     This class is purely a privileged window into GrSurfaceProxy. It should never have additional

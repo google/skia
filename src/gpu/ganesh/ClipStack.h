@@ -8,25 +8,38 @@
 #ifndef ClipStack_DEFINED
 #define ClipStack_DEFINED
 
-#include "include/core/SkClipOp.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTypeTraits.h"
 #include "src/base/SkTBlockList.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrClip.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/geometry/GrShape.h"
 
+#include <cstdint>
+#include <memory>
+#include <type_traits>
+
 class GrAppliedClip;
+class GrDrawOp;
 class GrProxyProvider;
 class GrRecordingContext;
+class SkPath;
+class SkRRect;
+enum class GrAA : bool;
+enum class GrAAType : unsigned int;
+enum class SkClipOp;
+
 namespace skgpu {
 namespace ganesh {
 class SurfaceDrawContext;
 }
 }  // namespace skgpu
-class GrSWMaskHelper;
 
 namespace skgpu::ganesh {
 
@@ -102,7 +115,7 @@ public:
 
 private:
     class SaveRecord;
-    class Mask;
+    // class Mask;
 
     // Internally, a lot of clip reasoning is based on an op, outer bounds, and whether a shape
     // contains another (possibly just conservatively based on inner/outer device-space bounds).

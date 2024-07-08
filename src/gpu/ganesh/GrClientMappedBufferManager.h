@@ -9,8 +9,11 @@
 #define GrClientMappedBufferManager_DEFINED
 
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/AsyncReadTypes.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+
+#include <forward_list>
 
 // This is declared as a class rather than an alias to allow for forward declarations
 class GrClientMappedBufferManager :

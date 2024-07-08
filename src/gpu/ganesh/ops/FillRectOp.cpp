@@ -11,9 +11,12 @@
 #include "include/core/SkRect.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrMeshDrawTarget.h"
+#include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
@@ -560,7 +563,9 @@ void FillRectOp::AddFillRectOps(skgpu::ganesh::SurfaceDrawContext* sdc,
 
 uint32_t skgpu::ganesh::FillRectOp::ClassID() { return FillRectOpImpl::ClassID(); }
 
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 #include "src/gpu/ganesh/SkGr.h"
 
 GR_DRAW_OP_TEST_DEFINE(FillRectOp) {

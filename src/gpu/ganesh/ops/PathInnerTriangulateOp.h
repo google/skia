@@ -12,6 +12,7 @@
 
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/geometry/GrInnerFanTriangulator.h"
 #include "src/gpu/ganesh/ops/FillPathFlags.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"

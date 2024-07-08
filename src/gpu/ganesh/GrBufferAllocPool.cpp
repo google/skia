@@ -4,21 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/gpu/ganesh/GrBufferAllocPool.h"
 
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/base/SkMacros.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/ganesh/GrBufferAllocPool.h"
-
-#include <memory>
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrCpuBuffer.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <memory>
 
 sk_sp<GrBufferAllocPool::CpuBufferCache> GrBufferAllocPool::CpuBufferCache::Make(
         int maxBuffersToCache) {

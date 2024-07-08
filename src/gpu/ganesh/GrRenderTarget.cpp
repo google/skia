@@ -4,15 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #include "src/gpu/ganesh/GrRenderTarget.h"
 
-#include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
-#include "src/gpu/ganesh/GrGpu.h"
-#include "src/gpu/ganesh/GrStencilSettings.h"
+
+#include <utility>
+
+class GrGpu;
+struct SkISize;
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu,
                                const SkISize& dimensions,

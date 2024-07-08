@@ -8,12 +8,18 @@
 #ifndef GrYUVATextureProxies_DEFINED
 #define GrYUVATextureProxies_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAInfo.h"
-#include "src/core/SkYUVAInfoLocation.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "src/core/SkYUVAInfoLocation.h"  // IWYU pragma: keep
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
-class GrSurfaceProxyView;
+#include <array>
+
+enum class GrColorType;
 
 class GrYUVATextureProxies {
 public:

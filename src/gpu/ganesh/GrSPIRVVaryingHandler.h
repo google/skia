@@ -10,10 +10,11 @@
 
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 
- /*
-  * This class can be used for basic SPIR-V varying handling. Each added varying just takes the
-  * next available location slot.
-  */
+class GrGLSLProgramBuilder;
+/*
+ * This class can be used for basic SPIR-V varying handling. Each added varying just takes the
+ * next available location slot.
+ */
 class GrSPIRVVaryingHandler : public GrGLSLVaryingHandler {
 public:
     GrSPIRVVaryingHandler(GrGLSLProgramBuilder* program) : INHERITED(program) {}

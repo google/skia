@@ -8,7 +8,9 @@
 #ifndef GrGLGLSL_DEFINED
 #define GrGLGLSL_DEFINED
 
-#include "src/sksl/SkSLGLSL.h"
+namespace SkSL {
+enum class GLSLGeneration;
+}
 
 struct GrGLDriverInfo;
 

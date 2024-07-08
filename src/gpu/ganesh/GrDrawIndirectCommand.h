@@ -8,7 +8,7 @@
 #ifndef GrDrawIndirectCommand_DEFINED
 #define GrDrawIndirectCommand_DEFINED
 
-#include <stdint.h>
+#include <cstdint>
 #include <utility>
 
 struct GrDrawIndirectCommand {

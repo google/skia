@@ -4,13 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/GrProgramInfo.h"
 
+#include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+
+#include <functional>
+
+class GrGeometryProcessor;
+enum class GrXferBarrierFlags;
 
 GrProgramInfo::GrProgramInfo(const GrCaps& caps,
                              const GrSurfaceProxyView& targetView,
@@ -55,7 +65,6 @@ GrStencilSettings GrProgramInfo::nonGLStencilSettings() const {
 }
 
 #ifdef SK_DEBUG
-#include "src/gpu/ganesh/GrTexture.h"
 
 void GrProgramInfo::validate(bool flushTime) const {
     if (flushTime) {

@@ -4,54 +4,75 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef SurfaceDrawContext_v1_DEFINED
 #define SurfaceDrawContext_v1_DEFINED
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurfaceProps.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkDevice.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
+#include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/OpsTask.h"
 
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <string_view>
+#include <utility>
+
+class GrBackendFormat;
 class GrBackendSemaphore;
+class GrBackendTexture;
 class GrClip;
-class GrColorSpaceXform;
-class GrDrawOp;
 class GrDstProxyView;
+class GrFragmentProcessor;
 class GrHardClip;
-class GrOp;
-struct GrQuadSetEntry;
+class GrRecordingContext;
 class GrRenderTarget;
-class GrStyledShape;
 class GrStyle;
-class GrTextureProxy;
+class GrStyledShape;
+class SkColorSpace;
+class SkLatticeIter;
+class SkMesh;
+class SkPath;
+class SkRRect;
+class SkVertices;
+enum SkAlphaType : int;
+enum class SkBackingFit;
+enum class SkBlendMode;
+struct GrQuadSetEntry;
 struct GrTextureSetEntry;
 struct GrUserStencilSettings;
+struct SkArc;
 struct SkDrawShadowRec;
-struct SkIPoint;
-struct SkIRect;
-class SkLatticeIter;
-class SkMatrix;
-class SkPaint;
-class SkPath;
-struct SkPoint;
-struct SkRect;
-class SkRegion;
-class SkRRect;
+struct SkISize;
 struct SkRSXform;
-class SkTextBlob;
-class SkVertices;
+struct SkStrikeDeviceInfo;
+
+namespace skgpu {
+class RefCntedCallback;
+class Swizzle;
+}  // namespace skgpu
 
 namespace sktext {
 class GlyphRunList;

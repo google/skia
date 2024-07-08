@@ -4,12 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/GrRingBuffer.h"
 
+#include "include/gpu/GrDirectContext.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+
+#include <utility>
 
 // Get offset into buffer that has enough space for size
 // Returns fTotalSize if no space

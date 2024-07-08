@@ -8,11 +8,11 @@
 #ifndef GrShaderCaps_DEFINED
 #define GrShaderCaps_DEFINED
 
-#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
 #include "src/sksl/SkSLUtil.h"
 
-struct GrContextOptions;
 class SkJSONWriter;
+struct GrContextOptions;
 
 struct GrShaderCaps : SkSL::ShaderCaps {
     GrShaderCaps() {}

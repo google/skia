@@ -11,24 +11,33 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTDPQueue.h"
-#include "src/base/SkTInternalLList.h"
 #include "src/core/SkMessageBus.h"
-#include "src/core/SkTHash.h"
+#include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTMultiMap.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/GrGpuResourceCacheAccess.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 
-class GrCaps;
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <type_traits>
+#include <utility>
+
 class GrProxyProvider;
+class GrSurface;
+class GrThreadSafeCache;
 class SkString;
 class SkTraceMemoryDump;
-class GrTexture;
-class GrThreadSafeCache;
-
+enum class GrPurgeResourceOptions;
 namespace skgpu {
 class SingleOwner;
 }

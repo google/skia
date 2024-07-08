@@ -7,7 +7,12 @@
 
 #include "src/gpu/ganesh/GrDynamicAtlas.h"
 
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/Rectanizer.h"
 #include "src/gpu/RectanizerPow2.h"
 #include "src/gpu/RectanizerSkyline.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -19,6 +24,10 @@
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTexture.h"
+
+#include <algorithm>
+#include <functional>
+#include <utility>
 
 using namespace skgpu;
 

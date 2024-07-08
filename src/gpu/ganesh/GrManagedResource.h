@@ -8,13 +8,18 @@
 #ifndef GrManagedResource_DEFINED
 #define GrManagedResource_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMutex.h"
-#include "src/base/SkRandom.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkThreadAnnotations.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrSurface.h"
-#include <atomic>
 
-class GrTexture;
+#include <atomic>
+#include <cstdint>
+#include <utility>
 
 // uncomment to enable tracing of resource refs
 #ifdef SK_DEBUG

@@ -8,21 +8,32 @@
 #ifndef GrFragmentProcessor_DEFINED
 #define GrFragmentProcessor_DEFINED
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkString.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkSLSampleUsage.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMacros.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
-#include "src/sksl/SkSLString.h"
 
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <string_view>
 #include <tuple>
+#include <utility>
 
 class GrGLSLFPFragmentBuilder;
 class GrGLSLProgramDataManager;
-class GrPaint;
-class GrPipeline;
 struct GrShaderCaps;
 class GrTextureEffect;
+struct SkPoint;
+struct SkRect;
 
 namespace skgpu {
 class KeyBuilder;
@@ -35,7 +46,7 @@ class Swizzle;
  * succeeds, the new fragment processor is created and `success` is true. If a precondition is not
  * met, `success` is set to false and the input FP is returned unchanged.
  */
-class GrFragmentProcessor;
+class GrFragmentProcessor;  // IWYU pragma: keep
 using GrFPResult = std::tuple<bool /*success*/, std::unique_ptr<GrFragmentProcessor>>;
 
 /** Provides custom fragment shader code. Fragment processors receive an input position and

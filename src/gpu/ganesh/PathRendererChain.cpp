@@ -4,17 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #include "src/gpu/ganesh/PathRendererChain.h"
 
-#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/AAConvexPathRenderer.h"
 #include "src/gpu/ganesh/ops/AAHairLinePathRenderer.h"
@@ -25,6 +19,10 @@
 #include "src/gpu/ganesh/ops/SmallPathRenderer.h"
 #include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 #include "src/gpu/ganesh/ops/TriangulatingPathRenderer.h"
+
+#include <utility>
+
+class GrCaps;
 
 namespace skgpu::ganesh {
 

@@ -7,7 +7,11 @@
 
 #include "src/gpu/ganesh/GrEagerVertexAllocator.h"
 
+#include "include/private/base/SkMalloc.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
+
+#include <utility>
 
 //-------------------------------------------------------------------------------------------------
 void* GrEagerDynamicVertexAllocator::lock(size_t stride, int eagerCount) {

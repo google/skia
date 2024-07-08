@@ -8,11 +8,19 @@
 #ifndef GrGLBuffer_DEFINED
 #define GrGLBuffer_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 
-class GrGLGpu;
+#include <cstddef>
+#include <string_view>
+
 class GrGLCaps;
+class GrGLGpu;
+class SkString;
+class SkTraceMemoryDump;
 
 class GrGLBuffer : public GrGpuBuffer {
 public:

@@ -8,12 +8,20 @@
 #ifndef GrAppliedClip_DEFINED
 #define GrAppliedClip_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkClipStack.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrScissorState.h"
 #include "src/gpu/ganesh/GrWindowRectsState.h"
 
-#include "src/core/SkClipStack.h"
+#include <cstdint>
+#include <memory>
+#include <utility>
 
+class GrWindowRectangles;
+struct SkISize;
 
 /**
  * Produced by GrHardClip. It provides a set of modifications to the hardware drawing state that

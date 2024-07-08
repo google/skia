@@ -7,6 +7,10 @@
 
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkString.h"
+#include "include/private/SkSLSampleUsage.h"
+#include "include/private/base/SkSafe32.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrPipeline.h"
@@ -14,8 +18,12 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
+#include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 
+#include <algorithm>
 #include <queue>
+#include <utility>
+#include <vector>
 
 GrGeometryProcessor::GrGeometryProcessor(ClassID classID) : GrProcessor(classID) {}
 

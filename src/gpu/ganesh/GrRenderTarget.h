@@ -8,13 +8,18 @@
 #ifndef GrRenderTarget_DEFINED
 #define GrRenderTarget_DEFINED
 
-#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/base/SkTArray.h"
+#include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrSurface.h"
 
-class GrCaps;
-class GrAttachment;
-class GrBackendRenderTarget;
+#include <string_view>
+
+class GrGpu;
+struct SkISize;
+struct SkPoint;
 
 /**
  * GrRenderTarget represents a 2D buffer of pixels that can be rendered to.

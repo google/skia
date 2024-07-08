@@ -7,12 +7,13 @@
 
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 
-#include "include/core/SkTypes.h"
 #include "include/private/gpu/ganesh/GrContext_Base.h"
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
+
+#include <array>
 
 #if defined(GR_TEST_UTILS)
 

@@ -9,13 +9,33 @@
 #define GrThreadSafeCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkThreadAnnotations.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkSpinlock.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkTDynamicHash.h"
+#include "src/gpu/GpuTypesPriv.h"
+#include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <tuple>
+#include <utility>
+
+class GrDirectContext;
+class GrResourceCache;
+class SkData;
+enum GrSurfaceOrigin : int;
+enum class GrColorType;
+enum class SkBackingFit;
+struct SkISize;
 
 // Ganesh creates a lot of utility textures (e.g., blurred-rrect masks) that need to be shared
 // between the direct context and all the DDL recording contexts. This thread-safe cache

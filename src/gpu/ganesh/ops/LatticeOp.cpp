@@ -414,9 +414,11 @@ GrOp::Owner MakeNonAA(GrRecordingContext* context,
 }  // namespace skgpu::ganesh::LatticeOp
 
 #if defined(GR_TEST_UTILS)
+#include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
 
 /** Randomly divides subset into count divs. */
 static void init_random_divs(int divs[], int count, int subsetStart, int subsetStop,

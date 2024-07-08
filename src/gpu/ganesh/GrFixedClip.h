@@ -8,9 +8,16 @@
 #ifndef GrFixedClip_DEFINED
 #define GrFixedClip_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrScissorState.h"
 #include "src/gpu/ganesh/GrWindowRectsState.h"
+
+class GrAppliedHardClip;
+class GrWindowRectangles;
+enum class GrAA : bool;
+struct SkISize;
 
 /**
  * Implements GrHardClip with scissor and window rectangles.

@@ -9,11 +9,12 @@
 #define GrProcessorAnalysis_DEFINED
 
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkTo.h"
 
+#include <cstdint>
 #include <memory>
 
 class GrCaps;
-class GrDrawOp;
 class GrFragmentProcessor;
 
 class GrProcessorAnalysisColor {

@@ -8,14 +8,20 @@
 #ifndef GrDynamicAtlas_DEFINED
 #define GrDynamicAtlas_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrTypes.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 
 class GrOnFlushResourceProvider;
-class GrResourceProvider;
-class GrSurfaceProxyView;
+enum class GrColorType;
 struct SkIPoint16;
-struct SkIRect;
 
 /**
  * This class implements a dynamic size skgpu::Rectanizer that grows until it reaches the

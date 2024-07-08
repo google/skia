@@ -8,8 +8,7 @@
 #ifndef GrOnFlushResourceProvider_DEFINED
 #define GrOnFlushResourceProvider_DEFINED
 
-#include "include/core/SkSpan.h"
-#include "src/gpu/ganesh/GrDeferredUpload.h"
+#include "src/gpu/AtlasTypes.h"
 
 class GrCaps;
 class GrDrawingManager;

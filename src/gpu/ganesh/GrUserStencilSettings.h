@@ -9,7 +9,9 @@
 #ifndef GrUserStencilSettings_DEFINED
 #define GrUserStencilSettings_DEFINED
 
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/GrTypes.h"  // IWYU pragma: keep
+
+#include <cstdint>
 
 /**
  * Gr uses the stencil buffer to implement complex clipping inside the

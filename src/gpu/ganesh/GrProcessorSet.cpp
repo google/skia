@@ -6,10 +6,9 @@
  */
 #include "src/gpu/ganesh/GrProcessorSet.h"
 
-#include "src/core/SkBlendModePriv.h"
+#include "include/private/base/SkDebug.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrUserStencilSettings.h"
+#include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
 

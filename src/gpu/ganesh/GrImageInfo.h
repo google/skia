@@ -8,15 +8,15 @@
 #ifndef GrImageInfo_DEFINED
 #define GrImageInfo_DEFINED
 
-#include "include/core/SkAlphaType.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 
-#include <stddef.h>
+#include <cstddef>
 
 class SkColorSpace;
+enum SkAlphaType : int;
 struct SkImageInfo;
 
 class GrImageInfo {

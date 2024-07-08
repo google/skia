@@ -4,18 +4,26 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef GrSurface_DEFINED
 #define GrSurface_DEFINED
 
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
+#include "src/gpu/ganesh/GrGpuResourceCacheAccess.h"
+#include "src/gpu/ganesh/GrGpuResourcePriv.h"
+
+#include <cstddef>
+#include <string_view>
 
 class GrBackendFormat;
 class GrDirectContext;
+class GrGpu;
 class GrRenderTarget;
 class GrTexture;
 

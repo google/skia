@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/GrClientMappedBufferManager.h"
 
-//////////////////////////////////////////////////////////////////////////////
+#include "src/core/SkMessageBus.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(GrClientMappedBufferManager::BufferFinishedMessage,
                              GrDirectContext::DirectContextID,

@@ -9,13 +9,19 @@
 #define StencilMaskHelper_DEFINED
 
 #include "include/core/SkRegion.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "src/gpu/ganesh/StencilClip.h"
 
-class GrShape;
+#include <cstdint>
+
 class GrRecordingContext;
+class GrShape;
+class GrWindowRectangles;
 class SkMatrix;
+class SkPath;
+enum class GrAA : bool;
+struct SkIRect;
 struct SkRect;
-class SkRRect;
 
 namespace skgpu::ganesh {
 

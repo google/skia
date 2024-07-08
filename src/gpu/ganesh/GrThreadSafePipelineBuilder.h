@@ -9,13 +9,11 @@
 #define GrThreadSafePipelineBuilder_Base_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"  // IWYU pragma: keep
 #include "include/core/SkTypes.h"
-#include <atomic>
-
-#if defined(GR_TEST_UTILS)
-#include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
-#endif
+
+#include <atomic>
 
 class GrThreadSafePipelineBuilder : public SkRefCnt {
 public:

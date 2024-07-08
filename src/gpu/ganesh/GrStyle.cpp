@@ -6,7 +6,11 @@
  */
 
 #include "src/gpu/ganesh/GrStyle.h"
+
+#include "include/core/SkPath.h"
 #include "src/utils/SkDashPathPriv.h"
+
+#include <cstring>
 
 int GrStyle::KeySize(const GrStyle &style, Apply apply, uint32_t flags) {
     static_assert(sizeof(uint32_t) == sizeof(SkScalar));

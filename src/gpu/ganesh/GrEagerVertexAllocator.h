@@ -8,9 +8,14 @@
 #ifndef GrEagerVertexAllocator_DEFINED
 #define GrEagerVertexAllocator_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 
+#include <cstddef>
+
+class GrBuffer;
 class GrMeshDrawTarget;
 
 // This interface is used to allocate and map GPU vertex data before the exact number of required

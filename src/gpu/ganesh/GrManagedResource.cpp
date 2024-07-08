@@ -7,10 +7,6 @@
 
 #include "src/gpu/ganesh/GrManagedResource.h"
 
-#include "src/gpu/ganesh/GrGpuResourcePriv.h"
-#include "src/gpu/ganesh/GrTexture.h"
-
-
 #ifdef SK_TRACE_MANAGED_RESOURCES
 std::atomic<uint32_t> GrManagedResource::fKeyCounter{0};
 #endif

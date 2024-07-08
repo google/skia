@@ -8,10 +8,16 @@
 #ifndef GrYUVABackendTextures_DEFINED
 #define GrYUVABackendTextures_DEFINED
 
+#include "include/core/SkTypes.h"
 #include "include/core/SkYUVAInfo.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 
-#include <tuple>
+#include <array>
+#include <cstddef>
+
+enum SkYUVColorSpace : int;
 
 /**
  * A description of a set GrBackendTextures that hold the planar data described by a SkYUVAInfo.

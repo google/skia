@@ -4,18 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 #ifndef GrGradientBitmapCache_DEFINED
 #define GrGradientBitmapCache_DEFINED
 
-#include "include/core/SkBitmap.h"
+#include "include/core/SkScalar.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkNoncopyable.h"
 
+#include <cstddef>
+
+class SkBitmap;
 class SkColorSpace;
+enum SkAlphaType : int;
+enum SkColorType : int;
 
 class GrGradientBitmapCache : SkNoncopyable {
 public:

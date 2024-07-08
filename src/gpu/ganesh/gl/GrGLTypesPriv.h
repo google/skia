@@ -4,12 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#ifndef GrGLTypesPriv_DEFINED
+#define GrGLTypesPriv_DEFINED
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
-#ifndef GrGLTypesPriv_DEFINED
-#define GrGLTypesPriv_DEFINED
+#include <cstdint>
+#include <utility>
+
+namespace skgpu {
+enum class Protected : bool;
+}
 
 static constexpr int kGrGLColorFormatCount = static_cast<int>(GrGLFormat::kLastColorFormat) + 1;
 

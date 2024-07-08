@@ -7,7 +7,13 @@
 
 #include "include/gpu/GrYUVABackendTextures.h"
 
+#include "include/core/SkColor.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkYUVAInfoLocation.h"
+
+#include <algorithm>
+#include <cstdint>
 
 static int num_channels(const GrBackendFormat& format) {
     switch (format.channelMask()) {

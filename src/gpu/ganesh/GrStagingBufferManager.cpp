@@ -4,13 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/GrStagingBufferManager.h"
 
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
+
+#include <algorithm>
 
 GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice(
         size_t size, size_t requiredAlignment) {

@@ -7,8 +7,13 @@
 
 #include "src/gpu/ganesh/GrUniformDataManager.h"
 
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/base/SkHalf.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
+
+#include <cstring>
 
 // ensure that these types are the sizes the uniform data is expecting
 static_assert(sizeof(int32_t) == 4);

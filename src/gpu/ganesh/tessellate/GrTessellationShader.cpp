@@ -4,10 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/GrDstProxyView.h"
+#include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/tessellate/WangsFormula.h"
+
+#include <utility>
+
+enum class GrAAType : unsigned int;
 
 const GrPipeline* GrTessellationShader::MakePipeline(const ProgramArgs& args,
                                                      GrAAType aaType,

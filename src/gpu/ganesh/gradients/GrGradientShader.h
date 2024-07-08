@@ -8,14 +8,24 @@
 #ifndef GrGradientShader_DEFINE
 #define GrGradientShader_DEFINE
 
-#include "src/gpu/ganesh/GrFPArgs.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/shaders/gradients/SkGradientBaseShader.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "src/shaders/gradients/SkLinearGradient.h"
 
-#if defined(GR_TEST_UTILS)
-#include "src/base/SkRandom.h"
-#endif
+#include <memory>
+
+class GrFragmentProcessor;
+class SkGradientBaseShader;
+class SkMatrix;
+class SkRandom;
+enum class SkTileMode;
+struct GrFPArgs;
+
+namespace SkShaders {
+class MatrixRec;
+}
 
 namespace GrGradientShader {
 std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& shader,

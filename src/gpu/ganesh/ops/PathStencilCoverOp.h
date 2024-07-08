@@ -8,6 +8,7 @@
 #ifndef PathStencilCoverOp_DEFINED
 #define PathStencilCoverOp_DEFINED
 
+#include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/ops/FillPathFlags.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"

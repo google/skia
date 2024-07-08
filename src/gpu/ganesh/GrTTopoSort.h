@@ -8,8 +8,12 @@
 #ifndef GrTTopoSort_DEFINED
 #define GrTTopoSort_DEFINED
 
-#include "include/core/SkRefCnt.h"
+#include "include/core/SkRefCnt.h"  // IWYU pragma: keep
 #include "include/core/SkSpan.h"
+#include "include/core/SkTypes.h"
+
+#include <cstddef>
+#include <cstdint>
 
 #ifdef SK_DEBUG
 template <typename T, typename Traits = T>

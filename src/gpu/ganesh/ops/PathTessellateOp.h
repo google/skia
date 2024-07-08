@@ -8,6 +8,7 @@
 #ifndef PathTessellateOp_DEFINED
 #define PathTessellateOp_DEFINED
 
+#include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
