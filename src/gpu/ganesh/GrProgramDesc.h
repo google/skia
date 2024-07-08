@@ -88,13 +88,12 @@ protected:
         return true;
     }
 
-    enum {
-        kHeaderSize            = 1,    // "header" in ::Build
-        kMaxPreallocProcessors = 8,
-        kIntsPerProcessor      = 4,    // This is an overestimate of the average effect key size.
-        kPreAllocSize = kHeaderSize +
-                        kMaxPreallocProcessors * kIntsPerProcessor,
-    };
+    static constexpr size_t kHeaderSize            = 1;    // "header" in ::Build
+    static constexpr size_t kMaxPreallocProcessors = 8;
+    // This is an overestimate of the average effect key size.
+    static constexpr size_t kIntsPerProcessor      = 4;
+    static constexpr size_t kPreAllocSize          =
+            kHeaderSize + kMaxPreallocProcessors * kIntsPerProcessor;
 
     using KeyType = skia_private::STArray<kPreAllocSize, uint32_t, true>;
 

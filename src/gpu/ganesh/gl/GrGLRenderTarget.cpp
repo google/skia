@@ -324,15 +324,15 @@ void GrGLRenderTarget::onRelease() {
             GL_CALL(DeleteRenderbuffers(1, &fMSColorRenderbufferID));
         }
     }
-    fMultisampleFBOID       = 0;
-    fSingleSampleFBOID      = 0;
+    fMultisampleFBOID       = kUnresolvableFBOID;
+    fSingleSampleFBOID      = kUnresolvableFBOID;
     fMSColorRenderbufferID  = 0;
     INHERITED::onRelease();
 }
 
 void GrGLRenderTarget::onAbandon() {
-    fMultisampleFBOID       = 0;
-    fSingleSampleFBOID      = 0;
+    fMultisampleFBOID       = kUnresolvableFBOID;
+    fSingleSampleFBOID      = kUnresolvableFBOID;
     fMSColorRenderbufferID  = 0;
     INHERITED::onAbandon();
 }

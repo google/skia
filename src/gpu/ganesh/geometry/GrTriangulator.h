@@ -52,7 +52,7 @@ public:
     }
 
     // Enums used by GrTriangulator internals.
-    typedef enum { kLeft_Side, kRight_Side } Side;
+    enum class Side { kLeft, kRight };
     enum class EdgeType { kInner, kOuter, kConnector };
 
     // Structs used by GrTriangulator internals.

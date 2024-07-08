@@ -38,7 +38,7 @@ public:
 
     // set fSingleSampleFBOID to this value to indicate that it is multisampled but
     // Gr doesn't know how to resolve it.
-    enum { kUnresolvableFBOID = 0 };
+    static constexpr GrGLuint kUnresolvableFBOID = 0;
 
     struct IDs {
         GrGLuint                   fMultisampleFBOID;

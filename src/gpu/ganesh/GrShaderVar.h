@@ -13,6 +13,7 @@
 #include "src/core/SkSLTypeShared.h"
 
 #include <string.h>
+#include <cstddef>
 #include <utility>
 
 struct GrShaderCaps;
@@ -29,11 +30,8 @@ public:
         InOut,
         Uniform,
     };
-
     /** Values for array count that have special meaning. We allow 1-sized arrays. */
-    enum {
-        kNonArray     =  0, // not an array
-    };
+    static constexpr size_t kNonArray = 0;  // not an array
 
     /** Defaults to a void with no type modifier or layout qualifier. */
     GrShaderVar()

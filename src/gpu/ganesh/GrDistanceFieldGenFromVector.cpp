@@ -209,10 +209,11 @@ static bool is_colinear(const SkPoint pts[3]) {
 class PathSegment {
 public:
     enum {
-        // These enum values are assumed in member functions below.
         kLine = 0,
         kQuad = 1,
     } fType;
+    // These enum values are assumed in member functions below.
+    static_assert(0 == kLine && 1 == kQuad);
 
     // line uses 2 pts, quad uses 3 pts
     SkPoint fPts[3];
@@ -227,13 +228,13 @@ public:
 
     void init();
 
-    int countPoints() {
-        static_assert(0 == kLine && 1 == kQuad);
+    int countPoints() const {
+        SkASSERT(fType == kLine || fType == kQuad);
         return fType + 2;
     }
 
     const SkPoint& endPt() const {
-        static_assert(0 == kLine && 1 == kQuad);
+        SkASSERT(fType == kLine || fType == kQuad);
         return fPts[fType + 1];
     }
 };

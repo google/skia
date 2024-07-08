@@ -336,9 +336,7 @@ private:
         fBoundsFlags |= (IsHairline ::kYes == zeroArea) ? kZeroArea_BoundsFlag : 0;
     }
 
-    enum {
-        kIllegalOpID = 0,
-    };
+    static constexpr uint16_t kIllegalOpID = 0;
 
     enum BoundsFlags {
         kAABloat_BoundsFlag                     = 0x1,

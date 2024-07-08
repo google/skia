@@ -212,27 +212,21 @@ public:
 private:
     struct Entry {
         Entry(const skgpu::UniqueKey& key, const GrSurfaceProxyView& view)
-                : fKey(key)
-                , fView(view)
-                , fTag(Entry::kView) {
-        }
+                : fKey(key), fView(view), fTag(Entry::Tag::kView) {}
 
         Entry(const skgpu::UniqueKey& key, sk_sp<VertexData> vertData)
-                : fKey(key)
-                , fVertData(std::move(vertData))
-                , fTag(Entry::kVertData) {
-        }
+                : fKey(key), fVertData(std::move(vertData)), fTag(Entry::Tag::kVertData) {}
 
         ~Entry() {
             this->makeEmpty();
         }
 
         bool uniquelyHeld() const {
-            SkASSERT(fTag != kEmpty);
+            SkASSERT(fTag != Tag::kEmpty);
 
-            if (fTag == kView && fView.proxy()->unique()) {
+            if (fTag == Tag::kView && fView.proxy()->unique()) {
                 return true;
-            } else if (fTag == kVertData && fVertData->unique()) {
+            } else if (fTag == Tag::kVertData && fVertData->unique()) {
                 return true;
             }
 
@@ -240,52 +234,52 @@ private:
         }
 
         const skgpu::UniqueKey& key() const {
-            SkASSERT(fTag != kEmpty);
+            SkASSERT(fTag != Tag::kEmpty);
             return fKey;
         }
 
         SkData* getCustomData() const {
-            SkASSERT(fTag != kEmpty);
+            SkASSERT(fTag != Tag::kEmpty);
             return fKey.getCustomData();
         }
 
         sk_sp<SkData> refCustomData() const {
-            SkASSERT(fTag != kEmpty);
+            SkASSERT(fTag != Tag::kEmpty);
             return fKey.refCustomData();
         }
 
         GrSurfaceProxyView view() {
-            SkASSERT(fTag == kView);
+            SkASSERT(fTag == Tag::kView);
             return fView;
         }
 
         sk_sp<VertexData> vertexData() {
-            SkASSERT(fTag == kVertData);
+            SkASSERT(fTag == Tag::kVertData);
             return fVertData;
         }
 
         void set(const skgpu::UniqueKey& key, const GrSurfaceProxyView& view) {
-            SkASSERT(fTag == kEmpty);
+            SkASSERT(fTag == Tag::kEmpty);
             fKey = key;
             fView = view;
-            fTag = kView;
+            fTag = Tag::kView;
         }
 
         void makeEmpty() {
             fKey.reset();
-            if (fTag == kView) {
+            if (fTag == Tag::kView) {
                 fView.reset();
-            } else if (fTag == kVertData) {
+            } else if (fTag == Tag::kVertData) {
                 fVertData.reset();
             }
-            fTag = kEmpty;
+            fTag = Tag::kEmpty;
         }
 
         void set(const skgpu::UniqueKey& key, sk_sp<VertexData> vertData) {
-            SkASSERT(fTag == kEmpty || fTag == kVertData);
+            SkASSERT(fTag == Tag::kEmpty || fTag == Tag::kVertData);
             fKey = key;
             fVertData = std::move(vertData);
-            fTag = kVertData;
+            fTag = Tag::kVertData;
         }
 
         // The thread-safe cache gets to directly manipulate the llist and last-access members
@@ -294,7 +288,7 @@ private:
 
         // for SkTDynamicHash
         static const skgpu::UniqueKey& GetKey(const Entry& e) {
-            SkASSERT(e.fTag != kEmpty);
+            SkASSERT(e.fTag != Tag::kEmpty);
             return e.fKey;
         }
         static uint32_t Hash(const skgpu::UniqueKey& key) { return key.hash(); }
@@ -307,11 +301,12 @@ private:
             sk_sp<VertexData>   fVertData;
         };
 
-        enum {
+        enum class Tag {
             kEmpty,
             kView,
             kVertData,
-        } fTag { kEmpty };
+        };
+        Tag fTag{Tag::kEmpty};
     };
 
     void makeExistingEntryMRU(Entry*)  SK_REQUIRES(fSpinLock);

@@ -17,6 +17,8 @@
          SkASSERT((COUNT) <= (UNI).fArrayCount || \
                   (1 == (COUNT) && GrShaderVar::kNonArray == (UNI).fArrayCount))
 
+static constexpr GrGLint kUnusedUniform = -1;
+
 GrGLProgramDataManager::GrGLProgramDataManager(GrGLGpu* gpu, const UniformInfoArray& uniforms)
         : fGpu(gpu) {
     fUniforms.push_back_n(uniforms.count());

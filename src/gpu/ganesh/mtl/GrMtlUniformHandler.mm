@@ -296,7 +296,7 @@ void GrMtlUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString*
     }
 
     if (!uniformsString.isEmpty()) {
-        out->appendf("layout (metal, binding=%d) uniform uniformBuffer\n{\n", kUniformBinding);
+        out->appendf("layout (metal, binding=%zu) uniform uniformBuffer\n{\n", kUniformBinding);
         out->appendf("%s\n};\n", uniformsString.c_str());
     }
 }

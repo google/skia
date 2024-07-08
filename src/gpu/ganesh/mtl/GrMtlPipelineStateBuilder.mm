@@ -177,7 +177,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrGeometryProcessor& 
                                                      SkBinaryWriteBuffer* writer) {
     uint32_t vertexBinding = 0, instanceBinding = 0;
 
-    int nextBinding = GrMtlUniformHandler::kLastUniformBinding + 1;
+    int nextBinding = GrMtlUniformHandler::kLastUniformBinding + 1; // Start after the uniforms.
     if (geomProc.hasVertexAttributes()) {
         vertexBinding = nextBinding++;
     }

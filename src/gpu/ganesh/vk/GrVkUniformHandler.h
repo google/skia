@@ -20,30 +20,22 @@ class GrVkUniformHandler : public GrGLSLUniformHandler {
 public:
     static const int kUniformsPerBlock = 8;
 
-    enum {
-        /**
-         * Binding a descriptor set invalidates all higher index descriptor sets. We must bind
-         * in the order of this enumeration. Samplers are after Uniforms because GrOps can specify
-         * GP textures as dynamic state, meaning they get rebound for each draw in a pipeline while
-         * uniforms are bound once before all the draws. We bind input attachments after samplers
-         * so those also need to be rebound if we bind new samplers.
-         */
-        kUniformBufferDescSet = 0,
-        kSamplerDescSet = 1,
-        kInputDescSet = 2,
+    /**
+     * Binding a descriptor set invalidates all higher index descriptor sets. We must bind
+     * in the order of this enumeration. Samplers are after Uniforms because GrOps can specify
+     * GP textures as dynamic state, meaning they get rebound for each draw in a pipeline while
+     * uniforms are bound once before all the draws. We bind input attachments after samplers
+     * so those also need to be rebound if we bind new samplers.
+     */
+    static constexpr int kUniformBufferDescSet = 0;
+    static constexpr int kSamplerDescSet = 1;
+    static constexpr int kInputDescSet = 2;
 
-        kLastDescSet = kInputDescSet,
-    };
-    static constexpr int kDescSetCount = kLastDescSet + 1;
+    static constexpr int kDescSetCount = kInputDescSet + 1;
 
     // The bindings within their respective sets for various descriptor types.
-    enum {
-        kUniformBinding = 0,
-        kInputBinding = 0,
-    };
-    enum {
-        kDstInputAttachmentIndex = 0
-    };
+    static constexpr int kUniformBinding = 0;
+    static constexpr int kInputBinding = 0;
 
     // The two types of memory layout we're concerned with
     enum Layout {

@@ -16,6 +16,8 @@
 #include "src/gpu/ganesh/PathRenderer.h"
 #include "src/gpu/ganesh/ops/AtlasRenderTask.h"  // IWYU pragma: keep
 
+#include <cstddef>
+
 class GrRecordingContext;
 
 namespace skgpu::ganesh {
@@ -63,9 +65,8 @@ public:
     }
 
 private:
-    enum {
-        kPreAllocCount = 8,
-    };
+    static constexpr size_t kPreAllocCount = 8;
+
     skia_private::STArray<kPreAllocCount, sk_sp<PathRenderer>> fChain;
     AtlasPathRenderer* fAtlasPathRenderer = nullptr;
     PathRenderer* fTessellationPathRenderer = nullptr;

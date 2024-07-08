@@ -285,19 +285,6 @@ GrSurfaceProxyView LockTextureProxyView(GrRecordingContext* rContext,
                                         const SkImage_Lazy* img,
                                         GrImageTexGenPolicy texGenPolicy,
                                         skgpu::Mipmapped mipmapped) {
-    // Values representing the various texture lock paths we can take. Used for logging the path
-    // taken to a histogram.
-    enum LockTexturePath {
-        kFailure_LockTexturePath,
-        kPreExisting_LockTexturePath,
-        kNative_LockTexturePath,
-        kCompressed_LockTexturePath, // Deprecated
-        kYUV_LockTexturePath,
-        kRGBA_LockTexturePath,
-    };
-
-    enum { kLockTexturePathCount = kRGBA_LockTexturePath + 1 };
-
     skgpu::UniqueKey key;
     if (texGenPolicy == GrImageTexGenPolicy::kDraw) {
         GrMakeKeyFromImageID(&key, img->uniqueID(), SkIRect::MakeSize(img->dimensions()));

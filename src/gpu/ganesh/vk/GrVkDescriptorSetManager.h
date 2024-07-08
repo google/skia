@@ -71,10 +71,10 @@ private:
         GrVkDescriptorPool*    fPool;
 
     private:
-        enum {
-            kMaxDescriptors = 1024,
-            kStartNumDescriptors = 16, // must be less than kMaxUniformDescriptors
-        };
+        static constexpr size_t kMaxDescriptors = 1024;
+        static constexpr size_t kStartNumDescriptors = 16;
+        // kStartNumDescriptors must be less than kMaxUniformDescriptors
+        static_assert(kStartNumDescriptors < kMaxDescriptors);
 
         bool getNewPool(GrVkGpu* gpu);
     };

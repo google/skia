@@ -16,10 +16,14 @@
 
 #include <string.h>
 #include <algorithm>
+#include <cstddef>
 #include <utility>
 
 class GrProcessor;
 struct GrShaderCaps;
+
+static constexpr int kUniformBinding = 0;
+static constexpr size_t kUniformsPerBlock = 8;
 
 GrSPIRVUniformHandler::GrSPIRVUniformHandler(GrGLSLProgramBuilder* program)
     : INHERITED(program)

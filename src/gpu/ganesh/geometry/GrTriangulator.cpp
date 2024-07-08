@@ -316,7 +316,7 @@ bool GrTriangulator::EdgeList::remove(Edge* edge) {
 }
 
 void GrTriangulator::MonotonePoly::addEdge(Edge* edge) {
-    if (fSide == kRight_Side) {
+    if (fSide == Side::kRight) {
         SkASSERT(!edge->fUsedInRightPoly);
         list_insert<Edge, &Edge::fRightPolyPrev, &Edge::fRightPolyNext>(
             edge, fLastEdge, nullptr, &fFirstEdge, &fLastEdge);
@@ -337,7 +337,7 @@ skgpu::VertexWriter GrTriangulator::emitMonotonePoly(const MonotonePoly* monoton
     vertices.append(e->fTop);
     int count = 1;
     while (e != nullptr) {
-        if (kRight_Side == monotonePoly->fSide) {
+        if (Side::kRight == monotonePoly->fSide) {
             vertices.append(e->fBottom);
             e = e->fRightPolyNext;
         } else {
@@ -411,10 +411,13 @@ GrTriangulator::Poly::Poly(Vertex* v, int winding)
 
 Poly* GrTriangulator::Poly::addEdge(Edge* e, Side side, GrTriangulator* tri) {
     TESS_LOG("addEdge (%g -> %g) to poly %d, %s side\n",
-             e->fTop->fID, e->fBottom->fID, fID, side == kLeft_Side ? "left" : "right");
+             e->fTop->fID,
+             e->fBottom->fID,
+             fID,
+             side == Side::kLeft ? "left" : "right");
     Poly* partner = fPartner;
     Poly* poly = this;
-    if (side == kRight_Side) {
+    if (side == Side::kRight) {
         if (e->fUsedInRightPoly) {
             return this;
         }
@@ -1571,19 +1574,19 @@ std::tuple<Poly*, bool> GrTriangulator::tessellate(const VertexList& vertices, c
 #endif
         if (v->fFirstEdgeAbove) {
             if (leftPoly) {
-                leftPoly = leftPoly->addEdge(v->fFirstEdgeAbove, kRight_Side, this);
+                leftPoly = leftPoly->addEdge(v->fFirstEdgeAbove, Side::kRight, this);
             }
             if (rightPoly) {
-                rightPoly = rightPoly->addEdge(v->fLastEdgeAbove, kLeft_Side, this);
+                rightPoly = rightPoly->addEdge(v->fLastEdgeAbove, Side::kLeft, this);
             }
             for (Edge* e = v->fFirstEdgeAbove; e != v->fLastEdgeAbove; e = e->fNextEdgeAbove) {
                 Edge* rightEdge = e->fNextEdgeAbove;
                 activeEdges.remove(e);
                 if (e->fRightPoly) {
-                    e->fRightPoly->addEdge(e, kLeft_Side, this);
+                    e->fRightPoly->addEdge(e, Side::kLeft, this);
                 }
                 if (rightEdge->fLeftPoly && rightEdge->fLeftPoly != e->fRightPoly) {
-                    rightEdge->fLeftPoly->addEdge(e, kRight_Side, this);
+                    rightEdge->fLeftPoly->addEdge(e, Side::kRight, this);
                 }
             }
             activeEdges.remove(v->fLastEdgeAbove);
@@ -1599,7 +1602,7 @@ std::tuple<Poly*, bool> GrTriangulator::tessellate(const VertexList& vertices, c
             if (!v->fFirstEdgeAbove) {
                 if (leftPoly && rightPoly) {
                     if (leftPoly == rightPoly) {
-                        if (leftPoly->fTail && leftPoly->fTail->fSide == kLeft_Side) {
+                        if (leftPoly->fTail && leftPoly->fTail->fSide == Side::kLeft) {
                             leftPoly = this->makePoly(&polys, leftPoly->lastVertex(),
                                                       leftPoly->fWinding);
                             leftEnclosingEdge->fRightPoly = leftPoly;
@@ -1610,8 +1613,8 @@ std::tuple<Poly*, bool> GrTriangulator::tessellate(const VertexList& vertices, c
                         }
                     }
                     Edge* join = this->allocateEdge(leftPoly->lastVertex(), v, 1, EdgeType::kInner);
-                    leftPoly = leftPoly->addEdge(join, kRight_Side, this);
-                    rightPoly = rightPoly->addEdge(join, kLeft_Side, this);
+                    leftPoly = leftPoly->addEdge(join, Side::kRight, this);
+                    rightPoly = rightPoly->addEdge(join, Side::kLeft, this);
                 }
             }
             Edge* leftEdge = v->fFirstEdgeBelow;

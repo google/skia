@@ -50,10 +50,11 @@ namespace {
 
 struct Segment {
     enum {
-        // These enum values are assumed in member functions below.
         kLine = 0,
         kQuad = 1,
     } fType;
+    // These enum values are assumed in member functions below.
+    static_assert(0 == kLine && 1 == kQuad);
 
     // line uses one pt, quad uses 2 pts
     SkPoint fPts[2];
@@ -63,16 +64,16 @@ struct Segment {
     // sharp. If so, fMid is a normalized bisector facing outward.
     SkVector fMid;
 
-    int countPoints() {
-        static_assert(0 == kLine && 1 == kQuad);
+    int countPoints() const {
+        SkASSERT(fType == kLine || fType == kQuad);
         return fType + 1;
     }
     const SkPoint& endPt() const {
-        static_assert(0 == kLine && 1 == kQuad);
+        SkASSERT(fType == kLine || fType == kQuad);
         return fPts[fType];
     }
     const SkPoint& endNorm() const {
-        static_assert(0 == kLine && 1 == kQuad);
+        SkASSERT(fType == kLine || fType == kQuad);
         return fNorms[fType];
     }
 };
@@ -196,14 +197,14 @@ bool compute_vectors(SegmentArray* segments,
 }
 
 struct DegenerateTestData {
-    DegenerateTestData() { fStage = kInitial; }
-    bool isDegenerate() const { return kNonDegenerate != fStage; }
-    enum {
+    bool isDegenerate() const { return Stage::kNonDegenerate != fStage; }
+    enum class Stage {
         kInitial,
         kPoint,
         kLine,
-        kNonDegenerate
-    }           fStage;
+        kNonDegenerate,
+    };
+    Stage       fStage = Stage::kInitial;
     SkPoint     fFirstPoint;
     SkVector    fLineNormal;
     SkScalar    fLineC;
@@ -214,25 +215,25 @@ static const SkScalar kCloseSqd = kClose * kClose;
 
 void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) {
     switch (data->fStage) {
-        case DegenerateTestData::kInitial:
+        case DegenerateTestData::Stage::kInitial:
             data->fFirstPoint = pt;
-            data->fStage = DegenerateTestData::kPoint;
+            data->fStage = DegenerateTestData::Stage::kPoint;
             break;
-        case DegenerateTestData::kPoint:
+        case DegenerateTestData::Stage::kPoint:
             if (SkPointPriv::DistanceToSqd(pt, data->fFirstPoint) > kCloseSqd) {
                 data->fLineNormal = pt - data->fFirstPoint;
                 data->fLineNormal.normalize();
                 data->fLineNormal = SkPointPriv::MakeOrthog(data->fLineNormal);
                 data->fLineC = -data->fLineNormal.dot(data->fFirstPoint);
-                data->fStage = DegenerateTestData::kLine;
+                data->fStage = DegenerateTestData::Stage::kLine;
             }
             break;
-        case DegenerateTestData::kLine:
+        case DegenerateTestData::Stage::kLine:
             if (SkScalarAbs(data->fLineNormal.dot(pt) + data->fLineC) > kClose) {
-                data->fStage = DegenerateTestData::kNonDegenerate;
+                data->fStage = DegenerateTestData::Stage::kNonDegenerate;
             }
             break;
-        case DegenerateTestData::kNonDegenerate:
+        case DegenerateTestData::Stage::kNonDegenerate:
             break;
         default:
             SK_ABORT("Unexpected degenerate test stage.");
@@ -803,10 +804,9 @@ private:
 
             int vertexCount;
             int indexCount;
-            enum {
-                kPreallocSegmentCnt = 512 / sizeof(Segment),
-                kPreallocDrawCnt = 4,
-            };
+            static constexpr size_t kPreallocSegmentCnt = 512 / sizeof(Segment);
+            static constexpr size_t kPreallocDrawCnt = 4;
+
             STArray<kPreallocSegmentCnt, Segment, true> segments;
             SkPoint fanPt;
 
