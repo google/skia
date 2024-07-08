@@ -915,6 +915,16 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write(", " + tmpX + " - " + tmpY + " * floor(" + tmpX + " / " + tmpY + "))");
             return true;
         }
+        case k_pow_IntrinsicKind: {
+            // The Metal equivalent to GLSL's pow() is powr(). Metal's pow() allows negative base
+            // values, which is presumably more expensive to compute.
+            this->write("powr(");
+            this->writeExpression(*arguments[0], Precedence::kSequence);
+            this->write(", ");
+            this->writeExpression(*arguments[1], Precedence::kSequence);
+            this->write(")");
+            return true;
+        }
         // GLSL declares scalar versions of most geometric intrinsics, but these don't exist in MSL
         case k_distance_IntrinsicKind: {
             if (arguments[0]->type().columns() == 1) {
