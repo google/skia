@@ -18,7 +18,6 @@ license(
 
 licenses(["notice"])
 
-# Note, we do not need exports_files_legacy() because this file is not synced into G3.
 exports_files(["LICENSE"])
 
 # All the mm files from the Skia library are rolled up to this objc library since cc_library

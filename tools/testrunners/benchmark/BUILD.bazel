@@ -1,12 +1,10 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy")
-
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
 
-exports_files_legacy(
-    label_list = ["BazelBenchmarkTestRunner.cpp"],
+exports_files(
+    ["BazelBenchmarkTestRunner.cpp"],
     visibility = ["//bench:__pkg__"],
 )

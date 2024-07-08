@@ -1,13 +1,11 @@
 load("//bazel:macros.bzl", "py_binary")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary")
+load("//bazel:skia_rules.bzl", "skia_cc_binary")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-exports_files_legacy()
 
 # Run these py_binary rules like bazel run //tools/sksl-minify:minify_srcs
 # https://bazel.build/reference/be/python#py_binary

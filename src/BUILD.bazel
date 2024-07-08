@@ -1,7 +1,6 @@
 load("//bazel:flags.bzl", "selects")
 load(
     "//bazel:skia_rules.bzl",
-    "exports_files_legacy",
     "skia_cc_deps",
     "skia_filegroup",
 )
@@ -11,8 +10,6 @@ package(
 )
 
 licenses(["notice"])
-
-exports_files_legacy()
 
 selects.config_setting_group(
     name = "android_with_ganesh_backend",

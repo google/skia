@@ -1,6 +1,5 @@
 load(
     "//bazel:skia_rules.bzl",
-    "exports_files_legacy",
     "skia_cc_library",
     "skia_filegroup",
 )
@@ -10,8 +9,6 @@ package(
 )
 
 licenses(["notice"])
-
-exports_files_legacy()
 
 skia_filegroup(
     name = "test_font_manager_srcs",

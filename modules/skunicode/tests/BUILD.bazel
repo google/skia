@@ -1,12 +1,10 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
+load("//bazel:macros.bzl", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-exports_files_legacy()
 
 skia_filegroup(
     name = "tests",

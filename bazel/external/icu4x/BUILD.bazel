@@ -1,10 +1,4 @@
 load("@rules_rust//rust:defs.bzl", "rust_static_library")
-load(
-    "//bazel:skia_rules.bzl",
-    "exports_files_legacy",
-)
-
-exports_files_legacy()
 
 # Linked rust code
 rust_static_library(

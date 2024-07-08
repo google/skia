@@ -300,12 +300,6 @@ def _CheckBazelBUILDFiles(input_api, output_api):
     if is_bazel and not is_excluded:
       with open(affected_file_path, 'r') as file:
         contents = file.read()
-        if 'exports_files_legacy(' not in contents:
-          results.append(output_api.PresubmitError(
-            ('%s needs to call exports_files_legacy() to support legacy G3 ' +
-             'rules.\nPut this near the top of the file, beneath ' +
-             'licenses(["notice"]).') % affected_file_path
-          ))
         if 'licenses(["notice"])' not in contents:
           results.append(output_api.PresubmitError(
             ('%s needs to have\nlicenses(["notice"])\nimmediately after ' +

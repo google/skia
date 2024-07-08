@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_cc_test", "supports_platforms")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_cc_test", "supports_platforms")
 load("//tools/testrunners/gm:android_gm_test.bzl", "android_gm_test")
 load(":png_codec.bzl", "png_codec_tests")
 
@@ -7,8 +7,6 @@ package(
 )
 
 licenses(["notice"])
-
-exports_files_legacy()
 
 filegroup(
     name = "gm_subset",

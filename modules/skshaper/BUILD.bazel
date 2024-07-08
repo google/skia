@@ -1,13 +1,11 @@
 load("@bazel_skylib//lib:selects.bzl", "selects")
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_objc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-exports_files_legacy()
 
 selects.config_setting_group(
     name = "use_harfbuzz_shaper",

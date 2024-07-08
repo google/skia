@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_library", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,7 +6,7 @@ package(
 
 licenses(["notice"])
 
-exports_files_legacy(label_list = [
+exports_files([
     "CommandLineFlags.cpp",
     "CommandLineFlags.h",
 ])

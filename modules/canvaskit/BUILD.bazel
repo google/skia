@@ -1,5 +1,5 @@
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "skia_filegroup", "wasm_cc_binary")
+load("//bazel:macros.bzl", "bool_flag", "skia_filegroup", "wasm_cc_binary")
 load("//bazel/karma:karma_test.bzl", "karma_test")
 
 package(
@@ -8,8 +8,8 @@ package(
 
 licenses(["notice"])
 
-exports_files_legacy(
-    label_list = ["npm_build/types/index.d.ts"],
+exports_files(
+    ["npm_build/types/index.d.ts"],
     visibility = ["//infra:__subpackages__"],
 )
 

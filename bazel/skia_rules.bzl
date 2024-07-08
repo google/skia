@@ -229,18 +229,6 @@ def skia_objc_library(
         **kwargs
     )
 
-# buildifier: disable=unnamed-macro
-def exports_files_legacy(label_list = None, visibility = None):
-    """A self-annotating macro to export all files in this package for legacy G3 rules.
-
-    Args:
-        label_list: If provided, this will act like a normal exports_files rule. If not
-           provided, nothing happens.
-        visibility: Should be provided if label_list is set
-    """
-    if label_list:
-        native.exports_files(label_list, visibility = visibility)
-
 def split_srcs_and_hdrs(name, files):
     """Take a list of files and creates filegroups for C++ sources and headers.
 

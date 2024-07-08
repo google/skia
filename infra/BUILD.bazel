@@ -1,12 +1,10 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "gazelle")
+load("//bazel:macros.bzl", "gazelle")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-exports_files_legacy()
 
 gazelle(
     name = "gazelle",

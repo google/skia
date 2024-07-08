@@ -2,12 +2,9 @@ load("@rules_rust//rust:defs.bzl", "rust_static_library")
 load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
-    "exports_files_legacy",
     "select_multi",
     "skia_cc_library",
 )
-
-exports_files_legacy()
 
 # C++ sources
 skia_cc_library(

@@ -15,7 +15,6 @@ load("@rules_python//python:defs.bzl", _py_binary = "py_binary")
 load("//bazel:flags.bzl", _bool_flag = "bool_flag", _string_flag_with_values = "string_flag_with_values")
 load(
     "//bazel:skia_rules.bzl",
-    _exports_files_legacy = "exports_files_legacy",
     _generate_cpp_files_for_headers = "generate_cpp_files_for_headers",
     _select_multi = "select_multi",
     _skia_cc_binary = "skia_cc_binary",
@@ -39,7 +38,6 @@ string_flag_with_values = _string_flag_with_values
 wasm_cc_binary = _wasm_cc_binary
 generate_cpp_files_for_headers = _generate_cpp_files_for_headers
 
-exports_files_legacy = _exports_files_legacy
 select_multi = _select_multi
 skia_cc_binary = _skia_cc_binary
 skia_cc_deps = _skia_cc_deps

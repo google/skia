@@ -1,6 +1,5 @@
 load(
     "//bazel:skia_rules.bzl",
-    "exports_files_legacy",
     "skia_cc_library",
     "skia_cc_test",
     "skia_filegroup",
@@ -13,8 +12,6 @@ package(
 )
 
 licenses(["notice"])
-
-exports_files_legacy()
 
 skia_filegroup(
     name = "gpu_tools",

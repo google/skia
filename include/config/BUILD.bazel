@@ -1,6 +1,5 @@
 licenses(["notice"])
 
-# aka exports_files_legacy()
 exports_files(
     ["SkUserConfig.h"],
     visibility = ["//visibility:public"],

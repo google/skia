@@ -1,7 +1,3 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy")
-
 licenses(["notice"])
 
 package(default_applicable_licenses = ["//:license"])
-
-exports_files_legacy()

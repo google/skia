@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "exports_files_legacy", "skia_cc_binary", "skia_cc_library", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_cc_binary", "skia_cc_library", "skia_filegroup")
 load(":compile_sksl.bzl", "compile_sksl")
 
 package(
@@ -6,8 +6,6 @@ package(
 )
 
 licenses(["notice"])
-
-exports_files_legacy()
 
 skia_cc_binary(
     name = "skslc",
