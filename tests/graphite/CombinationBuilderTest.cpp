@@ -185,13 +185,16 @@ std::vector<sk_sp<T>> create_runtime_combos(
                                    SkSpan<const PrecompileChildOptions> childOptions),
         const char* redCode,
         const char* greenCode,
+        const char* blueCode,
         const char* combineCode) {
     auto [redEffect, error1] = effectFactory(SkString(redCode));
     REPORTER_ASSERT(reporter, redEffect, "%s", error1.c_str());
     auto [greenEffect, error2] = effectFactory(SkString(greenCode));
     REPORTER_ASSERT(reporter, greenEffect, "%s", error2.c_str());
-    auto [combineEffect, error3] = effectFactory(SkString(combineCode));
-    REPORTER_ASSERT(reporter, combineEffect, "%s", error3.c_str());
+    auto [blueEffect, error3] = effectFactory(SkString(blueCode));
+    REPORTER_ASSERT(reporter, blueEffect, "%s", error3.c_str());
+    auto [combineEffect, error4] = effectFactory(SkString(combineCode));
+    REPORTER_ASSERT(reporter, combineEffect, "%s", error4.c_str());
 
     sk_sp<T> red = precompileFactory(redEffect, {});
     REPORTER_ASSERT(reporter, red);
@@ -199,7 +202,11 @@ std::vector<sk_sp<T>> create_runtime_combos(
     sk_sp<T> green = precompileFactory(greenEffect, {});
     REPORTER_ASSERT(reporter, green);
 
-    sk_sp<T> combine = precompileFactory(combineEffect, { { red, green }, { green, red } });
+    sk_sp<T> blue = precompileFactory(blueEffect, {});
+    REPORTER_ASSERT(reporter, blue);
+
+    sk_sp<T> combine = precompileFactory(combineEffect, { { red, green },
+                                                          { blue, sk_sp<T>(nullptr) } });
     REPORTER_ASSERT(reporter, combine);
 
     return { combine };
@@ -210,16 +217,16 @@ void runtime_effect_test(const KeyContext& keyContext,
                          skiatest::Reporter* reporter) {
     // paintOptions (8 = 2*2*2)
     //  |- combineShader (2)
-    //  |       0: redShader   | greenShader
-    //  |       1: greenShader | redShader
+    //  |       0: redShader  | greenShader
+    //  |       1: blueShader | nullptr
     //  |
     //  |- combineColorFilter (2)
-    //  |       0: redColorFilter   | greenColorFilter
-    //  |       1: greenColorFilter | redColorFilter
+    //  |       0: redColorFilter  | greenColorFilter
+    //  |       1: blueColorFilter | nullptr
     //  |
     //  |- combineBlender (2)
-    //  |       0: redBlender   | greenBlender
-    //  |       1: greenBlender | redBlender
+    //  |       0: redBlender  | greenBlender
+    //  |       1: blueBlender | nullptr
 
     PaintOptions paintOptions;
 
@@ -230,6 +237,9 @@ void runtime_effect_test(const KeyContext& keyContext,
         )";
         static const char* kGreenS = R"(
             half4 main(vec2 fragcoord) { return half4(0, .5, 0, .5); }
+        )";
+        static const char* kBlueS = R"(
+            half4 main(vec2 fragcoord) { return half4(0, 0, .5, .5); }
         )";
 
         static const char* kCombineS = R"(
@@ -246,6 +256,7 @@ void runtime_effect_test(const KeyContext& keyContext,
                                                         MakePrecompileShader,
                                                         kRedS,
                                                         kGreenS,
+                                                        kBlueS,
                                                         kCombineS);
         paintOptions.setShaders(combinations);
     }
@@ -257,6 +268,9 @@ void runtime_effect_test(const KeyContext& keyContext,
         )";
         static const char* kGreenCF = R"(
             half4 main(half4 color) { return half4(0, .5, 0, .5); }
+        )";
+        static const char* kBlueCF = R"(
+            half4 main(half4 color) { return half4(0, 0, .5, .5); }
         )";
 
         static const char* kCombineCF = R"(
@@ -271,6 +285,7 @@ void runtime_effect_test(const KeyContext& keyContext,
                                                              MakePrecompileColorFilter,
                                                              kRedCF,
                                                              kGreenCF,
+                                                             kBlueCF,
                                                              kCombineCF);
         paintOptions.setColorFilters(combinations);
     }
@@ -282,6 +297,9 @@ void runtime_effect_test(const KeyContext& keyContext,
         )";
         static const char* kGreenB = R"(
             half4 main(half4 src, half4 dst) { return half4(0, .5, 0, .5); }
+        )";
+        static const char* kBlueB = R"(
+            half4 main(half4 src, half4 dst) { return half4(0, 0, .5, .5); }
         )";
 
         static const char* kCombineB = R"(
@@ -298,6 +316,7 @@ void runtime_effect_test(const KeyContext& keyContext,
                                                          MakePrecompileBlender,
                                                          kRedB,
                                                          kGreenB,
+                                                         kBlueB,
                                                          kCombineB);
         paintOptions.setBlenders(combinations);
     }
