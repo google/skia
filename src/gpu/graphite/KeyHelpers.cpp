@@ -502,7 +502,9 @@ void LocalMatrixShaderBlock::BeginBlock(const KeyContext& keyContext,
 
     add_localmatrixshader_uniform_data(keyContext.dict(), lmShaderData.fLocalMatrix, gatherer);
 
-    builder->beginBlock(BuiltInCodeSnippetID::kLocalMatrixShader);
+    builder->beginBlock(lmShaderData.fHasPerspective
+                                ? BuiltInCodeSnippetID::kLocalMatrixShaderPersp
+                                : BuiltInCodeSnippetID::kLocalMatrixShader);
 }
 
 //--------------------------------------------------------------------------------------------------

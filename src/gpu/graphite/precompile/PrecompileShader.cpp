@@ -602,6 +602,8 @@ public:
 
 private:
     // The LocalMatrixShader has two potential variants: with and without the LocalMatrixShader
+    // In the "with" variant, the kIsPerspective flag will determine if the shader performs
+    // the perspective division or not.
     inline static constexpr int kNumIntrinsicCombinations = 2;
     inline static constexpr int kWithLocalMatrix    = 1;
     inline static constexpr int kWithoutLocalMatrix = 0;
@@ -635,13 +637,17 @@ private:
         SkASSERT(desiredWrappedCombination < fNumWrappedCombos);
 
         if (desiredLMCombination == kWithLocalMatrix) {
-            LocalMatrixShaderBlock::LMShaderData kIgnoredLMShaderData(SkMatrix::I());
+            SkMatrix matrix = SkMatrix::I();
+            if (fFlags & Flags::kIsPerspective) {
+                matrix.setPerspX(0.1f);
+            }
+            LocalMatrixShaderBlock::LMShaderData lmShaderData(matrix);
 
-            LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer, kIgnoredLMShaderData);
+            LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer, matrix);
         }
 
-            AddToKey<PrecompileShader>(keyContext, builder, gatherer, fWrapped,
-                                       desiredWrappedCombination);
+        AddToKey<PrecompileShader>(keyContext, builder, gatherer, fWrapped,
+                                   desiredWrappedCombination);
 
         if (desiredLMCombination == kWithLocalMatrix) {
             builder->endBlock();

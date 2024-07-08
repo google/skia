@@ -777,6 +777,7 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
                                               const ShaderNode* node) {
     SkASSERT(node->numChildren() == kNumCoordinateManipulateChildren);
 
+    std::string perspectiveStatement;
 
     ShaderSnippet::Args localArgs = kDefaultArgs;
     if (node->child(0)->requiredFlags() & SnippetRequirementFlags::kLocalCoords) {
@@ -787,6 +788,11 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
             localArgs.fFragCoord = SkSL::String::printf("(%s * %s.xy01).xy",
                                                         controlUni.c_str(),
                                                         kDefaultArgs.fFragCoord.c_str());
+        } else if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShaderPersp) {
+            perspectiveStatement = SkSL::String::printf("float4 perspCoord = %s * %s.xy01;",
+                                                        controlUni.c_str(),
+                                                        kDefaultArgs.fFragCoord.c_str());
+            localArgs.fFragCoord = "perspCoord.xy / perspCoord.w";
         } else {
             SkASSERT(node->codeSnippetId() == (int) BuiltInCodeSnippetID::kCoordClampShader);
             localArgs.fFragCoord = SkSL::String::printf("clamp(%s, %s.LT, %s.RB)",
@@ -797,7 +803,10 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
 
     std::string decl = emit_helper_declaration(shaderInfo, node);
     std::string invokeChild = invoke_node(shaderInfo, node->child(0), localArgs);
-    return SkSL::String::printf("%s { return %s; }", decl.c_str(), invokeChild.c_str());
+    return SkSL::String::printf("%s { %s return %s; }",
+                                decl.c_str(),
+                                perspectiveStatement.c_str(),
+                                invokeChild.c_str());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1392,6 +1401,15 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
     // actually use coordinates.
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLocalMatrixShader] = {
             /*name=*/"LocalMatrixShader",
+            /*staticFn=*/nullptr,
+            SnippetRequirementFlags::kNone,
+            /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },
+            /*textures=*/{},
+            GenerateCoordManipulationPreamble,
+            /*numChildren=*/kNumCoordinateManipulateChildren
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLocalMatrixShaderPersp] = {
+            /*name=*/"LocalMatrixShaderPersp",
             /*staticFn=*/nullptr,
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },

@@ -43,6 +43,7 @@ enum class BuiltInCodeSnippetID : int32_t {
     kConicalGradientShaderBuffer,
 
     kLocalMatrixShader,
+    kLocalMatrixShaderPersp,
     kImageShader,
     kCubicImageShader,
     kHWImageShader,

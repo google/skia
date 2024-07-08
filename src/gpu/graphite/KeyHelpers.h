@@ -150,10 +150,11 @@ struct GradientShaderBlocks {
 struct LocalMatrixShaderBlock {
     struct LMShaderData {
         LMShaderData(const SkMatrix& localMatrix)
-                : fLocalMatrix(localMatrix) {
-        }
+                : fLocalMatrix(localMatrix)
+                , fHasPerspective(localMatrix.hasPerspective()) {}
 
         const SkM44 fLocalMatrix;
+        const bool  fHasPerspective;
     };
 
     static void BeginBlock(const KeyContext&,
