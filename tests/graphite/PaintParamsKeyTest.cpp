@@ -411,15 +411,29 @@ ImageFilterType random_imagefiltertype(SkRandom* rand) {
     return static_cast<ImageFilterType>(rand->nextULessThan(kImageFilterTypeCount));
 }
 
-SkMatrix* random_local_matrix(SkRandom* rand, SkMatrix* storage) {
-    switch (rand->nextULessThan(3)) {
-        case 0:  return nullptr;
-        case 1:  storage->setIdentity(); return storage;
-        case 2:  [[fallthrough]];
-        default: storage->setTranslate(2.0f, 2.0f); return storage;
+enum LocalMatrixConstraint {
+    kNone,
+    kWithPerspective,
+};
+
+SkMatrix* random_local_matrix(SkRandom* rand,
+                              SkMatrix* storage,
+                              LocalMatrixConstraint constaint = LocalMatrixConstraint::kNone) {
+    // Only return nullptr if constraint == kNone.
+    uint32_t matrix = rand->nextULessThan(constaint == LocalMatrixConstraint::kNone ? 4 : 3);
+
+    switch (matrix) {
+        case 0:  storage->setTranslate(2.0f, 2.0f); break;
+        case 1:  storage->setIdentity(); break;
+        case 2:  storage->setScale(0.25f, 0.25f, 0.0f, 0.0f); break;
+        case 3:  return nullptr;
     }
 
-    SkUNREACHABLE;
+    if (constaint == LocalMatrixConstraint::kWithPerspective) {
+        storage->setPerspX(0.5f);
+    }
+
+    return storage;
 }
 
 sk_sp<SkImage> make_image(SkRandom* rand, Recorder* recorder) {
@@ -653,10 +667,13 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_localmatrix_shader(Sk
         return { nullptr, nullptr };
     }
 
-    SkMatrix lmStorage;
-    random_local_matrix(rand, &lmStorage);
+    bool hasPerspective = rand->nextBool();
 
-    return { s->makeWithLocalMatrix(lmStorage), o->makeWithLocalMatrix() };
+    SkMatrix lmStorage;
+    random_local_matrix(rand, &lmStorage, hasPerspective ? LocalMatrixConstraint::kWithPerspective
+                                                         : LocalMatrixConstraint::kNone);
+
+    return { s->makeWithLocalMatrix(lmStorage), o->makeWithLocalMatrix(hasPerspective) };
 }
 
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_colorfilter_shader(SkRandom* rand,
