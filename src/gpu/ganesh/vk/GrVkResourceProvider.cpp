@@ -35,6 +35,7 @@ GrVkResourceProvider::~GrVkResourceProvider() {
 
 VkPipelineCache GrVkResourceProvider::pipelineCache() {
     if (fPipelineCache == VK_NULL_HANDLE) {
+        TRACE_EVENT0("skia.shaders", "CreatePipelineCache-GrVkResourceProvider");
         VkPipelineCacheCreateInfo createInfo;
         memset(&createInfo, 0, sizeof(VkPipelineCacheCreateInfo));
         createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
