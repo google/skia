@@ -1676,7 +1676,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
         SkASSERT(snippet.fName); // Should not have missed a built-in
 
         if (snippet.fUniformStructName) {
-            UniformOffsetCalculator offsetCalculator{fLayout, 0};
+            auto offsetCalculator = UniformOffsetCalculator::ForStruct(fLayout);
             for (int j = 0; j < snippet.fUniforms.size(); ++j) {
                 SkASSERT(!snippet.fUniforms[j].isPaintColor()); // paint color shouldn't be embedded
                 offsetCalculator.advanceOffset(snippet.fUniforms[j].type(),

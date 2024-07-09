@@ -46,6 +46,26 @@ int UniformOffsetCalculator::advanceOffset(SkSLType type, int count) {
     return alignedOffset;
 }
 
+int UniformOffsetCalculator::advanceStruct(const UniformOffsetCalculator& substruct, int count) {
+    SkASSERT(substruct.fLayout == fLayout); // Invalid if the layout rules used aren't consistent
+
+    // If array element strides are forced to 16-byte alignment, structs must also have their
+    // base alignment rounded up to 16-byte alignment, which should have been accounted for in
+    // 'substruct's constructor.
+    const int baseAlignment = substruct.requiredAlignment();
+    SkASSERT(!LayoutRules::AlignArraysAsVec4(fLayout) || SkIsAlign16(baseAlignment));
+
+    // Per layout rule #9, the struct size must be padded to its base alignment
+    // (see https://registry.khronos.org/OpenGL/specs/gl/glspec45.core.pdf#page=159).
+    const int alignedSize = SkAlignTo(substruct.size(), baseAlignment);
+
+    const int alignedOffset = SkAlignTo(fOffset, baseAlignment);
+    fOffset = alignedOffset + alignedSize * std::max(count, 1);
+    fReqAlignment = std::max(fReqAlignment, baseAlignment);
+
+    return alignedOffset;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 UniformDataBlock UniformManager::finishUniformDataBlock() {
@@ -65,7 +85,7 @@ void UniformManager::resetWithNewLayout(Layout layout) {
     fWrotePaintColor = false;
 
 #ifdef SK_DEBUG
-    fOffsetCalculator = UniformOffsetCalculator(layout, 0);
+    fOffsetCalculator = UniformOffsetCalculator::ForTopLevel(layout);
     fExpectedUniforms = {};
     fExpectedUniformIndex = 0;
 #endif

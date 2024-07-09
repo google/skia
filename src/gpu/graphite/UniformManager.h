@@ -37,7 +37,8 @@ class UniformDataBlock;
  * Layout::kStd140
  * ===============
  *
- * From OpenGL Specification Section 7.6.2.2 "Standard Uniform Block Layout":
+ * From OpenGL Specification Section 7.6.2.2 "Standard Uniform Block Layout"
+ * [https://registry.khronos.org/OpenGL/specs/gl/glspec45.core.pdf#page=159]:
  *  1. If the member is a scalar consuming N basic machine units, the base alignment is N.
  *  2. If the member is a two- or four-component vector with components consuming N basic machine
  *     units, the base alignment is 2N or 4N, respectively.
@@ -173,7 +174,15 @@ namespace LayoutRules {
 class UniformOffsetCalculator {
 public:
     UniformOffsetCalculator() = default;
-    UniformOffsetCalculator(Layout layout, int offset) : fLayout(layout), fOffset(offset) {}
+
+    static UniformOffsetCalculator ForTopLevel(Layout layout, int offset = 0) {
+        return UniformOffsetCalculator(layout, offset, /*reqAlignment=*/1);
+    }
+
+    static UniformOffsetCalculator ForStruct(Layout layout) {
+        const int reqAlignment = LayoutRules::AlignArraysAsVec4(layout) ? 16 : 1;
+        return UniformOffsetCalculator(layout, /*offset=*/0, reqAlignment);
+    }
 
     // NOTE: The returned size represents the last consumed byte (if the recorded
     // uniforms are embedded within a struct, this will need to be rounded up to a multiple of
@@ -181,18 +190,29 @@ public:
     int size() const { return fOffset; }
     int requiredAlignment() const { return fReqAlignment; }
 
-    // Calculates the correctly aligned offset to accommodate `count` instances of `type` and
-    // advances the internal offset. Returns the correctly aligned start offset.
+    // Returns the correctly aligned offset to accommodate `count` instances of `type` and
+    // advances the internal offset.
     //
     // After a call to this method, `size()` will return the offset to the end of `count` instances
     // of `type` (while the return value equals the aligned start offset). Subsequent calls will
     // calculate the new start offset starting at `size()`.
     int advanceOffset(SkSLType type, int count = Uniform::kNonArray);
 
+    // Returns the correctly aligned offset to accommodate `count` instances of a custom struct
+    // type that has had its own fields passed into the `substruct` offset calculator.
+    //
+    // After a call to this method, `size()` will return the offset to the end of `count` instances
+    // of the struct types (while the return value equals the aligned start offset). This includes
+    // any required padding of the struct size per rule #9.
+    int advanceStruct(const UniformOffsetCalculator& substruct, int count = Uniform::kNonArray);
+
 private:
+    UniformOffsetCalculator(Layout layout, int offset, int reqAlignment)
+            : fLayout(layout), fOffset(offset), fReqAlignment((reqAlignment)) {}
+
     Layout fLayout    = Layout::kInvalid;
     int fOffset       = 0;
-    int fReqAlignment = 0;
+    int fReqAlignment = 1;
 };
 
 class UniformManager {

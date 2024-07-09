@@ -129,7 +129,7 @@ std::string get_uniforms(Layout layout,
                          int manglingSuffix,
                          bool* wrotePaintColor) {
     std::string result;
-    UniformOffsetCalculator offsetter(layout, *offset);
+    auto offsetter = UniformOffsetCalculator::ForTopLevel(layout, *offset);
 
     std::string uniformName;
     for (const Uniform& u : uniforms) {

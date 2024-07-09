@@ -17,17 +17,35 @@ namespace {
 // Used to test the exact alignment and size of an individual type. Returns the alignment and size
 // as a pair.
 struct AlignmentAndSize {
-    size_t alignment;
-    size_t size;
+    int alignment;
+    int size;
 };
 static AlignmentAndSize calculate_alignment_and_size(Layout layout,
                                                      SkSLType type,
-                                                     size_t arrayCount = Uniform::kNonArray) {
+                                                     int arrayCount = Uniform::kNonArray) {
     // Set the start offset at 1 to force alignment.
-    constexpr uint32_t kStart = 1;
-    UniformOffsetCalculator calc(layout, kStart);
-    size_t alignment = calc.advanceOffset(type, arrayCount);
+    constexpr int kStart = 1;
+    auto calc = UniformOffsetCalculator::ForTopLevel(layout, kStart);
+    int alignment = calc.advanceOffset(type, arrayCount);
     return {alignment, calc.size() - alignment};
+}
+
+static AlignmentAndSize calculate_struct_alignment_and_size(
+        Layout layout,
+        std::initializer_list<SkSLType> fields,
+        int arrayCount = Uniform::kNonArray) {
+    // Set the start offset at 1 to force alignment.
+    constexpr int kStart = 1;
+    auto outer = UniformOffsetCalculator::ForTopLevel(layout, kStart);
+
+    auto substruct = UniformOffsetCalculator::ForStruct(layout);
+    for (SkSLType f : fields) {
+        substruct.advanceOffset(f);
+    }
+
+    int alignment = outer.advanceStruct(substruct, arrayCount);
+    SkASSERT(alignment == substruct.requiredAlignment());
+    return {alignment, outer.size() - alignment};
 }
 
 #define EXPECT(type, expectedAlignment, expectedSize)                                \
@@ -35,13 +53,13 @@ static AlignmentAndSize calculate_alignment_and_size(Layout layout,
         auto [alignment, size] = calculate_alignment_and_size(kLayout, type);        \
         REPORTER_ASSERT(r,                                                           \
                         alignment == expectedAlignment,                              \
-                        "incorrect alignment for type '%s': expected %d, found %zu", \
+                        "incorrect alignment for type '%s': expected %d, found %d",  \
                         SkSLTypeString(type),                                        \
                         expectedAlignment,                                           \
                         alignment);                                                  \
         REPORTER_ASSERT(r,                                                           \
                         size == expectedSize,                                        \
-                        "incorrect size for type '%s': expected %d, found %zu",      \
+                        "incorrect size for type '%s': expected %d, found %d",       \
                         SkSLTypeString(type),                                        \
                         expectedSize,                                                \
                         size);                                                       \
@@ -50,25 +68,69 @@ static AlignmentAndSize calculate_alignment_and_size(Layout layout,
 #define EXPECT_ARRAY(type, expectedAlignment, expectedStride, expectedSize)           \
     do {                                                                              \
         auto [alignment, size] = calculate_alignment_and_size(kLayout, type, kCount); \
-        size_t stride = size / kCount;                                                \
+        int stride = size / kCount;                                                   \
         REPORTER_ASSERT(r,                                                            \
                         alignment == expectedAlignment,                               \
-                        "incorrect alignment for type '%s': expected %d, found %zu",  \
+                        "incorrect alignment for type '%s': expected %d, found %d",   \
                         SkSLTypeString(type),                                         \
                         expectedAlignment,                                            \
                         alignment);                                                   \
         REPORTER_ASSERT(r,                                                            \
                         size == expectedSize,                                         \
-                        "incorrect size for type '%s': expected %d, found %zu",       \
+                        "incorrect size for type '%s': expected %d, found %d",        \
                         SkSLTypeString(type),                                         \
                         expectedSize,                                                 \
                         size);                                                        \
         REPORTER_ASSERT(r,                                                            \
                         stride == expectedStride,                                     \
-                        "incorrect stride for type '%s': expected %d, found %zu",     \
+                        "incorrect stride for type '%s': expected %d, found %d",      \
                         SkSLTypeString(type),                                         \
                         expectedStride,                                               \
                         stride);                                                      \
+    } while (0)
+
+#define EXPECT_STRUCT(expectedAlignment, expectedSize, ...)                      \
+    do {                                                                         \
+        auto [alignment, size] = calculate_struct_alignment_and_size(            \
+                                         kLayout, {__VA_ARGS__});                \
+        REPORTER_ASSERT(r,                                                       \
+                        alignment == expectedAlignment,                          \
+                        "incorrect alignment for struct: expected %d, found %d", \
+                        expectedAlignment,                                       \
+                        alignment);                                              \
+        REPORTER_ASSERT(r,                                                       \
+                        size == expectedSize,                                    \
+                        "incorrect size for struct: expected %d, found %d",      \
+                        expectedSize,                                            \
+                        size);                                                   \
+        REPORTER_ASSERT(r,                                                       \
+                        size % alignment == 0,                                   \
+                        "struct size must be a multiple of alignment");          \
+    } while (0)
+
+#define EXPECT_STRUCT_ARRAY(expectedAlignment, expectedStride, ...)               \
+    do {                                                                          \
+        auto [alignment, size] = calculate_struct_alignment_and_size(             \
+                                        kLayout, {__VA_ARGS__}, kCount);          \
+        int stride = size / kCount;                                               \
+        REPORTER_ASSERT(r,                                                        \
+                        alignment == expectedAlignment,                           \
+                        "incorrect alignment for struct: expected %d, found %d",  \
+                        expectedAlignment,                                        \
+                        alignment);                                               \
+        REPORTER_ASSERT(r,                                                        \
+                        size == kCount * expectedStride,                          \
+                        "incorrect size for struct array: expected %d, found %d", \
+                        kCount * expectedStride,                                  \
+                        size);                                                    \
+        REPORTER_ASSERT(r,                                                        \
+                        stride == expectedStride,                                 \
+                        "incorrect stride for struct: expected %d, found %d",     \
+                        expectedStride,                                           \
+                        stride);                                                  \
+        REPORTER_ASSERT(r,                                                        \
+                        stride % alignment == 0,                                  \
+                        "struct stride must be a multiple of alignment");         \
     } while (0)
 
 DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r, CtsEnforcement::kNextRelease) {
@@ -109,7 +171,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r, CtsEnforcement:
 
 DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kMetal;
-    constexpr size_t kCount = 3;
+    constexpr int kCount = 3;
 
     // int[3], float[3], half[3]
     EXPECT_ARRAY(SkSLType::kInt,   /*alignment=*/4, /*stride=*/4, /*size=*/12);
@@ -142,6 +204,35 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r, CtsEnforcement::kNex
     // float4x4[3], half4x4[3]
     EXPECT_ARRAY(SkSLType::kFloat4x4, /*alignment=*/16, /*stride=*/64, /*size=*/192);
     EXPECT_ARRAY(SkSLType::kHalf4x4,  /*alignment=*/8,  /*stride=*/32, /*size=*/96);
+}
+
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalStructTest, r, CtsEnforcement::kNextRelease) {
+    constexpr Layout kLayout = Layout::kMetal;
+    constexpr int    kCount  = 3;
+
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/32, /*fields=*/SkSLType::kFloat4,
+                                                            SkSLType::kFloat3);
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/32, /*fields=*/SkSLType::kFloat3,
+                                                            SkSLType::kFloat);
+    EXPECT_STRUCT(/*alignment=*/8,  /*size=*/16, /*fields=*/SkSLType::kFloat,
+                                                            SkSLType::kFloat2);
+    EXPECT_STRUCT(/*alignment=*/4,  /*size=*/4,  /*fields=*/SkSLType::kFloat);
+    EXPECT_STRUCT(/*alignment=*/4,  /*size=*/12, /*fields=*/SkSLType::kFloat,
+                                                            SkSLType::kFloat,
+                                                            SkSLType::kInt);
+    EXPECT_STRUCT(/*alignment=*/4,  /*size=*/8,  /*fields=*/SkSLType::kHalf2,
+                                                            SkSLType::kInt);
+
+    EXPECT_STRUCT_ARRAY(/*alignment=*/16, /*stride=*/32, /*fields=*/SkSLType::kFloat4,
+                                                                    SkSLType::kFloat3);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/8,  /*stride=*/16, /*fields=*/SkSLType::kFloat,
+                                                                    SkSLType::kFloat2);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/4,  /*stride=*/4,  /*fields=*/SkSLType::kFloat);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/4,  /*stride=*/12, /*fields=*/SkSLType::kFloat,
+                                                                    SkSLType::kFloat,
+                                                                    SkSLType::kInt);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/4,  /*stride=*/8,  /*fields=*/SkSLType::kHalf2,
+                                                                    SkSLType::kInt);
 }
 
 DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r, CtsEnforcement::kNextRelease) {
@@ -182,7 +273,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r, CtsEnforcement
 
 DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kStd430;
-    constexpr size_t kCount = 3;
+    constexpr int    kCount  = 3;
 
     // int[3], float[3], half[3]
     EXPECT_ARRAY(SkSLType::kInt,   /*alignment=*/4, /*stride=*/4, /*size=*/12);
@@ -215,6 +306,35 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r, CtsEnforcement::kNe
     // float4x4[3], half4x4[3]
     EXPECT_ARRAY(SkSLType::kFloat4x4, /*alignment=*/16, /*stride=*/64, /*size=*/192);
     EXPECT_ARRAY(SkSLType::kHalf4x4,  /*alignment=*/16, /*stride=*/64, /*size=*/192);
+}
+
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430StructTest, r, CtsEnforcement::kNextRelease) {
+    constexpr Layout kLayout = Layout::kStd430;
+    constexpr int    kCount  = 3;
+
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/32, /*fields=*/SkSLType::kFloat4,
+                                                            SkSLType::kFloat3);
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/16, /*fields=*/SkSLType::kFloat3,
+                                                            SkSLType::kFloat);
+    EXPECT_STRUCT(/*alignment=*/8,  /*size=*/16, /*fields=*/SkSLType::kFloat,
+                                                            SkSLType::kFloat2);
+    EXPECT_STRUCT(/*alignment=*/4,  /*size=*/4,  /*fields=*/SkSLType::kFloat);
+    EXPECT_STRUCT(/*alignment=*/4,  /*size=*/12, /*fields=*/SkSLType::kFloat,
+                                                            SkSLType::kFloat,
+                                                            SkSLType::kInt);
+    EXPECT_STRUCT(/*alignment=*/8,  /*size=*/16, /*fields=*/SkSLType::kHalf2,
+                                                            SkSLType::kInt);
+
+    EXPECT_STRUCT_ARRAY(/*alignment=*/16, /*stride=*/32, /*fields=*/SkSLType::kFloat4,
+                                                                    SkSLType::kFloat3);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/8,  /*stride=*/16, /*fields=*/SkSLType::kFloat,
+                                                                    SkSLType::kFloat2);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/4,  /*stride=*/4,  /*fields=*/SkSLType::kFloat);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/4,  /*stride=*/12, /*fields=*/SkSLType::kFloat,
+                                                                    SkSLType::kFloat,
+                                                                    SkSLType::kInt);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/8,  /*stride=*/16, /*fields=*/SkSLType::kHalf2,
+                                                                    SkSLType::kInt);
 }
 
 DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r, CtsEnforcement::kNextRelease) {
@@ -255,7 +375,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r, CtsEnforcement
 
 DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140ArrayTest, r, CtsEnforcement::kNextRelease) {
     constexpr Layout kLayout = Layout::kStd140;
-    constexpr uint32_t kCount = 3;
+    constexpr int    kCount  = 3;
 
     // int[3], float[3], half[3]
     EXPECT_ARRAY(SkSLType::kInt,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
@@ -288,6 +408,35 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140ArrayTest, r, CtsEnforcement::kNe
     // float4x4[3], half4x4[3]
     EXPECT_ARRAY(SkSLType::kFloat4x4, /*alignment=*/16, /*stride=*/64, /*size=*/192);
     EXPECT_ARRAY(SkSLType::kHalf4x4,  /*alignment=*/16, /*stride=*/64, /*size=*/192);
+}
+
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140StructTest, r, CtsEnforcement::kNextRelease) {
+    constexpr Layout kLayout = Layout::kStd140;
+    constexpr int    kCount  = 3;
+
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/32, /*fields=*/SkSLType::kFloat4,
+                                                            SkSLType::kFloat3);
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/16, /*fields=*/SkSLType::kFloat3,
+                                                            SkSLType::kFloat);
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/16, /*fields=*/SkSLType::kFloat,
+                                                            SkSLType::kFloat2);
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/16, /*fields=*/SkSLType::kFloat);
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/16, /*fields=*/SkSLType::kFloat,
+                                                            SkSLType::kFloat,
+                                                            SkSLType::kInt);
+    EXPECT_STRUCT(/*alignment=*/16, /*size=*/16, /*fields=*/SkSLType::kHalf2,
+                                                            SkSLType::kInt);
+
+    EXPECT_STRUCT_ARRAY(/*alignment=*/16, /*stride=*/32, /*fields=*/SkSLType::kFloat4,
+                                                                    SkSLType::kFloat3);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/16, /*stride=*/16, /*fields=*/SkSLType::kFloat,
+                                                                    SkSLType::kFloat2);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/16, /*stride=*/16, /*fields=*/SkSLType::kFloat);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/16, /*stride=*/16, /*fields=*/SkSLType::kFloat,
+                                                                    SkSLType::kFloat,
+                                                                    SkSLType::kInt);
+    EXPECT_STRUCT_ARRAY(/*alignment=*/16, /*stride=*/16, /*fields=*/SkSLType::kHalf2,
+                                                                    SkSLType::kInt);
 }
 
 }  // namespace
