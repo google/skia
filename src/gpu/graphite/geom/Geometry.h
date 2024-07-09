@@ -100,7 +100,9 @@ public:
     bool isCoverageMaskShape() const { return fType == Type::kCoverageMaskShape; }
     bool isAnalyticBlur() const { return fType == Type::kAnalyticBlur; }
     bool isEmpty() const {
-        return fType == (Type::kEmpty) || (this->isShape() && this->shape().isEmpty());
+        return fType == (Type::kEmpty) || (this->isShape() &&
+                                           this->shape().isEmpty() &&
+                                           !this->shape().inverted());
     }
 
     const Shape& shape() const { SkASSERT(this->isShape()); return fShape; }

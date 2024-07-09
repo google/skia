@@ -1065,10 +1065,19 @@ float4 cover_bounds_vertex_fn(float2 corner,
     } else {
         // An inverse fill
         corner = mix(bounds.RB, bounds.LT, corner);
-        // TODO: Support float3 local coordinates if the matrix has perspective so that W is
-        // interpolated correctly to the fragment shader.
-        float3 localCoords = matrix * corner.xy1;
-        stepLocalCoords = localCoords.xy / localCoords.z;
-        return float4(corner, depth, 1.0);
+        // TODO(b/351923375): Get the 3x3 inverse  of the local-to-device transform from the CPU
+        // if it can be computed fast enough on the CPU from the cached 4x4 inverse.
+        float3 localCoords = inverse(matrix) * corner.xy1;
+        // Dividing the inverse mapped local coords by its homogenous coordinate reconstructs the
+        // original local coords.
+        float invW = 1.0 / localCoords.z;
+        stepLocalCoords = localCoords.xy * invW;
+
+        // 1/W also happens to be equal to (matrix*stepLocalCoords.xy1).z, which is the device-space
+        // homogenous coordinate we want perspective interpolation to respect. We multiply the
+        // output position by 1/W and set the output position's homogenous coord to that same 1/W
+        // which ensures the projected vertices are still the device-space corners, but
+        // stepLocalCoords will be correctly perspective interpolated by HW.
+        return float4(corner*invW, depth*invW, invW);
     }
 }
