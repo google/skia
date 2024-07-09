@@ -58,16 +58,6 @@ public:
             kIntrinsicUniformBufferIndex,
             PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader};
 
-    inline static const DescriptorData kRenderStepUniformDescriptor = {
-            DescriptorType::kUniformBuffer, /*count=*/1,
-            kRenderStepUniformBufferIndex,
-            PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader};
-
-    inline static const DescriptorData kPaintUniformDescriptor = {
-            DescriptorType::kUniformBuffer, /*count=*/1,
-            kPaintUniformBufferIndex,
-            PipelineStageFlags::kFragmentShader};
-
     // Currently we only ever have one input attachment descriptor by itself within a set, so its
     // binding index will always be 0.
     inline static constexpr unsigned int kInputAttachmentBindingIndex = 0;
