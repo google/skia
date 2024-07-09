@@ -80,8 +80,6 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     fRequiredTransferBufferAlignment = 4;
 
     fResourceBindingReqs.fUniformBufferLayout = Layout::kStd140;
-    // TODO(skia:14639): We cannot use std430 layout for SSBOs until SkSL gracefully handles
-    // implicit array stride.
     fResourceBindingReqs.fStorageBufferLayout = Layout::kStd140;
     fResourceBindingReqs.fSeparateTextureAndSamplerBinding = false;
     fResourceBindingReqs.fDistinctIndexRanges = false;
@@ -167,6 +165,10 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
         fSupportsDeviceFaultInfo = true;
     }
 
+    // TODO(skia:14639): We must force std430 array stride when using SSBOs since SPIR-V generation
+    // cannot handle mixed array strides being passed into functions.
+    fShaderCaps->fForceStd430ArrayLayout =
+            fStorageBufferSupport && fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430;
     fShaderCaps->fFloatBufferArrayName = "fsGradientBuffer";
 
     // Note that format table initialization should be performed at the end of this method to ensure

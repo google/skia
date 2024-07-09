@@ -228,6 +228,8 @@ public:
         }
     }
 
+    Standard getStandard() const { return fStd; }
+
 private:
     static size_t GetVectorAlignment(size_t componentSize, int columns) {
         return componentSize * (columns + columns % 2);

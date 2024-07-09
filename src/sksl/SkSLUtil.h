@@ -149,6 +149,10 @@ struct ShaderCaps {
     // validation errors would result if sk_Clockwise was missing. Now, it's just (Adreno) driver
     // bugs that drop or corrupt draws if they're missing.
     bool fMustDeclareFragmentFrontFacing = false;
+    // SPIR-V currently doesn't handle different array strides being passed in to a fixed sized
+    // array function parameter, so fForceStd430ArrayLayout will make all array strides conform
+    // to std430 stride alignment rules.
+    bool fForceStd430ArrayLayout = false;
 
     const char* fVersionDeclString = "";
 

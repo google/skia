@@ -499,6 +499,8 @@ VertSkSLInfo BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
                              "    layout(offset=0) float4 rtAdjust;\n"
                              "};\n"
                              "\n", bindingReqs.fIntrinsicBufferBinding);
+    SkASSERTF(sksl.find('[') == std::string::npos,
+              "Arrays are not supported in intrinsic uniforms");
 
     if (step->numVertexAttributes() > 0 || step->numInstanceAttributes() > 0) {
         sksl += emit_attributes(step->vertexAttributes(), step->instanceAttributes());
