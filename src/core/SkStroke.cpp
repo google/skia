@@ -125,8 +125,8 @@ static bool set_normal_unitnormal(const SkVector& vec,
 
 struct SkQuadConstruct {    // The state of the quad stroke under construction.
     SkPoint fQuad[3];       // the stroked quad parallel to the original curve
-    SkPoint fTangentStart;  // a point tangent to fQuad[0]
-    SkPoint fTangentEnd;    // a point tangent to fQuad[2]
+    SkVector fTangentStart; // tangent vector at fQuad[0]
+    SkVector fTangentEnd;   // tangent vector at fQuad[2]
     SkScalar fStartT;       // a segment of the original curve
     SkScalar fMidT;         //              "
     SkScalar fEndT;         //              "
@@ -251,12 +251,12 @@ private:
     ResultType compareQuadCubic(const SkPoint cubic[4], SkQuadConstruct* );
     ResultType compareQuadQuad(const SkPoint quad[3], SkQuadConstruct* );
     void conicPerpRay(const SkConic& , SkScalar t, SkPoint* tPt, SkPoint* onPt,
-                      SkPoint* tangent) const;
+                      SkVector* tangent) const;
     void conicQuadEnds(const SkConic& , SkQuadConstruct* ) const;
     bool conicStroke(const SkConic& , SkQuadConstruct* );
     bool cubicMidOnLine(const SkPoint cubic[4], const SkQuadConstruct* ) const;
     void cubicPerpRay(const SkPoint cubic[4], SkScalar t, SkPoint* tPt, SkPoint* onPt,
-                      SkPoint* tangent) const;
+                      SkVector* tangent) const;
     void cubicQuadEnds(const SkPoint cubic[4], SkQuadConstruct* );
     void cubicQuadMid(const SkPoint cubic[4], const SkQuadConstruct* , SkPoint* mid) const;
     bool cubicStroke(const SkPoint cubic[4], SkQuadConstruct* );
@@ -275,7 +275,7 @@ private:
     void setQuadEndNormal(const SkPoint quad[3],
                           const SkVector& normalAB, const SkVector& unitNormalAB,
                           SkVector* normalBC, SkVector* unitNormalBC);
-    void setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt, SkPoint* tangent) const;
+    void setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt, SkVector* tangent) const;
     static bool SlightAngle(SkQuadConstruct* );
     ResultType strokeCloseEnough(const SkPoint stroke[3], const SkPoint ray[2],
                                  SkQuadConstruct*  STROKER_DEBUG_PARAMS(int depth) ) const;
@@ -554,6 +554,27 @@ static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const Sk
     }
 }
 
+#if !defined(SK_LEGACY_STROKE_TANGENT_POINTS)
+// returns the distance squared from the point to the line
+static SkScalar pt_to_tangent_line(const SkPoint& pt,
+                                   const SkPoint& lineStart,
+                                   const SkVector& tangent) {
+    SkVector dxy = tangent;
+    SkVector ab0 = pt - lineStart;
+    SkScalar numer = dxy.dot(ab0);
+    SkScalar denom = dxy.dot(dxy);
+    SkScalar t = sk_ieee_float_divide(numer, denom);
+    if (t >= 0 && t <= 1) {
+        SkPoint hit;
+        hit.fX = lineStart.fX + tangent.fX * t;
+        hit.fY = lineStart.fY + tangent.fY * t;
+        return SkPointPriv::DistanceToSqd(hit, pt);
+    } else {
+        return SkPointPriv::DistanceToSqd(pt, lineStart);
+    }
+}
+#endif
+
 /*  Given a cubic, determine if all four points are in a line.
     Return true if the inner points is close to a line connecting the outermost points.
 
@@ -805,7 +826,7 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
 // Given a point on the curve and its derivative, scale the derivative by the radius, and
 // compute the perpendicular point and its tangent.
 void SkPathStroker::setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt,
-        SkPoint* tangent) const {
+        SkVector* tangent) const {
     if (!dxy->setLength(fRadius)) {
         dxy->set(fRadius, 0);
     }
@@ -813,15 +834,19 @@ void SkPathStroker::setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt,
     onPt->fX = tPt.fX + axisFlip * dxy->fY;
     onPt->fY = tPt.fY - axisFlip * dxy->fX;
     if (tangent) {
+#if defined(SK_LEGACY_STROKE_TANGENT_POINTS)
         tangent->fX = onPt->fX + dxy->fX;
         tangent->fY = onPt->fY + dxy->fY;
+#else
+        *tangent = *dxy;
+#endif
     }
 }
 
 // Given a conic and t, return the point on curve, its perpendicular, and the perpendicular tangent.
 // Returns false if the perpendicular could not be computed (because the derivative collapsed to 0)
 void SkPathStroker::conicPerpRay(const SkConic& conic, SkScalar t, SkPoint* tPt, SkPoint* onPt,
-        SkPoint* tangent) const {
+        SkVector* tangent) const {
     SkVector dxy;
     conic.evalAt(t, tPt, &dxy);
     if (dxy.fX == 0 && dxy.fY == 0) {
@@ -849,7 +874,7 @@ void SkPathStroker::conicQuadEnds(const SkConic& conic, SkQuadConstruct* quadPts
 
 // Given a cubic and t, return the point on curve, its perpendicular, and the perpendicular tangent.
 void SkPathStroker::cubicPerpRay(const SkPoint cubic[4], SkScalar t, SkPoint* tPt, SkPoint* onPt,
-        SkPoint* tangent) const {
+        SkVector* tangent) const {
     SkVector dxy;
     SkPoint chopped[7];
     SkEvalCubicAt(cubic, t, tPt, &dxy, nullptr);
@@ -900,7 +925,7 @@ void SkPathStroker::cubicQuadMid(const SkPoint cubic[4], const SkQuadConstruct* 
 
 // Given a quad and t, return the point on curve, its perpendicular, and the perpendicular tangent.
 void SkPathStroker::quadPerpRay(const SkPoint quad[3], SkScalar t, SkPoint* tPt, SkPoint* onPt,
-        SkPoint* tangent) const {
+        SkVector* tangent) const {
     SkVector dxy;
     SkEvalQuadAt(quad, t, tPt, &dxy);
     if (dxy.fX == 0 && dxy.fY == 0) {
@@ -916,8 +941,13 @@ SkPathStroker::ResultType SkPathStroker::intersectRay(SkQuadConstruct* quadPts,
         IntersectRayType intersectRayType  STROKER_DEBUG_PARAMS(int depth)) const {
     const SkPoint& start = quadPts->fQuad[0];
     const SkPoint& end = quadPts->fQuad[2];
+#if defined(SK_LEGACY_STROKE_TANGENT_POINTS)
     SkVector aLen = quadPts->fTangentStart - start;
     SkVector bLen = quadPts->fTangentEnd - end;
+#else
+    SkVector aLen = quadPts->fTangentStart;
+    SkVector bLen = quadPts->fTangentEnd;
+#endif
     /* Slopes match when denom goes to zero:
                       axLen / ayLen ==                   bxLen / byLen
     (ayLen * byLen) * axLen / ayLen == (ayLen * byLen) * bxLen / byLen
@@ -936,8 +966,13 @@ SkPathStroker::ResultType SkPathStroker::intersectRay(SkQuadConstruct* quadPts,
     if ((numerA >= 0) == (numerB >= 0)) { // if the control point is outside the quad ends
         // if the perpendicular distances from the quad points to the opposite tangent line
         // are small, a straight line is good enough
+#if defined(SK_LEGACY_STROKE_TANGENT_POINTS)
         SkScalar dist1 = pt_to_line(start, end, quadPts->fTangentEnd);
         SkScalar dist2 = pt_to_line(end, start, quadPts->fTangentStart);
+#else
+        SkScalar dist1 = pt_to_tangent_line(start, end, quadPts->fTangentEnd);
+        SkScalar dist2 = pt_to_tangent_line(end, start, quadPts->fTangentStart);
+#endif
         if (std::max(dist1, dist2) <= fInvResScaleSquared) {
             return STROKER_RESULT(kDegenerate_ResultType, depth, quadPts,
                     "std::max(dist1=%g, dist2=%g) <= fInvResScaleSquared", dist1, dist2);
@@ -954,8 +989,13 @@ SkPathStroker::ResultType SkPathStroker::intersectRay(SkQuadConstruct* quadPts,
             SkPoint* ctrlPt = &quadPts->fQuad[1];
             // the intersection of the tangents need not be on the tangent segment
             // so 0 <= numerA <= 1 is not necessarily true
+#if defined(SK_LEGACY_STROKE_TANGENT_POINTS)
             ctrlPt->fX = start.fX * (1 - numerA) + quadPts->fTangentStart.fX * numerA;
             ctrlPt->fY = start.fY * (1 - numerA) + quadPts->fTangentStart.fY * numerA;
+#else
+            ctrlPt->fX = start.fX + quadPts->fTangentStart.fX * numerA;
+            ctrlPt->fY = start.fY + quadPts->fTangentStart.fY * numerA;
+#endif
         }
         return STROKER_RESULT(kQuad_ResultType, depth, quadPts,
                 "(numerA=%g >= 0) != (numerB=%g >= 0)", numerA, numerB);
