@@ -102,7 +102,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(
     }
 
     // Read the jpeg header
-    switch (jpeg_read_header(dinfo, true)) {
+    switch (jpeg_read_header(dinfo, TRUE)) {
         case JPEG_HEADER_OK:
             break;
         case JPEG_SUSPENDED:
