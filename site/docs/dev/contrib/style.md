@@ -533,3 +533,14 @@ void drawBitmapRect(
 
 Python code follows the
 [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html).
+
+## Folder Organiziation
+
+Skia's public API should live in the `include` directory. Skia's private headers and implementation
+files should live in the `src` directory. The `modules` directory contains extra features that are
+built on top of Skia (`modules/skcms` being an exception) and can be used by clients.
+Private utilities to test Skia live in `tools` and can be used for reference but should not be used
+by clients.
+
+No header in `include` should depend on files in other directories (`modules/skcms` being an exception).
+This is to prevent private symbols from leaking into client code via transitive dependencies.
