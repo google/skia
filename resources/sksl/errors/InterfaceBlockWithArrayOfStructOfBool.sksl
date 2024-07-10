@@ -1,0 +1,11 @@
+struct S {
+    bool b;
+};
+
+buffer MyInterfaceBlock {
+    S[2] data;
+};
+
+/*%%*
+type 'bool' is not permitted in an interface block
+*%%*/

@@ -77,6 +77,10 @@ public:
         return fTargetType.isAllowedInES2();
     }
 
+    bool isOrContainsBool() const override {
+        return fTargetType.isOrContainsBool();
+    }
+
     size_t slotCount() const override {
         return fTargetType.slotCount();
     }
@@ -176,6 +180,10 @@ public:
 
     bool isOrContainsAtomic() const override {
         return fComponentType.isOrContainsAtomic();
+    }
+
+    bool isOrContainsBool() const override {
+        return fComponentType.isOrContainsBool();
     }
 
     bool isUnsizedArray() const override {
@@ -302,6 +310,10 @@ public:
         return true;
     }
 
+    bool isOrContainsBool() const override {
+        return fScalarType.isBoolean();
+    }
+
     size_t slotCount() const override {
         return 1;
     }
@@ -360,6 +372,10 @@ public:
 
     bool isAllowedInUniform(Position*) const override {
         return fNumberKind != NumberKind::kBoolean;
+    }
+
+    bool isOrContainsBool() const override {
+        return fNumberKind == NumberKind::kBoolean;
     }
 
     size_t slotCount() const override {
@@ -605,6 +621,7 @@ public:
             fContainsArray        = fContainsArray        || f.fType->isOrContainsArray();
             fContainsUnsizedArray = fContainsUnsizedArray || f.fType->isOrContainsUnsizedArray();
             fContainsAtomic       = fContainsAtomic       || f.fType->isOrContainsAtomic();
+            fContainsBool         = fContainsBool         || f.fType->isOrContainsBool();
             fIsAllowedInES2       = fIsAllowedInES2       && f.fType->isAllowedInES2();
         }
         for (const Field& f : fFields) {
@@ -660,6 +677,10 @@ public:
         return fContainsAtomic;
     }
 
+    bool isOrContainsBool() const override {
+        return fContainsBool;
+    }
+
     size_t slotCount() const override {
         SkASSERT(!fContainsUnsizedArray);
         return fSlotCount;
@@ -693,6 +714,7 @@ private:
     bool fContainsArray = false;
     bool fContainsUnsizedArray = false;
     bool fContainsAtomic = false;
+    bool fContainsBool = false;
     bool fIsBuiltin = false;
     bool fIsAllowedInES2 = true;
 };
@@ -735,6 +757,10 @@ public:
 
     bool isAllowedInUniform(Position* errorPosition) const override {
         return fComponentType.isAllowedInUniform(errorPosition);
+    }
+
+    bool isOrContainsBool() const override {
+        return fComponentType.isOrContainsBool();
     }
 
     size_t slotCount() const override {
@@ -855,6 +881,11 @@ std::unique_ptr<Type> Type::MakeStructType(const Context& context,
             context.fErrors->error(field.fPosition, "opaque type '" + field.fType->displayName() +
                                                     "' is not permitted in " +
                                                     std::string(aStructOrIB));
+        }
+        if (interfaceBlock && field.fType->isOrContainsBool()) {
+            // Reject booleans anywhere in an interface block.
+            context.fErrors->error(field.fPosition, "type 'bool' is not permitted in an "
+                                                    "interface block");
         }
         if (field.fType->isOrContainsUnsizedArray()) {
             if (!interfaceBlock) {

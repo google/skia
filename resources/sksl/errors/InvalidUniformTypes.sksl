@@ -39,6 +39,7 @@ variables of type 'InvalidStruct1' may not be uniform
 caused by:
 variables of type 'InvalidStruct2' may not be uniform
 caused by:
+type 'bool' is not permitted in an interface block
 variables of type 'invalidBlock' may not be uniform
 caused by:
 *%%*/

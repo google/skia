@@ -24,10 +24,13 @@ uniform InvalidStruct2 st2;
 error: 14: caused by:
     bool b; // invalid
     ^^^^^^
+error: 26: type 'bool' is not permitted in an interface block
+    bool b; // invalid
+    ^^^^^^^
 error: 24: variables of type 'invalidBlock' may not be uniform
 uniform invalidBlock {
         ^^^^^^^^^^^^
 error: 26: caused by:
     bool b; // invalid
     ^^^^^^^
-10 errors
+11 errors
