@@ -94,6 +94,8 @@ public:
     }
     uint64_t maxUniformBufferRange() const { return fMaxUniformBufferRange; }
 
+    uint64_t maxStorageBufferRange() const { return fMaxStorageBufferRange; }
+
     const VkPhysicalDeviceMemoryProperties2& physicalDeviceMemoryProperties2() const {
         return fPhysicalDeviceMemoryProperties2;
     }
@@ -228,6 +230,7 @@ private:
 
     uint32_t fMaxVertexAttributes;
     uint64_t fMaxUniformBufferRange;
+    uint64_t fMaxStorageBufferRange;
     VkPhysicalDeviceMemoryProperties2 fPhysicalDeviceMemoryProperties2;
 
     // ColorTypeInfo struct for use w/ external formats.

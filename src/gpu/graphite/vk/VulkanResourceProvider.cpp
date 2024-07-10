@@ -349,9 +349,11 @@ void update_uniform_descriptor_set(SkSpan<DescriptorData> requestedDescriptors,
         const auto& bindInfo = bindUniformBufferInfo[descriptorBindingIndex];
         if (bindInfo.fBuffer) {
 #if defined(SK_DEBUG)
-            static uint64_t maxUniformBufferRange =
-                    sharedContext->vulkanCaps().maxUniformBufferRange();
-            SkASSERT(bindInfo.fBindingSize <= maxUniformBufferRange);
+            static uint64_t maxBufferRange =
+                sharedContext->caps()->storageBufferSupport()
+                    ? sharedContext->vulkanCaps().maxStorageBufferRange()
+                    : sharedContext->vulkanCaps().maxUniformBufferRange();
+            SkASSERT(bindInfo.fBindingSize <= maxBufferRange);
 #endif
             VkDescriptorBufferInfo bufferInfo;
             memset(&bufferInfo, 0, sizeof(VkDescriptorBufferInfo));

@@ -93,6 +93,8 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     fResourceBindingReqs.fPaintParamsBufferBinding =
             VulkanGraphicsPipeline::kPaintUniformBufferIndex;
 
+    fStorageBufferSupport = true;
+
     VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
     VULKAN_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &deviceMemoryProperties));
     fSupportsMemorylessAttachments = false;
@@ -141,6 +143,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
         fMaxVertexAttributes = physDevProperties.limits.maxVertexInputAttributes;
     }
     fMaxUniformBufferRange = physDevProperties.limits.maxUniformBufferRange;
+    fMaxStorageBufferRange = physDevProperties.limits.maxStorageBufferRange;
 
 #ifdef SK_BUILD_FOR_ANDROID
     if (extensions->hasExtension(
