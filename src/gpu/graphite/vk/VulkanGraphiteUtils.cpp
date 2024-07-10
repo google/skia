@@ -120,7 +120,7 @@ VkDescriptorType DsTypeEnumToVkDs(DescriptorType type) {
         case DescriptorType::kCombinedTextureSampler:
             return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         case DescriptorType::kStorageBuffer:
-            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         case DescriptorType::kInputAttachment:
             return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
     }

@@ -486,23 +486,11 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
     if (usesIntrinsicConstantUbo) {
         uniformDescriptors.push_back(VulkanGraphicsPipeline::kIntrinsicUniformBufferDescriptor);
     }
-
-    DescriptorType uniformBufferType = sharedContext->caps()->storageBufferSupport()
-                                            ? DescriptorType::kStorageBuffer
-                                            : DescriptorType::kUniformBuffer;
     if (hasStepUniforms) {
-        uniformDescriptors.push_back({
-            uniformBufferType,
-            /*count=*/1,
-            VulkanGraphicsPipeline::kRenderStepUniformBufferIndex,
-            PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader});
+        uniformDescriptors.push_back(VulkanGraphicsPipeline::kRenderStepUniformDescriptor);
     }
     if (hasPaintUniforms) {
-        uniformDescriptors.push_back({
-            uniformBufferType,
-            /*count=*/1,
-            VulkanGraphicsPipeline::kPaintUniformBufferIndex,
-            PipelineStageFlags::kFragmentShader});
+        uniformDescriptors.push_back(VulkanGraphicsPipeline::kPaintUniformDescriptor);
     }
 
     if (!uniformDescriptors.empty()) {

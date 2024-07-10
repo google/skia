@@ -937,25 +937,13 @@ void VulkanCommandBuffer::bindUniformBuffers() {
     // up to three (one for render step uniforms, one for paint uniforms).
     STArray<VulkanGraphicsPipeline::kNumUniformBuffers, DescriptorData> descriptors;
     descriptors.push_back(VulkanGraphicsPipeline::kIntrinsicUniformBufferDescriptor);
-
-    DescriptorType uniformBufferType = fSharedContext->caps()->storageBufferSupport()
-                                            ? DescriptorType::kStorageBuffer
-                                            : DescriptorType::kUniformBuffer;
     if (fActiveGraphicsPipeline->hasStepUniforms() &&
         fUniformBuffersToBind[VulkanGraphicsPipeline::kRenderStepUniformBufferIndex].fBuffer) {
-        descriptors.push_back({
-            uniformBufferType,
-            /*count=*/1,
-            VulkanGraphicsPipeline::kRenderStepUniformBufferIndex,
-            PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader});
+        descriptors.push_back(VulkanGraphicsPipeline::kRenderStepUniformDescriptor);
     }
     if (fActiveGraphicsPipeline->hasFragmentUniforms() &&
         fUniformBuffersToBind[VulkanGraphicsPipeline::kPaintUniformBufferIndex].fBuffer) {
-        descriptors.push_back({
-            uniformBufferType,
-            /*count=*/1,
-            VulkanGraphicsPipeline::kPaintUniformBufferIndex,
-            PipelineStageFlags::kFragmentShader});
+        descriptors.push_back(VulkanGraphicsPipeline::kPaintUniformDescriptor);
     }
 
     sk_sp<VulkanDescriptorSet> descSet = fResourceProvider->findOrCreateUniformBuffersDescriptorSet(
