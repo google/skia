@@ -9,6 +9,7 @@
 #define SkImage_GaneshYUVA_DEFINED
 
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
@@ -27,7 +28,6 @@ class GrImageContext;
 class GrRecordingContext;
 class GrSurfaceProxyView;
 class SkMatrix;
-enum SkColorType : int;
 enum class GrColorType;
 enum class GrImageTexGenPolicy : int;
 enum class GrSemaphoresSubmitted : bool;
@@ -46,6 +46,8 @@ enum class Mipmapped : bool;
 // proxy will be stored and used for any future rendering.
 class SkImage_GaneshYUVA final : public SkImage_GaneshBase {
 public:
+    static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
+
     SkImage_GaneshYUVA(sk_sp<GrImageContext>,
                        uint32_t uniqueID,
                        GrYUVATextureProxies proxies,
