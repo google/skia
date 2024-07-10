@@ -10,7 +10,7 @@
                OpName %avoidInline_vf "avoidInline_vf"
                OpName %main "main"
                OpName %f "f"
-               OpDecorate %_runtimearr_float ArrayStride 16
+               OpDecorate %_runtimearr_float ArrayStride 4
                OpMemberDecorate %FloatBuffer 0 Offset 0
                OpDecorate %FloatBuffer BufferBlock
                OpDecorate %4 Binding 0

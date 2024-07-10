@@ -12,7 +12,7 @@
                OpMemberDecorate %sk_PerVertex 0 BuiltIn Position
                OpMemberDecorate %sk_PerVertex 1 BuiltIn PointSize
                OpDecorate %sk_PerVertex Block
-               OpDecorate %_runtimearr_v2float ArrayStride 16
+               OpDecorate %_runtimearr_v2float ArrayStride 8
                OpMemberDecorate %storageBuffer 0 Offset 0
                OpDecorate %storageBuffer BufferBlock
                OpDecorate %8 Binding 0

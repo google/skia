@@ -10,9 +10,9 @@
                OpMemberName %outputBlock 0 "dest"
                OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
                OpName %main "main"
-               OpDecorate %_runtimearr_int ArrayStride 16
+               OpDecorate %_runtimearr_int ArrayStride 4
                OpMemberDecorate %inputBlock 0 Offset 0
-               OpMemberDecorate %inputBlock 1 Offset 16
+               OpMemberDecorate %inputBlock 1 Offset 4
                OpDecorate %inputBlock BufferBlock
                OpDecorate %3 Binding 0
                OpDecorate %3 DescriptorSet 0

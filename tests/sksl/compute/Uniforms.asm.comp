@@ -13,7 +13,7 @@
                OpDecorate %constants Block
                OpDecorate %3 Binding 0
                OpDecorate %3 DescriptorSet 0
-               OpDecorate %_runtimearr_int ArrayStride 16
+               OpDecorate %_runtimearr_int ArrayStride 4
                OpMemberDecorate %outputBuffer 0 Offset 0
                OpDecorate %outputBuffer BufferBlock
                OpDecorate %7 Binding 1

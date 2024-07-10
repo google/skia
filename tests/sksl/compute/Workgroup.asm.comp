@@ -16,7 +16,7 @@
                OpName %wr_id "wr_id"
                OpName %mask "mask"
                OpName %step "step"
-               OpDecorate %_runtimearr_float ArrayStride 16
+               OpDecorate %_runtimearr_float ArrayStride 4
                OpMemberDecorate %inputs 0 Offset 0
                OpDecorate %inputs BufferBlock
                OpDecorate %4 Binding 0

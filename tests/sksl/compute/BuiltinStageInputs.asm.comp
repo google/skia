@@ -12,7 +12,7 @@
                OpName %sk_WorkgroupID "sk_WorkgroupID"
                OpName %helper_I "helper_I"
                OpName %main "main"
-               OpDecorate %_runtimearr_uint ArrayStride 16
+               OpDecorate %_runtimearr_uint ArrayStride 4
                OpMemberDecorate %outputs 0 Offset 0
                OpDecorate %outputs BufferBlock
                OpDecorate %4 Binding 0

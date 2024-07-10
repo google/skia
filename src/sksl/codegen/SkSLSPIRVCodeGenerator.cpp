@@ -110,6 +110,7 @@ enum class StorageClass {
     kUniformConstant,
     kInput,
     kUniform,
+    kStorageBuffer,
     kOutput,
     kWorkgroup,
     kCrossWorkgroup,
@@ -126,6 +127,13 @@ static SpvStorageClass get_storage_class_spv_id(StorageClass storageClass) {
         case StorageClass::kUniformConstant: return SpvStorageClassUniformConstant;
         case StorageClass::kInput: return SpvStorageClassInput;
         case StorageClass::kUniform: return SpvStorageClassUniform;
+        // Note: In SPIR-V 1.3, a storage buffer can be declared with the "StorageBuffer"
+        // storage class and the "Block" decoration and the <1.3 approach we use here ("Uniform"
+        // storage class and the "BufferBlock" decoration) is deprecated. Since we target SPIR-V
+        // 1.0, we have to use the deprecated approach which is well supported in Vulkan and
+        // addresses SkSL use cases (notably SkSL currently doesn't support pointer features that
+        // would benefit from SPV_KHR_variable_pointers capabilities).
+        case StorageClass::kStorageBuffer: return SpvStorageClassUniform;
         case StorageClass::kOutput: return SpvStorageClassOutput;
         case StorageClass::kWorkgroup: return SpvStorageClassWorkgroup;
         case StorageClass::kCrossWorkgroup: return SpvStorageClassCrossWorkgroup;
@@ -2440,6 +2448,7 @@ SpvId SPIRVCodeGenerator::writeAtomicIntrinsic(const FunctionCall& c,
         SpvScope memoryScope;
         switch (atomicPtr->storageClass()) {
             case StorageClass::kUniform:
+            case StorageClass::kStorageBuffer:
                 // We encode storage buffers in the uniform address space (with the BufferBlock
                 // decorator).
                 memoryScope = SpvScopeDevice;
@@ -3040,13 +3049,7 @@ static StorageClass get_storage_class_for_global_variable(
         return StorageClass::kUniform;
     }
     if (flags.isBuffer()) {
-        // Note: In SPIR-V 1.3, a storage buffer can be declared with the "StorageBuffer"
-        // storage class and the "Block" decoration and the <1.3 approach we use here ("Uniform"
-        // storage class and the "BufferBlock" decoration) is deprecated. Since we target SPIR-V
-        // 1.0, we have to use the deprecated approach which is well supported in Vulkan and
-        // addresses SkSL use cases (notably SkSL currently doesn't support pointer features that
-        // would benefit from SPV_KHR_variable_pointers capabilities).
-        return StorageClass::kUniform;
+        return StorageClass::kStorageBuffer;
     }
     if (flags.isWorkgroup()) {
         return StorageClass::kWorkgroup;
@@ -4462,15 +4465,17 @@ void SPIRVCodeGenerator::writeFieldLayout(const Layout& layout, SpvId target, in
 }
 
 MemoryLayout SPIRVCodeGenerator::memoryLayoutForStorageClass(StorageClass storageClass) {
-    return storageClass == StorageClass::kPushConstant
+    return storageClass == StorageClass::kPushConstant ||
+           storageClass == StorageClass::kStorageBuffer
                                 ? MemoryLayout(MemoryLayout::Standard::k430)
                                 : fDefaultMemoryLayout;
 }
 
 MemoryLayout SPIRVCodeGenerator::memoryLayoutForVariable(const Variable& v) const {
     bool pushConstant = SkToBool(v.layout().fFlags & LayoutFlag::kPushConstant);
-    return pushConstant ? MemoryLayout(MemoryLayout::Standard::k430)
-                        : fDefaultMemoryLayout;
+    bool buffer = v.modifierFlags().isBuffer();
+    return pushConstant || buffer ? MemoryLayout(MemoryLayout::Standard::k430)
+                                  : fDefaultMemoryLayout;
 }
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTFlip) {
@@ -4552,7 +4557,8 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     this->writeInstruction(SpvOpVariable, ptrType, result,
                            get_storage_class_spv_id(storageClass), fConstantBuffer);
     Layout layout = intfVar.layout();
-    if (storageClass == StorageClass::kUniform && layout.fSet < 0) {
+    if ((storageClass == StorageClass::kUniform ||
+                storageClass == StorageClass::kStorageBuffer) && layout.fSet < 0) {
         layout.fSet = fProgram.fConfig->fSettings.fDefaultUniformSet;
     }
     this->writeLayout(layout, result, intfVar.fPosition);
@@ -4596,7 +4602,7 @@ bool SPIRVCodeGenerator::writeGlobalVarDeclaration(ProgramKind kind,
 
     StorageClass storageClass =
             get_storage_class_for_global_variable(*var, StorageClass::kPrivate);
-    if (storageClass == StorageClass::kUniform) {
+    if (storageClass == StorageClass::kUniform || storageClass == StorageClass::kStorageBuffer) {
         // Top-level uniforms are emitted in writeUniformBuffer.
         fTopLevelUniforms.push_back(&varDecl);
         return true;

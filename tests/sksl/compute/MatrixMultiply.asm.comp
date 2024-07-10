@@ -19,12 +19,12 @@
                OpName %a "a"
                OpName %b "b"
                OpName %index "index"
-               OpDecorate %_runtimearr_v2int ArrayStride 16
+               OpDecorate %_runtimearr_v2int ArrayStride 8
                OpMemberDecorate %sizeBuffer 0 Offset 0
                OpDecorate %sizeBuffer BufferBlock
                OpDecorate %3 Binding 0
                OpDecorate %3 DescriptorSet 0
-               OpDecorate %_runtimearr_float ArrayStride 16
+               OpDecorate %_runtimearr_float ArrayStride 4
                OpMemberDecorate %inputs1 0 Offset 0
                OpDecorate %inputs1 BufferBlock
                OpDecorate %9 Binding 1
