@@ -27,33 +27,7 @@ namespace PrecompileShaders {
 
 } // namespace PrecompileShaders
 
-//--------------------------------------------------------------------------------------------------
-// Object that allows passing a SkPrecompileShader, SkPrecompileColorFilter or
-// SkPrecompileBlender as a child
-//
-// This will moved to be on SkRuntimeEffect
-class PrecompileChildPtr {
-public:
-    PrecompileChildPtr() = default;
-    PrecompileChildPtr(sk_sp<PrecompileShader>);
-    PrecompileChildPtr(sk_sp<PrecompileColorFilter>);
-    PrecompileChildPtr(sk_sp<PrecompileBlender>);
-
-    // Asserts that the SkPrecompileBase is either null, or one of the legal derived types
-    PrecompileChildPtr(sk_sp<PrecompileBase>);
-
-    std::optional<SkRuntimeEffect::ChildType> type() const;
-
-    PrecompileShader* shader() const;
-    PrecompileColorFilter* colorFilter() const;
-    PrecompileBlender* blender() const;
-    PrecompileBase* base() const { return fChild.get(); }
-
-private:
-    sk_sp<PrecompileBase> fChild;
-};
-
-using PrecompileChildOptions = SkSpan<const PrecompileChildPtr>;
+using PrecompileChildOptions = SkSpan<const sk_sp<PrecompileBase>>;
 
 // TODO: the precompile RuntimeEffects are handling their child options different from the
 // rest of the precompile system!

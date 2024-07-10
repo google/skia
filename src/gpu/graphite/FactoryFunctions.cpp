@@ -79,60 +79,14 @@ sk_sp<PrecompileShader> PrecompileShaders::YUVImage() {
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
-PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileShader> s) : fChild(std::move(s)) {}
-PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileColorFilter> cf)
-        : fChild(std::move(cf)) {
-}
-PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileBlender> b) : fChild(std::move(b)) {}
-
-PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileBase> child)
-        : fChild(std::move(child)) {
-    SkASSERT(precompilebase_is_valid_as_child(fChild.get()));
-}
-
-std::optional<SkRuntimeEffect::ChildType> PrecompileChildPtr::type() const {
-    if (fChild) {
-        switch (fChild->type()) {
-            case PrecompileBase::Type::kShader:
-                return SkRuntimeEffect::ChildType::kShader;
-            case PrecompileBase::Type::kColorFilter:
-                return SkRuntimeEffect::ChildType::kColorFilter;
-            case PrecompileBase::Type::kBlender:
-                return SkRuntimeEffect::ChildType::kBlender;
-            default:
-                break;
-        }
-    }
-    return std::nullopt;
-}
-
-PrecompileShader* PrecompileChildPtr::shader() const {
-    return (fChild && fChild->type() == PrecompileBase::Type::kShader)
-           ? static_cast<PrecompileShader*>(fChild.get())
-           : nullptr;
-}
-
-PrecompileColorFilter* PrecompileChildPtr::colorFilter() const {
-    return (fChild && fChild->type() == PrecompileBase::Type::kColorFilter)
-           ? static_cast<PrecompileColorFilter*>(fChild.get())
-           : nullptr;
-}
-
-PrecompileBlender* PrecompileChildPtr::blender() const {
-    return (fChild && fChild->type() == PrecompileBase::Type::kBlender)
-           ? static_cast<PrecompileBlender*>(fChild.get())
-           : nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
 namespace {
 
-int num_options_in_set(const std::vector<PrecompileChildPtr>& optionSet) {
+int num_options_in_set(const SkSpan<const sk_sp<PrecompileBase>>& optionSet) {
     int numOptions = 1;
-    for (const PrecompileChildPtr& childOption : optionSet) {
+    for (const sk_sp<PrecompileBase>& childOption : optionSet) {
         // A missing child will fall back to a passthrough object
-        if (childOption.base()) {
-            numOptions *= childOption.base()->priv().numCombinations();
+        if (childOption) {
+            numOptions *= childOption->priv().numCombinations();
         }
     }
 
@@ -144,7 +98,7 @@ void add_children_to_key(const KeyContext& keyContext,
                          PaintParamsKeyBuilder* builder,
                          PipelineDataGatherer* gatherer,
                          int desiredCombination,
-                         const std::vector<PrecompileChildPtr>& optionSet,
+                         const std::vector<sk_sp<PrecompileBase>>& optionSet,
                          SkSpan<const SkRuntimeEffect::Child> childInfo) {
     using ChildType = SkRuntimeEffect::ChildType;
 
@@ -155,20 +109,16 @@ void add_children_to_key(const KeyContext& keyContext,
     int remainingCombinations = desiredCombination;
 
     for (size_t index = 0; index < optionSet.size(); ++index) {
-        const PrecompileChildPtr& childOption = optionSet[index];
+        const sk_sp<PrecompileBase>& childOption = optionSet[index];
 
-        const int numChildCombos = childOption.base() ? childOption.base()->priv().numCombinations()
-                                                      : 1;
+        const int numChildCombos = childOption ? childOption->priv().numCombinations()
+                                               : 1;
         const int curCombo = remainingCombinations % numChildCombos;
         remainingCombinations /= numChildCombos;
 
-        std::optional<ChildType> type = childOption.type();
-        if (type == ChildType::kShader) {
-            childOption.shader()->priv().addToKey(childContext, builder, gatherer, curCombo);
-        } else if (type == ChildType::kColorFilter) {
-            childOption.colorFilter()->priv().addToKey(childContext, builder, gatherer, curCombo);
-        } else if (type == ChildType::kBlender) {
-            childOption.blender()->priv().addToKey(childContext, builder, gatherer, curCombo);
+        SkASSERT(precompilebase_is_valid_as_child(childOption.get()));
+        if (childOption) {
+            childOption->priv().addToKey(childContext, builder, gatherer, curCombo);
         } else {
             SkASSERT(curCombo == 0);
 
@@ -211,7 +161,7 @@ public:
 private:
     int numChildCombinations() const override {
         int numOptions = 0;
-        for (const std::vector<PrecompileChildPtr>& optionSet : fChildOptions) {
+        for (const std::vector<sk_sp<PrecompileBase>>& optionSet : fChildOptions) {
             numOptions += num_options_in_set(optionSet);
         }
 
@@ -229,7 +179,7 @@ private:
 
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { fEffect });
 
-        for (const std::vector<PrecompileChildPtr>& optionSet : fChildOptions) {
+        for (const std::vector<sk_sp<PrecompileBase>>& optionSet : fChildOptions) {
             int numOptionsInSet = num_options_in_set(optionSet);
 
             if (desiredCombination < numOptionsInSet) {
@@ -245,7 +195,7 @@ private:
     }
 
     sk_sp<SkRuntimeEffect> fEffect;
-    std::vector<std::vector<PrecompileChildPtr>> fChildOptions;
+    std::vector<std::vector<sk_sp<PrecompileBase>>> fChildOptions;
 };
 
 sk_sp<PrecompileShader> MakePrecompileShader(

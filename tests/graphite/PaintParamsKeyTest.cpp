@@ -871,7 +871,7 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> combo_blender() {
     auto [dst, dstO] = dest_blender();
 
     SkRuntimeEffect::ChildPtr children[] = { src, dst };
-    const PrecompileChildPtr childOptions[] = { srcO, dstO };
+    const sk_sp<PrecompileBase> childOptions[] = { srcO, dstO };
 
     const float kUniforms[] = { 1.0f };
 
@@ -972,7 +972,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> combo_colorfilter(
     auto [dst, dstO] = half_colorfilter();
 
     SkRuntimeEffect::ChildPtr children[] = { src, dst };
-    const PrecompileChildPtr childOptions[] = { srcO, dstO };
+    const sk_sp<PrecompileBase> childOptions[] = { srcO, dstO };
 
     const float kUniforms[] = { 0.5f };
 
