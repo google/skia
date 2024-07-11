@@ -28,7 +28,7 @@ namespace {
 
 // These are all the valid wgpu::TextureFormat that we currently support in Skia.
 // They are roughly ordered from most frequently used to least to improve lookup times in arrays.
-static constexpr wgpu::TextureFormat kFormats[skgpu::graphite::DawnCaps::kFormatCnt] = {
+static constexpr wgpu::TextureFormat kFormats[] = {
         wgpu::TextureFormat::RGBA8Unorm,
         wgpu::TextureFormat::R8Unorm,
 #if !defined(__EMSCRIPTEN__)
@@ -55,8 +55,6 @@ static constexpr wgpu::TextureFormat kFormats[skgpu::graphite::DawnCaps::kFormat
 #if !defined(__EMSCRIPTEN__)
         wgpu::TextureFormat::External,
 #endif
-
-        wgpu::TextureFormat::Undefined,
 };
 
 #if !defined(__EMSCRIPTEN__)
@@ -811,13 +809,6 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
     }
 #endif
 
-    // Format: Undefined
-    {
-        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::Undefined)];
-        info->fFlags = 0;
-        info->fColorTypeInfoCount = 0;
-    }
-
     ////////////////////////////////////////////////////////////////////////////
     // Map SkColorTypes (used for creating SkSurfaces) to wgpu::TextureFormat.
     // The order in which the formats are passed into the setColorType function
@@ -851,19 +842,15 @@ size_t DawnCaps::GetFormatIndex(wgpu::TextureFormat format) {
         if (format == kFormats[i]) {
             return i;
         }
-        if (kFormats[i] == wgpu::TextureFormat::Undefined) {
-            SkDEBUGFAILF("Unsupported wgpu::TextureFormat: %d\n", static_cast<int>(format));
-            return i;
-        }
     }
-    SkUNREACHABLE;
+    SkDEBUGFAILF("Unsupported wgpu::TextureFormat: 0x%08X\n", static_cast<uint32_t>(format));
     return 0;
 }
 
 void DawnCaps::setColorType(SkColorType colorType,
                             std::initializer_list<wgpu::TextureFormat> formats) {
-    static_assert(std::size(kFormats) == kFormatCnt,
-                  "Size is not same for DawnCaps::fFormatTable and kFormats");
+    static_assert(std::size(kFormats) <= kFormatCount,
+                  "Size is not compatible for DawnCaps::fFormatTable and kFormats");
     int idx = static_cast<int>(colorType);
     for (auto it = formats.begin(); it != formats.end(); ++it) {
         const auto& info = this->getFormatInfo(*it);
@@ -880,9 +867,16 @@ uint64_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderP
     DawnTextureInfo colorInfo, depthStencilInfo;
     renderPassDesc.fColorAttachment.fTextureInfo.getDawnTextureInfo(&colorInfo);
     renderPassDesc.fDepthStencilAttachment.fTextureInfo.getDawnTextureInfo(&depthStencilInfo);
-    SkASSERT(static_cast<uint32_t>(colorInfo.getViewFormat()) <= 0xffff &&
-             static_cast<uint32_t>(depthStencilInfo.getViewFormat()) <= 0xffff &&
-             colorInfo.fSampleCount < 0x7fff);
+
+    // Use format indices instead of WGPUTextureFormat values since they can be larger than 16 bits.
+    uint32_t colorFormatIndex = GetFormatIndex(colorInfo.getViewFormat());
+    uint32_t depthStencilFormatIndex = GetFormatIndex(depthStencilInfo.getViewFormat());
+
+    // 12 bits for the format indices and 4 bits for sample count.
+    SkASSERT(colorFormatIndex < (1 << 12));
+    SkASSERT(depthStencilFormatIndex < (1 << 12));
+    SkASSERT(colorInfo.fSampleCount < (1 << 4));
+    SkASSERT(depthStencilInfo.fSampleCount < (1 << 4));
 
     // Note: if Dawn supports ExpandResolveTexture load op and the render pass uses it to load
     // the resolve texture, a render pipeline will need to be created with
@@ -900,12 +894,10 @@ uint64_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderP
         loadResolveAttachmentKey = 1;
     }
 
-    uint32_t colorAttachmentKey = static_cast<uint32_t>(colorInfo.getViewFormat()) << 16 |
-                                  colorInfo.fSampleCount << 1 | loadResolveAttachmentKey;
-
-    uint32_t dsAttachmentKey = static_cast<uint32_t>(depthStencilInfo.getViewFormat()) << 16 |
-                               depthStencilInfo.fSampleCount;
-    return (((uint64_t)colorAttachmentKey) << 32) | dsAttachmentKey;
+    uint64_t formatSampleCountKey = (colorFormatIndex << 20) | (colorInfo.fSampleCount << 16) |
+                                    (depthStencilFormatIndex << 4) | depthStencilInfo.fSampleCount;
+    return (formatSampleCountKey << 32) | (renderPassDesc.fWriteSwizzle.asKey() << 16) |
+           loadResolveAttachmentKey;
 }
 
 UniqueKey DawnCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
@@ -913,9 +905,9 @@ UniqueKey DawnCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeline
     UniqueKey pipelineKey;
     {
         static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain = UniqueKey::GenerateDomain();
-        // 5 uint32_t's (render step id, paint id, uint64 RenderPass desc, uint16 write swizzle)
-        UniqueKey::Builder builder(&pipelineKey, kGraphicsPipelineDomain, 5, "GraphicsPipeline");
-        // add GraphicsPipelineDesc key
+        // 4 uint32_t's (render step id, paint id, uint64 RenderPassDesc)
+        UniqueKey::Builder builder(&pipelineKey, kGraphicsPipelineDomain, 4, "GraphicsPipeline");
+        // Add GraphicsPipelineDesc key.
         builder[0] = pipelineDesc.renderStepID();
         builder[1] = pipelineDesc.paintParamsID().asUInt();
 
@@ -923,7 +915,6 @@ UniqueKey DawnCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeline
         uint64_t renderPassKey = this->getRenderPassDescKeyForPipeline(renderPassDesc);
         builder[2] = renderPassKey & 0xFFFFFFFF;
         builder[3] = (renderPassKey >> 32) & 0xFFFFFFFF;
-        builder[4] = renderPassDesc.fWriteSwizzle.asKey();
         builder.finish();
     }
 
