@@ -82,7 +82,7 @@ private:
 
     DawnSharedContext* dawnSharedContext() const;
 
-    skia_private::THashMap<uint64_t, wgpu::RenderPipeline> fBlitWithDrawPipelines;
+    skia_private::THashMap<uint32_t, wgpu::RenderPipeline> fBlitWithDrawPipelines;
 
     wgpu::BindGroupLayout fUniformBuffersBindGroupLayout;
     wgpu::BindGroupLayout fSingleTextureSamplerBindGroupLayout;

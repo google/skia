@@ -863,20 +863,27 @@ void DawnCaps::setColorType(SkColorType colorType,
     }
 }
 
-uint64_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const {
-    DawnTextureInfo colorInfo, depthStencilInfo;
-    renderPassDesc.fColorAttachment.fTextureInfo.getDawnTextureInfo(&colorInfo);
-    renderPassDesc.fDepthStencilAttachment.fTextureInfo.getDawnTextureInfo(&depthStencilInfo);
+uint32_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const {
+    // Make sure the format table indices will fit into the packed bits, with room to spare for
+    // representing an unused attachment.
+    static constexpr int kFormatBits = 11; // x2 attachments
+    static constexpr int kSampleBits = 4;  // x2 attachments
+    static constexpr int kResolveBits = 1;
+    static constexpr int kUnusedAttachmentIndex = (1 << kFormatBits) - 1;
+    static_assert(2*(kFormatBits + kSampleBits) + kResolveBits <= 32);
+    static_assert(std::size(kFormats) <= kUnusedAttachmentIndex);
+
+    const TextureInfo& colorInfo = renderPassDesc.fColorAttachment.fTextureInfo;
+    const TextureInfo& depthStencilInfo = renderPassDesc.fDepthStencilAttachment.fTextureInfo;
+    // The color attachment should be valid; the depth-stencil attachment may not be if it's not
+    // being used.
+    SkASSERT(colorInfo.isValid());
 
     // Use format indices instead of WGPUTextureFormat values since they can be larger than 16 bits.
-    uint32_t colorFormatIndex = GetFormatIndex(colorInfo.getViewFormat());
-    uint32_t depthStencilFormatIndex = GetFormatIndex(depthStencilInfo.getViewFormat());
-
-    // 12 bits for the format indices and 4 bits for sample count.
-    SkASSERT(colorFormatIndex < (1 << 12));
-    SkASSERT(depthStencilFormatIndex < (1 << 12));
-    SkASSERT(colorInfo.fSampleCount < (1 << 4));
-    SkASSERT(depthStencilInfo.fSampleCount < (1 << 4));
+    uint32_t colorFormatIndex = GetFormatIndex(colorInfo.dawnTextureSpec().getViewFormat());
+    uint32_t depthStencilFormatIndex = depthStencilInfo.isValid() ?
+            GetFormatIndex(depthStencilInfo.dawnTextureSpec().getViewFormat()) :
+            kUnusedAttachmentIndex;
 
     // Note: if Dawn supports ExpandResolveTexture load op and the render pass uses it to load
     // the resolve texture, a render pipeline will need to be created with
@@ -894,9 +901,14 @@ uint64_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderP
         loadResolveAttachmentKey = 1;
     }
 
-    uint64_t formatSampleCountKey = (colorFormatIndex << 20) | (colorInfo.fSampleCount << 16) |
-                                    (depthStencilFormatIndex << 4) | depthStencilInfo.fSampleCount;
-    return (formatSampleCountKey << 32) | (renderPassDesc.fWriteSwizzle.asKey() << 16) |
+    SkASSERT(colorFormatIndex < (1 << kFormatBits));
+    SkASSERT(colorInfo.numSamples() < (1 << kSampleBits));
+    SkASSERT(depthStencilFormatIndex < (1 << kFormatBits));
+    SkASSERT(depthStencilInfo.numSamples() < (1 << kSampleBits));
+    return (colorFormatIndex              << (kResolveBits+kSampleBits+kFormatBits+kSampleBits)) |
+           (colorInfo.numSamples()        << (kResolveBits+kSampleBits+kFormatBits)) |
+           (depthStencilFormatIndex       << (kResolveBits+kSampleBits)) |
+           (depthStencilInfo.numSamples() << (kResolveBits)) |
            loadResolveAttachmentKey;
 }
 
@@ -911,10 +923,11 @@ UniqueKey DawnCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeline
         builder[0] = pipelineDesc.renderStepID();
         builder[1] = pipelineDesc.paintParamsID().asUInt();
 
-        // Add RenderPassDesc key.
-        uint64_t renderPassKey = this->getRenderPassDescKeyForPipeline(renderPassDesc);
-        builder[2] = renderPassKey & 0xFFFFFFFF;
-        builder[3] = (renderPassKey >> 32) & 0xFFFFFFFF;
+        // Add RenderPassDesc key and write swizzle (which is separate from the RenderPassDescKey
+        // because it is applied in the program writing to the target, and is not actually part of
+        // the underlying GPU render pass config).
+        builder[2] = this->getRenderPassDescKeyForPipeline(renderPassDesc);
+        builder[3] = renderPassDesc.fWriteSwizzle.asKey();
         builder.finish();
     }
 

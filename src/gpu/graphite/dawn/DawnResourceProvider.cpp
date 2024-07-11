@@ -159,7 +159,7 @@ DawnResourceProvider::~DawnResourceProvider() = default;
 
 wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
         const RenderPassDesc& renderPassDesc) {
-    uint64_t renderPassKey =
+    uint32_t renderPassKey =
             this->dawnSharedContext()->dawnCaps()->getRenderPassDescKeyForPipeline(renderPassDesc);
     wgpu::RenderPipeline pipeline = fBlitWithDrawPipelines[renderPassKey];
     if (!pipeline) {

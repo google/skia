@@ -60,7 +60,7 @@ public:
                             ResourceType,
                             Shareable,
                             GraphiteResourceKey*) const override;
-    uint64_t getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const;
+    uint32_t getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const;
 
 private:
     const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
