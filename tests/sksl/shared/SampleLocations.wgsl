@@ -6,7 +6,7 @@ struct VSIn {
 };
 struct VSOut {
   @builtin(position) sk_Position: vec4<f32>,
-  @location(1) vcoord_Stage0: vec2<f32>,
+  @location(1) @interpolate(linear) vcoord_Stage0: vec2<f32>,
 };
 /* unsupported */ var<private> sk_PointSize: f32;
 fn _skslMain(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {

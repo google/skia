@@ -67,18 +67,20 @@ public:
                              Position pos,
                              ModifierFlags permittedModifierFlags) const;
 
-    bool isConst() const      { return SkToBool(*this & ModifierFlag::kConst); }
-    bool isUniform() const    { return SkToBool(*this & ModifierFlag::kUniform); }
-    bool isReadOnly() const   { return SkToBool(*this & ModifierFlag::kReadOnly); }
-    bool isWriteOnly() const  { return SkToBool(*this & ModifierFlag::kWriteOnly); }
-    bool isBuffer() const     { return SkToBool(*this & ModifierFlag::kBuffer); }
-    bool isPixelLocal() const { return SkToBool(*this & ModifierFlag::kPixelLocal); }
-    bool isWorkgroup() const  { return SkToBool(*this & ModifierFlag::kWorkgroup); }
-    bool isExport() const     { return SkToBool(*this & ModifierFlag::kExport); }
-    bool isES3() const        { return SkToBool(*this & ModifierFlag::kES3); }
-    bool isPure() const       { return SkToBool(*this & ModifierFlag::kPure); }
-    bool isInline() const     { return SkToBool(*this & ModifierFlag::kInline); }
-    bool isNoInline() const   { return SkToBool(*this & ModifierFlag::kNoInline); }
+    bool isConst() const         { return SkToBool(*this & ModifierFlag::kConst); }
+    bool isUniform() const       { return SkToBool(*this & ModifierFlag::kUniform); }
+    bool isReadOnly() const      { return SkToBool(*this & ModifierFlag::kReadOnly); }
+    bool isWriteOnly() const     { return SkToBool(*this & ModifierFlag::kWriteOnly); }
+    bool isBuffer() const        { return SkToBool(*this & ModifierFlag::kBuffer); }
+    bool isPixelLocal() const    { return SkToBool(*this & ModifierFlag::kPixelLocal); }
+    bool isWorkgroup() const     { return SkToBool(*this & ModifierFlag::kWorkgroup); }
+    bool isExport() const        { return SkToBool(*this & ModifierFlag::kExport); }
+    bool isES3() const           { return SkToBool(*this & ModifierFlag::kES3); }
+    bool isPure() const          { return SkToBool(*this & ModifierFlag::kPure); }
+    bool isInline() const        { return SkToBool(*this & ModifierFlag::kInline); }
+    bool isNoInline() const      { return SkToBool(*this & ModifierFlag::kNoInline); }
+    bool isFlat() const          { return SkToBool(*this & ModifierFlag::kFlat); }
+    bool isNoPerspective() const { return SkToBool(*this & ModifierFlag::kNoPerspective); }
 };
 
 }  // namespace SkSL

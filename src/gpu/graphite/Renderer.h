@@ -42,12 +42,6 @@ struct ResourceBindingRequirements;
 
 enum class Coverage { kNone, kSingleChannel, kLCD };
 
-struct Varying {
-    const char* fName;
-    SkSLType fType;
-    // TODO: add modifier (e.g., flat and noperspective) support
-};
-
 /**
  * The actual technique for rasterizing a high-level draw recorded in a DrawList is handled by a
  * specific Renderer. Each technique has an associated singleton Renderer that decomposes the

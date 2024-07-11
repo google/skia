@@ -437,24 +437,31 @@ std::string EmitVaryings(const RenderStep* step,
     std::string result;
     int location = 0;
 
-    if (emitSsboIndicesVarying) {
-        SkSL::String::appendf(&result,
-                              "    layout(location=%d) %s flat ushort2 %s;\n",
+    auto appendVarying = [&](const Varying& v) {
+        const char* interpolation;
+        switch (v.interpolation()) {
+            case Interpolation::kPerspective: interpolation = ""; break;
+            case Interpolation::kLinear:      interpolation = "noperspective "; break;
+            case Interpolation::kFlat:        interpolation = "flat "; break;
+        }
+        SkSL::String::appendf(&result, "layout(location=%d) %s %s%s %s;\n",
                               location++,
                               direction,
-                              RenderStep::ssboIndicesVarying());
+                              interpolation,
+                              SkSLTypeString(v.gpuType()),
+                              v.name());
+    };
+
+    if (emitSsboIndicesVarying) {
+        appendVarying({RenderStep::ssboIndicesVarying(), SkSLType::kUShort2});
     }
 
     if (emitLocalCoordsVarying) {
-        SkSL::String::appendf(&result, "    layout(location=%d) %s ", location++, direction);
-        result.append(SkSLTypeString(SkSLType::kFloat2));
-        SkSL::String::appendf(&result, " localCoordsVar;\n");
+        appendVarying({"localCoordsVar", SkSLType::kFloat2});
     }
 
     for (auto v : step->varyings()) {
-        SkSL::String::appendf(&result, "    layout(location=%d) %s ", location++, direction);
-        result.append(SkSLTypeString(v.fType));
-        SkSL::String::appendf(&result, " %s;\n", v.fName);
+        appendVarying(v);
     }
 
     return result;

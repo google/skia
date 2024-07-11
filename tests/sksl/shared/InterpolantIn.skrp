@@ -1,0 +1,33 @@
+### Compilation failed:
+
+error: 1: 'in' is not permitted here
+layout(location=0) in float defaultVarying;
+^^^^^^^^^^^^^^^^^^^^^
+error: 1: layout qualifier 'location' is not permitted here
+layout(location=0) in float defaultVarying;
+^^^^^^^^^^^^^^^^^^^^^
+error: 2: 'in' is not permitted here
+layout(location=1) in noperspective float linearVarying;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 2: 'noperspective' is not permitted here
+layout(location=1) in noperspective float linearVarying;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 2: layout qualifier 'location' is not permitted here
+layout(location=1) in noperspective float linearVarying;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 3: 'in' is not permitted here
+layout(location=2) in flat float flatVarying;
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 3: 'flat' is not permitted here
+layout(location=2) in flat float flatVarying;
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 3: layout qualifier 'location' is not permitted here
+layout(location=2) in flat float flatVarying;
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 5: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 6: unknown identifier 'sk_FragColor'
+    sk_FragColor = half4(defaultVarying, linearVarying, flatVarying, 1.0);
+    ^^^^^^^^^^^^
+10 errors

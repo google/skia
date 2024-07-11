@@ -20,7 +20,7 @@ half4 sampleGrad(sampler2D i, float2 p, float2 dPdx, float2 dPdy) {
 }
 
 struct Inputs {
-    float2 c  [[user(locn1)]];
+    float2 c [[user(locn1)]];
 };
 struct Outputs {
     half4 sk_FragColor [[color(0)]];

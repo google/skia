@@ -138,6 +138,8 @@ protected:
 
     void writeUniformStruct();
 
+    void writeInterpolatedAttributes(const Variable& var);
+
     void writeInputStruct();
 
     void writeOutputStruct();
@@ -3126,6 +3128,23 @@ void MetalCodeGenerator::writeUniformStruct() {
     }
 }
 
+void MetalCodeGenerator::writeInterpolatedAttributes(const Variable& var) {
+    SkASSERT((is_output(var) && ProgramConfig::IsVertex(fProgram.fConfig->fKind)) ||
+             (is_input(var) && ProgramConfig::IsFragment(fProgram.fConfig->fKind)));
+    // Always include the location
+    this->write(" [[user(locn");
+    this->write(std::to_string(var.layout().fLocation));
+    this->write(")");
+
+    if (var.modifierFlags().isFlat()) {
+        this->write(" flat");
+    } else if (var.modifierFlags().isNoPerspective()) {
+        this->write(" center_no_perspective");
+    } // else default behavior is center_perspective
+
+    this->write("]]");
+}
+
 void MetalCodeGenerator::writeInputStruct() {
     this->write("struct Inputs {\n");
     for (const ProgramElement* e : fProgram.elements()) {
@@ -3150,8 +3169,9 @@ void MetalCodeGenerator::writeInputStruct() {
                         this->write("  [[attribute(" + std::to_string(var.layout().fLocation) +
                                     ")]]");
                     } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-                        this->write("  [[user(locn" + std::to_string(var.layout().fLocation) +
-                                    ")]]");
+                        // Write attributes for the fragment input that are consistent with
+                        // what's annotated on the vertex output.
+                        this->writeInterpolatedAttributes(var);
                     }
                 }
                 this->write(";\n");
@@ -3200,7 +3220,9 @@ void MetalCodeGenerator::writeOutputStruct() {
                     fContext.fErrors->error(var.fPosition,
                                             "Metal out variables must have 'layout(location=...)'");
                 } else if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
-                    this->write(" [[user(locn" + std::to_string(location) + ")]]");
+                    // Write attributes for the vertex output that are consistent with what's
+                    // annotated on the fragment input.
+                    this->writeInterpolatedAttributes(var);
                 } else if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
                     this->write(" [[color(" + std::to_string(location) + ")");
                     int colorIndex = var.layout().fIndex;
