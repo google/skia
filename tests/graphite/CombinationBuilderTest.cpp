@@ -215,16 +215,16 @@ std::vector<sk_sp<T>> create_runtime_combos(
 void runtime_effect_test(const KeyContext& keyContext,
                          PipelineDataGatherer* gatherer,
                          skiatest::Reporter* reporter) {
-    // paintOptions (8 = 2*2*2)
-    //  |- combineShader (2)
+    // paintOptions (64 = 4*4*4)
+    //  |- combineShader (4)
     //  |       0: redShader  | greenShader
     //  |       1: blueShader | nullptr
     //  |
-    //  |- combineColorFilter (2)
+    //  |- combineColorFilter (4)
     //  |       0: redColorFilter  | greenColorFilter
     //  |       1: blueColorFilter | nullptr
     //  |
-    //  |- combineBlender (2)
+    //  |- combineBlender (4)
     //  |       0: redBlender  | greenBlender
     //  |       1: blueBlender | nullptr
 
@@ -321,7 +321,7 @@ void runtime_effect_test(const KeyContext& keyContext,
         paintOptions.setBlenders(combinations);
     }
 
-    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 8);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 64);
 
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
@@ -336,7 +336,7 @@ void runtime_effect_test(const KeyContext& keyContext,
                                                                precompileIDs.push_back(id);
                                                            });
 
-    SkASSERT(precompileIDs.size() == 8);
+    SkASSERT(precompileIDs.size() == 64);
 }
 
 // Exercise all the PrecompileBlenders factories

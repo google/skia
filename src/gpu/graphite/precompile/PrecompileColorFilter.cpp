@@ -223,22 +223,18 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::Lerp(
     const SkRuntimeEffect* lerpEffect =
             GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kLerp);
 
-    // Since the RuntimeEffect Precompile objects behave differently we have to manually create
-    // all the combinations here (b/332690425).
-    skia_private::TArray<std::array<const sk_sp<PrecompileBase>, 2>> combos;
-    combos.reserve(dstOptions.size() * srcOptions.size());
+    skia_private::TArray<sk_sp<PrecompileBase>> dsts, srcs;
+    dsts.reserve(dstOptions.size());
     for (const sk_sp<PrecompileColorFilter>& d : dstOptions) {
-        for (const sk_sp<PrecompileColorFilter>& s : srcOptions) {
-            combos.push_back({ d, s });
-        }
-    }
-    skia_private::TArray<SkSpan<const sk_sp<PrecompileBase>>> comboSpans;
-    comboSpans.reserve(combos.size());
-    for (const std::array<const sk_sp<PrecompileBase>, 2>& combo : combos) {
-        comboSpans.push_back({ combo });
+        dsts.push_back(d);
     }
 
-    return MakePrecompileColorFilter(sk_ref_sp(lerpEffect), comboSpans);
+    srcs.reserve(srcOptions.size());
+    for (const sk_sp<PrecompileColorFilter>& s : srcOptions) {
+        srcs.push_back(s);
+    }
+
+    return MakePrecompileColorFilter(sk_ref_sp(lerpEffect), { dsts, srcs });
 }
 
 //--------------------------------------------------------------------------------------------------
