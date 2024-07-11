@@ -225,6 +225,6 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 " matrix,out float2 stepLocalCoords){if(all(lessThanEqual(bounds.xy,bounds.zw"
 "))){corner=mix(bounds.xy,bounds.zw,corner);float3 devCorner=matrix*float3(corner"
 ",1.);stepLocalCoords=corner;return float4(devCorner.xy,depth*devCorner.z,devCorner"
-".z);}else{corner=mix(bounds.zw,bounds.xy,corner);float3 localCoords=inverse"
-"(matrix)*float3(corner,1.);float invW=1./localCoords.z;stepLocalCoords=localCoords"
-".xy*invW;return float4(corner*invW,depth*invW,invW);}}";
+".z);}else{corner=mix(bounds.zw,bounds.xy,corner);float3 localCoords=matrix*"
+"float3(corner,1.);stepLocalCoords=localCoords.xy/localCoords.z;return float4"
+"(corner,depth,1.);}}";

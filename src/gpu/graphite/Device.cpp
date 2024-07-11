@@ -175,14 +175,11 @@ bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
     // We send regular filled and hairline [round] rectangles, stroked/hairline lines, and stroked
     // [r]rects with circular corners to a single Renderer that does not trigger MSAA.
     // Per-edge AA quadrilaterals also use the same Renderer but those are not "Shapes".
-    // These shapes and quads may also be combined with a second non-AA inner fill. This fill step
-    // is also directly used for flooding the clip
-    return (shape.isEmpty() && shape.inverted()) ||
-           (!shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
+    return !shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
             (shape.isRect() ||
              (shape.isLine() && type != SkStrokeRec::kFill_Style) ||
              (shape.isRRect() && (type != SkStrokeRec::kStroke_Style ||
-                                  SkRRectPriv::AllCornersCircular(shape.rrect())))));
+                                  SkRRectPriv::AllCornersCircular(shape.rrect()))));
 }
 
 bool use_compute_atlas_when_available(PathRendererStrategy strategy) {
@@ -658,13 +655,17 @@ void Device::drawPaint(const SkPaint& paint) {
         }
     }
 
-    Shape inverseFill; // defaults to empty
-    inverseFill.setInverted(true);
-    // An empty shape with an inverse fill completely floods the clip
-    SkASSERT(inverseFill.isEmpty() && inverseFill.inverted());
-
-    this->drawGeometry(this->localToDeviceTransform(),
-                       Geometry(inverseFill),
+    const Transform& localToDevice = this->localToDeviceTransform();
+    if (!localToDevice.valid()) {
+        // TBD: This matches legacy behavior for drawPaint() that requires local coords, although
+        // v1 handles arbitrary transforms when the paint is solid color because it just fills the
+        // device bounds directly. In the new world it might be nice to have non-invertible
+        // transforms formalized (i.e. no drawing ever, handled at SkCanvas level possibly?)
+        return;
+    }
+    Rect localCoveringBounds = localToDevice.inverseMapRect(fClip.conservativeBounds());
+    this->drawGeometry(localToDevice,
+                       Geometry(Shape(localCoveringBounds)),
                        paint,
                        DefaultFillStyle(),
                        DrawFlags::kIgnorePathEffect);
@@ -1348,12 +1349,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     const Shape& shape = geometry.shape();
     // We can't use this renderer if we require MSAA for an effect (i.e. clipping or stroke+fill).
     if (!requireMSAA && is_simple_shape(shape, type)) {
-        if (shape.isEmpty()) {
-            SkASSERT(shape.inverted());
-            return {renderers->nonAABounds(), nullptr};
-        } else {
-            return {renderers->analyticRRect(), nullptr};
-        }
+        return {renderers->analyticRRect(), nullptr};
     }
 
     // Path rendering options. For now the strategy is very simple and not optimal:

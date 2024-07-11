@@ -118,5 +118,5 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 ";j=1.;}return float4(l.xy,f*l.z,l.z);}float4 cover_bounds_vertex_fn(float2 a"
 ",float4 b,float c,float3x3 d,out float2 e){if(all(lessThanEqual(b.xy,b.zw))"
 "){a=mix(b.xy,b.zw,a);float3 f=d*float3(a,1.);e=a;return float4(f.xy,c*f.z,f"
-".z);}else{a=mix(b.zw,b.xy,a);float3 f=inverse(d)*float3(a,1.);float g=1./f."
-"z;e=f.xy*g;return float4(a*g,c*g,g);}}";
+".z);}else{a=mix(b.zw,b.xy,a);float3 f=d*float3(a,1.);e=f.xy/f.z;return float4"
+"(a,c,1.);}}";
