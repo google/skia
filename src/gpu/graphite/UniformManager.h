@@ -184,6 +184,8 @@ public:
         return UniformOffsetCalculator(layout, /*offset=*/0, reqAlignment);
     }
 
+    Layout layout() const { return fLayout; }
+
     // NOTE: The returned size represents the last consumed byte (if the recorded
     // uniforms are embedded within a struct, this will need to be rounded up to a multiple of
     // requiredAlignment()).

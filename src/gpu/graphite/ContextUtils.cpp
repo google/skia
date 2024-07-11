@@ -123,14 +123,11 @@ std::string get_uniform_header(int bufferID, const char* name) {
     return result;
 }
 
-std::string get_uniforms(Layout layout,
+std::string get_uniforms(UniformOffsetCalculator* offsetter,
                          SkSpan<const Uniform> uniforms,
-                         int* offset,
                          int manglingSuffix,
                          bool* wrotePaintColor) {
     std::string result;
-    auto offsetter = UniformOffsetCalculator::ForTopLevel(layout, *offset);
-
     std::string uniformName;
     for (const Uniform& u : uniforms) {
         uniformName = u.name();
@@ -151,7 +148,7 @@ std::string get_uniforms(Layout layout,
 
         SkSL::String::appendf(&result,
                               "    layout(offset=%d) %s %s",
-                              offsetter.advanceOffset(u.type(), u.count()),
+                              offsetter->advanceOffset(u.type(), u.count()),
                               SkSLTypeString(u.type()),
                               uniformName.c_str());
         if (u.count()) {
@@ -162,27 +159,37 @@ std::string get_uniforms(Layout layout,
         result.append(";\n");
     }
 
-    *offset = offsetter.size();
     return result;
 }
 
-std::string get_node_uniforms(Layout layout,
+std::string get_node_uniforms(UniformOffsetCalculator* offsetter,
                               const ShaderNode* node,
-                              int* offset,
                               bool* wrotePaintColor) {
     std::string result;
     SkSpan<const Uniform> uniforms = node->entry()->fUniforms;
 
     if (!uniforms.empty()) {
-        // TODO: Generate a single field pointing to a struct instance of the given type.
-        SkASSERT(!node->entry()->fUniformStructName);
-        SkSL::String::appendf(&result, "// %d - %s uniforms\n",
-                              node->keyIndex(), node->entry()->fName);
-        result += get_uniforms(layout, uniforms, offset, node->keyIndex(), wrotePaintColor);
+        if (node->entry()->fUniformStructName) {
+            auto substruct = UniformOffsetCalculator::ForStruct(offsetter->layout());
+            for (const Uniform& u : uniforms) {
+                substruct.advanceOffset(u.type(), u.count());
+            }
+
+            const int structOffset = offsetter->advanceStruct(substruct);
+            SkSL::String::appendf(&result,
+                                  "layout(offset=%d) %s node_%d;",
+                                  structOffset,
+                                  node->entry()->fUniformStructName,
+                                  node->keyIndex());
+        } else {
+            SkSL::String::appendf(&result, "// %d - %s uniforms\n",
+                                node->keyIndex(), node->entry()->fName);
+            result += get_uniforms(offsetter, uniforms, node->keyIndex(), wrotePaintColor);
+        }
     }
 
     for (const ShaderNode* child : node->children()) {
-        result += get_node_uniforms(layout, child, offset, wrotePaintColor);
+        result += get_node_uniforms(offsetter, child, wrotePaintColor);
     }
     return result;
 }
@@ -225,12 +232,15 @@ std::string get_node_ssbo_fields(const ShaderNode* node, bool* wrotePaintColor) 
     SkSpan<const Uniform> uniforms = node->entry()->fUniforms;
 
     if (!uniforms.empty()) {
-        // TODO: Generate a single field pointing to a struct instance of the given type.
-        SkASSERT(!node->entry()->fUniformStructName);
-        SkSL::String::appendf(&result, "// %d - %s uniforms\n",
-                              node->keyIndex(), node->entry()->fName);
+        if (node->entry()->fUniformStructName) {
+            SkSL::String::appendf(&result, "%s node_%d;",
+                                  node->entry()->fUniformStructName, node->keyIndex());
+        } else {
+            SkSL::String::appendf(&result, "// %d - %s uniforms\n",
+                                  node->keyIndex(), node->entry()->fName);
 
-        result += get_ssbo_fields(uniforms, node->keyIndex(), wrotePaintColor);
+            result += get_ssbo_fields(uniforms, node->keyIndex(), wrotePaintColor);
+        }
     }
 
     for (const ShaderNode* child : node->children()) {
@@ -269,17 +279,15 @@ std::string EmitPaintParamsUniforms(int bufferID,
                                     SkSpan<const ShaderNode*> nodes,
                                     bool* hasUniforms,
                                     bool* wrotePaintColor) {
-    int offset = 0;
+    auto offsetter = UniformOffsetCalculator::ForTopLevel(layout);
 
     std::string result = get_uniform_header(bufferID, "FS");
     for (const ShaderNode* n : nodes) {
-        // TODO: Generate a single field pointing to a struct instance of the given type.
-        SkASSERT(!n->entry()->fUniformStructName);
-        result += get_node_uniforms(layout, n, &offset, wrotePaintColor);
+        result += get_node_uniforms(&offsetter, n, wrotePaintColor);
     }
     result.append("};\n\n");
 
-    *hasUniforms = offset > 0;
+    *hasUniforms = offsetter.size() > 0;
     if (!*hasUniforms) {
         // No uniforms were added
         return {};
@@ -291,10 +299,10 @@ std::string EmitPaintParamsUniforms(int bufferID,
 std::string EmitRenderStepUniforms(int bufferID,
                                    const Layout layout,
                                    SkSpan<const Uniform> uniforms) {
-    int offset = 0;
+    auto offsetter = UniformOffsetCalculator::ForTopLevel(layout);
 
     std::string result = get_uniform_header(bufferID, "Step");
-    result += get_uniforms(layout, uniforms, &offset, -1, /* wrotePaintColor= */ nullptr);
+    result += get_uniforms(&offsetter, uniforms, -1, /* wrotePaintColor= */ nullptr);
     result.append("};\n\n");
 
     return result;
