@@ -48,24 +48,23 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
     DrawWriter::Instances instances{*writer, {}, {}, 4};
 
     skvx::float4 bounds;
-    const SkM44* m;
     if (params.geometry().isShape() && params.geometry().shape().inverted()) {
         // Normally all bounding boxes are sorted such that l<r and t<b. We upload an inverted
         // rectangle [r,b,l,t] when it's an inverse fill to encode that the bounds are already in
-        // device space and then use the inverse of the transform to compute local coordinates.
+        // device space and then the VS will use the inverse of the transform to compute local
+        // coordinates.
         bounds = skvx::shuffle</*R*/2, /*B*/3, /*L*/0, /*T*/1>(
                 skvx::cast<float>(skvx::int4::Load(&params.clip().scissor())));
-        m = &params.transform().inverse();
     } else {
         bounds = params.geometry().bounds().ltrb();
-        m = &params.transform().matrix();
     }
 
     // Since the local coords always have Z=0, we can discard the 3rd row and column of the matrix.
+    const SkM44& m = params.transform().matrix();
     instances.append(1) << bounds << params.order().depthAsFloat() << ssboIndices
-                        << m->rc(0,0) << m->rc(1,0) << m->rc(3,0)
-                        << m->rc(0,1) << m->rc(1,1) << m->rc(3,1)
-                        << m->rc(0,3) << m->rc(1,3) << m->rc(3,3);
+                        << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)
+                        << m.rc(0,1) << m.rc(1,1) << m.rc(3,1)
+                        << m.rc(0,3) << m.rc(1,3) << m.rc(3,3);
 }
 
 void CoverBoundsRenderStep::writeUniformsAndTextures(const DrawParams&,

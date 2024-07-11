@@ -642,6 +642,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
             append_color_output(
                     &mainBody, coverageBlendFormula.primaryOutput(), "sk_FragColor", outColor);
             if (coverageBlendFormula.hasSecondaryOutput()) {
+                SkASSERT(caps->shaderCaps()->fDualSourceBlendingSupport);
                 append_color_output(&mainBody,
                                     coverageBlendFormula.secondaryOutput(),
                                     "sk_SecondaryFragColor",
