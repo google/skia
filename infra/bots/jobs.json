@@ -732,7 +732,9 @@
    "cq_config": {}
    },
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_Vulkan"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan"},
+  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan",
+   "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*", "dm/.+", "DEPS"]}
+  },
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-PreAbandonGpuContext"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
    "cq_config": {}
