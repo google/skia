@@ -1427,13 +1427,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "subset",                SkSLType::kFloat4 },
                            { "tilemodeX",             SkSLType::kInt },
                            { "tilemodeY",             SkSLType::kInt },
-                           { "filterMode",            SkSLType::kInt },
-                           // The next 5 uniforms are for the color space transformation
-                           { "csXformFlags",          SkSLType::kInt },
-                           { "csXformSrcKind",        SkSLType::kInt },
-                           { "csXformGamutTransform", SkSLType::kHalf3x3 },
-                           { "csXformDstKind",        SkSLType::kInt },
-                           { "csXformCoeffs",         SkSLType::kHalf4x4 } },
+                           { "filterMode",            SkSLType::kInt } },
             /*textures=*/{"image"}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCubicImageShader] = {
@@ -1444,26 +1438,14 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "subset",                SkSLType::kFloat4 },
                            { "tilemodeX",             SkSLType::kInt },
                            { "tilemodeY",             SkSLType::kInt },
-                           { "cubicCoeffs",           SkSLType::kHalf4x4 },
-                           // The next 5 uniforms are for the color space transformation
-                           { "csXformFlags",          SkSLType::kInt },
-                           { "csXformSrcKind",        SkSLType::kInt },
-                           { "csXformGamutTransform", SkSLType::kHalf3x3 },
-                           { "csXformDstKind",        SkSLType::kInt },
-                           { "csXformCoeffs",         SkSLType::kHalf4x4 } },
+                           { "cubicCoeffs",           SkSLType::kHalf4x4 } },
             /*textures=*/{"image"}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kHWImageShader] = {
             /*name=*/"HardwareImageShader",
             /*staticFn=*/"sk_hw_image_shader",
             SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStoresData,
-            /*uniforms=*/{ { "invImgSize",            SkSLType::kFloat2 },
-                           // The next 5 uniforms are for the color space transformation
-                           { "csXformFlags",          SkSLType::kInt },
-                           { "csXformSrcKind",        SkSLType::kInt },
-                           { "csXformGamutTransform", SkSLType::kHalf3x3 },
-                           { "csXformDstKind",        SkSLType::kInt },
-                           { "csXformCoeffs",         SkSLType::kHalf4x4 } },
+            /*uniforms=*/{ { "invImgSize",            SkSLType::kFloat2 } },
             /*textures=*/{"image"}
     };
 

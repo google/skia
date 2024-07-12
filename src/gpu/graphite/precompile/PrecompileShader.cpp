@@ -385,7 +385,8 @@ private:
                                                             : kDefaultSampling,
                 SkTileMode::kClamp, SkTileMode::kClamp,
                 desiredSamplingTilingCombo == kHWTiled ? kHWTileableSize : kShaderTileableSize,
-                kSubset, kIgnoredSwizzle);
+                kSubset);
+        ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(kIgnoredSwizzle);
 
         if (desiredAlphaCombo == kAlphaOnly) {
             SkASSERT(!(fFlags & PrecompileImageShaderFlags::kExcludeAlpha));
@@ -395,13 +396,28 @@ private:
                       AddKnownModeBlend(keyContext, builder, gatherer, SkBlendMode::kDstIn);
                   },
                   /* addSrcToKey= */ [&] () -> void {
-                      ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+                      Compose(keyContext, builder, gatherer,
+                              /* addInnerToKey= */ [&]() -> void {
+                                  ImageShaderBlock::AddBlock(keyContext, builder, gatherer,
+                                                             imgData);
+                              },
+                              /* addOuterToKey= */ [&]() -> void {
+                                  ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer,
+                                                                     colorXformData);
+                              });
                   },
                   /* addDstToKey= */ [&]() -> void {
                       RGBPaintColorBlock::AddBlock(keyContext, builder, gatherer);
                   });
         } else {
-            ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+            Compose(keyContext, builder, gatherer,
+                    /* addInnerToKey= */ [&]() -> void {
+                        ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+                    },
+                    /* addOuterToKey= */ [&]() -> void {
+                        ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer,
+                                                           colorXformData);
+                    });
         }
     }
 

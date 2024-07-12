@@ -21,6 +21,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
@@ -169,16 +170,12 @@ struct ImageShaderBlock {
                   SkTileMode tileModeX,
                   SkTileMode tileModeY,
                   SkISize imgSize,
-                  SkRect subset,
-                  ReadSwizzle readSwizzle);
+                  SkRect subset);
 
         SkSamplingOptions fSampling;
         SkTileMode fTileModes[2];
         SkISize fImgSize;
         SkRect fSubset;
-        ReadSwizzle fReadSwizzle;
-
-        SkColorSpaceXformSteps fSteps;
 
         // TODO: Currently this is only filled in when we're generating the key from an actual
         // SkImageShader. In the pre-compile case we will need to create a Graphite promise
@@ -363,7 +360,11 @@ struct ColorSpaceTransformBlock {
                                 const SkColorSpace* dst,
                                 SkAlphaType dstAT);
         ColorSpaceTransformData(const SkColorSpaceXformSteps& steps) { fSteps = steps; }
+        ColorSpaceTransformData(ReadSwizzle swizzle) : fReadSwizzle(swizzle) {
+            SkASSERT(fSteps.flags.mask() == 0);  // By default, the colorspace should have no effect
+        }
         SkColorSpaceXformSteps fSteps;
+        ReadSwizzle            fReadSwizzle = ReadSwizzle::kRGBA;
     };
 
     static void AddBlock(const KeyContext&,

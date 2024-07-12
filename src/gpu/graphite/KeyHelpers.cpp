@@ -607,8 +607,6 @@ void add_image_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
     gatherer->write(SkTo<int>(imgData.fSampling.filter));
-
-    add_color_space_uniforms(imgData.fSteps, imgData.fReadSwizzle, gatherer);
 }
 
 void add_cubic_image_uniform_data(const ShaderCodeDictionary* dict,
@@ -623,8 +621,6 @@ void add_cubic_image_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
     const SkCubicResampler& cubic = imgData.fSampling.cubic;
     gatherer->writeHalf(SkImageShader::CubicResamplerMatrix(cubic.B, cubic.C));
-
-    add_color_space_uniforms(imgData.fSteps, imgData.fReadSwizzle, gatherer);
 }
 
 void add_hw_image_uniform_data(const ShaderCodeDictionary* dict,
@@ -634,8 +630,6 @@ void add_hw_image_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
-
-    add_color_space_uniforms(imgData.fSteps, imgData.fReadSwizzle, gatherer);
 }
 
 bool can_do_tiling_in_hw(const Caps* caps, const ImageShaderBlock::ImageData& imgData) {
@@ -662,14 +656,11 @@ ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
                                        SkTileMode tileModeX,
                                        SkTileMode tileModeY,
                                        SkISize imgSize,
-                                       SkRect subset,
-                                       ReadSwizzle readSwizzle)
+                                       SkRect subset)
         : fSampling(sampling)
         , fTileModes{tileModeX, tileModeY}
         , fImgSize(imgSize)
-        , fSubset(subset)
-        , fReadSwizzle(readSwizzle) {
-    SkASSERT(fSteps.flags.mask() == 0);   // By default, the colorspace should have no effect
+        , fSubset(subset) {
 }
 
 void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
@@ -1071,7 +1062,7 @@ void add_color_space_xform_uniform_data(
         PipelineDataGatherer* gatherer) {
 
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformColorFilter)
-    add_color_space_uniforms(data.fSteps, ReadSwizzle::kRGBA, gatherer);
+    add_color_space_uniforms(data.fSteps, data.fReadSwizzle, gatherer);
 }
 
 }  // anonymous namespace
@@ -1875,8 +1866,7 @@ static void add_to_key(const KeyContext& keyContext,
                                         shader->tileModeX(),
                                         shader->tileModeY(),
                                         view.proxy()->dimensions(),
-                                        shader->subset(),
-                                        ReadSwizzle::kRGBA);
+                                        shader->subset());
 
     // Here we detect pixel aligned blit-like image draws. Some devices have low precision filtering
     // and will produce degraded (blurry) images unexpectedly for sequential exact pixel blits when
@@ -1904,13 +1894,14 @@ static void add_to_key(const KeyContext& keyContext,
     if (imageToDraw->isAlphaOnly()) {
         readSwizzle = skgpu::Swizzle::Concat(readSwizzle, skgpu::Swizzle("000a"));
     }
-    imgData.fReadSwizzle = swizzle_class_to_read_enum(readSwizzle);
+    ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(
+            swizzle_class_to_read_enum(readSwizzle));
 
     if (!shader->isRaw()) {
-        imgData.fSteps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
-                                                imageToDraw->alphaType(),
-                                                keyContext.dstColorInfo().colorSpace(),
-                                                keyContext.dstColorInfo().alphaType());
+        colorXformData.fSteps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
+                                                       imageToDraw->alphaType(),
+                                                       keyContext.dstColorInfo().colorSpace(),
+                                                       keyContext.dstColorInfo().alphaType());
 
         if (imageToDraw->isAlphaOnly() && keyContext.scope() != KeyContext::Scope::kRuntimeEffect) {
             Blend(keyContext, builder, gatherer,
@@ -1918,7 +1909,15 @@ static void add_to_key(const KeyContext& keyContext,
                       AddKnownModeBlend(keyContext, builder, gatherer, SkBlendMode::kDstIn);
                   },
                   /* addSrcToKey= */ [&] () -> void {
-                      ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+                      Compose(keyContext, builder, gatherer,
+                              /* addInnerToKey= */ [&]() -> void {
+                                  ImageShaderBlock::AddBlock(keyContext, builder, gatherer,
+                                                             imgData);
+                              },
+                              /* addOuterToKey= */ [&]() -> void {
+                                  ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer,
+                                                                     colorXformData);
+                              });
                   },
                   /* addDstToKey= */ [&]() -> void {
                       RGBPaintColorBlock::AddBlock(keyContext, builder, gatherer);
@@ -1927,7 +1926,13 @@ static void add_to_key(const KeyContext& keyContext,
         }
     }
 
-    ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+    Compose(keyContext, builder, gatherer,
+            /* addInnerToKey= */ [&]() -> void {
+                ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+            },
+            /* addOuterToKey= */ [&]() -> void {
+                ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, colorXformData);
+            });
 }
 static void notify_in_use(Recorder* recorder,
                           DrawContext* drawContext,
