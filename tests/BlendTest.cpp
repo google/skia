@@ -170,10 +170,21 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(ES2BlendWithNoTexture,
                 surface->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(), 0, 0));
 
         // Check the in/out pixels.
-        REPORTER_ASSERT(reporter, bitmap.getColor(outPoint.x(), outPoint.y()) ==
-                                          SkColorSetRGB(0xFF, 0xFF, 0x80));
-        REPORTER_ASSERT(reporter, bitmap.getColor(inPoint.x(), inPoint.y()) ==
-                                          SkColorSetRGB(0x80, 0xFF, 0x80));
+        SkColor color = bitmap.getColor(outPoint.x(), outPoint.y());
+        REPORTER_ASSERT(reporter, color == SkColorSetRGB(0xFF, 0xFF, 0x80),
+                        "Expected: A=FF R=FF G=FF B=80. Actual: A=%02X R=%02X G=%02X B=%02X",
+                        SkColorGetA(color),
+                        SkColorGetR(color),
+                        SkColorGetG(color),
+                        SkColorGetB(color));
+
+        color = bitmap.getColor(inPoint.x(), inPoint.y());
+        REPORTER_ASSERT(reporter, color == SkColorSetRGB(0x80, 0xFF, 0x80),
+                        "Expected: A=FF R=80 G=FF B=80. Actual: A=%02X R=%02X G=%02X B=%02X",
+                        SkColorGetA(color),
+                        SkColorGetR(color),
+                        SkColorGetG(color),
+                        SkColorGetB(color));
     }
 }
 
@@ -212,6 +223,19 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BlendRequiringDstReadWithLargeCoordinates
             reporter,
             surface->readPixels(bitmap.info(), bitmap.getPixels(), bitmap.rowBytes(), 1099, 0));
 
-    REPORTER_ASSERT(reporter, bitmap.getColor(0, 0) == SK_ColorBLACK);
-    REPORTER_ASSERT(reporter, bitmap.getColor(1, 0) == SK_ColorRED);
+    SkColor color = bitmap.getColor(0, 0);
+    REPORTER_ASSERT(reporter, color == SK_ColorBLACK,
+                    "Expected: solid black. Actual: A=%02X R=%02X G=%02X B=%02X",
+                    SkColorGetA(color),
+                    SkColorGetR(color),
+                    SkColorGetG(color),
+                    SkColorGetB(color));
+
+    color = bitmap.getColor(1, 0);
+    REPORTER_ASSERT(reporter, color == SK_ColorRED,
+                    "Expected: solid red. Actual: A=%02X R=%02X G=%02X B=%02X",
+                    SkColorGetA(color),
+                    SkColorGetR(color),
+                    SkColorGetG(color),
+                    SkColorGetB(color));
 }
