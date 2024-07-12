@@ -493,11 +493,18 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     // 180 degrees rotations are simply flipX with a flipY and would come under
     // a scale transform.
     if (!matrix.isScaleTranslate()) {
+        // If we got here, the matrix preserves axis alignment (earlier return check) but isn't
+        // a regular scale matrix. To confirm that it's a 90/270 rotation, the scale components are
+        // 0s and the skew components are non-zero (+/-1 if there is no other scale factor).
+        SkASSERT(matrix.getScaleX() == 0.f && matrix.getScaleY() == 0.f &&
+                 matrix.getSkewX() != 0.f && matrix.getSkewY() != 0.f);
         const bool isClockwise = matrix.getSkewX() < 0;
 
         // The matrix location for scale changes if there is a rotation.
-        xScale = matrix.getSkewY() * (isClockwise ? 1 : -1);
-        yScale = matrix.getSkewX() * (isClockwise ? -1 : 1);
+        // xScale and yScale represent scales applied to the dst radii, so we store the src x scale
+        // in yScale and vice versa.
+        yScale = matrix.getSkewY() * (isClockwise ? 1 : -1);
+        xScale = matrix.getSkewX() * (isClockwise ? -1 : 1);
 
         const int dir = isClockwise ? 3 : 1;
         for (int i = 0; i < 4; ++i) {
