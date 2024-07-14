@@ -972,14 +972,13 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> combo_colorfilter(
     auto [dst, dstO] = half_colorfilter();
 
     SkRuntimeEffect::ChildPtr children[] = { src, dst };
-    const sk_sp<PrecompileBase> childOptions[] = { srcO, dstO };
 
     const float kUniforms[] = { 0.5f };
 
     sk_sp<SkData> uniforms = SkData::MakeWithCopy(kUniforms, sizeof(kUniforms));
     sk_sp<SkColorFilter> cf = sComboEffect->makeColorFilter(std::move(uniforms), children);
     sk_sp<PrecompileColorFilter> o = MakePrecompileColorFilter(sk_ref_sp(sComboEffect),
-                                                               { childOptions });
+                                                               { { srcO }, { dstO } });
     return { std::move(cf) , std::move(o) };
 }
 
