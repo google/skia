@@ -8,8 +8,10 @@
 #include "include/core/SkSpan.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDefines.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
+#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIRNode.h"
@@ -26,9 +28,9 @@
 
 namespace SkSL {
 
-class Expression;
+class Context;
 
-static void eliminate_unnecessary_braces(SkSpan<std::unique_ptr<ProgramElement>> elements) {
+void Transform::EliminateUnnecessaryBraces(const Context& context, Module& module) {
     class UnnecessaryBraceEliminator : public ProgramWriter {
     public:
         bool visitExpressionPtr(std::unique_ptr<Expression>& expr) override {
@@ -96,16 +98,94 @@ static void eliminate_unnecessary_braces(SkSpan<std::unique_ptr<ProgramElement>>
         using INHERITED = ProgramWriter;
     };
 
+    class RequiredBraceWriter : public ProgramWriter {
+    public:
+        RequiredBraceWriter(const Context& ctx) : fContext(ctx) {}
+
+        bool visitExpressionPtr(std::unique_ptr<Expression>& expr) override {
+            // We don't need to look inside expressions at all.
+            return false;
+        }
+
+        bool visitStatementPtr(std::unique_ptr<Statement>& stmt) override {
+            // Look for the following structure:
+            //
+            //    if (...)
+            //      if (...)
+            //        any statement;
+            //    else
+            //      any statement;
+            //
+            // This structure isn't correct if we emit it textually, because the else-clause would
+            // be interpreted as if it were bound to the inner if-statement, like this:
+            //
+            //    if (...) {
+            //      if (...)
+            //        any statement;
+            //      else
+            //        any statement;
+            //    }
+            //
+            // If we find such a structure, we must disambiguate the else-clause by adding braces:
+            //    if (...) {
+            //      if (...)
+            //        any statement;
+            //    } else
+            //      any statement;
+
+            // Work from the innermost blocks to the outermost.
+            INHERITED::visitStatementPtr(stmt);
+
+            // We are looking for an if-statement.
+            if (stmt->is<IfStatement>()) {
+                IfStatement& outer = stmt->as<IfStatement>();
+
+                // It should have an else clause, and directly wrap another if-statement (no Block).
+                if (outer.ifFalse() && outer.ifTrue()->is<IfStatement>()) {
+                    const IfStatement& inner = outer.ifTrue()->as<IfStatement>();
+
+                    // The inner if statement shouldn't have an else clause.
+                    if (!inner.ifFalse()) {
+                        // This structure is ambiguous; the else clause on the outer if-statement
+                        // will bind to the inner if-statement if we don't add braces. We must wrap
+                        // the outer if-statement's true-clause in braces.
+                        StatementArray blockStmts;
+                        blockStmts.push_back(std::move(outer.ifTrue()));
+                        Position stmtPosition = blockStmts.front()->position();
+                        std::unique_ptr<Statement> bracedIfTrue =
+                                Block::MakeBlock(stmtPosition, std::move(blockStmts));
+                        stmt = IfStatement::Make(fContext,
+                                                 outer.position(),
+                                                 std::move(outer.test()),
+                                                 std::move(bracedIfTrue),
+                                                 std::move(outer.ifFalse()));
+                    }
+                }
+            }
+
+            // We always check the entire program.
+            return false;
+        }
+
+        const Context& fContext;
+        using INHERITED = ProgramWriter;
+    };
+
+    SkSpan<std::unique_ptr<ProgramElement>> elements = SkSpan(module.fElements);
+
     for (std::unique_ptr<ProgramElement>& pe : elements) {
         if (pe->is<FunctionDefinition>()) {
-            UnnecessaryBraceEliminator visitor;
-            visitor.visitStatementPtr(pe->as<FunctionDefinition>().body());
+            // First, we eliminate braces around single-statement child blocks wherever possible.
+            UnnecessaryBraceEliminator eliminator;
+            eliminator.visitStatementPtr(pe->as<FunctionDefinition>().body());
+
+            // The first pass can be overzealous, since it can remove so many braces that else-
+            // clauses are bound to the wrong if-statement. Search for this case and fix it up
+            // if we find it.
+            RequiredBraceWriter writer(context);
+            writer.visitStatementPtr(pe->as<FunctionDefinition>().body());
         }
     }
-}
-
-void Transform::EliminateUnnecessaryBraces(Module& module) {
-    return eliminate_unnecessary_braces(SkSpan(module.fElements));
 }
 
 }  // namespace SkSL

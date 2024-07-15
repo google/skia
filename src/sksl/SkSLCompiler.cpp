@@ -295,7 +295,7 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module, b
     SkSL::Transform::EliminateEmptyStatements(module);
 
     // We can eliminate `{}` around single-statement blocks.
-    SkSL::Transform::EliminateUnnecessaryBraces(module);
+    SkSL::Transform::EliminateUnnecessaryBraces(this->context(), module);
 
     // Make sure that program usage is still correct after the optimization pass is complete.
     SkASSERT(*usage == *Analysis::GetUsage(module));
