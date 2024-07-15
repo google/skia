@@ -296,9 +296,6 @@ bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
                               SkVector* unitNormal, bool currIsLine) {
     SkASSERT(fSegmentCount >= 0);
 
-    SkScalar    prevX = fPrevPt.fX;
-    SkScalar    prevY = fPrevPt.fY;
-
     if (!set_normal_unitnormal(fPrevPt, currPt, fResScale, fRadius, normal, unitNormal)) {
         if (SkStrokerPriv::CapFactory(SkPaint::kButt_Cap) == fCapper) {
             return false;
@@ -313,10 +310,10 @@ bool SkPathStroker::preJoinTo(const SkPoint& currPt, SkVector* normal,
     if (fSegmentCount == 0) {
         fFirstNormal = *normal;
         fFirstUnitNormal = *unitNormal;
-        fFirstOuterPt.set(prevX + normal->fX, prevY + normal->fY);
+        fFirstOuterPt = fPrevPt + *normal;
 
-        fOuter.moveTo(fFirstOuterPt.fX, fFirstOuterPt.fY);
-        fInner.moveTo(prevX - normal->fX, prevY - normal->fY);
+        fOuter.moveTo(fFirstOuterPt);
+        fInner.moveTo(fPrevPt - *normal);
     } else {    // we have a previous segment
         fJoiner(&fOuter, &fInner, fPrevUnitNormal, fPrevPt, *unitNormal,
                 fRadius, fInvMiterLimit, fPrevIsLine, currIsLine);
@@ -353,7 +350,7 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
             } else {
                 // now add fInner as its own contour
                 fInner.getLastPt(&pt);
-                fOuter.moveTo(pt.fX, pt.fY);
+                fOuter.moveTo(pt);
                 fOuter.reversePathTo(fInner);
                 fOuter.close();
             }
@@ -435,8 +432,8 @@ void SkPathStroker::moveTo(const SkPoint& pt) {
 }
 
 void SkPathStroker::line_to(const SkPoint& currPt, const SkVector& normal) {
-    fOuter.lineTo(currPt.fX + normal.fX, currPt.fY + normal.fY);
-    fInner.lineTo(currPt.fX - normal.fX, currPt.fY - normal.fY);
+    fOuter.lineTo(currPt + normal);
+    fInner.lineTo(currPt - normal);
 }
 
 static bool has_valid_tangent(const SkPath::Iter* iter) {
@@ -545,9 +542,7 @@ static SkScalar pt_to_line(const SkPoint& pt, const SkPoint& lineStart, const Sk
     SkScalar denom = dxy.dot(dxy);
     SkScalar t = sk_ieee_float_divide(numer, denom);
     if (t >= 0 && t <= 1) {
-        SkPoint hit;
-        hit.fX = lineStart.fX * (1 - t) + lineEnd.fX * t;
-        hit.fY = lineStart.fY * (1 - t) + lineEnd.fY * t;
+        SkPoint hit = lineStart * (1 - t) + lineEnd * t;
         return SkPointPriv::DistanceToSqd(hit, pt);
     } else {
         return SkPointPriv::DistanceToSqd(pt, lineStart);
@@ -564,9 +559,7 @@ static SkScalar pt_to_tangent_line(const SkPoint& pt,
     SkScalar denom = dxy.dot(dxy);
     SkScalar t = sk_ieee_float_divide(numer, denom);
     if (t >= 0 && t <= 1) {
-        SkPoint hit;
-        hit.fX = lineStart.fX + tangent.fX * t;
-        hit.fY = lineStart.fY + tangent.fY * t;
+        SkPoint hit = lineStart + tangent * t;
         return SkPointPriv::DistanceToSqd(hit, pt);
     } else {
         return SkPointPriv::DistanceToSqd(pt, lineStart);
@@ -842,7 +835,7 @@ void SkPathStroker::conicPerpRay(const SkConic& conic, SkScalar t, SkPoint* tPt,
         SkVector* tangent) const {
     SkVector dxy;
     conic.evalAt(t, tPt, &dxy);
-    if (dxy.fX == 0 && dxy.fY == 0) {
+    if (dxy.isZero()) {
         dxy = conic.fPts[2] - conic.fPts[0];
     }
     this->setRayPts(*tPt, &dxy, onPt, tangent);
@@ -871,7 +864,7 @@ void SkPathStroker::cubicPerpRay(const SkPoint cubic[4], SkScalar t, SkPoint* tP
     SkVector dxy;
     SkPoint chopped[7];
     SkEvalCubicAt(cubic, t, tPt, &dxy, nullptr);
-    if (dxy.fX == 0 && dxy.fY == 0) {
+    if (dxy.isZero()) {
         const SkPoint* cPts = cubic;
         if (SkScalarNearlyZero(t)) {
             dxy = cubic[2] - cubic[0];
@@ -882,12 +875,12 @@ void SkPathStroker::cubicPerpRay(const SkPoint cubic[4], SkScalar t, SkPoint* tP
             // to find the tangent at that point.
             SkChopCubicAt(cubic, chopped, t);
             dxy = chopped[3] - chopped[2];
-            if (dxy.fX == 0 && dxy.fY == 0) {
+            if (dxy.isZero()) {
                 dxy = chopped[3] - chopped[1];
                 cPts = chopped;
             }
         }
-        if (dxy.fX == 0 && dxy.fY == 0) {
+        if (dxy.isZero()) {
             dxy = cPts[3] - cPts[0];
         }
     }
@@ -921,7 +914,7 @@ void SkPathStroker::quadPerpRay(const SkPoint quad[3], SkScalar t, SkPoint* tPt,
         SkVector* tangent) const {
     SkVector dxy;
     SkEvalQuadAt(quad, t, tPt, &dxy);
-    if (dxy.fX == 0 && dxy.fY == 0) {
+    if (dxy.isZero()) {
         dxy = quad[2] - quad[0];
     }
     setRayPts(*tPt, &dxy, onPt, tangent);
@@ -972,8 +965,7 @@ SkPathStroker::ResultType SkPathStroker::intersectRay(SkQuadConstruct* quadPts,
             SkPoint* ctrlPt = &quadPts->fQuad[1];
             // the intersection of the tangents need not be on the tangent segment
             // so 0 <= numerA <= 1 is not necessarily true
-            ctrlPt->fX = start.fX + quadPts->fTangentStart.fX * numerA;
-            ctrlPt->fY = start.fY + quadPts->fTangentStart.fY * numerA;
+            *ctrlPt = start + quadPts->fTangentStart * numerA;
         }
         return STROKER_RESULT(kQuad_ResultType, depth, quadPts,
                 "(numerA=%g >= 0) != (numerB=%g >= 0)", numerA, numerB);
@@ -996,7 +988,7 @@ static int intersect_quad_ray(const SkPoint line[2], const SkPoint quad[3], SkSc
     SkVector vec = line[1] - line[0];
     SkScalar r[3];
     for (int n = 0; n < 3; ++n) {
-        r[n] = (quad[n].fY - line[0].fY) * vec.fX - (quad[n].fX - line[0].fX) * vec.fY;
+        r[n] = vec.cross(quad[n] - line[0]);
     }
     SkScalar A = r[2];
     SkScalar B = r[1];
@@ -1008,19 +1000,19 @@ static int intersect_quad_ray(const SkPoint line[2], const SkPoint quad[3], SkSc
 
 // Return true if the point is close to the bounds of the quad. This is used as a quick reject.
 bool SkPathStroker::ptInQuadBounds(const SkPoint quad[3], const SkPoint& pt) const {
-    SkScalar xMin = std::min(std::min(quad[0].fX, quad[1].fX), quad[2].fX);
+    SkScalar xMin = std::min({quad[0].fX, quad[1].fX, quad[2].fX});
     if (pt.fX + fInvResScale < xMin) {
         return false;
     }
-    SkScalar xMax = std::max(std::max(quad[0].fX, quad[1].fX), quad[2].fX);
+    SkScalar xMax = std::max({quad[0].fX, quad[1].fX, quad[2].fX});
     if (pt.fX - fInvResScale > xMax) {
         return false;
     }
-    SkScalar yMin = std::min(std::min(quad[0].fY, quad[1].fY), quad[2].fY);
+    SkScalar yMin = std::min({quad[0].fY, quad[1].fY, quad[2].fY});
     if (pt.fY + fInvResScale < yMin) {
         return false;
     }
-    SkScalar yMax = std::max(std::max(quad[0].fY, quad[1].fY), quad[2].fY);
+    SkScalar yMax = std::max({quad[0].fY, quad[1].fY, quad[2].fY});
     if (pt.fY - fInvResScale > yMax) {
         return false;
     }
@@ -1159,7 +1151,7 @@ SkPathStroker::ResultType SkPathStroker::compareQuadQuad(const SkPoint quad[3],
 void SkPathStroker::addDegenerateLine(const SkQuadConstruct* quadPts) {
     const SkPoint* quad = quadPts->fQuad;
     SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
-    path->lineTo(quad[2].fX, quad[2].fY);
+    path->lineTo(quad[2]);
 }
 
 bool SkPathStroker::cubicMidOnLine(const SkPoint cubic[4], const SkQuadConstruct* quadPts) const {
@@ -1189,7 +1181,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
         if (kQuad_ResultType == resultType) {
             SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
             const SkPoint* stroke = quadPts->fQuad;
-            path->quadTo(stroke[1].fX, stroke[1].fY, stroke[2].fX, stroke[2].fY);
+            path->quadTo(stroke[1], stroke[2]);
             DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
             return true;
         }
@@ -1201,7 +1193,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
             }
         }
     }
-    if (!SkIsFinite(quadPts->fQuad[2].fX, quadPts->fQuad[2].fY)) {
+    if (!quadPts->fQuad[2].isFinite()) {
         DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
         return false;  // just abort if projected quad isn't representable
     }
@@ -1243,7 +1235,7 @@ bool SkPathStroker::conicStroke(const SkConic& conic, SkQuadConstruct* quadPts) 
     if (kQuad_ResultType == resultType) {
         const SkPoint* stroke = quadPts->fQuad;
         SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
-        path->quadTo(stroke[1].fX, stroke[1].fY, stroke[2].fX, stroke[2].fY);
+        path->quadTo(stroke[1], stroke[2]);
         return true;
     }
     if (kDegenerate_ResultType == resultType) {
@@ -1277,7 +1269,7 @@ bool SkPathStroker::quadStroke(const SkPoint quad[3], SkQuadConstruct* quadPts) 
     if (kQuad_ResultType == resultType) {
         const SkPoint* stroke = quadPts->fQuad;
         SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
-        path->quadTo(stroke[1].fX, stroke[1].fY, stroke[2].fX, stroke[2].fY);
+        path->quadTo(stroke[1], stroke[2]);
         return true;
     }
     if (kDegenerate_ResultType == resultType) {
