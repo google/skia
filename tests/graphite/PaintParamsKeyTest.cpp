@@ -1867,7 +1867,10 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTestReduced,
     DrawTypeFlags drawTypeFlags = random_drawtype(&rand);
     //----------------------
 
-    log_run("Running", seed, shaderType, blenderType, colorFilterType, maskFilterType,
+    SkString logMsg("Running ");
+    logMsg += BackendApiToStr(context->backend());
+
+    log_run(logMsg.c_str(), seed, shaderType, blenderType, colorFilterType, maskFilterType,
             imageFilterType, clipType, drawTypeFlags);
 
     run_test(reporter,

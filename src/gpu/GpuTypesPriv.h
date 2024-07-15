@@ -10,6 +10,7 @@
 
 #include "include/core/SkColorType.h"
 #include "include/core/SkTextureCompressionType.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkAssert.h"
 
 #include <chrono>
@@ -49,6 +50,17 @@ static constexpr const char* CompressionTypeToStr(SkTextureCompressionType compr
         case SkTextureCompressionType::kETC2_RGB8_UNORM: return "kETC2_RGB8_UNORM";
         case SkTextureCompressionType::kBC1_RGB8_UNORM:  return "kBC1_RGB8_UNORM";
         case SkTextureCompressionType::kBC1_RGBA8_UNORM: return "kBC1_RGBA8_UNORM";
+    }
+    SkUNREACHABLE;
+}
+
+static constexpr const char* BackendApiToStr(BackendApi backend) {
+    switch (backend) {
+        case BackendApi::kDawn:        return "kDawn";
+        case BackendApi::kMetal:       return "kMetal";
+        case BackendApi::kVulkan:      return "kVulkan";
+        case BackendApi::kMock:        return "kMock";
+        case BackendApi::kUnsupported: return "kUnsupported";
     }
     SkUNREACHABLE;
 }
