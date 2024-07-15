@@ -579,15 +579,14 @@ void Device::android_utils_clipAsRgn(SkRegion* region) const {
 
 void Device::clipRect(const SkRect& rect, SkClipOp op, bool aa) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
-    // TODO: Snap rect edges to pixel bounds if non-AA and axis-aligned?
-    fClip.clipShape(this->localToDeviceTransform(), Shape{rect}, op);
+    auto snapping = aa ? ClipStack::PixelSnapping::kNo : ClipStack::PixelSnapping::kYes;
+    fClip.clipShape(this->localToDeviceTransform(), Shape{rect}, op, snapping);
 }
 
 void Device::clipRRect(const SkRRect& rrect, SkClipOp op, bool aa) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
-    // TODO: Snap rrect edges to pixel bounds if non-AA and axis-aligned? Is that worth doing to
-    // seam with non-AA rects even if the curves themselves are AA'ed?
-    fClip.clipShape(this->localToDeviceTransform(), Shape{rrect}, op);
+    auto snapping = aa ? ClipStack::PixelSnapping::kNo : ClipStack::PixelSnapping::kYes;
+    fClip.clipShape(this->localToDeviceTransform(), Shape{rrect}, op, snapping);
 }
 
 void Device::clipPath(const SkPath& path, SkClipOp op, bool aa) {
@@ -611,9 +610,8 @@ void Device::clipRegion(const SkRegion& globalRgn, SkClipOp op) {
     if (globalRgn.isEmpty()) {
         fClip.clipShape(globalToDevice, Shape{}, op);
     } else if (globalRgn.isRect()) {
-        // TODO: Region clips are non-AA so this should match non-AA onClipRect(), but we use a
-        // different transform so can't just call that instead.
-        fClip.clipShape(globalToDevice, Shape{SkRect::Make(globalRgn.getBounds())}, op);
+        fClip.clipShape(globalToDevice, Shape{SkRect::Make(globalRgn.getBounds())}, op,
+                        ClipStack::PixelSnapping::kYes);
     } else {
         // TODO: Can we just iterate the region and do non-AA rects for each chunk?
         SkPath path;

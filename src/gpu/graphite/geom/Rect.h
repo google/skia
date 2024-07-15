@@ -131,6 +131,11 @@ public:
     // responsibility to check isEmptyOrNegative() if needed.
     AI Rect makeRoundIn() const { return ceil(fVals); }
     AI Rect makeRoundOut() const { return floor(fVals); }
+    AI Rect makeRound() const {
+        // To match SkRect::round(), which is implemented as floor(x+.5), we don't use std::round.
+        // But this means we have to undo the negative R and B components before flooring.
+        return LTRB(floor(this->ltrb() + 0.5f));
+    }
     AI Rect makeInset(float inset) const { return fVals + inset; }
     AI Rect makeInset(float2 inset) const { return fVals + inset.xyxy(); }
     AI Rect makeOutset(float outset) const { return fVals - outset; }
@@ -142,6 +147,7 @@ public:
 
     AI Rect& roundIn() { return *this = this->makeRoundIn(); }
     AI Rect& roundOut() { return *this = this->makeRoundOut(); }
+    AI Rect& round() { return *this = this->makeRound(); }
     AI Rect& inset(float inset) { return *this = this->makeInset(inset); }
     AI Rect& inset(float2 inset) { return *this = this->makeInset(inset); }
     AI Rect& outset(float outset) { return *this = this->makeOutset(outset); }
