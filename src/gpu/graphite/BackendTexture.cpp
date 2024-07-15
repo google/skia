@@ -170,7 +170,7 @@ WGPUTextureView BackendTexture::getDawnTextureViewPtr() const {
 #ifdef SK_METAL
 BackendTexture::BackendTexture(SkISize dimensions, CFTypeRef mtlTexture)
         : fDimensions(dimensions)
-        , fInfo(MtlTextureInfo(mtlTexture))
+        , fInfo(TextureInfos::MakeMetal(mtlTexture))
         , fMtlTexture(mtlTexture) {}
 
 CFTypeRef BackendTexture::getMtlTexture() const {

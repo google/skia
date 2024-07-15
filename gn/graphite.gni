@@ -300,6 +300,7 @@ skia_graphite_mtl_sources = [
   "$_src/mtl/MtlSharedContext.mm",
   "$_src/mtl/MtlTexture.h",
   "$_src/mtl/MtlTexture.mm",
+  "$_src/mtl/MtlTextureInfo.mm",
 ]
 
 skia_graphite_vk_public = [

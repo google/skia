@@ -10,6 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,16 +42,14 @@
 #endif
 #endif
 
+#import <Metal/Metal.h>
+
 #endif  // __APPLE__
 
 namespace skgpu::graphite {
 
 struct MtlTextureSpec {
-    MtlTextureSpec()
-            : fFormat(0)
-            , fUsage(0)
-            , fStorageMode(0)
-            , fFramebufferOnly(false) {}
+    MtlTextureSpec() : fFormat(0), fUsage(0), fStorageMode(0), fFramebufferOnly(false) {}
     MtlTextureSpec(const MtlTextureInfo& info)
             : fFormat(info.fFormat)
             , fUsage(info.fUsage)
@@ -58,18 +57,14 @@ struct MtlTextureSpec {
             , fFramebufferOnly(info.fFramebufferOnly) {}
 
     bool operator==(const MtlTextureSpec& that) const {
-        return fFormat == that.fFormat &&
-               fUsage == that.fUsage &&
-               fStorageMode == that.fStorageMode &&
-               fFramebufferOnly == that.fFramebufferOnly;
+        return fFormat == that.fFormat && fUsage == that.fUsage &&
+               fStorageMode == that.fStorageMode && fFramebufferOnly == that.fFramebufferOnly;
     }
 
     bool isCompatible(const MtlTextureSpec& that) const {
         // The usages may match or the usage passed in may be a superset of the usage stored within.
-        return fFormat == that.fFormat &&
-               fStorageMode == that.fStorageMode &&
-               fFramebufferOnly == that.fFramebufferOnly &&
-               (fUsage & that.fUsage) == fUsage;
+        return fFormat == that.fFormat && fStorageMode == that.fStorageMode &&
+               fFramebufferOnly == that.fFramebufferOnly && (fUsage & that.fUsage) == fUsage;
     }
 
     SkString toString() const {
@@ -89,6 +84,13 @@ struct MtlTextureSpec {
 MtlTextureInfo MtlTextureSpecToTextureInfo(const MtlTextureSpec& mtlSpec,
                                            uint32_t sampleCount,
                                            Mipmapped mipmapped);
+
+namespace TextureInfos {
+MtlTextureSpec GetMtlTextureSpec(const TextureInfo&);
+MTLPixelFormat GetMtlPixelFormat(const TextureInfo&);
+MTLTextureUsage GetMtlTextureUsage(const TextureInfo&);
+bool GetMtlFramebufferOnly(const TextureInfo&);
+}  // namespace TextureInfos
 
 }  // namespace skgpu::graphite
 

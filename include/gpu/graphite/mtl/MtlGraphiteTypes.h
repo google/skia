@@ -9,6 +9,7 @@
 #define skgpu_graphite_MtlGraphiteTypes_DEFINED
 
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "include/ports/SkCFObject.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,7 +37,7 @@ using MtlPixelFormat = unsigned int;
 using MtlTextureUsage = unsigned int;
 using MtlStorageMode = unsigned int;
 
-struct MtlTextureInfo {
+struct SK_API MtlTextureInfo {
     uint32_t fSampleCount = 1;
     skgpu::Mipmapped fMipmapped = skgpu::Mipmapped::kNo;
 
@@ -62,6 +63,13 @@ struct MtlTextureInfo {
             , fStorageMode(storageMode)
             , fFramebufferOnly(framebufferOnly) {}
 };
+
+namespace TextureInfos {
+SK_API skgpu::graphite::TextureInfo MakeMetal(const MtlTextureInfo&);
+SK_API skgpu::graphite::TextureInfo MakeMetal(CFTypeRef mtlTexture);
+
+SK_API bool GetMtlTextureInfo(const TextureInfo&, MtlTextureInfo*);
+}  // namespace TextureInfos
 
 } // namespace skgpu::graphite
 

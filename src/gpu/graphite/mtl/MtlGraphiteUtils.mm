@@ -90,12 +90,4 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
     return compiledLibrary;
 }
 
-size_t MtlFormatBytesPerBlock(MtlPixelFormat format) {
-    return skgpu::MtlFormatBytesPerBlock((MTLPixelFormat) format);
-}
-
-SkTextureCompressionType MtlFormatToCompressionType(MtlPixelFormat format) {
-    return skgpu::MtlFormatToCompressionType((MTLPixelFormat) format);
-}
-
 } // namespace skgpu::graphite
