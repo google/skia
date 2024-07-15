@@ -243,9 +243,7 @@ public:
     // the storage buffer memory layout is std430 or in metal, which is also the only supported
     // way the data is packed.
     bool gradientBufferSupport() const {
-        return fStorageBufferSupport &&
-               (fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430 ||
-                    fResourceBindingReqs.fStorageBufferLayout == Layout::kMetal);
+        return fGradientBufferSupport;
     }
 
     // Returns whether a draw buffer can be mapped.
@@ -377,6 +375,7 @@ protected:
     bool fSemaphoreSupport = false;
     bool fAllowCpuSync = true;
     bool fStorageBufferSupport = false;
+    bool fGradientBufferSupport = false;
     bool fDrawBufferCanBeMapped = true;
     bool fBufferMapsAreAsync = false;
     bool fMSAARenderToSingleSampledSupport = false;

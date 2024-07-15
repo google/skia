@@ -455,6 +455,9 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fStorageBufferSupport = false;
 #endif
 
+    fGradientBufferSupport = fStorageBufferSupport &&
+                             fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430;
+
     fDrawBufferCanBeMapped = false;
 
     fComputeSupport = true;
