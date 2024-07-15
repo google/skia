@@ -77,6 +77,8 @@
 // SkPicture.
 bool gNeedSKPPaintOption = false;
 
+constexpr uint32_t kDefaultSeed = 0;
+
 using namespace skgpu::graphite;
 
 namespace {
@@ -278,6 +280,19 @@ const char* to_str(ImageFilterType c) {
 #undef M
     }
     SkUNREACHABLE;
+}
+
+void log_run(const char* label,
+             uint32_t seed,
+             ShaderType s,
+             BlenderType bm,
+             ColorFilterType cf,
+             MaskFilterType mf,
+             ImageFilterType imageFilter,
+             ClipType clip) {
+    SkDebugf("%s: %d %s %s %s %s %s %s \n",
+             label, seed,
+             to_str(s), to_str(bm), to_str(cf), to_str(mf), to_str(imageFilter), to_str(clip));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1762,7 +1777,9 @@ void run_test(skiatest::Reporter*,
               ColorFilterType,
               MaskFilterType,
               ImageFilterType,
-              ClipType);
+              ClipType,
+              uint32_t seed,
+              bool verbose);
 
 // This is intended to be a smoke test for the agreement between the two ways of creating a
 // PaintParamsKey:
@@ -1882,7 +1899,8 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
 #endif
 
                             run_test(reporter, context, testContext, precompileKeyContext,
-                                     shader, blender, cf, mf, imageFilter, clip);
+                                     shader, blender, cf, mf, imageFilter, clip, kDefaultSeed,
+                                    /* verbose= */ false);
                         }
                     }
                 }
@@ -1904,8 +1922,10 @@ void run_test(skiatest::Reporter* reporter,
               ColorFilterType cf,
               MaskFilterType mf,
               ImageFilterType imageFilter,
-              ClipType clip) {
-    SkRandom rand;
+              ClipType clip,
+              uint32_t seed,
+              bool verbose) {
+    SkRandom rand(seed);
 
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
@@ -2006,6 +2026,10 @@ void run_test(skiatest::Reporter* reporter,
                                                       precompileIDs.push_back(id);
                                                   });
 
+            if (verbose) {
+                SkDebugf("Precompilation generated %zu unique keys\n", precompileIDs.size());
+            }
+
             // Although we've gathered both sets of uniforms (i.e., from the paint
             // params and the precompilation paths) we can't compare the two since the
             // precompilation path may have generated multiple sets
@@ -2018,9 +2042,7 @@ void run_test(skiatest::Reporter* reporter,
             auto result = std::find(precompileIDs.begin(), precompileIDs.end(), paintID);
 
             if (result == precompileIDs.end()) {
-                SkDebugf("Failure on case: %s %s %s %s %s %s\n",
-                         to_str(s), to_str(bm), to_str(cf), to_str(clip), to_str(mf),
-                         to_str(imageFilter));
+                log_run("Failure on case", seed, s, bm, cf, mf, imageFilter, clip);
             }
 
 #ifdef SK_DEBUG
