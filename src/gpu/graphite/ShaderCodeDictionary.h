@@ -280,12 +280,6 @@ public:
         return this->lookup(id).toString(this, /*includeData=*/false);
     }
 
-    SkSpan<const Uniform> getUniforms(BuiltInCodeSnippetID) const;
-    SkEnumBitMask<SnippetRequirementFlags> getSnippetRequirementFlags(
-            BuiltInCodeSnippetID id) const {
-        return fBuiltInCodeSnippets[(int) id].fSnippetRequirementFlags;
-    }
-
 #if defined(SK_DEBUG)
     bool isValidID(int snippetID) const SK_EXCLUDES(fSpinLock);
 

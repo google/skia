@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/base/SkFloatBits.h"
 #include "src/base/SkHalf.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/graphite/PipelineData.h"
@@ -57,7 +58,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckSingleUniform, r, CtsEnforcement::kNextRele
 
         for (SkSLType type : kTypes) {
             const Uniform expectations[] = {{"uniform", type}};
-            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
             mgr.write(expectations[0], kFloats);
             SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
             REPORTER_ASSERT(r, mgr.size() > 0, "Layout: %s - Type: %s",
@@ -81,12 +82,12 @@ DEF_GRAPHITE_TEST(UniformManagerCheckFloatEncoding, r, CtsEnforcement::kNextRele
 
             // Write our uniform float scalar/vector.
             const Uniform expectations[] = {{"uniform", type}};
-            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
             mgr.write(expectations[0], kFloats);
             SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
 
             // Read back the uniform data.
-            UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+            SkSpan<const char> uniformData = mgr.finish();
             size_t elementSize = element_size(layout, type);
             const void* validData = (elementSize == 4) ? (const void*)kFloats : (const void*)kHalfs;
             REPORTER_ASSERT(r, uniformData.size() >= vecLength * elementSize);
@@ -110,12 +111,12 @@ DEF_GRAPHITE_TEST(UniformManagerCheckIntEncoding, r, CtsEnforcement::kNextReleas
 
             // Write our uniform int scalar/vector.
             const Uniform expectations[] = {{"uniform", type}};
-            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
             mgr.write(expectations[0], kInts);
             SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
 
             // Read back the uniform data.
-            UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+            SkSpan<const char> uniformData = mgr.finish();
             int vecLength = SkSLTypeVecLength(type);
             size_t elementSize = element_size(layout, type);
             REPORTER_ASSERT(r, uniformData.size() >= vecLength * elementSize);
@@ -140,14 +141,14 @@ DEF_GRAPHITE_TEST(UniformManagerCheckScalarVectorPacking, r, CtsEnforcement::kNe
 
             // Write three matching uniforms.
             const Uniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
-            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
             mgr.write(expectations[0], kFloats);
             mgr.write(expectations[1], kFloats);
             mgr.write(expectations[2], kFloats);
             SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
 
             // Verify the uniform data packing.
-            UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+            SkSpan<const char> uniformData = mgr.finish();
             size_t elementSize = element_size(layout, type);
             // Vec3s must be laid out as if they were vec4s.
             size_t effectiveVecLength = (vecLength == 3) ? 4 : vecLength;
@@ -172,14 +173,14 @@ DEF_GRAPHITE_TEST(UniformManagerCheckMatrixPacking, r, CtsEnforcement::kNextRele
 
             // Write three matching uniforms.
             const Uniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
-            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+            SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
             mgr.write(expectations[0], kFloats);
             mgr.write(expectations[1], kFloats);
             mgr.write(expectations[2], kFloats);
             SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
 
             // Verify the uniform data packing.
-            UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+            SkSpan<const char> uniformData = mgr.finish();
             size_t elementSize = element_size(layout, type);
             // In all layouts, mat3s burn 12 elements, not 9. In std140, mat2s burn 8 elements
             // instead of 4.
@@ -218,7 +219,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingScalarVector, r, CtsEnforcement::kNe
 
                 // Write two scalar/vector uniforms.
                 const Uniform expectations[] = {{"a", type1}, {"b", type2}};
-                SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+                SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
                 mgr.write(expectations[0], kFloats);
                 mgr.write(expectations[1], kFloats);
                 SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
@@ -249,7 +250,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingScalarVector, r, CtsEnforcement::kNe
                     int layoutIdx = static_cast<int>(layout != Layout::kMetal);
                     const size_t size = strlen(kExpectedLayout[layoutIdx][vecLength1][vecLength2]) *
                                         elementSize1;
-                    UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+                    SkSpan<const char> uniformData = mgr.finish();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout: %s - Types: %s, %s padding test failed",
                                     LayoutString(layout),
@@ -268,7 +269,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingScalarVector, r, CtsEnforcement::kNe
                         { "", "AAAABB__", "AAAABBBB", "AAAA____BBBBBBbb", "AAAA____BBBBBBBB" },
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][vecLength2]) * 2;
-                    UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+                    SkSpan<const char> uniformData = mgr.finish();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout: %s - Types: %s, %s padding test failed",
                                     LayoutString(layout),
@@ -295,7 +296,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingScalarVector, r, CtsEnforcement::kNe
                           "AAAAAAAABBBB____" },
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][vecLength2]) * 2;
-                    UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+                    SkSpan<const char> uniformData = mgr.finish();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout: %s - Types: %s, %s padding test failed",
                                     LayoutString(layout),
@@ -328,7 +329,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingVectorMatrix, r, CtsEnforcement::kNe
 
                 // Write the scalar/vector and matrix uniforms.
                 const Uniform expectations[] = {{"a", type1}, {"b", type2}};
-                SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+                SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
                 mgr.write(expectations[0], kFloats);
                 mgr.write(expectations[1], kFloats);
                 SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
@@ -363,7 +364,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingVectorMatrix, r, CtsEnforcement::kNe
                     int layoutIdx = static_cast<int>(layout != Layout::kStd140);
                     const size_t size = strlen(kExpectedLayout[layoutIdx][vecLength1][matSize2]) *
                                         elementSize1;
-                    UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+                    SkSpan<const char> uniformData = mgr.finish();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout: %s - Types: %s, %s vector-matrix padding test failed",
                                     LayoutString(layout),
@@ -394,7 +395,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingVectorMatrix, r, CtsEnforcement::kNe
                              "AAAA____BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"},
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][matSize2]) * 2;
-                    UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+                    SkSpan<const char> uniformData = mgr.finish();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout: %s - Types: %s, %s vector-matrix padding test failed",
                                     LayoutString(layout),
@@ -419,7 +420,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingVectorMatrix, r, CtsEnforcement::kNe
                              "AAAAAAAABBBBBBBBBBBBBBBB"},
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][matSize2]) * 2;
-                    UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+                    SkSpan<const char> uniformData = mgr.finish();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout: %s - Types: %s, %s vector-matrix padding test failed",
                                     LayoutString(layout),
@@ -450,7 +451,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingMatrixVector, r, CtsEnforcement::kNe
 
                 // Write the scalar/vector and matrix uniforms.
                 const Uniform expectations[] = {{"a", type1}, {"b", type2}};
-                SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+                SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
                 mgr.write(expectations[0], kFloats);
                 mgr.write(expectations[1], kFloats);
                 SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
@@ -501,7 +502,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingMatrixVector, r, CtsEnforcement::kNe
                     int layoutIdx = static_cast<int>(layout != Layout::kStd140);
                     const size_t size = strlen(kExpectedLayout[layoutIdx][matSize1][vecLength2]) *
                                         elementSize1;
-                    UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+                    SkSpan<const char> uniformData = mgr.finish();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout: %s - Types: %s, %s matrix-vector padding test failed",
                                     LayoutString(layout),
@@ -528,7 +529,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingMatrixVector, r, CtsEnforcement::kNe
                           "AAAAAAAAAAAAAAAABBBBBBBB" },
                     };
                     const size_t size = strlen(kExpectedLayout[matSize1][vecLength2]) * 2;
-                    UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+                    SkSpan<const char> uniformData = mgr.finish();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout: %s - Types: %s, %s matrix-vector padding test failed",
                                     LayoutString(layout),
@@ -555,7 +556,7 @@ DEF_GRAPHITE_TEST(UniformManagerCheckPaddingMatrixVector, r, CtsEnforcement::kNe
                           "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBB____" },
                     };
                     const size_t size = strlen(kExpectedLayout[matSize1][vecLength2]) * 2;
-                    UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+                    SkSpan<const char> uniformData = mgr.finish();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout: %s - Types: %s, %s matrix-vector padding test failed",
                                     LayoutString(layout),
@@ -620,13 +621,13 @@ DEF_GRAPHITE_TEST(UniformManagerMetalArrayLayout, r, CtsEnforcement::kNextReleas
         const SkSLType arrayType = kTypes[i];
         const Uniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
 
-        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
         mgr.write(expectations[0], kHalfs);
         mgr.write(expectations[1], kBuffer);
         SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
 
         const size_t expectedSize = strlen(kExpectedLayout[i]);
-        const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+        SkSpan<const char> uniformData = mgr.finish();
         REPORTER_ASSERT(r, uniformData.size() == expectedSize,
                         "array test %d for type %s failed - expected size: %zu, actual size: %zu",
                         (int)i, SkSLTypeString(arrayType), expectedSize, uniformData.size());
@@ -688,13 +689,13 @@ DEF_GRAPHITE_TEST(UniformManagerStd430ArrayLayout, r, CtsEnforcement::kNextRelea
         const SkSLType arrayType = kTypes[i];
         const Uniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
 
-        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
         mgr.write(expectations[0], kHalfs);
         mgr.write(expectations[1], kBuffer);
         SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
 
         const size_t expectedSize = strlen(kExpectedLayout[i]);
-        const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+        SkSpan<const char> uniformData = mgr.finish();
         REPORTER_ASSERT(r, uniformData.size() == expectedSize,
                         "array test %d for type %s failed - expected size: %zu, actual size: %zu",
                         (int)i, SkSLTypeString(arrayType), expectedSize, uniformData.size());
@@ -762,13 +763,13 @@ DEF_GRAPHITE_TEST(UniformManagerStd140ArrayLayout, r, CtsEnforcement::kNextRelea
         const SkSLType arrayType = kTypes[i];
         const Uniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
 
-        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
         mgr.write(expectations[0], kHalfs);
         mgr.write(expectations[1], kBuffer);
         SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
 
         const size_t expectedSize = strlen(kExpectedLayout[i]);
-        const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+        SkSpan<const char> uniformData = mgr.finish();
         REPORTER_ASSERT(r, uniformData.size() == expectedSize,
                         "array test %d for type %s failed - expected size: %zu, actual size: %zu",
                         (int)i, SkSLTypeString(arrayType), expectedSize, uniformData.size());
@@ -785,10 +786,10 @@ DEF_GRAPHITE_TEST(UniformManagerStd140MatrixLayoutContents, r, CtsEnforcement::k
     // float2x2, half2x2
     for (SkSLType type : {SkSLType::kFloat2x2, SkSLType::kHalf2x2}) {
         const Uniform expectations[] = {{"m", type}};
-        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
         mgr.write(expectations[0], kFloats);
         SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
-        const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+        SkSpan<const char> uniformData = mgr.finish();
         REPORTER_ASSERT(r, uniformData.size() == 32,
                         "%s layout size expected 32, got %zu",
                         SkSLTypeString(type), uniformData.size());
@@ -809,10 +810,10 @@ DEF_GRAPHITE_TEST(UniformManagerStd140MatrixLayoutContents, r, CtsEnforcement::k
     // float3x3, half3x3
     for (SkSLType type : {SkSLType::kFloat3x3, SkSLType::kHalf3x3}) {
         const Uniform expectations[] = {{"m", type}};
-        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
         mgr.write(expectations[0], kFloats);
         SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
-        const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+        SkSpan<const char> uniformData = mgr.finish();
         REPORTER_ASSERT(r, uniformData.size() == 48,
                         "%s layout size expected 48, got %zu",
                         SkSLTypeString(type), uniformData.size());
@@ -839,10 +840,10 @@ DEF_GRAPHITE_TEST(UniformManagerStd430MatrixLayoutContents, r, CtsEnforcement::k
     // float2x2, half2x2
     for (SkSLType type : {SkSLType::kFloat2x2, SkSLType::kHalf2x2}) {
         const Uniform expectations[] = {{"m", type}};
-        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
         mgr.write(expectations[0], kFloats);
         SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
-        const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+        SkSpan<const char> uniformData = mgr.finish();
         REPORTER_ASSERT(r, uniformData.size() == 16,
                         "%s layout size expected 16, got %zu",
                         SkSLTypeString(type), uniformData.size());
@@ -864,10 +865,10 @@ DEF_GRAPHITE_TEST(UniformManagerStd430MatrixLayoutContents, r, CtsEnforcement::k
     // float3x3, half3x3
     for (SkSLType type : {SkSLType::kFloat3x3, SkSLType::kHalf3x3}) {
         const Uniform expectations[] = {{"m", type}};
-        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations));)
+        SkDEBUGCODE(mgr.setExpectedUniforms(SkSpan(expectations), /*isSubstruct=*/false);)
         mgr.write(expectations[0], kFloats);
         SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
-        const UniformDataBlock uniformData = mgr.finishUniformDataBlock();
+        SkSpan<const char> uniformData = mgr.finish();
         REPORTER_ASSERT(r, uniformData.size() == 48,
                         "%s layout size expected 48, got %zu",
                         SkSLTypeString(type), uniformData.size());
@@ -883,5 +884,283 @@ DEF_GRAPHITE_TEST(UniformManagerStd430MatrixLayoutContents, r, CtsEnforcement::k
                             SkSLTypeString(type), i, expected, el);
         }
         mgr.reset();
+    }
+}
+
+// These tests validate that substructs are written and aligned appropriately.
+DEF_GRAPHITE_TEST(UniformManagerStructLayout, r, CtsEnforcement::kNextRelease) {
+    static constexpr uint32_t _ = 0; // 0s will only be written as padding
+    static const struct TestCase {
+        // For convenience, these should only have kFloat[2,3,4] as their types. However the values
+        // written are integers and will be bit-punned to floats so that expectations are easy to
+        // define (UniformManager and Skia have no defined kInt3 object type). Written integers
+        // start at 1 and are incremented with each component across uniforms.
+        std::vector<Uniform> fPreStruct;  // before beginStruct(), top-level fields or struct
+        std::vector<Uniform> fSubstruct;  // within beginStruct()/endStruct()
+        std::vector<Uniform> fPostStruct; // after endStruct(), top-level fields
+
+        std::pair<int, std::vector<uint32_t>> fExpectedAlignmentAndData[std::size(kLayouts)];
+
+        // If non-empty, holds base alignments for fPreStruct base alignment as a struct
+        std::vector<int> fPreStructAlignments = {};
+    } kCases[] = {
+        // Struct tests with no preceeding or following top-level fields
+        {/*prestruct=*/ {},
+         /*substruct=*/ {{"u1", SkSLType::kFloat},
+                         {"u2", SkSLType::kFloat},
+                         {"u3", SkSLType::kFloat},
+                         {"u4", SkSLType::kFloat}},
+         /*poststruct=*/{},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1, 2, 3, 4}},
+            /*std430=*/{/*baseAlign=*/4,  /*data=*/{1, 2, 3, 4}},
+            /*metal=*/ {/*baseAlign=*/4,  /*data=*/{1, 2, 3, 4}}
+         }},
+
+        {/*prestruct=*/ {},
+         /*substruct=*/ {{"u1", SkSLType::kFloat3},
+                         {"u2", SkSLType::kFloat}},
+         /*poststruct=*/{},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,2,3, 4}},
+            /*std430=*/{/*baseAlign=*/16, /*data=*/{1,2,3, 4}},
+            /*metal=*/ {/*baseAlign=*/16, /*data=*/{1,2,3,_, 4,_,_,_}}
+         }},
+
+        {/*prestruct=*/ {},
+         /*substruct=*/ {{"u1", SkSLType::kFloat2},
+                         {"u2", SkSLType::kFloat},
+                         {"u3", SkSLType::kFloat},
+                         {"u4", SkSLType::kFloat}},
+         /*poststruct=*/{},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,2, 3, 4, 5,_,_,_}},
+            /*std430=*/{/*baseAlign=*/8,  /*data=*/{1,2, 3, 4, 5,_}},
+            /*metal=*/ {/*baseAlign=*/8,  /*data=*/{1,2, 3, 4, 5,_}}
+         }},
+
+        {/*prestruct=*/ {},
+         /*substruct=*/ {{"u1", SkSLType::kFloat},
+                         {"u2", SkSLType::kFloat4},
+                         {"u3", SkSLType::kFloat2},
+                         {"u4", SkSLType::kFloat3}},
+         /*poststruct=*/{},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3,4,5, 6,7,_,_, 8,9,10,_}},
+            /*std430=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3,4,5, 6,7,_,_, 8,9,10,_}},
+            /*metal=*/ {/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3,4,5, 6,7,_,_, 8,9,10,_}}
+         }},
+
+
+        // Struct tests with a preceeding float to require padding to the struct's base alignment
+        {/*prestruct=*/ {{"p1", SkSLType::kFloat}},
+         /*substruct=*/ {{"u1", SkSLType::kFloat},
+                         {"u2", SkSLType::kFloat},
+                         {"u3", SkSLType::kFloat},
+                         {"u4", SkSLType::kFloat}},
+         /*poststruct=*/{},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2, 3, 4, 5}},
+            /*std430=*/{/*baseAlign=*/4,  /*data=*/{1, 2, 3, 4, 5}},
+            /*metal=*/ {/*baseAlign=*/4,  /*data=*/{1, 2, 3, 4, 5}}
+         }},
+
+        {/*prestruct=*/ {{"p1", SkSLType::kFloat}},
+         /*substruct=*/ {{"u1", SkSLType::kFloat3},
+                         {"u2", SkSLType::kFloat}},
+         /*poststruct=*/{},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3,4, 5}},
+            /*std430=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3,4, 5}},
+            /*metal=*/ {/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3,4,_, 5,_,_,_}}
+         }},
+
+        {/*prestruct=*/ {{"p1", SkSLType::kFloat}},
+         /*substruct=*/ {{"u1", SkSLType::kFloat2},
+                         {"u2", SkSLType::kFloat},
+                         {"u3", SkSLType::kFloat},
+                         {"u4", SkSLType::kFloat}},
+         /*poststruct=*/{},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3, 4, 5, 6,_,_,_}},
+            /*std430=*/{/*baseAlign=*/8,  /*data=*/{1,_, 2,3, 4, 5, 6,_}},
+            /*metal=*/ {/*baseAlign=*/8,  /*data=*/{1,_, 2,3, 4, 5, 6,_}}
+         }},
+
+        {/*prestruct=*/ {{"p1", SkSLType::kFloat}},
+         /*substruct=*/ {{"u1", SkSLType::kFloat},
+                         {"u2", SkSLType::kFloat4},
+                         {"u3", SkSLType::kFloat2},
+                         {"u4", SkSLType::kFloat3}},
+         /*poststruct=*/{},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,_,_,_, 3,4,5,6, 7,8,_,_, 9,10,11,_}},
+            /*std430=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,_,_,_, 3,4,5,6, 7,8,_,_, 9,10,11,_}},
+            /*metal=*/ {/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,_,_,_, 3,4,5,6, 7,8,_,_, 9,10,11,_}}
+         }},
+
+        // Struct tests with a preceeding float to require padding to the struct's base alignment,
+        // and a following float4 to test alignment after a struct.
+        {/*prestruct=*/ {{"p1", SkSLType::kFloat}},
+         /*substruct=*/ {{"u1", SkSLType::kFloat},
+                         {"u2", SkSLType::kFloat},
+                         {"u3", SkSLType::kFloat},
+                         {"u4", SkSLType::kFloat}},
+         /*poststruct=*/{{"p2", SkSLType::kFloat4}},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2, 3, 4, 5, 6,7,8,9}},
+            /*std430=*/{/*baseAlign=*/4,  /*data=*/{1, 2, 3, 4, 5, _,_,_,6,7,8,9}},
+            /*metal=*/ {/*baseAlign=*/4,  /*data=*/{1, 2, 3, 4, 5, _,_,_,6,7,8,9}}
+         }},
+
+        {/*prestruct=*/ {{"p1", SkSLType::kFloat}},
+         /*substruct=*/ {{"u1", SkSLType::kFloat3},
+                         {"u2", SkSLType::kFloat}},
+         /*poststruct=*/{{"p2", SkSLType::kFloat4}},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3,4, 5, 6,7,8,9}},
+            /*std430=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3,4, 5, 6,7,8,9}},
+            /*metal=*/ {/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3,4,_, 5,_,_,_, 6,7,8,9}}
+         }},
+
+        {/*prestruct=*/ {{"p1", SkSLType::kFloat}},
+         /*substruct=*/ {{"u1", SkSLType::kFloat2},
+                         {"u2", SkSLType::kFloat},
+                         {"u3", SkSLType::kFloat},
+                         {"u4", SkSLType::kFloat}},
+         /*poststruct=*/{{"p2", SkSLType::kFloat4}},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,3, 4, 5, 6,_,_,_, 7,8,9,10}},
+            /*std430=*/{/*baseAlign=*/8,  /*data=*/{1,_, 2,3, 4, 5, 6,_, 7,8,9,10}},
+            /*metal=*/ {/*baseAlign=*/8,  /*data=*/{1,_, 2,3, 4, 5, 6,_, 7,8,9,10}}
+         }},
+
+        {/*prestruct=*/ {{"p1", SkSLType::kFloat}},
+         /*substruct=*/ {{"u1", SkSLType::kFloat},
+                         {"u2", SkSLType::kFloat4},
+                         {"u3", SkSLType::kFloat2},
+                         {"u4", SkSLType::kFloat3}},
+         /*poststruct=*/{{"p2", SkSLType::kFloat4}},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,_,_,_, 3,4,5,6, 7,8,_,_, 9,10,11,_, 12,13,14,15}},
+            /*std430=*/{/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,_,_,_, 3,4,5,6, 7,8,_,_, 9,10,11,_, 12,13,14,15}},
+            /*metal=*/ {/*baseAlign=*/16, /*data=*/{1,_,_,_, 2,_,_,_, 3,4,5,6, 7,8,_,_, 9,10,11,_, 12,13,14,15}}
+         }},
+
+        // Struct tests with two adjacent structs
+        {/*prestruct=*/ {{"p1", SkSLType::kFloat2},
+                         {"p2", SkSLType::kFloat}},
+         /*substruct=*/ {{"u1", SkSLType::kFloat},
+                         {"u2", SkSLType::kFloat}},
+         /*poststruct=*/{},
+         /*expect=*/{
+            /*std140=*/{/*baseAlign=*/16, /*data=*/{1,2, 3,_, 4, 5,_,_}},
+            /*std430=*/{/*baseAlign=*/4,  /*data=*/{1,2, 3,_, 4, 5}},
+            /*metal=*/ {/*baseAlign=*/4,  /*data=*/{1,2, 3,_, 4, 5}}
+         },
+         /*preStructAlignments=*/{
+            /*std140=*/16,
+            /*std430=*/8,
+            /*metal=*/ 8
+         }}
+    };
+
+    auto writeFields = [](UniformManager* mgr, SkSpan<const Uniform> fields, uint32_t baseValue) {
+        for (const Uniform& f : fields) {
+            switch(f.type()) {
+                case SkSLType::kFloat:
+                    mgr->write(SkBits2Float(baseValue++));
+                    break;
+                case SkSLType::kFloat2:
+                    mgr->write(SkV2{SkBits2Float(baseValue++),
+                                    SkBits2Float(baseValue++)});
+                    break;
+                case SkSLType::kFloat3:
+                    mgr->write(SkV3{SkBits2Float(baseValue++),
+                                    SkBits2Float(baseValue++),
+                                    SkBits2Float(baseValue++)});
+                    break;
+                case SkSLType::kFloat4:
+                    mgr->write(SkV4{SkBits2Float(baseValue++),
+                                    SkBits2Float(baseValue++),
+                                    SkBits2Float(baseValue++),
+                                    SkBits2Float(baseValue++)});
+                    break;
+                default:
+                    SkUNREACHABLE;
+            }
+        }
+        return baseValue;
+    };
+
+    bool dataMatchFailureLogged = false;
+    for (size_t l = 0; l < std::size(kLayouts); ++l) {
+        const Layout layout = kLayouts[l];
+        skiatest::ReporterContext layoutLabel(r, LayoutString(layout));
+
+        for (size_t t = 0; t < std::size(kCases); ++t) {
+            const TestCase& test = kCases[t];
+            skiatest::ReporterContext testLabel(r, std::to_string(t));
+
+            auto [baseAlignment, expectedData] = test.fExpectedAlignmentAndData[l];
+
+            UniformManager mgr{layout};
+            int baseValue = 1;
+            if (!test.fPreStruct.empty()) {
+                // pre-struct fields
+                const bool preStructIsStruct = !test.fPreStructAlignments.empty();
+                SkDEBUGCODE(mgr.setExpectedUniforms(test.fPreStruct, preStructIsStruct);)
+                if (preStructIsStruct) {
+                    mgr.beginStruct(test.fPreStructAlignments[l]);
+                }
+                baseValue = writeFields(&mgr, test.fPreStruct, baseValue);
+                if (preStructIsStruct) {
+                    mgr.endStruct();
+                }
+                SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
+            }
+            if (!test.fSubstruct.empty()) {
+                // substruct fields
+                SkDEBUGCODE(mgr.setExpectedUniforms(test.fSubstruct, /*isSubstruct=*/true);)
+                mgr.beginStruct(baseAlignment);
+                baseValue = writeFields(&mgr, test.fSubstruct, baseValue);
+                mgr.endStruct();
+                SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
+            }
+            if (!test.fPostStruct.empty()) {
+                // post-struct fields
+                SkDEBUGCODE(mgr.setExpectedUniforms(test.fPostStruct, /*isSubstruct=*/false);)
+                baseValue = writeFields(&mgr, test.fPostStruct, baseValue);
+                SkDEBUGCODE(mgr.doneWithExpectedUniforms();)
+            }
+
+            SkSpan<const char> data = mgr.finish();
+
+            bool sizeMatch = data.size() == sizeof(uint32_t)*expectedData.size();
+            // To reduce logging/asserts, pretend contents "match" if the sizes differ since that
+            // will already be triggering test failures
+            bool contentsMatch = !sizeMatch ||
+                                 memcmp(data.data(), expectedData.data(), data.size()) == 0;
+            REPORTER_ASSERT(r, sizeMatch, "Size mismatch between written (%zu) and expected (%zu)",
+                            data.size(), expectedData.size());
+            REPORTER_ASSERT(r, contentsMatch, "Contents differ between written and expected");
+
+            if (!contentsMatch && !dataMatchFailureLogged) {
+                // Print out actual and expected values once if it's only the contents that are
+                // incorrect (don't bother printing contents if their lengths differ).
+                SkDebugf("Expected contents:\n");
+                for (size_t i = 0; i < expectedData.size(); ++i) {
+                    SkDebugf("%s%u", i % 4 == 0 ? " " : ",", expectedData[i]);
+                }
+                SkDebugf("\nActual contents:\n");
+                SkASSERT(data.size() % 4 == 0);
+                const uint32_t* actualData = reinterpret_cast<const uint32_t*>(data.begin());
+                for (size_t i = 0; i < expectedData.size(); ++i) {
+                    SkDebugf("%s%u", i % 4 == 0 ? " " : ",", actualData[i]);
+                }
+                SkDebugf("\n\n");
+                dataMatchFailureLogged = true;
+            }
+        }
     }
 }

@@ -694,10 +694,6 @@ PaintParamsKey ShaderCodeDictionary::lookup(UniquePaintParamsID codeID) const {
     return fIDToPaintKey[codeID.asUInt()];
 }
 
-SkSpan<const Uniform> ShaderCodeDictionary::getUniforms(BuiltInCodeSnippetID id) const {
-    return fBuiltInCodeSnippets[(int) id].fUniforms;
-}
-
 const ShaderSnippet* ShaderCodeDictionary::getEntry(int codeSnippetID) const {
     if (codeSnippetID < 0) {
         return nullptr;

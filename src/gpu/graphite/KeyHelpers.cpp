@@ -81,8 +81,11 @@
 
 using namespace skia_private;
 
-#define VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID) \
-    SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, dict->getUniforms(codeSnippetID));)
+#define VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)                               \
+    SkDEBUGCODE(const ShaderSnippet* entry = dict->getEntry(codeSnippetID);)           \
+    SkDEBUGCODE(UniformExpectationsValidator uev(gatherer,                             \
+                                                 entry->fUniforms,                     \
+                                                 SkToBool(entry->fUniformStructName));)
 
 namespace skgpu::graphite {
 

@@ -68,24 +68,16 @@ int UniformOffsetCalculator::advanceStruct(const UniformOffsetCalculator& substr
 
 //////////////////////////////////////////////////////////////////////////////
 
-UniformDataBlock UniformManager::finishUniformDataBlock() {
-    size_t size = SkAlignTo(fStorage.size(), fReqAlignment);
-    size_t paddingSize = size - fStorage.size();
-    if (paddingSize > 0) {
-        char* padding = fStorage.append(paddingSize);
-        memset(padding, 0, paddingSize);
-    }
-    return UniformDataBlock(SkSpan(fStorage.begin(), size));
-}
-
 void UniformManager::resetWithNewLayout(Layout layout) {
     fStorage.clear();
     fLayout = layout;
     fReqAlignment = 0;
+    fStructBaseAlignment = 0;
     fWrotePaintColor = false;
 
 #ifdef SK_DEBUG
     fOffsetCalculator = UniformOffsetCalculator::ForTopLevel(layout);
+    fSubstructCalculator = {};
     fExpectedUniforms = {};
     fExpectedUniformIndex = 0;
 #endif
@@ -152,12 +144,76 @@ void UniformManager::write(const Uniform& u, const void* data) {
     }
 }
 
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG)
+
+bool UniformManager::checkBeginStruct(int baseAlignment) {
+    if (fExpectedUniformIndex > 0) {
+        return false; // Wrote a struct field before the struct was started
+    }
+    if (fSubstructCalculator.layout() == Layout::kInvalid) {
+        return false; // Not expecting to start a struct
+    }
+    if (fStructBaseAlignment > 0) {
+        return false; // Somehow already started a substruct
+    }
+    if (fExpectedUniforms.empty()) {
+        return false; // Empty substructs are not allowed
+    }
+
+    // Assume the expected uniforms describe the whole substruct
+    auto structCalculator = UniformOffsetCalculator::ForStruct(fLayout);
+    for (const Uniform& f : fExpectedUniforms) {
+        structCalculator.advanceOffset(f.type(), f.count());
+    }
+    if (baseAlignment != structCalculator.requiredAlignment()) {
+        return false;
+    }
+    fSubstructStartingOffset = fOffsetCalculator.advanceStruct(structCalculator);
+    return true;
+}
+
+bool UniformManager::checkEndStruct() {
+    if (fExpectedUniformIndex != (int) fExpectedUniforms.size()) {
+        return false; // Didn't write all the expected fields before ending the struct
+    }
+    if (fSubstructCalculator.layout() == Layout::kInvalid) {
+        return false; // Not expecting a struct
+    }
+    if (fStructBaseAlignment <= 0) {
+        return false; // Missing a beginStruct()
+    }
+
+    // `fStructCalculator` should now have been advanced equivalently to the substruct calculator
+    // used in checkBeginStruct() to calculate the expected starting offset.
+    const int structSize = SkAlignTo(fSubstructCalculator.size(),
+                                     fSubstructCalculator.requiredAlignment());
+    if (fStorage.size() != fSubstructStartingOffset + structSize) {
+        return false; // Somehow didn't end on the correct boundary
+    }
+    if (fReqAlignment != fOffsetCalculator.requiredAlignment() ||
+        fReqAlignment < fSubstructCalculator.requiredAlignment()) {
+        return false; // UniformManager's alignment got out of sync with expected alignment
+    }
+
+    // Reset the substruct calculator to mark that the struct has been completed
+    fSubstructCalculator = {};
+    return true;
+}
 
 bool UniformManager::checkExpected(const void* dst, SkSLType type, int count) {
-    if (fExpectedUniformIndex >= (int) fExpectedUniforms.size()) {
+    if (fExpectedUniformIndex >= SkTo<int>(fExpectedUniforms.size())) {
         // A write() outside of a UniformExpectationsVisitor or too many uniforms written for what
         // is expected.
+        return false;
+    }
+    if (fSubstructCalculator.layout() != Layout::kInvalid) {
+        if (fStructBaseAlignment <= 0) {
+            // A write() that should be inside a struct, but missing a call to beginStruct()
+            return false;
+        }
+
+    } else if (fStructBaseAlignment > 0) {
+        // A substruct was started when it shouldn't have been
         return false;
     }
 
@@ -177,19 +233,37 @@ bool UniformManager::checkExpected(const void* dst, SkSLType type, int count) {
         // subtracting the address of the first byte in fStorage gives us the offset.
         int offset = static_cast<int>(reinterpret_cast<intptr_t>(dst) -
                                       reinterpret_cast<intptr_t>(fStorage.data()));
-        // Pass original expected type and count to the offset calculator for validation.
-        if (offset != fOffsetCalculator.advanceOffset(expected.type(), expected.count())) {
-            return false;
+
+        if (fSubstructCalculator.layout() == Layout::kInvalid) {
+            // Pass original expected type and count to the offset calculator for validation.
+            if (offset != fOffsetCalculator.advanceOffset(expected.type(), expected.count())) {
+                return false;
+            }
+            if (fReqAlignment != fOffsetCalculator.requiredAlignment()) {
+                return false;
+            }
+
+            // And if it is the paint color uniform, we should not have already written it
+            return !(fWrotePaintColor && expected.isPaintColor());
+        } else {
+            int relOffset = fSubstructCalculator.advanceOffset(expected.type(), expected.count());
+            if (offset != fSubstructStartingOffset + relOffset) {
+                return false;
+            }
+            // The overall required alignment might already be higher from prior fields, but should
+            // be at least what's required by the substruct.
+            if (fReqAlignment < fSubstructCalculator.requiredAlignment()) {
+                return false;
+            }
+
+            // And it should not be a paint color uniform within a substruct
+            return !expected.isPaintColor();
         }
-        if (fReqAlignment != fOffsetCalculator.requiredAlignment()) {
-            return false;
-        }
-        // And if it is the paint color uniform, we should not have already written it
-        return !(fWrotePaintColor && expected.isPaintColor());
     } else {
         // If 'dst' is null, it's an already-visited paint color uniform, so it's not being written
-        // and not changing the offset.
+        // and not changing the offset, and should not be part of a substruct.
         SkASSERT(fWrotePaintColor);
+        SkASSERT(fSubstructCalculator.layout() == Layout::kInvalid);
         return expected.isPaintColor();
     }
 }
@@ -198,13 +272,25 @@ bool UniformManager::isReset() const {
     return fStorage.empty();
 }
 
-void UniformManager::setExpectedUniforms(SkSpan<const Uniform> expected) {
+void UniformManager::setExpectedUniforms(SkSpan<const Uniform> expected, bool isSubstruct) {
     fExpectedUniforms = expected;
     fExpectedUniformIndex = 0;
+
+    if (isSubstruct) {
+        // Start collecting the subsequent uniforms with a 0-based offset to determine their
+        // relative layout and required base alignment of the entire struct.
+        fSubstructCalculator = UniformOffsetCalculator::ForStruct(fLayout);
+    } else {
+        // Expected uniforms will advance fOffsetCalculator directly
+        SkASSERT(fSubstructCalculator.layout() == Layout::kInvalid);
+    }
 }
 
 void UniformManager::doneWithExpectedUniforms() {
     SkASSERT(fExpectedUniformIndex == static_cast<int>(fExpectedUniforms.size()));
+    // Any expected substruct should have been ended and validated inside endStruct(); if this fails
+    // it means there is a missing endStruct().
+    SkASSERT(fSubstructCalculator.layout() == Layout::kInvalid);
     fExpectedUniforms = {};
 }
 

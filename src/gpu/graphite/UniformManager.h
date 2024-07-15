@@ -221,7 +221,11 @@ class UniformManager {
 public:
     UniformManager(Layout layout) { this->resetWithNewLayout(layout); }
 
-    UniformDataBlock finishUniformDataBlock();
+    SkSpan<const char> finish() {
+        this->alignTo(fReqAlignment);
+        return SkSpan(fStorage);
+    }
+
     size_t size() const { return fStorage.size(); }
 
     void resetWithNewLayout(Layout layout);
@@ -320,10 +324,33 @@ public:
     // Copy from `src` using Uniform array-count semantics.
     void write(const Uniform&, const void* src);
 
+    // UniformManager has basic support for writing substructs with the caveats:
+    // 1. The base alignment of the substruct must be known a priori so the first member can be
+    //    written immediately.
+    // 2. Nested substructs are not supported (but could be if the padded-struct size was also
+    //    provided to endStruct()).
+    //
+    // Call beginStruct(baseAlignment) before writing the first field. Then call the regular
+    // write functions for each of the substruct's fields in order. Lastly, call endStruct() to
+    // go back to writing fields in the top-level interface block.
+    void beginStruct(int baseAlignment) {
+        SkASSERT(this->checkBeginStruct(baseAlignment)); // verifies baseAlignment matches layout
+
+        this->alignTo(baseAlignment);
+        fStructBaseAlignment = baseAlignment;
+        fReqAlignment = std::max(fReqAlignment, baseAlignment);
+    }
+    void endStruct() {
+        SkASSERT(fStructBaseAlignment >= 1); // Must have started a struct
+        this->alignTo(fStructBaseAlignment);
+        SkASSERT(this->checkEndStruct()); // validate after padding out to struct's alignment
+        fStructBaseAlignment = 0;
+    }
+
     // Debug-only functions to control uniform expectations.
 #ifdef SK_DEBUG
     bool isReset() const;
-    void setExpectedUniforms(SkSpan<const Uniform> expected);
+    void setExpectedUniforms(SkSpan<const Uniform> expected, bool isSubstruct);
     void doneWithExpectedUniforms();
 #endif // SK_DEBUG
 
@@ -361,22 +388,29 @@ private:
     // This is marked 'inline' so that it can be defined below with write() and writeArray() and
     // still link correctly.
     inline char* append(int alignment, int size);
+    inline void alignTo(int alignment);
 
     SkTDArray<char> fStorage;
 
     Layout fLayout;
     int fReqAlignment = 0;
+    int fStructBaseAlignment = 0;
     // The paint color is treated special and we only add its uniform once.
     bool fWrotePaintColor = false;
 
     // Debug-only verification that UniformOffsetCalculator is consistent and that write() calls
     // match the expected uniform declaration order.
 #ifdef SK_DEBUG
-    UniformOffsetCalculator fOffsetCalculator; // should match implicit offsets from getWriteDst()
+    UniformOffsetCalculator fOffsetCalculator; // should match implicit offsets from append()
+    UniformOffsetCalculator fSubstructCalculator; // 0-based, used when inside a substruct
+    int fSubstructStartingOffset = -1; // offset within fOffsetCalculator of first field
+
     SkSpan<const Uniform> fExpectedUniforms;
     int fExpectedUniformIndex = 0;
 
     bool checkExpected(const void* dst, SkSLType, int count);
+    bool checkBeginStruct(int baseAlignment);
+    bool checkEndStruct();
 #endif // SK_DEBUG
 };
 
@@ -492,8 +526,18 @@ void UniformManager::writeArray(const void* src, int count, SkSLType type) {
     }
 }
 
+void UniformManager::alignTo(int alignment) {
+    SkASSERT(alignment >= 1 && SkIsPow2(alignment));
+    if ((fStorage.size() & (alignment - 1)) != 0) {
+        this->append(alignment, /*size=*/0);
+    }
+}
+
 char* UniformManager::append(int alignment, int size) {
-    SkASSERT(size > 0);
+    // The base alignment for a struct should have been calculated for the current layout using
+    // UniformOffsetCalculator, so every field appended within the struct should have an alignment
+    // less than or equal to that base alignment.
+    SkASSERT(fStructBaseAlignment <= 0 || alignment <= fStructBaseAlignment);
 
     const int offset = fStorage.size();
     const int padding = SkAlignTo(offset, alignment) - offset;
