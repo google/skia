@@ -81,22 +81,52 @@
 
 using namespace skia_private;
 
-#define VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)                               \
-    SkDEBUGCODE(const ShaderSnippet* entry = dict->getEntry(codeSnippetID);)           \
-    SkDEBUGCODE(UniformExpectationsValidator uev(gatherer,                             \
-                                                 entry->fUniforms,                     \
-                                                 SkToBool(entry->fUniformStructName));)
-
 namespace skgpu::graphite {
 
 //--------------------------------------------------------------------------------------------------
 
 namespace {
 
+// Automatically calls beginStruct() with the required alignment and endStruct() when it is deleted.
+// Automatically registers uniform expectations in debug builds.
+class ScopedUniformWriter {
+public:
+    ScopedUniformWriter(PipelineDataGatherer* gatherer,
+                        const ShaderCodeDictionary* dict,
+                        BuiltInCodeSnippetID codeSnippetID)
+            : ScopedUniformWriter(gatherer, dict->getEntry(codeSnippetID)) {}
+
+    ~ScopedUniformWriter() {
+        if (fGatherer) {
+            fGatherer->endStruct();
+        }
+    }
+
+private:
+    ScopedUniformWriter(PipelineDataGatherer* gatherer, const ShaderSnippet* snippet)
+#if defined(SK_DEBUG)
+        : fValidator(gatherer, snippet->fUniforms, SkToBool(snippet->fUniformStructName))
+#endif
+    {
+        if (snippet->fUniformStructName) {
+            gatherer->beginStruct(snippet->fRequiredAlignment);
+            fGatherer = gatherer;
+        } else {
+            fGatherer = nullptr;
+        }
+    }
+
+    PipelineDataGatherer* fGatherer;
+    SkDEBUGCODE(UniformExpectationsValidator fValidator;)
+};
+
+#define BEGIN_WRITE_UNIFORMS(gatherer, dict, codeSnippetID) \
+    ScopedUniformWriter scope{gatherer, dict, codeSnippetID};
+
 void add_solid_uniform_data(const ShaderCodeDictionary* dict,
                             const SkPMColor4f& premulColor,
                             PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kSolidColorShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kSolidColorShader)
     gatherer->write(premulColor);
 }
 
@@ -118,14 +148,14 @@ namespace {
 void add_rgb_paint_color_uniform_data(const ShaderCodeDictionary* dict,
                                       const SkPMColor4f& premulColor,
                                       PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kRGBPaintColor)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kRGBPaintColor)
     gatherer->writePaintColor(premulColor);
 }
 
 void add_alpha_only_paint_color_uniform_data(const ShaderCodeDictionary* dict,
                                              const SkPMColor4f& premulColor,
                                              PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kAlphaOnlyPaintColor)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kAlphaOnlyPaintColor)
     gatherer->writePaintColor(premulColor);
 }
 
@@ -158,7 +188,7 @@ void add_dst_read_sample_uniform_data(const ShaderCodeDictionary* dict,
     static const SkTileMode kTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
     gatherer->add(dstTexture, {SkSamplingOptions(), kTileModes});
 
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDstReadSample)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDstReadSample)
 
     SkV4 coords{static_cast<float>(dstOffset.x()),
                 static_cast<float>(dstOffset.y()),
@@ -243,7 +273,7 @@ void add_linear_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                       const GradientShaderBlocks::GradientData& gradData,
                                       int bufferOffset,
                                       PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     add_gradient_preamble(gradData, gatherer);
     add_gradient_postamble(gradData, bufferOffset, gatherer);
@@ -254,7 +284,7 @@ void add_radial_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                       const GradientShaderBlocks::GradientData& gradData,
                                       int bufferOffset,
                                       PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     add_gradient_preamble(gradData, gatherer);
     add_gradient_postamble(gradData, bufferOffset, gatherer);
@@ -265,7 +295,7 @@ void add_sweep_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                      const GradientShaderBlocks::GradientData& gradData,
                                      int bufferOffset,
                                      PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     add_gradient_preamble(gradData, gatherer);
     gatherer->write(gradData.fBias);
@@ -278,7 +308,7 @@ void add_conical_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                        const GradientShaderBlocks::GradientData& gradData,
                                        int bufferOffset,
                                        PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, codeSnippetID)
 
     float dRadius = gradData.fRadii[1] - gradData.fRadii[0];
     bool isRadial = SkPoint::Distance(gradData.fPoints[1], gradData.fPoints[0])
@@ -485,7 +515,7 @@ namespace {
 void add_localmatrixshader_uniform_data(const ShaderCodeDictionary* dict,
                                         const SkM44& localMatrix,
                                         PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kLocalMatrixShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kLocalMatrixShader)
 
     SkM44 lmInverse;
     bool wasInverted = localMatrix.invert(&lmInverse);  // TODO: handle failure up stack
@@ -603,7 +633,7 @@ void add_image_uniform_data(const ShaderCodeDictionary* dict,
                             const ImageShaderBlock::ImageData& imgData,
                             PipelineDataGatherer* gatherer) {
     SkASSERT(!imgData.fSampling.useCubic);
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kImageShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(imgData.fSubset);
@@ -616,7 +646,7 @@ void add_cubic_image_uniform_data(const ShaderCodeDictionary* dict,
                                   const ImageShaderBlock::ImageData& imgData,
                                   PipelineDataGatherer* gatherer) {
     SkASSERT(imgData.fSampling.useCubic);
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCubicImageShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCubicImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(imgData.fSubset);
@@ -630,7 +660,7 @@ void add_hw_image_uniform_data(const ShaderCodeDictionary* dict,
                                const ImageShaderBlock::ImageData& imgData,
                                PipelineDataGatherer* gatherer) {
     SkASSERT(!imgData.fSampling.useCubic);
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWImageShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
 }
@@ -712,7 +742,7 @@ namespace {
 void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
                                 const YUVImageShaderBlock::ImageData& imgData,
                                 PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kYUVImageShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kYUVImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(SkSize::Make(1.f/imgData.fImgSizeUV.width(), 1.f/imgData.fImgSizeUV.height()));
@@ -733,7 +763,7 @@ void add_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
 void add_cubic_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
                                       const YUVImageShaderBlock::ImageData& imgData,
                                       PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCubicYUVImageShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCubicYUVImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(SkSize::Make(1.f/imgData.fImgSizeUV.width(), 1.f/imgData.fImgSizeUV.height()));
@@ -753,7 +783,7 @@ void add_cubic_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
 void add_hw_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
                                    const YUVImageShaderBlock::ImageData& imgData,
                                    PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWYUVImageShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWYUVImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(SkSize::Make(1.f/imgData.fImgSizeUV.width(), 1.f/imgData.fImgSizeUV.height()));
@@ -767,7 +797,7 @@ void add_hw_yuv_image_uniform_data(const ShaderCodeDictionary* dict,
 void add_hw_yuv_no_swizzle_image_uniform_data(const ShaderCodeDictionary* dict,
                                               const YUVImageShaderBlock::ImageData& imgData,
                                               PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWYUVNoSwizzleImageShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWYUVNoSwizzleImageShader)
 
     gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
     gatherer->write(SkSize::Make(1.f/imgData.fImgSizeUV.width(), 1.f/imgData.fImgSizeUV.height()));
@@ -874,7 +904,7 @@ namespace {
 void add_coordclamp_uniform_data(const ShaderCodeDictionary* dict,
                                  const CoordClampShaderBlock::CoordClampData& clampData,
                                  PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCoordClampShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCoordClampShader)
 
     gatherer->write(clampData.fSubset);
 }
@@ -897,7 +927,7 @@ namespace {
 void add_dither_uniform_data(const ShaderCodeDictionary* dict,
                              const DitherShaderBlock::DitherData& ditherData,
                              PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDitherShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDitherShader)
 
     gatherer->writeHalf(ditherData.fRange);
 }
@@ -926,7 +956,7 @@ namespace {
 void add_perlin_noise_uniform_data(const ShaderCodeDictionary* dict,
                                    const PerlinNoiseShaderBlock::PerlinNoiseData& noiseData,
                                    PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kPerlinNoiseShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kPerlinNoiseShader)
 
     gatherer->write(noiseData.fBaseFrequency);
     gatherer->write(noiseData.fStitchData);
@@ -957,7 +987,7 @@ void PerlinNoiseShaderBlock::AddBlock(const KeyContext& keyContext,
 void BlendShaderBlock::BeginBlock(const KeyContext& keyContext,
                                   PaintParamsKeyBuilder* builder,
                                   PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kBlendShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kBlendShader)
 
     builder->beginBlock(BuiltInCodeSnippetID::kBlendShader);
 }
@@ -968,7 +998,7 @@ void BlendModeBlenderBlock::AddBlock(const KeyContext& keyContext,
                                      PaintParamsKeyBuilder* builder,
                                      PipelineDataGatherer* gatherer,
                                      SkBlendMode blendMode) {
-    VALIDATE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kBlendModeBlender)
+    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kBlendModeBlender)
     gatherer->write(SkTo<int>(blendMode));
 
     builder->addBlock(BuiltInCodeSnippetID::kBlendModeBlender);
@@ -980,7 +1010,7 @@ void CoeffBlenderBlock::AddBlock(const KeyContext& keyContext,
                                  PaintParamsKeyBuilder* builder,
                                  PipelineDataGatherer* gatherer,
                                  SkSpan<const float> coeffs) {
-    VALIDATE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kCoeffBlender)
+    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kCoeffBlender)
     SkASSERT(coeffs.size() == 4);
     gatherer->writeHalf(SkV4{coeffs[0], coeffs[1], coeffs[2], coeffs[3]});
 
@@ -992,7 +1022,7 @@ void CoeffBlenderBlock::AddBlock(const KeyContext& keyContext,
 void ClipShaderBlock::BeginBlock(const KeyContext& keyContext,
                                  PaintParamsKeyBuilder* builder,
                                  PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kClipShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kClipShader)
 
     builder->beginBlock(BuiltInCodeSnippetID::kClipShader);
 }
@@ -1012,7 +1042,7 @@ namespace {
 void add_matrix_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
                                          const MatrixColorFilterBlock::MatrixColorFilterData& data,
                                          PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kMatrixColorFilter)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kMatrixColorFilter)
     gatherer->write(data.fMatrix);
     gatherer->write(data.fTranslate);
     gatherer->write(static_cast<int>(data.fInHSLA));
@@ -1037,7 +1067,7 @@ namespace {
 void add_table_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
                                         const TableColorFilterBlock::TableColorFilterData& data,
                                         PipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kTableColorFilter)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kTableColorFilter)
 
     static const SkTileMode kTileModes[2] = { SkTileMode::kClamp, SkTileMode::kClamp };
     gatherer->add(data.fTextureProxy, {SkSamplingOptions(), kTileModes});
@@ -1063,8 +1093,7 @@ void add_color_space_xform_uniform_data(
         const ShaderCodeDictionary* dict,
         const ColorSpaceTransformBlock::ColorSpaceTransformData& data,
         PipelineDataGatherer* gatherer) {
-
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformColorFilter)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformColorFilter)
     add_color_space_uniforms(data.fSteps, data.fReadSwizzle, gatherer);
 }
 
@@ -1092,7 +1121,7 @@ void add_primitive_color_uniform_data(
         const SkColorSpaceXformSteps& steps,
         PipelineDataGatherer* gatherer) {
 
-    VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kPrimitiveColor)
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kPrimitiveColor)
     add_color_space_uniforms(steps, ReadSwizzle::kRGBA, gatherer);
 }
 

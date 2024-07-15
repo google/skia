@@ -116,6 +116,9 @@ public:
 
     void writePaintColor(const SkPMColor4f& color) { fUniformManager.writePaintColor(color); }
 
+    void beginStruct(int baseAligment) { fUniformManager.beginStruct(baseAligment); }
+    void endStruct() { fUniformManager.endStruct(); }
+
     bool hasUniforms() const { return fUniformManager.size(); }
 
     bool hasGradientBufferData() const { return !fGradientStorage.empty(); }

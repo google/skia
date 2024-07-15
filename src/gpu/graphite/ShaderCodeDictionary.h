@@ -288,8 +288,9 @@ public:
 
     // This method can return nullptr
     const ShaderSnippet* getEntry(int codeSnippetID) const SK_EXCLUDES(fSpinLock);
-    const ShaderSnippet* getEntry(BuiltInCodeSnippetID codeSnippetID) const SK_EXCLUDES(fSpinLock) {
-        return this->getEntry(SkTo<int>(codeSnippetID));
+    const ShaderSnippet* getEntry(BuiltInCodeSnippetID codeSnippetID) const {
+        // Built-in code snippets are initialized once so there is no need to take a lock
+        return &fBuiltInCodeSnippets[SkTo<int>(codeSnippetID)];
     }
 
     int findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect);
