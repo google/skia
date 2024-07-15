@@ -358,6 +358,7 @@ skia_graphite_precompile_public = [
   "$_include/precompile/PrecompileColorFilter.h",
   "$_include/precompile/PrecompileImageFilter.h",
   "$_include/precompile/PrecompileMaskFilter.h",
+  "$_include/precompile/PrecompileRuntimeEffect.h",
   "$_include/precompile/PrecompileShader.h",
   "$_include/precompile/PaintOptions.h",
 ]
@@ -382,6 +383,7 @@ skia_graphite_precompile_sources = [
   "$_src/precompile/PrecompileImageFilterPriv.h",
   "$_src/precompile/PrecompileImageFiltersPriv.h",
   "$_src/precompile/PrecompileMaskFilter.cpp",
+  "$_src/precompile/PrecompileRuntimeEffect.cpp",
   "$_src/precompile/PrecompileShader.cpp",
   "$_src/precompile/PrecompileShaderPriv.h",
   "$_src/precompile/PrecompileShadersPriv.h",

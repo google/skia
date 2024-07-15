@@ -39,6 +39,7 @@
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileImageFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileMaskFilter.h"
+#include "include/gpu/graphite/precompile/PrecompileRuntimeEffect.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkBlenderBase.h"
@@ -46,13 +47,11 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/FactoryFunctions.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PipelineData.h"
-#include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
@@ -551,7 +550,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_runtime_shader(SkRand
     sk_sp<SkData> uniforms = SkData::MakeWithCopy(kUniforms, sizeof(kUniforms));
 
     sk_sp<SkShader> s = sEffect->makeShader(std::move(uniforms), /* children= */ {});
-    sk_sp<PrecompileShader> o = MakePrecompileShader(sk_ref_sp(sEffect));
+    sk_sp<PrecompileShader> o = PrecompileRuntimeEffects::MakePrecompileShader(sk_ref_sp(sEffect));
     return { std::move(s), std::move(o) };
 }
 
@@ -838,7 +837,8 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> src_blender() {
     );
 
     sk_sp<SkBlender> b = sSrcEffect->makeBlender(/* uniforms= */ nullptr);
-    sk_sp<PrecompileBlender> o = MakePrecompileBlender(sk_ref_sp(sSrcEffect));
+    sk_sp<PrecompileBlender> o =
+            PrecompileRuntimeEffects::MakePrecompileBlender(sk_ref_sp(sSrcEffect));
     return { std::move(b) , std::move(o) };
 }
 
@@ -851,7 +851,8 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> dest_blender() {
     );
 
     sk_sp<SkBlender> b = sDestEffect->makeBlender(/* uniforms= */ nullptr);
-    sk_sp<PrecompileBlender> o = MakePrecompileBlender(sk_ref_sp(sDestEffect));
+    sk_sp<PrecompileBlender> o =
+            PrecompileRuntimeEffects::MakePrecompileBlender(sk_ref_sp(sDestEffect));
     return { std::move(b) , std::move(o) };
 }
 
@@ -876,8 +877,9 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> combo_blender() {
 
     sk_sp<SkData> uniforms = SkData::MakeWithCopy(kUniforms, sizeof(kUniforms));
     sk_sp<SkBlender> b = sComboEffect->makeBlender(std::move(uniforms), children);
-    sk_sp<PrecompileBlender> o = MakePrecompileBlender(sk_ref_sp(sComboEffect),
-                                                       { { srcO }, { dstO } });
+    sk_sp<PrecompileBlender> o = PrecompileRuntimeEffects::MakePrecompileBlender(
+            sk_ref_sp(sComboEffect),
+            { { srcO }, { dstO } });
     return { std::move(b) , std::move(o) };
 }
 
@@ -942,7 +944,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> double_colorfilter
     );
 
     return { sSrcEffect->makeColorFilter(/* uniforms= */ nullptr),
-             MakePrecompileColorFilter(sk_ref_sp(sSrcEffect)) };
+             PrecompileRuntimeEffects::MakePrecompileColorFilter(sk_ref_sp(sSrcEffect)) };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> half_colorfilter() {
@@ -954,7 +956,7 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> half_colorfilter()
     );
 
     return { sDestEffect->makeColorFilter(/* uniforms= */ nullptr),
-             MakePrecompileColorFilter(sk_ref_sp(sDestEffect)) };
+             PrecompileRuntimeEffects::MakePrecompileColorFilter(sk_ref_sp(sDestEffect)) };
 }
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> combo_colorfilter() {
@@ -977,8 +979,9 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> combo_colorfilter(
 
     sk_sp<SkData> uniforms = SkData::MakeWithCopy(kUniforms, sizeof(kUniforms));
     sk_sp<SkColorFilter> cf = sComboEffect->makeColorFilter(std::move(uniforms), children);
-    sk_sp<PrecompileColorFilter> o = MakePrecompileColorFilter(sk_ref_sp(sComboEffect),
-                                                               { { srcO }, { dstO } });
+    sk_sp<PrecompileColorFilter> o =
+            PrecompileRuntimeEffects::MakePrecompileColorFilter(sk_ref_sp(sComboEffect),
+                                                                { { srcO }, { dstO } });
     return { std::move(cf) , std::move(o) };
 }
 

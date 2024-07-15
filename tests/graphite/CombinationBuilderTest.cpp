@@ -13,9 +13,9 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
+#include "include/gpu/graphite/precompile/PrecompileRuntimeEffect.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/gpu/graphite/ContextPriv.h"
-#include "src/gpu/graphite/FactoryFunctions.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
@@ -251,13 +251,13 @@ void runtime_effect_test(const KeyContext& keyContext,
         )";
 
         std::vector<sk_sp<PrecompileShader>> combinations =
-                create_runtime_combos<PrecompileShader>(reporter,
-                                                        SkRuntimeEffect::MakeForShader,
-                                                        MakePrecompileShader,
-                                                        kRedS,
-                                                        kGreenS,
-                                                        kBlueS,
-                                                        kCombineS);
+            create_runtime_combos<PrecompileShader>(reporter,
+                                                    SkRuntimeEffect::MakeForShader,
+                                                    PrecompileRuntimeEffects::MakePrecompileShader,
+                                                    kRedS,
+                                                    kGreenS,
+                                                    kBlueS,
+                                                    kCombineS);
         paintOptions.setShaders(combinations);
     }
 
@@ -280,13 +280,14 @@ void runtime_effect_test(const KeyContext& keyContext,
         )";
 
         std::vector<sk_sp<PrecompileColorFilter>> combinations =
-                create_runtime_combos<PrecompileColorFilter>(reporter,
-                                                             SkRuntimeEffect::MakeForColorFilter,
-                                                             MakePrecompileColorFilter,
-                                                             kRedCF,
-                                                             kGreenCF,
-                                                             kBlueCF,
-                                                             kCombineCF);
+            create_runtime_combos<PrecompileColorFilter>(
+                    reporter,
+                    SkRuntimeEffect::MakeForColorFilter,
+                    PrecompileRuntimeEffects::MakePrecompileColorFilter,
+                    kRedCF,
+                    kGreenCF,
+                    kBlueCF,
+                    kCombineCF);
         paintOptions.setColorFilters(combinations);
     }
 
@@ -311,13 +312,14 @@ void runtime_effect_test(const KeyContext& keyContext,
         )";
 
         std::vector<sk_sp<PrecompileBlender>> combinations =
-                create_runtime_combos<PrecompileBlender>(reporter,
-                                                         SkRuntimeEffect::MakeForBlender,
-                                                         MakePrecompileBlender,
-                                                         kRedB,
-                                                         kGreenB,
-                                                         kBlueB,
-                                                         kCombineB);
+            create_runtime_combos<PrecompileBlender>(
+                    reporter,
+                    SkRuntimeEffect::MakeForBlender,
+                    PrecompileRuntimeEffects::MakePrecompileBlender,
+                    kRedB,
+                    kGreenB,
+                    kBlueB,
+                    kCombineB);
         paintOptions.setBlenders(combinations);
     }
 
