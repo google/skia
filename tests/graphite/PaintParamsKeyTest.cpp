@@ -144,6 +144,8 @@ enum class MaskFilterType {
     kLast = kBlur
 };
 
+static constexpr int kMaskFilterTypeCount = static_cast<int>(MaskFilterType::kLast) + 1;
+
 const char* to_str(MaskFilterType mf) {
     switch (mf) {
 #define M(type) case MaskFilterType::k##type : return "MaskFilterType::k" #type;
@@ -238,7 +240,11 @@ enum class ClipType {
 #define M(type) k##type,
     SK_ALL_TEST_CLIPS(M)
 #undef M
+
+    kLast = kShader_Diff
 };
+
+static constexpr int kClipTypeCount = static_cast<int>(ClipType::kLast) + 1;
 
 const char* to_str(ClipType c) {
     switch (c) {
@@ -290,7 +296,16 @@ void log_run(const char* label,
              MaskFilterType mf,
              ImageFilterType imageFilter,
              ClipType clip) {
-    SkDebugf("%s: %d %s %s %s %s %s %s \n",
+    SkDebugf("%s:\n"
+             "//-----------------------\n"
+             "uint32_t seed = %d;\n"
+             "ShaderType shaderType = %s;\n"
+             "BlenderType blenderType = %s;\n"
+             "ColorFilterType colorFilterType = %s;\n"
+             "MaskFilterType maskFilterType = %s;\n"
+             "ImageFilterType imageFilterType = %s;\n"
+             "ClipType clipType = %s;\n"
+             "//-----------------------\n",
              label, seed,
              to_str(s), to_str(bm), to_str(cf), to_str(mf), to_str(imageFilter), to_str(clip));
 }
@@ -413,6 +428,14 @@ SkBlendMode random_blend_mode(SkRandom* rand) {
     return static_cast<SkBlendMode>(rand->nextULessThan(kSkBlendModeCount));
 }
 
+[[maybe_unused]] MaskFilterType random_maskfiltertype(SkRandom* rand) {
+    if (rand->nextBool()) {
+        return MaskFilterType::kNone; // bias this towards no mask filter
+    }
+
+    return static_cast<MaskFilterType>(rand->nextULessThan(kMaskFilterTypeCount));
+}
+
 BlenderType random_blendertype(SkRandom* rand) {
     return static_cast<BlenderType>(rand->nextULessThan(kBlenderTypeCount));
 }
@@ -423,6 +446,14 @@ ColorFilterType random_colorfiltertype(SkRandom* rand) {
 
 ImageFilterType random_imagefiltertype(SkRandom* rand) {
     return static_cast<ImageFilterType>(rand->nextULessThan(kImageFilterTypeCount));
+}
+
+[[maybe_unused]] ClipType random_cliptype(SkRandom* rand) {
+    if (rand->nextBool()) {
+        return ClipType::kNone;  // bias this towards no clip
+    }
+
+    return static_cast<ClipType>(rand->nextULessThan(kClipTypeCount));
 }
 
 enum LocalMatrixConstraint {
@@ -1780,6 +1811,42 @@ void run_test(skiatest::Reporter*,
               ClipType,
               uint32_t seed,
               bool verbose);
+
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTestReduced,
+                                               reporter,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNever) {
+    std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
+
+    //----------------------
+    uint32_t seed = std::time(nullptr) % std::numeric_limits<uint32_t>::max();
+    SkRandom rand(seed);
+    ShaderType shaderType = random_shadertype(&rand);
+    BlenderType blenderType = random_blendertype(&rand);
+    ColorFilterType colorFilterType = random_colorfiltertype(&rand);
+    MaskFilterType maskFilterType = random_maskfiltertype(&rand);
+    ImageFilterType imageFilterType = random_imagefiltertype(&rand);
+    ClipType clipType = random_cliptype(&rand);
+    //----------------------
+
+    log_run("Running", seed, shaderType, blenderType, colorFilterType, maskFilterType,
+            imageFilterType, clipType);
+
+    run_test(reporter,
+             context,
+             testContext,
+             create_key_context(context, rtDict.get()),
+             shaderType,
+             blenderType,
+             colorFilterType,
+             maskFilterType,
+             imageFilterType,
+             clipType,
+             seed,
+             /* verbose= */ true);
+}
 
 // This is intended to be a smoke test for the agreement between the two ways of creating a
 // PaintParamsKey:

@@ -402,6 +402,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("Graphite") {
 			args = append(args, "--nogpu") // disable non-Graphite tests
 
+			// This gm is just meant for local debugging
+			skip(ALL, "test", ALL, "PaintParamsKeyTestReduced")
+
 			if b.extraConfig("Dawn") {
 				if b.extraConfig("D3D11") {
 					configs = []string{"grdawn_d3d11"}
