@@ -85,9 +85,7 @@ $pure half4 blend_dst_atop(half4 src, half4 dst)  { return  (1 - dst.a) * src + 
 
 $pure half4 blend_xor(half4 src, half4 dst) { return (1 - dst.a)*src + (1 - src.a)*dst; }
 
-$pure half4 blend_plus(half4 src, half4 dst) { return min(src + dst, 1); }
-
-// This multi-purpose Porter-Duff blend function can perform any of the thirteen blends above,
+// This multi-purpose Porter-Duff blend function can perform any of the twelve blends above,
 // when passed one of the following values for BlendOp:
 // - Clear:   half4(0, 0,  0,  0)
 // - Src:     half4(1, 0,  0,  0)
@@ -101,11 +99,12 @@ $pure half4 blend_plus(half4 src, half4 dst) { return min(src + dst, 1); }
 // - SrcATop: half4(0, 0,  1, -1)
 // - DstATop: half4(0, 0, -1,  1)
 // - Xor:     half4(0, 0, -1, -1)
-// - Plus:    half4(1, 1,  0,  0)
 $pure half4 blend_porter_duff(half4 blendOp, half4 src, half4 dst) {
     half2 coeff = blendOp.xy + (blendOp.zw * (half2(dst.a, src.a) + min(blendOp.zw, 0)));
-    return min(half4(1), src * coeff.x + dst * coeff.y);
+    return src * coeff.x + dst * coeff.y;
 }
+
+$pure half4 blend_plus(half4 src, half4 dst) { return min(src + dst, 1); }
 
 $pure half4 blend_modulate(half4 src, half4 dst) { return src*dst; }
 

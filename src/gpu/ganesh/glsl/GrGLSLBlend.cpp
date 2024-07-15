@@ -38,6 +38,7 @@ std::string BlendExpression(const GrProcessor* processor,
 }
 
 int BlendKey(SkBlendMode mode) {
+    // This switch must be kept in sync with GetReducedBlendModeInfo() in src/gpu/Blend.cpp.
     switch (mode) {
         case SkBlendMode::kSrcOver:
         case SkBlendMode::kDstOver:
@@ -48,25 +49,24 @@ int BlendKey(SkBlendMode mode) {
         case SkBlendMode::kSrcATop:
         case SkBlendMode::kDstATop:
         case SkBlendMode::kXor:
-        case SkBlendMode::kPlus:
-            return -1;
+            return -1;  // blend_porter_duff
 
         case SkBlendMode::kHue:
         case SkBlendMode::kSaturation:
         case SkBlendMode::kLuminosity:
         case SkBlendMode::kColor:
-            return -2;
+            return -2;  // blend_hslc
 
         case SkBlendMode::kOverlay:
         case SkBlendMode::kHardLight:
-            return -3;
+            return -3;  // blend_overlay
 
         case SkBlendMode::kDarken:
         case SkBlendMode::kLighten:
-            return -4;
+            return -4;  // blend_darken
 
         default:
-            return (int)mode;
+            return (int)mode;  // uses a dedicated SkSL blend function
     }
 }
 
