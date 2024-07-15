@@ -152,6 +152,11 @@ struct ProgramConfig {
                 kind == ProgramKind::kPrivateRuntimeBlender);
     }
 
+    static bool IsMesh(ProgramKind kind) {
+        return (kind == ProgramKind::kMeshVertex ||
+                kind == ProgramKind::kMeshFragment);
+    }
+
     static bool AllowsPrivateIdentifiers(ProgramKind kind) {
         return (kind != ProgramKind::kRuntimeColorFilter &&
                 kind != ProgramKind::kRuntimeShader &&

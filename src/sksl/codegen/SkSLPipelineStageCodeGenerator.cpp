@@ -17,7 +17,6 @@
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLOperator.h"
-#include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLStringStream.h"
@@ -371,9 +370,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     // if the return type is float4 - injecting it unconditionally reduces the risk of an
     // obscure bug.
     const FunctionDeclaration& decl = f.declaration();
-    if (decl.isMain() &&
-        fProgram.fConfig->fKind != SkSL::ProgramKind::kMeshVertex &&
-        fProgram.fConfig->fKind != SkSL::ProgramKind::kMeshFragment) {
+    if (decl.isMain() && !ProgramConfig::IsMesh(fProgram.fConfig->fKind)) {
         fCastReturnsToHalf = true;
     }
 
