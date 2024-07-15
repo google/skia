@@ -80,6 +80,13 @@ SK_API BackendTexture MakeMetal(SkISize dimensions, CFTypeRef mtlTexture);
 SK_API CFTypeRef GetMtlTexture(const BackendTexture&);
 }  // namespace BackendTextures
 
+namespace BackendSemaphores {
+SK_API BackendSemaphore MakeMetal(CFTypeRef mtlEvent, uint64_t value);
+
+SK_API CFTypeRef GetMtlEvent(const BackendSemaphore&);
+SK_API uint64_t GetMtlValue(const BackendSemaphore&);
+}  // namespace BackendSemaphores
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_MtlGraphiteTypes_DEFINED

@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
 
 #include "include/gpu/graphite/BackendSemaphore.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -119,9 +120,10 @@ void MtlCommandBuffer::addWaitSemaphores(size_t numWaitSemaphores,
         for (size_t i = 0; i < numWaitSemaphores; ++i) {
             auto semaphore = waitSemaphores[i];
             if (semaphore.isValid() && semaphore.backend() == BackendApi::kMetal) {
-                id<MTLEvent> mtlEvent = (__bridge id<MTLEvent>)semaphore.getMtlEvent();
-                [(*fCommandBuffer) encodeWaitForEvent: mtlEvent
-                                                value: semaphore.getMtlValue()];
+                id<MTLEvent> mtlEvent =
+                        (__bridge id<MTLEvent>)BackendSemaphores::GetMtlEvent(semaphore);
+                [(*fCommandBuffer) encodeWaitForEvent:mtlEvent
+                                                value:BackendSemaphores::GetMtlValue(semaphore)];
             }
         }
     }
@@ -143,9 +145,9 @@ void MtlCommandBuffer::addSignalSemaphores(size_t numSignalSemaphores,
         for (size_t i = 0; i < numSignalSemaphores; ++i) {
             auto semaphore = signalSemaphores[i];
             if (semaphore.isValid() && semaphore.backend() == BackendApi::kMetal) {
-                id<MTLEvent> mtlEvent = (__bridge id<MTLEvent>)semaphore.getMtlEvent();
-                [(*fCommandBuffer) encodeSignalEvent: mtlEvent
-                                               value: semaphore.getMtlValue()];
+                id<MTLEvent> mtlEvent = (__bridge id<MTLEvent>)BackendSemaphores::GetMtlEvent;
+                [(*fCommandBuffer) encodeSignalEvent:mtlEvent
+                                               value:BackendSemaphores::GetMtlValue(semaphore)];
             }
         }
     }

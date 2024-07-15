@@ -28,6 +28,7 @@ skia_graphite_sources = [
   "$_src/AtlasProvider.h",
   "$_src/Attribute.h",
   "$_src/BackendSemaphore.cpp",
+  "$_src/BackendSemaphorePriv.h",
   "$_src/BackendTexture.cpp",
   "$_src/BackendTexturePriv.h",
   "$_src/Buffer.cpp",
@@ -276,6 +277,7 @@ skia_graphite_mtl_public = [
 
 skia_graphite_mtl_sources = [
   "$_include_private/MtlGraphiteTypesPriv.h",
+  "$_src/mtl/MtlBackendSemaphore.mm",
   "$_src/mtl/MtlBackendTexture.mm",
   "$_src/mtl/MtlBlitCommandEncoder.h",
   "$_src/mtl/MtlBuffer.h",

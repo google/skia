@@ -7,6 +7,8 @@
 
 #include "include/gpu/graphite/BackendSemaphore.h"
 
+#include "src/gpu/graphite/BackendSemaphorePriv.h"
+
 namespace skgpu::graphite {
 
 BackendSemaphore::BackendSemaphore() = default;
@@ -27,16 +29,12 @@ BackendSemaphore& BackendSemaphore::operator=(const BackendSemaphore& that) {
     fBackend = that.fBackend;
 
     switch (that.backend()) {
-#ifdef SK_DAWN
         case BackendApi::kDawn:
             SK_ABORT("Unsupported Backend");
-#endif
- #ifdef SK_METAL
         case BackendApi::kMetal:
-            fMtlEvent = that.fMtlEvent;
-            fMtlValue = that.fMtlValue;
+            fSemaphoreData.reset();
+            that.fSemaphoreData->copyTo(fSemaphoreData);
             break;
-#endif
 #ifdef SK_VULKAN
         case BackendApi::kVulkan:
             fVkSemaphore = that.fVkSemaphore;
@@ -48,31 +46,9 @@ BackendSemaphore& BackendSemaphore::operator=(const BackendSemaphore& that) {
     return *this;
 }
 
-#ifdef SK_METAL
-BackendSemaphore::BackendSemaphore(CFTypeRef mtlEvent, uint64_t value)
-        : fMtlEvent(mtlEvent)
-        , fMtlValue(value) {}
-
-CFTypeRef BackendSemaphore::getMtlEvent() const {
-    if (this->isValid() && this->backend() == BackendApi::kMetal) {
-        return fMtlEvent;
-    }
-    return nullptr;
-}
-
-uint64_t BackendSemaphore::getMtlValue() const {
-    if (this->isValid() && this->backend() == BackendApi::kMetal) {
-        return fMtlValue;
-    }
-    return 0;
-}
-#endif // SK_METAL
-
 #ifdef SK_VULKAN
 BackendSemaphore::BackendSemaphore(VkSemaphore semaphore)
-        : fVkSemaphore(semaphore)
-        , fIsValid(true)
-        , fBackend(BackendApi::kVulkan) {}
+        : fBackend(BackendApi::kVulkan), fIsValid(true), fVkSemaphore(semaphore) {}
 
 VkSemaphore BackendSemaphore::getVkSemaphore() const {
     if (this->isValid() && this->backend() == BackendApi::kVulkan) {
@@ -81,5 +57,7 @@ VkSemaphore BackendSemaphore::getVkSemaphore() const {
     return VK_NULL_HANDLE;
 }
 #endif
+
+BackendSemaphoreData::~BackendSemaphoreData(){};
 
 }  // End of namespace skgpu::graphite

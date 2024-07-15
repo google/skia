@@ -10,9 +10,10 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/private/base/SkAnySubclass.h"
 
-#ifdef SK_METAL
-#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_SEMAPHORE_FUNCS)
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 #ifdef SK_VULKAN
@@ -21,10 +22,12 @@
 
 namespace skgpu::graphite {
 
+class BackendSemaphoreData;
+
 class SK_API BackendSemaphore {
 public:
     BackendSemaphore();
-#ifdef SK_METAL
+#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_SEMAPHORE_FUNCS)
     // TODO: Determine creator's responsibility for setting refcnt.
     BackendSemaphore(CFTypeRef mtlEvent, uint64_t value);
 #endif
@@ -42,34 +45,41 @@ public:
     bool isValid() const { return fIsValid; }
     BackendApi backend() const { return fBackend; }
 
-#ifdef SK_METAL
-    CFTypeRef getMtlEvent() const;
-    uint64_t getMtlValue() const;
-#endif
-
 #ifdef SK_VULKAN
     VkSemaphore getVkSemaphore() const;
 #endif
 
 private:
-    // TODO: For now, implement as a union until we figure out the plan for this and BackendTexture.
+    friend class BackendSemaphoreData;
+    friend class BackendSemaphorePriv;
+
+    // Size determined by looking at the BackendSemaphoreData subclasses, then
+    // guessing-and-checking. Compiler will complain if this is too small - in that case, just
+    // increase the number.
+    inline constexpr static size_t kMaxSubclassSize = 24;
+    using AnyBackendSemaphoreData = SkAnySubclass<BackendSemaphoreData, kMaxSubclassSize>;
+
+    template <typename SomeBackendSemaphoreData>
+    BackendSemaphore(BackendApi backend, const SomeBackendSemaphoreData& data)
+            : fBackend(backend), fIsValid(true) {
+        fSemaphoreData.emplace<SomeBackendSemaphoreData>(data);
+    }
+
+    BackendApi fBackend;
+    AnyBackendSemaphoreData fSemaphoreData;
+
+    bool fIsValid = false;
+
+    // TODO(b/294543706): Re-write with SkAnySubclass
     union {
 #ifdef SK_DAWN
         // TODO: WebGPU doesn't seem to have the notion of an Event or Semaphore
-#endif
-#ifdef SK_METAL
-        struct {
-            CFTypeRef fMtlEvent;    // Expected to be an id<MTLEvent>
-            uint64_t fMtlValue;
-        };
 #endif
 #ifdef SK_VULKAN
         VkSemaphore fVkSemaphore;
 #endif
         void* fEnsureUnionNonEmpty;
     };
-    bool fIsValid = false;
-    BackendApi fBackend;
 };
 
 } // namespace skgpu::graphite
