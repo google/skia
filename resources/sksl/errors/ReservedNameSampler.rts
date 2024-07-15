@@ -1,0 +1,59 @@
+int sampler1DShadow;
+int sampler2DRectShadow;
+int sampler2DShadow;
+int sampler3DRect;
+int samplerCube;
+
+int isampler1D;
+int isampler2D;
+int isampler3D;
+int isampler1DArray;
+int isampler2DArray;
+int isampler2DRect;
+int isampler2DMS;
+int isampler2DMSArray;
+int isamplerBuffer;
+int isamplerCube;
+int isamplerCubeArray;
+
+int usampler1D;
+int usampler2D;
+int usampler3D;
+int usampler1DArray;
+int usampler2DArray;
+int usampler2DRect;
+int usampler2DMS;
+int usampler2DMSArray;
+int usamplerBuffer;
+int usamplerCube;
+int usamplerCubeArray;
+
+/*%%*
+name 'sampler1DShadow' is reserved
+name 'sampler2DRectShadow' is reserved
+name 'sampler2DShadow' is reserved
+name 'sampler3DRect' is reserved
+name 'samplerCube' is reserved
+name 'isampler1D' is reserved
+name 'isampler2D' is reserved
+name 'isampler3D' is reserved
+name 'isampler1DArray' is reserved
+name 'isampler2DArray' is reserved
+name 'isampler2DRect' is reserved
+name 'isampler2DMS' is reserved
+name 'isampler2DMSArray' is reserved
+name 'isamplerBuffer' is reserved
+name 'isamplerCube' is reserved
+name 'isamplerCubeArray' is reserved
+name 'usampler1D' is reserved
+name 'usampler2D' is reserved
+name 'usampler3D' is reserved
+name 'usampler1DArray' is reserved
+name 'usampler2DArray' is reserved
+name 'usampler2DRect' is reserved
+name 'usampler2DMS' is reserved
+name 'usampler2DMSArray' is reserved
+name 'usamplerBuffer' is reserved
+name 'usamplerCube' is reserved
+name 'usamplerCubeArray' is reserved
+*%%*/

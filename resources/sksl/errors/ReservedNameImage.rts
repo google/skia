@@ -1,0 +1,71 @@
+int image1D;
+int image2D;
+int image3D;
+int image1DArray;
+int image2DArray;
+int image2DRect;
+int image2DMS;
+int image2DMSArray;
+int imageBuffer;
+int imageCube;
+int imageCubeArray;
+
+int iimage1D;
+int iimage2D;
+int iimage3D;
+int iimage1DArray;
+int iimage2DArray;
+int iimage2DRect;
+int iimage2DMS;
+int iimage2DMSArray;
+int iimageBuffer;
+int iimageCube;
+int iimageCubeArray;
+
+int uimage1D;
+int uimage2D;
+int uimage3D;
+int uimage1DArray;
+int uimage2DArray;
+int uimage2DRect;
+int uimage2DMS;
+int uimage2DMSArray;
+int uimageBuffer;
+int uimageCube;
+int uimageCubeArray;
+
+/*%%*
+name 'image1D' is reserved
+name 'image2D' is reserved
+name 'image3D' is reserved
+name 'image1DArray' is reserved
+name 'image2DArray' is reserved
+name 'image2DRect' is reserved
+name 'image2DMS' is reserved
+name 'image2DMSArray' is reserved
+name 'imageBuffer' is reserved
+name 'imageCube' is reserved
+name 'imageCubeArray' is reserved
+name 'iimage1D' is reserved
+name 'iimage2D' is reserved
+name 'iimage3D' is reserved
+name 'iimage1DArray' is reserved
+name 'iimage2DArray' is reserved
+name 'iimage2DRect' is reserved
+name 'iimage2DMS' is reserved
+name 'iimage2DMSArray' is reserved
+name 'iimageBuffer' is reserved
+name 'iimageCube' is reserved
+name 'iimageCubeArray' is reserved
+name 'uimage1D' is reserved
+name 'uimage2D' is reserved
+name 'uimage3D' is reserved
+name 'uimage1DArray' is reserved
+name 'uimage2DArray' is reserved
+name 'uimage2DRect' is reserved
+name 'uimage2DMS' is reserved
+name 'uimage2DMSArray' is reserved
+name 'uimageBuffer' is reserved
+name 'uimageCube' is reserved
+name 'uimageCubeArray' is reserved
+*%%*/

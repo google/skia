@@ -1,0 +1,48 @@
+int itexture1D;
+int itexture2D;
+int itexture3D;
+int itexture1DArray;
+int itexture2DArray;
+int itexture2DRect;
+int itexture2DMS;
+int itexture2DMSArray;
+int itextureBuffer;
+int itextureCube;
+int itextureCubeArray;
+
+int utexture1D;
+int utexture2D;
+int utexture3D;
+int utexture1DArray;
+int utexture2DArray;
+int utexture2DRect;
+int utexture2DMS;
+int utexture2DMSArray;
+int utextureBuffer;
+int utextureCube;
+int utextureCubeArray;
+
+/*%%*
+name 'itexture1D' is reserved
+name 'itexture2D' is reserved
+name 'itexture3D' is reserved
+name 'itexture1DArray' is reserved
+name 'itexture2DArray' is reserved
+name 'itexture2DRect' is reserved
+name 'itexture2DMS' is reserved
+name 'itexture2DMSArray' is reserved
+name 'itextureBuffer' is reserved
+name 'itextureCube' is reserved
+name 'itextureCubeArray' is reserved
+name 'utexture1D' is reserved
+name 'utexture2D' is reserved
+name 'utexture3D' is reserved
+name 'utexture1DArray' is reserved
+name 'utexture2DArray' is reserved
+name 'utexture2DRect' is reserved
+name 'utexture2DMS' is reserved
+name 'utexture2DMSArray' is reserved
+name 'utextureBuffer' is reserved
+name 'utextureCube' is reserved
+name 'utextureCubeArray' is reserved
+*%%*/

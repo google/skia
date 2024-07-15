@@ -1,5 +1,0 @@
-int sampler2DShadow;
-
-/*%%*
-name 'sampler2DShadow' is reserved
-*%%*/
