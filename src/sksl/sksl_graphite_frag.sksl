@@ -309,8 +309,9 @@ $pure half4 $yuv_to_rgb_no_swizzle(half Y,
     half4 sampleColor;
     sampleColor.rgb = saturate(yuvToRGBMatrix * preColor.rgb + yuvToRGBTranslate);
     sampleColor.a = alpha;
+    // premul alpha
+    sampleColor.rgb *= sampleColor.a;
 
-    // We always return an unpremul color here to skip work when transforming colorspaces
     return sampleColor;
 }
 

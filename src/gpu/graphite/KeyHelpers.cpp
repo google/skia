@@ -1784,16 +1784,9 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
 
     SkColorSpaceXformSteps steps;
     SkASSERT(steps.flags.mask() == 0);   // By default, the colorspace should have no effect
-    // Output color from the YUV image shaders is always unpremul, so we ignore the image alphaType
-    if (origShader->isRaw()) {
-        // We need to at least do premul alpha conversion
+    if (!origShader->isRaw()) {
         steps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
-                                       kUnpremul_SkAlphaType,
-                                       imageToDraw->colorSpace(),
-                                       kPremul_SkAlphaType);
-    } else {
-        steps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
-                                       kUnpremul_SkAlphaType,
+                                       imageToDraw->alphaType(),
                                        keyContext.dstColorInfo().colorSpace(),
                                        keyContext.dstColorInfo().alphaType());
     }
