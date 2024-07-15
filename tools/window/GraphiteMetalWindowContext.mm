@@ -93,8 +93,8 @@ sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
         return nullptr;
     }
 
-    skgpu::graphite::BackendTexture backendTex(this->dimensions(),
-                                               (CFTypeRef)currentDrawable.texture);
+    auto backendTex = skgpu::graphite::BackendTextures::MakeMetal(
+            this->dimensions(), (CFTypeRef)currentDrawable.texture);
 
     surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                              backendTex,

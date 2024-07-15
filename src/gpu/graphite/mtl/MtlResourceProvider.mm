@@ -246,7 +246,7 @@ sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,
 }
 
 sk_sp<Texture> MtlResourceProvider::onCreateWrappedTexture(const BackendTexture& texture) {
-    CFTypeRef mtlHandleTexture = texture.getMtlTexture();
+    CFTypeRef mtlHandleTexture = BackendTextures::GetMtlTexture(texture);
     if (!mtlHandleTexture) {
         return nullptr;
     }
@@ -356,12 +356,12 @@ BackendTexture MtlResourceProvider::onCreateBackendTexture(SkISize dimensions,
     if (!texture) {
         return {};
     }
-    return BackendTexture(dimensions, (CFTypeRef)texture.release());
+    return BackendTextures::MakeMetal(dimensions, (CFTypeRef)texture.release());
 }
 
 void MtlResourceProvider::onDeleteBackendTexture(const BackendTexture& texture) {
     SkASSERT(texture.backend() == BackendApi::kMetal);
-    CFTypeRef texHandle = texture.getMtlTexture();
+    CFTypeRef texHandle = BackendTextures::GetMtlTexture(texture);
     SkCFSafeRelease(texHandle);
 }
 

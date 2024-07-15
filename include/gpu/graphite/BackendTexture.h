@@ -12,13 +12,14 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkAnySubclass.h"
 
 #ifdef SK_DAWN
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 #endif
 
-#ifdef SK_METAL
-#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_TEXTURE_FUNCS)
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 #ifdef SK_VULKAN
@@ -31,6 +32,8 @@ class MutableTextureState;
 }
 
 namespace skgpu::graphite {
+
+class BackendTextureData;
 
 class SK_API BackendTexture {
 public:
@@ -72,7 +75,7 @@ public:
     // and release the WGPUTextureView.
     BackendTexture(SkISize dimensions, const DawnTextureInfo& info, WGPUTextureView textureView);
 #endif
-#ifdef SK_METAL
+#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_TEXTURE_FUNCS)
     // The BackendTexture will not call retain or release on the passed in CFTypeRef. Thus the
     // client must keep the CFTypeRef valid until they are no longer using the BackendTexture.
     BackendTexture(SkISize dimensions, CFTypeRef mtlTexture);
@@ -114,9 +117,6 @@ public:
     WGPUTexture getDawnTexturePtr() const;
     WGPUTextureView getDawnTextureViewPtr() const;
 #endif
-#ifdef SK_METAL
-    CFTypeRef getMtlTexture() const;
-#endif
 
 #ifdef SK_VULKAN
     VkImage getVkImage() const;
@@ -126,11 +126,26 @@ public:
 #endif
 
 private:
+    friend class BackendTextureData;
+    friend class BackendTexturePriv;
+
+    // Size determined by looking at the BackendTextureData subclasses, then guessing-and-checking.
+    // Compiler will complain if this is too small - in that case, just increase the number.
+    inline constexpr static size_t kMaxSubclassSize = 16;
+    using AnyBackendTextureData = SkAnySubclass<BackendTextureData, kMaxSubclassSize>;
+
+    template <typename SomeBackendTextureData>
+    BackendTexture(SkISize dimensions, TextureInfo info, const SomeBackendTextureData& textureData)
+            : fDimensions(dimensions), fInfo(info) {
+        fTextureData.emplace<SomeBackendTextureData>(textureData);
+    }
+
     friend class VulkanResourceProvider;    // for getMutableState
     sk_sp<MutableTextureState> getMutableState() const;
 
     SkISize fDimensions;
     TextureInfo fInfo;
+    AnyBackendTextureData fTextureData;
 
     sk_sp<MutableTextureState> fMutableState;
 
@@ -147,9 +162,6 @@ private:
             WGPUTexture fDawnTexture;
             WGPUTextureView fDawnTextureView;
         };
-#endif
-#ifdef SK_METAL
-        CFTypeRef fMtlTexture;
 #endif
 #ifdef SK_VULKAN
         VkImage fVkImage = VK_NULL_HANDLE;

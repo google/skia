@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_MtlGraphiteTypes_DEFINED
 #define skgpu_graphite_MtlGraphiteTypes_DEFINED
 
+#include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/ports/SkCFObject.h"
@@ -65,11 +66,19 @@ struct SK_API MtlTextureInfo {
 };
 
 namespace TextureInfos {
-SK_API skgpu::graphite::TextureInfo MakeMetal(const MtlTextureInfo&);
-SK_API skgpu::graphite::TextureInfo MakeMetal(CFTypeRef mtlTexture);
+SK_API TextureInfo MakeMetal(const MtlTextureInfo&);
+SK_API TextureInfo MakeMetal(CFTypeRef mtlTexture);
 
 SK_API bool GetMtlTextureInfo(const TextureInfo&, MtlTextureInfo*);
 }  // namespace TextureInfos
+
+namespace BackendTextures {
+// The BackendTexture will not call retain or release on the passed in CFTypeRef. Thus the
+// client must keep the CFTypeRef valid until they are no longer using the BackendTexture.
+SK_API BackendTexture MakeMetal(SkISize dimensions, CFTypeRef mtlTexture);
+
+SK_API CFTypeRef GetMtlTexture(const BackendTexture&);
+}  // namespace BackendTextures
 
 } // namespace skgpu::graphite
 

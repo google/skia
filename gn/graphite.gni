@@ -29,6 +29,7 @@ skia_graphite_sources = [
   "$_src/Attribute.h",
   "$_src/BackendSemaphore.cpp",
   "$_src/BackendTexture.cpp",
+  "$_src/BackendTexturePriv.h",
   "$_src/Buffer.cpp",
   "$_src/Buffer.h",
   "$_src/BufferManager.cpp",
@@ -142,6 +143,7 @@ skia_graphite_sources = [
   "$_src/Texture.cpp",
   "$_src/Texture.h",
   "$_src/TextureInfo.cpp",
+  "$_src/TextureInfoPriv.h",
   "$_src/TextureProxy.cpp",
   "$_src/TextureProxy.h",
   "$_src/TextureProxyView.h",
@@ -274,6 +276,7 @@ skia_graphite_mtl_public = [
 
 skia_graphite_mtl_sources = [
   "$_include_private/MtlGraphiteTypesPriv.h",
+  "$_src/mtl/MtlBackendTexture.mm",
   "$_src/mtl/MtlBlitCommandEncoder.h",
   "$_src/mtl/MtlBuffer.h",
   "$_src/mtl/MtlBuffer.mm",

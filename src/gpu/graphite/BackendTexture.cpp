@@ -8,6 +8,7 @@
 #include "include/gpu/graphite/BackendTexture.h"
 
 #include "include/gpu/MutableTextureState.h"
+#include "src/gpu/graphite/BackendTexturePriv.h"
 
 #ifdef SK_DAWN
 #include "include/private/gpu/graphite/DawnTypesPriv.h"
@@ -38,15 +39,14 @@ BackendTexture& BackendTexture::operator=(const BackendTexture& that) {
     fInfo = that.fInfo;
 
     switch (that.backend()) {
+        case BackendApi::kMetal:
+            fTextureData.reset();
+            that.fTextureData->copyTo(fTextureData);
+            break;
 #ifdef SK_DAWN
         case BackendApi::kDawn:
             fDawnTexture = that.fDawnTexture;
             fDawnTextureView = that.fDawnTextureView;
-            break;
-#endif
-#ifdef SK_METAL
-        case BackendApi::kMetal:
-            fMtlTexture = that.fMtlTexture;
             break;
 #endif
 #ifdef SK_VULKAN
@@ -72,19 +72,14 @@ bool BackendTexture::operator==(const BackendTexture& that) const {
     }
 
     switch (that.backend()) {
+        case BackendApi::kMetal:
+            return fTextureData->equal(that.fTextureData.get());
 #ifdef SK_DAWN
         case BackendApi::kDawn:
             if (fDawnTexture != that.fDawnTexture) {
                 return false;
             }
             if (fDawnTextureView != that.fDawnTextureView) {
-                return false;
-            }
-            break;
-#endif
-#ifdef SK_METAL
-        case BackendApi::kMetal:
-            if (fMtlTexture != that.fMtlTexture) {
                 return false;
             }
             break;
@@ -167,20 +162,6 @@ WGPUTextureView BackendTexture::getDawnTextureViewPtr() const {
 }
 #endif
 
-#ifdef SK_METAL
-BackendTexture::BackendTexture(SkISize dimensions, CFTypeRef mtlTexture)
-        : fDimensions(dimensions)
-        , fInfo(TextureInfos::MakeMetal(mtlTexture))
-        , fMtlTexture(mtlTexture) {}
-
-CFTypeRef BackendTexture::getMtlTexture() const {
-    if (this->isValid() && this->backend() == BackendApi::kMetal) {
-        return fMtlTexture;
-    }
-    return nullptr;
-}
-#endif // SK_METAL
-
 #ifdef SK_VULKAN
 BackendTexture::BackendTexture(SkISize dimensions,
                                const VulkanTextureInfo& info,
@@ -225,6 +206,8 @@ const VulkanAlloc* BackendTexture::getMemoryAlloc() const {
     return {};
 }
 #endif // SK_VULKAN
+
+BackendTextureData::~BackendTextureData(){};
 
 } // namespace skgpu::graphite
 
