@@ -1,0 +1,8 @@
+int dmat2, dmat2x2, dmat2x3, dmat2x4;
+
+/*%%*
+name 'dmat2' is reserved
+name 'dmat2x2' is reserved
+name 'dmat2x3' is reserved
+name 'dmat2x4' is reserved
+*%%*/
