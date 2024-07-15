@@ -803,11 +803,11 @@ public:
 
     void initImages(SkCanvas* canvas) {
         const char* kImageSrcs[kImageCount] = {
-            "images/ducky.jpg",
+            "images/brickwork-texture.jpg",
             "images/dog.jpg",
             "images/color_wheel.jpg",
             "images/mandrill_512_q075.jpg",
-            "images/gainmap_iso21496_1.jpg",
+            "images/flutter_logo.jpg",
         };
 
         auto rContext = canvas->recordingContext();
