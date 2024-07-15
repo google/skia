@@ -272,6 +272,7 @@ sksl_error_tests = [
   "errors/ReservedNameSampler.rts",
   "errors/ReservedNameSizeof.rts",
   "errors/ReservedNameStatic.rts",
+  "errors/ReservedNameSubpassInput.rts",
   "errors/ReservedNameSuperp.rts",
   "errors/ReservedNameTemplate.rts",
   "errors/ReservedNameTexture.rts",

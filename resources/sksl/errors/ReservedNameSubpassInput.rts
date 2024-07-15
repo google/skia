@@ -1,0 +1,11 @@
+int isubpassInput;
+int isubpassInputMS;
+int usubpassInput;
+int usubpassInputMS;
+
+/*%%*
+name 'isubpassInput' is reserved
+name 'isubpassInputMS' is reserved
+name 'usubpassInput' is reserved
+name 'usubpassInputMS' is reserved
+*%%*/
