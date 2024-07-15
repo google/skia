@@ -15,8 +15,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef __APPLE__
-
 #include <TargetConditionals.h>
 
 // We're using the MSL version as shorthand for the Metal SDK version here
@@ -44,12 +42,14 @@
 
 #import <Metal/Metal.h>
 
-#endif  // __APPLE__
-
 namespace skgpu::graphite {
 
 struct MtlTextureSpec {
-    MtlTextureSpec() : fFormat(0), fUsage(0), fStorageMode(0), fFramebufferOnly(false) {}
+    MtlTextureSpec()
+            : fFormat(MTLPixelFormatInvalid)
+            , fUsage(MTLTextureUsageUnknown)
+            , fStorageMode(MTLStorageModeShared)
+            , fFramebufferOnly(false) {}
     MtlTextureSpec(const MtlTextureInfo& info)
             : fFormat(info.fFormat)
             , fUsage(info.fUsage)
@@ -69,15 +69,15 @@ struct MtlTextureSpec {
 
     SkString toString() const {
         return SkStringPrintf("format=%u,usage=0x%04X,storageMode=%u,framebufferOnly=%d",
-                              fFormat,
-                              fUsage,
-                              fStorageMode,
+                              (uint32_t)fFormat,
+                              (uint32_t)fUsage,
+                              (uint32_t)fStorageMode,
                               fFramebufferOnly);
     }
 
-    MtlPixelFormat fFormat;
-    MtlTextureUsage fUsage;
-    MtlStorageMode fStorageMode;
+    MTLPixelFormat fFormat;
+    MTLTextureUsage fUsage;
+    MTLStorageMode fStorageMode;
     bool fFramebufferOnly;
 };
 
@@ -87,8 +87,8 @@ MtlTextureInfo MtlTextureSpecToTextureInfo(const MtlTextureSpec& mtlSpec,
 
 namespace TextureInfos {
 MtlTextureSpec GetMtlTextureSpec(const TextureInfo&);
-MTLPixelFormat GetMtlPixelFormat(const TextureInfo&);
-MTLTextureUsage GetMtlTextureUsage(const TextureInfo&);
+MTLPixelFormat GetMTLPixelFormat(const TextureInfo&);
+MTLTextureUsage GetMTLTextureUsage(const TextureInfo&);
 bool GetMtlFramebufferOnly(const TextureInfo&);
 }  // namespace TextureInfos
 

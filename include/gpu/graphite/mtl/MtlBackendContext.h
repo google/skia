@@ -8,7 +8,10 @@
 #ifndef skgpu_graphite_MtlBackendContext_DEFINED
 #define skgpu_graphite_MtlBackendContext_DEFINED
 
-#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/ports/SkCFObject.h"
+#include "include/private/base/SkAPI.h"
+
+#import <CoreFoundation/CoreFoundation.h>
 
 namespace skgpu::graphite {
 

@@ -108,18 +108,18 @@ MtlTextureSpec GetMtlTextureSpec(const TextureInfo& info) {
     return mtlData->spec();
 }
 
-MTLPixelFormat GetMtlPixelFormat(const TextureInfo& info) {
+MTLPixelFormat GetMTLPixelFormat(const TextureInfo& info) {
     SkASSERT(info.isValid() && info.backend() == skgpu::BackendApi::kMetal);
     const MtlTextureInfoData* mtlData = get_and_cast_data(info);
     SkASSERT(mtlData);
-    return (MTLPixelFormat)mtlData->spec().fFormat;
+    return mtlData->spec().fFormat;
 }
 
-MTLTextureUsage GetMtlTextureUsage(const TextureInfo& info) {
+MTLTextureUsage GetMTLTextureUsage(const TextureInfo& info) {
     SkASSERT(info.isValid() && info.backend() == skgpu::BackendApi::kMetal);
     const MtlTextureInfoData* mtlData = get_and_cast_data(info);
     SkASSERT(mtlData);
-    return (MTLTextureUsage)mtlData->spec().fUsage;
+    return mtlData->spec().fUsage;
 }
 
 bool GetMtlFramebufferOnly(const TextureInfo& info) {

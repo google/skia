@@ -88,7 +88,7 @@ private:
 
     // Size determined by looking at the TextureInfoData subclasses, then guessing-and-checking.
     // Compiler will complain if this is too small - in that case, just increase the number.
-    inline constexpr static size_t kMaxSubclassSize = 24;
+    inline constexpr static size_t kMaxSubclassSize = 40;
     using AnyTextureInfoData = SkAnySubclass<TextureInfoData, kMaxSubclassSize>;
 
     template <typename SomeTextureInfoData>

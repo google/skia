@@ -285,7 +285,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
     (*psoDescriptor).vertexDescriptor = create_vertex_descriptor(vertexAttrs, instanceAttrs);
 
     MTLPixelFormat pixelFormat =
-            TextureInfos::GetMtlPixelFormat(renderPassDesc.fColorAttachment.fTextureInfo);
+            TextureInfos::GetMTLPixelFormat(renderPassDesc.fColorAttachment.fTextureInfo);
     auto mtlColorAttachment = create_color_attachment(pixelFormat, blendInfo);
     (*psoDescriptor).colorAttachments[0] = mtlColorAttachment;
 
@@ -293,7 +293,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
             renderPassDesc.fColorAttachment.fTextureInfo.numSamples();
 
     MTLPixelFormat depthStencilFormat =
-            TextureInfos::GetMtlPixelFormat(renderPassDesc.fDepthStencilAttachment.fTextureInfo);
+            TextureInfos::GetMTLPixelFormat(renderPassDesc.fDepthStencilAttachment.fTextureInfo);
     if (MtlFormatIsStencil(depthStencilFormat)) {
         (*psoDescriptor).stencilAttachmentPixelFormat = depthStencilFormat;
     } else {
