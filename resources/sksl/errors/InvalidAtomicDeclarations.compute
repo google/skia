@@ -1,12 +1,12 @@
-workgroup atomicUint wgAtomic;          // valid
-workgroup atomicUint wgAtomicArray[2];  // valid
+workgroup atomicUint wgAtomic;           // valid
+workgroup atomic_uint wgAtomicArray[2];  // valid
 
-atomicUint globalAtomic;          // invalid
+atomic_uint globalAtomic;         // invalid
 atomicUint globalAtomicArray[2];  // invalid
 
 struct S {
-    atomicUint structMemberAtomic;          // valid
-    atomicUint structMemberAtomicArray[2];  // valid
+    atomicUint structMemberAtomic;           // valid
+    atomic_uint structMemberAtomicArray[2];  // valid
 };
 
 struct NestedS {
@@ -22,17 +22,17 @@ S globalStructWithAtomicMemberArray[2];      // invalid
 NestedS globalStructWithNestedAtomicMember;  // invalid
 
 layout(metal, binding = 0) buffer ssbo {
-    atomicUint ssboAtomic;          // valid
-    atomicUint ssboAtomicArray[2];  // valid
+    atomic_uint ssboAtomic;          // valid
+    atomicUint ssboAtomicArray[2];   // valid
     S ssboStructWithAtomicMember;         // valid
     S ssboStructWithAtomicMemberArray[2]; // valid
 };
 
 layout(metal, binding = 1) uniform ubo1 {
-    atomicUint uboAtomic;                    // invalid
+    atomicUint uboAtomic;                     // invalid
 };
 layout(metal, binding = 2) uniform ubo2 {
-    atomicUint uboAtomicArray[2];            // invalid
+    atomic_uint uboAtomicArray[2];            // invalid
 };
 layout(metal, binding = 3) uniform ubo3 {
     S uboStructWithAtomicMember;              // invalid
@@ -45,10 +45,10 @@ layout(metal, binding = 5) uniform ubo5 {
 };
 
 layout(metal, binding = 6) readonly buffer roSsbo1 {
-    atomicUint readonlySsboAtomic;                    // invalid
+    atomic_uint readonlySsboAtomic;                    // invalid
 };
 layout(metal, binding = 7) readonly buffer roSsbo2 {
-    atomicUint readonlySsboAtomicArray[2];            // invalid
+    atomicUint readonlySsboAtomicArray[2];             // invalid
 };
 layout(metal, binding = 8) readonly buffer roSsbo3 {
     S readonlySsboStructWithAtomicMember;              // invalid
@@ -61,8 +61,8 @@ layout(metal, binding = 10) readonly buffer roSsbo5 {
 };
 
 void main() {
-    atomicUint localAtomic;                // invalid
-    atomicUint localAtomicArray[2];        // invalid
+    atomicUint localAtomic;                 // invalid
+    atomic_uint localAtomicArray[2];        // invalid
     S localStructWithAtomicMember;          // invalid
     S localStructWithAtomicMemberArray[2];  // invalid
 }

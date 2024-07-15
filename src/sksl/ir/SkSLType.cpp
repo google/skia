@@ -81,6 +81,10 @@ public:
         return fTargetType.isOrContainsBool();
     }
 
+    bool isOrContainsAtomic() const override {
+        return fTargetType.isOrContainsAtomic();
+    }
+
     size_t slotCount() const override {
         return fTargetType.slotCount();
     }

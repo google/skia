@@ -166,6 +166,7 @@ public:
     const std::unique_ptr<Type> fBlender;
 
     const std::unique_ptr<Type> fAtomicUInt;
+    const std::unique_ptr<Type> fAtomic_uint;
 };
 
 }  // namespace SkSL
