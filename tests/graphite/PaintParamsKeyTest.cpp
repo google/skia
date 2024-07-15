@@ -315,7 +315,7 @@ void log_run(const char* label,
              DrawTypeFlags drawTypeFlags) {
     SkDebugf("%s:\n"
              "//------------------------\n"
-             "uint32_t seed = %d;\n"
+             "uint32_t seed = %u;\n"
              "ShaderType shaderType = %s;\n"
              "BlenderType blenderType = %s;\n"
              "ColorFilterType colorFilterType = %s;\n"
