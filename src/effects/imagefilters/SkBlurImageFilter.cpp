@@ -457,6 +457,80 @@ private:
     //    buffer0[i] = leading edge
     void blurSegment(
             int n, const uint32_t* src, int srcStride, uint32_t* dst, int dstStride) override {
+#if SK_CPU_LSX_LEVEL >= SK_CPU_LSX_LEVEL_LSX
+        skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0Cursor;
+        skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1Cursor;
+        skvx::Vec<4, uint32_t>* buffer2Cursor = fBuffer2Cursor;
+        v4u32 sum0 = __lsx_vld(fSum0, 0); // same as skvx::Vec<4, uint32_t>::Load(fSum0);
+        v4u32 sum1 = __lsx_vld(fSum1, 0);
+        v4u32 sum2 = __lsx_vld(fSum2, 0);
+
+        auto processValue = [&](v4u32& vLeadingEdge){
+          sum0 += vLeadingEdge;
+          sum1 += sum0;
+          sum2 += sum1;
+
+          v4u32 divisorFactor = __lsx_vreplgr2vr_w(fDivider.divisorFactor());
+          v4u32 blurred = __lsx_vmuh_w(divisorFactor, sum2);
+
+          v4u32 buffer2Value = __lsx_vld(buffer2Cursor, 0); //Not fBuffer0Cursor, out of bounds.
+          sum2 -= buffer2Value;
+          __lsx_vst(sum1, (void *)buffer2Cursor, 0);
+          buffer2Cursor = (buffer2Cursor + 1) < fBuffersEnd ? buffer2Cursor + 1 : fBuffer2;
+          v4u32 buffer1Value = __lsx_vld(buffer1Cursor, 0);
+          sum1 -= buffer1Value;
+          __lsx_vst(sum0, (void *)buffer1Cursor, 0);
+          buffer1Cursor = (buffer1Cursor + 1) < fBuffer2 ? buffer1Cursor + 1 : fBuffer1;
+          v4u32 buffer0Value = __lsx_vld(buffer0Cursor, 0);
+          sum0 -= buffer0Value;
+          __lsx_vst(vLeadingEdge, (void *)buffer0Cursor, 0);
+          buffer0Cursor = (buffer0Cursor + 1) < fBuffer1 ? buffer0Cursor + 1 : fBuffer0;
+
+          v16u8 shuf = {0x0,0x4,0x8,0xc,0x0};
+          v16u8 ret = __lsx_vshuf_b(blurred, blurred, shuf);
+          return ret;
+        };
+
+        v4u32 zero = __lsx_vldi(0x0);
+        if (!src && !dst) {
+            while (n --> 0) {
+                (void)processValue(zero);
+            }
+        } else if (src && !dst) {
+            while (n --> 0) {
+                v4u32 edge = __lsx_vinsgr2vr_w(zero, *src, 0);
+                edge = __lsx_vilvl_b(zero, edge);
+                edge = __lsx_vilvl_h(zero, edge);
+                (void)processValue(edge);
+                src += srcStride;
+            }
+        } else if (!src && dst) {
+            while (n --> 0) {
+                v4u32 ret = processValue(zero);
+                __lsx_vstelm_w(ret, dst, 0, 0); // 3rd is offset, 4th is idx.
+                dst += dstStride;
+            }
+        } else if (src && dst) {
+            while (n --> 0) {
+                v4u32 edge = __lsx_vinsgr2vr_w(zero, *src, 0);
+                edge = __lsx_vilvl_b(zero, edge);
+                edge = __lsx_vilvl_h(zero, edge);
+                v4u32 ret = processValue(edge);
+                __lsx_vstelm_w(ret, dst, 0, 0);
+                src += srcStride;
+                dst += dstStride;
+            }
+        }
+
+        // Store the state
+        fBuffer0Cursor = buffer0Cursor;
+        fBuffer1Cursor = buffer1Cursor;
+        fBuffer2Cursor = buffer2Cursor;
+
+        __lsx_vst(sum0, fSum0, 0);
+        __lsx_vst(sum1, fSum1, 0);
+        __lsx_vst(sum2, fSum2, 0);
+#else
         skvx::Vec<4, uint32_t>* buffer0Cursor = fBuffer0Cursor;
         skvx::Vec<4, uint32_t>* buffer1Cursor = fBuffer1Cursor;
         skvx::Vec<4, uint32_t>* buffer2Cursor = fBuffer2Cursor;
@@ -519,6 +593,7 @@ private:
         sum0.store(fSum0);
         sum1.store(fSum1);
         sum2.store(fSum2);
+#endif
     }
 
     skvx::Vec<4, uint32_t>* const fBuffer0;

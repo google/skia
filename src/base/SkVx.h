@@ -896,6 +896,7 @@ public:
     }
 
     uint32_t half() const { return fHalf; }
+    uint32_t divisorFactor() const { return fDivisorFactor; }
 
 private:
     const uint32_t fDivisorFactor;
