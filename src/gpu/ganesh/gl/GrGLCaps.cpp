@@ -4295,6 +4295,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.renderer() == GrGLRenderer::kAdreno530       ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno5xx_other ||
         ctxInfo.driver()   == GrGLDriver::kIntel             ||
+        ctxInfo.angleVendor() == GrGLVendor::kIntel          ||
         ctxInfo.isOverCommandBuffer()                        ||
         ctxInfo.vendor()   == GrGLVendor::kARM /* http://skbug.com/11906 */) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
