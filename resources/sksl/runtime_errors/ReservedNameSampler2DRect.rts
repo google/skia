@@ -1,5 +1,0 @@
-int sampler2DRect;
-
-/*%%*
-expected an identifier, but found type 'sampler2DRect'
-*%%*/

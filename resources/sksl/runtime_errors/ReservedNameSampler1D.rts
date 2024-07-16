@@ -1,5 +1,0 @@
-int sampler1D;
-
-/*%%*
-name 'sampler1D' is reserved
-*%%*/

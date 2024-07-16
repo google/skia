@@ -1,6 +1,8 @@
+int sampler1D;
 int sampler1DShadow;
 int sampler2DRectShadow;
 int sampler2DShadow;
+int sampler3D;
 int sampler3DRect;
 int samplerCube;
 
@@ -29,9 +31,11 @@ int usamplerCube;
 int usamplerCubeArray;
 
 /*%%*
+name 'sampler1D' is reserved
 name 'sampler1DShadow' is reserved
 name 'sampler2DRectShadow' is reserved
 name 'sampler2DShadow' is reserved
+name 'sampler3D' is reserved
 name 'sampler3DRect' is reserved
 name 'samplerCube' is reserved
 name 'isampler1D' is reserved

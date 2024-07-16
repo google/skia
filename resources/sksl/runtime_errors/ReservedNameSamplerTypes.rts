@@ -1,0 +1,11 @@
+sampler a;
+sampler2D c;
+sampler2DRect d;
+samplerExternalOES f;
+
+/*%%*
+invalid type
+invalid type
+invalid type
+invalid type
+*%%*/

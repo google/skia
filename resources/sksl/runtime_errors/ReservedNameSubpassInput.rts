@@ -1,5 +1,0 @@
-int subpassInput;
-
-/*%%*
-expected an identifier, but found type 'subpassInput'
-*%%*/

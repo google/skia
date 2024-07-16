@@ -1,0 +1,7 @@
+subpassInput a;
+subpassInputMS b;
+
+/*%%*
+invalid type
+invalid type
+*%%*/
