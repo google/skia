@@ -68,6 +68,10 @@ public:
     AI bool operator==(Rect rect) const { return all(fVals == rect.fVals); }
     AI bool operator!=(Rect rect) const { return any(fVals != rect.fVals); }
 
+    AI bool nearlyEquals(const Rect& r, float epsilon = SK_ScalarNearlyZero) const {
+        return all(abs(fVals - r.fVals) <= epsilon);
+    }
+
     AI const float4& vals() const { return fVals; }  // [left, top, -right, -bot].
     AI float4& vals() { return fVals; }  // [left, top, -right, -bot].
 

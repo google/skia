@@ -308,17 +308,6 @@ void tiling_comparison_test(GrDirectContext* dContext,
 
     int numClippedTiles = 9;
     for (auto gen : kGenerators) {
-        if (recorder && !strcmp(gen.fTag, "Picture")) {
-            // In the picture-image case, the non-tiled code path draws the picture directly into a
-            // gpu-backed surface while the tiled code path the picture is draws the picture into
-            // a raster-backed surface. For Ganesh this works out, since both Ganesh and Raster
-            // support non-AA rect draws. For Graphite the results are very different (since
-            // Graphite always anti-aliases. Forcing all the rect draws to be AA doesn't work out
-            // since AA introduces too much variance between both of the gpu backends and Raster -
-            // which would obscure any errors introduced by tiling.
-            continue;
-        }
-
         sk_sp<SkImage> img = (*gen.fGen)(kImageSize,
                                          kWhiteBandWidth,
                                          /* desiredLineWidth= */ 16,
@@ -401,14 +390,18 @@ void tiling_comparison_test(GrDirectContext* dContext,
                                                              constraint);
                             SkAssertResult(surface->readPixels(expected, 0, 0));
 #if defined(SK_GANESH) && defined(GR_TEST_UTILS)
-                            int actualNumTiles =
-                                    gNumTilesDrawnGanesh.load(std::memory_order_acquire);
-                            REPORTER_ASSERT(reporter, actualNumTiles == 0);
+                            if (canvas->recordingContext()) {
+                                int actualNumTiles =
+                                        gNumTilesDrawnGanesh.load(std::memory_order_acquire);
+                                REPORTER_ASSERT(reporter, actualNumTiles == 0);
+                            }
 #endif
 #if defined(SK_GRAPHITE) && defined(GRAPHITE_TEST_UTILS)
-                            int actualNumTiles2 =
-                                    gNumTilesDrawnGraphite.load(std::memory_order_acquire);
-                            REPORTER_ASSERT(reporter, actualNumTiles2 == 0);
+                            if (canvas->recorder()) {
+                                int actualNumTiles =
+                                        gNumTilesDrawnGraphite.load(std::memory_order_acquire);
+                                REPORTER_ASSERT(reporter, actualNumTiles == 0);
+                            }
 #endif
                             canvas->restore();
 
@@ -430,7 +423,7 @@ void tiling_comparison_test(GrDirectContext* dContext,
                             SkAssertResult(surface->readPixels(actual, 0, 0));
 #if defined(SK_GANESH) && defined(GR_TEST_UTILS)
                             if (canvas->recordingContext()) {
-                                actualNumTiles =
+                                int actualNumTiles =
                                         gNumTilesDrawnGanesh.load(std::memory_order_acquire);
                                 REPORTER_ASSERT(reporter,
                                                 numDesiredTiles == actualNumTiles,
@@ -441,13 +434,13 @@ void tiling_comparison_test(GrDirectContext* dContext,
 #endif
 #if defined(SK_GRAPHITE) && defined(GRAPHITE_TEST_UTILS)
                             if (canvas->recorder()) {
-                                actualNumTiles2 =
+                                int actualNumTiles =
                                         gNumTilesDrawnGraphite.load(std::memory_order_acquire);
                                 REPORTER_ASSERT(reporter,
-                                                numDesiredTiles == actualNumTiles2,
+                                                numDesiredTiles == actualNumTiles,
                                                 "mismatch expected: %d actual: %d\n",
                                                 numDesiredTiles,
-                                                actualNumTiles2);
+                                                actualNumTiles);
                             }
 #endif
 

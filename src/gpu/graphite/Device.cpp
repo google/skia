@@ -167,6 +167,48 @@ std::optional<SkColor4f> extract_paint_color(const SkPaint& paint,
     return dstPaintColor;
 }
 
+// Returns a local rect that has been adjusted such that when it's rasterized with `localToDevice`
+// it will be pixel aligned. If this adjustment is not possible (due to transform type or precision)
+// then this returns the original local rect unmodified.
+Rect snap_rect_to_pixels(const Transform& localToDevice, const Rect& rect) {
+    if (localToDevice.type() > Transform::Type::kRectStaysRect) {
+        return rect;
+    }
+    // Use round() to emulate non-AA rasterization (vs. roundOut() to get the covering bounds).
+    // This matches how ClipStack treats clipRects with PixelSnapping::kYes.
+    Rect snappedDeviceRect = localToDevice.mapRect(rect).round();
+    // Map back to local space so that it can be drawn with appropriate coord interpolation.
+    Rect snappedLocalRect = localToDevice.inverseMapRect(snappedDeviceRect);
+    // If the transform has an extreme scale factor or large translation, it's possible for floating
+    // point precision to round `snappedLocalRect` in such a way that re-transforming it by the
+    // local-to-device matrix no longer matches the expected device bounds.
+    if (snappedDeviceRect.nearlyEquals(localToDevice.mapRect(snappedLocalRect))) {
+        return snappedLocalRect;
+    } else {
+        // In this case we will just return the original geometry and the pixels will show
+        // fractional coverage.
+        return rect;
+    }
+}
+
+// If possible, snaps `dstRect` such that its device-space transformation lands on pixel bounds,
+// and then updates `srcRect` to match the original src-to-dst coordinate mapping.
+void snap_src_and_dst_rect_to_pixels(const Transform& localToDevice,
+                                     SkRect* srcRect,
+                                     SkRect* dstRect) {
+    if (localToDevice.type() > Transform::Type::kRectStaysRect) {
+        return;
+    }
+
+    // Assume snapping will succeed and always update 'src' to match; in the event snapping
+    // returns the original dst rect, then the recalculated src rect is a no-op.
+    SkMatrix dstToSrc = SkMatrix::RectToRect(*dstRect, *srcRect);
+    *dstRect = snap_rect_to_pixels(localToDevice, *dstRect).asSkRect();
+    *srcRect = dstToSrc.mapRect(*dstRect);
+}
+
+// TODO(b/280054774): Also snap filled round rects and stroked [r]rects as best as possible.
+
 SkIRect rect_to_pixelbounds(const Rect& r) {
     return r.makeRoundOut().asSkIRect();
 }
@@ -669,8 +711,17 @@ void Device::drawPaint(const SkPaint& paint) {
 }
 
 void Device::drawRect(const SkRect& r, const SkPaint& paint) {
-    this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(r)),
-                       paint, SkStrokeRec(paint));
+    Rect rectToDraw(r);
+    SkStrokeRec style(paint);
+    if (!paint.isAntiAlias()) {
+        // Graphite assumes everything is anti-aliased. In the case of axis-aligned non-aa requested
+        // rectangles, we snap the local geometry to land on pixel boundaries to emulate non-aa.
+        // TODO(b/280054774): Support snapping stroked rectangles too
+        if (style.isFillStyle()) {
+            rectToDraw = snap_rect_to_pixels(this->localToDeviceTransform(), rectToDraw);
+        }
+    }
+    this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(rectToDraw)), paint, style);
 }
 
 void Device::drawVertices(const SkVertices* vertices, sk_sp<SkBlender> blender,
@@ -712,11 +763,21 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
     gNumTilesDrawnGraphite.store(0, std::memory_order_relaxed);
 #endif
 
+    // DrawAsTiledImageRect produces per-edge AA quads, which do not participate in non-AA pixel
+    // snapping emulation. To match an un-tiled drawImageRect, round the src and dst geometry
+    // before any tiling occurs.
+    SkRect finalSrc = *src;
+    SkRect finalDst = dst;
+    if (!paint.isAntiAlias()) {
+        snap_src_and_dst_rect_to_pixels(this->localToDeviceTransform(),
+                                        &finalSrc, &finalDst);
+    }
+
     [[maybe_unused]] auto [wasTiled, numTiles] =
             skgpu::TiledTextureUtils::DrawAsTiledImageRect(canvas,
                                                            image,
-                                                           *src,
-                                                           dst,
+                                                           finalSrc,
+                                                           finalDst,
                                                            SkCanvas::kAll_QuadAAFlags,
                                                            sampling,
                                                            &paint,
@@ -744,6 +805,7 @@ void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
 }
 
 void Device::drawRRect(const SkRRect& rr, const SkPaint& paint) {
+    // TODO(b/280054774): Support snapping filled and stroked rounded rectangles
     this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(rr)),
                        paint, SkStrokeRec(paint));
 }
@@ -753,24 +815,20 @@ void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutab
     // path effect, being careful about starting point and direction.
     if (!paint.getPathEffect() && !path.isInverseFillType()) {
         if (SkRect oval; path.isOval(&oval)) {
-            this->drawGeometry(this->localToDeviceTransform(),
-                               Geometry(Shape(SkRRect::MakeOval(oval))),
-                               paint,
-                               SkStrokeRec(paint));
+            this->drawOval(oval, paint);
             return;
         }
         if (SkRRect rrect; path.isRRect(&rrect)) {
-            this->drawGeometry(this->localToDeviceTransform(),
-                               Geometry(Shape(rrect)),
-                               paint,
-                               SkStrokeRec(paint));
+            this->drawRRect(rrect, paint);
             return;
         }
-        if (SkRect rect; paint.getStyle() == SkPaint::kFill_Style && path.isRect(&rect)) {
-            this->drawGeometry(this->localToDeviceTransform(),
-                               Geometry(Shape(rect)),
-                               paint,
-                               SkStrokeRec(paint));
+        // For rects, if the path is not explicitly closed and the paint style is stroked then it
+        // represents a rectangle with only 3 sides rasterized (and with any caps). If it's filled
+        // or is closed+stroked, then the path renders identically to the rectangle.
+        bool isClosed = false;
+        if (SkRect rect; path.isRect(&rect, &isClosed) &&
+            (paint.getStyle() == SkPaint::kFill_Style || isClosed)) {
+            this->drawRect(rect, paint);
             return;
         }
     }
@@ -813,6 +871,9 @@ void Device::drawEdgeAAQuad(const SkRect& rect,
     solidColorPaint.setColor4f(color, /*colorSpace=*/nullptr);
     solidColorPaint.setBlendMode(mode);
 
+    // NOTE: We do not snap edge AA quads that are fully non-AA because we need their edges to seam
+    // with quads that have mixed edge flags (so both need to match the GPU rasterization, not our
+    // CPU rounding).
     auto flags = SkEnumBitMask<EdgeAAQuad::Flags>(static_cast<EdgeAAQuad::Flags>(aaFlags));
     EdgeAAQuad quad = clip ? EdgeAAQuad(clip, flags) : EdgeAAQuad(rect, flags);
     this->drawGeometry(this->localToDeviceTransform(),
@@ -855,6 +916,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
             return;
         }
 
+        // NOTE: See drawEdgeAAQuad for details, we do not snap non-AA quads.
         auto flags =
                 SkEnumBitMask<EdgeAAQuad::Flags>(static_cast<EdgeAAQuad::Flags>(set[i].fAAFlags));
         EdgeAAQuad quad = set[i].fHasClip ? EdgeAAQuad(dstClips + dstClipIndex, flags)
@@ -891,6 +953,13 @@ void Device::drawImageRect(const SkImage* image, const SkRect* src, const SkRect
                                    dst,
                                    /*alpha=*/1.f,
                                    SkCanvas::kAll_QuadAAFlags};
+    // While this delegates to drawEdgeAAImageSet() for the image shading logic, semantically a
+    // drawImageRect()'s non-AA behavior should match that of drawRect() so we snap dst (and update
+    // src to match) if needed before hand.
+    if (!paint.isAntiAlias()) {
+        snap_src_and_dst_rect_to_pixels(this->localToDeviceTransform(),
+                                        &single.fSrcRect, &single.fDstRect);
+    }
     this->drawEdgeAAImageSet(&single, 1, nullptr, nullptr, sampling, paint, constraint);
 }
 
