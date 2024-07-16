@@ -1586,6 +1586,12 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "dstKind",        SkSLType::kInt },
                            { "csXformCoeffs",  SkSLType::kHalf4x4 } }
     };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPremulAlphaColorFilter] = {
+            /*name=*/"PremulAlpha",
+            /*staticFn=*/"sk_premul_alpha",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{}
+    };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kBlendShader] = {
             /*name=*/"BlendShader",

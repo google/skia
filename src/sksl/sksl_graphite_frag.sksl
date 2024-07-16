@@ -80,6 +80,10 @@ $pure float $apply_xfer_fn(int kind, float x, half4 cs[2]) {
     return s * x;
 }
 
+$pure half4 sk_premul_alpha(float4 color) {
+    return half4(color.rgb*color.a, color.a);
+}
+
 $pure half4 sk_color_space_transform(half4 halfColor,
                                      int flags,
                                      int srcKind,
@@ -120,7 +124,7 @@ $pure half4 sk_color_space_transform(half4 halfColor,
     }
 
     if (bool(flags & $kColorSpaceXformFlagPremul)) {
-        color.rgb *= color.a;
+        return sk_premul_alpha(color);
     }
     return half4(color);
 }
@@ -309,9 +313,8 @@ $pure half4 $yuv_to_rgb_no_swizzle(half Y,
     half4 sampleColor;
     sampleColor.rgb = saturate(yuvToRGBMatrix * preColor.rgb + yuvToRGBTranslate);
     sampleColor.a = alpha;
-    // premul alpha
-    sampleColor.rgb *= sampleColor.a;
 
+    // We always return an unpremul color here to skip work when transforming colorspaces
     return sampleColor;
 }
 
@@ -1152,7 +1155,7 @@ $pure half4 sk_perlin_noise_shader(float2 coords,
     color = saturate(color);
 
     // Pre-multiply the result
-    return half4(color.rgb * color.aaa, color.a);
+    return sk_premul_alpha(color);
 }
 
 $pure half4 sk_blend(half4 src, half4 dst, int blendMode) {

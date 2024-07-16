@@ -1703,6 +1703,16 @@ static void notify_in_use(Recorder*, DrawContext*, const SkEmptyShader*) {
     // No-op
 }
 
+static bool is_premul_alpha_only(const ColorSpaceTransformBlock::ColorSpaceTransformData& data) {
+    // A mask value of 16 means premul only.
+    if (SkTo<int>(data.fSteps.flags.mask()) != 16) {
+        return false;
+    }
+
+    // If read swizzle is RGBA or BGRA we don't need to do alpha swizzle
+    return (data.fReadSwizzle == ReadSwizzle::kRGBA || data.fReadSwizzle == ReadSwizzle::kBGRA);
+}
+
 static void add_yuv_image_to_key(const KeyContext& keyContext,
                                  PaintParamsKeyBuilder* builder,
                                  PipelineDataGatherer* gatherer,
@@ -1816,21 +1826,41 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
 
     SkColorSpaceXformSteps steps;
     SkASSERT(steps.flags.mask() == 0);   // By default, the colorspace should have no effect
-    if (!origShader->isRaw()) {
+    // Output color from the YUV image shaders is always unpremul, so we ignore the image alphaType
+    if (origShader->isRaw()) {
+        // We need to at least do premul alpha conversion
         steps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
-                                       imageToDraw->alphaType(),
+                                       kUnpremul_SkAlphaType,
+                                       imageToDraw->colorSpace(),
+                                       kPremul_SkAlphaType);
+    } else {
+        steps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
+                                       kUnpremul_SkAlphaType,
                                        keyContext.dstColorInfo().colorSpace(),
                                        keyContext.dstColorInfo().alphaType());
     }
     ColorSpaceTransformBlock::ColorSpaceTransformData data(steps);
 
-    Compose(keyContext, builder, gatherer,
-            /* addInnerToKey= */ [&]() -> void {
-                YUVImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
-            },
-            /* addOuterToKey= */ [&]() -> void {
-                ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, data);
-            });
+    // We only do this for YUV images because this is the only case where we expect
+    // a premul-only colorspace transformation to be common. Otherwise it's not
+    // worth the combinatorial explosion in the precompile system.
+    if (is_premul_alpha_only(data)) {
+        Compose(keyContext, builder, gatherer,
+                /* addInnerToKey= */ [&]() -> void {
+                    YUVImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+                },
+                /* addOuterToKey= */ [&]() -> void {
+                    builder->addBlock(BuiltInCodeSnippetID::kPremulAlphaColorFilter);
+                });
+    } else {
+        Compose(keyContext, builder, gatherer,
+                /* addInnerToKey= */ [&]() -> void {
+                    YUVImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+                },
+                /* addOuterToKey= */ [&]() -> void {
+                    ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, data);
+                });
+    }
 }
 
 static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swizzle& swizzle) {
