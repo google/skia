@@ -36,6 +36,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/graphite/Image.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTPin.h"
@@ -1119,7 +1120,7 @@ protected:
         fTargetColorSpace = SkColorSpace::MakeSRGB()->makeColorSpin();
     }
 
-    bool createImages(GrDirectContext* context) {
+    bool createImages(GrDirectContext* context, Recorder* recorder) {
         for (bool opaque : { false, true }) {
             PlaneData planes;
             extract_planes(fOriginalBMs[opaque],
@@ -1143,29 +1144,40 @@ protected:
                                            SkColorSpace::MakeSRGB()}) {
                 auto lazyYUV = sk_gpu_test::LazyYUVImage::Make(
                         yuvaPixmaps, skgpu::Mipmapped::kNo, std::move(cs));
-                fImages[opaque][i++] =
-                        lazyYUV->refImage(context, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+#if defined(SK_GRAPHITE)
+                if (recorder) {
+                    fImages[opaque][i++] = lazyYUV->refImage(
+                            recorder, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+                } else
+#endif
+                {
+                    fImages[opaque][i++] = lazyYUV->refImage(
+                            context, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+                }
             }
         }
 
         // Some backends (e.g., Vulkan) require all work be completed for backend textures before
         // they are deleted. Since we don't know when we'll next have access to a direct context,
         // flush all the work now.
-        context->flush();
-        context->submit(GrSyncCpu::kYes);
+        if (context) {
+            context->flush();
+            context->submit(GrSyncCpu::kYes);
+        }
 
         return true;
     }
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg, GraphiteTestContext*) override {
         auto dContext = GrAsDirectContext(canvas->recordingContext());
-        if (!dContext || dContext->abandoned()) {
-            *errorMsg = "DirectContext required to create YUV images";
+        auto recorder = canvas->recorder();
+        if (!recorder && (!dContext || dContext->abandoned())) {
+            *errorMsg = "GPU context required to create YUV images";
             return DrawResult::kSkip;
         }
 
         this->createBitmaps();
-        if (!this->createImages(dContext)) {
+        if (!this->createImages(dContext, recorder)) {
             *errorMsg = "Failed to create YUV images";
             return DrawResult::kFail;
         }
@@ -1181,8 +1193,9 @@ protected:
         SkASSERT(fImages[0][0] && fImages[0][1] && fImages[1][0] && fImages[1][1]);
 
         auto dContext = GrAsDirectContext(canvas->recordingContext());
-        if (!dContext) {
-            *msg = "YUV ColorSpace image creation requires a direct context.";
+        auto recorder = canvas->recorder();
+        if (!dContext && !recorder) {
+            *msg = "YUV ColorSpace image creation requires a GPU context.";
             return DrawResult::kSkip;
         }
 
@@ -1197,26 +1210,55 @@ protected:
                 y += kTileWidthHeight + kPad;
 
                 if (fImages[opaque][tagged]) {
-                    auto yuv = fImages[opaque][tagged]->makeColorSpace(dContext, fTargetColorSpace);
+                    sk_sp<SkImage> yuv;
+#if defined(SK_GRAPHITE)
+                    if (recorder) {
+                        yuv = fImages[opaque][tagged]->makeColorSpace(recorder,
+                                                                      fTargetColorSpace,
+                                                                      {/*fMipmapped=*/false});
+                    } else
+#endif
+                    {
+                        yuv = fImages[opaque][tagged]->makeColorSpace(dContext, fTargetColorSpace);
+                    }
+
                     SkASSERT(yuv);
                     SkASSERT(SkColorSpace::Equals(yuv->colorSpace(), fTargetColorSpace.get()));
                     canvas->drawImage(yuv, x, y);
                     y += kTileWidthHeight + kPad;
 
                     SkIRect bounds = SkIRect::MakeWH(kTileWidthHeight / 2, kTileWidthHeight / 2);
-                    auto subset = SkImages::SubsetTextureFrom(dContext, yuv.get(), bounds);
+                    sk_sp<SkImage> subset;
+#if defined(SK_GRAPHITE)
+                    if (recorder) {
+                        subset = SkImages::SubsetTextureFrom(recorder, yuv.get(), bounds);
+                    } else
+#endif
+                    {
+                        subset = SkImages::SubsetTextureFrom(dContext, yuv.get(), bounds);
+                    }
                     SkASSERT(subset);
                     canvas->drawImage(subset, x, y);
                     y += kTileWidthHeight + kPad;
 
-                    auto nonTexture = yuv->makeNonTextureImage();
-                    SkASSERT(nonTexture);
-                    canvas->drawImage(nonTexture, x, y);
+                    // Graphite doesn't support makeNonTextureImage() so skip this
+                    if (!recorder) {
+                        auto nonTexture = yuv->makeNonTextureImage();
+                        SkASSERT(nonTexture);
+                        canvas->drawImage(nonTexture, x, y);
+                    }
                     y += kTileWidthHeight + kPad;
 
                     SkBitmap readBack;
                     readBack.allocPixels(yuv->imageInfo());
-                    SkAssertResult(yuv->readPixels(dContext, readBack.pixmap(), 0, 0));
+#if defined(GRAPHITE_TEST_UTILS)
+                    if (recorder) {
+                        SkAssertResult(yuv->readPixelsGraphite(recorder, readBack.pixmap(), 0, 0));
+                    } else
+#endif
+                    {
+                        SkAssertResult(yuv->readPixels(dContext, readBack.pixmap(), 0, 0));
+                    }
                     canvas->drawImage(readBack.asImage(), x, y);
                 }
                 x += kTileWidthHeight + kPad;
