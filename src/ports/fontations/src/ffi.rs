@@ -768,6 +768,12 @@ fn coordinates_for_shifted_named_instance_index(
         .unwrap_or(-1)
 }
 
+fn num_axes(font_ref: &BridgeFontRef) -> usize {
+    font_ref
+        .with_font(|f| Some(f.axes().len()))
+        .unwrap_or_default()
+}
+
 fn populate_axes(font_ref: &BridgeFontRef, mut axis_wrapper: Pin<&mut AxisWrapper>) -> isize {
     font_ref
         .with_font(|f| {
@@ -841,6 +847,12 @@ fn font_or_collection<'a>(font_data: &'a [u8], num_fonts: &mut u32) -> bool {
         }
         _ => false,
     }
+}
+
+fn num_named_instances(font_ref: &BridgeFontRef) -> usize {
+    font_ref
+        .with_font(|f| Some(f.named_instances().len()))
+        .unwrap_or_default()
 }
 
 fn resolve_into_normalized_coords(
@@ -1444,6 +1456,8 @@ mod ffi {
         /// Returns false if the data cannot be interpreted as a font or collection.
         unsafe fn font_or_collection<'a>(font_data: &'a [u8], num_fonts: &mut u32) -> bool;
 
+        unsafe fn num_named_instances(font_ref: &BridgeFontRef) -> usize;
+
         type BridgeMappingIndex;
         unsafe fn make_mapping_index<'a>(font_ref: &'a BridgeFontRef) -> Box<BridgeMappingIndex>;
 
@@ -1554,6 +1568,8 @@ mod ffi {
             shifted_index: u32,
             coords: &mut [SkiaDesignCoordinate],
         ) -> isize;
+
+        fn num_axes(font_ref: &BridgeFontRef) -> usize;
 
         fn populate_axes(font_ref: &BridgeFontRef, axis_wrapper: Pin<&mut AxisWrapper>) -> isize;
 
@@ -1715,17 +1731,17 @@ mod ffi {
 #[cfg(test)]
 mod test {
     use crate::{
-        coordinates_for_shifted_named_instance_index,
+        coordinates_for_shifted_named_instance_index, num_axes,
         ffi::{BridgeFontStyle, PaletteOverride, SkiaDesignCoordinate},
         font_or_collection, font_ref_is_valid, get_font_style, make_font_ref,
-        resolve_into_normalized_coords, resolve_palette,
+        num_named_instances, resolve_into_normalized_coords, resolve_palette,
     };
     use std::fs;
 
     const TEST_FONT_FILENAME: &str = "resources/fonts/test_glyphs-glyf_colr_1_variable.ttf";
     const TEST_COLLECTION_FILENAME: &str = "resources/fonts/test.ttc";
     const TEST_CONDENSED_BOLD_ITALIC: &str = "resources/fonts/cond-bold-italic.ttf";
-    const TEST_VARIABLE: &str = "resources/fonts/Variable.ttf";
+    const TEST_VARIABLE: &str = "/usr/local/google/home/jlavrova/Sources/skia/resources/fonts/Variable.ttf";
 
     #[test]
     fn test_palette_override() {
@@ -1851,6 +1867,75 @@ mod test {
         assert_eq!(font_style.width, 5); // Skia normal
         assert_eq!(font_style.slant, 0); // Skia upright
         assert_eq!(font_style.weight, 400); // Skia normal
+    }
+
+    #[test]
+    fn test_no_instances() {
+        let font_buffer =
+            fs::read(TEST_CONDENSED_BOLD_ITALIC).expect("Font to test font styles could not be opened.");
+        let font_ref = make_font_ref(&font_buffer, 0);
+        let num_instances = num_named_instances(font_ref.as_ref());
+        assert!(num_instances == 0);
+    }
+
+    #[test]
+    fn test_no_axes() {
+        let font_buffer =
+            fs::read(TEST_CONDENSED_BOLD_ITALIC).expect("Font to test font styles could not be opened.");
+        let font_ref = make_font_ref(&font_buffer, 0);
+        let size = num_axes(&font_ref);
+        assert_eq!(0, size);
+    }
+
+    #[test]
+    fn test_named_instances() {
+        let font_buffer =
+            fs::read(TEST_VARIABLE).expect("Font to test font styles could not be opened.");
+
+        let font_ref = make_font_ref(&font_buffer, 0);
+        let num_instances = num_named_instances(font_ref.as_ref());
+        assert!(num_instances == 5);
+
+        let mut index = 0;
+        loop {
+            if index >= num_instances {
+                break;
+            }
+            let named_instance_index : u32 = ((index + 1) << 16) as u32;
+            let num_coords = coordinates_for_shifted_named_instance_index(
+                &font_ref,
+                named_instance_index,
+                &mut [],
+            );
+            assert_eq!(num_coords, 2);
+
+            let mut received_coords: [SkiaDesignCoordinate; 2] = Default::default();
+            let num_coords = coordinates_for_shifted_named_instance_index(
+                &font_ref,
+                named_instance_index,
+                &mut received_coords,
+            );
+            let size = num_axes(&font_ref) as isize;
+            assert_eq!(num_coords, size);
+            if (index + 1) == 5 {
+                assert_eq!(num_coords, 2);
+                assert_eq!(
+                    received_coords[0],
+                    SkiaDesignCoordinate {
+                        axis: u32::from_be_bytes([b'w', b'g', b'h', b't']),
+                        value: 400.0
+                    }
+                );
+                assert_eq!(
+                    received_coords[1],
+                    SkiaDesignCoordinate {
+                        axis: u32::from_be_bytes([b'w', b'd', b't', b'h']),
+                        value: 200.0
+                    }
+                );
+            };
+            index += 1;
+        }
     }
 
     #[test]
