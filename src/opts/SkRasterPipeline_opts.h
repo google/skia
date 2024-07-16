@@ -1198,6 +1198,15 @@ namespace SK_OPTS_NS {
     SI V<T> gather(const T* p, U32 ix) {
         return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
+    // Using 'int*' prevents data from passing through floating-point registers.
+    SI F   gather(const int*    p, int ix0, int ix1, int ix2, int ix3) {
+       F ret = {0.0};
+       ret = __lsx_vinsgr2vr_w(ret, p[ix0], 0);
+       ret = __lsx_vinsgr2vr_w(ret, p[ix1], 1);
+       ret = __lsx_vinsgr2vr_w(ret, p[ix2], 2);
+       ret = __lsx_vinsgr2vr_w(ret, p[ix3], 3);
+       return ret;
+    }
 
     template <typename V, typename S>
     SI void scatter_masked(V src, S* dst, U32 ix, I32 mask) {
@@ -3412,6 +3421,21 @@ SI void gradient_lookup(const SkRasterPipeline_GradientCtx* c, U32 idx, F t,
     } else
 #endif
     {
+#if defined(JUMPER_IS_LSX)
+        // This can reduce some vpickve2gr instructions.
+        int i0 = __lsx_vpickve2gr_w(idx, 0);
+        int i1 = __lsx_vpickve2gr_w(idx, 1);
+        int i2 = __lsx_vpickve2gr_w(idx, 2);
+        int i3 = __lsx_vpickve2gr_w(idx, 3);
+        fr = gather((int *)c->fs[0], i0, i1, i2, i3);
+        br = gather((int *)c->bs[0], i0, i1, i2, i3);
+        fg = gather((int *)c->fs[1], i0, i1, i2, i3);
+        bg = gather((int *)c->bs[1], i0, i1, i2, i3);
+        fb = gather((int *)c->fs[2], i0, i1, i2, i3);
+        bb = gather((int *)c->bs[2], i0, i1, i2, i3);
+        fa = gather((int *)c->fs[3], i0, i1, i2, i3);
+        ba = gather((int *)c->bs[3], i0, i1, i2, i3);
+#else
         fr = gather(c->fs[0], idx);
         br = gather(c->bs[0], idx);
         fg = gather(c->fs[1], idx);
@@ -3420,6 +3444,7 @@ SI void gradient_lookup(const SkRasterPipeline_GradientCtx* c, U32 idx, F t,
         bb = gather(c->bs[2], idx);
         fa = gather(c->fs[3], idx);
         ba = gather(c->bs[3], idx);
+#endif
     }
 
     *r = mad(t, fr, br);
@@ -5549,6 +5574,23 @@ SI F abs_(F x) { return sk_bit_cast<F>( sk_bit_cast<I32>(x) & 0x7fffffff ); }
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
 STAGE_GG(seed_shader, NoCtx) {
+#if defined(JUMPER_IS_LSX)
+    __m128 val1 = {0.5f, 1.5f, 2.5f, 3.5f};
+    __m128 val2 = {4.5f, 5.5f, 6.5f, 7.5f};
+    __m128 val3 = {0.5f, 0.5f, 0.5f, 0.5f};
+
+    __m128i v_d = __lsx_vreplgr2vr_w(dx);
+
+    __m128 f_d = __lsx_vffint_s_w(v_d);
+    val1 = __lsx_vfadd_s(val1, f_d);
+    val2 = __lsx_vfadd_s(val2, f_d);
+    x = join<F>(val1, val2);
+
+    v_d = __lsx_vreplgr2vr_w(dy);
+    f_d = __lsx_vffint_s_w(v_d);
+    val3 = __lsx_vfadd_s(val3, f_d);
+    y = join<F>(val3, val3);
+#else
     static constexpr float iota[] = {
         0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
         8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
@@ -5557,6 +5599,7 @@ STAGE_GG(seed_shader, NoCtx) {
 
     x = cast<F>(I32_(dx)) + sk_unaligned_load<F>(iota);
     y = cast<F>(I32_(dy)) + 0.5f;
+#endif
 }
 
 STAGE_GG(matrix_translate, const float* m) {
@@ -5885,15 +5928,29 @@ SI void from_8888(U32 rgba, U16* r, U16* g, U16* b, U16* a) {
         __m256i tmp1 = __lasx_xvsat_wu(_13, 15);
         return __lasx_xvpickev_h(tmp1, tmp0);
     };
+#elif defined(JUMPER_IS_LSX)
+    __m128i _01, _23, rg, ba;
+    split(rgba, &_01, &_23);
+    rg = __lsx_vpickev_h(_23, _01);
+    ba = __lsx_vpickod_h(_23, _01);
+
+    __m128i mask_00ff = __lsx_vreplgr2vr_h(0xff);
+
+    *r = __lsx_vand_v(rg, mask_00ff);
+    *g = __lsx_vsrli_h(rg, 8);
+    *b = __lsx_vand_v(ba, mask_00ff);
+    *a = __lsx_vsrli_h(ba, 8);
 #else
     auto cast_U16 = [](U32 v) -> U16 {
         return cast<U16>(v);
     };
 #endif
+#if !defined(JUMPER_IS_LSX)
     *r = cast_U16(rgba & 65535) & 255;
     *g = cast_U16(rgba & 65535) >>  8;
     *b = cast_U16(rgba >>   16) & 255;
     *a = cast_U16(rgba >>   16) >>  8;
+#endif
 }
 
 SI void load_8888_(const uint32_t* ptr, U16* r, U16* g, U16* b, U16* a) {
@@ -5908,6 +5965,30 @@ SI void load_8888_(const uint32_t* ptr, U16* r, U16* g, U16* b, U16* a) {
 #endif
 }
 SI void store_8888_(uint32_t* ptr, U16 r, U16 g, U16 b, U16 a) {
+#if defined(JUMPER_IS_LSX)
+    __m128i mask = __lsx_vreplgr2vr_h(255);
+    r = __lsx_vmin_hu(r, mask);
+    g = __lsx_vmin_hu(g, mask);
+    b = __lsx_vmin_hu(b, mask);
+    a = __lsx_vmin_hu(a, mask);
+
+    g = __lsx_vslli_h(g, 8);
+    r = r | g;
+    a = __lsx_vslli_h(a, 8);
+    a = a | b;
+
+    __m128i r_lo = __lsx_vsllwil_wu_hu(r, 0);
+    __m128i r_hi = __lsx_vexth_wu_hu(r);
+    __m128i a_lo = __lsx_vsllwil_wu_hu(a, 0);
+    __m128i a_hi = __lsx_vexth_wu_hu(a);
+
+    a_lo = __lsx_vslli_w(a_lo, 16);
+    a_hi = __lsx_vslli_w(a_hi, 16);
+
+    r = r_lo | a_lo;
+    a = r_hi | a_hi;
+    store(ptr, join<U32>(r, a));
+#else
     r = min(r, 255);
     g = min(g, 255);
     b = min(b, 255);
@@ -5924,6 +6005,7 @@ SI void store_8888_(uint32_t* ptr, U16 r, U16 g, U16 b, U16 a) {
 #else
     store(ptr, cast<U32>(r | (g<<8)) <<  0
              | cast<U32>(b | (a<<8)) << 16);
+#endif
 #endif
 }
 
@@ -6429,8 +6511,22 @@ STAGE_GP(evenly_spaced_2_stop_gradient, const SkRasterPipeline_EvenlySpaced2Stop
 STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     // Quantize sample point and transform into lerp coordinates converting them to 16.16 fixed
     // point number.
+#if defined(JUMPER_IS_LSX)
+    __m128 _01, _23, _45, _67;
+    v4f32 v_tmp1 = {0.5f, 0.5f, 0.5f, 0.5f};
+    v4f32 v_tmp2 = {65536.0f, 65536.0f, 65536.0f, 65536.0f};
+    split(x, &_01,&_23);
+    split(y, &_45,&_67);
+    __m128 val1 = __lsx_vfmadd_s((__m128)v_tmp2, _01, (__m128)v_tmp1);
+    __m128 val2 = __lsx_vfmadd_s((__m128)v_tmp2, _23, (__m128)v_tmp1);
+    __m128 val3 = __lsx_vfmadd_s((__m128)v_tmp2, _45, (__m128)v_tmp1);
+    __m128 val4 = __lsx_vfmadd_s((__m128)v_tmp2, _67, (__m128)v_tmp1);
+    I32 qx = cast<I32>((join<F>(__lsx_vfrintrm_s(val1), __lsx_vfrintrm_s(val2)))) - 32768,
+    qy = cast<I32>((join<F>(__lsx_vfrintrm_s(val3), __lsx_vfrintrm_s(val4)))) - 32768;
+#else
     I32 qx = cast<I32>(floor_(65536.0f * x + 0.5f)) - 32768,
         qy = cast<I32>(floor_(65536.0f * y + 0.5f)) - 32768;
+#endif
 
     // Calculate screen coordinates sx & sy by flooring qx and qy.
     I32 sx = qx >> 16,
@@ -6446,8 +6542,22 @@ STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     // Calculate {qx} - 1 and {qy} - 1 where the {} operation is handled by the cast, and the - 1
     // is handled by the ^ 0x8000, dividing by 2 is deferred and handled in lerpX and lerpY in
     // order to use the full 16-bit resolution.
+#if defined(JUMPER_IS_LSX)
+    __m128i qx_lo, qx_hi, qy_lo, qy_hi;
+    split(qx, &qx_lo, &qx_hi);
+    split(qy, &qy_lo, &qy_hi);
+    __m128i temp = __lsx_vreplgr2vr_w(0x8000);
+    qx_lo = __lsx_vxor_v(qx_lo, temp);
+    qx_hi = __lsx_vxor_v(qx_hi, temp);
+    qy_lo = __lsx_vxor_v(qy_lo, temp);
+    qy_hi = __lsx_vxor_v(qy_hi, temp);
+
+    I16 tx = __lsx_vpickev_h(qx_hi, qx_lo);
+    I16 ty = __lsx_vpickev_h(qy_hi, qy_lo);
+#else
     I16 tx = cast<I16>(qx ^ 0x8000),
         ty = cast<I16>(qy ^ 0x8000);
+#endif
 
     // Substituting the {qx} by the equation for tx from above into the lerp equation where v is
     // the lerped value:
