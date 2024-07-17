@@ -170,13 +170,58 @@ std::optional<SkColor4f> extract_paint_color(const SkPaint& paint,
 // Returns a local rect that has been adjusted such that when it's rasterized with `localToDevice`
 // it will be pixel aligned. If this adjustment is not possible (due to transform type or precision)
 // then this returns the original local rect unmodified.
-Rect snap_rect_to_pixels(const Transform& localToDevice, const Rect& rect) {
+//
+// If `strokeWidth` is null, it's assumed to be a filled rectangle. If it's not null, on input it
+// should hold the stroke width (or 0 for a hairline). After this returns, the stroke width may
+// have been adjusted so that outer and inner stroked edges are pixel aligned (in which case the
+// underlying rectangle geometry probably won't be pixel aligned).
+//
+// A best effort is made to align the stroke edges when there's a non-uniform scale factor that
+// prevents exactly aligning both X and Y axes.
+Rect snap_rect_to_pixels(const Transform& localToDevice,
+                         const Rect& rect,
+                         float* strokeWidth=nullptr) {
     if (localToDevice.type() > Transform::Type::kRectStaysRect) {
         return rect;
     }
-    // Use round() to emulate non-AA rasterization (vs. roundOut() to get the covering bounds).
-    // This matches how ClipStack treats clipRects with PixelSnapping::kYes.
-    Rect snappedDeviceRect = localToDevice.mapRect(rect).round();
+
+    Rect snappedDeviceRect;
+    if (!strokeWidth) {
+        // Just a fill, use round() to emulate non-AA rasterization (vs. roundOut() to get the
+        // covering bounds). This matches how ClipStack treats clipRects with PixelSnapping::kYes.
+        snappedDeviceRect = localToDevice.mapRect(rect).round();
+    } else if (strokeWidth) {
+        if (*strokeWidth == 0.f) {
+            // Hairline case needs to be outset by 1/2 device pixels *before* rounding, and then
+            // inset by 1/2px to get the base shape while leaving the stroke width as 0.
+            snappedDeviceRect = localToDevice.mapRect(rect);
+            snappedDeviceRect.outset(0.5f).round().inset(0.5f);
+        } else {
+            // For regular strokes, outset by the stroke radius *before* mapping to device space,
+            // and then round.
+            snappedDeviceRect = localToDevice.mapRect(rect.makeOutset(0.5f*(*strokeWidth))).round();
+
+            // devScales.x() holds scale factor affecting device-space X axis (so max of |m00| or
+            // |m01|) and y() holds the device Y axis scale (max of |m10| or |m11|).
+            skvx::float2 devScales = max(abs(skvx::float2(localToDevice.matrix().rc(0,0),
+                                                          localToDevice.matrix().rc(1,0))),
+                                         abs(skvx::float2(localToDevice.matrix().rc(0,1),
+                                                          localToDevice.matrix().rc(1,1))));
+            skvx::float2 devStrokeWidth = max(round(*strokeWidth * devScales), 1.f);
+
+            // Prioritize the axis that has the largest device-space radius (any error from a
+            // non-uniform scale factor will go into the inner edge of the opposite axis).
+            // During animating scale factors, preserving the large axis leads to better behavior.
+            if (devStrokeWidth.x() > devStrokeWidth.y()) {
+                *strokeWidth = devStrokeWidth.x() / devScales.x();
+            } else {
+                *strokeWidth = devStrokeWidth.y() / devScales.y();
+            }
+
+            snappedDeviceRect.inset(0.5f * devScales * (*strokeWidth));
+        }
+    }
+
     // Map back to local space so that it can be drawn with appropriate coord interpolation.
     Rect snappedLocalRect = localToDevice.inverseMapRect(snappedDeviceRect);
     // If the transform has an extreme scale factor or large translation, it's possible for floating
@@ -206,8 +251,6 @@ void snap_src_and_dst_rect_to_pixels(const Transform& localToDevice,
     *dstRect = snap_rect_to_pixels(localToDevice, *dstRect).asSkRect();
     *srcRect = dstToSrc.mapRect(*dstRect);
 }
-
-// TODO(b/280054774): Also snap filled round rects and stroked [r]rects as best as possible.
 
 SkIRect rect_to_pixelbounds(const Rect& r) {
     return r.makeRoundOut().asSkIRect();
@@ -716,9 +759,14 @@ void Device::drawRect(const SkRect& r, const SkPaint& paint) {
     if (!paint.isAntiAlias()) {
         // Graphite assumes everything is anti-aliased. In the case of axis-aligned non-aa requested
         // rectangles, we snap the local geometry to land on pixel boundaries to emulate non-aa.
-        // TODO(b/280054774): Support snapping stroked rectangles too
         if (style.isFillStyle()) {
             rectToDraw = snap_rect_to_pixels(this->localToDeviceTransform(), rectToDraw);
+        } else {
+            const bool strokeAndFill = style.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
+            float strokeWidth = style.getWidth();
+            rectToDraw = snap_rect_to_pixels(this->localToDeviceTransform(),
+                                             rectToDraw, &strokeWidth);
+            style.setStrokeStyle(strokeWidth, strokeAndFill);
         }
     }
     this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(rectToDraw)), paint, style);
