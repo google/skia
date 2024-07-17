@@ -1064,6 +1064,15 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     // values via operations like `num / 0.0` until GLSL 4.1.)
     shaderCaps->fInfinitySupport = (ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330);
 
+    // Using isinf or isnan with ANGLE will disable fast-math (which is a good thing!), but that
+    // leads to hangs in the Metal shader compiler service for some of our tessellation shaders,
+    // running on Intel Macs. For now, pretend that we don't have infinity support, even when we're
+    // targeting ANGLE's ES3 to Metal.
+    if (ctxInfo.angleBackend() == GrGLANGLEBackend::kMetal &&
+        ctxInfo.angleVendor() == GrGLVendor::kIntel) {
+        shaderCaps->fInfinitySupport = false;
+    }
+
     if (GR_IS_GR_GL(standard)) {
         shaderCaps->fNonconstantArrayIndexSupport = true;
     } else if (GR_IS_GR_GL_ES(standard) || GR_IS_GR_WEBGL(standard)) {

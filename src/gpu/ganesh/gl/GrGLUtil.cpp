@@ -646,6 +646,14 @@ get_angle_gl_vendor_and_renderer(
     return {angleVendor, angleRenderer, angleDriver, angleDriverVersion};
 }
 
+static GrGLVendor get_angle_metal_vendor(const char* innerString) {
+    if (strstr(innerString, "Intel")) {
+        return GrGLVendor::kIntel;
+    }
+
+    return GrGLVendor::kOther;
+}
+
 static std::tuple<GrGLVendor, GrGLRenderer, GrGLDriver, GrGLDriverVersion>
 get_angle_d3d_vendor_and_renderer(const char* innerString) {
     auto vendor   = GrGLVendor::kOther;
@@ -775,6 +783,8 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
                  info.fANGLEDriverVersion) =
                 get_angle_gl_vendor_and_renderer(innerAngleRendererString.c_str(),
                                                  interface->fExtensions);
+    } else if (info.fANGLEBackend == GrGLANGLEBackend::kMetal) {
+        info.fANGLEVendor = get_angle_metal_vendor(innerAngleRendererString.c_str());
     }
 
     if (info.fRenderer == GrGLRenderer::kWebGL) {
