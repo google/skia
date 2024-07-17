@@ -22,6 +22,7 @@ bool skiatest::Reporter::allowExtendedTest() const { return false; }
 
 bool skiatest::Reporter::verbose() const { return false; }
 
+template skiatest::TestRegistry* skiatest::TestRegistry::gHead;
 
 void skiatest::Reporter::reportFailedWithContext(const skiatest::Failure& f) {
     SkString fullMessage = f.message;
