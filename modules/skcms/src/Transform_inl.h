@@ -211,6 +211,9 @@ SI U64 swap_endian_16x4(const U64& rgba) {
 #if defined(USING_NEON)
     SI F min_(F x, F y) { return (F)vminq_f32((float32x4_t)x, (float32x4_t)y); }
     SI F max_(F x, F y) { return (F)vmaxq_f32((float32x4_t)x, (float32x4_t)y); }
+#elif defined(__loongarch_sx)
+    SI F min_(F x, F y) { return (F)__lsx_vfmin_s(x, y); }
+    SI F max_(F x, F y) { return (F)__lsx_vfmax_s(x, y); }
 #else
     SI F min_(F x, F y) { return if_then_else(x > y, y, x); }
     SI F max_(F x, F y) { return if_then_else(x < y, y, x); }
@@ -231,6 +234,8 @@ SI F floor_(F x) {
     return __builtin_ia32_roundps256(x, 0x01/*_MM_FROUND_FLOOR*/);
 #elif defined(__SSE4_1__)
     return _mm_floor_ps(x);
+#elif defined(__loongarch_sx)
+    return __lsx_vfrintrm_s((__m128)x);
 #else
     // Round trip through integers with a truncating cast.
     F roundtrip = cast<F>(cast<I32>(x));
@@ -644,7 +649,7 @@ SI void sample_clut_8(const uint8_t* grid_8, I32 ix, F* r, F* g, F* b, F* a) {
 }
 
 SI void sample_clut_16(const uint8_t* grid_16, I32 ix, F* r, F* g, F* b) {
-#if defined(__arm__)
+#if defined(__arm__) || defined(__loongarch_sx)
     // This is up to 2x faster on 32-bit ARM than the #else-case fast path.
     *r = F_from_U16_BE(gather_16(grid_16, 3*ix+0));
     *g = F_from_U16_BE(gather_16(grid_16, 3*ix+1));
