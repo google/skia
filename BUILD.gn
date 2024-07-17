@@ -1530,6 +1530,9 @@ skia_component("skia") {
       "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkOSLibrary_posix.cpp",
     ]
+    if (is_ios) {
+      sources += [ "src/ports/SkOSFile_ios.h" ]
+    }
     libs += [ "dl" ]
   }
 
