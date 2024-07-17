@@ -301,19 +301,18 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
 }
 
 namespace {
-UniqueKey make_ubo_bind_group_key(SkSpan<DescriptorData> requestedDescriptors,
-                                  SkSpan<BindUniformBufferInfo> bindUniformBufferInfo) {
-    static const UniqueKey::Domain kBufferBindGroupDomain = UniqueKey::GenerateDomain();
 
-    UniqueKey uniqueKey;
+VulkanResourceProvider::UniformBindGroupKey make_ubo_bind_group_key(
+        SkSpan<DescriptorData> requestedDescriptors,
+        SkSpan<BindUniformBufferInfo> bindUniformBufferInfo) {
+    VulkanResourceProvider::UniformBindGroupKey uniqueKey;
     {
         // Each entry in the bind group needs 2 uint32_t in the key:
         //  - buffer's unique ID: 32 bits.
         //  - buffer's binding size: 32 bits.
-        // We need total of 3 entries in the uniform buffer bind group.
+        // We need total of 4 entries in the uniform buffer bind group.
         // Unused entries will be assigned zero values.
-        UniqueKey::Builder builder(
-                &uniqueKey, kBufferBindGroupDomain, 6, "GraphicsPipelineBufferDescSet");
+        VulkanResourceProvider::UniformBindGroupKey::Builder builder(&uniqueKey);
 
         for (uint32_t i = 0; i < VulkanGraphicsPipeline::kNumUniformBuffers; ++i) {
             builder[2 * i] = 0;

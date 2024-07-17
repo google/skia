@@ -38,7 +38,8 @@ public:
     inline static constexpr unsigned int kIntrinsicUniformBufferIndex = 0;
     inline static constexpr unsigned int kRenderStepUniformBufferIndex = 1;
     inline static constexpr unsigned int kPaintUniformBufferIndex = 2;
-    inline static constexpr unsigned int kNumUniformBuffers = 3;
+    inline static constexpr unsigned int kGradientBufferIndex = 3;
+    inline static constexpr unsigned int kNumUniformBuffers = 4;
 
     // For now, rigidly assign all uniform buffer descriptors to be in set 0 and all
     // texture/samplers to be in set 1.
@@ -102,6 +103,7 @@ public:
 
     bool hasFragmentUniforms() const { return fHasFragmentUniforms; }
     bool hasStepUniforms() const { return fHasStepUniforms; }
+    bool hasGradientBuffer() const { return fHasGradientBuffer; }
     int numTextureSamplers() const { return fNumTextureSamplers; }
 
 private:
@@ -111,6 +113,7 @@ private:
                            VkPipeline,
                            bool hasFragmentUniforms,
                            bool hasStepUniforms,
+                           bool hasGradientBuffer,
                            int numTextureSamplers,
                            bool ownsPipelineLayout,
                            skia_private::TArray<sk_sp<VulkanSampler>> immutableSamplers);
@@ -121,6 +124,7 @@ private:
     VkPipeline fPipeline = VK_NULL_HANDLE;
     bool fHasFragmentUniforms = false;
     bool fHasStepUniforms = false;
+    bool fHasGradientBuffer = false;
     int fNumTextureSamplers = 0;
     bool fOwnsPipelineLayout = true;
 

@@ -9,6 +9,7 @@
 #define skgpu_graphite_VulkanResourceProvider_DEFINED
 
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/core/SkLRUCache.h"
@@ -35,6 +36,8 @@ class VulkanResourceProvider final : public ResourceProvider {
 public:
     static constexpr size_t kIntrinsicConstantSize = sizeof(float) * 4;
     static constexpr size_t kLoadMSAAVertexBufferSize = sizeof(float) * 8; // 4 points of 2 floats
+
+    using UniformBindGroupKey = FixedSizeKey<2 * VulkanGraphicsPipeline::kNumUniformBuffers>;
 
     VulkanResourceProvider(SharedContext* sharedContext,
                            SingleOwner*,
@@ -126,11 +129,8 @@ private:
     VkPipelineShaderStageCreateInfo fMSAALoadShaderStageInfo[2];
     VkPipelineLayout fMSAALoadPipelineLayout = VK_NULL_HANDLE;
 
-    struct UniqueKeyHash {
-        uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
-    };
-    using DescriptorSetCache = SkLRUCache<UniqueKey, sk_sp<VulkanDescriptorSet>, UniqueKeyHash>;
-    DescriptorSetCache fUniformBufferDescSetCache;
+    SkLRUCache<UniformBindGroupKey, sk_sp<VulkanDescriptorSet>,
+               UniformBindGroupKey::Hash> fUniformBufferDescSetCache;
 };
 
 } // namespace skgpu::graphite

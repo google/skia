@@ -474,6 +474,7 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
                                               bool usesIntrinsicConstantUbo,
                                               bool hasStepUniforms,
                                               bool hasPaintUniforms,
+                                              bool hasGradientBuffer,
                                               int numTextureSamplers,
                                               int numInputAttachments,
                                               SkSpan<sk_sp<VulkanSampler>> immutableSamplers) {
@@ -502,6 +503,13 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
             uniformBufferType,
             /*count=*/1,
             VulkanGraphicsPipeline::kPaintUniformBufferIndex,
+            PipelineStageFlags::kFragmentShader});
+    }
+    if (hasGradientBuffer) {
+        uniformDescriptors.push_back({
+            DescriptorType::kStorageBuffer,
+            /*count=*/1,
+            VulkanGraphicsPipeline::kGradientBufferIndex,
             PipelineStageFlags::kFragmentShader});
     }
 
@@ -780,6 +788,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                   /*usesIntrinsicConstantUbo=*/true,
                                   !step->uniforms().empty(),
                                   fsSkSLInfo.fHasPaintUniforms,
+                                  fsSkSLInfo.fHasGradientBuffer,
                                   fsSkSLInfo.fNumTexturesAndSamplers,
                                   /*numInputAttachments=*/0,
                                   SkSpan<sk_sp<VulkanSampler>>(immutableSamplers));
@@ -861,6 +870,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                        vkPipeline,
                                        fsSkSLInfo.fHasPaintUniforms,
                                        !step->uniforms().empty(),
+                                       fsSkSLInfo.fHasGradientBuffer,
                                        fsSkSLInfo.fNumTexturesAndSamplers,
                                        /*ownsPipelineLayout=*/true,
                                        std::move(immutableSamplers)));
@@ -946,6 +956,7 @@ bool VulkanGraphicsPipeline::InitializeMSAALoadPipelineStructs(
                                                /*usesIntrinsicConstantUbo=*/false,
                                                /*hasStepUniforms=*/false,
                                                /*hasPaintUniforms=*/false,
+                                               /*hasGradientBuffer=*/false,
                                                /*numTextureSamplers=*/0,
                                                /*numInputAttachments=*/1,
                                                /*immutableSamplers=*/{});
@@ -1054,6 +1065,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
                                        vkPipeline,
                                        /*hasFragmentUniforms=*/false,
                                        /*hasStepUniforms=*/false,
+                                       /*hasGradientBuffer=*/false,
                                        /*numTextureSamplers*/0,
                                        /*ownsPipelineLayout=*/false,
                                        /*immutableSamplers=*/{}));
@@ -1066,6 +1078,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
         VkPipeline pipeline,
         bool hasFragmentUniforms,
         bool hasStepUniforms,
+        bool hasGradientBuffer,
         int numTextureSamplers,
         bool ownsPipelineLayout,
         skia_private::TArray<sk_sp<VulkanSampler>> immutableSamplers)
@@ -1074,6 +1087,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
         , fPipeline(pipeline)
         , fHasFragmentUniforms(hasFragmentUniforms)
         , fHasStepUniforms(hasStepUniforms)
+        , fHasGradientBuffer(hasGradientBuffer)
         , fNumTextureSamplers(numTextureSamplers)
         , fOwnsPipelineLayout(ownsPipelineLayout)
         , fImmutableSamplers(std::move(immutableSamplers)) {}
