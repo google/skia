@@ -909,9 +909,11 @@ optional("gpu") {
   deps = [
     ":compile_sksl_glsl_nosettings_tests",
     ":compile_sksl_glsl_tests",
+    ":compile_sksl_hlsl_tests",
     ":compile_sksl_metal_tests",
     ":compile_sksl_skrp_tests",
     ":compile_sksl_spirv_tests",
+    ":compile_sksl_wgsl_tests",
     ":gpu_shared",
     ":minify_sksl",
     ":run_sksllex",
