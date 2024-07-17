@@ -90,6 +90,7 @@ func main() {
 
 	skslFlags := append([]string{"--config=compile_sksl"}, *bazelFlags.AdditionalArgs...)
 	skslTests := []string{
+		"compile_hlsl_tests",
 		"compile_glsl_tests",
 		"compile_glsl_nosettings_tests",
 		"compile_metal_tests",
