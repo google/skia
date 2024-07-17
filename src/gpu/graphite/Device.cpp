@@ -847,15 +847,37 @@ void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
     } else {
         // TODO: This has wasted effort from the SkCanvas level since it instead converts rrects
         // that happen to be ovals into this, only for us to go right back to rrect.
-        this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(SkRRect::MakeOval(oval))),
-                           paint, SkStrokeRec(paint));
+        this->drawRRect(SkRRect::MakeOval(oval), paint);
     }
 }
 
 void Device::drawRRect(const SkRRect& rr, const SkPaint& paint) {
-    // TODO(b/280054774): Support snapping filled and stroked rounded rectangles
-    this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(rr)),
-                       paint, SkStrokeRec(paint));
+    Shape rrectToDraw;
+    SkStrokeRec style(paint);
+
+    if (paint.isAntiAlias()) {
+        rrectToDraw.setRRect(rr);
+    } else {
+        // Snap the horizontal and vertical edges of the rounded rectangle to pixel edges to match
+        // the behavior of drawRect(rr.bounds()), to partially emulate non-AA rendering while
+        // preserving the anti-aliasing of the curved corners.
+        Rect snappedBounds;
+        if (style.isFillStyle()) {
+            snappedBounds = snap_rect_to_pixels(this->localToDeviceTransform(), rr.rect());
+        } else {
+            const bool strokeAndFill = style.getStyle() == SkStrokeRec::kStrokeAndFill_Style;
+            float strokeWidth = style.getWidth();
+            snappedBounds = snap_rect_to_pixels(this->localToDeviceTransform(),
+                                                rr.rect(), &strokeWidth);
+            style.setStrokeStyle(strokeWidth, strokeAndFill);
+        }
+
+        SkRRect snappedRRect;
+        snappedRRect.setRectRadii(snappedBounds.asSkRect(), rr.radii().data());
+        rrectToDraw.setRRect(snappedRRect);
+    }
+
+    this->drawGeometry(this->localToDeviceTransform(), Geometry(rrectToDraw), paint, style);
 }
 
 void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
