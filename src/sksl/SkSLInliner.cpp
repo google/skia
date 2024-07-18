@@ -186,6 +186,24 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
         }
         return args;
     };
+    auto childRemap = [&](const Variable& var) -> const Variable& {
+        // If our variable remapping table contains the passed-in variable...
+        if (std::unique_ptr<Expression>* remap = varMap->find(&var)) {
+            // ... the remapped expression _must_ be another variable reference.
+            // SkSL doesn't allow opaque types to participate in complex expressions.
+            if ((*remap)->is<VariableReference>()) {
+                const VariableReference& remappedRef = (*remap)->as<VariableReference>();
+                return *remappedRef.variable();
+            } else {
+                SkDEBUGFAILF("Child effect '%.*s' remaps to unexpected expression '%s'",
+                             (int)var.name().size(), var.name().data(),
+                             (*remap)->description().c_str());
+            }
+        }
+
+        // There's no remapping for this; return it as-is.
+        return var;
+    };
 
     switch (expression.kind()) {
         case Expression::Kind::kBinary: {
@@ -205,7 +223,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
             return ChildCall::Make(*fContext,
                                    pos,
                                    childCall.type().clone(*fContext, symbolTableForExpression),
-                                   childCall.child(),
+                                   childRemap(childCall.child()),
                                    argList(childCall.arguments()));
         }
         case Expression::Kind::kConstructorArray: {
@@ -521,8 +539,8 @@ static bool argument_needs_scratch_variable(const Expression* arg,
     // If the parameter isn't written to within the inline function ...
     const ProgramUsage::VariableCounts& paramUsage = usage.get(*param);
     if (!paramUsage.fWrite) {
-        // ... and can be inlined trivially (e.g. a swizzle, or a constant array index),
-        // or any expression without side effects that is only accessed at most once...
+        // ... and it can be inlined trivially (e.g. a swizzle, or a constant array index),
+        // or it is any expression without side effects that is only accessed at most once...
         if ((paramUsage.fRead > 1) ? Analysis::IsTrivialExpression(*arg)
                                    : !Analysis::HasSideEffects(*arg)) {
             // ... we don't need to copy it at all! We can just use the existing expression.
