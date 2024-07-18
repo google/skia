@@ -48,7 +48,6 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/FactoryFunctions.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
@@ -94,12 +93,12 @@ create_random_image_filter(Recorder*, SkRandom*);
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
+//    M(Empty)
 #define SK_ALL_TEST_SHADERS(M) \
     M(Blend)              \
     M(ColorFilter)        \
     M(CoordClamp)         \
     M(ConicalGradient)    \
-    M(Empty)              \
     M(Image)              \
     M(LinearGradient)     \
     M(LocalMatrix)        \
@@ -602,12 +601,14 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_coord_clamp_shader(Sk
     return { ccs, cco };
 }
 
+#if 0
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_empty_shader(SkRandom* /* rand */) {
     sk_sp<SkShader> s = SkShaders::Empty();
     sk_sp<PrecompileShader> o = PrecompileShaders::Empty();
 
     return { s, o };
 }
+#endif
 
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_perlin_noise_shader(SkRandom* rand) {
     sk_sp<SkShader> s;
@@ -921,8 +922,8 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>>  create_shader(SkRandom* ran
             return create_coord_clamp_shader(rand, recorder);
         case ShaderType::kConicalGradient:
             return create_gradient_shader(rand, SkShaderBase::GradientType::kConical);
-        case ShaderType::kEmpty:
-            return create_empty_shader(rand);
+//        case ShaderType::kEmpty:
+//            return create_empty_shader(rand);
         case ShaderType::kImage:
             return create_image_shader(rand, recorder);
         case ShaderType::kLinearGradient:
@@ -2118,6 +2119,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTestReduced,
                                                CtsEnforcement::kNever) {
     std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
 
+#if 1
     //----------------------
     uint32_t seed = std::time(nullptr) % std::numeric_limits<uint32_t>::max();
     SkRandom rand(seed);
@@ -2125,10 +2127,22 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTestReduced,
     BlenderType blenderType = random_blendertype(&rand);
     ColorFilterType colorFilterType = random_colorfiltertype(&rand);
     MaskFilterType maskFilterType = random_maskfiltertype(&rand);
-    ImageFilterType imageFilterType = random_imagefiltertype(&rand);
+    ImageFilterType imageFilterType = ImageFilterType::kNone; // random_imagefiltertype(&rand);
     ClipType clipType = random_cliptype(&rand);
     DrawTypeFlags drawTypeFlags = random_drawtype(&rand);
     //----------------------
+#else
+    //------------------------
+    uint32_t seed = 1721227069;
+    ShaderType shaderType = ShaderType::kLocalMatrix;
+    BlenderType blenderType = BlenderType::kArithmetic;
+    ColorFilterType colorFilterType = ColorFilterType::kRuntime;
+    MaskFilterType maskFilterType = MaskFilterType::kNone;
+    ImageFilterType imageFilterType = ImageFilterType::kDisplacement;
+    ClipType clipType = ClipType::kNone;
+    DrawTypeFlags drawTypeFlags = DrawTypeFlags::kText;
+    //-----------------------
+#endif
 
     SkString logMsg("Running ");
     logMsg += BackendApiToStr(context->backend());

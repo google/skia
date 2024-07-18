@@ -276,7 +276,6 @@ skia_graphite_mtl_public = [
 ]
 
 skia_graphite_mtl_sources = [
-  "$_include_private/MtlGraphiteTypesPriv.h",
   "$_src/mtl/MtlBackendSemaphore.mm",
   "$_src/mtl/MtlBackendTexture.mm",
   "$_src/mtl/MtlBlitCommandEncoder.h",
@@ -370,8 +369,6 @@ skia_graphite_precompile_public = [
 ]
 
 skia_graphite_precompile_sources = [
-  "$_src/FactoryFunctions.cpp",
-  "$_src/FactoryFunctions.h",
   "$_src/PrecompileInternal.h",
   "$_src/PublicPrecompile.cpp",
   "$_src/PublicPrecompile.h",

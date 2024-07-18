@@ -107,11 +107,18 @@ namespace PrecompileShaders {
     // In the main Skia API ImageShaders are usually created via a SkImage::makeShader call.
     // Since the SkImage used to create the ImageShader is unlikely to be present at precompilation
     // time this entry point allows the equivalent precompilation program structure to be created.
+    // Note that this factory is for non-YUV SkImages, the YUVImage factory (below) should be used
+    // to represent the shading and sampling required for YUV images.
     SK_API sk_sp<PrecompileShader> Image();
     // As with the above Image call, raw ImageShaders are usually created via an
     // SkImage::makeRawShader call. The RawImage call allows the equivalent precompilation
     // program structure to be created without needing the SkImage.
     SK_API sk_sp<PrecompileShader> RawImage();
+
+    // In the main Skia API, the specifics of the SkImage used for the SkImage::makeShader call
+    // can determine whether normal or YUV sampling is required. This entry point allows clients
+    // to specify that the future image will be a YUV image.
+    SK_API sk_sp<PrecompileShader> YUVImage();
 
     // --- This block of two matches the SkShaders factories in SkPerlinNoiseShader.h
     // Again, most of the details have been elided.
