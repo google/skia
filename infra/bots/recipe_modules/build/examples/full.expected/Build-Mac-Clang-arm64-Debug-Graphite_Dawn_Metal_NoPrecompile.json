@@ -29,7 +29,7 @@
     "cmd": [],
     "name": "ensure xcode",
     "~followup_annotations": [
-      "@@@STEP_SUMMARY_TEXT@Ensuring Xcode version 12c33 in [START_DIR]/cache/Xcode.app@@@"
+      "@@@STEP_SUMMARY_TEXT@Ensuring Xcode version 15f31d in [START_DIR]/cache/Xcode.app@@@"
     ]
   },
   {
@@ -39,7 +39,7 @@
       "-kind",
       "ios",
       "-xcode-version",
-      "12c33",
+      "15f31d",
       "-output-dir",
       "[START_DIR]/cache/Xcode.app"
     ],
@@ -83,7 +83,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoPrecompile/Debug",
-      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" dawn_enable_d3d11=false dawn_enable_d3d12=false dawn_enable_desktop_gl=false dawn_enable_metal=true dawn_enable_opengles=false dawn_enable_vulkan=false extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=12c33\", \"-O1\"] link_pool_depth=2 skia_enable_graphite=true skia_enable_precompile=false skia_use_client_icu=true skia_use_dawn=true skia_use_gl=false skia_use_libgrapheme=true target_cpu=\"arm64\" werror=true"
+      "--args=cc=\"clang\" cc_wrapper=\"[START_DIR]/ccache_mac/bin/ccache\" cxx=\"clang++\" dawn_enable_d3d11=false dawn_enable_d3d12=false dawn_enable_desktop_gl=false dawn_enable_metal=true dawn_enable_opengles=false dawn_enable_vulkan=false extra_cflags=[\"-DREBUILD_IF_CHANGED_xcode_build_version=15f31d\", \"-O1\"] link_pool_depth=2 skia_enable_graphite=true skia_enable_precompile=false skia_use_client_icu=true skia_use_dawn=true skia_use_gl=false skia_use_libgrapheme=true target_cpu=\"arm64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

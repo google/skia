@@ -102,7 +102,7 @@ def compile_fn(api, checkout_root, out_dir):
     # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
     # Use lowercase letters.
     # https://chrome-infra-packages.appspot.com/p/infra_internal/ios/xcode
-    XCODE_BUILD_VERSION = '12c33'
+    XCODE_BUILD_VERSION = '15f31d'
     if compiler == 'Xcode11.4.1':
       XCODE_BUILD_VERSION = '11e503a'
     extra_cflags.append(

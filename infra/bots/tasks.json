@@ -970,24 +970,24 @@
         "Build-Mac-Clang-x86_64-Release-TSAN_Metal"
       ]
     },
-    "Build-Mac-Xcode11.4.1-arm64-Debug-iOS": {
+    "Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS": {
       "tasks": [
-        "Build-Mac-Xcode11.4.1-arm64-Debug-iOS"
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS"
       ]
     },
-    "Build-Mac-Xcode11.4.1-arm64-Debug-iOS_Metal": {
+    "Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS_Metal": {
       "tasks": [
-        "Build-Mac-Xcode11.4.1-arm64-Debug-iOS_Metal"
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS_Metal"
       ]
     },
-    "Build-Mac-Xcode11.4.1-arm64-Release-iOS": {
+    "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS": {
       "tasks": [
-        "Build-Mac-Xcode11.4.1-arm64-Release-iOS"
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS"
       ]
     },
-    "Build-Mac-Xcode11.4.1-arm64-Release-iOS_Metal": {
+    "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS_Metal": {
       "tasks": [
-        "Build-Mac-Xcode11.4.1-arm64-Release-iOS_Metal"
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS_Metal"
       ]
     },
     "Build-Win-Clang-arm64-Debug": {
@@ -16284,7 +16284,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -16307,7 +16307,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -16380,7 +16380,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -16403,7 +16403,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -16476,7 +16476,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -16499,7 +16499,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -16595,7 +16595,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -16618,7 +16618,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -16691,7 +16691,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -16714,7 +16714,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -16797,7 +16797,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -16893,7 +16893,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -16916,7 +16916,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17012,7 +17012,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -17035,7 +17035,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17131,7 +17131,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -17154,7 +17154,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17254,7 +17254,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/bazelisk_mac_amd64",
@@ -17282,7 +17282,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17355,7 +17355,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -17378,7 +17378,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17451,7 +17451,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -17474,7 +17474,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17547,7 +17547,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -17570,7 +17570,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17670,7 +17670,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/bazelisk_mac_amd64",
@@ -17698,7 +17698,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17771,7 +17771,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -17794,7 +17794,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17867,7 +17867,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -17890,7 +17890,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -17963,7 +17963,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -17991,7 +17991,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18064,7 +18064,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18092,7 +18092,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18165,7 +18165,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18193,7 +18193,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18266,7 +18266,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18289,7 +18289,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18362,7 +18362,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18385,7 +18385,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18481,7 +18481,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18504,7 +18504,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18577,7 +18577,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18600,7 +18600,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18673,7 +18673,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18696,7 +18696,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18769,7 +18769,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18797,7 +18797,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18870,7 +18870,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18898,7 +18898,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -18971,7 +18971,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -18999,7 +18999,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -19072,7 +19072,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -19100,7 +19100,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -19173,7 +19173,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -19196,7 +19196,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -19269,7 +19269,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -19292,7 +19292,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -19365,7 +19365,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -19388,7 +19388,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -19461,7 +19461,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -19484,7 +19484,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -19584,7 +19584,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/bazelisk_mac_amd64",
@@ -19612,7 +19612,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -19708,7 +19708,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -19731,7 +19731,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -19831,7 +19831,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/bazelisk_mac_amd64",
@@ -19859,7 +19859,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -19932,7 +19932,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -19955,7 +19955,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -20055,7 +20055,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/bazelisk_mac_amd64",
@@ -20083,7 +20083,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -20156,7 +20156,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -20179,7 +20179,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -20252,7 +20252,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -20275,7 +20275,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -20348,7 +20348,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -20371,7 +20371,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -20467,7 +20467,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -20490,7 +20490,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -20590,7 +20590,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/bazelisk_mac_amd64",
@@ -20618,7 +20618,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -20691,7 +20691,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -20714,7 +20714,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -20814,7 +20814,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/bazelisk_mac_amd64",
@@ -20842,7 +20842,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -20915,7 +20915,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -20938,7 +20938,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -21011,7 +21011,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -21034,7 +21034,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -21107,7 +21107,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -21130,7 +21130,7 @@
       "dimensions": [
         "cores:12",
         "cpu:x86-64",
-        "os:Mac-10.15.7",
+        "os:Mac-14.5",
         "pool:Skia"
       ],
       "environment": {
@@ -21163,7 +21163,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Mac-Xcode11.4.1-arm64-Debug-iOS": {
+    "Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS": {
       "caches": [
         {
           "name": "ccache",
@@ -21203,7 +21203,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -21222,7 +21222,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Xcode11.4.1-arm64-Debug-iOS\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -21264,7 +21264,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Mac-Xcode11.4.1-arm64-Debug-iOS_Metal": {
+    "Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS_Metal": {
       "caches": [
         {
           "name": "ccache",
@@ -21304,7 +21304,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -21323,7 +21323,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Xcode11.4.1-arm64-Debug-iOS_Metal\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS_Metal\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -21365,7 +21365,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Mac-Xcode11.4.1-arm64-Release-iOS": {
+    "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS": {
       "caches": [
         {
           "name": "ccache",
@@ -21405,7 +21405,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -21424,7 +21424,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Xcode11.4.1-arm64-Release-iOS\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -21466,7 +21466,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Mac-Xcode11.4.1-arm64-Release-iOS_Metal": {
+    "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS_Metal": {
       "caches": [
         {
           "name": "ccache",
@@ -21506,7 +21506,7 @@
         {
           "name": "infra/tools/mac_toolchain/${platform}",
           "path": "mac_toolchain",
-          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
+          "version": "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9"
         },
         {
           "name": "skia/bots/ccache_mac",
@@ -21525,7 +21525,7 @@
         "skia/infra/bots/run_recipe.py",
         "${ISOLATED_OUTDIR}",
         "compile",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac-Xcode11.4.1-arm64-Release-iOS_Metal\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS_Metal\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -39696,7 +39696,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Xcode11.4.1-arm64-Release-iOS",
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -39781,7 +39781,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Xcode11.4.1-arm64-Release-iOS_Metal",
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS_Metal",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -68436,7 +68436,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Xcode11.4.1-arm64-Debug-iOS",
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -68528,7 +68528,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Xcode11.4.1-arm64-Debug-iOS_Metal",
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Debug-iOS_Metal",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -68620,7 +68620,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Xcode11.4.1-arm64-Release-iOS",
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -68712,7 +68712,7 @@
         "skia"
       ],
       "dependencies": [
-        "Build-Mac-Xcode11.4.1-arm64-Release-iOS_Metal",
+        "Build-Mac10.15.7-Xcode11.4.1-arm64-Release-iOS_Metal",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
