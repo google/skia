@@ -836,6 +836,18 @@ if (skia_compile_sksl_tests) {
   }
 }
 
+group("compile_all_sksl_tests") {
+  deps = [
+    ":compile_sksl_glsl_nosettings_tests",
+    ":compile_sksl_glsl_tests",
+    ":compile_sksl_hlsl_tests",
+    ":compile_sksl_metal_tests",
+    ":compile_sksl_skrp_tests",
+    ":compile_sksl_spirv_tests",
+    ":compile_sksl_wgsl_tests",
+  ]
+}
+
 optional("gpu_shared") {
   enabled = skia_enable_ganesh || skia_enable_graphite
 
@@ -907,13 +919,6 @@ optional("gpu_shared") {
 optional("gpu") {
   enabled = skia_enable_ganesh
   deps = [
-    ":compile_sksl_glsl_nosettings_tests",
-    ":compile_sksl_glsl_tests",
-    ":compile_sksl_hlsl_tests",
-    ":compile_sksl_metal_tests",
-    ":compile_sksl_skrp_tests",
-    ":compile_sksl_spirv_tests",
-    ":compile_sksl_wgsl_tests",
     ":gpu_shared",
     ":minify_sksl",
     ":run_sksllex",
@@ -2390,6 +2395,7 @@ if (skia_enable_tools) {
         ":common_flags_config",
         ":common_flags_gpu",
         ":common_flags_images",
+        ":compile_all_sksl_tests",
         ":flags",
         ":gm",
         ":gpu_tool_utils",
