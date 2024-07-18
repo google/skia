@@ -18,10 +18,6 @@
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 #endif
 
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_TEXTURE_FUNCS)
-#include <CoreFoundation/CoreFoundation.h>
-#endif
-
 #ifdef SK_VULKAN
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
@@ -74,11 +70,6 @@ public:
     // BackendTexture. However, any SkImage or SkSurface that wraps the BackendTexture *will* retain
     // and release the WGPUTextureView.
     BackendTexture(SkISize dimensions, const DawnTextureInfo& info, WGPUTextureView textureView);
-#endif
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_TEXTURE_FUNCS)
-    // The BackendTexture will not call retain or release on the passed in CFTypeRef. Thus the
-    // client must keep the CFTypeRef valid until they are no longer using the BackendTexture.
-    BackendTexture(SkISize dimensions, CFTypeRef mtlTexture);
 #endif
 
 #ifdef SK_VULKAN

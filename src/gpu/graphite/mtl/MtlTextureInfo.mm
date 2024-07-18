@@ -131,15 +131,4 @@ bool GetMtlFramebufferOnly(const TextureInfo& info) {
 
 }  // namespace TextureInfos
 
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_TEXTURE_INFO_FUNCS)
-TextureInfo::TextureInfo(const MtlTextureInfo& mtlInfo)
-        : fBackend(BackendApi::kMetal)
-        , fValid(true)
-        , fSampleCount(mtlInfo.fSampleCount)
-        , fMipmapped(mtlInfo.fMipmapped)
-        , fProtected(Protected::kNo) {
-    fTextureInfoData.emplace<MtlTextureInfoData>(MtlTextureInfoData(mtlInfo));
-}
-#endif
-
 }  // namespace skgpu::graphite

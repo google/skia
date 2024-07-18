@@ -12,10 +12,6 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/private/base/SkAnySubclass.h"
 
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_SEMAPHORE_FUNCS)
-#include <CoreFoundation/CoreFoundation.h>
-#endif
-
 #ifdef SK_VULKAN
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #endif
@@ -27,10 +23,6 @@ class BackendSemaphoreData;
 class SK_API BackendSemaphore {
 public:
     BackendSemaphore();
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_SEMAPHORE_FUNCS)
-    // TODO: Determine creator's responsibility for setting refcnt.
-    BackendSemaphore(CFTypeRef mtlEvent, uint64_t value);
-#endif
 
 #ifdef SK_VULKAN
     BackendSemaphore(VkSemaphore semaphore);

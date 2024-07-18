@@ -72,11 +72,4 @@ uint64_t GetMtlValue(const BackendSemaphore& sem) {
 
 }  // namespace BackendSemaphores
 
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_SEMAPHORE_FUNCS)
-BackendSemaphore::BackendSemaphore(CFTypeRef mtlEvent, uint64_t value)
-        : fBackend(skgpu::BackendApi::kMetal), fIsValid(true) {
-    fSemaphoreData.emplace<MtlBackendSemaphoreData>(MtlBackendSemaphoreData(mtlEvent, value));
-}
-#endif
-
 }  // namespace skgpu::graphite

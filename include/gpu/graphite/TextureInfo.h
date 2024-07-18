@@ -28,19 +28,11 @@ namespace skgpu::graphite {
 
 class TextureInfoData;
 
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_TEXTURE_INFO_FUNCS)
-struct MtlTextureInfo;
-#endif
-
 class SK_API TextureInfo {
 public:
     TextureInfo();
 #ifdef SK_DAWN
     TextureInfo(const DawnTextureInfo& dawnInfo);
-#endif
-
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_TEXTURE_INFO_FUNCS)
-    TextureInfo(const MtlTextureInfo& mtlInfo);
 #endif
 
 #ifdef SK_VULKAN

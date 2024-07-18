@@ -68,11 +68,4 @@ CFTypeRef GetMtlTexture(const BackendTexture& tex) {
 
 }  // namespace BackendTextures
 
-#if defined(SK_METAL) && !defined(SK_DISABLE_LEGACY_BACKEND_TEXTURE_FUNCS)
-BackendTexture::BackendTexture(SkISize dimensions, CFTypeRef mtlTexture)
-        : fDimensions(dimensions), fInfo(TextureInfos::MakeMetal(mtlTexture)) {
-    fTextureData.emplace<MtlBackendTextureData>(MtlBackendTextureData(mtlTexture));
-}
-#endif
-
 }  // namespace skgpu::graphite

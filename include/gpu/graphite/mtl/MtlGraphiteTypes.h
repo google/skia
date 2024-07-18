@@ -70,6 +70,7 @@ SK_API CFTypeRef GetMtlTexture(const BackendTexture&);
 }  // namespace BackendTextures
 
 namespace BackendSemaphores {
+// TODO(b/286088355) Determine creator's responsibility for setting refcnt.
 SK_API BackendSemaphore MakeMetal(CFTypeRef mtlEvent, uint64_t value);
 
 SK_API CFTypeRef GetMtlEvent(const BackendSemaphore&);
