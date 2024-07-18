@@ -732,6 +732,9 @@ private:
     // store cache.
     TArray<SpvId> fStoreOps;
 
+    // The function we are in the process of writing, or null if we are not writing any function.
+    const FunctionDeclaration* fCurrentFunction = nullptr;
+
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock = 0;
     TArray<SpvId> fBreakTarget;
@@ -2654,25 +2657,28 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     }
     const ExpressionArray& arguments = c.arguments();
 
-    const Analysis::SpecializationIndex* specializationIndex =
-            fSpecializationInfo.fSpecializedCallMap.find({&c, fInheritedSpecializationIndex});
+    Analysis::SpecializedCallKey callKey{
+            fCurrentFunction, fInheritedSpecializationIndex, c.position()};
+    const Analysis::SpecializationIndex* specIndexPtr =
+            fSpecializationInfo.fSpecializedCallMap.find(callKey);
+    Analysis::SpecializationIndex specializationIndex =
+            specIndexPtr ? *specIndexPtr : Analysis::kUnspecialized;
 
-    SpvId* entry = fFunctionMap.find(
-            {&function, specializationIndex ? *specializationIndex : Analysis::kUnspecialized});
+    SpvId* entry = fFunctionMap.find({&function, specializationIndex});
     if (!entry) {
         fContext.fErrors->error(c.fPosition, "function '" + function.description() +
-                "' is not defined");
+                                             "' is not defined");
         return NA;
     }
 
     // If we are calling a specialized function, we need to gather the specialized parameters
     // so we can remove them from the argument list.
     const Analysis::SpecializedParameters* specializedParams = nullptr;
-    if (specializationIndex) {
+    if (specializationIndex != Analysis::kUnspecialized) {
         Analysis::Specializations* specializations =
                 fSpecializationInfo.fSpecializationMap.find(&function);
         SkASSERT(specializations);
-        specializedParams = &specializations->at(*specializationIndex);
+        specializedParams = &specializations->at(specializationIndex);
     }
     // Temp variables are used to write back out-parameters after the function call is complete.
     std::vector<TempVar> tempVars;
@@ -4504,6 +4510,9 @@ void SPIRVCodeGenerator::writeFunctionInstantiation(
         Analysis::SpecializationIndex specializationIndex,
         const Analysis::SpecializedParameters* specializedParams,
         OutputStream& out) {
+    SkASSERT(fCurrentFunction == nullptr);
+    fCurrentFunction = &f.declaration();
+
     ConditionalOpCounts conditionalOps = this->getConditionalOpCounts();
 
     fVariableBuffer.reset();
@@ -4528,6 +4537,8 @@ void SPIRVCodeGenerator::writeFunctionInstantiation(
     }
     this->writeInstruction(SpvOpFunctionEnd, out);
     this->pruneConditionalOps(conditionalOps);
+
+    fCurrentFunction = nullptr;
 }
 
 void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, Position pos) {
@@ -5141,7 +5152,8 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
         args.push_back(ConstructorCompound::MakeFromConstants(fContext, Position{},
                                                               *fContext.fTypes.fFloat2, kZero));
     }
-    auto callMainFn = std::make_unique<FunctionCall>(Position(), &main.returnType(), &main,
+    Position endOfProgram = Position::Range(fProgram.fSource->size(), fProgram.fSource->size());
+    auto callMainFn = std::make_unique<FunctionCall>(endOfProgram, &main.returnType(), &main,
                                                      std::move(args));
 
     // Synthesize `skFragColor = main()` as a BinaryExpression.
