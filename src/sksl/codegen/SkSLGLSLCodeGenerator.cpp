@@ -1698,11 +1698,9 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     }
     if (f.test()) {
         if (fCaps.fAddAndTrueToLoopCondition) {
-            std::unique_ptr<Expression> and_true(new BinaryExpression(
-                    Position(), f.test()->clone(), Operator::Kind::LOGICALAND,
-                    Literal::MakeBool(fContext, Position(), /*value=*/true),
-                    fContext.fTypes.fBool.get()));
-            this->writeExpression(*and_true, Precedence::kExpression);
+            this->write("(");
+            this->writeExpression(*f.test(), Precedence::kLogicalAnd);
+            this->write(" && true)");
         } else {
             this->writeExpression(*f.test(), Precedence::kExpression);
         }

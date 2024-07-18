@@ -686,18 +686,18 @@ private:
     // depending on the if condition, we may or may not have actually done that computation). The
     // same logic applies to other control-flow blocks as well. Once an instruction becomes
     // unreachable, we remove it from both op-caches.
-    skia_private::TArray<SpvId> fReachableOps;
+    TArray<SpvId> fReachableOps;
 
     // The "store-ops" list contains a running list of all the pointers in the store cache. If a
     // store occurs inside of a conditional block, once that block exits, we no longer know what is
     // stored in that particular SpvId. At that point, we must remove any associated entry from the
     // store cache.
-    skia_private::TArray<SpvId> fStoreOps;
+    TArray<SpvId> fStoreOps;
 
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock = 0;
-    skia_private::TArray<SpvId> fBreakTarget;
-    skia_private::TArray<SpvId> fContinueTarget;
+    TArray<SpvId> fBreakTarget;
+    TArray<SpvId> fContinueTarget;
     bool fWroteRTFlip = false;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics{/*builtin=*/true};
@@ -2032,10 +2032,8 @@ SpvId SPIRVCodeGenerator::vectorize(const Expression& arg, int vectorSize, Outpu
     SkASSERT(vectorSize >= 1 && vectorSize <= 4);
     const Type& argType = arg.type();
     if (argType.isScalar() && vectorSize > 1) {
-        ConstructorSplat splat{arg.fPosition,
-                               argType.toCompound(fContext, vectorSize, /*rows=*/1),
-                               arg.clone()};
-        return this->writeConstructorSplat(splat, out);
+        SpvId argID = this->writeExpression(arg, out);
+        return this->splat(argType.toCompound(fContext, vectorSize, /*rows=*/1), argID, out);
     }
 
     SkASSERT(vectorSize == argType.columns());
@@ -2356,12 +2354,12 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         }
         case kSaturate_SpecialIntrinsic: {
             SkASSERT(arguments.size() == 1);
-            ExpressionArray finalArgs;
-            finalArgs.reserve_exact(3);
-            finalArgs.push_back(arguments[0]->clone());
-            finalArgs.push_back(Literal::MakeFloat(fContext, Position(), /*value=*/0));
-            finalArgs.push_back(Literal::MakeFloat(fContext, Position(), /*value=*/1));
-            TArray<SpvId> spvArgs = this->vectorize(finalArgs, out);
+            int width = arguments[0]->type().columns();
+            STArray<3, SpvId> spvArgs{
+                this->vectorize(*arguments[0], width, out),
+                this->vectorize(*Literal::MakeFloat(fContext, Position(), /*value=*/0), width, out),
+                this->vectorize(*Literal::MakeFloat(fContext, Position(), /*value=*/1), width, out),
+            };
             this->writeGLSLExtendedInstruction(callType, result, GLSLstd450FClamp, GLSLstd450SClamp,
                                                GLSLstd450UClamp, spvArgs, out);
             break;
