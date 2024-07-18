@@ -1205,27 +1205,6 @@ static void gather_runtime_effect_uniforms(const KeyContext& keyContext,
             gatherer->write(uniform, uniformPtr);
         }
     }
-
-    if (SkRuntimeEffectPriv::UsesColorTransform(effect)) {
-        SkColorSpace* dstCS = keyContext.dstColorInfo().colorSpace();
-        if (!dstCS) {
-            dstCS = sk_srgb_linear_singleton(); // turn colorspace conversion into a noop
-        }
-
-        // TODO(b/332565302): If the runtime shader only uses one of these
-        // transforms, we could upload only one set of uniforms.
-        ColorSpaceTransformBlock::ColorSpaceTransformData dstToLinear(dstCS,
-                                                                      kUnpremul_SkAlphaType,
-                                                                      sk_srgb_linear_singleton(),
-                                                                      kUnpremul_SkAlphaType);
-        ColorSpaceTransformBlock::ColorSpaceTransformData linearToDst(sk_srgb_linear_singleton(),
-                                                                      kUnpremul_SkAlphaType,
-                                                                      dstCS,
-                                                                      kUnpremul_SkAlphaType);
-
-        add_color_space_uniforms(dstToLinear.fSteps, ReadSwizzle::kRGBA, gatherer);
-        add_color_space_uniforms(linearToDst.fSteps, ReadSwizzle::kRGBA, gatherer);
-    }
 }
 
 void RuntimeEffectBlock::BeginBlock(const KeyContext& keyContext,
@@ -1269,13 +1248,13 @@ void add_children_to_key(const KeyContext& keyContext,
                          PaintParamsKeyBuilder* builder,
                          PipelineDataGatherer* gatherer,
                          SkSpan<const SkRuntimeEffect::ChildPtr> children,
-                         SkSpan<const SkRuntimeEffect::Child> childInfo) {
+                         const SkRuntimeEffect* effect) {
+    SkSpan<const SkRuntimeEffect::Child> childInfo = effect->children();
     SkASSERT(children.size() == childInfo.size());
 
     using ChildType = SkRuntimeEffect::ChildType;
 
     KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
-
     for (size_t index = 0; index < children.size(); ++index) {
         const SkRuntimeEffect::ChildPtr& child = children[index];
         std::optional<ChildType> type = child.type();
@@ -1306,6 +1285,34 @@ void add_children_to_key(const KeyContext& keyContext,
             }
         }
     }
+
+    // Runtime effects that reference color transform intrinsics have two extra children that
+    // are bound to the colorspace xform snippet with values to go to and from the linear srgb
+    // to the current working/dst color space.
+    if (SkRuntimeEffectPriv::UsesColorTransform(effect)) {
+        SkColorSpace* dstCS = keyContext.dstColorInfo().colorSpace();
+        if (!dstCS) {
+            dstCS = sk_srgb_linear_singleton(); // turn colorspace conversion into a noop
+        }
+
+        // TODO(b/332565302): If the runtime shader only uses one of these transforms, we could
+        // upload only one set of uniforms.
+
+        // NOTE: This must be kept in sync with the logic used to generate the toLinearSrgb() and
+        // fromLinearSrgb() expressions for each runtime effect. toLinearSrgb() is assumed to be
+        // the second to last child, and fromLinearSrgb() is assumed to be the last.
+        ColorSpaceTransformBlock::ColorSpaceTransformData dstToLinear(dstCS,
+                                                                      kUnpremul_SkAlphaType,
+                                                                      sk_srgb_linear_singleton(),
+                                                                      kUnpremul_SkAlphaType);
+        ColorSpaceTransformBlock::ColorSpaceTransformData linearToDst(sk_srgb_linear_singleton(),
+                                                                      kUnpremul_SkAlphaType,
+                                                                      dstCS,
+                                                                      kUnpremul_SkAlphaType);
+
+        ColorSpaceTransformBlock::AddBlock(childContext, builder, gatherer, dstToLinear);
+        ColorSpaceTransformBlock::AddBlock(childContext, builder, gatherer, linearToDst);
+    }
 }
 
 void add_to_key(const KeyContext& keyContext,
@@ -1325,7 +1332,7 @@ void add_to_key(const KeyContext& keyContext,
                                    { effect, std::move(uniforms) });
 
     add_children_to_key(keyContext, builder, gatherer,
-                        blender->children(), effect->children());
+                        blender->children(), effect.get());
 
     builder->endBlock();
 }
@@ -1462,7 +1469,7 @@ static void add_to_key(const KeyContext& keyContext,
     RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {effect, std::move(uniforms)});
 
     add_children_to_key(keyContext, builder, gatherer,
-                        filter->children(), effect->children());
+                        filter->children(), effect.get());
 
     builder->endBlock();
 }
@@ -2232,7 +2239,7 @@ static void add_to_key(const KeyContext& keyContext,
                                    {effect, std::move(uniforms)});
 
     add_children_to_key(keyContext, builder, gatherer,
-                        shader->children(), effect->children());
+                        shader->children(), effect.get());
 
     builder->endBlock();
 }
