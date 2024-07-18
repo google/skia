@@ -1,0 +1,33 @@
+layout(set = 0, binding = 0) sampler2D aSampler;
+layout(set = 0, binding = 1) sampler2D aSecondSampler;
+layout(set = 0, binding = 2) sampler2D aThirdSampler;
+
+noinline half4 baz(sampler2D s) {
+    return sample(s, float2(0));
+}
+
+noinline half4 bar(sampler2D s) {
+    return baz(s);
+}
+
+noinline half4 foo(sampler2D samplerA, sampler2D samplerB) {
+    half4 a = bar(samplerA);
+    half4 b = baz(samplerB);
+    return a + b;
+}
+
+void main() {
+    // foo_aSampler_aSecondSampler
+    //   | -> bar_aSampler -> baz_aSampler
+    //   | -> baz_aSecondSampler
+    sk_FragColor = foo(aSampler, aSecondSampler);
+
+    // bar_aThirdSampler -> baz_aThirdSampler
+    sk_FragColor = bar(aThirdSampler);
+
+    // foo_aSecondSampler_aThirdSampler
+    //   | -> bar_aSecondSampler -> baz_aSecondSampler
+    //   | -> baz_aThirdSampler
+    sk_FragColor = foo(aSecondSampler, aThirdSampler);
+}
+

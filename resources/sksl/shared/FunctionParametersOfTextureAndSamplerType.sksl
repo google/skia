@@ -1,5 +1,6 @@
 layout(set = 0, binding = 1, rgba8) readonly texture2D aTexture;
 layout(set = 0, binding = 2) sampler2D aSampledTexture;
+layout(set = 0, binding = 3) sampler2D aSecondSampledTexture;
 
 layout(location = 1) in float2 c;
 
@@ -12,5 +13,7 @@ noinline half4 helper(layout(rgba8) readonly texture2D t, sampler2D s) {
 }
 
 void main() {
+    sk_FragColor = helper(aTexture, aSampledTexture);
+    sk_FragColor = helper(aTexture, aSecondSampledTexture);
     sk_FragColor = helper(aTexture, aSampledTexture);
 }

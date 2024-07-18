@@ -28,6 +28,7 @@ struct Outputs {
 struct Globals {
     texture2d<half, access::read> aTexture;
     sampler2D aSampledTexture;
+    sampler2D aSecondSampledTexture;
 };
 half4 helpers_helper_h4ZT(Inputs _in, sampler2D s, texture2d<half, access::read> t) {
     return sample(s, _in.c);
@@ -35,11 +36,13 @@ half4 helpers_helper_h4ZT(Inputs _in, sampler2D s, texture2d<half, access::read>
 half4 helper_h4TZ(Inputs _in, texture2d<half, access::read> t, sampler2D s) {
     return helpers_helper_h4ZT(_in, s, t);
 }
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half, access::read> aTexture [[texture(1)]], texture2d<half> aSampledTexture_Tex [[texture(2)]], sampler aSampledTexture_Smplr [[sampler(2)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals _globals{aTexture, {aSampledTexture_Tex, aSampledTexture_Smplr}};
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half, access::read> aTexture [[texture(1)]], texture2d<half> aSampledTexture_Tex [[texture(2)]], sampler aSampledTexture_Smplr [[sampler(2)]], texture2d<half> aSecondSampledTexture_Tex [[texture(3)]], sampler aSecondSampledTexture_Smplr [[sampler(3)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+    Globals _globals{aTexture, {aSampledTexture_Tex, aSampledTexture_Smplr}, {aSecondSampledTexture_Tex, aSecondSampledTexture_Smplr}};
     (void)_globals;
     Outputs _out;
     (void)_out;
+    _out.sk_FragColor = helper_h4TZ(_in, _globals.aTexture, _globals.aSampledTexture);
+    _out.sk_FragColor = helper_h4TZ(_in, _globals.aTexture, _globals.aSecondSampledTexture);
     _out.sk_FragColor = helper_h4TZ(_in, _globals.aTexture, _globals.aSampledTexture);
     return _out;
 }

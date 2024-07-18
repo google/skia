@@ -9,37 +9,58 @@ layout(set = 0, binding = 1, rgba8) readonly texture2D aTexture;
 error: 2: invalid type
 layout(set = 0, binding = 2) sampler2D aSampledTexture;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-error: 4: 'in' is not permitted here
+error: 3: invalid type
+layout(set = 0, binding = 3) sampler2D aSecondSampledTexture;
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+error: 5: 'in' is not permitted here
 layout(location = 1) in float2 c;
 ^^^^^^^^^^^^^^^^^^^^^^^
-error: 4: layout qualifier 'location' is not permitted here
+error: 5: layout qualifier 'location' is not permitted here
 layout(location = 1) in float2 c;
 ^^^^^^^^^^^^^^^^^^^^^^^
-error: 6: type 'texture2D' does not support qualifier 'readonly'
+error: 7: type 'texture2D' does not support qualifier 'readonly'
 noinline half4 helpers_helper(sampler2D s, layout(rgba8) readonly texture2D t) {
                                            ^^^^^^^^^^^^^^^^^^^^^^
-error: 6: layout qualifier 'rgba8' is not permitted here
+error: 7: layout qualifier 'rgba8' is not permitted here
 noinline half4 helpers_helper(sampler2D s, layout(rgba8) readonly texture2D t) {
                                            ^^^^^^^^^^^^^^^^^^^^^^
-error: 7: unknown identifier 'sample'
+error: 8: unknown identifier 'sample'
     return sample(s, c);
            ^^^^^^
-error: 10: type 'texture2D' does not support qualifier 'readonly'
+error: 11: type 'texture2D' does not support qualifier 'readonly'
 noinline half4 helper(layout(rgba8) readonly texture2D t, sampler2D s) {
                       ^^^^^^^^^^^^^^^^^^^^^^
-error: 10: layout qualifier 'rgba8' is not permitted here
+error: 11: layout qualifier 'rgba8' is not permitted here
 noinline half4 helper(layout(rgba8) readonly texture2D t, sampler2D s) {
                       ^^^^^^^^^^^^^^^^^^^^^^
-error: 14: 'main' must return: 'vec4', 'float4', or 'half4'
+error: 15: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^
-error: 15: unknown identifier 'sk_FragColor'
+error: 16: unknown identifier 'sk_FragColor'
     sk_FragColor = helper(aTexture, aSampledTexture);
     ^^^^^^^^^^^^
-error: 15: unknown identifier 'aTexture'
+error: 16: unknown identifier 'aTexture'
     sk_FragColor = helper(aTexture, aSampledTexture);
                           ^^^^^^^^
-error: 15: unknown identifier 'aSampledTexture'
+error: 16: unknown identifier 'aSampledTexture'
     sk_FragColor = helper(aTexture, aSampledTexture);
                                     ^^^^^^^^^^^^^^^
-14 errors
+error: 17: unknown identifier 'sk_FragColor'
+    sk_FragColor = helper(aTexture, aSecondSampledTexture);
+    ^^^^^^^^^^^^
+error: 17: unknown identifier 'aTexture'
+    sk_FragColor = helper(aTexture, aSecondSampledTexture);
+                          ^^^^^^^^
+error: 17: unknown identifier 'aSecondSampledTexture'
+    sk_FragColor = helper(aTexture, aSecondSampledTexture);
+                                    ^^^^^^^^^^^^^^^^^^^^^
+error: 18: unknown identifier 'sk_FragColor'
+    sk_FragColor = helper(aTexture, aSampledTexture);
+    ^^^^^^^^^^^^
+error: 18: unknown identifier 'aTexture'
+    sk_FragColor = helper(aTexture, aSampledTexture);
+                          ^^^^^^^^
+error: 18: unknown identifier 'aSampledTexture'
+    sk_FragColor = helper(aTexture, aSampledTexture);
+                                    ^^^^^^^^^^^^^^^
+21 errors

@@ -104,6 +104,8 @@ skia_sksl_core_sources = [
   "$_src/sksl/analysis/SkSLProgramUsage.h",
   "$_src/sksl/analysis/SkSLProgramVisitor.h",
   "$_src/sksl/analysis/SkSLReturnsInputAlpha.cpp",
+  "$_src/sksl/analysis/SkSLSpecialization.cpp",
+  "$_src/sksl/analysis/SkSLSpecialization.h",
   "$_src/sksl/analysis/SkSLSwitchCaseContainsExit.cpp",
   "$_src/sksl/analysis/SkSLSymbolTableStackBuilder.cpp",
   "$_src/sksl/codegen/SkSLRasterPipelineBuilder.cpp",
