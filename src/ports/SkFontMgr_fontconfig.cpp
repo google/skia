@@ -16,6 +16,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/ports/SkFontMgr_fontconfig.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTArray.h"
