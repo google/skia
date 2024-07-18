@@ -2405,10 +2405,15 @@ private:
         bool                                           fIsCoverage;
         bool                                           fDiscard;
 
+        // If true, the layer image is sized to include a 1px buffer that remains transparent
+        // to allow for faster linear filtering under complex transforms.
+        bool                                           fIncludesPadding;
+
         Layer(sk_sp<SkDevice> device,
               FilterSpan imageFilters,
               const SkPaint& paint,
-              bool isCoverage);
+              bool isCoverage,
+              bool includesPadding);
     };
 
     // Encapsulate state needed to restore from saveBehind()
@@ -2446,7 +2451,8 @@ private:
         void newLayer(sk_sp<SkDevice> layerDevice,
                       FilterSpan filters,
                       const SkPaint& restorePaint,
-                      bool layerIsCoverage);
+                      bool layerIsCoverage,
+                      bool includesPadding);
 
         void reset(SkDevice* device);
     };
@@ -2560,13 +2566,16 @@ private:
     void internalSave();
     void internalRestore();
 
-    enum class DeviceCompatibleWithFilter : bool {
+    enum class DeviceCompatibleWithFilter : int {
         // Check the src device's local-to-device matrix for compatibility with the filter, and if
         // it is not compatible, introduce an intermediate image and transformation that allows the
         // filter to be evaluated on the modified src content.
-        kUnknown = false,
+        kUnknown,
         // Assume that the src device's local-to-device matrix is compatible with the filter.
-        kYes     = true
+        kYes,
+        // Assume that the src device's local-to-device matrix is compatible with the filter,
+        // *and* the source image has a 1px buffer of padding.
+        kYesWithPadding
     };
     /**
      * Filters the contents of 'src' and draws the result into 'dst'. The filter is evaluated

@@ -179,12 +179,14 @@ bool SkCanvas::predrawNotify(const SkRect* rect, const SkPaint* paint,
 SkCanvas::Layer::Layer(sk_sp<SkDevice> device,
                        FilterSpan imageFilters,
                        const SkPaint& paint,
-                       bool isCoverage)
+                       bool isCoverage,
+                       bool includesPadding)
         : fDevice(std::move(device))
         , fImageFilters(imageFilters.data(), imageFilters.size())
         , fPaint(paint)
         , fIsCoverage(isCoverage)
-        , fDiscard(false) {
+        , fDiscard(false)
+        , fIncludesPadding(includesPadding) {
     SkASSERT(fDevice);
     // Any image filter should have been pulled out and stored in 'imageFilter' so that 'paint'
     // can be used as-is to draw the result of the filter to the dst device.
@@ -211,10 +213,14 @@ SkCanvas::MCRec::~MCRec() {}
 void SkCanvas::MCRec::newLayer(sk_sp<SkDevice> layerDevice,
                                FilterSpan filters,
                                const SkPaint& restorePaint,
-                               bool layerIsCoverage) {
+                               bool layerIsCoverage,
+                               bool includesPadding) {
     SkASSERT(!fBackImage);
-    fLayer =
-            std::make_unique<Layer>(std::move(layerDevice), filters, restorePaint, layerIsCoverage);
+    fLayer = std::make_unique<Layer>(std::move(layerDevice),
+                                     filters,
+                                     restorePaint,
+                                     layerIsCoverage,
+                                     includesPadding);
     fDevice = fLayer->fDevice.get();
 }
 
@@ -727,7 +733,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
     skif::Mapping mapping;
     skif::LayerSpace<SkIRect> requiredInput;
     skif::DeviceSpace<SkIRect> outputBounds{dst->devClipBounds()};
-    if (compat == DeviceCompatibleWithFilter::kYes) {
+    if (compat != DeviceCompatibleWithFilter::kUnknown) {
         // Just use the relative transform from src to dst and the src's whole image, since
         // internalSaveLayer should have already determined what was necessary. We explicitly
         // construct the inverse (dst->src) to avoid the case where src's and dst's coord transforms
@@ -814,12 +820,14 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
             }
         }
 
-        if (compat == DeviceCompatibleWithFilter::kYes) {
+        if (compat == DeviceCompatibleWithFilter::kYesWithPadding) {
             // Padding was added to the source image when the 'src' SkDevice was created, so inset
             // to allow bounds tracking to skip shader-based tiling when possible.
-            if (!filters.empty()) {
-                source = source.insetForSaveLayer();
-            }
+            SkASSERT(!filters.empty());
+            source = source.insetForSaveLayer();
+        } else if (compat == DeviceCompatibleWithFilter::kYes) {
+            // Do nothing, leave `source` as-is; FilterResult will automatically augment the image
+            // sampling as needed to be visually equivalent to the more optimal kYesWithPadding case
         } else if (source) {
             // A backdrop filter that succeeded in snapSpecial() or snapSpecialScaled(), but since
             // the 'src' device wasn't prepared with 'requiredInput' in mind, add clamping.
@@ -959,6 +967,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
 
     std::tie(newLayerMapping, layerBounds) = *mappingAndBounds;
 
+    bool paddedLayer = false;
     if (layerBounds.isEmpty()) {
         // The image filter graph does not require any input, so we don't need to actually render
         // a new layer for the source image. This could be because the image filter itself will not
@@ -987,7 +996,17 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
         if (!filters.empty()) {
             // Add a buffer of padding so that image filtering can avoid accessing unitialized data
             // and switch from shader-decal'ing to clamping.
-            layerBounds.outset(skif::LayerSpace<SkISize>({1, 1}));
+            auto paddedLayerBounds = layerBounds;
+            paddedLayerBounds.outset(skif::LayerSpace<SkISize>({1, 1}));
+            if (paddedLayerBounds.left() < layerBounds.left() &&
+                paddedLayerBounds.top() < layerBounds.top() &&
+                paddedLayerBounds.right() > layerBounds.right() &&
+                paddedLayerBounds.bottom() > layerBounds.bottom()) {
+                // The outset was not saturated to INT_MAX, so the transparent pixels can be
+                // preserved.
+                layerBounds = paddedLayerBounds;
+                paddedLayer = true;
+            }
         }
     }
 
@@ -1033,7 +1052,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
 
     // Clip while the device coordinate space is the identity so it's easy to define the rect that
     // excludes the added padding pixels. This ensures they remain cleared to transparent black.
-    if (!filters.empty()) {
+    if (paddedLayer) {
         newDevice->clipRect(SkRect::Make(newDevice->devClipBounds().makeInset(1, 1)),
                             SkClipOp::kIntersect, /*aa=*/false);
     }
@@ -1070,7 +1089,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
                                            rec.fExperimentalBackdropScale);
     }
 
-    fMCRec->newLayer(std::move(newDevice), filters, restorePaint, coverageOnly);
+    fMCRec->newLayer(std::move(newDevice), filters, restorePaint, coverageOnly, paddedLayer);
     fQuickRejectBounds = this->computeDeviceClipBounds();
 }
 
@@ -1162,11 +1181,13 @@ void SkCanvas::internalRestore() {
         if (this->predrawNotify()) {
             SkDevice* dstDev = this->topDevice();
             if (!layer->fImageFilters.empty()) {
+                auto compat = layer->fIncludesPadding ? DeviceCompatibleWithFilter::kYesWithPadding
+                                                      : DeviceCompatibleWithFilter::kYes;
                 this->internalDrawDeviceWithFilter(layer->fDevice.get(), // src
                                                    dstDev,               // dst
                                                    layer->fImageFilters,
                                                    layer->fPaint,
-                                                   DeviceCompatibleWithFilter::kYes,
+                                                   compat,
                                                    layer->fDevice->imageInfo().colorInfo(),
                                                    /*scaleFactor=*/1.0f,
                                                    layer->fIsCoverage);
@@ -1174,7 +1195,7 @@ void SkCanvas::internalRestore() {
                 // NOTE: We don't just call internalDrawDeviceWithFilter with a null filter
                 // because we want to take advantage of overridden drawDevice functions for
                 // document-based devices.
-                SkASSERT(!layer->fIsCoverage);
+                SkASSERT(!layer->fIsCoverage && !layer->fIncludesPadding);
                 SkSamplingOptions sampling;
                 dstDev->drawDevice(layer->fDevice.get(), sampling, layer->fPaint);
             }
