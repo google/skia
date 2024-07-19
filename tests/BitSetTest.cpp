@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/base/SkRandom.h"
 #include "src/utils/SkBitSet.h"
 #include "tests/Test.h"
 
@@ -59,4 +60,57 @@ DEF_TEST(BitSet, reporter) {
     set0.set();
     REPORTER_ASSERT(reporter, !set0.findFirstUnset());
     REPORTER_ASSERT(reporter, set0.test(5678) == true);
+}
+
+DEF_TEST(BitSetComparisonSizeMatching, reporter) {
+    // Verify that bitsets of differing sizes are never equal, even if the contents match.
+    SkBitSet bitsetA(123);
+    SkBitSet bitsetB(123);
+    REPORTER_ASSERT(reporter,   bitsetA == bitsetB);
+    REPORTER_ASSERT(reporter, !(bitsetA != bitsetB));
+
+    SkBitSet bitsetC(345);
+    REPORTER_ASSERT(reporter,   bitsetA != bitsetC);
+    REPORTER_ASSERT(reporter, !(bitsetA == bitsetC));
+
+    SkBitSet bitsetD(67);
+    REPORTER_ASSERT(reporter,   bitsetA != bitsetD);
+    REPORTER_ASSERT(reporter, !(bitsetA == bitsetD));
+}
+
+DEF_TEST(BitSetComparisonBitMatching, reporter) {
+    SkRandom random;
+    for (int trial = 0; trial < 500; ++trial) {
+        // Make two identical bitsets.
+        int size = random.nextRangeU(1, 1000);
+        SkBitSet bitsetA(size);
+        SkBitSet bitsetB(size);
+
+        for (int index = 0; index < size; ++index) {
+            if (random.nextBool()) {
+                bitsetA.set(index);
+                bitsetB.set(index);
+            }
+        }
+
+        // Verify that the sets are equal.
+        REPORTER_ASSERT(reporter,   bitsetA == bitsetB);
+        REPORTER_ASSERT(reporter, !(bitsetA != bitsetB));
+
+        // Flip some bits randomly. Always flip an odd number of bits to ensure that our random bit
+        // flips don't all cancel each other out.
+        int numBitsToFlip = random.nextULessThan(size) | 1;
+        for (int index = 0; index < numBitsToFlip; ++index) {
+            int bitToFlip = random.nextULessThan(size);
+            if (bitsetA.test(bitToFlip)) {
+                bitsetA.reset(bitToFlip);
+            } else {
+                bitsetA.set(bitToFlip);
+            }
+        }
+
+        // Verify that the sets are no longer equal.
+        REPORTER_ASSERT(reporter,   bitsetA != bitsetB);
+        REPORTER_ASSERT(reporter, !(bitsetA == bitsetB));
+    }
 }
