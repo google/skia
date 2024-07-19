@@ -449,7 +449,7 @@ void Recorder::freeGpuResources() {
     // The AtlasProvider gives out refs to TextureProxies so it should be safe to clear its pool
     // in the middle of Recording since those using the previous TextureProxies will have refs on
     // them.
-    fAtlasProvider->clearTexturePool();
+    fAtlasProvider->freeGpuResources();
 
     fResourceProvider->freeGpuResources();
 

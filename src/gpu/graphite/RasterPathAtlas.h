@@ -34,6 +34,12 @@ public:
         fUncachedAtlasMgr.postFlush(fRecorder);
     }
 
+    void freeAll() override {
+        fCachedAtlasMgr.freeAll();
+        fSmallPathAtlasMgr.freeAll();
+        fUncachedAtlasMgr.freeAll();
+    }
+
 protected:
     const TextureProxy* onAddShape(const Shape&,
                                    const Transform& transform,
