@@ -128,7 +128,7 @@ HRESULT sk_get_locale_string(IDWriteLocalizedStrings* names, const WCHAR* prefer
 
 HRESULT SkGetGetUserDefaultLocaleNameProc(SkGetUserDefaultLocaleNameProc* proc) {
     *proc = reinterpret_cast<SkGetUserDefaultLocaleNameProc>(
-            GetProcAddress(LoadLibraryExW(L"Kernel32.dll", NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS),
+            GetProcAddress(LoadLibraryExW(L"Kernel32.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32),
                            "GetUserDefaultLocaleName"));
     if (!*proc) {
         HRESULT hr = HRESULT_FROM_WIN32(GetLastError());

@@ -33,7 +33,7 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
 
     struct FreeModule { void operator()(HMODULE m) { (void)FreeLibrary(m); } };
     std::unique_ptr<typename std::remove_pointer<HMODULE>::type, FreeModule> module(
-            LoadLibraryA("opengl32.dll"));
+            LoadLibraryExA("opengl32.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
     if (!module) {
         return nullptr;
     }
