@@ -1019,6 +1019,7 @@ skia_filegroup(
         "shared/PrefixExpressionsES2.sksl",
         "shared/PrefixExpressionsES3.sksl",
         "shared/RectangleTexture.sksl",
+        "shared/ReservedInGLSLButAllowedInSkSL.sksl",
         "shared/ResizeMatrix.sksl",
         "shared/ResizeMatrixNonsquare.sksl",
         "shared/ReturnBadTypeFromMain.sksl",

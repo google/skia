@@ -1169,6 +1169,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T, OutParamsDoubleSwizzle,          "shared/O
 SKSL_TEST(CPU | GPU,     kNextRelease,PostfixExpressions,              "shared/PostfixExpressions.sksl")
 SKSL_TEST(CPU | GPU,     kNextRelease,PrefixExpressionsES2,            "shared/PrefixExpressionsES2.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      PrefixExpressionsES3,            "shared/PrefixExpressionsES3.sksl")
+SKSL_TEST(CPU | GPU,     kNextRelease,ReservedInGLSLButAllowedInSkSL,  "shared/ReservedInGLSLButAllowedInSkSL.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, ResizeMatrix,                    "shared/ResizeMatrix.sksl")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      ResizeMatrixNonsquare,           "shared/ResizeMatrixNonsquare.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, ReturnsValueOnEveryPathES2,      "shared/ReturnsValueOnEveryPathES2.sksl")

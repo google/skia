@@ -1,0 +1,34 @@
+uniform half4 colorGreen;
+
+half4 main(float2 coords) {
+    // These are listed as reserved words in OpenGL 4.6, but SkSL will rewrite them with a
+    // `_skReserved_` prefix.
+
+    half4 active = colorGreen;
+    half4 centroid = colorGreen;
+    half4 coherent = colorGreen;
+    half4 common = colorGreen;
+    half4 filter = colorGreen;
+    half4 partition = colorGreen;
+    half4 patch = colorGreen;
+    half4 precise = colorGreen;
+    half4 resource = colorGreen;
+    half4 restrict = colorGreen;
+    half4 shared = colorGreen;
+    half4 smooth = colorGreen;
+    half4 subroutine = colorGreen;
+
+    return active *
+           centroid *
+           coherent *
+           common *
+           filter *
+           partition *
+           patch *
+           precise *
+           resource *
+           restrict *
+           shared *
+           smooth *
+           subroutine;
+}
