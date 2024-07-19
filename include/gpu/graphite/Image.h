@@ -103,29 +103,6 @@ SK_API sk_sp<SkImage> WrapTexture(skgpu::graphite::Recorder*,
                                   ReleaseContext = nullptr,
                                   std::string_view label = {});
 
-#if !defined(SK_DISABLE_LEGACY_GRAPHITE_IMAGES)
-inline sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder* recorder,
-                                       const skgpu::graphite::BackendTexture& tex,
-                                       SkColorType colorType,
-                                       SkAlphaType alphaType,
-                                       sk_sp<SkColorSpace> colorSpace,
-                                       skgpu::Origin origin,
-                                       TextureReleaseProc trProc = nullptr,
-                                       ReleaseContext ctx = nullptr) {
-    return WrapTexture(recorder, tex, colorType, alphaType, colorSpace, origin, trProc, ctx);
-}
-
-inline sk_sp<SkImage> AdoptTextureFrom(skgpu::graphite::Recorder* recorder,
-                                       const skgpu::graphite::BackendTexture& tex,
-                                       SkColorType colorType,
-                                       SkAlphaType alphaType,
-                                       sk_sp<SkColorSpace> colorSpace,
-                                       TextureReleaseProc trProc = nullptr,
-                                       ReleaseContext ctx = nullptr) {
-    return WrapTexture(recorder, tex, colorType, alphaType, colorSpace, trProc, ctx);
-}
-#endif
-
 /** Create a new SkImage that is very similar to an SkImage created by WrapTexture. The difference
     is that the caller need not have created the backend texture nor populated it with data when
     creating the image. Instead of passing a BackendTexture to the factory the client supplies a
