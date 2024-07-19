@@ -30,11 +30,11 @@ private:
     MtlTextureSpec fMtlSpec;
 
     size_t bytesPerPixel() const override {
-        return MtlFormatBytesPerBlock(static_cast<MTLPixelFormat>(fMtlSpec.fFormat));
+        return MtlFormatBytesPerBlock(fMtlSpec.fFormat);
     }
 
     SkTextureCompressionType compressionType() const override {
-        return MtlFormatToCompressionType(static_cast<MTLPixelFormat>(fMtlSpec.fFormat));
+        return MtlFormatToCompressionType(fMtlSpec.fFormat);
     }
 
     SkString toString() const override {
