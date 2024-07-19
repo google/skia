@@ -93,20 +93,6 @@ using NoCtx = const void*;
     #define JUMPER_IS_SCALAR
 #endif
 
-// Older Clangs seem to crash when generating non-optimized NEON code for ARMv7.
-#if defined(__clang__) && !defined(__OPTIMIZE__) && defined(SK_CPU_ARM32)
-    // Apple Clang 9 and vanilla Clang 5 are fine, and may even be conservative.
-    #if defined(__apple_build_version__) && __clang_major__ < 9
-        #define JUMPER_IS_SCALAR
-    #elif __clang_major__ < 5
-        #define JUMPER_IS_SCALAR
-    #endif
-
-    #if defined(JUMPER_IS_NEON) && defined(JUMPER_IS_SCALAR)
-        #undef  JUMPER_IS_NEON
-    #endif
-#endif
-
 #if defined(JUMPER_IS_SCALAR)
     #include <math.h>
 #elif defined(JUMPER_IS_NEON)
