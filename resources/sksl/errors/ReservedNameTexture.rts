@@ -1,3 +1,13 @@
+int texture1D;
+int texture1DArray;
+int texture2DArray;
+int texture2DMS;
+int texture2DMSArray;
+int texture3D;
+int textureBuffer;
+int textureCube;
+int textureCubeArray;
+
 int itexture1D;
 int itexture2D;
 int itexture3D;
@@ -23,6 +33,15 @@ int utextureCube;
 int utextureCubeArray;
 
 /*%%*
+name 'texture1D' is reserved
+name 'texture1DArray' is reserved
+name 'texture2DArray' is reserved
+name 'texture2DMS' is reserved
+name 'texture2DMSArray' is reserved
+name 'texture3D' is reserved
+name 'textureBuffer' is reserved
+name 'textureCube' is reserved
+name 'textureCubeArray' is reserved
 name 'itexture1D' is reserved
 name 'itexture2D' is reserved
 name 'itexture3D' is reserved
