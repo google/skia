@@ -4312,8 +4312,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // Non-coherent advanced blend has an issue on NVIDIA pre 337.00.
-    if (ctxInfo.driver() == GrGLDriver::kNVIDIA &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337, 00, 0) &&
+    if (((ctxInfo.driver() == GrGLDriver::kNVIDIA &&
+          ctxInfo.driverVersion() < GR_GL_DRIVER_VER(337, 00, 0)) ||
+         (ctxInfo.angleBackend() == GrGLANGLEBackend::kOpenGL &&
+          ctxInfo.angleDriver() == GrGLDriver::kNVIDIA &&
+          ctxInfo.angleDriverVersion() < GR_GL_DRIVER_VER(337, 00, 0))) &&
         kAdvanced_BlendEquationSupport == fBlendEquationSupport) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
@@ -4325,11 +4328,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     if (this->advancedBlendEquationSupport()) {
-        if (ctxInfo.driver() == GrGLDriver::kNVIDIA &&
-            ctxInfo.driverVersion() < GR_GL_DRIVER_VER(355, 00, 0)) {
+        if ((ctxInfo.driver() == GrGLDriver::kNVIDIA &&
+             ctxInfo.driverVersion() < GR_GL_DRIVER_VER(355, 00, 0)) ||
+            (ctxInfo.angleBackend() == GrGLANGLEBackend::kOpenGL &&
+             ctxInfo.angleDriver() == GrGLDriver::kNVIDIA &&
+             ctxInfo.angleDriverVersion() < GR_GL_DRIVER_VER(355, 00, 0))) {
             // Disable color-dodge and color-burn on pre-355.00 NVIDIA.
             fAdvBlendEqDisableFlags |= (1 << static_cast<int>(skgpu::BlendEquation::kColorDodge)) |
-                                    (1 << static_cast<int>(skgpu::BlendEquation::kColorBurn));
+                                       (1 << static_cast<int>(skgpu::BlendEquation::kColorBurn));
         }
         if (ctxInfo.vendor() == GrGLVendor::kARM) {
             // Disable color-burn on ARM until the fix is released.

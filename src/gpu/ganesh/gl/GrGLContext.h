@@ -62,6 +62,7 @@ public:
     }
     GrGLANGLEBackend angleBackend() const { return fDriverInfo.fANGLEBackend; }
     GrGLDriver angleDriver() const { return fDriverInfo.fANGLEDriver; }
+    GrGLDriverVersion angleDriverVersion() const { return fDriverInfo.fANGLEDriverVersion; }
     GrGLVendor angleVendor() const { return fDriverInfo.fANGLEVendor; }
     GrGLRenderer angleRenderer() const { return fDriverInfo.fANGLERenderer; }
 
