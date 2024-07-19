@@ -39,15 +39,15 @@ using SpecializationMap = skia_private::THashMap<const FunctionDeclaration*, Spe
 
 // A function call to specialized function and the function specialization index of the function
 // body the call is within.
-struct SpecializedCall {
+struct SpecializedCallKey {
     struct Hash {
-        size_t operator()(const SpecializedCall& entry) {
+        size_t operator()(const SpecializedCallKey& entry) {
             return SkGoodHash()(entry.fFunctionCall) ^
                    SkGoodHash()(entry.fParentSpecializationIndex);
         }
     };
 
-    bool operator==(const SpecializedCall& other) const {
+    bool operator==(const SpecializedCallKey& other) const {
         return fFunctionCall == other.fFunctionCall &&
                fParentSpecializationIndex == other.fParentSpecializationIndex;
     }
@@ -58,9 +58,9 @@ struct SpecializedCall {
 
 // The mapping of function calls and their inherited specialization to their corresponding
 // specialization index in `Specializations`
-using SpecializedCallMap =
-        skia_private::THashMap<SpecializedCall, SpecializationIndex, SpecializedCall::Hash>;
-
+using SpecializedCallMap = skia_private::THashMap<SpecializedCallKey,
+                                                  SpecializationIndex,
+                                                  SpecializedCallKey::Hash>;
 struct SpecializationInfo {
     SpecializationMap fSpecializationMap;
     SpecializedCallMap fSpecializedCallMap;
@@ -75,6 +75,14 @@ using ParameterMatchesFn = std::function<bool(const Variable&)>;
 void FindFunctionsToSpecialize(const Program& program,
                                SpecializationInfo* info,
                                const ParameterMatchesFn& specializationFn);
+
+// Given a function call and the active specialization index, looks up the specialization index for
+// the call target. In other words: in the specialization map, we first look up the call target's
+// declaration, which yields a Specialization array. We would find the correct mappings in the array
+// at the SpecializationIndex returned by this function.
+SpecializationIndex FindSpecializationIndexForCall(const FunctionCall& call,
+                                                   const SpecializationInfo& info,
+                                                   SpecializationIndex activeSpecializationIndex);
 
 }  // namespace Analysis
 }  // namespace SkSL

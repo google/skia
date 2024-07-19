@@ -2648,33 +2648,34 @@ void SPIRVCodeGenerator::copyBackTempVars(const std::vector<TempVar>& tempVars, 
 }
 
 SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream& out) {
+    // Handle intrinsics.
     const FunctionDeclaration& function = c.function();
     if (function.isIntrinsic() && !function.definition()) {
         return this->writeIntrinsicCall(c, out);
     }
-    const ExpressionArray& arguments = c.arguments();
 
-    const Analysis::SpecializationIndex* specializationIndex =
-            fSpecializationInfo.fSpecializedCallMap.find({&c, fInheritedSpecializationIndex});
-
-    SpvId* entry = fFunctionMap.find(
-            {&function, specializationIndex ? *specializationIndex : Analysis::kUnspecialized});
+    // Look up this function (or its specialization, if any) in our map of function SpvIds.
+    Analysis::SpecializationIndex specializationIndex = Analysis::FindSpecializationIndexForCall(
+            c, fSpecializationInfo, fInheritedSpecializationIndex);
+    SpvId* entry = fFunctionMap.find({&function, specializationIndex});
     if (!entry) {
         fContext.fErrors->error(c.fPosition, "function '" + function.description() +
-                "' is not defined");
+                                             "' is not defined");
         return NA;
     }
 
     // If we are calling a specialized function, we need to gather the specialized parameters
     // so we can remove them from the argument list.
     const Analysis::SpecializedParameters* specializedParams = nullptr;
-    if (specializationIndex) {
+    if (specializationIndex != Analysis::kUnspecialized) {
         Analysis::Specializations* specializations =
                 fSpecializationInfo.fSpecializationMap.find(&function);
         SkASSERT(specializations);
-        specializedParams = &specializations->at(*specializationIndex);
+        specializedParams = &specializations->at(specializationIndex);
     }
+
     // Temp variables are used to write back out-parameters after the function call is complete.
+    const ExpressionArray& arguments = c.arguments();
     std::vector<TempVar> tempVars;
     TArray<SpvId> argumentIds;
     argumentIds.reserve_exact(arguments.size());

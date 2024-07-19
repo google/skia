@@ -24,9 +24,9 @@
 #include <memory>
 #include <vector>
 
-namespace SkSL {
-
 using namespace skia_private;
+
+namespace SkSL::Analysis {
 
 template <typename K, typename V>
 static bool maps_are_equal(const THashMap<K, V>& left, const THashMap<K, V>& right) {
@@ -45,9 +45,9 @@ static bool maps_are_equal(const THashMap<K, V>& left, const THashMap<K, V>& rig
     return true;
 }
 
-void Analysis::FindFunctionsToSpecialize(const Program& program,
-                                         SpecializationInfo* info,
-                                         const ParameterMatchesFn& parameterMatchesFn) {
+void FindFunctionsToSpecialize(const Program& program,
+                               SpecializationInfo* info,
+                               const ParameterMatchesFn& parameterMatchesFn) {
     class Searcher : public ProgramVisitor {
     public:
         using ProgramVisitor::visitProgramElement;
@@ -157,4 +157,12 @@ void Analysis::FindFunctionsToSpecialize(const Program& program,
     }
 }
 
-}  // namespace SkSL
+SpecializationIndex FindSpecializationIndexForCall(const FunctionCall& call,
+                                                   const SpecializationInfo& info,
+                                                   SpecializationIndex parentSpecializationIndex) {
+    SpecializedCallKey callKey{&call, parentSpecializationIndex};
+    SpecializationIndex* foundIndex = info.fSpecializedCallMap.find(callKey);
+    return foundIndex ? *foundIndex : kUnspecialized;
+}
+
+}  // namespace SkSL::Analysis
