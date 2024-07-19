@@ -234,7 +234,9 @@
   },
   {"name": "Build-Mac-Clang-x86_64-Debug-Graphite_Dawn_Metal_Vello"},
   {"name": "Build-Mac-Clang-x86_64-Debug-Graphite_Native_Metal_Vello"},
-  {"name": "Build-Mac-Clang-x86_64-Debug-Metal"},
+  {"name": "Build-Mac-Clang-x86_64-Debug-Metal",
+   "cq_config": {}
+   },
   {"name": "Build-Mac-Clang-x86_64-Release",
    "cq_config": {}
    },
@@ -663,9 +665,7 @@
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-ASAN_Metal"},
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-DDL1_Metal"},
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-DDL3_Metal"},
-  {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-Metal",
-   "cq_config": {}
-   },
+  {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-Metal"},
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-NativeFonts"},
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All"},
   {"name": "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Release-All-DDL1_Metal"},

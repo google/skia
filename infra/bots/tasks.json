@@ -86845,6 +86845,7 @@
         "src/sksl/generated/.*"
       ]
     },
+    "Build-Mac-Clang-x86_64-Debug-Metal": {},
     "Build-Mac-Clang-x86_64-Release": {},
     "Build-Mac-Clang-x86_64-Release-Graphite_Native_Metal": {
       "location_regexes": [
@@ -86902,7 +86903,6 @@
       ]
     },
     "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All-ASAN": {},
-    "Test-Mac10.15.1-Clang-MacBookAir7.2-GPU-IntelHD6000-x86_64-Debug-All-Metal": {},
     "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Graphite_Native_Metal": {
       "location_regexes": [
         "(tests|src/gpu)/graphite/.*",
