@@ -13,6 +13,7 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLInliner.h"
+#include "src/sksl/SkSLModule.h"
 #include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLPool.h"
@@ -20,7 +21,8 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"  // IWYU pragma: keep
+#include "src/sksl/ir/SkSLProgramElement.h"  // IWYU pragma: keep
+#include "src/sksl/ir/SkSLSymbolTable.h"     // IWYU pragma: keep
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <cstdint>

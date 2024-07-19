@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkTypes.h"
-#include "src/sksl/SkSLModuleData.h"
+#include "src/sksl/SkSLModule.h"
 
 #include <string>
 
@@ -43,9 +43,9 @@
 
 namespace SkSL {
 
-std::string GetModuleData(ModuleName name, const char* /*filename*/) {
-#define M(name) case ModuleName::name: return std::string(SKSL_MINIFIED_##name);
-    switch (name) {
+std::string GetModuleData(ModuleType type, const char* /*filename*/) {
+#define M(name) case ModuleType::name: return std::string(SKSL_MINIFIED_##name);
+    switch (type) {
         M(sksl_shared)
         M(sksl_compute)
         M(sksl_frag)

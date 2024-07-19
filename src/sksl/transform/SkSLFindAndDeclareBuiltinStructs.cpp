@@ -7,7 +7,8 @@
 
 #include "include/core/SkTypes.h"
 #include "src/core/SkTHash.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
+#include "src/sksl/SkSLModule.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"

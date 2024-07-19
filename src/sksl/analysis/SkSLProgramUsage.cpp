@@ -11,7 +11,7 @@
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLModule.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLExpression.h"

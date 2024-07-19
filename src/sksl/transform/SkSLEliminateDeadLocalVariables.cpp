@@ -9,7 +9,7 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLModule.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"

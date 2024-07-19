@@ -4,7 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/sksl/SkSLModuleData.h"
+
+#include "src/sksl/SkSLModule.h"
 
 #include "include/core/SkString.h"
 #include "src/utils/SkGetExecutablePath.h"
@@ -14,7 +15,7 @@
 
 namespace SkSL {
 
-std::string GetModuleData(ModuleName /*name*/, const char* filename) {
+std::string GetModuleData(ModuleType /*name*/, const char* filename) {
     std::string exePath = SkGetExecutablePath();
     SkString exeDir = SkOSPath::Dirname(exePath.c_str());
     SkString modulePath = SkOSPath::Join(exeDir.c_str(), filename);

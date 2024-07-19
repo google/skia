@@ -10,7 +10,7 @@
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkStringView.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLModule.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"

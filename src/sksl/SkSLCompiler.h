@@ -13,8 +13,6 @@
 #include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLPosition.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <array>
 #include <cstdint>
@@ -46,18 +44,15 @@ constexpr int SK_LOCALINVOCATIONINDEX_BUILTIN =   29;
 namespace SkSL {
 
 class Inliner;
+struct Module;
 class Pool;
 struct ProgramConfig;
 class ProgramUsage;
 enum class ProgramKind : int8_t;
 struct Program;
+class ProgramElement;
 struct ProgramSettings;
-
-struct Module {
-    const Module*                                fParent = nullptr;
-    std::unique_ptr<SymbolTable>                 fSymbols;
-    std::vector<std::unique_ptr<ProgramElement>> fElements;
-};
+class SymbolTable;
 
 /**
  * Main compiler entry point. The compiler parses the SkSL text directly into a tree of IRNodes,

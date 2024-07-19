@@ -10,6 +10,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLModule.h"
 #include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"

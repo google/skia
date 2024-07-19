@@ -11,7 +11,7 @@
 #include "src/base/SkNoDestructor.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLModuleData.h"
+#include "src/sksl/SkSLModule.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/ir/SkSLIRNode.h"
@@ -28,7 +28,7 @@
 #include <utility>
 #include <vector>
 
-#define MODULE_DATA(name) #name, GetModuleData(ModuleName::name, #name ".sksl")
+#define MODULE_DATA(type) ModuleType::type, #type, GetModuleData(ModuleType::type, #type ".sksl")
 
 namespace SkSL {
 
@@ -146,6 +146,7 @@ ModuleLoader::Impl::Impl() {
 
 static std::unique_ptr<Module> compile_and_shrink(SkSL::Compiler* compiler,
                                                   ProgramKind kind,
+                                                  ModuleType moduleType,
                                                   const char* moduleName,
                                                   std::string moduleSource,
                                                   const Module* parent) {
@@ -157,6 +158,8 @@ static std::unique_ptr<Module> compile_and_shrink(SkSL::Compiler* compiler,
     if (!m) {
         SK_ABORT("Unable to load module %s", moduleName);
     }
+
+    m->fModuleType = moduleType;
 
     // We can eliminate FunctionPrototypes without changing the meaning of the module; the function
     // declaration is still safely in the symbol table. This only impacts our ability to recreate

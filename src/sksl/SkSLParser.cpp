@@ -18,6 +18,7 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLModule.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
