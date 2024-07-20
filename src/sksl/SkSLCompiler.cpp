@@ -125,7 +125,7 @@ void Compiler::initializeContext(const SkSL::Module* module,
                                  ProgramKind kind,
                                  ProgramSettings settings,
                                  std::string_view source,
-                                 bool isModule) {
+                                 std::optional<ModuleType> moduleType) {
     SkASSERT(!fPool);
     SkASSERT(!fConfig);
     SkASSERT(!fContext->fSymbolTable);
@@ -136,7 +136,7 @@ void Compiler::initializeContext(const SkSL::Module* module,
     this->resetErrors();
 
     fConfig = std::make_unique<ProgramConfig>();
-    fConfig->fIsBuiltinCode = isModule;
+    fConfig->fModuleType = moduleType;
     fConfig->fSettings = settings;
     fConfig->fKind = kind;
 
@@ -153,7 +153,7 @@ void Compiler::initializeContext(const SkSL::Module* module,
     fContext->fErrors->setSource(source);
 
     // Set up a clean symbol table atop the parent module's symbols.
-    fGlobalSymbols = std::make_unique<SymbolTable>(module->fSymbols.get(), isModule);
+    fGlobalSymbols = std::make_unique<SymbolTable>(module->fSymbols.get(), moduleType.has_value());
     fGlobalSymbols->markModuleBoundary();
     fContext->fSymbolTable = fGlobalSymbols.get();
 }
@@ -175,7 +175,7 @@ void Compiler::cleanupContext() {
 }
 
 std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
-                                                const char* moduleName,
+                                                ModuleType moduleType,
                                                 std::string moduleSource,
                                                 const Module* parentModule,
                                                 bool shouldInline) {
@@ -189,7 +189,7 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
     // Compile the module from source, using default program settings (but no memory pooling).
     ProgramSettings settings;
     settings.fUseMemoryPool = false;
-    this->initializeContext(parentModule, kind, settings, *sourcePtr, /*isModule=*/true);
+    this->initializeContext(parentModule, kind, settings, *sourcePtr, moduleType);
 
     std::unique_ptr<Module> module = SkSL::Parser(this, settings, kind, std::move(sourcePtr))
                                              .moduleInheritingFrom(parentModule);
@@ -197,7 +197,9 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
     this->cleanupContext();
 
     if (this->errorCount() != 0) {
-        SkDebugf("Unexpected errors compiling %s:\n\n%s\n", moduleName, this->errorText().c_str());
+        SkDebugf("Unexpected errors compiling %s:\n\n%s\n",
+                 ModuleTypeToString(moduleType),
+                 this->errorText().c_str());
         return nullptr;
     }
     if (shouldInline) {
@@ -217,7 +219,7 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     // Load the module used by this ProgramKind.
     const SkSL::Module* module = this->moduleForProgramKind(kind);
 
-    this->initializeContext(module, kind, settings, *sourcePtr, /*isModule=*/false);
+    this->initializeContext(module, kind, settings, *sourcePtr, /*moduleType=*/std::nullopt);
 
     std::unique_ptr<Program> program = SkSL::Parser(this, settings, kind, std::move(sourcePtr))
                                                .programInheritingFrom(module);
@@ -253,7 +255,7 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module, b
 
     // Create a temporary program configuration with default settings.
     ProgramConfig config;
-    config.fIsBuiltinCode = true;
+    config.fModuleType = module.fModuleType;
     config.fKind = kind;
     AutoProgramConfig autoConfig(this->context(), &config);
 
@@ -311,7 +313,7 @@ bool Compiler::optimizeModuleAfterLoading(ProgramKind kind, Module& module) {
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
     // Create a temporary program configuration with default settings.
     ProgramConfig config;
-    config.fIsBuiltinCode = true;
+    config.fModuleType = module.fModuleType;
     config.fKind = kind;
     AutoProgramConfig autoConfig(this->context(), &config);
 

@@ -17,6 +17,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -45,6 +46,7 @@ namespace SkSL {
 
 class Inliner;
 struct Module;
+enum class ModuleType : int8_t;
 class Pool;
 struct ProgramConfig;
 class ProgramUsage;
@@ -148,7 +150,7 @@ public:
     }
 
     std::unique_ptr<Module> compileModule(ProgramKind kind,
-                                          const char* moduleName,
+                                          ModuleType moduleType,
                                           std::string moduleSource,
                                           const Module* parentModule,
                                           bool shouldInline);
@@ -183,7 +185,7 @@ private:
                            ProgramKind kind,
                            ProgramSettings settings,
                            std::string_view source,
-                           bool isModule);
+                           std::optional<ModuleType> moduleType);
 
     /** Cleans up the Context post-compilation. */
     void cleanupContext();

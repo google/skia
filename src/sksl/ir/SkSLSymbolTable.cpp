@@ -178,7 +178,7 @@ const Type* SymbolTable::addArrayDimension(const Context& context,
     }
     // If we are making an array of a builtin type, we add it as high as possible in the symbol
     // table tree (at the module boundary), to enable additional reuse of the array-type.
-    if (fParent && !fAtModuleBoundary && !context.fConfig->fIsBuiltinCode && type->isBuiltin()) {
+    if (fParent && !fAtModuleBoundary && !context.fConfig->isBuiltinCode() && type->isBuiltin()) {
         return fParent->addArrayDimension(context, type, arraySize);
     }
     // Reuse an existing array type with this name if one already exists in our symbol table.

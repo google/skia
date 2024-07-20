@@ -96,6 +96,7 @@ SKSL_SRCS = [
     "SkSLMangler.h",
     "SkSLMemoryLayout.h",
     "SkSLMemoryPool.h",
+    "SkSLModule.cpp",
     "SkSLModule.h",
     "SkSLModuleLoader.cpp",
     "SkSLModuleLoader.h",

@@ -28,7 +28,7 @@
 #include <utility>
 #include <vector>
 
-#define MODULE_DATA(type) ModuleType::type, #type, GetModuleData(ModuleType::type, #type ".sksl")
+#define MODULE_DATA(type) ModuleType::type, GetModuleData(ModuleType::type, #type ".sksl")
 
 namespace SkSL {
 
@@ -147,19 +147,16 @@ ModuleLoader::Impl::Impl() {
 static std::unique_ptr<Module> compile_and_shrink(SkSL::Compiler* compiler,
                                                   ProgramKind kind,
                                                   ModuleType moduleType,
-                                                  const char* moduleName,
                                                   std::string moduleSource,
                                                   const Module* parent) {
     std::unique_ptr<Module> m = compiler->compileModule(kind,
-                                                        moduleName,
+                                                        moduleType,
                                                         std::move(moduleSource),
                                                         parent,
                                                         /*shouldInline=*/true);
     if (!m) {
-        SK_ABORT("Unable to load module %s", moduleName);
+        SK_ABORT("Unable to load module %s", ModuleTypeToString(moduleType));
     }
-
-    m->fModuleType = moduleType;
 
     // We can eliminate FunctionPrototypes without changing the meaning of the module; the function
     // declaration is still safely in the symbol table. This only impacts our ability to recreate

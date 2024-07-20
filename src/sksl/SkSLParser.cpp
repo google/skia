@@ -66,6 +66,7 @@
 #include <climits>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -423,6 +424,7 @@ std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* p
     result->fParent = parentModule;
     result->fSymbols = std::move(fCompiler.fGlobalSymbols);
     result->fElements = std::move(fProgramElements);
+    result->fModuleType = *fCompiler.context().fConfig->fModuleType;
     return result;
 }
 
@@ -638,7 +640,7 @@ bool Parser::prototypeFunction(SkSL::FunctionDeclaration* decl) {
         return false;
     }
     fProgramElements.push_back(std::make_unique<SkSL::FunctionPrototype>(
-            decl->fPosition, decl, fCompiler.context().fConfig->fIsBuiltinCode));
+            decl->fPosition, decl, fCompiler.context().fConfig->isBuiltinCode()));
     return true;
 }
 
@@ -1262,7 +1264,7 @@ const Type* Parser::findType(Position pos,
         return context.fTypes.fPoison.get();
     }
     const SkSL::Type* type = &symbol->as<Type>();
-    if (!context.fConfig->fIsBuiltinCode) {
+    if (!context.fConfig->isBuiltinCode()) {
         if (!TypeReference::VerifyType(context, type, pos)) {
             return context.fTypes.fPoison.get();
         }

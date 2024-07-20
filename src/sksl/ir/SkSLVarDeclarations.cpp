@@ -284,7 +284,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
         permittedLayoutFlags &= ~LayoutFlag::kPushConstant;
     }
     // The `builtin` layout flag is only allowed in modules.
-    if (!context.fConfig->fIsBuiltinCode) {
+    if (!context.fConfig->isBuiltinCode()) {
         permittedLayoutFlags &= ~LayoutFlag::kBuiltin;
     }
 

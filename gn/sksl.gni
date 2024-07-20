@@ -66,6 +66,7 @@ skia_sksl_core_sources = [
   "$_src/sksl/SkSLMangler.h",
   "$_src/sksl/SkSLMemoryLayout.h",
   "$_src/sksl/SkSLMemoryPool.h",
+  "$_src/sksl/SkSLModule.cpp",
   "$_src/sksl/SkSLModule.h",
   "$_src/sksl/SkSLModuleLoader.cpp",
   "$_src/sksl/SkSLModuleLoader.h",

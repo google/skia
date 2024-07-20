@@ -14,7 +14,7 @@
 namespace SkSL {
 
 bool TypeReference::VerifyType(const Context& context, const SkSL::Type* type, Position pos) {
-    if (!context.fConfig->fIsBuiltinCode && type) {
+    if (!context.fConfig->isBuiltinCode() && type) {
         if (type->isGeneric() || type->isLiteral()) {
             context.fErrors->error(pos, "type '" + std::string(type->name()) + "' is generic");
             return false;

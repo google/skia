@@ -139,7 +139,7 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
     }
 
     return Make(pos, modifiersPos, layout, flags, type, name, std::move(mangledName),
-                context.fConfig->fIsBuiltinCode, storage);
+                context.fConfig->isBuiltinCode(), storage);
 }
 
 std::unique_ptr<Variable> Variable::Make(Position pos,
