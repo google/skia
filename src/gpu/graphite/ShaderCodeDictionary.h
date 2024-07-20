@@ -214,7 +214,13 @@ public:
     ShaderInfo(UniquePaintParamsID id,
                const ShaderCodeDictionary* dict,
                const RuntimeEffectDictionary* rteDict,
-               const char* ssboIndex);
+               bool useSSBOs);
+
+    bool useSSBOs() const { return fUseSSBOs; }
+
+    int numTexturesAndSamplers() const { return fNumTexturesAndSamplersUsed; }
+    bool hasPaintUniforms() const { return fHasPaintUniforms; }
+    bool hasGradientBuffer() const { return fHasGradientBuffer; }
 
     bool needsLocalCoords() const {
         return SkToBool(fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords);
@@ -225,19 +231,12 @@ public:
     const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRuntimeEffectDictionary;
     }
-    const char* ssboIndex() const { return fSsboIndex; }
 
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
     const skia_private::TArray<uint32_t>& data() const { return fData; }
 
-    std::string toSkSL(const Caps* caps,
-                       const RenderStep* step,
-                       bool useStorageBuffers,
-                       int* numTexturesAndSamplersUsed,
-                       bool* hasPaintUniforms,
-                       bool* hasGradientBuffer,
-                       Swizzle writeSwizzle);
+    std::string toSkSL(const Caps* caps, const RenderStep* step, Swizzle writeSwizzle);
 
 private:
     // Recursive method which traverses ShaderNodes in a depth-first manner to aggregate all
@@ -250,7 +249,11 @@ private:
     SkArenaAlloc fShaderNodeAlloc{256};
 
     const RuntimeEffectDictionary* fRuntimeEffectDictionary;
-    const char* fSsboIndex;
+
+    // If true, the generated SkSL will be write the "uniforms" into a global struct variable
+    // using the RenderStep's SSBO index varying. Otherwise, the generated SkSL will use
+    // a top-level interface block and assume standard UBO bindings.
+    bool fUseSSBOs;
 
     // De-compressed shader tree from a PaintParamsKey with accumulated blend info and requirements.
     // The blendInfo doesn't contribute to the program's SkSL but contains the fixed-function state
@@ -262,6 +265,11 @@ private:
     skgpu::BlendInfo fBlendInfo;
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;
     skia_private::TArray<uint32_t> fData;
+
+    // Stats and behaviors of the shader collected when toSkSL() is called.
+    int fNumTexturesAndSamplersUsed;
+    bool fHasPaintUniforms;
+    bool fHasGradientBuffer;
 };
 
 // ShaderCodeDictionary is a thread-safe dictionary of ShaderSnippets to code IDs for use with

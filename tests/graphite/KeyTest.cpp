@@ -103,7 +103,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
         add_block(&builder, bm + kFixedFunctionBlendModeIDOffset);
         UniquePaintParamsID paintID = dict->findOrCreate(&builder);
 
-        ShaderInfo shaderInfo{paintID, dict, /*rteDict=*/nullptr, /*ssboIndex=*/""};
+        ShaderInfo shaderInfo{paintID, dict, /*rteDict=*/nullptr, /*useSSBOs=*/false};
 
         SkBlendModeCoeff expectedSrc, expectedDst;
         REPORTER_ASSERT(reporter, SkBlendMode_AsCoeff(static_cast<SkBlendMode>(bm),
