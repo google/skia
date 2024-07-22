@@ -1479,7 +1479,15 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     } else if (geometry.isEdgeAAQuad()) {
         SkASSERT(!requireMSAA && style.isFillStyle());
         // handled by specialized system, simplified from rects and round rects
-        return {renderers->perEdgeAAQuad(), nullptr};
+        const EdgeAAQuad& quad = geometry.edgeAAQuad();
+        if (quad.isRect() && quad.edgeFlags() == EdgeAAQuad::Flags::kNone) {
+            // For non-AA rectangular quads, it can always use a coverage-less renderer; there's no
+            // need to check for pixel alignment to avoid popping if MSAA is turned on because quad
+            // tile edges will seam with each in either mode.
+            return {renderers->nonAABounds(), nullptr};
+        } else {
+            return {renderers->perEdgeAAQuad(), nullptr};
+        }
     } else if (geometry.isAnalyticBlur()) {
         return {renderers->analyticBlur(), nullptr};
     } else if (!geometry.isShape()) {
@@ -1490,8 +1498,17 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     const Shape& shape = geometry.shape();
     // We can't use this renderer if we require MSAA for an effect (i.e. clipping or stroke+fill).
     if (!requireMSAA && is_simple_shape(shape, type)) {
-        if (shape.isEmpty()) {
-            SkASSERT(shape.inverted());
+        // For pixel-aligned rects, use the the non-AA bounds renderer to avoid triggering any
+        // dst-read requirement due to src blending.
+        bool pixelAlignedRect = false;
+        if (shape.isRect() && style.isFillStyle() &&
+            localToDevice.type() <= Transform::Type::kRectStaysRect) {
+            Rect devRect = localToDevice.mapRect(shape.rect());
+            pixelAlignedRect = devRect.nearlyEquals(devRect.makeRound());
+        }
+
+        if (shape.isEmpty() || pixelAlignedRect) {
+            SkASSERT(!shape.isEmpty() || shape.inverted());
             return {renderers->nonAABounds(), nullptr};
         } else {
             return {renderers->analyticRRect(), nullptr};
