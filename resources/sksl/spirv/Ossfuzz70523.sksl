@@ -1,0 +1,18 @@
+layout(webgpu, texture=2, sampler=3) sampler2D aSampler;
+layout(webgpu, texture=3, sampler=5) sampler2D anotherSampler;
+
+half4 helpers_helper(sampler2D s) {
+    return sample(s, float2(1));
+}
+
+noinline half4 helper(sampler2D s) {
+    return helpers_helper(s);
+}
+
+half4 helper2(sampler2D, sampler2D s2) {
+    return helper(s2);
+}
+
+void main() {
+    helper(aSampler) + helper2(aSampler, anotherSampler);
+}

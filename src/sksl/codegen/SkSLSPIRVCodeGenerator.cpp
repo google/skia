@@ -5294,6 +5294,11 @@ std::tuple<const Variable*, const Variable*> SPIRVCodeGenerator::synthesizeTextu
     SkASSERT(fUseTextureSamplerPairs);
     SkASSERT(combinedSampler.type().typeKind() == Type::TypeKind::kSampler);
 
+    if (std::unique_ptr<SynthesizedTextureSamplerPair>* existingData =
+            fSynthesizedSamplerMap.find(&combinedSampler)) {
+        return {(*existingData)->fTexture.get(), (*existingData)->fSampler.get()};
+    }
+
     auto data = std::make_unique<SynthesizedTextureSamplerPair>();
 
     Layout texLayout = combinedSampler.layout();

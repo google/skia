@@ -1117,6 +1117,7 @@ skia_filegroup(
         "spirv/Ossfuzz44096.sksl",
         "spirv/Ossfuzz53202.sksl",
         "spirv/Ossfuzz65538.sksl",
+        "spirv/Ossfuzz70523.sksl",
         "spirv/SpecializedSamplerFunctions.sksl",
         "spirv/StructArrayMemberInDifferentLayouts.sksl",
         "spirv/UnusedInterfaceBlock.sksl",
