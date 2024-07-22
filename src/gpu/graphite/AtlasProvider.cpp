@@ -83,14 +83,7 @@ sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
     return proxy;
 }
 
-void AtlasProvider::freeGpuResources() {
-    fTextAtlasManager->freeAll();
-    if (fRasterPathAtlas) {
-        fRasterPathAtlas->freeAll();
-    }
-    // Release any textures held directly by the provider. These textures are used by transient
-    // ComputePathAtlases that are reset every time a DrawContext snaps a DrawTask so there is
-    // no need to reset those atlases explicitly here.
+void AtlasProvider::clearTexturePool() {
     fTexturePool.clear();
 }
 

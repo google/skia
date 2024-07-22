@@ -72,9 +72,7 @@ public:
             Recorder*, uint16_t width, uint16_t height, SkColorType, uint16_t identifier,
             bool requireStorageUsage);
 
-    // Free all GPU resources (and any cache data referring to masks stored in the textures)
-    // used by any of the atlases directly managed by this provider.
-    void freeGpuResources();
+    void clearTexturePool();
 
     // Push any pending uploads to atlases onto the draw context
     void recordUploads(DrawContext*);

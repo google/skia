@@ -530,12 +530,6 @@ void DrawAtlas::evictAllPlots() {
     }
 }
 
-void DrawAtlas::freeAll() {
-    while (fNumActivePages > 0) {
-        this->deactivateLastPage();
-    }
-}
-
 DrawAtlasConfig::DrawAtlasConfig(int maxTextureSize, size_t maxBytes) {
     static const SkISize kARGBDimensions[] = {
         {256, 256},   // maxBytes < 2^19

@@ -163,11 +163,7 @@ public:
     // new renders to a texture without a clear.
     void markUsedPlotsAsFull();
 
-    // Invalidates the cached masks stored in the atlas but does not discard the textures
     void evictAllPlots();
-
-    // Resets all plots and unrefs all textures held by the atlas pages.
-    void freeAll();
 
     uint32_t maxPages() const {
         return fMaxPages;

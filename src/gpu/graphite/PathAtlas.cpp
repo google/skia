@@ -203,21 +203,4 @@ void PathAtlas::DrawAtlasMgr::postFlush(Recorder* recorder) {
     fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
 }
 
-void PathAtlas::DrawAtlasMgr::freeAll() {
-    // Since we are dropping refs to the texture proxies held in the DrawAtlas, the shape caches
-    // need to be cleared too.
-    fShapeCache.reset();
-    for (ShapeKeyList& keyList : fKeyLists) {
-        // Must delete all entries manually before resetting the list itself
-        ShapeKeyList::Iter iter;
-        iter.init(keyList, ShapeKeyList::Iter::kHead_IterStart);
-        while (ShapeKeyEntry* e = iter.get()) {
-            iter.next();
-            delete e;
-        }
-        keyList.reset();
-    }
-    fDrawAtlas->freeAll();
-}
-
 }  // namespace skgpu::graphite
