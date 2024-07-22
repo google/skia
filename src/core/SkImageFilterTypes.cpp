@@ -942,6 +942,7 @@ FilterResult FilterResult::applyColorFilter(const Context& ctx,
                 SkPaint paint;
                 paint.setColor4f(SkColors::kTransparent, /*colorSpace=*/nullptr);
                 paint.setColorFilter(std::move(colorFilter));
+                paint.setBlendMode(SkBlendMode::kSrc);
                 surface->drawPaint(paint);
             }
             FilterResult solidColor = surface.snap();
@@ -955,8 +956,7 @@ FilterResult FilterResult::applyColorFilter(const Context& ctx,
             // image to avoid losing the effect of the current 'fLayerBounds'.
             newLayerBounds.outset(LayerSpace<SkISize>({1, 1}));
             SkAssertResult(newLayerBounds.intersect(ctx.desiredOutput()));
-            FilterResult filtered = this->resolve(ctx, newLayerBounds,
-                                                  /*preserveDstBounds=*/true);
+            FilterResult filtered = this->resolve(ctx, newLayerBounds, /*preserveDstBounds=*/true);
             filtered.fColorFilter = std::move(colorFilter);
             filtered.updateTileMode(ctx, SkTileMode::kClamp);
             return filtered;
@@ -1250,10 +1250,20 @@ void FilterResult::draw(const Context& ctx,
         // covered by the draw and either resolve tiling into the image, color filter transparent
         // black, apply the blend mode to the dst, or any combination thereof.
         SkPaint paint;
-        paint.setBlender(sk_ref_sp(blender));
+        if (!preserveDeviceState && !blender) {
+            // When we don't care about the device's prior contents, the default blender can be kSrc
+            paint.setBlendMode(SkBlendMode::kSrc);
+        } else {
+            paint.setBlender(sk_ref_sp(blender));
+        }
         paint.setShader(this->getAnalyzedShaderView(ctx, sampling, analysis));
         device->drawPaint(paint);
     } else {
+        if (preserveDeviceState && !blender) {
+            // Explicitly pass in a non-null blender when cannot let drawAnalyzedImage() convert the
+            // default blender to kSrc.
+            blender = SkBlender::Mode(SkBlendMode::kSrcOver).get();
+        }
         this->drawAnalyzedImage(ctx, device, sampling, analysis, blender);
     }
 
@@ -1284,6 +1294,11 @@ void FilterResult::drawAnalyzedImage(const Context& ctx,
         SkASSERT(!(analysis & BoundsAnalysis::kRequiresShaderTiling));
         // Draw non-AA with a 1px outset image so that the transparent boundary filtering is
         // not multiplied with the AA (which creates a harsher AA transition).
+        if (!blender) {
+            // Since this is a non-AA draw, kSrc can be more efficient if we are the default blend
+            // mode and can assume the prior dst pixels were transparent black.
+            paint.setBlendMode(SkBlendMode::kSrc);
+        }
         netTransform.preTranslate(-1.f, -1.f);
         device->drawSpecial(fImage->makePixelOutset().get(), netTransform, finalSampling, paint,
                             SkCanvas::kFast_SrcRectConstraint);
@@ -1486,6 +1501,8 @@ void draw_color_filtered_border(SkCanvas* canvas,
     SkPaint cfOnly;
     cfOnly.setColor4f(SkColors::kTransparent);
     cfOnly.setColorFilter(std::move(colorFilter));
+    cfOnly.setBlendMode(SkBlendMode::kSrc);
+
     canvas->drawIRect({border.left(),      border.top(),
                        border.right(),     border.top() + 1},
                        cfOnly); // Top (with corners)
@@ -1781,6 +1798,8 @@ FilterResult FilterResult::rescale(const Context& ctx,
                 // Primary fill that will cover all of 'sampleBounds'
                 SkPaint paint;
                 paint.setShader(image.getAnalyzedShaderView(ctx, image.sampling(), analysis));
+                paint.setBlendMode(SkBlendMode::kSrc);
+
                 PixelSpace<SkRect> srcSampled;
                 SkAssertResult(scaleXform.inverseMapRect(PixelSpace<SkRect>(sampleBounds),
                                                          &srcSampled));
@@ -1887,6 +1906,7 @@ FilterResult FilterResult::MakeFromShader(const Context& ctx,
         SkPaint paint;
         paint.setShader(shader);
         paint.setDither(dither);
+        paint.setBlendMode(SkBlendMode::kSrc);
         surface->drawPaint(paint);
     }
     return surface.snap();
@@ -2016,6 +2036,7 @@ FilterResult FilterResult::Builder::drawShader(sk_sp<SkShader> shader,
     if (surface) {
         SkPaint paint;
         paint.setShader(std::move(shader));
+        paint.setBlendMode(SkBlendMode::kSrc);
         surface->drawPaint(paint);
     }
     return surface.snap();
