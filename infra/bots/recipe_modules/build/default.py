@@ -96,7 +96,7 @@ def compile_fn(api, checkout_root, out_dir):
             cmd=['python3', skia_dir.join('bin', 'fetch-ninja')],
             infra_step=True)
 
-  if os == 'Mac':
+  if os == 'Mac' or os == 'Mac10.15.7':
     # XCode build is listed in parentheses after the version at
     # https://developer.apple.com/news/releases/, or on Wikipedia here:
     # https://en.wikipedia.org/wiki/Xcode#Version_comparison_table
