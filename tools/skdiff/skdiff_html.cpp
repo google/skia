@@ -78,7 +78,7 @@ static void print_checkbox_cell(SkFILEWStream* stream, const DiffRecord& diff) {
 }
 
 static void print_label_cell(SkFILEWStream* stream, const DiffRecord& diff) {
-    char metricBuf [20];
+    char metricBuf[20];
 
     stream->writeText("<td><b>");
     stream->writeText(diff.fBase.fFilename.c_str());
@@ -94,11 +94,11 @@ static void print_label_cell(SkFILEWStream* stream, const DiffRecord& diff) {
         stream->writeText("Image sizes differ</td>");
         return;
       case DiffRecord::kDifferentPixels_Result:
-        sprintf(metricBuf, "%.4f%%", 100 * diff.fFractionDifference);
+        snprintf(metricBuf, std::size(metricBuf), "%.4f%%", 100 * diff.fFractionDifference);
         stream->writeText(metricBuf);
         stream->writeText(" of pixels differ");
         stream->writeText("\n  (");
-        sprintf(metricBuf, "%.4f%%", 100 * diff.fWeightedFraction);
+        snprintf(metricBuf, std::size(metricBuf), "%.4f%%", 100 * diff.fWeightedFraction);
         stream->writeText(metricBuf);
         stream->writeText(" weighted)");
         // Write the actual number of pixels that differ if it's < 1%
