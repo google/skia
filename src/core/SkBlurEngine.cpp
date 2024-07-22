@@ -286,7 +286,7 @@ sk_sp<SkSpecialImage> SkShaderBlurAlgorithm::renderBlur(SkRuntimeShaderBuilder* 
         if (fastDstRect.intersect(safeSrcRect)) {
             // If the area of the non-clamping shader is small, it's better to just issue a single
             // draw that performs shader tiling over the whole dst.
-            if (fastDstRect.width() * fastDstRect.height() < 128 * 128) {
+            if (fastDstRect != dstRect && fastDstRect.width() * fastDstRect.height() < 128 * 128) {
                 fastDstRect.setEmpty();
             }
         } else {
