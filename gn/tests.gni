@@ -73,6 +73,7 @@ tests_sources = [
   "$_tests/EncodedInfoTest.cpp",
   "$_tests/ExifTest.cpp",
   "$_tests/ExtendedSkColorTypeTests.cpp",
+  "$_tests/F16DrawTest.cpp",
   "$_tests/F16StagesTest.cpp",
   "$_tests/FakeStreams.h",
   "$_tests/FillPathTest.cpp",

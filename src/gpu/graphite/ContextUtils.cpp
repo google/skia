@@ -97,7 +97,12 @@ DstReadRequirement GetDstReadRequirement(const Caps* caps,
                                          Coverage coverage) {
     // If the blend mode is absent, this is assumed to be for a runtime blender, for which we always
     // do a dst read.
-    if (!blendMode || *blendMode > SkBlendMode::kLastCoeffMode) {
+    // If the blend mode is plus, always do in-shader blending since we may be drawing to an
+    // unsaturated surface (e.g. F16) and we don't want to let the hardware clamp the color output
+    // in that case. We could check the draw dst properties to only do in-shader blending with plus
+    // when necessary, but we can't detect that during shader precompilation.
+    if (!blendMode || *blendMode > SkBlendMode::kLastCoeffMode ||
+        *blendMode == SkBlendMode::kPlus) {
         return caps->getDstReadRequirement();
     }
 
