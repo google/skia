@@ -1,0 +1,7 @@
+5 instructions
+
+store_src_rg                   v0..1 = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_4_uniforms                color = colorGreen
+copy_4_slots_unmasked          [main].result = color
+load_src                       src.rgba = [main].result

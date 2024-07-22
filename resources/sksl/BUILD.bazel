@@ -1041,6 +1041,7 @@ skia_filegroup(
         "shared/StaticSwitchWithFallthroughB.sksl",
         "shared/StaticSwitchWithStaticConditionalBreak.sksl",
         "shared/StaticSwitchWithStaticConditionalBreakInsideBlock.sksl",
+        "shared/StaticSwitchWithVarDecl.sksl",
         "shared/StorageBuffer.sksl",
         "shared/StorageBufferVertex.vert",
         "shared/StructArrayFollowedByScalar.sksl",

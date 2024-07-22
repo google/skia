@@ -1,0 +1,9 @@
+uniform half4 colorGreen;
+
+half4 main(float2) {
+    // GLSL allows vardecls from earlier cases to bleed through: http://screen/ApJxx3M6cjo4jpi
+    switch (1) {
+        case 0: half4 color;
+        case 1: color = colorGreen; return color;
+    }
+}

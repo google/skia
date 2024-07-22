@@ -9,6 +9,7 @@
 #define SKSL_TRANSFORM
 
 #include "include/core/SkSpan.h"
+#include "src/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLModifierFlags.h"
 
 #include <memory>
@@ -16,6 +17,7 @@
 
 namespace SkSL {
 
+class Block;
 class Context;
 class Expression;
 class IndexExpression;
@@ -111,36 +113,36 @@ void RenamePrivateSymbols(Context& context, Module& module, ProgramUsage* usage,
 void ReplaceConstVarsWithLiterals(Module& module, ProgramUsage* usage);
 
 /**
- * Looks for variables inside of the top-level of a switch body, such as:
+ * Looks for variables inside of the top-level of switch-cases, such as:
  *
- *    switch (x) {
- *        case 1: int i;         // `i` is at top-level
- *        case 2: float f = 5.0; // `f` is at top-level, and has an initial-value assignment
- *        case 3: { bool b; }    // `b` is not at top-level; it has an additional scope
- *    }
+ *    case 1: int i;         // `i` is at top-level
+ *    case 2: float f = 5.0; // `f` is at top-level, and has an initial-value assignment
+ *    case 3: { bool b; }    // `b` is not at top-level; it has an additional scope
  *
- * If any top-level variables are found, a scoped block is created around the switch, and the
- * variable declarations are moved out of the switch body and into the outer scope. (Variables with
- * additional scoping are left as-is.) Then, we replace the declarations with assignment statements:
+ * If any top-level variables are found, a scoped block is created and returned which holds the
+ * variable declarations from the switch-cases and into the outer scope. (Variables with additional
+ * scoping are left as-is.) Then, we replace the declarations with nops or assignment statements.
+ * That is, we would return a Block like this:
  *
  *    {
  *        int i;
  *        float f;
- *        switch (a) {
- *            case 1:              // `i` is declared above and does not need initialization
- *            case 2: f = 5.0;     // `f` is declared above and initialized here
- *            case 3: { bool b; }  // `b` is left as-is because it has a block-scope
- *        }
  *    }
+ *
+ * And we would also mutate the passed-in case statements to eliminate the variable decarations:
+ *
+ *    case 1: Nop;         // `i` is declared in the returned block and needs no initialization
+ *    case 2: f = 5.0;     // `f` is declared in the returned block and initialized here
+ *    case 3: { bool b; }  // `b` is left as-is because it has a block-scope
  *
  * This doesn't change the meaning or correctness of the code. If the switch needs to be rewriten
  * (e.g. due to the restrictions of ES2 or WGSL), this transformation prevents scoping issues with
  * variables falling out of scope between switch-cases when we fall through.
  *
- * If there are no variables at the top-level, the switch statement is returned as-is.
+ * If there are no variables at the top-level, null is returned.
  */
-std::unique_ptr<Statement> HoistSwitchVarDeclarationsAtTopLevel(const Context&,
-                                                                std::unique_ptr<SwitchStatement>);
+std::unique_ptr<Block> HoistSwitchVarDeclarationsAtTopLevel(const Context&, StatementArray& cases,
+                                                            SymbolTable& symbolTable, Position pos);
 
 } // namespace Transform
 } // namespace SkSL

@@ -17,7 +17,6 @@
 #include "src/sksl/ir/SkSLModifierFlags.h"
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLStatement.h"
-#include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -33,9 +32,10 @@ namespace SkSL {
 
 class Context;
 
-std::unique_ptr<Statement> Transform::HoistSwitchVarDeclarationsAtTopLevel(
-        const Context& context,
-        std::unique_ptr<SwitchStatement> stmt) {
+std::unique_ptr<Block> Transform::HoistSwitchVarDeclarationsAtTopLevel(const Context& context,
+                                                                       StatementArray& cases,
+                                                                       SymbolTable& switchSymbols,
+                                                                       Position pos) {
     struct HoistSwitchVarDeclsVisitor : public ProgramWriter {
         HoistSwitchVarDeclsVisitor(const Context& c) : fContext(c) {}
 
@@ -79,18 +79,17 @@ std::unique_ptr<Statement> Transform::HoistSwitchVarDeclarationsAtTopLevel(
 
     // Visit every switch-case in the switch, looking for hoistable var-declarations.
     HoistSwitchVarDeclsVisitor visitor(context);
-    for (std::unique_ptr<Statement>& sc : stmt->as<SwitchStatement>().cases()) {
+    for (std::unique_ptr<Statement>& sc : cases) {
         visitor.visitStatementPtr(sc);
     }
 
-    // If no declarations were found, return the switch as-is.
+    // If no declarations were found, the switch can stay as-is.
     if (visitor.fVarDeclarations.empty()) {
-        return stmt;
+        return nullptr;
     }
 
     // Move all of the var-declaration statements into a separate block.
-    SymbolTable* switchSymbols = stmt->caseBlock()->as<Block>().symbolTable();
-    std::unique_ptr<SymbolTable> blockSymbols = switchSymbols->insertNewParent();
+    std::unique_ptr<SymbolTable> blockSymbols = switchSymbols.insertNewParent();
 
     StatementArray blockStmts;
     blockStmts.reserve_exact(visitor.fVarDeclarations.size() + 1);
@@ -122,19 +121,17 @@ std::unique_ptr<Statement> Transform::HoistSwitchVarDeclarationsAtTopLevel(
             replacementStmt = Nop::Make();
         }
 
-        // Move the var-declaration above the switch, and replace the existing statement with either
-        // an assignment (if there was an initial-value) or a no-op (if there wasn't one).
+        // Move the var-declaration into its own block, and replace the existing statement with
+        // either an assignment (if there was an initial-value) or a no-op (if there wasn't one).
         blockStmts.push_back(std::move(*innerDeclaration));
         *innerDeclaration = std::move(replacementStmt);
 
         // Hoist the variable's symbol outside of the switch's symbol table, and into the enclosing
         // block's symbol table.
-        switchSymbols->moveSymbolTo(blockSymbols.get(), var, context);
+        switchSymbols.moveSymbolTo(blockSymbols.get(), var, context);
     }
 
-    // Return a scoped Block holding the switch.
-    Position pos = stmt->fPosition;
-    blockStmts.push_back(std::move(stmt));
+    // Return a scoped Block holding the variable declarations.
     return Block::MakeBlock(pos, std::move(blockStmts), Block::Kind::kBracedScope,
                             std::move(blockSymbols));
 }

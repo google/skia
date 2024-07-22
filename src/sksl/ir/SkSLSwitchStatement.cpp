@@ -191,13 +191,26 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
         return nullptr;
     }
 
-    return SwitchStatement::Make(context,
-                                 pos,
-                                 std::move(value),
-                                 Block::MakeBlock(pos,
-                                                  std::move(cases),
-                                                  Block::Kind::kBracedScope,
-                                                  std::move(symbolTable)));
+    // If a switch-case has variable declarations at its top level, we want to create a scoped block
+    // around the switch, then move the variable declarations out of the switch body and into the
+    // outer scope. This prevents scoping issues in backends which don't offer a native switch.
+    // (skia:14375) It also allows static-switch optimization to work properly when variables are
+    // inherited from earlier fall-through cases. (oss-fuzz:70589)
+    std::unique_ptr<Block> block =
+            Transform::HoistSwitchVarDeclarationsAtTopLevel(context, cases, *symbolTable, pos);
+
+    std::unique_ptr<Statement> switchStmt = SwitchStatement::Make(
+            context, pos, std::move(value),
+            Block::MakeBlock(pos, std::move(cases), Block::Kind::kBracedScope,
+                             std::move(symbolTable)));
+    if (block) {
+        // Add the switch statement to the end of the var-decl block.
+        block->children().push_back(std::move(switchStmt));
+        return block;
+    } else {
+        // Return the switch statement directly.
+        return switchStmt;
+    }
 }
 
 std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
@@ -251,13 +264,7 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
     }
 
     // The switch couldn't be optimized away; emit it normally.
-    auto stmt = std::make_unique<SwitchStatement>(pos, std::move(value), std::move(caseBlock));
-
-    // If a switch-case has variable declarations at its top level, we want to create a scoped block
-    // around the switch, then move the variable declarations out of the switch body and into the
-    // outer scope. This prevents scoping issues in backends which don't offer a native switch.
-    // (skia:14375)
-    return Transform::HoistSwitchVarDeclarationsAtTopLevel(context, std::move(stmt));
+    return std::make_unique<SwitchStatement>(pos, std::move(value), std::move(caseBlock));
 }
 
 }  // namespace SkSL
