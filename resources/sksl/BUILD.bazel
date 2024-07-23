@@ -911,6 +911,7 @@ skia_filegroup(
         "shared/ArrayIndexTypes.sksl",
         "shared/ArrayNarrowingConversions.sksl",
         "shared/ArrayTypes.sksl",
+        "shared/ArrayUnsizedParam.sksl",
         "shared/Assignment.sksl",
         "shared/Caps.sksl",
         "shared/CastsRoundTowardZero.sksl",

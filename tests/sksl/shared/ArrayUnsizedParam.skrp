@@ -1,0 +1,87 @@
+### Compilation failed:
+
+error: 7: unsized arrays are not permitted here
+    float[] testArr;
+         ^^
+error: 6: interface blocks are not allowed in this kind of program
+layout(set = 0, binding = 0) readonly buffer testStorageBuffer {
+                                             ^^^^^^^^^^^^^^^^^
+error: 10: unsized arrays are not permitted here
+    S[] testArrStruct;
+     ^^
+error: 9: interface blocks are not allowed in this kind of program
+layout(set = 0, binding = 1) readonly buffer testStorageBufferStruct {
+                                             ^^^^^^^^^^^^^^^^^^^^^^^
+error: 13: unsized arrays are not permitted here
+noinline float unsizedInParameterA(float x[]) { return x[0]; }
+                                   ^^^^^^^^^
+error: 13: expected array, but found 'float'
+noinline float unsizedInParameterA(float x[]) { return x[0]; }
+                                                       ^
+error: 14: unsized arrays are not permitted here
+noinline float unsizedInParameterB(S x[]) { return x[0].y; }
+                                   ^^^^^
+error: 14: expected array, but found 'S'
+noinline float unsizedInParameterB(S x[]) { return x[0].y; }
+                                                   ^
+error: 15: unsized arrays are not permitted here
+noinline float unsizedInParameterC(float[] x) { return x[0]; }
+                                        ^^
+error: 15: expected array, but found 'float'
+noinline float unsizedInParameterC(float[] x) { return x[0]; }
+                                                       ^
+error: 16: unsized arrays are not permitted here
+noinline float unsizedInParameterD(S[] x) { return x[0].y; }
+                                    ^^
+error: 16: expected array, but found 'S'
+noinline float unsizedInParameterD(S[] x) { return x[0].y; }
+                                                   ^
+error: 17: unsized arrays are not permitted here
+noinline float unsizedInParameterE(float[]) { return 0.0; }
+                                        ^^
+error: 18: unsized arrays are not permitted here
+noinline float unsizedInParameterF(S[]) { return 0.0; }
+                                    ^^
+error: 20: unsized arrays are not permitted here
+noinline half4 getColor(float[] arr) {
+                             ^^
+error: 21: expected array, but found 'float'
+    return half4(arr[0], arr[1], arr[2], arr[3]);
+                 ^^^
+error: 21: expected array, but found 'float'
+    return half4(arr[0], arr[1], arr[2], arr[3]);
+                         ^^^
+error: 21: expected array, but found 'float'
+    return half4(arr[0], arr[1], arr[2], arr[3]);
+                                 ^^^
+error: 21: expected array, but found 'float'
+    return half4(arr[0], arr[1], arr[2], arr[3]);
+                                         ^^^
+error: 24: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 25: unknown identifier 'sk_FragColor'
+    sk_FragColor = getColor(testArr);
+    ^^^^^^^^^^^^
+error: 25: unknown identifier 'testArr'
+    sk_FragColor = getColor(testArr);
+                            ^^^^^^^
+error: 27: unknown identifier 'testArr'
+    unsizedInParameterA(testArr);
+                        ^^^^^^^
+error: 28: unknown identifier 'testArrStruct'
+    unsizedInParameterB(testArrStruct);
+                        ^^^^^^^^^^^^^
+error: 29: unknown identifier 'testArr'
+    unsizedInParameterC(testArr);
+                        ^^^^^^^
+error: 30: unknown identifier 'testArrStruct'
+    unsizedInParameterD(testArrStruct);
+                        ^^^^^^^^^^^^^
+error: 31: unknown identifier 'testArr'
+    unsizedInParameterE(testArr);
+                        ^^^^^^^
+error: 32: unknown identifier 'testArrStruct'
+    unsizedInParameterF(testArrStruct);
+                        ^^^^^^^^^^^^^
+28 errors

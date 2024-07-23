@@ -428,12 +428,15 @@ std::string MetalCodeGenerator::typeName(const Type& raw) {
     // we need to know the modifiers for textures
     const Type& type = raw.resolve().scalarTypeForLiteral();
     switch (type.typeKind()) {
-        case Type::TypeKind::kArray:
-            SkASSERT(!type.isUnsizedArray());
-            SkASSERTF(type.columns() > 0, "invalid array size: %s", type.description().c_str());
-            return String::printf("array<%s, %d>",
-                                  this->typeName(type.componentType()).c_str(), type.columns());
-
+        case Type::TypeKind::kArray: {
+            std::string typeName = this->typeName(type.componentType());
+            if (type.isUnsizedArray()) {
+                return String::printf("const device %s*", typeName.c_str());
+            } else {
+                SkASSERTF(type.columns() > 0, "invalid array size: %s", type.description().c_str());
+                return String::printf("array<%s, %d>", typeName.c_str(), type.columns());
+            }
+        }
         case Type::TypeKind::kVector:
             return this->typeName(type.componentType()) + std::to_string(type.columns());
 

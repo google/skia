@@ -1403,7 +1403,11 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
             this->write(std::to_string(index));
         }
         for (int s : sizes) {
-            this->write("[" + std::to_string(s) + "]");
+            this->write("[");
+            if (s != Type::kUnsizedArray) {
+                this->write(std::to_string(s));
+            }
+            this->write("]");
         }
     }
     this->write(")");

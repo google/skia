@@ -24,46 +24,10 @@ S   unsized_in_expression_b() { return S(int[](0)); }
 error: 14: unsized arrays are not permitted here
     int[] inStructType;
     ^^^^^^^^^^^^^^^^^^
-error: 17: unsized arrays are not permitted here
-void unsized_in_parameter_a(int x[]) {}
-                            ^^^^^^^
-error: 17: unsized arrays are not permitted here
-void unsized_in_parameter_a(int x[]) {}
-                                     ^^
-error: 18: unsized arrays are not permitted here
-void unsized_in_parameter_b(int[] x) {}
-                            ^^^^^^^
-error: 18: unsized arrays are not permitted here
-void unsized_in_parameter_b(int[] x) {}
-                                     ^^
-error: 19: unsized arrays are not permitted here
-void unsized_in_parameter_c(int[]) {}
-                            ^^^^^
-error: 19: unsized arrays are not permitted here
-void unsized_in_parameter_c(int[]) {}
-                                   ^^
-error: 20: unsized arrays are not permitted here
-void unsized_in_parameter_d(S x[]) {}
-                            ^^^^^
-error: 20: unsized arrays are not permitted here
-void unsized_in_parameter_d(S x[]) {}
-                                   ^^
-error: 21: unsized arrays are not permitted here
-void unsized_in_parameter_e(S[] x) {}
-                            ^^^^^
-error: 21: unsized arrays are not permitted here
-void unsized_in_parameter_e(S[] x) {}
-                                   ^^
-error: 22: unsized arrays are not permitted here
-void unsized_in_parameter_f(S[]) {}
-                            ^^^
-error: 22: unsized arrays are not permitted here
-void unsized_in_parameter_f(S[]) {}
-                                 ^^
 error: 24: functions may not return type 'int[]'
 int[] unsized_in_return_type_a() {}
 ^^^
 error: 25: functions may not return type 'S[]'
 S[]   unsized_in_return_type_b() {}
 ^
-22 errors
+10 errors

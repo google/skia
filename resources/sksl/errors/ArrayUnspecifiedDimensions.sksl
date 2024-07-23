@@ -33,18 +33,6 @@ unsized arrays are not permitted here
 missing index in '[]'
 missing index in '[]'
 unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
-unsized arrays are not permitted here
 functions may not return type 'int[]'
 functions may not return type 'S[]'
 *%%*/
