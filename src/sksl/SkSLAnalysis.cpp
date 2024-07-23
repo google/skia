@@ -98,30 +98,51 @@ protected:
     }
 
     bool visitExpression(const Expression& e) override {
-        // Looking for child(...)
-        if (e.is<ChildCall>() && &e.as<ChildCall>().child() == &fChild) {
-            // Determine the type of call at this site, and merge it with the accumulated state
-            const ExpressionArray& arguments = e.as<ChildCall>().arguments();
-            SkASSERT(!arguments.empty());
+        switch (e.kind()) {
+            case ExpressionKind::kChildCall: {
+                const ChildCall& cc = e.as<ChildCall>();
+                if (&cc.child() == &fChild) {
+                    // Determine the type of call at this site, and merge it with the accumulated
+                    // state
+                    const ExpressionArray& arguments = cc.arguments();
+                    SkASSERT(!arguments.empty());
 
-            const Expression* maybeCoords = arguments[0].get();
-            if (maybeCoords->type().matches(*fContext.fTypes.fFloat2)) {
-                // If the coords are a direct reference to the program's sample-coords, and those
-                // coords are never modified, we can conservatively turn this into PassThrough
-                // sampling. In all other cases, we consider it Explicit.
-                if (!fWritesToSampleCoords && maybeCoords->is<VariableReference>() &&
-                    maybeCoords->as<VariableReference>().variable() == fMainCoordsParam) {
-                    fUsage.merge(SampleUsage::PassThrough());
-                    ++fElidedSampleCoordCount;
-                } else {
-                    fUsage.merge(SampleUsage::Explicit());
+                    const Expression* maybeCoords = arguments[0].get();
+                    if (maybeCoords->type().matches(*fContext.fTypes.fFloat2)) {
+                        // If the coords are a direct reference to the program's sample-coords, and
+                        // those coords are never modified, we can conservatively turn this into
+                        // PassThrough sampling. In all other cases, we consider it Explicit.
+                        if (!fWritesToSampleCoords && maybeCoords->is<VariableReference>() &&
+                            maybeCoords->as<VariableReference>().variable() == fMainCoordsParam) {
+                            fUsage.merge(SampleUsage::PassThrough());
+                            ++fElidedSampleCoordCount;
+                        } else {
+                            fUsage.merge(SampleUsage::Explicit());
+                        }
+                    } else {
+                        // child(inputColor) or child(srcColor, dstColor) -> PassThrough
+                        fUsage.merge(SampleUsage::PassThrough());
+                    }
                 }
-            } else {
-                // child(inputColor) or child(srcColor, dstColor) -> PassThrough
-                fUsage.merge(SampleUsage::PassThrough());
+                break;
             }
+            case ExpressionKind::kFunctionCall: {
+                // If this child effect is ever passed via a function call...
+                const FunctionCall& call = e.as<FunctionCall>();
+                for (const std::unique_ptr<Expression>& arg : call.arguments()) {
+                    if (arg->is<VariableReference>() &&
+                        arg->as<VariableReference>().variable() == &fChild) {
+                        // ... we must treat it as explicitly sampled, since the program's
+                        // sample-coords only exist as a parameter to `main`.
+                        fUsage.merge(SampleUsage::Explicit());
+                        break;
+                    }
+                }
+                break;
+            }
+            default:
+                break;
         }
-
         return INHERITED::visitExpression(e);
     }
 
