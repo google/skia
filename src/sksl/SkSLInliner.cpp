@@ -305,7 +305,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
                                       pos,
                                       funcCall.type().clone(*fContext, symbolTableForExpression),
                                       funcCall.function(),
-                                      argList(funcCall.arguments()));
+                                      argList(funcCall.arguments()),
+                                      funcCall.stableID());
         }
         case Expression::Kind::kFunctionReference:
             return expression.clone(pos);

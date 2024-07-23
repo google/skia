@@ -13,6 +13,7 @@
 #include "src/core/SkTHash.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 
 namespace SkSL {
@@ -42,17 +43,17 @@ using SpecializationMap = skia_private::THashMap<const FunctionDeclaration*, Spe
 struct SpecializedCallKey {
     struct Hash {
         size_t operator()(const SpecializedCallKey& entry) {
-            return SkGoodHash()(entry.fFunctionCall) ^
+            return SkGoodHash()(entry.fStableID) ^
                    SkGoodHash()(entry.fParentSpecializationIndex);
         }
     };
 
     bool operator==(const SpecializedCallKey& other) const {
-        return fFunctionCall == other.fFunctionCall &&
+        return fStableID == other.fStableID &&
                fParentSpecializationIndex == other.fParentSpecializationIndex;
     }
 
-    const FunctionCall* fFunctionCall;
+    const uint32_t fStableID;
     SpecializationIndex fParentSpecializationIndex;
 };
 

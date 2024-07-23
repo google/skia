@@ -104,12 +104,13 @@ void FindFunctionsToSpecialize(const Program& program,
                     // variables to specialize on.
                     if (specialization.count() > 0) {
                         Specializations& specializations = fSpecializationMap[&decl];
+                        SpecializedCallKey callKey{call.stableID(), fInheritedSpecializationIndex};
 
                         for (int i = 0; i < specializations.size(); i++) {
                             const SpecializedParameters& entry = specializations[i];
                             if (maps_are_equal(specialization, entry)) {
                                 // This specialization has already been tracked.
-                                fSpecializedCallMap[{&call, fInheritedSpecializationIndex}] = i;
+                                fSpecializedCallMap[callKey] = i;
                                 return INHERITED::visitExpression(expr);
                             }
                         }
@@ -118,8 +119,7 @@ void FindFunctionsToSpecialize(const Program& program,
                         // requires, also tracking the inherited specialization this function
                         // call is in so the right specialized function can be called.
                         SpecializationIndex specializationIndex = specializations.size();
-                        fSpecializedCallMap[{&call, fInheritedSpecializationIndex}] =
-                                specializationIndex;
+                        fSpecializedCallMap[callKey] = specializationIndex;
                         specializations.push_back(specialization);
 
                         // We swap so we don't lose when our last inherited specializations were
@@ -160,7 +160,7 @@ void FindFunctionsToSpecialize(const Program& program,
 SpecializationIndex FindSpecializationIndexForCall(const FunctionCall& call,
                                                    const SpecializationInfo& info,
                                                    SpecializationIndex parentSpecializationIndex) {
-    SpecializedCallKey callKey{&call, parentSpecializationIndex};
+    SpecializedCallKey callKey{call.stableID(), parentSpecializationIndex};
     SpecializationIndex* foundIndex = info.fSpecializedCallMap.find(callKey);
     return foundIndex ? *foundIndex : kUnspecialized;
 }
