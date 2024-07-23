@@ -1,1 +1,1 @@
-half4 main(float2 a){int b=0;return half4(half(b));}
+half4 main(float2 a){int b=0;return half(b).xxxx;}

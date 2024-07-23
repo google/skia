@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkSpan.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLModule.h"
 #include "src/sksl/SkSLPosition.h"
@@ -171,9 +170,7 @@ void Transform::EliminateUnnecessaryBraces(const Context& context, Module& modul
         using INHERITED = ProgramWriter;
     };
 
-    SkSpan<std::unique_ptr<ProgramElement>> elements = SkSpan(module.fElements);
-
-    for (std::unique_ptr<ProgramElement>& pe : elements) {
+    for (std::unique_ptr<ProgramElement>& pe : module.fElements) {
         if (pe->is<FunctionDefinition>()) {
             // First, we eliminate braces around single-statement child blocks wherever possible.
             UnnecessaryBraceEliminator eliminator;

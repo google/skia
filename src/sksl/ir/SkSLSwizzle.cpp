@@ -530,6 +530,23 @@ std::unique_ptr<Expression> Swizzle::Make(const Context& context,
     return std::make_unique<Swizzle>(context, pos, std::move(expr), components);
 }
 
+std::unique_ptr<Expression> Swizzle::MakeExact(const Context& context,
+                                               Position pos,
+                                               std::unique_ptr<Expression> expr,
+                                               ComponentArray components) {
+    SkASSERTF(expr->type().isVector() || expr->type().isScalar(),
+              "cannot swizzle type '%s'", expr->type().description().c_str());
+    SkASSERT(components.size() >= 1 && components.size() <= 4);
+
+    // Confirm that the component array only contains X/Y/Z/W.
+    SkASSERT(std::all_of(components.begin(), components.end(), [](int8_t component) {
+        return component >= SwizzleComponent::X &&
+               component <= SwizzleComponent::W;
+    }));
+
+    return std::make_unique<Swizzle>(context, pos, std::move(expr), components);
+}
+
 std::string Swizzle::description(OperatorPrecedence) const {
     return this->base()->description(OperatorPrecedence::kPostfix) + "." +
            MaskString(this->components());

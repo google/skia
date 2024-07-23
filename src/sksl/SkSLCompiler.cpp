@@ -301,6 +301,9 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module, b
     // We can eliminate `{}` around single-statement blocks.
     SkSL::Transform::EliminateUnnecessaryBraces(this->context(), module);
 
+    // We can convert `float4(myFloat)` with `myFloat.xxxx` to save a few characters.
+    SkSL::Transform::ReplaceSplatCastsWithSwizzles(this->context(), module);
+
     // Make sure that program usage is still correct after the optimization pass is complete.
     SkASSERT(*usage == *Analysis::GetUsage(module));
 

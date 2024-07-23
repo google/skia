@@ -85,6 +85,12 @@ void EliminateEmptyStatements(Module& module);
 void EliminateUnnecessaryBraces(const Context& context, Module& module);
 
 /**
+ * Replaces splat-casts like `float4(myFloat)` with `myFloat.xxxx`. This should be slightly smaller
+ * in textual form, and will be optimized back to the splat-cast at load time.
+ */
+void ReplaceSplatCastsWithSwizzles(const Context& context, Module& module);
+
+/**
  * Eliminates functions in a program which are never called. Returns true if any changes were made.
  */
 bool EliminateDeadFunctions(const Context& context, Module& module, ProgramUsage* usage);

@@ -1,1 +1,1 @@
-float f;uint u;vec4 main(vec2 a){uvec2 b=uvec2(u);uvec3 c=uvec3(b,u);uvec4 d=uvec4(c,u);mat2x4 e=mat2x4(mat2x3(mat2x2(f)));mat3x4 g=mat3x4(mat3x3(mat3x2(f)));mat4x4 h=mat4x4(mat4x3(mat4x2(f)));return((vec4(d)*e[0])*g[0])*h[0];}
+float f;uint u;vec4 main(vec2 a){uvec2 b=u.xx;uvec3 c=uvec3(b,u);uvec4 d=uvec4(c,u);mat2x4 e=mat2x4(mat2x3(mat2x2(f)));mat3x4 g=mat3x4(mat3x3(mat3x2(f)));mat4x4 h=mat4x4(mat4x3(mat4x2(f)));return((vec4(d)*e[0])*g[0])*h[0];}

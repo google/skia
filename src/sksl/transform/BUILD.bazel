@@ -21,6 +21,7 @@ TRANSFORM_FILES = [
     "SkSLProgramWriter.h",
     "SkSLRenamePrivateSymbols.cpp",
     "SkSLReplaceConstVarsWithLiterals.cpp",
+    "SkSLReplaceSplatCastsWithSwizzles.cpp",
     "SkSLRewriteIndexedSwizzle.cpp",
     "SkSLTransform.cpp",
     "SkSLTransform.h",
