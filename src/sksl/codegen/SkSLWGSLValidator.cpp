@@ -26,6 +26,8 @@ static bool validate_wgsl(ErrorReporter& reporter,
                            tint::wgsl::Extension::kDualSourceBlending}) {
         options.allowed_features.extensions.insert(extension);
     }
+    options.allowed_features.features.insert(
+            tint::wgsl::LanguageFeature::kUnrestrictedPointerParameters);
 
     // Verify that the WGSL we produced is valid.
     tint::Source::File srcFile("", wgsl);

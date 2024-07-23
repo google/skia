@@ -43,12 +43,15 @@ float unsizedInParameterF_fS(const device S* ) {
 half4 getColor_h4f(const device float* arr) {
     return half4(half(arr[0]), half(arr[1]), half(arr[2]), half(arr[3]));
 }
+half4 getColor_helper_h4f(const device float* arr) {
+    return getColor_h4f(arr);
+}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], const device testStorageBuffer& _anonInterface0 [[buffer(0)]], const device testStorageBufferStruct& _anonInterface1 [[buffer(1)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Globals _globals{&_anonInterface0, &_anonInterface1};
     (void)_globals;
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = getColor_h4f(_globals._anonInterface0->testArr);
+    _out.sk_FragColor = getColor_helper_h4f(_globals._anonInterface0->testArr);
     unsizedInParameterA_ff(_globals._anonInterface0->testArr);
     unsizedInParameterB_fS(_globals._anonInterface1->testArrStruct);
     unsizedInParameterC_ff(_globals._anonInterface0->testArr);

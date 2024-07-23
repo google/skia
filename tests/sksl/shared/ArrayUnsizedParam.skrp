@@ -57,31 +57,34 @@ error: 21: expected array, but found 'float'
 error: 21: expected array, but found 'float'
     return half4(arr[0], arr[1], arr[2], arr[3]);
                                          ^^^
-error: 24: 'main' must return: 'vec4', 'float4', or 'half4'
+error: 24: unsized arrays are not permitted here
+noinline half4 getColor_helper(float[] arr) {
+                                    ^^
+error: 28: 'main' must return: 'vec4', 'float4', or 'half4'
 void main() {
 ^^^^^^^^^^^
-error: 25: unknown identifier 'sk_FragColor'
-    sk_FragColor = getColor(testArr);
+error: 29: unknown identifier 'sk_FragColor'
+    sk_FragColor = getColor_helper(testArr);
     ^^^^^^^^^^^^
-error: 25: unknown identifier 'testArr'
-    sk_FragColor = getColor(testArr);
-                            ^^^^^^^
-error: 27: unknown identifier 'testArr'
+error: 29: unknown identifier 'testArr'
+    sk_FragColor = getColor_helper(testArr);
+                                   ^^^^^^^
+error: 31: unknown identifier 'testArr'
     unsizedInParameterA(testArr);
                         ^^^^^^^
-error: 28: unknown identifier 'testArrStruct'
+error: 32: unknown identifier 'testArrStruct'
     unsizedInParameterB(testArrStruct);
                         ^^^^^^^^^^^^^
-error: 29: unknown identifier 'testArr'
+error: 33: unknown identifier 'testArr'
     unsizedInParameterC(testArr);
                         ^^^^^^^
-error: 30: unknown identifier 'testArrStruct'
+error: 34: unknown identifier 'testArrStruct'
     unsizedInParameterD(testArrStruct);
                         ^^^^^^^^^^^^^
-error: 31: unknown identifier 'testArr'
+error: 35: unknown identifier 'testArr'
     unsizedInParameterE(testArr);
                         ^^^^^^^
-error: 32: unknown identifier 'testArrStruct'
+error: 36: unknown identifier 'testArrStruct'
     unsizedInParameterF(testArrStruct);
                         ^^^^^^^^^^^^^
-28 errors
+29 errors

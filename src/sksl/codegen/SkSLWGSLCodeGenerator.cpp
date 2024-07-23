@@ -1790,7 +1790,14 @@ void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl
                 this->write(this->assembleName(param.name()));
             }
             this->write(": ");
-            if (param.modifierFlags() & ModifierFlag::kOut) {
+            if (param.type().isUnsizedArray()) {
+                // Creates a storage address space pointer for unsized array parameters.
+                // The buffer the array resides in must be marked `readonly` to have the array
+                // be used in function parameters, since access modes in wgsl must exactly match.
+                this->write("ptr<storage, ");
+                this->write(to_wgsl_type(fContext, param.type(), &param.layout()));
+                this->write(", read>");
+            } else if (param.modifierFlags() & ModifierFlag::kOut) {
                 // Declare an "out" function parameter as a pointer.
                 this->write(to_ptr_type(fContext, param.type(), &param.layout()));
             } else {
@@ -3521,6 +3528,19 @@ std::string WGSLCodeGenerator::assembleFunctionCall(const FunctionCall& call,
             expr += ", ";
             expr += this->assembleExpression(*args[index], Precedence::kSequence);
             expr += kSamplerSuffix;
+        } else if (args[index]->type().isUnsizedArray()) {
+            // If the array is in the parameter storage space then manually just pass it through
+            // since it is already a pointer.
+            if (args[index]->is<VariableReference>()) {
+                const Variable* v = args[index]->as<VariableReference>().variable();
+                // A variable reference to an unsized array should always be a parameter,
+                // because unsized arrays coming from uniforms will have the `FieldAccess`
+                // expression type.
+                SkASSERT(v->storage() == Variable::Storage::kParameter);
+                expr += this->assembleName(v->mangledName());
+            } else {
+                expr += "&(" + this->assembleExpression(*args[index], Precedence::kSequence) + ")";
+            }
         } else {
             expr += this->assembleExpression(*args[index], Precedence::kSequence);
         }
@@ -3816,10 +3836,11 @@ std::string WGSLCodeGenerator::variablePrefix(const Variable& v) {
 std::string WGSLCodeGenerator::variableReferenceNameForLValue(const VariableReference& r) {
     const Variable& v = *r.variable();
 
-    if ((v.storage() == Variable::Storage::kParameter &&
-         v.modifierFlags() & ModifierFlag::kOut)) {
-        // This is an out-parameter; it's pointer-typed, so we need to dereference it. We wrap the
-        // dereference in parentheses, in case the value is used in an access expression later.
+    if (v.storage() == Variable::Storage::kParameter &&
+         (v.modifierFlags() & ModifierFlag::kOut || v.type().isUnsizedArray())) {
+        // This is an out-parameter or unsized array parameter; it's pointer-typed, so we need to
+        // dereference it. We wrap the dereference in parentheses, in case the value is used in an
+        // access expression later.
         return "(*" + this->assembleName(v.mangledName()) + ')';
     }
 
