@@ -51,13 +51,20 @@ public:
                                                std::unique_ptr<Expression> functionValue,
                                                ExpressionArray arguments);
 
-    // Creates the function call; reports errors via ASSERT.
+    // Computes a new stable ID and creates a function call; reports errors via ASSERT.
+    static std::unique_ptr<Expression> Make(const Context& context,
+                                            Position pos,
+                                            const Type* returnType,
+                                            const FunctionDeclaration& function,
+                                            ExpressionArray arguments);
+
+    // Creates a function call with a known stable ID; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
                                             Position pos,
                                             const Type* returnType,
                                             const FunctionDeclaration& function,
                                             ExpressionArray arguments,
-                                            uint32_t stableID = 0);
+                                            uint32_t stableID);
 
     static const FunctionDeclaration* FindBestFunctionForCall(const Context& context,
                                                               const FunctionDeclaration* overloads,

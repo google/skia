@@ -1245,6 +1245,22 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
                                                Position pos,
                                                const Type* returnType,
                                                const FunctionDeclaration& function,
+                                               ExpressionArray arguments) {
+    // Synthesize a stable ID from the function-call position and module type.
+    uint32_t stableID = pos.valid() ? pos.startOffset() : 0x00FFFFFF;
+    SkASSERT(stableID < 0x01000000);
+
+    if (context.fConfig->fModuleType.has_value()) {
+        stableID |= SkToU32(*context.fConfig->fModuleType) << 24;
+    }
+
+    return Make(context, pos, returnType, function, std::move(arguments), stableID);
+}
+
+std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
+                                               Position pos,
+                                               const Type* returnType,
+                                               const FunctionDeclaration& function,
                                                ExpressionArray arguments,
                                                uint32_t stableID) {
     SkASSERT(function.parameters().size() == SkToSizeT(arguments.size()));
@@ -1259,16 +1275,6 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
                                                                        *returnType)) {
             expr->fPosition = pos;
             return expr;
-        }
-    }
-
-    // Synthesize a stable ID from the function-call position and module type.
-    if (stableID == 0) {
-        stableID = pos.valid() ? pos.startOffset() : 0x00FFFFFF;
-        SkASSERT(stableID < 0x01000000);
-
-        if (context.fConfig->fModuleType.has_value()) {
-            stableID |= SkToU32(*context.fConfig->fModuleType) << 24;
         }
     }
 
