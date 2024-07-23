@@ -4415,8 +4415,11 @@ void SPIRVCodeGenerator::writeFunctionStart(
         // Loop through parameters to construct the specialized name so the specialized name has
         // a consistent order.
         for (const Variable* parameter : f.parameters()) {
-            if (const Variable** uniform = specializedParams->find(parameter)) {
-                mangledName += "_" + std::string((*uniform)->name());
+            if (const Expression** uniformExprPtr = specializedParams->find(parameter)) {
+                const Expression* uniformExpr = *uniformExprPtr;
+                SkASSERT(uniformExpr->is<VariableReference>());
+
+                mangledName += "_" + uniformExpr->description();
             }
         }
     }
@@ -4425,8 +4428,12 @@ void SPIRVCodeGenerator::writeFunctionStart(
                            std::string_view(mangledName.c_str(), mangledName.size()),
                            fNameBuffer);
     for (const Variable* parameter : f.parameters()) {
-        const Variable** specializedVar =
+        const Expression** specializedExpr =
                 specializedParams ? specializedParams->find(parameter) : nullptr;
+        const Variable* specializedVar =
+                specializedExpr && (*specializedExpr)->is<VariableReference>()
+                        ? (*specializedExpr)->as<VariableReference>().variable()
+                        : nullptr;
 
         if (fUseTextureSamplerPairs && parameter->type().isSampler()) {
             auto [texture, sampler] = this->synthesizeTextureAndSampler(*parameter);
@@ -4438,7 +4445,7 @@ void SPIRVCodeGenerator::writeFunctionStart(
             this->writeInstruction(SpvOpFunctionParameter, textureType, textureId, out);
 
             if (specializedVar) {
-                const auto* p = fSynthesizedSamplerMap.find(*specializedVar);
+                const auto* p = fSynthesizedSamplerMap.find(specializedVar);
                 SkASSERT(p);
                 const SpvId* uniformId = fVariableMap.find((*p)->fSampler.get());
                 SkASSERT(uniformId);
@@ -4453,7 +4460,7 @@ void SPIRVCodeGenerator::writeFunctionStart(
             }
         } else {
             if (specializedVar) {
-                const SpvId* uniformId = fVariableMap.find(*specializedVar);
+                const SpvId* uniformId = fVariableMap.find(specializedVar);
                 SkASSERT(uniformId);
                 fVariableMap.set(parameter, *uniformId);
             } else {

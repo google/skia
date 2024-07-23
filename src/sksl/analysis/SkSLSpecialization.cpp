@@ -9,6 +9,7 @@
 
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkSpan_impl.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -28,17 +29,17 @@ using namespace skia_private;
 
 namespace SkSL::Analysis {
 
-template <typename K, typename V>
-static bool maps_are_equal(const THashMap<K, V>& left, const THashMap<K, V>& right) {
+static bool parameter_mappings_are_equal(const SpecializedParameters& left,
+                                         const SpecializedParameters& right) {
     if (left.count() != right.count()) {
         return false;
     }
-    for (const auto& [key, leftValue] : left) {
-        const V* rightValue = right.find(key);
-        if (!rightValue) {
+    for (const auto& [key, leftExpr] : left) {
+        const Expression** rightExpr = right.find(key);
+        if (!rightExpr) {
             return false;
         }
-        if (leftValue != *rightValue) {
+        if (!Analysis::IsSameExpressionTree(*leftExpr, **rightExpr)) {
             return false;
         }
     }
@@ -88,12 +89,12 @@ void FindFunctionsToSpecialize(const Program& program,
                         }
 
                         if (var->storage() == Variable::Storage::kGlobal) {
-                            specialization[param] = var;
+                            specialization[param] = &arg;
                         } else if (var->storage() == Variable::Storage::kParameter) {
-                            const Variable** uniformVar = fInheritedSpecializations.find(var);
-                            SkASSERT(uniformVar);
+                            const Expression** uniformExpr = fInheritedSpecializations.find(var);
+                            SkASSERT(uniformExpr);
 
-                            specialization[param] = *uniformVar;
+                            specialization[param] = *uniformExpr;
                         } else {
                             // TODO(b/353532475): Report an error instead of aborting.
                             SK_ABORT("Specialization requires a uniform or parameter variable");
@@ -108,7 +109,7 @@ void FindFunctionsToSpecialize(const Program& program,
 
                         for (int i = 0; i < specializations.size(); i++) {
                             const SpecializedParameters& entry = specializations[i];
-                            if (maps_are_equal(specialization, entry)) {
+                            if (parameter_mappings_are_equal(specialization, entry)) {
                                 // This specialization has already been tracked.
                                 fSpecializedCallMap[callKey] = i;
                                 return INHERITED::visitExpression(expr);

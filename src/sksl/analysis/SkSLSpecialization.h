@@ -18,6 +18,7 @@
 
 namespace SkSL {
 
+class Expression;
 class FunctionCall;
 class FunctionDeclaration;
 class Variable;
@@ -31,8 +32,9 @@ namespace Analysis {
 using SpecializationIndex = int;
 static constexpr SpecializationIndex kUnspecialized = -1;
 
-// Global uniforms used by a specialization, maps <function parameter, global uniform>
-using SpecializedParameters = skia_private::THashMap<const Variable*, const Variable*>;
+// Global uniforms used by a specialization,
+// maps <function parameter, expression referencing global uniform>
+using SpecializedParameters = skia_private::THashMap<const Variable*, const Expression*>;
 // The set of specializated implementations needed for a given function.
 using Specializations = skia_private::TArray<SpecializedParameters>;
 // The full set of all specializations required by the program.
