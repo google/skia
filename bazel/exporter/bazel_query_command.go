@@ -36,7 +36,6 @@ var allSkiaFlags = []string{
 	"--enable_effect_serialization",
 	"--enable_gpu_test_utils",
 	"--enable_pdf_backend",
-	// "--enable_skslc", // external dependency on spirv-tools/libspirv.hpp
 	"--enable_svg_canvas",
 	"--enable_tracing",
 	"--enable_vma",
