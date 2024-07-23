@@ -479,6 +479,7 @@ skia_filegroup(
         "errors/SpuriousFloat.rts",
         "errors/StructMemberReservedName.rts",
         "errors/StructNameWithoutIdentifier.rts",
+        "errors/StructRedefinition.rts",
         "errors/StructTooDeeplyNested.rts",
         "errors/StructVariableReservedName.rts",
         "errors/SwitchDuplicateCase.rts",

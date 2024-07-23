@@ -266,8 +266,8 @@ public:
     }
 
     /** Returns true if these types are equal after alias resolution. */
-    bool matches(const Type& other) const {
-        return this->resolve().name() == other.resolve().name();
+    virtual bool matches(const Type& that) const {
+        return &this->resolve() == &that.resolve();
     }
 
     /**

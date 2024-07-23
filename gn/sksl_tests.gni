@@ -292,6 +292,7 @@ sksl_error_tests = [
   "errors/SpuriousFloat.rts",
   "errors/StructMemberReservedName.rts",
   "errors/StructNameWithoutIdentifier.rts",
+  "errors/StructRedefinition.rts",
   "errors/StructTooDeeplyNested.rts",
   "errors/StructVariableReservedName.rts",
   "errors/SwitchDuplicateCase.rts",

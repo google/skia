@@ -166,8 +166,14 @@ public:
             , fCount(count)
             , fIsBuiltin(isBuiltin) {
         SkASSERT(count > 0 || count == kUnsizedArray);
-        // Disallow multi-dimensional arrays.
+        // Multi-dimensional arrays are disallowed.
         SkASSERT(!componentType.is<ArrayType>());
+    }
+
+    bool matches(const Type& otherType) const override {
+        const Type& that = otherType.resolve();
+        return that.isArray() && this->columns() == that.columns() &&
+               this->componentType().matches(that.componentType());
     }
 
     bool isArray() const override {

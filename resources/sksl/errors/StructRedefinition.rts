@@ -1,0 +1,13 @@
+struct S { int disallowed[]; } x;
+struct S {} y;
+
+bool fn() {
+    return x != y;
+}
+
+/*%%*
+unsized arrays are not permitted here
+struct 'S' must contain at least one field
+symbol 'S' was already defined
+type mismatch: '!=' cannot operate on 'S', 'S'
+*%%*/
