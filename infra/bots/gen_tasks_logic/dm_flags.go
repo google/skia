@@ -283,6 +283,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "EGLImageTest")
 			skip(ALL, "test", ALL, "ES2BlendWithNoTexture")
 			skip(ALL, "test", ALL, "ExtendedSkColorTypeTests_gpu")
+			skip(ALL, "test", ALL, "F16DrawTest")
 			skip(ALL, "test", ALL, "FilterResult_ganesh") // knocks out a bunch
 			skip(ALL, "test", ALL, "FullScreenClearWithLayers")
 			skip(ALL, "test", ALL, "GLBackendAllocationTest")
