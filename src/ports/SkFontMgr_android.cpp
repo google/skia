@@ -172,6 +172,14 @@ public:
                 continue;
             }
 
+            AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
+            SkFontArguments::VariationPosition position = {
+                fontFile.fVariationDesignPosition.begin(),
+                fontFile.fVariationDesignPosition.size()
+            };
+            SkFontScanner_FreeType::computeAxisValues(
+                    axisDefinitions, position, axisValues, familyName, &style);
+
             int weight = fontFile.fWeight != 0 ? fontFile.fWeight : style.weight();
             SkFontStyle::Slant slant = style.slant();
             switch (fontFile.fStyle) {
@@ -193,14 +201,6 @@ public:
             if (cannonicalFamilyName != nullptr) {
                 familyName = *cannonicalFamilyName;
             }
-
-            AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
-            SkFontArguments::VariationPosition position = {
-                fontFile.fVariationDesignPosition.begin(),
-                fontFile.fVariationDesignPosition.size()
-            };
-            SkFontScanner_FreeType::computeAxisValues(
-                    axisDefinitions, position, axisValues, familyName, &style);
 
             fStyles.push_back().reset(new SkTypeface_AndroidSystem(
                     pathName, cacheFontFiles, ttcIndex, axisValues.get(), axisDefinitions.size(),
