@@ -499,14 +499,16 @@ $export $pure half3 $css_hsl_to_srgb(half3 hsl) {
 }
 
 $export $pure half3 $css_hwb_to_srgb(half3 hwb) {
+    half3 rgb;
     hwb.yz /= 100;
     if (hwb.y + hwb.z >= 1) {
-        half gray = hwb.y / (hwb.y + hwb.z);
-        return half3(gray);
+        // Emit grayscale
+        rgb = half3(hwb.y / (hwb.y + hwb.z));
+    } else {
+        rgb = $css_hsl_to_srgb(half3(hwb.x, 100, 50));
+        rgb *= (1 - hwb.y - hwb.z);
+        rgb += hwb.y;
     }
-    half3 rgb = $css_hsl_to_srgb(half3(hwb.x, 100, 50));
-    rgb *= (1 - hwb.y - hwb.z);
-    rgb += hwb.y;
     return rgb;
 }
 
