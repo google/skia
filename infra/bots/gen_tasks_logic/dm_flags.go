@@ -1243,11 +1243,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "test", ALL, "VkYCbcrSampler_DrawImageWithYcbcrSampler") // skia:13265
 	}
 
-	if (b.gpu("QuadroP400") || b.gpu("RTX3060")) && b.isLinux() {
-		// Suspected driver bugs, see discussion at http://review.skia.org/879156.
-		skip(ALL, "tests", ALL, "F16DrawTest_Ganesh")
-	}
-
 	match := []string{}
 
 	if b.extraConfig("Graphite") {

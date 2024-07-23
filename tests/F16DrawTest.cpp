@@ -49,11 +49,6 @@ void test_f16(skiatest::Reporter* reporter,
         { SkBlendMode::kXor,        kHalfFloat2 },
         { SkBlendMode::kPlus,       kHalfFloat1 },
         { SkBlendMode::kScreen,     kHalfFloat2 },
-        { SkBlendMode::kDarken,     kHalfFloat2 },
-        { SkBlendMode::kLighten,    kHalfFloat2 },
-        { SkBlendMode::kDifference, kHalfFloat2 },
-        { SkBlendMode::kExclusion,  kHalfFloat2 },
-        { SkBlendMode::kMultiply,   kHalfFloat2 },
     };
 
     // Create an F16 surface, if possible.
