@@ -262,7 +262,7 @@ private:
                          const MemoryLayout& memoryLayout,
                          StorageClass storageClass);
 
-    skia_private::TArray<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
+    TArray<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
 
     void writeLayout(const Layout& layout, SpvId target, Position pos);
 
@@ -321,7 +321,7 @@ private:
 
     void writeGLSLExtendedInstruction(const Type& type, SpvId id, SpvId floatInst,
                                       SpvId signedInst, SpvId unsignedInst,
-                                      const skia_private::TArray<SpvId>& args, OutputStream& out);
+                                      const TArray<SpvId>& args, OutputStream& out);
 
     /**
      * Promotes an expression to a vector. If the expression is already a vector with vectorSize
@@ -337,7 +337,7 @@ private:
      * returns (vec2(float), vec2). It is an error to use mismatched vector sizes, e.g. (float,
      * vec2, vec3).
      */
-    skia_private::TArray<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
+    TArray<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
 
     /**
      * Given a SpvId of a scalar, splats it across the passed-in type (scalar, vector or matrix) and
@@ -374,9 +374,11 @@ private:
     SpvId writeMatrixCopy(SpvId src, const Type& srcType, const Type& dstType, OutputStream& out);
 
     void addColumnEntry(const Type& columnType,
-                        skia_private::TArray<SpvId>* currentColumn,
-                        skia_private::TArray<SpvId>* columnIds,
-                        int rows, SpvId entry, OutputStream& out);
+                        TArray<SpvId>* currentColumn,
+                        TArray<SpvId>* columnIds,
+                        int rows,
+                        SpvId entry,
+                        OutputStream& out);
 
     SpvId writeConstructorCompound(const ConstructorCompound& c, OutputStream& out);
 
@@ -544,29 +546,26 @@ private:
     struct Word;
     // 8 Words is enough for nearly all instructions (except variable-length instructions like
     // OpAccessChain or OpConstantComposite).
-    using Words = skia_private::STArray<8, Word, true>;
-    SpvId writeInstruction(
-            SpvOp_ opCode, const skia_private::TArray<Word, true>& words, OutputStream& out);
+    using Words = STArray<8, Word, true>;
+    SpvId writeInstruction(SpvOp_ opCode, const TArray<Word, true>& words, OutputStream& out);
 
     struct Instruction {
         SpvId fOp;
         int32_t fResultKind;
-        skia_private::STArray<8, int32_t>  fWords;
+        STArray<8, int32_t>  fWords;
 
         bool operator==(const Instruction& that) const;
         struct Hash;
     };
 
-    static Instruction BuildInstructionKey(SpvOp_ opCode,
-                                           const skia_private::TArray<Word, true>& words);
+    static Instruction BuildInstructionKey(SpvOp_ opCode, const TArray<Word, true>& words);
 
     // The writeOpXxxxx calls will simplify and deduplicate ops where possible.
     SpvId writeOpConstantTrue(const Type& type);
     SpvId writeOpConstantFalse(const Type& type);
     SpvId writeOpConstant(const Type& type, int32_t valueBits);
-    SpvId writeOpConstantComposite(const Type& type, const skia_private::TArray<SpvId>& values);
-    SpvId writeOpCompositeConstruct(const Type& type, const skia_private::TArray<SpvId>&,
-                                    OutputStream& out);
+    SpvId writeOpConstantComposite(const Type& type, const TArray<SpvId>& values);
+    SpvId writeOpCompositeConstruct(const Type& type, const TArray<SpvId>&, OutputStream& out);
     SpvId writeOpCompositeExtract(const Type& type, SpvId base, int component, OutputStream& out);
     SpvId writeOpCompositeExtract(const Type& type, SpvId base, int componentA, int componentB,
                                   OutputStream& out);
@@ -574,8 +573,8 @@ private:
     void writeOpStore(StorageClass storageClass, SpvId pointer, SpvId value, OutputStream& out);
 
     // Converts the provided SpvId(s) into an array of scalar OpConstants, if it can be done.
-    bool toConstants(SpvId value, skia_private::TArray<SpvId>* constants);
-    bool toConstants(SkSpan<const SpvId> values, skia_private::TArray<SpvId>* constants);
+    bool toConstants(SpvId value, TArray<SpvId>* constants);
+    bool toConstants(SkSpan<const SpvId> values, TArray<SpvId>* constants);
 
     // Extracts the requested component SpvId from a composite instruction, if it can be done.
     Instruction* resultTypeForInstruction(const Instruction& instr);
@@ -658,31 +657,14 @@ private:
     };
     Intrinsic getIntrinsic(IntrinsicKind) const;
 
-    struct SpecializedFunctionDeclaration {
-        struct Hash {
-            size_t operator()(const SpecializedFunctionDeclaration& entry) {
-                return SkGoodHash()(entry.fDeclaration) ^ SkGoodHash()(entry.fSpecializationIndex);
-            }
-        };
-
-        bool operator==(const SpecializedFunctionDeclaration& other) const {
-            return fDeclaration == other.fDeclaration &&
-                   fSpecializationIndex == other.fSpecializationIndex;
-        }
-
-        const FunctionDeclaration* fDeclaration;
-        Analysis::SpecializationIndex fSpecializationIndex;
-    };
-
-    skia_private::
-            THashMap<SpecializedFunctionDeclaration, SpvId, SpecializedFunctionDeclaration::Hash>
-                    fFunctionMap;
+    THashMap<Analysis::SpecializedFunctionKey, SpvId, Analysis::SpecializedFunctionKey::Hash>
+            fFunctionMap;
 
     Analysis::SpecializationIndex fInheritedSpecializationIndex = Analysis::kUnspecialized;
     Analysis::SpecializationInfo fSpecializationInfo;
 
-    skia_private::THashMap<const Variable*, SpvId> fVariableMap;
-    skia_private::THashMap<const Type*, SpvId> fStructMap;
+    THashMap<const Variable*, SpvId> fVariableMap;
+    THashMap<const Type*, SpvId> fStructMap;
     StringStream fGlobalInitializersBuffer;
     StringStream fConstantBuffer;
     StringStream fVariableBuffer;
@@ -702,7 +684,7 @@ private:
         std::unique_ptr<Variable> fTexture;
         std::unique_ptr<Variable> fSampler;
     };
-    skia_private::THashMap<const Variable*, std::unique_ptr<SynthesizedTextureSamplerPair>>
+    THashMap<const Variable*, std::unique_ptr<SynthesizedTextureSamplerPair>>
             fSynthesizedSamplerMap;
 
     // These caches map SpvIds to Instructions, and vice-versa. This enables us to deduplicate code
@@ -711,11 +693,11 @@ private:
     // it back to its source).
 
     // A map of instruction -> SpvId:
-    skia_private::THashMap<Instruction, SpvId, Instruction::Hash> fOpCache;
+    THashMap<Instruction, SpvId, Instruction::Hash> fOpCache;
     // A map of SpvId -> instruction:
-    skia_private::THashMap<SpvId, Instruction> fSpvIdCache;
+    THashMap<SpvId, Instruction> fSpvIdCache;
     // A map of SpvId -> value SpvId:
-    skia_private::THashMap<SpvId, SpvId> fStoreCache;
+    THashMap<SpvId, SpvId> fStoreCache;
 
     // "Reachable" ops are instructions which can safely be accessed from the current block.
     // For instance, if our SPIR-V contains `%3 = OpFAdd %1 %2`, we would be able to access and
@@ -743,8 +725,7 @@ private:
     // interface block.
     UniformBuffer fUniformBuffer;
     std::vector<const VarDeclaration*> fTopLevelUniforms;
-    skia_private::THashMap<const Variable*, int>
-            fTopLevelUniformMap;  // <var, UniformBuffer field index>
+    THashMap<const Variable*, int> fTopLevelUniformMap;  // <var, UniformBuffer field index>
     SpvId fUniformBufferId = NA;
 
     friend class PointerLValue;
@@ -5511,7 +5492,8 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     } else {
         SK_ABORT("cannot write this kind of program to SPIR-V\n");
     }
-    SpvId entryPoint = fFunctionMap[{main, Analysis::kUnspecialized}];
+    const Analysis::SpecializedFunctionKey mainKey{main, Analysis::kUnspecialized};
+    SpvId entryPoint = fFunctionMap[mainKey];
     this->writeWord(entryPoint, out);
     this->writeString(main->name(), out);
     for (int var : interfaceVars) {
@@ -5519,12 +5501,12 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     if (ProgramConfig::IsFragment(program.fConfig->fKind)) {
         this->writeInstruction(SpvOpExecutionMode,
-                               fFunctionMap[{main, Analysis::kUnspecialized}],
+                               fFunctionMap[mainKey],
                                SpvExecutionModeOriginUpperLeft,
                                out);
     } else if (ProgramConfig::IsCompute(program.fConfig->fKind)) {
         this->writeInstruction(SpvOpExecutionMode,
-                               fFunctionMap[{main, Analysis::kUnspecialized}],
+                               fFunctionMap[mainKey],
                                SpvExecutionModeLocalSize,
                                localSizeX, localSizeY, localSizeZ,
                                out);
