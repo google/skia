@@ -380,29 +380,12 @@ def _make_iwyu_flags():
         ],
     )
 
-    skip_linking_when_iwyu = flag_set(
-        actions = [
-            ACTION_NAMES.cpp_link_executable,
-            ACTION_NAMES.cpp_link_static_library,
-        ],
-        flag_groups = [
-            flag_group(
-                flags = [
-                    # IWYU is generally a compile-only check, so we can skip the linking step
-                    # to reduce the work needed, especially when enforcing IWYU on the executables.
-                    "-DSKIA_SKIP_LINKING",
-                ],
-            ),
-        ],
-    )
-
     return [
         feature(
             "skia_enforce_iwyu",
             enabled = False,
             flag_sets = [
                 opt_file_into_iwyu,
-                skip_linking_when_iwyu,
             ],
         ),
     ]

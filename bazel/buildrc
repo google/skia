@@ -192,7 +192,8 @@ build:skottie_container --config=ck_full_webgl2_release \
 # only needed in release mode. Thus our C++ debug includes should be a superset of the
 # release includes.
 build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
-                   --compilation_mode=dbg --keep_going
+                   --compilation_mode=dbg --keep_going \
+                   --linkopt="SKIA_SKIP_LINKING"
 
 build:use_linux_rbe_pool --config=linux_rbe --remote_download_minimal
 
