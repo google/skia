@@ -220,15 +220,31 @@ enum SurfaceType {
 
 static sk_sp<SkSurface> make_surface(const SkImageInfo& ii, SkCanvas* canvas, SurfaceType type) {
     GrDirectContext* direct = GrAsDirectContext(canvas->recordingContext());
+#if defined(SK_GRAPHITE)
+    skgpu::graphite::Recorder* recorder = canvas->recorder();
+#endif
     switch (type) {
         case kManaged:
             return ToolUtils::makeSurface(canvas, ii);
         case kBackendTexture:
+#if defined(SK_GRAPHITE)
+            if (recorder) {
+                return sk_gpu_test::MakeBackendTextureSurface(recorder, ii);
+            }
+#endif
             if (!direct) {
                 return nullptr;
             }
             return sk_gpu_test::MakeBackendTextureSurface(direct, ii, kTopLeft_GrSurfaceOrigin, 1);
         case kBackendRenderTarget:
+#if defined(SK_GRAPHITE)
+            if (recorder) {
+                return SkSurfaces::RenderTarget(recorder,
+                                                ii,
+                                                skgpu::Mipmapped::kNo,
+                                                /*surfaceProps=*/nullptr);
+            }
+#endif
             return sk_gpu_test::MakeBackendRenderTargetSurface(direct,
                                                                ii,
                                                                kTopLeft_GrSurfaceOrigin,
@@ -250,8 +266,9 @@ using MakeSurfaceFn = std::function<sk_sp<SkSurface>(const SkImageInfo&)>;
 #define DEF_BACKEND_SURFACE_TEST(name, canvas, main, type, W, H)                                \
     DEF_SIMPLE_GM_CAN_FAIL(name, canvas, err_msg, W, H) {                                       \
         GrDirectContext* direct = GrAsDirectContext(canvas->recordingContext());                \
-        if (!direct || direct->abandoned()) {                                                   \
-            *err_msg = "Requires non-abandoned GrDirectContext";                                \
+        skgpu::graphite::Recorder* recorder = canvas->recorder();                               \
+        if ((!direct || direct->abandoned()) && !recorder) {                                    \
+            *err_msg = "Requires non-abandoned GrDirectContext or Recorder";                    \
             return skiagm::DrawResult::kSkip;                                                   \
         }                                                                                       \
         auto make = [canvas](const SkImageInfo& ii) { return make_surface(ii, canvas, type); }; \
