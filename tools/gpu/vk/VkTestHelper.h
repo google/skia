@@ -25,6 +25,7 @@ namespace skiatest {
 }
 
 namespace skgpu::graphite {
+    class Context;
     class Recorder;
 };
 
@@ -43,6 +44,7 @@ public:
 
     virtual GrDirectContext* directContext() { return nullptr; }
     virtual skgpu::graphite::Recorder* recorder() { return nullptr; }
+    virtual skgpu::graphite::Context* context() { return nullptr; }
 
 protected:
     VkTestHelper(bool isProtected) : fIsProtected(isProtected) {}

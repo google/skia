@@ -38,6 +38,7 @@
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/BackendTexture.h"
+#include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #endif
@@ -252,8 +253,7 @@ void async_callback(void* c, std::unique_ptr<const SkSurface::AsyncReadResult> r
     context->fCalled = true;
 }
 
-void async_read_from_protected_surface(skiatest::Reporter* reporter,
-                                              skiatest::TestType testType) {
+void async_read_from_protected_surface(skiatest::Reporter* reporter, skiatest::TestType testType) {
     std::unique_ptr<VkTestHelper> helper = VkTestHelper::Make(testType, /* isProtected= */ true);
     if (!helper) {
         return;
@@ -266,13 +266,36 @@ void async_read_from_protected_surface(skiatest::Reporter* reporter,
                                                      /* isProtected= */ true);
     REPORTER_ASSERT(reporter, surface);
     AsyncContext cbContext;
-    const SkImageInfo imageInfo = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType,
+    const SkImageInfo imageInfo = SkImageInfo::Make(6, 6, kRGBA_8888_SkColorType,
                                                     kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
-    surface->asyncRescaleAndReadPixelsYUV420(kIdentity_SkYUVColorSpace, SkColorSpace::MakeSRGB(),
-                                             imageInfo.bounds(), imageInfo.dimensions(),
-                                             SkSurface::RescaleGamma::kSrc,
-                                             SkSurface::RescaleMode::kNearest,
-                                             &async_callback, &cbContext);
+
+    if (testType == skiatest::TestType::kGanesh) {
+        surface->asyncRescaleAndReadPixelsYUV420(kIdentity_SkYUVColorSpace,
+                                                 SkColorSpace::MakeSRGB(),
+                                                 imageInfo.bounds(),
+                                                 imageInfo.dimensions(),
+                                                 SkSurface::RescaleGamma::kSrc,
+                                                 SkSurface::RescaleMode::kNearest,
+                                                 &async_callback,
+                                                 &cbContext);
+    }
+#if defined(SK_GRAPHITE)
+    else {
+        // Graphite deprecates SkSurface::asyncRescaleAndReadPixelsYUVA420 in favor of
+        // Context::asyncRescaleAndReadPixelsYUV420.
+        skgpu::graphite::Context* context = helper->context();
+
+        context->asyncRescaleAndReadPixelsYUV420(surface.get(),
+                                                 kIdentity_SkYUVColorSpace,
+                                                 SkColorSpace::MakeSRGB(),
+                                                 imageInfo.bounds(),
+                                                 imageInfo.dimensions(),
+                                                 SkSurface::RescaleGamma::kSrc,
+                                                 SkSurface::RescaleMode::kNearest,
+                                                 &async_callback,
+                                                 &cbContext);
+    }
+#endif
 
     helper->submitAndWaitForCompletion(&cbContext.fCalled);
     REPORTER_ASSERT(reporter, !cbContext.fResult);

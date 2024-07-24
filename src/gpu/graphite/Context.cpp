@@ -288,7 +288,7 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
     TRACE_EVENT2("skia.gpu", TRACE_FUNC,
                  "width", params.fSrcRect.width(),
                  "height", params.fSrcRect.height());
-    SkASSERT(params.validate());
+    SkASSERT(params.validate());    // all paths to here are already validated
     SkASSERT(params.fSrcRect.size() == params.fDstImageInfo.dimensions());
 
     const Caps* caps = fSharedContext->caps();
@@ -300,13 +300,13 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
             recorder = this->makeInternalRecorder();
         }
         sk_sp<SkImage> flattened = CopyAsDraw(recorder.get(),
-                                            params.fSrcImage,
-                                            params.fSrcRect,
-                                            params.fDstImageInfo.colorInfo(),
-                                            Budgeted::kYes,
-                                            Mipmapped::kNo,
-                                            SkBackingFit::kApprox,
-                                            "AsyncReadPixelsFallbackTexture");
+                                              params.fSrcImage,
+                                              params.fSrcRect,
+                                              params.fDstImageInfo.colorInfo(),
+                                              Budgeted::kYes,
+                                              Mipmapped::kNo,
+                                              SkBackingFit::kApprox,
+                                              "AsyncReadPixelsFallbackTexture");
         if (!flattened) {
             SKGPU_LOG_W("AsyncRead failed because copy-as-drawing into a readable format failed");
             return params.fail();
@@ -439,6 +439,8 @@ void Context::asyncReadPixelsYUV420(std::unique_ptr<Recorder> recorder,
     TRACE_EVENT2("skia.gpu", TRACE_FUNC,
                  "width", params.fSrcRect.width(),
                  "height", params.fSrcRect.height());
+    // This is only called by asyncRescaleAndReadImpl which already validates its parameters
+    SkASSERT(params.validate());
     SkASSERT(params.fSrcRect.size() == params.fDstImageInfo.dimensions());
 
     // The planes are always extracted via drawing, so create the Recorder if there isn't one yet.
@@ -831,8 +833,13 @@ bool ContextPriv::readPixels(const SkPixmap& pm,
         // work that modifies this texture proxy already. This means we don't have to worry about
         // re-wrapping the proxy in a new Image (that wouldn't tbe connected to any Device, etc.).
         sk_sp<SkImage> image{new Image(TextureProxyView(sk_ref_sp(textureProxy)), srcColorInfo)};
-        fContext->asyncReadPixels(/*recorder=*/nullptr,
-                                  {image.get(), rect, pm.info(), asyncCallback, &asyncContext});
+        Context::AsyncParams<SkImage> params {image.get(), rect, pm.info(),
+                                              asyncCallback, &asyncContext};
+        if (!params.validate()) {
+            params.fail();
+        } else {
+            fContext->asyncReadPixels(/*recorder=*/nullptr, params);
+        }
     } else {
         fContext->asyncReadTexture(/*recorder=*/nullptr,
                                    {textureProxy, rect, pm.info(), asyncCallback, &asyncContext},

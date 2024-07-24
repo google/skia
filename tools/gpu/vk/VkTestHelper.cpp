@@ -142,6 +142,7 @@ public:
     }
 
     skgpu::graphite::Recorder* recorder() override { return fRecorder.get(); }
+    skgpu::graphite::Context* context() override { return fContext.get(); }
 
 protected:
     bool init() override {
