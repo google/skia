@@ -279,7 +279,7 @@ private:
                                                           const SkStrokeRec&,
                                                           bool requireMSAA) const;
 
-    bool needsFlushBeforeDraw(int numNewDraws, DstReadRequirement) const;
+    bool needsFlushBeforeDraw(int numNewRenderSteps, DstReadRequirement) const;
 
     // Flush internal work, such as pending clip draws and atlas uploads, into the Device's DrawTask
     void internalFlush();

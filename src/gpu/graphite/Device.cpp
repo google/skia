@@ -252,6 +252,44 @@ void snap_src_and_dst_rect_to_pixels(const Transform& localToDevice,
     *srcRect = dstToSrc.mapRect(*dstRect);
 }
 
+// Returns the inner bounds of `geometry` that is known to have full coverage. This does not worry
+// about identifying draws that are equivalent pixel aligned and thus entirely full coverage, as
+// that should have been caught earlier and used a coverage-less renderer from the beginning.
+//
+// An empty Rect is returned if there is no available inner bounds, or if it's not worth performing.
+Rect get_inner_bounds(const Geometry& geometry, const Transform& localToDevice) {
+    auto applyAAInset = [&](Rect rect) {
+        // If the aa inset is too large, rect becomes empty and the inner bounds draw is
+        // automatically skipped
+        float aaInset = localToDevice.localAARadius(rect);
+        rect.inset(aaInset);
+        // Only add a second draw if it will have a reasonable number of covered pixels; otherwise
+        // we are just adding draws to sort and pipelines to switch around.
+        static constexpr float kInnerFillArea = 64*64;
+        // Approximate the device-space area based on the minimum scale factor of the transform.
+        float scaleFactor = sk_ieee_float_divide(1.f, aaInset);
+        return scaleFactor*rect.area() >= kInnerFillArea ? rect : Rect::InfiniteInverted();
+    };
+
+    if (geometry.isEdgeAAQuad()) {
+        const EdgeAAQuad& quad = geometry.edgeAAQuad();
+        if (quad.isRect()) {
+            return applyAAInset(quad.bounds());
+        }
+        // else currently we don't have a function to calculate the largest interior axis aligned
+        // bounding box of a quadrilateral so skip the inner fill draw.
+    } else if (geometry.isShape()) {
+        const Shape& shape = geometry.shape();
+        if (shape.isRect()) {
+            return applyAAInset(shape.rect());
+        } else if (shape.isRRect()) {
+            return applyAAInset(SkRRectPriv::InnerBounds(shape.rrect()));
+        }
+    }
+
+    return Rect::InfiniteInverted();
+}
+
 SkIRect rect_to_pixelbounds(const Rect& r) {
     return r.makeRoundOut().asSkIRect();
 }
@@ -1234,16 +1272,43 @@ void Device::drawGeometry(const Transform& localToDevice,
         // coverage if the Renderer uses that.
         rendererCoverage = Coverage::kSingleChannel;
     }
-    dstReadReq = GetDstReadRequirement(recorder()->priv().caps(), blendMode, rendererCoverage);
+    dstReadReq = GetDstReadRequirement(fRecorder->priv().caps(), blendMode, rendererCoverage);
 
-    // When using a tessellating path renderer a stroke-and-fill is rendered using two draws. When
-    // drawing from an atlas we issue a single draw as the atlas mask covers both styles.
+    // A primitive blender should be ignored if there is no primitive color to blend against.
+    // Additionally, if a renderer emits a primitive color, then a null primitive blender should
+    // be interpreted as SrcOver blending mode.
+    if (!renderer || !renderer->emitsPrimitiveColor()) {
+        primitiveBlender = nullptr;
+    } else if (!SkToBool(primitiveBlender)) {
+        primitiveBlender = SkBlender::Mode(SkBlendMode::kSrcOver);
+    }
+
+    PaintParams shading{paint,
+                        std::move(primitiveBlender),
+                        sk_ref_sp(clip.shader()),
+                        dstReadReq,
+                        skipColorXform};
+    const bool dependsOnDst = paint_depends_on_dst(shading);
+
+    // Some shapes and styles combine multiple draws so the total render step count is split between
+    // the main renderer and possibly a secondaryRenderer.
     SkStrokeRec::Style styleType = style.getStyle();
-    const int numNewRenderSteps =
-            renderer ? renderer->numRenderSteps() : 1 +
-            (!pathAtlas && (styleType == SkStrokeRec::kStrokeAndFill_Style)
-                     ? fRecorder->priv().rendererProvider()->tessellatedStrokes()->numRenderSteps()
-                     : 0);
+    const Renderer* secondaryRenderer = nullptr;
+    Rect innerFillBounds = Rect::InfiniteInverted();
+    if (renderer) {
+        if (styleType == SkStrokeRec::kStrokeAndFill_Style) {
+            // `renderer` covers the fill, `secondaryRenderer` covers the stroke
+            secondaryRenderer = fRecorder->priv().rendererProvider()->tessellatedStrokes();
+        } else if (style.isFillStyle() && renderer->useNonAAInnerFill() && !dependsOnDst) {
+            // `renderer` opts into drawing a non-AA inner fill
+            innerFillBounds = get_inner_bounds(geometry, localToDevice);
+            if (!innerFillBounds.isEmptyNegativeOrNaN()) {
+                secondaryRenderer = fRecorder->priv().rendererProvider()->nonAABounds();
+            }
+        }
+    }
+    const int numNewRenderSteps = (renderer ? renderer->numRenderSteps() : 1) +
+                                  (secondaryRenderer ? secondaryRenderer->numRenderSteps() : 0);
 
     // Decide if we have any reason to flush pending work. We want to flush before updating the clip
     // state or making any permanent changes to a path atlas, since otherwise clip operations and/or
@@ -1292,14 +1357,8 @@ void Device::drawGeometry(const Transform& localToDevice,
             return;
         }
         // Since addShape() was successful we should have a valid Renderer now.
-        SkASSERT(renderer);
+        SkASSERT(renderer && renderer->numRenderSteps() == 1 && !renderer->emitsPrimitiveColor());
     }
-
-    // Update the clip stack after issuing a flush (if it was needed). A draw will be recorded after
-    // this point.
-    DrawOrder order(fCurrentDepth.next());
-    CompressedPaintersOrder clipOrder = fClip.updateClipStateForDraw(
-            clip, clipElements, fColorDepthBoundsManager.get(), order.depth());
 
 #if defined(SK_DEBUG)
     // Renderers and their component RenderSteps have flexibility in defining their
@@ -1308,6 +1367,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // client-facing, painters-order-oriented API. We assert here vs. in Renderer's constructor to
     // allow internal-oriented Renderers that are never selected for a "regular" draw call to have
     // more flexibility in their settings.
+    SkASSERT(renderer);
     for (const RenderStep* step : renderer->steps()) {
         auto dss = step->depthStencilSettings();
         SkASSERT((!step->performsShading() || dss.fDepthTestEnabled) &&
@@ -1317,28 +1377,17 @@ void Device::drawGeometry(const Transform& localToDevice,
     }
 #endif
 
+    // Update the clip stack after issuing a flush (if it was needed). A draw will be recorded after
+    // this point.
+    DrawOrder order(fCurrentDepth.next());
+    CompressedPaintersOrder clipOrder = fClip.updateClipStateForDraw(
+            clip, clipElements, fColorDepthBoundsManager.get(), order.depth());
+
     // A draw's order always depends on the clips that must be drawn before it
     order.dependsOnPaintersOrder(clipOrder);
-
-    // A primitive blender should be ignored if there is no primitive color to blend against.
-    // Additionally, if a renderer emits a primitive color, then a null primitive blender should
-    // be interpreted as SrcOver blending mode.
-    if (!renderer->emitsPrimitiveColor()) {
-        primitiveBlender = nullptr;
-    } else if (!SkToBool(primitiveBlender)) {
-        primitiveBlender = SkBlender::Mode(SkBlendMode::kSrcOver);
-    }
-
     // If a draw is not opaque, it must be drawn after the most recent draw it intersects with in
-    // order to blend correctly. We always query the most recent draw (even when opaque) because it
-    // also lets Device easily track whether or not there are any overlapping draws.
-    PaintParams shading{paint,
-                        std::move(primitiveBlender),
-                        sk_ref_sp(clip.shader()),
-                        dstReadReq,
-                        skipColorXform};
-    const bool dependsOnDst = rendererCoverage != Coverage::kNone || paint_depends_on_dst(shading);
-    if (dependsOnDst) {
+    // order to blend correctly.
+    if (rendererCoverage != Coverage::kNone || dependsOnDst) {
         CompressedPaintersOrder prevDraw =
             fColorDepthBoundsManager->getMostRecentDraw(clip.drawBounds());
         order.dependsOnPaintersOrder(prevDraw);
@@ -1380,16 +1429,22 @@ void Device::drawGeometry(const Transform& localToDevice,
         }
         if (styleType == SkStrokeRec::kFill_Style ||
             styleType == SkStrokeRec::kStrokeAndFill_Style) {
+            // Possibly record an additional draw using the non-AA bounds renderer to fill the
+            // interior with a renderer that can disable blending entirely.
+            if (!innerFillBounds.isEmptyNegativeOrNaN()) {
+                SkASSERT(!dependsOnDst && renderer->useNonAAInnerFill());
+                DrawOrder orderWithoutCoverage{order.depth()};
+                orderWithoutCoverage.dependsOnPaintersOrder(clipOrder);
+                fDC->recordDraw(fRecorder->priv().rendererProvider()->nonAABounds(),
+                                localToDevice, Geometry(Shape(innerFillBounds)),
+                                clip, orderWithoutCoverage, &shading, nullptr);
+                // Force the coverage draw to come after the non-AA draw in order to benefit from
+                // early depth testing.
+                order.dependsOnPaintersOrder(orderWithoutCoverage.paintOrder());
+            }
             fDC->recordDraw(renderer, localToDevice, geometry, clip, order, &shading, nullptr);
         }
     }
-
-    // TODO: If 'fullyOpaque' is true, it might be useful to store the draw bounds and Z in a
-    // special occluders list for filtering the DrawList/DrawPass when flushing.
-    // const bool fullyOpaque = !dependsOnDst &&
-    //                          clipOrder == DrawOrder::kNoIntersection &&
-    //                          shape.isRect() &&
-    //                          localToDevice.type() <= Transform::Type::kRectStaysRect;
 
     // Post-draw book keeping (bounds manager, depth tracking, etc.)
     fColorDepthBoundsManager->recordDraw(clip.drawBounds(), order.paintOrder());
