@@ -1250,9 +1250,7 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
     uint32_t stableID = pos.valid() ? pos.startOffset() : 0x00FFFFFF;
     SkASSERT(stableID < 0x01000000);
 
-    if (context.fConfig->fModuleType.has_value()) {
-        stableID |= SkToU32(*context.fConfig->fModuleType) << 24;
-    }
+    stableID |= SkToU32(context.fConfig->fModuleType) << 24;
 
     return Make(context, pos, returnType, function, std::move(arguments), stableID);
 }

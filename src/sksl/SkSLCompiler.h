@@ -17,7 +17,6 @@
 #include <array>
 #include <cstdint>
 #include <memory>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -185,7 +184,7 @@ private:
                            ProgramKind kind,
                            ProgramSettings settings,
                            std::string_view source,
-                           std::optional<ModuleType> moduleType);
+                           ModuleType moduleType);
 
     /** Cleans up the Context post-compilation. */
     void cleanupContext();

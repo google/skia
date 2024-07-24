@@ -66,7 +66,6 @@
 #include <climits>
 #include <initializer_list>
 #include <memory>
-#include <optional>
 #include <utility>
 #include <vector>
 
@@ -424,7 +423,7 @@ std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* p
     result->fParent = parentModule;
     result->fSymbols = std::move(fCompiler.fGlobalSymbols);
     result->fElements = std::move(fProgramElements);
-    result->fModuleType = *fCompiler.context().fConfig->fModuleType;
+    result->fModuleType = fCompiler.context().fConfig->fModuleType;
     return result;
 }
 

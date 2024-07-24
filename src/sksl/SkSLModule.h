@@ -34,7 +34,10 @@ namespace SkSL {
     M(sksl_graphite_vert_es2)
 
 enum class ModuleType : int8_t {
-    unknown = 0,
+    // `program` code is not in a module at all.
+    program = 0,
+    // `unknown` code exists in a module outside of SKSL_MODULE_LIST.
+    unknown = 1,
 #define M(type) type,
     SKSL_MODULE_LIST(M)
 #undef M

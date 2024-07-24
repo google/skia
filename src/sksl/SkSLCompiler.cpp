@@ -125,7 +125,7 @@ void Compiler::initializeContext(const SkSL::Module* module,
                                  ProgramKind kind,
                                  ProgramSettings settings,
                                  std::string_view source,
-                                 std::optional<ModuleType> moduleType) {
+                                 ModuleType moduleType) {
     SkASSERT(!fPool);
     SkASSERT(!fConfig);
     SkASSERT(!fContext->fSymbolTable);
@@ -153,7 +153,8 @@ void Compiler::initializeContext(const SkSL::Module* module,
     fContext->fErrors->setSource(source);
 
     // Set up a clean symbol table atop the parent module's symbols.
-    fGlobalSymbols = std::make_unique<SymbolTable>(module->fSymbols.get(), moduleType.has_value());
+    fGlobalSymbols = std::make_unique<SymbolTable>(module->fSymbols.get(),
+                                                   moduleType != ModuleType::program);
     fGlobalSymbols->markModuleBoundary();
     fContext->fSymbolTable = fGlobalSymbols.get();
 }
@@ -219,7 +220,7 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     // Load the module used by this ProgramKind.
     const SkSL::Module* module = this->moduleForProgramKind(kind);
 
-    this->initializeContext(module, kind, settings, *sourcePtr, /*moduleType=*/std::nullopt);
+    this->initializeContext(module, kind, settings, *sourcePtr, ModuleType::program);
 
     std::unique_ptr<Program> program = SkSL::Parser(this, settings, kind, std::move(sourcePtr))
                                                .programInheritingFrom(module);
