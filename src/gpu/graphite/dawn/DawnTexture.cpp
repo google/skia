@@ -45,6 +45,16 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
         return {};
     }
 
+#if !defined(__EMSCRIPTEN__)
+    // If a non-default YCbCr descriptor is provided, either the vkFormat or the externalFormat must
+    // be defined.
+    if (ycbcrUtils::DawnDescriptorIsValid(dawnSpec.fYcbcrVkDescriptor) &&
+        dawnSpec.fYcbcrVkDescriptor.vkFormat == 0 &&
+        dawnSpec.fYcbcrVkDescriptor.externalFormat == 0) {
+        return {};
+    }
+#endif
+
     int numMipLevels = 1;
     if (info.mipmapped() == Mipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;

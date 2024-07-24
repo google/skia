@@ -954,20 +954,53 @@ UniqueKey DawnCaps::makeComputePipelineKey(const ComputePipelineDesc& pipelineDe
     return pipelineKey;
 }
 
+#if !defined(__EMSCRIPTEN__)
+namespace {
+using namespace ycbcrUtils;
+
+uint32_t non_format_info_as_uint32(const wgpu::YCbCrVkDescriptor& desc) {
+    static_assert(kComponentAShift + kComponentBits <= 32);
+    SkASSERT(desc.vkYCbCrModel                          < (1u << kYcbcrModelBits    ));
+    SkASSERT(desc.vkYCbCrRange                          < (1u << kYcbcrRangeBits    ));
+    SkASSERT(desc.vkXChromaOffset                       < (1u << kXChromaOffsetBits ));
+    SkASSERT(desc.vkYChromaOffset                       < (1u << kYChromaOffsetBits ));
+    SkASSERT(static_cast<uint32_t>(desc.vkChromaFilter) < (1u << kChromaFilterBits  ));
+    SkASSERT(desc.vkComponentSwizzleRed                 < (1u << kComponentBits     ));
+    SkASSERT(desc.vkComponentSwizzleGreen               < (1u << kComponentBits     ));
+    SkASSERT(desc.vkComponentSwizzleBlue                < (1u << kComponentBits     ));
+    SkASSERT(desc.vkComponentSwizzleAlpha               < (1u << kComponentBits     ));
+    SkASSERT(static_cast<uint32_t>(desc.forceExplicitReconstruction)
+             < (1u << kForceExplicitReconBits));
+
+    return (((uint32_t)(DawnDescriptorUsesExternalFormat(desc)) << kUsesExternalFormatShift) |
+            ((uint32_t)(desc.vkYCbCrModel                     ) << kYcbcrModelShift        ) |
+            ((uint32_t)(desc.vkYCbCrRange                     ) << kYcbcrRangeShift        ) |
+            ((uint32_t)(desc.vkXChromaOffset                  ) << kXChromaOffsetShift     ) |
+            ((uint32_t)(desc.vkYChromaOffset                  ) << kYChromaOffsetShift     ) |
+            ((uint32_t)(desc.vkChromaFilter                   ) << kChromaFilterShift      ) |
+            ((uint32_t)(desc.forceExplicitReconstruction      ) << kForceExplicitReconShift) |
+            ((uint32_t)(desc.vkComponentSwizzleRed            ) << kComponentRShift        ) |
+            ((uint32_t)(desc.vkComponentSwizzleGreen          ) << kComponentGShift        ) |
+            ((uint32_t)(desc.vkComponentSwizzleBlue           ) << kComponentBShift        ) |
+            ((uint32_t)(desc.vkComponentSwizzleAlpha          ) << kComponentAShift        ));
+}
+} // anonymous
+#endif
+
 ImmutableSamplerInfo DawnCaps::getImmutableSamplerInfo(const TextureProxy* proxy) const {
 #if !defined(__EMSCRIPTEN__)
     if (proxy) {
         const wgpu::YCbCrVkDescriptor& ycbcrConversionInfo =
                 proxy->textureInfo().dawnTextureSpec().fYcbcrVkDescriptor;
 
-        if (ycbcrUtils::descriptorIsValid(ycbcrConversionInfo)) {
+        if (ycbcrUtils::DawnDescriptorIsValid(ycbcrConversionInfo)) {
             ImmutableSamplerInfo immutableSamplerInfo;
             // A vkFormat of 0 indicates we are using an external format rather than a known one.
             immutableSamplerInfo.fFormat = (ycbcrConversionInfo.vkFormat == 0)
                     ? ycbcrConversionInfo.externalFormat
                     : ycbcrConversionInfo.vkFormat;
             immutableSamplerInfo.fNonFormatYcbcrConversionInfo =
-                    ycbcrUtils::nonformatInfoAsUint32(ycbcrConversionInfo);
+                    non_format_info_as_uint32(ycbcrConversionInfo);
             return immutableSamplerInfo;
         }
     }
@@ -976,23 +1009,6 @@ ImmutableSamplerInfo DawnCaps::getImmutableSamplerInfo(const TextureProxy* proxy
     // If the proxy is null or the YCbCr conversion for that proxy is invalid, then return a
     // default ImmutableSamplerInfo struct.
     return {};
-}
-
-GraphiteResourceKey DawnCaps::makeSamplerKey(const SamplerDesc& samplerDesc) const {
-    GraphiteResourceKey samplerKey;
-    const SkSpan<const uint32_t>& samplerData = samplerDesc.asSpan();
-    static const ResourceType kSamplerType = GraphiteResourceKey::GenerateResourceType();
-    // Non-format ycbcr and sampler information are guaranteed to fit within one uint32, so the size
-    // of the returned span accurately captures the quantity of uint32s needed whether the sampler
-    // is immutable or not.
-    GraphiteResourceKey::Builder builder(&samplerKey, kSamplerType, samplerData.size(),
-                                         Shareable::kYes);
-
-    for (size_t i = 0; i < samplerData.size(); i++) {
-        builder[i] = samplerData[i];
-    }
-    builder.finish();
-    return samplerKey;
 }
 
 void DawnCaps::buildKeyForTexture(SkISize dimensions,
@@ -1019,9 +1035,17 @@ void DawnCaps::buildKeyForTexture(SkISize dimensions,
     SkASSERT(static_cast<uint32_t>(dawnSpec.fUsage) < (1u << 28)); // usage is remaining 28 bits
 
     // We need two uint32_ts for dimensions, 1 for format, and 1 for the rest of the key;
-    static int kNum32DataCnt = 2 + 1 + 1;
-
-    GraphiteResourceKey::Builder builder(key, type, kNum32DataCnt, shareable);
+    int num32DataCnt = 2 + 1 + 1;
+    bool hasYcbcrInfo = false;
+#if !defined(__EMSCRIPTEN__)
+    // If we are using ycbcr texture/sampling, more key information is needed.
+    if ((hasYcbcrInfo = ycbcrUtils::DawnDescriptorIsValid(dawnSpec.fYcbcrVkDescriptor))) {
+        num32DataCnt += ycbcrUtils::DawnDescriptorUsesExternalFormat(dawnSpec.fYcbcrVkDescriptor)
+                ? ycbcrUtils::kIntsNeededExternalFormat
+                : ycbcrUtils::kIntsNeededKnownFormat;
+    }
+#endif
+    GraphiteResourceKey::Builder builder(key, type, num32DataCnt, shareable);
 
     builder[0] = dimensions.width();
     builder[1] = dimensions.height();
@@ -1029,6 +1053,38 @@ void DawnCaps::buildKeyForTexture(SkISize dimensions,
     builder[3] = (samplesKey                                   << 0) |
                  (static_cast<uint32_t>(isMipped)              << 3) |
                  (static_cast<uint32_t>(dawnSpec.fUsage)       << 4);
+
+#if !defined(__EMSCRIPTEN__)
+    if (hasYcbcrInfo) {
+        builder[4] = non_format_info_as_uint32(dawnSpec.fYcbcrVkDescriptor);
+        // Even though we already have formatKey appended to the texture key, we still need to add
+        // fYcbcrVkDescriptor's vkFormat or externalFormat. The latter two are distinct from
+        // dawnSpec's wgpu::TextureFormat.
+        if (!ycbcrUtils::DawnDescriptorUsesExternalFormat(dawnSpec.fYcbcrVkDescriptor)) {
+            builder[5] = dawnSpec.fYcbcrVkDescriptor.vkFormat;
+        } else {
+            builder[5] = (uint32_t)(dawnSpec.fYcbcrVkDescriptor.externalFormat >> 32);
+            builder[6] = (uint32_t)dawnSpec.fYcbcrVkDescriptor.externalFormat;
+        }
+    }
+#endif
+}
+
+GraphiteResourceKey DawnCaps::makeSamplerKey(const SamplerDesc& samplerDesc) const {
+    GraphiteResourceKey samplerKey;
+    const SkSpan<const uint32_t>& samplerData = samplerDesc.asSpan();
+    static const ResourceType kSamplerType = GraphiteResourceKey::GenerateResourceType();
+    // Non-format ycbcr and sampler information are guaranteed to fit within one uint32, so the size
+    // of the returned span accurately captures the quantity of uint32s needed whether the sampler
+    // is immutable or not.
+    GraphiteResourceKey::Builder builder(&samplerKey, kSamplerType, samplerData.size(),
+                                         Shareable::kYes);
+
+    for (size_t i = 0; i < samplerData.size(); i++) {
+        builder[i] = samplerData[i];
+    }
+    builder.finish();
+    return samplerKey;
 }
 
 } // namespace skgpu::graphite

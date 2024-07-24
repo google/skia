@@ -9,6 +9,25 @@
 
 namespace skgpu::graphite {
 
+#if !defined(__EMSCRIPTEN__)
+namespace ycbcrUtils {
+bool DawnDescriptorsAreEquivalent(const wgpu::YCbCrVkDescriptor& desc1,
+                                  const wgpu::YCbCrVkDescriptor& desc2) {
+    return desc1.vkFormat                    == desc2.vkFormat                    &&
+           desc1.vkYCbCrRange                == desc2.vkYCbCrRange                &&
+           desc1.vkComponentSwizzleRed       == desc2.vkComponentSwizzleRed       &&
+           desc1.vkComponentSwizzleGreen     == desc2.vkComponentSwizzleGreen     &&
+           desc1.vkComponentSwizzleBlue      == desc2.vkComponentSwizzleBlue      &&
+           desc1.vkComponentSwizzleAlpha     == desc2.vkComponentSwizzleAlpha     &&
+           desc1.vkXChromaOffset             == desc2.vkXChromaOffset             &&
+           desc1.vkYChromaOffset             == desc2.vkYChromaOffset             &&
+           desc1.vkChromaFilter              == desc2.vkChromaFilter              &&
+           desc1.forceExplicitReconstruction == desc2.forceExplicitReconstruction &&
+           desc1.externalFormat              == desc2.externalFormat;
+}
+}
+#endif
+
 SkString DawnTextureSpec::toString() const {
     return SkStringPrintf("format=0x%08X,viewFormat=0x%08X,usage=0x%08X,aspect=0x%08X,slice=%u",
                           static_cast<unsigned int>(fFormat),

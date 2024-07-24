@@ -191,54 +191,17 @@ bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
 
 #if !defined(__EMSCRIPTEN__)
 namespace ycbcrUtils {
-bool descriptorsAreEquivalent(const wgpu::YCbCrVkDescriptor& desc1,
-                              const wgpu::YCbCrVkDescriptor& desc2) {
-    return desc1.vkFormat                    == desc2.vkFormat                    &&
-           desc1.vkYCbCrRange                == desc2.vkYCbCrRange                &&
-           desc1.vkComponentSwizzleRed       == desc2.vkComponentSwizzleRed       &&
-           desc1.vkComponentSwizzleGreen     == desc2.vkComponentSwizzleGreen     &&
-           desc1.vkComponentSwizzleBlue      == desc2.vkComponentSwizzleBlue      &&
-           desc1.vkComponentSwizzleAlpha     == desc2.vkComponentSwizzleAlpha     &&
-           desc1.vkXChromaOffset             == desc2.vkXChromaOffset             &&
-           desc1.vkYChromaOffset             == desc2.vkYChromaOffset             &&
-           desc1.vkChromaFilter              == desc2.vkChromaFilter              &&
-           desc1.forceExplicitReconstruction == desc2.forceExplicitReconstruction &&
-           desc1.externalFormat              == desc2.externalFormat;
-}
 
-bool descriptorIsValid(const wgpu::YCbCrVkDescriptor& desc) {
+bool DawnDescriptorIsValid(const wgpu::YCbCrVkDescriptor& desc) {
     static const wgpu::YCbCrVkDescriptor kDefaultYcbcrDescriptor = {};
-    return !descriptorsAreEquivalent(desc, kDefaultYcbcrDescriptor);
+    return !DawnDescriptorsAreEquivalent(desc, kDefaultYcbcrDescriptor);
 }
 
-uint32_t nonformatInfoAsUint32(const wgpu::YCbCrVkDescriptor& conversionInfo) {
-    static_assert(kComponentAShift + kComponentBits <= 32);
-    SkASSERT(conversionInfo.vkYCbCrModel                          < (1u << kYcbcrModelBits    ));
-    SkASSERT(conversionInfo.vkYCbCrRange                          < (1u << kYcbcrRangeBits    ));
-    SkASSERT(conversionInfo.vkXChromaOffset                       < (1u << kXChromaOffsetBits ));
-    SkASSERT(conversionInfo.vkYChromaOffset                       < (1u << kYChromaOffsetBits ));
-    SkASSERT(static_cast<uint32_t>(conversionInfo.vkChromaFilter) < (1u << kChromaFilterBits  ));
-    SkASSERT(conversionInfo.vkComponentSwizzleRed                 < (1u << kComponentBits     ));
-    SkASSERT(conversionInfo.vkComponentSwizzleGreen               < (1u << kComponentBits     ));
-    SkASSERT(conversionInfo.vkComponentSwizzleBlue                < (1u << kComponentBits     ));
-    SkASSERT(conversionInfo.vkComponentSwizzleAlpha               < (1u << kComponentBits     ));
-    SkASSERT(static_cast<uint32_t>(conversionInfo.forceExplicitReconstruction)
-             < (1u << kForceExplicitReconBits));
-
-    bool usesExternalFormat = conversionInfo.vkFormat == 0;
-
-    return (((uint32_t)(usesExternalFormat                         ) << kUsesExternalFormatShift) |
-            ((uint32_t)(conversionInfo.vkYCbCrModel                ) << kYcbcrModelShift        ) |
-            ((uint32_t)(conversionInfo.vkYCbCrRange                ) << kYcbcrRangeShift        ) |
-            ((uint32_t)(conversionInfo.vkXChromaOffset             ) << kXChromaOffsetShift     ) |
-            ((uint32_t)(conversionInfo.vkYChromaOffset             ) << kYChromaOffsetShift     ) |
-            ((uint32_t)(conversionInfo.vkChromaFilter              ) << kChromaFilterShift      ) |
-            ((uint32_t)(conversionInfo.forceExplicitReconstruction ) << kForceExplicitReconShift) |
-            ((uint32_t)(conversionInfo.vkComponentSwizzleRed       ) << kComponentRShift        ) |
-            ((uint32_t)(conversionInfo.vkComponentSwizzleGreen     ) << kComponentGShift        ) |
-            ((uint32_t)(conversionInfo.vkComponentSwizzleBlue      ) << kComponentBShift        ) |
-            ((uint32_t)(conversionInfo.vkComponentSwizzleAlpha     ) << kComponentAShift        ));
+bool DawnDescriptorUsesExternalFormat(const wgpu::YCbCrVkDescriptor& desc) {
+    SkASSERT(desc.externalFormat != 0 || desc.vkFormat != 0);
+    return desc.externalFormat != 0;
 }
+
 } // namespace ycbcrUtils
 #endif // !defined(__EMSCRIPTEN__)
 

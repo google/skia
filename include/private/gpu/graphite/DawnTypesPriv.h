@@ -12,6 +12,11 @@
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 
 namespace skgpu::graphite {
+#if !defined(__EMSCRIPTEN__)
+namespace ycbcrUtils {
+bool DawnDescriptorsAreEquivalent(const wgpu::YCbCrVkDescriptor&, const wgpu::YCbCrVkDescriptor&);
+}
+#endif
 
 struct DawnTextureSpec {
     DawnTextureSpec() = default;
@@ -30,7 +35,8 @@ struct DawnTextureSpec {
         return fUsage == that.fUsage && fFormat == that.fFormat &&
                fViewFormat == that.fViewFormat && fAspect == that.fAspect &&
 #if !defined(__EMSCRIPTEN__)
-               IsEqualToYCbCrVkDescriptorField(that.fYcbcrVkDescriptor) &&
+               ycbcrUtils::DawnDescriptorsAreEquivalent(fYcbcrVkDescriptor,
+                                                        that.fYcbcrVkDescriptor) &&
 #endif
                fSlice == that.fSlice;
     }
@@ -41,7 +47,8 @@ struct DawnTextureSpec {
         // The aspect should either match the plane aspect or should be All.
         return getViewFormat() == that.getViewFormat() && (fUsage & that.fUsage) == fUsage &&
 #if !defined(__EMSCRIPTEN__)
-               IsEqualToYCbCrVkDescriptorField(that.fYcbcrVkDescriptor) &&
+               ycbcrUtils::DawnDescriptorsAreEquivalent(fYcbcrVkDescriptor,
+                                                        that.fYcbcrVkDescriptor) &&
 #endif
                (fAspect == that.fAspect || fAspect == wgpu::TextureAspect::All);
     }
@@ -62,23 +69,6 @@ struct DawnTextureSpec {
     wgpu::YCbCrVkDescriptor fYcbcrVkDescriptor = {};
 #endif
     uint32_t fSlice = 0;
-
-private:
-#if !defined(__EMSCRIPTEN__)
-    bool IsEqualToYCbCrVkDescriptorField(wgpu::YCbCrVkDescriptor that) const {
-        return fYcbcrVkDescriptor.vkFormat == that.vkFormat &&
-               fYcbcrVkDescriptor.vkYCbCrRange == that.vkYCbCrRange &&
-               fYcbcrVkDescriptor.vkComponentSwizzleRed == that.vkComponentSwizzleRed &&
-               fYcbcrVkDescriptor.vkComponentSwizzleGreen == that.vkComponentSwizzleGreen &&
-               fYcbcrVkDescriptor.vkComponentSwizzleBlue == that.vkComponentSwizzleBlue &&
-               fYcbcrVkDescriptor.vkComponentSwizzleAlpha == that.vkComponentSwizzleAlpha &&
-               fYcbcrVkDescriptor.vkXChromaOffset == that.vkXChromaOffset &&
-               fYcbcrVkDescriptor.vkYChromaOffset == that.vkYChromaOffset &&
-               fYcbcrVkDescriptor.vkChromaFilter == that.vkChromaFilter &&
-               fYcbcrVkDescriptor.forceExplicitReconstruction == that.forceExplicitReconstruction &&
-               fYcbcrVkDescriptor.externalFormat == that.externalFormat;
-    }
-#endif
 };
 
 DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,

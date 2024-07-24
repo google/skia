@@ -9,6 +9,7 @@
 #define skgpu_graphite_DawnGraphiteUtilsPriv_DEFINED
 
 #include "include/core/SkImageInfo.h"
+#include "include/private/gpu/graphite/DawnTypesPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -38,13 +39,20 @@ bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
                                  const std::string& wgsl,
                                  wgpu::ShaderModule* module,
                                  ShaderErrorHandler*);
+
 #if !defined(__EMSCRIPTEN__)
 namespace ycbcrUtils {
-bool descriptorsAreEquivalent(const wgpu::YCbCrVkDescriptor&, const wgpu::YCbCrVkDescriptor&);
 
-bool descriptorIsValid(const wgpu::YCbCrVkDescriptor&);
+bool DawnDescriptorIsValid(const wgpu::YCbCrVkDescriptor&);
 
-uint32_t nonformatInfoAsUint32(const wgpu::YCbCrVkDescriptor&);
+bool DawnDescriptorUsesExternalFormat(const wgpu::YCbCrVkDescriptor&);
+
+// The number of uint32s required to represent all relevant YCbCr conversion info depends upon
+// whether we are using a known VkFormat or an external format. With a known format, we only
+// require 2 - one for non-format information and another to store the VkFormat. External formats
+// are represented as a uint64 and thus require an additional uint32.
+static constexpr int kIntsNeededKnownFormat = 2;
+static constexpr int kIntsNeededExternalFormat = 3;
 
 static constexpr int kUsesExternalFormatBits  = 1;
 static constexpr int kYcbcrModelBits          = 3;
