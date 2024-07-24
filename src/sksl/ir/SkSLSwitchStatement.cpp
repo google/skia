@@ -248,9 +248,12 @@ std::unique_ptr<Statement> SwitchStatement::Make(const Context& context,
             if (!matchingCase) {
                 // No case value matches the switch value.
                 if (!defaultCase) {
-                    // No default switch-case exists; the switch had no effect.
-                    // We can eliminate the entire switch!
-                    return Nop::Make();
+                    // No default switch-case exists; the switch had no effect. We can eliminate the
+                    // body of the switch entirely.
+                    // There's still value in preserving the symbol table here, particularly when
+                    // the input program is malformed, so we keep the Block itself. (oss-fuzz:70613)
+                    caseBlock->as<Block>().children().clear();
+                    return caseBlock;
                 }
                 // We had a default case; that's what we matched with.
                 matchingCase = defaultCase;

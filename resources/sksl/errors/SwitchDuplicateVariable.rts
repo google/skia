@@ -1,0 +1,11 @@
+// crbug.com/oss-fuzz/70613
+void fn() {
+    switch (1) {
+        case 2: int x, x;
+    }
+}
+
+/*%%*
+symbol 'x' was already defined
+symbol 'x' was already defined
+*%%*/

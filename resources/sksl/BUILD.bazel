@@ -484,6 +484,7 @@ skia_filegroup(
         "errors/StructVariableReservedName.rts",
         "errors/SwitchDuplicateCase.rts",
         "errors/SwitchDuplicateDefault.rts",
+        "errors/SwitchDuplicateVariable.rts",
         "errors/SwitchHoistingAtomicArray.sksl",
         "errors/SwitchTypes.rts",
         "errors/SwitchVariableScope.rts",
