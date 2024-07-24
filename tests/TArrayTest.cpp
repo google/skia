@@ -86,7 +86,21 @@ static void TestTSet_basic(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a[1] == T{3});
     REPORTER_ASSERT(reporter, a[2] == T{2});
 
-    // { 0, 3, 2 }
+    // { 0, 3, 2 }... remove the last element.
+    a.pop_back();
+    REPORTER_ASSERT(reporter, a.size() == std::size(b) - 3);
+
+    // { 0, 3, 5, 5, 5 }... add three elements.
+    a.push_back_n(3, 5);
+    REPORTER_ASSERT(reporter, a.size() == std::size(b));
+    REPORTER_ASSERT(reporter, a[2] == T{5});
+    REPORTER_ASSERT(reporter, a[3] == T{5});
+    REPORTER_ASSERT(reporter, a[4] == T{5});
+
+    // { 0 }... pop four elements.
+    a.pop_back_n(4);
+    REPORTER_ASSERT(reporter, a.size() == std::size(b) - 4);
+    REPORTER_ASSERT(reporter, a[0] == 0);
 }
 
 template <typename T>

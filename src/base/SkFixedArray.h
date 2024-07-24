@@ -20,7 +20,7 @@ namespace skia_private {
 /**
  * Represents an array of `T` (must be a trivial type) that cannot grow past a fixed size `N`.
  * The fixed-size restriction allows for tighter codegen and a smaller memory footprint.
- * Missing methods from TArray (e.g. `push_back_n`) can be added on demand.
+ * Missing methods from TArray (e.g. `fromBack`) can be added on demand.
  *
  * The trivial-type restriction is only to simplify implementation; if there is a need, we can
  * adopt proper move/copy semantics in this class as well.
@@ -123,9 +123,36 @@ public:
         fData[fSize++] = x;
     }
 
+    T* push_back_n(int n) {
+        SkASSERT(n >= 0);
+        SkASSERT(fSize + n <= N);
+        T* ptr = fData + fSize;
+        for (int index = 0; index < n; ++index) {
+            ptr[index] = T();
+        }
+        fSize += n;
+        return ptr;
+    }
+
+    T* push_back_n(int n, const T& t) {
+        SkASSERT(n >= 0);
+        SkASSERT(fSize + n <= N);
+        T* ptr = fData + fSize;
+        for (int index = 0; index < n; ++index) {
+            ptr[index] = t;
+        }
+        fSize += n;
+        return ptr;
+    }
+
     void pop_back() {
-        SkASSERT(fSize > 0);
+        SkASSERT(fSize >= 1);
         --fSize;
+    }
+
+    void pop_back_n(int n) {
+        SkASSERT(fSize >= n);
+        fSize -= n;
     }
 
     void removeShuffle(int n) {

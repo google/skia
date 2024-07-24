@@ -16,7 +16,6 @@
 #include "src/sksl/transform/SkSLProgramWriter.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
-#include <cstdint>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -41,11 +40,7 @@ void Transform::ReplaceSplatCastsWithSwizzles(const Context& context, Module& mo
                 if (!arg->is<Literal>() || (arg->type().isFloat() && arg->type().highPrecision())) {
                     // Synthesize a splat like `.xxxx`, matching the column count of the splat.
                     ComponentArray components;
-                    components.resize(expr->type().columns());
-
-                    for (int8_t& component : components) {
-                        component = SwizzleComponent::X;
-                    }
+                    components.push_back_n(expr->type().columns(), SwizzleComponent::X);
 
                     // Replace the splat expression with the swizzle.
                     expr = Swizzle::MakeExact(fContext, expr->position(), std::move(arg),
