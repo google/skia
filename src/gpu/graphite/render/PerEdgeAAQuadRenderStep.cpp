@@ -178,7 +178,8 @@ static void write_vertex_buffer(VertexWriter writer) {
 PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(StaticBufferManager* bufferManager)
         : RenderStep("PerEdgeAAQuadRenderStep",
                      "",
-                     Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA,
+                     Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA |
+                     Flags::kUseNonAAInnerFill,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
