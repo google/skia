@@ -166,4 +166,26 @@ SpecializationIndex FindSpecializationIndexForCall(const FunctionCall& call,
     return foundIndex ? *foundIndex : kUnspecialized;
 }
 
+SkBitSet FindSpecializedArgumentsForCall(const FunctionCall& call,
+                                         const SpecializationInfo& info,
+                                         SpecializationIndex specIndex) {
+    SkBitSet result(call.arguments().size());
+    if (specIndex != Analysis::kUnspecialized) {
+        const FunctionDeclaration& func = call.function();
+        const Specializations* specializations = info.fSpecializationMap.find(&func);
+        SkASSERT(specializations);
+
+        const SkSpan<Variable* const> funcParams = func.parameters();
+        const Analysis::SpecializedParameters& specializedParams = specializations->at(specIndex);
+
+        for (size_t index = 0; index < funcParams.size(); ++index) {
+            if (specializedParams.find(funcParams[index])) {
+                result.set(index);
+            }
+        }
+    }
+
+    return result;
+}
+
 }  // namespace SkSL::Analysis

@@ -11,6 +11,7 @@
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
+#include "src/utils/SkBitSet.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -104,6 +105,13 @@ void FindFunctionsToSpecialize(const Program& program,
 SpecializationIndex FindSpecializationIndexForCall(const FunctionCall& call,
                                                    const SpecializationInfo& info,
                                                    SpecializationIndex activeSpecializationIndex);
+
+// Given a function call and its specialization index (determined via FindSpecializationIndexForCall
+// above), returns a bit-mask corresponding to each argument of the call. If a bit is set, the
+// argument is specialized and should be excluded from the argument list.
+SkBitSet FindSpecializedArgumentsForCall(const FunctionCall& call,
+                                         const SpecializationInfo& info,
+                                         SpecializationIndex specIndex);
 
 }  // namespace Analysis
 }  // namespace SkSL
