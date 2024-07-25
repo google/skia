@@ -56,9 +56,8 @@ protected:
 
 #if defined(SK_GRAPHITE)
     DrawResult createYCbCrImage(skgpu::graphite::Recorder* recorder,
-                                skiatest::graphite::GraphiteTestContext* graphiteTestContext,
                                 SkString* errorMsg) {
-        if (!graphiteTestContext || !recorder) {
+        if (!recorder) {
             *errorMsg = "Cannot generate a YCbCr image without a valid GraphiteTestContext and "
                         "recorder.";
             return skiagm::DrawResult::kSkip;
@@ -66,15 +65,12 @@ protected:
 
         SkASSERT_RELEASE(recorder->backend() == skgpu::BackendApi::kVulkan);
 
-        VulkanTestContext* vkTestCtxt = static_cast<VulkanTestContext*>(graphiteTestContext);
-
         const VulkanSharedContext* vulkanSharedCtxt =
                 static_cast<const VulkanSharedContext*>(recorder->priv().sharedContext());
         SkASSERT(vulkanSharedCtxt);
 
         std::unique_ptr<VkYcbcrSamplerHelper> ycbcrHelper(
-                new VkYcbcrSamplerHelper(vulkanSharedCtxt,
-                                         vkTestCtxt->getBackendContext().fPhysicalDevice));
+                new VkYcbcrSamplerHelper(vulkanSharedCtxt));
         if (!ycbcrHelper) {
             *errorMsg = "Failed to create VkYcbcrSamplerHelper.";
             return skiagm::DrawResult::kFail;
@@ -150,7 +146,7 @@ protected:
                 return DrawResult::kSkip;
             }
 
-            return this->createYCbCrImage(recorder, graphiteTestContext, errorMsg);
+            return this->createYCbCrImage(recorder, errorMsg);
         } else
 #endif
         {

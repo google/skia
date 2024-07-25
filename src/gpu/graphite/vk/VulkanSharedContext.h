@@ -36,6 +36,7 @@ public:
 
     skgpu::VulkanMemoryAllocator* memoryAllocator() const { return fMemoryAllocator.get(); }
 
+    VkPhysicalDevice physDevice() const { return fPhysDevice; }
     VkDevice device() const { return fDevice; }
     uint32_t  queueIndex() const { return fQueueIndex; }
 
@@ -59,6 +60,7 @@ private:
     sk_sp<const skgpu::VulkanInterface> fInterface;
     sk_sp<skgpu::VulkanMemoryAllocator> fMemoryAllocator;
 
+    VkPhysicalDevice fPhysDevice;
     VkDevice fDevice;
     uint32_t fQueueIndex;
 
