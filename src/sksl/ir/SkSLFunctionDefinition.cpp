@@ -88,8 +88,7 @@ static void append_rtadjust_fixup_to_vertex_main(const Context& context,
 std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& context,
                                                                 Position pos,
                                                                 const FunctionDeclaration& function,
-                                                                std::unique_ptr<Statement> body,
-                                                                bool builtin) {
+                                                                std::unique_ptr<Statement> body) {
     class Finalizer : public ProgramWriter {
     public:
         Finalizer(const Context& context, const FunctionDeclaration& function, Position pos)
@@ -350,19 +349,18 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                                                 "' can exit without returning a value");
     }
 
-    return FunctionDefinition::Make(context, pos, function, std::move(body), builtin);
+    return FunctionDefinition::Make(context, pos, function, std::move(body));
 }
 
-std::unique_ptr<FunctionDefinition> FunctionDefinition::Make(const Context&,
+std::unique_ptr<FunctionDefinition> FunctionDefinition::Make(const Context& context,
                                                              Position pos,
                                                              const FunctionDeclaration& function,
-                                                             std::unique_ptr<Statement> body,
-                                                             bool builtin) {
+                                                             std::unique_ptr<Statement> body) {
     SkASSERT(!function.isIntrinsic());
     SkASSERT(body && body->as<Block>().isScope());
     SkASSERT(!function.definition());
 
-    return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body));
+    return std::make_unique<FunctionDefinition>(pos, &function, std::move(body));
 }
 
 }  // namespace SkSL

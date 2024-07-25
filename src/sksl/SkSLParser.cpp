@@ -675,8 +675,7 @@ bool Parser::defineFunction(SkSL::FunctionDeclaration* decl) {
     std::unique_ptr<FunctionDefinition> function = FunctionDefinition::Convert(context,
                                                                                pos,
                                                                                *decl,
-                                                                               std::move(block),
-                                                                               /*builtin=*/false);
+                                                                               std::move(block));
     if (!function) {
         return false;
     }

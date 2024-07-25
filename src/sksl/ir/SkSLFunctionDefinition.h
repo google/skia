@@ -31,11 +31,9 @@ public:
 
     FunctionDefinition(Position pos,
                        const FunctionDeclaration* declaration,
-                       bool builtin,
                        std::unique_ptr<Statement> body)
             : INHERITED(pos, kIRNodeKind)
             , fDeclaration(declaration)
-            , fBuiltin(builtin)
             , fBody(std::move(body)) {}
 
     /**
@@ -54,21 +52,15 @@ public:
     static std::unique_ptr<FunctionDefinition> Convert(const Context& context,
                                                        Position pos,
                                                        const FunctionDeclaration& function,
-                                                       std::unique_ptr<Statement> body,
-                                                       bool builtin);
+                                                       std::unique_ptr<Statement> body);
 
     static std::unique_ptr<FunctionDefinition> Make(const Context& context,
                                                     Position pos,
                                                     const FunctionDeclaration& function,
-                                                    std::unique_ptr<Statement> body,
-                                                    bool builtin);
+                                                    std::unique_ptr<Statement> body);
 
     const FunctionDeclaration& declaration() const {
         return *fDeclaration;
-    }
-
-    bool isBuiltin() const {
-        return fBuiltin;
     }
 
     std::unique_ptr<Statement>& body() {
@@ -85,7 +77,6 @@ public:
 
 private:
     const FunctionDeclaration* fDeclaration;
-    bool fBuiltin;
     std::unique_ptr<Statement> fBody;
 
     using INHERITED = ProgramElement;
