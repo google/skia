@@ -425,7 +425,7 @@ FunctionDeclaration::FunctionDeclaration(const Context& context,
         , fReturnType(returnType)
         , fModifierFlags(modifierFlags)
         , fIntrinsicKind(intrinsicKind)
-        , fBuiltin(context.fConfig->isBuiltinCode())
+        , fModuleType(context.fConfig->fModuleType)
         , fIsMain(name == "main") {
     int builtinColorIndex = 0;
     for (const Variable* param : fParameters) {

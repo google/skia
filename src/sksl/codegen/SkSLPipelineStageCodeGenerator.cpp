@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLIntrinsicList.h"
+#include "src/sksl/SkSLModule.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
@@ -354,8 +355,9 @@ std::string PipelineStageCodeGenerator::functionName(const FunctionDeclaration& 
 }
 
 void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
-    if (f.declaration().isBuiltin()) {
-        // Don't re-emit builtin functions.
+    // Don't re-emit functions from sksl_shared. (Functions from the `sksl_rt_shader` module won't
+    // be visible once the shader is converted into a pipeline stage, so we do emit those.)
+    if (f.declaration().moduleType() == ModuleType::sksl_shared) {
         return;
     }
 
