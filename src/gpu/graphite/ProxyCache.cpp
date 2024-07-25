@@ -107,7 +107,8 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
         // Since if the bitmap is held by more than just this function call (e.g. it likely came
         // from findOrCreateCachedProxy() that takes an existing SkBitmap), it's worth adding a
         // listener to remove them from the cache automatically when no one holds on to it anymore.
-        const bool addListener = !bitmap.pixelRef()->unique();
+        // Skip adding a listener for immutable bitmaps since those should never be invalidated.
+        const bool addListener = !bitmap.isImmutable() && !bitmap.pixelRef()->unique();
         if (addListener) {
             auto listener = make_unique_key_invalidation_listener(key, recorder->priv().uniqueID());
             bitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
