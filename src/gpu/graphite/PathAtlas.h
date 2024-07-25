@@ -137,7 +137,7 @@ protected:
                                        AtlasLocator* locator);
         bool recordUploads(DrawContext*, Recorder*);
         void evict(PlotLocator) override;
-        void postFlush(Recorder*);
+        void compact(Recorder*);
 
     protected:
         DrawAtlasMgr(size_t width, size_t height,

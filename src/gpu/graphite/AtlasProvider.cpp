@@ -83,7 +83,16 @@ sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
     return proxy;
 }
 
-void AtlasProvider::clearTexturePool() {
+void AtlasProvider::freeGpuResources() {
+    // Only compact the atlases, not fully free the atlases. freeGpuResources() can be called while
+    // there is pending work on the Recorder that refers to pages. In the event this is called right
+    // after a snap(), all pages would eligible for cleanup during compaction anyways.
+    this->compact();
+    // Release any textures held directly by the provider. These textures are used by transient
+    // ComputePathAtlases that are reset every time a DrawContext snaps a DrawTask so there is no
+    // need to reset those atlases explicitly here. Since the AtlasProvider gives out refs to the
+    // TextureProxies in the pool, it should be safe to clear the pool in the middle of Recording.
+    // Draws that use the previous TextureProxies will have refs on them.
     fTexturePool.clear();
 }
 
@@ -97,10 +106,10 @@ void AtlasProvider::recordUploads(DrawContext* dc) {
     }
 }
 
-void AtlasProvider::postFlush() {
-    fTextAtlasManager->postFlush();
+void AtlasProvider::compact() {
+    fTextAtlasManager->compact();
     if (fRasterPathAtlas) {
-        fRasterPathAtlas->postFlush();
+        fRasterPathAtlas->compact();
     }
 }
 

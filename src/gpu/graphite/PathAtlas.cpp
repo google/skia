@@ -199,7 +199,7 @@ void PathAtlas::DrawAtlasMgr::evict(PlotLocator plotLocator) {
     }
 }
 
-void PathAtlas::DrawAtlasMgr::postFlush(Recorder* recorder) {
+void PathAtlas::DrawAtlasMgr::compact(Recorder* recorder) {
     fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
 }
 

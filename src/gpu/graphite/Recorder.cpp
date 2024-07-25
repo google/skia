@@ -446,10 +446,9 @@ void Recorder::freeGpuResources() {
     // their held resources are released. The StrikeCache and TextBlobCache don't hold onto any Gpu
     // resources.
 
-    // The AtlasProvider gives out refs to TextureProxies so it should be safe to clear its pool
-    // in the middle of Recording since those using the previous TextureProxies will have refs on
-    // them.
-    fAtlasProvider->clearTexturePool();
+    // Notify the atlas and resource provider to free any resources it can (does not include
+    // resources that are locked due to pending work).
+    fAtlasProvider->freeGpuResources();
 
     fResourceProvider->freeGpuResources();
 
