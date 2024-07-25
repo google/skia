@@ -17,7 +17,7 @@
 using namespace skgpu::graphite;
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_V) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     auto cache = recorder->priv().uniformDataCache();

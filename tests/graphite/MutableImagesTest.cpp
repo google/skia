@@ -504,7 +504,7 @@ void run_test(skiatest::Reporter* reporter,
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MutableImagesTest, reporter, context,
-                                         CtsEnforcement::kNextRelease) {
+                                         CtsEnforcement::kApiLevel_V) {
 
     for (bool useTwoRecorders : { false, true }) {
         for (bool withMips : { false, true }) {

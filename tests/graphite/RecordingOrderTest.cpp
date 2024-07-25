@@ -125,7 +125,7 @@ bool run_test(skiatest::Reporter* reporter,
 // This test captures two recordings A and B, plays them back as A then B, and B then A,
 // and verifies that the result is the same.
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(RecordingOrderTest_Graphite, reporter, context,
-                                         CtsEnforcement::kNextRelease) {
+                                         CtsEnforcement::kApiLevel_V) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     (void) run_test(reporter, context, recorder.get());

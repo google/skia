@@ -24,7 +24,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(CacheBudgetTest,
                                            testContext,
                                            set_context_budget,
                                            true,
-                                           CtsEnforcement::kNextRelease) {
+                                           CtsEnforcement::kApiLevel_V) {
     REPORTER_ASSERT(reporter, context->maxBudgetedBytes() == kContextBudget);
 
     static constexpr size_t kRecorderBudget = 7654321;

@@ -54,7 +54,7 @@ SkBitmap create_bitmap(int width, int height) {
 // In this test we just iterate through the cases we expect to work and verify that rewrapping the
 // base SkPicture doesn't block finding the earlier cached image.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CacheKeyTest_Picture, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_V) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     RecorderOptions options = ToolUtils::CreateTestingRecorderOptions();
@@ -100,7 +100,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CacheKeyTest_Picture, reporter, context,
 // In this test we just iterate through the cases we expect to work and verify that rewrapping the
 // subsetted SkBitmap doesn't block finding the earlier cached image.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CacheKeyTest_Bitmap, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_V) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     RecorderOptions options = ToolUtils::CreateTestingRecorderOptions();

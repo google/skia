@@ -20,7 +20,7 @@
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DashPathEffectTest_2PiInterval,
                                        reporter,
                                        contextInfo,
-                                       CtsEnforcement::kNextRelease) {
+                                       CtsEnforcement::kApiLevel_V) {
     const float r = 50.0f / SK_ScalarPI;
     const float centerX = ceilf(0.5f * r);
     const float centerY = ceilf(r);

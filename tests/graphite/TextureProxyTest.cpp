@@ -25,7 +25,7 @@
 namespace skgpu::graphite {
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_V) {
     const Caps* caps = context->priv().caps();
     constexpr SkISize kValidSize = SkISize::Make(1, 1);
     constexpr SkISize kInvalidSize = SkISize::MakeEmpty();
@@ -200,7 +200,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureProxyTest, reporter, context,
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureTooLargeTest, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_V) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     const Caps* caps = context->priv().caps();
 
@@ -221,7 +221,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteTextureTooLargeTest, reporter, contex
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteLazyTextureInvalidDimensions, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_V) {
     class FulfillContext {
     public:
         FulfillContext(BackendTexture backendTexture) : fBackendTexture(backendTexture) {}

@@ -244,7 +244,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseI
                                                      context,
                                                      testGpuContext,
                                                      true,
-                                                     CtsEnforcement::kNextRelease) {
+                                                     CtsEnforcement::kApiLevel_V) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -331,7 +331,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(
         context,
         testGpuContext,
         true,
-        CtsEnforcement::kNextRelease) {
+        CtsEnforcement::kApiLevel_V) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -405,7 +405,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(
         context,
         testGpuContext,
         true,
-        CtsEnforcement::kNextRelease) {
+        CtsEnforcement::kApiLevel_V) {
     // Note: these dimensions are invalid and will cause MakeGraphitePromiseTexture to fail
     constexpr SkISize kDimensions { 0, 0 };
 
@@ -426,7 +426,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImag
                                                      context,
                                                      testGpuContext,
                                                      true,
-                                                     CtsEnforcement::kNextRelease) {
+                                                     CtsEnforcement::kApiLevel_V) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -521,7 +521,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImag
                                                      context,
                                                      testGpuContext,
                                                      true,
-                                                     CtsEnforcement::kNextRelease) {
+                                                     CtsEnforcement::kApiLevel_V) {
     constexpr SkISize kDimensions { 16, 16 };
 
     TestCtx testContext;
@@ -595,7 +595,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageRecorde
                                                      context,
                                                      testGpuContext,
                                                      true,
-                                                     CtsEnforcement::kNextRelease) {
+                                                     CtsEnforcement::kApiLevel_V) {
     constexpr SkISize kDimensions{ 16, 16 };
 
     for (Volatile isVolatile : { Volatile::kNo, Volatile::kYes }) {
@@ -633,7 +633,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageMultipl
                                                      context,
                                                      testGpuContext,
                                                      true,
-                                                     CtsEnforcement::kNextRelease) {
+                                                     CtsEnforcement::kApiLevel_V) {
     constexpr SkISize kDimensions{ 16, 16 };
 
     static constexpr int kNumRecordings = 3;

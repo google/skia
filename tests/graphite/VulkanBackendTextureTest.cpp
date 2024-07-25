@@ -22,7 +22,7 @@ const SkISize kSize = {16, 16};
 }
 
 DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureSimpleCreationTest, reporter, context,
-                                     CtsEnforcement::kNextRelease) {
+                                     CtsEnforcement::kApiLevel_V) {
     auto recorder = context->makeRecorder();
 
     bool isProtected = context->priv().caps()->protectedSupport();
@@ -49,7 +49,7 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureSimpleCreationTest, rep
 
 // Test that copying BackendTexture variables works.
 DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureCopyVariableTest, reporter, context,
-                                     CtsEnforcement::kNextRelease) {
+                                     CtsEnforcement::kApiLevel_V) {
     auto recorder = context->makeRecorder();
 
     bool isProtected = context->priv().caps()->protectedSupport();

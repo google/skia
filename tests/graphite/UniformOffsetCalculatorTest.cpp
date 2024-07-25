@@ -133,7 +133,7 @@ static AlignmentAndSize calculate_struct_alignment_and_size(
                         "struct stride must be a multiple of alignment");         \
     } while (0)
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r, CtsEnforcement::kApiLevel_V) {
     constexpr Layout kLayout = Layout::kMetal;
 
     // scalars: int, float, half (unsigned types are disallowed)
@@ -169,7 +169,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalBasicTypesTest, r, CtsEnforcement:
     EXPECT(SkSLType::kHalf4x4,  /*alignment=*/8,  /*size=*/32);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r, CtsEnforcement::kApiLevel_V) {
     constexpr Layout kLayout = Layout::kMetal;
     constexpr int kCount = 3;
 
@@ -235,7 +235,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalStructTest, r, CtsEnforcement::kNe
                                                                     SkSLType::kInt);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r, CtsEnforcement::kApiLevel_V) {
     constexpr Layout kLayout = Layout::kStd430;
 
     // scalars: int, float, half (unsigned types are disallowed)
@@ -271,7 +271,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430BasicTypesTest, r, CtsEnforcement
     EXPECT(SkSLType::kHalf4x4,  /*alignment=*/16, /*size=*/64);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r, CtsEnforcement::kApiLevel_V) {
     constexpr Layout kLayout = Layout::kStd430;
     constexpr int    kCount  = 3;
 
@@ -337,7 +337,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430StructTest, r, CtsEnforcement::kN
                                                                     SkSLType::kInt);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r, CtsEnforcement::kApiLevel_V) {
     constexpr Layout kLayout = Layout::kStd140;
 
     // scalars: int, float, half (unsigned types are disallowed)
@@ -373,7 +373,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r, CtsEnforcement
     EXPECT(SkSLType::kHalf4x4,  /*alignment=*/16, /*size=*/64);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140ArrayTest, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140ArrayTest, r, CtsEnforcement::kApiLevel_V) {
     constexpr Layout kLayout = Layout::kStd140;
     constexpr int    kCount  = 3;
 

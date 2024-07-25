@@ -29,7 +29,7 @@ private:
 
 #define CHECK(A) REPORTER_ASSERT(reporter, A)
 
-DEF_GRAPHITE_TEST(skgpu_IntersectionTree, reporter, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(skgpu_IntersectionTree, reporter, CtsEnforcement::kApiLevel_V) {
     SkRandom rand;
     {
         SimpleIntersectionTree simpleTree;

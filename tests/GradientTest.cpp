@@ -579,7 +579,7 @@ void test_sweep_gradient_zero_x(skiatest::Reporter* reporter, SkSurface* surface
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestSweepGradientZeroXGanesh,
                                        reporter,
                                        contextInfo,
-                                       CtsEnforcement::kNextRelease) {
+                                       CtsEnforcement::kApiLevel_V) {
     SkImageInfo ii = SkImageInfo::Make(SkISize::Make(5, 5),
                                        SkColorType::kRGBA_8888_SkColorType,
                                        SkAlphaType::kPremul_SkAlphaType);

@@ -766,7 +766,7 @@ void test_many_draws(skiatest::Reporter* reporter, SkSurface* surface) {
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestManyDrawsGanesh,
                                        reporter,
                                        contextInfo,
-                                       CtsEnforcement::kNextRelease) {
+                                       CtsEnforcement::kApiLevel_V) {
     SkImageInfo ii = SkImageInfo::Make(SkISize::Make(1, 1),
                                        SkColorType::kRGBA_8888_SkColorType,
                                        SkAlphaType::kPremul_SkAlphaType);
@@ -778,7 +778,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TestManyDrawsGanesh,
 
 #if defined(SK_GRAPHITE)
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(TestManyDrawsGraphite, reporter, context,
-                                         CtsEnforcement::kNextRelease) {
+                                         CtsEnforcement::kApiLevel_V) {
     using namespace skgpu::graphite;
     SkImageInfo ii = SkImageInfo::Make(SkISize::Make(1, 1),
                                        SkColorType::kRGBA_8888_SkColorType,

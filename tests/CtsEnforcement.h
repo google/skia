@@ -37,7 +37,7 @@ public:
          * new kApiLevel_* value will be added and all current kNextRelease values will be replaced
          * with that new value.
          */
-        kNextRelease = kApiLevel_V
+        kNextRelease = kApiLevel_V + 1
     };
 
     /**
