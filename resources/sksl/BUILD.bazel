@@ -759,6 +759,7 @@ skia_filegroup(
         "runtime/RecursiveComparison_Types.rts",
         "runtime/RecursiveComparison_Vectors.rts",
         "runtime/SampleWithExplicitCoord.rts",
+        "runtime/SharedFunctions.rts",
         "runtime/Switch.rts",
         "runtime/SwitchDefaultOnly.rts",
         "runtime/SwitchWithFallthrough.rts",

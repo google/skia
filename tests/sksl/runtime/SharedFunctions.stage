@@ -1,0 +1,8 @@
+uniform half4 colorGreen;
+uniform half4 colorRed;
+half4 main(float2 coords)
+{
+	float4 g = float4(float3(colorGreen.xyz) / max(float(colorGreen.w), 0.0001), float(colorGreen.w));
+	half4 r = half4(colorRed.xyz / max(colorRed.w, 0.0001), colorRed.w);
+	return half4(half4(half3(g.xyz), r.w));
+}

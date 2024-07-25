@@ -1093,6 +1093,7 @@ SKSL_TEST(CPU | GPU,     kApiLevel_T, LoopInt,                         "runtime/
 SKSL_TEST(CPU | GPU,     kApiLevel_U, Ossfuzz52603,                    "runtime/Ossfuzz52603.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, QualifierOrder,                  "runtime/QualifierOrder.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_T, PrecisionQualifiers,             "runtime/PrecisionQualifiers.rts")
+SKSL_TEST(CPU | GPU,     kNextRelease,SharedFunctions,                 "runtime/SharedFunctions.rts")
 
 SKSL_TEST(ES3 | GPU_ES3 | UsesNaN, kNever, RecursiveComparison_Arrays,  "runtime/RecursiveComparison_Arrays.rts")
 SKSL_TEST(ES3 | GPU_ES3 | UsesNaN, kNever, RecursiveComparison_Structs, "runtime/RecursiveComparison_Structs.rts")

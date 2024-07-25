@@ -1,0 +1,11 @@
+// Runtime Effects are allowed to call functions in sksl_shared.
+// At present, the only public exposed functions are `unpremul(half4)` and `unpremul(float4)`.
+
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2 coords) {
+    float4 g = unpremul(float4(colorGreen));
+    half4  r = unpremul(colorRed);
+
+    return half4(g.rgb, r.a);
+}

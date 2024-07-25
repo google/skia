@@ -1,0 +1,19 @@
+17 instructions
+
+store_src_rg                   coords = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_4_uniforms                $0..3 = colorGreen
+max_imm_float                  $3 = max($3, 0x38D1B717 (0.0001))
+swizzle_3                      $3..5 = ($3..5).xxx
+div_3_floats                   $0..2 /= $3..5
+copy_uniform                   g(3) = colorGreen(3)
+copy_3_slots_unmasked          g(0..2) = $0..2
+copy_4_uniforms                $0..3 = colorRed
+max_imm_float                  $3 = max($3, 0x38D1B717 (0.0001))
+swizzle_3                      $3..5 = ($3..5).xxx
+div_3_floats                   $0..2 /= $3..5
+copy_uniform                   r(3) = colorRed(3)
+copy_3_slots_unmasked          r(0..2) = $0..2
+copy_3_slots_unmasked          $0..2 = g(0..2)
+copy_slot_unmasked             $3 = r(3)
+load_src                       src.rgba = $0..3

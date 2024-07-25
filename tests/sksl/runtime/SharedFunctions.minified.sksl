@@ -1,0 +1,1 @@
+uniform half4 colorGreen;uniform half4 colorRed;half4 main(float2 a){float4 b=unpremul(float4(colorGreen));half4 c=unpremul(colorRed);return half4(half3(b.xyz),c.w);}
