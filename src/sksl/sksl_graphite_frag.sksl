@@ -90,43 +90,39 @@ $pure half4 sk_color_space_transform(half4 halfColor,
                                      half3x3 gamutTransform,
                                      int dstKind,
                                      half4x4 coeffs) {
-    if (flags == 0) {
-        return halfColor;
-    }
+    if (flags != 0) {
+        float4 color = float4(halfColor);
 
-    float4 color = float4(halfColor);
-    if (bool(flags & $kColorSpaceXformFlagAlphaSwizzle)) {
-        color.a = dot(color.r1, float2(coeffs[1][3], coeffs[3][3]));
-    }
+        if (bool(flags & $kColorSpaceXformFlagAlphaSwizzle)) {
+            color.a = dot(color.r1, float2(coeffs[1][3], coeffs[3][3]));
+        }
+        if (bool(flags & $kColorSpaceXformFlagUnpremul)) {
+            color = unpremul(color);
+        }
+        if (bool(flags & $kColorSpaceXformFlagLinearize)) {
+            half4 srcCoeffs[2];
+            srcCoeffs[0] = coeffs[0];
+            srcCoeffs[1] = coeffs[1];
+            color.r = $apply_xfer_fn(srcKind, color.r, srcCoeffs);
+            color.g = $apply_xfer_fn(srcKind, color.g, srcCoeffs);
+            color.b = $apply_xfer_fn(srcKind, color.b, srcCoeffs);
+        }
+        if (bool(flags & $kColorSpaceXformFlagGamutTransform)) {
+            color.rgb = gamutTransform * color.rgb;
+        }
+        if (bool(flags & $kColorSpaceXformFlagEncode)) {
+            half4 dstCoeffs[2];
+            dstCoeffs[0] = coeffs[2];
+            dstCoeffs[1] = coeffs[3];
+            color.r = $apply_xfer_fn(dstKind, color.r, dstCoeffs);
+            color.g = $apply_xfer_fn(dstKind, color.g, dstCoeffs);
+            color.b = $apply_xfer_fn(dstKind, color.b, dstCoeffs);
+        }
 
-    if (bool(flags & $kColorSpaceXformFlagUnpremul)) {
-        color = unpremul(color);
+        halfColor = bool(flags & $kColorSpaceXformFlagPremul) ? sk_premul_alpha(color)
+                                                              : half4(color);
     }
-
-    if (bool(flags & $kColorSpaceXformFlagLinearize)) {
-        half4 srcCoeffs[2];
-        srcCoeffs[0] = coeffs[0];
-        srcCoeffs[1] = coeffs[1];
-        color.r = $apply_xfer_fn(srcKind, color.r, srcCoeffs);
-        color.g = $apply_xfer_fn(srcKind, color.g, srcCoeffs);
-        color.b = $apply_xfer_fn(srcKind, color.b, srcCoeffs);
-    }
-    if (bool(flags & $kColorSpaceXformFlagGamutTransform)) {
-        color.rgb = gamutTransform * color.rgb;
-    }
-    if (bool(flags & $kColorSpaceXformFlagEncode)) {
-        half4 dstCoeffs[2];
-        dstCoeffs[0] = coeffs[2];
-        dstCoeffs[1] = coeffs[3];
-        color.r = $apply_xfer_fn(dstKind, color.r, dstCoeffs);
-        color.g = $apply_xfer_fn(dstKind, color.g, dstCoeffs);
-        color.b = $apply_xfer_fn(dstKind, color.b, dstCoeffs);
-    }
-
-    if (bool(flags & $kColorSpaceXformFlagPremul)) {
-        return sk_premul_alpha(color);
-    }
-    return half4(color);
+    return halfColor;
 }
 
 $pure float $tile(int tileMode, float f, float low, float high) {
