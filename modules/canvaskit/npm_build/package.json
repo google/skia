@@ -72,6 +72,7 @@
       "import": "./bin/profiling/canvaskit.js",
       "types": "./types/index.d.ts"
     },
-    "./bin/profiling/canvaskit.wasm": "./bin/profiling/canvaskit.wasm"
+    "./bin/profiling/canvaskit.wasm": "./bin/profiling/canvaskit.wasm",
+    "./package.json": "./package.json"
   }
 }
