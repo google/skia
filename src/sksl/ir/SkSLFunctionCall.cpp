@@ -1238,21 +1238,18 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         return ChildCall::Make(context, pos, returnType, child, std::move(arguments));
     }
 
-    return Make(context, pos, returnType, function, std::move(arguments));
+    return Make(context, pos, returnType, function, std::move(arguments),
+                MakeStableID(context.fConfig->fModuleType, pos));
 }
 
-std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
-                                               Position pos,
-                                               const Type* returnType,
-                                               const FunctionDeclaration& function,
-                                               ExpressionArray arguments) {
+uint32_t FunctionCall::MakeStableID(ModuleType moduleType, Position pos) {
     // Synthesize a stable ID from the function-call position and module type.
     uint32_t stableID = pos.valid() ? pos.startOffset() : 0x00FFFFFF;
     SkASSERT(stableID < 0x01000000);
 
-    stableID |= SkToU32(context.fConfig->fModuleType) << 24;
+    stableID |= SkToU32(moduleType) << 24;
 
-    return Make(context, pos, returnType, function, std::move(arguments), stableID);
+    return stableID;
 }
 
 std::unique_ptr<Expression> FunctionCall::Make(const Context& context,

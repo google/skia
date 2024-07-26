@@ -23,6 +23,7 @@ namespace SkSL {
 class Context;
 class FunctionDeclaration;
 class Type;
+enum class ModuleType : int8_t;
 enum class OperatorPrecedence : uint8_t;
 
 /**
@@ -40,7 +41,7 @@ public:
         , fStableID(stableID) {}
 
     // Resolves generic types, performs type conversion on arguments, determines return type, and
-    // reports errors via the ErrorReporter.
+    // chooses a unique stable ID. Reports errors via the ErrorReporter.
     static std::unique_ptr<Expression> Convert(const Context& context,
                                                Position pos,
                                                const FunctionDeclaration& function,
@@ -51,14 +52,7 @@ public:
                                                std::unique_ptr<Expression> functionValue,
                                                ExpressionArray arguments);
 
-    // Computes a new stable ID and creates a function call; reports errors via ASSERT.
-    static std::unique_ptr<Expression> Make(const Context& context,
-                                            Position pos,
-                                            const Type* returnType,
-                                            const FunctionDeclaration& function,
-                                            ExpressionArray arguments);
-
-    // Creates a function call with a known stable ID; reports errors via ASSERT.
+    // Creates a function call with a given stable ID; reports errors via ASSERT.
     static std::unique_ptr<Expression> Make(const Context& context,
                                             Position pos,
                                             const Type* returnType,
@@ -69,6 +63,9 @@ public:
     static const FunctionDeclaration* FindBestFunctionForCall(const Context& context,
                                                               const FunctionDeclaration* overloads,
                                                               const ExpressionArray& arguments);
+
+    // Given a module type and an offset into the code, returns a stable ID.
+    static uint32_t MakeStableID(ModuleType moduleType, Position pos);
 
     const FunctionDeclaration& function() const {
         return fFunction;
