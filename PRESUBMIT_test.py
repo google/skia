@@ -3,11 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import io
-import os.path
-import subprocess
-import textwrap
 import unittest
+from unittest import mock
 
 import PRESUBMIT
 
@@ -83,6 +80,50 @@ class ReleaseNotesTest(unittest.TestCase):
             mock_input_api, mock_output_api)
 
         self.assertEqual(0, len(results))
+
+
+class RunCommandAndCheckDiffTest(unittest.TestCase):
+    def setUp(self):
+        self.foo_file = MockAffectedFile('foo.txt', new_contents=['foo'])
+        self.bar_file = MockAffectedFile('bar.txt', new_contents=['bar'])
+
+        self.mock_input_api = MockInputApi()
+        self.mock_input_api.files = [self.foo_file, self.bar_file]
+        self.mock_output_api = MockOutputApi()
+
+    def setContents(self, file, contents):
+        file._new_contents = contents
+
+    @mock.patch('subprocess.check_output')
+    def testNoChangesReturnsNoResults(self, mock_subprocess):
+        results = PRESUBMIT._RunCommandAndCheckDiff(self.mock_output_api, [], [])
+        self.assertEqual(results, [])
+
+    @mock.patch('subprocess.check_output')
+    def testChangingIrrelevantFilesReturnsNoResults(self, mock_subprocess):
+        mock_subprocess.side_effect = lambda *args, **kwargs: self.setContents(self.bar_file, ['foo'])
+        results = PRESUBMIT._RunCommandAndCheckDiff(
+            self.mock_output_api, ['cmd'], [self.foo_file],
+        )
+        self.assertEqual(results, [])
+
+    @mock.patch('subprocess.check_output')
+    def testChangingRelevantFilesReturnsDiff(self, mock_subprocess):
+        mock_subprocess.side_effect = lambda *args, **kwargs: self.setContents(self.foo_file, ['bar'])
+        results = PRESUBMIT._RunCommandAndCheckDiff(
+            self.mock_output_api, ['cmd'], [self.foo_file],
+        )
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].message,
+"""Diffs found after running "cmd":
+
+--- foo.txt
++++ foo.txt
+@@ -1 +1 @@
+-foo
++bar
+
+Please commit or discard the above changes.""")
 
 
 if __name__ == '__main__':

@@ -225,7 +225,7 @@ class MockFile(object):
     def ChangedContents(self):
         return self._changed_contents
 
-    def NewContents(self):
+    def NewContents(self, flush_cache=False):
         return self._new_contents
 
     def LocalPath(self):
