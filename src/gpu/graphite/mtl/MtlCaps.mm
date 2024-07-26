@@ -163,7 +163,6 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
     fRequiredStorageBufferAlignment = fRequiredUniformBufferAlignment;
 
     fStorageBufferSupport = true;
-    fGradientBufferSupport = fStorageBufferSupport;
 
     fComputeSupport = true;
 
