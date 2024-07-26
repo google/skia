@@ -2372,6 +2372,10 @@ STAGE(clamp_01, NoCtx) {
     a = clamp_01_(a);
 }
 
+STAGE(clamp_a_01, NoCtx) {
+    a = clamp_01_(a);
+}
+
 STAGE(clamp_gamut, NoCtx) {
     a = min(max(a, 0.0f), 1.0f);
     r = min(max(r, 0.0f), a);
@@ -5651,6 +5655,10 @@ STAGE_PP(clamp_01, NoCtx) {
     r = min(r, 255);
     g = min(g, 255);
     b = min(b, 255);
+    a = min(a, 255);
+}
+
+STAGE_PP(clamp_a_01, NoCtx) {
     a = min(a, 255);
 }
 

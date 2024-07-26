@@ -8,6 +8,7 @@
 #ifndef SkMatrixColorFilter_DEFINED
 #define SkMatrixColorFilter_DEFINED
 
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkFlattenable.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
@@ -20,8 +21,9 @@ struct SkStageRec;
 class SkMatrixColorFilter final : public SkColorFilterBase {
 public:
     enum class Domain : uint8_t { kRGBA, kHSLA };
+    using Clamp = SkColorFilters::Clamp;
 
-    explicit SkMatrixColorFilter(const float array[20], Domain);
+    explicit SkMatrixColorFilter(const float array[20], Domain, Clamp);
 
     bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override;
 
@@ -30,6 +32,7 @@ public:
     SkColorFilterBase::Type type() const override { return SkColorFilterBase::Type::kMatrix; }
 
     Domain domain() const { return fDomain; }
+    SkColorFilters::Clamp clamp() const { return fClamp; }
     const float* matrix() const { return fMatrix; }
 
 private:
@@ -42,6 +45,7 @@ private:
     float fMatrix[20];
     bool fAlphaIsUnchanged;
     Domain fDomain;
+    Clamp fClamp;
 };
 
 #endif

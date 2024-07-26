@@ -398,11 +398,12 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext*,
                                       const SkSurfaceProps&) {
     switch (filter->domain()) {
         case SkMatrixColorFilter::Domain::kRGBA:
-            return GrFPSuccess(GrFragmentProcessor::ColorMatrix(std::move(inputFP),
-                                                                filter->matrix(),
-                                                                /* unpremulInput = */ true,
-                                                                /* clampRGBOutput = */ true,
-                                                                /* premulOutput = */ true));
+            return GrFPSuccess(GrFragmentProcessor::ColorMatrix(
+                    std::move(inputFP),
+                    filter->matrix(),
+                    /* unpremulInput = */ true,
+                    /* clampRGBOutput = */ filter->clamp() == SkMatrixColorFilter::Clamp::kYes,
+                    /* premulOutput = */ true));
 
         case SkMatrixColorFilter::Domain::kHSLA: {
             auto fp = rgb_to_hsl(std::move(inputFP));

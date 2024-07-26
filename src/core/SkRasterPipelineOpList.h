@@ -11,7 +11,7 @@
 // `SK_RASTER_PIPELINE_OPS_LOWP` defines ops that have parallel lowp and highp implementations.
 #define SK_RASTER_PIPELINE_OPS_LOWP(M)                             \
     M(move_src_dst) M(move_dst_src) M(swap_src_dst)                \
-    M(clamp_01) M(clamp_gamut)                                     \
+    M(clamp_01) M(clamp_a_01) M(clamp_gamut)                       \
     M(premul) M(premul_dst)                                        \
     M(force_opaque) M(force_opaque_dst)                            \
     M(set_rgb) M(swap_rb) M(swap_rb_dst)                           \

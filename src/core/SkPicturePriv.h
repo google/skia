@@ -140,6 +140,7 @@ public:
         kConvolutionImageFilterTilingUpdate = 102,
         kRemoveDeprecatedCropRect           = 103,
         kMultipleFiltersOnSaveLayer         = 104,
+        kUnclampedMatrixColorFilter         = 105,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -164,7 +165,7 @@ public:
         //
         // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kMultipleFiltersOnSaveLayer
+        kCurrent_Version = kUnclampedMatrixColorFilter
     };
 };
 

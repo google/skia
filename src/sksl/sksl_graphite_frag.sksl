@@ -1001,7 +1001,7 @@ $pure half4 sk_conical_grad_buf_shader(float2 coords,
     return $interpolated_to_rgb_unpremul(color, colorSpace, doUnpremul);
 }
 
-$pure half4 sk_matrix_colorfilter(half4 colorIn, float4x4 m, float4 v, int inHSLA) {
+$pure half4 sk_matrix_colorfilter(half4 colorIn, float4x4 m, float4 v, int inHSLA, int clampRGB) {
     if (bool(inHSLA)) {
         colorIn = $rgb_to_hsl(colorIn.rgb, colorIn.a); // includes unpremul
     } else {
@@ -1013,7 +1013,11 @@ $pure half4 sk_matrix_colorfilter(half4 colorIn, float4x4 m, float4 v, int inHSL
     if (bool(inHSLA)) {
         colorOut = $hsl_to_rgb(colorOut.rgb, colorOut.a); // includes clamp and premul
     } else {
-        colorOut = saturate(colorOut);
+        if (bool(clampRGB)) {
+            colorOut = saturate(colorOut);
+        } else {
+            colorOut.a = saturate(colorOut.a);
+        }
         colorOut.rgb *= colorOut.a;
     }
 

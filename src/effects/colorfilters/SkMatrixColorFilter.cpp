@@ -14,6 +14,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkEffectPriv.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkReadBuffer.h"
@@ -31,8 +32,8 @@ static bool is_alpha_unchanged(const float matrix[20]) {
            SkScalarNearlyZero(srcA[4]);
 }
 
-SkMatrixColorFilter::SkMatrixColorFilter(const float array[20], Domain domain)
-        : fAlphaIsUnchanged(is_alpha_unchanged(array)), fDomain(domain) {
+SkMatrixColorFilter::SkMatrixColorFilter(const float array[20], Domain domain, Clamp clamp)
+        : fAlphaIsUnchanged(is_alpha_unchanged(array)), fDomain(domain), fClamp(clamp) {
     memcpy(fMatrix, array, 20 * sizeof(float));
 }
 
@@ -42,6 +43,7 @@ void SkMatrixColorFilter::flatten(SkWriteBuffer& buffer) const {
 
     // RGBA flag
     buffer.writeBool(fDomain == Domain::kRGBA);
+    buffer.writeBool(fClamp == Clamp::kYes);
 }
 
 sk_sp<SkFlattenable> SkMatrixColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -51,7 +53,11 @@ sk_sp<SkFlattenable> SkMatrixColorFilter::CreateProc(SkReadBuffer& buffer) {
     }
 
     auto is_rgba = buffer.readBool();
-    return is_rgba ? SkColorFilters::Matrix(matrix) : SkColorFilters::HSLAMatrix(matrix);
+    Clamp clamp = buffer.isVersionLT(SkPicturePriv::kUnclampedMatrixColorFilter)
+                          ? Clamp::kYes
+                          : (buffer.readBool() ? Clamp::kYes : Clamp::kNo);
+    // clamp option is ignored for HSL-domain filters
+    return is_rgba ? SkColorFilters::Matrix(matrix, clamp) : SkColorFilters::HSLAMatrix(matrix);
 }
 
 bool SkMatrixColorFilter::onAsAColorMatrix(float matrix[20]) const {
@@ -63,7 +69,8 @@ bool SkMatrixColorFilter::onAsAColorMatrix(float matrix[20]) const {
 
 bool SkMatrixColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     const bool willStayOpaque = shaderIsOpaque && fAlphaIsUnchanged,
-               hsla = fDomain == Domain::kHSLA;
+               hsla = fDomain == Domain::kHSLA,
+               clamp = fClamp == Clamp::kYes;
 
     SkRasterPipeline* p = rec.fPipeline;
     if (!shaderIsOpaque) {
@@ -78,8 +85,11 @@ bool SkMatrixColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaqu
     if (hsla) {
         p->append(SkRasterPipelineOp::hsl_to_rgb);
     }
-    if (true) {
+    if (clamp) {
         p->append(SkRasterPipelineOp::clamp_01);
+    } else {
+        // We still need to clamp alpha, regardless
+        p->append(SkRasterPipelineOp::clamp_a_01);
     }
     if (!willStayOpaque) {
         p->append(SkRasterPipelineOp::premul);
@@ -89,27 +99,29 @@ bool SkMatrixColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaqu
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkColorFilter> MakeMatrix(const float array[20], SkMatrixColorFilter::Domain domain) {
+static sk_sp<SkColorFilter> MakeMatrix(const float array[20],
+                                       SkMatrixColorFilter::Domain domain,
+                                       SkColorFilters::Clamp clamp) {
     if (!SkIsFinite(array, 20)) {
         return nullptr;
     }
-    return sk_make_sp<SkMatrixColorFilter>(array, domain);
+    return sk_make_sp<SkMatrixColorFilter>(array, domain, clamp);
 }
 
-sk_sp<SkColorFilter> SkColorFilters::Matrix(const float array[20]) {
-    return MakeMatrix(array, SkMatrixColorFilter::Domain::kRGBA);
+sk_sp<SkColorFilter> SkColorFilters::Matrix(const float array[20], Clamp clamp) {
+    return MakeMatrix(array, SkMatrixColorFilter::Domain::kRGBA, clamp);
 }
 
-sk_sp<SkColorFilter> SkColorFilters::Matrix(const SkColorMatrix& cm) {
-    return MakeMatrix(cm.fMat.data(), SkMatrixColorFilter::Domain::kRGBA);
+sk_sp<SkColorFilter> SkColorFilters::Matrix(const SkColorMatrix& cm, Clamp clamp) {
+    return MakeMatrix(cm.fMat.data(), SkMatrixColorFilter::Domain::kRGBA, clamp);
 }
 
 sk_sp<SkColorFilter> SkColorFilters::HSLAMatrix(const float array[20]) {
-    return MakeMatrix(array, SkMatrixColorFilter::Domain::kHSLA);
+    return MakeMatrix(array, SkMatrixColorFilter::Domain::kHSLA, Clamp::kYes);
 }
 
 sk_sp<SkColorFilter> SkColorFilters::HSLAMatrix(const SkColorMatrix& cm) {
-    return MakeMatrix(cm.fMat.data(), SkMatrixColorFilter::Domain::kHSLA);
+    return MakeMatrix(cm.fMat.data(), SkMatrixColorFilter::Domain::kHSLA, Clamp::kYes);
 }
 
 void SkRegisterMatrixColorFilterFlattenable() {

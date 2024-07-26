@@ -170,7 +170,8 @@ class PrecompileMatrixColorFilter : public PrecompileColorFilter {
                                                  0, 0, 1, 0, 0,
                                                  0, 0, 0, 1, 0 };
 
-        MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(kIdentity, /* inHSLA= */ false);
+        MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(
+                kIdentity, /* inHSLA= */ false, /* clamp= */ true);
 
         MatrixColorFilterBlock::AddBlock(keyContext, builder, gatherer, matrixCFData);
     }

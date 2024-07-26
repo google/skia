@@ -1041,6 +1041,7 @@ void add_matrix_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->write(data.fMatrix);
     gatherer->write(data.fTranslate);
     gatherer->write(static_cast<int>(data.fInHSLA));
+    gatherer->write(static_cast<int>(data.fClamp));
 }
 
 } // anonymous namespace
@@ -1468,7 +1469,8 @@ static void add_to_key(const KeyContext& keyContext,
     SkASSERT(filter);
 
     bool inHSLA = filter->domain() == SkMatrixColorFilter::Domain::kHSLA;
-    MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(filter->matrix(), inHSLA);
+    bool clamp = filter->clamp() == SkMatrixColorFilter::Clamp::kYes;
+    MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(filter->matrix(), inHSLA, clamp);
 
     MatrixColorFilterBlock::AddBlock(keyContext, builder, gatherer, matrixCFData);
 }
