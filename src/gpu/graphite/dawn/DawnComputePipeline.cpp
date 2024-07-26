@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/dawn/DawnComputePipeline.h"
 
-#include "src/gpu/PipelineUtils.h"
+#include "src/gpu/SkSLToBackend.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ContextUtils.h"

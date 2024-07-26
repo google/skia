@@ -9,7 +9,7 @@
 #define skgpu_DawnUtilsPriv_DEFINED
 
 #include "include/core/SkTextureCompressionType.h"
-#include "src/gpu/PipelineUtils.h"
+#include "src/gpu/SkSLToBackend.h"
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 

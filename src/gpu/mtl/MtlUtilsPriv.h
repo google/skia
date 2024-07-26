@@ -11,7 +11,7 @@
 #import <Metal/Metal.h>
 
 #include "include/core/SkTextureCompressionType.h"
-#include "src/gpu/PipelineUtils.h"
+#include "src/gpu/SkSLToBackend.h"
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
 
 namespace SkSL {

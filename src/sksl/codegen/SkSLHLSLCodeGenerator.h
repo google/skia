@@ -27,7 +27,7 @@ bool ToHLSL(Program& program,
             ValidateSPIRVProc = nullptr);
 bool ToHLSL(Program& program, const ShaderCaps* caps, std::string* out, ValidateSPIRVProc);
 
-// Have this explicit overload for use with SkSLToBackend in PipelineUtils.h
+// This explicit overload is used by SkSLToBackend.
 inline bool ToHLSL(Program& program, const ShaderCaps* caps, std::string* out) {
     return ToHLSL(program, caps, out, nullptr);
 }

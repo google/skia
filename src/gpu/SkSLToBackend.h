@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_PipelineUtils_DEFINED
-#define skgpu_PipelineUtils_DEFINED
+#ifndef skgpu_SkSLToBackend_DEFINED
+#define skgpu_SkSLToBackend_DEFINED
 
 #include <cstdint>
 #include <string>
@@ -38,4 +38,4 @@ bool SkSLToBackend(const SkSL::ShaderCaps* caps,
 
 }  // namespace skgpu
 
-#endif // skgpu_PipelineUtils_DEFINED
+#endif // skgpu_SkSLToBackend_DEFINED

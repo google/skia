@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/PipelineUtils.h"
+#include "src/gpu/SkSLToBackend.h"
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/private/base/SkDebug.h"

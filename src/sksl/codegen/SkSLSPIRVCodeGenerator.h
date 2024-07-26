@@ -26,7 +26,7 @@ using ValidateSPIRVProc = bool (*)(ErrorReporter&, std::string_view);
 bool ToSPIRV(Program& program, const ShaderCaps* caps, OutputStream& out, ValidateSPIRVProc = nullptr);
 bool ToSPIRV(Program& program, const ShaderCaps* caps, std::string* out, ValidateSPIRVProc);
 
-// Have this explicit overload for use with SkSLToBackend in PipelineUtils.h
+// This explicit overload is used by SkSLToBackend.
 inline bool ToSPIRV(Program& program, const ShaderCaps* caps, std::string* out) {
     return ToSPIRV(program, caps, out, nullptr);
 }
