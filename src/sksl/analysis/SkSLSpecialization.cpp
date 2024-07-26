@@ -166,17 +166,12 @@ SpecializationIndex FindSpecializationIndexForCall(const FunctionCall& call,
     return foundIndex ? *foundIndex : kUnspecialized;
 }
 
-SkBitSet FindSpecializedArgumentsForCall(const FunctionCall& call,
-                                         const SpecializationInfo& info,
-                                         SpecializationIndex specIndex) {
-    SkBitSet result(call.arguments().size());
-    if (specIndex != Analysis::kUnspecialized) {
-        const FunctionDeclaration& func = call.function();
-        const Specializations* specializations = info.fSpecializationMap.find(&func);
-        SkASSERT(specializations);
-
+SkBitSet FindSpecializedParametersForFunction(const FunctionDeclaration& func,
+                                              const SpecializationInfo& info) {
+    SkBitSet result(func.parameters().size());
+    if (const Specializations* specializations = info.fSpecializationMap.find(&func)) {
+        const Analysis::SpecializedParameters& specializedParams = specializations->front();
         const SkSpan<Variable* const> funcParams = func.parameters();
-        const Analysis::SpecializedParameters& specializedParams = specializations->at(specIndex);
 
         for (size_t index = 0; index < funcParams.size(); ++index) {
             if (specializedParams.find(funcParams[index])) {
@@ -186,6 +181,26 @@ SkBitSet FindSpecializedArgumentsForCall(const FunctionCall& call,
     }
 
     return result;
+}
+
+void GetParameterMappingsForFunction(const FunctionDeclaration& func,
+                                     const SpecializationInfo& info,
+                                     SpecializationIndex specializationIndex,
+                                     const ParameterMappingCallback& callback) {
+    if (specializationIndex != Analysis::kUnspecialized) {
+        if (const Specializations* specializations = info.fSpecializationMap.find(&func)) {
+            const Analysis::SpecializedParameters& specializedParams =
+                    specializations->at(specializationIndex);
+            const SkSpan<Variable* const> funcParams = func.parameters();
+
+            for (size_t index = 0; index < funcParams.size(); ++index) {
+                const Variable* param = funcParams[index];
+                if (const Expression** expr = specializedParams.find(param)) {
+                    callback(index, param, *expr);
+                }
+            }
+        }
+    }
 }
 
 }  // namespace SkSL::Analysis

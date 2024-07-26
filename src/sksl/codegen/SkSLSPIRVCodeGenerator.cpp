@@ -2651,7 +2651,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     // If we are calling a specialized function, we need to gather the specialized parameters
     // so we can remove them from the argument list.
     SkBitSet specializedParams =
-            Analysis::FindSpecializedArgumentsForCall(c, fSpecializationInfo, specializationIndex);
+            Analysis::FindSpecializedParametersForFunction(c.function(), fSpecializationInfo);
 
     // Temp variables are used to write back out-parameters after the function call is complete.
     const ExpressionArray& arguments = c.arguments();
@@ -4401,18 +4401,15 @@ void SPIRVCodeGenerator::writeFunctionStart(
     this->writeInstruction(SpvOpFunction, returnTypeId, result,
                            SpvFunctionControlMaskNone, functionTypeId, out);
     std::string mangledName = f.mangledName();
-    if (specializedParams) {
-        // Loop through parameters to construct the specialized name so the specialized name has
-        // a consistent order.
-        for (const Variable* parameter : f.parameters()) {
-            if (const Expression** uniformExprPtr = specializedParams->find(parameter)) {
-                const Expression* uniformExpr = *uniformExprPtr;
-                SkASSERT(uniformExpr->is<VariableReference>());
 
-                mangledName += "_" + uniformExpr->description();
-            }
-        }
-    }
+    // For specialized functions, tack on `_param1_param2` to the function name.
+    Analysis::GetParameterMappingsForFunction(
+            f, fSpecializationInfo, specializationIndex,
+            [&](int, const Variable*, const Expression* expr) {
+                mangledName += '_';
+                mangledName += expr->description();
+            });
+
     this->writeInstruction(SpvOpName,
                            result,
                            std::string_view(mangledName.c_str(), mangledName.size()),
