@@ -14,7 +14,6 @@
 #include "src/utils/SkBitSet.h"
 
 #include <cstddef>
-#include <cstdint>
 #include <functional>
 
 namespace SkSL {
@@ -64,17 +63,17 @@ struct SpecializedFunctionKey {
 struct SpecializedCallKey {
     struct Hash {
         size_t operator()(const SpecializedCallKey& entry) {
-            return SkGoodHash()(entry.fStableID) ^
+            return SkGoodHash()(entry.fStablePointer) ^
                    SkGoodHash()(entry.fParentSpecializationIndex);
         }
     };
 
     bool operator==(const SpecializedCallKey& other) const {
-        return fStableID == other.fStableID &&
+        return fStablePointer == other.fStablePointer &&
                fParentSpecializationIndex == other.fParentSpecializationIndex;
     }
 
-    const uint32_t fStableID = 0;
+    const FunctionCall* fStablePointer = nullptr;
     SpecializationIndex fParentSpecializationIndex = Analysis::kUnspecialized;
 };
 

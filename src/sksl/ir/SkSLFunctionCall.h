@@ -23,7 +23,6 @@ namespace SkSL {
 class Context;
 class FunctionDeclaration;
 class Type;
-enum class ModuleType : int8_t;
 enum class OperatorPrecedence : uint8_t;
 
 /**
@@ -33,12 +32,15 @@ class FunctionCall final : public Expression {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kFunctionCall;
 
-    FunctionCall(Position pos, const Type* type, const FunctionDeclaration* function,
-                 ExpressionArray arguments, uint32_t stableID)
-        : INHERITED(pos, kIRNodeKind, type)
-        , fFunction(*function)
-        , fArguments(std::move(arguments))
-        , fStableID(stableID) {}
+    FunctionCall(Position pos,
+                 const Type* type,
+                 const FunctionDeclaration* function,
+                 ExpressionArray arguments,
+                 const FunctionCall* stablePointer)
+            : INHERITED(pos, kIRNodeKind, type)
+            , fFunction(*function)
+            , fArguments(std::move(arguments))
+            , fStablePointer(stablePointer ? stablePointer : this) {}
 
     // Resolves generic types, performs type conversion on arguments, determines return type, and
     // chooses a unique stable ID. Reports errors via the ErrorReporter.
@@ -57,15 +59,11 @@ public:
                                             Position pos,
                                             const Type* returnType,
                                             const FunctionDeclaration& function,
-                                            ExpressionArray arguments,
-                                            uint32_t stableID);
+                                            ExpressionArray arguments);
 
     static const FunctionDeclaration* FindBestFunctionForCall(const Context& context,
                                                               const FunctionDeclaration* overloads,
                                                               const ExpressionArray& arguments);
-
-    // Given a module type and an offset into the code, returns a stable ID.
-    static uint32_t MakeStableID(ModuleType moduleType, Position pos);
 
     const FunctionDeclaration& function() const {
         return fFunction;
@@ -79,8 +77,8 @@ public:
         return fArguments;
     }
 
-    uint32_t stableID() const {
-        return fStableID;
+    const FunctionCall* stablePointer() const {
+        return fStablePointer;
     }
 
     std::unique_ptr<Expression> clone(Position pos) const override;
@@ -91,9 +89,9 @@ private:
     const FunctionDeclaration& fFunction;
     ExpressionArray fArguments;
 
-    // The stable ID is a 32-bit value which uniquely identifies this FunctionCall across an entire
-    // SkSL program. It is preserved across calls to Clone() or Make(), unlike a pointer address.
-    uint32_t fStableID;
+    // The stable pointer uniquely identifies this FunctionCall across an entire SkSL program.
+    // This allows us to clone() a FunctionCall but still find that call in a hash-map.
+    const FunctionCall* fStablePointer = nullptr;
 
     using INHERITED = Expression;
 };

@@ -105,7 +105,8 @@ void FindFunctionsToSpecialize(const Program& program,
                     // variables to specialize on.
                     if (specialization.count() > 0) {
                         Specializations& specializations = fSpecializationMap[&decl];
-                        SpecializedCallKey callKey{call.stableID(), fInheritedSpecializationIndex};
+                        SpecializedCallKey callKey{call.stablePointer(),
+                                                   fInheritedSpecializationIndex};
 
                         for (int i = 0; i < specializations.size(); i++) {
                             const SpecializedParameters& entry = specializations[i];
@@ -161,7 +162,7 @@ void FindFunctionsToSpecialize(const Program& program,
 SpecializationIndex FindSpecializationIndexForCall(const FunctionCall& call,
                                                    const SpecializationInfo& info,
                                                    SpecializationIndex parentSpecializationIndex) {
-    SpecializedCallKey callKey{call.stableID(), parentSpecializationIndex};
+    SpecializedCallKey callKey{call.stablePointer(), parentSpecializationIndex};
     SpecializationIndex* foundIndex = info.fSpecializedCallMap.find(callKey);
     return foundIndex ? *foundIndex : kUnspecialized;
 }

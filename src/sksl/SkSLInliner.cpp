@@ -16,7 +16,6 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/SkSLErrorReporter.h"
-#include "src/sksl/SkSLModule.h"
 #include "src/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLPosition.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
@@ -302,22 +301,11 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
         }
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();
-
-            // We need to calculate a new stable ID here, since each function call in a program is
-            // required to have a unique stable ID. Start from the largest possible value and work
-            // backwards. We use the `unknown` ModuleType since this shouldn't conflict with any
-            // real-world code.
-            int syntheticOffset = Position::kMaxOffset - fInlinedFunctionCallCounter;
-            ++fInlinedFunctionCallCounter;
-            Position syntheticPos = Position::Range(syntheticOffset, syntheticOffset);
-
-            return FunctionCall::Make(
-                    *fContext,
-                    pos,
-                    funcCall.type().clone(*fContext, symbolTableForExpression),
-                    funcCall.function(),
-                    argList(funcCall.arguments()),
-                    FunctionCall::MakeStableID(ModuleType::unknown, syntheticPos));
+            return FunctionCall::Make(*fContext,
+                                      pos,
+                                      funcCall.type().clone(*fContext, symbolTableForExpression),
+                                      funcCall.function(),
+                                      argList(funcCall.arguments()));
         }
         case Expression::Kind::kFunctionReference:
             return expression.clone(pos);

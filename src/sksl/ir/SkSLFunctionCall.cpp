@@ -1004,7 +1004,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
 
 std::unique_ptr<Expression> FunctionCall::clone(Position pos) const {
     return std::make_unique<FunctionCall>(pos, &this->type(), &this->function(),
-                                          this->arguments().clone(), this->stableID());
+                                          this->arguments().clone(), this->stablePointer());
 }
 
 std::string FunctionCall::description(OperatorPrecedence) const {
@@ -1238,26 +1238,14 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         return ChildCall::Make(context, pos, returnType, child, std::move(arguments));
     }
 
-    return Make(context, pos, returnType, function, std::move(arguments),
-                MakeStableID(context.fConfig->fModuleType, pos));
-}
-
-uint32_t FunctionCall::MakeStableID(ModuleType moduleType, Position pos) {
-    // Synthesize a stable ID from the function-call position and module type.
-    uint32_t stableID = pos.valid() ? pos.startOffset() : 0x00FFFFFF;
-    SkASSERT(stableID < 0x01000000);
-
-    stableID |= SkToU32(moduleType) << 24;
-
-    return stableID;
+    return Make(context, pos, returnType, function, std::move(arguments));
 }
 
 std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
                                                Position pos,
                                                const Type* returnType,
                                                const FunctionDeclaration& function,
-                                               ExpressionArray arguments,
-                                               uint32_t stableID) {
+                                               ExpressionArray arguments) {
     SkASSERT(function.parameters().size() == SkToSizeT(arguments.size()));
 
     // We might be able to optimize built-in intrinsics.
@@ -1274,7 +1262,7 @@ std::unique_ptr<Expression> FunctionCall::Make(const Context& context,
     }
 
     return std::make_unique<FunctionCall>(pos, returnType, &function, std::move(arguments),
-                                          stableID);
+                                          /*stablePointer=*/nullptr);
 }
 
 }  // namespace SkSL

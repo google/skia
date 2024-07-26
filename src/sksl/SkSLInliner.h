@@ -115,7 +115,6 @@ private:
     const Context* fContext = nullptr;
     Mangler fMangler;
     int fInlinedStatementCounter = 0;
-    int fInlinedFunctionCallCounter = 0;
 };
 
 }  // namespace SkSL
