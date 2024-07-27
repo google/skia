@@ -59,6 +59,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
+#include "src/sksl/transform/SkSLTransform.h"
 
 #include <algorithm>
 
@@ -227,6 +228,11 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram(SkSL::DebugTracePriv* deb
             SkSL::Compiler compiler;
             fBaseProgram->fConfig->fSettings.fInlineThreshold = SkSL::kDefaultInlineThreshold;
             compiler.runInliner(*fBaseProgram);
+
+            // After inlining, the program is likely to have dead functions left behind.
+            while (SkSL::Transform::EliminateDeadFunctions(*fBaseProgram)) {
+                // Removing dead functions may cause more functions to become unreferenced.
+            }
         }
 
         SkSL::DebugTracePriv tempDebugTrace;
