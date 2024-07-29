@@ -46,13 +46,12 @@
 
 using ResourceProvider = skresources::ResourceProvider;
 
-using skjson::Value;
-using skjson::NullValue;
+using skjson::ArrayValue;
 using skjson::BoolValue;
 using skjson::NumberValue;
-using skjson::ArrayValue;
-using skjson::StringValue;
 using skjson::ObjectValue;
+using skjson::StringValue;
+using skjson::Value;
 
 namespace {
 
