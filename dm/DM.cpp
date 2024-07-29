@@ -369,8 +369,7 @@ static void find_culprit() {
     #include <signal.h>
     #if !defined(SK_BUILD_FOR_ANDROID)
         #include <execinfo.h>
-
-#endif
+    #endif
 
     static constexpr int max_of() { return 0; }
     template <typename... Rest>
