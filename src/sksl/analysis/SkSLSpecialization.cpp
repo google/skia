@@ -13,6 +13,7 @@
 #include "src/sksl/SkSLDefines.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
@@ -74,13 +75,20 @@ void FindFunctionsToSpecialize(const Program& program,
                         const Expression& arg = *call.arguments()[i];
 
                         // Specializations can only be made on arguments that are not complex
-                        // expressions but only a variable reference since this reference will
-                        // be inlined in the generated specialized functions.
-                        if (!arg.is<VariableReference>()) {
+                        // expressions but only a variable reference or field access since these
+                        // references will be inlined in the generated specialized functions.
+                        const Variable* argBase = nullptr;
+                        if (arg.is<VariableReference>()) {
+                            argBase = arg.as<VariableReference>().variable();
+                        } else if (arg.is<FieldAccess>() &&
+                                   arg.as<FieldAccess>().base()->is<VariableReference>()) {
+                            argBase =
+                                arg.as<FieldAccess>().base()->as<VariableReference>().variable();
+                        } else {
                             continue;
                         }
+                        SkASSERT(argBase);
 
-                        const Variable* var = arg.as<VariableReference>().variable();
                         const Variable* param = decl.parameters()[i];
 
                         // Check that this parameter fits the criteria to create a specialization.
@@ -88,10 +96,11 @@ void FindFunctionsToSpecialize(const Program& program,
                             continue;
                         }
 
-                        if (var->storage() == Variable::Storage::kGlobal) {
+                        if (argBase->storage() == Variable::Storage::kGlobal) {
                             specialization[param] = &arg;
-                        } else if (var->storage() == Variable::Storage::kParameter) {
-                            const Expression** uniformExpr = fInheritedSpecializations.find(var);
+                        } else if (argBase->storage() == Variable::Storage::kParameter) {
+                            const Expression** uniformExpr =
+                                fInheritedSpecializations.find(argBase);
                             SkASSERT(uniformExpr);
 
                             specialization[param] = *uniformExpr;

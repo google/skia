@@ -1,0 +1,30 @@
+struct StructB {
+    float val;
+};
+
+struct StructA {
+    StructB structB;
+    float val;
+};
+
+layout(set = 0, binding = 0) readonly buffer testStorageBuffer {
+    StructA testStructA;
+    float[] testArr;
+};
+layout(set = 0, binding = 1) readonly buffer testSecondStorageBuffer {
+    StructA[] testStructArr;
+};
+
+noinline float foo(float[] arr, float f) {
+    return arr[int(f)];
+}
+
+noinline float bar(StructA[] arr, float f) {
+    return arr[int(f)].structB.val;
+}
+
+void main() {
+    foo(testArr, testStructA.val);
+    foo(testArr, testStructA.structB.val);
+    bar(testStructArr, testStructA.structB.val);
+}
