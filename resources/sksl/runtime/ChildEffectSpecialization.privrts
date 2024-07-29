@@ -1,0 +1,54 @@
+uniform shader s1, s2;
+uniform colorFilter cf1, cf2;
+uniform blender b;
+uniform float2 position;
+uniform half4 color1, color2;
+
+noinline half4 eval_shader(shader s, float2 pt) {
+    return s.eval(pt);
+}
+
+noinline half4 eval_shader_at_0_0(shader s) {
+    return eval_shader(s, float2(0));
+}
+
+noinline half4 eval_colorfilter(colorFilter cf, half4 color) {
+    return cf.eval(color);
+}
+
+noinline half4 eval_blender(blender b, half4 src, half4 dst) {
+    return b.eval(src, dst);
+}
+
+noinline half4 multiply_two_shaders(shader s1, shader s2, float2 pt) {
+    return s1.eval(pt) * eval_shader(s2, pt);
+}
+
+inline half4 eval_inlined(shader s, colorFilter cf, blender b) {
+    return s.eval(position) + cf.eval(color1) - b.eval(color2, color1);
+}
+
+half4 main(float2 xy) {
+    half4 result;
+
+    // Simple non-nested specialization
+    result += eval_shader(s1, position);
+    result += eval_shader(s2, position);
+    result += eval_colorfilter(cf1, color1);
+    result += eval_blender(b, color1, color2);
+
+    // Multiple specialized calls in one expression
+    result += eval_colorfilter(cf1, color2) * eval_colorfilter(cf2, color1);
+
+    // Nested specialized calls
+    result  = eval_shader_at_0_0(s1);
+    result += multiply_two_shaders(s1, s2, position);
+
+    // Compex expression containing multiple, nested specializations
+    result += eval_blender(b, eval_shader_at_0_0(s2), eval_colorfilter(cf2, color2));
+
+    // Inlined expression with specialization
+    result += eval_inlined(s1, cf1, b);
+
+    return result;
+}

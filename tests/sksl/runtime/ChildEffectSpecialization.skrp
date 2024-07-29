@@ -1,0 +1,121 @@
+90 instructions, 15 invocations
+
+store_src_rg                   xy = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+splat_4_constants              result = 0
+copy_4_slots_unmasked          $0..3 = result
+copy_2_uniforms                pt = position
+copy_2_slots_unmasked          $4..5 = pt
+exchange_src                   swap(src.rgba, $4..7)
+invoke_shader                  invoke_shader 0
+exchange_src                   swap(src.rgba, $4..7)
+label                          label 0
+add_4_floats                   $0..3 += $4..7
+copy_4_slots_unmasked          result = $0..3
+copy_2_uniforms                pt = position
+copy_2_slots_unmasked          $4..5 = pt
+exchange_src                   swap(src.rgba, $4..7)
+invoke_shader                  invoke_shader 0x00000001
+exchange_src                   swap(src.rgba, $4..7)
+label                          label 0x00000001
+add_4_floats                   $0..3 += $4..7
+copy_4_slots_unmasked          result = $0..3
+copy_4_uniforms                color = color1
+copy_4_slots_unmasked          $4..7 = color
+exchange_src                   swap(src.rgba, $4..7)
+invoke_color_filter            invoke_color_filter 0x00000002
+exchange_src                   swap(src.rgba, $4..7)
+label                          label 0x00000002
+add_4_floats                   $0..3 += $4..7
+copy_4_slots_unmasked          result = $0..3
+copy_4_uniforms                src = color1
+copy_4_uniforms                dst = color2
+copy_4_slots_unmasked          $4..7 = src
+copy_4_slots_unmasked          $8..11 = dst
+load_dst                       dst.rgba = $8..11
+exchange_src                   swap(src.rgba, $4..7)
+invoke_blender                 invoke_blender 0x00000004
+exchange_src                   swap(src.rgba, $4..7)
+label                          label 0x00000003
+add_4_floats                   $0..3 += $4..7
+copy_4_slots_unmasked          result = $0..3
+copy_4_uniforms                color = color2
+copy_4_slots_unmasked          $4..7 = color
+exchange_src                   swap(src.rgba, $4..7)
+invoke_color_filter            invoke_color_filter 0x00000002
+exchange_src                   swap(src.rgba, $4..7)
+label                          label 0x00000004
+copy_4_uniforms                color = color1
+copy_4_slots_unmasked          $8..11 = color
+exchange_src                   swap(src.rgba, $8..11)
+invoke_color_filter            invoke_color_filter 0x00000003
+exchange_src                   swap(src.rgba, $8..11)
+label                          label 0x00000005
+mul_4_floats                   $4..7 *= $8..11
+add_4_floats                   $0..3 += $4..7
+copy_4_slots_unmasked          result = $0..3
+splat_2_constants              pt = 0
+copy_2_slots_unmasked          $0..1 = pt
+exchange_src                   swap(src.rgba, $0..3)
+invoke_shader                  invoke_shader 0
+exchange_src                   swap(src.rgba, $0..3)
+label                          label 0x00000007
+label                          label 0x00000006
+copy_4_slots_unmasked          result = $0..3
+copy_2_uniforms                pt₁ = position
+copy_2_slots_unmasked          $4..5 = pt₁
+exchange_src                   swap(src.rgba, $4..7)
+invoke_shader                  invoke_shader 0
+exchange_src                   swap(src.rgba, $4..7)
+copy_2_slots_unmasked          $8..9 = pt₁
+exchange_src                   swap(src.rgba, $8..11)
+invoke_shader                  invoke_shader 0x00000001
+exchange_src                   swap(src.rgba, $8..11)
+label                          label 0x00000009
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000008
+add_4_floats                   $0..3 += $4..7
+copy_4_slots_unmasked          result = $0..3
+splat_2_constants              pt = 0
+copy_2_slots_unmasked          $4..5 = pt
+exchange_src                   swap(src.rgba, $4..7)
+invoke_shader                  invoke_shader 0x00000001
+exchange_src                   swap(src.rgba, $4..7)
+label                          label 0x0000000C
+label                          label 0x0000000B
+copy_4_slots_unmasked          src = $4..7
+copy_4_uniforms                color = color2
+copy_4_slots_unmasked          $4..7 = color
+exchange_src                   swap(src.rgba, $4..7)
+invoke_color_filter            invoke_color_filter 0x00000003
+exchange_src                   swap(src.rgba, $4..7)
+label                          label 0x0000000D
+copy_4_slots_unmasked          dst = $4..7
+copy_4_slots_unmasked          $4..7 = src
+copy_4_slots_unmasked          $8..11 = dst
+load_dst                       dst.rgba = $8..11
+exchange_src                   swap(src.rgba, $4..7)
+invoke_blender                 invoke_blender 0x00000004
+exchange_src                   swap(src.rgba, $4..7)
+label                          label 0x0000000A
+add_4_floats                   $0..3 += $4..7
+copy_4_slots_unmasked          result = $0..3
+copy_2_uniforms                $4..5 = position
+exchange_src                   swap(src.rgba, $4..7)
+invoke_shader                  invoke_shader 0
+exchange_src                   swap(src.rgba, $4..7)
+copy_4_uniforms                $8..11 = color1
+exchange_src                   swap(src.rgba, $8..11)
+invoke_color_filter            invoke_color_filter 0x00000002
+exchange_src                   swap(src.rgba, $8..11)
+add_4_floats                   $4..7 += $8..11
+copy_4_uniforms                $8..11 = color2
+copy_4_uniforms                $12..15 = color1
+load_dst                       dst.rgba = $12..15
+exchange_src                   swap(src.rgba, $8..11)
+invoke_blender                 invoke_blender 0x00000004
+exchange_src                   swap(src.rgba, $8..11)
+sub_4_floats                   $4..7 -= $8..11
+add_4_floats                   $0..3 += $4..7
+copy_4_slots_unmasked          result = $0..3
+load_src                       src.rgba = $0..3

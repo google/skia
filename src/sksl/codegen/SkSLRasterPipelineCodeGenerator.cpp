@@ -1419,6 +1419,17 @@ std::optional<SlotRange> Generator::writeFunction(
             const Expression& arg = *arguments[index];
             const Variable& param = *parameters[index];
 
+            // If we are passing a child effect to a function, we need to add its mapping to our
+            // child map.
+            if (arg.type().isEffectChild()) {
+                if (int* childIndex = fChildEffectMap.find(arg.as<VariableReference>()
+                                                              .variable())) {
+                    SkASSERT(!fChildEffectMap.find(&param));
+                    fChildEffectMap[&param] = *childIndex;
+                }
+                continue;
+            }
+
             // Use LValues for out-parameters and inout-parameters, so we can store back to them
             // later.
             if (IsInoutParameter(param) || IsOutParameter(param)) {
@@ -1526,6 +1537,14 @@ std::optional<SlotRange> Generator::writeFunction(
             fProgramSlots.mapVariableToSlots(*remapped.fVariable, *remapped.fSlotRange);
         } else {
             fProgramSlots.unmapVariableSlots(*remapped.fVariable);
+        }
+    }
+
+    // Remove any child-effect mappings that were made for this call.
+    for (size_t index = 0; index < arguments.size(); ++index) {
+        const Expression& arg = *arguments[index];
+        if (arg.type().isEffectChild()) {
+            fChildEffectMap.remove(parameters[index]);
         }
     }
 

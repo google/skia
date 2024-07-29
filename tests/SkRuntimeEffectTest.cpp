@@ -539,8 +539,12 @@ public:
         fSurface = make_surface(fGrContext, fGraphite, /*size=*/{2, 2});
     }
 
-    void build(const char* src) {
-        auto [effect, errorText] = SkRuntimeEffect::MakeForBlender(SkString(src));
+    void build(const char* src, bool allowPrivateAccess = false) {
+        SkRuntimeEffect::Options options;
+        if (allowPrivateAccess) {
+            SkRuntimeEffectPriv::AllowPrivateAccess(&options);
+        }
+        auto [effect, errorText] = SkRuntimeEffect::MakeForBlender(SkString(src), options);
         if (!effect) {
             ERRORF(fReporter, "Effect didn't compile: %s", errorText.c_str());
             return;
@@ -710,6 +714,13 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r,
     effect.build("float2 helper(float2 x) { return x + 1; }"
                  "half4 main(float2 p) { float2 v = helper(p); return half4(half2(v), 0, 1); }");
     effect.test(0xFF00FFFF);
+
+    // Passing a shader to a helper function
+    effect.build("uniform shader child; float2 position;"
+                 "noinline half4 my_eval(shader s) { return s.eval(position); }"
+                 "half4 main(float2 p) { position = p; return my_eval(child); }");
+    effect.child("child") = rgbwShader;
+    effect.test({0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF});
 }
 
 DEF_TEST(SkRuntimeEffectSimple, r) {
@@ -1056,6 +1067,10 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r,
     using float4 = std::array<float, 4>;
     using int4 = std::array<int, 4>;
 
+    SkPaint rgbwPaint;
+    rgbwPaint.setShader(make_RGBW_shader());
+    rgbwPaint.setBlendMode(SkBlendMode::kSrc);
+
     // Use of a simple uniform. (Draw twice with two values to ensure it's updated).
     effect.build("uniform float4 gColor; half4 main(half4 s, half4 d) { return half4(gColor); }");
     effect.uniform("gColor") = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
@@ -1081,9 +1096,6 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r,
     effect.test(0xFF888888);
 
     // Fill the destination with a variety of colors (using the RGBW shader)
-    SkPaint rgbwPaint;
-    rgbwPaint.setShader(make_RGBW_shader());
-    rgbwPaint.setBlendMode(SkBlendMode::kSrc);
     effect.surface()->getCanvas()->drawPaint(rgbwPaint);
 
     // Verify that we can read back the dest color exactly as-is (ignoring the source color)
@@ -1131,6 +1143,25 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r,
     effect.build("uniform shader child;"
                  "uniform half2 pos;"
                  "half4 main(half4 s, half4 d) { return child.eval(pos); }");
+    effect.child("child") = make_RGBW_shader();
+    effect.uniform("pos") = float2{0.5, 0.5};
+    effect.test(0xFF0000FF);
+
+    effect.uniform("pos") = float2{1.5, 0.5};
+    effect.test(0xFF00FF00);
+
+    effect.uniform("pos") = float2{0.5, 1.5};
+    effect.test(0xFFFF0000);
+
+    effect.uniform("pos") = float2{1.5, 1.5};
+    effect.test(0xFFFFFFFF);
+
+    // Sampling a shader as above, but via a helper function
+    effect.build("uniform shader child;"
+                 "uniform half2 pos;"
+                 "half4 eval_at_pos(shader x) { return x.eval(pos); }"
+                 "half4 main(half4 s, half4 d) { return eval_at_pos(child); }",
+                 /*allowPrivateAccess=*/true);
     effect.child("child") = make_RGBW_shader();
     effect.uniform("pos") = float2{0.5, 0.5};
     effect.test(0xFF0000FF);

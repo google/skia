@@ -21,6 +21,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/analysis/SkSLSpecialization.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLChildCall.h"
@@ -52,7 +53,9 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/utils/SkBitSet.h"
 
+#include <functional>
 #include <memory>
 #include <string_view>
 #include <utility>
@@ -86,9 +89,12 @@ private:
     std::string typeName(const Type& type);
     void writeType(const Type& type);
 
-    std::string functionName(const FunctionDeclaration& decl);
+    std::string functionName(const FunctionDeclaration& decl,
+                             Analysis::SpecializationIndex specIndex);
     void writeFunction(const FunctionDefinition& f);
     void writeFunctionDeclaration(const FunctionDeclaration& decl);
+
+    void forEachSpecialization(const FunctionDeclaration& decl, const std::function<void()>& fn);
 
     std::string modifierString(ModifierFlags modifiers);
     std::string functionDeclaration(const FunctionDeclaration& decl);
@@ -145,9 +151,14 @@ private:
     const char*    fDestColor;
     Callbacks*     fCallbacks;
 
-    THashMap<const Variable*, std::string>            fVariableNames;
-    THashMap<const FunctionDeclaration*, std::string> fFunctionNames;
-    THashMap<const Type*, std::string>                fStructNames;
+    Analysis::SpecializationInfo fSpecializationInfo;
+    Analysis::SpecializationIndex fActiveSpecializationIndex = Analysis::kUnspecialized;
+    const Analysis::SpecializedParameters* fActiveSpecialization = nullptr;
+
+    THashMap<const Variable*, std::string>                                      fVariableNames;
+    THashMap<const Type*, std::string>                                          fStructNames;
+    THashMap<Analysis::SpecializedFunctionKey, std::string, Analysis::SpecializedFunctionKey::Hash>
+            fFunctionNames;
 
     StringStream*              fBuffer = nullptr;
     bool                       fCastReturnsToHalf = false;
@@ -165,6 +176,16 @@ void PipelineStageCodeGenerator::writeLine(std::string_view s) {
 }
 
 void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
+    const Variable* child = &c.child();
+
+    if (fActiveSpecialization) {
+        const Expression** specializedChild = fActiveSpecialization->find(child);
+        if (specializedChild) {
+            SkASSERT(*specializedChild);
+            child = (*specializedChild)->as<VariableReference>().variable();
+        }
+    }
+
     const ExpressionArray& arguments = c.arguments();
     SkASSERT(!arguments.empty());
     int index = 0;
@@ -173,7 +194,7 @@ void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
         if (p->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
             const VarDeclaration& decl = global.varDeclaration();
-            if (decl.var() == &c.child()) {
+            if (decl.var() == child) {
                 found = true;
             } else if (decl.var()->type().isEffectChild()) {
                 ++index;
@@ -221,8 +242,7 @@ void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
                 break;
             }
             default: {
-                SkDEBUGFAILF("cannot sample from type '%s'",
-                             c.child().type().description().c_str());
+                SkDEBUGFAILF("cannot sample from type '%s'", child->type().description().c_str());
             }
         }
     }
@@ -256,17 +276,25 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         return;
     }
 
-    if (function.isBuiltin()) {
-        this->write(function.name());
-    } else {
-        this->write(this->functionName(function));
-    }
+    // Look up the specialization data, if any, needed for this function call.
+    Analysis::SpecializationIndex callIndex = Analysis::FindSpecializationIndexForCall(
+            c, fSpecializationInfo, fActiveSpecializationIndex);
+    SkBitSet specializedParams =
+            Analysis::FindSpecializedParametersForFunction(function, fSpecializationInfo);
 
+    this->write(this->functionName(function, callIndex));
     this->write("(");
     auto separator = SkSL::String::Separator();
-    for (const auto& arg : c.arguments()) {
+    for (int argIdx = 0; argIdx < c.arguments().size(); ++argIdx) {
+        // If this parameter is specialized, it is baked into the destination function and should
+        // not be passed along as an argument.
+        if (specializedParams.test(argIdx)) {
+            continue;
+        }
+
+        // This is a regular argument and must be passed normally.
         this->write(separator());
-        this->writeExpression(*arg, Precedence::kSequence);
+        this->writeExpression(*c.arguments()[argIdx], Precedence::kSequence);
     }
     this->write(")");
 }
@@ -339,18 +367,33 @@ void PipelineStageCodeGenerator::writeSwitchStatement(const SwitchStatement& s) 
     this->write("}");
 }
 
-std::string PipelineStageCodeGenerator::functionName(const FunctionDeclaration& decl) {
+std::string PipelineStageCodeGenerator::functionName(const FunctionDeclaration& decl,
+                                                     Analysis::SpecializationIndex specIndex) {
     if (decl.isMain()) {
         return std::string(fCallbacks->getMainName());
     }
 
-    std::string* name = fFunctionNames.find(&decl);
-    if (name) {
+    // Intrinsics and shared functions do not use name mangling.
+    if (decl.isIntrinsic() || decl.moduleType() == ModuleType::sksl_shared) {
+        return std::string(decl.name());
+    }
+
+    Analysis::SpecializedFunctionKey key{&decl, specIndex};
+    if (std::string* name = fFunctionNames.find(key)) {
         return *name;
     }
 
-    std::string mangledName = fCallbacks->getMangledName(std::string(decl.name()).c_str());
-    fFunctionNames.set(&decl, mangledName);
+    std::string specializedName = std::string(decl.name());
+
+    // For specialized functions, tack on `_param1_param2` to the function name.
+    Analysis::GetParameterMappingsForFunction(decl, fSpecializationInfo, specIndex,
+                                              [&](int, const Variable*, const Expression* expr) {
+                                                  specializedName += '_';
+                                                  specializedName += expr->description();
+                                              });
+
+    std::string mangledName = fCallbacks->getMangledName(specializedName.c_str());
+    fFunctionNames.set(key, mangledName);
     return mangledName;
 }
 
@@ -364,30 +407,32 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     SkASSERT(!fCurrentFunction);
     fCurrentFunction = &f.declaration();
 
-    AutoOutputBuffer body(this);
-
-    // We allow public SkSL's main() to return half4 -or- float4 (ie vec4). When we emit
-    // our code in the processor, the surrounding code is going to expect half4, so we
-    // explicitly cast any returns (from main) to half4. This is only strictly necessary
-    // if the return type is float4 - injecting it unconditionally reduces the risk of an
-    // obscure bug.
+    // We allow public SkSL's main() to return half4 _or_ float4 (i.e. vec4). When we emit our code
+    // in the processor, the surrounding code is going to expect half4, so we explicitly cast any
+    // returns (from main) to half4. This is only strictly necessary if the return type is float4,
+    // but we inject it unconditionally as a defensive measure, since it is free and harmless.
     const FunctionDeclaration& decl = f.declaration();
     if (decl.isMain() && !ProgramConfig::IsMesh(fProgram.fConfig->fKind)) {
         fCastReturnsToHalf = true;
     }
 
-    for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
-        this->writeStatement(*stmt);
-        this->writeLine();
-    }
+    this->forEachSpecialization(*fCurrentFunction, [&] {
+        // Assemble the function body into a separate output stream.
+        AutoOutputBuffer body(this);
+        for (const std::unique_ptr<Statement>& stmt : f.body()->as<Block>().children()) {
+            this->writeStatement(*stmt);
+            this->writeLine();
+        }
+
+        // Emit the function.
+        fCallbacks->defineFunction(this->functionDeclaration(decl).c_str(),
+                                   body.fBuffer.str().c_str(),
+                                   decl.isMain());
+    });
 
     if (decl.isMain()) {
         fCastReturnsToHalf = false;
     }
-
-    fCallbacks->defineFunction(this->functionDeclaration(decl).c_str(),
-                               body.fBuffer.str().c_str(),
-                               decl.isMain());
 
     fCurrentFunction = nullptr;
 }
@@ -400,22 +445,56 @@ std::string PipelineStageCodeGenerator::functionDeclaration(const FunctionDeclar
                            decl.modifierFlags().isInline() ? "inline " : "",
                            decl.modifierFlags().isNoInline() ? "noinline " : "",
                            this->typeName(decl.returnType()).c_str(),
-                           this->functionName(decl).c_str());
+                           this->functionName(decl, fActiveSpecializationIndex).c_str());
+
     auto separator = SkSL::String::Separator();
     for (const Variable* p : decl.parameters()) {
-        declString.append(separator());
-        declString.append(this->modifierString(p->modifierFlags()));
-        declString.append(this->typedVariable(p->type(), p->name()).c_str());
+        // Skip past parameters that we are specializing.
+        bool paramIsSpecialized = fActiveSpecialization && fActiveSpecialization->find(p);
+        if (!paramIsSpecialized) {
+            declString.append(separator());
+            declString.append(this->modifierString(p->modifierFlags()));
+            declString.append(this->typedVariable(p->type(), p->name()).c_str());
+        }
     }
 
     return declString + ")";
 }
 
 void PipelineStageCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& decl) {
-    if (!decl.isMain() && !decl.isBuiltin()) {
-        std::string prototype = this->functionDeclaration(decl) + ';';
-        fCallbacks->declareFunction(prototype.c_str());
+    if (!decl.isMain() && decl.moduleType() != ModuleType::sksl_shared) {
+        this->forEachSpecialization(decl, [&] {
+            std::string prototype = this->functionDeclaration(decl) + ';';
+            fCallbacks->declareFunction(prototype.c_str());
+        });
     }
+}
+
+void PipelineStageCodeGenerator::forEachSpecialization(const FunctionDeclaration& decl,
+                                                       const std::function<void()>& fn) {
+    // Save off the current specialization.
+    Analysis::SpecializationIndex prevSpecializationIndex = fActiveSpecializationIndex;
+    const Analysis::SpecializedParameters* prevSpecialization = fActiveSpecialization;
+
+    if (const Analysis::Specializations* specializations =
+                fSpecializationInfo.fSpecializationMap.find(&decl)) {
+        // Invoke the callback for each specialization.
+        for (fActiveSpecializationIndex = 0;
+             fActiveSpecializationIndex < specializations->size();
+             ++fActiveSpecializationIndex) {
+            fActiveSpecialization = &specializations->at(fActiveSpecializationIndex);
+            fn();
+        }
+    } else {
+        // This function isn't specialized, so emit its declaration normally.
+        fActiveSpecializationIndex = Analysis::kUnspecialized;
+        fActiveSpecialization = nullptr;
+        fn();
+    }
+
+    // Restore the previous specialization.
+    fActiveSpecializationIndex = prevSpecializationIndex;
+    fActiveSpecialization = prevSpecialization;
 }
 
 void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& g) {
@@ -789,6 +868,11 @@ void PipelineStageCodeGenerator::writeForStatement(const ForStatement& f) {
 }
 
 void PipelineStageCodeGenerator::generateCode() {
+    // Search for functions which require specialization due to passing child effects as parameters.
+    Analysis::FindFunctionsToSpecialize(fProgram, &fSpecializationInfo, [](const Variable& param) {
+        return param.type().isEffectChild();
+    });
+
     // Write all the program elements except for functions; prototype all the functions.
     for (const ProgramElement* e : fProgram.elements()) {
         this->writeProgramElementFirstPass(*e);

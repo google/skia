@@ -98,10 +98,12 @@ static bool check_parameters(const Context& context,
                                                    permittedFlags);
         param->layout().checkPermittedLayout(context, param->modifiersPosition(),
                                              permittedLayoutFlags);
-        // Only the (builtin) declarations of 'sample' are allowed to have shader/colorFilter or FP
-        // parameters. You can pass other opaque types to functions safely; this restriction is
+
+        // Public Runtime Effects aren't allowed to pass shader/colorFilter/blender types to
+        // function calls. You can pass other opaque types to functions safely; this restriction is
         // specific to "child" objects.
-        if (type.isEffectChild() && !context.fConfig->isBuiltinCode()) {
+        if (!ProgramConfig::AllowsPrivateIdentifiers(context.fConfig->fKind) &&
+            type.isEffectChild()) {
             context.fErrors->error(param->fPosition, "parameters of type '" + type.displayName() +
                                                      "' not allowed");
             return false;

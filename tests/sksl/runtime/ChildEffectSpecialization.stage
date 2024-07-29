@@ -1,0 +1,57 @@
+uniform float2 position;
+uniform half4 color1;
+uniform half4 color2;
+noinline half4 eval_shader_s1_0(float2 pt);
+noinline half4 eval_shader_s2_0(float2 pt);
+noinline half4 eval_shader_at_0_0_s1_0();
+noinline half4 eval_shader_at_0_0_s2_0();
+noinline half4 eval_colorfilter_cf1_0(half4 color);
+noinline half4 eval_colorfilter_cf2_0(half4 color);
+noinline half4 eval_blender_b_0(half4 src, half4 dst);
+noinline half4 multiply_two_shaders_s1_s2_0(float2 pt);
+noinline half4 eval_shader_s1_0(float2 pt)
+{
+	return child_0.eval(pt);
+}
+noinline half4 eval_shader_s2_0(float2 pt)
+{
+	return child_1.eval(pt);
+}
+noinline half4 eval_shader_at_0_0_s1_0()
+{
+	return eval_shader_s1_0(float2(0.0));
+}
+noinline half4 eval_shader_at_0_0_s2_0()
+{
+	return eval_shader_s2_0(float2(0.0));
+}
+noinline half4 eval_colorfilter_cf1_0(half4 color)
+{
+	return child_2.eval(color);
+}
+noinline half4 eval_colorfilter_cf2_0(half4 color)
+{
+	return child_3.eval(color);
+}
+noinline half4 eval_blender_b_0(half4 src, half4 dst)
+{
+	return child_4.eval(src, dst);
+}
+noinline half4 multiply_two_shaders_s1_s2_0(float2 pt)
+{
+	return child_0.eval(pt) * eval_shader_s2_0(pt);
+}
+half4 main(float2 xy)
+{
+	half4 result;
+	result += eval_shader_s1_0(position);
+	result += eval_shader_s2_0(position);
+	result += eval_colorfilter_cf1_0(color1);
+	result += eval_blender_b_0(color1, color2);
+	result += eval_colorfilter_cf1_0(color2) * eval_colorfilter_cf2_0(color1);
+	result = eval_shader_at_0_0_s1_0();
+	result += multiply_two_shaders_s1_s2_0(position);
+	result += eval_blender_b_0(eval_shader_at_0_0_s2_0(), eval_colorfilter_cf2_0(color2));
+	result += (child_0.eval(position) + child_2.eval(color1)) - child_4.eval(color2, color1);
+	return half4(result);
+}
