@@ -523,8 +523,6 @@ void DawnCaps::initShaderCaps(const wgpu::Device& device) {
         shaderCaps->fFBFetchSupport = true;
     }
 #endif
-
-    shaderCaps->fFloatBufferArrayName = "fsGradientBuffer";
 }
 
 void DawnCaps::initFormatTable(const wgpu::Device& device) {

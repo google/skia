@@ -30,7 +30,6 @@ std::unique_ptr<ShaderCaps> ShaderCapsFactory::MakeShaderCaps() {
     standalone->fNoPerspectiveInterpolationSupport = true;
     standalone->fSampleMaskSupport = true;
     standalone->fExternalTextureSupport = true;
-    standalone->fFloatBufferArrayName = "floatData";
     return standalone;
 }
 #else

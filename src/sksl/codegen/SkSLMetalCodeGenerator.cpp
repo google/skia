@@ -1325,16 +1325,6 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->writeExpression(*c.arguments()[1], Precedence::kSequence);
             this->write(", memory_order_relaxed)");
             return true;
-        case k_loadFloatBuffer_IntrinsicKind: {
-            auto indexExpression = IRHelpers::LoadFloatBuffer(
-                                        fContext,
-                                        fCaps,
-                                        c.position(),
-                                        c.arguments()[0]->clone());
-
-            this->writeExpression(*indexExpression, Precedence::kExpression);
-            return true;
-        }
         default:
             return false;
     }
@@ -3627,13 +3617,6 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
                     return reqs;
                 }
             }
-        }
-
-        // Loading data from the instrinsic float buffer requires access to the Globals struct.
-        if (f.intrinsicKind() == IntrinsicKind::k_loadFloatBuffer_IntrinsicKind) {
-            Requirements reqs = kGlobals_Requirement;
-            fRequirements.set(&f, reqs);
-            return reqs;
         }
 
         // We never found a definition for this declared function, but it's legal to prototype a

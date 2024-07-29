@@ -48,7 +48,6 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLFunctionPrototype.h"
-#include "src/sksl/ir/SkSLIRHelpers.h"
 #include "src/sksl/ir/SkSLIRNode.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
@@ -938,16 +937,6 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 return;
             }
             break;
-        case k_loadFloatBuffer_IntrinsicKind: {
-            auto indexExpression = IRHelpers::LoadFloatBuffer(
-                                        fContext,
-                                        fCaps,
-                                        c.position(),
-                                        c.arguments()[0]->clone());
-
-            this->writeExpression(*indexExpression, Precedence::kExpression);
-            return;
-        }
         default:
             break;
     }

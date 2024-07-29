@@ -176,7 +176,6 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     // cannot handle mixed array strides being passed into functions.
     fShaderCaps->fForceStd430ArrayLayout =
             fStorageBufferSupport && fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430;
-    fShaderCaps->fFloatBufferArrayName = "fsGradientBuffer";
 
     // Note that format table initialization should be performed at the end of this method to ensure
     // all capability determinations are completed prior to populating the format tables.

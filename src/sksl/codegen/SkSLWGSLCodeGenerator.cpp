@@ -3305,16 +3305,6 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_unpackUnorm4x8_IntrinsicKind:
             return this->assembleSimpleIntrinsic("unpack4x8unorm", call);
 
-        case k_loadFloatBuffer_IntrinsicKind: {
-            auto indexExpression = IRHelpers::LoadFloatBuffer(
-                                        fContext,
-                                        fCaps,
-                                        call.position(),
-                                        call.arguments()[0]->clone());
-
-            return this->assembleExpression(*indexExpression, Precedence::kExpression);
-        }
-
         case k_clamp_IntrinsicKind:
         case k_max_IntrinsicKind:
         case k_min_IntrinsicKind:

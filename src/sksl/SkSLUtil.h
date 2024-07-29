@@ -161,8 +161,6 @@ struct ShaderCaps {
     const char* fSecondExternalTextureExtensionString = nullptr;
     const char* fFBFetchColorName = nullptr;
 
-    const char* fFloatBufferArrayName = nullptr;
-
     AdvBlendEqInteraction fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 };
 
