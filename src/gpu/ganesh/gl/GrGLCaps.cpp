@@ -486,17 +486,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // We've measured a performance increase using non-VBO vertex data for dynamic content on these
     // GPUs. Perhaps we should read the renderer string and limit this decision to specific GPU
     // families rather than basing it on the vendor alone.
-    // Angle can be initialized with client arrays disabled and needs to be queried. The Chrome
-    // command buffer blocks the use of client side buffers (but may emulate VBOs with them). Client
-    // side buffers are not allowed in core profiles.
+    // Angle doesn't support client side buffers. The Chrome command buffer blocks the use of client
+    // side buffers (but may emulate VBOs with them). Client side buffers are not allowed in core
+    // profiles.
     if (GR_IS_GR_GL(standard) || GR_IS_GR_GL_ES(standard)) {
-        GrGLint clientArraysEnabled = GR_GL_TRUE;
-        if (ctxInfo.hasExtension("GL_ANGLE_client_arrays")) {
-            GR_GL_GetIntegerv(gli, GR_GL_CLIENT_ARRAYS_ANGLE, &clientArraysEnabled);
-        }
-
-        if (clientArraysEnabled && !ctxInfo.isOverCommandBuffer() && !fIsCoreProfile &&
-            (ctxInfo.vendor() == GrGLVendor::kARM || ctxInfo.vendor() == GrGLVendor::kImagination ||
+        if (ctxInfo.angleBackend() == GrGLANGLEBackend::kUnknown &&
+            !ctxInfo.isOverCommandBuffer() &&
+            !fIsCoreProfile &&
+            (ctxInfo.vendor() == GrGLVendor::kARM         ||
+             ctxInfo.vendor() == GrGLVendor::kImagination ||
              ctxInfo.vendor() == GrGLVendor::kQualcomm)) {
             fPreferClientSideDynamicBuffers = true;
         }
