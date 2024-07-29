@@ -35,8 +35,11 @@ def python_unit_tests(train):
 
 
 def recipe_test(train):
+  recipes_cfg_path = os.path.join(SKIA_DIR, 'infra', 'config', 'recipes.cfg')
   cmd = [
-      sys.executable, '-u', os.path.join(INFRA_BOTS_DIR, 'recipes.py'), 'test']
+      sys.executable, '-u', os.path.join(INFRA_BOTS_DIR, 'recipes.py'),
+      '--package', recipes_cfg_path, 'test',
+  ]
   if train:
     cmd.append('train')
   else:
