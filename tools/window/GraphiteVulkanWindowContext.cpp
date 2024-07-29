@@ -375,12 +375,12 @@ bool GraphiteVulkanWindowContext::createBuffers(VkFormat format,
         info.fFlags = fDisplayParams.fCreateProtectedNativeBackend ? VK_IMAGE_CREATE_PROTECTED_BIT
                                                                    : 0;
 
-        skgpu::graphite::BackendTexture backendTex(this->dimensions(),
-                                                   info,
-                                                   VK_IMAGE_LAYOUT_UNDEFINED,
-                                                   fPresentQueueIndex,
-                                                   fImages[i],
-                                                   skgpu::VulkanAlloc());
+        auto backendTex = skgpu::graphite::BackendTextures::MakeVulkan(this->dimensions(),
+                                                                       info,
+                                                                       VK_IMAGE_LAYOUT_UNDEFINED,
+                                                                       fPresentQueueIndex,
+                                                                       fImages[i],
+                                                                       skgpu::VulkanAlloc());
 
         fSurfaces[i] = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                       backendTex,
@@ -573,10 +573,11 @@ void GraphiteVulkanWindowContext::onSwapBuffers() {
         info.fTargetTextureState = &presentState;
 
         SkASSERT(fWaitSemaphore != VK_NULL_HANDLE);
-        skgpu::graphite::BackendSemaphore beWaitSemaphore(fWaitSemaphore);
+        auto beWaitSemaphore = skgpu::graphite::BackendSemaphores::MakeVulkan(fWaitSemaphore);
         info.fNumWaitSemaphores = 1;
         info.fWaitSemaphores = &beWaitSemaphore;
-        skgpu::graphite::BackendSemaphore beSignalSemaphore(backbuffer->fRenderSemaphore);
+        auto beSignalSemaphore =
+                skgpu::graphite::BackendSemaphores::MakeVulkan(backbuffer->fRenderSemaphore);
         info.fNumSignalSemaphores = 1;
         info.fSignalSemaphores = &beSignalSemaphore;
 

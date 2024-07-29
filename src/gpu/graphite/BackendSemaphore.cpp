@@ -32,31 +32,15 @@ BackendSemaphore& BackendSemaphore::operator=(const BackendSemaphore& that) {
         case BackendApi::kDawn:
             SK_ABORT("Unsupported Backend");
         case BackendApi::kMetal:
+        case BackendApi::kVulkan:
             fSemaphoreData.reset();
             that.fSemaphoreData->copyTo(fSemaphoreData);
             break;
-#ifdef SK_VULKAN
-        case BackendApi::kVulkan:
-            fVkSemaphore = that.fVkSemaphore;
-            break;
-#endif
         default:
             SK_ABORT("Unsupported Backend");
     }
     return *this;
 }
-
-#ifdef SK_VULKAN
-BackendSemaphore::BackendSemaphore(VkSemaphore semaphore)
-        : fBackend(BackendApi::kVulkan), fIsValid(true), fVkSemaphore(semaphore) {}
-
-VkSemaphore BackendSemaphore::getVkSemaphore() const {
-    if (this->isValid() && this->backend() == BackendApi::kVulkan) {
-        return fVkSemaphore;
-    }
-    return VK_NULL_HANDLE;
-}
-#endif
 
 BackendSemaphoreData::~BackendSemaphoreData(){};
 

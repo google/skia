@@ -314,6 +314,8 @@ skia_graphite_vk_public = [
 
 skia_graphite_vk_sources = [
   "$_include_private/VulkanGraphiteTypesPriv.h",
+  "$_src/vk/VulkanBackendSemaphore.cpp",
+  "$_src/vk/VulkanBackendTexture.cpp",
   "$_src/vk/VulkanBuffer.cpp",
   "$_src/vk/VulkanBuffer.h",
   "$_src/vk/VulkanCaps.cpp",
@@ -345,6 +347,7 @@ skia_graphite_vk_sources = [
   "$_src/vk/VulkanSharedContext.h",
   "$_src/vk/VulkanTexture.cpp",
   "$_src/vk/VulkanTexture.h",
+  "$_src/vk/VulkanTextureInfo.cpp",
   "$_src/vk/VulkanYcbcrConversion.cpp",
   "$_src/vk/VulkanYcbcrConversion.h",
 ]

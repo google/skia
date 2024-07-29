@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteTypesPriv.h"
 
 using namespace skgpu::graphite;
 
@@ -35,13 +36,13 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureSimpleCreationTest, rep
     textureInfo.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     textureInfo.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    auto beTexture = recorder->createBackendTexture(kSize, textureInfo);
+    auto beTexture = recorder->createBackendTexture(kSize, TextureInfos::MakeVulkan(textureInfo));
     REPORTER_ASSERT(reporter, beTexture.isValid());
     recorder->deleteBackendTexture(beTexture);
 
     // It should also pass if we set the usage to be a render target
     textureInfo.fImageUsageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    beTexture = recorder->createBackendTexture(kSize, textureInfo);
+    beTexture = recorder->createBackendTexture(kSize, TextureInfos::MakeVulkan(textureInfo));
     REPORTER_ASSERT(reporter, beTexture.isValid());
     recorder->deleteBackendTexture(beTexture);
 }
@@ -62,20 +63,27 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureCopyVariableTest, repor
     textureInfo.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
     textureInfo.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    BackendTexture beTexture = recorder->createBackendTexture(kSize, textureInfo);
+    BackendTexture beTexture =
+            recorder->createBackendTexture(kSize, TextureInfos::MakeVulkan(textureInfo));
     REPORTER_ASSERT(reporter, beTexture.isValid());
 
     BackendTexture beTexture2;
     REPORTER_ASSERT(reporter, beTexture2 != beTexture);
-    REPORTER_ASSERT(reporter, beTexture2.getVkImage() == VK_NULL_HANDLE);
-    REPORTER_ASSERT(reporter, beTexture2.getVkImageLayout() == VK_IMAGE_LAYOUT_UNDEFINED);
+    REPORTER_ASSERT(reporter, BackendTextures::GetVkImage(beTexture2) == VK_NULL_HANDLE);
+    REPORTER_ASSERT(reporter,
+                    BackendTextures::GetVkImageLayout(beTexture2) == VK_IMAGE_LAYOUT_UNDEFINED);
 
     beTexture2 = beTexture;
     REPORTER_ASSERT(reporter, beTexture2 == beTexture);
-    REPORTER_ASSERT(reporter, beTexture2.getVkImage() == beTexture.getVkImage());
-    REPORTER_ASSERT(reporter, beTexture2.getVkImageLayout() == beTexture.getVkImageLayout());
     REPORTER_ASSERT(
-            reporter, beTexture2.getVkQueueFamilyIndex() == beTexture.getVkQueueFamilyIndex());
+            reporter,
+            BackendTextures::GetVkImage(beTexture2) == BackendTextures::GetVkImage(beTexture));
+    REPORTER_ASSERT(reporter,
+                    BackendTextures::GetVkImageLayout(beTexture2) ==
+                            BackendTextures::GetVkImageLayout(beTexture));
+    REPORTER_ASSERT(reporter,
+                    BackendTextures::GetVkQueueFamilyIndex(beTexture2) ==
+                            BackendTextures::GetVkQueueFamilyIndex(beTexture));
 
     recorder->deleteBackendTexture(beTexture);
     // The backend memory of beTexture2 == that of beTexture, so only call delete once.

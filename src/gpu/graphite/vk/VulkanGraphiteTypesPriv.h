@@ -9,6 +9,7 @@
 #define skgpu_graphite_VulkanGraphiteTypesPriv_DEFINED
 
 #include "include/core/SkString.h"
+#include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 
@@ -78,6 +79,23 @@ VulkanTextureInfo VulkanTextureSpecToTextureInfo(const VulkanTextureSpec& vkSpec
                                                  uint32_t sampleCount,
                                                  Mipmapped mipmapped);
 
-} // namespace skgpu::graphite
+namespace TextureInfos {
+VulkanTextureSpec GetVulkanTextureSpec(const TextureInfo&);
+VkFormat GetVkFormat(const TextureInfo&);
+VkImageUsageFlags GetVkUsageFlags(const TextureInfo&);
+VulkanYcbcrConversionInfo GetVulkanYcbcrConversionInfo(const TextureInfo&);
+}  // namespace TextureInfos
 
-#endif // skgpu_graphite_VulkanGraphiteTypesPriv_DEFINED
+namespace BackendTextures {
+VkImage GetVkImage(const BackendTexture&);
+VkImageLayout GetVkImageLayout(const BackendTexture&);
+uint32_t GetVkQueueFamilyIndex(const BackendTexture&);
+VulkanAlloc GetMemoryAlloc(const BackendTexture&);
+
+void SetMutableState(BackendTexture*, const skgpu::MutableTextureState&);
+sk_sp<skgpu::MutableTextureState> GetMutableState(const BackendTexture&);
+}  // namespace BackendTextures
+
+}  // namespace skgpu::graphite
+
+#endif  // skgpu_graphite_VulkanGraphiteTypesPriv_DEFINED

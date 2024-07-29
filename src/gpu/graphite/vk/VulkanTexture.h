@@ -84,10 +84,7 @@ public:
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
     static VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
 
-    bool supportsInputAttachmentUsage() const {
-        return (this->textureInfo().vulkanTextureSpec().fImageUsageFlags &
-                VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
-    }
+    bool supportsInputAttachmentUsage() const;
 
 private:
     VulkanTexture(const VulkanSharedContext* sharedContext,

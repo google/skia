@@ -9,6 +9,7 @@
 
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/graphite/BackendSemaphore.h"
+#include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/DataUtils.h"
@@ -174,7 +175,7 @@ void VulkanCommandBuffer::addWaitSemaphores(size_t numWaitSemaphores,
     for (size_t i = 0; i < numWaitSemaphores; ++i) {
         auto& semaphore = waitSemaphores[i];
         if (semaphore.isValid() && semaphore.backend() == BackendApi::kVulkan) {
-            fWaitSemaphores.push_back(semaphore.getVkSemaphore());
+            fWaitSemaphores.push_back(BackendSemaphores::GetVkSemaphore(semaphore));
         }
     }
 }
@@ -189,7 +190,7 @@ void VulkanCommandBuffer::addSignalSemaphores(size_t numSignalSemaphores,
     for (size_t i = 0; i < numSignalSemaphores; ++i) {
         auto& semaphore = signalSemaphores[i];
         if (semaphore.isValid() && semaphore.backend() == BackendApi::kVulkan) {
-            fSignalSemaphores.push_back(semaphore.getVkSemaphore());
+            fSignalSemaphores.push_back(BackendSemaphores::GetVkSemaphore(semaphore));
         }
     }
 }
@@ -1321,7 +1322,7 @@ bool VulkanCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
 
     // Obtain the VkFormat of the source texture so we can determine bytes per block.
     VulkanTextureInfo srcTextureInfo;
-    texture->textureInfo().getVulkanTextureInfo(&srcTextureInfo);
+    SkAssertResult(TextureInfos::GetVulkanTextureInfo(texture->textureInfo(), &srcTextureInfo));
     size_t bytesPerBlock = VkFormatBytesPerBlock(srcTextureInfo.fFormat);
 
     // Set up copy region
@@ -1368,7 +1369,7 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
 
     // Obtain the VkFormat of the destination texture so we can determine bytes per block.
     VulkanTextureInfo dstTextureInfo;
-    dstTexture->textureInfo().getVulkanTextureInfo(&dstTextureInfo);
+    SkAssertResult(TextureInfos::GetVulkanTextureInfo(dstTexture->textureInfo(), &dstTextureInfo));
     size_t bytesPerBlock = VkFormatBytesPerBlock(dstTextureInfo.fFormat);
     SkISize oneBlockDims = CompressedDimensions(dstTexture->textureInfo().compressionType(),
                                                 {1, 1});

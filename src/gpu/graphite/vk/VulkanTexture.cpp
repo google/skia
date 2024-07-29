@@ -8,11 +8,13 @@
 #include "src/gpu/graphite/vk/VulkanTexture.h"
 
 #include "include/gpu/MutableTextureState.h"
+#include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/vk/VulkanCaps.h"
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteTypesPriv.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/vk/VulkanResourceProvider.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
@@ -45,7 +47,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
         return false;
     }
 
-    const VulkanTextureSpec& spec = info.vulkanTextureSpec();
+    const VulkanTextureSpec spec = TextureInfos::GetVulkanTextureSpec(info);
 
     bool isLinear = spec.fImageTiling == VK_IMAGE_TILING_LINEAR;
     VkImageLayout initialLayout = isLinear ? VK_IMAGE_LAYOUT_PREINITIALIZED
@@ -216,7 +218,7 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
     uint32_t currentQueueIndex = this->currentQueueFamilyIndex();
 
     VulkanTextureInfo textureInfo;
-    this->textureInfo().getVulkanTextureInfo(&textureInfo);
+    SkAssertResult(TextureInfos::GetVulkanTextureInfo(this->textureInfo(), &textureInfo));
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
 
     // Enable the following block on new devices to test that their lazy images stay at 0 memory use
@@ -406,7 +408,7 @@ const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage)
 
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
     VulkanTextureInfo vkTexInfo;
-    this->textureInfo().getVulkanTextureInfo(&vkTexInfo);
+    SkAssertResult(TextureInfos::GetVulkanTextureInfo(this->textureInfo(), &vkTexInfo));
     int miplevels = this->textureInfo().mipmapped() == Mipmapped::kYes
                     ? SkMipmap::ComputeLevelCount(this->dimensions().width(),
                                                   this->dimensions().height()) + 1
@@ -420,5 +422,9 @@ const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage)
     return fImageViews.push_back(std::move(imageView)).get();
 }
 
+bool VulkanTexture::supportsInputAttachmentUsage() const {
+    return (TextureInfos::GetVkUsageFlags(this->textureInfo()) &
+            VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
+}
 
 } // namespace skgpu::graphite

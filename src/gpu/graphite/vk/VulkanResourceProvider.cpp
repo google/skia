@@ -24,6 +24,7 @@
 #include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
 #include "src/gpu/graphite/vk/VulkanFramebuffer.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteTypesPriv.h"
 #include "src/gpu/graphite/vk/VulkanRenderPass.h"
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
@@ -85,9 +86,9 @@ const VulkanSharedContext* VulkanResourceProvider::vulkanSharedContext() const {
 
 sk_sp<Texture> VulkanResourceProvider::onCreateWrappedTexture(const BackendTexture& texture) {
     sk_sp<VulkanYcbcrConversion> ycbcrConversion;
-    if (texture.info().vulkanTextureSpec().fYcbcrConversionInfo.isValid()) {
+    if (TextureInfos::GetVulkanYcbcrConversionInfo(texture.info()).isValid()) {
         ycbcrConversion = this->findOrCreateCompatibleYcbcrConversion(
-                texture.info().vulkanTextureSpec().fYcbcrConversionInfo);
+                TextureInfos::GetVulkanYcbcrConversionInfo(texture.info()));
         if (!ycbcrConversion) {
             return nullptr;
         }
@@ -96,9 +97,9 @@ sk_sp<Texture> VulkanResourceProvider::onCreateWrappedTexture(const BackendTextu
     return VulkanTexture::MakeWrapped(this->vulkanSharedContext(),
                                       texture.dimensions(),
                                       texture.info(),
-                                      texture.getMutableState(),
-                                      texture.getVkImage(),
-                                      /*alloc=*/{}  /*Skia does not own wrapped texture memory*/,
+                                      BackendTextures::GetMutableState(texture),
+                                      BackendTextures::GetVkImage(texture),
+                                      /*alloc=*/{} /*Skia does not own wrapped texture memory*/,
                                       std::move(ycbcrConversion));
 }
 
@@ -128,9 +129,9 @@ sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size,
                                                      const TextureInfo& info,
                                                      skgpu::Budgeted budgeted) {
     sk_sp<VulkanYcbcrConversion> ycbcrConversion;
-    if (info.vulkanTextureSpec().fYcbcrConversionInfo.isValid()) {
+    if (TextureInfos::GetVulkanYcbcrConversionInfo(info).isValid()) {
         ycbcrConversion = this->findOrCreateCompatibleYcbcrConversion(
-                info.vulkanTextureSpec().fYcbcrConversionInfo);
+                TextureInfos::GetVulkanYcbcrConversionInfo(info));
         if (!ycbcrConversion) {
             return nullptr;
         }
@@ -181,7 +182,7 @@ sk_sp<Sampler> VulkanResourceProvider::createSampler(const SamplerDesc& samplerD
 BackendTexture VulkanResourceProvider::onCreateBackendTexture(SkISize dimensions,
                                                               const TextureInfo& info) {
     VulkanTextureInfo vkTexInfo;
-    if (!info.getVulkanTextureInfo(&vkTexInfo)) {
+    if (!TextureInfos::GetVulkanTextureInfo(info, &vkTexInfo)) {
         return {};
     }
     VulkanTexture::CreatedImageInfo createdTextureInfo;
@@ -189,12 +190,14 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(SkISize dimensions
                                     &createdTextureInfo)) {
         return {};
     }
-    return {dimensions,
+    return BackendTextures::MakeVulkan(
+            dimensions,
             vkTexInfo,
             skgpu::MutableTextureStates::GetVkImageLayout(createdTextureInfo.fMutableState.get()),
-            skgpu::MutableTextureStates::GetVkQueueFamilyIndex(createdTextureInfo.fMutableState.get()),
+            skgpu::MutableTextureStates::GetVkQueueFamilyIndex(
+                    createdTextureInfo.fMutableState.get()),
             createdTextureInfo.fImage,
-            createdTextureInfo.fMemoryAlloc};
+            createdTextureInfo.fMemoryAlloc);
 }
 
 namespace {
@@ -494,24 +497,23 @@ void VulkanResourceProvider::onDeleteBackendTexture(const BackendTexture& textur
     SkASSERT(texture.backend() == BackendApi::kVulkan);
 
     VULKAN_CALL(this->vulkanSharedContext()->interface(),
-                DestroyImage(this->vulkanSharedContext()->device(), texture.getVkImage(),
+                DestroyImage(this->vulkanSharedContext()->device(),
+                             BackendTextures::GetVkImage(texture),
                              /*VkAllocationCallbacks=*/nullptr));
 
+    VulkanAlloc alloc = BackendTextures::GetMemoryAlloc(texture);
     // Free the image memory used for the BackendTexture's VkImage.
     //
     // How we do this is dependent upon on how the image was allocated (via the memory allocator or
     // with a direct call to the Vulkan driver) . If the VulkanAlloc's fBackendMemory is != 0, then
     // that means the allocator was used. Otherwise, a direct driver call was used and we should
     // free the VkDeviceMemory (fMemory).
-    if (texture.getMemoryAlloc()->fBackendMemory) {
-        skgpu::VulkanMemory::FreeImageMemory(this->vulkanSharedContext()->memoryAllocator(),
-                                             *(texture.getMemoryAlloc()));
+    if (alloc.fBackendMemory) {
+        skgpu::VulkanMemory::FreeImageMemory(this->vulkanSharedContext()->memoryAllocator(), alloc);
     } else {
-        SkASSERT(texture.getMemoryAlloc()->fMemory != VK_NULL_HANDLE);
+        SkASSERT(alloc.fMemory != VK_NULL_HANDLE);
         VULKAN_CALL(this->vulkanSharedContext()->interface(),
-                    FreeMemory(this->vulkanSharedContext()->device(),
-                               texture.getMemoryAlloc()->fMemory,
-                               nullptr));
+                    FreeMemory(this->vulkanSharedContext()->device(), alloc.fMemory, nullptr));
     }
 }
 
@@ -730,8 +732,12 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
         return {};
     }
 
-    return { dimensions, vkTexInfo, VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_FOREIGN_EXT,
-             image, alloc};
+    return BackendTextures::MakeVulkan(dimensions,
+                                       vkTexInfo,
+                                       VK_IMAGE_LAYOUT_UNDEFINED,
+                                       VK_QUEUE_FAMILY_FOREIGN_EXT,
+                                       image,
+                                       alloc);
 }
 
 #endif // SK_BUILD_FOR_ANDROID

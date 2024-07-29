@@ -8,7 +8,9 @@
 #ifndef skgpu_graphite_VulkanGraphiteTypes_DEFINED
 #define skgpu_graphite_VulkanGraphiteTypes_DEFINED
 
+#include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/vk/VulkanTypes.h"
 
 namespace skgpu::graphite {
@@ -57,8 +59,28 @@ struct VulkanTextureInfo {
             , fYcbcrConversionInfo(ycbcrConversionInfo) {}
 };
 
-} // namespace skgpu::graphite
+namespace TextureInfos {
+SK_API TextureInfo MakeVulkan(const VulkanTextureInfo&);
 
-#endif // skgpu_graphite_VulkanGraphiteTypes_DEFINED
+SK_API bool GetVulkanTextureInfo(const TextureInfo&, VulkanTextureInfo*);
+}  // namespace TextureInfos
 
+namespace BackendTextures {
+SK_API BackendTexture MakeVulkan(SkISize dimensions,
+                                 const VulkanTextureInfo&,
+                                 VkImageLayout,
+                                 uint32_t queueFamilyIndex,
+                                 VkImage,
+                                 VulkanAlloc);
+}  // namespace BackendTextures
 
+namespace BackendSemaphores {
+SK_API BackendSemaphore MakeVulkan(VkSemaphore);
+
+SK_API VkSemaphore GetVkSemaphore(const BackendSemaphore&);
+
+}  // namespace BackendSemaphores
+
+}  // namespace skgpu::graphite
+
+#endif  // skgpu_graphite_VulkanGraphiteTypes_DEFINED

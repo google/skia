@@ -9,6 +9,7 @@
 
 #include "include/core/SkString.h"
 #include "include/gpu/graphite/BackendTexture.h"
+#include "include/private/base/SkAssert.h"
 
 #include <cstdint>
 
@@ -45,6 +46,11 @@ public:
 
     static const BackendTextureData* GetData(const BackendTexture& info) {
         return info.fTextureData.get();
+    }
+
+    static BackendTextureData* GetData(BackendTexture* info) {
+        SkASSERT(info);
+        return info->fTextureData.get();
     }
 };
 

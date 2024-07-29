@@ -7,7 +7,7 @@
 
 #include "tools/gpu/vk/VkYcbcrSamplerHelper.h"
 
-#ifdef SK_VULKAN
+#if defined(SK_VULKAN)
 
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
@@ -220,12 +220,12 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
             VK_IMAGE_ASPECT_PLANE_0_BIT | VK_IMAGE_ASPECT_PLANE_1_BIT,
             ycbcrInfo};
 
-    fTexture = skgpu::graphite::BackendTexture{{(int32_t)width, (int32_t)height},
-                                               imageInfo,
-                                               VK_IMAGE_LAYOUT_UNDEFINED,
-                                               /*queueFamilyIndex=*/0,
-                                               fImage,
-                                               alloc};
+    fTexture = skgpu::graphite::BackendTextures::MakeVulkan({(int32_t)width, (int32_t)height},
+                                                            imageInfo,
+                                                            VK_IMAGE_LAYOUT_UNDEFINED,
+                                                            /*queueFamilyIndex=*/0,
+                                                            fImage,
+                                                            alloc);
     return true;
 }
 #endif // SK_GRAPHITE

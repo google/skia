@@ -12,7 +12,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/private/base/SkAnySubclass.h"
 
-#ifdef SK_VULKAN
+#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_BACKEND_SEMAPHORE_FUNCS)
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #endif
 
@@ -24,8 +24,10 @@ class SK_API BackendSemaphore {
 public:
     BackendSemaphore();
 
-#ifdef SK_VULKAN
-    BackendSemaphore(VkSemaphore semaphore);
+#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_BACKEND_SEMAPHORE_FUNCS)
+    BackendSemaphore(VkSemaphore);
+
+    VkSemaphore getVkSemaphore() const;
 #endif
 
     BackendSemaphore(const BackendSemaphore&);
@@ -36,10 +38,6 @@ public:
 
     bool isValid() const { return fIsValid; }
     BackendApi backend() const { return fBackend; }
-
-#ifdef SK_VULKAN
-    VkSemaphore getVkSemaphore() const;
-#endif
 
 private:
     friend class BackendSemaphoreData;
@@ -61,17 +59,6 @@ private:
     AnyBackendSemaphoreData fSemaphoreData;
 
     bool fIsValid = false;
-
-    // TODO(b/294543706): Re-write with SkAnySubclass
-    union {
-#ifdef SK_DAWN
-        // TODO: WebGPU doesn't seem to have the notion of an Event or Semaphore
-#endif
-#ifdef SK_VULKAN
-        VkSemaphore fVkSemaphore;
-#endif
-        void* fEnsureUnionNonEmpty;
-    };
 };
 
 } // namespace skgpu::graphite
