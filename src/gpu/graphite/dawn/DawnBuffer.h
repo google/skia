@@ -41,7 +41,8 @@ private:
     void onMap() override;
     void onUnmap() override;
 
-    void mapCallback(WGPUBufferMapAsyncStatus status);
+    template <typename StatusT>
+    void mapCallback(StatusT status, const char* message);
 
     void freeGpuData() override;
 
