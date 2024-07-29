@@ -60,6 +60,7 @@ skia_filegroup(
     name = "vma_hdrs",
     srcs = [
         "VulkanAMDMemoryAllocator.h",
+        "VulkanMemoryAllocatorPriv.h",
     ],
     visibility = [
         "//src/gpu/vk:__pkg__",
