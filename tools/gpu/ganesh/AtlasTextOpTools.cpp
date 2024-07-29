@@ -45,8 +45,8 @@ GrOp::Owner AtlasTextOpTools::CreateOp(skgpu::ganesh::SurfaceDrawContext* sdc,
     }
 
     auto rContext = sdc->recordingContext();
-    sktext::gpu::SDFTControl control =
-            rContext->priv().getSDFTControl(sdc->surfaceProps().isUseDeviceIndependentFonts());
+    sktext::gpu::SubRunControl control =
+            rContext->priv().getSubRunControl(sdc->surfaceProps().isUseDeviceIndependentFonts());
 
     SkStrikeDeviceInfo strikeDeviceInfo{
             sdc->surfaceProps(), SkScalerContextFlags::kBoostContrast, &control};

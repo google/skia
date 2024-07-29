@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef sktext_gpu_SDFTControl_DEFINED
-#define sktext_gpu_SDFTControl_DEFINED
+#ifndef sktext_gpu_SubRunControl_DEFINED
+#define sktext_gpu_SubRunControl_DEFINED
 
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
@@ -38,11 +38,12 @@ private:
 };
 #endif
 
-class SDFTControl {
+class SubRunControl {
 public:
 #if !defined(SK_DISABLE_SDF_TEXT)
-    SDFTControl(bool ableToUseSDFT, bool useSDFTForSmallText, bool useSDFTForPerspectiveText,
-                SkScalar min, SkScalar max);
+    SubRunControl(bool ableToUseSDFT, bool useSDFTForSmallText, bool useSDFTForPerspectiveText,
+                  SkScalar min, SkScalar max,
+                  bool forcePathAA=false);
 
     // Produce a font, a scale factor from the nominal size to the source space size, and matrix
     // range where this font can be reused.
@@ -53,11 +54,12 @@ public:
                 const SkMatrix& matrix) const;
     SkScalar maxSize() const { return fMaxDistanceFieldFontSize; }
 #else
-    SDFTControl() {}
+    SubRunControl(bool forcePathAA=false) : fForcePathAA(forcePathAA) {}
 #endif
     bool isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                   const SkMatrix& matrix) const;
 
+    bool forcePathAA() const { return fForcePathAA; }
 
 private:
 #if !defined(SK_DISABLE_SDF_TEXT)
@@ -73,8 +75,11 @@ private:
     const bool fAbleToUseSDFT;
     const bool fAbleToUsePerspectiveSDFT;
 #endif
+
+    // If true, glyphs drawn as paths are always anti-aliased regardless of any edge hinting.
+    const bool fForcePathAA;
 };
 
 }  // namespace sktext::gpu
 
-#endif  // sktext_SDFTControl_DEFINED
+#endif  // sktext_SubRunControl_DEFINED

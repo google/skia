@@ -25,7 +25,7 @@
 #include "src/gpu/ganesh/ClipStack.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/text/gpu/SDFTControl.h"
+#include "src/text/gpu/SubRunControl.h"
 
 #include <cstddef>
 #include <memory>
@@ -311,7 +311,7 @@ private:
 
     sk_sp<GrRecordingContext> fContext;
 
-    const sktext::gpu::SDFTControl fSDFTControl;
+    const sktext::gpu::SubRunControl fSubRunControl;
 
     std::unique_ptr<SurfaceDrawContext> fSurfaceDrawContext;
 

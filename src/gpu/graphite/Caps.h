@@ -20,7 +20,7 @@
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
-#include "src/text/gpu/SDFTControl.h"
+#include "src/text/gpu/SubRunControl.h"
 
 #if defined(GRAPHITE_TEST_UTILS)
 #include "src/gpu/graphite/ContextOptionsPriv.h"
@@ -302,7 +302,7 @@ public:
         return fFullCompressedUploadSizeMustAlignToBlockDims;
     }
 
-    sktext::gpu::SDFTControl getSDFTControl(bool useSDFTForSmallText) const;
+    sktext::gpu::SubRunControl getSubRunControl(bool useSDFTForSmallText) const;
 
     bool setBackendLabels() const { return fSetBackendLabels; }
 

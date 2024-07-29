@@ -18,7 +18,7 @@
 #include "src/gpu/ganesh/Device.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
-#include "src/text/gpu/SDFTControl.h"
+#include "src/text/gpu/SubRunControl.h"
 
 #include <memory>
 #include <string_view>
@@ -144,7 +144,7 @@ public:
     DMSAAStats& dmsaaStats() { return this->context()->fDMSAAStats; }
 #endif
 
-    sktext::gpu::SDFTControl getSDFTControl(bool useSDFTForSmallText) const;
+    sktext::gpu::SubRunControl getSubRunControl(bool useSDFTForSmallText) const;
 
     /**
      * Create a GrRecordingContext without a resource cache

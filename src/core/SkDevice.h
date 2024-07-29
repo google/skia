@@ -72,7 +72,7 @@ class Device;
 class Recorder;
 }
 namespace sktext::gpu {
-class SDFTControl;
+class SubRunControl;
 class Slug;
 }
 
@@ -80,7 +80,7 @@ struct SkStrikeDeviceInfo {
     const SkSurfaceProps fSurfaceProps;
     const SkScalerContextFlags fScalerContextFlags;
     // This is a pointer so this can be compiled without SK_GPU_SUPPORT.
-    const sktext::gpu::SDFTControl* const fSDFTControl;
+    const sktext::gpu::SubRunControl* const fSubRunControl;
 };
 
 /**

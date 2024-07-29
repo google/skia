@@ -458,7 +458,7 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         , fDisjointStencilSet(std::make_unique<IntersectionTreeSet>())
         , fCachedLocalToDevice(SkM44())
         , fCurrentDepth(DrawOrder::kClearDepth)
-        , fSDFTControl(recorder->priv().caps()->getSDFTControl(
+        , fSubRunControl(recorder->priv().caps()->getSubRunControl(
                 fDC->surfaceProps().isUseDeviceIndependentFonts())) {
     SkASSERT(SkToBool(fDC) && SkToBool(fRecorder));
     if (fRecorder->priv().caps()->defaultMSAASamplesCount() > 1) {
@@ -512,7 +512,7 @@ const Transform& Device::localToDeviceTransform() {
 }
 
 SkStrikeDeviceInfo Device::strikeDeviceInfo() const {
-    return {this->surfaceProps(), this->scalerContextFlags(), &fSDFTControl};
+    return {this->surfaceProps(), this->scalerContextFlags(), &fSubRunControl};
 }
 
 sk_sp<SkDevice> Device::createDevice(const CreateInfo& info, const SkPaint*) {

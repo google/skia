@@ -42,9 +42,9 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/GlyphRun.h"
 #include "src/text/StrikeForGPU.h"
-#include "src/text/gpu/SDFTControl.h"
 #include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/SubRunContainer.h"
+#include "src/text/gpu/SubRunControl.h"
 #include "src/text/gpu/TextBlob.h"
 
 #include <cstring>
@@ -448,10 +448,10 @@ class GlyphTrackingDevice final : public SkNoPixelsDevice {
 public:
     GlyphTrackingDevice(
             const SkISize& dimensions, const SkSurfaceProps& props, SkStrikeServerImpl* server,
-            sk_sp<SkColorSpace> colorSpace, sktext::gpu::SDFTControl SDFTControl)
+            sk_sp<SkColorSpace> colorSpace, sktext::gpu::SubRunControl SubRunControl)
             : SkNoPixelsDevice(SkIRect::MakeSize(dimensions), props, std::move(colorSpace))
             , fStrikeServerImpl(server)
-            , fSDFTControl(SDFTControl) {
+            , fSubRunControl(SubRunControl) {
         SkASSERT(fStrikeServerImpl != nullptr);
     }
 
@@ -463,11 +463,11 @@ public:
                                                surfaceProps,
                                                fStrikeServerImpl,
                                                cinfo.fInfo.refColorSpace(),
-                                               fSDFTControl);
+                                               fSubRunControl);
     }
 
     SkStrikeDeviceInfo strikeDeviceInfo() const override {
-        return {this->surfaceProps(), this->scalerContextFlags(), &fSDFTControl};
+        return {this->surfaceProps(), this->scalerContextFlags(), &fSubRunControl};
     }
 
 protected:
@@ -508,7 +508,7 @@ protected:
 
 private:
     SkStrikeServerImpl* const fStrikeServerImpl;
-    const sktext::gpu::SDFTControl fSDFTControl;
+    const sktext::gpu::SubRunControl fSubRunControl;
 };
 
 // -- SkStrikeServer -------------------------------------------------------------------------------
@@ -535,13 +535,15 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
 #else
     constexpr float kGlyphsAsPathsFontSize = 324.f;
 #endif
-    auto control = sktext::gpu::SDFTControl{DFTSupport,
+    // There is no need to set forcePathAA for the remote glyph cache as that control impacts
+    // *how* the glyphs are rendered as paths, not *when* they are rendered as paths.
+    auto control = sktext::gpu::SubRunControl{DFTSupport,
                                             props.isUseDeviceIndependentFonts(),
                                             DFTPerspSupport,
                                             kMinDistanceFieldFontSize,
                                             kGlyphsAsPathsFontSize};
 #else
-    auto control = sktext::gpu::SDFTControl{};
+    auto control = sktext::gpu::SubRunControl{};
 #endif
 
     sk_sp<SkDevice> trackingDevice = sk_make_sp<GlyphTrackingDevice>(

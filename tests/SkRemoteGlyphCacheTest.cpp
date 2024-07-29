@@ -48,7 +48,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
-#include "src/text/gpu/SDFTControl.h"
+#include "src/text/gpu/SubRunControl.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -836,8 +836,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT,
 
     // A scale transform forces fallback to dft.
     SkMatrix matrix = SkMatrix::Scale(16, 16);
-    sktext::gpu::SDFTControl control =
-            direct->priv().asRecordingContext()->priv().getSDFTControl(true);
+    sktext::gpu::SubRunControl control =
+            direct->priv().asRecordingContext()->priv().getSubRunControl(true);
     SkScalar approximateDeviceTextSize = SkFontPriv::ApproximateTransformedTextSize(font, matrix,
                                                                                     {0, 0});
     REPORTER_ASSERT(reporter, control.isSDFT(approximateDeviceTextSize, paint, matrix));

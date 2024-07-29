@@ -312,8 +312,8 @@ sk_sp<Device> Device::Make(GrRecordingContext* rContext,
 Device::Device(std::unique_ptr<SurfaceDrawContext> sdc, DeviceFlags flags)
         : SkDevice(MakeInfo(sdc.get(), flags), sdc->surfaceProps())
         , fContext(sk_ref_sp(sdc->recordingContext()))
-        , fSDFTControl(sdc->recordingContext()->priv().getSDFTControl(
-                       sdc->surfaceProps().isUseDeviceIndependentFonts()))
+        , fSubRunControl(sdc->recordingContext()->priv().getSubRunControl(
+                         sdc->surfaceProps().isUseDeviceIndependentFonts()))
         , fSurfaceDrawContext(std::move(sdc))
         , fClip(SkIRect::MakeSize(fSurfaceDrawContext->dimensions()),
                 &this->localToDevice(),
@@ -1489,7 +1489,7 @@ bool Device::android_utils_clipWithStencil() {
 }
 
 SkStrikeDeviceInfo Device::strikeDeviceInfo() const {
-    return {this->surfaceProps(), this->scalerContextFlags(), &fSDFTControl};
+    return {this->surfaceProps(), this->scalerContextFlags(), &fSubRunControl};
 }
 
 sk_sp<sktext::gpu::Slug> Device::convertGlyphRunListToSlug(const sktext::GlyphRunList& glyphRunList,

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/text/gpu/SDFTControl.h"
+#include "src/text/gpu/SubRunControl.h"
 
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
@@ -34,25 +34,27 @@ static const int kLargeDFFontLimit = 162;
 static const int kExtraLargeDFFontLimit = 256;
 #endif
 
-SkScalar SDFTControl::MinSDFTRange(bool useSDFTForSmallText, SkScalar min) {
+SkScalar SubRunControl::MinSDFTRange(bool useSDFTForSmallText, SkScalar min) {
     if (!useSDFTForSmallText) {
         return kLargeDFFontLimit;
     }
     return min;
 }
 
-SDFTControl::SDFTControl(
+SubRunControl::SubRunControl(
         bool ableToUseSDFT, bool useSDFTForSmallText, bool useSDFTForPerspectiveText,
-        SkScalar min, SkScalar max)
+        SkScalar min, SkScalar max,
+        bool forcePathAA)
         : fMinDistanceFieldFontSize{MinSDFTRange(useSDFTForSmallText, min)}
         , fMaxDistanceFieldFontSize{max}
         , fAbleToUseSDFT{ableToUseSDFT}
-        , fAbleToUsePerspectiveSDFT{useSDFTForPerspectiveText} {
+        , fAbleToUsePerspectiveSDFT{useSDFTForPerspectiveText}
+        , fForcePathAA{forcePathAA} {
     SkASSERT_RELEASE(0 < min && min <= max);
 }
 #endif // !defined(SK_DISABLE_SDF_TEXT)
 
-bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
+bool SubRunControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                            const SkMatrix& matrix) const {
 #if !defined(SK_DISABLE_SDF_TEXT)
     const bool isSDFT = this->isSDFT(approximateDeviceTextSize, paint, matrix);
@@ -66,7 +68,7 @@ bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& pa
 }
 
 #if !defined(SK_DISABLE_SDF_TEXT)
-bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint,
+bool SubRunControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                          const SkMatrix& matrix) const {
     const bool wideStroke = paint.getStyle() == SkPaint::kStroke_Style &&
             paint.getStrokeWidth() > 0;
@@ -80,7 +82,7 @@ bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& pain
 }
 
 std::tuple<SkFont, SkScalar, SDFTMatrixRange>
-SDFTControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix,
+SubRunControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix,
                         const SkPoint& textLoc) const {
     SkScalar textSize = font.getSize();
     SkScalar scaledTextSize = SkFontPriv::ApproximateTransformedTextSize(font, viewMatrix, textLoc);

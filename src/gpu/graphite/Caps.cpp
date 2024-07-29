@@ -158,16 +158,17 @@ DstReadRequirement Caps::getDstReadRequirement() const {
     }
 }
 
-sktext::gpu::SDFTControl Caps::getSDFTControl(bool useSDFTForSmallText) const {
+sktext::gpu::SubRunControl Caps::getSubRunControl(bool useSDFTForSmallText) const {
 #if !defined(SK_DISABLE_SDF_TEXT)
-    return sktext::gpu::SDFTControl{
+    return sktext::gpu::SubRunControl{
             this->shaderCaps()->supportsDistanceFieldText(),
             useSDFTForSmallText,
             true, /*ableToUsePerspectiveSDFT*/
             this->minDistanceFieldFontSize(),
-            this->glyphsAsPathsFontSize()};
+            this->glyphsAsPathsFontSize(),
+            true /*forcePathAA*/};
 #else
-    return sktext::gpu::SDFTControl{};
+    return sktext::gpu::SubRunControl{/*forcePathAA=*/true};
 #endif
 }
 
