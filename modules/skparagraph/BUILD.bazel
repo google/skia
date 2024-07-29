@@ -7,41 +7,6 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
-    name = "legacy_skparagraph",
-    srcs = ["//modules/skparagraph/src:srcs"],
-    hdrs = ["//modules/skparagraph/include:hdrs"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//:skia_internal",
-        "//modules/skshaper:legacy_skshaper",
-        "//modules/skunicode:legacy_skunicode",
-        "@harfbuzz",
-        "@icu",
-    ],
-)
-
-# TODO(kjlubick, bungeman) This is not an ideal situation, but SkParagraph is not currently
-# set up to be built in a modular way. It would require clients passing in an SkShaper and SkUnicode
-# factory (or implementation).
-skia_cc_library(
-    name = "skparagraph_harfbuzz_icu",
-    srcs = ["//modules/skparagraph/src:srcs"],
-    hdrs = ["//modules/skparagraph/include:hdrs"],
-    features = ["layering_check"],
-    visibility = [
-        "//:__subpackages__",
-    ],
-    deps = [
-        "//:core",
-        "//modules/skshaper:skshaper_harfbuzz",
-        "//modules/skshaper:skshaper_unicode",
-        "//modules/skunicode:skunicode_icu",
-        "//src/base",
-        "//src/core:core_priv",
-    ],
-)
-
-skia_cc_library(
     name = "skparagraph_harfbuzz_skunicode",
     srcs = ["//modules/skparagraph/src:srcs"],
     hdrs = ["//modules/skparagraph/include:hdrs"],
@@ -57,14 +22,5 @@ skia_cc_library(
         "//modules/skunicode:skunicode_core",
         "//src/base",
         "//src/core:core_priv",
-    ],
-)
-
-# TODO(kjlubick) Remove after G3 roll
-alias(
-    name = "skparagraph_harfbuzz_unicode",
-    actual = ":skparagraph_harfbuzz_skunicode",
-    visibility = [
-        "//:__subpackages__",
     ],
 )
