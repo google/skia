@@ -19,6 +19,10 @@ class Type;
 
 using BuiltinTypePtr = const std::unique_ptr<Type> BuiltinTypes::*;
 
+/**
+ * Documentation for modules in SkSL: http://go/modules-in-sksl
+ * https://docs.google.com/document/d/1P8LkkimNr-nPlxMimUsz3K_7qMM7-tZOxDCWZejPcWg/edit?usp=sharing
+ */
 class ModuleLoader {
 private:
     struct Impl;

@@ -18,6 +18,11 @@
 
 namespace SkSL {
 
+/**
+ * Documentation for modules in SkSL: http://go/modules-in-sksl
+ * https://docs.google.com/document/d/1P8LkkimNr-nPlxMimUsz3K_7qMM7-tZOxDCWZejPcWg/edit?usp=sharing
+ */
+
 // A list of modules used in SkSL.
 // Using an X-Macro (https://en.wikipedia.org/wiki/X_Macro) to manage the list.
 #define SKSL_MODULE_LIST(M)   \
