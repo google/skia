@@ -1,0 +1,17 @@
+layout(set = 0, binding = 0) sampler2D aSampler;
+layout(set = 0, binding = 1) sampler2D aSecondSampler;
+
+noinline half4 bar(sampler2D s) {
+    return sample(s, float2(0));
+}
+
+noinline half4 foo() {
+    half4 a = bar(aSampler);
+    half4 b = bar(aSecondSampler);
+    return a + b;
+}
+
+void main() {
+    foo();
+}
+
