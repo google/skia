@@ -341,11 +341,11 @@ DEF_TEST(SkPDF_FontCanEmbedTypeface, reporter) {
     sk_sp<SkTypeface> noEmbedTypeface(ToolUtils::CreateTypefaceFromResource(resource));
     if (noEmbedTypeface) {
         REPORTER_ASSERT(reporter,
-                        !SkPDFFont::CanEmbedTypeface(noEmbedTypeface.get(), &doc));
+                        !SkPDFFont::CanEmbedTypeface(*noEmbedTypeface, &doc));
     }
     sk_sp<SkTypeface> portableTypeface(ToolUtils::DefaultTypeface());
     REPORTER_ASSERT(reporter,
-                    SkPDFFont::CanEmbedTypeface(portableTypeface.get(), &doc));
+                    SkPDFFont::CanEmbedTypeface(*portableTypeface, &doc));
 }
 
 

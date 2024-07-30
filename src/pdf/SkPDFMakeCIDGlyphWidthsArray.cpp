@@ -13,6 +13,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/pdf/SkPDFFont.h"
 #include "src/pdf/SkPDFGlyphUse.h"
 #include "src/pdf/SkPDFTypes.h"
 
@@ -59,7 +60,7 @@ SkScalar find_mode_or_0(SkSpan<const SkScalar> advances) {
 
 } // namespace
 
-std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typeface,
+std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkPDFStrikeSpec& pdfStrikeSpec,
                                                          const SkPDFGlyphUse& subset,
                                                          int32_t* defaultAdvance) {
     // There are two ways of expressing advances
@@ -90,9 +91,8 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typef
     //  f. Switching for 3+ repeats wins                      " adv.ances adv.ances adv.ances"
     //     rule: end range for 3+ repeats
 
-    int emSize;
-    SkStrikeSpec strikeSpec = SkStrikeSpec::MakePDFVector(typeface, &emSize);
-    SkBulkGlyphMetricsAndPaths paths{strikeSpec};
+    int emSize = pdfStrikeSpec.fUnitsPerEM;
+    SkBulkGlyphMetricsAndPaths paths{pdfStrikeSpec.fStrikeSpec};
 
     auto result = SkPDFMakeArray();
 

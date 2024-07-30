@@ -228,7 +228,7 @@ DEF_TEST(SkStrike_FlattenByType, reporter) {
     SkGlyphTestPeer::SetGlyph(&pathGlyph);
     SkPath path;
     path.addRect(pathGlyph.rect());
-    pathGlyph.setPath(&alloc, &path, false);
+    pathGlyph.setPath(&alloc, &path, false, false);
     pathsToSend.emplace_back(pathGlyph);
 
     // Make a drawable glyph and put it in the glyphs to send.

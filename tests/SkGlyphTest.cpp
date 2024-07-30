@@ -200,7 +200,7 @@ DEF_TEST(SkGlyph_SendWithPath, reporter) {
     SkPath srcPath;
     srcPath.addRect(srcGlyph.rect());
 
-    srcGlyph.setPath(&alloc, &srcPath, false);
+    srcGlyph.setPath(&alloc, &srcPath, false, false);
 
     SkBinaryWriteBuffer writeBuffer({});
     srcGlyph.flattenMetrics(writeBuffer);

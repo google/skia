@@ -241,7 +241,7 @@ protected:
         glyphData.render(&canvas);
     }
 
-    bool generatePath(const SkGlyph& glyph, SkPath* path) override {
+    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
         // Should never get here since generateMetrics always sets the path to not exist.
         SK_ABORT("Path requested, but it should have been indicated that there isn't one.");
         path->reset();

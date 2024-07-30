@@ -21,14 +21,14 @@ DEF_SIMPLE_GM(blurSmallRadii, canvas, 100, 100) {
     SkFont font = ToolUtils::DefaultPortableFont();
 
     for (auto sigma : sigmas) {
-        paint.setColor(SK_ColorBLACK);
+        paint.setColor(SK_ColorRED);
         paint.setAntiAlias(true);
         paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
-        canvas->drawString("Guest", 20, 10, font, paint);
+        canvas->drawString("guest", 20, 10, font, paint);
 
         paint.setMaskFilter(nullptr);
-        paint.setColor(SK_ColorWHITE);
-        canvas->drawString("Guest", 20, 10, font, paint);
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawString("guest", 20, 10, font, paint);
         canvas->translate(0, 20);
     }
 }

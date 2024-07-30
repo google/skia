@@ -71,7 +71,7 @@ public:
 
     // If the path has never been set, then add a path to glyph. This is deprecated.
     const SkPath* mergePath(
-            SkGlyph* glyph, const SkPath* path, bool hairline) SK_EXCLUDES(fStrikeLock);
+            SkGlyph* glyph, const SkPath* path, bool hairline, bool modified) SK_EXCLUDES(fStrikeLock);
 
     // If the drawable has never been set, then add a drawable to glyph. This is deprecated.
     const SkDrawable* mergeDrawable(

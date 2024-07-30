@@ -727,7 +727,7 @@ protected:
         }
     }
 
-    bool generatePath(const SkGlyph& glyph, SkPath* path) override {
+    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
         SkASSERT(glyph.extraBits() == ScalerContextBits::PATH);
 
         SkVector scale;
@@ -743,6 +743,10 @@ protected:
         }
 
         *path = path->makeTransform(remainingMatrix);
+
+        if (scale.y() != 1.0f || !remainingMatrix.isIdentity()) {
+            *modified = true;
+        }
         return true;
     }
 

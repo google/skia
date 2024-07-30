@@ -12,12 +12,12 @@
 
 class SkPDFArray;
 class SkPDFGlyphUse;
-class SkTypeface;
+class SkPDFStrikeSpec;
 
 /* PDF 32000-1:2008, page 270: "The array's elements have a variable
    format that can specify individual widths for consecutive CIDs or
    one width for a range of CIDs". */
-std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkTypeface& typeface,
+std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkPDFStrikeSpec& strikeSpec,
                                                          const SkPDFGlyphUse& subset,
                                                          int32_t* defaultAdvance);
 

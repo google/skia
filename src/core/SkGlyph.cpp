@@ -250,7 +250,7 @@ size_t SkGlyph::imageSize() const {
     return size;
 }
 
-void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline) {
+void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline, bool modified) {
     SkASSERT(fPathData == nullptr);
     SkASSERT(!this->setPathHasBeenCalled());
     fPathData = alloc->make<SkGlyph::PathData>();
@@ -260,6 +260,7 @@ void SkGlyph::installPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline
         fPathData->fPath.getGenerationID();
         fPathData->fHasPath = true;
         fPathData->fHairline = hairline;
+        fPathData->fModified = modified;
     }
 }
 
@@ -273,9 +274,9 @@ bool SkGlyph::setPath(SkArenaAlloc* alloc, SkScalerContext* scalerContext) {
     return false;
 }
 
-bool SkGlyph::setPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline) {
+bool SkGlyph::setPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline, bool modified) {
     if (!this->setPathHasBeenCalled()) {
-        this->installPath(alloc, path, hairline);
+        this->installPath(alloc, path, hairline, modified);
         return this->path() != nullptr;
     }
     return false;
@@ -294,6 +295,12 @@ bool SkGlyph::pathIsHairline() const {
     // setPath must have been called previously.
     SkASSERT(this->setPathHasBeenCalled());
     return fPathData->fHairline;
+}
+
+bool SkGlyph::pathIsModified() const {
+    // setPath must have been called previously.
+    SkASSERT(this->setPathHasBeenCalled());
+    return fPathData->fModified;
 }
 
 void SkGlyph::installDrawable(SkArenaAlloc* alloc, sk_sp<SkDrawable> drawable) {
@@ -382,6 +389,7 @@ void SkGlyph::flattenPath(SkWriteBuffer& buffer) const {
     buffer.writeBool(hasPath);
     if (hasPath) {
         buffer.writeBool(this->pathIsHairline());
+        buffer.writeBool(this->pathIsModified());
         buffer.writePath(*this->path());
     }
 }
@@ -397,15 +405,16 @@ size_t SkGlyph::addPathFromBuffer(SkReadBuffer& buffer, SkArenaAlloc* alloc) {
     }
     if (hasPath) {
         const bool pathIsHairline = buffer.readBool();
+        const bool pathIsModified = buffer.readBool();
         SkPath path;
         buffer.readPath(&path);
         if (buffer.isValid()) {
-            if (this->setPath(alloc, &path, pathIsHairline)) {
+            if (this->setPath(alloc, &path, pathIsHairline, pathIsModified)) {
                 memoryIncrease += path.approximateBytesUsed();
             }
         }
     } else {
-        this->setPath(alloc, nullptr, false);
+        this->setPath(alloc, nullptr, false, false);
     }
 
     return memoryIncrease;

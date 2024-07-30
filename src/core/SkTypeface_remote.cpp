@@ -57,7 +57,7 @@ void SkScalerContextProxy::generateImage(const SkGlyph& glyph, void*) {
             SkStrikeClient::CacheMissType::kGlyphImage, fRec.fTextSize);
 }
 
-bool SkScalerContextProxy::generatePath(const SkGlyph& glyph, SkPath* path) {
+bool SkScalerContextProxy::generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) {
     TRACE_EVENT1("skia", "generatePath", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generatePath: %s\n", this->getRec().dump().c_str());

@@ -184,12 +184,12 @@ SkGlyph* SkStrike::mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& fromG
     }
 }
 
-const SkPath* SkStrike::mergePath(SkGlyph* glyph, const SkPath* path, bool hairline) {
+const SkPath* SkStrike::mergePath(SkGlyph* glyph, const SkPath* path, bool hairline, bool modified) {
     Monitor m{this};
     if (glyph->setPathHasBeenCalled()) {
         SkDEBUGFAIL("Re-adding path to existing glyph. This should not happen.");
     }
-    if (glyph->setPath(&fAlloc, path, hairline)) {
+    if (glyph->setPath(&fAlloc, path, hairline, modified)) {
         fMemoryIncrease += glyph->path()->approximateBytesUsed();
     }
 

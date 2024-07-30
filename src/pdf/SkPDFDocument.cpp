@@ -578,11 +578,13 @@ int SkPDFDocument::createStructParentKeyForNodeId(int nodeId) {
 
 static std::vector<const SkPDFFont*> get_fonts(const SkPDFDocument& canon) {
     std::vector<const SkPDFFont*> fonts;
-    fonts.reserve(canon.fFontMap.count());
+    fonts.reserve(canon.fStrikes.count());
+    canon.fStrikes.foreach([&fonts](const sk_sp<SkPDFStrike>& strike) {
+        for (const auto& [unused, font] : strike->fFontMap) {
+            fonts.push_back(&font);
+        }
+    });
     // Sort so the output PDF is reproducible.
-    for (const auto& [unused, font] : canon.fFontMap) {
-        fonts.push_back(&font);
-    }
     std::sort(fonts.begin(), fonts.end(), [](const SkPDFFont* u, const SkPDFFont* v) {
         return u->indirectReference().fValue < v->indirectReference().fValue;
     });

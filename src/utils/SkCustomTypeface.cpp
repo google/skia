@@ -295,7 +295,7 @@ protected:
         canvas->drawDrawable(rec.fDrawable.get(), &fMatrix);
     }
 
-    bool generatePath(const SkGlyph& glyph, SkPath* path) override {
+    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
         const auto& rec = this->userTF()->fGlyphRecs[glyph.getGlyphID()];
 
         SkASSERT(!rec.isDrawable());

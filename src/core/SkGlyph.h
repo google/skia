@@ -480,7 +480,7 @@ public:
     // Returns true if this is the first time you called setPath()
     // and there actually is a path; call path() to get it.
     bool setPath(SkArenaAlloc* alloc, SkScalerContext* scalerContext);
-    bool setPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline);
+    bool setPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline, bool modified);
 
     // Returns true if that path has been set.
     bool setPathHasBeenCalled() const { return fPathData != nullptr; }
@@ -489,6 +489,7 @@ public:
     // path was previously set.
     const SkPath* path() const;
     bool pathIsHairline() const;
+    bool pathIsModified() const;
 
     bool setDrawable(SkArenaAlloc* alloc, SkScalerContext* scalerContext);
     bool setDrawable(SkArenaAlloc* alloc, sk_sp<SkDrawable> drawable);
@@ -582,6 +583,12 @@ private:
         // The fPath is a dev-path, so sidecar the paths hairline status.
         // This allows the user to avoid filling paths which should not be filled.
         bool       fHairline{false};
+        // This is set if the path is significantly different from what a reasonable interpreter of
+        // the underlying font data would produce. This is set if any non-identity matrix, stroke,
+        // path effect, emboldening, etc is applied.
+        // This allows Document implementations to know if a glyph should be drawn out of the font
+        // data or needs to be embedded differently.
+        bool       fModified{false};
     };
 
     struct DrawableData {
@@ -598,7 +605,7 @@ private:
     }
 
     // path == nullptr indicates that there is no path.
-    void installPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline);
+    void installPath(SkArenaAlloc* alloc, const SkPath* path, bool hairline, bool modified);
 
     // drawable == nullptr indicates that there is no path.
     void installDrawable(SkArenaAlloc* alloc, sk_sp<SkDrawable> drawable);

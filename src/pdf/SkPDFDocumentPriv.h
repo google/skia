@@ -21,8 +21,10 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkSemaphore.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkTHash.h"
 #include "src/pdf/SkPDFBitmap.h"
+#include "src/pdf/SkPDFFont.h"
 #include "src/pdf/SkPDFGraphicState.h"
 #include "src/pdf/SkPDFShader.h"
 #include "src/pdf/SkPDFTag.h"
@@ -35,9 +37,9 @@
 #include <vector>
 #include <memory>
 
+class SkDescriptor;
 class SkExecutor;
 class SkPDFDevice;
-class SkPDFFont;
 struct SkAdvancedTypefaceMetrics;
 struct SkBitmapKey;
 class SkMatrix;
@@ -173,7 +175,7 @@ public:
     skia_private::THashMap<uint32_t, std::vector<SkUnichar>> fToUnicodeMap;
     skia_private::THashMap<uint32_t, SkPDFIndirectReference> fFontDescriptors;
     skia_private::THashMap<uint32_t, SkPDFIndirectReference> fType3FontDescriptors;
-    skia_private::THashMap<uint64_t, SkPDFFont> fFontMap;
+    skia_private::THashTable<sk_sp<SkPDFStrike>, const SkDescriptor&, SkPDFStrike::Traits> fStrikes;
     skia_private::THashMap<SkPDFStrokeGraphicState,
                            SkPDFIndirectReference,
                            SkPDFStrokeGraphicState::Hash> fStrokeGSMap;

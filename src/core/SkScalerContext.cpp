@@ -281,7 +281,7 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
     } else {
         SaturateGlyphBounds(&glyph, std::move(mx.bounds));
         if (mx.neverRequestPath) {
-            glyph.setPath(alloc, nullptr, false);
+            glyph.setPath(alloc, nullptr, false, false);
         }
     }
     SkDEBUGCODE(glyph.fAdvancesBoundsFormatAndInitialPathDone = true;)
@@ -766,10 +766,11 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc) {
     SkPath path;
     SkPath devPath;
     bool hairline = false;
+    bool pathModified = false;
 
     SkPackedGlyphID glyphID = glyph.getPackedID();
-    if (!generatePath(glyph, &path)) {
-        glyph.setPath(alloc, (SkPath*)nullptr, hairline);
+    if (!generatePath(glyph, &path, &pathModified)) {
+        glyph.setPath(alloc, (SkPath*)nullptr, hairline, pathModified);
         return;
     }
 
@@ -777,6 +778,7 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc) {
         SkFixed dx = glyphID.getSubXFixed();
         SkFixed dy = glyphID.getSubYFixed();
         if (dx | dy) {
+            pathModified = true;
             path.offset(SkFixedToScalar(dx), SkFixedToScalar(dy));
         }
     }
@@ -784,6 +786,8 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc) {
     if (fRec.fFrameWidth < 0 && fPathEffect == nullptr) {
         devPath.swap(path);
     } else {
+        pathModified = true; // It could still end up the same, but it's probably going to change.
+
         // need the path in user-space, with only the point-size applied
         // so that our stroking and effects will operate the same way they
         // would if the user had extracted the path themself, and then
@@ -794,7 +798,7 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc) {
 
         fRec.getMatrixFrom2x2(&matrix);
         if (!matrix.invert(&inverse)) {
-            glyph.setPath(alloc, &devPath, hairline);
+            glyph.setPath(alloc, &devPath, hairline, pathModified);
         }
         path.transform(inverse, &localPath);
         // now localPath is only affected by the paint settings, and not the canvas matrix
@@ -832,7 +836,7 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc) {
 
         localPath.transform(matrix, &devPath);
     }
-    glyph.setPath(alloc, &devPath, hairline);
+    glyph.setPath(alloc, &devPath, hairline, pathModified);
 }
 
 
@@ -1296,7 +1300,7 @@ std::unique_ptr<SkScalerContext> SkScalerContext::MakeEmpty(
             return {glyph.maskFormat()};
         }
         void generateImage(const SkGlyph&, void*) override {}
-        bool generatePath(const SkGlyph& glyph, SkPath* path) override {
+        bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
             path->reset();
             return false;
         }
