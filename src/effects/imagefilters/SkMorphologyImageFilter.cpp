@@ -25,6 +25,7 @@
 #include "src/core/SkWriteBuffer.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <optional>
 #include <utility>
 
@@ -127,7 +128,7 @@ sk_sp<SkImageFilter> make_morphology(MorphType type,
 // room. The other tradeoff is that for R > kMaxLinearRadius, the sparse morphology kernel only
 // requires 2 samples to double the accumulated kernel size, but at the cost of another render
 // target.
-static constexpr int kMaxLinearRadius = 14; // KEEP IN SYNC WITH CONSTANT IN `sksl_rt_shader.sksl`
+static constexpr int kMaxLinearRadius = 14; // KEEP IN SYNC W/ SkKnownRuntimeEffects.cpp VERSION
 sk_sp<SkShader> make_linear_morphology(sk_sp<SkShader> input,
                                        MorphType type,
                                        MorphDirection direction,
@@ -141,7 +142,7 @@ sk_sp<SkShader> make_linear_morphology(sk_sp<SkShader> input,
     builder.child("child") = std::move(input);
     builder.uniform("offset") = direction == MorphDirection::kX ? SkV2{1.f, 0.f} : SkV2{0.f, 1.f};
     builder.uniform("flip") = (type == MorphType::kDilate) ? 1.f : -1.f;
-    builder.uniform("radius") = (float)radius;
+    builder.uniform("radius") = (int32_t) radius;
 
     return builder.makeShader();
 }
