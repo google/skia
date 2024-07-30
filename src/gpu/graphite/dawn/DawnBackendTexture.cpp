@@ -67,7 +67,7 @@ BackendTexture MakeDawn(WGPUTexture texture) {
                     static_cast<int32_t>(wgpuTextureGetWidth(texture)),
                     static_cast<int32_t>(wgpuTextureGetHeight(texture)),
             },
-            DawnTextureInfoFromWGPUTexture(texture),
+            TextureInfos::MakeDawn(DawnTextureInfoFromWGPUTexture(texture)),
             DawnBackendTextureData(texture, nullptr));
 }
 
@@ -80,15 +80,17 @@ BackendTexture MakeDawn(SkISize planeDimensions, const DawnTextureInfo& info, WG
              info.fAspect == wgpu::TextureAspect::Plane1Only ||
              info.fAspect == wgpu::TextureAspect::Plane2Only);
 #endif
-    return BackendTexturePriv::Make(
-            planeDimensions, info, DawnBackendTextureData(texture, nullptr));
+    return BackendTexturePriv::Make(planeDimensions,
+                                    TextureInfos::MakeDawn(info),
+                                    DawnBackendTextureData(texture, nullptr));
 }
 
 BackendTexture MakeDawn(SkISize dimensions,
                         const DawnTextureInfo& info,
                         WGPUTextureView textureView) {
-    return BackendTexturePriv::Make(
-            dimensions, strip_copy_usage(info), DawnBackendTextureData(nullptr, textureView));
+    return BackendTexturePriv::Make(dimensions,
+                                    TextureInfos::MakeDawn(strip_copy_usage(info)),
+                                    DawnBackendTextureData(nullptr, textureView));
 }
 
 WGPUTexture GetDawnTexturePtr(const BackendTexture& tex) {
