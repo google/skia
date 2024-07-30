@@ -52,7 +52,12 @@
     M(emboss)                                                      \
     M(swizzle)
 
-// `SK_RASTER_PIPELINE_OPS_SKSL` defines ops used by SkSL.
+/**
+ * `SK_RASTER_PIPELINE_OPS_SKSL` defines ops used by SkSL.
+ *
+ * Design docs for SkSL in Raster Pipeline: go/sksl-rp
+ * https://docs.google.com/document/d/1GCQeAGVGHubOCbmULVdXUkNiXdw9J4umai_M5X3JGS4/edit?usp=sharing
+ */
 #define SK_RASTER_PIPELINE_OPS_SKSL(M)                                                          \
     M(init_lane_masks) M(store_device_xy01) M(exchange_src)                                     \
     M(load_condition_mask)  M(store_condition_mask)                                             \
