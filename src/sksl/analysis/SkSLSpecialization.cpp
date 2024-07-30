@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <vector>
 
 using namespace skia_private;
 
@@ -147,33 +148,13 @@ void FindFunctionsToSpecialize(const Program& program,
         SpecializationIndex fInheritedSpecializationIndex = kUnspecialized;
     };
 
-    for (const ProgramElement* elem : program.elements()) {
-        if (elem->is<FunctionDefinition>()) {
-            const FunctionDeclaration& decl = elem->as<FunctionDefinition>().declaration();
-
-            if (decl.isMain()) {
-                // Visit through the program call stack and aggregates any necessary
-                // function specializations.
-                Searcher(*info, parameterMatchesFn).visitProgramElement(*elem);
-                continue;
-            }
-
-            // Look for any function parameter which needs specialization.
-            for (const Variable* param : decl.parameters()) {
-                if (parameterMatchesFn(*param)) {
-                    // We found a function that requires specialization. Ensure that this function
-                    // ends up in the specialization map, whether or not it is reachable from
-                    // main().
-                    //
-                    // Doing this here allows unreachable specialized functions to be discarded,
-                    // because it will be in the specialization map with an array of zero necessary
-                    // specializations to emit. If we didn't add this function to the specialization
-                    // map at all, the code generator would try to emit it without applying
-                    // specializations, and generally this would lead to invalid code.
-                    info->fSpecializationMap[&decl];
-                    break;
-                }
-            }
+    for (const std::unique_ptr<ProgramElement>& elem : program.fOwnedElements) {
+        if (elem->is<FunctionDefinition>() &&
+            elem->as<FunctionDefinition>().declaration().isMain()) {
+            // Visit through the program call stack and aggregates any necessary
+            // function specializations.
+            Searcher(*info, parameterMatchesFn).visitProgramElement(*elem);
+            break;
         }
     }
 }
