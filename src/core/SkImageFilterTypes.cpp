@@ -200,7 +200,16 @@ public:
         return SkImages::RasterFromBitmap(data);
     }
 
+#if defined(SK_USE_LEGACY_BLUR_RASTER)
     const SkBlurEngine* getBlurEngine() const override { return nullptr; }
+#else
+    bool useLegacyFilterResultBlur() const override { return false; }
+
+    const SkBlurEngine* getBlurEngine() const override {
+        return SkBlurEngine::GetRasterBlurEngine();
+    }
+#endif
+
 };
 
 } // anonymous namespace
@@ -2144,7 +2153,6 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
 
     float sx = sigma.width()  > algorithm->maxSigma() ? algorithm->maxSigma()/sigma.width()  : 1.f;
     float sy = sigma.height() > algorithm->maxSigma() ? algorithm->maxSigma()/sigma.height() : 1.f;
-
     // For identity scale factors, this rescale() is a no-op when possible, but otherwise it will
     // also handle resolving any color filters or transform similar to a resolve() except that it
     // can defer the tile mode.
@@ -2199,7 +2207,8 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     sk_sp<SkSpecialImage> lowResBlur = lowResImage.refImage();
     SkIRect blurOutputBounds = SkIRect(srcRelativeOutput);
     SkTileMode tileMode = lowResImage.tileMode();
-    if (lowResImage.canClampToTransparentBoundary(BoundsAnalysis::kSimple)) {
+    if (!algorithm->supportsOnlyDecalTiling() &&
+        lowResImage.canClampToTransparentBoundary(BoundsAnalysis::kSimple)) {
         // Have to manage this manually since the BlurEngine isn't aware of the known pixel padding.
         lowResBlur = lowResBlur->makePixelOutset();
         blurOutputBounds.offset(1, 1);
