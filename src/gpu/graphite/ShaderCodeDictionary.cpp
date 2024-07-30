@@ -125,6 +125,8 @@ void append_defaults(TArray<std::string>* list,
     }
 }
 
+static const char* kGradientBufferName = "fsGradientBuffer";
+
 void append_uniforms(TArray<std::string>* list,
                      const ShaderInfo& shaderInfo,
                      const ShaderNode* node,
@@ -147,6 +149,11 @@ void append_uniforms(TArray<std::string>* list,
     // Append samplers
     for (int i = 0; i < entry->fTexturesAndSamplers.size(); ++i) {
         list->push_back(get_mangled_sampler_name(entry->fTexturesAndSamplers[i], node->keyIndex()));
+    }
+
+    // Append gradient buffer.
+    if (node->requiredFlags() & SnippetRequirementFlags::kGradientBuffer) {
+        list->push_back(kGradientBufferName);
     }
 
     // Append child output names.
@@ -469,7 +476,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                               "    float %s[];\n"
                               "};\n",
                               bindingReqs.fGradientBufferBinding,
-                              caps->shaderCaps()->fFloatBufferArrayName);
+                              kGradientBufferName);
         *hasGradientBuffer = true;
     }
 
