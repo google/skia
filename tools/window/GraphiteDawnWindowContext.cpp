@@ -16,10 +16,11 @@
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
+#include "include/gpu/graphite/dawn/DawnTypes.h"
 #include "include/gpu/graphite/dawn/DawnUtils.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
-#include "tools/ToolUtils.h"
 #include "tools/GpuToolUtils.h"
+#include "tools/ToolUtils.h"
 
 #include "dawn/dawn_proc.h"
 
@@ -88,7 +89,7 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
                                           fSwapChainFormat,
                                           texture.GetUsage(),
                                           wgpu::TextureAspect::All);
-    skgpu::graphite::BackendTexture backendTex(texture.Get());
+    auto backendTex = skgpu::graphite::BackendTextures::MakeDawn(texture.Get());
     SkASSERT(this->graphiteRecorder());
     auto surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                   backendTex,

@@ -14,7 +14,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkAnySubclass.h"
 
-#ifdef SK_DAWN
+#if defined(SK_DAWN) && !defined(SK_DISABLE_LEGACY_DAWN_BACKEND_TEXTURE_FUNCS)
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 #endif
 
@@ -30,7 +30,7 @@ struct VulkanTextureInfo;
 class SK_API BackendTexture {
 public:
     BackendTexture();
-#ifdef SK_DAWN
+#if defined(SK_DAWN) && !defined(SK_DISABLE_LEGACY_DAWN_BACKEND_TEXTURE_FUNCS)
     // Create a BackendTexture from a WGPUTexture. Texture info will be queried from the texture.
     //
     // This is the recommended way of specifying a BackendTexture for Dawn. See the note below on
@@ -93,11 +93,6 @@ public:
 
     const TextureInfo& info() const { return fInfo; }
 
-#ifdef SK_DAWN
-    WGPUTexture getDawnTexturePtr() const;
-    WGPUTextureView getDawnTextureViewPtr() const;
-#endif
-
 private:
     friend class BackendTextureData;
     friend class BackendTexturePriv;
@@ -116,16 +111,6 @@ private:
     SkISize fDimensions;
     TextureInfo fInfo;
     AnyBackendTextureData fTextureData;
-
-    union {
-#ifdef SK_DAWN
-        struct {
-            WGPUTexture fDawnTexture;
-            WGPUTextureView fDawnTextureView;
-        };
-#endif
-        void* fEnsureUnionNonEmpty;
-    };
 };
 
 } // namespace skgpu::graphite

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/gpu/graphite/DawnTypesPriv.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteTypesPriv.h"
 
 namespace skgpu::graphite {
 
@@ -25,7 +25,7 @@ bool DawnDescriptorsAreEquivalent(const wgpu::YCbCrVkDescriptor& desc1,
            desc1.forceExplicitReconstruction == desc2.forceExplicitReconstruction &&
            desc1.externalFormat              == desc2.externalFormat;
 }
-}
+}  // namespace ycbcrUtils
 #endif
 
 SkString DawnTextureSpec::toString() const {
@@ -45,7 +45,8 @@ DawnTextureInfo DawnTextureInfoFromWGPUTexture(WGPUTexture texture) {
             /*format=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
             /*viewFormat=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
             static_cast<wgpu::TextureUsage>(wgpuTextureGetUsage(texture)),
-            wgpu::TextureAspect::All, /*slice=*/0);
+            wgpu::TextureAspect::All,
+            /*slice=*/0);
 }
 
 DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,

@@ -14,9 +14,12 @@
 #include "src/gpu/ganesh/GrGpu.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
-#ifdef SK_GRAPHITE
+#if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Surface.h"
-#ifdef SK_DAWN
+#if defined(SK_DAWN)
+#include "include/gpu/graphite/dawn/DawnTypes.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteTypesPriv.h"
+
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 #endif
 #endif
@@ -161,7 +164,7 @@ sk_sp<SkSurface> MakeBackendTextureViewSurface(skgpu::graphite::Recorder* record
         return nullptr;
     }
 
-    wgpu::Texture texture(mbet->texture().getDawnTexturePtr());
+    wgpu::Texture texture(skgpu::graphite::BackendTextures::GetDawnTexturePtr(mbet->texture()));
     SkASSERT(texture);
 
     wgpu::TextureView view = texture.CreateView();
@@ -174,7 +177,8 @@ sk_sp<SkSurface> MakeBackendTextureViewSurface(skgpu::graphite::Recorder* record
     textureInfo.fSampleCount = texture.GetSampleCount();
     textureInfo.fUsage       = texture.GetUsage();
 
-    skgpu::graphite::BackendTexture betFromView(ii.dimensions(), textureInfo, view.Get());
+    skgpu::graphite::BackendTexture betFromView =
+            skgpu::graphite::BackendTextures::MakeDawn(ii.dimensions(), textureInfo, view.Get());
 
     auto release = [](void* ctx) { static_cast<ManagedGraphiteTexture*>(ctx)->unref(); };
 

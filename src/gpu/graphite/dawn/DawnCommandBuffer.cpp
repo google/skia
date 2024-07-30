@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnComputePipeline.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteTypesPriv.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/dawn/DawnQueueManager.h"
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
@@ -236,7 +237,7 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     auto& depthStencilInfo = renderPassDesc.fDepthStencilAttachment;
     if (depthStencilTexture) {
         const auto* dawnDepthStencilTexture = static_cast<const DawnTexture*>(depthStencilTexture);
-        auto format = dawnDepthStencilTexture->textureInfo().dawnTextureSpec().getViewFormat();
+        auto format = TextureInfos::GetDawnViewFormat(dawnDepthStencilTexture->textureInfo());
         SkASSERT(DawnFormatIsDepthOrStencil(format));
 
         // TODO: check Texture matches RenderPassDesc
@@ -928,7 +929,7 @@ bool DawnCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     src.texture = wgpuTexture->dawnTexture();
     src.origin.x = srcRect.x();
     src.origin.y = srcRect.y();
-    src.aspect = wgpuTexture->textureInfo().dawnTextureSpec().fAspect;
+    src.aspect = TextureInfos::GetDawnAspect(wgpuTexture->textureInfo());
 
     wgpu::ImageCopyBuffer dst;
     dst.buffer = wgpuBuffer;

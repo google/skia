@@ -77,6 +77,18 @@ DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,
 
 DawnTextureInfo DawnTextureInfoFromWGPUTexture(WGPUTexture texture);
 
-} // namespace skgpu::graphite
+namespace TextureInfos {
+DawnTextureSpec GetDawnTextureSpec(const TextureInfo& dawnInfo);
 
-#endif // skgpu_graphite_DawnTypesPriv_DEFINED
+wgpu::TextureFormat GetDawnViewFormat(const TextureInfo& dawnInfo);
+wgpu::TextureAspect GetDawnAspect(const TextureInfo& dawnInfo);
+}  // namespace TextureInfos
+
+namespace BackendTextures {
+WGPUTexture GetDawnTexturePtr(const BackendTexture&);
+WGPUTextureView GetDawnTextureViewPtr(const BackendTexture&);
+}  // namespace BackendTextures
+
+}  // namespace skgpu::graphite
+
+#endif  // skgpu_graphite_DawnTypesPriv_DEFINED

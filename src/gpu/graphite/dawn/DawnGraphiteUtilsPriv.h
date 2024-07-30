@@ -9,8 +9,8 @@
 #define skgpu_graphite_DawnGraphiteUtilsPriv_DEFINED
 
 #include "include/core/SkImageInfo.h"
-#include "include/private/gpu/graphite/DawnTypesPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteTypesPriv.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/ir/SkSLProgram.h"
 

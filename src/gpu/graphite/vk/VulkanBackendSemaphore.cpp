@@ -27,7 +27,7 @@ private:
     VkSemaphore fVkSemaphore;
 
     void copyTo(AnyBackendSemaphoreData& dstData) const override {
-        // Don't assert that dstData is a metal type because it could be
+        // Don't assert that dstData has a Vulkan type() because it could be
         // uninitialized and that assert would fail.
         dstData.emplace<VulkanBackendSemaphoreData>(fVkSemaphore);
     }

@@ -8,10 +8,15 @@
 #ifndef skgpu_graphite_DawnTypes_DEFINED
 #define skgpu_graphite_DawnTypes_DEFINED
 
+#include "include/core/SkSize.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/private/base/SkAPI.h"
+
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 namespace skgpu::graphite {
+class BackendTexture;
+class TextureInfo;
 
 struct DawnTextureInfo {
     uint32_t fSampleCount = 1;
@@ -88,7 +93,54 @@ struct DawnTextureInfo {
 #endif
 };
 
-} // namespace skgpu::graphite
+namespace TextureInfos {
+SK_API TextureInfo MakeDawn(const DawnTextureInfo& dawnInfo);
+
+SK_API bool GetDawnTextureInfo(const TextureInfo&, DawnTextureInfo*);
+}  // namespace TextureInfos
+
+namespace BackendTextures {
+// Create a BackendTexture from a WGPUTexture. Texture info will be queried from the texture.
+//
+// This is the recommended way of specifying a BackendTexture for Dawn. See the note below on
+// the constructor that takes a WGPUTextureView for a fuller explanation.
+//
+// The BackendTexture will not call retain or release on the passed in WGPUTexture. Thus, the
+// client must keep the WGPUTexture valid until they are no longer using the BackendTexture.
+// However, any SkImage or SkSurface that wraps the BackendTexture *will* retain and release
+// the WGPUTexture.
+SK_API BackendTexture MakeDawn(WGPUTexture);
+
+// Create a BackendTexture from a WGPUTexture. Texture planeDimensions, plane aspect and
+// info have to be provided. This is intended to be used only when accessing a plane
+// of a WGPUTexture.
+//
+// The BackendTexture will not call retain or release on the passed in WGPUTexture. Thus, the
+// client must keep the WGPUTexture valid until they are no longer using the BackendTexture.
+// However, any SkImage or SkSurface that wraps the BackendTexture *will* retain and release
+// the WGPUTexture.
+SK_API BackendTexture MakeDawn(SkISize planeDimensions, const DawnTextureInfo&, WGPUTexture);
+
+// Create a BackendTexture from a WGPUTextureView. Texture dimensions and
+// info have to be provided.
+//
+// Using a WGPUTextureView rather than a WGPUTexture is less effecient for operations that
+// require buffer transfers to or from the texture (e.g. methods on graphite::Context that read
+// pixels or SkSurface::writePixels). In such cases an intermediate copy to or from a
+// WGPUTexture is required. Thus, it is recommended to use this functionality only for cases
+// where a WGPUTexture is unavailable, in particular when using wgpu::SwapChain.
+//
+// The BackendTexture will not call retain or release on the passed in WGPUTextureView. Thus,
+// the client must keep the WGPUTextureView valid until they are no longer using the
+// BackendTexture. However, any SkImage or SkSurface that wraps the BackendTexture *will* retain
+// and release the WGPUTextureView.
+SK_API BackendTexture MakeDawn(SkISize dimensions,
+                               const DawnTextureInfo& info,
+                               WGPUTextureView textureView);
+
+}  // namespace BackendTextures
+
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DawnTypes_DEFINED
 

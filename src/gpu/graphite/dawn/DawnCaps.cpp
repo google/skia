@@ -20,6 +20,7 @@
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteTypesPriv.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
 #include "src/sksl/SkSLUtil.h"
@@ -84,7 +85,7 @@ DawnCaps::DawnCaps(const DawnBackendContext& backendContext, const ContextOption
 DawnCaps::~DawnCaps() = default;
 
 uint32_t DawnCaps::channelMask(const TextureInfo& info) const {
-    return DawnFormatChannels(info.dawnTextureSpec().getViewFormat());
+    return DawnFormatChannels(TextureInfos::GetDawnTextureSpec(info).getViewFormat());
 }
 
 bool DawnCaps::onIsTexturable(const TextureInfo& info) const {
@@ -92,7 +93,7 @@ bool DawnCaps::onIsTexturable(const TextureInfo& info) const {
         return false;
     }
 
-    const auto& spec = info.dawnTextureSpec();
+    const DawnTextureSpec spec = TextureInfos::GetDawnTextureSpec(info);
 
     if (!(spec.fUsage & wgpu::TextureUsage::TextureBinding)) {
         return false;
@@ -142,7 +143,7 @@ bool DawnCaps::onIsTexturable(const TextureInfo& info) const {
     }
 #endif
 
-    return this->isTexturable(info.dawnTextureSpec().getViewFormat());
+    return this->isTexturable(spec.getViewFormat());
 }
 
 bool DawnCaps::isTexturable(wgpu::TextureFormat format) const {
@@ -151,19 +152,21 @@ bool DawnCaps::isTexturable(wgpu::TextureFormat format) const {
 }
 
 bool DawnCaps::isRenderable(const TextureInfo& info) const {
-    return info.isValid() &&
-           (info.dawnTextureSpec().fUsage & wgpu::TextureUsage::RenderAttachment) &&
-           this->isRenderable(info.dawnTextureSpec().getViewFormat(), info.numSamples());
+    const DawnTextureSpec spec = TextureInfos::GetDawnTextureSpec(info);
+
+    return info.isValid() && (spec.fUsage & wgpu::TextureUsage::RenderAttachment) &&
+           this->isRenderable(spec.getViewFormat(), info.numSamples());
 }
 
 bool DawnCaps::isStorage(const TextureInfo& info) const {
     if (!info.isValid()) {
         return false;
     }
-    if (!(info.dawnTextureSpec().fUsage & wgpu::TextureUsage::StorageBinding)) {
+    const DawnTextureSpec spec = TextureInfos::GetDawnTextureSpec(info);
+    if (!(spec.fUsage & wgpu::TextureUsage::StorageBinding)) {
         return false;
     }
-    const FormatInfo& formatInfo = this->getFormatInfo(info.dawnTextureSpec().getViewFormat());
+    const FormatInfo& formatInfo = this->getFormatInfo(spec.getViewFormat());
     return info.numSamples() == 1 && SkToBool(FormatInfo::kStorage_Flag & formatInfo.fFlags);
 }
 
@@ -206,13 +209,13 @@ TextureInfo DawnCaps::getDefaultSampledTextureInfo(SkColorType colorType,
     info.fViewFormat = format;
     info.fUsage = usage;
 
-    return info;
+    return TextureInfos::MakeDawn(info);
 }
 
 TextureInfo DawnCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
                                                    Mipmapped mipmapped) const {
     DawnTextureInfo info;
-    if (!textureInfo.getDawnTextureInfo(&info)) {
+    if (!TextureInfos::GetDawnTextureInfo(textureInfo, &info)) {
         return {};
     }
 
@@ -221,7 +224,7 @@ TextureInfo DawnCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInf
     info.fUsage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst |
                   wgpu::TextureUsage::CopySrc;
 
-    return info;
+    return TextureInfos::MakeDawn(info);
 }
 
 namespace {
@@ -256,7 +259,7 @@ TextureInfo DawnCaps::getDefaultCompressedTextureInfo(SkTextureCompressionType c
     info.fViewFormat = format;
     info.fUsage = usage;
 
-    return info;
+    return TextureInfos::MakeDawn(info);
 }
 
 TextureInfo DawnCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
@@ -264,13 +267,13 @@ TextureInfo DawnCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampled
     if (fDefaultMSAASamples <= 1) {
         return {};
     }
-    const DawnTextureSpec& singleSpec = singleSampledInfo.dawnTextureSpec();
+    const DawnTextureSpec singleSpec = TextureInfos::GetDawnTextureSpec(singleSampledInfo);
 
     DawnTextureInfo info;
     info.fSampleCount = fDefaultMSAASamples;
     info.fMipmapped   = Mipmapped::kNo;
     info.fFormat      = singleSpec.fFormat;
-    info.fViewFormat = singleSpec.fFormat;
+    info.fViewFormat  = singleSpec.fFormat;
     info.fUsage       = wgpu::TextureUsage::RenderAttachment;
 
     if (fSupportedTransientAttachmentUsage != wgpu::TextureUsage::None &&
@@ -278,7 +281,7 @@ TextureInfo DawnCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampled
         info.fUsage |= fSupportedTransientAttachmentUsage;
     }
 
-    return info;
+    return TextureInfos::MakeDawn(info);
 }
 
 TextureInfo DawnCaps::getDefaultDepthStencilTextureInfo(
@@ -289,14 +292,14 @@ TextureInfo DawnCaps::getDefaultDepthStencilTextureInfo(
     info.fSampleCount = sampleCount;
     info.fMipmapped   = Mipmapped::kNo;
     info.fFormat      = DawnDepthStencilFlagsToFormat(depthStencilType);
-    info.fViewFormat = info.fFormat;
+    info.fViewFormat  = info.fFormat;
     info.fUsage       = wgpu::TextureUsage::RenderAttachment;
 
     if (fSupportedTransientAttachmentUsage != wgpu::TextureUsage::None) {
         info.fUsage |= fSupportedTransientAttachmentUsage;
     }
 
-    return info;
+    return TextureInfos::MakeDawn(info);
 }
 
 TextureInfo DawnCaps::getDefaultStorageTextureInfo(SkColorType colorType) const {
@@ -321,7 +324,7 @@ TextureInfo DawnCaps::getDefaultStorageTextureInfo(SkColorType colorType) const 
     info.fViewFormat = format;
     info.fUsage = usage;
 
-    return info;
+    return TextureInfos::MakeDawn(info);
 }
 
 SkISize DawnCaps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,
@@ -330,7 +333,7 @@ SkISize DawnCaps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,
     // For multiplanar textures, texture->textureInfo() uses the format of planes instead of
     // textures (R8, R8G8, vs R8BG8Biplanar420Unorm), so we have to query texture format from
     // wgpu::Texture object, and then use it reconstruct the full dimensions.
-    const auto& dawnTextureSpec = textureInfo.dawnTextureSpec();
+    const auto dawnTextureSpec = TextureInfos::GetDawnTextureSpec(textureInfo);
     wgpu::TextureFormat format = dawnTextureSpec.fFormat;
     if (IsMultiplanarFormat(format) && dawnTextureSpec.fAspect == wgpu::TextureAspect::Plane1Only) {
         // Dawn requires depth attachment to match the size of Y plane (texture size).
@@ -344,7 +347,7 @@ SkISize DawnCaps::getDepthAttachmentDimensions(const TextureInfo& textureInfo,
 
 const Caps::ColorTypeInfo* DawnCaps::getColorTypeInfo(SkColorType colorType,
                                                       const TextureInfo& textureInfo) const {
-    auto dawnFormat = textureInfo.dawnTextureSpec().getViewFormat();
+    auto dawnFormat = TextureInfos::GetDawnTextureSpec(textureInfo).getViewFormat();
     if (dawnFormat == wgpu::TextureFormat::Undefined) {
         SkASSERT(false);
         return nullptr;
@@ -362,12 +365,12 @@ const Caps::ColorTypeInfo* DawnCaps::getColorTypeInfo(SkColorType colorType,
 }
 
 bool DawnCaps::supportsWritePixels(const TextureInfo& textureInfo) const {
-    const auto& spec = textureInfo.dawnTextureSpec();
+    const auto spec = TextureInfos::GetDawnTextureSpec(textureInfo);
     return spec.fUsage & wgpu::TextureUsage::CopyDst;
 }
 
 bool DawnCaps::supportsReadPixels(const TextureInfo& textureInfo) const {
-    const auto& spec = textureInfo.dawnTextureSpec();
+    const auto spec = TextureInfos::GetDawnTextureSpec(textureInfo);
     return spec.fUsage & wgpu::TextureUsage::CopySrc;
 }
 
@@ -880,10 +883,13 @@ uint32_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderP
     SkASSERT(colorInfo.isValid());
 
     // Use format indices instead of WGPUTextureFormat values since they can be larger than 16 bits.
-    uint32_t colorFormatIndex = GetFormatIndex(colorInfo.dawnTextureSpec().getViewFormat());
-    uint32_t depthStencilFormatIndex = depthStencilInfo.isValid() ?
-            GetFormatIndex(depthStencilInfo.dawnTextureSpec().getViewFormat()) :
-            kUnusedAttachmentIndex;
+    uint32_t colorFormatIndex =
+            GetFormatIndex(TextureInfos::GetDawnTextureSpec(colorInfo).getViewFormat());
+    uint32_t depthStencilFormatIndex =
+            depthStencilInfo.isValid()
+                    ? GetFormatIndex(
+                              TextureInfos::GetDawnTextureSpec(depthStencilInfo).getViewFormat())
+                    : kUnusedAttachmentIndex;
 
     // Note: if Dawn supports ExpandResolveTexture load op and the render pass uses it to load
     // the resolve texture, a render pipeline will need to be created with
@@ -988,7 +994,7 @@ ImmutableSamplerInfo DawnCaps::getImmutableSamplerInfo(const TextureProxy* proxy
 #if !defined(__EMSCRIPTEN__)
     if (proxy) {
         const wgpu::YCbCrVkDescriptor& ycbcrConversionInfo =
-                proxy->textureInfo().dawnTextureSpec().fYcbcrVkDescriptor;
+                TextureInfos::GetDawnTextureSpec(proxy->textureInfo()).fYcbcrVkDescriptor;
 
         if (ycbcrUtils::DawnDescriptorIsValid(ycbcrConversionInfo)) {
             ImmutableSamplerInfo immutableSamplerInfo;
@@ -1013,7 +1019,7 @@ void DawnCaps::buildKeyForTexture(SkISize dimensions,
                                   ResourceType type,
                                   Shareable shareable,
                                   GraphiteResourceKey* key) const {
-    const DawnTextureSpec& dawnSpec = info.dawnTextureSpec();
+    const DawnTextureSpec dawnSpec = TextureInfos::GetDawnTextureSpec(info);
 
     SkASSERT(!dimensions.isEmpty());
 

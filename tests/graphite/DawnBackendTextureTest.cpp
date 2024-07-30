@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/dawn/DawnTypes.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteTypesPriv.h"
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
@@ -32,13 +33,13 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(DawnBackendTextureSimpleCreationTest,
     textureInfo.fFormat = wgpu::TextureFormat::RGBA8Unorm;
     textureInfo.fUsage = wgpu::TextureUsage::TextureBinding;
 
-    auto beTexture = recorder->createBackendTexture(kSize, textureInfo);
+    auto beTexture = recorder->createBackendTexture(kSize, TextureInfos::MakeDawn(textureInfo));
     REPORTER_ASSERT(reporter, beTexture.isValid());
     recorder->deleteBackendTexture(beTexture);
 
     // It should also pass if we set the usage to be a render target
     textureInfo.fUsage |= wgpu::TextureUsage::RenderAttachment;
-    beTexture = recorder->createBackendTexture(kSize, textureInfo);
+    beTexture = recorder->createBackendTexture(kSize, TextureInfos::MakeDawn(textureInfo));
     REPORTER_ASSERT(reporter, beTexture.isValid());
     recorder->deleteBackendTexture(beTexture);
 }
@@ -56,18 +57,21 @@ DEF_GRAPHITE_TEST_FOR_DAWN_CONTEXT(DawnBackendTextureCopyVariableTest,
     textureInfo.fFormat = wgpu::TextureFormat::RGBA8Unorm;
     textureInfo.fUsage = wgpu::TextureUsage::TextureBinding;
 
-    BackendTexture beTexture = recorder->createBackendTexture(kSize, textureInfo);
+    BackendTexture beTexture =
+            recorder->createBackendTexture(kSize, TextureInfos::MakeDawn(textureInfo));
     REPORTER_ASSERT(reporter, beTexture.isValid());
 
     BackendTexture beTexture2;
     REPORTER_ASSERT(reporter, beTexture2 != beTexture);
-    REPORTER_ASSERT(reporter, beTexture2.getDawnTexturePtr() == nullptr);
-    REPORTER_ASSERT(reporter, beTexture2.getDawnTextureViewPtr() == nullptr);
+    REPORTER_ASSERT(reporter, BackendTextures::GetDawnTexturePtr(beTexture2) == nullptr);
+    REPORTER_ASSERT(reporter, BackendTextures::GetDawnTextureViewPtr(beTexture2) == nullptr);
 
     beTexture2 = beTexture;
     REPORTER_ASSERT(reporter, beTexture2 == beTexture);
-    REPORTER_ASSERT(reporter, beTexture2.getDawnTexturePtr() != nullptr);
-    REPORTER_ASSERT(reporter, beTexture2.getDawnTexturePtr() == beTexture.getDawnTexturePtr());
+    REPORTER_ASSERT(reporter, BackendTextures::GetDawnTexturePtr(beTexture2) != nullptr);
+    REPORTER_ASSERT(reporter,
+                    BackendTextures::GetDawnTexturePtr(beTexture2) ==
+                            BackendTextures::GetDawnTexturePtr(beTexture));
 
     recorder->deleteBackendTexture(beTexture);
 }
