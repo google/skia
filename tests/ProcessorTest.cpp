@@ -641,12 +641,6 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(ProcessorOptimizationValidationTest,
         int optimizedForCoverageAsAlpha = 0;
         int optimizedForConstantOutputForInput = 0;
 
-#ifdef __MSVC_RUNTIME_CHECKS
-        // This test is infuriatingly slow with MSVC runtime checks enabled
-        static constexpr int kMinimumTrials = 1;
-        static constexpr int kMaximumTrials = 1;
-        static constexpr int kExpectedSuccesses = 1;
-#else
         // We start by testing each fragment-processor 100 times, watching the optimization bits
         // that appear. If we see an optimization bit appear in those first 100 trials, we keep
         // running tests until we see at least five successful trials that have this optimization
@@ -655,7 +649,6 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(ProcessorOptimizationValidationTest,
         static constexpr int kMinimumTrials = 100;
         static constexpr int kMaximumTrials = 2000;
         static constexpr int kExpectedSuccesses = 5;
-#endif
 
         for (int trial = 0;; ++trial) {
             // Create a randomly-configured FP.

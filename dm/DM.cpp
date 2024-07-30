@@ -169,21 +169,6 @@ static DEFINE_string(properties, "",
 
 static DEFINE_bool(rasterize_pdf, false, "Rasterize PDFs when possible.");
 
-#if defined(__MSVC_RUNTIME_CHECKS)
-#include <rtcapi.h>
-int RuntimeCheckErrorFunc(int errorType, const char* filename, int linenumber,
-                          const char* moduleName, const char* fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-
-    SkDebugf("Line #%d\nFile: %s\nModule: %s\n",
-             linenumber, filename ? filename : "Unknown", moduleName ? moduleName : "Unknwon");
-    return 1;
-}
-#endif
-
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::ContextInfo;
@@ -1550,9 +1535,6 @@ TestHarness CurrentTestHarness() {
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 int main(int argc, char** argv) {
-#if defined(__MSVC_RUNTIME_CHECKS)
-    _RTC_SetErrorFunc(RuntimeCheckErrorFunc);
-#endif
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
     android::ProcessState::self()->startThreadPool();
 #endif

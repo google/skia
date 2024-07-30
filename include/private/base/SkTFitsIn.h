@@ -10,7 +10,6 @@
 
 #include "include/private/base/SkDebug.h"
 
-#include <cstdint>
 #include <limits>
 #include <type_traits>
 
@@ -88,18 +87,8 @@ typename std::enable_if<(std::is_integral<S>::value || std::is_enum<S>::value) &
     (std::is_signed<Da>::value && std::is_unsigned<Sa>::value && sizeof(Da) <= sizeof(Sa)) ?
         src <= (S)std::numeric_limits<Da>::max() :
 
-#if !defined(SK_DEBUG) && !defined(__MSVC_RUNTIME_CHECKS )
-    // Correct (simple) version. This trips up MSVC's /RTCc run-time checking.
+    // This trips up MSVC's /RTCc run-time checking, which we don't support.
     (S)(D)src == src;
-#else
-    // More complex version that's safe with /RTCc. Used in all debug builds, for coverage.
-    (std::is_signed<Sa>::value) ?
-        (intmax_t)src >= (intmax_t)std::numeric_limits<Da>::min() &&
-        (intmax_t)src <= (intmax_t)std::numeric_limits<Da>::max() :
-
-    // std::is_unsigned<S> ?
-        (uintmax_t)src <= (uintmax_t)std::numeric_limits<Da>::max();
-#endif
 }
 
 #endif
