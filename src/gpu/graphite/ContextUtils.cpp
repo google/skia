@@ -376,6 +376,12 @@ std::string EmitUniformsFromStorageBuffer(const char* bufferNamePrefix,
     return result;
 }
 
+std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
+                                    const char* ssboIndex,
+                                    const char* uniformName) {
+    return SkSL::String::printf("%sUniformData[%s].%s", bufferNamePrefix, ssboIndex, uniformName);
+}
+
 std::string EmitTexturesAndSamplers(const ResourceBindingRequirements& bindingReqs,
                                     SkSpan<const ShaderNode*> nodes,
                                     int* binding) {
@@ -574,14 +580,17 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
         return {};
     }
 
-    ShaderInfo shaderInfo(paintID, dict, rteDict, useStorageBuffers);
+    const char* shadingSsboIndex =
+            useStorageBuffers && step->performsShading() ? "shadingSsboIndex" : nullptr;
+    ShaderInfo shaderInfo(paintID, dict, rteDict, shadingSsboIndex);
+
     result.fSkSL = shaderInfo.toSkSL(caps,
                                      step,
+                                     useStorageBuffers,
+                                     &result.fNumTexturesAndSamplers,
+                                     &result.fHasPaintUniforms,
+                                     &result.fHasGradientBuffer,
                                      writeSwizzle);
-
-    result.fNumTexturesAndSamplers = shaderInfo.numTexturesAndSamplers();
-    result.fHasPaintUniforms = shaderInfo.hasPaintUniforms();
-    result.fHasGradientBuffer = shaderInfo.hasGradientBuffer();
 
     // Extract blend info after integrating the RenderStep into the final fragment shader in case
     // that changes the HW blending choice to handle analytic coverage.

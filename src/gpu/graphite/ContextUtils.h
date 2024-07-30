@@ -122,7 +122,9 @@ std::string EmitRenderStepStorageBuffer(int bufferID,
 std::string EmitUniformsFromStorageBuffer(const char* bufferNamePrefix,
                                           const char* ssboIndex,
                                           SkSpan<const Uniform> uniforms);
-
+std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
+                                    const char* ssboIndex,
+                                    const char* uniformName);
 std::string EmitTexturesAndSamplers(const ResourceBindingRequirements&,
                                     SkSpan<const ShaderNode*> nodes,
                                     int* binding);
