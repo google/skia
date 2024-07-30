@@ -54,6 +54,12 @@ rust_static_library(
 cc_library(
     name = "vello_ffi",
     srcs = [":ffi_gen/filegroup"],
+    defines = select_multi(
+        {
+            "@vello//:msl_shaders": ["VELLO_MSL_SHADERS=true"],
+            "@vello//:wgsl_shaders": ["VELLO_WGSL_SHADERS=true"],
+        },
+    ),
     visibility = ["//visibility:public"],
     deps = [
         ":cpp",

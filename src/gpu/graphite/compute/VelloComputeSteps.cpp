@@ -40,13 +40,13 @@ ComputeStep::NativeShaderSource VelloNativeShaderSource(vello_cpp::ShaderStage s
     ::rust::Str source;
     std::string entryPoint;
     switch (format) {
-#ifdef SK_DAWN
+#if VELLO_WGSL_SHADERS
         case NativeFormat::kWGSL:
             source = shader.wgsl();
             entryPoint = "main";
             break;
 #endif
-#ifdef SK_METAL
+#if VELLO_MSL_SHADERS
         case NativeFormat::kMSL:
             source = shader.msl();
             entryPoint = "main_";

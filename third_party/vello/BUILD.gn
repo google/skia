@@ -87,4 +87,11 @@ third_party("vello") {
     ":compile_vello_ffi",
     ":compile_vello_rust",
   ]
+  public_defines = []
+  if (skia_use_metal) {
+    public_defines += [ "VELLO_MSL_SHADERS=true" ]
+  }
+  if (skia_use_dawn) {
+    public_defines += [ "VELLO_WGSL_SHADERS=true" ]
+  }
 }
