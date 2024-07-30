@@ -25,24 +25,6 @@
 
 namespace skgpu::graphite {
 
-namespace {
-
-using IntrinsicConstant = float[4];
-
-constexpr int kBufferBindingOffsetAlignment = 256;
-
-constexpr int kIntrinsicConstantAlignedSize =
-        SkAlignTo(sizeof(IntrinsicConstant), kBufferBindingOffsetAlignment);
-
-#if defined(__EMSCRIPTEN__)
-// When running against WebGPU in WASM we don't have the wgpu::CommandBuffer::WriteBuffer method. We
-// allocate a fixed size buffer to hold the intrinsics constants. If we overflow we allocate another
-// buffer.
-constexpr int kNumSlotsForIntrinsicConstantBuffer = 8;
-#endif
-
-}  // namespace
-
 std::unique_ptr<DawnCommandBuffer> DawnCommandBuffer::Make(const DawnSharedContext* sharedContext,
                                                            DawnResourceProvider* resourceProvider) {
     std::unique_ptr<DawnCommandBuffer> cmdBuffer(
@@ -70,7 +52,10 @@ wgpu::CommandBuffer DawnCommandBuffer::finishEncoding() {
 }
 
 void DawnCommandBuffer::onResetCommandBuffer() {
+    fCurrentRTAdjust = std::nullopt;
+
     fIntrinsicConstantBuffer = nullptr;
+    fIntrinsicConstantBufferSlotsUsed = 0;
 
     fActiveGraphicsPipeline = nullptr;
     fActiveRenderPassEncoder = nullptr;
@@ -711,6 +696,12 @@ void DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
     const float invTwoH = 2.f / viewport.height();
     const IntrinsicConstant rtAdjust = {invTwoW, -invTwoH, -1.f - x * invTwoW, 1.f + y * invTwoH};
 
+    if (fCurrentRTAdjust && *fCurrentRTAdjust == rtAdjust) {
+        return;
+    }
+
+    fCurrentRTAdjust = rtAdjust;
+
     // TODO: https://b.corp.google.com/issues/259267703
     // Make updating intrinsic constants faster. Metal has setVertexBytes method
     // to quickly sending intrinsic constants to vertex shader without any buffer. But Dawn doesn't
@@ -719,19 +710,11 @@ void DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
     SkASSERT(!fActiveRenderPassEncoder);
     SkASSERT(!fActiveComputePassEncoder);
 
-#if !defined(__EMSCRIPTEN__)
-    if (!fIntrinsicConstantBuffer) {
-        fIntrinsicConstantBuffer = fResourceProvider->getOrCreateIntrinsicConstantBuffer();
-        SkASSERT(fIntrinsicConstantBuffer);
-        SkASSERT(fIntrinsicConstantBuffer->size() == sizeof(IntrinsicConstant));
-        this->trackResource(fIntrinsicConstantBuffer);
-    }
-    fCommandEncoder.WriteBuffer(fIntrinsicConstantBuffer->dawnBuffer(),
-                                0,
-                                reinterpret_cast<const uint8_t*>(rtAdjust),
-                                sizeof(rtAdjust));
-    fIntrinsicConstantBufferSlotsUsed = 1;
-#else   // defined(__EMSCRIPTEN__)
+    // We allocate a fixed size buffer to hold the intrinsics constants. If we overflow we allocate
+    // another buffer. We prefer this to using wgpu::CommandEncoder::WriteBuffer since it avoids
+    // alternating render and blit passes which causes suboptimal memory allocations with Metal and
+    // is generally not a good idea. And when running against WebGPU in WASM we don't have the
+    // wgpu::CommandEncoder::WriteBuffer method.
     if (!fIntrinsicConstantBuffer ||
         fIntrinsicConstantBufferSlotsUsed == kNumSlotsForIntrinsicConstantBuffer) {
         size_t bufferSize = kIntrinsicConstantAlignedSize * kNumSlotsForIntrinsicConstantBuffer;
@@ -749,7 +732,9 @@ void DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
     fSharedContext->queue().WriteBuffer(
             fIntrinsicConstantBuffer->dawnBuffer(), offset, &rtAdjust, sizeof(rtAdjust));
     fIntrinsicConstantBufferSlotsUsed++;
-#endif  // defined(__EMSCRIPTEN__)
+
+    // The intrinsic constant buffer binding or dynamic offset (active slot) is dirty.
+    fBoundUniformBuffersDirty = true;
 }
 
 void DawnCommandBuffer::setViewport(const SkRect& viewport) {

@@ -440,18 +440,6 @@ const wgpu::Buffer& DawnResourceProvider::getOrCreateNullBuffer() {
     return fNullBuffer;
 }
 
-const sk_sp<DawnBuffer>& DawnResourceProvider::getOrCreateIntrinsicConstantBuffer() {
-    if (!fIntrinsicConstantBuffer) {
-        fIntrinsicConstantBuffer = findOrCreateDawnBuffer(sizeof(float[4]),
-                                                          BufferType::kUniform,
-                                                          AccessPattern::kGpuOnly,
-                                                          "IntrinsicConstantBuffer");
-        SkASSERT(fIntrinsicConstantBuffer);
-    }
-
-    return fIntrinsicConstantBuffer;
-}
-
 const wgpu::BindGroup& DawnResourceProvider::findOrCreateUniformBuffersBindGroup(
         const std::array<std::pair<const DawnBuffer*, uint32_t>, kNumUniformEntries>&
                 boundBuffersAndSizes) {
