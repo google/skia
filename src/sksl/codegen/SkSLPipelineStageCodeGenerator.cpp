@@ -373,7 +373,7 @@ std::string PipelineStageCodeGenerator::functionName(const FunctionDeclaration& 
         return std::string(fCallbacks->getMainName());
     }
 
-    // Intrinsics and shared functions do not use name mangling.
+    // Intrinsics and functions from sksl_shared do not use name mangling.
     if (decl.isIntrinsic() || decl.moduleType() == ModuleType::sksl_shared) {
         return std::string(decl.name());
     }

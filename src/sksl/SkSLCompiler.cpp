@@ -72,12 +72,12 @@ const Module* Compiler::moduleForProgramKind(ProgramKind kind) {
         case ProgramKind::kGraphiteVertex:        return m.loadGraphiteVertexModule(this);
         case ProgramKind::kGraphiteFragmentES2:   return m.loadGraphiteFragmentES2Module(this);
         case ProgramKind::kGraphiteVertexES2:     return m.loadGraphiteVertexES2Module(this);
+        case ProgramKind::kPrivateRuntimeBlender:
+        case ProgramKind::kPrivateRuntimeColorFilter:
         case ProgramKind::kPrivateRuntimeShader:  return m.loadPrivateRTShaderModule(this);
         case ProgramKind::kRuntimeColorFilter:
         case ProgramKind::kRuntimeShader:
         case ProgramKind::kRuntimeBlender:
-        case ProgramKind::kPrivateRuntimeColorFilter:
-        case ProgramKind::kPrivateRuntimeBlender:
         case ProgramKind::kMeshVertex:
         case ProgramKind::kMeshFragment:          return m.loadPublicModule(this);
     }

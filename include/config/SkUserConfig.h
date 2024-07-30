@@ -97,6 +97,9 @@
 // To use smaller but slower mipmap builder
 //#define SK_USE_DRAWING_MIPMAP_DOWNSAMPLER
 
+// TODO(b/328051548): This toggle will enable KnownRuntimeEffects in modules.
+//#define SK_DISABLE_MODULES_FOR_KNOWN_RUNTIME_EFFECTS
+
 /* Skia tries to make use of some non-standard C++ language extensions.
    By default, Skia provides msvc and clang/gcc versions of these macros.
    Skia consumers can provide their own definitions of these macros to
