@@ -29,6 +29,7 @@
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkBlurEngine.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -1497,8 +1498,8 @@ int downscale_step_count(float netScaleFactor) {
 }
 
 PixelSpace<SkRect> scale_about_center(const PixelSpace<SkRect> src, float sx, float sy) {
-    float cx = 0.5f * src.left() + 0.5f * src.right();
-    float cy = 0.5f * src.top()  + 0.5f * src.bottom();
+    float cx = sx == 1.f ? 0.f : (0.5f * src.left() + 0.5f * src.right());
+    float cy = sy == 1.f ? 0.f : (0.5f * src.top()  + 0.5f * src.bottom());
     return LayerSpace<SkRect>({(src.left()  - cx) * sx, (src.top()    - cy) * sy,
                                (src.right() - cx) * sx, (src.bottom() - cy) * sy});
 }
@@ -1634,11 +1635,16 @@ FilterResult FilterResult::rescale(const Context& ctx,
             !(analysis & BoundsAnalysis::kRequiresLayerCrop) &&
             !(enforceDecal && (analysis & BoundsAnalysis::kHasLayerFillingEffect));
 
+    // To match legacy color space conversion logic, treat a null src as sRGB and a null dst as
+    // as the src CS.
+    const SkColorSpace* srcCS = fImage->getColorSpace() ? fImage->getColorSpace()
+                                                        : sk_srgb_singleton();
+    const SkColorSpace* dstCS = ctx.colorSpace() ? ctx.colorSpace() : srcCS;
     const bool hasEffectsToApply =
             !canDeferTiling ||
             SkToBool(fColorFilter) ||
             fImage->colorType() != ctx.backend()->colorType() ||
-            !SkColorSpace::Equals(fImage->getColorSpace(), ctx.colorSpace());
+            !SkColorSpace::Equals(srcCS, dstCS);
 
     int xSteps = downscale_step_count(scale.width());
     int ySteps = downscale_step_count(scale.height());
@@ -1724,8 +1730,8 @@ FilterResult FilterResult::rescale(const Context& ctx,
     // are pixel aligned. This is because the tiling is applied at the pixel level in SkImageShader,
     // and we need the period of the low-res image to align with the original high-resolution period
     // If/when SkImageShader supports shader-tiling over fractional bounds, this can relax.
-    float finalScaleX = scale.width();
-    float finalScaleY = scale.height();
+    float finalScaleX = xSteps > 0 ? scale.width() : 1.f;
+    float finalScaleY = ySteps > 0 ? scale.height() : 1.f;
     if (deferPeriodicTiling) {
         PixelSpace<SkRect> dstBoundsF = scale_about_center(stepBoundsF, finalScaleX, finalScaleY);
         // Use a pixel bounds that's smaller than what was requested to ensure any post-blur amount
