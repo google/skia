@@ -23,7 +23,7 @@ void GrImageContext::abandonContext() {
 }
 
 bool GrImageContext::abandoned() {
-    return !fThreadSafeProxy || fThreadSafeProxy->priv().abandoned();
+    return fThreadSafeProxy->priv().abandoned();
 }
 
 sk_sp<GrImageContext> GrImageContext::MakeForPromiseImage(sk_sp<GrContextThreadSafeProxy> tsp) {
