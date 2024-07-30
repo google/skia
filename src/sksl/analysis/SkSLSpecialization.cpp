@@ -142,6 +142,14 @@ void FindFunctionsToSpecialize(const Program& program,
 
                         std::swap(fInheritedSpecializationIndex, specializationIndex);
                         fInheritedSpecializations.swap(specialization);
+                    } else {
+                        // The function being called isn't specialized, but we need to walk the
+                        // entire call graph or we may miss a specialized call entirely. Since
+                        // nothing is specialized, it is safe to skip over repeated traversals.
+                        if (!fVisitedFunctions.find(&decl)) {
+                            fVisitedFunctions.add(&decl);
+                            this->visitProgramElement(*decl.definition());
+                        }
                     }
                 }
             }
@@ -152,6 +160,7 @@ void FindFunctionsToSpecialize(const Program& program,
         SpecializationMap& fSpecializationMap;
         SpecializedCallMap& fSpecializedCallMap;
         const ParameterMatchesFn& fParameterMatchesFn;
+        THashSet<const FunctionDeclaration*> fVisitedFunctions;
 
         SpecializedParameters fInheritedSpecializations;
         SpecializationIndex fInheritedSpecializationIndex = kUnspecialized;
