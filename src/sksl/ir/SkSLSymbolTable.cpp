@@ -183,8 +183,14 @@ const Type* SymbolTable::addArrayDimension(const Context& context,
     }
     // Reuse an existing array type with this name if one already exists in our symbol table.
     std::string arrayName = type->getArrayName(arraySize);
-    if (const Symbol* existingType = this->find(arrayName)) {
-        return &existingType->as<Type>();
+    if (const Symbol* existingSymbol = this->find(arrayName)) {
+        // We would expect an existing symbol named `Type[123]` to match our `Type[123]`. However,
+        // we might be compiling invalid code that contains duplicate symbols, and so we need to
+        // verify that these two types actually match before reusing the existing type.
+        const Type* existingType = &existingSymbol->as<Type>();
+        if (existingType->isArray() && type->matches(existingType->componentType())) {
+            return existingType;
+        }
     }
     // Add a new array type to the symbol table.
     const std::string* arrayNamePtr = this->takeOwnershipOfString(std::move(arrayName));

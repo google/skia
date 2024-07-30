@@ -392,6 +392,7 @@ skia_filegroup(
         "errors/Ossfuzz58037.sksl",
         "errors/Ossfuzz58375.sksl",
         "errors/Ossfuzz63793.sksl",
+        "errors/Ossfuzz70643.sksl",
         "errors/OverflowFloatIntrinsic.sksl",
         "errors/OverflowFloatLiteral.rts",
         "errors/OverflowInlinedLiteral.sksl",
