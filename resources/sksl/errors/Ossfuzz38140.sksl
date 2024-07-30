@@ -7,5 +7,5 @@ half4 main(half4 src, half4 dst) {
 }
 
 /*%%*
-duplicate definition of 'half4 blend_src_over(half4 src, half4 dst)'
+differ only in modifiers
 *%%*/

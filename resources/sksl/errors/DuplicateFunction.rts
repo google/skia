@@ -2,5 +2,5 @@ void func() {}
 void func() {}
 
 /*%%*
-duplicate definition of 'void func()'
+function 'void func()' was already defined
 *%%*/

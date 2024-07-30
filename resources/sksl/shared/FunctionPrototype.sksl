@@ -6,6 +6,10 @@ half4 this_function_is_defined_after_use(half4 x);
 half4 this_function_is_defined_near_the_end(half4 x);
 half4 main(float2 coords); // prototyping main is allowed (although not particularly useful)
 
+half4 this_function_is_prototyped_after_its_definition(half4 x) {
+    return -x;
+}
+
 half4 this_function_is_defined_before_use(half4 x) {
     return -this_function_is_defined_near_the_end(x);
 }
@@ -21,7 +25,9 @@ half4 this_function_is_defined_after_use(half4 x) {
 }
 
 half4 this_function_is_defined_near_the_end(half4 x) {
-    return x;
+    return this_function_is_prototyped_after_its_definition(-x);
 }
 
 int3 this_function_is_prototyped_at_the_very_end_and_never_defined(half2x2 x, bool2 y);
+
+half4 this_function_is_prototyped_after_its_definition(half4 x);

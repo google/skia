@@ -19,16 +19,16 @@ float pow(float2 x, float y) { return 0; /* allowed */ }
 float pow(half x, float y) { return 0; /* allowed */ }
 
 /*%%*
-duplicate definition of 'half fma(half a, half b, half c)'
-duplicate definition of 'half2 sin(half2 a)'
-duplicate definition of 'float3 sin(float3 a)'
+duplicate definition of intrinsic function 'fma'
+duplicate definition of intrinsic function 'sin'
+duplicate definition of intrinsic function 'sin'
 modifiers on parameter 1 differ between declaration and definition
-duplicate definition of 'half cos(half2 a)'
+duplicate definition of intrinsic function 'cos'
 functions 'float2 cos(half2 a)' and '$pure $genHType cos($genHType
 functions 'int cos(out half3 a)' and '$pure $genHType cos($genHType
-duplicate definition of 'float pow(float x, float y)'
+duplicate definition of intrinsic function 'pow'
 *%%*/
 
 // The `cos` errors are truncated early because the message differs between debug builds
 // (which retain the parameter names on intrinsic functions) and release builds (which
-// strip off the parameter names to save space).
+// minify the parameter names to save space).

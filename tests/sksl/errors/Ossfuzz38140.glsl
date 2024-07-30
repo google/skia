@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: duplicate definition of 'half4 blend_src_over(half4 src, half4 dst)'
+error: 1: functions 'half4 blend_src_over(half4 src, half4 dst)' and '$pure half4 blend_src_over(half4 src, half4 dst)' differ only in modifiers
 half4 blend_src_over(half4 src, half4 dst) {
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 2: unknown identifier 'src'

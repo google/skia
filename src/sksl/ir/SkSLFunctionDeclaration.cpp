@@ -398,9 +398,14 @@ static bool find_existing_declaration(const Context& context,
                     return false;
                 }
             }
-            if (other->definition() || other->isIntrinsic() ||
-                modifierFlags != other->modifierFlags()) {
-                errors.error(pos, "duplicate definition of '" + invalidDeclDescription() + "'");
+            if (other->isIntrinsic()) {
+                errors.error(pos, "duplicate definition of intrinsic function '" +
+                                  std::string(name) + "'");
+                return false;
+            }
+            if (modifierFlags != other->modifierFlags()) {
+                errors.error(pos, "functions '" + invalidDeclDescription() + "' and '" +
+                                  other->description() + "' differ only in modifiers");
                 return false;
             }
             *outExistingDecl = other;

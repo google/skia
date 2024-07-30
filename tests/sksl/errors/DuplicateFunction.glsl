@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 2: duplicate definition of 'void func()'
+error: 1: function 'void func()' was already defined
 void func() {}
 ^^^^^^^^^^^
 1 error
