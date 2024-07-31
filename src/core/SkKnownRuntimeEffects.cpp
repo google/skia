@@ -432,12 +432,12 @@ const SkRuntimeEffect* GetKnownRuntimeEffect(StableKey stableKey) {
                 "uniform shader child;"
                 "uniform half2 offset;"
                 "uniform half flip;" // -1 converts the max() calls to min()
-                "uniform half radius;"
+                "uniform int radius;"
 
                 "half4 main(float2 coord) {"
                     "half4 aggregate = flip*child.eval(coord);" // case 0 only samples once
                     "for (int i = 1; i <= kMaxLinearRadius; ++i) {"
-                        "if (i > int(radius)) break;"
+                        "if (i > radius) break;"
                         "half2 delta = half(i) * offset;"
                         "aggregate = max(aggregate, max(flip*child.eval(coord + delta),"
                                                        "flip*child.eval(coord - delta)));"
@@ -727,7 +727,7 @@ const SkRuntimeEffect* GetKnownRuntimeEffect(StableKey stableKey) {
                 "uniform shader child;"
                 "uniform half2 offset;"
                 "uniform half flip;" // -1 converts the max() calls to min()
-                "uniform half radius;"
+                "uniform int radius;"
 
                 "half4 main(float2 coord) {"
                     "return sk_linear_morphology(child, coord, offset, flip, radius);"

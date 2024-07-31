@@ -37,8 +37,8 @@ static constexpr char SKSL_MINIFIED_sksl_rt_shader[] =
 "=saturate((((c.x*a)*b+c.y*a)+c.z*b)+c.w);e.xyz=min(e.xyz,max(e.w,d));return"
 " e;}half4 sk_sparse_morphology(shader a,float2 b,half2 c,half d){half4 e=max"
 "(d*a.eval(b+float2(c)),d*a.eval(b-float2(c)));return d*e;}half4 sk_linear_morphology"
-"(shader a,float2 b,half2 c,half d,half e){half4 g=d*a.eval(b);for(half h=1."
-";h<=14.;++h){if(h>e)break;half2 j=h*c;g=max(g,max(d*a.eval(b+float2(j)),d*a"
-".eval(b-float2(j))));}return d*g;}half4 sk_overdraw(half a,half4 b,half4 c,"
-"half4 d,half4 e,half4 f,half4 g){return a<.00196078443?b:(a<.005882353?c:(a"
-"<.009803922?d:(a<.01372549?e:(a<.01764706?f:g))));}";
+"(shader a,float2 b,half2 c,half d,int e){half4 g=d*a.eval(b);half2 h=c;for("
+"int j=1;j<=14;++j){if(j>e)break;g=max(g,max(d*a.eval(b+float2(h)),d*a.eval("
+"b-float2(h))));h+=c;}return d*g;}half4 sk_overdraw(half a,half4 b,half4 c,half4"
+" d,half4 e,half4 f,half4 g){return a<.00196078443?b:(a<.005882353?c:(a<.009803922"
+"?d:(a<.01372549?e:(a<.01764706?f:g))));}";

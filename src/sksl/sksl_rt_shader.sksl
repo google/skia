@@ -199,17 +199,18 @@ half4 sk_sparse_morphology(shader child, float2 coord, half2 offset, half flip) 
 
 //--- Linear Morphology ------------------------------------------------------------
 
-half4 sk_linear_morphology(shader child, float2 coord, half2 offset, half flip, half radius) {
+half4 sk_linear_morphology(shader child, float2 coord, half2 offset, half flip, int radius) {
 
     // KEEP IN SYNC WITH CONSTANT IN `SkMorphologyImageFilter.cpp`
-    const half kMaxLinearRadius = 14;
+    const int kMaxLinearRadius = 14;
 
-    half4 aggregate = flip * child.eval(coord); // case 0 only samples once
-    for (half i = 1; i <= kMaxLinearRadius; ++i) {
+    half4 aggregate = flip * child.eval(coord); // case 0 only needs a single sample
+    half2 delta = offset;
+    for (int i = 1; i <= kMaxLinearRadius; ++i) {
         if (i > radius) break;
-        half2 delta = i * offset;
         aggregate = max(aggregate, max(flip * child.eval(coord + delta),
                                        flip * child.eval(coord - delta)));
+        delta += offset;
     }
     return flip * aggregate;
 }

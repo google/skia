@@ -25,6 +25,7 @@
 #include "src/core/SkWriteBuffer.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <optional>
 #include <utility>
 
@@ -141,7 +142,7 @@ sk_sp<SkShader> make_linear_morphology(sk_sp<SkShader> input,
     builder.child("child") = std::move(input);
     builder.uniform("offset") = direction == MorphDirection::kX ? SkV2{1.f, 0.f} : SkV2{0.f, 1.f};
     builder.uniform("flip") = (type == MorphType::kDilate) ? 1.f : -1.f;
-    builder.uniform("radius") = (float)radius;
+    builder.uniform("radius") = (int32_t)radius;
 
     return builder.makeShader();
 }
