@@ -163,7 +163,6 @@ void ProxyCache::purgeProxiesNotUsedSince(const skgpu::StdSteadyClock::time_poin
         if (Resource* resource = (*proxy)->texture();
             resource &&
             (!purgeTime || resource->lastAccessTime() < *purgeTime)) {
-            resource->setDeleteASAP();
             toRemove.push_back(key);
         }
     });
