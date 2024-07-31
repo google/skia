@@ -22,6 +22,7 @@ namespace VulkanMemory {
 
     bool AllocBufferMemory(VulkanMemoryAllocator*,
                            VkBuffer buffer,
+                           skgpu::Protected isProtected,
                            skgpu::VulkanMemoryAllocator::BufferUsage,
                            bool shouldPersistentlyMapCpuToGpu,
                            const std::function<CheckResult>&,

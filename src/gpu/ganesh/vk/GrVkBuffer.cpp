@@ -73,49 +73,55 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
     VkBuffer buffer;
     skgpu::VulkanAlloc alloc;
 
-    // The only time we don't require mappable buffers is when we have a static access pattern and
-    // we're on a device where gpu only memory has faster reads on the gpu than memory that is also
-    // mappable on the cpu. Protected memory always uses mappable buffers.
-    bool requiresMappable = gpu->protectedContext() ||
-                            accessPattern == kDynamic_GrAccessPattern ||
-                            accessPattern == kStream_GrAccessPattern ||
-                            !gpu->vkCaps().gpuOnlyBuffersMorePerformant();
+    bool isProtected = gpu->protectedContext() &&
+                       accessPattern == kStatic_GrAccessPattern;
+
+    // Protected memory _never_ uses mappable buffers.
+    // Otherwise, the only time we don't require mappable buffers is when we have a static
+    // access pattern and we're on a device where gpu only memory has faster reads on the gpu than
+    // memory that is also mappable on the cpu.
+    bool requiresMappable = !isProtected &&
+                            (accessPattern == kDynamic_GrAccessPattern ||
+                             accessPattern == kStream_GrAccessPattern ||
+                             !gpu->vkCaps().gpuOnlyBuffersMorePerformant());
 
     using BufferUsage = skgpu::VulkanMemoryAllocator::BufferUsage;
     BufferUsage allocUsage;
+
+    if (bufferType == GrGpuBufferType::kXferCpuToGpu) {
+        allocUsage = BufferUsage::kTransfersFromCpuToGpu;
+    } else if (bufferType == GrGpuBufferType::kXferGpuToCpu) {
+        allocUsage = BufferUsage::kTransfersFromGpuToCpu;
+    } else {
+        allocUsage = requiresMappable ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
+    }
 
     // create the buffer object
     VkBufferCreateInfo bufInfo;
     memset(&bufInfo, 0, sizeof(VkBufferCreateInfo));
     bufInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufInfo.flags = 0;
+    bufInfo.flags = isProtected ? VK_BUFFER_CREATE_PROTECTED_BIT : 0;
     bufInfo.size = size;
     // To support SkMesh buffer updates we make Vertex and Index buffers capable of being transfer
     // dsts.
     switch (bufferType) {
         case GrGpuBufferType::kVertex:
             bufInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-            allocUsage = requiresMappable ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
             break;
         case GrGpuBufferType::kIndex:
             bufInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-            allocUsage = requiresMappable ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
             break;
         case GrGpuBufferType::kDrawIndirect:
             bufInfo.usage = VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
-            allocUsage = requiresMappable ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
             break;
         case GrGpuBufferType::kUniform:
             bufInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-            allocUsage = BufferUsage::kCpuWritesGpuReads;
             break;
         case GrGpuBufferType::kXferCpuToGpu:
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-            allocUsage = BufferUsage::kTransfersFromCpuToGpu;
             break;
         case GrGpuBufferType::kXferGpuToCpu:
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-            allocUsage = BufferUsage::kTransfersFromGpuToCpu;
             break;
     }
     // We may not always get a mappable buffer for non dynamic access buffers. Thus we set the
@@ -146,6 +152,7 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
     auto allocator = gpu->memoryAllocator();
     if (!skgpu::VulkanMemory::AllocBufferMemory(allocator,
                                                 buffer,
+                                                skgpu::Protected(isProtected),
                                                 allocUsage,
                                                 shouldPersistentlyMapCpuToGpu,
                                                 checkResult,
@@ -239,9 +246,6 @@ void GrVkBuffer::copyCpuDataToGpuBuffer(const void* src, size_t offset, size_t s
     SkASSERT(src);
 
     GrVkGpu* gpu = this->getVkGpu();
-
-    // We should never call this method in protected contexts.
-    SkASSERT(!gpu->protectedContext());
 
     // The vulkan api restricts the use of vkCmdUpdateBuffer to updates that are less than or equal
     // to 65536 bytes and a size and offset that are both 4 byte aligned.
@@ -360,4 +364,3 @@ const VkDescriptorSet* GrVkBuffer::uniformDescriptorSet() const {
     SkASSERT(fUniformDescriptorSet);
     return fUniformDescriptorSet->descriptorSet();
 }
-

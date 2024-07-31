@@ -182,6 +182,10 @@ VkResult VkTestMemoryAllocator::allocateBufferMemory(VkBuffer buffer,
         info.flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
     }
 
+    if (kProtected_AllocationPropertyFlag & allocationPropertyFlags) {
+        info.requiredFlags |= VK_MEMORY_PROPERTY_PROTECTED_BIT;
+    }
+
     VmaAllocation allocation;
     VkResult result = vmaAllocateMemoryForBuffer(fAllocator, buffer, &info, &allocation, nullptr);
     if (VK_SUCCESS == result) {
