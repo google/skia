@@ -1609,6 +1609,15 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*numChildren=*/1
     };
 
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCircularRRectClip] = {
+            /*name=*/"CircularRRectClip",
+            /*staticFn=*/"sk_circular_rrect_clip",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{ { "rect",           SkSLType::kFloat4 },
+                           { "radiusPlusHalf", SkSLType::kHalf2 },
+                           { "edgeSelect",     SkSLType::kHalf4 } }
+    };
+
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCompose] = {
             /*name=*/"Compose",
             /*staticFn=*/nullptr,

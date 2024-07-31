@@ -78,6 +78,9 @@ enum class BuiltInCodeSnippetID : int32_t {
     // TODO(b/238763003): Avoid incorporating clip shaders into the actual shader code.
     kClipShader,
 
+    // Analytic clip for circular roundrect and AA rect shapes
+    kCircularRRectClip,
+
     kCompose,
 
     // Fixed-function blend modes are used for the final blend with the dst buffer's color when the

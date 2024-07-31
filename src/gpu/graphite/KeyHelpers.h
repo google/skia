@@ -373,6 +373,25 @@ struct ColorSpaceTransformBlock {
                          const ColorSpaceTransformData&);
 };
 
+struct CircularRRectClipBlock {
+    struct CircularRRectClipData {
+        CircularRRectClipData(SkRect rect,
+                              SkPoint radiusPlusHalf,
+                              SkRect edgeSelect) :
+            fRect(rect),
+            fRadiusPlusHalf(radiusPlusHalf),
+            fEdgeSelect(edgeSelect) {}
+        SkRect  fRect;
+        SkPoint fRadiusPlusHalf;
+        SkRect  fEdgeSelect;
+    };
+
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         const CircularRRectClipData&);
+};
+
 struct PrimitiveColorBlock {
     static void AddBlock(const KeyContext&,
                          PaintParamsKeyBuilder*,
