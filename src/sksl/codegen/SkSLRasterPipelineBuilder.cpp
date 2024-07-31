@@ -1270,10 +1270,6 @@ std::unique_ptr<Program> Builder::finish(int numValueSlots,
                                      numImmutableSlots, fNumLabels, debugTrace);
 }
 
-void Program::optimize() {
-    // TODO(johnstiles): perform any last-minute cleanup of the instruction stream here
-}
-
 static int stack_usage(const Instruction& inst) {
     switch (inst.fOp) {
         case BuilderOp::push_condition_mask:
@@ -1398,8 +1394,6 @@ Program::Program(TArray<Instruction> instrs,
         , fNumImmutableSlots(numImmutableSlots)
         , fNumLabels(numLabels)
         , fDebugTrace(debugTrace) {
-    this->optimize();
-
     fTempStackMaxDepths = this->tempStackMaxDepths();
 
     fNumTempStackSlots = 0;

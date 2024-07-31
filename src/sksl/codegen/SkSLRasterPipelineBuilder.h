@@ -186,7 +186,6 @@ private:
                     SkArenaAlloc* alloc,
                     SkSpan<const float> uniforms,
                     const SlotData& slots) const;
-    void optimize();
     StackDepths tempStackMaxDepths() const;
 
     // These methods are used to split up multi-slot copies into multiple ops as needed.
@@ -296,7 +295,7 @@ private:
 
 class Builder {
 public:
-    /** Finalizes and optimizes the program. */
+    /** Finalizes and returns a completed program. */
     std::unique_ptr<Program> finish(int numValueSlots,
                                     int numUniformSlots,
                                     int numImmutableSlots,
