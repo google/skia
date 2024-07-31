@@ -135,20 +135,4 @@ void SetMutableState(BackendTexture* tex, const skgpu::MutableTextureState& newS
 
 }  // namespace BackendTextures
 
-#if !defined(SK_DISABLE_LEGACY_VK_BACKEND_TEXTURE_FUNCS)
-BackendTexture::BackendTexture(SkISize dimensions,
-                               const VulkanTextureInfo& info,
-                               VkImageLayout layout,
-                               uint32_t queueFamilyIndex,
-                               VkImage image,
-                               VulkanAlloc vulkanMemoryAllocation)
-        : fDimensions(dimensions), fInfo(TextureInfos::MakeVulkan(info)) {
-    fTextureData.emplace<VulkanBackendTextureData>(
-            vulkanMemoryAllocation,
-            sk_make_sp<skgpu::MutableTextureState>(
-                    skgpu::MutableTextureStates::MakeVulkan(layout, queueFamilyIndex)),
-            image);
-}
-#endif
-
 }  // namespace skgpu::graphite

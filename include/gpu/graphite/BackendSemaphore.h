@@ -12,10 +12,6 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/private/base/SkAnySubclass.h"
 
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_BACKEND_SEMAPHORE_FUNCS)
-#include "include/private/gpu/vk/SkiaVulkan.h"
-#endif
-
 namespace skgpu::graphite {
 
 class BackendSemaphoreData;
@@ -23,12 +19,6 @@ class BackendSemaphoreData;
 class SK_API BackendSemaphore {
 public:
     BackendSemaphore();
-
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_BACKEND_SEMAPHORE_FUNCS)
-    BackendSemaphore(VkSemaphore);
-
-    VkSemaphore getVkSemaphore() const;
-#endif
 
     BackendSemaphore(const BackendSemaphore&);
 

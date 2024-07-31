@@ -55,19 +55,4 @@ VkSemaphore GetVkSemaphore(const BackendSemaphore& sem) {
 
 }  // namespace BackendSemaphores
 
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_BACKEND_SEMAPHORE_FUNCS)
-BackendSemaphore::BackendSemaphore(VkSemaphore semaphore)
-        : fBackend(skgpu::BackendApi::kVulkan), fIsValid(true) {
-    fSemaphoreData.emplace<VulkanBackendSemaphoreData>(VulkanBackendSemaphoreData(semaphore));
-}
-
-VkSemaphore BackendSemaphore::getVkSemaphore() const {
-    SkASSERT(fSemaphoreData->type() == skgpu::BackendApi::kVulkan);
-    const VulkanBackendSemaphoreData* vkData =
-            static_cast<const VulkanBackendSemaphoreData*>(fSemaphoreData.get());
-    SkASSERT(vkData);
-    return vkData->semaphore();
-}
-#endif
-
 }  // namespace skgpu::graphite

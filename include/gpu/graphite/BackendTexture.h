@@ -18,10 +18,6 @@
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 #endif
 
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_BACKEND_TEXTURE_FUNCS)
-#include "include/gpu/vk/VulkanTypes.h"
-#endif
-
 namespace skgpu::graphite {
 
 class BackendTextureData;
@@ -66,15 +62,6 @@ public:
     // BackendTexture. However, any SkImage or SkSurface that wraps the BackendTexture *will* retain
     // and release the WGPUTextureView.
     BackendTexture(SkISize dimensions, const DawnTextureInfo& info, WGPUTextureView textureView);
-#endif
-
-#if defined(SK_VULKAN) && !defined(SK_DISABLE_LEGACY_VK_BACKEND_TEXTURE_FUNCS)
-    BackendTexture(SkISize dimensions,
-                   const VulkanTextureInfo&,
-                   VkImageLayout,
-                   uint32_t queueFamilyIndex,
-                   VkImage,
-                   VulkanAlloc);
 #endif
 
     BackendTexture(const BackendTexture&);
