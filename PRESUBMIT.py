@@ -412,7 +412,7 @@ def _CheckGNIGenerated(input_api, output_api):
     # TODO(crbug.com/skia/12541): Remove when Bazel builds work on Windows.
     # Note: `make` is not installed on Windows by default.
     return [
-        output_api.PresubmitPromptWarning(
+        output_api.PresubmitNotifyResult(
             'Skipping Bazel=>GNI export check on Windows (unsupported platform).'
         )
     ]
