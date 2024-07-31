@@ -74,7 +74,7 @@ WORKDIR /tmp/skia/skia
 # Build Skia.
 RUN ./bin/gn gen out/Static
 RUN git rev-parse HEAD > VERSION
-RUN ./bin/ninja -C out/Static
+RUN ./bin/ninja -C out/Static fiddle
 # Cleanup .git directories because they are not needed and take up space.
 RUN find . -name .git -print0 | xargs -0 rm -rf
 RUN chown -R skia:skia .

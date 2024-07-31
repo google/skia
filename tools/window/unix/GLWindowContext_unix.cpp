@@ -9,10 +9,7 @@
 #include "include/gpu/gl/GrGLInterface.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/unix/WindowContextFactory_unix.h"
-
-#if defined(SK_GLX)
 #include "include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h"
-#endif
 
 #include <GL/gl.h>
 
@@ -64,11 +61,7 @@ GLWindowContext_xlib::GLWindowContext_xlib(const XlibWindowInfo& winInfo, const 
 using CreateContextAttribsFn = GLXContext(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
 static sk_sp<const GrGLInterface> make_interface() {
-#if defined(SK_GLX)
     return GrGLInterfaces::MakeGLX();
-#else
-    return nullptr;
-#endif
 }
 
 sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
