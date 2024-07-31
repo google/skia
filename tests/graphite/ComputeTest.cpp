@@ -429,7 +429,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
     // from step 1 while slot 2 contains the result of the second multiplication pass from step 1.
     // Slot 0 is not mappable.
     REPORTER_ASSERT(reporter,
-                    std::holds_alternative<BufferView>(builder.outputTable().fSharedSlots[0]),
+                    std::holds_alternative<BindBufferInfo>(builder.outputTable().fSharedSlots[0]),
                     "shared resource at slot 0 is missing");
     BindBufferInfo outputInfo = builder.getSharedBufferResource(2);
     if (!outputInfo) {
@@ -726,7 +726,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer,
     REPORTER_ASSERT(reporter, outputInfo, "Failed to allocate output buffer");
 
     DispatchGroup::Builder builder(recorder.get());
-    builder.assignSharedBuffer({outputInfo, sizeof(float) * kProblemSize}, 0);
+    builder.assignSharedBuffer(outputInfo, 0);
 
     // Initialize the step with a pre-determined global size
     if (!builder.appendStep(&step, {WorkgroupSize(1, 1, 1)})) {
@@ -1945,14 +1945,14 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrdering,
     ComputeTask::DispatchGroupList groups;
 
     // First group.
-    builder.assignSharedBuffer({input, kBufferSize}, 0);
+    builder.assignSharedBuffer(input, 0);
     builder.appendStep(&garbageStep, {{1, 1, 1}});
     groups.push_back(builder.finalize());
 
     // Second group.
     builder.reset();
-    builder.assignSharedBuffer({input, kBufferSize}, 0, ClearBuffer::kYes);
-    builder.assignSharedBuffer({output, kBufferSize}, 1);
+    builder.assignSharedBuffer(input, 0, ClearBuffer::kYes);
+    builder.assignSharedBuffer(output, 1);
     builder.appendStep(&copyStep, {{1, 1, 1}});
     groups.push_back(builder.finalize());
 
@@ -2058,7 +2058,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
     {
         auto scratch = recorder->priv().drawBufferManager()->getScratchStorage(kBufferSize);
         auto input = scratch.suballocate(kBufferSize);
-        builder.assignSharedBuffer({input, kBufferSize}, 0);
+        builder.assignSharedBuffer(input, 0);
 
         // `scratch` returns to the scratch buffer pool when it goes out of scope
     }
@@ -2070,9 +2070,9 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
     {
         auto scratch = recorder->priv().drawBufferManager()->getScratchStorage(kBufferSize);
         auto input = scratch.suballocate(kBufferSize);
-        builder.assignSharedBuffer({input, kBufferSize}, 0, ClearBuffer::kYes);
+        builder.assignSharedBuffer(input, 0, ClearBuffer::kYes);
     }
-    builder.assignSharedBuffer({output, kBufferSize}, 1);
+    builder.assignSharedBuffer(output, 1);
     builder.appendStep(&copyStep, {{1, 1, 1}});
     groups.push_back(builder.finalize());
 
@@ -2230,7 +2230,8 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_IndirectDispatch,
         ERRORF(reporter, "Shared resource at slot 0 is missing");
         return;
     }
-    builder.appendStepIndirect(&countStep, {indirectBufferInfo, kIndirectDispatchArgumentSize});
+    REPORTER_ASSERT(reporter, indirectBufferInfo.fSize == kIndirectDispatchArgumentSize);
+    builder.appendStepIndirect(&countStep, indirectBufferInfo);
 
     BindBufferInfo info = builder.getSharedBufferResource(1);
     if (!info) {

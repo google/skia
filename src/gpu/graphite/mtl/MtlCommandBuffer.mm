@@ -180,8 +180,8 @@ bool MtlCommandBuffer::onAddComputePass(DispatchGroupSpan groups) {
         for (const auto& dispatch : group->dispatches()) {
             this->bindComputePipeline(group->getPipeline(dispatch.fPipelineIndex));
             for (const ResourceBinding& binding : dispatch.fBindings) {
-                if (const BufferView* buffer = std::get_if<BufferView>(&binding.fResource)) {
-                    this->bindBuffer(buffer->fInfo.fBuffer, buffer->fInfo.fOffset, binding.fIndex);
+                if (const BindBufferInfo* buffer = std::get_if<BindBufferInfo>(&binding.fResource)) {
+                    this->bindBuffer(buffer->fBuffer, buffer->fOffset, binding.fIndex);
                 } else if (const TextureIndex* texIdx =
                                    std::get_if<TextureIndex>(&binding.fResource)) {
                     SkASSERT(texIdx);
@@ -202,11 +202,11 @@ bool MtlCommandBuffer::onAddComputePass(DispatchGroupSpan groups) {
                         std::get_if<WorkgroupSize>(&dispatch.fGlobalSizeOrIndirect)) {
                 this->dispatchThreadgroups(*globalSize, dispatch.fLocalSize);
             } else {
-                SkASSERT(std::holds_alternative<BufferView>(dispatch.fGlobalSizeOrIndirect));
-                const BufferView& indirect =
-                        *std::get_if<BufferView>(&dispatch.fGlobalSizeOrIndirect);
+                SkASSERT(std::holds_alternative<BindBufferInfo>(dispatch.fGlobalSizeOrIndirect));
+                const BindBufferInfo& indirect =
+                        *std::get_if<BindBufferInfo>(&dispatch.fGlobalSizeOrIndirect);
                 this->dispatchThreadgroupsIndirect(
-                        dispatch.fLocalSize, indirect.fInfo.fBuffer, indirect.fInfo.fOffset);
+                        dispatch.fLocalSize, indirect.fBuffer, indirect.fOffset);
             }
         }
     }

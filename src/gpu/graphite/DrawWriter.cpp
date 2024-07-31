@@ -96,18 +96,27 @@ void DrawWriter::flush() {
             realVertexCount = fTemplateCount;
         }
 
+        SkASSERT((fPendingBase + fPendingCount)*fInstanceStride <= fInstances.fSize);
         if (fIndices) {
+            // It's not possible to validate that the indices stored in fIndices access only valid
+            // data within fVertices. Simply vaidate that fIndices holds enough data for the
+            // vertex count that's drawn.
+            SkASSERT(realVertexCount*sizeof(uint16_t) <= fIndices.fSize);
             fCommandList->drawIndexedInstanced(fPrimitiveType, 0, realVertexCount, 0,
                                                fPendingBase, fPendingCount);
         } else {
+            SkASSERT(realVertexCount*fVertexStride <= fVertices.fSize);
             fCommandList->drawInstanced(fPrimitiveType, 0, realVertexCount,
                                         fPendingBase, fPendingCount);
         }
     } else {
         SkASSERT(!fInstances);
         if (fIndices) {
+            // As before, just validate there is sufficient index data
+            SkASSERT(fPendingCount*sizeof(uint16_t) <= fIndices.fSize);
             fCommandList->drawIndexed(fPrimitiveType, 0, fPendingCount, fPendingBase);
         } else {
+            SkASSERT((fPendingBase + fPendingCount)*fVertexStride <= fVertices.fSize);
             fCommandList->draw(fPrimitiveType, fPendingBase, fPendingCount);
         }
     }

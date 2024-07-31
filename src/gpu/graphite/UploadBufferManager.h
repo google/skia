@@ -48,8 +48,8 @@ private:
     ResourceProvider* fResourceProvider;
 
     sk_sp<Buffer> fReusedBuffer;
-    size_t fMinAlignment;
-    size_t fReusedBufferOffset = 0;
+    const uint32_t fMinAlignment;
+    uint32_t fReusedBufferOffset = 0;
 
     std::vector<sk_sp<Buffer>> fUsedBuffers;
 };

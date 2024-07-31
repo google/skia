@@ -19,7 +19,7 @@ namespace skgpu::graphite {
  */
 class ClearBuffersTask final : public Task {
 public:
-    static sk_sp<ClearBuffersTask> Make(skia_private::TArray<ClearBufferInfo>);
+    static sk_sp<ClearBuffersTask> Make(skia_private::TArray<BindBufferInfo>);
     ~ClearBuffersTask() override;
 
     Status prepareResources(ResourceProvider*,
@@ -31,10 +31,10 @@ public:
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
 private:
-    explicit ClearBuffersTask(skia_private::TArray<ClearBufferInfo> clearList)
+    explicit ClearBuffersTask(skia_private::TArray<BindBufferInfo> clearList)
             : fClearList(std::move(clearList)) {}
 
-    skia_private::TArray<ClearBufferInfo> fClearList;
+    skia_private::TArray<BindBufferInfo> fClearList;
 };
 
 }  // namespace skgpu::graphite

@@ -200,8 +200,8 @@ private:
 
     // Pipeline state matching currently bound pipeline
     PrimitiveType fPrimitiveType;
-    size_t fVertexStride;
-    size_t fInstanceStride;
+    uint32_t fVertexStride;
+    uint32_t fInstanceStride;
 
     /// Draw buffer binding state for pending draws
     BindBufferInfo fVertices;
@@ -212,8 +212,8 @@ private:
     // instanced drawing, where real index count = max(-fTemplateCount-1)
     int fTemplateCount;
 
-    unsigned int fPendingCount; // # of vertices or instances (depending on mode) to be drawn
-    unsigned int fPendingBase; // vertex/instance offset (depending on mode) applied to buffer
+    uint32_t fPendingCount; // # of vertices or instances (depending on mode) to be drawn
+    uint32_t fPendingBase; // vertex/instance offset (depending on mode) applied to buffer
     bool fPendingBufferBinds; // true if {fVertices,fIndices,fInstances} has changed since last draw
 
     void setTemplate(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
@@ -264,9 +264,9 @@ public:
 protected:
     DrawWriter&     fDrawer;
     BindBufferInfo& fTarget;
-    size_t          fStride;
+    uint32_t        fStride;
 
-    unsigned int fReservedCount; // in target stride units
+    uint32_t     fReservedCount; // in target stride units
     VertexWriter fNextWriter;    // writing to the target buffer binding
 
     virtual void onFlush() {}
@@ -277,7 +277,10 @@ protected:
         } else if (fReservedCount > 0) {
             // Have contiguous bytes that can't satisfy request, so return them in the event the
             // DBM has additional contiguous bytes after the prior reserved range.
-            fDrawer.fManager->returnVertexBytes(fReservedCount * fStride);
+            const uint32_t returnedBytes = fReservedCount * fStride;
+            SkASSERT(fTarget.fSize >= returnedBytes);
+            fDrawer.fManager->returnVertexBytes(returnedBytes);
+            fTarget.fSize -= returnedBytes;
         }
 
         fReservedCount = count;
@@ -294,6 +297,8 @@ protected:
             fTarget = reservedChunk;
             fDrawer.fPendingBase = 0;
             fDrawer.fPendingBufferBinds = true;
+        } else {
+            fTarget.fSize += reservedChunk.fSize;
         }
         fNextWriter = std::move(writer);
     }

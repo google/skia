@@ -63,7 +63,7 @@ public:
     //
     // NOTE: This number may be different from the size of the underlying GPU buffer but it is
     // guaranteed to be less than or equal to it.
-    size_t size() const { return fSize; }
+    uint32_t size() const { return fSize; }
 
     // Sub-allocate a slice within the scratch buffer object. Fails and returns a NULL pointer if
     // the buffer doesn't have enough space remaining for `requiredBytes`.
@@ -80,12 +80,12 @@ public:
 private:
     friend class DrawBufferManager;
 
-    ScratchBuffer(size_t size, size_t alignment, sk_sp<Buffer>, DrawBufferManager*);
+    ScratchBuffer(uint32_t size, uint32_t alignment, sk_sp<Buffer>, DrawBufferManager*);
 
-    size_t fSize;
-    size_t fAlignment;
+    uint32_t fSize;
+    uint32_t fAlignment;
     sk_sp<Buffer> fBuffer;
-    size_t fOffset = 0;
+    uint32_t fOffset = 0;
 
     DrawBufferManager* fOwner = nullptr;
 };
@@ -155,23 +155,23 @@ private:
     friend class ScratchBuffer;
 
     struct BufferInfo {
-        BufferInfo(BufferType type, size_t blockSize, const Caps* caps);
+        BufferInfo(BufferType type, uint32_t blockSize, const Caps* caps);
 
         const BufferType fType;
-        const size_t fStartAlignment;
-        const size_t fBlockSize;
+        const uint32_t fStartAlignment;
+        const uint32_t fBlockSize;
         sk_sp<Buffer> fBuffer;
         // The fTransferBuffer can be null, if draw buffer cannot be mapped,
         // see Caps::drawBufferCanBeMapped() for detail.
         BindBufferInfo fTransferBuffer{};
         void* fTransferMapPtr = nullptr;
-        size_t fOffset = 0;
+        uint32_t fOffset = 0;
     };
     std::pair<void* /*mappedPtr*/, BindBufferInfo> prepareMappedBindBuffer(BufferInfo* info,
-                                                                           size_t requiredBytes,
+                                                                           uint32_t requiredBytes,
                                                                            std::string_view label);
     BindBufferInfo prepareBindBuffer(BufferInfo* info,
-                                     size_t requiredBytes,
+                                     uint32_t requiredBytes,
                                      std::string_view label,
                                      bool supportCpuUpload = false,
                                      ClearBuffer cleared = ClearBuffer::kNo);
@@ -199,7 +199,7 @@ private:
     skia_private::TArray<std::pair<sk_sp<Buffer>, BindBufferInfo>> fUsedBuffers;
 
     // List of buffer regions that were requested to be cleared at the time of allocation.
-    skia_private::TArray<ClearBufferInfo> fClearList;
+    skia_private::TArray<BindBufferInfo> fClearList;
 
     // TODO(b/330744081): These should probably be maintained in a sorted data structure that
     // supports fast insertion and lookup doesn't waste buffers (e.g. by vending out large buffers
@@ -252,7 +252,6 @@ private:
     struct CopyRange {
         BindBufferInfo  fSource; // The CPU-to-GPU buffer and offset for the source of the copy
         BindBufferInfo* fTarget; // The late-assigned destination of the copy
-        size_t          fSize;   // The number of bytes to copy
     };
     struct BufferInfo {
         BufferInfo(BufferType type, const Caps* caps);
@@ -268,17 +267,17 @@ private:
         }
 
         const BufferType fBufferType;
-        const size_t     fAlignment;
+        const uint32_t   fAlignment;
 
-        std::vector<CopyRange> fData;
-        size_t fTotalRequiredBytes;
+        skia_private::TArray<CopyRange> fData;
+        uint32_t fTotalRequiredBytes;
     };
 
     void* prepareStaticData(BufferInfo* info, size_t requiredBytes, BindBufferInfo* target);
 
     ResourceProvider* const fResourceProvider;
     UploadBufferManager fUploadManager;
-    const size_t fRequiredTransferAlignment;
+    const uint32_t fRequiredTransferAlignment;
 
     // The source data that's copied into a final GPU-private buffer
     BufferInfo fVertexBufferInfo;

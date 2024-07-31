@@ -30,14 +30,9 @@ using BindingIndex = uint32_t;
 struct TextureIndex { uint32_t fValue; };
 struct SamplerIndex { uint32_t fValue; };
 
-struct BufferView {
-    BindBufferInfo fInfo;
-    size_t fSize;
-};
-
-using DispatchResource = std::variant<BufferView, TextureIndex, SamplerIndex>;
+using DispatchResource = std::variant<BindBufferInfo, TextureIndex, SamplerIndex>;
 using DispatchResourceOptional =
-        std::variant<std::monostate, BufferView, TextureIndex, SamplerIndex>;
+        std::variant<std::monostate, BindBufferInfo, TextureIndex, SamplerIndex>;
 
 struct ResourceBinding {
     BindingIndex fIndex;
@@ -64,7 +59,7 @@ public:
 
     struct Dispatch {
         WorkgroupSize fLocalSize;
-        std::variant<WorkgroupSize, BufferView> fGlobalSizeOrIndirect;
+        std::variant<WorkgroupSize, BindBufferInfo> fGlobalSizeOrIndirect;
 
         std::optional<WorkgroupSize> fGlobalDispatchSize;
         skia_private::TArray<ResourceBinding> fBindings;
@@ -99,7 +94,7 @@ private:
     skia_private::TArray<Dispatch> fDispatchList;
 
     // The list of all buffers that must be cleared before the dispatches.
-    skia_private::TArray<ClearBufferInfo> fClearList;
+    skia_private::TArray<BindBufferInfo> fClearList;
 
     // Pipelines are referenced by index by each Dispatch in `fDispatchList`. They are stored as a
     // pipeline description until instantiated in `prepareResources()`.
@@ -145,7 +140,7 @@ public:
     // structure declared in ComputeTypes.h.
     //
     // The ComputeStep will not receive a call to `calculateGlobalDispatchSize`.
-    bool appendStepIndirect(const ComputeStep*, BufferView indirectBuffer);
+    bool appendStepIndirect(const ComputeStep*, BindBufferInfo indirectBuffer);
 
     // Directly assign a buffer range to a shared slot. ComputeSteps that are appended after this
     // call will use this resouce if they reference the given `slot` index. Builder will not
@@ -158,7 +153,7 @@ public:
     //
     // If `cleared` is kYes, the contents of the given view will be cleared to 0 before the current
     // DispatchGroup gets submitted.
-    void assignSharedBuffer(BufferView buffer,
+    void assignSharedBuffer(BindBufferInfo buffer,
                             unsigned int slot,
                             ClearBuffer cleared = ClearBuffer::kNo);
 
@@ -190,7 +185,7 @@ public:
     sk_sp<TextureProxy> getSharedTextureResource(unsigned int slot) const;
 
 private:
-    bool appendStepInternal(const ComputeStep*, const std::variant<WorkgroupSize, BufferView>&);
+    bool appendStepInternal(const ComputeStep*, const std::variant<WorkgroupSize, BindBufferInfo>&);
 
     // Allocate a resource that can be assigned to the shared or private data flow slots. Returns a
     // std::monostate if allocation fails.

@@ -103,13 +103,13 @@ bool Builder::appendStep(const ComputeStep* step, std::optional<WorkgroupSize> g
                                     globalSize ? *globalSize : step->calculateGlobalDispatchSize());
 }
 
-bool Builder::appendStepIndirect(const ComputeStep* step, BufferView indirectBuffer) {
+bool Builder::appendStepIndirect(const ComputeStep* step, BindBufferInfo indirectBuffer) {
     return this->appendStepInternal(step, indirectBuffer);
 }
 
 bool Builder::appendStepInternal(
         const ComputeStep* step,
-        const std::variant<WorkgroupSize, BufferView>& globalSizeOrIndirect) {
+        const std::variant<WorkgroupSize, BindBufferInfo>& globalSizeOrIndirect) {
     SkASSERT(fObj);
     SkASSERT(step);
 
@@ -166,7 +166,7 @@ bool Builder::appendStepInternal(
                                r.fType == Type::kStorageBuffer ||
                                r.fType == Type::kReadOnlyStorageBuffer ||
                                r.fType == Type::kIndirectBuffer) &&
-                              std::holds_alternative<BufferView>(*slot)) ||
+                              std::holds_alternative<BindBufferInfo>(*slot)) ||
                              ((r.fType == Type::kReadOnlyTexture ||
                                r.fType == Type::kSampledTexture ||
                                r.fType == Type::kWriteOnlyStorageTexture) &&
@@ -207,7 +207,7 @@ bool Builder::appendStepInternal(
 
         int bindingIndex = 0;
         DispatchResource dispatchResource;
-        if (const BufferView* buffer = std::get_if<BufferView>(&maybeResource)) {
+        if (const BindBufferInfo* buffer = std::get_if<BindBufferInfo>(&maybeResource)) {
             dispatchResource = *buffer;
             bindingIndex = bufferOrGlobalIndex++;
         } else if (const TextureIndex* texIdx = std::get_if<TextureIndex>(&maybeResource)) {
@@ -240,14 +240,14 @@ bool Builder::appendStepInternal(
     return true;
 }
 
-void Builder::assignSharedBuffer(BufferView buffer, unsigned int slot, ClearBuffer cleared) {
+void Builder::assignSharedBuffer(BindBufferInfo buffer, unsigned int slot, ClearBuffer cleared) {
     SkASSERT(fObj);
-    SkASSERT(buffer.fInfo);
+    SkASSERT(buffer);
     SkASSERT(buffer.fSize);
 
     fOutputTable.fSharedSlots[slot] = buffer;
     if (cleared == ClearBuffer::kYes) {
-        fObj->fClearList.push_back({buffer.fInfo.fBuffer, buffer.fInfo.fOffset, buffer.fSize});
+        fObj->fClearList.push_back(buffer);
     }
 }
 
@@ -276,8 +276,9 @@ BindBufferInfo Builder::getSharedBufferResource(unsigned int slot) const {
     SkASSERT(fObj);
 
     BindBufferInfo info;
-    if (const BufferView* slotValue = std::get_if<BufferView>(&fOutputTable.fSharedSlots[slot])) {
-        info = slotValue->fInfo;
+    if (const BindBufferInfo* slotValue =
+                std::get_if<BindBufferInfo>(&fOutputTable.fSharedSlots[slot])) {
+        info = *slotValue;
     }
     return info;
 }
@@ -313,7 +314,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
                 auto [ptr, bufInfo] = bufferMgr->getStoragePointer(bufferSize);
                 if (ptr) {
                     step->prepareStorageBuffer(resourceIdx, resource, ptr, bufferSize);
-                    result = BufferView{bufInfo, bufferSize};
+                    result = bufInfo;
                 }
             } else {
                 auto bufInfo = bufferMgr->getStorage(bufferSize,
@@ -321,7 +322,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
                                                              ? ClearBuffer::kYes
                                                              : ClearBuffer::kNo);
                 if (bufInfo) {
-                    result = BufferView{bufInfo, bufferSize};
+                    result = bufInfo;
                 }
             }
             break;
@@ -336,7 +337,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
                                                                  ? ClearBuffer::kYes
                                                                  : ClearBuffer::kNo);
             if (bufInfo) {
-                result = BufferView{bufInfo, bufferSize};
+                result = bufInfo;
             }
             break;
         }
@@ -353,7 +354,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             auto [writer, bufInfo] = bufferMgr->getUniformWriter(dataBlock.size());
             if (bufInfo) {
                 writer.write(dataBlock.data(), dataBlock.size());
-                result = BufferView{bufInfo, dataBlock.size()};
+                result = bufInfo;
             }
             break;
         }

@@ -98,7 +98,7 @@ private:
 struct CpuOrGpuData {
     union {
         const UniformDataBlock* fCpuData;
-        BindUniformBufferInfo fGpuData;
+        BindBufferInfo fGpuData;
     };
 
     // Can only start from CPU data
@@ -244,6 +244,7 @@ public:
                 // For uniform buffer we will bind one block at a time.
                 bindingSize = static_cast<uint32_t>(udbSize);
             }
+            SkASSERT(bindingSize <= bufferInfo.fSize);
 
             for (CpuOrGpuData& dataBlock : cache.data()) {
                 SkASSERT(dataBlock.fCpuData->size() == udbDataSize);
@@ -251,7 +252,7 @@ public:
                 // Swap from tracking the CPU data to the location of the GPU data
                 dataBlock.fGpuData.fBuffer = bufferInfo.fBuffer;
                 dataBlock.fGpuData.fOffset = bufferInfo.fOffset;
-                dataBlock.fGpuData.fBindingSize = bindingSize;
+                dataBlock.fGpuData.fSize = bindingSize;
 
                 if (!fUseStorageBuffers) {
                     bufferInfo.fOffset += bindingSize;
@@ -291,7 +292,7 @@ public:
         SkASSERT(fLastPipeline < GraphicsPipelineCache::kInvalidIndex &&
                  fLastIndex < UniformCache::kInvalidIndex);
         SkASSERT(!fUseStorageBuffers || fLastIndex == 0);
-        const BindUniformBufferInfo& binding =
+        const BindBufferInfo& binding =
                 fPerPipelineCaches[fLastPipeline].lookup(fLastIndex).fGpuData;
         commandList->bindUniformBuffer(binding, slot);
     }
@@ -322,10 +323,7 @@ public:
         }
 
         writer.write(gradData.data(), gradData.size_bytes());
-
-        fBufferInfo.fBuffer = bufferInfo.fBuffer;
-        fBufferInfo.fOffset = bufferInfo.fOffset;
-        fBufferInfo.fBindingSize = gradData.size_bytes();
+        fBufferInfo = bufferInfo;
         fHasData = true;
 
         return true;
@@ -338,7 +336,7 @@ public:
     }
 
 private:
-    BindUniformBufferInfo fBufferInfo;
+    BindBufferInfo fBufferInfo;
     bool fHasData = false;
 };
 

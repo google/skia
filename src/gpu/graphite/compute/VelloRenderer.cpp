@@ -29,15 +29,13 @@
 namespace skgpu::graphite {
 namespace {
 
-BufferView new_scratch_slice(ScratchBuffer& scratch) {
+BindBufferInfo new_scratch_slice(ScratchBuffer& scratch) {
     size_t size = scratch.size();  // Use the whole buffer.
-    BindBufferInfo info = scratch.suballocate(size);
-    return {info, info ? size : 0};
+    return scratch.suballocate(size);
 }
 
-BufferView new_indirect_slice(DrawBufferManager* mgr, size_t size) {
-    BindBufferInfo info = mgr->getIndirectStorage(size, ClearBuffer::kYes);
-    return {info, info ? size : 0};
+BindBufferInfo new_indirect_slice(DrawBufferManager* mgr, size_t size) {
+   return  mgr->getIndirectStorage(size, ClearBuffer::kYes);
 }
 
 ::rust::Slice<uint8_t> to_slice(void* ptr, size_t size) {
@@ -330,8 +328,8 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
 
     // See the comments in VelloComputeSteps.h for an explanation of the logic here.
 
-    builder.assignSharedBuffer({configBuf, uboSize}, kVelloSlot_ConfigUniform);
-    builder.assignSharedBuffer({sceneBuf, sceneSize}, kVelloSlot_Scene);
+    builder.assignSharedBuffer(configBuf, kVelloSlot_ConfigUniform);
+    builder.assignSharedBuffer(sceneBuf, kVelloSlot_Scene);
 
     // Buffers get cleared ahead of the entire DispatchGroup. Allocate the bump buffer early to
     // avoid a potentially recycled (and prematurely cleared) scratch buffer.

@@ -127,10 +127,10 @@ bool DawnCommandBuffer::onAddComputePass(DispatchGroupSpan groups) {
                         std::get_if<WorkgroupSize>(&dispatch.fGlobalSizeOrIndirect)) {
                 this->dispatchWorkgroups(*globalSize);
             } else {
-                SkASSERT(std::holds_alternative<BufferView>(dispatch.fGlobalSizeOrIndirect));
-                const BufferView& indirect =
-                        *std::get_if<BufferView>(&dispatch.fGlobalSizeOrIndirect);
-                this->dispatchWorkgroupsIndirect(indirect.fInfo.fBuffer, indirect.fInfo.fOffset);
+                SkASSERT(std::holds_alternative<BindBufferInfo>(dispatch.fGlobalSizeOrIndirect));
+                const BindBufferInfo& indirect =
+                        *std::get_if<BindBufferInfo>(&dispatch.fGlobalSizeOrIndirect);
+                this->dispatchWorkgroupsIndirect(indirect.fBuffer, indirect.fOffset);
             }
         }
     }
@@ -499,7 +499,7 @@ bool DawnCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPip
     return true;
 }
 
-void DawnCommandBuffer::bindUniformBuffer(const BindUniformBufferInfo& info, UniformSlot slot) {
+void DawnCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot slot) {
     SkASSERT(fActiveRenderPassEncoder);
 
     auto dawnBuffer = static_cast<const DawnBuffer*>(info.fBuffer);
@@ -520,8 +520,8 @@ void DawnCommandBuffer::bindUniformBuffer(const BindUniformBufferInfo& info, Uni
     }
 
     fBoundUniformBuffers[bufferIndex] = dawnBuffer;
-    fBoundUniformBufferOffsets[bufferIndex] = static_cast<uint32_t>(info.fOffset);
-    fBoundUniformBufferSizes[bufferIndex] = info.fBindingSize;
+    fBoundUniformBufferOffsets[bufferIndex] = info.fOffset;
+    fBoundUniformBufferSizes[bufferIndex] = info.fSize;
 
     fBoundUniformBuffersDirty = true;
 }
@@ -849,9 +849,9 @@ void DawnCommandBuffer::bindDispatchResources(const DispatchGroup& group,
     for (const ResourceBinding& binding : dispatch.fBindings) {
         wgpu::BindGroupEntry& entry = entries.push_back();
         entry.binding = binding.fIndex;
-        if (const BufferView* buffer = std::get_if<BufferView>(&binding.fResource)) {
-            entry.buffer = static_cast<const DawnBuffer*>(buffer->fInfo.fBuffer)->dawnBuffer();
-            entry.offset = buffer->fInfo.fOffset;
+        if (const BindBufferInfo* buffer = std::get_if<BindBufferInfo>(&binding.fResource)) {
+            entry.buffer = static_cast<const DawnBuffer*>(buffer->fBuffer)->dawnBuffer();
+            entry.offset = buffer->fOffset;
             entry.size = buffer->fSize;
         } else if (const TextureIndex* texIdx = std::get_if<TextureIndex>(&binding.fResource)) {
             const DawnTexture* texture =

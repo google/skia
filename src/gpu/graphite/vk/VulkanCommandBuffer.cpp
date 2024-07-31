@@ -371,8 +371,10 @@ void VulkanCommandBuffer::updateRtAdjustUniform(const SkRect& viewport) {
     SkASSERT(intrinsicVulkanBuffer);
 
     fUniformBuffersToBind[VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex] = {
-            {intrinsicUniformBuffer.get(), /*offset=*/0},
-            VulkanResourceProvider::kIntrinsicConstantSize};
+            intrinsicUniformBuffer.get(),
+            /*offset=*/0,
+            VulkanResourceProvider::kIntrinsicConstantSize
+        };
 
     this->updateBuffer(intrinsicVulkanBuffer,
                        &rtAdjust,
@@ -900,8 +902,7 @@ void VulkanCommandBuffer::setBlendConstants(float* blendConstants) {
     }
 }
 
-void VulkanCommandBuffer::recordBufferBindingInfo(const BindUniformBufferInfo& info,
-                                                  UniformSlot slot) {
+void VulkanCommandBuffer::recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot slot) {
     unsigned int bufferIndex = 0;
     switch (slot) {
         case UniformSlot::kRenderStep:

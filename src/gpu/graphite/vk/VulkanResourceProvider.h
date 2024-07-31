@@ -91,7 +91,7 @@ private:
 
     sk_sp<VulkanDescriptorSet> findOrCreateUniformBuffersDescriptorSet(
             SkSpan<DescriptorData> requestedDescriptors,
-            SkSpan<BindUniformBufferInfo> bindUniformBufferInfo);
+            SkSpan<BindBufferInfo> bindUniformBufferInfo);
 
     sk_sp<VulkanGraphicsPipeline> findOrCreateLoadMSAAPipeline(const RenderPassDesc&);
 

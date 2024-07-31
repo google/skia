@@ -84,7 +84,7 @@ private:
     void addDrawPass(const DrawPass*);
 
     // Track descriptor changes for binding prior to draw calls
-    void recordBufferBindingInfo(const BindUniformBufferInfo& info, UniformSlot);
+    void recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot);
     void recordTextureAndSamplerDescSet(
             const DrawPass&, const DrawPassCommands::BindTexturesAndSamplers&);
 
@@ -204,8 +204,7 @@ private:
     bool fBindUniformBuffers = false;
     bool fBindTextureSamplers = false;
 
-    std::array<BindUniformBufferInfo, VulkanGraphicsPipeline::kNumUniformBuffers>
-            fUniformBuffersToBind;
+    std::array<BindBufferInfo, VulkanGraphicsPipeline::kNumUniformBuffers> fUniformBuffersToBind;
     VkDescriptorSet fTextureSamplerDescSetToBind = VK_NULL_HANDLE;
 
     int fNumTextureSamplers = 0;
@@ -224,4 +223,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_VulkanCommandBuffer_DEFINED
-

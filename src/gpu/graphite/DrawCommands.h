@@ -76,7 +76,7 @@ COMMAND(BindGraphicsPipeline,
 COMMAND(SetBlendConstants,
             PODArray<float> fBlendConstants);
 COMMAND(BindUniformBuffer,
-            BindUniformBufferInfo fInfo;
+            BindBufferInfo fInfo;
             UniformSlot fSlot);
 COMMAND(BindDrawBuffers,
             BindBufferInfo fVertices;
@@ -140,7 +140,7 @@ public:
         this->add<SetBlendConstants>(this->copy(blendConstants.data(), 4));
     }
 
-    void bindUniformBuffer(BindUniformBufferInfo info, UniformSlot slot) {
+    void bindUniformBuffer(BindBufferInfo info, UniformSlot slot) {
         this->add<BindUniformBuffer>(info, slot);
     }
 

@@ -159,41 +159,15 @@ enum class LastRemovedRef {
  */
 struct BindBufferInfo {
     const Buffer* fBuffer = nullptr;
-    size_t fOffset = 0;
+    uint32_t fOffset = 0;
+    uint32_t fSize = 0;
 
     operator bool() const { return SkToBool(fBuffer); }
 
     bool operator==(const BindBufferInfo& o) const {
-        return fBuffer == o.fBuffer && (!fBuffer || fOffset == o.fOffset);
+        return fBuffer == o.fBuffer && (!fBuffer || (fOffset == o.fOffset && fSize == o.fSize));
     }
     bool operator!=(const BindBufferInfo& o) const { return !(*this == o); }
-};
-
-/*
- * Struct that can be passed into bind uniform buffer calls on the CommandBuffer.
- * It is similar to BindBufferInfo with additional fBindingSize member.
- */
-struct BindUniformBufferInfo : public BindBufferInfo {
-    // TODO(b/308933713): Add size to BindBufferInfo instead
-    uint32_t fBindingSize = 0;
-
-    bool operator==(const BindUniformBufferInfo& o) const {
-        return BindBufferInfo::operator==(o) && (!fBuffer || fBindingSize == o.fBindingSize);
-    }
-    bool operator!=(const BindUniformBufferInfo& o) const { return !(*this == o); }
-};
-
-/**
- * Represents a buffer region that should be cleared to 0. A ClearBuffersTask does not take an
- * owning reference to the buffer it clears. A higher layer is responsible for managing the lifetime
- * and usage refs of the buffer.
- */
-struct ClearBufferInfo {
-    const Buffer* fBuffer = nullptr;
-    size_t fOffset = 0;
-    size_t fSize = 0;
-
-    operator bool() const { return SkToBool(fBuffer); }
 };
 
 struct ImmutableSamplerInfo {

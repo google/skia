@@ -11,7 +11,7 @@
 
 namespace skgpu::graphite {
 
-sk_sp<ClearBuffersTask> ClearBuffersTask::Make(skia_private::TArray<ClearBufferInfo> clearList) {
+sk_sp<ClearBuffersTask> ClearBuffersTask::Make(skia_private::TArray<BindBufferInfo> clearList) {
     return sk_sp<ClearBuffersTask>(new ClearBuffersTask(std::move(clearList)));
 }
 

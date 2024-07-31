@@ -71,7 +71,7 @@ private:
     bool bindGraphicsPipeline(const GraphicsPipeline*);
     void setBlendConstants(float* blendConstants);
 
-    void bindUniformBuffer(const BindUniformBufferInfo& info, UniformSlot);
+    void bindUniformBuffer(const BindBufferInfo& info, UniformSlot);
     void bindDrawBuffers(const BindBufferInfo& vertices,
                          const BindBufferInfo& instances,
                          const BindBufferInfo& indices,
