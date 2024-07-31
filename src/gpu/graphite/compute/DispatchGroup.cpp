@@ -351,7 +351,7 @@ DispatchResourceOptional Builder::allocateResource(const ComputeStep* step,
             auto dataBlock = uboMgr.finish();
             SkASSERT(dataBlock.size());
 
-            auto [writer, bufInfo] = bufferMgr->getUniformWriter(dataBlock.size());
+            auto [writer, bufInfo] = bufferMgr->getUniformWriter(/*count=*/1, dataBlock.size());
             if (bufInfo) {
                 writer.write(dataBlock.data(), dataBlock.size());
                 result = bufInfo;

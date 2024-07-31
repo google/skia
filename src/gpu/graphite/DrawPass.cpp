@@ -229,8 +229,8 @@ public:
                 udbSize = bufferMgr->alignUniformBlockSize(udbSize);
             }
             auto [writer, bufferInfo] =
-                    fUseStorageBuffers ? bufferMgr->getSsboWriter(udbSize * cache.size())
-                                       : bufferMgr->getUniformWriter(udbSize * cache.size());
+                    fUseStorageBuffers ? bufferMgr->getSsboWriter(cache.size(), udbSize)
+                                       : bufferMgr->getUniformWriter(cache.size(), udbSize);
             if (!writer) {
                 return false; // Early out if buffer mapping failed
             }
@@ -316,7 +316,7 @@ public:
             return true;
         }
 
-        auto [writer, bufferInfo] = bufferMgr->getSsboWriter(gradData.size_bytes());
+        auto [writer, bufferInfo] = bufferMgr->getSsboWriter(gradData.size(), sizeof(float));
 
         if (!writer) {
             return false;

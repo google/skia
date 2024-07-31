@@ -105,10 +105,15 @@ public:
     // work that will be wasted because the next Recording snap will fail.
     bool hasMappingFailed() const { return fMappingFailed; }
 
-    std::pair<VertexWriter, BindBufferInfo> getVertexWriter(size_t requiredBytes);
-    std::pair<IndexWriter, BindBufferInfo> getIndexWriter(size_t requiredBytes);
-    std::pair<UniformWriter, BindBufferInfo> getUniformWriter(size_t requiredBytes);
-    std::pair<UniformWriter, BindBufferInfo> getSsboWriter(size_t requiredBytes);
+    // These writers automatically calculate the required bytes based on count and stride. If a
+    // valid writer is returned, the byte count will fit in a uint32_t.
+    std::pair<VertexWriter, BindBufferInfo> getVertexWriter(size_t count, size_t stride);
+    std::pair<IndexWriter, BindBufferInfo> getIndexWriter(size_t count, size_t stride);
+    std::pair<UniformWriter, BindBufferInfo> getUniformWriter(size_t count, size_t stride);
+    std::pair<UniformWriter, BindBufferInfo> getSsboWriter(size_t count, size_t stride);
+
+    // The remaining writers and buffer allocator functions assume that byte counts are safely
+    // calculated by the caller (e.g. Vello or ).
 
     // Return a pointer to a mapped storage buffer suballocation without a specific data writer.
     std::pair<void* /* mappedPtr */, BindBufferInfo> getUniformPointer(size_t requiredBytes);
@@ -140,7 +145,7 @@ public:
     ScratchBuffer getScratchStorage(size_t requiredBytes);
 
     // Returns the last 'unusedBytes' from the last call to getVertexWriter(). Assumes that
-    // 'unusedBytes' is less than the 'requiredBytes' to the original allocation.
+    // 'unusedBytes' is less than the 'count*stride' to the original allocation.
     void returnVertexBytes(size_t unusedBytes);
 
     size_t alignUniformBlockSize(size_t dataSize) {
