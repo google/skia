@@ -275,6 +275,8 @@ typedef enum skcms_PixelFormat {
     skcms_PixelFormat_A_8_,
     skcms_PixelFormat_G_8,
     skcms_PixelFormat_G_8_,
+    skcms_PixelFormat_GA_88,  // Grayscale with alpha.
+    skcms_PixelFormat_GA_88_,
 
     skcms_PixelFormat_RGB_565,
     skcms_PixelFormat_BGR_565,
@@ -286,39 +288,39 @@ typedef enum skcms_PixelFormat {
     skcms_PixelFormat_BGR_888,
     skcms_PixelFormat_RGBA_8888,
     skcms_PixelFormat_BGRA_8888,
-    skcms_PixelFormat_RGBA_8888_sRGB,   // Automatic sRGB encoding / decoding.
-    skcms_PixelFormat_BGRA_8888_sRGB,   // (Generally used with linear transfer functions.)
+    skcms_PixelFormat_RGBA_8888_sRGB,  // Automatic sRGB encoding / decoding.
+    skcms_PixelFormat_BGRA_8888_sRGB,  // (Generally used with linear transfer functions.)
 
     skcms_PixelFormat_RGBA_1010102,
     skcms_PixelFormat_BGRA_1010102,
 
-    skcms_PixelFormat_RGB_161616LE,     // Little-endian.  Pointers must be 16-bit aligned.
+    skcms_PixelFormat_RGB_161616LE,  // Little-endian.  Pointers must be 16-bit aligned.
     skcms_PixelFormat_BGR_161616LE,
     skcms_PixelFormat_RGBA_16161616LE,
     skcms_PixelFormat_BGRA_16161616LE,
 
-    skcms_PixelFormat_RGB_161616BE,     // Big-endian.  Pointers must be 16-bit aligned.
+    skcms_PixelFormat_RGB_161616BE,  // Big-endian.  Pointers must be 16-bit aligned.
     skcms_PixelFormat_BGR_161616BE,
     skcms_PixelFormat_RGBA_16161616BE,
     skcms_PixelFormat_BGRA_16161616BE,
 
-    skcms_PixelFormat_RGB_hhh_Norm,   // 1-5-10 half-precision float in [0,1]
-    skcms_PixelFormat_BGR_hhh_Norm,   // Pointers must be 16-bit aligned.
+    skcms_PixelFormat_RGB_hhh_Norm,  // 1-5-10 half-precision float in [0,1]
+    skcms_PixelFormat_BGR_hhh_Norm,  // Pointers must be 16-bit aligned.
     skcms_PixelFormat_RGBA_hhhh_Norm,
     skcms_PixelFormat_BGRA_hhhh_Norm,
 
-    skcms_PixelFormat_RGB_hhh,        // 1-5-10 half-precision float.
-    skcms_PixelFormat_BGR_hhh,        // Pointers must be 16-bit aligned.
+    skcms_PixelFormat_RGB_hhh,  // 1-5-10 half-precision float.
+    skcms_PixelFormat_BGR_hhh,  // Pointers must be 16-bit aligned.
     skcms_PixelFormat_RGBA_hhhh,
     skcms_PixelFormat_BGRA_hhhh,
 
-    skcms_PixelFormat_RGB_fff,        // 1-8-23 single-precision float (the normal kind).
-    skcms_PixelFormat_BGR_fff,        // Pointers must be 32-bit aligned.
+    skcms_PixelFormat_RGB_fff,  // 1-8-23 single-precision float (the normal kind).
+    skcms_PixelFormat_BGR_fff,  // Pointers must be 32-bit aligned.
     skcms_PixelFormat_RGBA_ffff,
     skcms_PixelFormat_BGRA_ffff,
 
-    skcms_PixelFormat_RGB_101010x_XR,  // Note: This is located here to signal no clamping.
-    skcms_PixelFormat_BGR_101010x_XR,  // Compatible with MTLPixelFormatBGR10_XR.
+    skcms_PixelFormat_RGB_101010x_XR,    // Note: This is located here to signal no clamping.
+    skcms_PixelFormat_BGR_101010x_XR,    // Compatible with MTLPixelFormatBGR10_XR.
     skcms_PixelFormat_RGBA_10101010_XR,  // Note: This is located here to signal no clamping.
     skcms_PixelFormat_BGRA_10101010_XR,  // Compatible with MTLPixelFormatBGRA10_XR.
 } skcms_PixelFormat;

@@ -20,6 +20,7 @@ namespace skcms_private {
 #define SKCMS_WORK_OPS(M) \
     M(load_a8)            \
     M(load_g8)            \
+    M(load_ga88)          \
     M(load_4444)          \
     M(load_565)           \
     M(load_888)           \
@@ -89,6 +90,7 @@ namespace skcms_private {
 #define SKCMS_STORE_OPS(M) \
     M(store_a8)            \
     M(store_g8)            \
+    M(store_ga88)          \
     M(store_4444)          \
     M(store_565)           \
     M(store_888)           \

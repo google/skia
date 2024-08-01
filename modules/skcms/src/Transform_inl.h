@@ -837,6 +837,12 @@ STAGE(load_g8, NoCtx) {
     r = g = b = F_from_U8(load<U8>(src + 1*i));
 }
 
+STAGE(load_ga88, NoCtx) {
+    U16 u16 = load<U16>(src + 2 * i);
+    r = g = b = cast<F>((u16 >> 0) & 0xff) * (1 / 255.0f);
+            a = cast<F>((u16 >> 8) & 0xff) * (1 / 255.0f);
+}
+
 STAGE(load_4444, NoCtx) {
     U16 abgr = load<U16>(src + 2*i);
 
@@ -1253,6 +1259,12 @@ FINAL_STAGE(store_a8, NoCtx) {
 FINAL_STAGE(store_g8, NoCtx) {
     // g should be holding luminance (Y) (r,g,b ~~~> X,Y,Z)
     store(dst + 1*i, cast<U8>(to_fixed(g * 255)));
+}
+
+FINAL_STAGE(store_ga88, NoCtx) {
+    // g should be holding luminance (Y) (r,g,b ~~~> X,Y,Z)
+    store<U16>(dst + 2*i, cast<U16>(to_fixed(g * 255) << 0 )
+                        | cast<U16>(to_fixed(a * 255) << 8 ));
 }
 
 FINAL_STAGE(store_4444, NoCtx) {

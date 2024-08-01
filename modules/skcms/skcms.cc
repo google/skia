@@ -2450,6 +2450,7 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     switch (fmt >> 1) {   // ignore rgb/bgr
         case skcms_PixelFormat_A_8              >> 1: return  1;
         case skcms_PixelFormat_G_8              >> 1: return  1;
+        case skcms_PixelFormat_GA_88            >> 1: return  2;
         case skcms_PixelFormat_ABGR_4444        >> 1: return  2;
         case skcms_PixelFormat_RGB_565          >> 1: return  2;
         case skcms_PixelFormat_RGB_888          >> 1: return  3;
@@ -2562,6 +2563,7 @@ bool skcms_Transform(const void*             src,
         default: return false;
         case skcms_PixelFormat_A_8              >> 1: add_op(Op::load_a8);          break;
         case skcms_PixelFormat_G_8              >> 1: add_op(Op::load_g8);          break;
+        case skcms_PixelFormat_GA_88            >> 1: add_op(Op::load_ga88);        break;
         case skcms_PixelFormat_ABGR_4444        >> 1: add_op(Op::load_4444);        break;
         case skcms_PixelFormat_RGB_565          >> 1: add_op(Op::load_565);         break;
         case skcms_PixelFormat_RGB_888          >> 1: add_op(Op::load_888);         break;
@@ -2593,12 +2595,17 @@ bool skcms_Transform(const void*             src,
         add_op(Op::swap_rb);
     }
     skcms_ICCProfile gray_dst_profile;
-    if ((dstFmt >> 1) == (skcms_PixelFormat_G_8 >> 1)) {
-        // When transforming to gray, stop at XYZ (by setting toXYZ to identity), then transform
-        // luminance (Y) by the destination transfer function.
-        gray_dst_profile = *dstProfile;
-        skcms_SetXYZD50(&gray_dst_profile, &skcms_XYZD50_profile()->toXYZD50);
-        dstProfile = &gray_dst_profile;
+    switch (dstFmt >> 1) {
+        case skcms_PixelFormat_G_8:
+        case skcms_PixelFormat_GA_88:
+            // When transforming to gray, stop at XYZ (by setting toXYZ to identity), then transform
+            // luminance (Y) by the destination transfer function.
+            gray_dst_profile = *dstProfile;
+            skcms_SetXYZD50(&gray_dst_profile, &skcms_XYZD50_profile()->toXYZD50);
+            dstProfile = &gray_dst_profile;
+            break;
+        default:
+            break;
     }
 
     if (srcProfile->data_color_space == skcms_Signature_CMYK) {
@@ -2760,6 +2767,7 @@ bool skcms_Transform(const void*             src,
         default: return false;
         case skcms_PixelFormat_A_8             >> 1: add_op(Op::store_a8);         break;
         case skcms_PixelFormat_G_8             >> 1: add_op(Op::store_g8);         break;
+        case skcms_PixelFormat_GA_88           >> 1: add_op(Op::store_ga88);       break;
         case skcms_PixelFormat_ABGR_4444       >> 1: add_op(Op::store_4444);       break;
         case skcms_PixelFormat_RGB_565         >> 1: add_op(Op::store_565);        break;
         case skcms_PixelFormat_RGB_888         >> 1: add_op(Op::store_888);        break;
