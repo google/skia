@@ -1,0 +1,36 @@
+uniform shader shaderGreen, shaderRed;
+uniform half4 colorGreen;
+
+// This code generates a 2^n fan-out of specialized functions.
+
+noinline half4 fn(shader a, shader b, shader c, shader d, shader e, shader f, shader g) {
+    return colorGreen;
+}
+
+noinline half4 fn(shader a, shader b, shader c, shader d, shader e, shader f) {
+    return fn(a, b, c, d, e, f, shaderGreen) * fn(a, b, c, d, e, f, shaderRed);
+}
+
+noinline half4 fn(shader a, shader b, shader c, shader d, shader e) {
+    return fn(a, b, c, d, e, shaderGreen) * fn(a, b, c, d, e, shaderRed);
+}
+
+noinline half4 fn(shader a, shader b, shader c, shader d) {
+    return fn(a, b, c, d, shaderGreen) * fn(a, b, c, d, shaderRed);
+}
+
+noinline half4 fn(shader a, shader b, shader c) {
+    return fn(a, b, c, shaderGreen) * fn(a, b, c, shaderRed);
+}
+
+noinline half4 fn(shader a, shader b) {
+    return fn(a, b, shaderGreen) * fn(a, b, shaderRed);
+}
+
+noinline half4 fn(shader a) {
+    return fn(a, shaderGreen) * fn(a, shaderRed);
+}
+
+half4 main(float2) {
+    return fn(shaderGreen) * fn(shaderRed);
+}

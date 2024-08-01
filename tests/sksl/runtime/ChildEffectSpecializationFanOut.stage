@@ -1,0 +1,1275 @@
+uniform half4 colorGreen;
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_0();
+noinline half4 fn_shaderGreen_shaderRed_0();
+noinline half4 fn_shaderRed_shaderGreen_0();
+noinline half4 fn_shaderRed_shaderRed_0();
+noinline half4 fn_shaderGreen_0();
+noinline half4 fn_shaderRed_0();
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return colorGreen;
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_shaderRed_0()
+{
+	return fn_shaderGreen_shaderRed_shaderGreen_0() * fn_shaderGreen_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderGreen_0()
+{
+	return fn_shaderRed_shaderGreen_shaderGreen_0() * fn_shaderRed_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_shaderRed_0()
+{
+	return fn_shaderRed_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_shaderRed_0();
+}
+noinline half4 fn_shaderGreen_0()
+{
+	return fn_shaderGreen_shaderGreen_0() * fn_shaderGreen_shaderRed_0();
+}
+noinline half4 fn_shaderRed_0()
+{
+	return fn_shaderRed_shaderGreen_0() * fn_shaderRed_shaderRed_0();
+}
+half4 main(float2 )
+{
+	return half4(fn_shaderGreen_0() * fn_shaderRed_0());
+}

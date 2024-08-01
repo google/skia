@@ -1,0 +1,515 @@
+259 instructions
+
+store_src_rg                   v0..1 = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_4_uniforms                $0..3 = colorGreen
+label                          label 0x00000006
+copy_4_uniforms                $4..7 = colorGreen
+label                          label 0x00000007
+mul_4_floats                   $0..3 *= $4..7
+label                          label 0x00000005
+copy_4_uniforms                $4..7 = colorGreen
+label                          label 0x00000009
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x0000000A
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000008
+mul_4_floats                   $0..3 *= $4..7
+label                          label 0x00000004
+copy_4_uniforms                $4..7 = colorGreen
+label                          label 0x0000000D
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x0000000E
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x0000000C
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000010
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000011
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x0000000F
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x0000000B
+mul_4_floats                   $0..3 *= $4..7
+label                          label 0x00000003
+copy_4_uniforms                $4..7 = colorGreen
+label                          label 0x00000015
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000016
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000014
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000018
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000019
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000017
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000013
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x0000001C
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000001D
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x0000001B
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000001F
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000020
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x0000001E
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x0000001A
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000012
+mul_4_floats                   $0..3 *= $4..7
+label                          label 0x00000002
+copy_4_uniforms                $4..7 = colorGreen
+label                          label 0x00000025
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000026
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000024
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000028
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000029
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000027
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000023
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x0000002C
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000002D
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x0000002B
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000002F
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000030
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x0000002E
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x0000002A
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000022
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000034
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000035
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000033
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000037
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000038
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000036
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000032
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000003B
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x0000003C
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x0000003A
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x0000003E
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x0000003F
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x0000003D
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000039
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000031
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000021
+mul_4_floats                   $0..3 *= $4..7
+label                          label 0x00000001
+copy_4_uniforms                $4..7 = colorGreen
+label                          label 0x00000045
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000046
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000044
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000048
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000049
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000047
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000043
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x0000004C
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000004D
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x0000004B
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000004F
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000050
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x0000004E
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x0000004A
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000042
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000054
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000055
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000053
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000057
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000058
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000056
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000052
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000005B
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x0000005C
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x0000005A
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x0000005E
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x0000005F
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x0000005D
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000059
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000051
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000041
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000064
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000065
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000063
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000067
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000068
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000066
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000062
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000006B
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x0000006C
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x0000006A
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x0000006E
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x0000006F
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x0000006D
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000069
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000061
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000073
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000074
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000072
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000076
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x00000077
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x00000075
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000071
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x0000007A
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x0000007B
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x00000079
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x0000007D
+copy_4_uniforms                $24..27 = colorGreen
+label                          label 0x0000007E
+mul_4_floats                   $20..23 *= $24..27
+label                          label 0x0000007C
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x00000078
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000070
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000060
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000040
+mul_4_floats                   $0..3 *= $4..7
+label                          label 0
+copy_4_uniforms                $4..7 = colorGreen
+label                          label 0x00000085
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000086
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000084
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000088
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000089
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000087
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000083
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x0000008C
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000008D
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x0000008B
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000008F
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000090
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x0000008E
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x0000008A
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000082
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x00000094
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000095
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000093
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x00000097
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x00000098
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000096
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000092
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x0000009B
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x0000009C
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x0000009A
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x0000009E
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x0000009F
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x0000009D
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x00000099
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x00000091
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000081
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x000000A4
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x000000A5
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x000000A3
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x000000A7
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000A8
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000A6
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x000000A2
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x000000AB
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000AC
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000AA
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000AE
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000AF
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000AD
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000A9
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x000000A1
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x000000B3
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000B4
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000B2
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000B6
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000B7
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000B5
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000B1
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000BA
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000BB
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000B9
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000BD
+copy_4_uniforms                $24..27 = colorGreen
+label                          label 0x000000BE
+mul_4_floats                   $20..23 *= $24..27
+label                          label 0x000000BC
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000B8
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000B0
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x000000A0
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x00000080
+copy_4_uniforms                $8..11 = colorGreen
+label                          label 0x000000C4
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x000000C5
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x000000C3
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x000000C7
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000C8
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000C6
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x000000C2
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x000000CB
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000CC
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000CA
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000CE
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000CF
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000CD
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000C9
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x000000C1
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x000000D3
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000D4
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000D2
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000D6
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000D7
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000D5
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000D1
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000DA
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000DB
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000D9
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000DD
+copy_4_uniforms                $24..27 = colorGreen
+label                          label 0x000000DE
+mul_4_floats                   $20..23 *= $24..27
+label                          label 0x000000DC
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000D8
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000D0
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x000000C0
+copy_4_uniforms                $12..15 = colorGreen
+label                          label 0x000000E3
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000E4
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000E2
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000E6
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000E7
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000E5
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000E1
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000EA
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000EB
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000E9
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000ED
+copy_4_uniforms                $24..27 = colorGreen
+label                          label 0x000000EE
+mul_4_floats                   $20..23 *= $24..27
+label                          label 0x000000EC
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000E8
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000E0
+copy_4_uniforms                $16..19 = colorGreen
+label                          label 0x000000F2
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000F3
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000F1
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000F5
+copy_4_uniforms                $24..27 = colorGreen
+label                          label 0x000000F6
+mul_4_floats                   $20..23 *= $24..27
+label                          label 0x000000F4
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000F0
+copy_4_uniforms                $20..23 = colorGreen
+label                          label 0x000000F9
+copy_4_uniforms                $24..27 = colorGreen
+label                          label 0x000000FA
+mul_4_floats                   $20..23 *= $24..27
+label                          label 0x000000F8
+copy_4_uniforms                $24..27 = colorGreen
+label                          label 0x000000FC
+copy_4_uniforms                $28..31 = colorGreen
+label                          label 0x000000FD
+mul_4_floats                   $24..27 *= $28..31
+label                          label 0x000000FB
+mul_4_floats                   $20..23 *= $24..27
+stack_rewind
+label                          label 0x000000F7
+mul_4_floats                   $16..19 *= $20..23
+label                          label 0x000000EF
+mul_4_floats                   $12..15 *= $16..19
+label                          label 0x000000DF
+mul_4_floats                   $8..11 *= $12..15
+label                          label 0x000000BF
+mul_4_floats                   $4..7 *= $8..11
+label                          label 0x0000007F
+mul_4_floats                   $0..3 *= $4..7
+load_src                       src.rgba = $0..3

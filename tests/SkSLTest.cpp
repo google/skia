@@ -106,6 +106,11 @@ enum class SkSLTestFlag : int {
      * them (which is not a requirement, even with ES3).
      */
     UsesNaN = 1 << 4,
+
+    /**
+     * `Priv` tests rely on `AllowPrivateAccess` support in the runtime effect.
+     */
+    Priv    = 1 << 5,
 };
 
 using SkSLTestFlags = SkEnumBitMask<SkSLTestFlag>;
@@ -164,7 +169,6 @@ static constexpr UniformData kUniformData[] = {
 static SkBitmap bitmap_from_shader(skiatest::Reporter* r,
                                    SkSurface* surface,
                                    sk_sp<SkRuntimeEffect> effect) {
-
     SkRuntimeShaderBuilder builder(effect);
     for (const UniformData& data : kUniformData) {
         SkRuntimeShaderBuilder::BuilderUniform uniform = builder.uniform(data.name);
@@ -637,9 +641,13 @@ static void test_permutations(skiatest::Reporter* r,
                               const char* name,
                               const char* testFile,
                               skiatest::TestType testType,
-                              bool strictES2) {
+                              bool strictES2,
+                              bool privateAccess) {
     SkRuntimeEffect::Options options = strictES2 ? SkRuntimeEffect::Options{}
                                                  : SkRuntimeEffectPriv::ES3Options();
+    if (privateAccess) {
+        SkRuntimeEffectPriv::AllowPrivateAccess(&options);
+    }
     options.forceUnoptimized = false;
     test_one_permutation(r, deviceName, backendAPI, surface, name, testFile, testType, "", options);
 
@@ -657,9 +665,10 @@ static void test_cpu(skiatest::Reporter* r,
     // Create a raster-backed surface.
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
     sk_sp<SkSurface> surface(SkSurfaces::Raster(info));
+    bool privateAccess = bool(flags & SkSLTestFlag::Priv);
 
     test_permutations(r, "CPU", "SkRP", surface.get(), name, testFile,
-                      skiatest::TestType::kCPU, /*strictES2=*/true);
+                      skiatest::TestType::kCPU, /*strictES2=*/true, privateAccess);
 }
 
 #if defined(SK_GANESH)
@@ -691,14 +700,15 @@ static void test_ganesh(skiatest::Reporter* r,
     sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info));
     std::string_view deviceName = ctx->priv().caps()->deviceName();
     std::string_view backendAPI = skgpu::ContextTypeName(ctxInfo.type());
+    bool privateAccess = bool(flags & SkSLTestFlag::Priv);
 
     if (shouldRunGPU) {
         test_permutations(r, deviceName, backendAPI, surface.get(), name, testFile,
-                          skiatest::TestType::kGanesh, /*strictES2=*/true);
+                          skiatest::TestType::kGanesh, /*strictES2=*/true, privateAccess);
     }
     if (shouldRunGPU_ES3) {
         test_permutations(r, deviceName, backendAPI, surface.get(), name, testFile,
-                          skiatest::TestType::kGanesh, /*strictES2=*/false);
+                          skiatest::TestType::kGanesh, /*strictES2=*/false, privateAccess);
     }
 }
 #endif
@@ -739,14 +749,15 @@ static void test_graphite(skiatest::Reporter* r,
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), info);
     std::string_view deviceName = ctx->priv().caps()->deviceName();
     std::string_view backendAPI = skgpu::ContextTypeName(testCtx->contextType());
+    bool privateAccess = bool(flags & SkSLTestFlag::Priv);
 
     if (shouldRunGPU) {
         test_permutations(r, deviceName, backendAPI, surface.get(), name, testFile,
-                          skiatest::TestType::kGraphite, /*strictES2=*/true);
+                          skiatest::TestType::kGraphite, /*strictES2=*/true, privateAccess);
     }
     if (shouldRunGPU_ES3) {
         test_permutations(r, deviceName, backendAPI, surface.get(), name, testFile,
-                          skiatest::TestType::kGraphite, /*strictES2=*/false);
+                          skiatest::TestType::kGraphite, /*strictES2=*/false, privateAccess);
     }
 }
 #endif
@@ -759,9 +770,12 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, SkSLTestFlag
     SkSL::ProgramSettings settings;
     // TODO(skia:11209): Can we just put the correct #version in the source files that need this?
     settings.fMaxVersionAllowed = is_strict_es2(flags) ? SkSL::Version::k100 : SkSL::Version::k300;
+    SkSL::ProgramKind kind = bool(flags & SkSLTestFlag::Priv)
+                                     ? SkSL::ProgramKind::kPrivateRuntimeShader
+                                     : SkSL::ProgramKind::kRuntimeShader;
     SkSL::Compiler compiler;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kRuntimeShader, shaderString.c_str(), settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, shaderString.c_str(),
+                                                                     settings);
     if (!program) {
         ERRORF(r, "%s", compiler.errorText().c_str());
         return;
@@ -819,8 +833,11 @@ static void test_raster_pipeline(skiatest::Reporter* r,
     SkSL::Compiler compiler;
     SkSL::ProgramSettings settings;
     settings.fMaxVersionAllowed = SkSL::Version::k300;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::ProgramKind::kRuntimeShader, shaderString.c_str(), settings);
+    SkSL::ProgramKind kind = bool(flags & SkSLTestFlag::Priv)
+                                     ? SkSL::ProgramKind::kPrivateRuntimeShader
+                                     : SkSL::ProgramKind::kRuntimeShader;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, shaderString.c_str(),
+                                                                     settings);
     if (!program) {
         ERRORF(r, "%s: Unexpected compilation error\n%s", testFile, compiler.errorText().c_str());
         return;
@@ -1007,6 +1024,7 @@ constexpr SkSLTestFlags ES3 = SkSLTestFlag::ES3;
 constexpr SkSLTestFlags GPU = SkSLTestFlag::GPU;
 constexpr SkSLTestFlags GPU_ES3 = SkSLTestFlag::GPU_ES3;
 constexpr SkSLTestFlags UsesNaN = SkSLTestFlag::UsesNaN;
+constexpr SkSLTestFlags Priv = SkSLTestFlag::Priv;
 constexpr auto kApiLevel_T = CtsEnforcement::kApiLevel_T;
 constexpr auto kApiLevel_U = CtsEnforcement::kApiLevel_U;
 [[maybe_unused]] constexpr auto kApiLevel_V = CtsEnforcement::kApiLevel_V;
@@ -1127,6 +1145,7 @@ SKSL_TEST(ES3 | GPU_ES3, kNever,      IntrinsicUintBitsToFloat,        "intrinsi
 
 SKSL_TEST(ES3 | GPU_ES3, kNever,      ArrayNarrowingConversions,       "runtime/ArrayNarrowingConversions.rts")
 SKSL_TEST(CPU | GPU,     kNextRelease,ChildEffectSimple,               "runtime/ChildEffectSimple.rts")
+SKSL_TEST(CPU | GPU|Priv,kNextRelease,ChildEffectSpecializationFanOut, "runtime/ChildEffectSpecializationFanOut.privrts")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      Commutative,                     "runtime/Commutative.rts")
 SKSL_TEST(CPU,           kNever,      DivideByZero,                    "runtime/DivideByZero.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_V, FunctionParameterAliasingFirst,  "runtime/FunctionParameterAliasingFirst.rts")

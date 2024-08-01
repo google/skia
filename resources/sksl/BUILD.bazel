@@ -730,6 +730,7 @@ skia_filegroup(
         "runtime/Blend.rtb",
         "runtime/ChildEffectSimple.rts",
         "runtime/ChildEffectSpecialization.privrts",
+        "runtime/ChildEffectSpecializationFanOut.privrts",
         "runtime/ChildEffects.rts",
         "runtime/ColorConversion.rts",
         "runtime/Commutative.rts",
