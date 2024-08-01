@@ -173,6 +173,14 @@ static SkBitmap bitmap_from_shader(skiatest::Reporter* r,
         }
     }
 
+    if (SkRuntimeShaderBuilder::BuilderChild green = builder.child("shaderGreen"); green.fChild) {
+        green = SkShaders::Color(SK_ColorGREEN);
+    }
+
+    if (SkRuntimeShaderBuilder::BuilderChild red = builder.child("shaderRed"); red.fChild) {
+        red = SkShaders::Color(SK_ColorRED);
+    }
+
     sk_sp<SkShader> shader = builder.makeShader();
     if (!shader) {
         return SkBitmap{};
@@ -827,6 +835,7 @@ static void test_raster_pipeline(skiatest::Reporter* r,
     // buffer of uniform floats.
     size_t offset = 0;
     TArray<SkRuntimeEffect::Uniform> uniforms;
+    TArray<std::string_view> childEffects;
     const SkSL::Context& ctx(compiler.context());
 
     for (const SkSL::ProgramElement* elem : program->elements()) {
@@ -836,9 +845,10 @@ static void test_raster_pipeline(skiatest::Reporter* r,
             const SkSL::VarDeclaration& varDecl = global.declaration()->as<SkSL::VarDeclaration>();
             const SkSL::Variable& var = *varDecl.var();
 
+            // Keep track of child effects.
             if (var.type().isEffectChild()) {
-                ERRORF(r, "%s: Test program cannot contain child effects", testFile);
-                return;
+                childEffects.push_back(var.name());
+                continue;
             }
             // 'uniform' variables
             if (var.modifierFlags().isUniform()) {
@@ -877,9 +887,43 @@ static void test_raster_pipeline(skiatest::Reporter* r,
         return;
     }
 
+    // Create callbacks which implement `shaderGreen` and `shaderRed` shaders. Fortunately, these
+    // are trivial to implement directly in Raster Pipeline.
+    struct RPCallbacks : public SkSL::RP::Callbacks {
+        RPCallbacks(SkRasterPipeline* p, SkArenaAlloc* a, const TArray<std::string_view>* c)
+                : fPipeline(p)
+                , fAlloc(a)
+                , fChildEffects(c) {}
+
+        bool appendShader(int index) override {
+            if (fChildEffects->at(index) == "shaderGreen") {
+                static constexpr float kColorGreen[4] = {0.0f, 1.0f, 0.0f, 1.0f};
+                fPipeline->appendConstantColor(fAlloc, kColorGreen);
+                return true;
+            }
+            if (fChildEffects->at(index) == "shaderRed") {
+                static constexpr float kColorRed[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+                fPipeline->appendConstantColor(fAlloc, kColorRed);
+                return true;
+            }
+            SK_ABORT("unrecognized RP effect");
+        }
+
+        bool appendColorFilter(int index) override { SK_ABORT("unsupported RP callback"); }
+        bool appendBlender(int index) override { SK_ABORT("unsupported RP callback"); }
+        void toLinearSrgb(const void* color) override { SK_ABORT("unsupported RP callback"); }
+        void fromLinearSrgb(const void* color) override { SK_ABORT("unsupported RP callback"); }
+
+        SkRasterPipeline* fPipeline = nullptr;
+        SkArenaAlloc* fAlloc = nullptr;
+        const TArray<std::string_view>* fChildEffects;
+    };
+
+    RPCallbacks callbacks{&pipeline, &alloc, &childEffects};
+
     // Append the SkSL program to the raster pipeline.
     pipeline.appendConstantColor(&alloc, SkColors::kTransparent);
-    rasterProg->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, SkSpan(uniformValues));
+    rasterProg->appendStages(&pipeline, &alloc, &callbacks, SkSpan(uniformValues));
 
     // Move the float values from RGBA into an 8888 memory buffer.
     uint32_t out[SkRasterPipeline_kMaxStride_highp] = {};
@@ -1082,6 +1126,7 @@ SKSL_TEST(ES3 | GPU_ES3, kNever,      IntrinsicTranspose,              "intrinsi
 SKSL_TEST(ES3 | GPU_ES3, kNever,      IntrinsicUintBitsToFloat,        "intrinsics/UintBitsToFloat.sksl")
 
 SKSL_TEST(ES3 | GPU_ES3, kNever,      ArrayNarrowingConversions,       "runtime/ArrayNarrowingConversions.rts")
+SKSL_TEST(CPU | GPU,     kNextRelease,ChildEffectSimple,               "runtime/ChildEffectSimple.rts")
 SKSL_TEST(ES3 | GPU_ES3, kNever,      Commutative,                     "runtime/Commutative.rts")
 SKSL_TEST(CPU,           kNever,      DivideByZero,                    "runtime/DivideByZero.rts")
 SKSL_TEST(CPU | GPU,     kApiLevel_V, FunctionParameterAliasingFirst,  "runtime/FunctionParameterAliasingFirst.rts")

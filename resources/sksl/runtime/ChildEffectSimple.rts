@@ -1,0 +1,5 @@
+uniform shader shaderGreen, shaderRed;
+
+half4 main(float2 xy) {
+    return shaderGreen.eval(xy) * shaderRed.eval(xy).rrra;
+}

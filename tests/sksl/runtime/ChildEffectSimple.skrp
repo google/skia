@@ -1,0 +1,15 @@
+11 instructions, 2 invocations
+
+store_src_rg                   xy = src.rg
+init_lane_masks                CondMask = LoopMask = RetMask = true
+copy_2_slots_unmasked          $0..1 = xy
+exchange_src                   swap(src.rgba, $0..3)
+invoke_shader                  invoke_shader 0
+exchange_src                   swap(src.rgba, $0..3)
+copy_2_slots_unmasked          $4..5 = xy
+exchange_src                   swap(src.rgba, $4..7)
+invoke_shader                  invoke_shader 0x00000001
+exchange_src                   swap(src.rgba, $4..7)
+swizzle_4                      $4..7 = ($4..7).xxxw
+mul_4_floats                   $0..3 *= $4..7
+load_src                       src.rgba = $0..3
