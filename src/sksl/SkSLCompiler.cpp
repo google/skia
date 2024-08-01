@@ -181,7 +181,6 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
                                                 const Module* parentModule,
                                                 bool shouldInline) {
     SkASSERT(parentModule);
-    SkASSERT(!moduleSource.empty());
     SkASSERT(this->errorCount() == 0);
 
     // Wrap the program source in a pointer so it is guaranteed to be stable across moves.
