@@ -14,7 +14,9 @@
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkFloatingPoint.h"
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 
 class SkDevice;
 class SkRuntimeEffect;
@@ -68,6 +70,28 @@ public:
         // sk_float_ceil2int is not constexpr
         return IsEffectivelyIdentity(sigma) ? 0 : sk_float_ceil2int(3.f * sigma);
     }
+
+    // Get the default CPU-backed SkBlurEngine. This has specialized algorithms for 32-bit RGBA
+    // and BGRA colors, and A8 alpha-only images when the sigma is large enough. For small blurs
+    // and other color types, it uses SkShaderBlurAlgorithm backed by the raster pipeline.
+    static const SkBlurEngine* GetRasterBlurEngine();
+
+    // TODO: These are internal functions of the raster blur engine but need to be public for legacy
+    // code paths to invoke them directly.
+
+    // Calculate the successive box blur window for a given sigma. This is defined by the SVG spec:
+    // https://drafts.fxtf.org/filter-effects/#feGaussianBlurElement
+    //
+    // NOTE: The successive box blur approximation is too inaccurate for cases where sigma < 2,
+    // which works out to a window size of 4. If the window is smaller than this on both axes, the
+    // successive box blur should not be used. If only one axis is this small, assume the
+    // inaccuracies are hidden to avoid having to mix a shader-based blur and a box blur.
+    static int BoxBlurWindow(float sigma) {
+        int possibleWindow = sk_float_floor2int(sigma * 3 * sqrt(2 * SK_FloatPI) / 4 + 0.5f);
+        return std::max(1, possibleWindow);
+    }
+
+    // TODO: Bring in anything needed for the single-channel box blur from SkMaskBlurFilter
 };
 
 class SkBlurEngine::Algorithm {
