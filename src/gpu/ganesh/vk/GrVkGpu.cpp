@@ -139,7 +139,9 @@ std::unique_ptr<GrGpu> GrVkGpu::Make(const skgpu::VulkanBackendContext& backendC
     if (!memoryAllocator) {
         // We were not given a memory allocator at creation
         memoryAllocator =
-                skgpu::VulkanMemoryAllocators::Make(backendContext, skgpu::ThreadSafe::kNo);
+                skgpu::VulkanMemoryAllocators::Make(backendContext,
+                                                    skgpu::ThreadSafe::kNo,
+                                                    options.fVulkanVMALargeHeapBlockSize);
     }
 #endif
     if (!memoryAllocator) {

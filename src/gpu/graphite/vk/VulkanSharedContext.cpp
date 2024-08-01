@@ -85,7 +85,9 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
         skgpu::ThreadSafe threadSafe = options.fClientWillExternallySynchronizeAllThreads
                                                ? skgpu::ThreadSafe::kNo
                                                : skgpu::ThreadSafe::kYes;
-        memoryAllocator = skgpu::VulkanMemoryAllocators::Make(context, threadSafe);
+        memoryAllocator = skgpu::VulkanMemoryAllocators::Make(context,
+                                                              threadSafe,
+                                                              options.fVulkanVMALargeHeapBlockSize);
     }
 #endif
     if (!memoryAllocator) {

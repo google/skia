@@ -15,6 +15,7 @@
 #include "src/gpu/vk/vulkanmemoryallocator/VulkanMemoryAllocatorWrapper.h"
 
 #include <cstdint>
+#include <optional>
 #include <utility>
 
 namespace skgpu {
@@ -31,7 +32,8 @@ public:
                                              uint32_t physicalDeviceVersion,
                                              const VulkanExtensions* extensions,
                                              const VulkanInterface* interface,
-                                             ThreadSafe);
+                                             ThreadSafe,
+                                             std::optional<VkDeviceSize> blockSize);
 
     ~VulkanAMDMemoryAllocator() override;
 
