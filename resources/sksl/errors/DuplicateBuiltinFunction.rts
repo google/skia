@@ -1,0 +1,6 @@
+$pure half cross_length_2d(half2,half2) {}
+
+/*%%*
+'$pure' is not permitted here
+function 'cross_length_2d' can exit without returning a value
+*%%*/

@@ -316,24 +316,23 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
     // We don't allow modules to define actual functions with intrinsic names. (Those should be
     // reserved for actual intrinsics.)
     if (function.isIntrinsic()) {
-        context.fErrors->error(function.fPosition, "Intrinsic function '" +
-                                                   std::string(function.name()) +
-                                                   "' should not have a definition");
+        context.fErrors->error(pos, "intrinsic function '" + std::string(function.name()) +
+                                    "' should not have a definition");
         return nullptr;
     }
 
     // A function body must always be a braced block. (The parser should enforce this already, but
     // we rely on it, so it's best to be certain.)
     if (!body || !body->is<Block>() || !body->as<Block>().isScope()) {
-        context.fErrors->error(function.fPosition, "function body '" + function.description() +
-                                                   "' must be a braced block");
+        context.fErrors->error(pos, "function body '" + function.description() +
+                                    "' must be a braced block");
         return nullptr;
     }
 
     // A function can't have more than one definition.
     if (function.definition()) {
-        context.fErrors->error(function.fPosition, "function '" + function.description() +
-                                                   "' was already defined");
+        context.fErrors->error(pos, "function '" + function.description() +
+                                    "' was already defined");
         return nullptr;
     }
 

@@ -74,6 +74,7 @@ sksl_error_tests = [
   "errors/DivideByZero.rts",
   "errors/DoTypeMismatch.sksl",
   "errors/DuplicateBinding.sksl",
+  "errors/DuplicateBuiltinFunction.rts",
   "errors/DuplicateFunction.rts",
   "errors/DuplicateInterfaceBlockField.sksl",
   "errors/DuplicateInterfaceBlockName.sksl",
