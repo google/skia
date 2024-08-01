@@ -293,9 +293,23 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/sksl:sksl_hdrs",
 				"//src/sksl:sksl_srcs",
 			}},
+		// TODO(kjlubick) remove this group after clients are migrated
+		// onto core and/or graphite
 		{Var: "skia_sksl_default_module_sources",
 			Rules: []string{
 				"//src/sksl:sksl_default_module_srcs",
+				"//src/sksl:sksl_graphite_modules_hdrs",
+				"//src/sksl:sksl_graphite_modules_srcs",
+			}},
+		{Var: "skia_sksl_core_module_sources",
+			Rules: []string{
+				"//src/sksl:sksl_default_module_srcs",
+				"//src/sksl:sksl_graphite_modules_hdrs",
+			}},
+		{Var: "skia_sksl_graphite_modules_sources",
+			Rules: []string{
+				"//src/sksl:sksl_graphite_modules_srcs",
+				"//src/sksl:sksl_graphite_modules_hdrs",
 			}},
 		{Var: "skia_sksl_tracing_sources",
 			Rules: []string{

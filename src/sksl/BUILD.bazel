@@ -192,6 +192,7 @@ skia_cc_deps(
 skia_filegroup(
     name = "core_srcs",
     srcs = [
+        ":sksl_graphite_modules_hdrs",
         ":sksl_srcs",
         "//src/sksl/analysis:srcs",
         "//src/sksl/ir:srcs",
@@ -217,4 +218,18 @@ skia_cc_library(
     name = "generated_sksl",
     textual_hdrs = [":txts"],
     visibility = ["//src/core:__pkg__"],
+)
+
+skia_filegroup(
+    name = "sksl_graphite_modules_hdrs",
+    srcs = [
+        "SkSLGraphiteModules.h",
+    ],
+)
+
+skia_filegroup(
+    name = "sksl_graphite_modules_srcs",
+    srcs = [
+        "SkSLGraphiteModules.cpp",
+    ],
 )

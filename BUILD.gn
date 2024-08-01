@@ -1158,6 +1158,7 @@ optional("graphite") {
   ]
   public = skia_graphite_public
   sources = skia_graphite_sources
+  sources += skia_sksl_graphite_modules_sources
 
   if (is_android) {
     sources += skia_graphite_android_private
@@ -1484,7 +1485,7 @@ skia_component("skia") {
   sources += skia_codec_decode_bmp
   sources += skia_encode_srcs
   sources += skia_sksl_core_sources
-  sources += skia_sksl_default_module_sources
+  sources += skia_sksl_core_module_sources
   sources += skia_sksl_tracing_sources
   sources += skia_ports_sources
   sources += [
