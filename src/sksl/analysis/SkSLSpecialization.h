@@ -26,6 +26,11 @@ struct Program;
 
 namespace Analysis {
 
+/**
+ * Design docs for SkSL function specialization: go/sksl-function-specialization
+ * https://docs.google.com/document/d/1dJdkk2-KmP-62EERzKygzsLLnxihCbDcFi3UHc1WzAM/edit?usp=sharing
+ */
+
 // The current index of the specialization function being walked through, used to
 // track what the proper specialization function call should be if walking through a
 // specialized function call stack.
