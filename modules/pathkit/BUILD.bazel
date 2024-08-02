@@ -103,7 +103,8 @@ cc_binary(
     # emscripten headers etc. Therefore, we hide it from wildcards.
     tags = ["manual"],
     deps = [
-        "//:skia_public",
+        "//:core",
+        "//:pathops",
     ],
 )
 
