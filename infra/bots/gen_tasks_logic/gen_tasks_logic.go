@@ -2182,17 +2182,18 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"skottie_tool_gpu":           {"//modules/skottie:skottie_tool_gpu", ""},
 
 	// Note: these paths are relative to the WORKSPACE in //example/external_client
-	"decode_everything":  {"//:decode_everything", ""},
-	"path_combiner":      {"//:path_combiner", ""},
-	"png_decoder":        {"//:png_decoder", ""},
-	"shape_text":         {"//:shape_text", ""},
-	"svg_with_harfbuzz":  {"//:svg_with_harfbuzz", ""},
-	"svg_with_primitive": {"//:svg_with_primitive", ""},
-	"use_ganesh_gl":      {"//:use_ganesh_gl", ""},
-	"use_ganesh_vulkan":  {"//:use_ganesh_vulkan", ""},
-	"use_skresources":    {"//:use_skresources", ""},
-	"write_text_to_png":  {"//:write_text_to_png", ""},
-	"write_to_pdf":       {"//:write_to_pdf", ""},
+	"decode_everything":          {"//:decode_everything", ""},
+	"path_combiner":              {"//:path_combiner", ""},
+	"png_decoder":                {"//:png_decoder", ""},
+	"shape_text":                 {"//:shape_text", ""},
+	"svg_with_harfbuzz":          {"//:svg_with_harfbuzz", ""},
+	"svg_with_primitive":         {"//:svg_with_primitive", ""},
+	"use_ganesh_gl":              {"//:use_ganesh_gl", ""},
+	"use_ganesh_vulkan":          {"//:use_ganesh_vulkan", ""},
+	"use_graphite_native_vulkan": {"//:use_graphite_native_vulkan", ""},
+	"use_skresources":            {"//:use_skresources", ""},
+	"write_text_to_png":          {"//:write_text_to_png", ""},
+	"write_to_pdf":               {"//:write_to_pdf", ""},
 
 	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them
 	// under a test_suite.

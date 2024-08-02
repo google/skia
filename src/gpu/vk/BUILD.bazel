@@ -78,6 +78,7 @@ skia_cc_library(
     features = ["layering_check"],
     visibility = [
         "//src/gpu/ganesh/vk:__pkg__",
+        "//src/gpu/graphite/vk:__pkg__",
         "//src/gpu/vk/vulkanmemoryallocator:__pkg__",
     ],
     deps = [

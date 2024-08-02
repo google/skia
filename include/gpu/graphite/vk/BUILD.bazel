@@ -1,0 +1,18 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "VulkanGraphiteTypes.h",
+        "VulkanGraphiteUtils.h",
+    ],
+    visibility = [
+        "//src/gpu/graphite/vk:__pkg__",
+    ],
+)

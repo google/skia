@@ -1,0 +1,75 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+VULKAN_FILES = [
+    "VulkanBackendSemaphore.cpp",
+    "VulkanBackendTexture.cpp",
+    "VulkanBuffer.cpp",
+    "VulkanBuffer.h",
+    "VulkanCaps.cpp",
+    "VulkanCaps.h",
+    "VulkanCommandBuffer.cpp",
+    "VulkanCommandBuffer.h",
+    "VulkanDescriptorPool.cpp",
+    "VulkanDescriptorPool.h",
+    "VulkanDescriptorSet.cpp",
+    "VulkanDescriptorSet.h",
+    "VulkanFramebuffer.cpp",
+    "VulkanFramebuffer.h",
+    "VulkanGraphicsPipeline.cpp",
+    "VulkanGraphicsPipeline.h",
+    "VulkanGraphiteTypes.cpp",
+    "VulkanGraphiteTypesPriv.h",
+    "VulkanGraphiteUtils.cpp",
+    "VulkanGraphiteUtilsPriv.h",
+    "VulkanImageView.cpp",
+    "VulkanImageView.h",
+    "VulkanQueueManager.cpp",
+    "VulkanQueueManager.h",
+    "VulkanRenderPass.cpp",
+    "VulkanRenderPass.h",
+    "VulkanResourceProvider.cpp",
+    "VulkanResourceProvider.h",
+    "VulkanSampler.cpp",
+    "VulkanSampler.h",
+    "VulkanSharedContext.cpp",
+    "VulkanSharedContext.h",
+    "VulkanTexture.cpp",
+    "VulkanTexture.h",
+    "VulkanTextureInfo.cpp",
+    "VulkanYcbcrConversion.cpp",
+    "VulkanYcbcrConversion.h",
+]
+
+split_srcs_and_hdrs(
+    name = "vk",
+    files = VULKAN_FILES,
+)
+
+skia_cc_library(
+    name = "graphite_native_vulkan",
+    srcs = [
+        ":vk_hdrs",
+        ":vk_srcs",
+    ],
+    hdrs = [
+        "//include/gpu:shared_gpu_hdrs",
+        "//include/gpu/graphite:public_hdrs",
+        "//include/gpu/graphite/vk:public_hdrs",
+    ],
+    defines = ["SK_VULKAN"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu",
+        "//src/gpu/graphite",
+        "//src/gpu/vk",
+    ],
+)

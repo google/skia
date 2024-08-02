@@ -189,7 +189,10 @@ skia_cc_library(
     defines = [
         "SK_GRAPHITE",
     ],
-    visibility = ["//src/gpu/graphite/mtl:__pkg__"],
+    visibility = [
+        "//src/gpu/graphite/mtl:__pkg__",
+        "//src/gpu/graphite/vk:__pkg__",
+    ],
     deps = [
         "//:core",
         "//src/base",

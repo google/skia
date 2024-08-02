@@ -215,6 +215,18 @@ objc_library(
 )
 
 cc_binary(
+    name = "use_graphite_native_vulkan",
+    srcs = ["src/graphite_native_vulkan.cpp"],
+    linkopts = [
+        "-lpthread",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:graphite_native_vulkan",
+    ],
+)
+
+cc_binary(
     name = "use_skresources",
     srcs = ["src/use_skresources.cpp"],
     linkopts = [

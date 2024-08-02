@@ -168,6 +168,12 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "graphite_native_vulkan",
+    actual = "//src/gpu/graphite/vk:graphite_native_vulkan",
+    visibility = ["//visibility:public"],
+)
+
 ###
 
 alias(
