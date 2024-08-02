@@ -20,19 +20,9 @@ namespace skgpu::graphite {
 
 class TextureInfoData;
 
-#if defined(SK_DAWN) && !defined(SK_DISABLE_LEGACY_DAWN_TEXTURE_INFO_FUNCS)
-struct DawnTextureInfo;
-#endif
-
 class SK_API TextureInfo {
 public:
     TextureInfo();
-#if defined(SK_DAWN) && !defined(SK_DISABLE_LEGACY_DAWN_TEXTURE_INFO_FUNCS)
-    TextureInfo(const DawnTextureInfo& dawnInfo);
-
-    bool getDawnTextureInfo(DawnTextureInfo* info) const;
-#endif
-
     ~TextureInfo();
     TextureInfo(const TextureInfo&);
     TextureInfo& operator=(const TextureInfo&);
