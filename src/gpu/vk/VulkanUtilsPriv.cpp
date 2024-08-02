@@ -119,7 +119,21 @@ bool GetAHardwareBufferProperties(
                                                                      hwBuffer,
                                                                      outHwbProps));
     if (result != VK_SUCCESS) {
-        SkDebugf("Failed to get AndroidHardwareBufferProperties\n");
+        // The spec suggests VK_ERROR_OUT_OF_HOST_MEMORY and VK_ERROR_INVALID_EXTERNAL_HANDLE_KHR
+        // are the only failure codes, but some platforms may report others, such as
+        // VK_ERROR_FORMAT_NOT_SUPPORTED (-11).
+        SkDebugf("Failed to get AndroidHardwareBufferProperties (result:%d)", result);
+#if __ANDROID_API__ >= 26
+        AHardwareBuffer_Desc hwbDesc;
+        AHardwareBuffer_describe(hwBuffer, &hwbDesc);
+        SkDebugf("^ %" PRIu32 "x%" PRIu32 " AHB -- format:%" PRIu32 ", usage:%" PRIu64
+                 ", layers:%" PRIu32,
+                 hwbDesc.width,
+                 hwbDesc.height,
+                 hwbDesc.format,
+                 hwbDesc.usage,
+                 hwbDesc.layers);
+#endif
         return false;
     }
     return true;
