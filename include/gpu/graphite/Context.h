@@ -59,7 +59,40 @@ public:
     /** Returns true if there is work that was submitted to the GPU that has not finished. */
     bool hasUnfinishedGpuWork() const;
 
-    void asyncRescaleAndReadPixels(const SkImage* image,
+    /** Makes image pixel data available to caller, possibly asynchronously. It can also rescale
+        the image pixels.
+
+        Data is read from the source sub-rectangle, is optionally converted to a linear gamma, is
+        rescaled to the size indicated by 'dstImageInfo', is then converted to the color space,
+        color type, and alpha type of 'dstImageInfo'. A 'srcRect' that is not contained by the
+        bounds of the image causes failure.
+
+        When the pixel data is ready the caller's ReadPixelsCallback is called with a
+        AsyncReadResult containing pixel data in the requested color type, alpha type, and color
+        space. The AsyncReadResult will have count() == 1. Upon failure the callback is called with
+        nullptr for AsyncReadResult. The callback can be triggered, for example, with a call to
+        Context::submit(SyncToCpu::kYes).
+
+        The data is valid for the lifetime of AsyncReadResult with the exception that the data is
+        immediately invalidated if the Graphite context is abandoned or destroyed.
+
+        @param src             Graphite-backed image or surface to read the data from.
+        @param dstImageInfo    info of the requested pixels
+        @param srcRect         subrectangle of image to read
+        @param rescaleGamma    controls whether rescaling is done in the image's gamma or whether
+                               the source data is transformed to a linear gamma before rescaling.
+        @param rescaleMode     controls the technique (and cost) of the rescaling
+        @param callback        function to call with result of the read
+        @param context         passed to callback
+    */
+    void asyncRescaleAndReadPixels(const SkImage* src,
+                                   const SkImageInfo& dstImageInfo,
+                                   const SkIRect& srcRect,
+                                   SkImage::RescaleGamma rescaleGamma,
+                                   SkImage::RescaleMode rescaleMode,
+                                   SkImage::ReadPixelsCallback callback,
+                                   SkImage::ReadPixelsContext context);
+    void asyncRescaleAndReadPixels(const SkSurface* src,
                                    const SkImageInfo& dstImageInfo,
                                    const SkIRect& srcRect,
                                    SkImage::RescaleGamma rescaleGamma,
@@ -67,15 +100,44 @@ public:
                                    SkImage::ReadPixelsCallback callback,
                                    SkImage::ReadPixelsContext context);
 
-    void asyncRescaleAndReadPixels(const SkSurface* surface,
-                                   const SkImageInfo& dstImageInfo,
-                                   const SkIRect& srcRect,
-                                   SkImage::RescaleGamma rescaleGamma,
-                                   SkImage::RescaleMode rescaleMode,
-                                   SkImage::ReadPixelsCallback callback,
-                                   SkImage::ReadPixelsContext context);
+    /**
+        Similar to asyncRescaleAndReadPixels but performs an additional conversion to YUV. The
+        RGB->YUV conversion is controlled by 'yuvColorSpace'. The YUV data is returned as three
+        planes ordered y, u, v. The u and v planes are half the width and height of the resized
+        rectangle. The y, u, and v values are single bytes. Currently this fails if 'dstSize'
+        width and height are not even. A 'srcRect' that is not contained by the bounds of the
+        surface causes failure.
 
-    void asyncRescaleAndReadPixelsYUV420(const SkImage*,
+        When the pixel data is ready the caller's ReadPixelsCallback is called with a
+        AsyncReadResult containing the planar data. The AsyncReadResult will have count() == 3.
+        Upon failure the callback is called with nullptr for AsyncReadResult. The callback can
+        be triggered, for example, with a call to Context::submit(SyncToCpu::kYes).
+
+        The data is valid for the lifetime of AsyncReadResult with the exception that the data
+        is immediately invalidated if the context is abandoned or destroyed.
+
+        @param src            Graphite-backed image or surface to read the data from.
+        @param yuvColorSpace  The transformation from RGB to YUV. Applied to the resized image
+                              after it is converted to dstColorSpace.
+        @param dstColorSpace  The color space to convert the resized image to, after rescaling.
+        @param srcRect        The portion of the surface to rescale and convert to YUV planes.
+        @param dstSize        The size to rescale srcRect to
+        @param rescaleGamma   controls whether rescaling is done in the surface's gamma or whether
+                              the source data is transformed to a linear gamma before rescaling.
+        @param rescaleMode    controls the sampling technique of the rescaling
+        @param callback       function to call with the planar read result
+        @param context        passed to callback
+     */
+    void asyncRescaleAndReadPixelsYUV420(const SkImage* src,
+                                         SkYUVColorSpace yuvColorSpace,
+                                         sk_sp<SkColorSpace> dstColorSpace,
+                                         const SkIRect& srcRect,
+                                         const SkISize& dstSize,
+                                         SkImage::RescaleGamma rescaleGamma,
+                                         SkImage::RescaleMode rescaleMode,
+                                         SkImage::ReadPixelsCallback callback,
+                                         SkImage::ReadPixelsContext context);
+    void asyncRescaleAndReadPixelsYUV420(const SkSurface* src,
                                          SkYUVColorSpace yuvColorSpace,
                                          sk_sp<SkColorSpace> dstColorSpace,
                                          const SkIRect& srcRect,
@@ -85,17 +147,12 @@ public:
                                          SkImage::ReadPixelsCallback callback,
                                          SkImage::ReadPixelsContext context);
 
-    void asyncRescaleAndReadPixelsYUV420(const SkSurface*,
-                                         SkYUVColorSpace yuvColorSpace,
-                                         sk_sp<SkColorSpace> dstColorSpace,
-                                         const SkIRect& srcRect,
-                                         const SkISize& dstSize,
-                                         SkImage::RescaleGamma rescaleGamma,
-                                         SkImage::RescaleMode rescaleMode,
-                                         SkImage::ReadPixelsCallback callback,
-                                         SkImage::ReadPixelsContext context);
-
-    void asyncRescaleAndReadPixelsYUVA420(const SkImage*,
+    /**
+     * Identical to asyncRescaleAndReadPixelsYUV420 but a fourth plane is returned in the
+     * AsyncReadResult passed to 'callback'. The fourth plane contains the alpha chanel at the
+     * same full resolution as the Y plane.
+     */
+    void asyncRescaleAndReadPixelsYUVA420(const SkImage* src,
                                           SkYUVColorSpace yuvColorSpace,
                                           sk_sp<SkColorSpace> dstColorSpace,
                                           const SkIRect& srcRect,
@@ -104,8 +161,7 @@ public:
                                           SkImage::RescaleMode rescaleMode,
                                           SkImage::ReadPixelsCallback callback,
                                           SkImage::ReadPixelsContext context);
-
-    void asyncRescaleAndReadPixelsYUVA420(const SkSurface*,
+    void asyncRescaleAndReadPixelsYUVA420(const SkSurface* src,
                                           SkYUVColorSpace yuvColorSpace,
                                           sk_sp<SkColorSpace> dstColorSpace,
                                           const SkIRect& srcRect,
