@@ -12,6 +12,8 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkAPI.h"
 
+#include <optional>
+
 namespace skgpu {
 
 struct VulkanBackendContext;
