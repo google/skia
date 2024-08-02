@@ -48,6 +48,7 @@
 #include "src/core/SkYUVMath.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/image/SkImage_Base.h"
 #include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -1253,7 +1254,8 @@ protected:
                     readBack.allocPixels(yuv->imageInfo());
 #if defined(GRAPHITE_TEST_UTILS)
                     if (recorder) {
-                        SkAssertResult(yuv->readPixelsGraphite(recorder, readBack.pixmap(), 0, 0));
+                        SkAssertResult(
+                                as_IB(yuv)->readPixelsGraphite(recorder, readBack.pixmap(), 0, 0));
                     } else
 #endif
                     {

@@ -66,10 +66,7 @@ public:
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
 #if defined(GRAPHITE_TEST_UTILS)
-    bool onReadPixelsGraphite(Recorder*,
-                              const SkPixmap& dst,
-                              int srcX,
-                              int srcY) const override;
+    bool readPixelsGraphite(Recorder*, const SkPixmap& dst, int srcX, int srcY) const override;
 #endif
 
 private:

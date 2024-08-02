@@ -40,6 +40,8 @@ public:
         fTick(fInstance);
     }
 
+    void deviceTick(Context*) override;
+
 private:
     DawnSharedContext(const DawnBackendContext&,
                       std::unique_ptr<const DawnCaps> caps,

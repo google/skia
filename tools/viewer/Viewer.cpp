@@ -3018,10 +3018,9 @@ void Viewer::drawImGui() {
                 bitmap.allocPixels(info);
                 SkPixmap pixels;
                 SkAssertResult(bitmap.peekPixels(&pixels));
-                didGraphiteRead = fLastImage->readPixelsGraphite(fWindow->graphiteRecorder(),
-                                                                 pixels,
-                                                                 xInt,
-                                                                 yInt);
+                didGraphiteRead = as_IB(fLastImage)
+                                          ->readPixelsGraphite(
+                                                  fWindow->graphiteRecorder(), pixels, xInt, yInt);
                 pixel = *pixels.addr32();
                 ImGui::SameLine();
                 ImGui::Text("(X, Y): %d, %d RGBA: %X %X %X %X",

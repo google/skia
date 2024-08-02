@@ -58,10 +58,6 @@
 
 #if defined(GRAPHITE_TEST_UTILS)
 #include "src/gpu/graphite/ContextOptionsPriv.h"
-#if defined(SK_DAWN)
-#include "src/gpu/graphite/dawn/DawnSharedContext.h"
-#include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
-#endif
 #endif
 
 namespace skgpu::graphite {
@@ -860,14 +856,10 @@ bool ContextPriv::readPixels(const SkPixmap& pm,
         fContext->submit(SyncToCpu::kNo);
         if (fContext->fSharedContext->backend() == BackendApi::kDawn) {
             while (!asyncContext.fCalled) {
-#if defined(SK_DAWN)
-                auto dawnContext = static_cast<DawnSharedContext*>(fContext->fSharedContext.get());
-                dawnContext->device().Tick();
-                fContext->checkAsyncWorkCompletion();
-#endif
+                fContext->fSharedContext->deviceTick(fContext);
             }
         } else {
-            SK_ABORT("Only Dawn supports non-synching contexts.");
+            SK_ABORT("Only Dawn supports non-syncing contexts.");
         }
     }
     SkASSERT(asyncContext.fCalled);

@@ -25,6 +25,7 @@ namespace skgpu::graphite {
 class BackendTexture;
 class Caps;
 class CommandBuffer;
+class Context;
 class RendererProvider;
 class ResourceProvider;
 class TextureInfo;
@@ -56,6 +57,8 @@ public:
     // Called by Context::isContextLost(). Returns true if the backend-specific SharedContext has
     // gotten into an unrecoverable, lost state.
     virtual bool isDeviceLost() const { return false; }
+
+    virtual void deviceTick(Context*) {}
 
 protected:
     SharedContext(std::unique_ptr<const Caps>, BackendApi);

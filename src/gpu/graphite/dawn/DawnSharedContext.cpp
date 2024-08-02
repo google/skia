@@ -7,10 +7,13 @@
 
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 
+#include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
+
+#include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 namespace skgpu::graphite {
 namespace {
@@ -71,5 +74,12 @@ std::unique_ptr<ResourceProvider> DawnSharedContext::makeResourceProvider(
                                                                       recorderID,
                                                                       resourceBudget));
 }
+
+void DawnSharedContext::deviceTick(Context* context) {
+#if !defined(__EMSCRIPTEN__)
+    this->device().Tick();
+#endif
+    context->checkAsyncWorkCompletion();
+};
 
 } // namespace skgpu::graphite
