@@ -1,0 +1,43 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+CORE_FILES = [
+    "ComputeStep.cpp",
+    "ComputeStep.h",
+    "DispatchGroup.cpp",
+    "DispatchGroup.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
+)
+
+VELLO_FILES = [
+    "VelloComputeSteps.cpp",
+    "VelloComputeSteps.h",
+    "VelloRenderer.cpp",
+    "VelloRenderer.h",
+]
+
+split_srcs_and_hdrs(
+    name = "vello",
+    files = VELLO_FILES,
+)
+
+skia_filegroup(
+    name = "compute_hdrs",
+    srcs = [":core_hdrs"],
+    visibility = ["//src/gpu/graphite:__pkg__"],
+)
+
+skia_filegroup(
+    name = "compute_srcs",
+    srcs = [":core_srcs"],
+    visibility = ["//src/gpu/graphite:__pkg__"],
+)

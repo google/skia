@@ -1,0 +1,56 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+CORE_FILES = [
+    "AnalyticBlurRenderStep.cpp",
+    "AnalyticBlurRenderStep.h",
+    "AnalyticRRectRenderStep.cpp",
+    "AnalyticRRectRenderStep.h",
+    "BitmapTextRenderStep.cpp",
+    "BitmapTextRenderStep.h",
+    "CommonDepthStencilSettings.h",
+    "CoverBoundsRenderStep.cpp",
+    "CoverBoundsRenderStep.h",
+    "CoverageMaskRenderStep.cpp",
+    "CoverageMaskRenderStep.h",
+    "DynamicInstancesPatchAllocator.h",
+    "GraphiteVertexFiller.cpp",
+    "MiddleOutFanRenderStep.cpp",
+    "MiddleOutFanRenderStep.h",
+    "PerEdgeAAQuadRenderStep.cpp",
+    "PerEdgeAAQuadRenderStep.h",
+    "SDFTextLCDRenderStep.cpp",
+    "SDFTextLCDRenderStep.h",
+    "SDFTextRenderStep.cpp",
+    "SDFTextRenderStep.h",
+    "TessellateCurvesRenderStep.cpp",
+    "TessellateCurvesRenderStep.h",
+    "TessellateStrokesRenderStep.cpp",
+    "TessellateStrokesRenderStep.h",
+    "TessellateWedgesRenderStep.cpp",
+    "TessellateWedgesRenderStep.h",
+    "VerticesRenderStep.cpp",
+    "VerticesRenderStep.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
+)
+
+skia_filegroup(
+    name = "render_hdrs",
+    srcs = [":core_hdrs"],
+    visibility = ["//src/gpu/graphite:__pkg__"],
+)
+
+skia_filegroup(
+    name = "render_srcs",
+    srcs = [":core_srcs"],
+    visibility = ["//src/gpu/graphite:__pkg__"],
+)

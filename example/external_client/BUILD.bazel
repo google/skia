@@ -149,16 +149,17 @@ cc_binary(
         "//conditions:default": ["@platforms//:incompatible"],
     }),
     deps = [
-        ":metal_context_helper",
+        ":ganesh_metal_context_helper",
         "@skia//:core",
         "@skia//:ganesh_metal",
+        "@skia//:jpeg_encode_codec",
     ],
 )
 
 objc_library(
-    name = "metal_context_helper",
-    srcs = ["src/metal_context_helper.mm"],
-    hdrs = ["src/metal_context_helper.h"],
+    name = "ganesh_metal_context_helper",
+    srcs = ["src/ganesh_metal_context_helper.mm"],
+    hdrs = ["src/ganesh_metal_context_helper.h"],
     includes = ["src"],
     sdk_frameworks = [
         # Without MetalKit added as a dependency, `[*device newCommandQueue]` fails
@@ -173,7 +174,43 @@ objc_library(
     deps = [
         "@skia//:core",
         "@skia//:ganesh_metal",
+    ],
+)
+
+cc_binary(
+    name = "use_graphite_native_metal",
+    srcs = ["src/graphite_native_metal.cpp"],
+    target_compatible_with = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:ios": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        ":graphite_metal_context_helper",
+        "@skia//:core",
+        "@skia//:graphite_native_metal",
         "@skia//:jpeg_encode_codec",
+    ],
+)
+
+objc_library(
+    name = "graphite_metal_context_helper",
+    srcs = ["src/graphite_metal_context_helper.mm"],
+    hdrs = ["src/graphite_metal_context_helper.h"],
+    includes = ["src"],
+    sdk_frameworks = [
+        # Without MetalKit added as a dependency, `[*device newCommandQueue]` fails
+        "MetalKit",
+        "Metal",
+    ],
+    target_compatible_with = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:ios": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        "@skia//:core",
+        "@skia//:graphite_native_metal",
     ],
 )
 

@@ -17,6 +17,8 @@ skia_filegroup(
     srcs = ["SkCFObject.h"],
     visibility = [
         "//src/gpu/ganesh/mtl:__pkg__",
+        "//src/gpu/graphite:__subpackages__",  # TODO(kjlubick) remove after decoupling
+        "//src/gpu/graphite/mtl:__pkg__",
         "//src/ports:__pkg__",
     ],
 )

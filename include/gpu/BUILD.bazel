@@ -70,7 +70,7 @@ skia_filegroup(
         "MutableTextureState.h",
         "ShaderErrorHandler.h",
     ],
-    visibility = ["//src/gpu:__pkg__"],
+    visibility = ["//src/gpu:__subpackages__"],
 )
 
 generate_cpp_files_for_headers(

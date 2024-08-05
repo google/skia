@@ -225,6 +225,7 @@ skia_filegroup(
     srcs = [
         "SkSLGraphiteModules.h",
     ],
+    visibility = ["//src/gpu/graphite:__pkg__"],
 )
 
 skia_filegroup(
@@ -232,4 +233,5 @@ skia_filegroup(
     srcs = [
         "SkSLGraphiteModules.cpp",
     ],
+    visibility = ["//src/gpu/graphite:__pkg__"],
 )

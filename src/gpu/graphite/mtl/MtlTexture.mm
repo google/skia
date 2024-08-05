@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/mtl/MtlTexture.h"
 
 #include "include/gpu/MutableTextureState.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"

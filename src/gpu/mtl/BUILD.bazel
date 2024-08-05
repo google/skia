@@ -37,7 +37,10 @@ skia_objc_library(
         ":mtl_hdrs",
         "//include/gpu/mtl:public_hdrs",
     ],
-    visibility = ["//src/gpu/ganesh/mtl:__pkg__"],
+    visibility = [
+        "//src/gpu/ganesh/mtl:__pkg__",
+        "//src/gpu/graphite/mtl:__pkg__",
+    ],
     deps = [
         "//:core",
         "//src/gpu",

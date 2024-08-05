@@ -1,0 +1,73 @@
+load("//bazel:skia_rules.bzl", "skia_objc_library", "split_srcs_and_hdrs")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+METAL_FILES = [
+    "MtlBackendSemaphore.mm",
+    "MtlBackendTexture.mm",
+    "MtlBlitCommandEncoder.h",
+    "MtlBuffer.h",
+    "MtlBuffer.mm",
+    "MtlCaps.h",
+    "MtlCaps.mm",
+    "MtlCommandBuffer.h",
+    "MtlCommandBuffer.mm",
+    "MtlComputeCommandEncoder.h",
+    "MtlComputePipeline.h",
+    "MtlComputePipeline.mm",
+    "MtlGraphicsPipeline.h",
+    "MtlGraphicsPipeline.mm",
+    "MtlGraphiteTypes.mm",
+    "MtlGraphiteUtils.mm",
+    "MtlGraphiteUtilsPriv.h",
+    "MtlQueueManager.h",
+    "MtlQueueManager.mm",
+    "MtlRenderCommandEncoder.h",
+    "MtlResourceProvider.h",
+    "MtlResourceProvider.mm",
+    "MtlSampler.h",
+    "MtlSampler.mm",
+    "MtlSharedContext.h",
+    "MtlSharedContext.mm",
+    "MtlTexture.h",
+    "MtlTexture.mm",
+    "MtlTextureInfo.mm",
+]
+
+split_srcs_and_hdrs(
+    name = "mtl",
+    files = METAL_FILES,
+)
+
+skia_objc_library(
+    name = "graphite_native_metal",
+    srcs = [
+        ":mtl_hdrs",
+        ":mtl_srcs",
+    ],
+    hdrs = [
+        "//include/gpu:shared_gpu_hdrs",
+        "//include/gpu/graphite:public_hdrs",
+        "//include/gpu/graphite/mtl:public_hdrs",
+        "//include/gpu/mtl:public_hdrs",
+        "//include/ports:core_foundation_hdrs",
+    ],
+    defines = ["SK_METAL"],
+    sdk_frameworks = [
+        "Foundation",
+        "Metal",
+    ],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu",
+        "//src/gpu/graphite",
+        "//src/gpu/mtl:gpu_mtl",
+    ],
+)

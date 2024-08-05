@@ -163,6 +163,14 @@ alias(
 ###
 
 alias(
+    name = "graphite_native_metal",
+    actual = "//src/gpu/graphite/mtl:graphite_native_metal",
+    visibility = ["//visibility:public"],
+)
+
+###
+
+alias(
     name = "bmp_decode_codec",
     actual = "//src/codec:bmp_decode",
     visibility = ["//visibility:public"],

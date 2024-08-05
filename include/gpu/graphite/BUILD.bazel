@@ -1,0 +1,26 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "BackendSemaphore.h",
+        "BackendTexture.h",
+        "Context.h",
+        "ContextOptions.h",
+        "GraphiteTypes.h",
+        "Image.h",
+        "ImageProvider.h",
+        "Recorder.h",
+        "Recording.h",
+        "Surface.h",
+        "TextureInfo.h",
+        "YUVABackendTextures.h",
+    ],
+    visibility = ["//src/gpu/graphite:__subpackages__"],
+)
