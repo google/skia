@@ -205,6 +205,7 @@ private:
     friend class CustomFont;
     friend class LayerBuilder;
     friend class AnimatablePropertyContainer;
+    friend class SkSLEffectBase;
 
     struct AttachLayerContext;
     struct AttachShapeContext;
