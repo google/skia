@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "select_multi", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,21 +6,18 @@ package(
 
 licenses(["notice"])
 
-# In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_harfbuzz_sources.
 skia_filegroup(
     name = "harfbuzz_srcs",
     srcs = ["SkShaper_harfbuzz.cpp"],
     visibility = ["//modules/skshaper:__pkg__"],
 )
 
-# In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_harfbuzz_sources.
 skia_filegroup(
     name = "skunicode_srcs",
     srcs = ["SkShaper_skunicode.cpp"],
     visibility = ["//modules/skshaper:__pkg__"],
 )
 
-# In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_coretext_sources.
 skia_filegroup(
     name = "coretext_srcs",
     srcs = ["SkShaper_coretext.cpp"],
@@ -35,22 +32,8 @@ skia_filegroup(
         "SkShaper_primitive.cpp",
     ],
     visibility = [
-        "//:__pkg__",  # Used in G3 buffet build
         "//modules/skshaper:__pkg__",
     ],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":base_srcs",
-        ":skunicode_srcs",
-    ] + select_multi({
-        "//modules/skshaper:use_harfbuzz_shaper": [":harfbuzz_srcs"],
-        # TODO(kjlubick, bungeman) Make skunicode optional
-        # TODO(kjlubick, bungeman) Add support for SkShaper_coretext
-    }),
-    visibility = ["//modules/skshaper:__pkg__"],
 )
 
 skia_filegroup(

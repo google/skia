@@ -36,7 +36,6 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
-        ":private_hdrs",  # TODO(kjlubick) Remove after making G3 explicitly use this
         "//modules/skottie/src/animator:srcs",
         "//modules/skottie/src/effects:srcs",
         "//modules/skottie/src/layers:srcs",
