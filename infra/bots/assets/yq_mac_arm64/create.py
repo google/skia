@@ -14,15 +14,15 @@ import os
 import subprocess
 
 
-URL = 'https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64'
-SHA256 = '5942c9b0934e510ee61eb3e30273f1b3fe2590df93933a93d7c58b81d19c8ff5'
+URL = 'https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_darwin_arm64'
+SHA256 = '559a594ef7a6ebc5b81a67b7717fb3accedd266d8fa7d8352da7fec9e463f48b'
 
 BINARY = URL.split('/')[-1]
 
 
 def create_asset(target_dir):
   """Create the asset."""
-  target_file = os.path.join(target_dir, 'jq')
+  target_file = os.path.join(target_dir, 'yq')
   subprocess.call(['wget', '--quiet', '--output-document', target_file, URL])
   output = subprocess.check_output(['sha256sum', target_file], encoding='utf-8')
   actual_hash = output.split(' ')[0]

@@ -14,8 +14,8 @@ import os
 import subprocess
 
 
-URL = 'https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64'
-SHA256 = '5942c9b0934e510ee61eb3e30273f1b3fe2590df93933a93d7c58b81d19c8ff5'
+URL = 'https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-macos-arm64'
+SHA256 = '0bbe619e663e0de2c550be2fe0d240d076799d6f8a652b70fa04aea8a8362e8a'
 
 BINARY = URL.split('/')[-1]
 

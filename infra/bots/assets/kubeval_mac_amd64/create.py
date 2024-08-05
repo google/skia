@@ -12,23 +12,27 @@
 import argparse
 import os
 import subprocess
+import tempfile
 
-
-URL = 'https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64'
-SHA256 = '5942c9b0934e510ee61eb3e30273f1b3fe2590df93933a93d7c58b81d19c8ff5'
+URL = 'https://github.com/instrumenta/kubeval/releases/download/v0.16.1/kubeval-darwin-amd64.tar.gz'
+SHA256 = 'c79a91f2e6638463881a8189e0628ebd583a5e2912e6f411897e3cea567125e7'
 
 BINARY = URL.split('/')[-1]
 
 
 def create_asset(target_dir):
   """Create the asset."""
-  target_file = os.path.join(target_dir, 'jq')
+  tmp = tempfile.mkdtemp()
+  target_file = os.path.join(tmp, 'kubeval.tar.gz')
   subprocess.call(['wget', '--quiet', '--output-document', target_file, URL])
   output = subprocess.check_output(['sha256sum', target_file], encoding='utf-8')
   actual_hash = output.split(' ')[0]
   if actual_hash != SHA256:
     raise Exception('SHA256 does not match (%s != %s)' % (actual_hash, SHA256))
-  subprocess.call(['chmod', 'ugo+x', target_file])
+  subprocess.check_call(
+      ['tar', 'xf', os.path.join(tmp, 'kubeval.tar.gz'), 'kubeval'],
+      cwd=target_dir)
+  subprocess.check_call(['rm', '-rf', tmp])
 
 
 def main():

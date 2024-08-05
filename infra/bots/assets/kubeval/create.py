@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
-# Copyright 2017 Google Inc.
+# Copyright 2024 Google LLC
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -14,16 +14,23 @@ import os
 import subprocess
 import tempfile
 
+URL = 'https://github.com/instrumenta/kubeval/releases/download/v0.16.1/kubeval-linux-amd64.tar.gz'
+SHA256 = '2d6f9bda1423b93787fa05d9e8dfce2fc1190fefbcd9d0936b9635f3f78ba790'
 
-DOWNLOAD_URL = 'https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz'
+BINARY = URL.split('/')[-1]
 
 
 def create_asset(target_dir):
   """Create the asset."""
   tmp = tempfile.mkdtemp()
-  subprocess.check_call(['wget', DOWNLOAD_URL], cwd=tmp)
+  target_file = os.path.join(tmp, 'kubeval.tar.gz')
+  subprocess.call(['wget', '--quiet', '--output-document', target_file, URL])
+  output = subprocess.check_output(['sha256sum', target_file], encoding='utf-8')
+  actual_hash = output.split(' ')[0]
+  if actual_hash != SHA256:
+    raise Exception('SHA256 does not match (%s != %s)' % (actual_hash, SHA256))
   subprocess.check_call(
-      ['tar', 'xf', os.path.join(tmp, 'kubeval-linux-amd64.tar.gz'), 'kubeval'],
+      ['tar', 'xf', os.path.join(tmp, 'kubeval.tar.gz'), 'kubeval'],
       cwd=target_dir)
   subprocess.check_call(['rm', '-rf', tmp])
 
