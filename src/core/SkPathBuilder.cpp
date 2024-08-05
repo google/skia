@@ -197,7 +197,7 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
 
     switch (fIsA) {
         case kIsA_Oval:
-            pr->setIsOval(fIsACCW, fIsAStart, /*isClosed=*/true);
+            pr->setIsOval(fIsACCW, fIsAStart);
             convexity = SkPathConvexity::kConvex;
             dir = fIsACCW ? SkPathFirstDirection::kCCW : SkPathFirstDirection::kCW;
             break;

@@ -205,8 +205,7 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
     bool rectStaysRect = matrix.rectStaysRect();
     const PathType newType = rectStaysRect ? src.fType : PathType::kGeneral;
     (*dst)->fType = newType;
-    if (newType == PathType::kOval || newType == PathType::kOpenOval ||
-        newType == PathType::kRRect) {
+    if (newType == PathType::kOval || newType == PathType::kRRect) {
         unsigned start = src.fRRectOrOvalStartIdx;
         bool isCCW = SkToBool(src.fRRectOrOvalIsCCW);
         transform_dir_and_start(matrix, newType == PathType::kRRect, &isCCW, &start);
@@ -419,11 +418,7 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
 
     fSegmentMask |= mask;
     fBoundsIsDirty = true;  // this also invalidates fIsFinite
-    if (verb == SkPath::kClose_Verb && fType == PathType::kOpenOval) {
-        fType = PathType::kOval;
-    } else {
-        fType = PathType::kGeneral;
-    }
+    fType = PathType::kGeneral;
 
     fVerbs.push_back(verb);
     if (SkPath::kConic_Verb == verb) {
@@ -618,7 +613,6 @@ bool SkPathRef::isValid() const {
         case PathType::kGeneral:
             break;
         case PathType::kOval:
-        case PathType::kOpenOval:
             if (fRRectOrOvalStartIdx >= 4) {
                 return false;
             }
