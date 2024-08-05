@@ -1122,7 +1122,8 @@ public:
                 std::swap(startPoint, stopPoint);
             }
 
-            fRoundCaps = style.strokeRec().getWidth() > 0 &&
+            fRoundCaps = stroked &&
+                         style.strokeRec().getWidth() > 0 &&
                          style.strokeRec().getCap() == SkPaint::kRound_Cap;
             SkPoint roundCaps[2];
             if (fRoundCaps) {
