@@ -32,13 +32,13 @@ class Glyph;
 GlyphVector::GlyphVector(SkStrikePromise&& strikePromise, SkSpan<Variant> glyphs)
         : fStrikePromise{std::move(strikePromise)}
         , fGlyphs{glyphs} {
-    SkASSERT(fGlyphs.size() > 0);
+    SkASSERT(!fGlyphs.empty());
 }
 
 GlyphVector GlyphVector::Make(SkStrikePromise&& promise,
                               SkSpan<const SkPackedGlyphID> packedIDs,
                               SubRunAllocator* alloc) {
-    SkASSERT(packedIDs.size() > 0);
+    SkASSERT(!packedIDs.empty());
     auto packedIDToVariant = [] (SkPackedGlyphID packedID) {
         return Variant{packedID};
     };
@@ -83,7 +83,7 @@ std::optional<GlyphVector> GlyphVector::MakeFromBuffer(SkReadBuffer& buffer,
 
 void GlyphVector::flatten(SkWriteBuffer& buffer) const {
     // There should never be a glyph vector with zero glyphs.
-    SkASSERT(fGlyphs.size() != 0);
+    SkASSERT(!fGlyphs.empty());
     fStrikePromise.flatten(buffer);
 
     // Write out the span of packedGlyphIDs.
