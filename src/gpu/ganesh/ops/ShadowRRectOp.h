@@ -8,7 +8,7 @@
 #ifndef ShadowRRectOp_DEFINED
 #define ShadowRRectOp_DEFINED
 
-#include <memory>
+#include "include/core/SkScalar.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 

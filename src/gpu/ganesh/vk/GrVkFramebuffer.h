@@ -8,17 +8,23 @@
 #ifndef GrVkFramebuffer_DEFINED
 #define GrVkFramebuffer_DEFINED
 
-#include "include/gpu/GrTypes.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 #include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
 
 #include <cinttypes>
+#include <cstdint>
+#include <memory>
 
 class GrVkGpu;
 class GrVkImage;
-class GrVkImageView;
 class GrVkRenderPass;
+class GrVkSecondaryCommandBuffer;
+struct SkISize;
 
 class GrVkFramebuffer : public GrVkManagedResource {
 public:

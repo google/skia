@@ -10,7 +10,16 @@
 
 #include "src/gpu/ganesh/PathRenderer.h"
 
+class GrClip;
+class GrPaint;
+class GrStyledShape;
+class SkMatrix;
+enum class GrAAType : unsigned int;
+struct GrUserStencilSettings;
+
 namespace skgpu::ganesh {
+
+class SurfaceDrawContext;
 
 /**
  *  Subclass that renders the path using the stencil buffer to resolve fill rules

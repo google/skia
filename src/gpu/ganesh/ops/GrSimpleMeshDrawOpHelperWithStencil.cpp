@@ -7,6 +7,9 @@
 
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
+#include "src/gpu/ganesh/GrProcessorAnalysis.h"
+#include "src/gpu/ganesh/GrUserStencilSettings.h"
+
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
                                                     GrProcessorSet* processorSet,
                                                     GrAAType aaType,

@@ -8,7 +8,10 @@
 #include "src/gpu/ganesh/vk/GrVkSamplerYcbcrConversion.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
 GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(

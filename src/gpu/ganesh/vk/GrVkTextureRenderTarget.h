@@ -5,24 +5,37 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrVkTextureRenderTarget_DEFINED
 #define GrVkTextureRenderTarget_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+#include <utility>
+
 class GrVkGpu;
+class GrVkImage;
+struct GrVkImageInfo;
+struct SkISize;
+
+namespace skgpu {
+class MutableTextureState;
+enum class Budgeted : bool;
+}  // namespace skgpu
 
 #ifdef SK_BUILD_FOR_WIN
 // Windows gives bogus warnings about inheriting asTexture/asRenderTarget via dominance.
 #pragma warning(push)
 #pragma warning(disable: 4250)
 #endif
-
-class GrVkImageView;
-struct GrVkImageInfo;
 
 class GrVkTextureRenderTarget: public GrVkTexture, public GrVkRenderTarget {
 public:

@@ -7,12 +7,9 @@
 
 #include "src/gpu/ganesh/ops/ClearOp.h"
 
-#include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/ganesh/GrMemoryPool.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
 namespace {
 

@@ -7,9 +7,16 @@
 
 #include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
 
+#include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/SmallPathShapeData.h"
+
+#include <cstddef>
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 

@@ -8,17 +8,20 @@
 #ifndef GrVkUtil_DEFINED
 #define GrVkUtil_DEFINED
 
-#include "include/gpu/GrTypes.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/ganesh/GrColor.h"
-#include "src/gpu/ganesh/GrDataUtils.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
-namespace SkSL { struct ProgramSettings; }
+#include <string>
+
 class GrVkGpu;
+namespace SkSL {
+struct ProgramSettings;
+}
 
 // makes a Vk call on the interface
 #define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X

@@ -10,6 +10,8 @@
 
 #include "src/gpu/ganesh/PathRenderer.h"
 
+class GrStyledShape;
+
 namespace skgpu::ganesh {
 
 class DashLinePathRenderer final : public skgpu::ganesh::PathRenderer {

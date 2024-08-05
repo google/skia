@@ -8,20 +8,39 @@
 #ifndef GrSimpleMeshDrawOpHelper_DEFINED
 #define GrSimpleMeshDrawOpHelper_DEFINED
 
-#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/ganesh/GrBuffer.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
+#include "src/gpu/ganesh/ops/GrOp.h"
 
 #include <cstdint>
+#include <new>
 #include <utility>
 
+class GrAppliedClip;
+class GrDstProxyView;
 class GrGeometryProcessor;
+class GrOpFlushState;
+class GrProcessorAnalysisColor;
+class GrProgramInfo;
+class GrRecordingContext;
+class GrSurfaceProxyView;
+class SkArenaAlloc;
+enum class GrProcessorAnalysisCoverage;
+enum class GrXferBarrierFlags;
+namespace skgpu {
+class Swizzle;
+}
+struct SkRect;
 
 /**
  * This class can be used to help implement simple mesh draw ops. It reduces the amount of

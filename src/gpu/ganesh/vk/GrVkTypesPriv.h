@@ -8,12 +8,15 @@
 #ifndef GrVkTypesPriv_DEFINED
 #define GrVkTypesPriv_DEFINED
 
-#include "include/core/SkRefCnt.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+
+#include <cstdint>
 
 namespace skgpu {
 class MutableTextureState;
+enum class Protected : bool;
 }
 
 GrVkImageInfo GrVkImageInfoWithMutableState(const GrVkImageInfo&,

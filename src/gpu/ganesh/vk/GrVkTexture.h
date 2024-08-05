@@ -8,17 +8,32 @@
 #ifndef GrVkTexture_DEFINED
 #define GrVkTexture_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/vk/GrVkImage.h"
 
+#include <cstdint>
+#include <memory>
+#include <string_view>
+#include <utility>
+
 class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkImageView;
 struct GrVkImageInfo;
+struct SkISize;
+
+namespace skgpu {
+class MutableTextureState;
+enum class Budgeted : bool;
+}  // namespace skgpu
 
 class GrVkTexture : public GrTexture {
 public:

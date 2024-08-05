@@ -7,8 +7,11 @@
 
 #include "src/gpu/ganesh/ops/SmallPathShapeData.h"
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkScalar.h"
 #include "include/private/base/SkFixed.h"
 #include "src/base/SkFloatBits.h"
+#include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)

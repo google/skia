@@ -5,28 +5,34 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef GrVkPipelineState_DEFINED
 #define GrVkPipelineState_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/GpuRefCnt.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
-#include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
+#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
+#include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
+#include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"  // IWYU pragma: keep
 #include "src/gpu/ganesh/vk/GrVkDescriptorSetManager.h"
 #include "src/gpu/ganesh/vk/GrVkPipelineStateDataManager.h"
 
+#include <cstdint>
+#include <memory>
+#include <vector>
+
 class GrPipeline;
-class GrStencilSettings;
-class GrVkBuffer;
+class GrProgramInfo;
+class GrSurfaceProxy;
 class GrVkCommandBuffer;
-class GrVkDescriptorPool;
 class GrVkGpu;
-class GrVkImageView;
 class GrVkPipeline;
-class GrVkRenderTarget;
 class GrVkSampler;
-class GrVkTexture;
+enum GrSurfaceOrigin : int;
 
 /**
  * This class holds onto a GrVkPipeline object that we use for draws. Besides storing the acutal

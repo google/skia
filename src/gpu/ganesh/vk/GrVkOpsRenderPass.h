@@ -8,19 +8,37 @@
 #ifndef GrVkOpsRenderPass_DEFINED
 #define GrVkOpsRenderPass_DEFINED
 
+#include "include/core/SkDrawable.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/ganesh/GrDeferredUpload.h"
+#include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
-
-#include "include/gpu/GrTypes.h"
-#include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/ganesh/GrColor.h"
-#include "src/gpu/ganesh/vk/GrVkPipelineState.h"
 #include "src/gpu/ganesh/vk/GrVkRenderPass.h"
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+
+class GrBuffer;
+class GrGpu;
+class GrOpFlushState;
+class GrPipeline;
+class GrProgramInfo;
+class GrRenderTarget;
+class GrScissorState;
+class GrSurfaceProxy;
+class GrVkCommandBuffer;
 class GrVkFramebuffer;
 class GrVkGpu;
-class GrVkImage;
-class GrVkRenderTarget;
+class GrVkPipelineState;
 class GrVkSecondaryCommandBuffer;
+enum GrSurfaceOrigin : int;
+enum class GrPrimitiveRestart : bool;
 
 class GrVkOpsRenderPass : public GrOpsRenderPass {
 public:

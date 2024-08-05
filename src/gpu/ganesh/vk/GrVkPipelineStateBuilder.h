@@ -8,19 +8,28 @@
 #ifndef GrVkPipelineStateBuilder_DEFINED
 #define GrVkPipelineStateBuilder_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/ganesh/GrPipeline.h"
+#include "include/core/SkString.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
-#include "src/gpu/ganesh/vk/GrVkPipelineState.h"
+#include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 #include "src/gpu/ganesh/vk/GrVkUniformHandler.h"
 #include "src/gpu/ganesh/vk/GrVkVaryingHandler.h"
-#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
+#include <string>
+
+class GrCaps;
+class GrGLSLUniformHandler;
+class GrGLSLVaryingHandler;
 class GrProgramDesc;
+class GrProgramInfo;
+class GrShaderVar;
 class GrVkGpu;
-class GrVkRenderPass;
+class GrVkPipelineState;
 class SkReadBuffer;
+namespace SkSL {
+struct ProgramSettings;
+}
 
 class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:

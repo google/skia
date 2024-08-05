@@ -9,19 +9,33 @@
 #ifndef GrVkRenderTarget_DEFINED
 #define GrVkRenderTarget_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkImage.h"
-
-#include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/vk/GrVkRenderPass.h"
 #include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
 
+#include <cstddef>
+#include <string_view>
+#include <utility>
+
+class GrAttachment;
+class GrProgramInfo;
 class GrVkCaps;
+class GrVkDescriptorSet;
 class GrVkFramebuffer;
 class GrVkGpu;
 class GrVkImageView;
-
+struct GrVkDrawableInfo;
 struct GrVkImageInfo;
+struct SkISize;
+
+namespace skgpu {
+class MutableTextureState;
+}
 
 class GrVkRenderTarget : public GrRenderTarget {
 public:

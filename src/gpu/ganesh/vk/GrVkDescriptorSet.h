@@ -8,10 +8,13 @@
 #ifndef GrVkDescriptorSet_DEFINED
 #define GrVkDescriptorSet_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/vk/GrVkDescriptorSetManager.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 
+#include <stdint.h>
 #include <cinttypes>
 
 class GrVkDescriptorPool;

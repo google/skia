@@ -8,17 +8,24 @@
 #ifndef GrVkSampler_DEFINED
 #define GrVkSampler_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
-#include "include/gpu/vk/VulkanTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/core/SkChecksum.h"
+#include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 #include "src/gpu/ganesh/vk/GrVkSamplerYcbcrConversion.h"
 
 #include <atomic>
 #include <cinttypes>
+#include <cstdint>
 
 class GrSamplerState;
 class GrVkGpu;
+namespace skgpu {
+struct VulkanYcbcrConversionInfo;
+}
 
 class GrVkSampler : public GrVkManagedResource {
 public:

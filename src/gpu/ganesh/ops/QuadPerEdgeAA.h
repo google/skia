@@ -8,23 +8,33 @@
 #ifndef QuadPerEdgeAA_DEFINED
 #define QuadPerEdgeAA_DEFINED
 
-#include "include/core/SkPoint.h"
-#include "include/core/SkPoint3.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/ganesh/GrBuffer.h"
-#include "src/gpu/ganesh/GrColor.h"
-#include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
 #include "src/gpu/ganesh/ops/TextureOp.h"
 
+#include <cstddef>
+
+class GrBackendFormat;
+class GrBuffer;
 class GrCaps;
 class GrColorSpaceXform;
+class GrGeometryProcessor;
 class GrMeshDrawTarget;
+class GrOpsRenderPass;
+class SkArenaAlloc;
 struct GrShaderCaps;
-struct VertexWriter;
+struct SkRect;
+
+namespace skgpu {
+class Swizzle;
+}
 
 namespace skgpu::ganesh::QuadPerEdgeAA {
 using Saturate = skgpu::ganesh::TextureOp::Saturate;

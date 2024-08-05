@@ -7,13 +7,19 @@
 
 #include "src/gpu/ganesh/vk/GrVkRenderPass.h"
 
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/KeyBuilder.h"
-#include "src/gpu/ganesh/GrProcessor.h"
-#include "src/gpu/ganesh/vk/GrVkFramebuffer.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
+
+#include <string.h>
+#include <algorithm>
 
 using namespace skia_private;
 

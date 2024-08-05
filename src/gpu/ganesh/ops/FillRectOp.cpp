@@ -4,29 +4,54 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/ops/FillRectOp.h"
 
+#include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
-#include "src/gpu/ganesh/GrCaps.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/ganesh/GrAppliedClip.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrProcessorAnalysis.h"
+#include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 #include "src/gpu/ganesh/geometry/GrQuadBuffer.h"
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
-#include "src/gpu/ganesh/glsl/GrGLSLColorSpaceXformHelper.h"
-#include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
+
+#if defined(GR_TEST_UTILS)
+#include "src/base/SkRandom.h"
+#include "src/gpu/ganesh/GrDrawOpTest.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
+#endif
+
+#include <algorithm>
+#include <cstring>
+#include <memory>
+#include <utility>
+
+class GrCaps;
+class GrDstProxyView;
+class GrSurfaceProxyView;
+enum class GrXferBarrierFlags;
 
 namespace {
 
@@ -562,11 +587,6 @@ void FillRectOp::AddFillRectOps(skgpu::ganesh::SurfaceDrawContext* sdc,
 #if defined(GR_TEST_UTILS)
 
 uint32_t skgpu::ganesh::FillRectOp::ClassID() { return FillRectOpImpl::ClassID(); }
-
-#include "src/base/SkRandom.h"
-#include "src/gpu/ganesh/GrDrawOpTest.h"
-#include "src/gpu/ganesh/GrTestUtils.h"
-#include "src/gpu/ganesh/SkGr.h"
 
 GR_DRAW_OP_TEST_DEFINE(FillRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);

@@ -8,13 +8,14 @@
 #ifndef FillRRectOp_DEFINED
 #define FillRRectOp_DEFINED
 
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
-class GrCaps;
 class GrPaint;
 class GrRecordingContext;
+class SkArenaAlloc;
 class SkMatrix;
+class SkRRect;
+enum class GrAA : bool;
 struct SkRect;
 
 namespace skgpu::ganesh::FillRRectOp {

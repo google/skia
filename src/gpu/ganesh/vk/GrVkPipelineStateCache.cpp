@@ -7,17 +7,23 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/core/SkLRUCache.h"
 #include "src/gpu/ganesh/GrAttachment.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProgramDesc.h"
+#include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
-#include "src/gpu/ganesh/GrStencilSettings.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkPipelineState.h"
 #include "src/gpu/ganesh/vk/GrVkPipelineStateBuilder.h"
 #include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
+
+#include <memory>
 
 #ifdef SK_DEBUG
 // Display pipeline state cache usage

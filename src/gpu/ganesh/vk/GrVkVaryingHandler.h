@@ -10,6 +10,8 @@
 
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 
+class GrGLSLProgramBuilder;
+
 class GrVkVaryingHandler : public GrGLSLVaryingHandler {
 public:
     GrVkVaryingHandler(GrGLSLProgramBuilder* program) : INHERITED(program) {}

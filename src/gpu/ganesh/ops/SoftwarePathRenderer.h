@@ -4,16 +4,24 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef SoftwarePathRenderer_DEFINED
 #define SoftwarePathRenderer_DEFINED
 
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/PathRenderer.h"
 
+class GrClip;
+class GrPaint;
 class GrProxyProvider;
+class GrStyledShape;
+class GrSurfaceProxyView;
+class SkMatrix;
+struct GrUserStencilSettings;
+struct SkIPoint;
+struct SkIRect;
+struct SkRect;
 
 namespace skgpu::ganesh {
+class SurfaceDrawContext;
 
 /**
  * This class uses the software side to render a path to an SkBitmap and

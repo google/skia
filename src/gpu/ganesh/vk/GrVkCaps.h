@@ -8,18 +8,46 @@
 #ifndef GrVkCaps_DEFINED
 #define GrVkCaps_DEFINED
 
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrProgramDesc.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <memory>
+#include <vector>
+
+class GrProgramInfo;
+class GrRenderTarget;
+class GrRenderTargetProxy;
+class GrSurface;
+class GrSurfaceProxy;
 class GrVkRenderTarget;
 enum class SkTextureCompressionType;
+struct GrContextOptions;
+struct SkIRect;
+
+namespace GrTest {
+struct TestFormatColorTypeCombination;
+}
 
 namespace skgpu {
+class KeyBuilder;
 class VulkanExtensions;
+enum class Protected : bool;
 struct VulkanInterface;
-}
+}  // namespace skgpu
 
 /**
  * Stores some capabilities of a Vk backend.

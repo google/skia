@@ -8,14 +8,19 @@
 #ifndef GrVkSamplerYcbcrConverison_DEFINED
 #define GrVkSamplerYcbcrConverison_DEFINED
 
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/core/SkChecksum.h"
+#include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 
-#include "include/gpu/vk/VulkanTypes.h"
-#include "src/core/SkChecksum.h"
-
 #include <cinttypes>
-
+#include <cstdint>
 class GrVkGpu;
+namespace skgpu {
+struct VulkanYcbcrConversionInfo;
+}
 
 class GrVkSamplerYcbcrConversion : public GrVkManagedResource {
 public:

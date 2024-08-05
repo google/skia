@@ -4,21 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef LatticeOp_DEFINED
 #define LatticeOp_DEFINED
 
-#include <memory>
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
+#include <memory>
+
 class GrColorSpaceXform;
 class GrPaint;
-class SkLatticeIter;
 class GrRecordingContext;
-class GrTextureProxy;
+class GrSurfaceProxyView;
+class SkLatticeIter;
 class SkMatrix;
+enum SkAlphaType : int;
 struct SkRect;
 
 namespace skgpu::ganesh::LatticeOp {

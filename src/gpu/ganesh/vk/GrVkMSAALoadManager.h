@@ -8,13 +8,9 @@
 #ifndef GrVkMSAALoadManager_DEFINED
 #define GrVkMSAALoadManager_DEFINED
 
-#include "include/gpu/GrTypes.h"
-#include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/ganesh/GrNativeRect.h"
-#include "src/gpu/ganesh/vk/GrVkDescriptorSetManager.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 
 class GrAttachment;
-class GrSurface;
 class GrVkCommandBuffer;
 class GrVkGpu;
 class GrVkImage;

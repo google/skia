@@ -4,22 +4,68 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/ops/ShadowRRectOp.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkRRectPriv.h"
-#include "src/gpu/ganesh/GrMemoryPool.h"
+#include "src/gpu/ResourceKey.h"
+#include "src/gpu/ganesh/GrAppliedClip.h"
+#include "src/gpu/ganesh/GrBuffer.h"
+#include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrSimpleMesh.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
+#include "src/gpu/ganesh/GrUserStencilSettings.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrShadowGeoProc.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
+
+#if defined(GR_TEST_UTILS)
+#include "src/base/SkRandom.h"
+#include "src/gpu/ganesh/GrDrawOpTest.h"
+#include "src/gpu/ganesh/GrTestUtils.h"
+#endif
+
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <tuple>
+#include <utility>
+
+class GrCaps;
+class GrDstProxyView;
+class SkArenaAlloc;
+enum class GrXferBarrierFlags;
+namespace skgpu {
+enum class Mipmapped : bool;
+}
+namespace skgpu::ganesh {
+class SurfaceDrawContext;
+}
 
 using namespace skia_private;
 
@@ -751,10 +797,6 @@ GrOp::Owner Make(GrRecordingContext* context,
 ///////////////////////////////////////////////////////////////////////////////
 
 #if defined(GR_TEST_UTILS)
-
-#include "src/base/SkRandom.h"
-#include "src/gpu/ganesh/GrDrawOpTest.h"
-#include "src/gpu/ganesh/GrTestUtils.h"
 
 GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     // We may choose matrix and inset values that cause the factory to fail. We loop until we find

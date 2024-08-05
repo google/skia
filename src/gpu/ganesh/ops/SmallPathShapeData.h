@@ -4,16 +4,24 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef SmallPathShapeData_DEFINED
 #define SmallPathShapeData_DEFINED
 
+#include "include/core/SkTypes.h"
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
+#include "include/core/SkRect.h"
+#include "include/private/base/SkTemplates.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkChecksum.h"
-#include "src/gpu/ganesh/GrDrawOpAtlas.h"
+#include "src/gpu/AtlasTypes.h"
+
+#include <cstdint>
+#include <cstring>
 
 class GrStyledShape;
+class SkMatrix;
 
 namespace skgpu::ganesh {
 

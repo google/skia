@@ -8,11 +8,11 @@
 #include "src/gpu/ganesh/ops/DrawableOp.h"
 
 #include "include/core/SkDrawable.h"
-#include "include/gpu/GrRecordingContext.h"
-#include "src/gpu/ganesh/GrMemoryPool.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+
+#include <utility>
 
 namespace skgpu::ganesh {
 

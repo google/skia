@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkBlender.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawPass.h"

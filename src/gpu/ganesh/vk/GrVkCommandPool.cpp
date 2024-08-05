@@ -7,10 +7,14 @@
 
 #include "src/gpu/ganesh/vk/GrVkCommandPool.h"
 
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkCommandBuffer.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
+
+#include <utility>
 
 GrVkCommandPool* GrVkCommandPool::Create(GrVkGpu* gpu) {
     VkCommandPoolCreateFlags cmdPoolCreateFlags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;

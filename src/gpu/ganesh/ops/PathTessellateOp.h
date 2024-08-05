@@ -8,11 +8,32 @@
 #ifndef PathTessellateOp_DEFINED
 #define PathTessellateOp_DEFINED
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrProcessorSet.h"
+#include "src/gpu/ganesh/GrUserStencilSettings.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
+#include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 #include "src/gpu/tessellate/Tessellation.h"
+
+#include <utility>
+
+class GrAppliedClip;
+class GrDstProxyView;
+class GrOpFlushState;
+class GrProgramInfo;
+class GrRecordingContext;
+class GrSurfaceProxyView;
+enum class GrXferBarrierFlags;
+struct SkRect;
 
 namespace skgpu::ganesh {
 

@@ -8,9 +8,13 @@
 #ifndef TriangulatingPathRenderer_DEFINED
 #define TriangulatingPathRenderer_DEFINED
 
+#include "include/core/SkTypes.h"
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #include "src/gpu/ganesh/PathRenderer.h"
+
+class GrStyledShape;
 
 namespace skgpu::ganesh {
 

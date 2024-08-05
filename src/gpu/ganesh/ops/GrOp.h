@@ -11,21 +11,31 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
-#include "src/gpu/ganesh/GrGpuResource.h"
-#include "src/gpu/ganesh/GrMemoryPool.h"
-#include "src/gpu/ganesh/GrTracing.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <new>
+#include <utility>
 
 class GrAppliedClip;
 class GrCaps;
 class GrDstProxyView;
 class GrOpFlushState;
-class GrOpsRenderPass;
 class GrPaint;
 class GrRecordingContext;
 class GrSurfaceProxyView;
+class SkArenaAlloc;
+enum class GrXferBarrierFlags;
 
 /**
  * GrOp is the base class for all Ganesh deferred GPU operations. To facilitate reordering and to

@@ -7,9 +7,10 @@
 
 #include "src/gpu/ganesh/vk/GrVkDescriptorPool.h"
 
-#include "include/private/base/SkTemplates.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
 
+#include <string.h>
 
 GrVkDescriptorPool* GrVkDescriptorPool::Create(GrVkGpu* gpu, VkDescriptorType type,
                                                uint32_t count) {

@@ -8,13 +8,14 @@
 #ifndef skgpu_ganesh_DashOp_DEFINED
 #define skgpu_ganesh_DashOp_DEFINED
 
-#include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
 class GrPaint;
 class GrRecordingContext;
 class GrStyle;
+class SkMatrix;
 struct GrUserStencilSettings;
+struct SkPoint;
 
 namespace skgpu::ganesh::DashOp {
 

@@ -8,19 +8,32 @@
 #ifndef GrVkCommandBuffer_DEFINED
 #define GrVkCommandBuffer_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/GpuRefCnt.h"
+#include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
-#include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/vk/GrVkSemaphore.h"
-#include "src/gpu/ganesh/vk/GrVkUtil.h"
 
+#include <cstdint>
+#include <memory>
+#include <utility>
+
+class GrGpu;
+class GrGpuBuffer;
+class GrVkBuffer;
+class GrVkCommandPool;
 class GrVkFramebuffer;
+class GrVkGpu;
 class GrVkImage;
 class GrVkPipeline;
-class GrVkPipelineState;
 class GrVkRenderPass;
-class GrVkRenderTarget;
+struct SkIRect;
 
 class GrVkCommandBuffer {
 public:

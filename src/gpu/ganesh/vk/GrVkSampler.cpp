@@ -7,8 +7,19 @@
 
 #include "src/gpu/ganesh/vk/GrVkSampler.h"
 
+#include "include/core/SkSamplingOptions.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkTo.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
 #include "src/gpu/ganesh/vk/GrVkSamplerYcbcrConversion.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
+
+#include <string.h>
+#include <algorithm>
 
 static VkSamplerAddressMode wrap_mode_to_vk_sampler_address(GrSamplerState::WrapMode wrapMode) {
     switch (wrapMode) {

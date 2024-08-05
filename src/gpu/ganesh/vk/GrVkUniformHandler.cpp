@@ -7,12 +7,26 @@
 
 #include "src/gpu/ganesh/vk/GrVkUniformHandler.h"
 
-#include "src/gpu/ganesh/GrTexture.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
+#include "include/gpu/vk/VulkanTypes.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrUtil.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkPipelineStateBuilder.h"
-#include "src/gpu/ganesh/vk/GrVkTexture.h"
+#include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
+#include "src/gpu/ganesh/vk/GrVkSampler.h"
+
+#include <string.h>
+#include <algorithm>
+#include <utility>
+
+class GrProcessor;
+struct GrShaderCaps;
 
 static constexpr int kDstInputAttachmentIndex = 0;
 

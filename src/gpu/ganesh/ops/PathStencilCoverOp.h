@@ -4,17 +4,41 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef PathStencilCoverOp_DEFINED
 #define PathStencilCoverOp_DEFINED
 
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/gpu/ganesh/GrBuffer.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrPaint.h"
-#include "src/gpu/ganesh/ops/FillPathFlags.h"
+#include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
+#include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 
+#include <utility>
+
+class GrAppliedClip;
+class GrDstProxyView;
+class GrOpFlushState;
+class GrProgramInfo;
+class GrRecordingContext;
+class GrSurfaceProxyView;
+class SkMatrix;
+enum class GrXferBarrierFlags;
+enum class SkPathFillType;
+
 namespace skgpu::ganesh {
+
+enum class FillPathFlags;
 
 // Draws paths using a standard Redbook "stencil then cover" method. Curves get linearized by either
 // GPU tessellation shaders or indirect draws. This Op doesn't apply analytic AA, so it requires

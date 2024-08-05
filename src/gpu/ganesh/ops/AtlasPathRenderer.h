@@ -8,20 +8,35 @@
 #ifndef AtlasPathRenderer_DEFINED
 #define AtlasPathRenderer_DEFINED
 
-#include "include/gpu/GrTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkTArray.h"
+#include "src/core/SkChecksum.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTHash.h"
-#include "src/gpu/ganesh/GrDynamicAtlas.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/PathRenderer.h"
+#include "src/gpu/ganesh/ops/AtlasRenderTask.h"
 
+#include <cstdint>
+#include <cstring>
+#include <functional>
+#include <memory>
+
+class GrDirectContext;
 class GrOp;
 class GrRecordingContext;
+class GrStyledShape;
+class GrSurfaceProxy;
+class SkMatrix;
+class SkPath;
+enum class GrAAType : unsigned int;
+struct SkIRect;
+struct SkRect;
 
 namespace skgpu::ganesh {
 
-class AtlasRenderTask;
+class SurfaceDrawContext;
 
 // Draws paths by first rendering their coverage mask into an offscreen atlas.
 class AtlasPathRenderer final : public PathRenderer, public GrOnFlushCallbackObject {

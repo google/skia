@@ -8,8 +8,15 @@
 #ifndef GrVkBuffer_DEFINED
 #define GrVkBuffer_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+
+#include <cstddef>
+#include <string_view>
 
 class GrVkDescriptorSet;
 class GrVkGpu;

@@ -1,17 +1,21 @@
 /*
-* Copyright 2016 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
-
+ * Copyright 2016 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #include "src/gpu/ganesh/vk/GrVkFramebuffer.h"
 
+#include "include/core/SkSize.h"
 #include "src/gpu/ganesh/vk/GrVkCommandBuffer.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkImage.h"
 #include "src/gpu/ganesh/vk/GrVkImageView.h"
 #include "src/gpu/ganesh/vk/GrVkRenderPass.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
+
+#include <string.h>
+#include <utility>
 
 sk_sp<const GrVkFramebuffer> GrVkFramebuffer::Make(
         GrVkGpu* gpu,

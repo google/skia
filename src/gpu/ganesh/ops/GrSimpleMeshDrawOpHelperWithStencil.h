@@ -8,7 +8,34 @@
 #ifndef GrSimpleMeshDrawOpHelperWithStencil_DEFINED
 #define GrSimpleMeshDrawOpHelperWithStencil_DEFINED
 
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrProcessorSet.h"
+#include "src/gpu/ganesh/ops/GrDrawOp.h"
+#include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
+
+#include <cstdint>
+#include <utility>
+
+class GrAppliedClip;
+class GrDstProxyView;
+class GrGeometryProcessor;
+class GrProcessorAnalysisColor;
+class GrProgramInfo;
+class GrRecordingContext;
+class GrSurfaceProxyView;
+class SkArenaAlloc;
+enum class GrAAType : unsigned int;
+enum class GrClampType;
+enum class GrLoadOp;
+enum class GrPrimitiveType : uint8_t;
+enum class GrProcessorAnalysisCoverage;
+enum class GrXferBarrierFlags;
+struct GrUserStencilSettings;
+struct SkRect;
 
 /**
  * This class extends GrSimpleMeshDrawOpHelper to support an optional GrUserStencilSettings. This

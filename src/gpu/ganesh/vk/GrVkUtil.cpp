@@ -9,14 +9,19 @@
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/SkSLToBackend.h"
-#include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
-#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramKind.h"
-#include "src/sksl/SkSLProgramSettings.h"
+
+#include <string.h>
+#include <cstdint>
+
+namespace skgpu {
+class ShaderErrorHandler;
+}
 
 bool GrVkFormatIsSupported(VkFormat format) {
     switch (format) {

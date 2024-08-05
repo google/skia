@@ -8,12 +8,15 @@
 #ifndef GrVkPipelineStateDataManager_DEFINED
 #define GrVkPipelineStateDataManager_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrUniformDataManager.h"
-
-#include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/vk/GrVkUniformHandler.h"
 
-class GrGpuBuffer;
+#include <cstdint>
+#include <utility>
+
 class GrVkCommandBuffer;
 class GrVkGpu;
 

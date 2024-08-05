@@ -9,9 +9,20 @@
 #define DrawableOp_DEFINED
 
 #include "include/core/SkDrawable.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
+#include <memory>
+
+class GrAppliedClip;
+class GrDstProxyView;
+class GrOpFlushState;
 class GrRecordingContext;
+class GrSurfaceProxyView;
+class SkArenaAlloc;
+enum class GrLoadOp;
+enum class GrXferBarrierFlags;
+struct SkRect;
 
 namespace skgpu::ganesh {
 

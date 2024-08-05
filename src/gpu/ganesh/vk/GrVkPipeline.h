@@ -8,27 +8,31 @@
 #ifndef GrVkPipeline_DEFINED
 #define GrVkPipeline_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/Blend.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
+#include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 
 #include <cinttypes>
+#include <cstdint>
 
-class GrPipeline;
 class GrProgramInfo;
-class GrRenderTarget;
 class GrStencilSettings;
 class GrVkCommandBuffer;
 class GrVkGpu;
-class GrVkRenderPass;
 class GrXferProcessor;
+enum GrSurfaceOrigin : int;
+enum class GrPrimitiveType : uint8_t;
 struct SkIRect;
+struct SkISize;
 
 namespace skgpu {
 class Swizzle;
-}
+struct BlendInfo;
+}  // namespace skgpu
 
 class GrVkPipeline : public GrVkManagedResource {
 public:

@@ -8,13 +8,16 @@
 #ifndef GrVkSemaphore_DEFINED
 #define GrVkSemaphore_DEFINED
 
-#include "src/gpu/ganesh/GrSemaphore.h"
-
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/ganesh/GrManagedResource.h"
+#include "src/gpu/ganesh/GrSemaphore.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 
 #include <cinttypes>
+#include <cstdint>
+#include <memory>
 
 class GrBackendSemaphore;
 class GrVkGpu;

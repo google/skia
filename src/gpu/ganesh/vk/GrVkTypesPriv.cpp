@@ -7,9 +7,8 @@
 
 #include "src/gpu/ganesh/vk/GrVkTypesPriv.h"
 
-#include "include/gpu/MutableTextureState.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
-#include "src/gpu/ganesh/vk/GrVkImageLayout.h"
+#include "include/private/base/SkAssert.h"
 
 GrVkImageInfo GrVkImageInfoWithMutableState(const GrVkImageInfo& info,
                                             const skgpu::MutableTextureState* mutableState) {

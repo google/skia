@@ -8,34 +8,39 @@
 #ifndef GrVkResourceProvider_DEFINED
 #define GrVkResourceProvider_DEFINED
 
-#include "include/gpu/vk/VulkanTypes.h"
-#include "include/private/base/SkMutex.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
-#include "src/base/SkTInternalLList.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDynamicHash.h"
-#include "src/gpu/ganesh/GrGpu.h"
-#include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
 #include "src/gpu/ganesh/GrResourceHandle.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
-#include "src/gpu/ganesh/vk/GrVkDescriptorPool.h"
 #include "src/gpu/ganesh/vk/GrVkDescriptorSetManager.h"
-#include "src/gpu/ganesh/vk/GrVkPipelineStateBuilder.h"
+#include "src/gpu/ganesh/vk/GrVkPipeline.h"
 #include "src/gpu/ganesh/vk/GrVkRenderPass.h"
 #include "src/gpu/ganesh/vk/GrVkSampler.h"
 #include "src/gpu/ganesh/vk/GrVkSamplerYcbcrConversion.h"
-#include "src/gpu/ganesh/vk/GrVkUtil.h"
 
+#include <cstdint>
+#include <memory>
+
+class GrProgramInfo;
+class GrRenderTarget;
 class GrVkCommandPool;
+class GrVkDescriptorPool;
+class GrVkDescriptorSet;
 class GrVkGpu;
-class GrVkPipeline;
 class GrVkPipelineState;
-class GrVkPrimaryCommandBuffer;
 class GrVkRenderTarget;
-class GrVkSecondaryCommandBuffer;
 class GrVkUniformHandler;
+namespace skgpu {
+class RefCntedCallback;
+struct VulkanYcbcrConversionInfo;
+}  // namespace skgpu
 
 class GrVkResourceProvider {
 public:

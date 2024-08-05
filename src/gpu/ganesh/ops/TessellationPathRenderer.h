@@ -8,10 +8,10 @@
 #ifndef TessellationPathRenderer_DEFINED
 #define TessellationPathRenderer_DEFINED
 
-#include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/PathRenderer.h"
 
 class GrCaps;
+class GrStyledShape;
 
 namespace skgpu::ganesh {
 

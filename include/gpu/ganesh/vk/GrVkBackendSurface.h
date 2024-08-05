@@ -8,15 +8,19 @@
 #ifndef GrVkBackendSurface_DEFINED
 #define GrVkBackendSurface_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
-#include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/base/SkAPI.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 
 #include <string_view>
 
 class GrBackendFormat;
 class GrBackendTexture;
 class GrBackendRenderTarget;
+struct GrVkImageInfo;
+
+namespace skgpu {
+struct VulkanYcbcrConversionInfo;
+}
 
 namespace GrBackendFormats {
 

@@ -7,10 +7,20 @@
 
 #include "src/gpu/ganesh/vk/GrVkDescriptorSetManager.h"
 
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkDescriptorPool.h"
 #include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
+#include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
+#include "src/gpu/ganesh/vk/GrVkSampler.h"
 #include "src/gpu/ganesh/vk/GrVkUniformHandler.h"
+#include "src/gpu/ganesh/vk/GrVkUtil.h"
+
+#include <string.h>
+#include <memory>
 
 using namespace skia_private;
 

@@ -8,18 +8,19 @@
 #ifndef FillRectOp_DEFINED
 #define FillRectOp_DEFINED
 
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
-struct DrawQuad;
+#include <cstdint>
+
 class GrClip;
-class GrDrawOp;
 class GrPaint;
-class GrQuad;
-struct GrQuadSetEntry;
 class GrRecordingContext;
-struct GrUserStencilSettings;
 class SkMatrix;
+enum class GrAAType : unsigned int;
+struct DrawQuad;
+struct GrQuadSetEntry;
+struct GrUserStencilSettings;
 struct SkRect;
 
 namespace skgpu::ganesh {

@@ -8,19 +8,28 @@
 #ifndef SmallPathAtlasMgr_DEFINED
 #define SmallPathAtlasMgr_DEFINED
 
+#include "include/core/SkTypes.h"
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkTDynamicHash.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
+#include "src/gpu/ganesh/ops/SmallPathShapeData.h"
 
+#include <memory>
+
+class GrCaps;
+class GrDeferredUploadTarget;
+class GrProxyProvider;
+class GrResourceProvider;
 class GrStyledShape;
+class GrSurfaceProxyView;
+class SkMatrix;
 
 namespace skgpu::ganesh {
-
-class SmallPathShapeData;
-class SmallPathShapeDataKey;
 
 /**
  * This class manages the small path renderer's atlas. It solely operates at flush time. Thus

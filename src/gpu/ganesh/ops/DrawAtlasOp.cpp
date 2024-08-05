@@ -4,23 +4,55 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/ganesh/ops/DrawAtlasOp.h"
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkRSXform.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRectPriv.h"
+#include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDefaultGeoProcFactory.h"
+#include "src/gpu/ganesh/GrDrawOpTest.h"
+#include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrProcessorAnalysis.h"
+#include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
+
+#include <cstdint>
+#include <cstring>
+#include <utility>
+
+class GrDstProxyView;
+class GrMeshDrawTarget;
+class GrSurfaceProxyView;
+class SkArenaAlloc;
+enum class GrXferBarrierFlags;
+struct GrSimpleMesh;
+
+namespace skgpu::ganesh {
+class SurfaceDrawContext;
+}
 
 using namespace skia_private;
 
@@ -330,7 +362,6 @@ GrOp::Owner Make(GrRecordingContext* context,
 }  // namespace skgpu::ganesh::DrawAtlasOp
 
 #if defined(GR_TEST_UTILS)
-#include "src/gpu/ganesh/GrDrawOpTest.h"
 
 static SkRSXform random_xform(SkRandom* random) {
     static const SkScalar kMinExtent = -100.f;

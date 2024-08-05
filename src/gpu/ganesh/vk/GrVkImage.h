@@ -8,26 +8,33 @@
 #ifndef GrVkImage_DEFINED
 #define GrVkImage_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/GpuRefCnt.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
-#include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"
-#include "src/gpu/ganesh/vk/GrVkTypesPriv.h"
+#include "src/gpu/ganesh/vk/GrVkDescriptorSet.h"  // IWYU pragma: keep
 #include "src/gpu/vk/VulkanMutableTextureStatePriv.h"
 
 #include <cinttypes>
+#include <cstdint>
+#include <string_view>
 
 class GrVkGpu;
 class GrVkImageView;
+struct SkISize;
 
 class GrVkImage : public GrAttachment {
 private:

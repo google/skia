@@ -8,14 +8,14 @@
 #ifndef skgpu_ganesh_StrokeRectOp_DEFINED
 #define skgpu_ganesh_StrokeRectOp_DEFINED
 
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
 class GrPaint;
 class GrRecordingContext;
 class SkMatrix;
-struct SkRect;
 class SkStrokeRec;
+enum class GrAAType : unsigned int;
+struct SkRect;
 
 /**
  * A set of factory functions for drawing stroked rectangles either coverage-antialiased, or

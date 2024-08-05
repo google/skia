@@ -9,26 +9,28 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/ganesh/GrColor.h"
+#include "include/private/SkColorData.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
-struct DrawQuad;
+#include <cstdint>
+#include <tuple>
+
 class GrClip;
 class GrColorSpaceXform;
-class GrDrawOp;
-class GrTextureProxy;
+class GrQuad;
+class GrRecordingContext;
+class GrSurfaceProxyView;
+class SkMatrix;
+enum SkAlphaType : int;
+enum class GrAAType : unsigned int;
+enum class SkBlendMode;
+struct DrawQuad;
 struct GrTextureSetEntry;
 struct SkRect;
-class SkMatrix;
-class GrQuad;
 
 namespace skgpu::ganesh {
 class SurfaceDrawContext;
-}
-
-namespace skgpu::ganesh {
 
 /**
  * Tests if filtering will have any effect in the drawing of the 'srcQuad' to the 'dstquad'.
@@ -36,8 +38,6 @@ namespace skgpu::ganesh {
  */
 std::tuple<bool /* filter */, bool /* mipmap */> FilterAndMipmapHaveNoEffect(const GrQuad& srcQuad,
                                                                              const GrQuad& dstQuad);
-
-class SurfaceDrawContext;
 
 class TextureOp {
 public:
