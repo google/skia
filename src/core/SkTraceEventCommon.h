@@ -307,20 +307,23 @@ namespace skia_private {
 // the macro_name slot here. See usage for nuance.
 #define SK_INTERNAL_GET_ATRACE_ARGS_MACRO(_0, _1a, _1b, _2a, _2b, macro_name, ...) macro_name
 
-#define SK_INTERNAL_ATRACE_ARGS_BEGIN_0(name) \
-    ATRACE_BEGIN(::skia_private::UnboxPerfettoString(name));
+// WARNING: must always be guarded by an outer call to CC_UNLIKELY(ATRACE_ENABLED())
+#define SK_INTERNAL_ATRACE_ARGS_BEGIN_DANGEROUS_0(name) \
+    atrace_begin_body(::skia_private::UnboxPerfettoString(name));
 
-#define SK_INTERNAL_ATRACE_ARGS_BEGIN_1(name, arg1_name, arg1_val)                 \
+// WARNING: must always be guarded by an outer call to CC_UNLIKELY(ATRACE_ENABLED())
+#define SK_INTERNAL_ATRACE_ARGS_BEGIN_DANGEROUS_1(name, arg1_name, arg1_val)       \
     char SK_PERFETTO_UID(skTraceStrBuf1)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE]; \
     snprintf(SK_PERFETTO_UID(skTraceStrBuf1),                                      \
              SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE,                              \
              "^(%s: %s)",                                                          \
              ::skia_private::UnboxPerfettoString(arg1_name),                       \
              ::skia_private::WrapTraceArgInStdString(arg1_val).c_str());           \
-    ATRACE_BEGIN(::skia_private::UnboxPerfettoString(name));                       \
-    ATRACE_BEGIN(SK_PERFETTO_UID(skTraceStrBuf1));
+    atrace_begin_body(::skia_private::UnboxPerfettoString(name));                  \
+    atrace_begin_body(SK_PERFETTO_UID(skTraceStrBuf1));
 
-#define SK_INTERNAL_ATRACE_ARGS_BEGIN_2(                                           \
+// WARNING: must always be guarded by an outer call to CC_UNLIKELY(ATRACE_ENABLED())
+#define SK_INTERNAL_ATRACE_ARGS_BEGIN_DANGEROUS_2(                                 \
         name, arg1_name, arg1_val, arg2_name, arg2_val, ...)                       \
     char SK_PERFETTO_UID(skTraceStrBuf1)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE]; \
     char SK_PERFETTO_UID(skTraceStrBuf2)[SK_ANDROID_FRAMEWORK_ATRACE_BUFFER_SIZE]; \
@@ -334,47 +337,64 @@ namespace skia_private {
             "^(%s: %s)",                                                           \
              ::skia_private::UnboxPerfettoString(arg2_name),                       \
              ::skia_private::WrapTraceArgInStdString(arg2_val).c_str());           \
-    ATRACE_BEGIN(::skia_private::UnboxPerfettoString(name));                       \
-    ATRACE_BEGIN(SK_PERFETTO_UID(skTraceStrBuf1));                                 \
-    ATRACE_BEGIN(SK_PERFETTO_UID(skTraceStrBuf2));
+    atrace_begin_body(::skia_private::UnboxPerfettoString(name));                  \
+    atrace_begin_body(SK_PERFETTO_UID(skTraceStrBuf1));                            \
+    atrace_begin_body(SK_PERFETTO_UID(skTraceStrBuf2));
 
 // Will map to either the 0, 1, or 2 argument variant of this macro, which will trigger an
 // ATRACE_BEGIN event for the slice name, and one for each argument <name, value> pair. The caller
 // must ensure each of these 1-3 slices are properly terminated with 1-3 matching ATRACE_END events.
-#define SK_INTERNAL_ATRACE_ARGS_BEGIN(slice_name, ...)                 \
-    SK_INTERNAL_GET_ATRACE_ARGS_MACRO(0,                               \
-                                      ##__VA_ARGS__,                   \
-                                      SK_INTERNAL_ATRACE_ARGS_BEGIN_2, \
-                                      0,                               \
-                                      SK_INTERNAL_ATRACE_ARGS_BEGIN_1, \
-                                      0,                               \
-                                      SK_INTERNAL_ATRACE_ARGS_BEGIN_0) \
-    (slice_name, ##__VA_ARGS__)
+//
+// Note: ATRACE_ENABLED() is checked here to allow the actual implmenting macros to avoid redundant
+// checks within each of their calls to the standard ATRACE_BEGIN() macro, as checking
+// ATRACE_ENABLED() can be non-trivial. But more importantly, if tracing isn't enabled then we
+// should avoid the string formatting work required for how we hack "arguments" into separate ATrace
+// slices.
+#define SK_INTERNAL_ATRACE_ARGS_BEGIN(slice_name, ...)                              \
+    if (CC_UNLIKELY(ATRACE_ENABLED())) {                                            \
+        SK_INTERNAL_GET_ATRACE_ARGS_MACRO(0,                                        \
+                                        ##__VA_ARGS__,                              \
+                                        SK_INTERNAL_ATRACE_ARGS_BEGIN_DANGEROUS_2,  \
+                                        0,                                          \
+                                        SK_INTERNAL_ATRACE_ARGS_BEGIN_DANGEROUS_1,  \
+                                        0,                                          \
+                                        SK_INTERNAL_ATRACE_ARGS_BEGIN_DANGEROUS_0)  \
+        (slice_name, ##__VA_ARGS__);                                                \
+    }
 
-#define SK_INTERNAL_ATRACE_ARGS_END_2(arg1_name, arg1_val, arg2_name, arg2_val, ...) \
-    ATRACE_END();                                                                    \
-    ATRACE_END();                                                                    \
-    ATRACE_END();
+// WARNING: must always be guarded by an outer call to CC_UNLIKELY(ATRACE_ENABLED())
+#define SK_INTERNAL_ATRACE_ARGS_END_DANGEROUS_2(arg1_name, arg1_val, arg2_name, arg2_val, ...)  \
+    atrace_end_body();                                                                          \
+    atrace_end_body();                                                                          \
+    atrace_end_body();
 
-#define SK_INTERNAL_ATRACE_ARGS_END_1(arg1_name, arg1_val) \
-    ATRACE_END();                                          \
-    ATRACE_END();
+// WARNING: must always be guarded by an outer call to CC_UNLIKELY(ATRACE_ENABLED())
+#define SK_INTERNAL_ATRACE_ARGS_END_DANGEROUS_1(arg1_name, arg1_val)    \
+    atrace_end_body();                                                  \
+    atrace_end_body();
 
-#define SK_INTERNAL_ATRACE_ARGS_END_0() \
-    ATRACE_END();
+// WARNING: must always be guarded by an outer call to CC_UNLIKELY(ATRACE_ENABLED())
+#define SK_INTERNAL_ATRACE_ARGS_END_DANGEROUS_0() \
+    atrace_end_body();
 
 // Will map to either the 0, 1, or 2 argument variant of this macro, which will trigger an
 // ATRACE_END event for the slice name, and one for each argument <name, value> pair. The caller
 // must ensure each of these 1-3 slices already existed from 1-3 matching ATRACE_BEGIN events.
-#define SK_INTERNAL_ATRACE_ARGS_END(...)                             \
-    SK_INTERNAL_GET_ATRACE_ARGS_MACRO(0,                             \
-                                      ##__VA_ARGS__,                 \
-                                      SK_INTERNAL_ATRACE_ARGS_END_2, \
-                                      0,                             \
-                                      SK_INTERNAL_ATRACE_ARGS_END_1, \
-                                      0,                             \
-                                      SK_INTERNAL_ATRACE_ARGS_END_0) \
-    (__VA_ARGS__)
+//
+// Note: ATRACE_ENABLED() is checked here to allow the actual implmenting macros to avoid redundant
+// checks within each of their calls to the standard ATRACE_END() macro, as checking
+// ATRACE_ENABLED() can be non-trivial.
+#define SK_INTERNAL_ATRACE_ARGS_END(...)                                            \
+    if (CC_UNLIKELY(ATRACE_ENABLED())) {                                            \
+        SK_INTERNAL_GET_ATRACE_ARGS_MACRO(0,                                        \
+                                        ##__VA_ARGS__,                              \
+                                        SK_INTERNAL_ATRACE_ARGS_END_DANGEROUS_2,    \
+                                        0,                                          \
+                                        SK_INTERNAL_ATRACE_ARGS_END_DANGEROUS_1,    \
+                                        0,                                          \
+                                        SK_INTERNAL_ATRACE_ARGS_END_DANGEROUS_0)    \
+        (__VA_ARGS__);                                                              \
+    }
 
 // Assuming there is an active tracing session, this call will create a trace event if tracing is
 // enabled (with SkAndroidFrameworkTraceUtil::setEnableTracing(true)) or if force_always_trace is
@@ -383,7 +403,9 @@ namespace skia_private {
 //
 // If ATrace is used, then additional sub-events will be created for each trace event argument
 // <name, value> pair (up to a max of two argument pairs). If Perfetto is used, then any arguments
-// will be associated with a single event.
+// will be associated with a single event. In either case, trace arguments will only be evaluated if
+// the event will actually be recorded in the underlying tracing system (i.e. if an applicable
+// tracing session is active.)
 //
 // If force_always_trace = true, then the caller *must* append the ".always" suffix to the provided
 // category. This allows Perfetto tracing sessions to optionally filter to just the "skia.always"
