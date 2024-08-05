@@ -28,7 +28,7 @@ clang_url_amd64 = "https://github.com/llvm/llvm-project/releases/download/llvmor
 
 def _get_system_xcode_path(ctx):
     # https://developer.apple.com/library/archive/technotes/tn2339/_index.html
-    res = ctx.execute(["xcode-select", "-p"])
+    res = ctx.execute(["xcode-select", "--print-path"])
     if res.return_code != 0:
         fail("Error Getting XCode path: " + res.stderr)
     return res.stdout.rstrip()
