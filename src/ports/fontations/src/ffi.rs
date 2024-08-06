@@ -87,7 +87,12 @@ unsafe fn make_mono_hinting_instance<'a>(
 
 fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, map: &BridgeMappingIndex, codepoint: u32) -> u16 {
     font_ref
-        .with_font(|f| Some(map.0.charmap(f).map(codepoint)?.to_u16()))
+        .with_font(|f| {
+            let glyph_id = map.0.charmap(f).map(codepoint)?.to_u32();
+            // Remove conversion and change return type to u32 when
+            // implementing large glyph id support in Skia.
+            glyph_id.try_into().ok()
+        })
         .unwrap_or_default()
 }
 
@@ -102,8 +107,8 @@ fn fill_glyph_to_unicode_map(font_ref: &BridgeFontRef, map: &mut [u32]) {
     font_ref.with_font(|f| {
         let mappings = f.charmap().mappings();
         for item in mappings {
-            if map[item.1.to_u16() as usize] == 0 {
-                map[item.1.to_u16() as usize] = item.0;
+            if map[item.1.to_u32() as usize] == 0 {
+                map[item.1.to_u32() as usize] = item.0;
             }
         }
         Some(())
@@ -178,9 +183,10 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
     }
 
     fn push_clip_glyph(&mut self, glyph: GlyphId) {
+        // TODO(drott): Handle large glyph ids in clip operation.
         self.color_painter_wrapper
             .as_mut()
-            .push_clip_glyph(glyph.to_u16());
+            .push_clip_glyph(glyph.to_u32().try_into().ok().unwrap_or_default());
     }
 
     fn push_clip_box(&mut self, clip_box: BoundingBox<f32>) {
@@ -285,7 +291,12 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
                 palette_index,
                 alpha,
             } => {
-                color_painter.fill_glyph_solid(glyph.to_u16(), palette_index, alpha);
+                // TODO(drott): Handle large glyph ids in fill glyph operation.
+                color_painter.fill_glyph_solid(
+                    glyph.to_u32().try_into().ok().unwrap_or_default(),
+                    palette_index,
+                    alpha,
+                );
             }
             Brush::LinearGradient {
                 p0,
@@ -298,7 +309,8 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
                     num_stops: color_stops.len(),
                 };
                 color_painter.fill_glyph_linear(
-                    glyph.to_u16(),
+                    // TODO(drott): Handle large glyph ids in fill glyph operation.
+                    glyph.to_u32().try_into().ok().unwrap_or_default(),
                     &ffi::Transform {
                         xx: brush_transform.xx,
                         xy: brush_transform.xy,
@@ -330,7 +342,8 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
                     num_stops: color_stops.len(),
                 };
                 color_painter.fill_glyph_radial(
-                    glyph.to_u16(),
+                    // TODO(drott): Handle large glyph ids in fill glyph operation.
+                    glyph.to_u32().try_into().ok().unwrap_or_default(),
                     &ffi::Transform {
                         xx: brush_transform.xx,
                         xy: brush_transform.xy,
@@ -363,7 +376,8 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
                     num_stops: color_stops.len(),
                 };
                 color_painter.fill_glyph_sweep(
-                    glyph.to_u16(),
+                    // TODO(drott): Handle large glyph ids in fill glyph operation.
+                    glyph.to_u32().try_into().ok().unwrap_or_default(),
                     &ffi::Transform {
                         xx: brush_transform.xx,
                         xy: brush_transform.xy,
@@ -408,7 +422,7 @@ fn get_path(
         .0
         .as_ref()
         .and_then(|outlines| {
-            let glyph = outlines.get(GlyphId::new(glyph_id))?;
+            let glyph = outlines.get(GlyphId::from(glyph_id))?;
 
             let draw_settings = match &hinting_instance.0 {
                 Some(instance) => DrawSettings::hinted(instance, false),
@@ -436,7 +450,7 @@ fn unhinted_advance_width_or_zero(
     font_ref
         .with_font(|f| {
             GlyphMetrics::new(f, Size::new(size), coords.normalized_coords.coords())
-                .advance_width(GlyphId::new(glyph_id))
+                .advance_width(GlyphId::from(glyph_id))
         })
         .unwrap_or_default()
 }
@@ -454,7 +468,7 @@ fn scaler_hinted_advance_width(
             let draw_settings = DrawSettings::hinted(instance, false);
 
             let outlines = outlines.0.as_ref()?;
-            let glyph = outlines.get(GlyphId::new(glyph_id))?;
+            let glyph = outlines.get(GlyphId::from(glyph_id))?;
             let mut pen_dump = NoOpPen {};
             let adjusted_metrics = glyph.draw(draw_settings, &mut pen_dump).ok()?;
             adjusted_metrics.advance_width.map(|adjusted_advance| {
@@ -619,7 +633,7 @@ fn has_colr_glyph(font_ref: &BridgeFontRef, format: ColorGlyphFormat, glyph_id: 
         .with_font(|f| {
             let colrv1_paintable = f
                 .color_glyphs()
-                .get_with_format(GlyphId::new(glyph_id), format);
+                .get_with_format(GlyphId::from(glyph_id), format);
             Some(colrv1_paintable.is_some())
         })
         .unwrap_or_default()
@@ -650,7 +664,7 @@ fn get_colrv1_clip_box(
         .with_font(|f| {
             match f
                 .color_glyphs()
-                .get_with_format(GlyphId::new(glyph_id), ColorGlyphFormat::ColrV1)?
+                .get_with_format(GlyphId::from(glyph_id), ColorGlyphFormat::ColrV1)?
                 .bounding_box(coords.normalized_coords.coords(), size)
             {
                 Some(bounding_box) => {
@@ -898,7 +912,7 @@ fn draw_colr_glyph(
     };
     font_ref
         .with_font(|f| {
-            let paintable = f.color_glyphs().get(GlyphId::new(glyph_id))?;
+            let paintable = f.color_glyphs().get(GlyphId::from(glyph_id))?;
             paintable
                 .paint(coords.normalized_coords.coords(), &mut color_painter_impl)
                 .ok()
@@ -1209,7 +1223,7 @@ mod bitmap {
     }
 
     pub fn has_bitmap_glyph(font_ref: &BridgeFontRef, glyph_id: u16) -> bool {
-        let glyph_id = GlyphId::new(glyph_id);
+        let glyph_id = GlyphId::from(glyph_id);
         font_ref
             .with_font(|font| {
                 let has_sbix = sbix_glyph(font, glyph_id, None).is_some();
@@ -1239,7 +1253,7 @@ mod bitmap {
         glyph_id: u16,
         font_size: f32,
     ) -> Box<BridgeBitmapGlyph<'a>> {
-        let glyph_id = GlyphId::new(glyph_id);
+        let glyph_id = GlyphId::from(glyph_id);
         font_ref
             .with_font(|font| {
                 if let Some(sbix_glyph) = sbix_glyph(font, glyph_id, Some(font_size)) {
