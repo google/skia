@@ -2081,7 +2081,7 @@ if (skia_enable_tools) {
     public_deps = [ ":gpu_tool_utils" ]
   }
   test_lib("common_flags_gpu") {
-    sources = [ "tools/flags/CommonFlagsGpu.cpp" ]
+    sources = [ "tools/flags/CommonFlagsGanesh.cpp" ]
     deps = [ ":flags" ]
     public_deps = [ ":gpu_tool_utils" ]
   }

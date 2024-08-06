@@ -445,7 +445,7 @@ struct EditorApplication : public sk_app::Application {
 }  // namespace
 
 sk_app::Application* sk_app::Application::Create(int argc, char** argv, void* dat) {
-    std::unique_ptr<sk_app::Window> win(sk_app::Window::CreateNativeWindow(dat));
+    std::unique_ptr<sk_app::Window> win(sk_app::Windows::CreateNativeWindow(dat));
     if (!win) {
         SK_ABORT("CreateNativeWindow failed.");
     }

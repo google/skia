@@ -11,7 +11,7 @@
 
 namespace sk_app {
 
-Window* Window::CreateNativeWindow(void* platformData) {
+Window* Windows::CreateNativeWindow(void* platformData) {
     Window_android* window = new Window_android();
     if (!window->init((SkiaAndroidApp*)platformData)) {
         delete window;

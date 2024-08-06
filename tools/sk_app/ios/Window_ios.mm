@@ -26,7 +26,7 @@ namespace sk_app {
 
 Window_ios* Window_ios::gWindow = nullptr;
 
-Window* Window::CreateNativeWindow(void*) {
+Window* Windows::CreateNativeWindow(void*) {
     // already have a window
     if (Window_ios::MainWindow()) {
         return nullptr;

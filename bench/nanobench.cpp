@@ -52,6 +52,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsConfig.h"
+#include "tools/flags/CommonFlagsGanesh.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/ios_utils.h"
 #include "tools/trace/EventTracingPriv.h"

@@ -39,8 +39,6 @@ namespace sk_app {
 
 class Window {
 public:
-    static Window* CreateNativeWindow(void* platformData);
-
     virtual ~Window();
 
     virtual void setTitle(const char*) = 0;
@@ -61,38 +59,15 @@ public:
     virtual bool scaleContentToFit() const { return false; }
 
     enum BackendType {
-#ifdef SK_GL
         kNativeGL_BackendType,
-#endif
-#if SK_ANGLE && (defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC))
         kANGLE_BackendType,
-#endif
-#ifdef SK_DAWN
-#if defined(SK_GRAPHITE)
         kGraphiteDawn_BackendType,
-#endif
-#endif
-#ifdef SK_VULKAN
         kVulkan_BackendType,
-#if defined(SK_GRAPHITE)
         kGraphiteVulkan_BackendType,
-#endif
-#endif
-#ifdef SK_METAL
         kMetal_BackendType,
-#if defined(SK_GRAPHITE)
         kGraphiteMetal_BackendType,
-#endif
-#endif
-#ifdef SK_DIRECT3D
         kDirect3D_BackendType,
-#endif
         kRaster_BackendType,
-
-        kLast_BackendType = kRaster_BackendType
-    };
-    enum {
-        kBackendTypeCount = kLast_BackendType + 1
     };
 
     virtual bool attach(BackendType) = 0;
@@ -188,6 +163,10 @@ protected:
     void visitLayers(const std::function<void(Layer*)>& visitor);
     bool signalLayers(const std::function<bool(Layer*)>& visitor);
 };
+
+namespace Windows {
+Window* CreateNativeWindow(void* platformData);
+}
 
 }   // namespace sk_app
 #endif

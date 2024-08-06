@@ -24,7 +24,7 @@ namespace sk_app {
 
 SkTDynamicHash<Window_unix, XWindow> Window_unix::gWindowMap;
 
-Window* Window::CreateNativeWindow(void* platformData) {
+Window* Windows::CreateNativeWindow(void* platformData) {
     Display* display = (Display*)platformData;
     SkASSERT(display);
 
@@ -419,6 +419,8 @@ bool Window_unix::attach(BackendType attachType) {
         case kRaster_BackendType:
             fWindowContext = skwindow::MakeRasterForXlib(winInfo, fRequestedDisplayParams);
             break;
+        default:
+            SK_ABORT("Unknown backend");
     }
     this->onBackendCreated();
 

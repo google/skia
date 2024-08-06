@@ -4,19 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "tools/RuntimeBlendUtils.h"
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "tools/RuntimeBlendUtils.h"
 
 sk_sp<SkBlender> GetRuntimeBlendForBlendMode(SkBlendMode mode) {
-    static auto result = SkRuntimeEffect::MakeForBlender(SkString(R"(
-        uniform blender b;
-        half4 main(half4 src, half4 dst) {
-            return b.eval(src, dst);
-        }
-    )"));
+    static auto result = SkRuntimeEffect::MakeForBlender(SkString(
+        "uniform blender b;"
+        "half4 main(half4 src, half4 dst) {"
+            "return b.eval(src, dst);"
+        "}"
+    ));
 
     SkASSERTF(result.effect, "%s", result.errorText.c_str());
 
