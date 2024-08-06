@@ -367,6 +367,8 @@ auto operator<<(std::basic_ostream<C, CT>& os, const sk_sp<T>& sp) -> decltype(o
     return os << sp.get();
 }
 
+template <typename T> sk_sp(T*) -> sk_sp<T>;
+
 template <typename T, typename... Args>
 sk_sp<T> sk_make_sp(Args&&... args) {
     return sk_sp<T>(new T(std::forward<Args>(args)...));
