@@ -115,7 +115,7 @@ public:
 protected:
     CommandBuffer();
 
-    SkISize fRenderPassSize;
+    SkISize fColorAttachmentSize;
     SkIVector fReplayTranslation;
 
 private:
@@ -125,6 +125,7 @@ private:
     virtual void onResetCommandBuffer() = 0;
 
     virtual bool onAddRenderPass(const RenderPassDesc&,
+                                 SkIRect renderPassBounds,
                                  const Texture* colorTexture,
                                  const Texture* resolveTexture,
                                  const Texture* depthStencilTexture,

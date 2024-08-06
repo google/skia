@@ -387,6 +387,7 @@ void VulkanCommandBuffer::updateRtAdjustUniform(const SkRect& viewport) {
 }
 
 bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
+                                          SkIRect renderPassBounds,
                                           const Texture* colorTexture,
                                           const Texture* resolveTexture,
                                           const Texture* depthStencilTexture,

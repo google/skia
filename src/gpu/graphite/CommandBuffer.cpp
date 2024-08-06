@@ -11,8 +11,10 @@
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
+#include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -80,8 +82,25 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                   const DrawPassList& drawPasses) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    fRenderPassSize = colorTexture->dimensions();
+    fColorAttachmentSize = colorTexture->dimensions();
+    SkIRect colorAttachmentBounds = SkIRect::MakeSize(fColorAttachmentSize);
+
+    SkIRect renderPassBounds;
+    for (const auto& drawPass : drawPasses) {
+        renderPassBounds.join(drawPass->bounds());
+    }
+    if (renderPassDesc.fColorAttachment.fLoadOp == LoadOp::kClear) {
+        renderPassBounds.join(colorAttachmentBounds);
+    }
+    renderPassBounds.offset(fReplayTranslation.x(), fReplayTranslation.y());
+    if (!SkIRect::Intersects(renderPassBounds, colorAttachmentBounds)) {
+        // The entire RenderPass is offscreen given the replay translation so skip adding the pass
+        // at all
+        return true;
+    }
+
     if (!this->onAddRenderPass(renderPassDesc,
+                               renderPassBounds,
                                colorTexture.get(),
                                resolveTexture.get(),
                                depthStencilTexture.get(),
