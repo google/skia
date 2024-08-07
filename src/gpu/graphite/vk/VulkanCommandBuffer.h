@@ -77,6 +77,7 @@ private:
                          const DrawPassList&) override;
 
     bool beginRenderPass(const RenderPassDesc&,
+                         SkIRect renderPassBounds,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture);
