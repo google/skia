@@ -139,6 +139,8 @@ protected:
         void evict(PlotLocator) override;
         void compact(Recorder*);
 
+        void evictAll();
+
     protected:
         DrawAtlasMgr(size_t width, size_t height,
                      size_t plotWidth, size_t plotHeight,

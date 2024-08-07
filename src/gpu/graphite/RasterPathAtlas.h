@@ -34,6 +34,12 @@ public:
         fUncachedAtlasMgr.compact(fRecorder);
     }
 
+    void evictAtlases() {
+        fCachedAtlasMgr.evictAll();
+        fSmallPathAtlasMgr.evictAll();
+        fUncachedAtlasMgr.evictAll();
+    }
+
 protected:
     const TextureProxy* onAddShape(const Shape&,
                                    const Transform& transform,

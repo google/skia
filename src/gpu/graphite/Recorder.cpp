@@ -200,6 +200,7 @@ std::unique_ptr<Recording> Recorder::snap() {
                                         fRuntimeEffectDict.get()) == Task::Status::kFail) {
         // Leaving 'fTrackedDevices' alone since they were flushed earlier and could still be
         // attached to extant SkSurfaces.
+        fAtlasProvider->invalidateAtlases();
         fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider,
                                                                  fSharedContext->caps(),
                                                                  fUploadBufferManager.get());

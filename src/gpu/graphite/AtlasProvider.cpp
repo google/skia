@@ -113,4 +113,15 @@ void AtlasProvider::compact() {
     }
 }
 
+void AtlasProvider::invalidateAtlases() {
+    // We must also evict atlases on a failure. The failed tasks can include uploads that the
+    // atlas was depending on for its caches. Failing to prepare means they will never run so
+    // future "successful" Recorder snaps would otherwise reference atlas pages that had stale
+    // contents.
+    fTextAtlasManager->evictAtlases();
+    if (fRasterPathAtlas) {
+        fRasterPathAtlas->evictAtlases();
+    }
+}
+
 }  // namespace skgpu::graphite
