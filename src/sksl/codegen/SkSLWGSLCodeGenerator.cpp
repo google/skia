@@ -1655,9 +1655,7 @@ void WGSLCodeGenerator::writeUserDefinedIODecl(const Layout& layout,
         // avoid any expensive shader or data rewriting to ensure 'first'. Skia has a long-standing
         // policy to only use flat shading when it's constant for a primitive so the vertex doesn't
         // matter. See https://www.w3.org/TR/WGSL/#interpolation-sampling-either
-        // TODO (b/340278447): Dawn doesn't yet support the new `either` option yet, but then this
-        // should be @interpolate(flat,either)
-        this->write("@interpolate(flat) ");
+        this->write("@interpolate(flat, either) ");
     } else if (flags & ModifierFlag::kNoPerspective) {
         this->write("@interpolate(linear) ");
     }

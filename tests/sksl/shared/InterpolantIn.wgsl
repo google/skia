@@ -3,7 +3,7 @@ diagnostic(off, chromium.unreachable_code);
 struct FSIn {
   @location(0) defaultVarying: f32,
   @location(1) @interpolate(linear) linearVarying: f32,
-  @location(2) @interpolate(flat) flatVarying: f32,
+  @location(2) @interpolate(flat, either) flatVarying: f32,
 };
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,

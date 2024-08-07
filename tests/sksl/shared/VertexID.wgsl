@@ -4,7 +4,7 @@ struct VSIn {
   @builtin(vertex_index) sk_VertexID: u32,
 };
 struct VSOut {
-  @location(1) @interpolate(flat) id: i32,
+  @location(1) @interpolate(flat, either) id: i32,
   @builtin(position) sk_Position: vec4<f32>,
 };
 fn _skslMain(_stageIn: VSIn, _stageOut: ptr<function, VSOut>) {

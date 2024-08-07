@@ -1,7 +1,7 @@
 diagnostic(off, derivative_uniformity);
 diagnostic(off, chromium.unreachable_code);
 struct FSIn {
-  @location(2) @interpolate(flat) bufferIndex: i32,
+  @location(2) @interpolate(flat, either) bufferIndex: i32,
 };
 struct FSOut {
   @location(0) sk_FragColor: vec4<f32>,
