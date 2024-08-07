@@ -565,15 +565,22 @@ fn english_or_first_font_name(font_ref: &BridgeFontRef, name_id: StringId) -> Op
 }
 
 fn family_name(font_ref: &BridgeFontRef) -> String {
-    font_ref.with_font(|f| {
-        // https://learn.microsoft.com/en-us/typography/opentype/spec/os2#fsselection
-        // Bit 8 of the `fsSelection' field in the `OS/2' table indicates a WWS-only font face.
-        // When this bit is set it means *do not* use the WWS strings.
-        let use_wws = !f.os2().map_or(false, |t| t.fs_selection().contains(SelectionFlags::WWS));
-        if use_wws { english_or_first_font_name(font_ref, StringId::WWS_FAMILY_NAME) } else { None }
-         .or_else(|| english_or_first_font_name(font_ref, StringId::TYPOGRAPHIC_FAMILY_NAME))
-         .or_else(|| english_or_first_font_name(font_ref, StringId::FAMILY_NAME))
-    }).unwrap_or_default()
+    font_ref
+        .with_font(|f| {
+            // https://learn.microsoft.com/en-us/typography/opentype/spec/os2#fsselection
+            // Bit 8 of the `fsSelection' field in the `OS/2' table indicates a WWS-only font face.
+            // When this bit is set it means *do not* use the WWS strings.
+            let use_wws = !f
+                .os2()
+                .map(|t| t.fs_selection().contains(SelectionFlags::WWS))
+                .unwrap_or_default();
+            use_wws
+                .then(|| english_or_first_font_name(font_ref, StringId::WWS_FAMILY_NAME))
+                .flatten()
+                .or_else(|| english_or_first_font_name(font_ref, StringId::TYPOGRAPHIC_FAMILY_NAME))
+                .or_else(|| english_or_first_font_name(font_ref, StringId::FAMILY_NAME))
+        })
+        .unwrap_or_default()
 }
 
 fn postscript_name(font_ref: &BridgeFontRef, out_string: &mut String) -> bool {
@@ -941,14 +948,18 @@ fn get_font_style(
     coords: &BridgeNormalizedCoords,
     style: &mut BridgeFontStyle,
 ) -> bool {
+    const SKIA_SLANT_UPRIGHT: i32 = 0; /* kUpright_Slant */
+    const SKIA_SLANT_ITALIC: i32 = 1; /* kItalic_Slant */
+    const SKIA_SLANT_OBLIQUE: i32 = 2; /* kOblique_Slant */
+
     font_ref
         .with_font(|f| {
             let attrs = f.attributes();
             let mut skia_weight = attrs.weight.value().round() as i32;
             let mut skia_slant = match attrs.style {
-                Style::Normal => 0,
-                Style::Italic => 1,
-                _ => 2, /* kOblique_Slant */
+                Style::Normal => SKIA_SLANT_UPRIGHT,
+                Style::Italic => SKIA_SLANT_ITALIC,
+                _ => SKIA_SLANT_OBLIQUE,
             };
             //0.5, 0.625, 0.75, 0.875, 1.0, 1.125, 1.25, 1.5, 2.0 map to 1-9
             let mut skia_width = match attrs.stretch.ratio() {
@@ -971,24 +982,28 @@ fn get_font_style(
                 match user_coord.selector {
                     wght => skia_weight = user_coord.value.round() as i32,
                     // 50, 62.5, 75, 87.5, 100, 112.5, 125, 150, 200 map to 1-9
-                    wdth => skia_width = match user_coord.value {
-                        x if x <=  56.25 => 1,
-                        x if x <=  68.75 => 2,
-                        x if x <=  81.25 => 3,
-                        x if x <=  93.75 => 4,
-                        x if x <= 106.25 => 5,
-                        x if x <= 118.75 => 6,
-                        x if x <= 137.50 => 7,
-                        x if x <= 175.00 => 8,
-                        _ => 9,
-                    },
-                    slnt => skia_slant = if skia_slant == 1 /* kItalic_Slant */ {
-                                             skia_slant
-                                         } else if user_coord.value == 0.0 {
-                                             0 /* kUpright_Slant */
-                                         } else {
-                                             2 /* kOblique_Slant */
-                                         },
+                    wdth => {
+                        skia_width = match user_coord.value {
+                            x if x <= 56.25 => 1,
+                            x if x <= 68.75 => 2,
+                            x if x <= 81.25 => 3,
+                            x if x <= 93.75 => 4,
+                            x if x <= 106.25 => 5,
+                            x if x <= 118.75 => 6,
+                            x if x <= 137.50 => 7,
+                            x if x <= 175.00 => 8,
+                            _ => 9,
+                        }
+                    }
+                    slnt => {
+                        if skia_slant != SKIA_SLANT_ITALIC {
+                            if user_coord.value == 0.0 {
+                                skia_slant = SKIA_SLANT_UPRIGHT;
+                            } else {
+                                skia_slant = SKIA_SLANT_OBLIQUE
+                            }
+                        }
+                    }
                     _ => (),
                 }
             }
@@ -1745,9 +1760,9 @@ mod ffi {
 #[cfg(test)]
 mod test {
     use crate::{
-        coordinates_for_shifted_named_instance_index, num_axes,
+        coordinates_for_shifted_named_instance_index,
         ffi::{BridgeFontStyle, PaletteOverride, SkiaDesignCoordinate},
-        font_or_collection, font_ref_is_valid, get_font_style, make_font_ref,
+        font_or_collection, font_ref_is_valid, get_font_style, make_font_ref, num_axes,
         num_named_instances, resolve_into_normalized_coords, resolve_palette,
     };
     use std::fs;
@@ -1755,7 +1770,7 @@ mod test {
     const TEST_FONT_FILENAME: &str = "resources/fonts/test_glyphs-glyf_colr_1_variable.ttf";
     const TEST_COLLECTION_FILENAME: &str = "resources/fonts/test.ttc";
     const TEST_CONDENSED_BOLD_ITALIC: &str = "resources/fonts/cond-bold-italic.ttf";
-    const TEST_VARIABLE: &str = "/usr/local/google/home/jlavrova/Sources/skia/resources/fonts/Variable.ttf";
+    const TEST_VARIABLE: &str = "resources/fonts/Variable.ttf";
 
     #[test]
     fn test_palette_override() {
@@ -1885,8 +1900,8 @@ mod test {
 
     #[test]
     fn test_no_instances() {
-        let font_buffer =
-            fs::read(TEST_CONDENSED_BOLD_ITALIC).expect("Font to test font styles could not be opened.");
+        let font_buffer = fs::read(TEST_CONDENSED_BOLD_ITALIC)
+            .expect("Font to test font styles could not be opened.");
         let font_ref = make_font_ref(&font_buffer, 0);
         let num_instances = num_named_instances(font_ref.as_ref());
         assert!(num_instances == 0);
@@ -1894,8 +1909,8 @@ mod test {
 
     #[test]
     fn test_no_axes() {
-        let font_buffer =
-            fs::read(TEST_CONDENSED_BOLD_ITALIC).expect("Font to test font styles could not be opened.");
+        let font_buffer = fs::read(TEST_CONDENSED_BOLD_ITALIC)
+            .expect("Font to test font styles could not be opened.");
         let font_ref = make_font_ref(&font_buffer, 0);
         let size = num_axes(&font_ref);
         assert_eq!(0, size);
@@ -1915,7 +1930,7 @@ mod test {
             if index >= num_instances {
                 break;
             }
-            let named_instance_index : u32 = ((index + 1) << 16) as u32;
+            let named_instance_index: u32 = ((index + 1) << 16) as u32;
             let num_coords = coordinates_for_shifted_named_instance_index(
                 &font_ref,
                 named_instance_index,
