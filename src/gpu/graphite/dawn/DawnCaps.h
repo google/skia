@@ -31,6 +31,7 @@ public:
     std::optional<wgpu::LoadOp> resolveTextureLoadOp() const {
         return fSupportedResolveTextureLoadOp;
     }
+    bool supportsPartialLoadResolve() const { return fSupportsPartialLoadResolve; }
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                              Mipmapped mipmapped,
@@ -134,6 +135,10 @@ private:
     wgpu::TextureUsage fSupportedTransientAttachmentUsage = wgpu::TextureUsage::None;
     // When supported this holds the ExpandResolveTexture load op, otherwise holds no value.
     std::optional<wgpu::LoadOp> fSupportedResolveTextureLoadOp;
+    // When 'fSupportedResolveTextureLoadOp' is supported, it by default performs full size expand
+    // and resolve. With this feature, we can do that partially according to the actual damage
+    // region.
+    bool fSupportsPartialLoadResolve = false;
 
     bool fUseAsyncPipelineCreation = true;
     bool fAllowScopedErrorChecks = true;

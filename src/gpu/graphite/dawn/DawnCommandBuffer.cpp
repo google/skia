@@ -100,7 +100,11 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
     // Update viewport's constant buffer before starting a render pass.
     this->preprocessViewport(viewport);
 
-    if (!this->beginRenderPass(renderPassDesc, colorTexture, resolveTexture, depthStencilTexture)) {
+    if (!this->beginRenderPass(renderPassDesc,
+                               renderPassBounds,
+                               colorTexture,
+                               resolveTexture,
+                               depthStencilTexture)) {
         return false;
     }
 
@@ -140,6 +144,7 @@ bool DawnCommandBuffer::onAddComputePass(DispatchGroupSpan groups) {
 }
 
 bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
+                                        SkIRect renderPassBounds,
                                         const Texture* colorTexture,
                                         const Texture* resolveTexture,
                                         const Texture* depthStencilTexture) {
@@ -169,6 +174,7 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     // Set up color attachment.
 #if !defined(__EMSCRIPTEN__)
     wgpu::DawnRenderPassColorAttachmentRenderToSingleSampled mssaRenderToSingleSampledDesc;
+    wgpu::RenderPassDescriptorExpandResolveRect wgpuPartialRect = {};
 #endif
 
     auto& colorInfo = renderPassDesc.fColorAttachment;
@@ -206,6 +212,15 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
                         fSharedContext->dawnCaps()->resolveTextureLoadOp();
                 if (resolveLoadOp.has_value()) {
                     wgpuColorAttachment.loadOp = *resolveLoadOp;
+#if !defined(__EMSCRIPTEN__)
+                    if (fSharedContext->dawnCaps()->supportsPartialLoadResolve()) {
+                        wgpuPartialRect.x = renderPassBounds.x();
+                        wgpuPartialRect.y = renderPassBounds.y();
+                        wgpuPartialRect.width = renderPassBounds.width();
+                        wgpuPartialRect.height = renderPassBounds.height();
+                        wgpuRenderPass.nextInChain = &wgpuPartialRect;
+                    }
+#endif
                 } else {
                     // No Dawn built-in support, we need to manually load the resolve texture.
                     loadMSAAFromResolveExplicitly = true;

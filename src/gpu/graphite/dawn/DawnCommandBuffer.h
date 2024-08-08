@@ -53,6 +53,7 @@ private:
 
     // Methods for populating a Dawn RenderPassEncoder:
     bool beginRenderPass(const RenderPassDesc&,
+                         SkIRect renderPassBounds,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture);

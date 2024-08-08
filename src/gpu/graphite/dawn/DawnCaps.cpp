@@ -487,6 +487,8 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture)) {
         fSupportedResolveTextureLoadOp = wgpu::LoadOp::ExpandResolveTexture;
     }
+    fSupportsPartialLoadResolve =
+            backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture);
 #endif
 
     if (!backendContext.fTick) {
