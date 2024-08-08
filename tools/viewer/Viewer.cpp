@@ -718,17 +718,15 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     });
 
     fCommands.addCommand('d', "Modes", "Change rendering backend", [this]() {
-        sk_app::Window::BackendType newBackend = (sk_app::Window::BackendType)(
-                (fBackendType + 1) % kSupportedBackendTypeCount);
-        // Switching to and from Vulkan is problematic on Linux so disabled for now
-#if defined(SK_BUILD_FOR_UNIX) && defined(SK_VULKAN)
-        if (newBackend == sk_app::Window::kVulkan_BackendType) {
-            newBackend = (sk_app::Window::BackendType)((newBackend + 1) %
-                                                       kSupportedBackendTypeCount);
-        } else if (fBackendType == sk_app::Window::kVulkan_BackendType) {
-            newBackend = sk_app::Window::kVulkan_BackendType;
+        int currIdx = -1;
+        for (size_t i = 0; i < kSupportedBackendTypeCount; i++) {
+            if (kSupportedBackends[i] == fBackendType) {
+                currIdx = int(i);
+                break;
+            }
         }
-#endif
+        SkASSERT(currIdx >= 0);
+        auto newBackend = kSupportedBackends[(currIdx + 1) % kSupportedBackendTypeCount];
         this->setBackend(newBackend);
     });
     fCommands.addCommand('K', "IO", "Save slide to SKP", [this]() {
@@ -2736,11 +2734,7 @@ void Viewer::drawImGui() {
                 bool sksl = params.fGrContextOptions.fShaderCacheStrategy ==
                             GrContextOptions::ShaderCacheStrategy::kSkSL;
 
-#if defined(SK_VULKAN)
                 const bool isVulkan = fBackendType == sk_app::Window::kVulkan_BackendType;
-#else
-                const bool isVulkan = false;
-#endif
 
                 // To re-load shaders from the currently active programs, we flush all
                 // caches on one frame, then set a flag to poll the cache on the next frame.
