@@ -22,6 +22,7 @@ namespace skgpu::graphite {
 
 class ShaderCodeDictionary;
 class TextureProxy;
+class UploadList;
 
 class RecorderPriv {
 public:
@@ -53,6 +54,7 @@ public:
         return fRecorder->fSharedContext->isProtected();
     }
 
+    UploadList* rootUploadList() { return fRecorder->fRootUploads.get(); }
     UniformDataCache* uniformDataCache() { return fRecorder->fUniformDataCache.get(); }
     TextureDataCache* textureDataCache() { return fRecorder->fTextureDataCache.get(); }
     DrawBufferManager* drawBufferManager() { return fRecorder->fDrawBufferManager.get(); }

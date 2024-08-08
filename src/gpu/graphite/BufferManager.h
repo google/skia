@@ -152,9 +152,12 @@ public:
         return SkAlignTo(dataSize, fCurrentBuffers[kUniformBufferIndex].fStartAlignment);
     }
 
-    // Finalizes all buffers and transfers ownership of them to a Recording. Should not call if
-    // hasMappingFailed() returns true.
-    void transferToRecording(Recording*);
+    // Finalizes all buffers and transfers ownership of them to a Recording. Returns true on success
+    // and false if a mapping had previously failed.
+    //
+    // Regardless of success or failure, the DrawBufferManager is reset to a valid initial state
+    // for recording buffer data for the next Recording.
+    [[nodiscard]] bool transferToRecording(Recording*);
 
 private:
     friend class ScratchBuffer;

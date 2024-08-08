@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/UploadBufferManager.h"
 #include "src/gpu/graphite/task/ClearBuffersTask.h"
 #include "src/gpu/graphite/task/CopyTask.h"
+#include "src/gpu/graphite/task/TaskList.h"
 
 #include <limits>
 
@@ -317,6 +318,7 @@ void DrawBufferManager::onFailedBuffer() {
     fMappingFailed = true;
 
     // Clean up and unmap everything now
+    fClearList.clear();
     fReusableScratchStorageBuffers.clear();
 
     for (auto& [buffer, _] : fUsedBuffers) {
@@ -336,14 +338,18 @@ void DrawBufferManager::onFailedBuffer() {
     }
 }
 
-void DrawBufferManager::transferToRecording(Recording* recording) {
-    // We could allow this to be called when the mapping has failed, since the transfer will be a no
-    // op, but in practice, the caller will want to check the error state as soon as possible to
-    // limit any unnecessary resource preparation from other tasks.
-    SkASSERT(!fMappingFailed);
+bool DrawBufferManager::transferToRecording(Recording* recording) {
+    if (fMappingFailed) {
+        // All state should have been reset by onFailedBuffer() except for this error flag.
+        SkASSERT(fUsedBuffers.empty() &&
+                 fClearList.empty() &&
+                 fReusableScratchStorageBuffers.empty());
+        fMappingFailed = false;
+        return false;
+    }
 
     if (!fClearList.empty()) {
-        recording->priv().addTask(ClearBuffersTask::Make(std::move(fClearList)));
+        recording->priv().taskList()->add(ClearBuffersTask::Make(std::move(fClearList)));
     }
 
     // Transfer the buffers in the reuse pool to the recording.
@@ -360,7 +366,7 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
             // Since the transfer buffer is managed by the UploadManager, we don't manually unmap
             // it here or need to pass a ref into CopyBufferToBufferTask.
             size_t copySize = buffer->size();
-            recording->priv().addTask(
+            recording->priv().taskList()->add(
                     CopyBufferToBufferTask::Make(transferBuffer.fBuffer,
                                                  transferBuffer.fOffset,
                                                  std::move(buffer),
@@ -387,7 +393,7 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
             SkASSERT(!fCaps->drawBufferCanBeMapped());
             // Since the transfer buffer is managed by the UploadManager, we don't manually unmap
             // it here or need to pass a ref into CopyBufferToBufferTask.
-            recording->priv().addTask(
+            recording->priv().taskList()->add(
                     CopyBufferToBufferTask::Make(info.fTransferBuffer.fBuffer,
                                                  info.fTransferBuffer.fOffset,
                                                  info.fBuffer,
@@ -402,6 +408,8 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
         info.fTransferBuffer = {};
         info.fOffset = 0;
     }
+
+    return true;
 }
 
 std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(

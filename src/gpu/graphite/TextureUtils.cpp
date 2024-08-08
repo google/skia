@@ -467,15 +467,16 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
 
     // Src and dst colorInfo are the same
     const SkColorInfo& colorInfo = bmpToUpload.info().colorInfo();
-    // Add UploadTask to Recorder
-    UploadInstance upload = UploadInstance::Make(
+    // Add upload to the root upload list. These bitmaps are uploaded to unique textures so there is
+    // no need to coordinate resource sharing. It is better to then group them into a single task
+    // at the start of the Recording.
+    if (!recorder->priv().rootUploadList()->recordUpload(
             recorder, proxy, colorInfo, colorInfo, texels,
-            SkIRect::MakeSize(bmpToUpload.dimensions()), std::make_unique<ImageUploadContext>());
-    if (!upload.isValid()) {
+            SkIRect::MakeSize(bmpToUpload.dimensions()),
+            std::make_unique<ImageUploadContext>())) {
         SKGPU_LOG_E("MakeBitmapProxyView: Could not create UploadInstance");
         return {};
     }
-    recorder->priv().add(UploadTask::Make(std::move(upload)));
 
     Swizzle swizzle = caps->getReadSwizzle(ct, textureInfo);
     // If the color type is alpha-only, propagate the alpha value to the other channels.
