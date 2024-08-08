@@ -2,7 +2,7 @@ use ffi::{FillLinearParams, FillRadialParams};
 // Copyright 2023 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
-use font_types::{BoundingBox, GlyphId, Pen};
+use font_types::{BoundingBox, GlyphId};
 use read_fonts::{
     tables::{colr::CompositeMode, cpal::Cpal, os2::SelectionFlags},
     FileRef, FontRef, ReadError, TableProvider,
@@ -13,7 +13,7 @@ use skrifa::{
     color::{Brush, ColorGlyphFormat, ColorPainter, Transform},
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
-    outline::{DrawSettings, HintingInstance, LcdLayout},
+    outline::{DrawSettings, HintingInstance, LcdLayout, OutlinePen},
     setting::VariationSetting,
     string::{LocalizedStrings, StringId},
     MetadataProvider, OutlineGlyphCollection, Tag,
@@ -122,7 +122,7 @@ struct PathWrapperPen<'a> {
 // We need to wrap ffi::PathWrapper in PathWrapperPen and forward the path
 // recording calls to the path wrapper as we can't define trait implementations
 // inside the cxx::bridge section.
-impl<'a> Pen for PathWrapperPen<'a> {
+impl<'a> OutlinePen for PathWrapperPen<'a> {
     fn move_to(&mut self, x: f32, y: f32) {
         self.path_wrapper.as_mut().move_to(x, -y);
     }
@@ -148,7 +148,7 @@ impl<'a> Pen for PathWrapperPen<'a> {
 
 struct NoOpPen {}
 
-impl<'a> Pen for NoOpPen {
+impl<'a> OutlinePen for NoOpPen {
     fn move_to(&mut self, _x: f32, _y: f32) {}
 
     fn line_to(&mut self, _x: f32, _y: f32) {}
