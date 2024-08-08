@@ -456,7 +456,7 @@ void ResourceCache::purgeResources(const StdSteadyClock::time_point* purgeTime) 
     fPurgeableQueue.sort();
 
     // Make a list of the scratch resources to delete
-    SkTDArray<Resource*> nonZeroSizedResources;
+    SkTDArray<Resource*> resourcesToPurge;
     for (int i = 0; i < fPurgeableQueue.count(); i++) {
         Resource* resource = fPurgeableQueue.at(i);
 
@@ -466,15 +466,13 @@ void ResourceCache::purgeResources(const StdSteadyClock::time_point* purgeTime) 
             break;
         }
         SkASSERT(resource->isPurgeable());
-        if (resource->gpuMemorySize() > 0) {
-            *nonZeroSizedResources.append() = resource;
-        }
+        *resourcesToPurge.append() = resource;
     }
 
     // Delete the scratch resources. This must be done as a separate pass
     // to avoid messing up the sorted order of the queue
-    for (int i = 0; i < nonZeroSizedResources.size(); i++) {
-        this->purgeResource(nonZeroSizedResources[i]);
+    for (int i = 0; i < resourcesToPurge.size(); i++) {
+        this->purgeResource(resourcesToPurge[i]);
     }
 
     // Since we called process returned resources at the start of this call, we could still end up

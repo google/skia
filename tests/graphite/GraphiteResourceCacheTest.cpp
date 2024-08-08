@@ -519,6 +519,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteZeroSizedResourcesTest, reporter, con
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 2);
     REPORTER_ASSERT(reporter, resourceCache->topOfPurgeableQueue()->gpuMemorySize() == 0);
+
+    // However, purging all resources should clear the zero-sized resources.
+    resourceCache->purgeResources();
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 0);
 }
 
 // Depending on the granularity of the clock for a given device, in the
