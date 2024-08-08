@@ -1798,8 +1798,13 @@ void Device::drawSpecial(SkSpecialImage* special,
         return;
     }
 
+    // The image filtering and layer code paths often rely on the paint being non-AA to avoid
+    // coverage operations. To stay consistent with the other backends, we use an edge AA "quad"
+    // whose flags match the paint's AA request.
+    EdgeAAQuad::Flags aaFlags = paint.isAntiAlias() ? EdgeAAQuad::Flags::kAll
+                                                    : EdgeAAQuad::Flags::kNone;
     this->drawGeometry(Transform(SkM44(localToDevice)),
-                       Geometry(Shape(dst)),
+                       Geometry(EdgeAAQuad(dst, aaFlags)),
                        paintWithShader,
                        DefaultFillStyle(),
                        DrawFlags::kIgnorePathEffect);
