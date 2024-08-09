@@ -26,10 +26,7 @@ namespace skgpu::graphite {
 
 class ResourceCache;
 class SharedContext;
-
-#if defined(GRAPHITE_TEST_UTILS)
 class Texture;
-#endif
 
 /**
  * Base class for objects that can be kept in the ResourceCache.
@@ -172,10 +169,10 @@ public:
      */
     virtual void prepareForReturnToCache(const std::function<void()>& takeRef) {}
 
+    virtual const Texture* asTexture() const { return nullptr; }
+
 #if defined(GRAPHITE_TEST_UTILS)
     bool testingShouldDeleteASAP() const { return fDeleteASAP == DeleteASAP::kYes; }
-
-    virtual const Texture* asTexture() const { return nullptr; }
 #endif
 
 protected:

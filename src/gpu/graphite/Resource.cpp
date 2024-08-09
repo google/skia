@@ -104,10 +104,10 @@ void Resource::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
 
     size_t size = this->gpuMemorySize();
 
-    // Avoid dumping objects without a size (e.g. Samplers, pipelines, etc).
+    // Avoid dumping zero-sized objects (e.g. Samplers, pipelines, etc) except memoryless textures.
     // TODO: Would a client ever actually want to see all of this? Wouldn't be hard to add it as an
     // option.
-    if (size == 0) {
+    if (size == 0 && this->asTexture() == nullptr) {
         return;
     }
 
