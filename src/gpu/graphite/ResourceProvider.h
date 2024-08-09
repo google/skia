@@ -88,6 +88,9 @@ public:
     size_t getResourceCacheCurrentBudgetedBytes() const {
         return fResourceCache->currentBudgetedBytes();
     }
+    size_t getResourceCacheCurrentPurgeableBytes() const {
+        return fResourceCache->currentPurgeableBytes();
+    }
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
         fResourceCache->dumpMemoryStatistics(traceMemoryDump);

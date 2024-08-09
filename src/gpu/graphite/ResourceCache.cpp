@@ -341,6 +341,7 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
     } else {
         resource->updateAccessTime();
         fPurgeableQueue.insert(resource);
+        fPurgeableBytes += resource->gpuMemorySize();
     }
     this->validate();
 }
@@ -365,6 +366,7 @@ void ResourceCache::removeFromNonpurgeableArray(Resource* resource) {
 
 void ResourceCache::removeFromPurgeableQueue(Resource* resource) {
     fPurgeableQueue.remove(resource);
+    fPurgeableBytes -= resource->gpuMemorySize();
     // SkTDPQueue will set the index back to -1 in debug builds, but we are using the index as a
     // flag for whether the Resource has been purged from the cache or not. So we need to make sure
     // it always gets set.
@@ -593,11 +595,14 @@ void ResourceCache::validate() const {
         int fShareable;
         int fScratch;
         size_t fBudgetedBytes;
+        size_t fPurgeableBytes;
         const ResourceMap* fResourceMap;
+        const PurgeableQueue* fPurgeableQueue;
 
         Stats(const ResourceCache* cache) {
             memset(this, 0, sizeof(*this));
             fResourceMap = &cache->fResourceMap;
+            fPurgeableQueue = &cache->fPurgeableQueue;
         }
 
         void update(Resource* resource) {
@@ -639,6 +644,12 @@ void ResourceCache::validate() const {
                 SkASSERT(resource->timestamp() == kMaxTimestamp);
             } else {
                 SkASSERT(resource->timestamp() < kMaxTimestamp);
+            }
+
+            int index = *resource->accessCacheIndex();
+            if (index < fPurgeableQueue->count() && fPurgeableQueue->at(index) == resource) {
+                SkASSERT(resource->isPurgeable());
+                fPurgeableBytes += resource->gpuMemorySize();
             }
         }
     };
@@ -690,6 +701,7 @@ void ResourceCache::validate() const {
 
     SkASSERT((stats.fScratch + stats.fShareable) == fResourceMap.count());
     SkASSERT(stats.fBudgetedBytes == fBudgetedBytes);
+    SkASSERT(stats.fPurgeableBytes == fPurgeableBytes);
 }
 
 bool ResourceCache::isInCache(const Resource* resource) const {

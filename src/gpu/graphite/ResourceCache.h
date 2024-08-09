@@ -82,6 +82,8 @@ public:
 
     size_t currentBudgetedBytes() const { return fBudgetedBytes; }
 
+    size_t currentPurgeableBytes() const { return fPurgeableBytes; }
+
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
 #if defined(GRAPHITE_TEST_UTILS)
@@ -172,6 +174,8 @@ private:
     // Our budget
     size_t fMaxBytes;
     size_t fBudgetedBytes = 0;
+
+    size_t fPurgeableBytes = 0;
 
     SingleOwner* fSingleOwner = nullptr;
 

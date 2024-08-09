@@ -475,6 +475,11 @@ size_t Recorder::currentBudgetedBytes() const {
     return fResourceProvider->getResourceCacheCurrentBudgetedBytes();
 }
 
+size_t Recorder::currentPurgeableBytes() const {
+    ASSERT_SINGLE_OWNER
+    return fResourceProvider->getResourceCacheCurrentPurgeableBytes();
+}
+
 size_t Recorder::maxBudgetedBytes() const {
     ASSERT_SINGLE_OWNER
     return fResourceProvider->getResourceCacheLimit();

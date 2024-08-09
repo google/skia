@@ -209,6 +209,11 @@ public:
     size_t currentBudgetedBytes() const;
 
     /**
+     * Returns the number of bytes of the Context's resource cache that are currently purgeable.
+     */
+    size_t currentPurgeableBytes() const;
+
+    /**
      * Returns the size of Context's gpu memory cache budget in bytes.
      */
     size_t maxBudgetedBytes() const;

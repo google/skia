@@ -193,6 +193,11 @@ public:
     size_t currentBudgetedBytes() const;
 
     /**
+     * Returns the number of bytes of the Recorder's resource cache that are currently purgeable.
+     */
+    size_t currentPurgeableBytes() const;
+
+    /**
      * Returns the size of Recorder's gpu memory cache budget in bytes.
      */
     size_t maxBudgetedBytes() const;

@@ -784,6 +784,11 @@ size_t Context::currentBudgetedBytes() const {
     return fResourceProvider->getResourceCacheCurrentBudgetedBytes();
 }
 
+size_t Context::currentPurgeableBytes() const {
+    ASSERT_SINGLE_OWNER
+    return fResourceProvider->getResourceCacheCurrentPurgeableBytes();
+}
+
 size_t Context::maxBudgetedBytes() const {
     ASSERT_SINGLE_OWNER
     return fResourceProvider->getResourceCacheLimit();
