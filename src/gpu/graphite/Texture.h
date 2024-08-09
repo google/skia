@@ -13,8 +13,6 @@
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
-#include <optional>
-
 namespace skgpu {
 class MutableTextureState;
 class RefCntedCallback;
@@ -45,8 +43,7 @@ protected:
             const TextureInfo& info,
             sk_sp<MutableTextureState> mutableState,
             Ownership,
-            skgpu::Budgeted,
-            std::optional<size_t> gpuMemorySize = std::nullopt);
+            skgpu::Budgeted);
 
     MutableTextureState* mutableState() const;
 

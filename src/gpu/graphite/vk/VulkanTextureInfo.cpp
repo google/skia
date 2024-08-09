@@ -34,6 +34,8 @@ private:
         return VkFormatToCompressionType(fVkSpec.fFormat);
     }
 
+    bool isMemoryless() const override { return false; }
+
     SkString toString() const override {
         return SkStringPrintf("Vulkan(%s,", fVkSpec.toString().c_str());
     }

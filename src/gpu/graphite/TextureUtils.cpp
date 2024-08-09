@@ -532,8 +532,10 @@ sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
     return sk_make_sp<skgpu::graphite::Image>(std::move(view), colorInfo.makeColorType(ct));
 }
 
-size_t ComputeSize(SkISize dimensions,
-                   const TextureInfo& info) {
+size_t ComputeSize(SkISize dimensions, const TextureInfo& info) {
+    if (info.isMemoryless()) {
+        return 0;
+    }
 
     SkTextureCompressionType compression = info.compressionType();
 

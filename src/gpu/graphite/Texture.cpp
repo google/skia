@@ -21,17 +21,13 @@ Texture::Texture(const SharedContext* sharedContext,
                  const TextureInfo& info,
                  sk_sp<MutableTextureState> mutableState,
                  Ownership ownership,
-                 skgpu::Budgeted budgeted,
-                 std::optional<size_t> gpuMemorySize)
-        : Resource(sharedContext,
-                   ownership,
-                   budgeted,
-                   gpuMemorySize ? *gpuMemorySize : ComputeSize(dimensions, info))
+                 skgpu::Budgeted budgeted)
+        : Resource(sharedContext, ownership, budgeted, ComputeSize(dimensions, info))
         , fDimensions(dimensions)
         , fInfo(info)
         , fMutableState(std::move(mutableState)) {}
 
-Texture::~Texture() {}
+Texture::~Texture() = default;
 
 void Texture::setReleaseCallback(sk_sp<RefCntedCallback> releaseCallback) {
     fReleaseCallback = std::move(releaseCallback);

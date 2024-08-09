@@ -19,17 +19,6 @@
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 
 namespace skgpu::graphite {
-namespace {
-size_t ComputeDawnTextureSize(const SkISize& dimensions, const TextureInfo& info) {
-#if !defined(__EMSCRIPTEN__)
-    const DawnTextureSpec dawnSpec = TextureInfos::GetDawnTextureSpec(info);
-    if (dawnSpec.fUsage & wgpu::TextureUsage::TransientAttachment) {
-        return 0;
-    }
-#endif
-    return ComputeSize(dimensions, info);
-}
-}  // namespace
 
 wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContext,
                                            SkISize dimensions,
@@ -105,8 +94,7 @@ DawnTexture::DawnTexture(const DawnSharedContext* sharedContext,
                   info,
                   /*mutableState=*/nullptr,
                   ownership,
-                  budgeted,
-                  ComputeDawnTextureSize(dimensions, info))
+                  budgeted)
         , fTexture(std::move(texture))
         , fSampleTextureView(std::move(sampleTextureView))
         , fRenderTextureView(std::move(renderTextureView)) {}

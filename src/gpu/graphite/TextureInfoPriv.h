@@ -32,6 +32,7 @@ private:
 
     virtual size_t bytesPerPixel() const = 0;
     virtual SkTextureCompressionType compressionType() const = 0;
+    virtual bool isMemoryless() const = 0;
     virtual SkString toString() const = 0;
     virtual SkString toRPAttachmentString(uint32_t sampleCount) const = 0;
 

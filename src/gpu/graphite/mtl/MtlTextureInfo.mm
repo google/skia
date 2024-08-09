@@ -37,6 +37,13 @@ private:
         return MtlFormatToCompressionType(fMtlSpec.fFormat);
     }
 
+    bool isMemoryless() const override {
+        if (@available(macOS 11.0, iOS 10.0, tvOS 10.0, *)) {
+            return fMtlSpec.fStorageMode == MTLStorageModeMemoryless;
+        }
+        return false;
+    }
+
     SkString toString() const override {
         return SkStringPrintf("Metal(%s,", fMtlSpec.toString().c_str());
     }

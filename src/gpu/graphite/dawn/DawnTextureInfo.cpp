@@ -35,6 +35,14 @@ private:
         return DawnFormatToCompressionType(fDawnSpec.getViewFormat());
     }
 
+    bool isMemoryless() const override {
+#if !defined(__EMSCRIPTEN__)
+        return fDawnSpec.fUsage & wgpu::TextureUsage::TransientAttachment;
+#else
+        return false;
+#endif
+    }
+
     SkString toString() const override {
         return SkStringPrintf("Dawn(%s,", fDawnSpec.toString().c_str());
     }

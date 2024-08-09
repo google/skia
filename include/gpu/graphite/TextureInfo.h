@@ -37,6 +37,7 @@ public:
     Mipmapped mipmapped() const { return fMipmapped; }
     Protected isProtected() const { return fProtected; }
     SkTextureCompressionType compressionType() const;
+    bool isMemoryless() const;
 
     bool isCompatible(const TextureInfo& that) const;
     // Return a string containing the full description of this TextureInfo.

@@ -149,6 +149,21 @@ SkTextureCompressionType TextureInfo::compressionType() const {
     }
 }
 
+bool TextureInfo::isMemoryless() const {
+    if (!this->isValid()) {
+        return false;
+    }
+
+    switch (fBackend) {
+        case BackendApi::kDawn:
+        case BackendApi::kMetal:
+        case BackendApi::kVulkan:
+            return fTextureInfoData->isMemoryless();
+        default:
+            return false;
+    }
+}
+
 TextureInfoData::~TextureInfoData(){};
 
 } // namespace skgpu::graphite
