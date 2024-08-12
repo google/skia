@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "tools/window/mac/GaneshANGLEWindowContext_mac.h"
+
 #include "tools/window/ANGLEWindowContext.h"
-#include "tools/window/mac/WindowContextFactory_mac.h"
+#include "tools/window/mac/MacWindowGLUtils.h"
+#include "tools/window/mac/MacWindowInfo.h"
 
 using skwindow::DisplayParams;
 using skwindow::MacWindowInfo;
@@ -65,8 +68,8 @@ SkISize ANGLEWindowContext_mac::onGetSize() const {
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeANGLEForMac(const MacWindowInfo& info,
-                                               const DisplayParams& params) {
+std::unique_ptr<WindowContext> MakeGaneshANGLEForMac(const MacWindowInfo& info,
+                                                     const DisplayParams& params) {
     std::unique_ptr<WindowContext> ctx(new ANGLEWindowContext_mac(info, params));
     if (!ctx->isValid()) {
         return nullptr;

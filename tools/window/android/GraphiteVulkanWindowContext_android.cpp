@@ -7,7 +7,7 @@
 
 #include "tools/window/android/WindowContextFactory_android.h"
 
-#include "tools/window/GraphiteVulkanWindowContext.h"
+#include "tools/window/GraphiteNativeVulkanWindowContext.h"
 
 #include "tools/gpu/vk/VkTestUtils.h"
 

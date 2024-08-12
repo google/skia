@@ -5,13 +5,13 @@
 * found in the LICENSE file.
 */
 
-#include "tools/window/unix/WindowContextFactory_unix.h"
-
 #include "src/base/SkUTF.h"
 #include "tools/sk_app/unix/Window_unix.h"
 #include "tools/skui/ModifierKey.h"
 #include "tools/timer/Timer.h"
 #include "tools/window/WindowContext.h"
+#include "tools/window/unix/RasterWindowContext_unix.h"
+#include "tools/window/unix/XlibWindowInfo.h"
 
 extern "C" {
     #include "tools/sk_app/unix/keysym2ucs.h"
@@ -19,6 +19,22 @@ extern "C" {
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
 #include <X11/XKBlib.h>
+
+#if defined(SK_GANESH) && defined(SK_GL)
+#include "tools/window/unix/GaneshGLWindowContext_unix.h"
+#endif
+
+#if defined(SK_GANESH) && defined(SK_VULKAN)
+#include "tools/window/unix/GaneshVulkanWindowContext_unix.h"
+#endif
+
+#if defined(SK_GRAPHITE) && defined(SK_VULKAN)
+#include "tools/window/unix/GraphiteNativeVulkanWindowContext_unix.h"
+#endif
+
+#if defined(SK_GRAPHITE) && defined(SK_DAWN)
+#include "tools/window/unix/GraphiteDawnVulkanWindowContext_unix.h"
+#endif
 
 namespace sk_app {
 
@@ -395,25 +411,26 @@ bool Window_unix::attach(BackendType attachType) {
     }
 
     switch (attachType) {
-#if defined(SK_DAWN) && defined(SK_GRAPHITE)
+#if defined(SK_GRAPHITE) && defined(SK_DAWN)
         case kGraphiteDawn_BackendType:
             fWindowContext = skwindow::MakeGraphiteDawnVulkanForXlib(winInfo,
                                                                      fRequestedDisplayParams);
             break;
 #endif
-#ifdef SK_VULKAN
+#if defined(SK_GANESH) && defined(SK_VULKAN)
         case kVulkan_BackendType:
-            fWindowContext = skwindow::MakeVulkanForXlib(winInfo, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeGaneshVulkanForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
-#if defined(SK_VULKAN) && defined(SK_GRAPHITE)
+#if defined(SK_GRAPHITE) && defined(SK_VULKAN)
         case kGraphiteVulkan_BackendType:
-            fWindowContext = skwindow::MakeGraphiteVulkanForXlib(winInfo, fRequestedDisplayParams);
+            fWindowContext =
+                    skwindow::MakeGraphiteNativeVulkanForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
-#ifdef SK_GL
+#if defined(SK_GANESH) && defined(SK_GL)
         case kNativeGL_BackendType:
-            fWindowContext = skwindow::MakeGLForXlib(winInfo, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeGaneshGLForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
         case kRaster_BackendType:

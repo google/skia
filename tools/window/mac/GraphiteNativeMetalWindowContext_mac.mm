@@ -4,9 +4,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "tools/window/mac/GraphiteNativeMetalWindowContext_mac.h"
 
-#include "tools/window/GraphiteMetalWindowContext.h"
-#include "tools/window/mac/WindowContextFactory_mac.h"
+#include "tools/window/GraphiteNativeMetalWindowContext.h"
+#include "tools/window/mac/MacWindowInfo.h"
 
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/CAConstraintLayoutManager.h>
@@ -29,22 +30,18 @@ public:
     void resize(int w, int h) override;
 
 private:
-    NSView*              fMainView;
+    NSView* fMainView;
 };
 
 GraphiteMetalWindowContext_mac::GraphiteMetalWindowContext_mac(const MacWindowInfo& info,
                                                                const DisplayParams& params)
-    : GraphiteMetalWindowContext(params)
-    , fMainView(info.fMainView) {
-
+        : GraphiteMetalWindowContext(params), fMainView(info.fMainView) {
     // any config code here (particularly for msaa)?
 
     this->initializeContext();
 }
 
-GraphiteMetalWindowContext_mac::~GraphiteMetalWindowContext_mac() {
-    this->destroyContext();
-}
+GraphiteMetalWindowContext_mac::~GraphiteMetalWindowContext_mac() { this->destroyContext(); }
 
 bool GraphiteMetalWindowContext_mac::onInitializeContext() {
     SkASSERT(nil != fMainView);
@@ -91,8 +88,8 @@ void GraphiteMetalWindowContext_mac::resize(int w, int h) {
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeGraphiteMetalForMac(const MacWindowInfo& info,
-                                                       const DisplayParams& params) {
+std::unique_ptr<WindowContext> MakeGraphiteNativeMetalForMac(const MacWindowInfo& info,
+                                                             const DisplayParams& params) {
     std::unique_ptr<WindowContext> ctx(new GraphiteMetalWindowContext_mac(info, params));
     if (!ctx->isValid()) {
         return nullptr;

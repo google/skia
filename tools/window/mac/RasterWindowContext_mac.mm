@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 Google Inc.
  *
@@ -6,14 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "tools/window/mac/RasterWindowContext_mac.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
-#include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
+#include "include/gpu/gl/GrGLInterface.h"
 #include "tools/ToolUtils.h"
 #include "tools/window/GLWindowContext.h"
-#include "tools/window/mac/WindowContextFactory_mac.h"
-#include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
+#include "tools/window/mac/MacWindowInfo.h"
 
 #include <OpenGL/gl.h>
 

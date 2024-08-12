@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 Google Inc.
  *
@@ -6,13 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "tools/window/mac/GaneshGLWindowContext_mac.h"
+
+#include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "tools/window/GLWindowContext.h"
-#include "tools/window/mac/WindowContextFactory_mac.h"
-#include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
+#include "tools/window/mac/MacWindowGLUtils.h"
+#include "tools/window/mac/MacWindowInfo.h"
 
-#include <OpenGL/gl.h>
 #include <Cocoa/Cocoa.h>
+#include <OpenGL/gl.h>
 
 using skwindow::DisplayParams;
 using skwindow::MacWindowInfo;
@@ -35,24 +37,19 @@ private:
     void teardownContext();
     void onSwapBuffers() override;
 
-    NSView*              fMainView;
-    NSOpenGLContext*     fGLContext;
+    NSView* fMainView;
+    NSOpenGLContext* fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
 };
 
 GLWindowContext_mac::GLWindowContext_mac(const MacWindowInfo& info, const DisplayParams& params)
-        : GLWindowContext(params)
-        , fMainView(info.fMainView)
-        , fGLContext(nil) {
-
+        : GLWindowContext(params), fMainView(info.fMainView), fGLContext(nil) {
     // any config code here (particularly for msaa)?
 
     this->initializeContext();
 }
 
-GLWindowContext_mac::~GLWindowContext_mac() {
-    teardownContext();
-}
+GLWindowContext_mac::~GLWindowContext_mac() { teardownContext(); }
 
 void GLWindowContext_mac::teardownContext() {
     [NSOpenGLContext clearCurrentContext];
@@ -117,9 +114,7 @@ void GLWindowContext_mac::onDestroyContext() {
     }
 }
 
-void GLWindowContext_mac::onSwapBuffers() {
-    [fGLContext flushBuffer];
-}
+void GLWindowContext_mac::onSwapBuffers() { [fGLContext flushBuffer]; }
 
 void GLWindowContext_mac::resize(int w, int h) {
     [fGLContext update];
@@ -128,13 +123,12 @@ void GLWindowContext_mac::resize(int w, int h) {
     GLWindowContext::resize(0, 0);
 }
 
-
 }  // anonymous namespace
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeGLForMac(const MacWindowInfo& info,
-                                            const DisplayParams& params) {
+std::unique_ptr<WindowContext> MakeGaneshGLForMac(const MacWindowInfo& info,
+                                                  const DisplayParams& params) {
     std::unique_ptr<WindowContext> ctx(new GLWindowContext_mac(info, params));
     if (!ctx->isValid()) {
         return nullptr;

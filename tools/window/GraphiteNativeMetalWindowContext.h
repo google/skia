@@ -44,13 +44,13 @@ protected:
 
     void onSwapBuffers() override;
 
-    bool                        fValid;
-    sk_cfp<id<MTLDevice>>       fDevice;
+    bool fValid;
+    sk_cfp<id<MTLDevice>> fDevice;
     sk_cfp<id<MTLCommandQueue>> fQueue;
-    CAMetalLayer*               fMetalLayer;
-    CFTypeRef                   fDrawableHandle;
+    CAMetalLayer* fMetalLayer;
+    CFTypeRef fDrawableHandle;
 };
 
-}   // namespace skwindow::internal
+}  // namespace skwindow::internal
 
 #endif

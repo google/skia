@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "tools/window/GraphiteNativeMetalWindowContext.h"
+
 #include "include/core/SkSurface.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
@@ -15,10 +17,9 @@
 #include "include/gpu/graphite/mtl/MtlBackendContext.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
-#include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "src/base/SkMathPriv.h"
+#include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/GpuToolUtils.h"
-#include "tools/window/GraphiteMetalWindowContext.h"
 
 using skwindow::DisplayParams;
 using skwindow::internal::GraphiteMetalWindowContext;
@@ -26,9 +27,7 @@ using skwindow::internal::GraphiteMetalWindowContext;
 namespace skwindow::internal {
 
 GraphiteMetalWindowContext::GraphiteMetalWindowContext(const DisplayParams& params)
-        : WindowContext(params)
-        , fValid(false)
-        , fDrawableHandle(nil) {
+        : WindowContext(params), fValid(false), fDrawableHandle(nil) {
     fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
 }
 
@@ -64,11 +63,11 @@ void GraphiteMetalWindowContext::initializeContext() {
             backendContext, fDisplayParams.fGraphiteContextOptions.fOptions);
     fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
     // TODO
-//    if (!fGraphiteContext && fDisplayParams.fMSAASampleCount > 1) {
-//        fDisplayParams.fMSAASampleCount /= 2;
-//        this->initializeContext();
-//        return;
-//    }
+    //    if (!fGraphiteContext && fDisplayParams.fMSAASampleCount > 1) {
+    //        fDisplayParams.fMSAASampleCount /= 2;
+    //        this->initializeContext();
+    //        return;
+    //    }
 }
 
 void GraphiteMetalWindowContext::destroyContext() {
@@ -101,7 +100,7 @@ sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
                                              kBGRA_8888_SkColorType,
                                              fDisplayParams.fColorSpace,
                                              &fDisplayParams.fSurfaceProps);
-    fDrawableHandle = CFRetain((CFTypeRef) currentDrawable);
+    fDrawableHandle = CFRetain((CFTypeRef)currentDrawable);
 
     return surface;
 }
@@ -129,4 +128,4 @@ void GraphiteMetalWindowContext::setDisplayParams(const DisplayParams& params) {
 
 void GraphiteMetalWindowContext::activate(bool isActive) {}
 
-}   //namespace skwindow::internal
+}  // namespace skwindow::internal

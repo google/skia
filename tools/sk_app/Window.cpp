@@ -9,12 +9,9 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "tools/window/WindowContext.h"
-
-#if defined(SK_GANESH)
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#endif
+#include "tools/window/WindowContext.h"
 
 namespace sk_app {
 

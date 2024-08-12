@@ -4,9 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+// Important to put this first because webgpu_cpp.h and X.h don't get along.
+// Include these first, before X11 defines None, Success, Status etc.
+#include "dawn/native/DawnNative.h"  // NO_G3_REWRITE
+#include "webgpu/webgpu_cpp.h"       // NO_G3_REWRITE
+
+#include "tools/window/unix/GraphiteDawnVulkanWindowContext_unix.h"
 
 #include "tools/window/GraphiteDawnWindowContext.h"
-#include "tools/window/unix/WindowContextFactory_unix.h"
+#include "tools/window/unix/XlibWindowInfo.h"
 
 using skwindow::XlibWindowInfo;
 using skwindow::DisplayParams;

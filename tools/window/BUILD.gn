@@ -41,19 +41,17 @@ skia_component("window") {
   } else if (is_linux) {
     sources += [
       "unix/RasterWindowContext_unix.cpp",
-      "unix/WindowContextFactory_unix.h",
+      "unix/RasterWindowContext_unix.h",
+      "unix/XlibWindowInfo.h",
     ]
-    libs += [
-      "GL",  # Used by raster window context, so cannot be behind skia_use_gl.
-      "X11",
-    ]
+    libs += [ "X11" ]
   } else if (is_win) {
     sources += [
       "win/RasterWindowContext_win.cpp",
       "win/WindowContextFactory_win.h",
     ]
   } else if (is_mac) {
-    sources += [ "mac/WindowContextFactory_mac.h" ]
+    sources += [ "mac/MacWindowInfo.h" ]
     frameworks += [
       "QuartzCore.framework",
       "Cocoa.framework",
@@ -75,7 +73,11 @@ skia_component("window") {
     if (is_android) {
       sources += [ "android/GLWindowContext_android.cpp" ]
     } else if (is_linux) {
-      sources += [ "unix/GLWindowContext_unix.cpp" ]
+      sources += [
+        "unix/GaneshGLWindowContext_unix.cpp",
+        "unix/GaneshGLWindowContext_unix.h",
+      ]
+      libs += [ "GL" ]
     } else if (is_win) {
       sources += [ "win/GLWindowContext_win.cpp" ]
       if (skia_use_angle) {
@@ -83,11 +85,19 @@ skia_component("window") {
       }
     } else if (is_mac) {
       sources += [
-        "mac/GLWindowContext_mac.mm",
+        # The Mac Raster implementation has a GL dependency
+        "mac/GaneshGLWindowContext_mac.h",
+        "mac/GaneshGLWindowContext_mac.mm",
+        "mac/MacWindowGLUtils.h",
+        "mac/RasterWindowContext_mac.h",
         "mac/RasterWindowContext_mac.mm",
       ]
       if (skia_use_angle) {
-        sources += [ "mac/ANGLEWindowContext_mac.mm" ]
+        sources += [
+          "mac/GaneshANGLEWindowContext_mac.h",
+          "mac/GaneshANGLEWindowContext_mac.mm",
+          "mac/MacWindowGLUtils.h",
+        ]
       }
     } else if (is_ios) {
       sources += [
@@ -104,8 +114,8 @@ skia_component("window") {
     ]
     if (skia_enable_graphite) {
       sources += [
-        "GraphiteVulkanWindowContext.cpp",
-        "GraphiteVulkanWindowContext.h",
+        "GraphiteNativeVulkanWindowContext.cpp",
+        "GraphiteNativeVulkanWindowContext.h",
       ]
     }
     if (is_android) {
@@ -114,9 +124,15 @@ skia_component("window") {
         sources += [ "android/GraphiteVulkanWindowContext_android.cpp" ]
       }
     } else if (is_linux) {
-      sources += [ "unix/VulkanWindowContext_unix.cpp" ]
+      sources += [
+        "unix/GaneshVulkanWindowContext_unix.cpp",
+        "unix/GaneshVulkanWindowContext_unix.h",
+      ]
       if (skia_enable_graphite) {
-        sources += [ "unix/GraphiteVulkanWindowContext_unix.cpp" ]
+        sources += [
+          "unix/GraphiteNativeVulkanWindowContext_unix.cpp",
+          "unix/GraphiteNativeVulkanWindowContext_unix.h",
+        ]
       }
       libs += [ "X11-xcb" ]
     } else if (is_win) {
@@ -134,14 +150,20 @@ skia_component("window") {
     ]
     if (skia_enable_graphite) {
       sources += [
-        "GraphiteMetalWindowContext.h",
-        "GraphiteMetalWindowContext.mm",
+        "GraphiteNativeMetalWindowContext.h",
+        "GraphiteNativeMetalWindowContext.mm",
       ]
     }
     if (is_mac) {
-      sources += [ "mac/MetalWindowContext_mac.mm" ]
+      sources += [
+        "mac/GaneshMetalWindowContext_mac.h",
+        "mac/GaneshMetalWindowContext_mac.mm",
+      ]
       if (skia_enable_graphite) {
-        sources += [ "mac/GraphiteMetalWindowContext_mac.mm" ]
+        sources += [
+          "mac/GraphiteNativeMetalWindowContext_mac.h",
+          "mac/GraphiteNativeMetalWindowContext_mac.mm",
+        ]
       }
     } else if (is_ios) {
       sources += [ "ios/MetalWindowContext_ios.mm" ]
@@ -165,6 +187,7 @@ skia_component("window") {
             "GraphiteDawnWindowContext.cpp",
             "GraphiteDawnWindowContext.h",
             "unix/GraphiteDawnVulkanWindowContext_unix.cpp",
+            "unix/GraphiteDawnVulkanWindowContext_unix.h",
           ]
         }
       }
@@ -184,6 +207,7 @@ skia_component("window") {
           sources += [
             "GraphiteDawnWindowContext.cpp",
             "GraphiteDawnWindowContext.h",
+            "mac/GraphiteDawnMetalWindowContext_mac.h",
             "mac/GraphiteDawnMetalWindowContext_mac.mm",
           ]
         }

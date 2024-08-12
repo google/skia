@@ -10,7 +10,29 @@
 #include "include/core/SkTypes.h"
 #include "tools/sk_app/mac/Window_mac.h"
 #include "tools/skui/ModifierKey.h"
-#include "tools/window/mac/WindowContextFactory_mac.h"
+#include "tools/window/WindowContext.h"
+#include "tools/window/mac/MacWindowInfo.h"
+
+#if defined(SK_GANESH) && defined(SK_ANGLE)
+#include "tools/window/mac/GaneshANGLEWindowContext_mac.h"
+#endif
+
+#if defined(SK_GANESH) && defined(SK_GL)
+#include "tools/window/mac/GaneshGLWindowContext_mac.h"
+#include "tools/window/mac/RasterWindowContext_mac.h"
+#endif
+
+#if defined(SK_GANESH) && defined(SK_METAL)
+#include "tools/window/mac/GaneshMetalWindowContext_mac.h"
+#endif
+
+#if defined(SK_GRAPHITE) && defined(SK_METAL)
+#include "tools/window/mac/GraphiteNativeMetalWindowContext_mac.h"
+#endif
+
+#if defined(SK_GRAPHITE) && defined(SK_DAWN)
+#include "tools/window/mac/GraphiteDawnMetalWindowContext_mac.h"
+#endif
 
 @interface WindowDelegate : NSObject<NSWindowDelegate>
 
@@ -122,43 +144,32 @@ bool Window_mac::attach(BackendType attachType) {
     skwindow::MacWindowInfo info;
     info.fMainView = [fWindow contentView];
     switch (attachType) {
-#if SK_ANGLE
+#if defined(SK_GANESH) && defined(SK_ANGLE)
         case kANGLE_BackendType:
-            fWindowContext = skwindow::MakeANGLEForMac(info, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeGaneshANGLEForMac(info, fRequestedDisplayParams);
             break;
 #endif
-#ifdef SK_DAWN
-#if defined(SK_GRAPHITE)
+#if defined(SK_GRAPHITE) && defined(SK_DAWN)
         case kGraphiteDawn_BackendType:
             fWindowContext = MakeGraphiteDawnMetalForMac(info, fRequestedDisplayParams);
             break;
 #endif
-#endif
-#ifdef SK_VULKAN
-        case kVulkan_BackendType:
-            fWindowContext = MakeVulkanForMac(info, fRequestedDisplayParams);
-            break;
-#if defined(SK_GRAPHITE)
-        case kGraphiteVulkan_BackendType:
-            fWindowContext = nullptr;
-            return false;
-#endif
-#endif
-#ifdef SK_METAL
+#if defined(SK_GANESH) && defined(SK_METAL)
         case kMetal_BackendType:
-            fWindowContext = MakeMetalForMac(info, fRequestedDisplayParams);
+            fWindowContext = MakeGaneshMetalForMac(info, fRequestedDisplayParams);
             break;
-#if defined(SK_GRAPHITE)
+#endif
+#if defined(SK_GRAPHITE) && defined(SK_METAL)
         case kGraphiteMetal_BackendType:
-            fWindowContext = MakeGraphiteMetalForMac(info, fRequestedDisplayParams);
+            fWindowContext = MakeGraphiteNativeMetalForMac(info, fRequestedDisplayParams);
             break;
 #endif
-#endif
-#ifdef SK_GL
+#if defined(SK_GANESH) && defined(SK_GL)
         case kNativeGL_BackendType:
-            fWindowContext = MakeGLForMac(info, fRequestedDisplayParams);
+            fWindowContext = MakeGaneshGLForMac(info, fRequestedDisplayParams);
             break;
         case kRaster_BackendType:
+            // The Raster IMPL requires GL
             fWindowContext = MakeRasterForMac(info, fRequestedDisplayParams);
             break;
 #endif

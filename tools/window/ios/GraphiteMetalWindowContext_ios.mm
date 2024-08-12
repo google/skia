@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "tools/window/GraphiteMetalWindowContext.h"
+#include "tools/window/GraphiteNativeMetalWindowContext.h"
 #include "tools/window/ios/WindowContextFactory_ios.h"
 
 #import <Metal/Metal.h>

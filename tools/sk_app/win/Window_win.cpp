@@ -16,10 +16,6 @@
 #include "tools/window/win/WindowContextFactory_win.h"
 #include "tools/skui/ModifierKey.h"
 
-#ifdef SK_VULKAN
-#include "tools/window/VulkanWindowContext.h"
-#endif
-
 namespace sk_app {
 
 static int gWindowX = CW_USEDEFAULT;

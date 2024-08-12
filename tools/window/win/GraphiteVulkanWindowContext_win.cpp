@@ -8,7 +8,7 @@
 #include "tools/window/win/WindowContextFactory_win.h"
 
 #include "tools/sk_app/win/Window_win.h"
-#include "tools/window/GraphiteVulkanWindowContext.h"
+#include "tools/window/GraphiteNativeVulkanWindowContext.h"
 
 #include "tools/gpu/vk/VkTestUtils.h"
 

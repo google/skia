@@ -4,20 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "tools/window/unix/GaneshVulkanWindowContext_unix.h"
 
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-
 #include "tools/gpu/vk/VkTestUtils.h"
-
 #include "tools/window/VulkanWindowContext.h"
-#include "tools/window/unix/WindowContextFactory_unix.h"
+#include "tools/window/unix/XlibWindowInfo.h"
 
 #include <X11/Xlib-xcb.h>
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeVulkanForXlib(const XlibWindowInfo& info,
-                                                 const DisplayParams& displayParams) {
+std::unique_ptr<WindowContext> MakeGaneshVulkanForXlib(const XlibWindowInfo& info,
+                                                       const DisplayParams& displayParams) {
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
         SkDebugf("Could not load vulkan library\n");
@@ -28,7 +27,7 @@ std::unique_ptr<WindowContext> MakeVulkanForXlib(const XlibWindowInfo& info,
         static PFN_vkCreateXcbSurfaceKHR createXcbSurfaceKHR = nullptr;
         if (!createXcbSurfaceKHR) {
             createXcbSurfaceKHR =
-                    (PFN_vkCreateXcbSurfaceKHR) instProc(instance, "vkCreateXcbSurfaceKHR");
+                    (PFN_vkCreateXcbSurfaceKHR)instProc(instance, "vkCreateXcbSurfaceKHR");
         }
 
         VkSurfaceKHR surface;
@@ -49,30 +48,26 @@ std::unique_ptr<WindowContext> MakeVulkanForXlib(const XlibWindowInfo& info,
         return surface;
     };
 
-    auto canPresent = [&info, instProc](VkInstance instance, VkPhysicalDevice physDev,
-                              uint32_t queueFamilyIndex) {
+    auto canPresent = [&info, instProc](VkInstance instance,
+                                        VkPhysicalDevice physDev,
+                                        uint32_t queueFamilyIndex) {
         static PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR
-                                                getPhysicalDeviceXcbPresentationSupportKHR = nullptr;
+                getPhysicalDeviceXcbPresentationSupportKHR = nullptr;
         if (!getPhysicalDeviceXcbPresentationSupportKHR) {
             getPhysicalDeviceXcbPresentationSupportKHR =
-                (PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)
-                    instProc(instance, "vkGetPhysicalDeviceXcbPresentationSupportKHR");
+                    (PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR)instProc(
+                            instance, "vkGetPhysicalDeviceXcbPresentationSupportKHR");
         }
 
         Display* display = info.fDisplay;
-        VisualID visualID = XVisualIDFromVisual(DefaultVisual(info.fDisplay,
-                                                              DefaultScreen(info.fDisplay)));
-        VkBool32 check = getPhysicalDeviceXcbPresentationSupportKHR(physDev,
-                                                                    queueFamilyIndex,
-                                                                    XGetXCBConnection(display),
-                                                                    visualID);
+        VisualID visualID =
+                XVisualIDFromVisual(DefaultVisual(info.fDisplay, DefaultScreen(info.fDisplay)));
+        VkBool32 check = getPhysicalDeviceXcbPresentationSupportKHR(
+                physDev, queueFamilyIndex, XGetXCBConnection(display), visualID);
         return (VK_FALSE != check);
     };
-    std::unique_ptr<WindowContext> ctx(
-            new internal::VulkanWindowContext(displayParams,
-                                              createVkSurface,
-                                              canPresent,
-                                              instProc));
+    std::unique_ptr<WindowContext> ctx(new internal::VulkanWindowContext(
+            displayParams, createVkSurface, canPresent, instProc));
     if (!ctx->isValid()) {
         return nullptr;
     }

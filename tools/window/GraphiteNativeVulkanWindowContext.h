@@ -16,7 +16,9 @@
 
 class GrRenderTarget;
 
-namespace skgpu { struct VulkanInterface; }
+namespace skgpu {
+struct VulkanInterface;
+}
 
 namespace skwindow::internal {
 
@@ -28,9 +30,7 @@ public:
 
     bool isValid() override { return fDevice != VK_NULL_HANDLE; }
 
-    void resize(int w, int h) override {
-        this->createSwapchain(w, h, fDisplayParams);
-    }
+    void resize(int w, int h) override { this->createSwapchain(w, h, fDisplayParams); }
 
     void setDisplayParams(const DisplayParams& params) override {
         this->destroyContext();
@@ -43,7 +43,9 @@ public:
     /** Platform specific function that determines whether presentation will succeed. */
     using CanPresentFn = sk_gpu_test::CanPresentFn;
 
-    GraphiteVulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn,
+    GraphiteVulkanWindowContext(const DisplayParams&,
+                                CreateVkSurfaceFn,
+                                CanPresentFn,
                                 PFN_vkGetInstanceProcAddr);
 
 private:
@@ -51,8 +53,8 @@ private:
     void destroyContext();
 
     struct BackbufferInfo {
-        uint32_t        fImageIndex;          // image this is associated with
-        VkSemaphore     fRenderSemaphore;     // we wait on this for rendering to be done
+        uint32_t fImageIndex;          // image this is associated with
+        VkSemaphore fRenderSemaphore;  // we wait on this for rendering to be done
     };
 
     BackbufferInfo* getAvailableBackbuffer();
@@ -68,16 +70,18 @@ private:
 
     // Create functions
     CreateVkSurfaceFn fCreateVkSurfaceFn;
-    CanPresentFn      fCanPresentFn;
+    CanPresentFn fCanPresentFn;
 
     PFN_vkGetInstanceProcAddr fGetInstanceProcAddr = nullptr;
 
     // WSI interface functions
     PFN_vkDestroySurfaceKHR fDestroySurfaceKHR = nullptr;
     PFN_vkGetPhysicalDeviceSurfaceSupportKHR fGetPhysicalDeviceSurfaceSupportKHR = nullptr;
-    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fGetPhysicalDeviceSurfaceCapabilitiesKHR =nullptr;
+    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fGetPhysicalDeviceSurfaceCapabilitiesKHR =
+            nullptr;
     PFN_vkGetPhysicalDeviceSurfaceFormatsKHR fGetPhysicalDeviceSurfaceFormatsKHR = nullptr;
-    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR fGetPhysicalDeviceSurfacePresentModesKHR =nullptr;
+    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR fGetPhysicalDeviceSurfacePresentModesKHR =
+            nullptr;
 
     PFN_vkCreateSwapchainKHR fCreateSwapchainKHR = nullptr;
     PFN_vkDestroySwapchainKHR fDestroySwapchainKHR = nullptr;
@@ -94,24 +98,24 @@ private:
 
     sk_sp<const skgpu::VulkanInterface> fInterface;
 
-    VkSurfaceKHR      fSurface;
-    VkSwapchainKHR    fSwapchain;
-    uint32_t          fGraphicsQueueIndex;
-    VkQueue           fGraphicsQueue;
-    uint32_t          fPresentQueueIndex;
-    VkQueue           fPresentQueue;
+    VkSurfaceKHR fSurface;
+    VkSwapchainKHR fSwapchain;
+    uint32_t fGraphicsQueueIndex;
+    VkQueue fGraphicsQueue;
+    uint32_t fPresentQueueIndex;
+    VkQueue fPresentQueue;
 
-    uint32_t               fImageCount;
-    VkImage*               fImages;         // images in the swapchain
-    VkImageLayout*         fImageLayouts;   // layouts of these images when not color attachment
-    sk_sp<SkSurface>*      fSurfaces;       // surfaces client renders to (may not be based on rts)
-    BackbufferInfo*        fBackbuffers;
-    uint32_t               fCurrentBackbufferIndex;
-    VkSemaphore            fWaitSemaphore = VK_NULL_HANDLE;
+    uint32_t fImageCount;
+    VkImage* fImages;              // images in the swapchain
+    VkImageLayout* fImageLayouts;  // layouts of these images when not color attachment
+    sk_sp<SkSurface>* fSurfaces;   // surfaces client renders to (may not be based on rts)
+    BackbufferInfo* fBackbuffers;
+    uint32_t fCurrentBackbufferIndex;
+    VkSemaphore fWaitSemaphore = VK_NULL_HANDLE;
 };
 
 }  // namespace skwindow::internal
 
-#endif // SK_VULKAN
+#endif  // SK_VULKAN
 
-#endif // GraphiteVulkanWindowContext_DEFINED
+#endif  // GraphiteVulkanWindowContext_DEFINED
