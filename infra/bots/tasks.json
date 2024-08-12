@@ -230,6 +230,11 @@
         "Build-Debian10-Clang-arm64-Debug-Android_FrameworkWorkarounds"
       ]
     },
+    "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn_GLES": {
+      "tasks": [
+        "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn_GLES"
+      ]
+    },
     "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn_Vulkan": {
       "tasks": [
         "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn_Vulkan"
@@ -258,6 +263,11 @@
     "Build-Debian10-Clang-arm64-Release-Android_API30": {
       "tasks": [
         "Build-Debian10-Clang-arm64-Release-Android_API30"
+      ]
+    },
+    "Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES": {
+      "tasks": [
+        "Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES"
       ]
     },
     "Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_Vulkan": {
@@ -298,6 +308,11 @@
     "Build-Debian10-Clang-x86-Debug-Android": {
       "tasks": [
         "Build-Debian10-Clang-x86-Debug-Android"
+      ]
+    },
+    "Build-Debian10-Clang-x86-Debug-Android_Graphite_Dawn_GLES": {
+      "tasks": [
+        "Build-Debian10-Clang-x86-Debug-Android_Graphite_Dawn_GLES"
       ]
     },
     "Build-Debian10-Clang-x86-Debug-Android_Graphite_Dawn_Vulkan": {
@@ -1578,6 +1593,11 @@
         "Upload-Perf-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Vulkan"
       ]
     },
+    "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES": {
+      "tasks": [
+        "Upload-Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES"
+      ]
+    },
     "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_Vulkan": {
       "tasks": [
         "Upload-Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_Vulkan"
@@ -2322,6 +2342,11 @@
     "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android": {
       "tasks": [
         "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android"
+      ]
+    },
+    "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES": {
+      "tasks": [
+        "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES"
       ]
     },
     "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_Vulkan": {
@@ -6396,6 +6421,113 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
+    "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn_GLES": {
+      "caches": [
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.11.9.chromium.35"
+        },
+        {
+          "name": "infra/3pp/tools/git/linux-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:3@2.46.0.chromium.11"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:18"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn_GLES\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
     "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn_Vulkan": {
       "caches": [
         {
@@ -6881,6 +7013,113 @@
         "${ISOLATED_OUTDIR}",
         "compile",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian10-Clang-arm64-Release-Android_API30\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES": {
+      "caches": [
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.11.9.chromium.35"
+        },
+        {
+          "name": "infra/3pp/tools/git/linux-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:3@2.46.0.chromium.11"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:18"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -7585,6 +7824,113 @@
         "${ISOLATED_OUTDIR}",
         "compile",
         "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian10-Clang-x86-Debug-Android\",\"swarm_out_dir\":\"build\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "idempotent": true,
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "build"
+      ],
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Build-Debian10-Clang-x86-Debug-Android_Graphite_Dawn_GLES": {
+      "caches": [
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        },
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "compile",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.11.9.chromium.35"
+        },
+        {
+          "name": "infra/3pp/tools/git/linux-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:3@2.46.0.chromium.11"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "skia/bots/android_ndk_linux",
+          "path": "android_ndk_linux",
+          "version": "version:18"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "compile",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildername\":\"Build-Debian10-Clang-x86-Debug-Android_Graphite_Dawn_GLES\",\"swarm_out_dir\":\"build\"}",
         "skia"
       ],
       "dependencies": [
@@ -31106,6 +31452,87 @@
         "perf"
       ]
     },
+    "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "perf",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.11.9.chromium.35"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "perf",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES\",\"do_upload\":\"true\",\"nanobench_flags\":\"[\\\"nanobench\\\",\\\"--pre_log\\\",\\\"--gpuStatsDump\\\",\\\"true\\\",\\\"--nocpu\\\",\\\"--config\\\",\\\"grdawn_gles\\\",\\\"--internalSamples\\\",\\\"4\\\",\\\"--match\\\",\\\"~blurroundrect\\\",\\\"~patch_grid\\\",\\\"~desk_carsvg\\\",\\\"~inc0.gif\\\",\\\"~inc1.gif\\\",\\\"~incInterlaced.gif\\\",\\\"~inc0.jpg\\\",\\\"~incGray.jpg\\\",\\\"~inc0.wbmp\\\",\\\"~inc1.wbmp\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"~inc0.ico\\\",\\\"~inc1.ico\\\",\\\"~inc0.png\\\",\\\"~inc1.png\\\",\\\"~inc2.png\\\",\\\"~inc12.png\\\",\\\"~inc13.png\\\",\\\"~inc14.png\\\",\\\"~inc0.webp\\\",\\\"~inc1.webp\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"MaliG78\\\",\\\"extra_config\\\",\\\"Android_Graphite_Dawn_GLES\\\",\\\"model\\\",\\\"Pixel6\\\",\\\"os\\\",\\\"Android\\\"]\",\"nanobench_properties\":\"{\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\"}\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"perf\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:SD1A.210817.037",
+        "device_type:oriole",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "perf"
+      ]
+    },
     "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_Vulkan": {
       "caches": [
         {
@@ -44334,6 +44761,94 @@
       ],
       "dependencies": [
         "Build-Debian10-Clang-arm64-Release-Android",
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateSKP",
+        "Housekeeper-PerCommit-IsolateSVG",
+        "Housekeeper-PerCommit-IsolateSkImage"
+      ],
+      "dimensions": [
+        "device_os:SD1A.210817.037",
+        "device_type:oriole",
+        "os:Android",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "gsutil/gsutil",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-arm64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.11.9.chromium.35"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "skia/bots/gsutil",
+          "path": "gsutil",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"arm64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"GPU\\\",\\\"cpu_or_gpu_value\\\",\\\"MaliG78\\\",\\\"extra_config\\\",\\\"Android_Graphite_Dawn_GLES\\\",\\\"model\\\",\\\"Pixel6\\\",\\\"os\\\",\\\"Android\\\",\\\"style\\\",\\\"default\\\",\\\"--nocpu\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"grdawn_gles\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"--skip\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PaintParamsKeyTestReduced\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"runtime_intrinsics_matrix\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BackendTextureTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"PaintParamsKeyTest\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImageTest_Graphite\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"aaclip\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"backdrop_imagefilter_croprect_persp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"bigblurs\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"bitmaptiled_fractional_horizontal\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"bitmaptiled_fractional_vertical\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"blur2rectsnonninepatch\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"blurredclippedcircle\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"bug9331\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"circular-clips\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"clip_shader_persp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"clipcubic\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"clippedcubic\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"clippedcubic2\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip_aa\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip_aa_invert\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip_aa_layer\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip_aa_layer_invert\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip_blur_tiled\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip_bw\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip_bw_invert\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip_bw_layer\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip_bw_layer_invert\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip2\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip2_path_aa\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip2_path_bw\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip2_rect_aa\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip2_rrect_aa\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip2_rrect_bw\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip3_complex\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip3_simple\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip4_aa\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"complexclip4_bw\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"croppedrects\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"filltypes\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"filltypespersp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"glyph_pos_n_s\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"mixedtextblobs\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"parsedpaths\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"pathinvfill\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"persptext\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"persptext_minimal\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"pictureshader_persp\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"rrect_clip_aa\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"rrect_clip_bw\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"simpleaaclip_path\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"simpleaaclip_rect\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"skbug_9319\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"strokes_poly\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"tall_stretched_bitmaps\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"wacky_yuv_formats_frompixmaps\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"windowrectangles\\\",\\\"_\\\",\\\"gm\\\",\\\"_\\\",\\\"wacky_yuv_formats_domain\\\",\\\"_\\\",\\\"svg\\\",\\\"_\\\",\\\"svgparse_\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"BigImageTest_Ganesh\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"_\\\",\\\"test\\\",\\\"_\\\",\\\"GrStyledShape\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced1.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced2.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\"interlaced3.png\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".arw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".cr2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".dng\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".nrw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".orf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".raf\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".rw2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".pef\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".srw\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ARW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".CR2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".DNG\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".NRW\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".ORF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RAF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".RW2\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".PEF\\\",\\\"_\\\",\\\"image\\\",\\\"_\\\",\\\".SRW\\\",\\\"--match\\\",\\\"~^verylarge_picture_image$\\\",\\\"~^verylargebitmap$\\\",\\\"~^path_huge_aa$\\\",\\\"~^fast_constraint_red_is_allowed$\\\",\\\"~^strict_constraint_batch_no_red_allowed$\\\",\\\"~^strict_constraint_no_red_allowed$\\\",\\\"~async_rescale_and_read\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://gold.skia.org/json/v1/hashes\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES",
         "Housekeeper-PerCommit-BundleRecipes",
         "Housekeeper-PerCommit-IsolateSKP",
         "Housekeeper-PerCommit-IsolateSVG",
@@ -71592,6 +72107,88 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Android-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "gsutil/gsutil"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "max_attempts": 2,
+      "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "run-recipe",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.11.9.chromium.35"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:351acf284d662cf568d06b243b9b5b55587f8884"
+        },
+        {
+          "name": "skia/bots/gsutil",
+          "path": "gsutil",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "upload_nano_results",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",

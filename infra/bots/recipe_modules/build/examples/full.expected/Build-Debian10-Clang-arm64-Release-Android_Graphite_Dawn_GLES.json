@@ -1,0 +1,89 @@
+[
+  {
+    "cmd": [
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/cache/work/skia/infra/bots/assets/android_ndk_linux/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get android_ndk_linux VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@VERSION@42@@@",
+      "@@@STEP_LOG_END@VERSION@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python3",
+      "[START_DIR]/cache/work/skia/bin/fetch-gn"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-gn"
+  },
+  {
+    "cmd": [
+      "python3",
+      "[START_DIR]/cache/work/skia/bin/fetch-ninja"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "fetch-ninja"
+  },
+  {
+    "cmd": [
+      "[START_DIR]/cache/work/skia/bin/gn",
+      "gen",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES/Release",
+      "--args=dawn_enable_d3d11=false dawn_enable_d3d12=false dawn_enable_desktop_gl=false dawn_enable_metal=false dawn_enable_opengles=true dawn_enable_vulkan=false extra_cflags=[\"-DREBUILD_IF_CHANGED_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" ndk_api=26 skia_enable_graphite=true skia_use_dawn=true skia_use_gl=false target_cpu=\"arm64\" werror=true"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "PYTHONPATH": "[START_DIR]/cache/work/skia/third_party/externals:%(PYTHONPATH)s"
+    },
+    "name": "gn gen"
+  },
+  {
+    "cmd": [
+      "ninja",
+      "-C",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES/Release"
+    ],
+    "cwd": "[START_DIR]/cache/work/skia",
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "PYTHONPATH": "[START_DIR]/cache/work/skia/third_party/externals:%(PYTHONPATH)s"
+    },
+    "name": "ninja"
+  },
+  {
+    "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::build]/resources/copy_build_products.py",
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES/Release",
+      "[START_DIR]/[SWARM_OUT_DIR]/out/Release",
+      "dm,nanobench,skottie_tool_gpu"
+    ],
+    "infra_step": true,
+    "name": "copy build products"
+  },
+  {
+    "name": "$result"
+  }
+]

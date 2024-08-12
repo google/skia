@@ -34,6 +34,7 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-arm64-Debug-Android_FrameworkWorkarounds',
   'Build-Debian10-Clang-arm64-Debug-Android_Graphite_Native_Vulkan',
   'Build-Debian10-Clang-arm64-Debug-Android_HWASAN',
+  'Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES',
   'Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_Vulkan',
   'Build-Debian10-Clang-arm64-Release-Android_Wuffs',
   'Build-Debian10-Clang-x86_64-Debug-ASAN_Graphite_Native_Vulkan',

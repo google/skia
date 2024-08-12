@@ -90,6 +90,7 @@
    },
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_API30"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_FrameworkWorkarounds"},
+  {"name": "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn_GLES"},
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_Graphite_Dawn_Vulkan",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*",
      "bazel/external/dawn/*", "DEPS"]}
@@ -101,6 +102,7 @@
   {"name": "Build-Debian10-Clang-arm64-Debug-Android_Vulkan"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android_API30"},
+  {"name": "Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_GLES"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android_Graphite_Dawn_Vulkan"},
   {"name": "Build-Debian10-Clang-arm64-Release-Android_Graphite_Native_Vulkan",
   "cq_config": {}
@@ -111,6 +113,7 @@
   {"name": "Build-Debian10-Clang-x64-Release-Android"},
   {"name": "Build-Debian10-Clang-x86-Debug"},
   {"name": "Build-Debian10-Clang-x86-Debug-Android"},
+  {"name": "Build-Debian10-Clang-x86-Debug-Android_Graphite_Dawn_GLES"},
   {"name": "Build-Debian10-Clang-x86-Debug-Android_Graphite_Dawn_Vulkan"},
   {"name": "Build-Debian10-Clang-x86-Debug-Android_Graphite_Native_Vulkan",
   "cq_config": {}
@@ -428,6 +431,7 @@
   {"name": "Perf-Android12-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android"},
   {"name": "Perf-Android12-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Vulkan"},
   {"name": "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Vulkan"},
+  {"name": "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES"},
   {"name": "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_Vulkan"},
   {"name": "Perf-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Native_Vulkan"},
   {"name": "Perf-Android-Clang-Wembley-GPU-PowerVRGE8320-arm-Release-All-Android"},
@@ -584,6 +588,7 @@
   {"name": "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android"},
   {"name": "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Debug-All-Android"},
   {"name": "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Vulkan"},
+  {"name": "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_GLES"},
   {"name": "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Dawn_Vulkan"},
   {"name": "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Release-All-Android_Graphite_Native_Vulkan"},
   {"name": "Test-Android-Clang-Pixel6-GPU-MaliG78-arm64-Debug-All-Android_Graphite_Native_Vulkan_Protected"},
