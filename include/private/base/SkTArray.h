@@ -586,9 +586,10 @@ private:
 
     void unpoison() {
 #ifdef SK_SANITIZE_ADDRESS
-        if (fData) {
+        if (fData && fPoisoned) {
             // SkDebugf("UNPOISONING %p : 0 -> %zu\n", fData, Bytes(fCapacity));
             sk_asan_unpoison_memory_region(this->begin(), Bytes(fCapacity));
+            fPoisoned = false;
         }
 #endif
     }
@@ -598,6 +599,7 @@ private:
         if (fData && fCapacity > fSize) {
             // SkDebugf("  POISONING %p : %zu -> %zu\n", fData, Bytes(fSize), Bytes(fCapacity));
             sk_asan_poison_memory_region(this->end(), Bytes(fCapacity - fSize));
+            fPoisoned = true;
         }
 #endif
     }
@@ -742,6 +744,9 @@ private:
     int fSize{0};
     uint32_t fOwnMemory : 1;
     uint32_t fCapacity : 31;
+#ifdef SK_SANITIZE_ADDRESS
+    bool fPoisoned = false;
+#endif
 };
 
 template <typename T, bool M> static inline void swap(TArray<T, M>& a, TArray<T, M>& b) {
