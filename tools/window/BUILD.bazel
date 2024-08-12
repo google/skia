@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "select_multi", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,78 +6,208 @@ package(
 
 licenses(["notice"])
 
-skia_cc_library(
-    name = "legacy_window",
-    testonly = True,
+skia_filegroup(
+    name = "common_hdrs",
     srcs = [
-        "RasterWindowContext.h",
-        "WindowContext.cpp",
-    ] + select_multi({
-        "//src/gpu:gl_ganesh": [
-            "GLWindowContext.cpp",
-            "GLWindowContext.h",
-        ],
-        "//src/gpu:vulkan_ganesh": [
-            "VulkanWindowContext.h",
-            "VulkanWindowContext.cpp",
-        ],
-    }) + select({
-        "@platforms//os:android": ["//tools/window/android:srcs"],
-        "//conditions:default": [],
-    }) + select({
-        "@platforms//os:linux": ["//tools/window/unix:srcs"],
-        "//conditions:default": [],
-        # TODO(kjlubick) add Windows/Mac support
-    }),
-    hdrs = [
         "DisplayParams.h",
         "WindowContext.h",
     ],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//:skia_internal",
-    ] + select({
-        "//src/gpu:vulkan_ganesh": ["//tools/gpu/vk:testutils"],
-        "//conditions:default": [],
-    }) + select({
-        "@platforms//os:android": ["//tools/window/android:deps"],
-        "//conditions:default": [],
-    }),
+)
+
+skia_filegroup(
+    name = "common_srcs",
+    srcs = [
+        "RasterWindowContext.h",  # only used in tools/window/ so not part of public API
+        "WindowContext.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "common_linux_hdrs",
+    srcs = [
+        "unix/RasterWindowContext_unix.h",
+        "unix/XlibWindowInfo.h",
+    ],
+)
+
+skia_filegroup(
+    name = "common_linux_srcs",
+    srcs = [
+        "unix/RasterWindowContext_unix.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "common_mac_hdrs",
+    srcs = [
+        "mac/RasterWindowContext_mac.h",
+    ],
+)
+
+skia_filegroup(
+    name = "common_mac_srcs",
+    srcs = [
+        "mac/RasterWindowContext_mac.mm",
+    ],
+)
+
+skia_filegroup(
+    name = "common_ganesh_gl_srcs",
+    srcs = [
+        "GLWindowContext.cpp",
+        "GLWindowContext.h",
+    ],
+)
+
+skia_filegroup(
+    name = "linux_ganesh_gl_hdrs",
+    srcs = [
+        "unix/GaneshGLWindowContext_unix.h",
+    ],
+)
+
+skia_filegroup(
+    name = "linux_ganesh_gl_srcs",
+    srcs = [
+        "unix/GaneshGLWindowContext_unix.cpp",
+    ],
+)
+
+skia_filegroup(
+    name = "mac_ganesh_gl_hdrs",
+    srcs = [
+        "mac/GaneshGLWindowContext_mac.h",
+    ],
+)
+
+skia_filegroup(
+    name = "mac_ganesh_gl_srcs",
+    srcs = [
+        "mac/GaneshGLWindowContext_mac.mm",
+    ],
+)
+
+skia_filegroup(
+    name = "common_metal_hdrs",
+    srcs = [
+        "MetalWindowContext.h",
+    ],
+)
+
+skia_filegroup(
+    name = "common_metal_srcs",
+    srcs = [
+        "MetalWindowContext.mm",
+    ],
+)
+
+skia_filegroup(
+    name = "mac_ganesh_metal_hdrs",
+    srcs = [
+        "mac/GaneshMetalWindowContext_mac.h",
+    ],
+)
+
+skia_filegroup(
+    name = "mac_ganesh_metal_srcs",
+    srcs = [
+        "mac/GaneshMetalWindowContext_mac.mm",
+    ],
+)
+
+skia_filegroup(
+    name = "common_vulkan_srcs",
+    srcs = [
+        "VulkanWindowContext.cpp",
+        "VulkanWindowContext.h",
+    ],
+)
+
+skia_filegroup(
+    name = "linux_ganesh_vulkan_hdrs",
+    srcs = [
+        "unix/GaneshVulkanWindowContext_unix.h",
+    ],
+)
+
+skia_filegroup(
+    name = "linux_ganesh_vulkan_srcs",
+    srcs = [
+        "unix/GaneshVulkanWindowContext_unix.cpp",
+    ],
 )
 
 skia_cc_library(
     name = "window",
     testonly = True,
-    srcs = [
-        "RasterWindowContext.h",
-        "WindowContext.cpp",
-        "GLWindowContext.cpp",
-        # TODO(kjlubick): Add Vulkan support.
-        # "VulkanWindowContext.cpp",
-    ] + select({
-        "@platforms//os:android": ["//tools/window/android:srcs"],
-        "//conditions:default": [],
-    }) + select({
-        "@platforms//os:linux": ["//tools/window/unix:srcs"],
-        "//conditions:default": [],
-        # TODO(kjlubick) add Windows/Mac support
+    visibility = ["//tools:__subpackages__"],
+    deps = select({
+        "@platforms//os:linux": [":window_linux"],
+        "@platforms//os:macos": [":window_mac"],
     }),
-    hdrs = [
-        "DisplayParams.h",
-        "WindowContext.h",
-        "GLWindowContext.h",
-        # TODO(kjlubick): Add Vulkan support.
-        # "VulkanWindowContext.h",
+)
+
+skia_cc_library(
+    name = "window_linux",
+    testonly = True,
+    srcs = [
+        ":common_ganesh_gl_srcs",
+        ":common_linux_srcs",
+        ":common_srcs",
+        ":common_vulkan_srcs",
+        ":linux_ganesh_gl_srcs",
+        ":linux_ganesh_vulkan_srcs",
     ],
-    visibility = ["//:__subpackages__"],
+    hdrs = [
+        ":common_hdrs",
+        ":common_linux_hdrs",
+        ":linux_ganesh_gl_hdrs",
+        ":linux_ganesh_vulkan_hdrs",
+    ],
+    linkopts = [
+        "-lX11",
+        "-lxcb",  # dep of X11
+        "-lXau",  # dep of xcb
+        "-lXdmcp",  # dep of xcb
+        "-lX11-xcb",  # needed for Vulkan
+    ],
     deps = [
         "//:core",
-        "//:ganesh_gl",
-        "//:ganesh_glx_factory",
-        "//tools/fonts:font_tool_utils",
-    ] + select({
-        # TODO(kjlubick): Add Android support.
-        # "@platforms//os:android": ["//tools/window/android:deps"],
-        "//conditions:default": [],
-    }),
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//src/gpu/ganesh/gl/glx:glx_factory_TEST_UTIL",
+        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//tools/gpu/vk:testutils",
+    ],
+)
+
+skia_objc_library(
+    name = "window_mac",
+    testonly = True,
+    srcs = [
+        "common_ganesh_gl_srcs",
+        ":common_mac_srcs",
+        ":common_metal_srcs",
+        ":common_srcs",
+        ":mac_ganesh_gl_srcs",
+        ":mac_ganesh_metal_srcs",
+    ],
+    hdrs = [
+        ":common_hdrs",
+        ":common_mac_hdrs",
+        ":common_metal_hdrs",
+        ":mac_ganesh_gl_hdrs",
+        ":mac_ganesh_metal_hdrs",
+    ],
+    sdk_frameworks = [
+        "QuartzCore",
+        "Cocoa",
+        "Foundation",
+    ],
+    deps = [
+        "//:core",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
+        "//src/gpu/ganesh/mtl:ganesh_metal_TEST_UTIL",
+    ],
 )

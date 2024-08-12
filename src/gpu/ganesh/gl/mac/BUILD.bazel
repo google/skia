@@ -29,3 +29,23 @@ skia_cc_library(
         "//:ganesh_gl",
     ],
 )
+
+skia_cc_library(
+    name = "mac_factory_TEST_UTIL",
+    testonly = True,
+    srcs = [
+        "GrGLMakeNativeInterface_mac.cpp",
+    ],
+    hdrs = [
+        "//include/gpu/ganesh/gl/mac:public_hdrs",
+    ],
+    defines = ["SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE"],
+    visibility = [
+        "//tools/gpu:__pkg__",
+        "//tools/window:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+    ],
+)

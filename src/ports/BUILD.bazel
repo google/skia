@@ -194,15 +194,6 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "load_dynamic_library",
-    srcs = ["SkOSLibrary.h"] + select({
-        "@platforms//os:windows": ["SkOSLibrary_win.cpp"],
-        "//conditions:default": ["SkOSLibrary_posix.cpp"],
-    }),
-    visibility = ["//tools/gpu:__pkg__"],
-)
-
-skia_filegroup(
     name = "skdebug",
     srcs = select({
         "@platforms//os:windows": ["SkDebug_win.cpp"],
@@ -510,7 +501,8 @@ skia_cc_library(
     name = "fontmgr_fontations_empty",
     srcs = [
         ":fontmgr_fontations_empty_srcs",
-        ":typeface_fontations",
+        ":typeface_fontations_hdrs",
+        ":typeface_fontations_srcs",
         "//include/ports:typeface_fontations_hdrs",
     ],
     hdrs = [
@@ -634,4 +626,19 @@ skia_filegroup(
 skia_filegroup(
     name = "fonthost_win_srcs",
     srcs = ["SkFontHost_win.cpp"],
+)
+
+skia_cc_library(
+    name = "load_dynamic_library",
+    testonly = True,
+    srcs = select({
+        "@platforms//os:windows": ["SkOSLibrary_win.cpp"],
+        "//conditions:default": ["SkOSLibrary_posix.cpp"],
+    }),
+    hdrs = ["SkOSLibrary.h"],
+    features = ["layering_check"],
+    visibility = ["//tools/gpu/vk:__pkg__"],
+    deps = [
+        "//:core",
+    ],
 )

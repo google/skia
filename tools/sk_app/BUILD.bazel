@@ -1,5 +1,4 @@
-load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
-load("//bazel:skia_rules.bzl", "select_multi", "skia_cc_deps", "skia_cc_library", "skia_objc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -8,114 +7,53 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
-    name = "legacy_sk_app",
+    name = "sk_app",
     testonly = True,
-    srcs = [
-        "CommandSet.cpp",
-        "Window.cpp",
-    ] + select({
-        "@platforms//os:linux": ["//tools/sk_app/unix:srcs"],
-        "//conditions:default": [],
-        # TODO(kjlubick) add Windows/Mac support
-    }),
-    hdrs = [
-        "Application.h",
-        "CommandSet.h",
-        "Window.h",
-    ],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//:skia_internal",
-        "//tools:legacy_tool_utils",
-        "//tools/skui",
-        "//tools/timer:legacy_timer",
-        "//tools/window:legacy_window",
-    ] + select({
-        "@platforms//os:linux": ["//tools/sk_app/unix:deps"],
-        "//conditions:default": [],
+    visibility = ["//tools:__subpackages__"],
+    deps = select({
+        "@platforms//os:linux": [":sk_app_linux"],
+        "@platforms//os:macos": [":sk_app_mac"],
     }),
 )
 
 skia_cc_library(
-    name = "sk_app",
+    name = "sk_app_linux",
     testonly = True,
     srcs = [
         "CommandSet.cpp",
         "Window.cpp",
-    ] + select({
-        "@platforms//os:linux": ["//tools/sk_app/unix:srcs"],
-        "//conditions:default": [],
-        # TODO(kjlubick) add Windows/Mac support
-    }),
+        "//tools/sk_app/unix:srcs",
+    ],
     hdrs = [
         "Application.h",
         "CommandSet.h",
         "Window.h",
     ],
-    visibility = ["//:__subpackages__"],
     deps = [
-        "//:core",
-        "//:ganesh_gl",
-        "//tools:tool_utils",
+        "//tools/fonts:font_tool_utils",
         "//tools/skui",
         "//tools/timer",
         "//tools/window",
-    ] + select({
-        # TODO(kjlubick): These dependencies should probably be modularized and added here.
-        # "@platforms//os:linux": ["//tools/sk_app/unix:deps"],
-        "//conditions:default": [],
-    }),
+    ],
 )
 
 skia_objc_library(
-    name = "legacy_sk_app_objc",
+    name = "sk_app_mac",
     testonly = True,
     srcs = [
-        "RasterWindowContext.h",
+        "CommandSet.cpp",
         "Window.cpp",
-        "WindowContext.cpp",
-    ] + select_multi(
-        {
-            # TODO(kjlubick, jmbetancourt) Graphite backend
-            "//src/gpu:gl_ganesh": [
-                "GLWindowContext.cpp",
-                "GLWindowContext.h",
-            ],
-            "//src/gpu:metal_ganesh": [
-                "MetalWindowContext.h",
-                "MetalWindowContext.mm",
-            ],
-        },
-    ) + select({
-        "@platforms//os:macos": ["//tools/sk_app/mac:srcs"],
-        "//conditions:default": [],
-        # TODO ios support
-    }),
+        "//tools/sk_app/mac:srcs",
+    ],
     hdrs = [
         "Application.h",
-        "DisplayParams.h",
+        "CommandSet.h",
         "Window.h",
-        "WindowContext.h",
     ],
-    copts = DEFAULT_OBJC_COPTS + [
-        "-Wno-deprecated-declarations",
-        "-DGL_SILENCE_DEPRECATION",
-    ],
-    visibility = ["//:__subpackages__"],
     deps = [
-        ":platform_deps",
-        "//:skia_internal",
+        "//tools/fonts:font_tool_utils",
         "//tools/skui",
-        "//tools/timer:legacy_timer",
+        "//tools/timer",
+        "//tools/window",
     ],
-)
-
-skia_cc_deps(
-    name = "platform_deps",
-    testonly = True,
-    visibility = ["//visibility:private"],
-    deps = select({
-        "@platforms//os:macos": ["//tools/sk_app/mac:deps"],
-        "//conditions:default": [],
-    }),
 )

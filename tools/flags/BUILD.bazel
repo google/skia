@@ -32,25 +32,32 @@ skia_filegroup(
     srcs = [
         "CommonFlags.h",
         "CommonFlagsImages.cpp",
-    ] + select({
-        "//src/gpu:has_ganesh_backend": ["CommonFlagsGpu.cpp"],
-        "//conditions:default": [],
-    }),
+    ],
     visibility = [
+        # See png_codec.bzl
         "//gm:__pkg__",
-        "//tools:__subpackages__",
     ],
 )
 
-skia_filegroup(
+skia_cc_library(
     name = "common_flags",
     testonly = True,
     srcs = [
-        "CommonFlags.h",
         "CommonFlagsImages.cpp",
     ],
+    hdrs = [
+        "CommonFlags.h",
+    ],
     visibility = [
-        "//gm:__pkg__",
+        "//bench:__pkg__",
+        "//dm:__pkg__",
+        "//tools/skpbench:__pkg__",
+        "//tools/viewer:__pkg__",
+    ],
+    deps = [
+        ":cmd_flags",
+        "//:core",
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
     ],
 )
 
@@ -72,5 +79,27 @@ skia_cc_library(
         "//:core",
         "//src/base",
         "//src/core:core_priv",
+    ],
+)
+
+skia_cc_library(
+    name = "ganesh_flags",
+    testonly = True,
+    srcs = [
+        "CommonFlagsGanesh.cpp",
+    ],
+    hdrs = [
+        "CommonFlagsGanesh.h",
+    ],
+    visibility = [
+        "//bench:__pkg__",
+        "//dm:__pkg__",
+        "//tools/skpbench:__pkg__",
+        "//tools/viewer:__pkg__",
+    ],
+    deps = [
+        ":cmd_flags",
+        "//:core",
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
     ],
 )

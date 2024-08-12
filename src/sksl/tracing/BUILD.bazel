@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -73,4 +73,19 @@ skia_filegroup(
         "SkSLTraceHook.cpp",
     ],
     visibility = ["//src/sksl:__pkg__"],
+)
+
+skia_cc_library(
+    name = "player",
+    srcs = [
+        "SkSLDebugTracePlayer.cpp",
+    ],
+    hdrs = [
+        "SkSLDebugTracePlayer.h",
+    ],
+    visibility = ["//tools/viewer:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/core:core_priv",
+    ],
 )

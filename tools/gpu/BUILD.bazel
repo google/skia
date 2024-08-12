@@ -123,7 +123,10 @@ skia_cc_library(
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//tools/gpu/gl:deps",
     ] + select({
-        "@platforms//os:macos": ["//tools:autorelease_pool_objc"],
+        "@platforms//os:macos": [
+            "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
+            "//tools:autorelease_pool_objc",
+        ],
         "//conditions:default": ["//tools:autorelease_pool"],
     }),
 )

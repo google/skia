@@ -8,6 +8,7 @@ licenses(["notice"])
 
 skia_cc_library(
     name = "testutils",
+    testonly = True,
     srcs = [
         "GrVulkanDefines.h",
         "VkTestMemoryAllocator.cpp",
@@ -16,12 +17,13 @@ skia_cc_library(
     ],
     hdrs = ["VkTestUtils.h"],
     visibility = [
-        "//example:__subpackages__",
         "//tools:__subpackages__",
     ],
     deps = [
-        "//:skia_internal",
-        "//include/third_party/vulkan",
+        "//:core",
+        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//src/ports:load_dynamic_library",
+        "@vulkan_headers",
     ],
 )
 

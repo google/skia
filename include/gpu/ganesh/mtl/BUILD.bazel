@@ -6,7 +6,6 @@ package(
 
 licenses(["notice"])
 
-# TODO(kjlubick) include metal build in Bazel
 skia_filegroup(
     name = "public_hdrs",
     srcs = [

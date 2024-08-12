@@ -55,6 +55,16 @@
         "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64"
       ]
     },
+    "BazelBuild-viewer-debug-linux_x64": {
+      "tasks": [
+        "BazelBuild-viewer-debug-linux_x64"
+      ]
+    },
+    "BazelBuild-viewer-release-linux_x64": {
+      "tasks": [
+        "BazelBuild-viewer-release-linux_x64"
+      ]
+    },
     "BazelTest-benchmark-cpu_8888_benchmark_test-linux_rbe-linux_x64-NUC9i7QN_Debian11": {
       "tasks": [
         "BazelTest-benchmark-cpu_8888_benchmark_test-linux_rbe-linux_x64-NUC9i7QN_Debian11"
@@ -4068,6 +4078,92 @@
         "--task_name=BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64",
         "--bazel_label=//modules/skottie:skottie_tool_gpu",
         "--bazel_config=enforce_iwyu",
+        "--bazel_cache_dir=/mnt/pd0/bazel_cache",
+        "--workdir=.",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
+        "--bazel_arg=--jobs=100",
+        "--bazel_arg=--remote_download_minimal"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-standard-16",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "bazelisk_linux_amd64"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "BazelBuild-viewer-debug-linux_x64": {
+      "casSpec": "bazel",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/bazel_build_task_driver",
+          "path": "bazel_build_task_driver",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/bazelisk_linux_amd64",
+          "path": "bazelisk_linux_amd64",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "bazel_build_task_driver/bazel_build",
+        "--project_id=skia-swarming-bots",
+        "--task_id=<(TASK_ID)",
+        "--task_name=BazelBuild-viewer-debug-linux_x64",
+        "--bazel_label=//tools/viewer:viewer",
+        "--bazel_config=debug",
+        "--bazel_cache_dir=/mnt/pd0/bazel_cache",
+        "--workdir=.",
+        "--bazel_arg=--config=for_linux_x64_with_rbe",
+        "--bazel_arg=--jobs=100",
+        "--bazel_arg=--remote_download_minimal"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-standard-16",
+        "os:Debian-10.3",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "bazelisk_linux_amd64"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "BazelBuild-viewer-release-linux_x64": {
+      "casSpec": "bazel",
+      "cipd_packages": [
+        {
+          "name": "skia/bots/bazel_build_task_driver",
+          "path": "bazel_build_task_driver",
+          "version": "version:2"
+        },
+        {
+          "name": "skia/bots/bazelisk_linux_amd64",
+          "path": "bazelisk_linux_amd64",
+          "version": "version:0"
+        }
+      ],
+      "command": [
+        "bazel_build_task_driver/bazel_build",
+        "--project_id=skia-swarming-bots",
+        "--task_id=<(TASK_ID)",
+        "--task_name=BazelBuild-viewer-release-linux_x64",
+        "--bazel_label=//tools/viewer:viewer",
+        "--bazel_config=release",
         "--bazel_cache_dir=/mnt/pd0/bazel_cache",
         "--workdir=.",
         "--bazel_arg=--config=for_linux_x64_with_rbe",
@@ -86825,6 +86921,7 @@
     "BazelBuild-full_library-release-linux_x64": {},
     "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64": {},
     "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64": {},
+    "BazelBuild-viewer-debug-linux_x64": {},
     "BazelTest-benchmark-cpu_8888_benchmark_test-linux_rbe-linux_x64-NUC9i7QN_Debian11": {
       "experimental": true
     },

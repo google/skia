@@ -280,6 +280,12 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "fontmgr_empty_fontations",
+    actual = "//src/ports:fontmgr_fontations_empty",
+    visibility = ["//visibility:public"],
+)
+
 ###
 
 alias(

@@ -20,6 +20,10 @@
   {"name": "BazelBuild-cpu_8888_benchmark_android_test-for_android_arm64_release-linux_x64"},
   {"name": "BazelBuild-hello_bazel_world_android_test-for_android_arm64_release-linux_x64"},
   {"name": "BazelBuild-android_math_test-for_android_arm64_release-linux_x64"},
+  {"name": "BazelBuild-viewer-debug-linux_x64",
+    "cq_config": {}
+  },
+  {"name": "BazelBuild-viewer-release-linux_x64"},
   {"name": "BazelTest-canvaskit_gold-modules_canvaskit_js_tests-ck_full_cpu_release_chrome-linux_x64",
     "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
   },

@@ -33,3 +33,20 @@ skia_cc_library(
         "//:ganesh_gl",
     ],
 )
+
+skia_cc_library(
+    name = "glx_factory_TEST_UTIL",
+    testonly = True,
+    srcs = [
+        "GrGLMakeGLXInterface.cpp",
+    ],
+    hdrs = [
+        "//include/gpu/ganesh/gl/glx:public_hdrs",
+    ],
+    defines = ["SK_DISABLE_LEGACY_GLXINTERFACE_FACTORY"],
+    visibility = ["//tools/window:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+    ],
+)

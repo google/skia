@@ -398,6 +398,7 @@ skia_cc_library(
     visibility = [
         "//src/gpu/ganesh:__subpackages__",
         "//tools/debugger:__pkg__",
+        "//tools/flags:__pkg__",
     ],
     deps = [
         "//:core",

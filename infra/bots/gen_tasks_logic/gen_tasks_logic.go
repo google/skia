@@ -2180,6 +2180,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"modules_canvaskit":          {"//modules/canvaskit:canvaskit", ""},
 	"modules_canvaskit_js_tests": {"//modules/canvaskit:canvaskit_js_tests", ""},
 	"skottie_tool_gpu":           {"//modules/skottie:skottie_tool_gpu", ""},
+	"viewer":                     {"//tools/viewer:viewer", ""},
 
 	// Note: these paths are relative to the WORKSPACE in //example/external_client
 	"decode_everything":          {"//:decode_everything", ""},

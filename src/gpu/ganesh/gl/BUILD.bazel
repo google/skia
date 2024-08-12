@@ -180,6 +180,7 @@ skia_cc_library(
     features = ["layering_check"],
     visibility = [
         "//modules/skottie:__pkg__",
+        "//src/gpu/ganesh/gl:__subpackages__",
         "//tools:__subpackages__",
     ],
     deps = [

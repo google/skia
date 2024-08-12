@@ -196,6 +196,7 @@ skia_cc_library(
         "//include/docs:multi_picture_document_hdrs",
     ],
     visibility = [
+        "//tools:__pkg__",
         "//tools/debugger:__pkg__",
     ],
     deps = [
