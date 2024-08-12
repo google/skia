@@ -115,7 +115,7 @@ class OneFontMgr : public SkFontMgr {
 
 int main(int argc, char** argv) {
   if (argc != 3) {
-    printf("Usage: %s <font.ttf> <name.png>", argv[0]);
+    printf("Usage: %s <font.ttf> <name.jpg>", argv[0]);
     return 1;
   }
 
