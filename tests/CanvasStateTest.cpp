@@ -58,7 +58,7 @@ static DEFINE_string(library, "",
                      " called to test SkCanvasState. The library is built from the canvas_state_lib"
                      " target");
 
-#include "src/ports/SkOSLibrary.h"
+#include "tools/library/LoadDynamicLibrary.h"
 
 // Automatically loads library passed to --library flag and closes it when it goes out of scope.
 class OpenLibResult {

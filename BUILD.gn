@@ -1520,7 +1520,6 @@ skia_component("skia") {
     sources += skia_ports_windows_sources + [
                  "src/ports/SkDebug_win.cpp",
                  "src/ports/SkImageGeneratorWIC.cpp",
-                 "src/ports/SkOSLibrary_win.cpp",
                ]
     libs += [
       "Ole32.lib",
@@ -1535,10 +1534,7 @@ skia_component("skia") {
       ]
     }
   } else {
-    sources += [
-      "src/ports/SkOSFile_posix.cpp",
-      "src/ports/SkOSLibrary_posix.cpp",
-    ]
+    sources += [ "src/ports/SkOSFile_posix.cpp" ]
     if (is_ios) {
       sources += [ "src/ports/SkOSFile_ios.h" ]
     }
@@ -1910,6 +1906,17 @@ if (skia_enable_tools) {
     }
   }
 
+  test_lib("load_dynamic_library") {
+    configs = [ ":skia_private" ]
+    deps = [ ":skia" ]
+    sources = [ "tools/library/LoadDynamicLibrary.h" ]
+    if (is_win) {
+      sources += [ "tools/library/LoadDynamicLibrary_win.cpp" ]
+    } else {
+      sources += [ "tools/library/LoadDynamicLibrary_posix.cpp" ]
+    }
+  }
+
   test_lib("gpu_tool_utils") {
     public_defines = []
 
@@ -1922,7 +1929,7 @@ if (skia_enable_tools) {
       defines += [ "SK_ENABLE_DISCRETE_GPU" ]
     }
 
-    deps = []
+    deps = [ ":load_dynamic_library" ]
     public_deps = []
     sources = [
       "tools/gpu/BackendSurfaceFactory.cpp",
@@ -3015,7 +3022,10 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/vk/VkTestMemoryAllocator.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.h" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
-      deps = [ ":skia" ]
+      deps = [
+        ":load_dynamic_library",
+        ":skia",
+      ]
     }
   }
 

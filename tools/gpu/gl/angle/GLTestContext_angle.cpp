@@ -13,7 +13,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
-#include "src/ports/SkOSLibrary.h"
+#include "tools/library/LoadDynamicLibrary.h"
 #include "third_party/externals/angle2/include/platform/PlatformMethods.h"
 
 #include <vector>

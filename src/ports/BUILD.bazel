@@ -627,18 +627,3 @@ skia_filegroup(
     name = "fonthost_win_srcs",
     srcs = ["SkFontHost_win.cpp"],
 )
-
-skia_cc_library(
-    name = "load_dynamic_library",
-    testonly = True,
-    srcs = select({
-        "@platforms//os:windows": ["SkOSLibrary_win.cpp"],
-        "//conditions:default": ["SkOSLibrary_posix.cpp"],
-    }),
-    hdrs = ["SkOSLibrary.h"],
-    features = ["layering_check"],
-    visibility = ["//tools/gpu/vk:__pkg__"],
-    deps = [
-        "//:core",
-    ],
-)

@@ -5,22 +5,21 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkTypes.h"
-#if !defined(SK_BUILD_FOR_WIN)
+#if defined(SK_BUILD_FOR_WIN)
 
-#include "src/ports/SkOSLibrary.h"
-
-#include <dlfcn.h>
+#include "src/base/SkLeanWindows.h"
+#include "tools/library/LoadDynamicLibrary.h"
 
 void* SkLoadDynamicLibrary(const char* libraryName) {
-    return dlopen(libraryName, RTLD_LAZY);
+    return LoadLibraryA(libraryName);
 }
 
 void* SkGetProcedureAddress(void* library, const char* functionName) {
-    return dlsym(library, functionName);
+    return reinterpret_cast<void*>(::GetProcAddress((HMODULE)library, functionName));
 }
 
 bool SkFreeDynamicLibrary(void* library) {
-    return dlclose(library) == 0;
+    return FreeLibrary((HMODULE)library);
 }
 
-#endif//!defined(SK_BUILD_FOR_WIN)
+#endif//defined(SK_BUILD_FOR_WIN)

@@ -1,0 +1,25 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+)
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "load_dynamic_library",
+    testonly = True,
+    srcs = select({
+        "@platforms//os:windows": ["LoadDynamicLibrary_win.cpp"],
+        "//conditions:default": ["LoadDynamicLibrary_posix.cpp"],
+    }),
+    hdrs = ["LoadDynamicLibrary.h"],
+    features = ["layering_check"],
+    visibility = ["//tools/gpu/vk:__pkg__"],
+    deps = [
+        "//:core",
+    ],
+)

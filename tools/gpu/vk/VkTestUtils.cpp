@@ -33,7 +33,7 @@
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/ports/SkOSLibrary.h"
+#include "tools/library/LoadDynamicLibrary.h"
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #include <sanitizer/lsan_interface.h>

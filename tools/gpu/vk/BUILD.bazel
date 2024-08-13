@@ -22,7 +22,7 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
-        "//src/ports:load_dynamic_library",
+        "//tools/library:load_dynamic_library",
         "@vulkan_headers",
     ],
 )
