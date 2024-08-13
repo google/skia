@@ -561,7 +561,10 @@ protected:
                     fontations_ffi::bitmap_glyph(fBridgeFontRef, glyph.getGlyphID(), scale.fY);
             rust::cxxbridge1::Slice<const uint8_t> png_data =
                     fontations_ffi::png_data(*bitmap_glyph);
-            SkASSERT(png_data.size());
+
+            if (png_data.empty()) {
+                return mx;
+            }
 
             const fontations_ffi::BitmapMetrics bitmapMetrics =
                     fontations_ffi::bitmap_metrics(*bitmap_glyph);
