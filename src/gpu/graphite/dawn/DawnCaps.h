@@ -52,6 +52,10 @@ public:
                                          const SkISize colorAttachmentDimensions) const override;
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                       const RenderPassDesc&) const override;
+    bool extractGraphicsDescs(const UniqueKey&,
+                              GraphicsPipelineDesc*,
+                              RenderPassDesc*,
+                              const RendererProvider*) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override;
     ImmutableSamplerInfo getImmutableSamplerInfo(const TextureProxy* proxy) const override;
     GraphiteResourceKey makeSamplerKey(const SamplerDesc&) const override;
