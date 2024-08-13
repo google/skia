@@ -14,6 +14,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ganesh/GrBackendSurfacePriv.h"
+#include "src/gpu/ganesh/GrUtil.h"
 
 #ifdef SK_DIRECT3D
 #include "include/gpu/d3d/GrD3DTypes.h"

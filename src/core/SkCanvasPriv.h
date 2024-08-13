@@ -23,12 +23,6 @@ class SkReadBuffer;
 struct SkRect;
 class SkWriteBuffer;
 
-#if defined(GPU_TEST_UTILS)
-namespace skgpu::graphite {
-    class TextureProxy;
-}
-#endif
-
 class SkAutoCanvasMatrixPaint : SkNoncopyable {
 public:
     SkAutoCanvasMatrixPaint(SkCanvas*, const SkMatrix*, const SkPaint*, const SkRect& bounds);

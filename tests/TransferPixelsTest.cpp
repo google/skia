@@ -29,6 +29,7 @@
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrUtil.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"

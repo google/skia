@@ -23,6 +23,7 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrUtil.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 

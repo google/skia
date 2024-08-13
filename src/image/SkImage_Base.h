@@ -78,14 +78,12 @@ public:
     virtual sk_sp<SkSurface> onMakeSurface(skgpu::graphite::Recorder*,
                                            const SkImageInfo&) const = 0;
 
-#if defined(GPU_TEST_UTILS)
     virtual bool readPixelsGraphite(skgpu::graphite::Recorder*,
                                     const SkPixmap& dst,
                                     int srcX,
                                     int srcY) const {
         return false;
     }
-#endif
 
     virtual bool onHasMipmaps() const = 0;
     virtual bool onIsProtected() const = 0;
