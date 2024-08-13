@@ -29,6 +29,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <utility>
 
 class SkArenaAlloc;
 class SkAutoDescriptor;
