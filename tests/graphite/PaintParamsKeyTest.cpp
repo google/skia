@@ -291,19 +291,17 @@ const char* to_str(ImageFilterType c) {
 }
 
 const char* to_str(DrawTypeFlags dt) {
+    SkASSERT(SkPopCount(static_cast<uint32_t>(dt)) == 1);
+
     switch (dt) {
-        case DrawTypeFlags::kNone:           return "DrawTypeFlags::kNone";
         case DrawTypeFlags::kText:           return "DrawTypeFlags::kText";
         case DrawTypeFlags::kDrawVertices:   return "DrawTypeFlags::kDrawVertices";
         case DrawTypeFlags::kSimpleShape:    return "DrawTypeFlags::kSimpleShape";
         case DrawTypeFlags::kNonSimpleShape: return "DrawTypeFlags::kNonSimpleShape";
-        case DrawTypeFlags::kShape:          return "DrawTypeFlags::kShape";
-        case DrawTypeFlags::kMostCommon:     return "DrawTypeFlags::kMostCommon";
-        case DrawTypeFlags::kAll:            return "DrawTypeFlags::kAll";
+        default:                             SkASSERT(0); return "DrawTypeFlags::kNone";
     }
 
-    SkASSERT(0);
-    return "DrawTypeFlags::kNone";
+    SkUNREACHABLE;
 }
 
 void log_run(const char* label,
@@ -478,14 +476,13 @@ ImageFilterType random_imagefiltertype(SkRandom* rand) {
 }
 
 [[maybe_unused]] DrawTypeFlags random_drawtype(SkRandom* rand) {
-    uint32_t index = rand->nextULessThan(5);
+    uint32_t index = rand->nextULessThan(4);
 
     switch (index) {
         case 0: return DrawTypeFlags::kText;
         case 1: return DrawTypeFlags::kDrawVertices;
         case 2: return DrawTypeFlags::kSimpleShape;
         case 3: return DrawTypeFlags::kNonSimpleShape;
-        case 4: return DrawTypeFlags::kShape;
     }
 
     SkASSERT(0);
@@ -1817,10 +1814,6 @@ void check_draw(skiatest::Reporter* reporter,
             case DrawTypeFlags::kNonSimpleShape:
                 non_simple_draws(canvas, paint, kDrawData);
                 break;
-            case DrawTypeFlags::kShape:
-                simple_draws(canvas, paint);
-                non_simple_draws(canvas, paint, kDrawData);
-                break;
             case DrawTypeFlags::kText:
                 canvas->drawTextBlob(kDrawData.fBlob, 0, 16, paint);
                 break;
@@ -2271,7 +2264,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             DrawTypeFlags::kDrawVertices,
             DrawTypeFlags::kSimpleShape,
             DrawTypeFlags::kNonSimpleShape,
-            DrawTypeFlags::kShape,
     };
 
 #if EXPANDED_SET

@@ -104,34 +104,40 @@ enum class Volatile : bool {
 };
 
 /*
- * Graphite's different rendering methods each only apply to certain types of draws. This
- * enum supports decision-making regarding the different renderers and what is being drawn.
+ * This enum allows mapping from a set of observed RenderSteps (e.g., from a GraphicsPipeline
+ * printout) to the correct 'drawTypes' parameter needed by the Precompilation API.
  */
 enum DrawTypeFlags : uint8_t {
 
     kNone           = 0b0000,
 
-    // SkCanvas:: drawSimpleText, drawString, drawGlyphs, drawTextBlob, drawSlug
+    // kText should be used to generate Pipelines that use the following RenderSteps:
+    //    BitmapTextRenderStep[*] for [mask], [LCD], [color]
+    //    SDFTextRenderStep
+    //    SDFTextLCDRenderStep
     kText           = 0b0001,
 
-    // SkCanvas::drawVertices
+    // kDrawVertices should be used to generate Pipelines that use the following RenderSteps:
+    //    VerticesRenderStep[*] for:
+    //        [tris], [tris-texCoords], [tris-color], [tris-color-texCoords],
+    //        [tristrips], [tristrips-texCoords], [tristrips-color], [tristrips-color-texCoords]
     kDrawVertices   = 0b0010,
 
-    // SkCanvas::experimental_DrawEdgeAAQuad, experimental_DrawEdgeAAImageSet
-    // SkCanvas:: drawRect, drawRRect, drawLine for:
-    //    regular filled and hairline [r]rects,
-    //    stroked rects,
-    //    stroked and hairline lines,
-    //    stroked circular rrects
-    // Note: clipping can bump a draw out of the simple shape path
+    // kSimpleShape should be used to generate Pipelines that use the following RenderSteps:
+    //    AnalyticBlurRenderStep
+    //    AnalyticRRectRenderStep
+    //    PerEdgeAAQuadRenderStep
+    //    CoverBoundsRenderStep[non-aa-fill]
     kSimpleShape    = 0b0100,
-    // All other shapes (e.g., any strokeAndFill shape, non-circular-stroked RRects, SkPaths, ...)
+
+    // kNonSimpleShape should be used to generate Pipelines that use the following RenderSteps:
+    //    CoverageMaskRenderStep
+    //    CoverBoundsRenderStep[*] for [inverse-cover], [regular-cover]
+    //    TessellateStrokeRenderStep
+    //    TessellateWedgesRenderStep[*] for [convex], [evenodd], [winding]
+    //    TessellateCurvesRenderStep[*] for [even-odd], [winding]
+    //    MiddleOutFanRenderStep[*] for [even-odd], [winding]
     kNonSimpleShape = 0b1000,
-
-    kShape          = kSimpleShape | kNonSimpleShape,
-
-    kMostCommon     = kText | kShape,
-    kAll            = kText | kDrawVertices | kShape
 };
 
 } // namespace skgpu::graphite

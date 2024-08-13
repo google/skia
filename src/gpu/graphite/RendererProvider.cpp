@@ -69,10 +69,12 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     fConvexTessellatedWedges =
             makeFromStep(std::make_unique<TessellateWedgesRenderStep>(
                                  "convex", infinitySupport, kDirectDepthGreaterPass, bufferManager),
-                         DrawTypeFlags::kShape);
+                         DrawTypeFlags::kNonSimpleShape);
     fTessellatedStrokes = makeFromStep(
-            std::make_unique<TessellateStrokesRenderStep>(infinitySupport), DrawTypeFlags::kShape);
-    fCoverageMask = makeFromStep(std::make_unique<CoverageMaskRenderStep>(), DrawTypeFlags::kShape);
+            std::make_unique<TessellateStrokesRenderStep>(infinitySupport),
+            DrawTypeFlags::kNonSimpleShape);
+    fCoverageMask = makeFromStep(std::make_unique<CoverageMaskRenderStep>(),
+                                 DrawTypeFlags::kNonSimpleShape);
     // We are using 565 here to represent LCD text, regardless of texture format
     for (skgpu::MaskFormat variant : {skgpu::MaskFormat::kA8,
                                       skgpu::MaskFormat::kA565,
@@ -130,18 +132,15 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
             int index = 2*inverse + evenOdd; // matches SkPathFillType
             std::string variant = kTessVariants[index];
 
-            constexpr DrawTypeFlags kTextAndShape =
-                    static_cast<DrawTypeFlags>(DrawTypeFlags::kText|DrawTypeFlags::kShape);
-
             const RenderStep* coverStep = inverse ? coverInverse.get() : coverFill.get();
             fStencilTessellatedCurves[index] = Renderer("StencilTessellatedCurvesAndTris" + variant,
-                                                        kTextAndShape,
+                                                        DrawTypeFlags::kNonSimpleShape,
                                                         stencilFan.get(),
                                                         stencilCurve.get(),
                                                         coverStep);
 
             fStencilTessellatedWedges[index] = Renderer("StencilTessellatedWedges" + variant,
-                                                        kTextAndShape,
+                                                        DrawTypeFlags::kNonSimpleShape,
                                                         stencilWedge.get(),
                                                         coverStep);
         }

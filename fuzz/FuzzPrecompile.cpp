@@ -275,8 +275,10 @@ void check_draw(Context* context,
         SkCanvas* canvas = surf->getCanvas();
 
         switch (dt) {
-            case DrawTypeFlags::kShape:
+            case DrawTypeFlags::kSimpleShape:
                 canvas->drawRect(SkRect::MakeWH(16, 16), paint);
+                break;
+            case DrawTypeFlags::kNonSimpleShape:
                 canvas->drawPath(path, paint);
                 break;
             default:
@@ -325,7 +327,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                                             skgpu::Budgeted::kYes);
     constexpr SkIPoint fakeDstOffset = SkIPoint::Make(0, 0);
 
-    DrawTypeFlags kDrawType = DrawTypeFlags::kShape;
+    DrawTypeFlags kDrawType = DrawTypeFlags::kSimpleShape;
     SkPath path = make_path();
 
     Layout layout = context->backend() == skgpu::BackendApi::kMetal ? Layout::kMetal

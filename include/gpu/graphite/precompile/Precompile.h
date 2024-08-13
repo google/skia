@@ -27,7 +27,7 @@ class PaintOptions;
  */
 void Precompile(Context* context,
                 const PaintOptions& paintOptions,
-                DrawTypeFlags drawTypes = kMostCommon);
+                DrawTypeFlags drawTypes);
 
 } // namespace skgpu::graphite
 
