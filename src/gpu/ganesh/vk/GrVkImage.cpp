@@ -722,7 +722,7 @@ GrVkGpu* GrVkImage::getVkGpu() const {
     return static_cast<GrVkGpu*>(this->getGpu());
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 void GrVkImage::setCurrentQueueFamilyToGraphicsQueue(GrVkGpu* gpu) {
     skgpu::MutableTextureStates::SetVkQueueFamilyIndex(fMutableState.get(), gpu->queueIndex());
 }

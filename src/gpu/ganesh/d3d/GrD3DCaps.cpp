@@ -1089,7 +1089,7 @@ GrProgramDesc GrD3DCaps::makeDesc(GrRenderTarget* rt,
     return desc;
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 std::vector<GrTest::TestFormatColorTypeCombination> GrD3DCaps::getTestingCombinations() const {
     std::vector<GrTest::TestFormatColorTypeCombination> combos = {
         {GrColorType::kAlpha_8,        GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8_UNORM)           },

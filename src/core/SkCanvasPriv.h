@@ -23,7 +23,7 @@ class SkReadBuffer;
 struct SkRect;
 class SkWriteBuffer;
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 namespace skgpu::graphite {
     class TextureProxy;
 }

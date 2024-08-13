@@ -20,7 +20,7 @@ GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo&);
  */
 int GrMtlTextureInfoSampleCount(const GrMtlTextureInfo&);
 
-#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
+#if defined(SK_DEBUG) || defined(GPU_TEST_UTILS)
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat);
 #endif
 

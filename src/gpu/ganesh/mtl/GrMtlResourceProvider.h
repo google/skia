@@ -48,7 +48,7 @@ public:
     // Destroy any cached resources. To be called before releasing the MtlDevice.
     void destroyResources();
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
 #endif
 

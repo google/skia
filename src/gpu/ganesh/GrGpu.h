@@ -504,7 +504,7 @@ public:
         int numReorderedDAGsOverBudget() const { return fNumReorderedDAGsOverBudget; }
         void incNumReorderedDAGsOverBudget() { fNumReorderedDAGsOverBudget++; }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
         void dump(SkString*);
         void dumpKeyValuePairs(
                 skia_private::TArray<SkString>* keys, skia_private::TArray<double>* values);
@@ -527,7 +527,7 @@ public:
 
 #else  // !GR_GPU_STATS
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
         void dump(SkString*) {}
         void dumpKeyValuePairs(skia_private::TArray<SkString>*, skia_private::TArray<double>*) {}
 #endif
@@ -620,7 +620,7 @@ public:
 
     virtual bool precompileShader(const SkData& key, const SkData& data) { return false; }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
     virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
 

@@ -3026,7 +3026,7 @@ void Viewer::drawImGui() {
             SkImageInfo info = SkImageInfo::MakeN32Premul(1, 1);
             bool didGraphiteRead = false;
             if (is_graphite_backend_type(fBackendType)) {
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
                 SkBitmap bitmap;
                 bitmap.allocPixels(info);
                 SkPixmap pixels;

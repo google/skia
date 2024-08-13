@@ -65,7 +65,7 @@ public:
                                int quadCount,
                                const GrUserStencilSettings* = nullptr);
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     static uint32_t ClassID();
 #endif
 

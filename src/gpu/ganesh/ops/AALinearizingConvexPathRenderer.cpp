@@ -47,7 +47,7 @@
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif
@@ -339,7 +339,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (const auto& path : fPaths) {
@@ -450,7 +450,7 @@ bool AALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
 
 }  // namespace skgpu::ganesh
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(AAFlatteningConvexPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixPreservesRightAngles(random);

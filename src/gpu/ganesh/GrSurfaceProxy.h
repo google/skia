@@ -358,7 +358,7 @@ public:
                                       std::string_view label,
                                       sk_sp<GrRenderTask>* outTask = nullptr);
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     int32_t testingOnly_getBackingRefCnt() const;
     GrInternalSurfaceFlags testingOnly_getFlags() const;
     SkString dump() const;

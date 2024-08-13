@@ -50,7 +50,7 @@ public:
 
     OpsTask* getOpsTask();
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     OpsTask* testingOnly_PeekLastOpsTask() { return fOpsTask.get(); }
 #endif
 

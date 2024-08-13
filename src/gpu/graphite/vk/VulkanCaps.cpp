@@ -57,7 +57,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     VkPhysicalDeviceProperties physDevProperties;
     VULKAN_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &physDevProperties));
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     this->setDeviceName(physDevProperties.deviceName);
 #endif
 

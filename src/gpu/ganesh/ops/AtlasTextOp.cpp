@@ -161,7 +161,7 @@ void AtlasTextOp::visitProxies(const GrVisitProxyFunc& func) const {
     fProcessors.visitProxies(func);
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 SkString AtlasTextOp::onDumpInfo() const {
     SkString str;
     int i = 0;

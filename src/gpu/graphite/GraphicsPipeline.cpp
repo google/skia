@@ -15,7 +15,7 @@ GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext, PipelineI
                    Ownership::kOwned,
                    skgpu::Budgeted::kYes,
                    /*gpuMemorySize=*/0) {
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (pipelineInfo) {
         fPipelineInfo.fRenderStepID = pipelineInfo->fRenderStepID;
         fPipelineInfo.fPaintID = pipelineInfo->fPaintID;

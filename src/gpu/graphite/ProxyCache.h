@@ -56,7 +56,7 @@ public:
 
     void purgeAll();
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     int numCached() const;
     sk_sp<TextureProxy> find(const SkBitmap&);
     void forceProcessInvalidKeyMsgs();

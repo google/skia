@@ -221,7 +221,7 @@ public:
     // objects from the cache are probably not worth the complexity of safely releasing them.
     void releaseUnlockedBackendObjects();
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
 #endif
 

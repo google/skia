@@ -37,7 +37,7 @@ void Caps::finishInitialization(const ContextOptions& options) {
         fShaderErrorHandler = DefaultShaderErrorHandler();
     }
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (options.fOptionsPriv) {
         fMaxTextureSize = std::min(fMaxTextureSize, options.fOptionsPriv->fMaxTextureSizeOverride);
         fMaxTextureAtlasSize = options.fOptionsPriv->fMaxTextureAtlasSize;

@@ -52,7 +52,7 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
@@ -408,7 +408,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString str;
 
@@ -461,7 +461,7 @@ GrOp::Owner MakeNonAA(GrRecordingContext* context,
 
 }  // namespace skgpu::ganesh::LatticeOp
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 /** Randomly divides subset into count divs. */
 static void init_random_divs(int divs[], int count, int subsetStart, int subsetStop,

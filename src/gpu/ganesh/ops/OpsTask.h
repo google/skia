@@ -113,7 +113,7 @@ public:
     void visitProxies_debugOnly(const GrVisitProxyFunc&) const override;
 #endif
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void dump(const SkString& label,
               SkString indent,
               bool printDependencies,

@@ -63,7 +63,7 @@
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
@@ -806,7 +806,7 @@ private:
 
 #endif
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     int numQuads() const final { return this->totNumQuads(); }
 #endif
 
@@ -1084,7 +1084,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString str = SkStringPrintf("# draws: %d\n", fQuads.count());
         auto iter = fQuads.iterator();
@@ -1134,7 +1134,7 @@ private:
 
 namespace skgpu::ganesh {
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 uint32_t TextureOp::ClassID() {
     return TextureOpImpl::ClassID();
 }
@@ -1431,7 +1431,7 @@ void TextureOp::AddTextureSetOps(ganesh::SurfaceDrawContext* sdc,
 
 } // namespace skgpu::ganesh
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
     SkISize dims;
     dims.fHeight = random->nextULessThan(90) + 10;
@@ -1500,4 +1500,4 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
                            useSubset ? &srcRect : nullptr);
 }
 
-#endif // defined(GR_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)

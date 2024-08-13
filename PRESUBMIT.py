@@ -481,7 +481,7 @@ def _CheckBuildifier(input_api, output_api):
 
 
 def _CheckBannedAPIs(input_api, output_api):
-  """Check source code for functions and packages that should not be used."""
+  """Check source code for functions, packages, and symbols that should not be used."""
 
   # A list of tuples of a regex to match an API and a suggested replacement for
   # that API. There is an optional third parameter for files which *can* use this
@@ -490,12 +490,17 @@ def _CheckBannedAPIs(input_api, output_api):
     (r'std::stof\(', 'std::strtof(), which does not throw'),
     (r'std::stod\(', 'std::strtod(), which does not throw'),
     (r'std::stold\(', 'std::strtold(), which does not throw'),
+
+    # We used to have separate symbols for this, but coalesced them to make the
+    # Bazel build easier.
+    (r'GR_TEST_UTILS', 'GPU_TEST_UTILS'),
+    (r'GRAPHITE_TEST_UTILS', 'GPU_TEST_UTILS'),
   ]
 
   # These defines are either there or not, and using them with just an #if is a
   # subtle, frustrating bug.
   existence_defines = ['SK_GANESH', 'SK_GRAPHITE', 'SK_GL', 'SK_VULKAN', 'SK_DAWN', 'SK_METAL',
-                       'SK_DIRECT3D', 'SK_DEBUG', 'GR_TEST_UTILS', 'GRAPHITE_TEST_UTILS']
+                       'SK_DIRECT3D', 'SK_DEBUG', 'GPU_TEST_UTILS']
   for d in existence_defines:
     banned_replacements.append(('#if {}'.format(d),
                                 '#if defined({})'.format(d)))

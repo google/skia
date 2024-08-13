@@ -309,7 +309,7 @@ struct SK_API GrContextOptions {
     GrDirectContextDestroyedContext fContextDeleteContext = nullptr;
     GrDirectContextDestroyedProc fContextDeleteProc = nullptr;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     /**
      * Private options that are only meant for testing within Skia's tools.
      */

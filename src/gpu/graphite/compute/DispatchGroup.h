@@ -173,7 +173,7 @@ public:
     // method returns.
     std::unique_ptr<DispatchGroup> finalize();
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     // Clear old state and start a new DispatchGroup.
     void reset();
 #endif

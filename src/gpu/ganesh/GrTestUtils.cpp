@@ -6,7 +6,7 @@
  */
 #include "src/gpu/ganesh/GrTestUtils.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"

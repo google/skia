@@ -15,7 +15,7 @@
 
 #include <array>
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 const GrUserStencilSettings* GrGetRandomStencil(SkRandom* random, GrContext_Base* context) {
     if (context->priv().caps()->avoidStencilBuffers()) {

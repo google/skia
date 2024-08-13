@@ -80,7 +80,7 @@ using RescaleMode        = SkImage::RescaleMode;
 using ReadPixelsCallback = SkImage::ReadPixelsCallback;
 using ReadPixelsContext  = SkImage::ReadPixelsContext;
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 int gOverrideMaxTextureSizeGraphite = 0;
 // Allows tests to check how many tiles were drawn on the most recent call to
 // Device::drawAsTiledImageRect. This is an atomic because we can write to it from
@@ -573,7 +573,7 @@ sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     // This testing-only function should only be called before the Device has detached from its
     // Recorder, since it's accessed via the test-held Surface.
     ASSERT_SINGLE_OWNER
@@ -842,7 +842,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
     size_t cacheSize = recorder->priv().getResourceCacheLimit();
     size_t maxTextureSize = recorder->priv().caps()->maxTextureSize();
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (gOverrideMaxTextureSizeGraphite) {
         maxTextureSize = gOverrideMaxTextureSizeGraphite;
     }
@@ -870,7 +870,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
                                                            constraint,
                                                            cacheSize,
                                                            maxTextureSize);
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     gNumTilesDrawnGraphite.store(numTiles, std::memory_order_relaxed);
 #endif
     return wasTiled;
@@ -1579,7 +1579,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     //    2. Fall back to CPU raster AA if hardware MSAA is disabled or it was explicitly requested
     //       via ContextOptions.
     //    3. Otherwise use tessellation.
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     PathRendererStrategy strategy = fRecorder->priv().caps()->requestedPathRendererStrategy();
 #else
     PathRendererStrategy strategy = PathRendererStrategy::kDefault;

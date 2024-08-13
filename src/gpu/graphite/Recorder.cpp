@@ -145,7 +145,7 @@ Recorder::~Recorder() {
             device->abandonRecorder();
         }
     }
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (fContext) {
         fContext->priv().deregisterRecorder(this);
     }
@@ -571,7 +571,7 @@ size_t RecorderPriv::getResourceCacheLimit() const {
     return fRecorder->fResourceProvider->getResourceCacheLimit();
 }
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 bool RecorderPriv::deviceIsRegistered(Device* device) const {
     ASSERT_SINGLE_OWNER_PRIV
     for (const sk_sp<Device>& currentDevice : fRecorder->fTrackedDevices) {

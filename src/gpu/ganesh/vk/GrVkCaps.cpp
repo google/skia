@@ -313,7 +313,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     this->setDeviceName(properties.deviceName);
 #endif
 
@@ -2119,7 +2119,7 @@ GrVkCaps::IntelGPUType GrVkCaps::GetIntelGPUType(uint32_t deviceID) {
     return IntelGPUType::kOther;
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 std::vector<GrTest::TestFormatColorTypeCombination> GrVkCaps::getTestingCombinations() const {
     std::vector<GrTest::TestFormatColorTypeCombination> combos = {
         { GrColorType::kAlpha_8,          GrBackendFormats::MakeVk(VK_FORMAT_R8_UNORM)            },

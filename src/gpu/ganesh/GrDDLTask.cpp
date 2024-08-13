@@ -106,7 +106,7 @@ bool GrDDLTask::onExecute(GrOpFlushState* flushState) {
     return anyCommandsIssued;
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 void GrDDLTask::dump(const SkString& label,
                      SkString indent,
                      bool printDependencies,

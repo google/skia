@@ -144,7 +144,7 @@ QueueManager::OutstandingSubmission DawnQueueManager::onSubmitToGpu() {
 #endif
 }
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 void DawnQueueManager::startCapture() {
     // TODO: Dawn doesn't have capturing feature yet.
 }

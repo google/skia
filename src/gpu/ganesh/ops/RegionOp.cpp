@@ -28,7 +28,7 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
@@ -200,7 +200,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString str = SkStringPrintf("# combined: %d\n", fRegions.size());
         for (int i = 0; i < fRegions.size(); ++i) {
@@ -246,7 +246,7 @@ GrOp::Owner Make(GrRecordingContext* context,
 
 }  // namespace skgpu::ganesh::RegionOp
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(RegionOp) {
     SkRegion region;
@@ -281,4 +281,4 @@ GR_DRAW_OP_TEST_DEFINE(RegionOp) {
                                                        GrGetRandomStencil(random, context));
 }
 
-#endif // defined(GR_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)

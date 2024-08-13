@@ -308,7 +308,7 @@ int GrMtlFormatStencilBits(MTLPixelFormat format) {
     }
 }
 
-#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
+#if defined(SK_DEBUG) || defined(GPU_TEST_UTILS)
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat) {
     return mtlFormat == MTLPixelFormatBGRA8Unorm;
 }

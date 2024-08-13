@@ -183,7 +183,7 @@ public:
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
     PathRendererChain::Options testingOnly_getOptionsForPathRendererChain() {
         return fOptionsForPathRendererChain;

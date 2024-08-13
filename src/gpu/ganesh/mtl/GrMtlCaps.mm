@@ -27,7 +27,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"
 #include "src/gpu/mtl/MtlUtilsPriv.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #endif
 
@@ -340,7 +340,7 @@ bool GrMtlCaps::onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRe
 }
 
 void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     this->setDeviceName([[device name] UTF8String]);
 #endif
 
@@ -1247,7 +1247,7 @@ bool GrMtlCaps::renderTargetSupportsDiscardableMSAA(const GrMtlRenderTarget* rt)
            (rt->numSamples() > 1 && this->preferDiscardableMSAAAttachment());
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 std::vector<GrTest::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombinations() const {
     std::vector<GrTest::TestFormatColorTypeCombination> combos = {
         { GrColorType::kAlpha_8,          GrBackendFormats::MakeMtl(MTLPixelFormatA8Unorm)         },

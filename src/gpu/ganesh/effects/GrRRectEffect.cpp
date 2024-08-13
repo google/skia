@@ -135,7 +135,7 @@ bool CircularRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(CircularRRectEffect)
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 std::unique_ptr<GrFragmentProcessor> CircularRRectEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar w = d->fRandom->nextRangeScalar(20.f, 1000.f);
     SkScalar h = d->fRandom->nextRangeScalar(20.f, 1000.f);
@@ -469,7 +469,7 @@ bool EllipticalRRectEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(EllipticalRRectEffect)
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 std::unique_ptr<GrFragmentProcessor> EllipticalRRectEffect::TestCreate(GrProcessorTestData* d) {
     SkScalar w = d->fRandom->nextRangeScalar(20.f, 1000.f);
     SkScalar h = d->fRandom->nextRangeScalar(20.f, 1000.f);

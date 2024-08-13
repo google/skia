@@ -498,7 +498,7 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP)
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d) {
     SkColor colors[SkOverdrawColorFilter::kNumColors];

@@ -123,7 +123,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     sk_ignore_unused_variable(standard);
     GrGLVersion version = ctxInfo.version();
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     const GrGLubyte* deviceName;
     GR_GL_CALL_RET(gli, deviceName, GetString(GR_GL_RENDERER));
     this->setDeviceName(reinterpret_cast<const char*>(deviceName));
@@ -5150,7 +5150,7 @@ GrProgramDesc GrGLCaps::makeDesc(GrRenderTarget* /* rt */,
     return desc;
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 std::vector<GrTest::TestFormatColorTypeCombination> GrGLCaps::getTestingCombinations() const {
     std::vector<GrTest::TestFormatColorTypeCombination> combos = {
         { GrColorType::kAlpha_8,

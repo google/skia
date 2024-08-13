@@ -456,7 +456,7 @@ skia_cc_library(
         "//include/gpu/mock:public_hdrs",
     ],
     defines = [
-        "GR_TEST_UTILS",
+        "GPU_TEST_UTILS",
         "SK_GANESH",
     ],
     features = ["layering_check"],

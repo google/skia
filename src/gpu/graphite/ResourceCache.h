@@ -17,7 +17,7 @@
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #include <functional>
 #endif
 #include <vector>
@@ -34,7 +34,7 @@ class GraphiteResourceKey;
 class ProxyCache;
 class Resource;
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 class Texture;
 #endif
 
@@ -86,7 +86,7 @@ public:
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void forceProcessReturnedResources() { this->processReturnedResources(); }
 
     void forcePurgeAsNeeded() { this->purgeAsNeeded(); }

@@ -174,7 +174,7 @@ skia_cc_library(
     ],
     defines = [
         "SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE",
-        "GR_TEST_UTILS",
+        "GPU_TEST_UTILS",
         "SK_GL",
     ],
     features = ["layering_check"],

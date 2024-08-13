@@ -137,7 +137,7 @@ struct SkEmbeddedResourceHeader { const SkEmbeddedResource* entries; int count; 
 extern "C" const SkEmbeddedResourceHeader SK_EMBEDDED_FONTS;
 #endif
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #error "This define should not be set, as it brings in test-only things and bloats codesize."
 #endif
 

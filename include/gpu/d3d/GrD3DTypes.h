@@ -216,7 +216,7 @@ struct GrD3DTextureResourceInfo {
             , fSampleQualityPattern(info.fSampleQualityPattern)
             , fProtected(info.fProtected) {}
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     bool operator==(const GrD3DTextureResourceInfo& that) const {
         return fResource == that.fResource && fResourceState == that.fResourceState &&
                fFormat == that.fFormat && fSampleCount == that.fSampleCount &&

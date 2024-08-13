@@ -38,7 +38,7 @@ const GrCaps* GrOnFlushResourceProvider::caps() const {
     return fDrawingMgr->getContext()->priv().caps();
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 bool GrOnFlushResourceProvider::failFlushTimeCallbacks() const {
     return fDrawingMgr->getContext()->priv().options().fFailFlushTimeCallbacks;
 }

@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkColorData.h"

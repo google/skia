@@ -195,7 +195,7 @@ void GLTestContext::teardown() {
 
 void GLTestContext::testAbandon() {
     INHERITED::testAbandon();
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (fGLInterface) {
         fGLInterface->abandon();
         fOriginalGLInterface->abandon();

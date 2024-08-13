@@ -55,7 +55,7 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
     return *entry;
 }
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 int GlobalCache::numGraphicsPipelines() const {
     SkAutoSpinlock lock{fSpinLock};
 
@@ -76,7 +76,7 @@ void GlobalCache::forEachGraphicsPipeline(
         fn(*k, v->get());
     });
 }
-#endif // defined(GRAPHITE_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)
 
 sk_sp<ComputePipeline> GlobalCache::findComputePipeline(const UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};

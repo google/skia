@@ -220,7 +220,7 @@ protected:
         int numPathMaskCacheHits() const { return fNumPathMaskCacheHits; }
         void incNumPathMasksCacheHits() { fNumPathMaskCacheHits++; }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
         void dump(SkString* out) const;
         void dumpKeyValuePairs(skia_private::TArray<SkString>* keys,
                                skia_private::TArray<double>* values) const;
@@ -234,7 +234,7 @@ protected:
         void incNumPathMasksGenerated() {}
         void incNumPathMasksCacheHits() {}
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
         void dump(SkString*) const {}
         void dumpKeyValuePairs(skia_private::TArray<SkString>* keys,
                                skia_private::TArray<double>* values) const {}
@@ -242,7 +242,7 @@ protected:
 #endif // GR_GPU_STATS
     } fStats;
 
-#if GR_GPU_STATS && defined(GR_TEST_UTILS)
+#if GR_GPU_STATS && defined(GPU_TEST_UTILS)
     struct DMSAAStats {
         void dumpKeyValuePairs(skia_private::TArray<SkString>* keys,
                                skia_private::TArray<double>* values) const;
@@ -270,7 +270,7 @@ private:
     std::unique_ptr<GrDrawingManager> fDrawingManager;
     std::unique_ptr<GrProxyProvider>  fProxyProvider;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     int fSuppressWarningMessages = 0;
 #endif
 };

@@ -171,7 +171,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     sk_cfp<id<MTLDepthStencilState>> dss =
             this->findOrCreateCompatibleDepthStencilState(step->depthStencilSettings());
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     GraphicsPipeline::PipelineInfo pipelineInfo = {pipelineDesc.renderStepID(),
                                                    pipelineDesc.paintParamsID(),
                                                    std::move(vsSkSL),

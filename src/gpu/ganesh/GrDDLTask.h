@@ -63,7 +63,7 @@ private:
 
     bool onExecute(GrOpFlushState*) override;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void dump(const SkString& label,
               SkString indent,
               bool printDependencies,

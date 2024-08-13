@@ -102,7 +102,7 @@ private:
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor)
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 std::unique_ptr<GrFragmentProcessor> BigKeyProcessor::TestCreate(GrProcessorTestData*) {
     return BigKeyProcessor::Make();
 }
@@ -183,7 +183,7 @@ static std::unique_ptr<skgpu::ganesh::SurfaceDrawContext> random_surface_draw_co
                                                    origin);
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 static void set_random_xpf(GrPaint* paint, GrProcessorTestData* d) {
     paint->setXPFactory(GrXPFactoryTestFactory::Get(d));
 }
@@ -264,7 +264,7 @@ static void set_random_color_coverage_stages(GrPaint* paint,
 
 #endif
 
-#if !defined(GR_TEST_UTILS)
+#if !defined(GPU_TEST_UTILS)
 bool GrDrawingManager::ProgramUnitTest(GrDirectContext*, int) { return true; }
 #else
 bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, int maxLevels) {

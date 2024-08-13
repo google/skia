@@ -88,7 +88,7 @@ public:
     GrThreadSafeCache();
     ~GrThreadSafeCache();
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     int numEntries() const  SK_EXCLUDES(fSpinLock);
 
     size_t approxBytesUsedForHash() const  SK_EXCLUDES(fSpinLock);

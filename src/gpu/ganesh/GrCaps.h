@@ -62,7 +62,7 @@ public:
 
     const GrShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     std::string_view deviceName() const { return fDeviceName; }
 #endif
 
@@ -563,7 +563,7 @@ public:
     std::tuple<GrColorType, GrBackendFormat> getFallbackColorTypeAndFormat(GrColorType,
                                                                            int sampleCount) const;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     virtual std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const = 0;
 #endif
 
@@ -573,7 +573,7 @@ protected:
     // NOTE: this method will only reduce the caps, never expand them.
     void finishInitialization(const GrContextOptions& options);
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void setDeviceName(const char* n) {
         fDeviceName = n;
     }
@@ -667,7 +667,7 @@ protected:
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     std::string fDeviceName;
 #endif
 

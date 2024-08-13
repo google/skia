@@ -92,7 +92,7 @@ public:
     }
 #endif
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     // This is really only intended for TextureOp and FillRectOp to override
     virtual int numQuads() const { return -1; }
 #endif

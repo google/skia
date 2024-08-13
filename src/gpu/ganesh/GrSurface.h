@@ -111,7 +111,7 @@ public:
         sk_sp<GrDirectContext> fDirectContext;
     };
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     const GrSurface* asSurface() const override { return this; }
 #endif
 

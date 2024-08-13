@@ -247,7 +247,7 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs
     }
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 SkString GrYUVtoRGBEffect::onDumpInfo() const {
     SkString str("(");
     for (int i = 0; i < SkYUVAInfo::kYUVAChannelCount; ++i) {

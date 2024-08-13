@@ -438,7 +438,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     }
 
     if (glVer >= GR_GL_VER(3,0)) {
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
         GET_PROC(BeginQuery);
         GET_PROC(DeleteQueries);
         GET_PROC(EndQuery);
@@ -447,7 +447,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
         GET_PROC(GetQueryiv);
 #endif
     } else if (extensions.has("GL_EXT_occlusion_query_boolean")) {
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
         GET_PROC_SUFFIX(BeginQuery, EXT);
         GET_PROC_SUFFIX(DeleteQueries, EXT);
         GET_PROC_SUFFIX(EndQuery, EXT);

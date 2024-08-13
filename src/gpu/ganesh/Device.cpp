@@ -120,7 +120,7 @@ using namespace skia_private;
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fContext->priv().singleOwner())
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 // GrContextOptions::fMaxTextureSizeOverride exists but doesn't allow for changing the
 // maxTextureSize on the fly.
 int gOverrideMaxTextureSizeGanesh = 0;
@@ -382,7 +382,7 @@ void Device::clearAll() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void Device::clipPath(const SkPath& path, SkClipOp op, bool aa) {
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (fContext->priv().options().fAllPathsVolatile && !path.isVolatile()) {
         this->clipPath(SkPath(path).setIsVolatile(true), op, aa);
         return;
@@ -801,7 +801,7 @@ void Device::drawArc(const SkArc& arc, const SkPaint& paint) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void Device::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool pathIsMutable) {
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (fContext->priv().options().fAllPathsVolatile && !origSrcPath.isVolatile()) {
         this->drawPath(SkPath(origSrcPath).setIsVolatile(true), paint, true);
         return;
@@ -1023,7 +1023,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
         cacheSize = dCtx->getResourceCacheLimit();
     }
     size_t maxTextureSize = rCtx->maxTextureSize();
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (gOverrideMaxTextureSizeGanesh) {
         maxTextureSize = gOverrideMaxTextureSizeGanesh;
     }
@@ -1041,7 +1041,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
             constraint,
             cacheSize,
             maxTextureSize);
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     gNumTilesDrawnGanesh.store(numTiles, std::memory_order_relaxed);
 #endif
     return wasTiled;
@@ -1177,7 +1177,7 @@ void Device::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPain
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 void Device::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (fContext->priv().options().fAllPathsVolatile && !path.isVolatile()) {
         this->drawShadow(SkPath(path).setIsVolatile(true), rec);
         return;

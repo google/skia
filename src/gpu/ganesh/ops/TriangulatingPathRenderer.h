@@ -25,7 +25,7 @@ namespace skgpu::ganesh {
 class TriangulatingPathRenderer final : public PathRenderer {
 public:
     TriangulatingPathRenderer();
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void setMaxVerbCount(int maxVerbCount) { fMaxVerbCount = maxVerbCount; }
 #endif
 

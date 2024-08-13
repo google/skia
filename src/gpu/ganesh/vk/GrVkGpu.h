@@ -140,7 +140,7 @@ public:
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,

@@ -124,7 +124,7 @@ void MtlCaps::initGPUFamily(id<MTLDevice> device) {
 }
 
 void MtlCaps::initCaps(const id<MTLDevice> device) {
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     this->setDeviceName([[device name] UTF8String]);
 #endif
 

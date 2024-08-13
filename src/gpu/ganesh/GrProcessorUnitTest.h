@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 #include "include/core/SkString.h"
 #include "include/private/base/SkNoncopyable.h"
@@ -178,7 +178,7 @@ private:
 #define GR_DEFINE_XP_FACTORY_TEST(X)
 
 #endif  // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
-#else   // defined(GR_TEST_UTILS)
+#else   // defined(GPU_TEST_UTILS)
     #define GR_DECLARE_GEOMETRY_PROCESSOR_TEST
     #define GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     #define GR_DECLARE_XP_FACTORY_TEST
@@ -191,5 +191,5 @@ private:
     #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(...)
     #define GR_DECLARE_XP_FACTORY_TEST
     #define GR_DEFINE_XP_FACTORY_TEST(...)
-#endif  // defined(GR_TEST_UTILS)
+#endif  // defined(GPU_TEST_UTILS)
 #endif  // GrProcessorUnitTest_DEFINED

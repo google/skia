@@ -171,7 +171,7 @@ public:
 
     virtual const Texture* asTexture() const { return nullptr; }
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     bool testingShouldDeleteASAP() const { return fDeleteASAP == DeleteASAP::kYes; }
 #endif
 

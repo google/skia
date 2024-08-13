@@ -44,7 +44,7 @@ GrThreadSafeCache::~GrThreadSafeCache() {
     this->dropAllRefs();
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 int GrThreadSafeCache::numEntries() const {
     SkAutoSpinlock lock{fSpinLock};
 

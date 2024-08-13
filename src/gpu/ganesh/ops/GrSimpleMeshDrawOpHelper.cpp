@@ -239,7 +239,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::createProgramInfo(
                              this->pipelineFlags());
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 static void dump_pipeline_flags(GrPipeline::InputFlags flags, SkString* result) {
     if (GrPipeline::InputFlags::kNone != flags) {
         if (flags & GrPipeline::InputFlags::kSnapVerticesToPixelCenters) {

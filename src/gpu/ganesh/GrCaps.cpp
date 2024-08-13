@@ -82,7 +82,7 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fInternalMultisampleCount = 0;
 
     fSuppressPrints = options.fSuppressPrints;
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     fWireframeMode = options.fWireframeMode;
 #else
     fWireframeMode = false;
@@ -143,7 +143,7 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     }
 
     fMaxTextureSize = std::min(fMaxTextureSize, options.fMaxTextureSizeOverride);
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (options.fSuppressAdvancedBlendEquations) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
     }

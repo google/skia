@@ -61,7 +61,7 @@
 
 struct SkV4;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif
@@ -980,7 +980,7 @@ std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
     return MakeGradientFP(shader, args, mRec, std::move(fp));
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 RandomParams::RandomParams(SkRandom* random) {
     // Set color count to min of 2 so that we don't trigger the const color optimization and make
     // a non-gradient processor.

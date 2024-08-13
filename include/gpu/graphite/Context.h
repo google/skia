@@ -342,7 +342,7 @@ private:
     // ResourceCache for the Context.
     mutable SingleOwner fSingleOwner;
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     // In test builds a Recorder may track the Context that was used to create it.
     bool fStoreContextRefInRecorder = false;
     // If this tracking is on, to allow the client to safely delete this Context or its Recorders

@@ -83,7 +83,7 @@ public:
 
     size_t getResourceCacheLimit() const;
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     bool deviceIsRegistered(Device*) const;
     ResourceCache* resourceCache() { return fRecorder->fResourceProvider->resourceCache(); }
     SharedContext* sharedContext() { return fRecorder->fSharedContext.get(); }

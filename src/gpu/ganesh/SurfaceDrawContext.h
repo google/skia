@@ -633,7 +633,7 @@ public:
     // instantiated.
     GrRenderTarget* accessRenderTarget() { return this->asSurfaceProxy()->peekRenderTarget(); }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void testingOnly_SetPreserveOpsOnFullClear() { fPreserveOpsOnFullClear_TestingOnly = true; }
 #endif
 
@@ -711,7 +711,7 @@ private:
 
     bool fNeedsStencil = false;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
 };

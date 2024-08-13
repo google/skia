@@ -15,7 +15,7 @@
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/Resource.h"
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #include "src/gpu/graphite/Texture.h"
 #endif
 
@@ -721,7 +721,7 @@ bool ResourceCache::isInCache(const Resource* resource) const {
 
 #endif // SK_DEBUG
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 int ResourceCache::numFindableResources() const {
     return fResourceMap.count();
@@ -754,6 +754,6 @@ void ResourceCache::visitTextures(
     }
 }
 
-#endif // defined(GRAPHITE_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)
 
 } // namespace skgpu::graphite

@@ -37,11 +37,11 @@
 
 using namespace skia_private;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 // The following four helpers are copied from src/gpu/DataUtils.cpp to support the test only
 // GrTwoColorBC1Compress function. Ideally we would copy the test function into DataUtils.cpp
-// instead, but we're currently trying to avoid using the GR_TEST_UTILS define in src/gpu.
+// instead, but we're currently trying to avoid using the GPU_TEST_UTILS define in src/gpu.
 
 static int num_4x4_blocks(int size) {
     return ((size + 3) & ~3) >> 2;

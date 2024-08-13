@@ -66,7 +66,7 @@ public:
         int numCompilationSuccesses() const { return fNumCompilationSuccesses; }
         void incNumCompilationSuccesses() { ++fNumCompilationSuccesses; }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
         void dump(SkString*);
         void dumpKeyValuePairs(skia_private::TArray<SkString>* keys, skia_private::TArray<double>* values);
 #endif
@@ -94,7 +94,7 @@ public:
         void incNumPartialCompilationSuccesses() {}
         void incNumCompilationSuccesses() {}
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
         void dump(SkString*) {}
         void dumpKeyValuePairs(skia_private::TArray<SkString>*, skia_private::TArray<double>*) {}
 #endif

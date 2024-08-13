@@ -811,7 +811,7 @@ void GrGpu::dumpJSON(SkJSONWriter* writer) const {
 void GrGpu::dumpJSON(SkJSONWriter* writer) const { }
 #endif
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 #if GR_GPU_STATS
 
@@ -853,7 +853,7 @@ void GrGpu::Stats::dumpKeyValuePairs(TArray<SkString>* keys, TArray<double>* val
 }
 
 #endif // GR_GPU_STATS
-#endif // defined(GR_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)
 
 bool GrGpu::CompressedDataIsCorrect(SkISize dimensions,
                                     SkTextureCompressionType compressionType,

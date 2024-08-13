@@ -296,7 +296,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldA8TextGeoProc::
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc)
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomAlphaOnlyView();
 
@@ -549,7 +549,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldPathGeoProc::ma
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc)
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomAlphaOnlyView();
 
@@ -872,7 +872,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldLCDTextGeoProc:
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc)
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {
     auto [view, ct, at] = d->randomView();
 

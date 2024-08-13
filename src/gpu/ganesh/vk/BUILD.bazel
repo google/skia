@@ -167,7 +167,7 @@ skia_cc_library(
     ],
     features = ["layering_check"],
     local_defines = [
-        "GR_TEST_UTILS",
+        "GPU_TEST_UTILS",
         "SK_USE_EXTERNAL_VULKAN_HEADERS",
     ],
     visibility = ["//tools:__subpackages__"],

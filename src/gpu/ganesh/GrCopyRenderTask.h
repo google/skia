@@ -53,7 +53,7 @@ private:
     ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) override;
     bool onExecute(GrOpFlushState*) override;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     const char* name() const final { return "Copy"; }
 #endif
 #ifdef SK_DEBUG

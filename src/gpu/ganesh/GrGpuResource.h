@@ -78,7 +78,7 @@ public:
         }
     }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     int32_t testingOnly_getRefCnt() const { return this->getRefCnt(); }
 #endif
 
@@ -235,7 +235,7 @@ public:
 
     static uint32_t CreateUniqueID();
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     virtual const GrSurface* asSurface() const { return nullptr; }
 #endif
 

@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 class GrContext_Base;
 class GrPaint;

@@ -975,7 +975,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         return SkStringPrintf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n%s",
                               fColor.toBytes_RGBA(), fCoverage, fPaths.size(),
@@ -1336,7 +1336,7 @@ void AAHairlineOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBoun
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(AAHairlineOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

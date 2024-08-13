@@ -43,7 +43,7 @@
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
@@ -675,7 +675,7 @@ private:
         return CombineResult::kMerged;
     }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (int i = 0; i < fGeoData.size(); ++i) {
@@ -796,7 +796,7 @@ GrOp::Owner Make(GrRecordingContext* context,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     // We may choose matrix and inset values that cause the factory to fail. We loop until we find
@@ -837,4 +837,4 @@ GR_DRAW_OP_TEST_DEFINE(ShadowRRectOp) {
     } while (true);
 }
 
-#endif // defined(GR_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)

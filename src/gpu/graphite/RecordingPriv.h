@@ -39,7 +39,7 @@ public:
     uint32_t recorderID() const { return fRecording->fRecorderID; }
     uint32_t uniqueID() const { return fRecording->fUniqueID; }
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     bool isTargetProxyInstantiated() const;
     int numVolatilePromiseImages() const;
     int numNonVolatilePromiseImages() const;

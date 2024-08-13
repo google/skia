@@ -748,7 +748,7 @@ void GrResourceCache::getStats(Stats* stats) const {
     }
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 void GrResourceCache::dumpStats(SkString* out) const {
     this->validate();
 
@@ -777,7 +777,7 @@ void GrResourceCache::dumpStatsKeyValuePairs(TArray<SkString>* keys,
 
     keys->push_back(SkString("gpu_cache_purgable_entries")); values->push_back(stats.fNumPurgeable);
 }
-#endif // defined(GR_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)
 #endif // GR_CACHE_STATS
 
 #ifdef SK_DEBUG
@@ -919,7 +919,7 @@ bool GrResourceCache::isInCache(const GrGpuResource* resource) const {
 
 #endif // SK_DEBUG
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 int GrResourceCache::countUniqueKeysWithTag(const char* tag) const {
     int count = 0;
@@ -950,4 +950,4 @@ void GrResourceCache::visitSurfaces(
     }
 }
 
-#endif // defined(GR_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)

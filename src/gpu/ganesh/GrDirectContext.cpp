@@ -261,7 +261,7 @@ bool GrDirectContext::init() {
                                                        this->contextID());
     fResourceCache->setProxyProvider(this->proxyProvider());
     fResourceCache->setThreadSafeCache(this->threadSafeCache());
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (this->options().fResourceCacheLimitOverride != -1) {
         this->setResourceCacheLimit(this->options().fResourceCacheLimitOverride);
     }

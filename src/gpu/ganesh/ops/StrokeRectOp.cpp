@@ -293,7 +293,7 @@ private:
         flushState->drawMesh(*fMesh);
     }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         return SkStringPrintf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
                               "StrokeWidth: %.2f\n%s",
@@ -572,7 +572,7 @@ private:
     void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string;
         for (const auto& info : fRects) {
@@ -1030,7 +1030,7 @@ GrOp::Owner MakeNested(GrRecordingContext* context,
 
 } // namespace skgpu::ganesh::StrokeRectOp
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(NonAAStrokeRectOp) {
     SkMatrix viewMatrix = GrTest::TestMatrix(random);

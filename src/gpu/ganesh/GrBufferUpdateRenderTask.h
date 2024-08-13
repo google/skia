@@ -39,7 +39,7 @@ private:
     }
     bool onExecute(GrOpFlushState*) override;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     const char* name() const final { return "BufferUpdate"; }
 #endif
 #ifdef SK_DEBUG

@@ -27,7 +27,7 @@ private:
     std::unique_ptr<CommandBuffer> getNewCommandBuffer(ResourceProvider*) override;
     OutstandingSubmission onSubmitToGpu() override;
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     // TODO: Implement these
     void startCapture() override {}
     void stopCapture() override {}

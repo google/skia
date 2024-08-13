@@ -22,7 +22,7 @@
 
 #include <utility>
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #   include "src/base/SkRandom.h"
 #   if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #       include <sanitizer/lsan_interface.h>
@@ -51,7 +51,7 @@ sk_sp<GrDirectContext> MakeGL() {
 }
 #endif
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 GrGLFunction<GrGLGetErrorFn> make_get_error_with_random_oom(GrGLFunction<GrGLGetErrorFn> original) {
     // A SkRandom and a GrGLFunction<GrGLGetErrorFn> are too big to be captured by a
     // GrGLFunction<GrGLGetError> (surprise, surprise). So we make a context object and
@@ -89,7 +89,7 @@ sk_sp<GrDirectContext> MakeGL(sk_sp<const GrGLInterface> glInterface,
             GrBackendApi::kOpenGL,
             options,
             GrContextThreadSafeProxyPriv::Make(GrBackendApi::kOpenGL, options));
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (options.fRandomGLOOM) {
         auto copy = sk_make_sp<GrGLInterface>(*glInterface);
         copy->fFunctions.fGetError =

@@ -444,7 +444,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
 
     GET_PROC(GetQueryObjectiv);
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     GET_PROC(BeginQuery);
     GET_PROC(DeleteQueries);
     GET_PROC(EndQuery);

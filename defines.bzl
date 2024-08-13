@@ -26,7 +26,7 @@ GENERAL_DEFINES = [
     "//conditions:default": [],
 }) + select({
     "//src/gpu:enable_gpu_test_utils_true": [
-        "GR_TEST_UTILS=1",
+        "GPU_TEST_UTILS=1",
         "SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1",
     ],
     "//conditions:default": [],

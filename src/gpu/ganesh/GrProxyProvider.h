@@ -271,7 +271,7 @@ public:
     bool renderingDirectly() const;
     bool isAbandoned() const;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     /**
      * Create a texture proxy that is backed by an instantiated GrSurface.
      */

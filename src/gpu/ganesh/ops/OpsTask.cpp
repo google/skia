@@ -800,7 +800,7 @@ void OpsTask::discard() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 void OpsTask::dump(const SkString& label,
                    SkString indent,
                    bool printDependencies,

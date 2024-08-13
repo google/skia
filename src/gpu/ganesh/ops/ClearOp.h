@@ -70,7 +70,7 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override;
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         SkString string("Scissor [ ");
         if (fScissor.enabled()) {

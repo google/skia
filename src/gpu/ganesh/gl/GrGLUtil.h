@@ -626,7 +626,7 @@ static constexpr bool GrGLFormatIsSRGB(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
-#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
+#if defined(SK_DEBUG) || defined(GPU_TEST_UTILS)
 static constexpr const char* GrGLFormatToStr(GrGLenum glFormat) {
     switch (glFormat) {
         case GR_GL_RGBA8:                return "RGBA8";

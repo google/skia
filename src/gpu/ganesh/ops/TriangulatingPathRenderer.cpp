@@ -53,7 +53,7 @@
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 #include "src/base/SkRandom.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #endif
@@ -561,7 +561,7 @@ private:
         flushState->drawMesh(*fMesh);
     }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override {
         return SkStringPrintf("Color 0x%08x, aa: %d\n%s",
                               fColor.toBytes_RGBA(), fAntiAlias, fHelper.dumpInfo().c_str());
@@ -587,7 +587,7 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 GR_DRAW_OP_TEST_DEFINE(TriangulatingPathOp) {
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);

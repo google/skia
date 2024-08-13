@@ -65,7 +65,7 @@ bool GrRecordingContext::init() {
 
     skgpu::ganesh::PathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     prcOptions.fGpuPathRenderers = this->options().fGpuPathRenderers;
 #endif
     // FIXME: Once this is removed from Chrome and Android, rename to fEnable"".
@@ -198,7 +198,7 @@ void GrRecordingContext::dumpJSON(SkJSONWriter* writer) const {
 void GrRecordingContext::dumpJSON(SkJSONWriter*) const { }
 #endif
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 
 #if GR_GPU_STATS
 
@@ -250,4 +250,4 @@ void GrRecordingContext::DMSAAStats::merge(const DMSAAStats& stats) {
 }
 
 #endif // GR_GPU_STATS
-#endif // defined(GR_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)

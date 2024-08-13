@@ -172,7 +172,7 @@ void ProxyCache::purgeProxiesNotUsedSince(const skgpu::StdSteadyClock::time_poin
     }
 }
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 int ProxyCache::numCached() const {
     return fCache.count();
 }
@@ -202,6 +202,6 @@ void ProxyCache::forcePurgeProxiesNotUsedSince(skgpu::StdSteadyClock::time_point
     this->purgeProxiesNotUsedSince(&purgeTime);
 }
 
-#endif // defined(GRAPHITE_TEST_UTILS)
+#endif // defined(GPU_TEST_UTILS)
 
 } // namespace skgpu::graphite

@@ -48,7 +48,7 @@ public:
     [[nodiscard]] bool hasUnfinishedGpuWork();
     void checkForFinishedWork(SyncToCpu);
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     virtual void startCapture() {}
     virtual void stopCapture() {}
 #endif

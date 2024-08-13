@@ -221,7 +221,7 @@ public:
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);
     static VkAccessFlags LayoutToSrcAccessMask(const VkImageLayout layout);
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     void setCurrentQueueFamilyToGraphicsQueue(GrVkGpu* gpu);
 #endif
 

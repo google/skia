@@ -99,7 +99,7 @@ public:
     void freeGpuResources();
     void purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime);
 
-#if defined(GRAPHITE_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     ResourceCache* resourceCache() { return fResourceCache.get(); }
     const SharedContext* sharedContext() { return fSharedContext; }
 #endif

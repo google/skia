@@ -164,7 +164,7 @@ sk_sp<AtlasPathRenderer> AtlasPathRenderer::Make(GrRecordingContext* rContext) {
 AtlasPathRenderer::AtlasPathRenderer(GrDirectContext* dContext) {
     SkASSERT(IsSupported(dContext));
     const GrCaps& caps = *dContext->priv().caps();
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     fAtlasMaxSize = dContext->priv().options().fMaxTextureAtlasSize;
 #else
     fAtlasMaxSize = 2048;
@@ -435,7 +435,7 @@ bool AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP) {
 
     bool successful;
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     if (onFlushRP->failFlushTimeCallbacks()) {
         successful = false;
     } else

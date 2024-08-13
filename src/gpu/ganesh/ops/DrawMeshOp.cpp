@@ -699,7 +699,7 @@ private:
 
     void onPrepareDraws(GrMeshDrawTarget*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
     SkString onDumpInfo() const override;
 #endif
 
@@ -1055,7 +1055,7 @@ MeshOp::MeshOp(GrProcessorSet*          processorSet,
     fIndexCount  = fMeshes.back().indexCount();
 }
 
-#if defined(GR_TEST_UTILS)
+#if defined(GPU_TEST_UTILS)
 SkString MeshOp::onDumpInfo() const { return {}; }
 #endif
 
