@@ -61,9 +61,7 @@ static bool is_rect(const SkClipStack& clipStack, const SkRect& bounds, SkRect* 
 static bool is_complex_clip(const SkClipStack& stack) {
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kBottom_IterStart);
     while (const SkClipStack::Element* element = iter.next()) {
-        if (element->isReplaceOp() ||
-            (element->getOp() != SkClipOp::kDifference &&
-             element->getOp() != SkClipOp::kIntersect)) {
+        if (element->isReplaceOp()) {
             return true;
         }
     }
@@ -83,7 +81,6 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
         switch (element->getOp()) {
             case SkClipOp::kDifference: op = kDifference_SkPathOp; break;
             case SkClipOp::kIntersect:  op = kIntersect_SkPathOp;  break;
-            default: SkASSERT(false); return;
         }
         if (op == kDifference_SkPathOp  ||
             operand.isInverseFillType() ||
