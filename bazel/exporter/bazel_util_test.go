@@ -24,7 +24,7 @@ func TestMakeCanonicalRuleName_ValidInput_Success(t *testing.T) {
 		})
 	}
 
-	test("AlreadyCanonicalNoPath", "//:skia_public", "//:skia_public")
+	test("AlreadyCanonicalNoPath", "//:core", "//:core")
 	test("AlreadyCanonicalWithPath", "//foo/bar:wiz", "//foo/bar:wiz")
 	test("NoRepoDefaultTarget", "//tools/flags", "//tools/flags:flags")
 	test("RepoWithDefaultTarget", "@libpng", "@libpng//:libpng")
@@ -55,7 +55,7 @@ func TestParseRule_ValidRules_Success(t *testing.T) {
 		})
 	}
 
-	test("TargetAtRoot", "//:skia_public", "", "/", "skia_public")
+	test("TargetAtRoot", "//:core", "", "/", "core")
 	test("PathWithTarget", "//foo/bar:wiz", "", "/foo/bar", "wiz")
 	test("PathWithFile", "@abseil_cpp//absl/algorithm:algorithm.h", "@abseil_cpp", "/absl/algorithm", "algorithm.h")
 	test("DirDefaultTarget", "//tools/flags", "", "/tools/flags", "flags")
@@ -88,7 +88,7 @@ func TestGetRuleSimpleName_ValidInput_Success(t *testing.T) {
 
 	test("PathWithTarget", "//include/private/chromium:private_hdrs", "include_private_chromium_private_hdrs")
 	test("PathWithHost", "@repo//path/to/dir:file.txt", "at_repo_path_to_dir_file.txt")
-	test("RootTarget", "//:skia_public", "skia_public")
+	test("RootTarget", "//:core", "core")
 	test("HostTarget", "@repo//:deps", "at_repo_deps")
 	test("DirDefaultTarget", "//tools/flags", "tools_flags_flags") // Input rule shorthand for "//tools/flags:flags".
 	test("RepoDefaultTarget", "@libpng", "at_libpng_libpng")       // Input rule shorthand for "@libpng//:libpng".
@@ -116,7 +116,7 @@ func TestIsExternalRule_IsExternal_ExpectTrue(t *testing.T) {
 }
 
 func TestIsExternalRule_IsInternal_ExpectFalse(t *testing.T) {
-	assert.False(t, isExternalRule("//:skia_public"))
+	assert.False(t, isExternalRule("//:core"))
 }
 
 func TestIsFileRule_InvalidRule_ReturnsFalse(t *testing.T) {

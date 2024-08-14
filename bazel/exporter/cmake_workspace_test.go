@@ -21,7 +21,7 @@ const workspaceTestWorkspaceDir = "/path/to/workspace"
 // This input test data (in textproto format) started as output of
 // a bazel cquery call - like:
 //
-//	bazel cquery --noimplicit_deps 'kind("rule", deps(//:skia_public))' --output textproto > out.txt
+//	bazel cquery --noimplicit_deps 'kind("rule", deps(//:core))' --output textproto > out.txt
 //
 // and then hand edited to create a small valid query result with specific
 // files, copts, and other cc_library/cc_binary rule attributes.

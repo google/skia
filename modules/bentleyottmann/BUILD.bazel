@@ -12,6 +12,7 @@ skia_cc_library(
     hdrs = ["//modules/bentleyottmann/include:hdrs"],
     visibility = ["//:__subpackages__"],
     deps = [
-        "//:skia_internal",
+        "//:core",
+        "//src/base",
     ],
 )

@@ -1,8 +1,5 @@
 load("@rules_license//rules:license.bzl", "license")
-load("@skia_user_config//:copts.bzl", "DEFAULT_OBJC_COPTS")
-load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
 load("//bazel:gen_compile_flags_txt_linux_amd64.bzl", "gen_compile_flags_txt_linux_amd64")
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -17,80 +14,6 @@ license(
 )
 
 licenses(["notice"])
-
-exports_files(["LICENSE"])
-
-# All the mm files from the Skia library are rolled up to this objc library since cc_library
-# ignores mm files. This private library is then deps'ed into the public and internal versions
-# of the SKia library below. The Skia library Objective-C code requires ARC, while non-library code
-# does not.
-skia_objc_library(
-    name = "skia_objc",
-    srcs = [
-        "//src:objc_srcs",
-    ],
-    copts = DEFAULT_OBJC_COPTS + ["-fobjc-arc"],
-    defines = DEFAULT_DEFINES,
-    deps = [
-        "//src:deps",
-        "@skia_user_config//:user_config",
-    ],
-)
-
-# This target exposes the Skia public API. It is what external clients should use.
-skia_cc_library(
-    name = "skia_public",
-    srcs = [
-        "//include:private_hdrs",
-        "//src:private_hdrs",
-        "//src:srcs",
-    ],
-    hdrs = ["//include:public_hdrs"],
-    defines = DEFAULT_DEFINES,
-    local_defines = DEFAULT_LOCAL_DEFINES,
-    visibility = ["//visibility:public"],
-    deps = [
-        "//src:deps",
-        "@skia_user_config//:user_config",
-    ] + select({
-        "//src/gpu:metal_ganesh": ["//:skia_objc"],
-        "//conditions:default": [],
-    }),
-)
-
-# This target exposes headers beyond the public, supported API. It is intended to be
-# used by Skia's tests and tooling.
-skia_cc_library(
-    name = "skia_internal",
-    srcs = [
-        "//src:srcs",
-    ],
-    hdrs = [
-        "//include:private_hdrs",
-        "//include:public_hdrs",
-        "//src:private_hdrs",
-    ],
-    defines = DEFAULT_DEFINES,
-    local_defines = DEFAULT_LOCAL_DEFINES,
-    visibility = [
-        "//bench:__subpackages__",
-        "//dm:__subpackages__",
-        "//gm:__subpackages__",
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
-        "//tools:__subpackages__",
-    ],
-    deps = [
-        "//src:deps",
-        "@skia_user_config//:user_config",
-    ] + select({
-        "//src/gpu:metal_ganesh": ["//:skia_objc"],
-        "//conditions:default": [],
-    }),
-)
-
-####################################################################
-# Experimental public buffet targets below
 
 alias(
     name = "core",

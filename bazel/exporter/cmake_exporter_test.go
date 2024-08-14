@@ -25,7 +25,7 @@ const testCMakeOutFname = "/not/necessarily/in/workspace/CMakeLists.txt"
 // This input test data (in textproto format) started as output of
 // a bazel cquery call - like:
 //
-//	bazel cquery --noimplicit_deps 'kind("rule", deps(//:skia_public))' --output textproto
+//	bazel cquery --noimplicit_deps 'kind("rule", deps(//:core))' --output textproto
 //
 // and then hand edited to create a small valid query result with specific
 // files, copts, and other cc_library/cc_binary rule attributes.

@@ -7,19 +7,6 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
-    name = "legacy_sksg",
-    srcs = [
-        "//modules/sksg/src:private_hdrs",
-        "//modules/sksg/src:srcs",
-    ],
-    hdrs = ["//modules/sksg/include:hdrs"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//:skia_public",
-    ],
-)
-
-skia_cc_library(
     name = "sksg",
     srcs = [
         "//modules/sksg/src:private_hdrs",

@@ -19,39 +19,6 @@ exports_files([
 ])
 
 skia_cc_library(
-    name = "legacy_tool_utils",
-    testonly = True,
-    srcs = [
-        "EncodeUtils.cpp",
-        "DecodeUtils.cpp",
-        "GpuToolUtils.cpp",
-        "Resources.cpp",
-        "ToolUtils.cpp",
-        "ResourceFactory.h",
-        "//tools/flags",
-        # TODO(kjlubick, bungeman): We should split out the font stuff into its own set of files
-        "//tools/fonts:test_font_manager_srcs",
-        "SkMetaData.cpp",
-    ],
-    hdrs = [
-        "CodecUtils.h",
-        "DecodeUtils.h",
-        "EncodeUtils.h",
-        "GpuToolUtils.h",
-        "Resources.h",
-        "SkMetaData.h",
-        "ToolUtils.h",
-    ],
-    textual_hdrs = [
-        "//tools/fonts:test_fonts",
-    ],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//:skia_internal",
-    ],
-)
-
-skia_cc_library(
     name = "registry",
     hdrs = ["Registry.h"],
     visibility = [

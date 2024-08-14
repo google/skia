@@ -50,14 +50,6 @@ skia_filegroup(
 )
 
 skia_cc_library(
-    name = "random_scaler_context",
-    srcs = ["RandomScalerContext.cpp"],
-    hdrs = ["RandomScalerContext.h"],
-    visibility = ["//tests:__pkg__"],
-    deps = ["//:skia_internal"],
-)
-
-skia_cc_library(
     name = "font_tool_utils",
     testonly = True,
     srcs = [

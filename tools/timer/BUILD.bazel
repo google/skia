@@ -7,17 +7,6 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
-    name = "legacy_timer",
-    srcs = [
-        "TimeUtils.h",
-        "Timer.cpp",
-    ],
-    hdrs = ["Timer.h"],
-    visibility = ["//:__subpackages__"],
-    deps = ["//:skia_internal"],
-)
-
-skia_cc_library(
     name = "timer",
     srcs = [
         "Timer.cpp",

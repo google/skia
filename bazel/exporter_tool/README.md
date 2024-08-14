@@ -15,13 +15,13 @@ make -C bazel generate_cmake
 ```
 
 This will write to a single `CMakeLists.txt` file a valid CMake project with
-targets to build the artifacts covered by the Bazel //:skia_public target
+targets to build the artifacts covered by the Bazel //:core target
 and all dependent targets.
 
 ## Current limitations
 
 * External dependencies are not supported.
-* Only the `//:skia_public` rule is supported. Other rules *may* work.
+* Only the `//:core` rule is supported. Other rules *may* work.
 
 # Bazel to *.gni
 
@@ -67,10 +67,9 @@ filegroup(
     srcs = [
         "main.cpp",
         "draw.cpp",
-        select({
-            ":is_windows": [ "draw_win.cpp" ]
-        }).
-    ],
+    ] + select({
+        ":is_windows": [ "draw_win.cpp" ]
+    })
 )
 ```
 

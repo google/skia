@@ -132,8 +132,9 @@ def skia_cc_test(name, copts = DEFAULT_COPTS, linkopts = DEFAULT_LINKOPTS, **kwa
 def skia_cc_library(name, copts = DEFAULT_COPTS, local_defines = [], **kwargs):
     """A wrapper around cc_library for Skia C++ libraries.
 
-    This lets us provide compiler flags (copts) consistently to the Skia build (e.g. //:skia_public)
-    and builds which depend on those targets (e.g. things in //tools or //modules).
+    This lets us provide compiler flags (copts) consistently to the Skia build. By default,
+    copts do not flow up the dependency stack. Additionally, in G3, this allows us to set
+    some options universally.
 
     It also lets us easily tweak these settings when being built in G3.
 
@@ -199,7 +200,7 @@ def skia_objc_library(
         **kwargs):
     """A wrapper around objc_library for Skia Objective C libraries.
 
-    This lets us provide compiler flags (copts) consistently to the Skia build (e.g. //:skia_public)
+    This lets us provide compiler flags (copts) consistently to the Skia build (e.g. //:core)
     and builds which depend on those targets (e.g. things in //tools or //modules).
 
     It also lets us easily tweak these settings when being built in G3.

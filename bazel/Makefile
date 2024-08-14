@@ -1,19 +1,15 @@
 EXPORTER_TOOL=bazel-bin/bazel/exporter_tool/exporter_tool_/exporter_tool
 EXPORTER_RULES=-rule='//src/...' -rule='//modules/...' -rule='//include/...' -rule='//resources/...'
 
-generate:
-	echo "You do not need to run this any more for C++ code, only if you modify go code"
-
 generate_go:
 	cd .. && bazelisk run //infra:gazelle -- update infra/bots/task_drivers modules/canvaskit/go \
        bazel/device_specific_configs bazel/exporter bazel/deps_parser tools/gpu/gl/interface \
-			 tools/testrunners/common/make_tarball tools/testrunners/common/android/adb_test_runner \
-			 experimental/bazel_test/go
+			 tools/testrunners/common/make_tarball tools/testrunners/common/android/adb_test_runner
 
 .PHONY: generate_cmake
 generate_cmake:
 	cd .. && bazelisk build //bazel/exporter_tool && ${EXPORTER_TOOL} \
-		-output_format=cmake -proj_name=Skia -rule='//:skia_public'
+		-output_format=cmake -proj_name=Skia -rule='//:core'
 
 .PHONY: generate_gni
 generate_gni:

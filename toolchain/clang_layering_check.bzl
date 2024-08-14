@@ -64,8 +64,8 @@ def make_layering_check_features():
         feature(
             name = "layering_check",
             # This is currently disabled by default (although we aim to enable it by default)
-            # because our current skia_public build does not pass the fmodules-strict-decluse
-            # options with its current deps implementation (which was designed to pass these along).
+            # because a previous build didn't support passing a flag along.
+            # TODO(kjlubick): enable this by default.
             enabled = False,
             implies = ["use_module_maps"],
             flag_sets = [

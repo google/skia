@@ -7,16 +7,6 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
-    name = "legacy_skresources",
-    srcs = ["//modules/skresources/src:srcs"],
-    hdrs = ["//modules/skresources/include:hdrs"],
-    visibility = ["//:__subpackages__"],
-    deps = [
-        "//:skia_internal",
-    ],
-)
-
-skia_cc_library(
     name = "skresources",
     srcs = ["//modules/skresources/src:srcs"],
     hdrs = ["//modules/skresources/include:hdrs"],
