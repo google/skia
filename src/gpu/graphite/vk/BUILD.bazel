@@ -73,3 +73,30 @@ skia_cc_library(
         "//src/gpu/vk",
     ],
 )
+
+skia_cc_library(
+    name = "graphite_native_vulkan_TEST_UTIL",
+    testonly = True,
+    srcs = [
+        ":vk_hdrs",
+        ":vk_srcs",
+    ],
+    hdrs = [
+        "//include/gpu:shared_gpu_hdrs",
+        "//include/gpu/graphite:public_hdrs",
+        "//include/gpu/graphite/vk:public_hdrs",
+    ],
+    defines = [
+        "SK_VULKAN",
+        "GPU_TEST_UTILS",
+    ],
+    visibility = ["//tools:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
+        "//src/gpu/vk",
+    ],
+)

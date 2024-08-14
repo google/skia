@@ -8,10 +8,13 @@
 #ifndef skgpu_graphite_geom_EdgeAAQuad_DEFINED
 #define skgpu_graphite_geom_EdgeAAQuad_DEFINED
 
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkVx.h"
 #include "src/gpu/graphite/geom/Rect.h"
+
+#include <cstdint>
 
 namespace skgpu::graphite {
 

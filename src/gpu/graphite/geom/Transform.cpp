@@ -4,15 +4,21 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
+#include "include/core/SkM44.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkMatrixInvert.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/graphite/geom/Rect.h"
 
+#include <algorithm>
+#include <cmath>
 #include <tuple>
+#include <utility>
 
 namespace skgpu::graphite {
 

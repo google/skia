@@ -317,6 +317,7 @@ skia_cc_library(
         "//src/gpu/ganesh/mock:headers_to_compile",
         "//src/gpu/ganesh/tessellate:headers_to_compile",
         "//src/gpu/ganesh:headers_to_compile",
+        "//src/gpu/graphite/geom:headers_to_compile",
         "//src/gpu/tessellate:headers_to_compile",
         "//src/gpu/vk:headers_to_compile",
         "//src/gpu:headers_to_compile",
@@ -362,5 +363,6 @@ skia_cc_library(
         "//:webp_encode_codec",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//src/gpu/graphite/vk:graphite_native_vulkan_TEST_UTIL",
     ],
 )

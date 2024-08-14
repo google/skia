@@ -8,6 +8,8 @@
 #ifndef skgpu_graphite_geom_CoverageMaskShape_DEFINED
 #define skgpu_graphite_geom_CoverageMaskShape_DEFINED
 
+#include "include/core/SkM44.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkVx.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Shape.h"

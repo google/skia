@@ -9,6 +9,10 @@
 #define skgpu_graphite_geom_Rect_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAttributes.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "src/base/SkUtils.h"
 #include "src/base/SkVx.h"
 
 namespace skgpu::graphite {

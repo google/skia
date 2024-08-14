@@ -9,13 +9,16 @@
 #define skgpu_graphite_geom_AnalyticBlurMask_DEFINED
 
 #include "include/core/SkM44.h"
+#include "include/core/SkRefCnt.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/geom/Rect.h"
 
 #include <optional>
+#include <utility>
 
 class SkMatrix;
 class SkRRect;
+struct SkRect;
 
 namespace skgpu::graphite {
 

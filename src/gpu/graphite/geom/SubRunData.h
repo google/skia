@@ -8,12 +8,14 @@
 #ifndef skgpu_graphite_geom_SubRunData_DEFINED
 #define skgpu_graphite_geom_SubRunData_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/text/gpu/SubRunContainer.h"
 
-namespace sktext::gpu { class AtlasSubRun; }
+#include <utility>
 
 namespace skgpu::graphite {
 

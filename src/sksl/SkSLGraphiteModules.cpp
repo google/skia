@@ -8,9 +8,6 @@
 #include "src/sksl/SkSLGraphiteModules.h"
 
 #include "include/core/SkTypes.h"
-#include "src/sksl/SkSLModule.h"
-
-#include <string>
 
 // We include minified SkSL module code and pass it directly to the compiler.
 #if defined(SK_ENABLE_OPTIMIZE_SIZE) || !defined(SK_DEBUG)

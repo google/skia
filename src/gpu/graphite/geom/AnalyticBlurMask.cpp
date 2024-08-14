@@ -10,15 +10,29 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkPoint_impl.h"
 #include "src/base/SkFloatBits.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/BlurUtils.h"
+#include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 #include "src/sksl/SkSLUtil.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
 
 namespace skgpu::graphite {
 

@@ -7,10 +7,15 @@
 
 #include "src/gpu/graphite/geom/Shape.h"
 
+#include "include/core/SkPathBuilder.h"
+#include "include/core/SkScalar.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
-#include "src/utils/SkPolyUtils.h"
+
+#include <cstring>
 
 namespace {
 // Keys for paths may be extracted from the path data for small paths, to maximize matches

@@ -43,6 +43,7 @@ supported_files_or_dirs=(
   "src/effects/"
   "src/encode/"
   "src/gpu/ganesh/"
+  "src/gpu/graphite/geom/"
   "src/gpu/tessellate/"
   "src/gpu/gen/"
   "src/gpu/vk/"

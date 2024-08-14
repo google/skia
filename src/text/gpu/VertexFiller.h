@@ -16,7 +16,6 @@
 #include "include/private/base/SkTLogic.h"
 #include "src/base/SkVx.h"
 
-#include <cstddef>
 #include <optional>
 #include <tuple>
 
@@ -26,6 +25,8 @@ class SkWriteBuffer;
 #if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
+
+#include <cstddef>
 #endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 namespace skgpu {

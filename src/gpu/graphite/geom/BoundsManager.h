@@ -8,15 +8,19 @@
 #ifndef skgpu_graphite_geom_BoundsManager_DEFINED
 #define skgpu_graphite_geom_BoundsManager_DEFINED
 
+#include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
-
+#include "src/base/SkBlockAllocator.h"
 #include "src/base/SkTBlockList.h"
 #include "src/base/SkVx.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/geom/Rect.h"
 
 #include <cstdint>
+#include <cstring>
+#include <memory>
 
 namespace skgpu::graphite {
 

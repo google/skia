@@ -25,7 +25,6 @@ class SkPaint;
 class SkReadBuffer;
 class SkStrikeClient;
 class SkWriteBuffer;
-struct SkIRect;
 struct SkPoint;
 struct SkStrikeDeviceInfo;
 
@@ -43,6 +42,7 @@ enum class MaskFormat : int;
 #include "src/gpu/ganesh/ops/GrOp.h"
 
 class GrClip;
+struct SkIRect;
 namespace skgpu::ganesh {
 class SurfaceDrawContext;
 }
