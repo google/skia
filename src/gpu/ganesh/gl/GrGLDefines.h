@@ -1155,4 +1155,7 @@
 #define GR_UNMASKED_VENDOR_WEBGL                            0x9245
 #define GR_UNMASKED_RENDERER_WEBGL                          0x9246
 
+/* GL_ANGLE_client_arrays */
+#define GR_GL_CLIENT_ARRAYS_ANGLE                           0x93AA
+
 #endif
