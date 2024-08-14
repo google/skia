@@ -53,7 +53,7 @@ std::pair<size_t, size_t> compute_combined_buffer_size(
         const SkISize& baseDimensions,
         SkTextureCompressionType compressionType,
         TArray<std::pair<size_t, size_t>>* levelOffsetsAndRowBytes) {
-    SkASSERT(levelOffsetsAndRowBytes && !levelOffsetsAndRowBytes->size());
+    SkASSERT(levelOffsetsAndRowBytes && levelOffsetsAndRowBytes->empty());
     SkASSERT(mipLevelCount >= 1);
 
     SkISize compressedBlockDimensions = CompressedDimensionsInBlocks(compressionType,
