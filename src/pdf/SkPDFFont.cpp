@@ -318,10 +318,23 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
     } else if (type == SkAdvancedTypefaceMetrics::kTrueType_Font ||
                type == SkAdvancedTypefaceMetrics::kCFF_Font)
     {
+        // Avoid use of FontFile3 OpenType (OpenType with CFF) which is PDF 1.6 (2004).
+        // Instead use FontFile3 CIDFontType0C (bare CFF) which is PDF 1.3 (2000).
+        // See b/352098914
         sk_sp<SkData> subsetFontData;
         if (can_subset(metrics)) {
             SkASSERT(font.firstGlyphID() == 1);
+            // If the face has CFF the subsetter will always return just the CFF.
             subsetFontData = SkPDFSubsetFont(*face, font.glyphUsage());
+        }
+        if (!subsetFontData) {
+            // If the data cannot be subset, still ensure bare CFF.
+            constexpr SkFontTableTag CFFTag = SkSetFourByteTag('C', 'F', 'F', ' ');
+            size_t cffTableSize = face->getTableSize(CFFTag);
+            if (cffTableSize) {
+                subsetFontData = SkData::MakeUninitialized(cffTableSize);
+                face->getTableData(CFFTag, 0, cffTableSize, subsetFontData->writable_data());
+            }
         }
         std::unique_ptr<SkStreamAsset> subsetFontAsset;
         if (subsetFontData) {
@@ -336,7 +349,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
         if (type == SkAdvancedTypefaceMetrics::kTrueType_Font) {
             fontFileKey = "FontFile2";
         } else {
-            streamDict->insertName("Subtype", "OpenType");
+            streamDict->insertName("Subtype", "CIDFontType0C");
             fontFileKey = "FontFile3";
         }
         descriptor->insertRef(fontFileKey,
