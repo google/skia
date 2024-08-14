@@ -50,8 +50,6 @@ bool DawnFormatIsDepthOrStencil(wgpu::TextureFormat format) {
         default:
             return false;
     }
-
-    SkUNREACHABLE;
 }
 
 bool DawnFormatIsDepth(wgpu::TextureFormat format) {
@@ -64,8 +62,6 @@ bool DawnFormatIsDepth(wgpu::TextureFormat format) {
         default:
             return false;
     }
-
-    SkUNREACHABLE;
 }
 
 bool DawnFormatIsStencil(wgpu::TextureFormat format) {
@@ -77,8 +73,6 @@ bool DawnFormatIsStencil(wgpu::TextureFormat format) {
         default:
             return false;
     }
-
-    SkUNREACHABLE;
 }
 
 wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags> mask) {
