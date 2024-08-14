@@ -29,6 +29,13 @@
 
 namespace {
 
+skgpu::UniqueKey::Domain get_domain() {
+    static const skgpu::UniqueKey::Domain kDawnGraphicsPipelineDomain =
+            skgpu::UniqueKey::GenerateDomain();
+
+    return kDawnGraphicsPipelineDomain;
+}
+
 // These are all the valid wgpu::TextureFormat that we currently support in Skia.
 // They are roughly ordered from most frequently used to least to improve lookup times in arrays.
 static constexpr wgpu::TextureFormat kFormats[] = {
@@ -931,7 +938,6 @@ uint32_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderP
            loadResolveAttachmentKey;
 }
 
-static const skgpu::UniqueKey::Domain kDawnGraphicsPipelineDomain = UniqueKey::GenerateDomain();
 static constexpr int kDawnGraphicsPipelineKeyData32Count = 4;
 
 UniqueKey DawnCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
@@ -939,7 +945,7 @@ UniqueKey DawnCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeline
     UniqueKey pipelineKey;
     {
         // 4 uint32_t's (render step id, paint id, uint32 RenderPassDesc, uint16 write swizzle key)
-        UniqueKey::Builder builder(&pipelineKey, kDawnGraphicsPipelineDomain,
+        UniqueKey::Builder builder(&pipelineKey, get_domain(),
                                    kDawnGraphicsPipelineKeyData32Count, "DawnGraphicsPipeline");
         // Add GraphicsPipelineDesc key.
         builder[0] = pipelineDesc.renderStepID();
@@ -960,7 +966,7 @@ bool DawnCaps::extractGraphicsDescs(const UniqueKey& key,
                                     GraphicsPipelineDesc* pipelineDesc,
                                     RenderPassDesc* renderPassDesc,
                                     const RendererProvider* rendererProvider) const {
-    SkASSERT(key.domain() == kDawnGraphicsPipelineDomain);
+    SkASSERT(key.domain() == get_domain());
     SkASSERT(key.dataSize() == 4 * kDawnGraphicsPipelineKeyData32Count);
 
     const uint32_t* rawKeyData = key.data();
