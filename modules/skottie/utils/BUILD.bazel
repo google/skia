@@ -45,6 +45,7 @@ skia_cc_library(
         "//:__pkg__",
         "//modules/canvaskit:__pkg__",
         "//modules/skottie:__subpackages__",
+        "//tools/viewer:__pkg__",
     ],
     deps = [
         "//:core",
@@ -67,6 +68,7 @@ skia_cc_library(
         "//:__pkg__",
         "//modules/canvaskit:__pkg__",
         "//modules/skottie:__subpackages__",
+        "//tools/viewer:__pkg__",
     ],
     deps = [
         "//:core",
