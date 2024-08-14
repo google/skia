@@ -48,6 +48,11 @@ public:
     static std::unique_ptr<SkJpegMetadataDecoder> Make(std::vector<Segment> headerSegments);
 
     /**
+     * Create metadata for the specified encoded JPEG file. This may return nullptr.
+     */
+    static std::unique_ptr<SkJpegMetadataDecoder> Make(sk_sp<SkData> data);
+
+    /**
      * Return the Exif data attached to the image (if any) and nullptr otherwise. If |copyData| is
      * false, then the returned SkData may directly reference the data provided when this object was
      * created.

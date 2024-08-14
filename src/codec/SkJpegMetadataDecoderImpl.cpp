@@ -489,3 +489,7 @@ bool SkJpegMetadataDecoderImpl::findGainmapImage(sk_sp<SkData> baseImageData,
 std::unique_ptr<SkJpegMetadataDecoder> SkJpegMetadataDecoder::Make(std::vector<Segment> segments) {
     return std::make_unique<SkJpegMetadataDecoderImpl>(std::move(segments));
 }
+
+std::unique_ptr<SkJpegMetadataDecoder> SkJpegMetadataDecoder::Make(sk_sp<SkData> data) {
+    return std::make_unique<SkJpegMetadataDecoderImpl>(std::move(data));
+}
