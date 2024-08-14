@@ -75,7 +75,7 @@ static float apply_contrast(float srca, float contrast) {
     return srca + ((1.0f - srca) * contrast * srca);
 }
 
-void SkTMaskGamma_build_correcting_lut(uint8_t table[256], U8CPU srcI, SkScalar contrast,
+void SkTMaskGamma_build_correcting_lut(uint8_t* table, U8CPU srcI, SkScalar contrast,
                                        const SkColorSpaceLuminance& dstConvert, SkScalar dstGamma) {
     const SkColorSpaceLuminance& srcConvert = dstConvert;
     const SkScalar srcGamma = dstGamma;
