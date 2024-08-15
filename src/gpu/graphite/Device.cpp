@@ -1077,7 +1077,7 @@ sktext::gpu::AtlasDrawDelegate Device::atlasDelegate() {
                const SkPaint& paint,
                sk_sp<SkRefCnt> subRunStorage,
                sktext::gpu::RendererData rendererData) {
-        this->drawAtlasSubRun(subRun, drawOrigin, paint, subRunStorage, rendererData);
+        this->drawAtlasSubRun(subRun, drawOrigin, paint, std::move(subRunStorage), rendererData);
     };
 }
 
