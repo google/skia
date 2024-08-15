@@ -118,6 +118,14 @@ SkPMColor4f SkWorkingFormatColorFilter::onFilterColor4f(const SkPMColor4f& origC
 
 bool SkWorkingFormatColorFilter::onIsAlphaUnchanged() const { return fChild->isAlphaUnchanged(); }
 
+bool SkWorkingFormatColorFilter::onAsAColorMode(SkColor* color, SkBlendMode* mode) const {
+    return fChild->asAColorMode(color, mode);
+}
+
+bool SkWorkingFormatColorFilter::onAsAColorMatrix(float matrix[20]) const {
+    return fChild->asAColorMatrix(matrix);
+}
+
 void SkWorkingFormatColorFilter::flatten(SkWriteBuffer& buffer) const {
     buffer.writeFlattenable(fChild.get());
     buffer.writeBool(fUseDstTF);
