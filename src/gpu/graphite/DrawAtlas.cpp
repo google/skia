@@ -277,7 +277,7 @@ SkIPoint DrawAtlas::prepForRender(const AtlasLocator& locator, SkAutoPixmapStora
     return plot->prepForRender(locator, pixmap);
 }
 
-void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
+void DrawAtlas::compact(AtlasToken startTokenForNextFlush, bool forceCompact) {
     if (fNumActivePages < 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
@@ -309,7 +309,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
     // hasn't been used in a long time.
     // This is to handle the case where a lot of text or path rendering has occurred but then just
     // a blinking cursor is drawn.
-    if (atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
+    if (forceCompact || atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
         TArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumActivePages - 1;
 
@@ -398,7 +398,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
                         availablePlots.pop_back();
                         --usedPlots;
                     }
-                    if (!usedPlots || !availablePlots.size()) {
+                    if (usedPlots == 0 || !availablePlots.size()) {
                         break;
                     }
                 }
@@ -407,7 +407,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
         }
 
         // If none of the plots in the last page have been used recently, delete it.
-        if (!usedPlots) {
+        if (usedPlots == 0) {
             if constexpr (kDumpAtlasData) {
                 SkDebugf("delete %u\n", fNumActivePages-1);
             }

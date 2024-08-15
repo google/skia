@@ -137,7 +137,7 @@ protected:
                                        AtlasLocator* locator);
         bool recordUploads(DrawContext*, Recorder*);
         void evict(PlotLocator) override;
-        void compact(Recorder*);
+        void compact(Recorder*, bool forceCompact);
 
         void evictAll();
 

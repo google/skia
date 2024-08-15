@@ -157,7 +157,7 @@ public:
         }
     }
 
-    void compact(AtlasToken startTokenForNextFlush);
+    void compact(AtlasToken startTokenForNextFlush, bool forceCompact);
 
     // Mark all plots with any content as full. Used only with Vello because it can't do
     // new renders to a texture without a clear.
