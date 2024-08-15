@@ -18,6 +18,8 @@ skia_filegroup(
         "FontToolUtils.h",
         "TestFontMgr.cpp",
         "TestFontMgr.h",
+        "TestSVGTypeface.cpp",
+        "TestSVGTypeface.h",
         "TestTypeface.cpp",
         "TestTypeface.h",
     ],

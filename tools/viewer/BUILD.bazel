@@ -103,6 +103,8 @@ skia_cc_binary(
         "//:core",
         "//:fontmgr_directory_freetype",
         "//:fontmgr_empty_fontations",
+        "//:skshaper_core",
+        "//:svg_renderer",
         "//gm",
         "//modules/audioplayer",
         "//modules/skottie",

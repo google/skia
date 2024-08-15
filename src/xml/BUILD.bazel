@@ -42,6 +42,7 @@ skia_cc_library(
     name = "xml",
     srcs = [":_xml_srcs"],
     hdrs = [":_xml_hdrs"],
+    defines = ["SK_XML"],
     features = ["layering_check"],
     visibility = [
         "//modules/svg:__subpackages__",

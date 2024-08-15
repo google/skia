@@ -13,6 +13,7 @@ skia_cc_library(
         "//modules/svg/src:srcs",
     ],
     hdrs = ["//modules/svg/include:public_hdrs"],
+    defines = ["SK_ENABLE_SVG"],
     features = ["layering_check"],
     visibility = ["//:__subpackages__"],
     deps = [
