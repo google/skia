@@ -1,0 +1,8 @@
+exports_files(
+    [
+        "SkLoadICU.cpp",
+        "SkLoadICU.h",
+        "make_data_cpp.py",
+    ],
+    visibility = ["//visibility:public"],
+)
