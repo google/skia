@@ -30,6 +30,7 @@ skia_filegroup(
 skia_filegroup(
     name = "core_hdrs",
     srcs = [
+        "SkCamera.h",
         "SkCustomTypeface.h",
         "SkEventTracer.h",
         "SkNWayCanvas.h",

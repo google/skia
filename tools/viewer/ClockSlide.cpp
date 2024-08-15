@@ -7,10 +7,12 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
-#include "include/docs/SkPDFDocument.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkRandom.h"
-#include "src/pdf/SkPDFUtils.h"
 #include "tools/viewer/Slide.h"
+
+#include <chrono>
+#include <ctime>
 
 // Implementation in C++ of Mozilla Canvas2D benchmark Canvas Clock Test
 // See https://code.google.com/p/skia/issues/detail?id=1626
@@ -90,16 +92,16 @@ public:
         }
         canvas->restore();
 
-        // TODO(herb,kjlubick) Switch to std::chrono::system_clock
-        SkPDF::DateTime time;
-        SkPDFUtils::GetDateTime(&time);
-        time.fHour = time.fHour >= 12 ? time.fHour-12 : time.fHour;
+        const auto  time  = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        const auto* ltime = std::localtime(&time);  // not thread safe, but should be ok for slides
+
         paintFill.setColor(SK_ColorBLACK);
 
         // Write hours
         canvas->save();
-        canvas->rotate(time.fHour*(180.f/6.f) + time.fMinute*(180.f/360.f)
-                       + time.fSecond*(180.f/21600.f) );
+        canvas->rotate(ltime->tm_hour * (180.f / 6) +
+                       ltime->tm_min  * (180.f / 360) +
+                       ltime->tm_sec  * (180.f / 21600));
 #ifdef USE_PATH
         paintStroke.setStrokeWidth(14);
         path.reset();
@@ -119,8 +121,8 @@ public:
 
         // Write minutes
         canvas->save();
-        canvas->rotate(time.fMinute*(180.f/30.f)
-                       + time.fSecond*(180.f/1800.f) );
+        canvas->rotate(ltime->tm_min * (180.f / 30) +
+                       ltime->tm_sec * (180.f / 1800));
 #ifdef USE_PATH
         paintStroke.setStrokeWidth(10);
         path.reset();
@@ -140,7 +142,7 @@ public:
 
         // Write seconds
         canvas->save();
-        canvas->rotate(time.fSecond*(180.f/30.f));
+        canvas->rotate(ltime->tm_sec * (180.f / 30));
         paintFill.setColor(0xffd40000);
         paintStroke.setColor(0xffd40000);
         paintStroke.setStrokeWidth(6);

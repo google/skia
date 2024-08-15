@@ -137,6 +137,7 @@ skia_filegroup(
 skia_filegroup(
     name = "core_srcs",
     srcs = [
+        "SkCamera.cpp",
         "SkCanvasStack.cpp",
         "SkCustomTypeface.cpp",
         "SkDashPath.cpp",
