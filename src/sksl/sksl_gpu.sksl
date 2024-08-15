@@ -85,20 +85,22 @@ $pure half4 blend_xor(half4 src, half4 dst) { return (1 - dst.a)*src + (1 - src.
 
 // This multi-purpose Porter-Duff blend function can perform any of the twelve blends above,
 // when passed one of the following values for BlendOp:
-// - Clear:   half4(0, 0,  0,  0)
-// - Src:     half4(1, 0,  0,  0)
-// - Dst:     half4(0, 1,  0,  0)
-// - SrcOver: half4(1, 0,  0, -1)
-// - DstOver: half4(0, 1, -1,  0)
-// - SrcIn:   half4(0, 0,  1,  0)
-// - DstIn:   half4(0, 0,  0,  1)
-// - SrcOut:  half4(0, 0, -1,  0)
-// - DstOut:  half4(0, 0,  0, -1)
-// - SrcATop: half4(0, 0,  1, -1)
-// - DstATop: half4(0, 0, -1,  1)
-// - Xor:     half4(0, 0, -1, -1)
+// - Clear:          0*src +        0*dst = (0 +  0*dstA)*src + (0 +  0*srcA)*dst = (0,  0,  0,  0)
+// - Src:            1*src +        0*dst = (1 +  0*dstA)*src + (0 +  0*srcA)*dst = (1,  0,  0,  0)
+// - Dst:            0*src +        1*dst = (0 +  0*dstA)*src + (1 +  0*srcA)*dst = (0,  1,  0,  0)
+// - SrcOver:        1*src + (1-srcA)*dst = (1 +  0*dstA)*src + (1 + -1*srcA)*dst = (1,  1,  0, -1)
+// - DstOver: (1-dstA)*src +        1*dst = (1 + -1*dstA)*src + (1 +  0*srcA)*dst = (1,  1, -1,  0)
+// - SrcIn:       dstA*src +        0*dst = (0 +  1*dstA)*src + (0 +  0*srcA)*dst = (0,  0,  1,  0)
+// - DstIn:          0*src +     srcA*dst = (0 +  0*dstA)*src + (0 +  1*srcA)*dst = (0,  0,  0,  1)
+// - SrcOut:  (1-dstA)*src +        0*dst = (1 + -1*dstA)*src + (0 +  0*srcA)*dst = (1,  0, -1,  0)
+// - DstOut:         0*src + (1-srcA)*dst = (0 +  0*dstA)*src + (1 + -1*srcA)*dst = (0,  1,  0, -1)
+// - SrcATop:     dstA*src + (1-srcA)*dst = (0 +  1*dstA)*src + (1 + -1*srcA)*dst = (0,  1,  1, -1)
+// - DstATop: (1-dstA)*src +     srcA*dst = (1 + -1*dstA)*src + (0 +  1*srcA)*dst = (1,  0, -1,  1)
+// - Xor:     (1-dstA)*src + (1-srcA)*dst = (1 + -1*dstA)*src + (1 + -1*srcA)*dst = (1,  1, -1, -1)
 $pure half4 blend_porter_duff(half4 blendOp, half4 src, half4 dst) {
-    half2 coeff = blendOp.xy + (blendOp.zw * (half2(dst.a, src.a) + min(blendOp.zw, 0)));
+    // The supported blend modes all have coefficients that are of the form (C + S*alpha), where
+    // alpha is the other color's alpha channel. C can be 0 or 1, S can be -1, 0, or 1.
+    half2 coeff = blendOp.xy + blendOp.zw * half2(dst.a, src.a);
     return src * coeff.x + dst * coeff.y;
 }
 

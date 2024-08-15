@@ -51,18 +51,19 @@ const char* BlendFuncName(SkBlendMode mode) {
 }
 
 SkSpan<const float> GetPorterDuffBlendConstants(SkBlendMode mode) {
-    static constexpr float kClear[]      = {0, 0,  0,  0};
-    static constexpr float kSrc[]        = {1, 0,  0,  0};
-    static constexpr float kDst[]        = {0, 1,  0,  0};
-    static constexpr float kSrcOver[]    = {1, 0,  0, -1};
-    static constexpr float kDstOver[]    = {0, 1, -1,  0};
-    static constexpr float kSrcIn[]      = {0, 0,  1,  0};
-    static constexpr float kDstIn[]      = {0, 0,  0,  1};
-    static constexpr float kSrcOut[]     = {0, 0, -1,  0};
-    static constexpr float kDstOut[]     = {0, 0,  0, -1};
-    static constexpr float kSrcATop[]    = {0, 0,  1, -1};
-    static constexpr float kDstATop[]    = {0, 0, -1,  1};
-    static constexpr float kXor[]        = {0, 0, -1, -1};
+    // See sksl_gpu.sksl's blend_porter_duff function for explanation of values
+    static constexpr float kClear[]      = {0,  0,  0,  0};
+    static constexpr float kSrc[]        = {1,  0,  0,  0};
+    static constexpr float kDst[]        = {0,  1,  0,  0};
+    static constexpr float kSrcOver[]    = {1,  1,  0, -1};
+    static constexpr float kDstOver[]    = {1,  1, -1,  0};
+    static constexpr float kSrcIn[]      = {0,  0,  1,  0};
+    static constexpr float kDstIn[]      = {0,  0,  0,  1};
+    static constexpr float kSrcOut[]     = {1,  0, -1,  0};
+    static constexpr float kDstOut[]     = {0,  1,  0, -1};
+    static constexpr float kSrcATop[]    = {0,  1,  1, -1};
+    static constexpr float kDstATop[]    = {1,  0, -1,  1};
+    static constexpr float kXor[]        = {1,  1, -1, -1};
 
     switch (mode) {
         case SkBlendMode::kClear:      return SkSpan(kClear);
