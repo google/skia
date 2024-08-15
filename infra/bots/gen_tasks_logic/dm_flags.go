@@ -447,8 +447,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					skip(ALL, "gm", ALL, "aaclip")
 					skip(ALL, "gm", ALL, "backdrop_imagefilter_croprect_persp")
 					skip(ALL, "gm", ALL, "bigblurs")
-					skip(ALL, "gm", ALL, "bitmaptiled_fractional_horizontal")
-					skip(ALL, "gm", ALL, "bitmaptiled_fractional_vertical")
 					skip(ALL, "gm", ALL, "blur2rectsnonninepatch")
 					skip(ALL, "gm", ALL, "blurredclippedcircle")
 					skip(ALL, "gm", ALL, "bug9331")

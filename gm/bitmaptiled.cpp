@@ -65,18 +65,18 @@ static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool verti
     }
 }
 
-DEF_SIMPLE_GM_BG(bitmaptiled_fractional_horizontal, canvas, 1124, 365, SK_ColorBLACK) {
+// In Graphite, it is always the client's responsibility to manually do tiled image draws, so we
+// only run the non-manual tests in Ganesh.
+DEF_SIMPLE_GPU_GM_BG(bitmaptiled_fractional_horizontal, rContext, canvas, 1124, 365, SK_ColorBLACK) {
     draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ false, /* manual= */ false);
+}
+DEF_SIMPLE_GPU_GM_BG(bitmaptiled_fractional_vertical, rContext, canvas, 365, 1124, SK_ColorBLACK) {
+    draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ true, /* manual= */ false);
 }
 
 DEF_SIMPLE_GM_BG(bitmaptiled_fractional_horizontal_manual, canvas, 1124, 365, SK_ColorBLACK) {
     draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ false, /* manual= */ true);
 }
-
-DEF_SIMPLE_GM_BG(bitmaptiled_fractional_vertical, canvas, 365, 1124, SK_ColorBLACK) {
-    draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ true, /* manual= */ false);
-}
-
 DEF_SIMPLE_GM_BG(bitmaptiled_fractional_vertical_manual, canvas, 365, 1124, SK_ColorBLACK) {
     draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ true, /* manual= */ true);
 }
