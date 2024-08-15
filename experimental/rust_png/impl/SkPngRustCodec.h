@@ -9,6 +9,7 @@
 
 #include <memory>
 
+#include "experimental/rust_png/ffi/FFI.rs.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "third_party/rust/cxx/v1/cxx.h"
@@ -25,7 +26,9 @@ class SkPngRustCodec : public SkCodec {
 public:
     static std::unique_ptr<SkPngRustCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
-    SkPngRustCodec(SkEncodedInfo&&, std::unique_ptr<SkStream>, rust::Vec<uint8_t> decodedData);
+    // `public` to support `std::make_unique<SkPngRustCodec>(...)`.
+    SkPngRustCodec(SkEncodedInfo&&, std::unique_ptr<SkStream>, rust::Box<rust_png::Reader>);
+
     ~SkPngRustCodec() override;
 
 private:
@@ -37,11 +40,7 @@ private:
                        const Options&,
                        int* rowsDecoded) override;
 
-    // TODO(https://crbug.com/356878144): Don't store a vector of
-    // already-decoded pixels going forward.  Instead, we should store a
-    // `rust::Box<rust_png::Reader>` and decode on demand (e.g. in
-    // `onGetPixels`).
-    rust::Vec<uint8_t> fDecodedData;
+    rust::Box<rust_png::Reader> fReader;
 };
 
 #endif  // SkPngRustCodec_DEFINED

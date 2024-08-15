@@ -7,6 +7,7 @@
 
 #include "experimental/rust_png/impl/SkPngRustCodec.h"
 
+#include <memory>
 #include <utility>
 
 #include "experimental/rust_png/ffi/FFI.rs.h"
@@ -15,6 +16,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/src/skcms_public.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/codec/SkSwizzler.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
@@ -52,12 +54,27 @@ SkEncodedInfo::Alpha ToAlpha(rust_png::ColorType colorType) {
     SK_ABORT("Unexpected `rust_png::ColorType`: %d", static_cast<int>(colorType));
 }
 
-SkEncodedInfo CreateEncodedInfo(const rust_png::DecodedImage& image) {
-    return SkEncodedInfo::Make(image.width,
-                               image.height,
-                               ToColor(image.color),
-                               ToAlpha(image.color),
-                               image.bits_per_component);
+SkEncodedInfo CreateEncodedInfo(const rust_png::Reader& reader) {
+    rust_png::ColorType color = reader.output_color_type();
+    return SkEncodedInfo::Make(reader.width(),
+                               reader.height(),
+                               ToColor(color),
+                               ToAlpha(color),
+                               reader.output_bits_per_component());
+}
+
+SkCodec::Result ToSkCodecResult(rust_png::DecodingResult rustResult) {
+    switch (rustResult) {
+        case rust_png::DecodingResult::Success:
+            return SkCodec::kSuccess;
+        case rust_png::DecodingResult::FormatError:
+            return SkCodec::kErrorInInput;
+        case rust_png::DecodingResult::ParameterError:
+            return SkCodec::kInvalidParameters;
+        case rust_png::DecodingResult::LimitsExceededError:
+            return SkCodec::kInternalError;
+    }
+    SK_ABORT("Unexpected `rust_png::DecodingResult`: %d", static_cast<int>(rustResult));
 }
 
 // This helper class adapts `SkStream` to expose the API required by Rust FFI
@@ -120,24 +137,23 @@ std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<S
     SkASSERT(result);
 
     auto readTraitAdapter = std::make_unique<ReadTraitAdapterForSkStream>(stream.get());
-    std::unique_ptr<rust_png::DecodedImage> image = rust_png::read_png(std::move(readTraitAdapter));
-    if (!image) {
-        // TODO(https://crbug.com/356878144): Provide more granular conversion
-        // from `png::DecodingError` to `SkCodec::Result`.
-        *result = kErrorInInput;
+    rust::Box<rust_png::ResultOfReader> resultOfReader =
+            rust_png::new_reader(std::move(readTraitAdapter));
+    *result = ToSkCodecResult(resultOfReader->err());
+    if (*result != kSuccess) {
         return nullptr;
     }
+    rust::Box<rust_png::Reader> reader = resultOfReader->unwrap();
 
-    *result = kSuccess;
     return std::make_unique<SkPngRustCodec>(
-            CreateEncodedInfo(*image), std::move(stream), std::move(image->data));
+            CreateEncodedInfo(*reader), std::move(stream), std::move(reader));
 }
 
 SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
                                std::unique_ptr<SkStream> stream,
-                               rust::Vec<uint8_t> decodedData)
+                               rust::Box<rust_png::Reader> reader)
         : SkCodec(std::move(encodedInfo), kInvalidSkcmsPixelFormat, std::move(stream))
-        , fDecodedData(std::move(decodedData)) {}
+        , fReader(std::move(reader)) {}
 
 SkPngRustCodec::~SkPngRustCodec() = default;
 
@@ -185,7 +201,28 @@ SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
     SkASSERT(getEncodedInfo().bitsPerComponent() % 8 == 0);
     size_t srcRowSize = static_cast<size_t>(getEncodedInfo().bitsPerPixel()) / 8 * width;
 
-    SkSpan<const uint8_t> src = fDecodedData;
+    // Decode the whole PNG image into an intermediate buffer.
+    //
+    // TODO(https://crbug.com/357876243): Avoid an extra buffer when possible
+    // (e.g. when we can decode directly into `dst`, because the pixel format
+    // received from `fReader` is similar enough to `dstInfo`).
+    //
+    // TODO(https://github.com/dtolnay/cxx/pull/1367): Consider using a new
+    // constructor when available: `rust::Slice(decodedPixels)`.
+    std::vector<uint8_t> decodedPixels(fReader->output_buffer_size(), 0x00);
+    Result result = ToSkCodecResult(
+            fReader->next_frame(rust::Slice(decodedPixels.data(), decodedPixels.size())));
+    if (result != kSuccess) {
+        // TODO(https://crbug.com/356923435): Handle `kIncompleteInput` (right
+        // now the FFI layer will never return `kIncompleteInput` but we will
+        // need to handle it for incremental, row-by-row decoding).
+        SkASSERT_RELEASE(result != kIncompleteInput);
+
+        return result;
+    }
+
+    // Convert the `decodedPixels` into the `dstInfo` format.
+    SkSpan<const uint8_t> src = decodedPixels;
     void* dstRow = dst;
     for (int y = 0; y < height; ++y) {
         swizzler->swizzle(dstRow, src.data());
