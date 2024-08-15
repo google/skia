@@ -16,9 +16,7 @@ namespace skgpu::graphite {
 // key derived from a PaintParams.
 class UniquePaintParamsID {
 public:
-    explicit UniquePaintParamsID(uint32_t id) : fID(id) {
-        SkASSERT(id != SK_InvalidUniqueID);
-    }
+    explicit UniquePaintParamsID(uint32_t id) : fID(id) {}
 
     static UniquePaintParamsID InvalidID() { return UniquePaintParamsID(); }
 
