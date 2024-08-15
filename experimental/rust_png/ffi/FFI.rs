@@ -8,6 +8,7 @@
 //! macro below and exposed through the auto-generated `FFI.rs.h` header.
 
 use std::io::Read;
+use std::pin::Pin;
 
 // No `use png::...` nor `use ffi::...` because we want the code to explicitly
 // spell out if it means `ffi::ColorType` vs `png::ColorType` (or `Reader`
@@ -88,16 +89,9 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
     }
 }
 
-/// Newtype wrapper to work around the orphan rule, which prevents us from
-/// having our crate provide `impl Read for cxx::UniquePtr<ffi::ReadTrait>`.
-///
-/// TODO(https://crbug.com/359917956): Avoid the wrapper type if `cxx` provides
-/// a blanket `impl<T> Read for UniquePtr<T>`.
-struct UniquePtrOfReadTrait(cxx::UniquePtr<ffi::ReadTrait>);
-
-impl Read for UniquePtrOfReadTrait {
+impl<'a> Read for Pin<&'a mut ffi::ReadTrait> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        Ok(self.0.pin_mut().read(buf))
+        Ok(self.as_mut().read(buf))
     }
 }
 
@@ -123,13 +117,13 @@ impl ResultOfReader {
 /// FFI-friendly wrapper around `png::Reader<R>` (`cxx` can't handle arbitrary
 /// generics, so we manually monomorphize here, but still expose a minimal,
 /// somewhat tweaked API of the original type).
-struct Reader(png::Reader<UniquePtrOfReadTrait>);
+struct Reader(png::Reader<cxx::UniquePtr<ffi::ReadTrait>>);
 
 impl Reader {
     fn new(input: cxx::UniquePtr<ffi::ReadTrait>) -> Result<Self, png::DecodingError> {
         // By default, the decoder is limited to using 64 Mib. If we ever need to change
         // that, we can use `png::Decoder::new_with_limits`.
-        let mut decoder = png::Decoder::new(UniquePtrOfReadTrait(input));
+        let mut decoder = png::Decoder::new(input);
 
         // `EXPAND` will:
         // * Expand bit depth to at least 8 bits
