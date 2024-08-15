@@ -24,10 +24,16 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//include/codec:public_hdrs",
 			},
 		},
-		{Var: "skia_codec_core",
+		{Var: "skia_codec_core", // TODO(kjlubick): delete after updating Chromium and Flutter
 			Rules: []string{
 				"//src/codec:core_hdrs",
 				"//src/codec:core_srcs",
+			},
+		},
+		{Var: "skia_codec_shared",
+			Rules: []string{
+				"//src/codec:any_decoder",
+				"//include/codec:any_codec_hdrs",
 			},
 		},
 		{Var: "skia_codec_decode_bmp",
@@ -45,6 +51,12 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/codec:jpeg_xmp_hdrs",
 				"//src/codec:jpeg_xmp_srcs",
+			},
+		},
+		{Var: "skia_codec_png",
+			Rules: []string{
+				"//src/codec:buffet_png_srcs",
+				"//src/codec:common_png_srcs",
 			},
 		},
 	}},
