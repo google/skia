@@ -255,6 +255,7 @@ gm_sources = [
   "$_gm/localmatriximageshader.cpp",
   "$_gm/localmatrixshader.cpp",
   "$_gm/lumafilter.cpp",
+  "$_gm/luminosity.cpp",
   "$_gm/mac_aa_explorer.cpp",
   "$_gm/make_raster_image.cpp",
   "$_gm/makecolorspace.cpp",

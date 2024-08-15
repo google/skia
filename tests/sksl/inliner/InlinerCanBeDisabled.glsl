@@ -1,5 +1,6 @@
 
 const float sk_PrivkGuardedDivideEpsilon = false ? 1e-08 : 0.0;
+const float sk_PrivkMinNormalHalf = 6.10351562e-05;
 out vec4 sk_FragColor;
 uniform vec4 color;
 float blend_color_saturation_Qhh3(vec3 color);
@@ -30,7 +31,7 @@ vec4 blend_hslc_h4h2h4h4(vec2 flipSat, vec4 src, vec4 dst) {
         _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / ((_4_lum - _6_minComp) + sk_PrivkGuardedDivideEpsilon));
     }
     if (_7_maxComp > alpha && _7_maxComp != _4_lum) {
-        _5_result = _4_lum + ((_5_result - _4_lum) * (alpha - _4_lum)) / ((_7_maxComp - _4_lum) + sk_PrivkGuardedDivideEpsilon);
+        _5_result = _4_lum + ((_5_result - _4_lum) * (alpha - _4_lum)) / (((_7_maxComp - _4_lum) + sk_PrivkMinNormalHalf) + sk_PrivkGuardedDivideEpsilon);
     }
     return vec4((((_5_result + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }
