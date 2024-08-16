@@ -5,7 +5,6 @@
 
 #if defined(SK_PDF_USE_HARFBUZZ_SUBSET)
 
-#include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkAssert.h"
