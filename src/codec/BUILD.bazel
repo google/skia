@@ -456,7 +456,6 @@ skia_cc_library(
         "SkBmpCodec.h",
         "SkIcoCodec.cpp",
         "SkIcoCodec.h",
-        "SkPngCodec.h",
     ],
     hdrs = [
         "//include/codec:any_codec_hdrs",

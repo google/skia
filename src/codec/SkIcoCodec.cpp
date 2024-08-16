@@ -8,6 +8,7 @@
 #include "src/codec/SkIcoCodec.h"
 
 #include "include/codec/SkIcoDecoder.h"
+#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
@@ -18,7 +19,6 @@
 #include "src/base/SkTSort.h"
 #include "src/codec/SkBmpCodec.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/codec/SkPngCodec.h"
 #include "src/core/SkStreamPriv.h"
 
 #include "modules/skcms/skcms.h"
@@ -177,8 +177,8 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         // Check if the embedded codec is bmp or png and create the codec
         std::unique_ptr<SkCodec> codec;
         Result ignoredResult;
-        if (SkPngCodec::IsPng(embeddedData->bytes(), embeddedData->size())) {
-            codec = SkPngCodec::MakeFromStream(std::move(embeddedStream), &ignoredResult);
+        if (SkPngDecoder::IsPng(embeddedData->bytes(), embeddedData->size())) {
+            codec = SkPngDecoder::Decode(std::move(embeddedStream), &ignoredResult);
         } else {
             codec = SkBmpCodec::MakeFromIco(std::move(embeddedStream), &ignoredResult);
         }
