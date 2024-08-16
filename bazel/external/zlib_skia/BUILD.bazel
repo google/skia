@@ -164,6 +164,11 @@ ZLIB_COPTS = [
     ":mac_x64": [
         "-mpclmul",
     ],
+    ":windows_x64": [
+        "-mssse3",
+        "-msse4.2",
+        "-mpclmul",
+    ],
     "@platforms//cpu:arm": ["-march=armv8-a+crc"],
     # If empty list isn't set for wasm, select picks linux_x64
     ":cpu_wasm": [],
