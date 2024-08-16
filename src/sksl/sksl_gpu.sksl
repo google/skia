@@ -145,6 +145,14 @@ $pure half4 blend_darken(half4 src, half4 dst) {
    return blend_darken(1, src, dst);
 }
 
+// A useful constant to check against when dividing a half-precision denominator.
+// Denormal half floats (values less than this) will compare not-equal to 0 but can easily cause the
+// division to overflow to infinity. Even regular values can overflow given the low maximum value.
+// For instance, any value x > ~3.998 will overflow when divided by $kMinNormalHalf. This is a
+// reasonable value even for wide gamut colors being input to these blend functions, but the
+// most correct denominator check is to treat anything with `denom < x/F16_MAX` as division by 0.
+const half $kMinNormalHalf = 1.0 / (1 << 14);
+
 const half $kGuardedDivideEpsilon = sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
                                         ? 0.00000001
                                         : 0.0;
@@ -158,17 +166,11 @@ $pure inline half3 $guarded_divide(half3 n, half d) {
 }
 
 $pure half $color_dodge_component(half2 s, half2 d) {
-    if (d.x == 0) {
-        return s.x*(1 - d.y);
-    } else {
-        half delta = s.y - s.x;
-        if (delta == 0) {
-            return s.y*d.y + s.x*(1 - d.y) + d.x*(1 - s.y);
-        } else {
-            delta = min(d.y, $guarded_divide(d.x*s.y, delta));
-            return delta*s.y + s.x*(1 - d.y) + d.x*(1 - s.y);
-        }
-    }
+    half dxScale = d.x == 0 ? 0 : 1;
+    half delta = dxScale * min(d.y, mix(d.y,
+                                        $guarded_divide(d.x*s.y, s.y-s.x),
+                                        abs(s.y-s.x) >= $kMinNormalHalf));
+    return delta*s.y + s.x*(1 - d.y) + d.x*(1 - s.y);
 }
 
 $pure half4 blend_color_dodge(half4 src, half4 dst) {

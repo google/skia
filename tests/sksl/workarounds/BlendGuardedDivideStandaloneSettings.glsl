@@ -1,5 +1,6 @@
 
 const float sk_PrivkGuardedDivideEpsilon = false ? 1e-08 : 0.0;
+const float sk_PrivkMinNormalHalf = 6.10351562e-05;
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
@@ -17,17 +18,9 @@ float color_burn_component_Qhh2h2(vec2 s, vec2 d) {
     }
 }
 float color_dodge_component_Qhh2h2(vec2 s, vec2 d) {
-    if (d.x == 0.0) {
-        return s.x * (1.0 - d.y);
-    } else {
-        float delta = s.y - s.x;
-        if (delta == 0.0) {
-            return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
-        } else {
-            delta = min(d.y, (d.x * s.y) / (delta + sk_PrivkGuardedDivideEpsilon));
-            return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
-        }
-    }
+    float dxScale = float(d.x == 0.0 ? 0 : 1);
+    float delta = dxScale * min(d.y, mix(d.y, (d.x * s.y) / ((s.y - s.x) + sk_PrivkGuardedDivideEpsilon), abs(s.y - s.x) >= sk_PrivkMinNormalHalf));
+    return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
 }
 float soft_light_component_Qhh2h2(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
