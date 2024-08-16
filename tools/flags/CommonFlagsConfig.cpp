@@ -173,7 +173,7 @@ static const struct {
 // clang-format on
 
 static const char configHelp[] =
-        "Options: 565 4444 8888 rgba bgra rgbx 1010102 101010x bgra1010102 bgr101010x f16 f16norm "
+        "Options: 565 4444 8888 rgba bgra rgbx 1010102 101010x bgra1010102 bgr101010x f16 f16norm f16f16f16x "
         "f32 nonrendering null pdf pdfa pdf300 skp svg xps";
 
 static const char* config_help_fn() {

@@ -369,6 +369,9 @@ void SkRasterPipeline::appendLoad(SkColorType ct, const SkRasterPipeline_MemoryC
                                              this->append(Op::force_opaque);
                                              this->append(Op::swap_rb);
                                              break;
+        case kRGB_F16F16F16x_SkColorType:    this->append(Op::load_f16, ctx);
+                                             this->append(Op::force_opaque);
+                                             break;
 
         case kBGRA_8888_SkColorType:         this->append(Op::load_8888, ctx);
                                              this->append(Op::swap_rb);
@@ -434,6 +437,9 @@ void SkRasterPipeline::appendLoadDst(SkColorType ct, const SkRasterPipeline_Memo
         case kBGRA_10101010_XR_SkColorType:   this->append(Op::load_10101010_xr_dst, ctx);
                                               this->append(Op::swap_rb_dst);
                                               break;
+        case kRGB_F16F16F16x_SkColorType:     this->append(Op::load_f16_dst, ctx);
+                                              this->append(Op::force_opaque_dst);
+                                              break;
 
         case kBGRA_8888_SkColorType:          this->append(Op::load_8888_dst, ctx);
                                               this->append(Op::swap_rb_dst);
@@ -490,6 +496,9 @@ void SkRasterPipeline::appendStore(SkColorType ct, const SkRasterPipeline_Memory
         case kBGR_101010x_XR_SkColorType:     this->append(Op::force_opaque);
                                               this->append(Op::swap_rb);
                                               this->append(Op::store_1010102_xr, ctx);
+                                              break;
+        case kRGB_F16F16F16x_SkColorType:     this->append(Op::force_opaque);
+                                              this->append(Op::store_f16, ctx);
                                               break;
 
         case kBGRA_10101010_XR_SkColorType:   this->append(Op::swap_rb);

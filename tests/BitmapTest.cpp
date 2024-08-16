@@ -436,6 +436,7 @@ DEF_TEST(getalphaf, reporter) {
         { kR16G16_float_SkColorType,       opaque },
         { kRGB_888x_SkColorType,           opaque },
         { kRGB_101010x_SkColorType,        opaque },
+        { kRGB_F16F16F16x_SkColorType,     opaque },
 
         { kAlpha_8_SkColorType,            nearly },
         { kA16_unorm_SkColorType,          nearly },

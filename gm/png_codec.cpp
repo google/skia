@@ -76,6 +76,8 @@ static constexpr const char* sk_color_type_to_str(SkColorType colorType) {
             return "kRGBA_F16Norm_SkColorType";
         case kRGBA_F16_SkColorType:
             return "kRGBA_F16_SkColorType";
+        case kRGB_F16F16F16x_SkColorType:
+            return "kRGB_F16F16F16x_SkColorType";
         case kRGBA_F32_SkColorType:
             return "kRGBA_F32_SkColorType";
         case kR8G8_unorm_SkColorType:

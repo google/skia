@@ -61,6 +61,7 @@ static constexpr int min_rgb_channel_bits(SkColorType ct) {
         case kGray_8_SkColorType:             return 8;   // counting gray as "rgb"
         case kRGBA_F16Norm_SkColorType:       return 10;  // just counting the mantissa
         case kRGBA_F16_SkColorType:           return 10;  // just counting the mantissa
+        case kRGB_F16F16F16x_SkColorType:     return 10;
         case kRGBA_F32_SkColorType:           return 23;  // just counting the mantissa
         case kR16G16B16A16_unorm_SkColorType: return 16;
         case kR8_unorm_SkColorType:           return 8;
@@ -93,6 +94,7 @@ static constexpr int alpha_channel_bits(SkColorType ct) {
         case kGray_8_SkColorType:             return 0;
         case kRGBA_F16Norm_SkColorType:       return 10;  // just counting the mantissa
         case kRGBA_F16_SkColorType:           return 10;  // just counting the mantissa
+        case kRGB_F16F16F16x_SkColorType:     return 0;
         case kRGBA_F32_SkColorType:           return 23;  // just counting the mantissa
         case kR16G16B16A16_unorm_SkColorType: return 16;
         case kR8_unorm_SkColorType:           return 0;
@@ -277,7 +279,7 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
         } else if (!rules.fUncontainedRectSucceeds && !surfBounds.contains(rect)) {
             REPORTER_ASSERT(reporter, result != Result::kSuccess);
         } else if (result == Result::kFail) {
-            // TODO: Support RGB/BGR 101010x, BGRA 1010102 on the GPU.
+            // TODO: Support RGB/BGR 101010x, BGRA 1010102, RGB F16F16F16x on the GPU.
             ERRORF(reporter,
                    "Read failed. %sSrc CT: %s, Src AT: %s Read CT: %s, Read AT: %s, "
                    "Rect [%d, %d, %d, %d], CS conversion: %d\n",
@@ -461,7 +463,8 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
                 if (readCT == kRGB_101010x_SkColorType ||
                     readCT == kBGR_101010x_XR_SkColorType ||
                     readCT == kBGRA_10101010_XR_SkColorType ||
-                    readCT == kBGR_101010x_SkColorType) {
+                    readCT == kBGR_101010x_SkColorType ||
+                    readCT == kRGB_F16F16F16x_SkColorType) {
                     continue;
                 }
                 for (const sk_sp<SkColorSpace>& readCS :

@@ -111,6 +111,7 @@ float SkPixmap::getAlphaf(int x, int y) const {
         case kRGB_101010x_SkColorType:
         case kBGR_101010x_SkColorType:
         case kBGR_101010x_XR_SkColorType:
+        case kRGB_F16F16F16x_SkColorType:
         case kR8_unorm_SkColorType:
             return 1;
         case kAlpha_8_SkColorType:
@@ -352,6 +353,14 @@ SkColor SkPixmap::getColor(int x, int y) const {
                  | (uint32_t)( b * 255.0f ) <<  0
                  | (uint32_t)( a * 255.0f ) << 24;
         }
+        case kRGB_F16F16F16x_SkColorType: {
+            const uint64_t* addr =
+                (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
+            skvx::float4 p4 = from_half(skvx::half4::Load(addr));
+            p4[3] = 1.0f;
+            // p4 is RGBA, but we want BGRA, so we need to swap next
+            return Sk4f_toL32(swizzle_rb(p4));
+        }
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType: {
             const uint64_t* addr =
@@ -557,6 +566,12 @@ SkColor4f SkPixmap::getColor4f(int x, int y) const {
             }
             return SkColor4f{p4[0], p4[1], p4[2], p4[3]};
         }
+        case kRGB_F16F16F16x_SkColorType: {
+            const uint64_t* addr = (const uint64_t*)fPixels + y * (fRowBytes >> 3) + x;
+            skvx::float4 p4 = from_half(skvx::half4::Load(addr));
+            p4[3] = 1.0f;
+            return SkColor4f{p4[0], p4[1], p4[2], p4[3]};
+        }
         case kRGBA_F32_SkColorType: {
             const float* rgba = (const float*)fPixels + 4 * y * (fRowBytes >> 4) + 4 * x;
             skvx::float4 p4 = skvx::float4::Load(rgba);
@@ -624,6 +639,7 @@ bool SkPixmap::computeIsOpaque() const {
         case kRGB_888x_SkColorType:
         case kRGB_101010x_SkColorType:
         case kBGR_101010x_SkColorType:
+        case kRGB_F16F16F16x_SkColorType:
         case kBGR_101010x_XR_SkColorType:
         case kR8_unorm_SkColorType:
             return true;
