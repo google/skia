@@ -59,6 +59,12 @@ sk_sp<SkData> to_data(HBBlob blob) {
                                 blob.release());
 }
 
+sk_sp<SkData> extract_cff_data(const HBFace& face) {
+    // hb_face_reference_table usually returns hb_blob_get_empty instead of nullptr.
+    HBBlob cff(hb_face_reference_table(face.get(), HB_TAG('C','F','F',' ')));
+    return to_data(std::move(cff));
+}
+
 HBFace make_subset(hb_subset_input_t* input, hb_face_t* face, bool retainZeroGlyph) {
     // TODO: When possible, check if a font is 'tricky' with FT_IS_TRICKY.
     // If it isn't known if a font is 'tricky', retain the hints.
@@ -96,8 +102,15 @@ sk_sp<SkData> subset_harfbuzz(const SkTypeface& typeface, const SkPDFGlyphUse& g
 
     HBFace subset = make_subset(input.get(), face.get(), glyphUsage.has(0));
     if (!subset) {
-        return nullptr;
+        // Even if subsetting fails, extract CFF if available
+        return extract_cff_data(face);
     }
+
+    // Extract subset CFF if available
+    if (sk_sp<SkData> cffData = extract_cff_data(std::move(subset))) {
+        return cffData;
+    }
+
     HBBlob result(hb_face_reference_blob(subset.get()));
     return to_data(std::move(result));
 }
