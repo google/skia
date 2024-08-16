@@ -80,7 +80,10 @@ public:
     void recordUploads(DrawContext*);
 
     // Handle any post-flush work (garbage collection)
-    void compact(bool forceCompact);
+    void compact();
+
+    // Reduce memory as much as possible while allowing current work to continue
+    void purge();
 
     // Invalidate any cached state about what may or may not already be uploaded in the atlas.
     void invalidateAtlases();

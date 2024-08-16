@@ -277,7 +277,7 @@ SkIPoint DrawAtlas::prepForRender(const AtlasLocator& locator, SkAutoPixmapStora
     return plot->prepForRender(locator, pixmap);
 }
 
-void DrawAtlas::compact(AtlasToken startTokenForNextFlush, bool forceCompact) {
+void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
     if (fNumActivePages < 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
@@ -309,7 +309,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush, bool forceCompact) {
     // hasn't been used in a long time.
     // This is to handle the case where a lot of text or path rendering has occurred but then just
     // a blinking cursor is drawn.
-    if (forceCompact || atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
+    if (atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
         TArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumActivePages - 1;
 
@@ -418,6 +418,29 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush, bool forceCompact) {
     }
 
     fPrevFlushToken = startTokenForNextFlush;
+}
+
+void DrawAtlas::purge(AtlasToken startTokenForNextFlush) {
+    // Go through each page from last to first. If not used this frame,
+    // we can remove its texture.
+    PlotList::Iter plotIter;
+    for (int pageIndex = (int)(fNumActivePages)-1; pageIndex >= 0; --pageIndex) {
+        bool pageUsedThisFlush = false;
+        plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+        while (Plot* plot = plotIter.get()) {
+            if (plot->lastUseToken().inInterval(fPrevFlushToken, startTokenForNextFlush)) {
+                pageUsedThisFlush = true;
+                break;
+            }
+            plotIter.next();
+        }
+        // Can only remove pages in back-to-front order at the moment
+        if (pageUsedThisFlush) {
+            break;
+        } else {
+            this->deactivateLastPage();
+        }
+    }
 }
 
 bool DrawAtlas::createPages(AtlasGenerationCounter* generationCounter) {
