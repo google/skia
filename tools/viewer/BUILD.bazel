@@ -99,6 +99,9 @@ skia_cc_binary(
         "//tools/fonts:test_font_manager_srcs",
         "//tools/trace",
     ],
+    data = [
+        "//resources",
+    ],
     deps = [
         "//:core",
         "//:fontmgr_directory_freetype",
