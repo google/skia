@@ -2092,6 +2092,8 @@ std::unique_ptr<SkScalerContext> LogFontTypeface::onCreateScalerContext(
 }
 
 void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
+    rec->useStrokeForFakeBold();
+
     if (rec->fFlags & SkScalerContext::kLCD_BGROrder_Flag ||
         rec->fFlags & SkScalerContext::kLCD_Vertical_Flag)
     {

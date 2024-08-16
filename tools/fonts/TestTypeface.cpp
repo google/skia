@@ -143,6 +143,7 @@ SkPath TestTypeface::getPath(SkGlyphID glyphID) {
 }
 
 void TestTypeface::onFilterRec(SkScalerContextRec* rec) const {
+    rec->useStrokeForFakeBold();
     rec->setHinting(SkFontHinting::kNone);
 }
 

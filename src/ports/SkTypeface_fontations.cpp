@@ -312,6 +312,8 @@ void SkTypeface_Fontations::getGlyphToUnicodeMap(SkUnichar* codepointForGlyphMap
 }
 
 void SkTypeface_Fontations::onFilterRec(SkScalerContextRec* rec) const {
+    rec->useStrokeForFakeBold();
+
     // Opportunistic hinting downgrades copied from SkFontHost_FreeType.cpp
     SkFontHinting h = rec->getHinting();
     if (SkFontHinting::kFull == h && !isLCD(*rec)) {

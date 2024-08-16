@@ -1006,6 +1006,30 @@ void SkScalerContextRec::setLuminanceColor(SkColor c) {
             SkColorSetRGB(SkColorGetR(c), SkColorGetG(c), SkColorGetB(c)));
 }
 
+void SkScalerContextRec::useStrokeForFakeBold() {
+    if (!SkToBool(fFlags & SkScalerContext::kEmbolden_Flag)) {
+        return;
+    }
+    fFlags &= ~SkScalerContext::kEmbolden_Flag;
+
+    SkScalar fakeBoldScale = SkScalarInterpFunc(fTextSize,
+                                                kStdFakeBoldInterpKeys,
+                                                kStdFakeBoldInterpValues,
+                                                kStdFakeBoldInterpLength);
+    SkScalar extra = fTextSize * fakeBoldScale;
+
+    if (fFrameWidth >= 0) {
+        fFrameWidth += extra;
+    } else {
+        fFlags |= SkScalerContext::kFrameAndFill_Flag;
+        fFrameWidth = extra;
+        SkPaint paint;
+        fMiterLimit = paint.getStrokeMiter();
+        fStrokeJoin = SkToU8(paint.getStrokeJoin());
+        fStrokeCap = SkToU8(paint.getStrokeCap());
+    }
+}
+
 /*
  *  Return the scalar with only limited fractional precision. Used to consolidate matrices
  *  that vary only slightly when we create our key into the font cache, since the font scaler
@@ -1091,22 +1115,7 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     unsigned flags = 0;
 
     if (font.isEmbolden()) {
-#ifdef SK_USE_FREETYPE_EMBOLDEN
         flags |= SkScalerContext::kEmbolden_Flag;
-#else
-        SkScalar fakeBoldScale = SkScalarInterpFunc(font.getSize(),
-                                                    kStdFakeBoldInterpKeys,
-                                                    kStdFakeBoldInterpValues,
-                                                    kStdFakeBoldInterpLength);
-        SkScalar extra = font.getSize() * fakeBoldScale;
-
-        if (style == SkPaint::kFill_Style) {
-            style = SkPaint::kStrokeAndFill_Style;
-            strokeWidth = extra;    // ignore paint's strokeWidth if it was "fill"
-        } else {
-            strokeWidth += extra;
-        }
-#endif
     }
 
     if (style != SkPaint::kFill_Style && strokeWidth >= 0) {

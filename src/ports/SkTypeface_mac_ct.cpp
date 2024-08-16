@@ -910,6 +910,8 @@ std::unique_ptr<SkScalerContext> SkTypeface_Mac::onCreateScalerContext(
 }
 
 void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {
+    rec->useStrokeForFakeBold();
+
     if (rec->fFlags & SkScalerContext::kLCD_BGROrder_Flag ||
         rec->fFlags & SkScalerContext::kLCD_Vertical_Flag)
     {

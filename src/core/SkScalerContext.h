@@ -136,6 +136,9 @@ public:
         setContrast(0);
     }
 
+    /** If the kEmbolden_Flag is set, drop it and use stroking instead. */
+    void useStrokeForFakeBold();
+
     SkMask::Format fMaskFormat;
 
 private:

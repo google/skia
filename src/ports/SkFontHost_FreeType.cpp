@@ -785,6 +785,9 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArgum
 }
 
 void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
+#if !defined(SK_USE_FREETYPE_EMBOLDEN)
+    rec->useStrokeForFakeBold();
+#endif
     //BOGUS: http://code.google.com/p/chromium/issues/detail?id=121119
     //Cap the requested size as larger sizes give bogus values.
     //Remove when http://code.google.com/p/skia/issues/detail?id=554 is fixed.

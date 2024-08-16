@@ -201,6 +201,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::detach() {
 /////////////
 
 void SkUserTypeface::onFilterRec(SkScalerContextRec* rec) const {
+    rec->useStrokeForFakeBold();
     rec->setHinting(SkFontHinting::kNone);
 }
 
