@@ -5,7 +5,6 @@
 #endif
 using namespace metal;
 constant const half sk_PrivkGuardedDivideEpsilon = half(false ? 1e-08 : 0.0);
-constant const half sk_PrivkMinNormalHalf = 6.10351562e-05h;
 struct Uniforms {
     half4 src;
     half4 dst;
@@ -17,9 +16,17 @@ struct Outputs {
 };
 half color_dodge_component_Qhh2h2(half2 s, half2 d);
 half color_dodge_component_Qhh2h2(half2 s, half2 d) {
-    half dxScale = half(d.x == 0.0h ? 0 : 1);
-    half delta = dxScale * min(d.y, select(d.y, (d.x * s.y) / ((s.y - s.x) + sk_PrivkGuardedDivideEpsilon), abs(s.y - s.x) >= sk_PrivkMinNormalHalf));
-    return (delta * s.y + s.x * (1.0h - d.y)) + d.x * (1.0h - s.y);
+    if (d.x == 0.0h) {
+        return s.x * (1.0h - d.y);
+    } else {
+        half delta = s.y - s.x;
+        if (delta == 0.0h) {
+            return (s.y * d.y + s.x * (1.0h - d.y)) + d.x * (1.0h - s.y);
+        } else {
+            delta = min(d.y, (d.x * s.y) / (delta + sk_PrivkGuardedDivideEpsilon));
+            return (delta * s.y + s.x * (1.0h - d.y)) + d.x * (1.0h - s.y);
+        }
+    }
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
