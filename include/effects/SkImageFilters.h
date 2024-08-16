@@ -9,6 +9,7 @@
 #define SkImageFilters_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPicture.h"
@@ -188,34 +189,59 @@ public:
     /**
      *  Create a filter that draws a drop shadow under the input content. This filter produces an
      *  image that includes the inputs' content.
-     *  @param dx       The X offset of the shadow.
-     *  @param dy       The Y offset of the shadow.
-     *  @param sigmaX   The blur radius for the shadow, along the X axis.
-     *  @param sigmaY   The blur radius for the shadow, along the Y axis.
-     *  @param color    The color of the drop shadow.
-     *  @param input    The input filter, or will use the source bitmap if this is null.
-     *  @param cropRect Optional rectangle that crops the input and output.
+     *  @param dx         X offset of the shadow.
+     *  @param dy         Y offset of the shadow.
+     *  @param sigmaX     blur radius for the shadow, along the X axis.
+     *  @param sigmaY     blur radius for the shadow, along the Y axis.
+     *  @param color      color of the drop shadow.
+     *  @param colorSpace The color space of the drop shadow color.
+     *  @param input      The input filter, or will use the source bitmap if this is null.
+     *  @param cropRect   Optional rectangle that crops the input and output.
      */
     static sk_sp<SkImageFilter> DropShadow(SkScalar dx, SkScalar dy,
                                            SkScalar sigmaX, SkScalar sigmaY,
-                                           SkColor color, sk_sp<SkImageFilter> input,
+                                           SkColor4f color, sk_sp<SkColorSpace> colorSpace,
+                                           sk_sp<SkImageFilter> input,
                                            const CropRect& cropRect = {});
+    static sk_sp<SkImageFilter> DropShadow(SkScalar dx, SkScalar dy,
+                                           SkScalar sigmaX, SkScalar sigmaY,
+                                           SkColor color, sk_sp<SkImageFilter> input,
+                                           const CropRect& cropRect = {}) {
+        return DropShadow(dx, dy,
+                          sigmaX, sigmaY,
+                          SkColor4f::FromColor(color), /*colorSpace=*/nullptr,
+                          std::move(input),
+                          cropRect);
+    }
+
     /**
      *  Create a filter that renders a drop shadow, in exactly the same manner as ::DropShadow,
      *  except that the resulting image does not include the input content. This allows the shadow
      *  and input to be composed by a filter DAG in a more flexible manner.
-     *  @param dx       The X offset of the shadow.
-     *  @param dy       The Y offset of the shadow.
-     *  @param sigmaX   The blur radius for the shadow, along the X axis.
-     *  @param sigmaY   The blur radius for the shadow, along the Y axis.
-     *  @param color    The color of the drop shadow.
-     *  @param input    The input filter, or will use the source bitmap if this is null.
-     *  @param cropRect Optional rectangle that crops the input and output.
+     *  @param dx         The X offset of the shadow.
+     *  @param dy         The Y offset of the shadow.
+     *  @param sigmaX     The blur radius for the shadow, along the X axis.
+     *  @param sigmaY     The blur radius for the shadow, along the Y axis.
+     *  @param color      The color of the drop shadow.
+     *  @param colorSpace The color space of the drop shadow color.
+     *  @param input      The input filter, or will use the source bitmap if this is null.
+     *  @param cropRect   Optional rectangle that crops the input and output.
      */
     static sk_sp<SkImageFilter> DropShadowOnly(SkScalar dx, SkScalar dy,
                                                SkScalar sigmaX, SkScalar sigmaY,
-                                               SkColor color, sk_sp<SkImageFilter> input,
+                                               SkColor4f color, sk_sp<SkColorSpace>,
+                                               sk_sp<SkImageFilter> input,
                                                const CropRect& cropRect = {});
+    static sk_sp<SkImageFilter> DropShadowOnly(SkScalar dx, SkScalar dy,
+                                               SkScalar sigmaX, SkScalar sigmaY,
+                                               SkColor color, sk_sp<SkImageFilter> input,
+                                               const CropRect& cropRect = {}) {
+        return DropShadowOnly(dx, dy,
+                              sigmaX, sigmaY,
+                              SkColor4f::FromColor(color), /*colorSpace=*/nullptr,
+                              std::move(input),
+                              cropRect);
+    }
 
     /**
      * Create a filter that always produces transparent black.

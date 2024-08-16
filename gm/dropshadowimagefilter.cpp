@@ -90,15 +90,17 @@ DEF_SIMPLE_GM(dropshadowimagefilter, canvas, 400, 656) {
     SkIRect cropRect = SkIRect::MakeXYWH(10, 10, 44, 44);
     SkIRect bogusRect = SkIRect::MakeXYWH(-100, -100, 10, 10);
 
+    sk_sp<SkColorSpace> spinCS = SkColorSpace::MakeSRGB()->makeColorSpin();
     sk_sp<SkImageFilter> filters[] = {
-        nullptr,
-        SkImageFilters::DropShadow(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE, nullptr),
-        SkImageFilters::DropShadow(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE, nullptr),
-        SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
-        SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, std::move(cfif)),
-        SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr, &cropRect),
-        SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr, &bogusRect),
-        SkImageFilters::DropShadowOnly(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
+            nullptr,
+            SkImageFilters::DropShadow(7.0f, 0.0f, 0.0f, 3.0f, SK_ColorBLUE, nullptr),
+            SkImageFilters::DropShadow(0.0f, 7.0f, 3.0f, 0.0f, SK_ColorBLUE, nullptr),
+            SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
+            SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, std::move(cfif)),
+            SkImageFilters::DropShadow(
+                    7.0f, 7.0f, 3.0f, 3.0f, SkColors::kGreen, spinCS, nullptr, &cropRect),
+            SkImageFilters::DropShadow(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr, &bogusRect),
+            SkImageFilters::DropShadowOnly(7.0f, 7.0f, 3.0f, 3.0f, SK_ColorBLUE, nullptr),
     };
 
     SkRect r = SkRect::MakeWH(SkIntToScalar(64), SkIntToScalar(64));
