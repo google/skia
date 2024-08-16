@@ -97,20 +97,8 @@ sk_sp<SkData> subset_harfbuzz(const SkTypeface& typeface, const SkPDFGlyphUse& g
 
     HBFace subset = make_subset(input.get(), face.get(), glyphUsage.has(0));
     if (!subset) {
-        // Even if subsetting fails, convert CFF to bare CFF
-        HBBlob cff(hb_face_reference_table(face.get(), HB_TAG('C','F','F',' ')));
-        if (cff) {
-            return to_data((std::move(cff)));
-        }
         return nullptr;
     }
-
-    // Subset CFF to bare CFF
-    HBBlob cff(hb_face_reference_table(subset.get(), HB_TAG('C','F','F',' ')));
-    if (cff) {
-        return to_data((std::move(cff)));
-    }
-
     HBBlob result(hb_face_reference_blob(subset.get()));
     return to_data(std::move(result));
 }
