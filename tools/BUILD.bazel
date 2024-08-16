@@ -298,7 +298,13 @@ skia_cc_library(
         "-Wno-unused-function",
         "-Wno-unused-template",
         "-Wno-unused-const-variable",
-    ],
+        "-Wno-invalid-constexpr",
+    ] + select({
+        "@platforms//os:windows": [
+            "-D_CRT_USE_BUILTIN_OFFSETOF",
+        ],
+        "//conditions:default": [],
+    }),
     # This is not intended to be used for tests or anything, just for IWYU
     visibility = ["//visibility:private"],
     deps = [
