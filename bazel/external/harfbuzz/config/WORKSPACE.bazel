@@ -1,0 +1,3 @@
+# This blank WORKSPACE.bazel simply indicates that this folder is a distinct Bazel workspace
+# from the main Skia one. This avoids a circular dependency by having Skia depend on harfbuzz
+# and harfbuzz trying to use configuration files from Skia.

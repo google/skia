@@ -513,22 +513,22 @@ c_plus_plus_deps()
 # https://bazel.build/reference/be/workspace#new_local_repository
 local_repository(
     name = "freetype_config",
-    path = "third_party/freetype2/include",
+    path = "bazel/external/freetype/config",
 )
 
 local_repository(
     name = "harfbuzz_config",
-    path = "third_party/harfbuzz",
+    path = "bazel/external/harfbuzz/config",
 )
 
 local_repository(
     name = "icu_utils",
-    path = "third_party/icu",
+    path = "bazel/external/icu/utils",
 )
 
 local_repository(
     name = "expat_config",
-    path = "third_party/expat/include",
+    path = "bazel/external/expat/config",
 )
 
 load("//bazel:cipd_install.bzl", "cipd_install")

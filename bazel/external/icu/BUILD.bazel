@@ -17,7 +17,7 @@ py_binary(
 
 py_binary(
     name = "make_data_cpp",
-    srcs = ["@icu_utils//:make_data_cpp.py"],
+    srcs = ["@icu_utils//:icu/make_data_cpp.py"],
 )
 
 _icu_version_major_num = "74"  # defined in source/common/unicode/uvernum.h
@@ -93,8 +93,8 @@ genrule(
 genrule(
     name = "copy_skloadicu_h",
     srcs = [
-        "@icu_utils//:SkLoadICU.cpp",
-        "@icu_utils//:SkLoadICU.h",
+        "@icu_utils//:icu/SkLoadICU.cpp",
+        "@icu_utils//:icu/SkLoadICU.h",
     ],
     outs = [
         "SkLoadICU.cpp",

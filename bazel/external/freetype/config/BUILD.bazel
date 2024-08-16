@@ -1,0 +1,9 @@
+exports_files(
+    [
+        "android/freetype/config/ftmodule.h",
+        "android/freetype/config/ftoption.h",
+        "no-type1/freetype/config/ftmodule.h",
+        "no-type1/freetype/config/ftoption.h",
+    ],
+    visibility = ["//visibility:public"],
+)
