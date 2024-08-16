@@ -130,19 +130,6 @@ split_srcs_and_hdrs(
     ],
 )
 
-DECODE_PNG_FILES = [
-    "SkEncodedInfo.cpp",
-    "SkIcoCodec.cpp",
-    "SkIcoCodec.h",
-    "SkPngCodec.cpp",
-    "SkPngCodec.h",
-]
-
-split_srcs_and_hdrs(
-    name = "decode_png",
-    files = DECODE_PNG_FILES,
-)
-
 DECODE_RAW_FILES = [
     "SkRawCodec.cpp",
     "SkRawCodec.h",
@@ -236,7 +223,6 @@ skia_filegroup(
             ":gif_decode_codec": [":decode_gif_srcs"],
             ":needs_jpeg": [":decode_jpeg_srcs"],
             ":jxl_decode_codec": [":decode_jxl_srcs"],
-            ":png_decode_codec": [":decode_png_srcs"],
             ":raw_decode_codec": [":decode_raw_srcs"],
             ":webp_decode_codec": [":decode_webp_srcs"],
         },
@@ -265,7 +251,6 @@ skia_filegroup(
                 ":shared_jpeg_hdrs",
             ],
             ":jxl_decode_codec": [":decode_jxl_hdrs"],
-            ":png_decode_codec": [":decode_png_hdrs"],
             ":raw_decode_codec": [":decode_raw_hdrs"],
             ":webp_decode_codec": [":decode_webp_hdrs"],
         },
