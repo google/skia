@@ -103,6 +103,7 @@ genrule(
     # SRCS is a space seperated list of files.
     # RULEDIR is the directory containing this BUILD.bazel file (the root of the ICU directory)
     cmd = "cp $(SRCS) $(RULEDIR)",
+    cmd_bat = "for %f in ($(SRCS)) do copy %f $(RULEDIR)",
 )
 
 ICU_HDRS = [

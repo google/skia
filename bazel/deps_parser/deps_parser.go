@@ -20,6 +20,7 @@ type depConfig struct {
 	bazelNameOverride string // Bazel style uses underscores not dashes, so we fix those if needed.
 	needsBazelFile    bool
 	patchCmds         []string
+	patchCmdsWin      []string
 }
 
 // These are all C++ deps or Rust deps (with a compatible C++ FFI) used by the Bazel build.
@@ -40,9 +41,16 @@ var deps = map[string]depConfig{
 	"harfbuzz": {needsBazelFile: true},
 	"icu": {
 		needsBazelFile: true,
-		patchCmds: []string{`"rm source/i18n/BUILD.bazel"`,
+		patchCmds: []string{
+			`"rm source/i18n/BUILD.bazel"`,
 			`"rm source/common/BUILD.bazel"`,
-			`"rm source/stubdata/BUILD.bazel"`},
+			`"rm source/stubdata/BUILD.bazel"`,
+		},
+		patchCmdsWin: []string{
+			`"del source/i18n/BUILD.bazel"`,
+			`"del source/common/BUILD.bazel"`,
+			`"del source/stubdata/BUILD.bazel"`,
+		},
 	},
 	"icu4x":                    {needsBazelFile: true},
 	"imgui":                    {needsBazelFile: true},
@@ -165,7 +173,7 @@ func parseDEPSFile(contents []string, workspaceFile string) (string, int, error)
 				id = cfg.bazelNameOverride
 			}
 			if cfg.needsBazelFile {
-				if err := writeNewGitRepositoryRule(outputFile, id, repo, rev, cfg.patchCmds); err != nil {
+				if err := writeNewGitRepositoryRule(outputFile, id, repo, rev, cfg.patchCmds, cfg.patchCmdsWin); err != nil {
 					return "", 0, fmt.Errorf("Could not write to output file %s: %s\n", outputFile.Name(), err)
 				}
 				workspaceLine := fmt.Sprintf("# @%s - //bazel/external/%s:BUILD.bazel", id, id)
@@ -358,7 +366,7 @@ def header_based_configs():
     )
 `
 
-func writeNewGitRepositoryRule(w io.StringWriter, bazelName, repo, rev string, patchCmds []string) error {
+func writeNewGitRepositoryRule(w io.StringWriter, bazelName, repo, rev string, patchCmds, patchCmdsWin []string) error {
 	if len(patchCmds) == 0 {
 		// TODO(kjlubick) In a newer version of Bazel, new_git_repository can be replaced with just
 		// git_repository
@@ -373,6 +381,7 @@ func writeNewGitRepositoryRule(w io.StringWriter, bazelName, repo, rev string, p
 		return err
 	}
 	patches := "[" + strings.Join(patchCmds, ",\n") + "]"
+	patches_win := "[" + strings.Join(patchCmdsWin, ",\n") + "]"
 	_, err := w.WriteString(fmt.Sprintf(`
     new_git_repository(
         name = "%s",
@@ -380,8 +389,9 @@ func writeNewGitRepositoryRule(w io.StringWriter, bazelName, repo, rev string, p
         commit = "%s",
         remote = "%s",
         patch_cmds = %s,
+		patch_cmds_win = %s,
     )
-`, bazelName, bazelName, rev, repo, patches))
+`, bazelName, bazelName, rev, repo, patches, patches_win))
 	return err
 }
 

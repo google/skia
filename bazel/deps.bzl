@@ -84,6 +84,11 @@ def c_plus_plus_deps(ws = "@skia"):
             "rm source/common/BUILD.bazel",
             "rm source/stubdata/BUILD.bazel",
         ],
+        patch_cmds_win = [
+            "del source/i18n/BUILD.bazel",
+            "del source/common/BUILD.bazel",
+            "del source/stubdata/BUILD.bazel",
+        ],
     )
 
     new_git_repository(

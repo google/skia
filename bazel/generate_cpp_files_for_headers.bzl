@@ -30,6 +30,7 @@ def generate_cpp_files_for_headers(name, headers):
             # https://bazel.build/reference/be/make-variables#predefined_genrule_variables
             # execpath returns the path to the given label relative to the Skia root.
             cmd = "cp $(execpath :%s) $@" % hdr,
+            cmd_bat = "copy $(execpath :%s) $@" % hdr,
         )
         rules.append(":gen/" + cpp)
 

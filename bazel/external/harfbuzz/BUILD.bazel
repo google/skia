@@ -13,6 +13,7 @@ genrule(
     # $< is the one and only input file.
     # $@ is the one and only output location.
     cmd = "cp $< $@",
+    cmd_bat = "copy $< $@",
 )
 
 HARFBUZZ_HDRS = [

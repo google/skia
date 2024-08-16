@@ -50,6 +50,7 @@ genrule(
     # RULEDIR is the directory containing this BUILD.bazel file (the root of the freetype directory)
     # but only in the "genfiles tree", which does not persist after compilation.
     cmd = "cp $(SRCS) $(RULEDIR)/builds/skia/android/freetype/config/",
+    cmd_bat = "for %f in ($(SRCS)) do copy %f $(RULEDIR)\\builds\\skia\\android\\freetype\\config",
 )
 
 # It is easiest to have multiple copy rules, one per output directory.
@@ -67,6 +68,7 @@ genrule(
     # RULEDIR is the directory containing this BUILD.bazel file (the root of the freetype directory)
     # but only in the "genfiles tree", which does not persist after compilation.
     cmd = "cp $(SRCS) $(RULEDIR)/builds/skia/no-type1/freetype/config/",
+    cmd_bat = "for %f in ($(SRCS)) do copy %f $(RULEDIR)\\builds\\skia\\no-type1\\freetype\\config",
 )
 
 cc_library(
