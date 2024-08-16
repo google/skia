@@ -1,4 +1,3 @@
-load("//bazel:flags.bzl", "selects")
 load("//bazel:skia_rules.bzl", "skia_cc_library")
 
 package(
@@ -9,7 +8,6 @@ licenses(["notice"])
 
 skia_cc_library(
     name = "audioplayer",
-    hdrs = ["SkAudioPlayer.h"],
     srcs = [
         "SkAudioPlayer.cpp",
     ] + select({
@@ -19,6 +17,7 @@ skia_cc_library(
         "@platforms//os:macos": ["SkAudioPlayer_mac.cpp"],
         "//conditions:default": ["SkAudioPlayer_none.cpp"],
     }),
+    hdrs = ["SkAudioPlayer.h"],
     features = ["layering_check"],
     visibility = ["//tools/viewer:__pkg__"],
     deps = ["//:core"],
