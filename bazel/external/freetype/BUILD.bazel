@@ -39,8 +39,8 @@ FREETYPE_LOCAL_DEFINES = ["FT2_BUILD_LIBRARY"]
 genrule(
     name = "copy_android_freetype_config",
     srcs = [
-        "@freetype_config//:android/freetype/config/ftmodule.h",
-        "@freetype_config//:android/freetype/config/ftoption.h",
+        "@freetype_config//:freetype-android/freetype/config/ftmodule.h",
+        "@freetype_config//:freetype-android/freetype/config/ftoption.h",
     ],
     outs = [
         "builds/skia/android/freetype/config/ftmodule.h",
@@ -56,8 +56,8 @@ genrule(
 genrule(
     name = "copy_no_type1_freetype_config",
     srcs = [
-        "@freetype_config//:no-type1/freetype/config/ftmodule.h",
-        "@freetype_config//:no-type1/freetype/config/ftoption.h",
+        "@freetype_config//:freetype-no-type1/freetype/config/ftmodule.h",
+        "@freetype_config//:freetype-no-type1/freetype/config/ftoption.h",
     ],
     outs = [
         "builds/skia/no-type1/freetype/config/ftmodule.h",

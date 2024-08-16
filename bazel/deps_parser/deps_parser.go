@@ -314,45 +314,46 @@ def bazel_deps():
     )
 
 def header_based_configs():
+    skia_revision = "9f271dd94582411feddce92dbea3bce25d0e06f5"
     maybe(
         download_config_files,
         name = "expat_config",
-        skia_revision = "7b730016006e6b66d24a6f94eefe8bec00ac1674",
+        skia_revision = skia_revision,
         files = {
-            "BUILD.bazel": "bazel/external/expat/config/BUILD.bazel",
-            "expat_config.h": "third_party/expat/include/expat_config/expat_config.h",
+            "BUILD.bazel": "third_party/expat/include/BUILD.bazel",
+            "expat_config/expat_config.h": "third_party/expat/include/expat_config/expat_config.h",
         },
     )
     maybe(
         download_config_files,
         name = "freetype_config",
-        skia_revision = "7b730016006e6b66d24a6f94eefe8bec00ac1674",
+        skia_revision = skia_revision,
         files = {
-            "BUILD.bazel": "bazel/external/freetype/config/BUILD.bazel",
-            "android/freetype/config/ftmodule.h": "third_party/freetype2/include/freetype-android/freetype/config/ftmodule.h",
-            "android/freetype/config/ftoption.h": "third_party/freetype2/include/freetype-android/freetype/config/ftoption.h",
-            "no-type1/freetype/config/ftmodule.h": "third_party/freetype2/include/freetype-no-type1/freetype/config/ftmodule.h",
-            "no-type1/freetype/config/ftoption.h": "third_party/freetype2/include/freetype-no-type1/freetype/config/ftoption.h",
+            "BUILD.bazel": "third_party/freetype2/include/BUILD.bazel",
+            "freetype-android/freetype/config/ftmodule.h": "third_party/freetype2/include/freetype-android/freetype/config/ftmodule.h",
+            "freetype-android/freetype/config/ftoption.h": "third_party/freetype2/include/freetype-android/freetype/config/ftoption.h",
+            "freetype-no-type1/freetype/config/ftmodule.h": "third_party/freetype2/include/freetype-no-type1/freetype/config/ftmodule.h",
+            "freetype-no-type1/freetype/config/ftoption.h": "third_party/freetype2/include/freetype-no-type1/freetype/config/ftoption.h",
         },
     )
     maybe(
         download_config_files,
         name = "harfbuzz_config",
-        skia_revision = "7b730016006e6b66d24a6f94eefe8bec00ac1674",
+        skia_revision = skia_revision,
         files = {
-            "BUILD.bazel": "bazel/external/harfbuzz/config/BUILD.bazel",
+            "BUILD.bazel": "third_party/harfbuzz/BUILD.bazel",
             "config-override.h": "third_party/harfbuzz/config-override.h",
         },
     )
     maybe(
         download_config_files,
         name = "icu_utils",
-        skia_revision = "7b730016006e6b66d24a6f94eefe8bec00ac1674",
+        skia_revision = skia_revision,
         files = {
-            "BUILD.bazel": "bazel/external/icu/utils/BUILD.bazel",
-            "icu/SkLoadICU.cpp": "third_party/icu/SkLoadICU.cpp",
-            "icu/SkLoadICU.h": "third_party/icu/SkLoadICU.h",
-            "icu/make_data_cpp.py": "third_party/icu/make_data_cpp.py",
+            "BUILD.bazel": "third_party/icu/BUILD.bazel",
+            "SkLoadICU.cpp": "third_party/icu/SkLoadICU.cpp",
+            "SkLoadICU.h": "third_party/icu/SkLoadICU.h",
+            "make_data_cpp.py": "third_party/icu/make_data_cpp.py",
         },
     )
 `
