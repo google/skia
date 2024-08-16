@@ -10,8 +10,7 @@
 #include <memory>
 
 #include "experimental/rust_png/ffi/FFI.rs.h"
-#include "include/codec/SkCodec.h"
-#include "include/codec/SkEncodedImageFormat.h"
+#include "src/codec/SkPngCodecBase.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
 struct SkEncodedInfo;
@@ -22,7 +21,7 @@ class SkStream;
 //   Rust)
 // * Skia's `SkSwizzler` and `skcms_Transform` (pixel format and color space
 //   transformations implemented in C++).
-class SkPngRustCodec : public SkCodec {
+class SkPngRustCodec : public SkPngCodecBase {
 public:
     static std::unique_ptr<SkPngRustCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
@@ -33,7 +32,6 @@ public:
 
 private:
     // SkCodec overrides:
-    SkEncodedImageFormat onGetEncodedFormat() const override;
     Result onGetPixels(const SkImageInfo& info,
                        void* pixels,
                        size_t rowBytes,
