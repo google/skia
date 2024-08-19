@@ -166,6 +166,22 @@ $pure inline half3 $guarded_divide(half3 n, half d) {
 }
 
 $pure half $color_dodge_component(half2 s, half2 d) {
+    // The following is a single flow of control implementation of:
+    //     if (d.x == 0) {
+    //         return s.x*(1 - d.y);
+    //     } else {
+    //         half delta = s.y - s.x;
+    //         if (delta == 0) {
+    //             return s.y*d.y + s.x*(1 - d.y) + d.x*(1 - s.y);
+    //         } else {
+    //             delta = min(d.y, $guarded_divide(d.x*s.y, delta));
+    //             return delta*s.y + s.x*(1 - d.y) + d.x*(1 - s.y);
+    //         }
+    //     }
+    //
+    // When d.x == 0, then dxScale forces delta to 0 and simplifying the return value to s.x*(1-d.y)
+    // When s.y-s.x == 0, the mix selects d.y and min(d.y, d.y) leaves delta = d.y
+    // Otherwise the mix selects the delta expression in the final else branch.
     half dxScale = d.x == 0 ? 0 : 1;
     half delta = dxScale * min(d.y, abs(s.y-s.x) >= $kMinNormalHalf
                                             ? $guarded_divide(d.x*s.y, s.y-s.x)
@@ -181,14 +197,32 @@ $pure half4 blend_color_dodge(half4 src, half4 dst) {
 }
 
 $pure half $color_burn_component(half2 s, half2 d) {
-    if (d.y == d.x) {
-        return s.y*d.y + s.x*(1 - d.y) + d.x*(1 - s.y);
-    } else if (s.x == 0) {
-        return d.x*(1 - s.y);
-    } else {
-        half delta = max(0, d.y - $guarded_divide((d.y - d.x)*s.y, s.x));
-        return delta*s.y + s.x*(1 - d.y) + d.x*(1 - s.y);
-    }
+    // The following is a single flow of control implementation of:
+    //     if (d.y == d.x) {
+    //         return s.y*d.y + s.x*(1 - d.y) + d.x*(1 - s.y);
+    //     } else if (s.x == 0) {
+    //         return d.x*(1 - s.y);
+    //     } else {
+    //         half delta = max(0, d.y - $guarded_divide((d.y - d.x)*s.y, s.x));
+    //         return delta*s.y + s.x*(1 - d.y) + d.x*(1 - s.y);
+    //     }
+    //
+    // When d.y == d.x, dyTerm is d.y. If s.x is also 0, the second ternary selects d.y, matching
+    // the first if condition.  If s.x is not 0, then the $guarded_divide() evaluates to 0 and delta
+    // still evaluates to d.y.
+    //
+    // When d.y != d.x but s.x is 0, then dyTerm is 0 and the delta selects 0, matching the second
+    // if condition.
+    //
+    // Lastly, when d.y != d.x and s.x != 0, the delta evaluates to "d.y - min(d.y,
+    // $guarded_divide(...))", which is equivalent to max(0, d.y - $guarded_divide) except that it
+    // has the benefit of not wrapping the d.y evaluation in a max() to preserve the unclamped
+    // behavior when d.y == d.x.
+    half dyTerm = d.y == d.x ? d.y : 0;
+    half delta = abs(s.x) >= $kMinNormalHalf
+                        ? d.y - min(d.y, $guarded_divide((d.y - d.x)*s.y, s.x))
+                        : dyTerm;
+    return delta*s.y + s.x*(1 - d.y) + d.x*(1 - s.y);
 }
 
 $pure half4 blend_color_burn(half4 src, half4 dst) {

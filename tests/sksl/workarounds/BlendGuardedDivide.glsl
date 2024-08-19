@@ -12,14 +12,9 @@ float guarded_divide_Qhhh(float n, float d) {
     return n / (d + sk_PrivkGuardedDivideEpsilon);
 }
 float color_burn_component_Qhh2h2(vec2 s, vec2 d) {
-    if (d.y == d.x) {
-        return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
-    } else if (s.x == 0.0) {
-        return d.x * (1.0 - s.y);
-    } else {
-        float delta = max(0.0, d.y - ((d.y - d.x) * s.y) / (s.x + sk_PrivkGuardedDivideEpsilon));
-        return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
-    }
+    float dyTerm = d.y == d.x ? d.y : 0.0;
+    float delta = abs(s.x) >= sk_PrivkMinNormalHalf ? d.y - min(d.y, guarded_divide_Qhhh((d.y - d.x) * s.y, s.x)) : dyTerm;
+    return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
 }
 float color_dodge_component_Qhh2h2(vec2 s, vec2 d) {
     float dxScale = float(d.x == 0.0 ? 0 : 1);
