@@ -45,6 +45,7 @@
 #include <cstring>
 #include <limits>
 #include <new>
+#include <utility>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -116,7 +117,11 @@ static SkMutex& mask_gamma_cache_mutex() {
     return mutex;
 }
 
-static SkMaskGamma* gLinearMaskGamma = nullptr;
+static const SkMaskGamma& linear_gamma() {
+    static const SkMaskGamma kLinear;
+    return kLinear;
+}
+
 static SkMaskGamma* gDefaultMaskGamma = nullptr;
 static SkMaskGamma* gMaskGamma = nullptr;
 static uint8_t gContrast = 0;
@@ -132,10 +137,7 @@ const SkMaskGamma& SkScalerContextRec::CachedMaskGamma(uint8_t contrast, uint8_t
     constexpr uint8_t contrast0 = InternalContrastFromExternal(0);
     constexpr uint8_t gamma1 = InternalGammaFromExternal(1);
     if (contrast0 == contrast && gamma1 == gamma) {
-        if (nullptr == gLinearMaskGamma) {
-            gLinearMaskGamma = new SkMaskGamma;
-        }
-        return *gLinearMaskGamma;
+        return linear_gamma();
     }
     constexpr uint8_t defaultContrast = InternalContrastFromExternal(SK_GAMMA_CONTRAST);
     constexpr uint8_t defaultGamma = InternalGammaFromExternal(SK_GAMMA_EXPONENT);
@@ -174,11 +176,8 @@ size_t SkScalerContext::GetGammaLUTSize(SkScalar contrast, SkScalar deviceGamma,
     const SkMaskGamma& maskGamma = SkScalerContextRec::CachedMaskGamma(
             SkScalerContextRec::InternalContrastFromExternal(contrast),
             SkScalerContextRec::InternalGammaFromExternal(deviceGamma));
-
     maskGamma.getGammaTableDimensions(width, height);
-    size_t size = (*width)*(*height)*sizeof(uint8_t);
-
-    return size;
+    return maskGamma.getGammaTableSizeInBytes();
 }
 
 bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar deviceGamma, uint8_t* data) {
@@ -191,10 +190,7 @@ bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar deviceGamma, u
         return false;
     }
 
-    int width, height;
-    maskGamma.getGammaTableDimensions(&width, &height);
-    size_t size = width*height * sizeof(uint8_t);
-    memcpy(data, gammaTables, size);
+    memcpy(data, gammaTables, maskGamma.getGammaTableSizeInBytes());
     return true;
 }
 
