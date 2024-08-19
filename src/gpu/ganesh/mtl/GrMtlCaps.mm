@@ -866,7 +866,7 @@ void GrMtlCaps::initFormatTable() {
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Float)];
         info->fFlags = FormatInfo::kAllFlags;
-        info->fColorTypeInfoCount = 3;
+        info->fColorTypeInfoCount = 2;
         info->fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
         int ctIdx = 0;
         // Format: RGBA16Float, Surface: kRGBA_F16
@@ -880,13 +880,6 @@ void GrMtlCaps::initFormatTable() {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = GrColorType::kRGBA_F16_Clamped;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-        }
-        // Format: RGBA16Float, Surface: kRGB_F16F16F16x
-        {
-            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-            ctInfo.fColorType = GrColorType::kRGB_F16F16F16x;
-            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag;
-            ctInfo.fReadSwizzle = skgpu::Swizzle::RGB1();
         }
     }
 
@@ -1009,7 +1002,6 @@ void GrMtlCaps::initFormatTable() {
     this->setColorType(GrColorType::kAlpha_F16,         { MTLPixelFormatR16Float });
     this->setColorType(GrColorType::kRGBA_F16,          { MTLPixelFormatRGBA16Float });
     this->setColorType(GrColorType::kRGBA_F16_Clamped,  { MTLPixelFormatRGBA16Float });
-    this->setColorType(GrColorType::kRGB_F16F16F16x,    { MTLPixelFormatRGBA16Float });
     this->setColorType(GrColorType::kAlpha_16,          { MTLPixelFormatR16Unorm });
     this->setColorType(GrColorType::kRG_1616,           { MTLPixelFormatRG16Unorm });
     this->setColorType(GrColorType::kRGBA_16161616,     { MTLPixelFormatRGBA16Unorm });
@@ -1277,7 +1269,6 @@ std::vector<GrTest::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
         { GrColorType::kAlpha_F16,        GrBackendFormats::MakeMtl(MTLPixelFormatR16Float)        },
         { GrColorType::kRGBA_F16,         GrBackendFormats::MakeMtl(MTLPixelFormatRGBA16Float)     },
         { GrColorType::kRGBA_F16_Clamped, GrBackendFormats::MakeMtl(MTLPixelFormatRGBA16Float)     },
-        { GrColorType::kRGB_F16F16F16x,   GrBackendFormats::MakeMtl(MTLPixelFormatRGBA16Float)     },
         { GrColorType::kAlpha_16,         GrBackendFormats::MakeMtl(MTLPixelFormatR16Unorm)        },
         { GrColorType::kRG_1616,          GrBackendFormats::MakeMtl(MTLPixelFormatRG16Unorm)       },
         { GrColorType::kRGBA_16161616,    GrBackendFormats::MakeMtl(MTLPixelFormatRGBA16Unorm)     },

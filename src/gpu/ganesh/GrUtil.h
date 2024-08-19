@@ -95,7 +95,6 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
         case GrColorType::kAlpha_F16:        return "kAlpha_F16";
         case GrColorType::kRGBA_F16:         return "kRGBA_F16";
         case GrColorType::kRGBA_F16_Clamped: return "kRGBA_F16_Clamped";
-        case GrColorType::kRGB_F16F16F16x:   return "kRGB_F16F16F16x";
         case GrColorType::kRGBA_F32:         return "kRGBA_F32";
         case GrColorType::kAlpha_8xxx:       return "kAlpha_8xxx";
         case GrColorType::kAlpha_F32xxx:     return "kAlpha_F32xxx";
