@@ -16,6 +16,7 @@ const char* color_type(SkColorType ct) {
         case kGray_8_SkColorType:       return "Gray_8";
         case kRGBA_F16Norm_SkColorType: return "RGBA_F16Norm";
         case kRGBA_F16_SkColorType:     return "RGBA_F16";
+        case kRGB_F16F16F16x_SkColorType: return "RGB_F16F16F16x";
         case kRGBA_F32_SkColorType:     return "RGBA_F32";
         default: SkASSERT(false); return nullptr;
     }
@@ -25,7 +26,7 @@ void draw(SkCanvas* canvas) {
     kUnknown_SkColorType, kAlpha_8_SkColorType, kRGB_565_SkColorType,
     kARGB_4444_SkColorType, kRGBA_8888_SkColorType, kRGB_888x_SkColorType,
     kBGRA_8888_SkColorType, kRGBA_1010102_SkColorType, kRGB_101010x_SkColorType,
-    kGray_8_SkColorType, kRGBA_F16_SkColorType
+    kGray_8_SkColorType, kRGBA_F16_SkColorType, kRGB_F16F16F16x_SkColorType
                                  } ) {
         SkImageInfo info = SkImageInfo::Make(1, 1, colorType, kOpaque_SkAlphaType);
         SkDebugf("color: k" "%s" "_SkColorType" "%*s" "shiftPerPixel: %d\n",

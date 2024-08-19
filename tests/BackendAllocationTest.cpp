@@ -844,6 +844,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(GLBackendAllocationTest,
 
         { GrColorType::kRGBA_F16_Clamped, GR_GL_RGBA16F,              SkColors::kLtGray    },
         { GrColorType::kRGBA_F16,         GR_GL_RGBA16F,              SkColors::kYellow    },
+        { GrColorType::kRGB_F16F16F16x,   GR_GL_RGBA16F,              { 0, 0.5f, 0, 0.5f } },
 
         { GrColorType::kRG_88,            GR_GL_RG8,                  { 1, 0.5f, 0, 1 }    },
         { GrColorType::kAlpha_F16,        GR_GL_R16F,                 { 1.0f, 0, 0, 0.5f } },
@@ -1005,6 +1006,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest,
 
         { GrColorType::kRGBA_F16_Clamped, VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kLtGray   },
         { GrColorType::kRGBA_F16,         VK_FORMAT_R16G16B16A16_SFLOAT,      SkColors::kYellow   },
+        { GrColorType::kRGB_F16F16F16x,   VK_FORMAT_R16G16B16A16_SFLOAT,      { 0, 0.5f, 0, 0.5f }},
 
         { GrColorType::kRG_88,            VK_FORMAT_R8G8_UNORM,               { 1, 0.5f, 0, 1 }   },
         { GrColorType::kAlpha_F16,        VK_FORMAT_R16_SFLOAT,               { 1.0f, 0, 0, 0.5f }},
