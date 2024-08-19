@@ -9,37 +9,34 @@ struct _GlobalUniforms {
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 const sk_PrivkGuardedDivideEpsilon: f32 = f32(select(0.0, 1e-08, false));
+const sk_PrivkMinNormalHalf: f32 = 6.10351562e-05;
+fn guarded_divide_Qhhh(n: f32, d: f32) -> f32 {
+  {
+    return n / (d + sk_PrivkGuardedDivideEpsilon);
+  }
+}
 fn color_dodge_component_Qhh2h2(s: vec2<f32>, d: vec2<f32>) -> f32 {
   {
-    if d.x == 0.0 {
-      {
-        return s.x * (1.0 - d.y);
-      }
+    let dxScale: f32 = f32(select(1, 0, d.x == 0.0));
+    var _skTemp0: f32;
+    let _skTemp1 = abs(s.y - s.x);
+    if _skTemp1 >= sk_PrivkMinNormalHalf {
+      let _skTemp2 = guarded_divide_Qhhh(d.x * s.y, s.y - s.x);
+      _skTemp0 = _skTemp2;
     } else {
-      {
-        var delta: f32 = s.y - s.x;
-        if delta == 0.0 {
-          {
-            return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
-          }
-        } else {
-          {
-            let _skTemp0 = min(d.y, (d.x * s.y) / (delta + sk_PrivkGuardedDivideEpsilon));
-            delta = _skTemp0;
-            return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
-          }
-        }
-      }
+      _skTemp0 = d.y;
     }
+    let _skTemp3 = min(d.y, _skTemp0);
+    let delta: f32 = dxScale * _skTemp3;
+    return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
   }
-  return f32();
 }
 fn _skslMain(_stageOut: ptr<function, FSOut>) {
   {
-    let _skTemp1 = color_dodge_component_Qhh2h2(_globalUniforms.src.xw, _globalUniforms.dst.xw);
-    let _skTemp2 = color_dodge_component_Qhh2h2(_globalUniforms.src.yw, _globalUniforms.dst.yw);
-    let _skTemp3 = color_dodge_component_Qhh2h2(_globalUniforms.src.zw, _globalUniforms.dst.zw);
-    (*_stageOut).sk_FragColor = vec4<f32>(_skTemp1, _skTemp2, _skTemp3, _globalUniforms.src.w + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst.w);
+    let _skTemp4 = color_dodge_component_Qhh2h2(_globalUniforms.src.xw, _globalUniforms.dst.xw);
+    let _skTemp5 = color_dodge_component_Qhh2h2(_globalUniforms.src.yw, _globalUniforms.dst.yw);
+    let _skTemp6 = color_dodge_component_Qhh2h2(_globalUniforms.src.zw, _globalUniforms.dst.zw);
+    (*_stageOut).sk_FragColor = vec4<f32>(_skTemp4, _skTemp5, _skTemp6, _globalUniforms.src.w + (1.0 - _globalUniforms.src.w) * _globalUniforms.dst.w);
   }
 }
 @fragment fn main() -> FSOut {
