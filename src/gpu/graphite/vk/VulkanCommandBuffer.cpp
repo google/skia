@@ -1652,7 +1652,7 @@ void VulkanCommandBuffer::submitPipelineBarriers(bool forSelfDependency) {
     // TODO: Do we need to handle SecondaryCommandBuffers as well?
 
     // Currently we never submit a pipeline barrier without at least one buffer or image barrier.
-    if (fBufferBarriers.size() || fImageBarriers.size()) {
+    if (!fBufferBarriers.empty() || !fImageBarriers.empty()) {
         // For images we can have barriers inside of render passes but they require us to add more
         // support in subpasses which need self dependencies to have barriers inside them. Also, we
         // can never have buffer barriers inside of a render pass. For now we will just assert that
@@ -1675,8 +1675,8 @@ void VulkanCommandBuffer::submitPipelineBarriers(bool forSelfDependency) {
         fSrcStageMask = 0;
         fDstStageMask = 0;
     }
-    SkASSERT(!fBufferBarriers.size());
-    SkASSERT(!fImageBarriers.size());
+    SkASSERT(fBufferBarriers.empty());
+    SkASSERT(fImageBarriers.empty());
     SkASSERT(!fBarriersByRegion);
     SkASSERT(!fSrcStageMask);
     SkASSERT(!fDstStageMask);
