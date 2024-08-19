@@ -24,12 +24,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//include/codec:public_hdrs",
 			},
 		},
-		{Var: "skia_codec_core", // TODO(kjlubick): delete after updating Chromium and Flutter
-			Rules: []string{
-				"//src/codec:core_hdrs",
-				"//src/codec:core_srcs",
-			},
-		},
 		{Var: "skia_codec_shared",
 			Rules: []string{
 				"//src/codec:any_decoder",
