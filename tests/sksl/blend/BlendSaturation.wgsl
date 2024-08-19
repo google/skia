@@ -9,7 +9,6 @@ struct _GlobalUniforms {
 };
 @binding(0) @group(0) var<uniform> _globalUniforms: _GlobalUniforms;
 const sk_PrivkGuardedDivideEpsilon: f32 = f32(select(0.0, 1e-08, false));
-const sk_PrivkMinNormalHalf: f32 = 6.10351562e-05;
 fn blend_color_saturation_Qhh3(color: vec3<f32>) -> f32 {
   {
     let _skTemp0 = max(color.x, color.y);
@@ -62,7 +61,7 @@ fn blend_hslc_h4h2h4h4(flipSat: vec2<f32>, src: vec4<f32>, dst: vec4<f32>) -> ve
     }
     if (_7_maxComp > alpha) && (_7_maxComp != _4_lum) {
       {
-        _5_result = _4_lum + ((_5_result - _4_lum) * (alpha - _4_lum)) / (((_7_maxComp - _4_lum) + sk_PrivkMinNormalHalf) + sk_PrivkGuardedDivideEpsilon);
+        _5_result = _4_lum + ((_5_result - _4_lum) * (alpha - _4_lum)) / ((_7_maxComp - _4_lum) + sk_PrivkGuardedDivideEpsilon);
       }
     }
     return vec4<f32>((((_5_result + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);

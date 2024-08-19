@@ -283,8 +283,7 @@ $pure half3 $blend_set_color_luminance(half3 hueSatColor, half alpha, half3 lumC
         result = lum + (result - lum) * $guarded_divide(lum, (lum - minComp));
     }
     if (maxComp > alpha && maxComp != lum) {
-        result = lum +
-                 $guarded_divide((result - lum) * (alpha - lum), (maxComp - lum) + $kMinNormalHalf);
+        result = lum + $guarded_divide((result - lum) * (alpha - lum), (maxComp - lum));
     }
     return result;
 }
