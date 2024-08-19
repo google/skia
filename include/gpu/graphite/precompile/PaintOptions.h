@@ -25,7 +25,7 @@ class PrecompileMaskFilter;
 class PrecompileShader;
 
 enum class Coverage;
-enum DrawTypeFlags : uint8_t;
+enum DrawTypeFlags : uint16_t;
 enum class PrecompileImageFilterFlags : uint32_t;
 
 class KeyContext;

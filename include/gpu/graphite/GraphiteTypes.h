@@ -107,28 +107,33 @@ enum class Volatile : bool {
  * This enum allows mapping from a set of observed RenderSteps (e.g., from a GraphicsPipeline
  * printout) to the correct 'drawTypes' parameter needed by the Precompilation API.
  */
-enum DrawTypeFlags : uint8_t {
+enum DrawTypeFlags : uint16_t {
 
-    kNone           = 0b0000,
+    kNone             = 0b000000000,
 
-    // kText should be used to generate Pipelines that use the following RenderSteps:
-    //    BitmapTextRenderStep[*] for [mask], [LCD], [color]
-    //    SDFTextRenderStep
-    //    SDFTextLCDRenderStep
-    kText           = 0b0001,
+    // kBitmapText_Mask should be used for the BitmapTextRenderStep[mask] RenderStep
+    kBitmapText_Mask  = 0b00000001,
+    // kBitmapText_LCD should be used for the BitmapTextRenderStep[LCD] RenderStep
+    kBitmapText_LCD   = 0b00000010,
+    // kBitmapText_Color should be used for the BitmapTextRenderStep[color] RenderStep
+    kBitmapText_Color = 0b00000100,
+    // kSDFText should be used for the SDFTextRenderStep RenderStep
+    kSDFText          = 0b00001000,
+    // kSDFText_LCD should be used for the SDFTextLCDRenderStep RenderStep
+    kSDFText_LCD      = 0b00010000,
 
     // kDrawVertices should be used to generate Pipelines that use the following RenderSteps:
     //    VerticesRenderStep[*] for:
     //        [tris], [tris-texCoords], [tris-color], [tris-color-texCoords],
     //        [tristrips], [tristrips-texCoords], [tristrips-color], [tristrips-color-texCoords]
-    kDrawVertices   = 0b0010,
+    kDrawVertices     = 0b00100000,
 
     // kSimpleShape should be used to generate Pipelines that use the following RenderSteps:
     //    AnalyticBlurRenderStep
     //    AnalyticRRectRenderStep
     //    PerEdgeAAQuadRenderStep
     //    CoverBoundsRenderStep[non-aa-fill]
-    kSimpleShape    = 0b0100,
+    kSimpleShape      = 0b01000000,
 
     // kNonSimpleShape should be used to generate Pipelines that use the following RenderSteps:
     //    CoverageMaskRenderStep
@@ -137,7 +142,7 @@ enum DrawTypeFlags : uint8_t {
     //    TessellateWedgesRenderStep[*] for [convex], [evenodd], [winding]
     //    TessellateCurvesRenderStep[*] for [even-odd], [winding]
     //    MiddleOutFanRenderStep[*] for [even-odd], [winding]
-    kNonSimpleShape = 0b1000,
+    kNonSimpleShape   = 0b10000000,
 };
 
 } // namespace skgpu::graphite

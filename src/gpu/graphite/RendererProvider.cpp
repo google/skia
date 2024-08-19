@@ -75,18 +75,27 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
             DrawTypeFlags::kNonSimpleShape);
     fCoverageMask = makeFromStep(std::make_unique<CoverageMaskRenderStep>(),
                                  DrawTypeFlags::kNonSimpleShape);
-    // We are using 565 here to represent LCD text, regardless of texture format
-    for (skgpu::MaskFormat variant : {skgpu::MaskFormat::kA8,
-                                      skgpu::MaskFormat::kA565,
-                                      skgpu::MaskFormat::kARGB}) {
-        fBitmapText[int(variant)] = makeFromStep(std::make_unique<BitmapTextRenderStep>(variant),
-                                                 DrawTypeFlags::kText);
+
+    static constexpr struct {
+        skgpu::MaskFormat fFormat;
+        DrawTypeFlags     fDrawType;
+    } kBitmapTextVariants [] = {
+        // We are using 565 here to represent LCD text, regardless of texture format
+        { skgpu::MaskFormat::kA8,   DrawTypeFlags::kBitmapText_Mask  },
+        { skgpu::MaskFormat::kA565, DrawTypeFlags::kBitmapText_LCD   },
+        { skgpu::MaskFormat::kARGB, DrawTypeFlags::kBitmapText_Color }
+    };
+
+    for (auto textVariant : kBitmapTextVariants) {
+        fBitmapText[int(textVariant.fFormat)] =
+                makeFromStep(std::make_unique<BitmapTextRenderStep>(textVariant.fFormat),
+                             textVariant.fDrawType);
     }
     for (bool lcd : {false, true}) {
         fSDFText[lcd] = lcd ? makeFromStep(std::make_unique<SDFTextLCDRenderStep>(),
-                                           DrawTypeFlags::kText)
+                                           DrawTypeFlags::kSDFText_LCD)
                             : makeFromStep(std::make_unique<SDFTextRenderStep>(),
-                                           DrawTypeFlags::kText);
+                                           DrawTypeFlags::kSDFText);
     }
     fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>(bufferManager),
                                   DrawTypeFlags::kSimpleShape);

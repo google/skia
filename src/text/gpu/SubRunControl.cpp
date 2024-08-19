@@ -69,7 +69,7 @@ bool SubRunControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& 
 
 #if !defined(SK_DISABLE_SDF_TEXT)
 bool SubRunControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint,
-                         const SkMatrix& matrix) const {
+                           const SkMatrix& matrix) const {
     const bool wideStroke = paint.getStyle() == SkPaint::kStroke_Style &&
             paint.getStrokeWidth() > 0;
     return fAbleToUseSDFT &&
