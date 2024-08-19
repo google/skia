@@ -262,6 +262,7 @@ def compile_fn(api, checkout_root, out_dir):
   if 'FreeType' in extra_tokens:
     args['skia_use_freetype'] = 'true'
     args['skia_use_system_freetype2'] = 'false'
+    extra_cflags.extend(['-DSK_USE_FREETYPE_EMBOLDEN'])
 
   if 'NoGpu' in extra_tokens:
     args['skia_enable_ganesh'] = 'false'
