@@ -2,6 +2,24 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 129
+-------------
+  * The Dawn-specific constructors and methods on `skgpu::graphite::TextureInfo`,
+    `skgpu::graphite::BackendTexture`, have been deprecated and
+    moved to be functions in `DawnTypes.h`
+  * `SkImageFilters::DropShadow` and `SkImageFilters::DropShadowOnly` now accept
+    `SkColor4f` and `SkColorSpace` for the shadow color.
+  * `SkScalerContext::MakeRecAndEffects` now converts `SkFont::isEmbolden` to the `kEmbolden_Flag`.
+    It no longer automatically converts embolden requests into (more) stroking.
+    This can now (optionally) be done in `SkTypeface::onFilterRec` by calling the new `SkScalerContextRec::useStrokeForFakeBold()`.
+  * Skia no longer tests building against iOS 11.
+    The minimum deployment target is now iOS 12 as this is the minimum deplyment target for Xcode 15.
+  * The Vulkan-specific constructors and methods on `skgpu::graphite::TextureInfo`,
+    `skgpu::graphite::BackendTexture`, `skgpu::graphite::BackendSemaphore` have been deprecated and
+    moved to be functions in `VulkanGraphiteTypes.h`
+
+* * *
+
 Milestone 128
 -------------
   * SkSL now properly reports an error if user code includes various GLSL reserved keywords.
