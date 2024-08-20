@@ -508,18 +508,15 @@ static SkCodec::Result log_and_return_error(bool success) {
 
 class SkPngNormalDecoder : public SkPngCodec {
 public:
-    SkPngNormalDecoder(SkEncodedInfo&& info,
-                       std::unique_ptr<SkStream> stream,
-                       SkPngChunkReader* reader,
-                       png_structp png_ptr,
-                       png_infop info_ptr,
-                       int bitDepth)
-            : SkPngCodec(std::move(info), std::move(stream), reader, png_ptr, info_ptr, bitDepth)
-            , fRowsWrittenToOutput(0)
-            , fDst(nullptr)
-            , fRowBytes(0)
-            , fFirstRow(0)
-            , fLastRow(0) {}
+    SkPngNormalDecoder(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
+            SkPngChunkReader* reader, png_structp png_ptr, png_infop info_ptr, int bitDepth)
+        : INHERITED(std::move(info), std::move(stream), reader, png_ptr, info_ptr, bitDepth)
+        , fRowsWrittenToOutput(0)
+        , fDst(nullptr)
+        , fRowBytes(0)
+        , fFirstRow(0)
+        , fLastRow(0)
+    {}
 
     static void AllRowsCallback(png_structp png_ptr, png_bytep row, png_uint_32 rowNum, int /*pass*/) {
         GetDecoder(png_ptr)->allRowsCallback(row, rowNum);
@@ -538,6 +535,8 @@ private:
     int                         fFirstRow;  // FIXME: Move to baseclass?
     int                         fLastRow;
     int                         fRowsNeeded;
+
+    using INHERITED = SkPngCodec;
 
     static SkPngNormalDecoder* GetDecoder(png_structp png_ptr) {
         return static_cast<SkPngNormalDecoder*>(png_get_progressive_ptr(png_ptr));
@@ -625,20 +624,17 @@ private:
 
 class SkPngInterlacedDecoder : public SkPngCodec {
 public:
-    SkPngInterlacedDecoder(SkEncodedInfo&& info,
-                           std::unique_ptr<SkStream> stream,
-                           SkPngChunkReader* reader,
-                           png_structp png_ptr,
-                           png_infop info_ptr,
-                           int bitDepth,
-                           int numberPasses)
-            : SkPngCodec(std::move(info), std::move(stream), reader, png_ptr, info_ptr, bitDepth)
-            , fNumberPasses(numberPasses)
-            , fFirstRow(0)
-            , fLastRow(0)
-            , fLinesDecoded(0)
-            , fInterlacedComplete(false)
-            , fPng_rowbytes(0) {}
+    SkPngInterlacedDecoder(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
+            SkPngChunkReader* reader, png_structp png_ptr,
+            png_infop info_ptr, int bitDepth, int numberPasses)
+        : INHERITED(std::move(info), std::move(stream), reader, png_ptr, info_ptr, bitDepth)
+        , fNumberPasses(numberPasses)
+        , fFirstRow(0)
+        , fLastRow(0)
+        , fLinesDecoded(0)
+        , fInterlacedComplete(false)
+        , fPng_rowbytes(0)
+    {}
 
     static void InterlacedRowCallback(png_structp png_ptr, png_bytep row, png_uint_32 rowNum, int pass) {
         auto decoder = static_cast<SkPngInterlacedDecoder*>(png_get_progressive_ptr(png_ptr));
@@ -655,6 +651,8 @@ private:
     bool                    fInterlacedComplete;
     size_t                  fPng_rowbytes;
     AutoTMalloc<png_byte> fInterlaceBuffer;
+
+    using INHERITED = SkPngCodec;
 
     // FIXME: Currently sharing interlaced callback for all rows and subset. It's not
     // as expensive as the subset version of non-interlaced, but it still does extra
@@ -1004,21 +1002,17 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
     this->releasePngPtrs();
 }
 
-SkPngCodec::SkPngCodec(SkEncodedInfo&& encodedInfo,
-                       std::unique_ptr<SkStream> stream,
-                       SkPngChunkReader* chunkReader,
-                       void* png_ptr,
-                       void* info_ptr,
-                       int bitDepth)
-        : SkPngCodecBase(
-                  std::move(encodedInfo), png_select_xform_format(encodedInfo), std::move(stream))
-        , fPngChunkReader(SkSafeRef(chunkReader))
-        , fPng_ptr(png_ptr)
-        , fInfo_ptr(info_ptr)
-        , fColorXformSrcRow(nullptr)
-        , fBitDepth(bitDepth)
-        , fIdatLength(0)
-        , fDecodedIdat(false) {}
+SkPngCodec::SkPngCodec(SkEncodedInfo&& encodedInfo, std::unique_ptr<SkStream> stream,
+                       SkPngChunkReader* chunkReader, void* png_ptr, void* info_ptr, int bitDepth)
+    : INHERITED(std::move(encodedInfo), png_select_xform_format(encodedInfo), std::move(stream))
+    , fPngChunkReader(SkSafeRef(chunkReader))
+    , fPng_ptr(png_ptr)
+    , fInfo_ptr(info_ptr)
+    , fColorXformSrcRow(nullptr)
+    , fBitDepth(bitDepth)
+    , fIdatLength(0)
+    , fDecodedIdat(false)
+{}
 
 SkPngCodec::~SkPngCodec() {
     this->destroyReadStruct();

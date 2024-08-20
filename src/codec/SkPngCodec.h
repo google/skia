@@ -7,14 +7,14 @@
 #ifndef SkPngCodec_DEFINED
 #define SkPngCodec_DEFINED
 
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedImageFormat.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkTemplates.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-
-#include "include/codec/SkCodec.h"
-#include "include/core/SkRefCnt.h"
-#include "include/private/base/SkTemplates.h"
-#include "src/codec/SkPngCodecBase.h"
 
 class SkColorPalette;
 class SkPngChunkReader;
@@ -24,7 +24,7 @@ class SkSwizzler;
 struct SkEncodedInfo;
 struct SkImageInfo;
 
-class SkPngCodec : public SkPngCodecBase {
+class SkPngCodec : public SkCodec {
 public:
     static bool IsPng(const void*, size_t);
 
@@ -56,6 +56,7 @@ protected:
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*)
             override;
+    SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kPNG; }
     bool onRewind() override;
 
     SkSampler* getSampler(bool createIfNecessary) override;
@@ -121,5 +122,7 @@ private:
 
     size_t                         fIdatLength;
     bool                           fDecodedIdat;
+
+    using INHERITED = SkCodec;
 };
 #endif  // SkPngCodec_DEFINED

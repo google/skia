@@ -100,7 +100,5 @@ skia_codec_jpeg_xmp = [
 skia_codec_png = [
   "$_src/codec/SkPngCodec.cpp",
   "$_src/codec/SkPngCodec.h",
-  "$_src/codec/SkPngCodecBase.cpp",
-  "$_src/codec/SkPngCodecBase.h",
   "$_src/codec/SkPngPriv.h",
 ]

@@ -152,10 +152,14 @@ std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<S
 SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
                                std::unique_ptr<SkStream> stream,
                                rust::Box<rust_png::Reader> reader)
-        : SkPngCodecBase(std::move(encodedInfo), kInvalidSkcmsPixelFormat, std::move(stream))
+        : SkCodec(std::move(encodedInfo), kInvalidSkcmsPixelFormat, std::move(stream))
         , fReader(std::move(reader)) {}
 
 SkPngRustCodec::~SkPngRustCodec() = default;
+
+SkEncodedImageFormat SkPngRustCodec::onGetEncodedFormat() const {
+    return SkEncodedImageFormat::kPNG;
+}
 
 SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
                                             void* dst,

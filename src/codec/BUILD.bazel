@@ -532,8 +532,6 @@ skia_filegroup(
     srcs = [
         "SkPngCodec.cpp",
         "SkPngCodec.h",
-        "SkPngCodecBase.cpp",
-        "SkPngCodecBase.h",
     ],
 )
 
