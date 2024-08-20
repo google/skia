@@ -70,7 +70,7 @@ static std::string bitmap_to_base64_data_uri(const SkBitmap& bitmap) {
     // and should only output them on failure.
     static const size_t kMaxBase64Length = 1024 * 1024;
     if (len > kMaxBase64Length) {
-        return SkStringPrintf("Encoded image too large (%lu bytes)", len).c_str();
+        return SkStringPrintf("Encoded image too large (%zu bytes)", len).c_str();
     }
 
     std::string out;
@@ -144,8 +144,8 @@ static GMOutput draw_via_picture(skiagm::GM* gm, SkSurface* surface, bool serial
     if (recordedBitmap.computeByteSize() != referenceBitmap.computeByteSize()) {
         return {skiagm::DrawResult::kFail,
                 SkStringPrintf("Recorded and reference bitmap dimensions do not match: "
-                               "expected byte size %lu, width %d and height %d; "
-                               "got %lu, %d and %d",
+                               "expected byte size %zu, width %d and height %d; "
+                               "got %zu, %d and %d",
                                referenceBitmap.computeByteSize(),
                                referenceBitmap.bounds().width(),
                                referenceBitmap.bounds().height(),

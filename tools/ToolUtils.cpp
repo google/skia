@@ -44,10 +44,6 @@
 #include <cmath>
 #include <cstring>
 
-#ifdef SK_BUILD_FOR_WIN
-#include "include/ports/SkTypeface_win.h"
-#endif
-
 using namespace skia_private;
 
 namespace ToolUtils {
