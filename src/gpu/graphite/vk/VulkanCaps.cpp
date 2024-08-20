@@ -177,6 +177,10 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     fShaderCaps->fForceStd430ArrayLayout =
             fStorageBufferSupport && fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430;
 
+    if (features && features->features.dualSrcBlend) {
+        fShaderCaps->fDualSourceBlendingSupport = true;
+    }
+
     // Note that format table initialization should be performed at the end of this method to ensure
     // all capability determinations are completed prior to populating the format tables.
     this->initFormatTable(vkInterface, physDev, physDevProperties);

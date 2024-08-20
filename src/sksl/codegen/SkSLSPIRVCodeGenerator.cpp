@@ -3443,11 +3443,12 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             return this->getLValue(*this->identifier("sk_Clockwise"), out)->load(out);
         }
         case SK_SECONDARYFRAGCOLOR_BUILTIN: {
-            // sk_SecondaryFragColor corresponds to gl_SecondaryFragColorEXT, which isn't supposed
-            // to appear in a SPIR-V program (it's only valid in ES2). Report an error.
-            fContext.fErrors->error(ref.fPosition,
-                                    "sk_SecondaryFragColor is not allowed in SPIR-V");
-            return NA;
+            if (fCaps.fDualSourceBlendingSupport) {
+                return this->getLValue(*this->identifier("sk_SecondaryFragColor"), out)->load(out);
+            } else {
+                fContext.fErrors->error(ref.position(), "'sk_SecondaryFragColor' not supported");
+                return NA;
+            }
         }
         case SK_FRAGCOORD_BUILTIN: {
             if (fProgram.fConfig->fSettings.fForceNoRTFlip) {
@@ -4542,9 +4543,10 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, Positio
                                layout.fInputAttachmentIndex, fDecorationBuffer);
         fCapabilities |= (((uint64_t) 1) << SpvCapabilityInputAttachment);
     }
-    if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN) {
-        this->writeInstruction(SpvOpDecorate, target, SpvDecorationBuiltIn, layout.fBuiltin,
-                               fDecorationBuffer);
+    if (layout.fBuiltin >= 0 && (layout.fBuiltin != SK_FRAGCOLOR_BUILTIN &&
+                                 layout.fBuiltin != SK_SECONDARYFRAGCOLOR_BUILTIN)) {
+            this->writeInstruction(SpvOpDecorate, target, SpvDecorationBuiltIn, layout.fBuiltin,
+                                   fDecorationBuffer);
     }
 }
 
@@ -4748,6 +4750,7 @@ SpvId SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind,
     const Type* type = &var.type();
     switch (layout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
+        case SK_SECONDARYFRAGCOLOR_BUILTIN:
             if (!ProgramConfig::IsFragment(kind)) {
                 SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
                 return NA;
@@ -5104,6 +5107,9 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     const Variable& skFragColorVar = skFragColorSymbol->as<Variable>();
     auto skFragColorRef = std::make_unique<VariableReference>(Position(), &skFragColorVar,
                                                               VariableReference::RefKind::kWrite);
+
+    // TODO get secondary frag color as one as well?
+
     // Synthesize a call to the `main()` function.
     if (!main.returnType().matches(skFragColorRef->type())) {
         fContext.fErrors->error(main.fPosition, "SPIR-V does not support returning '" +
