@@ -1615,7 +1615,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/"sk_circular_rrect_clip",
             SnippetRequirementFlags::kPriorStageOutput,
             /*uniforms=*/{ { "rect",           SkSLType::kFloat4 },
-                           { "radiusPlusHalf", SkSLType::kHalf2 },
+                           { "radiusPlusHalf", SkSLType::kFloat2 },
                            { "edgeSelect",     SkSLType::kHalf4 } }
     };
 

@@ -131,18 +131,23 @@ $pure half4 sk_circular_rrect_clip(half4 color,
                                    half4 edgeSelect) {
     float2 fragCoord = sk_FragCoord.xy;
 
-    float2 radius = float2(radiusPlusHalf.x);
+    // Negative x indicates inverse fill
+    float2 radius = float2(abs(radiusPlusHalf.x));
     float2 dxy0 = edgeSelect.LT*((rect.LT + radius) - fragCoord);
     float2 dxy1 = edgeSelect.RB*(fragCoord - (rect.RB - radius));
     float2 dxy = max(max(dxy0, dxy1), 0.0);
     // Use more complex length calculation to manage precision issues
-    half circleCornerAlpha = half(saturate(radiusPlusHalf.x*(1.0 - length(dxy*radiusPlusHalf.y))));
+    half circleCornerAlpha = half(saturate(radius.x*(1.0 - length(dxy*radiusPlusHalf.y))));
 
     half4 rectEdgeAlphas = saturate(half4(fragCoord - rect.LT, rect.RB - fragCoord));
     rectEdgeAlphas = mix(rectEdgeAlphas, half4(1), edgeSelect);
 
-    return color * circleCornerAlpha * rectEdgeAlphas.x * rectEdgeAlphas.y *
-           rectEdgeAlphas.z * rectEdgeAlphas.w;
+    half alpha = circleCornerAlpha * rectEdgeAlphas.x * rectEdgeAlphas.y *
+                 rectEdgeAlphas.z * rectEdgeAlphas.w;
+    // Check for inverse fill
+    alpha = radiusPlusHalf.x < 0 ? (1-alpha) : alpha;
+
+    return color * alpha;
 }
 
 $pure float $tile(int tileMode, float f, float low, float high) {

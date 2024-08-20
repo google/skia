@@ -382,9 +382,10 @@ struct CircularRRectClipBlock {
             fRect(rect),
             fRadiusPlusHalf(radiusPlusHalf),
             fEdgeSelect(edgeSelect) {}
-        SkRect  fRect;
-        SkPoint fRadiusPlusHalf;
-        SkRect  fEdgeSelect;
+        SkRect  fRect;            // bounds, outset by 0.5
+        SkPoint fRadiusPlusHalf;  // abs() of .x is radius+0.5, if < 0 indicates inverse fill
+                                  // .y is 1/(radius+0.5)
+        SkRect  fEdgeSelect;      // 1 indicates a rounded corner on that side (LTRB), 0 otherwise
     };
 
     static void AddBlock(const KeyContext&,
