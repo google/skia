@@ -157,7 +157,11 @@ public:
         }
     }
 
-    void compact(AtlasToken startTokenForNextFlush, bool forceCompact);
+    // Reduce Page use as much as possible while retaining some temporal coherence.
+    void compact(AtlasToken startTokenForNextFlush);
+
+    // Reduce memory as much as possible while still allowing the current flush to proceed.
+    void purge(AtlasToken startTokenForNextFlush);
 
     // Mark all plots with any content as full. Used only with Vello because it can't do
     // new renders to a texture without a clear.
