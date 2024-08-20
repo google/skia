@@ -55,8 +55,8 @@ const char* SKPBench::onGetUniqueName() {
 
 void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     SkIRect bounds = canvas->getDeviceClipBounds();
-    SkAssertResult(bounds.intersect(fClip));
-    SkAssertResult(bounds.intersect(fPic->cullRect().roundOut()));
+    bounds.intersect(fClip);
+    bounds.intersect(fPic->cullRect().roundOut());
     SkAssertResult(!bounds.isEmpty());
 
 #if defined(SK_GRAPHITE)

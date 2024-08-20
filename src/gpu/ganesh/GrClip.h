@@ -230,12 +230,8 @@ private:
                  SkRect* bounds) const final {
         SkIRect pixelBounds = GetPixelIBounds(*bounds, GrAA(aa != GrAAType::kNone));
         Effect effect = this->apply(&out->hardClip(), &pixelBounds);
-        if (!bounds->intersect(SkRect::Make(pixelBounds))) {
-            // NOTE: In this case effect is likely kClippedOut, but this ensures it.
-            return Effect::kClippedOut;
-        } else {
-            return effect;
-        }
+        bounds->intersect(SkRect::Make(pixelBounds));
+        return effect;
     }
 };
 
