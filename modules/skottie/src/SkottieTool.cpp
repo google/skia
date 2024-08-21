@@ -531,15 +531,22 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    // Instantiate an animation on the main thread for two reasons:
-    //   - we need to know its duration upfront
-    //   - we want to only report parsing errors once
-    auto anim = skottie::Animation::Builder()
+    const auto build_animation = [&fontMgr, &rp, &data](
+            const sk_sp<Logger>& logger,
+            const sk_sp<skottie::PrecompInterceptor>& pint) {
+        return skottie::Animation::Builder()
             .setFontManager(fontMgr)
             .setLogger(logger)
+            .setPrecompInterceptor(pint)
             .setResourceProvider(rp)
             .setTextShapingFactory(SkShapers::BestAvailable())
             .make(static_cast<const char*>(data->data()), data->size());
+    };
+
+    // Instantiate an animation on the main thread for two reasons:
+    //   - we need to know its duration upfront
+    //   - we want to only report parsing errors once
+    const auto anim = build_animation(logger, nullptr);
     if (!anim) {
         SkDebugf("Could not parse animation: '%s'.\n", FLAGS_input[0]);
         return 1;
@@ -597,11 +604,7 @@ int main(int argc, char** argv) {
 
             const auto start = std::chrono::steady_clock::now();
             thread_local static auto* anim =
-                    skottie::Animation::Builder()
-                        .setResourceProvider(rp)
-                        .setPrecompInterceptor(precomp_interceptor)
-                        .make(static_cast<const char*>(data->data()), data->size())
-                        .release();
+                    build_animation(nullptr, precomp_interceptor).release();
             thread_local static auto* gen = singleton_generator
                     ? singleton_generator.get()
                     : FrameGenerator::Make(sink.get(), fmt, scale_matrix).release();
