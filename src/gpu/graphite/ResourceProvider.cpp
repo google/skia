@@ -67,8 +67,9 @@ sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
         // it allows pipeline creation to be performed without locking the global cache.
         // NOTE: The parameters to TRACE_EVENT are only evaluated inside an if-block when the
         // category is enabled.
-        TRACE_EVENT1("skia.shaders", "createGraphicsPipeline", "desc",
-                     TRACE_STR_COPY(to_str(fSharedContext, pipelineDesc, renderPassDesc).c_str()));
+        TRACE_EVENT1_ALWAYS(
+                "skia.shaders", "createGraphicsPipeline", "desc",
+                TRACE_STR_COPY(to_str(fSharedContext, pipelineDesc, renderPassDesc).c_str()));
         pipeline = this->createGraphicsPipeline(runtimeDict, pipelineDesc, renderPassDesc);
         if (pipeline) {
             // TODO: Should we store a null pipeline if we failed to create one so that subsequent
