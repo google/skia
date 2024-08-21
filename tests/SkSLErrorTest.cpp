@@ -115,6 +115,12 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::
         "sksl/errors/UnspecifiedBinding.compute",
 
         "sksl/runtime_errors/ReservedNameISampler2D.rts",
+        "sksl/runtime_errors/ProgramTooLarge_BlocklessLoops.rts",
+        "sksl/runtime_errors/ProgramTooLarge_Extreme.rts",
+        "sksl/runtime_errors/ProgramTooLarge_FlatLoop.rts",
+        "sksl/runtime_errors/ProgramTooLarge_Functions.rts",
+        "sksl/runtime_errors/ProgramTooLarge_NestedLoops.rts",
+        "sksl/runtime_errors/ProgramTooLarge_SplitLoops.rts",
 
 #ifdef SK_ENABLE_OPTIMIZE_SIZE
         "sksl/errors/ArrayInlinedIndexOutOfRange.sksl",
