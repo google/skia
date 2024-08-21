@@ -142,10 +142,12 @@ skia_filegroup(
         "SkCustomTypeface.cpp",
         "SkDashPath.cpp",
         "SkEventTracer.cpp",
+        "SkFloatUtils.h",
         "SkJSON.cpp",
         "SkJSONWriter.cpp",
         "SkMatrix22.cpp",
         "SkNWayCanvas.cpp",
+        "SkNullCanvas.cpp",
         "SkOSPath.cpp",
         "SkOrderedFontMgr.cpp",
         "SkPaintFilterCanvas.cpp",
@@ -169,6 +171,13 @@ skia_filegroup(
         "SkCharToGlyphCache.h",
     ],
     visibility = ["//src/ports:__pkg__"],
+)
+
+skia_filegroup(
+    name = "canvas_state_utils",
+    srcs = [
+        "SkCanvasStateUtils.cpp",
+    ],
 )
 
 skia_filegroup(

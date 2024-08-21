@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/utils/SkTestCanvas.h"
+#include "tools/gpu/TestCanvas.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"  // IWYU pragma: keep
@@ -27,10 +27,12 @@
 
 class SkPaint;
 
-SkTestCanvas<SkSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
+namespace skiatest {
+
+TestCanvas<SkSlugTestKey>::TestCanvas(SkCanvas* canvas)
         : SkCanvas(sk_ref_sp(canvas->rootDevice())) {}
 
-void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
+void TestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
         const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
     SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
     if (this->internalQuickReject(bounds, paint)) {
@@ -47,10 +49,10 @@ void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
     }
 }
 
-SkTestCanvas<SkSerializeSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
+TestCanvas<SkSerializeSlugTestKey>::TestCanvas(SkCanvas* canvas)
         : SkCanvas(sk_ref_sp(canvas->rootDevice())) {}
 
-void SkTestCanvas<SkSerializeSlugTestKey>::onDrawGlyphRunList(
+void TestCanvas<SkSerializeSlugTestKey>::onDrawGlyphRunList(
         const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
     SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
     if (this->internalQuickReject(bounds, paint)) {
@@ -123,7 +125,7 @@ private:
     bool fIsLocked{false};
 };
 
-SkTestCanvas<SkRemoteSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
+TestCanvas<SkRemoteSlugTestKey>::TestCanvas(SkCanvas* canvas)
         : SkCanvas(sk_ref_sp(canvas->rootDevice()))
         , fServerHandleManager(new ServerHandleManager{})
         , fClientHandleManager(new ClientHandleManager{})
@@ -131,11 +133,11 @@ SkTestCanvas<SkRemoteSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
         , fStrikeClient(fClientHandleManager) {}
 
 // Allow the strikes to be freed from the strike cache after the test has been drawn.
-SkTestCanvas<SkRemoteSlugTestKey>::~SkTestCanvas() {
+TestCanvas<SkRemoteSlugTestKey>::~TestCanvas() {
     static_cast<ClientHandleManager*>(fClientHandleManager.get())->unlock();
 }
 
-void SkTestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
+void TestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
         const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
     SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
     if (this->internalQuickReject(bounds, paint)) {
@@ -181,3 +183,5 @@ void SkTestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
         }
     }
 }
+
+}  // namespace skiatest

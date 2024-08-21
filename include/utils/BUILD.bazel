@@ -35,6 +35,7 @@ skia_filegroup(
         "SkEventTracer.h",
         "SkNWayCanvas.h",
         "SkNoDrawCanvas.h",
+        "SkNullCanvas.h",
         "SkOrderedFontMgr.h",
         "SkPaintFilterCanvas.h",
         "SkParse.h",

@@ -1946,6 +1946,8 @@ if (skia_enable_tools) {
       "tools/gpu/ProtectedUtils.h",
       "tools/gpu/ProxyUtils.cpp",
       "tools/gpu/ProxyUtils.h",
+      "tools/gpu/TestCanvas.cpp",
+      "tools/gpu/TestCanvas.h",
       "tools/gpu/TestContext.cpp",
       "tools/gpu/TestOps.cpp",
       "tools/gpu/TestOps.h",
@@ -1954,7 +1956,6 @@ if (skia_enable_tools) {
       "tools/gpu/mock/MockTestContext.cpp",
       "tools/text/gpu/TextBlobTools.cpp",
     ]
-    sources += skia_utils_gpu
 
     libs = []
     frameworks = []
