@@ -70,7 +70,7 @@ public:
 
 protected:
     SkRect onRevalidate(sksg::InvalidationController*, const SkMatrix&) override {
-        return fGlyphs.computeBounds(Shaper::ShapedGlyphs::BoundsType::kConservative);
+        return fGlyphs.computeBounds(Shaper::ShapedGlyphs::BoundsType::kTight);
     }
 
     void onDraw(SkCanvas* canvas, const SkPaint& paint) const override {

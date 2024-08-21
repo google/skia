@@ -121,6 +121,12 @@ private:
         };
 
         fColorFilter->setColorFilter(SkColorFilters::Matrix(cm));
+
+        // When applied to the alpha channel, kFullOn expands the effect coverage
+        // to the content bounding box.
+        fColorFilter->setCoverage(fA == static_cast<float>(Source::kFullOn)
+                                    ? sksg::ExternalColorFilter::Coverage::kBoundingBox
+                                    : sksg::ExternalColorFilter::Coverage::kNormal);
     }
 
     const sk_sp<sksg::ExternalColorFilter> fColorFilter;

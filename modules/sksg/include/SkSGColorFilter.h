@@ -58,7 +58,13 @@ public:
 
     ~ExternalColorFilter() override;
 
+    enum class Coverage {
+        kNormal,       // the effect applies to the regular content coverage
+        kBoundingBox,  // the effect applies to the full content bounding box
+    };
+
     SG_ATTRIBUTE(ColorFilter, sk_sp<SkColorFilter>, fColorFilter)
+    SG_ATTRIBUTE(Coverage   , Coverage            , fCoverage   )
 
 protected:
     void onRender(SkCanvas*, const RenderContext*) const override;
@@ -67,6 +73,7 @@ private:
     explicit ExternalColorFilter(sk_sp<RenderNode>);
 
     sk_sp<SkColorFilter> fColorFilter;
+    Coverage             fCoverage = Coverage::kNormal;
 
     using INHERITED = EffectNode;
 };
