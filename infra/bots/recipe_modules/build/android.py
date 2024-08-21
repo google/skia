@@ -8,7 +8,7 @@ import re
 from . import util
 
 def compile_fn(api, checkout_root, out_dir):
-  skia_dir      = checkout_root.join('skia')
+  skia_dir      = checkout_root.joinpath('skia')
   compiler      = api.vars.builder_cfg.get('compiler')
   configuration = api.vars.builder_cfg.get('configuration')
   extra_tokens  = api.vars.extra_tokens
@@ -33,7 +33,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   quote = lambda x: '"%s"' % x
   args = {
-      'ndk': quote(api.vars.workdir.join(ndk_path)),
+      'ndk': quote(api.vars.workdir.joinpath(ndk_path)),
       'target_cpu': quote(target_arch),
       'werror': 'true',
   }
@@ -87,15 +87,15 @@ def compile_fn(api, checkout_root, out_dir):
     args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
   gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.items()))
-  gn      = skia_dir.join('bin', 'gn')
+  gn      = skia_dir.joinpath('bin', 'gn')
 
   with api.context(cwd=skia_dir):
     api.run(api.step, 'fetch-gn',
-            cmd=['python3', skia_dir.join('bin', 'fetch-gn')],
+            cmd=['python3', skia_dir.joinpath('bin', 'fetch-gn')],
             infra_step=True)
 
     api.run(api.step, 'fetch-ninja',
-            cmd=['python3', skia_dir.join('bin', 'fetch-ninja')],
+            cmd=['python3', skia_dir.joinpath('bin', 'fetch-ninja')],
             infra_step=True)
 
     with api.env(env):

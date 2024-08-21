@@ -30,7 +30,7 @@ def RunSteps(api):
   api.vars.setup()
   revision = api.properties['revision']
 
-  results_dir = api.path.start_dir.join('test')
+  results_dir = api.path.start_dir.joinpath('test')
 
   # Upload the images. It is *vital* that the images are uploaded first
   # so they exist whenever the json is processed.
@@ -44,7 +44,7 @@ def RunSteps(api):
     # For some reason, glob returns results_dir when it should return nothing.
     files_to_upload = [f for f in files_to_upload if str(f).endswith(ext)]
     if len(files_to_upload) > 0:
-      api.gsutil.cp('%s images' % ext, results_dir.join('*%s' % ext),
+      api.gsutil.cp('%s images' % ext, results_dir.joinpath('*%s' % ext),
                        image_dest_path, multithread=True)
 
   # Compute the directory to upload results to
@@ -68,8 +68,8 @@ def RunSteps(api):
                                       summary_dest_path)
 
   # Directly upload dm.json and verbose.log if it exists
-  json_file = results_dir.join(DM_JSON)
-  log_file = results_dir.join(VERBOSE_LOG)
+  json_file = results_dir.joinpath(DM_JSON)
+  log_file = results_dir.joinpath(VERBOSE_LOG)
 
   api.gsutil.cp('dm.json', json_file,
                 summary_dest_path + '/' + DM_JSON, extra_args=['-Z'])

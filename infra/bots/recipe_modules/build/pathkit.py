@@ -6,7 +6,7 @@ DOCKER_IMAGE = 'gcr.io/skia-public/emsdk-base:3.1.26_v2'
 INNER_BUILD_SCRIPT = '/SRC/skia/infra/pathkit/build_pathkit.sh'
 
 def compile_fn(api, checkout_root, _ignore):
-  out_dir = api.vars.cache_dir.join('docker', 'pathkit')
+  out_dir = api.vars.cache_dir.joinpath('docker', 'pathkit')
   configuration = api.vars.builder_cfg.get('configuration', '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
@@ -49,7 +49,7 @@ PATHKIT_BUILD_PRODUCTS = [
 
 
 def copy_build_products(api, _ignore, dst):
-  out_dir = api.vars.cache_dir.join('docker', 'pathkit')
+  out_dir = api.vars.cache_dir.joinpath('docker', 'pathkit')
   # We don't use the normal copy_listed_files because it uses
   # shutil.move, which attempts to delete the previous file, which
   # doesn't work because the docker created outputs are read-only and

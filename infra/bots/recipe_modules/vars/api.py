@@ -29,7 +29,7 @@ class SkiaVarsApi(recipe_api.RecipeApi):
     self.workdir = self.m.path.start_dir
 
     # Special input/output directories.
-    self.build_dir = self.workdir.join('build')
+    self.build_dir = self.workdir.joinpath('build')
 
     self.default_env = self.m.context.env
     self.default_env['CHROME_HEADLESS'] = '1'
@@ -37,12 +37,12 @@ class SkiaVarsApi(recipe_api.RecipeApi):
         self.default_env.get('PATH', '%(PATH)s'),
         str(self.m.bot_update.repo_resource()),
     ])
-    self.cache_dir = self.workdir.join('cache')
+    self.cache_dir = self.workdir.joinpath('cache')
 
-    self.swarming_out_dir = self.workdir.join(
+    self.swarming_out_dir = self.workdir.joinpath(
         self.m.properties.get('swarm_out_dir', 'tmp'))
 
-    self.tmp_dir = self.m.path.start_dir.join('tmp')
+    self.tmp_dir = self.m.path.start_dir.joinpath('tmp')
 
     self.builder_cfg = self.m.builder_name_schema.DictForBuilderName(
         self.builder_name)

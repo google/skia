@@ -84,8 +84,8 @@ def RunSteps(api):
       #
       # [1] https://chromium.googlesource.com/infra/luci/recipes-py.git/+/cfdb92cc6933d8f72c2340233ba03b602b447507/recipe_modules/file/api.py#146
       # [2] https://docs.python.org/3/library/shutil.html#shutil.copytree
-      src = api.path.start_dir.join('k', 'skia')
-      dst = api.path.start_dir.join('skia')
+      src = api.path.start_dir.joinpath('k', 'skia')
+      dst = api.path.start_dir.joinpath('skia')
       script = api.infra.resource('copytree.py')
       api.step(
           name='copy Skia repository checkout from %s to %s' % (src, dst),
@@ -97,12 +97,12 @@ def RunSteps(api):
 
   api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
 
-  out_dir = checkout_root.join(
+  out_dir = checkout_root.joinpath(
       'skia', 'out', api.vars.builder_name, api.vars.configuration)
   if 'NoPatch' in api.vars.builder_name:
     # Similarly as with the checkout root, we use the same output directory in
     # Build-<CONFIG>-NoPatch tasks as we do on Build-<CONFIG> tasks to prevent spurious deltas.
-    out_dir = api.vars.cache_dir.join(
+    out_dir = api.vars.cache_dir.joinpath(
       'work', 'skia', 'out', api.vars.builder_name, api.vars.configuration)
 
   try:
@@ -165,4 +165,3 @@ def GenTests(api):
                      patch_set=123,
                      patch_ref=123)
     )
-

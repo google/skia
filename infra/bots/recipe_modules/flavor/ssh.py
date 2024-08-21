@@ -46,7 +46,7 @@ class SSHFlavor(default.DefaultFlavor):
     self.ensure_device_dir(self.device_dirs.resource_dir)
     if self.app_name:
       self.create_clean_device_dir(self.device_dirs.bin_dir)
-      host_path = self.host_dirs.bin_dir.join(self.app_name)
+      host_path = self.host_dirs.bin_dir.joinpath(self.app_name)
       device_path = self.device_path_join(self.device_dirs.bin_dir, self.app_name)
       self.copy_file_to_device(host_path, device_path)
       self.ssh('make %s executable' % self.app_name, 'chmod', '+x', device_path)

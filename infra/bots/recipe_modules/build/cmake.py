@@ -9,7 +9,7 @@ INNER_BUILD_SCRIPT = '/SRC/skia/infra/cmake/build_skia.sh'
 
 
 def compile_fn(api, checkout_root, _ignore):
-  out_dir = api.vars.cache_dir.join('docker', 'cmake')
+  out_dir = api.vars.cache_dir.joinpath('docker', 'cmake')
   configuration = api.vars.builder_cfg.get('configuration', '')
   if configuration != 'Release': # pragma: nocover
     # If a debug mode is wanted, update the infra/cmake/build_skia.sh

@@ -57,7 +57,7 @@ class SkiaStepApi(recipe_api.RecipeApi):
     If test_data is not specified, reads the property
     'test_<asset_name>_version' or if not present, uses
     TEST_DEFAULT_ASSET_VERSION."""
-    version_file = skia_dir.join(
+    version_file = skia_dir.joinpath(
         'infra', 'bots', 'assets', asset_name, 'VERSION')
     if not test_data:
       test_data = self.m.properties.get(

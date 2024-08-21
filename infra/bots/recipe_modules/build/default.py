@@ -23,7 +23,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, ninja_root, cc, cxx
       '-DSWIFTSHADER_WARNINGS_AS_ERRORS=OFF',
       '-DREACTOR_ENABLE_MEMORY_SANITIZER_INSTRUMENTATION=OFF',  # Way too slow.
   ]
-  cmake_bin = str(api.vars.workdir.join('cmake_linux', 'bin'))
+  cmake_bin = str(api.vars.workdir.joinpath('cmake_linux', 'bin'))
   env = {
       'CC': cc,
       'CXX': cxx,
@@ -42,7 +42,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, ninja_root, cc, cxx
 
   if san:
     short,full = san
-    clang_linux = str(api.vars.workdir.join('clang_linux'))
+    clang_linux = str(api.vars.workdir.joinpath('clang_linux'))
     libcxx = clang_linux + '/' + short
     cflags = ' '.join([
       '-fsanitize=' + full,
@@ -70,16 +70,16 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, ninja_root, cc, cxx
 
 
 def compile_fn(api, checkout_root, out_dir):
-  skia_dir      = checkout_root.join('skia')
+  skia_dir      = checkout_root.joinpath('skia')
   compiler      = api.vars.builder_cfg.get('compiler',      '')
   configuration = api.vars.builder_cfg.get('configuration', '')
   extra_tokens  = api.vars.extra_tokens
   os            = api.vars.builder_cfg.get('os',            '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
-  clang_linux      = str(api.vars.workdir.join('clang_linux'))
-  win_toolchain    = str(api.vars.workdir.join('win_toolchain'))
-  dwritecore       = str(api.vars.workdir.join('dwritecore'))
+  clang_linux      = str(api.vars.workdir.joinpath('clang_linux'))
+  win_toolchain    = str(api.vars.workdir.joinpath('win_toolchain'))
+  dwritecore       = str(api.vars.workdir.joinpath('dwritecore'))
 
   cc, cxx, ccache = None, None, None
   extra_cflags = []
@@ -89,11 +89,11 @@ def compile_fn(api, checkout_root, out_dir):
 
   with api.context(cwd=skia_dir):
     api.run(api.step, 'fetch-gn',
-            cmd=['python3', skia_dir.join('bin', 'fetch-gn')],
+            cmd=['python3', skia_dir.joinpath('bin', 'fetch-gn')],
             infra_step=True)
 
     api.run(api.step, 'fetch-ninja',
-            cmd=['python3', skia_dir.join('bin', 'fetch-ninja')],
+            cmd=['python3', skia_dir.joinpath('bin', 'fetch-ninja')],
             infra_step=True)
 
   if os == 'Mac' or os == 'Mac10.15.7':
@@ -105,9 +105,9 @@ def compile_fn(api, checkout_root, out_dir):
     XCODE_BUILD_VERSION = '15f31d' # Xcode 15.4
     extra_cflags.append(
         '-DREBUILD_IF_CHANGED_xcode_build_version=%s' % XCODE_BUILD_VERSION)
-    mac_toolchain_cmd = api.vars.workdir.join(
+    mac_toolchain_cmd = api.vars.workdir.joinpath(
         'mac_toolchain', 'mac_toolchain')
-    xcode_app_path = api.vars.cache_dir.join('Xcode.app')
+    xcode_app_path = api.vars.cache_dir.joinpath('Xcode.app')
     # Copied from
     # https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#322
     with api.step.nest('ensure xcode') as step_result:
@@ -142,19 +142,19 @@ def compile_fn(api, checkout_root, out_dir):
   # ccache + clang-tidy.sh chokes on the argument list.
   if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5' or os == 'Mac10.15.7') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
-      ccache = api.vars.workdir.join('ccache_linux', 'bin', 'ccache')
+      ccache = api.vars.workdir.joinpath('ccache_linux', 'bin', 'ccache')
       # As of 2020-02-07, the sum of each Debian10-Clang-x86
       # non-flutter/android/chromebook build takes less than 75G cache space.
       env['CCACHE_MAXSIZE'] = '75G'
     else:
-      ccache = api.vars.workdir.join('ccache_mac', 'bin', 'ccache')
+      ccache = api.vars.workdir.joinpath('ccache_mac', 'bin', 'ccache')
       # As of 2020-02-10, the sum of each Build-Mac-Clang- non-android build
       # takes ~30G cache space.
       env['CCACHE_MAXSIZE'] = '50G'
 
     args['cc_wrapper'] = '"%s"' % ccache
 
-    env['CCACHE_DIR'] = api.vars.cache_dir.join('ccache')
+    env['CCACHE_DIR'] = api.vars.cache_dir.joinpath('ccache')
     env['CCACHE_MAXFILES'] = '0'
     # Compilers are unpacked from cipd with bogus timestamps, only contribute
     # compiler content to hashes. If Ninja ever uses absolute paths to changing
@@ -177,7 +177,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   if 'Tidy' in extra_tokens:
     # Swap in clang-tidy.sh for clang++, but update PATH so it can find clang++.
-    cxx = skia_dir.join("tools/clang-tidy.sh")
+    cxx = skia_dir.joinpath("tools/clang-tidy.sh")
     env['PATH'] = '%s:%%(PATH)s' % (clang_linux + '/bin')
     # Increase ClangTidy code coverage by enabling features.
     args.update({
@@ -236,14 +236,14 @@ def compile_fn(api, checkout_root, out_dir):
   if 'ANGLE' in extra_tokens:
     args['skia_use_angle'] = 'true'
   if 'SwiftShader' in extra_tokens:
-    swiftshader_root = skia_dir.join('third_party', 'externals', 'swiftshader')
+    swiftshader_root = skia_dir.joinpath('third_party', 'externals', 'swiftshader')
     # Swiftshader will need to make ninja be on the path
-    ninja_root = skia_dir.join('third_party', 'ninja')
-    swiftshader_out = out_dir.join('swiftshader_out')
+    ninja_root = skia_dir.joinpath('third_party', 'ninja')
+    swiftshader_out = out_dir.joinpath('swiftshader_out')
     compile_swiftshader(api, extra_tokens, swiftshader_root, ninja_root, cc, cxx, swiftshader_out)
     args['skia_use_vulkan'] = 'true'
     extra_cflags.extend(['-DSK_GPU_TOOLS_VK_LIBRARY_NAME=%s' %
-        api.vars.swarming_out_dir.join('swiftshader_out', 'libvk_swiftshader.so'),
+        api.vars.swarming_out_dir.joinpath('swiftshader_out', 'libvk_swiftshader.so'),
     ])
   if 'MSAN' in extra_tokens:
     args['skia_use_fontconfig'] = 'false'
@@ -317,11 +317,11 @@ def compile_fn(api, checkout_root, out_dir):
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*83FNP.*"'
     # Get mobileprovision via the CIPD package.
-    args['skia_ios_profile'] = '"%s"' % api.vars.workdir.join(
+    args['skia_ios_profile'] = '"%s"' % api.vars.workdir.joinpath(
         'provisioning_profile_ios',
         'Upstream_Testing_Provisioning_Profile.mobileprovision')
   if compiler == 'Clang' and 'Win' in os:
-    args['clang_win'] = '"%s"' % api.vars.workdir.join('clang_win')
+    args['clang_win'] = '"%s"' % api.vars.workdir.joinpath('clang_win')
     extra_cflags.append('-DPLACEHOLDER_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
 
@@ -360,8 +360,8 @@ def compile_fn(api, checkout_root, out_dir):
     args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
 
   gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.items()))
-  gn = skia_dir.join('bin', 'gn')
-  ninja = skia_dir.join('third_party', 'ninja', 'ninja')
+  gn = skia_dir.joinpath('bin', 'gn')
+  ninja = skia_dir.joinpath('third_party', 'ninja', 'ninja')
 
   with api.context(cwd=skia_dir):
     with api.env(env):
@@ -385,8 +385,8 @@ def copy_build_products(api, src, dst):
 
   if 'SwiftShader' in extra_tokens:
     util.copy_listed_files(api,
-        src.join('swiftshader_out'),
-        api.vars.swarming_out_dir.join('swiftshader_out'),
+        src.joinpath('swiftshader_out'),
+        api.vars.swarming_out_dir.joinpath('swiftshader_out'),
         util.DEFAULT_BUILD_PRODUCTS)
 
   if configuration == 'OptimizeForSize':
@@ -398,12 +398,12 @@ def copy_build_products(api, src, dst):
     # /clang/11.0.0/lib/darwin, where 11.0.0 could change in future versions.
     xcode_clang_ver_dirs = api.file.listdir(
         'find XCode Clang version',
-        api.vars.cache_dir.join(
+        api.vars.cache_dir.joinpath(
             'Xcode.app', 'Contents', 'Developer', 'Toolchains',
             'XcodeDefault.xctoolchain', 'usr', 'lib', 'clang'),
         test_data=['11.0.0'])
     assert len(xcode_clang_ver_dirs) == 1
-    dylib_dir = xcode_clang_ver_dirs[0].join('lib', 'darwin')
+    dylib_dir = xcode_clang_ver_dirs[0].joinpath('lib', 'darwin')
     dylibs = api.file.glob_paths('find xSAN dylibs', dylib_dir,
                                  'libclang_rt.*san_osx_dynamic.dylib',
                                  test_data=[

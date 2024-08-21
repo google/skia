@@ -73,4 +73,4 @@ def set_dawn_args_and_env(args, env, api, extra_tokens, skia_dir):
     if 'Vulkan' in extra_tokens:
       args['dawn_enable_vulkan'] = 'true'
     env['PYTHONPATH'] = api.path.pathsep.join([
-        str(skia_dir.join('third_party', 'externals')), '%%(PYTHONPATH)s'])
+        str(skia_dir.joinpath('third_party', 'externals')), '%%(PYTHONPATH)s'])

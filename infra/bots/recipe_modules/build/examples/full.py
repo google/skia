@@ -17,11 +17,11 @@ DEPS = [
 
 def RunSteps(api):
   api.vars.setup()
-  checkout_root = api.vars.cache_dir.join('work')
-  out_dir = checkout_root.join(
+  checkout_root = api.vars.cache_dir.joinpath('work')
+  out_dir = checkout_root.joinpath(
       'skia', 'out', api.vars.builder_name, api.vars.configuration)
   api.build(checkout_root=checkout_root, out_dir=out_dir)
-  dst = api.vars.swarming_out_dir.join('out', api.vars.configuration)
+  dst = api.vars.swarming_out_dir.joinpath('out', api.vars.configuration)
   api.build.copy_build_products(out_dir=out_dir, dst=dst)
   api.run.check_failure()
 

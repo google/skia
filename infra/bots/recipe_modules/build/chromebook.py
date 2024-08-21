@@ -6,7 +6,7 @@ from . import util
 import os
 
 def compile_fn(api, checkout_root, out_dir):
-  skia_dir      = checkout_root.join('skia')
+  skia_dir      = checkout_root.joinpath('skia')
   configuration = api.vars.builder_cfg.get('configuration')
   target_arch   = api.vars.builder_cfg.get('target_arch')
 
@@ -86,14 +86,14 @@ def compile_fn(api, checkout_root, out_dir):
   if configuration != 'Debug':
     args['is_debug'] = False
 
-  gn = skia_dir.join('bin', 'gn')
+  gn = skia_dir.joinpath('bin', 'gn')
 
   with api.context(cwd=skia_dir, env=env):
     api.run(api.step, 'fetch-gn',
-            cmd=['python3', skia_dir.join('bin', 'fetch-gn')],
+            cmd=['python3', skia_dir.joinpath('bin', 'fetch-gn')],
             infra_step=True)
     api.run(api.step, 'fetch-ninja',
-            cmd=['python3', skia_dir.join('bin', 'fetch-ninja')],
+            cmd=['python3', skia_dir.joinpath('bin', 'fetch-ninja')],
             infra_step=True)
     api.run(api.step, 'gn gen',
             cmd=[gn, 'gen', out_dir, '--args=' + util.py_to_gn(args)])

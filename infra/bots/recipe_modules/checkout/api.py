@@ -15,7 +15,7 @@ class CheckoutApi(recipe_api.RecipeApi):
   @property
   def default_checkout_root(self):
     """The default location for cached persistent checkouts."""
-    return self.m.vars.cache_dir.join('work')
+    return self.m.vars.cache_dir.joinpath('work')
 
   def assert_git_is_from_cipd(self):
     """Fail if git is not obtained from CIPD."""
@@ -26,7 +26,7 @@ class CheckoutApi(recipe_api.RecipeApi):
   def git(self, checkout_root):
     """Run the steps to perform a pure-git checkout without DEPS."""
     self.assert_git_is_from_cipd()
-    skia_dir = checkout_root.join('skia')
+    skia_dir = checkout_root.joinpath('skia')
     self.m.git.checkout(
         self.m.properties['repository'], dir_path=skia_dir,
         ref=self.m.properties['revision'], submodules=False)
@@ -47,7 +47,7 @@ class CheckoutApi(recipe_api.RecipeApi):
     """
     self.assert_git_is_from_cipd()
     if not gclient_cache:
-      gclient_cache = self.m.vars.cache_dir.join('git')
+      gclient_cache = self.m.vars.cache_dir.joinpath('git')
 
     cfg_kwargs = {}
 
@@ -83,7 +83,7 @@ class CheckoutApi(recipe_api.RecipeApi):
 
     # TODO(rmistry): Remove the below block after there is a solution for
     #                crbug.com/616443
-    entries_file = checkout_root.join('.gclient_entries')
+    entries_file = checkout_root.joinpath('.gclient_entries')
     if self.m.path.exists(entries_file) or self._test_data.enabled:
       self.m.file.remove('remove %s' % entries_file,
                          entries_file)

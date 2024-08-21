@@ -27,7 +27,7 @@ def RunSteps(api):
   api.vars.setup()
 
   checkout_root = api.path.start_dir
-  out_dir = api.vars.cache_dir.join(
+  out_dir = api.vars.cache_dir.joinpath(
       'work', 'skia', 'out', api.vars.builder_name, api.vars.configuration)
 
   try:

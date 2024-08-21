@@ -42,14 +42,14 @@ class DefaultFlavor(object):
         bin_dir=self.m.vars.build_dir,
         dm_dir=self.m.vars.swarming_out_dir,
         perf_data_dir=self.m.vars.swarming_out_dir,
-        resource_dir=self.m.path.start_dir.join('skia', 'resources'),
-        images_dir=self.m.path.start_dir.join('skimage'),
-        fonts_dir=self.m.path.start_dir.join('googlefonts_testdata', 'data'),
-        lotties_dir=self.m.path.start_dir.join('lottie-samples'),
-        skp_dir=self.m.path.start_dir.join('skp'),
-        svg_dir=self.m.path.start_dir.join('svg'),
+        resource_dir=self.m.path.start_dir.joinpath('skia', 'resources'),
+        images_dir=self.m.path.start_dir.joinpath('skimage'),
+        fonts_dir=self.m.path.start_dir.joinpath('googlefonts_testdata', 'data'),
+        lotties_dir=self.m.path.start_dir.joinpath('lottie-samples'),
+        skp_dir=self.m.path.start_dir.joinpath('skp'),
+        svg_dir=self.m.path.start_dir.joinpath('svg'),
         tmp_dir=self.m.vars.tmp_dir,
-        texttraces_dir=self.m.path.start_dir.join('text_blob_traces'))
+        texttraces_dir=self.m.path.start_dir.joinpath('text_blob_traces'))
     self.host_dirs = self.device_dirs
 
   def device_path_join(self, *args):
@@ -121,30 +121,30 @@ class DefaultFlavor(object):
                       infra_step=infra_step)
 
   def step(self, name, cmd, **unused_kwargs):
-    app = self.device_dirs.bin_dir.join(cmd[0])
+    app = self.device_dirs.bin_dir.joinpath(cmd[0])
     cmd = [app] + cmd[1:]
     env = self.m.context.env
     path = []
     ld_library_path = []
 
     workdir = self.m.vars.workdir
-    clang_linux = workdir.join('clang_linux')
+    clang_linux = workdir.joinpath('clang_linux')
     extra_tokens = self.m.vars.extra_tokens
 
     if self.m.vars.is_linux:
       if (self.m.vars.builder_cfg.get('cpu_or_gpu', '') == 'GPU'
           and 'Intel' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')):
-        dri_path = workdir.join('mesa_intel_driver_linux')
+        dri_path = workdir.joinpath('mesa_intel_driver_linux')
         if ('IntelIrisXe' in self.m.vars.builder_cfg.get('cpu_or_gpu_value', '')):
-          dri_path = workdir.join('mesa_intel_driver_linux_22')
+          dri_path = workdir.joinpath('mesa_intel_driver_linux_22')
         ld_library_path.append(dri_path)
         env['LIBGL_DRIVERS_PATH'] = str(dri_path)
-        env['VK_ICD_FILENAMES'] = str(dri_path.join('intel_icd.x86_64.json'))
+        env['VK_ICD_FILENAMES'] = str(dri_path.joinpath('intel_icd.x86_64.json'))
 
       if 'Vulkan' in extra_tokens:
-        env['VULKAN_SDK'] = str(workdir.join('linux_vulkan_sdk'))
-        path.append(workdir.join('linux_vulkan_sdk', 'bin'))
-        ld_library_path.append(workdir.join('linux_vulkan_sdk', 'lib'))
+        env['VULKAN_SDK'] = str(workdir.joinpath('linux_vulkan_sdk'))
+        path.append(workdir.joinpath('linux_vulkan_sdk', 'bin'))
+        ld_library_path.append(workdir.joinpath('linux_vulkan_sdk', 'lib'))
         # Enable layers for Debug only to avoid affecting perf results on
         # Release.
         # ASAN reports leaks in the Vulkan SDK when the debug layer is enabled.
@@ -152,26 +152,26 @@ class DefaultFlavor(object):
         if (self.m.vars.builder_cfg.get('configuration', '') != 'Release' and
             'ASAN' not in extra_tokens and
             'TSAN' not in extra_tokens):
-          env['VK_LAYER_PATH'] = str(workdir.join(
+          env['VK_LAYER_PATH'] = str(workdir.joinpath(
               'linux_vulkan_sdk', 'etc', 'vulkan', 'explicit_layer.d'))
 
     if 'SwiftShader' in extra_tokens:
-      ld_library_path.append(self.host_dirs.bin_dir.join('swiftshader_out'))
+      ld_library_path.append(self.host_dirs.bin_dir.joinpath('swiftshader_out'))
 
     # Find the MSAN/TSAN-built libc++.
     if 'MSAN' in extra_tokens:
-      ld_library_path.append(clang_linux.join('msan'))
+      ld_library_path.append(clang_linux.joinpath('msan'))
     elif 'TSAN' in extra_tokens:
-      ld_library_path.append(clang_linux.join('tsan'))
+      ld_library_path.append(clang_linux.joinpath('tsan'))
 
     if any('SAN' in t for t in extra_tokens):
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
-      path.append(clang_linux.join('bin'))
+      path.append(clang_linux.joinpath('bin'))
       # We find that testing sanitizer builds with libc++ uncovers more issues
       # than with the system-provided C++ standard library, which is usually
       # libstdc++. libc++ proactively hooks into sanitizers to help their
       # analyses. We ship a copy of libc++ with our Linux toolchain in /lib.
-      ld_library_path.append(clang_linux.join('lib', 'x86_64-unknown-linux-gnu'))
+      ld_library_path.append(clang_linux.joinpath('lib', 'x86_64-unknown-linux-gnu'))
 
     if 'ASAN' in extra_tokens:
       os = self.m.vars.builder_cfg.get('os', '')
@@ -180,7 +180,7 @@ class DefaultFlavor(object):
         env['ASAN_OPTIONS'] = 'symbolize=1'
       else:
         env['ASAN_OPTIONS'] = 'symbolize=1 detect_leaks=1'
-        env['ASAN_SYMBOLIZER_PATH'] = clang_linux.join('bin', 'llvm-symbolizer')
+        env['ASAN_SYMBOLIZER_PATH'] = clang_linux.joinpath('bin', 'llvm-symbolizer')
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
@@ -204,7 +204,7 @@ class DefaultFlavor(object):
                                                   profname)
 
     if 'DWriteCore' in extra_tokens:
-      path.append(workdir.join('dwritecore', 'bin'))
+      path.append(workdir.joinpath('dwritecore', 'bin'))
 
     if path:
       env['PATH'] = self.m.path.pathsep.join(
@@ -218,7 +218,7 @@ class DefaultFlavor(object):
       # Convert path objects or placeholders into strings such that they can
       # be passed to symbolize_stack_trace.py
       args = [workdir] + [str(x) for x in cmd]
-      with self.m.context(cwd=self.m.path.start_dir.join('skia'), env=env):
+      with self.m.context(cwd=self.m.path.start_dir.joinpath('skia'), env=env):
         self._py('symbolized %s' % name,
                  self.module.resource('symbolize_stack_trace.py'),
                  args=args,

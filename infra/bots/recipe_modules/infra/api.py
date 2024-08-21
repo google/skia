@@ -14,7 +14,7 @@ UPLOAD_ATTEMPTS = 5
 class InfraApi(recipe_api.RecipeApi):
   @property
   def goroot(self):
-    go_root = self.m.vars.workdir.join('go', 'go')
+    go_root = self.m.vars.workdir.joinpath('go', 'go')
     # Starting with Go 1.18, the standard library includes "//go:embed"
     # directives that point to other files in the standard library. For
     # security reasons, the "embed" package does not support symbolic links
@@ -27,7 +27,7 @@ class InfraApi(recipe_api.RecipeApi):
     #
     # For some reason step.m.path.realpath returns the path unchanged, so we
     # invoke realpath instead.
-    symlink_version_file = go_root.join('VERSION') # Arbitrary symlink.
+    symlink_version_file = go_root.joinpath('VERSION') # Arbitrary symlink.
     step_result = self.m.step('realpath go/go/VERSION',
                           cmd=['realpath', str(symlink_version_file)],
                           stdout=self.m.raw_io.output_text())
@@ -50,13 +50,13 @@ class InfraApi(recipe_api.RecipeApi):
   @property
   def go_env(self):
     return {
-        'GOCACHE': self.m.vars.cache_dir.join('go_cache'),
+        'GOCACHE': self.m.vars.cache_dir.joinpath('go_cache'),
         'GOPATH': self.gopath,
         'GOROOT': self.goroot,
         'PATH': self.m.path.pathsep.join([
-            str(self.go_bin), str(self.gopath.join('bin')), '%(PATH)s']),
+            str(self.go_bin), str(self.gopath.joinpath('bin')), '%(PATH)s']),
     }
 
   @property
   def gopath(self):
-    return self.m.vars.cache_dir.join('gopath')
+    return self.m.vars.cache_dir.joinpath('gopath')

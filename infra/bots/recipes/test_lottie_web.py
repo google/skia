@@ -31,12 +31,12 @@ def RunSteps(api):
   api.flavor.setup("dm")
   checkout_root = api.path.start_dir
   out_dir = api.vars.swarming_out_dir
-  lottie_files_src = api.vars.workdir.join('lottie-samples')
+  lottie_files_src = api.vars.workdir.joinpath('lottie-samples')
   lottie_files_dir = '/tmp/lottie_files'
   # The lottie-web repo is DEP'd in. This links to its build directory
   # to make finding the lottie.min.js easier to reference from inside
   # the docker image.
-  lottie_build = checkout_root.join('lottie', 'build', 'player')
+  lottie_build = checkout_root.joinpath('lottie', 'build', 'player')
 
   # Make sure this exists, otherwise Docker will make it with root permissions.
   api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0o777)
@@ -81,7 +81,7 @@ def RunSteps(api):
       docker_image=DOCKER_IMAGE,
       src_dir=checkout_root,
       out_dir=out_dir,
-      script=checkout_root.join(LOTTIECAP_SCRIPT),
+      script=checkout_root.joinpath(LOTTIECAP_SCRIPT),
       args=args,
       docker_args=docker_args,
       recursive_read=recursive_read,

@@ -38,8 +38,8 @@ def perf_steps(api):
   """Run DM on lottie files with tracing turned on and then parse the output."""
   api.flavor.create_clean_device_dir(
         api.flavor.device_dirs.dm_dir)
-  lotties_host = api.path.start_dir.join('lotties_with_assets')
-  lotties_device = api.path.start_dir.join('lotties_with_assets')
+  lotties_host = api.path.start_dir.joinpath('lotties_with_assets')
+  lotties_device = api.path.start_dir.joinpath('lotties_with_assets')
   if 'Android' in api.vars.builder_cfg.get('extra_config'):
     # Due to http://b/72366966 and the fact that CIPD symlinks files in by default, we ran into
     # a strange "Function not implemented" error when trying to copy folders that contained
@@ -50,7 +50,7 @@ def perf_steps(api):
     api.flavor.create_clean_device_dir(lotties_device)
 
     # Make a temp directory and then copy to a *non-existing* subfolder (otherwise copytree crashes).
-    lotties_no_symlinks = api.path.mkdtemp('lwa').join('nosymlinks')
+    lotties_no_symlinks = api.path.mkdtemp('lwa').joinpath('nosymlinks')
     api.file.copytree('Copying files on host to remove symlinks', lotties_host, lotties_no_symlinks)
     lotties_host = lotties_no_symlinks
     api.flavor.copy_directory_contents_to_device(lotties_host, lotties_device)
@@ -137,7 +137,7 @@ def perf_steps(api):
       api.flavor.host_dirs.perf_data_dir)
   now = api.time.utcnow()
   ts = int(calendar.timegm(now.utctimetuple()))
-  json_path = api.flavor.host_dirs.perf_data_dir.join(
+  json_path = api.flavor.host_dirs.perf_data_dir.joinpath(
       'perf_%s_%d.json' % (api.properties['revision'], ts))
   json_contents = json.dumps(
       perf_json, indent=4, sort_keys=True, separators=(',', ': '))

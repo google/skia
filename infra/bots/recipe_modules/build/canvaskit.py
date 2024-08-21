@@ -7,8 +7,8 @@ INNER_BUILD_SCRIPT = '/SRC/skia/infra/canvaskit/build_canvaskit.sh'
 
 
 def compile_fn(api, checkout_root, _ignore):
-  skia_dir = checkout_root.join('skia')
-  out_dir = api.vars.cache_dir.join('docker', 'canvaskit')
+  skia_dir = checkout_root.joinpath('skia')
+  out_dir = api.vars.cache_dir.joinpath('docker', 'canvaskit')
   configuration = api.vars.builder_cfg.get('configuration', '')
   extra = api.vars.builder_cfg.get('extra_config', '')
 
@@ -23,7 +23,7 @@ def compile_fn(api, checkout_root, _ignore):
   # image anymore, now that we have proper GN support)
   with api.context(cwd=skia_dir):
     api.run(api.step, 'activate-emsdk',
-            cmd=['python3', skia_dir.join('bin', 'activate-emsdk')],
+            cmd=['python3', skia_dir.joinpath('bin', 'activate-emsdk')],
             infra_step=True)
 
   # This uses the emscripten sdk docker image and says "run the
@@ -64,7 +64,7 @@ CANVASKIT_BUILD_PRODUCTS = [
 
 
 def copy_build_products(api, _ignore, dst):
-  out_dir = api.vars.cache_dir.join('docker', 'canvaskit')
+  out_dir = api.vars.cache_dir.joinpath('docker', 'canvaskit')
   # We don't use the normal copy_listed_files because it uses
   # shutil.move, which attempts to delete the previous file, which
   # doesn't work because the docker created outputs are read-only and

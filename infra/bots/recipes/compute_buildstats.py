@@ -140,10 +140,10 @@ def analyze_web_file(api, checkout_root, out_dir, files):
   (keystr, propstr) = keys_and_props(api)
 
   for f in files:
-    skia_dir = checkout_root.join('skia')
+    skia_dir = checkout_root.joinpath('skia')
     with api.context(cwd=skia_dir):
-      script = skia_dir.join('infra', 'bots', 'buildstats',
-                             'buildstats_web.py')
+      script = skia_dir.joinpath('infra', 'bots', 'buildstats',
+                                 'buildstats_web.py')
       step_data = api.run(api.step, 'Analyze %s' % f,
           cmd=['python3', script, f, out_dir, keystr, propstr,
                TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
@@ -165,13 +165,13 @@ def analyze_web_file(api, checkout_root, out_dir, files):
 # Get the raw size and a few metrics from bloaty
 def analyze_cpp_lib(api, checkout_root, out_dir, files):
   (keystr, propstr) = keys_and_props(api)
-  bloaty_exe = api.path.start_dir.join('bloaty', 'bloaty')
+  bloaty_exe = api.path.start_dir.joinpath('bloaty', 'bloaty')
 
   for f in files:
-    skia_dir = checkout_root.join('skia')
+    skia_dir = checkout_root.joinpath('skia')
     with api.context(cwd=skia_dir):
-      script = skia_dir.join('infra', 'bots', 'buildstats',
-                             'buildstats_cpp.py')
+      script = skia_dir.joinpath('infra', 'bots', 'buildstats',
+                                 'buildstats_cpp.py')
       step_data = api.run(api.step, 'Analyze %s' % f,
           cmd=['python3', script, f, out_dir, keystr, propstr, bloaty_exe,
                TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
@@ -193,15 +193,15 @@ def analyze_cpp_lib(api, checkout_root, out_dir, files):
 # Get the size of skia in flutter and a few metrics from bloaty
 def analyze_flutter_lib(api, checkout_root, out_dir, files):
   (keystr, propstr) = keys_and_props(api)
-  bloaty_exe = api.path.start_dir.join('bloaty', 'bloaty')
+  bloaty_exe = api.path.start_dir.joinpath('bloaty', 'bloaty')
 
   for f in files:
 
-    skia_dir = checkout_root.join('skia')
+    skia_dir = checkout_root.joinpath('skia')
     with api.context(cwd=skia_dir):
-      stripped = api.vars.build_dir.join('libflutter_stripped.so')
-      script = skia_dir.join('infra', 'bots', 'buildstats',
-                             'buildstats_flutter.py')
+      stripped = api.vars.build_dir.joinpath('libflutter_stripped.so')
+      script = skia_dir.joinpath('infra', 'bots', 'buildstats',
+                                 'buildstats_flutter.py')
       config = "skia_in_flutter"
       lib_name = "libflutter.so"
       step_data = api.run(api.step, 'Analyze flutter',
@@ -232,14 +232,14 @@ def analyze_flutter_lib(api, checkout_root, out_dir, files):
 # Get the size of skia in flutter and a few metrics from bloaty
 def analyze_wasm_file(api, checkout_root, out_dir, files):
   (keystr, propstr) = keys_and_props(api)
-  bloaty_exe = api.path.start_dir.join('bloaty', 'bloaty')
+  bloaty_exe = api.path.start_dir.joinpath('bloaty', 'bloaty')
 
   for f in files:
 
-    skia_dir = checkout_root.join('skia')
+    skia_dir = checkout_root.joinpath('skia')
     with api.context(cwd=skia_dir):
-      script = skia_dir.join('infra', 'bots', 'buildstats',
-                             'buildstats_wasm.py')
+      script = skia_dir.joinpath('infra', 'bots', 'buildstats',
+                                 'buildstats_wasm.py')
       step_data = api.run(api.step, 'Analyze wasm',
           cmd=['python3', script, f, out_dir, keystr, propstr, bloaty_exe,
                TOTAL_SIZE_BYTES_KEY, MAGIC_SEPERATOR],
@@ -266,10 +266,10 @@ def make_treemap(api, checkout_root, out_dir, files):
   for f in files:
     env = {'DOCKER_CONFIG': '/home/chrome-bot/.docker'}
     with api.env(env):
-      skia_dir = checkout_root.join('skia')
+      skia_dir = checkout_root.joinpath('skia')
       with api.context(cwd=skia_dir):
-        script = skia_dir.join('infra', 'bots', 'buildstats',
-                               'make_treemap.py')
+        script = skia_dir.joinpath('infra', 'bots', 'buildstats',
+                                   'make_treemap.py')
         api.run(api.step, 'Make code size treemap %s' % f,
                 cmd=['python3', script, f, out_dir],
                 stdout=api.raw_io.output())
