@@ -87259,7 +87259,6 @@
         "skia/LICENSE",
         "skia/WORKSPACE.bazel",
         "skia/bazel",
-        "skia/defines.bzl",
         "skia/go_repositories.bzl",
         "skia/requirements.txt",
         "skia/toolchain"
@@ -87478,7 +87477,6 @@
         "skia/LICENSE",
         "skia/WORKSPACE.bazel",
         "skia/bazel",
-        "skia/defines.bzl",
         "skia/go_repositories.bzl",
         "skia/include/config",
         "skia/requirements.txt",

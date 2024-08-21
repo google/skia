@@ -7,30 +7,10 @@ package(
 licenses(["notice"])
 
 skia_filegroup(
-    name = "public_hdrs",
-    srcs = [
-        "SkCamera.h",
-        "SkCanvasStateUtils.h",
-        "SkCustomTypeface.h",
-        "SkEventTracer.h",
-        "SkNWayCanvas.h",
-        "SkNoDrawCanvas.h",
-        "SkNullCanvas.h",
-        "SkOrderedFontMgr.h",
-        "SkPaintFilterCanvas.h",
-        "SkParse.h",
-        "SkParsePath.h",
-        "SkShadowUtils.h",
-        "SkTextUtils.h",
-        "SkTraceEventPhase.h",
-    ],  # TODO(kjlubick) add select for mac
-    visibility = ["//include:__pkg__"],
-)
-
-skia_filegroup(
     name = "core_hdrs",
     srcs = [
         "SkCamera.h",
+        "SkCanvasStateUtils.h",
         "SkCustomTypeface.h",
         "SkEventTracer.h",
         "SkNWayCanvas.h",

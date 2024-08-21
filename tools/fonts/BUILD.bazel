@@ -77,12 +77,8 @@ skia_cc_library(
         "//:core",
         "//src/base",
         "//src/core:core_priv",
+        "//src/ports:fontmgr_fontations_empty",
         "//tools:resources",
         "//tools:tool_utils",
-    ] + select(
-        {
-            "//bazel/common_config_settings:use_fontations_true": ["//src/ports:fontmgr_fontations_empty"],
-            "//conditions:default": [],
-        },
-    ),
+    ],
 )

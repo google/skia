@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -33,16 +33,5 @@ ANALYSIS_FILES = [
 split_srcs_and_hdrs(
     name = "analysis",
     files = ANALYSIS_FILES,
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [":analysis_srcs"],
-    visibility = ["//src/sksl:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [":analysis_hdrs"],
     visibility = ["//src/sksl:__pkg__"],
 )

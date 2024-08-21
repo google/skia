@@ -181,11 +181,11 @@ CK_LINKOPTS = BASE_LINKOPTS + [
     ],
     ":enable_runtime_effect_false": [],
 }) + select({
-    "//bazel/common_config_settings:build_for_debugger_true": [
+    ":build_for_debugger_true": [
         "--pre-js",
         "modules/canvaskit/debugger.js",
     ],
-    "//bazel/common_config_settings:build_for_debugger_false": [],
+    ":build_for_debugger_false": [],
 }) + select({
     ":include_matrix_js_true": [
         "--pre-js",
@@ -243,8 +243,8 @@ JS_INTERFACE_FILES = [
     "htmlcanvas/radialgradient.js",
     "htmlcanvas/util.js",
 ] + select({
-    "//bazel/common_config_settings:build_for_debugger_true": ["debugger.js"],
-    "//bazel/common_config_settings:build_for_debugger_false": [],
+    ":build_for_debugger_true": ["debugger.js"],
+    ":build_for_debugger_false": [],
 })
 
 CK_SRCS = [
@@ -263,8 +263,8 @@ CK_SRCS = [
     ":enable_skottie_true": ["skottie_bindings.cpp"],
     ":enable_skottie_false": [],
 }) + select({
-    "//bazel/common_config_settings:build_for_debugger_true": ["debugger_bindings.cpp"],
-    "//bazel/common_config_settings:build_for_debugger_false": [],
+    ":build_for_debugger_true": ["debugger_bindings.cpp"],
+    ":build_for_debugger_false": [],
 })
 
 CK_COPTS = [
@@ -313,10 +313,10 @@ cc_binary(
         ],
         ":enable_skottie_false": [],
     }) + select({
-        "//bazel/common_config_settings:build_for_debugger_true": [
+        ":build_for_debugger_true": [
             "//tools/debugger",
         ],
-        "//bazel/common_config_settings:build_for_debugger_false": [],
+        ":build_for_debugger_false": [],
     }) + select({
         ":enable_webgl_true": [
             "//:ganesh_gl",
@@ -376,6 +376,11 @@ bool_flag(
 
 bool_flag(
     name = "enable_webgl",
+    default = False,
+)
+
+bool_flag(
+    name = "build_for_debugger",
     default = False,
 )
 

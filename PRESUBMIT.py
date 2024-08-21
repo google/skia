@@ -462,15 +462,11 @@ def _CheckBuildifier(input_api, output_api):
       'You can download it from https://github.com/bazelbuild/buildtools/releases')]
 
   return _RunCommandAndCheckDiff(
-    # One can change --lint=warn to --lint=fix to have things automatically fixed where possible.
-    # However, --lint=fix will not cause a presubmit error if there are things that require
-    # manual intervention, so we leave --lint=warn on by default.
-    #
     # Please keep the below arguments in sync with those in the //:buildifier rule definition.
     output_api, [
       'buildifier',
       '--mode=fix',
-      '--lint=warn',
+      '--lint=fix',
       '--warnings',
       ','.join([
         '-native-android',

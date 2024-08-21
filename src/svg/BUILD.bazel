@@ -1,33 +1,10 @@
-load("//bazel:flags.bzl", "bool_flag")
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_cc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-bool_flag(
-    name = "enable_svg_canvas",
-    default = False,
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        "SkSVGCanvas.cpp",
-        "SkSVGDevice.cpp",
-    ],
-    visibility = ["//src:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        "SkSVGDevice.h",
-    ],
-    visibility = ["//src:__pkg__"],
-)
 
 skia_cc_library(
     name = "svg",

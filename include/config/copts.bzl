@@ -4,28 +4,13 @@ THIS IS THE EXTERNAL-ONLY VERSION OF THIS FILE. G3 HAS ITS OWN.
 This file contains flags for the C++ compiler, referred to by Bazel as copts.
 
 The copts in a cc_library to not flow to the children (dependencies) nor the parents
-(dependents), so we cannot define them alongside the defines in //bazel/BUILD.bazel.
+(dependents), so we use skia_cc_library to inject them in every library along the chain.
 
-We cannot (easily) define them in the C++ toolchain configuration
-(e.g. //toolchain/linux_amd64_toolchain_config.bzl), because that does not support listening
-to arbitrary Bazel flags (e.g. those defined in //bazel/common_config_settings). If we wanted
-to implement these flags in the toolchain, we would need to group them into features [1],
-but we don't control the features implemented by the G3 toolchain. Because we want to
-automatically roll into G3 with minimal changes, the copts cannot go in the toolchain,
-
-Thus, they go here, so we can use select statements to conditionally control them and
-override what they do (if necessary) in G3.
+Now that we have a modular build, this file could maybe go away and folded into our toolchains.
 
 They are divided into several lists/selects and were initially created to be identical to the
  GN ones [2][3].
 
-The flags here are *not* used when compiling our third_party libraries (although the flags will
-impact the included public headers of those third_party libraries). If we need a flag to impact
-both Skia and a third party dep, it should probably go in the toolchain_config. If that is not
-possible (e.g. the setting depends on a custom flag), we can define a subworkspace and have both
-Skia and the third party dep depend on that.
-
-[1] https://bazel.build/docs/cc-toolchain-config-reference#features
 [2] https://github.com/google/skia/blob/2b07cdb07e88f2870260eabac708f31bc7977d08/gn/BUILDCONFIG.gn#L177-L181
 [3] https://github.com/google/skia/blob/2b07cdb07e88f2870260eabac708f31bc7977d08/gn/skia/BUILD.gn#L593-L630
 """
@@ -33,10 +18,6 @@ Skia and the third party dep depend on that.
 CORE_COPTS = [
     "-fstrict-aliasing",
 ] + select({
-    # SkRawCodec catches any exceptions thrown by dng_sdk, insulating the rest of Skia.
-    "//src/codec:raw_decode_codec": [],
-    "//conditions:default": ["-fno-exceptions"],
-}) + select({
     "@platforms//os:android": [],
     "//conditions:default": [
         # On Android, this option causes the linker to fail

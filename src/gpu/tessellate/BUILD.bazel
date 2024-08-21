@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -24,21 +24,7 @@ TESSELLATE_FILES = [
 split_srcs_and_hdrs(
     name = "tessellate",
     files = TESSELLATE_FILES,
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [":tessellate_srcs"],
     visibility = ["//src/gpu:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [":tessellate_hdrs"],
-    visibility = [
-        "//src/gpu:__pkg__",
-        "//src/gpu/ganesh:__pkg__",
-    ],
 )
 
 generate_cpp_files_for_headers(

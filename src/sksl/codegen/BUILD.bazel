@@ -1,89 +1,10 @@
-load("//bazel:skia_rules.bzl", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-skia_filegroup(
-    name = "core_srcs",
-    srcs = [
-        "SkSLRasterPipelineBuilder.cpp",
-        "SkSLRasterPipelineCodeGenerator.cpp",
-    ],
-)
-
-# TODO(kjlubick) Could this be split up so we don't need to compile the SkSLMetalCodeGenerator
-# on platforms that don't support metal (e.g. WebGL, Linux)?
-GPU_SRCS = [
-    "SkSLCodeGenTypes.h",
-    "SkSLCodeGenerator.h",
-    "SkSLGLSLCodeGenerator.cpp",
-    "SkSLGLSLCodeGenerator.h",
-    "SkSLHLSLCodeGenerator.cpp",
-    "SkSLHLSLCodeGenerator.h",
-    "SkSLMetalCodeGenerator.cpp",
-    "SkSLMetalCodeGenerator.h",
-    "SkSLPipelineStageCodeGenerator.cpp",
-    "SkSLPipelineStageCodeGenerator.h",
-    "SkSLSPIRVCodeGenerator.cpp",
-    "SkSLSPIRVCodeGenerator.h",
-    "SkSLSPIRVtoHLSL.cpp",
-    "SkSLSPIRVtoHLSL.h",
-    "SkSLWGSLCodeGenerator.cpp",
-    "SkSLWGSLCodeGenerator.h",
-]
-
-split_srcs_and_hdrs(
-    name = "legacy_gpu",
-    files = GPU_SRCS,
-)
-
-# TODO(kjlubick) delete after updating G3
-alias(
-    name = "gpu_hdrs",
-    actual = ":legacy_gpu_hdrs",
-    visibility = ["//:__pkg__"],
-)
-
-alias(
-    name = "gpu_srcs",
-    actual = ":legacy_gpu_srcs",
-    visibility = ["//:__pkg__"],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":core_srcs",
-    ] + select({
-        "//src/sksl:use_sksl_gpu_srcs": [":legacy_gpu_srcs"],
-        "//conditions:default": [],
-    }),
-    visibility = ["//src/sksl:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        "SkSLRasterPipelineBuilder.h",
-        "SkSLRasterPipelineCodeGenerator.h",
-    ] + select({
-        "//src/sksl:use_sksl_gpu_srcs": [":legacy_gpu_hdrs"],
-        "//conditions:default": [],
-    }),
-    visibility = ["//src/sksl:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    visibility = ["//src/sksl:__pkg__"],
-    deps = select({
-        "//src/sksl:use_sksl_gpu_srcs": ["@spirv_cross"],
-        "//conditions:default": [],
-    }),
-)
 
 skia_filegroup(
     name = "rasterpipeline_hdrs",

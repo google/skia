@@ -7,30 +7,6 @@ package(
 licenses(["notice"])
 
 skia_filegroup(
-    name = "public_hdrs",
-    srcs = [
-        "GrGLAssembleHelpers.h",
-        "GrGLAssembleInterface.h",
-        "GrGLConfig.h",
-        "GrGLExtensions.h",
-        "GrGLFunctions.h",
-        "GrGLInterface.h",
-        "GrGLTypes.h",
-    ] + select({
-        "@platforms//os:android": [
-            "//include/gpu/ganesh/gl/egl:public_hdrs",
-            "//include/gpu/gl/egl:public_hdrs",
-        ],
-        "@platforms//os:linux": [
-            "//include/gpu/ganesh/gl/glx:public_hdrs",
-            "//include/gpu/gl/glx:public_hdrs",
-        ],
-        "//conditions:default": [],
-    }),
-    visibility = ["//include/gpu:__pkg__"],
-)
-
-skia_filegroup(
     name = "ganesh_gl_hdrs",
     srcs = [
         "GrGLAssembleHelpers.h",

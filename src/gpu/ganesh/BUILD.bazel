@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "select_multi", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -274,100 +274,23 @@ skia_filegroup(
     ],
 )
 
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":android_srcs",
-        ":core_skslc_srcs",
-        ":core_srcs",
-        "//src/gpu/ganesh/effects:srcs",
-        "//src/gpu/ganesh/geometry:srcs",
-        "//src/gpu/ganesh/glsl:srcs",
-        "//src/gpu/ganesh/gradients:srcs",
-        "//src/gpu/ganesh/image:srcs",
-        "//src/gpu/ganesh/mock:srcs",  # TODO(kjlubick, egdaniel) should this be test only?
-        "//src/gpu/ganesh/ops:srcs",
-        "//src/gpu/ganesh/surface:srcs",
-        "//src/gpu/ganesh/tessellate:srcs",
-        "//src/gpu/ganesh/text:srcs",
-    ] + select_multi(
-        {
-            "//src/gpu:gl_ganesh": ["//src/gpu/ganesh/gl:srcs"],
-            "//src/gpu:vulkan_ganesh": ["//src/gpu/ganesh/vk:srcs"],
-            "@platforms//os:android": ["//src/gpu/ganesh/surface:android_srcs"],
-            # TODO(kjlubick) d3d backend
-        },
-    ),
-    visibility = ["//src/gpu:__pkg__"],
-)
-
-skia_filegroup(
-    name = "objc_srcs",
-    srcs = select_multi(
-        {
-            "//src/gpu:metal_ganesh": [
-                "//src/gpu/ganesh/mtl:objc_srcs",
-                "//src/gpu/ganesh/surface:mtl_objc_srcs",
-            ],
-        },
-    ),
-    visibility = ["//src/gpu:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        ":core_hdrs",
-        ":core_skslc_hdrs",
-        "//src/gpu/ganesh/effects:private_hdrs",
-        "//src/gpu/ganesh/geometry:private_hdrs",
-        "//src/gpu/ganesh/glsl:private_hdrs",
-        "//src/gpu/ganesh/gradients:private_hdrs",
-        "//src/gpu/ganesh/image:private_hdrs",
-        "//src/gpu/ganesh/mock:private_hdrs",  # TODO(kjlubick, egdaniel) should this be test only?
-        "//src/gpu/ganesh/ops:private_hdrs",
-        "//src/gpu/ganesh/surface:private_hdrs",
-        "//src/gpu/ganesh/tessellate:private_hdrs",
-        "//src/gpu/ganesh/text:private_hdrs",
-    ] + select_multi(
-        {
-            "//src/gpu:gl_ganesh": ["//src/gpu/ganesh/gl:private_hdrs"],
-            "//src/gpu:vulkan_ganesh": ["//src/gpu/ganesh/vk:private_hdrs"],
-            "//src/gpu:metal_ganesh": ["//src/gpu/ganesh/mtl:private_hdrs"],
-            # TODO(kjlubick) d3d backend
-        },
-    ),
-    visibility = ["//src/gpu:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    visibility = ["//src/gpu:__pkg__"],
-    deps = select_multi(
-        {
-            "//src/gpu:gl_ganesh": ["//src/gpu/ganesh/gl:deps"],
-            # TODO(kjlubick) mtl and d3d backend
-        },
-    ),
-)
-
 skia_cc_library(
     name = "ganesh",
     srcs = [
         ":core_skslc_srcs",
         ":core_srcs",
-        "//src/gpu/ganesh/effects:srcs",
-        "//src/gpu/ganesh/geometry:srcs",
-        "//src/gpu/ganesh/glsl:srcs",
-        "//src/gpu/ganesh/gradients:srcs",
-        "//src/gpu/ganesh/image:srcs",
-        "//src/gpu/ganesh/ops:srcs",
-        "//src/gpu/ganesh/surface:srcs",
-        "//src/gpu/ganesh/tessellate:srcs",
+        "//src/gpu/ganesh/effects:effects_srcs",
+        "//src/gpu/ganesh/geometry:geometry_srcs",
+        "//src/gpu/ganesh/glsl:glsl_srcs",
+        "//src/gpu/ganesh/gradients:gradient_srcs",
+        "//src/gpu/ganesh/image:image_srcs",
+        "//src/gpu/ganesh/ops:ops_srcs",
+        "//src/gpu/ganesh/surface:surface_srcs",
+        "//src/gpu/ganesh/tessellate:tessellate_srcs",
         "//src/gpu/ganesh/text:srcs",
-        "//src/text/gpu:srcs",
+        "//src/text/gpu:gpu_srcs",
         # TODO(kjlubick, egdaniel) Remove this coupling
-        "//src/gpu/ganesh/mock:srcs",
+        "//src/gpu/ganesh/mock:mock_srcs",
     ],
     hdrs = [
         ":core_hdrs",
@@ -377,19 +300,18 @@ skia_cc_library(
         "//include/gpu/ganesh:ganesh_hdrs",
         "//include/private/gpu/ganesh:private_hdrs",
         "//include/private/chromium:ganesh_private_hdrs",
-        "//src/gpu/ganesh/effects:private_hdrs",
-        "//src/gpu/ganesh/geometry:private_hdrs",
-        "//src/gpu/ganesh/glsl:private_hdrs",
-        "//src/gpu/ganesh/gradients:private_hdrs",
-        "//src/gpu/ganesh/image:private_hdrs",
-        "//src/gpu/ganesh/ops:private_hdrs",
-        "//src/gpu/ganesh/surface:private_hdrs",
-        "//src/gpu/ganesh/tessellate:private_hdrs",
+        "//src/gpu/ganesh/effects:effects_hdrs",
+        "//src/gpu/ganesh/geometry:geometry_hdrs",
+        "//src/gpu/ganesh/glsl:glsl_hdrs",
+        "//src/gpu/ganesh/gradients:gradient_hdrs",
+        "//src/gpu/ganesh/image:image_hdrs",
+        "//src/gpu/ganesh/ops:ops_hdrs",
+        "//src/gpu/ganesh/surface:surface_hdrs",
+        "//src/gpu/ganesh/tessellate:tessellate_hdrs",
         "//src/gpu/ganesh/text:private_hdrs",
-        "//src/gpu/tessellate:private_hdrs",
-        "//src/text/gpu:private_hdrs",
+        "//src/text/gpu:gpu_hdrs",
         # TODO(kjlubick, egdaniel) Remove this coupling
-        "//src/gpu/ganesh/mock:private_hdrs",
+        "//src/gpu/ganesh/mock:mock_hdrs",
         "//include/gpu/mock:public_hdrs",
     ],
     defines = ["SK_GANESH"],
@@ -417,19 +339,19 @@ skia_cc_library(
     srcs = [
         ":core_skslc_srcs",
         ":core_srcs",
-        "//src/gpu/ganesh/effects:srcs",
-        "//src/gpu/ganesh/geometry:srcs",
-        "//src/gpu/ganesh/glsl:srcs",
-        "//src/gpu/ganesh/gradients:srcs",
-        "//src/gpu/ganesh/image:srcs",
-        "//src/gpu/ganesh/ops:srcs",
-        "//src/gpu/ganesh/surface:srcs",
-        "//src/gpu/ganesh/tessellate:srcs",
+        "//src/gpu/ganesh/effects:effects_srcs",
+        "//src/gpu/ganesh/geometry:geometry_srcs",
+        "//src/gpu/ganesh/glsl:glsl_srcs",
+        "//src/gpu/ganesh/gradients:gradient_srcs",
+        "//src/gpu/ganesh/image:image_srcs",
+        "//src/gpu/ganesh/ops:ops_srcs",
+        "//src/gpu/ganesh/surface:surface_srcs",
+        "//src/gpu/ganesh/tessellate:tessellate_srcs",
         "//src/gpu/ganesh/text:srcs",
-        "//src/text/gpu:srcs",
+        "//src/text/gpu:gpu_srcs",
         "//src/utils:shader_utils_srcs",
         # TODO(kjlubick, egdaniel) Remove this coupling
-        "//src/gpu/ganesh/mock:srcs",
+        "//src/gpu/ganesh/mock:mock_srcs",
     ],
     hdrs = [
         ":core_hdrs",
@@ -439,20 +361,19 @@ skia_cc_library(
         "//include/gpu/ganesh:ganesh_hdrs",
         "//include/private/gpu/ganesh:private_hdrs",
         "//include/private/chromium:ganesh_private_hdrs",
-        "//src/gpu/ganesh/effects:private_hdrs",
-        "//src/gpu/ganesh/geometry:private_hdrs",
-        "//src/gpu/ganesh/glsl:private_hdrs",
-        "//src/gpu/ganesh/gradients:private_hdrs",
-        "//src/gpu/ganesh/image:private_hdrs",
-        "//src/gpu/ganesh/ops:private_hdrs",
-        "//src/gpu/ganesh/surface:private_hdrs",
-        "//src/gpu/ganesh/tessellate:private_hdrs",
+        "//src/gpu/ganesh/effects:effects_hdrs",
+        "//src/gpu/ganesh/geometry:geometry_hdrs",
+        "//src/gpu/ganesh/glsl:glsl_hdrs",
+        "//src/gpu/ganesh/gradients:gradient_hdrs",
+        "//src/gpu/ganesh/image:image_hdrs",
+        "//src/gpu/ganesh/ops:ops_hdrs",
+        "//src/gpu/ganesh/surface:surface_hdrs",
+        "//src/gpu/ganesh/tessellate:tessellate_hdrs",
         "//src/gpu/ganesh/text:private_hdrs",
-        "//src/gpu/tessellate:private_hdrs",
-        "//src/text/gpu:private_hdrs",
+        "//src/text/gpu:gpu_hdrs",
         "//src/utils:shader_utils_hdrs",
         # TODO(kjlubick, egdaniel) Remove this coupling
-        "//src/gpu/ganesh/mock:private_hdrs",
+        "//src/gpu/ganesh/mock:mock_hdrs",
         "//include/gpu/mock:public_hdrs",
     ],
     defines = [

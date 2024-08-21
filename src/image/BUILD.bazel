@@ -35,44 +35,15 @@ IMAGE_FILES = [
 split_srcs_and_hdrs(
     name = "image",
     files = IMAGE_FILES,
+    visibility = [
+        "//src/core:__pkg__",
+    ],
 )
 
 skia_filegroup(
     name = "android_srcs",
     srcs = ["SkImage_AndroidFactories.cpp"],
     visibility = ["//src:__pkg__"],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [":image_srcs"],
-    visibility = [
-        "//src:__pkg__",
-    ],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [":image_hdrs"],
-    visibility = [
-        "//src:__pkg__",
-    ],
-)
-
-skia_filegroup(
-    name = "core_priv_hdrs",
-    srcs = [":image_hdrs"],
-    visibility = [
-        "//src/core:__pkg__",
-    ],
-)
-
-skia_filegroup(
-    name = "core_srcs",
-    srcs = [":image_srcs"],
-    visibility = [
-        "//src/core:__pkg__",
-    ],
 )
 
 generate_cpp_files_for_headers(

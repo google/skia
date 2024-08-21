@@ -53,11 +53,13 @@ skia_cc_library(
         "//src/base",
         "//src/core:core_priv",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
-        "//tools/gpu/gl:deps",
     ] + select({
         "@platforms//os:macos": [
             "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
             "//tools:autorelease_pool_objc",
+        ],
+        "//bazel/common_config_settings:linux_x64": [
+            "//src/gpu/ganesh/gl/glx:glx_factory_TEST_UTIL",
         ],
         "//conditions:default": ["//tools:autorelease_pool"],
     }),

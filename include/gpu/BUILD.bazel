@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "select_multi", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -14,34 +14,6 @@ skia_filegroup(
         "MutableTextureState.h",
         "ShaderErrorHandler.h",
     ],
-)
-
-skia_filegroup(
-    name = "public_hdrs",
-    srcs = [
-        "GrBackendSemaphore.h",
-        "GrBackendSurface.h",
-        "GrContextOptions.h",
-        "GrContextThreadSafeProxy.h",
-        "GrDirectContext.h",
-        "GrDriverBugWorkarounds.h",
-        "GrDriverBugWorkaroundsAutogen.h",
-        "GrRecordingContext.h",
-        "GrTypes.h",
-        "GrYUVABackendTextures.h",
-        "//include/gpu/mock:public_hdrs",
-        # TODO(egdaniel, kjlubick) GrGLTypes.h is used unconditionally by GrBackendSemaphore.h
-        "//include/gpu/gl:public_hdrs",
-        ":shared_public_hdrs",
-        "//include/gpu/ganesh:public_hdrs",
-    ] + select_multi(
-        {
-            "//src/gpu:vulkan_ganesh": ["//include/gpu/vk:public_hdrs"],
-            "//src/gpu:metal_ganesh": ["//include/gpu/mtl:public_hdrs"],
-            # TODO(kjlubick) d3d backend
-        },
-    ),
-    visibility = ["//include:__pkg__"],
 )
 
 skia_filegroup(

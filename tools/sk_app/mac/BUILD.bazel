@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_deps", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -15,23 +15,4 @@ skia_filegroup(
         "main_mac.mm",
     ],
     visibility = ["//tools/sk_app:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    testonly = True,
-    linkopts = [
-        "-framework",
-        "OpenGL",
-        "-framework",
-        "QuartzCore",
-        "-framework",
-        "Cocoa",
-        "-framework",
-        "Foundation",
-    ],
-    visibility = ["//tools/sk_app:__pkg__"],
-    deps = [
-        "//tools:legacy_tool_utils",
-    ],
 )

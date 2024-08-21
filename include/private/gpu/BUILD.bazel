@@ -1,19 +1,5 @@
-load("//bazel:skia_rules.bzl", "select_multi", "skia_filegroup")
-
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        "//include/private/gpu/ganesh:private_hdrs",
-    ] + select_multi(
-        {
-            "//src/gpu:vulkan_ganesh": ["//include/private/gpu/vk:private_hdrs"],
-        },
-    ),  # TODO(kjlubick) add select for graphite
-    visibility = ["//include/private:__pkg__"],
-)

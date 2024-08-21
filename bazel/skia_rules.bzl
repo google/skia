@@ -160,32 +160,6 @@ def skia_cc_library(name, copts = DEFAULT_COPTS, local_defines = [], **kwargs):
     ld.append("SKIA_IMPLEMENTATION=1")
     native.cc_library(name = name, copts = copts, local_defines = ld, **kwargs)
 
-def skia_cc_deps(name, visibility, deps = [], linkopts = [], textual_hdrs = [], testonly = False):
-    """A self-documenting wrapper around cc_library for things to pass to the top skia_cc_library.
-
-    It lets us have third_party deps, linkopts, etc be set close to where they impact,
-    and trickle up the file hierarchy to //:skia_public and //:skia_internal
-
-    Args:
-        name: the name of the underlying target. By convention, this is usually called "deps".
-        visibility: To prevent this rule from being used where it should not, we have the
-            convention of setting the visibility to just the parent package.
-        deps: A list of labels or select statements to collect third_party dependencies.
-        linkopts: A list of strings or select statements to collect linker flags.
-        textual_hdrs: A list of labels or select statements to collect files which are included, but
-            do not have a suffix of .h, like a typical C++ header does.
-        testonly: A boolean that, if true, will enforce all targets who depend on this are also
-            marked as testonly.
-    """
-    native.cc_library(
-        name = name,
-        visibility = visibility,
-        deps = deps,
-        linkopts = linkopts,
-        textual_hdrs = textual_hdrs,
-        testonly = testonly,
-    )
-
 def skia_filegroup(**kwargs):
     """A wrapper around filegroup allowing us to customize visibility in G3."""
     native.filegroup(**kwargs)
@@ -230,19 +204,8 @@ def skia_objc_library(
         **kwargs
     )
 
-def split_srcs_and_hdrs(name, files):
+def split_srcs_and_hdrs(name, files, visibility = None):
     """Take a list of files and creates filegroups for C++ sources and headers.
-
-    The reason we make filegroups is that they are more friendly towards a file being
-    listed twice than just returning a sorted list of files.
-
-    For example, in //src/codecs, "SkEncodedInfo.cpp" is needed for some, but not all
-    the codecs. It is easier for devs to list the file for the codecs that need it
-    rather than making a complicated select statement to make sure it is only in the
-    list of files once.
-
-    Bazel is smart enough to not compile the same file twice, even if it shows up in
-    multiple filegroups.
 
     The "_srcs" and "_hdrs" filegroups will only be created if there are a non-zero amount
     of files of both types. Otherwise, it will fail because we do not need the macro.
@@ -251,6 +214,7 @@ def split_srcs_and_hdrs(name, files):
         name: The prefix of the generated filegroups. One will have the suffix "_srcs" and
             the other "_hdrs".
         files: List of file names, e.g. ["SkAAClip.cpp", "SkAAClip.h"]
+        visibility: Optional list of visibility rules
     """
     srcs = []
     hdrs = []
@@ -270,8 +234,10 @@ def split_srcs_and_hdrs(name, files):
     skia_filegroup(
         name = name + "_srcs",
         srcs = srcs,
+        visibility = visibility,
     )
     skia_filegroup(
         name = name + "_hdrs",
         srcs = hdrs,
+        visibility = visibility,
     )

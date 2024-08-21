@@ -1,5 +1,4 @@
-load("//bazel:flags.bzl", "bool_flag")
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -65,11 +64,6 @@ split_srcs_and_hdrs(
     files = CORE_FILES,
 )
 
-bool_flag(
-    name = "enable_native_interface",
-    default = True,
-)
-
 # In own group for mapping to //gn/gpu.gni:skia_null_gpu_sources.
 skia_filegroup(
     name = "native_interface_none",
@@ -77,54 +71,8 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "native_interface",
-    srcs = select({
-        "//bazel/common_config_settings:linux_x64": ["//src/gpu/ganesh/gl/glx:srcs"],
-        "//bazel/common_config_settings:cpu_wasm": ["//src/gpu/ganesh/gl/webgl:srcs"],
-        "@platforms//os:android": ["//src/gpu/ganesh/gl/egl:srcs"],
-        "@platforms//os:ios": ["//src/gpu/ganesh/gl/iOS:srcs"],
-        "@platforms//os:macos": ["//src/gpu/ganesh/gl/mac:srcs"],
-        "@platforms//os:windows": ["//src/gpu/ganesh/gl/win:srcs"],
-        "//conditions:default": [":native_interface_none"],
-    }),
-)
-
-skia_filegroup(
     name = "android_srcs",
     srcs = ["AHardwareBufferGL.cpp"],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":android_srcs",
-        ":core_srcs",
-        "//src/gpu/ganesh/gl/builders:srcs",
-    ] + select({
-        ":enable_native_interface_true": [":native_interface"],
-        ":enable_native_interface_false": [":native_interface_none"],
-    }),
-    visibility = ["//src/gpu/ganesh:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        ":core_hdrs",
-        "//src/gpu/ganesh/gl/builders:private_hdrs",
-    ],
-    visibility = ["//src/gpu/ganesh:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    linkopts = select({
-        "@platforms//os:android": ["-lGLESv2"],
-        "@platforms//os:linux": ["-lGL"],
-        # TODO(kjlubick) need OpenGL32.lib for non-arm windows
-        "//conditions:default": [],
-    }),
-    visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 
 skia_cc_library(
@@ -132,8 +80,8 @@ skia_cc_library(
     srcs = [
         ":core_hdrs",
         ":core_srcs",
-        "//src/gpu/ganesh/gl/builders:private_hdrs",
-        "//src/gpu/ganesh/gl/builders:srcs",
+        "//src/gpu/ganesh/gl/builders:builder_hdrs",
+        "//src/gpu/ganesh/gl/builders:builder_srcs",
     ],
     hdrs = [
         "//include/gpu:ganesh_hdrs",
@@ -163,8 +111,8 @@ skia_cc_library(
     srcs = [
         ":core_hdrs",
         ":core_srcs",
-        "//src/gpu/ganesh/gl/builders:private_hdrs",
-        "//src/gpu/ganesh/gl/builders:srcs",
+        "//src/gpu/ganesh/gl/builders:builder_hdrs",
+        "//src/gpu/ganesh/gl/builders:builder_srcs",
     ],
     hdrs = [
         "//include/gpu:ganesh_hdrs",

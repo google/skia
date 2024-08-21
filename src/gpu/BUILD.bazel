@@ -1,5 +1,4 @@
-load("//bazel:flags.bzl", "bool_flag", "selects", "string_flag_with_values")
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "select_multi", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -7,7 +6,6 @@ package(
 
 licenses(["notice"])
 
-# In own group for exporting to //gn/gpu.gni:skia_shared_gpu_sources.
 SHARED_FILES = [
     "AsyncReadTypes.h",
     "AtlasTypes.cpp",
@@ -26,8 +24,8 @@ SHARED_FILES = [
     "GpuRefCnt.h",
     "GpuTypesPriv.h",
     "KeyBuilder.h",
-    "MutableTextureStatePriv.h",
     "MutableTextureState.cpp",
+    "MutableTextureStatePriv.h",
     "Rectanizer.h",
     "RectanizerPow2.cpp",
     "RectanizerPow2.h",
@@ -36,8 +34,10 @@ SHARED_FILES = [
     "RefCntedCallback.h",
     "ResourceKey.cpp",
     "ResourceKey.h",
+    "ShaderErrorHandler.cpp",
     "SkBackingFit.cpp",
     "SkBackingFit.h",
+    "SkRenderEngineAbortf.h",
     "SkSLToBackend.cpp",
     "SkSLToBackend.h",
     "Swizzle.cpp",
@@ -52,168 +52,17 @@ split_srcs_and_hdrs(
     files = SHARED_FILES,
 )
 
-CORE_FILES = [
-    "ShaderErrorHandler.cpp",
-    "SkRenderEngineAbortf.h",
-]
-
-split_srcs_and_hdrs(
-    name = "core",
-    files = CORE_FILES,
-)
-
-string_flag_with_values(
-    name = "gpu_backend",
-    multiple = True,
-    values = [
-        "gl_ganesh",
-        "metal_ganesh",
-        "vulkan_ganesh",
-        "dawn_graphite",
-        "metal_graphite",
-        "vulkan_graphite",
-    ],
-)
-
-string_flag_with_values(
-    name = "with_gl_standard",
-    values = [
-        "gles_standard",
-        "gl_standard",
-        "webgl_standard",
-    ],
-)
-
-selects.config_setting_group(
-    name = "has_ganesh_backend",
-    match_any = [
-        ":gl_ganesh",
-        ":metal_ganesh",
-        ":vulkan_ganesh",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-
-selects.config_setting_group(
-    name = "has_graphite_backend",
-    match_any = [
-        ":dawn_graphite",
-        ":metal_graphite",
-        ":vulkan_graphite",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-
-selects.config_setting_group(
-    name = "vulkan_with_vma",
-    match_all = [
-        ":vulkan_ganesh",
-        ":use_vulkan_memory_allocator_true",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-
-bool_flag(
-    # Users should use :vulkan_with_vma directly
-    name = "use_vulkan_memory_allocator",
-    default = True,
-)
-
-bool_flag(
-    name = "enable_gpu_test_utils",
-    default = False,
-)
-
-selects.config_setting_group(
-    name = "has_dawn",
-    match_any = [
-        ":dawn_graphite",
-    ],
-)
-
-selects.config_setting_group(
-    name = "has_metal",
-    match_any = [
-        ":metal_ganesh",
-        ":metal_graphite",
-    ],
-)
-
-selects.config_setting_group(
-    name = "has_vulkan",
-    match_any = [
-        ":vulkan_ganesh",
-        ":vulkan_graphite",
-    ],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":core_srcs",
-        ":shared_srcs",
-        "//src/gpu/ganesh:srcs",
-        "//src/gpu/tessellate:srcs",
-    ] + select(
-        {
-            ":has_vulkan": ["//src/gpu/vk:srcs"],
-            "@platforms//os:android": ["//src/gpu/android:shared_android_srcs"],
-            "//conditions:default": [],
-        },
-    ),
-    visibility = ["//src:__pkg__"],
-)
-
-skia_filegroup(
-    name = "objc_srcs",
-    srcs = [
-        "//src/gpu/ganesh:objc_srcs",
-        "//src/gpu/mtl:shared_objc_srcs",
-    ],
-    visibility = ["//src:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        ":core_hdrs",
-        ":shared_hdrs",
-        "//src/gpu/ganesh:private_hdrs",
-        "//src/gpu/tessellate:private_hdrs",
-    ] + select_multi(
-        {
-            ":has_vulkan": ["//src/gpu/vk:private_hdrs"],
-            ":has_metal": ["//src/gpu/mtl:private_hdrs"],
-        },
-    ),
-    visibility = ["//src:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    visibility = ["//src:__pkg__"],
-    deps = [
-        "//src/gpu/ganesh:deps",
-    ] + select_multi(
-        {
-            ":has_vulkan": ["//src/gpu/vk:deps"],
-        },
-    ),
-)
-
 skia_cc_library(
     name = "gpu",
     srcs = [
-        ":core_srcs",
         ":shared_srcs",
-        "//src/gpu/tessellate:private_hdrs",
-        "//src/gpu/tessellate:srcs",
+        "//src/gpu/tessellate:tessellate_srcs",
         "//src/utils:shader_utils_srcs",
     ],
     hdrs = [
-        ":core_hdrs",
         ":shared_hdrs",
         "//include/gpu:shared_gpu_hdrs",
+        "//src/gpu/tessellate:tessellate_hdrs",
         "//src/utils:shader_utils_hdrs",
     ],
     visibility = [

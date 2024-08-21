@@ -1,27 +1,10 @@
-load("//bazel:skia_rules.bzl", "skia_objc_library", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-# File group is here for exporting to utils.gni:skia_utils_sources.
-MAC_FILES = [
-    "SkCGBase.h",
-    "SkCGGeometry.h",
-    "SkCTFont.cpp",
-    "SkCTFont.h",
-    "SkCTFontCreateExactCopy.cpp",
-    "SkCTFontCreateExactCopy.h",
-    "SkCreateCGImageRef.cpp",
-    "SkUniqueCFRef.h",
-]
-
-split_srcs_and_hdrs(
-    name = "core",
-    files = MAC_FILES,
-)
 
 skia_objc_library(
     name = "mac_utils_priv",

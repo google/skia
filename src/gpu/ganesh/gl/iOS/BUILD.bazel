@@ -1,17 +1,10 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_cc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-# Used for exporting to //gn/gpu.gni:skia_native_gpu_sources.
-skia_filegroup(
-    name = "srcs",
-    srcs = ["GrGLMakeNativeInterface_iOS.cpp"],
-    visibility = ["//src/gpu/ganesh/gl:__pkg__"],
-)
 
 skia_cc_library(
     name = "ios_factory",

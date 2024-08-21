@@ -1,45 +1,5 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
-
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-skia_filegroup(
-    name = "public_hdrs",
-    srcs = [
-        "//include/android:public_hdrs",
-        "//include/codec:public_hdrs",
-        "//include/core:public_hdrs",
-        "//include/docs:public_hdrs",
-        "//include/effects:public_hdrs",
-        "//include/encode:public_hdrs",
-        "//include/pathops:public_hdrs",
-        "//include/ports:public_hdrs",
-        "//include/sksl:public_hdrs",
-        "//include/utils:public_hdrs",
-    ] + select({
-        "//src/gpu:has_ganesh_backend": ["//include/gpu:public_hdrs"],
-        "//conditions:default": [],
-    }) + select({
-        "//src/svg:enable_svg_canvas_true": ["//include/svg:public_hdrs"],
-        "//conditions:default": [],
-    }),
-    visibility = [
-        "//:__pkg__",
-        "//src/opts:__pkg__",
-    ],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = ["//include/private:private_hdrs"] + select({
-        "//src/gpu:has_ganesh_backend": ["//include/android:private_hdrs"],
-        "//conditions:default": [],
-    }),
-    visibility = [
-        "//:__pkg__",
-        "//src/opts:__pkg__",
-    ],
-)

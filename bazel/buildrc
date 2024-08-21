@@ -135,32 +135,20 @@ build:debug --compilation_mode=dbg
 
 # See also https://github.com/emscripten-core/emsdk/issues/984 for disabling cc_toolchain_resolution
 build:canvaskit_full --noincompatible_enable_cc_toolchain_resolution \
-                     --include_decoder=gif_decode_codec --include_decoder=jpeg_decode_codec \
-                     --include_decoder=png_decode_codec --include_decoder=webp_decode_codec \
-                     \
-                     --include_encoder=jpeg_encode_codec --include_encoder=png_encode_codec \
-                     --include_encoder=webp_encode_codec \
-                     \
-                     --with_harfbuzz --with_icu --include_fontmgr=custom_embedded_fontmgr \
                      --ck_enable_fonts --ck_enable_embedded_font \
-                     \
-                     --disable_tracing \
                      \
                      --ck_enable_canvas_polyfill --ck_enable_skp_serialization --ck_enable_skottie \
                      --ck_enable_runtime_effect --ck_enable_matrix_js
 
-build:ck_webgl2 --ck_enable_webgl \
-                --disable_legacy_shader_context
-# CPU build needs legacy shader context otherwise SkPerlinNoiseShader does not render
-build:ck_cpu --enable_legacy_shader_context
+build:ck_webgl2 --ck_enable_webgl
 
 # flags for using the CanvasKit debugger.
 build:ck_debugger --enable_build_for_debugger
 
 build:ck_full_webgl2_release --config=canvaskit_full --config=ck_webgl2 --config=release
 build:ck_full_webgl2_debug --config=canvaskit_full --config=ck_webgl2 --config=debug
-build:ck_full_cpu_release --config=canvaskit_full --config=ck_cpu --config=release
-build:ck_full_cpu_debug --config=canvaskit_full --config=ck_cpu --config=debug
+build:ck_full_cpu_release --config=canvaskit_full --config=release
+build:ck_full_cpu_debug --config=canvaskit_full --config=debug
 build:ck_full_webgl2_release_debugger --config=canvaskit_full --config=ck_webgl2 \
                                     --config=release --config=ck_debugger
 # TODO(kjlubick) We should be able to configure testing on Chrome or Firefox with this.

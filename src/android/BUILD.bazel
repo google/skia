@@ -1,19 +1,10 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_cc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        "SkAndroidFrameworkUtils.cpp",
-        "SkAnimatedImage.cpp",
-    ],
-    visibility = ["//src:__pkg__"],
-)
 
 skia_cc_library(
     name = "animated_image",

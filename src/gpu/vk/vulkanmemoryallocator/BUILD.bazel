@@ -6,6 +6,16 @@ package(
 
 licenses(["notice"])
 
+# In own group for export to .gni
+skia_filegroup(
+    name = "vma_srcs",
+    srcs = [
+        "VulkanAMDMemoryAllocator.cpp",
+        "VulkanAMDMemoryAllocator.h",
+        "VulkanMemoryAllocatorPriv.h",
+    ],
+)
+
 skia_cc_library(
     name = "vulkanmemoryallocator",
     srcs = [
@@ -54,25 +64,4 @@ skia_cc_library(
         "//src/gpu/ganesh/vk:__pkg__",  # TODO(kjlubick) remove when this is not built in
     ],
     deps = [":vulkanmemoryallocator"],
-)
-
-skia_filegroup(
-    name = "vma_hdrs",
-    srcs = [
-        "VulkanAMDMemoryAllocator.h",
-        "VulkanMemoryAllocatorPriv.h",
-    ],
-    visibility = [
-        "//src/gpu/vk:__pkg__",
-    ],
-)
-
-skia_filegroup(
-    name = "vma_srcs",
-    srcs = [
-        "VulkanAMDMemoryAllocator.cpp",
-    ],
-    visibility = [
-        "//src/gpu/vk:__pkg__",
-    ],
 )

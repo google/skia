@@ -1,23 +1,10 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "select_multi", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-skia_filegroup(
-    name = "public_hdrs",
-    srcs = [
-        ":ganesh_hdrs",
-    ] + select_multi(
-        {
-            "//src/gpu:gl_ganesh": ["//include/gpu/ganesh/gl:public_hdrs"],
-            "//src/gpu:vulkan_ganesh": ["//include/gpu/ganesh/vk:public_hdrs"],
-        },
-    ),
-    visibility = ["//include/gpu:__pkg__"],
-)
 
 skia_filegroup(
     name = "ganesh_hdrs",

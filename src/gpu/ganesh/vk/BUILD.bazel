@@ -1,4 +1,3 @@
-load("//bazel:flags.bzl", "bool_flag")
 load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
@@ -82,11 +81,6 @@ split_srcs_and_hdrs(
     files = VK_FILES,
 )
 
-bool_flag(
-    name = "enable_secondary_draw_context",
-    default = False,
-)
-
 skia_filegroup(
     name = "vk_chromium_srcs",
     srcs = ["GrVkSecondaryCBDrawContext.cpp"],
@@ -97,30 +91,11 @@ skia_filegroup(
     srcs = ["AHardwareBufferVk.cpp"],
 )
 
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":android_srcs",
-        ":vk_srcs",
-    ] + select({
-        ":enable_secondary_draw_context_true": [":vk_chromium_srcs"],
-        "//conditions:default": [],
-    }),
-    visibility = ["//src/gpu/ganesh:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [":vk_hdrs"],
-    visibility = ["//src/gpu/ganesh:__pkg__"],
-)
-
 skia_cc_library(
     name = "ganesh_vulkan",
     srcs = [
         ":vk_hdrs",
         ":vk_srcs",
-        "//include/private/gpu/vk:private_hdrs",
     ],
     hdrs = [
         "//include/gpu:ganesh_hdrs",
@@ -153,7 +128,6 @@ skia_cc_library(
         ":vk_hdrs",
         ":vk_srcs",
         "//include/private/gpu/vk:private_hdrs",
-        "//src/gpu/vk:private_hdrs",
     ],
     hdrs = [
         "//include/gpu:ganesh_hdrs",

@@ -11,11 +11,6 @@ package(
 
 licenses(["notice"])
 
-exports_files(
-    ["SkBitmaskEnum.h"],
-    visibility = ["//tools/skui:__pkg__"],
-)
-
 # Headers with no corresponding .cpp files
 IWYU_HDRS = [
     "SkArenaAllocList.h",
@@ -61,10 +56,6 @@ skia_filegroup(
         "SkUtils.h",
         "SkVx.h",  # Causes IWYU to crash when compiling.
     ],
-    visibility = [
-        "//src:__pkg__",
-        "//src/opts:__pkg__",
-    ],
 )
 
 # In a separate file group because these files are exported to sksl.gni:skslc_deps.
@@ -102,9 +93,6 @@ skia_filegroup(
         "SkTSearch.cpp",
         "SkTime.cpp",
         ":skslc_srcs",
-    ],
-    visibility = [
-        "//src:__pkg__",
     ],
 )
 

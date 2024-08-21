@@ -1,4 +1,3 @@
-load("//bazel:flags.bzl", "bool_flag")
 load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
@@ -48,19 +47,13 @@ split_srcs_and_hdrs(
     files = SHADER_FILES,
 )
 
-bool_flag(
-    name = "legacy_shader_context",
-    default = True,
-)
-
 skia_filegroup(
-    name = "srcs",
+    name = "core_srcs",
     srcs = [
         ":shader_srcs",
-        "//src/shaders/gradients:srcs",
+        "//src/shaders/gradients:gradient_srcs",
     ],
     visibility = [
-        "//src:__pkg__",
         "//src/core:__pkg__",
     ],
 )
@@ -74,28 +67,11 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "private_hdrs",
+    name = "core_priv_hdrs",
     srcs = [
         ":shader_hdrs",
-        "//src/shaders/gradients:private_hdrs",
+        "//src/shaders/gradients:gradient_hdrs",
     ],
-    visibility = [
-        "//src:__pkg__",
-        "//src/core:__pkg__",
-    ],
-)
-
-alias(
-    name = "core_priv_hdrs",
-    actual = ":private_hdrs",
-    visibility = [
-        "//src/core:__pkg__",
-    ],
-)
-
-alias(
-    name = "core_srcs",
-    actual = ":srcs",
     visibility = [
         "//src/core:__pkg__",
     ],

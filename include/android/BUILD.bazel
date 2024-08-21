@@ -7,15 +7,6 @@ package(
 licenses(["notice"])
 
 skia_filegroup(
-    name = "public_hdrs",
-    srcs = [
-        "SkAndroidFrameworkUtils.h",
-        "SkAnimatedImage.h",
-    ],
-    visibility = ["//include:__pkg__"],
-)
-
-skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "AHardwareBufferUtils.h",
@@ -25,7 +16,6 @@ skia_filegroup(
         "SkSurfaceAndroid.h",
     ],
     visibility = [
-        "//include:__pkg__",
         "//src/gpu/ganesh:__pkg__",
     ],
 )

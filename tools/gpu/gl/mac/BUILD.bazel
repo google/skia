@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_deps", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -10,15 +10,6 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "CreatePlatformGLTestContext_mac.cpp",
-    ],
-    visibility = ["//tools/gpu/gl:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    linkopts = [
-        "-framework",
-        "OpenGL",
     ],
     visibility = ["//tools/gpu/gl:__pkg__"],
 )

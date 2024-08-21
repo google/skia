@@ -28,7 +28,6 @@ skia_filegroup(
     ],
 )
 
-# Group is exported to //gn/gpu.gni:skia_gpu_vk_public.
 skia_filegroup(
     name = "public_hdrs",
     srcs = [
@@ -36,7 +35,6 @@ skia_filegroup(
         ":shared_public_hdrs",
     ],
     visibility = [
-        "//include/gpu:__pkg__",
         "//src/gpu/ganesh/vk:__pkg__",
         "//src/gpu/vk:__pkg__",
     ],

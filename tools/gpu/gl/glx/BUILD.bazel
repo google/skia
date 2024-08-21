@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_deps", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -10,22 +10,6 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "CreatePlatformGLTestContext_glx.cpp",
-        # This is easier than making a TEST_UTIL version //:ganesh_glx_factory
-        "//include/gpu/ganesh/gl/glx:public_hdrs",
-        "//src/gpu/ganesh/gl/glx:srcs",
-    ],
-    visibility = ["//tools/gpu/gl:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    linkopts = [
-        "-lGL",
-        "-lGLU",
-        "-lX11",
-        "-lxcb",  # dep of X11
-        "-lXau",  # dep of xcb
-        "-lXdmcp",  # dep of xcb
     ],
     visibility = ["//tools/gpu/gl:__pkg__"],
 )

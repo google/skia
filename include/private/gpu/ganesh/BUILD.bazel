@@ -21,7 +21,6 @@ skia_filegroup(
         "GrTypesPriv.h",
     ],
     visibility = [
-        "//include/private/gpu:__pkg__",
         "//src/gpu/ganesh:__pkg__",
     ],
 )

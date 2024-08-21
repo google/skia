@@ -10,11 +10,11 @@ licenses(["notice"])
 # of this off the legacy targets
 skia_cc_library(
     name = "skui",
-    srcs = ["//src/base:SkBitmaskEnum.h"],
     hdrs = [
         "InputState.h",
         "Key.h",
         "ModifierKey.h",
     ],
     visibility = ["//:__subpackages__"],
+    deps = ["//src/base"],
 )

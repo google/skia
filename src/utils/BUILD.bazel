@@ -20,61 +20,6 @@ split_srcs_and_hdrs(
     files = CORE_SKSLC_FILES,
 )
 
-UTIL_FILES = [
-    "SkBitSet.h",
-    "SkCallableTraits.h",
-    "SkCamera.cpp",
-    "SkCanvasStack.cpp",
-    "SkCanvasStack.h",
-    "SkCanvasStateUtils.cpp",
-    "SkCharToGlyphCache.cpp",
-    "SkCharToGlyphCache.h",
-    "SkClipStackUtils.cpp",
-    "SkClipStackUtils.h",
-    "SkCustomTypeface.cpp",
-    "SkDashPath.cpp",
-    "SkDashPathPriv.h",
-    "SkEventTracer.cpp",
-    "SkFloatToDecimal.cpp",
-    "SkFloatToDecimal.h",
-    "SkFloatUtils.h",
-    "SkMatrix22.cpp",
-    "SkMatrix22.h",
-    "SkMultiPictureDocument.cpp",
-    "SkMultiPictureDocumentPriv.h",
-    "SkNWayCanvas.cpp",
-    "SkNullCanvas.cpp",
-    "SkOrderedFontMgr.cpp",
-    "SkPaintFilterCanvas.cpp",
-    "SkParseColor.cpp",
-    "SkParsePath.cpp",
-    "SkPatchUtils.cpp",
-    "SkPatchUtils.h",
-    "SkPolyUtils.cpp",
-    "SkPolyUtils.h",
-    "SkShaderUtils.cpp",
-    "SkShaderUtils.h",
-    "SkShadowTessellator.cpp",
-    "SkShadowTessellator.h",
-    "SkShadowUtils.cpp",
-    "SkTextUtils.cpp",
-]
-
-split_srcs_and_hdrs(
-    name = "utils",
-    files = UTIL_FILES,
-)
-
-GPU_ONLY_FILES = [
-    "SkTestCanvas.h",
-    "SkTestCanvas.cpp",
-]
-
-split_srcs_and_hdrs(
-    name = "gpu",
-    files = GPU_ONLY_FILES,
-)
-
 skia_filegroup(
     name = "json_hdrs",
     srcs = [
@@ -89,32 +34,6 @@ skia_filegroup(
         "SkJSON.cpp",
         "SkJSONWriter.cpp",
     ],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":json_srcs",
-        ":utils_skslc_srcs",
-        ":utils_srcs",
-    ] + select({
-        "//src/gpu:has_ganesh_backend": [":gpu_srcs"],
-        "//conditions:default": [],
-    }),
-    visibility = ["//src:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        ":json_hdrs",
-        ":utils_hdrs",
-        ":utils_skslc_hdrs",
-    ] + select({
-        "//src/gpu:has_ganesh_backend": [":gpu_hdrs"],
-        "//conditions:default": [],
-    }),
-    visibility = ["//src:__pkg__"],
 )
 
 skia_filegroup(

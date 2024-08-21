@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -37,23 +37,7 @@ GPU_FILES = [
 split_srcs_and_hdrs(
     name = "gpu",
     files = GPU_FILES,
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [":gpu_srcs"],
     visibility = [
-        "//src:__pkg__",
-        "//src/gpu/ganesh:__pkg__",
-        "//src/gpu/graphite:__pkg__",
-    ],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [":gpu_hdrs"],
-    visibility = [
-        "//src:__pkg__",
         "//src/gpu/ganesh:__pkg__",
         "//src/gpu/graphite:__pkg__",
     ],

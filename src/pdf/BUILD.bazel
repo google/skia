@@ -1,5 +1,4 @@
-load("//bazel:flags.bzl", "bool_flag", "selects")
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -59,72 +58,6 @@ PDF_FILES = [
 split_srcs_and_hdrs(
     name = "_pdf",
     files = PDF_FILES,
-)
-
-#TODO: remove after Chromium no longer references this.
-skia_filegroup(
-    name = "jpeg_info_libjpeg",
-    srcs = ["SkJpegInfo_libjpegturbo.cpp"],
-)
-
-#TODO: remove after Chromium no longer references this.
-skia_filegroup(
-    name = "jpeg_info_none",
-    srcs = ["SkJpegInfo_none.cpp"],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":_pdf_srcs",
-    ],
-    visibility = ["//src:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        ":_pdf_hdrs",
-    ],
-    visibility = ["//src:__pkg__"],
-)
-
-bool_flag(
-    name = "enable_pdf_backend",
-    default = False,
-)
-
-bool_flag(
-    name = "enable_pdf_subset_harfbuzz",
-    default = True,  # This defaults it to be on if icu and harfbuzz are on
-)
-
-selects.config_setting_group(
-    name = "uses_harfbuzz",
-    match_all = [
-        "//bazel/common_config_settings:use_icu_true",
-        "//bazel/common_config_settings:use_harfbuzz_true",
-        ":enable_pdf_subset_harfbuzz_true",
-    ],
-)
-
-# TODO(kjlubick) delete after pdf backend is modularized
-skia_cc_library(
-    name = "legacy_harfbuzz",
-    deps = ["@harfbuzz"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    visibility = ["//src:__pkg__"],
-    deps = [
-        "@zlib_skia//:zlib",
-        #"//src/codec:jpeg_decode",
-        #"//src/encode:jpeg_encode",
-    ] + select({
-        ":uses_harfbuzz": [":legacy_harfbuzz"],
-        "//conditions:default": [],
-    }),
 )
 
 generate_cpp_files_for_headers(

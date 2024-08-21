@@ -46,18 +46,6 @@ skia_filegroup(
     visibility = ["//src/encode:__pkg__"],
 )
 
-skia_filegroup(
-    name = "public_hdrs",
-    srcs = [
-        ":encode_hdrs",
-        ":icc_hdrs",
-        ":jpeg_hdrs",
-        ":png_hdrs",
-        ":webp_hdrs",
-    ],
-    visibility = ["//include:__pkg__"],
-)
-
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
     headers = [

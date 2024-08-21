@@ -1,7 +1,6 @@
 """This module provides the gen_compile_flags_txt_linux_amd64 macro."""
 
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
-load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
 load("//toolchain:linux_amd64_toolchain_config.bzl", "EXTERNAL_TOOLCHAIN")
 
 def _gen_compile_flags_txt_linux_amd64_rule_impl(ctx):
@@ -38,9 +37,6 @@ def _gen_compile_flags_txt_linux_amd64_rule_impl(ctx):
         # //toolchain:linux_amd64_toolchain_config.bzl.
         "-std=c++17",
         "-stdlib=libc++",
-    ] + [
-        "-D%s" % define
-        for define in ctx.attr.defines + ctx.attr.local_defines
     ] + ctx.attr.flags
 
     script = "#!/bin/sh\n"
@@ -63,12 +59,6 @@ _gen_compile_flags_txt_linux_amd64_rule = rule(
         "flags": attr.string_list(
             mandatory = True,
         ),
-        "defines": attr.string_list(
-            mandatory = True,
-        ),
-        "local_defines": attr.string_list(
-            mandatory = True,
-        ),
     },
     executable = True,
 )
@@ -81,6 +71,4 @@ def gen_compile_flags_txt_linux_amd64(name):
     _gen_compile_flags_txt_linux_amd64_rule(
         name = name,
         flags = DEFAULT_COPTS,
-        defines = DEFAULT_DEFINES,
-        local_defines = DEFAULT_LOCAL_DEFINES,
     )

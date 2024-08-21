@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -17,35 +17,6 @@ TEXT_FILES = [
 split_srcs_and_hdrs(
     name = "text",
     files = TEXT_FILES,
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [":text_srcs"],
-    visibility = [
-        "//src:__pkg__",
-    ],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [":text_hdrs"],
-    visibility = [
-        "//src:__pkg__",
-    ],
-)
-
-alias(
-    name = "core_priv_hdrs",
-    actual = ":private_hdrs",
-    visibility = [
-        "//src/core:__pkg__",
-    ],
-)
-
-alias(
-    name = "core_srcs",
-    actual = ":srcs",
     visibility = [
         "//src/core:__pkg__",
     ],

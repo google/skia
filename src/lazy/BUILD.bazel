@@ -1,21 +1,10 @@
-load("//bazel:flags.bzl", "bool_flag")
-load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-bool_flag(
-    name = "enable_discardable_memory",
-    default = False,
-)
-
-bool_flag(
-    name = "use_default_global_memory_pool",
-    default = False,
-)
 
 LAZY_FILES = [
     "SkDiscardableMemoryPool.cpp",
@@ -25,20 +14,4 @@ LAZY_FILES = [
 split_srcs_and_hdrs(
     name = "lazy",
     files = LAZY_FILES,
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":lazy_srcs",
-    ],
-    visibility = ["//src:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        ":lazy_hdrs",
-    ],
-    visibility = ["//src:__pkg__"],
 )

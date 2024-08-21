@@ -1,5 +1,4 @@
-load("//bazel:flags.bzl", "bool_flag", "selects")
-load("//bazel:skia_rules.bzl", "skia_cc_deps", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -134,70 +133,15 @@ skia_filegroup(
     visibility = ["//src/sksl/codegen:__pkg__"],
 )
 
-# TODO(kjlubick) remove uses of this in G3 and Android and then delete
-bool_flag(
-    name = "enable_sksl_tracing",
-    default = False,
-)
-
-selects.config_setting_group(
-    name = "use_sksl_gpu_srcs",
-    match_any = [
-        "//src/gpu:has_ganesh_backend",
-    ],
-    visibility = ["//:__subpackages__"],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [
-        ":sksl_default_module_srcs",
-        ":sksl_srcs",
-        "//src/sksl/analysis:srcs",
-        "//src/sksl/codegen:srcs",
-        "//src/sksl/ir:srcs",
-        "//src/sksl/tracing:srcs",
-        "//src/sksl/transform:srcs",
-    ],
-    visibility = ["//src:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        ":sksl_hdrs",
-        "//src/sksl/analysis:private_hdrs",
-        "//src/sksl/codegen:private_hdrs",
-        "//src/sksl/ir:private_hdrs",
-        "//src/sksl/tracing:private_hdrs",
-        "//src/sksl/transform:private_hdrs",
-    ] + select({
-        ":use_sksl_gpu_srcs": [":gpu_hdrs"],
-        "//conditions:default": [],
-    }),
-    visibility = ["//src:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    textual_hdrs = [
-        ":txts",
-    ],
-    visibility = ["//src:__pkg__"],
-    deps = [
-        "//src/sksl/codegen:deps",
-    ],
-)
-
 skia_filegroup(
     name = "core_srcs",
     srcs = [
         ":sksl_graphite_modules_hdrs",
         ":sksl_srcs",
-        "//src/sksl/analysis:srcs",
-        "//src/sksl/ir:srcs",
+        "//src/sksl/analysis:analysis_srcs",
+        "//src/sksl/ir:ir_srcs",
         "//src/sksl/tracing:core_srcs",
-        "//src/sksl/transform:srcs",
+        "//src/sksl/transform:transform_srcs",
     ],
     visibility = ["//src/core:__pkg__"],
 )
@@ -206,10 +150,10 @@ skia_filegroup(
     name = "core_priv_hdrs",
     srcs = [
         ":sksl_hdrs",
-        "//src/sksl/analysis:private_hdrs",
-        "//src/sksl/ir:private_hdrs",
+        "//src/sksl/analysis:analysis_hdrs",
+        "//src/sksl/ir:ir_hdrs",
         "//src/sksl/tracing:core_priv_hdrs",
-        "//src/sksl/transform:private_hdrs",
+        "//src/sksl/transform:transform_hdrs",
     ],
     visibility = ["//src/core:__pkg__"],
 )

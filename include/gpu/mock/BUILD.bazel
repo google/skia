@@ -12,7 +12,6 @@ skia_filegroup(
         "GrMockTypes.h",
     ],
     visibility = [
-        "//include/gpu:__pkg__",
         "//src/gpu/ganesh:__subpackages__",
     ],
 )

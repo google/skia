@@ -59,7 +59,6 @@ skia_filegroup(
         ":shared_gpu_private_hdrs",
     ],
     visibility = [
-        "//include/private:__pkg__",
         "//src/base:__pkg__",
         "//src/opts:__pkg__",
     ],

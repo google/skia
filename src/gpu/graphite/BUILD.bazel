@@ -173,8 +173,8 @@ skia_cc_library(
         "//src/gpu/graphite/text:text_srcs",
         "//src/sksl:sksl_graphite_modules_hdrs",
         "//src/sksl:sksl_graphite_modules_srcs",
-        "//src/text/gpu:private_hdrs",
-        "//src/text/gpu:srcs",
+        "//src/text/gpu:gpu_hdrs",
+        "//src/text/gpu:gpu_srcs",
     ],
     hdrs = [
         ":_graphite_hdrs",
@@ -214,8 +214,8 @@ skia_cc_library(
         "//src/gpu/graphite/text:text_srcs",
         "//src/sksl:sksl_graphite_modules_hdrs",
         "//src/sksl:sksl_graphite_modules_srcs",
-        "//src/text/gpu:private_hdrs",
-        "//src/text/gpu:srcs",
+        "//src/text/gpu:gpu_hdrs",
+        "//src/text/gpu:gpu_srcs",
     ],
     hdrs = [
         ":_graphite_hdrs",

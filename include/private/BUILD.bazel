@@ -15,31 +15,6 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "private_hdrs",
-    srcs = [
-        "SkColorData.h",
-        "SkEncodedInfo.h",
-        "SkExif.h",
-        "SkGainmapInfo.h",
-        "SkGainmapShader.h",
-        "SkIDChangeListener.h",
-        "SkJpegMetadataDecoder.h",
-        "SkPathRef.h",
-        "SkWeakRefCnt.h",
-        "SkXmp.h",
-        ":sksl_private_hdrs",
-        "//include/private/base:private_hdrs",
-        "//include/private/chromium:private_hdrs",
-    ] + select({
-        "//src/gpu:has_ganesh_backend": [
-            "//include/private/gpu:private_hdrs",
-        ],
-        "//conditions:default": [],
-    }),
-    visibility = ["//include:__pkg__"],
-)
-
-skia_filegroup(
     name = "core_priv_hdrs",
     srcs = [
         # Files listed here will be available to Skia internals via the core_priv target.

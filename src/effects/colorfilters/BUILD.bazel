@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -30,16 +30,5 @@ COLORFILTER_FILES = [
 split_srcs_and_hdrs(
     name = "colorfilter",
     files = COLORFILTER_FILES,
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [":colorfilter_srcs"],
-    visibility = ["//src/effects:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [":colorfilter_hdrs"],
     visibility = ["//src/effects:__pkg__"],
 )

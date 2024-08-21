@@ -7,19 +7,11 @@ package(
 licenses(["notice"])
 
 skia_filegroup(
-    name = "public_hdrs",
+    name = "core_hdrs",
     srcs = [
         "SkSLDebugTrace.h",
         "SkSLVersion.h",
     ],
-    visibility = [
-        "//include:__pkg__",
-    ],
-)
-
-alias(
-    name = "core_hdrs",
-    actual = ":public_hdrs",
     visibility = [
         "//src/core:__pkg__",
     ],

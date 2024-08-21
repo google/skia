@@ -1,14 +1,5 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
-
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
-
-# Not referenced by Bazel target.
-# Used for exporting to //gn/gpu.gni:skia_native_gpu_sources.
-skia_filegroup(
-    name = "srcs",
-    srcs = ["GrGLMakeNativeInterface_android.cpp"],
-)

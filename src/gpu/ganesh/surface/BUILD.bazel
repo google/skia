@@ -14,6 +14,7 @@ SURFACE_FILES = [
 split_srcs_and_hdrs(
     name = "surface",
     files = SURFACE_FILES,
+    visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 
 # File group use to export to //gn/gpu.gni:skia_metal_sources.
@@ -21,7 +22,6 @@ skia_filegroup(
     name = "mtl_objc_srcs",
     srcs = ["SkSurface_GaneshMtl.mm"],
     visibility = [
-        "//src/gpu/ganesh:__pkg__",
         "//src/gpu/ganesh/mtl:__pkg__",
     ],
 )
@@ -29,17 +29,4 @@ skia_filegroup(
 skia_filegroup(
     name = "android_srcs",
     srcs = ["SkSurface_AndroidFactories.cpp"],
-    visibility = ["//src/gpu/ganesh:__pkg__"],
-)
-
-skia_filegroup(
-    name = "srcs",
-    srcs = [":surface_srcs"],
-    visibility = ["//src/gpu/ganesh:__pkg__"],
-)
-
-skia_filegroup(
-    name = "private_hdrs",
-    srcs = [":surface_hdrs"],
-    visibility = ["//src/gpu/ganesh:__pkg__"],
 )

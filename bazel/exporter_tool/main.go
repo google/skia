@@ -21,7 +21,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "gn/codec.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_codec_public",
 			Rules: []string{
-				"//include/codec:public_hdrs",
+				"//include/codec:any_codec_hdrs",
+				"//include/codec:core_hdrs",
 			},
 		},
 		{Var: "skia_codec_shared",
@@ -32,8 +33,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		},
 		{Var: "skia_codec_decode_bmp",
 			Rules: []string{
-				"//src/codec:decode_bmp_hdrs",
-				"//src/codec:decode_bmp_srcs",
+				"//src/codec:bmp_decode",
+				"//src/codec:wbmp_decode",
 			},
 		},
 		{Var: "skia_codec_xmp",
@@ -57,27 +58,27 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "gn/core.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_core_public",
 			Rules: []string{
-				"//include/core:public_hdrs",
+				"//include/core:core_hdrs",
 			}},
 		{Var: "skia_core_sources",
 			Rules: []string{
-				"//include/private:private_hdrs",
+				"//include/private:core_priv_hdrs",
 				"//include/private/base:private_hdrs",
 				"//include/private/base:shared_gpu_private_hdrs",
-				"//include/private/chromium:private_hdrs",
+				"//include/private/chromium:core_hdrs",
 				"//include/private/chromium:shared_private_hdrs",
 				"//src/base:private_hdrs",
 				"//src/base:skslc_srcs",
 				"//src/base:srcs",
-				"//src/core:legacy_core_hdrs",
-				"//src/core:legacy_core_srcs",
-				"//src/core:core_skslc_hdrs",
-				"//src/core:core_skslc_srcs",
+				"//src/core:core_priv_hdrs",
+				"//src/core:core_priv_srcs",
+				"//src/core:core_srcs",
+				"//src/core:textual_hdrs",
 				"//src/image:image_hdrs",
 				"//src/image:image_srcs",
 				"//src/lazy:lazy_hdrs",
 				"//src/lazy:lazy_srcs",
-				"//src/opts:private_hdrs",
+				"//src/opts:textual_hdrs",
 				"//src/shaders:shader_hdrs",
 				"//src/shaders:shader_srcs",
 				"//src/text:text_hdrs",
@@ -87,15 +88,15 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{"//include/pathops:public_hdrs"}},
 		{Var: "skia_pathops_sources",
 			Rules: []string{
-				"//src/pathops:legacy_pathops_hdrs",
-				"//src/pathops:legacy_pathops_srcs",
+				"//src/pathops:_pathops_hdrs",
+				"//src/pathops:_pathops_srcs",
 			}},
 		{Var: "skia_encode_public",
 			Rules: []string{"//include/encode:encode_hdrs"}},
 		{Var: "skia_encode_srcs",
 			Rules: []string{
-				"//src/encode:srcs",
-				"//src/encode:private_hdrs",
+				"//src/encode:encoder_common",
+				"//src/encode:icc_support",
 			}},
 		{Var: "skia_encode_jpeg_public",
 			Rules: []string{"//include/encode:jpeg_hdrs"}},
@@ -128,7 +129,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "gn/effects.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_effects_public",
 			Rules: []string{
-				"//include/effects:public_hdrs",
+				"//include/effects:core_hdrs",
 			}},
 		{Var: "skia_effects_sources",
 			Rules: []string{
@@ -161,8 +162,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_freetype_sources",
 			Rules: []string{
-				"//src/ports:typeface_freetype",
-				"//src/ports:typeface_freetype_hdrs",
+				"//src/ports:freetype_support",
 			}},
 		{Var: "skia_ports_fontmgr_android_public",
 			Rules: []string{
@@ -170,13 +170,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_fontmgr_android_sources",
 			Rules: []string{
-				"//src/ports:fontmgr_android_hdrs",
-				"//src/ports:fontmgr_android_srcs",
+				"//src/ports:fontmgr_android_freetype",
 			}},
 		{Var: "skia_ports_fontmgr_custom_sources",
 			Rules: []string{
-				"//src/ports:fontmgr_custom_hdrs",
-				"//src/ports:fontmgr_custom_srcs",
+				"//src/ports:fontmgr_custom",
 			}},
 		{Var: "skia_ports_fontmgr_coretext_public",
 			Rules: []string{
@@ -185,7 +183,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_fontmgr_coretext_sources",
 			Rules: []string{
-				"//src/ports:fontmgr_coretext_srcs",
+				"//src/ports:fontmgr_coretext",
 				"//src/ports:typeface_mac_srcs",
 				"//src/ports:typeface_mac_hdrs",
 			}},
@@ -195,7 +193,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_fontmgr_directory_sources",
 			Rules: []string{
-				"//src/ports:fontmgr_custom_directory",
+				"//src/ports:fontmgr_directory_freetype",
 			}},
 		{Var: "skia_ports_fontmgr_embedded_public",
 			Rules: []string{
@@ -203,7 +201,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_fontmgr_embedded_sources",
 			Rules: []string{
-				"//src/ports:fontmgr_custom_embedded",
+				"//src/ports:fontmgr_data_freetype",
 			}},
 		{Var: "skia_ports_fontmgr_empty_public",
 			Rules: []string{
@@ -211,7 +209,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_fontmgr_empty_sources",
 			Rules: []string{
-				"//src/ports:fontmgr_custom_empty",
+				"//src/ports:fontmgr_empty_freetype",
 			}},
 		{Var: "skia_ports_fontmgr_fontconfig_public",
 			Rules: []string{
@@ -219,7 +217,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_fontmgr_fontconfig_sources",
 			Rules: []string{
-				"//src/ports:legacy_fontmgr_fontconfig",
+				"//src/ports:fontmgr_fontconfig_freetype",
 			}},
 		{Var: "skia_ports_fontmgr_fontations_public",
 			Rules: []string{
@@ -269,26 +267,22 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	}},
 	{GNI: "gn/pdf.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_pdf_public",
-			Rules: []string{"//include/docs:public_hdrs"}},
+			Rules: []string{"//include/docs:pdf_hdrs"}},
 		{Var: "skia_pdf_sources",
 			Rules: []string{
 				"//src/pdf:_pdf_hdrs",
 				"//src/pdf:_pdf_srcs",
 			}},
-		{Var: "skia_pdf_jpeginfo_lib",
-			Rules: []string{"//src/pdf:jpeg_info_libjpeg"}},
-		{Var: "skia_pdf_jpeginfo_none",
-			Rules: []string{"//src/pdf:jpeg_info_none"}},
 	}},
 	{GNI: "gn/sksl.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_sksl_core_sources",
 			Rules: []string{
 				"//include/private:sksl_private_hdrs",
-				"//include/sksl:public_hdrs",
+				"//include/sksl:core_hdrs",
 				"//src/sksl/analysis:analysis_hdrs",
 				"//src/sksl/analysis:analysis_srcs",
-				"//src/sksl/codegen:core_srcs",
-				"//src/sksl/codegen:private_hdrs",
+				"//src/sksl/codegen:rasterpipeline_hdrs",
+				"//src/sksl/codegen:rasterpipeline_srcs",
 				"//src/sksl/ir:ir_hdrs",
 				"//src/sksl/ir:ir_srcs",
 				"//src/sksl/tracing:private_hdrs",
@@ -381,7 +375,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "gn/utils.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_utils_public",
 			Rules: []string{
-				"//include/utils:public_hdrs",
+				"//include/utils:core_hdrs",
 				"//include/utils/mac:public_hdrs"}},
 		{Var: "skia_utils_chromium",
 			Rules: []string{
@@ -426,7 +420,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_gpu_public",
 			Rules: []string{
 				"//include/gpu/mock:public_hdrs",
-				"//include/gpu:public_hdrs",
+				"//include/gpu:ganesh_hdrs",
 				"//include/gpu:shared_public_hdrs",
 				"//include/gpu/ganesh:ganesh_hdrs",
 			}},
@@ -470,7 +464,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_gpu_gl_public",
 			Rules: []string{
-				"//include/gpu/gl:public_hdrs",
+				"//include/gpu/gl:ganesh_gl_hdrs",
 				"//include/gpu/ganesh/gl:public_hdrs",
 			}},
 		{Var: "skia_gpu_gl_private",
@@ -487,11 +481,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_null_gpu_sources",
 			Rules: []string{
 				"//src/gpu/ganesh/gl:native_interface_none",
-			}},
-		{Var: "skia_skgpu_v1_sources",
-			Rules: []string{
-				"//src/gpu/ganesh/ops:ops_hdrs",
-				"//src/gpu/ganesh/ops:ops_srcs",
 			}},
 		{Var: "skia_gpu_vk_public",
 			Rules: []string{
@@ -537,29 +526,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/gpu/ganesh/mtl:mtl_cpp_hdrs",
 			}},
-		{Var: "skia_native_gpu_sources",
-			Rules: []string{
-				"//include/gpu/gl/egl:public_hdrs",
-				"//include/gpu/gl/epoxy:public_hdrs",
-				"//include/gpu/gl/glx:public_hdrs",
-				"//include/gpu/ganesh/gl/egl:public_hdrs",
-				"//include/gpu/ganesh/gl/epoxy:public_hdrs",
-				"//include/gpu/ganesh/gl/glx:public_hdrs",
-				"//src/gpu/ganesh/gl/android:srcs",
-				"//src/gpu/ganesh/gl/egl:srcs",
-				"//src/gpu/ganesh/gl/epoxy:srcs",
-				"//src/gpu/ganesh/gl/glx:srcs",
-				"//src/gpu/ganesh/gl/iOS:srcs",
-				"//src/gpu/ganesh/gl/mac:srcs",
-				"//src/gpu/ganesh/gl/win:srcs",
-			}},
 		{Var: "skia_shared_gpu_sources",
 			Rules: []string{
 				"//include/gpu:shared_public_hdrs",
 				"//include/private/base:shared_gpu_private_hdrs",
 				"//include/private/chromium:shared_private_hdrs",
-				"//src/gpu:core_hdrs",
-				"//src/gpu:core_srcs",
 				"//src/gpu:shared_hdrs",
 				"//src/gpu:shared_srcs",
 				"//src/gpu/tessellate:tessellate_hdrs",
@@ -575,7 +546,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_vma_sources",
 			Rules: []string{
 				"//src/gpu/vk/vulkanmemoryallocator:vma_srcs",
-				"//src/gpu/vk/vulkanmemoryallocator:vma_hdrs"}},
+			}},
 		{Var: "skia_shared_mtl_sources",
 			Rules: []string{
 				"//include/gpu/mtl:public_hdrs",

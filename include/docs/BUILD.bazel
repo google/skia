@@ -20,15 +20,6 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "public_hdrs",
-    srcs = [":multi_picture_document_hdrs"] + select({
-        "//src/pdf:enable_pdf_backend_true": ["SkPDFDocument.h"],
-        "//conditions:default": [],
-    }),  # TODO(kjlubick) XPSDocument
-    visibility = ["//include:__pkg__"],
-)
-
-skia_filegroup(
     name = "pdf_hdrs",
     srcs = ["SkPDFDocument.h"],
     visibility = ["//src/pdf:__pkg__"],
