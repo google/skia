@@ -1264,7 +1264,7 @@ optional("typeface_freetype") {
 
 if (skia_use_fontations) {
   action("fontations_rust_side") {
-    bazel_args = [ "--with_fontations" ]
+    bazel_args = []
     if (is_mac && target_cpu == "arm64") {
       # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
       # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
@@ -1291,7 +1291,7 @@ if (skia_use_fontations) {
   }
 
   action("fontations_ffi") {
-    bazel_args = [ "--with_fontations" ]
+    bazel_args = []
     if (is_mac && target_cpu == "arm64") {
       # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
       # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
