@@ -27,9 +27,9 @@
 namespace skwindow::internal {
 
 GraphiteDawnWindowContext::GraphiteDawnWindowContext(const DisplayParams& params,
-                                                     wgpu::TextureFormat swapChainFormat)
+                                                     wgpu::TextureFormat surfaceFormat)
     : WindowContext(params)
-    , fSwapChainFormat(swapChainFormat) {
+    , fSurfaceFormat(surfaceFormat) {
     WGPUInstanceDescriptor desc{};
     // need for WaitAny with timeout > 0
     desc.features.timedWaitAnyEnable = true;
@@ -47,7 +47,6 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
 
     SkASSERT(fDevice);
     SkASSERT(fSurface);
-    SkASSERT(fSwapChain);
 
     skgpu::graphite::DawnBackendContext backendContext;
     backendContext.fInstance = wgpu::Instance(fInstance->Get());
@@ -77,16 +76,19 @@ void GraphiteDawnWindowContext::destroyContext() {
 
     fGraphiteRecorder = nullptr;
     fGraphiteContext = nullptr;
-    fSwapChain = nullptr;
     fSurface = nullptr;
     fDevice = nullptr;
 }
 
 sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
-    auto texture = fSwapChain.GetCurrentTexture();
+    wgpu::SurfaceTexture surfaceTexture;
+    fSurface.GetCurrentTexture(&surfaceTexture);
+    SkASSERT(surfaceTexture.texture);
+    auto texture = surfaceTexture.texture;
+
     skgpu::graphite::DawnTextureInfo info(/*sampleCount=*/1,
                                           skgpu::Mipmapped::kNo,
-                                          fSwapChainFormat,
+                                          fSurfaceFormat,
                                           texture.GetUsage(),
                                           wgpu::TextureAspect::All);
     auto backendTex = skgpu::graphite::BackendTextures::MakeDawn(texture.Get());
@@ -102,7 +104,7 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
 
 void GraphiteDawnWindowContext::onSwapBuffers() {
     this->snapRecordingAndSubmit();
-    fSwapChain.Present();
+    fSurface.Present();
 }
 
 void GraphiteDawnWindowContext::setDisplayParams(const DisplayParams& params) {
@@ -213,20 +215,22 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     return device;
 }
 
-wgpu::SwapChain GraphiteDawnWindowContext::createSwapChain() {
-    wgpu::SwapChainDescriptor swapChainDesc;
-    swapChainDesc.usage = wgpu::TextureUsage::RenderAttachment |
+void GraphiteDawnWindowContext::configureSurface() {
+    SkASSERT(fDevice);
+    SkASSERT(fSurface);
+
+    wgpu::SurfaceConfiguration surfaceConfig;
+    surfaceConfig.device = fDevice;
+    surfaceConfig.format = fSurfaceFormat;
+    surfaceConfig.usage = wgpu::TextureUsage::RenderAttachment |
                           wgpu::TextureUsage::TextureBinding |
                           wgpu::TextureUsage::CopySrc |
                           wgpu::TextureUsage::CopyDst;
-    swapChainDesc.format = fSwapChainFormat;
-    swapChainDesc.width = fWidth;
-    swapChainDesc.height = fHeight;
-    swapChainDesc.presentMode =
+    surfaceConfig.width = fWidth;
+    surfaceConfig.height = fHeight;
+    surfaceConfig.presentMode =
             fDisplayParams.fDisableVsync ? wgpu::PresentMode::Immediate : wgpu::PresentMode::Fifo;
-    auto swapChain = fDevice.CreateSwapChain(fSurface, &swapChainDesc);
-    SkASSERT(swapChain);
-    return swapChain;
+    fSurface.Configure(&surfaceConfig);
 }
 
 }   //namespace skwindow::internal

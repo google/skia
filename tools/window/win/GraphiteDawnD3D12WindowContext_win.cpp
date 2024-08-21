@@ -62,7 +62,7 @@ bool GraphiteDawnD3D12WindowContext_win::onInitializeContext() {
 
     fDevice = std::move(device);
     fSurface = std::move(surface);
-    fSwapChain = this->createSwapChain();
+    configureSurface();
 
     return true;
 }
@@ -70,7 +70,7 @@ bool GraphiteDawnD3D12WindowContext_win::onInitializeContext() {
 void GraphiteDawnD3D12WindowContext_win::onDestroyContext() {}
 
 void GraphiteDawnD3D12WindowContext_win::resize(int w, int h) {
-    fSwapChain = this->createSwapChain();
+    configureSurface();
 }
 
 }  // anonymous namespace

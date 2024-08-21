@@ -15,7 +15,7 @@ namespace skwindow::internal {
 
 class GraphiteDawnWindowContext : public WindowContext {
 public:
-    GraphiteDawnWindowContext(const DisplayParams&, wgpu::TextureFormat swapChainFormat);
+    GraphiteDawnWindowContext(const DisplayParams&, wgpu::TextureFormat surfaceFormat);
     ~GraphiteDawnWindowContext() override;
     sk_sp<SkSurface> getBackbufferSurface() override;
     bool isValid() override { return SkToBool(fDevice.Get()); }
@@ -25,7 +25,7 @@ protected:
     bool isGpuContext() override { return true; }
     void initializeContext(int width, int height);
     wgpu::Device createDevice(wgpu::BackendType type);
-    wgpu::SwapChain createSwapChain();
+    void configureSurface();
     void destroyContext();
 
     virtual bool onInitializeContext() = 0;
@@ -34,12 +34,11 @@ protected:
 
     void onSwapBuffers() override;
 
-    wgpu::TextureFormat                     fSwapChainFormat;
+    wgpu::TextureFormat                     fSurfaceFormat;
     std::unique_ptr<dawn::native::Instance> fInstance;
     wgpu::Device                            fDevice;
     wgpu::Queue                             fQueue;
     wgpu::Surface                           fSurface;
-    wgpu::SwapChain                         fSwapChain;
 };
 
 }   // namespace skwindow::internal

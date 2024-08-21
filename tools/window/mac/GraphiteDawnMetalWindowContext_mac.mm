@@ -82,10 +82,9 @@ bool GraphiteDawnMetalWindowContext_mac::onInitializeContext() {
         return false;
     }
 
-
     fDevice = std::move(device);
     fSurface = std::move(surface);
-    fSwapChain = this->createSwapChain();
+    configureSurface();
 
     return true;
 }
@@ -96,7 +95,6 @@ void GraphiteDawnMetalWindowContext_mac::resize(int w, int h) {
     if (!this->resizeInternal()) {
         return;
     }
-    fSwapChain = this->createSwapChain();
 }
 
 bool GraphiteDawnMetalWindowContext_mac::resizeInternal() {
@@ -114,6 +112,8 @@ bool GraphiteDawnMetalWindowContext_mac::resizeInternal() {
 
     fWidth = backingSize.width;
     fHeight = backingSize.height;
+    configureSurface();
+
     return true;
 }
 

@@ -77,7 +77,7 @@ bool GraphiteDawnVulkanWindowContext_unix::onInitializeContext() {
 
     fDevice = std::move(device);
     fSurface = std::move(surface);
-    fSwapChain = this->createSwapChain();
+    configureSurface();
 
     return true;
 }
@@ -85,7 +85,7 @@ bool GraphiteDawnVulkanWindowContext_unix::onInitializeContext() {
 void GraphiteDawnVulkanWindowContext_unix::onDestroyContext() {}
 
 void GraphiteDawnVulkanWindowContext_unix::resize(int w, int h) {
-    fSwapChain = this->createSwapChain();
+    configureSurface();
 }
 
 }  // anonymous namespace
