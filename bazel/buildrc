@@ -142,15 +142,12 @@ build:canvaskit_full --noincompatible_enable_cc_toolchain_resolution \
 
 build:ck_webgl2 --ck_enable_webgl
 
-# flags for using the CanvasKit debugger.
-build:ck_debugger --enable_build_for_debugger
-
 build:ck_full_webgl2_release --config=canvaskit_full --config=ck_webgl2 --config=release
 build:ck_full_webgl2_debug --config=canvaskit_full --config=ck_webgl2 --config=debug
 build:ck_full_cpu_release --config=canvaskit_full --config=release
 build:ck_full_cpu_debug --config=canvaskit_full --config=debug
 build:ck_full_webgl2_release_debugger --config=canvaskit_full --config=ck_webgl2 \
-                                    --config=release --config=ck_debugger
+                                    --config=release --ck_include_debugger
 # TODO(kjlubick) We should be able to configure testing on Chrome or Firefox with this.
 build:ck_full_webgl2_release_chrome --config=ck_full_webgl2_release
 build:ck_full_cpu_release_chrome --config=ck_full_cpu_release

@@ -77,8 +77,10 @@ skia_cc_library(
         "//:core",
         "//src/base",
         "//src/core:core_priv",
-        "//src/ports:fontmgr_fontations_empty",
         "//tools:resources",
         "//tools:tool_utils",
-    ],
+    ] + select({
+        "@platforms//os:android": [],
+        "//conditions:default": ["//src/ports:fontmgr_fontations_empty"],
+    }),
 )
