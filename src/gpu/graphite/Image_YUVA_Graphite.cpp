@@ -204,7 +204,7 @@ size_t Image_YUVA::textureSize() const {
             continue; // Null channels (A) have no size.
         }
         bool repeat = false;
-        for (int j = 0; j < i - 1; ++j) {
+        for (int j = i - 1; j >= 0; --j) {
             if (fProxies[i].proxy() == fProxies[j].proxy()) {
                 repeat = true;
                 break;
