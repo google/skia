@@ -1,7 +1,7 @@
 [
   {
     "cmd": [
-      "python",
+      "python3",
       "RECIPE_MODULE[skia::doxygen]/resources/generate_and_upload_doxygen.py"
     ],
     "env": {

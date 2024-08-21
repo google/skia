@@ -12,5 +12,5 @@ class DoxygenApi(recipe_api.RecipeApi):
       self.m.run(
           self.m.step,
           'generate and upload doxygen',
-          cmd=['python', self.resource('generate_and_upload_doxygen.py')],
+          cmd=['python3', self.resource('generate_and_upload_doxygen.py')],
           abort_on_failure=False)
