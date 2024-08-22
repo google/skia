@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
         SkPixmap pm(ii, result->data(0), result->rowBytes(0));
         *output = SkImages::RasterFromPixmapCopy(pm);
     };
-    printf("GPU operations modifying surface have been inserted in the command buffer," +
+    printf("GPU operations modifying surface have been inserted in the command buffer,"
            "scheduling pixel readback\n");
     context->asyncRescaleAndReadPixels(surface.get(), imageInfo, SkIRect::MakeSize({WIDTH, HEIGHT}),
                                        SkImage::RescaleGamma::kSrc,

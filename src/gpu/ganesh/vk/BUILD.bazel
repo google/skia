@@ -96,6 +96,7 @@ skia_cc_library(
     srcs = [
         ":vk_hdrs",
         ":vk_srcs",
+        "//include/private/gpu/vk:private_hdrs",
     ],
     hdrs = [
         "//include/gpu:ganesh_hdrs",

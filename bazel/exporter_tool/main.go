@@ -384,6 +384,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_utils_private",
 			Rules: []string{
 				"//src/utils/mac:mac_utils_priv",
+				"//src/utils/mac:mac_utils",
 				"//src/utils/win:core_hdrs",
 				"//src/utils/win:core_srcs",
 				"//src/utils:core_priv_hdrs",
