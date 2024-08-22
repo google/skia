@@ -101,6 +101,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fFBFetchRequiresEnablePerSample = false;
     fSRGBWriteControl = false;
     fSkipErrorChecks = false;
+    fGetBufferSubDataSupport = false;
 
     fShaderCaps = std::make_unique<GrShaderCaps>();
 
@@ -401,6 +402,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         return SkToBool(contextFlags & GR_GL_CONTEXT_FLAG_PROTECTED_CONTENT_BIT_EXT);
     }();
 
+    if (GR_IS_GR_GL(standard)) {
+        fGetBufferSubDataSupport = true;
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        fGetBufferSubDataSupport = version >= GR_GL_VER(2, 0);
+    }
+
     /**************************************************************************
     * GrShaderCaps fields
     **************************************************************************/
@@ -562,11 +569,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fMapBufferFlags = kNone_MapFlags;
     }
 
-    // Buffers have more restrictions in WebGL than GLES. For example,
-    // https://www.khronos.org/registry/webgl/specs/latest/2.0/#BUFFER_OBJECT_BINDING
-    // We therefore haven't attempted to support mapping or transfers between buffers and surfaces
-    // or between buffers.
-
     if (GR_IS_GR_GL(standard)) {
         if (version >= GR_GL_VER(2, 1) || ctxInfo.hasExtension("GL_ARB_pixel_buffer_object") ||
             ctxInfo.hasExtension("GL_EXT_pixel_buffer_object")) {
@@ -592,6 +594,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 //            fTransferFromSurfaceToBufferSupport = false;
 //            fTransferBufferType = TransferBufferType::kChromium;
         }
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        if (version >= GR_GL_VER(2, 0)) {
+            fTransferFromBufferToTextureSupport = true;
+            fTransferFromSurfaceToBufferSupport = true;
+            fTransferBufferType = TransferBufferType::kARB_PBO;
+        }
     }
 
     if (GR_IS_GR_GL(standard) &&
@@ -600,6 +608,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else if (GR_IS_GR_GL_ES(standard) &&
                (version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_NV_copy_buffer"))) {
         fTransferFromBufferToBufferSupport = true;
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        if (version >= GR_GL_VER(2, 0)) {
+            // WebGL has more restriction about buffer binding
+            // https://registry.khronos.org/webgl/specs/latest/2.0/#COPYING_BUFFERS
+            // TODO: make sure index buffer is handled properly to enable this
+            // fTransferFromBufferToBufferSupport = true;
+        }
     }
 
     // On many GPUs, map memory is very expensive, so we effectively disable it here by setting the

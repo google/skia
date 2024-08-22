@@ -199,13 +199,25 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     if (!buffer) {
         return;
     }
-    void* data = buffer->map();
-    if (!buffer) {
-        ERRORF(reporter, "Could not map buffer");
-        return;
-    }
-    memcpy(data, srcData.get(), size);
-    buffer->unmap();
+    auto updateData = [buffer, caps, gpu, reporter] (const void* src, size_t size, bool preserve) {
+        if (GrCaps::kNone_MapFlags != caps->mapBufferFlags()) {
+            void *map = buffer->map();
+            REPORTER_ASSERT(reporter, map);
+            if (!map) {
+                ERRORF(reporter, "Failed to map transfer buffer.");
+                return;
+            }
+            memcpy(map, src, size);
+            buffer->unmap();
+        } else {
+            if (!buffer->updateData(src, 0, size, preserve)) {
+                ERRORF(reporter, "Could not updateData");
+            }
+            gpu->submitToGpu(GrSyncCpu::kYes);
+        }
+    };
+
+    updateData(srcData.get(), size, false);
 
     //////////////////////////
     // transfer full data
@@ -279,9 +291,7 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
     // change color of subrectangle
     fill_transfer_data(left, top, width, height, srcRowBytes, allowedSrc.fColorType,
                        srcData.get());
-    data = buffer->map();
-    memcpy(data, srcData.get(), size);
-    buffer->unmap();
+    updateData(srcData.get(), size, true);
 
     result = gpu->transferPixelsTo(tex.get(),
                                    SkIRect::MakeXYWH(left, top, width, height),
@@ -394,7 +404,7 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 
     sk_sp<GrGpuBuffer> buffer = resourceProvider->createBuffer(bufferSize,
                                                                GrGpuBufferType::kXferGpuToCpu,
-                                                               kDynamic_GrAccessPattern,
+                                                               kStream_GrAccessPattern,
                                                                GrResourceProvider::ZeroInit::kNo);
     REPORTER_ASSERT(reporter, buffer);
     if (!buffer) {
@@ -423,15 +433,12 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     }
 
     // Copy the transfer buffer contents to a temporary so we can manipulate it.
-    const auto* map = reinterpret_cast<const char*>(buffer->map());
-    REPORTER_ASSERT(reporter, map);
-    if (!map) {
-        ERRORF(reporter, "Failed to map transfer buffer.");
-        return;
+    size_t copy_size = kTexDims.fHeight * fullBufferRowBytes;
+    std::unique_ptr<char[]> transferData(new char[copy_size]);
+
+    if (!buffer->getData(transferData.get(), 0, copy_size)) {
+      ERRORF(reporter, "Could not getData");
     }
-    std::unique_ptr<char[]> transferData(new char[kTexDims.fHeight * fullBufferRowBytes]);
-    memcpy(transferData.get(), map, fullBufferRowBytes * kTexDims.fHeight);
-    buffer->unmap();
 
     GrImageInfo transferInfo(allowedRead.fColorType, kUnpremul_SkAlphaType, nullptr, kTexDims);
 
@@ -469,15 +476,8 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
         gpu->submitToGpu(GrSyncCpu::kYes);
     }
 
-    map = reinterpret_cast<const char*>(buffer->map());
-    REPORTER_ASSERT(reporter, map);
-    if (!map) {
-        ERRORF(reporter, "Failed to map transfer buffer.");
-        return;
-    }
-    const char* bufferStart = reinterpret_cast<const char*>(map) + partialReadOffset;
-    memcpy(transferData.get(), bufferStart, partialBufferRowBytes * kTexDims.fHeight);
-    buffer->unmap();
+    if (!buffer->getData(transferData.get(), partialReadOffset, partialBufferRowBytes *
+                         kTexDims.fHeight)) { ERRORF(reporter, "Could not getData"); }
 
     transferInfo = transferInfo.makeWH(kPartialWidth, kPartialHeight);
     const char* textureDataStart =

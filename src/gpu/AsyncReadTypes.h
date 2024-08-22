@@ -152,19 +152,36 @@ public:
                            SkISize dimensions,
                            size_t rowBytes,
                            TClientMappedBufferManager<T, IDType>* manager) {
+        size_t size = rowBytes*dimensions.height();
+        auto doConvert = [converter{result.fPixelConverter}, size](const void* src) -> sk_sp<SkData> {
+            if (converter) {
+                sk_sp<SkData> data = SkData::MakeUninitialized(size);
+                converter(data->writable_data(), src);
+                return data;
+            }
+            return nullptr;
+        };
+
         const void* mappedData = result.fTransferBuffer->map();
-        if (!mappedData) {
-            return false;
-        }
-        if (result.fPixelConverter) {
-            size_t size = rowBytes*dimensions.height();
-            sk_sp<SkData> data = SkData::MakeUninitialized(size);
-            result.fPixelConverter(data->writable_data(), mappedData);
-            this->addCpuPlane(std::move(data), rowBytes);
-            result.fTransferBuffer->unmap();
+
+        if (mappedData) {
+            if (auto converted = doConvert(mappedData)) {
+                this->addCpuPlane(std::move(converted), rowBytes);
+                result.fTransferBuffer->unmap();
+            } else {
+                manager->insert(result.fTransferBuffer);
+                this->addMappedPlane(mappedData, rowBytes, std::move(result.fTransferBuffer));
+            }
         } else {
-            manager->insert(result.fTransferBuffer);
-            this->addMappedPlane(mappedData, rowBytes, std::move(result.fTransferBuffer));
+            sk_sp<SkData> tmp = SkData::MakeUninitialized(size);
+            if (!result.fTransferBuffer->getData(tmp->writable_data(), 0, size)) {
+                return false;
+            }
+            if (auto converted = doConvert(tmp->data())) {
+                this->addCpuPlane(std::move(converted), rowBytes);
+            } else {
+                this->addCpuPlane(std::move(tmp), rowBytes);
+            }
         }
         return true;
     }

@@ -56,6 +56,15 @@
     ],
   },
   {
+    "GL":    [{"ext": "<core>"}],
+    "GLES":  null,
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
+
+    "functions": [
+      "GetBufferSubData",
+    ],
+  },
+  {
     "GL":    [{"min_version": [3, 0], "ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"}],
     "WebGL": [{"min_version": [2, 0], "ext": "<core>"}],
