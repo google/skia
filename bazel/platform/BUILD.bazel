@@ -49,6 +49,16 @@ platform(
 )
 
 platform(
+    name = "windows_x64_hermetic",
+    constraint_values = [
+        "@platforms//os:windows",
+        "@platforms//cpu:x86_64",
+        ":cgo_off",
+        ":use_hermetic_toolchain",
+    ],
+)
+
+platform(
     name = "host_with_hermetic_toolchain",
     constraint_values = [
         ":cgo_off",  # Necessary to build locally (i.e. non-RBE builds).

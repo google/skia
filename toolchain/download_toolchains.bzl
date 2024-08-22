@@ -13,6 +13,7 @@ Planned:
 load(":download_linux_amd64_toolchain.bzl", "download_linux_amd64_toolchain")
 load(":download_mac_toolchain.bzl", "download_mac_toolchain")
 load(":download_ndk_linux_amd64_toolchain.bzl", "download_ndk_linux_amd64_toolchain")
+load(":download_windows_amd64_toolchain.bzl", "download_windows_amd64_toolchain")
 
 # This key in this dictionary (and thus the name passed into the rule) controls what the subfolder
 # will be called in the external directory. It must match what we use in the appropriate
@@ -20,6 +21,7 @@ load(":download_ndk_linux_amd64_toolchain.bzl", "download_ndk_linux_amd64_toolch
 name_toolchain = {
     "clang_linux_amd64": download_linux_amd64_toolchain,
     "clang_mac": download_mac_toolchain,
+    "clang_windows_amd64": download_windows_amd64_toolchain,
     "ndk_linux_amd64": download_ndk_linux_amd64_toolchain,
 }
 

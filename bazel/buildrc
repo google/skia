@@ -74,6 +74,16 @@ build:for_mac_x64_fastbuild --platforms=//bazel/platform:mac_x64_hermetic \
                             --compilation_mode=fastbuild \
                             --cc_output_directory_tag=mac_x64_fastbuild
 
+build:for_windows_x64_debug --platforms=//bazel/platform:windows_x64_hermetic \
+                            --compilation_mode=dbg \
+                            --cc_output_directory_tag=windows_x64_debug
+build:for_windows_x64_release --platforms=//bazel/platform:windows_x64_hermetic \
+                              --compilation_mode=opt \
+                              --cc_output_directory_tag=windows_x64_release
+build:for_windows_x64_fastbuild --platforms=//bazel/platform:windows_x64_hermetic \
+                                --compilation_mode=fastbuild \
+                                --cc_output_directory_tag=windows_x64_fastbuild
+
 # Shorter config names defaulting to fastbuild (same default as --compilation_mode, see
 # https://bazel.build/docs/user-manual#compilation-mode).
 build:for_mac_arm64 --config=for_mac_arm64_fastbuild

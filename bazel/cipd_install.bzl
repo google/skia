@@ -39,7 +39,11 @@ def cipd_install(
     cipd_url = "https://chrome-infra-packages.appspot.com/dl/"
     cipd_url += cipd_package
     cipd_url += "/+/"
-    cipd_url += tag
+
+    # When Bazel downloads the CIPD package, the local file name is "<tag>.zip". On Windows, colon
+    # is not a valid character for file names, so this causes Bazel to crash. URL-escaping the tag
+    # results in a valid file name.
+    cipd_url += tag.replace(":", "%3A")
 
     mirror_url = "https://storage.googleapis.com/skia-world-readable/bazel/"
     mirror_url += sha256
