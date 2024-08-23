@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -6,19 +5,10 @@
  * found in the LICENSE file.
  */
 
-
-
 #ifndef GrGLConfig_DEFINED
 #define GrGLConfig_DEFINED
 
-#include "include/gpu/GrTypes.h"
-
-/**
- * Optional GL config file.
- */
-#ifdef GR_GL_CUSTOM_SETUP_HEADER
-    #include GR_GL_CUSTOM_SETUP_HEADER
-#endif
+#include "include/private/base/SkLoadUserConfig.h"
 
 #if !defined(GR_GL_FUNCTION_TYPE)
     #if defined(SK_BUILD_FOR_WIN)
@@ -61,7 +51,7 @@
 #endif
 
 #if !defined(GR_GL_LOG_CALLS_START)
-    #define GR_GL_LOG_CALLS_START                       0
+    #define GR_GL_LOG_CALLS_START 0
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR)
@@ -73,7 +63,7 @@
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR_START)
-    #define GR_GL_CHECK_ERROR_START                     1
+    #define GR_GL_CHECK_ERROR_START 1
 #endif
 
 #endif
