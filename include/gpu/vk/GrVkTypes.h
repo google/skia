@@ -13,7 +13,7 @@
 #include "include/gpu/vk/VulkanTypes.h"
 
 /*
- * When wrapping a GrBackendTexture or GrBackendRendenderTarget, the fCurrentQueueFamily should
+ * When wrapping a GrBackendTexture or GrBackendRenderTarget, the fCurrentQueueFamily should
  * either be VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_EXTERNAL, or VK_QUEUE_FAMILY_FOREIGN_EXT. If
  * fSharingMode is VK_SHARING_MODE_EXCLUSIVE then fCurrentQueueFamily can also be the graphics
  * queue index passed into Skia.
