@@ -258,16 +258,44 @@ SKCMS_API bool skcms_ApproximateCurve(const skcms_Curve* curve,
 SKCMS_API bool skcms_GetCHAD(const skcms_ICCProfile*, skcms_Matrix3x3*);
 SKCMS_API bool skcms_GetWTPT(const skcms_ICCProfile*, float xyz[3]);
 
+// Returns the number of channels of input data that are expected on the "A" side of the profile.
+// This is useful for image codecs, where the image data and the accompanying profile might have
+// conflicting data shapes. In some cases, the result is unclear or invalid. In that case, the
+// function will return a negative value to signal an error.
+SKCMS_API int skcms_GetInputChannelCount(const skcms_ICCProfile*);
+
 // These are common ICC signature values
 enum {
-    // data_color_space
+    // common data_color_space values
     skcms_Signature_CMYK = 0x434D594B,
     skcms_Signature_Gray = 0x47524159,
     skcms_Signature_RGB  = 0x52474220,
 
-    // pcs
+    // pcs (or data_color_space)
     skcms_Signature_Lab  = 0x4C616220,
     skcms_Signature_XYZ  = 0x58595A20,
+
+    // other, less common data_color_space values
+    skcms_Signature_CIELUV = 0x4C757620,
+    skcms_Signature_YCbCr  = 0x59436272,
+    skcms_Signature_CIEYxy = 0x59787920,
+    skcms_Signature_HSV    = 0x48535620,
+    skcms_Signature_HLS    = 0x484C5320,
+    skcms_Signature_CMY    = 0x434D5920,
+    skcms_Signature_2CLR   = 0x32434C52,
+    skcms_Signature_3CLR   = 0x33434C52,
+    skcms_Signature_4CLR   = 0x34434C52,
+    skcms_Signature_5CLR   = 0x35434C52,
+    skcms_Signature_6CLR   = 0x36434C52,
+    skcms_Signature_7CLR   = 0x37434C52,
+    skcms_Signature_8CLR   = 0x38434C52,
+    skcms_Signature_9CLR   = 0x39434C52,
+    skcms_Signature_10CLR  = 0x41434C52,
+    skcms_Signature_11CLR  = 0x42434C52,
+    skcms_Signature_12CLR  = 0x43434C52,
+    skcms_Signature_13CLR  = 0x44434C52,
+    skcms_Signature_14CLR  = 0x45434C52,
+    skcms_Signature_15CLR  = 0x46434C52,
 };
 
 typedef enum skcms_PixelFormat {

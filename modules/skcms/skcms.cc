@@ -441,6 +441,69 @@ bool skcms_GetWTPT(const skcms_ICCProfile* profile, float xyz[3]) {
            read_tag_xyz(&tag, &xyz[0], &xyz[1], &xyz[2]);
 }
 
+static int data_color_space_channel_count(uint32_t data_color_space) {
+    switch (data_color_space) {
+        case skcms_Signature_CMYK:   return 4;
+        case skcms_Signature_Gray:   return 1;
+        case skcms_Signature_RGB:    return 3;
+        case skcms_Signature_Lab:    return 3;
+        case skcms_Signature_XYZ:    return 3;
+        case skcms_Signature_CIELUV: return 3;
+        case skcms_Signature_YCbCr:  return 3;
+        case skcms_Signature_CIEYxy: return 3;
+        case skcms_Signature_HSV:    return 3;
+        case skcms_Signature_HLS:    return 3;
+        case skcms_Signature_CMY:    return 3;
+        case skcms_Signature_2CLR:   return 2;
+        case skcms_Signature_3CLR:   return 3;
+        case skcms_Signature_4CLR:   return 4;
+        case skcms_Signature_5CLR:   return 5;
+        case skcms_Signature_6CLR:   return 6;
+        case skcms_Signature_7CLR:   return 7;
+        case skcms_Signature_8CLR:   return 8;
+        case skcms_Signature_9CLR:   return 9;
+        case skcms_Signature_10CLR:  return 10;
+        case skcms_Signature_11CLR:  return 11;
+        case skcms_Signature_12CLR:  return 12;
+        case skcms_Signature_13CLR:  return 13;
+        case skcms_Signature_14CLR:  return 14;
+        case skcms_Signature_15CLR:  return 15;
+        default:                     return -1;
+    }
+}
+
+int skcms_GetInputChannelCount(const skcms_ICCProfile* profile) {
+    int a2b_count = 0;
+    if (profile->has_A2B) {
+        a2b_count = profile->A2B.input_channels != 0
+                        ? static_cast<int>(profile->A2B.input_channels)
+                        : 3;
+    }
+
+    skcms_ICCTag tag;
+    int trc_count = 0;
+    if (skcms_GetTagBySignature(profile, skcms_Signature_kTRC, &tag)) {
+        trc_count = 1;
+    } else if (profile->has_trc) {
+        trc_count = 3;
+    }
+
+    int dcs_count = data_color_space_channel_count(profile->data_color_space);
+
+    if (dcs_count < 0) {
+        return -1;
+    }
+
+    if (a2b_count > 0 && a2b_count != dcs_count) {
+        return -1;
+    }
+    if (trc_count > 0 && trc_count != dcs_count) {
+        return -1;
+    }
+
+    return dcs_count;
+}
+
 static bool read_to_XYZD50(const skcms_ICCTag* rXYZ, const skcms_ICCTag* gXYZ,
                            const skcms_ICCTag* bXYZ, skcms_Matrix3x3* toXYZ) {
     return read_tag_xyz(rXYZ, &toXYZ->vals[0][0], &toXYZ->vals[1][0], &toXYZ->vals[2][0]) &&
