@@ -207,6 +207,14 @@ SkPDFUnion write_icc_profile(SkPDFDocument* doc, sk_sp<SkData>&& icc, int channe
     return SkPDFUnion::Object(std::move(iccPDF));
 }
 
+bool icc_channel_mismatch(const skcms_ICCProfile* iccProfile, int expectedChannels) {
+    int iccChannels = -1;
+    if (iccProfile) {
+        iccChannels = skcms_GetInputChannelCount(iccProfile);
+    }
+    return 0 < iccChannels && expectedChannels != iccChannels;
+}
+
 void do_deflated_image(const SkPixmap& pm,
                        SkPDFDocument* doc,
                        bool isOpaque,
@@ -271,11 +279,13 @@ void do_deflated_image(const SkPixmap& pm,
         deflateWStream->finalize();
     }
 
-    if (pm.colorSpace() && channels != 1) {
+    if (pm.colorSpace()) {
         skcms_ICCProfile iccProfile;
         pm.colorSpace()->toProfile(&iccProfile);
-        sk_sp<SkData> iccData = SkWriteICCProfile(&iccProfile, "");
-        colorSpace = write_icc_profile(doc, std::move(iccData), channels);
+        if (!icc_channel_mismatch(&iccProfile, channels)) {
+            sk_sp<SkData> iccData = SkWriteICCProfile(&iccProfile, "");
+            colorSpace = write_icc_profile(doc, std::move(iccData), channels);
+        }
     }
 
     #ifdef SK_PDF_BASE85_BINARY
@@ -319,16 +329,23 @@ bool do_jpeg(sk_sp<SkData> data, SkColorSpace* imageColorSpace, SkPDFDocument* d
 
     int channels = yuv ? 3 : 1;
     SkPDFUnion colorSpace = yuv ? SkPDFUnion::Name("DeviceRGB") : SkPDFUnion::Name("DeviceGray");
-    if (sk_sp<SkData> encodedIccProfileData = encodedInfo.profileData()) {
+
+    if (sk_sp<SkData> encodedIccProfileData = encodedInfo.profileData();
+        encodedIccProfileData && !icc_channel_mismatch(encodedInfo.profile(), channels))
+    {
         colorSpace = write_icc_profile(doc, std::move(encodedIccProfileData), channels);
-    } else if (const skcms_ICCProfile* codecIccProfile = codec->getICCProfile()) {
+    } else if (const skcms_ICCProfile* codecIccProfile = codec->getICCProfile();
+               codecIccProfile && !icc_channel_mismatch(codecIccProfile, channels))
+    {
         sk_sp<SkData> codecIccData = SkWriteICCProfile(codecIccProfile, "");
         colorSpace = write_icc_profile(doc, std::move(codecIccData), channels);
-    } else if (imageColorSpace && channels != 1) {
+    } else if (imageColorSpace) {
         skcms_ICCProfile imageIccProfile;
         imageColorSpace->toProfile(&imageIccProfile);
-        sk_sp<SkData> imageIccData = SkWriteICCProfile(&imageIccProfile, "");
-        colorSpace = write_icc_profile(doc, std::move(imageIccData), channels);
+        if (!icc_channel_mismatch(&imageIccProfile, channels)) {
+            sk_sp<SkData> imageIccData = SkWriteICCProfile(&imageIccProfile, "");
+            colorSpace = write_icc_profile(doc, std::move(imageIccData), channels);
+        }
     }
 
     emit_image_stream(doc, ref,
