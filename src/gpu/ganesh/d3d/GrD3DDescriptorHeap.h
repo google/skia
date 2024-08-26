@@ -8,7 +8,7 @@
 #ifndef GrD3DDescriptorHeap_DEFINED
 #define GrD3DDescriptorHeap_DEFINED
 
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/utils/SkBitSet.h"
 

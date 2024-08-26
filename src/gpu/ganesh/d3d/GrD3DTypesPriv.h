@@ -8,7 +8,7 @@
 #ifndef GrD3DTypesPriv_DEFINED
 #define GrD3DTypesPriv_DEFINED
 
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 
 struct GrD3DTextureResourceSpec {
     GrD3DTextureResourceSpec()

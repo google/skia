@@ -8,8 +8,8 @@
 #ifdef SK_BUILD_FOR_MAC
 
 #include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
-#include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "include/private/base/SkTemplates.h"
 
 #include <dlfcn.h>

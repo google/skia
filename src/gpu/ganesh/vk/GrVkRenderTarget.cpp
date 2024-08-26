@@ -14,7 +14,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/ganesh/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"

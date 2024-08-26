@@ -8,7 +8,7 @@
 #ifndef GrVkTypesPriv_DEFINED
 #define GrVkTypesPriv_DEFINED
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/ganesh/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 

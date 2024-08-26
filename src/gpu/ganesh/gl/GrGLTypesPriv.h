@@ -8,7 +8,7 @@
 #define GrGLTypesPriv_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 
 #include <cstdint>
 #include <utility>

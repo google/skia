@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/epoxy/GrGLMakeEpoxyEGLInterface.h"
+
+#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "src/gpu/ganesh/gl/GrGLCoreFunctions.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
-#include "include/gpu/ganesh/gl/epoxy/GrGLMakeEpoxyEGLInterface.h"
 
 #include <epoxy/egl.h>
 #include <epoxy/gl.h>

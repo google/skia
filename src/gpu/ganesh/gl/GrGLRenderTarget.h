@@ -11,7 +11,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/base/SkTo.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrSurface.h"

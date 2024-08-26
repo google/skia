@@ -10,7 +10,7 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/MutableTextureState.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/ganesh/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"

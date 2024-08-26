@@ -13,7 +13,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/MutableTextureState.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/ganesh/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"

@@ -313,6 +313,7 @@ skia_cc_library(
         # TODO(kjlubick, egdaniel) Remove this coupling
         "//src/gpu/ganesh/mock:mock_hdrs",
         "//include/gpu/mock:public_hdrs",
+        "//include/gpu/ganesh/mock:public_hdrs",
     ],
     defines = ["SK_GANESH"],
     features = ["layering_check"],
@@ -375,6 +376,7 @@ skia_cc_library(
         # TODO(kjlubick, egdaniel) Remove this coupling
         "//src/gpu/ganesh/mock:mock_hdrs",
         "//include/gpu/mock:public_hdrs",
+        "//include/gpu/ganesh/mock:public_hdrs",
     ],
     defines = [
         "GPU_TEST_UTILS",

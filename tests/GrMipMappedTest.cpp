@@ -29,7 +29,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/gpu/mock/GrMockTypes.h"
+#include "include/gpu/ganesh/mock/GrMockTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTextureGenerator.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
@@ -68,7 +68,7 @@
 class GrRenderTask;
 
 #if defined(SK_DIRECT3D)
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #endif
 
 #if defined(SK_METAL)
@@ -77,12 +77,12 @@ class GrRenderTask;
 
 #if defined(SK_GL)
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #endif
 
 #if defined(SK_VULKAN)
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/ganesh/vk/GrVkTypes.h"
 #endif
 
 static constexpr int kSize = 8;

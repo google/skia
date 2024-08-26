@@ -13,6 +13,7 @@ skia_filegroup(
         "GrVkBackendSemaphore.h",
         "GrVkBackendSurface.h",
         "GrVkDirectContext.h",
+        "GrVkTypes.h",
     ],
     visibility = [
         "//include/gpu/ganesh:__pkg__",

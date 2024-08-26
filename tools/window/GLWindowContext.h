@@ -8,7 +8,7 @@
 #define GLWindowContext_DEFINED
 
 
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"

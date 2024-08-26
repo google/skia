@@ -10,7 +10,7 @@
 
 #include "src/gpu/ganesh/GrAttachment.h"
 
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "src/gpu/ganesh/d3d/GrD3DDescriptorHeap.h"
 #include "src/gpu/ganesh/d3d/GrD3DTextureResource.h"
 

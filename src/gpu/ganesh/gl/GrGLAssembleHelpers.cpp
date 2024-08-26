@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/gpu/gl/GrGLAssembleHelpers.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleHelpers.h"
 
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 

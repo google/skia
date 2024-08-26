@@ -12,7 +12,7 @@
 
 #ifdef SK_DIRECT3D
 
-#include "include/gpu/d3d/GrD3DBackendContext.h"
+#include "include/gpu/ganesh/d3d/GrD3DBackendContext.h"
 
 namespace sk_gpu_test {
 class D3DTestContext : public TestContext {

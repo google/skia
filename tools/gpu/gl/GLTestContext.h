@@ -8,7 +8,7 @@
 #ifndef GLTestContext_DEFINED
 #define GLTestContext_DEFINED
 
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tools/gpu/TestContext.h"
 

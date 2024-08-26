@@ -9,8 +9,15 @@ licenses(["notice"])
 skia_filegroup(
     name = "public_hdrs",
     srcs = [
+        "GrGLAssembleHelpers.h",
+        "GrGLAssembleInterface.h",
         "GrGLBackendSurface.h",
+        "GrGLConfig.h",
         "GrGLDirectContext.h",
+        "GrGLExtensions.h",
+        "GrGLFunctions.h",
+        "GrGLInterface.h",
+        "GrGLTypes.h",
     ],
     visibility = [
         "//src/gpu/ganesh/gl:__pkg__",

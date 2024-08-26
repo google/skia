@@ -8,7 +8,7 @@
 #include "tools/window/unix/GaneshGLWindowContext_unix.h"
 
 #include "include/gpu/ganesh/gl/glx/GrGLMakeGLXInterface.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/unix/XlibWindowInfo.h"
 

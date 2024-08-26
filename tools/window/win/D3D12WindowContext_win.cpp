@@ -9,7 +9,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/d3d/GrD3DBackendContext.h"
+#include "include/gpu/ganesh/d3d/GrD3DBackendContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tools/gpu/d3d/D3DTestUtils.h"
 #include "tools/window/DisplayParams.h"

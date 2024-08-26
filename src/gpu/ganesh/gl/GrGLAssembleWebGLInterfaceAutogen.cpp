@@ -9,7 +9,7 @@
  * be overwritten.
  */
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
 
 #if SK_DISABLE_WEBGL_INTERFACE || !defined(__EMSCRIPTEN__)
 struct GrGLInterface;
@@ -18,7 +18,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 }
 #else
 
-#include "include/gpu/gl/GrGLAssembleHelpers.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleHelpers.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 // Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/GLES3

@@ -17,7 +17,7 @@
 #include "src/gpu/ganesh/GrUtil.h"
 
 #ifdef SK_DIRECT3D
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "src/gpu/ganesh/d3d/GrD3DResourceState.h"
 #include "src/gpu/ganesh/d3d/GrD3DUtil.h"
 #endif

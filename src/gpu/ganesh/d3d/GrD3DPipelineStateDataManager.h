@@ -10,7 +10,7 @@
 
 #include "src/gpu/ganesh/GrUniformDataManager.h"
 
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "src/gpu/ganesh/GrSPIRVUniformHandler.h"
 
 class GrD3DConstantRingBuffer;

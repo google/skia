@@ -9,7 +9,7 @@
 #define GrGLSemaphore_DEFINED
 
 #include "include/gpu/GrBackendSemaphore.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
 

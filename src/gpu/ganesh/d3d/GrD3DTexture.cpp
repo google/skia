@@ -11,7 +11,7 @@
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
 #include "src/gpu/ganesh/d3d/GrD3DUtil.h"
 
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,

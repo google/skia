@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextOptions.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/SkSLToBackend.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"

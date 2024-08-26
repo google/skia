@@ -16,12 +16,12 @@ const ASSEMBLE_INTERFACE_GL_ES = `/*
  */
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/gl/GrGLAssembleHelpers.h"
-#include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "include/gpu/gl/GrGLExtensions.h"
-#include "include/gpu/gl/GrGLFunctions.h"
-#include "include/gpu/gl/GrGLInterface.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleHelpers.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
+#include "include/gpu/ganesh/gl/GrGLExtensions.h"
+#include "include/gpu/ganesh/gl/GrGLFunctions.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
@@ -99,12 +99,12 @@ const ASSEMBLE_INTERFACE_GL = `/*
  */
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/gl/GrGLAssembleHelpers.h"
-#include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "include/gpu/gl/GrGLExtensions.h"
-#include "include/gpu/gl/GrGLFunctions.h"
-#include "include/gpu/gl/GrGLInterface.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleHelpers.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
+#include "include/gpu/ganesh/gl/GrGLExtensions.h"
+#include "include/gpu/ganesh/gl/GrGLFunctions.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
@@ -171,7 +171,7 @@ const ASSEMBLE_INTERFACE_WEBGL = `/*
  * be overwritten.
  */
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
 
 #if SK_DISABLE_WEBGL_INTERFACE || !defined(__EMSCRIPTEN__)
 struct GrGLInterface;
@@ -180,7 +180,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 }
 #else
 
-#include "include/gpu/gl/GrGLAssembleHelpers.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleHelpers.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 // Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/GLES3
@@ -230,11 +230,11 @@ const VALIDATE_INTERFACE = `/*
  * be overwritten.
  */
 
-#include "include/gpu/gl/GrGLConfig.h"
-#include "include/gpu/gl/GrGLExtensions.h"
-#include "include/gpu/gl/GrGLFunctions.h"
-#include "include/gpu/gl/GrGLInterface.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLConfig.h"
+#include "include/gpu/ganesh/gl/GrGLExtensions.h"
+#include "include/gpu/ganesh/gl/GrGLFunctions.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"

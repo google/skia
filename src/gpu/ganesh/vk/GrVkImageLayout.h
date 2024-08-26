@@ -9,7 +9,7 @@
 #define GrVkImageLayout_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/ganesh/vk/GrVkTypes.h"
 
 class GrVkImageLayout : public SkRefCnt {
 public:

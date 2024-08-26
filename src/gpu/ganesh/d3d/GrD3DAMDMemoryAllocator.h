@@ -9,7 +9,7 @@
 #define GrD3DAMDMemoryAllocator_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 
 #if defined(__clang__)
 #pragma clang diagnostic push

@@ -11,7 +11,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "tools/ToolUtils.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/mac/MacWindowInfo.h"

@@ -22,7 +22,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrDriverBugWorkarounds.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/gl/GrGLConfig.h"
+#include "include/gpu/ganesh/gl/GrGLConfig.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkPoint_impl.h"

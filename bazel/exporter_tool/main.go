@@ -421,6 +421,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_gpu_public",
 			Rules: []string{
 				"//include/gpu/mock:public_hdrs",
+				"//include/gpu/ganesh/mock:public_hdrs",
 				"//include/gpu:ganesh_hdrs",
 				"//include/gpu:shared_public_hdrs",
 				"//include/gpu/ganesh:ganesh_hdrs",

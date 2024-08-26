@@ -7,7 +7,7 @@
 
 #include "tools/window/ANGLEWindowContext.h"
 
-#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 namespace skwindow::internal {

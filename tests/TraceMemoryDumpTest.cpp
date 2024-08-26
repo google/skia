@@ -13,7 +13,7 @@
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/gl/GrGLBuffer.h"

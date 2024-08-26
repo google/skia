@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "tools/gpu/gl/win/SkWGL.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/win/WindowContextFactory_win.h"

@@ -9,8 +9,8 @@
 
 #include "src/base/SkLeanWindows.h"
 
-#include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 #include <memory>

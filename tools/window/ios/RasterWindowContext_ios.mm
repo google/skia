@@ -10,7 +10,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "tools/ToolUtils.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/ios/WindowContextFactory_ios.h"

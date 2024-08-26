@@ -50,7 +50,7 @@
 
 #ifdef SK_IN_RENDERENGINE
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #endif
 
 #include <algorithm>

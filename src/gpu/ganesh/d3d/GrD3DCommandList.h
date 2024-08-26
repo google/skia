@@ -9,7 +9,7 @@
 #define GrD3DCommandList_DEFINED
 
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/GrRingBuffer.h"

@@ -5,6 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() { return nullptr; }

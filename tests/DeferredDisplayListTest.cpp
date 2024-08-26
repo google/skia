@@ -53,13 +53,13 @@ struct GrContextOptions;
 
 #ifdef SK_GL
 #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #endif
 
 #ifdef SK_VULKAN
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/ganesh/vk/GrVkTypes.h"
 #include "include/private/chromium/GrVkSecondaryCBDrawContext.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "tools/gpu/vk/VkTestHelper.h"

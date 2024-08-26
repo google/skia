@@ -7,8 +7,8 @@
 #include "src/gpu/ganesh/gl/GrGLVertexArray.h"
 
 #include "include/core/SkTypes.h"
-#include "include/gpu/gl/GrGLFunctions.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLFunctions.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrCaps.h"

@@ -8,7 +8,7 @@
 #ifndef GrGLProgramDataManager_DEFINED
 #define GrGLProgramDataManager_DEFINED
 
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkTBlockList.h"

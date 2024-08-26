@@ -9,7 +9,7 @@
 #define GrGLFinishCallbacks_DEFINED
 
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 
 #include <list>
 

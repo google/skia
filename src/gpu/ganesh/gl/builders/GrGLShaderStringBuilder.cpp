@@ -6,8 +6,8 @@
  */
 #include "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.h"
 
-#include "include/gpu/gl/GrGLFunctions.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLFunctions.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkTraceEvent.h"

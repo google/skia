@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/d3d/GrD3DRenderTarget.h"
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/d3d/GrD3DTypes.h"
+#include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"

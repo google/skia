@@ -7,7 +7,7 @@
 
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/android/WindowContextFactory_android.h"
 

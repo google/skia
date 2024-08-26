@@ -8,7 +8,7 @@
 #include "tools/window/mac/GaneshGLWindowContext_mac.h"
 
 #include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
-#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/mac/MacWindowGLUtils.h"
 #include "tools/window/mac/MacWindowInfo.h"

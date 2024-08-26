@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/mock/GrMockTypes.h"
+#include "include/gpu/ganesh/mock/GrMockTypes.h"
 
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GrBackendSurface.h"
