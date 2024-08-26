@@ -14,6 +14,25 @@
 #include "include/private/SkEncodedInfo.h"
 #include "modules/skcms/skcms.h"
 
+namespace {
+
+skcms_PixelFormat ToPixelFormat(const SkEncodedInfo& info) {
+    // We use kRGB and kRGBA formats because color PNGs are always RGB or RGBA.
+    if (16 == info.bitsPerComponent()) {
+        if (SkEncodedInfo::kRGBA_Color == info.color()) {
+            return skcms_PixelFormat_RGBA_16161616BE;
+        } else if (SkEncodedInfo::kRGB_Color == info.color()) {
+            return skcms_PixelFormat_RGB_161616BE;
+        }
+    } else if (SkEncodedInfo::kGray_Color == info.color()) {
+        return skcms_PixelFormat_G_8;
+    }
+
+    return skcms_PixelFormat_RGBA_8888;
+}
+
+}  // namespace
+
 SkPngCodecBase::~SkPngCodecBase() = default;
 
 // static
@@ -37,10 +56,8 @@ bool SkPngCodecBase::isCompatibleColorProfileAndType(const SkEncodedInfo::ICCPro
     return true;
 }
 
-SkPngCodecBase::SkPngCodecBase(SkEncodedInfo&& encodedInfo,
-                               XformFormat srcFormat,
-                               std::unique_ptr<SkStream> stream)
-        : SkCodec(std::move(encodedInfo), srcFormat, std::move(stream)) {}
+SkPngCodecBase::SkPngCodecBase(SkEncodedInfo&& encodedInfo, std::unique_ptr<SkStream> stream)
+        : SkCodec(std::move(encodedInfo), ToPixelFormat(encodedInfo), std::move(stream)) {}
 
 SkEncodedImageFormat SkPngCodecBase::onGetEncodedFormat() const {
     return SkEncodedImageFormat::kPNG;

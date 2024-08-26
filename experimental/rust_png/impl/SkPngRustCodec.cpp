@@ -192,21 +192,6 @@ private:
     SkStream* fStream = nullptr;  // Non-owning pointer.
 };
 
-// The current implementation does *not* call into
-// `SkCodec::applyColorXform` and therefore it doesn't really matter what we
-// pass to the constructor of `SkCodec` as `XformFormat srcFormat`.  Passing
-// `kInvalidSkcmsFormat` will ensure that `skcms_Transform` will return
-// false if (unexpectedly) called.
-//
-// Note that `skcms_PixelFormat` doesn't currently cover all the possible
-// output formats from the PNG decoder - e.g. it has no support for handling
-// G16 or GA16.
-//
-// TODO(https://crbug.com/356879515): Remove this constant and start using
-// valid pixel format constants before depending on `skcms_Transform`.
-#pragma clang diagnostic ignored "-Wenum-constexpr-conversion"
-constexpr skcms_PixelFormat kInvalidSkcmsPixelFormat = static_cast<skcms_PixelFormat>(-1);
-
 }  // namespace
 
 // static
@@ -231,8 +216,7 @@ std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<S
 SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
                                std::unique_ptr<SkStream> stream,
                                rust::Box<rust_png::Reader> reader)
-        : SkPngCodecBase(std::move(encodedInfo), kInvalidSkcmsPixelFormat, std::move(stream))
-        , fReader(std::move(reader)) {}
+        : SkPngCodecBase(std::move(encodedInfo), std::move(stream)), fReader(std::move(reader)) {}
 
 SkPngRustCodec::~SkPngRustCodec() = default;
 

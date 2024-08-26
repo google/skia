@@ -25,7 +25,7 @@ public:
                                                 SkEncodedInfo::Color color);
 
 protected:
-    SkPngCodecBase(SkEncodedInfo&&, XformFormat srcFormat, std::unique_ptr<SkStream>);
+    SkPngCodecBase(SkEncodedInfo&&, std::unique_ptr<SkStream>);
 
     // TODO(https://crbug.com/356879515): Move `SkPngCodec::applyXformRow` here.
 

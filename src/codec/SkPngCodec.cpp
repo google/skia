@@ -465,21 +465,6 @@ void SkPngCodec::allocateStorage(const SkImageInfo& dstInfo) {
     }
 }
 
-static skcms_PixelFormat png_select_xform_format(const SkEncodedInfo& info) {
-    // We use kRGB and kRGBA formats because color PNGs are always RGB or RGBA.
-    if (16 == info.bitsPerComponent()) {
-        if (SkEncodedInfo::kRGBA_Color == info.color()) {
-            return skcms_PixelFormat_RGBA_16161616BE;
-        } else if (SkEncodedInfo::kRGB_Color == info.color()) {
-            return skcms_PixelFormat_RGB_161616BE;
-        }
-    } else if (SkEncodedInfo::kGray_Color == info.color()) {
-        return skcms_PixelFormat_G_8;
-    }
-
-    return skcms_PixelFormat_RGBA_8888;
-}
-
 void SkPngCodec::applyXformRow(void* dst, const void* src) {
     switch (fXformMode) {
         case kSwizzleOnly_XformMode:
@@ -995,8 +980,7 @@ SkPngCodec::SkPngCodec(SkEncodedInfo&& encodedInfo,
                        void* png_ptr,
                        void* info_ptr,
                        int bitDepth)
-        : SkPngCodecBase(
-                  std::move(encodedInfo), png_select_xform_format(encodedInfo), std::move(stream))
+        : SkPngCodecBase(std::move(encodedInfo), std::move(stream))
         , fPngChunkReader(SkSafeRef(chunkReader))
         , fPng_ptr(png_ptr)
         , fInfo_ptr(info_ptr)
