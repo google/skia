@@ -389,11 +389,8 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(png_structp png_pt
     // an image has both truly wants the potentially more specific ICC chunk, with sRGB as a
     // backup in case the decoder does not support full color management.
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_sRGB)) {
-        // sRGB chunks also store a rendering intent: Absolute, Relative,
-        // Perceptual, and Saturation.
-        // FIXME (scroggo): Extract this information from the sRGB chunk once
-        //                  we are able to handle this information in
-        //                  skcms_ICCProfile
+        // TODO(https://crbug.com/362304558): Consider the intent field from the
+        // `sRGB` chunk.
         return nullptr;
     }
 
@@ -860,7 +857,8 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
     png_get_IHDR(fPng_ptr, fInfo_ptr, &origWidth, &origHeight, &bitDepth,
                  &encodedColorType, nullptr, nullptr, nullptr);
 
-    // TODO: Should we support 16-bits of precision for gray images?
+    // TODO(https://crbug.com/359245096): Should we support 16-bits of precision
+    // for gray images?
     if (bitDepth == 16 && (PNG_COLOR_TYPE_GRAY == encodedColorType ||
                            PNG_COLOR_TYPE_GRAY_ALPHA == encodedColorType)) {
         bitDepth = 8;
@@ -935,21 +933,8 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
     if (fOutCodec) {
         SkASSERT(nullptr == *fOutCodec);
         auto profile = read_color_profile(fPng_ptr, fInfo_ptr);
-        if (profile) {
-            switch (profile->profile()->data_color_space) {
-                case skcms_Signature_CMYK:
-                    profile = nullptr;
-                    break;
-                case skcms_Signature_Gray:
-                    if (SkEncodedInfo::kGray_Color != color &&
-                        SkEncodedInfo::kGrayAlpha_Color != color)
-                    {
-                        profile = nullptr;
-                    }
-                    break;
-                default:
-                    break;
-            }
+        if (!SkPngCodecBase::isCompatibleColorProfileAndType(profile.get(), color)) {
+            profile = nullptr;
         }
 
         switch (encodedColorType) {

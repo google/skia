@@ -23,6 +23,10 @@
 namespace {
 
 SkEncodedInfo::Color ToColor(rust_png::ColorType colorType) {
+    // TODO(https://crbug.com/359279096): Take `sBIT` chunk into account to
+    // sometimes return `kXAlpha_Color` or `k565_Color`.  This may require
+    // a small PR to expose `sBIT` chunk from the `png` crate.
+
     switch (colorType) {
         case rust_png::ColorType::Grayscale:
             return SkEncodedInfo::kGray_Color;
@@ -54,13 +58,88 @@ SkEncodedInfo::Alpha ToAlpha(rust_png::ColorType colorType) {
     SK_ABORT("Unexpected `rust_png::ColorType`: %d", static_cast<int>(colorType));
 }
 
+std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Reader& reader) {
+    // NOTE: This method is based on `read_color_profile` in
+    // `src/codec/SkPngCodec.cpp` but has been refactored to use Rust inputs
+    // instead of `libpng`.
+
+    rust::Slice<const uint8_t> iccp;
+    if (reader.try_get_iccp(iccp)) {
+        skcms_ICCProfile profile;
+        skcms_Init(&profile);
+        if (skcms_Parse(iccp.data(), iccp.size(), &profile)) {
+            return SkEncodedInfo::ICCProfile::Make(profile);
+        }
+    }
+
+    if (reader.is_srgb()) {
+        // TODO(https://crbug.com/362304558): Consider the intent field from the
+        // `sRGB` chunk.
+        return nullptr;
+    }
+
+    // Default to SRGB gamut.
+    skcms_Matrix3x3 toXYZD50 = skcms_sRGB_profile()->toXYZD50;
+
+    // Next, check for chromaticities.
+    float rx = 0.0;
+    float ry = 0.0;
+    float gx = 0.0;
+    float gy = 0.0;
+    float bx = 0.0;
+    float by = 0.0;
+    float wx = 0.0;
+    float wy = 0.0;
+    if (reader.try_get_chrm(wx, wy, rx, ry, gx, gy, bx, by)) {
+        skcms_Matrix3x3 tmp;
+        if (skcms_PrimariesToXYZD50(rx, ry, gx, gy, bx, by, wx, wy, &tmp)) {
+            toXYZD50 = tmp;
+        } else {
+            // Note that Blink simply returns nullptr in this case. We'll fall
+            // back to srgb.
+            //
+            // TODO(https://crbug.com/362306048): If this implementation ends up
+            // replacing the one from Blink, then we should 1) double-check that
+            // we are comfortable with the difference and 2) remove this comment
+            // (since the Blink code that it refers to will get removed).
+        }
+    }
+
+    skcms_TransferFunction fn;
+    float gamma;
+    if (reader.try_get_gama(gamma)) {
+        fn.a = 1.0f;
+        fn.b = fn.c = fn.d = fn.e = fn.f = 0.0f;
+        fn.g = 1.0f / gamma;
+    } else {
+        // Default to sRGB gamma if the image has color space information,
+        // but does not specify gamma.
+        // Note that Blink would again return nullptr in this case.
+        fn = *skcms_sRGB_TransferFunction();
+    }
+
+    skcms_ICCProfile profile;
+    skcms_Init(&profile);
+    skcms_SetTransferFunction(&profile, &fn);
+    skcms_SetXYZD50(&profile, &toXYZD50);
+    return SkEncodedInfo::ICCProfile::Make(profile);
+}
+
 SkEncodedInfo CreateEncodedInfo(const rust_png::Reader& reader) {
-    rust_png::ColorType color = reader.output_color_type();
+    rust_png::ColorType rust_color = reader.output_color_type();
+    SkEncodedInfo::Color sk_color = ToColor(rust_color);
+
+    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = CreateColorProfile(reader);
+    if (!SkPngCodecBase::isCompatibleColorProfileAndType(profile.get(), sk_color)) {
+        profile = nullptr;
+    }
+
     return SkEncodedInfo::Make(reader.width(),
                                reader.height(),
-                               ToColor(color),
-                               ToAlpha(color),
-                               reader.output_bits_per_component());
+                               sk_color,
+                               ToAlpha(rust_color),
+                               reader.output_bits_per_component(),
+                               std::move(profile));
 }
 
 SkCodec::Result ToSkCodecResult(rust_png::DecodingResult rustResult) {

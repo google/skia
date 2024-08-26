@@ -10,16 +10,19 @@
 #include <memory>
 
 #include "include/codec/SkCodec.h"
+#include "include/private/SkEncodedInfo.h"
 
 class SkStream;
 enum class SkEncodedImageFormat;
-struct SkEncodedInfo;
 
 // This class implements functionality shared between `SkPngCodec` and
 // `SkPngRustCodec` (the latter is from `experimental/rust_png`).
 class SkPngCodecBase : public SkCodec {
 public:
     ~SkPngCodecBase() override;
+
+    static bool isCompatibleColorProfileAndType(const SkEncodedInfo::ICCProfile* profile,
+                                                SkEncodedInfo::Color color);
 
 protected:
     SkPngCodecBase(SkEncodedInfo&&, XformFormat srcFormat, std::unique_ptr<SkStream>);
