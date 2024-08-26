@@ -72,7 +72,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, co
     // the structure of PaintParamsKey (just SkSpan<const int32_t>).
     int32_t invalidKeyData[3] = {(int32_t) BuiltInCodeSnippetID::kSolidColorShader,
                                  SkKnownRuntimeEffects::kSkiaBuiltInReservedCnt - 1,
-                                 (int32_t) BuiltInCodeSnippetID::kFixedFunctionSrcBlendMode};
+                                 (int32_t) BuiltInCodeSnippetID::kFixedBlend_Src};
     SkSpan<const int32_t> invalidKeySpan{invalidKeyData, std::size(invalidKeyData)*sizeof(int32_t)};
     const PaintParamsKey* fakeKey = reinterpret_cast<const PaintParamsKey*>(&invalidKeySpan);
     REPORTER_ASSERT(reporter, fakeKey->getRootNodes(dict, &arena).empty());
@@ -100,7 +100,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
 
     for (int bm = 0; bm <= (int) SkBlendMode::kLastCoeffMode; ++bm) {
         PaintParamsKeyBuilder builder(dict);
-        add_block(&builder, bm + kFixedFunctionBlendModeIDOffset);
+        add_block(&builder, bm + kFixedBlendIDOffset);
         UniquePaintParamsID paintID = dict->findOrCreate(&builder);
 
         ShaderInfo shaderInfo{paintID, dict, /*rteDict=*/nullptr, /*ssboIndex=*/""};

@@ -10,6 +10,8 @@
 
 #include "include/gpu/graphite/precompile/PrecompileBase.h"
 
+enum class SkBlendMode;
+
 namespace skgpu::graphite {
 
 /** \class PrecompileColorFilter
@@ -48,7 +50,8 @@ namespace PrecompileColorFilters {
                                                 SkSpan<const sk_sp<PrecompileColorFilter>> inner);
 
     // This encompasses both variants of SkColorFilters::Blend
-    SK_API sk_sp<PrecompileColorFilter> Blend();
+    SK_API sk_sp<PrecompileColorFilter> Blend(SkSpan<const SkBlendMode> blendModes);
+    SK_API sk_sp<PrecompileColorFilter> Blend(); // Prefer the explicit blend mode variant
 
     // This encompasses both variants of SkColorFilters::Matrix
     SK_API sk_sp<PrecompileColorFilter> Matrix();

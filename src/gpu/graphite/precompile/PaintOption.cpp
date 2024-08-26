@@ -44,10 +44,7 @@ void PaintOption::toKey(const KeyContext& keyContext,
 
     // Set the hardware blend mode.
     SkASSERT(finalBlendMode);
-    BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
-            kFixedFunctionBlendModeIDOffset + static_cast<int>(*finalBlendMode));
-
-    keyBuilder->addBlock(fixedFuncBlendModeID);
+    AddFixedBlendMode(keyContext, keyBuilder, gatherer, *finalBlendMode);
 }
 
 void PaintOption::addPaintColorToKey(const KeyContext& keyContext,
@@ -96,7 +93,7 @@ void PaintOption::handlePaintAlpha(const KeyContext& keyContext,
     if (!fOpaquePaintColor) {
         Blend(keyContext, keyBuilder, gatherer,
               /* addBlendToKey= */ [&] () -> void {
-                  AddKnownModeBlend(keyContext, keyBuilder, gatherer, SkBlendMode::kSrcIn);
+                  AddFixedBlendMode(keyContext, keyBuilder, gatherer, SkBlendMode::kSrcIn);
               },
               /* addSrcToKey= */ [&]() -> void {
                   this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
@@ -177,7 +174,7 @@ void PaintOption::handleDstRead(const KeyContext& keyContext,
                         fFinalBlender.first->priv().addToKey(keyContext, builder, gatherer,
                                                              fFinalBlender.second);
                     } else {
-                        AddKnownModeBlend(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
+                        AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
                     }
                 },
                 /* addSrcToKey= */ [&]() -> void {

@@ -100,13 +100,13 @@ void Blend(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*,
            AddToKeyFn addBlendToKey, AddToKeyFn addSrcToKey, AddToKeyFn addDstToKey);
 void Compose(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*,
              AddToKeyFn addInnerToKey, AddToKeyFn addOuterToKey);
-// Add a blend mode node for a specific SkBlendMode.
-void AddKnownModeBlend(const KeyContext&,
+// Add a fixed blend mode node for a specific SkBlendMode.
+void AddFixedBlendMode(const KeyContext&,
                        PaintParamsKeyBuilder*,
                        PipelineDataGatherer*,
                        SkBlendMode);
 // Add a blend mode node for an SkBlendMode that can vary
-void AddModeBlend(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*, SkBlendMode);
+void AddBlendMode(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*, SkBlendMode);
 void AddDstReadBlock(const KeyContext&,
                      PaintParamsKeyBuilder*,
                      PipelineDataGatherer*,

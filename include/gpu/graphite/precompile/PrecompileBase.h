@@ -71,8 +71,10 @@ protected:
                          int desiredOption);
 
 private:
-    friend class PaintOptions;  // for access to SelectOption
     friend class PrecompileBasePriv;
+
+    friend class PaintOptions;          // for access to SelectOption
+    friend class PrecompileBlenderList; // ""
 
     Type fType;
 };

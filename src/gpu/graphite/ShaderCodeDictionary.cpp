@@ -345,14 +345,15 @@ ShaderInfo::ShaderInfo(UniquePaintParamsID id,
         // function blend block at the root level. This can be improved with more structure to the
         // key creation.
         if (root->codeSnippetId() < kBuiltInCodeSnippetIDCount &&
-            root->codeSnippetId() >= kFixedFunctionBlendModeIDOffset) {
+            root->codeSnippetId() >= kFixedBlendIDOffset) {
             SkASSERT(root->numChildren() == 0);
             // This should occur at most once
             SkASSERT(!fixedFuncBlendFound);
             SkDEBUGCODE(fixedFuncBlendFound = true;)
 
-            fBlendMode = static_cast<SkBlendMode>(root->codeSnippetId() -
-                                                  kFixedFunctionBlendModeIDOffset);
+            fBlendMode = static_cast<SkBlendMode>(root->codeSnippetId() - kFixedBlendIDOffset);
+            // All SkBlendModes have fixed blend code IDs but Graphite does not yet support mapping
+            // the advanced blend modes to fixed function blending.
             SkASSERT(static_cast<int>(fBlendMode) >= 0 &&
                      fBlendMode <= SkBlendMode::kLastCoeffMode);
             fBlendInfo = gBlendTable[static_cast<int>(fBlendMode)];
@@ -540,7 +541,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
         // This exclusion of the final Blend can be removed once we've resolved the final
         // blend parenting issue w/in the key
         if (node->codeSnippetId() >= kBuiltInCodeSnippetIDCount ||
-            node->codeSnippetId() < kFixedFunctionBlendModeIDOffset) {
+            node->codeSnippetId() < kFixedBlendIDOffset) {
             args.fPriorStageOutput = invoke_and_assign_node(*this, node, args, &mainBody);
         }
     }
@@ -1549,28 +1550,6 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*uniforms=*/{}
     };
 
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kBlendShader] = {
-            /*name=*/"BlendShader",
-            /*staticFn=*/nullptr,
-            SnippetRequirementFlags::kNone,
-            /*uniforms=*/{},
-            /*textures=*/{},
-            GenerateComposePreamble,
-            /*numChildren=*/3
-    };
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCoeffBlender] = {
-            /*name=*/"CoeffBlender",
-            /*staticFn=*/"sk_coeff_blend",
-            SnippetRequirementFlags::kPriorStageOutput | SnippetRequirementFlags::kBlenderDstColor,
-            /*uniforms=*/{ { "coeffs", SkSLType::kHalf4 } }
-    };
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kBlendModeBlender] = {
-            /*name=*/"BlendModeBlender",
-            /*staticFn=*/"sk_blend",
-            SnippetRequirementFlags::kPriorStageOutput | SnippetRequirementFlags::kBlenderDstColor,
-            /*uniforms=*/{ { "blendMode", SkSLType::kInt } }
-    };
-
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColor] = {
             /*name=*/"PrimitiveColor",
             /*staticFn=*/"sk_color_space_transform",
@@ -1628,11 +1607,33 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             GenerateComposePreamble,
             /*numChildren=*/2
     };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kBlendCompose] = {
+            /*name=*/"BlendCompose",
+            /*staticFn=*/nullptr,
+            SnippetRequirementFlags::kNone,
+            /*uniforms=*/{},
+            /*textures=*/{},
+            GenerateComposePreamble,
+            /*numChildren=*/3
+    };
+
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPorterDuffBlender] = {
+            /*name=*/"PorterDuffBlender",
+            /*staticFn=*/"sk_porter_duff_blend",
+            SnippetRequirementFlags::kPriorStageOutput | SnippetRequirementFlags::kBlenderDstColor,
+            /*uniforms=*/{ { "coeffs", SkSLType::kHalf4 } }
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kHSLCBlender] = {
+            /*name=*/"HSLCBlender",
+            /*staticFn=*/"sk_hslc_blend",
+            SnippetRequirementFlags::kPriorStageOutput | SnippetRequirementFlags::kBlenderDstColor,
+            /*uniforms=*/{ { "flipSat", SkSLType::kHalf2 } }
+    };
 
     // Fixed-function blend mode snippets are all the same, their functionality is entirely defined
     // by their unique code snippet IDs.
-    for (int i = 0; i <= (int) SkBlendMode::kLastCoeffMode; ++i) {
-        int ffBlendModeID = kFixedFunctionBlendModeIDOffset + i;
+    for (int i = 0; i <= (int) SkBlendMode::kLastMode; ++i) {
+        int ffBlendModeID = kFixedBlendIDOffset + i;
         fBuiltInCodeSnippets[ffBlendModeID] = {
                 /*name=*/SkBlendMode_Name(static_cast<SkBlendMode>(i)),
                 /*staticFn=*/skgpu::BlendFuncName(static_cast<SkBlendMode>(i)),
@@ -1662,21 +1663,34 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
 // clang-format off
 
 // Verify that the built-in code IDs for fixed function blending are consistent with SkBlendMode.
-static_assert((int)SkBlendMode::kClear    == (int)BuiltInCodeSnippetID::kFixedFunctionClearBlendMode    - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kSrc      == (int)BuiltInCodeSnippetID::kFixedFunctionSrcBlendMode      - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kDst      == (int)BuiltInCodeSnippetID::kFixedFunctionDstBlendMode      - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kSrcOver  == (int)BuiltInCodeSnippetID::kFixedFunctionSrcOverBlendMode  - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kDstOver  == (int)BuiltInCodeSnippetID::kFixedFunctionDstOverBlendMode  - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kSrcIn    == (int)BuiltInCodeSnippetID::kFixedFunctionSrcInBlendMode    - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kDstIn    == (int)BuiltInCodeSnippetID::kFixedFunctionDstInBlendMode    - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kSrcOut   == (int)BuiltInCodeSnippetID::kFixedFunctionSrcOutBlendMode   - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kDstOut   == (int)BuiltInCodeSnippetID::kFixedFunctionDstOutBlendMode   - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kSrcATop  == (int)BuiltInCodeSnippetID::kFixedFunctionSrcATopBlendMode  - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kDstATop  == (int)BuiltInCodeSnippetID::kFixedFunctionDstATopBlendMode  - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kXor      == (int)BuiltInCodeSnippetID::kFixedFunctionXorBlendMode      - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kPlus     == (int)BuiltInCodeSnippetID::kFixedFunctionPlusBlendMode     - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kModulate == (int)BuiltInCodeSnippetID::kFixedFunctionModulateBlendMode - kFixedFunctionBlendModeIDOffset);
-static_assert((int)SkBlendMode::kScreen   == (int)BuiltInCodeSnippetID::kFixedFunctionScreenBlendMode   - kFixedFunctionBlendModeIDOffset);
+static_assert((int)SkBlendMode::kClear      == (int)BuiltInCodeSnippetID::kFixedBlend_Clear      - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kSrc        == (int)BuiltInCodeSnippetID::kFixedBlend_Src        - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kDst        == (int)BuiltInCodeSnippetID::kFixedBlend_Dst        - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kSrcOver    == (int)BuiltInCodeSnippetID::kFixedBlend_SrcOver    - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kDstOver    == (int)BuiltInCodeSnippetID::kFixedBlend_DstOver    - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kSrcIn      == (int)BuiltInCodeSnippetID::kFixedBlend_SrcIn      - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kDstIn      == (int)BuiltInCodeSnippetID::kFixedBlend_DstIn      - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kSrcOut     == (int)BuiltInCodeSnippetID::kFixedBlend_SrcOut     - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kDstOut     == (int)BuiltInCodeSnippetID::kFixedBlend_DstOut     - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kSrcATop    == (int)BuiltInCodeSnippetID::kFixedBlend_SrcATop    - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kDstATop    == (int)BuiltInCodeSnippetID::kFixedBlend_DstATop    - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kXor        == (int)BuiltInCodeSnippetID::kFixedBlend_Xor        - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kPlus       == (int)BuiltInCodeSnippetID::kFixedBlend_Plus       - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kModulate   == (int)BuiltInCodeSnippetID::kFixedBlend_Modulate   - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kScreen     == (int)BuiltInCodeSnippetID::kFixedBlend_Screen     - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kOverlay    == (int)BuiltInCodeSnippetID::kFixedBlend_Overlay    - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kDarken     == (int)BuiltInCodeSnippetID::kFixedBlend_Darken     - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kColorDodge == (int)BuiltInCodeSnippetID::kFixedBlend_ColorDodge - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kColorBurn  == (int)BuiltInCodeSnippetID::kFixedBlend_ColorBurn  - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kHardLight  == (int)BuiltInCodeSnippetID::kFixedBlend_HardLight  - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kSoftLight  == (int)BuiltInCodeSnippetID::kFixedBlend_SoftLight  - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kDifference == (int)BuiltInCodeSnippetID::kFixedBlend_Difference - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kExclusion  == (int)BuiltInCodeSnippetID::kFixedBlend_Exclusion  - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kMultiply   == (int)BuiltInCodeSnippetID::kFixedBlend_Multiply   - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kHue        == (int)BuiltInCodeSnippetID::kFixedBlend_Hue        - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kSaturation == (int)BuiltInCodeSnippetID::kFixedBlend_Saturation - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kColor      == (int)BuiltInCodeSnippetID::kFixedBlend_Color      - kFixedBlendIDOffset);
+static_assert((int)SkBlendMode::kLuminosity == (int)BuiltInCodeSnippetID::kFixedBlend_Luminosity - kFixedBlendIDOffset);
 
 // Verify enum constants match values expected by static module SkSL functions
 static_assert(0 == static_cast<int>(skcms_TFType_Invalid),   "ColorSpaceTransform code depends on skcms_TFType");

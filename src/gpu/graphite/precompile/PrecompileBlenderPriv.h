@@ -10,6 +10,8 @@
 
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
 
+#include <vector>
+
 namespace skgpu::graphite {
 
 /** Class that exposes methods in PrecompileBlender that are only intended for use internal to Skia.
@@ -52,6 +54,30 @@ inline PrecompileBlenderPriv PrecompileBlender::priv() { return PrecompileBlende
 inline const PrecompileBlenderPriv PrecompileBlender::priv() const {
     return PrecompileBlenderPriv(const_cast<PrecompileBlender *>(this));
 }
+
+class PrecompileBlenderList {
+public:
+    PrecompileBlenderList(SkSpan<const sk_sp<PrecompileBlender>> blenders);
+    PrecompileBlenderList(SkSpan<const SkBlendMode> blendModes);
+
+    int numCombinations() const { return fNumCombos; }
+
+    // For options that use a consolidated blend function, a representative blend mode is returned.
+    // Blend modes passed directly to the list's constructor will be re-wrapped in a
+    // PrecompileBlender that returns the correct value from asBlendMode().
+    //
+    // The representative blend mode is consistent with the block selection logic in AddBlendMode().
+    std::pair<sk_sp<PrecompileBlender>, int> selectOption(int desiredCombination) const;
+
+private:
+    // Porter Duff and HSLC blend modes are removed, but any remaining SkBlendModes that do not
+    // have a consolidated function must be fixed in the PaintParamsKey just like runtime blenders.
+    std::vector<sk_sp<PrecompileBlender>> fFixedBlenderEffects;
+    bool fHasPorterDuffBlender = false;
+    bool fHasHSLCBlender = false;
+
+    int fNumCombos = 0;
+};
 
 } // namespace skgpu::graphite
 

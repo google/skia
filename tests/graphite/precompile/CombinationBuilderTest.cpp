@@ -30,7 +30,7 @@ using namespace::skgpu::graphite;
 namespace {
 
 // colorfilters
-static constexpr int kExpectedBlendCFCombos = 1;
+static constexpr int kExpectedBlendCFCombos = 15;
 static constexpr int kExpectedColorSpaceCFCombos = 1;
 static constexpr int kExpectedHighContrastCFCombos = 1;
 static constexpr int kExpectedLightingCFCombos = 1;
@@ -80,8 +80,9 @@ void run_test(const KeyContext& keyContext,
               skiatest::Reporter* reporter,
               const PaintOptions& paintOptions,
               int expectedNumOptions) {
-
-    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == expectedNumOptions);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == expectedNumOptions,
+                    "expected %d, but was %d",
+                    expectedNumOptions, paintOptions.priv().numCombinations());
 
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(keyContext,
@@ -395,14 +396,17 @@ void shader_subtest(const KeyContext& keyContext,
 
     // In general, the blend shader generates the product of the options in each of its slots.
     // The rules for how many combinations the SkBlendModes yield are:
-    //   all Porter-Duff SkBlendModes collapse to one option (see SkBlendMode::kLastCoeffMode)
-    //   all non-Porter-Duff SkBlendModes collapse to a second option
+    //   all Porter-Duff SkBlendModes collapse to one option (see GetPorterDuffBlendConstants))
+    //   all HSCL SkBlendModes collapse to another option
+    //   all other SkBlendModes produce unique options
     {
         const SkBlendMode kBlendModes[] = {
-                SkBlendMode::kScreen,    // Porter-Duff
                 SkBlendMode::kSrcOut,    // Porter-Duff
-                SkBlendMode::kDarken,    // non-Porter-Duff
-                SkBlendMode::kHardLight, // non-Porter-Duff
+                SkBlendMode::kSrcOver,   // Porter-Duff
+                SkBlendMode::kHue,       // HSLC
+                SkBlendMode::kColor,     // HSLC
+                SkBlendMode::kScreen,    // Fixed Screen
+                SkBlendMode::kDarken,    // fixed Darken
         };
         PaintOptions paintOptions;
         paintOptions.setShaders(
@@ -411,7 +415,7 @@ void shader_subtest(const KeyContext& keyContext,
                                            { PrecompileShaders::MakeFractalNoise() }) });
 
         run_test(keyContext, gatherer, reporter, paintOptions,
-                 /* expectedNumOptions= */ 2 *  // both Porter-Duff and non-Porter-Duff
+                 /* expectedNumOptions= */ 4 *  // Porter-Duff, HSLC, Screen, Darken
                                            kExpectedSolidColorCombos *
                                            kExpectedPerlinNoiseCombos);
     }

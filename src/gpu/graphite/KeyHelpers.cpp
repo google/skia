@@ -979,37 +979,38 @@ void PerlinNoiseShaderBlock::AddBlock(const KeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
-void BlendShaderBlock::BeginBlock(const KeyContext& keyContext,
+void BlendComposeBlock::BeginBlock(const KeyContext& keyContext,
                                   PaintParamsKeyBuilder* builder,
                                   PipelineDataGatherer* gatherer) {
-    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kBlendShader)
+    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kBlendCompose)
 
-    builder->beginBlock(BuiltInCodeSnippetID::kBlendShader);
+    builder->beginBlock(BuiltInCodeSnippetID::kBlendCompose);
 }
 
 //--------------------------------------------------------------------------------------------------
 
-void BlendModeBlenderBlock::AddBlock(const KeyContext& keyContext,
-                                     PaintParamsKeyBuilder* builder,
-                                     PipelineDataGatherer* gatherer,
-                                     SkBlendMode blendMode) {
-    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kBlendModeBlender)
-    gatherer->write(SkTo<int>(blendMode));
-
-    builder->addBlock(BuiltInCodeSnippetID::kBlendModeBlender);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void CoeffBlenderBlock::AddBlock(const KeyContext& keyContext,
-                                 PaintParamsKeyBuilder* builder,
-                                 PipelineDataGatherer* gatherer,
-                                 SkSpan<const float> coeffs) {
-    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kCoeffBlender)
+void PorterDuffBlenderBlock::AddBlock(const KeyContext& keyContext,
+                                      PaintParamsKeyBuilder* builder,
+                                      PipelineDataGatherer* gatherer,
+                                      SkSpan<const float> coeffs) {
+    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kPorterDuffBlender)
     SkASSERT(coeffs.size() == 4);
     gatherer->writeHalf(SkV4{coeffs[0], coeffs[1], coeffs[2], coeffs[3]});
 
-    builder->addBlock(BuiltInCodeSnippetID::kCoeffBlender);
+    builder->addBlock(BuiltInCodeSnippetID::kPorterDuffBlender);
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void HSLCBlenderBlock::AddBlock(const KeyContext& keyContext,
+                                 PaintParamsKeyBuilder* builder,
+                                 PipelineDataGatherer* gatherer,
+                                 SkSpan<const float> coeffs) {
+    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kHSLCBlender)
+    SkASSERT(coeffs.size() == 2);
+    gatherer->writeHalf(SkV2{coeffs[0], coeffs[1]});
+
+    builder->addBlock(BuiltInCodeSnippetID::kHSLCBlender);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1167,12 +1168,7 @@ void AddBlendModeColorFilter(const KeyContext& keyContext,
                              const SkPMColor4f& srcColor) {
     Blend(keyContext, builder, gatherer,
           /* addBlendToKey= */ [&] () -> void {
-              // Note, we're playing a bit of a game here. By explicitly adding a
-              // BlendModeBlenderBlock we're always forcing the SkSL to call 'sk_blend'
-              // rather than allowing it to sometimes call 'blend_porter_duff'. This reduces
-              // the number of shader combinations and allows the pre-compilation system to more
-              // easily match the rendering path.
-              BlendModeBlenderBlock::AddBlock(keyContext, builder, gatherer, bm);
+            AddBlendMode(keyContext, builder, gatherer, bm);
           },
           /* addSrcToKey= */ [&]() -> void {
               SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, srcColor);
@@ -1259,7 +1255,7 @@ void add_to_key(const KeyContext& keyContext,
                 const SkBlendModeBlender* blender) {
     SkASSERT(blender);
 
-    AddModeBlend(keyContext, builder, gatherer, blender->mode());
+    AddBlendMode(keyContext, builder, gatherer, blender->mode());
 }
 
 // Be sure to keep this function in sync w/ the code in PrecompileRTEffect::addToKey
@@ -1299,7 +1295,7 @@ void add_children_to_key(const KeyContext& keyContext,
 
                 case ChildType::kBlender:
                     // A "passthrough" blender performs `blend_src_over(src, dest)`.
-                    AddKnownModeBlend(childContext, builder, gatherer, SkBlendMode::kSrcOver);
+                    AddFixedBlendMode(childContext, builder, gatherer, SkBlendMode::kSrcOver);
                     break;
             }
         }
@@ -1615,7 +1611,7 @@ static void add_to_key(const KeyContext& keyContext,
 
     Blend(keyContext, builder, gatherer,
             /* addBlendToKey= */ [&] () -> void {
-                AddModeBlend(keyContext, builder, gatherer, shader->mode());
+                AddBlendMode(keyContext, builder, gatherer, shader->mode());
             },
             /* addSrcToKey= */ [&]() -> void {
                 AddToKey(keyContext, builder, gatherer, shader->src().get());
@@ -2006,7 +2002,7 @@ static void add_to_key(const KeyContext& keyContext,
         if (imageToDraw->isAlphaOnly() && keyContext.scope() != KeyContext::Scope::kRuntimeEffect) {
             Blend(keyContext, builder, gatherer,
                   /* addBlendToKey= */ [&] () -> void {
-                      AddKnownModeBlend(keyContext, builder, gatherer, SkBlendMode::kDstIn);
+                      AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kDstIn);
                   },
                   /* addSrcToKey= */ [&] () -> void {
                       Compose(keyContext, builder, gatherer,

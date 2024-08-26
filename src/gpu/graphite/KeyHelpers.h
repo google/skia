@@ -286,18 +286,18 @@ struct PerlinNoiseShaderBlock {
                          const PerlinNoiseData&);
 };
 
-struct BlendShaderBlock {
+struct BlendComposeBlock {
     static void BeginBlock(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*);
 };
 
-struct BlendModeBlenderBlock {
+struct PorterDuffBlenderBlock {
     static void AddBlock(const KeyContext&,
                          PaintParamsKeyBuilder*,
                          PipelineDataGatherer*,
-                         SkBlendMode);
+                         SkSpan<const float> coeffs);
 };
 
-struct CoeffBlenderBlock {
+struct HSLCBlenderBlock {
     static void AddBlock(const KeyContext&,
                          PaintParamsKeyBuilder*,
                          PipelineDataGatherer*,

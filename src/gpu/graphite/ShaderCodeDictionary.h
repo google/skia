@@ -163,7 +163,7 @@ public:
         SkASSERT(children.size() == (size_t) fEntry->fNumChildren);
 
         const bool isCompose = codeID == (int) BuiltInCodeSnippetID::kCompose ||
-                               codeID == (int) BuiltInCodeSnippetID::kBlendShader;
+                               codeID == (int) BuiltInCodeSnippetID::kBlendCompose;
         for (const ShaderNode* child : children) {
             // Runtime effects invoke children with explicit parameters so those requirements never
             // need to propagate to the root. Similarly, compose only needs to propagate the

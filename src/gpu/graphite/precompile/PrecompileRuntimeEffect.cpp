@@ -159,7 +159,7 @@ private:
 
                     case SkRuntimeEffect::ChildType::kBlender:
                         // A "passthrough" blender performs `blend_src_over(src, dest)`.
-                        AddKnownModeBlend(childContext, builder, gatherer, SkBlendMode::kSrcOver);
+                        AddFixedBlendMode(childContext, builder, gatherer, SkBlendMode::kSrcOver);
                         break;
                 }
             }

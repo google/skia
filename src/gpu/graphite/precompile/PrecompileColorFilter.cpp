@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/precompile/PrecompileBaseComplete.h"
 #include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
+#include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
 #include "src/gpu/graphite/precompile/PrecompileColorFiltersPriv.h"
 
 namespace skgpu::graphite {
@@ -137,24 +138,58 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::Compose(
 //--------------------------------------------------------------------------------------------------
 class PrecompileBlendModeColorFilter : public PrecompileColorFilter {
 public:
-    PrecompileBlendModeColorFilter() {}
+    PrecompileBlendModeColorFilter(SkSpan<const SkBlendMode> blendModes)
+            : fBlendOptions(blendModes) {}
 
 private:
+    int numIntrinsicCombinations() const override {
+        return fBlendOptions.numCombinations();
+    }
+
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
                   int desiredCombination) const override {
-        SkASSERT(desiredCombination == 0);
+        auto [blender, option ] = fBlendOptions.selectOption(desiredCombination);
+        SkASSERT(option == 0 && blender->priv().asBlendMode().has_value());
 
-        // Here, kSrcOver and the white color are just a stand-ins for some later blend mode
-        // and color.
+        SkBlendMode representativeBlendMode = *blender->priv().asBlendMode();
+
+        // Here the color is just a stand-in for a later value.
         AddBlendModeColorFilter(keyContext, builder, gatherer,
-                                SkBlendMode::kSrcOver, SK_PMColor4fWHITE);
+                                representativeBlendMode, SK_PMColor4fWHITE);
     }
+
+    // NOTE: The BlendMode color filter can only be created with SkBlendModes, not arbitrary
+    // SkBlenders, so this list will only contain consolidated blend functions or fixed blend mode
+    // options.
+    PrecompileBlenderList fBlendOptions;
 };
 
 sk_sp<PrecompileColorFilter> PrecompileColorFilters::Blend() {
-    return sk_make_sp<PrecompileBlendModeColorFilter>();
+    static constexpr SkBlendMode kAllBlendOptions[15] = {
+        SkBlendMode::kSrcOver, // Trigger porter-duff blends
+        SkBlendMode::kHue,     // Trigger HSLC blends
+        // All remaining fixed blend modes:
+        SkBlendMode::kPlus,
+        SkBlendMode::kModulate,
+        SkBlendMode::kScreen,
+        SkBlendMode::kOverlay,
+        SkBlendMode::kDarken,
+        SkBlendMode::kLighten,
+        SkBlendMode::kColorDodge,
+        SkBlendMode::kColorBurn,
+        SkBlendMode::kHardLight,
+        SkBlendMode::kSoftLight,
+        SkBlendMode::kDifference,
+        SkBlendMode::kExclusion,
+        SkBlendMode::kMultiply
+    };
+    return Blend(kAllBlendOptions);
+}
+
+sk_sp<PrecompileColorFilter> PrecompileColorFilters::Blend(SkSpan<const SkBlendMode> blendModes) {
+    return sk_make_sp<PrecompileBlendModeColorFilter>(blendModes);
 }
 
 //--------------------------------------------------------------------------------------------------

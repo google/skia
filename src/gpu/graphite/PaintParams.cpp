@@ -98,7 +98,7 @@ void Blend(const KeyContext& keyContext,
            AddToKeyFn addBlendToKey,
            AddToKeyFn addSrcToKey,
            AddToKeyFn addDstToKey) {
-    BlendShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer);
+    BlendComposeBlock::BeginBlock(keyContext, keyBuilder, gatherer);
 
         addSrcToKey();
 
@@ -106,7 +106,7 @@ void Blend(const KeyContext& keyContext,
 
         addBlendToKey();
 
-    keyBuilder->endBlock();  // BlendShaderBlock
+    keyBuilder->endBlock();  // BlendComposeBlock
 }
 
 void Compose(const KeyContext& keyContext,
@@ -123,25 +123,32 @@ void Compose(const KeyContext& keyContext,
     keyBuilder->endBlock();  // ComposeBlock
 }
 
-void AddKnownModeBlend(const KeyContext& keyContext,
+void AddFixedBlendMode(const KeyContext& keyContext,
                        PaintParamsKeyBuilder* builder,
                        PipelineDataGatherer* gatherer,
                        SkBlendMode bm) {
-    SkASSERT(bm <= SkBlendMode::kLastCoeffMode);
-    BuiltInCodeSnippetID id = static_cast<BuiltInCodeSnippetID>(kFixedFunctionBlendModeIDOffset +
+    SkASSERT(bm <= SkBlendMode::kLastMode);
+    BuiltInCodeSnippetID id = static_cast<BuiltInCodeSnippetID>(kFixedBlendIDOffset +
                                                                 static_cast<int>(bm));
     builder->addBlock(id);
 }
 
-void AddModeBlend(const KeyContext& keyContext,
+void AddBlendMode(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
                   SkBlendMode bm) {
+    // For non-fixed blends, coefficient blend modes are combined into the same shader snippet.
+    // The same goes for the HSLC advanced blends. The remaining advanced blends are fairly unique
+    // in their implementations. To avoid having to compile all of their SkSL, they are treated as
+    // fixed blend modes.
     SkSpan<const float> coeffs = skgpu::GetPorterDuffBlendConstants(bm);
     if (!coeffs.empty()) {
-        CoeffBlenderBlock::AddBlock(keyContext, builder, gatherer, coeffs);
+        PorterDuffBlenderBlock::AddBlock(keyContext, builder, gatherer, coeffs);
+    } else if (bm >= SkBlendMode::kHue) {
+        ReducedBlendModeInfo blendInfo = GetReducedBlendModeInfo(bm);
+        HSLCBlenderBlock::AddBlock(keyContext, builder, gatherer, blendInfo.fUniformData);
     } else {
-        BlendModeBlenderBlock::AddBlock(keyContext, builder, gatherer, bm);
+        AddFixedBlendMode(keyContext, builder, gatherer, bm);
     }
 }
 
@@ -235,7 +242,7 @@ void PaintParams::handlePaintAlpha(const KeyContext& keyContext,
     if (fColor.fA != 1.0f) {
         Blend(keyContext, keyBuilder, gatherer,
               /* addBlendToKey= */ [&] () -> void {
-                  AddKnownModeBlend(keyContext, keyBuilder, gatherer, SkBlendMode::kSrcIn);
+                  AddFixedBlendMode(keyContext, keyBuilder, gatherer, SkBlendMode::kSrcIn);
               },
               /* addSrcToKey= */ [&]() -> void {
                   this->handlePrimitiveColor(keyContext, keyBuilder, gatherer);
@@ -294,7 +301,7 @@ void PaintParams::handleDstRead(const KeyContext& keyContext,
                   if (fFinalBlender) {
                       AddToKey(keyContext, builder, gatherer, fFinalBlender.get());
                   } else {
-                      AddKnownModeBlend(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
+                      AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
                   }
               },
               /* addSrcToKey= */ [&]() -> void {
@@ -329,10 +336,7 @@ void PaintParams::toKey(const KeyContext& keyContext,
 
     // Set the hardware blend mode.
     SkASSERT(finalBlendMode);
-    BuiltInCodeSnippetID fixedFuncBlendModeID = static_cast<BuiltInCodeSnippetID>(
-            kFixedFunctionBlendModeIDOffset + static_cast<int>(*finalBlendMode));
-
-    builder->addBlock(fixedFuncBlendModeID);
+    AddFixedBlendMode(keyContext, builder, gatherer, *finalBlendMode);
 }
 
 // TODO(b/330864257): Can be deleted once keys are determined by the Device draw.

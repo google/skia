@@ -438,12 +438,15 @@ ShaderType random_shadertype(SkRandom* rand) {
 }
 
 SkBlendMode random_porter_duff_bm(SkRandom* rand) {
+    // NOTE: The porter duff modes refer to being able to be consolidated into a single
+    // call to sk_porter_duff_blend(), which has slightly fewer compatible blend modes than the
+    // "coefficient" blend mode that supports HW blending.
     return static_cast<SkBlendMode>(rand->nextRangeU((unsigned int) SkBlendMode::kClear,
-                                                     (unsigned int) SkBlendMode::kLastCoeffMode));
+                                                     (unsigned int) SkBlendMode::kPlus));
 }
 
 SkBlendMode random_complex_bm(SkRandom* rand) {
-    return static_cast<SkBlendMode>(rand->nextRangeU((unsigned int) SkBlendMode::kLastCoeffMode,
+    return static_cast<SkBlendMode>(rand->nextRangeU((unsigned int) SkBlendMode::kPlus,
                                                      (unsigned int) SkBlendMode::kLastMode));
 }
 
@@ -1187,13 +1190,15 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_blendmode_c
 
     // SkColorFilters::Blend is clever and can weed out noop color filters. Loop until we get
     // a valid color filter.
+    SkBlendMode blend;
     while (!cf) {
+        blend = random_blend_mode(rand);
         cf = SkColorFilters::Blend(random_color4f(rand, ColorConstraint::kNone),
                                    random_colorspace(rand),
-                                   random_blend_mode(rand));
+                                   blend);
     }
 
-    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Blend();
+    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Blend({&blend, 1});
 
     return { std::move(cf), std::move(o) };
 }
