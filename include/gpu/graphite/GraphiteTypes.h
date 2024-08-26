@@ -103,6 +103,13 @@ enum class Volatile : bool {
     kYes = true               // fulfilled on every insertion call
 };
 
+enum class DepthStencilFlags : int {
+    kNone         = 0b000,
+    kDepth        = 0b001,
+    kStencil      = 0b010,
+    kDepthStencil = kDepth | kStencil,
+};
+
 /*
  * This enum allows mapping from a set of observed RenderSteps (e.g., from a GraphicsPipeline
  * printout) to the correct 'drawTypes' parameter needed by the Precompilation API.

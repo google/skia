@@ -402,10 +402,12 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
     SkASSERT_RELEASE(result != precompileIDs.end());
 
     {
+        static const RenderPassProperties kDefaultRenderPassProperties;
+
         context->priv().globalCache()->resetGraphicsPipelines();
 
         int before = context->priv().globalCache()->numGraphicsPipelines();
-        Precompile(context, paintOptions, kDrawType);
+        Precompile(context, paintOptions, kDrawType, { kDefaultRenderPassProperties });
         int after = context->priv().globalCache()->numGraphicsPipelines();
 
         SkASSERT_RELEASE(before == 0);

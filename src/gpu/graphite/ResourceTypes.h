@@ -20,12 +20,9 @@ namespace skgpu::graphite {
 
 class Buffer;
 
-enum class DepthStencilFlags : int {
-    kNone = 0b000,
-    kDepth = 0b001,
-    kStencil = 0b010,
-    kDepthStencil = kDepth | kStencil,
-};
+// This declaration of the DepthStencilFlags' SkEnumBitMask ops is here bc, internally, we use
+// DepthStencilFlags as bit fields but, externally (i.e., from the GraphiteTypes view), we want
+// it to appear as just an enum class.
 SK_MAKE_BITMASK_OPS(DepthStencilFlags)
 
 /**
