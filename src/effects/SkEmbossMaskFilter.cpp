@@ -99,11 +99,13 @@ bool SkEmbossMaskFilter::filterMask(SkMaskBuilder* dst, const SkMask& src,
 
     {
         uint8_t* alphaPlane = dst->image();
-        size_t   planeSize = dst->computeImageSize();
-        if (0 == planeSize) {
-            return false;   // too big to allocate, abort
+        size_t totalSize = dst->computeTotalImageSize();
+        if (totalSize == 0) {
+            return false;  // too big to allocate, abort
         }
-        dst->image() = SkMaskBuilder::AllocImage(planeSize * 3);
+        size_t planeSize = dst->computeImageSize();
+        SkASSERT(planeSize != 0);  // if totalSize didn't overflow, this can't either
+        dst->image() = SkMaskBuilder::AllocImage(totalSize);
         memcpy(dst->image(), alphaPlane, planeSize);
         SkMaskBuilder::FreeImage(alphaPlane);
     }
