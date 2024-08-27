@@ -77,6 +77,7 @@ ImGuiLayer::~ImGuiLayer() {
 }
 
 void ImGuiLayer::setScaleFactor(float scaleFactor) {
+    ImGui::GetStyle() = ImGuiStyle{};
     ImGui::GetStyle().ScaleAllSizes(scaleFactor);
 
     ImFontAtlas& atlas = *ImGui::GetIO().Fonts;

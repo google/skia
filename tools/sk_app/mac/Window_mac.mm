@@ -214,6 +214,13 @@ void Window_mac::PaintWindows() {
     fWindow->inval();
 }
 
+- (void)windowDidChangeScreen:(NSNotification *)notification {
+    NSView* view = fWindow->window().contentView;
+    CGFloat scale = skwindow::GetBackingScaleFactor(view);
+    fWindow->onResize(view.bounds.size.width * scale, view.bounds.size.height * scale);
+    fWindow->inval();
+}
+
 - (BOOL)windowShouldClose:(NSWindow*)sender {
     fWindow->closeWindow();
 

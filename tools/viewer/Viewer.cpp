@@ -1917,6 +1917,9 @@ void Viewer::onResize(int width, int height) {
         }
         fSlides[fCurrentSlide]->resize(width / scaleFactor, height / scaleFactor);
     }
+
+    fImGuiLayer.setScaleFactor(fWindow->scaleFactor());
+    fStatsLayer.setDisplayScale((fZoomUI ? 2.0f : 1.0f) * fWindow->scaleFactor());
 }
 
 SkPoint Viewer::mapEvent(float x, float y) {
