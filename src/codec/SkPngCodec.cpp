@@ -327,7 +327,7 @@ bool SkPngCodec::createColorTable(const SkImageInfo& dstInfo) {
 
     // Pad the color table with the last color in the table (or black) in the case that
     // invalid pixel indices exceed the number of colors in the table.
-    const int maxColors = 1 << fBitDepth;
+    const int maxColors = 1 << this->getEncodedInfo().bitsPerComponent();
     if (numColors < maxColors) {
         SkPMColor lastColor = numColors > 0 ? colorTable[numColors - 1] : SK_ColorBLACK;
         SkOpts::memset32(colorTable + numColors, lastColor, maxColors - numColors);
@@ -494,9 +494,8 @@ public:
                        std::unique_ptr<SkStream> stream,
                        SkPngChunkReader* reader,
                        png_structp png_ptr,
-                       png_infop info_ptr,
-                       int bitDepth)
-            : SkPngCodec(std::move(info), std::move(stream), reader, png_ptr, info_ptr, bitDepth)
+                       png_infop info_ptr)
+            : SkPngCodec(std::move(info), std::move(stream), reader, png_ptr, info_ptr)
             , fRowsWrittenToOutput(0)
             , fDst(nullptr)
             , fRowBytes(0)
@@ -612,9 +611,8 @@ public:
                            SkPngChunkReader* reader,
                            png_structp png_ptr,
                            png_infop info_ptr,
-                           int bitDepth,
                            int numberPasses)
-            : SkPngCodec(std::move(info), std::move(stream), reader, png_ptr, info_ptr, bitDepth)
+            : SkPngCodec(std::move(info), std::move(stream), reader, png_ptr, info_ptr)
             , fNumberPasses(numberPasses)
             , fFirstRow(0)
             , fLastRow(0)
@@ -960,11 +958,17 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
                                                         bitDepth, std::move(profile));
         if (1 == numberPasses) {
             *fOutCodec = new SkPngNormalDecoder(std::move(encodedInfo),
-                   std::unique_ptr<SkStream>(fStream), fChunkReader, fPng_ptr, fInfo_ptr, bitDepth);
+                                                std::unique_ptr<SkStream>(fStream),
+                                                fChunkReader,
+                                                fPng_ptr,
+                                                fInfo_ptr);
         } else {
             *fOutCodec = new SkPngInterlacedDecoder(std::move(encodedInfo),
-                    std::unique_ptr<SkStream>(fStream), fChunkReader, fPng_ptr, fInfo_ptr, bitDepth,
-                    numberPasses);
+                                                    std::unique_ptr<SkStream>(fStream),
+                                                    fChunkReader,
+                                                    fPng_ptr,
+                                                    fInfo_ptr,
+                                                    numberPasses);
         }
         static_cast<SkPngCodec*>(*fOutCodec)->setIdatLength(idatLength);
     }
@@ -978,14 +982,12 @@ SkPngCodec::SkPngCodec(SkEncodedInfo&& encodedInfo,
                        std::unique_ptr<SkStream> stream,
                        SkPngChunkReader* chunkReader,
                        void* png_ptr,
-                       void* info_ptr,
-                       int bitDepth)
+                       void* info_ptr)
         : SkPngCodecBase(std::move(encodedInfo), std::move(stream))
         , fPngChunkReader(SkSafeRef(chunkReader))
         , fPng_ptr(png_ptr)
         , fInfo_ptr(info_ptr)
         , fColorXformSrcRow(nullptr)
-        , fBitDepth(bitDepth)
         , fIdatLength(0)
         , fDecodedIdat(false) {}
 

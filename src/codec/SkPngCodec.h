@@ -51,8 +51,11 @@ protected:
         void* fPtr;
     };
 
-    SkPngCodec(SkEncodedInfo&&, std::unique_ptr<SkStream>, SkPngChunkReader*,
-               void* png_ptr, void* info_ptr, int bitDepth);
+    SkPngCodec(SkEncodedInfo&&,
+               std::unique_ptr<SkStream>,
+               SkPngChunkReader*,
+               void* png_ptr,
+               void* info_ptr);
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*)
             override;
@@ -90,7 +93,6 @@ protected:
     std::unique_ptr<SkSwizzler> fSwizzler;
     skia_private::AutoTMalloc<uint8_t>      fStorage;
     void*                       fColorXformSrcRow;
-    const int                   fBitDepth;
 
 private:
 
