@@ -253,9 +253,15 @@ config("default") {
                ] + _arch_flags
     libs += [ "objc" ]
     if (ios_min_target != "") {
-      cflags += [ "-miphoneos-version-min=$ios_min_target" ]
-      asmflags += [ "-miphoneos-version-min=$ios_min_target" ]
-      ldflags += [ "-miphoneos-version-min=$ios_min_target" ]
+      if (ios_use_simulator) {
+        cflags += [ "-miphonesimulator-version-min=$ios_min_target" ]
+        asmflags += [ "-miphonesimulator-version-min=$ios_min_target" ]
+        ldflags += [ "-miphonesimulator-version-min=$ios_min_target" ]
+      } else {
+        cflags += [ "-miphoneos-version-min=$ios_min_target" ]
+        asmflags += [ "-miphoneos-version-min=$ios_min_target" ]
+        ldflags += [ "-miphoneos-version-min=$ios_min_target" ]
+      }
     }
   }
 
