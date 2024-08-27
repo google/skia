@@ -17,6 +17,10 @@ skia_filegroup(
         "VulkanMutableTextureState.h",
         "VulkanTypes.h",
     ],
+    visibility = [
+        "//src/gpu/ganesh/vk:__pkg__",
+        "//src/gpu/vk:__pkg__",
+    ],
 )
 
 # These are Ganesh specific. In a perfect world, we'd move these to
@@ -26,17 +30,8 @@ skia_filegroup(
     srcs = [
         "GrVkTypes.h",
     ],
-)
-
-skia_filegroup(
-    name = "public_hdrs",
-    srcs = [
-        ":ganesh_public_hdrs",
-        ":shared_public_hdrs",
-    ],
     visibility = [
         "//src/gpu/ganesh/vk:__pkg__",
-        "//src/gpu/vk:__pkg__",
     ],
 )
 

@@ -38,7 +38,7 @@ skia_cc_library(
     ],
     hdrs = [
         ":_vk_hdrs",
-        "//include/gpu/vk:public_hdrs",
+        "//include/gpu/vk:shared_public_hdrs",
     ],
     defines = [
         "SK_USE_EXTERNAL_VULKAN_HEADERS",
