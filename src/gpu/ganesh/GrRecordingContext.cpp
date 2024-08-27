@@ -15,6 +15,7 @@
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"

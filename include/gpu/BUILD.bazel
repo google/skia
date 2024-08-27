@@ -38,7 +38,6 @@ skia_filegroup(
     name = "shared_gpu_hdrs",
     srcs = [
         "GpuTypes.h",
-        "GrTypes.h",  # TODO(kjlubick, egdaniel) Tesselation.h uses GR_MAKE_BITFIELD_CLASS_OPS
         "MutableTextureState.h",
         "ShaderErrorHandler.h",
     ],

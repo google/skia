@@ -11,6 +11,7 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurface.h"
 
@@ -42,7 +43,7 @@ public:
         kColorAttachment   = 0x2,
         kTexture           = 0x4,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(UsageFlags);
+    SK_DECL_BITFIELD_CLASS_OPS_FRIENDS(UsageFlags);
 
     ~GrAttachment() override {}
 
@@ -122,6 +123,6 @@ private:
     using INHERITED = GrSurface;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrAttachment::UsageFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(GrAttachment::UsageFlags)
 
 #endif

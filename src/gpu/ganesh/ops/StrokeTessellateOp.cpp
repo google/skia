@@ -119,7 +119,7 @@ GrOp::CombineResult StrokeTessellateOp::onCombineIfPossible(GrOp* grOp, SkArenaA
     }
 
     // Don't actually enable new dynamic state on ops that already have lots of verbs.
-    constexpr static GrTFlagsMask<PatchAttribs> kDynamicStatesMask(PatchAttribs::kStrokeParams |
+    constexpr static SkTFlagsMask<PatchAttribs> kDynamicStatesMask(PatchAttribs::kStrokeParams |
                                                                    PatchAttribs::kColor);
     PatchAttribs neededDynamicStates = combinedAttribs & kDynamicStatesMask;
     if (neededDynamicStates != PatchAttribs::kNone) {

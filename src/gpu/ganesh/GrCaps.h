@@ -13,6 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDriverBugWorkarounds.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/Blend.h"
@@ -520,7 +521,7 @@ public:
         // approach, but inline uploads are very rare and already slow.
         kVulkanHasResolveLoadSubpass = 0x1,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ProgramDescOverrideFlags);
+    SK_DECL_BITFIELD_CLASS_OPS_FRIENDS(ProgramDescOverrideFlags);
 
 
     virtual GrProgramDesc makeDesc(
@@ -705,6 +706,6 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrCaps::ProgramDescOverrideFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(GrCaps::ProgramDescOverrideFlags)
 
 #endif

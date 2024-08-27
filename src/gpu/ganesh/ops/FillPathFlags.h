@@ -19,7 +19,7 @@ enum class FillPathFlags {
     kWireframe   = (1 << 1)
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(FillPathFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(FillPathFlags)
 
 }  // namespace skgpu::ganesh
 

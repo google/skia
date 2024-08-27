@@ -7,8 +7,8 @@
 #include "src/gpu/ganesh/tessellate/GrPathTessellationShader.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"

@@ -10,9 +10,9 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrProcessorSet.h"

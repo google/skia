@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/Swizzle.h"
@@ -40,7 +41,7 @@ public:
         kCheckBounds = 1 << 1
     };
 
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(ShaderFlags);
+    SK_DECL_BITFIELD_CLASS_OPS_FRIENDS(ShaderFlags);
 
     constexpr static int kNumShaderFlags = 2;
 
@@ -109,7 +110,7 @@ private:
     const ShaderFlags fShaderFlags;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(AtlasInstancedHelper::ShaderFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(AtlasInstancedHelper::ShaderFlags)
 
 }  // namespace skgpu::ganesh
 

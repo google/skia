@@ -16,6 +16,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
@@ -498,6 +499,6 @@ private:
     SkDEBUGCODE(SkString   fDebugName;)
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrSurfaceProxy::ResolveFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(GrSurfaceProxy::ResolveFlags)
 
 #endif

@@ -8,12 +8,13 @@
 #ifndef GrGLSLFragmentShaderBuilder_DEFINED
 #define GrGLSLFragmentShaderBuilder_DEFINED
 
-#include "include/gpu/GrTypes.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMacros.h"
 #include "src/gpu/ganesh/glsl/GrGLSLShaderBuilder.h"
 
 #include <cstdint>
 
+enum GrSurfaceOrigin : int;
 class GrGLSLProgramBuilder;
 
 namespace skgpu { enum class BlendEquation : uint8_t; }
@@ -56,7 +57,7 @@ private:
     char fPadding[4] = {};
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrGLSLFPFragmentBuilder::ScopeFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(GrGLSLFPFragmentBuilder::ScopeFlags)
 
 /*
  * This class is used by Xfer processors to build their fragment code.

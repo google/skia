@@ -14,7 +14,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMacros.h"
@@ -254,7 +253,7 @@ enum class GrQuadAAFlags {
     kAll  = 0b1111,
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrQuadAAFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(GrQuadAAFlags)
 
 static inline GrQuadAAFlags SkToGrQuadAAFlags(unsigned flags) {
     return static_cast<GrQuadAAFlags>(flags);
@@ -462,9 +461,9 @@ enum class GrInternalSurfaceFlags {
     kVkRTSupportsInputAttachment    = 1 << 4,
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
 
-// 'GR_MAKE_BITFIELD_CLASS_OPS' defines the & operator on GrInternalSurfaceFlags to return bool.
+// 'SK_MAKE_BITFIELD_CLASS_OPS' defines the & operator on GrInternalSurfaceFlags to return bool.
 // We want to find the bitwise & with these masks, so we declare them as ints.
 constexpr static int kGrInternalTextureFlagsMask = static_cast<int>(
         GrInternalSurfaceFlags::kReadOnly);
@@ -526,7 +525,7 @@ enum class GrMipmapStatus {
     kValid,        // All levels fully allocated and have valid data in them
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
+SK_MAKE_BITFIELD_CLASS_OPS(GpuPathRenderers)
 
 /**
  * Like SkColorType this describes a layout of pixel data in CPU memory. It specifies the channels,
@@ -939,7 +938,7 @@ enum class GrDstSampleFlags {
     kRequiresTextureBarrier =   1 << 0,
     kAsInputAttachment = 1 << 1,
 };
-GR_MAKE_BITFIELD_CLASS_OPS(GrDstSampleFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(GrDstSampleFlags)
 
 using GrVisitProxyFunc = std::function<void(GrSurfaceProxy*, skgpu::Mipmapped)>;
 

@@ -11,8 +11,8 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMacros.h"
 
 #include <math.h>
 #include <algorithm>
@@ -90,7 +90,7 @@ enum class PatchAttribs {
     kWideColorIfEnabled = 1 << 6,  // If kColor is set, specifies it to be float4 wide color.
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)
+SK_MAKE_BITFIELD_CLASS_OPS(PatchAttribs)
 
 // When PatchAttribs::kExplicitCurveType is set, these are the values that tell the GPU what type of
 // curve is being drawn.

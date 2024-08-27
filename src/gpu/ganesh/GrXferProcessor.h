@@ -9,8 +9,8 @@
 #define GrXferProcessor_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/Swizzle.h"
@@ -24,6 +24,7 @@
 
 class GrGLSLProgramDataManager;
 class GrGLSLXPFragmentBuilder;
+enum GrSurfaceOrigin : int;
 enum class GrClampType;
 enum class SkBlendMode;
 namespace skgpu { class KeyBuilder; }
@@ -48,7 +49,7 @@ enum class GrXferBarrierFlags {
     kBlend   = 1 << 1,
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrXferBarrierFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(GrXferBarrierFlags)
 
 /**
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst
@@ -234,7 +235,7 @@ public:
          */
         kUnaffectedByDstValue = 0x80,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
+    SK_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 
     static sk_sp<const GrXferProcessor> MakeXferProcessor(const GrXPFactory*,
                                                           const GrProcessorAnalysisColor&,
@@ -275,7 +276,7 @@ private:
 #pragma clang diagnostic pop
 #endif
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrXPFactory::AnalysisProperties)
+SK_MAKE_BITFIELD_CLASS_OPS(GrXPFactory::AnalysisProperties)
 
 //////////////////////////////////////////////////////////////////////////////
 

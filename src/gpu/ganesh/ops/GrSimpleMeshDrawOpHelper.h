@@ -9,10 +9,10 @@
 #define GrSimpleMeshDrawOpHelper_DEFINED
 
 #include "include/core/SkString.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrPaint.h"
@@ -65,7 +65,7 @@ public:
         kSnapVerticesToPixelCenters = (uint8_t)GrPipeline::InputFlags::kSnapVerticesToPixelCenters,
         kConservativeRaster = (uint8_t)GrPipeline::InputFlags::kConservativeRaster,
     };
-    GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(InputFlags);
+    SK_DECL_BITFIELD_CLASS_OPS_FRIENDS(InputFlags);
 
     GrSimpleMeshDrawOpHelper(GrProcessorSet*, GrAAType, InputFlags = InputFlags::kNone);
     ~GrSimpleMeshDrawOpHelper();
@@ -239,6 +239,6 @@ GrOp::Owner GrSimpleMeshDrawOpHelper::FactoryHelper(GrRecordingContext* context,
     }
 }
 
-GR_MAKE_BITFIELD_CLASS_OPS(GrSimpleMeshDrawOpHelper::InputFlags)
+SK_MAKE_BITFIELD_CLASS_OPS(GrSimpleMeshDrawOpHelper::InputFlags)
 
 #endif
