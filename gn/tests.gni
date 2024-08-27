@@ -384,6 +384,7 @@ graphite_tests_sources = [
 ]
 
 precompile_tests_sources = [
+  "$_tests/graphite/precompile/ChromePrecompileTest.cpp",
   "$_tests/graphite/precompile/CombinationBuilderTest.cpp",
   "$_tests/graphite/precompile/PaintParamsKeyTest.cpp",
 ]

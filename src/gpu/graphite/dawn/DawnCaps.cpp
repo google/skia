@@ -981,9 +981,12 @@ bool DawnCaps::extractGraphicsDescs(const UniqueKey& key,
 
     DawnTextureInfo dawnInfo;
     dawnInfo.fFormat = dawnInfo.fViewFormat = kFormats[colorFormatIndex];
-    dawnInfo.fSampleCount  = (renderpassDescBits >> kColorNumSamplesOffset) & kNumSamplesMask;
+    dawnInfo.fSampleCount  = 1;
     dawnInfo.fMipmapped = skgpu::Mipmapped::kNo;
     dawnInfo.fUsage = wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::RenderAttachment;
+
+    uint32_t colorSampleCount = (renderpassDescBits >> kColorNumSamplesOffset) & kNumSamplesMask;
+    bool requiresMSAA = colorSampleCount > 1;
 
     SkEnumBitMask<DepthStencilFlags> dsFlags = DepthStencilFlags::kNone;
 
@@ -1001,7 +1004,7 @@ bool DawnCaps::extractGraphicsDescs(const UniqueKey& key,
     }
     SkDEBUGCODE(uint32_t dsSampleCount =
                     (renderpassDescBits >> kDepthStencilNumSamplesOffset) & kNumSamplesMask;)
-    SkASSERT(dawnInfo.fSampleCount == dsSampleCount);
+    SkASSERT(colorSampleCount == dsSampleCount);
 
     LoadOp loadOp = LoadOp::kClear;
     if (renderpassDescBits & kResolveMask) {
@@ -1018,7 +1021,7 @@ bool DawnCaps::extractGraphicsDescs(const UniqueKey& key,
                                            StoreOp::kStore,
                                            dsFlags,
                                            /* clearColor= */ { .0f, .0f, .0f, .0f },
-                                           /* requiresMSAA= */ dawnInfo.fSampleCount > 1,
+                                           requiresMSAA,
                                            writeSwizzle);
 
     return true;
