@@ -221,8 +221,8 @@ SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
 SkPngRustCodec::~SkPngRustCodec() = default;
 
 SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
-                                            void* dst,
-                                            size_t rowBytes,
+                                            void* dstPtr,
+                                            size_t dstRowSize,
                                             const Options& options,
                                             int* rowsDecoded) {
     // TODO(https://crbug.com/356922876): Expose `png` crate's ability to decode
@@ -282,10 +282,10 @@ SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
 
     // Convert the `decodedPixels` into the `dstInfo` format.
     SkSpan<const uint8_t> src = decodedPixels;
-    void* dstRow = dst;
+    SkSpan<uint8_t> dst(static_cast<uint8_t*>(dstPtr), dstRowSize * height);
     for (int y = 0; y < height; ++y) {
-        swizzler->swizzle(dstRow, src.data());
-        dstRow = SkTAddOffset<void>(dstRow, rowBytes);
+        swizzler->swizzle(dst.data(), src.data());
+        dst = dst.subspan(dstRowSize);
         src = src.subspan(srcRowSize);
     }
     *rowsDecoded = height;
