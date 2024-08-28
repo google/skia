@@ -137,7 +137,7 @@ static const struct {
     { "grd3d",                 "graphite", "api=direct3d" },
 #endif
 #ifdef SK_DAWN
-    { "grdawn_fakeWGPU",       "graphite", "api=dawn_mtl,fakeWGPU=true" },
+    { "grdawn_mtl_fakeWGPU",   "graphite", "api=dawn_mtl,fakeWGPU=true" },
     { "grdawn_d3d11",          "graphite", "api=dawn_d3d11" },
     { "grdawn_d3d12",          "graphite", "api=dawn_d3d12" },
     { "grdawn_mtl",            "graphite", "api=dawn_mtl" },
