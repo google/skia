@@ -10,6 +10,7 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMath.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
@@ -90,6 +91,12 @@ void GrMeshDrawOp::PatternHelper::init(GrMeshDrawTarget* target, GrPrimitiveType
     if (!indexBuffer) {
         return;
     }
+
+    // Bail out when we get overflow from really large draws.
+    if (repeatCount < 0 || repeatCount > SK_MaxS32 / verticesPerRepetition) {
+        return;
+    }
+
     sk_sp<const GrBuffer> vertexBuffer;
     int firstVertex;
     int vertexCount = verticesPerRepetition * repeatCount;

@@ -21,6 +21,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkSLTypeShared.h"
@@ -396,6 +397,7 @@ private:
         STArray<kNumStackDashes, SkRect, true> rects;
         STArray<kNumStackDashes, DashDraw, true> draws;
 
+        SkSafeMath safeMath;
         int totalRectCount = 0;
         int rectOffset = 0;
         rects.push_back_n(3 * instanceCount);
@@ -562,9 +564,9 @@ private:
                 devIntervals[0] = lineLength;
             }
 
-            totalRectCount += !lineDone ? 1 : 0;
-            totalRectCount += hasStartRect ? 1 : 0;
-            totalRectCount += hasEndRect ? 1 : 0;
+            totalRectCount = safeMath.addInt(totalRectCount, !lineDone ? 1 : 0);
+            totalRectCount = safeMath.addInt(totalRectCount, hasStartRect ? 1 : 0);
+            totalRectCount = safeMath.addInt(totalRectCount, hasEndRect ? 1 : 0);
 
             if (SkPaint::kRound_Cap == cap && 0 != args.fSrcStrokeWidth) {
                 // need to adjust this for round caps to correctly set the dashPos attrib on
@@ -604,7 +606,7 @@ private:
             draw.fHasEndRect = hasEndRect;
         }
 
-        if (!totalRectCount) {
+        if (!totalRectCount || !safeMath) {
             return;
         }
 

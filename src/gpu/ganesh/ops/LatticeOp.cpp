@@ -27,6 +27,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkSafeMath.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkSLTypeShared.h"
@@ -288,11 +289,13 @@ private:
 
         int patchCnt = fPatches.size();
         int numRects = 0;
+
+        SkSafeMath safeMath;
         for (int i = 0; i < patchCnt; i++) {
-            numRects += fPatches[i].fIter->numRectsToDraw();
+            numRects = safeMath.addInt(numRects, fPatches[i].fIter->numRectsToDraw());
         }
 
-        if (!numRects) {
+        if (!numRects || !safeMath) {
             return;
         }
 
