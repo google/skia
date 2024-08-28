@@ -399,7 +399,7 @@ private:
         if (fFilter != that->fFilter) {
             return CombineResult::kCannotCombine;
         }
-        if (GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get())) {
+        if (!GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get())) {
             return CombineResult::kCannotCombine;
         }
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
