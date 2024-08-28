@@ -1038,7 +1038,7 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
     }
     if (skipFormatConversion && !options.fSubset) {
         fXformMode = kColorOnly_XformMode;
-        return kSuccess;
+        goto Success;
     }
 
     if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
@@ -1048,6 +1048,15 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
     }
 
     this->initializeSwizzler(dstInfo, options, skipFormatConversion);
+
+Success:
+    this->allocateStorage(dstInfo);
+
+    // We can't call `initializeXformParams` here, because `swizzleWidth` may
+    // change *after* `onStartIncrementalDecode`
+    // (`SkSampledCodec::sampledDecode` first [transitively] calls
+    // `onStartIncrementalDecode` and *then* `SkSwizzler::onSetSampleX`).
+
     return kSuccess;
 }
 
@@ -1157,7 +1166,6 @@ SkCodec::Result SkPngCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
         return kUnimplemented;
     }
 
-    this->allocateStorage(dstInfo);
     this->initializeXformParams();
     return this->decodeAllRows(dst, rowBytes, rowsDecoded);
 }
@@ -1168,8 +1176,6 @@ SkCodec::Result SkPngCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
     if (kSuccess != result) {
         return result;
     }
-
-    this->allocateStorage(dstInfo);
 
     int firstRow, lastRow;
     if (options.fSubset) {
