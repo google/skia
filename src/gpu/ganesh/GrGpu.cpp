@@ -434,6 +434,7 @@ bool GrGpu::readPixels(GrSurface* surface,
     SkASSERT(!surface->framebufferOnly());
     SkASSERT(this->caps()->areColorTypeAndFormatCompatible(surfaceColorType,
                                                            surface->backendFormat()));
+    SkASSERT(dstColorType != GrColorType::kUnknown);
 
     if (!SkIRect::MakeSize(surface->dimensions()).contains(rect)) {
         return false;

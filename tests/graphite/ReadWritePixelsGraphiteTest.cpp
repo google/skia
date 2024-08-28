@@ -463,8 +463,7 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
                 if (readCT == kRGB_101010x_SkColorType ||
                     readCT == kBGR_101010x_XR_SkColorType ||
                     readCT == kBGRA_10101010_XR_SkColorType ||
-                    readCT == kBGR_101010x_SkColorType ||
-                    readCT == kRGB_F16F16F16x_SkColorType) {
+                    readCT == kBGR_101010x_SkColorType) {
                     continue;
                 }
                 for (const sk_sp<SkColorSpace>& readCS :
