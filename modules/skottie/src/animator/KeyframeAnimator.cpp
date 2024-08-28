@@ -164,8 +164,8 @@ bool AnimatorBuilder::parseKeyframes(const AnimationBuilder& abuilder,
         if (i > 0) {
             auto& prev_kf = fKFs.back();
 
-            // Ts must be strictly monotonic.
-            if (t <= prev_kf.t) {
+            // Ts must be monotonic.
+            if (t < prev_kf.t) {
                 return false;
             }
 
