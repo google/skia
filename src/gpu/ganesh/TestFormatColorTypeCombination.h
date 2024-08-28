@@ -7,7 +7,7 @@
 #ifndef TestFormatColorTypeCombination_DEFINED
 #define TestFormatColorTypeCombination_DEFINED
 
-#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 namespace GrTest {

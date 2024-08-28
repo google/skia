@@ -8,7 +8,7 @@
 #ifndef GrSemaphore_DEFINED
 #define GrSemaphore_DEFINED
 
-#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/ganesh/GrBackendSemaphore.h"
 
 /**
  * Represents a semaphore-like GPU synchronization object.

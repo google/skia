@@ -9,7 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/BlurUtils.h"

@@ -31,7 +31,7 @@
 #endif
 
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
-#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 
 class SlugGM : public skiagm::GM {
 public:

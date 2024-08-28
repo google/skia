@@ -15,7 +15,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/GpuToolUtils.h"

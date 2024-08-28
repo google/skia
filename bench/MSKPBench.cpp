@@ -7,8 +7,8 @@
 
 #include "bench/MSKPBench.h"
 #include "include/core/SkCanvas.h"
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "tools/MSKPPlayer.h"
 
 MSKPBench::MSKPBench(SkString name, std::unique_ptr<MSKPPlayer> player)

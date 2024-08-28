@@ -8,7 +8,7 @@
 #ifndef GrContextThreadSafeProxyPriv_DEFINED
 #define GrContextThreadSafeProxyPriv_DEFINED
 
-#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/gpu/ganesh/GrContextThreadSafeProxy.h"
 #include "include/private/gpu/ganesh/GrContext_Base.h"
 
 #include "src/gpu/ganesh/GrCaps.h"

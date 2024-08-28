@@ -9,7 +9,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"

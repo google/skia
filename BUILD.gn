@@ -1400,7 +1400,8 @@ if (skia_enable_ganesh && skia_generate_workarounds) {
     # GN insists its outputs should go somewhere underneath root_out_dir, so we trick it with a
     # path that starts with root_out_dir and then uses ".." to back up into the src dir.
     output_file =
-        rebase_path("include/gpu/GrDriverBugWorkaroundsAutogen.h", root_out_dir)
+        rebase_path("include/gpu/ganesh/GrDriverBugWorkaroundsAutogen.h",
+                    root_out_dir)
 
     outputs = [ "$root_out_dir/$output_file" ]
     args = [

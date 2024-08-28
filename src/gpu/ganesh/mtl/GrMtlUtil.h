@@ -10,8 +10,8 @@
 
 #import <Metal/Metal.h>
 
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/mtl/GrMtlTypesPriv.h"

@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/vk/GrVkPipelineStateDataManager.h"
 
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"

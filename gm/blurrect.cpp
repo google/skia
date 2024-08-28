@@ -28,7 +28,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkMask.h"

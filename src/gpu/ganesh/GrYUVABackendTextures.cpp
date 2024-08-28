@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrYUVABackendTextures.h"
+#include "include/gpu/ganesh/GrYUVABackendTextures.h"
 
 #include "include/core/SkColor.h"
 #include "include/core/SkSize.h"

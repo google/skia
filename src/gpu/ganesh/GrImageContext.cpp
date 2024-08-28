@@ -7,7 +7,7 @@
 #include "include/private/gpu/ganesh/GrImageContext.h"
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/gpu/ganesh/GrContextThreadSafeProxy.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 
 #include <utility>

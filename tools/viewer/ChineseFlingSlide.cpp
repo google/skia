@@ -17,7 +17,7 @@
 #include "tools/viewer/Slide.h"
 
 #if defined(SK_GANESH)
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 
 using MaskFormat = skgpu::MaskFormat;

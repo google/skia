@@ -10,7 +10,7 @@
 
 #include "tools/gpu/mock/MockTestContext.h"
 
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 
 namespace {
 

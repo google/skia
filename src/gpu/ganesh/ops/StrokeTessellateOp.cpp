@@ -10,7 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrCaps.h"

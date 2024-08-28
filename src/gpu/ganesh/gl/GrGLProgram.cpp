@@ -7,7 +7,7 @@
 #include "src/gpu/ganesh/gl/GrGLProgram.h"
 
 #include "include/core/SkSamplingOptions.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/gl/GrGLFunctions.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "src/gpu/Swizzle.h"

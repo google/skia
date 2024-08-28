@@ -8,7 +8,7 @@
 #ifndef GrMtlBackendSemaphore_DEFINED
 #define GrMtlBackendSemaphore_DEFINED
 
-#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/ganesh/GrBackendSemaphore.h"
 #include "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #include "include/private/base/SkAPI.h"
 

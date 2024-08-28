@@ -9,7 +9,7 @@
 #define GrGeometryProcessor_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"

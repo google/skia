@@ -9,8 +9,8 @@
 #define GrVkTextureRenderTarget_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"

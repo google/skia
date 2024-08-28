@@ -7,7 +7,7 @@
 
 #include "tools/gpu/gl/GLTestContext.h"
 
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/gl/GrGLDirectContext.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tools/gpu/GpuTimer.h"

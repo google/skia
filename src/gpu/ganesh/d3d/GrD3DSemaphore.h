@@ -8,7 +8,7 @@
 #ifndef GrMtlSemaphore_DEFINED
 #define GrMtlSemaphore_DEFINED
 
-#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/ganesh/GrBackendSemaphore.h"
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSemaphore.h"

@@ -14,7 +14,7 @@
 #include <android/hardware_buffer.h>
 
 #if !defined(SK_DISABLE_LEGACY_ANDROID_HW_UTILS)
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #endif
 
 // TODO: remove this once Android is using the AHardwareBufferUtils version of

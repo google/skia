@@ -8,7 +8,7 @@
 #ifndef GrProgramInfo_DEFINED
 #define GrProgramInfo_DEFINED
 
-#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"

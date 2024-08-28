@@ -13,7 +13,7 @@
     #include "include/core/SkPictureRecorder.h"
     #include "include/core/SkStream.h"
     #include "include/core/SkSurface.h"
-    #include "include/gpu/GrDirectContext.h"
+    #include "include/gpu/ganesh/GrDirectContext.h"
     #include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
     #include "include/gpu/ganesh/gl/GrGLInterface.h"
 #else

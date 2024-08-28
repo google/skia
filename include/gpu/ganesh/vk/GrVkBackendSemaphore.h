@@ -8,7 +8,7 @@
 #ifndef GrVkBackendSemaphore_DEFINED
 #define GrVkBackendSemaphore_DEFINED
 
-#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/ganesh/GrBackendSemaphore.h"
 #include "include/private/base/SkAPI.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 

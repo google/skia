@@ -9,7 +9,7 @@
 #define MemoryCache_DEFINED
 
 #include "include/core/SkData.h"
-#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 #include "src/core/SkChecksum.h"
 
 #include <unordered_map>

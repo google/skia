@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/vk/GrVkBuffer.h"
 
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"

@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 
 #include "include/core/SkBlendMode.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkPoint_impl.h"

@@ -11,7 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPoint.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -32,7 +32,7 @@
 #include <memory>
 
 #ifdef SK_DEBUG
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 
 static bool is_valid_lazy(const SkISize& dimensions, SkBackingFit fit) {

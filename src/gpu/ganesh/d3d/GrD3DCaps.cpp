@@ -7,8 +7,8 @@
 #include "src/gpu/ganesh/d3d/GrD3DCaps.h"
 
 #include "include/core/SkTextureCompressionType.h"
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/d3d/GrD3DBackendContext.h"
 #include "include/gpu/ganesh/d3d/GrD3DTypes.h"
 #include "src/core/SkCompressedDataUtils.h"

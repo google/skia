@@ -8,7 +8,7 @@
 #define GrGLTextureRenderTarget_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
 #include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
 

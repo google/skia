@@ -8,7 +8,7 @@
 
 #include "include/android/SkCanvasAndroid.h"
 #include "include/core/SkRect.h"
-#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDevice.h"
 #include "src/gpu/ganesh/Device.h"

@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/mtl/GrMtlPipelineStateBuilder.h"
 
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkWriteBuffer.h"

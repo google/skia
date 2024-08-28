@@ -7,8 +7,8 @@
 
 #include "tools/gpu/mtl/MtlTestContext.h"
 
-#include "include/gpu/GrContextOptions.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/mtl/GrMtlDirectContext.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"
 

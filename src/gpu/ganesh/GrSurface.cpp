@@ -8,8 +8,8 @@
 #include "src/gpu/ganesh/GrSurface.h"
 
 #include "include/core/SkTextureCompressionType.h"
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"

@@ -18,7 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkMeshGanesh.h"
 #include "include/private/base/SkAssert.h"
 #include "src/base/SkRandom.h"

@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/gl/GrGLFunctions.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
 #include "tools/gpu/gl/GLTestContext.h"

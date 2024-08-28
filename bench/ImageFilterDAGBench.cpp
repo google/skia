@@ -13,7 +13,7 @@
 #include "tools/Resources.h"
 
 #if defined(SK_GANESH)
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #endif
 

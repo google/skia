@@ -10,7 +10,7 @@
 
 #include "include/private/gpu/ganesh/GrImageContext.h"
 
-#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/gpu/ganesh/GrContextThreadSafeProxy.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"
 
 /** Class that exposes methods on GrImageContext that are only intended for use internal to Skia.

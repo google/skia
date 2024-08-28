@@ -4,7 +4,7 @@
 #include "tools/skottie_ios_app/SkiaContext.h"
 
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/mtl/GrMtlBackendContext.h"
 #include "include/gpu/ganesh/mtl/GrMtlDirectContext.h"
 #include "tools/skottie_ios_app/SkMetalViewBridge.h"

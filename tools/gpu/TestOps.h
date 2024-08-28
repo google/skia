@@ -9,7 +9,7 @@
 #define TestRectOp_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 

@@ -47,7 +47,6 @@ skia_filegroup(
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
     headers = [
-        "GrTypes.h",
         "MutableTextureState.h",
     ],
 )

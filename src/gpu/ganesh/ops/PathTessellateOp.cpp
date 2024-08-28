@@ -7,7 +7,7 @@
 #include "src/gpu/ganesh/ops/PathTessellateOp.h"
 
 #include "include/core/SkColor.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"

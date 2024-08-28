@@ -9,7 +9,7 @@
 #define GrBaseContextPriv_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/private/gpu/ganesh/GrContext_Base.h"
 
 #include <cstdint>

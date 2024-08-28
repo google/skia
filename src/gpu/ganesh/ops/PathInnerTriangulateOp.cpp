@@ -8,7 +8,7 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkString.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/base/SkAlignedStorage.h"
 #include "include/private/base/SkOnce.h"
 #include "src/base/SkArenaAlloc.h"

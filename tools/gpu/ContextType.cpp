@@ -7,7 +7,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "tools/gpu/ContextType.h"
 
 const char* skgpu::ContextTypeName(skgpu::ContextType type) {

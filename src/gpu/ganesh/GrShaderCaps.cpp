@@ -8,7 +8,7 @@
 
 #include "src/gpu/ganesh/GrShaderCaps.h"
 
-#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

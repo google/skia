@@ -18,9 +18,9 @@
 #include "tools/testrunners/common/TestRunner.h"
 
 #if defined(SK_GANESH)
-#include "include/gpu/GrContextOptions.h"
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "tools/gpu/ContextType.h"
 #include "tools/gpu/TestContext.h"

@@ -9,7 +9,7 @@
 #define GrBackendSemaphorePriv_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrBackendSemaphore.h"
+#include "include/gpu/ganesh/GrBackendSemaphore.h"
 
 enum class GrBackendApi : unsigned int;
 

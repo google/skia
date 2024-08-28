@@ -11,7 +11,7 @@
 #import <Metal/Metal.h>
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "src/gpu/GpuRefCnt.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrManagedResource.h"

@@ -19,7 +19,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkAutoPixmapStorage.h"
 

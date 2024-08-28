@@ -213,7 +213,7 @@ py_binary(
     srcs = [":generate_workarounds.py"],
     args = [
         "--output-file",
-        "include/gpu/GrDriverBugWorkaroundsAutogen.h",
+        "include/gpu/ganesh/GrDriverBugWorkaroundsAutogen.h",
         "src/gpu/gpu_workaround_list.txt",
     ],
     data = [

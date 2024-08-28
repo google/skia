@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrDriverBugWorkarounds.h"
+#include "include/gpu/ganesh/GrDriverBugWorkarounds.h"
 
 #include "include/core/SkTypes.h"
 

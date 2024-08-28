@@ -58,7 +58,7 @@
 class GrDirectContext;
 
 #if defined(SK_GANESH)
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #endif
 
 #define DEBUGCANVAS_ATTRIBUTE_DUMP "dump"

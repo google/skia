@@ -9,9 +9,9 @@
 
 #include "include/core/SkPicture.h"
 #include "include/core/SkSerialProcs.h"
-#include "include/gpu/GrContextThreadSafeProxy.h"
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrYUVABackendTextures.h"
+#include "include/gpu/ganesh/GrContextThreadSafeProxy.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrYUVABackendTextures.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/private/chromium/SkImageChromium.h"
 #include "src/codec/SkCodecImageGenerator.h"

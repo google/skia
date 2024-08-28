@@ -8,8 +8,8 @@
 #include "src/gpu/ganesh/GrResourceCache.h"
 
 #include "include/core/SkString.h"
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTo.h"

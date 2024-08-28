@@ -7,7 +7,7 @@
 #include "src/gpu/ganesh/gl/GrGLTypesPriv.h"
 
 #include "include/core/SkScalar.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 
 GrGLTextureParameters::SamplerOverriddenState::SamplerOverriddenState()

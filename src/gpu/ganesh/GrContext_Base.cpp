@@ -7,9 +7,9 @@
 
 #include "include/private/gpu/ganesh/GrContext_Base.h"
 
-#include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContextOptions.h"
-#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
+#include "include/gpu/ganesh/GrContextThreadSafeProxy.h"
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrBaseContextPriv.h"

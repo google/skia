@@ -9,7 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/Rectanizer.h"

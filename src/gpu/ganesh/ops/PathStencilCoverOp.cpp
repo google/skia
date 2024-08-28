@@ -10,7 +10,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/base/SkAlignedStorage.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkOnce.h"

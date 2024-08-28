@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkExecutor.h"
-#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 #include "tools/flags/CommonFlagsGanesh.h"
 
 DEFINE_int(gpuThreads,

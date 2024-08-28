@@ -11,7 +11,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAPixmaps.h"
-#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/chromium/GrPromiseImageTexture.h"
 #include "src/base/SkTLazy.h"

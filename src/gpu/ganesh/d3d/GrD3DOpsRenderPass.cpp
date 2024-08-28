@@ -22,7 +22,7 @@
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 
 #ifdef SK_DEBUG
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #endif
 

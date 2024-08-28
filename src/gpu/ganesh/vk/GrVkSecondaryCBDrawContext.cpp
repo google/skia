@@ -8,8 +8,8 @@
 #include "include/private/chromium/GrVkSecondaryCBDrawContext.h"
 
 #include "include/core/SkImageInfo.h"
-#include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/ganesh/vk/GrVkTypes.h"
 #include "include/private/chromium/GrDeferredDisplayList.h"

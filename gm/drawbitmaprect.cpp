@@ -28,7 +28,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkBlurMask.h"
 #include "tools/GpuToolUtils.h"

@@ -19,7 +19,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "tools/gpu/YUVUtils.h"

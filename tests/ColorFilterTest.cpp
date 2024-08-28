@@ -23,7 +23,7 @@
 #include "include/effects/SkColorMatrix.h" // IWYU pragma: keep
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkRandom.h"

@@ -8,7 +8,7 @@
 #ifndef GrBackendDrawableInfo_DEFINED
 #define GrBackendDrawableInfo_DEFINED
 
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 
 #include "include/gpu/ganesh/vk/GrVkTypes.h"
 

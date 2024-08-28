@@ -9,7 +9,7 @@
 #define GrTextureGenerator_DEFINED
 
 #include "include/core/SkImageGenerator.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SkAPI.h"
 
 #include <cstdint>

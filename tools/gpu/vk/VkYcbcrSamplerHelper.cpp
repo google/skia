@@ -9,7 +9,7 @@
 
 #if defined(SK_VULKAN)
 
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"

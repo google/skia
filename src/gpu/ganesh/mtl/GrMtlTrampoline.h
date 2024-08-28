@@ -8,7 +8,7 @@
 #ifndef GrMtlTrampoline_DEFINED
 #define GrMtlTrampoline_DEFINED
 
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 
 #include <memory>
 

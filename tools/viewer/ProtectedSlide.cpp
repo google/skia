@@ -18,7 +18,7 @@
 #if defined(SK_GANESH)
 #include "include/android/SkImageAndroid.h"
 #include "include/android/SkSurfaceAndroid.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #endif
 

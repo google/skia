@@ -6,7 +6,7 @@
  */
 #include "src/gpu/ganesh/gl/GrGLTextureRenderTarget.h"
 
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/private/base/SkAssert.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"

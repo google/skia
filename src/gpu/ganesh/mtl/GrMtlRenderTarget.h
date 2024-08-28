@@ -10,7 +10,7 @@
 
 #include "src/gpu/ganesh/GrRenderTarget.h"
 
-#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/mtl/GrMtlAttachment.h"
 #include "src/gpu/ganesh/mtl/GrMtlFramebuffer.h"

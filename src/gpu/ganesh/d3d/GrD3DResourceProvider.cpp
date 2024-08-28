@@ -7,8 +7,8 @@
 
 #include "src/gpu/ganesh/d3d/GrD3DResourceProvider.h"
 
-#include "include/gpu/GrContextOptions.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/d3d/GrD3DBuffer.h"
 #include "src/gpu/ganesh/d3d/GrD3DCommandList.h"

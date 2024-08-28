@@ -9,7 +9,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/base/SkPoint_impl.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkScopeExit.h"

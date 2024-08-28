@@ -8,7 +8,7 @@
 #include "bench/Benchmark.h"
 
 #include "include/core/SkString.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/base/SkHalf.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkColorSpacePriv.h"

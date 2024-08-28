@@ -10,7 +10,7 @@
 
 #import <Metal/Metal.h>
 
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "src/core/SkChecksum.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
 #include <atomic>

@@ -9,7 +9,7 @@
 #define GrVkContextThreadSafeProxy_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/gpu/ganesh/GrContextThreadSafeProxy.h"
 
 class GrCaps;
 struct GrContextOptions;

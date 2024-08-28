@@ -14,7 +14,7 @@
 
 #include <dxgiformat.h>
 
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 
 struct ID3D12Resource;
 class GrD3DResourceState;

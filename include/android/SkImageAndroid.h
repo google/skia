@@ -10,7 +10,7 @@
 
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 
 class SkColorSpace;
 class GrDirectContext;

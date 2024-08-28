@@ -9,7 +9,7 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkString.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"

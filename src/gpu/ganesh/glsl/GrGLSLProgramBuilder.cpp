@@ -8,7 +8,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkSLTypeShared.h"

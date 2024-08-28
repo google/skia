@@ -7,7 +7,7 @@
 
 #include "tools/gpu/FlushFinishTracker.h"
 
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/core/SkTraceEvent.h"
 
 #if defined(SK_GRAPHITE)

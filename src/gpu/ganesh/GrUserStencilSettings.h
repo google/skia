@@ -9,7 +9,7 @@
 #ifndef GrUserStencilSettings_DEFINED
 #define GrUserStencilSettings_DEFINED
 
-#include "include/gpu/GrTypes.h"  // IWYU pragma: keep
+#include "include/gpu/ganesh/GrTypes.h"  // IWYU pragma: keep
 
 #include <cstdint>
 

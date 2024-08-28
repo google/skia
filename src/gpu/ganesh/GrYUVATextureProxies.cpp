@@ -9,7 +9,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"

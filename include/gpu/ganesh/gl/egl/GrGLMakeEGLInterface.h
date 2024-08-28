@@ -8,7 +8,7 @@
 #define GrGLMakeEGLInterface_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/GrTypes.h"
+#include "include/gpu/ganesh/GrTypes.h"
 
 struct GrGLInterface;
 

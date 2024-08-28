@@ -9,7 +9,7 @@
 
 #ifdef SK_DIRECT3D
 
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "tools/gpu/d3d/D3DTestUtils.h"
 
 namespace {

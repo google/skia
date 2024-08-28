@@ -10,7 +10,7 @@
 
 #include "tests/Test.h"
 
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
