@@ -373,7 +373,7 @@ void ShaderInfo::aggregateSnippetData(const ShaderNode* node) {
         this->aggregateSnippetData(child);
     }
 
-    if (node->requiredFlags() & SnippetRequirementFlags::kStoresData && node->data().size()) {
+    if (node->requiredFlags() & SnippetRequirementFlags::kStoresData && !node->data().empty()) {
         fData.push_back_n(node->data().size(), node->data().data());
     }
 }

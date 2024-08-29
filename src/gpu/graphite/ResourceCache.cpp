@@ -62,7 +62,7 @@ void ResourceCache::shutdown() {
 
     this->processReturnedResources();
 
-    while (fNonpurgeableResources.size()) {
+    while (!fNonpurgeableResources.empty()) {
         Resource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
         this->removeFromNonpurgeableArray(back);

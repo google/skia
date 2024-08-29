@@ -23,7 +23,7 @@ GlobalCache::~GlobalCache() {
     SkDEBUGCODE(SkAutoSpinlock lock{ fSpinLock });
     SkASSERT(fGraphicsPipelineCache.count() == 0);
     SkASSERT(fComputePipelineCache.count() == 0);
-    SkASSERT(fStaticResource.size() == 0);
+    SkASSERT(fStaticResource.empty());
 }
 
 void GlobalCache::deleteResources() {

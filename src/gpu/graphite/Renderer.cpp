@@ -42,7 +42,7 @@ RenderStep::RenderStep(std::string_view className,
     for (auto i : this->instanceAttributes()) {
         fInstanceStride += i.sizeAlign4();
     }
-    if (variantName.size() > 0) {
+    if (!variantName.empty()) {
         fName += "[";
         fName += variantName;
         fName += "]";

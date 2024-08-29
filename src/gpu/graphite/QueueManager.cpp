@@ -45,7 +45,7 @@ QueueManager::~QueueManager() {
 
 bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider) {
     if (!fCurrentCommandBuffer) {
-        if (fAvailableCommandBuffers.size()) {
+        if (!fAvailableCommandBuffers.empty()) {
             fCurrentCommandBuffer = std::move(fAvailableCommandBuffers.back());
             fAvailableCommandBuffers.pop_back();
             if (!fCurrentCommandBuffer->setNewCommandBufferResources()) {
