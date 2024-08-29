@@ -38,6 +38,10 @@ private:
                        const Options&,
                        int* rowsDecoded) override;
 
+    // SkPngCodecBase overrides:
+    std::optional<SkSpan<const PaletteColorEntry>> onTryGetPlteChunk() override;
+    std::optional<SkSpan<const uint8_t>> onTryGetTrnsChunk() override;
+
     rust::Box<rust_png::Reader> fReader;
 };
 

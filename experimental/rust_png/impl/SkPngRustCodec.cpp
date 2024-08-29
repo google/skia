@@ -245,21 +245,11 @@ SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
     SkASSERT(width == encodedInfo.width());
     SkASSERT(height == encodedInfo.height());
 
-    // Palette expansion currently takes place within the `png` crate, via
-    // `png::Transformations::EXPAND`.
-    //
-    // TODO(https://crbug.com/356882657): Measure if populating `SkPMColor`
-    // table may have some runtime performance benefits.
-    SkPMColor* kColorTable = nullptr;
-
-    std::unique_ptr<SkSwizzler> swizzler =
-            SkSwizzler::Make(encodedInfo, kColorTable, dstInfo, options);
-
-    // The assertion below is based on `png::Transformations::EXPAND`.  The
-    // assertion helps to ensure that dividing by 8 in `srcRowSize` calculations
-    // is okay.
-    SkASSERT(encodedInfo.bitsPerComponent() % 8 == 0);
-    size_t srcRowSize = static_cast<size_t>(encodedInfo.bitsPerPixel()) / 8 * width;
+    Result result = this->initializeXforms(dstInfo, options);
+    if (result != kSuccess) {
+        return result;
+    }
+    this->initializeXformParams();
 
     // Decode the whole PNG image into an intermediate buffer.
     //
@@ -270,7 +260,7 @@ SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
     // TODO(https://github.com/dtolnay/cxx/pull/1367): Consider using a new
     // constructor when available: `rust::Slice(decodedPixels)`.
     std::vector<uint8_t> decodedPixels(fReader->output_buffer_size(), 0x00);
-    Result result = ToSkCodecResult(
+    result = ToSkCodecResult(
             fReader->next_frame(rust::Slice(decodedPixels.data(), decodedPixels.size())));
     if (result != kSuccess) {
         // TODO(https://crbug.com/356923435): Handle `kIncompleteInput` (right
@@ -284,12 +274,39 @@ SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
     // Convert the `decodedPixels` into the `dstInfo` format.
     SkSpan<const uint8_t> src = decodedPixels;
     SkSpan<uint8_t> dst(static_cast<uint8_t*>(dstPtr), dstRowSize * height);
+    size_t srcRowSize = this->getEncodedInfoRowSize();
     for (int y = 0; y < height; ++y) {
-        swizzler->swizzle(dst.data(), src.data());
+        this->applyXformRow(dst, src);
         dst = dst.subspan(dstRowSize);
         src = src.subspan(srcRowSize);
     }
     *rowsDecoded = height;
 
     return kSuccess;
+}
+
+std::optional<SkSpan<const SkPngCodecBase::PaletteColorEntry>> SkPngRustCodec::onTryGetPlteChunk() {
+    if (fReader->output_color_type() != rust_png::ColorType::Indexed) {
+        return std::nullopt;
+    }
+
+    // We shouldn't get here because we always use
+    // `png::Transformations::EXPAND`.
+    //
+    // TODO(https://crbug.com/356882657): Handle pLTE and tRNS inside
+    // `SkPngRustCodec` rather than via `png::Transformations::EXPAND`.
+    SkUNREACHABLE;
+}
+
+std::optional<SkSpan<const uint8_t>> SkPngRustCodec::onTryGetTrnsChunk() {
+    if (fReader->output_color_type() != rust_png::ColorType::Indexed) {
+        return std::nullopt;
+    }
+
+    // We shouldn't get here because we always use
+    // `png::Transformations::EXPAND`.
+    //
+    // TODO(https://crbug.com/356882657): Handle pLTE and tRNS inside
+    // `SkPngRustCodec` rather than via `png::Transformations::EXPAND`.
+    SkUNREACHABLE;
 }
