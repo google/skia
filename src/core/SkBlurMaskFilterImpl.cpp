@@ -138,6 +138,9 @@ static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMaskBuilder* mask)
     mask->rowBytes() = SkAlign4(mask->fBounds.width());
     mask->format() = SkMask::kA8_Format;
     const size_t size = mask->computeImageSize();
+    if (size == 0) {
+        return false;
+    }
     mask->image() = SkMaskBuilder::AllocImage(size, SkMaskBuilder::kZeroInit_Alloc);
     if (nullptr == mask->fImage) {
         return false;
