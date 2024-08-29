@@ -279,7 +279,7 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
         } else if (!rules.fUncontainedRectSucceeds && !surfBounds.contains(rect)) {
             REPORTER_ASSERT(reporter, result != Result::kSuccess);
         } else if (result == Result::kFail) {
-            // TODO: Support RGB/BGR 101010x, BGRA 1010102, RGB F16F16F16x on the GPU.
+            // TODO: Support BGR 101010x, BGRA 1010102, on the GPU.
             ERRORF(reporter,
                    "Read failed. %sSrc CT: %s, Src AT: %s Read CT: %s, Read AT: %s, "
                    "Rect [%d, %d, %d, %d], CS conversion: %d\n",
@@ -460,8 +460,7 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
                 const auto readCT = static_cast<SkColorType>(rct);
                 // ComparePixels will end up converting these types to kUnknown
                 // because there's no corresponding GrColorType, and hence it will fail
-                if (readCT == kRGB_101010x_SkColorType ||
-                    readCT == kBGR_101010x_XR_SkColorType ||
+                if (readCT == kBGR_101010x_XR_SkColorType ||
                     readCT == kBGRA_10101010_XR_SkColorType ||
                     readCT == kBGR_101010x_SkColorType) {
                     continue;

@@ -71,6 +71,8 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
 
         { GrColorType::kRGBA_1010102,     MTLPixelFormatRGB10A2Unorm,
                                                                     { 0.25f, 0.5f, 0.75f, 1.0f } },
+        { GrColorType::kRGB_101010x,      MTLPixelFormatRGB10A2Unorm,
+                                                                    { 0.25f, 0.5f, 0.75f, 1.0f } },
 #ifdef SK_BUILD_FOR_MAC
         { GrColorType::kBGRA_1010102,     MTLPixelFormatBGR10A2Unorm,
                                                                     { 0.25f, 0.5f, 0.75f, 1.0f } },

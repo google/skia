@@ -623,8 +623,8 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
         // TODO: readback is busted for *10A2 when alpha = 0.5f (perhaps premul vs. unpremul)
         { kRGBA_1010102_SkColorType,      { 0.25f, 0.5f, 0.75f, 1.0f }},
         { kBGRA_1010102_SkColorType,      { 0.25f, 0.5f, 0.75f, 1.0f }},
-        // RGB/BGR 101010x have no Ganesh correlate
-        { kRGB_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
+        { kRGB_101010x_SkColorType,       { 0.25f, 0.5f, 0.75f, 0.5f }},
+        // BGR 101010x has no Ganesh correlate
         { kBGR_101010x_SkColorType,       { 0, 0.5f, 0, 0.5f }     },
         { kBGR_101010x_XR_SkColorType,    { 0, 0.5f, 0, 0.5f }     },
         { kRGBA_10x6_SkColorType,         { 0.25f, 0.5f, 0.75f, 1.0f }},
@@ -674,7 +674,8 @@ void color_type_backend_allocation_test(const sk_gpu_test::ContextInfo& ctxInfo,
 
                 if (GrRenderable::kYes == renderable) {
                     if (kRGB_888x_SkColorType == combo.fColorType ||
-                        kRGB_F16F16F16x_SkColorType == combo.fColorType) {
+                        kRGB_F16F16F16x_SkColorType == combo.fColorType ||
+                        kRGB_101010x_SkColorType == combo.fColorType) {
                         // Ganesh can't perform the blends correctly when rendering this format
                         continue;
                     }
@@ -830,6 +831,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(GLBackendAllocationTest,
         // TODO: readback is busted when alpha = 0.5f (perhaps premul vs. unpremul)
         { GrColorType::kRGBA_1010102,     GR_GL_RGB10_A2,             { 0.25f, 0.5f, 0.75f, 1.f }},
         { GrColorType::kBGRA_1010102,     GR_GL_RGB10_A2,             { 0.25f, 0.5f, 0.75f, 1.f }},
+        { GrColorType::kRGB_101010x,      GR_GL_RGB10_A2,             { 0.25f, 0.5f, 0.75f, 0.5f}},
         { GrColorType::kBGR_565,          GR_GL_RGB565,               SkColors::kRed       },
         { GrColorType::kABGR_4444,        GR_GL_RGBA4,                SkColors::kGreen     },
 
@@ -926,6 +928,10 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(GLBackendAllocationTest,
                             case GrColorType::kAlpha_F16:
                                 swizzle = skgpu::Swizzle("aaaa");
                                 break;
+                            case GrColorType::kRGB_F16F16F16x:
+                            case GrColorType::kRGB_101010x:
+                                swizzle = skgpu::Swizzle("rgb1");
+                                break;
                             default:
                                 break;
                         }
@@ -991,6 +997,8 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest,
                                                                       { 0.25f, 0.5f, 0.75f, 1.0f }},
         { GrColorType::kBGRA_1010102,     VK_FORMAT_A2R10G10B10_UNORM_PACK32,
                                                                       { 0.25f, 0.5f, 0.75f, 1.0f }},
+        { GrColorType::kRGB_101010x,      VK_FORMAT_A2B10G10R10_UNORM_PACK32,
+                                                                      { 0.25f, 0.5f, 0.75f, 0.5f }},
         { GrColorType::kRGBA_10x6,        VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16,
                                                                       { 0.25f, 0.5f, 0.75f, 1.0f }},
         { GrColorType::kBGR_565,          VK_FORMAT_R5G6B5_UNORM_PACK16,      SkColors::kRed      },

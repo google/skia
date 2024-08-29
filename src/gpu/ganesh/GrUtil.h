@@ -89,6 +89,7 @@ static constexpr const char* GrColorTypeToStr(GrColorType ct) {
         case GrColorType::kBGRA_8888:        return "kBGRA_8888";
         case GrColorType::kRGBA_1010102:     return "kRGBA_1010102";
         case GrColorType::kBGRA_1010102:     return "kBGRA_1010102";
+        case GrColorType::kRGB_101010x:      return "kRGB_101010x";
         case GrColorType::kRGBA_10x6:        return "kBGRA_10x6";
         case GrColorType::kGray_8:           return "kGray_8";
         case GrColorType::kGrayAlpha_88:     return "kGrayAlpha_88";

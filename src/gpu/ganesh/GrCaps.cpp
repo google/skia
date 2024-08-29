@@ -491,6 +491,7 @@ static inline GrColorType color_type_fallback(GrColorType ct) {
             return GrColorType::kRGBA_F16;
         case GrColorType::kGray_8:
         case GrColorType::kRGB_F16F16F16x:
+        case GrColorType::kRGB_101010x:
             return GrColorType::kRGB_888x;
         default:
             return GrColorType::kUnknown;
