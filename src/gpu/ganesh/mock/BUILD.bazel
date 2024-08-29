@@ -33,6 +33,7 @@ split_srcs_and_hdrs(
 skia_cc_library(
     name = "ganesh_mock",
     hdrs = [
+        "//include/gpu/ganesh/mock:public_hdrs",
         "//include/gpu/mock:public_hdrs",
     ],
     visibility = ["//:__pkg__"],
