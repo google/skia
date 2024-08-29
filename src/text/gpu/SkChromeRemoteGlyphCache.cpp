@@ -131,6 +131,7 @@ private:
 
     // The context built using fDescriptor
     std::unique_ptr<SkScalerContext> fContext;
+    SkTypefaceID fStrikeSpecTypefaceId;
 
     // fStrikeSpec is set every time getOrCreateCache is called. This allows the code to maintain
     // the fContext as lazy as possible.
@@ -160,7 +161,8 @@ RemoteStrike::RemoteStrike(
         , fDiscardableHandleId(discardableHandleId)
         , fRoundingSpec{context->isSubpixel(), context->computeAxisAlignmentForHText()}
         // N.B. context must come last because it is used above.
-        , fContext{std::move(context)} {
+        , fContext{std::move(context)}
+        , fStrikeSpecTypefaceId(strikeSpec.typeface().uniqueID()) {
     SkASSERT(fDescriptor.getDesc() != nullptr);
     SkASSERT(fContext != nullptr);
 }
@@ -168,7 +170,9 @@ RemoteStrike::RemoteStrike(
 void RemoteStrike::writePendingGlyphs(SkWriteBuffer& buffer) {
     SkASSERT(this->hasPendingGlyphs());
 
-    buffer.writeUInt(fContext->getTypeface()->uniqueID());
+    // ScalerContext should not hold to the typeface, so we should not use its ID.
+    // We should use StrikeSpec typeface and its ID instead.
+    buffer.writeUInt(fStrikeSpecTypefaceId);
     buffer.writeUInt(fDiscardableHandleId);
     fDescriptor.getDesc()->flatten(buffer);
 
