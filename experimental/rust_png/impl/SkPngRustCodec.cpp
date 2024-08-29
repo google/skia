@@ -15,7 +15,7 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
-#include "modules/skcms/src/skcms_public.h"
+#include "modules/skcms/skcms.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/codec/SkSwizzler.h"
 #include "third_party/rust/cxx/v1/cxx.h"
