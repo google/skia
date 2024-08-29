@@ -17,7 +17,6 @@ import (
 	"path/filepath"
 
 	infra_common "go.skia.org/infra/go/common"
-	sk_exec "go.skia.org/infra/go/exec"
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/task_driver/go/lib/bazel"
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
@@ -30,7 +29,7 @@ var (
 	projectId      = flag.String("project_id", "", "ID of the Google Cloud project.")
 	taskId         = flag.String("task_id", "", "ID of this task.")
 	taskName       = flag.String("task_name", "", "Name of the task.")
-	workdir        = flag.String("workdir", ".", "Working directory, the root directory of a full Skia checkout")
+	workdir        = flag.String("workdir", ".", "Working directory in which the build will be performed.")
 	outPath        = flag.String("out_path", "", "Directory into which to copy the //bazel-bin subdirectories provided via --saved_output_dir. If unset, nothing will be copied.")
 	savedOutputDir = infra_common.NewMultiStringFlag("saved_output_dir", nil, `//bazel-bin subdirectories to copy into the path provided via --out_path (e.g. "tests" will copy the contents of //bazel-bin/tests).`)
 
@@ -56,62 +55,53 @@ func main() {
 		td.Fatal(ctx, fmt.Errorf("at least one --saved_output_dir is required if --out_path is set"))
 	}
 
-	wd, err := os_steps.Abs(ctx, *workdir)
+	checkoutPath, err := os_steps.Abs(ctx, *workdir)
 	if err != nil {
 		td.Fatal(ctx, err)
 	}
-	skiaDir := filepath.Join(wd, "skia")
+	var outputPath string
+	if *outPath != "" {
+		outputPath, err = os_steps.Abs(ctx, *outPath)
+		if err != nil {
+			td.Fatal(ctx, err)
+		}
+	}
 
 	opts := bazel.BazelOptions{
 		// We want the cache to be on a bigger disk than default. The root disk, where the home
 		// directory (and default Bazel cache) lives, is only 15 GB on our GCE VMs.
 		CachePath: *bazelFlags.CacheDir,
 	}
-	if err := bazel.EnsureBazelRCFile(ctx, opts); err != nil {
+	bzl, err := bazel.New(ctx, checkoutPath, "", opts)
+	if err != nil {
 		td.Fatal(ctx, err)
 	}
 
-	if err := bazelBuild(ctx, skiaDir, *bazelFlags.Label, *bazelFlags.Config, *bazelFlags.AdditionalArgs...); err != nil {
+	// Schedule the cleanup steps.
+	defer func() {
+		if !*local {
+			// Ignore any error here until after we've run "shutdown".
+			cleanErr := common.BazelCleanIfLowDiskSpace(ctx, *bazelFlags.CacheDir, checkoutPath, "bazelisk")
+			if _, err := bzl.Do(ctx, "shutdown"); err != nil {
+				td.Fatal(ctx, err)
+			}
+			if cleanErr != nil {
+				td.Fatal(ctx, cleanErr)
+			}
+		}
+	}()
+
+	// Perform the build.
+	args := append([]string{*bazelFlags.Label, fmt.Sprintf("--config=%s", *bazelFlags.Config)}, *bazelFlags.AdditionalArgs...)
+	if _, err := bzl.Do(ctx, "build", args...); err != nil {
 		td.Fatal(ctx, err)
 	}
 
-	if *outPath != "" {
-		if err := copyBazelBinSubdirs(ctx, skiaDir, *savedOutputDir, filepath.Join(wd, *outPath)); err != nil {
+	if outputPath != "" {
+		if err := copyBazelBinSubdirs(ctx, checkoutPath, *savedOutputDir, outputPath); err != nil {
 			td.Fatal(ctx, err)
 		}
 	}
-
-	if !*local {
-		if err := common.BazelCleanIfLowDiskSpace(ctx, *bazelFlags.CacheDir, skiaDir, "bazelisk"); err != nil {
-			td.Fatal(ctx, err)
-		}
-	}
-}
-
-// bazelBuild builds the target referenced by the given absolute label passing the provided
-// config and any additional args to the build command. Instead of calling Bazel directly, we use
-// Bazelisk to make sure we use the right version of Bazel, as defined in the .bazelversion file
-// at the Skia root.
-func bazelBuild(ctx context.Context, checkoutDir, label, config string, args ...string) error {
-	step := fmt.Sprintf("Build %s with config %s and %d extra flags", label, config, len(args))
-	return td.Do(ctx, td.Props(step), func(ctx context.Context) error {
-		runCmd := &sk_exec.Command{
-			Name: "bazelisk",
-			Args: append([]string{"build",
-				label,
-				"--config=" + config, // Should be defined in //bazel/buildrc
-			}, args...),
-			InheritEnv: true, // Makes sure bazelisk is on PATH
-			Dir:        checkoutDir,
-			LogStdout:  true,
-			LogStderr:  true,
-		}
-		_, err := sk_exec.RunCommand(ctx, runCmd)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
 }
 
 // copyBazelBinSubdirs copies the contents of the bazel-bin directory into the given path.
