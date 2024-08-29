@@ -92,13 +92,14 @@ BackendTexture create_backend_texture(skiatest::Reporter* reporter,
                                       SkColorType ct,
                                       bool withMips,
                                       Renderable renderable,
+                                      skgpu::Protected isProtected,
                                       const SkColor4f colors[6],
                                       GpuFinishedProc finishedProc = nullptr,
                                       GpuFinishedContext finishedCtx = nullptr) {
     Mipmapped mipmapped = withMips ? Mipmapped::kYes : Mipmapped::kNo;
     TextureInfo info = caps->getDefaultSampledTextureInfo(ct,
                                                           mipmapped,
-                                                          Protected::kNo,
+                                                          isProtected,
                                                           renderable);
 
     BackendTexture backendTex = recorder->createBackendTexture(kSize, info);
@@ -188,6 +189,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UpdateImageBackendTextureTest, reporter
     const Caps* caps = context->priv().caps();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
+    skgpu::Protected isProtected = skgpu::Protected(caps->protectedSupport());
+
     // TODO: test more than just RGBA8
     for (SkColorType ct : { kRGBA_8888_SkColorType }) {
         for (bool withMips : { true, false }) {
@@ -195,7 +198,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UpdateImageBackendTextureTest, reporter
 
                 BackendTexture backendTex = create_backend_texture(reporter, caps, recorder.get(),
                                                                    ct, withMips, renderable,
-                                                                   kColors);
+                                                                   isProtected, kColors);
 
                 sk_sp<SkImage> image = wrap_backend_texture(reporter, recorder.get(), backendTex,
                                                             ct, withMips);
@@ -203,7 +206,9 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UpdateImageBackendTextureTest, reporter
                     continue;
                 }
 
-                check_levels(reporter, context, recorder.get(), image.get(), withMips, kColors);
+                if (isProtected == skgpu::Protected::kNo) {
+                    check_levels(reporter, context, recorder.get(), image.get(), withMips, kColors);
+                }
 
                 image.reset();
 
@@ -214,7 +219,10 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UpdateImageBackendTextureTest, reporter
                     continue;
                 }
 
-                check_levels(reporter, context, recorder.get(), image.get(), withMips, kColorsNew);
+                if (isProtected == skgpu::Protected::kNo) {
+                    check_levels(reporter, context, recorder.get(), image.get(), withMips,
+                                 kColorsNew);
+                }
 
                 image.reset();
 
@@ -232,6 +240,8 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(UpdateBackendTextureFinishedProcT
                                                CtsEnforcement::kNextRelease) {
     const Caps* caps = context->priv().caps();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    skgpu::Protected isProtected = skgpu::Protected(caps->protectedSupport());
 
     struct FinishContext {
         bool fFinishedUpdate = false;
@@ -252,6 +262,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(UpdateBackendTextureFinishedProcT
                                                        kRGBA_8888_SkColorType,
                                                        /*withMips=*/false,
                                                        Renderable::kNo,
+                                                       isProtected,
                                                        kColors,
                                                        finishedProc,
                                                        &finishCtx);
