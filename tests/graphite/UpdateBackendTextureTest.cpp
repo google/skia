@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/graphite/GraphiteTestContext.h"
 
 using namespace skgpu;
 using namespace skgpu::graphite;
@@ -26,6 +27,24 @@ using namespace skgpu::graphite;
 namespace {
 const SkISize kSize = { 32, 32 };
 constexpr int kNumMipLevels = 6;
+
+constexpr SkColor4f kColors[6] = {
+    { 1.0f, 0.0f, 0.0f, 1.0f }, // R
+    { 0.0f, 1.0f, 0.0f, 0.9f }, // G
+    { 0.0f, 0.0f, 1.0f, 0.7f }, // B
+    { 0.0f, 1.0f, 1.0f, 0.5f }, // C
+    { 1.0f, 0.0f, 1.0f, 0.3f }, // M
+    { 1.0f, 1.0f, 0.0f, 0.2f }, // Y
+};
+
+constexpr SkColor4f kColorsNew[6] = {
+    { 1.0f, 1.0f, 0.0f, 0.2f },  // Y
+    { 1.0f, 0.0f, 0.0f, 1.0f },  // R
+    { 0.0f, 1.0f, 0.0f, 0.9f },  // G
+    { 0.0f, 0.0f, 1.0f, 0.7f },  // B
+    { 0.0f, 1.0f, 1.0f, 0.5f },  // C
+    { 1.0f, 0.0f, 1.0f, 0.3f },  // M
+};
 
 void check_solid_pixmap(skiatest::Reporter* reporter,
                         const SkColor4f& expected,
@@ -52,7 +71,9 @@ void update_backend_texture(Recorder* recorder,
                             const BackendTexture& backendTex,
                             SkColorType ct,
                             bool withMips,
-                            const SkColor4f colors[6]) {
+                            const SkColor4f colors[6],
+                            GpuFinishedProc finishedProc = nullptr,
+                            GpuFinishedContext finishedCtx = nullptr) {
     SkPixmap pixmaps[6];
     std::unique_ptr<char[]> memForPixmaps;
 
@@ -61,7 +82,7 @@ void update_backend_texture(Recorder* recorder,
     SkASSERT(numMipLevels == 1 || numMipLevels == kNumMipLevels);
     SkASSERT(kSize == pixmaps[0].dimensions());
 
-    recorder->updateBackendTexture(backendTex, pixmaps, numMipLevels);
+    recorder->updateBackendTexture(backendTex, pixmaps, numMipLevels, finishedProc, finishedCtx);
 
 }
 
@@ -71,7 +92,9 @@ BackendTexture create_backend_texture(skiatest::Reporter* reporter,
                                       SkColorType ct,
                                       bool withMips,
                                       Renderable renderable,
-                                      const SkColor4f colors[6]) {
+                                      const SkColor4f colors[6],
+                                      GpuFinishedProc finishedProc = nullptr,
+                                      GpuFinishedContext finishedCtx = nullptr) {
     Mipmapped mipmapped = withMips ? Mipmapped::kYes : Mipmapped::kNo;
     TextureInfo info = caps->getDefaultSampledTextureInfo(ct,
                                                           mipmapped,
@@ -81,7 +104,7 @@ BackendTexture create_backend_texture(skiatest::Reporter* reporter,
     BackendTexture backendTex = recorder->createBackendTexture(kSize, info);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
-    update_backend_texture(recorder, backendTex, ct, withMips, colors);
+    update_backend_texture(recorder, backendTex, ct, withMips, colors, finishedProc, finishedCtx);
 
     return backendTex;
 }
@@ -165,24 +188,6 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UpdateImageBackendTextureTest, reporter
     const Caps* caps = context->priv().caps();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    constexpr SkColor4f kColors[6] = {
-        { 1.0f, 0.0f, 0.0f, 1.0f }, // R
-        { 0.0f, 1.0f, 0.0f, 0.9f }, // G
-        { 0.0f, 0.0f, 1.0f, 0.7f }, // B
-        { 0.0f, 1.0f, 1.0f, 0.5f }, // C
-        { 1.0f, 0.0f, 1.0f, 0.3f }, // M
-        { 1.0f, 1.0f, 0.0f, 0.2f }, // Y
-    };
-
-    constexpr SkColor4f kColorsNew[6] = {
-        { 1.0f, 1.0f, 0.0f, 0.2f },  // Y
-        { 1.0f, 0.0f, 0.0f, 1.0f },  // R
-        { 0.0f, 1.0f, 0.0f, 0.9f },  // G
-        { 0.0f, 0.0f, 1.0f, 0.7f },  // B
-        { 0.0f, 1.0f, 1.0f, 0.5f },  // C
-        { 1.0f, 0.0f, 1.0f, 0.3f },  // M
-    };
-
     // TODO: test more than just RGBA8
     for (SkColorType ct : { kRGBA_8888_SkColorType }) {
         for (bool withMips : { true, false }) {
@@ -217,4 +222,55 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UpdateImageBackendTextureTest, reporter
             }
         }
     }
+}
+
+DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(UpdateBackendTextureFinishedProcTest,
+                                               reporter,
+                                               context,
+                                               testContext,
+                                               true,
+                                               CtsEnforcement::kNextRelease) {
+    const Caps* caps = context->priv().caps();
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    struct FinishContext {
+        bool fFinishedUpdate = false;
+        skiatest::Reporter* fReporter = nullptr;
+    };
+    FinishContext finishCtx;
+    finishCtx.fReporter = reporter;
+
+    auto finishedProc = [](void* ctx, CallbackResult) {
+        FinishContext* finishedCtx = (FinishContext*) ctx;
+        REPORTER_ASSERT(finishedCtx->fReporter, !(finishedCtx->fFinishedUpdate));
+        finishedCtx->fFinishedUpdate = true;
+    };
+
+    BackendTexture backendTex = create_backend_texture(reporter,
+                                                       caps,
+                                                       recorder.get(),
+                                                       kRGBA_8888_SkColorType,
+                                                       /*withMips=*/false,
+                                                       Renderable::kNo,
+                                                       kColors,
+                                                       finishedProc,
+                                                       &finishCtx);
+
+    REPORTER_ASSERT(reporter, !finishCtx.fFinishedUpdate);
+
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+
+    REPORTER_ASSERT(reporter, !finishCtx.fFinishedUpdate);
+
+    testContext->syncedSubmit(context);
+    REPORTER_ASSERT(reporter, finishCtx.fFinishedUpdate);
+
+    recorder->deleteBackendTexture(backendTex);
 }
