@@ -58,6 +58,7 @@ mod ffi {
         type Reader;
         fn height(self: &Reader) -> u32;
         fn width(self: &Reader) -> u32;
+        fn interlaced(self: &Reader) -> bool;
         fn is_srgb(self: &Reader) -> bool;
         fn try_get_chrm(
             self: &Reader,
@@ -76,6 +77,7 @@ mod ffi {
         fn output_color_type(self: &Reader) -> ColorType;
         fn output_bits_per_component(self: &Reader) -> u8;
         fn next_frame(self: &mut Reader, output: &mut [u8]) -> DecodingResult;
+        unsafe fn next_row<'a>(self: &'a mut Reader, row: &mut &'a [u8]) -> DecodingResult;
     }
 }
 
@@ -179,6 +181,11 @@ impl Reader {
         self.0.info().width
     }
 
+    /// Returns whether the PNG image is interlaced.
+    fn interlaced(&self) -> bool {
+        self.0.info().interlaced
+    }
+
     /// Returns whether the decoded PNG image contained a `sRGB` chunk.
     fn is_srgb(&self) -> bool {
         self.0.info().srgb.is_some()
@@ -269,6 +276,19 @@ impl Reader {
     /// where a write-only access may not need such guarantees).
     fn next_frame(&mut self, output: &mut [u8]) -> ffi::DecodingResult {
         self.0.next_frame(output).as_ref().err().into()
+    }
+
+    /// Decodes the next row - see
+    /// https://docs.rs/png/latest/png/struct.Reader.html#method.next_row
+    ///
+    /// TODO(https://crbug.com/357876243): Consider using `read_row` to avoid an extra copy.
+    /// See also https://github.com/image-rs/image-png/pull/493
+    fn next_row<'a>(&'a mut self, row: &mut &'a [u8]) -> ffi::DecodingResult {
+        let result = self.0.next_row();
+        if let Ok(maybe_row) = result.as_ref() {
+            *row = maybe_row.map(|r| r.data()).unwrap_or(&[]);
+        }
+        result.as_ref().err().into()
     }
 }
 
