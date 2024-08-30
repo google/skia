@@ -57,7 +57,7 @@ fn blend_hslc_h4h2h4h4(flipSat: vec2<f32>, src: vec4<f32>, dst: vec4<f32>) -> ve
     let _7_maxComp: f32 = _skTemp15;
     if (_6_minComp < 0.0) && (_4_lum != _6_minComp) {
       {
-        _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / ((_4_lum - _6_minComp) + sk_PrivkGuardedDivideEpsilon));
+        _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / (((_4_lum - _6_minComp) + sk_PrivkMinNormalHalf) + sk_PrivkGuardedDivideEpsilon));
       }
     }
     if (_7_maxComp > alpha) && (_7_maxComp != _4_lum) {

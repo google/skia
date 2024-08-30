@@ -89,21 +89,21 @@ float4 blend_hslc_h4h2h4h4(float2 _45, float4 _46, float4 _47)
     if (_143)
     {
         float3 _146 = _117.xxx;
-        _RESERVED_IDENTIFIER_FIXUP_5_result = _146 + ((_129 - _146) * (_117 / ((_117 - _131) + _kGuardedDivideEpsilon)));
+        _RESERVED_IDENTIFIER_FIXUP_5_result = _146 + ((_129 - _146) * (_117 / (((_117 - _131) + 6.103515625e-05f) + _kGuardedDivideEpsilon)));
     }
-    bool _158 = false;
+    bool _160 = false;
     if (_137 > _55)
     {
-        _158 = _137 != _117;
+        _160 = _137 != _117;
     }
     else
     {
-        _158 = false;
+        _160 = false;
     }
-    if (_158)
+    if (_160)
     {
-        float3 _162 = _117.xxx;
-        _RESERVED_IDENTIFIER_FIXUP_5_result = _162 + (((_RESERVED_IDENTIFIER_FIXUP_5_result - _162) * (_55 - _117)) * (1.0f / (((_137 - _117) + 6.103515625e-05f) + _kGuardedDivideEpsilon)));
+        float3 _164 = _117.xxx;
+        _RESERVED_IDENTIFIER_FIXUP_5_result = _164 + (((_RESERVED_IDENTIFIER_FIXUP_5_result - _164) * (_55 - _117)) * (1.0f / (((_137 - _117) + 6.103515625e-05f) + _kGuardedDivideEpsilon)));
     }
     return float4((((_RESERVED_IDENTIFIER_FIXUP_5_result + _47.xyz) - _67) + _46.xyz) - _61, (_46.w + _47.w) - _55);
 }
@@ -111,10 +111,10 @@ float4 blend_hslc_h4h2h4h4(float2 _45, float4 _46, float4 _47)
 void frag_main()
 {
     _kGuardedDivideEpsilon = false ? 9.9999999392252902907785028219223e-09f : 0.0f;
-    float2 _197 = float2(1.0f, 0.0f);
-    float4 _203 = _16_src;
-    float4 _207 = _16_dst;
-    sk_FragColor = blend_hslc_h4h2h4h4(_197, _203, _207);
+    float2 _198 = float2(1.0f, 0.0f);
+    float4 _204 = _16_src;
+    float4 _208 = _16_dst;
+    sk_FragColor = blend_hslc_h4h2h4h4(_198, _204, _208);
 }
 
 SPIRV_Cross_Output main()
