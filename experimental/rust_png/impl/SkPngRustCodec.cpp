@@ -17,6 +17,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkSwizzler.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
@@ -194,6 +195,16 @@ private:
 
 }  // namespace
 
+class SkPngRustCodec::PngFrame final : public SkFrame {
+public:
+    PngFrame(int id, SkEncodedInfo::Alpha alpha) : SkFrame(id), fReportedAlpha(alpha) {}
+
+private:
+    SkEncodedInfo::Alpha onReportedAlpha() const override { return fReportedAlpha; };
+
+    const SkEncodedInfo::Alpha fReportedAlpha;
+};
+
 // static
 std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                                Result* result) {
@@ -216,7 +227,19 @@ std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<S
 SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
                                std::unique_ptr<SkStream> stream,
                                rust::Box<rust_png::Reader> reader)
-        : SkPngCodecBase(std::move(encodedInfo), std::move(stream)), fReader(std::move(reader)) {}
+        : SkPngCodecBase(std::move(encodedInfo), std::move(stream)), fReader(std::move(reader)) {
+    // Initialize propoerties of the first (maybe the only) animation frame.
+    constexpr int kIdOfFirstFrame = 0;
+    fFrames.push_back(PngFrame(kIdOfFirstFrame, this->getEncodedInfo().alpha()));
+    SkFrame& first_frame = fFrames.back();
+    first_frame.setXYWH(0, 0, this->getEncodedInfo().width(), this->getEncodedInfo().height());
+    first_frame.setHasAlpha(this->getEncodedInfo().alpha() == SkEncodedInfo::kUnpremul_Alpha);
+    first_frame.setRequiredFrame(kNoFrame);
+    // No need to call `setDuration` or `setBlend` - the default values are ok.
+    //
+    // TODO(https://crbug.com/356922876): Call setDisposalMethod`, based on
+    // `png::FrameControl`.
+}
 
 SkPngRustCodec::~SkPngRustCodec() = default;
 
@@ -275,6 +298,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
 
         if (decodedRow.empty()) {  // This is how FFI layer says "no more rows".
             fIncrementalDecodingState.reset();
+            fNumOfFullyReceivedFrames++;
             return kSuccess;
         }
 
@@ -353,6 +377,17 @@ SkCodec::Result SkPngRustCodec::onStartIncrementalDecode(const SkImageInfo& dstI
 SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
     SkASSERT(fIncrementalDecodingState.has_value());
     return this->incrementalDecode(*fIncrementalDecodingState, rowsDecoded);
+}
+
+bool SkPngRustCodec::onGetFrameInfo(int index, FrameInfo* info) const {
+    if ((0 <= index) && (index < fFrames.size())) {
+        if (info) {
+            fFrames[index].fillIn(info, fNumOfFullyReceivedFrames > index);
+        }
+        return true;
+    }
+
+    return false;
 }
 
 std::optional<SkSpan<const SkPngCodecBase::PaletteColorEntry>> SkPngRustCodec::onTryGetPlteChunk() {
