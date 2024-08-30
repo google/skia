@@ -291,10 +291,7 @@ sk_sp<Buffer> DawnResourceProvider::createBuffer(size_t size,
 }
 
 sk_sp<Sampler> DawnResourceProvider::createSampler(const SamplerDesc& samplerDesc) {
-    return DawnSampler::Make(this->dawnSharedContext(),
-                             samplerDesc.samplingOptions(),
-                             samplerDesc.tileModeX(),
-                             samplerDesc.tileModeY());
+    return DawnSampler::Make(this->dawnSharedContext(), samplerDesc);
 }
 
 BackendTexture DawnResourceProvider::onCreateBackendTexture(SkISize dimensions,

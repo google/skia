@@ -11,9 +11,11 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/ports/SkCFObject.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
+#include "src/gpu/graphite/dawn/DawnSampler.h"
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
@@ -84,7 +86,8 @@ private:
                          bool hasStepUniforms,
                          bool hasPaintUniforms,
                          bool hasGradientBuffer,
-                         int numFragmentTexturesAndSamplers);
+                         int numFragmentTexturesAndSamplers,
+                         skia_private::AutoTArray<sk_sp<DawnSampler>> immutableSamplers);
 
     void freeGpuData() override;
 
@@ -96,6 +99,8 @@ private:
     const bool fHasPaintUniforms;
     const bool fHasGradientBuffer;
     const int fNumFragmentTexturesAndSamplers;
+    // Hold a ref to immutable samplers used such that their lifetime is properly managed.
+    const skia_private::AutoTArray<sk_sp<DawnSampler>> fImmutableSamplers;
 };
 
 } // namespace skgpu::graphite

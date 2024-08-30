@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/dawn/DawnCommandBuffer.h"
 
+#include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -562,19 +563,31 @@ void DawnCommandBuffer::bindTextureAndSamplers(
     SkASSERT(fActiveRenderPassEncoder);
     SkASSERT(fActiveGraphicsPipeline);
 
-    wgpu::BindGroup bindGroup;
+    // If possible, it's ideal to optimize for the common case of using a single texture with one
+    // dynamic sampler. When using only one sampler, determine whether it is static or dynamic.
+    bool usingSingleStaticSampler = false;
+#if !defined(__EMSCRIPTEN__)
     if (command.fNumTexSamplers == 1) {
-        // Optimize for single texture.
+        const wgpu::YCbCrVkDescriptor& ycbcrDesc =
+                TextureInfos::GetDawnTextureSpec(
+                        drawPass.getTexture(command.fTextureIndices[0])->textureInfo())
+                        .fYcbcrVkDescriptor;
+        usingSingleStaticSampler = ycbcrUtils::DawnDescriptorIsValid(ycbcrDesc);
+    }
+#endif
+
+    wgpu::BindGroup bindGroup;
+    // Optimize for single texture with dynamic sampling.
+    if (command.fNumTexSamplers == 1 && !usingSingleStaticSampler) {
         SkASSERT(fActiveGraphicsPipeline->numTexturesAndSamplers() == 2);
 
         const auto* texture =
                 static_cast<const DawnTexture*>(drawPass.getTexture(command.fTextureIndices[0]));
         const auto* sampler =
                 static_cast<const DawnSampler*>(drawPass.getSampler(command.fSamplerIndices[0]));
-
         bindGroup = fResourceProvider->findOrCreateSingleTextureSamplerBindGroup(sampler, texture);
     } else {
-        std::vector<wgpu::BindGroupEntry> entries(2 * command.fNumTexSamplers);
+        std::vector<wgpu::BindGroupEntry> entries;
 
         for (int i = 0; i < command.fNumTexSamplers; ++i) {
             const auto* texture = static_cast<const DawnTexture*>(
@@ -584,16 +597,33 @@ void DawnCommandBuffer::bindTextureAndSamplers(
             auto& wgpuTextureView = texture->sampleTextureView();
             auto& wgpuSampler = sampler->dawnSampler();
 
+#if !defined(__EMSCRIPTEN__)
             // Assuming shader generator assigns binding slot to sampler then texture,
             // then the next sampler and texture, and so on, we need to use
             // 2 * i as base binding index of the sampler and texture.
             // TODO: https://b.corp.google.com/issues/259457090:
             // Better configurable way of assigning samplers and textures' bindings.
-            entries[2 * i].binding = 2 * i;
-            entries[2 * i].sampler = wgpuSampler;
 
-            entries[2 * i + 1].binding = 2 * i + 1;
-            entries[2 * i + 1].textureView = wgpuTextureView;
+            DawnTextureInfo dawnTextureInfo;
+            TextureInfos::GetDawnTextureInfo(texture->textureInfo(), &dawnTextureInfo);
+            const wgpu::YCbCrVkDescriptor& ycbcrDesc = dawnTextureInfo.fYcbcrVkDescriptor;
+
+            // Only add a sampler as a bind group entry if it's a regular dynamic sampler. A valid
+            // YCbCrVkDescriptor indicates the usage of a static sampler, which should not be
+            // included here. They should already be fully specified in the bind group layout.
+            if (!ycbcrUtils::DawnDescriptorIsValid(ycbcrDesc)) {
+#endif
+                wgpu::BindGroupEntry samplerEntry;
+                samplerEntry.binding = 2 * i;
+                samplerEntry.sampler = wgpuSampler;
+                entries.push_back(samplerEntry);
+#if !defined(__EMSCRIPTEN__)
+            }
+#endif
+            wgpu::BindGroupEntry textureEntry;
+            textureEntry.binding = 2 * i + 1;
+            textureEntry.textureView = wgpuTextureView;
+            entries.push_back(textureEntry);
         }
 
         wgpu::BindGroupDescriptor desc;
