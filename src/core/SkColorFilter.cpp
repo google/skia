@@ -42,12 +42,6 @@ sk_sp<SkColorFilter> SkColorFilter::Deserialize(const void* data, size_t size,
                                 kSkColorFilter_Type, data, size, procs).release()));
 }
 
-SkColor SkColorFilter::filterColor(SkColor c) const {
-    // This is mostly meaningless. We should phase-out this call entirely.
-    SkColorSpace* cs = nullptr;
-    return this->filterColor4f(SkColor4f::FromColor(c), cs, cs).toSkColor();
-}
-
 SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpace* srcCS,
                                        SkColorSpace* dstCS) const {
     SkPMColor4f color = { origSrcColor.fR, origSrcColor.fG, origSrcColor.fB, origSrcColor.fA };

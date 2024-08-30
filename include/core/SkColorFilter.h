@@ -50,14 +50,6 @@ public:
     bool isAlphaUnchanged() const;
 
     /**
-     * Applies this filter to the input color. This function does no color management.
-     *
-     * DEPRECATED: Please use filterColor4f instead. That function supports higher precision,
-     *             wide-gamut color, and is explicit about the color space of the input and output.
-     */
-    SkColor filterColor(SkColor) const;
-
-    /**
      * Converts the src color (in src colorspace), into the dst colorspace,
      * then applies this filter to it, returning the filtered color in the dst colorspace.
      */
