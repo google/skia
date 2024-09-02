@@ -74,6 +74,7 @@ protected:
 
     bool conversionSupported(const SkImageInfo&, bool, bool) override;
 
+    bool onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>* gainmapCodec) override;
     bool onGetGainmapInfo(SkGainmapInfo* info,
                           std::unique_ptr<SkStream>* gainmapImageStream) override;
 

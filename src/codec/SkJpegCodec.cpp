@@ -905,6 +905,21 @@ SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
     return kSuccess;
 }
 
+bool SkJpegCodec::onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>* gainmapCodec) {
+    std::unique_ptr<SkStream> stream;
+    if (!this->onGetGainmapInfo(info, &stream)) {
+        return false;
+    }
+    if (gainmapCodec) {
+        Result result;
+        *gainmapCodec = MakeFromStream(std::move(stream), &result);
+        if (!*gainmapCodec) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
                                    std::unique_ptr<SkStream>* gainmapImageStream) {
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS

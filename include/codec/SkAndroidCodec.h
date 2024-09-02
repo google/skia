@@ -264,19 +264,23 @@ public:
     SkCodec* codec() const { return fCodec.get(); }
 
     /**
-     *  Retrieve the gainmap for an image.
+     *  Retrieve the gainmap codec for an image.
      *
-     *  @param outInfo                On success, this is populated with the parameters for
-     *                                rendering this gainmap. This parameter must be non-nullptr.
+     *  @param outInfo          On success, this is populated with the parameters for
+     *                          rendering this gainmap. This parameter must be non-nullptr.
      *
-     *  @param outGainmapImageStream  On success, this is populated with a stream from which the
-     *                                gainmap image may be decoded. This parameter is optional, and
-     *                                may be set to nullptr.
+     *  @param outGainmapCodec  On success, this is populated with a codec from which the
+     *                          gainmap image may be decoded. This parameter is optional, and
+     *                          may be set to nullptr.
      *
-     *  @return                       If this has a gainmap image and that gainmap image was
-     *                                successfully extracted then return true. Otherwise return
-     *                                false.
+     *  @return                 If this has a gainmap image and that gainmap image was
+     *                          successfully extracted then return true. Otherwise return
+     *                          false.
      */
+    bool getGainmapAndroidCodec(SkGainmapInfo* outInfo, std::unique_ptr<SkAndroidCodec>* outCodec);
+
+    // TODO(issues.skia.org/363544350): This API only works for JPEG images. Remove this API once
+    // it is no longer used.
     bool getAndroidGainmap(SkGainmapInfo* outInfo,
                            std::unique_ptr<SkStream>* outGainmapImageStream);
 
