@@ -2782,6 +2782,12 @@ if (skia_enable_tools) {
     }
   }
 
+  if (is_ios && skia_enable_skottie) {
+    group("skottie_ios") {
+      deps = [ "tools/skottie_ios_app" ]
+    }
+  }
+
   test_lib("sk_app") {
     public_deps = [
       ":gpu_tool_utils",
@@ -3032,6 +3038,12 @@ if (skia_enable_tools) {
         ":load_dynamic_library",
         ":skia",
       ]
+    }
+  }
+
+  if (is_ios && skia_use_metal && skia_enable_ganesh) {
+    group("minimal_ios_mtl_skia_app") {
+      deps = [ "experimental/minimal_ios_mtl_skia_app" ]
     }
   }
 
@@ -3406,18 +3418,6 @@ if (skia_enable_tools) {
       sources = [ "fuzz/oss_fuzz/FuzzParsePath.cpp" ]
       deps = []
     }
-  }
-}
-
-if (is_ios && skia_use_metal && skia_enable_ganesh) {
-  group("minimal_ios_mtl_skia_app") {
-    deps = [ "experimental/minimal_ios_mtl_skia_app" ]
-  }
-}
-
-if (is_ios && skia_enable_skottie) {
-  group("skottie_ios") {
-    deps = [ "tools/skottie_ios_app" ]
   }
 }
 
