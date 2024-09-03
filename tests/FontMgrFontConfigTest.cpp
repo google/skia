@@ -33,16 +33,18 @@
 namespace {
 
 bool bitmap_compare(const SkBitmap& ref, const SkBitmap& test) {
+    auto count = 0;
     for (int y = 0; y < test.height(); ++y) {
         for (int x = 0; x < test.width(); ++x) {
             SkColor testColor = test.getColor(x, y);
             SkColor refColor = ref.getColor(x, y);
             if (refColor != testColor) {
-                return false;
+                ++count;
+                SkDebugf("%d: (%d,%d) ", count, x, y);
             }
         }
     }
-    return true;
+    return (count == 0);
 }
 
 FcConfig* build_fontconfig_with_fontfile(const char* fontFilename) {
@@ -65,14 +67,13 @@ FcConfig* build_fontconfig_from_resources() {
     SkString content;
     content.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>"
                    "<!DOCTYPE fontconfig SYSTEM \"fonts.dtd\">"
-                   "<fontconfig>\n");
-    //content.appendf("  <cachedir>/fonts</cachedir\n>");
-    content.appendf("  <dir>/fonts</dir>\n");
-    content.appendf("    <match target=\"font\">\n"
-                          "        <edit name=\"embolden\" mode=\"assign\">\n"
-                          "          <bool>true</bool>\n"
-                          "        </edit>\n"
-                          "    </match>");
+                   "<fontconfig>\n"
+                   "<dir>/fonts</dir>\n");
+    content.append("<match target=\"font\">\n"
+                   "   <edit name=\"embolden\" mode=\"assign\">\n"
+                   "       <bool>true</bool>\n"
+                   "   </edit>\n"
+                   "</match>");
     content.append("</fontconfig>\n");
     FcConfig* fc_config = FcConfigCreate();
     FcConfigSetSysRoot(fc_config, reinterpret_cast<const FcChar8*>(path.c_str()));
@@ -122,7 +123,7 @@ DEF_TEST(FontMgrFontConfig, reporter) {
     constexpr float kTextSize = 20;
 
     std::unique_ptr<SkStreamAsset> distortableStream(
-        GetResourceAsStream("fonts/Distortable.ttf"));
+            GetResourceAsStream("fonts/Distortable.ttf"));
     if (!distortableStream) {
         return;
     }
@@ -169,7 +170,7 @@ UNIX_ONLY_TEST(FontMgrFontConfig_AllBold, reporter) {
     constexpr float kTextSize = 20;
     constexpr char text[] = "abc";
 
-    SkString filePath = GetResourcePath("/fonts/Roboto-Regular.ttf");
+    SkString filePath = GetResourcePath("fonts/Roboto-Regular.ttf");
     sk_sp<SkTypeface> dataTypeface(fontMgr->makeFromFile(filePath.c_str(), 0));
     if (!dataTypeface) {
         ERRORF(reporter, "Could not find data typeface. FcVersion: %d", FcGetVersion());

@@ -411,7 +411,8 @@ static void fcpattern_from_skfontstyle(SkFontStyle style, FcPattern* pattern) {
     FcPatternAddInteger(pattern, FC_SLANT , slant);
 }
 
-class SkTypeface_fontconfig : public SkTypeface_FreeType {
+class SkScalerContext_fontconfig;
+class SkTypeface_fontconfig : public SkTypeface {
 public:
     static sk_sp<SkTypeface_fontconfig> Make(SkAutoFcPattern pattern, SkString sysroot) {
         return sk_sp<SkTypeface_fontconfig>(new SkTypeface_fontconfig(std::move(pattern),
@@ -423,7 +424,6 @@ public:
     void onGetFamilyName(SkString* familyName) const override {
         *familyName = get_string(fPattern, FC_FAMILY);
     }
-
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
         // TODO: need to serialize FC_MATRIX and FC_EMBOLDEN
         FCLocker lock;
@@ -431,26 +431,12 @@ public:
         desc->setFullName(get_string(fPattern, FC_FULLNAME));
         desc->setPostscriptName(get_string(fPattern, FC_POSTSCRIPT_NAME));
         desc->setStyle(this->fontStyle());
-        desc->setFactoryId(SkTypeface_FreeType::FactoryId);
+        desc->setFactoryId(SkTypeface_FreeType::FactoryId); // TODO: Fix the Id
         *serialize = false;
     }
-
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
-        FCLocker lock;
-        *ttcIndex = get_int(fPattern, FC_INDEX, 0);
-        const char* filename = get_string(fPattern, FC_FILE);
-        // See FontAccessible for note on searching sysroot then non-sysroot path.
-        SkString resolvedFilename;
-        if (!fSysroot.isEmpty()) {
-            resolvedFilename = fSysroot;
-            resolvedFilename += filename;
-            if (sk_exists(resolvedFilename.c_str(), kRead_SkFILE_Flag)) {
-                filename = resolvedFilename.c_str();
-            }
-        }
-        return SkStream::MakeFromFile(filename);
+        return fProxy->onOpenStream(ttcIndex);
     }
-
     void onFilterRec(SkScalerContextRec* rec) const override {
         // FontConfig provides 10-scale-bitmap-fonts.conf which applies an inverse "pixelsize"
         // matrix. It is not known if this .conf is active or not, so it is not clear if
@@ -478,44 +464,58 @@ public:
         if (get_bool(fPattern, FC_EMBOLDEN)) {
             rec->fFlags |= SkScalerContext::kEmbolden_Flag;
         }
-        this->INHERITED::onFilterRec(rec);
+
+        fProxy->filterRec(rec);
     }
-
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
-        std::unique_ptr<SkAdvancedTypefaceMetrics> info =
-            this->INHERITED::onGetAdvancedMetrics();
-
+        std::unique_ptr<SkAdvancedTypefaceMetrics> info = fProxy->onGetAdvancedMetrics();
         // Simulated fonts shouldn't be considered to be of the type of their data.
         if (get_matrix(fPattern, FC_MATRIX) || get_bool(fPattern, FC_EMBOLDEN)) {
             info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
         }
         return info;
     }
-
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        SkFontStyle style = this->fontStyle();
-        std::unique_ptr<SkFontData> data = this->cloneFontData(args, &style);
-        if (!data) {
-            return nullptr;
-        }
-
-        // TODO: need to clone FC_MATRIX and FC_EMBOLDEN
-        SkString familyName;
-        this->getFamilyName(&familyName);
-        return sk_make_sp<SkTypeface_FreeTypeStream>(
-            std::move(data), familyName, style, this->isFixedPitch());
+        // TODO: need to clone FC_MATRIX and FC_EMBOLDEN by wrapping this
+        return fProxy->onMakeClone(args);
     }
 
-    std::unique_ptr<SkFontData> onMakeFontData() const override {
-        int index;
-        std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
-        if (!stream) {
-            return nullptr;
-        }
-        // TODO: FC_VARIABLE and FC_FONT_VARIATIONS
-        return std::make_unique<SkFontData>(std::move(stream), index, 0, nullptr, 0, nullptr, 0);
-    }
+    std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects& effects, const SkDescriptor* descr) const override;
 
+    void getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override {
+        fProxy->getGlyphToUnicodeMap(glyphToUnicode);
+    }
+    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
+        fProxy->unicharsToGlyphs(chars, count, glyphs);
+    }
+    int onCountGlyphs() const override { return fProxy->countGlyphs(); }
+    int onGetUPEM() const override { return fProxy->getUnitsPerEm(); }
+    bool onGetPostScriptName(SkString* postScriptName) const override {
+        return fProxy->getPostScriptName(postScriptName);
+    }
+    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
+        return fProxy->createFamilyNameIterator();
+    }
+    void getPostScriptGlyphNames(SkString* names) const override {
+        return fProxy->getPostScriptGlyphNames(names);
+    }
+    bool onGlyphMaskNeedsCurrentColor() const override {
+        return fProxy->glyphMaskNeedsCurrentColor();
+    }
+    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
+                                     int coordinateCount) const override {
+        return fProxy->onGetVariationDesignPosition(coordinates, coordinateCount);
+    }
+    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                       int parameterCount) const override {
+        return fProxy->onGetVariationDesignParameters(parameters, parameterCount);
+    }
+    int onGetTableTags(SkFontTableTag tags[]) const override {
+        return fProxy->getTableTags(tags);
+    }
+    size_t onGetTableData(SkFontTableTag tag, size_t offset, size_t length, void* data) const override {
+        return fProxy->getTableData(tag, offset, length, data);
+    }
     ~SkTypeface_fontconfig() override {
         // Hold the lock while unrefing the pattern.
         FCLocker lock;
@@ -524,14 +524,75 @@ public:
 
 private:
     SkTypeface_fontconfig(SkAutoFcPattern pattern, SkString sysroot)
-        : INHERITED(skfontstyle_from_fcpattern(pattern),
+        : SkTypeface(skfontstyle_from_fcpattern(pattern),
                     FC_PROPORTIONAL != get_int(pattern, FC_SPACING, FC_PROPORTIONAL))
         , fPattern(std::move(pattern))
-        , fSysroot(std::move(sysroot))
+        , fSysroot(std::move(sysroot)) {
+        // TODO: for now only FreeTypeStream
+        SkString resolvedFilename;
+        FCLocker lock;
+        const char* filename = get_string(fPattern, FC_FILE);
+        // See FontAccessible for note on searching sysroot then non-sysroot path.
+        if (!fSysroot.isEmpty()) {
+            resolvedFilename = fSysroot;
+            resolvedFilename += filename;
+            if (sk_exists(resolvedFilename.c_str(), kRead_SkFILE_Flag)) {
+                filename = resolvedFilename.c_str();
+            }
+        }
+        // TODO: FC_VARIABLE and FC_FONT_VARIATIONS in arguments
+        auto ttcIndex = get_int(fPattern, FC_INDEX, 0);
+        fProxy = SkTypeface_FreeType::MakeFromStream(
+                SkStream::MakeFromFile(filename), SkFontArguments().setCollectionIndex(ttcIndex));
+    }
+    sk_sp<SkTypeface> fProxy;
+};
+
+class SkScalerContext_fontconfig : public SkScalerContext {
+private:
+    std::unique_ptr<SkScalerContext> fProxy;
+public:
+    SkScalerContext_fontconfig(std::unique_ptr<SkScalerContext> proxy,
+                               sk_sp<SkTypeface_fontconfig> typeface,
+                               const SkScalerContextEffects& effects,
+                               const SkDescriptor* desc)
+            : SkScalerContext(std::move(typeface), effects, desc)
+            , fProxy(std::move(proxy))
     { }
 
-    using INHERITED = SkTypeface_FreeType;
+    ~SkScalerContext_fontconfig() override = default;
+protected:
+    SkScalerContext::GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc* alloc) override {
+        return fProxy->generateMetrics(glyph, alloc);
+    }
+
+    void generateImage(const SkGlyph& glyph, void* imageBuffer) override {
+        fProxy->generateImage(glyph, imageBuffer);
+    }
+
+    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
+        return fProxy->generatePath(glyph, path, modified);
+    }
+
+    sk_sp<SkDrawable> generateDrawable(const SkGlyph& glyph) override {
+        return fProxy->generateDrawable(glyph);
+    }
+
+    void generateFontMetrics(SkFontMetrics* metrics) override {
+        fProxy->generateFontMetrics(metrics);
+    }
 };
+
+std::unique_ptr<SkScalerContext> SkTypeface_fontconfig::onCreateScalerContext(
+        const SkScalerContextEffects& effects, const SkDescriptor* descr) const {
+    auto proxyScaler = fProxy->onCreateScalerContextAsProxyTypeface(effects, descr, sk_ref_sp(this));
+    auto scaler = std::make_unique<SkScalerContext_fontconfig>(
+            std::move(proxyScaler),
+            sk_ref_sp(const_cast<SkTypeface_fontconfig*>(this)),
+            effects,
+            descr);
+    return scaler;
+}
 
 class SkFontMgr_fontconfig : public SkFontMgr {
     mutable SkAutoFcConfig fFC;  // Only mutable to avoid const cast when passed to FontConfig API.
