@@ -4,7 +4,7 @@
 
 import("../../gn/ios.gni")
 
-if (is_ios) {
+if (is_ios && skia_enable_tools) {
   group("skottie_ios_app") {
     deps = [ ":skottie_example" ]
   }

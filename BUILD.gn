@@ -3409,13 +3409,13 @@ if (skia_enable_tools) {
   }
 }
 
-if (is_ios && skia_use_metal && skia_enable_ganesh) {
+if (is_ios && skia_use_metal && skia_enable_ganesh && skia_enable_tools) {
   group("minimal_ios_mtl_skia_app") {
     deps = [ "experimental/minimal_ios_mtl_skia_app" ]
   }
 }
 
-if (is_ios && skia_enable_skottie) {
+if (is_ios && skia_enable_skottie && skia_enable_tools) {
   group("skottie_ios") {
     deps = [ "tools/skottie_ios_app" ]
   }
