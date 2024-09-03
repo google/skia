@@ -355,13 +355,6 @@ func doesNotAllowADBRoot(model string) bool {
 		"Pixel4":          true,
 		"Pixel4XL":        true,
 		"JioNext":         true,
-
-		// The below device is listed in the "cant_root" list in
-		// https://skia.googlesource.com/skia/+/0e8023dc0a1a5655703b39454c090b5a004415d6/infra/bots/recipe_modules/flavor/android.py#45.
-		// However, lovisolo@ did not encounter any issues running "adb root", so we are excluding it
-		// from the list to see if anything breaks.
-		//
-		// "Pixel5":          true,
 	}[model]
 }
 
