@@ -125,8 +125,7 @@ $pure half4 sk_color_space_transform(half4 halfColor,
     return halfColor;
 }
 
-$pure half4 sk_circular_rrect_clip(half4 color,
-                                   float4 rect,
+$pure half4 sk_circular_rrect_clip(float4 rect,
                                    float2 radiusPlusHalf,
                                    half4 edgeSelect) {
     float2 fragCoord = sk_FragCoord.xy;
@@ -147,7 +146,7 @@ $pure half4 sk_circular_rrect_clip(half4 color,
     // Check for inverse fill
     alpha = radiusPlusHalf.x < 0 ? (1-alpha) : alpha;
 
-    return color * alpha;
+    return half4(alpha);
 }
 
 $pure float $tile(int tileMode, float f, float low, float high) {
