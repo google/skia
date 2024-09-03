@@ -75,6 +75,7 @@
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
 #include "tools/GpuToolUtils.h"
+#include "tools/flags/CommonFlagsGraphite.h"
 #include "tools/graphite/ContextFactory.h"
 #include "tools/graphite/GraphiteTestContext.h"
 #endif
@@ -106,6 +107,10 @@ using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::TestContext;
 
 GrContextOptions grContextOpts;
+
+#if defined(SK_GRAPHITE)
+skiatest::graphite::TestOptions gTestOptions;
+#endif
 
 static const int kAutoTuneLoops = 0;
 
@@ -1367,6 +1372,10 @@ int main(int argc, char** argv) {
     SkTaskGroup::Enabler enabled(FLAGS_threads);
 
     CommonFlags::SetCtxOptions(&grContextOpts);
+
+#if defined(SK_GRAPHITE)
+    CommonFlags::SetTestOptions(&gTestOptions);
+#endif
 
     NanobenchShaderErrorHandler errorHandler;
     grContextOpts.fShaderErrorHandler = &errorHandler;

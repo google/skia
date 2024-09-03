@@ -2086,6 +2086,11 @@ if (skia_enable_tools) {
     deps = [ ":flags" ]
     public_deps = [ ":gpu_tool_utils" ]
   }
+  test_lib("common_flags_graphite") {
+    sources = [ "tools/flags/CommonFlagsGraphite.cpp" ]
+    deps = [ ":flags" ]
+    public_deps = [ ":gpu_tool_utils" ]
+  }
   test_lib("common_flags_images") {
     sources = [ "tools/flags/CommonFlagsImages.cpp" ]
     deps = [ ":flags" ]
@@ -2402,6 +2407,7 @@ if (skia_enable_tools) {
       deps = [
         ":common_flags_config",
         ":common_flags_gpu",
+        ":common_flags_graphite",
         ":common_flags_images",
         ":compile_all_sksl_tests",
         ":flags",
@@ -2460,6 +2466,7 @@ if (skia_enable_tools) {
       ":bench",
       ":common_flags_config",
       ":common_flags_gpu",
+      ":common_flags_graphite",
       ":common_flags_images",
       ":flags",
       ":gm",
@@ -2975,7 +2982,9 @@ if (skia_enable_tools) {
       libs = []
 
       deps = [
+        ":common_flags_config",
         ":common_flags_gpu",
+        ":common_flags_graphite",
         ":flags",
         ":gm",
         ":gpu_tool_utils",

@@ -234,6 +234,7 @@ skia_cc_library(
     visibility = [
         "//src/gpu/graphite/mtl:__pkg__",
         "//src/gpu/graphite/vk:__pkg__",
+        "//tools:__subpackages__",
     ],
     deps = [
         "//:core",
