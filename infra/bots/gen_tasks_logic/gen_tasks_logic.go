@@ -105,6 +105,15 @@ const (
 	// of /home/chrome-bot/cache/.bazel to make it obvious to someone examining a Skolo machine that
 	// we are overriding the default location.
 	bazelCacheDirOnSkoloLinux = "/home/chrome-bot/bazel_cache"
+
+	// bazelCacheDirOnWindows is like bazelCacheDirOnSkoloLinux. Unlike GCE Linux machines, we only
+	// have a single partition. While using the default cache path would work, our Bazel task
+	// drivers demand an explicit path. We store the Bazel cache at /home/chrome-bot/bazel_cache
+	// rather than on the default location of %APPDATA% to make it obvious to someone examining a
+	// Skolo machine that we are overriding the default location. Note that double-escaping the
+	// path separator is necessary because this string is passed to Bazel via multiple levels of
+	// subprocesses.
+	bazelCacheDirOnWindows = `C:\\Users\\chrome-bot\\bazel_cache`
 )
 
 var (
@@ -2198,14 +2207,28 @@ func (b *jobBuilder) bazelBuild() {
 	}
 
 	b.addTask(b.Name, func(b *taskBuilder) {
+		bazelCacheDir, ok := map[string]string{
+			// We only run builds in GCE.
+			"linux_x64":   bazelCacheDirOnGCELinux,
+			"windows_x64": bazelCacheDirOnWindows,
+		}[host]
+		if !ok {
+			panic("unknown Bazel cache dir for Bazel host " + host)
+		}
+
+		// Bazel git_repository rules shell out to git. Use the version from
+		// CIPD to ensure that we're not using an old locally-installed version.
+		b.usesGit()
+		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
+
 		cmd := []string{
-			b.taskDriver("bazel_build", true),
+			b.taskDriver("bazel_build", host != "windows_x64"),
 			"--project_id=skia-swarming-bots",
 			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
 			"--task_name=" + b.Name,
 			"--bazel_label=" + labelAndSavedOutputDir.label,
 			"--bazel_config=" + config,
-			"--bazel_cache_dir=" + bazelCacheDirOnGCELinux,
+			"--bazel_cache_dir=" + bazelCacheDir,
 			"--workdir=./skia",
 		}
 
@@ -2242,7 +2265,6 @@ func (b *jobBuilder) bazelBuild() {
 				fmt.Sprintf("machine_type:%s", MACHINE_TYPE_LARGE),
 				fmt.Sprintf("os:%s", DEFAULT_OS_WIN_GCE),
 				"pool:Skia",
-				"id:skia-e-gce-610",
 			)
 			b.usesBazel("windows_x64")
 			cmd = append(cmd, "--bazel_arg=--experimental_scale_timeouts=2.0")

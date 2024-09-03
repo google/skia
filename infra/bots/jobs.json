@@ -12,6 +12,7 @@
     "cq_config": {}
   },
   {"name": "BazelBuild-core-release-linux_x64"},
+  {"name": "BazelBuild-full_library-for_windows_x64_release-windows_x64"},
   {"name": "BazelBuild-ganesh_gl-release-linux_x64"},
   {"name": "BazelBuild-all_tests-debug-linux_x64"},
   {"name": "BazelBuild-all_tests-release-linux_x64",

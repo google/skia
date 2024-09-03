@@ -83,4 +83,5 @@ genrule(
     name = "create_skia_pnglibconf.h",
     outs = ["pnglibconf.h"],
     cmd = "echo '#include \"scripts/pnglibconf.h.prebuilt\"\n#undef PNG_READ_OPT_PLTE_SUPPORTED' > $@",
+    cmd_bat = "echo #include \"scripts/pnglibconf.h.prebuilt\" > $@ && echo #undef PNG_READ_OPT_PLTE_SUPPORTED >> $@",
 )
