@@ -22,6 +22,12 @@ public:
         return fGM->modifyGrContextOptions(options);
     }
 
+#if defined(SK_GRAPHITE)
+    void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) override {
+        fGM->modifyGraphiteContextOptions(options);
+    }
+#endif
+
 protected:
     const char* onGetName() override;
     bool isSuitableFor(Backend backend) override;

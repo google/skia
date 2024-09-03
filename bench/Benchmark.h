@@ -14,6 +14,10 @@
 #include "include/private/base/SkTArray.h"
 #include "tools/Registry.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#endif
+
 #define DEF_BENCH3(code, N) \
     static BenchRegistry gBench##N([](void*) -> Benchmark* { code; });
 #define DEF_BENCH2(code, N) DEF_BENCH3(code, N)
@@ -58,6 +62,10 @@ public:
 
     // Allows a benchmark to override options used to construct the GrContext.
     virtual void modifyGrContextOptions(GrContextOptions*) {}
+
+#if defined(SK_GRAPHITE)
+    virtual void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) {}
+#endif
 
     // Whether or not this benchmark requires multiple samples to get a meaningful result.
     virtual bool shouldLoop() const {

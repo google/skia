@@ -359,11 +359,10 @@ struct GraphiteTarget : public Target {
         return true;
     }
     bool init(SkImageInfo info, Benchmark* bench) override {
-        GrContextOptions options = grContextOpts;
-        bench->modifyGrContextOptions(&options);
-        // TODO: We should merge Ganesh and Graphite context options and then actually use the
-        // context options when we make the factory here.
-        this->factory = std::make_unique<ContextFactory>();
+        skiatest::graphite::TestOptions testOptions = gTestOptions;
+        bench->modifyGraphiteContextOptions(&testOptions.fContextOptions);
+
+        this->factory = std::make_unique<ContextFactory>(testOptions);
 
         skiatest::graphite::ContextInfo ctxInfo =
                 this->factory->getContextInfo(this->config.ctxType);
@@ -618,7 +617,7 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
 
         using ContextFactory = skiatest::graphite::ContextFactory;
 
-        ContextFactory factory(gpuConfig->asConfigGraphite()->getOptions());
+        ContextFactory factory(gTestOptions);
         skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(graphiteCtxType);
         skgpu::graphite::Context* ctx = ctxInfo.fContext;
         if (ctx) {
