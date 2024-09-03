@@ -36,7 +36,7 @@ void PaintOption::toKey(const KeyContext& keyContext,
     }
 
     if (fClipShader.first) {
-        ClipShaderBlock::BeginBlock(keyContext, keyBuilder, gatherer);
+        ClipBlock::BeginBlock(keyContext, keyBuilder, gatherer);
             fClipShader.first->priv().addToKey(keyContext, keyBuilder, gatherer,
                                                fClipShader.second);
         keyBuilder->endBlock();

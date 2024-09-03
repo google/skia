@@ -327,7 +327,7 @@ void PaintParams::toKey(const KeyContext& keyContext,
     }
 
     if (fClipShader) {
-        ClipShaderBlock::BeginBlock(keyContext, builder, gatherer);
+        ClipBlock::BeginBlock(keyContext, builder, gatherer);
 
             AddToKey(keyContext, builder, gatherer, fClipShader.get());
 

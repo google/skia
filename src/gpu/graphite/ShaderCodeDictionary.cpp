@@ -515,9 +515,9 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
         SkASSERT(!(fRootNodes[0]->requiredFlags() & SnippetRequirementFlags::kPrimitiveColor));
     }
 
-    // While looping through root nodes to emit shader code, skip the clip shader node if it's found
+    // While looping through root nodes to emit shader code, skip the clip block node if it's found
     // and keep it to apply later during coverage calculation.
-    const ShaderNode* clipShaderNode = nullptr;
+    const ShaderNode* clipBlockNode = nullptr;
 
     // Using kDefaultArgs as the initial value means it will refer to undefined variables, but the
     // root nodes should--at most--be depending on the coordinate when "needsLocalCoords" is true.
@@ -533,9 +533,9 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     // Emit shader main body code, invoking each root node's expression, forwarding the previous
     // node's output to the next.
     for (const ShaderNode* node : fRootNodes) {
-        if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kClipShader) {
-            SkASSERT(!clipShaderNode);
-            clipShaderNode = node;
+        if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kClip) {
+            SkASSERT(!clipBlockNode);
+            clipBlockNode = node;
             continue;
         }
         // This exclusion of the final Blend can be removed once we've resolved the final
@@ -554,7 +554,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
 
     const char* outColor = args.fPriorStageOutput.c_str();
     const Coverage coverage = step->coverage();
-    if (coverage != Coverage::kNone || clipShaderNode) {
+    if (coverage != Coverage::kNone || clipBlockNode) {
         if (useStepStorageBuffer) {
             SkSL::String::appendf(&mainBody,
                                   "uint stepSsboIndex = %s.x;\n",
@@ -565,15 +565,15 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
         mainBody += "half4 outputCoverage = half4(1);";
         mainBody += step->fragmentCoverageSkSL();
 
-        if (clipShaderNode) {
-            // The clip shader node is invoked with fragment coords, not local coords like the main
+        if (clipBlockNode) {
+            // The clip block node is invoked with fragment coords, not local coords like the main
             // shading root node.
-            // TODO: The actual clipShaderNode can go away once we can enforce that a PaintParamsKey
+            // TODO: The actual clipBlockNode can go away once we can enforce that a PaintParamsKey
             // has only 1-2 roots and the 2nd root is always the clip node.
             args.fFragCoord = "sk_FragCoord.xy";
-            std::string clipShaderOutput =
-                    invoke_and_assign_node(*this, clipShaderNode->child(0), args, &mainBody);
-            SkSL::String::appendf(&mainBody, "outputCoverage *= %s.a;", clipShaderOutput.c_str());
+            std::string clipBlockOutput =
+                    invoke_and_assign_node(*this, clipBlockNode->child(0), args, &mainBody);
+            SkSL::String::appendf(&mainBody, "outputCoverage *= %s.a;", clipBlockOutput.c_str());
         }
 
         // TODO: Determine whether draw is opaque and pass that to GetBlendFormula.
@@ -746,8 +746,9 @@ std::string GenerateDstReadFetchPreamble(const ShaderInfo& shaderInfo, const Sha
 
 //--------------------------------------------------------------------------------------------------
 
-std::string GenerateClipShaderPreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
-    // No preamble is used for clip shaders. The child shader is called directly with sk_FragCoord.
+std::string GenerateClipPreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
+    // No preamble is used for clip shaders or (eventually) analytic clips.
+    // The child shader is called directly with sk_FragCoord.
     return "";
 }
 
@@ -1579,13 +1580,13 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             GenerateDstReadFetchPreamble,
     };
 
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kClipShader] = {
-            /*name=*/"ClipShader",
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kClip] = {
+            /*name=*/"Clip",
             /*staticFn=*/nullptr,
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
             /*textures=*/{},
-            GenerateClipShaderPreamble,
+            GenerateClipPreamble,
             /*numChildren=*/1
     };
 

@@ -304,7 +304,7 @@ struct HSLCBlenderBlock {
                          SkSpan<const float> coeffs);
 };
 
-struct ClipShaderBlock {
+struct ClipBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);

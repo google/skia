@@ -1015,12 +1015,12 @@ void HSLCBlenderBlock::AddBlock(const KeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
-void ClipShaderBlock::BeginBlock(const KeyContext& keyContext,
-                                 PaintParamsKeyBuilder* builder,
-                                 PipelineDataGatherer* gatherer) {
-    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kClipShader)
+void ClipBlock::BeginBlock(const KeyContext& keyContext,
+                           PaintParamsKeyBuilder* builder,
+                           PipelineDataGatherer* gatherer) {
+    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kClip)
 
-    builder->beginBlock(BuiltInCodeSnippetID::kClipShader);
+    builder->beginBlock(BuiltInCodeSnippetID::kClip);
 }
 
 //--------------------------------------------------------------------------------------------------
