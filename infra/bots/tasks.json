@@ -87766,6 +87766,7 @@
       "root": "..",
       "paths": [
         "skia/example",
+        "skia/experimental/rust_png",
         "skia/include",
         "skia/modules",
         "skia/src",

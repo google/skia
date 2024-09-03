@@ -1,0 +1,20 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+    "skia_filegroup",
+)
+
+skia_filegroup(
+    name = "rs_srcs",
+    srcs = ["FFI.rs"],
+)
+
+skia_filegroup(
+    name = "cxx_bridge_srcs",
+    srcs = ["FFI.rs"],
+)
+
+skia_cc_library(
+    name = "ffi_cpp",
+    hdrs = ["FFI.h"],
+)

@@ -438,6 +438,7 @@ func GenTasks(cfg *Config) {
 		Paths: []string{
 			// Source code.
 			"skia/example",
+			"skia/experimental/rust_png",
 			"skia/include",
 			"skia/modules",
 			"skia/src",

@@ -21,11 +21,12 @@ import (
 
 // The contents (or partial contents) of a GNI file.
 type gniFileContents struct {
-	hasSrcs     bool            // Has at least one file in $_src/ dir?
-	hasIncludes bool            // Has at least one file in $_include/ dir?
-	hasModules  bool            // Has at least one file in $_module/ dir?
-	bazelFiles  map[string]bool // Set of Bazel files generating GNI contents.
-	data        []byte          // The file contents to be written.
+	hasExperimental bool            // Has at least one file in $_experimental/ dir?
+	hasIncludes     bool            // Has at least one file in $_include/ dir?
+	hasModules      bool            // Has at least one file in $_module/ dir?
+	hasSrcs         bool            // Has at least one file in $_src/ dir?
+	bazelFiles      map[string]bool // Set of Bazel files generating GNI contents.
+	data            []byte          // The file contents to be written.
 }
 
 // GNIFileListExportDesc contains a description of the data that
@@ -62,6 +63,11 @@ type GNIExporter struct {
 	fs             interfaces.FileSystem // For filesystem interactions.
 	exportGNIDescs []GNIExportDesc       // The rules to export.
 }
+
+// The footer written to gn/codec.gni.
+const codecGNIFooter = `
+skia_codec_rust_png_ffi_crate_root = "$_experimental/rust_png/ffi/FFI.rs"
+`
 
 // The footer written to gn/core.gni.
 const coreGNIFooter = `skia_core_sources += skia_pathops_sources
@@ -118,6 +124,7 @@ skia_fontations_bridge_root = "$_src/ports/fontations/src/ffi.rs"
 
 // Map of GNI file names to footer text to be appended to the end of the file.
 var footerMap = map[string]string{
+	"gn/codec.gni":                  codecGNIFooter,
 	"gn/core.gni":                   coreGNIFooter,
 	"gn/ports.gni":                  portsFooter,
 	"gn/sksl_tests.gni":             skslTestsFooter,
@@ -214,6 +221,9 @@ func makeRelativeFilePathForGNI(path string) (string, error) {
 	if strings.HasPrefix(path, "modules/") {
 		return "$_modules/" + strings.TrimPrefix(path, "modules/"), nil
 	}
+	if strings.HasPrefix(path, "experimental/") {
+		return "$_experimental/" + strings.TrimPrefix(path, "experimental/"), nil
+	}
 	// These sksl tests are purposely listed as a relative path underneath resources/sksl because
 	// that relative path is re-used by the GN logic to put stuff under //tests/sksl as well.
 	if strings.HasPrefix(path, "resources/sksl/") {
@@ -282,6 +292,9 @@ func writeGNFileHeader(writer interfaces.Writer, gniFile *gniFileContents, pathT
 	_, _ = writer.WriteString("\n")
 	if gniFile.hasSrcs {
 		_, _ = fmt.Fprintf(writer, "_src = get_path_info(\"%s/src\", \"abspath\")\n", pathToWorkspace)
+	}
+	if gniFile.hasExperimental {
+		_, _ = fmt.Fprintf(writer, "_experimental = get_path_info(\"%s/experimental\", \"abspath\")\n", pathToWorkspace)
 	}
 	if gniFile.hasIncludes {
 		_, _ = fmt.Fprintf(writer, "_include = get_path_info(\"%s/include\", \"abspath\")\n", pathToWorkspace)
@@ -401,6 +414,9 @@ func (e *GNIExporter) absToWorkspacePath(absPath string) (string, error) {
 
 // Merge the another file contents object into this one.
 func (c *gniFileContents) merge(other gniFileContents) {
+	if other.hasExperimental {
+		c.hasExperimental = true
+	}
 	if other.hasIncludes {
 		c.hasIncludes = true
 	}
@@ -461,6 +477,8 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *build.Q
 	for i := range files {
 		if strings.HasPrefix(files[i], "$_src/") {
 			fileContents.hasSrcs = true
+		} else if strings.HasPrefix(files[i], "$_experimental/") {
+			fileContents.hasExperimental = true
 		} else if strings.HasPrefix(files[i], "$_include/") {
 			fileContents.hasIncludes = true
 		} else if strings.HasPrefix(files[i], "$_modules/") {
