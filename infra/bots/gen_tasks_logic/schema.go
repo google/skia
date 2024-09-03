@@ -203,6 +203,12 @@ func (p parts) matchArch(re ...string) bool {
 	return p.matchPart("arch", re...) || p.matchPart("target_arch", re...)
 }
 
+// matchBazelHost returns true if the Bazel host for this job matches any of the
+// given regular expressions.
+func (p parts) matchBazelHost(re ...string) bool {
+	return p.matchPart("host", re...)
+}
+
 // matchExtraConfig returns true if any of the extra_configs for this job matches
 // any of the given regular expressions. If the extra_config starts with "SK_",
 // it is considered to be a single config.
@@ -246,7 +252,21 @@ func (p parts) release() bool {
 
 // isLinux returns true if the task runs on Linux.
 func (p parts) isLinux() bool {
-	return p.matchOs("Debian", "Ubuntu")
+	return p.matchOs("Debian", "Ubuntu") ||
+		p.matchExtraConfig("Debian", "Ubuntu") ||
+		p.matchBazelHost("linux", "on_rpi") ||
+		p.role("Housekeeper", "Canary", "Upload")
+
+}
+
+// isWindows returns true if the task runs on Windows.
+func (p parts) isWindows() bool {
+	return !p.role("Upload") && (p.matchOs("Win") || p.matchExtraConfig("Win") || p.matchBazelHost("windows"))
+}
+
+// isMac returns true if the task runs on Mac.
+func (p parts) isMac() bool {
+	return !p.role("Upload") && (p.matchOs("Mac") || p.matchExtraConfig("Mac") || p.matchBazelHost("darwin"))
 }
 
 // bazelBuildParts returns all parts from the BazelBuild schema. All parts are required.
