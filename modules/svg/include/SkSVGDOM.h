@@ -11,17 +11,16 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkAPI.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
 #include "modules/svg/include/SkSVGIDMapper.h"
+#include "modules/svg/include/SkSVGSVG.h"
 
 class SkCanvas;
-class SkDOM;
-class SkStream;
 class SkSVGNode;
+class SkStream;
 struct SkSVGPresentationContext;
-class SkSVGSVG;
 
 class SK_API SkSVGDOM : public SkRefCnt {
 public:

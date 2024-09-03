@@ -8,10 +8,21 @@
 #ifndef SkSVGRect_DEFINED
 #define SkSVGRect_DEFINED
 
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGShape.h"
 #include "modules/svg/include/SkSVGTypes.h"
+#include "src/base/SkTLazy.h"
 
+class SkCanvas;
+class SkPaint;
 class SkRRect;
+class SkSVGLengthContext;
+class SkSVGRenderContext;
+enum class SkPathFillType;
 
 class SK_API SkSVGRect final : public SkSVGShape {
 public:

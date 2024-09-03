@@ -37,6 +37,7 @@ supported_files_or_dirs=(
   "modules/sksg/"
   "modules/skshaper/"
   "modules/skunicode/"
+  "modules/svg/"
   "src/base/"
   "src/codec/"
   "src/core/"

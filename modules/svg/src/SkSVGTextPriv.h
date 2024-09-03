@@ -8,16 +8,32 @@
 #ifndef SkSVGTextPriv_DEFINED
 #define SkSVGTextPriv_DEFINED
 
+#include "include/core/SkContourMeasure.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGText.h"
 #include "src/base/SkTLazy.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <functional>
-#include <tuple>
+#include <limits>
+#include <memory>
+#include <vector>
 
-class SkContourMeasure;
+class SkSVGLengthContext;
+class SkSVGRenderContext;
+class SkSVGTextContainer;
+class SkSVGTextPath;
+class SkString;
+class SkTextBlob;
+enum class SkSVGXmlSpace;
 struct SkRSXform;
 
 // SkSVGTextContext is responsible for sequencing input text chars into "chunks".

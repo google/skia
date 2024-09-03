@@ -8,8 +8,10 @@
 #include "modules/svg/include/SkSVGUse.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkDebug.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
 
 SkSVGUse::SkSVGUse() : INHERITED(SkSVGTag::kUse) {}
 

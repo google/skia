@@ -8,8 +8,17 @@
 #ifndef SkSVGFeOffset_DEFINED
 #define SkSVGFeOffset_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 #include "modules/svg/include/SkSVGFe.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
+
+#include <vector>
+
+class SkImageFilter;
+class SkSVGFilterContext;
+class SkSVGRenderContext;
 
 class SK_API SkSVGFeOffset : public SkSVGFe {
 public:

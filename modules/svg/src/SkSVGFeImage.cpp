@@ -5,13 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "modules/svg/include/SkSVGFeImage.h"
+
+#include "include/core/SkImage.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/effects/SkImageFilters.h"
-#include "modules/svg/include/SkSVGFeImage.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
 #include "modules/svg/include/SkSVGImage.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
 
 bool SkSVGFeImage::parseAndSetAttribute(const char* n, const char* v) {
     return INHERITED::parseAndSetAttribute(n, v) ||

@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
 #include "modules/svg/include/SkSVGLine.h"
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkPoint.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
+
+class SkPaint;
+enum class SkPathFillType;
 
 SkSVGLine::SkSVGLine() : INHERITED(SkSVGTag::kLine) {}
 

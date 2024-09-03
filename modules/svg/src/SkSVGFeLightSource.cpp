@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkScalar.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFeLightSource.h"
-#include "modules/svg/include/SkSVGValue.h"
+
+#include <cmath>
 
 SkPoint3 SkSVGFeDistantLight::computeDirection() const {
     // Computing direction from azimuth+elevation is two 3D rotations:

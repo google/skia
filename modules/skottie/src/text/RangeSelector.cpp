@@ -7,9 +7,9 @@
 #include "modules/skottie/src/text/RangeSelector.h"
 
 #include "include/core/SkCubicMap.h"
+#include "include/core/SkPoint.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skottie/include/Skottie.h"

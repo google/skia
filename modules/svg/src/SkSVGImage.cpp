@@ -5,13 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "modules/svg/include/SkSVGImage.h"
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
+#include "modules/skresources/include/SkResources.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
-#include "modules/svg/include/SkSVGImage.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
 #include "src/utils/SkOSPath.h"
+
+#include <utility>
 
 bool SkSVGImage::parseAndSetAttribute(const char* n, const char* v) {
     return INHERITED::parseAndSetAttribute(n, v) ||

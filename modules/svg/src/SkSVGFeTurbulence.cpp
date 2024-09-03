@@ -5,13 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "modules/svg/include/SkSVGFeTurbulence.h"
+
+#include "include/core/SkShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
-#include "modules/svg/include/SkSVGFeTurbulence.h"
-#include "modules/svg/include/SkSVGFilterContext.h"
-#include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
+
+class SkImageFilter;
+class SkSVGFilterContext;
+class SkSVGRenderContext;
+struct SkISize;
 
 bool SkSVGFeTurbulence::parseAndSetAttribute(const char* name, const char* value) {
     return INHERITED::parseAndSetAttribute(name, value) ||

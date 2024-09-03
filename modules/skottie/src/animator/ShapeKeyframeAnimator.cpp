@@ -7,8 +7,8 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPoint.h"
 #include "include/private/base/SkAssert.h"
-#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"

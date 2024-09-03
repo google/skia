@@ -8,11 +8,21 @@
 #ifndef SkSVGAttributeParser_DEFINED
 #define SkSVGAttributeParser_DEFINED
 
-#include <vector>
-
+#include "include/core/SkColor.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "modules/svg/include/SkSVGTypes.h"
+
 #include "src/base/SkTLazy.h"
+
+#include <cstdint>
+#include <cstring>
+#include <tuple>
+#include <vector>
+
+class SkMatrix;
+class SkString;
 
 class SkSVGAttributeParser : public SkNoncopyable {
 public:

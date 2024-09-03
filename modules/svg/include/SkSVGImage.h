@@ -8,8 +8,17 @@
 #ifndef SkSVGImage_DEFINED
 #define SkSVGImage_DEFINED
 
+#include "include/core/SkImage.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
+#include "include/private/base/SkDebug.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTransformableNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
+
+class SkSVGRenderContext;
 
 namespace skresources {
 class ResourceProvider;

@@ -8,12 +8,19 @@
 #ifndef SkSVGFe_DEFINED
 #define SkSVGFe_DEFINED
 
-#include <vector>
-
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 #include "modules/svg/include/SkSVGHiddenContainer.h"
+#include "modules/svg/include/SkSVGNode.h"
+#include "modules/svg/include/SkSVGTypes.h"
+#include "src/base/SkTLazy.h"
+
+#include <vector>
 
 class SkImageFilter;
 class SkSVGFilterContext;
+class SkSVGRenderContext;
 
 class SK_API SkSVGFe : public SkSVGHiddenContainer {
 public:

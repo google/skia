@@ -5,14 +5,20 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkMatrix.h"
-#include "include/pathops/SkPathOps.h"
-#include "include/private/base/SkTPin.h"
 #include "modules/svg/include/SkSVGNode.h"
+
+#include "include/core/SkColor.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/base/SkAssert.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
-#include "src/base/SkTLazy.h"
+#include "src/base/SkTLazy.h"  // IWYU pragma: keep
+
+#include <algorithm>
+#include <array>
+#include <cstddef>
 
 SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) {
     // Uninherited presentation attributes need a non-null default value.

@@ -5,11 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorSpace.h"
-#include "include/effects/SkGradientShader.h"
 #include "modules/svg/include/SkSVGLinearGradient.h"
+
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkPoint.h"
+#include "include/effects/SkGradientShader.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
+
+class SkMatrix;
+class SkShader;
+enum class SkTileMode;
 
 SkSVGLinearGradient::SkSVGLinearGradient() : INHERITED(SkSVGTag::kLinearGradient) {}
 

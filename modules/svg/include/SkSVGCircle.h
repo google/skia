@@ -8,9 +8,22 @@
 #ifndef SkSVGCircle_DEFINED
 #define SkSVGCircle_DEFINED
 
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAPI.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGShape.h"
 #include "modules/svg/include/SkSVGTypes.h"
 
+#include <tuple>
+
+class SkCanvas;
+class SkPaint;
+class SkSVGLengthContext;
+class SkSVGRenderContext;
+enum class SkPathFillType;
 struct SkPoint;
 
 class SK_API SkSVGCircle final : public SkSVGShape {

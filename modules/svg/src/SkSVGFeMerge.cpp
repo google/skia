@@ -10,8 +10,10 @@
 #include "include/core/SkImageFilter.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkTArray.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
-#include "modules/svg/include/SkSVGNode.h"
+
+class SkSVGRenderContext;
 
 bool SkSVGFeMergeNode::parseAndSetAttribute(const char* name, const char* value) {
     return INHERITED::parseAndSetAttribute(name, value) ||

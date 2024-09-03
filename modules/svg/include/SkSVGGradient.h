@@ -8,13 +8,21 @@
 #ifndef SkSVGGradient_DEFINED
 #define SkSVGGradient_DEFINED
 
-#include "include/core/SkShader.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/private/base/SkAPI.h"
+#include "include/private/base/SkTArray.h"
 #include "modules/svg/include/SkSVGHiddenContainer.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
 
-class SkMatrix;
+class SkPaint;
 class SkSVGRenderContext;
 class SkSVGStop;
+class SkShader;
+enum class SkTileMode;
 
 class SK_API SkSVGGradient : public SkSVGHiddenContainer {
 public:

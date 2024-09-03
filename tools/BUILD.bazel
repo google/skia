@@ -274,6 +274,7 @@ skia_cc_library(
         "//include/private/chromium:headers_to_compile",
         "//include/private/gpu/ganesh:headers_to_compile",
         "//include/private:headers_to_compile",
+        "//modules/svg/src:headers_to_compile",
         "//src/base:headers_to_compile",
         "//src/codec:headers_to_compile",
         "//src/core:headers_to_compile",

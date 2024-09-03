@@ -8,9 +8,9 @@
 #ifndef SkSVGRectPriv_DEFINED
 #define SkSVGRectPriv_DEFINED
 
-#include <tuple>
+#include "src/base/SkTLazy.h"  // IWYU pragma: keep
 
-#include "src/base/SkTLazy.h"
+#include <tuple>
 
 class SkSVGLength;
 class SkSVGLengthContext;

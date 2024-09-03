@@ -7,10 +7,10 @@
 
 #include "include/core/SkM44.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skottie/include/Skottie.h"

@@ -7,6 +7,9 @@
 
 #include "modules/svg/include/SkSVGClipPath.h"
 
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 
 SkSVGClipPath::SkSVGClipPath() : INHERITED(SkSVGTag::kClipPath) {}

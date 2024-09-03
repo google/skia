@@ -5,11 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkImageFilters.h"
-#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFeComposite.h"
+
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkRect.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/private/base/SkAssert.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
-#include "modules/svg/include/SkSVGRenderContext.h"
+
+#include <tuple>
+
+class SkSVGRenderContext;
 
 bool SkSVGFeComposite::parseAndSetAttribute(const char* name, const char* value) {
     return INHERITED::parseAndSetAttribute(name, value) ||

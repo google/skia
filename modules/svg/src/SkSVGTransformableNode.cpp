@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
-#include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGTransformableNode.h"
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
+#include "modules/svg/include/SkSVGAttribute.h"
+#include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
 
 SkSVGTransformableNode::SkSVGTransformableNode(SkSVGTag tag)

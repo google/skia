@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "include/effects/SkImageFilters.h"
 #include "modules/svg/include/SkSVGFeFlood.h"
-#include "modules/svg/include/SkSVGFilterContext.h"
+
+#include "include/core/SkScalar.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/private/base/SkDebug.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
+
+class SkImageFilter;
+class SkSVGFilterContext;
 
 SkColor SkSVGFeFlood::resolveFloodColor(const SkSVGRenderContext& ctx) const {
     const auto floodColor = this->getFloodColor();

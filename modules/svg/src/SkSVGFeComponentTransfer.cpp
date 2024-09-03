@@ -9,9 +9,11 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkImageFilter.h"
+#include "include/core/SkRect.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
@@ -19,7 +21,12 @@
 #include "modules/svg/include/SkSVGTypes.h"
 
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
+#include <tuple>
+#include <utility>
+
+class SkSVGRenderContext;
 
 sk_sp<SkImageFilter> SkSVGFeComponentTransfer::onMakeImageFilter(
         const SkSVGRenderContext& ctx,

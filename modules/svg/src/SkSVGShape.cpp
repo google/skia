@@ -5,8 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGShape.h"
+
+#include "include/core/SkPaint.h"  // IWYU pragma: keep
+#include "include/private/base/SkDebug.h"
+#include "modules/svg/include/SkSVGAttribute.h"
+#include "modules/svg/include/SkSVGRenderContext.h"
+#include "modules/svg/include/SkSVGTypes.h"
+#include "src/base/SkTLazy.h"
+
+class SkSVGNode;
+enum class SkSVGTag;
 
 SkSVGShape::SkSVGShape(SkSVGTag t) : INHERITED(t) {}
 

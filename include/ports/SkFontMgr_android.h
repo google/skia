@@ -10,6 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 
+#include <memory>
+
 class SkFontMgr;
 class SkFontScanner;
 

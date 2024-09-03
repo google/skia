@@ -8,8 +8,16 @@
 #ifndef SkSVGFeMorphology_DEFINED
 #define SkSVGFeMorphology_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "modules/svg/include/SkSVGFe.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
+
+#include <vector>
+
+class SkImageFilter;
+class SkSVGFilterContext;
+class SkSVGRenderContext;
 
 class SkSVGFeMorphology : public SkSVGFe {
 public:

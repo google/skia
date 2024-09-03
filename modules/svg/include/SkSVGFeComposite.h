@@ -8,9 +8,18 @@
 #ifndef SkSVGFeComposite_DEFINED
 #define SkSVGFeComposite_DEFINED
 
-#include "include/core/SkBlendMode.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 #include "modules/svg/include/SkSVGFe.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
+
+#include <vector>
+
+class SkImageFilter;
+class SkSVGFilterContext;
+class SkSVGRenderContext;
+enum class SkBlendMode;
 
 class SK_API SkSVGFeComposite final : public SkSVGFe {
 public:

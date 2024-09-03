@@ -5,12 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkPaint.h"
-#include "include/utils/SkParsePath.h"
 #include "modules/svg/include/SkSVGPath.h"
+
+#include "include/core/SkCanvas.h"
+#include "include/utils/SkParsePath.h"
+#include "modules/svg/include/SkSVGAttribute.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
+#include "modules/svg/include/SkSVGTypes.h"
+
+class SkPaint;
+enum class SkPathFillType;
 
 SkSVGPath::SkSVGPath() : INHERITED(SkSVGTag::kPath) { }
 

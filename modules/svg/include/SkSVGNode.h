@@ -8,15 +8,19 @@
 #ifndef SkSVGNode_DEFINED
 #define SkSVGNode_DEFINED
 
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 #include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
+#include "modules/svg/include/SkSVGTypes.h"
 
-class SkCanvas;
+#include <utility>
+
 class SkMatrix;
 class SkPaint;
 class SkPath;
-class SkSVGLengthContext;
+class SkSVGNode;
 class SkSVGRenderContext;
 class SkSVGValue;
 

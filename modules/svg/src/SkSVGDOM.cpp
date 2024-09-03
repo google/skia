@@ -7,11 +7,13 @@
 
 #include "modules/svg/include/SkSVGDOM.h"
 
-#include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkString.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
+#include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGCircle.h"
 #include "modules/svg/include/SkSVGClipPath.h"
@@ -53,6 +55,12 @@
 #include "src/base/SkTSearch.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/xml/SkDOM.h"
+
+#include <stdint.h>
+#include <array>
+#include <cstring>
+#include <tuple>
+#include <utility>
 
 namespace {
 

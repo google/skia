@@ -5,14 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "modules/svg/include/SkSVGFeColorMatrix.h"
+
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkScalar.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkAssert.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
-#include "modules/svg/include/SkSVGFeColorMatrix.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
-#include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
+
+#include <tuple>
+
+class SkImageFilter;
+class SkSVGRenderContext;
 
 bool SkSVGFeColorMatrix::parseAndSetAttribute(const char* name, const char* value) {
     return INHERITED::parseAndSetAttribute(name, value) ||

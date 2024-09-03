@@ -5,25 +5,33 @@
  * found in the LICENSE file.
  */
 
+#include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
+
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkJpegDecoder.h"
 #include "include/codec/SkPngDecoder.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkData.h"
 #include "include/core/SkOpenTypeSVGDecoder.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "modules/skresources/include/SkResources.h"
+#include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGDOM.h"
-#include "modules/svg/include/SkSVGNode.h"
-#include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGSVG.h"
-#include "modules/svg/include/SkSVGUse.h"
+#include "modules/svg/include/SkSVGTypes.h"
 #include "src/base/SkBase64.h"
 #include "src/core/SkEnumerate.h"
+#include "src/core/SkTHash.h"
 
+#include <array>
+#include <cstring>
 #include <memory>
+#include <utility>
 
 using namespace skia_private;
 

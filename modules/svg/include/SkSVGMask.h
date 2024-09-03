@@ -8,8 +8,14 @@
 #ifndef SkSVGMask_DEFINED
 #define SkSVGMask_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 #include "modules/svg/include/SkSVGHiddenContainer.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
+
+class SkSVGRenderContext;
 
 class SK_API SkSVGMask final : public SkSVGHiddenContainer {
 public:

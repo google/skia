@@ -9,6 +9,10 @@
 
 #include "include/core/SkPath.h"
 #include "include/pathops/SkPathOps.h"
+#include "include/private/base/SkAssert.h"
+
+#include <utility>
+class SkSVGRenderContext;
 
 SkSVGContainer::SkSVGContainer(SkSVGTag t) : INHERITED(t) { }
 

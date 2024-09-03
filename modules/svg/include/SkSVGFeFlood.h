@@ -8,8 +8,18 @@
 #ifndef SkSVGFeFlood_DEFINED
 #define SkSVGFeFlood_DEFINED
 
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
 #include "modules/svg/include/SkSVGFe.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
+
+#include <vector>
+
+class SkImageFilter;
+class SkSVGFilterContext;
+class SkSVGRenderContext;
 
 class SK_API SkSVGFeFlood : public SkSVGFe {
 public:

@@ -9,8 +9,13 @@
 #define SkSVGFeLightSource_DEFINED
 
 #include "include/core/SkPoint3.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
+#include "include/private/base/SkDebug.h"
 #include "modules/svg/include/SkSVGHiddenContainer.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
+#include "src/base/SkTLazy.h"
 
 class SK_API SkSVGFeLightSource : public SkSVGHiddenContainer {
 public:

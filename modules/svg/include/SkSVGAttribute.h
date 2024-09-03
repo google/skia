@@ -9,9 +9,6 @@
 #define SkSVGAttribute_DEFINED
 
 #include "modules/svg/include/SkSVGTypes.h"
-#include "src/base/SkTLazy.h"
-
-class SkSVGRenderContext;
 
 enum class SkSVGAttribute {
     kClipRule,

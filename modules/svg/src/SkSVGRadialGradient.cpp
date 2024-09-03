@@ -5,11 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorSpace.h"
-#include "include/effects/SkGradientShader.h"
 #include "modules/svg/include/SkSVGRadialGradient.h"
+
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkShader.h"
+#include "include/effects/SkGradientShader.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "modules/svg/include/SkSVGValue.h"
+
+class SkMatrix;
+enum class SkTileMode;
 
 SkSVGRadialGradient::SkSVGRadialGradient() : INHERITED(SkSVGTag::kRadialGradient) {}
 

@@ -5,11 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
 #include "modules/svg/include/SkSVGEllipse.h"
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkRect.h"
+#include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGTypes.h"
 #include "modules/svg/src/SkSVGRectPriv.h"
+
+class SkPaint;
+enum class SkPathFillType;
 
 SkSVGEllipse::SkSVGEllipse() : INHERITED(SkSVGTag::kEllipse) {}
 

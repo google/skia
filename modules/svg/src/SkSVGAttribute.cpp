@@ -7,6 +7,8 @@
 
 #include "modules/svg/include/SkSVGAttribute.h"
 
+#include "include/core/SkColor.h"
+
 SkSVGPresentationAttributes SkSVGPresentationAttributes::MakeInitial() {
     SkSVGPresentationAttributes result;
 

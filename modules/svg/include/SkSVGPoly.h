@@ -9,7 +9,18 @@
 #define SkSVGPoly_DEFINED
 
 #include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkAPI.h"
+#include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGShape.h"
+#include "modules/svg/include/SkSVGTypes.h"
+
+class SkCanvas;
+class SkPaint;
+class SkSVGLengthContext;
+class SkSVGRenderContext;
+enum class SkPathFillType;
 
 // Handles <polygon> and <polyline> elements.
 class SK_API SkSVGPoly final : public SkSVGShape {
