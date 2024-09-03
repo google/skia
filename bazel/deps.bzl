@@ -211,14 +211,14 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "vulkan_tools",
         build_file = ws + "//bazel/external/vulkan_tools:BUILD.bazel",
-        commit = "7e82aea5fc1394d417a0df6a5680a4cce5c37286",
+        commit = "4c63e845962ff3b197855f3ae4907a47d0863f5a",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools",
     )
 
     new_git_repository(
         name = "vulkan_utility_libraries",
         build_file = ws + "//bazel/external/vulkan_utility_libraries:BUILD.bazel",
-        commit = "7ea05992a52e96426bd4c56ea12d208e0d6c9a5f",
+        commit = "fbb4db92c6b2ac09003b2b8e5ceb978f4f2dda71",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries",
     )
 
