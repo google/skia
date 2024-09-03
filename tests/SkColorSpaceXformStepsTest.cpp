@@ -32,6 +32,7 @@
 #endif  // defined(SK_GRAPHITE)
 
 #include <cstdint>
+#include <functional>
 
 static skcms_TransferFunction trfn_pq_100() {
     skcms_TransferFunction trfn;

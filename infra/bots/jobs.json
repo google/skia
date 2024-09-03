@@ -4,6 +4,7 @@
     "name": "BazelBuild-all_tests-release-linux_x64",
     "cq_config": {}
   },
+
   {"name": "BazelBuild-android_math_test-for_android_arm64_release-linux_x64"},
   {"name": "BazelBuild-core-release-linux_x64"},
   {"name": "BazelBuild-cpu_8888_benchmark_android_test-for_android_arm64_release-linux_x64"},
@@ -13,10 +14,6 @@
   },
   {"name": "BazelBuild-dm-release-linux_x64"},
   {"name": "BazelBuild-fontations-release-linux_x64"},
-  {
-    "name": "BazelBuild-full_library-enforce_iwyu-linux_x64",
-    "cq_config": {}
-  },
   {"name": "BazelBuild-full_library-for_windows_x64_release-windows_x64"},
   {
     "name": "BazelBuild-full_library-release-linux_x64",
@@ -26,10 +23,6 @@
   {"name": "BazelBuild-hello_bazel_world_android_test-for_android_arm64_release-linux_x64"},
   {
     "name": "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64",
-    "cq_config": {}
-  },
-  {
-    "name": "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64",
     "cq_config": {}
   },
   {"name": "BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64"},

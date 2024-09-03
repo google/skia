@@ -283,7 +283,7 @@ const char* DrawCommand::GetCommandString(OpType type) {
 }
 
 void DrawCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
-    writer.appendCString(DEBUGCANVAS_ATTRIBUTE_COMMAND, this->GetCommandString(fOpType));
+    writer.appendCString(DEBUGCANVAS_ATTRIBUTE_COMMAND, GetCommandString(fOpType));
     writer.appendBool(DEBUGCANVAS_ATTRIBUTE_VISIBLE, this->isVisible());
 }
 

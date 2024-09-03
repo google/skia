@@ -17,9 +17,9 @@ load(":clang_layering_check.bzl", "generate_system_module_map")
 load(":utils.bzl", "gcs_mirror_only", "gcs_mirror_url")
 
 # The clang from CIPD has no prefix, and we download it directly from our GCS bucket
-# This is clang 15.0.1 and iwyu built from source.
-# https://chrome-infra-packages.appspot.com/p/skia/bots/clang_linux/+/5h9JgVTkZk0fFuOyLUCHZXIFqG1b1TAdYG9fHTFLEzoC
-clang_sha256 = "e61f498154e4664d1f16e3b22d4087657205a86d5bd5301d606f5f1d314b133a"
+# This is clang 18.1.8 and iwyu built from source.
+# https://chrome-infra-packages.appspot.com/p/skia/bots/clang_linux/+/jDGieA1N2AL6ysj3Iwgzm5APFMdN7ITCpdift7tgfxYC
+clang_sha256 = "8c31a2780d4dd802facac8f72308339b900f14c74dec84c2a5d89fb7bb607f16"
 
 debs_to_install = [
     # These three comprise glibc. libc6 has the shared libraries, like libc itself, the math library
@@ -219,7 +219,7 @@ def _download_linux_amd64_toolchain_impl(ctx):
     builtin_include_directories = [
         "include/c++/v1",
         "include/x86_64-unknown-linux-gnu/c++/v1",
-        "lib/clang/15.0.1/include",
+        "lib/clang/18/include",
         "usr/include",
         "usr/include/x86_64-linux-gnu",
     ]
@@ -265,7 +265,7 @@ filegroup(
             "include/c++/v1/**",
             "include/x86_64-unknown-linux-gnu/c++/v1/**",
             "usr/include/**",
-            "lib/clang/15.0.1/**",
+            "lib/clang/18/**",
             "usr/include/x86_64-linux-gnu/**",
         ],
         allow_empty = False,
@@ -285,7 +285,7 @@ filegroup(
         "lib64/ld-linux-x86-64.so.2",
     ] + glob(
         include = [
-            "lib/clang/15.0.1/lib/**",
+            "lib/clang/18/lib/**",
             "lib/x86_64-linux-gnu/**",
             "usr/lib/x86_64-linux-gnu/**",
         ],

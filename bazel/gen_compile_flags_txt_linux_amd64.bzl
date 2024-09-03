@@ -26,7 +26,7 @@ def _gen_compile_flags_txt_linux_amd64_rule_impl(ctx):
         "-isystem",
         "%s/%s/usr/include" % (bazel_output_base, EXTERNAL_TOOLCHAIN),
         "-isystem",
-        "%s/%s/lib/clang/15.0.1/include" % (bazel_output_base, EXTERNAL_TOOLCHAIN),
+        "%s/%s/lib/clang/18/include" % (bazel_output_base, EXTERNAL_TOOLCHAIN),
         "-isystem",
         "%s/%s/usr/include/x86_64-linux-gnu" % (bazel_output_base, EXTERNAL_TOOLCHAIN),
 
