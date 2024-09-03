@@ -18,6 +18,9 @@ vars = {
   # googlefonts_testdata CIPD package version
   # https://chrome-infra-packages.appspot.com/p/chromium/third_party/googlefonts_testdata/
   'googlefonts_testdata_version': 'version:20230913',
+
+  # Pre-built task drivers from this repo, used for CI.
+  'task_drivers_revision': 'git_revision:b5d31abb7bc772a69f800de45783768768437675',
 }
 
 # If you modify this file, you will need to regenerate the Bazel version of this file (bazel/deps.bzl).
@@ -89,5 +92,16 @@ deps = {
       }
     ],
     'dep_type': 'cipd',
+  },
+
+  'task_drivers': {
+    'packages': [
+      {
+        'package': 'skia/tools/bazel_build/${{platform}}',
+        'version': Var('task_drivers_revision'),
+      },
+    ],
+    'dep_type': 'cipd',
+    'condition': 'False',
   },
 }

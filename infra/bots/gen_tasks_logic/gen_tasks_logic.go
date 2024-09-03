@@ -2235,14 +2235,14 @@ func (b *jobBuilder) bazelBuild() {
 
 	b.addTask(b.Name, func(b *taskBuilder) {
 		cmd := []string{
-			"bazel_build_task_driver/bazel_build",
+			"task_drivers/bazel_build",
 			"--project_id=skia-swarming-bots",
 			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
 			"--task_name=" + b.Name,
 			"--bazel_label=" + labelAndSavedOutputDir.label,
 			"--bazel_config=" + config,
 			"--bazel_cache_dir=" + bazelCacheDirOnGCELinux,
-			"--workdir=.",
+			"--workdir=./skia",
 		}
 
 		if labelAndSavedOutputDir.savedOutputDir != "" {
@@ -2259,12 +2259,7 @@ func (b *jobBuilder) bazelBuild() {
 			// Use a built task_driver from CIPD instead of building it from scratch. The
 			// task_driver should not need to change often, so using a CIPD version should reduce
 			// build latency.
-			// TODO(kjlubick) For now, this only has the linux version. We could build the task
-			//   driver for all hosts that we support running Bazel from in this CIPD package
-			//   if/when needed.
-			// TODO(kjlubick,lovisolo) Could we get our task drivers built automatically
-			// into CIPD instead of this being a manual process?
-			b.cipd(b.MustGetCipdPackageFromAsset("bazel_build_task_driver"))
+			b.cipdFromDEPS("skia/tools/bazel_build/${platform}")
 
 			if labelAndSavedOutputDir.savedOutputDir != "" {
 				// We assume that builds which require storing a subset of //bazel-bin to CAS are Android
