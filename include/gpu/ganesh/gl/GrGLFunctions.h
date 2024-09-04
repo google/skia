@@ -9,7 +9,7 @@
 #define GrGLFunctions_DEFINED
 
 #include <cstring>
-#include "include/gpu/gl/GrGLTypes.h"
+#include "include/gpu/ganesh/gl/GrGLTypes.h"
 #include "include/private/base/SkTLogic.h"
 
 
