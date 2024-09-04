@@ -5,16 +5,11 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkTypes.h"
-#if defined(SK_BUILD_FOR_WIN)
 
-#include "src/base/SkLeanWindows.h"
+#if !defined(SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE)
 
-#include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
-
-#include <memory>
-#include <type_traits>
+#include "include/gpu/ganesh/gl/win/GrGLMakeWinInterface.h"
 
 #if defined(_M_ARM64)
 
@@ -27,43 +22,9 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() { return nullptr; }
  * Otherwise, a springboard would be needed that hides the calling convention.
  */
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
-    if (nullptr == wglGetCurrentContext()) {
-        return nullptr;
-    }
-
-    struct FreeModule { void operator()(HMODULE m) { (void)FreeLibrary(m); } };
-    std::unique_ptr<typename std::remove_pointer<HMODULE>::type, FreeModule> module(
-            LoadLibraryExA("opengl32.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
-    if (!module) {
-        return nullptr;
-    }
-    const GrGLGetProc win_get_gl_proc = [](void* ctx, const char* name) {
-        SkASSERT(wglGetCurrentContext());
-        if (GrGLFuncPtr p = (GrGLFuncPtr)GetProcAddress((HMODULE)ctx, name)) {
-            return p;
-        }
-        if (GrGLFuncPtr p = (GrGLFuncPtr)wglGetProcAddress(name)) {
-            return p;
-        }
-        return (GrGLFuncPtr)nullptr;
-    };
-
-    GrGLGetStringFn* getString =
-        (GrGLGetStringFn*)win_get_gl_proc((void*)module.get(), "glGetString");
-    if (!getString) {
-        return nullptr;
-    }
-    const char* verStr = reinterpret_cast<const char*>(getString(GR_GL_VERSION));
-    GrGLStandard standard = GrGLGetStandardInUseFromString(verStr);
-
-    if (GR_IS_GR_GL_ES(standard)) {
-        return GrGLMakeAssembledGLESInterface((void*)module.get(), win_get_gl_proc);
-    } else if (GR_IS_GR_GL(standard)) {
-        return GrGLMakeAssembledGLInterface((void*)module.get(), win_get_gl_proc);
-    }
-    return nullptr;
+    return GrGLInterfaces::MakeWin();
 }
 
 #endif // ARM64
 
-#endif//defined(SK_BUILD_FOR_WIN)
+#endif // SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE

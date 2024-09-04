@@ -30,6 +30,11 @@
 #include "gl_context_helper.h"
 #endif
 
+#if defined(_MSC_VER)
+#include <windows.h>
+#include "include/gpu/ganesh/gl/win/GrGLMakeWinInterface.h"
+#endif
+
 #include <cstdio>
 
 #if defined(__linux__)
@@ -98,6 +103,83 @@ bool initialize_gl_linux() {
 }
 #endif  // defined(__linux__)
 
+#if defined(_MSC_VER)
+
+// This was mostly taken from
+// https://skia.googlesource.com/skia/+/f725a5ba8a29ec7c271805624d54755ce34968a1/tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp#57
+bool initialize_gl_win() {
+    HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(nullptr);
+    WNDCLASS wc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hbrBackground = nullptr;
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+    wc.hInstance = hInstance;
+    wc.lpfnWndProc = (WNDPROC) DefWindowProc;
+    wc.lpszClassName = TEXT("external_client");
+    wc.lpszMenuName = nullptr;
+    wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+
+    ATOM cls = RegisterClass(&wc);
+    if (!cls) {
+        printf("Could not register window class.\n");
+        return false;
+    }
+
+    HWND window;
+    if (!(window = CreateWindow(TEXT("external_client"),
+                                 TEXT("my-window"),
+                                 CS_OWNDC,
+                                 0, 0, 1, 1,
+                                 nullptr, nullptr,
+                                 hInstance, nullptr))) {
+        printf("Could not create window.\n");
+        return false;
+    }
+
+    HDC deviceContext;
+    if (!(deviceContext = GetDC(window))) {
+        printf("Could not get device context.\n");
+        return false;
+    }
+
+    // Taken from https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_(WGL)
+    PIXELFORMATDESCRIPTOR pfd = {
+        sizeof(PIXELFORMATDESCRIPTOR),
+        1,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    // Flags
+        PFD_TYPE_RGBA,        // The kind of framebuffer. RGBA or palette.
+        32,                   // Colordepth of the framebuffer.
+        0, 0, 0, 0, 0, 0,
+        0,
+        0,
+        0,
+        0, 0, 0, 0,
+        24,                   // Number of bits for the depthbuffer
+        8,                    // Number of bits for the stencilbuffer
+        0,                    // Number of Aux buffers in the framebuffer.
+        PFD_MAIN_PLANE,
+        0,
+        0, 0, 0
+    };
+    int pixelFormat = ChoosePixelFormat(deviceContext, &pfd);
+    SetPixelFormat(deviceContext, pixelFormat, &pfd);
+
+    HGLRC glrc;
+    if (!(glrc = wglCreateContext(deviceContext))) {
+        printf("Could not create rendering context.\n");
+        return false;
+    }
+
+    if (!(wglMakeCurrent(deviceContext, glrc))) {
+        printf("Could not set the context.\n");
+        return false;
+    }
+    return true;
+}
+#endif  // defined(_MSC_VER)
+
 int main(int argc, char** argv) {
     if (argc != 2) {
         printf("Usage: %s <name.webp>\n", argv[0]);
@@ -116,19 +198,24 @@ int main(int argc, char** argv) {
     if (!initialize_gl_linux()) {
         return 1;
     }
-    sk_sp<const GrGLInterface> interface = GrGLInterfaces::MakeGLX();
+    sk_sp<const GrGLInterface> iface = GrGLInterfaces::MakeGLX();
 #elif defined(__APPLE__) && TARGET_OS_MAC == 1
     if (!initialize_gl_mac()) {
         return 1;
     }
-    sk_sp<const GrGLInterface> interface = GrGLInterfaces::MakeMac();
+    sk_sp<const GrGLInterface> iface = GrGLInterfaces::MakeMac();
+#elif defined(_MSC_VER)
+    if (!initialize_gl_win()) {
+        return 1;
+    }
+    sk_sp<const GrGLInterface> iface = GrGLInterfaces::MakeWin();
 #endif
-    if (!interface) {
+    if (!iface) {
         printf("Could not make GL interface\n");
         return 1;
     }
 
-    sk_sp<GrDirectContext> ctx = GrDirectContexts::MakeGL(interface, opts);
+    sk_sp<GrDirectContext> ctx = GrDirectContexts::MakeGL(iface, opts);
     if (!ctx) {
         printf("Could not make GrDirectContext\n");
         return 1;

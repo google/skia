@@ -986,7 +986,10 @@ optional("gpu") {
     } else if (is_ios) {
       sources += [ "src/gpu/ganesh/gl/iOS/GrGLMakeNativeInterface_iOS.cpp" ]
     } else if (is_win && !skia_enable_winuwp) {
-      sources += [ "src/gpu/ganesh/gl/win/GrGLMakeNativeInterface_win.cpp" ]
+      sources += [
+        "src/gpu/ganesh/gl/win/GrGLMakeNativeInterface_win.cpp",
+        "src/gpu/ganesh/gl/win/GrGLMakeWinInterface.cpp",
+      ]
       if (target_cpu != "arm64") {
         libs += [ "OpenGL32.lib" ]
       }

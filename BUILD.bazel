@@ -72,6 +72,12 @@ alias(
 )
 
 alias(
+    name = "ganesh_gl_win_factory",
+    actual = "//src/gpu/ganesh/gl/win:win_factory",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "ganesh_metal",
     actual = "//src/gpu/ganesh/mtl:ganesh_metal",
     visibility = ["//visibility:public"],

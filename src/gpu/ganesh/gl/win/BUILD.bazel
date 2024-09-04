@@ -1,5 +1,24 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
+
+skia_cc_library(
+    name = "win_factory",
+    srcs = [
+        "GrGLMakeNativeInterface_win.cpp",
+        "GrGLMakeWinInterface.cpp",
+    ],
+    hdrs = [
+        "//include/gpu/ganesh/gl/win:public_hdrs",
+    ],
+    defines = ["SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//:ganesh_gl",
+    ],
+)

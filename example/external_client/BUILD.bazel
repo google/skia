@@ -93,12 +93,23 @@ cc_binary(
     name = "use_ganesh_gl",
     srcs = ["src/ganesh_gl.cpp"],
     linkopts = [
-        "-lpthread",
     ] + select(
+        {
+            "@platforms//os:windows": [],
+            "//conditions:default": [
+                "-lpthread",
+            ],
+        },
+    ) + select(
         {
             "@platforms//os:linux": [
                 "-lGL",
                 "-lX11",
+            ],
+            "@platforms//os:windows": [
+                "-lgdi32",
+                "-lOpenGL32",
+                "-luser32",
             ],
             "//conditions:default": [],
         },
@@ -112,6 +123,9 @@ cc_binary(
         "@platforms//os:macos": [
             ":gl_context_helper",
             "@skia//:ganesh_gl_mac_factory",
+        ],
+        "@platforms//os:windows": [
+            "@skia//:ganesh_gl_win_factory",
         ],
         "//conditions:default": ["@platforms//:incompatible"],
     }),
