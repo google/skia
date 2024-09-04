@@ -85,7 +85,6 @@ GRAPHITE_FILES = [
     "PathAtlas.h",
     "PipelineData.cpp",
     "PipelineData.h",
-    "PipelineDataCache.h",
     "ProxyCache.cpp",
     "ProxyCache.h",
     "QueueManager.cpp",

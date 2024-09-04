@@ -33,7 +33,6 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/PipelineData.h"
-#include "src/gpu/graphite/PipelineDataCache.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"

@@ -8,7 +8,6 @@
 #ifndef skgpu_graphite_PipelineData_DEFINED
 #define skgpu_graphite_PipelineData_DEFINED
 
-#include <vector>
 #include "include/core/SkM44.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
@@ -16,7 +15,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkColorData.h"
-#include "src/base/SkEnumBitMask.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/DrawTypes.h"
@@ -24,7 +23,7 @@
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
-class SkArenaAlloc;
+#include <vector>
 
 namespace skgpu::graphite {
 
@@ -79,6 +78,79 @@ private:
     // TODO: Move this into a SkSpan that's managed by the gatherer or copied into the arena.
     std::vector<SampledTexture> fTextureData;
 };
+
+
+// Add a block of data to the cache and return a stable pointer to the contents (assuming that a
+// resettable gatherer had accumulated the input data pointer).
+//
+// If an identical block of data is already in the cache, that existing pointer is returned, making
+// pointer comparison suitable when comparing data blocks retrieved from the cache.
+//
+// T must define a hash() function, an operator==, and a static Make(const T&, SkArenaAlloc*)
+// factory that's used to copy the data into an arena allocation owned by the PipelineDataCache.
+template<typename T>
+class PipelineDataCache {
+public:
+    PipelineDataCache() = default;
+
+    const T* insert(const T& dataBlock) {
+        DataRef data{&dataBlock}; // will not be persisted, since pointer isn't from the arena.
+        const DataRef* existing = fDataPointers.find(data);
+        if (existing) {
+            return existing->fPointer;
+        } else {
+            // Need to make a copy of dataBlock into the arena
+            T* copy = T::Make(dataBlock, &fArena);
+            fDataPointers.add(DataRef{copy});
+            return copy;
+        }
+    }
+
+    // The number of unique T objects in the cache
+    int count() const {
+        return fDataPointers.count();
+    }
+
+    // Call fn on every item in the set.  You may not mutate anything.
+    template <typename Fn>  // f(T), f(const T&)
+    void foreach(Fn&& fn) const {
+        fDataPointers.foreach([fn](const DataRef& ref){
+            fn(ref.fPointer);
+        });
+    }
+
+private:
+    struct DataRef {
+        const T* fPointer;
+
+        bool operator==(const DataRef& o) const {
+            if (!fPointer || !o.fPointer) {
+                return !fPointer && !o.fPointer;
+            } else {
+                return *fPointer == *o.fPointer;
+            }
+        }
+    };
+    struct Hash {
+        // This hash operator de-references and hashes the data contents
+        size_t operator()(const DataRef& dataBlock) const {
+            return dataBlock.fPointer ? dataBlock.fPointer->hash() : 0;
+        }
+    };
+
+    skia_private::THashSet<DataRef, Hash> fDataPointers;
+    // Holds the data that is pointed to by fDataPointers
+    SkArenaAlloc fArena{0};
+};
+
+// A UniformDataCache only lives for a single Recording. It's used to deduplicate uniform data
+// blocks uploaded to uniform/storage buffers for a DrawPass pipeline.
+using UniformDataCache = PipelineDataCache<UniformDataBlock>;
+
+// A TextureDataCache only lives for a single Recording. When a Recording is snapped it is pulled
+// off of the Recorder and goes with the Recording as a record of the required Textures and
+// Samplers.
+using TextureDataCache = PipelineDataCache<TextureDataBlock>;
 
 // The PipelineDataGatherer is just used to collect information for a given PaintParams object.
 //   The UniformData is added to a cache and uniquified. Only that unique ID is passed around.

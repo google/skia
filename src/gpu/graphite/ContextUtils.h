@@ -10,7 +10,7 @@
 
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/PipelineDataCache.h"
+#include "src/gpu/graphite/PipelineData.h"
 
 #include <optional>
 #include <tuple>
