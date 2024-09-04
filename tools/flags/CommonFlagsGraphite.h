@@ -16,6 +16,7 @@ namespace CommonFlags {
 /**
  *  Helper to set TestOptions from common GPU flags, including:
  *     --neverYieldToWebGPU
+ *     --useTintIR
  *     --useWGPUTextureView
  */
 void SetTestOptions(skiatest::graphite::TestOptions*);

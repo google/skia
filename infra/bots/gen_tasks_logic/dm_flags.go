@@ -427,6 +427,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					args = append(args, "--useWGPUTextureView")
 				}
 
+				if b.extraConfig("TintIR") {
+					args = append(args, "--useTintIR")
+				}
+
 				// Shader doesn't compile
 				// https://skbug.com/14105
 				skip(ALL, "gm", ALL, "runtime_intrinsics_matrix")

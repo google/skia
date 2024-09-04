@@ -81,7 +81,7 @@ ContextInfo ContextFactory::getContextInfo(skgpu::ContextType type) {
 
 #define CASE(TYPE)                                                                               \
     case skgpu::ContextType::kDawn_##TYPE:                                                       \
-        testCtx = graphite::DawnTestContext::Make(wgpu::BackendType::TYPE);                      \
+        testCtx = graphite::DawnTestContext::Make(wgpu::BackendType::TYPE, fOptions.fUseTintIR); \
         break;
 #else
 #define CASE(TYPE)                         \

@@ -19,10 +19,15 @@ struct TestOptions {
     TestOptions& operator=(const TestOptions&) = default;
     TestOptions& operator=(TestOptions&&) = default;
 
-    bool hasDawnOptions() const { return fNeverYieldToWebGPU || fUseWGPUTextureView; }
+    bool hasDawnOptions() const {
+        return fNeverYieldToWebGPU || fUseTintIR || fUseWGPUTextureView;
+    }
 
     skgpu::graphite::ContextOptions fContextOptions = {};
+
+    // The following 3 are Dawn-specific flags
     bool fNeverYieldToWebGPU = false;
+    bool fUseTintIR = false;
     bool fUseWGPUTextureView = false;
 };
 
