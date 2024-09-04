@@ -457,9 +457,12 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 #if !defined(__EMSCRIPTEN__)
     // TODO(b/318817249): In D3D11, SSBOs trigger FXC compiler failures when attempting to unroll
     // loops.
+    // TODO(b/344963958): SSBOs contribute to OOB shader memory access and dawn device loss on
+    // Android. Once the problem is fixed SSBOs can be enabled again.
     fStorageBufferSupport = info.backendType != wgpu::BackendType::D3D11 &&
                             info.backendType != wgpu::BackendType::OpenGL &&
-                            info.backendType != wgpu::BackendType::OpenGLES;
+                            info.backendType != wgpu::BackendType::OpenGLES &&
+                            info.backendType != wgpu::BackendType::Vulkan;
 #else
     // WASM doesn't provide a way to query the backend, so can't tell if we are on d3d11 or not.
     // Pessimistically assume we could be. Once b/318817249 is fixed, this can go away and SSBOs
