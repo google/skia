@@ -10,6 +10,7 @@
 
 #include "include/private/base/SkASAN.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
 
@@ -20,7 +21,7 @@
 #include <cstring>
 #include <limits>
 #include <new>
-#include <type_traits>
+#include <type_traits>  // IWYU pragma: keep
 #include <utility>
 
 // We found allocating strictly doubling amounts of memory from the heap left too
@@ -192,6 +193,19 @@ public:
         T* array = this->allocUninitializedArray<T>(count);
         for (size_t i = 0; i < count; i++) {
             new (&array[i]) T(initializer(i));
+        }
+        return array;
+    }
+
+    template <typename T>
+    T* makeArrayCopy(SkSpan<const T> toCopy) {
+        T* array = this->allocUninitializedArray<T>(toCopy.size());
+        if constexpr (std::is_trivially_copyable<T>::value) {
+            memcpy(array, toCopy.data(), toCopy.size_bytes());
+        } else {
+            for (size_t i = 0; i < toCopy.size(); ++i) {
+                new (&array[i]) T(toCopy[i]);
+            }
         }
         return array;
     }
