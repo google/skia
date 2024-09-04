@@ -41,6 +41,12 @@ GrBackendFormat GetVulkanBackendFormat(GrDirectContext* dContext, AHardwareBuffe
             bufferVkFormat = VK_FORMAT_R8G8B8A8_UNORM;
             break;
         }
+#if __ANDROID_API__ >= 34
+        case AHARDWAREBUFFER_FORMAT_R10G10B10A10_UNORM: {
+            bufferVkFormat = VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16;
+            break;
+        }
+#endif
         case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT: {
             bufferVkFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
             break;

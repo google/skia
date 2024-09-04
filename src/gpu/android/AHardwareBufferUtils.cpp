@@ -19,6 +19,10 @@ SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
             return kRGBA_8888_SkColorType;
         case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
             return kRGB_888x_SkColorType;
+#if __ANDROID_API__ >= 34
+        case AHARDWAREBUFFER_FORMAT_R10G10B10A10_UNORM:
+            return kRGBA_10x6_SkColorType;
+#endif
         case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT:
             return kRGBA_F16_SkColorType;
         case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
