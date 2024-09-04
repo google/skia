@@ -279,6 +279,7 @@ def _make_default_flags():
                     "-std=c++17",
                     "-L" + FULL_MSVC_LIB + "/x64",
                     "-L" + FULL_WIN_SDK_LIB + "/ucrt/x64",
+                    "-L" + FULL_WIN_SDK_LIB + "/um/x64",
                 ],
             ),
         ],

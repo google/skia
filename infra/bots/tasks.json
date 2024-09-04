@@ -60,6 +60,11 @@
         "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64"
       ]
     },
+    "BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64": {
+      "tasks": [
+        "BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64"
+      ]
+    },
     "BazelBuild-viewer-debug-linux_x64": {
       "tasks": [
         "BazelBuild-viewer-debug-linux_x64"
@@ -4532,6 +4537,72 @@
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
           "bazelisk_linux_amd64"
+        ]
+      },
+      "idempotent": true,
+      "max_attempts": 1,
+      "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64": {
+      "caches": [
+        {
+          "name": "git",
+          "path": "cache/git"
+        },
+        {
+          "name": "git_cache",
+          "path": "cache/git_cache"
+        }
+      ],
+      "casSpec": "bazel",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/git/windows-amd64",
+          "path": "cipd_bin_packages",
+          "version": "version:3@2.46.0.chromium.11"
+        },
+        {
+          "name": "infra/tools/git/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e02b085286a3baf3ab1194941cdb6c196c4c0802"
+        },
+        {
+          "name": "infra/tools/luci/git-credential-luci/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e02b085286a3baf3ab1194941cdb6c196c4c0802"
+        },
+        {
+          "name": "skia/bots/bazelisk_win_amd64",
+          "path": "bazelisk_win_amd64",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "./bazel_build",
+        "--project_id=skia-swarming-bots",
+        "--task_id=<(TASK_ID)",
+        "--task_name=BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64",
+        "--bazel_label=//example/external_client:use_ganesh_gl",
+        "--bazel_config=for_windows_x64_release",
+        "--bazel_cache_dir=C:\\\\Users\\\\chrome-bot\\\\bazel_cache",
+        "--workdir=./skia",
+        "--bazel_arg=--experimental_scale_timeouts=2.0"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highcpu-64",
+        "os:Windows-Server-17763",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "bazelisk_win_amd64"
         ]
       },
       "idempotent": true,
