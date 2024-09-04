@@ -2139,10 +2139,10 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
 
 #if defined(SK_GRAPHITE)
 
-GraphiteSink::GraphiteSink(const SkCommandLineConfigGraphite* config)
-        : fOptions(config->getOptions())
+GraphiteSink::GraphiteSink(const SkCommandLineConfigGraphite* config,
+                           const skiatest::graphite::TestOptions& options)
+        : fOptions(options)
         , fContextType(config->getContextType())
-        , fSurfaceType(config->getSurfaceType())
         , fColorType(config->getColorType())
         , fAlphaType(config->getAlphaType()) {}
 
@@ -2209,16 +2209,14 @@ sk_sp<SkSurface> GraphiteSink::makeSurface(skgpu::graphite::Recorder* recorder,
                                            SkISize dimensions) const {
     SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
     auto ii = SkImageInfo::Make(dimensions, this->colorInfo());
-    switch (fSurfaceType) {
-        case SurfaceType::kDefault:
-            return SkSurfaces::RenderTarget(recorder, ii, skgpu::Mipmapped::kNo, &props);
-
-        case SurfaceType::kWrapTextureView:
-            return sk_gpu_test::MakeBackendTextureViewSurface(recorder,
-                                                              ii,
-                                                              skgpu::Mipmapped::kNo,
-                                                              skgpu::Protected::kNo,
-                                                              &props);
+    if (fOptions.fUseWGPUTextureView) {
+        return sk_gpu_test::MakeBackendTextureViewSurface(recorder,
+                                                          ii,
+                                                          skgpu::Mipmapped::kNo,
+                                                          skgpu::Protected::kNo,
+                                                          &props);
+    } else {
+        return SkSurfaces::RenderTarget(recorder, ii, skgpu::Mipmapped::kNo, &props);
     }
     SkUNREACHABLE;
 }
@@ -2228,7 +2226,8 @@ sk_sp<SkSurface> GraphiteSink::makeSurface(skgpu::graphite::Recorder* recorder,
 #if defined(SK_ENABLE_PRECOMPILE)
 
 GraphitePrecompileTestingSink::GraphitePrecompileTestingSink(
-        const SkCommandLineConfigGraphite* config) : GraphiteSink(config) {}
+        const SkCommandLineConfigGraphite* config,
+        const skiatest::graphite::TestOptions& options) : GraphiteSink(config, options) {}
 
 GraphitePrecompileTestingSink::~GraphitePrecompileTestingSink() {}
 

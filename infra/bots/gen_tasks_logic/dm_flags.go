@@ -420,10 +420,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					baseConfig = "grdawn_gles"
 				}
 
+				configs = []string{baseConfig}
+
 				if b.extraConfig("FakeWGPU") {
-					configs = []string{baseConfig + "_fakeWGPU"}
-				} else {
-					configs = []string{baseConfig}
+					args = append(args, "--neverYieldToWebGPU")
+					args = append(args, "--useWGPUTextureView")
 				}
 
 				// Shader doesn't compile

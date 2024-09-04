@@ -11,9 +11,12 @@
 namespace CommonFlags {
 
 static DEFINE_bool(neverYieldToWebGPU, false, "Run Graphite with never-yield context option.");
+static DEFINE_bool(useWGPUTextureView, false, "Run Graphite w/ a wrapped WGPU texture view as "
+                                              "the destination");
 
 void SetTestOptions(skiatest::graphite::TestOptions* testOptions) {
     testOptions->fNeverYieldToWebGPU = FLAGS_neverYieldToWebGPU;
+    testOptions->fUseWGPUTextureView = FLAGS_useWGPUTextureView;
 }
 
 }  // namespace CommonFlags

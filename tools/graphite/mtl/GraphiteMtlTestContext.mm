@@ -55,7 +55,7 @@ skgpu::ContextType MtlTestContext::contextType() {
 }
 
 std::unique_ptr<skgpu::graphite::Context> MtlTestContext::makeContext(const TestOptions& options) {
-    SkASSERT(!options.fNeverYieldToWebGPU);
+    SkASSERT(!options.hasDawnOptions());
     skgpu::graphite::ContextOptions revisedContextOptions(options.fContextOptions);
     skgpu::graphite::ContextOptionsPriv contextOptionsPriv;
     if (!options.fContextOptions.fOptionsPriv) {

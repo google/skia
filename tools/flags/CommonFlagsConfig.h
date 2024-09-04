@@ -115,42 +115,27 @@ class SkCommandLineConfigGraphite : public SkCommandLineConfig {
 public:
     using ContextType = skgpu::ContextType;
 
-    enum class SurfaceType {
-        // SkSurfaces::RenderTarget()
-        kDefault,
-        // BackendTexture around a WGPUTextureView passed to SkSurfaces::WrapBackendTexture()
-        kWrapTextureView,
-    };
-
     SkCommandLineConfigGraphite(const SkString& tag,
                                 const skia_private::TArray<SkString>& viaParts,
                                 ContextType contextType,
-                                SurfaceType surfaceType,
-                                const skiatest::graphite::TestOptions& options,
                                 SkColorType colorType,
                                 SkAlphaType alphaType,
                                 bool testPrecompile)
             : SkCommandLineConfig(tag, SkString("graphite"), viaParts)
-            , fOptions(options)
             , fContextType(contextType)
-            , fSurfaceType(surfaceType)
             , fColorType(colorType)
             , fAlphaType(alphaType)
             , fTestPrecompile(testPrecompile) {
     }
     const SkCommandLineConfigGraphite* asConfigGraphite() const override { return this; }
 
-    const skiatest::graphite::TestOptions& getOptions() const { return fOptions; }
     ContextType getContextType() const { return fContextType; }
-    SurfaceType getSurfaceType() const { return fSurfaceType; }
     SkColorType getColorType() const { return fColorType; }
     SkAlphaType getAlphaType() const { return fAlphaType; }
     bool        getTestPrecompile() const { return fTestPrecompile; }
 
 private:
-    skiatest::graphite::TestOptions fOptions;
     ContextType                     fContextType;
-    SurfaceType                     fSurfaceType;
     SkColorType                     fColorType;
     SkAlphaType                     fAlphaType;
     bool                            fTestPrecompile;

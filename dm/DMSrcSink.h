@@ -566,7 +566,7 @@ private:
 
 class GraphiteSink : public Sink {
 public:
-    GraphiteSink(const SkCommandLineConfigGraphite*);
+    GraphiteSink(const SkCommandLineConfigGraphite*, const skiatest::graphite::TestOptions&);
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     bool serial() const override { return true; }
@@ -580,11 +580,8 @@ public:
 protected:
     sk_sp<SkSurface> makeSurface(skgpu::graphite::Recorder*, SkISize) const;
 
-    using SurfaceType = SkCommandLineConfigGraphite::SurfaceType;
-
     skiatest::graphite::TestOptions fOptions;
     skgpu::ContextType fContextType;
-    SurfaceType fSurfaceType;
     SkColorType fColorType;
     SkAlphaType fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;
@@ -600,7 +597,8 @@ protected:
 //   asserts that no new pipelines were created
 class GraphitePrecompileTestingSink : public GraphiteSink {
 public:
-    GraphitePrecompileTestingSink(const SkCommandLineConfigGraphite*);
+    GraphitePrecompileTestingSink(const SkCommandLineConfigGraphite*,
+                                  const skiatest::graphite::TestOptions&);
     ~GraphitePrecompileTestingSink() override;
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;

@@ -52,7 +52,7 @@ ContextInfo ContextFactory::AsContextInfo(const OwnedContextInfo& owned) {
 }
 
 ContextInfo ContextFactory::getContextInfo(skgpu::ContextType type) {
-    if (!skgpu::IsDawnBackend(type) && fOptions.fNeverYieldToWebGPU) {
+    if (!skgpu::IsDawnBackend(type) && fOptions.hasDawnOptions()) {
         return {};
     }
 
@@ -79,9 +79,9 @@ ContextInfo ContextFactory::getContextInfo(skgpu::ContextType type) {
         } break;
 #ifdef SK_DAWN
 
-#define CASE(TYPE)                                                          \
-    case skgpu::ContextType::kDawn_##TYPE:                                  \
-        testCtx = graphite::DawnTestContext::Make(wgpu::BackendType::TYPE); \
+#define CASE(TYPE)                                                                               \
+    case skgpu::ContextType::kDawn_##TYPE:                                                       \
+        testCtx = graphite::DawnTestContext::Make(wgpu::BackendType::TYPE);                      \
         break;
 #else
 #define CASE(TYPE)                         \
