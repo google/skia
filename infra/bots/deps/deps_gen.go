@@ -234,7 +234,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia/tools/sk": {
 		Id:      "skia/tools/sk",
-		Version: "git_revision:438bd94cb3d41aba31f1449d45e30317f1fc7c94",
+		Version: "git_revision:f982e0beb5dbd4d9c3f345d572808157c74f8e86",
 		Path:    "bin",
 	},
 	"swiftshader.googlesource.com/SwiftShader": {
