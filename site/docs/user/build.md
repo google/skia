@@ -97,10 +97,24 @@ bin/gn gen out/Cached   --args='cc_wrapper="ccache"'
 bin/gn gen out/RTTI     --args='extra_cflags_cc=["-frtti"]'
 ```
 
-Once you have generated your build files, run Ninja to compile and link Skia:
+Once you have generated your build files, run Ninja to compile and link all of Skia:
 
 ```
 ninja -C out/Static
+```
+
+To avoid building everything, include the target or targets after the ninja command. For example:
+
+```
+ninja -C out/Debug skia
+ninja -C out/Debug viewer dm
+```
+
+Not all targets are available for all sets of build arguments. For a list of all available targets
+for a given build directory, run:
+
+```
+gn ls out/Debug
 ```
 
 If some header files are missing, install the corresponding dependencies:
