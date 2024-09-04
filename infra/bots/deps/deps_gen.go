@@ -157,6 +157,11 @@ var deps = deps_parser.DepsEntries{
 		Version: "version:2@1.12.1.chromium.4",
 		Path:    "bin",
 	},
+	"skia.googlesource.com/buildbot": {
+		Id:      "skia.googlesource.com/buildbot",
+		Version: "git_revision:f982e0beb5dbd4d9c3f345d572808157c74f8e86",
+		Path:    "infra/skia-infra",
+	},
 	"skia.googlesource.com/external/github.com/AOMediaCodec/libavif": {
 		Id:      "skia.googlesource.com/external/github.com/AOMediaCodec/libavif",
 		Version: "55aab4ac0607ab651055d354d64c4615cf3d8000",

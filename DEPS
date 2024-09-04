@@ -9,7 +9,7 @@ vars = {
   # Three lines of non-changing comments so that
   # the commit queue can handle CLs rolling different
   # dependencies without interference from each other.
-  'sk_tool_revision': 'git_revision:f982e0beb5dbd4d9c3f345d572808157c74f8e86',
+  'infra_revision': 'git_revision:f982e0beb5dbd4d9c3f345d572808157c74f8e86',
 
   # ninja CIPD package version.
   # https://chrome-infra-packages.appspot.com/p/infra/3pp/tools/ninja
@@ -84,7 +84,7 @@ deps = {
     'packages': [
       {
         'package': 'skia/tools/sk/${{platform}}',
-        'version': Var('sk_tool_revision'),
+        'version': Var('infra_revision'),
       },
       {
         'package': 'infra/3pp/tools/ninja/${{platform}}',
@@ -102,6 +102,11 @@ deps = {
       },
     ],
     'dep_type': 'cipd',
+    'condition': 'False',
+  },
+
+  'infra/skia-infra': {
+    'url': 'https://skia.googlesource.com/buildbot.git@' + Var('infra_revision'),
     'condition': 'False',
   },
 }
