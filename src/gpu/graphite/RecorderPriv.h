@@ -90,6 +90,7 @@ public:
     // used by the Context that created this Recorder to set a back pointer
     void setContext(Context*);
     Context* context() { return fRecorder->fContext; }
+    void issueFlushToken();
 #endif
 
 private:

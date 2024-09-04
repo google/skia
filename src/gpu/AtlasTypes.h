@@ -489,6 +489,7 @@ public:
     void resetRects();
 
     void markFullIfUsed() { fIsFull = !fDirtyRect.isEmpty(); }
+    bool isEmpty() const { return fRectanizer.percentFull() == 0; }
 
     /**
      * Create a clone of this plot. The cloned plot will take the place of the current plot in

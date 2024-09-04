@@ -595,6 +595,11 @@ bool RecorderPriv::deviceIsRegistered(Device* device) const {
 void RecorderPriv::setContext(Context* context) {
     fRecorder->fContext = context;
 }
+
+void RecorderPriv::issueFlushToken() {
+    fRecorder->fTokenTracker->issueFlushToken();
+}
+
 #endif
 
 
