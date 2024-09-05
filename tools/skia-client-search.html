@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Skia Client Code Search</title>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('search-term').oninput =
+                event => updateLinks(event.target.value);
+            document.getElementById('open-all').onclick = event => {
+                rawSearchTerm = document.getElementById('search-term').value;
+                updateLinks(rawSearchTerm);
+                openLinks();
+                document.getElementById('open-all').value = 'Update all';
+            };
+            document.getElementById('search-term').value = window.location.search.substring(1);
+        }, false);
+
+        function updateLinks(rawSearchTerm) {
+            var term = encodeURIComponent(rawSearchTerm);
+            document.getElementById('chromium-link').href =
+                'https://cs.chromium.org/search/?q=' + term +
+                '+-file:third_party/skia&sq=package:chromium&type=cs';
+            document.getElementById('android-link').href =
+                'http://cs/search/?q=' + term +
+                '+repo:googleplex-android/platform/superproject/main' +
+                '+b:main' +
+                '+(-file:%5Eexternal/skia OR file:%5Eexternal/skia/Android.bp OR file:SkUserConfig)' +
+                '+-file:%5Eexternal/skqp' +
+                '+-file:vendor/google/external/eskia' +
+                '+-file:%5Eexternal/qt/5.12.1/qtwebengine&type=cs';
+            document.getElementById('google3-link').href =
+                'http://cs/search/?q=' + term +
+                '+-file://depot/google3/third_party/skia' +
+                '&sq=package:piper+file://depot/google3+-file:google3/experimental&type=cs';
+            document.getElementById('flutter-link').href =
+                'https://github.com/search?q=repo%3Aflutter%2Fengine+' + term + '&type=code';
+                // We would prefer to use this link (better search controls), but bugs and
+                // staffing have caused it to stop indexing. For now, use Github instead.
+                // 'https://cs.opensource.google/search?ss=flutter%2Fengine&q=' + term;
+                // See also: https://chat.google.com/room/AAAAXsGfCIs/NmPA4hBSwJc
+            document.getElementById('mozilla-link').href =
+                'https://dxr.mozilla.org/mozilla-central/search?q=' + term;
+            document.getElementById('libreoffice-link').href =
+                'https://opengrok.libreoffice.org/search?full=' + term +
+                '&searchall=true';
+        }
+
+        function openLink(elementId) {
+            if (document.getElementById(elementId + '-box').checked) {
+                window.open(document.getElementById(elementId + '-link').href,
+                    document.getElementById(elementId + '-link').id);
+            }
+        }
+
+        function openLinks() {
+            openLink('chromium');
+            openLink('android');
+            openLink('google3');
+            openLink('flutter');
+            openLink('mozilla');
+            openLink('libreoffice');
+        }
+    </script>
+</head>
+
+<body>
+    <p>Note: Due to different querying capabilities, you may need to adjust your query after opening
+        the links below.</p>
+    <label for="search-term">Search term: </label>
+    <input type="text" name="search-term" id="search-term">
+    <input type="submit" value="Update all" id="open-all">
+    <p>Links to Skia clients code search:</p>
+    <ul>
+        <li><input type="checkbox" id="chromium-box" checked="true"><a id="chromium-link">Chromium</a></li>
+        <li><input type="checkbox" id="android-box" checked="true"><a id="android-link">Android</a></li>
+        <li><input type="checkbox" id="google3-box" checked="true"><a id="google3-link">Google3</a></li>
+        <li><input type="checkbox" id="flutter-box" checked="true"><a id="flutter-link">Flutter</a></li>
+        <li><input type="checkbox" id="mozilla-box" checked="true"><a id="mozilla-link">Mozilla</a>*</li>
+        <!-- Less commonly used repos are not checked by default: -->
+        <li><input type="checkbox" id="libreoffice-box"><a id="libreoffice-link">LibreOffice</a></li>
+    </ul>
+    <p>*: Mozilla results include Skia source code (searchfox.org doesn't support excluding paths). Most usage is in
+        <b>gfx/2d</b>, but there is some usage elsewhere. Scoping your search to gfx/2d with the "Path filter" is
+        helpful.
+    </p>
+</body>
+
+</html>
