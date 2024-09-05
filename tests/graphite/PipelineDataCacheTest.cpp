@@ -23,15 +23,19 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
 
     REPORTER_ASSERT(reporter, cache->count() == 0);
 
-    static const int kSize = 16;
+    // UniformDataBlocks can only be created via a PipelineDataGatherer, but for this test the
+    // layout and contents don't matter other than their bits being the same or different.
+    [[maybe_unused]] static constexpr Uniform kUniforms[] = {{"data", SkSLType::kFloat4}};
 
     // Add a new unique UDB
-    static const char kMemory1[kSize] = {
-            7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
-    };
-    UniformDataBlock udb1(SkSpan(kMemory1, kSize));
     const UniformDataBlock* id1;
     {
+        PipelineDataGatherer gatherer{Layout::kStd430};
+        SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+
+        gatherer.write(SkV4{7.f, 8.f, 9.f, 10.f});
+        UniformDataBlock udb1 = gatherer.finishUniformDataBlock();
+
         id1 = cache->insert(udb1);
         REPORTER_ASSERT(reporter, SkToBool(id1));
         REPORTER_ASSERT(reporter, id1 != &udb1);  // must be a separate address
@@ -42,10 +46,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
 
     // Try to add a duplicate UDB
     {
-        static const char kMemory2[kSize] = {
-                7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
-        };
-        UniformDataBlock udb2(SkSpan(kMemory2, kSize));
+        PipelineDataGatherer gatherer{Layout::kStd430};
+        SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+
+        gatherer.write(SkV4{7.f, 8.f, 9.f, 10.f});
+        UniformDataBlock udb2 = gatherer.finishUniformDataBlock();
+
         const UniformDataBlock* id2 = cache->insert(udb2);
         REPORTER_ASSERT(reporter, id2 == id1);
 
@@ -54,10 +60,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
 
     // Add a second new unique UDB
     {
-        static const char kMemory3[kSize] = {
-                6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21
-        };
-        UniformDataBlock udb3(SkSpan(kMemory3, kSize));
+        PipelineDataGatherer gatherer{Layout::kStd430};
+        SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+
+        gatherer.write(SkV4{11.f, 12.f, 13.f, 14.f});
+        UniformDataBlock udb3 = gatherer.finishUniformDataBlock();
+
         const UniformDataBlock* id3 = cache->insert(udb3);
         REPORTER_ASSERT(reporter, SkToBool(id3));
         REPORTER_ASSERT(reporter, id3 != id1);

@@ -99,7 +99,6 @@ skia_graphite_sources = [
   "$_src/PaintParamsKey.h",
   "$_src/PathAtlas.cpp",
   "$_src/PathAtlas.h",
-  "$_src/PipelineData.cpp",
   "$_src/PipelineData.h",
   "$_src/ProxyCache.cpp",
   "$_src/ProxyCache.h",

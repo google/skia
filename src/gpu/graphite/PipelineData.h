@@ -15,6 +15,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkTArray.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/graphite/Caps.h"
@@ -23,62 +24,131 @@
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
-#include <vector>
-
 namespace skgpu::graphite {
 
 class Uniform;
 
+/**
+ * Wraps an SkSpan<const char> and provides ==/!= operators and a hash function based on the
+ * bit contents of the spans. It is assumed that the bytes are aligned to match some uniform
+ * interface declaration that will consume this data once it's copied to the GPU.
+ */
 class UniformDataBlock {
 public:
-    static UniformDataBlock* Make(const UniformDataBlock&, SkArenaAlloc*);
+    constexpr UniformDataBlock(const UniformDataBlock&) = default;
+    constexpr UniformDataBlock() = default;
 
-    UniformDataBlock(SkSpan<const char> data) : fData(data) {}
-    UniformDataBlock() = default;
+    static UniformDataBlock* Make(UniformDataBlock toClone, SkArenaAlloc* arena) {
+        const char* copy = arena->makeArrayCopy<char>(toClone.fData);
+        return arena->make([&](void* ptr) {
+            return new (ptr) UniformDataBlock(SkSpan(copy, toClone.size()));
+        });
+    }
+
+    constexpr UniformDataBlock& operator=(const UniformDataBlock&) = default;
+
+    explicit operator bool() const { return !this->empty(); }
+    bool empty() const { return fData.empty(); }
 
     const char* data() const { return fData.data(); }
     size_t size() const { return fData.size(); }
 
-    uint32_t hash() const;
-
-    bool operator==(const UniformDataBlock& that) const {
-        return fData.size() == that.fData.size() &&
-               !memcmp(fData.data(), that.fData.data(), fData.size());
+    bool operator==(UniformDataBlock that) const {
+        return this->size() == that.size() &&
+               (this->data() == that.data() || // Shortcuts the memcmp if the spans are the same
+                memcmp(this->data(), that.data(), this->size()) == 0);
     }
-    bool operator!=(const UniformDataBlock& that) const { return !(*this == that); }
+    bool operator!=(UniformDataBlock that) const { return !(*this == that); }
+
+    uint32_t hash() const {
+        return SkChecksum::Hash32(fData.data(), fData.size_bytes());
+    }
 
 private:
+    friend class PipelineDataGatherer;
+
+    // To ensure that the underlying data is actually aligned properly, only PipelineDataGatherer
+    // can create the initial UniformDataBlock (copies on the stack or in an arena can be created by
+    // anyone).
+    constexpr UniformDataBlock(SkSpan<const char> data) : fData(data) {}
+
     SkSpan<const char> fData;
 };
 
+/**
+ * Wraps an SkSpan<const SampledTexture> (list of pairs of TextureProxy and SamplerDesc) and
+ * provides ==/!= operators and a hash function based on the proxy addresses and sampler desc
+ * bit representation.
+ */
 class TextureDataBlock {
 public:
     using SampledTexture = std::pair<sk_sp<TextureProxy>, SamplerDesc>;
 
-    static TextureDataBlock* Make(const TextureDataBlock&, SkArenaAlloc*);
-    TextureDataBlock() = default;
+    constexpr TextureDataBlock(const TextureDataBlock&) = default;
+    constexpr TextureDataBlock() = default;
 
-    bool empty() const { return fTextureData.empty(); }
-    int numTextures() const { return SkTo<int>(fTextureData.size()); }
-    const SampledTexture& texture(int index) const { return fTextureData[index]; }
-
-    bool operator==(const TextureDataBlock&) const;
-    bool operator!=(const TextureDataBlock& other) const { return !(*this == other);  }
-    uint32_t hash() const;
-
-    void add(sk_sp<TextureProxy> proxy, const SamplerDesc& samplerDesc) {
-        fTextureData.push_back({std::move(proxy), samplerDesc});
+    static TextureDataBlock* Make(TextureDataBlock toClone, SkArenaAlloc* arena) {
+        SampledTexture* copy = arena->makeArrayCopy<SampledTexture>(toClone.fTextures);
+        return arena->make([&](void* ptr) {
+            return new (ptr) TextureDataBlock(SkSpan(copy, toClone.numTextures()));
+        });
     }
 
-    void reset() {
-        fTextureData.clear();
+    // TODO(b/330864257): Once Device::drawCoverageMask() can keep its texture proxy alive without
+    // creating a temporary TextureDataBlock this constructor can go away.
+    explicit TextureDataBlock(const SampledTexture& texture) : fTextures(&texture, 1) {}
+
+    constexpr TextureDataBlock& operator=(const TextureDataBlock&) = default;
+
+    explicit operator bool() const { return !this->empty(); }
+    bool empty() const { return fTextures.empty(); }
+
+    int numTextures() const { return SkTo<int>(fTextures.size()); }
+    const SampledTexture& texture(int index) const { return fTextures[index]; }
+
+    bool operator==(TextureDataBlock other) const {
+        if (fTextures.size() != other.fTextures.size()) {
+            return false;
+        }
+        if (fTextures.data() == other.fTextures.data()) {
+            return true; // shortcut for the same span
+        }
+
+        for (size_t i = 0; i < fTextures.size(); ++i) {
+            if (fTextures[i] != other.fTextures[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    bool operator!=(TextureDataBlock other) const { return !(*this == other);  }
+
+    uint32_t hash() const {
+        uint32_t hash = 0;
+
+        for (auto& d : fTextures) {
+            SamplerDesc samplerKey = std::get<1>(d);
+            hash = SkChecksum::Hash32(&samplerKey, sizeof(samplerKey), hash);
+
+            // Because the lifetime of the TextureDataCache is for just one Recording and the
+            // TextureDataBlocks hold refs on their proxies, we can just use the proxy's pointer
+            // for the hash here.
+            uintptr_t proxy = reinterpret_cast<uintptr_t>(std::get<0>(d).get());
+            hash = SkChecksum::Hash32(&proxy, sizeof(proxy), hash);
+        }
+
+        return hash;
     }
 
 private:
-    // TODO: Move this into a SkSpan that's managed by the gatherer or copied into the arena.
-    std::vector<SampledTexture> fTextureData;
-};
+    friend class PipelineDataGatherer;
 
+    // Initial TextureDataBlocks must come from a PipelineDataGatherer
+    constexpr TextureDataBlock(SkSpan<const SampledTexture> textures) : fTextures(textures) {}
+
+    SkSpan<const SampledTexture> fTextures;
+};
 
 // Add a block of data to the cache and return a stable pointer to the contents (assuming that a
 // resettable gatherer had accumulated the input data pointer).
@@ -162,19 +232,27 @@ using TextureDataCache = PipelineDataCache<TextureDataBlock>;
 // obviously, vastly complicate uniform accumulation.
 class PipelineDataGatherer {
 public:
-    PipelineDataGatherer(Layout layout);
+    PipelineDataGatherer(Layout layout) : fUniformManager(layout) {}
 
-    void resetWithNewLayout(Layout layout);
+    void resetWithNewLayout(Layout layout) {
+        fUniformManager.resetWithNewLayout(layout);
+        fTextures.clear();
+    }
 
+#if defined(SK_DEBUG)
     // Check that the gatherer has been reset to its initial state prior to collecting new data.
-    SkDEBUGCODE(void checkReset();)
+    void checkReset() const {
+        SkASSERT(fTextures.empty());
+        SkASSERT(fUniformManager.isReset());
+    }
+#endif // SK_DEBUG
 
     void add(sk_sp<TextureProxy> proxy, const SamplerDesc& samplerDesc) {
-        fTextureDataBlock.add(std::move(proxy), samplerDesc);
+        fTextures.push_back({std::move(proxy), samplerDesc});
     }
-    bool hasTextures() const { return !fTextureDataBlock.empty(); }
+    bool hasTextures() const { return !fTextures.empty(); }
 
-    const TextureDataBlock& textureDataBlock() { return fTextureDataBlock; }
+    TextureDataBlock textureDataBlock() { return TextureDataBlock(SkSpan(fTextures)); }
 
     // Mimic the type-safe API available in UniformManager
     template <typename T> void write(const T& t) { fUniformManager.write(t); }
@@ -230,8 +308,8 @@ private:
 
     SkDEBUGCODE(friend class UniformExpectationsValidator;)
 
-    TextureDataBlock  fTextureDataBlock;
-    UniformManager    fUniformManager;
+    UniformManager fUniformManager;
+    skia_private::TArray<TextureDataBlock::SampledTexture> fTextures;
 
     SkTDArray<float>  fGradientStorage;
     // Storing the address of the shader as a proxy for comparing

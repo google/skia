@@ -83,7 +83,6 @@ GRAPHITE_FILES = [
     "PaintParamsKey.h",
     "PathAtlas.cpp",
     "PathAtlas.h",
-    "PipelineData.cpp",
     "PipelineData.h",
     "ProxyCache.cpp",
     "ProxyCache.h",

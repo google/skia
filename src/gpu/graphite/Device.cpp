@@ -1843,12 +1843,11 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
 
     // Ensure this is kept alive; normally textures are kept alive by the PipelineDataGatherer for
     // image shaders, or by the PathAtlas. This is a unique circumstance.
-    // TODO: Find a cleaner way to ensure 'maskProxyView' is transferred to the final Recording.
-    TextureDataBlock tdb;
     // NOTE: CoverageMaskRenderStep controls the final sampling options; this texture data block
     // serves only to keep the mask alive so the sampling passed to add() doesn't matter.
-    tdb.add(maskProxyView.refProxy(), {SkFilterMode::kLinear, kClamp});
-    fRecorder->priv().textureDataCache()->insert(tdb);
+    TextureDataBlock::SampledTexture sampledMask{maskProxyView.refProxy(),
+                                                 {SkFilterMode::kLinear, kClamp}};
+    fRecorder->priv().textureDataCache()->insert(TextureDataBlock(sampledMask));
 
     // CoverageMaskShape() wraps a Shape when it's used as a PathAtlas, but in this case the
     // original shape has been long lost, so just use a Rect that bounds the image.
