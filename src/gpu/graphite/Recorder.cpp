@@ -172,9 +172,9 @@ std::unique_ptr<Recording> Recorder::snap() {
     // data cache so that they can be instantiated easily when the Recording is inserted.
     std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> nonVolatileLazyProxies;
     std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> volatileLazyProxies;
-    fTextureDataCache->foreach([&](const TextureDataBlock* block) {
-        for (int j = 0; j < block->numTextures(); ++j) {
-            const TextureDataBlock::SampledTexture& tex = block->texture(j);
+    fTextureDataCache->foreach([&](TextureDataBlock block) {
+        for (int j = 0; j < block.numTextures(); ++j) {
+            const TextureDataBlock::SampledTexture& tex = block.texture(j);
 
             if (tex.first->isLazy()) {
                 if (tex.first->isVolatile()) {

@@ -29,7 +29,7 @@
 
 namespace skgpu::graphite {
 
-std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*> ExtractPaintData(
+std::tuple<UniquePaintParamsID, UniformDataBlock, TextureDataBlock> ExtractPaintData(
         Recorder* recorder,
         PipelineDataGatherer* gatherer,
         PaintParamsKeyBuilder* builder,
@@ -56,8 +56,8 @@ std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*
     p.toKey(keyContext, builder, gatherer);
 
     UniquePaintParamsID paintID = recorder->priv().shaderCodeDictionary()->findOrCreate(builder);
-    const UniformDataBlock* uniforms = nullptr;
-    const TextureDataBlock* textures = nullptr;
+    UniformDataBlock uniforms;
+    TextureDataBlock textures;
     if (paintID.isValid()) {
         if (gatherer->hasUniforms()) {
             UniformDataCache* uniformDataCache = recorder->priv().uniformDataCache();
@@ -72,7 +72,7 @@ std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*
     return { paintID, uniforms, textures };
 }
 
-std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepData(
+std::tuple<UniformDataBlock, TextureDataBlock> ExtractRenderStepData(
         UniformDataCache* uniformDataCache,
         TextureDataCache* textureDataCache,
         PipelineDataGatherer* gatherer,
@@ -82,12 +82,12 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
     gatherer->resetWithNewLayout(layout);
     step->writeUniformsAndTextures(params, gatherer);
 
-    const UniformDataBlock* uniforms =
+    UniformDataBlock uniforms =
             gatherer->hasUniforms() ? uniformDataCache->insert(gatherer->finishUniformDataBlock())
-                                    : nullptr;
-    const TextureDataBlock* textures =
+                                    : UniformDataBlock();
+    TextureDataBlock textures =
             gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
-                                    : nullptr;
+                                    : TextureDataBlock();
 
     return { uniforms, textures };
 }

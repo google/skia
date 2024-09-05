@@ -38,11 +38,9 @@ public:
     constexpr UniformDataBlock(const UniformDataBlock&) = default;
     constexpr UniformDataBlock() = default;
 
-    static UniformDataBlock* Make(UniformDataBlock toClone, SkArenaAlloc* arena) {
+    static UniformDataBlock Make(UniformDataBlock toClone, SkArenaAlloc* arena) {
         const char* copy = arena->makeArrayCopy<char>(toClone.fData);
-        return arena->make([&](void* ptr) {
-            return new (ptr) UniformDataBlock(SkSpan(copy, toClone.size()));
-        });
+        return UniformDataBlock(SkSpan(copy, toClone.size()));
     }
 
     constexpr UniformDataBlock& operator=(const UniformDataBlock&) = default;
@@ -60,9 +58,11 @@ public:
     }
     bool operator!=(UniformDataBlock that) const { return !(*this == that); }
 
-    uint32_t hash() const {
-        return SkChecksum::Hash32(fData.data(), fData.size_bytes());
-    }
+    struct Hash {
+        uint32_t operator()(UniformDataBlock block) const {
+            return SkChecksum::Hash32(block.fData.data(), block.fData.size_bytes());
+        }
+    };
 
 private:
     friend class PipelineDataGatherer;
@@ -87,11 +87,9 @@ public:
     constexpr TextureDataBlock(const TextureDataBlock&) = default;
     constexpr TextureDataBlock() = default;
 
-    static TextureDataBlock* Make(TextureDataBlock toClone, SkArenaAlloc* arena) {
+    static TextureDataBlock Make(TextureDataBlock toClone, SkArenaAlloc* arena) {
         SampledTexture* copy = arena->makeArrayCopy<SampledTexture>(toClone.fTextures);
-        return arena->make([&](void* ptr) {
-            return new (ptr) TextureDataBlock(SkSpan(copy, toClone.numTextures()));
-        });
+        return TextureDataBlock(SkSpan(copy, toClone.numTextures()));
     }
 
     // TODO(b/330864257): Once Device::drawCoverageMask() can keep its texture proxy alive without
@@ -124,22 +122,24 @@ public:
     }
     bool operator!=(TextureDataBlock other) const { return !(*this == other);  }
 
-    uint32_t hash() const {
-        uint32_t hash = 0;
+    struct Hash {
+        uint32_t operator()(TextureDataBlock block) const {
+            uint32_t hash = 0;
 
-        for (auto& d : fTextures) {
-            SamplerDesc samplerKey = std::get<1>(d);
-            hash = SkChecksum::Hash32(&samplerKey, sizeof(samplerKey), hash);
+            for (auto& d : block.fTextures) {
+                SamplerDesc samplerKey = std::get<1>(d);
+                hash = SkChecksum::Hash32(&samplerKey, sizeof(samplerKey), hash);
 
-            // Because the lifetime of the TextureDataCache is for just one Recording and the
-            // TextureDataBlocks hold refs on their proxies, we can just use the proxy's pointer
-            // for the hash here.
-            uintptr_t proxy = reinterpret_cast<uintptr_t>(std::get<0>(d).get());
-            hash = SkChecksum::Hash32(&proxy, sizeof(proxy), hash);
+                // Because the lifetime of the TextureDataCache is for just one Recording and the
+                // TextureDataBlocks hold refs on their proxies, we can just use the proxy's pointer
+                // for the hash here.
+                uintptr_t proxy = reinterpret_cast<uintptr_t>(std::get<0>(d).get());
+                hash = SkChecksum::Hash32(&proxy, sizeof(proxy), hash);
+            }
+
+            return hash;
         }
-
-        return hash;
-    }
+    };
 
 private:
     friend class PipelineDataGatherer;
@@ -156,60 +156,39 @@ private:
 // If an identical block of data is already in the cache, that existing pointer is returned, making
 // pointer comparison suitable when comparing data blocks retrieved from the cache.
 //
-// T must define a hash() function, an operator==, and a static Make(const T&, SkArenaAlloc*)
+// T must define a Hash struct function, an operator==, and a static Make(T, SkArenaAlloc*)
 // factory that's used to copy the data into an arena allocation owned by the PipelineDataCache.
 template<typename T>
 class PipelineDataCache {
 public:
     PipelineDataCache() = default;
 
-    const T* insert(const T& dataBlock) {
-        DataRef data{&dataBlock}; // will not be persisted, since pointer isn't from the arena.
-        const DataRef* existing = fDataPointers.find(data);
+    T insert(T dataBlock) {
+        const T* existing = fData.find(dataBlock);
         if (existing) {
-            return existing->fPointer;
+            return *existing;
         } else {
             // Need to make a copy of dataBlock into the arena
-            T* copy = T::Make(dataBlock, &fArena);
-            fDataPointers.add(DataRef{copy});
+            T copy = T::Make(dataBlock, &fArena);
+            fData.add(copy);
             return copy;
         }
     }
 
     // The number of unique T objects in the cache
     int count() const {
-        return fDataPointers.count();
+        return fData.count();
     }
 
     // Call fn on every item in the set.  You may not mutate anything.
     template <typename Fn>  // f(T), f(const T&)
     void foreach(Fn&& fn) const {
-        fDataPointers.foreach([fn](const DataRef& ref){
-            fn(ref.fPointer);
-        });
+        fData.foreach(fn);
     }
 
 private:
-    struct DataRef {
-        const T* fPointer;
-
-        bool operator==(const DataRef& o) const {
-            if (!fPointer || !o.fPointer) {
-                return !fPointer && !o.fPointer;
-            } else {
-                return *fPointer == *o.fPointer;
-            }
-        }
-    };
-    struct Hash {
-        // This hash operator de-references and hashes the data contents
-        size_t operator()(const DataRef& dataBlock) const {
-            return dataBlock.fPointer ? dataBlock.fPointer->hash() : 0;
-        }
-    };
-
-    skia_private::THashSet<DataRef, Hash> fDataPointers;
-    // Holds the data that is pointed to by fDataPointers
+    skia_private::THashSet<T, typename T::Hash> fData;
+    // Holds the data that is pointed to by the span keys in fData
     SkArenaAlloc fArena{0};
 };
 

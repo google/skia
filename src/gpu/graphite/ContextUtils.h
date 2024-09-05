@@ -64,7 +64,7 @@ struct FragSkSLInfo {
     skia_private::TArray<uint32_t> fData = {};
 };
 
-std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*> ExtractPaintData(
+std::tuple<UniquePaintParamsID, UniformDataBlock, TextureDataBlock> ExtractPaintData(
         Recorder*,
         PipelineDataGatherer* gatherer,
         PaintParamsKeyBuilder* builder,
@@ -76,7 +76,7 @@ std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*
         SkIPoint dstOffset,
         const SkColorInfo& targetColorInfo);
 
-std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepData(
+std::tuple<UniformDataBlock, TextureDataBlock> ExtractRenderStepData(
         UniformDataCache* uniformDataCache,
         TextureDataCache* textureDataCache,
         PipelineDataGatherer* gatherer,
