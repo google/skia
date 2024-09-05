@@ -21,9 +21,16 @@ namespace skgpu::graphite {
 
 sk_sp<RenderPassTask> RenderPassTask::Make(DrawPassList passes,
                                            const RenderPassDesc& desc,
-                                           sk_sp<TextureProxy> target) {
+                                           sk_sp<TextureProxy> target,
+                                           sk_sp<TextureProxy> dstCopy,
+                                           SkIRect dstCopyBounds) {
     // For now we have one DrawPass per RenderPassTask
     SkASSERT(passes.size() == 1);
+    // We should only have dst copy bounds if we have a dst copy texture, and the texture should be
+    // big enough to cover the copy bounds that will be sampled.
+    SkASSERT(dstCopyBounds.isEmpty() == !dstCopy);
+    SkASSERT(!dstCopy || (dstCopy->dimensions().width() >= dstCopyBounds.width() &&
+                          dstCopy->dimensions().height() >= dstCopyBounds.height()));
     if (!target) {
         return nullptr;
     }
@@ -39,13 +46,23 @@ sk_sp<RenderPassTask> RenderPassTask::Make(DrawPassList passes,
         SkASSERT(desc.fSampleCount == desc.fDepthStencilAttachment.fTextureInfo.numSamples());
     }
 
-    return sk_sp<RenderPassTask>(new RenderPassTask(std::move(passes), desc, target));
+    return sk_sp<RenderPassTask>(new RenderPassTask(std::move(passes),
+                                                    desc,
+                                                    std::move(target),
+                                                    std::move(dstCopy),
+                                                    dstCopyBounds));
 }
 
 RenderPassTask::RenderPassTask(DrawPassList passes,
                                const RenderPassDesc& desc,
-                               sk_sp<TextureProxy> target)
-        : fDrawPasses(std::move(passes)), fRenderPassDesc(desc), fTarget(std::move(target)) {}
+                               sk_sp<TextureProxy> target,
+                               sk_sp<TextureProxy> dstCopy,
+                               SkIRect dstCopyBounds)
+        : fDrawPasses(std::move(passes))
+        , fRenderPassDesc(desc)
+        , fTarget(std::move(target))
+        , fDstCopy(std::move(dstCopy))
+        , fDstCopyBounds(dstCopyBounds) {}
 
 RenderPassTask::~RenderPassTask() = default;
 
@@ -130,6 +147,8 @@ Task::Status RenderPassTask::addCommands(Context* context,
     // TODO(b/313629288) we always pass in the render target's dimensions as the viewport here.
     // Using the dimensions of the logical device that we're drawing to could reduce flakiness in
     // rendering.
+    // TODO(b/280802448): Pass in the dstCopy texture and bounds to addRenderPass() so they can be
+    // bound as intrinsic uniforms.
     if (commandBuffer->addRenderPass(fRenderPassDesc,
                                      std::move(colorAttachment),
                                      std::move(resolveAttachment),

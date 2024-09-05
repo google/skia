@@ -231,6 +231,9 @@ void DrawContext::flush(Recorder* recorder) {
     // TODO: At this point, there's only ever one DrawPass in a RenderPassTask to a target. When
     // subpasses are implemented, they will either be collected alongside fPendingDraws or added
     // to the RenderPassTask separately.
+    // TODO(b/280802448): Once dstCopy and dstCopyPixelBounds do not need to be passed to DrawPass,
+    // this copy task logic can go after the pass has been completed successfully, with the creation
+    // of the RenderPassTask.
     sk_sp<TextureProxy> dstCopy;
     SkIRect dstCopyPixelBounds = SkIRect::MakeEmpty();
     if (!fPendingDraws->dstCopyBounds().isEmptyNegativeOrNaN()) {
@@ -288,7 +291,8 @@ void DrawContext::flush(Recorder* recorder) {
 
         RenderPassTask::DrawPassList passes;
         passes.emplace_back(std::move(pass));
-        fCurrentDrawTask->addTask(RenderPassTask::Make(std::move(passes), desc, fTarget));
+        fCurrentDrawTask->addTask(RenderPassTask::Make(std::move(passes), desc, fTarget,
+                                                       std::move(dstCopy), dstCopyPixelBounds));
     }
     // else pass creation failed, DrawPass will have logged why. Don't discard the previously
     // accumulated tasks, however, since they may represent operations on an atlas that other
