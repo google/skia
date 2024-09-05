@@ -64,6 +64,7 @@
 #include "tools/flags/CommandLineFlags.h"
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsGanesh.h"
+#include "tools/flags/CommonFlagsGraphite.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/Key.h"
 #include "tools/skui/ModifierKey.h"
@@ -588,7 +589,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     }
     displayParams.fCreateProtectedNativeBackend = FLAGS_createProtected;
 #if defined(SK_GRAPHITE)
-    displayParams.fGraphiteContextOptions.fPriv.fPathRendererStrategy =
+    CommonFlags::SetTestOptions(&displayParams.fGraphiteTestOptions.fTestOptions);
+    displayParams.fGraphiteTestOptions.fPriv.fPathRendererStrategy =
             get_path_renderer_strategy_type(FLAGS_pathstrategy[0]);
 #if defined(SK_DAWN)
     displayParams.fDisableTintSymbolRenaming = FLAGS_disable_tint_symbol_renaming;
@@ -1305,7 +1307,7 @@ void Viewer::updateTitle() {
 #if defined(SK_GRAPHITE)
         skgpu::graphite::PathRendererStrategy strategy =
                 fWindow->getRequestedDisplayParams()
-                        .fGraphiteContextOptions.fPriv.fPathRendererStrategy;
+                        .fGraphiteTestOptions.fPriv.fPathRendererStrategy;
         if (skgpu::graphite::PathRendererStrategy::kDefault != strategy) {
             title.appendf(" [Path renderer strategy: %s]",
                           get_path_renderer_strategy_string(strategy));
@@ -2271,7 +2273,7 @@ void Viewer::drawImGui() {
 #if defined(SK_GRAPHITE)
                         using skgpu::graphite::PathRendererStrategy;
                         skgpu::graphite::ContextOptionsPriv* opts =
-                                &params.fGraphiteContextOptions.fPriv;
+                                &params.fGraphiteTestOptions.fPriv;
                         auto prevPrs = opts->fPathRendererStrategy;
                         auto prsButton = [&](skgpu::graphite::PathRendererStrategy s) {
                             if (ImGui::RadioButton(get_path_renderer_strategy_string(s),

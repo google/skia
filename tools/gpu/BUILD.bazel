@@ -7,6 +7,38 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
+    name = "shared_utils",
+    testonly = True,
+    srcs = [
+        "BackendSurfaceFactory.cpp",
+        "BackendSurfaceFactory.h",
+        "BackendTextureImageFactory.cpp",
+        "BackendTextureImageFactory.h",
+        "ContextType.cpp",
+        "ContextType.h",
+        "FlushFinishTracker.cpp",
+        "FlushFinishTracker.h",
+        "ManagedBackendTexture.cpp",
+        "ManagedBackendTexture.h",
+        "ProtectedUtils.h",
+    ],
+    hdrs = [
+        "ContextType.h",
+    ],
+    visibility = [
+        "//bench:__subpackages__",
+        "//modules/skottie:__pkg__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+    ],
+)
+
+skia_cc_library(
     name = "ganesh_gl_utils",
     testonly = True,
     srcs = [

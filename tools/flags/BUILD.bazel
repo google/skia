@@ -116,10 +116,12 @@ skia_cc_library(
     visibility = [
         "//bench:__pkg__",
         "//dm:__pkg__",
+        "//tools/viewer:__pkg__",
     ],
     deps = [
         ":cmd_flags",
         "//:core",
         "//src/gpu/graphite:graphite_TEST_UTIL",
+        "//tools/graphite:graphite_utils",
     ],
 )

@@ -1,0 +1,38 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "graphite_utils",
+    testonly = True,
+    srcs = [
+        "ContextFactory.cpp",
+        "ContextFactory.h",
+        "GraphiteTestContext.cpp",
+        "GraphiteTestContext.h",
+        "ProtectedUtils_Graphite.cpp",
+        "TestOptions.h",
+        "UniqueKeyUtils.cpp",
+        "UniqueKeyUtils.h",
+    ],
+    hdrs = [
+        "ContextFactory.h",
+        "TestOptions.h",
+    ],
+    visibility = [
+        "//bench:__subpackages__",
+        "//modules/skottie:__pkg__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
+        "//tools/gpu:shared_utils",
+    ],
+)
