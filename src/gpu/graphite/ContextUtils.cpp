@@ -277,7 +277,9 @@ std::string get_node_texture_samplers(const ResourceBindingRequirements& binding
     return result;
 }
 
-static constexpr Uniform kIntrinsicUniforms[] = { {"rtAdjust", SkSLType::kFloat4} };
+static constexpr Uniform kIntrinsicUniforms[] = { {"rtAdjust",          SkSLType::kFloat4},
+                                                  {"replayTranslation", SkSLType::kFloat2},
+                                                  {"dstCopyOffset",     SkSLType::kFloat2} };
 
 std::string emit_intrinsic_uniforms(int bufferID, Layout layout) {
     auto offsetter = UniformOffsetCalculator::ForTopLevel(layout);
@@ -315,7 +317,12 @@ void CollectIntrinsicUniforms(const Caps* caps,
         uniforms->write(rtAdjust);
     }
 
-    // TODO(b/280802448): Add replayTranslation and dstCopyOffset as a packed vec4 intrinsic.
+    // replayTranslation
+    uniforms->write(SkV2{(float) replayTranslation.fX, (float) replayTranslation.fY});
+
+    // dstCopyOffset
+    // TODO(b/280802448): Plumb dstCopyOffset value into this function from CommandBuffer
+    uniforms->write(SkV2{0, 0});
 
     SkDEBUGCODE(uniforms->doneWithExpectedUniforms());
 }

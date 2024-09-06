@@ -34,7 +34,7 @@ class VulkanYcbcrConversion;
 
 class VulkanResourceProvider final : public ResourceProvider {
 public:
-    static constexpr size_t kIntrinsicConstantSize = sizeof(float) * 4;
+    static constexpr size_t kIntrinsicConstantSize = sizeof(float) * 8; // float4 + 2xfloat2
     static constexpr size_t kLoadMSAAVertexBufferSize = sizeof(float) * 8; // 4 points of 2 floats
 
     using UniformBindGroupKey = FixedSizeKey<2 * VulkanGraphicsPipeline::kNumUniformBuffers>;
