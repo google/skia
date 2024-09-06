@@ -143,8 +143,8 @@ void DawnCommandBuffer::onResetCommandBuffer() {
     fActiveComputePassEncoder = nullptr;
     fCommandEncoder = nullptr;
 
-    for (auto& bufferSlot : fBoundUniformBuffers) {
-        bufferSlot = nullptr;
+    for (auto& bufferSlot : fBoundUniforms) {
+        bufferSlot = {};
     }
     fBoundUniformBuffersDirty = true;
 }
@@ -588,9 +588,7 @@ bool DawnCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPip
 void DawnCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot slot) {
     SkASSERT(fActiveRenderPassEncoder);
 
-    auto dawnBuffer = static_cast<const DawnBuffer*>(info.fBuffer);
-
-    unsigned int bufferIndex = 0;
+    unsigned int bufferIndex;
     switch (slot) {
         case UniformSlot::kRenderStep:
             bufferIndex = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
@@ -601,14 +599,9 @@ void DawnCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlo
         case UniformSlot::kGradient:
             bufferIndex = DawnGraphicsPipeline::kGradientBufferIndex;
             break;
-        default:
-            SkASSERT(false);
     }
 
-    fBoundUniformBuffers[bufferIndex] = dawnBuffer;
-    fBoundUniformBufferOffsets[bufferIndex] = info.fOffset;
-    fBoundUniformBufferSizes[bufferIndex] = info.fSize;
-
+    fBoundUniforms[bufferIndex] = info;
     fBoundUniformBuffersDirty = true;
 }
 
@@ -723,59 +716,32 @@ void DawnCommandBuffer::bindTextureAndSamplers(
 }
 
 void DawnCommandBuffer::syncUniformBuffers() {
+    static constexpr int kNumBuffers = DawnGraphicsPipeline::kNumUniformBuffers;
+
     if (fBoundUniformBuffersDirty) {
         fBoundUniformBuffersDirty = false;
 
-        std::array<uint32_t, 4> dynamicOffsets;
-        std::array<std::pair<const DawnBuffer*, uint32_t>, 4> boundBuffersAndSizes;
-         // Every pipeline uses the intrinsic uniforms
-        boundBuffersAndSizes[0].first =
-                fBoundUniformBuffers[DawnGraphicsPipeline::kIntrinsicUniformBufferIndex];
-        boundBuffersAndSizes[0].second =
-                fBoundUniformBufferSizes[DawnGraphicsPipeline::kIntrinsicUniformBufferIndex];
-        dynamicOffsets[0] =
-                fBoundUniformBufferOffsets[DawnGraphicsPipeline::kIntrinsicUniformBufferIndex];
+        std::array<uint32_t, kNumBuffers> dynamicOffsets;
+        std::array<std::pair<const DawnBuffer*, uint32_t>, kNumBuffers> boundBuffersAndSizes;
 
-        if (fActiveGraphicsPipeline->hasStepUniforms() &&
-            fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex]) {
-            boundBuffersAndSizes[1].first =
-                    fBoundUniformBuffers[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
-            boundBuffersAndSizes[1].second =
-                    fBoundUniformBufferSizes[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
-            dynamicOffsets[1] =
-                    fBoundUniformBufferOffsets[DawnGraphicsPipeline::kRenderStepUniformBufferIndex];
-        } else {
-            // Unused buffer entry
-            boundBuffersAndSizes[1].first = nullptr;
-            dynamicOffsets[1] = 0;
-        }
+        std::array<bool, kNumBuffers> enabled = {
+            true,                                         // intrinsic uniforms are always enabled
+            fActiveGraphicsPipeline->hasStepUniforms(),   // render step uniforms
+            fActiveGraphicsPipeline->hasPaintUniforms(),  // paint uniforms
+            fActiveGraphicsPipeline->hasGradientBuffer(), // gradient SSBO
+        };
 
-        if (fActiveGraphicsPipeline->hasPaintUniforms() &&
-            fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex]) {
-            boundBuffersAndSizes[2].first =
-                    fBoundUniformBuffers[DawnGraphicsPipeline::kPaintUniformBufferIndex];
-            boundBuffersAndSizes[2].second =
-                    fBoundUniformBufferSizes[DawnGraphicsPipeline::kPaintUniformBufferIndex];
-            dynamicOffsets[2] =
-                    fBoundUniformBufferOffsets[DawnGraphicsPipeline::kPaintUniformBufferIndex];
-        } else {
-            // Unused buffer entry
-            boundBuffersAndSizes[2].first = nullptr;
-            dynamicOffsets[2] = 0;
-        }
-
-        if (fActiveGraphicsPipeline->hasGradientBuffer() &&
-            fBoundUniformBuffers[DawnGraphicsPipeline::kGradientBufferIndex]) {
-            boundBuffersAndSizes[3].first =
-                    fBoundUniformBuffers[DawnGraphicsPipeline::kGradientBufferIndex];
-            boundBuffersAndSizes[3].second =
-                    fBoundUniformBufferSizes[DawnGraphicsPipeline::kGradientBufferIndex];
-            dynamicOffsets[3] =
-                    fBoundUniformBufferOffsets[DawnGraphicsPipeline::kGradientBufferIndex];
-        } else {
-            // Unused buffer entry
-            boundBuffersAndSizes[3].first = nullptr;
-            dynamicOffsets[3] = 0;
+        for (int i = 0; i < kNumBuffers; ++i) {
+            if (enabled[i] && fBoundUniforms[i]) {
+                boundBuffersAndSizes[i].first =
+                        static_cast<const DawnBuffer*>(fBoundUniforms[i].fBuffer);
+                boundBuffersAndSizes[i].second = fBoundUniforms[i].fSize;
+                dynamicOffsets[i] = fBoundUniforms[i].fOffset;
+            } else {
+                // Unused or null binding
+                boundBuffersAndSizes[i].first = nullptr;
+                dynamicOffsets[i] = 0;
+            }
         }
 
         auto bindGroup =
@@ -812,22 +778,14 @@ bool DawnCommandBuffer::preprocessViewport(const SkRect& viewport) {
     const float invTwoH = 2.f / viewport.height();
     const SkRect rtAdjust = {invTwoW, -invTwoH, -1.f - x * invTwoW, 1.f + y * invTwoH};
 
-    const unsigned int kBufferIndex = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
-
     BindBufferInfo binding = fIntrinsicConstants->add(this, rtAdjust);
-    const DawnBuffer* dawnBuffer = static_cast<const DawnBuffer*>(binding.fBuffer);
     if (!binding) {
         return false;
-    } else if (dawnBuffer == fBoundUniformBuffers[kBufferIndex] &&
-               binding.fOffset == fBoundUniformBufferOffsets[kBufferIndex]) {
-        SkASSERT(fBoundUniformBufferSizes[kBufferIndex] == binding.fSize);
+    } else if (binding == fBoundUniforms[DawnGraphicsPipeline::kIntrinsicUniformBufferIndex]) {
         return true; // no binding change needed
     }
 
-    fBoundUniformBuffers[kBufferIndex] = dawnBuffer;
-    fBoundUniformBufferOffsets[kBufferIndex] = binding.fOffset;
-    fBoundUniformBufferSizes[kBufferIndex] = binding.fSize;
-
+    fBoundUniforms[DawnGraphicsPipeline::kIntrinsicUniformBufferIndex] = binding;
     fBoundUniformBuffersDirty = true;
     return true;
 }
