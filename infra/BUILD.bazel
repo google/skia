@@ -42,7 +42,7 @@ genrule(
     name = "gen_errcheck",
     outs = ["errcheck.sh"],
     cmd = "echo '%s' > $@" % _ERRCHECK_SCRIPT,
-    exec_tools = [
+    tools = [
         "@com_github_kisielk_errcheck//:errcheck",
         "@go_sdk//:bin/go",
     ],
