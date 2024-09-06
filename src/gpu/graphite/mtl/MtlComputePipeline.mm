@@ -9,30 +9,68 @@
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
+#include "src/gpu/mtl/MtlUtilsPriv.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 namespace skgpu::graphite {
 
 // static
 sk_sp<MtlComputePipeline> MtlComputePipeline::Make(const MtlSharedContext* sharedContext,
-                                                   const std::string& label,
-                                                   MSLFunction computeMain) {
-    id<MTLLibrary> library = std::get<0>(computeMain);
-    if (!library) {
-        return nullptr;
+                                                   const ComputePipelineDesc& pipelineDesc) {
+    sk_cfp<id<MTLLibrary>> library;
+    std::string entryPointName;
+    ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
+    if (pipelineDesc.computeStep()->supportsNativeShader()) {
+        auto nativeShader = pipelineDesc.computeStep()->nativeShaderSource(
+                ComputeStep::NativeShaderFormat::kMSL);
+        library = MtlCompileShaderLibrary(sharedContext,
+                                          pipelineDesc.computeStep()->name(),
+                                          nativeShader.fSource,
+                                          errorHandler);
+        if (library == nil) {
+            return nullptr;
+        }
+        entryPointName = std::move(nativeShader.fEntryPoint);
+    } else {
+        std::string msl;
+        SkSL::Program::Interface interface;
+        SkSL::ProgramSettings settings;
+
+        SkSL::Compiler skslCompiler;
+        std::string sksl = BuildComputeSkSL(sharedContext->caps(), pipelineDesc.computeStep());
+        if (!SkSLToMSL(sharedContext->caps()->shaderCaps(),
+                       sksl,
+                       SkSL::ProgramKind::kCompute,
+                       settings,
+                       &msl,
+                       &interface,
+                       errorHandler)) {
+            return nullptr;
+        }
+        library = MtlCompileShaderLibrary(sharedContext,
+                                          pipelineDesc.computeStep()->name(),
+                                          msl,
+                                          errorHandler);
+        if (library == nil) {
+            return nullptr;
+        }
+        entryPointName = "computeMain";
     }
 
     sk_cfp<MTLComputePipelineDescriptor*> psoDescriptor([MTLComputePipelineDescriptor new]);
 
-    (*psoDescriptor).label = @(label.c_str());
+    (*psoDescriptor).label = @(pipelineDesc.computeStep()->name());
 
-    NSString* entryPointName = [NSString stringWithUTF8String:std::get<1>(computeMain).c_str()];
-    (*psoDescriptor).computeFunction = [library newFunctionWithName:entryPointName];
+    NSString* entryPoint = [NSString stringWithUTF8String:entryPointName.c_str()];
+    (*psoDescriptor).computeFunction = [library.get() newFunctionWithName:entryPoint];
 
     // TODO(b/240604614): Populate input data attribute and buffer layout descriptors using the
     // `stageInputDescriptor` property based on the contents of `pipelineDesc` (on iOS 10+ or

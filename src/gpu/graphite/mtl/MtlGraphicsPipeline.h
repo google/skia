@@ -28,6 +28,7 @@ class GraphicsPipelineDesc;
 class MtlResourceProvider;
 class MtlSharedContext;
 struct RenderPassDesc;
+class RuntimeEffectDictionary;
 
 class MtlGraphicsPipeline final : public GraphicsPipeline {
 public:
@@ -38,18 +39,15 @@ public:
     inline static constexpr unsigned int kInstanceBufferIndex = 4;
     inline static constexpr unsigned int kGradientBufferIndex = 5;
 
-    using MSLFunction = std::pair<id<MTLLibrary>, std::string>;
     static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
-                                           const std::string& label,
-                                           MSLFunction vertexMain,
-                                           SkSpan<const Attribute> vertexAttrs,
-                                           SkSpan<const Attribute> instanceAttrs,
-                                           MSLFunction fragmentMain,
-                                           sk_cfp<id<MTLDepthStencilState>>,
-                                           uint32_t stencilRefValue,
-                                           const BlendInfo& blendInfo,
-                                           const RenderPassDesc&,
-                                           PipelineInfo* pipelineInfo);
+                                           MtlResourceProvider*,
+                                           const RuntimeEffectDictionary*,
+                                           const GraphicsPipelineDesc&,
+                                           const RenderPassDesc&);
+
+    static sk_sp<MtlGraphicsPipeline> MakeLoadMSAAPipeline(const MtlSharedContext*,
+                                                           MtlResourceProvider*,
+                                                           const RenderPassDesc&);
 
     ~MtlGraphicsPipeline() override {}
 
@@ -63,6 +61,19 @@ private:
                         sk_cfp<id<MTLRenderPipelineState>> pso,
                         sk_cfp<id<MTLDepthStencilState>> dss,
                         uint32_t refValue);
+
+    using MSLFunction = std::pair<id<MTLLibrary>, std::string>;
+    static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
+                                           const std::string& label,
+                                           MSLFunction vertexMain,
+                                           SkSpan<const Attribute> vertexAttrs,
+                                           SkSpan<const Attribute> instanceAttrs,
+                                           MSLFunction fragmentMain,
+                                           sk_cfp<id<MTLDepthStencilState>>,
+                                           uint32_t stencilRefValue,
+                                           const BlendInfo& blendInfo,
+                                           const RenderPassDesc&,
+                                           PipelineInfo* pipelineInfo);
 
     void freeGpuData() override;
 

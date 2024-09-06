@@ -22,11 +22,8 @@ class MtlSharedContext;
 
 class MtlComputePipeline final : public ComputePipeline {
 public:
-    using MSLFunction = std::pair<id<MTLLibrary>, std::string>;
+    static sk_sp<MtlComputePipeline> Make(const MtlSharedContext*, const ComputePipelineDesc&);
 
-    static sk_sp<MtlComputePipeline> Make(const MtlSharedContext*,
-                                          const std::string& label,
-                                          MSLFunction computeMain);
     ~MtlComputePipeline() override = default;
 
     id<MTLComputePipelineState> mtlPipelineState() const { return fPipelineState.get(); }
