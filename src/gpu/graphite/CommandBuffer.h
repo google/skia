@@ -77,7 +77,7 @@ public:
                        sk_sp<Texture> colorTexture,
                        sk_sp<Texture> resolveTexture,
                        sk_sp<Texture> depthStencilTexture,
-                       SkRect viewport,
+                       SkIRect viewport,
                        const DrawPassList& drawPasses);
 
     bool addComputePass(DispatchGroupSpan dispatchGroups);
@@ -124,12 +124,13 @@ private:
 
     virtual void onResetCommandBuffer() = 0;
 
+    // Renderpass, viewport bounds have already been adjusted by the replay translation.
     virtual bool onAddRenderPass(const RenderPassDesc&,
                                  SkIRect renderPassBounds,
                                  const Texture* colorTexture,
                                  const Texture* resolveTexture,
                                  const Texture* depthStencilTexture,
-                                 SkRect viewport,
+                                 SkIRect viewport,
                                  const DrawPassList& drawPasses) = 0;
 
     virtual bool onAddComputePass(DispatchGroupSpan dispatchGroups) = 0;

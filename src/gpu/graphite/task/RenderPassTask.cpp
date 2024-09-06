@@ -153,7 +153,7 @@ Task::Status RenderPassTask::addCommands(Context* context,
                                      std::move(colorAttachment),
                                      std::move(resolveAttachment),
                                      std::move(depthStencilAttachment),
-                                     SkRect::Make(fTarget->dimensions()),
+                                     SkIRect::MakeSize(fTarget->dimensions()),
                                      fDrawPasses)) {
         return Status::kSuccess;
     } else {

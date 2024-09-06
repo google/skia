@@ -73,7 +73,7 @@ private:
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
-                         SkRect viewport,
+                         SkIRect viewport,
                          const DrawPassList&) override;
 
     bool beginRenderPass(const RenderPassDesc&,
@@ -159,10 +159,9 @@ private:
                          void* barrier);
     void submitPipelineBarriers(bool forSelfDependency = false);
 
-    // Update the intrinsic constant uniform with the latest rtAdjust value as determined by a
-    // given viewport. The resource provider is responsible for finding a suitable buffer and
-    // managing its lifetime.
-    void updateRtAdjustUniform(const SkRect& viewport);
+    // Update the intrinsic constant uniform buffer and binding to reflect the updated viewport.
+    // The resource provider is responsible for finding a suitable buffer and managing its lifetime.
+    void updateIntrinsicUniforms(SkIRect viewport);
 
     bool updateLoadMSAAVertexBuffer();
     bool loadMSAAFromResolve(const RenderPassDesc&,
@@ -174,7 +173,7 @@ private:
                       size_t dataSize,
                       size_t dstOffset = 0);
     void nextSubpass();
-    void setViewport(const SkRect& viewport);
+    void setViewport(SkIRect viewport);
 
     VkCommandPool fPool;
     VkCommandBuffer fPrimaryCommandBuffer;

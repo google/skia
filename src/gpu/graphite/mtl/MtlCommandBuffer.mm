@@ -9,13 +9,16 @@
 
 #include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/mtl/MtlBlitCommandEncoder.h"
 #include "src/gpu/graphite/mtl/MtlBuffer.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
+#include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
 #include "src/gpu/graphite/mtl/MtlComputeCommandEncoder.h"
 #include "src/gpu/graphite/mtl/MtlComputePipeline.h"
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
@@ -158,13 +161,14 @@ bool MtlCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                        const Texture* colorTexture,
                                        const Texture* resolveTexture,
                                        const Texture* depthStencilTexture,
-                                       SkRect viewport,
+                                       SkIRect viewport,
                                        const DrawPassList& drawPasses) {
     if (!this->beginRenderPass(renderPassDesc, colorTexture, resolveTexture, depthStencilTexture)) {
         return false;
     }
 
     this->setViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height(), 0, 1);
+    this->updateIntrinsicUniforms(viewport);
 
     for (const auto& drawPass : drawPasses) {
         this->addDrawPass(drawPass.get());
@@ -591,21 +595,21 @@ void MtlCommandBuffer::setScissor(unsigned int left, unsigned int top,
 void MtlCommandBuffer::setViewport(float x, float y, float width, float height,
                                    float minDepth, float maxDepth) {
     SkASSERT(fActiveRenderCommandEncoder);
-    MTLViewport viewport = {x + fReplayTranslation.x(),
-                            y + fReplayTranslation.y(),
+    MTLViewport viewport = {x,
+                            y,
                             width,
                             height,
                             minDepth,
                             maxDepth};
     fActiveRenderCommandEncoder->setViewport(viewport);
+}
 
-    float invTwoW = 2.f / width;
-    float invTwoH = 2.f / height;
-    // Metal's framebuffer space has (0, 0) at the top left. This agrees with Skia's device coords.
-    // However, in NDC (-1, -1) is the bottom left. So we flip the origin here (assuming all
-    // surfaces we have are TopLeft origin).
-    float rtAdjust[4] = {invTwoW, -invTwoH, -1.f - x * invTwoW, 1.f + y * invTwoH};
-    fActiveRenderCommandEncoder->setVertexBytes(rtAdjust, 4 * sizeof(float),
+void MtlCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
+    UniformManager intrinsicValues{Layout::kMetal};
+    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fReplayTranslation,
+                             &intrinsicValues);
+    SkSpan<const char> bytes = intrinsicValues.finish();
+    fActiveRenderCommandEncoder->setVertexBytes(bytes.data(), bytes.size_bytes(),
                                                 MtlGraphicsPipeline::kIntrinsicUniformBufferIndex);
 }
 

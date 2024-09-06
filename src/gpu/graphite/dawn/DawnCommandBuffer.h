@@ -49,7 +49,7 @@ private:
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
-                         SkRect viewport,
+                         SkIRect viewport,
                          const DrawPassList&) override;
     bool onAddComputePass(DispatchGroupSpan) override;
 
@@ -85,8 +85,8 @@ private:
                                 const DrawPassCommands::BindTexturesAndSamplers& command);
 
     void setScissor(unsigned int left, unsigned int top, unsigned int width, unsigned int height);
-    bool preprocessViewport(const SkRect& viewport);
-    void setViewport(const SkRect& viewport);
+    bool updateIntrinsicUniforms(SkIRect viewport);
+    void setViewport(SkIRect viewport);
 
     void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount);
     void drawIndexed(PrimitiveType type,

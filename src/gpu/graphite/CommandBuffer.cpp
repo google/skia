@@ -78,7 +78,7 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                   sk_sp<Texture> colorTexture,
                                   sk_sp<Texture> resolveTexture,
                                   sk_sp<Texture> depthStencilTexture,
-                                  SkRect viewport,
+                                  SkIRect viewport,
                                   const DrawPassList& drawPasses) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
@@ -99,6 +99,7 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
         return true;
     }
 
+    viewport.offset(fReplayTranslation.x(), fReplayTranslation.y());
     if (!this->onAddRenderPass(renderPassDesc,
                                renderPassBounds,
                                colorTexture.get(),

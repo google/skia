@@ -13,11 +13,13 @@
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/DataUtils.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/vk/VulkanBuffer.h"
 #include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
 #include "src/gpu/graphite/vk/VulkanFramebuffer.h"
@@ -364,32 +366,29 @@ void VulkanCommandBuffer::waitUntilFinished() {
                                        /*timeout=*/UINT64_MAX));
 }
 
-void VulkanCommandBuffer::updateRtAdjustUniform(const SkRect& viewport) {
+void VulkanCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
     SkASSERT(fActive && !fActiveRenderPass);
 
-    // Vulkan's framebuffer space has (0, 0) at the top left. This agrees with Skia's device coords.
-    // However, in NDC (-1, -1) is the bottom left. So we flip the origin here (assuming all
-    // surfaces we have are TopLeft origin). We then store the adjustment values as a uniform.
-    const float x = viewport.x() - fReplayTranslation.x();
-    const float y = viewport.y() - fReplayTranslation.y();
-    float invTwoW = 2.f / viewport.width();
-    float invTwoH = 2.f / viewport.height();
-    const float rtAdjust[4] = {invTwoW, invTwoH, -1.f - x * invTwoW, -1.f - y * invTwoH};
+    // The SkSL has declared these as a top-level interface block, which will use std140 in Vulkan.
+    // If we switch to supporting push constants here, it would be std430 instead.
+    UniformManager intrinsicValues{Layout::kStd140};
+    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fReplayTranslation,
+                             &intrinsicValues);
+    SkSpan<const char> bytes = intrinsicValues.finish();
+    SkASSERT(bytes.size_bytes() == VulkanResourceProvider::kIntrinsicConstantSize);
 
     sk_sp<Buffer> intrinsicUniformBuffer = fResourceProvider->refIntrinsicConstantBuffer();
     const VulkanBuffer* intrinsicVulkanBuffer =
             static_cast<VulkanBuffer*>(intrinsicUniformBuffer.get());
-    SkASSERT(intrinsicVulkanBuffer);
+    SkASSERT(intrinsicVulkanBuffer && intrinsicVulkanBuffer->size() >= bytes.size_bytes());
 
     fUniformBuffersToBind[VulkanGraphicsPipeline::kIntrinsicUniformBufferIndex] = {
             intrinsicUniformBuffer.get(),
             /*offset=*/0,
-            VulkanResourceProvider::kIntrinsicConstantSize
+            SkTo<uint32_t>(bytes.size_bytes())
         };
 
-    this->updateBuffer(intrinsicVulkanBuffer,
-                       &rtAdjust,
-                       VulkanResourceProvider::kIntrinsicConstantSize);
+    this->updateBuffer(intrinsicVulkanBuffer, bytes.data(), bytes.size_bytes());
 
     // Ensure the buffer update is completed and made visible before reading
     intrinsicVulkanBuffer->setBufferAccess(this, VK_ACCESS_UNIFORM_READ_BIT,
@@ -402,7 +401,7 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                           const Texture* colorTexture,
                                           const Texture* resolveTexture,
                                           const Texture* depthStencilTexture,
-                                          SkRect viewport,
+                                          SkIRect viewport,
                                           const DrawPassList& drawPasses) {
     for (const auto& drawPass : drawPasses) {
         // Our current implementation of setting texture image layouts does not allow layout changes
@@ -423,7 +422,7 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
         }
     }
 
-    this->updateRtAdjustUniform(viewport);
+    this->updateIntrinsicUniforms(viewport);
     this->setViewport(viewport);
 
     if (!this->beginRenderPass(renderPassDesc,
@@ -1724,12 +1723,12 @@ void VulkanCommandBuffer::nextSubpass() {
                 CmdNextSubpass(fPrimaryCommandBuffer, VK_SUBPASS_CONTENTS_INLINE));
 }
 
-void VulkanCommandBuffer::setViewport(const SkRect& viewport) {
+void VulkanCommandBuffer::setViewport(SkIRect viewport) {
     VkViewport vkViewport = {
-        viewport.fLeft,
-        viewport.fTop,
-        viewport.width(),
-        viewport.height(),
+        (float) viewport.fLeft,
+        (float) viewport.fTop,
+        (float) viewport.width(),
+        (float) viewport.height(),
         0.0f, // minDepth
         1.0f, // maxDepth
     };

@@ -43,6 +43,11 @@ public:
         return UniformDataBlock(SkSpan(copy, toClone.size()));
     }
 
+    // Wraps the finished accumulated uniform data within the manager's underlying storage.
+    static UniformDataBlock Wrap(UniformManager* uniforms) {
+        return UniformDataBlock(uniforms->finish());
+    }
+
     constexpr UniformDataBlock& operator=(const UniformDataBlock&) = default;
 
     explicit operator bool() const { return !this->empty(); }
@@ -65,11 +70,9 @@ public:
     };
 
 private:
-    friend class PipelineDataGatherer;
-
-    // To ensure that the underlying data is actually aligned properly, only PipelineDataGatherer
-    // can create the initial UniformDataBlock (copies on the stack or in an arena can be created by
-    // anyone).
+    // To ensure that the underlying data is actually aligned properly, UniformDataBlocks can
+    // only be created publicly by copying an existing block or wrapping data accumulated by a
+    // UniformManager (or transitively a PipelineDataGatherer).
     constexpr UniformDataBlock(SkSpan<const char> data) : fData(data) {}
 
     SkSpan<const char> fData;
@@ -256,7 +259,7 @@ public:
 
     // Returns the uniform data written so far. Will automatically pad the end of the data as needed
     // to the overall required alignment, and so should only be called when all writing is done.
-    UniformDataBlock finishUniformDataBlock() { return UniformDataBlock(fUniformManager.finish()); }
+    UniformDataBlock finishUniformDataBlock() { return UniformDataBlock::Wrap(&fUniformManager); }
 
     // Checks if data already exists for the requested gradient shader, and returns a nullptr
     // and the offset the data begins at. If it doesn't exist, it allocates the data for the
