@@ -20,15 +20,24 @@ struct TestOptions {
     TestOptions& operator=(TestOptions&&) = default;
 
     bool hasDawnOptions() const {
-        return fNeverYieldToWebGPU || fUseTintIR || fUseWGPUTextureView;
+#if defined(SK_DAWN)
+        return fDisableTintSymbolRenaming ||
+               fNeverYieldToWebGPU ||
+               fUseTintIR ||
+               fUseWGPUTextureView;
+#else
+        return false;
+#endif
     }
 
     skgpu::graphite::ContextOptions fContextOptions = {};
 
-    // The following 3 are Dawn-specific flags
+#if defined(SK_DAWN)
+    bool fDisableTintSymbolRenaming = false;
     bool fNeverYieldToWebGPU = false;
     bool fUseTintIR = false;
     bool fUseWGPUTextureView = false;
+#endif
 };
 
 }  // namespace skiatest::graphite

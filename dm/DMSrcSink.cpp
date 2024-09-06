@@ -2209,16 +2209,18 @@ sk_sp<SkSurface> GraphiteSink::makeSurface(skgpu::graphite::Recorder* recorder,
                                            SkISize dimensions) const {
     SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
     auto ii = SkImageInfo::Make(dimensions, this->colorInfo());
+
+#if defined(SK_DAWN)
     if (fOptions.fUseWGPUTextureView) {
         return sk_gpu_test::MakeBackendTextureViewSurface(recorder,
                                                           ii,
                                                           skgpu::Mipmapped::kNo,
                                                           skgpu::Protected::kNo,
                                                           &props);
-    } else {
-        return SkSurfaces::RenderTarget(recorder, ii, skgpu::Mipmapped::kNo, &props);
     }
-    SkUNREACHABLE;
+#endif // SK_DAWN
+
+    return SkSurfaces::RenderTarget(recorder, ii, skgpu::Mipmapped::kNo, &props);
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

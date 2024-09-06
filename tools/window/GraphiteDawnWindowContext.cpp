@@ -200,7 +200,7 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
 
     wgpu::DawnTogglesDescriptor deviceTogglesDesc;
 
-    if (fDisplayParams.fDisableTintSymbolRenaming) {
+    if (fDisplayParams.fGraphiteTestOptions.fTestOptions.fDisableTintSymbolRenaming) {
         static constexpr const char* kOptionalDeviceToggles[] = {
             "disable_symbol_renaming",
         };

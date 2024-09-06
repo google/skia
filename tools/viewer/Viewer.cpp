@@ -252,11 +252,6 @@ static DEFINE_string2(match, m, nullptr,
 
 static DEFINE_string(pathstrategy, "default",
                      "Path renderer strategy to use. Allowed values are " PATHSTRATEGY_STR ".");
-#if defined(SK_DAWN)
-static DEFINE_bool(disable_tint_symbol_renaming,
-                   false,
-                   "Disable Tint WGSL symbol renaming when using Dawn");
-#endif
 #endif
 
 #if defined(SK_BUILD_FOR_ANDROID)
@@ -592,9 +587,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     CommonFlags::SetTestOptions(&displayParams.fGraphiteTestOptions.fTestOptions);
     displayParams.fGraphiteTestOptions.fPriv.fPathRendererStrategy =
             get_path_renderer_strategy_type(FLAGS_pathstrategy[0]);
-#if defined(SK_DAWN)
-    displayParams.fDisableTintSymbolRenaming = FLAGS_disable_tint_symbol_renaming;
-#endif
 #endif
     fWindow->setRequestedDisplayParams(displayParams);
     fDisplay = fWindow->getRequestedDisplayParams();
