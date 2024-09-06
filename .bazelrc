@@ -90,7 +90,7 @@ build:remote --java_runtime_version=rbe_jdk
 build:remote --tool_java_runtime_version=rbe_jdk
 
 # When a remote configuration is chosen, add "remote" to the list of spawn_strategies.
-build:remote --spawn_strategy=remote,sandboxed
+build:remote --spawn_strategy=remote,sandboxed,local
 
 # Enable remote execution so actions are performed on the remote systems.
 build:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
