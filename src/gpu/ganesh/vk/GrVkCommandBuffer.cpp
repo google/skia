@@ -546,17 +546,17 @@ void GrVkPrimaryCommandBuffer::executeCommands(const GrVkGpu* gpu,
     this->invalidateState();
 }
 
-static bool submit_to_queue(GrVkGpu* gpu,
-                            VkQueue queue,
-                            VkFence fence,
-                            uint32_t waitCount,
-                            const VkSemaphore* waitSemaphores,
-                            const VkPipelineStageFlags* waitStages,
-                            uint32_t commandBufferCount,
-                            const VkCommandBuffer* commandBuffers,
-                            uint32_t signalCount,
-                            const VkSemaphore* signalSemaphores,
-                            GrProtected protectedContext) {
+static VkResult submit_to_queue(GrVkGpu* gpu,
+                                VkQueue queue,
+                                VkFence fence,
+                                uint32_t waitCount,
+                                const VkSemaphore* waitSemaphores,
+                                const VkPipelineStageFlags* waitStages,
+                                uint32_t commandBufferCount,
+                                const VkCommandBuffer* commandBuffers,
+                                uint32_t signalCount,
+                                const VkSemaphore* signalSemaphores,
+                                GrProtected protectedContext) {
     VkProtectedSubmitInfo protectedSubmitInfo;
     if (protectedContext == GrProtected::kYes) {
         memset(&protectedSubmitInfo, 0, sizeof(VkProtectedSubmitInfo));
@@ -578,7 +578,7 @@ static bool submit_to_queue(GrVkGpu* gpu,
     submitInfo.pSignalSemaphores = signalSemaphores;
     VkResult result;
     GR_VK_CALL_RESULT(gpu, result, QueueSubmit(queue, 1, &submitInfo, fence));
-    return result == VK_SUCCESS;
+    return result;
 }
 
 bool GrVkPrimaryCommandBuffer::submitToQueue(
@@ -608,12 +608,12 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
     int signalCount = signalSemaphores.size();
     int waitCount = waitSemaphores.size();
 
-    bool submitted = false;
+    VkResult submitResult;
 
     if (0 == signalCount && 0 == waitCount) {
         // This command buffer has no dependent semaphores so we can simply just submit it to the
         // queue with no worries.
-        submitted = submit_to_queue(
+        submitResult = submit_to_queue(
                 gpu, queue, fSubmitFence, 0, nullptr, nullptr, 1, &fCmdBuffer, 0, nullptr,
                 GrProtected(gpu->protectedContext()));
     } else {
@@ -639,11 +639,11 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
                                        VK_PIPELINE_STAGE_TRANSFER_BIT);
             }
         }
-        submitted = submit_to_queue(gpu, queue, fSubmitFence, vkWaitSems.size(),
-                                    vkWaitSems.begin(), vkWaitStages.begin(), 1, &fCmdBuffer,
-                                    vkSignalSems.size(), vkSignalSems.begin(),
-                                    GrProtected(gpu->protectedContext()));
-        if (submitted) {
+        submitResult = submit_to_queue(gpu, queue, fSubmitFence, vkWaitSems.size(),
+                                       vkWaitSems.begin(), vkWaitStages.begin(), 1, &fCmdBuffer,
+                                       vkSignalSems.size(), vkSignalSems.begin(),
+                                       GrProtected(gpu->protectedContext()));
+        if (submitResult == VK_SUCCESS) {
             for (int i = 0; i < signalCount; ++i) {
                 signalSemaphores[i]->markAsSignaled();
             }
@@ -653,8 +653,19 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
         }
     }
 
-    if (!submitted) {
-        // Destroy the fence or else we will try to wait forever for it to finish.
+    if (submitResult != VK_SUCCESS) {
+        // If we failed to submit because of a device lost, we still need to wait for the fence to
+        // signal before deleting. However, there is an ARM bug (b/359822580) where the driver early
+        // outs on the fence wait if in a device lost state and thus we can't wait on it. Instead,
+        // we just wait on the queue to finish. We're already in a state that's going to cause us to
+        // restart the whole device, so waiting on the queue shouldn't have any performance impact.
+        if (submitResult == VK_ERROR_DEVICE_LOST) {
+            GR_VK_CALL(gpu->vkInterface(), QueueWaitIdle(queue));
+        } else {
+            SkASSERT(submitResult == VK_ERROR_OUT_OF_HOST_MEMORY ||
+                     submitResult == VK_ERROR_OUT_OF_DEVICE_MEMORY);
+        }
+
         GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
         fSubmitFence = VK_NULL_HANDLE;
         return false;

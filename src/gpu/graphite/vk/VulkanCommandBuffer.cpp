@@ -230,17 +230,17 @@ void VulkanCommandBuffer::prepareSurfaceForStateUpdate(SkSurface* targetSurface,
                                          newQueueFamilyIndex);
 }
 
-static bool submit_to_queue(const VulkanSharedContext* sharedContext,
-                            VkQueue queue,
-                            VkFence fence,
-                            uint32_t waitCount,
-                            const VkSemaphore* waitSemaphores,
-                            const VkPipelineStageFlags* waitStages,
-                            uint32_t commandBufferCount,
-                            const VkCommandBuffer* commandBuffers,
-                            uint32_t signalCount,
-                            const VkSemaphore* signalSemaphores,
-                            Protected protectedContext) {
+static VkResult submit_to_queue(const VulkanSharedContext* sharedContext,
+                                VkQueue queue,
+                                VkFence fence,
+                                uint32_t waitCount,
+                                const VkSemaphore* waitSemaphores,
+                                const VkPipelineStageFlags* waitStages,
+                                uint32_t commandBufferCount,
+                                const VkCommandBuffer* commandBuffers,
+                                uint32_t signalCount,
+                                const VkSemaphore* signalSemaphores,
+                                Protected protectedContext) {
     VkProtectedSubmitInfo protectedSubmitInfo;
     if (protectedContext == Protected::kYes) {
         memset(&protectedSubmitInfo, 0, sizeof(VkProtectedSubmitInfo));
@@ -262,7 +262,7 @@ static bool submit_to_queue(const VulkanSharedContext* sharedContext,
     submitInfo.pSignalSemaphores = signalSemaphores;
     VkResult result;
     VULKAN_CALL_RESULT(sharedContext, result, QueueSubmit(queue, 1, &submitInfo, fence));
-    return result == VK_SUCCESS;
+    return result;
 }
 
 bool VulkanCommandBuffer::submit(VkQueue queue) {
@@ -295,21 +295,32 @@ bool VulkanCommandBuffer::submit(VkQueue queue) {
                                VK_PIPELINE_STAGE_TRANSFER_BIT);
     }
 
-    bool submitted = submit_to_queue(fSharedContext,
-                                     queue,
-                                     fSubmitFence,
-                                     waitCount,
-                                     fWaitSemaphores.data(),
-                                     vkWaitStages.data(),
-                                     /*commandBufferCount*/ 1,
-                                     &fPrimaryCommandBuffer,
-                                     fSignalSemaphores.size(),
-                                     fSignalSemaphores.data(),
-                                     fSharedContext->isProtected());
+    VkResult submitResult = submit_to_queue(fSharedContext,
+                                            queue,
+                                            fSubmitFence,
+                                            waitCount,
+                                            fWaitSemaphores.data(),
+                                            vkWaitStages.data(),
+                                            /*commandBufferCount*/ 1,
+                                            &fPrimaryCommandBuffer,
+                                            fSignalSemaphores.size(),
+                                            fSignalSemaphores.data(),
+                                            fSharedContext->isProtected());
     fWaitSemaphores.clear();
     fSignalSemaphores.clear();
-    if (!submitted) {
-        // Destroy the fence or else we will try to wait forever for it to finish.
+    if (submitResult != VK_SUCCESS) {
+        // If we failed to submit because of a device lost, we still need to wait for the fence to
+        // signal before deleting. However, there is an ARM bug (b/359822580) where the driver early
+        // outs on the fence wait if in a device lost state and thus we can't wait on it. Instead,
+        // we just wait on the queue to finish. We're already in a state that's going to cause us to
+        // restart the whole device, so waiting on the queue shouldn't have any performance impact.
+        if (submitResult == VK_ERROR_DEVICE_LOST) {
+            VULKAN_CALL(fSharedContext->interface(), QueueWaitIdle(queue));
+        } else {
+            SkASSERT(submitResult == VK_ERROR_OUT_OF_HOST_MEMORY ||
+                     submitResult == VK_ERROR_OUT_OF_DEVICE_MEMORY);
+        }
+
         VULKAN_CALL(fSharedContext->interface(), DestroyFence(device, fSubmitFence, nullptr));
         fSubmitFence = VK_NULL_HANDLE;
         return false;
