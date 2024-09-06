@@ -14,9 +14,7 @@
 
 namespace SkSL { struct ShaderCaps; }
 
-#if defined(SK_GRAPHITE)
 namespace skgpu::graphite { class Caps; }
-#endif
 
 class SK_API SkCapabilities : public SkRefCnt {
 public:
@@ -25,9 +23,7 @@ public:
     SkSL::Version skslVersion() const { return fSkSLVersion; }
 
 protected:
-#if defined(SK_GRAPHITE)
     friend class skgpu::graphite::Caps; // for ctor
-#endif
 
     SkCapabilities() = default;
 
