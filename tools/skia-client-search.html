@@ -24,17 +24,9 @@
                 'https://cs.chromium.org/search/?q=' + term +
                 '+-file:third_party/skia&sq=package:chromium&type=cs';
             document.getElementById('android-link').href =
-                'http://cs/search/?q=' + term +
-                '+repo:googleplex-android/platform/superproject/main' +
-                '+b:main' +
+                'http://cs.android.com/search?q=' + term +
                 '+(-file:%5Eexternal/skia OR file:%5Eexternal/skia/Android.bp OR file:SkUserConfig)' +
-                '+-file:%5Eexternal/skqp' +
-                '+-file:vendor/google/external/eskia' +
-                '+-file:%5Eexternal/qt/5.12.1/qtwebengine&type=cs';
-            document.getElementById('google3-link').href =
-                'http://cs/search/?q=' + term +
-                '+-file://depot/google3/third_party/skia' +
-                '&sq=package:piper+file://depot/google3+-file:google3/experimental&type=cs';
+                '+-file:%5Eexternal/skqp';
             document.getElementById('flutter-link').href =
                 'https://github.com/search?q=repo%3Aflutter%2Fengine+' + term + '&type=code';
                 // We would prefer to use this link (better search controls), but bugs and
@@ -58,7 +50,6 @@
         function openLinks() {
             openLink('chromium');
             openLink('android');
-            openLink('google3');
             openLink('flutter');
             openLink('mozilla');
             openLink('libreoffice');
@@ -75,8 +66,7 @@
     <p>Links to Skia clients code search:</p>
     <ul>
         <li><input type="checkbox" id="chromium-box" checked="true"><a id="chromium-link">Chromium</a></li>
-        <li><input type="checkbox" id="android-box" checked="true"><a id="android-link">Android</a></li>
-        <li><input type="checkbox" id="google3-box" checked="true"><a id="google3-link">Google3</a></li>
+        <li><input type="checkbox" id="android-box" checked="true"><a id="android-link">Android (public)</a></li>
         <li><input type="checkbox" id="flutter-box" checked="true"><a id="flutter-link">Flutter</a></li>
         <li><input type="checkbox" id="mozilla-box" checked="true"><a id="mozilla-link">Mozilla</a>*</li>
         <!-- Less commonly used repos are not checked by default: -->
@@ -86,6 +76,7 @@
         <b>gfx/2d</b>, but there is some usage elsewhere. Scoping your search to gfx/2d with the "Path filter" is
         helpful.
     </p>
+    <p><a href="go/skia-client-search">Internal version</a></p>
 </body>
 
 </html>
