@@ -118,11 +118,11 @@ skia_cc_library(
         "SkFontHost_FreeType_common.h",
         "SkTypeface_FreeType.h",
     ],
-    deps = [
-        "//:core",
+    implementation_deps = [
         "//:pathops",
         "@freetype",
     ],
+    deps = ["//:core"],
 )
 
 skia_cc_library(
