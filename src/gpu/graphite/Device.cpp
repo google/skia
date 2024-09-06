@@ -1462,11 +1462,7 @@ void Device::drawClipShape(const Transform& localToDevice,
                            DrawOrder order) {
     // A clip draw's state is almost fully defined by the ClipStack. The only thing we need
     // to account for is selecting a Renderer and tracking the stencil buffer usage.
-    Shape drawShape(shape);
-    // For the depth-only clip we need to invert the shape before drawing because
-    // we need to touch every pixel not in the clip.
-    drawShape.setInverted(!shape.inverted());
-    Geometry geometry{drawShape};
+    Geometry geometry{shape};
     auto [renderer, pathAtlas] = this->chooseRenderer(localToDevice,
                                                       geometry,
                                                       DefaultFillStyle(),

@@ -343,9 +343,9 @@ ClipStack::RawElement::RawElement(const Rect& deviceBounds,
         fInnerBounds = Rect::InfiniteInverted();
     }
 
-    // Now that fOp and fShape are canonical, set the shape's fill type based on the ClipOp
-    // (difference is thus inverse-filled). For depth-only clips we'll invert this during the draw.
-    fShape.setInverted(fOp == SkClipOp::kDifference);
+    // Now that fOp and fShape are canonical, set the shape's fill type to match how it needs to be
+    // drawn as a depth-only shape everywhere that is clipped out (intersect is thus inverse-filled)
+    fShape.setInverted(fOp == SkClipOp::kIntersect);
 
     // Post-conditions on inner and outer bounds
     SkASSERT(fShape.isEmpty() || deviceBounds.contains(fOuterBounds));
@@ -376,10 +376,11 @@ void ClipStack::RawElement::drawClip(Device* device) {
         // affects), it will cause those draws to fail either GREATER and GEQUAL depth tests where
         // they need to be clipped.
         DrawOrder order{fMaxZ.next(), fOrder};
-        // An element's clip op is encoded in the shape's fill type. Regular fills are intersect ops
-        // and inverse fills are difference ops.
-        SkASSERT((fOp == SkClipOp::kDifference && fShape.inverted()) ||
-                 (fOp == SkClipOp::kIntersect && !fShape.inverted()));
+        // An element's clip op is encoded in the shape's fill type. Inverse fills are intersect ops
+        // and regular fills are difference ops. This means fShape is already in the right state to
+        // draw directly.
+        SkASSERT((fOp == SkClipOp::kDifference && !fShape.inverted()) ||
+                 (fOp == SkClipOp::kIntersect && fShape.inverted()));
         device->drawClipShape(fLocalToDevice,
                               fShape,
                               Clip{drawBounds, drawBounds, scissor.asSkIRect(), nullptr},
@@ -402,8 +403,8 @@ void ClipStack::RawElement::validate() const {
     // not empty, they must be contained in outer.
     SkASSERT((fShape.isEmpty() || !fOuterBounds.isEmptyNegativeOrNaN()) &&
              (fInnerBounds.isEmptyNegativeOrNaN() || fOuterBounds.contains(fInnerBounds)));
-    SkASSERT((fOp == SkClipOp::kDifference && fShape.inverted()) ||
-             (fOp == SkClipOp::kIntersect && !fShape.inverted()));
+    SkASSERT((fOp == SkClipOp::kDifference && !fShape.inverted()) ||
+             (fOp == SkClipOp::kIntersect && fShape.inverted()));
     SkASSERT(!this->hasPendingDraw() || !fUsageBounds.isEmptyNegativeOrNaN());
 }
 
@@ -480,7 +481,7 @@ bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& c
         fInnerBounds.intersect(other.fInnerBounds);
         // Inner bounds can become empty, but outer bounds should not be able to.
         SkASSERT(!fOuterBounds.isEmptyNegativeOrNaN());
-        SkASSERT(!fShape.inverted()); // the setR[R]ect operations reset to non-inverse
+        fShape.setInverted(true); // the setR[R]ect operations reset to non-inverse
         this->validate();
         return true;
     } else {
