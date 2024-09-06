@@ -290,7 +290,7 @@ private:
     Object                        fPaddle0, fPaddle1, fBall;
     SkRandom                      fRand;
 
-    SkMSec                        fLastTick  = 0;
+    TimeUtils::MSec             fLastTick  = 0;
     SkScalar                      fTimeScale = 1.0f;
     bool                          fShowInval = false;
 };

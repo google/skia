@@ -10,6 +10,7 @@
 #include "include/core/SkString.h"
 #include "src/base/SkTime.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/timer/TimeUtils.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -80,8 +81,8 @@ double skiatest::Timer::elapsedNs() const {
 
 double skiatest::Timer::elapsedMs() const { return this->elapsedNs() * 1e-6; }
 
-SkMSec skiatest::Timer::elapsedMsInt() const {
+TimeUtils::MSec skiatest::Timer::elapsedMsInt() const {
     const double elapsedMs = this->elapsedMs();
-    SkASSERT(SK_MSecMax >= elapsedMs);
-    return static_cast<SkMSec>(elapsedMs);
+    SkASSERT(TimeUtils::MSecMax >= elapsedMs);
+    return static_cast<TimeUtils::MSec>(elapsedMs);
 }

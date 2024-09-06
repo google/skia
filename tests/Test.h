@@ -15,6 +15,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/TestType.h"
 #include "tools/Registry.h"
+#include "tools/timer/TimeUtils.h"
 
 #if defined(SK_GANESH) || defined(SK_GRAPHITE)
 namespace skgpu { enum class ContextType; }
@@ -255,9 +256,9 @@ public:
     double elapsedMs() const;
 
     /** Milliseconds since creation as an integer.
-        Behavior is undefined for durations longer than SK_MSecMax.
+        Behavior is undefined for durations longer than TimeUtils::MSecMax.
     */
-    SkMSec elapsedMsInt() const;
+    TimeUtils::MSec elapsedMsInt() const;
 private:
     double fStartNanos;
 };
