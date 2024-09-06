@@ -73,6 +73,9 @@ mod ffi {
         ) -> bool;
         fn try_get_gama(self: &Reader, gamma: &mut f32) -> bool;
         unsafe fn try_get_iccp<'a>(self: &'a Reader, iccp: &mut &'a [u8]) -> bool;
+        fn has_actl_chunk(self: &Reader) -> bool;
+        fn get_actl_num_frames(self: &Reader) -> u32;
+        fn get_actl_num_plays(self: &Reader) -> u32;
         fn output_buffer_size(self: &Reader) -> usize;
         fn output_color_type(self: &Reader) -> ColorType;
         fn output_bits_per_component(self: &Reader) -> u8;
@@ -254,6 +257,34 @@ impl Reader {
                 true
             }
         }
+    }
+
+    /// Returns whether the `aCTL` chunk exists.
+    fn has_actl_chunk(&self) -> bool {
+        self.0.info().animation_control.is_some()
+    }
+
+    /// Returns `num_frames` from the `aCTL` chunk.  Panics if there is no
+    /// `aCTL` chunk.
+    ///
+    /// The returned value is equal the number of `fcTL` chunks.  (Note that it
+    /// doesn't count `IDAT` nor `fDAT` chunks.  In particular, if an `fCTL`
+    /// chunk doesn't appear before an `IDAT` chunk then `IDAT` is not part
+    /// of the animation.)
+    ///
+    /// See also
+    /// <https://wiki.mozilla.org/APNG_Specification#.60acTL.60:_The_Animation_Control_Chunk>.
+    fn get_actl_num_frames(&self) -> u32 {
+        self.0.info().animation_control.as_ref().unwrap().num_frames
+    }
+
+    /// Returns `num_plays` from the `aCTL` chunk.  Panics if there is no `aCTL`
+    /// chunk.
+    ///
+    /// `0` indicates that the animation should play indefinitely. See
+    /// <https://wiki.mozilla.org/APNG_Specification#.60acTL.60:_The_Animation_Control_Chunk>.
+    fn get_actl_num_plays(&self) -> u32 {
+        self.0.info().animation_control.as_ref().unwrap().num_plays
     }
 
     fn output_buffer_size(&self) -> usize {

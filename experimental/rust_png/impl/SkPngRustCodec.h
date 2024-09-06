@@ -24,7 +24,7 @@ template <typename T> class SkSpan;
 //   Rust)
 // * Skia's `SkSwizzler` and `skcms_Transform` (pixel format and color space
 //   transformations implemented in C++).
-class SkPngRustCodec : public SkPngCodecBase {
+class SkPngRustCodec final : public SkPngCodecBase {
 public:
     static std::unique_ptr<SkPngRustCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
 
@@ -71,6 +71,7 @@ private:
                                     const Options&) override;
     Result onIncrementalDecode(int* rowsDecoded) override;
     bool onGetFrameInfo(int, FrameInfo*) const override;
+    int onGetRepetitionCount() override;
 
     // SkPngCodecBase overrides:
     std::optional<SkSpan<const PaletteColorEntry>> onTryGetPlteChunk() override;
