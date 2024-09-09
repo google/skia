@@ -12,6 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/core/SkFourByteTag.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkReadBuffer.h"

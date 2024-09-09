@@ -1,0 +1,1 @@
+SkFourByteTag has been moved to its own file: `include/core/SkFourByteTag.h`

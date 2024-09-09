@@ -9,6 +9,7 @@
 #define SkSVGRenderContext_DEFINED
 
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFourByteTag.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"

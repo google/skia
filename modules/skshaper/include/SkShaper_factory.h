@@ -7,6 +7,7 @@
 #ifndef SkShaperFactory_DEFINED
 #define SkShaperFactory_DEFINED
 
+#include "include/core/SkFourByteTag.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "modules/skshaper/include/SkShaper.h"

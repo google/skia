@@ -8,7 +8,7 @@
 #ifndef SkICCPriv_DEFINED
 #define SkICCPriv_DEFINED
 
-#include "include/core/SkTypes.h" // SkSetFourByteTag
+#include "include/core/SkFourByteTag.h"
 
 #include <cstddef>
 #include <cstdint>

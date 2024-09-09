@@ -8,8 +8,9 @@
 #ifndef SkFontParameters_DEFINED
 #define SkFontParameters_DEFINED
 
-#include "include/core/SkScalar.h"
-#include "include/core/SkTypes.h"
+#include "include/core/SkFourByteTag.h"
+
+#include <cstdint>
 
 struct SkFontParameters {
     struct Variation {

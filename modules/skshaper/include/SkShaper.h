@@ -9,6 +9,7 @@
 #define SkShaper_DEFINED
 
 #include "include/core/SkFont.h"
+#include "include/core/SkFourByteTag.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"

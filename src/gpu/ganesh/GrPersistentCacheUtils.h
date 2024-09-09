@@ -9,6 +9,7 @@
 #define GrPersistentCacheEntry_DEFINED
 
 #include "include/core/SkData.h"
+#include "include/core/SkFourByteTag.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"

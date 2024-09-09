@@ -59,6 +59,7 @@ skia_core_public = [
   "$_include/core/SkFontParameters.h",
   "$_include/core/SkFontStyle.h",
   "$_include/core/SkFontTypes.h",
+  "$_include/core/SkFourByteTag.h",
   "$_include/core/SkGraphics.h",
   "$_include/core/SkImage.h",
   "$_include/core/SkImageFilter.h",

@@ -8,11 +8,17 @@
 #ifndef SkPicturePriv_DEFINED
 #define SkPicturePriv_DEFINED
 
+#include "include/core/SkFourByteTag.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkRefCnt.h"
 
+#include <atomic>
+#include <cstdint>
+
+class SkBigPicture;
 class SkReadBuffer;
-class SkWriteBuffer;
 class SkStream;
+class SkWriteBuffer;
 struct SkPictInfo;
 
 class SkPicturePriv {

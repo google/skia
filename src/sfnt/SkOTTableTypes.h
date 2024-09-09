@@ -8,6 +8,7 @@
 #ifndef SkOTTableTypes_DEFINED
 #define SkOTTableTypes_DEFINED
 
+#include "include/core/SkFourByteTag.h"
 #include "include/core/SkTypes.h"
 #include "src/base/SkEndian.h"
 
