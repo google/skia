@@ -42,6 +42,11 @@ var deps = deps_parser.DepsEntries{
 		Version: "ccfbe1c82a3b6dbe8647ceb36a3f9ee711fba3cf",
 		Path:    "third_party/externals/libjpeg-turbo",
 	},
+	"chromium.googlesource.com/chromium/src/base/allocator/partition_allocator": {
+		Id:      "chromium.googlesource.com/chromium/src/base/allocator/partition_allocator",
+		Version: "81ff602c377ade97134a29b681068ee4a2f132f2",
+		Path:    "third_party/externals/partition_alloc",
+	},
 	"chromium.googlesource.com/chromium/src/buildtools": {
 		Id:      "chromium.googlesource.com/chromium/src/buildtools",
 		Version: "b138e6ce86ae843c42a1a08f37903207bebcca75",
