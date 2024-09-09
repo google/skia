@@ -2766,17 +2766,11 @@ void Viewer::drawImGui() {
                             // Retrieve the shaders from the pipeline.
                             const skgpu::graphite::GraphicsPipeline::PipelineInfo& pipelineInfo =
                                     pipeline->getPipelineInfo();
-                            const skgpu::graphite::ShaderCodeDictionary* dict =
-                                    gctx->priv().shaderCodeDictionary();
-                            skgpu::graphite::PaintParamsKey paintKey =
-                                    dict->lookup(pipelineInfo.fPaintID);
 
                             CachedShader& entry(fCachedShaders.push_back());
                             entry.fKey = nullptr;
-                            entry.fKeyString = SkStringPrintf("#%-3d RenderStep: %u, Paint: ",
-                                                              index++,
-                                                              pipelineInfo.fRenderStepID);
-                            entry.fKeyString.append(paintKey.toString(dict, /*includeData=*/true));
+                            entry.fKeyString = SkStringPrintf("#%-3d %s",
+                                                              index++, pipelineInfo.fLabel.c_str());
 
                             if (sksl) {
                                 entry.fShader[kVertex_GrShaderType] =

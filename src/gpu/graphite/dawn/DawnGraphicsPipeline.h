@@ -65,10 +65,7 @@ public:
 
     uint32_t stencilReferenceValue() const { return fStencilReferenceValue; }
     PrimitiveType primitiveType() const { return fPrimitiveType; }
-    bool hasStepUniforms() const { return fHasStepUniforms; }
-    bool hasPaintUniforms() const { return fHasPaintUniforms; }
-    bool hasGradientBuffer() const { return fHasGradientBuffer; }
-    int numTexturesAndSamplers() const { return fNumFragmentTexturesAndSamplers; }
+
     const wgpu::RenderPipeline& dawnRenderPipeline() const;
 
     using BindGroupLayouts = std::array<wgpu::BindGroupLayout, kBindGroupCount>;
@@ -78,15 +75,11 @@ private:
     struct AsyncPipelineCreation;
 
     DawnGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
-                         PipelineInfo* pipelineInfo,
+                         const PipelineInfo& pipelineInfo,
                          std::unique_ptr<AsyncPipelineCreation> pipelineCreationInfo,
                          BindGroupLayouts groupLayouts,
                          PrimitiveType primitiveType,
                          uint32_t refValue,
-                         bool hasStepUniforms,
-                         bool hasPaintUniforms,
-                         bool hasGradientBuffer,
-                         int numFragmentTexturesAndSamplers,
                          skia_private::AutoTArray<sk_sp<DawnSampler>> immutableSamplers);
 
     void freeGpuData() override;
@@ -95,10 +88,7 @@ private:
     BindGroupLayouts fGroupLayouts;
     const PrimitiveType fPrimitiveType;
     const uint32_t fStencilReferenceValue;
-    const bool fHasStepUniforms;
-    const bool fHasPaintUniforms;
-    const bool fHasGradientBuffer;
-    const int fNumFragmentTexturesAndSamplers;
+
     // Hold a ref to immutable samplers used such that their lifetime is properly managed.
     const skia_private::AutoTArray<sk_sp<DawnSampler>> fImmutableSamplers;
 };

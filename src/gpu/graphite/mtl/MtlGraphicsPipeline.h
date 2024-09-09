@@ -57,7 +57,7 @@ public:
 
 private:
     MtlGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
-                        PipelineInfo* pipelineInfo,
+                        const PipelineInfo& pipelineInfo,
                         sk_cfp<id<MTLRenderPipelineState>> pso,
                         sk_cfp<id<MTLDepthStencilState>> dss,
                         uint32_t refValue);
@@ -65,6 +65,7 @@ private:
     using MSLFunction = std::pair<id<MTLLibrary>, std::string>;
     static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
                                            const std::string& label,
+                                           const PipelineInfo&,
                                            MSLFunction vertexMain,
                                            SkSpan<const Attribute> vertexAttrs,
                                            SkSpan<const Attribute> instanceAttrs,
@@ -72,8 +73,7 @@ private:
                                            sk_cfp<id<MTLDepthStencilState>>,
                                            uint32_t stencilRefValue,
                                            const BlendInfo& blendInfo,
-                                           const RenderPassDesc&,
-                                           PipelineInfo* pipelineInfo);
+                                           const RenderPassDesc&);
 
     void freeGpuData() override;
 

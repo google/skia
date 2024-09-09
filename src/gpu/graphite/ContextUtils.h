@@ -45,15 +45,19 @@ struct ResourceBindingRequirements;
 
 struct VertSkSLInfo {
     std::string fSkSL;
-
     std::string fLabel;
+
+    bool fHasStepUniforms = false;
 };
 
 struct FragSkSLInfo {
     std::string fSkSL;
-    BlendInfo fBlendInfo;
-
     std::string fLabel;
+
+    // This represents the HW blending of the final program, and not the logical blending that was
+    // defined on the SkPaint.
+    BlendInfo fBlendInfo;
+    DstReadRequirement fDstReadReq = DstReadRequirement::kNone;
 
     bool fRequiresLocalCoords = false;
     int  fNumTexturesAndSamplers = 0;

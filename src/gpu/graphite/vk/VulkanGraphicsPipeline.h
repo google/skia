@@ -101,20 +101,11 @@ public:
         return fPipeline;
     }
 
-    bool hasFragmentUniforms() const { return fHasFragmentUniforms; }
-    bool hasStepUniforms() const { return fHasStepUniforms; }
-    bool hasGradientBuffer() const { return fHasGradientBuffer; }
-    int numTextureSamplers() const { return fNumTextureSamplers; }
-
 private:
-    VulkanGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
-                           PipelineInfo* pipelineInfo,
+    VulkanGraphicsPipeline(const VulkanSharedContext* sharedContext,
+                           const PipelineInfo& pipelineInfo,
                            VkPipelineLayout,
                            VkPipeline,
-                           bool hasFragmentUniforms,
-                           bool hasStepUniforms,
-                           bool hasGradientBuffer,
-                           int numTextureSamplers,
                            bool ownsPipelineLayout,
                            skia_private::TArray<sk_sp<VulkanSampler>> immutableSamplers);
 
@@ -122,10 +113,6 @@ private:
 
     VkPipelineLayout fPipelineLayout = VK_NULL_HANDLE;
     VkPipeline fPipeline = VK_NULL_HANDLE;
-    bool fHasFragmentUniforms = false;
-    bool fHasStepUniforms = false;
-    bool fHasGradientBuffer = false;
-    int fNumTextureSamplers = 0;
     bool fOwnsPipelineLayout = true;
 
     // Hold a ref to immutable samplers used such that their lifetime is properly managed.

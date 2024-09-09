@@ -1029,7 +1029,7 @@ void VulkanCommandBuffer::bindUniformBuffers() {
             VulkanGraphicsPipeline::kRenderStepUniformBufferIndex,
             PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader});
     }
-    if (fActiveGraphicsPipeline->hasFragmentUniforms() &&
+    if (fActiveGraphicsPipeline->hasPaintUniforms() &&
         fUniformBuffersToBind[VulkanGraphicsPipeline::kPaintUniformBufferIndex].fBuffer) {
         descriptors.push_back({
             uniformBufferType,
@@ -1238,7 +1238,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
 void VulkanCommandBuffer::bindTextureSamplers() {
     fBindTextureSamplers = false;
     if (fTextureSamplerDescSetToBind != VK_NULL_HANDLE &&
-        fActiveGraphicsPipeline->numTextureSamplers() == fNumTextureSamplers) {
+        fActiveGraphicsPipeline->numFragTexturesAndSamplers() == fNumTextureSamplers) {
         VULKAN_CALL(fSharedContext->interface(),
                     CmdBindDescriptorSets(fPrimaryCommandBuffer,
                                           VK_PIPELINE_BIND_POINT_GRAPHICS,

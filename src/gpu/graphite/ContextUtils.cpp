@@ -598,6 +598,7 @@ VertSkSLInfo BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
     if (defineLocalCoordsVarying) {
         result.fLabel += " (w/ local coords)";
     }
+    result.fHasStepUniforms = hasStepUniforms;
 
     return result;
 }

@@ -666,7 +666,7 @@ void DawnCommandBuffer::bindTextureAndSamplers(
     wgpu::BindGroup bindGroup;
     // Optimize for single texture with dynamic sampling.
     if (command.fNumTexSamplers == 1 && !usingSingleStaticSampler) {
-        SkASSERT(fActiveGraphicsPipeline->numTexturesAndSamplers() == 2);
+        SkASSERT(fActiveGraphicsPipeline->numFragTexturesAndSamplers() == 2);
 
         const auto* texture =
                 static_cast<const DawnTexture*>(drawPass.getTexture(command.fTextureIndices[0]));

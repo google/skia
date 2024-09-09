@@ -683,54 +683,36 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
             asyncCreation->fRenderPipeline = nullptr;
         }
     }
-#if defined(GPU_TEST_UTILS)
-    GraphicsPipeline::PipelineInfo pipelineInfo = {pipelineDesc.renderStepID(),
-                                                   pipelineDesc.paintParamsID(),
-                                                   std::move(vsSkSL),
-                                                   std::move(fsSkSL),
-                                                   std::move(vsCode),
-                                                   std::move(fsCode)};
-    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = &pipelineInfo;
-#else
-    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = nullptr;
-#endif
 
+    PipelineInfo pipelineInfo{vsSkSLInfo, fsSkSLInfo};
+#if defined(GPU_TEST_UTILS)
+    pipelineInfo.fNativeVertexShader = std::move(vsCode);
+    pipelineInfo.fNativeFragmentShader = std::move(fsCode);
+#endif
     return sk_sp<DawnGraphicsPipeline>(
             new DawnGraphicsPipeline(sharedContext,
-                                     pipelineInfoPtr,
+                                     pipelineInfo,
                                      std::move(asyncCreation),
                                      std::move(groupLayouts),
                                      step->primitiveType(),
                                      depthStencilSettings.fStencilReferenceValue,
-                                     /*hasStepUniforms=*/!step->uniforms().empty(),
-                                     /*hasPaintUniforms=*/fsSkSLInfo.fHasPaintUniforms,
-                                     /*hasGradientbuffer=*/fsSkSLInfo.fHasGradientBuffer,
-                                     numTexturesAndSamplers,
                                      std::move(immutableSamplers)));
 }
 
 DawnGraphicsPipeline::DawnGraphicsPipeline(
         const skgpu::graphite::SharedContext* sharedContext,
-        PipelineInfo* pipelineInfo,
+        const PipelineInfo& pipelineInfo,
         std::unique_ptr<AsyncPipelineCreation> asyncCreationInfo,
         BindGroupLayouts groupLayouts,
         PrimitiveType primitiveType,
         uint32_t refValue,
-        bool hasStepUniforms,
-        bool hasPaintUniforms,
-        bool hasGradientBuffer,
-        int numFragmentTexturesAndSamplers,
         skia_private::AutoTArray<sk_sp<DawnSampler>> immutableSamplers)
-        : GraphicsPipeline(sharedContext, pipelineInfo)
-        , fAsyncPipelineCreation(std::move(asyncCreationInfo))
-        , fGroupLayouts(std::move(groupLayouts))
-        , fPrimitiveType(primitiveType)
-        , fStencilReferenceValue(refValue)
-        , fHasStepUniforms(hasStepUniforms)
-        , fHasPaintUniforms(hasPaintUniforms)
-        , fHasGradientBuffer(hasGradientBuffer)
-        , fNumFragmentTexturesAndSamplers(numFragmentTexturesAndSamplers)
-        , fImmutableSamplers(std::move(immutableSamplers)) {}
+    : GraphicsPipeline(sharedContext, pipelineInfo)
+    , fAsyncPipelineCreation(std::move(asyncCreationInfo))
+    , fGroupLayouts(std::move(groupLayouts))
+    , fPrimitiveType(primitiveType)
+    , fStencilReferenceValue(refValue)
+    , fImmutableSamplers(std::move(immutableSamplers)) {}
 
 DawnGraphicsPipeline::~DawnGraphicsPipeline() {
     this->freeGpuData();

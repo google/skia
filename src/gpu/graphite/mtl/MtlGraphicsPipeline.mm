@@ -322,21 +322,16 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
     sk_cfp<id<MTLDepthStencilState>> dss =
             resourceProvider->findOrCreateCompatibleDepthStencilState(step->depthStencilSettings());
 
+    PipelineInfo pipelineInfo{vsSkSLInfo, fsSkSLInfo};
 #if defined(GPU_TEST_UTILS)
-    GraphicsPipeline::PipelineInfo pipelineInfo = {pipelineDesc.renderStepID(),
-                                                   pipelineDesc.paintParamsID(),
-                                                   std::move(vsSkSL),
-                                                   std::move(fsSkSL),
-                                                   std::move(vsMSL),
-                                                   std::move(fsMSL) };
-    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = &pipelineInfo;
-#else
-    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = nullptr;
+    pipelineInfo.fNativeVertexShader = std::move(vsMSL);
+    pipelineInfo.fNativeFragmentShader = std::move(fsMSL);
 #endif
     std::string pipelineLabel =
             GetPipelineLabel(sharedContext->shaderCodeDictionary(), renderPassDesc, step, paintID);
     return Make(sharedContext,
                 pipelineLabel,
+                pipelineInfo,
                 {vsLibrary.get(), "vertexMain"},
                 step->vertexAttributes(),
                 step->instanceAttributes(),
@@ -344,8 +339,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
                 std::move(dss),
                 step->depthStencilSettings().fStencilReferenceValue,
                 blendInfo,
-                renderPassDesc,
-                pipelineInfoPtr);
+                renderPassDesc);
 }
 
 sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::MakeLoadMSAAPipeline(
@@ -386,8 +380,13 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::MakeLoadMSAAPipeline(
 
     std::string pipelineLabel = "LoadMSAAFromResolve + ";
     pipelineLabel += renderPassDesc.toString().c_str();
+
+    PipelineInfo pipelineInfo;
+    pipelineInfo.fNumFragTexturesAndSamplers = 1;
+    // This is an internal shader, leave off filling out the test-utils shader code
     return Make(sharedContext,
                 pipelineLabel,
+                pipelineInfo,
                 {mtlLibrary.get(), "vertexMain"},
                 /*vertexAttrs=*/{},
                 /*instanceAttrs=*/{},
@@ -395,12 +394,12 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::MakeLoadMSAAPipeline(
                 std::move(ignoreDS),
                 /*stencilRefValue=*/0,
                 noBlend,
-                renderPassDesc,
-                /*pipelineInfo=*/nullptr);
+                renderPassDesc);
 }
 
 sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sharedContext,
                                                      const std::string& label,
+                                                     const PipelineInfo& pipelineInfo,
                                                      MSLFunction vertexMain,
                                                      SkSpan<const Attribute> vertexAttrs,
                                                      SkSpan<const Attribute> instanceAttrs,
@@ -408,8 +407,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
                                                      sk_cfp<id<MTLDepthStencilState>> dss,
                                                      uint32_t stencilRefValue,
                                                      const BlendInfo& blendInfo,
-                                                     const RenderPassDesc& renderPassDesc,
-                                                     PipelineInfo* pipelineInfo) {
+                                                     const RenderPassDesc& renderPassDesc) {
     id<MTLLibrary> vsLibrary = std::get<0>(vertexMain);
     id<MTLLibrary> fsLibrary = std::get<0>(fragmentMain);
     if (!vsLibrary || !fsLibrary) {
@@ -467,7 +465,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
 }
 
 MtlGraphicsPipeline::MtlGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
-                                         PipelineInfo* pipelineInfo,
+                                         const PipelineInfo& pipelineInfo,
                                          sk_cfp<id<MTLRenderPipelineState>> pso,
                                          sk_cfp<id<MTLDepthStencilState>> dss,
                                          uint32_t refValue)

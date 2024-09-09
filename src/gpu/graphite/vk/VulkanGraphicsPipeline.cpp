@@ -853,27 +853,17 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     // After creating the pipeline object, we can clean up the VkShaderModule(s).
     destroy_shader_modules(sharedContext, vsModule, fsModule);
 
+    PipelineInfo pipelineInfo{vsSkSLInfo, fsSkSLInfo};
 #if defined(GPU_TEST_UTILS)
-    GraphicsPipeline::PipelineInfo pipelineInfo = {pipelineDesc.renderStepID(),
-                                                   pipelineDesc.paintParamsID(),
-                                                   std::move(vsSkSL),
-                                                   std::move(fsSkSL),
-                                                   "SPIR-V disassembly not available",
-                                                   "SPIR-V disassembly not available"};
-    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = &pipelineInfo;
-#else
-    GraphicsPipeline::PipelineInfo* pipelineInfoPtr = nullptr;
+    pipelineInfo.fNativeVertexShader   = "SPIR-V disassembly not available";
+    pipelineInfo.fNativeFragmentShader = "SPIR-V disassmebly not available";
 #endif
 
     return sk_sp<VulkanGraphicsPipeline>(
             new VulkanGraphicsPipeline(sharedContext,
-                                       pipelineInfoPtr,
+                                       pipelineInfo,
                                        pipelineLayout,
                                        vkPipeline,
-                                       fsSkSLInfo.fHasPaintUniforms,
-                                       !step->uniforms().empty(),
-                                       fsSkSLInfo.fHasGradientBuffer,
-                                       fsSkSLInfo.fNumTexturesAndSamplers,
                                        /*ownsPipelineLayout=*/true,
                                        std::move(immutableSamplers)));
 }
@@ -1058,41 +1048,29 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
         return nullptr;
     }
 
-    // TODO: If we want to track GraphicsPipeline::PipelineInfo in debug, we'll need to add
-    // PipelineDesc as an argument for this method. For now, just pass in nullptr.
+    // This is an internal shader, so don't bother filling in the shader code metadata
+    PipelineInfo pipelineInfo{};
     return sk_sp<VulkanGraphicsPipeline>(
             new VulkanGraphicsPipeline(sharedContext,
-                                       /*pipelineInfo=*/nullptr,
+                                       pipelineInfo,
                                        pipelineLayout,
                                        vkPipeline,
-                                       /*hasFragmentUniforms=*/false,
-                                       /*hasStepUniforms=*/false,
-                                       /*hasGradientBuffer=*/false,
-                                       /*numTextureSamplers*/0,
                                        /*ownsPipelineLayout=*/false,
                                        /*immutableSamplers=*/{}));
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(
-        const skgpu::graphite::SharedContext* sharedContext,
-        PipelineInfo* pipelineInfo,
+        const VulkanSharedContext* sharedContext,
+        const PipelineInfo& pipelineInfo,
         VkPipelineLayout pipelineLayout,
         VkPipeline pipeline,
-        bool hasFragmentUniforms,
-        bool hasStepUniforms,
-        bool hasGradientBuffer,
-        int numTextureSamplers,
         bool ownsPipelineLayout,
         skia_private::TArray<sk_sp<VulkanSampler>> immutableSamplers)
-        : GraphicsPipeline(sharedContext, pipelineInfo)
-        , fPipelineLayout(pipelineLayout)
-        , fPipeline(pipeline)
-        , fHasFragmentUniforms(hasFragmentUniforms)
-        , fHasStepUniforms(hasStepUniforms)
-        , fHasGradientBuffer(hasGradientBuffer)
-        , fNumTextureSamplers(numTextureSamplers)
-        , fOwnsPipelineLayout(ownsPipelineLayout)
-        , fImmutableSamplers(std::move(immutableSamplers)) {}
+    : GraphicsPipeline(sharedContext, pipelineInfo)
+    , fPipelineLayout(pipelineLayout)
+    , fPipeline(pipeline)
+    , fOwnsPipelineLayout(ownsPipelineLayout)
+    , fImmutableSamplers(std::move(immutableSamplers)) {}
 
 void VulkanGraphicsPipeline::freeGpuData() {
     auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());
