@@ -23,6 +23,7 @@
 #include "include/private/base/SkDebug.h"
 // IWYU pragma: end_exports
 
+#include <climits>
 #include <cstdint>
 
 #if !defined(SK_GANESH) && !defined(SK_GRAPHITE)
@@ -177,6 +178,15 @@ typedef int32_t SkUnichar;
 */
 typedef uint16_t SkGlyphID;
 
+/** 32 bit value to hold a millisecond duration
+    Note that SK_MSecMax is about 25 days.
+*/
+typedef uint32_t SkMSec;
+
+/** Maximum representable milliseconds; 24d 20h 31m 23.647s.
+*/
+static constexpr SkMSec SK_MSecMax = INT32_MAX;
+
 /** The generation IDs in Skia reserve 0 has an invalid marker.
 */
 static constexpr uint32_t SK_InvalidGenID = 0;
@@ -184,5 +194,6 @@ static constexpr uint32_t SK_InvalidGenID = 0;
 /** The unique IDs in Skia reserve 0 has an invalid marker.
 */
 static constexpr uint32_t SK_InvalidUniqueID = 0;
+
 
 #endif

@@ -34,7 +34,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/base",
-        "//tools/timer",
     ],
 )
 

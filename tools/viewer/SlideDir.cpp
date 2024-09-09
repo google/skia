@@ -110,7 +110,7 @@ protected:
     const RenderNode* onNodeAt(const SkPoint&) const override { return nullptr; }
 
 private:
-    void tick(TimeUtils::MSec t) {
+    void tick(SkMSec t) {
         fSlide->animate(t * 1e6);
         this->invalidate();
     }
@@ -374,7 +374,7 @@ void SlideDir::draw(SkCanvas* canvas) {
 }
 
 bool SlideDir::animate(double nanos) {
-    TimeUtils::MSec msec = TimeUtils::NanosToMSec(nanos);
+    SkMSec msec = TimeUtils::NanosToMSec(nanos);
     if (fTimeBase == 0) {
         // Reset the animation time.
         fTimeBase = msec;
