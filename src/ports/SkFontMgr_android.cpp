@@ -434,7 +434,10 @@ protected:
             // default family instead.
             return sk_sp<SkTypeface>(this->onMatchFamilyStyle(familyName, style));
         }
-        return sk_sp<SkTypeface>(fDefaultStyleSet->matchStyle(style));
+        if (fDefaultStyleSet) {
+            return sk_sp<SkTypeface>(fDefaultStyleSet->matchStyle(style));
+        }
+        return SkTypeface::MakeEmpty();
     }
 
 
@@ -481,8 +484,6 @@ private:
     }
 
     void findDefaultStyleSet() {
-        SkASSERT(!fStyleSets.empty());
-
         static const char* defaultNames[] = { "sans-serif" };
         for (const char* defaultName : defaultNames) {
             fDefaultStyleSet = this->onMatchFamily(defaultName);
@@ -490,10 +491,9 @@ private:
                 break;
             }
         }
-        if (nullptr == fDefaultStyleSet) {
+        if (!fDefaultStyleSet && !fStyleSets.empty()) {
             fDefaultStyleSet = fStyleSets[0];
         }
-        SkASSERT(fDefaultStyleSet);
     }
 
     using INHERITED = SkFontMgr;
