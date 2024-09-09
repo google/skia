@@ -114,7 +114,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/external/github.com/libexpat/libexpat": {
 		Id:      "chromium.googlesource.com/external/github.com/libexpat/libexpat",
-		Version: "441f98d02deafd9b090aea568282b28f66a50e36",
+		Version: "624da0f593bb8d7e146b9f42b06d8e6c80d032a3",
 		Path:    "third_party/externals/expat",
 	},
 	"chromium.googlesource.com/external/github.com/unicode-org/icu4x": {
