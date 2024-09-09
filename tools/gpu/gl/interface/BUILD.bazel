@@ -29,8 +29,8 @@ os.chdir(os.environ["BUILD_WORKSPACE_DIRECTORY"])
 
 # execpath returns the path to the given label relative to the Skia root.
 # https://bazel.build/reference/be/make-variables#predefined_label_variables
-gen_interface_exe = "$(execpath :interface)"
-interface_json = "$(execpath interface.json5)"
+gen_interface_exe = os.path.abspath("$(execpath :interface)")
+interface_json = os.path.abspath("$(execpath interface.json5)")
 
 cmd = [
     gen_interface_exe, "--in_table", interface_json,
@@ -44,10 +44,13 @@ print(subprocess.check_output(cmd, encoding="utf-8"))
 
 genrule(
     name = "create_generate_gl_interfaces_script",
+    # This must be in srcs and not tools because otherwise the path will
+    # be resolved incorrectly (as if it were built for the host config
+    # and not the exec config).
+    srcs = [":interface"],
     outs = ["generate_gl_interfaces.py"],
     cmd = "echo '%s' > $@" % _GENERATE_INTERFACE,
     tools = [
-        ":interface",
         ":interface.json5",
     ],
 )
@@ -59,5 +62,5 @@ py_binary(
         ":interface",
         ":interface.json5",
     ],
-    tags = ["no-remote"],
+    tags = ["no-remote-exec"],
 )

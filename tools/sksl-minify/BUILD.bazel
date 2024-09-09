@@ -20,7 +20,7 @@ py_binary(
     main = ":sksl_minify_srcs.py",
     # We can compile remotely, but because we are running the executable to modify files in
     # the source tree, running it in a remote, sandboxed would have no effect locally.
-    tags = ["no-remote"],
+    tags = ["no-remote-exec"],
 )
 
 py_binary(
@@ -28,11 +28,12 @@ py_binary(
     srcs = [":sksl_minify_tests.py"],
     data = [
         ":sksl_minify",
+        ":test_input_list.txt",
         "//gn:minify_sksl_tests",
         "//resources/sksl:sksl_minify_tests_sources",
     ],
     main = ":sksl_minify_tests.py",
-    tags = ["no-remote"],
+    tags = ["no-remote-exec"],
 )
 
 skia_cc_binary(
@@ -73,12 +74,12 @@ print(subprocess.check_output([
 
 genrule(
     name = "create_sksl_minify_srcs_script",
+    srcs = [":sksl_minify"],
     outs = ["sksl_minify_srcs.py"],
     cmd = "echo '%s' > $@" % _SKSL_MINIFY_SRCS,
     # note: tools are not transitive, so anything that depends on sksl_minify_srcs.sh
     # should also specify these so they are properly built/available.
     tools = [
-        ":sksl_minify",
         "//gn:minify_sksl",
     ],
 )
@@ -128,11 +129,13 @@ genrule(
     # would break (as we would be unable to, for example, run the
     # "compiled for android sksl_minify" on the exec machine that
     # is running the Python script.
-    srcs = [":sksl_minify"],
+    srcs = [
+        ":sksl_minify",
+        ":test_input_list.txt",
+    ],
     outs = ["sksl_minify_tests.py"],
     cmd = "echo '%s' > $@" % _SKSL_MINIFY_TESTS,
     tools = [
-        ":test_input_list.txt",
         "//gn:minify_sksl_tests",
     ],
 )

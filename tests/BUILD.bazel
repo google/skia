@@ -58,12 +58,15 @@ skia_cc_library(
         "//tools/flags:CommandLineFlags.h",
         "//tools/fonts:test_empty_typeface",
     ],
+    features = ["layering_check"],
     textual_hdrs = [
         "//tools/fonts:test_fonts",
     ],
     deps = [
         "//:core",
+        "//:pathops",
         "//src/base",
+        "//src/core:core_priv",
     ] + select({
         "@platforms//os:android": ["//:fontmgr_android_freetype"],
         "@platforms//os:linux": ["//:fontmgr_fontconfig_freetype"],

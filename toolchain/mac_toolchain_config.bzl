@@ -232,12 +232,6 @@ def _make_action_configs():
         tools = [ar_tool],
     )
 
-    objc_archive_action = action_config(
-        action_name = ACTION_NAMES.objc_archive,
-        flag_sets = common_archive_flags,
-        tools = [ar_tool],
-    )
-
     action_configs = [
         assemble_action,
         c_compile_action,
@@ -247,7 +241,6 @@ def _make_action_configs():
         cpp_link_nodeps_dynamic_library_action,
         cpp_link_static_library_action,
         linkstamp_compile_action,
-        objc_archive_action,
         objc_compile_action,
         objcpp_compile_action,
         preprocess_assemble_action,
