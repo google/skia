@@ -28,7 +28,7 @@
 class SkBlender;
 class SkColorFilter;
 class SkMatrix;
-class SkRuntimeShaderBuilder;
+class SkRuntimeEffectBuilder;
 enum class SkBlendMode;
 struct SkIPoint;
 struct SkISize;
@@ -382,7 +382,7 @@ public:
 
     /**
      *  Create a filter that fills the output with the per-pixel evaluation of the SkShader produced
-     *  by the SkRuntimeShaderBuilder. The shader is defined in the image filter's local coordinate
+     *  by the SkRuntimeEffectBuilder. The shader is defined in the image filter's local coordinate
      *  system, so it will automatically be affected by SkCanvas' transform.
      *
      *  This variant assumes that the runtime shader samples 'childShaderName' with the same input
@@ -399,7 +399,7 @@ public:
      *  @param input           The image filter that will be provided as input to the runtime
      *                         shader. If null the implicit source image is used instead
      */
-    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
                                               std::string_view childShaderName,
                                               sk_sp<SkImageFilter> input) {
         return RuntimeShader(builder, /*sampleRadius=*/0.f, childShaderName, std::move(input));
@@ -416,14 +416,14 @@ public:
      *
      * This requires a GPU backend or SkSL to be compiled in.
     */
-    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
                                               SkScalar sampleRadius,
                                               std::string_view childShaderName,
                                               sk_sp<SkImageFilter> input);
 
     /**
      *  Create a filter that fills the output with the per-pixel evaluation of the SkShader produced
-     *  by the SkRuntimeShaderBuilder. The shader is defined in the image filter's local coordinate
+     *  by the SkRuntimeEffectBuilder. The shader is defined in the image filter's local coordinate
      *  system, so it will automatically be affected by SkCanvas' transform.
      *
      *  This requires a GPU backend or SkSL to be compiled in.
@@ -438,7 +438,7 @@ public:
      *                          shader. If any are null, the implicit source image is used instead.
      *  @param inputCount       How many entries are present in 'childShaderNames' and 'inputs'.
      */
-    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
                                               std::string_view childShaderNames[],
                                               const sk_sp<SkImageFilter> inputs[],
                                               int inputCount) {
@@ -455,7 +455,7 @@ public:
      *
      *  This requires a GPU backend or SkSL to be compiled in.
      */
-    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeShaderBuilder& builder,
+    static sk_sp<SkImageFilter> RuntimeShader(const SkRuntimeEffectBuilder& builder,
                                               SkScalar maxSampleRadius,
                                               std::string_view childShaderNames[],
                                               const sk_sp<SkImageFilter> inputs[],

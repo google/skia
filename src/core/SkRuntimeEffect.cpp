@@ -965,29 +965,14 @@ void SkRuntimeEffect::RegisterFlattenables() {
     SkFlattenable::Register("SkRTShader", SkRuntimeShader::CreateProc);
 }
 
-SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)
-        : SkRuntimeEffectBuilder(std::move(effect)) {}
-
-SkRuntimeShaderBuilder::~SkRuntimeShaderBuilder() = default;
-
-sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix) const {
+sk_sp<SkShader> SkRuntimeEffectBuilder::makeShader(const SkMatrix* localMatrix) const {
     return this->effect()->makeShader(this->uniforms(), this->children(), localMatrix);
 }
 
-SkRuntimeBlendBuilder::SkRuntimeBlendBuilder(sk_sp<SkRuntimeEffect> effect)
-        : SkRuntimeEffectBuilder(std::move(effect)) {}
-
-SkRuntimeBlendBuilder::~SkRuntimeBlendBuilder() = default;
-
-sk_sp<SkBlender> SkRuntimeBlendBuilder::makeBlender() const {
+sk_sp<SkBlender> SkRuntimeEffectBuilder::makeBlender() const {
     return this->effect()->makeBlender(this->uniforms(), this->children());
 }
 
-SkRuntimeColorFilterBuilder::SkRuntimeColorFilterBuilder(sk_sp<SkRuntimeEffect> effect)
-        : SkRuntimeEffectBuilder(std::move(effect)) {}
-
-SkRuntimeColorFilterBuilder::~SkRuntimeColorFilterBuilder() = default;
-
-sk_sp<SkColorFilter> SkRuntimeColorFilterBuilder::makeColorFilter() const {
+sk_sp<SkColorFilter> SkRuntimeEffectBuilder::makeColorFilter() const {
     return this->effect()->makeColorFilter(this->uniforms(), this->children());
 }

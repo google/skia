@@ -20,7 +20,7 @@
 
 class SkDevice;
 class SkRuntimeEffect;
-class SkRuntimeShaderBuilder;
+class SkRuntimeEffectBuilder;
 class SkSpecialImage;
 struct SkImageInfo;
 struct SkIRect;
@@ -148,7 +148,7 @@ private:
     // Create a new surface, which can be approx-fit and have undefined contents.
     virtual sk_sp<SkDevice> makeDevice(const SkImageInfo&) const = 0;
 
-    sk_sp<SkSpecialImage> renderBlur(SkRuntimeShaderBuilder* blurEffectBuilder,
+    sk_sp<SkSpecialImage> renderBlur(SkRuntimeEffectBuilder* blurEffectBuilder,
                                      SkFilterMode filter,
                                      SkISize radii,
                                      sk_sp<SkSpecialImage> input,
