@@ -22,17 +22,29 @@ load(
     "tool",
     "variable_with_value",
 )
-load("@win_toolchain//:vars.bzl", "MSVC_INCLUDE", "MSVC_LIB", "WIN_SDK_INCLUDE", "WIN_SDK_LIB")
+
+# TODO(borenet): These variables were copied from the automatically-generated
+# @clang_windows_amd64//:vars.bzl file. They are available to be directly
+# used here, but in order to do so, Bazel needs access to both the Clang and
+# MSVC archives, even when we aren't going to use this toolchain. Due to the
+# time required to download and extract these archives, we've opted to hard-code
+# the versions and paths here.
+#load("@clang_windows_amd64//:vars.bzl", "MSVC_INCLUDE", "MSVC_LIB", "WIN_SDK_INCLUDE", "WIN_SDK_LIB")
+MSVC_VERSION = "14.39.33519"
+MSVC_INCLUDE = "VC/Tools/MSVC/" + MSVC_VERSION + "/include"
+MSVC_LIB = "VC/Tools/MSVC/" + MSVC_VERSION + "/lib"
+WIN_SDK_VERSION = "10.0.22621.0"
+WIN_SDK_INCLUDE = "win_sdk/Include/" + WIN_SDK_VERSION
+WIN_SDK_LIB = "win_sdk/Lib/" + WIN_SDK_VERSION
 
 # The location of the downloaded clang toolchain.
 CLANG_TOOLCHAIN = "external/clang_windows_amd64"
 
 # Paths inside the win_toolchain CIPD package.
-WIN_TOOLCHAIN_PREFIX = "external/win_toolchain/"
-FULL_MSVC_INCLUDE = WIN_TOOLCHAIN_PREFIX + MSVC_INCLUDE
-FULL_MSVC_LIB = WIN_TOOLCHAIN_PREFIX + MSVC_LIB
-FULL_WIN_SDK_INCLUDE = WIN_TOOLCHAIN_PREFIX + WIN_SDK_INCLUDE
-FULL_WIN_SDK_LIB = WIN_TOOLCHAIN_PREFIX + WIN_SDK_LIB
+FULL_MSVC_INCLUDE = CLANG_TOOLCHAIN + "/" + MSVC_INCLUDE
+FULL_MSVC_LIB = CLANG_TOOLCHAIN + "/" + MSVC_LIB
+FULL_WIN_SDK_INCLUDE = CLANG_TOOLCHAIN + "/" + WIN_SDK_INCLUDE
+FULL_WIN_SDK_LIB = CLANG_TOOLCHAIN + "/" + WIN_SDK_LIB
 
 def _windows_amd64_toolchain_info(ctx):
     action_configs = _make_action_configs()

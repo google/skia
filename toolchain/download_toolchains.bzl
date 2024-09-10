@@ -10,7 +10,6 @@ Planned:
 
 """
 
-load("//bazel:cipd_install.bzl", "cipd_install")
 load(":download_linux_amd64_toolchain.bzl", "download_linux_amd64_toolchain")
 load(":download_mac_toolchain.bzl", "download_mac_toolchain")
 load(":download_ndk_linux_amd64_toolchain.bzl", "download_ndk_linux_amd64_toolchain")
@@ -40,76 +39,3 @@ def download_toolchains_for_skia(*args):
             fail("unrecognized toolchain name " + toolchain_name)
         download_toolchain = name_toolchain[toolchain_name]
         download_toolchain(name = toolchain_name)
-
-    cipd_install(
-        name = "win_toolchain",
-        build_file_content = '''
-load(":vars.bzl", "MSVC_INCLUDE", "MSVC_LIB", "WIN_SDK_INCLUDE", "WIN_SDK_LIB")
-
-filegroup(
-    name = "compile_files",
-    srcs = glob(
-        [
-            MSVC_INCLUDE + "/**",
-        ],
-        allow_empty = False,
-    ) + glob(
-        [
-            WIN_SDK_INCLUDE + "/**",
-        ],
-        allow_empty = False,
-    ),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "link_files",
-    srcs = glob(
-        [
-            MSVC_LIB + "/**",
-        ],
-        allow_empty = False,
-    ) + glob(
-        [
-            WIN_SDK_LIB + "/**",
-        ],
-        allow_empty = False,
-    ),
-    visibility = ["//visibility:public"],
-)
-''',
-        cipd_package = "skia/bots/win_toolchain",
-        postinstall_cmds_posix = [
-            # This toolchain only works on Windows, but because of the way our Bazel files are
-            # structured, we need to create vars.bzl on posix platforms as well. We mimic all of the
-            # variables it should contain with placeholder values.
-            "echo \"MSVC_VERSION = 'this-toolchain-only-works-on-windows'\" > vars.bzl",
-            "echo \"MSVC_INCLUDE = 'this-toolchain-only-works-on-windows'\" >> vars.bzl",
-            "echo \"MSVC_LIB = 'this-toolchain-only-works-on-windows'\" >> vars.bzl",
-            "echo \"WIN_SDK_VERSION = 'this-toolchain-only-works-on-windows'\" >> vars.bzl",
-            "echo \"WIN_SDK_INCLUDE = 'this-toolchain-only-works-on-windows'\" >> vars.bzl",
-            "echo \"WIN_SDK_LIB = 'this-toolchain-only-works-on-windows'\" >> vars.bzl",
-        ],
-        postinstall_cmds_win = [
-            # Both MSVC and the Windows SDK have version numbers as part of the include and library
-            # paths. In order to avoid hard-coding those version numbers, we find them after
-            # downloading the package and dynamically create @win_toolchain//vars.bzl to export them.
-            #
-            # Note: This just uses a simple string sort to find the highest-numbered version present
-            #       in the directory. This could cause incorrect results, for example "10.0" will sort
-            #       before "9.0" alphabetically, even though 10 is greater than 9. In practice, we only
-            #       expect to see a single version in these directories.
-            #
-            # Note: This is ugly because Bazel runs these commands in individual shells, so we can't
-            #       store intermediate state in variables.
-            "\"MSVC_VERSION = '$((Get-ChildItem -Path VC/Tools/MSVC | sort Name | select -Last 1).BaseName)'\" | Out-File -encoding ASCII -FilePath vars.bzl",
-            "\"MSVC_INCLUDE = 'VC/Tools/MSVC/' + MSVC_VERSION + '/include'\" | Out-File -encoding ASCII -FilePath vars.bzl -Append",
-            "\"MSVC_LIB = 'VC/Tools/MSVC/' + MSVC_VERSION + '/lib'\" | Out-File -encoding ASCII -FilePath vars.bzl -Append",
-            "\"WIN_SDK_VERSION = '$((Get-ChildItem -Path win_sdk/Include | sort Name | select -Last 1).BaseName)'\" | Out-File -encoding ASCII -FilePath vars.bzl -Append",
-            "\"WIN_SDK_INCLUDE = 'win_sdk/Include/' + WIN_SDK_VERSION\" | Out-File -encoding ASCII -FilePath vars.bzl -Append",
-            "\"WIN_SDK_LIB = 'win_sdk/Lib/' + WIN_SDK_VERSION\" | Out-File -encoding ASCII -FilePath vars.bzl -Append",
-        ],
-        # From https://chrome-infra-packages.appspot.com/p/skia/bots/win_toolchain/+/89-wQAUmYRJEcNlZ-vg1Cu9MLamzlq0ZGiySLXoBxD8C
-        sha256 = "f3dfb040052661124470d959faf8350aef4c2da9b396ad191a2c922d7a01c43f",
-        tag = "version:15",
-    )

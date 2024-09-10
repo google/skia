@@ -7,6 +7,33 @@ on the host machine.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+def cipd_download_urls(cipd_package, sha256, tag):
+    """Construct download URLs for the given CIPD package.
+
+    Args:
+        cipd_package: The full name of the CIPD package. This is a "path" from the root of CIPD.
+            This should be a publicly accessibly package, as authentication is not supported.
+        sha256: The sha256 hash of the zip archive downloaded from CIPD. This should match the
+            official CIPD website.
+        tag: Represnts the version of the CIPD package to download, e.g. "git_package:abc123...".
+    Returns:
+        A string list containing download URLs for the given CIPD package.
+    """
+    cipd_url = "https://chrome-infra-packages.appspot.com/dl/"
+    cipd_url += cipd_package
+    cipd_url += "/+/"
+
+    # When Bazel downloads the CIPD package, the local file name is "<tag>.zip". On Windows, colon
+    # is not a valid character for file names, so this causes Bazel to crash. URL-escaping the tag
+    # results in a valid file name.
+    cipd_url += tag.replace(":", "%3A")
+
+    mirror_url = "https://storage.googleapis.com/skia-world-readable/bazel/"
+    mirror_url += sha256
+    mirror_url += ".zip"
+
+    return [cipd_url, mirror_url]
+
 def cipd_install(
         name,
         cipd_package,
@@ -36,26 +63,12 @@ def cipd_install(
         postinstall_cmds_posix: Optional Bash commands to run on Mac/Linux after download.
         postinstall_cmds_win: Optional Powershell commands to run on Windows after download.
     """
-    cipd_url = "https://chrome-infra-packages.appspot.com/dl/"
-    cipd_url += cipd_package
-    cipd_url += "/+/"
-
-    # When Bazel downloads the CIPD package, the local file name is "<tag>.zip". On Windows, colon
-    # is not a valid character for file names, so this causes Bazel to crash. URL-escaping the tag
-    # results in a valid file name.
-    cipd_url += tag.replace(":", "%3A")
-
-    mirror_url = "https://storage.googleapis.com/skia-world-readable/bazel/"
-    mirror_url += sha256
-    mirror_url += ".zip"
+    urls = cipd_download_urls(cipd_package, sha256, tag)
 
     http_archive(
         name = name,
         sha256 = sha256,
-        urls = [
-            cipd_url,
-            mirror_url,
-        ],
+        urls = urls,
         type = "zip",
         build_file = build_file,
         build_file_content = build_file_content,
