@@ -177,14 +177,12 @@ void BitmapTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
     gatherer->write(atlasDimensionsInverse);
 
     // write textures and samplers
-    const SkSamplingOptions kSamplingOptions(SkFilterMode::kNearest);
-    constexpr SkTileMode kTileModes[2] = { SkTileMode::kClamp, SkTileMode::kClamp };
     for (unsigned int i = 0; i < numProxies; ++i) {
-        gatherer->add(proxies[i], {kSamplingOptions, kTileModes});
+        gatherer->add(proxies[i], {SkFilterMode::kNearest, SkTileMode::kClamp});
     }
     // If the atlas has less than 4 active proxies we still need to set up samplers for the shader.
     for (unsigned int i = numProxies; i < kNumTextAtlasTextures; ++i) {
-        gatherer->add(proxies[0], {kSamplingOptions, kTileModes});
+        gatherer->add(proxies[0], {SkFilterMode::kNearest, SkTileMode::kClamp});
     }
 }
 

@@ -1418,8 +1418,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SampledTexture,
         SamplerDesc calculateSamplerParameters(int index, const ResourceDesc&) const override {
             SkASSERT(index == 1);
             // Use the repeat tile mode to sample an infinite checkerboard.
-            constexpr SkTileMode kTileModes[2] = {SkTileMode::kRepeat, SkTileMode::kRepeat};
-            return {SkFilterMode::kLinear, kTileModes};
+            return {SkFilterMode::kLinear, SkTileMode::kRepeat};
         }
 
         WorkgroupSize calculateGlobalDispatchSize() const override {

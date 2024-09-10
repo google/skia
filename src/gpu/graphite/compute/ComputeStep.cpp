@@ -82,8 +82,7 @@ std::tuple<SkISize, SkColorType> ComputeStep::calculateTextureParameters(
 
 SamplerDesc ComputeStep::calculateSamplerParameters(int resourceIndex, const ResourceDesc&) const {
     SK_ABORT("ComputeSteps that initialize a sampler must override calculateSamplerParameters()");
-    constexpr SkTileMode kTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
-    return {{}, kTileModes};
+    return {{}, SkTileMode::kClamp};
 }
 
 WorkgroupSize ComputeStep::calculateGlobalDispatchSize() const {

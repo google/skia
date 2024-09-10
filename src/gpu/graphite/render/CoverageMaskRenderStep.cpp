@@ -211,9 +211,8 @@ void CoverageMaskRenderStep::writeUniformsAndTextures(const DrawParams& params,
             params.transform().type() <= Transform::Type::kSimpleRectStaysRect &&
             params.transform().maxScaleFactor() == 1.f &&
             all(deviceOrigin == floor(deviceOrigin + SK_ScalarNearlyZero));
-    constexpr SkTileMode kTileModes[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
-    gatherer->add(sk_ref_sp(proxy),
-                  {pixelAligned ? SkFilterMode::kNearest : SkFilterMode::kLinear, kTileModes});
+    gatherer->add(sk_ref_sp(proxy), {pixelAligned ? SkFilterMode::kNearest : SkFilterMode::kLinear,
+                                     SkTileMode::kClamp});
 }
 
 }  // namespace skgpu::graphite

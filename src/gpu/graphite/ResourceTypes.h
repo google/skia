@@ -183,11 +183,14 @@ struct ImmutableSamplerInfo {
 struct SamplerDesc {
     static_assert(kSkTileModeCount <= 4 && kSkFilterModeCount <= 2 && kSkMipmapModeCount <= 4);
 
-    SamplerDesc(const SkSamplingOptions& samplingOptions,
-                const SkTileMode tileModes[2],
+    constexpr SamplerDesc(const SkSamplingOptions& samplingOptions, SkTileMode tileMode)
+            : SamplerDesc(samplingOptions, {tileMode, tileMode}) {}
+
+    constexpr SamplerDesc(const SkSamplingOptions& samplingOptions,
+                const std::pair<SkTileMode, SkTileMode> tileModes,
                 const ImmutableSamplerInfo info = {})
-            : fDesc((static_cast<int>(tileModes[0])               << kTileModeXShift           ) |
-                    (static_cast<int>(tileModes[1])               << kTileModeYShift           ) |
+            : fDesc((static_cast<int>(tileModes.first)            << kTileModeXShift           ) |
+                    (static_cast<int>(tileModes.second)           << kTileModeYShift           ) |
                     (static_cast<int>(samplingOptions.filter)     << kFilterModeShift          ) |
                     (static_cast<int>(samplingOptions.mipmap)     << kMipmapModeShift          ) |
                     (info.fNonFormatYcbcrConversionInfo           << kImmutableSamplerInfoShift) )
@@ -206,8 +209,8 @@ struct SamplerDesc {
         // the conversion information can fit within an uint32.
         SkASSERT(info.fNonFormatYcbcrConversionInfo >> kMaxNumConversionInfoBits == 0);
     }
-    SamplerDesc() = default;
-    SamplerDesc(const SamplerDesc&) = default;
+    constexpr SamplerDesc() = default;
+    constexpr SamplerDesc(const SamplerDesc&) = default;
 
     bool operator==(const SamplerDesc& o) const {
         return o.fDesc == fDesc && o.fFormat == fFormat &&
@@ -255,7 +258,7 @@ struct SamplerDesc {
 private:
     // Note: The order of these member attributes matters to keep unique object representation
     // such that SkGoodHash can be used to hash SamplerDesc objects.
-    uint32_t fDesc;
+    uint32_t fDesc = 0;
 
     // Data fields populated by backend Caps which store texture format information (needed for
     // YCbCr sampling). Only relevant when using immutable samplers. Otherwise, can be ignored.

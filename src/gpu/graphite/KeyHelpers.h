@@ -171,9 +171,8 @@ struct ImageShaderBlock {
                   SkTileMode tileModeY,
                   SkISize imgSize,
                   SkRect subset);
-
         SkSamplingOptions fSampling;
-        SkTileMode fTileModes[2];
+        std::pair<SkTileMode, SkTileMode> fTileModes;
         SkISize fImgSize;
         SkRect fSubset;
 
@@ -199,7 +198,7 @@ struct YUVImageShaderBlock {
 
         SkSamplingOptions fSampling;
         SkSamplingOptions fSamplingUV;
-        SkTileMode fTileModes[2];
+        std::pair<SkTileMode, SkTileMode> fTileModes;
         SkISize fImgSize;
         SkISize fImgSizeUV;  // Size of UV planes relative to Y's texel space
         SkRect fSubset;
