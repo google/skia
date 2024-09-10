@@ -43,7 +43,41 @@ def download_toolchains_for_skia(*args):
 
     cipd_install(
         name = "win_toolchain",
-        build_file = "//bazel/external/win_toolchain:BUILD.bazel",
+        build_file_content = '''
+load(":vars.bzl", "MSVC_INCLUDE", "MSVC_LIB", "WIN_SDK_INCLUDE", "WIN_SDK_LIB")
+
+filegroup(
+    name = "compile_files",
+    srcs = glob(
+        [
+            MSVC_INCLUDE + "/**",
+        ],
+        allow_empty = False,
+    ) + glob(
+        [
+            WIN_SDK_INCLUDE + "/**",
+        ],
+        allow_empty = False,
+    ),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "link_files",
+    srcs = glob(
+        [
+            MSVC_LIB + "/**",
+        ],
+        allow_empty = False,
+    ) + glob(
+        [
+            WIN_SDK_LIB + "/**",
+        ],
+        allow_empty = False,
+    ),
+    visibility = ["//visibility:public"],
+)
+''',
         cipd_package = "skia/bots/win_toolchain",
         postinstall_cmds_posix = [
             # This toolchain only works on Windows, but because of the way our Bazel files are
