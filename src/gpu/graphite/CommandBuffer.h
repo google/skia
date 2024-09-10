@@ -73,10 +73,15 @@ public:
     void addBuffersToAsyncMapOnSubmit(SkSpan<const sk_sp<Buffer>>);
     SkSpan<const sk_sp<Buffer>> buffersToAsyncMapOnSubmit() const;
 
+    // If any recorded draw requires a dst texture copy for blending, that texture must be provided
+    // in `dstCopy`; otherwise it should be null. The `dstCopyBounds` and `viewport` are in the
+    // same coordinate space of the logical target *before* any replay translation is applied.
     bool addRenderPass(const RenderPassDesc&,
                        sk_sp<Texture> colorTexture,
                        sk_sp<Texture> resolveTexture,
                        sk_sp<Texture> depthStencilTexture,
+                       const Texture* dstCopy,
+                       SkIRect dstCopyBounds,
                        SkIRect viewport,
                        const DrawPassList& drawPasses);
 
@@ -117,6 +122,12 @@ protected:
 
     SkISize fColorAttachmentSize;
     SkIVector fReplayTranslation;
+    // The texture to use for implementing DstReadRequirement::kTextureCopy for the current render
+    // pass. This is a bare pointer since the CopyTask that initializes the texture's contents
+    // will have tracked the resource on the CommandBuffer already.
+    const Texture* fDstCopy;
+    // Already includes replay translation and respects final color attachment bounds.
+    SkIVector fDstCopyOffset;
 
 private:
     // Release all tracked Resources
@@ -124,7 +135,8 @@ private:
 
     virtual void onResetCommandBuffer() = 0;
 
-    // Renderpass, viewport bounds have already been adjusted by the replay translation.
+    // Renderpass, viewport bounds have already been adjusted by the replay translation. The render
+    // pass bounds has been intersected with the color attachment bounds.
     virtual bool onAddRenderPass(const RenderPassDesc&,
                                  SkIRect renderPassBounds,
                                  const Texture* colorTexture,

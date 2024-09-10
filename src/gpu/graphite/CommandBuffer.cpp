@@ -78,6 +78,8 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                   sk_sp<Texture> colorTexture,
                                   sk_sp<Texture> resolveTexture,
                                   sk_sp<Texture> depthStencilTexture,
+                                  const Texture* dstCopy,
+                                  SkIRect dstCopyBounds,
                                   SkIRect viewport,
                                   const DrawPassList& drawPasses) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -93,13 +95,24 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
         renderPassBounds.join(colorAttachmentBounds);
     }
     renderPassBounds.offset(fReplayTranslation.x(), fReplayTranslation.y());
-    if (!SkIRect::Intersects(renderPassBounds, colorAttachmentBounds)) {
+    if (!renderPassBounds.intersect(colorAttachmentBounds)) {
         // The entire RenderPass is offscreen given the replay translation so skip adding the pass
         // at all
         return true;
     }
 
     viewport.offset(fReplayTranslation.x(), fReplayTranslation.y());
+
+    dstCopyBounds.offset(fReplayTranslation.x(), fReplayTranslation.y());
+    if (!dstCopyBounds.intersect(colorAttachmentBounds)) {
+        // The draws within the RenderPass that would sample from the dstCopy have been translated
+        // off screen. Set the bounds to empty and let the GPU clipping do its job.
+        dstCopyBounds = SkIRect::MakeEmpty();
+    }
+    // Save the dstCopy texture so that it can be embedded into texture bind commands later on.
+    fDstCopy = dstCopy;
+    fDstCopyOffset = dstCopyBounds.topLeft();
+
     if (!this->onAddRenderPass(renderPassDesc,
                                renderPassBounds,
                                colorTexture.get(),

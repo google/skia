@@ -372,7 +372,7 @@ void VulkanCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
     // The SkSL has declared these as a top-level interface block, which will use std140 in Vulkan.
     // If we switch to supporting push constants here, it would be std430 instead.
     UniformManager intrinsicValues{Layout::kStd140};
-    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fReplayTranslation,
+    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fReplayTranslation, fDstCopyOffset,
                              &intrinsicValues);
     SkSpan<const char> bytes = intrinsicValues.finish();
     SkASSERT(bytes.size_bytes() == VulkanResourceProvider::kIntrinsicConstantSize);

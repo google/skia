@@ -98,12 +98,9 @@ Task::Status RenderPassTask::addCommands(Context* context,
                                          ReplayTargetData replayData) {
     // TBD: Expose the surfaces that will need to be attached within the renderpass?
 
-    // TODO: for task execution, start the render pass, then iterate passes and
-    // possibly(?) start each subpass, and call DrawPass::addCommands() on the command buffer
-    // provided to the task. Then close the render pass and we should have pixels..
-
     // Instantiate the target
     SkASSERT(fTarget && fTarget->isInstantiated());
+    SkASSERT(!fDstCopy || fDstCopy->isInstantiated());
 
     if (fTarget->texture() == replayData.fTarget) {
         commandBuffer->setReplayTranslation(replayData.fTranslation);
@@ -147,12 +144,12 @@ Task::Status RenderPassTask::addCommands(Context* context,
     // TODO(b/313629288) we always pass in the render target's dimensions as the viewport here.
     // Using the dimensions of the logical device that we're drawing to could reduce flakiness in
     // rendering.
-    // TODO(b/280802448): Pass in the dstCopy texture and bounds to addRenderPass() so they can be
-    // bound as intrinsic uniforms.
     if (commandBuffer->addRenderPass(fRenderPassDesc,
                                      std::move(colorAttachment),
                                      std::move(resolveAttachment),
                                      std::move(depthStencilAttachment),
+                                     fDstCopy ? fDstCopy->texture() : nullptr,
+                                     fDstCopyBounds,
                                      SkIRect::MakeSize(fTarget->dimensions()),
                                      fDrawPasses)) {
         return Status::kSuccess;

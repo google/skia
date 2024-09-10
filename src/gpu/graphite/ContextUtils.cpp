@@ -299,6 +299,7 @@ std::string emit_intrinsic_uniforms(int bufferID, Layout layout) {
 void CollectIntrinsicUniforms(const Caps* caps,
                               SkIRect viewport,
                               SkIPoint replayTranslation,
+                              SkIPoint dstCopyOffset,
                               UniformManager* uniforms) {
     SkDEBUGCODE(uniforms->setExpectedUniforms(kIntrinsicUniforms, /*isSubstruct=*/false);)
 
@@ -321,8 +322,7 @@ void CollectIntrinsicUniforms(const Caps* caps,
     uniforms->write(SkV2{(float) replayTranslation.fX, (float) replayTranslation.fY});
 
     // dstCopyOffset
-    // TODO(b/280802448): Plumb dstCopyOffset value into this function from CommandBuffer
-    uniforms->write(SkV2{0, 0});
+    uniforms->write(SkV2{(float) dstCopyOffset.fX, (float) dstCopyOffset.fY});
 
     SkDEBUGCODE(uniforms->doneWithExpectedUniforms());
 }

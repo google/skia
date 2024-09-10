@@ -92,10 +92,12 @@ std::tuple<UniformDataBlock, TextureDataBlock> ExtractRenderStepData(
 // `viewport` should hold the actual viewport set as backend state (defining the NDC -> pixel
 // transform).
 // `replayTranslation` should hold the replay translation provided on insertRecording().
+// It is assumed that `dstCopyOffset` has already accounted for the replay translation.
 void CollectIntrinsicUniforms(
         const Caps* caps,
         SkIRect viewport,
         SkIPoint replayTranslation,
+        SkIPoint dstCopyOffset,
         UniformManager*);
 
 DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, Coverage);
