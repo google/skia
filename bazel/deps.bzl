@@ -259,7 +259,7 @@ def bazel_deps():
     )
 
 def header_based_configs():
-    skia_revision = "9f271dd94582411feddce92dbea3bce25d0e06f5"
+    skia_revision = "d211141c45c9171437fa8e6e07989edb5bffa17a"
     maybe(
         download_config_files,
         name = "expat_config",
