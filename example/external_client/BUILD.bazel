@@ -237,6 +237,7 @@ cc_binary(
     deps = [
         "@skia//:core",
         "@skia//:graphite_native_vulkan",
+        "@vulkan_headers",
     ],
 )
 

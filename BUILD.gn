@@ -855,6 +855,7 @@ group("compile_all_sksl_tests") {
 optional("gpu_shared") {
   enabled = skia_enable_ganesh || skia_enable_graphite
 
+  configs = []
   deps = []
   libs = []
   public_defines = []
@@ -901,6 +902,7 @@ optional("gpu_shared") {
   if (skia_use_vulkan) {
     public_defines += [ "SK_VULKAN" ]
     sources += skia_shared_vk_sources
+    configs += [ ":our_vulkan_headers" ]
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
@@ -930,6 +932,7 @@ optional("gpu") {
   if (skia_generate_workarounds) {
     deps += [ ":workaround_list" ]
   }
+  configs = []
   public_defines = []
   public_configs = []
   public_deps = []
@@ -1003,6 +1006,7 @@ optional("gpu") {
   if (skia_use_vulkan) {
     public += skia_gpu_vk_public
     sources += skia_gpu_vk_private
+    configs += [ ":our_vulkan_headers" ]
     if (is_fuchsia) {
       if (using_fuchsia_sdk) {
         public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
@@ -1147,6 +1151,7 @@ optional("ndk_images") {
 }
 
 optional("graphite") {
+  configs = []
   libs = []
   frameworks = []
   public_defines = []
@@ -1188,6 +1193,7 @@ optional("graphite") {
   if (skia_use_vulkan) {
     public += skia_graphite_vk_public
     sources += skia_graphite_vk_sources
+    configs += [ ":our_vulkan_headers" ]
   }
   if (skia_enable_precompile) {
     public += skia_graphite_precompile_public
@@ -1707,6 +1713,7 @@ group("modules") {
 
 config("our_vulkan_headers") {
   include_dirs = [ "include/third_party/vulkan" ]
+  defines = [ "SK_USE_INTERNAL_VULKAN_HEADERS" ]
 }
 
 config("vulkan_memory_allocator") {

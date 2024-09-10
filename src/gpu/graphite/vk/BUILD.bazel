@@ -63,6 +63,10 @@ skia_cc_library(
         "//include/gpu/graphite/vk:public_hdrs",
     ],
     defines = ["SK_VULKAN"],
+    implementation_deps = [
+        "//include/third_party/vulkan",
+    ],
+    local_defines = ["SK_USE_INTERNAL_VULKAN_HEADERS"],
     visibility = ["//:__pkg__"],
     deps = [
         "//:core",
@@ -90,6 +94,10 @@ skia_cc_library(
         "SK_VULKAN",
         "GPU_TEST_UTILS",
     ],
+    implementation_deps = [
+        "//include/third_party/vulkan",
+    ],
+    local_defines = ["SK_USE_INTERNAL_VULKAN_HEADERS"],
     visibility = ["//tools:__pkg__"],
     deps = [
         "//:core",

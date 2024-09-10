@@ -19,9 +19,10 @@ source_set("vulkanmemoryallocator") {
     "../../../../include/third_party/vulkan",
     "../../../../",
   ]
+  defines = [ "SK_USE_INTERNAL_VULKAN_HEADERS" ]
 
   if (skia_disable_vma_stl_shared_mutex) {
-    defines = [ "VMA_USE_STL_SHARED_MUTEX=0" ]
+    defines += [ "VMA_USE_STL_SHARED_MUTEX=0" ]
   }
 
   sources = [

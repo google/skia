@@ -35,6 +35,10 @@ skia_cc_library(
         # https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator/issues/299
         "-Wno-implicit-fallthrough",
     ],
+    implementation_deps = [
+        "//include/third_party/vulkan",
+    ],
+    local_defines = ["SK_USE_INTERNAL_VULKAN_HEADERS"],
     textual_hdrs = [
         "VulkanMemoryAllocatorWrapper.h",
     ],
@@ -46,7 +50,6 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
-        "//include/third_party/vulkan",
         "//src/base",
         "//src/gpu/vk",
         "@vulkanmemoryallocator//:hdrs",

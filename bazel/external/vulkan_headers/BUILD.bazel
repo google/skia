@@ -19,7 +19,9 @@ cc_library(
     hdrs = [
         "include/vulkan/vk_platform.h",
         "include/vulkan/vulkan.h",
+        "include/vulkan/vulkan_android.h",
         "include/vulkan/vulkan_core.h",
+        "include/vulkan/vulkan_xcb.h",
     ],
     includes = ["include"],
     visibility = ["//visibility:public"],
