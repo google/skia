@@ -12,7 +12,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "src/gpu/graphite/DrawOrder.h"
-#include "src/gpu/graphite/geom/AnalyticClip.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
@@ -68,12 +67,10 @@ public:
     Clip(const Rect& drawBounds,
          const Rect& shapeBounds,
          const SkIRect& scissor,
-         const CircularRRectClip& analyticClip,
          const SkShader* shader)
             : fDrawBounds(drawBounds)
             , fTransformedShapeBounds(shapeBounds)
             , fScissor(scissor)
-            , fAnalyticClip(analyticClip)
             , fShader(shader) {}
 
     // Tight bounds of the draw, including any padding/outset for stroking and expansion due to
@@ -90,9 +87,6 @@ public:
     // to drawBounds(). For an inverse fill, this is a subset of drawBounds().
     const Rect& transformedShapeBounds() const { return fTransformedShapeBounds; }
 
-    // If set, the shape's bounds are further used to clip the draw.
-    const CircularRRectClip& analyticClip() const { return fAnalyticClip; }
-
     // If set, the clip shader's output alpha is further used to clip the draw.
     const SkShader* shader() const { return fShader; }
 
@@ -101,11 +95,13 @@ public:
 private:
     // DrawList assumes the DrawBounds are correct for a given shape, transform, and style. They
     // are provided to the DrawList to avoid re-calculating the same bounds.
-    Rect              fDrawBounds;
-    Rect              fTransformedShapeBounds;
-    SkIRect           fScissor;
-    CircularRRectClip fAnalyticClip;
-    const SkShader*   fShader;
+    Rect            fDrawBounds;
+    Rect            fTransformedShapeBounds;
+    SkIRect         fScissor;
+    const SkShader* fShader;
+
+    // TODO: If we add more complex analytic shapes for clipping, e.g. coverage rrect, it should
+    // go here.
 };
 
 // Encapsulates all geometric state for a single high-level draw call. RenderSteps are responsible

@@ -161,7 +161,6 @@ skia_graphite_sources = [
   "$_src/compute/DispatchGroup.h",
   "$_src/geom/AnalyticBlurMask.cpp",
   "$_src/geom/AnalyticBlurMask.h",
-  "$_src/geom/AnalyticClip.h",
   "$_src/geom/BoundsManager.h",
   "$_src/geom/CoverageMaskShape.h",
   "$_src/geom/EdgeAAQuad.h",

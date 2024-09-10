@@ -11,7 +11,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/geom/AnalyticClip.h"
 #include <functional>  // std::function
 
 class SkColorInfo;
@@ -36,7 +35,6 @@ class PaintParams {
 public:
     explicit PaintParams(const SkPaint&,
                          sk_sp<SkBlender> primitiveBlender,
-                         const CircularRRectClip& analyticClip,
                          sk_sp<SkShader> clipShader,
                          DstReadRequirement dstReadReq,
                          bool skipColorXform);
@@ -81,7 +79,6 @@ private:
     void handleColorFilter(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
     void handleDithering(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
     void handleDstRead(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
-    void handleClipping(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
 
     SkColor4f            fColor;
     sk_sp<SkBlender>     fFinalBlender; // A nullptr here means SrcOver blending
@@ -91,7 +88,6 @@ private:
     // In the case where there is primitive blending, the primitive color is the source color and
     // the dest is the paint's color (or the paint's shader's computed color).
     sk_sp<SkBlender>     fPrimitiveBlender;
-    CircularRRectClip    fAnalyticClip;
     sk_sp<SkShader>      fClipShader;
     DstReadRequirement   fDstReadReq;
     bool                 fSkipColorXform;

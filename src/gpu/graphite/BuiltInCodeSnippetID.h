@@ -70,7 +70,7 @@ enum class BuiltInCodeSnippetID : int32_t {
     kDstReadFetch,
 
     // Clip block snippet
-    // Used for clip shaders and analytic clips
+    // Used for clip shaders and eventually analytic clips
     // TODO(b/238763003): Avoid incorporating clip shaders into the actual shader code.
     kClip,
 

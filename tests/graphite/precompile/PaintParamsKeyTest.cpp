@@ -2058,7 +2058,6 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
                                  {},
                                  PaintParams(paint,
                                              primitiveBlender,
-                                             {}, // TODO (jvanverth): add analytic clip to test
                                              std::move(modifiedClipShader),
                                              dstReadReq,
                                              /* skipColorXform= */ false),
