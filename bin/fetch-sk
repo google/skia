@@ -38,9 +38,9 @@ if 'windows' in platform:
 # Find the version of 'sk' requested by DEPS.
 with open('DEPS', 'rb') as f:
   deps = f.read().decode()
-found = re.findall(r"'sk_tool_revision':\s*'(\S+)'", deps)
+found = re.findall(r"'infra_revision':\s*'(\S+)'", deps)
 if len(found) != 1:
-  print('Unable to find sk_tool_revision in DEPS', file=sys.stderr)
+  print('Unable to find infra_revision in DEPS', file=sys.stderr)
   exit(1)
 desired_version = found[0]
 
