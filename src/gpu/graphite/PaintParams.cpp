@@ -52,6 +52,7 @@ bool should_dither(const PaintParams& p, SkColorType dstCT) {
 
 PaintParams::PaintParams(const SkPaint& paint,
                          sk_sp<SkBlender> primitiveBlender,
+                         const CircularRRectClip& analyticClip,
                          sk_sp<SkShader> clipShader,
                          DstReadRequirement dstReadReq,
                          bool skipColorXform)
@@ -60,6 +61,7 @@ PaintParams::PaintParams(const SkPaint& paint,
         , fShader(paint.refShader())
         , fColorFilter(paint.refColorFilter())
         , fPrimitiveBlender(std::move(primitiveBlender))
+        , fAnalyticClip(analyticClip)
         , fClipShader(std::move(clipShader))
         , fDstReadReq(dstReadReq)
         , fSkipColorXform(skipColorXform)
@@ -315,6 +317,43 @@ void PaintParams::handleDstRead(const KeyContext& keyContext,
     }
 }
 
+void PaintParams::handleClipping(const KeyContext& keyContext,
+                                 PaintParamsKeyBuilder* builder,
+                                 PipelineDataGatherer* gatherer) const {
+    ClipBlock::BeginBlock(keyContext, builder, gatherer);
+
+    if (!fAnalyticClip.isEmpty()) {
+        float radius = fAnalyticClip.fRadius + 0.5f;
+        // N.B.: Because the clip data is normally used with depth-based clipping,
+        // the shape is inverted from its usual state. We re-invert here to
+        // match what the shader snippet expects.
+        SkPoint radiusPair = {(fAnalyticClip.fInverted) ? radius : -radius, 1.0f/radius};
+        CircularRRectClipBlock::CircularRRectClipData data(
+                fAnalyticClip.fBounds.makeOutset(0.5f).asSkRect(),
+                radiusPair,
+                fAnalyticClip.edgeSelectRect());
+        if (fClipShader) {
+            Blend(keyContext, builder, gatherer,
+                  /* addBlendToKey= */ [&]() -> void {
+                      AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kModulate);
+                  },
+                  /* addSrcToKey= */ [&]() -> void {
+                      CircularRRectClipBlock::AddBlock(keyContext, builder, gatherer, data);
+                  },
+                  /* addDstToKey= */ [&]() -> void {
+                      AddToKey(keyContext, builder, gatherer, fClipShader.get());
+                  });
+        } else {
+            CircularRRectClipBlock::AddBlock(keyContext, builder, gatherer, data);
+        }
+    } else {
+        SkASSERT(fClipShader);
+        AddToKey(keyContext, builder, gatherer, fClipShader.get());
+    }
+
+    builder->endBlock();
+}
+
 void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
@@ -326,12 +365,8 @@ void PaintParams::toKey(const KeyContext& keyContext,
         finalBlendMode = SkBlendMode::kSrc;
     }
 
-    if (fClipShader) {
-        ClipBlock::BeginBlock(keyContext, builder, gatherer);
-
-            AddToKey(keyContext, builder, gatherer, fClipShader.get());
-
-        builder->endBlock();
+    if (!fAnalyticClip.isEmpty() || fClipShader) {
+        this->handleClipping(keyContext, builder, gatherer);
     }
 
     // Set the hardware blend mode.

@@ -747,8 +747,8 @@ std::string GenerateDstReadFetchPreamble(const ShaderInfo& shaderInfo, const Sha
 //--------------------------------------------------------------------------------------------------
 
 std::string GenerateClipPreamble(const ShaderInfo& shaderInfo, const ShaderNode* node) {
-    // No preamble is used for clip shaders or (eventually) analytic clips.
-    // The child shader is called directly with sk_FragCoord.
+    // No preamble is used for clip shaders or analytic clips. The child shader is called
+    // directly with sk_FragCoord.
     return "";
 }
 
