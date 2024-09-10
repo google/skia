@@ -277,7 +277,7 @@ SkIPoint DrawAtlas::prepForRender(const AtlasLocator& locator, SkAutoPixmapStora
     return plot->prepForRender(locator, pixmap);
 }
 
-void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
+void DrawAtlas::compact(AtlasToken startTokenForNextFlush, bool forceCompact) {
     if (fNumActivePages < 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
@@ -309,7 +309,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
     // hasn't been used in a long time.
     // This is to handle the case where a lot of text or path rendering has occurred but then just
     // a blinking cursor is drawn.
-    if (atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
+    if (forceCompact || atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
         TArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumActivePages - 1;
 
@@ -421,6 +421,9 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
 }
 
 void DrawAtlas::purge(AtlasToken startTokenForNextFlush) {
+    // Try to compact first
+    this->compact(startTokenForNextFlush, /*forceCompact=*/true);
+
     // Go through each page from last to first. We evict any plots that are not in
     // use this flush. If a page has no plots used this flush, we can deactivate it and
     // remove its texture. However, once we hit a page that is in use, we can't deactivate
