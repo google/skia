@@ -31,6 +31,7 @@ class DrawPass;
 class SharedContext;
 class GraphicsPipeline;
 struct RenderPassDesc;
+class ResourceProvider;
 class Sampler;
 class Texture;
 class TextureProxy;
@@ -125,13 +126,18 @@ protected:
     // The texture to use for implementing DstReadRequirement::kTextureCopy for the current render
     // pass. This is a bare pointer since the CopyTask that initializes the texture's contents
     // will have tracked the resource on the CommandBuffer already.
-    const Texture* fDstCopy;
+    std::pair<const Texture*, const Sampler*> fDstCopy;
     // Already includes replay translation and respects final color attachment bounds.
     SkIVector fDstCopyOffset;
 
 private:
     // Release all tracked Resources
     void releaseResources();
+
+    // Subclasses will hold their backend-specific ResourceProvider directly to avoid virtual calls
+    // and access backend-specific behavior, but they can reflect it back to the base CommandBuffer
+    // if it needs to make generic resources.
+    virtual ResourceProvider* resourceProvider() const = 0;
 
     virtual void onResetCommandBuffer() = 0;
 

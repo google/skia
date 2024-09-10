@@ -23,7 +23,6 @@
 #include "src/gpu/graphite/mtl/MtlComputePipeline.h"
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
 #include "src/gpu/graphite/mtl/MtlRenderCommandEncoder.h"
-#include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlSampler.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
@@ -483,6 +482,15 @@ void MtlCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPipe
     fActiveRenderCommandEncoder->setDepthStencilState(depthStencilState);
     uint32_t stencilRefValue = mtlPipeline->stencilReferenceValue();
     fActiveRenderCommandEncoder->setStencilReferenceValue(stencilRefValue);
+
+    if (graphicsPipeline->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
+        // The last texture binding is reserved for the dstCopy texture, which is not included in
+        // the list on each BindTexturesAndSamplers command. We can set it once now and any
+        // subsequent BindTexturesAndSamplers commands in a DrawPass will set the other N-1.
+        SkASSERT(fDstCopy.first && fDstCopy.second);
+        const int textureIndex = graphicsPipeline->numFragTexturesAndSamplers() - 1;
+        this->bindTextureAndSampler(fDstCopy.first, fDstCopy.second, textureIndex);
+    }
 }
 
 void MtlCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot slot) {

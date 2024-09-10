@@ -13,12 +13,12 @@
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
+#include "src/gpu/graphite/vk/VulkanResourceProvider.h"
 
 namespace skgpu::graphite {
 
 class VulkanBuffer;
 class VulkanDescriptorSet;
-class VulkanResourceProvider;
 class VulkanSharedContext;
 class VulkanTexture;
 class Buffer;
@@ -55,6 +55,8 @@ private:
                         VkCommandBuffer primaryCommandBuffer,
                         const VulkanSharedContext* sharedContext,
                         VulkanResourceProvider* resourceProvider);
+
+    ResourceProvider* resourceProvider() const override { return fResourceProvider; }
 
     void onResetCommandBuffer() override;
 

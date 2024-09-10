@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
+#include "src/gpu/graphite/dawn/DawnResourceProvider.h"
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
@@ -24,7 +25,6 @@ class ComputePipeline;
 class DawnBuffer;
 class DawnComputePipeline;
 class DawnQueueManager;
-class DawnResourceProvider;
 class DawnSharedContext;
 class DawnTexture;
 class DispatchGroup;
@@ -40,6 +40,8 @@ public:
 private:
     DawnCommandBuffer(const DawnSharedContext* sharedContext,
                       DawnResourceProvider* resourceProvider);
+
+    ResourceProvider* resourceProvider() const override { return fResourceProvider; }
 
     void onResetCommandBuffer() override;
     bool setNewCommandBufferResources() override;

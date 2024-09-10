@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 
 #include <memory>
 
@@ -24,7 +25,6 @@ class ComputePipeline;
 class MtlBlitCommandEncoder;
 class MtlComputeCommandEncoder;
 class MtlRenderCommandEncoder;
-class MtlResourceProvider;
 class MtlSharedContext;
 struct WorkgroupSize;
 
@@ -65,6 +65,8 @@ private:
     MtlCommandBuffer(id<MTLCommandQueue>,
                      const MtlSharedContext* sharedContext,
                      MtlResourceProvider* resourceProvider);
+
+    ResourceProvider* resourceProvider() const override { return fResourceProvider; }
 
     bool createNewMTLCommandBuffer();
 

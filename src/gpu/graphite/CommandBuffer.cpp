@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
+#include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -110,8 +111,16 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
         dstCopyBounds = SkIRect::MakeEmpty();
     }
     // Save the dstCopy texture so that it can be embedded into texture bind commands later on.
-    fDstCopy = dstCopy;
+    fDstCopy.first = dstCopy;
     fDstCopyOffset = dstCopyBounds.topLeft();
+    if (dstCopy && !fDstCopy.second) {
+        // Only lookup the sampler the first time we require a dstCopy. The texture can change
+        // on subsequent passes but it will always use the same nearest neighbor sampling.
+        sk_sp<Sampler> nearestNeighbor = this->resourceProvider()->findOrCreateCompatibleSampler(
+                {SkFilterMode::kNearest, SkTileMode::kClamp});
+        fDstCopy.second = nearestNeighbor.get();
+        this->trackResource(std::move(nearestNeighbor));
+    }
 
     if (!this->onAddRenderPass(renderPassDesc,
                                renderPassBounds,
