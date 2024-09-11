@@ -114,6 +114,7 @@ DrawAtlasOpImpl::DrawAtlasOpImpl(GrProcessorSet* processorSet, const SkPMColor4f
         : GrMeshDrawOp(ClassID()), fHelper(processorSet, aaType), fColor(color) {
     SkASSERT(xforms);
     SkASSERT(rects);
+    SkASSERT(spriteCount >= 0);
 
     fViewMatrix = viewMatrix;
     Geometry& installedGeo = fGeoData.push_back();
@@ -127,6 +128,11 @@ DrawAtlasOpImpl::DrawAtlasOpImpl(GrProcessorSet* processorSet, const SkPMColor4f
     if (colors) {
         texOffset += sizeof(GrColor);
         vertexStride += sizeof(GrColor);
+    }
+
+    // Bail out if we'd overflow from a really large draw
+    if (spriteCount > SK_MaxS32 / static_cast<int>(4 * vertexStride)) {
+        return;
     }
 
     // Compute buffer size and alloc buffer
