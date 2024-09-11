@@ -102,14 +102,14 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     for (int i = 0; i < 512; ++i) {
         atlas->setLastUseToken(testAtlasLocator, recorder->priv().tokenTracker()->nextFlushToken());
         recorder->priv().issueFlushToken();
-        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), /*forceCompact=*/false);
+        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
     }
     check(reporter, atlas.get(), 1, 0);
 
     // Simulate a lot of non-atlas draws. We should end up with no textures.
     for (int i = 0; i < 512; ++i) {
         recorder->priv().issueFlushToken();
-        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), /*forceCompact=*/false);
+        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
     }
     check(reporter, atlas.get(), 0, 1);
 

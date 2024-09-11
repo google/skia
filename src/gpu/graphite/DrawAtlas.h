@@ -158,7 +158,7 @@ public:
     }
 
     // Reduce Page use as much as possible while retaining some temporal coherence.
-    void compact(AtlasToken startTokenForNextFlush, bool forceCompact);
+    void compact(AtlasToken startTokenForNextFlush);
 
     // Reduce memory as much as possible while still allowing the current flush to proceed.
     void purge(AtlasToken startTokenForNextFlush);

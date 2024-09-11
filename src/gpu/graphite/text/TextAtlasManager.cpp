@@ -307,7 +307,7 @@ void TextAtlasManager::compact() {
     auto tokenTracker = fRecorder->priv().tokenTracker();
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
-            fAtlases[i]->compact(tokenTracker->nextFlushToken(), /*forceCompact=*/false);
+            fAtlases[i]->compact(tokenTracker->nextFlushToken());
         }
     }
 }

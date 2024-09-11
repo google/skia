@@ -205,7 +205,7 @@ void PathAtlas::DrawAtlasMgr::evictAll() {
 }
 
 void PathAtlas::DrawAtlasMgr::compact(Recorder* recorder) {
-    fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), /*forceCompact=*/false);
+    fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
 }
 
 void PathAtlas::DrawAtlasMgr::purge(Recorder* recorder) {
