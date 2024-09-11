@@ -83,6 +83,16 @@ platform(
     ],
 )
 
+# This platform covers only the ios hardware which is arm64.
+# Simulator support if any will be a separate platform.
+platform(
+    name = "ios",
+    constraint_values = [
+        "@platforms//os:ios",
+        "@platforms//cpu:arm64",
+    ],
+)
+
 # This constraint allows us to force Bazel to resolve our hermetic toolchain to build
 # the target and not a default one (e.g. on the Linux RBE instance). We do this by
 # adding the constraint to our platforms that describe the target we want Bazel to build for.

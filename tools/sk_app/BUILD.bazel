@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -13,6 +13,7 @@ skia_cc_library(
     deps = select({
         "@platforms//os:linux": [":sk_app_linux"],
         "@platforms//os:macos": [":sk_app_mac"],
+        "@platforms//os:ios": [":sk_app_ios"],
     }),
 )
 
@@ -56,4 +57,12 @@ skia_objc_library(
         "//tools/timer",
         "//tools/window",
     ],
+)
+
+skia_filegroup(
+    name = "hdrs",
+    srcs = [
+        "Window.h",
+    ],
+    visibility = ["//tools/window:__pkg__"],
 )

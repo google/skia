@@ -52,6 +52,13 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "common_ios_srcs",
+    srcs = [
+        "ios/RasterWindowContext_ios.mm",
+    ],
+)
+
+skia_filegroup(
     name = "common_ganesh_gl_srcs",
     srcs = [
         "GLWindowContext.cpp",
@@ -144,6 +151,7 @@ skia_cc_library(
     deps = select({
         "@platforms//os:linux": [":window_linux"],
         "@platforms//os:macos": [":window_mac"],
+        "@platforms//os:ios": [":window_ios"],
     }),
 )
 
@@ -209,5 +217,29 @@ skia_objc_library(
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
         "//src/gpu/ganesh/mtl:ganesh_metal_TEST_UTIL",
+    ],
+)
+
+skia_objc_library(
+    name = "window_ios",
+    testonly = True,
+    srcs = [
+        "common_ganesh_gl_srcs",
+        ":common_ios_srcs",
+        ":common_srcs",
+    ],
+    hdrs = [
+        "ios/WindowContextFactory_ios.h",
+        ":common_hdrs",
+        ":common_metal_hdrs",
+        "//tools/sk_app:hdrs",
+        "//tools/sk_app/ios:hdrs",
+    ],
+    deps = [
+        "//:core",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+        "//src/gpu/ganesh/gl/iOS:ios_factory",
+        "//tools:tool_utils",
+        "//tools/skui",
     ],
 )

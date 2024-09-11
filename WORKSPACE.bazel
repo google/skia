@@ -6,7 +6,7 @@ bazel_deps()
 
 load("//toolchain:download_toolchains.bzl", "download_toolchains_for_skia")
 
-download_toolchains_for_skia("clang_linux_amd64", "clang_mac", "clang_windows_amd64", "ndk_linux_amd64")
+download_toolchains_for_skia("clang_linux_amd64", "clang_mac", "clang_windows_amd64", "ndk_linux_amd64", "clang_ios")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 load("//bazel:gcs_mirror.bzl", "gcs_mirror_url")
@@ -287,7 +287,10 @@ rules_rust_dependencies()
 
 rust_register_toolchains(
     edition = "2021",
-    extra_target_triples = ["aarch64-apple-darwin"],
+    extra_target_triples = [
+        "aarch64-apple-darwin",
+        "aarch64-apple-ios",
+    ],
     versions = [
         # supported versions from https://github.com/bazelbuild/rules_rust/blob/5c715ec50602e2ba6ca2ebfdd870662a6e6d1eda/util/fetch_shas_VERSIONS.txt
         # The rust rules validate a toolchain by sha256 hash, as listed in https://github.com/bazelbuild/rules_rust/blob/5c715ec50602e2ba6ca2ebfdd870662a6e6d1eda/rust/known_shas.bzl
@@ -678,3 +681,37 @@ container_pull(
     registry = "gcr.io",
     repository = "skia-public/skottie-base",
 )
+
+http_archive(
+    name = "build_bazel_rules_apple",
+    sha256 = "62847b3f444ce514ae386704a119ad7b29fa6dfb65a38bff4ae239f2389a0429",
+    url = "https://github.com/bazelbuild/rules_apple/releases/download/3.8.0/rules_apple.3.8.0.tar.gz",
+)
+
+load(
+    "@build_bazel_rules_apple//apple:repositories.bzl",
+    "apple_rules_dependencies",
+)
+
+apple_rules_dependencies()
+
+load(
+    "@build_bazel_rules_swift//swift:repositories.bzl",
+    "swift_rules_dependencies",
+)
+
+swift_rules_dependencies()
+
+load(
+    "@build_bazel_rules_swift//swift:extras.bzl",
+    "swift_rules_extra_dependencies",
+)
+
+swift_rules_extra_dependencies()
+
+load(
+    "@build_bazel_apple_support//lib:repositories.bzl",
+    "apple_support_dependencies",
+)
+
+apple_support_dependencies()

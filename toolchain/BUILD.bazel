@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_toolchain")
+load(":ios_toolchain_config.bzl", "provide_ios_toolchain_config")
 load(":linux_amd64_toolchain_config.bzl", "provide_linux_amd64_toolchain_config")
 load(":mac_toolchain_config.bzl", "provide_mac_toolchain_config")
 load(":ndk_linux_arm64_toolchain_config.bzl", "ndk_cc_toolchain_config")
@@ -100,6 +101,21 @@ toolchain(
         "//bazel/platform:use_hermetic_toolchain",
     ],
     toolchain = ":windows_host",
+    # https://github.com/bazelbuild/rules_cc/blob/8bb0eb5c5ccd96b91753bb112096bb6993d16d13/cc/BUILD#L32-L36
+    toolchain_type = "@rules_cc//cc:toolchain_type",
+)
+
+toolchain(
+    name = "clang_ios_arm64_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:macos",
+        "@platforms//cpu:arm64",
+    ],
+    target_compatible_with = [
+        "@platforms//os:ios",
+        "@platforms//cpu:arm64",
+    ],
+    toolchain = ":ios_target_arm64",
     # https://github.com/bazelbuild/rules_cc/blob/8bb0eb5c5ccd96b91753bb112096bb6993d16d13/cc/BUILD#L32-L36
     toolchain_type = "@rules_cc//cc:toolchain_type",
 )
@@ -240,6 +256,38 @@ filegroup(
     ],
 )
 
+filegroup(
+    name = "archive_ios_files",
+    srcs = [
+        "ios_trampolines/ar_trampoline_ios.sh",
+        "@clang_ios//:archive_files",
+    ],
+)
+
+filegroup(
+    name = "compile_ios_files",
+    srcs = [
+        "ios_trampolines/clang_trampoline_ios.sh",
+        "@clang_ios//:compile_files",
+    ],
+)
+
+filegroup(
+    name = "link_ios_files",
+    srcs = [
+        "ios_trampolines/clang_trampoline_ios.sh",
+        "@clang_ios//:link_files",
+    ],
+)
+
+filegroup(
+    name = "all_ios_files",
+    srcs = [
+        ":compile_ios_files",
+        ":link_ios_files",
+    ],
+)
+
 provide_linux_amd64_toolchain_config(
     name = "linux_amd64_toolchain_config",
 )
@@ -255,6 +303,11 @@ provide_mac_toolchain_config(
 
 provide_windows_amd64_toolchain_config(
     name = "windows_amd64_toolchain_config",
+)
+
+provide_ios_toolchain_config(
+    name = "ios_arm64_toolchain_config",
+    cpu = "arm64",
 )
 
 # https://bazel.build/reference/be/c-cpp#cc_toolchain
@@ -313,6 +366,20 @@ cc_toolchain(
     strip_files = ":not_implemented",
     supports_param_files = True,
     toolchain_config = ":windows_amd64_toolchain_config",
+)
+
+cc_toolchain(
+    name = "ios_target_arm64",
+    all_files = ":all_ios_files",  # Apparently also used to compile objc code
+    ar_files = ":archive_ios_files",
+    compiler_files = ":compile_ios_files",
+    dwp_files = ":not_implemented",
+    linker_files = ":link_ios_files",
+    module_map = "@clang_ios//:generated_module_map",
+    objcopy_files = ":not_implemented",
+    strip_files = ":not_implemented",
+    supports_param_files = False,
+    toolchain_config = ":ios_arm64_toolchain_config",
 )
 
 filegroup(

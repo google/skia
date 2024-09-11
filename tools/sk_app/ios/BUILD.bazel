@@ -1,0 +1,26 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "srcs",
+    testonly = True,
+    srcs = [
+        "Window_ios.h",
+        "Window_ios.mm",
+        "main_ios.mm",
+    ],
+)
+
+skia_filegroup(
+    name = "hdrs",
+    testonly = True,
+    srcs = [
+        "Window_ios.h",
+    ],
+    visibility = ["//tools/window:__pkg__"],
+)

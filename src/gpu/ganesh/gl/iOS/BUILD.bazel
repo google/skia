@@ -15,7 +15,10 @@ skia_cc_library(
         "//include/gpu/ganesh/gl/ios:public_hdrs",
     ],
     defines = ["SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE"],
-    visibility = ["//:__pkg__"],
+    visibility = [
+        "//:__pkg__",
+        "//tools/window:__pkg__",
+    ],
     deps = [
         "//:core",
         "//:ganesh_gl",

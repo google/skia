@@ -25,6 +25,7 @@ build --host_platform=//bazel/platform:host_with_hermetic_toolchain
 # Register our toolchains. We do this here, and not in WORKSPACE.bazel because
 # --extra_toolchains has priority over register_toolchains and we conditionally add some toolchains
 # for RBE.
+build --extra_toolchains=//toolchain:clang_ios_arm64_toolchain
 build --extra_toolchains=//toolchain:clang_linux_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_arm64_toolchain

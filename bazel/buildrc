@@ -135,6 +135,9 @@ build:for_android_arm64 --config=for_android_arm64_fastbuild
 build:for_android_arm64_with_rbe --config=for_android_arm64_fastbuild_with_rbe
 build:android_rbe --config=for_android_arm64_fastbuild_with_rbe
 
+#IOS configs
+build:for_ios --platforms=//bazel/platform:ios --compilation_mode=dbg --cc_output_directory_tag=ios_arm64_fastbuild
+
 # =============================================================================
 # Configurations (what features we want on)
 # =============================================================================
