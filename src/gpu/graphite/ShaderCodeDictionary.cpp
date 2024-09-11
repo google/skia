@@ -1086,7 +1086,7 @@ ShaderSnippet ShaderCodeDictionary::convertRuntimeEffect(const SkRuntimeEffect* 
                          /*staticFn=*/nullptr,
                          snippetFlags,
                          this->convertUniforms(effect),
-                         /*textures=*/{},
+                         /*texturesAndSamplers=*/{},
                          GenerateRuntimeShaderPreamble,
                          numChildrenIncColorTransforms);
 }
@@ -1193,7 +1193,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "tilemode",    SkSLType::kInt },
                            { "colorSpace",  SkSLType::kInt },
                            { "doUnPremul",  SkSLType::kInt } },
-            /*textures=*/{"colorAndOffsetSampler"}
+            /*texturesAndSamplers=*/{"colorAndOffsetSampler"}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLinearGradientShaderBuffer] = {
             /*name=*/"LinearGradientBuffer",
@@ -1233,7 +1233,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "tilemode",    SkSLType::kInt },
                            { "colorSpace",  SkSLType::kInt },
                            { "doUnPremul",  SkSLType::kInt } },
-            /*textures=*/{"colorAndOffsetSampler"}
+            /*texturesAndSamplers=*/{"colorAndOffsetSampler"}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRadialGradientShaderBuffer] = {
             /*name=*/"RadialGradientBuffer",
@@ -1279,7 +1279,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                             { "tilemode",   SkSLType::kInt },
                             { "colorSpace", SkSLType::kInt },
                             { "doUnPremul", SkSLType::kInt } },
-            /*textures=*/{"colorAndOffsetSampler"}
+            /*texturesAndSamplers=*/{"colorAndOffsetSampler"}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSweepGradientShaderBuffer] = {
             /*name=*/"SweepGradientBuffer",
@@ -1333,7 +1333,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "tilemode",    SkSLType::kInt },
                            { "colorSpace",  SkSLType::kInt },
                            { "doUnPremul",  SkSLType::kInt } },
-            /*textures=*/{"colorAndOffsetSampler"}
+            /*texturesAndSamplers=*/{"colorAndOffsetSampler"}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kConicalGradientShaderBuffer] = {
             /*name=*/"ConicalGradientBuffer",
@@ -1358,7 +1358,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/nullptr,
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },
-            /*textures=*/{},
+            /*texturesAndSamplers=*/{},
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1367,7 +1367,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/nullptr,
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },
-            /*textures=*/{},
+            /*texturesAndSamplers=*/{},
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1381,7 +1381,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "tilemodeX",             SkSLType::kInt },
                            { "tilemodeY",             SkSLType::kInt },
                            { "filterMode",            SkSLType::kInt } },
-            /*textures=*/{"image"}
+            /*texturesAndSamplers=*/{"image"}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCubicImageShader] = {
             /*name=*/"CubicImageShader",
@@ -1392,14 +1392,14 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "tilemodeX",             SkSLType::kInt },
                            { "tilemodeY",             SkSLType::kInt },
                            { "cubicCoeffs",           SkSLType::kHalf4x4 } },
-            /*textures=*/{"image"}
+            /*texturesAndSamplers=*/{"image"}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kHWImageShader] = {
             /*name=*/"HardwareImageShader",
             /*staticFn=*/"sk_hw_image_shader",
             SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStoresData,
             /*uniforms=*/{ { "invImgSize",            SkSLType::kFloat2 } },
-            /*textures=*/{"image"}
+            /*texturesAndSamplers=*/{"image"}
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kYUVImageShader] = {
@@ -1420,7 +1420,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "channelSelectA",      SkSLType::kHalf4 },
                            { "yuvToRGBMatrix",      SkSLType::kHalf3x3 },
                            { "yuvToRGBTranslate",   SkSLType::kHalf3 } },
-            /*textures=*/ {{ "samplerY" },
+            /*texturesAndSamplers=*/ {{ "samplerY" },
                            { "samplerU" },
                            { "samplerV" },
                            { "samplerA" }}
@@ -1441,7 +1441,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "channelSelectA",    SkSLType::kHalf4 },
                            { "yuvToRGBMatrix",    SkSLType::kHalf3x3 },
                            { "yuvToRGBTranslate", SkSLType::kHalf3 } },
-            /*textures=*/ {{ "samplerY" },
+            /*texturesAndSamplers=*/ {{ "samplerY" },
                            { "samplerU" },
                            { "samplerV" },
                            { "samplerA" }}
@@ -1458,7 +1458,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "channelSelectA",        SkSLType::kHalf4 },
                            { "yuvToRGBMatrix",        SkSLType::kHalf3x3 },
                            { "yuvToRGBTranslate",     SkSLType::kHalf3 } },
-            /*textures=*/ {{ "samplerY" },
+            /*texturesAndSamplers=*/ {{ "samplerY" },
                            { "samplerU" },
                            { "samplerV" },
                            { "samplerA" }}
@@ -1472,7 +1472,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "invImgSizeUV",             SkSLType::kFloat2 }, // Relative to Y space
                            { "yuvToRGBMatrix",           SkSLType::kHalf3x3 },
                            { "yuvToRGBXlateAlphaParams", SkSLType::kHalf4 } },
-            /*textures=*/ {{ "samplerY" },
+            /*texturesAndSamplers=*/ {{ "samplerY" },
                            { "samplerU" },
                            { "samplerV" },
                            { "samplerA" }}
@@ -1484,7 +1484,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/nullptr,
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "subset", SkSLType::kFloat4 } },
-            /*textures=*/{},
+            /*texturesAndSamplers=*/{},
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1494,7 +1494,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/"sk_dither",
             SnippetRequirementFlags::kPriorStageOutput,
             /*uniforms=*/{ { "range", SkSLType::kHalf } },
-            /*textures=*/{ { "ditherLUT" } }
+            /*texturesAndSamplers=*/{ { "ditherLUT" } }
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPerlinNoiseShader] = {
@@ -1506,7 +1506,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "noiseType",     SkSLType::kInt },
                            { "numOctaves",    SkSLType::kInt },
                            { "stitching",     SkSLType::kInt } },
-            /*textures=*/{ { "permutationsSampler" },
+            /*texturesAndSamplers=*/{ { "permutationsSampler" },
                            { "noiseSampler" } }
     };
 
@@ -1527,7 +1527,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/"sk_table_colorfilter",
             SnippetRequirementFlags::kPriorStageOutput,
             /*uniforms=*/{},
-            /*textures=*/{ {"table"} }};
+            /*texturesAndSamplers=*/{ {"table"} }};
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kGaussianColorFilter] = {
             /*name=*/"GaussianColorFilter",
             /*staticFn=*/"sk_gaussian_colorfilter",
@@ -1560,7 +1560,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "csXformGamutTransform", SkSLType::kHalf3x3 },
                            { "csXformDstKind",        SkSLType::kInt },
                            { "csXformCoeffs",         SkSLType::kHalf4x4 } },
-            /*textures=*/{}
+            /*texturesAndSamplers=*/{}
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstReadSample] = {
@@ -1568,7 +1568,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/"$dst_read_sample", // "static" function injected by custom preamble
             SnippetRequirementFlags::kSurfaceColor,
             /*uniforms=*/{ {"dstOffsetAndInvWH", SkSLType::kFloat4} },
-            /*textures=*/{ {"dstCopy"} },
+            /*texturesAndSamplers=*/{ {"dstCopy"} },
             GenerateDstReadSamplePreamble,
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kDstReadFetch] = {
@@ -1576,7 +1576,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/"$dst_read_fetch", // "static" function injected by custom preamble
             SnippetRequirementFlags::kSurfaceColor,
             /*uniforms=*/{},
-            /*textures=*/{},
+            /*texturesAndSamplers=*/{},
             GenerateDstReadFetchPreamble,
     };
 
@@ -1585,7 +1585,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/nullptr,
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
-            /*textures=*/{},
+            /*texturesAndSamplers=*/{},
             GenerateClipPreamble,
             /*numChildren=*/1
     };
@@ -1604,7 +1604,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/nullptr,
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
-            /*textures=*/{},
+            /*texturesAndSamplers=*/{},
             GenerateComposePreamble,
             /*numChildren=*/2
     };
@@ -1613,7 +1613,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/nullptr,
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
-            /*textures=*/{},
+            /*texturesAndSamplers=*/{},
             GenerateComposePreamble,
             /*numChildren=*/3
     };

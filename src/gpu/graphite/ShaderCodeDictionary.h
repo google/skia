@@ -92,14 +92,14 @@ struct ShaderSnippet {
                   const char* staticFn,
                   SkEnumBitMask<SnippetRequirementFlags> snippetRequirementFlags,
                   SkSpan<const Uniform> uniforms,
-                  SkSpan<const TextureAndSampler> textures = {},
+                  SkSpan<const TextureAndSampler> texturesAndSamplers = {},
                   GeneratePreambleForSnippetFn preambleGenerator = nullptr,
                   int numChildren = 0)
             : fName(name)
             , fStaticFunctionName(staticFn)
             , fSnippetRequirementFlags(snippetRequirementFlags)
             , fUniforms(uniforms)
-            , fTexturesAndSamplers(textures)
+            , fTexturesAndSamplers(texturesAndSamplers)
             , fNumChildren(numChildren)
             , fPreambleGenerator(preambleGenerator) {
         // Must always provide a name; static function is not optional if using the default (null)
