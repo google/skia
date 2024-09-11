@@ -42,7 +42,7 @@ found = re.findall(r"'infra_revision':\s*'(\S+)'", deps)
 if len(found) != 1:
   print('Unable to find infra_revision in DEPS', file=sys.stderr)
   exit(1)
-desired_version = found[0]
+desired_version = "git_revision:" + found[0]
 
 # Determine which version (if any) we currently have.
 sk_path = os.path.join('bin', sk)
