@@ -1421,9 +1421,9 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "yuvToRGBMatrix",      SkSLType::kHalf3x3 },
                            { "yuvToRGBTranslate",   SkSLType::kHalf3 } },
             /*texturesAndSamplers=*/ {{ "samplerY" },
-                           { "samplerU" },
-                           { "samplerV" },
-                           { "samplerA" }}
+                                      { "samplerU" },
+                                      { "samplerV" },
+                                      { "samplerA" }}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCubicYUVImageShader] = {
             /*name=*/"CubicYUVImageShader",
@@ -1442,9 +1442,9 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "yuvToRGBMatrix",    SkSLType::kHalf3x3 },
                            { "yuvToRGBTranslate", SkSLType::kHalf3 } },
             /*texturesAndSamplers=*/ {{ "samplerY" },
-                           { "samplerU" },
-                           { "samplerV" },
-                           { "samplerA" }}
+                                      { "samplerU" },
+                                      { "samplerV" },
+                                      { "samplerA" }}
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kHWYUVImageShader] = {
             /*name=*/"HWYUVImageShader",
@@ -1459,9 +1459,9 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "yuvToRGBMatrix",        SkSLType::kHalf3x3 },
                            { "yuvToRGBTranslate",     SkSLType::kHalf3 } },
             /*texturesAndSamplers=*/ {{ "samplerY" },
-                           { "samplerU" },
-                           { "samplerV" },
-                           { "samplerA" }}
+                                      { "samplerU" },
+                                      { "samplerV" },
+                                      { "samplerA" }}
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kHWYUVNoSwizzleImageShader] = {
@@ -1473,9 +1473,9 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "yuvToRGBMatrix",           SkSLType::kHalf3x3 },
                            { "yuvToRGBXlateAlphaParams", SkSLType::kHalf4 } },
             /*texturesAndSamplers=*/ {{ "samplerY" },
-                           { "samplerU" },
-                           { "samplerV" },
-                           { "samplerA" }}
+                                      { "samplerU" },
+                                      { "samplerV" },
+                                      { "samplerA" }}
     };
 
     // Like the local matrix shader, this is a no-op if the child doesn't need coords
@@ -1507,7 +1507,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "numOctaves",    SkSLType::kInt },
                            { "stitching",     SkSLType::kInt } },
             /*texturesAndSamplers=*/{ { "permutationsSampler" },
-                           { "noiseSampler" } }
+                                      { "noiseSampler" } }
     };
 
     // SkColorFilter snippets
