@@ -384,7 +384,16 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
                     return nullptr;
             }
         case kBGRA_10101010_XR_SkColorType:
-            return transform_scanline_bgra_10101010_xr;
+            switch (info.alphaType()) {
+                case kOpaque_SkAlphaType:
+                case kUnpremul_SkAlphaType:
+                    return transform_scanline_bgra_10101010_xr;
+                case kPremul_SkAlphaType:
+                    return transform_scanline_bgra_10101010_xr_premul;
+                default:
+                    SkDEBUGFAIL("unknown alpha type");
+                    return nullptr;
+            }
         case kAlpha_8_SkColorType:
             return transform_scanline_A8_to_GrayAlpha;
         case kR8G8_unorm_SkColorType:
