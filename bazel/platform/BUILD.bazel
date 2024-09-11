@@ -95,18 +95,6 @@ constraint_value(
     visibility = ["//visibility:public"],
 )
 
-# This constraint allows us to have clang use a "trivial_abi" that saves code size but
-# breaks clients that aren't expecting it.
-# http://review.skia.org/633089
-# https://quuxplusone.github.io/blog/2018/05/02/trivial-abi-101/
-constraint_setting(name = "clang_abi_mode")
-
-constraint_value(
-    name = "trivial_abi",
-    constraint_setting = ":clang_abi_mode",
-    visibility = ["//visibility:public"],
-)
-
 # When added to a Bazel platform, this constraint has the effect of disabling cgo, meaning that
 # the C++ compiler will never be invoked when building Go binaries.
 #
