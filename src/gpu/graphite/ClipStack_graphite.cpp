@@ -383,7 +383,8 @@ void ClipStack::RawElement::drawClip(Device* device) {
                  (fOp == SkClipOp::kIntersect && fShape.inverted()));
         device->drawClipShape(fLocalToDevice,
                               fShape,
-                              Clip{drawBounds, drawBounds, scissor.asSkIRect(), nullptr},
+                              Clip{drawBounds, drawBounds, scissor.asSkIRect(),
+                                   /* analyticClip= */ {}, /* shader= */ nullptr},
                               order);
     }
 
@@ -1096,13 +1097,104 @@ void ClipStack::clipShape(const Transform& localToDevice,
     }
 }
 
+#if !defined(SK_USE_LEGACY_CLIP_GRAPHITE)
+// Decide whether we can use this shape to do analytic clipping. Only rects and certain
+// rrects are supported. We assume these have been pre-transformed by the RawElement
+// constructor, so only identity transforms are allowed.
+namespace {
+CircularRRectClip can_apply_analytic_clip(const Shape& shape,
+                                          const Transform& localToDevice) {
+    if (localToDevice.type() != Transform::Type::kIdentity) {
+        return {};
+    }
+
+    // The circular rrect clip only handles rrect radii >= kRadiusMin.
+    static constexpr SkScalar kRadiusMin = SK_ScalarHalf;
+
+    // Can handle Rect directly.
+    if (shape.isRect()) {
+        return {shape.rect(), kRadiusMin, CircularRRectClip::kNone_EdgeFlag, shape.inverted()};
+    }
+
+    // Otherwise we only handle certain kinds of RRects.
+    if (!shape.isRRect()) {
+        return {};
+    }
+
+    const SkRRect& rrect = shape.rrect();
+    if (rrect.isOval() || rrect.isSimple()) {
+        SkVector radii = SkRRectPriv::GetSimpleRadii(rrect);
+        if (radii.fX < kRadiusMin || radii.fY < kRadiusMin) {
+            // In this case the corners are extremely close to rectangular and we collapse the
+            // clip to a rectangular clip.
+            return {rrect.rect(), kRadiusMin, CircularRRectClip::kNone_EdgeFlag, shape.inverted()};
+        }
+        if (SkScalarNearlyEqual(radii.fX, radii.fY)) {
+            return {rrect.rect(), radii.fX, CircularRRectClip::kAll_EdgeFlag, shape.inverted()};
+        } else {
+            return {};
+        }
+    }
+
+    if (rrect.isComplex() || rrect.isNinePatch()) {
+        // Check for the "tab" cases - two adjacent circular corners and two square corners.
+        constexpr uint32_t kCornerFlags[4] = {
+            CircularRRectClip::kTop_EdgeFlag | CircularRRectClip::kLeft_EdgeFlag,
+            CircularRRectClip::kTop_EdgeFlag | CircularRRectClip::kRight_EdgeFlag,
+            CircularRRectClip::kBottom_EdgeFlag | CircularRRectClip::kRight_EdgeFlag,
+            CircularRRectClip::kBottom_EdgeFlag | CircularRRectClip::kLeft_EdgeFlag,
+        };
+        SkScalar circularRadius = 0;
+        uint32_t edgeFlags = 0;
+        for (int corner = 0; corner < 4; ++corner) {
+            SkVector radii = rrect.radii((SkRRect::Corner)corner);
+            // Can only handle circular radii.
+            // Also applies to corners with both zero and non-zero radii.
+            if (!SkScalarNearlyEqual(radii.fX, radii.fY)) {
+                return {};
+            }
+            if (radii.fX < kRadiusMin || radii.fY < kRadiusMin) {
+                // The corner is square, so no need to flag as circular.
+                continue;
+            }
+            // First circular corner seen
+            if (!edgeFlags) {
+                circularRadius = radii.fX;
+            } else if (!SkScalarNearlyEqual(radii.fX, circularRadius)) {
+                // Radius doesn't match previously seen circular radius
+                return {};
+            }
+            edgeFlags |= kCornerFlags[corner];
+        }
+
+        if (edgeFlags == CircularRRectClip::kNone_EdgeFlag) {
+            // It's a rect
+            return {rrect.rect(), kRadiusMin, edgeFlags, shape.inverted()};
+        } else {
+            // If any rounded corner pairs are non-adjacent or if there are three rounded
+            // corners all edge flags will be set, which is not valid.
+            if (edgeFlags == CircularRRectClip::kAll_EdgeFlag) {
+                return {};
+            // At least one corner is rounded, or two adjacent corners are rounded.
+            } else {
+                return {rrect.rect(), circularRadius, edgeFlags, shape.inverted()};
+            }
+        }
+    }
+
+    return {};
+}
+}  // anonymous namespace
+#endif
+
 Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                       const Geometry& geometry,
                                       const SkStrokeRec& style,
                                       bool outsetBoundsForAA,
                                       ClipStack::ElementList* outEffectiveElements) const {
     static const Clip kClippedOut = {
-            Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty(), nullptr};
+            Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty(),
+            /* analyticClip= */ {}, /* shader= */ nullptr};
 
     const SaveRecord& cs = this->currentSaveRecord();
     if (cs.state() == ClipState::kEmpty) {
@@ -1201,7 +1293,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         // Either the draw is off screen, so it's clipped out regardless of the state of the
         // SaveRecord, or there are no elements to apply to the draw. In both cases, 'drawBounds'
         // has the correct value, the scissor is the device bounds (ignored if clipped-out).
-        return Clip(drawBounds, transformedShapeBounds, deviceBounds.asSkIRect(), cs.shader());
+        return Clip(drawBounds, transformedShapeBounds, deviceBounds.asSkIRect(), {}, cs.shader());
     }
 
     // We don't evaluate Simplify() on the SaveRecord and the draw because a reduced version of
@@ -1218,7 +1310,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     transformedShapeBounds.intersect(scissor);
     if (drawBounds.isEmptyNegativeOrNaN() || cs.innerBounds().contains(drawBounds)) {
         // Like above, in both cases drawBounds holds the right value.
-        return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), cs.shader());
+        return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), {}, cs.shader());
     }
 
     // If we made it here, the clip stack affects the draw in a complex way so iterate each element.
@@ -1236,6 +1328,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     SkASSERT(outEffectiveElements);
     SkASSERT(outEffectiveElements->empty());
     int i = fElements.count();
+    CircularRRectClip analyticClip;
     for (const RawElement& e : fElements.ritems()) {
         --i;
         if (i < cs.oldestElementIndex()) {
@@ -1250,11 +1343,19 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
             return kClippedOut;
         }
         if (influence == RawElement::DrawInfluence::kIntersect) {
+#if !defined(SK_USE_LEGACY_CLIP_GRAPHITE)
+            if (analyticClip.isEmpty()) {
+                analyticClip = can_apply_analytic_clip(e.shape(), e.localToDevice());
+                if (!analyticClip.isEmpty()) {
+                    continue;
+                }
+            }
+#endif
             outEffectiveElements->push_back(&e);
         }
     }
 
-    return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), cs.shader());
+    return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), analyticClip, cs.shader());
 }
 
 CompressedPaintersOrder ClipStack::updateClipStateForDraw(const Clip& clip,
