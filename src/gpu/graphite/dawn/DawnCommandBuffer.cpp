@@ -524,7 +524,7 @@ bool DawnCommandBuffer::addDrawPass(const DrawPass* drawPass) {
             }
             case DrawPassCommands::Type::kBindTexturesAndSamplers: {
                 auto bts = static_cast<DrawPassCommands::BindTexturesAndSamplers*>(cmdPtr);
-                bindTextureAndSamplers(*drawPass, *bts);
+                this->bindTextureAndSamplers(*drawPass, *bts);
                 break;
             }
             case DrawPassCommands::Type::kSetScissor: {
@@ -591,6 +591,25 @@ bool DawnCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPip
     fActiveRenderPassEncoder.SetPipeline(wgpuPipeline);
     fBoundUniformBuffersDirty = true;
 
+    if (fActiveGraphicsPipeline->dstReadRequirement() == DstReadRequirement::kTextureCopy &&
+        fActiveGraphicsPipeline->numFragTexturesAndSamplers() == 2) {
+        // The pipeline has a single paired texture+sampler and uses texture copies for dst reads.
+        // This situation comes about when the program requires complex blending but otherwise
+        // is not referencing any images. Since there are no other images in play, the DrawPass
+        // will not have a BindTexturesAndSamplers command that we can tack the dstCopy on to.
+        // Instead we need to set the texture BindGroup ASAP to just the dstCopy.
+        // TODO(b/366254117): Once we standardize on a pipeline layout across all backends, the dst
+        // copy texture may not go in a group with the regular textures, in which case this binding
+        // can hopefully happen in a single place (e.g. here or at the start of the renderpass and
+        // not also every other time the textures are changed).
+        const auto* texture = static_cast<const DawnTexture*>(fDstCopy.first);
+        const auto* sampler = static_cast<const DawnSampler*>(fDstCopy.second);
+        wgpu::BindGroup bindGroup =
+                fResourceProvider->findOrCreateSingleTextureSamplerBindGroup(sampler, texture);
+        fActiveRenderPassEncoder.SetBindGroup(
+                DawnGraphicsPipeline::kTextureBindGroupIndex, bindGroup);
+    }
+
     return true;
 }
 
@@ -649,6 +668,16 @@ void DawnCommandBuffer::bindTextureAndSamplers(
     SkASSERT(fActiveRenderPassEncoder);
     SkASSERT(fActiveGraphicsPipeline);
 
+    // When there's an active graphics pipeline with a texture-copy dstread requirement, add one
+    // to account for the intrinsic dstCopy texture we bind here.
+    // NOTE: This is in units of pairs of textures and samplers, whereas the value reported by
+    // the current pipeline is in net bindings (textures + samplers).
+    int numTexturesAndSamplers = command.fNumTexSamplers;
+    if (fActiveGraphicsPipeline->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
+        numTexturesAndSamplers++;
+    }
+    SkASSERT(fActiveGraphicsPipeline->numFragTexturesAndSamplers() == 2*numTexturesAndSamplers);
+
     // If possible, it's ideal to optimize for the common case of using a single texture with one
     // dynamic sampler. When using only one sampler, determine whether it is static or dynamic.
     bool usingSingleStaticSampler = false;
@@ -664,8 +693,9 @@ void DawnCommandBuffer::bindTextureAndSamplers(
 
     wgpu::BindGroup bindGroup;
     // Optimize for single texture with dynamic sampling.
-    if (command.fNumTexSamplers == 1 && !usingSingleStaticSampler) {
+    if (numTexturesAndSamplers == 1 && !usingSingleStaticSampler) {
         SkASSERT(fActiveGraphicsPipeline->numFragTexturesAndSamplers() == 2);
+        SkASSERT(fActiveGraphicsPipeline->dstReadRequirement() != DstReadRequirement::kTextureCopy);
 
         const auto* texture =
                 static_cast<const DawnTexture*>(drawPass.getTexture(command.fTextureIndices[0]));
@@ -709,6 +739,20 @@ void DawnCommandBuffer::bindTextureAndSamplers(
             wgpu::BindGroupEntry textureEntry;
             textureEntry.binding = 2 * i + 1;
             textureEntry.textureView = wgpuTextureView;
+            entries.push_back(textureEntry);
+        }
+
+        if (fActiveGraphicsPipeline->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
+            // Append the dstCopy sampler and texture as the very last two bind group entries
+            wgpu::BindGroupEntry samplerEntry;
+            samplerEntry.binding = 2*numTexturesAndSamplers - 2;
+            samplerEntry.sampler = static_cast<const DawnSampler*>(fDstCopy.second)->dawnSampler();
+            entries.push_back(samplerEntry);
+
+            wgpu::BindGroupEntry textureEntry;
+            textureEntry.binding = 2*numTexturesAndSamplers - 1;
+            textureEntry.textureView =
+                    static_cast<const DawnTexture*>(fDstCopy.first)->sampleTextureView();
             entries.push_back(textureEntry);
         }
 

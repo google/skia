@@ -473,7 +473,9 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     // Determine the BindGroupLayouts that will be used to make up the pipeline layout.
     BindGroupLayouts groupLayouts;
 
-    // The quantity of samplers = 1/2 the cumulative number of textures AND samplers.
+    // The quantity of samplers = 1/2 the cumulative number of textures AND samplers. The count
+    // reported by the generated SkSL already includes any texture/sampler required for dst reads
+    // via texture copy so no additional logic is needed when preparing the BindGroupLayout.
     const int numSamplers = numTexturesAndSamplers / 2;
     // Determine and store any immutable samplers to be included in the pipeline layout. A sampler's
     // binding index can be determined by multiplying its index within the immutableSamplers array
