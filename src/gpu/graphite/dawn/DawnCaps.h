@@ -62,6 +62,11 @@ public:
     uint32_t channelMask(const TextureInfo&) const override;
     bool isRenderable(const TextureInfo&) const override;
     bool isStorage(const TextureInfo&) const override;
+
+    bool loadOpAffectsMSAAPipelines() const override {
+        return fSupportedResolveTextureLoadOp.has_value();
+    }
+
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
                             ResourceType,

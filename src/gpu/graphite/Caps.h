@@ -143,6 +143,8 @@ public:
     virtual bool isRenderable(const TextureInfo&) const = 0;
     virtual bool isStorage(const TextureInfo&) const = 0;
 
+    virtual bool loadOpAffectsMSAAPipelines() const { return false; }
+
     int maxTextureSize() const { return fMaxTextureSize; }
     int defaultMSAASamplesCount() const { return fDefaultMSAASamples; }
 
