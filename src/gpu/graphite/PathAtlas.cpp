@@ -204,12 +204,8 @@ void PathAtlas::DrawAtlasMgr::evictAll() {
     SkASSERT(fShapeCache.empty());
 }
 
-void PathAtlas::DrawAtlasMgr::compact(Recorder* recorder) {
-    fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
-}
-
-void PathAtlas::DrawAtlasMgr::purge(Recorder* recorder) {
-    fDrawAtlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
+void PathAtlas::DrawAtlasMgr::compact(Recorder* recorder, bool forceCompact) {
+    fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), forceCompact);
 }
 
 }  // namespace skgpu::graphite

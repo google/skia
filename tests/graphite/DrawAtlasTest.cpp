@@ -102,14 +102,14 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     for (int i = 0; i < 512; ++i) {
         atlas->setLastUseToken(testAtlasLocator, recorder->priv().tokenTracker()->nextFlushToken());
         recorder->priv().issueFlushToken();
-        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
+        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), /*forceCompact=*/false);
     }
     check(reporter, atlas.get(), 1, 0);
 
     // Simulate a lot of non-atlas draws. We should end up with no textures.
     for (int i = 0; i < 512; ++i) {
         recorder->priv().issueFlushToken();
-        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
+        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), /*forceCompact=*/false);
     }
     check(reporter, atlas.get(), 0, 1);
 
@@ -130,30 +130,6 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     // Try one more, it should fail.
     result = fill_plot(atlas.get(), recorder.get(), &atlasLocator, 0xff);
     REPORTER_ASSERT(reporter, !result);
-
-    // Simulate a draw using only a single plot from the third page and purge.
-    // All other plots should evict and only the last page removed.
-    recorder->priv().issueFlushToken();
-    atlas->setLastUseToken(testAtlasLocator, recorder->priv().tokenTracker()->nextFlushToken());
-    atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
-    check(reporter, atlas.get(), 3, 15);
-
-    // Add a new plot, draw from that and purge again.
-    // All remaining pages but the first should be removed.
-    gEvictCount = 0;
-    result = fill_plot(atlas.get(), recorder.get(), &atlasLocator, 0);
-    REPORTER_ASSERT(reporter, result);
-    recorder->priv().issueFlushToken();
-    atlas->setLastUseToken(atlasLocator, recorder->priv().tokenTracker()->nextFlushToken());
-    atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
-    check(reporter, atlas.get(), 1, 1);
-
-    // Purge with no atlas draws.
-    // Everything should be removed.
-    gEvictCount = 0;
-    recorder->priv().issueFlushToken();
-    atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
-    check(reporter, atlas.get(), 0, 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
