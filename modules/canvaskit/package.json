@@ -13,6 +13,11 @@
     "karma-jasmine": "~4.0.1",
     "requirejs": "~2.3.5"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/google/skia.git",
+    "directory": "modules/canvaskit"
+  },
   "scripts": {
     "test": "make test-continuous"
   },
