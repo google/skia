@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRect.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkLatticeIter.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/gpu/BufferWriter.h"
@@ -240,11 +241,13 @@ private:
 
         int patchCnt = fPatches.size();
         int numRects = 0;
+
+        SkSafeMath safeMath;
         for (int i = 0; i < patchCnt; i++) {
-            numRects += fPatches[i].fIter->numRectsToDraw();
+            numRects = safeMath.addInt(numRects, fPatches[i].fIter->numRectsToDraw());
         }
 
-        if (!numRects) {
+        if (!numRects || !safeMath) {
             return;
         }
 
