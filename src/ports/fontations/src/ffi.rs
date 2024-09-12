@@ -13,7 +13,9 @@ use skrifa::{
     color::{Brush, ColorGlyphFormat, ColorPainter, Transform},
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
-    outline::{DrawSettings, HintingInstance, LcdLayout, OutlinePen},
+    outline::{
+        DrawSettings, Engine, HintingInstance, HintingOptions, OutlinePen, SmoothMode, Target,
+    },
     setting::VariationSetting,
     string::{LocalizedStrings, StringId},
     MetadataProvider, OutlineGlyphCollection, Tag,
@@ -41,24 +43,45 @@ unsafe fn make_hinting_instance<'a>(
     outlines: &BridgeOutlineCollection,
     size: f32,
     coords: &BridgeNormalizedCoords,
+    do_light_hinting: bool,
     do_lcd_antialiasing: bool,
     lcd_orientation_vertical: bool,
-    preserve_linear_metrics: bool,
+    force_autohinting: bool,
 ) -> Box<BridgeHintingInstance> {
     let hinting_instance = match &outlines.0 {
         Some(outlines) => {
-            let lcd_subpixel = match (do_lcd_antialiasing, lcd_orientation_vertical) {
-                (true, false) => Some(LcdLayout::Horizontal),
-                (true, true) => Some(LcdLayout::Vertical),
-                _ => None,
+            let smooth_mode = match (
+                do_light_hinting,
+                do_lcd_antialiasing,
+                lcd_orientation_vertical,
+            ) {
+                (true, _, _) => SmoothMode::Light,
+                (false, true, false) => SmoothMode::Lcd,
+                (false, true, true) => SmoothMode::VerticalLcd,
+                _ => SmoothMode::Normal,
             };
+
+            let hinting_target = Target::Smooth {
+                mode: smooth_mode,
+                // See https://docs.rs/skrifa/latest/skrifa/outline/enum.Target.html#variant.Smooth.field.mode
+                // Configure additional params to match FreeType.
+                symmetric_rendering: true,
+                preserve_linear_metrics: false,
+            };
+
+            let engine_type = if force_autohinting {
+                Engine::Auto(None)
+            } else {
+                Engine::AutoFallback
+            };
+
             HintingInstance::new(
                 outlines,
                 Size::new(size),
                 &coords.normalized_coords,
-                skrifa::outline::HintingMode::Smooth {
-                    lcd_subpixel,
-                    preserve_linear_metrics,
+                HintingOptions {
+                    engine: engine_type,
+                    target: hinting_target,
                 },
             )
             .ok()
@@ -1495,9 +1518,10 @@ mod ffi {
             outlines: &BridgeOutlineCollection,
             size: f32,
             coords: &BridgeNormalizedCoords,
+            do_light_hinting: bool,
             do_lcd_antialiasing: bool,
             lcd_orientation_vertical: bool,
-            preserve_linear_metrics: bool,
+            force_autohinting: bool,
         ) -> Box<BridgeHintingInstance>;
         unsafe fn make_mono_hinting_instance<'a>(
             outlines: &BridgeOutlineCollection,

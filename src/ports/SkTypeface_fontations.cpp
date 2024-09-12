@@ -374,6 +374,8 @@ public:
                 SkScalerContextRec::PreMatrixScale::kVertical, &scale, &remainingMatrix);
 
         fDoLinearMetrics = this->isLinearMetrics();
+        bool forceAutohinting = SkToBool(fRec.fFlags & kForceAutohinting_Flag);
+
         if (SkMask::kBW_Format == fRec.fMaskFormat) {
             if (fRec.getHinting() == SkFontHinting::kNone) {
                 fHintingInstance = fontations_ffi::no_hinting_instance();
@@ -395,9 +397,10 @@ public:
                             fOutlines,
                             scale.fY,
                             fBridgeNormalizedCoords,
+                            true /* do_light_hinting */,
                             false /* do_lcd_antialiasing */,
                             false /* lcd_orientation_vertical */,
-                            true /* preserve_linear_metrics */);
+                            true /* force_autohinting */);
                     fDoLinearMetrics = true;
                     break;
                 case SkFontHinting::kNormal:
@@ -406,9 +409,10 @@ public:
                             fOutlines,
                             scale.fY,
                             fBridgeNormalizedCoords,
+                            false /* do_light_hinting */,
                             false /* do_lcd_antialiasing */,
                             false /* lcd_orientation_vertical */,
-                            fDoLinearMetrics /* preserve_linear_metrics */);
+                            forceAutohinting /* force_autohinting */);
                     break;
                 case SkFontHinting::kFull:
                     // Attempt to make use of hinting to subpixel coordinates.
@@ -416,11 +420,12 @@ public:
                             fOutlines,
                             scale.fY,
                             fBridgeNormalizedCoords,
+                            false /* do_light_hinting */,
                             isLCD(fRec) /* do_lcd_antialiasing */,
                             SkToBool(fRec.fFlags &
                                      SkScalerContext::
                                              kLCD_Vertical_Flag) /* lcd_orientation_vertical */,
-                            fDoLinearMetrics /* preserve_linear_metrics */);
+                            forceAutohinting /* force_autohinting */);
             }
         }
     }
