@@ -902,7 +902,7 @@ optional("gpu_shared") {
   if (skia_use_vulkan) {
     public_defines += [ "SK_VULKAN" ]
     sources += skia_shared_vk_sources
-    configs += [ ":our_vulkan_headers" ]
+    configs += [ ":use_skia_vulkan_headers" ]
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
@@ -1006,7 +1006,7 @@ optional("gpu") {
   if (skia_use_vulkan) {
     public += skia_gpu_vk_public
     sources += skia_gpu_vk_private
-    configs += [ ":our_vulkan_headers" ]
+    configs += [ ":use_skia_vulkan_headers" ]
     if (is_fuchsia) {
       if (using_fuchsia_sdk) {
         public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
@@ -1193,7 +1193,7 @@ optional("graphite") {
   if (skia_use_vulkan) {
     public += skia_graphite_vk_public
     sources += skia_graphite_vk_sources
-    configs += [ ":our_vulkan_headers" ]
+    configs += [ ":use_skia_vulkan_headers" ]
   }
   if (skia_enable_precompile) {
     public += skia_graphite_precompile_public
@@ -1711,7 +1711,7 @@ group("modules") {
   }
 }
 
-config("our_vulkan_headers") {
+config("use_skia_vulkan_headers") {
   include_dirs = [ "include/third_party/vulkan" ]
   defines = [ "SK_USE_INTERNAL_VULKAN_HEADERS" ]
 }
@@ -1803,7 +1803,7 @@ if (skia_enable_tools) {
   skia_source_set("public_headers_warnings_check") {
     sources = [ "tools/public_headers_warnings_check.cpp" ]
     configs = [
-      ":our_vulkan_headers",
+      ":use_skia_vulkan_headers",
       ":cpp17",
     ]
     if (defined(skia_header_target_default_configs)) {
@@ -1928,7 +1928,7 @@ if (skia_enable_tools) {
 
     # Bots and even devs may not have Vulkan headers, so put
     # include/third_party/vulkan on our path so they're always available.
-    all_dependent_configs = [ ":our_vulkan_headers" ]
+    all_dependent_configs = [ ":use_skia_vulkan_headers" ]
 
     defines = []
     if (skia_enable_discrete_gpu) {
@@ -2399,7 +2399,7 @@ if (skia_enable_tools) {
     }
     test_app("imgcvt") {
       sources = [ "tools/imgcvt.cpp" ]
-      configs = [ ":our_vulkan_headers" ]
+      configs = [ ":use_skia_vulkan_headers" ]
       deps = [
         ":skia",
         "modules/skcms",
@@ -2493,7 +2493,7 @@ if (skia_enable_tools) {
 
   test_app("skpinfo") {
     sources = [ "tools/skpinfo.cpp" ]
-    configs = [ ":our_vulkan_headers" ]
+    configs = [ ":use_skia_vulkan_headers" ]
     deps = [
       ":flags",
       ":skia",
@@ -3035,7 +3035,7 @@ if (skia_enable_tools) {
       # Bots and even devs may not have Vulkan headers, so put
       # include/third_party/vulkan on our path so they're always available.
       all_dependent_configs = [
-        ":our_vulkan_headers",
+        ":use_skia_vulkan_headers",
         ":vulkan_memory_allocator",
       ]
 
