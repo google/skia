@@ -549,7 +549,7 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices,
 }
 
 void SkBitmapDevice::drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) {
-    // TODO(brianosman): Implement, maybe with a subclass of BitmapDevice that has SkSL support.
+    // TODO: Implement, maybe with a subclass of BitmapDevice that has SkSL support.
 }
 
 void SkBitmapDevice::drawAtlas(const SkRSXform xform[],

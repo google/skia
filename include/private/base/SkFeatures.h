@@ -94,7 +94,7 @@
 #define SK_CPU_LSX_LEVEL_LSX      70
 #define SK_CPU_LSX_LEVEL_LASX     80
 
-// TODO(brianosman,kjlubick) clean up these checks
+// TODO(kjlubick) clean up these checks
 
 // Are we in GCC/Clang?
 #ifndef SK_CPU_SSE_LEVEL
