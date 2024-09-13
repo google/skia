@@ -1,0 +1,54 @@
+load("//bazel:skia_rules.bzl", "skia_cc_binary")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_binary(
+    name = "dm",
+    testonly = True,
+    srcs = [
+        "DM.cpp",
+        # "DMGpuTestProcs.cpp",
+        "DMJsonWriter.cpp",
+        "DMJsonWriter.h",
+        "DMSrcSink.cpp",
+        "DMSrcSink.h",
+    ],
+    data = [
+        "//resources",
+    ],
+    defines = ["SK_DISABLE_LEGACY_TESTS"],
+    deps = [
+        "//:core",
+        "//:fontmgr_directory_freetype",
+        "//:fontmgr_empty_fontations",
+        "//:pdf_writer",
+        "//:skshaper_core",
+        "//:svg_renderer",
+        "//:svg_writer",
+        "//gm",
+        "//modules/skottie",
+        "//modules/skottie/utils:skottie_utils",
+        "//src/codec:android_codec",
+        "//src/ports:imagegenerator",
+        "//src/utils:multi_picture_document",
+        "//tools:autorelease_pool",
+        "//tools:codec_utils",
+        "//tools:ddl_utils",
+        "//tools:gpu_tool_utils",
+        "//tools:hash_and_encode",
+        "//tools:runtime_blend_utils",
+        "//tools:stats",
+        "//tools:test_font_data_provider",
+        "//tools:url_data_manager",
+        "//tools/debugger",
+        "//tools/flags:common_flags",
+        "//tools/flags:common_flags_config",
+        "//tools/flags:ganesh_flags",
+        "//tools/gpu:ganesh_gl_utils",
+        "//tools/trace",
+    ],
+)

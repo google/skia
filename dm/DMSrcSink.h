@@ -9,18 +9,19 @@
 #define DMSrcSink_DEFINED
 
 #include "gm/gm.h"
-#include "include/core/SkBBHFactory.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkData.h"
 #include "include/core/SkPicture.h"
 #include "include/docs/SkMultiPictureDocument.h"
-#include "include/gpu/graphite/ContextOptions.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/gpu/MemoryCache.h"
-#include "tools/graphite/TestOptions.h"
 
 #include <functional>
+
+#if !defined (SK_DISABLE_LEGACY_TESTS)
+    #include "include/gpu/graphite/ContextOptions.h"
+    #include "tools/graphite/TestOptions.h"
+#endif
 
 //#define TEST_VIA_SVG
 

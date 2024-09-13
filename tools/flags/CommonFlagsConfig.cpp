@@ -19,7 +19,6 @@
 #include <unordered_map>
 
 using namespace skia_private;
-using sk_gpu_test::GrContextFactory;
 
 #if defined(SK_BUILD_FOR_ANDROID) || defined(SK_BUILD_FOR_IOS)
 #define DEFAULT_GPU_CONFIG "gles"

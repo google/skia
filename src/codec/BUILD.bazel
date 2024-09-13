@@ -88,6 +88,7 @@ skia_cc_library(
         "//modules/skottie:__pkg__",
         "//modules/skresources:__pkg__",
         "//src/android:__pkg__",
+        "//tools:__pkg__",
     ],
     deps = [
         ":any_decoder",

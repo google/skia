@@ -94,6 +94,18 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "imagegenerator_ndk_hdrs",
+    srcs = ["SkImageGeneratorNDK.h"],
+    visibility = ["//src/ports:__pkg__"],
+)
+
+skia_filegroup(
+    name = "imagegenerator_wic_hdrs",
+    srcs = ["SkImageGeneratorWIC.h"],
+    visibility = ["//src/ports:__pkg__"],
+)
+
+skia_filegroup(
     name = "mac_typeface",
     srcs = ["SkTypeface_mac.h"],
     visibility = [

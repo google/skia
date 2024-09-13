@@ -360,6 +360,46 @@ skia_objc_library(
     ],
 )
 
+skia_cc_library(
+    name = "imagegenerator_ndk",
+    srcs = ["SkImageGeneratorNDK.cpp"],
+    hdrs = ["//include/ports:imagegenerator_ndk_hdrs"],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/codec:any_decoder",
+        "//src/core:core_priv",
+    ],
+)
+
+skia_cc_library(
+    name = "imagegenerator_wic",
+    srcs = ["SkImageGeneratorWIC.cpp"],
+    hdrs = ["//include/ports:imagegenerator_wic_hdrs"],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/codec:any_decoder",
+        "//src/core:core_priv",
+    ],
+)
+
+skia_cc_library(
+    name = "imagegenerator",
+    visibility = ["//dm:__pkg__"],
+    deps = select({
+        "@platforms//os:android": [":imagegenerator_ndk"],
+        "@platforms//os:macos": [":imagegenerator_coregraphics"],
+        "@platforms//os:ios": [":imagegenerator_coregraphics"],
+        "@platforms//os:windows": [":imagegenerator_wic"],
+        "//conditions:default": [],
+    }),
+)
+
 skia_filegroup(
     name = "windows_fonts_srcs",
     srcs = [

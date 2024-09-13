@@ -28,9 +28,6 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/ports/SkImageGeneratorCG.h"
-#include "include/ports/SkImageGeneratorNDK.h"
-#include "include/ports/SkImageGeneratorWIC.h"
 #include "include/private/base/SkTLogic.h"
 #include "include/private/chromium/GrDeferredDisplayList.h"
 #include "include/private/chromium/GrSurfaceCharacterization.h"
@@ -73,8 +70,17 @@
 #include "tools/gpu/MemoryCache.h"
 #include "tools/gpu/TestCanvas.h"
 
+#if defined(SK_BUILD_FOR_ANDROID)
+#include "include/ports/SkImageGeneratorNDK.h"
+#endif
+
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+#include "include/ports/SkImageGeneratorCG.h"
+#endif
+
 #if defined(SK_BUILD_FOR_WIN)
 #include "include/docs/SkXPSDocument.h"
+#include "include/ports/SkImageGeneratorWIC.h"
 #include "src/utils/win/SkAutoCoInitialize.h"
 #include "src/utils/win/SkHRESULT.h"
 #include "src/utils/win/SkTScopedComPtr.h"
@@ -124,7 +130,10 @@
 #if defined(SK_ENABLE_ANDROID_UTILS)
     #include "client_utils/android/BitmapRegionDecoder.h"
 #endif
-#include "tests/TestUtils.h"
+
+#if !defined(SK_DISABLE_LEGACY_TESTS)
+    #include "tests/TestUtils.h"
+#endif
 
 #include <cmath>
 #include <functional>

@@ -29,8 +29,6 @@
 #include "src/core/SkTHash.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/utils/SkOSPath.h"
-#include "tests/Test.h"
-#include "tests/TestHarness.h"
 #include "tools/AutoreleasePool.h"
 #include "tools/CodecUtils.h"
 #include "tools/HashAndEncode.h"
@@ -41,9 +39,7 @@
 #include "tools/flags/CommonFlags.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/flags/CommonFlagsGanesh.h"
-#include "tools/flags/CommonFlagsGraphite.h"
 #include "tools/fonts/FontToolUtils.h"
-#include "tools/ios_utils.h"
 #include "tools/trace/ChromeTracingTracer.h"
 #include "tools/trace/EventTracingPriv.h"
 #include "tools/trace/SkDebugfTracer.h"
@@ -52,6 +48,19 @@
 #include <vector>
 
 #include <stdlib.h>
+
+#if defined(SK_GRAPHITE)
+    #include "tools/flags/CommonFlagsGraphite.h"
+#endif
+
+#if !defined(SK_DISABLE_LEGACY_TESTS)
+    #include "tests/Test.h"
+    #include "tests/TestHarness.h"
+#endif
+
+#if defined(SK_BUILD_FOR_IOS)
+    #include "tools/ios_utils.h"
+#endif
 
 #ifndef SK_BUILD_FOR_WIN
     #include <unistd.h>
@@ -171,9 +180,12 @@ static DEFINE_string(properties, "",
 static DEFINE_bool(rasterize_pdf, false, "Rasterize PDFs when possible.");
 
 using namespace DM;
+
+#if !defined(SK_DISABLE_LEGACY_TESTS)
+using skiatest::TestType;
+#endif
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::ContextInfo;
-using skiatest::TestType;
 #ifdef SK_GL
 using sk_gpu_test::GLTestContext;
 #endif
@@ -1462,7 +1474,9 @@ struct Task {
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
+#if defined(SK_DISABLE_LEGACY_TESTS)
+static int gather_tests() { return 0; }
+#else
 // Unit tests don't fit so well into the Src/Sink model, so we give them special treatment.
 
 static SkTDArray<skiatest::Test>* gCPUTests = new SkTDArray<skiatest::Test>;
@@ -1470,9 +1484,9 @@ static SkTDArray<skiatest::Test>* gCPUSerialTests = new SkTDArray<skiatest::Test
 static SkTDArray<skiatest::Test>* gGaneshTests = new SkTDArray<skiatest::Test>;
 static SkTDArray<skiatest::Test>* gGraphiteTests = new SkTDArray<skiatest::Test>;
 
-static void gather_tests() {
+static int gather_tests() {
     if (!FLAGS_src.contains("tests")) {
-        return;
+        return 0;
     }
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
         if (!in_shard()) {
@@ -1493,6 +1507,8 @@ static void gather_tests() {
             gCPUSerialTests->push_back(test);
         }
     }
+    return gCPUTests->size() + gCPUSerialTests->size() +
+           gGaneshTests->size() + gGraphiteTests->size();
 }
 
 struct DMReporter : public skiatest::Reporter {
@@ -1553,6 +1569,8 @@ TestHarness CurrentTestHarness() {
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+#endif // !SK_DISABLE_LEGACY_TESTS
 
 int main(int argc, char** argv) {
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
@@ -1623,9 +1641,8 @@ int main(int argc, char** argv) {
                       defaultConfigs)) {
         return 1;
     }
-    gather_tests();
-    int testCount = gCPUTests->size() + gCPUSerialTests->size() +
-                    gGaneshTests->size() + gGraphiteTests->size();
+
+    const int testCount = gather_tests();
     gPending = gSrcs->size() * gSinks->size() + testCount;
     gTotalCounts = gPending;
     gLastUpdate = SkTime::GetNSecs();
@@ -1633,9 +1650,11 @@ int main(int argc, char** argv) {
          gSrcs->size(), gSinks->size(), testCount,
          gPending);
 
+#if !defined(SK_DISABLE_LEGACY_TESTS)
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
     // However, execute all CPU-serial tests first so that they don't have races with parallel tests
     for (skiatest::Test& test : *gCPUSerialTests) { run_cpu_test(test); }
+#endif
 
     SkTaskGroup parallel;
     TArray<Task> serial;
@@ -1658,16 +1677,23 @@ int main(int argc, char** argv) {
             }
         }
     }
+
+#if !defined(SK_DISABLE_LEGACY_TESTS)
     for (skiatest::Test& test : *gCPUTests) {
         parallel.add([test] { run_cpu_test(test); });
     }
+#endif // !SK_DISABLE_LEGACY_TESTS
 
     // With the parallel work running, run serial tasks and tests here on main thread.
     for (Task& task : serial) { Task::Run(task); }
+
+#if !defined(SK_DISABLE_LEGACY_TESTS)
     for (skiatest::Test& test : *gGaneshTests) { run_ganesh_test(test, grCtxOptions); }
+
 #if defined(SK_GRAPHITE)
     for (skiatest::Test& test : *gGraphiteTests) { run_graphite_test(test, graphiteOptions); }
 #endif
+#endif // !SK_DISABLE_LEGACY_TESTS
 
     // Wait for any remaining parallel work to complete (including any spun off of serial tasks).
     parallel.wait();

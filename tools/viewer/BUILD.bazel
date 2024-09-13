@@ -95,9 +95,7 @@ skia_cc_binary(
         "Viewer.h",
         "//bench:gpu_tools",
         "//gm:gm_subset",
-        "//tools:gpu_tool_utils",
         "//tools/fonts:test_font_manager_srcs",
-        "//tools/trace",
     ],
     data = [
         "//resources",
@@ -116,6 +114,7 @@ skia_cc_binary(
         "//modules/sksg",
         "//src/sksl/tracing:player",
         "//tools:codec_utils",
+        "//tools:gpu_tool_utils",
         "//tools:mskp_player",
         "//tools:registry",
         "//tools:runtime_blend_utils",
@@ -127,6 +126,7 @@ skia_cc_binary(
         "//tools/sk_app",
         "//tools/skui",
         "//tools/timer",
+        "//tools/trace",
         "@imgui",
     ] + select({
         "@platforms//os:linux": ["@spirv_tools"],

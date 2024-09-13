@@ -1,10 +1,12 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
 
-filegroup(
+skia_cc_library(
     name = "trace",
     testonly = True,
     srcs = [
@@ -15,5 +17,16 @@ filegroup(
         "SkDebugfTracer.cpp",
         "SkDebugfTracer.h",
     ],
-    visibility = ["//tools/viewer:__pkg__"],
+    hdrs = [
+        "ChromeTracingTracer.h",
+        "SkDebugfTracer.h",
+    ],
+    visibility = [
+        "//dm:__pkg__",
+        "//tools/viewer:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//tools/flags:cmd_flags",
+    ],
 )

@@ -63,6 +63,8 @@ skia_cc_library(
         "ProtectedUtils.h",
         "ProxyUtils.cpp",
         "ProxyUtils.h",
+        "TestCanvas.cpp",
+        "TestCanvas.h",
         "TestContext.cpp",
         "TestContext.h",
         "TestOps.cpp",
@@ -74,9 +76,11 @@ skia_cc_library(
     ],
     hdrs = [
         "GrContextFactory.h",
+        "TestCanvas.h",
     ],
     visibility = [
         "//bench:__subpackages__",
+        "//dm:__pkg__",
         "//modules/skottie:__pkg__",
         "//tools:__subpackages__",
     ],

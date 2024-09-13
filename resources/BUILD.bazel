@@ -75,6 +75,7 @@ skia_filegroup(
     ),
     visibility = [
         "//bench:__pkg__",
+        "//dm:__pkg__",
         "//gm:__pkg__",
         "//src/ports/fontations:__pkg__",
         "//tests:__pkg__",

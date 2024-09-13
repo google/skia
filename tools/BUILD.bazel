@@ -1,5 +1,5 @@
 load("//bazel:macros.bzl", "py_binary")
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "skia_objc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -36,7 +36,10 @@ skia_cc_library(
     testonly = True,
     srcs = ["HashAndEncode.cpp"],
     hdrs = ["HashAndEncode.h"],
-    visibility = ["//gm:__pkg__"],
+    visibility = [
+        "//dm:__pkg__",
+        "//gm:__pkg__",
+    ],
     deps = [
         "//:core",
         "//:png_encode_codec",
@@ -55,6 +58,7 @@ skia_cc_library(
     hdrs = ["AutoreleasePool.h"],
     visibility = [
         "//bench:__pkg__",
+        "//dm:__pkg__",
         "//tools/gpu:__pkg__",
         "//tools/testrunners/benchmark:__pkg__",
     ],
@@ -71,8 +75,44 @@ skia_cc_library(
     name = "url_data_manager",
     srcs = ["UrlDataManager.cpp"],
     hdrs = ["UrlDataManager.h"],
-    visibility = ["//tools/debugger:__pkg__"],
+    visibility = [
+        "//dm:__pkg__",
+        "//tools/debugger:__pkg__",
+    ],
     deps = ["//:core"],
+)
+
+skia_cc_library(
+    name = "ddl_utils",
+    testonly = True,
+    srcs = [
+        "DDLPromiseImageHelper.cpp",
+        "DDLPromiseImageHelper.h",
+        "DDLTileHelper.cpp",
+        "DDLTileHelper.h",
+    ],
+    hdrs = [
+        "DDLPromiseImageHelper.h",
+        "DDLTileHelper.h",
+    ],
+    visibility = ["//dm:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/codec:codec_support_priv",
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
+    ],
+)
+
+skia_cc_library(
+    name = "test_font_data_provider",
+    testonly = True,
+    srcs = ["TestFontDataProvider.cpp"],
+    hdrs = ["TestFontDataProvider.h"],
+    visibility = ["//dm:__pkg__"],
+    deps = [
+        "//:core",
+        "//tools/flags:cmd_flags",
+    ],
 )
 
 skia_cc_library(
@@ -105,6 +145,7 @@ skia_cc_library(
     srcs = ["RuntimeBlendUtils.cpp"],
     hdrs = ["RuntimeBlendUtils.h"],
     visibility = [
+        "//dm:__pkg__",
         "//tests:__pkg__",
         "//tools/viewer:__pkg__",
     ],
@@ -120,6 +161,7 @@ skia_cc_library(
     ],
     visibility = [
         "//bench:__pkg__",
+        "//dm:__pkg__",
         "//tools/testrunners/benchmark:__pkg__",
     ],
     deps = ["//:core"],
@@ -161,6 +203,7 @@ skia_cc_library(
         "EncodeUtils.h",
     ],
     visibility = [
+        "//dm:__pkg__",
         "//gm:__subpackages__",
         "//tools/viewer:__pkg__",
     ],
@@ -195,15 +238,20 @@ skia_cc_library(
     ],
 )
 
-skia_filegroup(
+skia_cc_library(
     name = "gpu_tool_utils",
     testonly = True,
     srcs = [
         "GpuToolUtils.cpp",
         "GpuToolUtils.h",
     ],
+    hdrs = ["GpuToolUtils.h"],
     visibility = [
+        "//dm:__pkg__",
         "//tools:__subpackages__",
+    ],
+    deps = [
+        "//:core",
     ],
 )
 
