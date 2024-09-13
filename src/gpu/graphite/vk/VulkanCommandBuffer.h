@@ -89,8 +89,10 @@ private:
 
     // Track descriptor changes for binding prior to draw calls
     void recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot);
+    // Either both arguments are non-null, or both must be null (to reset or handle just the
+    // dstCopy intrinsic w/o requiring a DrawPass command).
     void recordTextureAndSamplerDescSet(
-            const DrawPass&, const DrawPassCommands::BindTexturesAndSamplers&);
+            const DrawPass*, const DrawPassCommands::BindTexturesAndSamplers*);
 
     void bindTextureSamplers();
     void bindUniformBuffers();
