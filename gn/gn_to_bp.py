@@ -648,6 +648,7 @@ skqp_defines.add("GPU_TEST_UTILS=1")
 skqp_defines.add("SK_ALLOW_STATIC_GLOBAL_INITIALIZERS=1")
 skqp_defines.add("SK_BUILD_FOR_SKQP")
 skqp_defines.add("SK_ENABLE_DUMP_GPU")
+skqp_defines.remove("SK_USE_INTERNAL_VULKAN_HEADERS")
 skqp_defines.remove("SK_USE_PERFETTO")
 
 skqp_srcs = strip_non_srcs(skqp_srcs)
