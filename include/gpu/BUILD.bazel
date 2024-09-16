@@ -6,34 +6,6 @@ package(
 
 licenses(["notice"])
 
-# In separate group for mapping to //gn/gpu.gni:skia_shared_gpu_sources.
-skia_filegroup(
-    name = "shared_public_hdrs",
-    srcs = [
-        "GpuTypes.h",
-        "MutableTextureState.h",
-        "ShaderErrorHandler.h",
-    ],
-)
-
-skia_filegroup(
-    name = "ganesh_hdrs",
-    srcs = [
-        "GrBackendSemaphore.h",
-        "GrBackendSurface.h",
-        "GrContextOptions.h",
-        "GrContextThreadSafeProxy.h",
-        "GrDirectContext.h",
-        "GrDriverBugWorkarounds.h",
-        "GrDriverBugWorkaroundsAutogen.h",
-        "GrRecordingContext.h",
-        "GrTypes.h",
-        "GrYUVABackendTextures.h",
-        ":shared_public_hdrs",
-    ],
-    visibility = ["//src/gpu/ganesh:__subpackages__"],
-)
-
 skia_filegroup(
     name = "shared_gpu_hdrs",
     srcs = [

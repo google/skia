@@ -84,10 +84,9 @@ skia_cc_library(
         "//src/gpu/ganesh/gl/builders:builder_srcs",
     ],
     hdrs = [
-        "//include/gpu:ganesh_hdrs",
+        "//include/gpu:shared_gpu_hdrs",
         "//include/gpu/ganesh:ganesh_hdrs",
         "//include/gpu/ganesh/gl:public_hdrs",
-        "//include/gpu/gl:ganesh_gl_hdrs",
     ],
     defines = [
         "SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE",
@@ -115,10 +114,9 @@ skia_cc_library(
         "//src/gpu/ganesh/gl/builders:builder_srcs",
     ],
     hdrs = [
-        "//include/gpu:ganesh_hdrs",
+        "//include/gpu:shared_gpu_hdrs",
         "//include/gpu/ganesh:ganesh_hdrs",
         "//include/gpu/ganesh/gl:public_hdrs",
-        "//include/gpu/gl:ganesh_gl_hdrs",
     ],
     defines = [
         "SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE",

@@ -296,7 +296,7 @@ skia_cc_library(
         ":core_hdrs",
         ":core_skslc_hdrs",
         "//include/android:private_hdrs",
-        "//include/gpu:ganesh_hdrs",
+        "//include/gpu:shared_gpu_hdrs",
         "//include/gpu/ganesh:ganesh_hdrs",
         "//include/private/gpu/ganesh:private_hdrs",
         "//include/private/chromium:ganesh_private_hdrs",
@@ -312,7 +312,6 @@ skia_cc_library(
         "//src/text/gpu:gpu_hdrs",
         # TODO(kjlubick, egdaniel) Remove this coupling
         "//src/gpu/ganesh/mock:mock_hdrs",
-        "//include/gpu/mock:public_hdrs",
         "//include/gpu/ganesh/mock:public_hdrs",
     ],
     defines = ["SK_GANESH"],
@@ -358,7 +357,7 @@ skia_cc_library(
         ":core_hdrs",
         ":core_skslc_hdrs",
         "//include/android:private_hdrs",
-        "//include/gpu:ganesh_hdrs",
+        "//include/gpu:shared_gpu_hdrs",
         "//include/gpu/ganesh:ganesh_hdrs",
         "//include/private/gpu/ganesh:private_hdrs",
         "//include/private/chromium:ganesh_private_hdrs",
@@ -375,7 +374,6 @@ skia_cc_library(
         "//src/utils:shader_utils_hdrs",
         # TODO(kjlubick, egdaniel) Remove this coupling
         "//src/gpu/ganesh/mock:mock_hdrs",
-        "//include/gpu/mock:public_hdrs",
         "//include/gpu/ganesh/mock:public_hdrs",
     ],
     defines = [

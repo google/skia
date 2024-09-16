@@ -23,18 +23,6 @@ skia_filegroup(
     ],
 )
 
-# These are Ganesh specific. In a perfect world, we'd move these to
-# //include/gpu/ganesh/vk, but that involves updating several clients.
-skia_filegroup(
-    name = "ganesh_public_hdrs",
-    srcs = [
-        "GrVkTypes.h",
-    ],
-    visibility = [
-        "//src/gpu/ganesh/vk:__pkg__",
-    ],
-)
-
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
     headers = [

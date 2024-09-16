@@ -99,10 +99,9 @@ skia_cc_library(
         "//include/private/gpu/vk:private_hdrs",
     ],
     hdrs = [
-        "//include/gpu:ganesh_hdrs",
+        "//include/gpu:shared_gpu_hdrs",
         "//include/gpu/ganesh:ganesh_hdrs",
         "//include/gpu/ganesh/vk:public_hdrs",
-        "//include/gpu/vk:ganesh_public_hdrs",
         "//include/gpu/vk:shared_public_hdrs",
     ],
     features = ["layering_check"],
@@ -132,10 +131,9 @@ skia_cc_library(
         "//include/private/gpu/vk:private_hdrs",
     ],
     hdrs = [
-        "//include/gpu:ganesh_hdrs",
+        "//include/gpu:shared_gpu_hdrs",
         "//include/gpu/ganesh:ganesh_hdrs",
         "//include/gpu/ganesh/vk:public_hdrs",
-        "//include/gpu/vk:ganesh_public_hdrs",
         "//include/gpu/vk:shared_public_hdrs",
     ],
     defines = [
