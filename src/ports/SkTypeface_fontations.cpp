@@ -506,6 +506,12 @@ protected:
             float hinted_advance = 0;
             fontations_ffi::scaler_hinted_advance_width(
                     fOutlines, *fHintingInstance, glyph.getGlyphID(), hinted_advance);
+            // FreeType rounds the advance to full pixels when in hinting modes.
+            // Match FreeType and round here.
+            // See
+            // * https://gitlab.freedesktop.org/freetype/freetype/-/blob/57617782464411201ce7bbc93b086c1b4d7d84a5/src/autofit/afloader.c#L422
+            // * https://gitlab.freedesktop.org/freetype/freetype/-/blob/57617782464411201ce7bbc93b086c1b4d7d84a5/src/truetype/ttgload.c#L823
+            hinted_advance = roundf(hinted_advance);
             // TODO(drott): Remove this workaround for fontations returning 0
             // for a space glyph without contours, compare
             // https://github.com/googlefonts/fontations/issues/905
@@ -705,6 +711,9 @@ protected:
             const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
             const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
             const bool hairline = glyph.pathIsHairline();
+
+            // Path offseting for subpixel positioning is not needed here,
+            // as this is done in SkScalerContext::internalGetPath.
             GenerateImageFromPath(mask, *devPath, fPreBlend, doBGR, doVert, a8LCD, hairline);
 
         } else if (format == ScalerContextBits::COLRv1 || format == ScalerContextBits::COLRv0) {
