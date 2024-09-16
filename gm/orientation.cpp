@@ -16,6 +16,11 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/ports/SkImageGeneratorCG.h"
+#include "include/ports/SkImageGeneratorNDK.h"
+#include "include/ports/SkImageGeneratorWIC.h"
+#include "src/codec/SkCodecImageGenerator.h"
+#include "src/utils/win/SkAutoCoInitialize.h"
 #include "tools/DecodeUtils.h"
 #include "tools/EncodeUtils.h"
 #include "tools/Resources.h"
@@ -158,3 +163,58 @@ MAKE_GM(420)
 MAKE_GM(422)
 MAKE_GM(440)
 MAKE_GM(444)
+
+// This GM demonstrates that the SkImageGenerators respect the orientation flag.
+DEF_SIMPLE_GM(respect_orientation_jpeg, canvas, 4*kImgW, 4*kImgH) {
+    #if defined(SK_BUILD_FOR_WIN)
+      SkAutoCoInitialize coinit;
+      if (!coinit.succeeded()) {
+        return;
+      }
+    #endif
+
+   canvas->save();
+    for (char i = '1'; i <= '8'; i++) {
+        SkString path = SkStringPrintf("images/orientation/%c_444.jpg", i);
+        // Get the image as data
+        sk_sp<SkData> data(GetResourceAsData(path.c_str()));
+        sk_sp<SkImage> image;
+
+        #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
+          image = SkImages::DeferredFromGenerator(SkImageGeneratorCG::MakeFromEncodedCG(data));
+        #elif defined(SK_BUILD_FOR_WIN)
+          image = SkImages::DeferredFromGenerator(SkImageGeneratorWIC::MakeFromEncodedWIC(data));
+        #elif defined(SK_ENABLE_NDK_IMAGES)
+          image = SkImages::DeferredFromGenerator(SkImageGeneratorNDK::MakeFromEncodedNDK(data));
+        #endif
+
+        if (!image) {
+            continue;
+        }
+        canvas->drawImage(image, 0, 0);
+        if ('4' == i || '8' == i) {
+            canvas->restore();
+            canvas->translate(0, image->height());
+            canvas->save();
+        } else {
+            canvas->translate(image->width(), 0);
+        }
+    }
+    for (char i = '1'; i <= '8'; i++) {
+        SkString path = SkStringPrintf("images/orientation/%c_444.jpg", i);
+        // Get the image as data
+        sk_sp<SkData> data(GetResourceAsData(path.c_str()));
+        sk_sp<SkImage> image = SkImages::DeferredFromGenerator(
+            SkCodecImageGenerator::MakeFromEncodedCodec(data));
+        if (!image) {
+            continue;
+        }
+        canvas->drawImage(image, 0, 0);
+        if ('4' == i || '8' == i) {
+            canvas->restore();
+            canvas->translate(0, image->height());
+        } else {
+            canvas->translate(image->width(), 0);
+        }
+    }
+}

@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkStream.h"
 #include "include/ports/SkImageGeneratorWIC.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/codec/SkPixmapUtilsPriv.h"
 #include "src/utils/win/SkIStream.h"
 #include "src/utils/win/SkTScopedComPtr.h"
 
@@ -30,7 +32,7 @@ public:
      * Takes ownership of the imageSource
      */
     ImageGeneratorWIC(const SkImageInfo& info, IWICImagingFactory* imagingFactory,
-            IWICBitmapSource* imageSource, sk_sp<SkData>);
+            IWICBitmapSource* imageSource, sk_sp<SkData>, SkEncodedOrigin);
 protected:
     sk_sp<SkData> onRefEncodedData() override;
 
@@ -41,6 +43,7 @@ private:
     SkTScopedComPtr<IWICImagingFactory> fImagingFactory;
     SkTScopedComPtr<IWICBitmapSource>   fImageSource;
     sk_sp<SkData>                       fData;
+    SkEncodedOrigin                     fOrigin;
 
     using INHERITED = SkImageGenerator;
 };
@@ -77,6 +80,26 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorWIC::MakeFromEncodedWIC(sk_sp<
     hr = decoder->GetFrame(0, &imageFrame);
     if (FAILED(hr)) {
         return nullptr;
+    }
+
+    // Get the metadata query reader from the frame.
+    SkEncodedOrigin origin = kDefault_SkEncodedOrigin;
+    SkTScopedComPtr<IWICMetadataQueryReader> queryReader;
+    hr = imageFrame->GetMetadataQueryReader(&queryReader);
+
+    // WIC decoder doesn't support BMP and ICO metadata, so we only continue
+    // reading metadata if GetMetadataQueryReader didn't return an error code.
+    if (SUCCEEDED(hr)) {
+      // Query for the orientation metadata (assuming JPEG policy).
+      PROPVARIANT propValue;
+      PropVariantInit(&propValue);
+      hr = queryReader->GetMetadataByName(L"/app1/ifd/{ushort=274}", &propValue);
+      if (SUCCEEDED(hr) && propValue.vt == VT_UI2) {
+          SkEncodedOrigin originValue = static_cast<SkEncodedOrigin>(propValue.uiVal);
+          if (originValue >= kTopLeft_SkEncodedOrigin && originValue <= kLast_SkEncodedOrigin) {
+            origin = originValue;
+          }
+      }
     }
 
     // Treat the frame as an image source.
@@ -149,17 +172,21 @@ std::unique_ptr<SkImageGenerator> SkImageGeneratorWIC::MakeFromEncodedWIC(sk_sp<
     // FIXME: If we change the implementation to handle swizzling ourselves,
     //        we can support more output formats.
     SkImageInfo info = SkImageInfo::MakeS32(width, height, alphaType);
+    if (SkEncodedOriginSwapsWidthHeight(origin)) {
+        info = SkPixmapUtils::SwapWidthHeight(info);
+    }
     return std::unique_ptr<SkImageGenerator>(
             new ImageGeneratorWIC(info, imagingFactory.release(), imageSource.release(),
-                                    std::move(data)));
+                                    std::move(data), origin));
 }
 
 ImageGeneratorWIC::ImageGeneratorWIC(const SkImageInfo& info,
-        IWICImagingFactory* imagingFactory, IWICBitmapSource* imageSource, sk_sp<SkData> data)
+        IWICImagingFactory* imagingFactory, IWICBitmapSource* imageSource, sk_sp<SkData> data, SkEncodedOrigin origin)
     : INHERITED(info)
     , fImagingFactory(imagingFactory)
     , fImageSource(imageSource)
     , fData(std::move(data))
+    , fOrigin(origin)
 {}
 
 sk_sp<SkData> ImageGeneratorWIC::onRefEncodedData() {
@@ -197,9 +224,17 @@ bool ImageGeneratorWIC::onGetPixels(const SkImageInfo& info, void* pixels, size_
         return false;
     }
 
-    // Set the destination pixels.
-    hr = formatConverterSrc->CopyPixels(nullptr, (UINT) rowBytes, (UINT) rowBytes * info.height(),
-            (BYTE*) pixels);
+    SkPixmap dst(info, pixels, rowBytes);
+    auto decode = [&formatConverterSrc](const SkPixmap& pm) {
+        // Get the destination pixels.
+        void* pixelsAddr = pm.writable_addr();
+        size_t rowBytes = pm.rowBytes();
+        const SkImageInfo& info = pm.info();
 
-    return SUCCEEDED(hr);
+        // Set the destination pixels.
+        HRESULT hr = formatConverterSrc->CopyPixels(nullptr, (UINT) rowBytes, (UINT) rowBytes * info.height(),
+            (BYTE*) pixelsAddr);
+        return SUCCEEDED(hr);
+    };
+    return SkPixmapUtils::Orient(dst, fOrigin, decode);
 }
