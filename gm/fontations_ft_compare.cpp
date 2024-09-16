@@ -89,16 +89,18 @@ protected:
             case SkFontHinting::kNormal: {
                 testName.append("_hint_normal");
                 break;
-                case SkFontHinting::kSlight: {
-                    testName.append("_hint_slight");
-                    break;
-                }
-                case SkFontHinting::kFull: {
-                    testName.append("_hint_full");
-                    break;
-                }
-                default:
-                    break;
+            }
+            case SkFontHinting::kSlight: {
+                testName.append("_hint_slight");
+                break;
+            }
+            case SkFontHinting::kFull: {
+                testName.append("_hint_full");
+                break;
+            }
+            case SkFontHinting::kNone: {
+                testName.append("_hint_none");
+                break;
             }
         }
         return testName;
