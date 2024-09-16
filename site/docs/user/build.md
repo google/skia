@@ -330,7 +330,7 @@ given at the top of that file or on the Developer site, or the absolute path
 to the file.
 
 If you find yourself missing a Google signing identity or provisioning profile,
-you'll want to have a read through go/appledev.
+you'll want to have a read through go/appledev and go/ios-signing.
 
 For signed packages `ios-deploy` makes installing and running them on a device
 easy:
