@@ -19,3 +19,12 @@ dawn_vulkan_headers_dir = "//third_party/externals/vulkan-headers"
 dawn_vulkan_tools_dir = "//third_party/externals/vulkan-tools"
 dawn_vulkan_utility_libraries_dir =
     "//third_party/externals/vulkan-utility-libraries"
+
+# PartitionAlloc is an optional dependency:
+# - MSVC compiler is not fully supported at the moment.
+# - Mac 11 is currently failing an assertion.
+# TODO(351867706): Enable Mac 11.
+_is_msvc = is_win && !is_clang
+if (!_is_msvc && !is_mac) {
+  dawn_partition_alloc_dir = "//third_party/externals/partition_alloc"
+}

@@ -1,0 +1,68 @@
+# Copyright 2024 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# PartitionAlloc is still depending on a couple of "common" `is_xxx` variables
+# shared by Chromium / Dawn / Pdfium / etc... Only Skia is really independent.
+#
+# While waiting for partition_alloc to do the same, they need to be set:
+is_asan = sanitize == "address"
+is_cast_android = false
+is_castos = false
+is_cronet_build = false
+is_nacl = false
+is_posix = !is_win && !is_fuchsia
+
+# Skia standalone isn't built as part of chromium.
+build_with_chromium = false
+
+# Skia still need to supports C++17 for quite some time.
+assert_cpp20_default = false
+
+# partition_alloc is performance critical and it should generally be optimized
+# for speed, even in debug mode.
+if (is_debug) {
+  partition_alloc_add_configs = [
+    "//gn/skia:optimize",
+    "//gn/skia:NDEBUG",
+  ]
+}
+
+# MSVC's cl.exe compiler is not supported.
+_supported_compiler = is_clang || !is_win
+
+# Windows: debug CRT is not yet compatible with the allocator shim.
+# https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/free-dbg
+_supported_build_type = !is_win || (!is_component_build && !is_debug)
+
+# TODO(351867706): Resolve compile assertions issues on Mac, and add `is_mac`
+# here.
+_supported_platform =
+    is_android || is_chromeos || is_fuchsia || is_linux || is_win
+
+# Sanitizers replace the allocator, don't replace it ourselves with
+# partition_alloc.
+_is_using_sanitizers = sanitize == ""
+
+_supported = _supported_compiler && _supported_build_type &&
+             _supported_platform && !_is_using_sanitizers
+
+use_partition_alloc_as_malloc_default = _supported
+use_allocator_shim_default = _supported
+enable_backup_ref_ptr_support_default = _supported
+put_ref_count_in_previous_slot_default = true
+enable_backup_ref_ptr_slow_checks_default = false
+enable_dangling_raw_ptr_checks_default = _supported
+
+# This is the default build configuration for pointers/raw_ptr*.
+raw_ptr_zero_on_construct_default = true
+raw_ptr_zero_on_move_default = true
+raw_ptr_zero_on_destruct_default = false
+
+# For now, don't check for additional costly memory safety errors in Skia.
+# Some will be enforced in the future.
+can_unwind_with_frame_pointers = false
+dcheck_always_on = false
+dcheck_is_configurable = false
+enable_expensive_dchecks = false
