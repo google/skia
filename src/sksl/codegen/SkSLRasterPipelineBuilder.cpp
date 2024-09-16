@@ -6,15 +6,11 @@
  */
 
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
-#include <cstdint>
-#include <optional>
 
 #include "include/core/SkStream.h"
 #include "include/private/base/SkMalloc.h"
-#include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/base/SkSafeMath.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipelineContextUtils.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
@@ -1619,17 +1615,13 @@ static void* context_bit_pun(intptr_t val) {
     return sk_bit_cast<void*>(val);
 }
 
-std::optional<Program::SlotData> Program::allocateSlotData(SkArenaAlloc* alloc) const {
+Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) const {
     // Allocate a contiguous slab of slot data for immutables, values, and stack entries.
     const int N = SkOpts::raster_pipeline_highp_stride;
     const int scalarWidth = 1 * sizeof(float);
     const int vectorWidth = N * sizeof(float);
-    SkSafeMath safe;
-    size_t allocSize = safe.add(safe.mul(vectorWidth, safe.add(fNumValueSlots, fNumTempStackSlots)),
-                                safe.mul(scalarWidth, fNumImmutableSlots));
-    if (!safe || !SkTFitsIn<int>(allocSize)) {
-        return std::nullopt;
-    }
+    const int allocSize = vectorWidth * (fNumValueSlots + fNumTempStackSlots) +
+                          scalarWidth * fNumImmutableSlots;
     float* slotPtr = static_cast<float*>(alloc->makeBytesAlignedTo(allocSize, vectorWidth));
     sk_bzero(slotPtr, allocSize);
 
@@ -1650,11 +1642,8 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
 #else
     // Convert our Instruction list to an array of ProgramOps.
     TArray<Stage> stages;
-    std::optional<SlotData> slotData = this->allocateSlotData(alloc);
-    if (!slotData) {
-        return false;
-    }
-    this->makeStages(&stages, alloc, uniforms, *slotData);
+    SlotData slotData = this->allocateSlotData(alloc);
+    this->makeStages(&stages, alloc, uniforms, slotData);
 
     // Allocate buffers for branch targets and labels; these are needed to convert labels into
     // actual offsets into the pipeline and fix up branches.
@@ -1668,7 +1657,7 @@ bool Program::appendStages(SkRasterPipeline* pipeline,
     auto resetBasePointer = [&]() {
         // Whenever we hand off control to another shader, we have to assume that it might overwrite
         // the base pointer (if it uses SkSL, it will!), so we reset it on return.
-        pipeline->append(SkRasterPipelineOp::set_base_pointer, (*slotData).values.data());
+        pipeline->append(SkRasterPipelineOp::set_base_pointer, slotData.values.data());
     };
 
     resetBasePointer();
@@ -2817,7 +2806,7 @@ void Program::Dumper::dump(SkWStream* out, bool writeInstructionCount) {
     // executed. The program requires pointer ranges for managing its data, and ASAN will report
     // errors if those pointers are pointing at unallocated memory.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
-    fSlots = fProgram.allocateSlotData(&alloc).value();
+    fSlots = fProgram.allocateSlotData(&alloc);
     float* uniformPtr = alloc.makeArray<float>(fProgram.fNumUniformSlots);
     fUniforms = SkSpan(uniformPtr, fProgram.fNumUniformSlots);
 

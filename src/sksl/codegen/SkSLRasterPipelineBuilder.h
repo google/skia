@@ -19,7 +19,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <optional>
 
 class SkArenaAlloc;
 class SkRasterPipeline;
@@ -177,7 +176,7 @@ private:
         SkSpan<float> stack;
         SkSpan<float> immutable;
     };
-    std::optional<SlotData> allocateSlotData(SkArenaAlloc* alloc) const;
+    SlotData allocateSlotData(SkArenaAlloc* alloc) const;
 
     struct Stage {
         ProgramOp op;
