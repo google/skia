@@ -633,8 +633,6 @@ void DWriteFontTypeface::onFilterRec(SkScalerContextRec* rec) const {
         if (SUCCEEDED(factory->CreateRenderingParams(&defaultRenderingParams))) {
             float gamma = defaultRenderingParams->GetGamma();
             rec->setDeviceGamma(gamma);
-            rec->setPaintGamma(gamma);
-
             rec->setContrast(defaultRenderingParams->GetEnhancedContrast());
         }
     }
