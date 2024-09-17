@@ -881,7 +881,10 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
     switch (mode) {
             // todo
         case SkCanvas::kPoints_PointMode:
-            // TODO?
+            for (size_t i = 0; i < count; ++i) {
+                path.moveTo(pts[i]);
+                path.lineTo(pts[i]);
+            }
             break;
         case SkCanvas::kLines_PointMode:
             count -= 1;
