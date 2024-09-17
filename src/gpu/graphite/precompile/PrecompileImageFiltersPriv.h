@@ -20,6 +20,7 @@ namespace PrecompileImageFiltersPriv {
     // Used by both the BlurMaskFilter and the BlurImageFilter
     void CreateBlurImageFilterPipelines(const KeyContext&,
                                         PipelineDataGatherer*,
+                                        const RenderPassDesc&,
                                         const PaintOptionsPriv::ProcessCombination&);
 
 } // namespace PrecompileImageFiltersPriv

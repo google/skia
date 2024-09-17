@@ -31,6 +31,8 @@ protected:
 
     virtual void createPipelines(const KeyContext&,
                                  PipelineDataGatherer*,
+                                 const PaintOptions&,
+                                 const RenderPassDesc&,
                                  const PaintOptions::ProcessCombination&) const = 0;
 };
 

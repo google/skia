@@ -2067,16 +2067,20 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
                                  precompileKeyContext.dstOffset(),
                                  precompileKeyContext.dstColorInfo());
 
+        RenderPassDesc unusedRenderPassDesc;
+
         std::vector<UniquePaintParamsID> precompileIDs;
         paintOptions.priv().buildCombinations(precompileKeyContext,
                                               &precompileGatherer,
                                               DrawTypeFlags::kNone,
                                               withPrimitiveBlender,
                                               coverage,
+                                              unusedRenderPassDesc,
                                               [&precompileIDs](UniquePaintParamsID id,
                                                                DrawTypeFlags,
                                                                bool /* withPrimitiveBlender */,
-                                                               Coverage) {
+                                                               Coverage,
+                                                               const RenderPassDesc&) {
                                                   precompileIDs.push_back(id);
                                               });
 
@@ -2304,7 +2308,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ShaderType::kColorFilter,
             ShaderType::kCoordClamp,
             ShaderType::kConicalGradient,
-            ShaderType::kEmpty,
             ShaderType::kLinearGradient,
             ShaderType::kLocalMatrix,
             ShaderType::kPerlinNoise,

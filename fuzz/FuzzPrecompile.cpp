@@ -29,6 +29,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/geom/Geometry.h"
@@ -371,16 +372,20 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                                     fakeDstOffset,
                                                     ci);
 
+    RenderPassDesc unusedRenderPassDesc;
+
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(precompileKeyContext,
                                           &gatherer,
                                           DrawTypeFlags::kNone,
                                           /* withPrimitiveBlender= */ false,
                                           coverage,
+                                          unusedRenderPassDesc,
                                           [&](UniquePaintParamsID id,
                                               DrawTypeFlags,
                                               bool /* withPrimitiveBlender */,
-                                              Coverage) {
+                                              Coverage,
+                                              const RenderPassDesc&) {
                                                   precompileIDs.push_back(id);
                                           });
 

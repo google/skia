@@ -32,6 +32,7 @@ class KeyContext;
 class PaintOptionsPriv;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
+struct RenderPassDesc;
 class UniquePaintParamsID;
 
 /** \class PaintOptions
@@ -171,14 +172,16 @@ private:
     typedef std::function<void(UniquePaintParamsID id,
                                DrawTypeFlags,
                                bool withPrimitiveBlender,
-                               Coverage)> ProcessCombination;
+                               Coverage,
+                               const RenderPassDesc&)> ProcessCombination;
 
     void buildCombinations(const KeyContext&,
                            PipelineDataGatherer*,
-                           DrawTypeFlags drawTypes,
+                           DrawTypeFlags,
                            bool addPrimitiveBlender,
-                           Coverage coverage,
-                           const ProcessCombination& processCombination) const;
+                           Coverage,
+                           const RenderPassDesc&,
+                           const ProcessCombination&) const;
 
     skia_private::TArray<sk_sp<PrecompileShader>> fShaderOptions;
     skia_private::TArray<sk_sp<PrecompileColorFilter>> fColorFilterOptions;

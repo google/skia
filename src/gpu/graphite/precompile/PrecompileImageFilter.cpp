@@ -48,15 +48,16 @@ sk_sp<PrecompileColorFilter> PrecompileImageFilter::asAColorFilter() const {
 void PrecompileImageFilter::createPipelines(
         const KeyContext& keyContext,
         PipelineDataGatherer* gatherer,
+        const RenderPassDesc& renderPassDesc,
         const PaintOptions::ProcessCombination& processCombination) {
     // TODO: we will want to mark already visited nodes to prevent loops and track
     // already created Pipelines so we don't over-generate too much (e.g., if a DAG
     // has multiple blurs we don't want to keep trying to create all the blur pipelines).
-    this->onCreatePipelines(keyContext, gatherer, processCombination);
+    this->onCreatePipelines(keyContext, gatherer, renderPassDesc, processCombination);
 
     for (const sk_sp<PrecompileImageFilter>& input : fInputs) {
         if (input) {
-            input->createPipelines(keyContext, gatherer, processCombination);
+            input->createPipelines(keyContext, gatherer, renderPassDesc, processCombination);
         }
     }
 }
@@ -67,6 +68,7 @@ namespace PrecompileImageFiltersPriv {
 void CreateBlurImageFilterPipelines(
         const KeyContext& keyContext,
         PipelineDataGatherer* gatherer,
+        const RenderPassDesc& renderPassDesc,
         const PaintOptionsPriv::ProcessCombination& processCombination) {
 
     PaintOptions blurPaintOptions;
@@ -85,6 +87,7 @@ void CreateBlurImageFilterPipelines(
                                               DrawTypeFlags::kSimpleShape,
                                               /* withPrimitiveBlender= */ false,
                                               Coverage::kSingleChannel,
+                                              renderPassDesc,
                                               processCombination);
 }
 
@@ -103,6 +106,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
+            const RenderPassDesc& renderPassDesc,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         PaintOptions paintOptions;
@@ -123,6 +127,7 @@ private:
                                               DrawTypeFlags::kSimpleShape,
                                               /* withPrimitiveBlender= */ false,
                                               Coverage::kSingleChannel,
+                                              renderPassDesc,
                                               processCombination);
     }
 
@@ -176,9 +181,11 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
+            const RenderPassDesc& renderPassDesc,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         PrecompileImageFiltersPriv::CreateBlurImageFilterPipelines(keyContext, gatherer,
+                                                                   renderPassDesc,
                                                                    processCombination);
     }
 };
@@ -205,6 +212,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
+            const RenderPassDesc& renderPassDesc,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
         PaintOptions paintOptions;
 
@@ -222,6 +230,7 @@ private:
                                               DrawTypeFlags::kSimpleShape,
                                               /* withPrimitiveBlender= */ false,
                                               Coverage::kSingleChannel,
+                                              renderPassDesc,
                                               processCombination);
     }
 
@@ -258,6 +267,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
+            const RenderPassDesc& renderPassDesc,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         PaintOptions displacement;
@@ -275,6 +285,7 @@ private:
                                               DrawTypeFlags::kSimpleShape,
                                               /* withPrimitiveBlender= */ false,
                                               Coverage::kSingleChannel,
+                                              renderPassDesc,
                                               processCombination);
     }
 };
@@ -295,6 +306,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
+            const RenderPassDesc& renderPassDesc,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
@@ -309,6 +321,7 @@ private:
                                           DrawTypeFlags::kSimpleShape,
                                           /* withPrimitiveBlender= */ false,
                                           Coverage::kSingleChannel,
+                                          renderPassDesc,
                                           processCombination);
     }
 };
@@ -329,6 +342,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
+            const RenderPassDesc& renderPassDesc,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         PaintOptions matrixConv;
@@ -346,6 +360,7 @@ private:
                                             DrawTypeFlags::kSimpleShape,
                                             /* withPrimitiveBlender= */ false,
                                             Coverage::kSingleChannel,
+                                            renderPassDesc,
                                             processCombination);
     }
 };
@@ -366,6 +381,7 @@ private:
     void onCreatePipelines(
             const KeyContext& keyContext,
             PipelineDataGatherer* gatherer,
+            const RenderPassDesc& renderPassDesc,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
         // For morphology imagefilters we know we don't have alpha-only textures and don't need
@@ -385,6 +401,7 @@ private:
                                             DrawTypeFlags::kSimpleShape,
                                             /* withPrimitiveBlender= */ false,
                                             Coverage::kSingleChannel,
+                                            renderPassDesc,
                                             processCombination);
         }
 
@@ -400,6 +417,7 @@ private:
                                             DrawTypeFlags::kSimpleShape,
                                             /* withPrimitiveBlender= */ false,
                                             Coverage::kSingleChannel,
+                                            renderPassDesc,
                                             processCombination);
         }
     }

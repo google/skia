@@ -61,10 +61,12 @@ private:
 
     virtual void onCreatePipelines(const KeyContext&,
                                    PipelineDataGatherer*,
+                                   const RenderPassDesc&,
                                    const PaintOptions::ProcessCombination&) const = 0;
 
     void createPipelines(const KeyContext&,
                          PipelineDataGatherer*,
+                         const RenderPassDesc&,
                          const PaintOptions::ProcessCombination&);
 
     skia_private::AutoSTArray<2, sk_sp<PrecompileImageFilter>> fInputs;
