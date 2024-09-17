@@ -1,1 +1,0 @@
-`SkColorFilter::filterColor` has been removed. Please use `SkColorFilter::filterColor4f` instead.

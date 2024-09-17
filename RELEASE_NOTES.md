@@ -2,6 +2,25 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 130
+-------------
+  * Add version of `SkAndroidCodec::getGainmapAndroidCodec` which returns an `SkAndroidCodec` instead
+    of an `SkStream`. Mark as deprecated the version that returns an `SkStream`.
+  * `SkColorFilter::filterColor` has been removed. Please use `SkColorFilter::filterColor4f` instead.
+  * SkFourByteTag has been moved to its own file: `include/core/SkFourByteTag.h`
+  * Ganesh files have been moved out of include/gpu/ into include/gpu/ganesh/. Shims have been left in place, but clients should migrate to the new paths.
+  * GR_GL_CUSTOM_SETUP_HEADER will be removed. Configuration in a client provided
+    SkUserConfig.h file (or defines set during compilation) are sufficient to affect
+    settings in GrGLConfig.h
+  * `GR_MAKE_BITFIELD_CLASS_OPS` and `GR_DECL_BITFIELD_CLASS_OPS_FRIENDS` have been removed
+    from the public API
+  * `SkMSec` has been removed from the public API, including `SkParse::FindMSec`
+  * A noop change to our SkSL runtime effect builder APIs. Moved make functions from subclasses
+    SkRuntimeShaderBuilder, SkRuntimeColorFilterBuilder, and SkRuntimeBlendBuilder to the base class
+    SkRuntimeEffectBuilder.
+
+* * *
+
 Milestone 129
 -------------
   * The Dawn-specific constructors and methods on `skgpu::graphite::TextureInfo`,
