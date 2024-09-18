@@ -7,7 +7,7 @@
 //! The public API of this crate is the C++ API declared by the `#[cxx::bridge]`
 //! macro below and exposed through the auto-generated `FFI.rs.h` header.
 
-use std::io::Read;
+use std::io::{ErrorKind, Read};
 use std::pin::Pin;
 
 // No `use png::...` nor `use ffi::...` because we want the code to explicitly
@@ -31,10 +31,14 @@ mod ffi {
         FormatError,
         ParameterError,
         LimitsExceededError,
-        // `ReadTrait` is infallible and therefore we expect no `png::DecodingError::IoError`
-        // and provide no equivalent of this variant.
-
-        // TODO(https://crbug.com/356923435): Add `IncompleteInput`.
+        /// `IncompleteInput` is equivalent to `png::DecodingError::IoError(
+        /// std::io::ErrorKind::UnexpectedEof.into())`.  It is named after
+        /// `SkCodec::Result::kIncompleteInput`.
+        ///
+        /// `ReadTrait` is infallible and therefore we provide no generic equivalent of the
+        /// `png::DecodingError::IoError` variant (other than the special case of
+        /// `IncompleteInput`).
+        IncompleteInput,
     }
 
     unsafe extern "C++" {
@@ -110,9 +114,14 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
         match option {
             None => Self::Success,
             Some(decoding_error) => match decoding_error {
-                png::DecodingError::IoError(_) => {
-                    // `ReadTrait` is infallible => we expect no `png::DecodingError::IoError`.
-                    unreachable!()
+                png::DecodingError::IoError(e) => {
+                    if e.kind() == ErrorKind::UnexpectedEof {
+                        Self::IncompleteInput
+                    } else {
+                        // `ReadTrait` is infallible => we expect no other kind of
+                        // `png::DecodingError::IoError`.
+                        unreachable!()
+                    }
                 }
                 png::DecodingError::Format(_) => Self::FormatError,
                 png::DecodingError::Parameter(_) => Self::ParameterError,

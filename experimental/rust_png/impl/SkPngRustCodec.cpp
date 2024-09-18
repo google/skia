@@ -154,6 +154,8 @@ SkCodec::Result ToSkCodecResult(rust_png::DecodingResult rustResult) {
             return SkCodec::kInvalidParameters;
         case rust_png::DecodingResult::LimitsExceededError:
             return SkCodec::kInternalError;
+        case rust_png::DecodingResult::IncompleteInput:
+            return SkCodec::kIncompleteInput;
     }
     SK_ABORT("Unexpected `rust_png::DecodingResult`: %d", static_cast<int>(rustResult));
 }
@@ -286,11 +288,6 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
         Result result = ToSkCodecResult(fReader->next_interlaced_row(decodedRow));
         if (result != kSuccess) {
             if (result == kIncompleteInput && rowsDecodedPtr) {
-                // TODO(https://crbug.com/356923435): Handle `kIncompleteInput` (right
-                // now the FFI layer will never return `kIncompleteInput` but we will
-                // need to handle it for incremental, row-by-row decoding).
-                SkUNREACHABLE;
-
                 *rowsDecodedPtr = rowsDecoded;
             }
             return result;
