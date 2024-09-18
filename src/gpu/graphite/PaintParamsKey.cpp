@@ -96,7 +96,13 @@ const ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
         const int dataLength = fData[storedDataLengthIdx];
         SkASSERT(storedDataLengthIdx + dataLength < SkTo<int>(fData.size()));
 
-        if (dataLength) {
+        // Append either the data contents (length can now be inferred by the consumers of the data)
+        // OR the data length of "0" to explicitly indicate the absence of material data.
+        // TODO(b/366220690): Once snippet IDs can be tied to their respective data, we can simply
+        // leave the span empty.
+        if (dataLength == 0) {
+            dataSpan = fData.subspan(storedDataLengthIdx, 1);
+        } else {
             dataSpan = fData.subspan(storedDataLengthIdx + 1, dataLength);
             // Iterate past the length of data
             *currentIndex += dataLength;
