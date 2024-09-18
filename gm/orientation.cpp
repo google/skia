@@ -165,14 +165,9 @@ MAKE_GM(440)
 MAKE_GM(444)
 
 // This GM demonstrates that the SkImageGenerators respect the orientation flag.
+// We do not use SkImageGeneratorWIC because the COM must be initialized at the
+// application level.
 DEF_SIMPLE_GM(respect_orientation_jpeg, canvas, 4*kImgW, 4*kImgH) {
-    #if defined(SK_BUILD_FOR_WIN)
-      SkAutoCoInitialize coinit;
-      if (!coinit.succeeded()) {
-        return;
-      }
-    #endif
-
    canvas->save();
     for (char i = '1'; i <= '8'; i++) {
         SkString path = SkStringPrintf("images/orientation/%c_444.jpg", i);
@@ -182,8 +177,6 @@ DEF_SIMPLE_GM(respect_orientation_jpeg, canvas, 4*kImgW, 4*kImgH) {
 
         #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
           image = SkImages::DeferredFromGenerator(SkImageGeneratorCG::MakeFromEncodedCG(data));
-        #elif defined(SK_BUILD_FOR_WIN)
-          image = SkImages::DeferredFromGenerator(SkImageGeneratorWIC::MakeFromEncodedWIC(data));
         #elif defined(SK_ENABLE_NDK_IMAGES)
           image = SkImages::DeferredFromGenerator(SkImageGeneratorNDK::MakeFromEncodedNDK(data));
         #endif
