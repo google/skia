@@ -149,14 +149,16 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
     check(reporter, atlas.get(), 4, 0);
 
-    // Simulate one non-atlas flush.
+    // Simulate two non-atlas flushes.
     // Nothing should change.
+    sim_non_atlas_draw(atlas.get(), recorder.get());
     sim_non_atlas_draw(atlas.get(), recorder.get());
     atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
     check(reporter, atlas.get(), 4, 0);
 
-    // Simulate an atlas draw/flush.
+    // Simulate one more non-atlas flush and an atlas draw/flush.
     // All other plots should evict and only the last page removed.
+    sim_non_atlas_draw(atlas.get(), recorder.get());
     sim_draw_from_plot(atlas.get(), recorder.get(), testAtlasLocator);
     atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
     check(reporter, atlas.get(), 3, 15);
@@ -167,6 +169,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     result = fill_plot(atlas.get(), recorder.get(), &atlasLocator, 0);
     REPORTER_ASSERT(reporter, result);
     sim_draw_from_plot(atlas.get(), recorder.get(), atlasLocator);
+    sim_non_atlas_draw(atlas.get(), recorder.get());
+    sim_non_atlas_draw(atlas.get(), recorder.get());
     sim_non_atlas_draw(atlas.get(), recorder.get());
     atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
     check(reporter, atlas.get(), 1, 1);
