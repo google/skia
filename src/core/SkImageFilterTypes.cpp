@@ -129,12 +129,12 @@ std::optional<LayerSpace<SkMatrix>> periodic_axis_transform(
     double cropHeight = crop.bottom() - cropT;
 
     // Calculate normalized periodic coordinates of 'output' relative to the 'crop' being tiled.
-    int periodL = sk_double_floor2int((output.left() - cropL) / cropWidth);
-    int periodT = sk_double_floor2int((output.top() - cropT) / cropHeight);
-    int periodR = sk_double_ceil2int((output.right() - cropL) / cropWidth);
-    int periodB = sk_double_ceil2int((output.bottom() - cropT) / cropHeight);
+    double periodL = std::floor((output.left() - cropL) / cropWidth);
+    double periodT = std::floor((output.top() - cropT) / cropHeight);
+    double periodR = std::ceil((output.right() - cropL) / cropWidth);
+    double periodB = std::ceil((output.bottom() - cropT) / cropHeight);
 
-    if (periodR - periodL <= 1 && periodB - periodT <= 1) {
+    if (periodR - periodL <= 1.0 && periodB - periodT <= 1.0) {
         // The tiling pattern won't be visible, so we can draw the image without tiling and an
         // adjusted transform. We calculate the final translation in double to be exact and then
         // verify that it can round-trip as a float.
@@ -144,12 +144,13 @@ std::optional<LayerSpace<SkMatrix>> periodic_axis_transform(
         double ty = -cropT;
 
         if (tileMode == SkTileMode::kMirror) {
-            // Flip image when in odd periods on each axis.
-            if (periodL % 2 != 0) {
+            // Flip image when in odd periods on each axis. The periods are stored as doubles but
+            // hold integer values since they came from floor or ceil.
+            if (std::fmod(periodL, 2.f) > SK_ScalarNearlyZero) {
                 sx = -1.f;
                 tx = cropWidth - tx;
             }
-            if (periodT % 2 != 0) {
+            if (std::fmod(periodT, 2.f) > SK_ScalarNearlyZero) {
                 sy = -1.f;
                 ty = cropHeight - ty;
             }
@@ -536,7 +537,7 @@ class FilterResult::AutoSurface {
 public:
     AutoSurface(const Context& ctx,
                 const LayerSpace<SkIRect>& dstBounds,
-                [[maybe_unused]] PixelBoundary boundary,
+                PixelBoundary boundary,
                 bool renderInParameterSpace,
                 const SkSurfaceProps* props = nullptr)
             : fDstBounds(dstBounds)
@@ -547,7 +548,21 @@ public:
         // to align with the actual desired output via FilterResult metadata).
         sk_sp<SkDevice> device = nullptr;
         if (!dstBounds.isEmpty()) {
-            fDstBounds.outset(LayerSpace<SkISize>({this->padding(), this->padding()}));
+            int padding = this->padding();
+            if (padding) {
+                fDstBounds.outset(LayerSpace<SkISize>({padding, padding}));
+                // If we are dealing with pathological inputs, the bounds may be near the maximum
+                // represented by an int, in which case the outset gets saturated and we don't end
+                // up with the expected padding pixels. We could downgrade the boundary value in
+                // this case, but given that these values are going to be causing problems for any
+                // of the floating point math during rendering we just fail.
+                if (fDstBounds.left() >= dstBounds.left() ||
+                    fDstBounds.right() <= dstBounds.right() ||
+                    fDstBounds.top() >= dstBounds.top() ||
+                    fDstBounds.bottom() <= dstBounds.bottom()) {
+                    return;
+                }
+            }
             device = ctx.backend()->makeDevice(SkISize(fDstBounds.size()),
                                                ctx.refColorSpace(),
                                                props);
@@ -1719,6 +1734,10 @@ FilterResult FilterResult::rescale(const Context& ctx,
             // the rescaling steps because, for better or worse, the deferred transform does not
             // otherwise participate in progressive scaling so we should be consistent.
             image = image.resolve(ctx, srcRect);
+            if (!image) {
+                // Early out if the resolve failed
+                return {};
+            }
             if (!cfBorder) {
                 // This sets the resolved image to match either kDecal or the deferred tile mode.
                 image.fTileMode = tileMode;
