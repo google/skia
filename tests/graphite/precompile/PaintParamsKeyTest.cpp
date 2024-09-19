@@ -1805,6 +1805,38 @@ void non_simple_draws(SkCanvas* canvas, const SkPaint& paint, const DrawData& dr
     canvas->drawTextBlob(drawData.fPathBlob, 0, 16, paint);
 }
 
+#ifdef SK_DEBUG
+void dump_keys(Context* context,
+               const std::vector<skgpu::UniqueKey>& needleKeys,
+               const std::vector<skgpu::UniqueKey>& hayStackKeys,
+               const char* needleName,
+               const char* haystackName) {
+    const RendererProvider* rendererProvider = context->priv().rendererProvider();
+    const ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+
+    SkDebugf("-------------------------- %zu %s pipelines\n", needleKeys.size(), needleName);
+
+    int count = 0;
+    for (const skgpu::UniqueKey& k : needleKeys) {
+        bool found = std::find(hayStackKeys.begin(), hayStackKeys.end(), k) != hayStackKeys.end();
+
+        GraphicsPipelineDesc originalPipelineDesc;
+        RenderPassDesc originalRenderPassDesc;
+        UniqueKeyUtils::ExtractKeyDescs(context, k,
+                                        &originalPipelineDesc,
+                                        &originalRenderPassDesc);
+
+        SkString label;
+        label.appendf("--- %s key %d (%s in %s):\n",
+                      needleName, count++, found ? "found" : "not-found", haystackName);
+        k.dump(label.c_str());
+        UniqueKeyUtils::DumpDescs(rendererProvider, dict,
+                                  originalPipelineDesc,
+                                  originalRenderPassDesc);
+    }
+}
+#endif
+
 void check_draw(skiatest::Reporter* reporter,
                 Context* context,
                 skiatest::graphite::GraphiteTestContext* testContext,
@@ -1815,13 +1847,11 @@ void check_draw(skiatest::Reporter* reporter,
                 sk_sp<SkShader> clipShader) {
     static const DrawData kDrawData;
 
-    int before = context->priv().globalCache()->numGraphicsPipelines();
+    std::vector<skgpu::UniqueKey> precompileKeys, drawKeys;
 
-#ifdef SK_DEBUG
-    std::vector<skgpu::UniqueKey> beforeKeys;
+    UniqueKeyUtils::FetchUniqueKeys(context->priv().globalCache(), &precompileKeys);
 
-    UniqueKeyUtils::FetchUniqueKeys(context->priv().globalCache(), &beforeKeys);
-#endif
+    context->priv().globalCache()->resetGraphicsPipelines();
 
     {
         // TODO: vary the colorType of the target surface too
@@ -1901,52 +1931,26 @@ void check_draw(skiatest::Reporter* reporter,
         testContext->syncedSubmit(context);
     }
 
-    int after = context->priv().globalCache()->numGraphicsPipelines();
+    UniqueKeyUtils::FetchUniqueKeys(context->priv().globalCache(), &drawKeys);
 
-    // Actually using the SkPaint with the specified type of draw shouldn't have caused
-    // any additional compilation
-    REPORTER_ASSERT(reporter, before == after, "before: %d after: %d", before, after);
+    // Actually using the SkPaint with the specified type of draw shouldn't have added
+    // any additional pipelines
+    int missingPipelines = 0;
+    for (const skgpu::UniqueKey& k : drawKeys) {
+        bool found =
+                std::find(precompileKeys.begin(), precompileKeys.end(), k) != precompileKeys.end();
+        if (!found) {
+            ++missingPipelines;
+        }
+    }
+
+    REPORTER_ASSERT(reporter, missingPipelines == 0,
+                    "precompile pipelines: %zu draw pipelines: %zu - %d missing from precompile",
+                    precompileKeys.size(), drawKeys.size(), missingPipelines);
 #ifdef SK_DEBUG
-    if (before != after) {
-        const RendererProvider* rendererProvider = context->priv().rendererProvider();
-        const ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-
-        std::vector<skgpu::UniqueKey> afterKeys;
-
-        UniqueKeyUtils::FetchUniqueKeys(context->priv().globalCache(), &afterKeys);
-
-        for (const skgpu::UniqueKey& afterKey : afterKeys) {
-            if (std::find(beforeKeys.begin(), beforeKeys.end(), afterKey) == beforeKeys.end()) {
-                GraphicsPipelineDesc originalPipelineDesc;
-                RenderPassDesc originalRenderPassDesc;
-                UniqueKeyUtils::ExtractKeyDescs(context, afterKey,
-                                                &originalPipelineDesc,
-                                                &originalRenderPassDesc);
-
-                SkDebugf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-                afterKey.dump("New key from draw:");
-                UniqueKeyUtils::DumpDescs(rendererProvider, dict,
-                                          originalPipelineDesc,
-                                          originalRenderPassDesc);
-            }
-        }
-
-        SkDebugf("-------------------------- %zu before keys\n", beforeKeys.size());
-        int count = 0;
-        for (const skgpu::UniqueKey& beforeKey : beforeKeys) {
-            GraphicsPipelineDesc originalPipelineDesc;
-            RenderPassDesc originalRenderPassDesc;
-            UniqueKeyUtils::ExtractKeyDescs(context, beforeKey,
-                                            &originalPipelineDesc,
-                                            &originalRenderPassDesc);
-
-            SkString label;
-            label.appendf("--- %d:", count++);
-            beforeKey.dump(label.c_str());
-            UniqueKeyUtils::DumpDescs(rendererProvider, dict,
-                                      originalPipelineDesc,
-                                      originalRenderPassDesc);
-        }
+    if (missingPipelines) {
+        dump_keys(context, drawKeys, precompileKeys, "draw", "precompile");
+        dump_keys(context, precompileKeys, drawKeys, "precompile", "draw");
     }
 #endif // SK_DEBUG
 }
