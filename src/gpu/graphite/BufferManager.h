@@ -163,17 +163,23 @@ private:
     friend class ScratchBuffer;
 
     struct BufferInfo {
-        BufferInfo(BufferType type, uint32_t blockSize, const Caps* caps);
+        BufferInfo(BufferType type, uint32_t minBlockSize, uint32_t maxBlockSize, const Caps* caps);
 
         const BufferType fType;
         const uint32_t fStartAlignment;
-        const uint32_t fBlockSize;
+        const uint32_t fMinBlockSize;
+        const uint32_t fMaxBlockSize;
         sk_sp<Buffer> fBuffer;
         // The fTransferBuffer can be null, if draw buffer cannot be mapped,
         // see Caps::drawBufferCanBeMapped() for detail.
         BindBufferInfo fTransferBuffer{};
         void* fTransferMapPtr = nullptr;
         uint32_t fOffset = 0;
+
+        // Block size to use when creating new buffers; between fMinBlockSize and fMaxBlockSize.
+        uint32_t fCurBlockSize = 0;
+        // How many bytes have been used for for this buffer type since the last Recording snap.
+        uint32_t fUsedSize = 0;
     };
     std::pair<void* /*mappedPtr*/, BindBufferInfo> prepareMappedBindBuffer(BufferInfo* info,
                                                                            uint32_t requiredBytes,
