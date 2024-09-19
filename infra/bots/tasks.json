@@ -2679,6 +2679,11 @@
         "Test-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit"
       ]
     },
+    "Test-Debian11-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All": {
+      "tasks": [
+        "Test-Debian11-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All"
+      ]
+    },
     "Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All": {
       "tasks": [
         "Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All"
@@ -51813,6 +51818,105 @@
         "CLOUDSDK_PYTHON": [
           "cipd_bin_packages/cpython3/bin/python3"
         ],
+        "PATH": [
+          "gsutil/gsutil",
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin",
+          "cipd_bin_packages/cpython3",
+          "cipd_bin_packages/cpython3/bin"
+        ],
+        "VPYTHON_DEFAULT_SPEC": [
+          "skia/.vpython3"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "cache/vpython3"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/${SWARMING_TASK_ID}/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "max_attempts": 2,
+      "outputs": [
+        "test"
+      ],
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Test-Debian11-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All": {
+      "caches": [
+        {
+          "name": "vpython3",
+          "path": "cache/vpython3"
+        }
+      ],
+      "casSpec": "test",
+      "cipd_packages": [
+        {
+          "name": "infra/3pp/tools/cpython3/linux-amd64",
+          "path": "cipd_bin_packages/cpython3",
+          "version": "version:3@3.11.9.chromium.35"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f395cad73f6f75b2298697b5da01d7505e3116e9"
+        },
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:f395cad73f6f75b2298697b5da01d7505e3116e9"
+        },
+        {
+          "name": "infra/tools/luci/vpython3/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:f395cad73f6f75b2298697b5da01d7505e3116e9"
+        },
+        {
+          "name": "skia/bots/gsutil",
+          "path": "gsutil",
+          "version": "version:0"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:47"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:463"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:14"
+        }
+      ],
+      "command": [
+        "cipd_bin_packages/vpython3${EXECUTABLE_SUFFIX}",
+        "-u",
+        "skia/infra/bots/run_recipe.py",
+        "${ISOLATED_OUTDIR}",
+        "test",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Debian11-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All\",\"dm_flags\":\"[\\\"dm\\\",\\\"--nameByHash\\\",\\\"--key\\\",\\\"arch\\\",\\\"x86_64\\\",\\\"compiler\\\",\\\"Clang\\\",\\\"configuration\\\",\\\"Release\\\",\\\"cpu_or_gpu\\\",\\\"CPU\\\",\\\"cpu_or_gpu_value\\\",\\\"AVX2\\\",\\\"model\\\",\\\"NUC11TZi5\\\",\\\"os\\\",\\\"Debian11\\\",\\\"style\\\",\\\"default\\\",\\\"--randomProcessorTest\\\",\\\"--nogpu\\\",\\\"--config\\\",\\\"8888\\\",\\\"--src\\\",\\\"tests\\\",\\\"gm\\\",\\\"image\\\",\\\"colorImage\\\",\\\"--skip\\\",\\\"_\\\",\\\"image\\\",\\\"gen_platf\\\",\\\"error\\\",\\\"--nonativeFonts\\\",\\\"--verbose\\\"]\",\"dm_properties\":\"{\\\"buildbucket_build_id\\\":\\\"<(BUILDBUCKET_BUILD_ID)\\\",\\\"builder\\\":\\\"Test-Debian11-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All\\\",\\\"gitHash\\\":\\\"<(REVISION)\\\",\\\"issue\\\":\\\"<(ISSUE)\\\",\\\"patch_storage\\\":\\\"<(PATCH_STORAGE)\\\",\\\"patchset\\\":\\\"<(PATCHSET)\\\",\\\"swarming_bot_id\\\":\\\"${SWARMING_BOT_ID}\\\",\\\"swarming_task_id\\\":\\\"${SWARMING_TASK_ID}\\\",\\\"task_id\\\":\\\"<(TASK_ID)\\\"}\",\"do_upload\":\"true\",\"gold_hashes_url\":\"https://gold.skia.org/json/v1/hashes\",\"gs_bucket\":\"skia-infra-gm\",\"images\":\"true\",\"patch_issue\":\"<(ISSUE_INT)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET_INT)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"resources\":\"true\",\"revision\":\"<(REVISION)\",\"skps\":\"true\",\"svgs\":\"true\",\"swarm_out_dir\":\"test\",\"task_id\":\"<(TASK_ID)\"}",
+        "skia"
+      ],
+      "dependencies": [
+        "Build-Debian11-Clang-x86_64-Release",
+        "Housekeeper-PerCommit-BundleRecipes"
+      ],
+      "dimensions": [
+        "cpu:x86-64-i5-1135G7",
+        "os:Debian-11.5",
+        "pool:Skia"
+      ],
+      "environment": {
+        "RECIPES_USE_PY3": "true",
+        "VPYTHON_LOG_TRACE": "1"
+      },
+      "env_prefixes": {
         "PATH": [
           "gsutil/gsutil",
           "cipd_bin_packages",
