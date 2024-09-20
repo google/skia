@@ -150,7 +150,7 @@ Task::Status RenderPassTask::addCommands(Context* context,
                                      std::move(depthStencilAttachment),
                                      fDstCopy ? fDstCopy->texture() : nullptr,
                                      fDstCopyBounds,
-                                     SkIRect::MakeSize(fTarget->dimensions()),
+                                     fTarget->dimensions(),
                                      fDrawPasses)) {
         return Status::kSuccess;
     } else {

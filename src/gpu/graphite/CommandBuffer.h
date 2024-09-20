@@ -75,15 +75,19 @@ public:
     SkSpan<const sk_sp<Buffer>> buffersToAsyncMapOnSubmit() const;
 
     // If any recorded draw requires a dst texture copy for blending, that texture must be provided
-    // in `dstCopy`; otherwise it should be null. The `dstCopyBounds` and `viewport` are in the
-    // same coordinate space of the logical target *before* any replay translation is applied.
+    // in `dstCopy`; otherwise it should be null. The `dstCopyBounds` are in the same coordinate
+    // space of the logical viewport *before* any replay translation is applied.
+    //
+    // The logical viewport is always (0,0,viewportDims) and matches the "device" coordinate space
+    // of the higher-level SkDevices that recorded the rendering operations. The actual viewport
+    // is automatically adjusted by the replay translation.
     bool addRenderPass(const RenderPassDesc&,
                        sk_sp<Texture> colorTexture,
                        sk_sp<Texture> resolveTexture,
                        sk_sp<Texture> depthStencilTexture,
                        const Texture* dstCopy,
                        SkIRect dstCopyBounds,
-                       SkIRect viewport,
+                       SkISize viewportDims,
                        const DrawPassList& drawPasses);
 
     bool addComputePass(DispatchGroupSpan dispatchGroups);
@@ -122,13 +126,16 @@ protected:
     CommandBuffer();
 
     SkISize fColorAttachmentSize;
+    // This is also the origin of the logical viewport relative to the target texture's (0,0) pixel
     SkIVector fReplayTranslation;
+
     // The texture to use for implementing DstReadRequirement::kTextureCopy for the current render
     // pass. This is a bare pointer since the CopyTask that initializes the texture's contents
     // will have tracked the resource on the CommandBuffer already.
     std::pair<const Texture*, const Sampler*> fDstCopy;
-    // Already includes replay translation and respects final color attachment bounds.
-    SkIVector fDstCopyOffset;
+    // Already includes replay translation and respects final color attachment bounds, but with
+    // dimensions that equal fDstCopy's width and height.
+    SkIRect fDstCopyBounds;
 
 private:
     // Release all tracked Resources

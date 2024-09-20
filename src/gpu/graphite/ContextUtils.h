@@ -90,14 +90,19 @@ std::tuple<UniformDataBlock, TextureDataBlock> ExtractRenderStepData(
         const DrawParams& params);
 
 // `viewport` should hold the actual viewport set as backend state (defining the NDC -> pixel
-// transform).
-// `replayTranslation` should hold the replay translation provided on insertRecording().
-// It is assumed that `dstCopyOffset` has already accounted for the replay translation.
+// transform). The viewport's dimensions are used to define the SkDevice->NDC transform applied in
+// the vertex shader, but this assumes that the (0,0) device coordinate maps to the corner of the
+// top-left of the NDC cube. The viewport's origin is used in the fragment shader to reconstruct
+// the logical fragment coordinate from the target's current frag coord (which are not relative to
+// active viewport).
+//
+// It is assumed that `dstCopyBounds` is in the same coordinate space as the `viewport` (e.g.
+// final backing target's pixel coords) and that its width and height match the dimensions of the
+// texture to be sampled for dst reads.
 void CollectIntrinsicUniforms(
         const Caps* caps,
         SkIRect viewport,
-        SkIPoint replayTranslation,
-        SkIPoint dstCopyOffset,
+        SkIRect dstCopyBounds,
         UniformManager*);
 
 DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, Coverage);
