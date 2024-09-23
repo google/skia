@@ -185,10 +185,14 @@ impl<'a> OutlinePen for NoOpPen {
 
 struct ColorPainterImpl<'a> {
     color_painter_wrapper: Pin<&'a mut ffi::ColorPainterWrapper>,
+    clip_level: usize,
 }
 
 impl<'a> ColorPainter for ColorPainterImpl<'a> {
     fn push_transform(&mut self, transform: Transform) {
+        if self.clip_level > 0 {
+            return;
+        }
         self.color_painter_wrapper
             .as_mut()
             .push_transform(&ffi::Transform {
@@ -202,30 +206,51 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
     }
 
     fn pop_transform(&mut self) {
+        if self.clip_level > 0 {
+            return;
+        }
         self.color_painter_wrapper.as_mut().pop_transform();
     }
 
     fn push_clip_glyph(&mut self, glyph: GlyphId) {
-        // TODO(drott): Handle large glyph ids in clip operation.
-        self.color_painter_wrapper
-            .as_mut()
-            .push_clip_glyph(glyph.to_u32().try_into().ok().unwrap_or_default());
+        if self.clip_level == 0 {
+            // TODO(drott): Handle large glyph ids in clip operation.
+            self.color_painter_wrapper
+                .as_mut()
+                .push_clip_glyph(glyph.to_u32().try_into().ok().unwrap_or_default());
+        }
+        if self.color_painter_wrapper.as_mut().is_bounds_mode() {
+            self.clip_level += 1;
+        }
     }
 
     fn push_clip_box(&mut self, clip_box: BoundingBox<f32>) {
-        self.color_painter_wrapper.as_mut().push_clip_rectangle(
-            clip_box.x_min,
-            clip_box.y_min,
-            clip_box.x_max,
-            clip_box.y_max,
-        );
+        if self.clip_level == 0 {
+            self.color_painter_wrapper.as_mut().push_clip_rectangle(
+                clip_box.x_min,
+                clip_box.y_min,
+                clip_box.x_max,
+                clip_box.y_max,
+            );
+        }
+        if self.color_painter_wrapper.as_mut().is_bounds_mode() {
+            self.clip_level += 1;
+        }
     }
 
     fn pop_clip(&mut self) {
-        self.color_painter_wrapper.as_mut().pop_clip();
+        if self.color_painter_wrapper.as_mut().is_bounds_mode() {
+            self.clip_level -= 1;
+        }
+        if self.clip_level == 0 {
+            self.color_painter_wrapper.as_mut().pop_clip();
+        }
     }
 
     fn fill(&mut self, fill_type: Brush) {
+        if self.clip_level > 0 {
+            return;
+        }
         let color_painter = self.color_painter_wrapper.as_mut();
         match fill_type {
             Brush::Solid {
@@ -307,6 +332,12 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
     }
 
     fn fill_glyph(&mut self, glyph: GlyphId, brush_transform: Option<Transform>, brush: Brush) {
+        if self.color_painter_wrapper.as_mut().is_bounds_mode() {
+            self.push_clip_glyph(glyph);
+            self.pop_clip();
+            return;
+        }
+
         let color_painter = self.color_painter_wrapper.as_mut();
         let brush_transform = brush_transform.unwrap_or_default();
         match brush {
@@ -423,11 +454,17 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
     }
 
     fn push_layer(&mut self, composite_mode: CompositeMode) {
+        if self.clip_level > 0 {
+            return;
+        }
         self.color_painter_wrapper
             .as_mut()
             .push_layer(composite_mode as u8);
     }
     fn pop_layer(&mut self) {
+        if self.clip_level > 0 {
+            return;
+        }
         self.color_painter_wrapper.as_mut().pop_layer();
     }
 }
@@ -939,6 +976,9 @@ fn draw_colr_glyph(
 ) -> bool {
     let mut color_painter_impl = ColorPainterImpl {
         color_painter_wrapper: color_painter,
+        // In bounds mode, we do not need to track or forward to the client anything below the
+        // first clip layer, as the bounds cannot grow after that.
+        clip_level: 0,
     };
     font_ref
         .with_font(|f| {
@@ -1709,6 +1749,7 @@ mod ffi {
 
         type ColorPainterWrapper;
 
+        fn is_bounds_mode(self: Pin<&mut ColorPainterWrapper>) -> bool;
         fn push_transform(self: Pin<&mut ColorPainterWrapper>, transform: &Transform);
         fn pop_transform(self: Pin<&mut ColorPainterWrapper>);
         fn push_clip_glyph(self: Pin<&mut ColorPainterWrapper>, glyph_id: u16);

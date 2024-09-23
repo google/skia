@@ -74,6 +74,7 @@ public:
                  uint16_t upem);
 
     // fontations_ffi::ColorPainter interface.
+    virtual bool is_bounds_mode() override { return false; }
     virtual void push_transform(const fontations_ffi::Transform& transform) override;
     virtual void pop_transform() override;
     virtual void push_clip_glyph(uint16_t glyph_id) override;
@@ -150,6 +151,7 @@ public:
     SkRect getBoundingBox();
 
     // fontations_ffi::ColorPainter interface.
+    virtual bool is_bounds_mode() override { return true; }
     virtual void push_transform(const fontations_ffi::Transform& transform) override;
     virtual void pop_transform() override;
     virtual void push_clip_glyph(uint16_t glyph_id) override;

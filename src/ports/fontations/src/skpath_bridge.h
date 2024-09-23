@@ -46,6 +46,7 @@ struct FillSweepParams;
 class ColorPainterWrapper {
 public:
     virtual ~ColorPainterWrapper() = default;
+    virtual bool is_bounds_mode() = 0;
     virtual void push_transform(const Transform& transform) = 0;
     virtual void pop_transform() = 0;
     virtual void push_clip_glyph(uint16_t glyph_id) = 0;
