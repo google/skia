@@ -211,8 +211,8 @@ int numInt32sNeeded(const VulkanYcbcrConversionInfo& conversionInfo) {
     if (!conversionInfo.isValid()) {
         return 0;
     }
-    return (conversionInfo.fFormat == VK_FORMAT_UNDEFINED) ? kInt32sNeededExternalFormat
-                                                           : kInt32sNeededKnownFormat;
+    return conversionInfo.fFormat == VK_FORMAT_UNDEFINED ? SamplerDesc::kInt32sNeededExternalFormat
+                                                         : SamplerDesc::kInt32sNeededKnownFormat;
 }
 } // namespace ycbcrPackaging
 

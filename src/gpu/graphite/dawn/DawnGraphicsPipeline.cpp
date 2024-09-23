@@ -293,8 +293,8 @@ bool gather_immutable_samplers(const SkSpan<uint32_t> samplerData,
         SkASSERT(immutableSamplerInfo != 0);
         bool usesExternalFormat =
                 static_cast<bool>(immutableSamplerInfo & ycbcrUtils::kUseExternalFormatMask);
-        const int samplerDataLength =
-                usesExternalFormat ? kIntsNeededExternalFormat : kIntsNeededKnownFormat;
+        const int samplerDataLength = usesExternalFormat ? SamplerDesc::kInt32sNeededExternalFormat
+                                                         : SamplerDesc::kInt32sNeededKnownFormat;
 
         // Gather samplerDataLength int32s from the data span. Use that to populate a
         // SamplerDesc which enables us to query the resource provider for a real sampler.

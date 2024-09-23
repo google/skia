@@ -67,15 +67,6 @@ int numInt32sNeeded(const VulkanYcbcrConversionInfo&);
 
 uint32_t nonFormatInfoAsUInt32(const VulkanYcbcrConversionInfo&);
 
-// The number of uint32s required to represent all relevant YCbCr conversion info depends upon
-// whether we are using a known VkFormat or an external format. With a known format, we only
-// require 2 - one for non-format information and another to store the VkFormat.
-static constexpr int kInt32sNeededKnownFormat = 2;
-// External formats are represented by a uint64 and require us to store format feature flags,
-// meaning that we end up with 4 uint32s total - 1 for non-format info, 2 for the format, and 1
-// for format feature flags.
-static constexpr int kInt32sNeededExternalFormat = 3;
-
 static constexpr int kUsesExternalFormatBits  = 1;
 static constexpr int kYcbcrModelBits          = 3;
 static constexpr int kYcbcrRangeBits          = 1;

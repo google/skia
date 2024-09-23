@@ -255,6 +255,12 @@ struct SamplerDesc {
     static constexpr int kMipmapModeShift           = kFilterModeShift + kNumFilterModeBits;
     static constexpr int kImmutableSamplerInfoShift = kMipmapModeShift + kNumMipmapModeBits;
 
+    // Only relevant when using immutable samplers. Otherwise, can be ignored. The number of uint32s
+    // required to represent all relevant sampler desc information depends upon whether we are using
+    // a known or external format.
+    static constexpr int kInt32sNeededKnownFormat = 2;
+    static constexpr int kInt32sNeededExternalFormat = 3;
+
 private:
     // Note: The order of these member attributes matters to keep unique object representation
     // such that SkGoodHash can be used to hash SamplerDesc objects.
