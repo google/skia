@@ -306,10 +306,12 @@ TiledTextureUtils::ImageDrawMode TiledTextureUtils::OptimizeSampleArea(const SkI
     return ImageDrawMode::kOptimized;
 }
 
-bool TiledTextureUtils::CanDisableMipmap(const SkMatrix& viewM, const SkMatrix& localM) {
+bool TiledTextureUtils::CanDisableMipmap(const SkMatrix& viewM,
+                                         const SkMatrix& localM,
+                                         bool sharpenMipmappedTextures) {
     SkMatrix matrix;
     matrix.setConcat(viewM, localM);
-    // We bias mipmap lookups by -0.5. That means our final LOD is >= 0 until
+    // With sharp mips, we bias mipmap lookups by -0.5. That means our final LOD is >= 0 until
     // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
     // 0.5?
     //
@@ -318,7 +320,8 @@ bool TiledTextureUtils::CanDisableMipmap(const SkMatrix& viewM, const SkMatrix& 
     //        2^0.5   = 1/s
     //        1/2^0.5 = s
     //        2^0.5/2 = s
-    return matrix.getMinScale() >= SK_ScalarRoot2Over2;
+    SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
+    return matrix.getMinScale() >= mipScale;
 }
 
 
@@ -362,6 +365,7 @@ std::tuple<bool, size_t> TiledTextureUtils::DrawAsTiledImageRect(
         const SkSamplingOptions& origSampling,
         const SkPaint* paint,
         SkCanvas::SrcRectConstraint constraint,
+        bool sharpenMM,
         size_t cacheSize,
         size_t maxTextureSize) {
     if (canvas->isClipEmpty()) {
@@ -389,7 +393,8 @@ std::tuple<bool, size_t> TiledTextureUtils::DrawAsTiledImageRect(
         const SkMatrix& localToDevice = device->localToDevice();
 
         SkSamplingOptions sampling = origSampling;
-        if (sampling.mipmap != SkMipmapMode::kNone && CanDisableMipmap(localToDevice, srcToDst)) {
+        if (sampling.mipmap != SkMipmapMode::kNone &&
+            CanDisableMipmap(localToDevice, srcToDst, sharpenMM)) {
             sampling = SkSamplingOptions(sampling.filter);
         }
 

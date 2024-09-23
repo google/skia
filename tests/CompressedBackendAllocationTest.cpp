@@ -109,7 +109,7 @@ static void check_compressed_mipmaps(GrRecordingContext* rContext,
 
     SkCanvas* canvas = surf->getCanvas();
 
-    // Given that we bias LOD selection with MIP maps, hitting a level exactly using
+    // When MIP map sampling is biased (as it is by default), hitting a level exactly using
     // SkMipmap::kLinear is difficult so we use kNearest.
     const SkSamplingOptions sampling(SkFilterMode::kLinear,
                                      SkMipmapMode::kNearest);

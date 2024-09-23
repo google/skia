@@ -21,6 +21,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTileMode.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
@@ -42,6 +43,7 @@
 #include "src/gpu/ganesh/GrFragmentProcessors.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
@@ -487,8 +489,9 @@ void Device::drawImageQuadDirect(const SkImage* image,
     }
 
     SkSamplingOptions sampling = origSampling;
+    bool sharpenMM = fContext->priv().options().fSharpenMipmappedTextures;
     if (sampling.mipmap != SkMipmapMode::kNone &&
-        TiledTextureUtils::CanDisableMipmap(ctm, srcToDst)) {
+        TiledTextureUtils::CanDisableMipmap(ctm, srcToDst, sharpenMM)) {
         sampling = SkSamplingOptions(sampling.filter);
     }
 

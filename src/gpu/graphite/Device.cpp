@@ -868,6 +868,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
                                                            sampling,
                                                            &paint,
                                                            constraint,
+                                                           /* sharpenMM= */ true,
                                                            cacheSize,
                                                            maxTextureSize);
 #if defined(GPU_TEST_UTILS)

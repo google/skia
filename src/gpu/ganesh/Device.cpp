@@ -1039,6 +1039,7 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
             sampling,
             &paint,
             constraint,
+            rCtx->priv().options().fSharpenMipmappedTextures,
             cacheSize,
             maxTextureSize);
 #if defined(GPU_TEST_UTILS)

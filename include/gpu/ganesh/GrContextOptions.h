@@ -11,9 +11,9 @@
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/ganesh/GrDriverBugWorkarounds.h"
 #include "include/gpu/ganesh/GrTypes.h"
-#include "include/gpu/ShaderErrorHandler.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
 #include <optional>
@@ -175,6 +175,13 @@ struct SK_API GrContextOptions {
      * allocating stencil buffers and use alternate rasterization paths, avoiding the leak.
      */
     bool fAvoidStencilBuffers = false;
+
+    /**
+     * If true, texture fetches from mip-mapped textures will be biased to read larger MIP levels.
+     * This has the effect of sharpening those textures, at the cost of some aliasing, and possible
+     * performance impact.
+     */
+    bool fSharpenMipmappedTextures = true;
 
     /**
      * Enables driver workaround to use draws instead of HW clears, e.g. glClear on the GL backend.
