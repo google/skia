@@ -490,6 +490,10 @@ public:
     }
     int onCountGlyphs() const override { return fProxy->countGlyphs(); }
     int onGetUPEM() const override { return fProxy->getUnitsPerEm(); }
+    bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
+                                     int32_t adjustments[]) const override {
+        return fProxy->onGetKerningPairAdjustments(glyphs, count, adjustments);
+    }
     bool onGetPostScriptName(SkString* postScriptName) const override {
         return fProxy->getPostScriptName(postScriptName);
     }
