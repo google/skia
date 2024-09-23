@@ -276,7 +276,7 @@ SkIPoint DrawAtlas::prepForRender(const AtlasLocator& locator, SkAutoPixmapStora
 // hang around for a bit in case it's needed. The assumption is that flushes are rare;
 // i.e., we are not continually refreshing the frame.
 static constexpr auto kPlotRecentlyUsedCountForCompact = 32;
-static constexpr auto kPlotRecentlyUsedCountForPurge = 8;
+static constexpr auto kPlotRecentlyUsedCountForPurge = 4;
 static constexpr auto kAtlasRecentlyUsedCount = 128;
 
 void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
@@ -424,7 +424,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
 
 // This is called during freeGpuResources(). It attempts to remove as many atlas textures as
 // it can without compromising cache coherency too much, or causing thrashing. There is a
-// multiple flush hysteresis used when determining whether a plot is in use or not. This is because
+// 4-flush hysteresis used when determining whether a plot is in use or not. This is because
 // we can run into the case where one flush uses an atlas, and the next one doesn't, and flush()
 // is called because GPU memory is getting low (e.g., when playing video with a time indicator).
 // Purging the atlas texture during the flush that draws the video means unreferencing it, but
