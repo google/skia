@@ -1363,11 +1363,7 @@ optional("typeface_fontations") {
     "$root_out_dir/libfontations_ffi.a",
     "$root_out_dir/libbridge_rust_side.a",
   ]
-  sources = skia_ports_typeface_fontations_sources + [
-              "src/ports/SkFontScanner_fontations.cpp",
-              "src/ports/SkFontScanner_fontations.h",
-            ]
-
+  sources = skia_ports_typeface_fontations_sources
   sources_for_tests = [
     "tests/FontationsTest.cpp",
     "tests/FontationsFtCompTest.cpp",

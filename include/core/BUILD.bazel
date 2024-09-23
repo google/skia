@@ -41,6 +41,7 @@ skia_filegroup(
         "SkFontMetrics.h",
         "SkFontMgr.h",
         "SkFontParameters.h",
+        "SkFontScanner.h",
         "SkFontStyle.h",
         "SkFontTypes.h",
         "SkFourByteTag.h",

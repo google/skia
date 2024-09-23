@@ -19,8 +19,9 @@
 #include "include/core/SkStream.h"
 #include "include/encode/SkPngEncoder.h"
 
-#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+#if defined(SK_TYPEFACE_FACTORY_FREETYPE)
 #include "include/ports/SkFontMgr_fontconfig.h"
+#include "include/ports/SkFontScanner_FreeType.h"
 #endif
 
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE)
@@ -41,8 +42,8 @@ int main(int argc, char** argv) {
     }
     sk_sp<SkSurface> surface = SkSurfaces::Raster(SkImageInfo::MakeN32(100, 50, kOpaque_SkAlphaType));
     SkCanvas* canvas = surface->getCanvas();
-#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
-    sk_sp<SkFontMgr> mgr = SkFontMgr_New_FontConfig(nullptr);
+#if defined(SK_TYPEFACE_FACTORY_FREETYPE)
+    sk_sp<SkFontMgr> mgr = SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
 #endif
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE)
     sk_sp<SkFontMgr> mgr = SkFontMgr_New_CoreText(nullptr);
