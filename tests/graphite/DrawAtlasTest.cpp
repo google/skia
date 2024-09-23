@@ -55,21 +55,6 @@ bool fill_plot(DrawAtlas* atlas,
                              data.getAddr(0, 0), atlasLocator);
     return DrawAtlas::ErrorCode::kSucceeded == code;
 }
-
-void sim_draw_from_plot(DrawAtlas* atlas, Recorder* recorder, skgpu::AtlasLocator atlasLocator) {
-    // Set plot as used
-    atlas->setLastUseToken(atlasLocator, recorder->priv().tokenTracker()->nextFlushToken());
-    // Flush
-    atlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
-    recorder->priv().issueFlushToken();
-}
-
-void sim_non_atlas_draw(DrawAtlas* atlas, Recorder* recorder) {
-    // Flush
-    atlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
-    recorder->priv().issueFlushToken();
-}
-
 }  // anonymous namespace
 
 // This is a basic DrawOpAtlas test. It simply verifies that multitexture atlases correctly
@@ -115,13 +100,16 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
 
     // Simulate a lot of draws using only the first plot. The last texture should be compacted.
     for (int i = 0; i < 512; ++i) {
-        sim_draw_from_plot(atlas.get(), recorder.get(), testAtlasLocator);
+        atlas->setLastUseToken(testAtlasLocator, recorder->priv().tokenTracker()->nextFlushToken());
+        recorder->priv().issueFlushToken();
+        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), /*forceCompact=*/false);
     }
     check(reporter, atlas.get(), 1, 0);
 
     // Simulate a lot of non-atlas draws. We should end up with no textures.
     for (int i = 0; i < 512; ++i) {
-        sim_non_atlas_draw(atlas.get(), recorder.get());
+        recorder->priv().issueFlushToken();
+        atlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), /*forceCompact=*/false);
     }
     check(reporter, atlas.get(), 0, 1);
 
@@ -142,41 +130,6 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     // Try one more, it should fail.
     result = fill_plot(atlas.get(), recorder.get(), &atlasLocator, 0xff);
     REPORTER_ASSERT(reporter, !result);
-
-    // Simulate a draw using only a single plot from the third page and purge.
-    // Nothing should be removed.
-    sim_draw_from_plot(atlas.get(), recorder.get(), testAtlasLocator);
-    atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
-    check(reporter, atlas.get(), 4, 0);
-
-    // Simulate one non-atlas flush.
-    // Nothing should change.
-    sim_non_atlas_draw(atlas.get(), recorder.get());
-    atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
-    check(reporter, atlas.get(), 4, 0);
-
-    // Simulate an atlas draw/flush.
-    // All other plots should evict and only the last page removed.
-    sim_draw_from_plot(atlas.get(), recorder.get(), testAtlasLocator);
-    atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
-    check(reporter, atlas.get(), 3, 15);
-
-    // Add a new plot, draw from that and flush, then three non-atlas draws, and then purge again.
-    // All remaining pages but the first should be removed.
-    gEvictCount = 0;
-    result = fill_plot(atlas.get(), recorder.get(), &atlasLocator, 0);
-    REPORTER_ASSERT(reporter, result);
-    sim_draw_from_plot(atlas.get(), recorder.get(), atlasLocator);
-    sim_non_atlas_draw(atlas.get(), recorder.get());
-    atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
-    check(reporter, atlas.get(), 1, 1);
-
-    // Purge with no atlas draws.
-    // Everything should be removed.
-    gEvictCount = 0;
-    sim_non_atlas_draw(atlas.get(), recorder.get());
-    atlas->purge(recorder->priv().tokenTracker()->nextFlushToken());
-    check(reporter, atlas.get(), 0, 1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

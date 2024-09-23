@@ -171,10 +171,6 @@ public:
     bool operator>=(const AtlasToken that) const {
         return fSequenceNumber >= that.fSequenceNumber;
     }
-    uint64_t operator-(const AtlasToken that) const {
-        SkASSERT(that.fSequenceNumber <= fSequenceNumber);
-        return fSequenceNumber - that.fSequenceNumber;
-    }
 
     AtlasToken& operator++() {
         ++fSequenceNumber;
@@ -188,7 +184,7 @@ public:
 
     AtlasToken next() const { return AtlasToken(fSequenceNumber + 1); }
 
-    /** Is this token in the (start, end] semi-inclusive interval? */
+    /** Is this token in the [start, end] inclusive interval? */
     bool inInterval(const AtlasToken& start, const AtlasToken& end) {
         return *this >= start && *this <= end;
     }
@@ -487,15 +483,13 @@ public:
     int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
     void resetFlushesSinceLastUsed() { fFlushesSinceLastUse = 0; }
     void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
-    void incFlushesSinceLastUsed(skgpu::AtlasToken token) {
-        fFlushesSinceLastUse += (token - fLastUse);
-    }
 
     bool needsUpload() { return !fDirtyRect.isEmpty(); }
     std::pair<const void*, SkIRect> prepareForUpload();
     void resetRects();
 
     void markFullIfUsed() { fIsFull = !fDirtyRect.isEmpty(); }
+    bool isEmpty() const { return fRectanizer.percentFull() == 0; }
 
     /**
      * Create a clone of this plot. The cloned plot will take the place of the current plot in
