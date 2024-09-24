@@ -653,7 +653,7 @@ load(
 # Pulls the gcr.io/skia-public/debugger-app-base container.
 container_pull(
     name = "debugger-app-base",
-    digest = "sha256:ebfa46371f66b4fe233c4470803ed1e1bdf7e149e2a30d93579e4f5cc78189c0",
+    digest = "sha256:c48a419da832c2c090d058b4a280a1eaacbc50262cce2a425188c2f18fbc0612",
     registry = "gcr.io",
     repository = "skia-public/debugger-app-base",
 )
